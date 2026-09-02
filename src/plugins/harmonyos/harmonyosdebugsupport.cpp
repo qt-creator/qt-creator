@@ -96,7 +96,7 @@ public:
             BuildConfiguration * const bc = runControl->buildConfiguration();
             QTC_ASSERT(bc, return runControl->errorTask(
                                 Tr::tr("No build configuration; cannot debug on the device.")));
-            const QString bundle = bundleName(bc->buildDirectory());
+            const QString bundle = bundleName(bc->buildDirectory(), bc->activeBuildKey());
             if (bundle.isEmpty()) {
                 return runControl->errorTask(
                     Tr::tr("Could not determine the application bundle name. "

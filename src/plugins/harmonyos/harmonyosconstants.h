@@ -23,11 +23,12 @@ inline constexpr int HARMONYOS_DEBUG_PORT = 8123;
 // leaves a listener there for as long as the debug run lasts, and the application asks
 // by connecting to it.
 inline constexpr int HARMONYOS_GATE_PORT = 8124;
-inline constexpr char HARMONYOS_DEBUG_SERVER_PACKAGE[] = "lldbserver";
+inline constexpr char HARMONYOS_NATIVE_PACKAGE[] = "qtctools";
+inline constexpr char HARMONYOS_NATIVE_PACKAGE_VERSION[] = "1.0";
 inline constexpr char HARMONYOS_DEBUG_PLUGIN[] = "qtcdebug";
-// Where the packed debug server ends up in the application's own namespace, which is the
-// only place on the device a binary of ours may be executed from.
-inline constexpr char HARMONYOS_DEBUG_SERVER_PATH[] = "/data/service/hnp/bin/lldb-server";
+inline constexpr char HARMONYOS_NATIVE_PACKAGE_BIN[] = "/data/app/qtctools.org/qtctools_1.0/bin";
+inline constexpr char HARMONYOS_DEBUG_SERVER_PATH[]
+    = "/data/app/qtctools.org/qtctools_1.0/bin/lldb-server";
 // The library that holds an application until the debugger releases it, and the byte it
 // spins on.
 inline constexpr char HARMONYOS_WAIT_LIBRARY[] = "libqtcwait.so";

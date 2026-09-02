@@ -49,7 +49,11 @@ static void reportLoadAddresses()
     }
 }
 
-static const char *sharedServerPath = "/data/service/hnp/bin/lldb-server";
+#ifndef QTC_SERVER_PATH
+#define QTC_SERVER_PATH "lldb-server"
+#endif
+
+static const char *sharedServerPath = QTC_SERVER_PATH;
 
 static void startServer(quint16 port)
 {
@@ -75,8 +79,7 @@ static void startServer(quint16 port)
     // learns what is mapped where by itself, which a bare server cannot tell it here. The
     // server it spawns for the process inherits this context, where attaching is allowed.
     const std::string listen = "*:" + std::to_string(port);
-    // Native packages are unpacked into a shared directory which is not on PATH, so that
-    // is tried first, by name only as a fallback.
+    // A native package is not on PATH, so its path is tried first, the name as a fallback.
     ::execl(sharedServerPath, "lldb-server", "platform", "--listen", listen.c_str(), nullptr);
     ::execlp("lldb-server", "lldb-server", "platform", "--listen", listen.c_str(), nullptr);
     ::_exit(127);

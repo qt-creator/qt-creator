@@ -20,6 +20,7 @@
 
 #include <QtTaskTree/qtasktree.h>
 
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
@@ -33,9 +34,13 @@ using namespace std::chrono_literals;
 
 namespace HarmonyOs::Internal {
 
-QString bundleName(const FilePath &buildDir)
+FilePath deploymentSettings(const FilePath &buildDir, const QString &buildKey);
+FilePath generatedProjectDir(const FilePath &buildDir, const QString &buildKey);
+
+QString bundleName(const FilePath &buildDir, const QString &buildKey)
 {
-    const FilePath appJson = buildDir.pathAppended("harmonyos-build/AppScope/app.json5");
+    const FilePath appJson = generatedProjectDir(buildDir, buildKey)
+                                 .pathAppended("AppScope/app.json5");
     const Result<QByteArray> contents = appJson.fileContents();
     if (!contents)
         return {};
@@ -46,20 +51,68 @@ QString bundleName(const FilePath &buildDir)
     return match.hasMatch() ? match.captured(1) : QString();
 }
 
-// The library the build produced, which is what a run hands to the runner. harmonydeployqt
-// is told where it is, and writes it down beside the rest of what it was told.
-FilePath applicationLibrary(const FilePath &buildDir)
+// What harmonydeployqt was told, which is also where it puts what it generates. The file
+// sits beside the application target, which is only the top of the build directory when
+// the application is the whole project.
+FilePath deploymentSettings(const FilePath &buildDir, const QString &buildKey)
 {
-    const FilePaths settingsFiles = buildDir.dirEntries(
-        FileFilter({"*-harmony-deployment-settings.json"}, DirFilterFlag::Files));
-    if (settingsFiles.isEmpty())
+    const QString name = buildKey + "-harmony-deployment-settings.json";
+    const FilePath top = buildDir.pathAppended(name);
+    if (top.exists())
+        return top;
+    const FilePaths found = buildDir.dirEntries(
+        FileFilter({name}, DirFilterFlag::Files, DirIteratorFlag::Subdirectories));
+    return found.isEmpty() ? FilePath() : found.first();
+}
+
+// Where harmonydeployqt generates the HAP project: beside the application target, which is
+// the top of the build directory only when the application is the whole project. Qt
+// Creator's own application lives in src/app.
+FilePath generatedProjectDir(const FilePath &buildDir, const QString &buildKey)
+{
+    const FilePath settings = deploymentSettings(buildDir, buildKey);
+    if (!settings.isEmpty())
+        return settings.parentDir().pathAppended("harmonyos-build");
+    return buildDir.pathAppended("harmonyos-build");
+}
+
+// The library the build produced, which is what a run hands to the runner.
+FilePath applicationLibrary(const FilePath &buildDir, const QString &buildKey)
+{
+    const FilePath settings = deploymentSettings(buildDir, buildKey);
+    if (settings.isEmpty())
         return {};
-    const Result<QByteArray> contents = settingsFiles.first().fileContents();
+    const Result<QByteArray> contents = settings.fileContents();
     if (!contents)
         return {};
     const QString path = QJsonDocument::fromJson(*contents)
                              .object().value("application-binary").toString();
     return path.isEmpty() ? FilePath() : FilePath::fromUserInput(path);
+}
+
+// What the project says its package needs beyond what harmonydeployqt knows about: the
+// directories whose contents belong in the package as resource files, and the arguments the
+// application has to be started with to find them. Qt Creator itself needs both - see
+// src/app/CMakeLists.txt - and nothing else in a HAP can supply them.
+HarmonyOsExtras harmonyOsExtras(const FilePath &buildDir, const QString &buildKey)
+{
+    HarmonyOsExtras extras;
+    const FilePath settings = deploymentSettings(buildDir, buildKey);
+    if (settings.isEmpty())
+        return extras;
+    const FilePath file = settings.parentDir().pathAppended(buildKey + "-harmonyos-extras.json");
+    const Result<QByteArray> contents = file.fileContents();
+    if (!contents)
+        return extras;
+
+    const QJsonObject object = QJsonDocument::fromJson(*contents).object();
+    for (const QJsonValue &value : object.value("resource-directories").toArray())
+        extras.resourceDirectories.append(FilePath::fromUserInput(value.toString()));
+    for (const QJsonValue &value : object.value("native-package-files").toArray())
+        extras.nativePackageFiles.append(FilePath::fromUserInput(value.toString()));
+    for (const QJsonValue &value : object.value("launch-arguments").toArray())
+        extras.launchArguments.append(value.toString());
+    return extras;
 }
 
 class HarmonyOsRunConfiguration final : public RunConfiguration
@@ -98,7 +151,7 @@ public:
             QTC_ASSERT(bc, return runControl->errorTask(
                                 Tr::tr("No build configuration; cannot launch on the device.")));
 
-            const QString bundle = bundleName(bc->buildDirectory());
+            const QString bundle = bundleName(bc->buildDirectory(), bc->activeBuildKey());
             if (bundle.isEmpty()) {
                 return runControl->errorTask(
                     Tr::tr("Could not determine the application bundle name. "
@@ -125,8 +178,8 @@ public:
             // goes over as a length and that many bytes. Read at connect time, so a rebuild
             // between runs needs no new package.
             const bool viaChannel = settings().runWithoutInstalling();
-            const FilePath library = viaChannel ? applicationLibrary(bc->buildDirectory())
-                                                : FilePath();
+            const FilePath library = viaChannel
+                ? applicationLibrary(bc->buildDirectory(), bc->activeBuildKey()) : FilePath();
             if (viaChannel && library.isEmpty()) {
                 return runControl->errorTask(
                     Tr::tr("Could not find the application library to hand to the runner. "
@@ -245,11 +298,30 @@ public:
                 return ProcessTask(onSetup) || successItem;
             };
 
-            const auto onStartSetup = [command, bundle](Process &process) {
-                process.setCommand(command({"shell", "aa", "start",
-                                            "-a", Constants::HARMONYOS_ABILITY_NAME,
-                                            "-b", bundle,
-                                            "-m", Constants::HARMONYOS_MODULE_NAME}));
+            // What the application has to be started with. The platform plugin turns this
+            // Want parameter into the arguments main() gets, so a HAP needs no launch
+            // script and the project's own build is what says which ones it needs.
+            const QStringList launchArguments
+                = harmonyOsExtras(bc->buildDirectory(), bc->activeBuildKey()).launchArguments;
+
+            const auto onStartSetup = [command, bundle, launchArguments](Process &process) {
+                QStringList arguments{"shell", "aa", "start",
+                                      "-a", Constants::HARMONYOS_ABILITY_NAME,
+                                      "-b", bundle,
+                                      "-m", Constants::HARMONYOS_MODULE_NAME};
+                if (!launchArguments.isEmpty()) {
+                    const QByteArray json = QJsonDocument(
+                        QJsonArray::fromStringList(launchArguments)).toJson(QJsonDocument::Compact);
+                    // hdc hands the whole line to a shell on the device, which would eat the
+                    // quotes the JSON is made of and leave the platform plugin with something
+                    // it cannot parse - and an application that dies in onCreate.
+                    arguments << "--ps" << "io.qt.appArgsJson"
+                              << '\'' + QString::fromUtf8(json) + '\'';
+                    // Without this the launch URI arrives as the first argument, which an
+                    // application that takes file names on the command line tries to open.
+                    arguments << "--pb" << "io.qt.useUriAsArg" << "false";
+                }
+                process.setCommand(command(arguments));
             };
 
             // "aa start" returns as soon as the ability was launched, so it cannot stand in

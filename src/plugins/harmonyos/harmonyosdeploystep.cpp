@@ -25,6 +25,7 @@
 #include <projectexplorer/task.h>
 
 #include <utils/commandline.h>
+#include <utils/elfreader.h>
 #include <utils/qtcprocess.h>
 #include <utils/environment.h>
 #include <utils/outputformatter.h>
@@ -42,6 +43,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 #ifdef WITH_TESTS
+#include <QCoreApplication>
 #include <QTemporaryDir>
 #include <QTest>
 #endif
@@ -224,7 +226,7 @@ static Result<> declareHnpPackage(const FilePath &moduleJson, const QString &fil
 
     text.insert(match.capturedEnd(),
                 "\n    \"hnpPackages\": [\n"
-                "      { \"package\": \"" + fileName + "\", \"type\": \"public\" }\n"
+                "      { \"package\": \"" + fileName + "\", \"type\": \"private\" }\n"
                 "    ],");
     if (const Result<qint64> written = moduleJson.writeFileContents(text.toUtf8()); !written)
         return ResultError(written.error());
@@ -253,6 +255,79 @@ static Result<QString> setSdkVersion(const FilePath &buildProfile, const QString
     if (const Result<qint64> written = buildProfile.writeFileContents(text.toUtf8()); !written)
         return ResultError(written.error());
     return previous;
+}
+
+// A package started from the device's home screen gets its arguments from nowhere else: a
+// run passes them in the Want, but nothing does when the user taps the icon. The ability
+// stage the template generates is where they belong. Returns what it carried before.
+static Result<QStringList> setLaunchArguments(const FilePath &abilityStage,
+                                              const QStringList &arguments)
+{
+    const Result<QByteArray> contents = abilityStage.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+
+    static const QRegularExpression re(
+        "( *)(?:private|public)( static appArgs\\?: Array<string>)(;|\\s*=\\s*\\[.*?\\];)\n",
+        QRegularExpression::DotMatchesEverythingOption);
+    QString text = QString::fromUtf8(*contents);
+    const QRegularExpressionMatch match = re.match(text);
+    if (!match.hasMatch()) {
+        return ResultError(Tr::tr("No argument list in \"%1\".")
+                               .arg(abilityStage.toUserOutput()));
+    }
+
+    static const QRegularExpression quoted("\"([^\"]*)\"");
+    QStringList previous;
+    QRegularExpressionMatchIterator it = quoted.globalMatch(match.captured(3));
+    while (it.hasNext())
+        previous.append(it.next().captured(1));
+    if (previous == arguments)
+        return previous;
+
+    const QString indent = match.captured(1);
+    QString block = indent + "public" + match.captured(2) + " = [\n";
+    for (const QString &argument : arguments)
+        block += indent + "  \"" + argument + "\",\n";
+    block += indent + "];\n";
+    text.replace(match.capturedStart(), match.capturedLength(), block);
+    if (const Result<qint64> written = abilityStage.writeFileContents(text.toUtf8()); !written)
+        return ResultError(written.error());
+    return previous;
+}
+
+// The platform hands a run's arguments to the application in the Want, but ignores them
+// once the package carries its own, and a package that is started from the home screen
+// needs its own. So the ability, which is where the Want arrives, appends them.
+static Result<> forwardWantArguments(const FilePath &ability)
+{
+    const Result<QByteArray> contents = ability.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+
+    QString text = QString::fromUtf8(*contents);
+    static const QRegularExpression re(
+        "( *)(QAbilityStage\\.initQtAppContextIfNeeded\\([^;]*;)\n");
+    const QRegularExpressionMatch match = re.match(text);
+    if (!match.hasMatch()) {
+        return ResultError(Tr::tr("No application context setup in \"%1\".")
+                               .arg(ability.toUserOutput()));
+    }
+    if (text.contains("io.qt.appArgsJson"))
+        return ResultOk;
+
+    const QString indent = match.captured(1);
+    const QString block
+        = indent + "const qtcArgs: string = want.parameters?.['io.qt.appArgsJson'] as string;\n"
+        + indent + "if (qtcArgs) {\n"
+        + indent + "  QAbilityStage.appArgs = (QAbilityStage.appArgs ?? [])\n"
+        + indent + "    .concat(JSON.parse(qtcArgs) as Array<string>);\n"
+        + indent + "}\n"
+        + match.captured(0);
+    text.replace(match.capturedStart(), match.capturedLength(), block);
+    if (const Result<qint64> written = ability.writeFileContents(text.toUtf8()); !written)
+        return ResultError(written.error());
+    return ResultOk;
 }
 
 static Result<QString> setBundleName(const FilePath &appJson, const QString &bundleName)
@@ -309,9 +384,12 @@ static FilePath packageDir(const BuildConfiguration *bc)
     return bc->buildDirectory().pathAppended("harmonyos-package");
 }
 
+// harmonydeployqt generates into a directory beside the application target, which is the
+// top of the build directory only when the application is the whole project. Qt Creator's
+// own application lives in src/app, so the settings file is what says where to look.
 static FilePath projectDir(const BuildConfiguration *bc)
 {
-    return bc->buildDirectory().pathAppended("harmonyos-build");
+    return generatedProjectDir(bc->buildDirectory(), bc->activeBuildKey());
 }
 
 static bool addTreeToHash(QCryptographicHash &hash, const FilePath &root)
@@ -395,6 +473,127 @@ static bool packageIsCurrent(const FilePath &hap, const QString &content, const 
         return false;
     const Result<QByteArray> noted = packageNote(hap).fileContents();
     return noted && QString::fromUtf8(*noted) == packageNoteFor(content, signing);
+}
+
+static FilePaths libraryDirectories(const FilePath &deploymentSettings)
+{
+    const Result<QByteArray> contents = deploymentSettings.fileContents();
+    if (!contents)
+        return {};
+    const QJsonObject object = QJsonDocument::fromJson(*contents).object();
+
+    FilePaths directories;
+    const QString qtLibs = object.value("qtLibsDirectory").toString();
+    if (!qtLibs.isEmpty())
+        directories.append(FilePath::fromUserInput(qtLibs));
+    for (const QJsonValue &value : object.value("extra-libs-dirs").toArray())
+        directories.append(FilePath::fromUserInput(value.toString()));
+    return directories;
+}
+
+static QSet<QString> deviceLibraries(const FilePath &sdkRoot)
+{
+    const FilePath sysroot = Sdk::sysrootPath(sdkRoot);
+    if (sysroot.isEmpty())
+        return {};
+    const FilePaths files = sysroot.pathAppended("usr/lib/aarch64-linux-ohos")
+                                .dirEntries(FileFilter({"*.so", "*.so.*"},
+                                                       DirFilterFlag::Files));
+    QSet<QString> names;
+    for (const FilePath &file : files)
+        names.insert(file.fileName());
+    return names;
+}
+
+static FilePath findLibrary(const QString &name, const FilePaths &directories)
+{
+    const qsizetype versioned = name.indexOf(".so.");
+    for (const FilePath &directory : directories) {
+        const FilePath exact = directory.pathAppended(name);
+        if (exact.isFile())
+            return exact;
+        if (versioned < 0)
+            continue;
+        const FilePath unversioned = directory.pathAppended(name.left(versioned + 3));
+        if (unversioned.isFile())
+            return unversioned;
+    }
+    return {};
+}
+
+class MissingLibrary
+{
+public:
+    QString name;
+    QString neededBy;
+};
+
+class LibraryWalk
+{
+public:
+    QStringList added;
+    QList<MissingLibrary> missing;
+    QString error;
+};
+
+static LibraryWalk completeLibraries(const FilePath &libraries, const FilePaths &directories,
+                                     const QSet<QString> &provided)
+{
+    LibraryWalk walk;
+    const FilePaths staged = libraries.dirEntries(
+        FileFilter({"*.so", "*.so.*"}, DirFilterFlag::Files, DirIteratorFlag::Subdirectories));
+
+    QSet<QString> met = provided;
+    for (const FilePath &file : staged) {
+        if (file.parentDir() == libraries)
+            met.insert(file.fileName());
+    }
+
+    FilePaths pending = staged;
+    while (!pending.isEmpty()) {
+        const FilePath binary = pending.takeFirst();
+        for (const QString &name : ElfReader(binary).neededLibraries()) {
+            if (met.contains(name))
+                continue;
+            met.insert(name);
+            const FilePath found = findLibrary(name, directories);
+            if (found.isEmpty()) {
+                walk.missing.append({name, binary.fileName()});
+                continue;
+            }
+            const FilePath target = libraries.pathAppended(name);
+            if (const Result<> copied = found.copyFile(target); !copied) {
+                walk.error = copied.error();
+                return walk;
+            }
+            walk.added.append(name);
+            pending.append(target);
+        }
+    }
+    return walk;
+}
+
+static Result<> stageNativePackageFiles(const FilePaths &files, const FilePath &binDir)
+{
+    if (const Result<> created = binDir.ensureWritableDir(); !created)
+        return created;
+    const QFile::Permissions permissions = QFile::ReadOwner | QFile::WriteOwner
+                                           | QFile::ExeOwner | QFile::ReadGroup
+                                           | QFile::ExeGroup | QFile::ReadOther
+                                           | QFile::ExeOther;
+    for (const FilePath &file : files) {
+        if (!file.isFile()) {
+            return ResultError(Tr::tr("\"%1\" is not a file, so it cannot go into the "
+                                      "native package.").arg(file.toUserOutput()));
+        }
+        const FilePath target = binDir.pathAppended(file.fileName());
+        target.removeFile();
+        if (const Result<> copied = file.copyFile(target); !copied)
+            return copied;
+        if (const Result<> set = target.setPermissions(permissions); !set)
+            return set;
+    }
+    return ResultOk;
 }
 
 // Builds the .hap via the Qt-generated CMake "<target>_make_hap" target.
@@ -565,7 +764,9 @@ private:
         Process compile;
         compile.setCommand({compiler, QStringList{"--target=aarch64-linux-ohos",
                                                   "--sysroot=" + sysroot.path(),
-                                                  "-fPIC", "-shared", "-std=c++17"}
+                                                  "-fPIC", "-shared", "-std=c++17",
+                                                  QString("-DQTC_SERVER_PATH=\"%1\"")
+                                                      .arg(Constants::HARMONYOS_DEBUG_SERVER_PATH)}
                                           << includes << "-I" + work.path()
                                           << "-L" + qt->libraryPath().path()
                                           << "-lQt6Core" << "-lQt6Gui"
@@ -651,7 +852,8 @@ private:
         // Which library to leave out does not follow from what the constant said before:
         // the generated project is replaced on every run, so a second run would find the
         // runner named there already. harmonydeployqt's own settings say it instead.
-        const FilePath application = applicationLibrary(buildConfiguration()->buildDirectory());
+        const FilePath application
+            = applicationLibrary(buildConfiguration()->buildDirectory(), m_buildKey);
         const QString name = !application.isEmpty() ? application.fileName() : *previous;
         if (name != library.fileName() && !name.isEmpty())
             libraries.pathAppended(name).removeFile();
@@ -664,6 +866,82 @@ private:
         }
         emit addOutput(Tr::tr("Packaging a runner: the application is handed over at every "
                               "run instead of being installed."), OutputFormat::Stdout);
+        return true;
+    }
+
+    // What the project needs in the package that harmonydeployqt knows nothing about: whole
+    // directories that belong in the package as resource files. An application built for a
+    // desktop finds them next to itself; in a HAP there is no "next to itself", so they go
+    // where a HAP keeps resources and the application is told the path.
+    bool shipResourceDirectories(const FilePaths &directories)
+    {
+        if (directories.isEmpty())
+            return true;
+        const FilePath resources = m_project.pathAppended(
+            "entry/src/main/resources/resfile");
+        if (const Result<> created = resources.ensureWritableDir(); !created) {
+            emit addOutput(created.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        for (const FilePath &directory : directories) {
+            if (!directory.isDir()) {
+                emit addOutput(Tr::tr("\"%1\" is not a directory; it was not packaged.")
+                                   .arg(directory.toUserOutput()), OutputFormat::Stdout);
+                continue;
+            }
+            const FilePath target = resources.pathAppended(directory.fileName());
+            if (target.exists() && !target.removeRecursively()) {
+                emit addOutput(Tr::tr("Cannot replace \"%1\".").arg(target.toUserOutput()),
+                               OutputFormat::ErrorMessage);
+                return false;
+            }
+            if (const Result<> copied = directory.copyRecursively(target); !copied) {
+                emit addOutput(copied.error(), OutputFormat::ErrorMessage);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool completeStagedLibraries()
+    {
+        const QSet<QString> provided = deviceLibraries(settings().sdkLocation());
+        if (provided.isEmpty()) {
+            emit addOutput(Tr::tr("No sysroot in the HarmonyOS SDK; the libraries the "
+                                  "package needs were not checked."), OutputFormat::Stdout);
+            return true;
+        }
+        const FilePaths directories = libraryDirectories(
+            deploymentSettings(buildConfiguration()->buildDirectory(), m_buildKey));
+        const LibraryWalk walk = completeLibraries(
+            m_project.pathAppended("entry/libs/arm64-v8a"), directories, provided);
+        if (!walk.error.isEmpty()) {
+            emit addOutput(walk.error, OutputFormat::ErrorMessage);
+            return false;
+        }
+        if (!walk.added.isEmpty()) {
+            emit addOutput(Tr::tr("Added %1, which the packaged binaries need.")
+                               .arg(walk.added.join(", ")), OutputFormat::Stdout);
+        }
+        if (!walk.missing.isEmpty()) {
+            QStringList names;
+            QStringList details;
+            for (const MissingLibrary &library : walk.missing) {
+                names.append(library.name);
+                details.append(Tr::tr("%1 is needed by %2.")
+                                   .arg(library.name, library.neededBy));
+            }
+            DeploymentTask task(
+                Task::Warning,
+                Tr::tr("Missing from the package: %1.").arg(names.join(", ")));
+            details.append(Tr::tr("The device does not provide them either, so whatever "
+                                  "needs them will fail to load. Name the prefix they are "
+                                  "installed under - the directory their \"lib\" is in - "
+                                  "in QT_ADDITIONAL_PACKAGES_PREFIX_PATH, and configure the "
+                                  "project again."));
+            task.setDetails(details);
+            emit addTask(task);
+        }
         return true;
     }
 
@@ -685,8 +963,7 @@ private:
 
     // Nothing can be launched under a debugger on the device, so a debugged application
     // starts the server itself, and both it and the plugin that starts it travel in the
-    // package. hvigor packages no native package, so the server is put in afterwards,
-    // but it has to be declared here, before the manifest is packaged.
+    // package.
     bool shipDebugPlugin()
     {
         if (!buildDebugPlugin(m_project.pathAppended("entry/libs/arm64-v8a/generic")))
@@ -700,12 +977,43 @@ private:
             emit addOutput(added.error(), OutputFormat::ErrorMessage);
             return false;
         }
+        return true;
+    }
 
-        m_debugServer = packDebugServer();
-        if (m_debugServer.isEmpty())
+    bool shipNativePackage(const FilePaths &files)
+    {
+        const FilePath source = stagingDir().pathAppended("server");
+        if (source.exists() && !source.removeRecursively()) {
+            emit addOutput(Tr::tr("Cannot replace \"%1\".").arg(source.toUserOutput()),
+                           OutputFormat::ErrorMessage);
+            return false;
+        }
+        FilePaths contents = files;
+        if (buildConfiguration()->buildType() == BuildConfiguration::Debug) {
+            const FilePath server = Sdk::lldbServerForDevice(settings().sdkLocation());
+            if (server.isEmpty()) {
+                emit addOutput(Tr::tr("No debug server in the HarmonyOS SDK; the package "
+                                      "will not be debuggable."), OutputFormat::Stdout);
+            } else {
+                contents.append(server);
+            }
+        }
+        if (contents.isEmpty())
             return true;
 
-        const Result<> declared = declareHnpPackage(moduleJson, m_debugServer.fileName());
+        if (const Result<> staged = stageNativePackageFiles(contents,
+                                                            source.pathAppended("bin"));
+            !staged) {
+            emit addOutput(staged.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+
+        m_nativePackage = packNativePackage(source);
+        if (m_nativePackage.isEmpty())
+            return false;
+
+        const FilePath moduleJson = m_project.pathAppended("entry/src/main/module.json5");
+        const Result<> declared = declareHnpPackage(moduleJson, m_nativePackage.fileName());
         if (!declared) {
             emit addOutput(declared.error(), OutputFormat::ErrorMessage);
             return false;
@@ -713,64 +1021,50 @@ private:
         return true;
     }
 
-    // Returns the packed server, or nothing when the SDK does not have what it takes.
-    FilePath packDebugServer()
+    FilePath packNativePackage(const FilePath &source)
     {
-        const FilePath sdk = settings().sdkLocation();
-        const FilePath server = Sdk::lldbServerForDevice(sdk);
-        const FilePath hnpcli = Sdk::hnpcliCommand(sdk);
-        if (server.isEmpty() || hnpcli.isEmpty()) {
-            emit addOutput(Tr::tr("No debug server in the HarmonyOS SDK; the package will "
-                                  "not be debuggable."), OutputFormat::Stdout);
+        const FilePath hnpcli = Sdk::hnpcliCommand(settings().sdkLocation());
+        if (hnpcli.isEmpty()) {
+            emit addOutput(Tr::tr("No \"hnpcli\" in the HarmonyOS SDK to pack a native "
+                                  "package with."), OutputFormat::ErrorMessage);
             return {};
         }
-
-        // What is packed and what comes out are kept apart, so that only the package itself
-        // ends up in the application.
-        const FilePath source = stagingDir().pathAppended("server");
         const FilePath target = stagingDir().pathAppended("package").pathAppended(hnpDirectory());
-        for (const FilePath &dir : {source.pathAppended("bin"), target}) {
-            if (const Result<> created = dir.ensureWritableDir(); !created) {
-                emit addOutput(created.error(), OutputFormat::ErrorMessage);
-                return {};
-            }
-        }
-        const FilePath staged = source.pathAppended("bin").pathAppended(server.fileName());
-        staged.removeFile();
-        if (const Result<> copied = server.copyFile(staged); !copied) {
-            emit addOutput(copied.error(), OutputFormat::ErrorMessage);
+        if (const Result<> created = target.ensureWritableDir(); !created) {
+            emit addOutput(created.error(), OutputFormat::ErrorMessage);
             return {};
         }
 
         Process pack;
         pack.setCommand({hnpcli, {"pack", "-i", source.nativePath(), "-o", target.nativePath(),
-                                  "-n", Constants::HARMONYOS_DEBUG_SERVER_PACKAGE, "-v", "1.0"}});
+                                  "-n", Constants::HARMONYOS_NATIVE_PACKAGE,
+                                  "-v", Constants::HARMONYOS_NATIVE_PACKAGE_VERSION}});
         pack.runBlocking();
         const FilePath packed
-            = target.pathAppended(QString(Constants::HARMONYOS_DEBUG_SERVER_PACKAGE) + ".hnp");
+            = target.pathAppended(QString(Constants::HARMONYOS_NATIVE_PACKAGE) + ".hnp");
         if (!packed.exists()) {
-            emit addOutput(Tr::tr("Packing the debug server failed: %1").arg(pack.allOutput()),
-                           OutputFormat::ErrorMessage);
+            emit addOutput(Tr::tr("Packing the native package failed: %1")
+                               .arg(pack.allOutput()), OutputFormat::ErrorMessage);
             return {};
         }
         return packed;
     }
 
-    // Puts the packed server into the package hvigor built, which leaves it out. Signing
-    // refuses a native package the manifest does not describe, and the device refuses to
-    // install one it cannot find, so this belongs with the declaration.
-    bool addDebugServerToPackage()
+    // Puts the packed native package into the package hvigor built, which leaves it out.
+    // Signing refuses a native package the manifest does not describe.
+    bool addNativePackageToPackage()
     {
-        if (m_debugServer.isEmpty())
+        if (m_nativePackage.isEmpty())
             return true;
 
         BuildConfiguration * const bc = buildConfiguration();
         QTC_ASSERT(bc, return false);
         const FilePath jar = bc->environment().searchInPath("jar");
         if (jar.isEmpty()) {
-            emit addOutput(Tr::tr("No \"jar\" to put the debug server into the package with; "
-                                  "the package will not be debuggable."), OutputFormat::Stdout);
-            return true;
+            emit addOutput(Tr::tr("No \"jar\" to put the native package into the package "
+                                  "with; nothing the application has to execute will be "
+                                  "there."), OutputFormat::ErrorMessage);
+            return false;
         }
 
         Process add;
@@ -778,7 +1072,7 @@ private:
         add.setWorkingDirectory(stagingDir().pathAppended("package"));
         add.runBlocking();
         if (add.exitCode() != 0) {
-            emit addOutput(Tr::tr("Putting the debug server into the package failed: %1")
+            emit addOutput(Tr::tr("Putting the native package into the package failed: %1")
                                .arg(add.allOutput()), OutputFormat::ErrorMessage);
             return false;
         }
@@ -819,7 +1113,7 @@ private:
             emit addOutput(copied.error(), OutputFormat::ErrorMessage);
             return false;
         }
-        return addDebugServerToPackage();
+        return addNativePackageToPackage();
     }
 
     QtTaskTree::GroupItem runRecipe() final
@@ -836,6 +1130,36 @@ private:
                 && !shipRunnerLibrary(m_project.pathAppended("entry/libs/arm64-v8a"))) {
                 return SetupResult::StopWithError;
             }
+            const HarmonyOsExtras extras
+                = harmonyOsExtras(buildConfiguration()->buildDirectory(), m_buildKey);
+            if (!shipResourceDirectories(extras.resourceDirectories))
+                return SetupResult::StopWithError;
+            if (!shipNativePackage(extras.nativePackageFiles))
+                return SetupResult::StopWithError;
+            if (!extras.launchArguments.isEmpty()) {
+                const Result<QStringList> before = setLaunchArguments(
+                    m_project.pathAppended(
+                        "entry/src/main/ets/qabilitystage/QAbilityStage.ets"),
+                    extras.launchArguments);
+                if (!before) {
+                    emit addOutput(before.error(), OutputFormat::ErrorMessage);
+                    return SetupResult::StopWithError;
+                }
+                if (*before != extras.launchArguments) {
+                    emit addOutput(Tr::tr("The application is started with %1.")
+                                       .arg(extras.launchArguments.join(' ')),
+                                   OutputFormat::Stdout);
+                }
+                const Result<> forwarded = forwardWantArguments(
+                    m_project.pathAppended("entry/src/main/ets/qability/QAbility.ets"));
+                if (!forwarded) {
+                    emit addOutput(forwarded.error(), OutputFormat::ErrorMessage);
+                    return SetupResult::StopWithError;
+                }
+            }
+            if (!completeStagedLibraries())
+                return SetupResult::StopWithError;
+
             dropStaleModuleOutput();
             const ProvisioningProfile profile
                 = readProvisioningProfile(settings().signingProfile());
@@ -928,7 +1252,7 @@ private:
     QString m_buildKey;
     FilePath m_project;
     FilePath m_package;
-    FilePath m_debugServer;
+    FilePath m_nativePackage;
 };
 
 class PackageHapStepFactory final : public BuildStepFactory
@@ -1186,7 +1510,7 @@ private:
 
         m_hap = packageDir(bc).pathAppended(buildKey + ".hap");
         m_project = projectDir(bc);
-        m_bundle = bundleName(bc->buildDirectory());
+        m_bundle = bundleName(bc->buildDirectory(), bc->activeBuildKey());
         m_serial.clear();
         if (const auto device = std::dynamic_pointer_cast<const HarmonyOsDevice>(
                 RunDeviceKitAspect::device(kit()))) {
@@ -1349,13 +1673,86 @@ private slots:
         const FilePath moduleJson = FilePath::fromString(dir.filePath("module.json5"));
         QVERIFY(moduleJson.writeFileContents(manifest()));
 
-        QVERIFY(declareHnpPackage(moduleJson, "lldbserver.hnp"));
+        QVERIFY(declareHnpPackage(moduleJson, "qtctools.hnp"));
         const QString once = text(moduleJson);
         QVERIFY(once.contains("\"hnpPackages\""));
-        QVERIFY(once.contains("\"package\": \"lldbserver.hnp\""));
+        QVERIFY(once.contains("\"package\": \"qtctools.hnp\""));
+        QVERIFY(once.contains("\"type\": \"private\""));
 
-        QVERIFY(declareHnpPackage(moduleJson, "lldbserver.hnp"));
+        QVERIFY(declareHnpPackage(moduleJson, "qtctools.hnp"));
         QCOMPARE(text(moduleJson).count("hnpPackages"), 1);
+    }
+
+    void testSetLaunchArguments()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath stage = FilePath::fromString(dir.filePath("QAbilityStage.ets"));
+        const QByteArray declaration =
+            "export default class QAbilityStage extends AbilityStage {\n"
+            "\n"
+            "  private static appArgs?: Array<string>;\n"
+            "\n"
+            "  private static setupQtApplicationCalled: boolean = false;\n"
+            "}\n";
+        QVERIFY(stage.writeFileContents(declaration));
+
+        const Result<QStringList> first
+            = setLaunchArguments(stage, {"-load", "HarmonyOS", "-pluginpath", "/data/x"});
+        QVERIFY(first);
+        QVERIFY(first->isEmpty());
+        // Public, because the ability has to reach it to add what a run passes.
+        QVERIFY(text(stage).contains("  public static appArgs?: Array<string> = [\n"
+                                     "    \"-load\",\n"
+                                     "    \"HarmonyOS\",\n"
+                                     "    \"-pluginpath\",\n"
+                                     "    \"/data/x\",\n"
+                                     "  ];\n"));
+        QVERIFY(!text(stage).contains("private static appArgs"));
+        QVERIFY(text(stage).contains("setupQtApplicationCalled"));
+
+        // A second run replaces what the first wrote instead of adding to it.
+        const Result<QStringList> second = setLaunchArguments(stage, {"-load", "Other"});
+        QVERIFY(second);
+        QCOMPARE(*second, QStringList({"-load", "HarmonyOS", "-pluginpath", "/data/x"}));
+        QCOMPARE(text(stage).count("appArgs"), 1);
+        QVERIFY(!text(stage).contains("HarmonyOS"));
+
+        QVERIFY(!setLaunchArguments(
+            FilePath::fromString(dir.filePath("nothing.ets")), {"-load"}));
+    }
+
+    void testForwardWantArguments()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath ability = FilePath::fromString(dir.filePath("QAbility.ets"));
+        const QByteArray onCreate =
+            "export default class QAbility extends UIAbility {\n"
+            "\n"
+            "  onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {\n"
+            "    QAbilityStage.initQtAppContextIfNeeded(this.context.getApplicationContext());\n"
+            "    qpa.handleAbilityOnCreate(this, want, launchParam);\n"
+            "  }\n"
+            "}\n";
+        QVERIFY(ability.writeFileContents(onCreate));
+
+        QVERIFY(forwardWantArguments(ability));
+        const QString once = text(ability);
+        QVERIFY(once.contains("want.parameters?.['io.qt.appArgsJson']"));
+        QVERIFY(once.contains("QAbilityStage.appArgs = (QAbilityStage.appArgs ?? [])"));
+        // The arguments have to be there before the context is set up, which is what
+        // hands them over.
+        QVERIFY(once.indexOf("io.qt.appArgsJson") < once.indexOf("initQtAppContextIfNeeded"));
+        QVERIFY(once.contains("handleAbilityOnCreate"));
+
+        QVERIFY(forwardWantArguments(ability));
+        QCOMPARE(text(ability).count("io.qt.appArgsJson"), 1);
+
+        QVERIFY(!forwardWantArguments(FilePath::fromString(dir.filePath("nothing.ets"))));
+        const FilePath other = FilePath::fromString(dir.filePath("other.ets"));
+        QVERIFY(other.writeFileContents("class X {}\n"));
+        QVERIFY(!forwardWantArguments(other));
     }
 
     void testAddPermission()
@@ -1459,6 +1856,87 @@ private slots:
         QVERIFY(!setApplicationLibrary(other, "libqtcrunner.so"));
     }
 
+    void testGeneratedProjectDir()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath build = FilePath::fromString(dir.path());
+
+        // Nothing built yet: the guess is the top of the build directory.
+        QCOMPARE(generatedProjectDir(build, "app"), build.pathAppended("harmonyos-build"));
+
+        // An application in a subdirectory - Qt Creator's own is in src/app - is where
+        // harmonydeployqt was told to generate.
+        const FilePath nested = build.pathAppended("src/app");
+        QVERIFY(nested.ensureWritableDir());
+        QVERIFY(nested.pathAppended("app-harmony-deployment-settings.json")
+                    .writeFileContents("{}"));
+        QCOMPARE(generatedProjectDir(build, "app"), nested.pathAppended("harmonyos-build"));
+        // Another target's settings are not this target's.
+        QCOMPARE(generatedProjectDir(build, "other"), build.pathAppended("harmonyos-build"));
+    }
+
+    void testHarmonyOsExtras()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath build = FilePath::fromString(dir.path());
+        QVERIFY(build.pathAppended("app-harmony-deployment-settings.json").writeFileContents("{}"));
+
+        // A project that declares nothing gets nothing.
+        QVERIFY(harmonyOsExtras(build, "app").resourceDirectories.isEmpty());
+        QVERIFY(harmonyOsExtras(build, "app").launchArguments.isEmpty());
+
+        QVERIFY(build.pathAppended("app-harmonyos-extras.json").writeFileContents(
+            R"({ "resource-directories": ["/tmp/share/app"],
+                 "native-package-files": ["/tmp/bin/ssh", "/tmp/lib/libcrypto.so.3"],
+                 "launch-arguments": ["-resourcepath", "/data/x"] })"));
+        const HarmonyOsExtras extras = harmonyOsExtras(build, "app");
+        QCOMPARE(extras.resourceDirectories.size(), 1);
+        QCOMPARE(extras.resourceDirectories.first(), FilePath::fromString("/tmp/share/app"));
+        QCOMPARE(extras.nativePackageFiles,
+                 FilePaths({FilePath::fromString("/tmp/bin/ssh"),
+                            FilePath::fromString("/tmp/lib/libcrypto.so.3")}));
+        QCOMPARE(extras.launchArguments, QStringList({"-resourcepath", "/data/x"}));
+    }
+
+    void testNativePackagePath()
+    {
+        QCOMPARE(QString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN),
+                 QString("/data/app/%1.org/%1_%2/bin")
+                     .arg(QString(Constants::HARMONYOS_NATIVE_PACKAGE),
+                          QString(Constants::HARMONYOS_NATIVE_PACKAGE_VERSION)));
+        QCOMPARE(QString(Constants::HARMONYOS_DEBUG_SERVER_PATH),
+                 QString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN) + "/lldb-server");
+    }
+
+    void testStageNativePackageFiles()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        const FilePath tools = root.pathAppended("tools");
+        QVERIFY(tools.ensureWritableDir());
+        const FilePath ssh = tools.pathAppended("ssh");
+        QVERIFY(ssh.writeFileContents("not really a client"));
+        QVERIFY(ssh.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner
+                                   | QFile::ReadGroup | QFile::ExeGroup));
+
+        const FilePath binDir = root.pathAppended("staging/bin");
+        QVERIFY(stageNativePackageFiles({ssh}, binDir));
+        const FilePath staged = binDir.pathAppended("ssh");
+        QVERIFY(staged.isFile());
+        QCOMPARE(staged.fileContents().value_or(QByteArray()), QByteArray("not really a client"));
+        const QFile::Permissions permissions = staged.permissions();
+        QVERIFY(permissions & QFile::ReadOther);
+        QVERIFY(permissions & QFile::ExeOther);
+
+        QVERIFY(stageNativePackageFiles({ssh}, binDir));
+
+        QVERIFY(!stageNativePackageFiles({tools.pathAppended("nothing")}, binDir));
+        QVERIFY(!stageNativePackageFiles({tools}, binDir));
+    }
+
     void testPackageNote()
     {
         QTemporaryDir dir;
@@ -1502,6 +1980,102 @@ private slots:
         QVERIFY(packagedContentFingerprint(project) != withServer);
     }
 
+    void testLibraryDirectories()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath settings = FilePath::fromString(dir.filePath("settings.json"));
+
+        QVERIFY(settings.writeFileContents("{}"));
+        QVERIFY(libraryDirectories(settings).isEmpty());
+
+        QVERIFY(settings.writeFileContents(
+            R"({ "qtLibsDirectory": "/qt/lib",
+                 "extra-libs-dirs": ["/deps/lib", "/more/lib"] })"));
+        QCOMPARE(libraryDirectories(settings),
+                 FilePaths({FilePath::fromString("/qt/lib"), FilePath::fromString("/deps/lib"),
+                            FilePath::fromString("/more/lib")}));
+    }
+
+    void testFindLibrary()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        const FilePath one = root.pathAppended("one");
+        const FilePath two = root.pathAppended("two");
+        QVERIFY(one.ensureWritableDir());
+        QVERIFY(two.ensureWritableDir());
+        QVERIFY(two.pathAppended("libfoo.so").writeFileContents("x"));
+
+        QCOMPARE(findLibrary("libfoo.so", {one, two}), two.pathAppended("libfoo.so"));
+        QVERIFY(findLibrary("libbar.so", {one, two}).isEmpty());
+
+        QVERIFY(two.pathAppended("libicudata.so").writeFileContents("x"));
+        QCOMPARE(findLibrary("libicudata.so.78", {one, two}),
+                 two.pathAppended("libicudata.so"));
+        QVERIFY(two.pathAppended("libicudata.so.78").writeFileContents("x"));
+        QCOMPARE(findLibrary("libicudata.so.78", {one, two}),
+                 two.pathAppended("libicudata.so.78"));
+    }
+
+    void testNeededLibraries()
+    {
+        const FilePath self = elfHostBinary();
+        if (self.isEmpty())
+            QSKIP("Not an ELF platform.");
+        const QStringList needed = ElfReader(self).neededLibraries();
+        QVERIFY(!needed.isEmpty());
+
+        const Result<QByteArray> contents = self.fileContents();
+        QVERIFY(contents);
+        for (const QString &name : needed) {
+            QVERIFY2(name.startsWith("lib") && name.contains(".so"), qPrintable(name));
+            QVERIFY2(contents->contains(name.toUtf8()), qPrintable(name));
+        }
+    }
+
+    void testCompleteLibraries()
+    {
+        const FilePath self = elfHostBinary();
+        if (self.isEmpty())
+            QSKIP("Not an ELF platform.");
+        const QStringList needed = ElfReader(self).neededLibraries();
+        QVERIFY(!needed.isEmpty());
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        const FilePath libraries = root.pathAppended("libs");
+        QVERIFY(libraries.pathAppended("plugins").ensureWritableDir());
+        QVERIFY(self.copyFile(libraries.pathAppended("plugins/libstaged.so")));
+
+        const QSet<QString> all(needed.begin(), needed.end());
+        LibraryWalk walk = completeLibraries(libraries, {}, all);
+        QVERIFY(walk.error.isEmpty());
+        QVERIFY(walk.added.isEmpty());
+        QVERIFY(walk.missing.isEmpty());
+
+        QSet<QString> withoutFirst = all;
+        withoutFirst.remove(needed.first());
+        walk = completeLibraries(libraries, {}, withoutFirst);
+        QCOMPARE(walk.missing.size(), 1);
+        QCOMPARE(walk.missing.first().name, needed.first());
+        QCOMPARE(walk.missing.first().neededBy, QString("libstaged.so"));
+
+        const FilePath source = root.pathAppended("source");
+        QVERIFY(source.ensureWritableDir());
+        QVERIFY(source.pathAppended(needed.first()).writeFileContents("no library at all"));
+        walk = completeLibraries(libraries, {source}, withoutFirst);
+        QVERIFY(walk.missing.isEmpty());
+        QCOMPARE(walk.added, QStringList(needed.first()));
+        QVERIFY(libraries.pathAppended(needed.first()).isFile());
+
+        walk = completeLibraries(libraries, {}, withoutFirst);
+        QVERIFY(walk.added.isEmpty());
+        QVERIFY(walk.missing.isEmpty());
+    }
+
     void testAddPermissionWithoutList()
     {
         QTemporaryDir dir;
@@ -1513,6 +2087,15 @@ private slots:
     }
 
 private:
+    static FilePath elfHostBinary()
+    {
+        const FilePath self = FilePath::fromString(QCoreApplication::applicationFilePath());
+        const Result<QByteArray> magic = self.fileContents(4);
+        if (!magic || *magic != QByteArray("\x7f" "ELF"))
+            return {};
+        return self;
+    }
+
     static QByteArray manifest()
     {
         return R"({
