@@ -7,7 +7,11 @@
 
 #include "elidinglabel.h"
 
+#include "theme/theme.h"
+
 namespace Utils {
+
+class Icon;
 
 enum class InfoLabelType {
     Information,
@@ -17,6 +21,10 @@ enum class InfoLabelType {
     NotOk,
     None
 };
+
+QTCREATOR_UTILS_EXPORT Theme::Color infoTypeForegroundColor(InfoLabelType infoType);
+QTCREATOR_UTILS_EXPORT Theme::Color infoTypeBackgroundColor(InfoLabelType infoType);
+QTCREATOR_UTILS_EXPORT const Icon &infoTypeIconLarge(InfoLabelType infoType);
 
 class QTCREATOR_UTILS_EXPORT InfoLabel : public ElidingLabel
 {

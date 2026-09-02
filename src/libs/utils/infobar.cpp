@@ -30,40 +30,6 @@ bool InfoBar::m_allSuppressed = false;
 QtcSettings *InfoBar::m_settings = nullptr;
 const int spacing = 6;
 
-static Theme::Color foregroundThemeColor(InfoLabelType infoType)
-{
-    switch (infoType) {
-    case InfoLabelType::Information:
-        return Theme::Token_Notification_Neutral_Default;
-    case InfoLabelType::Warning:
-        return Theme::Token_Notification_Alert_Default;
-    case InfoLabelType::Error:
-    case InfoLabelType::NotOk:
-        return Theme::Token_Notification_Danger_Default;
-    case InfoLabelType::Ok:
-        return Theme::Token_Notification_Success_Default;
-    default:
-        return Theme::Token_Text_Default;
-    }
-}
-
-static Theme::Color backgroundThemeColor(InfoLabelType infoType)
-{
-    switch (infoType) {
-    case InfoLabelType::Information:
-        return Theme::Token_Notification_Neutral_Subtle;
-    case InfoLabelType::Warning:
-        return Theme::Token_Notification_Alert_Subtle;
-    case InfoLabelType::Error:
-    case InfoLabelType::NotOk:
-        return Theme::Token_Notification_Danger_Subtle;
-    case InfoLabelType::Ok:
-        return Theme::Token_Notification_Success_Subtle;
-    default:
-        return Theme::InfoBarBackground;
-    }
-}
-
 class InfoBarWidget : public QWidget
 {
 public:
@@ -74,8 +40,6 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    const Utils::Icon &icon() const;
-
     const Qt::Edge m_edge;
     const InfoLabelType m_infoType;
 };
@@ -88,7 +52,8 @@ InfoBarWidget::InfoBarWidget(Qt::Edge edge, InfoLabelType infoType, QWidget *par
     const bool topEdge = m_edge == Qt::TopEdge;
     int leftMargin = 2;
     if (m_infoType != InfoLabelType::None) {
-        const int iconSize = icon().pixmap().deviceIndependentSize().height();
+        const int iconSize =
+            infoTypeIconLarge(m_infoType).pixmap().deviceIndependentSize().height();
         const int iconAndMarginSize = spacing + iconSize + spacing;
         setMinimumHeight(iconAndMarginSize);
         leftMargin = iconAndMarginSize;
@@ -100,9 +65,9 @@ void InfoBarWidget::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     QPainter p(this);
-    p.fillRect(rect(), creatorColor(backgroundThemeColor(m_infoType)));
+    p.fillRect(rect(), creatorColor(infoTypeBackgroundColor(m_infoType)));
     if (m_infoType != InfoLabelType::None) {
-        const QPixmap pixmap = icon().pixmap();
+        const QPixmap pixmap = infoTypeIconLarge(m_infoType).pixmap();
         const int iconY = (height() - pixmap.deviceIndependentSize().height()) / 2;
         const int nudge = 1;
         p.drawPixmap(spacing + nudge, iconY, pixmap);
@@ -112,46 +77,6 @@ void InfoBarWidget::paintEvent(QPaintEvent *event)
     p.setPen(creatorColor(Theme::FancyToolBarSeparatorColor));
     p.drawLine(QLineF(topEdge ? adjustedRect.bottomLeft() : adjustedRect.topLeft(),
                       topEdge ? adjustedRect.bottomRight() : adjustedRect.topRight()));
-}
-
-const Icon &InfoBarEntry::icon(InfoLabelType infoType)
-{
-    switch (infoType) {
-    case InfoLabelType::Information: {
-        const static Utils::Icon icon(
-            {{":/utils/images/infolarge.png", foregroundThemeColor(infoType)}},
-            Icon::Tint);
-        return icon;
-    }
-    case InfoLabelType::Warning: {
-        const static Utils::Icon icon(
-            {{":/utils/images/warninglarge.png", foregroundThemeColor(infoType)}},
-            Icon::Tint);
-        return icon;
-    }
-    case InfoLabelType::Error:
-    case InfoLabelType::NotOk: {
-        const static Utils::Icon icon(
-            {{":/utils/images/errorlarge.png", foregroundThemeColor(infoType)}},
-            Icon::Tint);
-        return icon;
-    }
-    case InfoLabelType::Ok: {
-        const static Utils::Icon icon(
-            {{":/utils/images/oklarge.png", foregroundThemeColor(infoType)}},
-            Icon::Tint);
-        return icon;
-    }
-    default: {
-        const static Utils::Icon icon;
-        return icon;
-    }
-    }
-}
-
-const Icon &InfoBarWidget::icon() const
-{
-    return InfoBarEntry::icon(m_infoType);
 }
 
 InfoBarEntry::InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression)
@@ -490,7 +415,7 @@ void InfoBarDisplay::update()
         if (const QString title = info.title(); !title.isEmpty()) {
             const QString fontCSS =
                 StyleHelper::fontToCssProperties(StyleHelper::uiFont(StyleHelper::UiElementH5));
-            const QString colorName = creatorColor(foregroundThemeColor(info.infoType())).name();
+            const QString colorName = creatorColor(infoTypeForegroundColor(info.infoType())).name();
             const QString titleCss = fontCSS + ";color:" + colorName;
             const QString titleHtml = "<span style=\"%1\">%2</span>&nbsp;&nbsp;"_L1
                                           .arg(titleCss).arg(title);

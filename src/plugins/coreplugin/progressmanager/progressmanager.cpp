@@ -16,6 +16,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/infobar.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mathutils.h>
 #include <utils/qtcassert.h>
@@ -239,7 +240,7 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
     Column {
         Row {
             Column {
-                QtDesignWidgets::IconDisplay { icon(InfoBarEntry::icon(infoType)) },
+                QtDesignWidgets::IconDisplay { icon(infoTypeIconLarge(infoType)) },
                 st,
                 customMargins(0, 0, StyleHelper::SpacingTokens::PaddingHXxs, 0),
             },

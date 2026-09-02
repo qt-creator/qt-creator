@@ -6,7 +6,6 @@
 #include "profilertr.h"
 #include "qmlprofilerdashboardstats.h"
 
-#include <utils/filepath.h>
 #include <utils/icon.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
@@ -111,34 +110,40 @@ void ScoreWidget::paintEvent([[maybe_unused]] QPaintEvent *event)
     p.drawText(textR, scoreWidgetTf.drawTextFlags, m_text);
 }
 
+static InfoLabelType infoType(ScoreWidget::Score score)
+{
+    switch (score) {
+    case ScoreWidget::Alerting:
+        return InfoLabelType::Warning;
+    case ScoreWidget::Poor:
+        return InfoLabelType::Error;
+    case ScoreWidget::Excellent:
+    case ScoreWidget::Good:
+        break;
+    }
+    return InfoLabelType::Ok;
+}
+
 void ScoreWidget::setScore(ScoreWidget::Score score)
 {
-    FilePath iconMask(":/utils/images/oklarge.png");
     switch (score) {
     case Excellent:
         m_text = Tr::tr("Excellent");
-        m_color = Theme::Token_Notification_Success_Default;
-        m_bgColor = Theme::Token_Notification_Success_Subtle;
         break;
     case Good:
         m_text = Tr::tr("Good");
-        m_color = Theme::Token_Notification_Success_Default;
-        m_bgColor = Theme::Token_Notification_Success_Subtle;
         break;
     case Alerting:
         m_text = Tr::tr("Alerting");
-        m_color = Theme::Token_Notification_Alert_Default;
-        m_bgColor = Theme::Token_Notification_Alert_Subtle;
-        iconMask = ":/utils/images/warninglarge.png";
         break;
     case Poor:
         m_text = Tr::tr("Poor");
-        m_color = Theme::Token_Notification_Danger_Default;
-        m_bgColor = Theme::Token_Notification_Danger_Subtle;
-        iconMask = ":/utils/images/errorlarge.png";
         break;
     }
-    m_icon = Icon({{iconMask, m_color}}).icon();
+    const InfoLabelType type = infoType(score);
+    m_color = infoTypeForegroundColor(type);
+    m_bgColor = infoTypeBackgroundColor(type);
+    m_icon = infoTypeIconLarge(type).icon();
     updateGeometry();
     update();
 }

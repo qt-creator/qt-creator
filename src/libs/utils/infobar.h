@@ -22,7 +22,6 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class Icon;
 class InfoBar;
 class InfoBarDisplay;
 class Theme;
@@ -99,8 +98,6 @@ public:
 
     void setInfoType(InfoLabelType infoType);
     InfoLabelType infoType() const;
-
-    static const Icon &icon(InfoLabelType infoType);
 
 private:
     Id m_id;

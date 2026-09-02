@@ -13,6 +13,71 @@ namespace Utils {
 
 constexpr int iconSize = 16;
 
+Theme::Color infoTypeForegroundColor(InfoLabelType infoType)
+{
+    switch (infoType) {
+    case InfoLabelType::Information:
+        return Theme::Token_Notification_Neutral_Default;
+    case InfoLabelType::Warning:
+        return Theme::Token_Notification_Alert_Default;
+    case InfoLabelType::Error:
+    case InfoLabelType::NotOk:
+        return Theme::Token_Notification_Danger_Default;
+    case InfoLabelType::Ok:
+        return Theme::Token_Notification_Success_Default;
+    default:
+        return Theme::Token_Text_Default;
+    }
+}
+
+Theme::Color infoTypeBackgroundColor(InfoLabelType infoType)
+{
+    switch (infoType) {
+    case InfoLabelType::Information:
+        return Theme::Token_Notification_Neutral_Subtle;
+    case InfoLabelType::Warning:
+        return Theme::Token_Notification_Alert_Subtle;
+    case InfoLabelType::Error:
+    case InfoLabelType::NotOk:
+        return Theme::Token_Notification_Danger_Subtle;
+    case InfoLabelType::Ok:
+        return Theme::Token_Notification_Success_Subtle;
+    default:
+        return Theme::InfoBarBackground;
+    }
+}
+
+const Icon &infoTypeIconLarge(InfoLabelType infoType)
+{
+    switch (infoType) {
+    case InfoLabelType::Information: {
+        static const Icon icon({{":/utils/images/infolarge.png",
+                                 infoTypeForegroundColor(infoType)}}, Icon::Tint);
+        return icon;
+    }
+    case InfoLabelType::Warning: {
+        static const Icon icon({{":/utils/images/warninglarge.png",
+                                 infoTypeForegroundColor(infoType)}}, Icon::Tint);
+        return icon;
+    }
+    case InfoLabelType::Error:
+    case InfoLabelType::NotOk: {
+        static const Icon icon({{":/utils/images/errorlarge.png",
+                                 infoTypeForegroundColor(infoType)}}, Icon::Tint);
+        return icon;
+    }
+    case InfoLabelType::Ok: {
+        static const Icon icon({{":/utils/images/oklarge.png",
+                                 infoTypeForegroundColor(infoType)}}, Icon::Tint);
+        return icon;
+    }
+    default: {
+        static const Icon icon;
+        return icon;
+    }
+    }
+}
+
 InfoLabel::InfoLabel(QWidget *parent)
     : InfoLabel({}, InfoLabelType::Information, parent)
 {
@@ -71,7 +136,7 @@ static Theme::Color fillColorForType(InfoLabelType type)
     }
 }
 
-static const QIcon &iconForType(InfoLabelType type)
+static const QIcon &infoTypeIconSmall(InfoLabelType type)
 {
     using namespace Utils;
     switch (type) {
@@ -118,7 +183,7 @@ void InfoLabel::paintEvent(QPaintEvent *event)
         p.fillRect(rect(), creatorColor(fillColorForType(m_type)));
         p.restore();
     }
-    const QIcon &icon = iconForType(m_type);
+    const QIcon &icon = infoTypeIconSmall(m_type);
     const QIcon::Mode mode = !this->isEnabled() ? QIcon::Disabled : QIcon::Normal;
     const QPixmap iconPx =
             icon.pixmap(QSize(iconSize, iconSize) * devicePixelRatio(), devicePixelRatio(), mode);

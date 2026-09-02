@@ -9,6 +9,7 @@
 #include "timelinenotesmodel.h"
 
 #include <utils/icon.h>
+#include <utils/infolabel.h>
 
 #include <QHash>
 #include <QVarLengthArray>
@@ -658,10 +659,7 @@ void TrackPainterBase::itemAt(const QPoint &pos, int *trackIndex, int *itemIndex
 
 const Utils::Icon &TrackPainterBase::noteIcon()
 {
-    static const Utils::Icon icon({{":/utils/images/infolarge.png",
-                                    Utils::Theme::Token_Notification_Neutral_Default}},
-                                  Utils::Icon::Tint);
-    return icon;
+    return Utils::infoTypeIconLarge(Utils::InfoLabelType::Information);
 }
 
 void TrackPainterBase::handleMousePress(int button, const QPoint &globalPos)
