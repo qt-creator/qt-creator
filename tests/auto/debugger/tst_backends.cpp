@@ -1263,13 +1263,13 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
                                              : GdbImplFlags()),
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Bridge:
-        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
+        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(DapStartData{
             .debuggerRunData = debuggerRunDataOverride.value_or(
                 ProcessRunData{{m_backendData[backend].path, {}}, {}, Environment::systemEnvironment()}),
             .inferiorStartData = inferiorRunDataOverride.value_or(
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .hostRecipe = gdbHostRecipe(false)}));
+            .bridgeStartData = dapHostRecipe(false)}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
             .debuggerRunData = debuggerRunDataOverride.value_or(
@@ -1418,12 +1418,12 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .flags = gdbFlags}));
     case Backend::Bridge:
-        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(BridgeImplStartData{
+        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(DapStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
                                               Environment::systemEnvironment()},
             .inferiorStartData = inferiorStartData,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .hostRecipe = gdbHostRecipe(false)}));
+            .bridgeStartData = dapHostRecipe(false)}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},

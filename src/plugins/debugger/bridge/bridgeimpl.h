@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "../dap/dapstartdata.h"
+
 #include "../debuggerengineinterface.h"
 
 #include <utils/filepath.h>
@@ -19,40 +21,12 @@ class DapClient;
 enum class DapEventType;
 enum class DapResponseType;
 
-class DEBUGGER_EXPORT BridgeImplHostRecipe
-{
-public:
-    QStringList startupArguments;
-    QString bridgeModule;
-    QString serverCall;
-};
-
-DEBUGGER_EXPORT BridgeImplHostRecipe gdbHostRecipe(bool loadInitFile);
-
-class DEBUGGER_EXPORT BridgeImplStartData
-{
-public:
-    Utils::ProcessRunData debuggerRunData;
-    InferiorStartData inferiorStartData;
-    Utils::FilePath dumperScriptsDir;
-    BridgeImplHostRecipe hostRecipe;
-    Utils::FilePaths extraDumperFiles;
-    QStringList extraDumperCommands;
-    Utils::FilePath sysroot;
-    QList<QPair<QString, QString>> sourcePathMap;
-    Utils::FilePaths sourceDirectories;
-    bool nativeMixedDebugging = false;
-    // Dumper context the interface's RefreshRequest does not carry.
-    int qtVersion = 0;
-    QString qtNamespace;
-};
-
 class DEBUGGER_EXPORT BridgeImpl final : public DebuggerEngineInterface
 {
     Q_OBJECT
 
 public:
-    explicit BridgeImpl(const BridgeImplStartData &startData);
+    explicit BridgeImpl(const DapStartData &startData);
     ~BridgeImpl() override;
 
 private:
@@ -97,7 +71,7 @@ private:
     void postLaunchOrAttach();
     void postBreakpointRequest(const QString &request, const BreakpointChangeRequest &change);
 
-    const BridgeImplStartData m_startData;
+    const DapStartData m_startData;
     DapClient *m_client = nullptr;
 
     class DisassemblyRequest

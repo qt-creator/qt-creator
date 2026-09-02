@@ -140,6 +140,7 @@ QtcPlugin {
             "dapclient.cpp", "dapclient.h",
             "dapengine.cpp", "dapengine.h",
             "dapengines.cpp",
+            "dapstartdata.h",
             "pydapengine.cpp", "pydapengine.h",
         ]
     }

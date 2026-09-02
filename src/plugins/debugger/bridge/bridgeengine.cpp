@@ -1307,7 +1307,7 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .debuggerRunData = rp.debugger(),
             .inferiorStartData = inferiorStartData,
             .dumperScriptsDir = ICore::resourcePath("debugger"),
-            .hostRecipe = gdbHostRecipe(settings().loadGdbInit()),
+            .bridgeStartData = dapHostRecipe(settings().loadGdbInit()),
             .extraDumperFiles = extraDumperFiles,
             .extraDumperCommands = extraDumperCommands,
             .sysroot = rp.sysRoot(),

@@ -23,9 +23,9 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-BridgeImplHostRecipe gdbHostRecipe(bool loadInitFile)
+BridgeStartData dapHostRecipe(bool loadInitFile)
 {
-    BridgeImplHostRecipe recipe;
+    BridgeStartData recipe;
     recipe.startupArguments = {"--nw", "-q"};
     if (!loadInitFile)
         recipe.startupArguments << "--nx";
@@ -139,7 +139,7 @@ static DebuggerEngineSetupData bridgeImplSetupData()
     return data;
 }
 
-BridgeImpl::BridgeImpl(const BridgeImplStartData &startData)
+BridgeImpl::BridgeImpl(const DapStartData &startData)
     : DebuggerEngineInterface(bridgeImplSetupData())
     , m_startData(startData)
 {}
@@ -149,10 +149,10 @@ BridgeImpl::~BridgeImpl() = default;
 void BridgeImpl::start()
 {
     CommandLine cmd{m_startData.debuggerRunData.command.executable(),
-                    m_startData.hostRecipe.startupArguments};
+                    m_startData.bridgeStartData.startupArguments};
     cmd.addArgs({"-iex", "python sys.path.insert(1, '" + m_startData.dumperScriptsDir.path() + "')"});
-    cmd.addArgs({"-iex", "python from " + m_startData.hostRecipe.bridgeModule + " import *"});
-    cmd.addArgs({"-ex", "python " + m_startData.hostRecipe.serverCall});
+    cmd.addArgs({"-iex", "python from " + m_startData.bridgeStartData.bridgeModule + " import *"});
+    cmd.addArgs({"-ex", "python " + m_startData.bridgeStartData.serverCall});
 
     auto provider = new BridgeImplDataProvider(m_startData.debuggerRunData, cmd, this);
     m_client = new BridgeImplClient(provider, this);
@@ -173,7 +173,7 @@ void BridgeImpl::handleStarted()
     // Not sendInitialize(): the user's extra dumpers have to travel with it,
     // because the bridge sets them up while answering.
     QJsonObject args{{"clientID", "QtCreator"}, {"clientName", "QtCreator"},
-                     {"adapterID", m_startData.hostRecipe.bridgeModule}};
+                     {"adapterID", m_startData.bridgeStartData.bridgeModule}};
     QJsonArray dumperFiles;
     for (const FilePath &file : m_startData.extraDumperFiles)
         dumperFiles.append(file.path());

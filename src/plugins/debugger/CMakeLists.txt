@@ -26,6 +26,7 @@ add_qtc_plugin(Debugger
     dap/dapclient.cpp dap/dapclient.h
     dap/dapengine.cpp dap/dapengine.h
     dap/dapengines.cpp
+    dap/dapstartdata.h
     dap/pydapengine.cpp dap/pydapengine.h
     debugger_global.h
     debuggeractions.cpp debuggeractions.h
