@@ -275,8 +275,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         });
     });
 
-    connect(m_openJdkLocationPathChooser, &PathChooser::rawPathChanged,
-            this, &AndroidSettingsWidget::validateJdk);
     if (AndroidConfig::openJDKLocation().isEmpty())
         AndroidConfig::setOpenJDKLocation(AndroidConfig::getJdkPath());
     m_openJdkLocationPathChooser->setFilePath(AndroidConfig::openJDKLocation());
@@ -347,8 +345,14 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         st,
     }.attachTo(this);
 
+    // Below the setFilePath() calls above: showEvent() does the first
+    // validation, once the page is really on screen.
+    connect(m_openJdkLocationPathChooser, &PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::validateJdk);
     connect(m_sdkLocationPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::onSdkPathChanged);
+    connect(m_openSslPathChooser, &PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::validateOpenSsl);
 
     connect(m_ndkListWidget, &QListWidget::currentTextChanged,
             this, [this, removeCustomNdkButton](const QString &ndk) {
@@ -371,8 +375,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         updateUI();
     });
 
-    connect(m_openSslPathChooser, &PathChooser::rawPathChanged,
-            this, &AndroidSettingsWidget::validateOpenSsl);
     connect(m_createKitCheckBox, &QAbstractButton::toggled,
             this, &AndroidSettingsWidget::createKitToggled);
     connect(downloadNdkToolButton, &QAbstractButton::clicked,
