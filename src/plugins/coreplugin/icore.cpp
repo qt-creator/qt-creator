@@ -11,13 +11,14 @@
 #include "coreplugintr.h"
 #include "dialogs/externaltoolconfig.h"
 #include "dialogs/ioptionspage.h"
+#include "dialogs/newdialog.h"
 #include "dialogs/shortcutsettings.h"
 #include "documentmanager.h"
 #include "editormanager/documentmodel_p.h"
 #include "editormanager/editormanager.h"
 #include "editormanager/editormanager_p.h"
-#include "editormanager/ieditor.h"
 #include "editormanager/ieditorfactory.h"
+#include "editormanager/ieditor.h"
 #include "editormanager/systemeditor.h"
 #include "externaltoolmanager.h"
 #include "fancytabwidget.h"
@@ -56,6 +57,7 @@
 #include <utils/aggregate.h>
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
+#include <utils/appmainwindow.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
@@ -81,14 +83,17 @@
 #include <QCloseEvent>
 #include <QColorDialog>
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QLibraryInfo>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QPrinter>
+#include <QPushButton>
 #include <QStandardPaths>
 #include <QStatusBar>
 #include <QStyleFactory>
@@ -209,19 +214,14 @@ static Q_LOGGING_CATEGORY(coreLog, "qtc.core", QtWarningMsg)
     from the focus object as well as the additional context.
 */
 
-#include "dialogs/newdialog.h"
-#include "iwizardfactory.h"
-#include "documentmanager.h"
+/*!
+    \fn void Core::ICore::mainWindowResized()
 
-#include <utils/appmainwindow.h>
-#include <utils/hostosinfo.h>
+    Indicates that the main window changed size.
 
-#include <QCoreApplication>
-#include <QDebug>
-#include <QDir>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QStatusBar>
+    Sent for every size change, so a window being dragged to a new size
+    reports many.
+*/
 
 using namespace Core::Internal;
 using namespace ExtensionSystem;
@@ -259,6 +259,7 @@ private:
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void showEvent(QShowEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 };
 
 static QColor s_overrideColor;
@@ -1549,6 +1550,13 @@ void ICore::restartTrimmer()
 }
 
 namespace Internal {
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    AppMainWindow::resizeEvent(event);
+    if (m_core)
+        emit m_core->mainWindowResized();
+}
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {

@@ -3007,6 +3007,8 @@ EditorManager::EditorManager(QObject *parent) :
             this, &EditorManager::editorViewCreated);
     connect(d, &EditorManagerPrivate::editorViewClosed,
             this, &EditorManager::editorViewClosed);
+    connect(d, &EditorManagerPrivate::editorViewResized,
+            this, &EditorManager::editorViewResized);
 }
 
 /*!

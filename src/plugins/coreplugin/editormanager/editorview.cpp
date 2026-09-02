@@ -748,6 +748,15 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
     emit EditorManagerPrivate::instance()->editorViewCreated(m_viewId);
 }
 
+void EditorView::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    if (EditorManagerPrivate *d = EditorManagerPrivate::instance();
+        d && !ExtensionSystem::PluginManager::isShuttingDown()) {
+        emit d->editorViewResized(m_viewId);
+    }
+}
+
 bool EditorView::isInSplit() const
 {
     SplitterOrView *viewParent = parentSplitterOrView();

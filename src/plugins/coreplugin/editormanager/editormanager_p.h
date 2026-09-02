@@ -188,6 +188,7 @@ signals:
     void viewCountChanged();
     void editorViewCreated(int viewId);
     void editorViewClosed(int viewId);
+    void editorViewResized(int viewId);
 
 private:
     static void gotoNextDocHistory();

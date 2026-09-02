@@ -195,6 +195,7 @@ signals:
 
     void editorViewCreated(int viewId);
     void editorViewClosed(int viewId);
+    void editorViewResized(int viewId);
 
 #ifdef WITH_TESTS
     void linkOpened();
