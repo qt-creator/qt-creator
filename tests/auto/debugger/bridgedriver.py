@@ -235,6 +235,38 @@ def loadBridge():
     return module
 
 
+if sys.platform == "win32":
+    import ctypes
+    import ctypes.wintypes
+    import msvcrt
+    import time
+
+    _peekNamedPipe = ctypes.WinDLL("kernel32", use_last_error=True).PeekNamedPipe
+    _peekNamedPipe.argtypes = [ctypes.wintypes.HANDLE, ctypes.c_void_p,
+                               ctypes.wintypes.DWORD, ctypes.wintypes.LPDWORD,
+                               ctypes.wintypes.LPDWORD, ctypes.wintypes.LPDWORD]
+    _peekNamedPipe.restype = ctypes.wintypes.BOOL
+
+    def waitReadable(fd, timeout):
+        # select() takes sockets only on Windows, so ask the pipe itself. A
+        # peek that fails means the write end is gone; let the read see the EOF.
+        handle = msvcrt.get_osfhandle(fd)
+        available = ctypes.wintypes.DWORD()
+        deadline = time.monotonic() + timeout
+        while True:
+            if not _peekNamedPipe(handle, None, 0, None,
+                                  ctypes.byref(available), None):
+                return True
+            if available.value:
+                return True
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(0.005)
+else:
+    def waitReadable(fd, timeout):
+        return bool(select.select([fd], [], [], timeout)[0])
+
+
 class Peer():
     # Holds the server and the read end of its protocol stream.
     def __init__(self, bridge):
@@ -254,7 +286,7 @@ class Peer():
     def _readSome(self, timeout):
         # Whether anything more arrived. The timeout only bounds a message that
         # never comes; it never decides that one has all of them.
-        if not select.select([self.readFd], [], [], timeout)[0]:
+        if not waitReadable(self.readFd, timeout):
             return False
         chunk = os.read(self.readFd, 65536)
         if not chunk:
