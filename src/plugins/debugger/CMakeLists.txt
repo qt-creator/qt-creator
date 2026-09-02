@@ -24,6 +24,7 @@ add_qtc_plugin(Debugger
     bridge/bridgeengine.cpp bridge/bridgeengine.h
     bridge/bridgeimpl.cpp bridge/bridgeimpl.h
     dap/dapclient.cpp dap/dapclient.h
+    dap/dapdataproviders.cpp dap/dapdataproviders.h
     dap/dapengine.cpp dap/dapengine.h
     dap/dapengines.cpp
     dap/dapstartdata.h

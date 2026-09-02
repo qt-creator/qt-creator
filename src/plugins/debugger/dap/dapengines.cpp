@@ -4,6 +4,7 @@
 #include "dapengine.h"
 
 #include "dapclient.h"
+#include "dapdataproviders.h"
 #include "pydapengine.h"
 
 #include "../debuggeractions.h"
@@ -18,11 +19,9 @@
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
 #include <QJsonArray>
-#include <QLocalSocket>
 #include <QTimer>
 #include <QVersionNumber>
 
@@ -31,120 +30,6 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 namespace {
-
-// The adapters differ in how they are reached, not in what is said to them, so
-// the transports are shared and the protocol code is not repeated per adapter.
-
-class ProcessDataProvider final : public IDataProvider
-{
-public:
-    ProcessDataProvider(const DebuggerRunParameters &rp,
-                        const CommandLine &cmd,
-                        QObject *parent = nullptr)
-        : IDataProvider(parent)
-        , m_runParameters(rp)
-        , m_cmd(cmd)
-    {
-        connect(&m_proc, &Process::started,
-                this, &IDataProvider::started);
-        connect(&m_proc, &Process::done,
-                this, &IDataProvider::done);
-        connect(&m_proc, &Process::readyReadStandardOutput,
-                this, &IDataProvider::readyReadStandardOutput);
-        connect(&m_proc, &Process::readyReadStandardError,
-                this, &IDataProvider::readyReadStandardError);
-    }
-
-    ~ProcessDataProvider() final
-    {
-        m_proc.kill();
-        m_proc.waitForFinished();
-    }
-
-private:
-    void start() final
-    {
-        m_proc.setProcessMode(ProcessMode::Writer);
-        if (m_runParameters.debugger().workingDirectory.isDir())
-            m_proc.setWorkingDirectory(m_runParameters.debugger().workingDirectory);
-        m_proc.setEnvironment(m_runParameters.debugger().environment);
-        m_proc.setCommand(m_cmd);
-        m_proc.start();
-    }
-
-    bool isRunning() const final { return m_proc.isRunning(); }
-    void writeRaw(const QByteArray &data) final
-    {
-        if (m_proc.state() == ProcessState::Running)
-            m_proc.writeRaw(data);
-    }
-    void kill() final { m_proc.kill(); }
-    QByteArray readAllStandardOutput() final { return m_proc.readAllStandardOutput().toUtf8(); }
-    QString readAllStandardError() final { return m_proc.readAllStandardError(); }
-    int exitCode() const final { return m_proc.exitCode(); }
-    QString executable() const final { return m_proc.commandLine().executable().toUserOutput(); }
-
-    QProcess::ExitStatus exitStatus() const final { return Utils::toQProcess(m_proc.exitStatus()); }
-    QProcess::ProcessError error() const final { return Utils::toQProcess(m_proc.error()); }
-    Utils::ProcessResult result() const final { return m_proc.result(); }
-    QString exitMessage() const final { return m_proc.exitMessage(); }
-
-    Process m_proc;
-    const DebuggerRunParameters m_runParameters;
-    const CommandLine m_cmd;
-};
-
-class LocalSocketDataProvider final : public IDataProvider
-{
-public:
-    LocalSocketDataProvider(const QString &socketName, QObject *parent = nullptr)
-        : IDataProvider(parent)
-        , m_socketName(socketName)
-    {
-        connect(&m_socket, &QLocalSocket::connected,
-                this, &IDataProvider::started);
-        connect(&m_socket, &QLocalSocket::disconnected,
-                this, &IDataProvider::done);
-        connect(&m_socket, &QLocalSocket::readyRead,
-                this, &IDataProvider::readyReadStandardOutput);
-        connect(&m_socket, &QLocalSocket::errorOccurred,
-                this, &IDataProvider::readyReadStandardError);
-    }
-
-    ~LocalSocketDataProvider() final { m_socket.disconnectFromServer(); }
-
-private:
-    void start() final { m_socket.connectToServer(m_socketName, QIODevice::ReadWrite); }
-
-    bool isRunning() const final { return m_socket.isOpen(); }
-    void writeRaw(const QByteArray &data) final
-    {
-        if (m_socket.isOpen())
-            m_socket.write(data);
-    }
-    void kill() final
-    {
-        if (m_socket.isOpen()) {
-            m_socket.disconnectFromServer();
-        } else {
-            m_socket.abort();
-            emit done();
-        }
-    }
-    QByteArray readAllStandardOutput() final { return m_socket.readAll(); }
-    QString readAllStandardError() final { return {}; }
-    int exitCode() const final { return 0; }
-    QString executable() const final { return m_socket.serverName(); }
-
-    // A socket has no exit status of its own to report.
-    QProcess::ExitStatus exitStatus() const final { return QProcess::NormalExit; }
-    QProcess::ProcessError error() const final { return QProcess::UnknownError; }
-    Utils::ProcessResult result() const final { return ProcessResult::FinishedWithSuccess; }
-    QString exitMessage() const final { return {}; }
-
-    QLocalSocket m_socket;
-    const QString m_socketName;
-};
 
 const QLoggingCategory &gdbLogCategory()
 {
@@ -238,7 +123,7 @@ private:
             return;
         }
 
-        m_dapClient = new DapEngineClient(new ProcessDataProvider(rp, cmd, this),
+        m_dapClient = new DapEngineClient(new ProcessDataProvider(rp.debugger(), cmd, this),
                                           gdbLogCategory(), {}, this);
         connectDataGeneratorSignals();
         m_dapClient->dataProvider()->start();
@@ -292,7 +177,7 @@ private:
         const DebuggerRunParameters &rp = runParameters();
         const CommandLine cmd{rp.debugger().command.executable()};
 
-        m_dapClient = new DapEngineClient(new ProcessDataProvider(rp, cmd, this),
+        m_dapClient = new DapEngineClient(new ProcessDataProvider(rp.debugger(), cmd, this),
                                           lldbLogCategory(), {}, this);
         connectDataGeneratorSignals();
         m_dapClient->dataProvider()->start();
