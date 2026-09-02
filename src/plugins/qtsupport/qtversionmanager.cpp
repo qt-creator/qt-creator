@@ -274,6 +274,10 @@ bool QtVersionManagerImpl::restoreQtVersions()
         if (!restored) {
             // A plugin that is soft-loaded later may provide a factory for the type.
             m_versionsWithUnknownType.append(qtversionMap);
+            // Its id is taken even though nothing holds it, or the next version
+            // registered here would be given the same one.
+            const int unknownId = qtversionMap.value(Constants::QTVERSIONID).toInt();
+            m_idcount = unknownId > m_idcount ? unknownId : m_idcount;
             qWarning("Warning: Unable to restore Qt version '%s' stored in %s.",
                      qPrintable(type),
                      qPrintable(filename.toUserOutput()));
@@ -470,6 +474,12 @@ void QtVersionManagerImpl::saveQtVersions()
             continue;
         tmp.insert(QTVERSION_TYPE_KEY, qtv->type());
         data.insert(numberedKey(QTVERSION_DATA_KEY, count), variantFromStore(tmp));
+        ++count;
+    }
+    // A version whose factory is absent is not in m_versions, and would be dropped from
+    // the settings for good the next time they are written.
+    for (const Store &unknown : std::as_const(m_versionsWithUnknownType)) {
+        data.insert(numberedKey(QTVERSION_DATA_KEY, count), variantFromStore(unknown));
         ++count;
     }
     m_writer->save(data);
