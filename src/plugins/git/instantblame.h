@@ -65,6 +65,7 @@ private:
     bool m_modified = false;
     QMetaObject::Connection m_blameCursorPosConn;
     QMetaObject::Connection m_documentChangedConn;
+    QMetaObject::Connection m_documentContentsChangedConn;
 };
 
 #ifdef WITH_TESTS

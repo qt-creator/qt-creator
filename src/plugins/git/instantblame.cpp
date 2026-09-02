@@ -374,6 +374,8 @@ void InstantBlame::setupForCurrentEditor()
                                    this, [this] { m_controller->schedule(500); });
     m_documentChangedConn = connect(m_document, &IDocument::changed,
                                     this, &InstantBlame::slotDocumentChanged);
+    m_documentContentsChangedConn = connect(m_document, &IDocument::contentsChanged,
+                                            this, &InstantBlame::slotDocumentChanged);
     m_modified = m_document->isModified();
 }
 
@@ -404,8 +406,8 @@ bool InstantBlame::setEditor(TextEditorWidget *widget)
     m_controller->setContext(widget, topLevel,
                              m_document->property("GitReference").toString(),
                              workingFilePath.path(), workingFilePath,
-                             /*allowModifiedDocument=*/false,
-                             /*useDocumentContents=*/false);
+                             /*allowModifiedDocument=*/true,
+                             /*useDocumentContents=*/true);
     m_controller->setEnabled(true);
     return true;
 }
@@ -556,6 +558,7 @@ void InstantBlame::stop()
     m_controller->setEnabled(false);
     disconnect(m_blameCursorPosConn);
     disconnect(m_documentChangedConn);
+    disconnect(m_documentContentsChangedConn);
     m_document = nullptr;
     m_modified = false;
 }
@@ -565,13 +568,14 @@ void InstantBlame::slotDocumentChanged()
     if (!m_document) {
         qCWarning(log) << "Document is invalid, disconnecting.";
         disconnect(m_documentChangedConn);
+        disconnect(m_documentContentsChangedConn);
         return;
     }
 
     const bool modified = m_document->isModified();
     qCDebug(log) << "Document is changed, modified:" << modified;
     if (modified) {
-        m_controller->clear();
+        m_controller->schedule(500);
     } else if (m_modified) {
         scheduleInstantBlame();
     }
