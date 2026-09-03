@@ -16645,7 +16645,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                     ? arg(1).toString() + ": " : QString();
             reportAssertFailure(prefix
                     + Tr::tr("Expected %1 but got %2")
-                          .arg(wantTrue ? "True" : "False", value.reprString()));
+                          .arg(QLatin1String(wantTrue ? "True" : "False"), value.reprString()));
         }
         *result = VimValue(qlonglong(pass ? 0 : 1));
     } else if (name == "assert_match" || name == "assert_notmatch") {

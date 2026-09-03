@@ -12077,7 +12077,7 @@ void FakeVimTester::test_vim_script_searchcount()
         {"0", "3", "0", "3"},   // 0 is no limit at all
     };
     for (const auto &limit : limits) {
-        const QString call = QString("searchcount({'maxcount': %1})").arg(limit.max);
+        const QString call = QString("searchcount({'maxcount': %1})").arg(QLatin1String(limit.max));
         QCOMPARE(value(call + "['total']"), QLatin1String(limit.total));
         QCOMPARE(value(call + "['incomplete']"), QLatin1String(limit.incomplete));
         QCOMPARE(value(call + "['current']"), QLatin1String(limit.current));
