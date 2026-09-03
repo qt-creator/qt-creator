@@ -15,6 +15,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/externaltoolmanager.h>
 #include <coreplugin/find/basetextfind.h>
 #include <coreplugin/idocument.h>
 
@@ -615,6 +616,38 @@ void RewrapParagraphTest::testRewrapParagraph()
 QObject *createRewrapParagraphTest()
 {
     return new RewrapParagraphTest;
+}
+
+class ExternalToolReadOnlyTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testReadOnlyEditorNotModified()
+    {
+        QString title = "readonly.txt";
+        Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+            Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, "b\na\n");
+        QVERIFY(editor);
+        const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+        auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+        QVERIFY(baseEditor);
+        TextEditorWidget *editorWidget = baseEditor->editorWidget();
+        QVERIFY(editorWidget);
+
+        editorWidget->setReadOnly(true);
+        Core::ExternalToolManager::emitReplaceSelectionRequested("sorted");
+        QCOMPARE(baseEditor->textDocument()->plainText(), QString("b\na\n"));
+
+        editorWidget->setReadOnly(false);
+        Core::ExternalToolManager::emitReplaceSelectionRequested("sorted");
+        QVERIFY(baseEditor->textDocument()->plainText().contains("sorted"));
+    }
+};
+
+QObject *createExternalToolReadOnlyTest()
+{
+    return new ExternalToolReadOnlyTest;
 }
 
 class RevertToSavedTest final : public QObject

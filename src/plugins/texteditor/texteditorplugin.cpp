@@ -107,6 +107,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createSortLinesTest);
     addTestCreator(createSelectAllTest);
     addTestCreator(createRewrapParagraphTest);
+    addTestCreator(createExternalToolReadOnlyTest);
     addTestCreator(createRevertToSavedTest);
     addTestCreator(createFindReplaceTest);
     addTestCreator(createSnippetTest);
@@ -293,6 +294,9 @@ void TextEditorPlugin::updateSearchResultsTabWidth(const TabSettingsData &tabSet
 void TextEditorPlugin::updateCurrentSelection(const QString &text)
 {
     if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor()) {
+        // Read-only blocks user input only, not a programmatic insert.
+        if (editor->editorWidget()->isReadOnly())
+            return;
         QTextCursor tc = editor->textCursor();
         const int pos = tc.position();
         const int anchor = tc.anchor();

@@ -12,6 +12,7 @@ QObject *createCleanWhitespaceTest();
 QObject *createSortLinesTest();
 QObject *createSelectAllTest();
 QObject *createRewrapParagraphTest();
+QObject *createExternalToolReadOnlyTest();
 QObject *createRevertToSavedTest();
 QObject *createFindReplaceTest();
 QObject *createSnippetTest();
