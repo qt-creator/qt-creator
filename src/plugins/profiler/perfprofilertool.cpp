@@ -189,9 +189,10 @@ bool PerfProfilerTool::isRecording() const
 
 void PerfProfilerTool::onWorkerCreation(RunControl *runControl)
 {
+    const int run = ++d->runCount;
     d->liveDocument = openLiveTrace(TraceFormat::Perf,
-                                    Tr::tr("Performance Analysis %1").arg(++d->runCount),
-                                    QString("PerfProfiler.Run.%1").arg(d->runCount));
+                                    Tr::tr("Performance Analysis %1").arg(run),
+                                    QString("PerfProfiler.Run.%1").arg(run));
     PerfProfilerTraceBackend *backend = liveBackend();
     QTC_ASSERT(backend, return);
 
@@ -253,9 +254,10 @@ void PerfProfilerTool::updateRunActions()
 // Opens an editor for a trace that is loaded rather than recorded.
 PerfProfilerTraceBackend *PerfProfilerTool::openLoadedTrace()
 {
+    const int run = ++d->runCount;
     d->liveDocument = openLiveTrace(TraceFormat::Perf,
-                                    Tr::tr("Performance Analysis %1").arg(++d->runCount),
-                                    QString("PerfProfiler.Load.%1").arg(d->runCount));
+                                    Tr::tr("Performance Analysis %1").arg(run),
+                                    QString("PerfProfiler.Load.%1").arg(run));
     return liveBackend();
 }
 
