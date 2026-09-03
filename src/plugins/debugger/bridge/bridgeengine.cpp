@@ -52,6 +52,8 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
+Q_LOGGING_CATEGORY(bridgeEngineLog, "qtc.dbg.bridgeengine", QtWarningMsg)
+
 // Runs the debugger process (gdb hosting gdbbridge.py) and exposes its stdio
 // to the DapClient. Kept separate from the dap/ ProcessDataProvider to avoid
 // coupling the bridge engine to that translation unit.
@@ -123,11 +125,7 @@ public:
     {}
 
 private:
-    const QLoggingCategory &logCategory() override
-    {
-        static const QLoggingCategory category("qtc.dbg.bridgeengine", QtWarningMsg);
-        return category;
-    }
+    const QLoggingCategory &logCategory() override { return bridgeEngineLog(); }
 };
 
 BridgeEngine::BridgeEngine()
@@ -140,7 +138,7 @@ BridgeEngine::BridgeEngine()
 
 void BridgeEngine::setupEngine()
 {
-    QTC_ASSERT(state() == EngineSetupRequested, qCDebug(logCategory()) << state());
+    QTC_ASSERT(state() == EngineSetupRequested, qCDebug(bridgeEngineLog) << state());
 
     const DebuggerRunParameters &rp = runParameters();
     const FilePath dumperDir = ICore::resourcePath("debugger");
@@ -178,7 +176,7 @@ void BridgeEngine::connectDataGeneratorSignals()
 void BridgeEngine::handleDapStarted()
 {
     notifyEngineSetupOk();
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(bridgeEngineLog) << state());
 
     // Not sendInitialize(): the user's extra dumpers have to travel with it.
     // The bridge sets the dumpers up while answering, so a later request would
@@ -284,7 +282,7 @@ void BridgeEngine::runStartupCommands()
 
 void BridgeEngine::handleDapInitialize()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(bridgeEngineLog) << state());
 
     runStartupCommands();
 
@@ -335,7 +333,7 @@ void BridgeEngine::handleDapInitialize()
 
 void BridgeEngine::handleDapEventInitialized()
 {
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(bridgeEngineLog) << state());
 
     m_dapClient->sendConfigurationDone();
 }
@@ -344,7 +342,7 @@ void BridgeEngine::handleDapConfigurationDone()
 {
     // A failed launch has taken the engine out of this state already, and the
     // configurationDone that went out with it is still answered.
-    QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state(); return);
+    QTC_ASSERT(state() == EngineRunRequested, qCDebug(bridgeEngineLog) << state(); return);
 
     // For both launch and attach the bridge reports the initial stop via a
     // 'stopped' event (attach stops the target immediately), so the inferior
@@ -380,7 +378,7 @@ void BridgeEngine::handleExecuteCommandResponse(const QJsonObject &response)
 
 void BridgeEngine::shutdownInferior()
 {
-    QTC_ASSERT(state() == InferiorShutdownRequested, qCDebug(logCategory()) << state());
+    QTC_ASSERT(state() == InferiorShutdownRequested, qCDebug(bridgeEngineLog) << state());
 
     m_dapClient->sendDisconnect();
     notifyInferiorShutdownFinished();
@@ -388,7 +386,7 @@ void BridgeEngine::shutdownInferior()
 
 void BridgeEngine::shutdownEngine()
 {
-    QTC_ASSERT(state() == EngineShutdownRequested, qCDebug(logCategory()) << state());
+    QTC_ASSERT(state() == EngineShutdownRequested, qCDebug(bridgeEngineLog) << state());
 
     m_dapClient->sendTerminate();
     m_dapClient->dataProvider()->kill();
@@ -779,7 +777,7 @@ void BridgeEngine::readDapStandardError()
 {
     // gdb's console output and the bridge's diagnostics both arrive here now.
     const QString err = m_dapClient->dataProvider()->readAllStandardError();
-    qCDebug(logCategory()) << "BRIDGE STDERR:" << err;
+    qCDebug(bridgeEngineLog) << "BRIDGE STDERR:" << err;
     showMessage(err, LogOutput);
 }
 
@@ -1280,12 +1278,6 @@ bool BridgeEngine::hasCapability(unsigned cap) const
 void BridgeEngine::claimInitialBreakpoints()
 {
     BreakpointManager::claimBreakpointsForEngine(this);
-}
-
-const QLoggingCategory &BridgeEngine::logCategory()
-{
-    static const QLoggingCategory category("qtc.dbg.bridgeengine", QtWarningMsg);
-    return category;
 }
 
 DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)

@@ -16,6 +16,8 @@
 
 namespace Debugger::Internal {
 
+Q_DECLARE_LOGGING_CATEGORY(bridgeEngineLog)
+
 // A debugger engine that speaks a DAP-shaped protocol to Qt Creator's own
 // Python bridge (gdbbridge.py) rather than to a foreign DAP adapter. It
 // deliberately duplicates the relevant parts of the dap/ DapEngine instead of
@@ -123,8 +125,6 @@ private:
     void handleLibraryEvent(const QJsonObject &body);
 
     void connectDataGeneratorSignals();
-
-    const QLoggingCategory &logCategory();
 
     DapClient *m_dapClient = nullptr;
 

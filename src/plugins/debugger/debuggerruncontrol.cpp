@@ -781,8 +781,7 @@ static void applyCppEngineOptIn(DebuggerRunParameters &rp)
                           && (mode == StartInternal || mode == StartExternal
                               || rp.isLocalAttachEngine());
     if (!runnable) {
-        static const QLoggingCategory category("qtc.dbg.bridgeengine", QtWarningMsg);
-        qCDebug(category) << "not a session the bridge can run; staying with GdbEngine";
+        qCDebug(bridgeEngineLog) << "not a session the bridge can run; staying with GdbEngine";
         return;
     }
     rp.setCppEngineType(BridgeEngineType);
