@@ -1368,6 +1368,9 @@ bool ProcessArgs::ArgIterator::next()
 
 void ProcessArgs::ArgIterator::deleteArg()
 {
+    // m_prev is -1 until next() has returned true, and QString::remove() counts
+    // a negative position from the end of the string.
+    QTC_ASSERT(m_prev >= 0, return);
     if (!m_prev)
         while (m_pos < m_str->size() && m_str->at(m_pos).isSpace())
             m_pos++;

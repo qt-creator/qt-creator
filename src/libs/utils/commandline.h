@@ -88,7 +88,7 @@ public:
         QString *m_str, m_value;
         int m_pos = 0;
         int m_prev = -1;
-        bool m_simple;
+        bool m_simple = false;
         OsType m_osType;
     };
 
