@@ -28,7 +28,8 @@
         "BUILD_EXECUTABLES": "qtprofiler",
         "WITH_QMLDESIGNER": "OFF",
         "WITH_TESTS": "OFF",
-        "BUILD_WITH_PCH": "OFF"
+        "BUILD_WITH_PCH": "OFF",
+        "BUILD_EXECUTABLE_CMDBRIDGE": "OFF"
       }
     }
   ],
