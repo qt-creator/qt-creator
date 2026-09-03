@@ -1108,7 +1108,36 @@ bool ProcessArgs::expandMacros(QString *cmd, const FindMacro &findMacro, OsType 
     return true;
 }
 
-bool ProcessArgs::ArgIterator::next()
+namespace {
+
+/*! Iterate over arguments from a command line.
+ *  Assumes that the name of the actual command is *not* part of the line.
+ *  Terminates after the first command if the command line is complex.
+ */
+class ArgIterator
+{
+public:
+    ArgIterator(QString *str, OsType osType)
+        : m_str(str), m_osType(osType)
+    {}
+    //! Get the next argument. Returns false on encountering end of first command.
+    bool next();
+    //! True iff the argument is a plain string, possibly after unquoting.
+    bool isSimple() const { return m_simple; }
+    //! Return the string value of the current argument if it is simple, otherwise empty.
+    QString value() const { return m_value; }
+    //! Delete the last argument fetched via next() from the command line.
+    void deleteArg();
+
+private:
+    QString *m_str, m_value;
+    int m_pos = 0;
+    int m_prev = -1;
+    bool m_simple = false;
+    OsType m_osType;
+};
+
+bool ArgIterator::next()
 {
     // We delay the setting of m_prev so we can still delete the last argument
     // after we find that there are no more arguments. It's a bit of a hack ...
@@ -1366,7 +1395,7 @@ bool ProcessArgs::ArgIterator::next()
     }
 }
 
-void ProcessArgs::ArgIterator::deleteArg()
+void ArgIterator::deleteArg()
 {
     // m_prev is -1 until next() has returned true, and QString::remove() counts
     // a negative position from the end of the string.
@@ -1378,15 +1407,7 @@ void ProcessArgs::ArgIterator::deleteArg()
     m_pos = m_prev;
 }
 
-void ProcessArgs::ArgIterator::appendArg(const QString &str)
-{
-    const QString qstr = quoteArg(str);
-    if (!m_pos)
-        m_str->insert(0, qstr + QLatin1Char(' '));
-    else
-        m_str->insert(m_pos, QLatin1Char(' ') + qstr);
-    m_pos += qstr.size() + 1;
-}
+} // namespace
 
 /*!
     \class Utils::CommandLine

@@ -68,37 +68,6 @@ public:
 
     //! Safely replace the expandos in a shell command
     static bool expandMacros(QString *cmd, const FindMacro &findMacro, OsType osType);
-
-    /*! Iterate over arguments from a command line.
-     *  Assumes that the name of the actual command is *not* part of the line.
-     *  Terminates after the first command if the command line is complex.
-     */
-    class QTCREATOR_UTILS_EXPORT ArgIterator
-    {
-    public:
-        ArgIterator(QString *str, OsType osType = HostOsInfo::hostOs())
-            : m_str(str), m_osType(osType)
-        {}
-        //! Get the next argument. Returns false on encountering end of first command.
-        bool next();
-        //! True iff the argument is a plain string, possibly after unquoting.
-        bool isSimple() const { return m_simple; }
-        //! Return the string value of the current argument if it is simple, otherwise empty.
-        QString value() const { return m_value; }
-        //! Delete the last argument fetched via next() from the command line.
-        void deleteArg();
-        //! Insert argument into the command line after the last one fetched via next().
-        //! This may be used before the first call to next() to insert at the front.
-        void appendArg(const QString &str);
-
-    private:
-        QString *m_str, m_value;
-        int m_pos = 0;
-        int m_prev = -1;
-        bool m_simple = false;
-        OsType m_osType;
-    };
-
 };
 
 class QTCREATOR_UTILS_EXPORT RunResult

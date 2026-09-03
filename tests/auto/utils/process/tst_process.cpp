@@ -116,8 +116,8 @@ private slots:
     void prepareArgsEnv();
     void iterations_data();
     void iterations();
-    void iteratorEditsWindows();
-    void iteratorEditsLinux();
+    void removeArgsWindows();
+    void removeArgsLinux();
     void removeArgsIf();
     void exitCode_data();
     void exitCode();
@@ -153,7 +153,7 @@ private slots:
     void cleanupTestCase();
 
 private:
-    void iteratorEditsHelper(OsType osType);
+    void removeArgsHelper(OsType osType);
 
     Environment envWindows;
     Environment envLinux;
@@ -522,6 +522,7 @@ void tst_Process::iterations_data()
     } vals[] = {
         {"", "", OsTypeWindows},
         {"hi", "hi", OsTypeWindows},
+        {"\"\" hi", "\"\" hi", OsTypeWindows},
         {"  hi ", "hi", OsTypeWindows},
         {"hi ho", "hi ho", OsTypeWindows},
         {"\"hi ho\" sucker", "\"hi ho\" sucker", OsTypeWindows},
@@ -541,6 +542,7 @@ void tst_Process::iterations_data()
         {"", "", OsTypeLinux},
         {" ", "", OsTypeLinux},
         {"hi", "hi", OsTypeLinux},
+        {"'' hi", "'' hi", OsTypeLinux},
         {"  hi ", "hi", OsTypeLinux},
         {"'hi'", "hi", OsTypeLinux},
         {"hi ho", "hi ho", OsTypeLinux},
@@ -571,64 +573,40 @@ void tst_Process::iterations()
     QFETCH(OsType, os);
 
     QString outstr;
-    for (ProcessArgs::ArgIterator ait(&in, os); ait.next(); ) {
-        if (ait.isSimple())
-            ProcessArgs::addArg(&outstr, ait.value(), os);
+    ProcessArgs::removeArgsIf(&in, [&](const std::optional<QString> &arg) {
+        if (arg)
+            ProcessArgs::addArg(&outstr, *arg, os);
         else
             ProcessArgs::addArgs(&outstr, "{}");
-    }
+        return false;
+    }, os);
     QCOMPARE(outstr, out);
 }
 
-void tst_Process::iteratorEditsHelper(OsType osType)
+void tst_Process::removeArgsHelper(OsType osType)
 {
-    QString in1 = "one two three", in2 = in1, in3 = in1, in4 = in1, in5 = in1;
+    const auto without = [osType](const QStringList &drop) {
+        QString args = "one two three";
+        ProcessArgs::removeArgsIf(&args, [&drop](const std::optional<QString> &arg) {
+            return arg && drop.contains(*arg);
+        }, osType);
+        return args;
+    };
 
-    ProcessArgs::ArgIterator ait1(&in1, osType);
-    QVERIFY(ait1.next());
-    ait1.deleteArg();
-    QVERIFY(ait1.next());
-    QVERIFY(ait1.next());
-    QVERIFY(!ait1.next());
-    QCOMPARE(in1, QString::fromLatin1("two three"));
-    ait1.appendArg("four");
-    QCOMPARE(in1, QString::fromLatin1("two three four"));
+    QCOMPARE(without({"one"}), QString("two three"));
+    QCOMPARE(without({"two"}), QString("one three"));
+    QCOMPARE(without({"three"}), QString("one two"));
+    QCOMPARE(without({"one", "two", "three"}), QString());
+}
 
-    ProcessArgs::ArgIterator ait2(&in2, osType);
-    QVERIFY(ait2.next());
-    QVERIFY(ait2.next());
-    ait2.deleteArg();
-    QVERIFY(ait2.next());
-    ait2.appendArg("four");
-    QVERIFY(!ait2.next());
-    QCOMPARE(in2, QString::fromLatin1("one three four"));
+void tst_Process::removeArgsWindows()
+{
+    removeArgsHelper(OsTypeWindows);
+}
 
-    ProcessArgs::ArgIterator ait3(&in3, osType);
-    QVERIFY(ait3.next());
-    ait3.appendArg("one-b");
-    QVERIFY(ait3.next());
-    QVERIFY(ait3.next());
-    ait3.deleteArg();
-    QVERIFY(!ait3.next());
-    QCOMPARE(in3, QString::fromLatin1("one one-b two"));
-
-    ProcessArgs::ArgIterator ait4(&in4, osType);
-    ait4.appendArg("pre-one");
-    QVERIFY(ait4.next());
-    QVERIFY(ait4.next());
-    QVERIFY(ait4.next());
-    ait4.deleteArg();
-    QVERIFY(!ait4.next());
-    QCOMPARE(in4, QString::fromLatin1("pre-one one two"));
-
-    ProcessArgs::ArgIterator ait5(&in5, osType);
-    QVERIFY(ait5.next());
-    QVERIFY(ait5.next());
-    QVERIFY(ait5.next());
-    QVERIFY(!ait5.next());
-    ait5.deleteArg();
-    QVERIFY(!ait5.next());
-    QCOMPARE(in5, QString::fromLatin1("one two"));
+void tst_Process::removeArgsLinux()
+{
+    removeArgsHelper(OsTypeLinux);
 }
 
 void tst_Process::removeArgsIf()
@@ -665,15 +643,6 @@ void tst_Process::removeArgsIf()
     QCOMPARE(metas, QString("one | three"));
 }
 
-void tst_Process::iteratorEditsWindows()
-{
-    iteratorEditsHelper(OsTypeWindows);
-}
-
-void tst_Process::iteratorEditsLinux()
-{
-    iteratorEditsHelper(OsTypeLinux);
-}
 
 void tst_Process::exitCode_data()
 {
