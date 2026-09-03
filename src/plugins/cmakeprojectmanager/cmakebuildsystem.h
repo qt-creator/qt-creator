@@ -142,6 +142,7 @@ public:
     QList<ProjectExplorer::TestCaseInfo> const testcasesInfo() const final;
     Utils::CommandLine commandLineForTests(const QStringList &tests,
                                            const QStringList &options) const final;
+    Utils::FilePath ctestPath() const;
 
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;
 

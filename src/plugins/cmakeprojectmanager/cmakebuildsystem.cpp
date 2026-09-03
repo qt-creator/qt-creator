@@ -3158,6 +3158,11 @@ const QList<TestCaseInfo> CMakeBuildSystem::testcasesInfo() const
     return m_testNames;
 }
 
+FilePath CMakeBuildSystem::ctestPath() const
+{
+    return m_ctestPath;
+}
+
 CommandLine CMakeBuildSystem::commandLineForTests(const QStringList &tests,
                                                   const QStringList &options) const
 {

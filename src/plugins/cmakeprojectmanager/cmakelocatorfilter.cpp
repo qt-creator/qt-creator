@@ -113,6 +113,12 @@ static CommandHistory &cmakeCommandHistory()
     return history;
 }
 
+static CommandHistory &ctestCommandHistory()
+{
+    static CommandHistory history("ctLocatorHistory");
+    return history;
+}
+
 // Input starting with a dash is a command for the filter's tool, not a target or test name.
 static bool isCommandInput(const QString &trimmedInput)
 {
@@ -325,6 +331,42 @@ private:
     std::unique_ptr<OutputFormatter> m_outputFormatter;
 };
 
+class CTestCommandRunner final : public LocatorCommandRunner
+{
+public:
+    static void run(const QString &userArgs)
+    {
+        static CTestCommandRunner theRunner;
+        theRunner.runCommand(userArgs);
+    }
+
+private:
+    QString toolName() const final { return "ctest"; }
+
+    FilePath toolExecutable(CMakeBuildSystem *buildSystem) const final
+    {
+        const FilePath ctestPath = buildSystem->ctestPath();
+        if (!ctestPath.isEmpty())
+            return ctestPath;
+
+        // ctestPath() is only known after a successful parse. Fall back to the ctest sitting
+        // next to cmake, so that a stale build directory can still be tested.
+        const FilePath cmakeExe = CMakeKitAspect::cmakeExecutable(buildSystem->kit());
+        if (cmakeExe.isEmpty())
+            return {};
+        return cmakeExe.parentDir().pathAppended("ctest").withExecutableSuffix();
+    }
+
+    void reportIssues(Process *process) final
+    {
+        // A non-zero exit code means that tests failed, which the output already reports.
+        // Only ctest not running at all is an issue of its own.
+        const ProcessResult result = process->result();
+        if (result == ProcessResult::StartFailed || result == ProcessResult::TerminatedAbnormally)
+            TaskHub::addTask<CMakeTask>(Task::Error, process->exitMessage());
+    }
+};
+
 using CommandAcceptor = void (*)(const QString &);
 
 // Offers the commands from the history that match the input, plus the input itself when it is
@@ -530,7 +572,9 @@ public:
     {
         setId("Run CTest Test");
         setDisplayName(Tr::tr("Run CTest Test"));
-        setDescription(Tr::tr("Runs a CTest test of the current active CMake project."));
+        setDescription(
+            Tr::tr("Runs a CTest test of the current active CMake project or runs ctest "
+                   "commands."));
         setDefaultShortcutString("ct");
         setPriority(Medium);
         setupFilter(this);
@@ -538,6 +582,9 @@ public:
 
 private:
     LocatorMatcherTasks matchers() final { return CTestMatchers(&runCTest); }
+
+    void saveState(QJsonObject &object) const final { ctestCommandHistory().save(object); }
+    void restoreState(const QJsonObject &object) final { ctestCommandHistory().restore(object); }
 
     static void runCTest(BuildSystem *buildSystem, const TestCaseInfo &testInfo)
     {
@@ -595,6 +642,9 @@ private:
                 = ILocatorFilter::createRegExp(input, ILocatorFilter::caseSensitivity(input));
             if (!regexp.isValid())
                 return;
+
+            const QString trimmedInput = input.trimmed();
+
             LocatorFilterEntries entries[int(ILocatorFilter::MatchLevel::Count)];
 
             const auto cmakeProject = qobject_cast<const CMakeProject *>(ProjectManager::startupProject());
@@ -605,57 +655,64 @@ private:
             if (!bs)
                 return;
 
-            // First the test presets
-            const auto testPresets = cmakeProject->presetsData().testPresets;
-            QList<TestCaseInfo> testCasesInfo;
-            for (const auto &testPreset : testPresets) {
-                TestCaseInfo testInfo;
-                testInfo.name = testPreset.name;
-                testInfo.path = cmakeProject->projectFilePath().parentDir().pathAppended(
-                    "CMakePresets.json");
-                testCasesInfo << testInfo;
-            }
-            auto presetDisplayName = [cmakeProject](const TestCaseInfo &testInfo) -> QString {
-                auto preset = Utils::findOrDefault(
-                    cmakeProject->presetsData().testPresets,
-                    [testInfo](const auto &preset) { return preset.name == testInfo.name; });
-                if (preset.displayName)
-                    return *preset.displayName;
-                return testInfo.name;
-            };
+            if (!isCommandInput(trimmedInput)) {
+                // First the test presets
+                const auto testPresets = cmakeProject->presetsData().testPresets;
+                QList<TestCaseInfo> testCasesInfo;
+                for (const auto &testPreset : testPresets) {
+                    TestCaseInfo testInfo;
+                    testInfo.name = testPreset.name;
+                    testInfo.path = cmakeProject->projectFilePath().parentDir().pathAppended(
+                        "CMakePresets.json");
+                    testCasesInfo << testInfo;
+                }
+                auto presetDisplayName = [cmakeProject](const TestCaseInfo &testInfo) -> QString {
+                    auto preset = Utils::findOrDefault(
+                        cmakeProject->presetsData().testPresets,
+                        [testInfo](const auto &preset) { return preset.name == testInfo.name; });
+                    if (preset.displayName)
+                        return *preset.displayName;
+                    return testInfo.name;
+                };
 
-            // Then the tests themselves
-            testCasesInfo << bs->testcasesInfo();
+                // Then the tests themselves
+                testCasesInfo << bs->testcasesInfo();
 
-            for (const TestCaseInfo &testInfo : std::as_const(testCasesInfo)) {
-                const QRegularExpressionMatch match = regexp.match(testInfo.name);
-                if (match.hasMatch()) {
-                    const QString displayName = testInfo.path.fileName() == "CMakePresets.json"
-                                                    ? presetDisplayName(testInfo)
-                                                    : testInfo.name;
-                    LocatorFilterEntry entry;
-                    entry.uniquifier = entry.displayName = displayName;
-                    if (acceptor) {
-                        entry.acceptor = [bs, testInfo, acceptor] {
-                            acceptor(bs, testInfo);
-                            return AcceptResult();
-                        };
+                for (const TestCaseInfo &testInfo : std::as_const(testCasesInfo)) {
+                    const QRegularExpressionMatch match = regexp.match(testInfo.name);
+                    if (match.hasMatch()) {
+                        const QString displayName = testInfo.path.fileName() == "CMakePresets.json"
+                                                        ? presetDisplayName(testInfo)
+                                                        : testInfo.name;
+                        LocatorFilterEntry entry;
+                        entry.uniquifier = entry.displayName = displayName;
+                        if (acceptor) {
+                            entry.acceptor = [bs, testInfo, acceptor] {
+                                acceptor(bs, testInfo);
+                                return AcceptResult();
+                            };
+                        }
+                        entry.extraInfo = testInfo.path.shortNativePath();
+                        entry.highlightInfo = ILocatorFilter::highlightInfo(match);
+                        entry.filePath = testInfo.path;
+                        entry.linkForEditor = {testInfo.path, testInfo.line};
+
+                        if (match.capturedStart() == 0)
+                            entries[int(ILocatorFilter::MatchLevel::Best)].append(entry);
+                        else if (match.lastCapturedIndex() == 1)
+                            entries[int(ILocatorFilter::MatchLevel::Better)].append(entry);
+                        else
+                            entries[int(ILocatorFilter::MatchLevel::Good)].append(entry);
                     }
-                    entry.extraInfo = testInfo.path.shortNativePath();
-                    entry.highlightInfo = ILocatorFilter::highlightInfo(match);
-                    entry.filePath = testInfo.path;
-                    entry.linkForEditor = {testInfo.path, testInfo.line};
-
-                    if (match.capturedStart() == 0)
-                        entries[int(ILocatorFilter::MatchLevel::Best)].append(entry);
-                    else if (match.lastCapturedIndex() == 1)
-                        entries[int(ILocatorFilter::MatchLevel::Better)].append(entry);
-                    else
-                        entries[int(ILocatorFilter::MatchLevel::Good)].append(entry);
                 }
             }
+
+            const LocatorFilterEntries commands
+                = commandEntries(input, &ctestCommandHistory(), &CTestCommandRunner::run);
+
             storage.reportOutput(
-                std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries()));
+                std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries())
+                + commands);
         };
         return {QSyncTask(onSetup)};
     }
