@@ -101,6 +101,7 @@ public:
     void clear();
 
 private:
+    void clearHelper();
     void loadRepositoryConfiguration();
     void perform();
     void waitForRepositoryChange();
@@ -630,8 +631,13 @@ void BlameController::schedule(int delay)
 
 void BlameController::clear()
 {
-    m_timer->stop();
+    clearHelper();
     m_taskTreeRunner.reset();
+}
+
+void BlameController::clearHelper()
+{
+    m_timer->stop();
     m_blameMark.reset();
     disconnect(m_repositoryChangedConn);
     m_lastLine = -1;
@@ -640,8 +646,9 @@ void BlameController::clear()
 
 void BlameController::waitForRepositoryChange()
 {
-    setEnabled(false);
-
+    // called from the blame handler: resetting it would delete task tree running that handler
+    m_enabled = false;
+    clearHelper();
     const FilePath topLevel = m_topLevel;
     m_repositoryChangedConn = connect(
         VcsManager::instance(), &VcsManager::repositoryChanged, this,
