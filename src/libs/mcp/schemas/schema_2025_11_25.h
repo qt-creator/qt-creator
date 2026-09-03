@@ -2,16 +2,15 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- C:\dev\bin\Python313\python.exe \
+ python3 \
   scripts/generate_cpp_from_schema.py \
-  src/libs/mcp/schemas/schema-2025-11-25.json src/libs/mcp/schemas/schema_2025_11_25.h --namespace Mcp::Generated::Schema::_2025_11_25 --cpp-output src/libs/mcp/schemas/schema_2025_11_25.cpp --export-macro MCPSERVER_EXPORT --export-header ../server/mcpserver_global.h
+  src/libs/mcp/schemas/schema-2025-11-25.json src/libs/mcp/schemas/schema_2025_11_25.h --namespace Mcp::Generated::Schema::_2025_11_25 --cpp-output src/libs/mcp/schemas/schema_2025_11_25.cpp --export-macro MCPSERVER_EXPORT --export-header ../server/mcpserver_global.h --no-cxx20
 */
 #pragma once
 
 #include "../server/mcpserver_global.h"
 
 #include <utils/result.h>
-#include <utils/co_result.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -21,6 +20,8 @@
 #include <QString>
 #include <QVariant>
 
+#include <cmath>
+#include <limits>
 #include <variant>
 
 namespace Mcp::Generated::Schema::_2025_11_25 {

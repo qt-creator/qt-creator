@@ -41,3 +41,5 @@ with the MCP library. Key options:
 - `--namespace` sets the C++ namespace
 - `--no-comments` suppresses doc comments
 - `--three-state` models optional nullable fields as `Patch<T>` (absent/null/value)
+- `--no-cxx20` avoids C++20-only constructs, for targets built as C++17: `fromJson`
+  propagates errors with explicit early returns instead of coroutine `co_await`

@@ -32,14 +32,18 @@ template<>
 Utils::Result<ElicitationRequestScope> fromJson<ElicitationRequestScope>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ElicitationRequestScope");
+        return Utils::ResultError("Expected JSON object for ElicitationRequestScope");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("requestId"))
-        co_return Utils::ResultError("Missing required field: requestId");
+        return Utils::ResultError("Missing required field: requestId");
     ElicitationRequestScope result;
-    if (obj.contains("requestId"))
-        result._requestId = co_await fromJson<RequestId>(obj["requestId"]);
-    co_return result;
+    if (obj.contains("requestId")) {
+        const auto res0 = fromJson<RequestId>(obj["requestId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._requestId = *res0;
+    }
+    return result;
 }
 
 QJsonObject toJson(const ElicitationRequestScope &data)
@@ -214,22 +218,25 @@ template<>
 Utils::Result<TitledMultiSelectItems> fromJson<TitledMultiSelectItems>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for TitledMultiSelectItems");
+        return Utils::ResultError("Expected JSON object for TitledMultiSelectItems");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("anyOf"))
-        co_return Utils::ResultError("Missing required field: anyOf");
+        return Utils::ResultError("Missing required field: anyOf");
     TitledMultiSelectItems result;
     if (obj.contains("anyOf") && obj["anyOf"].isArray()) {
         const QJsonArray arr = obj["anyOf"].toArray();
         for (const QJsonValue &v : arr) {
-            result._anyOf.append(co_await fromJson<EnumOption>(v));
+            const auto res0 = fromJson<EnumOption>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._anyOf.append(*res0);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const TitledMultiSelectItems &data)
@@ -247,15 +254,23 @@ template<>
 Utils::Result<MultiSelectItems> fromJson<MultiSelectItems>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid MultiSelectItems: expected object");
+        return Utils::ResultError("Invalid MultiSelectItems: expected object");
     const QJsonObject obj = val.toObject();
-    if (obj.contains("enum"))
-        co_return MultiSelectItems(co_await fromJson<StringMultiSelectItems>(val));
-    if (obj.contains("anyOf"))
-        co_return MultiSelectItems(co_await fromJson<TitledMultiSelectItems>(val));
+    if (obj.contains("enum")) {
+        const auto res0 = fromJson<StringMultiSelectItems>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return MultiSelectItems(*res0);
+    }
+    if (obj.contains("anyOf")) {
+        const auto res1 = fromJson<TitledMultiSelectItems>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return MultiSelectItems(*res1);
+    }
     if (val.isObject())
-        co_return MultiSelectItems(val.toObject());  // open union: preserve unknown variants raw
-    co_return Utils::ResultError("Invalid MultiSelectItems");
+        return MultiSelectItems(val.toObject());  // open union: preserve unknown variants raw
+    return Utils::ResultError("Invalid MultiSelectItems");
 }
 
 QJsonObject toJson(const MultiSelectItems &val)
@@ -279,10 +294,10 @@ template<>
 Utils::Result<MultiSelectPropertySchema> fromJson<MultiSelectPropertySchema>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for MultiSelectPropertySchema");
+        return Utils::ResultError("Expected JSON object for MultiSelectPropertySchema");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("items"))
-        co_return Utils::ResultError("Missing required field: items");
+        return Utils::ResultError("Missing required field: items");
     MultiSelectPropertySchema result;
     if (obj.contains("title"))
         if (!obj["title"].isNull()) {
@@ -300,8 +315,12 @@ Utils::Result<MultiSelectPropertySchema> fromJson<MultiSelectPropertySchema>(con
         if (!obj["maxItems"].isNull()) {
             result._maxItems = obj.value("maxItems").toInt();
         }
-    if (obj.contains("items"))
-        result._items = co_await fromJson<MultiSelectItems>(obj["items"]);
+    if (obj.contains("items")) {
+        const auto res0 = fromJson<MultiSelectItems>(obj["items"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._items = *res0;
+    }
     if (obj.contains("default"))
         if (!obj["default"].isNull()) {
             result._default_ = obj.value("default").toArray();
@@ -310,7 +329,7 @@ Utils::Result<MultiSelectPropertySchema> fromJson<MultiSelectPropertySchema>(con
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const MultiSelectPropertySchema &data)
@@ -414,7 +433,7 @@ template<>
 Utils::Result<StringPropertySchema> fromJson<StringPropertySchema>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for StringPropertySchema");
+        return Utils::ResultError("Expected JSON object for StringPropertySchema");
     const QJsonObject obj = val.toObject();
     StringPropertySchema result;
     if (obj.contains("title"))
@@ -437,8 +456,12 @@ Utils::Result<StringPropertySchema> fromJson<StringPropertySchema>(const QJsonVa
         if (!obj["pattern"].isNull()) {
             result._pattern = obj.value("pattern").toString();
         }
-    if (obj.contains("format") && !obj["format"].isNull())
-        result._format = co_await fromJson<StringFormat>(obj["format"]);
+    if (obj.contains("format") && !obj["format"].isNull()) {
+        const auto res0 = fromJson<StringFormat>(obj["format"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._format = *res0;
+    }
     if (obj.contains("default"))
         if (!obj["default"].isNull()) {
             result._default_ = obj.value("default").toString();
@@ -455,7 +478,7 @@ Utils::Result<StringPropertySchema> fromJson<StringPropertySchema>(const QJsonVa
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const StringPropertySchema &data)
@@ -488,21 +511,41 @@ template<>
 Utils::Result<ElicitationPropertySchema> fromJson<ElicitationPropertySchema>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid ElicitationPropertySchema: expected object");
+        return Utils::ResultError("Invalid ElicitationPropertySchema: expected object");
     const QString dispatchValue = val.toObject().value("type").toString();
-    if (dispatchValue == "string")
-        co_return ElicitationPropertySchema(co_await fromJson<StringPropertySchema>(val));
-    else if (dispatchValue == "number")
-        co_return ElicitationPropertySchema(co_await fromJson<NumberPropertySchema>(val));
-    else if (dispatchValue == "integer")
-        co_return ElicitationPropertySchema(co_await fromJson<IntegerPropertySchema>(val));
-    else if (dispatchValue == "boolean")
-        co_return ElicitationPropertySchema(co_await fromJson<BooleanPropertySchema>(val));
-    else if (dispatchValue == "array")
-        co_return ElicitationPropertySchema(co_await fromJson<MultiSelectPropertySchema>(val));
+    if (dispatchValue == "string") {
+        const auto res0 = fromJson<StringPropertySchema>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return ElicitationPropertySchema(*res0);
+    }
+    else if (dispatchValue == "number") {
+        const auto res1 = fromJson<NumberPropertySchema>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return ElicitationPropertySchema(*res1);
+    }
+    else if (dispatchValue == "integer") {
+        const auto res2 = fromJson<IntegerPropertySchema>(val);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        return ElicitationPropertySchema(*res2);
+    }
+    else if (dispatchValue == "boolean") {
+        const auto res3 = fromJson<BooleanPropertySchema>(val);
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        return ElicitationPropertySchema(*res3);
+    }
+    else if (dispatchValue == "array") {
+        const auto res4 = fromJson<MultiSelectPropertySchema>(val);
+        if (!res4)
+            return Utils::ResultError(res4.error());
+        return ElicitationPropertySchema(*res4);
+    }
     if (dispatchValue.isEmpty())
-        co_return Utils::ResultError("Invalid ElicitationPropertySchema: missing type");
-    co_return ElicitationPropertySchema(val.toObject());  // open union: preserve unknown variants raw
+        return Utils::ResultError("Invalid ElicitationPropertySchema: missing type");
+    return ElicitationPropertySchema(val.toObject());  // open union: preserve unknown variants raw
 }
 
 QString dispatchValue(const ElicitationPropertySchema &val)
@@ -563,11 +606,15 @@ template<>
 Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ElicitationSchema");
+        return Utils::ResultError("Expected JSON object for ElicitationSchema");
     const QJsonObject obj = val.toObject();
     ElicitationSchema result;
-    if (obj.contains("type") && obj["type"].isString())
-        result._type = co_await fromJson<ElicitationSchemaType>(obj["type"]);
+    if (obj.contains("type") && obj["type"].isString()) {
+        const auto res0 = fromJson<ElicitationSchemaType>(obj["type"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._type = *res0;
+    }
     if (obj.contains("title"))
         if (!obj["title"].isNull()) {
             result._title = obj.value("title").toString();
@@ -576,7 +623,10 @@ Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &v
         const QJsonObject mapObj_properties = obj["properties"].toObject();
         QMap<QString, ElicitationPropertySchema> map_properties;
         for (auto it = mapObj_properties.constBegin(); it != mapObj_properties.constEnd(); ++it) {
-            map_properties.insert(it.key(), co_await fromJson<ElicitationPropertySchema>(it.value()));
+            const auto res1 = fromJson<ElicitationPropertySchema>(it.value());
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            map_properties.insert(it.key(), *res1);
         }
         result._properties = map_properties;
     }
@@ -592,7 +642,7 @@ Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &v
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ElicitationSchema &data)
@@ -627,16 +677,24 @@ template<>
 Utils::Result<ElicitationSessionScope> fromJson<ElicitationSessionScope>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ElicitationSessionScope");
+        return Utils::ResultError("Expected JSON object for ElicitationSessionScope");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     ElicitationSessionScope result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("toolCallId") && !obj["toolCallId"].isNull())
-        result._toolCallId = co_await fromJson<ToolCallId>(obj["toolCallId"]);
-    co_return result;
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("toolCallId") && !obj["toolCallId"].isNull()) {
+        const auto res1 = fromJson<ToolCallId>(obj["toolCallId"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._toolCallId = *res1;
+    }
+    return result;
 }
 
 QJsonObject toJson(const ElicitationSessionScope &data)
@@ -651,13 +709,17 @@ template<>
 Utils::Result<ElicitationFormMode> fromJson<ElicitationFormMode>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ElicitationFormMode");
+        return Utils::ResultError("Expected JSON object for ElicitationFormMode");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("requestedSchema"))
-        co_return Utils::ResultError("Missing required field: requestedSchema");
+        return Utils::ResultError("Missing required field: requestedSchema");
     ElicitationFormMode result;
-    if (obj.contains("requestedSchema") && obj["requestedSchema"].isObject())
-        result._requestedSchema = co_await fromJson<ElicitationSchema>(obj["requestedSchema"]);
+    if (obj.contains("requestedSchema") && obj["requestedSchema"].isObject()) {
+        const auto res0 = fromJson<ElicitationSchema>(obj["requestedSchema"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._requestedSchema = *res0;
+    }
     {
         const QSet<QString> knownKeys{"requestedSchema"};
         for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
@@ -665,7 +727,7 @@ Utils::Result<ElicitationFormMode> fromJson<ElicitationFormMode>(const QJsonValu
                 result._additionalProperties.insert(it.key(), it.value());
         }
     }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ElicitationFormMode &data)
@@ -680,15 +742,19 @@ template<>
 Utils::Result<ElicitationUrlMode> fromJson<ElicitationUrlMode>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ElicitationUrlMode");
+        return Utils::ResultError("Expected JSON object for ElicitationUrlMode");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("elicitationId"))
-        co_return Utils::ResultError("Missing required field: elicitationId");
+        return Utils::ResultError("Missing required field: elicitationId");
     if (!obj.contains("url"))
-        co_return Utils::ResultError("Missing required field: url");
+        return Utils::ResultError("Missing required field: url");
     ElicitationUrlMode result;
-    if (obj.contains("elicitationId") && obj["elicitationId"].isString())
-        result._elicitationId = co_await fromJson<ElicitationId>(obj["elicitationId"]);
+    if (obj.contains("elicitationId") && obj["elicitationId"].isString()) {
+        const auto res0 = fromJson<ElicitationId>(obj["elicitationId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._elicitationId = *res0;
+    }
     result._url = obj.value("url").toString();
     {
         const QSet<QString> knownKeys{"elicitationId", "url"};
@@ -697,7 +763,7 @@ Utils::Result<ElicitationUrlMode> fromJson<ElicitationUrlMode>(const QJsonValue 
                 result._additionalProperties.insert(it.key(), it.value());
         }
     }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ElicitationUrlMode &data)
@@ -780,15 +846,19 @@ template<>
 Utils::Result<CreateTerminalRequest> fromJson<CreateTerminalRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for CreateTerminalRequest");
+        return Utils::ResultError("Expected JSON object for CreateTerminalRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("command"))
-        co_return Utils::ResultError("Missing required field: command");
+        return Utils::ResultError("Missing required field: command");
     CreateTerminalRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
     result._command = obj.value("command").toString();
     if (obj.contains("args") && obj["args"].isArray()) {
         const QJsonArray arr = obj["args"].toArray();
@@ -802,7 +872,10 @@ Utils::Result<CreateTerminalRequest> fromJson<CreateTerminalRequest>(const QJson
         const QJsonArray arr = obj["env"].toArray();
         QList<EnvVariable> list_env;
         for (const QJsonValue &v : arr) {
-            list_env.append(co_await fromJson<EnvVariable>(v));
+            const auto res1 = fromJson<EnvVariable>(v);
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            list_env.append(*res1);
         }
         result._env = list_env;
     }
@@ -818,7 +891,7 @@ Utils::Result<CreateTerminalRequest> fromJson<CreateTerminalRequest>(const QJson
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const CreateTerminalRequest &data)
@@ -850,22 +923,30 @@ template<>
 Utils::Result<KillTerminalRequest> fromJson<KillTerminalRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for KillTerminalRequest");
+        return Utils::ResultError("Expected JSON object for KillTerminalRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("terminalId"))
-        co_return Utils::ResultError("Missing required field: terminalId");
+        return Utils::ResultError("Missing required field: terminalId");
     KillTerminalRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("terminalId") && obj["terminalId"].isString())
-        result._terminalId = co_await fromJson<TerminalId>(obj["terminalId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
+        const auto res1 = fromJson<TerminalId>(obj["terminalId"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._terminalId = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const KillTerminalRequest &data)
@@ -883,15 +964,19 @@ template<>
 Utils::Result<ReadTextFileRequest> fromJson<ReadTextFileRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ReadTextFileRequest");
+        return Utils::ResultError("Expected JSON object for ReadTextFileRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("path"))
-        co_return Utils::ResultError("Missing required field: path");
+        return Utils::ResultError("Missing required field: path");
     ReadTextFileRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
     result._path = obj.value("path").toString();
     if (obj.contains("line"))
         if (!obj["line"].isNull()) {
@@ -905,7 +990,7 @@ Utils::Result<ReadTextFileRequest> fromJson<ReadTextFileRequest>(const QJsonValu
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ReadTextFileRequest &data)
@@ -927,22 +1012,30 @@ template<>
 Utils::Result<ReleaseTerminalRequest> fromJson<ReleaseTerminalRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ReleaseTerminalRequest");
+        return Utils::ResultError("Expected JSON object for ReleaseTerminalRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("terminalId"))
-        co_return Utils::ResultError("Missing required field: terminalId");
+        return Utils::ResultError("Missing required field: terminalId");
     ReleaseTerminalRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("terminalId") && obj["terminalId"].isString())
-        result._terminalId = co_await fromJson<TerminalId>(obj["terminalId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
+        const auto res1 = fromJson<TerminalId>(obj["terminalId"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._terminalId = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ReleaseTerminalRequest &data)
@@ -987,25 +1080,33 @@ template<>
 Utils::Result<PermissionOption> fromJson<PermissionOption>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for PermissionOption");
+        return Utils::ResultError("Expected JSON object for PermissionOption");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("optionId"))
-        co_return Utils::ResultError("Missing required field: optionId");
+        return Utils::ResultError("Missing required field: optionId");
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     if (!obj.contains("kind"))
-        co_return Utils::ResultError("Missing required field: kind");
+        return Utils::ResultError("Missing required field: kind");
     PermissionOption result;
-    if (obj.contains("optionId") && obj["optionId"].isString())
-        result._optionId = co_await fromJson<PermissionOptionId>(obj["optionId"]);
+    if (obj.contains("optionId") && obj["optionId"].isString()) {
+        const auto res0 = fromJson<PermissionOptionId>(obj["optionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._optionId = *res0;
+    }
     result._name = obj.value("name").toString();
-    if (obj.contains("kind") && obj["kind"].isString())
-        result._kind = co_await fromJson<PermissionOptionKind>(obj["kind"]);
+    if (obj.contains("kind") && obj["kind"].isString()) {
+        const auto res1 = fromJson<PermissionOptionKind>(obj["kind"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._kind = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const PermissionOption &data)
@@ -1087,22 +1188,26 @@ template<>
 Utils::Result<AudioContent> fromJson<AudioContent>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for AudioContent");
+        return Utils::ResultError("Expected JSON object for AudioContent");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("data"))
-        co_return Utils::ResultError("Missing required field: data");
+        return Utils::ResultError("Missing required field: data");
     if (!obj.contains("mimeType"))
-        co_return Utils::ResultError("Missing required field: mimeType");
+        return Utils::ResultError("Missing required field: mimeType");
     AudioContent result;
-    if (obj.contains("annotations") && !obj["annotations"].isNull())
-        result._annotations = co_await fromJson<Annotations>(obj["annotations"]);
+    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+        const auto res0 = fromJson<Annotations>(obj["annotations"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._annotations = *res0;
+    }
     result._data = obj.value("data").toString();
     result._mimeType = obj.value("mimeType").toString();
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const AudioContent &data)
@@ -1196,13 +1301,21 @@ template<>
 Utils::Result<EmbeddedResourceResource> fromJson<EmbeddedResourceResource>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid EmbeddedResourceResource: expected object");
+        return Utils::ResultError("Invalid EmbeddedResourceResource: expected object");
     const QJsonObject obj = val.toObject();
-    if (obj.contains("text"))
-        co_return EmbeddedResourceResource(co_await fromJson<TextResourceContents>(val));
-    if (obj.contains("blob"))
-        co_return EmbeddedResourceResource(co_await fromJson<BlobResourceContents>(val));
-    co_return Utils::ResultError("Invalid EmbeddedResourceResource");
+    if (obj.contains("text")) {
+        const auto res0 = fromJson<TextResourceContents>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return EmbeddedResourceResource(*res0);
+    }
+    if (obj.contains("blob")) {
+        const auto res1 = fromJson<BlobResourceContents>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return EmbeddedResourceResource(*res1);
+    }
+    return Utils::ResultError("Invalid EmbeddedResourceResource");
 }
 
 QString uri(const EmbeddedResourceResource &val)
@@ -1231,20 +1344,28 @@ template<>
 Utils::Result<EmbeddedResource> fromJson<EmbeddedResource>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for EmbeddedResource");
+        return Utils::ResultError("Expected JSON object for EmbeddedResource");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("resource"))
-        co_return Utils::ResultError("Missing required field: resource");
+        return Utils::ResultError("Missing required field: resource");
     EmbeddedResource result;
-    if (obj.contains("annotations") && !obj["annotations"].isNull())
-        result._annotations = co_await fromJson<Annotations>(obj["annotations"]);
-    if (obj.contains("resource"))
-        result._resource = co_await fromJson<EmbeddedResourceResource>(obj["resource"]);
+    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+        const auto res0 = fromJson<Annotations>(obj["annotations"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._annotations = *res0;
+    }
+    if (obj.contains("resource")) {
+        const auto res1 = fromJson<EmbeddedResourceResource>(obj["resource"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._resource = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const EmbeddedResource &data)
@@ -1261,15 +1382,19 @@ template<>
 Utils::Result<ImageContent> fromJson<ImageContent>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ImageContent");
+        return Utils::ResultError("Expected JSON object for ImageContent");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("data"))
-        co_return Utils::ResultError("Missing required field: data");
+        return Utils::ResultError("Missing required field: data");
     if (!obj.contains("mimeType"))
-        co_return Utils::ResultError("Missing required field: mimeType");
+        return Utils::ResultError("Missing required field: mimeType");
     ImageContent result;
-    if (obj.contains("annotations") && !obj["annotations"].isNull())
-        result._annotations = co_await fromJson<Annotations>(obj["annotations"]);
+    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+        const auto res0 = fromJson<Annotations>(obj["annotations"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._annotations = *res0;
+    }
     result._data = obj.value("data").toString();
     result._mimeType = obj.value("mimeType").toString();
     if (obj.contains("uri"))
@@ -1280,7 +1405,7 @@ Utils::Result<ImageContent> fromJson<ImageContent>(const QJsonValue &val)
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ImageContent &data)
@@ -1302,15 +1427,19 @@ template<>
 Utils::Result<ResourceLink> fromJson<ResourceLink>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ResourceLink");
+        return Utils::ResultError("Expected JSON object for ResourceLink");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     if (!obj.contains("uri"))
-        co_return Utils::ResultError("Missing required field: uri");
+        return Utils::ResultError("Missing required field: uri");
     ResourceLink result;
-    if (obj.contains("annotations") && !obj["annotations"].isNull())
-        result._annotations = co_await fromJson<Annotations>(obj["annotations"]);
+    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+        const auto res0 = fromJson<Annotations>(obj["annotations"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._annotations = *res0;
+    }
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
             result._description = obj.value("description").toString();
@@ -1333,7 +1462,7 @@ Utils::Result<ResourceLink> fromJson<ResourceLink>(const QJsonValue &val)
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ResourceLink &data)
@@ -1361,19 +1490,23 @@ template<>
 Utils::Result<TextContent> fromJson<TextContent>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for TextContent");
+        return Utils::ResultError("Expected JSON object for TextContent");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("text"))
-        co_return Utils::ResultError("Missing required field: text");
+        return Utils::ResultError("Missing required field: text");
     TextContent result;
-    if (obj.contains("annotations") && !obj["annotations"].isNull())
-        result._annotations = co_await fromJson<Annotations>(obj["annotations"]);
+    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+        const auto res0 = fromJson<Annotations>(obj["annotations"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._annotations = *res0;
+    }
     result._text = obj.value("text").toString();
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const TextContent &data)
@@ -1390,19 +1523,39 @@ template<>
 Utils::Result<ContentBlock> fromJson<ContentBlock>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid ContentBlock: expected object");
+        return Utils::ResultError("Invalid ContentBlock: expected object");
     const QString dispatchValue = val.toObject().value("type").toString();
-    if (dispatchValue == "text")
-        co_return ContentBlock(co_await fromJson<TextContent>(val));
-    else if (dispatchValue == "image")
-        co_return ContentBlock(co_await fromJson<ImageContent>(val));
-    else if (dispatchValue == "audio")
-        co_return ContentBlock(co_await fromJson<AudioContent>(val));
-    else if (dispatchValue == "resource_link")
-        co_return ContentBlock(co_await fromJson<ResourceLink>(val));
-    else if (dispatchValue == "resource")
-        co_return ContentBlock(co_await fromJson<EmbeddedResource>(val));
-    co_return Utils::ResultError("Invalid ContentBlock: unknown type \"" + dispatchValue + "\"");
+    if (dispatchValue == "text") {
+        const auto res0 = fromJson<TextContent>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return ContentBlock(*res0);
+    }
+    else if (dispatchValue == "image") {
+        const auto res1 = fromJson<ImageContent>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return ContentBlock(*res1);
+    }
+    else if (dispatchValue == "audio") {
+        const auto res2 = fromJson<AudioContent>(val);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        return ContentBlock(*res2);
+    }
+    else if (dispatchValue == "resource_link") {
+        const auto res3 = fromJson<ResourceLink>(val);
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        return ContentBlock(*res3);
+    }
+    else if (dispatchValue == "resource") {
+        const auto res4 = fromJson<EmbeddedResource>(val);
+        if (!res4)
+            return Utils::ResultError(res4.error());
+        return ContentBlock(*res4);
+    }
+    return Utils::ResultError("Invalid ContentBlock: unknown type \"" + dispatchValue + "\"");
 }
 
 QString dispatchValue(const ContentBlock &val)
@@ -1441,18 +1594,22 @@ template<>
 Utils::Result<Content> fromJson<Content>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for Content");
+        return Utils::ResultError("Expected JSON object for Content");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("content"))
-        co_return Utils::ResultError("Missing required field: content");
+        return Utils::ResultError("Missing required field: content");
     Content result;
-    if (obj.contains("content"))
-        result._content = co_await fromJson<ContentBlock>(obj["content"]);
+    if (obj.contains("content")) {
+        const auto res0 = fromJson<ContentBlock>(obj["content"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._content = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const Content &data)
@@ -1504,18 +1661,22 @@ template<>
 Utils::Result<Terminal> fromJson<Terminal>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for Terminal");
+        return Utils::ResultError("Expected JSON object for Terminal");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("terminalId"))
-        co_return Utils::ResultError("Missing required field: terminalId");
+        return Utils::ResultError("Missing required field: terminalId");
     Terminal result;
-    if (obj.contains("terminalId") && obj["terminalId"].isString())
-        result._terminalId = co_await fromJson<TerminalId>(obj["terminalId"]);
+    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
+        const auto res0 = fromJson<TerminalId>(obj["terminalId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._terminalId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const Terminal &data)
@@ -1530,15 +1691,27 @@ template<>
 Utils::Result<ToolCallContent> fromJson<ToolCallContent>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid ToolCallContent: expected object");
+        return Utils::ResultError("Invalid ToolCallContent: expected object");
     const QString dispatchValue = val.toObject().value("type").toString();
-    if (dispatchValue == "content")
-        co_return ToolCallContent(co_await fromJson<Content>(val));
-    else if (dispatchValue == "diff")
-        co_return ToolCallContent(co_await fromJson<Diff>(val));
-    else if (dispatchValue == "terminal")
-        co_return ToolCallContent(co_await fromJson<Terminal>(val));
-    co_return Utils::ResultError("Invalid ToolCallContent: unknown type \"" + dispatchValue + "\"");
+    if (dispatchValue == "content") {
+        const auto res0 = fromJson<Content>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return ToolCallContent(*res0);
+    }
+    else if (dispatchValue == "diff") {
+        const auto res1 = fromJson<Diff>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return ToolCallContent(*res1);
+    }
+    else if (dispatchValue == "terminal") {
+        const auto res2 = fromJson<Terminal>(val);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        return ToolCallContent(*res2);
+    }
+    return Utils::ResultError("Invalid ToolCallContent: unknown type \"" + dispatchValue + "\"");
 }
 
 QString dispatchValue(const ToolCallContent &val)
@@ -1672,17 +1845,29 @@ template<>
 Utils::Result<ToolCallUpdate> fromJson<ToolCallUpdate>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ToolCallUpdate");
+        return Utils::ResultError("Expected JSON object for ToolCallUpdate");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("toolCallId"))
-        co_return Utils::ResultError("Missing required field: toolCallId");
+        return Utils::ResultError("Missing required field: toolCallId");
     ToolCallUpdate result;
-    if (obj.contains("toolCallId") && obj["toolCallId"].isString())
-        result._toolCallId = co_await fromJson<ToolCallId>(obj["toolCallId"]);
-    if (obj.contains("kind") && !obj["kind"].isNull())
-        result._kind = co_await fromJson<ToolKind>(obj["kind"]);
-    if (obj.contains("status") && !obj["status"].isNull())
-        result._status = co_await fromJson<ToolCallStatus>(obj["status"]);
+    if (obj.contains("toolCallId") && obj["toolCallId"].isString()) {
+        const auto res0 = fromJson<ToolCallId>(obj["toolCallId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._toolCallId = *res0;
+    }
+    if (obj.contains("kind") && !obj["kind"].isNull()) {
+        const auto res1 = fromJson<ToolKind>(obj["kind"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._kind = *res1;
+    }
+    if (obj.contains("status") && !obj["status"].isNull()) {
+        const auto res2 = fromJson<ToolCallStatus>(obj["status"]);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        result._status = *res2;
+    }
     if (obj.contains("title"))
         if (!obj["title"].isNull()) {
             result._title = obj.value("title").toString();
@@ -1703,7 +1888,7 @@ Utils::Result<ToolCallUpdate> fromJson<ToolCallUpdate>(const QJsonValue &val)
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ToolCallUpdate &data)
@@ -1732,30 +1917,41 @@ template<>
 Utils::Result<RequestPermissionRequest> fromJson<RequestPermissionRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for RequestPermissionRequest");
+        return Utils::ResultError("Expected JSON object for RequestPermissionRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("toolCall"))
-        co_return Utils::ResultError("Missing required field: toolCall");
+        return Utils::ResultError("Missing required field: toolCall");
     if (!obj.contains("options"))
-        co_return Utils::ResultError("Missing required field: options");
+        return Utils::ResultError("Missing required field: options");
     RequestPermissionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("toolCall") && obj["toolCall"].isObject())
-        result._toolCall = co_await fromJson<ToolCallUpdate>(obj["toolCall"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("toolCall") && obj["toolCall"].isObject()) {
+        const auto res1 = fromJson<ToolCallUpdate>(obj["toolCall"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._toolCall = *res1;
+    }
     if (obj.contains("options") && obj["options"].isArray()) {
         const QJsonArray arr = obj["options"].toArray();
         for (const QJsonValue &v : arr) {
-            result._options.append(co_await fromJson<PermissionOption>(v));
+            const auto res2 = fromJson<PermissionOption>(v);
+            if (!res2)
+                return Utils::ResultError(res2.error());
+            result._options.append(*res2);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const RequestPermissionRequest &data)
@@ -1776,22 +1972,30 @@ template<>
 Utils::Result<TerminalOutputRequest> fromJson<TerminalOutputRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for TerminalOutputRequest");
+        return Utils::ResultError("Expected JSON object for TerminalOutputRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("terminalId"))
-        co_return Utils::ResultError("Missing required field: terminalId");
+        return Utils::ResultError("Missing required field: terminalId");
     TerminalOutputRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("terminalId") && obj["terminalId"].isString())
-        result._terminalId = co_await fromJson<TerminalId>(obj["terminalId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
+        const auto res1 = fromJson<TerminalId>(obj["terminalId"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._terminalId = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const TerminalOutputRequest &data)
@@ -1809,22 +2013,30 @@ template<>
 Utils::Result<WaitForTerminalExitRequest> fromJson<WaitForTerminalExitRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for WaitForTerminalExitRequest");
+        return Utils::ResultError("Expected JSON object for WaitForTerminalExitRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("terminalId"))
-        co_return Utils::ResultError("Missing required field: terminalId");
+        return Utils::ResultError("Missing required field: terminalId");
     WaitForTerminalExitRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("terminalId") && obj["terminalId"].isString())
-        result._terminalId = co_await fromJson<TerminalId>(obj["terminalId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
+        const auto res1 = fromJson<TerminalId>(obj["terminalId"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._terminalId = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const WaitForTerminalExitRequest &data)
@@ -1842,24 +2054,28 @@ template<>
 Utils::Result<WriteTextFileRequest> fromJson<WriteTextFileRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for WriteTextFileRequest");
+        return Utils::ResultError("Expected JSON object for WriteTextFileRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("path"))
-        co_return Utils::ResultError("Missing required field: path");
+        return Utils::ResultError("Missing required field: path");
     if (!obj.contains("content"))
-        co_return Utils::ResultError("Missing required field: content");
+        return Utils::ResultError("Missing required field: content");
     WriteTextFileRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
     result._path = obj.value("path").toString();
     result._content = obj.value("content").toString();
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const WriteTextFileRequest &data)
@@ -1878,19 +2094,23 @@ template<>
 Utils::Result<AgentRequest> fromJson<AgentRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for AgentRequest");
+        return Utils::ResultError("Expected JSON object for AgentRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     if (!obj.contains("method"))
-        co_return Utils::ResultError("Missing required field: method");
+        return Utils::ResultError("Missing required field: method");
     AgentRequest result;
-    if (obj.contains("id"))
-        result._id = co_await fromJson<RequestId>(obj["id"]);
+    if (obj.contains("id")) {
+        const auto res0 = fromJson<RequestId>(obj["id"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._id = *res0;
+    }
     result._method = obj.value("method").toString();
     if (obj.contains("params"))
         result._params = obj.value("params").toString();
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const AgentRequest &data)
@@ -2025,16 +2245,20 @@ template<>
 Utils::Result<AgentAuthCapabilities> fromJson<AgentAuthCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for AgentAuthCapabilities");
+        return Utils::ResultError("Expected JSON object for AgentAuthCapabilities");
     const QJsonObject obj = val.toObject();
     AgentAuthCapabilities result;
-    if (obj.contains("logout") && !obj["logout"].isNull())
-        result._logout = co_await fromJson<LogoutCapabilities>(obj["logout"]);
+    if (obj.contains("logout") && !obj["logout"].isNull()) {
+        const auto res0 = fromJson<LogoutCapabilities>(obj["logout"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._logout = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const AgentAuthCapabilities &data)
@@ -2225,24 +2449,44 @@ template<>
 Utils::Result<SessionCapabilities> fromJson<SessionCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionCapabilities");
+        return Utils::ResultError("Expected JSON object for SessionCapabilities");
     const QJsonObject obj = val.toObject();
     SessionCapabilities result;
-    if (obj.contains("list") && !obj["list"].isNull())
-        result._list = co_await fromJson<SessionListCapabilities>(obj["list"]);
-    if (obj.contains("delete") && !obj["delete"].isNull())
-        result._delete_ = co_await fromJson<SessionDeleteCapabilities>(obj["delete"]);
-    if (obj.contains("additionalDirectories") && !obj["additionalDirectories"].isNull())
-        result._additionalDirectories = co_await fromJson<SessionAdditionalDirectoriesCapabilities>(obj["additionalDirectories"]);
-    if (obj.contains("resume") && !obj["resume"].isNull())
-        result._resume = co_await fromJson<SessionResumeCapabilities>(obj["resume"]);
-    if (obj.contains("close") && !obj["close"].isNull())
-        result._close = co_await fromJson<SessionCloseCapabilities>(obj["close"]);
+    if (obj.contains("list") && !obj["list"].isNull()) {
+        const auto res0 = fromJson<SessionListCapabilities>(obj["list"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._list = *res0;
+    }
+    if (obj.contains("delete") && !obj["delete"].isNull()) {
+        const auto res1 = fromJson<SessionDeleteCapabilities>(obj["delete"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._delete_ = *res1;
+    }
+    if (obj.contains("additionalDirectories") && !obj["additionalDirectories"].isNull()) {
+        const auto res2 = fromJson<SessionAdditionalDirectoriesCapabilities>(obj["additionalDirectories"]);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        result._additionalDirectories = *res2;
+    }
+    if (obj.contains("resume") && !obj["resume"].isNull()) {
+        const auto res3 = fromJson<SessionResumeCapabilities>(obj["resume"]);
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        result._resume = *res3;
+    }
+    if (obj.contains("close") && !obj["close"].isNull()) {
+        const auto res4 = fromJson<SessionCloseCapabilities>(obj["close"]);
+        if (!res4)
+            return Utils::ResultError(res4.error());
+        result._close = *res4;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SessionCapabilities &data)
@@ -2267,24 +2511,40 @@ template<>
 Utils::Result<AgentCapabilities> fromJson<AgentCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for AgentCapabilities");
+        return Utils::ResultError("Expected JSON object for AgentCapabilities");
     const QJsonObject obj = val.toObject();
     AgentCapabilities result;
     if (obj.contains("loadSession"))
         result._loadSession = obj.value("loadSession").toBool();
-    if (obj.contains("promptCapabilities") && obj["promptCapabilities"].isObject())
-        result._promptCapabilities = co_await fromJson<PromptCapabilities>(obj["promptCapabilities"]);
-    if (obj.contains("mcpCapabilities") && obj["mcpCapabilities"].isObject())
-        result._mcpCapabilities = co_await fromJson<McpCapabilities>(obj["mcpCapabilities"]);
-    if (obj.contains("sessionCapabilities") && obj["sessionCapabilities"].isObject())
-        result._sessionCapabilities = co_await fromJson<SessionCapabilities>(obj["sessionCapabilities"]);
-    if (obj.contains("auth") && obj["auth"].isObject())
-        result._auth = co_await fromJson<AgentAuthCapabilities>(obj["auth"]);
+    if (obj.contains("promptCapabilities") && obj["promptCapabilities"].isObject()) {
+        const auto res0 = fromJson<PromptCapabilities>(obj["promptCapabilities"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._promptCapabilities = *res0;
+    }
+    if (obj.contains("mcpCapabilities") && obj["mcpCapabilities"].isObject()) {
+        const auto res1 = fromJson<McpCapabilities>(obj["mcpCapabilities"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._mcpCapabilities = *res1;
+    }
+    if (obj.contains("sessionCapabilities") && obj["sessionCapabilities"].isObject()) {
+        const auto res2 = fromJson<SessionCapabilities>(obj["sessionCapabilities"]);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        result._sessionCapabilities = *res2;
+    }
+    if (obj.contains("auth") && obj["auth"].isObject()) {
+        const auto res3 = fromJson<AgentAuthCapabilities>(obj["auth"]);
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        result._auth = *res3;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const AgentCapabilities &data)
@@ -2309,15 +2569,19 @@ template<>
 Utils::Result<AuthMethodAgent> fromJson<AuthMethodAgent>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for AuthMethodAgent");
+        return Utils::ResultError("Expected JSON object for AuthMethodAgent");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     AuthMethodAgent result;
-    if (obj.contains("id") && obj["id"].isString())
-        result._id = co_await fromJson<AuthMethodId>(obj["id"]);
+    if (obj.contains("id") && obj["id"].isString()) {
+        const auto res0 = fromJson<AuthMethodId>(obj["id"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._id = *res0;
+    }
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
@@ -2327,7 +2591,7 @@ Utils::Result<AuthMethodAgent> fromJson<AuthMethodAgent>(const QJsonValue &val)
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const AuthMethodAgent &data)
@@ -2347,15 +2611,19 @@ template<>
 Utils::Result<AuthMethodTerminal> fromJson<AuthMethodTerminal>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for AuthMethodTerminal");
+        return Utils::ResultError("Expected JSON object for AuthMethodTerminal");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     AuthMethodTerminal result;
-    if (obj.contains("id") && obj["id"].isString())
-        result._id = co_await fromJson<AuthMethodId>(obj["id"]);
+    if (obj.contains("id") && obj["id"].isString()) {
+        const auto res0 = fromJson<AuthMethodId>(obj["id"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._id = *res0;
+    }
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
@@ -2380,7 +2648,7 @@ Utils::Result<AuthMethodTerminal> fromJson<AuthMethodTerminal>(const QJsonValue 
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const AuthMethodTerminal &data)
@@ -2411,15 +2679,27 @@ template<>
 Utils::Result<AuthMethod> fromJson<AuthMethod>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid AuthMethod: expected object");
+        return Utils::ResultError("Invalid AuthMethod: expected object");
     const QString dispatchValue = val.toObject().value("type").toString();
-    if (dispatchValue == "terminal")
-        co_return AuthMethod(co_await fromJson<AuthMethodTerminal>(val));
-    else if (dispatchValue == "agent")
-        co_return AuthMethod(co_await fromJson<AuthMethodAgent>(val));
-    if (dispatchValue.isEmpty())
-        co_return AuthMethod(co_await fromJson<AuthMethodAgent>(val));
-    co_return Utils::ResultError("Invalid AuthMethod: unknown type \"" + dispatchValue + "\"");
+    if (dispatchValue == "terminal") {
+        const auto res0 = fromJson<AuthMethodTerminal>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return AuthMethod(*res0);
+    }
+    else if (dispatchValue == "agent") {
+        const auto res1 = fromJson<AuthMethodAgent>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return AuthMethod(*res1);
+    }
+    if (dispatchValue.isEmpty()) {
+        const auto res2 = fromJson<AuthMethodAgent>(val);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        return AuthMethod(*res2);
+    }
+    return Utils::ResultError("Invalid AuthMethod: unknown type \"" + dispatchValue + "\"");
 }
 
 QString dispatchValue(const AuthMethod &val)
@@ -2503,30 +2783,45 @@ template<>
 Utils::Result<InitializeResponse> fromJson<InitializeResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for InitializeResponse");
+        return Utils::ResultError("Expected JSON object for InitializeResponse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("protocolVersion"))
-        co_return Utils::ResultError("Missing required field: protocolVersion");
+        return Utils::ResultError("Missing required field: protocolVersion");
     InitializeResponse result;
-    if (obj.contains("protocolVersion") && obj["protocolVersion"].isDouble())
-        result._protocolVersion = co_await fromJson<ProtocolVersion>(obj["protocolVersion"]);
-    if (obj.contains("agentCapabilities") && obj["agentCapabilities"].isObject())
-        result._agentCapabilities = co_await fromJson<AgentCapabilities>(obj["agentCapabilities"]);
+    if (obj.contains("protocolVersion") && obj["protocolVersion"].isDouble()) {
+        const auto res0 = fromJson<ProtocolVersion>(obj["protocolVersion"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._protocolVersion = *res0;
+    }
+    if (obj.contains("agentCapabilities") && obj["agentCapabilities"].isObject()) {
+        const auto res1 = fromJson<AgentCapabilities>(obj["agentCapabilities"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._agentCapabilities = *res1;
+    }
     if (obj.contains("authMethods") && obj["authMethods"].isArray()) {
         const QJsonArray arr = obj["authMethods"].toArray();
         QList<AuthMethod> list_authMethods;
         for (const QJsonValue &v : arr) {
-            list_authMethods.append(co_await fromJson<AuthMethod>(v));
+            const auto res2 = fromJson<AuthMethod>(v);
+            if (!res2)
+                return Utils::ResultError(res2.error());
+            list_authMethods.append(*res2);
         }
         result._authMethods = list_authMethods;
     }
-    if (obj.contains("agentInfo") && !obj["agentInfo"].isNull())
-        result._agentInfo = co_await fromJson<Implementation>(obj["agentInfo"]);
+    if (obj.contains("agentInfo") && !obj["agentInfo"].isNull()) {
+        const auto res3 = fromJson<Implementation>(obj["agentInfo"]);
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        result._agentInfo = *res3;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const InitializeResponse &data)
@@ -2550,15 +2845,19 @@ template<>
 Utils::Result<SessionInfo> fromJson<SessionInfo>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionInfo");
+        return Utils::ResultError("Expected JSON object for SessionInfo");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("cwd"))
-        co_return Utils::ResultError("Missing required field: cwd");
+        return Utils::ResultError("Missing required field: cwd");
     SessionInfo result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
     result._cwd = obj.value("cwd").toString();
     if (obj.contains("additionalDirectories") && obj["additionalDirectories"].isArray()) {
         const QJsonArray arr = obj["additionalDirectories"].toArray();
@@ -2580,7 +2879,7 @@ Utils::Result<SessionInfo> fromJson<SessionInfo>(const QJsonValue &val)
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SessionInfo &data)
@@ -2607,15 +2906,18 @@ template<>
 Utils::Result<ListSessionsResponse> fromJson<ListSessionsResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ListSessionsResponse");
+        return Utils::ResultError("Expected JSON object for ListSessionsResponse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessions"))
-        co_return Utils::ResultError("Missing required field: sessions");
+        return Utils::ResultError("Missing required field: sessions");
     ListSessionsResponse result;
     if (obj.contains("sessions") && obj["sessions"].isArray()) {
         const QJsonArray arr = obj["sessions"].toArray();
         for (const QJsonValue &v : arr) {
-            result._sessions.append(co_await fromJson<SessionInfo>(v));
+            const auto res0 = fromJson<SessionInfo>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._sessions.append(*res0);
         }
     }
     if (obj.contains("nextCursor"))
@@ -2626,7 +2928,7 @@ Utils::Result<ListSessionsResponse> fromJson<ListSessionsResponse>(const QJsonVa
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ListSessionsResponse &data)
@@ -2692,15 +2994,19 @@ template<>
 Utils::Result<SessionConfigSelectOption> fromJson<SessionConfigSelectOption>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionConfigSelectOption");
+        return Utils::ResultError("Expected JSON object for SessionConfigSelectOption");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("value"))
-        co_return Utils::ResultError("Missing required field: value");
+        return Utils::ResultError("Missing required field: value");
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     SessionConfigSelectOption result;
-    if (obj.contains("value") && obj["value"].isString())
-        result._value = co_await fromJson<SessionConfigValueId>(obj["value"]);
+    if (obj.contains("value") && obj["value"].isString()) {
+        const auto res0 = fromJson<SessionConfigValueId>(obj["value"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._value = *res0;
+    }
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
@@ -2710,7 +3016,7 @@ Utils::Result<SessionConfigSelectOption> fromJson<SessionConfigSelectOption>(con
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SessionConfigSelectOption &data)
@@ -2730,29 +3036,36 @@ template<>
 Utils::Result<SessionConfigSelectGroup> fromJson<SessionConfigSelectGroup>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionConfigSelectGroup");
+        return Utils::ResultError("Expected JSON object for SessionConfigSelectGroup");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("group"))
-        co_return Utils::ResultError("Missing required field: group");
+        return Utils::ResultError("Missing required field: group");
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     if (!obj.contains("options"))
-        co_return Utils::ResultError("Missing required field: options");
+        return Utils::ResultError("Missing required field: options");
     SessionConfigSelectGroup result;
-    if (obj.contains("group") && obj["group"].isString())
-        result._group = co_await fromJson<SessionConfigGroupId>(obj["group"]);
+    if (obj.contains("group") && obj["group"].isString()) {
+        const auto res0 = fromJson<SessionConfigGroupId>(obj["group"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._group = *res0;
+    }
     result._name = obj.value("name").toString();
     if (obj.contains("options") && obj["options"].isArray()) {
         const QJsonArray arr = obj["options"].toArray();
         for (const QJsonValue &v : arr) {
-            result._options.append(co_await fromJson<SessionConfigSelectOption>(v));
+            const auto res1 = fromJson<SessionConfigSelectOption>(v);
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            result._options.append(*res1);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SessionConfigSelectGroup &data)
@@ -2821,18 +3134,26 @@ template<>
 Utils::Result<SessionConfigSelect> fromJson<SessionConfigSelect>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionConfigSelect");
+        return Utils::ResultError("Expected JSON object for SessionConfigSelect");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("currentValue"))
-        co_return Utils::ResultError("Missing required field: currentValue");
+        return Utils::ResultError("Missing required field: currentValue");
     if (!obj.contains("options"))
-        co_return Utils::ResultError("Missing required field: options");
+        return Utils::ResultError("Missing required field: options");
     SessionConfigSelect result;
-    if (obj.contains("currentValue") && obj["currentValue"].isString())
-        result._currentValue = co_await fromJson<SessionConfigValueId>(obj["currentValue"]);
-    if (obj.contains("options"))
-        result._options = co_await fromJson<SessionConfigSelectOptions>(obj["options"]);
-    co_return result;
+    if (obj.contains("currentValue") && obj["currentValue"].isString()) {
+        const auto res0 = fromJson<SessionConfigValueId>(obj["currentValue"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._currentValue = *res0;
+    }
+    if (obj.contains("options")) {
+        const auto res1 = fromJson<SessionConfigSelectOptions>(obj["options"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._options = *res1;
+    }
+    return result;
 }
 
 QJsonObject toJson(const SessionConfigSelect &data)
@@ -2848,22 +3169,30 @@ template<>
 Utils::Result<SessionConfigOption> fromJson<SessionConfigOption>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionConfigOption");
+        return Utils::ResultError("Expected JSON object for SessionConfigOption");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     SessionConfigOption result;
-    if (obj.contains("id") && obj["id"].isString())
-        result._id = co_await fromJson<SessionConfigId>(obj["id"]);
+    if (obj.contains("id") && obj["id"].isString()) {
+        const auto res0 = fromJson<SessionConfigId>(obj["id"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._id = *res0;
+    }
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
             result._description = obj.value("description").toString();
         }
-    if (obj.contains("category") && !obj["category"].isNull())
-        result._category = co_await fromJson<SessionConfigOptionCategory>(obj["category"]);
+    if (obj.contains("category") && !obj["category"].isNull()) {
+        const auto res1 = fromJson<SessionConfigOptionCategory>(obj["category"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._category = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -2875,7 +3204,7 @@ Utils::Result<SessionConfigOption> fromJson<SessionConfigOption>(const QJsonValu
                 result._additionalProperties.insert(it.key(), it.value());
         }
     }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SessionConfigOption &data)
@@ -2899,15 +3228,19 @@ template<>
 Utils::Result<SessionMode> fromJson<SessionMode>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionMode");
+        return Utils::ResultError("Expected JSON object for SessionMode");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     SessionMode result;
-    if (obj.contains("id") && obj["id"].isString())
-        result._id = co_await fromJson<SessionModeId>(obj["id"]);
+    if (obj.contains("id") && obj["id"].isString()) {
+        const auto res0 = fromJson<SessionModeId>(obj["id"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._id = *res0;
+    }
     result._name = obj.value("name").toString();
     if (obj.contains("description"))
         if (!obj["description"].isNull()) {
@@ -2917,7 +3250,7 @@ Utils::Result<SessionMode> fromJson<SessionMode>(const QJsonValue &val)
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SessionMode &data)
@@ -2937,26 +3270,33 @@ template<>
 Utils::Result<SessionModeState> fromJson<SessionModeState>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionModeState");
+        return Utils::ResultError("Expected JSON object for SessionModeState");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("currentModeId"))
-        co_return Utils::ResultError("Missing required field: currentModeId");
+        return Utils::ResultError("Missing required field: currentModeId");
     if (!obj.contains("availableModes"))
-        co_return Utils::ResultError("Missing required field: availableModes");
+        return Utils::ResultError("Missing required field: availableModes");
     SessionModeState result;
-    if (obj.contains("currentModeId") && obj["currentModeId"].isString())
-        result._currentModeId = co_await fromJson<SessionModeId>(obj["currentModeId"]);
+    if (obj.contains("currentModeId") && obj["currentModeId"].isString()) {
+        const auto res0 = fromJson<SessionModeId>(obj["currentModeId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._currentModeId = *res0;
+    }
     if (obj.contains("availableModes") && obj["availableModes"].isArray()) {
         const QJsonArray arr = obj["availableModes"].toArray();
         for (const QJsonValue &v : arr) {
-            result._availableModes.append(co_await fromJson<SessionMode>(v));
+            const auto res1 = fromJson<SessionMode>(v);
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            result._availableModes.append(*res1);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SessionModeState &data)
@@ -2974,11 +3314,15 @@ template<>
 Utils::Result<LoadSessionResponse> fromJson<LoadSessionResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for LoadSessionResponse");
+        return Utils::ResultError("Expected JSON object for LoadSessionResponse");
     const QJsonObject obj = val.toObject();
     LoadSessionResponse result;
-    if (obj.contains("modes") && !obj["modes"].isNull())
-        result._modes = co_await fromJson<SessionModeState>(obj["modes"]);
+    if (obj.contains("modes") && !obj["modes"].isNull()) {
+        const auto res0 = fromJson<SessionModeState>(obj["modes"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._modes = *res0;
+    }
     if (obj.contains("configOptions"))
         if (!obj["configOptions"].isNull()) {
             result._configOptions = obj.value("configOptions").toArray();
@@ -2987,7 +3331,7 @@ Utils::Result<LoadSessionResponse> fromJson<LoadSessionResponse>(const QJsonValu
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const LoadSessionResponse &data)
@@ -3028,15 +3372,23 @@ template<>
 Utils::Result<NewSessionResponse> fromJson<NewSessionResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for NewSessionResponse");
+        return Utils::ResultError("Expected JSON object for NewSessionResponse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     NewSessionResponse result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("modes") && !obj["modes"].isNull())
-        result._modes = co_await fromJson<SessionModeState>(obj["modes"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("modes") && !obj["modes"].isNull()) {
+        const auto res1 = fromJson<SessionModeState>(obj["modes"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._modes = *res1;
+    }
     if (obj.contains("configOptions"))
         if (!obj["configOptions"].isNull()) {
             result._configOptions = obj.value("configOptions").toArray();
@@ -3045,7 +3397,7 @@ Utils::Result<NewSessionResponse> fromJson<NewSessionResponse>(const QJsonValue 
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const NewSessionResponse &data)
@@ -3093,18 +3445,22 @@ template<>
 Utils::Result<PromptResponse> fromJson<PromptResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for PromptResponse");
+        return Utils::ResultError("Expected JSON object for PromptResponse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("stopReason"))
-        co_return Utils::ResultError("Missing required field: stopReason");
+        return Utils::ResultError("Missing required field: stopReason");
     PromptResponse result;
-    if (obj.contains("stopReason") && obj["stopReason"].isString())
-        result._stopReason = co_await fromJson<StopReason>(obj["stopReason"]);
+    if (obj.contains("stopReason") && obj["stopReason"].isString()) {
+        const auto res0 = fromJson<StopReason>(obj["stopReason"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._stopReason = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const PromptResponse &data)
@@ -3119,11 +3475,15 @@ template<>
 Utils::Result<ResumeSessionResponse> fromJson<ResumeSessionResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ResumeSessionResponse");
+        return Utils::ResultError("Expected JSON object for ResumeSessionResponse");
     const QJsonObject obj = val.toObject();
     ResumeSessionResponse result;
-    if (obj.contains("modes") && !obj["modes"].isNull())
-        result._modes = co_await fromJson<SessionModeState>(obj["modes"]);
+    if (obj.contains("modes") && !obj["modes"].isNull()) {
+        const auto res0 = fromJson<SessionModeState>(obj["modes"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._modes = *res0;
+    }
     if (obj.contains("configOptions"))
         if (!obj["configOptions"].isNull()) {
             result._configOptions = obj.value("configOptions").toArray();
@@ -3132,7 +3492,7 @@ Utils::Result<ResumeSessionResponse> fromJson<ResumeSessionResponse>(const QJson
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ResumeSessionResponse &data)
@@ -3151,22 +3511,25 @@ template<>
 Utils::Result<SetSessionConfigOptionResponse> fromJson<SetSessionConfigOptionResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SetSessionConfigOptionResponse");
+        return Utils::ResultError("Expected JSON object for SetSessionConfigOptionResponse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("configOptions"))
-        co_return Utils::ResultError("Missing required field: configOptions");
+        return Utils::ResultError("Missing required field: configOptions");
     SetSessionConfigOptionResponse result;
     if (obj.contains("configOptions") && obj["configOptions"].isArray()) {
         const QJsonArray arr = obj["configOptions"].toArray();
         for (const QJsonValue &v : arr) {
-            result._configOptions.append(co_await fromJson<SessionConfigOption>(v));
+            const auto res0 = fromJson<SessionConfigOption>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._configOptions.append(*res0);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SetSessionConfigOptionResponse &data)
@@ -3223,18 +3586,22 @@ template<>
 Utils::Result<CompleteElicitationNotification> fromJson<CompleteElicitationNotification>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for CompleteElicitationNotification");
+        return Utils::ResultError("Expected JSON object for CompleteElicitationNotification");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("elicitationId"))
-        co_return Utils::ResultError("Missing required field: elicitationId");
+        return Utils::ResultError("Missing required field: elicitationId");
     CompleteElicitationNotification result;
-    if (obj.contains("elicitationId") && obj["elicitationId"].isString())
-        result._elicitationId = co_await fromJson<ElicitationId>(obj["elicitationId"]);
+    if (obj.contains("elicitationId") && obj["elicitationId"].isString()) {
+        const auto res0 = fromJson<ElicitationId>(obj["elicitationId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._elicitationId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const CompleteElicitationNotification &data)
@@ -3274,11 +3641,15 @@ template<>
 Utils::Result<AvailableCommandInput> fromJson<AvailableCommandInput>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid AvailableCommandInput: expected object");
+        return Utils::ResultError("Invalid AvailableCommandInput: expected object");
     const QJsonObject obj = val.toObject();
-    if (obj.contains("hint"))
-        co_return AvailableCommandInput(co_await fromJson<UnstructuredCommandInput>(val));
-    co_return Utils::ResultError("Invalid AvailableCommandInput");
+    if (obj.contains("hint")) {
+        const auto res0 = fromJson<UnstructuredCommandInput>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return AvailableCommandInput(*res0);
+    }
+    return Utils::ResultError("Invalid AvailableCommandInput");
 }
 
 QString hint(const AvailableCommandInput &val)
@@ -3307,22 +3678,26 @@ template<>
 Utils::Result<AvailableCommand> fromJson<AvailableCommand>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for AvailableCommand");
+        return Utils::ResultError("Expected JSON object for AvailableCommand");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     if (!obj.contains("description"))
-        co_return Utils::ResultError("Missing required field: description");
+        return Utils::ResultError("Missing required field: description");
     AvailableCommand result;
     result._name = obj.value("name").toString();
     result._description = obj.value("description").toString();
-    if (obj.contains("input") && !obj["input"].isNull())
-        result._input = co_await fromJson<AvailableCommandInput>(obj["input"]);
+    if (obj.contains("input") && !obj["input"].isNull()) {
+        const auto res0 = fromJson<AvailableCommandInput>(obj["input"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._input = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const AvailableCommand &data)
@@ -3342,22 +3717,25 @@ template<>
 Utils::Result<AvailableCommandsUpdate> fromJson<AvailableCommandsUpdate>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for AvailableCommandsUpdate");
+        return Utils::ResultError("Expected JSON object for AvailableCommandsUpdate");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("availableCommands"))
-        co_return Utils::ResultError("Missing required field: availableCommands");
+        return Utils::ResultError("Missing required field: availableCommands");
     AvailableCommandsUpdate result;
     if (obj.contains("availableCommands") && obj["availableCommands"].isArray()) {
         const QJsonArray arr = obj["availableCommands"].toArray();
         for (const QJsonValue &v : arr) {
-            result._availableCommands.append(co_await fromJson<AvailableCommand>(v));
+            const auto res0 = fromJson<AvailableCommand>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._availableCommands.append(*res0);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const AvailableCommandsUpdate &data)
@@ -3375,22 +3753,25 @@ template<>
 Utils::Result<ConfigOptionUpdate> fromJson<ConfigOptionUpdate>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ConfigOptionUpdate");
+        return Utils::ResultError("Expected JSON object for ConfigOptionUpdate");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("configOptions"))
-        co_return Utils::ResultError("Missing required field: configOptions");
+        return Utils::ResultError("Missing required field: configOptions");
     ConfigOptionUpdate result;
     if (obj.contains("configOptions") && obj["configOptions"].isArray()) {
         const QJsonArray arr = obj["configOptions"].toArray();
         for (const QJsonValue &v : arr) {
-            result._configOptions.append(co_await fromJson<SessionConfigOption>(v));
+            const auto res0 = fromJson<SessionConfigOption>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._configOptions.append(*res0);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ConfigOptionUpdate &data)
@@ -3408,20 +3789,28 @@ template<>
 Utils::Result<ContentChunk> fromJson<ContentChunk>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ContentChunk");
+        return Utils::ResultError("Expected JSON object for ContentChunk");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("content"))
-        co_return Utils::ResultError("Missing required field: content");
+        return Utils::ResultError("Missing required field: content");
     ContentChunk result;
-    if (obj.contains("content"))
-        result._content = co_await fromJson<ContentBlock>(obj["content"]);
-    if (obj.contains("messageId") && !obj["messageId"].isNull())
-        result._messageId = co_await fromJson<MessageId>(obj["messageId"]);
+    if (obj.contains("content")) {
+        const auto res0 = fromJson<ContentBlock>(obj["content"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._content = *res0;
+    }
+    if (obj.contains("messageId") && !obj["messageId"].isNull()) {
+        const auto res1 = fromJson<MessageId>(obj["messageId"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._messageId = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ContentChunk &data)
@@ -3438,18 +3827,22 @@ template<>
 Utils::Result<CurrentModeUpdate> fromJson<CurrentModeUpdate>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for CurrentModeUpdate");
+        return Utils::ResultError("Expected JSON object for CurrentModeUpdate");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("currentModeId"))
-        co_return Utils::ResultError("Missing required field: currentModeId");
+        return Utils::ResultError("Missing required field: currentModeId");
     CurrentModeUpdate result;
-    if (obj.contains("currentModeId") && obj["currentModeId"].isString())
-        result._currentModeId = co_await fromJson<SessionModeId>(obj["currentModeId"]);
+    if (obj.contains("currentModeId") && obj["currentModeId"].isString()) {
+        const auto res0 = fromJson<SessionModeId>(obj["currentModeId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._currentModeId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const CurrentModeUpdate &data)
@@ -3514,25 +3907,33 @@ template<>
 Utils::Result<PlanEntry> fromJson<PlanEntry>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for PlanEntry");
+        return Utils::ResultError("Expected JSON object for PlanEntry");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("content"))
-        co_return Utils::ResultError("Missing required field: content");
+        return Utils::ResultError("Missing required field: content");
     if (!obj.contains("priority"))
-        co_return Utils::ResultError("Missing required field: priority");
+        return Utils::ResultError("Missing required field: priority");
     if (!obj.contains("status"))
-        co_return Utils::ResultError("Missing required field: status");
+        return Utils::ResultError("Missing required field: status");
     PlanEntry result;
     result._content = obj.value("content").toString();
-    if (obj.contains("priority") && obj["priority"].isString())
-        result._priority = co_await fromJson<PlanEntryPriority>(obj["priority"]);
-    if (obj.contains("status") && obj["status"].isString())
-        result._status = co_await fromJson<PlanEntryStatus>(obj["status"]);
+    if (obj.contains("priority") && obj["priority"].isString()) {
+        const auto res0 = fromJson<PlanEntryPriority>(obj["priority"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._priority = *res0;
+    }
+    if (obj.contains("status") && obj["status"].isString()) {
+        const auto res1 = fromJson<PlanEntryStatus>(obj["status"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._status = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const PlanEntry &data)
@@ -3551,22 +3952,25 @@ template<>
 Utils::Result<Plan> fromJson<Plan>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for Plan");
+        return Utils::ResultError("Expected JSON object for Plan");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("entries"))
-        co_return Utils::ResultError("Missing required field: entries");
+        return Utils::ResultError("Missing required field: entries");
     Plan result;
     if (obj.contains("entries") && obj["entries"].isArray()) {
         const QJsonArray arr = obj["entries"].toArray();
         for (const QJsonValue &v : arr) {
-            result._entries.append(co_await fromJson<PlanEntry>(v));
+            const auto res0 = fromJson<PlanEntry>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._entries.append(*res0);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const Plan &data)
@@ -3618,25 +4022,40 @@ template<>
 Utils::Result<ToolCall> fromJson<ToolCall>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ToolCall");
+        return Utils::ResultError("Expected JSON object for ToolCall");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("toolCallId"))
-        co_return Utils::ResultError("Missing required field: toolCallId");
+        return Utils::ResultError("Missing required field: toolCallId");
     if (!obj.contains("title"))
-        co_return Utils::ResultError("Missing required field: title");
+        return Utils::ResultError("Missing required field: title");
     ToolCall result;
-    if (obj.contains("toolCallId") && obj["toolCallId"].isString())
-        result._toolCallId = co_await fromJson<ToolCallId>(obj["toolCallId"]);
+    if (obj.contains("toolCallId") && obj["toolCallId"].isString()) {
+        const auto res0 = fromJson<ToolCallId>(obj["toolCallId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._toolCallId = *res0;
+    }
     result._title = obj.value("title").toString();
-    if (obj.contains("kind") && obj["kind"].isString())
-        result._kind = co_await fromJson<ToolKind>(obj["kind"]);
-    if (obj.contains("status") && obj["status"].isString())
-        result._status = co_await fromJson<ToolCallStatus>(obj["status"]);
+    if (obj.contains("kind") && obj["kind"].isString()) {
+        const auto res1 = fromJson<ToolKind>(obj["kind"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._kind = *res1;
+    }
+    if (obj.contains("status") && obj["status"].isString()) {
+        const auto res2 = fromJson<ToolCallStatus>(obj["status"]);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        result._status = *res2;
+    }
     if (obj.contains("content") && obj["content"].isArray()) {
         const QJsonArray arr = obj["content"].toArray();
         QList<ToolCallContent> list_content;
         for (const QJsonValue &v : arr) {
-            list_content.append(co_await fromJson<ToolCallContent>(v));
+            const auto res3 = fromJson<ToolCallContent>(v);
+            if (!res3)
+                return Utils::ResultError(res3.error());
+            list_content.append(*res3);
         }
         result._content = list_content;
     }
@@ -3644,7 +4063,10 @@ Utils::Result<ToolCall> fromJson<ToolCall>(const QJsonValue &val)
         const QJsonArray arr = obj["locations"].toArray();
         QList<ToolCallLocation> list_locations;
         for (const QJsonValue &v : arr) {
-            list_locations.append(co_await fromJson<ToolCallLocation>(v));
+            const auto res4 = fromJson<ToolCallLocation>(v);
+            if (!res4)
+                return Utils::ResultError(res4.error());
+            list_locations.append(*res4);
         }
         result._locations = list_locations;
     }
@@ -3656,7 +4078,7 @@ Utils::Result<ToolCall> fromJson<ToolCall>(const QJsonValue &val)
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ToolCall &data)
@@ -3723,22 +4145,26 @@ template<>
 Utils::Result<UsageUpdate> fromJson<UsageUpdate>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for UsageUpdate");
+        return Utils::ResultError("Expected JSON object for UsageUpdate");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("used"))
-        co_return Utils::ResultError("Missing required field: used");
+        return Utils::ResultError("Missing required field: used");
     if (!obj.contains("size"))
-        co_return Utils::ResultError("Missing required field: size");
+        return Utils::ResultError("Missing required field: size");
     UsageUpdate result;
     result._used = obj.value("used").toInt();
     result._size = obj.value("size").toInt();
-    if (obj.contains("cost") && !obj["cost"].isNull())
-        result._cost = co_await fromJson<Cost>(obj["cost"]);
+    if (obj.contains("cost") && !obj["cost"].isNull()) {
+        const auto res0 = fromJson<Cost>(obj["cost"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._cost = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const UsageUpdate &data)
@@ -3758,36 +4184,80 @@ template<>
 Utils::Result<SessionUpdate> fromJson<SessionUpdate>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid SessionUpdate: expected object");
+        return Utils::ResultError("Invalid SessionUpdate: expected object");
     const QJsonObject obj = val.toObject();
     const QString kind = obj.value("sessionUpdate").toString();
     SessionUpdate result;
     result._kind = kind;
-    if (kind == "user_message_chunk")
-        result._value = co_await fromJson<ContentChunk>(val);
-    else if (kind == "agent_message_chunk")
-        result._value = co_await fromJson<ContentChunk>(val);
-    else if (kind == "agent_thought_chunk")
-        result._value = co_await fromJson<ContentChunk>(val);
-    else if (kind == "tool_call")
-        result._value = co_await fromJson<ToolCall>(val);
-    else if (kind == "tool_call_update")
-        result._value = co_await fromJson<ToolCallUpdate>(val);
-    else if (kind == "plan")
-        result._value = co_await fromJson<Plan>(val);
-    else if (kind == "available_commands_update")
-        result._value = co_await fromJson<AvailableCommandsUpdate>(val);
-    else if (kind == "current_mode_update")
-        result._value = co_await fromJson<CurrentModeUpdate>(val);
-    else if (kind == "config_option_update")
-        result._value = co_await fromJson<ConfigOptionUpdate>(val);
-    else if (kind == "session_info_update")
-        result._value = co_await fromJson<SessionInfoUpdate>(val);
-    else if (kind == "usage_update")
-        result._value = co_await fromJson<UsageUpdate>(val);
+    if (kind == "user_message_chunk") {
+        const auto res0 = fromJson<ContentChunk>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._value = *res0;
+    }
+    else if (kind == "agent_message_chunk") {
+        const auto res1 = fromJson<ContentChunk>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._value = *res1;
+    }
+    else if (kind == "agent_thought_chunk") {
+        const auto res2 = fromJson<ContentChunk>(val);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        result._value = *res2;
+    }
+    else if (kind == "tool_call") {
+        const auto res3 = fromJson<ToolCall>(val);
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        result._value = *res3;
+    }
+    else if (kind == "tool_call_update") {
+        const auto res4 = fromJson<ToolCallUpdate>(val);
+        if (!res4)
+            return Utils::ResultError(res4.error());
+        result._value = *res4;
+    }
+    else if (kind == "plan") {
+        const auto res5 = fromJson<Plan>(val);
+        if (!res5)
+            return Utils::ResultError(res5.error());
+        result._value = *res5;
+    }
+    else if (kind == "available_commands_update") {
+        const auto res6 = fromJson<AvailableCommandsUpdate>(val);
+        if (!res6)
+            return Utils::ResultError(res6.error());
+        result._value = *res6;
+    }
+    else if (kind == "current_mode_update") {
+        const auto res7 = fromJson<CurrentModeUpdate>(val);
+        if (!res7)
+            return Utils::ResultError(res7.error());
+        result._value = *res7;
+    }
+    else if (kind == "config_option_update") {
+        const auto res8 = fromJson<ConfigOptionUpdate>(val);
+        if (!res8)
+            return Utils::ResultError(res8.error());
+        result._value = *res8;
+    }
+    else if (kind == "session_info_update") {
+        const auto res9 = fromJson<SessionInfoUpdate>(val);
+        if (!res9)
+            return Utils::ResultError(res9.error());
+        result._value = *res9;
+    }
+    else if (kind == "usage_update") {
+        const auto res10 = fromJson<UsageUpdate>(val);
+        if (!res10)
+            return Utils::ResultError(res10.error());
+        result._value = *res10;
+    }
     else
-        co_return Utils::ResultError("Invalid SessionUpdate: unknown sessionUpdate \"" + kind + "\"");
-    co_return result;
+        return Utils::ResultError("Invalid SessionUpdate: unknown sessionUpdate \"" + kind + "\"");
+    return result;
 }
 
 QJsonObject toJson(const SessionUpdate &data)
@@ -3808,22 +4278,30 @@ template<>
 Utils::Result<SessionNotification> fromJson<SessionNotification>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionNotification");
+        return Utils::ResultError("Expected JSON object for SessionNotification");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("update"))
-        co_return Utils::ResultError("Missing required field: update");
+        return Utils::ResultError("Missing required field: update");
     SessionNotification result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("update"))
-        result._update = co_await fromJson<SessionUpdate>(obj["update"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("update")) {
+        const auto res1 = fromJson<SessionUpdate>(obj["update"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._update = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SessionNotification &data)
@@ -3864,18 +4342,22 @@ template<>
 Utils::Result<AuthenticateRequest> fromJson<AuthenticateRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for AuthenticateRequest");
+        return Utils::ResultError("Expected JSON object for AuthenticateRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("methodId"))
-        co_return Utils::ResultError("Missing required field: methodId");
+        return Utils::ResultError("Missing required field: methodId");
     AuthenticateRequest result;
-    if (obj.contains("methodId") && obj["methodId"].isString())
-        result._methodId = co_await fromJson<AuthMethodId>(obj["methodId"]);
+    if (obj.contains("methodId") && obj["methodId"].isString()) {
+        const auto res0 = fromJson<AuthMethodId>(obj["methodId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._methodId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const AuthenticateRequest &data)
@@ -3890,18 +4372,22 @@ template<>
 Utils::Result<CloseSessionRequest> fromJson<CloseSessionRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for CloseSessionRequest");
+        return Utils::ResultError("Expected JSON object for CloseSessionRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     CloseSessionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const CloseSessionRequest &data)
@@ -3916,18 +4402,22 @@ template<>
 Utils::Result<DeleteSessionRequest> fromJson<DeleteSessionRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for DeleteSessionRequest");
+        return Utils::ResultError("Expected JSON object for DeleteSessionRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     DeleteSessionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const DeleteSessionRequest &data)
@@ -3990,16 +4480,20 @@ template<>
 Utils::Result<SessionConfigOptionsCapabilities> fromJson<SessionConfigOptionsCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SessionConfigOptionsCapabilities");
+        return Utils::ResultError("Expected JSON object for SessionConfigOptionsCapabilities");
     const QJsonObject obj = val.toObject();
     SessionConfigOptionsCapabilities result;
-    if (obj.contains("boolean") && !obj["boolean"].isNull())
-        result._boolean = co_await fromJson<BooleanConfigOptionCapabilities>(obj["boolean"]);
+    if (obj.contains("boolean") && !obj["boolean"].isNull()) {
+        const auto res0 = fromJson<BooleanConfigOptionCapabilities>(obj["boolean"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._boolean = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SessionConfigOptionsCapabilities &data)
@@ -4016,16 +4510,20 @@ template<>
 Utils::Result<ClientSessionCapabilities> fromJson<ClientSessionCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ClientSessionCapabilities");
+        return Utils::ResultError("Expected JSON object for ClientSessionCapabilities");
     const QJsonObject obj = val.toObject();
     ClientSessionCapabilities result;
-    if (obj.contains("configOptions") && !obj["configOptions"].isNull())
-        result._configOptions = co_await fromJson<SessionConfigOptionsCapabilities>(obj["configOptions"]);
+    if (obj.contains("configOptions") && !obj["configOptions"].isNull()) {
+        const auto res0 = fromJson<SessionConfigOptionsCapabilities>(obj["configOptions"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._configOptions = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ClientSessionCapabilities &data)
@@ -4086,18 +4584,26 @@ template<>
 Utils::Result<ElicitationCapabilities> fromJson<ElicitationCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ElicitationCapabilities");
+        return Utils::ResultError("Expected JSON object for ElicitationCapabilities");
     const QJsonObject obj = val.toObject();
     ElicitationCapabilities result;
-    if (obj.contains("form") && !obj["form"].isNull())
-        result._form = co_await fromJson<ElicitationFormCapabilities>(obj["form"]);
-    if (obj.contains("url") && !obj["url"].isNull())
-        result._url = co_await fromJson<ElicitationUrlCapabilities>(obj["url"]);
+    if (obj.contains("form") && !obj["form"].isNull()) {
+        const auto res0 = fromJson<ElicitationFormCapabilities>(obj["form"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._form = *res0;
+    }
+    if (obj.contains("url") && !obj["url"].isNull()) {
+        const auto res1 = fromJson<ElicitationUrlCapabilities>(obj["url"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._url = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ElicitationCapabilities &data)
@@ -4146,24 +4652,40 @@ template<>
 Utils::Result<ClientCapabilities> fromJson<ClientCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ClientCapabilities");
+        return Utils::ResultError("Expected JSON object for ClientCapabilities");
     const QJsonObject obj = val.toObject();
     ClientCapabilities result;
-    if (obj.contains("fs") && obj["fs"].isObject())
-        result._fs = co_await fromJson<FileSystemCapabilities>(obj["fs"]);
+    if (obj.contains("fs") && obj["fs"].isObject()) {
+        const auto res0 = fromJson<FileSystemCapabilities>(obj["fs"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._fs = *res0;
+    }
     if (obj.contains("terminal"))
         result._terminal = obj.value("terminal").toBool();
-    if (obj.contains("session") && !obj["session"].isNull())
-        result._session = co_await fromJson<ClientSessionCapabilities>(obj["session"]);
-    if (obj.contains("auth") && obj["auth"].isObject())
-        result._auth = co_await fromJson<AuthCapabilities>(obj["auth"]);
-    if (obj.contains("elicitation") && !obj["elicitation"].isNull())
-        result._elicitation = co_await fromJson<ElicitationCapabilities>(obj["elicitation"]);
+    if (obj.contains("session") && !obj["session"].isNull()) {
+        const auto res1 = fromJson<ClientSessionCapabilities>(obj["session"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._session = *res1;
+    }
+    if (obj.contains("auth") && obj["auth"].isObject()) {
+        const auto res2 = fromJson<AuthCapabilities>(obj["auth"]);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        result._auth = *res2;
+    }
+    if (obj.contains("elicitation") && !obj["elicitation"].isNull()) {
+        const auto res3 = fromJson<ElicitationCapabilities>(obj["elicitation"]);
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        result._elicitation = *res3;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ClientCapabilities &data)
@@ -4188,22 +4710,34 @@ template<>
 Utils::Result<InitializeRequest> fromJson<InitializeRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for InitializeRequest");
+        return Utils::ResultError("Expected JSON object for InitializeRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("protocolVersion"))
-        co_return Utils::ResultError("Missing required field: protocolVersion");
+        return Utils::ResultError("Missing required field: protocolVersion");
     InitializeRequest result;
-    if (obj.contains("protocolVersion") && obj["protocolVersion"].isDouble())
-        result._protocolVersion = co_await fromJson<ProtocolVersion>(obj["protocolVersion"]);
-    if (obj.contains("clientCapabilities") && obj["clientCapabilities"].isObject())
-        result._clientCapabilities = co_await fromJson<ClientCapabilities>(obj["clientCapabilities"]);
-    if (obj.contains("clientInfo") && !obj["clientInfo"].isNull())
-        result._clientInfo = co_await fromJson<Implementation>(obj["clientInfo"]);
+    if (obj.contains("protocolVersion") && obj["protocolVersion"].isDouble()) {
+        const auto res0 = fromJson<ProtocolVersion>(obj["protocolVersion"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._protocolVersion = *res0;
+    }
+    if (obj.contains("clientCapabilities") && obj["clientCapabilities"].isObject()) {
+        const auto res1 = fromJson<ClientCapabilities>(obj["clientCapabilities"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._clientCapabilities = *res1;
+    }
+    if (obj.contains("clientInfo") && !obj["clientInfo"].isNull()) {
+        const auto res2 = fromJson<Implementation>(obj["clientInfo"]);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        result._clientInfo = *res2;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const InitializeRequest &data)
@@ -4287,28 +4821,31 @@ template<>
 Utils::Result<McpServerHttp> fromJson<McpServerHttp>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for McpServerHttp");
+        return Utils::ResultError("Expected JSON object for McpServerHttp");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     if (!obj.contains("url"))
-        co_return Utils::ResultError("Missing required field: url");
+        return Utils::ResultError("Missing required field: url");
     if (!obj.contains("headers"))
-        co_return Utils::ResultError("Missing required field: headers");
+        return Utils::ResultError("Missing required field: headers");
     McpServerHttp result;
     result._name = obj.value("name").toString();
     result._url = obj.value("url").toString();
     if (obj.contains("headers") && obj["headers"].isArray()) {
         const QJsonArray arr = obj["headers"].toArray();
         for (const QJsonValue &v : arr) {
-            result._headers.append(co_await fromJson<HttpHeader>(v));
+            const auto res0 = fromJson<HttpHeader>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._headers.append(*res0);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const McpServerHttp &data)
@@ -4329,28 +4866,31 @@ template<>
 Utils::Result<McpServerSse> fromJson<McpServerSse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for McpServerSse");
+        return Utils::ResultError("Expected JSON object for McpServerSse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     if (!obj.contains("url"))
-        co_return Utils::ResultError("Missing required field: url");
+        return Utils::ResultError("Missing required field: url");
     if (!obj.contains("headers"))
-        co_return Utils::ResultError("Missing required field: headers");
+        return Utils::ResultError("Missing required field: headers");
     McpServerSse result;
     result._name = obj.value("name").toString();
     result._url = obj.value("url").toString();
     if (obj.contains("headers") && obj["headers"].isArray()) {
         const QJsonArray arr = obj["headers"].toArray();
         for (const QJsonValue &v : arr) {
-            result._headers.append(co_await fromJson<HttpHeader>(v));
+            const auto res0 = fromJson<HttpHeader>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._headers.append(*res0);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const McpServerSse &data)
@@ -4371,16 +4911,16 @@ template<>
 Utils::Result<McpServerStdio> fromJson<McpServerStdio>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for McpServerStdio");
+        return Utils::ResultError("Expected JSON object for McpServerStdio");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     if (!obj.contains("command"))
-        co_return Utils::ResultError("Missing required field: command");
+        return Utils::ResultError("Missing required field: command");
     if (!obj.contains("args"))
-        co_return Utils::ResultError("Missing required field: args");
+        return Utils::ResultError("Missing required field: args");
     if (!obj.contains("env"))
-        co_return Utils::ResultError("Missing required field: env");
+        return Utils::ResultError("Missing required field: env");
     McpServerStdio result;
     result._name = obj.value("name").toString();
     result._command = obj.value("command").toString();
@@ -4393,14 +4933,17 @@ Utils::Result<McpServerStdio> fromJson<McpServerStdio>(const QJsonValue &val)
     if (obj.contains("env") && obj["env"].isArray()) {
         const QJsonArray arr = obj["env"].toArray();
         for (const QJsonValue &v : arr) {
-            result._env.append(co_await fromJson<EnvVariable>(v));
+            const auto res0 = fromJson<EnvVariable>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._env.append(*res0);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const McpServerStdio &data)
@@ -4424,15 +4967,27 @@ template<>
 Utils::Result<McpServer> fromJson<McpServer>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid McpServer: expected object");
+        return Utils::ResultError("Invalid McpServer: expected object");
     const QString dispatchValue = val.toObject().value("type").toString();
-    if (dispatchValue == "http")
-        co_return McpServer(co_await fromJson<McpServerHttp>(val));
-    else if (dispatchValue == "sse")
-        co_return McpServer(co_await fromJson<McpServerSse>(val));
-    else if (dispatchValue == "stdio")
-        co_return McpServer(co_await fromJson<McpServerStdio>(val));
-    co_return Utils::ResultError("Invalid McpServer: unknown type \"" + dispatchValue + "\"");
+    if (dispatchValue == "http") {
+        const auto res0 = fromJson<McpServerHttp>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return McpServer(*res0);
+    }
+    else if (dispatchValue == "sse") {
+        const auto res1 = fromJson<McpServerSse>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return McpServer(*res1);
+    }
+    else if (dispatchValue == "stdio") {
+        const auto res2 = fromJson<McpServerStdio>(val);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        return McpServer(*res2);
+    }
+    return Utils::ResultError("Invalid McpServer: unknown type \"" + dispatchValue + "\"");
 }
 
 QString dispatchValue(const McpServer &val)
@@ -4474,19 +5029,22 @@ template<>
 Utils::Result<LoadSessionRequest> fromJson<LoadSessionRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for LoadSessionRequest");
+        return Utils::ResultError("Expected JSON object for LoadSessionRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("mcpServers"))
-        co_return Utils::ResultError("Missing required field: mcpServers");
+        return Utils::ResultError("Missing required field: mcpServers");
     if (!obj.contains("cwd"))
-        co_return Utils::ResultError("Missing required field: cwd");
+        return Utils::ResultError("Missing required field: cwd");
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     LoadSessionRequest result;
     if (obj.contains("mcpServers") && obj["mcpServers"].isArray()) {
         const QJsonArray arr = obj["mcpServers"].toArray();
         for (const QJsonValue &v : arr) {
-            result._mcpServers.append(co_await fromJson<McpServer>(v));
+            const auto res0 = fromJson<McpServer>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._mcpServers.append(*res0);
         }
     }
     result._cwd = obj.value("cwd").toString();
@@ -4498,13 +5056,17 @@ Utils::Result<LoadSessionRequest> fromJson<LoadSessionRequest>(const QJsonValue 
         }
         result._additionalDirectories = list_additionalDirectories;
     }
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res1 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._sessionId = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const LoadSessionRequest &data)
@@ -4552,12 +5114,12 @@ template<>
 Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for NewSessionRequest");
+        return Utils::ResultError("Expected JSON object for NewSessionRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("cwd"))
-        co_return Utils::ResultError("Missing required field: cwd");
+        return Utils::ResultError("Missing required field: cwd");
     if (!obj.contains("mcpServers"))
-        co_return Utils::ResultError("Missing required field: mcpServers");
+        return Utils::ResultError("Missing required field: mcpServers");
     NewSessionRequest result;
     result._cwd = obj.value("cwd").toString();
     if (obj.contains("additionalDirectories") && obj["additionalDirectories"].isArray()) {
@@ -4571,14 +5133,17 @@ Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &v
     if (obj.contains("mcpServers") && obj["mcpServers"].isArray()) {
         const QJsonArray arr = obj["mcpServers"].toArray();
         for (const QJsonValue &v : arr) {
-            result._mcpServers.append(co_await fromJson<McpServer>(v));
+            const auto res0 = fromJson<McpServer>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._mcpServers.append(*res0);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const NewSessionRequest &data)
@@ -4601,26 +5166,33 @@ template<>
 Utils::Result<PromptRequest> fromJson<PromptRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for PromptRequest");
+        return Utils::ResultError("Expected JSON object for PromptRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("prompt"))
-        co_return Utils::ResultError("Missing required field: prompt");
+        return Utils::ResultError("Missing required field: prompt");
     PromptRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
     if (obj.contains("prompt") && obj["prompt"].isArray()) {
         const QJsonArray arr = obj["prompt"].toArray();
         for (const QJsonValue &v : arr) {
-            result._prompt.append(co_await fromJson<ContentBlock>(v));
+            const auto res1 = fromJson<ContentBlock>(v);
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            result._prompt.append(*res1);
         }
     }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const PromptRequest &data)
@@ -4638,15 +5210,19 @@ template<>
 Utils::Result<ResumeSessionRequest> fromJson<ResumeSessionRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ResumeSessionRequest");
+        return Utils::ResultError("Expected JSON object for ResumeSessionRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("cwd"))
-        co_return Utils::ResultError("Missing required field: cwd");
+        return Utils::ResultError("Missing required field: cwd");
     ResumeSessionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
     result._cwd = obj.value("cwd").toString();
     if (obj.contains("additionalDirectories") && obj["additionalDirectories"].isArray()) {
         const QJsonArray arr = obj["additionalDirectories"].toArray();
@@ -4660,7 +5236,10 @@ Utils::Result<ResumeSessionRequest> fromJson<ResumeSessionRequest>(const QJsonVa
         const QJsonArray arr = obj["mcpServers"].toArray();
         QList<McpServer> list_mcpServers;
         for (const QJsonValue &v : arr) {
-            list_mcpServers.append(co_await fromJson<McpServer>(v));
+            const auto res1 = fromJson<McpServer>(v);
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            list_mcpServers.append(*res1);
         }
         result._mcpServers = list_mcpServers;
     }
@@ -4668,7 +5247,7 @@ Utils::Result<ResumeSessionRequest> fromJson<ResumeSessionRequest>(const QJsonVa
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ResumeSessionRequest &data)
@@ -4696,17 +5275,25 @@ template<>
 Utils::Result<SetSessionConfigOptionRequest> fromJson<SetSessionConfigOptionRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SetSessionConfigOptionRequest");
+        return Utils::ResultError("Expected JSON object for SetSessionConfigOptionRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("configId"))
-        co_return Utils::ResultError("Missing required field: configId");
+        return Utils::ResultError("Missing required field: configId");
     SetSessionConfigOptionRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("configId") && obj["configId"].isString())
-        result._configId = co_await fromJson<SessionConfigId>(obj["configId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("configId") && obj["configId"].isString()) {
+        const auto res1 = fromJson<SessionConfigId>(obj["configId"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._configId = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4718,7 +5305,7 @@ Utils::Result<SetSessionConfigOptionRequest> fromJson<SetSessionConfigOptionRequ
                 result._additionalProperties.insert(it.key(), it.value());
         }
     }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SetSessionConfigOptionRequest &data)
@@ -4738,22 +5325,30 @@ template<>
 Utils::Result<SetSessionModeRequest> fromJson<SetSessionModeRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SetSessionModeRequest");
+        return Utils::ResultError("Expected JSON object for SetSessionModeRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     if (!obj.contains("modeId"))
-        co_return Utils::ResultError("Missing required field: modeId");
+        return Utils::ResultError("Missing required field: modeId");
     SetSessionModeRequest result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
-    if (obj.contains("modeId") && obj["modeId"].isString())
-        result._modeId = co_await fromJson<SessionModeId>(obj["modeId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
+    if (obj.contains("modeId") && obj["modeId"].isString()) {
+        const auto res1 = fromJson<SessionModeId>(obj["modeId"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._modeId = *res1;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SetSessionModeRequest &data)
@@ -4771,19 +5366,23 @@ template<>
 Utils::Result<ClientRequest> fromJson<ClientRequest>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ClientRequest");
+        return Utils::ResultError("Expected JSON object for ClientRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     if (!obj.contains("method"))
-        co_return Utils::ResultError("Missing required field: method");
+        return Utils::ResultError("Missing required field: method");
     ClientRequest result;
-    if (obj.contains("id"))
-        result._id = co_await fromJson<RequestId>(obj["id"]);
+    if (obj.contains("id")) {
+        const auto res0 = fromJson<RequestId>(obj["id"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._id = *res0;
+    }
     result._method = obj.value("method").toString();
     if (obj.contains("params"))
         result._params = obj.value("params").toString();
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ClientRequest &data)
@@ -4896,18 +5495,22 @@ template<>
 Utils::Result<CreateTerminalResponse> fromJson<CreateTerminalResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for CreateTerminalResponse");
+        return Utils::ResultError("Expected JSON object for CreateTerminalResponse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("terminalId"))
-        co_return Utils::ResultError("Missing required field: terminalId");
+        return Utils::ResultError("Missing required field: terminalId");
     CreateTerminalResponse result;
-    if (obj.contains("terminalId") && obj["terminalId"].isString())
-        result._terminalId = co_await fromJson<TerminalId>(obj["terminalId"]);
+    if (obj.contains("terminalId") && obj["terminalId"].isString()) {
+        const auto res0 = fromJson<TerminalId>(obj["terminalId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._terminalId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const CreateTerminalResponse &data)
@@ -4991,18 +5594,22 @@ template<>
 Utils::Result<SelectedPermissionOutcome> fromJson<SelectedPermissionOutcome>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for SelectedPermissionOutcome");
+        return Utils::ResultError("Expected JSON object for SelectedPermissionOutcome");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("optionId"))
-        co_return Utils::ResultError("Missing required field: optionId");
+        return Utils::ResultError("Missing required field: optionId");
     SelectedPermissionOutcome result;
-    if (obj.contains("optionId") && obj["optionId"].isString())
-        result._optionId = co_await fromJson<PermissionOptionId>(obj["optionId"]);
+    if (obj.contains("optionId") && obj["optionId"].isString()) {
+        const auto res0 = fromJson<PermissionOptionId>(obj["optionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._optionId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const SelectedPermissionOutcome &data)
@@ -5017,18 +5624,22 @@ template<>
 Utils::Result<RequestPermissionOutcome> fromJson<RequestPermissionOutcome>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid RequestPermissionOutcome: expected object");
+        return Utils::ResultError("Invalid RequestPermissionOutcome: expected object");
     const QJsonObject obj = val.toObject();
     const QString kind = obj.value("outcome").toString();
     RequestPermissionOutcome result;
     result._kind = kind;
     if (kind == "cancelled")
         result._value = std::monostate{};
-    else if (kind == "selected")
-        result._value = co_await fromJson<SelectedPermissionOutcome>(val);
+    else if (kind == "selected") {
+        const auto res0 = fromJson<SelectedPermissionOutcome>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._value = *res0;
+    }
     else
-        co_return Utils::ResultError("Invalid RequestPermissionOutcome: unknown outcome \"" + kind + "\"");
-    co_return result;
+        return Utils::ResultError("Invalid RequestPermissionOutcome: unknown outcome \"" + kind + "\"");
+    return result;
 }
 
 QJsonObject toJson(const RequestPermissionOutcome &data)
@@ -5051,18 +5662,22 @@ template<>
 Utils::Result<RequestPermissionResponse> fromJson<RequestPermissionResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for RequestPermissionResponse");
+        return Utils::ResultError("Expected JSON object for RequestPermissionResponse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("outcome"))
-        co_return Utils::ResultError("Missing required field: outcome");
+        return Utils::ResultError("Missing required field: outcome");
     RequestPermissionResponse result;
-    if (obj.contains("outcome"))
-        result._outcome = co_await fromJson<RequestPermissionOutcome>(obj["outcome"]);
+    if (obj.contains("outcome")) {
+        const auto res0 = fromJson<RequestPermissionOutcome>(obj["outcome"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._outcome = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const RequestPermissionResponse &data)
@@ -5111,22 +5726,26 @@ template<>
 Utils::Result<TerminalOutputResponse> fromJson<TerminalOutputResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for TerminalOutputResponse");
+        return Utils::ResultError("Expected JSON object for TerminalOutputResponse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("output"))
-        co_return Utils::ResultError("Missing required field: output");
+        return Utils::ResultError("Missing required field: output");
     if (!obj.contains("truncated"))
-        co_return Utils::ResultError("Missing required field: truncated");
+        return Utils::ResultError("Missing required field: truncated");
     TerminalOutputResponse result;
     result._output = obj.value("output").toString();
     result._truncated = obj.value("truncated").toBool();
-    if (obj.contains("exitStatus") && !obj["exitStatus"].isNull())
-        result._exitStatus = co_await fromJson<TerminalExitStatus>(obj["exitStatus"]);
+    if (obj.contains("exitStatus") && !obj["exitStatus"].isNull()) {
+        const auto res0 = fromJson<TerminalExitStatus>(obj["exitStatus"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._exitStatus = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const TerminalOutputResponse &data)
@@ -5202,18 +5821,22 @@ template<>
 Utils::Result<CancelNotification> fromJson<CancelNotification>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for CancelNotification");
+        return Utils::ResultError("Expected JSON object for CancelNotification");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("sessionId"))
-        co_return Utils::ResultError("Missing required field: sessionId");
+        return Utils::ResultError("Missing required field: sessionId");
     CancelNotification result;
-    if (obj.contains("sessionId") && obj["sessionId"].isString())
-        result._sessionId = co_await fromJson<SessionId>(obj["sessionId"]);
+    if (obj.contains("sessionId") && obj["sessionId"].isString()) {
+        const auto res0 = fromJson<SessionId>(obj["sessionId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._sessionId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const CancelNotification &data)
@@ -5251,18 +5874,22 @@ template<>
 Utils::Result<CancelRequestNotification> fromJson<CancelRequestNotification>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for CancelRequestNotification");
+        return Utils::ResultError("Expected JSON object for CancelRequestNotification");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("requestId"))
-        co_return Utils::ResultError("Missing required field: requestId");
+        return Utils::ResultError("Missing required field: requestId");
     CancelRequestNotification result;
-    if (obj.contains("requestId"))
-        result._requestId = co_await fromJson<RequestId>(obj["requestId"]);
+    if (obj.contains("requestId")) {
+        const auto res0 = fromJson<RequestId>(obj["requestId"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._requestId = *res0;
+    }
     if (obj.contains("_meta"))
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
         }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const CancelRequestNotification &data)

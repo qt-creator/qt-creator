@@ -2,14 +2,13 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- /opt/homebrew/opt/python@3.14/bin/python3.14 \
+ python3 \
   scripts/generate_cpp_from_schema.py \
-  src/tools/mcp-reg-aggregator/condensed.schema.json src/plugins/coreplugin/mcp/mcpregistry.h --namespace Core::McpRegistry --cpp-output src/plugins/coreplugin/mcp/mcpregistry.cpp --no-comments --read-only
+  src/tools/mcp-reg-aggregator/condensed.schema.json src/plugins/coreplugin/mcp/mcpregistry.h --namespace Core::McpRegistry --cpp-output src/plugins/coreplugin/mcp/mcpregistry.cpp --no-comments --read-only --no-cxx20
 */
 #pragma once
 
 #include <utils/result.h>
-#include <utils/co_result.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -19,6 +18,8 @@
 #include <QString>
 #include <QVariant>
 
+#include <cmath>
+#include <limits>
 #include <variant>
 
 namespace Core::McpRegistry {

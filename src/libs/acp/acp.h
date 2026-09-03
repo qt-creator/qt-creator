@@ -4,14 +4,13 @@
 
  python3 \
   scripts/generate_cpp_from_schema.py \
-  src/libs/acp/schema/schema.json src/libs/acp/acp.h --namespace Acp --cpp-output src/libs/acp/acp.cpp --export-macro ACPLIB_EXPORT --export-header acp_global.h
+  src/libs/acp/schema/schema.json src/libs/acp/acp.h --namespace Acp --cpp-output src/libs/acp/acp.cpp --export-macro ACPLIB_EXPORT --export-header acp_global.h --no-cxx20
 */
 #pragma once
 
 #include "acp_global.h"
 
 #include <utils/result.h>
-#include <utils/co_result.h>
 
 #include <QJsonArray>
 #include <QJsonObject>

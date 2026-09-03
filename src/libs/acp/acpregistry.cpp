@@ -58,22 +58,46 @@ template<>
 Utils::Result<binaryDistribution> fromJson<binaryDistribution>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for binaryDistribution");
+        return Utils::ResultError("Expected JSON object for binaryDistribution");
     const QJsonObject obj = val.toObject();
     binaryDistribution result;
-    if (obj.contains("darwin-aarch64"))
-        result._darwinminusaarch64 = co_await fromJson<binaryTarget>(obj.value("darwin-aarch64"));
-    if (obj.contains("darwin-x86_64"))
-        result._darwinminusx86_64 = co_await fromJson<binaryTarget>(obj.value("darwin-x86_64"));
-    if (obj.contains("linux-aarch64"))
-        result._linuxminusaarch64 = co_await fromJson<binaryTarget>(obj.value("linux-aarch64"));
-    if (obj.contains("linux-x86_64"))
-        result._linuxminusx86_64 = co_await fromJson<binaryTarget>(obj.value("linux-x86_64"));
-    if (obj.contains("windows-aarch64"))
-        result._windowsminusaarch64 = co_await fromJson<binaryTarget>(obj.value("windows-aarch64"));
-    if (obj.contains("windows-x86_64"))
-        result._windowsminusx86_64 = co_await fromJson<binaryTarget>(obj.value("windows-x86_64"));
-    co_return result;
+    if (obj.contains("darwin-aarch64")) {
+        const auto res0 = fromJson<binaryTarget>(obj.value("darwin-aarch64"));
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._darwinminusaarch64 = *res0;
+    }
+    if (obj.contains("darwin-x86_64")) {
+        const auto res1 = fromJson<binaryTarget>(obj.value("darwin-x86_64"));
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._darwinminusx86_64 = *res1;
+    }
+    if (obj.contains("linux-aarch64")) {
+        const auto res2 = fromJson<binaryTarget>(obj.value("linux-aarch64"));
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        result._linuxminusaarch64 = *res2;
+    }
+    if (obj.contains("linux-x86_64")) {
+        const auto res3 = fromJson<binaryTarget>(obj.value("linux-x86_64"));
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        result._linuxminusx86_64 = *res3;
+    }
+    if (obj.contains("windows-aarch64")) {
+        const auto res4 = fromJson<binaryTarget>(obj.value("windows-aarch64"));
+        if (!res4)
+            return Utils::ResultError(res4.error());
+        result._windowsminusaarch64 = *res4;
+    }
+    if (obj.contains("windows-x86_64")) {
+        const auto res5 = fromJson<binaryTarget>(obj.value("windows-x86_64"));
+        if (!res5)
+            return Utils::ResultError(res5.error());
+        result._windowsminusx86_64 = *res5;
+    }
+    return result;
 }
 
 QJsonObject toJson(const binaryDistribution &data)
@@ -143,16 +167,28 @@ template<>
 Utils::Result<ACPAgent::Distribution> fromJson<ACPAgent::Distribution>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for Distribution");
+        return Utils::ResultError("Expected JSON object for Distribution");
     const QJsonObject obj = val.toObject();
     ACPAgent::Distribution result;
-    if (obj.contains("binary") && obj["binary"].isObject())
-        result._binary = co_await fromJson<binaryDistribution>(obj["binary"]);
-    if (obj.contains("npx") && obj["npx"].isObject())
-        result._npx = co_await fromJson<packageDistribution>(obj["npx"]);
-    if (obj.contains("uvx") && obj["uvx"].isObject())
-        result._uvx = co_await fromJson<packageDistribution>(obj["uvx"]);
-    co_return result;
+    if (obj.contains("binary") && obj["binary"].isObject()) {
+        const auto res0 = fromJson<binaryDistribution>(obj["binary"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._binary = *res0;
+    }
+    if (obj.contains("npx") && obj["npx"].isObject()) {
+        const auto res1 = fromJson<packageDistribution>(obj["npx"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._npx = *res1;
+    }
+    if (obj.contains("uvx") && obj["uvx"].isObject()) {
+        const auto res2 = fromJson<packageDistribution>(obj["uvx"]);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        result._uvx = *res2;
+    }
+    return result;
 }
 
 QJsonObject toJson(const ACPAgent::Distribution &data)
@@ -171,18 +207,18 @@ template<>
 Utils::Result<ACPAgent> fromJson<ACPAgent>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ACPAgent");
+        return Utils::ResultError("Expected JSON object for ACPAgent");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     if (!obj.contains("name"))
-        co_return Utils::ResultError("Missing required field: name");
+        return Utils::ResultError("Missing required field: name");
     if (!obj.contains("version"))
-        co_return Utils::ResultError("Missing required field: version");
+        return Utils::ResultError("Missing required field: version");
     if (!obj.contains("description"))
-        co_return Utils::ResultError("Missing required field: description");
+        return Utils::ResultError("Missing required field: description");
     if (!obj.contains("distribution"))
-        co_return Utils::ResultError("Missing required field: distribution");
+        return Utils::ResultError("Missing required field: distribution");
     ACPAgent result;
     result._id = obj.value("id").toString();
     result._name = obj.value("name").toString();
@@ -202,9 +238,13 @@ Utils::Result<ACPAgent> fromJson<ACPAgent>(const QJsonValue &val)
         result._license = obj.value("license").toString();
     if (obj.contains("icon"))
         result._icon = obj.value("icon").toString();
-    if (obj.contains("distribution") && obj["distribution"].isObject())
-        result._distribution = co_await fromJson<ACPAgent::Distribution>(obj["distribution"]);
-    co_return result;
+    if (obj.contains("distribution") && obj["distribution"].isObject()) {
+        const auto res0 = fromJson<ACPAgent::Distribution>(obj["distribution"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._distribution = *res0;
+    }
+    return result;
 }
 
 QJsonObject toJson(const ACPAgent &data)
@@ -234,21 +274,24 @@ template<>
 Utils::Result<ACPAgentRegistry> fromJson<ACPAgentRegistry>(const QJsonValue &val)
 {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ACPAgentRegistry");
+        return Utils::ResultError("Expected JSON object for ACPAgentRegistry");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("version"))
-        co_return Utils::ResultError("Missing required field: version");
+        return Utils::ResultError("Missing required field: version");
     if (!obj.contains("agents"))
-        co_return Utils::ResultError("Missing required field: agents");
+        return Utils::ResultError("Missing required field: agents");
     ACPAgentRegistry result;
     result._version = obj.value("version").toString();
     if (obj.contains("agents") && obj["agents"].isArray()) {
         const QJsonArray arr = obj["agents"].toArray();
         for (const QJsonValue &v : arr) {
-            result._agents.append(co_await fromJson<ACPAgent>(v));
+            const auto res0 = fromJson<ACPAgent>(v);
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            result._agents.append(*res0);
         }
     }
-    co_return result;
+    return result;
 }
 
 QJsonObject toJson(const ACPAgentRegistry &data)

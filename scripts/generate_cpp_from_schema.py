@@ -13,6 +13,12 @@ _emit_comments: bool = True
 # Controls whether setter/builder methods are emitted. Set via --read-only.
 _read_only: bool = False
 
+# Controls whether C++20-only constructs may be used. With coroutines
+# available fromJson propagates parse errors through co_await; without them the
+# awaited calls are lowered to a temporary and an early return. Set via
+# --no-cxx20.
+_cxx20: bool = True
+
 # Controls whether optional nullable fields are modeled as three-state
 # Patch<T> (absent / null / value) instead of std::optional<T>. Set via
 # --three-state. Required for schemas with upsert patch semantics where
@@ -73,6 +79,7 @@ def invocation_comment() -> str:
 
 def make_header(namespace: str, export_header: str = None) -> str:
     export_include = f'\n#include "{export_header}"\n' if export_header else ''
+    co_result_include = '\n#include <utils/co_result.h>' if _cxx20 else ''
     return f'''/*
  This file is auto-generated. Do not edit manually.
  Generated with:
@@ -81,8 +88,7 @@ def make_header(namespace: str, export_header: str = None) -> str:
 */
 #pragma once
 {export_include}
-#include <utils/result.h>
-#include <utils/co_result.h>
+#include <utils/result.h>{co_result_include}
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -113,10 +119,80 @@ def make_cpp_preamble(namespace: str, header_filename: str) -> str:
 namespace {namespace} {{
 '''
 
-def use_return_if_no_co_await(lines):
-    """Replace co_return with return in lines where co_await is never used.
-    Also comments out the 'val' parameter name when it is not referenced in the body."""
-    if not any('co_await' in line for line in lines):
+_CO_AWAIT = r'\bco_await\s+'
+
+
+def _awaited_call(line, start):
+    """The call expression awaited at `start`, and the index just past it."""
+    depth = 0
+    for i in range(line.index('(', start), len(line)):
+        if line[i] == '(':
+            depth += 1
+        elif line[i] == ')':
+            depth -= 1
+            if depth == 0:
+                return line[start:i + 1], i + 1
+    raise ValueError(f"Unbalanced parentheses in: {line}")
+
+
+def _unbraced_body_header(lines):
+    """Index of the last emitted line whose body follows unbraced, else None."""
+    for i in reversed(range(len(lines))):
+        stripped = lines[i].strip()
+        if not stripped:
+            continue
+        if stripped == 'else' or re.match(r'^(if|else if|for|while)\b.*\)$', stripped):
+            return i
+        return None
+    return None
+
+
+def _indent_of(line):
+    return line[:len(line) - len(line.lstrip())]
+
+
+def lower_co_await(lines):
+    """Rewrite each `co_await <call>` as a temporary plus an early return.
+
+    Where the awaiting statement is the unbraced body of an if or a loop, that
+    body gains braces so the added statements stay part of it.
+    """
+    out = []
+    awaited = 0
+    for line in lines:
+        match = re.search(_CO_AWAIT, line)
+        if not match:
+            out.append(line.replace('co_return', 'return'))
+            continue
+        header = _unbraced_body_header(out)
+        if header is not None:
+            out[header] += ' {'
+        indent = _indent_of(line)
+        while match:
+            call, end = _awaited_call(line, match.end())
+            tmp = f"res{awaited}"
+            awaited += 1
+            out.append(f"{indent}const auto {tmp} = {call};")
+            out.append(f"{indent}if (!{tmp})")
+            out.append(f"{indent}    return Utils::ResultError({tmp}.error());")
+            line = line[:match.start()] + f"*{tmp}" + line[end:]
+            match = re.search(_CO_AWAIT, line)
+        out.append(line.replace('co_return', 'return'))
+        if header is not None:
+            out.append(_indent_of(out[header]) + '}')
+    return out
+
+
+def finalize_from_json(lines):
+    """Adapt an emitted fromJson body to the target C++ standard.
+
+    Without C++20 the coroutine syntax is lowered away entirely; with it, a
+    body that never awaits stays a plain function instead of a coroutine.
+    Also comments out the 'val' parameter name when it is not referenced in
+    the body."""
+    if not _cxx20:
+        lines = lower_co_await(lines)
+    elif not any('co_await' in line for line in lines):
         lines = [line.replace('co_return', 'return') for line in lines]
     # Suppress unused 'val' parameter in fromJson specializations
     if (len(lines) >= 2
@@ -239,7 +315,7 @@ def parse_enum(name, spec):
                 fj.append(f'    if (str == "{orig}") co_return {name}::{s};')
             fj.append(f'    co_return Utils::ResultError("Invalid {name} value: " + str);')
             fj.append("}")
-            lines.extend(use_return_if_no_co_await(fj))
+            lines.extend(finalize_from_json(fj))
             lines.append("")
             # For serialization to JSON, use toString
             if not _read_only:
@@ -702,7 +778,7 @@ def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_typ
         fj.append(f'        co_return Utils::ResultError("Invalid {name}: unknown {disc_field} \\"" + kind + "\\"");')
     fj.append(f"    co_return result;")
     fj.append(f"}}")
-    lines.extend(use_return_if_no_co_await(fj))
+    lines.extend(finalize_from_json(fj))
     lines.append(f"")
 
     # toJson
@@ -770,7 +846,7 @@ def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec,
     else:
         fj.append(f'    co_return Utils::ResultError("Invalid {name}: unknown {disc_field} \\"" + dispatchValue + "\\"");')
     fj.append(f"}}")
-    lines.extend(use_return_if_no_co_await(fj))
+    lines.extend(finalize_from_json(fj))
     lines.append(f"")
 
     # dispatchValue helper (must come before toJson since toJson uses it)
@@ -1019,7 +1095,7 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                     fj.append(f"    co_return Utils::ResultError(\"Invalid {name}: unknown {dispatch_field} \\\"\" + dispatchValue + \"\\\"\");")
                 fj.append("}")  # close fromJson function
                 if not skip_from_json:
-                    lines.extend(use_return_if_no_co_await(fj))
+                    lines.extend(finalize_from_json(fj))
                 if not skip_to_json:
                     lines.append("")
                     lines.append(f"inline QJsonObject toJson(const {name} &val) {{")
@@ -1097,7 +1173,7 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
     fj.append(f'    co_return Utils::ResultError("Invalid {name}");')
     fj.append("}")
     if not skip_from_json:
-        lines.extend(use_return_if_no_co_await(fj))
+        lines.extend(finalize_from_json(fj))
 
     # Emit shared-field getters for presence/try-each unions too
     if "anyOf" in spec or "oneOf" in spec:
@@ -1431,7 +1507,7 @@ def _build_map_value_variant_code(alias_name, variant_types):
             fj.append(f"    }}")
     fj.append(f'    co_return Utils::ResultError("Invalid {alias_name}");')
     fj.append("}")
-    lines.extend(use_return_if_no_co_await(fj))
+    lines.extend(finalize_from_json(fj))
     lines.append("")
 
     # toJsonValue
@@ -2532,7 +2608,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         fj_lines.append(f"    }}")
     fj_lines.append(f"    co_return result;")
     fj_lines.append("}")
-    lines.extend(use_return_if_no_co_await(fj_lines))
+    lines.extend(finalize_from_json(fj_lines))
     lines.append("")
     # toJson function — two-pass:
     # Pass 1: collect required single-value fields for an initializer list.
@@ -2689,7 +2765,7 @@ def _build_inline_union_code(union_alias, ref_names, types):
                 fj.append(f"    }}")
         fj.append(f'    co_return Utils::ResultError("Invalid {union_alias}");')
     fj.append("}")
-    union_lines.extend(use_return_if_no_co_await(fj))
+    union_lines.extend(finalize_from_json(fj))
 
     # toJsonValue — custom if list types present, otherwise default
     if not _read_only:
@@ -3001,11 +3077,20 @@ def main():
              "(absent/null/value) instead of std::optional<T>. Needed for "
              "schemas with upsert patch semantics (e.g. ACP v2).",
     )
+    parser.add_argument(
+        "--no-cxx20",
+        action="store_true",
+        default=False,
+        help="Avoid C++20-only constructs, for targets built as C++17. fromJson "
+             "then propagates errors with explicit early returns instead of "
+             "co_await, and <utils/co_result.h> is not included.",
+    )
     args = parser.parse_args()
-    global _emit_comments, _emitted_variant_sigs, _read_only, _three_state
+    global _emit_comments, _emitted_variant_sigs, _read_only, _three_state, _cxx20
     _emit_comments = not args.no_comments
     _read_only = args.read_only
     _three_state = args.three_state
+    _cxx20 = not args.no_cxx20
     _emitted_variant_sigs = {}  # reset per run
     schema_path = Path(args.schema)
     output_path = Path(args.output)
@@ -3311,7 +3396,7 @@ def _emit_type_alias(name, spec, code, emitted, variant_signatures, alias_fromjs
                 fj.append(f'        result._{field} = co_await fromJson<{val_type}>(obj.value("{orig}"));')
         fj.append(f"    co_return result;")
         fj.append(f"}}")
-        lines.extend(use_return_if_no_co_await(fj))
+        lines.extend(finalize_from_json(fj))
         lines.append(f"")
 
         # toJson
@@ -3350,7 +3435,7 @@ def _emit_type_alias(name, spec, code, emitted, variant_signatures, alias_fromjs
             fj.append(f"        result.insert(it.key(), co_await fromJson<{val_type}>(it.value()));")
         fj.append(f"    co_return result;")
         fj.append(f"}}")
-        alias_lines.extend(use_return_if_no_co_await(fj))
+        alias_lines.extend(finalize_from_json(fj))
         # toJson
         if not _read_only:
             alias_lines.append(f"")

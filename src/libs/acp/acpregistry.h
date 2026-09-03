@@ -2,16 +2,15 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- C:\dev\bin\Python313\python.exe \
+ python3 \
   scripts/generate_cpp_from_schema.py \
-  src/libs/acp/schema/registry.schema.json src/libs/acp/acpregistry.h --namespace Acp::Registry --cpp-output src/libs/acp/acpregistry.cpp --export-macro ACPLIB_EXPORT --export-header acp_global.h
+  src/libs/acp/schema/registry.schema.json src/libs/acp/acpregistry.h --namespace Acp::Registry --cpp-output src/libs/acp/acpregistry.cpp --export-macro ACPLIB_EXPORT --export-header acp_global.h --no-cxx20
 */
 #pragma once
 
 #include "acp_global.h"
 
 #include <utils/result.h>
-#include <utils/co_result.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -21,6 +20,8 @@
 #include <QString>
 #include <QVariant>
 
+#include <cmath>
+#include <limits>
 #include <variant>
 
 namespace Acp::Registry {

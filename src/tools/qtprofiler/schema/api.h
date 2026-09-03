@@ -2,14 +2,13 @@
  This file is auto-generated. Do not edit manually.
  Generated with:
 
- /opt/homebrew/opt/python@3.14/bin/python3.14 \
+ python3 \
   scripts/generate_cpp_from_schema.py \
-  src/tools/qtprofiler/schema/qtprofilerapi.json.schema src/tools/qtprofiler/schema/api.h --namespace QtProfiler::Api::Schema
+  src/tools/qtprofiler/schema/qtprofilerapi.json.schema src/tools/qtprofiler/schema/api.h --namespace QtProfiler::Api::Schema --no-cxx20
 */
 #pragma once
 
 #include <utils/result.h>
-#include <utils/co_result.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -19,6 +18,8 @@
 #include <QString>
 #include <QVariant>
 
+#include <cmath>
+#include <limits>
 #include <variant>
 
 namespace QtProfiler::Api::Schema {
@@ -117,22 +118,30 @@ struct ErrorResponse {
 template<>
 inline Utils::Result<ErrorResponse> fromJson<ErrorResponse>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ErrorResponse");
+        return Utils::ResultError("Expected JSON object for ErrorResponse");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("error"))
-        co_return Utils::ResultError("Missing required field: error");
+        return Utils::ResultError("Missing required field: error");
     if (!obj.contains("jsonrpc"))
-        co_return Utils::ResultError("Missing required field: jsonrpc");
+        return Utils::ResultError("Missing required field: jsonrpc");
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     ErrorResponse result;
-    if (obj.contains("error") && obj["error"].isObject())
-        result._error = co_await fromJson<Error>(obj["error"]);
-    if (obj.contains("id"))
-        result._id = co_await fromJson<RequestId>(obj["id"]);
+    if (obj.contains("error") && obj["error"].isObject()) {
+        const auto res0 = fromJson<Error>(obj["error"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._error = *res0;
+    }
+    if (obj.contains("id")) {
+        const auto res1 = fromJson<RequestId>(obj["id"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._id = *res1;
+    }
     if (obj.value("jsonrpc").toString() != "2.0")
-        co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
-    co_return result;
+        return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+    return result;
 }
 
 inline QJsonObject toJson(const ErrorResponse &data) {
@@ -159,21 +168,25 @@ struct OpenTraceFileResult {
 template<>
 inline Utils::Result<OpenTraceFileResult> fromJson<OpenTraceFileResult>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for OpenTraceFileResult");
+        return Utils::ResultError("Expected JSON object for OpenTraceFileResult");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     if (!obj.contains("jsonrpc"))
-        co_return Utils::ResultError("Missing required field: jsonrpc");
+        return Utils::ResultError("Missing required field: jsonrpc");
     if (!obj.contains("result"))
-        co_return Utils::ResultError("Missing required field: result");
+        return Utils::ResultError("Missing required field: result");
     OpenTraceFileResult result;
     result._result = obj.value("result").toBool();
-    if (obj.contains("id"))
-        result._id = co_await fromJson<RequestId>(obj["id"]);
+    if (obj.contains("id")) {
+        const auto res0 = fromJson<RequestId>(obj["id"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._id = *res0;
+    }
     if (obj.value("jsonrpc").toString() != "2.0")
-        co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
-    co_return result;
+        return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+    return result;
 }
 
 inline QJsonObject toJson(const OpenTraceFileResult &data) {
@@ -191,13 +204,21 @@ using ApplicationResult = std::variant<OpenTraceFileResult, ErrorResponse>;
 template<>
 inline Utils::Result<ApplicationResult> fromJson<ApplicationResult>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid ApplicationResult: expected object");
+        return Utils::ResultError("Invalid ApplicationResult: expected object");
     const QJsonObject obj = val.toObject();
-    if (obj.contains("result"))
-        co_return ApplicationResult(co_await fromJson<OpenTraceFileResult>(val));
-    if (obj.contains("error"))
-        co_return ApplicationResult(co_await fromJson<ErrorResponse>(val));
-    co_return Utils::ResultError("Invalid ApplicationResult");
+    if (obj.contains("result")) {
+        const auto res0 = fromJson<OpenTraceFileResult>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return ApplicationResult(*res0);
+    }
+    if (obj.contains("error")) {
+        const auto res1 = fromJson<ErrorResponse>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return ApplicationResult(*res1);
+    }
+    return Utils::ResultError("Invalid ApplicationResult");
 }
 
 /** Returns the 'id' field from the active variant. */
@@ -315,22 +336,26 @@ inline QJsonObject toJson(const TraceEventSelectedNotification::Params &data) {
 template<>
 inline Utils::Result<TraceEventSelectedNotification> fromJson<TraceEventSelectedNotification>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for TraceEventSelectedNotification");
+        return Utils::ResultError("Expected JSON object for TraceEventSelectedNotification");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("jsonrpc"))
-        co_return Utils::ResultError("Missing required field: jsonrpc");
+        return Utils::ResultError("Missing required field: jsonrpc");
     if (!obj.contains("method"))
-        co_return Utils::ResultError("Missing required field: method");
+        return Utils::ResultError("Missing required field: method");
     if (!obj.contains("params"))
-        co_return Utils::ResultError("Missing required field: params");
+        return Utils::ResultError("Missing required field: params");
     TraceEventSelectedNotification result;
     if (obj.value("jsonrpc").toString() != "2.0")
-        co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+        return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     if (obj.value("method").toString() != "traceEventSelected")
-        co_return Utils::ResultError("Field 'method' must be 'traceEventSelected', got: " + obj.value("method").toString());
-    if (obj.contains("params") && obj["params"].isObject())
-        result._params = co_await fromJson<TraceEventSelectedNotification::Params>(obj["params"]);
-    co_return result;
+        return Utils::ResultError("Field 'method' must be 'traceEventSelected', got: " + obj.value("method").toString());
+    if (obj.contains("params") && obj["params"].isObject()) {
+        const auto res0 = fromJson<TraceEventSelectedNotification::Params>(obj["params"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._params = *res0;
+    }
+    return result;
 }
 
 inline QJsonObject toJson(const TraceEventSelectedNotification &data) {
@@ -394,22 +419,26 @@ inline QJsonObject toJson(const TraceFileLoadingFinishedNotification::Params &da
 template<>
 inline Utils::Result<TraceFileLoadingFinishedNotification> fromJson<TraceFileLoadingFinishedNotification>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for TraceFileLoadingFinishedNotification");
+        return Utils::ResultError("Expected JSON object for TraceFileLoadingFinishedNotification");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("jsonrpc"))
-        co_return Utils::ResultError("Missing required field: jsonrpc");
+        return Utils::ResultError("Missing required field: jsonrpc");
     if (!obj.contains("method"))
-        co_return Utils::ResultError("Missing required field: method");
+        return Utils::ResultError("Missing required field: method");
     if (!obj.contains("params"))
-        co_return Utils::ResultError("Missing required field: params");
+        return Utils::ResultError("Missing required field: params");
     TraceFileLoadingFinishedNotification result;
     if (obj.value("jsonrpc").toString() != "2.0")
-        co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+        return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     if (obj.value("method").toString() != "traceFileLoadingFinished")
-        co_return Utils::ResultError("Field 'method' must be 'traceFileLoadingFinished', got: " + obj.value("method").toString());
-    if (obj.contains("params") && obj["params"].isObject())
-        result._params = co_await fromJson<TraceFileLoadingFinishedNotification::Params>(obj["params"]);
-    co_return result;
+        return Utils::ResultError("Field 'method' must be 'traceFileLoadingFinished', got: " + obj.value("method").toString());
+    if (obj.contains("params") && obj["params"].isObject()) {
+        const auto res0 = fromJson<TraceFileLoadingFinishedNotification::Params>(obj["params"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._params = *res0;
+    }
+    return result;
 }
 
 inline QJsonObject toJson(const TraceFileLoadingFinishedNotification &data) {
@@ -457,22 +486,26 @@ inline QJsonObject toJson(const TraceFileLoadingStartedNotification::Params &dat
 template<>
 inline Utils::Result<TraceFileLoadingStartedNotification> fromJson<TraceFileLoadingStartedNotification>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for TraceFileLoadingStartedNotification");
+        return Utils::ResultError("Expected JSON object for TraceFileLoadingStartedNotification");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("jsonrpc"))
-        co_return Utils::ResultError("Missing required field: jsonrpc");
+        return Utils::ResultError("Missing required field: jsonrpc");
     if (!obj.contains("method"))
-        co_return Utils::ResultError("Missing required field: method");
+        return Utils::ResultError("Missing required field: method");
     if (!obj.contains("params"))
-        co_return Utils::ResultError("Missing required field: params");
+        return Utils::ResultError("Missing required field: params");
     TraceFileLoadingStartedNotification result;
     if (obj.value("jsonrpc").toString() != "2.0")
-        co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+        return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     if (obj.value("method").toString() != "traceFileLoadingStarted")
-        co_return Utils::ResultError("Field 'method' must be 'traceFileLoadingStarted', got: " + obj.value("method").toString());
-    if (obj.contains("params") && obj["params"].isObject())
-        result._params = co_await fromJson<TraceFileLoadingStartedNotification::Params>(obj["params"]);
-    co_return result;
+        return Utils::ResultError("Field 'method' must be 'traceFileLoadingStarted', got: " + obj.value("method").toString());
+    if (obj.contains("params") && obj["params"].isObject()) {
+        const auto res0 = fromJson<TraceFileLoadingStartedNotification::Params>(obj["params"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._params = *res0;
+    }
+    return result;
 }
 
 inline QJsonObject toJson(const TraceFileLoadingStartedNotification &data) {
@@ -490,17 +523,33 @@ using ApplicationNotification = std::variant<TraceFileLoadingStartedNotification
 template<>
 inline Utils::Result<ApplicationNotification> fromJson<ApplicationNotification>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid ApplicationNotification: expected object");
+        return Utils::ResultError("Invalid ApplicationNotification: expected object");
     const QString dispatchValue = val.toObject().value("method").toString();
-    if (dispatchValue == "traceFileLoadingStarted")
-        co_return ApplicationNotification(co_await fromJson<TraceFileLoadingStartedNotification>(val));
-    else if (dispatchValue == "traceFileLoadingFinished")
-        co_return ApplicationNotification(co_await fromJson<TraceFileLoadingFinishedNotification>(val));
-    else if (dispatchValue == "traceEventSelected")
-        co_return ApplicationNotification(co_await fromJson<TraceEventSelectedNotification>(val));
-    else if (dispatchValue == "traceDiscarded")
-        co_return ApplicationNotification(co_await fromJson<TraceDiscardedNotification>(val));
-    co_return Utils::ResultError("Invalid ApplicationNotification: unknown method \"" + dispatchValue + "\"");
+    if (dispatchValue == "traceFileLoadingStarted") {
+        const auto res0 = fromJson<TraceFileLoadingStartedNotification>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return ApplicationNotification(*res0);
+    }
+    else if (dispatchValue == "traceFileLoadingFinished") {
+        const auto res1 = fromJson<TraceFileLoadingFinishedNotification>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return ApplicationNotification(*res1);
+    }
+    else if (dispatchValue == "traceEventSelected") {
+        const auto res2 = fromJson<TraceEventSelectedNotification>(val);
+        if (!res2)
+            return Utils::ResultError(res2.error());
+        return ApplicationNotification(*res2);
+    }
+    else if (dispatchValue == "traceDiscarded") {
+        const auto res3 = fromJson<TraceDiscardedNotification>(val);
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        return ApplicationNotification(*res3);
+    }
+    return Utils::ResultError("Invalid ApplicationNotification: unknown method \"" + dispatchValue + "\"");
 }
 
 inline QJsonObject toJson(const ApplicationNotification &val) {
@@ -541,22 +590,26 @@ struct ExitRequest {
 template<>
 inline Utils::Result<ExitRequest> fromJson<ExitRequest>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for ExitRequest");
+        return Utils::ResultError("Expected JSON object for ExitRequest");
     const QJsonObject obj = val.toObject();
     if (!obj.contains("id"))
-        co_return Utils::ResultError("Missing required field: id");
+        return Utils::ResultError("Missing required field: id");
     if (!obj.contains("jsonrpc"))
-        co_return Utils::ResultError("Missing required field: jsonrpc");
+        return Utils::ResultError("Missing required field: jsonrpc");
     if (!obj.contains("method"))
-        co_return Utils::ResultError("Missing required field: method");
+        return Utils::ResultError("Missing required field: method");
     ExitRequest result;
-    if (obj.contains("id"))
-        result._id = co_await fromJson<RequestId>(obj["id"]);
+    if (obj.contains("id")) {
+        const auto res0 = fromJson<RequestId>(obj["id"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._id = *res0;
+    }
     if (obj.value("jsonrpc").toString() != "2.0")
-        co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+        return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     if (obj.value("method").toString() != "exit")
-        co_return Utils::ResultError("Field 'method' must be 'exit', got: " + obj.value("method").toString());
-    co_return result;
+        return Utils::ResultError("Field 'method' must be 'exit', got: " + obj.value("method").toString());
+    return result;
 }
 
 inline QJsonObject toJson(const ExitRequest &data) {
@@ -610,18 +663,26 @@ inline QJsonObject toJson(const OpenTraceFileRequest::Params &data) {
 template<>
 inline Utils::Result<OpenTraceFileRequest> fromJson<OpenTraceFileRequest>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Expected JSON object for OpenTraceFileRequest");
+        return Utils::ResultError("Expected JSON object for OpenTraceFileRequest");
     const QJsonObject obj = val.toObject();
     OpenTraceFileRequest result;
-    if (obj.contains("id"))
-        result._id = co_await fromJson<RequestId>(obj["id"]);
+    if (obj.contains("id")) {
+        const auto res0 = fromJson<RequestId>(obj["id"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._id = *res0;
+    }
     if (obj.value("jsonrpc").toString() != "2.0")
-        co_return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
+        return Utils::ResultError("Field 'jsonrpc' must be '2.0', got: " + obj.value("jsonrpc").toString());
     if (obj.value("method").toString() != "openTraceFile")
-        co_return Utils::ResultError("Field 'method' must be 'openTraceFile', got: " + obj.value("method").toString());
-    if (obj.contains("params") && obj["params"].isObject())
-        result._params = co_await fromJson<OpenTraceFileRequest::Params>(obj["params"]);
-    co_return result;
+        return Utils::ResultError("Field 'method' must be 'openTraceFile', got: " + obj.value("method").toString());
+    if (obj.contains("params") && obj["params"].isObject()) {
+        const auto res1 = fromJson<OpenTraceFileRequest::Params>(obj["params"]);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        result._params = *res1;
+    }
+    return result;
 }
 
 inline QJsonObject toJson(const OpenTraceFileRequest &data) {
@@ -642,13 +703,21 @@ using ClientRequest = std::variant<OpenTraceFileRequest, ExitRequest>;
 template<>
 inline Utils::Result<ClientRequest> fromJson<ClientRequest>(const QJsonValue &val) {
     if (!val.isObject())
-        co_return Utils::ResultError("Invalid ClientRequest: expected object");
+        return Utils::ResultError("Invalid ClientRequest: expected object");
     const QString dispatchValue = val.toObject().value("method").toString();
-    if (dispatchValue == "openTraceFile")
-        co_return ClientRequest(co_await fromJson<OpenTraceFileRequest>(val));
-    else if (dispatchValue == "exit")
-        co_return ClientRequest(co_await fromJson<ExitRequest>(val));
-    co_return Utils::ResultError("Invalid ClientRequest: unknown method \"" + dispatchValue + "\"");
+    if (dispatchValue == "openTraceFile") {
+        const auto res0 = fromJson<OpenTraceFileRequest>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return ClientRequest(*res0);
+    }
+    else if (dispatchValue == "exit") {
+        const auto res1 = fromJson<ExitRequest>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return ClientRequest(*res1);
+    }
+    return Utils::ResultError("Invalid ClientRequest: unknown method \"" + dispatchValue + "\"");
 }
 
 inline QJsonObject toJson(const ClientRequest &val) {
