@@ -416,7 +416,7 @@ protected:
 class McpServerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "mcpserver.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "McpServer.json")
 
 public:
     ~McpServerPlugin() final {}
