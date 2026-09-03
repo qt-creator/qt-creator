@@ -6,10 +6,10 @@
 #include "debuggertest.h"
 
 #include "debuggercore.h"
-#include "enginemanager.h"
 #include "debuggerengineinterface.h"
 #include "debuggeritem.h"
 #include "debuggerruncontrol.h"
+#include "enginemanager.h"
 #include "gdb/gdbengine.h"
 #include "registerhandler.h"
 
@@ -128,7 +128,12 @@ void DebuggerUnitTests::testStateMachine()
     runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
 
-    QTestEventLoop::instance().enterLoop(5);
+    // The debuggee faults on purpose and is held there, so the session has to
+    // be ended for it to report the stop.
+    QTRY_VERIFY_WITH_TIMEOUT(runControl->isRunning(), 30000);
+    runControl->initiateStop();
+    QTestEventLoop::instance().enterLoop(30);
+    QVERIFY(!QTestEventLoop::instance().timeout());
 }
 
 // The DAP engines are reachable only through a run mode, so whether one still
@@ -174,13 +179,22 @@ void DebuggerUnitTests::testGdbDapEngineRunsASession()
     // adapter ends up holding it there. Nothing short of the whole exchange -
     // the adapter started, the initialize answered, the launch taken and the
     // stop reported - arrives at a stopped inferior.
-    QTRY_VERIFY_WITH_TIMEOUT(!EngineManager::engines().isEmpty(), 10000);
-    const QPointer<DebuggerEngine> engine = EngineManager::engines().constFirst();
-    QVERIFY(engine);
+    const auto dapEngine = [] {
+        for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
+            if (candidate && candidate->objectName() == "GdbDapEngine")
+                return candidate;
+        }
+        return QPointer<DebuggerEngine>();
+    };
+    // EngineManager holds the whole application's engines, and the test before
+    // this one leaves its own behind, so pick by name.
+    QTRY_VERIFY_WITH_TIMEOUT(dapEngine(), 10000);
+    const QPointer<DebuggerEngine> engine = dapEngine();
     QTRY_VERIFY_WITH_TIMEOUT(engine && engine->state() == InferiorStopOk, 30000);
 
     runControl->initiateStop();
     QTestEventLoop::instance().enterLoop(30);
+    QVERIFY(!QTestEventLoop::instance().timeout());
 }
 
 enum FakeEnum { FakeDebuggerCommonSettingsId };
