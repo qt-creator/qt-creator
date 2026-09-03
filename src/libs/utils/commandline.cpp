@@ -1621,6 +1621,19 @@ QStringList ProcessArgs::filterSimpleArgs(const QString &args, OsType osType)
     return result;
 }
 
+void ProcessArgs::removeArgsIf(QString *args,
+                               const std::function<bool(const std::optional<QString> &)> &drop,
+                               OsType osType)
+{
+    for (ArgIterator ait(args, osType); ait.next(); ) {
+        std::optional<QString> value;
+        if (ait.isSimple())
+            value = ait.value();
+        if (drop(value))
+            ait.deleteArg();
+    }
+}
+
 QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second)
 {
     return first.m_executable == second.m_executable && first.m_arguments == second.m_arguments;

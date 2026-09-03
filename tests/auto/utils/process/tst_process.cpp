@@ -118,6 +118,7 @@ private slots:
     void iterations();
     void iteratorEditsWindows();
     void iteratorEditsLinux();
+    void removeArgsIf();
     void exitCode_data();
     void exitCode();
     void runBlockingStdOut_data();
@@ -628,6 +629,40 @@ void tst_Process::iteratorEditsHelper(OsType osType)
     ait5.deleteArg();
     QVERIFY(!ait5.next());
     QCOMPARE(in5, QString::fromLatin1("one two"));
+}
+
+void tst_Process::removeArgsIf()
+{
+    QString args = "one -o out two";
+    bool dropNext = false;
+    ProcessArgs::removeArgsIf(&args, [&](const std::optional<QString> &arg) {
+        if (dropNext) {
+            dropNext = false;
+            return true;
+        }
+        if (arg == "-o") {
+            dropNext = true;
+            return true;
+        }
+        return false;
+    }, OsTypeLinux);
+    QCOMPARE(args, QString("one two"));
+
+    const auto isComplex = [](const std::optional<QString> &arg) { return !arg.has_value(); };
+
+    QString complex = "keep $(echo hi) -o out";
+    ProcessArgs::removeArgsIf(&complex, isComplex, OsTypeLinux);
+    QCOMPARE(complex, QString("keep -o out"));
+
+    // An empty argument is a plain string, not a complex one.
+    QString empty = "keep '' -o out";
+    ProcessArgs::removeArgsIf(&empty, isComplex, OsTypeLinux);
+    QCOMPARE(empty, QString("keep '' -o out"));
+
+    QString metas = "one two | three";
+    ProcessArgs::removeArgsIf(&metas, [](const std::optional<QString> &arg) { return arg == "two"; },
+                              OsTypeLinux);
+    QCOMPARE(metas, QString("one | three"));
 }
 
 void tst_Process::iteratorEditsWindows()

@@ -56,26 +56,32 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
     bool ignoreNext = false;
     bool nextIsQtConfArg = false;
     m_unparsedArguments = args;
-    ProcessArgs::ArgIterator ait(&m_unparsedArguments);
-    while (ait.next()) {
+    ProcessArgs::removeArgsIf(&m_unparsedArguments, [&](const std::optional<QString> &value) {
+        // Every test below is against a plain string, so a complex argument
+        // matches none of them and is kept.
+        const QString arg = value.value_or(QString());
         if (ignoreNext) {
             // Ignoring
             ignoreNext = false;
-            ait.deleteArg();
-        } else if (nextIsQtConfArg) {
+            return true;
+        }
+        if (nextIsQtConfArg) {
             nextIsQtConfArg = false;
-            m_qtConfFile = FilePath::fromUserInput(ait.value());
-            ait.deleteArg();
-        } else if (ait.value() == project) {
-            ait.deleteArg();
-        } else if (ait.value() == QLatin1String("-after")) {
+            m_qtConfFile = FilePath::fromUserInput(arg);
+            return true;
+        }
+        if (arg == project)
+            return true;
+        if (arg == "-after") {
             after = true;
-            ait.deleteArg();
-        } else if (ait.value() == "-qtconf") {
+            return true;
+        }
+        if (arg == "-qtconf") {
             nextIsQtConfArg = true;
-            ait.deleteArg();
-        } else if (ait.value().contains(QLatin1Char('='))) {
-            const QRegularExpressionMatch match = regExp.match(ait.value());
+            return true;
+        }
+        if (arg.contains('=')) {
+            const QRegularExpressionMatch match = regExp.match(arg);
             if (match.hasMatch()) {
                 QMakeAssignment qa;
                 qa.variable = match.captured(1);
@@ -88,22 +94,22 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
             } else {
                 qDebug()<<"regexp did not match";
             }
-            ait.deleteArg();
-        } else if (ait.value() == QLatin1String("-o")) {
-            ignoreNext = true;
-            ait.deleteArg();
-#if defined(Q_OS_WIN32)
-        } else if (ait.value() == QLatin1String("-win32")) {
-#elif defined(Q_OS_MAC)
-        } else if (ait.value() == QLatin1String("-macx")) {
-#elif defined(Q_OS_QNX6)
-        } else if (ait.value() == QLatin1String("-qnx6")) {
-#else
-        } else if (ait.value() == QLatin1String("-unix")) {
-#endif
-            ait.deleteArg();
+            return true;
         }
-    }
+        if (arg == "-o") {
+            ignoreNext = true;
+            return true;
+        }
+#if defined(Q_OS_WIN32)
+        return arg == "-win32";
+#elif defined(Q_OS_MAC)
+        return arg == "-macx";
+#elif defined(Q_OS_QNX6)
+        return arg == "-qnx6";
+#else
+        return arg == "-unix";
+#endif
+    });
 }
 
 static void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
@@ -483,6 +489,18 @@ void QmakeMakeFileParserTest::testMakefileParser_data()
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE")
             << static_cast<int>(QMakeStepConfig::NoOsType)
             << true << false << false << 2;
+    QTest::newRow("-after")
+            << QString::fromLatin1("CONFIG+=debug SOMETHING=ELSE -after AFTER=1 -spec linux-g++ -o Makefile ../untitled7/untitled7.pro")
+            << QString::fromLatin1("../untitled7/untitled7.pro")
+            << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE -after AFTER=1")
+            << static_cast<int>(QMakeStepConfig::NoOsType)
+            << false << false << false << 2;
+    QTest::newRow("-qtconf")
+            << QString::fromLatin1("-qtconf /tmp/qt.conf -spec linux-g++ CONFIG+=debug -o Makefile ../untitled7/untitled7.pro")
+            << QString::fromLatin1("../untitled7/untitled7.pro")
+            << QString::fromLatin1("-spec linux-g++")
+            << static_cast<int>(QMakeStepConfig::NoOsType)
+            << false << false << false << 2;
 }
 
 void QmakeMakeFileParserTest::testMakefileParser()

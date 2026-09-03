@@ -11,6 +11,7 @@
 #include <QPair>
 #include <QStringList>
 
+#include <optional>
 #include <variant>
 
 namespace Utils {
@@ -56,6 +57,12 @@ public:
     //! Split a shell command into separate arguments and drop complex ones
     //! as input for the internal .pro parser.
     static QStringList filterSimpleArgs(const QString &cmd, OsType osType);
+    //! Remove the arguments for which \a drop returns true from a shell command.
+    //! \a drop is passed the plain value of an argument, or nullopt if the
+    //! argument is not a plain string. An empty argument is a plain string.
+    static void removeArgsIf(QString *cmd,
+                             const std::function<bool(const std::optional<QString> &)> &drop,
+                             OsType osType = HostOsInfo::hostOs());
 
     using FindMacro = std::function<int(const QString &str, int *pos, QString *ret)>;
 

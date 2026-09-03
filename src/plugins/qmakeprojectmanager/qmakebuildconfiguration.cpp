@@ -603,18 +603,24 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
 
     bool ignoreNext = false;
     bool nextIsSpec = false;
-    for (ProcessArgs::ArgIterator ait(args); ait.next(); ) {
+    ProcessArgs::removeArgsIf(args, [&](const std::optional<QString> &value) {
+        // Every test below is against a plain string, so a complex argument
+        // matches none of them and is kept for \a outArgs to filter out.
+        const QString arg = value.value_or(QString());
         if (ignoreNext) {
             ignoreNext = false;
-            ait.deleteArg();
-        } else if (nextIsSpec) {
+            return true;
+        }
+        if (nextIsSpec) {
             nextIsSpec = false;
-            parsedSpec = FilePath::fromUserInput(ait.value());
-            ait.deleteArg();
-        } else if (ait.value() == QLatin1String("-spec") || ait.value() == QLatin1String("-platform")) {
+            parsedSpec = FilePath::fromUserInput(arg);
+            return true;
+        }
+        if (arg == "-spec" || arg == "-platform") {
             nextIsSpec = true;
-            ait.deleteArg();
-        } else if (ait.value() == QLatin1String("-cache")) {
+            return true;
+        }
+        if (arg == "-cache") {
             // We ignore -cache, because qmake contained a bug that it didn't
             // mention the -cache in the Makefile.
             // That means changing the -cache option in the additional arguments
@@ -622,11 +628,13 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
             // intelligent matching for -cache, but i guess people rarely
             // do use that.
             ignoreNext = true;
-            ait.deleteArg();
-        } else if (outArgs && ait.isSimple()) {
-            outArgs->append(ait.value());
+            return true;
         }
-    }
+        return false;
+    });
+
+    if (outArgs)
+        *outArgs += ProcessArgs::filterSimpleArgs(*args, HostOsInfo::hostOs());
 
     if (parsedSpec.isEmpty())
         return {};
