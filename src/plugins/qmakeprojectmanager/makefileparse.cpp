@@ -70,7 +70,7 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
             m_qtConfFile = FilePath::fromUserInput(arg);
             return true;
         }
-        if (arg == project)
+        if (value == project) // Not arg: an empty project must not match a complex argument.
             return true;
         if (arg == "-after") {
             after = true;
@@ -493,6 +493,12 @@ void QmakeMakeFileParserTest::testMakefileParser_data()
             << QString::fromLatin1("CONFIG+=debug SOMETHING=ELSE -after AFTER=1 -spec linux-g++ -o Makefile ../untitled7/untitled7.pro")
             << QString::fromLatin1("../untitled7/untitled7.pro")
             << QString::fromLatin1("-spec linux-g++ SOMETHING=ELSE -after AFTER=1")
+            << static_cast<int>(QMakeStepConfig::NoOsType)
+            << false << false << false << 2;
+    QTest::newRow("empty project keeps complex arguments")
+            << QString::fromLatin1("-spec linux-g++ CONFIG+=debug CONFIG+=$FOO -o Makefile")
+            << QString::fromLatin1("")
+            << QString::fromLatin1("-spec linux-g++ CONFIG+=$FOO")
             << static_cast<int>(QMakeStepConfig::NoOsType)
             << false << false << false << 2;
     QTest::newRow("-qtconf")
