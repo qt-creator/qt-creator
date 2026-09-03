@@ -92,6 +92,11 @@ ProgressBar::ProgressBar(Role role, QWidget *parent)
         m_cancelButton = new CloseButton;
         connect(m_cancelButton, &QAbstractButton::clicked, this, &ProgressBar::clicked);
 
+        const int commonHeight = qMax(m_cancelButton->minimumHeight(),
+                                      m_progressBar->minimumHeight());
+        m_cancelButton->setFixedHeight(commonHeight);
+        m_progressBar->setFixedHeight(commonHeight);
+
         m_subtitleLabel = new QLabel;
         StyleHelper::applyTf(m_subtitleLabel, titleTf, false);
         m_subtitleLabel->setTextInteractionFlags(Qt::NoTextInteraction);
