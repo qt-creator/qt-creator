@@ -5192,8 +5192,15 @@ void FakeVimTester::test_vim_script_localtime_and_strptime()
 
     QCOMPARE(value("localtime() > 1700000000"), QLatin1String("1"));
     QCOMPARE(value("type(localtime())"), QLatin1String("0"));
-    QCOMPARE(value("type(strptime('%Y-%m-%d', '2026-08-26'))"), QLatin1String("0"));
 
+    // strptime() is POSIX and not every C library has one, which is why Vim
+    // documents it as "Not available on all systems" and tells a script to ask
+    // first. This engine says the same, so the rest of this asks the same
+    // question rather than assuming an answer.
+    if (value("exists('*strptime')") != "1")
+        QSKIP("no strptime() on this platform, as Vim has it on such a one");
+
+    QCOMPARE(value("type(strptime('%Y-%m-%d', '2026-08-26'))"), QLatin1String("0"));
     QCOMPARE(value("strftime('%Y-%m-%d', strptime('%Y-%m-%d', '2026-08-26'))"),
              QLatin1String("2026-08-26"));
     QCOMPARE(value("strftime('%Y-%m-%d %H:%M:%S', "

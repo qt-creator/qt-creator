@@ -29,4 +29,16 @@ QtcPlugin {
     QtcTestFiles {
         files: ["fakevim_test.cpp", "fakevim_test.h"]
     }
+
+    // Prevent fatal error C1128: both fakevimhandler.cpp and fakevim_test.cpp
+    // hold more sections than the object format takes by default.
+    Properties {
+        condition: qbs.toolchain.contains("msvc")
+        cpp.cxxFlags: "/bigobj"
+    }
+
+    Properties {
+        condition: qbs.toolchain.contains("mingw")
+        cpp.cxxFlags: "-Wa,-mbig-obj"
+    }
 }

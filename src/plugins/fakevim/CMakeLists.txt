@@ -15,3 +15,12 @@ extend_qtc_plugin(FakeVim
   CONDITION WITH_TESTS
   SOURCES fakevim_test.cpp fakevim_test.h
 )
+
+if (MSVC)
+  # Prevent fatal error C1128: both fakevimhandler.cpp and fakevim_test.cpp
+  # hold more sections than the object format takes by default.
+  target_compile_options(FakeVim PRIVATE /bigobj)
+endif()
+if (MINGW)
+  target_compile_options(FakeVim PRIVATE "-Wa,-mbig-obj")
+endif()
