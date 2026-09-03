@@ -121,10 +121,19 @@ QString LogcatEntry::displayText() const
     return result;
 }
 
+static bool matchesFreeText(const LogcatEntry &entry, const QString &term)
+{
+    return entry.line.contains(term, Qt::CaseInsensitive)
+           || entry.packageName.contains(term, Qt::CaseInsensitive);
+}
+
+static constexpr QLatin1StringView packageKey("package");
+
 class LogcatFilter
 {
 public:
     void setFromText(const QString &text);
+    void bindToPackage(const QString &packageName);
     bool accepts(const LogcatEntry &entry) const;
 
     QString filterText() const { return m_filterText; }
@@ -133,18 +142,49 @@ public:
 
 private:
     QList<FilterPredicate> m_predicates;
+    QString m_boundPackage;
     QString m_filterText;
 };
+
+static LogcatFilter::FilterPredicate minePredicate(const QString &packageName)
+{
+    const QString processPrefix = packageName + u':';
+    return [packageName, processPrefix](const LogcatEntry &e) {
+        return e.packageName.compare(packageName, Qt::CaseInsensitive) == 0
+               || e.packageName.startsWith(processPrefix, Qt::CaseInsensitive);
+    };
+}
 
 void LogcatFilter::setFromText(const QString &text)
 {
     m_filterText = text;
     m_predicates.clear();
-    if (text.isEmpty())
-        return;
-    m_predicates.append([text](const LogcatEntry &entry) {
-        return entry.line.contains(text, Qt::CaseInsensitive);
-    });
+    const QStringList tokens = text.simplified().split(QChar::Space, Qt::SkipEmptyParts);
+    for (const QString &token : tokens) {
+        const int colon = token.indexOf(u':');
+        const QString key = colon > 0 ? token.left(colon).toLower() : QString();
+        const QString value = colon > 0 ? token.mid(colon + 1) : QString();
+        const bool queryKey = key == packageKey;
+        if (queryKey && value.isEmpty())
+            continue;
+        if (queryKey
+            && value.compare(QLatin1String("mine"), Qt::CaseInsensitive) == 0
+            && !m_boundPackage.isEmpty()) {
+            m_predicates.append(minePredicate(m_boundPackage));
+        } else {
+            m_predicates.append([token](const LogcatEntry &e) {
+                return matchesFreeText(e, token);
+            });
+        }
+    }
+}
+
+void LogcatFilter::bindToPackage(const QString &packageName)
+{
+    m_boundPackage = packageName;
+    if (m_filterText.isEmpty())
+        m_filterText = QStringLiteral("package:mine");
+    setFromText(m_filterText);
 }
 
 bool LogcatFilter::accepts(const LogcatEntry &entry) const
@@ -166,6 +206,8 @@ public:
 
     RunControl *tab() const { return m_tabContext.tab; }
     void attachTab(RunControl *tab);
+
+    void bindToApp(qint64 pid, const QString &packageName);
 
 private:
     void start();
@@ -290,6 +332,19 @@ void LogcatStream::setStreaming(bool streaming)
         start();
     else
         stop();
+}
+
+void LogcatStream::bindToApp(qint64 pid, const QString &packageName)
+{
+    if (pid <= 0 || !m_tabContext.tab)
+        return;
+    start();
+    m_tabContext.processNames.insert(pid, packageName);
+    m_tabContext.backfillPackageNames();
+    m_tabContext.filter.bindToPackage(packageName);
+    m_tabContext.tab->setOutputFilterText(m_tabContext.filter.filterText());
+    m_filterDebounce.stop();
+    m_tabContext.renderFromBuffer();
 }
 
 void LogcatStream::populateProcesses()
@@ -496,6 +551,13 @@ void LogcatStream::onOutputFilterTextChanged(const QString &text)
     m_filterDebounce.start();
 }
 
+static AndroidDevice::ConstPtr deviceForRun(const RunControl *runControl)
+{
+    const IDeviceConstPtr snapshot = runControl->device();
+    return snapshot ? std::dynamic_pointer_cast<const AndroidDevice>(
+                          DeviceManager::find(snapshot->id())) : nullptr;
+}
+
 static LogcatStream *ensureStream(const AndroidDevice::ConstPtr &device)
 {
     if (!device)
@@ -526,6 +588,20 @@ static RunControl *openLogcatTabForStream(LogcatStream *logcatStream)
     }));
     runControl->start();
     return runControl;
+}
+
+void bindRunningAppToLogcat(RunControl *runControl, qint64 pid, const QString &packageName)
+{
+    if (!runControl || pid <= 0 || runControl->suppressApplicationOutput())
+        return;
+    const auto device = AndroidDevice::asReady(deviceForRun(runControl));
+    if (!device)
+        return;
+    showLogcatTab(device);
+    LogcatStream *stream = streamRegistry().value(device->id());
+    if (!stream)
+        return;
+    stream->bindToApp(pid, packageName);
 }
 
 void showLogcatTab(const AndroidDevice::ConstPtr &device)

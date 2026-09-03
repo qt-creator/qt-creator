@@ -5,8 +5,15 @@
 
 #include "androiddevice.h"
 
+namespace ProjectExplorer {
+class RunControl;
+}
+
 namespace Android::Internal {
 
 void showLogcatTab(const AndroidDevice::ConstPtr &device);
+
+void bindRunningAppToLogcat(ProjectExplorer::RunControl *runControl, qint64 pid,
+                            const QString &packageName);
 
 } // namespace Android::Internal
