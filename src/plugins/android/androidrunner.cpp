@@ -131,6 +131,9 @@ Group androidKicker(const QStoredBarrier &barrier, RunControl *runControl)
 
 Group androidRecipe(RunControl *runControl)
 {
+    QObject::connect(runControl, &RunControl::aboutToStart, runControl, [runControl] {
+        adoptRunControlForLogcat(runControl);
+    });
     const auto kicker = [runControl](const QStoredBarrier &barrier) {
         return androidKicker(barrier, runControl);
     };

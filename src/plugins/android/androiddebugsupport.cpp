@@ -6,6 +6,7 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androiddevice.h"
+#include "androidlogcat.h"
 #include "androidrunner.h"
 #include "androidqtversion.h"
 #include "androidutils.h"
@@ -167,6 +168,8 @@ public:
     {
         setId("AndroidDebugWorkerFactory");
         setRecipeProducer([](RunControl *runControl) -> Group {
+            QObject::connect(runControl, &RunControl::aboutToStart, runControl,
+                             [runControl] { adoptRunControlForLogcat(runControl); });
             const DebuggerRunParameters rp = debuggerRunParameters(runControl);
             // androidKicker() launches the application and asks it for a TCP QML connection.
             if (rp.isNativeMixedDebugging())

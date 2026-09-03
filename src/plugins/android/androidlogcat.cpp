@@ -207,14 +207,20 @@ public:
     LogcatStream(AndroidDevice::ConstPtr device);
     ~LogcatStream() override;
 
+    Id deviceId() const { return m_device->id(); }
     RunControl *tab() const { return m_tabContext.tab; }
     void attachTab(RunControl *tab);
+    void adoptAppRunControl(RunControl *appRunControl);
 
     void bindToApp(qint64 pid, const QString &packageName);
 
     void addLineReader(RunControl *owner, LogcatLineHandler callback);
 
 private:
+    void setAppControllable(bool controllable);
+    void onAppCanceled();
+    void onAppStopped();
+
     void removeLineReader(RunControl *owner);
 
     void start();
@@ -272,6 +278,9 @@ private:
     bool m_pausedWhileHidden = false;
     QString m_resumeTimestamp;
     QList<LineReader> m_lineReaders;
+    QPointer<RunControl> m_boundRunner;
+    bool m_appStopRequested = false;
+    bool m_appControllable = false;
 
     CommandLine adbCommand(const QStringList &args) const
     {
@@ -333,8 +342,65 @@ void LogcatStream::attachTab(RunControl *tab)
     setStreaming(tab->isOutputVisible());
 }
 
+static void stopAndDelete(RunControl *runner)
+{
+    if (runner->isStopped()) {
+        runner->deleteLater();
+        return;
+    }
+    QObject::disconnect(runner, &RunControl::stopped, runner, &RunControl::initiateStart);
+    QObject::connect(runner, &RunControl::stopped, runner, &QObject::deleteLater);
+    runner->initiateStop();
+}
+
+void LogcatStream::adoptAppRunControl(RunControl *appRunControl)
+{
+    RunControl *tab = m_tabContext.tab;
+    QTC_ASSERT(tab && appRunControl, return);
+    if (m_boundRunner == appRunControl)
+        return;
+    m_appStopRequested = false;
+    RunControl *previous = m_boundRunner.get();
+    m_boundRunner = appRunControl;
+    if (previous) {
+        QObject::disconnect(tab, nullptr, previous, nullptr);
+        QObject::disconnect(previous, nullptr, this, nullptr);
+        if (!previous->isStopped()) {
+            postMessage(banner(previous->displayName(),
+                               QLatin1String("stopped for a new run")),
+                        Utils::NormalMessageFormat);
+        }
+        stopAndDelete(previous);
+    }
+    if (tab->isStopped())
+        tab->initiateStart();
+    QObject::connect(appRunControl, &RunControl::appendMessage, this,
+                     [this](const QString &msg, Utils::OutputFormat format) {
+                         postMessage(msg, format);
+                     });
+    QObject::connect(tab, &RunControl::canceled, this,
+                     &LogcatStream::onAppCanceled, Qt::UniqueConnection);
+    QObject::connect(tab, &RunControl::canceled, appRunControl, &RunControl::initiateStop);
+    QObject::connect(tab, &RunControl::aboutToStart, appRunControl, [appRunControl] {
+        if (appRunControl->isStopped()) {
+            appRunControl->initiateStart();
+            return;
+        }
+        QObject::connect(appRunControl, &RunControl::stopped, appRunControl,
+                         &RunControl::initiateStart,
+                         static_cast<Qt::ConnectionType>(Qt::SingleShotConnection
+                                                         | Qt::UniqueConnection));
+    });
+    QObject::connect(appRunControl, &RunControl::stopped, this, &LogcatStream::onAppStopped);
+    setAppControllable(true);
+}
+
 void LogcatStream::onTabDestroyed()
 {
+    if (RunControl *runner = m_boundRunner.get()) {
+        stopAndDelete(runner);
+        m_boundRunner = nullptr;
+    }
     m_tabContext = {};
     disposeIfIdle();
 }
@@ -406,7 +472,27 @@ void LogcatStream::removeLineReader(RunControl *owner)
 
 bool LogcatStream::shouldKeepRunning() const
 {
-    return m_tabContext.streaming || hasLineReaders();
+    return m_tabContext.streaming || hasLineReaders()
+           || (m_boundRunner && !m_boundRunner->isStopped());
+}
+
+void LogcatStream::onAppCanceled()
+{
+    m_appStopRequested = true;
+}
+
+void LogcatStream::onAppStopped()
+{
+    if (!m_appStopRequested)
+        setAppControllable(false);
+    m_appStopRequested = false;
+}
+
+void LogcatStream::setAppControllable(bool controllable)
+{
+    m_appControllable = controllable;
+    if (m_tabContext.tab)
+        m_tabContext.tab->setOutputPaneActionsEnabled(controllable);
 }
 
 void LogcatStream::populateProcesses()
@@ -554,6 +640,8 @@ void LogcatStream::onDisconnected()
     m_disconnected = true;
     postMessage(banner(m_device->displayNameWithSerial(), QLatin1String("disconnected")),
                 Utils::NormalMessageFormat);
+    if (m_tabContext.tab)
+        m_tabContext.tab->setOutputPaneActionsEnabled(false);
 }
 
 void LogcatStream::onConnected()
@@ -562,8 +650,11 @@ void LogcatStream::onConnected()
         postMessage(banner(m_device->displayNameWithSerial(), QLatin1String("connected")),
                     Utils::NormalMessageFormat);
     m_disconnected = false;
-    if (shouldKeepRunning())
-        start();
+    if (m_tabContext.tab)
+        m_tabContext.tab->setOutputPaneActionsEnabled(m_appControllable);
+    if (!shouldKeepRunning())
+        return;
+    start();
 }
 
 void LogcatStream::postMessage(const QString &msg, Utils::OutputFormat format)
@@ -646,27 +737,55 @@ static RunControl *openLogcatTabForStream(LogcatStream *logcatStream)
     if (RunControl *existing = logcatStream->tab())
         return existing;
     auto *runControl = new RunControl(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    // Keeps the pane from reusing this tab for another run.
+    runControl->setCommandLine(
+        {FilePath::fromString("android-logcat"), {logcatStream->deviceId().toString()}});
     runControl->setPromptToStop([](bool *) { return true; });
     runControl->setOutputPaneActionsEnabled(false);
     runControl->setFiltersOutputAtSource(true);
     logcatStream->attachTab(runControl);
 
-    runControl->setRunRecipe(QBarrierTask([](QBarrier &) {}).withCancel([runControl] {
+    const auto reportStarted = QSyncTask([runControl] { runControl->reportStarted(); });
+    const auto waitForStop = QBarrierTask([](QBarrier &) {}).withCancel([runControl] {
         return makeObjectSignal(runControl, &RunControl::canceled);
-    }));
+    });
+    runControl->setRunRecipe(Group{reportStarted, waitForStop});
     runControl->start();
     return runControl;
+}
+
+static LogcatStream *adoptRunControlAsTab(RunControl *runControl)
+{
+    if (!runControl)
+        return nullptr;
+    LogcatStream *stream = ensureStream(deviceForRun(runControl));
+    if (!stream)
+        return nullptr;
+    // A closing tab is unlisted before it dies; adopting onto it loses the run.
+    if (stream->tab() && !stream->tab()->hasOutputPaneTab())
+        return nullptr;
+    if (!stream->tab())
+        openLogcatTabForStream(stream);
+    RunControl *tab = stream->tab();
+    if (!tab || tab == runControl)
+        return stream;
+    runControl->detachOutputPaneTab();
+    stream->adoptAppRunControl(runControl);
+    return stream;
+}
+
+void adoptRunControlForLogcat(RunControl *runControl)
+{
+    if (!runControl || runControl->suppressApplicationOutput())
+        return;
+    adoptRunControlAsTab(runControl);
 }
 
 void bindRunningAppToLogcat(RunControl *runControl, qint64 pid, const QString &packageName)
 {
     if (!runControl || pid <= 0 || runControl->suppressApplicationOutput())
         return;
-    const auto device = AndroidDevice::asReady(deviceForRun(runControl));
-    if (!device)
-        return;
-    showLogcatTab(device);
-    LogcatStream *stream = streamRegistry().value(device->id());
+    LogcatStream *stream = adoptRunControlAsTab(runControl);
     if (!stream)
         return;
     stream->bindToApp(pid, packageName);
