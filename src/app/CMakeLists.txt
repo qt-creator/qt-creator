@@ -68,7 +68,24 @@ if (OHOS)
   set(QTC_HARMONYOS_NATIVE_PACKAGE_FILES "" CACHE STRING
     "Files to put into the native package of Qt Creator's HarmonyOS package, \
 for example an ssh client and its libraries")
-  set(_harmonyos_native_files "")
+
+  # Runs what a project built on the device, which needs a process the debugger may trace:
+  # the device refuses to execute a file Qt Creator wrote and grants tracing per
+  # application, so this goes into the native package, which Qt Creator may execute.
+  set(_harmonyos_host_dir "${CMAKE_CURRENT_BINARY_DIR}/harmonyos")
+  add_executable(qtchost
+    "${PROJECT_SOURCE_DIR}/share/qtcreator/harmonyos/qtchost.cpp"
+    "${PROJECT_SOURCE_DIR}/share/qtcreator/harmonyos/qtcload.cpp"
+  )
+  target_include_directories(qtchost
+    PRIVATE "${PROJECT_SOURCE_DIR}/share/qtcreator/harmonyos")
+  target_link_libraries(qtchost PRIVATE ${CMAKE_DL_LIBS})
+  # In the application's context only what the application itself brought is on the
+  # library path, so this depends on the C library alone.
+  target_link_options(qtchost PRIVATE -static-libstdc++)
+  set_target_properties(qtchost PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${_harmonyos_host_dir}")
+
+  set(_harmonyos_native_files "\"${_harmonyos_host_dir}/qtchost\"")
   foreach(_file IN LISTS QTC_HARMONYOS_NATIVE_PACKAGE_FILES)
     if(_harmonyos_native_files)
       string(APPEND _harmonyos_native_files ",\n        ")

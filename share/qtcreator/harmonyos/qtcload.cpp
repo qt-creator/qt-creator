@@ -84,7 +84,9 @@ private:
     bool readFile(const char *path);
     bool mapSegments();
     bool readDynamic();
+    void readStaticSymbols();
     bool loadDependencies();
+    void *openDependency(const char *name) const;
     bool applyRelocations();
     bool applyRela(const Elf64_Rela *relocations, size_t count);
     bool applyRelr(const Elf64_Relr *entries, size_t count);
@@ -392,22 +394,80 @@ void Loader::registerFrames()
 // are kept because the process may hold them privately: an application library that was
 // itself dlopened with RTLD_LOCAL keeps its whole dependency tree out of the global scope,
 // and then RTLD_DEFAULT does not find a single Qt symbol.
+// An executable exports main() only when it was linked with -rdynamic, but an unstripped
+// build names it in .symtab, which is in the file and not in any segment.
+void Loader::readStaticSymbols()
+{
+    const Elf64_Ehdr *elf = header();
+    if (elf->e_shoff == 0 || elf->e_shentsize < sizeof(Elf64_Shdr))
+        return;
+    if (elf->e_shoff + size_t(elf->e_shnum) * elf->e_shentsize > m_file.size())
+        return;
+
+    const auto section = [this, elf](unsigned index) {
+        return reinterpret_cast<const Elf64_Shdr *>(
+            m_file.data() + elf->e_shoff + size_t(index) * elf->e_shentsize);
+    };
+    for (unsigned index = 0; index < elf->e_shnum; ++index) {
+        const Elf64_Shdr *symbols = section(index);
+        if (symbols->sh_type != SHT_SYMTAB || symbols->sh_link >= elf->e_shnum)
+            continue;
+        const Elf64_Shdr *strings = section(symbols->sh_link);
+        if (symbols->sh_offset + symbols->sh_size > m_file.size()
+                || strings->sh_offset + strings->sh_size > m_file.size()) {
+            return;
+        }
+        const Elf64_Sym *first =
+            reinterpret_cast<const Elf64_Sym *>(m_file.data() + symbols->sh_offset);
+        m_image->localSymbols.assign(first, first + symbols->sh_size / sizeof(Elf64_Sym));
+        m_image->localStrings.assign(m_file.data() + strings->sh_offset, strings->sh_size);
+        return;
+    }
+}
+
+void *Loader::openDependency(const char *name) const
+{
+    if (void *handle = ::dlopen(name, RTLD_NOW | RTLD_LOCAL))
+        return handle;
+    const std::string path = loadedPath(name);
+    if (!path.empty()) {
+        if (void *handle = ::dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL))
+            return handle;
+    }
+    for (const std::string &directory : loadedDirectories()) {
+        if (void *handle = ::dlopen((directory + '/' + name).c_str(), RTLD_NOW | RTLD_LOCAL))
+            return handle;
+    }
+    return nullptr;
+}
+
+// A package carries its libraries flat and unversioned, because an installation unpacks
+// no symbolic links: what a HAP holds is libQt6Core.so. A Qt built on the device is an
+// ordinary Qt with a versioned soname, so an application built against it asks for
+// libQt6Core.so.6 instead - the same library under the name the packaged one does not
+// have. Only the file name differs: the versions such an application needs are the major
+// ones ("Qt_6"), which the packaged library defines.
+static std::string unversionedName(const char *name)
+{
+    const char *suffix = ::strstr(name, ".so.");
+    if (!suffix)
+        return {};
+    for (const char *at = suffix + 4; *at; ++at) {
+        if (*at != '.' && (*at < '0' || *at > '9'))
+            return {};
+    }
+    return std::string(name, size_t(suffix - name)) + ".so";
+}
+
 bool Loader::loadDependencies()
 {
     for (Elf64_Xword offset : m_neededNames) {
         const char *name = m_strings + offset;
-        void *handle = ::dlopen(name, RTLD_NOW | RTLD_LOCAL);
+        void *handle = openDependency(name);
         if (!handle) {
-            const std::string path = loadedPath(name);
-            if (!path.empty())
-                handle = ::dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
-        }
-        if (!handle) {
-            for (const std::string &directory : loadedDirectories()) {
-                handle = ::dlopen((directory + '/' + name).c_str(), RTLD_NOW | RTLD_LOCAL);
-                if (handle)
-                    break;
-            }
+            const std::string unversioned = unversionedName(name);
+            if (!unversioned.empty())
+                handle = openDependency(unversioned.c_str());
         }
         if (handle)
             m_image->dependencies.push_back(handle);
@@ -568,6 +628,7 @@ bool Loader::load(const char *path)
             || !applyRelocations() || !protectSegments())
         return false;
     registerFrames();
+    readStaticSymbols();
     m_image->lowest = m_lowest;
     m_image->symbols = m_symbols;
     m_image->symbolCount = m_symbolCount;
@@ -590,14 +651,24 @@ bool load(const char *path, Image *image, std::string *error)
 
 void *lookup(const Image &image, const char *name)
 {
-    for (size_t index = 0; index < image.symbolCount; ++index) {
-        const Elf64_Sym &symbol = image.symbols[index];
-        if (symbol.st_shndx == SHN_UNDEF || symbol.st_value == 0)
-            continue;
-        if (::strcmp(image.strings + symbol.st_name, name) == 0)
-            return image.base + symbol.st_value - image.lowest;
-    }
-    return nullptr;
+    const auto search = [&image, name](const Elf64_Sym *symbols, size_t count,
+                                       const char *strings, size_t stringsSize) -> void * {
+        for (size_t index = 0; index < count; ++index) {
+            const Elf64_Sym &symbol = symbols[index];
+            if (symbol.st_shndx == SHN_UNDEF || symbol.st_value == 0)
+                continue;
+            if (symbol.st_name >= stringsSize)
+                continue;
+            if (::strcmp(strings + symbol.st_name, name) == 0)
+                return image.base + symbol.st_value - image.lowest;
+        }
+        return nullptr;
+    };
+
+    if (void *found = search(image.symbols, image.symbolCount, image.strings, SIZE_MAX))
+        return found;
+    return search(image.localSymbols.data(), image.localSymbols.size(),
+                  image.localStrings.data(), image.localStrings.size());
 }
 
 } // namespace QtcLoad

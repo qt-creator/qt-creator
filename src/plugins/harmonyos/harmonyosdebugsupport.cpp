@@ -21,6 +21,8 @@
 
 #include <utils/qtcprocess.h>
 
+#include <QtTaskTree/qbarriertask.h>
+
 #include <QHostAddress>
 #include <QRegularExpression>
 #include <QTcpServer>
@@ -296,9 +298,170 @@ public:
     }
 };
 
+// A binary a project on the device built cannot be debugged where it runs: the terminal
+// application that compiles it may not be traced at all, and Qt Creator may not execute a
+// file it wrote itself. Inside Qt Creator's own application both are allowed, so a program
+// from its package maps that binary into itself, and the server that traces it is started
+// there as well.
+class HostGate
+{
+public:
+    std::unique_ptr<QTcpServer> server;
+    std::unique_ptr<QTcpSocket> socket;
+    QByteArray report;
+    qint64 pid = 0;
+    QString slide;
+};
+
+static Group hostRecipe(const QStoredBarrier &barrier, RunControl *runControl,
+                        const Storage<HostGate> &gateStorage)
+{
+    const auto onGateSetup = [gateStorage, barrier, runControl] {
+        HostGate * const gate = gateStorage.activeStorage();
+        QBarrier * const reported = barrier.activeStorage();
+
+        auto listener = new QTcpServer;
+        gate->server.reset(listener);
+        QObject::connect(listener, &QTcpServer::newConnection, listener,
+                         [listener, gate, reported, runControl] {
+            QTcpSocket * const socket = listener->nextPendingConnection();
+            QTC_ASSERT(socket, return);
+            listener->close();
+            gate->socket.reset(socket);
+            // Written once the debugger holds the process, which is when breakpoints in it
+            // can be hit; until then the program waits on this connection.
+            QObject::connect(runControl, &RunControl::started, socket, [gate] {
+                gate->socket->write("g");
+                gate->socket->flush();
+            });
+            QObject::connect(socket, &QIODevice::readyRead, socket, [gate, reported] {
+                gate->report += gate->socket->readAll();
+                if (!gate->report.contains('\n'))
+                    return;
+                static const QRegularExpression report("pid (\\d+) slide (0x[0-9a-f]+)");
+                const QRegularExpressionMatch match = report.match(QString::fromLatin1(gate->report));
+                if (!match.hasMatch())
+                    return;
+                gate->pid = match.captured(1).toLongLong();
+                gate->slide = match.captured(2);
+                reported->advance();
+            });
+        });
+        // Any free port: the program is told which one, so nothing has to agree on it
+        // beforehand, and two runs on one device do not collide.
+        if (!listener->listen(QHostAddress::LocalHost)) {
+            runControl->postMessage(
+                Tr::tr("Cannot listen for the hosted binary: %1").arg(listener->errorString()),
+                ErrorMessageFormat);
+            return false;
+        }
+        listener->setMaxPendingConnections(1);
+        return true;
+    };
+
+    const auto onServerSetup = [](Process &process) {
+        process.setCommand({FilePath::fromString(Constants::HARMONYOS_DEBUG_SERVER_PATH),
+                            {"platform", "--listen",
+                             QString("*:%1").arg(Constants::HARMONYOS_DEBUG_PORT)}});
+    };
+    const auto onServerDone = [runControl](const Process &process) {
+        runControl->postMessage(Tr::tr("The debug server stopped: %1")
+                                    .arg(process.exitMessage()), ErrorMessageFormat);
+    };
+
+    // Attaching before the server listens fails, and it says nothing when it is ready.
+    const auto isListening = [] {
+        QTcpSocket socket;
+        socket.connectToHost(QHostAddress::LocalHost, Constants::HARMONYOS_DEBUG_PORT);
+        return socket.waitForConnected(50);
+    };
+
+    const auto onHostSetup = [runControl, gateStorage](Process &process) {
+        const CommandLine inferior = runControl->commandLine();
+        CommandLine cmd{FilePath::fromString(Constants::HARMONYOS_HOST_PATH),
+                        {QString::number(gateStorage->server->serverPort()),
+                         inferior.executable().path()}};
+        cmd.addArgs(inferior.arguments(), CommandLine::Raw);
+        process.setCommand(cmd);
+        process.setWorkingDirectory(FilePath::fromString(runControl->workingDirectory().path()));
+    };
+
+    return Group {
+        QSyncTask(onGateSetup),
+        Group {
+            parallel,
+            ProcessTask(onServerSetup, onServerDone, CallDoneFlag::OnError),
+            Group {
+                Forever {
+                    stopOnSuccess,
+                    QSyncTask(isListening),
+                    timeoutTask(100ms)
+                }.withTimeout(10s),
+                runControl->processTaskWithModifier(onHostSetup)
+            }
+        }
+    };
+}
+
+static DebuggerRunParameters hostDebuggerRunParameters(RunControl *runControl)
+{
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    rp.setStartMode(AttachToRemoteServer);
+    rp.setSkipDebugServer(true);
+    rp.setCloseMode(KillAtClose);
+    rp.setLldbPlatform("remote-ohos");
+    rp.setUseContinueInsteadOfRun(true);
+    rp.setContinueAfterAttach(false);
+    rp.setRemoteChannel(QString("127.0.0.1:%1").arg(Constants::HARMONYOS_DEBUG_PORT));
+    // The debugger runs where the terminal that built the binary does, which is not where
+    // the process is, so the path is what both see and not a device path.
+    rp.setSymbolFile(FilePath::fromString(rp.inferior().command.executable().path()));
+    return rp;
+}
+
+class HarmonyOsBuildDeviceDebugWorkerFactory final : public RunWorkerFactory
+{
+public:
+    HarmonyOsBuildDeviceDebugWorkerFactory()
+    {
+        setId("HarmonyOsBuildDeviceDebugWorkerFactory");
+        setRecipeProducer([](RunControl *runControl) -> Group {
+            const FilePath host = FilePath::fromString(Constants::HARMONYOS_HOST_PATH);
+            if (!host.isExecutableFile()) {
+                return runControl->errorTask(
+                    Tr::tr("Debugging what was built on the device needs \"%1\", which only a "
+                           "Qt Creator installed on the device has.").arg(host.toUserOutput()));
+            }
+
+            const Storage<HostGate> gateStorage;
+            const auto kicker = [runControl, gateStorage](const QStoredBarrier &barrier) {
+                return hostRecipe(barrier, runControl, gateStorage);
+            };
+            // Neither is known before the program reports where it mapped the binary.
+            const auto modifier = [gateStorage](DebuggerRunParameters &rp) {
+                rp.setAttachPid(ProcessHandle(gateStorage->pid));
+                const FilePath binary = rp.symbolFile();
+                rp.setCommandsAfterConnect(
+                    QString("target modules add %1\ntarget modules load --file %2 --slide %3")
+                        .arg(binary.path(), binary.fileName(), gateStorage->slide));
+            };
+            return Group {
+                gateStorage,
+                When (kicker) >> Do {
+                    debuggerRecipe(runControl, hostDebuggerRunParameters(runControl), modifier)
+                }
+            };
+        });
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedRunConfig(Constants::HARMONYOS_BUILD_RUNCONFIG_ID);
+        addSupportedDeviceType(Constants::HARMONYOS_BUILD_DEVICE_TYPE);
+    }
+};
+
 void setupHarmonyOsDebugSupport()
 {
     static HarmonyOsDebugWorkerFactory theHarmonyOsDebugWorkerFactory;
+    static HarmonyOsBuildDeviceDebugWorkerFactory theHarmonyOsBuildDeviceDebugWorkerFactory;
 }
 
 } // namespace HarmonyOs::Internal

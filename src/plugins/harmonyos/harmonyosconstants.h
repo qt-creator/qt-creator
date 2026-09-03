@@ -33,6 +33,11 @@ inline constexpr char HARMONYOS_USER_DOCUMENTS[] = "/storage/Users/currentUser/D
 inline constexpr char HARMONYOS_NATIVE_PACKAGE_BIN[] = "/data/app/qtctools.org/qtctools_1.0/bin";
 inline constexpr char HARMONYOS_DEBUG_SERVER_PATH[]
     = "/data/app/qtctools.org/qtctools_1.0/bin/lldb-server";
+// What hosts a binary built on the device in a process the debugger may trace. It reports
+// the address it mapped that binary at over a port it is passed, and that connection is
+// also what holds it back until the debugger has it.
+inline constexpr char HARMONYOS_HOST_PATH[]
+    = "/data/app/qtctools.org/qtctools_1.0/bin/qtchost";
 // The library that holds an application until the debugger releases it, and the byte it
 // spins on.
 inline constexpr char HARMONYOS_WAIT_LIBRARY[] = "libqtcwait.so";

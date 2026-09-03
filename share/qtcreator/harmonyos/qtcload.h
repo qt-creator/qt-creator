@@ -21,6 +21,8 @@ public:
     const Elf64_Sym *symbols = nullptr;
     size_t symbolCount = 0;
     const char *strings = nullptr;
+    std::vector<Elf64_Sym> localSymbols; // .symtab, kept for what .dynsym does not export
+    std::string localStrings;
     std::vector<void *> dependencies;    // handles kept for the image's lifetime
     std::vector<std::string> missing;    // DT_NEEDED entries the platform would not load
     bool framesRegistered = false;
