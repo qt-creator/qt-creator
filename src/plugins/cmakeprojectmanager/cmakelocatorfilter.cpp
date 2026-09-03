@@ -41,7 +41,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QMessageBox>
-#include <QPointer>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -52,29 +51,11 @@ namespace CMakeProjectManager::Internal {
 
 using BuildAcceptor = std::function<void(const BuildSystem *, const QString &, const QString &)>;
 
-static QStringList &cmLocatorHistory()
-{
-    static QStringList history;
-    return history;
-}
-
 static QString stripTrailingNewline(QString str)
 {
     if (str.endsWith('\n'))
         str.chop(1);
     return str;
-}
-
-static void addToCmLocatorHistory(const QString &cmd)
-{
-    const QString trimmed = cmd.trimmed();
-    if (trimmed.isEmpty())
-        return;
-    cmLocatorHistory().removeAll(trimmed);
-    cmLocatorHistory().prepend(trimmed);
-    static const int maxHistory = 100;
-    while (cmLocatorHistory().size() > maxHistory)
-        cmLocatorHistory().removeLast();
 }
 
 static CMakeBuildSystem *findStartupCMakeBuildSystem()
@@ -83,6 +64,59 @@ static CMakeBuildSystem *findStartupCMakeBuildSystem()
     if (!cmakeProject)
         return nullptr;
     return qobject_cast<CMakeBuildSystem *>(cmakeProject->activeBuildSystem());
+}
+
+// The most recently run commands of one locator filter, persisted across sessions.
+class CommandHistory
+{
+public:
+    explicit CommandHistory(const char *settingsKey)
+        : m_settingsKey(settingsKey)
+    {}
+
+    const QStringList &commands() const { return m_commands; }
+
+    void add(const QString &command)
+    {
+        const QString trimmed = command.trimmed();
+        if (trimmed.isEmpty())
+            return;
+        m_commands.removeAll(trimmed);
+        m_commands.prepend(trimmed);
+        while (m_commands.size() > maxCommands)
+            m_commands.removeLast();
+    }
+
+    void save(QJsonObject &object) const
+    {
+        if (!m_commands.isEmpty())
+            object.insert(QLatin1String(m_settingsKey), QJsonArray::fromStringList(m_commands));
+    }
+
+    void restore(const QJsonObject &object)
+    {
+        m_commands = Utils::transform(
+            object.value(QLatin1String(m_settingsKey)).toArray().toVariantList(),
+            &QVariant::toString);
+    }
+
+private:
+    static constexpr int maxCommands = 100;
+
+    const char *m_settingsKey;
+    QStringList m_commands;
+};
+
+static CommandHistory &cmakeCommandHistory()
+{
+    static CommandHistory history("cmLocatorHistory");
+    return history;
+}
+
+// Input starting with a dash is a command for the filter's tool, not a target or test name.
+static bool isCommandInput(const QString &trimmedInput)
+{
+    return trimmedInput.startsWith('-');
 }
 
 struct CmInput
@@ -101,141 +135,238 @@ static CmInput parseCmInput(const QString &input)
     return {input.trimmed(), {}};
 }
 
-class CMakeLocatorCommand final : public QObject
+// Runs one command line of a locator filter's tool in the startup project's build directory.
+// Only one command runs at a time, a second one either replaces or follows the running one.
+class LocatorCommandRunner : public QObject
 {
     Q_OBJECT
-public:
-    static void run(const QString &userArgs) { instance()->onRunRequested(userArgs); }
 
-private:
-    void onRunRequested(const QString &userArgs)
+public:
+    void runCommand(const QString &userArgs)
     {
         if (m_process) {
-            QMessageBox msgBox;
-            msgBox.setWindowTitle(Tr::tr("Kill Previous Process?"));
-            msgBox.setText(
-                Tr::tr(
-                    "Previous cmake command is still running.\n"
-                    "Do you want to kill it?"));
-            auto *killButton = msgBox.addButton(Tr::tr("Kill"), QMessageBox::YesRole);
-            msgBox.addButton(Tr::tr("Queue"), QMessageBox::NoRole);
-            msgBox.addButton(QMessageBox::Cancel);
-            msgBox.setDefaultButton(killButton);
-            msgBox.setParent(ICore::dialogParent());
-            msgBox.exec();
-            auto *clicked = msgBox.clickedButton();
-            if (!clicked)
+            switch (askAboutRunningCommand()) {
+            case Answer::Cancel:
                 return;
-            if (msgBox.buttonRole(clicked) == QMessageBox::NoRole) {
+            case Answer::Queue:
                 m_pendingArgs = userArgs;
                 return;
-            }
-            if (msgBox.buttonRole(clicked) != QMessageBox::YesRole)
-                return;
-            if (m_process) {
-                m_process->deleteLater();
-                m_process = nullptr;
+            case Answer::Kill:
+                stopCommand();
+                break;
             }
         }
 
-        auto bs = findStartupCMakeBuildSystem();
+        CMakeBuildSystem *bs = findStartupCMakeBuildSystem();
         if (!bs)
             return;
 
-        const auto [targetName, toolArguments] = parseCmInput(userArgs);
-
-        if (!targetName.isEmpty() && !targetName.startsWith('-')) {
-            buildTarget(bs, targetName, ProcessArgs::joinArgs(toolArguments, HostOsInfo::hostOs()));
-            return;
-        }
-
-        const FilePath cmakeExe = CMakeKitAspect::cmakeExecutable(bs->kit());
-        if (cmakeExe.isEmpty()) {
-            MessageManager::writeDisrupting(Tr::tr("Could not find cmake executable."));
+        const FilePath executable = toolExecutable(bs);
+        if (executable.isEmpty()) {
+            MessageManager::writeDisrupting(
+                Tr::tr("Could not find %1 executable.").arg(toolName()));
             return;
         }
 
         const FilePath buildDir = bs->buildConfiguration()->buildDirectory();
 
-        // Use CMakeBuildStep's command building pattern
-        Utils::CommandLine cmd{cmakeExe};
+        CommandLine cmd{executable};
+        cmd.addArgs(arguments(userArgs, buildDir));
 
-        // Resolve --trace-redirect= paths to absolute paths in the build directory
-        const QString traceRedirectPrefix = "--trace-redirect=";
-        QStringList cmakeArgs = Utils::ProcessArgs::splitArgs(userArgs, HostOsInfo::hostOs());
-        for (auto & arg : cmakeArgs) {
-            if (arg.startsWith(traceRedirectPrefix)) {
-                const QString fileName = arg.mid(traceRedirectPrefix.size());
-                arg = traceRedirectPrefix + (buildDir / fileName).path();
-            }
-        }
-        cmd.addArgs(cmakeArgs);
-
-        BuildSystem::startNewBuildSystemOutput(addCMakePrefix(
-            Tr::tr("Running cmake %1 in %2.").arg(cmd.toUserOutput(), buildDir.toUserOutput())));
+        BuildSystem::startNewBuildSystemOutput(
+            addCMakePrefix(Tr::tr("Running %1 %2 in %3.")
+                               .arg(toolName(), cmd.toUserOutput(), buildDir.toUserOutput())));
 
         m_process = new Process(this);
         m_process->setWorkingDirectory(buildDir);
         m_process->setEnvironment(bs->buildConfiguration()->environment());
         m_process->setCommand(cmd);
 
+        prepareRun(buildDir);
+
+        m_process->setStdOutLineCallback([](const QString &line) { appendOutput(line); });
+        m_process->setStdErrLineCallback([this](const QString &line) { handleStdErr(line); });
+
+        // Owned by the process, and reports itself finished once the process is done.
+        const auto progress = new ProcessProgress(m_process);
+        progress->setDisplayName(Tr::tr("Running %1").arg(toolName()));
+
+        Process *process = m_process;
+        connect(process, &Process::done, this, [this, process] {
+            reportIssues(process);
+            BuildSystem::appendBuildSystemOutput(
+                addCMakePrefix(QStringList() << QString() << process->exitMessage()).join('\n'));
+            m_process = nullptr;
+            process->deleteLater();
+            if (!m_pendingArgs.isEmpty()) {
+                const QString pendingArgs = m_pendingArgs;
+                m_pendingArgs.clear();
+                runCommand(pendingArgs);
+            }
+        });
+
+        m_process->start();
+    }
+
+protected:
+    virtual QString toolName() const = 0;
+    virtual FilePath toolExecutable(CMakeBuildSystem *buildSystem) const = 0;
+
+    virtual QStringList arguments(const QString &userArgs, const FilePath &buildDir) const
+    {
+        Q_UNUSED(buildDir)
+        return ProcessArgs::splitArgs(userArgs, HostOsInfo::hostOs());
+    }
+
+    virtual void prepareRun(const FilePath &buildDir) { Q_UNUSED(buildDir) }
+    virtual void handleStdErr(const QString &line) { appendOutput(line); }
+    virtual void reportIssues(Process *process) { Q_UNUSED(process) }
+
+    static void appendOutput(const QString &line)
+    {
+        BuildSystem::appendBuildSystemOutput(addCMakePrefix(stripTrailingNewline(line)));
+    }
+
+private:
+    enum class Answer { Kill, Queue, Cancel };
+
+    Answer askAboutRunningCommand() const
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle(Tr::tr("Kill Previous Process?"));
+        msgBox.setText(Tr::tr("Previous %1 command is still running.\n"
+                              "Do you want to kill it?").arg(toolName()));
+        auto *killButton = msgBox.addButton(Tr::tr("Kill"), QMessageBox::YesRole);
+        msgBox.addButton(Tr::tr("Queue"), QMessageBox::NoRole);
+        msgBox.addButton(QMessageBox::Cancel);
+        msgBox.setDefaultButton(killButton);
+        msgBox.setParent(ICore::dialogParent());
+        msgBox.exec();
+
+        auto *clicked = msgBox.clickedButton();
+        if (!clicked)
+            return Answer::Cancel;
+        if (msgBox.buttonRole(clicked) == QMessageBox::NoRole)
+            return Answer::Queue;
+        if (msgBox.buttonRole(clicked) == QMessageBox::YesRole)
+            return Answer::Kill;
+        return Answer::Cancel;
+    }
+
+    void stopCommand()
+    {
+        // Deleting alone would neither end the process nor keep its done handler from acting
+        // on the command started next, as the deletion only happens once we are back in the
+        // event loop.
+        m_process->disconnect(this);
+        m_process->stop();
+        m_process->deleteLater();
+        m_process = nullptr;
+    }
+
+    Process *m_process = nullptr;
+    QString m_pendingArgs;
+};
+
+class CMakeCommandRunner final : public LocatorCommandRunner
+{
+public:
+    static void run(const QString &userArgs)
+    {
+        static CMakeCommandRunner theRunner;
+        theRunner.runCommand(userArgs);
+    }
+
+private:
+    QString toolName() const final { return "cmake"; }
+
+    FilePath toolExecutable(CMakeBuildSystem *buildSystem) const final
+    {
+        return CMakeKitAspect::cmakeExecutable(buildSystem->kit());
+    }
+
+    QStringList arguments(const QString &userArgs, const FilePath &buildDir) const final
+    {
+        // Resolve --trace-redirect= paths to absolute paths in the build directory
+        const QString traceRedirectPrefix = "--trace-redirect=";
+        QStringList args = ProcessArgs::splitArgs(userArgs, HostOsInfo::hostOs());
+        for (QString &arg : args) {
+            if (arg.startsWith(traceRedirectPrefix)) {
+                const QString fileName = arg.mid(traceRedirectPrefix.size());
+                arg = traceRedirectPrefix + (buildDir / fileName).path();
+            }
+        }
+        return args;
+    }
+
+    void prepareRun(const FilePath &buildDir) final
+    {
         m_outputFormatter = std::make_unique<OutputFormatter>();
-        CMakeOutputParser *cmakeOutputParser = new CMakeOutputParser;
+        const auto cmakeOutputParser = new CMakeOutputParser;
         cmakeOutputParser->setSourceDirectories({buildDir.parentDir(), buildDir});
         m_outputFormatter->addLineParsers({cmakeOutputParser});
         m_outputFormatter->addSearchDir(buildDir);
 
-        m_progress = new ProcessProgress(m_process);
-        m_progress->setDisplayName(Tr::tr("Running cmake"));
-
         TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-
-        const auto onStdOut = [](const QString &s) {
-            BuildSystem::appendBuildSystemOutput(addCMakePrefix(stripTrailingNewline(s)));
-        };
-
-        QPointer<OutputFormatter> outputFormatterPtr = m_outputFormatter.get();
-        const auto onStdErr = [outputFormatterPtr](const QString &s) {
-            if (outputFormatterPtr)
-                outputFormatterPtr->appendMessage(s, StdErrFormat);
-            BuildSystem::appendBuildSystemOutput(addCMakePrefix(stripTrailingNewline(s)));
-        };
-
-        connect(m_process, &Process::done, this, [this]() {
-            m_progress->deleteLater();
-            m_progress = nullptr;
-            if (m_process->exitCode() != 0) {
-                TaskHub::addTask<CMakeTask>(Task::Error, m_process->exitMessage());
-            }
-            BuildSystem::appendBuildSystemOutput(
-                addCMakePrefix(QStringList() << QString() << m_process->exitMessage()).join('\n'));
-            if (m_process) {
-                m_process->deleteLater();
-                m_process = nullptr;
-            }
-            if (!m_pendingArgs.isEmpty()) {
-                const QString pendingArgs = m_pendingArgs;
-                m_pendingArgs.clear();
-                onRunRequested(pendingArgs);
-            }
-        });
-
-        m_process->setStdOutLineCallback(onStdOut);
-        m_process->setStdErrLineCallback(onStdErr);
-        m_process->start();
     }
 
-    static CMakeLocatorCommand *instance()
+    void handleStdErr(const QString &line) final
     {
-        static CMakeLocatorCommand s_instance;
-        return &s_instance;
+        m_outputFormatter->appendMessage(line, StdErrFormat);
+        LocatorCommandRunner::handleStdErr(line);
     }
 
-    Process *m_process = nullptr;
-    ProcessProgress *m_progress = nullptr;
+    void reportIssues(Process *process) final
+    {
+        if (process->exitCode() != 0)
+            TaskHub::addTask<CMakeTask>(Task::Error, process->exitMessage());
+    }
+
     std::unique_ptr<OutputFormatter> m_outputFormatter;
-    QString m_pendingArgs;
 };
+
+using CommandAcceptor = void (*)(const QString &);
+
+// Offers the commands from the history that match the input, plus the input itself when it is
+// a command. The latter keeps new and modified commands available next to the older ones.
+static LocatorFilterEntries commandEntries(const QString &input, CommandHistory *history,
+                                           const CommandAcceptor &acceptor)
+{
+    const QString trimmedInput = input.trimmed();
+    const bool isCommand = isCommandInput(trimmedInput);
+    const int highlightLength = static_cast<int>(trimmedInput.size());
+
+    const auto entryFor = [history, acceptor, highlightLength](const QString &command,
+                                                               int highlightStart) {
+        LocatorFilterEntry entry;
+        entry.uniquifier = entry.displayName = command;
+        entry.acceptor = [history, acceptor, command] {
+            history->add(command);
+            acceptor(command);
+            return AcceptResult();
+        };
+        entry.highlightInfo = {highlightStart, highlightLength};
+        return entry;
+    };
+
+    LocatorFilterEntries entries;
+    const Qt::CaseSensitivity cs = ILocatorFilter::caseSensitivity(input);
+    for (const QString &command : history->commands()) {
+        if (isCommand) {
+            if (command.startsWith(trimmedInput) && command != trimmedInput)
+                entries.append(entryFor(command, 0));
+            continue;
+        }
+        const int index = command.indexOf(trimmedInput, 0, cs);
+        if (index >= 0)
+            entries.append(entryFor(command, index));
+    }
+
+    if (isCommand)
+        entries.append(entryFor(trimmedInput, 0));
+
+    return entries;
+}
 
 // CMakeBuildTargetFilter
 
@@ -249,16 +380,12 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor, bool all
         if (!regexp.isValid())
             return;
 
-        // Check if input looks like a cmake command (starts with -)
         const QString trimmedInput = input.trimmed();
-        bool isCmakeCommand = !trimmedInput.isEmpty()
-                              && (trimmedInput.startsWith("--") || trimmedInput.startsWith("-"));
 
         LocatorFilterEntries entries[int(ILocatorFilter::MatchLevel::Count)];
-        LocatorFilterEntries historyEntries;
 
         // When allowCmakeCommand is false, always search for targets regardless of input
-        const bool searchTargets = allowCmakeCommand ? !isCmakeCommand : true;
+        const bool searchTargets = allowCmakeCommand ? !isCommandInput(trimmedInput) : true;
         if (searchTargets) {
             QList<Project *> projects = ProjectManager::projects();
             // Make the active project's results at the top
@@ -334,50 +461,13 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor, bool all
             }
         }
 
-        if (allowCmakeCommand) {
-            // Add cmake command from history as suggestion
-            const Qt::CaseSensitivity cs = ILocatorFilter::caseSensitivity(input);
-            for (const QString &cmd : std::as_const(cmLocatorHistory())) {
-                const int index = cmd.indexOf(input, 0, cs);
-                if (index >= 0) {
-                    LocatorFilterEntry entry;
-                    entry.uniquifier = entry.displayName = cmd;
-                    const QString capturedCmd = cmd;
-                    entry.acceptor = [capturedCmd] {
-                        addToCmLocatorHistory(capturedCmd);
-                        CMakeLocatorCommand::run(capturedCmd);
-                        return AcceptResult();
-                    };
-                    entry.highlightInfo = {index, static_cast<int>(input.size())};
-                    historyEntries.append(entry);
-                }
-            }
-
-            // Show current input as a fresh entry when there are no target matches and
-            // the input looks like a cmake command. This ensures new/modified commands are
-            // always available even when old history entries with the same substring exist.
-            if (!trimmedInput.isEmpty() && isCmakeCommand) {
-                historyEntries = Utils::filtered(
-                    historyEntries, [&trimmedInput](const LocatorFilterEntry &e) {
-                        return e.displayName.startsWith(trimmedInput) && e.displayName != trimmedInput;
-                    });
-
-                LocatorFilterEntry entry;
-                entry.uniquifier = entry.displayName = trimmedInput;
-                const QString capturedCmd = trimmedInput;
-                entry.acceptor = [capturedCmd] {
-                    addToCmLocatorHistory(capturedCmd);
-                    CMakeLocatorCommand::run(capturedCmd);
-                    return AcceptResult();
-                };
-                entry.highlightInfo = {0, static_cast<int>(input.size())};
-                historyEntries.append(entry);
-            }
-        }
+        LocatorFilterEntries commands;
+        if (allowCmakeCommand)
+            commands = commandEntries(input, &cmakeCommandHistory(), &CMakeCommandRunner::run);
 
         storage.reportOutput(
             std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries())
-            + historyEntries);
+            + commands);
     };
     return {QSyncTask(onSetup)};
 }
@@ -410,23 +500,9 @@ public:
 private:
     LocatorMatcherTasks matchers() final { return cmakeMatchers(&buildTarget); }
 
-    void saveState(QJsonObject &object) const final
-    {
-        if (!cmLocatorHistory().isEmpty())
-            object.insert(QLatin1String(historyKey), QJsonArray::fromStringList(cmLocatorHistory()));
-    }
-
-    void restoreState(const QJsonObject &object) final
-    {
-        cmLocatorHistory() = Utils::transform(
-            object.value(QLatin1String(historyKey)).toArray().toVariantList(),
-            &QVariant::toString);
-    }
-
-    static const char historyKey[];
+    void saveState(QJsonObject &object) const final { cmakeCommandHistory().save(object); }
+    void restoreState(const QJsonObject &object) final { cmakeCommandHistory().restore(object); }
 };
-
-const char CMakeBuildTargetFilter::historyKey[] = "cmLocatorHistory";
 
 // OpenCMakeTargetLocatorFilter
 
