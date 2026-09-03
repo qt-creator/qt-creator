@@ -94,7 +94,7 @@ CombinedSampler::CombinedSampler()
     : m_settings(std::make_unique<CombinedSamplerSettings>())
     , m_qml(std::make_unique<QmlProfilerSampler>())
 {
-    if (HostOsInfo::isMacHost())
+    if (HostOsInfo::isMacHost() || HostOsInfo::isWindowsHost())
         m_native = std::make_unique<CallStackSampler>();
     else if (HostOsInfo::isLinuxHost())
         m_native = std::make_unique<PerfSampler>();
@@ -137,7 +137,7 @@ std::optional<SamplerFix> CombinedSampler::availableFix() const
 {
     // The native half does the sampling that a system setting can block; the QML
     // half talks to the target over a debug socket and has nothing to offer.
-    return m_native->availableFix();
+    return m_native ? m_native->availableFix() : std::nullopt;
 }
 
 void CombinedSampler::prepareLaunch(const std::shared_ptr<RecordingSession> &session) const
