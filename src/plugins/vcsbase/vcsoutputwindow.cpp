@@ -18,7 +18,9 @@
 
 #include <QAction>
 #include <QContextMenuEvent>
+#include <QEvent>
 #include <QMenu>
+#include <QMouseEvent>
 #include <QPlainTextEdit>
 #include <QPoint>
 #include <QPointer>
@@ -79,11 +81,20 @@ public:
 protected:
     void adaptContextMenu(QMenu *menu, const QPoint &pos) override;
     void handleLink(const QPoint &pos) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
 
 private:
-    QString identifierUnderCursor(const QPoint &pos, FilePath *repository = nullptr) const;
+    QString identifierUnderCursor(const QPoint &pos, FilePath *repository = nullptr,
+                                  QTextCursor *tokenCursor = nullptr) const;
+    void updateFileLink(const QPoint &pos);
+    void clearFileLink();
+    void clearFileLinkSelection();
 
     VcsOutputLineParser *m_parser = nullptr;
+    QTextCursor m_fileLinkCursor;
+    QTextCursor m_fileLinkCandidateCursor;
+    bool m_fileLinkCandidateIsFile = false;
 };
 
 OutputWindowPlainTextEdit::OutputWindowPlainTextEdit(QWidget *parent)
@@ -107,10 +118,14 @@ static inline int firstWordCharacter(const QString &s, int startPos)
     return 0;
 }
 
-QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos, FilePath *repository) const
+QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos,
+                                                         FilePath *repository,
+                                                         QTextCursor *tokenCursor) const
 {
     if (repository)
         repository->clear();
+    if (tokenCursor)
+        *tokenCursor = {};
     // Get the blank-delimited word under cursor. Note that
     // using "SelectWordUnderCursor" does not work since it breaks
     // at delimiters like '/'. Get the whole line
@@ -119,9 +134,10 @@ QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos
     cursor.select(QTextCursor::BlockUnderCursor);
     if (!cursor.hasSelection())
         return {};
+    const int blockPosition = cursor.selectionStart();
     const QString block = cursor.selectedText();
     // Determine cursor position within line and find blank-delimited word
-    const int cursorPos = cursorDocumentPos - cursor.block().position();
+    const int cursorPos = cursorDocumentPos - blockPosition;
     const int blockSize = block.size();
     if (cursorPos < 0 || cursorPos >= blockSize || block.at(cursorPos).isSpace())
         return {};
@@ -132,8 +148,27 @@ QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos
     // Find first non-space character of word and find first non-space character past
     const int startPos = firstWordCharacter(block, cursorPos);
     int endPos = cursorPos;
-    for ( ; endPos < blockSize && !block.at(endPos).isSpace(); endPos++) ;
-    return endPos > startPos ? block.mid(startPos, endPos - startPos) : QString();
+    if (block.at(startPos) == QLatin1Char('"')) {
+        endPos = startPos + 1;
+        for (; endPos < blockSize; ++endPos) {
+            int backslashCount = 0;
+            for (int pos = endPos - 1; pos >= startPos && block.at(pos) == QLatin1Char('\\'); --pos)
+                ++backslashCount;
+            if (block.at(endPos) == QLatin1Char('"') && !(backslashCount % 2)) {
+                ++endPos;
+                break;
+            }
+        }
+    } else {
+        for (; endPos < blockSize && !block.at(endPos).isSpace(); endPos++) {}
+    }
+    if (tokenCursor && endPos > startPos) {
+        *tokenCursor = QTextCursor(document());
+        tokenCursor->setPosition(blockPosition + startPos);
+        tokenCursor->setPosition(blockPosition + endPos, QTextCursor::KeepAnchor);
+    }
+    QString token = endPos > startPos ? block.mid(startPos, endPos - startPos) : QString();
+    return VcsOutputLineParser::unquoteGitPath(token);
 }
 
 void OutputWindowPlainTextEdit::adaptContextMenu(QMenu *menu, const QPoint &pos)
@@ -149,13 +184,11 @@ void OutputWindowPlainTextEdit::adaptContextMenu(QMenu *menu, const QPoint &pos)
         m_parser->fillLinkContextMenu(menu, repo, href);
     QAction *openAction = nullptr;
     if (!token.isEmpty()) {
-        // Check for a file, expand via repository if relative
-        if (!repo.isEmpty() && !repo.isFile() && repo.isRelativePath())
-            repo = repo.pathAppended(token);
-        if (repo.isFile())  {
+        const FilePath file = m_parser->filePathForLink(repo, token);
+        if (VcsOutputLineParser::shouldOfferFileLink(token) && file.isFile()) {
             menu->addSeparator();
-            openAction = menu->addAction(Tr::tr("Open \"%1\"").arg(repo.nativePath()));
-            connect(openAction, &QAction::triggered, this, [fp = repo.absoluteFilePath()] {
+            openAction = menu->addAction(Tr::tr("Open \"%1\"").arg(file.nativePath()));
+            connect(openAction, &QAction::triggered, this, [fp = file.absoluteFilePath()] {
                 EditorManager::openEditor(fp);
             });
         }
@@ -165,17 +198,96 @@ void OutputWindowPlainTextEdit::adaptContextMenu(QMenu *menu, const QPoint &pos)
 void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
 {
     const QString href = anchorAt(pos);
-    if (href.isEmpty())
-        return;
     FilePath repository;
-    identifierUnderCursor(pos, &repository);
+    const QString token = identifierUnderCursor(pos, &repository);
     if (repository.isEmpty()) {
-        OutputWindow::handleLink(pos);
+        if (!href.isEmpty())
+            OutputWindow::handleLink(pos);
+        return;
+    }
+    if (href.isEmpty()) {
+        m_parser->handleFileLink(repository, token);
         return;
     }
     if (outputFormatter()->handleFileLink(href))
         return;
     m_parser->handleVcsLink(repository, href);
+}
+
+void OutputWindowPlainTextEdit::updateFileLink(const QPoint &pos)
+{
+    const bool onAnchor = !anchorAt(pos).isEmpty();
+    if (!viewport()->rect().contains(pos) || onAnchor) {
+        clearFileLink();
+        m_fileLinkCandidateCursor = {};
+        viewport()->setCursor(onAnchor ? Qt::PointingHandCursor : Qt::IBeamCursor);
+        return;
+    }
+
+    FilePath repository;
+    QTextCursor tokenCursor;
+    const QString token = identifierUnderCursor(pos, &repository, &tokenCursor);
+    if (token.isEmpty() || repository.isEmpty()) {
+        clearFileLink();
+        m_fileLinkCandidateCursor = {};
+        viewport()->setCursor(Qt::IBeamCursor);
+        return;
+    }
+
+    if (m_fileLinkCandidateCursor == tokenCursor) {
+        if (m_fileLinkCandidateIsFile)
+            viewport()->setCursor(Qt::PointingHandCursor);
+        else
+            viewport()->setCursor(Qt::IBeamCursor);
+        return;
+    }
+
+    if (m_fileLinkCursor == tokenCursor) {
+        viewport()->setCursor(Qt::PointingHandCursor);
+        return;
+    }
+
+    m_fileLinkCandidateCursor = tokenCursor;
+    m_fileLinkCandidateIsFile = m_parser->filePathForLink(repository, token).isFile();
+    if (!m_fileLinkCandidateIsFile) {
+        clearFileLinkSelection();
+        viewport()->setCursor(Qt::IBeamCursor);
+        return;
+    }
+
+    QTextEdit::ExtraSelection selection;
+    selection.cursor = tokenCursor;
+    selection.format.setForeground(creatorColor(Theme::TextColorLink));
+    selection.format.setFontUnderline(true);
+    setExtraSelections({selection});
+    m_fileLinkCursor = tokenCursor;
+    viewport()->setCursor(Qt::PointingHandCursor);
+}
+
+void OutputWindowPlainTextEdit::clearFileLink()
+{
+    clearFileLinkSelection();
+    m_fileLinkCandidateCursor = {};
+}
+
+void OutputWindowPlainTextEdit::clearFileLinkSelection()
+{
+    if (m_fileLinkCursor.isNull())
+        return;
+    setExtraSelections({});
+    m_fileLinkCursor = {};
+}
+
+void OutputWindowPlainTextEdit::mouseMoveEvent(QMouseEvent *event)
+{
+    QPlainTextEdit::mouseMoveEvent(event);
+    updateFileLink(event->pos());
+}
+
+void OutputWindowPlainTextEdit::leaveEvent(QEvent *event)
+{
+    clearFileLink();
+    QPlainTextEdit::leaveEvent(event);
 }
 
 static OutputFormat styleToFormat(VcsOutputWindow::MessageStyle style)

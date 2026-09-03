@@ -8,6 +8,7 @@
 #include "vcsbaseconstants.h"
 #include "vcsbasetr.h"
 #include "vcschangesview.h"
+#include "vcsoutputformatter.h"
 #include "vcsoutputwindow.h"
 #include "wizard/vcscommandpage.h"
 #include "wizard/vcsconfigurationpage.h"
@@ -26,11 +27,66 @@
 
 #include <QDebug>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace VcsBase::Internal {
+
+#ifdef WITH_TESTS
+
+class VcsOutputFormatterTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testLinkHelpers_data();
+    void testLinkHelpers();
+};
+
+void VcsOutputFormatterTest::testLinkHelpers_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expected");
+    QTest::addColumn<bool>("isRevision");
+    QTest::addColumn<bool>("shouldOfferFileLink");
+
+    QTest::newRow("plain path") << QString("file.cpp") << QString("file.cpp") << false << true;
+    QTest::newRow("path with spaces") << QString("\"file with spaces.cpp\"")
+                                      << QString("file with spaces.cpp") << false << true;
+    QTest::newRow("escaped quote") << QString("\"file\\\"name.cpp\"")
+                                    << QString("file\"name.cpp") << false << true;
+    QTest::newRow("octal escape")
+        << QString::fromLatin1("\"file\\303\\244.cpp\"")
+        << QString::fromUtf8("fileä.cpp") << false << true;
+    QTest::newRow("tag") << QString("v1.2.3") << QString("v1.2.3") << true << false;
+    QTest::newRow("revision") << QString("0123456789abcdef")
+                               << QString("0123456789abcdef") << true << false;
+    QTest::newRow("revision filename collision") << QString("deadbeef")
+                                                  << QString("deadbeef") << true << false;
+    QTest::newRow("revision parent") << QString("0123456~2") << QString("0123456~2") << true
+                                      << false;
+    QTest::newRow("ordinary name") << QString("file0123456") << QString("file0123456") << false
+                                    << true;
+}
+
+void VcsOutputFormatterTest::testLinkHelpers()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, expected);
+    QFETCH(bool, isRevision);
+    QFETCH(bool, shouldOfferFileLink);
+
+    QCOMPARE(VcsOutputLineParser::unquoteGitPath(input), expected);
+    QCOMPARE(VcsOutputLineParser::isRevisionLink(input), isRevision);
+    QCOMPARE(VcsOutputLineParser::shouldOfferFileLink(input), shouldOfferFileLink);
+}
+
+#endif
 
 class VcsPluginPrivate
 {
@@ -97,6 +153,10 @@ void VcsPlugin::initialize()
 {
     d = new VcsPluginPrivate(this);
 
+#ifdef WITH_TESTS
+    addTest<VcsOutputFormatterTest>();
+#endif
+
     IOptionsPage::registerCategory(
         Constants::VCS_SETTINGS_CATEGORY,
         Tr::tr("Version Control"),
@@ -147,3 +207,5 @@ QStandardItemModel *VcsPlugin::nickNameModel()
 }
 
 } // VcsBase::Internal
+
+#include "vcsplugin.moc"

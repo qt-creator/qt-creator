@@ -30,6 +30,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -70,6 +71,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputformatter.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <nanotrace/nanotrace.h>
@@ -2465,6 +2467,7 @@ private slots:
     void testConflictedFileInTextEditor();
     void testGraphModelRepositorySwitch();
     void testWorkingDirectoryForShow();
+    void testRevisionFilenameCollision();
     void testSubmitMessageSpellCheck();
     void testDiffDescriptionEditor();
 };
@@ -3078,6 +3081,41 @@ void GitTest::testWorkingDirectoryForShow()
 
     // The repo-tool mapping is restricted to rebase directories.
     verifyWorkingDirectory(repoToolMetadata,          repoToolMetadata);
+}
+
+void GitTest::testRevisionFilenameCollision()
+{
+    const auto runGit = [](const FilePath &directory, const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(directory, arguments).result()
+        == ProcessResult::FinishedWithSuccess;
+    };
+
+    QTemporaryDir temporaryDirectory;
+    QVERIFY(temporaryDirectory.isValid());
+    const FilePath repository = FilePath::fromString(temporaryDirectory.path());
+    QVERIFY(runGit(repository, {"init", "."}));
+    QVERIFY(runGit(repository, {"config", "user.email", "test@test"}));
+    QVERIFY(runGit(repository, {"config", "user.name", "test"}));
+    QVERIFY(runGit(repository, {"config", "commit.gpgsign", "false"}));
+    const FilePath ordinaryFile = repository / "ordinary.txt";
+    QVERIFY(ordinaryFile.writeFileContents("content\n"));
+    QVERIFY(runGit(repository, {"add", ordinaryFile.fileName()}));
+    QVERIFY(runGit(repository, {"commit", "-m", "initial"}));
+
+    const QString revision = gitClient()
+                                  .vcsSynchronousExec(repository, {"rev-parse", "HEAD"})
+                                  .cleanedStdOut()
+                                  .trimmed();
+    QVERIFY(revision.size() >= 8);
+    const QString filename = revision.left(8);
+    const FilePath collidingFile = repository / filename;
+    QVERIFY(collidingFile.writeFileContents("not a revision\n"));
+    QVERIFY(runGit(repository, {"add", filename}));
+    QVERIFY(runGit(repository, {"commit", "-m", "add colliding file"}));
+
+    VcsOutputLineParser parser;
+    QVERIFY(parser.handleVcsLink(repository, filename));
+    QVERIFY(!Core::DocumentModel::documentForFilePath(collidingFile));
 }
 
 static QStringList underlinedTexts(const QTextDocument *document)
