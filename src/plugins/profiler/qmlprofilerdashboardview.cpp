@@ -680,77 +680,84 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     framesGrid->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
     Column {
-        st,
-        customMargins(SpacingTokens::GapVXxl, SpacingTokens::GapVXxl,
-                      SpacingTokens::GapVXxl, SpacingTokens::GapVXxl),
-        spacing(SpacingTokens::GapVXxl),
-        Row {
-            QtDesignWidgets::Rectangle {
-                fillBrush(rectFillBrush),
-                strokePen(rectStrokePen),
-                Column {
-                    d->overallRating,
-                    st,
-                },
-            },
-            QtDesignWidgets::Rectangle {
-                fillBrush(rectFillBrush),
-                strokePen(rectStrokePen),
-                Column {
-                    spacing(0),
-                    d->gaugeTitle,
-                    Space(SpacingTokens::GapVL),
-                    Row { st, d->gauge, st },
-                    d->gaugeText,
-                },
-            },
-            QtDesignWidgets::Rectangle {
-                fillBrush(rectFillBrush),
-                strokePen(rectStrokePen),
-                Column {
-                    spacing(SpacingTokens::GapVL),
-                    d->framesTitle,
-                    Row { st, framesGrid, st },
-                    d->framesText,
-                    st,
-                },
-            },
-        },
-        Row {
-            QtDesignWidgets::Rectangle {
-                fillBrush(rectFillBrush),
-                strokePen(rectStrokePen),
-                Column {
-                    spacing(SpacingTokens::GapVXl),
-                    d->categoriesTitle,
-                    Row {
-                        d->uiResponsiveness,
-                        createVr(),
-                        d->frameConsistency,
-                        createVr(),
-                        d->stutterPrevention,
-                        createVr(),
-                        d->p99Quality,
-                        createVr(),
-                        d->startupSpeed,
+        noMargin,
+        ScrollArea {
+            fixSizeHintBug(true),
+            frameShape(QFrame::NoFrame),
+            Column {
+                st,
+                customMargins(SpacingTokens::GapVXxl, SpacingTokens::GapVXxl,
+                              SpacingTokens::GapVXxl, SpacingTokens::GapVXxl),
+                spacing(SpacingTokens::GapVXxl),
+                Row {
+                    QtDesignWidgets::Rectangle {
+                        fillBrush(rectFillBrush),
+                        strokePen(rectStrokePen),
+                        Column {
+                            d->overallRating,
+                            st,
+                        },
                     },
-                }
-            },
-        },
-        st,
-        Row {
-            QtDesignWidgets::Rectangle {
-                bindTo(&d->findingsSection),
-                fillBrush(rectFillBrush),
-                strokePen(rectStrokePen),
-                Column {
-                    spacing(SpacingTokens::GapVL),
-                    d->findingsTitle,
-                    d->findingsView,
+                    QtDesignWidgets::Rectangle {
+                        fillBrush(rectFillBrush),
+                        strokePen(rectStrokePen),
+                        Column {
+                            spacing(0),
+                            d->gaugeTitle,
+                            Space(SpacingTokens::GapVL),
+                            Row { st, d->gauge, st },
+                            d->gaugeText,
+                        },
+                    },
+                    QtDesignWidgets::Rectangle {
+                        fillBrush(rectFillBrush),
+                        strokePen(rectStrokePen),
+                        Column {
+                            spacing(SpacingTokens::GapVL),
+                            d->framesTitle,
+                            Row { st, framesGrid, st },
+                            d->framesText,
+                            st,
+                        },
+                    },
                 },
+                Row {
+                    QtDesignWidgets::Rectangle {
+                        fillBrush(rectFillBrush),
+                        strokePen(rectStrokePen),
+                        Column {
+                            spacing(SpacingTokens::GapVXl),
+                            d->categoriesTitle,
+                            Row {
+                                d->uiResponsiveness,
+                                createVr(),
+                                d->frameConsistency,
+                                createVr(),
+                                d->stutterPrevention,
+                                createVr(),
+                                d->p99Quality,
+                                createVr(),
+                                d->startupSpeed,
+                            },
+                        }
+                    },
+                },
+                st,
+                Row {
+                    QtDesignWidgets::Rectangle {
+                        bindTo(&d->findingsSection),
+                        fillBrush(rectFillBrush),
+                        strokePen(rectStrokePen),
+                        Column {
+                            spacing(SpacingTokens::GapVL),
+                            d->findingsTitle,
+                            d->findingsView,
+                        },
+                    },
+                },
+                st,
             },
         },
-        st,
     }.attachTo(this);
 
     d->findingsSection->setVisible(d->findingsModel->rowCount() > 0);
