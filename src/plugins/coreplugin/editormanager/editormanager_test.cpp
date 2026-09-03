@@ -10,6 +10,7 @@
 #include <utils/temporaryfile.h>
 
 #include <QSet>
+#include <QSignalSpy>
 #include <QTest>
 
 using namespace Utils;
@@ -61,12 +62,45 @@ private slots:
     void testMoveEditorToNextSplitWhenAlreadyVisible();
     void testMoveEditorToNextSplitRestoresSuspendedTab();
     void testDoNotChangeCurrentEditor();
+    void testViewIdForEditor();
+    void testOtherViewIdWithoutSplit();
+    void testOtherViewIdCyclesWithinWindow();
+    void testSplitView();
+    void testOpenEditorInView();
+    void testOpenEditorInClosedView();
+    void testClosedViewIsReported();
 };
 
 QObject *createEditorManagerTest()
 {
     return new EditorManagerTest;
 }
+
+// Records what qDebug()/qWarning() emit while it is alive, so that a test can
+// assert that a code path stays quiet. QTC_ASSERT reports through qDebug().
+class MessageLog
+{
+public:
+    MessageLog() { s_instance = this; m_previous = qInstallMessageHandler(&handler); }
+    ~MessageLog() { qInstallMessageHandler(m_previous); s_instance = nullptr; }
+
+    QStringList messages() const { return m_messages; }
+
+private:
+    static void handler(QtMsgType type, const QMessageLogContext &context, const QString &message)
+    {
+        if (s_instance)
+            s_instance->m_messages.append(message);
+        if (s_instance && s_instance->m_previous)
+            s_instance->m_previous(type, context, message);
+    }
+
+    QStringList m_messages;
+    QtMessageHandler m_previous = nullptr;
+    static MessageLog *s_instance;
+};
+
+MessageLog *MessageLog::s_instance = nullptr;
 
 static int fileCount = 0;
 
@@ -671,6 +705,117 @@ void EditorManagerTest::testDoNotChangeCurrentEditor()
     EMP::closeEditorOrDocument(editorC);
 
     QCOMPARE(view->currentEditor(), editorA);
+}
+
+void EditorManagerTest::testViewIdForEditor()
+{
+    TestFile a;
+    EditorView *view = mainAreaViews().at(0);
+    IEditor *editorA = EMP::openEditor(view, a.filePath());
+    QVERIFY(editorA);
+    QCOMPARE(EM::viewIdForEditor(editorA), view->viewId());
+}
+
+void EditorManagerTest::testOtherViewIdWithoutSplit()
+{
+    const QList<EditorView *> before = mainAreaViews();
+    QCOMPARE(before.size(), 1);
+
+    QCOMPARE(EM::otherViewId(before.at(0)->viewId()), 0);
+
+    QCOMPARE(mainAreaViews(), before); // asking creates nothing
+}
+
+void EditorManagerTest::testOtherViewIdCyclesWithinWindow()
+{
+    EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+
+    QCOMPARE(EM::otherViewId(views.at(0)->viewId()), views.at(1)->viewId());
+    QCOMPARE(EM::otherViewId(views.at(1)->viewId()), views.at(0)->viewId());
+    QCOMPARE(mainAreaViews().size(), 2);
+}
+
+void EditorManagerTest::testSplitView()
+{
+    TestFile a;
+    EditorView *view = mainAreaViews().at(0);
+    const int viewId = view->viewId();
+    IEditor *editorA = EMP::openEditor(view, a.filePath());
+    QVERIFY(editorA);
+
+    const int newId = EM::splitView(viewId, Qt::Horizontal);
+
+    const QList<EditorView *> after = mainAreaViews();
+    QCOMPARE(after.size(), 2);
+    QVERIFY(newId != 0);
+    QVERIFY(newId != viewId);
+    // the split view keeps its id and its editors
+    QCOMPARE(after.at(0)->viewId(), viewId);
+    QCOMPARE(after.at(1)->viewId(), newId);
+    QCOMPARE(EM::viewIdForEditor(editorA), viewId);
+    // and the new one shows a duplicate of its current editor, as any split does
+    IEditor *duplicate = after.at(1)->currentEditor();
+    QVERIFY(duplicate);
+    QVERIFY(duplicate != editorA);
+    QCOMPARE(duplicate->document(), editorA->document());
+    // and the focus stays where it was
+    QCOMPARE(EMP::currentEditorView(), after.at(0));
+    QCOMPARE(EM::otherViewId(viewId), newId);
+
+    QCOMPARE(EM::splitView(0, Qt::Horizontal), 0);
+    QCOMPARE(mainAreaViews().size(), 2);
+}
+
+void EditorManagerTest::testOpenEditorInView()
+{
+    TestFile a;
+    TestFile b;
+    EMP::mainEditorArea()->findFirstView()->split(Qt::Vertical);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+    IEditor *editorA = EMP::openEditor(views.at(0), a.filePath());
+    QVERIFY(editorA);
+    QCOMPARE(EMP::currentEditorView(), views.at(0));
+
+    IEditor *editorB = EM::openEditorInViewAt(views.at(1)->viewId(), Link(b.filePath(), 1, 0));
+
+    QVERIFY(editorB);
+    QCOMPARE(views.at(1)->currentEditor(), editorB);
+    QCOMPARE(views.at(0)->currentEditor(), editorA);
+    QCOMPARE(mainAreaViews().size(), 2);
+}
+
+void EditorManagerTest::testOpenEditorInClosedView()
+{
+    TestFile a;
+    const int otherId = EM::splitView(mainAreaViews().at(0)->viewId(), Qt::Horizontal);
+    QVERIFY(otherId != 0);
+    EMP::closeView(mainAreaViews().at(1));
+    QCOMPARE(mainAreaViews().size(), 1);
+
+    // a split that has been closed is an expected outcome, not a programming
+    // error: no editor, no complaint
+    MessageLog log;
+    QCOMPARE(EM::openEditorInViewAt(otherId, Link(a.filePath(), 1, 0)), nullptr);
+    QVERIFY2(log.messages().isEmpty(), qPrintable(log.messages().join(", ")));
+    QVERIFY(DocumentModel::editorsForFilePath(a.filePath()).isEmpty());
+}
+
+void EditorManagerTest::testClosedViewIsReported()
+{
+    const int otherId = EM::splitView(mainAreaViews().at(0)->viewId(), Qt::Horizontal);
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 2);
+    QCOMPARE(views.at(1)->viewId(), otherId);
+
+    QSignalSpy closed(EM::instance(), &EM::editorViewClosed);
+    EMP::closeView(views.at(1));
+
+    QCOMPARE(mainAreaViews().size(), 1);
+    QCOMPARE(closed.size(), 1);
+    QCOMPARE(closed.at(0).at(0).toInt(), otherId);
 }
 
 } // namespace Core::Internal

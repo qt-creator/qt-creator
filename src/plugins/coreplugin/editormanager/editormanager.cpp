@@ -110,6 +110,14 @@ static void checkEditorFlags(EditorManager::OpenEditorFlags flags)
     }
 }
 
+static EditorView *viewForId(int viewId)
+{
+    if (viewId == 0)
+        return nullptr;
+    return Utils::findOrDefault(EditorManagerPrivate::allEditorViews(),
+                                [viewId](EditorView *view) { return view->viewId() == viewId; });
+}
+
 //===================EditorManager=====================
 
 /*!
@@ -3757,6 +3765,34 @@ IEditor *EditorManager::openEditorAt(const Link &link,
                                               newEditor);
 }
 
+/*!
+    Opens the document specified by \a link in the split identified by \a
+    viewId, using the editor type \a editorId and the specified \a flags.
+
+    Otherwise behaves like openEditorAt(), which opens in whichever split is
+    current. Returns \c nullptr if there is no split with that id, which is the
+    case once it has been closed - see editorViewClosed().
+
+    \sa openEditorAt()
+    \sa viewIdForEditor()
+    \sa otherViewId()
+    \sa splitView()
+*/
+IEditor *EditorManager::openEditorInViewAt(int viewId,
+                                           const Link &link,
+                                           Id editorId,
+                                           OpenEditorFlags flags,
+                                           bool *newEditor)
+{
+    checkEditorFlags(flags);
+    QTC_CHECK(!(flags & EditorManager::OpenInOtherSplit));
+
+    EditorView *view = viewForId(viewId);
+    if (!view)
+        return nullptr;
+    return EditorManagerPrivate::openEditorAt(view, link, editorId, flags, newEditor);
+}
+
 IEditor *EditorManager::openEditor(const LocatorFilterEntry &entry)
 {
     const OpenEditorFlags defaultFlags = EditorManager::AllowExternalEditor;
@@ -4456,6 +4492,76 @@ void EditorManager::split()
 void EditorManager::splitSideBySide()
 {
     EditorManagerPrivate::split(Qt::Horizontal);
+}
+
+/*!
+    Returns the id of the split that \a editor is shown in, or 0 if it is shown
+    in none.
+
+    The id is the one editorViewCreated() reports, so it can be kept and used
+    later on, as against a pointer to a split that may be closed meanwhile.
+
+    \sa otherViewId()
+    \sa openEditorInViewAt()
+*/
+int EditorManager::viewIdForEditor(IEditor *editor)
+{
+    QTC_ASSERT(editor, return 0);
+    EditorView *view = EditorManagerPrivate::viewForEditor(editor);
+    return view ? view->viewId() : 0;
+}
+
+/*!
+    Returns the id of a split next to the one identified by \a viewId, in the
+    same window, or 0 if that window holds no other split. Like
+    gotoOtherSplit(), this cycles through the window's splits, but it creates
+    none and leaves the focus alone - use splitView() to make one.
+
+    So the result never names \a viewId itself.
+
+    \sa viewIdForEditor()
+    \sa splitView()
+    \sa openEditorInViewAt()
+*/
+int EditorManager::otherViewId(int viewId)
+{
+    EditorView *view = viewForId(viewId);
+    QTC_ASSERT(view, return 0);
+
+    if (EditorView *nextView = view->findNextView())
+        return nextView->viewId();
+
+    EditorArea *area = view->editorArea();
+    QTC_ASSERT(area, return 0);
+    if (!area->hasSplits())
+        return 0;
+
+    EditorView *firstView = area->findFirstView();
+    QTC_ASSERT(firstView && firstView != view, return 0);
+    return firstView->viewId();
+}
+
+/*!
+    Splits the view identified by \a viewId along \a orientation and returns
+    the id of the split this adds beside it, or 0 if there is no split with that
+    id. \a viewId keeps its editors and its id, and the focus stays where it
+    was. As with any other split, the new one shows a duplicate of the split
+    view's current editor where that editor supports duplication.
+
+    \sa otherViewId()
+    \sa openEditorInViewAt()
+    \sa splitSideBySide()
+*/
+int EditorManager::splitView(int viewId, Qt::Orientation orientation)
+{
+    EditorView *view = viewForId(viewId);
+    if (!view)
+        return 0;
+
+    EditorView *newView = view->split(orientation);
+    QTC_ASSERT(newView, return 0);
+    EditorManagerPrivate::updateActions();
+    return newView->viewId();
 }
 
 /*!

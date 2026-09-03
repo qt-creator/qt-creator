@@ -73,6 +73,11 @@ public:
                                  Utils::Id editorId = {},
                                  OpenEditorFlags flags = NoFlags,
                                  bool *newEditor = nullptr);
+    static IEditor *openEditorInViewAt(int viewId,
+                                       const Utils::Link &link,
+                                       Utils::Id editorId = {},
+                                       OpenEditorFlags flags = NoFlags,
+                                       bool *newEditor = nullptr);
     static IEditor *openEditor(const LocatorFilterEntry &entry);
 
     static void openEditorAtSearchResult(const Utils::SearchResultItem &item,
@@ -120,6 +125,10 @@ public:
     static QByteArray saveState();
     static void restoreState(const QByteArray &state);
     static bool hasSplitter();
+
+    static int viewIdForEditor(IEditor *editor);
+    static int otherViewId(int viewId);
+    static int splitView(int viewId, Qt::Orientation orientation);
 
     static void showEditorStatusBar(const QString &id,
                                     const QString &infoText,

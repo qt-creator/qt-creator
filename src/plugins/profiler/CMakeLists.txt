@@ -16,6 +16,7 @@ if(WITH_TESTS)
     tests/localqmlprofilerrunner_test.cpp tests/localqmlprofilerrunner_test.h
     tests/memoryusagemodel_test.cpp tests/memoryusagemodel_test.h
     tests/pixmapcachemodel_test.cpp tests/pixmapcachemodel_test.h
+    tests/profilertracedocument_test.cpp tests/profilertracedocument_test.h
     tests/qmlnote_test.cpp tests/qmlnote_test.h
     tests/qmlprofileranimationsmodel_test.cpp tests/qmlprofileranimationsmodel_test.h
     tests/qmlprofilerattachdialog_test.cpp tests/qmlprofilerattachdialog_test.h

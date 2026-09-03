@@ -9,6 +9,8 @@
 
 #include <tracing/rangedetailswidget.h>
 
+#include <utils/link.h>
+
 #include <QList>
 #include <QPointer>
 
@@ -60,6 +62,7 @@ protected:
 private:
     void load(const Utils::FilePath &rawPath);
     void finishLoadStep();
+    void showSourceLocation(const Utils::Link &link);
 
     const TraceFormat m_format;
     QList<ProfilerTraceBackend *> m_backends;
@@ -68,6 +71,8 @@ private:
     // formats that have no second half to merge in.
     CombinedTraceLoader *m_combinedLoader = nullptr;
     int m_pendingLoads = 0; // Backends still to report on the current load.
+    // Zero until the first selection, and again once that split is closed.
+    int m_sourceViewId = 0;
 };
 
 } // namespace Profiler::Internal

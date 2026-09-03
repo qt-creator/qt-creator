@@ -14,6 +14,7 @@
 
 #include "qmlprofilertool.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <tracing/rangedetailswidget.h>
@@ -75,12 +76,14 @@ ProfilerTraceDocument::ProfilerTraceDocument(Id editorId, TraceFormat format)
             QmlProfilerTool::showNonmodalWarning(message);
         });
         connect(backend, &ProfilerTraceBackend::gotoSourceLocation,
-                this, [](const Link &link) {
-            Core::EditorManager::openEditorAt(link, {},
-                                              Core::EditorManager::DoNotSwitchToDesignMode
-                                                  | Core::EditorManager::DoNotSwitchToEditMode);
-        });
+                this, &ProfilerTraceDocument::showSourceLocation);
     }
+
+    connect(Core::EditorManager::instance(), &Core::EditorManager::editorViewClosed,
+            this, [this](int viewId) {
+        if (viewId == m_sourceViewId)
+            m_sourceViewId = 0;
+    });
 
     if (auto qml = qobject_cast<QmlProfilerTraceBackend *>(m_backends.first())) {
         connect(qml, &QmlProfilerTraceBackend::busyChanged, this,
@@ -142,6 +145,24 @@ void ProfilerTraceDocument::finishLoadStep()
 {
     if (m_pendingLoads > 0 && --m_pendingLoads == 0)
         emit busyChanged(false);
+}
+
+void ProfilerTraceDocument::showSourceLocation(const Link &link)
+{
+    const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(this);
+    QTC_ASSERT(!editors.isEmpty(), return);
+    const int traceViewId = Core::EditorManager::viewIdForEditor(editors.first());
+
+    // Equal ids mean the trace was dragged into the split its sources go to.
+    if (m_sourceViewId == 0 || m_sourceViewId == traceViewId) {
+        m_sourceViewId = Core::EditorManager::otherViewId(traceViewId);
+        if (m_sourceViewId == 0)
+            m_sourceViewId = Core::EditorManager::splitView(traceViewId, Qt::Horizontal);
+    }
+
+    Core::EditorManager::openEditorInViewAt(m_sourceViewId, link, {},
+                                            Core::EditorManager::DoNotSwitchToDesignMode
+                                                | Core::EditorManager::DoNotSwitchToEditMode);
 }
 
 Result<> ProfilerTraceDocument::setContents(const QByteArray &contents)
