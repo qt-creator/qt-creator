@@ -112,6 +112,8 @@ private slots:
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
 
+    void testTerminateMessage();
+
 private:
     CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
 };
@@ -1419,6 +1421,23 @@ void DebuggerUnitTests::testNamespaceFromQObjectRtti()
     QFETCH(QString, expected);
 
     QCOMPARE(namespaceFromQObjectRtti(symbol), expected);
+}
+
+void DebuggerUnitTests::testTerminateMessage()
+{
+    // All three ways the C++ runtime announces a std::terminate, not just the
+    // uncaught exception that causes most of them.
+    QVERIFY(isTerminateMessage(u"terminate called after throwing an instance of 'int'"));
+    QVERIFY(isTerminateMessage(u"terminate called without an active exception"));
+    QVERIFY(isTerminateMessage(u"terminate called recursively"));
+
+    // The message arrives mixed into the inferior's own output, and on the
+    // collector path still wrapped in gdb's stream record.
+    QVERIFY(isTerminateMessage(u"computing...\nterminate called recursively\n"));
+    QVERIFY(isTerminateMessage(u"&\"terminate called recursively\\n\""));
+
+    QVERIFY(!isTerminateMessage(u"Application exited with exit code 1"));
+    QVERIFY(!isTerminateMessage(u""));
 }
 
 QObject *createDebuggerTest()

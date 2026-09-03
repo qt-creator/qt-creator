@@ -77,6 +77,11 @@ static int &currentToken()
     return token;
 }
 
+bool isTerminateMessage(const QStringView msg)
+{
+    return msg.contains(u"terminate called");
+}
+
 static bool isMostlyHarmlessMessage(const QStringView msg)
 {
     return msg == u"warning: GDB: Failed to set controlling terminal: "
@@ -373,6 +378,8 @@ void GdbEngine::handleResponse(const QString &buff)
         case '@': {
             QString data = parser.readCString();
             QString msg = data.left(data.size() - 1);
+            if (isTerminateMessage(msg))
+                m_sawTerminateMessage = true;
             showMessage(msg, AppOutput);
             break;
         }
@@ -477,6 +484,8 @@ void GdbEngine::handleResponse(const QString &buff)
             // it. That is the case for all non-local devices, as the collector
             // needs a fifo reachable under the same path as gdb sees it, see
             // usesOutputCollector(). Report it instead of dropping it.
+            if (isTerminateMessage(buff))
+                m_sawTerminateMessage = true;
             showMessage(buff, AppOutput);
             break;
         }
@@ -685,6 +694,8 @@ void GdbEngine::readGdbStandardError()
 void GdbEngine::readDebuggeeOutput(const QByteArray &ba)
 {
     const QString msg = m_gdbOutputDecoder.decode(ba);
+    if (isTerminateMessage(msg))
+        m_sawTerminateMessage = true;
     if (msg.startsWith("&\"") && isMostlyHarmlessMessage(QStringView{msg}.mid(2, msg.size() - 4)))
         showMessage("Mostly harmless terminal warning suppressed.", LogWarning);
     else
@@ -1278,6 +1289,10 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
+    // A stop shows the reason with a location; only an exit without one needs
+    // the explanation in handleThreadGroupExited().
+    m_sawTerminateMessage = false;
+
     if (!m_onStop.isEmpty()) {
         notifyInferiorStopOk();
         showMessage("HANDLING QUEUED COMMANDS AFTER TEMPORARY STOP", LogMisc);
@@ -1809,6 +1824,17 @@ void GdbEngine::handleThreadGroupExited(const GdbMi &result)
     if (threadsHandler()->notifyGroupExited(groupId)) {
         const int exitCode = result["exit-code"].toInt();
         notifyExitCode(exitCode);
+        if (m_sawTerminateMessage) {
+            m_sawTerminateMessage = false;
+            AsynchronousMessageBox::information(
+                Tr::tr("Terminated by the C++ Runtime"),
+                Tr::tr("The application was terminated by the C++ runtime, in most cases "
+                       "because of an uncaught exception. The runtime reported the reason "
+                       "in the application output.\n\n"
+                       "There is no location to show, as the termination did not produce a "
+                       "signal or exception the debugger stops on. Add a breakpoint at "
+                       "\"throw\" to stop where an exception is thrown."));
+        }
         if (m_rerunPending)
             m_rerunPending = false;
         else if (state() == EngineShutdownRequested)
@@ -4509,6 +4535,8 @@ static QString cleanedChannel(QString channel)
 void GdbEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
+
+    m_sawTerminateMessage = false;
 
     const DebuggerRunParameters &rp = runParameters();
 

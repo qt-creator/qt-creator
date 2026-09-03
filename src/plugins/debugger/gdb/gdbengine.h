@@ -127,6 +127,7 @@ private: ////////// General Interface //////////
     bool m_detectTargetIncompat = false;
     bool m_lruFailure = false;
     bool m_xmlSupportWarned = false;
+    bool m_sawTerminateMessage = false;
 
     ////////// Gdb Output, State & Capability Handling //////////
 
@@ -382,6 +383,7 @@ private: ////////// General Interface //////////
     QtTaskTree::QSingleTaskTreeRunner m_signalOperationRunner;
 };
 
+bool isTerminateMessage(const QStringView msg);
 InferiorStartData inferiorStartData(const DebuggerRunParameters &rp);
 DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
 
