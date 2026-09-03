@@ -490,6 +490,9 @@ public:
     }
 
 private:
+    void ensureLegacyIndenterSettings();
+
+    ICodeStylePreferences *m_codeStyle = nullptr;
     CppEditor::CppCodeStylePreferencesWidget *m_legacyIndenterSettings = nullptr;
     ClangFormatConfigWidget *m_clangFormatSettings = nullptr;
 };
@@ -500,23 +503,31 @@ ClangFormatCodeStyleWidget::ClangFormatCodeStyleWidget(
     , m_clangFormatSettings{new ClangFormatConfigWidget(
           ProjectManager::projectWithProjectFile(projectFile, !projectFile.isEmpty()), codeStyle, this)}
 {
+    m_codeStyle = codeStyle;
+
     auto layout = new QVBoxLayout{this};
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
-    if (QTC_GUARD(codeStyle)) {
-        const auto cppPreferences = static_cast<CppEditor::CppCodeStylePreferences *>(codeStyle);
-        m_legacyIndenterSettings = new CppEditor::CppCodeStylePreferencesWidget{cppPreferences};
-        m_legacyIndenterSettings->layout()->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(m_legacyIndenterSettings);
-    }
-
     layout->addWidget(m_clangFormatSettings);
+}
+
+void ClangFormatCodeStyleWidget::ensureLegacyIndenterSettings()
+{
+    if (m_legacyIndenterSettings || !QTC_GUARD(m_codeStyle))
+        return;
+
+    const auto cppPreferences = static_cast<CppEditor::CppCodeStylePreferences *>(m_codeStyle);
+    m_legacyIndenterSettings = new CppEditor::CppCodeStylePreferencesWidget{cppPreferences};
+    m_legacyIndenterSettings->layout()->setContentsMargins(0, 0, 0, 0);
+    qobject_cast<QVBoxLayout *>(layout())->insertWidget(0, m_legacyIndenterSettings);
 }
 
 void ClangFormatCodeStyleWidget::onModeChanged(ClangFormatSettings::Mode newMode)
 {
     const bool isLegacyIndenterMode = newMode == ClangFormatSettings::Mode::Disable;
+    if (isLegacyIndenterMode)
+        ensureLegacyIndenterSettings();
     if (m_legacyIndenterSettings)
         m_legacyIndenterSettings->setVisible(isLegacyIndenterMode);
     m_clangFormatSettings->setVisible(!isLegacyIndenterMode);
