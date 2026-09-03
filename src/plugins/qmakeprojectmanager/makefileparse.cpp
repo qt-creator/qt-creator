@@ -109,7 +109,7 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
 #else
         return arg == "-unix";
 #endif
-    });
+    }, HostOsInfo::hostOs());
 }
 
 static void dumpQMakeAssignments(const QList<QMakeAssignment> &list)

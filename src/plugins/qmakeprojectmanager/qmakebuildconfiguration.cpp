@@ -631,7 +631,7 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
             return true;
         }
         return false;
-    });
+    }, HostOsInfo::hostOs());
 
     if (outArgs)
         *outArgs += ProcessArgs::filterSimpleArgs(*args, HostOsInfo::hostOs());

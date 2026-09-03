@@ -55,14 +55,16 @@ public:
                                  bool abortOnMeta = false, SplitError *err = nullptr,
                                  const Environment *env = nullptr, const QString &pwd = {});
     //! Split a shell command into separate arguments and drop complex ones
-    //! as input for the internal .pro parser.
+    //! as input for the internal .pro parser. Stops at the end of the first
+    //! command, i.e. at an unquoted shell metacharacter.
     static QStringList filterSimpleArgs(const QString &cmd, OsType osType);
     //! Remove the arguments for which \a drop returns true from a shell command.
     //! \a drop is passed the plain value of an argument, or nullopt if the
     //! argument is not a plain string. An empty argument is a plain string.
+    //! Stops at the end of the first command.
     static void removeArgsIf(QString *cmd,
                              const std::function<bool(const std::optional<QString> &)> &drop,
-                             OsType osType = HostOsInfo::hostOs());
+                             OsType osType);
 
     using FindMacro = std::function<int(const QString &str, int *pos, QString *ret)>;
 
