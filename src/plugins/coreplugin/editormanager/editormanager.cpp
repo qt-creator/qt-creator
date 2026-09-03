@@ -379,22 +379,8 @@ EditorManagerPrivate::EditorManagerPrivate(QObject *parent)
     d = this;
 }
 
-static bool g_shuttingDown = false;
-
-bool EditorManagerPrivate::isShuttingDown()
-{
-    return g_shuttingDown;
-}
-
 EditorManagerPrivate::~EditorManagerPrivate()
 {
-    // Views are about to go away with the editor manager rather than being
-    // closed by anyone, so editorViewClosed() must stay quiet from here on:
-    // "d" is still set until the end of this function, so without the flag
-    // a view being deleted below would still reach a listener, during the
-    // teardown of the very object it would be reaching through.
-    g_shuttingDown = true;
-
     // close all extra windows
     for (int i = 0; i < m_editorAreas.size(); ++i) {
         EditorArea *area = m_editorAreas.at(i);

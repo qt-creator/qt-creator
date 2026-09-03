@@ -187,11 +187,6 @@ signals:
         const Utils::FilePath &filePath,
         const QHash<Utils::Id, QAction *> &insertionPoints);
 
-    // A split arriving or going away. The id identifies that view for as
-    // long as it exists and is not handed out again afterwards, so the two
-    // can be paired up. Only splits made while the editor manager is
-    // running are reported: the views it starts with are not announced, and
-    // neither are the ones going away with it as Qt Creator shuts down.
     void editorViewCreated(int viewId);
     void editorViewClosed(int viewId);
 

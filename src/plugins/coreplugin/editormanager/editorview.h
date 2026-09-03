@@ -120,9 +120,6 @@ public:
     bool isShowingTabs() const;
     void setTabsVisible(bool visible);
 
-    // Identifies this view for as long as it exists, and is not handed out
-    // again after it goes. What EditorManager::editorViewCreated() and
-    // editorViewClosed() report, so a plugin can pair the two up.
     int viewId() const { return m_viewId; }
 
     bool canGoForward() const;
