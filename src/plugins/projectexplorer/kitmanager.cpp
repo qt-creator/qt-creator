@@ -414,10 +414,28 @@ void KitManager::showLoadingProgress()
     connect(instance(), &KitManager::kitsLoaded, []() { futureInterface.reportFinished(); });
 }
 
+// deviceForPath() answers with the desktop device, which claims any local path and is the
+// first one added, even when a device building in this process claims it too.
+static IDeviceConstPtr deviceForToolchain(const FilePath &compiler)
+{
+    const IDeviceConstPtr device = DeviceManager::deviceForPath(compiler);
+    if (!device || device->type() != Constants::DESKTOP_DEVICE_TYPE)
+        return device;
+    IDeviceConstPtr specific;
+    DeviceManager::forEachDevice([&specific, &compiler](const IDeviceConstPtr &candidate) {
+        if (!specific && candidate->type() != Constants::DESKTOP_DEVICE_TYPE
+            && candidate->handlesFile(compiler)) {
+            specific = candidate;
+        }
+    });
+    return specific ? specific : device;
+}
+
 void KitManager::createKitsFromToolchains(
     const IDeviceConstPtr &dev, std::vector<std::unique_ptr<Kit>> &kits)
 {
-    QHash<Abi, QHash<LanguageCategory, std::optional<ToolchainBundle>>> uniqueToolchains;
+    QHash<Id, QHash<Abi, QHash<LanguageCategory, std::optional<ToolchainBundle>>>>
+        uniqueToolchains;
 
     const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
         ToolchainBundle::HandleMissing::CreateAndRegister);
@@ -425,8 +443,11 @@ void KitManager::createKitsFromToolchains(
     for (const ToolchainBundle &bundle : bundles) {
         if (dev && !bundle.get(&Toolchain::isSameDevice, deviceRootPath))
             continue;
-        auto &bestBundle
-            = uniqueToolchains[bundle.targetAbi()][bundle.factory()->languageCategory()];
+        const IDeviceConstPtr toolchainDevice
+            = dev ? dev : deviceForToolchain(bundle.get(&Toolchain::compilerCommand));
+        auto &bestBundle = uniqueToolchains[toolchainDevice ? toolchainDevice->id() : Id()]
+                                           [bundle.targetAbi()]
+                                           [bundle.factory()->languageCategory()];
         if (!bestBundle) {
             bestBundle = bundle;
             continue;
@@ -437,46 +458,57 @@ void KitManager::createKitsFromToolchains(
     }
 
     // Create temporary kits for all toolchains found.
-    for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
-        const QString abiString = it.key().toString();
-        auto kit = std::make_unique<Kit>();
-        if (dev) {
-            BuildDeviceTypeKitAspect::setDeviceTypeId(kit.get(), dev->type());
-            BuildDeviceKitAspect::setDevice(kit.get(), dev);
-            // The kit is auto-created for this build device. Tie its detection source ID to
-            // the device and ABI so a re-detection recognizes and reuses the existing kit
-            // instead of creating a duplicate, and the kit can automatically be removed if the
-            // device is removed.
-            kit->setDetectionSource(
-                {DetectionSource::Manual, deviceKitDetectionSourceId(dev->id(), abiString)});
-        } else {
-            kit->setDetectionSource(DetectionSource::Manual);
-        }
-        for (const auto &bundle : it.value())
-            ToolchainKitAspect::setBundle(kit.get(), *bundle);
-        if (contains(kits, [&kit](const std::unique_ptr<Kit> &existingKit) {
-                return ToolchainKitAspect::toolChains(kit.get())
-                == ToolchainKitAspect::toolChains(existingKit.get());
-            })) {
+    for (auto devIt = uniqueToolchains.cbegin(); devIt != uniqueToolchains.cend(); ++devIt) {
+        const IDeviceConstPtr device = dev ? dev : DeviceManager::find(devIt.key());
+        if (!dev && device && device->kitCreationRefused())
             continue;
+        const bool buildsOnDevice
+            = device && (dev || device->type() != Constants::DESKTOP_DEVICE_TYPE);
+        const IDeviceConstPtr buildDevice = buildsOnDevice ? device : IDeviceConstPtr();
+        for (auto it = devIt.value().cbegin(); it != devIt.value().cend(); ++it) {
+            const QString abiString = it.key().toString();
+            auto kit = std::make_unique<Kit>();
+            if (buildDevice) {
+                BuildDeviceTypeKitAspect::setDeviceTypeId(kit.get(), buildDevice->type());
+                BuildDeviceKitAspect::setDevice(kit.get(), buildDevice);
+                // The kit is auto-created for this build device. Tie its detection source ID to
+                // the device and ABI so a re-detection recognizes and reuses the existing kit
+                // instead of creating a duplicate, and the kit can automatically be removed if the
+                // device is removed.
+                kit->setDetectionSource(
+                    {DetectionSource::Manual,
+                     deviceKitDetectionSourceId(buildDevice->id(), abiString)});
+            } else {
+                kit->setDetectionSource(DetectionSource::Manual);
+            }
+            for (const auto &bundle : it.value())
+                ToolchainKitAspect::setBundle(kit.get(), *bundle);
+            if (contains(kits, [&kit](const std::unique_ptr<Kit> &existingKit) {
+                    return ToolchainKitAspect::toolChains(kit.get())
+                    == ToolchainKitAspect::toolChains(existingKit.get());
+                })) {
+                continue;
+            }
+            const Id runDeviceType = runDeviceTypeForKit(kit.get());
+            RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), runDeviceType);
+            // When the kit runs on the same kind of device it was built for (e.g. a remote
+            // macOS build device that also runs the binary), pin the run device to that very
+            // device. Otherwise the run device would default to the type's default device,
+            // which may be a different, unrelated device at the same host - leading to deploy
+            // and debug connecting to the wrong account.
+            if (buildDevice && runDeviceType == buildDevice->type())
+                RunDeviceKitAspect::setDevice(kit.get(), buildDevice);
+            //: <abi> on <device display name>
+            const QString displayName = buildDevice
+                                            ? Tr::tr("%1 on %2").arg(abiString,
+                                                                     buildDevice->displayName())
+                                            : runDeviceType == Constants::DESKTOP_DEVICE_TYPE
+                                            ? Tr::tr("Desktop (%1)").arg(abiString)
+                                            : abiString;
+            kit->setUnexpandedDisplayName(displayName);
+            kit->setup();
+            kits.emplace_back(std::move(kit));
         }
-        const Id runDeviceType = runDeviceTypeForKit(kit.get());
-        RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), runDeviceType);
-        // When the kit runs on the same kind of device it was built for (e.g. a remote
-        // macOS build device that also runs the binary), pin the run device to that very
-        // device. Otherwise the run device would default to the type's default device,
-        // which may be a different, unrelated device at the same host - leading to deploy
-        // and debug connecting to the wrong account.
-        if (dev && runDeviceType == dev->type())
-            RunDeviceKitAspect::setDevice(kit.get(), dev);
-        //: <abi> on <device display name>
-        const QString displayName = dev ? Tr::tr("%1 on %2").arg(abiString, dev->displayName())
-                                        : runDeviceType == Constants::DESKTOP_DEVICE_TYPE
-                                        ? Tr::tr("Desktop (%1)").arg(abiString)
-                                        : abiString;
-        kit->setUnexpandedDisplayName(displayName);
-        kit->setup();
-        kits.emplace_back(std::move(kit));
     }
 
     // Now make the "best" temporary kits permanent. The logic is as follows:

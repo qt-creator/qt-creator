@@ -364,6 +364,11 @@ bool IDevice::kitCreationEnabled() const
     return d->autoCreateKits.isVisible() && d->autoCreateKits.volatileValue();
 }
 
+bool IDevice::kitCreationRefused() const
+{
+    return d->autoCreateKits.isVisible() && !d->autoCreateKits.volatileValue();
+}
+
 void IDevice::registerToolDetectionTask(quint64 token)
 {
     if (token && token == d->toolDetectionToken)

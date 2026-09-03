@@ -353,6 +353,7 @@ public:
     QtTaskTree::Group autoDetectDeviceToolsRecipe(ToolDetectionLogger logger = {});
 
     void offerKitCreation();
+    bool kitCreationRefused() const;
 
     void requestToolDetection(const Utils::FilePaths &searchPaths,
                                const ToolDetectionLogger &logger = {});
