@@ -360,15 +360,21 @@ static QStringList scrapeKeywords(QWidget *widget)
 
     QTC_ASSERT(widget, return keywords);
 
+    const QWidget *window = widget->window();
+
     // find common subwidgets
-    for (const QLabel *label : widget->findChildren<QLabel *>())
-        keywords << label->text();
-    for (const QCheckBox *checkbox : widget->findChildren<QCheckBox *>())
-        keywords << checkbox->text();
-    for (const QPushButton *pushButton : widget->findChildren<QPushButton *>())
-        keywords << pushButton->text();
-    for (const QGroupBox *groupBox : widget->findChildren<QGroupBox *>())
-        keywords << groupBox->title();
+    for (const QWidget *child : widget->findChildren<QWidget *>()) {
+        if (child->window() != window)
+            continue;
+        if (const auto label = qobject_cast<const QLabel *>(child))
+            keywords << label->text();
+        else if (const auto checkBox = qobject_cast<const QCheckBox *>(child))
+            keywords << checkBox->text();
+        else if (const auto pushButton = qobject_cast<const QPushButton *>(child))
+            keywords << pushButton->text();
+        else if (const auto groupBox = qobject_cast<const QGroupBox *>(child))
+            keywords << groupBox->title();
+    }
 
     return Utils::transform(keywords, stripAccelerator);
 }
