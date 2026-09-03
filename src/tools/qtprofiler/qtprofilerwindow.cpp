@@ -92,6 +92,7 @@ public:
     void showOpenFileDialog();
     void showOpenCtfDirDialog();
     void showBackendConfig();
+    void showWelcomePage();
 
     void onError(const QString &error); // Connected to the loaders' failure signals.
     void showError(const QString &error, const std::optional<SamplerFix> &fix);
@@ -641,6 +642,11 @@ void WindowPrivate::setTraceDuration(milliseconds ms)
     traceDurationLabel->setText(text);
 }
 
+void WindowPrivate::showWelcomePage()
+{
+    rightPane->setCurrentWidget(welcomePage);
+}
+
 void WindowPrivate::openHelpInBrowser()
 {
     QDesktopServices::openUrl({"https://doc.qt.io/qtcreator/creator-qml-performance-monitor.html"});
@@ -650,10 +656,19 @@ Window::Window(QWidget *parent)
     : QMainWindow(parent)
     , d(new WindowPrivate(this))
 {
-    auto loadAction = new QAction(Icons::OPENFILE_TOOLBAR.icon(), Tr::tr("Load Trace"), this);
+    auto loadAction = new QAction(Icons::OPENFILE.icon(), Tr::tr("Load Trace"), this);
     loadAction->setToolTip(Tr::tr("Load a QML or Chrome Trace Format trace file."));
     loadAction->setShortcut(QKeySequence::Open);
     connect(loadAction, &QAction::triggered, d, &WindowPrivate::showOpenFileDialog);
+
+    QAction *recordAction = nullptr;
+#ifndef Q_OS_WASM
+    recordAction = new QAction(Icons::PLUS.icon(), Tr::tr("New Recording"), this);
+    recordAction->setToolTip(Tr::tr("Set up and start a new recording."));
+    recordAction->setShortcut(QKeySequence::New);
+    connect(recordAction, &QAction::triggered, d, &WindowPrivate::showWelcomePage);
+    connect(d->sidebar, &MainSidebar::newRecordingRequested, recordAction, &QAction::trigger);
+#endif
 
     // Loading a Common Trace Format *directory* needs a directory picker, which blocks in a
     // nested event loop (QFileDialog::getExistingDirectory) and which the browser cannot offer
@@ -684,6 +699,8 @@ Window::Window(QWidget *parent)
     auto toolBar = new QToolBar;
     toolBar->setObjectName("QmlProfileTraceViewer");
     QList<QAction *> toolBarActions{loadAction};
+    if (recordAction)
+        toolBarActions << recordAction;
     if (loadCtfDirAction)
         toolBarActions << loadCtfDirAction;
     toolBarActions << clearAction;

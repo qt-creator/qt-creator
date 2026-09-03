@@ -41,6 +41,7 @@ public:
 
 signals:
     void traceActivated(const Utils::FilePath &filePath);
+    void newRecordingRequested();
 
 private:
     QListWidgetItem *traceItem(const Utils::FilePath &filePath) const;

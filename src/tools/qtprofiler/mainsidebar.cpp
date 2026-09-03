@@ -8,15 +8,17 @@
 #include <tracing/timelineformatdata.h>
 
 #include <utils/filepath.h>
+#include <utils/layoutbuilder.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
 #include <QLabel>
 #include <QListWidget>
 #include <QPainter>
 #include <QStyledItemDelegate>
-#include <QVBoxLayout>
 
 using namespace Profiler;
 using namespace Profiler::Internal;
@@ -69,12 +71,11 @@ public:
     {
         painter->save();
 
-        const QRect bgR = option.rect.adjusted(SpacingTokens::PaddingHL, 0,
-                                               -SpacingTokens::PaddingHL, 0);
+        const QRect contentR = option.rect.adjusted(0, 0, 0, -spacing);
         if (option.state & (QStyle::State_Selected | QStyle::State_MouseOver))
-            StyleHelper::drawCardBg(painter, bgR, creatorColor(Theme::Token_Foreground_Subtle));
+            StyleHelper::drawCardBg(painter, contentR, creatorColor(Theme::Token_Foreground_Subtle));
 
-        const QRect textR = bgR.adjusted(SpacingTokens::PaddingHM, SpacingTokens::PaddingVXs,
+        const QRect textR = contentR.adjusted(SpacingTokens::PaddingHM, SpacingTokens::PaddingVXs,
                                          -SpacingTokens::PaddingHM, -SpacingTokens::PaddingVXs);
 
         const TextFormat &activeTitleTf = option.state & QStyle::State_Selected ? titleSelectedTf
@@ -105,9 +106,12 @@ public:
             + titleTf.lineHeight()
             + SpacingTokens::GapVXs
             + captionTf.lineHeight() * 1.25 // Hack: reserve more space
-            + SpacingTokens::PaddingVXs;
+            + SpacingTokens::PaddingVXs
+            + spacing;
         return {0, height};
     }
+
+    static const int spacing = SpacingTokens::GapVM;
 
 private:
     constexpr static TextFormat titleTf {
@@ -133,23 +137,54 @@ MainSidebar::MainSidebar(QWidget *parent)
     setBackgroundColor(this, Theme::Token_Background_Muted);
 
     auto titleBar = new Utils::StyledBar;
-    auto titleBarLayout = new QHBoxLayout(titleBar);
-    titleBarLayout->setContentsMargins(SpacingTokens::PaddingHXs, 0, SpacingTokens::PaddingHXs, 0);
-    titleBarLayout->addWidget(new QLabel(Tr::tr("Traces")));
+
+    auto newRecording = new QtcButton(Tr::tr("New Recording"), QtcButton::MediumPrimary);
+#ifdef Q_OS_WASM
+    newRecording->hide(); // Nothing to record in the browser; see the record action.
+#endif
+
+    auto prevRecordingsLabel = new QLabel(Tr::tr("Previous Recordings"));
+    applyTf(prevRecordingsLabel,
+            {
+                .themeColor = Theme::Token_Text_Muted,
+                .uiElement = Utils::StyleHelper::UiElementH6Capital,
+            });
 
     m_list = new QListWidget;
     m_list->setFrameShape(QFrame::NoFrame);
     m_list->setItemDelegate(new TraceItemDelegate(m_list));
     m_list->setMouseTracking(true);
-    m_list->setSpacing(SpacingTokens::GapVXs);
+    m_list->setSpacing(0);
+    m_list->setUniformItemSizes(true);
     m_list->viewport()->setAutoFillBackground(false);
 
-    auto layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(SpacingTokens::GapHM);
-    layout->addWidget(titleBar);
-    layout->addWidget(m_list);
+    // clang-format off
+    using namespace Layouting;
+    Row {
+        new QLabel(Tr::tr("Traces")),
+        customMargins(SpacingTokens::PaddingHXs, 0, SpacingTokens::PaddingHXs, 0),
+    }.attachTo(titleBar);
 
+    Column {
+        titleBar,
+        Column {
+            newRecording,
+            Column {
+                prevRecordingsLabel,
+                m_list,
+                spacing(TraceItemDelegate::spacing),
+            },
+            customMargins(SpacingTokens::PaddingHL, SpacingTokens::GapVXl,
+                          SpacingTokens::PaddingHL, 0),
+            spacing(SpacingTokens::GapVXxl),
+        },
+        noMargin,
+        spacing(0),
+    }.attachTo(this);
+    // clang-format on
+
+    connect(newRecording, &QAbstractButton::clicked,
+            this, &MainSidebar::newRecordingRequested);
     connect(m_list, &QListWidget::currentItemChanged, this, [this](QListWidgetItem *current) {
         if (current)
             emit traceActivated(FilePath::fromVariant(current->data(FilePathRole)));
