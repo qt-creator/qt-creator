@@ -601,6 +601,9 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
 {
     FilePath parsedSpec;
 
+    // The arguments were written by that qmake, so they follow its OS's quoting.
+    const OsType osType = version->qmakeFilePath().osType();
+
     bool ignoreNext = false;
     bool nextIsSpec = false;
     ProcessArgs::removeArgsIf(args, [&](const std::optional<QString> &value) {
@@ -631,10 +634,10 @@ QString QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
             return true;
         }
         return false;
-    }, HostOsInfo::hostOs());
+    }, osType);
 
     if (outArgs)
-        *outArgs += ProcessArgs::filterSimpleArgs(*args, HostOsInfo::hostOs());
+        *outArgs += ProcessArgs::filterSimpleArgs(*args, osType);
 
     if (parsedSpec.isEmpty())
         return {};
