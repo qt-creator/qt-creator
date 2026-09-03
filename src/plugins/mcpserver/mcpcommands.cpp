@@ -273,7 +273,7 @@ QJsonObject McpCommands::setFilePlainText(const QString &path, const QString &co
                         "The file is currently open in a Qt Creator editor with "
                         "unsaved changes. Refusing to overwrite to avoid losing "
                         "the user's edits. Ask the user to save the file (or "
-                        "call save_file) and retry."));
+                        "call editor_save) and retry."));
             }
             if (const auto r = textDoc->setPlainText(contents); !r) {
                 return result(false, "write_failed",
@@ -284,7 +284,7 @@ QJsonObject McpCommands::setFilePlainText(const QString &path, const QString &co
                           QStringLiteral(
                               "Updated the editor buffer in-place. The change "
                               "is visible to the user but not yet on disk — "
-                              "call save_file to persist."));
+                              "call editor_save to persist."));
         }
     }
 
@@ -385,10 +385,10 @@ bool McpCommands::closeFile(const QString &path)
     // Refuse to silently discard unsaved edits. The Core::EditorManager
     // variant we call below has askAboutModifiedEditors=false, so there
     // is no user prompt — and an MCP caller can't respond to one anyway.
-    // Caller must save_file (or revert) before closing.
+    // Caller must editor_save (or revert) before closing.
     if (doc->isModified()) {
         qCWarning(mcpCommands) << "Refusing to close modified document without save:" << path
-                               << "- call save_file first";
+                               << "- call editor_save first";
         return false;
     }
 
@@ -1058,7 +1058,7 @@ static QString itemPath(const QModelIndex &index)
 
 // Everything currently in the model below parent. Children of a collapsed row
 // are included when they exist, but a lazily filled view only creates them on
-// expansion - hence set_item_expanded.
+// expansion - hence ui_set_item_expanded.
 static void collectItems(const QAbstractItemModel *model, const QModelIndex &parent,
                          QList<QModelIndex> *out)
 {
@@ -1345,7 +1345,7 @@ static QString lastLines(const QString &text, int maxLines)
 // QMessageBox popups (QMessageBox::warning/question/..., or a non-modal box shown
 // via new QMessageBox(...) + show()) do not reach the log or message panes, so a
 // headless client cannot otherwise see them. Record each one as it is shown, via
-// an application-wide event filter, so get_message_boxes can report it.
+// an application-wide event filter, so ui_get_message_boxes can report it.
 static QString messageBoxIconName(QMessageBox::Icon icon)
 {
     switch (icon) {
@@ -1476,7 +1476,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_message_boxes")
+            .name("ui_get_message_boxes")
             .title("Get message box popups")
             .description(
                 "Returns the QMessageBox popups (warnings, errors, questions, ...) shown since "
@@ -1519,14 +1519,14 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("answer_message_box")
+            .name("ui_answer_message_box")
             .title("Answer a message box")
             .description(
                 "Clicks a button on the currently-open message box - the active modal one, or "
                 "the most recently shown box still visible - to dismiss it. The button is "
                 "matched by its text with the mnemonic '&' and case ignored, or by the "
                 "untranslated standard-button name, so \"Yes\", \"No\", \"Ok\", \"Cancel\" "
-                "work whatever the UI language; see get_message_boxes for the available buttons. "
+                "work whatever the UI language; see ui_get_message_boxes for the available buttons. "
                 "Returns an error (with available_buttons) if there is no open box or no match.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -1569,7 +1569,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("activate_mode")
+            .name("ui_activate_mode")
             .title("Activate a mode")
             .description(
                 "Switches Qt Creator to a top-level mode (the left mode bar) and returns the "
@@ -1602,7 +1602,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("open_file")
+            .name("editor_open")
             .title("Open a file in Qt Creator")
             .description("Open a file in Qt Creator, optionally jumping to a specific line and column.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -1639,12 +1639,12 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("file_plain_text")
+            .name("fs_read_text")
             .title("file plain text")
             .description(
                 "Returns the content of the file as plain text. Optionally restrict to a line "
                 "range via start_line/end_line (1-based, inclusive). For binary content use "
-                "read_file_bytes instead. Local and remote files are both supported via Qt "
+                "fs_read_bytes instead. Local and remote files are both supported via Qt "
                 "Creator urlish paths such as ssh://user@host/path or docker://id/path; remote "
                 "access is transparent.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -1683,7 +1683,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_file_plain_text")
+            .name("fs_write_text")
             .title("Overwrite the contents of a text file")
             .description(
                 "Overwrite the file's text content with the provided string. "
@@ -1692,12 +1692,12 @@ void McpCommands::registerCommands()
                 "  - Not open: writes directly to disk.\n"
                 "  - Open with an unchanged buffer: updates the editor's in-memory "
                 "    buffer (visible to the user immediately). The change is NOT "
-                "    persisted to disk until save_file is called.\n"
+                "    persisted to disk until editor_save is called.\n"
                 "  - Open with unsaved changes: REFUSED with reason "
                 "    'file_open_with_unsaved_changes' to avoid silently "
                 "    overwriting the user's edits. Caller should ask the user to "
-                "    save (or call save_file) and retry.\n"
-                "For binary content use write_file_bytes instead. Also supports files "
+                "    save (or call editor_save) and retry.\n"
+                "For binary content use fs_write_bytes instead. Also supports files "
                 "on remote devices with URIs like docker://... or ssh:// and others.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -1730,7 +1730,7 @@ void McpCommands::registerCommands()
                             {"description",
                              "Outcome category. Success values: "
                              "'ok_buffer_updated' (file open, buffer overwritten "
-                             "— call save_file to persist) or 'ok_disk_write' "
+                             "— call editor_save to persist) or 'ok_disk_write' "
                              "(file not open, written to disk). Failure values "
                              "explain why the write was refused or failed."}})
                     .addProperty(
@@ -1749,11 +1749,11 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("read_file_bytes")
+            .name("fs_read_bytes")
             .title("Read raw bytes from a file")
             .description(
                 "Reads raw file contents and returns them base64-encoded - use this for binary "
-                "files; for text use file_plain_text. Optionally restrict to a byte range via "
+                "files; for text use fs_read_text. Optionally restrict to a byte range via "
                 "offset/length. Local and remote files are both supported via Qt Creator urlish "
                 "paths such as ssh://user@host/path or docker://id/path; remote access is "
                 "transparent. 'reason' distinguishes an empty directory from one that could "
@@ -1806,11 +1806,11 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("write_file_bytes")
+            .name("fs_write_bytes")
             .title("Write raw bytes to a file")
             .description(
                 "Writes base64-decoded raw bytes to a file, creating or overwriting it - use this "
-                "for binary files; for text use set_file_plain_text. This writes directly to disk "
+                "for binary files; for text use fs_write_text. This writes directly to disk "
                 "and does not route through the editor. Local and remote files are both supported "
                 "via Qt Creator urlish paths such as ssh://user@host/path or docker://id/path.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -1851,7 +1851,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_directory")
+            .name("fs_list_directory")
             .title("List a directory")
             .description(
                 "Lists directory entries via Utils::FilePath, with name, path, type, size, "
@@ -1940,7 +1940,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("file_info")
+            .name("fs_get_info")
             .title("Get metadata for a path")
             .description(
                 "Returns metadata for a path via Utils::FilePath: existence, type, size, "
@@ -1983,7 +1983,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("make_directory")
+            .name("fs_make_directory")
             .title("Create a directory")
             .description(
                 "Creates a directory and any missing parents via "
@@ -2019,7 +2019,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("remove_path")
+            .name("fs_remove")
             .title("Remove a file or directory")
             .description(
                 "Removes a file, or a directory when 'recursive' is true, via "
@@ -2062,7 +2062,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("save_file")
+            .name("editor_save")
             .title("Save a file in Qt Creator")
             .description("Save a file in Qt Creator")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -2087,7 +2087,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("close_file")
+            .name("editor_close")
             .title("Close a file in Qt Creator")
             .description("Close a file in Qt Creator")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -2112,7 +2112,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("search_in_file")
+            .name("search_file")
             .title("Search for pattern in a single file")
             .description(
                 "Search for a text pattern in a single file and return all matches with "
@@ -2152,7 +2152,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("search_in_directory")
+            .name("search_directory")
             .title("Search for pattern in a directory")
             .description(
                 "Search for a text pattern recursively in all files within a directory "
@@ -2192,7 +2192,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("replace_in_file")
+            .name("fs_replace_in_file")
             .title("Replace pattern in a single file")
             .description(
                 "Replace all matches of a text pattern in a single file with replacement text")
@@ -2239,7 +2239,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("replace_in_directory")
+            .name("fs_replace_in_directory")
             .title("Replace pattern in a directory")
             .description(
                 "Replace all matches of a text pattern recursively in all files within "
@@ -2288,7 +2288,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_open_files")
+            .name("editor_list_open")
             .title("List currently open files")
             .description("List currently open files")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -2308,7 +2308,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_visible_files")
+            .name("editor_list_visible")
             .title("List currently visible files")
             .description("List all files that are currently visible to the user in an editor.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -2328,7 +2328,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_sessions")
+            .name("session_list")
             .title("List available sessions")
             .description("List available sessions")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -2348,7 +2348,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("load_session")
+            .name("session_load")
             .title("Load a specific session")
             .description("Load a specific session")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -2371,7 +2371,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("quit")
+            .name("app_quit")
             .title("Quit Qt Creator")
             .description("Quit Qt Creator")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -2386,7 +2386,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_current_session")
+            .name("session_get_current")
             .title("Get the currently active session")
             .description("Get the currently active session")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -2401,7 +2401,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("save_session")
+            .name("session_save")
             .title("Save the current session")
             .description("Save the current session")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -2416,7 +2416,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool()
-            .name("execute_command")
+            .name("process_run")
             .title("executes the command")
             .description(
                 "executes the command and returns the exit code as well as standard output and "
@@ -2466,7 +2466,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_actions")
+            .name("ui_find_actions")
             .title("Find actions")
             .description("Finds actions matching a query string")
             .inputSchema(
@@ -2530,7 +2530,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("call_action")
+            .name("ui_call_action")
             .title("Call an action")
             .description("Calls an action by its ID")
             .inputSchema(
@@ -2554,7 +2554,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("create_new_file")
+            .name("editor_create_file")
             .title("Create a new file")
             .description(
                 "Creates a new file at the specified path and optionally populates it with text. "
@@ -2586,7 +2586,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("apply_patch")
+            .name("fs_apply_patch")
             .title("Apply a unified diff")
             .description(
                 "Applies a unified diff to files on disk using the configured patch command. "
@@ -2644,7 +2644,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("reformat_file")
+            .name("editor_reformat")
             .title("Reformat a file")
             .description(
                 "Reformats a specified file using Qt Creator's code formatting rules. "
@@ -2670,7 +2670,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_plugins")
+            .name("plugin_list")
             .title("List the installed plugins")
             .description("Lists all installed plugins together with their current run state and "
                          "whether they can be loaded at runtime without a restart.")
@@ -2699,7 +2699,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("load_plugin")
+            .name("plugin_load")
             .title("Load a plugin at runtime")
             .description("Soft-loads a plugin, and its soft-loadable dependencies, into the running "
                          "Qt Creator without a restart. Only works for plugins marked as "
@@ -2712,7 +2712,7 @@ void McpCommands::registerCommands()
                         QJsonObject{
                             {"type", "string"},
                             {"description", "Name of the plugin to load, as reported by "
-                                            "list_plugins"}})
+                                            "plugin_list"}})
                     .addRequired("name"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2741,7 +2741,7 @@ void McpCommands::registerCommands()
             // enable it first. Unlike the About Plugins dialog, this deliberately does not
             // persist the change via PluginManager::writeSettings(): loading a plugin from an
             // MCP client exercises it in the running session without permanently rewriting the
-            // user's plugin configuration. Use save_plugin_settings to make it stick.
+            // user's plugin configuration. Use plugin_save_settings to make it stick.
             spec->setEnabledBySettings(true);
             PluginManager::loadPluginsAtRuntime({spec});
             return QJsonObject{
@@ -2751,10 +2751,10 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("save_plugin_settings")
+            .name("plugin_save_settings")
             .title("Persist the enabled plugins")
             .description("Writes the current enabled/disabled state of all plugins to disk so it "
-                         "survives a restart. Use after load_plugin to make a runtime-loaded "
+                         "survives a restart. Use after plugin_load to make a runtime-loaded "
                          "plugin load again on the next start.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .outputSchema(
@@ -2812,13 +2812,13 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("show_settings_page")
+            .name("settings_show_page")
             .title("Open a preferences page")
             .description(
                 "Opens Preferences on the given page, so that its widgets can be driven with "
-                "find_widgets, click_widget and the item tools. Pages build their widgets "
+                "ui_find_widgets, ui_click_widget and the item tools. Pages build their widgets "
                 "lazily, so a page that has never been shown has none to find. Give the page "
-                "id from list_settings_pages, or none to open Preferences where it last was.")
+                "id from settings_list_pages, or none to open Preferences where it last was.")
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty("page_id",
@@ -2850,11 +2850,11 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_settings_pages")
+            .name("settings_list_pages")
             .title("List aspect-backed settings pages")
             .description(
                 "Lists Qt Creator preference pages whose settings are exposed as aspects, "
-                "so they can be read with get_settings and changed with set_setting. Pages "
+                "so they can be read with settings_get and changed with settings_set. Pages "
                 "with hand-rolled widgets (no aspect container) are omitted. Read-only.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
@@ -2890,12 +2890,12 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_settings")
+            .name("settings_get")
             .title("Read the settings of a settings page")
             .description(
                 "Returns the individual settings (aspects) of a preference page: key, "
                 "label, current value and default value. Use the page id from "
-                "list_settings_pages. Read-only.")
+                "settings_list_pages. Read-only.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2903,7 +2903,7 @@ void McpCommands::registerCommands()
                         "page",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Settings page id (see list_settings_pages)."}})
+                            {"description", "Settings page id (see settings_list_pages)."}})
                     .addRequired("page"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2916,7 +2916,7 @@ void McpCommands::registerCommands()
             if (!r.container)
                 return {{"reason", r.reason},
                         {"message", "No aspect-backed settings for that page id (see "
-                                    "list_settings_pages; try \"activeRunConfiguration\")."}};
+                                    "settings_list_pages; try \"activeRunConfiguration\")."}};
             QJsonArray settings;
             for (BaseAspect *a : r.container->aspects()) {
                 if (a->settingsKey().isEmpty())
@@ -2936,14 +2936,14 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_setting")
+            .name("settings_set")
             .title("Change a setting on a settings page")
             .description(
                 "Sets a single aspect-based setting to a new value and persists it. The "
                 "change takes effect immediately (the aspect emits its change signal), so "
                 "this is the programmatic equivalent of toggling the setting in the "
                 "Preferences dialog. Identify the setting by its 'key' (settingsKey from "
-                "get_settings); the value is coerced to the setting's current type.")
+                "settings_get); the value is coerced to the setting's current type.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}
@@ -2954,7 +2954,7 @@ void McpCommands::registerCommands()
                         "key",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "settingsKey of the setting (see get_settings)."}})
+                            {"description", "settingsKey of the setting (see settings_get)."}})
                     .addProperty(
                         "value",
                         QJsonObject{
@@ -2975,7 +2975,7 @@ void McpCommands::registerCommands()
                 return {{"applied", false},
                         {"reason", r.reason},
                         {"message", "No aspect-backed settings for that page id (see "
-                                    "list_settings_pages; try \"activeRunConfiguration\")."}};
+                                    "settings_list_pages; try \"activeRunConfiguration\")."}};
             const QString key = p.value("key").toString();
             BaseAspect *target = nullptr;
             for (BaseAspect *a : r.container->aspects()) {
@@ -3052,7 +3052,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_widgets")
+            .name("ui_find_widgets")
             .title("Find widgets in the running UI")
             .description(
                 "Resolves a semantic widget query against the live Qt Creator UI by walking "
@@ -3061,7 +3061,7 @@ void McpCommands::registerCommands()
                 "the widget has one - with the three-way check_state for a tristate check box, "
                 "whose \"checked\" is true for the partial state too - geometry in root "
                 "coordinates and top-level window id. This is the addressing layer for "
-                "click_widget / type_text / select_combo_item: use it to discover selectors "
+                "ui_click_widget / ui_type_text / ui_select_combo_item: use it to discover selectors "
                 "and to check that a query is unambiguous before acting on it. Read-only.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(addWidgetQueryProps(Tool::InputSchema{}))
@@ -3088,7 +3088,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("click_widget")
+            .name("ui_click_widget")
             .title("Click a widget")
             .description(
                 "Clicks the single widget matching the query with a synthetic left press and "
@@ -3097,7 +3097,7 @@ void McpCommands::registerCommands()
                 "check box or radio button, where only the indicator reacts to one. The query "
                 "must resolve to exactly one visible widget - zero or multiple matches are an "
                 "error, so ambiguity never silently picks a widget. The result describes the "
-                "widget as find_widgets does, so a toggle can be told from a miss.")
+                "widget as ui_find_widgets does, so a toggle can be told from a miss.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(addWidgetQueryProps(Tool::InputSchema{})),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
@@ -3113,7 +3113,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("mouse_event")
+            .name("ui_mouse_event")
             .title("Send a single mouse press/move/release")
             .description(
                 "Delivers one mouse press, move or release to the widget matching the query at "
@@ -3151,7 +3151,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("select_combo_item")
+            .name("ui_select_combo_item")
             .title("Select an item in a combo box")
             .description(
                 "Selects an item by its text in the single QComboBox matching the query, as a "
@@ -3200,14 +3200,14 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_items")
+            .name("ui_find_items")
             .title("Find items in a view")
             .description(
                 "Lists the items of the single item view matching the widget query - a tree, "
                 "list or table - with the path of labels leading to each row, its text, whether "
                 "it has children, is expanded, selected or enabled, and its geometry in root "
-                "coordinates. This is the addressing layer for click_item and "
-                "set_item_expanded, and the way to assert what a view actually shows. A view "
+                "coordinates. This is the addressing layer for ui_click_item and "
+                "ui_set_item_expanded, and the way to assert what a view actually shows. A view "
                 "that fills lazily only has the children of rows that were expanded, so expand "
                 "first and look again.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -3242,7 +3242,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("click_item")
+            .name("ui_click_item")
             .title("Click an item in a view")
             .description(
                 "Clicks one item of the item view matching the widget query, by delivering a "
@@ -3264,7 +3264,7 @@ void McpCommands::registerCommands()
                             {"type", "boolean"},
                             {"description",
                              "Ask the row for its context menu instead of clicking it. The "
-                             "menu is then driven with activate_menu_item."}})
+                             "menu is then driven with ui_activate_menu_item."}})
                     .addProperty(
                         "double_click",
                         QJsonObject{
@@ -3324,13 +3324,13 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_item_expanded")
+            .name("ui_set_item_expanded")
             .title("Expand or collapse an item in a tree")
             .description(
                 "Expands or collapses one item of the QTreeView matching the widget query. "
                 "Needed to reach nested items at all: a view that fills lazily asks its source "
                 "for the children only when a row is expanded, so the children appear in "
-                "find_items a moment later, not immediately.")
+                "ui_find_items a moment later, not immediately.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 addWidgetQueryProps(Tool::InputSchema{})
@@ -3366,7 +3366,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("type_text")
+            .name("ui_type_text")
             .title("Type text into a widget")
             .description(
                 "Types text by delivering key events, so widgets that react to typing (line "
@@ -3424,7 +3424,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("show_caption")
+            .name("ui_show_caption")
             .title("Show a caption over the window")
             .description(
                 "Puts a line of text over the main window for a while, and returns once it is "
@@ -3474,11 +3474,11 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("click_tab")
+            .name("ui_click_tab")
             .title("Click a tab by its label")
             .description(
                 "Clicks one tab of the QTabBar matching the widget query, by the text on it. A "
-                "tab is not a widget of its own, so it cannot be reached with click_widget.")
+                "tab is not a widget of its own, so it cannot be reached with ui_click_widget.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 addWidgetQueryProps(Tool::InputSchema{})
@@ -3528,7 +3528,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("pointer_position")
+            .name("ui_get_pointer_position")
             .title("Where the pointer is")
             .description("Returns the pointer position in screen coordinates, which is what a "
                          "screen recording shows. Useful to check that a paced click actually "
@@ -3542,13 +3542,13 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_demo_pace")
+            .name("ui_set_demo_pace")
             .title("Pace the driving tools for a screen recording")
             .description(
                 "Slows the widget tools down so a screen capture of a driven session looks "
-                "like someone using the IDE: the pointer travels to what click_widget clicks "
+                "like someone using the IDE: the pointer travels to what ui_click_widget clicks "
                 "at a set speed, "
-                "buttons show as held down, and type_text arrives character by character. All "
+                "buttons show as held down, and ui_type_text arrives character by character. All "
                 "delays are in milliseconds; zero everywhere (the default) restores the "
                 "immediate behaviour that tests want.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -3584,14 +3584,14 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("press_keys")
+            .name("ui_press_keys")
             .title("Press a key or keyboard shortcut")
             .description(
                 "Sends a key chord parsed with QKeySequence (e.g. \"Ctrl+K\", \"Escape\", "
                 "\"Return\", \"Ctrl+Shift+P\", \"Down\") to the focused widget, or to the single "
                 "widget matching the query. Use it for keys a widget handles directly (Return, "
                 "Escape, Tab, arrows) and to demonstrate a shortcut being pressed. To reliably "
-                "trigger an action's effect regardless of focus, prefer call_action - a synthetic "
+                "trigger an action's effect regardless of focus, prefer ui_call_action - a synthetic "
                 "key event does not always drive application-wide shortcuts.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -3644,7 +3644,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_menu_item")
+            .name("ui_find_menu_item")
             .title("Locate a menu bar entry or open-menu item")
             .description(
                 "Returns the geometry, in root coordinates, of a menu bar entry (e.g. "
@@ -3713,12 +3713,12 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("widget_exists")
+            .name("ui_widget_exists")
             .title("Check whether a widget exists")
             .description(
                 "Reports whether the widget query matches any live widget, and how many. Use it "
                 "as an assertion (e.g. \"the preview opened\") without failing on zero matches "
-                "the way click_widget does. Read-only.")
+                "the way ui_click_widget does. Read-only.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(addWidgetQueryProps(Tool::InputSchema{}))
             .outputSchema(
@@ -3744,7 +3744,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_windows")
+            .name("ui_list_windows")
             .title("List top-level windows")
             .description(
                 "Lists the top-level windows of the running Qt Creator - the main window and any "
@@ -3782,7 +3782,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("read_pane")
+            .name("ui_read_output_pane")
             .title("Read the text of an output pane")
             .description(
                 "Returns the plain text of an output pane (e.g. \"Application Output\", "
@@ -3843,7 +3843,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_editor_folds")
+            .name("editor_get_folds")
             .title("Get the code-folding structure of the current editor")
             .description(
                 "Returns the code-folding structure of the current text editor, one entry per "
@@ -3881,7 +3881,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("screenshot")
+            .name("ui_screenshot")
             .title("Capture a window as a PNG")
             .description(
                 "Captures a window and returns it as a PNG. If widget query fields are given, "
@@ -3961,7 +3961,7 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("move_cursor")
+            .name("editor_move_cursor")
             .title("Move the mouse cursor")
             .description(
                 "Warps the real mouse pointer to a root coordinate via QCursor::setPos, so a "
@@ -3993,14 +3993,14 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("activate_menu_item")
+            .name("ui_activate_menu_item")
             .title("Open or trigger a menu item")
             .description(
                 "Finds a menu bar entry or an item in a currently-open menu by visible text and "
                 "activates it via the menu API: a submenu is shown (QMenu::popup) so a scenario "
                 "can navigate into it, and a leaf item is triggered. The trigger is posted "
                 "asynchronously, so this does not block even when it opens a modal dialog. Pair "
-                "with find_menu_item + move_cursor to drive a menu with the cursor.")
+                "with ui_find_menu_item + editor_move_cursor to drive a menu with the cursor.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 Tool::InputSchema{}

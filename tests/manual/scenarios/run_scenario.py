@@ -343,14 +343,14 @@ class Runner:
 
     def resolve_center(self, query):
         """Root-coordinate centre of the single widget matching query, or None."""
-        _, structured, _ = self.client.call("find_widgets", query)
+        _, structured, _ = self.client.call("ui_find_widgets", query)
         if not structured or structured.get("count") != 1:
             return None
         w = structured["widgets"][0]
         return (int(w["x"] + w["width"] / 2), int(w["y"] + w["height"] / 2))
 
     def move_cursor(self, x, y):
-        self.client.call("move_cursor", {"x": int(x), "y": int(y)})
+        self.client.call("editor_move_cursor", {"x": int(x), "y": int(y)})
 
     def point_at(self, query):
         """Glide the recorded cursor onto a target before acting on it."""
@@ -388,7 +388,7 @@ class Runner:
 
     def do_invoke_action(self, step):
         action = step["call_action"]
-        call_line = 'call_action id="{}"'.format(action)
+        call_line = 'ui_call_action id="{}"'.format(action)
         if step.get("blocks"):
             # A modal exec() dialog blocks this call until a later step
             # dismisses it; fire it on its own connection and move on. The
@@ -396,7 +396,7 @@ class Runner:
             holder = {}
 
             def worker():
-                holder["result"] = self.client.call("call_action", {"id": action})
+                holder["result"] = self.client.call("ui_call_action", {"id": action})
 
             t = threading.Thread(target=worker, daemon=True)
             t.start()
@@ -405,18 +405,18 @@ class Runner:
                         check={"dispatched": True},
                         note="Dispatched (opens a modal dialog; dismissed by a later step).")
         else:
-            self.call_or_fail("call_action", {"id": action}, step["describe"])
+            self.call_or_fail("ui_call_action", {"id": action}, step["describe"])
             self.record(step["describe"], call_line, tool="call_action", check={"ok": True})
 
     def do_open(self, path, describe):
-        self.call_or_fail("open_file", {"path": path}, describe)
+        self.call_or_fail("editor_open", {"path": path}, describe)
         self.record(describe, 'open_file path="{}"'.format(path),
                     tool="open_file", check={"ok": True})
 
     def do_click(self, step):
         query = self.subst(step["click_widget"])
         self.point_at(query)
-        w = self.call_or_fail("click_widget", query, step["describe"])
+        w = self.call_or_fail("ui_click_widget", query, step["describe"])
         self.record(step["describe"], "click_widget " + json.dumps(query),
                     note="Resolved to: " + widget_desc(w),
                     tool="click_widget", check=widget_identity(w))
@@ -426,7 +426,7 @@ class Runner:
         query = {k: v for k, v in args.items() if k != "input"}
         if query:
             self.point_at(query)
-        w = self.call_or_fail("type_text", args, step["describe"])
+        w = self.call_or_fail("ui_type_text", args, step["describe"])
         # Show the typed text as an on-screen bubble for the duration of the
         # step's dwell, so the recording makes the keystrokes visible.
         if self.video_t0 is not None:
@@ -443,7 +443,7 @@ class Runner:
         query = {k: v for k, v in args.items() if k != "keys"}
         if query:
             self.point_at(query)
-        r = self.call_or_fail("press_keys", args, step["describe"])
+        r = self.call_or_fail("ui_press_keys", args, step["describe"])
         keys = (r or {}).get("keys", args.get("keys", ""))
         if self.video_t0 is not None:
             start = time.monotonic() - self.video_t0
@@ -454,7 +454,7 @@ class Runner:
     def _await_menu_item(self, title, timeout=5):
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
-            _, structured, _ = self.client.call("find_menu_item", {"title": title})
+            _, structured, _ = self.client.call("ui_find_menu_item", {"title": title})
             if structured and structured.get("found"):
                 return structured
             time.sleep(0.1)
@@ -474,7 +474,7 @@ class Runner:
             cy = int(item["y"] + item["height"] / 2)
             if self.cursor_enabled:
                 self.move_cursor(cx, cy)
-            self.client.call("activate_menu_item", {"title": title})
+            self.client.call("ui_activate_menu_item", {"title": title})
             # Let a freshly opened submenu linger on screen before navigating
             # deeper, so the recording shows the menu (video mode only).
             if self.dwell and index < len(path) - 1:
@@ -486,14 +486,14 @@ class Runner:
     def do_select(self, step):
         args = self.subst(step["select_combo_item"])
         self.point_at({k: v for k, v in args.items() if k != "item"})
-        w = self.call_or_fail("select_combo_item", args, step["describe"])
+        w = self.call_or_fail("ui_select_combo_item", args, step["describe"])
         self.record(step["describe"], "select_combo_item " + json.dumps(args),
                     note="Selected in: " + widget_desc(w),
                     tool="select_combo_item", check=widget_identity(w))
 
     def do_expect(self, step, want_present):
         query = self.subst(step["expect" if want_present else "expect_gone"])
-        r = self.call_or_fail("widget_exists", query, step["describe"])
+        r = self.call_or_fail("ui_widget_exists", query, step["describe"])
         exists, count = r.get("exists"), r.get("count")
         if want_present and not exists:
             raise ScenarioError("step {}: expected a widget for {} but found none"
@@ -514,7 +514,7 @@ class Runner:
         deadline = time.monotonic() + timeout
         count = 0
         while time.monotonic() < deadline:
-            r = self.call_or_fail("widget_exists", query, step["describe"])
+            r = self.call_or_fail("ui_widget_exists", query, step["describe"])
             if r.get("exists"):
                 self.record(step["describe"], "widget_exists " + json.dumps(query),
                             note="Appeared (count {}).".format(r.get("count")),
@@ -526,7 +526,7 @@ class Runner:
 
     def do_read_pane(self, step):
         name = step["read_pane"]
-        r = self.call_or_fail("read_pane", {"name": name}, step["describe"])
+        r = self.call_or_fail("ui_read_output_pane", {"name": name}, step["describe"])
         reason = r.get("reason")
         if reason != "ok":
             self.record(step["describe"], 'read_pane name="{}"'.format(name),
@@ -549,7 +549,7 @@ class Runner:
         args = dict(query)
         args["path"] = str(shot)
         args["embed"] = False
-        r = self.call_or_fail("screenshot", args, step["describe"])
+        r = self.call_or_fail("ui_screenshot", args, step["describe"])
         rel = os.path.relpath(shot, self.out_dir)
         self.record(step["describe"], "screenshot " + json.dumps(query),
                     note="Captured {}x{} of \"{}\".".format(
@@ -773,7 +773,7 @@ def main():
             # a window manager is drawing frames outside the client area).
             region = None
             if not args.video_size and not args.window_manager:
-                _, wins, _ = client.call("list_windows", {})
+                _, wins, _ = client.call("ui_list_windows", {})
                 windows = wins.get("windows", []) if wins else []
                 main = next((w for w in windows if "MainWindow" in w.get("class", "")),
                             windows[0] if windows else None)
