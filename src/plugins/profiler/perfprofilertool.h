@@ -5,6 +5,10 @@
 
 #include <QObject>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
 namespace Utils { class FilePath; }
 namespace ProjectExplorer { class RunControl; }
 
