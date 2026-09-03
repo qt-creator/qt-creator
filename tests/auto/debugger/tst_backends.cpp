@@ -1467,6 +1467,9 @@ void tst_backends::initTestCase()
     // before the first snapshot of the system environment is taken.
     Environment::modifySystemEnvironment({{"DEBUGINFOD_URLS", "", EnvironmentItem::Unset}});
 
+    Environment::modifySystemEnvironment(
+        {{"_NT_SYMBOL_PATH", TemporaryDirectory::masterDirectoryPath()}});
+
     QString gdbVersionLine;
     QString lldbVersionLine;
 
