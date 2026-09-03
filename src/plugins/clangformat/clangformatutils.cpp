@@ -42,7 +42,10 @@ static clang::format::FormatStyle calculateQtcStyle()
 #else
     style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
 #endif
-#if LLVM_VERSION_MAJOR >= 20
+#if LLVM_VERSION_MAJOR >= 23
+    style.AlignConsecutiveAssignments = {false, false, false, false, false, false, false, false};
+    style.AlignConsecutiveDeclarations = {false, false, false, false, false, false, false, false};
+#elif LLVM_VERSION_MAJOR >= 20
     style.AlignConsecutiveAssignments = {false, false, false, false, false, false, false};
     style.AlignConsecutiveDeclarations = {false, false, false, false, false, false, false};
 #elif LLVM_VERSION_MAJOR >= 18
@@ -57,7 +60,9 @@ static clang::format::FormatStyle calculateQtcStyle()
 #endif
     style.AlignEscapedNewlines = FormatStyle::ENAS_DontAlign;
     style.AlignOperands = FormatStyle::OAS_Align;
-#if LLVM_VERSION_MAJOR >= 16
+#if LLVM_VERSION_MAJOR >= 23
+    style.AlignTrailingComments = {FormatStyle::TCAS_Always, 0, true};
+#elif LLVM_VERSION_MAJOR >= 16
     style.AlignTrailingComments = {FormatStyle::TCAS_Always, 0};
 #else
     style.AlignTrailingComments = true;
@@ -66,7 +71,7 @@ static clang::format::FormatStyle calculateQtcStyle()
     style.AllowShortBlocksOnASingleLine = FormatStyle::SBS_Never;
     style.AllowShortCaseLabelsOnASingleLine = false;
 #if LLVM_VERSION_MAJOR >= 23
-    style.AllowShortFunctionsOnASingleLine = {false, true, false};
+    style.AllowShortFunctionsOnASingleLine = {true, true, false};
 #else
     style.AllowShortFunctionsOnASingleLine = FormatStyle::SFS_Inline;
 #endif
@@ -81,12 +86,12 @@ static clang::format::FormatStyle calculateQtcStyle()
     style.AlwaysBreakTemplateDeclarations = FormatStyle::BTDS_Yes;
 #endif
 #if LLVM_VERSION_MAJOR >= 23
-    style.PackArguments = { FormatStyle::BPAS_OnePerLine };
+    style.PackArguments = {FormatStyle::BPAS_OnePerLine, 0};
 #else
     style.BinPackArguments = false;
 #endif
 #if LLVM_VERSION_MAJOR >= 23
-    style.PackParameters = { FormatStyle::BPPS_OnePerLine };
+    style.PackParameters = {FormatStyle::BPPS_OnePerLine, 0};
 #elif LLVM_VERSION_MAJOR >= 20
     style.BinPackParameters = FormatStyle::BPPS_OnePerLine;
 #else
@@ -165,7 +170,9 @@ static clang::format::FormatStyle calculateQtcStyle()
 #else
     style.ReflowComments = false;
 #endif
-#if LLVM_VERSION_MAJOR > 20
+#if LLVM_VERSION_MAJOR >= 23
+    style.SortIncludes = {.Enabled = true, .IgnoreCase = false, .IgnoreExtension = false};
+#elif LLVM_VERSION_MAJOR > 20
     style.SortIncludes = {.Enabled = true, .IgnoreCase = false};
 #else
     style.SortIncludes = FormatStyle::SI_CaseSensitive;
