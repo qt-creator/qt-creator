@@ -123,7 +123,7 @@
 :Qt Creator.CloseDoc_QToolButton	{toolTip?='Close Document *' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.CloseFind_QToolButton	{name='closeFindToolBarButton' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Compile Output_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Compile Output'}
-:Qt Creator.Configure Project_QPushButton	{text='Configure Project' type='QPushButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Configure Project_QPushButton	{text='Configure Project' type='Utils::QtcButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Dashboard_QDockWidget	{container=':Qt Creator.ProfilerModeWidget_QSplitter' name='QmlProfiler.Dashboard.DockDockWidget' type='QDockWidget' visible='1'}
 :Qt Creator.Dashboard_QTabBar	{aboveWidget=':Qt Creator.Dashboard_QDockWidget' container=':Qt Creator.ProfilerModeWidget_QSplitter' type='QTabBar' unnamed='1' visible='1'}
 :Qt Creator.DebugModeWidget_QSplitter	{name='DebugModeWidget' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
