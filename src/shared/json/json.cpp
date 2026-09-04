@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <limits.h>
+#include <locale.h>
 #include <string.h>
 
 #include "json.h"
@@ -168,6 +169,46 @@ static int qStringSize(const std::string &ba)
 {
     int l = 4 + static_cast<int>(ba.length());
     return alignedSize(l);
+}
+
+// snprintf() and strtod() honor LC_NUMERIC, JSON always uses '.'
+static const char *localeDecimalPoint()
+{
+    const char *decimalPoint = localeconv()->decimal_point;
+    if (decimalPoint[0] == '.' && decimalPoint[1] == '\0')
+        return nullptr;
+    return decimalPoint;
+}
+
+static void appendNumber(std::string &json, const char *number)
+{
+    const char *decimalPoint = localeDecimalPoint();
+    const char *found = decimalPoint ? strstr(number, decimalPoint) : nullptr;
+    if (!found) {
+        json += number;
+        return;
+    }
+    json.append(number, found - number);
+    json += '.';
+    json += found + strlen(decimalPoint);
+}
+
+static double numberToDouble(const char *start, const char *end, bool *ok)
+{
+    char *endptr = nullptr;
+    const char *decimalPoint = localeDecimalPoint();
+    if (!decimalPoint) {
+        const double d = strtod(start, &endptr);
+        *ok = endptr != start;
+        return d;
+    }
+    std::string number(start, end);
+    const size_t pos = number.find('.');
+    if (pos != std::string::npos)
+        number.replace(pos, 1, decimalPoint);
+    const double d = strtod(number.c_str(), &endptr);
+    *ok = endptr != number.c_str();
+    return d;
 }
 
 // returns INT_MAX if it can't compress it into 28 bits
@@ -3710,7 +3751,7 @@ static void valueToJson(const Base *b, const Value &v, std::string &json, int in
             if (buf[0] == '-' && buf[1] == '0' && buf[2] == '\0')
                 json += "0";
             else
-                json += buf;
+                appendNumber(json, buf);
         } else {
             json += "null"; // +INF || -INF || NaN (see RFC4627#section2.4)
         }
@@ -4383,10 +4424,10 @@ bool Parser::parseNumber(Value *val, int baseOffset)
         }
     }
 
-    char *endptr = const_cast<char *>(json);
-    double d = strtod(start, &endptr);
+    bool ok = false;
+    double d = numberToDouble(start, json, &ok);
 
-    if (start == endptr || std::isinf(d)) {
+    if (!ok || std::isinf(d)) {
         lastError = JsonParseError::IllegalNumber;
         return false;
     }
