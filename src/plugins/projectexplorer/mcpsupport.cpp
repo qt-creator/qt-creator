@@ -1323,12 +1323,18 @@ void registerMcpTools()
         case QMetaType::Int:
         case QMetaType::LongLong: return double(v.toLongLong());
         case QMetaType::Double: return v.toDouble();
-        default: return v.toString();
+        // An aspect holding one value per language, such as the compiler.
+        case QMetaType::QVariantMap: return QJsonObject::fromVariantMap(v.toMap());
+        default:
+            if (v.typeId() == qMetaTypeId<Utils::Store>())
+                return QJsonObject::fromVariantMap(mapFromStore(Utils::storeFromVariant(v)));
+            return v.toString();
         }
     };
     static const auto jsonToVariant = [](const QJsonValue &j) -> QVariant {
         if (j.isBool()) return j.toBool();
         if (j.isDouble()) return j.toDouble();
+        if (j.isObject()) return j.toObject().toVariantMap();
         return j.toString();
     };
     static const auto kitAspectFactoryById = [](Utils::Id id) -> KitAspectFactory * {

@@ -165,6 +165,8 @@ private:
 
     ItemList toUserOutput(const Kit *k) const override;
 
+    QList<Candidate> candidateValues(const Kit *k) const override;
+
     void addToBuildEnvironment(const Kit *k, Environment &env) const override;
     void addToRunEnvironment(const Kit *, Environment &) const override {}
 
@@ -392,6 +394,23 @@ KitAspectFactory::ItemList ToolchainKitAspectFactory::toUserOutput(const Kit *k)
 {
     Toolchain *tc = ToolchainKitAspect::cxxToolchain(k);
     return {{Tr::tr("Compiler"), tc ? tc->displayName() : Tr::tr("None", "No compiler")}};
+}
+
+QList<KitAspectFactory::Candidate> ToolchainKitAspectFactory::candidateValues(const Kit *) const
+{
+    // A candidate is a complete bundle, i.e. the value of the whole aspect,
+    // because the kit stores one toolchain per language.
+    QList<Candidate> result;
+    const QList<ToolchainBundle> bundles
+        = ToolchainBundle::collectBundles(ToolchainBundle::HandleMissing::NotApplicable);
+    result.reserve(bundles.size());
+    for (const ToolchainBundle &bundle : bundles) {
+        QVariantMap value;
+        for (const Toolchain *tc : bundle.toolchains())
+            value.insert(tc->language().toString(), tc->id().toSetting());
+        result.append({value, bundle.displayName()});
+    }
+    return result;
 }
 
 void ToolchainKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
