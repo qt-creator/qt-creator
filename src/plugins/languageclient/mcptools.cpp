@@ -5,9 +5,12 @@
 
 #include "client.h"
 #include "languageclientmanager.h"
+#include "languageclientutils.h"
 
 #include <mcp/server/toolregistry.h>
 
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
@@ -17,6 +20,7 @@
 #include <languageserverprotocol/lsptypes.h>
 #include <languageserverprotocol/servercapabilities.h>
 #include <languageserverprotocol/typehierarchy.h>
+#include <languageserverprotocol/workspace.h>
 
 #include <texteditor/textdocument.h>
 
@@ -24,6 +28,7 @@
 #include <utils/filepath.h>
 
 #include <QDeadlineTimer>
+#include <QHash>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QPointer>
@@ -969,6 +974,422 @@ void lspReferences(const QJsonObject &args, const ToolResultHandler &handler)
     });
 }
 
+// ------------------------------------------------------------------ rename
+
+// The open document for a file, under whatever spelling the server uses for
+// it: on macOS the temp directory is a symlink, and clangd reports the
+// canonical path while the document keeps the one it was opened with.
+static TextDocument *openDocumentFor(const FilePath &path)
+{
+    if (TextDocument *document = TextDocument::textDocumentForFilePath(path))
+        return document;
+    const FilePath canonical = path.canonicalPath();
+    if (canonical.isEmpty())
+        return nullptr;
+    const QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
+    for (Core::IDocument *document : documents) {
+        auto textDocument = qobject_cast<TextDocument *>(document);
+        if (textDocument && textDocument->filePath().canonicalPath() == canonical)
+            return textDocument;
+    }
+    return nullptr;
+}
+
+// The text of files, read once each: open documents from the editor, the rest
+// from disk.
+class FileTexts
+{
+public:
+    QStringList lines(const FilePath &path)
+    {
+        auto it = m_lines.find(path);
+        if (it == m_lines.end()) {
+            QString text;
+            if (const TextDocument *document = openDocumentFor(path))
+                text = document->plainText();
+            else if (const Result<QByteArray> contents = path.fileContents())
+                text = QString::fromUtf8(*contents);
+            it = m_lines.insert(path, text.split('\n'));
+        }
+        return *it;
+    }
+
+private:
+    QHash<FilePath, QStringList> m_lines;
+};
+
+// The text between two (0-based) positions of a file.
+static QString textBetween(const QStringList &lines, const Position &start, const Position &end)
+{
+    if (start.line() == end.line()) {
+        return lines.value(start.line())
+            .mid(start.character(), end.character() - start.character());
+    }
+    QString text = lines.value(start.line()).mid(start.character());
+    for (int line = start.line() + 1; line < end.line(); ++line)
+        text += '\n' + lines.value(line);
+    return text + '\n' + lines.value(end.line()).left(end.character());
+}
+
+// The text edits of a workspace edit, each with its file, position, old and
+// new text, in file and position order. A server may also ask for files to
+// be created, renamed or deleted; those are only counted.
+struct EditList
+{
+    QList<QJsonObject> edits;
+    QStringList files;
+    int otherChanges = 0;
+};
+
+static EditList listEdits(const Client *client, const WorkspaceEdit &edit)
+{
+    EditList list;
+    FileTexts texts;
+    const auto add = [&](const DocumentUri &uri, const QList<TextEdit> &edits) {
+        const QString file = hostPathString(client, uri);
+        if (!list.files.contains(file))
+            list.files.append(file);
+        const QStringList lines = texts.lines(client->serverUriToHostPath(uri));
+        for (const TextEdit &textEdit : edits) {
+            const Range range = textEdit.range();
+            QJsonObject json = rangeJson(range);
+            json.insert("file", file);
+            json.insert("old_text", textBetween(lines, range.start(), range.end()));
+            json.insert("new_text", textEdit.newText());
+            const QString lineText = lines.value(range.start().line()).trimmed();
+            if (!lineText.isEmpty())
+                json.insert("line_text", lineText);
+            list.edits.append(json);
+        }
+    };
+    const std::optional<QList<DocumentChange>> documentChanges = edit.documentChanges();
+    if (documentChanges && !documentChanges->isEmpty()) {
+        for (const DocumentChange &change : *documentChanges) {
+            if (const TextDocumentEdit *textDocumentEdit = std::get_if<TextDocumentEdit>(&change))
+                add(textDocumentEdit->textDocument().uri(), textDocumentEdit->edits());
+            else
+                ++list.otherChanges;
+        }
+    } else if (const std::optional<WorkspaceEdit::Changes> changes = edit.changes()) {
+        for (auto it = changes->cbegin(); it != changes->cend(); ++it)
+            add(it.key(), it.value());
+    }
+    sortAndDedupeLocations(list.edits);
+    list.files.sort();
+    return list;
+}
+
+// One rename in progress: prepare, rename, look for clashes, then report or
+// apply. Each step is a request; the state lives as long as a step is pending.
+class Rename : public std::enable_shared_from_this<Rename>
+{
+public:
+    Rename(const Resolved &resolved, const LocationArgs &location, const Position &position,
+           const QString &newName, bool apply, int limit, const ToolResultHandler &handler)
+        : m_resolved(resolved), m_location(location), m_position(position), m_newName(newName),
+          m_apply(apply), m_limit(limit), m_handler(handler)
+    {}
+
+    void start(bool prepareSupported)
+    {
+        if (prepareSupported)
+            prepare();
+        else
+            rename();
+    }
+
+private:
+    bool clientGone()
+    {
+        if (m_resolved.client)
+            return false;
+        m_handler(ResultError(QString("The language server went away.")));
+        return true;
+    }
+
+    TextDocumentPositionParams params() const
+    {
+        return positionParams(m_resolved, m_position);
+    }
+
+    // Asks whether the position can be renamed at all, and learns the old name.
+    void prepare()
+    {
+        if (clientGone())
+            return;
+        PrepareRenameRequest request(params());
+        auto self = shared_from_this();
+        request.setResponseCallback([self](const PrepareRenameRequest::Response &response) {
+            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+                self->m_handler(ResultError(QString("Cannot rename here: %1").arg(failure->text())));
+                return;
+            }
+            const std::optional<PrepareRenameResult> result = response.result();
+            if (!result || std::holds_alternative<std::nullptr_t>(*result)) {
+                self->m_handler(ResultError(QString("Nothing renamable at %1:%2:%3.")
+                                                .arg(self->m_location.file.toUserOutput())
+                                                .arg(self->m_location.line)
+                                                .arg(self->m_location.column)));
+                return;
+            }
+            if (const PlaceHolderResult *placeHolder = std::get_if<PlaceHolderResult>(&*result))
+                self->m_oldName = placeHolder->placeHolder();
+            self->rename();
+        });
+        m_resolved.client->sendMessage(request);
+    }
+
+    void rename()
+    {
+        if (clientGone())
+            return;
+        RenameParams params;
+        params.setTextDocument(this->params().textDocument());
+        params.setPosition(m_position);
+        params.setNewName(m_newName);
+        RenameRequest request(params);
+        auto self = shared_from_this();
+        request.setResponseCallback([self](const RenameRequest::Response &response) {
+            // A clash within the same scope is the server's to detect: clangd
+            // refuses it here, with the place of the other declaration.
+            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+                self->m_handler(ResultError(QString("The language server refused the rename: %1")
+                                                .arg(failure->text())));
+                return;
+            }
+            if (self->clientGone())
+                return;
+            const std::optional<WorkspaceEdit> edit = response.result();
+            if (!edit) {
+                self->m_handler(ResultError(QString("The language server returned no edits.")));
+                return;
+            }
+            self->m_edit = *edit;
+            self->m_edits = listEdits(self->m_resolved.client, *edit);
+            if (self->m_edits.edits.isEmpty() && self->m_edits.otherChanges == 0) {
+                self->m_handler(ResultError(QString("The language server returned no edits.")));
+                return;
+            }
+            if (self->m_oldName.isEmpty())
+                self->m_oldName = self->m_edits.edits.value(0).value("old_text").toString();
+            self->findClashes();
+        });
+        m_resolved.client->sendMessage(request);
+    }
+
+    // Other symbols already called by the new name, anywhere the server knows
+    // of. They are in other scopes, or the rename would have been refused, so
+    // they are reported for judgment rather than blocking.
+    void findClashes()
+    {
+        if (clientGone())
+            return;
+        if (!provides(m_resolved.client->capabilities().workspaceSymbolProvider())) {
+            m_note = QString("The server cannot search symbols, so other declarations named "
+                             "\"%1\" were not looked for.").arg(m_newName);
+            finish();
+            return;
+        }
+        WorkspaceSymbolParams params;
+        params.setQuery(m_newName);
+        params.setLimit(50);
+        WorkspaceSymbolRequest request(params);
+        auto self = shared_from_this();
+        request.setResponseCallback([self](const WorkspaceSymbolRequest::Response &response) {
+            if (self->clientGone())
+                return;
+            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+                self->m_note = QString("Looking for other declarations named \"%1\" failed: %2")
+                                   .arg(self->m_newName, failure->text());
+            } else if (response.result()) {
+                for (const SymbolInformation &symbol : response.result()->toListOrEmpty()) {
+                    if (symbol.name() != self->m_newName)
+                        continue; // The query matches fuzzily.
+                    QJsonObject conflict = locationJson(self->m_resolved.client, symbol.location());
+                    conflict.remove("end_line");
+                    conflict.remove("end_column");
+                    conflict.insert("name", symbol.name());
+                    conflict.insert("kind", symbolKindName(SymbolKind(symbol.kind())));
+                    if (const std::optional<QString> container = symbol.containerName();
+                            container && !container->isEmpty()) {
+                        conflict.insert("container", *container);
+                    }
+                    self->m_conflicts.append(conflict);
+                }
+            }
+            self->finish();
+        });
+        m_resolved.client->sendMessage(request);
+    }
+
+    void finish()
+    {
+        if (clientGone())
+            return;
+        int total = 0;
+        bool truncated = false;
+        QJsonObject result{{"symbol", m_oldName},
+                           {"new_name", m_newName},
+                           {"applied", false},
+                           {"edits", cappedArray(m_edits.edits, m_limit, &total, &truncated)},
+                           {"total_edits", total},
+                           {"truncated", truncated},
+                           {"files_affected", QJsonArray::fromStringList(m_edits.files)},
+                           {"has_conflicts", !m_conflicts.isEmpty()},
+                           {"conflicts", m_conflicts}};
+        if (m_edits.otherChanges > 0)
+            result.insert("other_changes", m_edits.otherChanges);
+        if (!m_note.isEmpty())
+            result.insert("note", m_note);
+        if (!m_apply) {
+            m_handler(result);
+            return;
+        }
+
+        // Refuse before touching anything if a target is read-only: applying
+        // would otherwise stop at a modal dialog nobody is there to answer.
+        QStringList notWritable;
+        for (const QString &file : std::as_const(m_edits.files)) {
+            if (!FilePath::fromUserInput(file).isWritableFile())
+                notWritable.append(file);
+        }
+        if (!notWritable.isEmpty()) {
+            m_handler(ResultError(QString("Cannot apply: not writable: %1. Nothing was changed.")
+                                      .arg(notWritable.join(", "))));
+            return;
+        }
+
+        // The edits go through the refactoring machinery the editor uses: a
+        // file shown in a text editor widget is changed in that editor, any
+        // other file is written to disk and an open document reloads. A file
+        // is addressed by the path its document was opened with, since the
+        // server may spell it differently. A document the edit changed in
+        // memory is saved afterwards when it had no changes of its own, so the
+        // rename reaches disk either way; one with unsaved changes of its own
+        // is left as it is, and named.
+        // A server may list one file under two spellings (clangd does, on
+        // macOS, for a project in the temp directory), so the edits are
+        // gathered per canonical file first, without duplicates, or they
+        // would be applied twice.
+        struct FileEdits
+        {
+            FilePath path;
+            QList<TextEdit> edits;
+        };
+        QMap<QString, FileEdits> perFile;
+        const auto gather = [this, &perFile](const DocumentUri &uri, const QList<TextEdit> &edits) {
+            FileEdits &fileEdits = perFile[hostPathString(m_resolved.client, uri)];
+            if (fileEdits.path.isEmpty())
+                fileEdits.path = m_resolved.client->serverUriToHostPath(uri);
+            for (const TextEdit &edit : edits) {
+                const bool known = Utils::anyOf(fileEdits.edits, [&edit](const TextEdit &other) {
+                    return other.range().start() == edit.range().start()
+                           && other.range().end() == edit.range().end()
+                           && other.newText() == edit.newText();
+                });
+                if (!known)
+                    fileEdits.edits.append(edit);
+            }
+        };
+        const std::optional<QList<DocumentChange>> documentChanges = m_edit.documentChanges();
+        if (documentChanges && !documentChanges->isEmpty()) {
+            for (const DocumentChange &change : *documentChanges) {
+                if (const TextDocumentEdit *textEdit = std::get_if<TextDocumentEdit>(&change))
+                    gather(textEdit->textDocument().uri(), textEdit->edits());
+                else
+                    applyDocumentChange(m_resolved.client, change);
+            }
+        } else if (const std::optional<WorkspaceEdit::Changes> changes = m_edit.changes()) {
+            for (auto it = changes->cbegin(); it != changes->cend(); ++it)
+                gather(it.key(), it.value());
+        }
+
+        QList<Core::IDocument *> toSave;
+        QStringList unsaved;
+        for (auto it = perFile.cbegin(); it != perFile.cend(); ++it) {
+            TextDocument *document = openDocumentFor(it->path);
+            if (!document) {
+                applyTextEdits(m_resolved.client, it->path, it->edits);
+                continue;
+            }
+            const bool wasModified = document->isModified();
+            applyTextEdits(m_resolved.client, document->filePath(), it->edits);
+            if (wasModified)
+                unsaved.append(it.key());
+            else if (document->isModified())
+                toSave.append(document);
+        }
+        for (Core::IDocument *document : std::as_const(toSave)) {
+            if (!Core::DocumentManager::saveDocument(document))
+                unsaved.append(document->filePath().toUserOutput());
+        }
+        result.insert("applied", true);
+        result.insert("files_changed", QJsonArray::fromStringList(m_edits.files));
+        result.insert("unsaved_files", QJsonArray::fromStringList(unsaved));
+        m_handler(result);
+    }
+
+    const Resolved m_resolved;
+    const LocationArgs m_location;
+    const Position m_position;
+    const QString m_newName;
+    const bool m_apply;
+    const int m_limit;
+    const ToolResultHandler m_handler;
+    QString m_oldName;
+    WorkspaceEdit m_edit;
+    EditList m_edits;
+    QJsonArray m_conflicts;
+    QString m_note;
+};
+
+void lspRename(const QJsonObject &args, const ToolResultHandler &handler)
+{
+    const Result<LocationArgs> location = parseLocationArgs(args);
+    if (!location) {
+        handler(ResultError(location.error()));
+        return;
+    }
+    const QString newName = args.value("new_name").toString();
+    if (newName.isEmpty()) {
+        handler(ResultError(QString("Requires \"new_name\".")));
+        return;
+    }
+    const bool apply = args.value("apply").toBool();
+    const int limit = resultLimit(args);
+
+    resolveClient(location->file, [location = *location, newName, apply, limit, handler](
+                                      const Result<Resolved> &resolved) {
+        if (!resolved) {
+            handler(ResultError(resolved.error()));
+            return;
+        }
+        const std::optional<std::variant<ServerCapabilities::RenameOptions, bool>> provider
+            = resolved->client->capabilities().renameProvider();
+        bool supported = provider.has_value();
+        bool prepareSupported = false;
+        if (provider) {
+            if (const bool *enabled = std::get_if<bool>(&*provider))
+                supported = *enabled;
+            else if (const auto *options = std::get_if<ServerCapabilities::RenameOptions>(&*provider))
+                prepareSupported = options->prepareProvider().value_or(false);
+        }
+        if (!supported) {
+            handler(ResultError(unsupported(*resolved, "renaming")));
+            return;
+        }
+        const Result<Position> position = positionFor(resolved->document, location.line,
+                                                      location.column);
+        if (!position) {
+            handler(ResultError(position.error()));
+            return;
+        }
+        auto rename = std::make_shared<Rename>(*resolved, location, *position, newName, apply,
+                                               limit, handler);
+        rename->start(prepareSupported);
+    });
+}
+
 // ------------------------------------------------------------ registration
 
 using ToolFunction = void (*)(const QJsonObject &, const ToolResultHandler &);
@@ -1180,6 +1601,74 @@ void registerMcpTools()
                     .addRequired("references")
                     .addRequired("total")),
         &lspReferences);
+
+    registerAsyncTool(
+        Tool{}
+            .name("lsp_rename")
+            .title("Rename a symbol via the language server")
+            .description(
+                "Renames the symbol at a position everywhere the language server (clangd "
+                "for C++, qmlls for QML, or whatever server is configured for the file type) "
+                "knows it - templates, overloads and macros included. Give the file, a "
+                "1-based line and column on the identifier, and the \"new_name\". By default "
+                "this is a DRY RUN: it returns the edits the server proposes (each with file, "
+                "1-based position, old and new text) and changes nothing. Set \"apply\" to "
+                "true to make the edits: they reach the files on disk, and a file open in an "
+                "editor is updated there too, unless it had unsaved changes of its own, in "
+                "which case it is edited but not saved and named in \"unsaved_files\". The "
+                "server refuses a name that clashes within the same scope; other "
+                "symbols that already carry the new name anywhere in the project are listed "
+                "as \"conflicts\" for you to judge, and do not block. The file is opened in a "
+                "hidden editor if it is not open; a server that is still starting asks to be "
+                "retried.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
+            .inputSchema(
+                positionInputSchema("the identifier to rename")
+                    .addProperty("new_name",
+                                 QJsonObject{{"type", "string"},
+                                             {"description", "The new identifier name."}})
+                    .addProperty(
+                        "apply",
+                        QJsonObject{{"type", "boolean"},
+                                    {"description",
+                                     "Make the edits. Default false (dry run)."}})
+                    .addProperty("limit", limitProperty())
+                    .addRequired("new_name"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("symbol", QJsonObject{{"type", "string"}})
+                    .addProperty("new_name", QJsonObject{{"type", "string"}})
+                    .addProperty("applied", QJsonObject{{"type", "boolean"}})
+                    .addProperty(
+                        "edits",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty("total_edits", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
+                    .addProperty(
+                        "files_affected",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addProperty(
+                        "files_changed",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addProperty(
+                        "unsaved_files",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addProperty("has_conflicts", QJsonObject{{"type", "boolean"}})
+                    .addProperty(
+                        "conflicts",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}},
+                                    {"description",
+                                     "Other symbols already named new_name: name, container, "
+                                     "kind and location."}})
+                    .addProperty("other_changes", QJsonObject{{"type", "integer"}})
+                    .addProperty("note", QJsonObject{{"type", "string"}})
+                    .addRequired("applied")
+                    .addRequired("edits")
+                    .addRequired("total_edits")
+                    .addRequired("has_conflicts")),
+        &lspRename);
 }
 
 } // namespace LanguageClient

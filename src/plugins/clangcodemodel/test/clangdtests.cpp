@@ -2363,6 +2363,7 @@ private slots:
     void testCallHierarchy();
     void testTypeHierarchy();
     void testReferences();
+    void testRename();
 };
 
 // Runs one of the LanguageClient MCP tool functions to completion.
@@ -2647,6 +2648,81 @@ void ClangdTestMcpTools::testReferences()
         QFAIL(qPrintable(result.error()));
     QCOMPARE(result->value("total").toInt(), 0);
     QVERIFY(result->contains("note"));
+}
+
+void ClangdTestMcpTools::testRename()
+{
+    // func3 is declared at defs.h:26:6 and called at main.cpp:21 and :27.
+    const QJsonObject args{{"file", filePath("defs.h").toFSPathString()},
+                           {"line", 26},
+                           {"column", 6},
+                           {"new_name", "func3Renamed"}};
+    const QByteArray defsBefore = filePath("defs.h").fileContents().value_or(QByteArray());
+
+    // The dry run lists the edits and changes nothing.
+    Result<QJsonObject> result = runMcpTool(&LanguageClient::lspRename, args);
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("applied").toBool(), false);
+    QCOMPARE(result->value("symbol").toString(), QString("func3"));
+    QCOMPARE(result->value("new_name").toString(), QString("func3Renamed"));
+    QCOMPARE(result->value("total_edits").toInt(), 3);
+    const QJsonArray edits = result->value("edits").toArray();
+    QCOMPARE(edits.size(), 3);
+    const QJsonObject declaration = edits.at(0).toObject();
+    QVERIFY(declaration.value("file").toString().endsWith("defs.h"));
+    QCOMPARE(declaration.value("line").toInt(), 26);
+    QCOMPARE(declaration.value("column").toInt(), 6);
+    QCOMPARE(declaration.value("old_text").toString(), QString("func3"));
+    QCOMPARE(declaration.value("new_text").toString(), QString("func3Renamed"));
+    QCOMPARE(declaration.value("line_text").toString(), QString("void func3(int *);"));
+    QCOMPARE(edits.at(1).toObject().value("line").toInt(), 21);
+    QCOMPARE(edits.at(2).toObject().value("line").toInt(), 27);
+    QCOMPARE(result->value("files_affected").toArray().size(), 2);
+    QCOMPARE(result->value("has_conflicts").toBool(), false);
+    QCOMPARE(filePath("defs.h").fileContents().value_or(QByteArray()), defsBefore);
+    QVERIFY(!document("main.cpp")->isModified());
+
+    // A name taken in the same scope is the server's to refuse: struct S3
+    // (defs.h:30:8) cannot become S2. (Two functions may share a name, so
+    // func3 could become func4 - an overload - and clangd allows that.)
+    result = runMcpTool(&LanguageClient::lspRename,
+                        {{"file", filePath("defs.h").toFSPathString()},
+                         {"line", 30},
+                         {"column", 8},
+                         {"new_name", "S2"}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("refused"), qPrintable(result.error()));
+
+    // A name in use elsewhere is reported, not refused: S has a member "value".
+    QJsonObject elsewhere = args;
+    elsewhere.insert("new_name", "value");
+    result = runMcpTool(&LanguageClient::lspRename, elsewhere);
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("has_conflicts").toBool(), true);
+    QStringList conflicts;
+    for (const QJsonValue &value : result->value("conflicts").toArray()) {
+        conflicts << value.toObject().value("container").toString() + "::"
+                         + value.toObject().value("name").toString();
+    }
+    QVERIFY2(conflicts.contains("S::value"), qPrintable(conflicts.join(", ")));
+
+    // Applying changes both files on disk: defs.h was opened by the tool and
+    // main.cpp by the fixture, and neither had edits of its own.
+    QJsonObject applyArgs = args;
+    applyArgs.insert("apply", true);
+    result = runMcpTool(&LanguageClient::lspRename, applyArgs);
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("applied").toBool(), true);
+    QCOMPARE(result->value("files_changed").toArray().size(), 2);
+    QCOMPARE(result->value("unsaved_files").toArray().size(), 0);
+    QVERIFY(filePath("defs.h").fileContents().value_or(QByteArray())
+                .contains("void func3Renamed(int *);"));
+    QVERIFY(filePath("main.cpp").fileContents().value_or(QByteArray())
+                .contains("func3Renamed(&s.value);"));
+    QVERIFY(!document("main.cpp")->isModified());
 }
 
 QObject *createClangdTestCompletion()
