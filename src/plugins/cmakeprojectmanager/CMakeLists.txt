@@ -1,7 +1,7 @@
 add_qtc_plugin(CMakeProjectManager
   PLUGIN_CLASS CMakeProjectPlugin
   PLUGIN_DEPENDS Core CppEditor Debugger ProjectExplorer TextEditor QtSupport
-  DEPENDS McpServerLib
+  DEPENDS CMakeLang McpServerLib
   SYSTEM_INCLUDES 3dparty/cmake
   SOURCES
     builddirparameters.cpp builddirparameters.h
@@ -48,7 +48,6 @@ add_qtc_plugin(CMakeProjectManager
     targethelper.cpp targethelper.h
     testpresetshelper.cpp testpresetshelper.h
     3rdparty/cmake/cmListFileCache.cxx
-    3rdparty/cmake/cmListFileLexer.cxx
     3rdparty/cmake/cmListFileCache.h
     3rdparty/rstparser/rstparser.cc 3rdparty/rstparser/rstparser.h
   SBOM_ARGS
@@ -57,7 +56,7 @@ add_qtc_plugin(CMakeProjectManager
     ATTRIBUTION_FILE_PATHS
       "${QtCreator_SOURCE_DIR}/qt_attributions.json"
     ATTRIBUTION_IDS
-      cmake-lexer
+      cmake-listfile-cache
       vitaut-rstparser
 )
 

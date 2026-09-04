@@ -3,6 +3,7 @@ Project {
         name: "CMakeProjectManager"
 
         Depends { name: "Qt.widgets" }
+        Depends { name: "CMakeLang" }
         Depends { name: "McpServerLib" }
         Depends { name: "Utils" }
 
@@ -98,15 +99,10 @@ Project {
 
         Group {
             name: "3rdparty"
-            cpp.includePaths: base.concat("3rdparty/cmake")
-
             prefix: "3rdparty/"
             files: [
                 "cmake/cmListFileCache.cxx",
                 "cmake/cmListFileCache.h",
-                "cmake/cmListFileLexer.cxx",
-                "cmake/cmListFileLexer.h",
-                "cmake/cmStandardLexer.h",
                 "rstparser/rstparser.cc",
                 "rstparser/rstparser.h"
             ]

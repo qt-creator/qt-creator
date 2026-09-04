@@ -227,6 +227,13 @@ static QString relativeFilePaths(const FilePaths &filePaths, const FilePath &pro
         .join(' ');
 };
 
+// Column is counted in UTF-16 code units, the way an editor position is, while
+// the argument text is UTF-8.
+static int argumentLength(const cmListFileArgument &argument)
+{
+    return int(QString::fromStdString(argument.Value).size());
+}
+
 static QString newFilesForFunction(const std::string &cmakeFunction,
                                    const FilePaths &filePaths,
                                    const FilePath &projDir)
@@ -341,7 +348,7 @@ static CMakeBuildSystem::SnippetAndLocation generateSnippetAndLocationForSources
         [&result, &extraChars, newSourceFiles](const auto &f) {
             auto lastArgument = f.Arguments().back();
             result.line = lastArgument.Line;
-            result.column = lastArgument.Column + static_cast<int>(lastArgument.Value.size()) - 1;
+            result.column = lastArgument.Column + argumentLength(lastArgument) - 1;
             result.snippet = QString("\n%1").arg(newSourceFiles);
             // Take into consideration the quotes
             if (lastArgument.Delim == cmListFileArgument::Quoted)
@@ -475,7 +482,7 @@ static CMakeBuildSystem::SnippetAndLocation generateSnippetForExistingTargetProp
     if (!function.Arguments().empty()) {
         const auto &lastArg = function.Arguments().back();
         insertLine = lastArg.Line - 1;
-        result.column = lastArg.Column + int(lastArg.Value.length()) + 1;
+        result.column = lastArg.Column + argumentLength(lastArg) + 1;
     }
 
     result.line = insertLine + 1;
@@ -730,7 +737,7 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
         }
 
         auto lastArgument = function->Arguments().at(lastArgumentPos);
-        const int lastArgLength = static_cast<int>(lastArgument.Value.size()) - 1;
+        const int lastArgLength = argumentLength(lastArgument) - 1;
         SnippetAndLocation snippetLocation{QString("\n%1").arg(filesToAdd),
                                            lastArgument.Line, lastArgument.Column + lastArgLength};
         // Take into consideration the quotes

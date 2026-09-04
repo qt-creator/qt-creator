@@ -3,233 +3,176 @@
 #define cmListFileCache_cxx
 #include "cmListFileCache.h"
 
-#include <memory>
+#include <cmakelang/cmakeast.h>
+#include <cmakelang/cmakeastvisitor.h>
+#include <cmakelang/cmakeengine.h>
+#include <cmakelang/cmakeparser.h>
+
+#include <QByteArray>
+#include <QString>
+
 #include <sstream>
 #include <utility>
 
-#include "cmListFileLexer.h"
+namespace {
 
-struct cmListFileParser
+std::string toStdString(QStringView text)
 {
-  cmListFileParser(cmListFile* lf, std::string &error);
-  ~cmListFileParser();
-  cmListFileParser(const cmListFileParser&) = delete;
-  cmListFileParser& operator=(const cmListFileParser&) = delete;
-  void IssueError(std::string const& text) const;
-  bool ParseFile(const char* filename);
-  bool ParseString(const std::string &str, const std::string &virtual_filename);
-  bool Parse();
-  bool ParseFunction(const char* name, long line);
-  bool AddArgument(cmListFileLexer_Token* token,
-                   cmListFileArgument::Delimiter delim);
-  cmListFile* ListFile;
-  cmListFileLexer* Lexer;
-  std::string FunctionName;
-  long FunctionLine;
-  long FunctionLineEnd;
-  std::vector<cmListFileArgument> FunctionArguments;
-  std::string &Error;
-  enum
-  {
-    SeparationOkay,
-    SeparationWarning,
-    SeparationError
-  } Separation;
+    // Almost every token of a CMake file is plain ASCII, where the UTF-8 form
+    // is the same length and needs neither a QByteArray nor a conversion.
+    // Narrowing and collecting the high bits in one branch-free loop lets it
+    // vectorize; only the rare token that is not ASCII is converted twice.
+    std::string result(size_t(text.size()), '\0');
+    char *out = result.data();
+    char16_t bits = 0;
+    for (const QChar c : text) {
+        bits |= c.unicode();
+        *out++ = char(c.unicode());
+    }
+    if (bits & 0xff80) {
+        const QByteArray utf8 = text.toUtf8();
+        return std::string(utf8.constData(), size_t(utf8.size()));
+    }
+    return result;
+}
+
+std::string tokenText(const CMakeLang::Token &token)
+{
+    return token.value ? toStdString(*token.value) : toStdString(token.spelling);
+}
+
+class FunctionCollector : public CMakeLang::Visitor
+{
+public:
+    FunctionCollector(cmListFile *listFile, std::string &error)
+        : m_listFile(listFile)
+        , m_error(error)
+    {}
+
+    bool ok() const { return m_ok; }
+
+    bool visit(CMakeLang::CommandAST *ast) override
+    {
+        if (!m_ok)
+            return false;
+
+        std::vector<cmListFileArgument> arguments;
+        if (!addArguments(ast->arguments, arguments)) {
+            m_ok = false;
+            return false;
+        }
+
+        m_listFile->Functions.emplace_back(tokenText(ast->name),
+                                           ast->name.line,
+                                           ast->rightParen.line,
+                                           std::move(arguments));
+        return false;
+    }
+
+private:
+    // A paren group nests as deeply as the input says, so what is left of the
+    // enclosing lists is kept on a worklist rather than on the call stack.
+    bool addArguments(CMakeLang::List<CMakeLang::ArgumentAST *> *list,
+                      std::vector<cmListFileArgument> &out)
+    {
+        struct Pending
+        {
+            CMakeLang::List<CMakeLang::ArgumentAST *> *rest;
+            const CMakeLang::Token *rightParen;
+        };
+        std::vector<Pending> pending;
+
+        for (;;) {
+            while (list) {
+                CMakeLang::ArgumentAST *argument = list->value;
+                list = list->next;
+
+                if (CMakeLang::ParenGroupArgumentAST *group = argument->asParenGroupArgument()) {
+                    out.emplace_back("(",
+                                     cmListFileArgument::Unquoted,
+                                     group->leftParen.line,
+                                     group->leftParen.column);
+                    pending.push_back({list, &group->rightParen});
+                    list = group->arguments;
+                    continue;
+                }
+
+                cmListFileArgument::Delimiter delimiter = cmListFileArgument::Unquoted;
+                if (argument->asQuotedArgument())
+                    delimiter = cmListFileArgument::Quoted;
+                else if (argument->asBracketArgument())
+                    delimiter = cmListFileArgument::Bracket;
+
+                if (!checkSeparation(argument->token, delimiter))
+                    return false;
+
+                out.emplace_back(tokenText(argument->token),
+                                 delimiter,
+                                 argument->token.line,
+                                 argument->token.column);
+            }
+
+            if (pending.empty())
+                return true;
+
+            const Pending &group = pending.back();
+            out.emplace_back(")",
+                             cmListFileArgument::Unquoted,
+                             group.rightParen->line,
+                             group.rightParen->column);
+            list = group.rest;
+            pending.pop_back();
+        }
+    }
+
+    bool checkSeparation(const CMakeLang::Token &token, cmListFileArgument::Delimiter delimiter)
+    {
+        if (token.separation == CMakeLang::Token::SeparationOkay)
+            return true;
+
+        const bool isError = token.separation == CMakeLang::Token::SeparationError
+                             || delimiter == cmListFileArgument::Bracket;
+        if (!isError)
+            return true;
+
+        std::ostringstream m;
+        m << "Syntax Error in cmake code at "
+          << "column " << token.column << "\n"
+          << "Argument not separated from preceding token by whitespace.";
+        m_error += m.str();
+        m_error += "\n";
+        return false;
+    }
+
+    cmListFile *m_listFile;
+    std::string &m_error;
+    bool m_ok = true;
 };
 
-cmListFileParser::cmListFileParser(cmListFile *lf, std::string &error)
-    : ListFile(lf)
-    , Lexer(cmListFileLexer_New())
-    , Error(error)
-{
-}
+} // namespace
 
-cmListFileParser::~cmListFileParser()
+bool cmListFile::ParseString(const std::string &str,
+                             const std::string & /*virtual_filename*/,
+                             std::string &error)
 {
-  cmListFileLexer_Delete(this->Lexer);
-}
+    const QString source = QString::fromStdString(str);
 
-void cmListFileParser::IssueError(const std::string& text) const
-{
-  Error += text;
-  Error += "\n";
-}
+    CMakeLang::Engine engine;
+    CMakeLang::Parser parser(&engine, source);
 
-bool cmListFileParser::ParseString(const std::string &str,
-                                   const std::string &/*virtual_filename*/)
-{
-  if (!cmListFileLexer_SetString(this->Lexer, str.c_str(), (int)str.size())) {
-    this->IssueError("cmListFileCache: cannot allocate buffer.");
-    return false;
-  }
+    // The parser recovers from a syntax error at the next line, so the
+    // commands around a broken one are collected either way and only the
+    // return value tells that the file did not parse cleanly.
+    FunctionCollector collector(this, error);
+    collector.accept(parser.parse());
 
-  return this->Parse();
-}
-
-bool cmListFileParser::Parse()
-{
-  // Use a simple recursive-descent parser to process the token
-  // stream.
-  bool haveNewline = true;
-  while (cmListFileLexer_Token* token = cmListFileLexer_Scan(this->Lexer)) {
-    if (token->type == cmListFileLexer_Token_Space) {
-    } else if (token->type == cmListFileLexer_Token_Newline) {
-      haveNewline = true;
-    } else if (token->type == cmListFileLexer_Token_CommentBracket) {
-      haveNewline = false;
-    } else if (token->type == cmListFileLexer_Token_Identifier) {
-      if (haveNewline) {
-        haveNewline = false;
-        if (this->ParseFunction(token->text, token->line)) {
-          this->ListFile->Functions.emplace_back(
-            std::move(this->FunctionName), this->FunctionLine,
-            this->FunctionLineEnd, std::move(this->FunctionArguments));
-        } else {
-          return false;
-        }
-      } else {
-        std::ostringstream error;
-        error << "Parse error.  Expected a newline, got "
-              << cmListFileLexer_GetTypeAsString(this->Lexer, token->type)
-              << " with text \"" << token->text << "\".";
-        this->IssueError(error.str());
-        return false;
-      }
-    } else {
-      std::ostringstream error;
-      error << "Parse error.  Expected a command name, got "
-            << cmListFileLexer_GetTypeAsString(this->Lexer, token->type)
-            << " with text \"" << token->text << "\".";
-      this->IssueError(error.str());
-      return false;
+    bool ok = collector.ok();
+    for (const CMakeLang::Diagnostic &diagnostic : engine.diagnostics()) {
+        if (!diagnostic.isError())
+            continue;
+        error += diagnostic.message.toStdString();
+        error += "\n";
+        ok = false;
     }
-  }
-
-  return true;
-}
-
-bool cmListFile::ParseString(const std::string &str, const std::string& virtual_filename, std::string &error)
-{
-  bool parseError = false;
-
-  {
-    cmListFileParser parser(this, error);
-    parseError = !parser.ParseString(str, virtual_filename);
-  }
-
-  return !parseError;
-}
-
-bool cmListFileParser::ParseFunction(const char* name, long line)
-{
-  // Ininitialize a new function call.
-  this->FunctionName = name;
-  this->FunctionLine = line;
-
-  // Command name has already been parsed.  Read the left paren.
-  cmListFileLexer_Token* token;
-  while ((token = cmListFileLexer_Scan(this->Lexer)) &&
-         token->type == cmListFileLexer_Token_Space) {
-  }
-  if (!token) {
-    std::ostringstream error;
-    /* clang-format off */
-    error << "Unexpected end of file.\n"
-          << "Parse error.  Function missing opening \"(\".";
-    /* clang-format on */
-    this->IssueError(error.str());
-    return false;
-  }
-  if (token->type != cmListFileLexer_Token_ParenLeft) {
-    std::ostringstream error;
-    error << "Parse error.  Expected \"(\", got "
-          << cmListFileLexer_GetTypeAsString(this->Lexer, token->type)
-          << " with text \"" << token->text << "\".";
-    this->IssueError(error.str());
-    return false;
-  }
-
-  // Arguments.
-  unsigned long parenDepth = 0;
-  this->Separation = SeparationOkay;
-  while ((token = cmListFileLexer_Scan(this->Lexer))) {
-    if (token->type == cmListFileLexer_Token_Space ||
-        token->type == cmListFileLexer_Token_Newline) {
-      this->Separation = SeparationOkay;
-      continue;
-    }
-    if (token->type == cmListFileLexer_Token_ParenLeft) {
-      parenDepth++;
-      this->Separation = SeparationOkay;
-      if (!this->AddArgument(token, cmListFileArgument::Unquoted)) {
-        return false;
-      }
-    } else if (token->type == cmListFileLexer_Token_ParenRight) {
-      if (parenDepth == 0) {
-        this->FunctionLineEnd = token->line;
-        return true;
-      }
-      parenDepth--;
-      this->Separation = SeparationOkay;
-      if (!this->AddArgument(token, cmListFileArgument::Unquoted)) {
-        return false;
-      }
-      this->Separation = SeparationWarning;
-    } else if (token->type == cmListFileLexer_Token_Identifier ||
-               token->type == cmListFileLexer_Token_ArgumentUnquoted) {
-      if (!this->AddArgument(token, cmListFileArgument::Unquoted)) {
-        return false;
-      }
-      this->Separation = SeparationWarning;
-    } else if (token->type == cmListFileLexer_Token_ArgumentQuoted) {
-      if (!this->AddArgument(token, cmListFileArgument::Quoted)) {
-        return false;
-      }
-      this->Separation = SeparationWarning;
-    } else if (token->type == cmListFileLexer_Token_ArgumentBracket) {
-      if (!this->AddArgument(token, cmListFileArgument::Bracket)) {
-        return false;
-      }
-      this->Separation = SeparationError;
-    } else if (token->type == cmListFileLexer_Token_CommentBracket) {
-      this->Separation = SeparationError;
-    } else {
-      // Error.
-      std::ostringstream error;
-      error << "Parse error.  Function missing ending \")\".  "
-            << "Instead found "
-            << cmListFileLexer_GetTypeAsString(this->Lexer, token->type)
-            << " with text \"" << token->text << "\".";
-      this->IssueError(error.str());
-      return false;
-    }
-  }
-
-  std::ostringstream error;
-  error << "Parse error.  Function missing ending \")\".  "
-        << "End of file reached.";
-  IssueError(error.str());
-  return false;
-}
-
-bool cmListFileParser::AddArgument(cmListFileLexer_Token* token,
-                                   cmListFileArgument::Delimiter delim)
-{
-  this->FunctionArguments.emplace_back(token->text, delim, token->line, token->column);
-  if (this->Separation == SeparationOkay) {
-    return true;
-  }
-  bool isError = (this->Separation == SeparationError ||
-                  delim == cmListFileArgument::Bracket);
-  std::ostringstream m;
-
-  m << "Syntax " << (isError ? "Error" : "Warning") << " in cmake code at "
-    << "column " << token->column << "\n"
-    << "Argument not separated from preceding token by whitespace.";
-  /* clang-format on */
-  if (isError) {
-    IssueError(m.str());
-    return false;
-  }
-  return true;
+    return ok;
 }

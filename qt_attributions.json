@@ -544,13 +544,13 @@
         "Copyright": "Copyright (c) 2022 Chris Antos"
     },
     {
-        "Id": "cmake-lexer",
-        "Name": "CMake Lexer",
+        "Id": "cmake-listfile-cache",
+        "Name": "CMake List File Cache",
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],
         "QtUsage": "Used by the CMake project manager for parsing CMake files.",
         "Path": "@SOURCE_DIR@/src/plugins/cmakeprojectmanager/3rdparty/cmake",
-        "Description": "The lexer from CMake - Cross Platform Makefile Generator.",
+        "Description": "The list file data structures from CMake - Cross Platform Makefile Generator.",
         "Homepage": "https://gitlab.kitware.com/cmake/cmake.git",
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
         "LicenseFile": "@SOURCE_DIR@/src/plugins/cmakeprojectmanager/3rdparty/cmake/Copyright.txt",

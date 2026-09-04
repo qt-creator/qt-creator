@@ -8,6 +8,7 @@ Project {
     references: [
         "acp/acp.qbs",
         "advanceddockingsystem/advanceddockingsystem.qbs",
+        "cmakelang/cmakelang.qbs",
         "commontraceformat/commontraceformat.qbs",
         "cplusplus/cplusplus.qbs",
         "devcontainer/devcontainer.qbs",
