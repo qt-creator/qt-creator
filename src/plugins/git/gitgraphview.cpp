@@ -291,6 +291,8 @@ private:
                       const QModelIndex &sourceIndex) const
     {
         const int commitRow = sourceIndex.parent().row();
+        if (commitRow < 0 || commitRow >= m_model->commitCount())
+            return;
         const CommitEntry &entry = m_model->entryAt(commitRow);
         const QList<FileChange> &files = m_model->filesAt(commitRow);
         if (sourceIndex.row() < 0 || sourceIndex.row() >= files.size())

@@ -232,9 +232,16 @@ void GitGraphModel::refresh(const FilePath &repository)
         m_maxCount = pageSize();
     if (m_repository != repository) {
         m_repository = repository;
-        m_filesByHash.clear();
         m_pendingFiles.clear();
         m_filesTaskTreeRunner.reset();
+        // The commits of the previous repository do not belong under the new
+        // one. Dropping them and their file lists without a reset would leave
+        // the view with rows the model no longer has.
+        beginResetModel();
+        m_entries.clear();
+        m_windowEntries.clear();
+        m_filesByHash.clear();
+        endResetModel();
     }
     reload();
 }

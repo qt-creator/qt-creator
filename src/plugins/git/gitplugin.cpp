@@ -9,6 +9,7 @@
 #include "gitclient.h"
 #include "gitconstants.h"
 #include "giteditor.h"
+#include "gitgraphmodel.h"
 #include "gitgraphview.h"
 #include "gitgrep.h"
 #include "githighlighters.h"
@@ -84,6 +85,7 @@
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
+#include <QSignalSpy>
 #include <QTest>
 #endif
 
@@ -2453,6 +2455,7 @@ private slots:
     void testInlineDiffFile();
     void testInlineDiffConflictedFile();
     void testConflictedFileInTextEditor();
+    void testGraphModelRepositorySwitch();
 };
 
 void GitTest::testStatusParsing_data()
@@ -2924,6 +2927,64 @@ void GitTest::testConflictedFileInTextEditor()
     QTRY_COMPARE(widget->findChildren<QLabel *>(objectName).size(), 1);
 
     QVERIFY(EditorManager::closeDocuments({editor->document()}, false));
+}
+
+void GitTest::testGraphModelRepositorySwitch()
+{
+    const auto createRepo = [](const FilePath &repo, const QString &subject) -> bool {
+        const auto runGit = [repo](const QStringList &arguments) {
+            return gitClient().vcsSynchronousExec(repo, arguments).result()
+                   == ProcessResult::FinishedWithSuccess;
+        };
+        if (!runGit({"init", "."}) || !runGit({"config", "user.email", "test@test"})
+            || !runGit({"config", "user.name", "test"})
+            || !runGit({"config", "commit.gpgsign", "false"})) {
+            return false;
+        }
+        const FilePath file = repo / "file.txt";
+        if (!file.writeFileContents("one\n") || !runGit({"add", "file.txt"})
+            || !runGit({"commit", "-m", "initial"})) {
+            return false;
+        }
+        // The files of a root commit are only listed with --root, so the commit
+        // the test expands is the second one.
+        return bool(file.writeFileContents("one\ntwo\n"))
+               && runGit({"commit", "-a", "-m", subject});
+    };
+
+    QTemporaryDir firstDir;
+    QTemporaryDir secondDir;
+    QVERIFY(firstDir.isValid());
+    QVERIFY(secondDir.isValid());
+    const FilePath first = FilePath::fromString(firstDir.path());
+    const FilePath second = FilePath::fromString(secondDir.path());
+    QVERIFY(createRepo(first, "first repository"));
+    QVERIFY(createRepo(second, "second repository"));
+
+    GitGraphModel model;
+    model.refresh(first);
+    QTRY_COMPARE(model.rowCount(), 2);
+
+    // expanding a commit adds its changed files as child rows
+    const QModelIndex commit = model.index(0, 0);
+    QVERIFY(model.canFetchMore(commit));
+    model.fetchMore(commit);
+    QTRY_COMPARE(model.rowCount(commit), 1);
+
+    // switching the repository must not drop those rows behind the view's back
+    QSignalSpy resetSpy(&model, &QAbstractItemModel::modelReset);
+    model.refresh(second);
+    QCOMPARE(resetSpy.count(), 1);
+    QCOMPARE(model.rowCount(), 0);
+
+    QTRY_COMPARE(model.rowCount(), 2);
+    QCOMPARE(model.index(0, 0).data().toString(), QString("second repository"));
+
+    // refreshing the same repository keeps the rows, and with them the state
+    // the view holds for them
+    model.refresh(second);
+    QCOMPARE(resetSpy.count(), 1);
+    QCOMPARE(model.rowCount(), 2);
 }
 
 #endif
