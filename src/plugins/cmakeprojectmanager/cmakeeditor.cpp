@@ -10,8 +10,7 @@
 #include "cmakeindenter.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-
-#include "3rdparty/cmake/cmListFileCache.h"
+#include "cmakeutils.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -159,37 +158,33 @@ static bool isValidIdentifierChar(const QChar &chr)
     return chr.isLetterOrNumber() || chr == '_' || chr == '-';
 }
 
-static QHash<QString, Link> getLocalSymbolsHash(const QByteArray &content,
+static QHash<QString, Link> getLocalSymbolsHash(const QString &content,
                                                 const FilePath &filePath, QString &projectName)
 {
-    cmListFile cmakeListFile;
-    if (!content.isEmpty()) {
-        std::string errorString;
-        const std::string fileName = "buffer";
-        if (!cmakeListFile.ParseString(content.toStdString(), fileName, errorString))
-            return {};
-    }
+    const CMakeLang::DocumentPtr document = CMakeLang::Document::fromSource(content);
+    if (!document->isValid())
+        return {};
 
     QHash<QString, Link> hash;
-    for (const auto &func : cmakeListFile.Functions) {
-        if (func.LowerCaseName() == "project" && func.Arguments().size() > 0) {
-            projectName = QString::fromUtf8(func.Arguments()[0].Value);
+    for (CMakeLang::CommandAST *command : document->commands()) {
+        CMakeLang::ArgumentAST *argument = command->arguments().first();
+        if (!argument)
+            continue;
+
+        if (command->isNamed("project")) {
+            projectName = argument->value();
             continue;
         }
 
-        if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
-            && func.LowerCaseName() != "set" && func.LowerCaseName() != "option")
+        if (!command->isNamed("function") && !command->isNamed("macro")
+            && !command->isNamed("set") && !command->isNamed("option"))
             continue;
-
-        if (func.Arguments().size() == 0)
-            continue;
-        auto arg = func.Arguments()[0];
 
         Link link;
         link.targetFilePath = filePath;
-        link.target.line = arg.Line;
-        link.target.column = arg.Column - 1;
-        hash.insert(QString::fromUtf8(arg.Value), link);
+        link.target.line = argument->token.line;
+        link.target.column = argument->token.column - 1;
+        hash.insert(argument->value(), link);
     }
     return hash;
 }
@@ -317,7 +312,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     // Resolve local variables and functions
     QString projectName;
-    auto hash = getLocalSymbolsHash(textDocument()->textAt(0, funcEnd + 1).toUtf8(),
+    auto hash = getLocalSymbolsHash(textDocument()->textAt(0, funcEnd + 1),
                                     textDocument()->filePath(),
                                     projectName);
     if (!projectName.isEmpty())

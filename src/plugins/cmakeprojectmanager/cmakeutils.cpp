@@ -8,6 +8,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/textfileformat.h>
 #include <utils/theme/theme.h>
 
 #include <QColor>
@@ -103,6 +104,14 @@ QString addCMakePrefix(const QString &str)
 QStringList addCMakePrefix(const QStringList &list)
 {
     return Utils::transform(list, [](const QString &str) { return addCMakePrefix(str); });
+}
+
+CMakeLang::DocumentPtr parseCMakeFile(const FilePath &filePath)
+{
+    QByteArray contents;
+    if (!TextFileFormat::readFileUtf8(filePath, TextEncoding::Utf8, &contents))
+        return CMakeLang::Document::fromSource({});
+    return CMakeLang::Document::fromSource(QString::fromUtf8(contents));
 }
 
 } // CMakeProjectManager::Internal

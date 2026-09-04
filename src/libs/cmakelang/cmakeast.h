@@ -7,6 +7,9 @@
 #include "cmakelexer.h"
 #include "cmakememorypool.h"
 
+#include <cstddef>
+#include <iterator>
+
 namespace CMakeLang {
 
 template <typename T>
@@ -34,6 +37,77 @@ public:
 
     T value;
     List *next = nullptr;
+};
+
+template <typename T>
+class ListView
+{
+public:
+    class Iterator
+    {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = T;
+        using difference_type = std::ptrdiff_t;
+        using pointer = const T *;
+        using reference = T;
+
+        explicit Iterator(List<T> *node = nullptr)
+            : _node(node)
+        {}
+
+        T operator*() const { return _node->value; }
+        Iterator &operator++() { _node = _node->next; return *this; }
+        bool operator==(const Iterator &other) const { return _node == other._node; }
+        bool operator!=(const Iterator &other) const { return _node != other._node; }
+
+    private:
+        List<T> *_node;
+    };
+
+    using value_type = T;
+    using const_iterator = Iterator;
+
+    ListView() = default;
+
+    explicit ListView(List<T> *list)
+        : _list(list)
+    {}
+
+    Iterator begin() const { return Iterator(_list); }
+    Iterator end() const { return Iterator(); }
+
+    bool isEmpty() const { return !_list; }
+
+    int size() const
+    {
+        int count = 0;
+        for (List<T> *it = _list; it; it = it->next)
+            ++count;
+        return count;
+    }
+
+    T at(int index) const
+    {
+        for (List<T> *it = _list; it; it = it->next, --index) {
+            if (index == 0)
+                return it->value;
+        }
+        return T();
+    }
+
+    T first() const { return at(0); }
+
+    T last() const
+    {
+        T result = T();
+        for (List<T> *it = _list; it; it = it->next)
+            result = it->value;
+        return result;
+    }
+
+private:
+    List<T> *_list = nullptr;
 };
 
 class CMAKELANG_EXPORT AST: public Managed
@@ -179,15 +253,17 @@ public:
         : ArgumentAST(Kind_ParenGroupArgument, leftParen)
         , leftParen(leftParen)
         , rightParen(rightParen)
-        , arguments(finish(arguments))
+        , argumentList(finish(arguments))
     {}
 
     ParenGroupArgumentAST *asParenGroupArgument() override { return this; }
     void accept0(Visitor *visitor) override;
 
+    ListView<ArgumentAST *> arguments() const { return ListView<ArgumentAST *>(argumentList); }
+
     Token leftParen;
     Token rightParen;
-    List<ArgumentAST *> *arguments;
+    List<ArgumentAST *> *argumentList;
 };
 
 class CMAKELANG_EXPORT CommandAST: public ElementAST
@@ -199,21 +275,27 @@ public:
         , name(name)
         , leftParen(leftParen)
         , rightParen(rightParen)
-        , arguments(finish(arguments))
+        , argumentList(finish(arguments))
     {}
 
     CommandAST *asCommand() override { return this; }
     void accept0(Visitor *visitor) override;
 
     QString commandName() const { return name.text(); }
-    QString lowerCaseName() const { return name.text().toLower(); }
+
+    bool isNamed(QAnyStringView spelling) const
+    {
+        return QAnyStringView::compare(spelling, name.spelling, Qt::CaseInsensitive) == 0;
+    }
+
+    ListView<ArgumentAST *> arguments() const { return ListView<ArgumentAST *>(argumentList); }
 
     int lineEnd() const { return rightParen.line; }
 
     Token name;
     Token leftParen;
     Token rightParen;
-    List<ArgumentAST *> *arguments;
+    List<ArgumentAST *> *argumentList;
 };
 
 class CMAKELANG_EXPORT ElseIfClauseAST: public AST
@@ -222,14 +304,16 @@ public:
     ElseIfClauseAST(CommandAST *command, List<ElementAST *> *elements)
         : AST(Kind_ElseIfClause)
         , command(command)
-        , elements(finish(elements))
+        , elementList(finish(elements))
     {}
 
     ElseIfClauseAST *asElseIfClause() override { return this; }
     void accept0(Visitor *visitor) override;
 
+    ListView<ElementAST *> elements() const { return ListView<ElementAST *>(elementList); }
+
     CommandAST *command;
-    List<ElementAST *> *elements;
+    List<ElementAST *> *elementList;
 };
 
 class CMAKELANG_EXPORT ElseClauseAST: public AST
@@ -238,14 +322,16 @@ public:
     ElseClauseAST(CommandAST *command, List<ElementAST *> *elements)
         : AST(Kind_ElseClause)
         , command(command)
-        , elements(finish(elements))
+        , elementList(finish(elements))
     {}
 
     ElseClauseAST *asElseClause() override { return this; }
     void accept0(Visitor *visitor) override;
 
+    ListView<ElementAST *> elements() const { return ListView<ElementAST *>(elementList); }
+
     CommandAST *command;
-    List<ElementAST *> *elements;
+    List<ElementAST *> *elementList;
 };
 
 class CMAKELANG_EXPORT IfAST: public ElementAST
@@ -256,8 +342,8 @@ public:
           CommandAST *endIfCommand)
         : ElementAST(Kind_If)
         , ifCommand(ifCommand)
-        , elements(finish(elements))
-        , elseIfClauses(finish(elseIfClauses))
+        , elementList(finish(elements))
+        , elseIfClauseList(finish(elseIfClauses))
         , elseClause(elseClause)
         , endIfCommand(endIfCommand)
     {}
@@ -265,9 +351,16 @@ public:
     IfAST *asIf() override { return this; }
     void accept0(Visitor *visitor) override;
 
+    ListView<ElementAST *> elements() const { return ListView<ElementAST *>(elementList); }
+
+    ListView<ElseIfClauseAST *> elseIfClauses() const
+    {
+        return ListView<ElseIfClauseAST *>(elseIfClauseList);
+    }
+
     CommandAST *ifCommand;
-    List<ElementAST *> *elements;
-    List<ElseIfClauseAST *> *elseIfClauses;
+    List<ElementAST *> *elementList;
+    List<ElseIfClauseAST *> *elseIfClauseList;
     ElseClauseAST *elseClause;
     CommandAST *endIfCommand;
 };
@@ -279,15 +372,17 @@ protected:
                      CommandAST *closeCommand)
         : ElementAST(kind)
         , openCommand(openCommand)
-        , elements(finish(elements))
+        , elementList(finish(elements))
         , closeCommand(closeCommand)
     {}
 
 public:
     NestedCommandAST *asNestedCommand() override { return this; }
 
+    ListView<ElementAST *> elements() const { return ListView<ElementAST *>(elementList); }
+
     CommandAST *openCommand;
-    List<ElementAST *> *elements;
+    List<ElementAST *> *elementList;
     CommandAST *closeCommand;
 };
 
@@ -316,13 +411,15 @@ class CMAKELANG_EXPORT SourceFileAST: public AST
 public:
     explicit SourceFileAST(List<ElementAST *> *elements)
         : AST(Kind_SourceFile)
-        , elements(finish(elements))
+        , elementList(finish(elements))
     {}
 
     SourceFileAST *asSourceFile() override { return this; }
     void accept0(Visitor *visitor) override;
 
-    List<ElementAST *> *elements;
+    ListView<ElementAST *> elements() const { return ListView<ElementAST *>(elementList); }
+
+    List<ElementAST *> *elementList;
 };
 
 } // namespace CMakeLang

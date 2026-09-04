@@ -60,13 +60,9 @@ public:
     struct SnippetAndLocation
     {
         QString snippet;
-        long line = -1;
-        long column = -1;
+        int line = -1;
+        int column = -1;
     };
-
-    SnippetAndLocation generateSnippetWithTargetPropertyBlock(const QString &projectName,
-                                                              const QString &snippet,
-                                                              const cmListFile &file);
 
     bool addTargetProperty(ProjectExplorer::Node *context, const QString &property, const QString &value,
                            const std::string &condition = std::string{}) final;
@@ -249,9 +245,13 @@ private:
 
     struct ProjectFileArgumentPosition
     {
-        cmListFileArgument argumentPosition;
         Utils::FilePath cmakeFile;
         QString relativeFileName;
+        int line = 0;
+        int column = 0;
+        // The length of the argument as it is spelled, quotes included.
+        int length = 0;
+        bool quoted = false;
         bool fromGlobbing = false;
     };
     Utils::Result<ProjectFileArgumentPosition> projectFileArgumentPosition(

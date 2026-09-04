@@ -16,6 +16,8 @@ QtcLibrary {
         "cmakeast.h",
         "cmakeastvisitor.cpp",
         "cmakeastvisitor.h",
+        "cmakedocument.cpp",
+        "cmakedocument.h",
         "cmakeengine.cpp",
         "cmakeengine.h",
         "cmakelang.h",

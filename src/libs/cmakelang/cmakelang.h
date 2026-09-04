@@ -15,6 +15,7 @@
 
 namespace CMakeLang {
 
+class Document;
 class Engine;
 class Lexer;
 class MemoryPool;
@@ -42,5 +43,6 @@ class BracketArgumentAST;
 class ParenGroupArgumentAST;
 
 template <typename T> class List;
+template <typename T> class ListView;
 
 } // namespace CMakeLang

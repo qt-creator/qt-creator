@@ -5,6 +5,7 @@
 
 #include "cmakelang.h"
 
+#include <QAnyStringView>
 #include <QString>
 
 namespace CMakeLang {

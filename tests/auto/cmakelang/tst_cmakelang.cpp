@@ -3,6 +3,7 @@
 
 #include <cmakelang/cmakeast.h>
 #include <cmakelang/cmakeastvisitor.h>
+#include <cmakelang/cmakedocument.h>
 #include <cmakelang/cmakeengine.h>
 #include <cmakelang/cmakelexer.h>
 #include <cmakelang/cmakeparser.h>
@@ -37,9 +38,9 @@ public:
     bool visit(CommandAST *ast) override
     {
         separate();
-        result += "(cmd " + ast->lowerCaseName();
-        for (auto it = ast->arguments; it; it = it->next)
-            result += ' ' + dumpArgument(it->value);
+        result += "(cmd " + ast->commandName().toLower();
+        for (ArgumentAST *argument : ast->arguments())
+            result += ' ' + dumpArgument(argument);
         result += ')';
         return false;
     }
@@ -81,8 +82,8 @@ private:
     {
         if (ParenGroupArgumentAST *group = argument->asParenGroupArgument()) {
             QString inner;
-            for (auto it = group->arguments; it; it = it->next)
-                inner += (inner.isEmpty() ? QString() : QString(u' ')) + dumpArgument(it->value);
+            for (ArgumentAST *nested : group->arguments())
+                inner += (inner.isEmpty() ? QString() : QString(u' ')) + dumpArgument(nested);
             return '(' + inner + ')';
         }
         if (argument->asQuotedArgument())
@@ -145,9 +146,9 @@ static QString parse(const QString &source, QString *error = nullptr)
     }
 
     QStringList elements;
-    for (auto it = ast->elements; it; it = it->next) {
+    for (ElementAST *element : ast->elements()) {
         Dumper one;
-        one.accept(it->value);
+        one.accept(element);
         elements << one.result;
     }
     return elements.join(u' ');
@@ -186,6 +187,8 @@ private slots:
     void nodeSpans();
     void unterminatedConstructs();
     void errorRecovery();
+    void documentCommands();
+    void documentScopes();
 };
 
 void tst_CMakeLang::lexer_data()
@@ -453,6 +456,80 @@ void tst_CMakeLang::errorRecovery()
 
     // A block that fails inside loses the block, not what came before it.
     QCOMPARE(parse("set(a)\nif(A)\n)\nendif()\nset(b)\n"), "(cmd set a) (cmd set b)");
+}
+
+static const char scopedSource[] = R"(add_executable(app main.cpp)
+if(WIN32)
+  target_sources(app PRIVATE win.cpp)
+elseif(APPLE)
+  target_sources(app PRIVATE mac.cpp)
+else()
+  foreach(f a b)
+    target_sources(app PRIVATE ${f})
+  endforeach()
+endif()
+target_sources(app PRIVATE other.cpp)
+)";
+
+void tst_CMakeLang::documentCommands()
+{
+    // The commands come in source order, the ones that open and close a
+    // construct included.
+    const DocumentPtr document = Document::fromSource(QString::fromLatin1(scopedSource));
+    QVERIFY(document->isValid());
+
+    QStringList names;
+    for (CommandAST *command : document->commands())
+        names << command->commandName();
+    QCOMPARE(names,
+             QStringList({"add_executable", "if", "target_sources", "elseif", "target_sources",
+                          "else", "foreach", "target_sources", "endforeach", "endif",
+                          "target_sources"}));
+
+    const DocumentPtr broken = Document::fromSource("set(a\n");
+    QVERIFY(!broken->isValid());
+    QVERIFY(!broken->errorString().isEmpty());
+    QVERIFY(broken->commands().isEmpty());
+
+    // A document that did not parse cleanly still has what stands around the
+    // broken line.
+    const DocumentPtr recovered = Document::fromSource("set(a)\n@if x\nset(b)\n");
+    QVERIFY(!recovered->isValid());
+    QCOMPARE(recovered->commands().size(), 2);
+}
+
+void tst_CMakeLang::documentScopes()
+{
+    const DocumentPtr document = Document::fromSource(QString::fromLatin1(scopedSource));
+    QVERIFY(document->isValid());
+
+    const QList<CommandAST *> commands = document->commands();
+    CommandAST *addExecutable = commands.at(0);
+    CommandAST *ifCommand = commands.at(1);
+    CommandAST *inThen = commands.at(2);
+    CommandAST *inElseIf = commands.at(4);
+    CommandAST *inForEach = commands.at(7);
+    CommandAST *atFileLevel = commands.at(10);
+
+    // A condition is evaluated where its construct sits.
+    QVERIFY(document->enclosingConstructs(addExecutable).isEmpty());
+    QVERIFY(document->enclosingConstructs(ifCommand).isEmpty());
+    QCOMPARE(document->enclosingConstructs(inThen).size(), 1);
+    QCOMPARE(document->enclosingConstructs(inElseIf).size(), 1);
+    QCOMPARE(document->enclosingConstructs(inForEach).size(), 2);
+
+    // What the file does unconditionally runs with everything.
+    QVERIFY(document->runsWith(atFileLevel, inThen));
+    QVERIFY(document->runsWith(atFileLevel, inForEach));
+
+    // Branches that exclude each other do not run together.
+    QVERIFY(!document->runsWith(inThen, inElseIf));
+    QVERIFY(!document->runsWith(inElseIf, inThen));
+    QVERIFY(!document->runsWith(inThen, atFileLevel));
+
+    // The loop body is reached from the else branch, not the other way around.
+    QVERIFY(!document->runsWith(inForEach, atFileLevel));
+    QVERIFY(document->runsWith(atFileLevel, inForEach));
 }
 
 QTEST_GUILESS_MAIN(tst_CMakeLang)

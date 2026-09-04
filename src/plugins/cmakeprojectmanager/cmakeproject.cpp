@@ -12,6 +12,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakeutils.h"
 #include "presetsmacros.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -26,7 +27,6 @@
 #include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/mimeconstants.h>
-#include <utils/textfileformat.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -321,25 +321,19 @@ QString CMakeProject::projectDisplayName(const Utils::FilePath &projectFilePath)
 {
     const QString fallbackDisplayName = projectFilePath.absolutePath().fileName();
 
-    QByteArray fileContent;
-    cmListFile cmakeListFile;
-    std::string errorString;
-    if (TextFileFormat::readFileUtf8(projectFilePath, TextEncoding::Utf8, &fileContent)) {
-        if (!cmakeListFile.ParseString(
-                fileContent.toStdString(), projectFilePath.fileName().toStdString(), errorString)) {
-            return fallbackDisplayName;
-        }
-    }
+    const CMakeLang::DocumentPtr document = parseCMakeFile(projectFilePath);
+    if (!document->isValid())
+        return fallbackDisplayName;
 
     QHash<QString, QString> setVariables;
-    for (const auto &func : cmakeListFile.Functions) {
-        if (func.LowerCaseName() == "set" && func.Arguments().size() == 2)
-            setVariables.insert(
-                QString::fromUtf8(func.Arguments()[0].Value),
-                QString::fromUtf8(func.Arguments()[1].Value));
+    for (CMakeLang::CommandAST *command : document->commands()) {
+        const CMakeLang::ListView<CMakeLang::ArgumentAST *> arguments = command->arguments();
 
-        if (func.LowerCaseName() == "project" && func.Arguments().size() > 0) {
-            const QString projectName = QString::fromUtf8(func.Arguments()[0].Value);
+        if (command->isNamed("set") && arguments.size() == 2)
+            setVariables.insert(arguments.at(0)->value(), arguments.at(1)->value());
+
+        if (command->isNamed("project") && !arguments.isEmpty()) {
+            const QString projectName = arguments.at(0)->value();
             if (projectName.startsWith("${") && projectName.endsWith("}")) {
                 const QString projectVar = projectName.mid(2, projectName.size() - 3);
                 if (setVariables.contains(projectVar))

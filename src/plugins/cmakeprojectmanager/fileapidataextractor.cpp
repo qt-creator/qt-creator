@@ -6,6 +6,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
+#include "cmakeutils.h"
 #include "fileapiparser.h"
 #include "projecttreehelper.h"
 
@@ -20,7 +21,6 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/textfileformat.h>
 
 #include <QLoggingCategory>
 #include <QtConcurrentMap>
@@ -74,15 +74,10 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
               const MimeType mimeType = Utils::mimeTypeForFile(info.path);
               if (mimeType.matchesName(Utils::Constants::CMAKE_MIMETYPE)
                   || mimeType.matchesName(Utils::Constants::CMAKE_PROJECT_MIMETYPE)) {
-                  QByteArray fileContent;
-                  std::string errorString;
-                  if (TextFileFormat::readFileUtf8(sfn, TextEncoding::Utf8, &fileContent)) {
-                      if (!absolute.cmakeListFile.ParseString(fileContent.toStdString(),
-                                                              sfn.fileName().toStdString(),
-                                                              errorString)) {
-                          qCDebug(cmakeLogger) << "Failed to parse:" << sfn.path()
-                                               << QString::fromLatin1(errorString);
-                      }
+                  absolute.document = parseCMakeFile(sfn);
+                  if (!absolute.document->isValid()) {
+                      qCDebug(cmakeLogger) << "Failed to parse:" << sfn.path()
+                                           << absolute.document->errorString();
                   }
               }
 

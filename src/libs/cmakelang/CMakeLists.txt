@@ -36,6 +36,7 @@ add_qtc_library(CMakeLang
     cmakelang.h
     cmakeast.cpp cmakeast.h
     cmakeastvisitor.cpp cmakeastvisitor.h
+    cmakedocument.cpp cmakedocument.h
     cmakeengine.cpp cmakeengine.h
     cmakelexer.cpp cmakelexer.h
     cmakememorypool.h

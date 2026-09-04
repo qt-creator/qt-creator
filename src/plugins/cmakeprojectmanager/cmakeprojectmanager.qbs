@@ -101,8 +101,6 @@ Project {
             name: "3rdparty"
             prefix: "3rdparty/"
             files: [
-                "cmake/cmListFileCache.cxx",
-                "cmake/cmListFileCache.h",
                 "rstparser/rstparser.cc",
                 "rstparser/rstparser.h"
             ]

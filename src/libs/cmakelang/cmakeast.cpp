@@ -23,14 +23,14 @@ void AST::accept(AST *ast, Visitor *visitor)
 void SourceFileAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
-        accept(elements, visitor);
+        accept(elementList, visitor);
     visitor->endVisit(this);
 }
 
 void CommandAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
-        accept(arguments, visitor);
+        accept(argumentList, visitor);
     visitor->endVisit(this);
 }
 
@@ -38,8 +38,8 @@ void IfAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(ifCommand, visitor);
-        accept(elements, visitor);
-        accept(elseIfClauses, visitor);
+        accept(elementList, visitor);
+        accept(elseIfClauseList, visitor);
         accept(elseClause, visitor);
         accept(endIfCommand, visitor);
     }
@@ -50,7 +50,7 @@ void ElseIfClauseAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(command, visitor);
-        accept(elements, visitor);
+        accept(elementList, visitor);
     }
     visitor->endVisit(this);
 }
@@ -59,7 +59,7 @@ void ElseClauseAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(command, visitor);
-        accept(elements, visitor);
+        accept(elementList, visitor);
     }
     visitor->endVisit(this);
 }
@@ -69,7 +69,7 @@ void ElseClauseAST::accept0(Visitor *visitor)
     { \
         if (visitor->visit(this)) { \
             accept(openCommand, visitor); \
-            accept(elements, visitor); \
+            accept(elementList, visitor); \
             accept(closeCommand, visitor); \
         } \
         visitor->endVisit(this); \
@@ -104,6 +104,6 @@ void BracketArgumentAST::accept0(Visitor *visitor)
 void ParenGroupArgumentAST::accept0(Visitor *visitor)
 {
     if (visitor->visit(this))
-        accept(arguments, visitor);
+        accept(argumentList, visitor);
     visitor->endVisit(this);
 }
