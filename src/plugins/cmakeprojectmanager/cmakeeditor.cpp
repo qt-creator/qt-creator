@@ -8,6 +8,7 @@
 #include "cmakebuildsystem.h"
 #include "cmakefilecompletionassist.h"
 #include "cmakeindenter.h"
+#include "cmakeoutline.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakeutils.h"
@@ -101,12 +102,19 @@ public:
     ~CMakeEditorWidget() final = default;
 
 private:
+    void finalizeInitialization() final;
     void findLinkAt(const QTextCursor &cursor,
                     const LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
                     bool inNextSplit = false) final;
     void contextMenuEvent(QContextMenuEvent *e) final;
 };
+
+void CMakeEditorWidget::finalizeInitialization()
+{
+    if (const auto document = qobject_cast<CMakeTextDocument *>(textDocument()))
+        setToolbarOutline(createCMakeOutlineComboBox(this, document->outlineModel()));
+}
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
@@ -407,12 +415,11 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     processLinkCallback(link);
 }
 
-static TextDocument *createCMakeDocument()
+CMakeTextDocument::CMakeTextDocument()
+    : m_outlineModel(new CMakeOutlineModel(this))
 {
-    auto doc = new TextDocument;
-    doc->setId(Constants::CMAKE_EDITOR_ID);
-    doc->setMimeType(Utils::Constants::CMAKE_MIMETYPE);
-    return doc;
+    setId(Constants::CMAKE_EDITOR_ID);
+    setMimeType(Utils::Constants::CMAKE_MIMETYPE);
 }
 
 //
@@ -516,7 +523,7 @@ public:
 
         setEditorCreator([] { return new CMakeEditor; });
         setEditorWidgetCreator([] { return new CMakeEditorWidget; });
-        setDocumentCreator(createCMakeDocument);
+        setDocumentCreator([] { return new CMakeTextDocument; });
         setIndenterCreator(createCMakeIndenter);
         setUseGenericHighlighter(true);
         setCommentDefinition(CommentDefinition::HashStyle);

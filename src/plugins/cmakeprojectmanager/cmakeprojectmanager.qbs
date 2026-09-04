@@ -43,6 +43,8 @@ Project {
             "cmakekitaspect.cpp",
             "cmakelocatorfilter.cpp",
             "cmakelocatorfilter.h",
+            "cmakeoutline.cpp",
+            "cmakeoutline.h",
             "cmakeoutputparser.cpp",
             "cmakeoutputparser.h",
             "cmakeproject.cpp",

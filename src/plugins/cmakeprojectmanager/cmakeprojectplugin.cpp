@@ -10,6 +10,7 @@
 #include "cmakeinstallstep.h"
 #include "cmakelocatorfilter.h"
 #include "cmakekitaspect.h"
+#include "cmakeoutline.h"
 #include "cmakeoutputparser.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
@@ -64,6 +65,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         setupCMakeInstallStep();
 
         setupCMakeEditor();
+        setupCMakeOutline();
 
         setupCMakeLocatorFilters();
         setupCMakeFormatter();
