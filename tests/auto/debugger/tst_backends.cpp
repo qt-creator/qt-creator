@@ -5823,15 +5823,20 @@ void tst_backends::reportsAnUnresponsiveDebugger()
     if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
         QSKIP(qPrintable(result.error()));
 
-    const QString blockingCommand = watchdogProbeCommand(backend, 3);
+    using namespace std::chrono_literals;
+    // Both blocks have to outlast the watchdog for it to report them at all,
+    // and the second has to outlast the first for the reports to go on once
+    // the first one is answered.
+    constexpr std::chrono::seconds watchdogInterval = 1s;
+    const QString blockingCommand = watchdogProbeCommand(backend,
+                                                         int(2 * watchdogInterval.count()));
     if (blockingCommand.isEmpty())
         QSKIP("This backend does not watch its commands for a reply.");
 
-    using namespace std::chrono_literals;
     // Stopping at the start keeps a backend that would otherwise run its
-    // program to the end alive for the round trip at the end of this test.
+    // program to the end alive for the blocks below.
     std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(
-        backend, {}, {}, false, 1s,
+        backend, {}, {}, false, watchdogInterval,
         GdbImplFlag::PseudoTracepoints | GdbImplFlag::BreakOnMain);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -5854,45 +5859,27 @@ void tst_backends::reportsAnUnresponsiveDebugger()
              qPrintable("the reported pending commands do not mention the blocking one: "
                         + report.join(", ")));
 
-    // And it has to go quiet once the answer arrives, which a round trip that
-    // does answer proves: a watchdog that never clears what it watches would
-    // keep reporting from here on.
-    bool inserted = false;
-    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
-            [&inserted](quint64 requestId, BreakpointOp op, bool, const GdbMi &) {
-        if (op == BreakpointOp::Insert && requestId == 81)
-            inserted = true;
-    });
-    BreakpointChangeRequest insertRequest;
-    insertRequest.op = BreakpointOp::Insert;
-    insertRequest.requestId = 81;
-    insertRequest.params.type = BreakpointByFileAndLine;
-    insertRequest.params.fileName = inferiorTestData(backend).source;
-    insertRequest.params.textPosition.line = inferiorTestData(backend).breakpointLine;
-    insertRequest.params.enabled = true;
-    engine->changeBreakpoint(insertRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(inserted, s_timeout);
-
-    // Commands are answered in order, so the round trip above means the blocking
-    // one was answered too. Block a second time: the fresh report may name only
-    // the command still outstanding, or nothing is ever taken off the list.
-    const QString secondCommand = watchdogProbeCommand(backend, 2);
+    // Once the first block is answered it has to leave the list, which a report
+    // naming only the second proves; a watchdog that never clears what it
+    // watches names both.
+    const QString secondCommand = watchdogProbeCommand(backend,
+                                                       int(3 * watchdogInterval.count()));
     reports.clear();
     engine->executeDebuggerCommand(secondCommand, {});
-    QTRY_VERIFY_WITH_TIMEOUT(!reports.isEmpty(), s_timeout);
-    const QStringList secondReport = reports.constLast();
-    QVERIFY2(std::any_of(secondReport.cbegin(), secondReport.cend(),
-                         [&secondCommand](const QString &cmd) {
-                             return cmd.contains(secondCommand);
-                         }),
-             qPrintable("the second report does not mention the blocking command: "
-                        + secondReport.join(", ")));
-    QVERIFY2(std::none_of(secondReport.cbegin(), secondReport.cend(),
-                          [&blockingCommand](const QString &cmd) {
-                              return cmd.contains(blockingCommand);
-                          }),
-             qPrintable("the watchdog still reports a command that was answered: "
-                        + secondReport.join(", ")));
+    const auto answeredCommandWasCleared = [&reports, &blockingCommand, &secondCommand] {
+        return std::any_of(reports.cbegin(), reports.cend(), [&](const QStringList &pending) {
+            const auto mentions = [&pending](const QString &command) {
+                return std::any_of(pending.cbegin(), pending.cend(),
+                                   [&command](const QString &cmd) {
+                    return cmd.contains(command);
+                });
+            };
+            return mentions(secondCommand) && !mentions(blockingCommand);
+        });
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(answeredCommandWasCleared(),
+                              "no report ever named the outstanding command alone",
+                              s_timeout);
 }
 
 void tst_backends::appliesConfiguredDebuggerOptions()
