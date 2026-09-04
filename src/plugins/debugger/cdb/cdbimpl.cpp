@@ -181,6 +181,7 @@ static DebuggerEngineSetupData cdbImplSetupData()
     };
     data.extraCapabilities = DebuggerExtraCapability::Detach
                            | DebuggerExtraCapability::LibraryEvent
+                           | DebuggerExtraCapability::RunCommandDeferral
                            | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
