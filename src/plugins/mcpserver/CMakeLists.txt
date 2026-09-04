@@ -26,6 +26,12 @@ add_qtc_plugin(McpServer
       davecotter-mcp
 )
 
+extend_qtc_plugin(McpServer
+  CONDITION WITH_TESTS
+  SOURCES
+    mcpcommands_test.cpp mcpcommands_test.h
+)
+
 qtc_add_resources(McpServer "images"
   PREFIX "/mcpserver"
   BASE "."

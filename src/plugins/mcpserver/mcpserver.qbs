@@ -24,6 +24,13 @@ QtcPlugin {
         "mcpservertr.h",
     ]
 
+    QtcTestFiles {
+        files: [
+            "mcpcommands_test.cpp",
+            "mcpcommands_test.h",
+        ]
+    }
+
     Group {
         name: "images"
         prefix: "images/"

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcpcommands.h"
+#include "mcpcommands_test.h"
 #include "mcplogcapture.h"
 #include "mcpserverconstants.h"
 #include "mcpserverinspector.h"
@@ -486,6 +487,10 @@ public:
         // subprocess (the transport most clients default to).
         if (arguments.contains("-mcp-stdio"))
             startStdio();
+
+#ifdef WITH_TESTS
+        addTestCreator(createMcpCommandsTest);
+#endif
 
         return ResultOk;
     }
