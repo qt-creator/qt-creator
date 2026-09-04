@@ -746,6 +746,7 @@ public:
 
     void print(QPrinter *printer);
     int printPageCount(QPrinter *printer) const;
+    QTextDocument *createPrintDocument(bool selectionOnly) const;
 
     void maybeSelectLine();
     void duplicateSelection(bool comment);
@@ -1791,6 +1792,8 @@ void TextEditorWidget::print(QPrinter *printer)
         printer->setFromTo(1, pageCount);
     auto dlg = new QPrintDialog(printer, this);
     dlg->setWindowTitle(Tr::tr("Print Document"));
+    if (textCursor().hasSelection())
+        dlg->setOption(QAbstractPrintDialog::PrintSelection);
     if (dlg->exec() == QDialog::Accepted)
         d->print(printer);
     printer->setFullPage(oldFullPage);
@@ -1872,27 +1875,29 @@ int TextEditorWidgetPrivate::printPageCount(QPrinter *printer) const
     return doc->pageCount();
 }
 
-void TextEditorWidgetPrivate::print(QPrinter *printer)
+// Drops everything outside the lines the selection touches. The print document is
+// a plain clone at this point, so the source positions still apply.
+static QTextBlock trimToSelectedLines(QTextDocument *printDocument, const QTextCursor &selection)
 {
-    QTextDocument *doc = q->document();
+    const QTextDocument *doc = selection.document();
+    const QTextBlock first = doc->findBlock(selection.selectionStart());
+    QTextBlock last = doc->findBlock(selection.selectionEnd());
+    if (last != first && last.position() == selection.selectionEnd())
+        last = last.previous();
 
-    QString title = m_document->displayName();
-    if (!title.isEmpty())
-        printer->setDocName(title);
+    QTextCursor cursor(printDocument);
+    cursor.setPosition(last.position() + last.length() - 1);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    cursor.removeSelectedText();
+    cursor.setPosition(first.position());
+    cursor.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+    cursor.removeSelectedText();
+    return first;
+}
 
-
-    QPainter p(printer);
-
-    // Check that there is a valid device to print to.
-    if (!p.isActive())
-        return;
-
-    QRectF pageRect(printer->pageLayout().paintRectPixels(printer->resolution()));
-    if (pageRect.isEmpty())
-        return;
-
-    doc = doc->clone(doc);
-    const QScopeGuard cleanup([doc] { delete doc; });
+QTextDocument *TextEditorWidgetPrivate::createPrintDocument(bool selectionOnly) const
+{
+    QTextDocument *doc = q->document()->clone(q->document());
 
     QTextOption opt = doc->defaultTextOption();
     opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -1900,11 +1905,14 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
 
     (void)doc->documentLayout(); // make sure that there is a layout
 
+    QTextBlock srcBlock = q->document()->firstBlock();
+    if (selectionOnly)
+        srcBlock = trimToSelectedLines(doc, q->textCursor());
 
     QColor background = m_document->fontSettings().toTextCharFormat(C_TEXT).background().color();
     bool backgroundIsDark = background.value() < 128;
 
-    for (QTextBlock srcBlock = q->document()->firstBlock(), dstBlock = doc->firstBlock();
+    for (QTextBlock dstBlock = doc->firstBlock();
          srcBlock.isValid() && dstBlock.isValid();
          srcBlock = srcBlock.next(), dstBlock = dstBlock.next()) {
         QList<QTextLayout::FormatRange> formatList
@@ -1928,6 +1936,30 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
 
         q->editorLayout()->blockLayout(dstBlock)->setFormats(formatList);
     }
+
+    return doc;
+}
+
+void TextEditorWidgetPrivate::print(QPrinter *printer)
+{
+    QString title = m_document->displayName();
+    if (!title.isEmpty())
+        printer->setDocName(title);
+
+
+    QPainter p(printer);
+
+    // Check that there is a valid device to print to.
+    if (!p.isActive())
+        return;
+
+    QRectF pageRect(printer->pageLayout().paintRectPixels(printer->resolution()));
+    if (pageRect.isEmpty())
+        return;
+
+    QTextDocument *doc = createPrintDocument(printer->printRange() == QPrinter::Selection
+                                             && q->textCursor().hasSelection());
+    const QScopeGuard cleanup([doc] { delete doc; });
 
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
     layout->setPaintDevice(p.device());
@@ -7950,6 +7982,12 @@ QTextCursor TextEditorWidget::autoCompleteHighlightPosition() const
 void TextEditorWidget::processTooltipRequest(const QTextCursor &c)
 {
     d->processTooltipRequest(c);
+}
+
+QString TextEditorWidget::textToPrint(bool selectionOnly) const
+{
+    const std::unique_ptr<QTextDocument> doc(d->createPrintDocument(selectionOnly));
+    return doc->toPlainText();
 }
 #endif
 

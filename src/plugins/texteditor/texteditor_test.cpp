@@ -22,6 +22,7 @@
 #include <utils/multitextcursor.h>
 #include <utils/temporarydirectory.h>
 
+#include <QScopeGuard>
 #include <QTest>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -763,6 +764,51 @@ void SnippetTest::testVariableMirroring()
 QObject *createSnippetTest()
 {
     return new SnippetTest;
+}
+
+class PrintTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testPrintsSelectedLinesOnly()
+    {
+        const QString all = "line1\nline2\nline3\nline4\n";
+        QString title = "print.txt";
+        Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+            Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, all.toUtf8());
+        QVERIFY(editor);
+        const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+        auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+        QVERIFY(baseEditor);
+        TextEditorWidget *editorWidget = baseEditor->editorWidget();
+        QVERIFY(editorWidget);
+
+        QCOMPARE(editorWidget->textToPrint(false), all);
+
+        // A selection reaching into a line prints that line as a whole.
+        QTextCursor cursor = editorWidget->textCursor();
+        cursor.setPosition(all.indexOf("ne2"));
+        cursor.setPosition(all.indexOf("ne3"), QTextCursor::KeepAnchor);
+        editorWidget->setTextCursor(cursor);
+        QCOMPARE(editorWidget->textToPrint(true), QString("line2\nline3"));
+
+        // A selection ending where a line starts does not print that line.
+        cursor.setPosition(all.indexOf("line2"));
+        cursor.setPosition(all.indexOf("line3"), QTextCursor::KeepAnchor);
+        editorWidget->setTextCursor(cursor);
+        QCOMPARE(editorWidget->textToPrint(true), QString("line2"));
+
+        // Without a selection the whole document is printed.
+        cursor.clearSelection();
+        editorWidget->setTextCursor(cursor);
+        QCOMPARE(editorWidget->textToPrint(false), all);
+    }
+};
+
+QObject *createPrintTest()
+{
+    return new PrintTest;
 }
 
 } // TextEditor::Internal
