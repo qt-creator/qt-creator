@@ -603,7 +603,7 @@
         "Copyright": "Copyright(C) 2006-2008, David Allouche, Jp Calderone, Itamar Shtull-Trauring, Copyright(C) 2006-2017, Johan Dahlin, Copyright(C) 2008, Olivier Grisel <olivier.grisel@ensta.org>, Copyright(C) 2008, David Glick, Copyright(C) 2013, Steven Maude, Copyright(C) 2013-2018, Peter Waller <p@pwaller.net>, Copyright(C) 2013, Lukas Graf <lukas.graf@4teamwork.ch>, Copyright(C) 2013, Jamie Wong <http://jamie-wong.com>, Copyright(C) 2013, Yury V. Zaytsev <yury@shurup.com>, Copyright(C) 2014, Michael Droettboom <mdroe@stsci.edu>, Copyright(C) 2015, Zev Benjamin <zev@mit.edu>, Copyright(C) 2018, Jon Dufresne <jon.dufresne@gmail.com>"
     },
     {
-        "Id": "quickjs",
+        "Id": "quickjsng",
         "Name": "QuickJS-ng",
         "QDocModule": "qtcreator",
         "QtParts": ["tools"],

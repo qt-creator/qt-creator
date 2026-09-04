@@ -52,7 +52,7 @@ QtcLibrary {
     Depends { name: "QtTaskTree" }
     Depends { name: "ptyqt" }
     Depends { name: "qtcLibArchive" }
-    Depends { name: "quickjs" }
+    Depends { name: "quickjsng" }
 
     files: [
         "action.cpp",

@@ -1,4 +1,4 @@
-add_qtc_library(quickjs
+add_qtc_library(quickjsng
   PROPERTIES QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON
   PUBLIC_INCLUDES src
   STATIC
@@ -26,5 +26,5 @@ add_qtc_library(quickjs
     ATTRIBUTION_FILE_PATHS
       "${QtCreator_SOURCE_DIR}/qt_attributions.json"
     ATTRIBUTION_IDS
-      quickjs
+      quickjsng
 )

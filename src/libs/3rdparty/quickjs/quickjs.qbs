@@ -1,5 +1,5 @@
 QtcLibrary {
-    name: "quickjs"
+    name: "quickjsng"
     type: "staticlibrary"
 
     cpp.warningLevel: "none"
