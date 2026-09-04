@@ -230,10 +230,12 @@ void updateAutomaticKitList()
                         const QByteArray flags = "-Wl,--no-as-needed "
                                                  + waitLibrary.path().toUtf8()
                                                  + " -Wl,--as-needed";
-                        for (const QByteArray &kind : {"EXE", "MODULE", "SHARED"}) {
-                            config.insert(CMakeConfigItem("CMAKE_" + kind + "_LINKER_FLAGS_DEBUG",
-                                                          CMakeConfigItem::STRING, flags));
-                        }
+                        config.insert(CMakeConfigItem("CMAKE_EXE_LINKER_FLAGS_DEBUG",
+                                                      CMakeConfigItem::STRING, flags));
+                        config.insert(CMakeConfigItem("CMAKE_MODULE_LINKER_FLAGS_DEBUG",
+                                                      CMakeConfigItem::STRING, flags));
+                        config.insert(CMakeConfigItem("CMAKE_SHARED_LINKER_FLAGS_DEBUG",
+                                                      CMakeConfigItem::STRING, flags));
                     }
                     CMakeConfigurationKitAspect::setConfiguration(k, config);
                 }
