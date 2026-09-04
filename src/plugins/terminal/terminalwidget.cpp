@@ -118,7 +118,6 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
 
     setAllowBlinkingCursor(settings().allowBlinkingCursor());
     enableMouseTracking(settings().enableMouseTracking());
-    surface()->enableLiveReflow(settings().enableLiveReflow());
 
     connect(&settings(), &AspectContainer::applied, this, [this] {
         // Setup colors first, as setupFont will redraw the screen.
@@ -127,7 +126,6 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
         configBlinkTimer();
         setAllowBlinkingCursor(settings().allowBlinkingCursor());
         enableMouseTracking(settings().enableMouseTracking());
-        surface()->enableLiveReflow(settings().enableLiveReflow());
     });
 }
 

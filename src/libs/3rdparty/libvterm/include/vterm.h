@@ -469,6 +469,7 @@ void *vterm_state_get_unrecognised_fbdata(VTermState *state);
 
 void vterm_state_reset(VTermState *state, int hard);
 void vterm_state_get_cursorpos(const VTermState *state, VTermPos *cursorpos);
+void vterm_state_set_cursorpos(VTermState *state, VTermPos cursorpos);
 void vterm_state_get_default_colors(const VTermState *state, VTermColor *default_fg, VTermColor *default_bg);
 void vterm_state_get_palette_color(const VTermState *state, int index, VTermColor *col);
 void vterm_state_set_default_colors(VTermState *state, const VTermColor *default_fg, const VTermColor *default_bg);
@@ -483,6 +484,7 @@ int  vterm_state_set_termprop(VTermState *state, VTermProp prop, VTermValue *val
 void vterm_state_focus_in(VTermState *state);
 void vterm_state_focus_out(VTermState *state);
 const VTermLineInfo *vterm_state_get_lineinfo(const VTermState *state, int row);
+void vterm_state_set_lineinfo(VTermState *state, int row, const VTermLineInfo *info);
 
 /**
  * Makes sure that the given color `col` is indeed an RGB colour. After this
@@ -613,6 +615,8 @@ typedef enum {
 int vterm_screen_get_attrs_extent(const VTermScreen *screen, VTermRect *extent, VTermPos pos, VTermAttrMask attrs);
 
 int vterm_screen_get_cell(const VTermScreen *screen, VTermPos pos, VTermScreenCell *cell);
+
+void vterm_screen_set_cell(VTermScreen *screen, VTermPos pos, const VTermScreenCell *cell);
 
 int vterm_screen_is_eol(const VTermScreen *screen, VTermPos pos);
 

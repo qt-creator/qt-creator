@@ -2287,6 +2287,38 @@ const VTermLineInfo *vterm_state_get_lineinfo(const VTermState *state, int row)
   return state->lineinfo + row;
 }
 
+void vterm_state_set_lineinfo(VTermState *state, int row, const VTermLineInfo *info)
+{
+  if(row < 0 || row >= state->rows)
+    return;
+
+  state->lineinfo[row] = *info;
+}
+
+void vterm_state_set_cursorpos(VTermState *state, VTermPos cursorpos)
+{
+  VTermPos oldpos = state->pos;
+
+  state->pos = cursorpos;
+
+  if(state->pos.col >= state->cols) {
+    state->pos.col = state->cols - 1;
+    state->at_phantom = 1;
+  }
+  else {
+    state->at_phantom = 0;
+  }
+
+  if(state->pos.col < 0)
+    state->pos.col = 0;
+  if(state->pos.row < 0)
+    state->pos.row = 0;
+  if(state->pos.row >= state->rows)
+    state->pos.row = state->rows - 1;
+
+  updatecursor(state, &oldpos, 0);
+}
+
 void vterm_state_set_selection_callbacks(VTermState *state, const VTermSelectionCallbacks *callbacks, void *user,
     char *buffer, size_t buflen)
 {

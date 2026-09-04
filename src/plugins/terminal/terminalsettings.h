@@ -33,7 +33,6 @@ public:
     Utils::ToggleAspect lockKeyboard{this};
 
     Utils::BoolAspect enableMouseTracking{this};
-    Utils::BoolAspect enableLiveReflow{this};
 };
 
 TerminalSettings &settings();

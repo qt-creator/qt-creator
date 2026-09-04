@@ -529,13 +529,6 @@ TerminalSettings::TerminalSettings()
     enableMouseTracking.setToolTip(Tr::tr("Enables mouse tracking in the terminal."));
     enableMouseTracking.setDefaultValue(true);
 
-    enableLiveReflow.setSettingsKey("EnableLiveReflow");
-    enableLiveReflow.setLabelText(Tr::tr("Enable live reflow (experimental)"));
-    enableLiveReflow.setToolTip(
-        Tr::tr("Wraps and reflows text when resizing the terminal. "
-               "Note that this does not work properly with all shells and prompts."));
-    enableLiveReflow.setDefaultValue(false);
-
     setupColor(this, foregroundColor, "Foreground", creatorColor(Theme::TerminalForeground));
     setupColor(this, backgroundColor, "Background", creatorColor(Theme::TerminalBackground));
     setupColor(this, selectionColor, "Selection", creatorColor(Theme::TerminalSelection));
@@ -645,7 +638,6 @@ TerminalSettings::TerminalSettings()
                     audibleBell, st,
                     allowBlinkingCursor, st,
                     enableMouseTracking, st,
-                    enableLiveReflow, st,
                 },
             },
             Group {

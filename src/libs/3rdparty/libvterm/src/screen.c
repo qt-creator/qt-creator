@@ -677,10 +677,14 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
       new_cursor.col = new_cols-1;
   }
 
-  /* We really expect the cursor position to be set by now */
-  if(active && (new_cursor.row == -1 || new_cursor.col == -1)) {
-    fprintf(stderr, "screen_resize failed to update cursor position\n");
-    abort();
+  if(new_cursor.row == -1 || new_cursor.col == -1) {
+    new_cursor.row = old_cursor.row < new_rows ? old_cursor.row : new_rows - 1;
+    new_cursor.col = old_cursor.col < new_cols ? old_cursor.col : new_cols - 1;
+
+    if(new_cursor.row < 0)
+      new_cursor.row = 0;
+    if(new_cursor.col < 0)
+      new_cursor.col = 0;
   }
 
   if(old_row >= 0 && bufidx == BUFIDX_PRIMARY) {
@@ -1031,6 +1035,43 @@ int vterm_screen_get_cell(const VTermScreen *screen, VTermPos pos, VTermScreenCe
     cell->width = 1;
 
   return 1;
+}
+
+void vterm_screen_set_cell(VTermScreen *screen, VTermPos pos, const VTermScreenCell *cell)
+{
+  ScreenCell *intcell = getcell(screen, pos.row, pos.col);
+  if(!intcell)
+    return;
+
+  for(int i = 0; i < VTERM_MAX_CHARS_PER_CELL; i++) {
+    intcell->chars[i] = cell->chars[i];
+    if(!cell->chars[i])
+      break;
+  }
+
+  intcell->pen.bold      = cell->attrs.bold;
+  intcell->pen.underline = cell->attrs.underline;
+  intcell->pen.italic    = cell->attrs.italic;
+  intcell->pen.blink     = cell->attrs.blink;
+  intcell->pen.reverse   = cell->attrs.reverse ^ screen->global_reverse;
+  intcell->pen.conceal   = cell->attrs.conceal;
+  intcell->pen.strike    = cell->attrs.strike;
+  intcell->pen.font      = cell->attrs.font;
+  intcell->pen.small     = cell->attrs.small;
+  intcell->pen.baseline  = cell->attrs.baseline;
+  intcell->pen.uri       = cell->uri;
+
+  intcell->pen.dwl = cell->attrs.dwl;
+  intcell->pen.dhl = cell->attrs.dhl;
+
+  intcell->pen.fg = cell->fg;
+  intcell->pen.bg = cell->bg;
+
+  if(cell->width == 2 && pos.col < (screen->cols - 1)) {
+    ScreenCell *next = getcell(screen, pos.row, pos.col + 1);
+    if(next)
+      next->chars[0] = (uint32_t) -1;
+  }
 }
 
 int vterm_screen_is_eol(const VTermScreen *screen, VTermPos pos)

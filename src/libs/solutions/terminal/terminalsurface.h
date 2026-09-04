@@ -116,7 +116,6 @@ public:
 
     void sendFocus(bool hasFocus);
     bool isInAltScreen();
-    void enableLiveReflow(bool enable);
 
 signals:
     void invalidated(QRect grid);

@@ -20,16 +20,21 @@ public:
     class Line
     {
     public:
-        Line(int cols, const VTermScreenCell *cells);
+        Line(int cols, const VTermScreenCell *cells, bool continuation);
+        Line(int cols, std::unique_ptr<VTermScreenCell[]> cells, bool continuation);
         Line(Line &&other) = default;
+        Line &operator=(Line &&other) = default;
         Line() = delete;
 
         int cols() const { return m_cols; };
         const VTermScreenCell *cell(int i) const;
         const VTermScreenCell *cells() const { return &m_cells[0]; };
 
+        bool continuation() const { return m_continuation; };
+
     private:
         int m_cols;
+        bool m_continuation;
         std::unique_ptr<VTermScreenCell[]> m_cells;
     };
 
@@ -43,8 +48,9 @@ public:
     const Line &line(size_t index) const { return m_deque.at(index); };
     const std::deque<Line> &lines() const { return m_deque; };
 
-    void emplace(int cols, const VTermScreenCell *cells);
-    void popto(int cols, VTermScreenCell *cells);
+    void emplace(int cols, const VTermScreenCell *cells, bool continuation);
+    void emplace(int cols, std::unique_ptr<VTermScreenCell[]> cells, bool continuation);
+    bool popto(int cols, VTermScreenCell *cells);
 
     void clear();
 
