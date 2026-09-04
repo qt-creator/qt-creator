@@ -1112,6 +1112,10 @@ FilePath defaultSdkPath()
 Environment toolsEnvironment()
 {
     Environment env = Environment::systemEnvironment();
+    // The Android CLI that cmdline-tools >= 23 forward sdkmanager to colorizes parts of its
+    // output, also when that output is redirected into a pipe. The escape sequences confuse
+    // our output parsers. https://no-color.org
+    env.set("NO_COLOR", "1");
     FilePath jdkLocation = openJDKLocation();
     if (!jdkLocation.isEmpty()) {
         env.set(Constants::JAVA_HOME_ENV_VAR, jdkLocation.toUserOutput());

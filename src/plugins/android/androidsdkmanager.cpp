@@ -543,15 +543,20 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
     QString packageListing;
     QStringList args({"--list", "--verbose"});
     args << AndroidConfig::sdkManagerToolArgs();
-    m_packageListingSuccessful = sdkManagerCommand(args, &packageListing);
+    const bool commandSuccessful = sdkManagerCommand(args, &packageListing);
     qDeleteAll(m_allPackages); // Must be done after the blocking command execution. See QTCREATORBUG-31920.
     m_allPackages.clear();
-    if (m_packageListingSuccessful) {
-        SdkManagerOutputParser parser(m_allPackages);
-        parser.parsePackageListing(packageListing);
-    } else {
+
+    // Do not judge the listing by the exit code alone: The Android CLI that cmdline-tools >= 23
+    // forward sdkmanager to prints a complete listing but then crashes on Windows. Parse whatever
+    // arrived and let the outcome of the parsing decide whether we got a usable listing.
+    SdkManagerOutputParser parser(m_allPackages);
+    parser.parsePackageListing(packageListing, AndroidConfig::sdkLocation());
+    m_packageListingSuccessful = !m_allPackages.isEmpty();
+    if (!m_packageListingSuccessful)
         qCWarning(sdkManagerLog) << "Failed parsing packages:" << packageListing;
-    }
+    else if (!commandSuccessful)
+        qCDebug(sdkManagerLog) << "The SDK manager command failed, but its listing was parsable.";
 
     emit m_sdkManager.packagesReloaded();
 }

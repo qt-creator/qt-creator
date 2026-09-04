@@ -47,8 +47,82 @@ public:
     QMap<QString, QString> extraData;
 };
 
-void SdkManagerOutputParser::parsePackageListing(const QString &output)
+static bool isAndroidCliListing(const QString &output)
 {
+    // cmdline-tools >= 23 forward sdkmanager to the Android CLI, which ignores --verbose and
+    // prints one '/'-separated package path per line, such as
+    // "  ndk/29.0.14206865       29.0.14206865       NDK (Side by side) 29.0.14206865"
+    static const QRegularExpression androidCliPackageRow(R"(^[ \t]+\S*/\S*[ \t]{2,}\S)",
+                                                         QRegularExpression::MultilineOption);
+    return androidCliPackageRow.match(output).hasMatch();
+}
+
+static QString androidCliToSdkManagerListing(const QString &output,
+                                             const Utils::FilePath &sdkLocation)
+{
+    static const QRegularExpression packageRow(
+        R"(^(?<path>\S+)[ \t]{2,}(?<revision>\S+)(?:[ \t]\(\+\d+\))?[ \t]{2,}(?<description>.+)$)");
+
+    const auto sectionMarker = [](SdkManagerOutputParser::MarkerTag tag) {
+        return QString::fromLatin1(markerTags->at(tag));
+    };
+    const auto detailLine = [](const char *key, const QString &value) {
+        return QString("    %1 %2\n").arg(QLatin1String(key), value);
+    };
+    const auto sectionHeader = [](const QString &marker) {
+        return QString(marker).remove(':').toLower();
+    };
+    const QString installedMarker = sectionMarker(SdkManagerOutputParser::InstalledPackagesMarker);
+    const QString availableMarker = sectionMarker(SdkManagerOutputParser::AvailablePackagesMarkers);
+    const QString installedHeader = sectionHeader(installedMarker);
+    const QString availableHeader = sectionHeader(availableMarker);
+
+    QString result;
+    enum Section { NoSection, Installed, Available } section = NoSection;
+    const QStringList lines = output.split('\n');
+    for (const QString &rawLine : lines) {
+        const QString line = QString(rawLine).remove('\r');
+        const QString trimmed = line.trimmed();
+        if (!line.startsWith(' ') && !line.startsWith('\t')) {
+            const QString lower = trimmed.toLower();
+            if (lower.startsWith(installedHeader)) {
+                section = Installed;
+                result += installedMarker + '\n';
+            } else if (lower.startsWith(availableHeader)) {
+                section = Available;
+                result += availableMarker + '\n';
+            } else {
+                section = NoSection;
+            }
+            continue;
+        }
+        if (section == NoSection || trimmed.isEmpty())
+            continue;
+        // Columns are path, revision and description. The revision may be followed by the
+        // number of further hidden revisions, as in "22.1.7171670 (+13)", and the
+        // description may contain wide whitespace.
+        const QRegularExpressionMatch row = packageRow.match(trimmed);
+        if (!row.hasMatch())
+            continue;
+        const QString path = row.captured("path");
+        const QString sdkStylePath = QString(path).replace('/', ';');
+        result += sdkStylePath + '\n';
+        result += detailLine(descriptionKey, row.captured("description"));
+        result += detailLine(revisionKey, row.captured("revision"));
+        if (section == Installed && !sdkLocation.isEmpty()) {
+            result += detailLine(installLocationKey, sdkLocation.pathAppended(path).toUserOutput());
+        }
+        result += '\n';
+    }
+    return result;
+}
+
+void SdkManagerOutputParser::parsePackageListing(const QString &output,
+                                                 const Utils::FilePath &sdkLocation)
+{
+    const QString listing = isAndroidCliListing(output)
+                                ? androidCliToSdkManagerListing(output, sdkLocation)
+                                : output;
     QStringList packageData;
     bool collectingPackageData = false;
     MarkerTag currentPackageMarker = MarkerTag::None;
@@ -62,7 +136,7 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
     };
 
     static const QRegularExpression delimiters("[\\n\\r]");
-    const auto lines = output.split(delimiters);
+    const auto lines = listing.split(delimiters);
     for (const QString &outputLine : lines) {
 
         // NOTE: we don't want to parse Dependencies part as it does not add value
@@ -104,6 +178,7 @@ void SdkManagerOutputParser::parsePackageListing(const QString &output)
             packageData << outputLine;
         }
     }
+    processCurrentPackage(); // The last package is not followed by an empty line.
     compilePackageAssociations();
 }
 
