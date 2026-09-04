@@ -12,6 +12,7 @@
 #include <QTextCharFormat>
 
 #include <memory>
+#include <optional>
 
 namespace TerminalSolution {
 
@@ -32,6 +33,13 @@ struct TerminalCell
     std::variant<int, QColor> backgroundColor;
     QTextCharFormat::UnderlineStyle underlineStyle{QTextCharFormat::NoUnderline};
     bool strikeOut{false};
+};
+
+struct Hyperlink
+{
+    QString url;
+    int start{0};
+    int end{0};
 };
 
 struct Cursor
@@ -75,6 +83,8 @@ public:
     TerminalCell fetchCell(int x, int y) const;
     std::u32string::value_type fetchCharAt(int x, int y) const;
     int cellWidthAt(int x, int y) const;
+
+    std::optional<Hyperlink> hyperlinkAt(QPoint gridPos) const;
 
     QSize liveSize() const;
     QSize fullSize() const;

@@ -202,10 +202,19 @@ INTERNAL void vterm_state_savepen(VTermState *state, int save)
     setpenattr_int (state, VTERM_ATTR_FONT,      state->pen.font);
     setpenattr_bool(state, VTERM_ATTR_SMALL,     state->pen.small);
     setpenattr_int (state, VTERM_ATTR_BASELINE,  state->pen.baseline);
+    setpenattr_int (state, VTERM_ATTR_URI,       state->pen.uri);
 
     setpenattr_col( state, VTERM_ATTR_FOREGROUND, state->pen.fg);
     setpenattr_col( state, VTERM_ATTR_BACKGROUND, state->pen.bg);
   }
+}
+
+/* OSC 8 hyperlinks are independent of SGR, so vterm_state_resetpen() does not
+ * clear them; only a hard reset does. */
+void vterm_state_set_uri(VTermState *state, int uri)
+{
+  state->pen.uri = uri;
+  setpenattr_int(state, VTERM_ATTR_URI, uri);
 }
 
 int vterm_color_is_equal(const VTermColor *a, const VTermColor *b)
@@ -603,6 +612,10 @@ int vterm_state_get_penattr(const VTermState *state, VTermAttr attr, VTermValue 
 
   case VTERM_ATTR_BASELINE:
     val->number = state->pen.baseline;
+    return 1;
+
+  case VTERM_ATTR_URI:
+    val->number = state->pen.uri;
     return 1;
 
   case VTERM_N_ATTRS:

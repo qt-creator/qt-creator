@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# OSC 8 hyperlinks, see
+# https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
+
+link() {
+    printf '\e]8;%s;%s\e\\%s\e]8;;\e\\' "$1" "$2" "$3"
+}
+
+link "" "http://example.com" "This is a link"
+printf '\n'
+
+printf 'A '
+link "" "https://www.qt.io" "link"
+printf ' in the middle of a line\n'
+
+link "id=1" "http://example.com" "one"
+link "id=2" "http://example.com" "two"
+printf ' (two links, same target)\n'
+
+link "" "file://$(hostname)$(cd "$(dirname "$0")" && pwd)/hyperlinks" "this script"
+printf '\n'
+
+printf '\e]8;;http://example.com\e\\a link that is never closed\n'
+printf 'and stays open until here\e]8;;\e\\\n'

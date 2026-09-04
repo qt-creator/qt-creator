@@ -245,6 +245,7 @@ typedef enum {
   VTERM_ATTR_BACKGROUND, // color:  40-49 100-107
   VTERM_ATTR_SMALL,      // bool:   73, 74, 75
   VTERM_ATTR_BASELINE,   // number: 73, 74, 75
+  VTERM_ATTR_URI,        // number: OSC 8
 
   VTERM_N_ATTRS
 } VTermAttr;
@@ -469,6 +470,10 @@ void vterm_state_get_palette_color(const VTermState *state, int index, VTermColo
 void vterm_state_set_default_colors(VTermState *state, const VTermColor *default_fg, const VTermColor *default_bg);
 void vterm_state_set_palette_color(VTermState *state, int index, const VTermColor *col);
 void vterm_state_set_bold_highbright(VTermState *state, int bold_is_highbright);
+/* Marks all cells written from now on as belonging to hyperlink 'uri'. The
+ * meaning of the index is up to the caller; 0 means the cells are not part of
+ * a hyperlink. */
+void vterm_state_set_uri(VTermState *state, int uri);
 int  vterm_state_get_penattr(const VTermState *state, VTermAttr attr, VTermValue *val);
 int  vterm_state_set_termprop(VTermState *state, VTermProp prop, VTermValue *val);
 void vterm_state_focus_in(VTermState *state);
@@ -531,6 +536,7 @@ typedef struct {
   char     width;
   VTermScreenCellAttrs attrs;
   VTermColor fg, bg;
+  int uri;               /* Hyperlink index set by vterm_state_set_uri(), 0 for none */
 } VTermScreenCell;
 
 typedef struct {
@@ -591,8 +597,9 @@ typedef enum {
   VTERM_ATTR_CONCEAL_MASK    = 1 << 9,
   VTERM_ATTR_SMALL_MASK      = 1 << 10,
   VTERM_ATTR_BASELINE_MASK   = 1 << 11,
+  VTERM_ATTR_URI_MASK        = 1 << 12,
 
-  VTERM_ALL_ATTRS_MASK = (1 << 12) - 1
+  VTERM_ALL_ATTRS_MASK = (1 << 13) - 1
 } VTermAttrMask;
 
 int vterm_screen_get_attrs_extent(const VTermScreen *screen, VTermRect *extent, VTermPos pos, VTermAttrMask attrs);

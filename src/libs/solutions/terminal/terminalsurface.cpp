@@ -9,7 +9,9 @@
 
 #include <vterm.h>
 
+#include <QHash>
 #include <QLoggingCategory>
+#include <QStringList>
 #include <QTimer>
 
 namespace TerminalSolution {
@@ -307,8 +309,72 @@ struct TerminalSurfacePrivate
         return 1;
     }
 
+    // OSC 8 ; params ; uri ST, see
+    // https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
+    void setHyperlink(const VTermStringFragment &fragment)
+    {
+        static constexpr qsizetype maxUriLength = 4096;
+
+        if (fragment.initial) {
+            m_uriBuffer.clear();
+            m_uriTooLong = false;
+        }
+
+        if (m_uriBuffer.size() + qsizetype(fragment.len) > maxUriLength) {
+            m_uriTooLong = true;
+            m_uriBuffer.clear();
+        }
+
+        if (!m_uriTooLong)
+            m_uriBuffer.append(fragment.str, fragment.len);
+
+        if (!fragment.final)
+            return;
+
+        VTermState *state = vterm_obtain_state(m_vterm.get());
+
+        const qsizetype separator = m_uriBuffer.indexOf(';');
+        const bool ends = separator < 0 || separator == m_uriBuffer.size() - 1;
+        if (m_uriTooLong || ends) {
+            vterm_state_set_uri(state, 0);
+            return;
+        }
+
+        // The params are part of the key: two links with the same uri but a different
+        // id are distinct links.
+        const QByteArray key = m_uriBuffer;
+
+        const auto it = m_uriIds.constFind(key);
+        int id = 0;
+        if (it != m_uriIds.constEnd()) {
+            id = *it;
+        } else {
+            m_uris.append(QString::fromUtf8(m_uriBuffer.sliced(separator + 1)));
+            id = int(m_uris.size());
+            m_uriIds.insert(key, id);
+        }
+
+        vterm_state_set_uri(state, id);
+    }
+
+    int uriIdAt(QPoint gridPos)
+    {
+        if (gridPos.x() < 0 || gridPos.y() < 0 || gridPos.x() >= liveSize().width()
+            || gridPos.y() >= q->fullSize().height()) {
+            return 0;
+        }
+
+        const VTermScreenCell *cell = cellAt(gridPos.x(), gridPos.y());
+        return cell ? cell->uri : 0;
+    }
+
     int osc(int cmd, const VTermStringFragment &fragment)
     {
+        if (cmd == 8) {
+            setHyperlink(fragment);
+            return 1;
+        }
+
         if (m_surfaceIntegration) {
             m_surfaceIntegration->onOsc(cmd,
                                         {fragment.str, fragment.len},
@@ -422,6 +488,11 @@ struct TerminalSurfacePrivate
     QByteArray m_selectionBuffer;
 
     TerminalSurface::WriteToPty m_writeToPty;
+
+    QByteArray m_uriBuffer;
+    bool m_uriTooLong{false};
+    QHash<QByteArray, int> m_uriIds;
+    QStringList m_uris;
 };
 
 TerminalSurface::TerminalSurface(QSize initialGridSize)
@@ -491,6 +562,32 @@ TerminalCell TerminalSurface::fetchCell(int x, int y) const
         return emptyCell;
 
     return d->toCell(*refCell);
+}
+
+std::optional<Hyperlink> TerminalSurface::hyperlinkAt(QPoint gridPos) const
+{
+    const int id = d->uriIdAt(gridPos);
+    if (id < 1 || id > d->m_uris.size())
+        return std::nullopt;
+
+    const int pos = gridToPos(gridPos);
+
+    // An application that opens a hyperlink and never closes it marks everything written
+    // afterwards, so the run is only followed for as far as it could be shown.
+    const int maxExtent = liveSize().width() * liveSize().height();
+    const int lastPos = gridToPos({liveSize().width() - 1, fullSize().height() - 1});
+
+    int start = pos;
+    const int minStart = qMax(0, pos - maxExtent);
+    while (start > minStart && d->uriIdAt(posToGrid(start - 1)) == id)
+        --start;
+
+    int end = pos + 1;
+    const int maxEnd = qMin(lastPos, pos + maxExtent);
+    while (end <= maxEnd && d->uriIdAt(posToGrid(end)) == id)
+        ++end;
+
+    return Hyperlink{d->m_uris.at(id - 1), start, end};
 }
 
 void TerminalSurface::clearAll()

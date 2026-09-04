@@ -28,6 +28,8 @@ typedef struct
   unsigned int small     : 1;
   unsigned int baseline  : 2;
 
+  int uri;
+
   /* Extra state storage that isn't strictly pen-related */
   unsigned int protected_cell : 1;
   unsigned int dwl            : 1; /* on a DECDWL or DECDHL line */
@@ -77,6 +79,7 @@ static inline void clearcell(const VTermScreen *screen, ScreenCell *cell)
 {
   cell->chars[0] = 0;
   cell->pen = screen->pen;
+  cell->pen.uri = 0;
 }
 
 static inline ScreenCell *getcell(const VTermScreen *screen, int row, int col)
@@ -444,6 +447,9 @@ static int setpenattr(VTermAttr attr, VTermValue *val, void *user)
   case VTERM_ATTR_BASELINE:
     screen->pen.baseline = val->number;
     return 1;
+  case VTERM_ATTR_URI:
+    screen->pen.uri = val->number;
+    return 1;
 
   case VTERM_N_ATTRS:
     return 0;
@@ -701,6 +707,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
         dst->pen.font      = src->attrs.font;
         dst->pen.small     = src->attrs.small;
         dst->pen.baseline  = src->attrs.baseline;
+        dst->pen.uri       = src->uri;
 
         dst->pen.fg = src->fg;
         dst->pen.bg = src->bg;
@@ -994,6 +1001,8 @@ int vterm_screen_get_cell(const VTermScreen *screen, VTermPos pos, VTermScreenCe
   cell->attrs.dwl = intcell->pen.dwl;
   cell->attrs.dhl = intcell->pen.dhl;
 
+  cell->uri = intcell->pen.uri;
+
   cell->fg = intcell->pen.fg;
   cell->bg = intcell->pen.bg;
 
@@ -1119,6 +1128,8 @@ static int attrs_differ(VTermAttrMask attrs, ScreenCell *a, ScreenCell *b)
   if((attrs & VTERM_ATTR_SMALL_MASK)    && (a->pen.small != b->pen.small))
     return 1;
   if((attrs & VTERM_ATTR_BASELINE_MASK)    && (a->pen.baseline != b->pen.baseline))
+    return 1;
+  if((attrs & VTERM_ATTR_URI_MASK)         && (a->pen.uri != b->pen.uri))
     return 1;
 
   return 0;

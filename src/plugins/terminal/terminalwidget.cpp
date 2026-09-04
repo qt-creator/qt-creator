@@ -528,8 +528,40 @@ void TerminalWidget::selectionChanged(const std::optional<Selection> &newSelecti
     }
 }
 
+// The shell's executable sits on the device the shell runs on, which m_cwd only names
+// once shell integration has reported a directory - and it never does for a shell that
+// is not integrated.
+FilePath TerminalWidget::shellFilePath() const
+{
+    if (m_process && !m_process->commandLine().executable().isEmpty())
+        return m_process->commandLine().executable();
+
+    return m_openParameters.shellCommand.value_or(CommandLine{}).executable();
+}
+
 void TerminalWidget::linkActivated(const Link &link)
 {
+    const auto open = [&link](const FilePath &filePath) {
+        if (filePath.isDir())
+            Core::FileUtils::showInFileSystemView(filePath);
+        else
+            EditorManager::openEditorAt(Utils::Link{filePath, link.targetLine, link.targetColumn});
+    };
+
+    if (link.isUri) {
+        QUrl url(link.text);
+        if (!url.isLocalFile()) {
+            QDesktopServices::openUrl(url);
+            return;
+        }
+
+        // A host in the uri names the machine the shell runs on, not a path on it, so
+        // drop it and resolve the path on that machine.
+        url.setHost({});
+        open(shellFilePath().withNewPath(FilePath::fromUrl(url).path()));
+        return;
+    }
+
     if (link.text.startsWith("vcs:///")) {
         QString reference = link.text.mid(7);
         IVersionControl *vcs = VcsManager::findVersionControlForDirectory(m_cwd);
@@ -549,10 +581,7 @@ void TerminalWidget::linkActivated(const Link &link)
         return;
     }
 
-    if (filePath.isDir())
-        Core::FileUtils::showInFileSystemView(filePath);
-    else
-        EditorManager::openEditorAt(Utils::Link{filePath, link.targetLine, link.targetColumn});
+    open(filePath);
 }
 
 void TerminalWidget::focusInEvent(QFocusEvent *event)

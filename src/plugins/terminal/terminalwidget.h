@@ -65,6 +65,8 @@ protected:
 
     void handleEscKey(QKeyEvent *event);
 
+    Utils::FilePath shellFilePath() const;
+
     void selectionChanged(const std::optional<Selection> &newSelection) override;
     void linkActivated(const Link &link) override;
     void contextMenuRequested(const QPoint &pos) override;

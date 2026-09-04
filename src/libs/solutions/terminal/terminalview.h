@@ -98,6 +98,8 @@ public:
         QString text;
         int targetLine = 0;
         int targetColumn = 0;
+        // The link was marked as such by the application (OSC 8), text is a uri.
+        bool isUri = false;
     };
 
     struct LinkSelection : public Selection
@@ -107,7 +109,8 @@ public:
         bool operator!=(const LinkSelection &other) const
         {
             return link.text != other.link.text || link.targetLine != other.link.targetLine
-                   || link.targetColumn != other.link.targetColumn || Selection::operator!=(other);
+                   || link.targetColumn != other.link.targetColumn || link.isUri != other.link.isUri
+                   || Selection::operator!=(other);
         }
     };
 
@@ -210,6 +213,8 @@ protected:
                                                                    int rowOffset) const;
 
     bool checkLinkAt(const QPoint &pos);
+    void clearLinkSelection();
+    void showLinkToolTip(const Link &link);
 
     struct TextAndOffsets
     {

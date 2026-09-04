@@ -2104,6 +2104,7 @@ void vterm_state_reset(VTermState *state, int hard)
     (*state->callbacks->initpen)(state->cbdata);
 
   vterm_state_resetpen(state);
+  vterm_state_set_uri(state, 0);
 
   VTermEncoding *default_enc = state->vt->mode.utf8 ?
       vterm_lookup_encoding(ENC_UTF8,      'u') :

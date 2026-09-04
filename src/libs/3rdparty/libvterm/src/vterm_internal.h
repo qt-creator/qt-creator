@@ -50,6 +50,7 @@ struct VTermPen
   unsigned int font:4; /* To store 0-9 */
   unsigned int small:1;
   unsigned int baseline:2;
+  int uri;
 };
 
 struct VTermState

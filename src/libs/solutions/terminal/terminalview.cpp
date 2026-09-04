@@ -22,6 +22,7 @@
 #include <QPixmapCache>
 #include <QRawFont>
 #include <QRegularExpression>
+#include <QScreen>
 #include <QScrollBar>
 #include <QTextItem>
 #include <QTextLayout>
@@ -1010,9 +1011,8 @@ void TerminalView::keyPressEvent(QKeyEvent *event)
 void TerminalView::keyReleaseEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Control && d->m_linkSelection.has_value()) {
-        d->m_linkSelection.reset();
+        clearLinkSelection();
         setCursor(Qt::IBeamCursor);
-        updateViewport();
     }
 }
 
@@ -1269,9 +1269,8 @@ void TerminalView::mouseMoveEvent(QMouseEvent *event)
         setSelection(newSelection);
     } else if (event->modifiers() & Qt::ControlModifier) {
         checkLinkAt(event->pos());
-    } else if (d->m_linkSelection) {
-        d->m_linkSelection.reset();
-        updateViewport();
+    } else {
+        clearLinkSelection();
     }
 
     if (d->m_linkSelection) {
@@ -1331,29 +1330,61 @@ void TerminalView::wheelEvent(QWheelEvent *event)
         d->m_surface->mouseButton(Qt::ExtraButton2, true, event->modifiers());
 }
 
+void TerminalView::clearLinkSelection()
+{
+    if (!d->m_linkSelection)
+        return;
+
+    d->m_linkSelection.reset();
+    QToolTip::hideText();
+    updateViewport();
+}
+
 bool TerminalView::checkLinkAt(const QPoint &pos)
 {
+    const auto setLinkSelection = [this](const LinkSelection &newSelection) {
+        if (!d->m_linkSelection || *d->m_linkSelection != newSelection) {
+            d->m_linkSelection = newSelection;
+            showLinkToolTip(newSelection.link);
+            updateViewport();
+        }
+        return true;
+    };
+
+    const std::optional<Hyperlink> hyperlink
+        = d->m_surface->hyperlinkAt(globalToGrid(viewportToGlobal(pos)));
+    if (hyperlink) {
+        return setLinkSelection(LinkSelection{{hyperlink->start, hyperlink->end},
+                                              Link{.text = hyperlink->url, .isUri = true}});
+    }
+
     const TextAndOffsets hit = textAt(pos);
 
     if (hit.text.size() > 0) {
         QString t = QString::fromUcs4(hit.text.c_str(), hit.text.size()).trimmed();
         auto newLink = toLink(t);
-        if (newLink) {
-            const LinkSelection newSelection = LinkSelection{{hit.start, hit.end}, *newLink};
-            if (!d->m_linkSelection || *d->m_linkSelection != newSelection) {
-                d->m_linkSelection = newSelection;
-                updateViewport();
-            }
-
-            return true;
-        }
+        if (newLink)
+            return setLinkSelection(LinkSelection{{hit.start, hit.end}, *newLink});
     }
 
-    if (d->m_linkSelection) {
-        d->m_linkSelection.reset();
-        updateViewport();
-    }
+    clearLinkSelection();
     return false;
+}
+
+void TerminalView::showLinkToolTip(const Link &link)
+{
+    // A sniffed link is its own target; only a uri the application supplied can name
+    // something other than the text it is shown on.
+    if (!link.isUri) {
+        QToolTip::hideText();
+        return;
+    }
+
+    const int maxWidth = screen()->availableGeometry().width() / 2;
+    const QString text
+        = QFontMetrics(QToolTip::font()).elidedText(link.text, Qt::ElideMiddle, maxWidth);
+
+    QToolTip::showText(QCursor::pos(), text, this);
 }
 
 TerminalView::TextAndOffsets TerminalView::textAt(const QPoint &pos) const
