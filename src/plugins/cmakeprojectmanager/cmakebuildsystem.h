@@ -8,6 +8,8 @@
 #include "cmaketool.h"
 #include "fileapireader.h"
 
+#include <cmakelang/cmakesignature.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/task.h>
@@ -62,6 +64,22 @@ public:
         QString snippet;
         int line = -1;
         int column = -1;
+    };
+
+    struct ProjectFileArgumentPosition
+    {
+        Utils::FilePath cmakeFile;
+        QString relativeFileName;
+        int line = 0;
+        int column = 0;
+        // The length of the argument as it is spelled, quotes included.
+        int length = 0;
+        bool quoted = false;
+        bool fromGlobbing = false;
+        // Where the keyword that the argument is the only value of sits.
+        // Removing the argument has to remove the keyword as well.
+        int keywordLine = 0;
+        int keywordColumn = 0;
     };
 
     bool addTargetProperty(ProjectExplorer::Node *context, const QString &property, const QString &value,
@@ -240,20 +258,10 @@ private:
     void runCTest();
 
     void setupCMakeSymbolsHash();
+    void setupCommandSignatures();
 
     void updateQmlCodeModelInfo(ProjectExplorer::QmlCodeModelInfo &projectInfo) final;
 
-    struct ProjectFileArgumentPosition
-    {
-        Utils::FilePath cmakeFile;
-        QString relativeFileName;
-        int line = 0;
-        int column = 0;
-        // The length of the argument as it is spelled, quotes included.
-        int length = 0;
-        bool quoted = false;
-        bool fromGlobbing = false;
-    };
     Utils::Result<ProjectFileArgumentPosition> projectFileArgumentPosition(
         const QString &targetName, const QString &fileName);
 
@@ -270,6 +278,7 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;
+    CMakeLang::SignatureTable m_commandSignatures;
     QHash<QString, Utils::Link> m_cmakeSymbolsHash;
     QHash<QString, Utils::Link> m_dotCMakeFilesHash;
     QHash<QString, Utils::Link> m_findPackagesFilesHash;
@@ -303,6 +312,7 @@ private:
 
 #ifdef WITH_TESTS
 QObject *createAddDependenciesTest();
+QObject *createQmlModuleFilesTest();
 #endif
 
 QString quoteString(const QString &fileName);

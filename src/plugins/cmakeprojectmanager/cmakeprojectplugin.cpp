@@ -78,6 +78,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createCMakeAutogenParserTest);
         addTestCreator(createCMakeProjectImporterTest);
         addTestCreator(createAddDependenciesTest);
+        addTestCreator(createQmlModuleFilesTest);
         addTestCreator(createTestPresetsInheritanceTest);
 #endif
 

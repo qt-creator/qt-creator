@@ -228,9 +228,44 @@ static QString relativeFilePaths(const FilePaths &filePaths, const FilePath &pro
         .join(' ');
 };
 
-static QString newFilesForCommand(CommandAST *command,
-                                  const FilePaths &filePaths,
-                                  const FilePath &projDir)
+// The last value the keyword takes in the call, the keyword itself when it
+// takes none, or null when the call does not spell the keyword.
+static ArgumentAST *lastValueOfKeyword(CommandAST *command,
+                                       const Signature &signature,
+                                       const QString &keyword)
+{
+    for (const KeywordArguments &group : groupArguments(command, signature)) {
+        if (!group.keyword || group.keyword->value() != keyword)
+            continue;
+        return group.values.isEmpty() ? group.keyword : group.values.last();
+    }
+    return nullptr;
+}
+
+// The keyword that the argument is the only value of, and that taking the
+// argument away would leave without any.
+static ArgumentAST *keywordLeftEmpty(CommandAST *command,
+                                     const Signature &signature,
+                                     ArgumentAST *argument)
+{
+    for (const KeywordArguments &group : groupArguments(command, signature)) {
+        if (!group.keyword || group.values.size() != 1 || group.values.first() != argument)
+            continue;
+        if (signature.arity(group.keyword->value()) == Signature::MultiValue)
+            return group.keyword;
+    }
+    return nullptr;
+}
+
+struct KeywordedFiles
+{
+    QString keyword;
+    QString files;
+};
+
+static QList<KeywordedFiles> newFilesForCommand(CommandAST *command,
+                                                const FilePaths &filePaths,
+                                                const FilePath &projDir)
 {
     if (command->isNamed("qt_add_qml_module") || command->isNamed("qt6_add_qml_module")) {
         FilePaths sourceFiles;
@@ -256,18 +291,18 @@ static QString newFilesForCommand(CommandAST *command,
             }
         }
 
-        QStringList result;
+        QList<KeywordedFiles> result;
         if (!sourceFiles.isEmpty())
-            result << QString("SOURCES %1").arg(relativeFilePaths(sourceFiles, projDir));
+            result.append({"SOURCES", relativeFilePaths(sourceFiles, projDir)});
         if (!resourceFiles.isEmpty())
-            result << QString("RESOURCES %1").arg(relativeFilePaths(resourceFiles, projDir));
+            result.append({"RESOURCES", relativeFilePaths(resourceFiles, projDir)});
         if (!qmlFiles.isEmpty())
-            result << QString("QML_FILES %1").arg(relativeFilePaths(qmlFiles, projDir));
+            result.append({"QML_FILES", relativeFilePaths(qmlFiles, projDir)});
 
-        return result.join("\n");
+        return result;
     }
 
-    return relativeFilePaths(filePaths, projDir);
+    return {{{}, relativeFilePaths(filePaths, projDir)}};
 }
 
 static std::optional<Link> cmakeFileForBuildKey(const QString &buildKey,
@@ -381,6 +416,50 @@ static CMakeBuildSystem::SnippetAndLocation generateSnippetAndLocationForSources
                              .arg(targetName)
                              .arg(newSourceFiles);
     }
+    return result;
+}
+
+// The files go after the last value of the keyword that already takes their
+// kind, so that the keyword is not spelled a second time. Only a keyword the
+// call does not have yet is added with them.
+static QList<CMakeBuildSystem::SnippetAndLocation> generateSnippetsAndLocationsForSources(
+        const QList<KeywordedFiles> &newFiles,
+        const DocumentPtr &document,
+        CommandAST *command,
+        const QString &targetName,
+        const Signature &signature)
+{
+    QList<CMakeBuildSystem::SnippetAndLocation> result;
+    for (const KeywordedFiles &newFile : newFiles) {
+        ArgumentAST *lastValue = newFile.keyword.isEmpty()
+                                     ? nullptr
+                                     : lastValueOfKeyword(command, signature, newFile.keyword);
+        if (!lastValue) {
+            const QString files = newFile.keyword.isEmpty()
+                                      ? newFile.files
+                                      : QString("%1 %2").arg(newFile.keyword, newFile.files);
+            result.append(
+                generateSnippetAndLocationForSources(files, document, command, targetName));
+            continue;
+        }
+
+        const Token &token = lastValue->token;
+        result.append({QString("\n%1").arg(newFile.files),
+                       token.line,
+                       token.column + token.length - 1});
+    }
+
+    // Insert from the last location towards the first, where an insertion
+    // cannot move a location that is still to come. Locations that coincide
+    // keep the order the files came in.
+    std::reverse(result.begin(), result.end());
+    std::stable_sort(result.begin(),
+                     result.end(),
+                     [](const CMakeBuildSystem::SnippetAndLocation &first,
+                        const CMakeBuildSystem::SnippetAndLocation &second) {
+                         return std::tie(first.line, first.column)
+                                > std::tie(second.line, second.column);
+                     });
     return result;
 }
 
@@ -729,6 +808,30 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
     return false;
 }
 
+static Result<bool> insertFilesSilently(const FilePath &targetCMakeFile,
+                                        const DocumentPtr &document,
+                                        const SignatureTable &signatures,
+                                        CommandAST *command,
+                                        const QString &targetName,
+                                        const FilePaths &filePaths,
+                                        const FilePath &projDir)
+{
+    const QList<KeywordedFiles> newFiles = newFilesForCommand(command, filePaths, projDir);
+    const QList<CMakeBuildSystem::SnippetAndLocation> snippetLocations
+        = generateSnippetsAndLocationsForSources(newFiles,
+                                                 document,
+                                                 command,
+                                                 targetName,
+                                                 signatures.signature(command->commandName()));
+
+    for (const CMakeBuildSystem::SnippetAndLocation &snippetLocation : snippetLocations) {
+        const Result<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
+        if (!inserted)
+            return inserted;
+    }
+    return true;
+}
+
 // Whether any argument of the command expands a variable that file(GLOB) filled.
 static bool usesGlobbing(const DocumentPtr &document, CommandAST *command)
 {
@@ -795,13 +898,13 @@ bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, Fi
             if (qmlModule)
                 command = qmlModule;
 
-            const QString newSourceFiles = newFilesForCommand(command,
+            const Result<bool> inserted = insertFilesSilently(targetCMakeFile,
+                                                              document,
+                                                              m_commandSignatures,
+                                                              command,
+                                                              targetName,
                                                               filePaths,
                                                               n->filePath().canonicalPath());
-
-            const SnippetAndLocation snippetLocation = generateSnippetAndLocationForSources(
-                        newSourceFiles, document, command, targetName);
-            Result<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
             if (!inserted) {
                 qCCritical(cmakeBuildSystemLog) << inserted.error();
                 return false;
@@ -834,21 +937,15 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
     return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 
-Result<CMakeBuildSystem::ProjectFileArgumentPosition>
-CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const QString &fileName)
+static Result<CMakeBuildSystem::ProjectFileArgumentPosition> fileArgumentPosition(
+        const DocumentPtr &document,
+        const SignatureTable &signatures,
+        const FilePath &targetCMakeFile,
+        int targetDefinitionLine,
+        const QString &targetName,
+        const QString &fileName)
 {
-    const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
-    if (!cmakeFile)
-        return ResultError(QString("Couldn't find CMake file for target: %1").arg(targetName));
-
-    const FilePath targetCMakeFile = cmakeFile->targetFilePath;
-    const int targetDefinitionLine = cmakeFile->target.line;
-
-    const DocumentPtr document = getUncachedCMakeFile(targetCMakeFile);
-    if (!document) {
-        return ResultError(
-            QString("Cannot parse CMake file: %1").arg(targetCMakeFile.toUserOutput()));
-    }
+    using ProjectFileArgumentPosition = CMakeBuildSystem::ProjectFileArgumentPosition;
 
     CommandAST *targetCommand = findCommand(document, startsOnLine(targetDefinitionLine));
     if (!targetCommand) {
@@ -874,13 +971,19 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
         return command->isNamed("set_source_files_properties");
     });
 
-    auto position = [&targetCMakeFile, &fileName](ArgumentAST *argument) {
-        return ProjectFileArgumentPosition{targetCMakeFile,
+    auto position = [&](CommandAST *command, ArgumentAST *argument) {
+        ProjectFileArgumentPosition result{targetCMakeFile,
                                            fileName,
                                            argument->token.line,
                                            argument->token.column,
                                            argument->token.length,
                                            argument->asQuotedArgument() != nullptr};
+        const Signature signature = signatures.signature(command->commandName());
+        if (ArgumentAST *keyword = keywordLeftEmpty(command, signature, argument)) {
+            result.keywordLine = keyword->token.line;
+            result.keywordColumn = keyword->token.column;
+        }
+        return result;
     };
     auto namesFile = [&fileName](ArgumentAST *argument) { return argument->value() == fileName; };
 
@@ -890,7 +993,7 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
             continue;
 
         if (ArgumentAST *argument = Utils::findOrDefault(command->arguments(), namesFile))
-            return position(argument);
+            return position(command, argument);
 
         // Check if the filename is part of globbing variable result
         if (usesGlobbing(document, command)) {
@@ -911,7 +1014,7 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
                 }
 
                 if (ArgumentAST *found = Utils::findOrDefault(arguments, namesFile))
-                    return position(found);
+                    return position(candidate, found);
             }
         }
     }
@@ -919,6 +1022,28 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
     return ResultError(QString("Command that adds the file %1 to the target %2 could not be found.")
                            .arg(fileName)
                            .arg(targetName));
+}
+
+Result<CMakeBuildSystem::ProjectFileArgumentPosition>
+CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const QString &fileName)
+{
+    const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
+    if (!cmakeFile)
+        return ResultError(QString("Couldn't find CMake file for target: %1").arg(targetName));
+
+    const FilePath targetCMakeFile = cmakeFile->targetFilePath;
+    const DocumentPtr document = getUncachedCMakeFile(targetCMakeFile);
+    if (!document) {
+        return ResultError(
+            QString("Cannot parse CMake file: %1").arg(targetCMakeFile.toUserOutput()));
+    }
+
+    return fileArgumentPosition(document,
+                                m_commandSignatures,
+                                targetCMakeFile,
+                                cmakeFile->target.line,
+                                targetName,
+                                fileName);
 }
 
 QString CMakeBuildSystem::cmakeGenerator() const
@@ -938,6 +1063,57 @@ QVariant CMakeBuildSystem::additionalData(Id id) const
         return QVariant::fromValue(m_findPackagesFilesHash);
     }
     return {};
+}
+
+// Removes the text, and the line it leaves behind when nothing but whitespace
+// is left of it.
+static void removeTextAndEmptyLine(TextEditorWidget *widget, int position, int length)
+{
+    widget->replace(position, length, {});
+
+    QTextDocument *document = widget->document();
+    const QTextBlock block = document->findBlock(position);
+    if (!block.text().trimmed().isEmpty())
+        return;
+
+    const QTextBlock previous = block.previous();
+    const int from = previous.isValid() ? previous.position() + previous.length() - 1
+                                        : block.position();
+    widget->replace(from, block.position() + block.length() - 1 - from, {});
+}
+
+static Result<bool> removeFileArgumentSilently(
+        const CMakeBuildSystem::ProjectFileArgumentPosition &filePos)
+{
+    // A keyword that the file is the only value of goes with it.
+    const Text::Position argument{filePos.line, filePos.column - 1};
+    const Text::Position start = filePos.keywordLine > 0
+                                     ? Text::Position{filePos.keywordLine,
+                                                      filePos.keywordColumn - 1}
+                                     : argument;
+
+    BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(
+        {filePos.cmakeFile, start.line, start.column},
+        Constants::CMAKE_EDITOR_ID,
+        Core::EditorManager::DoNotMakeVisible | Core::EditorManager::DoNotChangeCurrentEditor));
+    if (!editor) {
+        return ResultError("BaseTextEditor cannot be obtained for "
+                           + filePos.cmakeFile.toUserOutput() + ":"
+                           + QString::number(start.line) + ":" + QString::number(start.column));
+    }
+
+    // The quotes around the source file, if it had any, go as well.
+    TextEditorWidget *widget = editor->editorWidget();
+    QTextDocument *document = widget->document();
+    const int from = start.toPositionInDocument(document);
+    const int to = argument.toPositionInDocument(document) + filePos.length;
+    removeTextAndEmptyLine(widget, from, to - from);
+
+    widget->autoIndent();
+    if (!Core::DocumentManager::saveDocument(editor->document()))
+        return ResultError("Changes to " + filePos.cmakeFile.toUserOutput()
+                           + " could not be saved.");
+    return true;
 }
 
 RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
@@ -961,30 +1137,10 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                 continue;
             }
 
-            BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
-                Core::EditorManager::openEditorAt(
-                    {filePos->cmakeFile, filePos->line, filePos->column - 1},
-                    Constants::CMAKE_EDITOR_ID,
-                    Core::EditorManager::DoNotMakeVisible
-                        | Core::EditorManager::DoNotChangeCurrentEditor));
-            if (!editor) {
+            const Result<bool> removed = removeFileArgumentSilently(*filePos);
+            if (!removed) {
                 badFiles << file;
-
-                qCCritical(cmakeBuildSystemLog).noquote()
-                    << "BaseTextEditor cannot be obtained for" << filePos->cmakeFile.path()
-                    << filePos->line << filePos->column - 1;
-                continue;
-            }
-
-            // The quotes around the source file, if it had any, go as well.
-            editor->replace(filePos->length, "");
-
-            editor->editorWidget()->autoIndent();
-            if (!Core::DocumentManager::saveDocument(editor->document())) {
-                badFiles << file;
-
-                qCCritical(cmakeBuildSystemLog).noquote()
-                    << "Changes to" << filePos->cmakeFile.path() << "could not be saved.";
+                qCCritical(cmakeBuildSystemLog).noquote() << removed.error();
                 continue;
             }
         }
@@ -1305,6 +1461,40 @@ bool CMakeBuildSystem::addDependencies(
 }
 
 #ifdef WITH_TESTS
+// Compares every file of the directory against its _expected.cmake sibling.
+static void compareWithExpected(const FilePath &directory)
+{
+    static const QString suffix = "_expected.cmake";
+    const FileFilter filter({"*" + suffix}, DirFilterFlag::Files);
+    const FilePaths expectedDocuments = directory.dirEntries(filter);
+    QVERIFY(!expectedDocuments.isEmpty());
+
+    for (const FilePath &expected : expectedDocuments) {
+        const FilePath actual = expected.parentDir().pathAppended(
+            expected.fileName().chopped(suffix.size()) + ".cmake");
+        QVERIFY(actual.exists());
+        const auto actualContents = actual.fileContents();
+        QVERIFY(actualContents);
+        const auto expectedContents = expected.fileContents();
+        const QByteArrayList actualLines = actualContents->split('\n');
+        const QByteArrayList expectedLines = expectedContents->split('\n');
+        if (actualLines.size() != expectedLines.size()) {
+            qDebug().noquote().nospace() << "---\n" << *expectedContents << "EOF";
+            qDebug().noquote().nospace() << "+++\n" << *actualContents << "EOF";
+        }
+        QCOMPARE(actualLines.size(), expectedLines.size());
+        for (int i = 0; i < actualLines.size(); ++i) {
+            const QByteArray actualLine = actualLines.at(i);
+            const QByteArray expectedLine = expectedLines.at(i);
+            if (actualLine != expectedLine) {
+                qDebug() << "Unexpected content in line" << (i + 1) << "of file"
+                         << actual.fileName();
+            }
+            QCOMPARE(actualLine, expectedLine);
+        }
+    }
+}
+
 class AddDependenciesTest final : public QObject
 {
     Q_OBJECT
@@ -1340,40 +1530,137 @@ private slots:
             {"Qt.Concurrent"},
             "6"));
 
-        // Compare files.
-        static const QString suffix = "_expected.cmake";
-        const FileFilter filter({"*" + suffix}, DirFilterFlag::Files);
-        const FilePaths expectedDocuments = projectDir->filePath().dirEntries(filter);
-        QVERIFY(!expectedDocuments.isEmpty());
-        for (const FilePath &expected : expectedDocuments) {
-            const FilePath actual = expected.parentDir().pathAppended(
-                expected.fileName().chopped(suffix.size()) + ".cmake");
-            QVERIFY(actual.exists());
-            const auto actualContents = actual.fileContents();
-            QVERIFY(actualContents);
-            const auto expectedContents = expected.fileContents();
-            const QByteArrayList actualLines = actualContents->split('\n');
-            const QByteArrayList expectedLines = expectedContents->split('\n');
-            if (actualLines.size() != expectedLines.size()) {
-                qDebug().noquote().nospace() << "---\n" << *expectedContents << "EOF";
-                qDebug().noquote().nospace() << "+++\n" << *actualContents << "EOF";
-            }
-            QCOMPARE(actualLines.size(), expectedLines.size());
-            for (int i = 0; i < actualLines.size(); ++i) {
-                const QByteArray actualLine = actualLines.at(i);
-                const QByteArray expectedLine = expectedLines.at(i);
-                if (actualLine != expectedLine)
-                    qDebug() << "Unexpected content in line" << (i + 1) << "of file"
-                             << actual.fileName();
-                QCOMPARE(actualLine, expectedLine);
-            }
-        }
+        compareWithExpected(projectDir->filePath());
     }
 };
 
 QObject *createAddDependenciesTest()
 {
     return new AddDependenciesTest;
+}
+
+// Stands in for what Qt6QmlMacros.cmake declares: the keywords of the command
+// come out of its definition, not out of a list kept here.
+static const char qmlModuleDefinition[] = R"(function(qt6_add_qml_module target)
+    set(args_option STATIC SHARED)
+    set(args_single URI VERSION)
+    set(args_multi SOURCES QML_FILES RESOURCES)
+    cmake_parse_arguments(PARSE_ARGV 1 arg "${args_option}" "${args_single}" "${args_multi}")
+endfunction()
+
+if(NOT QT_NO_CREATE_VERSIONLESS_FUNCTIONS)
+    function(qt_add_qml_module)
+        qt6_add_qml_module(${ARGV})
+    endfunction()
+endif()
+)";
+
+class QmlModuleFilesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase()
+    {
+        m_signatures.addDocument(
+            Document::fromSource(QString::fromLatin1(qmlModuleDefinition)));
+        QVERIFY(!m_signatures.signature("qt_add_qml_module").isEmpty());
+    }
+
+    void cleanup()
+    {
+        Core::EditorManager::closeAllEditors(/*askAboutModifiedEditors=*/false);
+        m_projectDir.reset();
+    }
+
+    void testAddFiles()
+    {
+        copyTestcases("add");
+
+        addTo("existing_keyword.cmake", {"Item.qml"});
+        addTo("indented_keyword.cmake", {"Item.qml", "extra.cpp"});
+        addTo("new_keyword.cmake", {"Item.qml", "logo.png"});
+
+        compareWithExpected(m_directory);
+    }
+
+    void testRemoveFiles()
+    {
+        copyTestcases("remove");
+
+        removeFrom("last.cmake", {"Main.qml"});
+        removeFrom("one.cmake", {"Main.qml"});
+        removeFrom("all.cmake", {"Main.qml", "Item.qml"});
+
+        compareWithExpected(m_directory);
+    }
+
+private:
+    void copyTestcases(const QString &name)
+    {
+        m_projectDir = std::make_unique<CppEditor::Tests::TemporaryCopiedDir>(
+            ":/cmakeprojectmanager/testcases/qmlmodulefiles/" + name);
+        m_directory = m_projectDir->filePath().canonicalPath();
+
+        // The files go in relative to the project, so they have to be there.
+        for (const QString &fileName : QStringList{"Item.qml", "extra.cpp", "logo.png"})
+            QVERIFY(m_directory.pathAppended(fileName).writeFileContents({}));
+    }
+
+    void addTo(const QString &cmakeFileName, const QStringList &fileNames)
+    {
+        const FilePath cmakeFile = m_directory.pathAppended(cmakeFileName);
+        const DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+
+        CommandAST *command = findCommand(document, [](CommandAST *candidate) {
+            return candidate->isNamed("qt_add_qml_module");
+        });
+        QVERIFY(command);
+
+        const FilePaths filePaths = Utils::transform(fileNames, [this](const QString &name) {
+            return m_directory.pathAppended(name);
+        });
+        const Result<bool> inserted = insertFilesSilently(cmakeFile,
+                                                          document,
+                                                          m_signatures,
+                                                          command,
+                                                          "appQuickApp",
+                                                          filePaths,
+                                                          m_directory);
+        if (!inserted)
+            QFAIL(qPrintable(inserted.error()));
+    }
+
+    void removeFrom(const QString &cmakeFileName, const QStringList &fileNames)
+    {
+        const FilePath cmakeFile = m_directory.pathAppended(cmakeFileName);
+        for (const QString &fileName : fileNames) {
+            const DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+            QVERIFY(document);
+
+            const Result<ProjectFileArgumentPosition> position
+                = fileArgumentPosition(document, m_signatures, cmakeFile, 1, "appQuickApp",
+                                       fileName);
+            if (!position)
+                QFAIL(qPrintable(position.error()));
+
+            const Result<bool> removed = removeFileArgumentSilently(*position);
+            if (!removed)
+                QFAIL(qPrintable(removed.error()));
+        }
+    }
+
+    using ProjectFileArgumentPosition = CMakeBuildSystem::ProjectFileArgumentPosition;
+
+    std::unique_ptr<CppEditor::Tests::TemporaryCopiedDir> m_projectDir;
+    FilePath m_directory;
+    SignatureTable m_signatures;
+};
+
+QObject *createQmlModuleFilesTest()
+{
+    return new QmlModuleFilesTest;
 }
 #endif
 
@@ -2063,6 +2350,7 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
         });
         m_buildTargets += m_reader.takeBuildTargets(errorMessage);
         m_cmakeFiles = m_reader.takeCMakeFileInfos(errorMessage);
+        setupCommandSignatures();
         setupCMakeSymbolsHash();
 
         checkAndReportError(errorMessage);
@@ -2192,6 +2480,13 @@ void CMakeBuildSystem::wireUpConnections()
             }
         }
     });
+}
+
+void CMakeBuildSystem::setupCommandSignatures()
+{
+    m_commandSignatures = {};
+    for (const CMakeFileInfo &cmakeFile : std::as_const(m_cmakeFiles))
+        m_commandSignatures.addDocument(cmakeFile.document);
 }
 
 void CMakeBuildSystem::setupCMakeSymbolsHash()
