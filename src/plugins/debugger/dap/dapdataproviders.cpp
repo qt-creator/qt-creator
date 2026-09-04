@@ -246,7 +246,7 @@ void TcpDataProvider::start()
 
 bool TcpDataProvider::isRunning() const
 {
-    return m_socket.isOpen();
+    return m_socket.state() == QAbstractSocket::ConnectedState;
 }
 
 void TcpDataProvider::writeRaw(const QByteArray &data)
