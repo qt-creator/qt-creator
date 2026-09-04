@@ -742,6 +742,7 @@ void BlameController::perform()
     const quint64 generation = ++m_requestGeneration;
     const FilePath topLevel = m_topLevel;
     const FilePath workingFilePath = m_workingFilePath;
+    const QString ref = m_ref;
     const TextEncoding encoding = m_encoding;
     const Author author = m_author;
     const QPointer<TextDocument> document = m_document;
