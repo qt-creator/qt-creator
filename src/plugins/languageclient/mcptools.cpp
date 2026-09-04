@@ -1481,6 +1481,75 @@ void lspDefinition(const QJsonObject &args, const ToolResultHandler &handler)
     });
 }
 
+// ----------------------------------------------------------------- symbols
+
+void lspSymbols(const QJsonObject &args, const ToolResultHandler &handler)
+{
+    const QString file = args.value("file").toString();
+    const QString query = args.value("query").toString();
+    if (file.isEmpty() || query.isEmpty()) {
+        handler(ResultError(QString("Requires \"file\" and \"query\".")));
+        return;
+    }
+    const int limit = resultLimit(args);
+
+    resolveClient(FilePath::fromUserInput(file), [query, limit, handler](
+                                                     const Result<Resolved> &resolved) {
+        if (!resolved) {
+            handler(ResultError(resolved.error()));
+            return;
+        }
+        if (!provides(resolved->client->capabilities().workspaceSymbolProvider())) {
+            handler(ResultError(unsupported(*resolved, "searching symbols")));
+            return;
+        }
+        WorkspaceSymbolParams params;
+        params.setQuery(query);
+        params.setLimit(limit + 1); // One more than reported, to learn whether there were more.
+        WorkspaceSymbolRequest request(params);
+        request.setResponseCallback([resolved = *resolved, query, limit, handler](
+                                        const WorkspaceSymbolRequest::Response &response) {
+            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+                handler(ResultError(failure->text()));
+                return;
+            }
+            if (!resolved.client) {
+                handler(ResultError(QString("The language server went away.")));
+                return;
+            }
+            // The server ranks its answer, so the order is kept.
+            QJsonArray symbols;
+            int total = 0;
+            if (response.result()) {
+                const QList<SymbolInformation> found = response.result()->toListOrEmpty();
+                total = int(found.size());
+                for (const SymbolInformation &symbol : found) {
+                    if (symbols.size() >= limit)
+                        break;
+                    QJsonObject json = locationJson(resolved.client, symbol.location());
+                    json.insert("name", symbol.name());
+                    json.insert("kind", symbolKindName(SymbolKind(symbol.kind())));
+                    if (const std::optional<QString> container = symbol.containerName();
+                            container && !container->isEmpty()) {
+                        json.insert("container", *container);
+                    }
+                    symbols.append(json);
+                }
+            }
+            QJsonObject result{{"query", query},
+                               {"symbols", symbols},
+                               {"total", qMin(total, limit)},
+                               {"truncated", total > limit}};
+            if (total == 0) {
+                result.insert("note", "No symbols match. The server matches fuzzily on the "
+                                      "name; has it indexed the project?");
+            }
+            handler(result);
+        });
+        resolved->client->sendMessage(request);
+    });
+}
+
 // ------------------------------------------------------------ registration
 
 using ToolFunction = void (*)(const QJsonObject &, const ToolResultHandler &);
@@ -1799,6 +1868,50 @@ void registerMcpTools()
                     .addRequired("locations")
                     .addRequired("total")),
         &lspDefinition);
+
+    registerAsyncTool(
+        Tool{}
+            .name("lsp_symbols")
+            .title("Search symbols via the language server")
+            .description(
+                "Searches the language server's index for symbols by name - the way to "
+                "turn a name into the file and position the other lsp_ tools take. Give a "
+                "\"query\" (matched fuzzily, ranked by the server) and any \"file\" the "
+                "server handles, which picks the server: a C++ file for clangd, a QML file "
+                "for qmlls. Each symbol has its name, kind, container (class or namespace), "
+                "file and 1-based line/column of its name. \"limit\" caps the count; "
+                "\"truncated\" says whether more matched. The file is opened in a hidden "
+                "editor if it is not open; a server that is still starting asks to be "
+                "retried.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{{"type", "string"},
+                                    {"description",
+                                     "Absolute path to a file the server handles; chooses "
+                                     "the server."}})
+                    .addProperty(
+                        "query",
+                        QJsonObject{{"type", "string"},
+                                    {"description", "The symbol name to search for."}})
+                    .addProperty("limit", limitProperty())
+                    .addRequired("file")
+                    .addRequired("query"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("query", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "symbols",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
+                    .addProperty("note", QJsonObject{{"type", "string"}})
+                    .addRequired("symbols")
+                    .addRequired("total")),
+        &lspSymbols);
 }
 
 } // namespace LanguageClient

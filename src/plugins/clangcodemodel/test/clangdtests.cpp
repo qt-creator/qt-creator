@@ -2365,6 +2365,7 @@ private slots:
     void testReferences();
     void testRename();
     void testDefinition();
+    void testSymbols();
 };
 
 // Runs one of the LanguageClient MCP tool functions to completion.
@@ -2784,6 +2785,57 @@ void ClangdTestMcpTools::testDefinition()
                          {"kind", "declaration"}});
     QVERIFY(!result);
     QVERIFY2(result.error().contains("kind"), qPrintable(result.error()));
+}
+
+void ClangdTestMcpTools::testSymbols()
+{
+    // Every func* is a free function declared in defs.h.
+    Result<QJsonObject> result = runMcpTool(&LanguageClient::lspSymbols,
+                                            {{"file", filePath("main.cpp").toFSPathString()},
+                                             {"query", "func"}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("query").toString(), QString("func"));
+    QStringList names;
+    for (const QJsonValue &value : result->value("symbols").toArray()) {
+        const QJsonObject symbol = value.toObject();
+        names << symbol.value("name").toString();
+        if (symbol.value("name").toString() == QLatin1String("func2")) {
+            QCOMPARE(symbol.value("kind").toString(), QString("function"));
+            QVERIFY(!symbol.contains("container"));
+            QVERIFY(symbol.value("file").toString().endsWith("defs.h"));
+            QCOMPARE(symbol.value("line").toInt(), 25);
+            QCOMPARE(symbol.value("column").toInt(), 6);
+        }
+    }
+    QVERIFY2(names.contains("func1") && names.contains("func5"), qPrintable(names.join(", ")));
+    QCOMPARE(result->value("total").toInt(), names.size());
+    QCOMPARE(result->value("truncated").toBool(), false);
+
+    // A member carries its container; a cap reports what it left out.
+    result = runMcpTool(&LanguageClient::lspSymbols,
+                        {{"file", filePath("main.cpp").toFSPathString()},
+                         {"query", "nonConstFunc"},
+                         {"limit", 1}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    const QJsonArray symbols = result->value("symbols").toArray();
+    QCOMPARE(symbols.size(), 1);
+    QCOMPARE(symbols.at(0).toObject().value("name").toString(), QString("nonConstFunc"));
+    QVERIFY(!symbols.at(0).toObject().value("container").toString().isEmpty()); // S or S::Nested
+    QVERIFY(result->value("truncated").toBool()); // S::nonConstFunc and S::Nested::nonConstFunc.
+
+    // Nothing matches, and a missing query.
+    result = runMcpTool(&LanguageClient::lspSymbols,
+                        {{"file", filePath("main.cpp").toFSPathString()},
+                         {"query", "noSuchSymbolAnywhere"}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("total").toInt(), 0);
+    QVERIFY(result->contains("note"));
+    result = runMcpTool(&LanguageClient::lspSymbols, {{"file", filePath("main.cpp").toFSPathString()}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("query"), qPrintable(result.error()));
 }
 
 QObject *createClangdTestCompletion()
