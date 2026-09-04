@@ -95,7 +95,14 @@ directory in parallel; they fight over the same files.
 - Always follow the rules in STYLE.md.
 - Do not describe your changes in the source. What changed, and why, belongs
   in the commit message.
-- Comment only genuinely non-obvious code, and then tersely.
+- Treat code comments as indication of a code smell.
+  Comment only genuinely non-obvious code or when explicitly asked to.
+- Never put a note aimed at the reviewer in a comment: why this approach
+  and not the obvious alternative, what was measured, what a flag
+  interacts with. Reviewers read the commit body, and it does not age
+  with the code. Most such notes are dropped rather than relocated,
+  though -- what lands there is bounded by the rules above, and covers
+  only what you actually did.
 - No comments narrating where a file came from, or restating what the code
   does.
 - Leave out bug numbers: provenance is discoverable via `git blame` and the
