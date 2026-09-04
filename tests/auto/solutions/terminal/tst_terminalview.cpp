@@ -14,6 +14,13 @@ class TestView : public TerminalView
 {
 public:
     std::optional<Link> activated;
+    QList<QSize> ptyResizes;
+
+    bool resizePty(QSize newSize) override
+    {
+        ptyResizes.append(newSize);
+        return true;
+    }
 
     // Emulates the file/hash sniffing a host does on plain text.
     std::optional<Link> toLink(const QString &text) override
@@ -137,6 +144,24 @@ private slots:
         m_view->ctrlHover({0, 0});
 
         QVERIFY(!QToolTip::isVisible());
+    }
+
+    void aBurstOfResizesIsCoalesced()
+    {
+        m_view->ptyResizes.clear();
+
+        int events = 0;
+        for (int width = 800; width > 600; width -= 20, ++events)
+            m_view->resize(width, 600);
+
+        QTRY_VERIFY(!m_view->ptyResizes.isEmpty());
+
+        QVERIFY2(m_view->ptyResizes.size() < events / 2,
+                 qPrintable(QString("%1 events became %2 resizes")
+                                .arg(events)
+                                .arg(m_view->ptyResizes.size())));
+
+        QCOMPARE(m_view->ptyResizes.last(), m_view->surface()->liveSize());
     }
 
     void plainTextIsNotALink()

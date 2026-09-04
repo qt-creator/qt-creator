@@ -226,6 +226,7 @@ protected:
     TextAndOffsets textAt(const QPoint &pos) const;
 
     void applySizeChange();
+    void applyDebouncedSize();
     void updateScrollBars();
 
     void flushVTerm(bool force);

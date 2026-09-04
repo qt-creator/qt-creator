@@ -32,6 +32,9 @@ static Q_LOGGING_CATEGORY(terminalLog, "qtc.terminal", QtWarningMsg)
 static Q_LOGGING_CATEGORY(selectionLog, "qtc.terminal.selection", QtWarningMsg)
 static Q_LOGGING_CATEGORY(paintLog, "qtc.terminal.paint", QtWarningMsg)
 
+constexpr int resizeDebounceInterval = 20;
+constexpr int resizeMaxWait = 100;
+
 namespace TerminalSolution {
 
 using namespace std::chrono;
@@ -82,6 +85,8 @@ public:
     QDeadlineTimer m_sinceLastPaint;
 
     QTimer m_scrollTimer;
+    QTimer m_resizeDebounceTimer;
+    QElapsedTimer m_sinceSizeApplied;
     int m_scrollDirection{0};
 
     std::array<QColor, 20> m_currentColors;
@@ -150,6 +155,10 @@ TerminalView::TerminalView(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+    d->m_resizeDebounceTimer.setInterval(resizeDebounceInterval);
+    d->m_resizeDebounceTimer.setSingleShot(true);
+    connect(&d->m_resizeDebounceTimer, &QTimer::timeout, this, [this] { applyDebouncedSize(); });
 
     connect(&d->m_flushDelayTimer, &QTimer::timeout, this, [this] { flushVTerm(true); });
     connect(&d->m_updateTimer, &QTimer::timeout, this, &TerminalView::scheduleViewportUpdate);
@@ -1052,14 +1061,19 @@ void TerminalView::resizeEvent(QResizeEvent *event)
 {
     event->accept();
 
-    // If increasing in size, we'll trigger libvterm to call sb_popline in
-    // order to pull lines out of the history.  This will cause the scrollback
-    // to decrease in size which reduces the size of the verticalScrollBar.
-    // That will trigger a scroll offset increase which we want to ignore.
+    if (!d->m_sinceSizeApplied.isValid() || d->m_sinceSizeApplied.elapsed() >= resizeMaxWait)
+        applyDebouncedSize();
+    else
+        d->m_resizeDebounceTimer.start();
+}
+
+void TerminalView::applyDebouncedSize()
+{
+    d->m_resizeDebounceTimer.stop();
+    d->m_sinceSizeApplied.restart();
+
     d->m_ignoreScroll = true;
-
     applySizeChange();
-
     setSelection(std::nullopt);
     d->m_ignoreScroll = false;
 }
