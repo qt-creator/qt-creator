@@ -2155,6 +2155,11 @@ void QmakeProFile::updateGeneratedFiles(const FilePath &buildDir)
 
 #ifdef WITH_TESTS
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
+
+#include <QScopeGuard>
 #include <QTest>
 
 namespace QmakeProjectManager::Internal {
@@ -2165,6 +2170,7 @@ class QmakeParserNodesTest final : public QObject
 
 private slots:
     void testGeneratedDirsUseTheBuildDevicesSpelling();
+    void testAddFilesKeepsFileEncoding();
 };
 
 void QmakeParserNodesTest::testGeneratedDirsUseTheBuildDevicesSpelling()
@@ -2181,6 +2187,44 @@ void QmakeParserNodesTest::testGeneratedDirsUseTheBuildDevicesSpelling()
     const FilePath local = FilePath::fromString("/p/build");
     QCOMPARE(QmakeProFile::uiDirPath(&reader, local), QString("/p/build"));
     QCOMPARE(QmakeProFile::mocDirPath(&reader, local), QString("/p/build"));
+}
+
+void QmakeParserNodesTest::testAddFilesKeepsFileEncoding()
+{
+    TemporaryDirectory tmpDir("qtc-qmake-encoding-XXXXXX");
+    QVERIFY(tmpDir.isValid());
+
+    // A character that no single-byte encoding can represent.
+    const QByteArray han("\xE7\x89\x88");
+    const FilePath proFilePath = tmpDir.filePath("test.pro");
+    QVERIFY(proFilePath.writeFileContents("SOURCES = a.cpp\nTARGET = " + han + "\n"));
+    const FilePath added = tmpDir.filePath("b.cpp");
+    QVERIFY(added.writeFileContents("int main() { return 0; }\n"));
+
+    const OpenProjectResult opened = ProjectExplorerPlugin::openProject(proFilePath);
+    if (!opened)
+        QSKIP(qPrintable(opened.errorMessage()));
+    Project * const project = opened.project();
+    const QScopeGuard unload([project] { ProjectExplorerPlugin::unloadProject(project); });
+    Kit * const kit = KitManager::kit([&proFilePath](const Kit *k) {
+        return k->isValid() && BuildConfigurationFactory::find(k, proFilePath);
+    });
+    if (!kit)
+        QSKIP("No kit can build qmake projects");
+    QVERIFY(project->configureAsExampleProject(kit));
+
+    auto buildSystem = static_cast<QmakeBuildSystem *>(project->activeBuildSystem());
+    QVERIFY(buildSystem);
+    QTRY_VERIFY_WITH_TIMEOUT(buildSystem->rootProFile()
+                             && buildSystem->rootProFile()->validParse()
+                             && !buildSystem->rootProFile()->parseInProgress(), 60000);
+
+    QVERIFY(buildSystem->rootProFile()->addFiles({added}));
+
+    const Result<QByteArray> contents = proFilePath.fileContents();
+    QVERIFY(contents);
+    QVERIFY(contents->contains("b.cpp"));
+    QVERIFY(contents->contains(han));
 }
 
 QObject *createQmakeParserNodesTest()
