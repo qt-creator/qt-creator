@@ -34,7 +34,9 @@ struct TerminalSurfacePrivate
         , m_vtermScreen(vterm_obtain_screen(m_vterm.get()))
         , m_scrollback(std::make_unique<Scrollback>(100'000'000))
         , q(surface)
-    {}
+    {
+        m_scrollback->setWidth(initialGridSize.width());
+    }
 
     void flush()
     {
@@ -278,6 +280,8 @@ struct TerminalSurfacePrivate
     // Callbacks from vterm
     void invalidate(VTermRect rect)
     {
+        m_blankValid = false;
+
         if (!m_altscreen) {
             rect.start_row += m_scrollback->size();
             rect.end_row += m_scrollback->size();
@@ -293,7 +297,7 @@ struct TerminalSurfacePrivate
             return 1;
 
         auto oldSize = m_scrollback->size();
-        m_scrollback->emplace(cols, cells, continuation);
+        m_scrollback->appendRow(cols, cells, continuation);
         if (m_scrollback->size() != oldSize)
             emit q->fullSizeChanged(q->fullSize());
         return 1;
@@ -304,7 +308,7 @@ struct TerminalSurfacePrivate
         if (m_reflowing)
             return 0;
 
-        if (!m_scrollback->popto(cols, cells))
+        if (!m_scrollback->popRow(cols, cells))
             return 0;
 
         emit q->fullSizeChanged(q->fullSize());
@@ -366,14 +370,6 @@ struct TerminalSurfacePrivate
         vterm_state_set_uri(state, id);
     }
 
-    using Characters = std::vector<VTermScreenCell>;
-
-    struct LayoutRow
-    {
-        Characters cells;
-        bool continuation = false;
-    };
-
     static bool isSpacer(const VTermScreenCell &cell)
     {
         return cell.chars[0] == static_cast<uint32_t>(-1);
@@ -397,15 +393,75 @@ struct TerminalSurfacePrivate
         return cell.chars[0] != 0;
     }
 
-    struct RowRef
+    static int cellColumns(const VTermScreenCell &cell)
     {
-        const VTermScreenCell *cells = nullptr;
-        int cols = 0;
-        bool continuation = false;
-        int cursorCol = -1;
+        return cell.width < 1 ? 1 : int(cell.width);
+    }
+
+    int lastUsedScreenRow(int cursorRow)
+    {
+        const int cols = liveSize().width();
+        for (int y = liveSize().height() - 1; y > cursorRow; --y) {
+            for (int x = 0; x < cols; ++x) {
+                VTermScreenCell cell;
+                VTermPos pos{y, x};
+                vterm_screen_get_cell(m_vtermScreen, pos, &cell);
+                if (!isSpacer(cell) && cell.chars[0] != 0)
+                    return y;
+            }
+        }
+        return cursorRow;
+    }
+
+    struct Place
+    {
+        int row = 0;
+        int col = 0;
     };
 
-    std::vector<RowRef> gatherRows(Characters &screen)
+    static Place placeColumn(const Scrollback::Line &line, int cols, int column)
+    {
+        int row = 0;
+        int used = 0;
+        int consumed = 0;
+
+        for (const VTermScreenCell &cell : line.chars()) {
+            if (consumed >= column)
+                return {row, used};
+
+            const int width = cellColumns(cell);
+            if (used + width > cols) {
+                ++row;
+                used = 0;
+            }
+            used += width;
+            consumed += width;
+        }
+
+        for (int extra = column - consumed; extra > 0; --extra) {
+            if (used + 1 > cols) {
+                ++row;
+                used = 0;
+            }
+            ++used;
+        }
+        return {row, used};
+    }
+
+    const VTermScreenCell &blankCell()
+    {
+        if (!m_blankValid) {
+            const VTermPos pos{0, 0};
+            vterm_screen_get_cell(m_vtermScreen, pos, &m_blank);
+            m_blank.chars[0] = 0;
+            m_blank.width = 1;
+            m_blankValid = true;
+            m_scrollback->setBlank(m_blank);
+        }
+        return m_blank;
+    }
+
+    std::vector<Scrollback::Line> gatherScreenLines(int *cursorLine, int *cursorColumn)
     {
         VTermState *state = vterm_obtain_state(m_vterm.get());
         VTermPos cursor;
@@ -413,137 +469,114 @@ struct TerminalSurfacePrivate
         const int cursorCol = cursor.col + (cursorIsPending(cursor) ? 1 : 0);
 
         const int cols = liveSize().width();
-        const int rows = liveSize().height();
+        const int lastRow = lastUsedScreenRow(cursor.row);
 
-        std::vector<RowRef> refs;
-        refs.reserve(size_t(m_scrollback->size()) + size_t(rows));
-
-        for (auto it = m_scrollback->lines().rbegin(); it != m_scrollback->lines().rend(); ++it)
-            refs.push_back({it->cells(), it->cols(), it->continuation(), -1});
-
-        int lastRow = cursor.row;
-        for (int y = rows - 1; y > lastRow; --y) {
-            bool found = false;
-            for (int x = 0; x < cols && !found; ++x) {
-                VTermScreenCell cell;
-                VTermPos pos{y, x};
-                vterm_screen_get_cell(m_vtermScreen, pos, &cell);
-                found = !isSpacer(cell) && cell.chars[0] != 0;
-            }
-            if (found) {
-                lastRow = y;
-                break;
-            }
+        std::vector<Scrollback::Line> lines;
+        bool joined = false;
+        if (screenRowIsContinuation(0) && m_scrollback->lineCount() > 0) {
+            lines.push_back(m_scrollback->takeLastLine());
+            joined = true;
+        } else {
+            m_scrollback->closeLastLine();
         }
 
-        screen.resize(size_t(lastRow + 1) * size_t(cols));
+        std::vector<VTermScreenCell> rowCells(static_cast<size_t>(cols));
+
         for (int y = 0; y <= lastRow; ++y) {
-            VTermScreenCell *row = screen.data() + size_t(y) * size_t(cols);
             for (int x = 0; x < cols; ++x) {
                 VTermPos pos{y, x};
-                vterm_screen_get_cell(m_vtermScreen, pos, row + x);
+                vterm_screen_get_cell(m_vtermScreen, pos, &rowCells[size_t(x)]);
             }
-            refs.push_back({row,
-                            cols,
-                            screenRowIsContinuation(y),
-                            y == cursor.row ? cursorCol : -1});
+
+            const bool continuation = y == 0 ? joined : screenRowIsContinuation(y);
+            if (!continuation || lines.empty())
+                lines.emplace_back();
+
+            Scrollback::Line &line = lines.back();
+            const int before = line.columns();
+
+            int take = cols;
+            const bool wrapsIntoNext = y < lastRow && screenRowIsContinuation(y + 1);
+            if (!wrapsIntoNext) {
+                while (take > 0 && rowCells[size_t(take - 1)].chars[0] == 0)
+                    --take;
+            } else if (take > 0 && rowCells[size_t(take - 1)].chars[0] == 0) {
+                VTermScreenCell next;
+                const VTermPos pos{y + 1, 0};
+                vterm_screen_get_cell(m_vtermScreen, pos, &next);
+                if (cellColumns(next) == 2)
+                    --take;
+            }
+
+            if (y == cursor.row) {
+                *cursorLine = int(lines.size()) - 1;
+                *cursorColumn = before + qMin(cursorCol, cols);
+            }
+
+            line.appendChars(rowCells.data(), take);
         }
 
-        return refs;
-    }
-
-    static int cellsBelongingToLine(const RowRef &row, const RowRef *next)
-    {
-        const bool wrapsIntoNext = next && next->continuation;
-        int take = row.cols;
-
-        if (!wrapsIntoNext) {
-            while (take > 0 && row.cells[take - 1].chars[0] == 0)
-                --take;
-            return take;
+        if (lines.empty())
+            lines.emplace_back();
+        if (*cursorLine < 0) {
+            *cursorLine = int(lines.size()) - 1;
+            *cursorColumn = 0;
         }
 
-        const bool nextStartsWide = next->cols > 0 && qMax(1, int(next->cells[0].width)) == 2;
-        if (take > 0 && row.cells[take - 1].chars[0] == 0 && nextStartsWide)
-            --take;
-
-        return take;
+        return lines;
     }
 
-    void jointReflow(QSize newSize)
+    void relayout(QSize newSize)
     {
         const int newCols = newSize.width();
 
-        std::vector<LayoutRow> rows;
-        rows.reserve(size_t(q->fullSize().height()) + 8);
+        int cursorLine = -1;
+        int cursorColumn = 0;
+        std::vector<Scrollback::Line> lines = gatherScreenLines(&cursorLine, &cursorColumn);
 
-        LayoutRow current;
-        current.cells.reserve(newCols);
-        int used = 0;
-        bool started = false;
-        int cursorRow = 0;
-        int cursorCol = 0;
-        bool cursorPlaced = false;
-
-        const auto emitRow = [&](bool continuesInto) {
-            rows.push_back(std::move(current));
-            current = LayoutRow{};
-            current.cells.reserve(newCols);
-            current.continuation = continuesInto;
-            used = 0;
+        const auto totalRows = [&] {
+            int rows = 0;
+            for (const Scrollback::Line &line : lines)
+                rows += line.rowCount(newCols);
+            return rows;
         };
 
-        Characters screen;
-        const std::vector<RowRef> refs = gatherRows(screen);
-
-        for (size_t i = 0; i < refs.size(); ++i) {
-            const RowRef &row = refs[i];
-
-            if (!row.continuation && started)
-                emitRow(false);
-            started = true;
-
-            const int take =
-                cellsBelongingToLine(row, i + 1 < refs.size() ? &refs[i + 1] : nullptr);
-
-            for (int x = 0; x < row.cols; ++x) {
-                if (row.cursorCol == x && !cursorPlaced) {
-                    cursorRow = int(rows.size());
-                    cursorCol = used;
-                    cursorPlaced = true;
-                }
-                if (x >= take)
-                    continue;
-                if (isSpacer(row.cells[x]))
-                    continue;
-
-                const int width = qMax(1, int(row.cells[x].width));
-                if (used + width > newCols)
-                    emitRow(true);
-
-                current.cells.push_back(row.cells[x]);
-                used += width;
-            }
-
-            if (row.cursorCol >= row.cols && !cursorPlaced) {
-                cursorRow = int(rows.size());
-                cursorCol = used;
-                cursorPlaced = true;
-            }
+        while (totalRows() < newSize.height() && m_scrollback->lineCount() > 0) {
+            lines.insert(lines.begin(), m_scrollback->takeLastLine());
+            ++cursorLine;
         }
 
-        emitRow(false);
+        const int total = totalRows();
 
-        if (!cursorPlaced) {
-            cursorRow = int(rows.size()) - 1;
-            cursorCol = 0;
-        }
+        int cursorRow = 0;
+        for (int i = 0; i < cursorLine; ++i)
+            cursorRow += lines[size_t(i)].rowCount(newCols);
+        const Place cursorPlace = placeColumn(lines[size_t(cursorLine)], newCols, cursorColumn);
+        cursorRow += cursorPlace.row;
 
-        int firstScreenRow = qMax(0, int(rows.size()) - newSize.height());
+        int firstScreenRow = qMax(0, total - newSize.height());
         if (cursorRow < firstScreenRow)
             firstScreenRow = cursorRow;
 
         m_reflowing = true;
+        m_blankValid = false;
+
+        m_scrollback->setWidth(newCols);
+
+        size_t first = 0;
+        bool firstIsContinuation = false;
+        for (int remaining = firstScreenRow; remaining > 0 && first < lines.size();) {
+            const int rows = lines[first].rowCount(newCols);
+            if (rows <= remaining) {
+                remaining -= rows;
+                m_scrollback->appendLine(std::move(lines[first]));
+                ++first;
+            } else {
+                m_scrollback->appendLine(lines[first].takeRows(newCols, remaining));
+                remaining = 0;
+                firstIsContinuation = true;
+            }
+        }
 
         vterm_set_size(m_vterm.get(), newSize.height(), newCols);
 
@@ -552,63 +585,38 @@ struct TerminalSurfacePrivate
 
         VTermState *state = vterm_obtain_state(m_vterm.get());
 
-        VTermScreenCell blank;
-        const VTermPos blankPos{0, 0};
-        vterm_screen_get_cell(m_vtermScreen, blankPos, &blank);
-        blank.chars[0] = 0;
-        blank.width = 1;
+        int y = 0;
+        for (size_t i = first; i < lines.size() && y < newSize.height(); ++i) {
+            const Scrollback::Line &line = lines[i];
+            const int rows = line.rowCount(newCols);
 
-        m_scrollback->clear();
-        for (int i = 0; i < firstScreenRow; ++i)
-            pushRowToScrollback(rows[i], newCols, blank);
+            for (int r = 0; r < rows && y < newSize.height(); ++r, ++y) {
+                const Scrollback::Line::Span span = line.rowSpan(newCols, r);
 
-        for (int i = firstScreenRow; i < int(rows.size()); ++i) {
-            const int y = i - firstScreenRow;
-            if (y >= newSize.height())
-                break;
+                int x = 0;
+                for (int k = 0; k < span.count; ++k) {
+                    const VTermScreenCell &cell = line.chars()[size_t(span.first) + size_t(k)];
+                    const VTermPos pos{y, x};
+                    vterm_screen_set_cell(m_vtermScreen, pos, &cell);
+                    x += cellColumns(cell);
+                }
 
-            int x = 0;
-            for (const VTermScreenCell &cell : rows[i].cells) {
-                VTermPos pos{y, x};
-                vterm_screen_set_cell(m_vtermScreen, pos, &cell);
-                x += qMax(1, int(cell.width));
+                const bool continuation = r > 0 || (i == first && firstIsContinuation);
+                const VTermLineInfo info{.doublewidth = 0,
+                                         .doubleheight = 0,
+                                         .continuation = continuation ? 1u : 0u};
+                vterm_state_set_lineinfo(state, y, &info);
             }
-
-            const VTermLineInfo info{.doublewidth = 0,
-                                     .doubleheight = 0,
-                                     .continuation = rows[i].continuation ? 1u : 0u};
-            vterm_state_set_lineinfo(state, y, &info);
         }
 
-        vterm_state_set_cursorpos(state, VTermPos{cursorRow - firstScreenRow, cursorCol});
+        vterm_state_set_cursorpos(state,
+                                  VTermPos{cursorRow - firstScreenRow, cursorPlace.col});
 
         m_reflowing = false;
 
         vterm_screen_flush_damage(m_vtermScreen);
         emit q->fullSizeChanged(q->fullSize());
         emit q->invalidated(QRect{{0, 0}, q->fullSize()});
-    }
-
-    void pushRowToScrollback(const LayoutRow &row, int cols, const VTermScreenCell &blank)
-    {
-        auto cells = std::make_unique<VTermScreenCell[]>(cols);
-        std::fill(cells.get(), cells.get() + cols, blank);
-
-        int x = 0;
-        for (const VTermScreenCell &cell : row.cells) {
-            if (x >= cols)
-                break;
-            cells[x] = cell;
-            const int width = qMax(1, int(cell.width));
-            if (width == 2 && x + 1 < cols) {
-                cells[x + 1] = cell;
-                cells[x + 1].chars[0] = static_cast<uint32_t>(-1);
-                cells[x + 1].width = 1;
-            }
-            x += width;
-        }
-
-        m_scrollback->emplace(cols, std::move(cells), row.continuation);
     }
 
     int uriIdAt(QPoint gridPos)
@@ -702,11 +710,9 @@ struct TerminalSurfacePrivate
         }
 
         if (!m_altscreen && y < m_scrollback->size()) {
-            const auto &sbl = m_scrollback->line((m_scrollback->size() - 1) - y);
-            if (x < sbl.cols()) {
-                return sbl.cell(x);
-            }
-            return nullptr;
+            blankCell();
+            const VTermScreenCell *cells = m_scrollback->row(y);
+            return cells ? cells + x : nullptr;
         }
 
         if (!m_altscreen)
@@ -744,6 +750,8 @@ struct TerminalSurfacePrivate
     TerminalSurface::WriteToPty m_writeToPty;
 
     bool m_reflowing{false};
+    VTermScreenCell m_blank{};
+    bool m_blankValid{false};
 
     QByteArray m_uriBuffer;
     bool m_uriTooLong{false};
@@ -866,7 +874,7 @@ void TerminalSurface::resize(QSize newSize)
         return;
     }
 
-    d->jointReflow(newSize);
+    d->relayout(newSize);
 }
 
 QPoint TerminalSurface::posToGrid(int pos) const
