@@ -10,6 +10,7 @@
 #include <commontraceformat/stream/tracedirectory.h>
 #include <commontraceformat/stream/tracereader.h>
 
+#include <QByteArrayView>
 #include <QFuture>
 #include <QString>
 
@@ -173,9 +174,9 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
     std::vector<json> events;
 
     auto parseDur = [](const std::string &s) -> std::optional<double> {
-        char *end = nullptr;
-        const double val = std::strtod(s.c_str(), &end);
-        if (end == s.c_str() || *end != '\0')
+        bool ok = false;
+        const double val = QByteArrayView(s).toDouble(&ok);
+        if (!ok)
             return std::nullopt;
         return val;
     };
