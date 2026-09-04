@@ -1,0 +1,6 @@
+[project]
+name = "QmlImportPathsWrongTypeTest"
+
+[tool.pyside6-project]
+files = ["main.py"]
+qmlImportPaths = 33

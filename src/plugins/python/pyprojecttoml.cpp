@@ -222,6 +222,28 @@ PyProjectTomlParseResult parsePyProjectToml(const FilePath &pyProjectTomlPath)
         }
         result.projectFiles.append(file);
     }
+
+    const auto qmlImportPaths = getNodeByKey<toml::ordered_array>(
+        "array", "pyside6-project", *pysideTable, "qmlImportPaths");
+    if (!qmlImportPaths) {
+        // The node is optional, only report it when it is there but unusable
+        if (qmlImportPaths.error().type != PyProjectTomlErrorType::MissingNode)
+            result.errors << qmlImportPaths.error();
+        return result;
+    }
+
+    for (const auto &importPathNode : *qmlImportPaths) {
+        const auto possibleImportPath
+            = getNodeValue<std::string>("string", "qmlImportPath", importPathNode);
+        if (!possibleImportPath) {
+            result.errors << possibleImportPath.error();
+            continue;
+        }
+        const auto importPath = QString::fromUtf8(*possibleImportPath);
+        if (!result.qmlImportPaths.contains(importPath))
+            result.qmlImportPaths.append(importPath);
+    }
+
     return result;
 }
 

@@ -386,6 +386,7 @@ void PythonBuildSystem::parse()
         }
 
         files = pyProjectTomlParseResult.projectFiles;
+        qmlImportPaths = pyProjectTomlParseResult.qmlImportPaths;
     }
 
     m_files = processEntries(files);

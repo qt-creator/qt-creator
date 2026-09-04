@@ -57,6 +57,7 @@ struct PyProjectTomlParseResult
     QList<PyProjectTomlError> errors;
     QString projectName;
     QStringList projectFiles;
+    QStringList qmlImportPaths;
 };
 
 template<typename ExpectedType>

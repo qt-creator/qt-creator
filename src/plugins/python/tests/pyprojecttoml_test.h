@@ -28,6 +28,9 @@ private slots:
     void testToolEmptyPyProjectParsing();
     void testToolMissingPyProjectParsing();
     void testToolWrongTypePyProjectParsing();
+    void testQmlImportPathsPyProjectParsing();
+    void testQmlImportPathsWrongTypePyProjectParsing();
+    void testQmlImportPathWrongTypePyProjectParsing();
 
     void testUpdatePyProject();
 };

@@ -208,6 +208,42 @@ void PyProjectTomlTest::testToolWrongTypePyProjectParsing()
     QCOMPARE(result.errors.first(), expectedError);
 }
 
+void PyProjectTomlTest::testQmlImportPathsPyProjectParsing()
+{
+    const auto projectFile = Utils::FilePath::fromUserInput(":/unittests/Python/qmlimportpaths.toml");
+
+    PyProjectTomlParseResult result = parsePyProjectToml(projectFile);
+
+    QVERIFY(result.errors.empty());
+    QCOMPARE(result.qmlImportPaths, QStringList({"qml", "imports"}));
+}
+
+void PyProjectTomlTest::testQmlImportPathsWrongTypePyProjectParsing()
+{
+    const auto projectFile
+        = Utils::FilePath::fromUserInput(":/unittests/Python/qmlimportpathswrongtype.toml");
+
+    PyProjectTomlParseResult result = parsePyProjectToml(projectFile);
+
+    QCOMPARE(result.errors.size(), 1);
+    auto expectedError = PyProjectTomlError::TypeError("qmlImportPaths", "array", "integer", 6);
+    QCOMPARE(result.errors.first(), expectedError);
+    QVERIFY(result.qmlImportPaths.isEmpty());
+}
+
+void PyProjectTomlTest::testQmlImportPathWrongTypePyProjectParsing()
+{
+    const auto projectFile
+        = Utils::FilePath::fromUserInput(":/unittests/Python/qmlimportpathwrongtype.toml");
+
+    PyProjectTomlParseResult result = parsePyProjectToml(projectFile);
+
+    QCOMPARE(result.errors.size(), 1);
+    auto expectedError = PyProjectTomlError::TypeError("qmlImportPath", "string", "integer", 6);
+    QCOMPARE(result.errors.first(), expectedError);
+    QCOMPARE(result.qmlImportPaths, QStringList({"qml"}));
+}
+
 void PyProjectTomlTest::testUpdatePyProject()
 {
     const auto projectFileContents = readTestFile("correct.toml");

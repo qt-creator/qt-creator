@@ -1,0 +1,6 @@
+[project]
+name = "QmlImportPathsTest"
+
+[tool.pyside6-project]
+files = ["main.py"]
+qmlImportPaths = ["qml", "imports", "qml"]
