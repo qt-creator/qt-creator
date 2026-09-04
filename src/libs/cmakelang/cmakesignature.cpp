@@ -141,6 +141,13 @@ std::optional<Signature::Arity> Signature::arity(const QString &keyword) const
     return *it;
 }
 
+QStringList Signature::keywords() const
+{
+    QStringList keywords = _arities.keys();
+    keywords.sort();
+    return keywords;
+}
+
 void Signature::add(const QStringList &keywords, Arity arity)
 {
     for (const QString &keyword : keywords) {

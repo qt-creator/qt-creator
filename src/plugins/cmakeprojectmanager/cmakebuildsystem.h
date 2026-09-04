@@ -179,6 +179,7 @@ public:
 
     const QHash<QString, Utils::Link> &cmakeSymbolsHash() const { return m_cmakeSymbolsHash; }
     CMakeKeywords projectKeywords() const { return m_projectKeywords; }
+    CMakeLang::SignatureTable commandSignatures() const { return m_commandSignatures; }
     QStringList projectImportedTargets() const { return m_projectImportedTargets; }
     QStringList projectFindPackageVariables() const { return m_projectFindPackageVariables; }
     const QHash<QString, Utils::Link> &dotCMakeFilesHash() const { return m_dotCMakeFilesHash; }

@@ -424,6 +424,7 @@ class PerformInputData
 {
 public:
     CMakeKeywords keywords;
+    CMakeLang::SignatureTable signatures;
     QMap<QString, FilePath> projectVariables;
     QMap<QString, FilePath> projectFunctions;
     QStringList buildTargets;
@@ -447,6 +448,7 @@ PerformInputDataPtr CMakeFileCompletionAssist::generatePerformInputData() const
         const CMakeKeywords &projectKeywords = bs->projectKeywords();
         data->projectVariables = projectKeywords.variables;
         data->projectFunctions = projectKeywords.functions;
+        data->signatures = bs->commandSignatures();
         data->importedTargets = bs->projectImportedTargets();
         data->findPackageVariables = bs->projectFindPackageVariables();
         data->cmakeConfiguration = bs->configurationFromCMake();
@@ -492,6 +494,12 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
     const CMakeLang::DocumentPtr document = CMakeLang::Document::fromSource(
         interface()->textAt(0, prevFunctionEnd + 1));
     auto [localFunctions, localVariables] = getLocalFunctionsAndVariables(document);
+
+    CMakeLang::SignatureTable localSignatures;
+    localSignatures.addDocument(document);
+
+    CMakeLang::Signature signature = data->signatures.signature(functionName);
+    signature.add(localSignatures.signature(functionName));
 
     CMakeConfig cmakeConfiguration = data->cmakeConfiguration;
     const FilePath currentDir = interface()->filePath().absolutePath();
@@ -576,8 +584,12 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
         items.append(generateList(data->importedTargets, m_importedTargetIcon));
     }
 
-    if (data->keywords.functionArgs.contains(functionName) && !onlyFileItems()) {
-        const QStringList functionSymbols = data->keywords.functionArgs.value(functionName);
+    const bool knowsArguments = data->keywords.functionArgs.contains(functionName)
+                                || !signature.isEmpty();
+    if (knowsArguments && !onlyFileItems()) {
+        QStringList functionSymbols = data->keywords.functionArgs.value(functionName);
+        functionSymbols += signature.keywords();
+        functionSymbols.removeDuplicates();
         items.append(generateList(functionSymbols, m_argsIcon));
     } else if (functionName.isEmpty()) {
         // On a new line we just want functions

@@ -192,6 +192,7 @@ private slots:
     void documentScopes();
     void signatures_data();
     void signatures();
+    void signatureKeywords();
     void signaturesNeedTheSource();
     void argumentGroups_data();
     void argumentGroups();
@@ -553,6 +554,33 @@ if(NOT QT_NO_CREATE_VERSIONLESS_FUNCTIONS)
 endif()
 )";
 
+static const char standardProjectSetupDefinition[] = R"(macro(qt6_standard_project_setup)
+    if(NOT QT_NO_STANDARD_PROJECT_SETUP)
+        set(__qt_sps_args_option)
+        set(__qt_sps_args_single
+            REQUIRES
+            SUPPORTS_UP_TO
+            I18N_SOURCE_LANGUAGE
+        )
+        set(__qt_sps_args_multi
+            I18N_TRANSLATED_LANGUAGES
+        )
+        cmake_parse_arguments(__qt_sps_arg
+            "${__qt_sps_args_option}"
+            "${__qt_sps_args_single}"
+            "${__qt_sps_args_multi}"
+            ${ARGN}
+        )
+    endif()
+endmacro()
+
+if(NOT QT_NO_CREATE_VERSIONLESS_FUNCTIONS)
+    macro(qt_standard_project_setup)
+        qt6_standard_project_setup(${ARGV})
+    endmacro()
+endif()
+)";
+
 static QString arityOf(const Signature &signature, const QString &keyword)
 {
     const std::optional<Signature::Arity> arity = signature.arity(keyword);
@@ -637,6 +665,12 @@ void tst_CMakeLang::signatures_data()
         << QString::fromLatin1(qmlModuleDefinition) << "qt_add_qml_module"
         << "QML_FILES URI OUTPUT_TARGETS" << "multi one one";
 
+    // The keywords of a versionless command sit behind an if() block, a macro
+    // and a forwarded ${ARGV}.
+    QTest::newRow("keywords behind a condition")
+        << QString::fromLatin1(standardProjectSetupDefinition) << "qt_standard_project_setup"
+        << "REQUIRES I18N_SOURCE_LANGUAGE I18N_TRANSLATED_LANGUAGES" << "one one multi";
+
     QTest::newRow("command names are case insensitive")
         << "FUNCTION(F)\n"
            "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"FILES\")\n"
@@ -659,6 +693,16 @@ void tst_CMakeLang::signatures()
     for (const QString &keyword : keywords.split(u' ', Qt::SkipEmptyParts))
         arities << arityOf(signature, keyword);
     QCOMPARE(arities.join(u' '), expected);
+}
+
+void tst_CMakeLang::signatureKeywords()
+{
+    SignatureTable table;
+    table.addDocument(Document::fromSource(QString::fromLatin1(standardProjectSetupDefinition)));
+
+    QCOMPARE(table.signature("qt_standard_project_setup").keywords().join(u' '),
+             "I18N_SOURCE_LANGUAGE I18N_TRANSLATED_LANGUAGES REQUIRES SUPPORTS_UP_TO");
+    QVERIFY(table.signature("qt_add_qml_module").keywords().isEmpty());
 }
 
 void tst_CMakeLang::signaturesNeedTheSource()

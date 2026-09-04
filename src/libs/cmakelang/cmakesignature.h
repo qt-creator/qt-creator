@@ -28,6 +28,7 @@ public:
 
     bool isEmpty() const { return _arities.isEmpty(); }
     std::optional<Arity> arity(const QString &keyword) const;
+    QStringList keywords() const;
 
     void add(const QStringList &keywords, Arity arity);
     void add(const Signature &other);
