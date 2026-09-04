@@ -293,6 +293,59 @@ static QJsonObject rangeJson(const Range &range)
                        {"end_column", range.end().character() + 1}};
 }
 
+// The host path a server URI stands for, spelled canonically: a server may
+// report the same file both through a symlink and directly.
+static QString hostPathString(const Client *client, const DocumentUri &uri)
+{
+    const FilePath path = client->serverUriToHostPath(uri);
+    const FilePath canonical = path.canonicalPath();
+    return (canonical.isEmpty() ? path : canonical).toUserOutput();
+}
+
+static QJsonObject locationJson(const Client *client, const Location &location)
+{
+    QJsonObject json = rangeJson(location.range());
+    json.insert("file", hostPathString(client, location.uri()));
+    return json;
+}
+
+// Sorts locations by file, line and column, so that an answer does not depend
+// on the order a server happens to produce, and drops the duplicates a server
+// may report for one place.
+static void sortAndDedupeLocations(QList<QJsonObject> &locations)
+{
+    std::sort(locations.begin(), locations.end(),
+              [](const QJsonObject &a, const QJsonObject &b) {
+                  const int file = a.value("file").toString().compare(b.value("file").toString());
+                  if (file != 0)
+                      return file < 0;
+                  if (a.value("line").toInt() != b.value("line").toInt())
+                      return a.value("line").toInt() < b.value("line").toInt();
+                  return a.value("column").toInt() < b.value("column").toInt();
+              });
+    const auto samePlace = [](const QJsonObject &a, const QJsonObject &b) {
+        for (const char *key : {"file", "line", "column", "end_line", "end_column"}) {
+            if (a.value(QLatin1String(key)) != b.value(QLatin1String(key)))
+                return false;
+        }
+        return true;
+    };
+    locations.erase(std::unique(locations.begin(), locations.end(), samePlace), locations.end());
+}
+
+// Caps a list to the limit, reporting the size before the cap and whether it
+// was applied, so a query on a large project cannot return an unbounded answer.
+static QJsonArray cappedArray(const QList<QJsonObject> &objects, int limit, int *total,
+                              bool *truncated)
+{
+    *total = int(objects.size());
+    *truncated = *total > limit;
+    QJsonArray array;
+    for (int i = 0; i < objects.size() && i < limit; ++i)
+        array.append(objects.at(i));
+    return array;
+}
+
 static bool provides(const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider)
 {
     if (!provider)
@@ -366,7 +419,7 @@ static QJsonObject hierarchyItemJson(const Client *client, const Item &item)
     const Range selection = item.selectionRange();
     QJsonObject json{{"name", item.name()},
                      {"kind", symbolKindName(item.symbolKind())},
-                     {"file", client->serverUriToHostPath(item.uri()).toUserOutput()},
+                     {"file", hostPathString(client, item.uri())},
                      {"line", selection.start().line() + 1},
                      {"column", selection.start().character() + 1}};
     if (const std::optional<QString> detail = item.detail(); detail && !detail->isEmpty())
@@ -852,6 +905,70 @@ void lspTypeHierarchy(const QJsonObject &args, const ToolResultHandler &handler)
     });
 }
 
+// -------------------------------------------------------------- references
+
+void lspReferences(const QJsonObject &args, const ToolResultHandler &handler)
+{
+    const Result<LocationArgs> location = parseLocationArgs(args);
+    if (!location) {
+        handler(ResultError(location.error()));
+        return;
+    }
+    const bool includeDeclaration = args.value("include_declaration").toBool(true);
+    const int limit = resultLimit(args);
+
+    resolveClient(location->file, [location = *location, includeDeclaration, limit, handler](
+                                      const Result<Resolved> &resolved) {
+        if (!resolved) {
+            handler(ResultError(resolved.error()));
+            return;
+        }
+        if (!provides(resolved->client->capabilities().referencesProvider())) {
+            handler(ResultError(unsupported(*resolved, "finding references")));
+            return;
+        }
+        const Result<Position> position = positionFor(resolved->document, location.line,
+                                                      location.column);
+        if (!position) {
+            handler(ResultError(position.error()));
+            return;
+        }
+
+        ReferenceParams params(positionParams(*resolved, *position));
+        params.setContext(ReferenceParams::ReferenceContext(includeDeclaration));
+        FindReferencesRequest request(params);
+        request.setResponseCallback([resolved = *resolved, includeDeclaration, limit, handler](
+                                        const FindReferencesRequest::Response &response) {
+            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+                handler(ResultError(failure->text()));
+                return;
+            }
+            if (!resolved.client) {
+                handler(ResultError(QString("The language server went away.")));
+                return;
+            }
+            QList<QJsonObject> references;
+            if (response.result()) {
+                for (const Location &found : response.result()->toListOrEmpty())
+                    references.append(locationJson(resolved.client, found));
+            }
+            sortAndDedupeLocations(references);
+            int total = 0;
+            bool truncated = false;
+            QJsonObject result{{"references", cappedArray(references, limit, &total, &truncated)},
+                               {"include_declaration", includeDeclaration},
+                               {"total", total},
+                               {"truncated", truncated}};
+            if (total == 0) {
+                result.insert("note", "No references found. Is the position on an identifier, "
+                                      "and has the server indexed the project?");
+            }
+            handler(result);
+        });
+        resolved->client->sendMessage(request);
+    });
+}
+
 // ------------------------------------------------------------ registration
 
 using ToolFunction = void (*)(const QJsonObject &, const ToolResultHandler &);
@@ -1025,6 +1142,44 @@ void registerMcpTools()
                     .addProperty("note", QJsonObject{{"type", "string"}})
                     .addRequired("root")),
         &lspTypeHierarchy);
+
+    registerAsyncTool(
+        Tool{}
+            .name("lsp_references")
+            .title("Find references via the language server")
+            .description(
+                "Finds every reference to the symbol at a position, as the language server "
+                "(clangd for C++, qmlls for QML, or whatever server is configured for the "
+                "file type) knows them from its index - templates, overloads and macros "
+                "included, across all files it has indexed. Give the file and a 1-based "
+                "line and column on an identifier. Each reference has its file and 1-based "
+                "line/column to end_line/end_column; the declaration is included unless "
+                "\"include_declaration\" is false. The list is sorted by file and position "
+                "and capped by \"limit\", with \"total\" and \"truncated\" saying what "
+                "was left out. The file is opened in a hidden editor if it is not open; a "
+                "server that is still starting asks to be retried.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                positionInputSchema("the identifier")
+                    .addProperty(
+                        "include_declaration",
+                        QJsonObject{{"type", "boolean"},
+                                    {"description",
+                                     "Also list the symbol's declaration(s). Default true."}})
+                    .addProperty("limit", limitProperty()))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "references",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty("include_declaration", QJsonObject{{"type", "boolean"}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
+                    .addProperty("note", QJsonObject{{"type", "string"}})
+                    .addRequired("references")
+                    .addRequired("total")),
+        &lspReferences);
 }
 
 } // namespace LanguageClient

@@ -2362,6 +2362,7 @@ private slots:
     void testArgumentErrors();
     void testCallHierarchy();
     void testTypeHierarchy();
+    void testReferences();
 };
 
 // Runs one of the LanguageClient MCP tool functions to completion.
@@ -2590,6 +2591,62 @@ void ClangdTestMcpTools::testTypeHierarchy()
                          {"direction", "up"}});
     QVERIFY(!result);
     QVERIFY2(result.error().contains("direction"), qPrintable(result.error()));
+}
+
+void ClangdTestMcpTools::testReferences()
+{
+    // func5 is declared at defs.h:28:6 and called at main.cpp:23 and :29.
+    const QJsonObject args{{"file", filePath("defs.h").toFSPathString()},
+                           {"line", 28},
+                           {"column", 6}};
+    Result<QJsonObject> result = runMcpTool(&LanguageClient::lspReferences, args);
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    // clangd reports the declaration more than once, under both spellings of
+    // the temp directory; the answer must not.
+    QCOMPARE(result->value("total").toInt(), 3);
+    QCOMPARE(result->value("truncated").toBool(), false);
+    QCOMPARE(result->value("include_declaration").toBool(), true);
+    QJsonArray references = result->value("references").toArray();
+    QCOMPARE(references.size(), 3);
+    // Sorted by file, then position: the declaration in defs.h comes first.
+    QVERIFY(references.at(0).toObject().value("file").toString().endsWith("defs.h"));
+    QCOMPARE(references.at(0).toObject().value("line").toInt(), 28);
+    QCOMPARE(references.at(0).toObject().value("column").toInt(), 6);
+    QCOMPARE(references.at(0).toObject().value("end_column").toInt(), 11);
+    QVERIFY(references.at(1).toObject().value("file").toString().endsWith("main.cpp"));
+    QCOMPARE(references.at(1).toObject().value("line").toInt(), 23);
+    QCOMPARE(references.at(2).toObject().value("line").toInt(), 29);
+
+    // Without the declaration, and capped.
+    QJsonObject usesOnly = args;
+    usesOnly.insert("include_declaration", false);
+    result = runMcpTool(&LanguageClient::lspReferences, usesOnly);
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("total").toInt(), 2);
+    references = result->value("references").toArray();
+    QCOMPARE(references.size(), 2);
+    QCOMPARE(references.at(0).toObject().value("line").toInt(), 23);
+
+    QJsonObject capped = args;
+    capped.insert("limit", 1);
+    result = runMcpTool(&LanguageClient::lspReferences, capped);
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("references").toArray().size(), 1);
+    QCOMPARE(result->value("total").toInt(), 3);
+    QVERIFY(result->value("truncated").toBool());
+
+    // Nothing at an empty line: an empty answer, and a note saying so.
+    result = runMcpTool(&LanguageClient::lspReferences,
+                        {{"file", filePath("defs.h").toFSPathString()},
+                         {"line", 19},
+                         {"column", 1}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("total").toInt(), 0);
+    QVERIFY(result->contains("note"));
 }
 
 QObject *createClangdTestCompletion()

@@ -24,6 +24,8 @@ LANGUAGECLIENT_EXPORT void lspCallHierarchy(const QJsonObject &args,
                                             const ToolResultHandler &handler);
 LANGUAGECLIENT_EXPORT void lspTypeHierarchy(const QJsonObject &args,
                                             const ToolResultHandler &handler);
+LANGUAGECLIENT_EXPORT void lspReferences(const QJsonObject &args,
+                                         const ToolResultHandler &handler);
 
 // Closes every document the tools opened for their own purposes. An idle timer
 // does this for documents nobody has asked about for a while; tests call it.
