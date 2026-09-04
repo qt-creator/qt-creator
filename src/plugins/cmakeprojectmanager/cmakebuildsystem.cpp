@@ -22,8 +22,11 @@
 #include <android/androidconstants.h>
 #include <harmonyos/harmonyosconstants.h>
 
+#include <cmakelang/cmakerewriter.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -47,6 +50,7 @@
 #include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/treescanner.h>
 
+#include <texteditor/refactoringchanges.h>
 #include <texteditor/texteditor.h>
 
 #include <qtapplicationmanager/appmanagerconstants.h>
@@ -94,6 +98,60 @@ static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarnin
 QString quoteString(const QString &fileName)
 {
     return fileName.contains(QChar::Space) ? QString(R"("%1")").arg(fileName) : fileName;
+}
+
+// Where an offset into the parsed text falls: the line 1-based, the column
+// 0-based. The document and the text that was parsed can spell their line
+// endings differently, so an offset does not carry from the one to the other,
+// while a line and a column do.
+static Text::Position positionInSource(QStringView source, int offset)
+{
+    const int end = std::min<int>(offset, source.size());
+    Text::Position position{1, 0};
+    int lineStart = 0;
+    for (int i = 0; i < end; ++i) {
+        if (source.at(i) == u'\n') {
+            ++position.line;
+            lineStart = i + 1;
+        }
+    }
+    position.column = end - lineStart;
+    return position;
+}
+
+// Applies what the rewriter collected to the file, wherever it is: a file that
+// no editor has open is written, one that is open is changed and saved.
+static Result<bool> applyEdits(const FilePath &cmakeFile,
+                               const DocumentPtr &document,
+                               const QList<Edit> &edits)
+{
+    if (edits.isEmpty())
+        return true;
+
+    PlainRefactoringFileFactory factory;
+    const RefactoringFilePtr file = factory.file(cmakeFile);
+    if (!file->isValid())
+        return ResultError("Changes to " + cmakeFile.toUserOutput() + " could not be prepared.");
+
+    const QStringView source = document->source();
+    ChangeSet changeSet;
+    for (const Edit &edit : edits) {
+        changeSet.replace(file->position(positionInSource(source, edit.position)),
+                          file->position(positionInSource(source, edit.position + edit.length)),
+                          edit.text);
+    }
+    if (changeSet.hadErrors())
+        return ResultError("Changes to " + cmakeFile.toUserOutput() + " overlap.");
+
+    if (!file->apply(changeSet))
+        return ResultError("Changes to " + cmakeFile.toUserOutput() + " could not be applied.");
+
+    Core::IDocument *openDocument = Core::DocumentModel::documentForFilePath(cmakeFile);
+    if (openDocument && openDocument->isModified()
+        && !Core::DocumentManager::saveDocument(openDocument)) {
+        return ResultError("Changes to " + cmakeFile.toUserOutput() + " could not be saved.");
+    }
+    return true;
 }
 
 // --------------------------------------------------------------------
@@ -808,6 +866,27 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
     return false;
 }
 
+// The call that takes files the keywords of the command do not cover: the
+// command itself where it takes sources, or a target_sources() next to it.
+static CommandAST *commandTakingSources(const DocumentPtr &document,
+                                        CommandAST *command,
+                                        const QString &targetName)
+{
+    static const QSet<QString> knownCommands{"add_executable",
+                                             "add_library",
+                                             "qt_add_executable",
+                                             "qt_add_library",
+                                             "qt6_add_executable",
+                                             "qt6_add_library",
+                                             "qt_add_qml_module",
+                                             "qt6_add_qml_module"};
+    if (knownCommands.contains(command->commandName().toLower()))
+        return command;
+
+    return findCommandNear(document, command,
+                           namedWithFirstArgument("target_sources", targetName));
+}
+
 static Result<bool> insertFilesSilently(const FilePath &targetCMakeFile,
                                         const DocumentPtr &document,
                                         const SignatureTable &signatures,
@@ -817,19 +896,48 @@ static Result<bool> insertFilesSilently(const FilePath &targetCMakeFile,
                                         const FilePath &projDir)
 {
     const QList<KeywordedFiles> newFiles = newFilesForCommand(command, filePaths, projDir);
-    const QList<CMakeBuildSystem::SnippetAndLocation> snippetLocations
-        = generateSnippetsAndLocationsForSources(newFiles,
-                                                 document,
-                                                 command,
-                                                 targetName,
-                                                 signatures.signature(command->commandName()));
+    const Signature signature = signatures.signature(command->commandName());
+    auto lastValue = [&](const KeywordedFiles &newFile) -> ArgumentAST * {
+        return newFile.keyword.isEmpty()
+                   ? nullptr
+                   : lastValueOfKeyword(command, signature, newFile.keyword);
+    };
 
-    for (const CMakeBuildSystem::SnippetAndLocation &snippetLocation : snippetLocations) {
-        const Result<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
-        if (!inserted)
-            return inserted;
+    // Where no call takes sources yet, one is written, which still goes
+    // through the snippet that spells it out.
+    CommandAST *takesSources = commandTakingSources(document, command, targetName);
+    if (!takesSources && !Utils::allOf(newFiles, lastValue)) {
+        const QList<CMakeBuildSystem::SnippetAndLocation> snippetLocations
+            = generateSnippetsAndLocationsForSources(newFiles,
+                                                     document,
+                                                     command,
+                                                     targetName,
+                                                     signature);
+        for (const CMakeBuildSystem::SnippetAndLocation &snippetLocation : snippetLocations) {
+            const Result<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
+            if (!inserted)
+                return inserted;
+        }
+        return true;
     }
-    return true;
+
+    // The files go after the last value of the keyword that already takes
+    // their kind, so that the keyword is not spelled a second time. Only a
+    // keyword the call does not have yet is written with them.
+    Rewriter rewriter(document);
+    QStringList newKeywords;
+    for (const KeywordedFiles &newFile : newFiles) {
+        if (ArgumentAST *argument = lastValue(newFile)) {
+            rewriter.insertAfter(argument, {newFile.files});
+            continue;
+        }
+        newKeywords.append(newFile.keyword.isEmpty()
+                               ? newFile.files
+                               : QString("%1 %2").arg(newFile.keyword, newFile.files));
+    }
+    rewriter.append(takesSources, newKeywords);
+
+    return applyEdits(targetCMakeFile, document, rewriter.edits());
 }
 
 // Whether any argument of the command expands a variable that file(GLOB) filled.
@@ -972,18 +1080,12 @@ static Result<CMakeBuildSystem::ProjectFileArgumentPosition> fileArgumentPositio
     });
 
     auto position = [&](CommandAST *command, ArgumentAST *argument) {
-        ProjectFileArgumentPosition result{targetCMakeFile,
-                                           fileName,
-                                           argument->token.line,
-                                           argument->token.column,
-                                           argument->token.length,
-                                           argument->asQuotedArgument() != nullptr};
         const Signature signature = signatures.signature(command->commandName());
-        if (ArgumentAST *keyword = keywordLeftEmpty(command, signature, argument)) {
-            result.keywordLine = keyword->token.line;
-            result.keywordColumn = keyword->token.column;
-        }
-        return result;
+        return ProjectFileArgumentPosition{targetCMakeFile,
+                                           fileName,
+                                           document,
+                                           argument,
+                                           keywordLeftEmpty(command, signature, argument)};
     };
     auto namesFile = [&fileName](ArgumentAST *argument) { return argument->value() == fileName; };
 
@@ -1065,54 +1167,13 @@ QVariant CMakeBuildSystem::additionalData(Id id) const
     return {};
 }
 
-// Removes the text, and the line it leaves behind when nothing but whitespace
-// is left of it.
-static void removeTextAndEmptyLine(TextEditorWidget *widget, int position, int length)
-{
-    widget->replace(position, length, {});
-
-    QTextDocument *document = widget->document();
-    const QTextBlock block = document->findBlock(position);
-    if (!block.text().trimmed().isEmpty())
-        return;
-
-    const QTextBlock previous = block.previous();
-    const int from = previous.isValid() ? previous.position() + previous.length() - 1
-                                        : block.position();
-    widget->replace(from, block.position() + block.length() - 1 - from, {});
-}
-
 static Result<bool> removeFileArgumentSilently(
         const CMakeBuildSystem::ProjectFileArgumentPosition &filePos)
 {
     // A keyword that the file is the only value of goes with it.
-    const Text::Position argument{filePos.line, filePos.column - 1};
-    const Text::Position start = filePos.keywordLine > 0
-                                     ? Text::Position{filePos.keywordLine,
-                                                      filePos.keywordColumn - 1}
-                                     : argument;
-
-    BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(
-        {filePos.cmakeFile, start.line, start.column},
-        Constants::CMAKE_EDITOR_ID,
-        Core::EditorManager::DoNotMakeVisible | Core::EditorManager::DoNotChangeCurrentEditor));
-    if (!editor) {
-        return ResultError("BaseTextEditor cannot be obtained for "
-                           + filePos.cmakeFile.toUserOutput() + ":"
-                           + QString::number(start.line) + ":" + QString::number(start.column));
-    }
-
-    // The quotes around the source file, if it had any, go as well.
-    TextEditorWidget *widget = editor->editorWidget();
-    QTextDocument *document = widget->document();
-    const int from = start.toPositionInDocument(document);
-    const int to = argument.toPositionInDocument(document) + filePos.length;
-    removeTextAndEmptyLine(widget, from, to - from);
-
-    if (!Core::DocumentManager::saveDocument(editor->document()))
-        return ResultError("Changes to " + filePos.cmakeFile.toUserOutput()
-                           + " could not be saved.");
-    return true;
+    Rewriter rewriter(filePos.document);
+    rewriter.remove(filePos.keyword ? filePos.keyword : filePos.argument, filePos.argument);
+    return applyEdits(filePos.cmakeFile, filePos.document, rewriter.edits());
 }
 
 // The argument keeps the place it had: what the line is indented by is the
@@ -1120,26 +1181,9 @@ static Result<bool> removeFileArgumentSilently(
 static Result<bool> renameFileArgumentSilently(
         const CMakeBuildSystem::ProjectFileArgumentPosition &filePos, const QString &newFileName)
 {
-    BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(
-        {filePos.cmakeFile, filePos.line, filePos.column - 1},
-        Constants::CMAKE_EDITOR_ID,
-        Core::EditorManager::DoNotMakeVisible | Core::EditorManager::DoNotChangeCurrentEditor));
-    if (!editor) {
-        return ResultError("BaseTextEditor cannot be obtained for "
-                           + filePos.cmakeFile.toUserOutput() + ":"
-                           + QString::number(filePos.line) + ":"
-                           + QString::number(filePos.column - 1));
-    }
-
-    // If quotes were used for the source file, skip the starting quote
-    if (filePos.quoted)
-        editor->setCursorPosition(editor->position() + 1);
-
-    editor->replace(filePos.relativeFileName.size(), newFileName);
-    if (!Core::DocumentManager::saveDocument(editor->document()))
-        return ResultError("Changes to " + filePos.cmakeFile.toUserOutput()
-                           + " could not be saved.");
-    return true;
+    Rewriter rewriter(filePos.document);
+    rewriter.replaceValue(filePos.argument, newFileName);
+    return applyEdits(filePos.cmakeFile, filePos.document, rewriter.edits());
 }
 
 RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
@@ -1241,12 +1285,11 @@ bool CMakeBuildSystem::renameFile(
     auto fileToRename = projectFileArgumentPosition(targetName, oldRelPathName);
     QTC_ASSERT_RESULT(fileToRename, return false);
 
-    const QString newRelPathName = fileToRename->quoted ? newRelPathNameRaw
-                                                        : quoteString(newRelPathNameRaw);
     bool haveGlobbing = false;
     do {
         if (!fileToRename->fromGlobbing) {
-            const Result<bool> renamed = renameFileArgumentSilently(*fileToRename, newRelPathName);
+            const Result<bool> renamed = renameFileArgumentSilently(*fileToRename,
+                                                                    newRelPathNameRaw);
             if (!renamed) {
                 qCCritical(cmakeBuildSystemLog).noquote() << renamed.error();
                 return false;

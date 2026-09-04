@@ -70,16 +70,13 @@ public:
     {
         Utils::FilePath cmakeFile;
         QString relativeFileName;
-        int line = 0;
-        int column = 0;
-        // The length of the argument as it is spelled, quotes included.
-        int length = 0;
-        bool quoted = false;
+        // The parse the argument belongs to, which keeps it alive.
+        CMakeLang::DocumentPtr document;
+        CMakeLang::ArgumentAST *argument = nullptr;
+        // The keyword that the argument is the only value of. Removing the
+        // argument has to remove the keyword as well.
+        CMakeLang::ArgumentAST *keyword = nullptr;
         bool fromGlobbing = false;
-        // Where the keyword that the argument is the only value of sits.
-        // Removing the argument has to remove the keyword as well.
-        int keywordLine = 0;
-        int keywordColumn = 0;
     };
 
     bool addTargetProperty(ProjectExplorer::Node *context, const QString &property, const QString &value,
