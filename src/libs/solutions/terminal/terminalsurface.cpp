@@ -799,6 +799,9 @@ std::u32string::value_type TerminalSurface::fetchCharAt(int x, int y) const
     if (cell->chars[0] == 0xffffffff)
         return 0;
 
+    if (cell->chars[1] == 0 && cell->chars[0] < 0x80)
+        return cell->chars[0];
+
     QString s = QString::fromUcs4(reinterpret_cast<const char32_t *>(cell->chars), 6)
                     .normalized(QString::NormalizationForm_C);
     const QList<uint> ucs4 = s.toUcs4();
