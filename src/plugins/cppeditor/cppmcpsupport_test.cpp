@@ -248,4 +248,63 @@ void CppMcpSupportTest::testErrorHandling()
     QVERIFY2(error.contains("not a valid C++ identifier"), qPrintable(error));
 }
 
+
+void CppMcpSupportTest::testGetIncludeHierarchy()
+{
+    CppEditor::Tests::TestCase testCase;
+    QVERIFY(testCase.succeededSoFar());
+    CppEditor::Tests::TemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const Utils::FilePath header = dir.createFile("a.h", "int a();\n");
+    const Utils::FilePath source = dir.createFile("b.cpp",
+                                                  "#include \"a.h\"\n"
+                                                  "#include <nonexistent_xyz.h>\n"
+                                                  "int b() { return a(); }\n");
+    // Includes nothing and is included by nothing: an answer that lists every
+    // file in the snapshot has to be told apart from the right one.
+    const Utils::FilePath decoy = dir.createFile("c.cpp", "int c();\n");
+    QVERIFY(CppEditor::Tests::TestCase::parseFiles({header, source, decoy}));
+
+    QString error;
+    const QJsonObject fromSource = callTool("cpp_get_include_hierarchy",
+                                            {{"file", source.toFSPathString()}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    const QJsonArray includes = fromSource.value("includes").toArray();
+    QCOMPARE(includes.size(), 1);
+    const QJsonObject include = includes.at(0).toObject();
+    QCOMPARE(include.value("file").toString(), header.toUserOutput());
+    QCOMPARE(include.value("line").toInt(), 1);
+    QCOMPARE(include.value("name").toString(), QString("a.h"));
+    QCOMPARE(include.value("global").toBool(), false);
+    QCOMPARE(fromSource.value("included_by").toArray().size(), 0);
+    const QJsonArray unresolved = fromSource.value("unresolved_includes").toArray();
+    QCOMPARE(unresolved.size(), 1);
+    QCOMPARE(unresolved.at(0).toObject().value("name").toString(), QString("nonexistent_xyz.h"));
+    QCOMPARE(unresolved.at(0).toObject().value("line").toInt(), 2);
+    QCOMPARE(unresolved.at(0).toObject().value("global").toBool(), true);
+    QVERIFY(!fromSource.contains("transitive_includes"));
+    QVERIFY(!fromSource.contains("transitive_included_by"));
+
+    const QJsonObject fromHeader = callTool("cpp_get_include_hierarchy",
+                                            {{"file", header.toFSPathString()},
+                                             {"transitive", true}},
+                                            &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(fromHeader.value("includes").toArray().size(), 0);
+    const QJsonArray includedBy = fromHeader.value("included_by").toArray();
+    QCOMPARE(includedBy.size(), 1);
+    QCOMPARE(includedBy.at(0).toObject().value("file").toString(), source.toUserOutput());
+    QCOMPARE(includedBy.at(0).toObject().value("line").toInt(), 1);
+    QCOMPARE(fromHeader.value("transitive_includes").toArray().size(), 0);
+    const QJsonArray dependents = fromHeader.value("transitive_included_by").toArray();
+    QCOMPARE(dependents.size(), 1);
+    QCOMPARE(dependents.at(0).toString(), source.toUserOutput());
+    QCOMPARE(fromHeader.value("totals").toObject().value("included_by").toInt(), 1);
+    QCOMPARE(fromHeader.value("truncated").toBool(), false);
+
+    callTool("cpp_get_include_hierarchy",
+             {{"file", (dir.filePath() / "missing.cpp").toFSPathString()}}, &error);
+    QVERIFY2(error.contains("No C++ code model document"), qPrintable(error));
+}
+
 } // namespace CppEditor::Internal

@@ -17,6 +17,7 @@ private slots:
     void testFindReferences();
     void testGetTypeHierarchy();
     void testFindOverrides();
+    void testGetIncludeHierarchy();
     void testRenameSymbolDryRun();
     void testResultCap();
     void testErrorHandling();

@@ -1727,6 +1727,164 @@ void registerMcpTools()
                 {"overrides", overrides},
                 {"base_declarations", baseDeclarations}});
         });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("cpp_get_include_hierarchy")
+            .title("Get C++ include hierarchy")
+            .description(
+                "Returns the include hierarchy of a C++ file from the code model: the files "
+                "it includes directly (each with the 1-based line of the #include, the name "
+                "as written, and whether it was a <global> or a \"local\" include), the "
+                "files that include it directly (each with the line of their #include), and "
+                "the #includes that could not be resolved to a file. Set \"transitive\" to "
+                "also get the flattened closures: every file it pulls in, and every file "
+                "that depends on it. The file must be known to the code model, i.e. a C++ "
+                "source or header that belongs to an open project or is included by one.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description", "Absolute path to the C++ source or header file."}})
+                    .addProperty(
+                        "transitive",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Also return \"transitive_includes\" and "
+                             "\"transitive_included_by\". Default false."}})
+                    .addProperty("limit", limitProperty())
+                    .addRequired("file"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("file", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "includes",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description", "Files included directly, in #include order."}})
+                    .addProperty(
+                        "included_by",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description", "Files whose #include resolves to this file."}})
+                    .addProperty(
+                        "unresolved_includes",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description",
+                             "#includes the code model could not resolve to a file."}})
+                    .addProperty(
+                        "transitive_includes",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addProperty(
+                        "transitive_included_by",
+                        QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addProperty(
+                        "totals",
+                        QJsonObject{
+                            {"type", "object"},
+                            {"description", "Size of each list before the limit was applied."}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
+                    .addRequired("file")
+                    .addRequired("includes")
+                    .addRequired("included_by")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            if (file.isEmpty()) {
+                return CallToolResult{}.isError(true).addContent(
+                    TextContent{}.text("Missing required argument \"file\"."));
+            }
+            const bool transitive = args.value("transitive").toBool();
+            const int limit = resultLimit(args);
+
+            const FilePath filePath = FilePath::fromUserInput(file);
+            const CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+            const CPlusPlus::Document::Ptr doc = snapshot.document(filePath);
+            if (!doc) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("No C++ code model document for \"%1\". Is it a C++ file that "
+                            "belongs to an open project?")
+                        .arg(filePath.toUserOutput())));
+            }
+
+            const auto isGlobal = [](const CPlusPlus::Document::Include &include) {
+                return include.type() == CPlusPlus::Client::IncludeGlobal;
+            };
+            QJsonArray includes;
+            for (const CPlusPlus::Document::Include &include : doc->resolvedIncludes()) {
+                includes.append(QJsonObject{
+                    {"file", include.resolvedFileName().toUserOutput()},
+                    {"line", include.line()},
+                    {"name", include.unresolvedFileName()},
+                    {"global", isGlobal(include)}});
+            }
+            QJsonArray unresolved;
+            for (const CPlusPlus::Document::Include &include : doc->unresolvedIncludes()) {
+                unresolved.append(QJsonObject{
+                    {"name", include.unresolvedFileName()},
+                    {"line", include.line()},
+                    {"global", isGlobal(include)}});
+            }
+
+            // The snapshot is a hash, so its includers come back in no particular
+            // order; sort them so the same question gets the same answer.
+            QList<QPair<QString, int>> includers;
+            const QList<CPlusPlus::Snapshot::IncludeLocation> locations
+                = snapshot.includeLocationsOfDocument(filePath);
+            for (const CPlusPlus::Snapshot::IncludeLocation &location : locations)
+                includers.append({location.first->filePath().toUserOutput(), location.second});
+            std::sort(includers.begin(), includers.end());
+            QJsonArray includedBy;
+            for (const QPair<QString, int> &includer : std::as_const(includers))
+                includedBy.append(QJsonObject{{"file", includer.first}, {"line", includer.second}});
+
+            QJsonObject totals;
+            bool truncated = false;
+            const auto capped = [&](const QString &key, const QJsonArray &array) {
+                int total = 0;
+                bool listTruncated = false;
+                const QJsonArray result = capResults(array, limit, &total, &listTruncated);
+                totals.insert(key, total);
+                truncated = truncated || listTruncated;
+                return result;
+            };
+            QJsonObject result{{"file", filePath.toUserOutput()}};
+            result.insert("includes", capped("includes", includes));
+            result.insert("included_by", capped("included_by", includedBy));
+            result.insert("unresolved_includes", capped("unresolved_includes", unresolved));
+
+            if (transitive) {
+                const auto sortedPaths = [&filePath](const QSet<FilePath> &paths) {
+                    QStringList names;
+                    for (const FilePath &path : paths) {
+                        if (path != filePath) // A cycle would list the file itself.
+                            names.append(path.toUserOutput());
+                    }
+                    names.sort();
+                    return QJsonArray::fromStringList(names);
+                };
+                result.insert("transitive_includes",
+                              capped("transitive_includes",
+                                     sortedPaths(snapshot.allIncludesForDocument(filePath))));
+                const FilePaths dependents = snapshot.filesDependingOn(filePath);
+                result.insert("transitive_included_by",
+                              capped("transitive_included_by",
+                                     sortedPaths(QSet<FilePath>(dependents.begin(),
+                                                                dependents.end()))));
+            }
+
+            result.insert("totals", totals);
+            result.insert("truncated", truncated);
+            return CallToolResult{}.isError(false).structuredContent(result);
+        });
 }
 
 } // namespace CppEditor::Internal
