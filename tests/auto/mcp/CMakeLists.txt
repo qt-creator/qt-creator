@@ -5,3 +5,8 @@ add_qtc_test(tst_minihttpserver
     tst_minihttpserver.cpp
     "${PROJECT_SOURCE_DIR}/src/libs/mcp/server/minihttpserver.h"
 )
+
+add_qtc_test(tst_toolvalidation
+  DEPENDS McpServerLib Utils
+  SOURCES tst_toolvalidation.cpp
+)

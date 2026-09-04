@@ -68,6 +68,9 @@ Utils::Result<Schema::CallToolResult> ToolRegistry::callToolForTests(
             continue;
         if (!tool.enabled)
             return Utils::ResultError(QString("Tool \"%1\" is disabled.").arg(name));
+        // The same check the server makes, so a test sees what a client sees.
+        if (const Utils::Result<> ok = validateToolArguments(tool.metadata, params); !ok)
+            return Utils::ResultError(ok.error());
         if (auto *callback = std::get_if<Server::ToolCallback>(&tool.callback))
             return (*callback)(params);
         return Utils::ResultError(

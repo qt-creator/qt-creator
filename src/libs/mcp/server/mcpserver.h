@@ -36,6 +36,9 @@ static std::optional<Schema::ProgressToken> progressToken(const Message &message
 
 class ToolInterface;
 
+MCPSERVER_EXPORT Utils::Result<> validateToolArguments(
+    const Schema::Tool &tool, const Schema::CallToolRequestParams &params);
+
 class MCPSERVER_EXPORT Inspector
 {
 public:

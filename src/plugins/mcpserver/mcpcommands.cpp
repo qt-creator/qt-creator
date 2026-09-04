@@ -3372,7 +3372,10 @@ void McpCommands::registerCommands()
                 "Types text by delivering key events, so widgets that react to typing (line "
                 "edits, text editors) update as if the user typed. If widget query fields are "
                 "given they select and focus the target (which must resolve to exactly one "
-                "widget); otherwise the current focus widget receives the input.")
+                "widget); otherwise the current focus widget receives the input. "
+                "It types TEXT: a special key has no notation here, so a \"\\n\" in the input "
+                "is a newline character rather than a Return press - use press_keys for a key "
+                "sequence, or fakevim_keys for Vim notation such as \":w<CR>\".")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 addWidgetQueryProps(Tool::InputSchema{})
@@ -3380,7 +3383,9 @@ void McpCommands::registerCommands()
                         "input",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "The text to type."}})
+                            {"description",
+                             "The text to type. Typed as characters - see the tool description "
+                             "for how to send a key instead."}})
                     .addProperty(
                         "mode",
                         QJsonObject{

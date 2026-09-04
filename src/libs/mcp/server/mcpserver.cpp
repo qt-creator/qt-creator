@@ -6,11 +6,15 @@
 #include <utils/result.h>
 #include <utils/utility.h>
 
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLocale>
 #include <QLoggingCategory>
 #include <QTcpServer>
 #include <QTimer>
+
+#include <cmath>
 
 #ifdef MCP_SERVER_HAS_QT_HTTP_SERVER
 #include <QHttpServer>
@@ -188,6 +192,130 @@ struct Responder
 };
 
 struct ToolInterfacePrivate;
+
+static QString jsonKind(const QJsonValue &value)
+{
+    switch (value.type()) {
+    case QJsonValue::Null: return "null";
+    case QJsonValue::Bool: return "a boolean";
+    case QJsonValue::Double: return "a number";
+    case QJsonValue::String: return "a string";
+    case QJsonValue::Array: return "an array";
+    case QJsonValue::Object: return "an object";
+    case QJsonValue::Undefined: break;
+    }
+    return "nothing";
+}
+
+static QString jsonText(const QJsonValue &value)
+{
+    switch (value.type()) {
+    case QJsonValue::Null: return "null";
+    case QJsonValue::Bool: return value.toBool() ? QLatin1String("true") : QLatin1String("false");
+    case QJsonValue::Double:
+        return QString::number(value.toDouble(), 'g', QLocale::FloatingPointShortest);
+    case QJsonValue::String: return '"' + value.toString() + '"';
+    case QJsonValue::Array:
+        return QString::fromUtf8(QJsonDocument(value.toArray()).toJson(QJsonDocument::Compact));
+    case QJsonValue::Object:
+        return QString::fromUtf8(QJsonDocument(value.toObject()).toJson(QJsonDocument::Compact));
+    case QJsonValue::Undefined: break;
+    }
+    return "nothing";
+}
+
+static Utils::Result<> validateValue(const QString &toolName, const QString &argumentName,
+                                     const QJsonObject &property, const QJsonValue &value)
+{
+    const QJsonArray allowed = property.value("enum").toArray();
+    if (!allowed.isEmpty()) {
+        if (!allowed.contains(value)) {
+            QStringList names;
+            for (const QJsonValue &one : allowed)
+                names += jsonText(one);
+            return Utils::ResultError(
+                QString("Invalid value %1 for argument \"%2\" of tool \"%3\". "
+                        "Expected one of: %4")
+                    .arg(jsonText(value), argumentName, toolName, names.join(", ")));
+        }
+        return Utils::ResultOk;
+    }
+
+    const QString wanted = property.value("type").toString();
+    if (wanted.isEmpty())
+        return Utils::ResultOk;
+    const auto wrongKind = [&](const QString &got) {
+        const QLatin1String article = QLatin1String("aeiou").contains(wanted.at(0))
+                                          ? QLatin1String("an") : QLatin1String("a");
+        return Utils::ResultError(
+            QString("Argument \"%1\" of tool \"%2\" wants %3 %4, got %5")
+                .arg(argumentName, toolName, article, wanted, got));
+    };
+    if (wanted == "string" && !value.isString())
+        return wrongKind(jsonKind(value));
+    // JSON has one number type, so an integer is a number whose value has
+    // no fraction - which is what a caller sending 3 rather than 3.5 means.
+    if ((wanted == "number" || wanted == "integer") && !value.isDouble())
+        return wrongKind(jsonKind(value));
+    if (wanted == "integer" && value.isDouble()
+        && value.toDouble() != std::floor(value.toDouble())) {
+        return wrongKind("a fractional number");
+    }
+    if (wanted == "boolean" && !value.isBool())
+        return wrongKind(jsonKind(value));
+    if (wanted == "array" && !value.isArray())
+        return wrongKind(jsonKind(value));
+    if (wanted == "object" && !value.isObject())
+        return wrongKind(jsonKind(value));
+    return Utils::ResultOk;
+}
+
+// This is deliberately not a full JSON Schema implementation. It checks
+// the four things a caller gets wrong: a name that is not there, a
+// missing required one, a value of the wrong kind, and a value outside an
+// enum. Anything a schema says beyond that is left alone.
+Utils::Result<> validateToolArguments(const Schema::Tool &tool,
+                                      const Schema::CallToolRequestParams &params)
+{
+    static const QMap<QString, QJsonObject> noProperties;
+    const Schema::Tool::InputSchema &schema = tool.inputSchema();
+    const QMap<QString, QJsonObject> &properties = schema.properties() ? *schema.properties()
+                                                                      : noProperties;
+    const QJsonObject arguments = params.argumentsAsObject();
+
+    // A name that is not declared comes first, because a misspelled argument
+    // would otherwise be reported as the required one it failed to supply -
+    // true, but silent about the actual mistake.
+    for (auto it = arguments.constBegin(); it != arguments.constEnd(); ++it) {
+        const QString &name = it.key();
+        const auto property = properties.constFind(name);
+        if (property == properties.constEnd()) {
+            if (properties.isEmpty()) {
+                return Utils::ResultError(
+                    QString("Tool \"%1\" takes no arguments, but \"%2\" was passed")
+                        .arg(tool.name(), name));
+            }
+            QStringList known = properties.keys();
+            known.sort();
+            return Utils::ResultError(
+                QString("Unknown argument \"%1\" for tool \"%2\". Known: %3")
+                    .arg(name, tool.name(), known.join(", ")));
+        }
+        if (const Utils::Result<> ok = validateValue(tool.name(), name, *property, it.value());
+            !ok) {
+            return ok;
+        }
+    }
+
+    for (const QString &name : schema.required().value_or(QStringList{})) {
+        if (!arguments.contains(name)) {
+            return Utils::ResultError(
+                QString("Missing required argument \"%1\" for tool \"%2\"")
+                    .arg(name, tool.name()));
+        }
+    }
+    return Utils::ResultOk;
+}
 
 class ServerPrivate : public std::enable_shared_from_this<ServerPrivate>
 {
@@ -826,6 +954,18 @@ public:
                             .message("Invalid Tool:" + request.params().name()))
                     .id(id))));
 
+            return;
+        }
+
+        if (const Utils::Result<> ok
+            = validateToolArguments(toolIt.value().tool, request.params());
+            !ok) {
+            qCWarning(mcpServerLog) << "Refusing call for tool" << request.params().name() << ':'
+                                    << ok.error();
+            responder.write(QJsonDocument(toJson(
+                Schema::JSONRPCErrorResponse()
+                    .error(Schema::Error().code(InvalidParams).message(ok.error()))
+                    .id(id))));
             return;
         }
 
