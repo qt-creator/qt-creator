@@ -24,6 +24,8 @@ QtcLibrary {
         "cmakelexer.cpp",
         "cmakelexer.h",
         "cmakememorypool.h",
+        "cmakesignature.cpp",
+        "cmakesignature.h",
     ]
 
     Group {

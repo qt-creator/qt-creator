@@ -7,6 +7,7 @@
 #include <cmakelang/cmakeengine.h>
 #include <cmakelang/cmakelexer.h>
 #include <cmakelang/cmakeparser.h>
+#include <cmakelang/cmakesignature.h>
 
 #include <QTest>
 
@@ -189,6 +190,11 @@ private slots:
     void errorRecovery();
     void documentCommands();
     void documentScopes();
+    void signatures_data();
+    void signatures();
+    void signaturesNeedTheSource();
+    void argumentGroups_data();
+    void argumentGroups();
 };
 
 void tst_CMakeLang::lexer_data()
@@ -530,6 +536,212 @@ void tst_CMakeLang::documentScopes()
     // The loop body is reached from the else branch, not the other way around.
     QVERIFY(!document->runsWith(inForEach, atFileLevel));
     QVERIFY(document->runsWith(atFileLevel, inForEach));
+}
+
+static const char qmlModuleDefinition[] = R"(function(qt6_add_qml_module target)
+    set(args_option STATIC SHARED)
+    set(args_single URI VERSION)
+    set(args_multi SOURCES QML_FILES RESOURCES)
+    cmake_parse_arguments(PARSE_ARGV 1 arg "${args_option}" "${args_single}" "${args_multi}")
+endfunction()
+
+if(NOT QT_NO_CREATE_VERSIONLESS_FUNCTIONS)
+    function(qt_add_qml_module)
+        qt6_add_qml_module(${ARGV})
+        cmake_parse_arguments(PARSE_ARGV 1 arg "" "OUTPUT_TARGETS" "")
+    endfunction()
+endif()
+)";
+
+static QString arityOf(const Signature &signature, const QString &keyword)
+{
+    const std::optional<Signature::Arity> arity = signature.arity(keyword);
+    if (!arity)
+        return "none";
+    switch (*arity) {
+    case Signature::Option:
+        return "option";
+    case Signature::OneValue:
+        return "one";
+    case Signature::MultiValue:
+        return "multi";
+    }
+    return {};
+}
+
+void tst_CMakeLang::signatures_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("command");
+    QTest::addColumn<QString>("keywords");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("literal lists")
+        << "function(f target)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 1 arg \"STATIC\" \"URI\" \"QML_FILES;SOURCES\")\n"
+           "endfunction()\n"
+        << "f" << "STATIC URI QML_FILES SOURCES NOPE" << "option one multi multi none";
+
+    // Without PARSE_ARGV the lists come after the prefix, and the arguments to
+    // parse after them.
+    QTest::newRow("macro")
+        << "macro(m)\n"
+           "  cmake_parse_arguments(arg \"OPT\" \"\" \"FILES\" ${ARGN})\n"
+           "endmacro()\n"
+        << "m" << "OPT FILES" << "option multi";
+
+    QTest::newRow("variables") << QString::fromLatin1(qmlModuleDefinition)
+                               << "qt6_add_qml_module" << "STATIC URI QML_FILES"
+                               << "option one multi";
+
+    // The lists are commonly built up over several lines and handed to
+    // cmake_parse_arguments() as variables, together with ${ARGN}.
+    QTest::newRow("variables without PARSE_ARGV")
+        << "function(add_qtc_plugin target_name)\n"
+           "  set(opt_args\n"
+           "    SKIP_INSTALL\n"
+           "    EXPORT\n"
+           "  )\n"
+           "  set(single_args\n"
+           "    VERSION\n"
+           "    PLUGIN_NAME\n"
+           "  )\n"
+           "  set(multi_args\n"
+           "    DEPENDS\n"
+           "    SOURCES\n"
+           "  )\n"
+           "  cmake_parse_arguments(_arg \"${opt_args}\" \"${single_args}\" \"${multi_args}\""
+           " ${ARGN})\n"
+           "endfunction()\n"
+        << "add_qtc_plugin" << "EXPORT PLUGIN_NAME SOURCES ARGN" << "option one multi none";
+
+    QTest::newRow("variable naming a variable")
+        << "function(f)\n"
+           "  set(common URI)\n"
+           "  set(args_single ${common} VERSION)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"${args_single}\" \"\")\n"
+           "endfunction()\n"
+        << "f" << "URI VERSION" << "one one";
+
+    QTest::newRow("appended variable")
+        << "function(f)\n"
+           "  set(args_multi SOURCES)\n"
+           "  list(APPEND args_multi QML_FILES)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+           "endfunction()\n"
+        << "f" << "SOURCES QML_FILES" << "multi multi";
+
+    // A command that hands ${ARGV} on takes what the command it calls takes,
+    // its own keywords included.
+    QTest::newRow("forwarded keywords")
+        << QString::fromLatin1(qmlModuleDefinition) << "qt_add_qml_module"
+        << "QML_FILES URI OUTPUT_TARGETS" << "multi one one";
+
+    QTest::newRow("command names are case insensitive")
+        << "FUNCTION(F)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"FILES\")\n"
+           "ENDFUNCTION()\n"
+        << "f" << "FILES" << "multi";
+}
+
+void tst_CMakeLang::signatures()
+{
+    QFETCH(QString, source);
+    QFETCH(QString, command);
+    QFETCH(QString, keywords);
+    QFETCH(QString, expected);
+
+    SignatureTable table;
+    table.addDocument(Document::fromSource(source));
+    const Signature signature = table.signature(command);
+
+    QStringList arities;
+    for (const QString &keyword : keywords.split(u' ', Qt::SkipEmptyParts))
+        arities << arityOf(signature, keyword);
+    QCOMPARE(arities.join(u' '), expected);
+}
+
+void tst_CMakeLang::signaturesNeedTheSource()
+{
+    auto signatureOf = [](const QString &source, const QString &command) {
+        SignatureTable table;
+        table.addDocument(Document::fromSource(source));
+        return table.signature(command);
+    };
+
+    // A keyword list that the file does not spell out leaves no signature at
+    // all: half of the keywords would group the arguments of a call wrongly.
+    QVERIFY(signatureOf("function(f)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"${elsewhere}\" \"\" \"FILES\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // What a call outside a function or macro parses belongs to no command.
+    QVERIFY(signatureOf("cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"FILES\")\n", "f")
+                .isEmpty());
+
+    QVERIFY(signatureOf("function(f)\nendfunction()\n", "f").isEmpty());
+    QVERIFY(signatureOf("", "f").isEmpty());
+}
+
+static QString groupsOf(const QString &definition, const QString &call)
+{
+    SignatureTable table;
+    table.addDocument(Document::fromSource(definition));
+
+    const DocumentPtr document = Document::fromSource(call);
+    if (!document->isValid() || document->commands().isEmpty())
+        return "<error>";
+
+    CommandAST *command = document->commands().first();
+    QStringList dumped;
+    for (const KeywordArguments &group :
+         groupArguments(command, table.signature(command->commandName()))) {
+        QStringList parts{group.keyword ? group.keyword->value() : QString(u'-')};
+        for (ArgumentAST *value : group.values)
+            parts << value->value();
+        dumped << '(' + parts.join(u' ') + ')';
+    }
+    return dumped.join(u' ');
+}
+
+void tst_CMakeLang::argumentGroups_data()
+{
+    QTest::addColumn<QString>("call");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("keywords and values")
+        << "qt_add_qml_module(app URI My VERSION 1.0 QML_FILES Main.qml Item.qml)\n"
+        << "(- app) (URI My) (VERSION 1.0) (QML_FILES Main.qml Item.qml)";
+
+    QTest::newRow("repeated keyword") << "qt_add_qml_module(app QML_FILES a.qml QML_FILES b.qml)\n"
+                                      << "(- app) (QML_FILES a.qml) (QML_FILES b.qml)";
+
+    QTest::newRow("keyword without values") << "qt_add_qml_module(app QML_FILES)\n"
+                                            << "(- app) (QML_FILES)";
+
+    QTest::newRow("option takes nothing") << "qt_add_qml_module(app STATIC QML_FILES a.qml)\n"
+                                          << "(- app) (STATIC) (QML_FILES a.qml)";
+
+    // What no keyword takes stands on its own, the way it ends up in
+    // arg_UNPARSED_ARGUMENTS.
+    QTest::newRow("value after an option")
+        << "qt_add_qml_module(app STATIC extra QML_FILES a.qml)\n"
+        << "(- app) (STATIC) (- extra) (QML_FILES a.qml)";
+
+    QTest::newRow("one value keyword takes one") << "qt_add_qml_module(app URI My extra)\n"
+                                                 << "(- app) (URI My) (- extra)";
+
+    QTest::newRow("command with no signature") << "add_executable(app URI main.cpp)\n"
+                                               << "(- app URI main.cpp)";
+}
+
+void tst_CMakeLang::argumentGroups()
+{
+    QFETCH(QString, call);
+    QFETCH(QString, expected);
+    QCOMPARE(groupsOf(QString::fromLatin1(qmlModuleDefinition), call), expected);
 }
 
 QTEST_GUILESS_MAIN(tst_CMakeLang)
