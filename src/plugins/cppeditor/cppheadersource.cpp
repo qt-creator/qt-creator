@@ -209,16 +209,16 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
     // Try to find a file in the same or sibling directories first
     for (const QString &candidateDir : std::as_const(candidateDirs)) {
         for (const QString &candidateFileName : std::as_const(candidateFileNames)) {
-            const FilePath candidateFilePath
-                = FilePath::fromString(candidateDir + '/' + candidateFileName).normalizedPathName();
-            if (candidateFilePath.isFile()) {
-                if (cacheUsage == CacheUsage::ReadWrite) {
-                    m_headerSourceMapping[filePath] = candidateFilePath;
-                    if (!isHeader || !baseName.endsWith(privateHeaderSuffix))
-                        m_headerSourceMapping[candidateFilePath] = filePath;
-                }
-                return candidateFilePath;
+            const FilePath candidate = FilePath::fromString(candidateDir + '/' + candidateFileName);
+            if (!candidate.isFile())
+                continue;
+            const FilePath normalizedCandidate = candidate.normalizedPathName();
+            if (cacheUsage == CacheUsage::ReadWrite) {
+                m_headerSourceMapping[filePath] = normalizedCandidate;
+                if (!isHeader || !baseName.endsWith(privateHeaderSuffix))
+                    m_headerSourceMapping[normalizedCandidate] = filePath;
             }
+            return normalizedCandidate;
         }
     }
 
