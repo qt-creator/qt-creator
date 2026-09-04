@@ -1411,6 +1411,11 @@ void ModelManagerTest::testDocumentsAndRevisions()
 
 void ModelManagerTest::testSettingsChanges()
 {
+    const CppCodeModelSettingsData globalSettingsBackup
+        = CppCodeModelSettings::settingsForProject(nullptr);
+    const QScopeGuard restoreGlobalSettings(
+        [&] { CppCodeModelSettings::setGlobal(globalSettingsBackup); });
+
     ModelManagerTestHelper helper;
 
     int refreshCount = 0;
