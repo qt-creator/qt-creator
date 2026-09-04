@@ -67,6 +67,8 @@ Project {
             "cmaketoolmanager.h",
             "cmaketoolsettingsaccessor.cpp",
             "cmaketoolsettingsaccessor.h",
+            "cmakeusages.cpp",
+            "cmakeusages.h",
             "cmakeutils.cpp",
             "cmakeutils.h",
             "cmakesettingspage.h",

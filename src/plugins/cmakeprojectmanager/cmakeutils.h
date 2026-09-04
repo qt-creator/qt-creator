@@ -14,6 +14,10 @@ namespace CMakeProjectManager::Internal {
 QString addCMakePrefix(const QString &str);
 QStringList addCMakePrefix(const QStringList &list);
 
+// Whether the character can be part of a CMake name. A hyphen can, which a
+// target name commonly makes use of.
+bool isCMakeIdentifierChar(QChar character);
+
 // Reads and parses a CMake file. The document is invalid when the contents do
 // not parse; a file that cannot be read yields an empty document.
 CMakeLang::DocumentPtr parseCMakeFile(const Utils::FilePath &filePath);

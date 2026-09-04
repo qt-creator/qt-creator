@@ -106,6 +106,11 @@ QStringList addCMakePrefix(const QStringList &list)
     return Utils::transform(list, [](const QString &str) { return addCMakePrefix(str); });
 }
 
+bool isCMakeIdentifierChar(QChar character)
+{
+    return character.isLetterOrNumber() || character == u'_' || character == u'-';
+}
+
 CMakeLang::DocumentPtr parseCMakeFile(const FilePath &filePath)
 {
     QByteArray contents;

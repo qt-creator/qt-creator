@@ -20,6 +20,7 @@
 #include "cmakequickfixes.h"
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
+#include "cmakeusages.h"
 #include "conditionalsources.h"
 #include "mcptools.h"
 
@@ -86,6 +87,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createBinariesForSourceFileTest);
         addTestCreator(createConditionalSourcesTest);
         addTestCreator(createQmlModuleFilesTest);
+        addTestCreator(createCMakeUsagesTest);
         addTestCreator(createTestPresetsInheritanceTest);
 #endif
 

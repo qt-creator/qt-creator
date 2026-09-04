@@ -12,6 +12,7 @@
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakequickfixes.h"
+#include "cmakeusages.h"
 #include "cmakeutils.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -108,6 +109,8 @@ private:
                     const LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
                     bool inNextSplit = false) final;
+    void findUsages() final { findUsagesUnderCursor(this); }
+    void renameSymbolUnderCursor() final { Internal::renameSymbolUnderCursor(this); }
     void contextMenuEvent(QContextMenuEvent *e) final;
 };
 
@@ -160,11 +163,6 @@ static bool isValidUrlChar(const QChar &c)
                                 '$', '&', '\'', '(', ')', '*', '+', ',', ';', '%', '='};
 
     return (c.isLetterOrNumber() || urlChars.contains(c)) && !c.isSpace();
-}
-
-static bool isValidIdentifierChar(const QChar &chr)
-{
-    return chr.isLetterOrNumber() || chr == '_' || chr == '-';
 }
 
 static QHash<QString, Link> getLocalSymbolsHash(const QString &content,
@@ -312,7 +310,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
         QChar chr;
         do {
             chr = textDocument()->characterAt(--pos);
-        } while (pos > 0 && isValidIdentifierChar(chr));
+        } while (pos > 0 && isCMakeIdentifierChar(chr));
 
         return ++pos;
     };
@@ -537,6 +535,8 @@ public:
 
         setOptionalActionMask(OptionalActions::UnCommentSelection
                                 | OptionalActions::FollowSymbolUnderCursor
+                                | OptionalActions::FindUsage
+                                | OptionalActions::RenameSymbol
                                 | OptionalActions::Format);
 
         addHoverHandler(&cmakeHoverHandler());

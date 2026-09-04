@@ -177,6 +177,7 @@ public:
     QString warning() const;
 
     const QHash<QString, Utils::Link> &cmakeSymbolsHash() const { return m_cmakeSymbolsHash; }
+    const QSet<CMakeFileInfo> &cmakeFiles() const { return m_cmakeFiles; }
     CMakeKeywords projectKeywords() const { return m_projectKeywords; }
     CMakeLang::SignatureTable commandSignatures() const { return m_commandSignatures; }
     // Counts up whenever the signatures change, so that what one reads out of
