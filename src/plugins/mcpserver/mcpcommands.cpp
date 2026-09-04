@@ -3881,6 +3881,72 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("editor_select_text")
+            .title("Select a text range in the current editor")
+            .description(
+                "Selects text in the current text editor, from \"start_line\"/\"start_column\" "
+                "to \"end_line\"/\"end_column\" (1-based; the columns default to the start of "
+                "the first and the end of the last line). Sets up the selection that behavior "
+                "like printing a selection, commenting or an external tool replacing the "
+                "selection depends on - typing cannot produce it, and the incremental find "
+                "highlights matches without moving the cursor. Returns the selected text.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "start_line",
+                        QJsonObject{{"type", "integer"},
+                                    {"description", "1-based line the selection starts on"}})
+                    .addProperty(
+                        "start_column",
+                        QJsonObject{{"type", "integer"},
+                                    {"description", "1-based column, defaults to 1"}})
+                    .addProperty(
+                        "end_line",
+                        QJsonObject{{"type", "integer"},
+                                    {"description", "1-based line the selection ends on"}})
+                    .addProperty(
+                        "end_column",
+                        QJsonObject{{"type", "integer"},
+                                    {"description",
+                                     "1-based column, defaults to the end of the line"}})
+                    .addRequired("start_line")
+                    .addRequired("end_line"))
+            .outputSchema(Tool::OutputSchema{}
+                              .addProperty("text", QJsonObject{{"type", "string"}})
+                              .addProperty("reason", QJsonObject{{"type", "string"}})
+                              .addRequired("reason")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            Core::IEditor *editor = Core::EditorManager::currentEditor();
+            auto *textEditor = editor
+                ? qobject_cast<TextEditor::TextEditorWidget *>(editor->widget()) : nullptr;
+            if (!textEditor)
+                return {{"reason", "no_text_editor"}, {"message", "No text editor is current."}};
+
+            QTextDocument *doc = textEditor->document();
+            const QTextBlock first = doc->findBlockByNumber(p.value("start_line").toInt() - 1);
+            const QTextBlock last = doc->findBlockByNumber(p.value("end_line").toInt() - 1);
+            if (!first.isValid() || !last.isValid() || last < first) {
+                const QString message = QString("Expected 1 <= start_line <= end_line <= %1.")
+                                            .arg(doc->blockCount());
+                return {{"reason", "invalid_range"}, {"message", message}};
+            }
+            const int startColumn = qBound(1, p.value("start_column").toInt(1), first.length());
+            const int endColumn = p.contains("end_column")
+                ? qBound(1, p.value("end_column").toInt(), last.length())
+                : last.length();
+
+            QTextCursor cursor(doc);
+            cursor.setPosition(first.position() + startColumn - 1);
+            cursor.setPosition(last.position() + endColumn - 1, QTextCursor::KeepAnchor);
+            textEditor->setTextCursor(cursor);
+            QString text = cursor.selectedText();
+            text.replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
+            return {{"reason", "ok"}, {"text", text}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("ui_screenshot")
             .title("Capture a window as a PNG")
             .description(
