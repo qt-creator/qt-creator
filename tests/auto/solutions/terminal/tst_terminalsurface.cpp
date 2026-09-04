@@ -81,6 +81,19 @@ private slots:
 
     void resizeTo(QSize size) { m_surface->resize(size); }
 
+    void aCharacterSplitAcrossTwoWritesIsStillOneCharacter()
+    {
+        const QByteArray text = QString::fromUcs4(U"ab你好cd", 6).toUtf8();
+
+        for (int cut = 1; cut < text.size(); ++cut) {
+            initSurface({20, 4});
+            m_surface->dataFromPty(text.left(cut));
+            m_surface->dataFromPty(text.mid(cut));
+
+            QCOMPARE(surfaceChars(), std::u32string(U"ab你好cd"));
+        }
+    }
+
     void plainTextHasNoHyperlink()
     {
         m_surface->dataFromPty("This is a link");

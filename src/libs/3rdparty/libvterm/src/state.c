@@ -311,8 +311,8 @@ static int on_text(const char bytes[], size_t len, void *user)
 
   VTermEncodingInstance *encoding =
     state->gsingle_set     ? &state->encoding[state->gsingle_set] :
-    !(bytes[eaten] & 0x80) ? &state->encoding[state->gl_set] :
     state->vt->mode.utf8   ? &state->encoding_utf8 :
+    !(bytes[eaten] & 0x80) ? &state->encoding[state->gl_set] :
                              &state->encoding[state->gr_set];
 
   (*encoding->enc->decode)(encoding->enc, encoding->data,
