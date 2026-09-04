@@ -311,6 +311,8 @@ private slots:
     void test_vim_script_autocmd_get();
     void test_vim_script_typename();
     void test_vim_autocmd_bang_clears();
+    void test_vim_autocmd_bar();
+    void test_vim_autocmd_error_while_handling_key();
     void test_vim_script_autocmd_add_delete();
     void test_vim_script_filecopy();
     void test_vim_autocmd_textyankpost();
@@ -335,6 +337,56 @@ private slots:
     void test_vim_option_buffer_state();
     void test_vim_blob();
     void test_vim_blob_operations();
+    void test_vim_ex_mode();
+    void test_vim_selection_option();
+    void test_vim_pattern_file_position();
+    void test_vim_map_leader();
+    void test_vim_auto_wrap();
+    void test_vim_format_options_leader();
+    void test_vim_set_number_option();
+    void test_vim_line_address_arithmetic();
+    void test_vim_filter_range();
+    void test_vim_shift_round();
+    void test_vim_join_last_line();
+    void test_vim_retab_cursor();
+    void test_vim_undo_by_time();
+    void test_vim_sentence_object_count();
+    void test_vim_put_marks();
+    void test_vim_numbered_register_repeat();
+    void test_vim_insert_ctrl_g();
+    void test_vim_insert_abbreviation_word();
+    void test_vim_substitute_expression();
+    void test_vim_substitute_collection();
+    void test_vim_substitute_added_lines();
+    void test_vim_global_inner_command();
+    void test_vim_backwards_range();
+    void test_vim_search_end_offset();
+    void test_vim_search_word_key();
+    void test_vim_auto_indent_keys();
+    void test_vim_start_of_line_option();
+    void test_vim_key_notation_literal();
+    void test_vim_numbered_registers();
+    void test_vim_count_visual();
+    void test_vim_block_change();
+    void test_vim_undo_line();
+    void test_vim_replace_count();
+    void test_vim_block_object_ahead();
+    void test_vim_quoted_string_blanks();
+    void test_vim_visual_join();
+    void test_vim_dot_with_count();
+    void test_vim_a_word_blanks();
+    void test_vim_insert_take_back();
+    void test_vim_change_marks();
+    void test_vim_match_pair_fails();
+    void test_vim_search_motion_kind();
+    void test_vim_sentence_motion();
+    void test_vim_sentence_text_object();
+    void test_vim_failed_text_object();
+    void test_vim_middle_of_line();
+    void test_vim_ascii_key();
+    void test_vim_scroll_page_line();
+    void test_vim_balanced_brace();
+    void test_vim_filter_lines();
     void test_vim_command_map_listing();
     void test_vim_command_split_and_do();
     void test_vim_command_split_modifiers();
@@ -2100,7 +2152,7 @@ void FakeVimTester::test_vim_block_selection()
     // repeat change inner
     data.setText("(abc)" N "def" N "(ghi)");
     KEYS("ci(xyz<esc>", "(xy" X "z)" N "def" N "(ghi)");
-    KEYS("j.", "(xyz)" N "de" X "f" N "(ghi)");
+    KEYS("j.", "(xyz)" N "def" N "(xy" X "z)");
     KEYS("j.", "(xyz)" N "def" N "(xy" X "z)");
 
     // quoted string
@@ -2124,11 +2176,11 @@ void FakeVimTester::test_vim_block_selection()
     KEYS("di\"", "x\"" N "a \"" X "\" c");
     KEYS("u", "x\"" N "a \"" X "b\" c");
 
-    NOT_IMPLEMENTED
-    // quoted string with escaped character
-    data.setText("\"abc\"");
-    KEYS("di\"", "\"abc\"\"" X "\"");
-    KEYS("u", "\"abc\"\"" X "def\"");
+    // A quote escaped with a backslash is no delimiter of its own: the pair is
+    // the one around it. Measured in Vim 9.1.
+    data.setText("\"abc\\\"def\"");
+    KEYS("2l" "di\"", "\"" X "\"");
+    KEYS("u", "\"" X "abc\\\"def\"");
 }
 
 void FakeVimTester::test_vim_block_selection_insert()
@@ -2823,7 +2875,7 @@ void FakeVimTester::test_vim_search()
 
     // delete to match
     data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
-    KEYS("2l" "d/ghi<CR>", "ab" X "ghi abc jkl" N "xyz");
+    KEYS("2l" "d/ghi<CR>", "a" X "b" N "ghi abc jkl" N "xyz");
 
     data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
     KEYS("l" "d2/abc<CR>", "a" X "abc jkl" N "xyz");
@@ -4345,12 +4397,7 @@ void FakeVimTester::test_vim_script_marklist_jumplist_changelist()
     struct { int index; QString mark; QString pos; } marks[] = {
         {0, "'a", "1, 1, 0"}, {1, "'b", "3, 1, 0"},
         {2, "''", "5, 1, 0"}, {3, "'\"", "1, 1, 0"},
-        // "[" and "]" only move via the g@ operatorfunc mechanism here
-        // (callOperatorFunc()), never for a plain edit like "x" - so they
-        // stay at the file's own defaults; real Vim moves them to
-        // [bufnr, 2, 3, 0] and [bufnr, 2, 4, 0] here, a real, pre-existing
-        // gap outside this ticket.
-        {4, "'[", "1, 1, 0"}, {5, "']", "5, 1, 0"},
+        {4, "'[", "2, 3, 0"}, {5, "']", "2, 4, 0"},
         {6, "'^", "2, 4, 0"}, {7, "'.", "2, 3, 0"},
     };
     for (const auto &m : marks) {
@@ -6067,7 +6114,8 @@ void FakeVimTester::test_vim_ex_delete()
     COMMAND("u", X "abc" N "def" N "abc" N "ghi" N "ghi" N "jkl");
     COMMAND("2,/abc/d3", "abc" N "def" N X "jkl");
     COMMAND("u", "abc" N "def" N X "abc" N "ghi" N "ghi" N "jkl");
-    COMMAND("5,.+1d", "abc" N "def" N "abc" N X "jkl");
+    // The two addresses are in the wrong order, which Vim refuses to act on.
+    COMMAND("5,.+1d", "abc" N "def" N X "abc" N "ghi" N "ghi" N "jkl");
 }
 
 void FakeVimTester::test_vim_ex_change()
@@ -6893,10 +6941,11 @@ void FakeVimTester::test_vim_command_dG()
     KEYS("u",    l[0]+'\n' + '|' + lmid(1));
     KEYS("Gk",   lmid(0, l.size()-2)+'\n' + '|'+lmid(l.size()-2));
 
-    NOT_IMPLEMENTED
-    // include movement to first column, as otherwise the result depends on the 'startofline' setting
-    KEYS("dG0",  lmid(0, l.size()-2)+'\n' + '|'+lmid(l.size()-2,1));
+    // The trailing "0" takes the cursor to the first column, which is where
+    // 'startofline' would put it anyway; without it the column depends on that
+    // setting. Both positions measured in Vim 9.1.
     KEYS("dG0",  lmid(0, l.size()-3)+'\n' + '|'+lmid(l.size()-3,1));
+    KEYS("dG0",  lmid(0, l.size()-4)+'\n' + '|'+lmid(l.size()-4,1));
 }
 
 void FakeVimTester::test_vim_command_D()
@@ -7772,10 +7821,10 @@ void FakeVimTester::test_vim_insert_indent()
     // In insert mode CTRL-T adds one shiftwidth of indent to the current line
     // and CTRL-D removes one (QTCREATORBUG-11912).
     data.setText("a|bc");
-    KEYS("i<C-t>", "    |abc");
-    KEYS("<C-t>", "        |abc");
-    KEYS("<C-d>", "|    abc");
-    KEYS("<C-d>", "|abc");
+    KEYS("i<C-t>", "    a|bc");
+    KEYS("<C-t>", "        a|bc");
+    KEYS("<C-d>", "    a|bc");
+    KEYS("<C-d>", "a|bc");
 }
 
 void FakeVimTester::test_vim_block_selection_to_eol()
@@ -12710,6 +12759,131 @@ void FakeVimTester::test_vim_autocmd_bang_clears()
     data.doCommand("autocmd! FvBang2");
 }
 
+void FakeVimTester::test_vim_autocmd_bar()
+{
+    // Where a "|" ends an ":autocmd" and where it belongs to the command being
+    // registered. Measured in Vim 9.1. Everything stays inside groups of its
+    // own: the autocommand list is shared with every other test slot.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.doCommand("autocmd! FvBarA");
+    data.doCommand("autocmd! FvBarB");
+    data.doCommand("autocmd FvBarA User FvBar let g:a += 1");
+    data.doCommand("autocmd FvBarB User FvBar let g:b += 1");
+    const auto fire = [&] {
+        data.doCommand("let g:a = 0");
+        data.doCommand("let g:b = 0");
+        data.doCommand("doautocmd User FvBar");
+        return value("g:a . ',' . g:b");
+    };
+    QCOMPARE(fire(), QLatin1String("1,1"));
+
+    // The one-liner a plugin clears its own group with: the bar ends the bare
+    // ":autocmd!", so only that group's autocommands go and the commands after
+    // the bar do run.
+    data.doCommand("augroup FvBarA | autocmd! | augroup END");
+    QCOMPARE(fire(), QLatin1String("0,1"));
+    // The trailing ":augroup END" ran: what is registered now has no group.
+    data.doCommand("autocmd User FvBarPlain echo 1");
+    QCOMPARE(value("get(autocmd_get({'event': 'User', 'pattern': 'FvBarPlain'})[0],"
+                   " 'group', 'MISSING')"), QLatin1String(""));
+
+    // A group named on the command itself is as far as the arguments reach too.
+    data.doCommand("let g:x = 0");
+    data.doCommand("autocmd! FvBarB | let g:x = 1");
+    QCOMPARE(value("g:x"), QLatin1String("1"));
+    QCOMPARE(fire(), QLatin1String("0,0"));
+
+    // Once an event is named the bar is part of the command that gets
+    // registered: nothing runs now, and the whole tail is what fires later.
+    data.doCommand("let g:t1 = 0");
+    data.doCommand("let g:t2 = 0");
+    data.doCommand("autocmd FvBarA User FvBar2 let g:t1 = 1 | let g:t2 = 2");
+    QCOMPARE(value("g:t1 . ',' . g:t2"), QLatin1String("0,0"));
+    QCOMPARE(value("autocmd_get({'group': 'FvBarA'})[0].cmd"),
+             QLatin1String("let g:t1 = 1 | let g:t2 = 2"));
+    data.doCommand("doautocmd User FvBar2");
+    QCOMPARE(value("g:t1 . ',' . g:t2"), QLatin1String("1,2"));
+
+    data.doCommand("autocmd! FvBarA");
+    data.doCommand("autocmd! FvBarB");
+    data.doCommand("autocmd! User FvBarPlain");
+    data.doCommand("unlet! g:a g:b g:x g:t1 g:t2");
+}
+
+void FakeVimTester::test_vim_autocmd_error_while_handling_key()
+{
+    // An autocommand throwing while a key is being handled leaves an exception
+    // nothing catches. Vim 9.1 reports it and goes on taking keys, and so must
+    // the key after it here.
+    TestData data;
+    setup(&data);
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/fn.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! FvErrGo()\n"
+            "  let ml = &modelines\n"
+            "  try\n"
+            "    set modelines=0\n"
+            "    silent doautocmd User FvErrEvent\n"
+            "  finally\n"
+            "    let &modelines = ml\n"
+            "  endtry\n"
+            "  return ''\n"
+            "endfunction\n"
+            "function! FvErrLog()\n"
+            "  call add(g:fvErrLog, 'ran')\n"
+            "  return ''\n"
+            "endfunction\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/fn.vim");
+
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+
+    data.doCommand("autocmd! FvErr");
+    data.doCommand("autocmd FvErr User FvErrEvent call add(g:fvErrLog, 'fired')"
+                   " | throw 'FvErrBoom'");
+    data.doCommand("let g:fvErrLog = []");
+    data.doCommand("nnoremap <expr> <F8> FvErrGo()");
+    data.doCommand("nnoremap <expr> <F9> FvErrLog()");
+
+    data.setText("abc");
+    data.doKeys("<F8>");
+
+    // The next key is handled the way it would have been.
+    data.doKeys("<F9>");
+    data.doKeys("x");
+    QCOMPARE(data.text(), QString("bc"));
+
+    message.clear();
+    data.doCommand("echo string(g:fvErrLog)");
+    QCOMPARE(message, QLatin1String("['fired', 'ran']"));
+
+    data.doCommand("autocmd! FvErr");
+    data.doCommand("nunmap <F8>");
+    data.doCommand("nunmap <F9>");
+    data.doCommand("unlet! g:fvErrLog");
+}
+
 void FakeVimTester::test_vim_script_autocmd_add_delete()
 {
     // Registering and removing autocommands through a dict. All values
@@ -16108,6 +16282,1141 @@ void FakeVimTester::test_vim_blob()
     }
 
     data.doCommand("unlet! g:b g:c g:d g:seen");
+}
+
+void FakeVimTester::test_vim_ex_mode()
+{
+    // "Q" and "gQ" put the engine in Ex mode, where every line typed is a
+    // command until ":visual" ends it - the keys behind them are not keys to
+    // act on the text. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QStringList messages;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { messages += msg; });
+
+    data.setText("abc");
+    data.doKeys("Q");
+
+    // The command line is open, and what is typed lands on it.
+    QVERIFY(messages.contains(":"));
+    KEYS("x", X "abc");
+
+    // An escape gives up on the line, but not on the mode.
+    data.doKeys("<Esc>");
+    KEYS("visual<CR>x", X "bc");
+
+    // A line is a command, with or without the colon in front of it.
+    data.setText("abc" N "def");
+    KEYS("Qd<CR>visual<CR>", X "def");
+    data.setText("abc" N "def");
+    KEYS("Q:d<CR>visual<CR>", X "def");
+    data.setText("abc");
+    KEYS("Qs/a/X/<CR>visual<CR>", X "Xbc");
+
+    // One command after another, until ":visual" ends it.
+    data.setText("a" N "b" N "c");
+    KEYS("Qd<CR>d<CR>visual<CR>x", X "");
+
+    // "gQ" is the same door.
+    data.setText("abc");
+    KEYS("gQx", X "abc");
+    data.doKeys("<Esc>");
+    KEYS("visual<CR>x", X "bc");
+}
+
+void FakeVimTester::test_vim_selection_option()
+{
+    // 'selection' says whether the character the cursor is on belongs to a
+    // visual selection, which only "exclusive" leaves out - "old" differs
+    // elsewhere. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set selection=inclusive");
+    data.setText("abcdef");
+    KEYS("vlld", X "def");
+    data.setText("abcdef");
+    KEYS("vllyP", "ab" X "cabcdef");
+    data.setText("abcdef");
+    KEYS("vllU", X "ABCdef");
+
+    data.doCommand("set selection=exclusive");
+    data.setText("abcdef");
+    KEYS("vlld", X "cdef");
+    data.setText("abcdef");
+    KEYS("vllyP", "a" X "babcdef");
+    data.setText("abcdef");
+    KEYS("vllU", X "ABcdef");
+    data.setText("abcdef");
+    KEYS("vllcX<Esc>", X "Xcdef");
+    data.setText("abcd" N "abcd");
+    KEYS("<C-v>jld", X "bcd" N "bcd");
+    data.setText("a" N "b" N "c");
+    KEYS("Vjd", X "c");
+
+    data.doCommand("set selection=old");
+    data.setText("abcdef");
+    KEYS("vlld", X "def");
+
+    data.doCommand("set selection=inclusive");
+}
+
+void FakeVimTester::test_vim_pattern_file_position()
+{
+    // "\%^" is where the file begins and "\%$" where it ends. Values taken
+    // from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a" N "a");
+    COMMAND("%s/\\%^a/X/", X "X" N "a");
+    data.setText("a" N "a");
+    COMMAND("%s/a\\%$/X/", "a" N X "X");
+    data.setText("ab" N "ab");
+    COMMAND("%s/a\\%$/X/e", X "ab" N "ab");
+
+    data.setText("aa" N "aa");
+    KEYS("/\\%^a<CR>x", X "a" N "aa");
+}
+
+void FakeVimTester::test_vim_map_leader()
+{
+    // Vim writes "<leader>" and "<localleader>" out where the mapping is
+    // made, taking the value the variable holds at that moment; without one
+    // it is a backslash.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("nmapclear");
+    data.doCommand("unlet! g:mapleader");
+    data.doCommand("nmap <leader>q dw");
+    data.setText("abc def");
+    KEYS("\\q", X "def");
+
+    data.doCommand("let g:mapleader = \",\"");
+    data.doCommand("nmap <leader>w dw");
+    data.setText("abc def");
+    KEYS(",w", X "def");
+
+    data.doCommand("let g:maplocalleader = \";\"");
+    data.doCommand("nmap <localleader>e dw");
+    data.setText("abc def");
+    KEYS(";e", X "def");
+
+    // The value is taken then and there, so a later change leaves the
+    // mapping as it was.
+    data.doCommand("let g:mapleader = \"-\"");
+    data.setText("abc def");
+    KEYS(",w", X "def");
+
+    data.doCommand("nmapclear");
+    data.doCommand("unlet! g:mapleader g:maplocalleader");
+}
+
+void FakeVimTester::test_vim_auto_wrap()
+{
+    // What 'textwidth' does while typing: the word that would reach past it
+    // goes to a line of its own, taking the cursor with it. A "t" among
+    // 'formatoptions' asks for that in text and a "c" in a comment. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set tw=10 fo=t");
+    data.setText("x");
+    KEYS("Aaaa bbb ccc ddd<Esc>", "xaaa bbb" N "ccc dd" X "d");
+    data.setText("  x");
+    KEYS("Aaaa bbb ccc<Esc>", "  xaaa bbb" N "cc" X "c");
+
+    // A word of its own is longer than the width allows and stays.
+    data.doCommand("set tw=5");
+    data.setText("x");
+    KEYS("Aaaaaaaaaa<Esc>", "xaaaaaaaa" X "a");
+
+    // Without the "t" nothing wraps.
+    data.doCommand("set tw=10 fo=");
+    data.setText("x");
+    KEYS("Aaaa bbb ccc ddd<Esc>", "xaaa bbb ccc dd" X "d");
+
+    // A comment wraps on "c", and the leader comes along.
+    data.doCommand("set tw=10 fo=cq comments=://");
+    data.setText("// x");
+    KEYS("Aaaa bbb ccc<Esc>", "// xaaa" N "// bbb cc" X "c");
+    data.doCommand("set fo=q");
+    data.setText("// x");
+    KEYS("Aaaa bbb ccc<Esc>", "// xaaa bbb cc" X "c");
+
+    data.doCommand("set tw=0 fo=tcq");
+}
+
+void FakeVimTester::test_vim_format_options_leader()
+{
+    // An "r" among 'formatoptions' repeats the comment leader on a line
+    // opened with a return, an "o" on one opened with "o" or "O". Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set comments=:// fo=r");
+    data.setText("// abc");
+    KEYS("A<CR>x<Esc>", "// abc" N "// " X "x");
+
+    data.doCommand("set fo=o");
+    data.setText("// abc");
+    KEYS("ox<Esc>", "// abc" N "// " X "x");
+    data.setText("// abc");
+    KEYS("Ox<Esc>", "// " X "x" N "// abc");
+
+    // A line that is no comment brings no leader along.
+    data.setText("abc");
+    KEYS("ox<Esc>", "abc" N X "x");
+
+    data.doCommand("set fo=");
+    data.setText("// abc");
+    KEYS("A<CR>x<Esc>", "// abc" N X "x");
+    data.setText("// abc");
+    KEYS("ox<Esc>", "// abc" N X "x");
+
+    data.doCommand("set fo=tcq");
+}
+
+void FakeVimTester::test_vim_set_number_option()
+{
+    // An option that holds a number needs one, and keeps the value it has
+    // otherwise. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+
+    data.doCommand("set sw=4");
+    data.doCommand("set sw=x");
+    QCOMPARE(message, QLatin1String("E521: Number required after =: sw=x"));
+
+    data.setText("abc");
+    KEYS("A <C-r>=&sw<CR><Esc>", "abc " X "4");
+
+    data.doCommand("set ts=8");
+    data.doCommand("set ts=abc");
+    QCOMPARE(message, QLatin1String("E521: Number required after =: ts=abc"));
+
+    data.doCommand("set sw=8");
+}
+
+void FakeVimTester::test_vim_line_address_arithmetic()
+{
+    // A sign of its own counts as one line, and the digits behind one say how
+    // many, so "+0" stays where it is. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("1" N "2" N "3" N "4");
+    COMMAND(".+0d", X "2" N "3" N "4");
+    data.setText("1" N "2" N "3" N "4");
+    COMMAND(".+d", "1" N X "3" N "4");
+    data.setText("1" N "2" N "3" N "4");
+    COMMAND(".+2d", "1" N "2" N X "4");
+    data.setText("1" N "2" N "3" N "4");
+    COMMAND(".++d", "1" N "2" N X "4");
+    data.setText("1" N "2" N "3" N "4");
+    COMMAND("1+2d", "1" N "2" N X "4");
+    data.setText("1" N "2" N "3" N "4");
+    data.doCommand("3");
+    COMMAND(".-0d", "1" N "2" N X "4");
+}
+
+void FakeVimTester::test_vim_filter_range()
+{
+    // Where the range reaches the last line, the line break the output ends
+    // with ends that line rather than opening another one. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("c" N "b" N "a");
+    COMMAND("%!sort", X "a" N "b" N "c");
+    data.setText("c" N "b" N "a");
+    COMMAND("1,2!sort", X "b" N "c" N "a");
+
+    // One line of its own is what "!!" and ".,+0" reach over.
+    data.setText("c" N "b" N "a");
+    COMMAND(".,+0!sort", X "c" N "b" N "a");
+    data.setText("c" N "b" N "a");
+    KEYS("!Gsort<CR>", X "a" N "b" N "c");
+}
+
+void FakeVimTester::test_vim_shift_round()
+{
+    // With 'shiftround' the indent lands on a multiple of 'shiftwidth'
+    // rather than that much further along. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set sw=4 shiftround expandtab");
+    data.setText("  a");
+    KEYS(">>", "    " X "a");
+    data.setText("      a");
+    KEYS("<<", "    " X "a");
+    data.setText("  a");
+    KEYS("<<", X "a");
+
+    data.doCommand("set noshiftround");
+    data.setText("  a");
+    KEYS(">>", "      " X "a");
+
+    data.doCommand("set sw=8 noshiftround noexpandtab");
+}
+
+void FakeVimTester::test_vim_join_last_line()
+{
+    // The last line has nothing below it to join to. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a" N "b");
+    KEYS("GJ", "a" N X "b");
+    data.setText("a");
+    KEYS("J", X "a");
+    data.setText("a" N "b");
+    KEYS("GgJ", "a" N X "b");
+
+    // A count reaches as far as there are lines.
+    data.setText("a" N "b" N "c");
+    KEYS("5J", "a b" X " c");
+}
+
+void FakeVimTester::test_vim_retab_cursor()
+{
+    // The cursor stays where it stands on screen while the white space in
+    // front of it is written differently. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set expandtab ts=8 sw=8");
+    data.setText("\ta");
+    COMMAND("retab", "        " X "a");
+    data.setText("\tabc");
+    KEYS("ll", "\ta" X "bc");
+    COMMAND("retab", "        a" X "bc");
+
+    data.doCommand("set noexpandtab");
+}
+
+void FakeVimTester::test_vim_undo_by_time()
+{
+    // "g-" and "g+" step through the changes in the order they were made.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abc");
+    KEYS("ix<Esc>iy<Esc>g-x", X "abc");
+    data.setText("abc");
+    KEYS("ix<Esc>iy<Esc>2g-x", X "bc");
+    data.setText("abc");
+    KEYS("ix<Esc>iy<Esc>g-g+x", X "xabc");
+
+    // The ends of what there is are as far as they go.
+    data.setText("abc");
+    KEYS("ix<Esc>5g-x", X "bc");
+}
+
+void FakeVimTester::test_vim_sentence_object_count()
+{
+    // A count over sentences counts the blanks between two of them as a unit
+    // of their own for "is", but not for "as". Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("One. Two. Three.");
+    KEYS("dis", X " Two. Three.");
+    data.setText("One. Two. Three.");
+    KEYS("d2is", X "Two. Three.");
+    data.setText("One. Two. Three.");
+    KEYS("d3is", X " Three.");
+    data.setText("One. Two. Three.");
+    KEYS("d2as", X "Three.");
+}
+
+void FakeVimTester::test_vim_put_marks()
+{
+    // What a put put in is what the "[ and "] marks name. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abc");
+    KEYS("yyp`[x", "abc" N X "bc");
+    data.setText("abc");
+    KEYS("yyp`]x", "abc" N "a" X "b");
+    data.setText("abc");
+    KEYS("yyP`[x", X "bc" N "abc");
+    data.setText("abc");
+    KEYS("ylp`[x", "a" X "bc");
+    data.setText("abcd");
+    KEYS("y2lp`]x", "aa" X "bcd");
+}
+
+void FakeVimTester::test_vim_numbered_register_repeat()
+{
+    // Repeating a put from a numbered register takes the next one, which is
+    // how "." walks back through what was deleted. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a" N "b" N "c" N "d");
+    KEYS("dddd\"1p.", "c" N "b" N X "a" N "d");
+    data.setText("1" N "2" N "3" N "4" N "5");
+    KEYS("dddddd\"1p..", "4" N "3" N "2" N X "1" N "5");
+
+    // A register named outright is the one that is used.
+    data.setText("a" N "b" N "c");
+    KEYS("dddd\"2p", "c" N X "a");
+}
+
+void FakeVimTester::test_vim_insert_ctrl_g()
+{
+    // CTRL-G u breaks the change in two, CTRL-G j and CTRL-G k move a line
+    // to the column the insert started in, and a cursor key ends the change
+    // as well. CTRL-@ puts the last insert in and stops. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abc");
+    KEYS("ix<C-g>uy<Esc>u", "x" X "abc");
+    data.setText("a" N "b");
+    KEYS("ix<C-g>jy<Esc>", "xa" N X "yb");
+    data.setText("a" N "b");
+    KEYS("jix<C-g>ky<Esc>", X "ya" N "xb");
+
+    data.setText("abc");
+    KEYS("ix<Left>y<Esc>u", X "xabc");
+    data.setText("a" N "b");
+    KEYS("jix<Up>y<Esc>u", X "a" N "xb");
+    data.setText("abc");
+    KEYS("ixy<Esc>u", X "abc");
+
+    data.setText("abc");
+    KEYS("ixy<Esc>A<C-@><Esc>", "xyabcx" X "y");
+}
+
+void FakeVimTester::test_vim_insert_abbreviation_word()
+{
+    // What this insert typed is where the word an abbreviation is looked up
+    // by begins at the latest. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("iabclear");
+    data.doCommand("iabbrev teh the");
+    data.doCommand("iabbrev fo foo");
+
+    data.setText("x");
+    KEYS("Ateh <Esc>", "xthe" X " ");
+    data.setText("x");
+    KEYS("Afo<Esc>", "xfo" X "o");
+    data.setText("abc ");
+    KEYS("Ateh <Esc>", "abc the" X " ");
+
+    // What was typed around it still has to be a word of its own.
+    data.setText("x");
+    KEYS("Atehx <Esc>", "xtehx" X " ");
+
+    data.doCommand("iabclear");
+}
+
+void FakeVimTester::test_vim_substitute_expression()
+{
+    // A replacement of "\=" is an expression, worked out anew for every match,
+    // with submatch() answering what the pattern found. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a1");
+    COMMAND("s/1/\\=2+3/", X "a5");
+    data.setText("a1a1");
+    COMMAND("s/1/\\=9/g", X "a9a9");
+    data.setText("abc");
+    COMMAND("s/b/\\=submatch(0) . \"X\"/", X "abXc");
+    data.setText("ab");
+    COMMAND("s/\\(a\\)\\(b\\)/\\=submatch(2) . submatch(1)/", X "ba");
+}
+
+void FakeVimTester::test_vim_substitute_collection()
+{
+    // The separator does not end the pattern inside a "[...]" collection.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a/b");
+    COMMAND("s/[/]/X/", X "aXb");
+    data.setText("axb");
+    COMMAND("s/[x]/X/", X "aXb");
+}
+
+void FakeVimTester::test_vim_substitute_added_lines()
+{
+    // A replacement can bring lines of its own, and the cursor ends up on the
+    // last of them. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a-b");
+    COMMAND("s/-/\\r/", "a" N X "b");
+    data.setText("a-b");
+    COMMAND("s/-/\\r\\r/", "a" N "" N X "b");
+    data.setText("a-b" N "c-d");
+    COMMAND("%s/-/\\r/", "a" N "b" N "c" N X "d");
+}
+
+void FakeVimTester::test_vim_global_inner_command()
+{
+    // What ":global" hands over is everything behind the pattern, separators
+    // and all. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("ab" N "cb");
+    COMMAND("g/a/s/b/X/", X "aX" N "cb");
+    data.setText("abb" N "cbb");
+    COMMAND("g/a/s/b/X/g", X "aXX" N "cbb");
+    data.setText("a" N "b" N "a");
+    COMMAND("g/a/d", X "b");
+    data.setText("a" N "b");
+    COMMAND("g/a/normal Ax", "a" X "x" N "b");
+}
+
+void FakeVimTester::test_vim_backwards_range()
+{
+    // Vim asks whether to swap two addresses that came in the wrong order;
+    // without an answer there is nothing to do but refuse. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+
+    data.setText("a" N "b" N "c");
+    data.doCommand("3,1d");
+    QCOMPARE(message, QLatin1String("E493: Backwards range given"));
+    QCOMPARE(data.text(), QByteArray("a" N "b" N "c"));
+
+    message.clear();
+    data.doCommand("1,2d");
+    QCOMPARE(data.text(), QByteArray("c"));
+}
+
+void FakeVimTester::test_vim_search_end_offset()
+{
+    // Searching forward with an "e" offset the cursor sits inside the match,
+    // so the one it is in counts as found; an offset that would leave the
+    // cursor where it started makes Vim take the next match. Values taken
+    // from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("foo bar foo baz foo");
+    KEYS("/foo/e<CR>x", "fo" X " bar foo baz foo");
+    data.setText("foo bar foo baz foo");
+    KEYS("/foo/e<CR>nx", "foo bar fo" X " baz foo");
+    data.setText("foo bar foo");
+    KEYS("$?foo?e<CR>x", "fo" X " bar foo");
+}
+
+void FakeVimTester::test_vim_search_word_key()
+{
+    // "*" and "#" leave the cursor where the match begins, and the word they
+    // look for carries no search offset. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("foo bar" N "foo");
+    KEYS("*x", "foo bar" N X "oo");
+    data.setText("foo" N "bar foo");
+    KEYS("G$#x", X "oo" N "bar foo");
+    data.setText("foo foobar");
+    KEYS("g*x", "foo " X "oobar");
+
+    // The offset of the search before it plays no part.
+    data.setText("foo bar foo");
+    KEYS("/foo/e<CR>*x", "foo bar " X "oo");
+}
+
+void FakeVimTester::test_vim_auto_indent_keys()
+{
+    // With 'autoindent' the keys that open a line keep the indentation: "O"
+    // takes it from the line it pushes down and a linewise change from the
+    // line it empties. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set autoindent nosmartindent");
+    data.setText("  abc");
+    KEYS("oX<Esc>", "  abc" N "  " X "X");
+    data.setText("  abc");
+    KEYS("OX<Esc>", "  " X "X" N "  abc");
+    data.setText("a" N "  abc" N "b");
+    KEYS("jOX<Esc>", "a" N "  " X "X" N "  abc" N "b");
+    data.setText("  abc" N "  def");
+    KEYS("ccX<Esc>", "  " X "X" N "  def");
+    data.setText("  abc");
+    KEYS("SX<Esc>", "  " X "X");
+
+    // Without it none of them indent.
+    data.doCommand("set noautoindent nosmartindent");
+    data.setText("  abc");
+    KEYS("oX<Esc>", "  abc" N X "X");
+    data.setText("  abc");
+    KEYS("OX<Esc>", X "X" N "  abc");
+    data.setText("  abc");
+    KEYS("ccX<Esc>", X "X");
+    data.setText("  abc");
+    KEYS("A<CR>X<Esc>", "  abc" N X "X");
+
+    data.doCommand("set autoindent smartindent");
+}
+
+void FakeVimTester::test_vim_start_of_line_option()
+{
+    // With 'startofline' the commands that jump to a line land on its first
+    // non-blank, and without it they keep the column. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set startofline");
+    data.setText("abc" N "   def");
+    KEYS("llGx", "abc" N "   " X "ef");
+    data.setText("abc" N "   def");
+    KEYS("ll:2<CR>x", "abc" N "   " X "ef");
+
+    data.doCommand("set nostartofline");
+    data.setText("abc" N "   def");
+    KEYS("llGx", "abc" N "  " X "def");
+    data.setText("abc" N "   def");
+    KEYS("ll:2<CR>x", "abc" N "  " X "def");
+    data.setText("abc" N "def");
+    KEYS("jllggx", "a" X "b" N "def");
+
+    data.doCommand("set startofline");
+}
+
+void FakeVimTester::test_vim_key_notation_literal()
+{
+    // Vim knows no one-character key names, so "<a>" is text and only
+    // "<C-a>" and the names it does know are keys. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("x");
+    KEYS("A <a><Esc>", "x <a" X ">");
+    data.setText("x");
+    KEYS("A <foo><Esc>", "x <foo" X ">");
+
+    // Which is what lets an option take one as its value.
+    data.setText("a<b>c");
+    data.doCommand("set matchpairs+=<:>");
+    KEYS("f<d%", "a" X "c");
+    data.doCommand("set matchpairs=(:),{:},[:]");
+}
+
+void FakeVimTester::test_vim_numbered_registers()
+{
+    // What whole lines are deleted from goes to register 1, and what was
+    // there moves up to 2 and so on. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a" N "b" N "c");
+    KEYS("dddd\"1p\"2p", "c" N "b" N X "a");
+    data.setText("1" N "2" N "3" N "4");
+    KEYS("dddddd\"1p\"2p\"3p", "4" N "3" N "2" N X "1");
+
+    // A yank leaves them alone and goes to register 0.
+    data.setText("abc" N "def");
+    KEYS("yyjdd\"0p", "abc" N X "abc");
+}
+
+void FakeVimTester::test_vim_count_visual()
+{
+    // A count in front of "v" selects that many characters and one in front
+    // of "V" that many lines. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abcdef");
+    KEYS("2vd", X "cdef");
+    data.setText("abcdef");
+    KEYS("3vd", X "def");
+    data.setText("a" N "b" N "c");
+    KEYS("2Vd", X "c");
+    data.setText("a" N "b" N "c" N "d");
+    KEYS("3Vd", X "d");
+}
+
+void FakeVimTester::test_vim_block_change()
+{
+    // "C" over a block selection changes from its left column to the end of
+    // every line in it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abcd" N "abcd");
+    KEYS("<C-v>jlCX<Esc>", X "X" N "X");
+    data.setText("abcd" N "abcd");
+    KEYS("<C-v>jlcXY<Esc>", "X" X "Ycd" N "XYcd");
+    data.setText("abcd" N "abcd");
+    KEYS("<C-v>jlD", X "" N "");
+}
+
+void FakeVimTester::test_vim_undo_line()
+{
+    // "U" puts the line that was changed last back the way it was, and is a
+    // change of its own, so a second one brings the changes back. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abc");
+    KEYS("AxyzXX<Esc>U", "ab" X "c");
+    data.setText("abc");
+    KEYS("xxU", X "abc");
+    data.setText("abc");
+    KEYS("xxUU", X "c");
+
+    // Only the last line that was changed is remembered.
+    data.setText("abc" N "def");
+    KEYS("xjxU", "bc" N X "def");
+
+    // With nothing changed there is nothing to put back.
+    data.setText("abc");
+    KEYS("U", X "abc");
+}
+
+void FakeVimTester::test_vim_replace_count()
+{
+    // A count in front of "R" writes what was typed over what follows, that
+    // many times, and "." does it again. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abcdef");
+    KEYS("3RX<Esc>", "XX" X "Xdef");
+    data.setText("abcdefghi");
+    KEYS("2RXY<Esc>", "XYX" X "Yefghi");
+    data.setText("abcdef");
+    KEYS("RX<Esc>l.", "X" X "Xcdef");
+    data.setText("abcdef");
+    KEYS("RX<Esc>lA<C-a><Esc>", "Xbcdef" X "X");
+}
+
+void FakeVimTester::test_vim_block_object_ahead()
+{
+    // Sitting in no block at all, a block text object takes the next one that
+    // begins ahead of the cursor - the innermost one there, whatever the
+    // count says. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a (b) c");
+    KEYS("di(", "a (" X ") c");
+    data.setText("a (b) c");
+    KEYS("da(", "a " X " c");
+    data.setText("a" N "(b)");
+    KEYS("di(", "a" N "(" X ")");
+    data.setText("a ((b)) c");
+    KEYS("d2i(", "a ((" X ")) c");
+    data.setText("a [b] c");
+    KEYS("di[", "a [" X "] c");
+    data.setText("a <b> c");
+    KEYS("di<", "a <" X "> c");
+    data.setText("a {b} c");
+    KEYS("di{", "a {" X "} c");
+
+    // Nothing ahead is nothing to take.
+    data.setText("abc");
+    KEYS("di(", X "abc");
+    data.setText("a (b) c");
+    KEYS("$di(", "a (b) " X "c");
+}
+
+void FakeVimTester::test_vim_quoted_string_blanks()
+{
+    // "a" on a quoted string takes the blanks that follow it, or those in
+    // front where it has none of its own. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("say \"hi\" now");
+    KEYS("f\"da\"", "say " X "now");
+    data.setText("say \"hi\"");
+    KEYS("f\"da\"", "sa" X "y");
+    data.setText("x\"hi\"y");
+    KEYS("f\"da\"", "x" X "y");
+
+    // "i" leaves them all alone.
+    data.setText("say \"hi\" now");
+    KEYS("f\"di\"", "say \"" X "\" now");
+}
+
+void FakeVimTester::test_vim_visual_join()
+{
+    // "J" joins the selected lines, from the top one down and whatever end of
+    // the selection the cursor is at. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a" N "b" N "c");
+    KEYS("VjJ", "a" X " b" N "c");
+    data.setText("a" N "b" N "c");
+    KEYS("VjgJ", "a" X "b" N "c");
+    data.setText("a" N "b" N "c");
+    KEYS("GVkJ", "a" N "b" X " c");
+    data.setText("a" N "b" N "c" N "d");
+    KEYS("VjjJ", "a b" X " c" N "d");
+    data.setText("abc" N "def");
+    KEYS("vjJ", "abc" X " def");
+
+    // Outside a selection the count decides, as before.
+    data.setText("a" N "b" N "c");
+    KEYS("J", "a" X " b" N "c");
+    data.setText("a" N "b" N "c" N "d");
+    KEYS("3J", "a b" X " c" N "d");
+}
+
+void FakeVimTester::test_vim_dot_with_count()
+{
+    // A count in front of "." replaces the one the change was made with, and
+    // no count leaves it be. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("aaaaaa");
+    KEYS("x3.", X "aa");
+    data.setText("aaaaaa");
+    KEYS("3x.", X "");
+    data.setText("aaaaaa");
+    KEYS("2x3.", X "a");
+    data.setText("1" N "2" N "3" N "4" N "5");
+    KEYS("dd2.", X "4" N "5");
+}
+
+void FakeVimTester::test_vim_a_word_blanks()
+{
+    // "aw" takes the blanks that follow the words as well, unless it took the
+    // ones in front of them. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a b c d");
+    KEYS("daw", X "b c d");
+    data.setText("a b c d");
+    KEYS("d2aw", X "c d");
+    data.setText("a b c d e");
+    KEYS("d3aw", X "d e");
+    data.setText("a b c d");
+    KEYS("y2awP", "a b" X " a b c d");
+    data.setText("a.b c.d e");
+    KEYS("d2aW", X "e");
+
+    // Starting on a blank, the word that follows it comes along and its own
+    // trailing blanks stay.
+    data.setText("abc def ghi");
+    KEYS("f daw", "abc" X " ghi");
+
+    // At the end of the line there are none to take but the ones in front.
+    data.setText("a b");
+    KEYS("$daw", X "a");
+}
+
+void FakeVimTester::test_vim_insert_take_back()
+{
+    // CTRL-W and CTRL-U take back what the insert put in, and only with
+    // nothing entered yet does 'backspace' let them reach further. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set backspace=");
+    data.setText("foo");
+    KEYS("Abar<C-u>baz<Esc>", "fooba" X "z");
+    data.setText("foo bar");
+    KEYS("Abaz<C-w><Esc>", "foo ba" X "r");
+    data.setText("foo");
+    KEYS("Abar baz<C-w><C-w>x<Esc>", "foo" X "x");
+
+    // Nothing entered and no "start" among 'backspace': nothing to take.
+    data.setText("foo");
+    KEYS("A<C-u>baz<Esc>", "fooba" X "z");
+    data.setText("foo bar");
+    KEYS("A<C-w>x<Esc>", "foo bar" X "x");
+
+    data.doCommand("set backspace=indent,eol,start");
+    data.setText("foo");
+    KEYS("Abar<C-u>baz<Esc>", "fooba" X "z");
+    data.setText("foo bar");
+    KEYS("Abaz<C-w><Esc>", "foo ba" X "r");
+
+    // With it, and nothing entered, what was there before goes too.
+    data.setText("foo");
+    KEYS("A<C-u>baz<Esc>", "ba" X "z");
+    data.setText("foo bar");
+    KEYS("A<C-w>x<Esc>", "foo " X "x");
+    data.setText("foo bar");
+    KEYS("fbi<C-u>x<Esc>", X "xbar");
+}
+
+void FakeVimTester::test_vim_change_marks()
+{
+    // Vim writes down what a yank, a delete, a change or an insert covered.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abc def");
+    KEYS("wyawgg`[x", "abc" X "def");
+    data.setText("abc def");
+    KEYS("wyawgg`]x", "abc d" X "e");
+    data.setText("abc def");
+    KEYS("wdawgg`[x", "a" X "b");
+    data.setText("abc def");
+    KEYS("wciwXY<Esc>gg`[x", "abc " X "Y");
+    data.setText("abc");
+    KEYS("A Z<Esc>gg`[x", "abc" X "Z");
+}
+
+void FakeVimTester::test_vim_match_pair_fails()
+{
+    // A "%" that finds no pair moves nowhere, and takes no operator with it.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a" N "b");
+    KEYS("d%", X "a" N "b");
+    data.setText("(ab) c");
+    KEYS("d%", X " c");
+}
+
+void FakeVimTester::test_vim_search_motion_kind()
+{
+    // A search motion is exclusive, so Vim's rules about one ending in the
+    // first column apply to it: the end steps back to the line before, and a
+    // start at the first non-blank makes the whole thing linewise. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("one" N "two" N "three");
+    KEYS("d/three<CR>", X "three");
+    data.setText("xone" N "two");
+    KEYS("ld/two<CR>", X "x" N "two");
+    data.setText("a" N "b");
+    KEYS("d}", X "");
+}
+
+void FakeVimTester::test_vim_sentence_motion()
+{
+    // A sentence ends at ".", "!" or "?" followed by a blank or the end of
+    // the line, with any number of closing brackets or quotes in between. An
+    // empty line is a sentence of its own. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("One. Two. Three.");
+    KEYS(")", "One. " X "Two. Three.");
+    KEYS(")", "One. Two. " X "Three.");
+    KEYS(")", "One. Two. Three" X ".");
+    KEYS("(", "One. Two. " X "Three.");
+    KEYS("2(", "" X "One. Two. Three.");
+    KEYS("2)", "One. Two. " X "Three.");
+
+    data.setText("Wait! (Really?) Yes." N "Next one.");
+    KEYS(")", "Wait! " X "(Really?) Yes." N "Next one.");
+    KEYS(")", "Wait! (Really?) " X "Yes." N "Next one.");
+    KEYS(")", "Wait! (Really?) Yes." N "" X "Next one.");
+
+    // An empty line is where a sentence both ends and begins.
+    data.setText("One." N "" N "Two.");
+    KEYS(")", "One." N "" X "" N "Two.");
+    KEYS(")", "One." N "" N "" X "Two.");
+    KEYS("(", "One." N "" X "" N "Two.");
+
+    data.setText("One. Two. Three.");
+    KEYS("d)", "" X "Two. Three.");
+    KEYS("d)", "" X "Three.");
+}
+
+void FakeVimTester::test_vim_sentence_text_object()
+{
+    // "is" is the sentence without the blanks that follow it, "as" with them
+    // - or, with none of its own, with the ones in front. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("One. Two. Three.");
+    KEYS("fTdis", "One. " X " Three.");
+    data.setText("One. Two. Three.");
+    KEYS("fTdas", "One. " X "Three.");
+    data.setText("One. Two. Three.");
+    KEYS("fTcisX<ESC>", "One. " X "X Three.");
+    data.setText("One. Two. Three.");
+    KEYS("fTyisP", "One. Two" X ".Two. Three.");
+
+    // At the end of a paragraph "as" has to take the leading blanks.
+    data.setText("One. Two.");
+    KEYS("fTdas", "One" X ".");
+
+    // The count adds whole sentences.
+    data.setText("One. Two. Three. Four.");
+    KEYS("d2as", "" X "Three. Four.");
+
+    data.setText("One." N "Two. Three.");
+    KEYS("jdis", "One." N "" X " Three.");
+
+    data.setText("One. Two. Three.");
+    KEYS("fTvisd", "One. " X " Three.");
+}
+
+void FakeVimTester::test_vim_failed_text_object()
+{
+    // Not finding what a text object asks for cancels the operator; the key
+    // does not get a second chance as a movement. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("one. two." N "three");
+    KEYS("di(", "" X "one. two." N "three");
+    KEYS("di{", "" X "one. two." N "three");
+    KEYS("ca)", "" X "one. two." N "three");
+    KEYS("y2i}", "" X "one. two." N "three");
+
+    // What the operator was waiting for is gone, so the next key stands alone.
+    KEYS("di(w", "one" X ". two." N "three");
+}
+
+void FakeVimTester::test_vim_middle_of_line()
+{
+    // "gM" goes to the middle of the line's text, and with a count to that
+    // percentage of it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("aaaaaaaaaaaaaaaaaaaa");
+    KEYS("gM", "aaaaaaaaaa" X "aaaaaaaaaa");
+    KEYS("25gM", "aaaaa" X "aaaaaaaaaaaaaaa");
+    KEYS("100gM", "aaaaaaaaaaaaaaaaaaa" X "a");
+
+    data.setText("short");
+    KEYS("gM", "sh" X "ort");
+}
+
+void FakeVimTester::test_vim_ascii_key()
+{
+    // "ga" says what ":ascii" says. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+
+    data.setText("abc");
+    data.doKeys("ga");
+    QCOMPARE(message, QLatin1String("<a>  97,  Hex 61,  Octal 141"));
+
+    // The cursor stays where it was, and no text is inserted.
+    QCOMPARE(data.text(), QByteArray("abc"));
+    QCOMPARE(data.position(), 0);
+
+    data.doKeys("l");
+    message.clear();
+    data.doKeys("ga");
+    QCOMPARE(message, QLatin1String("<b>  98,  Hex 62,  Octal 142"));
+}
+
+void FakeVimTester::test_vim_scroll_page_line()
+{
+    // "z+" puts the line below the window's last one on top, "z^" the one
+    // above its first at the bottom; a count names the line instead. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("1" N "2" N "3" N "4" N "5");
+    KEYS("3Gz+", "1" N "2" N "3" N "4" N "" X "5");
+    KEYS("z^", "" X "1" N "2" N "3" N "4" N "5");
+    KEYS("4z+", "1" N "2" N "3" N "" X "4" N "5");
+    KEYS("2z^", "1" N "" X "2" N "3" N "4" N "5");
+
+    data.setText("  indented" N "next");
+    KEYS("1Gz+", "  indented" N "" X "next");
+}
+
+void FakeVimTester::test_vim_balanced_brace()
+{
+    // "[{" and "]}" find the braces around the cursor, wherever in the
+    // document they sit, and a count asks for that many levels. Values taken
+    // from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("{" N "  a;" N "  b;" N "}");
+    KEYS("3G[{", "" X "{" N "  a;" N "  b;" N "}");
+    KEYS("2G]}", "{" N "  a;" N "  b;" N "" X "}");
+
+    data.setText("{" N "  {" N "    x;" N "  }" N "}");
+    KEYS("3G[{", "{" N "  " X "{" N "    x;" N "  }" N "}");
+    KEYS("3G2[{", "" X "{" N "  {" N "    x;" N "  }" N "}");
+    KEYS("3G2]}", "{" N "  {" N "    x;" N "  }" N "" X "}");
+
+    // Failing to reach the wanted level leaves the cursor alone.
+    KEYS("3G3[{", "{" N "  {" N "    " X "x;" N "  }" N "}");
+
+    data.setText("(a (b) c)");
+    KEYS("$[(", "" X "(a (b) c)");
+}
+
+void FakeVimTester::test_vim_filter_lines()
+{
+    // "!!" filters the current line, and a count the ones below it as well.
+    TestData data;
+    setup(&data);
+    QString command;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { command = msg; });
+
+    data.setText("one" N "two" N "three" N "four" N "five");
+    data.doKeys("!!");
+    QCOMPARE(command, QLatin1String(":.,+0!"));
+
+    data.doKeys("<ESC>");
+    data.doKeys("2!!");
+    QCOMPARE(command, QLatin1String(":.,+1!"));
+
+    data.doKeys("<ESC>");
+    data.doKeys("j3!!");
+    QCOMPARE(command, QLatin1String(":.,+2!"));
+
+    // The buffer is untouched until the command line is confirmed.
+    data.doKeys("<ESC>");
+    QCOMPARE(data.text(), QByteArray("one" N "two" N "three" N "four" N "five"));
 }
 
 void FakeVimTester::test_vim_command_map_listing()

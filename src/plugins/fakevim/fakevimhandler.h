@@ -50,6 +50,9 @@ struct ExCommand
     // The line of the file this was read from, 1-based, or 0 where it was not
     // read from one. What a script's frame is reported to be at.
     int sourceLine = 0;
+    // Whether the two addresses came in the wrong order, which Vim refuses to
+    // act on rather than sorting out.
+    bool backwardsRange = false;
     // The text this was parsed from, which ":append" and its kin take
     // verbatim rather than as a command.
     QString original;

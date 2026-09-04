@@ -106,6 +106,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&listChars,    "eol:$",         "ListChars",     "lcs",   {});
     setup(&fileFormats,  "unix,dos",      "FileFormats",   "ffs",   {});
     setup(&expandTab,      false, "ExpandTab",      "et",  Tr::tr("Expand tabulators"));
+    setup(&shiftRound,     false, "ShiftRound",     "sr",  {});
     setup(&autoIndent,     false, "AutoIndent",     "ai",  Tr::tr("Automatic indentation"));
     setup(&smartIndent,    false, "SmartIndent",    "si",  Tr::tr("Smart indentation"));
     setup(&useEditorTabSettings, false, "UseEditorTabSettings", {},
@@ -343,6 +344,14 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
     FvBaseAspect *aspect = m_nameToAspect.value(keyFromString(name), nullptr);
     if (!aspect)
         return Tr::tr("Unknown option: %1").arg(name);
+    // An option that holds a number needs one; Vim keeps the value it has.
+    const int typeId = aspect->defaultVariantValue().typeId();
+    if (typeId == QMetaType::Int || typeId == QMetaType::LongLong) {
+        bool ok = false;
+        value.toInt(&ok);
+        if (!ok)
+            return Tr::tr("E521: Number required after =: %1=%2").arg(name, value);
+    }
     // A 'shiftwidth' of zero is Vim's way of saying "as much as 'tabstop'".
     if (aspect == &tabStop || aspect == &shiftWidth) {
         const int minimum = aspect == &shiftWidth ? 0 : 1;

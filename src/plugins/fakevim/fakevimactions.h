@@ -126,6 +126,7 @@ public:
     FvIntegerAspect maxMapDepth;
     FvIntegerAspect maxFuncDepth;
     FvBoolAspect expandTab;
+    FvBoolAspect shiftRound;
     FvBoolAspect autoIndent;
     FvBoolAspect smartIndent;
     FvBoolAspect useEditorTabSettings;
@@ -187,8 +188,7 @@ public:
     FvStringAspect commentString;
     FvBoolAspect modifiable;
 
-    // Read by scripts that place a visual selection; only "inclusive" is
-    // actually honored by the selection code here.
+    // Whether the character the cursor is on belongs to a visual selection.
     FvStringAspect selection;
 
     // What kind of buffer this is. Empty means an ordinary file, which is what
