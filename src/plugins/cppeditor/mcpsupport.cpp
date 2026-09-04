@@ -299,6 +299,129 @@ private:
     QList<int> m_callNameTokens;
 };
 
+// The source text of an AST node with its whitespace collapsed. Token positions
+// are 1-based and refer to the original file, so the text is cut from its lines
+// rather than from the preprocessed source the tokens index.
+static QString astText(const QStringList &lines, CPlusPlus::TranslationUnit *unit,
+                       const CPlusPlus::AST *ast)
+{
+    if (!ast || ast->lastToken() <= ast->firstToken())
+        return {};
+    int startLine = 0;
+    int startColumn = 0;
+    int endLine = 0;
+    int endColumn = 0;
+    unit->getTokenPosition(ast->firstToken(), &startLine, &startColumn);
+    unit->getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
+    if (startLine <= 0 || endLine < startLine)
+        return {};
+    if (startLine == endLine) {
+        return lines.value(startLine - 1)
+            .mid(startColumn - 1, endColumn - startColumn).simplified();
+    }
+    QString text = lines.value(startLine - 1).mid(startColumn - 1);
+    for (int line = startLine + 1; line < endLine; ++line)
+        text += ' ' + lines.value(line - 1);
+    text += ' ' + lines.value(endLine - 1).left(endColumn - 1);
+    return text.simplified();
+}
+
+// The identifier a call is made through: "connect" for both connect(...) and
+// QObject::connect(...) and obj->connect(...). Empty if there is none.
+static QByteArray calleeName(const CPlusPlus::CallAST *call)
+{
+    if (!call->base_expression)
+        return {};
+    const CPlusPlus::NameAST *nameAst = nullptr;
+    if (const CPlusPlus::IdExpressionAST *id = call->base_expression->asIdExpression())
+        nameAst = id->name;
+    else if (const CPlusPlus::MemberAccessAST *access = call->base_expression->asMemberAccess())
+        nameAst = access->member_name;
+    if (!nameAst || !nameAst->name)
+        return {};
+    const CPlusPlus::Identifier *id = nameAst->name->identifier();
+    return id ? QByteArray(id->chars(), id->size()) : QByteArray();
+}
+
+// How a connect() argument names its signal or slot.
+static QString connectArgumentKind(CPlusPlus::ExpressionAST *arg,
+                                   CPlusPlus::TranslationUnit *unit)
+{
+    if (arg->asQtMethod())
+        return QStringLiteral("qt4_macro");
+    if (arg->asLambdaExpression())
+        return QStringLiteral("lambda");
+    if (const CPlusPlus::UnaryExpressionAST *unary = arg->asUnaryExpression()) {
+        if (unit->tokenAt(unary->unary_op_token).is(CPlusPlus::T_AMPER) && unary->expression
+                && unary->expression->asIdExpression()) {
+            return QStringLiteral("member_pointer");
+        }
+    }
+    return QStringLiteral("expression");
+}
+
+// The method name written inside a SIGNAL()/SLOT() macro, or empty.
+static QByteArray qtMethodName(CPlusPlus::ExpressionAST *arg)
+{
+    const CPlusPlus::QtMethodAST *method = arg->asQtMethod();
+    if (!method || !method->declarator || !method->declarator->core_declarator)
+        return {};
+    const CPlusPlus::DeclaratorIdAST *id = method->declarator->core_declarator->asDeclaratorId();
+    if (!id || !id->name || !id->name->name)
+        return {};
+    const CPlusPlus::Identifier *identifier = id->name->name->identifier();
+    return identifier ? QByteArray(identifier->chars(), identifier->size()) : QByteArray();
+}
+
+// The token to point a caller at for a signal or slot argument: the method name
+// inside SIGNAL()/SLOT(), the member name of &Class::member, or else the start
+// of the expression.
+static int argumentNameToken(CPlusPlus::ExpressionAST *arg)
+{
+    if (const CPlusPlus::QtMethodAST *method = arg->asQtMethod()) {
+        if (method->declarator && method->declarator->core_declarator) {
+            const CPlusPlus::DeclaratorIdAST *id
+                = method->declarator->core_declarator->asDeclaratorId();
+            if (id && id->name)
+                return id->name->firstToken();
+        }
+        return method->firstToken();
+    }
+    CPlusPlus::ExpressionAST *expression = arg;
+    if (const CPlusPlus::UnaryExpressionAST *unary = arg->asUnaryExpression()) {
+        if (unary->expression)
+            expression = unary->expression;
+    }
+    if (const CPlusPlus::IdExpressionAST *id = expression->asIdExpression()) {
+        if (id->name) {
+            if (const CPlusPlus::QualifiedNameAST *qualified = id->name->asQualifiedName()) {
+                if (qualified->unqualified_name)
+                    return qualified->unqualified_name->firstToken();
+            }
+            return id->name->firstToken();
+        }
+    }
+    return arg->firstToken();
+}
+
+// Collects the connect() and disconnect() calls of a translation unit.
+class ConnectCallCollector : public CPlusPlus::ASTVisitor
+{
+public:
+    explicit ConnectCallCollector(CPlusPlus::TranslationUnit *unit) : ASTVisitor(unit) {}
+
+    QList<CPlusPlus::CallAST *> calls;
+
+private:
+    bool visit(CPlusPlus::CallAST *ast) override
+    {
+        const QByteArray name = calleeName(ast);
+        if (name == "connect" || name == "disconnect")
+            calls.append(ast);
+        return true;
+    }
+};
+
 void registerMcpTools()
 {
     using namespace Mcp::Schema;
@@ -1884,6 +2007,273 @@ void registerMcpTools()
             result.insert("totals", totals);
             result.insert("truncated", truncated);
             return CallToolResult{}.isError(false).structuredContent(result);
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("cpp_find_signal_connections")
+            .title("Find Qt signal/slot connections")
+            .description(
+                "Finds the signal/slot connections involving the C++ function at a "
+                "position, by scanning the connect() and disconnect() calls the code model "
+                "can see. Give the file and a 1-based line and column on a signal, slot or "
+                "other member function. Ask with a signal to learn which slots it is "
+                "connected to, with a slot to learn which signals trigger it. Each "
+                "connection reports its location, whether it is a connect or disconnect, "
+                "the \"role\" the function plays in it (signal or slot), the sender, "
+                "signal, receiver and slot arguments as written, how the slot is given "
+                "(\"slot_kind\": qt4_macro for SIGNAL()/SLOT(), member_pointer for "
+                "&Class::member, lambda, or another expression), an optional "
+                "connection_type, and the position of the \"counterpart\" argument, ready "
+                "for cpp_get_symbol_info. Limits: only textual connect/disconnect calls in "
+                "files the code model has parsed are seen - not connections made in .ui "
+                "files, by connectSlotsByName, from QML, or through wrapper functions. A "
+                "SIGNAL()/SLOT() macro the code model cannot resolve is matched by name "
+                "alone and reported with \"resolved\" false.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path to the C++ file containing the function."}})
+                    .addProperty(
+                        "line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based line of the function name."}})
+                    .addProperty(
+                        "column",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "1-based column of the function name."}})
+                    .addProperty("limit", limitProperty())
+                    .addRequired("file")
+                    .addRequired("line")
+                    .addRequired("column"))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "symbol",
+                        QJsonObject{
+                            {"type", "object"},
+                            {"description",
+                             "The function asked about: name, qualified_name, is_signal, "
+                             "is_slot."}})
+                    .addProperty(
+                        "connections",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description",
+                             "connect()/disconnect() calls involving the function, in "
+                             "file and line order."}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
+                    .addRequired("symbol")
+                    .addRequired("connections")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject args = params.argumentsAsObject();
+            const QString file = args.value("file").toString();
+            const int line = args.value("line").toInt();
+            const int column = args.value("column").toInt();
+            if (file.isEmpty() || line <= 0 || column <= 0) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    "Requires \"file\" and 1-based \"line\" and \"column\"."));
+            }
+
+            const FilePath filePath = FilePath::fromUserInput(file);
+            CPlusPlus::LookupContext context;
+            CPlusPlus::Symbol *symbol = symbolAt(filePath, line, column, &context);
+            if (!symbol) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("No C++ symbol found at %1:%2:%3. Is the file in an open project "
+                            "and the position on a function name?")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+            const CPlusPlus::Function *function = symbol->type()->asFunctionType();
+            const CPlusPlus::Identifier *id = symbol->identifier();
+            if (!function || !id) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("The symbol at %1:%2:%3 is not a function. Point at a signal, "
+                            "a slot or another member function.")
+                        .arg(filePath.toUserOutput()).arg(line).arg(column)));
+            }
+            const QByteArray symbolName(id->chars(), id->size());
+
+            CPlusPlus::Overview overview;
+            QJsonObject symbolJson{{"name", overview.prettyName(symbol->name())},
+                                   {"is_signal", function->isSignal()},
+                                   {"is_slot", function->isSlot()}};
+            const QString qualified
+                = overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol));
+            if (!qualified.isEmpty())
+                symbolJson.insert("qualified_name", qualified);
+
+            // Is the 1-based position inside the token range [first, last)?
+            const auto contains = [](CPlusPlus::TranslationUnit *unit, const CPlusPlus::AST *ast,
+                                     int posLine, int posColumn) {
+                int startLine = 0;
+                int startColumn = 0;
+                int endLine = 0;
+                int endColumn = 0;
+                unit->getTokenPosition(ast->firstToken(), &startLine, &startColumn);
+                unit->getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
+                const QPair<int, int> pos(posLine, posColumn);
+                return pos >= QPair<int, int>(startLine, startColumn)
+                       && pos < QPair<int, int>(endLine, endColumn);
+            };
+
+            // Like symbolUsages(): parse each file that mentions the name once, and
+            // take both the usages of the symbol and the connect() calls from that
+            // parse. A call counts if an argument holds a resolved usage, or, for a
+            // SIGNAL()/SLOT() macro, names the function - the built-in model cannot
+            // resolve a method written inside a macro from outside its class.
+            struct Connection
+            {
+                QString file;
+                int line = 0;
+                int column = 0;
+                QJsonObject json;
+            };
+            QList<Connection> connections;
+            const CPlusPlus::Snapshot snapshot = context.snapshot();
+            const WorkingCopy workingCopy = CppModelManager::workingCopy();
+            for (auto it = snapshot.begin(), end = snapshot.end(); it != end; ++it) {
+                const FilePath path = it.key();
+                if (!it.value()->control()->findIdentifier(id->chars(), id->size()))
+                    continue;
+                const QByteArray source = fileSource(path, workingCopy);
+                CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(source, path);
+                doc->tokenize();
+                if (!doc->control()->findIdentifier(id->chars(), id->size()))
+                    continue;
+                doc->check();
+                CPlusPlus::TranslationUnit *unit = doc->translationUnit();
+                if (!unit || !unit->ast())
+                    continue;
+
+                ConnectCallCollector collector(unit);
+                unit->ast()->accept(&collector);
+                if (collector.calls.isEmpty())
+                    continue;
+
+                CPlusPlus::FindUsages findUsages(source, doc, snapshot, /*categorize=*/false);
+                findUsages(symbol);
+                QList<QPair<int, int>> usagePositions;
+                const QList<CPlusPlus::Usage> usages = findUsages.usages();
+                for (const CPlusPlus::Usage &u : usages)
+                    usagePositions.append({u.line, u.col + 1}); // Usage::col is 0-based.
+
+                const QStringList lines = QString::fromUtf8(source).split('\n');
+                for (CPlusPlus::CallAST *call : std::as_const(collector.calls)) {
+                    QList<CPlusPlus::ExpressionAST *> arguments;
+                    for (CPlusPlus::ExpressionListAST *arg = call->expression_list; arg;
+                         arg = arg->next) {
+                        if (arg->value)
+                            arguments.append(arg->value);
+                    }
+                    // connect(sender, signal, slot) is the shortest form that
+                    // names both ends.
+                    if (arguments.size() < 3)
+                        continue;
+
+                    int symbolArgument = -1;
+                    bool resolved = false;
+                    for (int i = 0; i < arguments.size() && symbolArgument < 0; ++i) {
+                        for (const QPair<int, int> &pos : std::as_const(usagePositions)) {
+                            if (contains(unit, arguments.at(i), pos.first, pos.second)) {
+                                symbolArgument = i;
+                                resolved = true;
+                                break;
+                            }
+                        }
+                    }
+                    for (int i = 1; i < arguments.size() && symbolArgument < 0; ++i) {
+                        if (qtMethodName(arguments.at(i)) == symbolName)
+                            symbolArgument = i;
+                    }
+                    if (symbolArgument < 0)
+                        continue;
+
+                    // Three arguments: connect(sender, signal, slot-or-functor);
+                    // otherwise the receiver comes third and the slot fourth.
+                    const int slotIndex = arguments.size() == 3 ? 2 : 3;
+                    QString role = QStringLiteral("other");
+                    if (symbolArgument == 1)
+                        role = QStringLiteral("signal");
+                    else if (symbolArgument == slotIndex)
+                        role = QStringLiteral("slot");
+                    else if (symbolArgument == 0)
+                        role = QStringLiteral("sender");
+                    else if (symbolArgument == 2)
+                        role = QStringLiteral("receiver");
+
+                    CPlusPlus::ExpressionAST *slotArgument = arguments.at(slotIndex);
+                    const QString slotKind = connectArgumentKind(slotArgument, unit);
+                    int callLine = 0;
+                    int callColumn = 0;
+                    unit->getTokenPosition(call->firstToken(), &callLine, &callColumn);
+                    QJsonObject json{
+                        {"file", path.toUserOutput()},
+                        {"line", callLine},
+                        {"column", callColumn},
+                        {"kind", QString::fromUtf8(calleeName(call))},
+                        {"role", role},
+                        {"resolved", resolved},
+                        {"sender", astText(lines, unit, arguments.at(0))},
+                        {"signal", astText(lines, unit, arguments.at(1))},
+                        {"slot", astText(lines, unit, slotArgument)},
+                        {"slot_kind", slotKind}};
+                    if (slotIndex == 3)
+                        json.insert("receiver", astText(lines, unit, arguments.at(2)));
+                    else if (slotKind == QLatin1String("qt4_macro"))
+                        json.insert("receiver", QStringLiteral("this")); // Qt 4 three-argument form.
+                    if (arguments.size() >= 5)
+                        json.insert("connection_type", astText(lines, unit, arguments.at(4)));
+                    if (symbolArgument == slotIndex && slotKind == QLatin1String("lambda"))
+                        json.insert("via_lambda", true); // The function is used inside the lambda.
+                    const QString lineText = lines.value(callLine - 1).trimmed();
+                    if (!lineText.isEmpty())
+                        json.insert("line_text", lineText);
+                    if (symbolArgument == 1 || symbolArgument == slotIndex) {
+                        CPlusPlus::ExpressionAST *counterpart
+                            = arguments.at(symbolArgument == 1 ? slotIndex : 1);
+                        int counterpartLine = 0;
+                        int counterpartColumn = 0;
+                        unit->getTokenPosition(argumentNameToken(counterpart), &counterpartLine,
+                                               &counterpartColumn);
+                        json.insert("counterpart", QJsonObject{{"file", path.toUserOutput()},
+                                                               {"line", counterpartLine},
+                                                               {"column", counterpartColumn}});
+                    }
+                    connections.append({path.toUserOutput(), callLine, callColumn, json});
+                }
+            }
+
+            // The snapshot is a hash; sort so the same question gets the same answer.
+            std::sort(connections.begin(), connections.end(),
+                      [](const Connection &a, const Connection &b) {
+                          if (a.file != b.file)
+                              return a.file < b.file;
+                          if (a.line != b.line)
+                              return a.line < b.line;
+                          return a.column < b.column;
+                      });
+            QJsonArray array;
+            for (const Connection &connection : std::as_const(connections))
+                array.append(connection.json);
+
+            int total = 0;
+            bool truncated = false;
+            const QJsonArray capped = capResults(array, resultLimit(args), &total, &truncated);
+            return CallToolResult{}.isError(false).structuredContent(QJsonObject{
+                {"symbol", symbolJson},
+                {"connections", capped},
+                {"total", total},
+                {"truncated", truncated}});
         });
 }
 

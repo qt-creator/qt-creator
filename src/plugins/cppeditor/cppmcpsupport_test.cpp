@@ -307,4 +307,130 @@ void CppMcpSupportTest::testGetIncludeHierarchy()
     QVERIFY2(error.contains("No C++ code model document"), qPrintable(error));
 }
 
+
+void CppMcpSupportTest::testFindSignalConnections()
+{
+    CppEditor::Tests::TestCase testCase;
+    QVERIFY(testCase.succeededSoFar());
+    CppEditor::Tests::TemporaryDir dir;
+    Utils::FilePath file;
+    QVERIFY(writeAndParse(dir,
+                          "class QObject {};\n"                                              // 1
+                          "class A : public QObject\n"                                       // 2
+                          "{\n"                                                              // 3
+                          "    Q_OBJECT\n"                                                   // 4
+                          "signals:\n"                                                       // 5
+                          "    void s();\n"                                                  // 6
+                          "public slots:\n"                                                  // 7
+                          "    void t();\n"                                                  // 8
+                          "public:\n"                                                        // 9
+                          "    void wire(A *other);\n"                                       // 10
+                          "};\n"                                                             // 11
+                          "void A::wire(A *other)\n"                                         // 12
+                          "{\n"                                                              // 13
+                          "    connect(this, &A::s, other, &A::t);\n"                        // 14
+                          "    connect(this, SIGNAL(s()), other, SLOT(t()));\n"              // 15
+                          "    connect(this, &A::s, [] {});\n"                               // 16
+                          "    connect(this, &A::s, other, &A::t, Qt::QueuedConnection);\n"  // 17
+                          "    disconnect(this, &A::s, other, &A::t);\n"                     // 18
+                          "    other->t();\n"                                                // 19
+                          "}\n"                                                              // 20
+                          "void g(A *x, A *y) { connect(x, SIGNAL(s()), y, SLOT(t())); }\n", // 21
+                          &file));
+
+    // The signal s, declared at line 6 column 10.
+    QString error;
+    const QJsonObject forSignal = callTool("cpp_find_signal_connections",
+                                           {{"file", file.toFSPathString()},
+                                            {"line", 6},
+                                            {"column", 10}},
+                                           &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    const QJsonObject signalSymbol = forSignal.value("symbol").toObject();
+    QCOMPARE(signalSymbol.value("name").toString(), QString("s"));
+    QCOMPARE(signalSymbol.value("qualified_name").toString(), QString("A::s"));
+    QCOMPARE(signalSymbol.value("is_signal").toBool(), true);
+    QCOMPARE(signalSymbol.value("is_slot").toBool(), false);
+
+    const QJsonArray forSignalConnections = forSignal.value("connections").toArray();
+    QStringList lines;
+    QStringList kinds;
+    QStringList roles;
+    QStringList slotKinds;
+    for (const QJsonValue &value : forSignalConnections) {
+        const QJsonObject connection = value.toObject();
+        lines << QString::number(connection.value("line").toInt());
+        kinds << connection.value("kind").toString();
+        roles << connection.value("role").toString();
+        slotKinds << connection.value("slot_kind").toString();
+    }
+    // Line 19 calls the slot without connecting anything and must not appear.
+    QCOMPARE(lines, QStringList({"14", "15", "16", "17", "18", "21"}));
+    QCOMPARE(kinds, QStringList({"connect", "connect", "connect", "connect", "disconnect",
+                                 "connect"}));
+    QCOMPARE(roles, QStringList({"signal", "signal", "signal", "signal", "signal", "signal"}));
+    QCOMPARE(slotKinds, QStringList({"member_pointer", "qt4_macro", "lambda", "member_pointer",
+                                     "member_pointer", "qt4_macro"}));
+
+    const QJsonObject memberPointer = forSignalConnections.at(0).toObject();
+    QCOMPARE(memberPointer.value("column").toInt(), 5);
+    QCOMPARE(memberPointer.value("sender").toString(), QString("this"));
+    QCOMPARE(memberPointer.value("signal").toString(), QString("&A::s"));
+    QCOMPARE(memberPointer.value("receiver").toString(), QString("other"));
+    QCOMPARE(memberPointer.value("slot").toString(), QString("&A::t"));
+    QCOMPARE(memberPointer.value("resolved").toBool(), true);
+    QVERIFY(!memberPointer.contains("connection_type"));
+    // The counterpart points at the "t" of "&A::t", where cpp_get_symbol_info can resolve it.
+    const QJsonObject counterpart = memberPointer.value("counterpart").toObject();
+    QCOMPARE(counterpart.value("line").toInt(), 14);
+    QCOMPARE(counterpart.value("column").toInt(), 37);
+
+    const QJsonObject macro = forSignalConnections.at(1).toObject();
+    QCOMPARE(macro.value("signal").toString(), QString("SIGNAL(s())"));
+    QCOMPARE(macro.value("slot").toString(), QString("SLOT(t())"));
+    QCOMPARE(macro.value("receiver").toString(), QString("other"));
+    QCOMPARE(macro.value("counterpart").toObject().value("column").toInt(), 44); // the t in SLOT(t())
+
+    const QJsonObject lambda = forSignalConnections.at(2).toObject();
+    QCOMPARE(lambda.value("slot").toString(), QString("[] {}"));
+    QVERIFY(!lambda.contains("receiver"));
+
+    const QJsonObject queued = forSignalConnections.at(3).toObject();
+    QCOMPARE(queued.value("connection_type").toString(), QString("Qt::QueuedConnection"));
+
+    // From outside the class the built-in model cannot resolve the name inside
+    // SIGNAL(); the call is still found, by name, and says so.
+    const QJsonObject outside = forSignalConnections.at(5).toObject();
+    QCOMPARE(outside.value("sender").toString(), QString("x"));
+    QCOMPARE(outside.value("receiver").toString(), QString("y"));
+    QCOMPARE(outside.value("resolved").toBool(), false);
+
+    // The slot t, declared at line 8 column 10: the same calls, seen from the other end.
+    const QJsonObject forSlot = callTool("cpp_find_signal_connections",
+                                         {{"file", file.toFSPathString()},
+                                          {"line", 8},
+                                          {"column", 10}},
+                                         &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(forSlot.value("symbol").toObject().value("is_slot").toBool(), true);
+    const QJsonArray forSlotConnections = forSlot.value("connections").toArray();
+    lines.clear();
+    roles.clear();
+    for (const QJsonValue &value : forSlotConnections) {
+        lines << QString::number(value.toObject().value("line").toInt());
+        roles << value.toObject().value("role").toString();
+    }
+    QCOMPARE(lines, QStringList({"14", "15", "17", "18", "21"}));
+    QCOMPARE(roles, QStringList({"slot", "slot", "slot", "slot", "slot"}));
+    // Its counterpart is the "s" of "&A::s".
+    QCOMPARE(forSlotConnections.at(0).toObject().value("counterpart").toObject()
+                 .value("column").toInt(), 23);
+    QCOMPARE(forSlot.value("total").toInt(), 5);
+
+    // A parameter is not a function.
+    callTool("cpp_find_signal_connections",
+             {{"file", file.toFSPathString()}, {"line", 12}, {"column", 17}}, &error);
+    QVERIFY2(error.contains("not a function"), qPrintable(error));
+}
+
 } // namespace CppEditor::Internal
