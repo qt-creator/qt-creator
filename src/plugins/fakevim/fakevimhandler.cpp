@@ -1828,6 +1828,37 @@ static QString dotCommandFromSubMode(SubMode submode)
 
 [[maybe_unused]] static QDebug operator<<(QDebug ts, const Input &input) { return input.dump(ts); }
 
+// Vim writes the name of a key the way its documentation does, and this engine
+// holds it in upper case; the difference is only in the spelling.
+static QString keyNameAsVimWritesIt(const QString &spelled)
+{
+    static const QMap<QString, QString> asVimWritesIt = {
+        {"ESC", "Esc"}, {"TAB", "Tab"}, {"DEL", "Del"}, {"UP", "Up"},
+        {"DOWN", "Down"}, {"LEFT", "Left"}, {"RIGHT", "Right"},
+        {"HOME", "Home"}, {"END", "End"}, {"PAGEUP", "PageUp"},
+        {"PAGEDOWN", "PageDown"}, {"INSERT", "Insert"}, {"LEADER", "Leader"},
+        {"PLUG", "Plug"},
+        {"RETURN", "Return"}, {"ENTER", "Enter"}, {"SPACE", "Space"},
+        // These are the names a key code is looked up under first, and Vim
+        // writes them shorter.
+        {"BACKSPACE", "BS"}, {"DELETE", "Del"}, {"KDEL", "Del"},
+        {"INS", "Insert"}, {"KINSERT", "Insert"}, {"NEWLINE", "NL"},
+        {"LINEFEED", "NL"}, {"ESCAPE", "Esc"}
+    };
+    static const QRegularExpression token("<((?:[A-Z]-)*)([A-Za-z0-9]+)>");
+    QString out;
+    int at = 0;
+    QRegularExpressionMatchIterator it = token.globalMatch(spelled);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch m = it.next();
+        const QString nice = asVimWritesIt.value(m.captured(2).toUpper());
+        out += spelled.mid(at, m.capturedStart() - at);
+        out += '<' + m.captured(1) + (nice.isEmpty() ? m.captured(2) : nice) + '>';
+        at = m.capturedEnd();
+    }
+    return out + spelled.mid(at);
+}
+
 class Inputs : public QVector<Input>
 {
 public:
@@ -2419,8 +2450,8 @@ class VimValue
 {
 public:
     // Vim numbers the types, and a script reads them with type(): a Boolean is 6 and v:null/v:none
-    // are 7.
-    enum Type { Number, Float, String, List, Dict, Func, Bool, Special };
+    // are 7, a Blob 10 and a Tuple 17.
+    enum Type { Number, Float, String, List, Dict, Func, Bool, Special, Blob, Tuple };
 
     VimValue() = default;
     explicit VimValue(qlonglong n) : m_type(Number), m_number(n) {}
@@ -2440,6 +2471,26 @@ public:
         VimValue v;
         v.m_type = Dict;
         v.m_dict = std::make_shared<QMap<QString, VimValue>>(items);
+        return v;
+    }
+
+    // A Blob is a sequence of bytes, and like a List it is held by reference:
+    // "let b = a" gives both names the same bytes (measured).
+    static VimValue blob(const QByteArray &bytes = {})
+    {
+        VimValue v;
+        v.m_type = Blob;
+        v.m_blob = std::make_shared<QByteArray>(bytes);
+        return v;
+    }
+
+    // A Tuple holds what a List holds and cannot be changed afterwards, so it
+    // shares the storage and differs only in what may be done to it.
+    static VimValue tuple(const QList<VimValue> &items = {})
+    {
+        VimValue v;
+        v.m_type = Tuple;
+        v.m_list = std::make_shared<QList<VimValue>>(items);
         return v;
     }
 
@@ -2471,6 +2522,9 @@ public:
     bool isList() const { return m_type == List; }
     bool isDict() const { return m_type == Dict; }
     bool isFunc() const { return m_type == Func; }
+    bool isBlob() const { return m_type == Blob; }
+    bool isTuple() const { return m_type == Tuple; }
+    QByteArray *blobData() const { return m_blob.get(); }
     QList<VimValue> *listData() const { return m_list.get(); }
     QMap<QString, VimValue> *dictData() const { return m_dict.get(); }
     VimFunc *funcData() const { return m_func.get(); }
@@ -2484,7 +2538,9 @@ public:
         case Float:  return qlonglong(m_float);
         case String:
             return stringAsNumber(m_string);
+        case Blob:
         case List:
+        case Tuple:
         case Dict:
         case Func:
             return 0;
@@ -2505,6 +2561,10 @@ public:
             return m_list && !m_list->isEmpty();
         if (m_type == Dict)
             return m_dict && !m_dict->isEmpty();
+        if (m_type == Blob)
+            return m_blob && !m_blob->isEmpty();
+        if (m_type == Tuple)
+            return m_list && !m_list->isEmpty();
         return toNumber() != 0;
     }
 
@@ -2516,7 +2576,9 @@ public:
         case String: return m_string;
         case Bool:
         case Special: return m_string; // "v:true", "v:null" and their kin
+        case Blob:   return blobRepr(m_blob ? *m_blob : QByteArray());
         case List:
+        case Tuple:
         case Dict:
         case Func:   return repr(*this);
         }
@@ -2567,6 +2629,21 @@ private:
         return out;
     }
 
+    // Vim writes a Blob as "0z" and two upper-case hex digits per byte, in
+    // groups of FOUR bytes with a "." between them - measured:
+    // "0z01020304.05060708.09". The same dot is a separator on the way in, so
+    // what this prints reads back as the blob it came from.
+    static QString blobRepr(const QByteArray &bytes)
+    {
+        QString out = "0z";
+        for (int i = 0; i < bytes.size(); ++i) {
+            if (i > 0 && i % 4 == 0)
+                out += '.';
+            out += QString("%1").arg(uchar(bytes.at(i)), 2, 16, QLatin1Char('0')).toUpper();
+        }
+        return out;
+    }
+
     static QString repr(const VimValue &v)
     {
         switch (v.m_type) {
@@ -2575,6 +2652,7 @@ private:
         case Bool:
         case Special: return v.m_string; // shown as it is written, unquoted
         case String: return '\'' + QString(v.m_string).replace('\'', "''") + '\'';
+        case Blob: return blobRepr(v.m_blob ? *v.m_blob : QByteArray());
         case List: {
             QStringList parts;
             if (v.m_list) {
@@ -2582,6 +2660,18 @@ private:
                     parts.append(repr(e));
             }
             return '[' + parts.join(", ") + ']';
+        }
+        case Tuple: {
+            // Measured: the comma stays after a single item, so a one-item
+            // tuple is "(1, )" - which is also how one is written.
+            QStringList parts;
+            if (v.m_list) {
+                for (const VimValue &e : *v.m_list)
+                    parts.append(repr(e));
+            }
+            if (parts.size() == 1)
+                return '(' + parts.first() + ", )";
+            return '(' + parts.join(", ") + ')';
         }
         case Dict: {
             QStringList parts;
@@ -2606,6 +2696,7 @@ private:
     std::shared_ptr<VimFunc> m_func;
     std::shared_ptr<QList<VimValue>> m_list;
     std::shared_ptr<QMap<QString, VimValue>> m_dict;
+    std::shared_ptr<QByteArray> m_blob;
 };
 
 // A function reference: either a named function or a lambda with a captured
@@ -2684,6 +2775,7 @@ public:
     EventResult handleKey(const Input &input);
     Input translateLangMap(const Input &input) const;
     EventResult handleDefaultKey(const Input &input);
+    Input announceKeyInput(const Input &input);
     EventResult handleKeyForMode(const Input &input);
     bool failMotion();
     bool handleCommandBufferPaste(const Input &input);
@@ -3057,7 +3149,9 @@ public:
     void onFixCursorTimeout();
     void onAutocmdTimeout();
     void onIdleTimeout();
+    void onSafeStateTimeout();
     void restartIdleTimer();
+    void restartSafeStateTimer();
     void queueChangeAutocmds(bool textChanged, bool cursorMoved);
 
     bool isCommandLineMode() const { return g.mode == ExMode || g.subsubmode == SearchSubSubMode; }
@@ -3238,6 +3332,26 @@ public:
     // rule recognizing a buffer wins. Reset when the buffer is read again.
     bool m_didFileType = false;
     QString m_fileType; // matched by FileType autocommands
+    QString m_syntax; // what "&syntax" reads back; Syntax autocommands
+    // 'colorcolumn' as it was typed, which is what Vim keeps: a comma list
+    // whose entries may be relative to 'textwidth'. Qt Creator draws ONE
+    // margin, so the first absolute entry is what it is asked for.
+    QString m_colorColumn;
+    int m_foldColumn = 0; // 'foldcolumn', a width where Creator has a switch
+    // 'foldenable' and 'foldlevel'. Both act on the folds Qt Creator has
+    // worked out; 'foldmethod' only says how that is done.
+    bool m_foldEnable = true;
+    int m_foldLevel = 0;
+    QString m_foldMethod = "syntax";
+    // ":set readonly" on a buffer whose file is perfectly writable. The
+    // editor's own read-only state is the other half of what "&readonly"
+    // answers, and no flag can talk it round.
+    bool m_markedReadOnly = false;
+    // 'modifiable'. Unlike 'readonly' this one refuses the change itself.
+    bool m_modifiable = true;
+    // Whether the "changing a readonly file" warning has been given for this
+    // buffer yet. Vim gives it once, and a write or a reload arms it again.
+    bool m_warnedReadOnly = false;
     // Buffer-local 'commentstring'; empty means derive it from the file type.
     QString m_commentString;
     // The pieces of the current match, while a "\=" replacement is being
@@ -3248,6 +3362,7 @@ public:
     // Syntax item names seen so far; a name's position here is its synID().
     QStringList m_syntaxNames;
     bool m_vim9 = false; // Vim9-script semantics are active
+    int m_defDepth = 0; // how many ":def" bodies are running
     QStringList m_scriptFileStack; // scripts currently sourcing, innermost last
     // Whose "s:" is in reach, innermost last: a function carries the script that
     // defined it, an autocommand or user command the one that registered it.
@@ -3258,6 +3373,11 @@ public:
     // Which statement each frame is running, for <stack> and v:throwpoint.
     QList<int> m_scriptLines;
     QList<int> m_functionLines;
+    // Where in the FILE each function frame stands, which is what
+    // getstacktrace() reports - m_functionLines beside it counts the
+    // statements of the body instead, which is what a throwpoint names.
+    // Zero for a function that came from no file.
+    QList<int> m_functionSourceLines;
     QString m_throwpoint; // where the exception being carried was thrown
     QStringList m_callStack; // user functions currently running, for <stack>
     QString sourceChain(bool asThrowPoint, bool bareInnermost = false) const;
@@ -3451,6 +3571,7 @@ public:
     bool handleExDelMarksCommand(const ExCommand &cmd);
     bool handleExYankDeleteCommand(const ExCommand &cmd);
     bool handleExChangeCommand(const ExCommand &cmd);
+    bool handleExAppendCommand(const ExCommand &cmd);
     bool handleExMoveCommand(const ExCommand &cmd);
     bool handleExCopyCommand(const ExCommand &cmd);
     bool handleExAlignCommand(const ExCommand &cmd);
@@ -3469,10 +3590,35 @@ public:
     bool handleExMarksCommand(const ExCommand &cmd);
     bool handleExMarkCommand(const ExCommand &cmd);
     bool handleExJumpsCommand(const ExCommand &cmd);
+    bool handleExClearJumpsCommand(const ExCommand &cmd);
+    bool handleExChangesCommand(const ExCommand &cmd);
+    bool handleExScriptNamesCommand(const ExCommand &cmd);
+    bool handleExBufferListCommand(const ExCommand &cmd);
+    bool handleExMatchCommand(const ExCommand &cmd);
+    bool handleExRuntimeCommand(const ExCommand &cmd);
+    bool sourceAlongRuntimePath(const QString &relative, bool all);
+    bool handleExTagsCommand(const ExCommand &cmd);
+    bool isTagStackEmpty();
+    bool takeTypedAheadLine(QString *line);
+    QString shortHomePath(const QString &path) const;
+    QStringList scriptPathsById() const;
+    bool handleExEvalCommand(const ExCommand &cmd);
+    bool handleExNoOpCommand(const ExCommand &cmd);
+    bool handleExSwapNameCommand(const ExCommand &cmd);
+    bool handleExOldFilesCommand(const ExCommand &cmd);
+    bool handleExFileTypeCommand(const ExCommand &cmd);
+    bool handleExArgListCommand(const ExCommand &cmd);
+    bool handleExFoldCommand(const ExCommand &cmd);
+    void openArgListEntry();
+    bool walkArgList(int distance);
+    QStringList recentFiles() const;
+    bool handleExScriptEncodingCommand(const ExCommand &cmd);
+    bool handleExWinCmdCommand(const ExCommand &cmd);
     bool handleExMapCommand(const ExCommand &cmd);
     bool handleExMapClearCommand(const ExCommand &cmd);
     bool handleExAbbreviateCommand(const ExCommand &cmd);
     void expandInsertAbbreviation();
+    void expandCommandLineAbbreviation();
     bool handleExMultiRepeatCommand(const ExCommand &cmd);
     bool handleExNohlsearchCommand(const ExCommand &cmd);
     bool handleExNormalCommand(const ExCommand &cmd);
@@ -3501,6 +3647,12 @@ public:
     bool handleExTabPreviousCommand(const ExCommand &cmd);
     bool handleExTagCommand(const ExCommand &cmd);
     bool handleExWriteCommand(const ExCommand &cmd);
+    bool handleExReadOnlyWriteCommand(const ExCommand &cmd);
+    bool refuseUnmodifiable();
+    void flushListeners();
+    bool handleExWindowSizeCommand(const ExCommand &cmd);
+    bool handleExSweptCommands(const ExCommand &cmd);
+    bool isBufferReadOnly();
     bool handleExEchoCommand(const ExCommand &cmd);
 
     // Vimscript expression evaluation.
@@ -3553,6 +3705,8 @@ public:
     void runExCommands(const QList<ExCommand> &cmds);
     void runNestedExCommands(const QString &line);
     void execSequence(const QList<ExCommand> &cmds, int &index, bool active);
+    void execTextEntry(const QList<ExCommand> &cmds, int &index, bool active,
+                       const ExCommand &cmd);
     void execIf(const QList<ExCommand> &cmds, int &index, bool active, bool condition);
     void execWhile(const QList<ExCommand> &cmds, int &index, bool active,
                    const QString &condition);
@@ -3575,15 +3729,29 @@ public:
     bool handleExUserCommand(const ExCommand &cmd);
     bool handleExSetFileTypeCommand(const ExCommand &cmd);
     void setFileType(const QString &type, bool fallback = false);
+    void setSyntax(const QString &name);
+    int marginColumn() const;
+    void setColorColumn(const QString &value);
+    void setFoldColumn(int width);
+    void applyFoldLevel();
+    QString nonStoredOptionShown(const QString &arg) const;
     bool didFileType() const;
     void processModelines();
     void applyModeline(const QString &line);
-    void triggerAutocmd(const QString &event, const EventContext &context = {},
-                        EventContext *after = nullptr);
+    // Returns how many autocommands ran, which is what a "*Cmd" event asks:
+    // one that ran did the work, so the built-in action must not.
+    int triggerAutocmd(const QString &event, const EventContext &context = {},
+                       EventContext *after = nullptr);
     // The pattern of a Cmdline autocommand is matched against the character
     // naming the command line, not against a file name.
     void triggerCmdlineAutocmd(const QString &event, const QString &type,
                                const QString &exitedWith = {});
+    // A completion having been applied, with the word it put in.
+    void triggerCompleteDone(const QString &word);
+    // A context menu about to be shown, whose pattern is the mode.
+    void triggerMenuPopup();
+    // Splits having changed size, named by the ids Qt Creator hands out.
+    void triggerWinResized(const QList<int> &viewIds);
     // Leaving insert mode announces itself twice over, the "Pre" first, and
     // both are told which mode it was through v:insertmode.
     void leaveInsertAutocmd()
@@ -3622,6 +3790,32 @@ public:
     // changes then fires once, and a rule may edit the buffer safely.
     QTimer m_autocmdTimer;
     QTimer m_idleTimer; // for "CursorHold", after 'updatetime' with nothing typed
+    // For "SafeState", once what was typed is dealt with and the event queue
+    // has drained - so a burst of keys arriving together announces it once.
+    QTimer m_safeStateTimer;
+    // The timers timer_start() made. Vim keeps them for the whole session; a
+    // handler is what a callback needs to run in, so they belong to the one
+    // that started them and go with its editor.
+    struct VimTimer {
+        int id = 0;
+        QTimer *timer = nullptr;
+        VimValue callback;
+        int interval = 0;
+        int repeat = 1; // times left to run, -1 for as long as it lives
+        bool paused = false;
+    };
+    QList<VimTimer> m_timers;
+    int startVimTimer(int interval, const VimValue &callback, int repeat);
+    void onVimTimerFired(int id);
+    bool stopVimTimer(int id);
+    int indexOfVimTimer(int id) const
+    {
+        for (int i = 0; i < m_timers.size(); ++i) {
+            if (m_timers.at(i).id == id)
+                return i;
+        }
+        return -1;
+    }
     // Which mode the change happened in is recorded here rather than read back
     // when the timer runs, since the mode may have been left by then.
     bool m_pendingTextChanged = false;
@@ -3684,6 +3878,20 @@ public:
     BufferDataPtr m_buffer;
 
     // Data shared among all editors.
+// A callback listener_add() registered, and one change waiting for it.
+struct ListenerEntry
+{
+    int id = 0;
+    VimValue callback;
+};
+
+struct PendingChange
+{
+    int start = 0;  // first line touched, 1-based
+    int end = 0;    // one past the last line touched, before the change
+    int added = 0;  // lines gained, negative when lines went
+};
+
     static struct GlobalData
     {
         GlobalData()
@@ -3730,6 +3938,11 @@ public:
 
         // Input.
         QList<Input> pendingInput;
+        // What listener_add() registered, and the changes waiting to be handed
+        // to them at the next listener_flush().
+        QList<ListenerEntry> listeners;
+        QList<PendingChange> pendingChanges;
+        int lastListenerId = 0;
         MappingsIterator currentMap;
         QStack<MappingState> mapStates;
         int mapDepth = 0;
@@ -3749,10 +3962,12 @@ public:
         QStringList messageHistory;
         // What ":lockvar" holds against being given another value.
         QSet<QString> lockedVariables;
-        // Insert-mode abbreviations: what ":iabbrev" wrote down, keyed by the
-        // word that triggers it. Only the insert-mode ones are here - see
-        // handleExAbbreviateCommand().
+        // Abbreviations, keyed by the word that triggers one. Only insert
+        // mode expands them here - see handleExAbbreviateCommand() - so the
+        // mode beside each is what a LISTING shows rather than anything that
+        // changes when one fires: "i" from ":iabbrev", "!" from ":abbreviate".
         QHash<QString, QString> insertAbbreviations;
+        QHash<QString, QChar> abbreviationModes;
         // What ":cd -" returns to - the directory a ":cd"/":lcd"/":tcd" left,
         // one value shared across all three since the working directory
         // itself is one process-global thing here.
@@ -3811,6 +4026,15 @@ public:
         // The number Vim names a script by in "<SNR>42_", handed out in the
         // order the scripts are first sourced.
         QHash<QString, int> scriptIds;
+        int lastTimerId = 0; // ids are never handed out twice in a session
+        // The argument list, which Vim keeps for the whole session. Empty
+        // until ":args" sets one; while it is, argc()/argv()/argidx()
+        // answer about the one open file, as they always have here.
+        QStringList argList;
+        int argIndex = 0;
+        // Whether the file type is detected for a buffer being read, which
+        // is what ":filetype off" turns off.
+        bool filetypeDetection = true;
         QList<AutoCommand> autoCommands;
         EventContext event;
         QString insertMode;
@@ -3862,6 +4086,13 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
                 this, &Private::onContentsChanged);
         connect(EDITOR(document()), &QTextDocument::undoCommandAdded,
                 this, &Private::onUndoCommandAdded);
+        // A write or a reload leaves the document unmodified, which is where
+        // Vim arms the readonly warning again.
+        connect(EDITOR(document()), &QTextDocument::modificationChanged,
+                this, [this](bool modified) {
+                    if (!modified)
+                        m_warnedReadOnly = false;
+                });
         m_buffer->lastRevision = revision();
         m_buffer->lastBlockCount = document()->blockCount();
     }
@@ -3895,6 +4126,8 @@ void FakeVimHandler::Private::init()
     initSingleShotTimer(&m_fixCursorTimer, 0, this, &FakeVimHandler::Private::onFixCursorTimeout);
     initSingleShotTimer(&m_autocmdTimer, 0, this, &FakeVimHandler::Private::onAutocmdTimeout);
     initSingleShotTimer(&m_idleTimer, 0, this, &FakeVimHandler::Private::onIdleTimeout);
+    initSingleShotTimer(&m_safeStateTimer, 0, this,
+                        &FakeVimHandler::Private::onSafeStateTimeout);
     initSingleShotTimer(&m_inputTimer, 1000, this, &FakeVimHandler::Private::onInputTimeout);
 
     pullOrCreateBufferData();
@@ -4483,6 +4716,8 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
     if (r != EventHandled)
         clearPendingInput();
 
+    restartSafeStateTimer();
+
     return r;
 }
 
@@ -4573,9 +4808,33 @@ bool FakeVimHandler::Private::handleCommandBufferPaste(const Input &input)
     return false;
 }
 
+// Every key is announced before it is acted on, and v:char may be written to
+// put a different key in its place. All of this measured in Vim 9.1: a mapping
+// announces the keys it expands TO rather than the one that was typed, which is
+// where this sits; an empty v:char leaves the key as it was; and where more
+// than one key is written only the first of them counts.
+Input FakeVimHandler::Private::announceKeyInput(const Input &input)
+{
+    if (g.autoCommands.isEmpty() || !input.isValid())
+        return input;
+
+    EventContext before;
+    // A key with no text of its own has no encoding here to hand over, so it is
+    // spelled the way a mapping spells it, in the spelling Vim uses - keytrans()
+    // of that agrees with Vim, where the raw bytes would not.
+    before.typedChar = keyNameAsVimWritesIt(input.toString());
+    EventContext after = before; // in case no autocommand runs at all
+    triggerAutocmd("KeyInputPre", before, &after);
+    if (after.typedChar.isEmpty() || after.typedChar == before.typedChar)
+        return input;
+
+    const Inputs replacement(after.typedChar);
+    return replacement.isEmpty() ? input : replacement.front();
+}
+
 EventResult FakeVimHandler::Private::handleDefaultKey(const Input &input)
 {
-    const EventResult result = handleKeyForMode(input);
+    const EventResult result = handleKeyForMode(announceKeyInput(input));
     if (!m_motionFailed)
         return result;
     // A motion with nowhere to go drops the keys that came with it.
@@ -4638,8 +4897,7 @@ void FakeVimHandler::Private::prependInputs(const QVector<Input> &inputs)
 
 void FakeVimHandler::Private::prependMapping(const Inputs &inputs, bool mapping, QChar reg)
 {
-    // FIXME: Implement Vim option maxmapdepth (default value is 1000).
-    if (g.mapDepth >= 1000) {
+    if (g.mapDepth >= int(s.maxMapDepth())) {
         const int i = qMax(0, g.pendingInput.lastIndexOf(Input()));
         const QList<Input> inputs = g.pendingInput.mid(i);
         clearPendingInput();
@@ -6011,6 +6269,8 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
                         const int width = qMax(0, indentation(one).logical - first + here);
                         moved << (rest.isEmpty() ? rest : tabExpand(width) + rest);
                     }
+                    if (refuseUnmodifiable())
+                        return true;
                     pushUndoState();
                     beginEditBlock();
                     const int at = behind ? block().position() + block().length() - 1
@@ -6162,6 +6422,8 @@ bool FakeVimHandler::Private::handleVimUnimpaired(bool close, const Input &input
 {
     // A small subset of tpope's vim-unimpaired, entered via "[" / "]".
     if (input.is(' ')) {
+        if (refuseUnmodifiable())
+            return true;
         // "[<Space>" / "]<Space>": add [count] blank lines above/below,
         // leaving the cursor on the current line.
         const QTextBlock b = block();
@@ -6176,6 +6438,8 @@ bool FakeVimHandler::Private::handleVimUnimpaired(bool close, const Input &input
     }
 
     if (input.is('e')) {
+        if (refuseUnmodifiable())
+            return true;
         // "[e" / "]e": move the current line up/down by [count] lines,
         // keeping the cursor on the moved line and in the same column.
         const int line = cursorLine() + 1; // 1-based
@@ -6782,7 +7046,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         }
     } else if (g.gflag && input.is('d')) {
         // gd: go to definition of the symbol under the cursor.
-        q->tagJumpRequested();
+        q->tagJumpRequested(expandKeyword("<cword>"));
     } else if (g.gflag && (input.is('f') || input.is('F'))) {
         // gf: open the file named under the cursor; gF at the line named behind
         // it. What may stand in a name is what 'isfname' says.
@@ -7177,7 +7441,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         if (atEndOfLine())
             moveLeft();
     } else if (input.isControl(Key_BracketRight)) {
-        q->tagJumpRequested();
+        q->tagJumpRequested(expandKeyword("<cword>"));
     } else if (input.is('K')) {
         q->contextHelpRequested();
     } else if (input.key() == Key_AsciiCircum
@@ -8233,6 +8497,7 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
     // or an Escape leaves behind is the line going away rather than a change to
     // it, so the mode is asked about as well.
     const QString lineBefore = g.commandBuffer.contents();
+    const int posBefore = g.commandBuffer.cursorPos();
 
     if (input.isEscape()) {
         leaveCmdlineAutocmd(":", QString(QChar(27)));
@@ -8264,6 +8529,7 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
         // FIXME: Complete actual commands.
         g.commandBuffer.historyUp();
     } else if (input.isReturn()) {
+        expandCommandLineAbbreviation();
         // Before the command runs, as Vim has it: an autocommand here still
         // sees the line it is about to carry out.
         leaveCmdlineAutocmd(":", QString(QChar(13)));
@@ -8275,10 +8541,17 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
     } else if (!g.commandBuffer.handleInput(input)) {
         qDebug() << "IGNORED IN EX-MODE: " << input.key() << input.text();
         return EventUnhandled;
+    } else if (!input.isValid() || charClass(input.asChar(), false) != 2) {
+        expandCommandLineAbbreviation();
     }
 
     if (g.mode == ExMode && g.commandBuffer.contents() != lineBefore)
         triggerCmdlineAutocmd("CmdlineChanged", ":");
+
+    // A move of the cursor alone is announced too, and a typed character is
+    // both - the change first, then the move (measured).
+    if (g.mode == ExMode && g.commandBuffer.cursorPos() != posBefore)
+        triggerCmdlineAutocmd("CursorMovedC", ":");
 
     return EventHandled;
 }
@@ -8292,6 +8565,7 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         return handled;
 
     const QString lineBefore = g.searchBuffer.contents();
+    const int posBefore = g.searchBuffer.cursorPos();
 
     if (input.isEscape()) {
         leaveCmdlineAutocmd(g.searchBuffer.prompt(), QString(QChar(27)));
@@ -8343,6 +8617,9 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
 
     if (g.subsubmode == SearchSubSubMode && g.searchBuffer.contents() != lineBefore)
         triggerCmdlineAutocmd("CmdlineChanged", g.searchBuffer.prompt());
+
+    if (g.subsubmode == SearchSubSubMode && g.searchBuffer.cursorPos() != posBefore)
+        triggerCmdlineAutocmd("CursorMovedC", g.searchBuffer.prompt());
 
     return handled;
 }
@@ -8473,7 +8750,8 @@ static bool takesWholeLine(const QString &word)
     static const QList<QPair<QString, int>> whole = {
         {"silent", 3}, {"noautocmd", 3}, {"keepjumps", 5}, {"keepmarks", 3},
         {"keepalt", 5}, {"keeppatterns", 5}, {"lockmarks", 3}, {"unsilent", 3},
-        {"autocmd", 2}, {"command", 3}
+        {"noswapfile", 3}, {"sandbox", 5}, {"verbose", 4}, {"legacy", 3},
+        {"vim9cmd", 4}, {"autocmd", 2}, {"command", 3}
     };
     for (const auto &[full, shortest] : whole) {
         if (word.size() >= shortest && full.startsWith(word))
@@ -8487,6 +8765,7 @@ bool FakeVimHandler::Private::parseExCommand(QString *line, ExCommand *cmd)
     *cmd = ExCommand();
     if (line->isEmpty())
         return false;
+    const QString raw = *line;
 
     // parse range first
     if (!parseLineRange(line, cmd))
@@ -8553,19 +8832,34 @@ bool FakeVimHandler::Private::parseExCommand(QString *line, ExCommand *cmd)
 
     // command arguments starts with first non-letter character
     static const QRegularExpression regexp("(?=[^a-zA-Z])");
-    cmd->args = cmd->cmd.section(regexp, 1);
-    if (!cmd->args.isEmpty()) {
-        cmd->cmd.chop(cmd->args.size());
-        cmd->args = cmd->args.trimmed();
+    // Two commands carry a DIGIT in the name, and a digit is otherwise a
+    // count: ":d 3" is a delete of three lines, so the split cannot simply
+    // allow digits - it would turn ":d3" into a command named "d3". These two
+    // are taken whole first instead.
+    static const QRegularExpression digitNames("^(vim9cmd|vim9script)(?![a-zA-Z0-9])");
+    const QRegularExpressionMatch digitName = digitNames.match(cmd->cmd);
+    if (digitName.hasMatch()) {
+        cmd->args = cmd->cmd.mid(digitName.capturedLength(1)).trimmed();
+        cmd->cmd = digitName.captured(1);
+    } else {
+        cmd->args = cmd->cmd.section(regexp, 1);
+        if (!cmd->args.isEmpty()) {
+            cmd->cmd.chop(cmd->args.size());
+            cmd->args = cmd->args.trimmed();
 
-        // '!' at the end of command
-        cmd->hasBang = cmd->args.startsWith('!');
-        if (cmd->hasBang)
-            cmd->args = cmd->args.mid(1).trimmed();
+            // '!' at the end of command
+            cmd->hasBang = cmd->args.startsWith('!');
+            if (cmd->hasBang)
+                cmd->args = cmd->args.mid(1).trimmed();
+        }
     }
 
     // remove the first command from command line
     line->remove(0, i + 1);
+
+    cmd->original = raw.left(raw.size() - line->size());
+    while (cmd->original.endsWith('|') || cmd->original.endsWith('\n'))
+        cmd->original.chop(1);
 
     return true;
 }
@@ -8646,6 +8940,10 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
         && !(cmd.cmd.isEmpty() && !cmd.args.isEmpty() && QString("&~").contains(cmd.args[0]))) {
         return false;
     }
+    // Before the pattern is even looked for, as Vim has it: a ":s" that would
+    // find nothing still answers E21 rather than "Pattern not found".
+    if (refuseUnmodifiable())
+        return true;
     const std::optional<MagicLevel> forcedMagic
         = forceMagicOn  ? std::optional<MagicLevel>(Magic)
           : forceMagicOff ? std::optional<MagicLevel>(NoMagic)
@@ -8868,6 +9166,292 @@ bool FakeVimHandler::Private::handleExTabPreviousCommand(const ExCommand &cmd)
     return true;
 }
 
+// Hand every change collected so far to the listeners, oldest first, which is
+// what listener_flush() is for: Vim does not run a callback when the change
+// happens but when the buffer is next needed settled.
+void FakeVimHandler::Private::flushListeners()
+{
+    if (g.pendingChanges.isEmpty() || g.listeners.isEmpty())
+        return;
+
+    const QList<PendingChange> changes = g.pendingChanges;
+    g.pendingChanges.clear();
+    const QList<ListenerEntry> listeners = g.listeners;
+    for (const ListenerEntry &entry : listeners) {
+        QList<VimValue> items;
+        for (const PendingChange &change : changes) {
+            QMap<QString, VimValue> one;
+            one.insert("lnum", VimValue(qlonglong(change.start)));
+            one.insert("end", VimValue(qlonglong(change.end)));
+            one.insert("added", VimValue(qlonglong(change.added)));
+            one.insert("col", VimValue(qlonglong(1)));
+            items.append(VimValue::dict(one));
+        }
+        const PendingChange &first = changes.first();
+        int added = 0;
+        for (const PendingChange &change : changes)
+            added += change.added;
+        VimValue ignored;
+        QString error;
+        invokeCallable(entry.callback,
+                       {VimValue(qlonglong(bufferNumber())),
+                        VimValue(qlonglong(first.start)),
+                        VimValue(qlonglong(changes.last().end)),
+                        VimValue(qlonglong(added)),
+                        VimValue::list(items)},
+                       &ignored, &error);
+        if (!error.isEmpty())
+            showMessage(MessageError, error);
+    }
+}
+
+// The looser JSON Vim calls JS, which js_decode() reads and QJsonDocument
+// will not: a key needs no quotes, a string may be single-quoted, a trailing
+// comma is allowed, and a HOLE between two commas is v:none. Measured:
+// "[1,2,]" is [1, 2], "{a: 1}" is {"a": 1}, "['x']" is ["x"], and "[1,,2]"
+// is [1, v:none, 2].
+class JsReader
+{
+public:
+    explicit JsReader(const QString &text) : m_in(text) {}
+
+    bool read(VimValue *out)
+    {
+        skip();
+        if (!value(out))
+            return false;
+        skip();
+        return m_pos == m_in.size();
+    }
+
+private:
+    void skip()
+    {
+        while (m_pos < m_in.size() && m_in.at(m_pos).isSpace())
+            ++m_pos;
+    }
+
+    QChar cur() const { return m_pos < m_in.size() ? m_in.at(m_pos) : QChar(); }
+
+    bool value(VimValue *out)
+    {
+        skip();
+        const QChar c = cur();
+        if (c == '[')
+            return array(out);
+        if (c == '{')
+            return object(out);
+        if (c == '"' || c == '\'') {
+            QString text;
+            if (!string(&text))
+                return false;
+            *out = VimValue(text);
+            return true;
+        }
+        return word(out);
+    }
+
+    bool array(VimValue *out)
+    {
+        ++m_pos; // "["
+        QList<VimValue> items;
+        skip();
+        while (m_pos < m_in.size() && cur() != ']') {
+            if (cur() == ',') {
+                // A hole: nothing between two commas, which is v:none.
+                ++m_pos;
+                items.append(VimValue::special("v:none"));
+                skip();
+                continue;
+            }
+            VimValue item;
+            if (!value(&item))
+                return false;
+            items.append(item);
+            skip();
+            if (cur() == ',') {
+                ++m_pos;
+                skip();
+                // A comma before the bracket is a trailing one, not a hole.
+                if (cur() == ']')
+                    break;
+            }
+        }
+        if (cur() != ']')
+            return false;
+        ++m_pos;
+        *out = VimValue::list(items);
+        return true;
+    }
+
+    bool object(VimValue *out)
+    {
+        ++m_pos; // "{"
+        QMap<QString, VimValue> items;
+        skip();
+        while (m_pos < m_in.size() && cur() != '}') {
+            QString key;
+            if (cur() == '"' || cur() == '\'') {
+                if (!string(&key))
+                    return false;
+            } else {
+                // A bare key runs to the colon.
+                const int from = m_pos;
+                while (m_pos < m_in.size() && cur() != ':' && !cur().isSpace())
+                    ++m_pos;
+                key = m_in.mid(from, m_pos - from);
+                if (key.isEmpty())
+                    return false;
+            }
+            skip();
+            if (cur() != ':')
+                return false;
+            ++m_pos;
+            VimValue item;
+            if (!value(&item))
+                return false;
+            items.insert(key, item);
+            skip();
+            if (cur() == ',') {
+                ++m_pos;
+                skip();
+            }
+        }
+        if (cur() != '}')
+            return false;
+        ++m_pos;
+        *out = VimValue::dict(items);
+        return true;
+    }
+
+    bool string(QString *out)
+    {
+        const QChar quote = cur();
+        ++m_pos;
+        out->clear();
+        while (m_pos < m_in.size() && cur() != quote) {
+            if (cur() == '\\' && m_pos + 1 < m_in.size()) {
+                ++m_pos;
+                const QChar escaped = cur();
+                if (escaped == 'n')
+                    out->append('\n');
+                else if (escaped == 't')
+                    out->append('\t');
+                else if (escaped == 'r')
+                    out->append('\r');
+                else
+                    out->append(escaped);
+                ++m_pos;
+                continue;
+            }
+            out->append(cur());
+            ++m_pos;
+        }
+        if (cur() != quote)
+            return false;
+        ++m_pos;
+        return true;
+    }
+
+    bool word(VimValue *out)
+    {
+        const int from = m_pos;
+        while (m_pos < m_in.size() && !cur().isSpace() && cur() != ',' && cur() != ']'
+               && cur() != '}' && cur() != ':') {
+            ++m_pos;
+        }
+        const QString text = m_in.mid(from, m_pos - from);
+        if (text.isEmpty())
+            return false;
+        if (text == "true") {
+            *out = VimValue::boolean(true);
+            return true;
+        }
+        if (text == "false") {
+            *out = VimValue::boolean(false);
+            return true;
+        }
+        if (text == "null") {
+            *out = VimValue::special("v:null");
+            return true;
+        }
+        bool isNumber = false;
+        const double number = text.toDouble(&isNumber);
+        if (!isNumber)
+            return false;
+        *out = text.contains('.') || text.contains('e') || text.contains('E')
+                   ? VimValue(number)
+                   : VimValue(qlonglong(text.toLongLong()));
+        return true;
+    }
+
+    QString m_in;
+    int m_pos = 0;
+};
+
+// Whether the pattern characters appear in the text in order, and where. The
+// case is smart, as Vim's is: an upper-case letter in the pattern makes the
+// whole match case-sensitive.
+//
+// The score ranks, and the bonuses are the ones the measured numbers show Vim
+// giving: a whole-string match beats everything, a run of adjacent characters
+// beats a scattered one, and a character at the start of the text or just
+// after a separator or at a camel-case hump beats one in the middle.
+static bool fuzzyMatch(const QString &text, const QString &pattern, QList<int> *positions,
+                       int *score)
+{
+    if (pattern.isEmpty() || text.isEmpty())
+        return false;
+    const bool caseSensitive = pattern != pattern.toLower();
+    const QString hay = caseSensitive ? text : text.toLower();
+    const QString needle = caseSensitive ? pattern : pattern.toLower();
+
+    positions->clear();
+    int at = 0;
+    for (const QChar wanted : needle) {
+        const int found = hay.indexOf(wanted, at);
+        if (found < 0)
+            return false;
+        positions->append(found);
+        at = found + 1;
+    }
+
+    if (hay == needle) {
+        // The one score a script can rely on, and Vim's own value for it.
+        *score = std::numeric_limits<int>::max();
+        return true;
+    }
+
+    const auto isSeparator = [](QChar c) {
+        return c == '_' || c == '-' || c == '.' || c == ' ' || c == '/' || c == '\\';
+    };
+    *score = 0;
+    for (int i = 0; i < positions->size(); ++i) {
+        const int where = positions->at(i);
+        if (where == 0)
+            *score += 60; // at the very start
+        else if (isSeparator(text.at(where - 1)))
+            *score += 50; // the start of a word
+        else if (text.at(where).isUpper() && text.at(where - 1).isLower())
+            *score += 40; // a camel-case hump
+        if (i > 0 && positions->at(i - 1) == where - 1)
+            *score += 30; // next to the one before it
+        else
+            *score -= where - (i > 0 ? positions->at(i - 1) : -1) - 1; // the gap
+    }
+    return true;
+}
+
+// Whether anything has been followed yet, which is what the tag commands
+// answer E73 for.
+bool FakeVimHandler::Private::isTagStackEmpty()
+{
+    QList<TagStackEntry> entries;
+    int index = 0;
+    q->tagStackContents(&entries, &index);
+    return entries.isEmpty();
+}
+
 bool FakeVimHandler::Private::handleExTagCommand(const ExCommand &cmd)
 {
     // :ta[g] with an argument follows a (new) symbol; bare :ta[g] moves forward
@@ -8877,11 +9461,50 @@ bool FakeVimHandler::Private::handleExTagCommand(const ExCommand &cmd)
         if (cmd.args.isEmpty())
             q->tagStackRequested(count());
         else
-            q->tagJumpRequested();
+            q->tagJumpRequested(cmd.args.trimmed());
         return true;
     }
     if (cmd.matches("po", "pop")) {
+        if (isTagStackEmpty()) {
+            showMessage(MessageError, Tr::tr("E73: Tag stack empty"));
+            return true;
+        }
         q->tagStackRequested(-count());
+        return true;
+    }
+
+    // The commands that walk the MATCHES of one tag. What Qt Creator gives is
+    // a single destination per tag - it follows the symbol - so that list
+    // always holds exactly one entry, and Vim's answers for a single match
+    // are the honest ones here. All measured against a real tags file:
+    //   nothing followed yet   -> E73: Tag stack empty (":pop" too)
+    //   one match, ":tnext"    -> E427: There is only one matching tag
+    //   one match, ":tprev"    -> E425: Cannot go before first matching tag
+    //   one match, ":tfirst" or ":tlast" -> silent, and it stays put
+    if (cmd.matches("tn", "tnext") || cmd.matches("tp", "tprevious")
+        || cmd.matches("tN", "tNext") || cmd.matches("tf", "tfirst")
+        || cmd.matches("tr", "trewind") || cmd.matches("tl", "tlast")) {
+        if (isTagStackEmpty())
+            showMessage(MessageError, Tr::tr("E73: Tag stack empty"));
+        else if (cmd.matches("tn", "tnext"))
+            showMessage(MessageError, Tr::tr("E427: There is only one matching tag"));
+        else if (cmd.matches("tp", "tprevious") || cmd.matches("tN", "tNext"))
+            showMessage(MessageError, Tr::tr("E425: Cannot go before first matching tag"));
+        return true;
+    }
+
+    // ":tjump" jumps straight to a single match, which is every match here, so
+    // it is ":tag" by another name. ":tselect" would list the matches and ask
+    // which one - it asks even when there is only one - and there is nothing
+    // to ask about with one destination, so it jumps as ":tjump" does.
+    if (cmd.matches("tj", "tjump") || cmd.matches("ts", "tselect")) {
+        const QString tag = cmd.args.trimmed();
+        if (tag.isEmpty()) {
+            if (isTagStackEmpty())
+                showMessage(MessageError, Tr::tr("E73: Tag stack empty"));
+            return true;
+        }
+        q->tagJumpRequested(tag);
         return true;
     }
     return false;
@@ -9055,14 +9678,37 @@ bool FakeVimHandler::Private::handleExMapClearCommand(const ExCommand &cmd0)
 // looked up again, so there is nothing to remap.
 bool FakeVimHandler::Private::handleExAbbreviateCommand(const ExCommand &cmd)
 {
-    const bool clear = cmd.matches("iabc", "iabclear");
-    const bool remove = cmd.matches("iuna", "iunabbrev");
-    const bool define = cmd.matches("ia", "iabbrev") || cmd.matches("inorea", "inoreabbrev");
+    // ":iabbrev" and friends are for insert mode; ":abbreviate" and friends
+    // are Vim's "both modes", which here comes to the same thing - insert mode
+    // is the only one that expands one - so they share the store and differ
+    // only in the mode a listing shows.
+    const bool commandLineOnly = cmd.matches("ca", "cabbrev")
+                                 || cmd.matches("cnorea", "cnoreabbrev");
+    const bool clear = cmd.matches("iabc", "iabclear")
+                       || cmd.matches("abc", "abclear")
+                       || cmd.matches("cabc", "cabclear");
+    const bool remove = cmd.matches("iuna", "iunabbrev")
+                        || cmd.matches("una", "unabbreviate")
+                        || cmd.matches("cuna", "cunabbrev");
+    const bool insertOnly = cmd.matches("ia", "iabbrev")
+                            || cmd.matches("inorea", "inoreabbrev");
+    const bool bothModes = cmd.matches("ab", "abbreviate")
+                           || cmd.matches("norea", "noreabbrev");
+    const bool define = insertOnly || bothModes || commandLineOnly;
     if (!clear && !remove && !define)
         return false;
 
+    const QChar mode = commandLineOnly ? 'c' : (insertOnly ? 'i' : '!');
     if (clear) {
-        g.insertAbbreviations.clear();
+        const bool commandLine = cmd.matches("cabc", "cabclear");
+        const QStringList keys = g.insertAbbreviations.keys();
+        for (const QString &key : keys) {
+            const QChar was = g.abbreviationModes.value(key, 'i');
+            if (commandLine == (was == 'c')) {
+                g.insertAbbreviations.remove(key);
+                g.abbreviationModes.remove(key);
+            }
+        }
         return true;
     }
 
@@ -9070,12 +9716,32 @@ bool FakeVimHandler::Private::handleExAbbreviateCommand(const ExCommand &cmd)
     const QString args = cmd.args.trimmed();
     const QString lhs = args.section(space, 0, 0);
     if (lhs.isEmpty()) {
-        // Vim lists what there is; nothing here shows a list, so say nothing
-        // rather than pretending the list is empty.
+        // With no argument Vim LISTS what there is. Measured in Vim 9.1:
+        //   "No abbreviation found" where there is none, otherwise one line
+        //   each of "i  foo           bar" - the mode, two spaces, then the
+        //   left side in a field FOURTEEN wide, and a longer one takes another
+        //   whole field ("averyverylonglefthandside" put the right side at
+        //   column 32 rather than 18).
+        if (g.insertAbbreviations.isEmpty()) {
+            showMessage(MessageInfo, Tr::tr("No abbreviation found"));
+            return true;
+        }
+        QStringList keys = g.insertAbbreviations.keys();
+        keys.sort();
+        QString info;
+        for (const QString &key : std::as_const(keys)) {
+            // "slots" is a Qt keyword macro, hence the name.
+            const int fields = qMax(1, (key.size() + 13) / 14);
+            info += QString(g.abbreviationModes.value(key, 'i')) + "  "
+                    + key.leftJustified(fields * 14)
+                    + g.insertAbbreviations.value(key) + '\n';
+        }
+        showExtraInformation(info);
         return true;
     }
     if (remove) {
         g.insertAbbreviations.remove(lhs);
+        g.abbreviationModes.remove(lhs);
         return true;
     }
     const QString rhs = args.section(space, 1);
@@ -9084,7 +9750,34 @@ bool FakeVimHandler::Private::handleExAbbreviateCommand(const ExCommand &cmd)
         return true;
     }
     g.insertAbbreviations.insert(lhs, rhs);
+    g.abbreviationModes.insert(lhs, mode);
     return true;
+}
+
+void FakeVimHandler::Private::expandCommandLineAbbreviation()
+{
+    if (g.insertAbbreviations.isEmpty())
+        return;
+    const QString line = g.commandBuffer.contents();
+    int end = g.commandBuffer.cursorPos();
+    if (end > line.size())
+        end = line.size();
+    int start = end;
+    while (start > 0 && charClass(line.at(start - 1), false) == 2)
+        --start;
+    if (start == end)
+        return;
+    const QString word = line.mid(start, end - start);
+    const auto it = g.insertAbbreviations.constFind(word);
+    if (it == g.insertAbbreviations.constEnd())
+        return;
+    const QChar mode = g.abbreviationModes.value(word, 'i');
+    if (mode != 'c' && mode != '!')
+        return;
+
+    QString expanded = line;
+    expanded.replace(start, end - start, it.value());
+    g.commandBuffer.setContents(expanded, start + it.value().size());
 }
 
 // The keyword run ending at the cursor, put back as its expansion where one
@@ -9104,8 +9797,11 @@ void FakeVimHandler::Private::expandInsertAbbreviation()
         --start;
     if (start == col)
         return; // no keyword run ends here
-    const auto it = g.insertAbbreviations.constFind(text.mid(start, col - start));
+    const QString word = text.mid(start, col - start);
+    const auto it = g.insertAbbreviations.constFind(word);
     if (it == g.insertAbbreviations.constEnd())
+        return;
+    if (g.abbreviationModes.value(word, 'i') == 'c')
         return;
 
     const int from = b.position() + start;
@@ -9304,6 +10000,92 @@ static bool isFileTypeOption(const QString &name)
     return name == "filetype" || name == "ft";
 }
 
+// 'syntax' is the one Vim keeps beside 'filetype', and drives the Syntax
+// autocommands the same way.
+static bool isSyntaxOption(const QString &name)
+{
+    return name == "syntax" || name == "syn";
+}
+
+// 'modified' and 'readonly' are not preferences at all: they say what state
+// the buffer is in, which the editor knows for real.
+static bool isModifiedOption(const QString &name)
+{
+    return name == "modified" || name == "mod";
+}
+
+static bool isReadOnlyOption(const QString &name)
+{
+    return name == "readonly" || name == "ro";
+}
+
+static bool isModifiableOption(const QString &name)
+{
+    return name == "modifiable" || name == "ma";
+}
+
+// The name of a stored option as Vim prints it. The settings key carries the
+// group it is saved under ("FakeVim/TabStop"), which is no part of the option
+// name - printing it whole put "fakevim/tabstop=8" where Vim says "tabstop=8".
+static QString printedOptionName(const FvBaseAspect *aspect)
+{
+    return QString::fromUtf8(aspect->settingsKey().toByteArray())
+        .section('/', -1).toLower();
+}
+
+// 'colorcolumn' and 'foldcolumn': a value Vim keeps as typed and Qt Creator
+// can only partly draw.
+static bool isColorColumnOption(const QString &name)
+{
+    return name == "colorcolumn" || name == "cc";
+}
+
+static bool isFoldColumnOption(const QString &name)
+{
+    return name == "foldcolumn" || name == "fdc";
+}
+
+static bool isFoldEnableOption(const QString &name)
+{
+    return name == "foldenable" || name == "fen";
+}
+
+static bool isFoldLevelOption(const QString &name)
+{
+    return name == "foldlevel" || name == "fdl";
+}
+
+static bool isFoldMethodOption(const QString &name)
+{
+    return name == "foldmethod" || name == "fdm";
+}
+
+// The shape of the file itself, which the editor knows: what line ending it
+// has, and whether it starts with a byte order mark.
+static QString documentOptionName(const QString &name)
+{
+    static const QHash<QString, QString> names = {
+        {"fileformat", "fileformat"}, {"ff", "fileformat"},
+        {"bomb", "bomb"}
+    };
+    return names.value(name);
+}
+
+// The display options Vim keeps per WINDOW: what the editor shows rather than
+// anything stored here, so they are read and written through it. The full name
+// each spelling stands for, or nothing where it names none of them.
+static QString displayOptionName(const QString &name)
+{
+    static const QHash<QString, QString> names = {
+        {"number", "number"}, {"nu", "number"},
+        {"wrap", "wrap"},
+        {"list", "list"},
+        {"cursorline", "cursorline"}, {"cul", "cursorline"},
+        {"breakindent", "breakindent"}, {"bri", "breakindent"}
+    };
+    return names.value(name);
+}
+
 enum class OptionKind { Boolean, Number, String };
 
 static QSet<QString> optionNames(const char *names)
@@ -9341,10 +10123,9 @@ static bool commaListOption(const QString &name)
 // consult such an option freely, so failing on one stops them for no reason. Only
 // a name Vim does not have at all is an error. The ones implemented here are
 // looked up before this, so what is left is what is merely known by name.
-static bool unimplementedOption(const QString &name, OptionKind *kind)
+static const QSet<QString> &booleansOptionNames()
 {
-    static const QSet<QString> booleans = optionNames(
-    "ac acd ai akm allowrevins altkeymap anti antialias ar arab arabic arabicshape ari "
+    static const QSet<QString> names = optionNames("ac acd ai akm allowrevins altkeymap anti antialias ar arab arabic arabicshape ari "
     "arshape asd autochdir autocomplete autoindent autoread autoshelldir autowrite "
     "autowriteall aw awa backup ballooneval balloonevalterm beval bevalterm bin binary "
     "biosk bioskey bk bl bomb breakindent bri buflisted cdh cdhome cf ci cin cindent "
@@ -9356,7 +10137,7 @@ static bool unimplementedOption(const QString &name, OptionKind *kind)
     "hkmap hkmapp hkp hls hlsearch ic icon ignorecase im imc imcmdline imd imdisable "
     "incsearch inf infercase insertmode is joinspaces js lazyredraw "
     "lbr linebreak lisp list lnr loadplugins lpl lrm lz ma macatsui magic mh ml mle mod "
-    "modeline modelineexpr modifiable modified more mousef mousefocus mousehide mousemev "
+    "modeline modelineexpr modified more mousef mousefocus mousehide mousemev "
     "mousemoveevent nu number odev opendevice paste pi preserveindent previewwindow "
     "prompt pvw readonly relativenumber remap restorescreen revins ri rightleft rl rnu ro "
     "rs ru ruler sb sc scb scf scrollbind scrollfocus scs secure sft shellslash shelltemp "
@@ -9368,8 +10149,12 @@ static bool unimplementedOption(const QString &name, OptionKind *kind)
     "weirdinvert wfb wfh wfw wic wildignorecase wildmenu winfixbuf winfixheight "
     "winfixwidth wiv wlsteal wmnu wrap wrapscan write writeany writebackup ws wst "
     "xtermcodes");
-    static const QSet<QString> numbers = optionNames(
-    "acl act al aleph autocompletedelay autocompletetimeout balloondelay bdlay ch chi "
+    return names;
+}
+
+static const QSet<QString> &numbersOptionNames()
+{
+    static const QSet<QString> names = optionNames("acl act al aleph autocompletedelay autocompletetimeout balloondelay bdlay ch chi "
     "chistory cmdheight cmdwinheight co cole columns completetimeout conceallevel "
     "cscopepathcomp cscopetagorder cspc csto cto cwh fdc fdl fdls fdn fml foldcolumn "
     "foldlevel foldlevelstart foldminlines foldnestmax ghr guiheadroom helpheight hh hi "
@@ -9385,8 +10170,12 @@ static bool unimplementedOption(const QString &name, OptionKind *kind)
     "undolevels undoreload updatecount updatetime ur ut vbs verbose wc wcm wd wh wi "
     "wildchar wildcharm window winheight winminheight winminwidth winwidth wiw "
     "wltimeoutlen wm wmh wmw wrapmargin writedelay wtm");
-    static const QSet<QString> strings = optionNames(
-    "ambiwidth ambw background backspace backupcopy backupdir backupext backupskip "
+    return names;
+}
+
+static const QSet<QString> &stringsOptionNames()
+{
+    static const QSet<QString> names = optionNames("ambiwidth ambw background backspace backupcopy backupdir backupext backupskip "
     "balloonexpr bdir belloff bex bexpr bg bh bkc bo breakat breakindentopt briopt brk "
     "browsedir bs bsdir bsk bt bufhidden buftype casemap cb cc ccv cd cdpath cedit cfc "
     "cfu charconvert cia cink cinkeys cino cinoptions cinscopedecls cinsd cinw cinwords "
@@ -9426,21 +10215,50 @@ static bool unimplementedOption(const QString &name, OptionKind *kind)
     "vi viewdir viewoptions vif viminfo viminfofile virtualedit vop vsts vts wak wcr "
     "whichwrap wig wildignore wildmode wildoptions wim winaltkeys wincolor winptydll "
     "wlseat wop wse ww");
+    return names;
+}
 
-    if (booleans.contains(name))
+static bool unimplementedOption(const QString &name, OptionKind *kind)
+{
+    if (booleansOptionNames().contains(name))
         *kind = OptionKind::Boolean;
-    else if (numbers.contains(name))
+    else if (numbersOptionNames().contains(name))
         *kind = OptionKind::Number;
-    else if (strings.contains(name))
+    else if (stringsOptionNames().contains(name))
         *kind = OptionKind::String;
     else
         return false;
     return true;
 }
 
+// Every option name known by name, of whatever kind, which is what
+// getcompletion() offers. Built by asking unimplementedOption() rather than by
+// holding the lists again, so the two cannot drift.
+static const QStringList &knownOptionNames()
+{
+    static const QStringList names = [] {
+        QStringList all;
+        for (const QSet<QString> *set : {&booleansOptionNames(),
+                                         &numbersOptionNames(),
+                                         &stringsOptionNames()}) {
+            all += QStringList(set->cbegin(), set->cend());
+        }
+        return all;
+    }();
+    return names;
+}
+
+// Every ex command name Vim knows, spelled out - the same table
+// fullCommandName() matches against, with the brackets taken off. What
+// getcompletion() offers.
+static const QStringList &exCommandNames();
+static const QSet<QString> &autocmdEventNames();
+
 // The full name of the ex command a word stands for, or nothing where it stands for none - which is
 // what fullcommand() answers.
-static QString fullCommandName(const QString &word)
+// Every ex command name Vim knows, spelled "min[rest]". The one source for
+// fullCommandName() and for what getcompletion() offers.
+static const QStringList &spelledExCommands()
 {
     static const char *const spelled[] = {
     "ab[breviate]", "abc[lear]", "abo[veleft]", "abs[tract]", "al[l]", "am[enu]", "an[oremenu]",
@@ -9523,6 +10341,19 @@ static QString fullCommandName(const QString &word)
     "xm[ap]", "xmapc[lear]", "xme[nu]", "xn[oremap]", "xnoreme[nu]", "xr[estore]", "xu[nmap]",
     "xunme[nu]", "y[ank]", "z",
     };
+    static const QStringList names = [] {
+        QStringList all;
+        for (const char *const *p = spelled;
+             p != spelled + sizeof(spelled) / sizeof(spelled[0]); ++p) {
+            all << QLatin1String(*p);
+        }
+        return all;
+    }();
+    return names;
+}
+
+static QString fullCommandName(const QString &word)
+{
     if (word.isEmpty())
         return {};
     // The commands whose name is not a word of letters. A second "&" or "@" is
@@ -9530,8 +10361,7 @@ static QString fullCommandName(const QString &word)
     if (QString("&~!<>=@#").contains(word.at(0)))
         return word.left(1);
 
-    for (const char *entry : spelled) {
-        const QString spelling = QLatin1String(entry);
+    for (const QString &spelling : spelledExCommands()) {
         const int bracket = spelling.indexOf('[');
         const QString name = QString(spelling).remove('[').remove(']');
         const int shortest = bracket < 0 ? name.size() : bracket;
@@ -9561,6 +10391,19 @@ static QString whitespaceTo(int fromColumn, int toColumn, int tabStop, bool expa
     }
     result.append(QString(toColumn - column, ' '));
     return result;
+}
+
+static const QStringList &exCommandNames()
+{
+    static const QStringList names = [] {
+        QStringList all;
+        // Every spelling is "min[rest]", so the full name is the entry with
+        // the brackets taken off.
+        for (const QString &word : spelledExCommands())
+            all << QString(word).remove('[').remove(']');
+        return all;
+    }();
+    return names;
 }
 
 bool FakeVimHandler::Private::handleExRetabCommand(const ExCommand &cmd)
@@ -9729,11 +10572,95 @@ QString FakeVimHandler::Private::setOptionName(const QString &arg, QString *show
     return name;
 }
 
+// The options kept outside the aspects, which ":set {option}" and
+// ":set {option}?" both print - always by the full name, whichever spelling was
+// asked for (measured). Empty where the argument names none of them.
+QString FakeVimHandler::Private::nonStoredOptionShown(const QString &arg) const
+{
+    QString name = arg;
+    if (name.endsWith('?'))
+        name.chop(1);
+    if (isCommentStringOption(name))
+        return "commentstring=" + commentString();
+    if (isFileTypeOption(name))
+        return "filetype=" + m_fileType;
+    if (isSyntaxOption(name))
+        return "syntax=" + m_syntax;
+    if (isColorColumnOption(name))
+        return "colorcolumn=" + m_colorColumn;
+    if (isFoldColumnOption(name))
+        return "foldcolumn=" + QString::number(m_foldColumn);
+    if (isFoldLevelOption(name))
+        return "foldlevel=" + QString::number(m_foldLevel);
+    if (isFoldMethodOption(name))
+        return "foldmethod=" + m_foldMethod;
+    if (const QString option = documentOptionName(name); option == "fileformat") {
+        QString value;
+        q->documentOptionRequested(option, &value);
+        return "fileformat=" + value;
+    }
+    return {};
+}
+
 void FakeVimHandler::Private::applySetOption(const QString &arg)
 {
     // "filetype"/"ft" is not a stored option; it drives FileType autocommands.
     if (arg.startsWith("filetype=") || arg.startsWith("ft=")) {
         setFileType(arg.section('=', 1));
+        return;
+    }
+
+    // "syntax"/"syn" is the same kind of option, beside it.
+    if (arg.startsWith("syntax=") || arg.startsWith("syn=")) {
+        setSyntax(arg.section('=', 1));
+        return;
+    }
+
+    // "fileformat"/"ff" is the document's, not anything stored here.
+    if (arg.startsWith("fileformat=") || arg.startsWith("ff=")) {
+        setOption("fileformat", VimValue(arg.section('=', 1)));
+        return;
+    }
+
+    // 'colorcolumn' is kept as it was typed, so a script reads back what it
+    // set, and every entry has to be a number - Vim refuses "abc" (measured).
+    if (arg.startsWith("colorcolumn=") || arg.startsWith("cc=")) {
+        const QString value = arg.section('=', 1);
+        for (const QString &part : value.split(',', Qt::SkipEmptyParts)) {
+            bool ok = false;
+            part.toInt(&ok);
+            if (!ok) {
+                showMessage(MessageError,
+                            Tr::tr("E474: Invalid argument:") + " colorcolumn=" + value);
+                return;
+            }
+        }
+        setColorColumn(value);
+        return;
+    }
+
+    // 'foldlevel' and 'foldmethod' act on, and describe, the folds Qt Creator
+    // has worked out.
+    if (arg.startsWith("foldlevel=") || arg.startsWith("fdl=")) {
+        setOption("foldlevel", VimValue(qlonglong(arg.section('=', 1).toInt())));
+        return;
+    }
+    if (arg.startsWith("foldmethod=") || arg.startsWith("fdm=")) {
+        setOption("foldmethod", VimValue(arg.section('=', 1)));
+        return;
+    }
+
+    // 'foldcolumn' is a width, and Vim takes none past twelve (measured).
+    if (arg.startsWith("foldcolumn=") || arg.startsWith("fdc=")) {
+        const QString value = arg.section('=', 1);
+        bool ok = false;
+        const int width = value.toInt(&ok);
+        if (!ok || width < 0 || width > 12) {
+            showMessage(MessageError,
+                        Tr::tr("E474: Invalid argument:") + " foldcolumn=" + value);
+            return;
+        }
+        setFoldColumn(width);
         return;
     }
 
@@ -9782,8 +10709,8 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         QString error = s.trySetValue(optionName, value);
         if (!error.isEmpty())
             showMessage(MessageError, error);
-    } else if (arg == "commentstring?" || arg == "cms?") {
-        showMessage(MessageInfo, "commentstring=" + commentString());
+    } else if (const QString shown = nonStoredOptionShown(arg); !shown.isEmpty()) {
+        showMessage(MessageInfo, shown);
     } else if (arg.endsWith('&') || arg.endsWith("&vim")) {
         // ":set {option}&" puts an option back to what it started as, which is
         // how a script leaves one as it found it. Vim's "&vim" asks for its own
@@ -9817,6 +10744,39 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         if (negateOption)
             optionName.remove(0, 2);
 
+        // 'modified' and 'readonly' are the state of the buffer rather than
+        // anything stored, so they are read and written through the editor
+        // here instead of through an aspect. Printed by the FULL name whichever
+        // spelling was asked for, as the others are.
+        if (isModifiedOption(optionName) || isReadOnlyOption(optionName)
+            || isModifiableOption(optionName)
+            || !displayOptionName(optionName).isEmpty()
+            || documentOptionName(optionName) == "bomb"
+            || isFoldEnableOption(optionName)) {
+            const QString full = isModifiedOption(optionName)
+                                     ? QLatin1String("modified")
+                                 : isReadOnlyOption(optionName)
+                                     ? QLatin1String("readonly")
+                                 : isModifiableOption(optionName)
+                                     ? QLatin1String("modifiable")
+                                 : !displayOptionName(optionName).isEmpty()
+                                     ? displayOptionName(optionName)
+                                 : isFoldEnableOption(optionName)
+                                     ? QLatin1String("foldenable")
+                                     : QLatin1String("bomb");
+            VimValue current;
+            optionValue(optionName, &current);
+            const bool oldValue = current.toBool();
+            if (printOption) {
+                showMessage(MessageInfo,
+                            QLatin1String(oldValue ? "" : "no") + full);
+            } else if (toggleOption || negateOption == oldValue) {
+                setOption(optionName, VimValue(qlonglong(oldValue ? 0 : 1)));
+            }
+            updateEditor();
+            return;
+        }
+
         FvBaseAspect *act = s.item(Utils::keyFromString(optionName));
         OptionKind kind = OptionKind::Boolean;
         if (!act && unimplementedOption(optionName, &kind)) {
@@ -9833,7 +10793,7 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
             bool oldValue = act->variantValue().toBool();
             if (printOption) {
                 showMessage(MessageInfo, QLatin1String(oldValue ? "" : "no")
-                            + act->settingsKey().toByteArray().toLower());
+                            + printedOptionName(act));
             } else if (toggleOption || negateOption == oldValue) {
                 act->setVariantValue(!oldValue);
             }
@@ -9842,7 +10802,7 @@ void FakeVimHandler::Private::applySetOption(const QString &arg)
         } else if (toggleOption) {
             showMessage(MessageError, Tr::tr("E488: Trailing characters:") + ' ' + arg);
         } else {
-            showMessage(MessageInfo, act->settingsKey().toByteArray().toLower() + "="
+            showMessage(MessageInfo, printedOptionName(act) + "="
                         + act->variantValue().toString());
         }
     }
@@ -9941,6 +10901,34 @@ bool FakeVimHandler::Private::handleExYankDeleteCommand(const ExCommand &cmd)
         reportLineChange(LinesDeleted, had - document()->blockCount());
     }
 
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExAppendCommand(const ExCommand &cmd)
+{
+    const bool before = cmd.matches("i", "insert");
+    if (!before && !cmd.matches("a", "append"))
+        return false;
+    if (refuseUnmodifiable())
+        return true;
+
+    const int at = qBound(1, cmd.hasRange ? cmd.count + 1 : cursorLine() + 1,
+                          linesInDocument());
+    const int target = before ? at : at + 1;
+    pushUndoState();
+    beginEditBlock();
+    QTextCursor tc = m_cursor;
+    if (target > linesInDocument()) {
+        tc.setPosition(lastPositionInDocument(true));
+        insertText(tc, QString('\n'));
+        setPosition(lastPositionInDocument(true));
+    } else {
+        tc.setPosition(firstPositionInLine(target));
+        insertText(tc, QString('\n'));
+        setPosition(firstPositionInLine(target));
+    }
+    endEditBlock();
+    enterInsertMode();
     return true;
 }
 
@@ -10377,6 +11365,47 @@ bool FakeVimHandler::Private::handleExJoinCommand(const ExCommand &cmd)
     return true;
 }
 
+// What "&readonly" answers: the flag ":set readonly" sets, and the editor's
+// own state, which no flag can talk round.
+bool FakeVimHandler::Private::isBufferReadOnly()
+{
+    return m_markedReadOnly || (hasValidEditor() && EDITOR(isReadOnly()));
+}
+
+// Vim refuses a change while 'modifiable' is off and lets a motion through.
+// Telling those two apart key by key is not something this engine knows how to
+// do, so the answer sits where the CHANGE is instead: every one of them passes
+// through one of the text helpers below, or through entering insert mode, and
+// there is nowhere else for a change to come from - anything bypassing them
+// would bypass the undo blocks too.
+bool FakeVimHandler::Private::refuseUnmodifiable()
+{
+    if (m_modifiable)
+        return false;
+
+    showMessage(MessageError, Tr::tr("E21: Cannot make changes, 'modifiable' is off"));
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExReadOnlyWriteCommand(const ExCommand &cmd)
+{
+    // 'readonly' does not stop a change - only 'modifiable' does that - it
+    // stops the buffer being written back to ITS OWN file, and "!" overrides
+    // it. Measured: ":w" answers E45, ":w!" writes, and ":w {other}" writes
+    // too, another file not being the one that is protected.
+    // ":wall" is left out on purpose: it saves every document, and one marked
+    // buffer among them is no reason to refuse the rest.
+    if (cmd.hasBang || !cmd.args.trimmed().isEmpty() || !isBufferReadOnly())
+        return false;
+    if (!cmd.matches("w", "write") && !cmd.matches("up", "update") && cmd.cmd != "wq"
+        && !cmd.matches("x", "xit") && !cmd.matches("exi", "exit")) {
+        return false;
+    }
+
+    showMessage(MessageError, Tr::tr("E45: 'readonly' option is set (add ! to override)"));
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
 {
     // Note: The cmd.args.isEmpty() case is handled by handleExPluginCommand.
@@ -10400,6 +11429,10 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
 
         EventContext appending;
         appending.target = fileName;
+        // An autocommand for the "Cmd" event appends instead, leaving the file
+        // alone, and takes the "Pre" and "Post" pair with it.
+        if (triggerAutocmd("FileAppendCmd", appending) > 0)
+            return true;
         triggerAutocmd("FileAppendPre", appending);
 
         QFile file(fileName);
@@ -10444,6 +11477,12 @@ bool FakeVimHandler::Private::handleExWriteCommand(const ExCommand &cmd)
     EventContext writing;
     if (partial)
         writing.target = target;
+    // An autocommand for the "Cmd" event writes instead, leaving the file
+    // alone, and takes the "Pre" and "Post" pair with it. Which of the two
+    // fires follows the same split as the pair: a range makes it a file write.
+    if (triggerAutocmd(partial ? QLatin1String("FileWriteCmd")
+                               : QLatin1String("BufWriteCmd"), writing) > 0)
+        return true;
     triggerAutocmd(partial ? QLatin1String("FileWritePre")
                            : QLatin1String("BufWritePre"), writing);
 
@@ -10579,6 +11618,18 @@ bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
         showMessage(MessageError, Tr::tr("E32: No file name"));
         return true;
     }
+    // All of these name the file being read rather than the one in the window.
+    // Reading from a COMMAND announces none of them: that is a filter, and said
+    // so above.
+    EventContext reading;
+    reading.target = fileName;
+
+    // An autocommand for the "Cmd" event inserts what it likes instead, so it
+    // comes before the file is opened - there need not be one - and takes the
+    // "Pre" and "Post" pair with it.
+    if (triggerAutocmd("FileReadCmd", reading) > 0)
+        return true;
+
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
         // Returning false here would tell the dispatcher "not my command",
@@ -10588,11 +11639,6 @@ bool FakeVimHandler::Private::handleExReadCommand(const ExCommand &cmd)
         return true;
     }
 
-    // Both of these name the file being read rather than the one in the window.
-    // Reading from a COMMAND announces neither: that is a filter, and said so
-    // above.
-    EventContext reading;
-    reading.target = fileName;
     triggerAutocmd("FileReadPre", reading);
 
     QTextStream ts(&file);
@@ -10780,6 +11826,853 @@ bool FakeVimHandler::Private::handleExJumpsCommand(const ExCommand &cmd)
     showExtraInformation(info);
 
     return true;
+}
+
+QStringList FakeVimHandler::Private::recentFiles() const
+{
+    QStringList files;
+    q->recentFilesRequested(&files);
+    return files;
+}
+
+// Move by that many entries, opening what it lands on. False where no list has
+// been set, which leaves ":next" and ":previous" to the plugin - they walk
+// Qt Creator's open documents there, and did so before there was a list at all.
+bool FakeVimHandler::Private::walkArgList(int distance)
+{
+    if (g.argList.isEmpty())
+        return false;
+
+    const int wanted = g.argIndex + distance;
+    if (wanted >= g.argList.size()) {
+        showMessage(MessageError, Tr::tr("E165: Cannot go beyond last file"));
+        return true;
+    }
+    if (wanted < 0) {
+        showMessage(MessageError, Tr::tr("E164: Cannot go before first file"));
+        return true;
+    }
+    g.argIndex = wanted;
+    openArgListEntry();
+    return true;
+}
+
+void FakeVimHandler::Private::openArgListEntry()
+{
+    if (g.argIndex >= 0 && g.argIndex < g.argList.size())
+        q->fileOpenRequested(g.argList.at(g.argIndex), 0);
+}
+
+bool FakeVimHandler::Private::handleExFoldCommand(const ExCommand &cmd)
+{
+    // The fold commands. All measured in Vim 9.1:
+    //   ":{range}fold" under 'foldmethod' "syntax" is
+    //     "E350: Cannot create fold with current 'foldmethod'" - and syntax is
+    //     what folding is here, Qt Creator working it out, so that is the
+    //     honest answer rather than an invented one. Making a fold by hand
+    //     would mean taking the folding indent over from the highlighter
+    //     (setFoldingIndentExternallyProvided), which switches Creator's own
+    //     folding off for the document - too much to pay for one command.
+    //   ":{range}foldopen" and ":{range}foldclose" open and close what is
+    //     there, which Creator can do.
+    //   ":folddoopen {cmd}" runs the command on every line NOT inside a closed
+    //     fold, ":folddoclosed {cmd}" on every line that is - measured over a
+    //     fold on 2..4 of six lines as [1, 5, 6] and [2, 3, 4].
+    const bool open = cmd.matches("foldo", "foldopen");
+    const bool close = cmd.matches("foldc", "foldclose");
+    const bool doOpen = cmd.matches("folddoo", "folddoopen");
+    const bool doClosed = cmd.matches("folddoc", "folddoclosed");
+    if (cmd.matches("fo", "fold")) {
+        showMessage(MessageError,
+            Tr::tr("E350: Cannot create fold with current 'foldmethod'"));
+        return true;
+    }
+    if (!open && !close && !doOpen && !doClosed)
+        return false;
+
+    if (open || close) {
+        const int from = cmd.hasRange ? lineForPosition(cmd.range.beginPos)
+                                      : cursorLine() + 1;
+        const int to = cmd.hasRange ? lineForPosition(cmd.range.endPos)
+                                    : cursorLine() + 1;
+        q->foldRangeRequested(qMin(from, to), qMax(from, to), close);
+        return true;
+    }
+
+    // The ":folddo" pair. The lines are gathered first: what the command does
+    // may fold or unfold, and Vim decides which lines to visit before running
+    // any of it.
+    const QString command = cmd.args;
+    QList<int> lines;
+    for (int line = 1; line <= linesInDocument(); ++line) {
+        int closedStart = -1;
+        int closedEnd = -1;
+        int level = 0;
+        q->foldStateRequested(line, &closedStart, &closedEnd, &level);
+        if ((closedStart >= 0) == doClosed)
+            lines.append(line);
+    }
+    for (int line : std::as_const(lines)) {
+        if (line > linesInDocument())
+            break;
+        setPosition(firstPositionInLine(line, false));
+        runNestedExCommands(command);
+    }
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExArgListCommand(const ExCommand &cmd)
+{
+    // The argument list: the files named on the command line, which a session
+    // walks with ":next" and ":previous". Nothing here kept one at all -
+    // argc()/argv()/argidx() answered about the one open file - so these had
+    // nothing to work on.
+    //
+    // All values measured in Vim 9.1 over three files:
+    //   ":args {files}" sets the list and opens the first, argidx 0
+    //   ":args" LISTS them, the current one in [brackets]
+    //   ":argument {n}" is one-based, so it lands on argidx n-1
+    //   ":argadd {file}" puts it AFTER the current entry, not at the end
+    //   ":argdelete {file}" takes matching entries away; no match is
+    //     "E480: No match: {file}"
+    //   ":next" past the last is "E165: Cannot go beyond last file"
+    const bool args = cmd.matches("ar", "args");
+    const bool argadd = cmd.matches("arga", "argadd");
+    const bool argdelete = cmd.matches("argd", "argdelete");
+    const bool argument = cmd.matches("argu", "argument");
+    const bool first = cmd.matches("fir", "first") || cmd.matches("rew", "rewind");
+    const bool last = cmd.matches("la", "last");
+    if (!args && !argadd && !argdelete && !argument && !first && !last)
+        return false;
+
+    if (args) {
+        const QString given = cmd.args.trimmed();
+        if (given.isEmpty()) {
+            // The listing, with the current entry in brackets.
+            QStringList parts;
+            for (int i = 0; i < g.argList.size(); ++i) {
+                parts += i == g.argIndex ? '[' + g.argList.at(i) + ']'
+                                         : g.argList.at(i);
+            }
+            showMessage(MessageInfo, parts.join(' '));
+            return true;
+        }
+        g.argList.clear();
+        for (const QString &file : given.split(QRegularExpression("\\s+"),
+                                               Qt::SkipEmptyParts)) {
+            g.argList += replaceTildeWithHome(file);
+        }
+        g.argIndex = 0;
+        openArgListEntry();
+        return true;
+    }
+
+    if (argadd) {
+        const QString file = replaceTildeWithHome(cmd.args.trimmed());
+        if (file.isEmpty()) {
+            showMessage(MessageError, Tr::tr("E471: Argument required"));
+            return true;
+        }
+        // After the entry the walk stands at, which is where Vim puts it.
+        g.argList.insert(qMin(g.argIndex + 1, g.argList.size()), file);
+        return true;
+    }
+
+    if (argdelete) {
+        const QString file = replaceTildeWithHome(cmd.args.trimmed());
+        const int had = g.argList.size();
+        g.argList.removeIf([&file](const QString &entry) { return entry == file; });
+        if (g.argList.size() == had) {
+            showMessage(MessageError, Tr::tr("E480: No match: %1").arg(file));
+            return true;
+        }
+        g.argIndex = qBound(0, g.argIndex, qMax(0, g.argList.size() - 1));
+        return true;
+    }
+
+    if (g.argList.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E163: There is only one file to edit"));
+        return true;
+    }
+
+    if (argument) {
+        // One-based, and a number past either end is refused.
+        const int wanted = cmd.args.trimmed().isEmpty()
+                               ? g.argIndex + 1 : cmd.args.trimmed().toInt();
+        if (wanted < 1 || wanted > g.argList.size()) {
+            showMessage(MessageError, Tr::tr("E163: There is only one file to edit"));
+            return true;
+        }
+        g.argIndex = wanted - 1;
+    } else {
+        g.argIndex = first ? 0 : g.argList.size() - 1;
+    }
+    openArgListEntry();
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExFileTypeCommand(const ExCommand &cmd)
+{
+    // :filet[ype] - with no argument Vim reports the three switches it keeps.
+    // Measured in Vim 9.1:
+    //   "filetype detection:OFF  plugin:OFF  indent:OFF"
+    // and each of "on"/"off", "plugin on" and "indent on" moves one of them.
+    //
+    // Here detection is really on - this engine works the type out for a
+    // buffer it reads, fires FileType and honours ":setf". The other two have
+    // no machinery at all behind them: nothing loads an "ftplugin/" or an
+    // "indent/" file. So they are reported OFF whatever is asked for, and the
+    // commands asking for them are accepted rather than refused, a vimrc
+    // saying "filetype plugin indent on" being the common case.
+    if (!cmd.matches("filet", "filetype"))
+        return false;
+
+    const QStringList words = cmd.args.trimmed().split(QRegularExpression("\\s+"),
+                                                       Qt::SkipEmptyParts);
+    if (words.isEmpty()) {
+        showMessage(MessageInfo,
+                    QString("filetype detection:%1  plugin:OFF  indent:OFF")
+                        .arg(g.filetypeDetection ? "ON" : "OFF"));
+        return true;
+    }
+    // "plugin" and "indent" name a switch this engine does not have; what
+    // follows them is theirs, so nothing here reads it.
+    if (words.first() == "plugin" || words.first() == "indent")
+        return true;
+    if (words.first() == "on")
+        g.filetypeDetection = true;
+    else if (words.first() == "off")
+        g.filetypeDetection = false;
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExOldFilesCommand(const ExCommand &cmd)
+{
+    // :o[ldfiles] - the files opened before this session, which Vim reads out
+    // of its viminfo and Qt Creator keeps for itself. Measured in Vim 9.1: one
+    // line each of "N: {path}", counted from one. The "!" form lists the same
+    // and then asks which to open, and there is nothing here to ask with, so
+    // it only lists.
+    if (!cmd.matches("o", "oldfiles"))
+        return false;
+
+    const QStringList files = recentFiles();
+    QString info;
+    for (int i = 0; i < files.size(); ++i)
+        info += QString("%1: %2\n").arg(i + 1).arg(files.at(i));
+    showExtraInformation(info);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExSwapNameCommand(const ExCommand &cmd)
+{
+    // :sw[apname] - Vim prints the path of the swap file for this buffer.
+    // There are none here, Qt Creator keeping no swap file, and Vim has a
+    // message for exactly that case: with 'noswapfile' set it answers
+    // "No swap file" (measured), which is the truth here always.
+    if (!cmd.matches("sw", "swapname"))
+        return false;
+
+    showMessage(MessageInfo, Tr::tr("No swap file"));
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExScriptEncodingCommand(const ExCommand &cmd)
+{
+    // :scripte[ncoding] {encoding} - says what a sourced file is written in.
+    // Qt Creator decides how a file is read, so there is nothing to act on;
+    // the command is accepted so that sourcing a script holding one works.
+    // Outside a sourced file Vim refuses it, which is measured and easy to
+    // match: "E167: :scriptencoding used outside of a sourced file".
+    if (!cmd.matches("scripte", "scriptencoding"))
+        return false;
+
+    if (m_scriptFileStack.isEmpty()) {
+        showMessage(MessageError,
+            Tr::tr("E167: :scriptencoding used outside of a sourced file"));
+    }
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExNoOpCommand(const ExCommand &cmd)
+{
+    // The ones with nothing here to do, accepted so that a vimrc holding one
+    // is not stopped by "E492: Not an editor command". Measured in Vim 9.1:
+    // ":preserve" answers about the swap file, the rest say nothing at all.
+    if (cmd.matches("pre", "preserve")) {
+        // "File preserved" is what Vim says once it has flushed a swap file.
+        // There is none here - ":swapname" says so too - and Vim has the
+        // message for that case as well.
+        showMessage(MessageError,
+                    Tr::tr("E313: Cannot preserve, there is no swap file"));
+        return true;
+    }
+    // ":behave" picks a mouse and selection style, neither of which is
+    // Qt Creator's to change, but it still takes one of two words.
+    if (cmd.matches("be", "behave")) {
+        const QString style = cmd.args.trimmed();
+        if (style.isEmpty())
+            showMessage(MessageError, Tr::tr("E471: Argument required"));
+        else if (style != "xterm" && style != "mswin")
+            showMessage(MessageError, Tr::tr("E475: Invalid argument: %1").arg(style));
+        return true;
+    }
+    // ":mode" without an argument redraws; with one it asks for a screen mode
+    // Vim itself only has on MS-DOS, and answers this everywhere else.
+    if (cmd.matches("mod", "mode")) {
+        if (!cmd.args.trimmed().isEmpty())
+            showMessage(MessageError, Tr::tr("E359: Screen mode setting not supported"));
+        return true;
+    }
+    // ":fixdel" fiddles with a terminal key, and takes nothing.
+    if (cmd.matches("fix", "fixdel")) {
+        const QString rest = cmd.args.trimmed();
+        if (!rest.isEmpty()) {
+            showMessage(MessageError,
+                        Tr::tr("E488: Trailing characters: %1: fixdel %1").arg(rest));
+        }
+        return true;
+    }
+    return false;
+}
+
+// Every script sourced this session, indexed by the id it was given, so index
+// 0 is unused. What both getscriptinfo() and ":scriptnames" walk.
+QStringList FakeVimHandler::Private::scriptPathsById() const
+{
+    QStringList byId(g.scriptIds.size() + 1);
+    for (auto it = g.scriptIds.constBegin(); it != g.scriptIds.constEnd(); ++it) {
+        if (it.value() >= 1 && it.value() < byId.size())
+            byId[it.value()] = it.key();
+    }
+    return byId;
+}
+
+// A path with the home directory written as "~", which is how Vim shows one
+// in a listing.
+QString FakeVimHandler::Private::shortHomePath(const QString &path) const
+{
+    const QString home = QDir::homePath();
+    if (home.isEmpty() || !path.startsWith(home + '/'))
+        return path;
+    return "~" + path.mid(home.size());
+}
+
+bool FakeVimHandler::Private::handleExTagsCommand(const ExCommand &cmd)
+{
+    // :tags - the tag stack, which lives on the plugin side. Measured in
+    // Vim 9.1, with the column widths derived from a one-character tag and a
+    // twenty-character one rather than read off either:
+    //   "  # TO tag         FROM line  in file/text"
+    //   "  1  1 x                   1  averyverylongtagname here"
+    // So: the level right-aligned in three, the buffer the tag is in in three
+    // more, a space, the tag left-aligned in FIFTEEN, the line it was followed
+    // from right-aligned in SIX, two spaces, then that line. ">" marks where
+    // the walk stands, taking the place of the first column as it does in
+    // ":jumps" - and when the walk is past the newest level it stands alone on
+    // the last line.
+    if (!cmd.matches("tags", "tags"))
+        return false;
+
+    QList<TagStackEntry> entries;
+    int index = 0;
+    q->tagStackContents(&entries, &index);
+
+    QString info = "  # TO tag         FROM line  in file/text\n";
+    for (int i = 0; i < entries.size(); ++i) {
+        const TagStackEntry &entry = entries.at(i);
+        const QString row = QString("%1%2 %3%4  %5\n")
+                                .arg(i + 1, 3)
+                                .arg(bufferNumber(), 3)
+                                .arg(entry.tag.leftJustified(15))
+                                .arg(entry.fromLine, 6)
+                                .arg(entry.fromText);
+        info += i == index ? ">" + row.mid(1) : row;
+    }
+    if (index >= entries.size())
+        info += ">\n";
+    showExtraInformation(info);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExRuntimeCommand(const ExCommand &cmd)
+{
+    // :ru[ntime][!] {file} - source what matches along 'runtimepath', which
+    // this engine already reads for autoload scripts. Measured in Vim 9.1:
+    // without the bang only the FIRST match is sourced, with it every one;
+    // sourcing the same file twice really does run it twice; and a pattern
+    // matching nothing is SILENT either way, no error at all.
+    //
+    // ":packadd" and ":packloadall" are here too, and neither can do anything:
+    // there is no 'packpath' to look along. Vim answers ":packadd" for a
+    // package it cannot find with E919, which is the honest reply here for
+    // every package, and ":packloadall" is silent even when it loads nothing
+    // (both measured).
+    if (cmd.matches("packl", "packloadall"))
+        return true;
+    if (cmd.matches("pa", "packadd")) {
+        showMessage(MessageError,
+                    Tr::tr("E919: Directory not found in 'packpath': \"pack/*/opt/%1\"")
+                        .arg(cmd.args.trimmed()));
+        return true;
+    }
+    if (!cmd.matches("ru", "runtime"))
+        return false;
+
+    const QString relative = cmd.args.trimmed();
+    if (relative.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E471: Argument required"));
+        return true;
+    }
+
+    sourceAlongRuntimePath(relative, cmd.hasBang);
+    return true;
+}
+
+bool FakeVimHandler::Private::sourceAlongRuntimePath(const QString &relative, bool all)
+{
+    bool found = false;
+    const QStringList dirs = s.runtimePath().split(',', Qt::SkipEmptyParts);
+    for (const QString &dir : dirs) {
+        const QString base = replaceTildeWithHome(dir) + '/';
+        // The name may be a wildcard, so ask the directory rather than the
+        // file: "plugin/*.vim" is how a plugin loads all of its parts.
+        const QString directory = base + relative.section('/', 0, -2);
+        const QString leaf = relative.section('/', -1);
+        const QStringList hits = QDir(directory).entryList({leaf}, QDir::Files,
+                                                           QDir::Name);
+        for (const QString &hit : hits) {
+            ExCommand source;
+            source.cmd = "source";
+            source.args = directory + '/' + hit;
+            handleExSourceCommand(source);
+            found = true;
+            if (!all)
+                return true;
+        }
+    }
+    return found;
+}
+
+bool FakeVimHandler::Private::handleExMatchCommand(const ExCommand &cmd)
+{
+    // :mat[ch] {group} /{pattern}/ - the one match slot Vim keeps apart from
+    // matchadd()'s list, and ":2match" is the second of them. Measured in
+    // Vim 9.1: the entry lands in getmatches() like any other, with priority
+    // 10 and the id the command's own number (1 for ":match", 2 for
+    // ":2match") - which is why matchadd() counts from 1000, as this engine
+    // already does. ":match none", and ":match" with no argument at all,
+    // take that one slot away again and leave the others alone.
+    if (!cmd.matches("mat", "match"))
+        return false;
+
+    // ":2match" and ":3match" are commands of their own in Vim, but the number
+    // in front arrives here as an ADDRESS - the parser takes it off the name -
+    // so the slot has to be read off the range. Measured in Vim 9.1: ":0match"
+    // and ":1match" both mean the first slot, and a number past three is
+    // "E476: Invalid command".
+    int slot = 1;
+    if (cmd.hasRange) {
+        const int typed = cmd.zeroAddress ? 0 : cmd.count + 1;
+        if (typed > 3) {
+            showMessage(MessageError, Tr::tr("E476: Invalid command"));
+            return true;
+        }
+        slot = qMax(1, typed);
+    }
+
+    const auto clearSlot = [this, slot] {
+        m_userMatches.removeIf([slot](const UserMatch &m) { return m.id == slot; });
+        updateHighlights();
+    };
+
+    const QString args = cmd.args.trimmed();
+    if (args.isEmpty() || args == "none") {
+        clearSlot();
+        return true;
+    }
+
+    static const QRegularExpression form("^(\\S+)\\s+(\\S)(.*)\\2\\s*$");
+    const QRegularExpressionMatch m = form.match(args);
+    if (!m.hasMatch()) {
+        showMessage(MessageError, Tr::tr("E475: Invalid argument: %1").arg(args));
+        return true;
+    }
+    const QString group = m.captured(1);
+    if (!isKnownHighlightGroup(group)) {
+        showMessage(MessageError,
+                    Tr::tr("E28: No such highlight group name: %1").arg(group));
+        return true;
+    }
+
+    clearSlot();
+    UserMatch match;
+    match.group = group;
+    match.pattern = m.captured(3);
+    match.priority = 10;
+    match.id = slot;
+    m_userMatches.append(match);
+    updateHighlights();
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExBufferListCommand(const ExCommand &cmd)
+{
+    // :ls, :buffers, :files - the buffer list, which here is the one buffer
+    // this handler works on, the way bufnr()/bufname()/bufexists() already
+    // say. Measured in Vim 9.1:
+    //   "  1 %a   \"~/buf.txt\"                    line 1"
+    //   "  1 %a + \"~/buf.txt\"                    line 2"
+    // a three-wide number, the flags in two columns, "+" for a modified
+    // buffer, then the name in quotes left-aligned in thirty columns - one
+    // space where it is longer - and the line the cursor is on. A buffer with
+    // no name shows as "[No Name]".
+    if (!cmd.matches("ls", "ls") && !cmd.matches("buffers", "buffers")
+        && !cmd.matches("files", "files"))
+        return false;
+
+    const QString name = m_currentFileName.isEmpty()
+                             ? QLatin1String("[No Name]")
+                             : shortHomePath(m_currentFileName);
+    const bool modified = hasValidEditor() && document()->isModified();
+    // The one buffer is the current one, and it is loaded: "%" for the window
+    // it is in, "a" for active.
+    const QString quoted = '"' + name + '"';
+    showExtraInformation(QString("%1 %2 %3 %4 line %5\n")
+                             .arg(bufferNumber(), 3)
+                             .arg(QLatin1String("%a"), -2)
+                             .arg(modified ? '+' : ' ')
+                             .arg(quoted, -30)
+                             .arg(cursorLine() + 1));
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExScriptNamesCommand(const ExCommand &cmd)
+{
+    // :scr[iptnames] - the same registry getscriptinfo() reads. Measured in
+    // Vim 9.1: a three-wide number, then ": ", then the name, with the home
+    // directory written as "~" and every other path left as it stands.
+    if (!cmd.matches("scr", "scriptnames"))
+        return false;
+
+    const QString home = QDir::homePath();
+    const QStringList byId = scriptPathsById();
+    QString info;
+    for (int sid = 1; sid < byId.size(); ++sid) {
+        QString path = byId.at(sid);
+        if (path.isEmpty())
+            continue;
+        if (!home.isEmpty() && path.startsWith(home + '/'))
+            path = "~" + path.mid(home.size());
+        info += QString("%1: %2\n").arg(sid, 3).arg(path);
+    }
+    showExtraInformation(info);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExChangesCommand(const ExCommand &cmd)
+{
+    // :changes - the change list, oldest first, the way ":jumps" lists the
+    // other one. Measured in Vim 9.1 through a pty, a scripted run putting
+    // every change in one undo block and so keeping only the last:
+    //   change line  col text
+    //       5     2    0 ine2
+    //       ...
+    //       1    10    0 ine10
+    //   >
+    // The NUMBER is the distance back from where the walk stands rather than
+    // the position in the list, so the newest change is 1 and the oldest is
+    // the length; ">" on a line of its own marks the current place.
+    if (!cmd.matches("changes", "changes"))
+        return false;
+
+    const QList<CursorPosition> &changes = m_buffer->changeList;
+    const int at = m_buffer->changeListIndex;
+    QString info = "change line  col text\n";
+    for (int i = 0; i < changes.size(); ++i) {
+        const CursorPosition &pos = changes.at(i);
+        const QString row = QString("%1%2%3 %4\n")
+                                .arg(at - i, 5)
+                                .arg(pos.line + 1, 6)
+                                .arg(pos.column, 5)
+                                .arg(lineContents(pos.line + 1));
+        // Where the walk stands the marker takes the place of the first
+        // column of the number, as it does in ":jumps" (measured).
+        info += i == at ? ">" + row.mid(1) : row;
+    }
+    if (at >= changes.size())
+        info += ">\n";
+    showExtraInformation(info);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExClearJumpsCommand(const ExCommand &cmd)
+{
+    // :cle[arjumps] - the jump list of this window goes, both halves of it.
+    if (!cmd.matches("cle", "clearjumps"))
+        return false;
+
+    m_buffer->jumpListUndo.clear();
+    m_buffer->jumpListRedo.clear();
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExWinCmdCommand(const ExCommand &cmd)
+{
+    // :winc[md] {key} - what CTRL-W {key} does, with the same count.
+    if (!cmd.matches("winc", "wincmd"))
+        return false;
+
+    const QString key = cmd.args.trimmed();
+    if (key.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E471: Argument required"));
+        return true;
+    }
+    // The count belongs in front of the key, as ":2wincmd w" gives it. It has
+    // to be read off hasRange: cmd.count is the line an address named, counted
+    // from zero, and it holds the CURRENT line where nothing was typed - so
+    // "cmd.count" alone would turn ":wincmd w" on line 5 into a count of 4.
+    const int howMany = cmd.hasRange ? cmd.count + 1 : 1;
+    q->windowCommandRequested(key, howMany);
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExSweptCommands(const ExCommand &cmd)
+{
+    // A batch the 2026-09-04 sweep of Vim's command names turned up. Each one
+    // is small, and what they have in common is that the engine already holds
+    // what they report - or honestly holds nothing.
+
+    // :undol[ist] - the undo states, which undotree() reports as a dictionary.
+    // Measured header and row: "number changes  when               saved" and
+    // "     1       1  0 seconds ago".
+    if (cmd.matches("undol", "undolist")) {
+        QString info = "number changes  when               saved\n";
+        const qint64 now = QDateTime::currentMSecsSinceEpoch();
+        for (const State &state : std::as_const(m_buffer->undo)) {
+            const qint64 seconds = (now - state.time) / 1000;
+            info += QString("%1%2  %3\n")
+                        .arg(state.revision, 6)
+                        .arg(state.revision, 8)
+                        .arg(seconds <= 0 ? QString("0 seconds ago")
+                                          : QString("%1 seconds ago").arg(seconds));
+        }
+        showExtraInformation(info);
+        return true;
+    }
+
+    // :as[cii] - what "ga" says about the character under the cursor.
+    // Measured: "<l>  108,  Hex 6c,  Octal 154".
+    if (cmd.matches("as", "ascii")) {
+        const QChar c = characterAt(position());
+        if (c.isNull()) {
+            showMessage(MessageInfo, Tr::tr("NUL"));
+            return true;
+        }
+        const int code = c.unicode();
+        showMessage(MessageInfo, QString("<%1>  %2,  Hex %3,  Octal %4")
+                                     .arg(c).arg(code)
+                                     .arg(code, 0, 16).arg(code, 3, 8, QLatin1Char('0')));
+        return true;
+    }
+
+    // :k{mark} - the older spelling of ":mark", and the one that takes its
+    // argument glued to it as well.
+    if (cmd.cmd == "k" || (cmd.cmd.startsWith('k') && cmd.cmd.size() == 2)) {
+        const QString name = cmd.cmd.size() == 2 ? cmd.cmd.mid(1) : cmd.args.trimmed();
+        if (name.size() != 1) {
+            showMessage(MessageError, Tr::tr("E191: Argument must be a letter or forward/"
+                                             "backward quote"));
+            return true;
+        }
+        setMark(name.at(0), CursorPosition(m_cursor));
+        return true;
+    }
+
+    // :windo and :bufdo run a command in every window or buffer. There is one
+    // of each here, so it runs once - which is what Vim does with one too.
+    if (cmd.matches("windo", "windo") || cmd.matches("bufd", "bufdo")) {
+        runNestedExCommands(cmd.args);
+        return true;
+    }
+
+    // The redraw family. Qt Creator draws when it needs to and there is
+    // nothing to force, and measured, all four are silent in Vim as well.
+    if (cmd.matches("redr", "redraw") || cmd.matches("redraws", "redrawstatus")
+        || cmd.matches("redrawt", "redrawtabline")) {
+        return true;
+    }
+
+    // :lang[uage] - bare it reports the locale, and with an argument it sets
+    // one, which is the process's business rather than the editor's.
+    if (cmd.matches("lan", "language")) {
+        if (cmd.args.trimmed().isEmpty()) {
+            showMessage(MessageInfo, Tr::tr("Current language: \"%1\"")
+                                         .arg(QString::fromLocal8Bit(qgetenv("LANG"))));
+        }
+        return true;
+    }
+
+    // :scriptv[ersion] {n} - which Vimscript version a sourced file is
+    // written in. Measured: outside a sourced file Vim answers E984, and this
+    // engine reads both versions whatever the number says.
+    if (cmd.matches("scriptv", "scriptversion")) {
+        if (m_scriptFileStack.isEmpty()) {
+            showMessage(MessageError,
+                        Tr::tr("E984: :scriptversion used outside of a sourced file"));
+        }
+        return true;
+    }
+
+    // ":rundo" and ":wundo" read and write an undo file, and ":recover" reads
+    // a swap file. There are none of either - ":swapname" says so too - so
+    // reading answers Vim's own message for a file it cannot open, and
+    // writing has nowhere to put one.
+    if (cmd.matches("rundo", "rundo")) {
+        showMessage(MessageError, Tr::tr("E822: Cannot open undo file for reading: %1")
+                                      .arg(cmd.args.trimmed()));
+        return true;
+    }
+    if (cmd.matches("wundo", "wundo")) {
+        showMessage(MessageError, Tr::tr("E828: Cannot open undo file for writing: %1")
+                                      .arg(cmd.args.trimmed()));
+        return true;
+    }
+    if (cmd.matches("comp", "compiler")) {
+        const QString name = cmd.args.trimmed();
+        if (name.isEmpty()) {
+            showMessage(MessageError, Tr::tr("E471: Argument required"));
+            return true;
+        }
+        if (!sourceAlongRuntimePath("compiler/" + name + ".vim", cmd.hasBang)) {
+            showMessage(MessageError,
+                        Tr::tr("E666: Compiler not supported: %1").arg(name));
+        }
+        return true;
+    }
+    if (cmd.matches("checkp", "checkpath")) {
+        showMessage(MessageInfo, Tr::tr("All included files were found"));
+        return true;
+    }
+    if (cmd.matches("profd", "profdel")) {
+        showMessage(MessageError,
+                    Tr::tr("E161: Breakpoint not found: %1").arg(cmd.args.trimmed()));
+        return true;
+    }
+    if (cmd.matches("loadk", "loadkeymap")) {
+        if (m_scriptFileStack.isEmpty()) {
+            showMessage(MessageError,
+                        Tr::tr("E105: Using :loadkeymap not in a sourced file"));
+        }
+        return true;
+    }
+    if (cmd.matches("te", "tearoff")) {
+        showMessage(MessageError,
+                    Tr::tr("E319: Sorry, the command is not available in this version: %1")
+                        .arg(cmd.original.trimmed()));
+        return true;
+    }
+    if (cmd.matches("exp", "export")) {
+        if (!m_vim9) {
+            showMessage(MessageError, Tr::tr("E1042: Export can only be used in vim9script"));
+            return true;
+        }
+        runNestedExCommands(cmd.args);
+        return true;
+    }
+    if (cmd.matches("vim9s", "vim9script")) {
+        if (m_scriptFileStack.isEmpty() || m_scriptLines.value(m_scriptLines.size() - 1, 0) > 1) {
+            showMessage(MessageError,
+                        Tr::tr("E1039: \"vim9script\" must be the first command in a script"));
+            return true;
+        }
+        m_vim9 = true;
+        return true;
+    }
+    if (cmd.matches("defc", "defcompile") || cmd.matches("cl", "clipreset")
+        || cmd.matches("int", "intro") || cmd.matches("o", "open")
+        || cmd.matches("lch", "lchdir") || cmd.matches("tch", "tchdir")
+        || cmd.matches("bal", "balt")) {
+        return true;
+    }
+    if (cmd.matches("sl", "sleep")) {
+        const QString spec = cmd.args.trimmed();
+        int milliseconds = 1000;
+        if (!spec.isEmpty()) {
+            const bool inMilliseconds = spec.endsWith('m');
+            const int amount = spec.chopped(inMilliseconds ? 1 : 0).toInt();
+            milliseconds = inMilliseconds ? amount : amount * 1000;
+        }
+        QEventLoop loop;
+        QTimer::singleShot(qBound(0, milliseconds, 10000), &loop, &QEventLoop::quit);
+        loop.exec();
+        return true;
+    }
+    if (cmd.matches("rec", "recover")) {
+        showMessage(MessageError, Tr::tr("E305: No swap file found for %1")
+                                      .arg(m_currentFileName));
+        return true;
+    }
+    return false;
+}
+
+bool FakeVimHandler::Private::handleExWindowSizeCommand(const ExCommand &cmd)
+{
+    // ":resize", ":vertical resize", ":winpos" and ":winsize".
+    //
+    // The window model here is a single window - winnr() is always 1 and
+    // getwininfo() answers with one entry - so there is no window for a
+    // resize to name, and Qt Creator sizes what splits it has in pixels where
+    // Vim counts lines. ":resize" is therefore accepted and does nothing,
+    // which is also what Vim does to the only window in a terminal. The
+    // application window is a different matter: Qt Creator knows where it is,
+    // so ":winpos" answers and moves for real.
+    if (cmd.matches("res", "resize")) {
+        // Vim takes a height, "+N"/"-N" relative to the current one, or
+        // nothing at all for as tall as it goes. None of them has anything to
+        // act on here, and none of them is an error either.
+        return true;
+    }
+    if (cmd.matches("winp", "winpos")) {
+        const QString args = cmd.args.trimmed();
+        if (args.isEmpty()) {
+            int x = 0;
+            int y = 0;
+            q->windowPositionRequested(&x, &y);
+            showMessage(MessageInfo, Tr::tr("Window position: X %1, Y %2").arg(x).arg(y));
+            return true;
+        }
+        const QStringList parts = args.split(' ', Qt::SkipEmptyParts);
+        bool okX = false;
+        bool okY = false;
+        const int x = parts.value(0).toInt(&okX);
+        const int y = parts.value(1).toInt(&okY);
+        if (parts.size() != 2 || !okX || !okY)
+            showMessage(MessageError, Tr::tr("E466: :winpos requires two number arguments"));
+        else
+            q->windowMoveRequested(x, y);
+        return true;
+    }
+    if (cmd.matches("wi", "winsize")) {
+        // Vim wants a width and a height in characters, and in a terminal
+        // does nothing with them. An IDE window has no character grid to set
+        // either, so only the three complaints are worth keeping - all
+        // measured, and each a different one.
+        const QString args = cmd.args.trimmed();
+        const QStringList parts = args.split(' ', Qt::SkipEmptyParts);
+        bool okX = false;
+        bool okY = false;
+        parts.value(0).toInt(&okX);
+        parts.value(1).toInt(&okY);
+        if (args.isEmpty())
+            showMessage(MessageError, Tr::tr("E471: Argument required: winsize"));
+        else if (!okX)
+            showMessage(MessageError, Tr::tr("E475: Invalid argument: %1").arg(args));
+        else if (!okY || parts.size() != 2)
+            showMessage(MessageError, Tr::tr("E465: :winsize requires two number arguments"));
+        return true;
+    }
+    return false;
 }
 
 bool FakeVimHandler::Private::handleExDelMarksCommand(const ExCommand &cmd)
@@ -11340,7 +13233,12 @@ bool FakeVimHandler::Private::handleExUndoJoinCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExStartStopInsertCommand(const ExCommand &cmd)
 {
     const bool insert = cmd.matches("star", "startinsert");
-    const bool replace = cmd.matches("startr", "startreplace");
+    // ":startgreplace" is the VIRTUAL replace of "gR", which this engine does
+    // not have - nothing here treats a tab as the spaces it covers. It reaches
+    // plain replace mode instead, which is the substance of it, rather than
+    // answering "not an editor command" to a mapping that asks for it.
+    const bool replace = cmd.matches("startr", "startreplace")
+                         || cmd.matches("startg", "startgreplace");
     const bool stop = cmd.matches("stopi", "stopinsert");
     if (!insert && !replace && !stop)
         return false;
@@ -11655,6 +13553,15 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         return false;
 
     QString fileName = replaceTildeWithHome(cmd.args);
+
+    // An autocommand for the "Cmd" event runs in place of the file, which is
+    // then neither read nor given a script number, so this comes before both.
+    // "Pre" and "Post" go with it.
+    EventContext sourcingInstead;
+    sourcingInstead.target = fileName;
+    if (triggerAutocmd("SourceCmd", sourcingInstead) > 0)
+        return true;
+
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly)) {
         showMessage(MessageError, Tr::tr("Cannot open file %1").arg(fileName));
@@ -12092,8 +13999,17 @@ private:
             return a.listData() == b.listData();
         if (a.isDict() && b.isDict())
             return a.dictData() == b.dictData();
-        if (a.isList() || b.isList() || a.isDict() || b.isDict())
+        // A Blob is held by reference like those two, so "is" asks whether
+        // both names stand for the same bytes: two literals with the same
+        // contents are NOT the same blob (measured).
+        if (a.isBlob() && b.isBlob())
+            return a.blobData() == b.blobData();
+        if (a.isTuple() && b.isTuple())
+            return a.listData() == b.listData();
+        if (a.isList() || b.isList() || a.isDict() || b.isDict()
+            || a.isBlob() || b.isBlob() || a.isTuple() || b.isTuple()) {
             return false;
+        }
         // Scalars: identity is equality, and for strings the case counts unless
         // the operator was written "is?".
         return compare(a, "==", b, caseSensitive);
@@ -12166,6 +14082,34 @@ private:
         VimValue rhs = exprAdd();
         if (!m_ok)
             return {};
+        // A Blob compares with a Blob and with nothing else, and only for
+        // equality - Vim has a message for each half (measured).
+        if (lhs.isBlob() || rhs.isBlob()) {
+            if (!lhs.isBlob() || !rhs.isBlob()) {
+                setError(Tr::tr("E977: Can only compare Blob with Blob"));
+                return {};
+            }
+            if (op != "==" && op != "!=") {
+                setError(Tr::tr("E978: Invalid operation for Blob"));
+                return {};
+            }
+            const bool same = *lhs.blobData() == *rhs.blobData();
+            return VimValue(qlonglong(same == (op == "==") ? 1 : 0));
+        }
+        // A tuple compares with a tuple, item by item. Against a list Vim
+        // answers the message it has for a list against anything else.
+        if (lhs.isTuple() || rhs.isTuple()) {
+            if (!lhs.isTuple() || !rhs.isTuple()) {
+                setError(Tr::tr("E691: Can only compare List with List"));
+                return {};
+            }
+            if (op != "==" && op != "!=") {
+                setError(Tr::tr("E1518: Invalid operation for Tuple"));
+                return {};
+            }
+            return compareContainers(VimValue::list(*lhs.listData()), op,
+                                     VimValue::list(*rhs.listData()), caseSensitive);
+        }
         if (lhs.isList() || rhs.isList() || lhs.isDict() || rhs.isDict())
             return compareContainers(lhs, op, rhs, caseSensitive);
         return VimValue(qlonglong(compare(lhs, op, rhs, caseSensitive)));
@@ -12224,6 +14168,21 @@ private:
                     QList<VimValue> items = *e.listData();
                     items += *r.listData();
                     e = VimValue::list(items);
+                } else if (c == '+' && e.isBlob() && r.isBlob()) {
+                    // And so are two blobs.
+                    e = VimValue::blob(*e.blobData() + *r.blobData());
+                } else if (c == '+' && e.isTuple() && r.isTuple()) {
+                    // And two tuples, which makes a new one - neither of the
+                    // two can be changed.
+                    QList<VimValue> items = *e.listData();
+                    items += *r.listData();
+                    e = VimValue::tuple(items);
+                } else if (e.isBlob() || r.isBlob()) {
+                    setError(blobAsNumberError());
+                    return {};
+                } else if (e.isTuple() || r.isTuple()) {
+                    setError(tupleAsNumberError());
+                    return {};
                 } else if (e.type() == VimValue::Float || r.type() == VimValue::Float)
                     e = VimValue(c == '+' ? e.toFloat() + r.toFloat() : e.toFloat() - r.toFloat());
                 else
@@ -12236,6 +14195,10 @@ private:
                 if (cur() == '.')
                     ++m_pos;
                 VimValue r = exprMul();
+                if (e.isBlob() || r.isBlob()) {
+                    setError(blobAsStringError());
+                    return {};
+                }
                 e = VimValue(e.toString() + r.toString());
             } else {
                 break;
@@ -12254,6 +14217,14 @@ private:
                 break;
             ++m_pos;
             VimValue r = exprUnary();
+            if (e.isBlob() || r.isBlob()) {
+                setError(blobAsNumberError());
+                return {};
+            }
+            if (e.isTuple() || r.isTuple()) {
+                setError(tupleAsNumberError());
+                return {};
+            }
             if (c != '%' && (e.type() == VimValue::Float || r.type() == VimValue::Float)) {
                 // Float division by zero is IEEE754 division, not 0 - Vim
                 // answers inf/-inf/nan, following the sign of a negative
@@ -12282,6 +14253,14 @@ private:
         if (c == '-' || c == '+') {
             ++m_pos;
             VimValue v = exprUnary();
+            if (v.isBlob()) {
+                setError(blobAsNumberError());
+                return {};
+            }
+            if (v.isTuple()) {
+                setError(tupleAsNumberError());
+                return {};
+            }
             if (c == '+')
                 return v;
             return v.type() == VimValue::Float ? VimValue(-v.toFloat())
@@ -12448,6 +14427,35 @@ private:
             setError(Tr::tr("Cannot slice a dictionary"));
             return {};
         }
+        if (v.isTuple()) {
+            const QList<VimValue> &items = *v.listData();
+            int from = haveStart ? int(startVal.toNumber()) : 0;
+            int to = haveEnd ? int(endVal.toNumber()) : items.size() - 1;
+            if (from < 0)
+                from += items.size();
+            if (to < 0)
+                to += items.size();
+            from = qMax(from, 0);
+            to = qMin(to, items.size() - 1);
+            QList<VimValue> out;
+            for (int i = from; i <= to; ++i)
+                out.append(items.at(i));
+            return VimValue::tuple(out);
+        }
+        if (v.isBlob()) {
+            const QByteArray &bytes = *v.blobData();
+            int from = haveStart ? int(startVal.toNumber()) : 0;
+            int to = haveEnd ? int(endVal.toNumber()) : bytes.size() - 1;
+            if (from < 0)
+                from += bytes.size();
+            if (to < 0)
+                to += bytes.size();
+            from = qMax(from, 0);
+            to = qMin(to, bytes.size() - 1);
+            // Out of range is not an error for a slice, unlike for an index:
+            // it gives an empty blob (measured).
+            return VimValue::blob(from <= to ? bytes.mid(from, to - from + 1) : QByteArray());
+        }
         const int n = isList ? v.listData()->size() : v.toString().size();
         int a = haveStart ? int(startVal.toNumber()) : 0;
         int b = haveEnd ? int(endVal.toNumber()) : n - 1;
@@ -12480,6 +14488,26 @@ private:
             }
             return l->at(i);
         }
+        if (v.isTuple()) {
+            const QList<VimValue> &items = *v.listData();
+            if (i < 0)
+                i += items.size();
+            if (i < 0 || i >= items.size()) {
+                setError(Tr::tr("E1519: Tuple index out of range: %1").arg(index.toNumber()));
+                return {};
+            }
+            return items.at(i);
+        }
+        if (v.isBlob()) {
+            const QByteArray &bytes = *v.blobData();
+            if (i < 0)
+                i += bytes.size();
+            if (i < 0 || i >= bytes.size()) {
+                setError(Tr::tr("E979: Blob index out of range: %1").arg(index.toNumber()));
+                return {};
+            }
+            return VimValue(qlonglong(uchar(bytes.at(i))));
+        }
         if (v.isString()) {
             const QString s = v.toString();
             if (i < 0)
@@ -12507,8 +14535,31 @@ private:
             if (vim9() && looksLikeVim9Lambda())
                 return parseVim9Lambda();
             ++m_pos;
+            skipBlanks();
+            // "()" is the empty tuple; parentheses otherwise group, and it is
+            // the COMMA that makes a tuple of what they hold. A trailing one
+            // is what tells a single-item tuple from a grouped expression:
+            // "(1)" is the number and "(1,)" is the tuple (measured).
+            if (cur() == ')') {
+                ++m_pos;
+                return VimValue::tuple();
+            }
             VimValue v = parseExpr();
             skipBlanks();
+            if (cur() == ',') {
+                QList<VimValue> items{v};
+                while (cur() == ',') {
+                    ++m_pos;
+                    skipBlanks();
+                    if (cur() == ')')
+                        break;
+                    items.append(parseExpr());
+                    skipBlanks();
+                }
+                if (!eatOp(")"))
+                    setError(Tr::tr("Missing ')' in expression"));
+                return VimValue::tuple(items);
+            }
             if (!eatOp(")"))
                 setError(Tr::tr("Missing ')' in expression"));
             return v;
@@ -12699,9 +14750,37 @@ private:
         return result;
     }
 
+    // Vim has one message for each way a Blob is not what an operator wants.
+    static QString blobAsNumberError() { return Tr::tr("E974: Using a Blob as a Number"); }
+    static QString blobAsStringError() { return Tr::tr("E976: Using a Blob as a String"); }
+    static QString tupleAsNumberError() { return Tr::tr("E1520: Using a Tuple as a Number"); }
+
     VimValue parseNumber()
     {
         const int start = m_pos;
+        // "0z" and two hex digits per byte. A "." may separate the bytes and
+        // is no part of the value: "0z00.11.22" is the same as "0z001122"
+        // (measured). An odd digit left over is Vim's E973.
+        if (cur() == '0' && (at(1) == 'z' || at(1) == 'Z')) {
+            m_pos += 2;
+            QByteArray bytes;
+            while (true) {
+                if (cur() == '.' && isHex(at(1))) {
+                    ++m_pos;
+                    continue;
+                }
+                if (!isHex(cur()))
+                    break;
+                if (!isHex(at(1))) {
+                    setError(Tr::tr("E973: Blob literal should have an even number of hex "
+                                    "characters"));
+                    return {};
+                }
+                bytes.append(char(m_in.mid(m_pos, 2).toUShort(nullptr, 16)));
+                m_pos += 2;
+            }
+            return VimValue::blob(bytes);
+        }
         if (cur() == '0' && (at(1) == 'x' || at(1) == 'X')) {
             m_pos += 2;
             while (isHex(cur()))
@@ -13440,7 +15519,16 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
         *result = (it != store->constEnd() && it->isList()) ? *it : VimValue::list();
         return true;
     }
-    if (name == "v:oldfiles" || name == "v:argv") {
+    if (name == "v:oldfiles") {
+        // The files opened before this session. Qt Creator keeps that list, so
+        // it is asked rather than answered empty.
+        QList<VimValue> items;
+        for (const QString &file : recentFiles())
+            items.append(VimValue(file));
+        *result = VimValue::list(items);
+        return true;
+    }
+    if (name == "v:argv") {
         *result = VimValue::list();
         return true;
     }
@@ -13492,6 +15580,11 @@ bool FakeVimHandler::Private::variableValue(const QString &name, VimValue *resul
     }
     // The ones an event brings with it are there even outside one, holding
     // nothing, as in Vim - a script may read them before anything has fired.
+    if (name == "v:completed_item") {
+        // A dict, so an empty one rather than the empty string the others get.
+        *result = VimValue::dict();
+        return true;
+    }
     static const QSet<QString> eventVariables = {
         "v:option_old", "v:option_new", "v:option_type", "v:option_command",
         "v:option_oldlocal", "v:option_oldglobal"
@@ -13659,6 +15752,11 @@ static VimValue applyCompound(const VimValue &a, QChar op, const VimValue &b)
         items += *b.listData();
         return VimValue::list(items);
     }
+    // And so does "+=" on two blobs. ".=" is not one of them: measured, Vim
+    // answers "E734: Wrong variable type for .=" - the message the caller
+    // already gives for a type that cannot be appended to as a string.
+    if (op == '+' && a.isBlob() && b.isBlob())
+        return VimValue::blob(*a.blobData() + *b.blobData());
     if (a.type() == VimValue::Float || b.type() == VimValue::Float) {
         // Float division by zero is IEEE754 division (inf/-inf/nan), not 0 -
         // same as the "/" operator itself.
@@ -13703,7 +15801,7 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
             showMessage(MessageError, Tr::tr("Invalid :let expression: %1").arg(cmd.args));
         } else if (!evaluateExpression(um.captured(2), &list, &error)) {
             showMessage(MessageError, error);
-        } else if (!list.isList()) {
+        } else if (!list.isList() && !list.isTuple()) {
             showMessage(MessageError, Tr::tr(":let with [...] requires a list"));
         } else {
             // The last name may be preceded by ";", and takes the rest of the
@@ -13768,6 +15866,12 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
             haveOld = variableValue(name, &old);
         if (!haveOld) {
             showMessage(MessageError, Tr::tr("E121: Undefined variable: %1").arg(name));
+            return true;
+        }
+        // Measured: ".=" is not for a blob, and Vim says which kind of wrong
+        // it is rather than appending its printed form.
+        if (op.at(0) == '.' && (old.isBlob() || value.isBlob())) {
+            showMessage(MessageError, Tr::tr("E734: Wrong variable type for .="));
             return true;
         }
         value = applyCompound(old, op.at(0), value);
@@ -13864,6 +15968,29 @@ bool FakeVimHandler::Private::letAssignIndexed(const QString &args)
             return true;
         }
         (*l)[i] = op == "=" ? value : applyCompound(l->at(i), op.at(0), value);
+    } else if (container.isTuple()) {
+        showMessage(MessageError, Tr::tr("E1532: Cannot modify a tuple"));
+    } else if (container.isBlob()) {
+        QByteArray *b = container.blobData();
+        int i = int(index.toNumber());
+        if (i < 0)
+            i += b->size();
+        if (i < 0 || i >= b->size()) {
+            showMessage(MessageError,
+                        Tr::tr("E979: Blob index out of range: %1").arg(index.toNumber()));
+            return true;
+        }
+        const VimValue was = VimValue(qlonglong(uchar(b->at(i))));
+        const VimValue wanted = op == "=" ? value : applyCompound(was, op.at(0), value);
+        // Measured: assigning a value outside a byte is REFUSED here, where
+        // add() truncates it.
+        const qlonglong byte = wanted.toNumber();
+        if (byte < 0 || byte > 255) {
+            showMessage(MessageError,
+                        Tr::tr("E1239: Invalid value for blob: 0x%1").arg(byte, 0, 16));
+            return true;
+        }
+        (*b)[i] = char(byte);
     } else if (container.isDict()) {
         QMap<QString, VimValue> *d = container.dictData();
         const QString key = index.toString();
@@ -13935,6 +16062,56 @@ bool FakeVimHandler::Private::optionValue(const QString &name, VimValue *result)
         *result = VimValue(m_fileType);
         return true;
     }
+    if (isSyntaxOption(name)) {
+        *result = VimValue(m_syntax);
+        return true;
+    }
+    if (isColorColumnOption(name)) {
+        *result = VimValue(m_colorColumn);
+        return true;
+    }
+    if (isFoldColumnOption(name)) {
+        *result = VimValue(qlonglong(m_foldColumn));
+        return true;
+    }
+    if (isFoldEnableOption(name)) {
+        *result = VimValue(qlonglong(m_foldEnable ? 1 : 0));
+        return true;
+    }
+    if (isFoldLevelOption(name)) {
+        *result = VimValue(qlonglong(m_foldLevel));
+        return true;
+    }
+    if (isFoldMethodOption(name)) {
+        *result = VimValue(m_foldMethod);
+        return true;
+    }
+    if (isModifiedOption(name)) {
+        *result = VimValue(qlonglong(hasValidEditor() && document()->isModified()));
+        return true;
+    }
+    if (isReadOnlyOption(name)) {
+        *result = VimValue(qlonglong(isBufferReadOnly()));
+        return true;
+    }
+    if (isModifiableOption(name)) {
+        *result = VimValue(qlonglong(m_modifiable));
+        return true;
+    }
+    if (const QString option = displayOptionName(name); !option.isEmpty()) {
+        bool on = false;
+        q->displayOptionRequested(option, &on);
+        *result = VimValue(qlonglong(on ? 1 : 0));
+        return true;
+    }
+    if (const QString option = documentOptionName(name); !option.isEmpty()) {
+        QString value;
+        q->documentOptionRequested(option, &value);
+        // 'bomb' is a switch, 'fileformat' a name.
+        *result = option == "bomb" ? VimValue(qlonglong(value == "1" ? 1 : 0))
+                                   : VimValue(value);
+        return true;
+    }
     FvBaseAspect *act = s.item(Utils::keyFromString(name));
     if (!act) {
         OptionKind kind = OptionKind::Boolean;
@@ -13961,6 +16138,61 @@ bool FakeVimHandler::Private::setOption(const QString &name, const VimValue &val
     }
     if (isFileTypeOption(name)) {
         setFileType(value.toString());
+        return true;
+    }
+    if (isSyntaxOption(name)) {
+        setSyntax(value.toString());
+        return true;
+    }
+    if (isColorColumnOption(name)) {
+        setColorColumn(value.toString());
+        return true;
+    }
+    if (isFoldColumnOption(name)) {
+        setFoldColumn(int(value.toNumber()));
+        return true;
+    }
+    if (isFoldEnableOption(name)) {
+        m_foldEnable = value.toBool();
+        applyFoldLevel();
+        return true;
+    }
+    if (isFoldLevelOption(name)) {
+        m_foldLevel = qMax(0, int(value.toNumber()));
+        applyFoldLevel();
+        return true;
+    }
+    if (isFoldMethodOption(name)) {
+        m_foldMethod = value.toString();
+        return true;
+    }
+    if (isModifiedOption(name)) {
+        if (hasValidEditor())
+            document()->setModified(value.toBool());
+        return true;
+    }
+    if (isReadOnlyOption(name)) {
+        m_markedReadOnly = value.toBool();
+        return true;
+    }
+    if (isModifiableOption(name)) {
+        m_modifiable = value.toBool();
+        return true;
+    }
+    if (const QString option = displayOptionName(name); !option.isEmpty()) {
+        q->displayOptionChanged(option, value.toBool());
+        return true;
+    }
+    if (const QString option = documentOptionName(name); !option.isEmpty()) {
+        const QString wanted = option == "bomb"
+                                   ? QString(value.toBool() ? "1" : "0")
+                                   : value.toString();
+        bool accepted = true;
+        q->documentOptionChanged(option, wanted, &accepted);
+        if (!accepted) {
+            showMessage(MessageError,
+                        Tr::tr("E474: Invalid argument: %1=%2").arg(option, wanted));
+        }
         return true;
     }
     FvBaseAspect *act = s.item(Utils::keyFromString(name));
@@ -14172,6 +16404,14 @@ VimValue FakeVimHandler::Private::deepCopy(const VimValue &value)
         for (auto it = from->cbegin(); it != from->cend(); ++it)
             items.insert(it.key(), deepCopy(it.value()));
         return VimValue::dict(items);
+    }
+    if (value.isBlob())
+        return VimValue::blob(*value.blobData());
+    if (value.isTuple()) {
+        QList<VimValue> items;
+        for (const VimValue &item : *value.listData())
+            items.append(deepCopy(item));
+        return VimValue::tuple(items);
     }
     return value; // the rest carries no reference to share
 }
@@ -14664,21 +16904,38 @@ bool FakeVimHandler::Private::searchFunction(const QList<VimValue> &args, bool w
 // The builtins callFunction() below answers to, for exists("*name"). Keep in
 // step with it when adding one; a name missing here only means exists() denies
 // a function that does work.
-// strptime() is POSIX and MSVC's C library has none. Vim documents the
-// function as "Not available on all systems", tells a script to ask
-// exists("*strptime") before using it, and ships no stand-in of its own - so
-// neither does this. Where the platform has nothing to parse with, the name is
-// absent, which is the answer a script is written to expect.
-#ifdef Q_CC_MSVC
-static const bool haveStrptime = false;
-#else
-static const bool haveStrptime = true;
-#endif
-
-static bool isBuiltinFunction(const QString &name)
+// The builtins callFunction() answers to, for exists("*name") and for
+// getcompletion().
+// A whole line of the keys already typed ahead, which is where input() looks
+// before it asks anybody: the text up to the first Return, and an Escape ends
+// the line just as a Return does (measured - Vim answers the line as it
+// stands, which is why input() with a preset and an Escape gives the preset
+// back). Nothing is taken unless the end of the line is there: half an answer
+// is not one.
+bool FakeVimHandler::Private::takeTypedAheadLine(QString *line)
 {
-    if (name == "strptime")
-        return haveStrptime;
+    QString text;
+    for (int i = 0; i < g.pendingInput.size(); ++i) {
+        const Input &in = g.pendingInput.at(i);
+        // A mapping keeps its own state in the queue, and a key with a name is
+        // not text; neither is part of a typed line.
+        if (!in.isValid())
+            return false;
+        if (in.isReturn() || in.isEscape()) {
+            g.pendingInput = g.pendingInput.mid(i + 1);
+            *line = text;
+            return true;
+        }
+        const QChar c = in.asChar();
+        if (c.isNull())
+            return false;
+        text += c;
+    }
+    return false;
+}
+
+static const QSet<QString> &builtinFunctionNames()
+{
     static const QSet<QString> builtins = {
         "abs", "add", "bufexists", "buflisted", "bufloaded", "bufnr", "call",
         "char2nr", "col", "copy", "count",
@@ -14689,6 +16946,15 @@ static bool isBuiltinFunction(const QString &name)
         "setcursorcharpos", "getmarklist", "getjumplist", "getchangelist",
         "changenr", "reg_recording", "reg_executing",
         "getchar", "getcharstr", "getcwd", "getline", "getpos", "has", "has_key", "indexof",
+        "assert_beeps", "assert_nobeep", "base64_decode", "base64_encode", "blob2list",
+        "confirm", "js_decode", "listener_add", "listener_flush", "listener_remove",
+        "redraw_listener_add", "redraw_listener_remove",
+        "matchfuzzy", "matchfuzzypos",
+        "blob2str", "exists_compiled", "highlightID", "hlID", "list2blob", "list2tuple",
+        "menu_info", "preinserted", "readblob", "screenattr", "screenchar", "screenchars",
+        "screencol", "screenpos", "screenrow", "screenstring", "str2blob", "synID",
+        "synIDattr", "synIDtrans", "tuple2list", "undotree",
+        "input", "inputdialog", "inputlist", "inputrestore", "inputsave", "inputsecret",
         "iconv", "indent",
         "index", "insert", "isdirectory", "items", "join", "keys", "len",
         "line", "map", "match", "matchend", "matchlist", "matchstr", "max", "min",
@@ -14699,7 +16965,9 @@ static bool isBuiltinFunction(const QString &name)
         "findfile", "finddir", "line2byte", "byte2line", "simplify",
         "glob2regpat", "pathshorten", "isabsolutepath",
         "sha256", "uri_encode", "uri_decode",
-        "delete", "rename", "mkdir", "tempname", "append", "json_decode", "json_encode", "glob", "globpath", "bufname", "winsaveview", "winrestview",
+        "delete", "rename", "mkdir", "tempname", "append", "json_decode", "json_encode", "js_encode", "getcompletion", "getcompletiontype",
+        "timer_start", "timer_stop", "timer_stopall", "timer_pause",
+        "timer_info", "glob", "globpath", "bufname", "winsaveview", "winrestview",
         "search", "searchpos", "setbufvar", "setline", "setpos", "shellescape",
         "shiftwidth", "sort",
         "getreg", "getregtype", "hasmapto", "maparg", "mapcheck", "maplist",
@@ -14735,6 +17003,10 @@ static bool isBuiltinFunction(const QString &name)
         "assert_inrange", "assert_report", "assert_exception", "assert_equalfile",
         "hlexists", "highlight_exists", "hlID", "highlightID", "synIDtrans",
         "gettext", "ngettext", "bindtextdomain", "err_teapot", "pumvisible",
+        "complete_check", "getimstatus", "pum_getpos", "windowsversion",
+        "taglist", "echoraw",
+        "getstacktrace",
+        "interrupt",
         "wildmenumode", "eventhandler", "garbagecollect", "id",
         "haslocaldir", "chdir", "undofile", "getwinpos", "getwinposx",
         "getwinposy", "getfontname", "getcmdcomplpat", "getcmdcompltype",
@@ -14760,7 +17032,25 @@ static bool isBuiltinFunction(const QString &name)
         "winlayout", "winrestcmd", "win_screenpos", "win_execute",
         "winheight", "winwidth", "getwininfo"
     };
-    return builtins.contains(name);
+    return builtins;
+}
+
+// strptime() is POSIX and MSVC's C library has none. Vim documents the
+// function as "Not available on all systems", tells a script to ask
+// exists("*strptime") before using it, and ships no stand-in of its own - so
+// neither does this. Where the platform has nothing to parse with, the name is
+// absent, which is the answer a script is written to expect.
+#ifdef Q_CC_MSVC
+static const bool haveStrptime = false;
+#else
+static const bool haveStrptime = true;
+#endif
+
+static bool isBuiltinFunction(const QString &name)
+{
+    if (name == "strptime")
+        return haveStrptime;
+    return builtinFunctionNames().contains(name);
 }
 
 // The characters Vim will not show, and writes in hex instead.
@@ -14882,6 +17172,17 @@ static QString typeOf(const VimValue &value)
     case VimValue::String: return "string";
     case VimValue::Bool: return "bool";
     case VimValue::Special: return "special";
+    case VimValue::Blob: return "blob";
+    case VimValue::Tuple: {
+        // Measured: unlike a list, a tuple names EVERY element type -
+        // "tuple<number, number>" - and an empty one is "tuple<any>".
+        QStringList parts;
+        for (const VimValue &item : *value.listData())
+            parts.append(typeOf(item));
+        if (parts.isEmpty())
+            return "tuple<any>";
+        return "tuple<" + parts.join(", ") + ">";
+    }
     case VimValue::Func:
         // Nothing here is declared, so there is no signature to report: a
         // lambda has an unknown return type, a named function an untyped one.
@@ -14920,12 +17221,26 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     }
     if (name == "len") {
         const VimValue v = arg(0);
-        *result = VimValue(qlonglong(v.isList() ? v.listData()->size()
+        *result = VimValue(qlonglong(v.isList() || v.isTuple() ? v.listData()->size()
                                      : v.isDict() ? v.dictData()->size()
+                                     : v.isBlob() ? v.blobData()->size()
                                      : v.toString().size()));
         return true;
     }
     if (name == "add") {
+        if (arg(0).isTuple()) {
+            // A tuple cannot be added to. Vim names what add() DOES take.
+            *error = Tr::tr("E897: List or Blob required");
+            return false;
+        }
+        if (arg(0).isBlob()) {
+            // Measured: a value outside a byte is TRUNCATED here, where
+            // list2blob() refuses it - add(0zFF, 300) gives 0zFF2C and
+            // add(0zFF, -1) gives 0zFFFF.
+            arg(0).blobData()->append(char(arg(1).toNumber() & 0xFF));
+            *result = arg(0);
+            return true;
+        }
         if (!arg(0).isList()) {
             *error = Tr::tr("add() requires a list");
             return false;
@@ -15104,6 +17419,10 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         return true;
     }
     if (name == "remove") {
+        if (arg(0).isTuple()) {
+            *error = Tr::tr("E896: Argument of remove() must be a List, Dictionary or Blob");
+            return false;
+        }
         if (arg(0).isDict()) {
             QMap<QString, VimValue> *d = arg(0).dictData();
             const QString key = arg(1).toString();
@@ -15114,6 +17433,25 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             if (i < 0)
                 i += l->size();
             *result = (i >= 0 && i < l->size()) ? l->takeAt(i) : VimValue();
+        } else if (arg(0).isBlob()) {
+            QByteArray *b = arg(0).blobData();
+            int from = int(arg(1).toNumber());
+            if (from < 0)
+                from += b->size();
+            // With an end as well the answer is a blob of what went, and a
+            // single byte is answered as the number it is.
+            int to = args.size() > 2 ? int(arg(2).toNumber()) : from;
+            if (to < 0)
+                to += b->size();
+            if (from < 0 || from >= b->size() || to < from) {
+                *error = Tr::tr("E979: Blob index out of range: %1").arg(arg(1).toNumber());
+                return false;
+            }
+            to = qMin(to, b->size() - 1);
+            const QByteArray gone = b->mid(from, to - from + 1);
+            b->remove(from, to - from + 1);
+            *result = args.size() > 2 ? VimValue::blob(gone)
+                                      : VimValue(qlonglong(uchar(gone.at(0))));
         } else {
             *result = VimValue();
         }
@@ -15169,9 +17507,20 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         return true;
     }
     if (name == "reverse") {
+        if (arg(0).isTuple()) {
+            // Measured: it answers a NEW tuple rather than refusing, the one
+            // it was given being unchanged.
+            QList<VimValue> items = *arg(0).listData();
+            std::reverse(items.begin(), items.end());
+            *result = VimValue::tuple(items);
+            return true;
+        }
         if (arg(0).isList()) {
             QList<VimValue> *l = arg(0).listData();
             std::reverse(l->begin(), l->end());
+        } else if (arg(0).isBlob()) {
+            QByteArray *b = arg(0).blobData();
+            std::reverse(b->begin(), b->end());
         }
         *result = arg(0);
         return true;
@@ -15179,7 +17528,405 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     if (name == "copy") {
         const VimValue v = arg(0);
         *result = v.isList() ? VimValue::list(*v.listData())
-                : v.isDict() ? VimValue::dict(*v.dictData()) : v;
+                : v.isDict() ? VimValue::dict(*v.dictData())
+                : v.isBlob() ? VimValue::blob(*v.blobData())
+                : v.isTuple() ? VimValue::tuple(*v.listData()) : v;
+        return true;
+    }
+    if (name == "blob2list") {
+        // blob2list({blob}) - the bytes as numbers, and an empty list for an
+        // empty blob.
+        if (!arg(0).isBlob()) {
+            *error = Tr::tr("E1238: Blob required for argument 1");
+            return false;
+        }
+        QList<VimValue> items;
+        for (char byte : *arg(0).blobData())
+            items.append(VimValue(qlonglong(uchar(byte))));
+        *result = VimValue::list(items);
+        return true;
+    }
+    if (name == "list2blob") {
+        // list2blob({list}) - the other way. Measured: a value outside a byte
+        // is refused with the number written as hex, and a string counts as
+        // the zero it converts to rather than being refused.
+        if (!arg(0).isList()) {
+            *error = Tr::tr("E1211: List required for argument 1");
+            return false;
+        }
+        QByteArray bytes;
+        for (const VimValue &item : *arg(0).listData()) {
+            const qlonglong value = item.toNumber();
+            if (value < 0 || value > 255) {
+                *error = Tr::tr("E1239: Invalid value for blob: 0x%1")
+                             .arg(value, 0, 16);
+                return false;
+            }
+            bytes.append(char(value));
+        }
+        *result = VimValue::blob(bytes);
+        return true;
+    }
+    if (name == "blob2str") {
+        // blob2str({blob}) - the bytes read as text, answered as a LIST of
+        // lines: a 0x0A in the blob is where one line ends and the next
+        // begins (measured).
+        if (!arg(0).isBlob()) {
+            *error = Tr::tr("E1238: Blob required for argument 1");
+            return false;
+        }
+        QList<VimValue> lines;
+        for (const QByteArray &line : arg(0).blobData()->split('\n'))
+            lines.append(VimValue(QString::fromUtf8(line)));
+        *result = VimValue::list(lines);
+        return true;
+    }
+    if (name == "str2blob") {
+        // str2blob({list}) - the lines as bytes, with a 0x0A between them and
+        // none at the end. It takes a LIST, and measured, a bare string is
+        // refused rather than taken as one line.
+        if (!arg(0).isList()) {
+            *error = Tr::tr("E1211: List required for argument 1");
+            return false;
+        }
+        QByteArrayList lines;
+        for (const VimValue &item : *arg(0).listData())
+            lines.append(item.toString().toUtf8());
+        *result = VimValue::blob(lines.join('\n'));
+        return true;
+    }
+    if (name == "js_decode") {
+        // The counterpart of js_encode(), and the reason it waited: the form
+        // Vim calls JS is not JSON and QJsonDocument will not read it.
+        VimValue read;
+        if (!JsReader(arg(0).toString()).read(&read)) {
+            *error = Tr::tr("E491: json decode error at '%1'").arg(arg(0).toString());
+            return false;
+        }
+        *result = read;
+        return true;
+    }
+    if (name == "redraw_listener_add" || name == "redraw_listener_remove") {
+        // A callback for REDRAWS, where the buffer listeners are for changes.
+        // What is drawn is Qt Creator's business and no event here corresponds
+        // to it, so one is accepted and never called - and measured, the
+        // adding form takes a DICTIONARY rather than a function:
+        // "E1206: Dictionary required for argument 1".
+        if (name == "redraw_listener_remove") {
+            *result = VimValue(qlonglong(0));
+            return true;
+        }
+        if (!arg(0).isDict()) {
+            *error = Tr::tr("E1206: Dictionary required for argument 1");
+            return false;
+        }
+        *result = VimValue(qlonglong(++g.lastListenerId));
+        return true;
+    }
+    if (name == "confirm") {
+        // confirm({msg} [, {choices} [, {default} [, {type}]]]) - Vim asks and
+        // waits, and a modal dialog is what waits here, as it is for input().
+        // Measured: the choices are separated by newlines with "&" marking
+        // each accelerator, the answer is the number of the one taken
+        // counting from one, and a bare confirm() has a single button.
+        // A dismissed dialog answers 0, which is what the documentation
+        // promises - the -es measurement cannot show it, having no dialog to
+        // dismiss.
+        const QString text = arg(0).toString();
+        QStringList choices = args.size() > 1 ? arg(1).toString().split('\n', Qt::SkipEmptyParts)
+                                              : QStringList();
+        if (choices.isEmpty())
+            choices = QStringList{"&OK"};
+        const int preferred = args.size() > 2 ? int(arg(2).toNumber()) : 1;
+        int chosen = 0;
+        q->confirmRequested(text, choices, preferred, &chosen);
+        *result = VimValue(qlonglong(chosen));
+        return true;
+    }
+    if (name == "listener_add" || name == "listener_remove" || name == "listener_flush") {
+        // A callback for buffer changes. The engine already hears them -
+        // onContentsChanged() - and what the listeners add is Vim's TIMING:
+        // measured, the callback does NOT run when the change happens but at
+        // listener_flush(), so the changes are collected until then.
+        if (name == "listener_add") {
+            ListenerEntry entry;
+            entry.id = ++g.lastListenerId;
+            // Vim takes a name as readily as a Funcref, and invokeCallable()
+            // wants the latter.
+            entry.callback = arg(0).isFunc() ? arg(0) : VimValue::func(arg(0).toString());
+            g.listeners.append(entry);
+            *result = VimValue(qlonglong(entry.id));
+            return true;
+        }
+        if (name == "listener_remove") {
+            const int id = int(arg(0).toNumber());
+            const int before = g.listeners.size();
+            for (int i = g.listeners.size() - 1; i >= 0; --i) {
+                if (g.listeners.at(i).id == id)
+                    g.listeners.removeAt(i);
+            }
+            // Measured: 1 for a listener that was there, 0 for anything else.
+            *result = VimValue(qlonglong(before == g.listeners.size() ? 0 : 1));
+            return true;
+        }
+        flushListeners();
+        *result = VimValue(qlonglong(0));
+        return true;
+    }
+    if (name == "matchfuzzy" || name == "matchfuzzypos") {
+        // matchfuzzy({list}, {str} [, {dict}]) and the form that also gives
+        // the positions and the score.
+        //
+        // Measured rules, all of which are kept: the pattern characters must
+        // appear IN ORDER, so "ab" does not match "beta" though "ba" does;
+        // the case is smart, an upper-case letter in the pattern making the
+        // match case-sensitive ("AB" misses "aXbY" where "ab" finds "AXBY");
+        // an empty pattern matches NOTHING; an item that is not a string is
+        // skipped, as is a dictionary when no "key" says what to read.
+        //
+        // THE SCORE IS NOT VIM'S NUMBER. Vim weighs a match with its own
+        // bonuses (measured: 885 for "aXbY", 890 for "axb", 1570 for
+        // "FooBar", 1660 for "foo_bar", and 2147483647 for a whole-string
+        // match) and reproducing those exactly means porting that algorithm.
+        // What is reproduced is the ORDERING those numbers produce and the
+        // one value a script can rely on, the exact match.
+        if (!arg(0).isList()) {
+            *error = Tr::tr("E1211: List required for argument 1");
+            return false;
+        }
+        const QString pattern = arg(1).toString();
+        QString key;
+        VimValue textCallback;
+        int limit = -1;
+        if (args.size() > 2 && arg(2).isDict() && arg(2).dictData()) {
+            const QMap<QString, VimValue> &options = *arg(2).dictData();
+            key = options.value("key").toString();
+            textCallback = options.value("text_cb");
+            if (options.contains("limit"))
+                limit = int(options.value("limit").toNumber());
+        }
+
+        struct Match { VimValue item; QList<int> positions; int score; int index; };
+        QList<Match> matches;
+        const QList<VimValue> &items = *arg(0).listData();
+        for (int index = 0; index < items.size(); ++index) {
+            const VimValue &item = items.at(index);
+            QString text;
+            if (item.isDict()) {
+                if (key.isEmpty() || !item.dictData())
+                    continue;
+                if (!item.dictData()->contains(key))
+                    continue;
+                text = item.dictData()->value(key).toString();
+            } else if (textCallback.isFunc()) {
+                VimValue answer;
+                if (!invokeCallable(textCallback, {item}, &answer, error))
+                    return false;
+                text = answer.toString();
+            } else if (item.isString()) {
+                text = item.toString();
+            } else {
+                continue; // a number is not text to match against
+            }
+            QList<int> positions;
+            int score = 0;
+            if (fuzzyMatch(text, pattern, &positions, &score))
+                matches.append({item, positions, score, index});
+        }
+        // Best first, and equal scores keep the order they came in.
+        std::stable_sort(matches.begin(), matches.end(),
+                         [](const Match &a, const Match &b) { return a.score > b.score; });
+        if (limit > 0 && matches.size() > limit)
+            matches = matches.mid(0, limit);
+
+        QList<VimValue> matched;
+        QList<VimValue> allPositions;
+        QList<VimValue> scores;
+        for (const Match &match : std::as_const(matches)) {
+            matched.append(match.item);
+            QList<VimValue> where;
+            for (int at : match.positions)
+                where.append(VimValue(qlonglong(at)));
+            allPositions.append(VimValue::list(where));
+            scores.append(VimValue(qlonglong(match.score)));
+        }
+        if (name == "matchfuzzy") {
+            *result = VimValue::list(matched);
+            return true;
+        }
+        *result = VimValue::list({VimValue::list(matched), VimValue::list(allPositions),
+                                  VimValue::list(scores)});
+        return true;
+    }
+    if (name == "undotree") {
+        // What the undo state looks like from a script. The engine keeps the
+        // states ":earlier" and ":later" walk, each with the time it was
+        // made, which is what the entries are.
+        // Measured keys, and the whole shape of an entry: seq, time, newhead.
+        QMap<QString, VimValue> tree;
+        const int current = revision();
+        int last = current;
+        for (const State &state : std::as_const(m_buffer->redo))
+            last = qMax(last, state.revision);
+        tree.insert("seq_cur", VimValue(qlonglong(current)));
+        tree.insert("seq_last", VimValue(qlonglong(last)));
+        tree.insert("time_cur", VimValue(qlonglong(
+            m_buffer->undo.isEmpty() ? 0 : m_buffer->undo.top().time / 1000)));
+        // Qt Creator owns the writing, and nothing here records which state
+        // the file was last saved in, so the two "save" numbers say "none" -
+        // which is what Vim answers for a buffer that has never been written.
+        tree.insert("save_cur", VimValue(qlonglong(0)));
+        tree.insert("save_last", VimValue(qlonglong(0)));
+        tree.insert("synced", VimValue(qlonglong(m_buffer->undo.isEmpty() ? 1 : 0)));
+        QList<VimValue> entries;
+        for (const State &state : std::as_const(m_buffer->undo)) {
+            QMap<QString, VimValue> entry;
+            entry.insert("seq", VimValue(qlonglong(state.revision)));
+            entry.insert("time", VimValue(qlonglong(state.time / 1000)));
+            entries.append(VimValue::dict(entry));
+        }
+        // "newhead" marks the newest state, and only while it IS the head -
+        // after an undo the head is behind it and Vim marks none.
+        if (!entries.isEmpty() && m_buffer->redo.isEmpty()) {
+            QMap<QString, VimValue> newest = *entries.last().dictData();
+            newest.insert("newhead", VimValue(qlonglong(1)));
+            entries[entries.size() - 1] = VimValue::dict(newest);
+        }
+        tree.insert("entries", VimValue::list(entries));
+        *result = VimValue::dict(tree);
+        return true;
+    }
+    if (name == "screenrow" || name == "screencol") {
+        // Where the cursor is on the screen. Vim documents these as being
+        // "mainly for testing" and answers the COMMAND LINE position when
+        // they are called from a command - measured through a pty, ":echo
+        // screencol()" is column 1 of the last screen row. There is no such
+        // row here: the command line is a widget of its own rather than part
+        // of the editor, so what is answered is where the cursor stands in
+        // the window, which is the closest true thing this engine knows.
+        *result = VimValue(qlonglong(name == "screenrow" ? cursorLineOnScreen() + 1
+                                                         : cursorColumnOnScreen() + 1));
+        return true;
+    }
+    if (name == "screenpos") {
+        // screenpos({winid}, {lnum}, {col}) - where a position in the text
+        // would be drawn. Measured: an unknown line is
+        // "E966: Invalid line number: 99", and a window that is not shown
+        // answers zeroes for all four - which is what a position outside the
+        // visible part answers here.
+        const int line = int(arg(1).toNumber());
+        if (line < 1 || line > linesInDocument()) {
+            *error = Tr::tr("E966: Invalid line number: %1").arg(arg(1).toNumber());
+            return false;
+        }
+        const int row = line - firstVisibleLine() - 1;
+        const int column = int(arg(2).toNumber());
+        const bool visible = row >= 0 && row < linesOnScreen();
+        QMap<QString, VimValue> pos;
+        pos.insert("row", VimValue(qlonglong(visible ? row + 1 : 0)));
+        pos.insert("col", VimValue(qlonglong(visible ? column : 0)));
+        pos.insert("endcol", VimValue(qlonglong(visible ? column : 0)));
+        pos.insert("curscol", VimValue(qlonglong(visible ? column : 0)));
+        *result = VimValue::dict(pos);
+        return true;
+    }
+    if (name == "exists_compiled") {
+        // Measured: outside a ":def" body Vim refuses it whatever the
+        // argument, and a Vim9 script at its top level is outside one.
+        if (m_defDepth == 0) {
+            *error = Tr::tr("E1233: exists_compiled() can only be used in a :def function");
+            return false;
+        }
+        return callFunction("exists", args, result, error);
+    }
+    if (name == "screenchar" || name == "screenattr") {
+        // What is DRAWN at a screen cell, which is Qt Creator's business and
+        // not a question about the document. Measured: where nothing is on
+        // screen Vim answers -1, which is the honest answer here always.
+        *result = VimValue(qlonglong(-1));
+        return true;
+    }
+    if (name == "screenchars") {
+        *result = VimValue::list();
+        return true;
+    }
+    if (name == "screenstring") {
+        *result = VimValue(QString());
+        return true;
+    }
+    if (name == "preinserted") {
+        // The text 'completeopt' "preinsert" would show before a completion is
+        // taken. There is none here, and measured, Vim answers 0 where there
+        // is none either.
+        *result = VimValue(qlonglong(0));
+        return true;
+    }
+    if (name == "menu_info") {
+        // What a menu path stands for. Qt Creator has menus but not Vim's,
+        // and nothing names them the way ":menu" does. Measured: Vim answers
+        // an empty dictionary for a menu it has not got.
+        *result = VimValue::dict();
+        return true;
+    }
+    if (name == "assert_beeps" || name == "assert_nobeep") {
+        // Whether running the command beeps. NOTHING here beeps - the engine
+        // has no such call anywhere - so the first always fails and the
+        // second always passes, both by the assert_*() convention: 0 for a
+        // pass, 1 and a line in v:errors for a failure.
+        const QString command = arg(0).toString();
+        runNestedExCommands(command);
+        if (name == "assert_nobeep") {
+            *result = VimValue(qlonglong(0));
+            return true;
+        }
+        reportAssertFailure(Tr::tr("command did not beep: %1").arg(command));
+        *result = VimValue(qlonglong(1));
+        return true;
+    }
+    if (name == "list2tuple") {
+        if (!arg(0).isList()) {
+            *error = Tr::tr("E1211: List required for argument 1");
+            return false;
+        }
+        *result = VimValue::tuple(*arg(0).listData());
+        return true;
+    }
+    if (name == "tuple2list") {
+        if (!arg(0).isTuple()) {
+            *error = Tr::tr("E1532: Cannot modify a tuple");
+            return false;
+        }
+        *result = VimValue::list(*arg(0).listData());
+        return true;
+    }
+    if (name == "base64_encode") {
+        // base64_encode({blob}) - and it is a Blob on both sides of the pair,
+        // which is why this waited for one. Measured: an empty blob encodes
+        // to an empty string, and anything but a blob is refused.
+        if (!arg(0).isBlob()) {
+            *error = Tr::tr("E1238: Blob required for argument 1");
+            return false;
+        }
+        *result = VimValue(QString::fromLatin1(arg(0).blobData()->toBase64()));
+        return true;
+    }
+    if (name == "base64_decode") {
+        // base64_decode({string}) - measured: an empty string gives an empty
+        // blob, and anything that is not base64 - padding included, "aGk" is
+        // refused where "aGk=" is taken - answers E475 with the text as it
+        // was given.
+        const QString encoded = arg(0).toString();
+        // Vim wants a whole number of four-character groups, so "aGk" is
+        // refused where "aGk=" is taken - Qt would decode both. The padding
+        // is part of the check, not decoration (measured, "YQ=" refused).
+        const QByteArray::FromBase64Result decoded = QByteArray::fromBase64Encoding(
+            encoded.toLatin1(),
+            QByteArray::Base64Encoding | QByteArray::AbortOnBase64DecodingErrors);
+        if (encoded.size() % 4 != 0 || !decoded) {
+            *error = Tr::tr("E475: Invalid argument: %1").arg(encoded);
+            return false;
+        }
+        *result = VimValue::blob(*decoded);
         return true;
     }
     if (name == "type") {
@@ -15193,6 +17940,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         case VimValue::Float:  t = 5; break;
         case VimValue::Bool:   t = 6; break;
         case VimValue::Special: t = 7; break;
+        case VimValue::Blob:   t = 10; break;
+        case VimValue::Tuple:  t = 17; break;
         }
         *result = VimValue(qlonglong(t));
         return true;
@@ -15218,6 +17967,11 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         return true;
     }
     if (name == "map" || name == "filter" || name == "mapnew") {
+        if (arg(0).isTuple()) {
+            // Both would change what they walk, and a tuple does not change.
+            *error = Tr::tr("E1524: Cannot use a tuple with function %1()").arg(name);
+            return false;
+        }
         // The second argument is either an expression evaluated per element
         // with v:val/v:key set, or a Funcref/lambda called as f(key, val).
         // map() replaces each element; filter() keeps the ones it is true for.
@@ -15226,6 +17980,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         const VimValue target = name != "mapnew" ? arg(0)
                                 : arg(0).isList() ? VimValue::list(*arg(0).listData())
                                 : arg(0).isDict() ? VimValue::dict(*arg(0).dictData())
+                                : arg(0).isBlob() ? VimValue::blob(*arg(0).blobData())
                                                   : arg(0);
         const VimValue callable = arg(1);
         const bool useFunc = callable.isFunc();
@@ -15255,6 +18010,21 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             }
             if (ok && !isMap)
                 *l = kept;
+        } else if (target.isBlob()) {
+            QByteArray *b = target.blobData();
+            QByteArray kept;
+            for (int i = 0; i < b->size() && ok; ++i) {
+                VimValue r;
+                const VimValue byte = VimValue(qlonglong(uchar(b->at(i))));
+                if (!apply(VimValue(qlonglong(i)), byte, &r))
+                    ok = false;
+                else if (isMap)
+                    (*b)[i] = char(r.toNumber() & 0xFF);
+                else if (r.toBool())
+                    kept.append(b->at(i));
+            }
+            if (ok && !isMap)
+                *b = kept;
         } else if (target.isDict()) {
             QMap<QString, VimValue> *d = target.dictData();
             const QList<QString> keys = d->keys();
@@ -15488,6 +18258,41 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                                                 : a.toNumber() == b.toNumber();
         };
         qlonglong n = name == "index" ? -1 : 0;
+        if (arg(0).isTuple()) {
+            const QList<VimValue> &l = *arg(0).listData();
+            if (name == "index") {
+                for (int i = qMax(0, args.size() > 2 ? int(arg(2).toNumber()) : 0);
+                     i < l.size(); ++i) {
+                    if (equalValues(l.at(i), arg(1))) {
+                        n = i;
+                        break;
+                    }
+                }
+            } else {
+                for (const VimValue &e : l)
+                    n += equalValues(e, arg(1)) ? 1 : 0;
+            }
+            *result = VimValue(n);
+            return true;
+        }
+        if (arg(0).isBlob()) {
+            // Measured: index() walks a blob, and count() refuses one.
+            if (name == "count") {
+                *error = Tr::tr("E706: Argument of count() must be a List, String or Dictionary");
+                return false;
+            }
+            const QByteArray &b = *arg(0).blobData();
+            const int wanted = int(arg(1).toNumber());
+            for (int i = qMax(0, args.size() > 2 ? int(arg(2).toNumber()) : 0);
+                 i < b.size(); ++i) {
+                if (uchar(b.at(i)) == wanted) {
+                    n = i;
+                    break;
+                }
+            }
+            *result = VimValue(n);
+            return true;
+        }
         if (arg(0).isList()) {
             const QList<VimValue> &l = *arg(0).listData();
             if (name == "index") {
@@ -15508,12 +18313,23 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             QList<VimValue> *l = arg(0).listData();
             const int idx = args.size() > 2 ? int(arg(2).toNumber()) : 0;
             l->insert(qBound(0, idx, l->size()), arg(1));
+        } else if (arg(0).isBlob()) {
+            QByteArray *b = arg(0).blobData();
+            const int idx = args.size() > 2 ? int(arg(2).toNumber()) : 0;
+            b->insert(qBound(0, idx, b->size()), char(arg(1).toNumber() & 0xFF));
         }
         *result = arg(0);
         return true;
     }
     if (name == "repeat") {
         const int n = int(arg(1).toNumber());
+        if (arg(0).isTuple()) {
+            QList<VimValue> out;
+            for (int i = 0; i < n; ++i)
+                out += *arg(0).listData();
+            *result = VimValue::tuple(out);
+            return true;
+        }
         if (arg(0).isList()) {
             QList<VimValue> out;
             for (int i = 0; i < n; ++i)
@@ -15651,6 +18467,69 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             }
         }
         *result = VimValue(qlonglong(charIndex + 1));
+        return true;
+    }
+    if (name == "input" || name == "inputsecret" || name == "inputdialog") {
+        // input({prompt} [, {text}]), inputsecret({prompt} [, {text}]) and
+        // inputdialog({prompt} [, {text} [, {cancelreturn}]]).
+        //
+        // Vim BLOCKS here, and nothing in this engine can be suspended -
+        // getchar() below has the same problem and answers from the keys
+        // already typed ahead. So does this, a line at a time, which is what
+        // Vim itself does when there is one; and where there is no answer
+        // waiting, the question goes out to Qt Creator, whose dialog does the
+        // blocking Vim does.
+        //
+        // Measured: the typed text is APPENDED to the preset, the cursor
+        // sitting at its end, so a preset of "pre" and "x<CR>" gives "prex"
+        // and a bare "<CR>" gives "pre" back. input({opts}) is NOT here:
+        // measured, this Vim answers "E731: Using a Dictionary as a String"
+        // for it, so a script using that form is broken there too.
+        const QString prompt = arg(0).toString();
+        const QString preset = args.size() > 1 ? arg(1).toString() : QString();
+        // Only inputdialog() has a say in what a cancelled prompt answers.
+        const QString cancelReturn =
+            name == "inputdialog" && args.size() > 2 ? arg(2).toString() : QString();
+
+        QString typed;
+        if (takeTypedAheadLine(&typed)) {
+            *result = VimValue(preset + typed);
+            return true;
+        }
+        QString answer = preset;
+        bool cancelled = false;
+        q->inputRequested(prompt, preset, name == "inputsecret", &answer, &cancelled);
+        *result = VimValue(cancelled ? cancelReturn : answer);
+        return true;
+    }
+    if (name == "inputlist") {
+        // inputlist({textlist}) - the first entry is the prompt and the rest
+        // are the choices, and the answer is the NUMBER typed rather than the
+        // index of an entry. Measured: "2<CR>" answers 2, an Escape answers 0,
+        // and a number with no entry to match ("9<CR>") is answered as it
+        // stands rather than refused.
+        QStringList lines;
+        if (arg(0).isList() && arg(0).listData()) {
+            for (const VimValue &item : *arg(0).listData())
+                lines += item.toString();
+        }
+        QString typed;
+        if (takeTypedAheadLine(&typed)) {
+            *result = VimValue(qlonglong(typed.trimmed().toInt()));
+            return true;
+        }
+        int chosen = 0;
+        q->inputListRequested(lines, &chosen);
+        *result = VimValue(qlonglong(chosen));
+        return true;
+    }
+    if (name == "inputsave" || name == "inputrestore") {
+        // They put the keys typed ahead aside and bring them back, so that a
+        // prompt does not eat what was meant for something else. input() here
+        // takes a line off the same queue, and a dialog takes none at all, so
+        // there is nothing to set aside: both answer 0, which is what Vim
+        // answers for success (measured).
+        *result = VimValue(qlonglong(0));
         return true;
     }
     if (name == "getchar" || name == "getcharstr") {
@@ -16025,35 +18904,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     }
     if (name == "maparg" || name == "hasmapto" || name == "mapcheck"
                || name == "maplist") {
-        // Vim writes the name of a key the way its documentation does, and this
-        // engine holds it in upper case; the difference is only in the spelling.
-        static const QMap<QString, QString> asVimWritesIt = {
-            {"ESC", "Esc"}, {"TAB", "Tab"}, {"DEL", "Del"}, {"UP", "Up"},
-            {"DOWN", "Down"}, {"LEFT", "Left"}, {"RIGHT", "Right"},
-            {"HOME", "Home"}, {"END", "End"}, {"PAGEUP", "PageUp"},
-            {"PAGEDOWN", "PageDown"}, {"INSERT", "Insert"}, {"LEADER", "Leader"},
-            {"PLUG", "Plug"},
-            {"RETURN", "Return"}, {"ENTER", "Enter"}, {"SPACE", "Space"},
-            // These are the names a key code is looked up under first, and Vim
-            // writes them shorter.
-            {"BACKSPACE", "BS"}, {"DELETE", "Del"}, {"KDEL", "Del"},
-            {"INS", "Insert"}, {"KINSERT", "Insert"}, {"NEWLINE", "NL"},
-            {"LINEFEED", "NL"}, {"ESCAPE", "Esc"}
-        };
-        const auto asVim = [](QString spelled) -> QString {
-            static const QRegularExpression token("<((?:[A-Z]-)*)([A-Za-z0-9]+)>");
-            QString out;
-            int at = 0;
-            QRegularExpressionMatchIterator it = token.globalMatch(spelled);
-            while (it.hasNext()) {
-                const QRegularExpressionMatch m = it.next();
-                const QString nice = asVimWritesIt.value(m.captured(2).toUpper());
-                out += spelled.mid(at, m.capturedStart() - at);
-                out += '<' + m.captured(1) + (nice.isEmpty() ? m.captured(2) : nice) + '>';
-                at = m.capturedEnd();
-            }
-            return out + spelled.mid(at);
-        };
+        const auto asVim = keyNameAsVimWritesIt;
         // What a key is mapped to, and whether anything maps to a given
         // right-hand side; plugins ask before putting their own mappings in.
         const QString modeName = args.size() > 1 ? arg(1).toString() : QString("n");
@@ -16740,10 +19591,28 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     }
     if (name == "argc" || name == "argidx" || name == "argv"
                || name == "arglistid") {
-        // The argument list. One file is open at a time here, so the list holds
-        // that one, the place in it is the first and there is only ever the one
-        // list - which is the list a window with no list of its own uses, and
-        // Vim numbers that nothing.
+        // The argument list. Where ":args" has set one, that is the answer;
+        // with none, one file is open at a time here, so the list holds that
+        // one and the place in it is the first. There is only ever the one
+        // list - the list a window with no list of its own uses, which Vim
+        // numbers nothing.
+        if (!g.argList.isEmpty() && name != "arglistid") {
+            if (name == "argc") {
+                *result = VimValue(qlonglong(g.argList.size()));
+            } else if (name == "argidx") {
+                *result = VimValue(qlonglong(g.argIndex));
+            } else if (args.isEmpty()) {
+                QList<VimValue> list;
+                for (const QString &file : std::as_const(g.argList))
+                    list.append(VimValue(file));
+                *result = VimValue::list(list);
+            } else {
+                const int at = int(arg(0).toNumber());
+                *result = VimValue(at >= 0 && at < g.argList.size()
+                                       ? g.argList.at(at) : QString());
+            }
+            return true;
+        }
         const QString only = m_currentFileName;
         if (name == "argc") {
             *result = VimValue(qlonglong(only.isEmpty() ? 0 : 1));
@@ -16764,15 +19633,22 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     if (name == "foldclosed" || name == "foldclosedend"
                || name == "foldlevel" || name == "foldtext"
                || name == "foldtextresult") {
-        // There is no folding here, so each of these answers what Vim answers
-        // where the line asked about is in no fold: a line number of minus one
-        // for the two that name one, no depth, and no text.
-        // FIXME: Give these real answers if folding ever arrives; a script
-        // calling one must not fail in the meantime, which is why they are here.
-        if (name == "foldclosed" || name == "foldclosedend")
-            *result = VimValue(qlonglong(-1));
+        // Qt Creator works the folds out and knows which lines one hides, so
+        // these are asked rather than answered with the "no folding here" they
+        // used to give. What has no answer is the fold TEXT: Creator draws its
+        // own and there is nothing to read back, so that stays empty.
+        const int line = int(arg(0).toNumber());
+        int closedStart = -1;
+        int closedEnd = -1;
+        int level = 0;
+        if (line >= 1 && line <= linesInDocument())
+            q->foldStateRequested(line, &closedStart, &closedEnd, &level);
+        if (name == "foldclosed")
+            *result = VimValue(qlonglong(closedStart));
+        else if (name == "foldclosedend")
+            *result = VimValue(qlonglong(closedEnd));
         else if (name == "foldlevel")
-            *result = VimValue(qlonglong(0));
+            *result = VimValue(qlonglong(level));
         else
             *result = VimValue(QString());
         return true;
@@ -16985,12 +19861,50 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         return false;
     }
     if (name == "pumvisible" || name == "wildmenumode"
-               || name == "eventhandler" || name == "garbagecollect") {
+               || name == "eventhandler" || name == "garbagecollect"
+               || name == "complete_check" || name == "getimstatus") {
         // None of these is ever the case here: no popup menu, no wildmenu, no
-        // event running that a script could be inside of, and nothing to
-        // collect. A script asking may go on rather than stop.
+        // event running that a script could be inside of, nothing to collect,
+        // no completion for the user to have typed through, and no input
+        // method. A script asking may go on rather than stop.
         *result = VimValue(qlonglong(0));
         return true;
+    }
+    if (name == "taglist") {
+        // taglist({expr} [, {filename}]) - the tags matching a pattern. There
+        // is no tags file here at all: the tag jump asks Qt Creator to follow
+        // the symbol instead, and nothing keeps a list of matches. Vim answers
+        // an empty LIST for a pattern that matches nothing (measured), which
+        // is the honest answer for every pattern here.
+        *result = VimValue::list();
+        return true;
+    }
+    if (name == "echoraw") {
+        // echoraw({expr}) writes its argument to the terminal without letting
+        // Vim interpret it, which is how a script sends an escape sequence.
+        // There is no terminal to write to here, so it is accepted and does
+        // nothing. Measured: it answers 0.
+        *result = VimValue(qlonglong(0));
+        return true;
+    }
+    if (name == "pum_getpos") {
+        // Where the popup menu is, and there is never one - an empty dict
+        // rather than the zero pumvisible() answers (measured).
+        *result = VimValue::dict();
+        return true;
+    }
+    if (name == "windowsversion") {
+        // Which Windows this is. Vim answers an empty string where it is not
+        // running on one at all, which is what this reports everywhere: the
+        // engine has no business claiming a version of its own.
+        *result = VimValue(QString());
+        return true;
+    }
+    if (name == "interrupt") {
+        // Really throws, as CTRL-C does. showMessage() puts the "Vim:" in
+        // front, so what a script catches reads "Vim:Interrupt" as measured.
+        *error = QLatin1String("Interrupt");
+        return false;
     }
     if (name == "id") {
         // A List, Dictionary, Blob or Funcref has an identity of its own here,
@@ -17367,6 +20281,10 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             e = v.listData()->isEmpty();
         else if (v.isDict())
             e = v.dictData()->isEmpty();
+        else if (v.isBlob())
+            e = v.blobData()->isEmpty();
+        else if (v.isTuple())
+            e = v.listData()->isEmpty();
         else
             e = v.toNumber() == 0;
         *result = VimValue(qlonglong(e ? 1 : 0));
@@ -17389,7 +20307,14 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             const QString opt = optionNameFromLet(a);
             OptionKind kind = OptionKind::Boolean;
             ex = s.item(Utils::keyFromString(opt)) != nullptr
-                 || isCommentStringOption(opt) || isFileTypeOption(opt);
+                 || isCommentStringOption(opt) || isFileTypeOption(opt)
+                 || isSyntaxOption(opt) || isModifiedOption(opt)
+                 || isReadOnlyOption(opt) || isModifiableOption(opt)
+                 || !displayOptionName(opt).isEmpty()
+                 || !documentOptionName(opt).isEmpty()
+                 || isColorColumnOption(opt) || isFoldColumnOption(opt)
+                 || isFoldEnableOption(opt) || isFoldLevelOption(opt)
+                 || isFoldMethodOption(opt);
             if (!ex && a.startsWith('&'))
                 ex = unimplementedOption(opt, &kind);
         } else if (a.startsWith('$'))
@@ -17945,6 +20870,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         } else {
             const int to = qMin(last, lines);
             Range range(firstPositionInLine(first), firstPositionInLine(to), RangeLineMode);
+            if (refuseUnmodifiable())
+                return true;
             QTextCursor tc = m_cursor;
             beginEditBlock();
             transformText(range, tc, [&tc] { tc.removeSelectedText(); });
@@ -18067,7 +20994,254 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         }
         return true;
     }
-    if (name == "json_decode" || name == "json_encode") {
+    if (name == "timer_start") {
+        // timer_start({time}, {callback} [, {options}]) - the id, always
+        // positive. Measured in Vim 9.1: "repeat" defaults to 1 and -1 means
+        // for as long as the timer lives, and the callback is handed the id.
+        int repeat = 1;
+        if (args.size() > 2 && arg(2).isDict()) {
+            const QMap<QString, VimValue> *opts = arg(2).dictData();
+            if (opts->contains("repeat"))
+                repeat = int(opts->value("repeat").toNumber());
+        }
+        VimValue callback = arg(1);
+        // A callback named as a string is the function of that name, which is
+        // how a script usually writes one.
+        if (!callback.isFunc())
+            callback = VimValue::func(functionKey(callback.toString()));
+        *result = VimValue(qlonglong(
+            startVimTimer(int(arg(0).toNumber()), callback, repeat)));
+        return true;
+    }
+    if (name == "timer_stop" || name == "timer_pause") {
+        const int id = int(arg(0).toNumber());
+        if (name == "timer_stop") {
+            // An id that names no timer is no error, it simply does nothing.
+            stopVimTimer(id);
+        } else if (const int at = indexOfVimTimer(id); at >= 0) {
+            // Paused keeps the timer but stops the clock; letting it go again
+            // starts the wait over, there being nothing here that holds a
+            // part-elapsed interval.
+            const bool paused = arg(1).toBool();
+            m_timers[at].paused = paused;
+            if (paused)
+                m_timers.at(at).timer->stop();
+            else
+                m_timers.at(at).timer->start();
+        }
+        *result = VimValue(qlonglong(0));
+        return true;
+    }
+    if (name == "timer_stopall") {
+        while (!m_timers.isEmpty())
+            stopVimTimer(m_timers.first().id);
+        *result = VimValue(qlonglong(0));
+        return true;
+    }
+    if (name == "timer_info") {
+        // timer_info([{id}]) - one entry per timer, or the one named. Measured
+        // keys: callback, id, paused, remaining, repeat, time.
+        QList<VimValue> items;
+        const bool one = !args.isEmpty();
+        const int wanted = one ? int(arg(0).toNumber()) : 0;
+        for (const VimTimer &entry : std::as_const(m_timers)) {
+            if (one && entry.id != wanted)
+                continue;
+            QMap<QString, VimValue> d;
+            d.insert("id", VimValue(qlonglong(entry.id)));
+            d.insert("time", VimValue(qlonglong(entry.interval)));
+            d.insert("repeat", VimValue(qlonglong(entry.repeat)));
+            d.insert("callback", entry.callback);
+            d.insert("paused", VimValue(qlonglong(entry.paused ? 1 : 0)));
+            d.insert("remaining", VimValue(qlonglong(
+                qMax(0, entry.timer->remainingTime()))));
+            items.append(VimValue::dict(d));
+        }
+        *result = VimValue::list(items);
+        return true;
+    }
+    if (name == "getcompletiontype") {
+        // getcompletiontype({cmdline}) - the kind of completion that command
+        // line would offer, which is what getcompletion() then takes. The
+        // table below was measured in Vim 9.1 over fifty command lines, and
+        // it is not derivable from the command: ":mapclear" has a kind of its
+        // own where ":abclear" has none, and ":syntax", ":command", ":normal"
+        // and ":delfunction" have none either although each takes an argument.
+        QString line = arg(0).toString();
+
+        // A modifier hands the question to the command that follows, so
+        // ":silent set " is an option just as ":set " is (measured).
+        static const QSet<QString> modifiers = {
+            "silent", "unsilent", "noautocmd", "noswapfile", "verbose",
+            "keepjumps", "keepmarks", "keepalt", "keeppatterns", "lockmarks",
+            "browse",
+            "confirm", "hide", "legacy", "vertical", "horizontal", "aboveleft",
+            "belowright", "topleft", "botright", "leftabove", "rightbelow"
+        };
+        const auto commandOf = [](QString word) {
+            if (word.endsWith('!'))
+                word.chop(1);
+            const QString full = fullCommandName(word);
+            return full.isEmpty() ? word : full;
+        };
+        while (true) {
+            const int at = line.indexOf(' ');
+            if (at < 0 || !modifiers.contains(commandOf(line.left(at))))
+                break;
+            line = line.mid(at + 1);
+        }
+
+        // Nothing typed after the command name yet, so the name itself is
+        // still what is being completed - which is the answer for an empty
+        // line too (measured).
+        const int at = line.indexOf(' ');
+        if (at < 0) {
+            *result = VimValue(QString("command"));
+            return true;
+        }
+        const QString full = commandOf(line.left(at));
+
+        // Every map and abbreviation command completes a mapping. Spelled out
+        // because Vim's full names are not of one shape - "abbreviate" beside
+        // "iabbrev", "unabbreviate" beside "iunabbrev".
+        static const QSet<QString> mappingCommands = {
+            "map", "nmap", "vmap", "xmap", "smap", "omap", "imap", "lmap",
+            "cmap", "tmap",
+            "noremap", "nnoremap", "vnoremap", "xnoremap", "snoremap",
+            "onoremap", "inoremap", "lnoremap", "cnoremap", "tnoremap",
+            "unmap", "nunmap", "vunmap", "xunmap", "sunmap", "ounmap",
+            "iunmap", "lunmap", "cunmap", "tunmap",
+            "abbreviate", "iabbrev", "cabbrev",
+            "noreabbrev", "inoreabbrev", "cnoreabbrev",
+            "unabbreviate", "iunabbrev", "cunabbrev"
+        };
+        if (mappingCommands.contains(full)) {
+            *result = VimValue(QString("mapping"));
+            return true;
+        }
+
+        static const QHash<QString, QString> kinds = {
+            {"set", "option"}, {"setlocal", "option"}, {"setglobal", "option"},
+            {"autocmd", "event"}, {"doautocmd", "event"},
+            {"echo", "expression"}, {"echomsg", "expression"},
+            {"execute", "expression"},
+            {"let", "var"}, {"unlet", "var"},
+            {"call", "function"},
+            {"source", "file"}, {"edit", "file"},
+            {"augroup", "augroup"}, {"colorscheme", "color"},
+            {"buffer", "buffer"}, {"highlight", "highlight"},
+            {"runtime", "runtime"}, {"filetype", "filetypecmd"},
+            {"history", "history"}, {"behave", "behave"}, {"sign", "sign"},
+            {"tag", "tag"}, {"help", "help"}, {"packadd", "packadd"},
+            {"compiler", "compiler"}, {"scriptnames", "scriptnames"},
+            {"mapclear", "mapclear"}
+        };
+        // A command that completes nothing in particular, and something that
+        // is no command at all, both answer the empty string.
+        *result = VimValue(kinds.value(full));
+        return true;
+    }
+    if (name == "getcompletion") {
+        // getcompletion({pat}, {type}) - what the command line would offer.
+        // The lists it needs are all here already: the option names, the
+        // autocommand events, the ex command names, the builtins and user
+        // functions, the variables and the highlight groups.
+        //
+        // Measured in Vim 9.1: a PREFIX match, sorted, an empty list where
+        // nothing matches, and an unknown type is "E475: Invalid argument".
+        // The event kind matches WITHOUT REGARD TO CASE ("bufwrite" finds the
+        // same four as "BufWrite"), and the function kind answers with a
+        // trailing "(" - "strle" gives ['strlen('].
+        const QString pat = arg(0).toString();
+        const QString type = arg(1).toString();
+        QStringList all;
+        bool known = true;
+        if (type == "option") {
+            all = knownOptionNames();
+        } else if (type == "event") {
+            // Held in lower case here, so that is how they come back - Vim
+            // spells them "BufWritePre". A script feeding one to ":autocmd"
+            // is unaffected, event names being matched without regard to case.
+            const QSet<QString> &events = autocmdEventNames();
+            all = QStringList(events.cbegin(), events.cend());
+        } else if (type == "command") {
+            all = exCommandNames();
+        } else if (type == "function") {
+            // Vim answers this kind with a trailing "(" (measured).
+            for (const QString &fn : builtinFunctionNames()) {
+                if (fn == "strptime" && !haveStrptime)
+                    continue;
+                all << fn + '(';
+            }
+            for (auto it = g.userFunctions.constBegin();
+                 it != g.userFunctions.constEnd(); ++it) {
+                all << it.key() + '(';
+            }
+        } else if (type == "var") {
+            // The variables really set, by the scope they are in. The "v:"
+            // ones are answered by a chain of tests rather than held in a
+            // list, so they are NOT enumerable here and do not appear.
+            for (auto it = g.variables.constBegin();
+                 it != g.variables.constEnd(); ++it) {
+                all << "g:" + it.key();
+            }
+            for (auto it = m_variables.constBegin();
+                 it != m_variables.constEnd(); ++it) {
+                all << it.key();
+            }
+        } else if (type == "highlight") {
+            all = highlightGroups();
+        } else if (type == "augroup") {
+            // Vim always has END, whatever groups are registered.
+            all << "END";
+            for (const AutoCommand &ac : std::as_const(g.autoCommands)) {
+                if (!ac.group.isEmpty() && !all.contains(ac.group))
+                    all << ac.group;
+            }
+        } else {
+            // The rest are types Vim knows and this engine has nothing for -
+            // no menus, no tags file, no shell completion, no help index. An
+            // empty list is the honest answer; anything NOT in Vim's own list
+            // is an error, as Vim has it.
+            static const QSet<QString> valid = {
+                "arglist", "buffer", "behave", "breakpoint", "color", "cmdline",
+                "compiler", "cscope", "diff_buffer", "dir", "dir_in_path",
+                "environment", "expression", "file", "file_in_path", "filetype",
+                "filetypecmd", "help", "history", "keymap", "locale", "mapclear",
+                "mapping", "menu", "messages", "messagesclear", "packadd",
+                "retab", "runtime", "scriptnames", "shellcmd", "shellcmdline",
+                "sign", "syntax", "syntime", "tag", "tag_listfiles", "user"
+            };
+            known = valid.contains(type) || type.startsWith("custom,")
+                    || type.startsWith("customlist,");
+        }
+        if (!known) {
+            *error = Tr::tr("E475: Invalid argument: %1").arg(type);
+            return false;
+        }
+        const Qt::CaseSensitivity how = type == "event" ? Qt::CaseInsensitive
+                                                        : Qt::CaseSensitive;
+        QStringList hits;
+        for (const QString &one : std::as_const(all)) {
+            if (one.startsWith(pat, how) && !hits.contains(one))
+                hits << one;
+        }
+        hits.sort();
+        QList<VimValue> items;
+        for (const QString &one : std::as_const(hits))
+            items.append(VimValue(one));
+        *result = VimValue::list(items);
+        return true;
+    }
+    if (name == "json_decode" || name == "json_encode"
+               || name == "js_encode") {
+        // "js_encode" writes the looser form Vim calls JS: a key that needs
+        // no quotes is written bare, and v:none is written as NOTHING at all
+        // (measured - "[true,false,null,,]" for a list ending in two of
+        // them). Its "js_decode" counterpart is NOT here: that one accepts
+        // single-quoted strings, unquoted keys, holes and a trailing comma,
+        // which needs a lenient parser rather than QJsonDocument.
+        const bool js = name == "js_encode";
         // JSON as Vim reads and writes it: an object is a dictionary, an array a
         // list, and "true", "false" and "null" are v:true, v:false and v:null.
         if (name == "json_decode") {
@@ -18124,28 +21298,60 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             *result = read(root);
         } else {
             std::function<QString(const VimValue &)> write = [&](const VimValue &v) -> QString {
-                if (v.isList()) {
+                // A blob writes as the array of its bytes (measured:
+                // json_encode(0zFF) is "[255]").
+                if (v.isBlob()) {
+                    QStringList parts;
+                    for (char byte : *v.blobData())
+                        parts << QString::number(uchar(byte));
+                    return '[' + parts.join(',') + ']';
+                }
+                if (v.isTuple()) {
                     QStringList parts;
                     for (const VimValue &one : *v.listData())
                         parts << write(one);
                     return '[' + parts.join(',') + ']';
                 }
+                if (v.isList()) {
+                    QStringList parts;
+                    for (const VimValue &one : *v.listData())
+                        parts << write(one);
+                    QString inner = parts.join(',');
+                    // A v:none writes as nothing, so a list ENDING in one gets
+                    // an extra comma to leave the empty slot visible - measured:
+                    // [v:none] is "[,]" and [1, v:none, 2] is "[1,,2]".
+                    if (js && !parts.isEmpty() && parts.last().isEmpty())
+                        inner += ',';
+                    return '[' + inner + ']';
+                }
                 if (v.isDict()) {
                     QStringList parts;
                     const QMap<QString, VimValue> *d = v.dictData();
                     for (auto it = d->begin(); it != d->end(); ++it) {
-                        parts << QString::fromUtf8(QJsonDocument(QJsonObject{{it.key(),
+                        // A key of ASCII letters and digits that does not start
+                        // with a digit needs no quotes in the JS form. Measured,
+                        // and NOT the JavaScript rule: "_x" is quoted.
+                        static const QRegularExpression bare("^[A-Za-z][A-Za-z0-9]*$");
+                        const QString key = js && bare.match(it.key()).hasMatch()
+                            ? it.key()
+                            : QString::fromUtf8(QJsonDocument(QJsonObject{{it.key(),
                                      QJsonValue()}}).toJson(QJsonDocument::Compact))
-                                     .section(':', 0, 0).mid(1)
-                              + ':' + write(it.value());
+                                     .section(':', 0, 0).mid(1);
+                        parts << key + ':' + write(it.value());
                     }
                     return '{' + parts.join(',') + '}';
                 }
+                if (js && v.type() == VimValue::Special && v.toString() == "v:none")
+                    return QString();
                 switch (v.type()) {
                 case VimValue::Bool:
                     return v.toBool() ? QString("true") : QString("false");
                 case VimValue::Special:
-                    return v.toString() == "v:null" ? QString("null") : v.toString();
+                    // v:none writes as "null" too, which this had wrong: it
+                    // handed back the name and put a literal "v:none" in the
+                    // JSON (measured - Vim writes null for both).
+                    return v.toString() == "v:null" || v.toString() == "v:none"
+                               ? QString("null") : v.toString();
                 case VimValue::Number:
                     return QString::number(v.toNumber());
                 case VimValue::Float:
@@ -18240,6 +21446,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                     put.prepend('\n');
                 // Put it in through a cursor of its own, so that the one the user
                 // has stays with the line it is in, as in Vim.
+                if (refuseUnmodifiable())
+                    return true;
                 beginEditBlock();
                 QTextCursor tc(document());
                 tc.setPosition(at);
@@ -18615,6 +21823,32 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     if (name == "search" || name == "searchpos") {
         return searchFunction(args, name == "searchpos", result, error);
     }
+    if (name == "readblob") {
+        // readblob({fname} [, {offset} [, {size}]]) - the bytes of a file, or
+        // the part of it named. A negative offset counts from the end.
+        const QString fileName = replaceTildeWithHome(arg(0).toString());
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly)) {
+            *error = Tr::tr("E484: Can't open file %1").arg(fileName);
+            return false;
+        }
+        QByteArray bytes = file.readAll();
+        file.close();
+        if (args.size() > 1) {
+            int offset = int(arg(1).toNumber());
+            if (offset < 0)
+                offset += bytes.size();
+            offset = qBound(0, offset, bytes.size());
+            bytes = bytes.mid(offset);
+        }
+        if (args.size() > 2) {
+            const int size = int(arg(2).toNumber());
+            if (size >= 0)
+                bytes.truncate(size);
+        }
+        *result = VimValue::blob(bytes);
+        return true;
+    }
     if (name == "readfile") {
         // readfile({fname} [, {type} [, {max}]])
         const QString fileName = replaceTildeWithHome(arg(0).toString());
@@ -18663,7 +21897,24 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         return true;
     }
     if (name == "writefile") {
-        // writefile({list}, {fname} [, {flags}])
+        // writefile({list-or-blob}, {fname} [, {flags}]) - a blob is written
+        // as the bytes it holds, with no line endings put in or taken out.
+        if (arg(0).isBlob()) {
+            const QString fileName = replaceTildeWithHome(arg(1).toString());
+            const QString flags = arg(2).toString();
+            QFile file(fileName);
+            const QIODevice::OpenMode mode = QIODevice::WriteOnly
+                | (flags.contains('a') ? QIODevice::Append : QIODevice::Truncate);
+            if (!file.open(mode)) {
+                showMessage(MessageError, Tr::tr("Cannot open file %1").arg(fileName));
+                *result = VimValue(qlonglong(-1));
+                return true;
+            }
+            file.write(*arg(0).blobData());
+            file.close();
+            *result = VimValue(qlonglong(0));
+            return true;
+        }
         if (!arg(0).isList()) {
             *error = Tr::tr("writefile() expects a list");
             return false;
@@ -19062,11 +22313,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         // here counts how many times one has been sourced, so that is always
         // zero, and there is no separate Vim9 script version to report either.
         QList<VimValue> items;
-        QList<QString> byId(g.scriptIds.size() + 1);
-        for (auto it = g.scriptIds.constBegin(); it != g.scriptIds.constEnd(); ++it) {
-            if (it.value() >= 1 && it.value() < byId.size())
-                byId[it.value()] = it.key();
-        }
+        const QStringList byId = scriptPathsById();
         for (int sid = 1; sid < byId.size(); ++sid) {
             if (byId.at(sid).isEmpty())
                 continue;
@@ -19444,6 +22691,46 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         *result = VimValue(expandKeyword(arg(0).toString()));
         return true;
     }
+    if (name == "getstacktrace") {
+        // One frame per thing running, OUTERMOST FIRST: the scripts being
+        // sourced, then the functions called. A function frame names the
+        // function through "funcref", a script frame has no such key at all
+        // (measured), and "lnum" is the line reached in that frame.
+        // A function defined anywhere but a script has an EMPTY "filepath",
+        // which is what the command line gives (measured).
+        QList<QString> pathById(g.scriptIds.size() + 1);
+        for (auto it = g.scriptIds.constBegin(); it != g.scriptIds.constEnd(); ++it) {
+            if (it.value() < pathById.size())
+                pathById[it.value()] = it.key();
+        }
+        QList<VimValue> frames;
+        for (int i = 0; i < m_scriptFileStack.size(); ++i) {
+            QMap<QString, VimValue> frame;
+            frame.insert("filepath", VimValue(m_scriptFileStack.at(i)));
+            frame.insert("lnum", VimValue(qlonglong(
+                i < m_scriptLines.size() ? m_scriptLines.at(i) : 0)));
+            frames.append(VimValue::dict(frame));
+        }
+        for (int i = 0; i < m_callStack.size(); ++i) {
+            const QString key = m_callStack.at(i);
+            const int scriptId = g.userFunctions.value(key).scriptId;
+            QMap<QString, VimValue> frame;
+            frame.insert("filepath", VimValue(scriptId > 0 && scriptId < pathById.size()
+                                                  ? pathById.at(scriptId) : QString()));
+            // The line of the FILE, and where the function came from none -
+            // which is what the command line gives - the statement of the body,
+            // both measured.
+            const int sourceLine = i < m_functionSourceLines.size()
+                                       ? m_functionSourceLines.at(i) : 0;
+            frame.insert("lnum", VimValue(qlonglong(
+                sourceLine > 0 ? sourceLine
+                               : (i < m_functionLines.size() ? m_functionLines.at(i) : 0))));
+            frame.insert("funcref", VimValue::func(key));
+            frames.append(VimValue::dict(frame));
+        }
+        *result = VimValue::list(frames);
+        return true;
+    }
     if (name == "function" || name == "funcref") {
         // Vim resolves a script-local name here, so the Funcref names the one
         // function it was made from wherever it is called.
@@ -19552,6 +22839,21 @@ static QString exprText(const ExCommand &cmd)
     return (cmd.hasBang ? QString('!') : QString()) + cmd.args;
 }
 
+bool FakeVimHandler::Private::handleExEvalCommand(const ExCommand &cmd)
+{
+    // :eval {expr} - work the expression out and throw the answer away, which
+    // is how a script calls something for what it does rather than what it
+    // gives back. Measured: it prints nothing, and the side effect happens.
+    if (!cmd.matches("ev", "eval"))
+        return false;
+
+    VimExpr e(this, exprText(cmd));
+    e.parseExpr();
+    if (!e.ok())
+        showMessage(MessageError, e.error());
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
 {
     // :echo / :echomsg / :echon evaluate their arguments, joining with a space;
@@ -19562,9 +22864,18 @@ bool FakeVimHandler::Private::handleExEchoCommand(const ExCommand &cmd)
     if (cmd.matches("echoh", "echohl"))
         return true;
 
+    // ":echoc[onsole]" writes to the terminal Vim was started from, which is
+    // not the message area and is nowhere at all here. Accepted and dropped,
+    // as ":echohl" is - measured: it does not reach the messages either.
+    if (cmd.matches("echoc", "echoconsole"))
+        return true;
+
     const bool isError = cmd.matches("echoe", "echoerr");
+    // ":echow[indow]" shows its arguments in a window of its own, and there is
+    // one message area here, so it says the same thing ":echomsg" would
+    // (measured: unlike echoconsole, its text does come through).
     if (!isError && !cmd.matches("ec", "echo") && !cmd.matches("echom", "echomsg")
-        && !cmd.matches("echon", "echon"))
+        && !cmd.matches("echow", "echowindow") && !cmd.matches("echon", "echon"))
         return false;
 
     VimExpr e(this, exprText(cmd));
@@ -19609,8 +22920,8 @@ bool FakeVimHandler::Private::handleExModifierCommand(const ExCommand &cmd)
 {
     // Command modifiers that prefix another command. Only ":noautocmd" has an
     // effect here; the rest concern state FakeVim does not keep (the jump list
-    // is left alone, marks are not adjusted by these commands anyway), so they
-    // just run what follows.
+    // is left alone, marks are not adjusted by these commands anyway, no swap
+    // file is written either way), so they just run what follows.
     const bool noAutocmd = cmd.matches("noa", "noautocmd");
     if (!noAutocmd
         && !cmd.matches("keepj", "keepjumps")
@@ -19618,9 +22929,23 @@ bool FakeVimHandler::Private::handleExModifierCommand(const ExCommand &cmd)
         && !cmd.matches("keepa", "keepalt")
         && !cmd.matches("keepp", "keeppatterns")
         && !cmd.matches("loc", "lockmarks")
+        && !cmd.matches("nos", "noswapfile")
+        && !cmd.matches("sandb", "sandbox")
+        && !cmd.matches("verb", "verbose")
+        && !cmd.matches("leg", "legacy")
+        && !cmd.matches("vim9", "vim9cmd")
         && !cmd.matches("uns", "unsilent")) {
         return false;
     }
+    // ":legacy" and ":vim9cmd" run what follows under the other semantics,
+    // which this engine has a flag for.
+    const bool forceLegacy = cmd.matches("leg", "legacy");
+    const bool forceVim9 = cmd.matches("vim9", "vim9cmd");
+    const bool savedVim9Semantics = m_vim9;
+    if (forceLegacy)
+        m_vim9 = false;
+    else if (forceVim9)
+        m_vim9 = true;
     const bool savedNoAutocmd = m_noAutocmd;
     if (noAutocmd)
         m_noAutocmd = true;
@@ -19630,10 +22955,13 @@ bool FakeVimHandler::Private::handleExModifierCommand(const ExCommand &cmd)
     runNestedExCommands(m_vim9 ? vim9Statement(cmd.args) : cmd.args);
 
     m_noAutocmd = savedNoAutocmd;
+    m_vim9 = savedVim9Semantics;
     return true;
 }
 
-static bool isAutocmdEvent(const QString &word)
+// Every event name this engine knows, whether it fires one or only accepts it.
+// What isAutocmdEvent() tests and what getcompletion() offers.
+static const QSet<QString> &autocmdEventNames()
 {
     static const QSet<QString> events = {
         // Fired from here.
@@ -19641,11 +22969,19 @@ static bool isAutocmdEvent(const QString &word)
         "bufwinenter", "bufwrite", "bufwritepre", "bufwritepost", "filetype",
         "insertenter", "insertleave", "textchanged", "textchangedi",
         "cursormoved", "cursormovedi", "vimenter", "winenter", "winleave",
-        "user", "textyankpost", "cmdlineenter", "cmdlineleave", "insertcharpre",
+        "user", "textyankpost", "cmdlineenter", "cmdlineleave", "cursormovedc",
+        "insertcharpre", "keyinputpre",
+        "quickfixcmdpre", "quickfixcmdpost", "syntax", "completedone",
+        "safestate", "safestateagain", "menupopup", "sessionloadpost",
+        "vimresized", "winresized",
+        "focusgained", "focuslost",
         "optionset", "insertchange", "cmdlinechanged", "sourcepre",
         "sourcepost", "cmdlineleavepre", "insertleavepre", "shellcmdpost",
         "modechanged", "filereadpre", "filereadpost", "filewritepre",
         "filewritepost",
+        // The "Cmd" events, which REPLACE the action they announce.
+        "bufwritecmd", "filereadcmd", "filewritecmd", "fileappendcmd",
+        "sourcecmd",
         "shellfilterpost", "funcundefined", "cmdundefined",
         "dirchanged", "dirchangedpre", "fileappendpre", "fileappendpost",
         "filterwritepre", "filterwritepost", "filterreadpre", "filterreadpost",
@@ -19657,19 +22993,26 @@ static bool isAutocmdEvent(const QString &word)
         // does fire is still understood. Registering for one of them is not an
         // error, it simply never comes up.
         "buffilepre", "buffilepost",
+        // No ":edit" here for it to replace.
         "bufreadcmd",
-        "bufwipeout", "bufwritecmd",
-        "colorscheme", "completedone", "cursorhold",
-        "cursorholdi", "filechangedshell",
+        "bufwipeout",
+        "colorscheme", "cursorhold",
+        // Nothing here to hook it to: a read-only document hands every key
+        // back to the editor, so there is no attempted change to announce.
+        "filechangedro",
+        "cursorholdi", "filechangedshell", "filechangedshellpost",
 
-        "focusgained", "focuslost",
-        "menupopup", "quitpre", "safestate",
-        "sessionloadpost",
-        "stdinreadpost", "swapexists", "syntax", "tabclosed", "tabenter",
+        "quitpre",
+        "stdinreadpost", "swapexists", "tabclosed", "tabenter",
         "tableave", "tabnew", "termopen", "vimleave",
-        "vimleavepre", "vimresized", "winresized"
+        "vimleavepre"
     };
-    return events.contains(word.toLower());
+    return events;
+}
+
+static bool isAutocmdEvent(const QString &word)
+{
+    return autocmdEventNames().contains(word.toLower());
 }
 
 // Some events go by two names - "BufRead" and "BufReadPost" are one event - so
@@ -19894,6 +23237,61 @@ void FakeVimHandler::Private::setFileType(const QString &type, bool fallback)
     triggerAutocmd("FileType");
 }
 
+// The one column Qt Creator can draw a margin at, out of what Vim was given:
+// the first entry that names a column outright, or one relative to
+// 'textwidth' where that is set. Zero for none - which is also what a relative
+// entry comes to while 'textwidth' is 0, as it does in Vim.
+int FakeVimHandler::Private::marginColumn() const
+{
+    for (const QString &part : m_colorColumn.split(',', Qt::SkipEmptyParts)) {
+        if (part.startsWith('+') || part.startsWith('-')) {
+            const int width = int(s.textWidth());
+            if (width > 0) {
+                const int column = width + part.toInt();
+                if (column > 0)
+                    return column;
+            }
+            continue;
+        }
+        const int column = part.toInt();
+        if (column > 0)
+            return column;
+    }
+    return 0;
+}
+
+void FakeVimHandler::Private::setColorColumn(const QString &value)
+{
+    m_colorColumn = value;
+    q->marginOptionChanged("colorcolumn", marginColumn());
+}
+
+// Vim closes every fold deeper than 'foldlevel' and opens the rest, and with
+// 'foldenable' off applies none of them at all - measured: switching it off
+// takes foldclosed() to -1 and foldlevel() to 0 for a line that was in a fold.
+void FakeVimHandler::Private::applyFoldLevel()
+{
+    // Off means no fold applies, which is the same as opening everything.
+    q->foldLevelRequested(m_foldEnable ? m_foldLevel : 1000000);
+}
+
+void FakeVimHandler::Private::setFoldColumn(int width)
+{
+    m_foldColumn = width;
+    q->marginOptionChanged("foldcolumn", width);
+}
+
+// What the buffer is highlighted as, which Vim keeps apart from its file type.
+// The name is what the autocommand pattern is matched against, as for an
+// option's name in an OptionSet, rather than any file name.
+void FakeVimHandler::Private::setSyntax(const QString &name)
+{
+    m_syntax = name;
+    EventContext context;
+    context.target = name;
+    triggerAutocmd("Syntax", context);
+}
+
 // Vim's did_filetype(): true only while autocommands run and the type of this
 // buffer has already been settled by something other than a guess.
 bool FakeVimHandler::Private::didFileType() const
@@ -19912,6 +23310,11 @@ bool FakeVimHandler::Private::handleExSetFileTypeCommand(const ExCommand &cmd)
     const bool fallback = type.startsWith("FALLBACK ");
     if (fallback)
         type = type.mid(9).trimmed();
+    // The FALLBACK form is the automatic detection - what the plugin offers for
+    // a buffer it has just read - so that is the one ":filetype off" stops. A
+    // plain ":setf" is the user asking, and Vim does not silence that either.
+    if (fallback && !g.filetypeDetection)
+        return true;
     if (!didFileType())
         setFileType(type, fallback);
     return true;
@@ -20060,7 +23463,58 @@ void FakeVimHandler::Private::triggerCmdlineAutocmd(const QString &event,
     triggerAutocmd(event, context);
 }
 
-void FakeVimHandler::Private::triggerAutocmd(const QString &event,
+// Which windows changed size, as Vim reports them: v:event.windows is the list
+// of their ids. Taken from Vim's own documentation for the event rather than
+// measured - it fires after a display update, which a scripted Vim never does.
+void FakeVimHandler::Private::triggerWinResized(const QList<int> &viewIds)
+{
+    QList<VimValue> windows;
+    for (int viewId : viewIds)
+        windows.append(VimValue(qlonglong(viewId)));
+    EventContext context;
+    context.data = {{"windows", VimValue::list(windows)}};
+    triggerAutocmd("WinResized", context);
+}
+
+// The pattern is one or two characters naming the mode, and it is a SMALLER
+// set than mode() reports: one "v" for every kind of visual selection, and "o"
+// where mode() says "no". Taken from Vim's own autocmd documentation rather
+// than measured - a popup menu cannot be brought up from a script.
+void FakeVimHandler::Private::triggerMenuPopup()
+{
+    EventContext context;
+    if (isVisualMode())
+        context.target = "v";
+    else if (g.mode == ExMode)
+        context.target = "c";
+    else if (g.mode == InsertMode || g.mode == ReplaceMode)
+        context.target = "i";
+    else if (isOperatorPending())
+        context.target = "o";
+    else
+        context.target = "n";
+    triggerAutocmd("MenuPopup", context);
+}
+
+// What a finished completion brings with it. Measured in Vim 9.1 for the
+// keyword completion this engine does: v:completed_item carries the word and
+// five keys that stay empty, and v:event names the kind of completion while
+// leaving "complete_word" empty even though a word was completed.
+void FakeVimHandler::Private::triggerCompleteDone(const QString &word)
+{
+    EventContext context;
+    context.data = {{"complete_word", VimValue(QString())},
+                    {"complete_type", VimValue(QString("keyword"))}};
+    const QMap<QString, VimValue> item = {
+        {"word", VimValue(word)}, {"abbr", VimValue(QString())},
+        {"menu", VimValue(QString())}, {"info", VimValue(QString())},
+        {"kind", VimValue(QString())}, {"user_data", VimValue(QString())}
+    };
+    context.vars.insert("v:completed_item", VimValue::dict(item));
+    triggerAutocmd("CompleteDone", context);
+}
+
+int FakeVimHandler::Private::triggerAutocmd(const QString &event,
     const EventContext &context, EventContext *after)
 {
     const QString fired = canonicalAutocmdEvent(event);
@@ -20073,7 +23527,7 @@ void FakeVimHandler::Private::triggerAutocmd(const QString &event,
     // One level of nesting, which is what lets a ":setf" inside a read
     // autocommand still run the FileType rules; deeper chains are cut off.
     if (g.autoCommands.isEmpty() || m_noAutocmd || m_autocmdDepth >= 2)
-        return;
+        return 0;
 
     // FileType patterns match the filetype, a Cmdline one the character naming
     // the command line; other events match the file name.
@@ -20084,6 +23538,7 @@ void FakeVimHandler::Private::triggerAutocmd(const QString &event,
     const EventContext outerEvent = g.event;
     g.event = context;
     ++m_autocmdDepth;
+    int ran = 0;
     for (const AutoCommand &ac : commands) {
         if (canonicalAutocmdEvent(ac.event) != fired)
             continue;
@@ -20094,11 +23549,13 @@ void FakeVimHandler::Private::triggerAutocmd(const QString &event,
         m_scriptContexts.append(ac.scriptId);
         runNestedExCommands(ac.command);
         m_scriptContexts.removeLast();
+        ++ran;
     }
     --m_autocmdDepth;
     if (after)
         *after = g.event; // read what was written before it is put back
     g.event = outerEvent;
+    return ran;
 }
 
 // :redir => {var}, :redir =>> {var}, :redir @{a-zA-Z} and :redir END - catch what
@@ -20224,6 +23681,51 @@ static bool isBlockTerminator(const QString &cmd)
         || isFunctionEnd(cmd) || isCatch(cmd) || isFinally(cmd) || isEndTry(cmd);
 }
 
+static bool isTextEntry(const QString &cmd)
+{
+    static const QRegularExpression re("^(a|ap|app|appe|appen|append|i|in|ins|inse|inser"
+                                       "|insert|c|ch|cha|chan|chang|change)!?$");
+    return re.match(cmd).hasMatch();
+}
+
+void FakeVimHandler::Private::execTextEntry(const QList<ExCommand> &cmds, int &index,
+                                            bool active, const ExCommand &cmd)
+{
+    QStringList lines;
+    while (index < cmds.size()) {
+        const QString text = cmds.at(index).original;
+        ++index;
+        if (text.trimmed() == ".")
+            break;
+        lines.append(text);
+    }
+    if (!active || refuseUnmodifiable())
+        return;
+
+    const bool replaces = cmd.matches("c", "change");
+    const bool before = replaces || cmd.matches("i", "insert");
+    const int at = qBound(1, cmd.hasRange ? cmd.count + 1 : cursorLine() + 1,
+                          linesInDocument());
+
+    beginEditBlock();
+    if (replaces)
+        removeText(Range(firstPositionInLine(at), firstPositionInLine(at), RangeLineMode));
+    if (!lines.isEmpty()) {
+        const int target = before ? at : at + 1;
+        QTextCursor tc = m_cursor;
+        if (target > linesInDocument()) {
+            tc.setPosition(lastPositionInDocument(true));
+            insertText(tc, '\n' + lines.join('\n'));
+        } else {
+            tc.setPosition(firstPositionInLine(target));
+            insertText(tc, lines.join('\n') + '\n');
+        }
+        setPosition(firstPositionInLine(qMin(target + lines.size() - 1, linesInDocument())));
+    }
+    endEditBlock();
+    setTargetColumn();
+}
+
 void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
     int &index, bool active)
 {
@@ -20235,12 +23737,17 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
         if (!m_functionLines.isEmpty()) {
             // Within a function Vim counts the statements of its body.
             m_functionLines.last() = index + 1;
+            if (!m_functionSourceLines.isEmpty())
+                m_functionSourceLines.last() = c.sourceLine;
         } else if (!m_scriptLines.isEmpty()) {
             // In a script it names the line of the file, which the parser wrote
             // down; a statement not read from one falls back on its number.
             m_scriptLines.last() = c.sourceLine > 0 ? c.sourceLine : index + 1;
         }
-        if (c.cmd == "if") {
+        if (isTextEntry(c.cmd) && index + 1 < cmds.size()) {
+            ++index;
+            execTextEntry(cmds, index, active, c);
+        } else if (c.cmd == "if") {
             ++index;
             execIf(cmds, index, active, active && evalCondition(exprText(c)));
         } else if (isWhile(c.cmd)) {
@@ -20396,7 +23903,7 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
             showMessage(MessageError, Tr::tr("Invalid :for: %1").arg(spec));
         } else if (!evaluateExpression(m.captured(2), &listValue, &error)) {
             showMessage(MessageError, error);
-        } else if (!listValue.isList()) {
+        } else if (!listValue.isList() && !listValue.isBlob() && !listValue.isTuple()) {
             showMessage(MessageError, Tr::tr(":for requires a list"));
         } else {
             const QString var = m.captured(1);
@@ -20406,7 +23913,14 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
                                   .split(QRegularExpression("\\s*,\\s*"), Qt::SkipEmptyParts);
             }
             // Iterate a copy so mutating the list in the body is well-defined.
-            const QList<VimValue> items = *listValue.listData();
+            // A blob is walked byte by byte, each one a number.
+            QList<VimValue> items;
+            if (listValue.isBlob()) {
+                for (char byte : *listValue.blobData())
+                    items.append(VimValue(qlonglong(uchar(byte))));
+            } else {
+                items = *listValue.listData(); // a tuple holds them the same way
+            }
             for (const VimValue &item : items) {
                 if (unpackNames.isEmpty()) {
                     setVariable(var, item);
@@ -20694,6 +24208,16 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
 VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
     const UserFunction &fn, const QList<VimValue> &args)
 {
+    // Vim refuses to go deeper than 'maxfuncdepth', which is what keeps a
+    // function that calls itself from taking the whole stack with it. Measured
+    // in Vim 9.1: with the default of 100 the hundredth call runs and the next
+    // one raises this, catchable.
+    if (m_callStack.size() >= int(s.maxFuncDepth())) {
+        showMessage(MessageError,
+            Tr::tr("E132: Function call depth is higher than 'maxfuncdepth'"));
+        return VimValue();
+    }
+
     // Bind arguments into a fresh local scope, run the body and return the
     // value from :return (or 0). Loop/return state is saved so nested and
     // recursive calls are independent.
@@ -20731,6 +24255,11 @@ VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
     m_loopSignal = NoSignal;
     m_returning = false;
     m_vim9 = fn.vim9; // Vim9 expression semantics inside a :def body
+    // Only a ":def" body counts as compiled, which is the one place
+    // exists_compiled() may be called from - a Vim9 script at its top level
+    // is not one.
+    if (fn.vim9)
+        ++m_defDepth;
 
     m_localScopes.append(frame);
     // The name is the one Vim shows in the frame chain, which a plugin reads back
@@ -20739,12 +24268,16 @@ VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
     // Whichever script defined it is the one its "s:" reaches, global or not.
     m_scriptContexts.append(fn.scriptId);
     m_functionLines.append(0);
+    m_functionSourceLines.append(0);
     int index = 0;
     execSequence(fn.body, index, true);
     m_callStack.removeLast();
     m_scriptContexts.removeLast();
     m_functionLines.removeLast();
+    m_functionSourceLines.removeLast();
     m_localScopes.removeLast();
+    if (fn.vim9)
+        --m_defDepth;
 
     const VimValue result = m_returning ? m_returnValue : VimValue();
     m_loopSignal = savedSignal;
@@ -20825,7 +24358,8 @@ void FakeVimHandler::Private::runExCommandLine(const QString &line0)
 
 bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
 {
-    return handleExPluginCommand(cmd)
+    return handleExReadOnlyWriteCommand(cmd)
+        || handleExPluginCommand(cmd)
         || handleExGotoByteCommand(cmd)
         || handleExGotoCommand(cmd)
         || handleExBangCommand(cmd)
@@ -20836,9 +24370,28 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExMarksCommand(cmd)
         || handleExMarkCommand(cmd)
         || handleExJumpsCommand(cmd)
+        || handleExChangesCommand(cmd)
+        || handleExScriptNamesCommand(cmd)
+        || handleExBufferListCommand(cmd)
+        || handleExMatchCommand(cmd)
+        || handleExRuntimeCommand(cmd)
+        || handleExTagsCommand(cmd)
+        || handleExClearJumpsCommand(cmd)
+        || handleExEvalCommand(cmd)
+        || handleExNoOpCommand(cmd)
+        || handleExFoldCommand(cmd)
+        || handleExArgListCommand(cmd)
+        || handleExFileTypeCommand(cmd)
+        || handleExOldFilesCommand(cmd)
+        || handleExSwapNameCommand(cmd)
+        || handleExScriptEncodingCommand(cmd)
+        || handleExWinCmdCommand(cmd)
+        || handleExWindowSizeCommand(cmd)
+        || handleExSweptCommands(cmd)
         || handleExDelMarksCommand(cmd)
         || handleExYankDeleteCommand(cmd)
         || handleExChangeCommand(cmd)
+        || handleExAppendCommand(cmd)
         || handleExMoveCommand(cmd)
         || handleExCopyCommand(cmd)
         || handleExAlignCommand(cmd)
@@ -21262,6 +24815,8 @@ void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
 
 void FakeVimHandler::Private::indentText(const Range &range, QChar typedChar)
 {
+    if (refuseUnmodifiable())
+        return;
     int beginBlock = blockAt(range.beginPos).blockNumber();
     int endBlock = blockAt(range.endPos).blockNumber();
     if (beginBlock > endBlock)
@@ -21325,6 +24880,8 @@ bool FakeVimHandler::Private::isElectricCharacter(QChar c) const
 
 void FakeVimHandler::Private::shiftRegionRight(int repeat)
 {
+    if (refuseUnmodifiable())
+        return;
     int beginLine = lineForPosition(anchor());
     int endLine = lineForPosition(position());
     int targetPos = anchor();
@@ -22252,6 +25809,8 @@ void FakeVimHandler::Private::transformText(
 
 void FakeVimHandler::Private::transformText(const Range &range, const Transformation &transform)
 {
+    if (refuseUnmodifiable())
+        return;
     beginEditBlock();
     transformText(range, m_cursor,
         [this, &transform] { m_cursor.insertText(transform(m_cursor.selection().toPlainText())); });
@@ -22261,6 +25820,8 @@ void FakeVimHandler::Private::transformText(const Range &range, const Transforma
 
 void FakeVimHandler::Private::insertText(QTextCursor &tc, const QString &text)
 {
+    if (refuseUnmodifiable())
+        return;
   if (s.passKeys()) {
       if (tc.hasSelection() && text.isEmpty()) {
           QKeyEvent event(QEvent::KeyPress, Qt::Key_Delete, Qt::NoModifier, QString());
@@ -22278,6 +25839,8 @@ void FakeVimHandler::Private::insertText(QTextCursor &tc, const QString &text)
 
 void FakeVimHandler::Private::insertText(const Register &reg)
 {
+    if (refuseUnmodifiable())
+        return;
     if (reg.rangemode != RangeCharMode) {
         qWarning() << "WRONG INSERT MODE: " << reg.rangemode;
         return;
@@ -22289,6 +25852,8 @@ void FakeVimHandler::Private::insertText(const Register &reg)
 
 void FakeVimHandler::Private::removeText(const Range &range)
 {
+    if (refuseUnmodifiable())
+        return;
     transformText(range, [](const QString &) { return QString(); });
 }
 
@@ -22332,6 +25897,8 @@ void FakeVimHandler::Private::invertCase(const Range &range)
 
 void FakeVimHandler::Private::reflowText(const Range &range)
 {
+    if (refuseUnmodifiable())
+        return;
     const int textWidth = s.textWidth() > 0 ? int(s.textWidth()) : 80;
 
     const QTextBlock firstBlock = blockAt(qMin(range.beginPos, range.endPos));
@@ -22619,11 +26186,15 @@ void FakeVimHandler::Private::surroundCurrentRange(const Input &input, const QSt
 
 void FakeVimHandler::Private::replaceText(const Range &range, const QString &str)
 {
+    if (refuseUnmodifiable())
+        return;
     transformText(range, [&str](const QString &) { return str; } );
 }
 
 void FakeVimHandler::Private::pasteText(bool afterCursor)
 {
+    if (refuseUnmodifiable())
+        return;
     QString text = registerContents(m_register);
     RangeMode rangeMode = registerRangeMode(m_register);
     const int had = document()->blockCount();
@@ -22820,6 +26391,8 @@ bool FakeVimHandler::Private::hasCommentLeader(const QString &line) const
 
 void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
 {
+    if (refuseUnmodifiable())
+        return;
     int pos = position();
     const int blockNumber = m_cursor.blockNumber();
 
@@ -22860,6 +26433,8 @@ void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
 
 void FakeVimHandler::Private::insertNewLine()
 {
+    if (refuseUnmodifiable())
+        return;
     if (m_buffer->editBlockLevel <= 1 && s.passKeys()) {
         // Leaving an untouched auto-indented line clears its indentation.
         clearUntouchedAutoIndentation();
@@ -22942,6 +26517,8 @@ QString FakeVimHandler::Private::textAt(int from, int to) const
 
 void FakeVimHandler::Private::setLineContents(int line, const QString &contents)
 {
+    if (refuseUnmodifiable())
+        return;
     QTextBlock block = document()->findBlockByLineNumber(line - 1);
     if (!block.isValid())
         return; // a line that is not there is left alone, as in Vim
@@ -23214,6 +26791,23 @@ void FakeVimHandler::Private::endEditBlock()
 
 void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, int charsAdded)
 {
+    // A change a listener will want to hear about, once something asks for it.
+    if (!g.listeners.isEmpty()) {
+        const int line = blockAt(qBound(0, position, qMax(0, document()->characterCount() - 1)))
+                             .blockNumber() + 1;
+        PendingChange change;
+        change.start = line;
+        change.end = line + 1;
+        change.added = document()->blockCount() - m_buffer->lastBlockCount;
+        g.pendingChanges.append(change);
+    }
+
+    // Vim warns the first time a readonly buffer is changed, and lets the
+    // change through - 'readonly' guards the file, not the text.
+    if (!m_warnedReadOnly && isBufferReadOnly()) {
+        m_warnedReadOnly = true;
+        showMessage(MessageWarning, Tr::tr("W10: Warning: Changing a readonly file"));
+    }
     // Marks follow the text, as in Vim: one below lines that came or went moves with them, and one
     // on a line that is gone is forgotten.
     const int blockCount = document()->blockCount();
@@ -23386,6 +26980,81 @@ void FakeVimHandler::Private::restartIdleTimer()
     m_idleTimer.start(qMax(1, int(s.updateTime())));
 }
 
+// Vim announces going back to waiting for the user once nothing is pending,
+// which is when a plugin does work without getting in the way. An operator
+// half-given or keys still queued is something pending, so neither announces
+// it. NOT MEASURABLE against Vim from a script: the events never fire during
+// feedkeys(), only where Vim really waits for a character (checked), so this
+// follows what Vim documents rather than a measured trace.
+void FakeVimHandler::Private::restartSafeStateTimer()
+{
+    if (g.autoCommands.isEmpty())
+        return; // no timer per keystroke for nothing
+    if (!g.pendingInput.isEmpty() || g.submode != NoSubMode)
+        return;
+    m_safeStateTimer.start(0);
+}
+
+void FakeVimHandler::Private::onSafeStateTimeout()
+{
+    triggerAutocmd("SafeState");
+    // Vim follows the one with the other the first time round.
+    triggerAutocmd("SafeStateAgain");
+}
+
+int FakeVimHandler::Private::startVimTimer(int interval, const VimValue &callback,
+    int repeat)
+{
+    VimTimer entry;
+    entry.id = ++g.lastTimerId;
+    entry.interval = qMax(0, interval);
+    entry.repeat = repeat;
+    entry.callback = callback;
+    entry.timer = new QTimer(this);
+    entry.timer->setInterval(entry.interval);
+    entry.timer->setSingleShot(false);
+    const int id = entry.id;
+    connect(entry.timer, &QTimer::timeout,
+            this, [this, id] { onVimTimerFired(id); });
+    m_timers.append(entry);
+    entry.timer->start();
+    return id;
+}
+
+void FakeVimHandler::Private::onVimTimerFired(int id)
+{
+    const int at = indexOfVimTimer(id);
+    if (at < 0)
+        return;
+
+    // The callback is handed the id of the timer that ran (measured), and a
+    // count of runs left is spent before it rather than after: a one-shot is
+    // gone by the time anything it does could ask about it.
+    const VimValue callback = m_timers.at(at).callback;
+    if (m_timers.at(at).repeat > 0)
+        --m_timers[at].repeat;
+    const bool done = m_timers.at(at).repeat == 0;
+    if (done)
+        stopVimTimer(id);
+
+    VimValue ignored;
+    QString error;
+    if (!invokeCallable(callback, {VimValue(qlonglong(id))}, &ignored, &error)
+        && !error.isEmpty()) {
+        showMessage(MessageError, error);
+    }
+}
+
+bool FakeVimHandler::Private::stopVimTimer(int id)
+{
+    const int at = indexOfVimTimer(id);
+    if (at < 0)
+        return false;
+    delete m_timers.at(at).timer;
+    m_timers.removeAt(at);
+    return true;
+}
+
 void FakeVimHandler::Private::onFixCursorTimeout()
 {
     if (editor())
@@ -23469,6 +27138,8 @@ char FakeVimHandler::Private::currentModeCode() const
 
 void FakeVimHandler::Private::undoRedo(bool undo)
 {
+    if (refuseUnmodifiable())
+        return;
     UNDO_DEBUG((undo ? "UNDO" : "REDO"));
 
     // FIXME: That's only an approximaxtion. The real solution might
@@ -23598,6 +27269,8 @@ void FakeVimHandler::Private::enterInsertMode()
 
 void FakeVimHandler::Private::enterInsertOrReplaceMode(Mode mode)
 {
+    if (refuseUnmodifiable())
+        return;
     if (mode != InsertMode && mode != ReplaceMode) {
         qWarning("Unexpected mode");
         return;
@@ -24952,11 +28625,31 @@ void FakeVimHandler::showMessage(MessageLevel level, const QString &msg)
     d->showMessage(level, msg);
 }
 
-void FakeVimHandler::triggerAutocmd(const QString &event, const QString &target)
+void FakeVimHandler::triggerCompleteDone(const QString &word)
+{
+    d->triggerCompleteDone(word);
+}
+
+void FakeVimHandler::triggerMenuPopup()
+{
+    d->triggerMenuPopup();
+}
+
+void FakeVimHandler::triggerWinResized(const QList<int> &viewIds)
+{
+    d->triggerWinResized(viewIds);
+}
+
+int FakeVimHandler::triggerAutocmd(const QString &event, const QString &target)
 {
     Private::EventContext context;
     context.target = target;
-    d->triggerAutocmd(event, context);
+    return d->triggerAutocmd(event, context);
+}
+
+bool FakeVimHandler::walkArgList(int distance)
+{
+    return d->walkArgList(distance);
 }
 
 void FakeVimHandler::processModelines()

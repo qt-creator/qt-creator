@@ -14,11 +14,13 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/session.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/find/findplugin.h>
 #include <coreplugin/find/textfindconstants.h>
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/modemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <utils/mimeutils.h>
@@ -38,6 +40,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/displaysettings.h>
+#include <texteditor/marginsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/indenter.h>
@@ -75,7 +78,11 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QGuiApplication>
+#include <QInputDialog>
+#include <QMessageBox>
 #include <QItemDelegate>
+#include <QLineEdit>
+#include <QMainWindow>
 #include <QPainter>
 #include <QPlainTextEdit>
 #include <QPointer>
@@ -483,11 +490,17 @@ public:
     ExCommandMap m_defaultExCommandMap;
 
     // Vim-like tag stack for :tag/CTRL-] and :pop/CTRL-T (QTCREATORBUG-11754).
-    // m_tagStack holds the "from" location of each tag jump; m_tagIndex is the
-    // current level in it (m_tagStack.size() means we are at the newest jump).
-    void tagJump(FakeVimHandler *handler);
+    // m_tagStack holds the "from" location of each tag jump and the symbol
+    // that was followed, which ":tags" lists; m_tagIndex is the current level
+    // in it (m_tagStack.size() means we are at the newest jump).
+    void tagJump(FakeVimHandler *handler, const QString &tag);
     void tagStackMove(FakeVimHandler *handler, int distance);
-    QList<Utils::Link> m_tagStack;
+    struct TagJump
+    {
+        Utils::Link from;
+        QString tag;
+    };
+    QList<TagJump> m_tagStack;
     int m_tagIndex = 0;
 
     UserCommandMap m_userCommandMap;
@@ -510,6 +523,14 @@ public:
     // Vim alternate file ("#"): the editor left when the current one changed.
     QPointer<IEditor> m_alternateFileEditor;
     bool m_didVimEnter = false; // VimEnter is fired once per session
+    // Whether the application had focus when it was last looked at, so that
+    // only a real change of it is announced.
+    bool m_appActive = true;
+    // The splits whose size changed since WinResized was last announced.
+    // Vim announces them together, once the display has been brought up to
+    // date, so these are gathered until the event loop has drained.
+    QSet<int> m_resizedViews;
+    QTimer m_winResizedTimer;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -989,6 +1010,10 @@ public:
     {
         QTC_ASSERT(m_provider->handler(), return);
         m_provider->handler()->handleReplay(text().mid(m_provider->needle().size()));
+        // Announced after the word is in, as Vim has it. Giving up on a
+        // completion instead is not announced: Qt Creator closes the proposal
+        // without telling the provider, so there is no such moment here.
+        m_provider->handler()->triggerCompleteDone(text());
         const_cast<FakeVimCompletionAssistProvider *>(m_provider)->setInactive();
     }
 
@@ -1219,6 +1244,70 @@ void FakeVimPlugin::initialize()
     connect(EditorManager::instance(), &EditorManager::editorViewClosed,
             this, [this](int viewId) {
         triggerAutocmdInAnyBuffer("WinClosed", QString::number(viewId));
+    });
+    // A split changing size. Vim announces the windows that changed TOGETHER,
+    // after the display has been brought up to date, so one layout change is
+    // one event naming several - hence the gathering and the zero timer rather
+    // than an announcement per view.
+    m_winResizedTimer.setSingleShot(true);
+    m_winResizedTimer.setInterval(0);
+    connect(&m_winResizedTimer, &QTimer::timeout, this, [this] {
+        if (m_resizedViews.isEmpty() || !settings().useFakeVim()) {
+            m_resizedViews.clear();
+            return;
+        }
+        QList<int> viewIds = Utils::toList(m_resizedViews);
+        std::sort(viewIds.begin(), viewIds.end());
+        m_resizedViews.clear();
+        FakeVimHandler *handler = nullptr;
+        if (IEditor *current = EditorManager::currentEditor())
+            handler = m_editorToHandler.value(current, {}).handler;
+        if (!handler && !m_editorToHandler.isEmpty())
+            handler = m_editorToHandler.constBegin()->handler;
+        if (handler)
+            handler->triggerWinResized(viewIds);
+    });
+    connect(EditorManager::instance(), &EditorManager::editorViewResized,
+            this, [this](int viewId) {
+        m_resizedViews.insert(viewId);
+        m_winResizedTimer.start();
+    });
+    // The whole window changing size, which is Vim resizing rather than one of
+    // its windows. It carries no target and no v:event.
+    connect(ICore::instance(), &ICore::mainWindowResized,
+            this, [this] { triggerAutocmdInAnyBuffer("VimResized", {}); });
+    // Vim announces the APPLICATION gaining and losing focus, which is what
+    // an ":autocmd FocusLost * wa" hangs off. Moving between splits is not
+    // that - it is WinEnter/WinLeave above - so this watches the application
+    // state rather than the focus of any widget. Neither event carries a
+    // target: both "<afile>" and "<amatch>" are the current file (measured).
+    m_appActive = QGuiApplication::applicationState() == Qt::ApplicationActive;
+    connect(qGuiApp, &QGuiApplication::applicationStateChanged,
+            this, [this](Qt::ApplicationState state) {
+        const bool active = state == Qt::ApplicationActive;
+        if (active == m_appActive)
+            return;
+        m_appActive = active;
+        triggerAutocmdInAnyBuffer(active ? QLatin1String("FocusGained")
+                                        : QLatin1String("FocusLost"), {});
+    });
+    // A context menu about to be shown. The pattern is the mode, which the
+    // handler works out for itself.
+    connect(EditorManager::instance(), &EditorManager::aboutToShowContextMenu,
+            this, [this](QMenu *, const Utils::FilePath &,
+                         const QHash<Utils::Id, QAction *> &) {
+        if (!settings().useFakeVim())
+            return;
+        if (IEditor *current = EditorManager::currentEditor()) {
+            if (FakeVimHandler *handler = m_editorToHandler.value(current, {}).handler)
+                handler->triggerMenuPopup();
+        }
+    });
+    // Qt Creator has real sessions. Neither the event nor Vim's own carries a
+    // target: <afile> and <amatch> are the current file (measured).
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            this, [this](const QString &) {
+        triggerAutocmdInAnyBuffer("SessionLoadPost", {});
     });
     connect(EditorManager::instance(), &EditorManager::currentEditorAboutToChange,
             this, &FakeVimPlugin::currentEditorAboutToChange);
@@ -1808,6 +1897,103 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         *spacesForTabs = ts.m_tabPolicy == TabSettingsData::SpacesOnlyTabPolicy;
     });
 
+    // Vim keeps these per window; Qt Creator keeps them per editor, which is
+    // near enough the same thing - setDisplaySettings() is per widget. So they
+    // are read and written on the editor rather than stored, the way
+    // "modified" and "readonly" are: what the user sees IS the answer.
+    const auto displayFlag = [](DisplaySettingsData &settings, const QString &option)
+                                 -> bool * {
+        if (option == "number")
+            return &settings.m_displayLineNumbers;
+        if (option == "wrap")
+            return &settings.m_textWrapping;
+        if (option == "list")
+            return &settings.m_visualizeWhitespace;
+        if (option == "cursorline")
+            return &settings.m_highlightCurrentLine;
+        if (option == "breakindent")
+            return &settings.m_breakindent;
+        return nullptr;
+    };
+    // The file's own shape. Qt Creator has no CR-only line ending and keeps no
+    // note of a missing final newline, so "mac" is refused and 'endofline' is
+    // not answered here at all.
+    handler->documentOptionRequested.set([tew](const QString &option, QString *value) {
+        if (!tew)
+            return;
+        TextDocument *document = tew->textDocument();
+        if (option == "fileformat") {
+            *value = document->lineTerminationMode()
+                             == Utils::TextFileFormat::CRLFLineTerminator
+                         ? QLatin1String("dos") : QLatin1String("unix");
+        } else if (option == "bomb") {
+            *value = document->format().hasUtf8Bom ? QLatin1String("1")
+                                                   : QLatin1String("0");
+        }
+    });
+    // How it is shown. Qt Creator has ONE margin column where Vim takes a
+    // whole list, and a switch for the folding markers where Vim takes a
+    // width, so the handler keeps what was asked for and hands over what can
+    // be had.
+    handler->marginOptionChanged.set([tew](const QString &option, int column) {
+        if (!tew)
+            return;
+        if (option == "colorcolumn") {
+            MarginSettingsData margin = tew->marginSettings();
+            margin.m_showMargin = column > 0;
+            if (column > 0)
+                margin.m_marginColumn = column;
+            tew->setMarginSettings(margin);
+        } else if (option == "foldcolumn") {
+            DisplaySettingsData settings = tew->displaySettings();
+            settings.m_displayFoldingMarkers = column > 0;
+            tew->setDisplaySettings(settings);
+        }
+    });
+    handler->documentOptionChanged.set([tew](const QString &option,
+                                            const QString &value, bool *accepted) {
+        if (!tew)
+            return;
+        TextDocument *document = tew->textDocument();
+        if (option == "fileformat") {
+            if (value == "unix") {
+                document->setLineTerminationMode(
+                    Utils::TextFileFormat::LFLineTerminator);
+            } else if (value == "dos") {
+                document->setLineTerminationMode(
+                    Utils::TextFileFormat::CRLFLineTerminator);
+            } else {
+                *accepted = false; // "mac" among them: there is no such mode
+            }
+        } else if (option == "bomb") {
+            const bool wanted = value != "0";
+            if (wanted == document->format().hasUtf8Bom)
+                return;
+            if (document->supportsUtf8Bom())
+                document->switchUtf8Bom();
+            else
+                *accepted = false;
+        }
+    });
+    handler->displayOptionRequested.set([tew, displayFlag](const QString &option,
+                                                           bool *on) {
+        if (!tew)
+            return;
+        DisplaySettingsData settings = tew->displaySettings();
+        if (const bool *flag = displayFlag(settings, option))
+            *on = *flag;
+    });
+    handler->displayOptionChanged.set([tew, displayFlag](const QString &option,
+                                                          bool on) {
+        if (!tew)
+            return;
+        DisplaySettingsData settings = tew->displaySettings();
+        if (bool *flag = displayFlag(settings, option)) {
+            *flag = on;
+            tew->setDisplaySettings(settings);
+        }
+    });
+
     handler->checkForElectricCharacter.set([tew](bool *result, QChar c) {
         if (tew)
             *result = tew->textDocument()->indenter()->isElectricCharacter(c);
@@ -1895,6 +2081,67 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             qDebug() << "UNKNOWN WINDOW COMMAND: <C-W>" << map;
     });
 
+    // input() and its relatives block in Vim until the user answers. A modal
+    // dialog is what blocks here, so the engine needs nothing suspended.
+    handler->inputRequested.set(
+        [](const QString &prompt, const QString &preset, bool secret,
+           QString *answer, bool *cancelled) {
+            bool accepted = false;
+            const QString text = QInputDialog::getText(
+                ICore::dialogParent(), Tr::tr("FakeVim"), prompt,
+                secret ? QLineEdit::Password : QLineEdit::Normal, preset, &accepted);
+            *cancelled = !accepted;
+            if (accepted)
+                *answer = text;
+        });
+
+    handler->inputListRequested.set([](const QStringList &lines, int *chosen) {
+        // The first entry is the prompt and the rest are the choices, and the
+        // answer is the number of one of them - which is its place in the
+        // list, the numbering a Vim script writes into the entries itself.
+        if (lines.size() < 2)
+            return;
+        bool accepted = false;
+        const QString picked = QInputDialog::getItem(
+            ICore::dialogParent(), Tr::tr("FakeVim"), lines.first(),
+            lines.mid(1), 0, false, &accepted);
+        if (accepted)
+            *chosen = lines.mid(1).indexOf(picked) + 1;
+    });
+
+    // confirm() asks and waits, as input() does, and the same modal dialog is
+    // what waits. The "&" Vim marks an accelerator with is the one QMessageBox
+    // uses too, so the button text goes straight through.
+    handler->confirmRequested.set(
+        [](const QString &text, const QStringList &choices, int preferred, int *chosen) {
+            QMessageBox box(QMessageBox::Question, Tr::tr("FakeVim"), text,
+                            QMessageBox::NoButton, ICore::dialogParent());
+            QList<QPushButton *> buttons;
+            for (const QString &choice : choices)
+                buttons.append(box.addButton(choice, QMessageBox::AcceptRole));
+            if (preferred >= 1 && preferred <= buttons.size())
+                box.setDefaultButton(buttons.at(preferred - 1));
+            box.exec();
+            const int taken = buttons.indexOf(qobject_cast<QPushButton *>(box.clickedButton()));
+            // Vim counts the buttons from one, and answers 0 for a dialog
+            // that was dismissed rather than answered.
+            *chosen = taken < 0 ? 0 : taken + 1;
+        });
+
+    // ":winpos" is about the application window, which is the one window
+    // Qt Creator really has a position for.
+    handler->windowPositionRequested.set([](int *x, int *y) {
+        if (QMainWindow *window = ICore::mainWindow()) {
+            *x = window->pos().x();
+            *y = window->pos().y();
+        }
+    });
+
+    handler->windowMoveRequested.set([](int x, int y) {
+        if (QMainWindow *window = ICore::mainWindow())
+            window->move(x, y);
+    });
+
     handler->findRequested.set([](bool reverse) {
         Find::setUseFakeVim(true);
         Find::openFindToolBar(reverse ? Find::FindBackwardDirection
@@ -1923,6 +2170,77 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             block = block.next();
         }
 
+        documentLayout->requestUpdate();
+        documentLayout->emitDocumentSizeChanged();
+    });
+
+    // 'foldlevel': Qt Creator keeps the depth of a fold as its folding indent,
+    // so the level maps onto it directly - a block whose indent reaches the
+    // level is closed, and anything shallower is opened.
+    handler->foldLevelRequested.set([handler](int level) {
+        QTextDocument *doc = handler->textCursor().document();
+        QTC_ASSERT(doc, return);
+        auto documentLayout = qobject_cast<TextDocumentLayout *>(doc->documentLayout());
+        QTC_ASSERT(documentLayout, return);
+        for (QTextBlock block = doc->firstBlock(); block.isValid();
+             block = block.next()) {
+            if (!TextBlockUserData::canFold(block))
+                continue;
+            const bool open = TextBlockUserData::foldingIndent(block) < level;
+            if (TextBlockUserData::isFolded(block) == open)
+                TextBlockUserData::doFoldOrUnfold(block, open);
+        }
+        documentLayout->requestUpdate();
+        documentLayout->emitDocumentSizeChanged();
+    });
+
+    // What the fold queries answer. A line hidden by a closed fold is not
+    // VISIBLE, which is how the fold holding it is found: walk back to the
+    // block that folded it, and forward to the last one it hides.
+    handler->foldStateRequested.set(
+        [handler](int line, int *closedStart, int *closedEnd, int *level) {
+            QTextDocument *doc = handler->textCursor().document();
+            QTC_ASSERT(doc, return);
+            const QTextBlock block = doc->findBlockByNumber(line - 1);
+            if (!block.isValid())
+                return;
+            *level = TextBlockUserData::foldingIndent(block);
+            // The FIRST line of a closed fold is still shown, and Vim counts it
+            // as part of the fold - measured: for a fold over 2..4, foldclosed()
+            // answers 2 for line 2 as well as for the hidden 3 and 4. So a
+            // visible block that has folded what follows it is a fold start,
+            // and a hidden one belongs to the fold above it.
+            QTextBlock start = block;
+            if (block.isVisible()) {
+                if (!TextBlockUserData::canFold(block)
+                    || !TextBlockUserData::isFolded(block)) {
+                    return;
+                }
+            } else {
+                while (start.isValid() && !start.isVisible())
+                    start = start.previous();
+                if (!start.isValid())
+                    return;
+            }
+            QTextBlock end = block;
+            while (end.next().isValid() && !end.next().isVisible())
+                end = end.next();
+            *closedStart = start.blockNumber() + 1;
+            *closedEnd = end.blockNumber() + 1;
+        });
+
+    handler->foldRangeRequested.set([handler](int firstLine, int lastLine, bool close) {
+        QTextDocument *doc = handler->textCursor().document();
+        QTC_ASSERT(doc, return);
+        auto documentLayout = qobject_cast<TextDocumentLayout *>(doc->documentLayout());
+        QTC_ASSERT(documentLayout, return);
+        for (int line = firstLine; line <= lastLine; ++line) {
+            const QTextBlock block = doc->findBlockByNumber(line - 1);
+            if (block.isValid() && TextBlockUserData::canFold(block)
+                && TextBlockUserData::isFolded(block) != close) {
+                TextBlockUserData::doFoldOrUnfold(block, !close);
+            }
+        }
         documentLayout->requestUpdate();
         documentLayout->emitDocumentSizeChanged();
     });
@@ -2017,7 +2335,31 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
     handler->tabPreviousRequested.set([] { triggerAction(Core::Constants::GOTOPREVINHISTORY); });
 
-    handler->tagJumpRequested.set([this, handler] { tagJump(handler); });
+    handler->tagJumpRequested.set([this, handler](const QString &tag) {
+        tagJump(handler, tag);
+    });
+    // What ":tags" lists. The line each level was followed from is shown with
+    // its text, which is read from the document where it is still open.
+    handler->recentFilesRequested.set([](QStringList *files) {
+        for (const DocumentManager::RecentFile &file : DocumentManager::recentFiles())
+            files->append(file.first.toUserOutput());
+    });
+    handler->tagStackContents.set(
+        [this](QList<FakeVimHandler::TagStackEntry> *entries, int *index) {
+            for (const TagJump &jump : std::as_const(m_tagStack)) {
+                FakeVimHandler::TagStackEntry entry;
+                entry.tag = jump.tag;
+                entry.fromLine = jump.from.target.line;
+                if (TextDocument *document = TextDocument::textDocumentForFilePath(
+                        jump.from.targetFilePath)) {
+                    entry.fromText = document->document()
+                                         ->findBlockByNumber(entry.fromLine - 1)
+                                         .text();
+                }
+                entries->append(entry);
+            }
+            *index = m_tagIndex;
+        });
 
     handler->tagStackRequested.set([this, handler](int distance) {
         tagStackMove(handler, distance);
@@ -2313,6 +2655,15 @@ void FakeVimPlugin::setCursorBlinking(bool on)
     QGuiApplication::styleHints()->setCursorFlashTime(blink ? flashTime : 0);
 }
 
+// How many files ":next" and its kin should move by. It has to be read off
+// hasRange: ExCommand::count is the line an address named, counted from zero,
+// and it holds the CURRENT line where none was typed - so using it directly
+// makes ":next" on line 3 move three files instead of one.
+static int howManyFiles(const ExCommand &cmd)
+{
+    return cmd.hasRange ? cmd.count + 1 : 1;
+}
+
 void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, const ExCommand &cmd)
 {
     QTC_ASSERT(handler, return);
@@ -2344,6 +2695,13 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         IEditor *editor = editorFromHandler();
         const QString fileName = handler->currentFileName();
         if (editor && editor->document()->filePath().toUrlishString() == fileName) {
+            // An autocommand for the "Cmd" event saves the buffer itself, so
+            // Qt Creator must not, and the "Pre"/"Post" pair does not fire.
+            // Vim would also count the buffer as unmodified afterwards; that
+            // is left alone here, because a document marked clean without
+            // having been written closes without a word and loses the edits.
+            if (handler->triggerAutocmd("BufWriteCmd") > 0)
+                return;
             handler->triggerAutocmd("BufWritePre");
             saved = EditorManager::saveDocument(editor->document());
             if (saved) {
@@ -2371,6 +2729,101 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
             handler->showMessage(MessageError, Tr::tr("%n files not saved", nullptr, failed.size()));
         if (cmd.matches("wqa", "wqall"))
             emit delayedQuitAllRequested(cmd.hasBang);
+    } else if (cmd.matches("e", "edit") || cmd.matches("ene", "enew")
+               || cmd.matches("vie", "view") || cmd.matches("vi", "visual")) {
+        // :e[dit] [file] - open one, or read the current one again. Measured:
+        // a bare ":edit" on a changed buffer answers
+        // "E37: No write since last change (add ! to override)" and needs the
+        // bang to throw the changes away; ":edit #" goes to the alternate
+        // file; a file that is not there is opened as a new one. ":view" is
+        // ":edit" with 'readonly' set, and ":visual" is ":edit" by another
+        // name.
+        const QString target = cmd.args.trimmed();
+        IEditor *editor = editorFromHandler();
+        if (cmd.matches("ene", "enew")) {
+            IEditor *fresh = EditorManager::openEditorWithContents(Id());
+            if (fresh)
+                EditorManager::activateEditor(fresh);
+            return;
+        }
+        if (target == "#") {
+            handler->handleInput("<C-^>");
+            return;
+        }
+        if (target.isEmpty()) {
+            if (!editor)
+                return;
+            IDocument *document = editor->document();
+            if (document->isModified() && !cmd.hasBang) {
+                handler->showMessage(MessageError,
+                    Tr::tr("E37: No write since last change (add ! to override)"));
+                return;
+            }
+            const Utils::Result<> reloaded =
+                document->reload(IDocument::FlagReload, IDocument::TypeContents);
+            if (!reloaded)
+                handler->showMessage(MessageError, reloaded.error());
+            return;
+        }
+        const FilePath path = FilePath::fromUserInput(target);
+        if (!EditorManager::openEditor(path)) {
+            handler->showMessage(MessageError,
+                                 Tr::tr("E484: Can't open file %1").arg(target));
+            return;
+        }
+        if (cmd.matches("vie", "view")) {
+            // Vim opens it with 'readonly' set, which is this engine's own
+            // flag on the handler the new editor gets.
+            if (IEditor *opened = EditorManager::currentEditor()) {
+                const auto it = m_editorToHandler.constFind(opened);
+                if (it != m_editorToHandler.constEnd() && it->handler)
+                    it->handler->handleInput(":set readonly<CR>");
+            }
+        }
+    } else if (cmd.matches("sav", "saveas")) {
+        if (cmd.args.trimmed().isEmpty()) {
+            triggerAction(Core::Constants::SAVEAS);
+            return;
+        }
+        IEditor *editor = editorFromHandler();
+        if (!editor)
+            return;
+        const FilePath target = FilePath::fromUserInput(cmd.args.trimmed());
+        if (target.exists() && !cmd.hasBang) {
+            handler->showMessage(MessageError,
+                Tr::tr("E13: File exists (add ! to override)"));
+            return;
+        }
+        if (const Utils::Result<> saved = editor->document()->save(target); !saved)
+            handler->showMessage(MessageError, saved.error());
+    } else if (cmd.matches("h", "help")) {
+        // By action id, to keep the Help plugin out of the dependencies -
+        // contextHelpRequested does the same.
+        triggerAction("Help.Home");
+    } else if (cmd.matches("helpc", "helpclose")) {
+        ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    } else if (cmd.matches("checkt", "checktime")) {
+        IEditor *editor = editorFromHandler();
+        if (!editor)
+            return;
+        IDocument *document = editor->document();
+        if (document->isModified() || !document->filePath().exists())
+            return;
+        if (const Utils::Result<> reloaded
+            = document->reload(IDocument::FlagReload, IDocument::TypeContents);
+            !reloaded) {
+            handler->showMessage(MessageError, reloaded.error());
+        }
+    } else if (cmd.matches("fin", "find")) {
+        const QString name = cmd.args.trimmed();
+        IEditor *editor = editorFromHandler();
+        const FilePath here = editor ? editor->document()->filePath().parentDir() : FilePath{};
+        const FilePath candidate = here.isEmpty() ? FilePath::fromUserInput(name)
+                                                  : here.resolvePath(name);
+        if (!candidate.exists() || !EditorManager::openEditor(candidate)) {
+            handler->showMessage(MessageError,
+                Tr::tr("E345: Can't find file \"%1\" in path").arg(name));
+        }
     } else if (cmd.matches("bd", "bdelete")) {
         // :bd[elete]
         emit delayedBufferDeleteRequested(cmd.hasBang, editorFromHandler());
@@ -2388,9 +2841,21 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         // :vs[plit]
         EditorManager::splitSideBySide();
         updateAllHightLights();
+    } else if (cmd.matches("ve", "version")) {
+        // Vim prints pages of build flags here. Claiming a Vim version would
+        // be a fiction; what this really is, is Qt Creator, so that is what it
+        // says.
+        handler->showMessage(MessageInfo, ICore::versionString());
     } else if (cmd.matches("mak", "make")) {
         // :mak[e][!] [arguments]
+        // The pattern and "<amatch>" are the bare command name, with neither
+        // the modifiers nor the arguments part of it (measured). Building here
+        // is asynchronous, so the "Post" event marks the command having been
+        // started rather than results being in - there is no quickfix list
+        // here for it to have filled either way.
+        handler->triggerAutocmd("QuickFixCmdPre", "make");
         triggerAction(ProjectExplorer::Constants::BUILD);
+        handler->triggerAutocmd("QuickFixCmdPost", "make");
     } else if (cmd.matches("se", "set")) {
         if (cmd.args.isEmpty()) {
             // :se[t]
@@ -2410,17 +2875,21 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         }
         *handled = false; // Let the handler see it as well.
     } else if (cmd.matches("n", "next")) {
-        // :n[ext]
-        switchToFile(currentFile() + cmd.count);
+        // :n[ext] - the argument list where ":args" has set one, and otherwise
+        // the documents Qt Creator has open, which is what this did before
+        // there was a list to walk at all.
+        if (!handler->walkArgList(howManyFiles(cmd)))
+            switchToFile(currentFile() + howManyFiles(cmd));
     } else if (cmd.matches("prev", "previous") || cmd.matches("N", "Next")) {
         // :prev[ious], :N[ext]
-        switchToFile(currentFile() - cmd.count);
+        if (!handler->walkArgList(-howManyFiles(cmd)))
+            switchToFile(currentFile() - howManyFiles(cmd));
     } else if (cmd.matches("bn", "bnext")) {
         // :bn[ext]
-        switchToFile(currentFile() + cmd.count);
+        switchToFile(currentFile() + howManyFiles(cmd));
     } else if (cmd.matches("bp", "bprevious") || cmd.matches("bN", "bNext")) {
         // :bp[revious], :bN[ext]
-        switchToFile(currentFile() - cmd.count);
+        switchToFile(currentFile() - howManyFiles(cmd));
     } else if (cmd.matches("on", "only")) {
         // :on[ly]
         keepOnlyWindow();
@@ -2455,14 +2924,14 @@ static Link currentEditorLink()
     return {};
 }
 
-void FakeVimPlugin::tagJump(FakeVimHandler *handler)
+void FakeVimPlugin::tagJump(FakeVimHandler *handler, const QString &tag)
 {
     Q_UNUSED(handler)
     // A new tag jump discards any entries we had moved back past, records the
-    // current location, and follows the symbol under the cursor.
+    // current location and the symbol being followed, and follows it.
     while (m_tagStack.size() > m_tagIndex)
         m_tagStack.removeLast();
-    m_tagStack.append(currentEditorLink());
+    m_tagStack.append({currentEditorLink(), tag});
     m_tagIndex = m_tagStack.size();
     triggerAction(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
 }
@@ -2476,7 +2945,7 @@ void FakeVimPlugin::tagStackMove(FakeVimHandler *handler, int distance)
             return;
         }
         m_tagIndex = qMax(0, m_tagIndex + distance);
-        EditorManager::openEditorAt(m_tagStack.at(m_tagIndex));
+        EditorManager::openEditorAt(m_tagStack.at(m_tagIndex).from);
     } else if (distance > 0) {
         // bare :tag - re-follow towards the newest tag jump.
         if (m_tagIndex >= m_tagStack.size()) {
@@ -2484,7 +2953,7 @@ void FakeVimPlugin::tagStackMove(FakeVimHandler *handler, int distance)
             return;
         }
         m_tagIndex = qMin(m_tagStack.size(), m_tagIndex + distance);
-        EditorManager::openEditorAt(m_tagStack.at(m_tagIndex - 1));
+        EditorManager::openEditorAt(m_tagStack.at(m_tagIndex - 1).from);
         triggerAction(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     }
 }

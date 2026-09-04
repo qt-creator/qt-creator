@@ -120,6 +120,10 @@ public:
     // How long nothing has to be typed before the "CursorHold" autocommand runs,
     // in milliseconds, as Vim's 'updatetime' says.
     FvIntegerAspect updateTime;
+    // How deep a mapping may expand into another before Vim gives up, and how
+    // deep a function may call another. Both were hardcoded here.
+    FvIntegerAspect maxMapDepth;
+    FvIntegerAspect maxFuncDepth;
     FvBoolAspect expandTab;
     FvBoolAspect autoIndent;
     FvBoolAspect smartIndent;
@@ -226,6 +230,39 @@ public:
     FvBoolAspect emulateArgTextObj;
     FvBoolAspect emulateSurround;
     FvBoolAspect emulateVimUnimpaired;
+
+    // Options recorded so a script can set one, read it back and put it
+    // back as it found it - the pattern 'cpoptions' and its neighbours
+    // already follow here. None of these changes anything: Qt Creator
+    // decides all of it. 'endofline' is among them for that reason - it
+    // does NOT report whether the file ends with a newline, which Creator
+    // keeps no note of.  All defaults measured in Vim 9.1.
+    FvBoolAspect autoRead;
+    FvBoolAspect autoWrite;
+    FvBoolAspect autoWriteAll;
+    FvBoolAspect hidden;
+    FvBoolAspect swapFile;
+    FvBoolAspect backup;
+    FvBoolAspect writeBackup;
+    FvBoolAspect writeAny;
+    FvBoolAspect equalAlways;
+    FvBoolAspect splitBelow;
+    FvBoolAspect splitRight;
+    FvBoolAspect showTitle; // named so as not to shadow Layouting::title()
+    FvBoolAspect inferCase;
+    FvBoolAspect binary;
+    FvBoolAspect endOfLine;
+    FvIntegerAspect undoLevels;
+    FvIntegerAspect numberWidth;
+    FvIntegerAspect wrapMargin;
+    FvIntegerAspect sideScrollOff;
+    FvStringAspect shortMess;
+    FvStringAspect complete;
+    FvStringAspect completeOpt;
+    FvStringAspect dictionary;
+    FvStringAspect thesaurus;
+    FvStringAspect listChars;
+    FvStringAspect fileFormats;
 
     FvBoolAspect blinkingCursor;
     FvIntegerAspect cursorFlashTime;

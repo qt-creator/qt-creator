@@ -50,6 +50,9 @@ struct ExCommand
     // The line of the file this was read from, 1-based, or 0 where it was not
     // read from one. What a script's frame is reported to be at.
     int sourceLine = 0;
+    // The text this was parsed from, which ":append" and its kin take
+    // verbatim rather than as a command.
+    QString original;
     int count = 1;
 };
 
@@ -116,10 +119,30 @@ public:
     // "target" is what the pattern is matched against and what "<afile>"
     // stands for, where the event is about something that is no file - a
     // window id for WinClosed, say. Empty means the current file name.
-    void triggerAutocmd(const QString &event, const QString &target = {});
+    // Returns how many autocommands ran, so that a caller firing a "*Cmd"
+    // event can leave the built-in action undone where one of them did it.
+    int triggerAutocmd(const QString &event, const QString &target = {});
+
+    // A completion having been applied, with the word it put in - the one
+    // moment the chosen word is known, the completion UI being Qt Creator's.
+    void triggerCompleteDone(const QString &word);
+
+    // A context menu about to be shown. The handler works out the mode the
+    // pattern is matched against itself.
+    void triggerMenuPopup();
+
+    // Splits having changed size, named by the ids Qt Creator hands out for
+    // them. Vim reports them together, so they arrive as a list.
+    void triggerWinResized(const QList<int> &viewIds);
 
     // Obey a "vim:" line in the first or last lines of the buffer. Called when
     // a document is opened, after the file type has been established.
+    // Move by that many entries in the argument list, opening what it lands
+    // on. False where no list has been set, which leaves ":next" and
+    // ":previous" to the plugin - they walk Qt Creator's open documents there,
+    // and did so before there was a list to walk at all.
+    bool walkArgList(int distance);
+
     void processModelines();
 
     // This executes an "ex" style command taking context
@@ -169,8 +192,42 @@ public:
     // Fills the editor tab/indent settings; used when useEditorTabSettings is
     // on so FakeVim follows the (project) editor settings (QTCREATORBUG-14273).
     Callback<void(int *tabSize, int *indentSize, bool *spacesForTabs)> tabSettingsRequested;
+    // The display options Vim keeps per window and Qt Creator keeps per
+    // editor: "number", "wrap", "list", "cursorline" and "breakindent". Read
+    // and written rather than stored, the editor being what really knows.
+    Callback<void(const QString &option, bool *on)> displayOptionRequested;
+    Callback<void(const QString &option, bool on)> displayOptionChanged;
+    // The options whose value is a name or a number rather than a switch, and
+    // which the editor or its document holds: "fileformat" and "bomb" say what
+    // shape the file has, "colorcolumn" and "foldcolumn" how it is shown. The
+    // value goes both ways as a string - "unix"/"dos", "0"/"1", a column or an
+    // empty one for none. Setting one may be refused, a line ending Qt Creator
+    // has no mode for being asked for.
+    Callback<void(const QString &option, QString *value)> documentOptionRequested;
+    Callback<void(const QString &option, const QString &value, bool *accepted)>
+        documentOptionChanged;
+    // What "colorcolumn" and "foldcolumn" come to here: the one column to draw
+    // a margin at, or the width of the fold column - zero for neither.
+    Callback<void(const QString &option, int column)> marginOptionChanged;
     Callback<void(const QString &needle, bool forward)> simpleCompletionRequested;
     Callback<void(const QString &key, int count)> windowCommandRequested;
+    // What input(), inputsecret() and inputlist() ask when no answer is
+    // waiting in the typeahead. Vim blocks until the user answers, and a
+    // dialog is what does that blocking here.
+    Callback<void(const QString &prompt, const QString &preset, bool secret,
+                  QString *answer, bool *cancelled)> inputRequested;
+    // The prompt is the first entry of the list; the rest are the choices, and
+    // the answer is the NUMBER of one of them, zero for none.
+    Callback<void(const QStringList &lines, int *chosen)> inputListRequested;
+    // What confirm() asks: a message, the buttons with "&" marking their
+    // accelerators, and which one is the default. The answer is the button
+    // number, or zero for a dismissed dialog.
+    Callback<void(const QString &message, const QStringList &choices, int preferred,
+                  int *chosen)> confirmRequested;
+    // Where the application window sits, and where to put it - what ":winpos"
+    // asks and sets.
+    Callback<void(int *x, int *y)> windowPositionRequested;
+    Callback<void(int x, int y)> windowMoveRequested;
     Callback<void(bool reverse)> findRequested;
     Callback<void(bool reverse)> findNextRequested;
     Callback<void()> findHideRequested;
@@ -182,6 +239,17 @@ public:
     Callback<void(int depth)> foldToggle;
     Callback<void()> foldToggleAll; // zi: open all folds if any is closed, else close all
     Callback<void(bool fold)> foldAll;
+    // Close every fold deeper than that level and open the rest, which is
+    // what 'foldlevel' comes to. A level of zero closes them all.
+    Callback<void(int level)> foldLevelRequested;
+    // What foldclosed(), foldclosedend() and foldlevel() answer about a line:
+    // where the closed fold holding it starts and ends, both -1 for a line in
+    // none, and how deep the folds are there.
+    Callback<void(int line, int *closedStart, int *closedEnd, int *level)>
+        foldStateRequested;
+    // Open or close the folds over a range of lines, which is what
+    // ":foldopen" and ":foldclose" come to.
+    Callback<void(int firstLine, int lastLine, bool close)> foldRangeRequested;
     Callback<void(int depth, bool dofold)> fold;
     Callback<void(int count, bool current)> foldGoTo;
     Callback<void(QChar mark, bool backTickMode, const QString &fileName)> requestJumpToLocalMark;
@@ -192,8 +260,22 @@ public:
     // Vim tag stack (QTCREATORBUG-11754). tagJumpRequested: CTRL-] / :tag with
     // an argument (push and follow). tagStackRequested: move by the signed
     // count - CTRL-T / :pop go back (negative), bare :tag goes forward.
-    Callback<void()> tagJumpRequested;
+    // The symbol to follow, which the handler knows and the plugin needs to
+    // write down: ":tags" lists the tag of each level, and the tag stack lives
+    // on the plugin side.
+    Callback<void(const QString &tag)> tagJumpRequested;
     Callback<void(int distance)> tagStackRequested;
+    // The files opened before this session, newest first, which is what
+    // "v:oldfiles" holds and ":oldfiles" lists. Qt Creator keeps the list.
+    Callback<void(QStringList *files)> recentFilesRequested;
+    // One level of that stack, oldest first, for ":tags" to list.
+    struct TagStackEntry
+    {
+        QString tag;       // the symbol that was followed
+        int fromLine = 0;  // the line it was followed from, counted from one
+        QString fromText;  // and that line, which the listing shows
+    };
+    Callback<void(QList<TagStackEntry> *entries, int *index)> tagStackContents;
     // K: look up the symbol under the cursor.
     Callback<void()> contextHelpRequested;
     // The syntax item names at a position, for synstack(). Qt Creator has no
