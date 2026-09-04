@@ -30,6 +30,9 @@ public:
     // has the commands around the broken ones.
     bool isValid() const { return !_engine.hasErrors(); }
     SourceFileAST *ast() const { return _ast; }
+
+    // The text the tokens of the AST point into.
+    QStringView source() const { return _engine.source(); }
     const QList<Diagnostic> &diagnostics() const { return _engine.diagnostics(); }
     QString errorString() const;
 

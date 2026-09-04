@@ -45,6 +45,7 @@ public:
 
     // Takes ownership of the text the tokens and the AST refer to.
     QStringView setSource(const QString &source);
+    QStringView source() const { return _source; }
 
     MemoryPool *pool() { return &_pool; }
 

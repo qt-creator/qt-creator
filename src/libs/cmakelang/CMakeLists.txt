@@ -40,6 +40,7 @@ add_qtc_library(CMakeLang
     cmakeengine.cpp cmakeengine.h
     cmakelexer.cpp cmakelexer.h
     cmakememorypool.h
+    cmakerewriter.cpp cmakerewriter.h
     cmakesignature.cpp cmakesignature.h
     ${CMAKELANG_GENERATED_SOURCES}
 )

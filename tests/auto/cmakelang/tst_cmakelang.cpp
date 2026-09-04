@@ -7,6 +7,7 @@
 #include <cmakelang/cmakeengine.h>
 #include <cmakelang/cmakelexer.h>
 #include <cmakelang/cmakeparser.h>
+#include <cmakelang/cmakerewriter.h>
 #include <cmakelang/cmakesignature.h>
 
 #include <QTest>
@@ -196,6 +197,9 @@ private slots:
     void signaturesNeedTheSource();
     void argumentGroups_data();
     void argumentGroups();
+    void rewriterReplacesValues();
+    void rewriterRemovesArguments();
+    void rewriterInsertsValues();
 };
 
 void tst_CMakeLang::lexer_data()
@@ -786,6 +790,217 @@ void tst_CMakeLang::argumentGroups()
     QFETCH(QString, call);
     QFETCH(QString, expected);
     QCOMPARE(groupsOf(QString::fromLatin1(qmlModuleDefinition), call), expected);
+}
+
+static ArgumentAST *argumentNaming(const DocumentPtr &document, const QString &value)
+{
+    for (CommandAST *command : document->commands()) {
+        for (ArgumentAST *argument : command->arguments()) {
+            if (argument->value() == value)
+                return argument;
+        }
+    }
+    return nullptr;
+}
+
+static CommandAST *commandNamed(const DocumentPtr &document, const QString &name)
+{
+    for (CommandAST *command : document->commands()) {
+        if (command->isNamed(name))
+            return command;
+    }
+    return nullptr;
+}
+
+using Change = std::function<void(const DocumentPtr &, Rewriter &)>;
+
+static QString rewritten(const QString &source, const Change &change)
+{
+    const DocumentPtr document = Document::fromSource(source);
+    if (!document->isValid())
+        return "<error>";
+
+    Rewriter rewriter(document);
+    change(document, rewriter);
+
+    QString result = source;
+    const QList<Edit> edits = rewriter.edits();
+    for (auto it = edits.crbegin(); it != edits.crend(); ++it)
+        result.replace(it->position, it->length, it->text);
+    return result;
+}
+
+void tst_CMakeLang::rewriterReplacesValues()
+{
+    // What the line is indented by is the author's, and a new value is no
+    // reason to reconsider it.
+    QCOMPARE(rewritten("qt_add_qml_module(app\n"
+                       "    QML_FILES\n"
+                       "        Main.qml\n"
+                       ")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.replaceValue(argumentNaming(document, "Main.qml"),
+                                                 "Main2.qml");
+                       }),
+             "qt_add_qml_module(app\n"
+             "    QML_FILES\n"
+             "        Main2.qml\n"
+             ")\n");
+
+    // A value that was quoted stays quoted, and one that needs quotes gets
+    // them.
+    QCOMPARE(rewritten("set(FILES \"a b.cpp\")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.replaceValue(argumentNaming(document, "a b.cpp"), "c.cpp");
+                       }),
+             "set(FILES \"c.cpp\")\n");
+
+    QCOMPARE(rewritten("set(FILES a.cpp)\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.replaceValue(argumentNaming(document, "a.cpp"), "a b.cpp");
+                       }),
+             "set(FILES \"a b.cpp\")\n");
+
+    // A quote or a backslash in the value is escaped either way, so it cannot
+    // end the argument early.
+    QCOMPARE(rewritten("set(FILES \"a b.cpp\")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.replaceValue(argumentNaming(document, "a b.cpp"),
+                                                 "c\\d\"e.cpp");
+                       }),
+             "set(FILES \"c\\\\d\\\"e.cpp\")\n");
+
+    QCOMPARE(rewritten("set(FILES a.cpp)\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.replaceValue(argumentNaming(document, "a.cpp"),
+                                                 "c\\d\"e.cpp");
+                       }),
+             "set(FILES \"c\\\\d\\\"e.cpp\")\n");
+}
+
+void tst_CMakeLang::rewriterRemovesArguments()
+{
+    // One of several values on a line: the value goes, the line stays.
+    QCOMPARE(rewritten("qt_add_qml_module(app\n"
+                       "    QML_FILES Main.qml Other.qml\n"
+                       ")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.remove(argumentNaming(document, "Main.qml"));
+                       }),
+             "qt_add_qml_module(app\n"
+             "    QML_FILES Other.qml\n"
+             ")\n");
+
+    // The only value on its line: the line goes with it.
+    QCOMPARE(rewritten("qt_add_qml_module(app\n"
+                       "    QML_FILES\n"
+                       "        Main.qml\n"
+                       "        Item.qml\n"
+                       ")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.remove(argumentNaming(document, "Main.qml"));
+                       }),
+             "qt_add_qml_module(app\n"
+             "    QML_FILES\n"
+             "        Item.qml\n"
+             ")\n");
+
+    // A line of a file with CRLF endings goes with its whole ending, and the
+    // line before keeps one.
+    QCOMPARE(rewritten("qt_add_qml_module(app\r\n"
+                       "    QML_FILES\r\n"
+                       "        Main.qml\r\n"
+                       "        Item.qml\r\n"
+                       ")\r\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.remove(argumentNaming(document, "Main.qml"));
+                       }),
+             "qt_add_qml_module(app\r\n"
+             "    QML_FILES\r\n"
+             "        Item.qml\r\n"
+             ")\r\n");
+
+    // From the keyword to its last value, across the lines they stand on.
+    QCOMPARE(rewritten("qt_add_qml_module(app\n"
+                       "    QML_FILES\n"
+                       "        Main.qml\n"
+                       "    SOURCES backend.cpp\n"
+                       ")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.remove(argumentNaming(document, "QML_FILES"),
+                                           argumentNaming(document, "Main.qml"));
+                       }),
+             "qt_add_qml_module(app\n"
+             "    SOURCES backend.cpp\n"
+             ")\n");
+}
+
+void tst_CMakeLang::rewriterInsertsValues()
+{
+    // A value goes after the one it joins, on a line indented the same way.
+    QCOMPARE(rewritten("qt_add_qml_module(app\n"
+                       "    QML_FILES Main.qml\n"
+                       ")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.insertAfter(argumentNaming(document, "Main.qml"),
+                                                {"Item.qml"});
+                       }),
+             "qt_add_qml_module(app\n"
+             "    QML_FILES Main.qml\n"
+             "    Item.qml\n"
+             ")\n");
+
+    QCOMPARE(rewritten("qt_add_qml_module(app\n"
+                       "    QML_FILES\n"
+                       "        Main.qml\n"
+                       ")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.insertAfter(argumentNaming(document, "Main.qml"),
+                                                {"Item.qml"});
+                       }),
+             "qt_add_qml_module(app\n"
+             "    QML_FILES\n"
+             "        Main.qml\n"
+             "        Item.qml\n"
+             ")\n");
+
+    // A keyword the call does not have yet goes after its last argument.
+    QCOMPARE(rewritten("qt_add_qml_module(app\n"
+                       "    URI QuickApp\n"
+                       "    VERSION 1.0\n"
+                       ")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.append(commandNamed(document, "qt_add_qml_module"),
+                                           {"RESOURCES logo.png", "QML_FILES Item.qml"});
+                       }),
+             "qt_add_qml_module(app\n"
+             "    URI QuickApp\n"
+             "    VERSION 1.0\n"
+             "    RESOURCES logo.png\n"
+             "    QML_FILES Item.qml\n"
+             ")\n");
+
+    // Several changes to one call come out in the order the file spells them.
+    QCOMPARE(rewritten("qt_add_qml_module(app\n"
+                       "    QML_FILES\n"
+                       "        Main.qml\n"
+                       "    SOURCES\n"
+                       "        backend.cpp\n"
+                       ")\n",
+                       [](const DocumentPtr &document, Rewriter &rewriter) {
+                           rewriter.insertAfter(argumentNaming(document, "backend.cpp"),
+                                                {"extra.cpp"});
+                           rewriter.insertAfter(argumentNaming(document, "Main.qml"),
+                                                {"Item.qml"});
+                       }),
+             "qt_add_qml_module(app\n"
+             "    QML_FILES\n"
+             "        Main.qml\n"
+             "        Item.qml\n"
+             "    SOURCES\n"
+             "        backend.cpp\n"
+             "        extra.cpp\n"
+             ")\n");
 }
 
 QTEST_GUILESS_MAIN(tst_CMakeLang)
