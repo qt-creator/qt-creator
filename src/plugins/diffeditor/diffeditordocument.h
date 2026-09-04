@@ -76,6 +76,7 @@ public:
     QByteArray contents() const override;
 
 signals:
+    void controllerChanged();
     void temporaryStateChanged();
     void documentChanged();
     void descriptionChanged();

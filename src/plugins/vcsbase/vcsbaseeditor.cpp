@@ -34,12 +34,14 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <texteditor/marginsettings.h>
+#include <texteditor/displaysettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
 
 #include <utils/aggregate.h>
 #include <utils/algorithm.h>
+#include <utils/ansiescapecodehandler.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -650,6 +652,85 @@ VcsBaseEditorWidget::VcsBaseEditorWidget()
   : d(new Internal::VcsBaseEditorWidgetPrivate(this))
 {
     viewport()->setMouseTracking(true);
+}
+
+VcsBaseDescriptionEditorWidget::VcsBaseDescriptionEditorWidget(
+    const VcsBaseDescriptionEditorParameters &parameters, QWidget *parent)
+    : VcsBaseEditorWidget()
+    , m_parameters(parameters)
+{
+    setParent(parent);
+    setupFallBackEditor("VcsBase.DescriptionEditor");
+
+    DisplaySettingsData settings = displaySettings();
+    settings.m_textWrapping = false;
+    settings.m_displayLineNumbers = false;
+    settings.m_displayFoldingMarkers = false;
+    settings.m_markTextChanges = false;
+    settings.m_highlightBlocks = false;
+    TextEditorWidget::setDisplaySettings(settings);
+
+    setCodeFoldingSupported(true);
+    setFrameStyle(QFrame::NoFrame);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    IContext::attach(this, Core::Context(DiffEditor::Constants::C_DIFF_EDITOR_DESCRIPTION));
+    textDocument()->resetSyntaxHighlighter([] { return new SyntaxHighlighter(); });
+
+    VcsBaseEditorParameters editorParameters;
+    editorParameters.type = OtherContent;
+    editorParameters.id = "VcsBase.DescriptionEditor";
+    editorParameters.displayName = Tr::tr("Version Control Description");
+    editorParameters.describeFunc = [this](const FilePath &source, const QString &change) {
+        if (m_parameters.describe)
+            m_parameters.describe(source, change);
+    };
+    setParameters(editorParameters);
+    setSource(parameters.source);
+    setReadOnly(true);
+    VcsBaseEditorWidget::finalizeInitialization();
+}
+
+QSize VcsBaseDescriptionEditorWidget::sizeHint() const
+{
+    QSize size = TextEditorWidget::sizeHint();
+    size.setHeight(size.height() / 5);
+    return size;
+}
+
+void VcsBaseDescriptionEditorWidget::setDescription(const QString &text, bool ansiEnabled)
+{
+    if (ansiEnabled)
+        AnsiEscapeCodeHandler::setTextInDocument(document(), text);
+    else
+        textDocument()->setPlainText(text);
+}
+
+bool VcsBaseDescriptionEditorWidget::supportChangeLinks() const
+{
+    return true;
+}
+
+QString VcsBaseDescriptionEditorWidget::changeUnderCursor(const QTextCursor &cursor) const
+{
+    return m_parameters.changeUnderCursor ? m_parameters.changeUnderCursor(cursor) : QString();
+}
+
+BaseAnnotationHighlighterCreator
+VcsBaseDescriptionEditorWidget::annotationHighlighterCreator() const
+{
+    return {};
+}
+
+void VcsBaseDescriptionEditorWidget::addChangeActions(QMenu *menu, const QString &change, int line)
+{
+    if (m_parameters.addChangeActions)
+        m_parameters.addChangeActions(menu, change, line);
+}
+
+bool VcsBaseDescriptionEditorWidget::isValidRevision(const QString &revision) const
+{
+    return m_parameters.isValidRevision ? m_parameters.isValidRevision(revision) : true;
 }
 
 void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters &parameters)

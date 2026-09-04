@@ -58,6 +58,7 @@
 #include <utils/pathchooser.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
@@ -85,6 +86,8 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScopeGuard>
+#include <QSplitter>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -2461,6 +2464,7 @@ private slots:
     void testConflictedFileInTextEditor();
     void testGraphModelRepositorySwitch();
     void testSubmitMessageSpellCheck();
+    void testDiffDescriptionEditor();
 };
 
 void GitTest::testStatusParsing_data()
@@ -3027,6 +3031,95 @@ void GitTest::testSubmitMessageSpellCheck()
 
     widget.setDescriptionText("Rename mispelledFunction in src/libs/utils/spellcheckr.cpp");
     QCOMPARE(underlinedTexts(widget.descriptionEdit()->document()), QStringList());
+}
+
+void GitTest::testDiffDescriptionEditor()
+{
+    QTemporaryDir firstTemporaryDir;
+    QTemporaryDir secondTemporaryDir;
+    QVERIFY(firstTemporaryDir.isValid());
+    QVERIFY(secondTemporaryDir.isValid());
+    const FilePath firstRepo = FilePath::fromString(firstTemporaryDir.path());
+    const FilePath secondRepo = FilePath::fromString(secondTemporaryDir.path());
+    const auto initializeRepository = [](const FilePath &repo, const QString &link) {
+        const auto runGit = [repo](const QStringList &arguments) {
+            return gitClient().vcsSynchronousExec(repo, arguments).result()
+                   == ProcessResult::FinishedWithSuccess;
+        };
+        return runGit({"init", "."})
+               && runGit({"config", "user.email", "test@test"})
+               && runGit({"config", "user.name", "test"})
+               && runGit({"config", "commit.gpgsign", "false"})
+               && (repo / "file.txt").writeFileContents("content\n")
+               && runGit({"add", "file.txt"})
+               && runGit({"commit", "-m", QString::fromLatin1("initial\n\nSee ") + link});
+    };
+    QVERIFY(initializeRepository(firstRepo, "https://example.com/first"));
+    QVERIFY(initializeRepository(secondRepo, "https://example.com/second"));
+
+    QtcSettings *settings = ICore::settings();
+    constexpr int descriptionLineCount = 8;
+    settings->beginGroup("DiffEditor");
+    const bool hadDescriptionHeight = settings->contains("DescriptionHeight");
+    const QVariant previousDescriptionHeight = settings->value("DescriptionHeight");
+    const bool hadDescriptionVisible = settings->contains("DescriptionVisible");
+    const QVariant previousDescriptionVisible = settings->value("DescriptionVisible");
+    settings->setValue("DescriptionHeight", descriptionLineCount);
+    settings->setValue("DescriptionVisible", false);
+    settings->endGroup();
+    const QScopeGuard restoreSettings([settings, hadDescriptionHeight, previousDescriptionHeight,
+                                       hadDescriptionVisible, previousDescriptionVisible] {
+        settings->beginGroup("DiffEditor");
+        if (hadDescriptionHeight)
+            settings->setValue("DescriptionHeight", previousDescriptionHeight);
+        else
+            settings->remove("DescriptionHeight");
+        if (hadDescriptionVisible)
+            settings->setValue("DescriptionVisible", previousDescriptionVisible);
+        else
+            settings->remove("DescriptionVisible");
+        settings->endGroup();
+    });
+
+    gitClient().show(firstRepo, "HEAD");
+    QTRY_VERIFY(EditorManager::currentEditor() && EditorManager::currentEditor()->widget()
+                && EditorManager::currentEditor()->widget()
+                       ->findChild<VcsBaseDescriptionEditorWidget *>());
+    IEditor *editor = EditorManager::currentEditor();
+    auto *splitter = qobject_cast<QSplitter *>(editor->widget());
+    QVERIFY(splitter);
+    auto *firstDescription = splitter->findChild<VcsBaseDescriptionEditorWidget *>();
+    QVERIFY(firstDescription->isReadOnly());
+    QTRY_VERIFY(firstDescription->toPlainText().contains("https://example.com/first"));
+    QCOMPARE(firstDescription->source(), firstRepo);
+    QVERIFY(firstDescription->isHidden());
+    QAction *toggleDescriptionAction
+        = editor->toolBar()->findChild<QAction *>("DiffEditorToggleDescriptionAction");
+    QVERIFY(toggleDescriptionAction);
+    toggleDescriptionAction->trigger();
+    QTRY_VERIFY(!firstDescription->isHidden());
+    const int descriptionHeight
+        = firstDescription->fontMetrics().lineSpacing() * descriptionLineCount;
+    QTRY_COMPARE(splitter->sizes().at(0), descriptionHeight);
+
+    QList<int> enlargedSizes = splitter->sizes();
+    const int availableHeight = enlargedSizes[0] + enlargedSizes[1];
+    const int enlargedHeight = qMin(descriptionHeight * 2, availableHeight - 1);
+    QVERIFY(enlargedHeight > descriptionHeight);
+    enlargedSizes[0] = enlargedHeight;
+    enlargedSizes[1] = availableHeight - enlargedHeight;
+    splitter->setSizes(enlargedSizes);
+    QTRY_COMPARE(splitter->sizes().at(0), enlargedHeight);
+
+    gitClient().show(secondRepo, "HEAD");
+    QTRY_VERIFY(splitter->findChild<VcsBaseDescriptionEditorWidget *>() != firstDescription);
+    auto *secondDescription = splitter->findChild<VcsBaseDescriptionEditorWidget *>();
+    QVERIFY(secondDescription);
+    QTRY_VERIFY(secondDescription->toPlainText().contains("https://example.com/second"));
+    QCOMPARE(secondDescription->source(), secondRepo);
+    QTRY_COMPARE(splitter->sizes().at(0), descriptionHeight);
+
+    QVERIFY(EditorManager::closeDocuments({EditorManager::currentDocument()}, false));
 }
 
 #endif

@@ -192,6 +192,7 @@ class GitBaseDiffEditorController : public VcsBaseDiffEditorController
 protected:
     explicit GitBaseDiffEditorController(IDocument *document);
 
+    DiffEditor::DescriptionEditorProvider descriptionEditorProvider() const final;
     QStringList addConfigurationArguments(const QStringList &args) const;
 
 private:
@@ -306,6 +307,35 @@ GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document)
 {
     setDisplayName("Git Diff");
     setPatienceButtonEnabled(true);
+}
+
+DiffEditor::DescriptionEditorProvider
+GitBaseDiffEditorController::descriptionEditorProvider() const
+{
+    const FilePath source = workingDirectory();
+    VcsBaseDescriptionEditorParameters parameters;
+    parameters.source = source;
+    parameters.changeUnderCursor = [](const QTextCursor &cursor) {
+        QTextCursor word = cursor;
+        word.select(QTextCursor::WordUnderCursor);
+        if (!word.hasSelection())
+            return QString();
+
+        static const QRegularExpression hashPattern(
+            QRegularExpression::anchoredPattern("[a-f0-9]{7,40}"));
+        const QString change = word.selectedText();
+        return hashPattern.match(change).hasMatch() ? change : QString();
+    };
+    parameters.isValidRevision = [](const QString &revision) {
+        return gitClient().isValidRevision(revision);
+    };
+    parameters.addChangeActions = [source](QMenu *menu, const QString &change, int line) {
+        GitClient::addChangeActions(menu, source, change, line);
+    };
+    parameters.describe = [](const FilePath &source, const QString &change) {
+        gitClient().show(source, change);
+    };
+    return createVcsBaseDescriptionEditorProvider(parameters);
 }
 
 ///////////////////////////////

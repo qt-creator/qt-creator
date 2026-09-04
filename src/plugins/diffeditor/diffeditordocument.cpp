@@ -41,6 +41,7 @@ void DiffEditorDocument::setController(DiffEditorController *controller)
     if (m_controller)
         m_controller->deleteLater();
     m_controller = controller;
+    emit controllerChanged();
 }
 
 DiffEditorController *DiffEditorDocument::controller() const

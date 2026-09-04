@@ -4,6 +4,7 @@
 #include "diffeditor.h"
 
 #include "diffeditorconstants.h"
+#include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
 #include "diffeditoricons.h"
 #include "diffeditortr.h"
@@ -36,6 +37,7 @@
 #include <QComboBox>
 #include <QDir>
 #include <QLabel>
+#include <QPointer>
 #include <QSpinBox>
 #include <QStackedWidget>
 #include <QStyle>
@@ -266,6 +268,25 @@ void DescriptionEditorWidget::applyFontSettings()
     emit requestResize();
 }
 
+static ::DiffEditor::DescriptionEditorProvider defaultDescriptionEditorProvider()
+{
+    return {
+        [](QWidget *parent) {
+            auto *editor = new DescriptionEditorWidget(parent);
+            editor->setReadOnly(true);
+            return editor;
+        },
+        [](QWidget *editor, const QString &text, bool ansiEnabled) {
+            auto *descriptionEditor = qobject_cast<DescriptionEditorWidget *>(editor);
+            QTC_ASSERT(descriptionEditor, return);
+            if (ansiEnabled)
+                AnsiEscapeCodeHandler::setTextInDocument(descriptionEditor->document(), text);
+            else
+                descriptionEditor->setPlainText(text);
+        }
+    };
+}
+
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
 class DiffEditor final : public IEditor
@@ -283,6 +304,8 @@ private:
     void setDocument(std::shared_ptr<DiffEditorDocument> doc);
 
     void documentHasChanged();
+    void updateDescriptionEditor();
+    void resizeDescription();
     void toggleDescription();
     void updateDescription();
     void foldAllHasChanged();
@@ -309,7 +332,11 @@ private:
     void setupView(IDiffView *view);
 
     std::shared_ptr<DiffEditorDocument> m_document;
-    DescriptionEditorWidget *m_descriptionWidget = nullptr;
+    QSplitter *m_splitter = nullptr;
+    QWidget *m_descriptionWidget = nullptr;
+    ::DiffEditor::DescriptionEditorProvider m_descriptionEditorProvider;
+    QPointer<DiffEditorController> m_descriptionEditorController;
+    bool m_usingDefaultDescriptionEditor = true;
     UnifiedView *m_unifiedView = nullptr;
     SideBySideView *m_sideBySideView = nullptr;
     QStackedWidget *m_stackedWidget = nullptr;
@@ -346,36 +373,26 @@ DiffEditor::DiffEditor()
     setDuplicateSupported(true);
 
     // Widget:
-    QSplitter *splitter = new MiniSplitter(Qt::Vertical);
+    m_splitter = new MiniSplitter(Qt::Vertical);
 
-    connect(splitter, &QSplitter::splitterMoved, this, [this, splitter](int pos) {
+    connect(m_splitter, &QSplitter::splitterMoved, this, [this](int pos) {
         if (!m_showDescription)
             return;
-        const int lineSpacing = splitter->widget(0)->fontMetrics().lineSpacing();
+        const int lineSpacing = m_splitter->widget(0)->fontMetrics().lineSpacing();
         const int descHeight = (pos + lineSpacing - 1) / lineSpacing; // round up
         if (m_descriptionHeight == descHeight)
             return;
         m_descriptionHeight = descHeight;
         saveSetting(descriptionHeightKeyC, descHeight);
     });
-    m_descriptionWidget = new DescriptionEditorWidget(splitter);
-    m_descriptionWidget->setReadOnly(true);
-    connect(m_descriptionWidget, &DescriptionEditorWidget::requestResize, this, [this, splitter] {
-        if (splitter->count() == 0)
-            return;
-        QList<int> sizes = splitter->sizes();
-        const int descHeight = splitter->widget(0)->fontMetrics().lineSpacing() * m_descriptionHeight;
-        const int diff = descHeight - sizes[0];
-        if (diff > 0) {
-            sizes[0] += diff;
-            sizes[1] -= diff;
-            splitter->setSizes(sizes);
-        }
-    });
-    splitter->addWidget(m_descriptionWidget);
+    m_descriptionEditorProvider = defaultDescriptionEditorProvider();
+    m_descriptionWidget = m_descriptionEditorProvider.create(m_splitter);
+    connect(qobject_cast<DescriptionEditorWidget *>(m_descriptionWidget),
+            &DescriptionEditorWidget::requestResize, this, &DiffEditor::resizeDescription);
+    m_splitter->addWidget(m_descriptionWidget);
 
-    m_stackedWidget = new QStackedWidget(splitter);
-    splitter->addWidget(m_stackedWidget);
+    m_stackedWidget = new QStackedWidget(m_splitter);
+    m_splitter->addWidget(m_stackedWidget);
 
     m_unifiedView = new UnifiedView;
     m_sideBySideView = new SideBySideView;
@@ -383,7 +400,7 @@ DiffEditor::DiffEditor()
     addView(m_sideBySideView);
     addView(m_unifiedView);
 
-    setWidget(splitter);
+    setWidget(m_splitter);
 
     // Toolbar:
     m_toolBar = new QToolBar;
@@ -434,6 +451,7 @@ DiffEditor::DiffEditor()
 
     m_toggleDescriptionAction = addAction(Icons::TOP_BAR.icon(), {},
                                           Tr::tr("Ctrl+Meta+D"), Tr::tr("Ctrl+Alt+D"));
+    m_toggleDescriptionAction->setObjectName("DiffEditorToggleDescriptionAction"); // autotest
     m_toggleDescriptionAction->setCheckable(true);
 
     m_reloadAction = addAction(Utils::Icons::RELOAD_TOOLBAR.icon(), Tr::tr("Reload Diff"),
@@ -469,6 +487,10 @@ void DiffEditor::setDocument(std::shared_ptr<DiffEditorDocument> doc)
             this, &DiffEditor::documentHasChanged);
     connect(m_document.get(), &DiffEditorDocument::descriptionChanged,
             this, &DiffEditor::updateDescription);
+    // Delay provider selection until the concrete controller has finished construction so
+    // virtual dispatch reaches its implementation.
+    connect(m_document.get(), &DiffEditorDocument::controllerChanged,
+            this, &DiffEditor::updateDescriptionEditor, Qt::QueuedConnection);
     connect(m_document.get(), &DiffEditorDocument::aboutToReload,
             this, &DiffEditor::prepareForReload);
     connect(m_document.get(), &DiffEditorDocument::reloadFinished,
@@ -484,6 +506,7 @@ void DiffEditor::setDocument(std::shared_ptr<DiffEditorDocument> doc)
     m_contextSpinBox->setValue(m_document->contextLineCount());
     m_whitespaceButtonAction->setChecked(m_document->ignoreWhitespace());
 
+    updateDescriptionEditor();
     documentStateChanged();
     documentHasChanged();
 }
@@ -493,6 +516,7 @@ DiffEditor::DiffEditor(DiffEditorDocument *doc) : DiffEditor()
     GuardLocker guard(m_ignoreChanges);
     setDocument(std::shared_ptr<DiffEditorDocument>(doc));
     setupView(loadSettings());
+    resizeDescription();
 }
 
 DiffEditor::~DiffEditor()
@@ -606,6 +630,62 @@ void DiffEditor::toggleDescription()
     m_showDescription = !m_showDescription;
     saveSetting(descriptionVisibleKeyC, m_showDescription);
     updateDescription();
+    resizeDescription();
+}
+
+void DiffEditor::updateDescriptionEditor()
+{
+    DiffEditorController *controller = m_document->controller();
+    ::DiffEditor::DescriptionEditorProvider provider = defaultDescriptionEditorProvider();
+    bool usingDefault = true;
+    if (controller) {
+        if (::DiffEditor::DescriptionEditorProvider controllerProvider
+            = controller->descriptionEditorProvider();
+            controllerProvider.isValid()) {
+            provider = std::move(controllerProvider);
+            usingDefault = false;
+        }
+    }
+
+    if (controller == m_descriptionEditorController
+        && usingDefault == m_usingDefaultDescriptionEditor) {
+        return;
+    }
+
+    // QSplitter::replaceWidget reparents the replacement itself. Creating it without a
+    // parent avoids making it a splitter child before the replacement takes place.
+    QWidget *newWidget = provider.create(nullptr);
+    QTC_ASSERT(newWidget, return);
+    const int index = m_splitter->indexOf(m_descriptionWidget);
+    QTC_ASSERT(index >= 0, return);
+    m_splitter->replaceWidget(index, newWidget);
+    if (auto *descriptionEditor = qobject_cast<DescriptionEditorWidget *>(newWidget)) {
+        connect(descriptionEditor, &DescriptionEditorWidget::requestResize,
+                this, &DiffEditor::resizeDescription);
+    }
+    m_descriptionWidget->deleteLater();
+    m_descriptionWidget = newWidget;
+    m_descriptionEditorProvider = std::move(provider);
+    m_descriptionEditorController = controller;
+    m_usingDefaultDescriptionEditor = usingDefault;
+    resizeDescription();
+    updateDescription();
+}
+
+void DiffEditor::resizeDescription()
+{
+    if (!m_showDescription || m_splitter->count() < 2)
+        return;
+    QList<int> sizes = m_splitter->sizes();
+    const int availableHeight = sizes[0] + sizes[1];
+    const int requestedHeight = m_splitter->widget(0)->fontMetrics().lineSpacing()
+                                * m_descriptionHeight;
+    const int descriptionHeight = qBound(0, requestedHeight, availableHeight);
+    if (sizes[0] == descriptionHeight)
+        return;
+    sizes[0] = descriptionHeight;
+    sizes[1] = availableHeight - descriptionHeight;
+    m_splitter->setSizes(sizes);
 }
 
 void DiffEditor::updateDescription()
@@ -614,10 +694,8 @@ void DiffEditor::updateDescription()
 
     const QString description = m_document->description();
 
-    if (m_document->isDescriptionAnsiEnabled())
-        AnsiEscapeCodeHandler::setTextInDocument(m_descriptionWidget->document(), description);
-    else
-        m_descriptionWidget->setPlainText(description);
+    m_descriptionEditorProvider.setText(m_descriptionWidget, description,
+                                        m_document->isDescriptionAnsiEnabled());
     m_descriptionWidget->setVisible(m_showDescription && !description.isEmpty());
 
     const QString actionText = m_showDescription ? Tr::tr("Hide Change Description")

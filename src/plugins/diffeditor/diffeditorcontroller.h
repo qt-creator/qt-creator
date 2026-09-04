@@ -11,8 +11,11 @@
 
 #include <QObject>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QMenu;
+class QWidget;
 QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
@@ -26,6 +29,14 @@ class DiffEditorWidgetController;
 }
 
 class ChunkSelection;
+
+struct DescriptionEditorProvider
+{
+    std::function<QWidget *(QWidget *parent)> create;
+    std::function<void(QWidget *editor, const QString &text, bool ansiEnabled)> setText;
+
+    bool isValid() const { return create && setText; }
+};
 
 class DIFFEDITOR_EXPORT DiffEditorController : public QObject
 {
@@ -46,6 +57,10 @@ public:
 
     static Core::IDocument *findOrCreateDocument(const QString &vcsId, const QString &displayName);
     static DiffEditorController *controller(Core::IDocument *document);
+
+    // Provides an optional replacement for the change description editor.
+    // The default provider is used when no controller-specific provider is set.
+    virtual DescriptionEditorProvider descriptionEditorProvider() const;
 
 protected:
     bool isReloading() const { return m_taskTreeRunner.isRunning(); }

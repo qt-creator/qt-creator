@@ -75,6 +75,11 @@ DiffEditorController *DiffEditorController::controller(IDocument *document)
     return doc ? doc->controller() : nullptr;
 }
 
+DescriptionEditorProvider DiffEditorController::descriptionEditorProvider() const
+{
+    return {};
+}
+
 void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList)
 {
     m_document->setDiffFiles(diffFileList);

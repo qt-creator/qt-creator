@@ -15,6 +15,11 @@ class Process;
 namespace VcsBase {
 
 class VcsBaseDiffEditorControllerPrivate;
+struct VcsBaseDescriptionEditorParameters;
+
+VCSBASE_EXPORT DiffEditor::DescriptionEditorProvider
+createVcsBaseDescriptionEditorProvider(
+    const VcsBaseDescriptionEditorParameters &parameters);
 
 class VCSBASE_EXPORT VcsBaseDiffEditorController : public DiffEditor::DiffEditorController
 {
@@ -26,6 +31,8 @@ public:
     void setVcsBinary(const Utils::FilePath &path);
 
 protected:
+    DiffEditor::DescriptionEditorProvider descriptionEditorProvider() const override;
+
     QtTaskTree::GroupItem postProcessTask(const QtTaskTree::Storage<QString> &inputStorage);
 
     void setupCommand(Utils::Process &process, const QStringList &args) const;

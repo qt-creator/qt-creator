@@ -3,6 +3,8 @@
 
 #include "vcsbasediffeditorcontroller.h"
 
+#include "vcsbaseeditor.h"
+
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
@@ -33,6 +35,29 @@ VcsBaseDiffEditorController::VcsBaseDiffEditorController(Core::IDocument *docume
 VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
 {
     delete d;
+}
+
+DiffEditor::DescriptionEditorProvider createVcsBaseDescriptionEditorProvider(
+    const VcsBaseDescriptionEditorParameters &parameters)
+{
+    return {
+        [parameters](QWidget *parent) {
+            return new VcsBaseDescriptionEditorWidget(parameters, parent);
+        },
+        [](QWidget *editor, const QString &text, bool ansiEnabled) {
+            auto *descriptionEditor = qobject_cast<VcsBaseDescriptionEditorWidget *>(editor);
+            QTC_ASSERT(descriptionEditor, return);
+            descriptionEditor->setDescription(text, ansiEnabled);
+        }
+    };
+}
+
+DiffEditor::DescriptionEditorProvider
+VcsBaseDiffEditorController::descriptionEditorProvider() const
+{
+    VcsBaseDescriptionEditorParameters parameters;
+    parameters.source = workingDirectory();
+    return createVcsBaseDescriptionEditorProvider(parameters);
 }
 
 GroupItem VcsBaseDiffEditorController::postProcessTask(const Storage<QString> &inputStorage)
