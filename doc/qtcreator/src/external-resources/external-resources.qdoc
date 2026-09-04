@@ -896,10 +896,6 @@
 
 // AI, LLMs, and related resources
 /*!
-    \externalpage https://www.qt.io/academy/course-catalog#getting-started-with-qt-ai-assistant
-    \title Qt Academy: Getting Started With Qt AI Assistant
-*/
-/*!
     \externalpage https://huggingface.co/QtGroup/CodeLlama-7B-QML
     \title codellama:7b-code-qml
 */

@@ -41,13 +41,6 @@
         \li Lets AI assistants control \QC over the model context protocol (MCP)
             to debug, build, and manage projects.
         \li \l {Set up \QC MCP server}
-    \row
-        \li Qt AI Assistant
-        \li Acts as a coding assistant when connected to a Large Language
-            Model (LLM). It auto-completes your code, gives expert coding advice,
-            suggests code fixes, as well as writes test cases and code
-            documentation.
-        \li \l {Use Qt AI Assistant}
     \endtable
 
     \sa {Use AI}{How to: Use AI}
