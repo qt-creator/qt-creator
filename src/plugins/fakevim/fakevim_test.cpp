@@ -23850,7 +23850,83 @@ void FakeVimTester::test_mcp_argument_validation()
 {
     using Mcp::ToolRegistry;
     using Params = Mcp::Schema::CallToolRequestParams;
+    using Tool = Mcp::Schema::Tool;
 
+    const auto tool = [](const QMap<QString, QJsonObject> &properties,
+                         const QStringList &required = {}) {
+        Tool::InputSchema schema;
+        if (!properties.isEmpty())
+            schema.properties(properties);
+        if (!required.isEmpty())
+            schema.required(required);
+        return Tool{}.name("probe").inputSchema(schema);
+    };
+    // Reading error() off a result that succeeded is not allowed, so a
+    // rejection that stops rejecting has to read as a failed comparison
+    // rather than as a crash.
+    const auto why = [](const Tool &tool, const QJsonObject &arguments) -> QString {
+        const Utils::Result<> result
+            = Mcp::validateToolArguments(tool, Params{}.arguments(arguments));
+        return result ? QString("accepted") : result.error();
+    };
+    const auto accepts = [](const Tool &tool, const QJsonObject &arguments) {
+        return bool(Mcp::validateToolArguments(tool, Params{}.arguments(arguments)));
+    };
+
+    const QString noArguments = why(tool({}), QJsonObject{{"path", "/tmp"}});
+    QVERIFY2(noArguments.contains("takes no arguments"), qPrintable(noArguments));
+    QVERIFY2(noArguments.contains("\"path\""), qPrintable(noArguments));
+    QVERIFY(accepts(tool({}), QJsonObject{}));
+
+    const QMap<QString, QJsonObject> text{{"s", QJsonObject{{"type", "string"}}}};
+    QVERIFY(accepts(tool(text), QJsonObject{{"s", "x"}}));
+    QVERIFY2(why(tool(text), QJsonObject{{"t", "x"}}).contains("Unknown argument \"t\""),
+             qPrintable(why(tool(text), QJsonObject{{"t", "x"}})));
+    QVERIFY2(why(tool(text, {"s"}), QJsonObject{}).contains("Missing required argument \"s\""),
+             qPrintable(why(tool(text, {"s"}), QJsonObject{})));
+
+    // The message names what arrived, so four wrong kinds read differently.
+    for (const auto &[value, expected] :
+         QList<QPair<QJsonValue, QString>>{{42, "wants a string, got a number"},
+                                           {true, "got a boolean"},
+                                           {QJsonValue(), "got null"},
+                                           {QJsonArray{"x"}, "got an array"},
+                                           {QJsonObject{{"k", 1}}, "got an object"}}) {
+        const QString message = why(tool(text), QJsonObject{{"s", value}});
+        QVERIFY2(message.contains(expected), qPrintable(expected + " <- " + message));
+    }
+
+    const QMap<QString, QJsonObject> whole{{"n", QJsonObject{{"type", "integer"}}}};
+    QVERIFY(accepts(tool(whole), QJsonObject{{"n", 3}}));
+    QVERIFY2(why(tool(whole), QJsonObject{{"n", 3.5}})
+                 .contains("wants an integer, got a fractional number"),
+             qPrintable(why(tool(whole), QJsonObject{{"n", 3.5}})));
+    const QMap<QString, QJsonObject> list{{"a", QJsonObject{{"type", "array"}}}};
+    QVERIFY2(why(tool(list), QJsonObject{{"a", "x"}}).contains("wants an array"),
+             qPrintable(why(tool(list), QJsonObject{{"a", "x"}})));
+
+    // An enum is matched as JSON rather than by spelling: a number is not the
+    // string that spells it, and a string is not the boolean.
+    const QMap<QString, QJsonObject> pick{
+        {"m", QJsonObject{{"enum", QJsonArray{"append", "set"}}}}};
+    QVERIFY(accepts(tool(pick), QJsonObject{{"m", "set"}}));
+    QVERIFY2(why(tool(pick), QJsonObject{{"m", "keys"}}).contains("Invalid value \"keys\""),
+             qPrintable(why(tool(pick), QJsonObject{{"m", "keys"}})));
+    const QMap<QString, QJsonObject> digits{{"m", QJsonObject{{"enum", QJsonArray{"1", "2"}}}}};
+    QVERIFY2(why(tool(digits), QJsonObject{{"m", 1}}).contains("Invalid value 1"),
+             qPrintable(why(tool(digits), QJsonObject{{"m", 1}})));
+    const QMap<QString, QJsonObject> flag{{"m", QJsonObject{{"enum", QJsonArray{true}}}}};
+    QVERIFY2(why(tool(flag), QJsonObject{{"m", "true"}}).contains("Invalid value \"true\""),
+             qPrintable(why(tool(flag), QJsonObject{{"m", "true"}})));
+    QVERIFY(accepts(tool(flag), QJsonObject{{"m", true}}));
+    // A value that is neither is shown as the JSON it is.
+    QVERIFY2(why(tool(pick), QJsonObject{{"m", QJsonArray{"set"}}}).contains("[\"set\"]"),
+             qPrintable(why(tool(pick), QJsonObject{{"m", QJsonArray{"set"}}})));
+    QVERIFY2(why(tool(pick), QJsonObject{{"m", QJsonValue()}}).contains("Invalid value null"),
+             qPrintable(why(tool(pick), QJsonObject{{"m", QJsonValue()}})));
+
+    // And the server path is the same one: a real call is refused before the
+    // tool runs, and one that keeps to the schema goes through.
     FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
     const bool savedUseFakeVim = useFakeVim.value();
     useFakeVim.setValue(true);
@@ -23865,8 +23941,6 @@ void FakeVimTester::test_mcp_argument_validation()
         Params{}.arguments(QJsonObject{{"keys", "x"}, {"mode", "keys"}}));
     QVERIFY(!unknown);
     QVERIFY2(unknown.error().contains("Unknown argument \"mode\""), qPrintable(unknown.error()));
-    QVERIFY2(unknown.error().contains("keys"), qPrintable(unknown.error()));
-    // And it is refused BEFORE the tool runs, so the buffer is untouched.
     QCOMPARE(data.text(), QByteArray("some text"));
 
     // A required argument that is not there is refused by name.
