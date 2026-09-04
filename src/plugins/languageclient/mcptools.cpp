@@ -12,6 +12,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 
+#include <languageserverprotocol/callhierarchy.h>
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/lsptypes.h>
 #include <languageserverprotocol/servercapabilities.h>
@@ -30,6 +31,7 @@
 #include <QTextDocument>
 #include <QTimer>
 
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include <variant>
@@ -62,6 +64,25 @@ static Result<LocationArgs> parseLocationArgs(const QJsonObject &args)
     if (file.isEmpty() || line <= 0 || column <= 0)
         return ResultError(QString("Requires \"file\" and 1-based \"line\" and \"column\"."));
     return LocationArgs{FilePath::fromUserInput(file), line, column};
+}
+
+constexpr int defaultResultLimit = 200;
+constexpr int maxResultLimit = 1000;
+
+// The optional "limit" argument, clamped so a client cannot ask for an
+// unbounded answer.
+static int resultLimit(const QJsonObject &args)
+{
+    const int limit = args.value("limit").toInt();
+    return std::clamp(limit > 0 ? limit : defaultResultLimit, 1, maxResultLimit);
+}
+
+static QJsonObject limitProperty()
+{
+    return QJsonObject{{"type", "integer"},
+                       {"description", QString("Maximum number of results (default %1, "
+                                               "capped at %2).")
+                                           .arg(defaultResultLimit).arg(maxResultLimit)}};
 }
 
 // --------------------------------------------- documents the tools opened
@@ -149,8 +170,8 @@ void closeDocumentsOpenedByMcpTools()
 
 struct Resolved
 {
-    TextDocument *document = nullptr;
-    Client *client = nullptr;
+    QPointer<TextDocument> document;
+    QPointer<Client> client; // A server can go away while a question is in flight.
 };
 using ResolveHandler = std::function<void(const Result<Resolved> &)>;
 
@@ -286,12 +307,70 @@ static QString unsupported(const Resolved &resolved, const QString &what)
         .arg(resolved.document->filePath().toUserOutput(), resolved.client->name(), what);
 }
 
+struct ResponseFailure
+{
+    int code = 0;
+    QString message;
+
+    QString text() const { return QString("%1 (error %2)").arg(message).arg(code); }
+};
+
 template<typename Response>
-static std::optional<QString> errorOf(const Response &response)
+static std::optional<ResponseFailure> failureOf(const Response &response)
 {
     if (const auto error = response.error())
-        return QString("%1 (error %2)").arg(error->message()).arg(error->code());
+        return ResponseFailure{error->code(), error->message()};
     return std::nullopt;
+}
+
+constexpr int methodNotFoundCode = -32601;
+
+static QString symbolKindName(SymbolKind kind)
+{
+    switch (kind) {
+    case SymbolKind::File: return QStringLiteral("file");
+    case SymbolKind::Module: return QStringLiteral("module");
+    case SymbolKind::Namespace: return QStringLiteral("namespace");
+    case SymbolKind::Package: return QStringLiteral("package");
+    case SymbolKind::Class: return QStringLiteral("class");
+    case SymbolKind::Method: return QStringLiteral("method");
+    case SymbolKind::Property: return QStringLiteral("property");
+    case SymbolKind::Field: return QStringLiteral("field");
+    case SymbolKind::Constructor: return QStringLiteral("constructor");
+    case SymbolKind::Enum: return QStringLiteral("enum");
+    case SymbolKind::Interface: return QStringLiteral("interface");
+    case SymbolKind::Function: return QStringLiteral("function");
+    case SymbolKind::Variable: return QStringLiteral("variable");
+    case SymbolKind::Constant: return QStringLiteral("constant");
+    case SymbolKind::String: return QStringLiteral("string");
+    case SymbolKind::Number: return QStringLiteral("number");
+    case SymbolKind::Boolean: return QStringLiteral("boolean");
+    case SymbolKind::Array: return QStringLiteral("array");
+    case SymbolKind::Object: return QStringLiteral("object");
+    case SymbolKind::Key: return QStringLiteral("key");
+    case SymbolKind::Null: return QStringLiteral("null");
+    case SymbolKind::EnumMember: return QStringLiteral("enum_member");
+    case SymbolKind::Struct: return QStringLiteral("struct");
+    case SymbolKind::Event: return QStringLiteral("event");
+    case SymbolKind::Operator: return QStringLiteral("operator");
+    case SymbolKind::TypeParameter: return QStringLiteral("type_parameter");
+    }
+    return QStringLiteral("symbol");
+}
+
+// A call or type hierarchy item: what it is and where its name is.
+template<typename Item>
+static QJsonObject hierarchyItemJson(const Client *client, const Item &item)
+{
+    const Range selection = item.selectionRange();
+    QJsonObject json{{"name", item.name()},
+                     {"kind", symbolKindName(item.symbolKind())},
+                     {"file", client->serverUriToHostPath(item.uri()).toUserOutput()},
+                     {"line", selection.start().line() + 1},
+                     {"column", selection.start().character() + 1}};
+    if (const std::optional<QString> detail = item.detail(); detail && !detail->isEmpty())
+        json.insert("detail", *detail);
+    return json;
 }
 
 // ------------------------------------------------------------------- hover
@@ -330,8 +409,8 @@ void lspHover(const QJsonObject &args, const ToolResultHandler &handler)
 
         HoverRequest request(positionParams(*resolved, *position));
         request.setResponseCallback([handler](const HoverRequest::Response &response) {
-            if (const std::optional<QString> error = errorOf(response)) {
-                handler(ResultError(*error));
+            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+                handler(ResultError(failure->text()));
                 return;
             }
             const std::optional<HoverResult> hoverResult = response.result();
@@ -364,6 +443,215 @@ void lspHover(const QJsonObject &args, const ToolResultHandler &handler)
             if (const std::optional<Range> range = hover->range())
                 result.insert("range", rangeJson(*range));
             handler(result);
+        });
+        resolved->client->sendMessage(request);
+    });
+}
+
+// ---------------------------------------------------------- call hierarchy
+
+// Fetches the callers or callees of a function level by level, up to a depth
+// and a total count, and reports the tree once every request has answered.
+class CallHierarchyWalk : public std::enable_shared_from_this<CallHierarchyWalk>
+{
+public:
+    CallHierarchyWalk(const Resolved &resolved, bool incoming, int maxDepth, int limit,
+                      const ToolResultHandler &handler)
+        : m_resolved(resolved), m_incoming(incoming), m_maxDepth(maxDepth), m_limit(limit),
+          m_handler(handler)
+    {}
+
+    void start(const CallHierarchyItem &root)
+    {
+        m_root = std::make_shared<Node>();
+        m_root->json = hierarchyItemJson(m_resolved.client, root);
+        fetch(m_root, root, 0);
+    }
+
+private:
+    struct Node
+    {
+        QJsonObject json;
+        QList<std::shared_ptr<Node>> children;
+    };
+    using Calls = QList<QPair<CallHierarchyItem, QList<Range>>>;
+
+    void fetch(const std::shared_ptr<Node> &node, const CallHierarchyItem &item, int level)
+    {
+        if (m_incoming) {
+            send<CallHierarchyIncomingCallsRequest, CallHierarchyIncomingCall>(
+                node, item, level, &CallHierarchyIncomingCall::from);
+        } else {
+            send<CallHierarchyOutgoingCallsRequest, CallHierarchyOutgoingCall>(
+                node, item, level, &CallHierarchyOutgoingCall::to);
+        }
+    }
+
+    template<typename Request, typename Call>
+    void send(const std::shared_ptr<Node> &node, const CallHierarchyItem &item, int level,
+              CallHierarchyItem (Call::*otherEnd)() const)
+    {
+        if (!m_resolved.client) {
+            m_error = QString("The language server went away.");
+            if (m_pending == 0)
+                finish();
+            return;
+        }
+        ++m_pending;
+        CallHierarchyCallsParams params;
+        params.setItem(item);
+        Request request(params);
+        auto self = shared_from_this();
+        request.setResponseCallback(
+            [self, node, level, otherEnd](const typename Request::Response &response) {
+                Calls calls;
+                const std::optional<ResponseFailure> failure = failureOf(response);
+                if (!failure && response.result()) {
+                    for (const Call &call : response.result()->toListOrEmpty())
+                        calls.append({(call.*otherEnd)(), call.fromRanges()});
+                }
+                self->handleCalls(node, level, failure, calls);
+            });
+        m_resolved.client->sendMessage(request);
+    }
+
+    void handleCalls(const std::shared_ptr<Node> &node, int level,
+                     const std::optional<ResponseFailure> &failure, const Calls &calls)
+    {
+        --m_pending;
+        if (failure && m_error.isEmpty()) {
+            // The capability does not say which directions a server implements;
+            // clangd before 20.1 answers outgoing calls with "method not found".
+            if (failure->code == methodNotFoundCode && !m_incoming) {
+                m_error = QString("The language server does not implement outgoing calls "
+                                  "(clangd needs version 20.1 or newer).");
+            } else {
+                m_error = failure->text();
+            }
+        }
+        if (m_error.isEmpty()) {
+            for (const auto &[item, ranges] : calls) {
+                ++m_total;
+                if (m_reported >= m_limit) {
+                    m_truncated = true;
+                    continue;
+                }
+                ++m_reported;
+                auto child = std::make_shared<Node>();
+                child->json = hierarchyItemJson(m_resolved.client, item);
+                QJsonArray fromRanges;
+                for (const Range &range : ranges)
+                    fromRanges.append(rangeJson(range));
+                child->json.insert("from_ranges", fromRanges);
+                node->children.append(child);
+                if (level + 1 < m_maxDepth)
+                    fetch(child, item, level + 1);
+            }
+        }
+        if (m_pending == 0)
+            finish();
+    }
+
+    static QJsonArray childrenJson(const std::shared_ptr<Node> &node)
+    {
+        QJsonArray array;
+        for (const std::shared_ptr<Node> &child : node->children) {
+            QJsonObject json = child->json;
+            if (!child->children.isEmpty())
+                json.insert("calls", childrenJson(child));
+            array.append(json);
+        }
+        return array;
+    }
+
+    void finish()
+    {
+        if (!m_error.isEmpty()) {
+            m_handler(ResultError(m_error));
+            return;
+        }
+        QJsonObject result{{"root", m_root->json},
+                           {"direction", m_incoming ? QStringLiteral("incoming")
+                                                    : QStringLiteral("outgoing")},
+                           {"calls", childrenJson(m_root)},
+                           {"total", m_total},
+                           {"truncated", m_truncated}};
+        if (m_total == 0) {
+            result.insert("note", m_incoming
+                ? QString("No callers found. The server's index may not cover every file yet.")
+                : QString("No calls found. The function's body may not be available to the "
+                          "server, or it may not have indexed it yet."));
+        }
+        m_handler(result);
+    }
+
+    const Resolved m_resolved;
+    const bool m_incoming;
+    const int m_maxDepth;
+    const int m_limit;
+    const ToolResultHandler m_handler;
+    std::shared_ptr<Node> m_root;
+    int m_pending = 0;
+    int m_total = 0;
+    int m_reported = 0;
+    bool m_truncated = false;
+    QString m_error;
+};
+
+void lspCallHierarchy(const QJsonObject &args, const ToolResultHandler &handler)
+{
+    const Result<LocationArgs> location = parseLocationArgs(args);
+    if (!location) {
+        handler(ResultError(location.error()));
+        return;
+    }
+    const QString direction = args.value("direction").toString(QStringLiteral("incoming"));
+    if (direction != QLatin1String("incoming") && direction != QLatin1String("outgoing")) {
+        handler(ResultError(QString("\"direction\" must be \"incoming\" or \"outgoing\", "
+                                    "not \"%1\".").arg(direction)));
+        return;
+    }
+    const bool incoming = direction == QLatin1String("incoming");
+    const int depth = std::clamp(args.value("depth").toInt(1), 1, 3);
+    const int limit = resultLimit(args);
+
+    resolveClient(location->file, [location = *location, incoming, depth, limit, handler](
+                                      const Result<Resolved> &resolved) {
+        if (!resolved) {
+            handler(ResultError(resolved.error()));
+            return;
+        }
+        if (!provides(resolved->client->capabilities().callHierarchyProvider())) {
+            handler(ResultError(unsupported(*resolved, "call hierarchy")));
+            return;
+        }
+        const Result<Position> position = positionFor(resolved->document, location.line,
+                                                      location.column);
+        if (!position) {
+            handler(ResultError(position.error()));
+            return;
+        }
+
+        PrepareCallHierarchyRequest request(positionParams(*resolved, *position));
+        request.setResponseCallback([resolved = *resolved, location, incoming, depth, limit,
+                                     handler](const PrepareCallHierarchyRequest::Response &response) {
+            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+                handler(ResultError(failure->text()));
+                return;
+            }
+            const QList<CallHierarchyItem> items
+                = response.result() ? response.result()->toListOrEmpty()
+                                    : QList<CallHierarchyItem>();
+            if (items.isEmpty() || !resolved.client) {
+                handler(ResultError(QString("Nothing at %1:%2:%3 to build a call hierarchy "
+                                            "for. Point at a function name.")
+                                        .arg(location.file.toUserOutput())
+                                        .arg(location.line).arg(location.column)));
+                return;
+            }
+            auto walk = std::make_shared<CallHierarchyWalk>(resolved, incoming, depth, limit,
+                                                            handler);
+            walk->start(items.first());
         });
         resolved->client->sendMessage(request);
     });
@@ -447,6 +735,54 @@ void registerMcpTools()
                     .addRequired("contents")
                     .addRequired("format")),
         &lspHover);
+
+    registerAsyncTool(
+        Tool{}
+            .name("lsp_call_hierarchy")
+            .title("Get the call hierarchy via the language server")
+            .description(
+                "Returns the callers (\"incoming\") or the callees (\"outgoing\") of the "
+                "function at a position, as the language server (clangd for C++, or whatever "
+                "server is configured for the file type) computes them from its index. Give "
+                "the file and a 1-based line and column on a function name. Each entry has "
+                "the function's name, kind, file and position, the \"from_ranges\" where "
+                "the calls happen, and, with a \"depth\" above 1, its own \"calls\" nested "
+                "below it. clangd supports outgoing calls from version 20.1 on and reports "
+                "an error before that. The file is opened in a hidden editor if it is not "
+                "open; a server that is still starting asks to be retried.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                positionInputSchema("the function name")
+                    .addProperty(
+                        "direction",
+                        QJsonObject{{"type", "string"},
+                                    {"enum", QJsonArray{"incoming", "outgoing"}},
+                                    {"description",
+                                     "\"incoming\" for the callers (default), \"outgoing\" "
+                                     "for the callees."}})
+                    .addProperty(
+                        "depth",
+                        QJsonObject{{"type", "integer"},
+                                    {"description",
+                                     "How many levels to follow, 1 to 3 (default 1)."}})
+                    .addProperty("limit", limitProperty()))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("root", QJsonObject{{"type", "object"}})
+                    .addProperty("direction", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "calls",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}},
+                                    {"description",
+                                     "The callers or callees, each possibly with its own "
+                                     "\"calls\"."}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
+                    .addProperty("note", QJsonObject{{"type", "string"}})
+                    .addRequired("root")
+                    .addRequired("calls")),
+        &lspCallHierarchy);
 }
 
 } // namespace LanguageClient

@@ -2360,6 +2360,7 @@ private slots:
     void testHoverOpensAndClosesFile();
     void testHoverWithoutServer();
     void testArgumentErrors();
+    void testCallHierarchy();
 };
 
 // Runs one of the LanguageClient MCP tool functions to completion.
@@ -2455,6 +2456,82 @@ void ClangdTestMcpTools::testArgumentErrors()
                          {"column", 1}});
     QVERIFY(!result);
     QVERIFY2(result.error().contains("out of range"), qPrintable(result.error()));
+}
+
+void ClangdTestMcpTools::testCallHierarchy()
+{
+    // Incoming: func1, declared at defs.h:24:6, is called from main() alone.
+    Result<QJsonObject> result = runMcpTool(&LanguageClient::lspCallHierarchy,
+                                            {{"file", filePath("defs.h").toFSPathString()},
+                                             {"line", 24},
+                                             {"column", 6},
+                                             {"direction", "incoming"},
+                                             {"depth", 2}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("root").toObject().value("name").toString(), QString("func1"));
+    QCOMPARE(result->value("direction").toString(), QString("incoming"));
+    QJsonArray calls = result->value("calls").toArray();
+    QCOMPARE(calls.size(), 1);
+    const QJsonObject caller = calls.at(0).toObject();
+    QCOMPARE(caller.value("name").toString(), QString("main"));
+    QCOMPARE(caller.value("kind").toString(), QString("function"));
+    QVERIFY(caller.value("file").toString().endsWith("main.cpp"));
+    QCOMPARE(caller.value("line").toInt(), 3);
+    const QJsonArray fromRanges = caller.value("from_ranges").toArray();
+    QVERIFY(fromRanges.size() >= 2); // main.cpp:19 and :25
+    QCOMPARE(fromRanges.at(0).toObject().value("line").toInt(), 19);
+    QCOMPARE(fromRanges.at(0).toObject().value("column").toInt(), 5);
+    QVERIFY(!caller.contains("calls")); // Nobody calls main, at any depth.
+
+    // Outgoing: what main() calls. clangd implements this since 20.1.
+    const QJsonObject outgoingArgs{{"file", filePath("main.cpp").toFSPathString()},
+                                   {"line", 3},
+                                   {"column", 5},
+                                   {"direction", "outgoing"}};
+    result = runMcpTool(&LanguageClient::lspCallHierarchy, outgoingArgs);
+    // The client reports version 0 for a clangd whose version line it cannot
+    // parse (Homebrew's says "Homebrew clangd version ..."), so only a known
+    // old one takes the error branch.
+    const QVersionNumber version = client()->versionNumber();
+    if (version.majorVersion() > 0 && version < QVersionNumber(20, 1)) {
+        QVERIFY(!result);
+        QVERIFY2(result.error().contains("outgoing"), qPrintable(result.error()));
+    } else {
+        if (!result)
+            QFAIL(qPrintable(result.error()));
+        QStringList names;
+        for (const QJsonValue &value : result->value("calls").toArray())
+            names << value.toObject().value("name").toString();
+        QVERIFY2(names.contains("func1") && names.contains("func5"), qPrintable(names.join(", ")));
+        QCOMPARE(result->value("total").toInt(), names.size());
+        QCOMPARE(result->value("truncated").toBool(), false);
+
+        // The cap keeps the count, so a caller can tell what was left out.
+        QJsonObject capped = outgoingArgs;
+        capped.insert("limit", 3);
+        result = runMcpTool(&LanguageClient::lspCallHierarchy, capped);
+        if (!result)
+            QFAIL(qPrintable(result.error()));
+        QCOMPARE(result->value("calls").toArray().size(), 3);
+        QVERIFY(result->value("truncated").toBool());
+        QCOMPARE(result->value("total").toInt(), names.size());
+    }
+
+    // Nothing at the position (an empty line), and not a direction.
+    result = runMcpTool(&LanguageClient::lspCallHierarchy,
+                        {{"file", filePath("main.cpp").toFSPathString()},
+                         {"line", 2},
+                         {"column", 1}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("call hierarchy"), qPrintable(result.error()));
+    result = runMcpTool(&LanguageClient::lspCallHierarchy,
+                        {{"file", filePath("main.cpp").toFSPathString()},
+                         {"line", 3},
+                         {"column", 5},
+                         {"direction", "sideways"}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("direction"), qPrintable(result.error()));
 }
 
 QObject *createClangdTestCompletion()
