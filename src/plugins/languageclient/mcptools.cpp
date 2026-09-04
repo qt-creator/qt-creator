@@ -351,7 +351,10 @@ static QJsonArray cappedArray(const QList<QJsonObject> &objects, int limit, int 
     return array;
 }
 
-static bool provides(const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider)
+// Whether a server capability is there: absent or false means no, options
+// of any kind mean yes.
+template<typename Variant>
+static bool provides(const std::optional<Variant> &provider)
 {
     if (!provider)
         return false;
@@ -1390,6 +1393,94 @@ void lspRename(const QJsonObject &args, const ToolResultHandler &handler)
     });
 }
 
+// -------------------------------------------------------------- definition
+
+// Sends one of the goto requests and answers with its locations.
+template<typename Request>
+static void sendGotoRequest(const Resolved &resolved, const Position &position, const QString &kind,
+                            const ToolResultHandler &handler)
+{
+    Request request(positionParams(resolved, position));
+    request.setResponseCallback([resolved, kind, handler](const typename Request::Response &response) {
+        if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+            handler(ResultError(failure->text()));
+            return;
+        }
+        if (!resolved.client) {
+            handler(ResultError(QString("The language server went away.")));
+            return;
+        }
+        QList<QJsonObject> locations;
+        if (const std::optional<GotoResult> result = response.result()) {
+            if (const Location *location = std::get_if<Location>(&*result)) {
+                locations.append(locationJson(resolved.client, *location));
+            } else if (const QList<Location> *list = std::get_if<QList<Location>>(&*result)) {
+                for (const Location &location : *list)
+                    locations.append(locationJson(resolved.client, location));
+            }
+        }
+        sortAndDedupeLocations(locations);
+        QJsonArray array;
+        for (const QJsonObject &location : std::as_const(locations))
+            array.append(location);
+        QJsonObject json{{"kind", kind}, {"locations", array}, {"total", int(locations.size())}};
+        if (locations.isEmpty()) {
+            json.insert("note", QString("The server found no %1 for this position. Is it on an "
+                                        "identifier?").arg(kind == QLatin1String("implementation")
+                                                                ? QStringLiteral("implementations")
+                                                                : kind));
+        }
+        handler(json);
+    });
+    resolved.client->sendMessage(request);
+}
+
+void lspDefinition(const QJsonObject &args, const ToolResultHandler &handler)
+{
+    const Result<LocationArgs> location = parseLocationArgs(args);
+    if (!location) {
+        handler(ResultError(location.error()));
+        return;
+    }
+    const QString kind = args.value("kind").toString(QStringLiteral("definition"));
+    const QStringList kinds{"definition", "type_definition", "implementation"};
+    if (!kinds.contains(kind)) {
+        handler(ResultError(QString("\"kind\" must be \"definition\", \"type_definition\" or "
+                                    "\"implementation\", not \"%1\".").arg(kind)));
+        return;
+    }
+
+    resolveClient(location->file, [location = *location, kind, handler](
+                                      const Result<Resolved> &resolved) {
+        if (!resolved) {
+            handler(ResultError(resolved.error()));
+            return;
+        }
+        const ServerCapabilities &capabilities = resolved->client->capabilities();
+        const bool supported = kind == QLatin1String("definition")
+                                   ? provides(capabilities.definitionProvider())
+                               : kind == QLatin1String("type_definition")
+                                   ? provides(capabilities.typeDefinitionProvider())
+                                   : provides(capabilities.implementationProvider());
+        if (!supported) {
+            handler(ResultError(unsupported(*resolved, QString("going to the %1").arg(kind))));
+            return;
+        }
+        const Result<Position> position = positionFor(resolved->document, location.line,
+                                                      location.column);
+        if (!position) {
+            handler(ResultError(position.error()));
+            return;
+        }
+        if (kind == QLatin1String("definition"))
+            sendGotoRequest<GotoDefinitionRequest>(*resolved, *position, kind, handler);
+        else if (kind == QLatin1String("type_definition"))
+            sendGotoRequest<GotoTypeDefinitionRequest>(*resolved, *position, kind, handler);
+        else
+            sendGotoRequest<GotoImplementationRequest>(*resolved, *position, kind, handler);
+    });
+}
+
 // ------------------------------------------------------------ registration
 
 using ToolFunction = void (*)(const QJsonObject &, const ToolResultHandler &);
@@ -1669,6 +1760,45 @@ void registerMcpTools()
                     .addRequired("total_edits")
                     .addRequired("has_conflicts")),
         &lspRename);
+
+    registerAsyncTool(
+        Tool{}
+            .name("lsp_definition")
+            .title("Go to definition via the language server")
+            .description(
+                "Returns where the symbol at a position is defined, as the language server "
+                "(clangd for C++, qmlls for QML, or whatever server is configured for the "
+                "file type) resolves it - templates, overloads and macros included. Give the "
+                "file and a 1-based line and column on an identifier. \"kind\" chooses the "
+                "question: \"definition\" (default) for the symbol's own definition, or its "
+                "declaration when the server knows no definition; \"type_definition\" for the "
+                "definition of the symbol's type, for a variable or parameter; "
+                "\"implementation\" for the overrides of a virtual function or the classes "
+                "implementing an interface. Each location has its file and 1-based "
+                "line/column to end_line/end_column. The file is opened in a hidden editor "
+                "if it is not open; a server that is still starting asks to be retried.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                positionInputSchema("the identifier")
+                    .addProperty(
+                        "kind",
+                        QJsonObject{{"type", "string"},
+                                    {"enum", QJsonArray{"definition", "type_definition",
+                                                        "implementation"}},
+                                    {"description",
+                                     "What to go to (default \"definition\")."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("kind", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "locations",
+                        QJsonObject{{"type", "array"},
+                                    {"items", QJsonObject{{"type", "object"}}}})
+                    .addProperty("total", QJsonObject{{"type", "integer"}})
+                    .addProperty("note", QJsonObject{{"type", "string"}})
+                    .addRequired("locations")
+                    .addRequired("total")),
+        &lspDefinition);
 }
 
 } // namespace LanguageClient

@@ -2364,6 +2364,7 @@ private slots:
     void testTypeHierarchy();
     void testReferences();
     void testRename();
+    void testDefinition();
 };
 
 // Runs one of the LanguageClient MCP tool functions to completion.
@@ -2723,6 +2724,66 @@ void ClangdTestMcpTools::testRename()
     QVERIFY(filePath("main.cpp").fileContents().value_or(QByteArray())
                 .contains("func3Renamed(&s.value);"));
     QVERIFY(!document("main.cpp")->isModified());
+}
+
+void ClangdTestMcpTools::testDefinition()
+{
+    // "S2 s;" at main.cpp:5: the type is defined at defs.h:20:8...
+    Result<QJsonObject> result = runMcpTool(&LanguageClient::lspDefinition,
+                                            {{"file", filePath("main.cpp").toFSPathString()},
+                                             {"line", 5},
+                                             {"column", 5}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("kind").toString(), QString("definition"));
+    QCOMPARE(result->value("total").toInt(), 1);
+    QJsonObject location = result->value("locations").toArray().at(0).toObject();
+    QVERIFY(location.value("file").toString().endsWith("defs.h"));
+    QCOMPARE(location.value("line").toInt(), 20);
+    QCOMPARE(location.value("column").toInt(), 8);
+    QCOMPARE(location.value("end_column").toInt(), 10);
+
+    // ...and so is the type of the variable s.
+    result = runMcpTool(&LanguageClient::lspDefinition,
+                        {{"file", filePath("main.cpp").toFSPathString()},
+                         {"line", 5},
+                         {"column", 8},
+                         {"kind", "type_definition"}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("total").toInt(), 1);
+    location = result->value("locations").toArray().at(0).toObject();
+    QCOMPARE(location.value("line").toInt(), 20);
+
+    // S::pureVirtual (defs.h:17:18) is implemented by S2::pureVirtual (defs.h:21:10).
+    result = runMcpTool(&LanguageClient::lspDefinition,
+                        {{"file", filePath("defs.h").toFSPathString()},
+                         {"line", 17},
+                         {"column", 18},
+                         {"kind", "implementation"}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("total").toInt(), 1);
+    location = result->value("locations").toArray().at(0).toObject();
+    QCOMPARE(location.value("line").toInt(), 21);
+    QCOMPARE(location.value("column").toInt(), 10);
+
+    // Nothing at an empty line, and not a kind.
+    result = runMcpTool(&LanguageClient::lspDefinition,
+                        {{"file", filePath("defs.h").toFSPathString()},
+                         {"line", 19},
+                         {"column", 1}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("total").toInt(), 0);
+    QVERIFY(result->contains("note"));
+    result = runMcpTool(&LanguageClient::lspDefinition,
+                        {{"file", filePath("main.cpp").toFSPathString()},
+                         {"line", 5},
+                         {"column", 5},
+                         {"kind", "declaration"}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("kind"), qPrintable(result.error()));
 }
 
 QObject *createClangdTestCompletion()
