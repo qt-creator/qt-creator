@@ -1011,6 +1011,8 @@ private slots:
     void reportsSetupFailureWhenTheDebuggerQuitsAtOnce();
     void reportsEngineSetupFailure_data() { addBackendRows(); }
     void reportsEngineSetupFailure();
+    void insertsABreakpointBehindABlockedDebugger_data() { addBackendRows(); }
+    void insertsABreakpointBehindABlockedDebugger();
     void reportsAnUnresponsiveDebugger_data() { addBackendRows(); }
     void reportsAnUnresponsiveDebugger();
     void appliesConfiguredDebuggerOptions_data() { addBackendRows(); }
@@ -5928,6 +5930,54 @@ void tst_backends::reportsEngineSetupFailure()
                               "start", s_timeout);
     QVERIFY2(events.contains(InferiorEvent::EngineSetupFailed),
              "EngineSetupFailed was never emitted for an engine that could not start");
+}
+
+void tst_backends::insertsABreakpointBehindABlockedDebugger()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    if (auto result = checkAcceptsBreakpoint(backend, BreakpointByFileAndLine,
+                                             "A source line breakpoint"); !result) {
+        QSKIP(qPrintable(result.error()));
+    }
+
+    using namespace std::chrono_literals;
+    constexpr std::chrono::seconds block = 2s;
+    const QString blockingCommand = watchdogProbeCommand(backend, int(block.count()));
+    if (blockingCommand.isEmpty())
+        QSKIP("This backend has no command to keep it busy with.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(
+        backend, {}, {}, false, {},
+        GdbImplFlag::PseudoTracepoints | GdbImplFlag::BreakOnMain);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
+
+    QHash<quint64, bool> results;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results](quint64 requestId, BreakpointOp op, bool ok, const GdbMi &) {
+        if (op == BreakpointOp::Insert)
+            results[requestId] = ok;
+    });
+    engine->executeDebuggerCommand(blockingCommand, {});
+    BreakpointChangeRequest insertRequest;
+    insertRequest.op = BreakpointOp::Insert;
+    insertRequest.requestId = 81;
+    insertRequest.params.type = BreakpointByFileAndLine;
+    insertRequest.params.fileName = inferiorTestData(backend).source;
+    insertRequest.params.textPosition.line = inferiorTestData(backend).breakpointLine;
+    insertRequest.params.enabled = true;
+    engine->changeBreakpoint(insertRequest);
+    // Nothing can be answered before the block is over, so it is the block plus
+    // what an insert is allowed anywhere else.
+    QTRY_VERIFY2_WITH_TIMEOUT(results.contains(81),
+                              "a breakpoint issued behind a blocked debugger was never answered",
+                              s_timeout + block);
+    QVERIFY2(results.value(81), "inserting behind a blocked debugger failed");
 }
 
 void tst_backends::reportsAnUnresponsiveDebugger()
