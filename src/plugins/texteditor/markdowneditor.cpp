@@ -1,4 +1,5 @@
 // Copyright (C) 2023 Tasuku Suzuki
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "markdowneditor.h"
@@ -31,7 +32,6 @@
 #include <QToolButton>
 
 #include <optional>
-#include <ranges>
 
 using namespace Core;
 using namespace Utils;
@@ -102,7 +102,8 @@ public:
         m_previewWidget->setWheelZoomEnabled(true);
         m_previewWidget->setFrameShape(QFrame::NoFrame);
         m_previewWidget->setShowRulersForHeadings(true);
-        Aggregation::aggregate({m_previewWidget, new BaseTextFind<QTextBrowser>(m_previewWidget)});
+        auto previewFind = new BaseTextFind<QTextBrowser>(m_previewWidget);
+        Aggregation::aggregate({m_previewWidget, previewFind});
         IContext::attach(m_previewWidget, Context(MARKDOWNVIEWER_PREVIEW_CONTEXT));
         connect(m_previewWidget,
                 &MarkdownBrowser::openFileRequested,
@@ -137,6 +138,27 @@ public:
             &MarkdownEditor::addCurrentStateToNavigationHistory);
 
         IContext::attach(m_textEditorWidget, Context(MARKDOWNVIEWER_TEXT_CONTEXT));
+
+        // synchronize highlighting of search results between the two views
+        auto textFind = Aggregation::query<BaseTextFindBase>(m_textEditorWidget);
+        if (QTC_GUARD(textFind)) {
+            m_editorHighlight.find = textFind;
+            m_editorHighlight.view = m_textEditorWidget;
+            m_previewHighlight.find = previewFind;
+            m_previewHighlight.view = m_previewWidget;
+            connect(textFind,
+                    &BaseTextFindBase::highlightAllRequested,
+                    this,
+                    [this](const QString &txt, FindFlags findFlags) {
+                        mirrorHighlights(m_previewHighlight, txt, findFlags);
+                    });
+            connect(previewFind,
+                    &BaseTextFindBase::highlightAllRequested,
+                    this,
+                    [this](const QString &txt, FindFlags findFlags) {
+                        mirrorHighlights(m_editorHighlight, txt, findFlags);
+                    });
+        }
 
         m_splitter->addWidget(m_textEditorWidget); // sets splitter->focusWidget() on non-Windows
         m_splitter->addWidget(m_previewWidget);
@@ -243,6 +265,8 @@ public:
                                 m_togglePreviewVisible);
                     for (auto button : std::as_const(m_markDownButtons))
                         button->setVisible(visible);
+                    if (visible)
+                        flushHighlights(m_editorHighlight);
                     saveViewSettings();
                 });
         connect(
@@ -255,6 +279,8 @@ public:
                     m_performDelayedUpdate = false;
                     updatePreviewNow();
                 }
+                if (visible)
+                    flushHighlights(m_previewHighlight);
                 saveViewSettings();
             });
 
@@ -490,6 +516,34 @@ private:
         }
     }
 
+    struct MirroredHighlight
+    {
+        BaseTextFindBase *find = nullptr;
+        QWidget *view = nullptr;
+        std::optional<QString> pendingText;
+        FindFlags pendingFlags;
+    };
+
+    void mirrorHighlights(MirroredHighlight &target, const QString &txt, FindFlags findFlags)
+    {
+        if (m_blockMirrorHighlights)
+            return;
+        target.pendingText = txt;
+        target.pendingFlags = findFlags;
+        if (target.view->isVisible())
+            flushHighlights(target);
+    }
+
+    void flushHighlights(MirroredHighlight &target)
+    {
+        if (!target.pendingText)
+            return;
+        const QString txt = *std::exchange(target.pendingText, std::nullopt);
+        m_blockMirrorHighlights = true;
+        target.find->highlightAll(txt, target.pendingFlags);
+        m_blockMirrorHighlights = false;
+    }
+
     void saveCurrentStateForNavigationHistory() { m_savedNavigationState = saveState(); }
 
     void addSavedStateToNavigationHistory()
@@ -518,6 +572,9 @@ private:
     QAction *m_swapViewsAction;
     std::optional<QPoint> m_previewRestoreScrollPosition;
     QByteArray m_savedNavigationState;
+    MirroredHighlight m_editorHighlight;
+    MirroredHighlight m_previewHighlight;
+    bool m_blockMirrorHighlights = false;
 };
 
 class MarkdownEditorFactory final : public IEditorFactory
