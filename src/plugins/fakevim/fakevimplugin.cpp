@@ -2874,6 +2874,22 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
             TextEditor::displaySettings().breakindent.setValue(false);
         }
         *handled = false; // Let the handler see it as well.
+    } else if (cmd.matches("wn", "wnext") || cmd.matches("wN", "wNext")
+               || cmd.matches("wp", "wprevious")) {
+        // Write, then walk the argument list. Measured: the write happens even
+        // where the walk cannot, so a single-entry list still saves and then
+        // answers E163.
+        IEditor *editor = editorFromHandler();
+        if (editor && !EditorManager::saveDocument(editor->document())) {
+            handler->showMessage(MessageError, Tr::tr("File not saved"));
+            return;
+        }
+        const int distance = cmd.matches("wn", "wnext") ? howManyFiles(cmd)
+                                                        : -howManyFiles(cmd);
+        if (!handler->walkArgList(distance)) {
+            handler->showMessage(MessageError,
+                                 Tr::tr("E163: There is only one file to edit"));
+        }
     } else if (cmd.matches("n", "next")) {
         // :n[ext] - the argument list where ":args" has set one, and otherwise
         // the documents Qt Creator has open, which is what this did before

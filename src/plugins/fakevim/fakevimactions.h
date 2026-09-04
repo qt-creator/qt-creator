@@ -103,6 +103,7 @@ public:
 
     FvBaseAspect *item(const Utils::Key &name);
     QString trySetValue(const QString &name, const QString &value);
+    const QHash<Utils::Key, FvBaseAspect *> &namedAspects() const { return m_nameToAspect; }
 
     FvBoolAspect useFakeVim;
     FvBoolAspect readVimRc;

@@ -335,6 +335,10 @@ private slots:
     void test_vim_option_buffer_state();
     void test_vim_blob();
     void test_vim_blob_operations();
+    void test_vim_command_map_listing();
+    void test_vim_command_split_and_do();
+    void test_vim_command_split_modifiers();
+    void test_vim_command_include_search();
     void test_vim_command_accepted_batch();
     void test_vim_command_cabbrev();
     void test_vim_command_append_insert();
@@ -16106,6 +16110,299 @@ void FakeVimTester::test_vim_blob()
     data.doCommand("unlet! g:b g:c g:d g:seen");
 }
 
+void FakeVimTester::test_vim_command_map_listing()
+{
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+    const auto listing = [&](const QString &command) {
+        extra.clear();
+        message.clear();
+        data.doCommand(command);
+        return extra.isEmpty() ? message : extra;
+    };
+    data.setText("one" N "two");
+    data.doCommand("mapclear");
+    data.doCommand("mapclear!");
+
+    QCOMPARE(listing("map"), QLatin1String("No mapping found"));
+
+    // Measured in Vim 9.1: the mode letter, two spaces, the left side in a
+    // field of twelve, then "* " where the mapping does not remap and two
+    // spaces where it does, then the right side.
+    data.doCommand("nnoremap QQ :echo 1<CR>");
+    data.doCommand("nmap ZZ QQ");
+    data.doCommand("inoremap jj <Esc>");
+    QCOMPARE(listing("nmap"), QLatin1String("n  QQ          * :echo 1<CR>\n"
+                                            "n  ZZ            QQ\n"));
+    QCOMPARE(listing("imap"), QLatin1String("i  jj          * <Esc>\n"));
+
+    // ":map" is the normal, visual and operator-pending tables together, so
+    // an insert-mode mapping is not in it.
+    const QString all = listing("map");
+    QVERIFY2(all.contains("n  QQ"), qPrintable(all));
+    QVERIFY2(!all.contains("i  jj"), qPrintable(all));
+
+    // A clear empties the table the listing reads.
+    data.doCommand("nmapclear");
+    QCOMPARE(listing("nmap"), QLatin1String("No mapping found"));
+    QCOMPARE(listing("imap"), QLatin1String("i  jj          * <Esc>\n"));
+
+    // With an argument they are still the mapping commands rather than a
+    // listing.
+    data.doCommand("nnoremap AA :echo 2<CR>");
+    QVERIFY2(listing("nmap").contains("n  AA"), qPrintable(extra));
+
+    // ":mkvimrc" writes what a vimrc would have to say to get this state
+    // back: the options that differ from their defaults and the mappings, in
+    // the shape Vim writes them.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.path() + "/out.vimrc";
+    data.doCommand("set shiftwidth=7");
+    data.doCommand("nnoremap BB :echo 3<CR>");
+    data.doCommand("mkvimrc " + path);
+    QFile written(path);
+    QVERIFY(written.open(QIODevice::ReadOnly));
+    const QString vimrc = QString::fromUtf8(written.readAll());
+    written.close();
+    QVERIFY2(vimrc.startsWith("version 6.0\nif &cp | set nocp | endif\n"), qPrintable(vimrc));
+    QVERIFY2(vimrc.contains("set shiftwidth=7"), qPrintable(vimrc));
+    QVERIFY2(vimrc.contains("nnoremap BB :echo 3<CR>"), qPrintable(vimrc));
+    QVERIFY2(vimrc.endsWith("\" vim: set ft=vim :\n"), qPrintable(vimrc));
+    // An option left alone is not written.
+    QVERIFY2(!vimrc.contains("set tabstop"), qPrintable(vimrc));
+
+    // It refuses an existing file without the bang, as Vim does.
+    message.clear();
+    data.doCommand("mkvimrc " + path);
+    QVERIFY2(message.contains("E189"), qPrintable(message));
+    data.doCommand("mkvimrc! " + path);
+    QCOMPARE(message, QLatin1String("E189: \"" + path.toUtf8() + "\" exists (add ! to override)"));
+
+    // ":mkexrc" is the same without the Vim-only guard line.
+    const QString exrc = dir.path() + "/out.exrc";
+    data.doCommand("mkexrc " + exrc);
+    QFile second(exrc);
+    QVERIFY(second.open(QIODevice::ReadOnly));
+    const QString written2 = QString::fromUtf8(second.readAll());
+    second.close();
+    QVERIFY2(written2.startsWith("version 6.0\nset "), qPrintable(written2));
+
+    data.doCommand("set shiftwidth&");
+    data.doCommand("mapclear");
+    data.doCommand("mapclear!");
+}
+
+void FakeVimTester::test_vim_command_split_and_do()
+{
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    QStringList splits;
+    data.handler->windowCommandRequested.set(
+        [&](const QString &key, int count) { splits += key + "/" + QString::number(count); });
+    // The stub claims the commands these delegate to and declines the ones
+    // themselves: the plugin is asked first, so claiming a ":s..." would stop
+    // it before it could split.
+    static const QStringList delegates = {
+        "argument", "Next", "next", "previous", "rewind", "last", "first",
+        "bnext", "bNext", "bprevious", "bfirst", "brewind", "blast", "bmodified",
+        "tag", "tjump", "tselect"};
+    QStringList delegated;
+    data.handler->handleExCommandRequested.set(
+        [&](bool *handled, const ExCommand &cmd) {
+            *handled = delegates.contains(cmd.cmd);
+            if (*handled)
+                delegated += cmd.cmd;
+        });
+    const auto run = [&](const QString &command) {
+        message.clear();
+        splits.clear();
+        delegated.clear();
+        data.doCommand(command);
+        return message;
+    };
+    data.setText("one" N "two");
+
+    // Each of them asks for the split and then runs the command it is named
+    // after, which Qt Creator answers for both halves.
+    const QList<QPair<QString, QString>> cases = {
+        {"sargument 2", "argument"}, {"sNext", "Next"}, {"snext", "next"},
+        {"sprevious", "previous"}, {"srewind", "rewind"}, {"slast", "last"},
+        {"sbnext", "bnext"}, {"sbNext", "bNext"}, {"sbprevious", "bprevious"},
+        {"sbfirst", "bfirst"}, {"sblast", "blast"}, {"sbmodified", "bmodified"},
+        {"stag foo", "tag"}, {"stjump foo", "tjump"}, {"stselect foo", "tselect"}};
+    for (const auto &[typed, delegate] : cases) {
+        run(typed);
+        QCOMPARE(splits, QStringList{"s/1"});
+        QVERIFY2(delegated.contains(delegate),
+                 qPrintable(typed + " -> " + delegated.join(",")));
+    }
+
+    // ":sunhide" and ":sball" open a window per buffer, and there is one - so
+    // they split and there is nothing else to do.
+    for (const QString &command : QStringList{"sunhide", "sball"}) {
+        run(command);
+        QCOMPARE(splits, QStringList{"s/1"});
+        QVERIFY2(delegated.isEmpty(), qPrintable(command + " -> " + delegated.join(",")));
+    }
+
+    // The abbreviations are the same commands.
+    run("sbn");
+    QCOMPARE(splits, QStringList{"s/1"});
+    QVERIFY2(delegated.contains("bnext"), qPrintable(delegated.join(",")));
+}
+
+void FakeVimTester::test_vim_command_split_modifiers()
+{
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    // The splits themselves are Qt Creator's, so what is checked is which
+    // command the handler hands over.
+    // The stub claims what the plugin claims and nothing else: claiming the
+    // modifier itself would stop it before it could do its work.
+    QStringList asked;
+    data.handler->handleExCommandRequested.set(
+        [&](bool *handled, const ExCommand &cmd) {
+            *handled = cmd.matches("sp", "split") || cmd.matches("vs", "vsplit")
+                       || cmd.matches("new", "new") || cmd.matches("vne", "vnew");
+            if (*handled)
+                asked += cmd.matches("vs", "vsplit") ? QString("vsplit") : QString("split");
+        });
+    const auto run = [&](const QString &command) {
+        message.clear();
+        asked.clear();
+        data.doCommand(command);
+        return message;
+    };
+    data.setText("one" N "two");
+
+    // ":vertical split" is the side-by-side one, which ":vsplit" already was.
+    QCOMPARE(run("vertical split"), QString());
+    QCOMPARE(asked, QStringList{"vsplit"});
+    QCOMPARE(run("vert sp"), QString());
+    QCOMPARE(asked, QStringList{"vsplit"});
+    QCOMPARE(run("vertical new"), QString());
+    QCOMPARE(asked, QStringList{"vsplit"});
+
+    // The placement modifiers carry nothing Qt Creator can place, so what
+    // follows runs as it stands.
+    for (const QString &modifier : QStringList{"leftabove", "aboveleft", "rightbelow",
+                                               "belowright", "topleft", "botright",
+                                               "horizontal"}) {
+        QCOMPARE(run(modifier + " split"), QString());
+        QCOMPARE(asked, QStringList{"split"});
+    }
+
+    // A modifier keeps the whole line, so a "|" belongs to what it prefixes.
+    data.doCommand("let g:sm = 0");
+    data.doCommand("vertical if 0 | let g:sm = 1 | endif");
+    message.clear();
+    data.doCommand("echo g:sm");
+    QCOMPARE(message, QLatin1String("0"));
+
+    // And on its own a modifier does nothing at all.
+    QCOMPARE(run("vertical"), QString());
+    QVERIFY(asked.isEmpty());
+
+    data.doCommand("unlet! g:sm");
+
+}
+
+void FakeVimTester::test_vim_command_include_search()
+{
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+    const auto run = [&](const QString &command) {
+        message.clear();
+        data.doCommand(command);
+        return message;
+    };
+
+    data.setText("#define FOO 1" N "int FOO_user(void);" N "#define FOO 2" N "FOO;");
+
+    // The listing names the file, then numbers each match and its line - the
+    // match number in three columns and the line in five.
+    data.doKeys("4G");
+    extra.clear();
+    data.doCommand("dlist FOO");
+    QVERIFY2(extra.endsWith("  1:    1 #define FOO 1\n  2:    3 #define FOO 2\n"),
+             qPrintable(extra));
+    // ":ilist" takes any line with the word, ":dlist" only a definition.
+    extra.clear();
+    data.doCommand("ilist FOO");
+    QVERIFY2(extra.endsWith("  1:    1 #define FOO 1\n  2:    3 #define FOO 2\n"
+                            "  3:    4 FOO;\n"), qPrintable(extra));
+
+    // The search forms show the first match and stay where they are.
+    data.doKeys("2G");
+    QCOMPARE(run("isearch FOO"), QLatin1String("#define FOO 1"));
+    QCOMPARE(data.position(), data.text().indexOf("int FOO_user"));
+    QCOMPARE(run("dsearch FOO"), QLatin1String("#define FOO 1"));
+
+    // The jump forms go there.
+    data.doKeys("2G");
+    QCOMPARE(run("ijump FOO"), QString());
+    QCOMPARE(data.position(), 0);
+    data.doKeys("2G");
+    QCOMPARE(run("djump FOO"), QString());
+    QCOMPARE(data.position(), 0);
+
+    // A first match on the current line is what Vim complains about.
+    data.doKeys("gg");
+    QVERIFY2(run("isearch FOO").contains("E387"), qPrintable(message));
+    QVERIFY2(run("dsearch FOO").contains("E387"), qPrintable(message));
+
+    // Nothing found reads differently for the two families.
+    QVERIFY2(run("ilist NOSUCH").contains("E389"), qPrintable(message));
+    QVERIFY2(run("dlist NOSUCH").contains("E388"), qPrintable(message));
+    // A word that is there but never defined is a definition that is missing.
+    QVERIFY2(run("dlist FOO_user").contains("E388"), qPrintable(message));
+    QVERIFY2(!run("ilist FOO_user").contains("E389"), qPrintable(message));
+
+    QVERIFY2(run("ilist").contains("E471"), qPrintable(message));
+
+    // The split forms ask Qt Creator for the split and then jump.
+    QStringList splits;
+    data.handler->windowCommandRequested.set(
+        [&](const QString &key, int count) { splits += key + "/" + QString::number(count); });
+    data.doKeys("2G");
+    QCOMPARE(run("isplit FOO"), QString());
+    QCOMPARE(splits, QStringList{"s/1"});
+    QCOMPARE(data.position(), 0);
+    splits.clear();
+    data.doKeys("2G");
+    QCOMPARE(run("dsplit FOO"), QString());
+    QCOMPARE(splits, QStringList{"s/1"});
+}
+
 void FakeVimTester::test_vim_command_accepted_batch()
 {
     TestData data;
@@ -16127,6 +16424,20 @@ void FakeVimTester::test_vim_command_accepted_batch()
     QVERIFY2(run("profdel func Foo").contains("E161"), qPrintable(message));
     QVERIFY2(run("loadkeymap").contains("E105"), qPrintable(message));
     QVERIFY2(run("tearoff File").contains("E319"), qPrintable(message));
+    // The preview window, the GUI find dialogs, the X session restores and
+    // the spell compiler are all features there are none of here, which is
+    // what Vim's own message for a feature left out says.
+    for (const QString &command : QStringList{"pedit /tmp/x", "psearch FOO", "pbuffer 1",
+                                              "ptag FOO", "promptfind", "promptrepl",
+                                              "wlrestore", "xrestore",
+                                              "mkspell /tmp/x.spl /tmp/y"}) {
+        QVERIFY2(run(command).contains("E319"), qPrintable(command + ": " + message));
+    }
+    // ":pclose" has no preview window to close, which is not an error, and
+    // ":ppop" walks the tag stack this engine does keep.
+    QCOMPARE(run("pclose"), QString());
+    QCOMPARE(run("redrawtabpanel"), QString());
+    QVERIFY2(run("ppop").contains("E73"), qPrintable(message));
     QVERIFY2(run("export def Foo()").contains("E1042"), qPrintable(message));
 
     for (const QString &command : QStringList{"defcompile", "clipreset", "intro", "open",

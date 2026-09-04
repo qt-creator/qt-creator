@@ -3652,6 +3652,11 @@ public:
     void flushListeners();
     bool handleExWindowSizeCommand(const ExCommand &cmd);
     bool handleExSweptCommands(const ExCommand &cmd);
+    bool handleExIncludeSearchCommand(const ExCommand &cmd);
+    bool handleExSplitAndDoCommand(const ExCommand &cmd);
+    bool handleExMapListCommand(const ExCommand &cmd);
+    bool handleExMkVimrcCommand(const ExCommand &cmd);
+    void collectMappings(QStringList *out, const QByteArray &modes, bool asCommands);
     bool isBufferReadOnly();
     bool handleExEchoCommand(const ExCommand &cmd);
 
@@ -8751,7 +8756,9 @@ static bool takesWholeLine(const QString &word)
         {"silent", 3}, {"noautocmd", 3}, {"keepjumps", 5}, {"keepmarks", 3},
         {"keepalt", 5}, {"keeppatterns", 5}, {"lockmarks", 3}, {"unsilent", 3},
         {"noswapfile", 3}, {"sandbox", 5}, {"verbose", 4}, {"legacy", 3},
-        {"vim9cmd", 4}, {"autocmd", 2}, {"command", 3}
+        {"vim9cmd", 4}, {"vertical", 4}, {"horizontal", 3}, {"leftabove", 5},
+        {"aboveleft", 3}, {"rightbelow", 6}, {"belowright", 3}, {"topleft", 2},
+        {"botright", 2}, {"autocmd", 2}, {"command", 3}
     };
     for (const auto &[full, shortest] : whole) {
         if (word.size() >= shortest && full.startsWith(word))
@@ -12437,6 +12444,226 @@ bool FakeVimHandler::Private::handleExWinCmdCommand(const ExCommand &cmd)
     return true;
 }
 
+void FakeVimHandler::Private::collectMappings(QStringList *out, const QByteArray &modes,
+                                             bool asCommands)
+{
+    const auto walk = [&](const ModeMapping &node, const QVector<Input> &keys, char forMode,
+                          const auto &recurse) -> void {
+        for (auto it = node.cbegin(); it != node.cend(); ++it) {
+            QVector<Input> path = keys;
+            path.append(it.key());
+            const Inputs &rhs = it.value().value();
+            if (!rhs.isEmpty()) {
+                QString lhs;
+                for (const Input &in : path)
+                    lhs += keyNameAsVimWritesIt(in.toString());
+                QString right;
+                if (rhs.isExpression()) {
+                    right = rhs.expression();
+                } else if (rhs.isExCommand()) {
+                    right = rhs.leadingKeys() + "<Cmd>" + rhs.exCommand() + "<CR>";
+                } else {
+                    for (const Input &in : QVector<Input>(rhs))
+                        right += keyNameAsVimWritesIt(in.toString());
+                }
+                if (asCommands) {
+                    const QString command = QString(QChar(forMode))
+                                            + (rhs.noremap() ? QLatin1String("noremap")
+                                                             : QLatin1String("map"));
+                    *out += command + ' ' + lhs + ' ' + right;
+                } else {
+                    *out += QString(QChar(forMode)) + "  " + lhs.leftJustified(12)
+                            + (rhs.noremap() ? QLatin1String("* ") : QLatin1String("  "))
+                            + right;
+                }
+            }
+            recurse(it.value(), path, forMode, recurse);
+        }
+    };
+    for (char mode : modes) {
+        const auto table = g.mappings.constFind(mode);
+        if (table != g.mappings.constEnd())
+            walk(*table, QVector<Input>(), mode, walk);
+    }
+}
+
+bool FakeVimHandler::Private::handleExMkVimrcCommand(const ExCommand &cmd)
+{
+    const bool exrc = cmd.matches("mke", "mkexrc");
+    if (!exrc && !cmd.matches("mkv", "mkvimrc"))
+        return false;
+
+    QString path = replaceTildeWithHome(cmd.args.trimmed());
+    if (path.isEmpty())
+        path = exrc ? QString(".exrc") : QString(".vimrc");
+    if (QFileInfo::exists(path) && !cmd.hasBang) {
+        showMessage(MessageError, Tr::tr("E189: \"%1\" exists (add ! to override)").arg(path));
+        return true;
+    }
+
+    QString out = "version 6.0\n";
+    if (!exrc)
+        out += "if &cp | set nocp | endif\n";
+    // Only what was changed, as Vim writes only what differs from its own
+    // defaults.
+    QStringList options;
+    const QHash<Utils::Key, FvBaseAspect *> &named = s.namedAspects();
+    for (auto it = named.cbegin(); it != named.cend(); ++it) {
+        FvBaseAspect *aspect = it.value();
+        const QVariant value = aspect->variantValue();
+        if (value == aspect->defaultVariantValue())
+            continue;
+        const QString name = printedOptionName(aspect);
+        if (name.isEmpty())
+            continue;
+        if (aspect->defaultVariantValue().typeId() == QMetaType::Bool)
+            options += "set " + (value.toBool() ? name : "no" + name);
+        else
+            options += "set " + name + '=' + value.toString();
+    }
+    options.sort();
+    out += options.join('\n');
+    if (!options.isEmpty())
+        out += '\n';
+    QStringList mappings;
+    collectMappings(&mappings, "nvoisxlc", true);
+    out += mappings.join('\n');
+    if (!mappings.isEmpty())
+        out += '\n';
+    out += "\" vim: set ft=vim :\n";
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        showMessage(MessageError, Tr::tr("E190: Cannot open \"%1\" for writing").arg(path));
+        return true;
+    }
+    file.write(out.toUtf8());
+    file.close();
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExMapListCommand(const ExCommand &cmd)
+{
+    static const QList<QPair<QString, QByteArray>> tables = {
+        {"map", "nvo"}, {"nm", "nvo"}, {"nmap", "n"}, {"vmap", "v"}, {"xmap", "v"},
+        {"smap", "s"}, {"omap", "o"}, {"imap", "i"}, {"lmap", "l"}, {"cmap", "c"},
+        {"nnoremap", "n"}, {"vnoremap", "v"}, {"xnoremap", "v"}, {"snoremap", "s"},
+        {"onoremap", "o"}, {"inoremap", "i"}, {"lnoremap", "l"}, {"cnoremap", "c"},
+        {"noremap", "nvo"}};
+    QByteArray modes;
+    for (const auto &[name, forModes] : tables) {
+        if (cmd.cmd == name) {
+            modes = forModes;
+            break;
+        }
+    }
+    if (modes.isEmpty() || !cmd.args.trimmed().isEmpty())
+        return false;
+
+    QStringList listed;
+    collectMappings(&listed, modes, false);
+    if (listed.isEmpty()) {
+        showMessage(MessageInfo, Tr::tr("No mapping found"));
+        return true;
+    }
+    listed.sort();
+    showExtraInformation(listed.join('\n') + '\n');
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExSplitAndDoCommand(const ExCommand &cmd)
+{
+    static const QList<QPair<QString, QString>> family = {
+        {"sa", "sargument"}, {"sN", "sNext"}, {"sn", "snext"}, {"spr", "sprevious"},
+        {"sr", "srewind"}, {"sfir", "sfirst"}, {"sla", "slast"},
+        {"sbn", "sbnext"}, {"sbN", "sbNext"}, {"sbp", "sbprevious"},
+        {"sbf", "sbfirst"}, {"sbr", "sbrewind"}, {"sbl", "sblast"},
+        {"sbm", "sbmodified"}, {"sun", "sunhide"}, {"sba", "sball"},
+        {"sta", "stag"}, {"stj", "stjump"}, {"sts", "stselect"}};
+    QString base;
+    for (const auto &[shortest, full] : family) {
+        if (cmd.matches(shortest, full)) {
+            base = full.mid(1);
+            break;
+        }
+    }
+    if (base.isEmpty())
+        return false;
+
+    // ":sunhide" and ":sball" open a window per buffer, and there is one.
+    if (base == "unhide" || base == "ball") {
+        q->windowCommandRequested("s", 1);
+        return true;
+    }
+
+    q->windowCommandRequested("s", 1);
+    runNestedExCommands(base + (cmd.args.isEmpty() ? QString() : ' ' + cmd.args));
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExIncludeSearchCommand(const ExCommand &cmd)
+{
+    const bool defines = cmd.matches("dl", "dlist") || cmd.matches("ds", "dsearch")
+                         || cmd.matches("dj", "djump") || cmd.matches("dsp", "dsplit");
+    const bool anyLine = cmd.matches("il", "ilist") || cmd.matches("is", "isearch")
+                         || cmd.matches("ij", "ijump") || cmd.matches("isp", "isplit");
+    if (!defines && !anyLine)
+        return false;
+
+    const bool list = cmd.matches("dl", "dlist") || cmd.matches("il", "ilist");
+    const bool split = cmd.matches("dsp", "dsplit") || cmd.matches("isp", "isplit");
+    const bool jump = split || cmd.matches("dj", "djump") || cmd.matches("ij", "ijump");
+
+    const QString wanted = cmd.args.trimmed();
+    if (wanted.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E471: Argument required"));
+        return true;
+    }
+    const QRegularExpression identifier("\\b" + QRegularExpression::escape(wanted) + "\\b");
+    static const QRegularExpression definition("^\\s*#\\s*define");
+
+    QList<int> lines;
+    for (int line = 1; line <= linesInDocument(); ++line) {
+        const QString text = lineContents(line);
+        if (!identifier.match(text).hasMatch())
+            continue;
+        if (defines && !definition.match(text).hasMatch())
+            continue;
+        lines.append(line);
+    }
+    if (lines.isEmpty()) {
+        showMessage(MessageError, defines ? Tr::tr("E388: Couldn't find definition")
+                                          : Tr::tr("E389: Couldn't find pattern"));
+        return true;
+    }
+
+    if (list) {
+        QString info = m_currentFileName + '\n';
+        for (int i = 0; i < lines.size(); ++i) {
+            info += QString("%1:%2 %3\n").arg(i + 1, 3).arg(lines.at(i), 5)
+                        .arg(lineContents(lines.at(i)));
+        }
+        showExtraInformation(info);
+        return true;
+    }
+
+    const int found = lines.first();
+    if (found == cursorLine() + 1) {
+        showMessage(MessageError, Tr::tr("E387: Match is on current line"));
+        return true;
+    }
+    if (!jump) {
+        showMessage(MessageInfo, lineContents(found));
+        return true;
+    }
+    if (split)
+        q->windowCommandRequested("s", 1);
+    recordJump();
+    setPosition(firstPositionInLine(found));
+    setTargetColumn();
+    return true;
+}
+
 bool FakeVimHandler::Private::handleExSweptCommands(const ExCommand &cmd)
 {
     // A batch the 2026-09-04 sweep of Vim's command names turned up. Each one
@@ -12536,6 +12763,30 @@ bool FakeVimHandler::Private::handleExSweptCommands(const ExCommand &cmd)
     if (cmd.matches("wundo", "wundo")) {
         showMessage(MessageError, Tr::tr("E828: Cannot open undo file for writing: %1")
                                       .arg(cmd.args.trimmed()));
+        return true;
+    }
+    if (cmd.matches("pc", "pclose")) {
+        return true;
+    }
+    if (cmd.matches("ppo", "ppop")) {
+        if (isTagStackEmpty())
+            showMessage(MessageError, Tr::tr("E73: Tag stack empty"));
+        return true;
+    }
+    if (cmd.matches("ped", "pedit") || cmd.matches("ps", "psearch")
+        || cmd.matches("pb", "pbuffer") || cmd.matches("pt", "ptag")
+        || cmd.matches("ptj", "ptjump") || cmd.matches("ptn", "ptnext")
+        || cmd.matches("ptp", "ptprevious") || cmd.matches("ptr", "ptrewind")
+        || cmd.matches("ptl", "ptlast") || cmd.matches("ptf", "ptfirst")
+        || cmd.matches("promptf", "promptfind") || cmd.matches("promptr", "promptrepl")
+        || cmd.matches("wlr", "wlrestore") || cmd.matches("xr", "xrestore")
+        || cmd.matches("mkspe", "mkspell")) {
+        showMessage(MessageError,
+                    Tr::tr("E319: Sorry, the command is not available in this version: %1")
+                        .arg(cmd.original.trimmed()));
+        return true;
+    }
+    if (cmd.matches("redrawta", "redrawtabpanel")) {
         return true;
     }
     if (cmd.matches("comp", "compiler")) {
@@ -22922,6 +23173,35 @@ bool FakeVimHandler::Private::handleExModifierCommand(const ExCommand &cmd)
     // effect here; the rest concern state FakeVim does not keep (the jump list
     // is left alone, marks are not adjusted by these commands anyway, no swap
     // file is written either way), so they just run what follows.
+    // ":vertical" and ":horizontal" say which way the split that follows goes,
+    // and the six placement modifiers say where it lands. Qt Creator splits
+    // either below or side by side, so the direction is what carries over and
+    // the placement is dropped.
+    const bool vertical = cmd.matches("vert", "vertical");
+    const bool horizontal = cmd.matches("hor", "horizontal");
+    const bool placement = cmd.matches("lefta", "leftabove") || cmd.matches("abo", "aboveleft")
+                           || cmd.matches("rightb", "rightbelow")
+                           || cmd.matches("bel", "belowright")
+                           || cmd.matches("to", "topleft") || cmd.matches("bo", "botright");
+    if (vertical || horizontal || placement) {
+        const QString rest = cmd.args.trimmed();
+        if (rest.isEmpty())
+            return true;
+        if (vertical) {
+            ExCommand split;
+            split.cmd = "vsplit";
+            split.original = "vsplit";
+            static const QRegularExpression splits("^(sp|spl|spli|split|new)$");
+            if (splits.match(rest).hasMatch()) {
+                bool handled = false;
+                q->handleExCommandRequested(&handled, split);
+                return true;
+            }
+        }
+        runNestedExCommands(rest);
+        return true;
+    }
+
     const bool noAutocmd = cmd.matches("noa", "noautocmd");
     if (!noAutocmd
         && !cmd.matches("keepj", "keepjumps")
@@ -24388,6 +24668,10 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExWinCmdCommand(cmd)
         || handleExWindowSizeCommand(cmd)
         || handleExSweptCommands(cmd)
+        || handleExIncludeSearchCommand(cmd)
+        || handleExMapListCommand(cmd)
+        || handleExMkVimrcCommand(cmd)
+        || handleExSplitAndDoCommand(cmd)
         || handleExDelMarksCommand(cmd)
         || handleExYankDeleteCommand(cmd)
         || handleExChangeCommand(cmd)
