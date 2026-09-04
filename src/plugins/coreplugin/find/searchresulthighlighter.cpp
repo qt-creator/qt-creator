@@ -10,13 +10,17 @@ namespace Core {
 SearchResultHighlighter::SearchResultHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
-
+    m_rehighlightTimer.setSingleShot(true);
+    m_rehighlightTimer.setInterval(50);
+    connect(&m_rehighlightTimer, &QTimer::timeout, this, [this] { rehighlight(); });
 }
 
 void SearchResultHighlighter::setSearchExpression(const QRegularExpression &expr)
 {
+    if (m_searchExpr == expr)
+        return;
     m_searchExpr = expr;
-    rehighlight();
+    m_rehighlightTimer.start();
 }
 
 void SearchResultHighlighter::highlightBlock(const QString &text)

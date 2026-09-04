@@ -7,6 +7,7 @@
 
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>
+#include <QTimer>
 
 namespace Core {
 
@@ -22,6 +23,7 @@ protected:
 
 private:
     QRegularExpression m_searchExpr;
+    QTimer m_rehighlightTimer;
 };
 
 } // namespace Core
