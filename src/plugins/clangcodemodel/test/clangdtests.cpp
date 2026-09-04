@@ -2361,6 +2361,7 @@ private slots:
     void testHoverWithoutServer();
     void testArgumentErrors();
     void testCallHierarchy();
+    void testTypeHierarchy();
 };
 
 // Runs one of the LanguageClient MCP tool functions to completion.
@@ -2530,6 +2531,63 @@ void ClangdTestMcpTools::testCallHierarchy()
                          {"line", 3},
                          {"column", 5},
                          {"direction", "sideways"}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("direction"), qPrintable(result.error()));
+}
+
+void ClangdTestMcpTools::testTypeHierarchy()
+{
+    // S2 (defs.h:20:8) derives from S (defs.h:1:8).
+    Result<QJsonObject> result = runMcpTool(&LanguageClient::lspTypeHierarchy,
+                                            {{"file", filePath("defs.h").toFSPathString()},
+                                             {"line", 20},
+                                             {"column", 8},
+                                             {"direction", "supertypes"}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("root").toObject().value("name").toString(), QString("S2"));
+    QCOMPARE(result->value("root").toObject().value("kind").toString(), QString("struct"));
+    QCOMPARE(result->value("direction").toString(), QString("supertypes"));
+    const QJsonArray supertypes = result->value("supertypes").toArray();
+    QCOMPARE(supertypes.size(), 1);
+    const QJsonObject base = supertypes.at(0).toObject();
+    QCOMPARE(base.value("name").toString(), QString("S"));
+    QVERIFY(base.value("file").toString().endsWith("defs.h"));
+    QCOMPARE(base.value("line").toInt(), 1);
+    QCOMPARE(base.value("column").toInt(), 8);
+    QVERIFY(!result->contains("subtypes"));
+
+    // Both directions from S, two levels deep: nothing above, S2 below, and
+    // nothing below S2.
+    result = runMcpTool(&LanguageClient::lspTypeHierarchy,
+                        {{"file", filePath("defs.h").toFSPathString()},
+                         {"line", 1},
+                         {"column", 8},
+                         {"depth", 2}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QCOMPARE(result->value("root").toObject().value("name").toString(), QString("S"));
+    QCOMPARE(result->value("direction").toString(), QString("both"));
+    QCOMPARE(result->value("supertypes").toArray().size(), 0);
+    const QJsonArray subtypes = result->value("subtypes").toArray();
+    QCOMPARE(subtypes.size(), 1);
+    QCOMPARE(subtypes.at(0).toObject().value("name").toString(), QString("S2"));
+    QVERIFY(!subtypes.at(0).toObject().contains("subtypes"));
+    QCOMPARE(result->value("total").toInt(), 1);
+    QCOMPARE(result->value("truncated").toBool(), false);
+
+    // Nothing at the position (an empty line), and not a direction.
+    result = runMcpTool(&LanguageClient::lspTypeHierarchy,
+                        {{"file", filePath("defs.h").toFSPathString()},
+                         {"line", 19},
+                         {"column", 1}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("type hierarchy"), qPrintable(result.error()));
+    result = runMcpTool(&LanguageClient::lspTypeHierarchy,
+                        {{"file", filePath("defs.h").toFSPathString()},
+                         {"line", 1},
+                         {"column", 8},
+                         {"direction", "up"}});
     QVERIFY(!result);
     QVERIFY2(result.error().contains("direction"), qPrintable(result.error()));
 }
