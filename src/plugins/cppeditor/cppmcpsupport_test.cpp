@@ -197,6 +197,8 @@ void CppMcpSupportTest::testRenameSymbolDryRun()
     QCOMPARE(result.value("applied").toBool(), false);
     QCOMPARE(result.value("symbol").toString(), QString("g"));
     QCOMPARE(result.value("total_edits").toInt(), 3);
+    QCOMPARE(result.value("has_conflicts").toBool(), false);
+    QCOMPARE(result.value("conflicts").toArray().size(), 0);
 
     const QJsonArray edits = result.value("edits").toArray();
     QCOMPARE(edits.size(), 3);
@@ -431,6 +433,98 @@ void CppMcpSupportTest::testFindSignalConnections()
     callTool("cpp_find_signal_connections",
              {{"file", file.toFSPathString()}, {"line", 12}, {"column", 17}}, &error);
     QVERIFY2(error.contains("not a function"), qPrintable(error));
+}
+
+
+// The clash check a rename runs before it writes anything.
+void CppMcpSupportTest::testRenameSymbolClashCheck()
+{
+    CppEditor::Tests::TestCase testCase;
+    QVERIFY(testCase.succeededSoFar());
+    CppEditor::Tests::TemporaryDir dir;
+    Utils::FilePath file;
+    const QByteArray source =
+        "int x;\n"                                                   // 1
+        "int y;\n"                                                   // 2
+        "int z = x;\n"                                               // 3
+        "struct Base { void bar(); virtual void vb(); };\n"          // 4
+        "struct Derived : Base { void foo(); virtual void vf(); };\n" // 5
+        "void f(int n) { { int g = 1; use(n, g); } }\n";             // 6
+    QVERIFY(writeAndParse(dir, source, &file));
+    const QString path = file.toFSPathString();
+    QString error;
+
+    const auto rename = [&](int line, int column, const QString &newName,
+                            const QJsonObject &extra = {}) {
+        QJsonObject args{{"file", path}, {"line", line}, {"column", column}, {"new_name", newName}};
+        for (auto it = extra.begin(); it != extra.end(); ++it)
+            args.insert(it.key(), it.value());
+        return callTool("cpp_rename_symbol", args, &error);
+    };
+    const auto conflictKinds = [](const QJsonObject &result) {
+        QStringList kinds;
+        for (const QJsonValue &value : result.value("conflicts").toArray()) {
+            kinds << value.toObject().value("kind").toString() + '/'
+                         + value.toObject().value("severity").toString();
+        }
+        return kinds;
+    };
+
+    // x -> y: y is declared in the same scope.
+    QJsonObject result = rename(1, 5, "y");
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(result.value("has_conflicts").toBool(), true);
+    QCOMPARE(conflictKinds(result), QStringList({"same_scope/hard"}));
+    QCOMPARE(result.value("conflicts").toArray().at(0).toObject().value("line").toInt(), 2);
+    QCOMPARE(result.value("total_edits").toInt(), 2); // The dry run still lists the edits.
+
+    // A hard conflict refuses to apply, and nothing is written.
+    rename(1, 5, "y", {{"apply", true}});
+    QVERIFY2(error.contains("clashes"), qPrintable(error));
+    QCOMPARE(file.fileContents().value_or(QByteArray()), source);
+
+    // foo -> bar: hides Base::bar, which is legal and therefore soft.
+    result = rename(5, 30, "bar");
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(conflictKinds(result), QStringList({"hides_base_member/soft"}));
+
+    // vf -> vb: both virtual with the same signature, so vf would start to
+    // override vb. That changes behaviour: hard.
+    result = rename(5, 50, "vb");
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(conflictKinds(result), QStringList({"becomes_override/hard"}));
+
+    // n -> g: the usage of n inside the inner block would bind to that block's g.
+    result = rename(6, 12, "g");
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(conflictKinds(result), QStringList({"rebinds_usage/hard"}));
+    QCOMPARE(result.value("conflicts").toArray().at(0).toObject().value("name").toString(),
+             QString("g"));
+
+    // n -> m: nothing to clash with.
+    result = rename(6, 12, "m");
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(result.value("has_conflicts").toBool(), false);
+
+    // Keywords are refused outright, Qt's included.
+    rename(1, 5, "int");
+    QVERIFY2(error.contains("keyword"), qPrintable(error));
+    rename(1, 5, "signals");
+    QVERIFY2(error.contains("keyword"), qPrintable(error));
+
+    // A soft conflict does not block applying...
+    result = rename(5, 30, "bar", {{"apply", true}});
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(result.value("applied").toBool(), true);
+    QCOMPARE(result.value("has_conflicts").toBool(), true);
+    QVERIFY(file.fileContents().value_or(QByteArray()).contains("{ void bar(); virtual void vf(); }"));
+
+    // ...and a hard one does until forced.
+    result = rename(1, 5, "y", {{"apply", true}, {"force", true}});
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(result.value("applied").toBool(), true);
+    QCOMPARE(result.value("total_edits").toInt(), 2);
+    QVERIFY(file.fileContents().value_or(QByteArray()).startsWith("int y;\nint y;\nint z = y;\n"));
 }
 
 } // namespace CppEditor::Internal

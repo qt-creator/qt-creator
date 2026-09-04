@@ -41,6 +41,7 @@
 #include <cplusplus/Control.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/FindUsages.h>
+#include <cplusplus/SimpleLexer.h>
 #include <cplusplus/Literals.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Symbols.h>
@@ -62,6 +63,7 @@
 #include <QTextDocument>
 
 #include <algorithm>
+#include <functional>
 
 using namespace Utils;
 
@@ -172,15 +174,20 @@ static QString symbolKind(const CPlusPlus::Symbol *symbol)
 }
 
 // Resolve the C++ symbol at a 1-based line/column in a file, returning it and
-// (via context) its lookup context, or nullptr if there is none.
+// (via context) its lookup context, or nullptr if there is none. The context's
+// document is a fresh parse of the file's current text, with its AST: a local
+// symbol is matched by the identity of its scope, so a usages search over the
+// symbol's own file has to run on this very document (see symbolUsages()).
 static CPlusPlus::Symbol *symbolAt(const Utils::FilePath &filePath, int line, int column,
                                    CPlusPlus::LookupContext *context)
 {
-    const CPlusPlus::Document::Ptr doc = CppModelManager::document(filePath);
-    if (!doc)
-        return nullptr;
     const CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    if (!snapshot.contains(filePath))
+        return nullptr;
     const QByteArray source = fileSource(filePath, CppModelManager::workingCopy());
+    CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(source, filePath);
+    doc->tokenize();
+    doc->check();
     QTextDocument textDocument(QString::fromUtf8(source));
     const QTextBlock block = textDocument.findBlockByNumber(line - 1);
     if (!block.isValid())
@@ -195,9 +202,14 @@ static CPlusPlus::Symbol *symbolAt(const Utils::FilePath &filePath, int line, in
 }
 
 // Collect all usages of a symbol across the snapshot. Files that do not mention
-// the symbol's identifier are skipped cheaply, mirroring CppFindReferences.
+// the symbol's identifier are skipped cheaply, mirroring CppFindReferences. The
+// optional handler sees each file's parsed document together with the usages in
+// it, while that document is still alive.
+using UsagesInFileHandler = std::function<void(const CPlusPlus::Document::Ptr &document,
+                                               const QList<CPlusPlus::Usage> &usages)>;
 static QList<CPlusPlus::Usage> symbolUsages(CPlusPlus::Symbol *symbol,
-                                            const CPlusPlus::LookupContext &context)
+                                            const CPlusPlus::LookupContext &context,
+                                            const UsagesInFileHandler &perFile = {})
 {
     const CPlusPlus::Identifier *id = symbol->identifier();
     if (!id)
@@ -212,14 +224,26 @@ static QList<CPlusPlus::Usage> symbolUsages(CPlusPlus::Symbol *symbol,
             continue; // The file does not mention the name at all.
 
         const QByteArray source = fileSource(filePath, workingCopy);
-        CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(source, filePath);
-        doc->tokenize();
-        if (!doc->control()->findIdentifier(id->chars(), id->size()))
-            continue;
-        doc->check();
+        CPlusPlus::Document::Ptr doc;
+        const CPlusPlus::Document::Ptr symbolDocument = context.thisDocument();
+        if (symbolDocument && symbolDocument->filePath() == filePath
+                && symbolDocument->translationUnit()->ast()) {
+            // The symbol's own file: search the document it was resolved in,
+            // as a local symbol is matched by the identity of its scope.
+            doc = symbolDocument;
+        } else {
+            doc = snapshot.preprocessedDocument(source, filePath);
+            doc->tokenize();
+            if (!doc->control()->findIdentifier(id->chars(), id->size()))
+                continue;
+            doc->check();
+        }
         CPlusPlus::FindUsages findUsages(source, doc, snapshot, /*categorize=*/true);
         findUsages(symbol);
-        usages += findUsages.usages();
+        const QList<CPlusPlus::Usage> fileUsages = findUsages.usages();
+        if (perFile)
+            perFile(doc, fileUsages);
+        usages += fileUsages;
     }
     return usages;
 }
@@ -421,6 +445,22 @@ private:
         return true;
     }
 };
+
+// Whether two functions take the same parameters, whatever they are called -
+// the part of a signature that survives a rename. Function::isSignatureEqualTo
+// compares the names as well, which is the one thing that is about to change.
+static bool sameParameters(const CPlusPlus::Function *a, const CPlusPlus::Function *b)
+{
+    if (a->isConst() != b->isConst() || a->isVolatile() != b->isVolatile()
+            || a->isVariadic() != b->isVariadic() || a->argumentCount() != b->argumentCount()) {
+        return false;
+    }
+    for (int i = 0; i < a->argumentCount(); ++i) {
+        if (!a->argumentAt(i)->type().match(b->argumentAt(i)->type()))
+            return false;
+    }
+    return true;
+}
 
 void registerMcpTools()
 {
@@ -1249,7 +1289,14 @@ void registerMcpTools()
                 "\"apply\" to true to write the edits. Only files belonging to the open "
                 "projects are edited, never Qt or system headers; \"skipped_edits\" and "
                 "\"skipped_files\" report the usages left untouched by that filter, so a "
-                "partial rename is visible rather than silent.")
+                "partial rename is visible rather than silent. Before anything is written "
+                "the new name is checked for clashes: a declaration of that name in the "
+                "same scope, a base-class member it would hide or start to override, an "
+                "outer declaration it would shadow, or a declaration that would capture one "
+                "of the renamed usages and make it mean something else. \"conflicts\" lists "
+                "them with a severity; \"apply\" is refused while a hard conflict exists "
+                "unless \"force\" is true. \"other_declarations_with_name\" lists unrelated "
+                "indexed symbols that already have the new name, for information.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1280,6 +1327,13 @@ void registerMcpTools()
                             {"type", "boolean"},
                             {"description",
                              "Write the edits to disk. Default false (dry run)."}})
+                    .addProperty(
+                        "force",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Apply even though the new name has a hard conflict. Default "
+                             "false."}})
                     .addProperty("limit", limitProperty())
                     .addRequired("file")
                     .addRequired("line")
@@ -1304,9 +1358,29 @@ void registerMcpTools()
                     .addProperty(
                         "skipped_files",
                         QJsonObject{{"type", "array"}, {"items", QJsonObject{{"type", "string"}}}})
+                    .addProperty("has_conflicts", QJsonObject{{"type", "boolean"}})
+                    .addProperty(
+                        "conflicts",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description",
+                             "Declarations the new name clashes with: kind (same_scope, "
+                             "overload, hides_base_member, becomes_override, shadows, "
+                             "rebinds_usage), severity (hard or soft), name, symbol_kind "
+                             "and location."}})
+                    .addProperty(
+                        "other_declarations_with_name",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "object"}}},
+                            {"description",
+                             "Indexed symbols elsewhere in the project that already carry "
+                             "the new name; informational."}})
                     .addRequired("applied")
                     .addRequired("total_edits")
-                    .addRequired("skipped_edits")),
+                    .addRequired("skipped_edits")
+                    .addRequired("has_conflicts")),
         [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject args = params.argumentsAsObject();
             const QString file = args.value("file").toString();
@@ -1314,6 +1388,7 @@ void registerMcpTools()
             const int column = args.value("column").toInt();
             const QString newName = args.value("new_name").toString();
             const bool apply = args.value("apply").toBool();
+            const bool force = args.value("force").toBool();
             if (file.isEmpty() || line <= 0 || column <= 0 || newName.isEmpty()) {
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(
                     "Requires \"file\", 1-based \"line\"/\"column\" and \"new_name\"."));
@@ -1325,6 +1400,15 @@ void registerMcpTools()
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(
                     QString("\"%1\" is not a valid C++ identifier.").arg(newName)));
             }
+            // The lexer classifies keywords, Qt's included, as it reads them.
+            CPlusPlus::SimpleLexer lexer;
+            lexer.setLanguageFeatures(CPlusPlus::LanguageFeatures::defaultFeatures());
+            const CPlusPlus::Tokens tokens = lexer(newName);
+            if (tokens.size() != 1 || tokens.first().kind() != CPlusPlus::T_IDENTIFIER) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("\"%1\" is a C++ or Qt keyword.").arg(newName)));
+            }
+            const QByteArray newNameUtf8 = newName.toUtf8();
 
             const FilePath filePath = FilePath::fromUserInput(file);
             CPlusPlus::LookupContext context;
@@ -1346,6 +1430,110 @@ void registerMcpTools()
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(
                     QString("New name equals the current name \"%1\".").arg(oldName)));
             }
+
+            // Would the new name clash? Look it up from where the symbol is
+            // declared: a hit in the same scope is a redeclaration, one in a base
+            // class hides that member (or, for a virtual with the same signature,
+            // starts to override it), one further out gets shadowed. Below, every
+            // usage is looked up from its own scope as well: a hit declared in a
+            // scope that does not enclose the symbol would capture the renamed
+            // reference and make it mean something else.
+            // Copies what is reported about a clashing declaration, because some
+            // are found in documents that symbolUsages() destroys again before the
+            // result is built.
+            struct Conflict
+            {
+                QString kind;
+                bool hard = false;
+                QString name;
+                QString symbolKind;
+                FilePath file;
+                int line = 0;
+                int column = 0;
+            };
+            CPlusPlus::Overview overview;
+            QList<Conflict> conflicts;
+            const auto addConflict = [&conflicts, &overview](const QString &kind, bool hard,
+                                                             const CPlusPlus::Symbol *other) {
+                Conflict conflict{kind, hard, overview.prettyName(other->name()),
+                                  symbolKind(other), other->filePath(), other->line(),
+                                  other->column()};
+                for (const Conflict &known : std::as_const(conflicts)) {
+                    if (known.file == conflict.file && known.line == conflict.line
+                            && known.column == conflict.column) {
+                        return;
+                    }
+                }
+                conflicts.append(conflict);
+            };
+            const auto isEnclosedBy = [](const CPlusPlus::Scope *inner,
+                                         const CPlusPlus::Scope *outer) {
+                for (const CPlusPlus::Scope *scope = inner; scope; scope = scope->enclosingScope()) {
+                    if (scope == outer)
+                        return true;
+                }
+                return false;
+            };
+            CPlusPlus::Scope *symbolScope = symbol->enclosingScope();
+            const CPlusPlus::Function *renamedFunction = symbol->type()->asFunctionType();
+            if (symbolScope) {
+                const CPlusPlus::Name *newNameId = context.thisDocument()->control()->identifier(
+                    newNameUtf8.constData(), newNameUtf8.size());
+                const QList<CPlusPlus::LookupItem> visible = context.lookup(newNameId, symbolScope);
+                for (const CPlusPlus::LookupItem &item : visible) {
+                    CPlusPlus::Symbol *other = item.declaration();
+                    if (!other || other == symbol)
+                        continue;
+                    const CPlusPlus::Scope *otherScope = other->enclosingScope();
+                    const CPlusPlus::Function *otherFunction = other->type()->asFunctionType();
+                    const bool overload = renamedFunction && otherFunction
+                                          && !sameParameters(renamedFunction, otherFunction);
+                    if (otherScope == symbolScope) {
+                        addConflict(overload ? QStringLiteral("overload")
+                                             : QStringLiteral("same_scope"), !overload, other);
+                    } else if (isEnclosedBy(symbolScope, otherScope)) {
+                        addConflict(QStringLiteral("shadows"), false, other);
+                    } else if (otherScope && otherScope->asClass()) {
+                        // Visible from inside the class yet declared in another
+                        // one: a base class member.
+                        const bool overrides = renamedFunction && otherFunction && !overload
+                                               && renamedFunction->isVirtual()
+                                               && otherFunction->isVirtual();
+                        addConflict(overrides ? QStringLiteral("becomes_override")
+                                              : QStringLiteral("hides_base_member"),
+                                    overrides, other);
+                    } else {
+                        addConflict(QStringLiteral("shadows"), false, other);
+                    }
+                }
+            }
+            const CPlusPlus::Snapshot snapshot = context.snapshot();
+            const auto checkRebinding = [&](const CPlusPlus::Document::Ptr &doc,
+                                            const QList<CPlusPlus::Usage> &fileUsages) {
+                if (!symbolScope)
+                    return;
+                const CPlusPlus::Name *nameInDoc = doc->control()->identifier(
+                    newNameUtf8.constData(), newNameUtf8.size());
+                const CPlusPlus::LookupContext usageContext(doc, snapshot);
+                for (const CPlusPlus::Usage &u : fileUsages) {
+                    if (u.tags.testFlag(CPlusPlus::Usage::Tag::Declaration))
+                        continue;
+                    CPlusPlus::Scope *usageScope = doc->scopeAt(u.line, u.col + 1);
+                    if (!usageScope)
+                        continue;
+                    const QList<CPlusPlus::LookupItem> items
+                        = usageContext.lookup(nameInDoc, usageScope);
+                    for (const CPlusPlus::LookupItem &item : items) {
+                        CPlusPlus::Symbol *other = item.declaration();
+                        if (!other || other == symbol)
+                            continue;
+                        // Declared in a scope enclosing the symbol: reported above.
+                        const CPlusPlus::Scope *otherScope = other->enclosingScope();
+                        if (otherScope && !isEnclosedBy(symbolScope, otherScope))
+                            addConflict(QStringLiteral("rebinds_usage"), true, other);
+                    }
+                }
+            };
 
             // Restrict edits to files inside an open project, so a rename never
             // rewrites Qt or system headers that a usage may point into. When no
@@ -1376,7 +1564,7 @@ void registerMcpTools()
             // so the caller has to be able to see that it was partial.
             int skippedEdits = 0;
             QStringList skippedFiles;
-            for (const CPlusPlus::Usage &u : symbolUsages(symbol, context)) {
+            for (const CPlusPlus::Usage &u : symbolUsages(symbol, context, checkRebinding)) {
                 if (!inProject(u.path)) {
                     ++skippedEdits;
                     const QString skipped = u.path.toUserOutput();
@@ -1393,6 +1581,51 @@ void registerMcpTools()
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(
                     QString("No occurrences of \"%1\" in the open projects' files.")
                         .arg(oldName)));
+            }
+
+            QJsonArray conflictsJson;
+            const Conflict *firstHard = nullptr;
+            for (const Conflict &conflict : std::as_const(conflicts)) {
+                if (conflict.hard && !firstHard)
+                    firstHard = &conflict;
+                QJsonObject obj{{"kind", conflict.kind},
+                                {"severity", conflict.hard ? QStringLiteral("hard")
+                                                           : QStringLiteral("soft")},
+                                {"name", conflict.name},
+                                {"symbol_kind", conflict.symbolKind}};
+                if (!conflict.file.isEmpty()) {
+                    obj.insert("file", conflict.file.toUserOutput());
+                    obj.insert("line", conflict.line);
+                    obj.insert("column", conflict.column);
+                }
+                conflictsJson.append(obj);
+            }
+            QJsonArray sameNamed;
+            const QList<IndexItem::Ptr> indexed
+                = CppModelManager::locatorData()->findSymbols(IndexItem::All, newName);
+            for (const IndexItem::Ptr &item : indexed) {
+                if (sameNamed.size() >= resultLimit(args))
+                    break;
+                sameNamed.append(QJsonObject{{"name", item->scopedSymbolName()},
+                                             {"kind", itemKind(item->type())},
+                                             {"file", item->filePath().toUserOutput()},
+                                             {"line", item->line()},
+                                             {"column", item->column() + 1}});
+            }
+            const auto withConflicts = [&](QJsonObject result) {
+                result.insert("has_conflicts", !conflicts.isEmpty());
+                result.insert("conflicts", conflictsJson);
+                result.insert("other_declarations_with_name", sameNamed);
+                return result;
+            };
+
+            if (apply && firstHard && !force) {
+                return CallToolResult{}.isError(true).addContent(TextContent{}.text(
+                    QString("Cannot apply: \"%1\" clashes with the %2 %3 at %4:%5 (%6). "
+                            "Nothing was changed; pass \"force\" to rename anyway.")
+                        .arg(newName, firstHard->symbolKind, firstHard->name,
+                             firstHard->file.toUserOutput(), QString::number(firstHard->line),
+                             firstHard->kind)));
             }
 
             if (!apply) {
@@ -1413,7 +1646,7 @@ void registerMcpTools()
                 int total = 0;
                 bool truncated = false;
                 const QJsonArray capped = capResults(edits, resultLimit(args), &total, &truncated);
-                return CallToolResult{}.isError(false).structuredContent(QJsonObject{
+                return CallToolResult{}.isError(false).structuredContent(withConflicts(QJsonObject{
                     {"applied", false},
                     {"symbol", oldName},
                     {"new_name", newName},
@@ -1422,7 +1655,7 @@ void registerMcpTools()
                     {"edits", capped},
                     {"skipped_edits", skippedEdits},
                     {"skipped_files", QJsonArray::fromStringList(skippedFiles)},
-                    {"truncated", truncated}});
+                    {"truncated", truncated}}));
             }
 
             // Refuse before touching anything if any target is read-only, so we
@@ -1441,7 +1674,7 @@ void registerMcpTools()
             // The usages come from the snapshot, the edits go to the editor
             // document, which may be newer, so verify that each offset still
             // holds the old name rather than rewrite an arbitrary span.
-            CppRefactoringChanges changes(context.snapshot());
+            CppRefactoringChanges changes(snapshot);
             QList<TextEditor::RefactoringFilePtr> refFiles;
             QList<Utils::ChangeSet> changeSets;
             for (const FilePath &fp : fileOrder) {
@@ -1479,14 +1712,14 @@ void registerMcpTools()
                         .arg(applied).arg(usages.size()).arg(failed.join(", "))));
             }
 
-            return CallToolResult{}.isError(false).structuredContent(QJsonObject{
+            return CallToolResult{}.isError(false).structuredContent(withConflicts(QJsonObject{
                 {"applied", true},
                 {"symbol", oldName},
                 {"new_name", newName},
                 {"total_edits", applied},
                 {"files_changed", filesChanged},
                 {"skipped_edits", skippedEdits},
-                {"skipped_files", QJsonArray::fromStringList(skippedFiles)}});
+                {"skipped_files", QJsonArray::fromStringList(skippedFiles)}}));
         });
 
     ToolRegistry::registerTool(
