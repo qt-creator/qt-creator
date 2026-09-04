@@ -703,20 +703,22 @@ struct TerminalSurfacePrivate
 
     const VTermScreenCell *cellAt(int x, int y)
     {
-        if (y < 0 || x < 0 || y >= q->fullSize().height() || x >= liveSize().width()) {
-            qCWarning(log) << "Invalid Parameter for cellAt:" << x << y << "liveSize:" << liveSize()
+        const QSize live = liveSize();
+        const int scrollbackRows = m_altscreen ? 0 : m_scrollback->size();
+
+        if (y < 0 || x < 0 || y >= live.height() + scrollbackRows || x >= live.width()) {
+            qCWarning(log) << "Invalid Parameter for cellAt:" << x << y << "liveSize:" << live
                            << "fullSize:" << q->fullSize();
             return nullptr;
         }
 
-        if (!m_altscreen && y < m_scrollback->size()) {
+        if (y < scrollbackRows) {
             blankCell();
             const VTermScreenCell *cells = m_scrollback->row(y);
             return cells ? cells + x : nullptr;
         }
 
-        if (!m_altscreen)
-            y -= m_scrollback->size();
+        y -= scrollbackRows;
 
         static VTermScreenCell refCell{};
         VTermPos vtp{y, x};
