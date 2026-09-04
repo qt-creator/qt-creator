@@ -13,6 +13,8 @@
 #include <QDebug>
 #include <QTest>
 
+#include <algorithm>
+
 using namespace Core;
 using namespace Core::Tests;
 using namespace Utils;
@@ -25,6 +27,22 @@ const bool debug = qtcEnvironmentVariable("QTC_DEBUG_CPPLOCATORFILTERTESTCASE") 
 static FilePath dataDir(const QString &subdir)
 {
     return FilePath::fromUserInput(SRCDIR "/../../../tests/cpplocators/" + subdir);
+}
+
+// The extra info of a file scope symbol is the file path, so where it sorts among
+// scope names depends on the location of the checkout.
+static ResultDataList sortedByExtraInfo(ResultDataList results)
+{
+    for (auto it = results.begin(); it != results.end(); ) {
+        const QString name = it->textColumn1;
+        const auto sameName = [&name](const ResultData &data) { return data.textColumn1 == name; };
+        const auto end = std::find_if_not(it, results.end(), sameName);
+        std::sort(it, end, [](const ResultData &lhs, const ResultData &rhs) {
+            return lhs.textColumn2 < rhs.textColumn2;
+        });
+        it = end;
+    }
+    return results;
 }
 
 class CppLocatorFilterTestCase : public CppEditor::Tests::TestCase
@@ -43,12 +61,13 @@ public:
         const LocatorFilterEntries entries = LocatorMatcher::runBlocking(matchers, searchText);
         QVERIFY(garbageCollectGlobalSnapshot());
         const ResultDataList results = ResultData::fromFilterEntryList(entries);
+        const ResultDataList expected = sortedByExtraInfo(expectedResults);
         if (debug) {
-            ResultData::printFilterEntries(expectedResults, "Expected:");
+            ResultData::printFilterEntries(expected, "Expected:");
             ResultData::printFilterEntries(results, "Results:");
         }
         QVERIFY(!results.isEmpty());
-        QCOMPARE(results, expectedResults);
+        QCOMPARE(results, expected);
     }
 };
 
@@ -108,10 +127,7 @@ void LocatorFilterTest::testLocatorFilter_data()
 
     const FilePath testDirectory = dataDir("testdata_basic");
     QVERIFY(testDirectory.exists());
-    FilePath testFile = testDirectory / "file1.cpp";
-    QString p = testFile.path();
-    p[0] = p[0].toLower(); // Ensure Windows path sorts after scope names.
-    testFile = testFile.withNewPath(p);
+    const FilePath testFile = testDirectory / "file1.cpp";
     const FilePath objTestFile = testDirectory / "file1.mm";
     const QString testFileShort = testFile.shortNativePath();
     const QString objTestFileShort = objTestFile.shortNativePath();
