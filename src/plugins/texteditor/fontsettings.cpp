@@ -950,6 +950,12 @@ FormatDescriptions initialFormats()
                              QColor(38, 32, 136),
                              QTextCharFormat::DotLine,
                              FormatDescription::ShowAllControls);
+    formatDescr.emplace_back(C_SPELL_ERROR,
+                             Tr::tr("Spelling Error"),
+                             Tr::tr("Underline color of misspelled words."),
+                             QColor(255, 0, 0),
+                             QTextCharFormat::WaveUnderline,
+                             FormatDescription::ShowAllControls);
     Format outputArgumentFormat;
     outputArgumentFormat.setItalic(true);
     formatDescr.emplace_back(C_OUTPUT_ARGUMENT,

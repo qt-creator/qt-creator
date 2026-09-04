@@ -15,6 +15,7 @@
 #include "githighlighters.h"
 #include "gitsettings.h"
 #include "gitsubmiteditor.h"
+#include "gitsubmiteditorwidget.h"
 #include "gittr.h"
 #include "gitutils.h"
 #include "instantblame.h"
@@ -42,6 +43,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/mergeconflict.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -50,6 +52,7 @@
 #include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
+#include <utils/completingtextedit.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
@@ -60,6 +63,7 @@
 #include <utils/widgets.h>
 
 #include <vcsbase/cleandialog.h>
+#include <vcsbase/commonvcssettings.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -2456,6 +2460,7 @@ private slots:
     void testInlineDiffConflictedFile();
     void testConflictedFileInTextEditor();
     void testGraphModelRepositorySwitch();
+    void testSubmitMessageSpellCheck();
 };
 
 void GitTest::testStatusParsing_data()
@@ -2985,6 +2990,43 @@ void GitTest::testGraphModelRepositorySwitch()
     model.refresh(second);
     QCOMPARE(resetSpy.count(), 1);
     QCOMPARE(model.rowCount(), 2);
+}
+
+static QStringList underlinedTexts(const QTextDocument *document)
+{
+    const QTextCharFormat spellErrorFormat
+        = TextEditor::globalFontSettings().data().toTextCharFormat(TextEditor::C_SPELL_ERROR);
+    QStringList texts;
+    for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next()) {
+        const QList<QTextLayout::FormatRange> ranges = block.layout()->formats();
+        for (const QTextLayout::FormatRange &range : ranges) {
+            if (range.format.underlineStyle() == spellErrorFormat.underlineStyle()
+                && range.format.underlineColor() == spellErrorFormat.underlineColor()) {
+                texts.append(block.text().mid(range.start, range.length));
+            }
+        }
+    }
+    return texts;
+}
+
+void GitTest::testSubmitMessageSpellCheck()
+{
+    // the submit editor of the commit and amend dialogs underlines typos in
+    // the message, but leaves the identifiers and paths a message is full of
+    const QString language = VcsBase::Internal::submitMessageSpellCheckLanguage();
+    if (language.isEmpty())
+        QSKIP("Spell checking of submit messages is turned off");
+    if (TextEditor::globalFontSettings().data().toTextCharFormat(TextEditor::C_SPELL_ERROR)
+            .underlineStyle() == QTextCharFormat::NoUnderline) {
+        QSKIP("The color scheme in use does not underline spelling errors");
+    }
+
+    GitSubmitEditorWidget widget;
+    widget.setDescriptionText("This sentence has a mispelled word");
+    QCOMPARE(underlinedTexts(widget.descriptionEdit()->document()), QStringList{"mispelled"});
+
+    widget.setDescriptionText("Rename mispelledFunction in src/libs/utils/spellcheckr.cpp");
+    QCOMPARE(underlinedTexts(widget.descriptionEdit()->document()), QStringList());
 }
 
 #endif

@@ -41,6 +41,7 @@
 #include "highlighter_test.h"
 #include "mergeconflict_test.h"
 #include "snippets/snippet.h"
+#include "spellcheck_test.h"
 #include "textdocumentlayout.h"
 #endif
 
@@ -113,6 +114,7 @@ void TextEditorPlugin::initialize()
     addTestCreator(createSnippetParserTest);
     addTestCreator(createCodeStyleAspectTest);
     addTestCreator(createMergeConflictTest);
+    addTestCreator(createSpellCheckTest);
 #endif
 
     IOptionsPage::registerCategory(

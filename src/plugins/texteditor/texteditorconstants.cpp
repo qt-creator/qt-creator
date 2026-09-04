@@ -96,6 +96,7 @@ const char *nameForStyle(TextStyle style)
 
     case C_ERROR:               return "Error";
     case C_ERROR_CONTEXT:       return "ErrorContext";
+    case C_SPELL_ERROR:         return "SpellError";
     case C_WARNING:             return "Warning";
     case C_WARNING_CONTEXT:     return "WarningContext";
     case C_INFO:                return "Info";

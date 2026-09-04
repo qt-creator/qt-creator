@@ -7,6 +7,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/spellchecker.h>
 
 #include <QElapsedTimer>
 #include <QPointer>
@@ -63,6 +64,8 @@ public:
     QList<std::pair<int,TextStyle>> formatCategories;
     QTextCharFormat whitespaceFormat;
     QString mimeType;
+    QString spellCheckLanguage;
+    int spellCheckCursorPosition = -1;
     bool syntaxInfoUpToDate = false;
     bool continueRehighlightScheduled = false;
     bool ignoreFolding = false;
@@ -578,6 +581,40 @@ void SyntaxHighlighter::formatSpaces(const QString &text, int start, int count)
 }
 
 /*!
+    Marks the misspelled words in the current text block with \a text with the spelling error
+    format, looking at the words that are completely inside the \a count characters starting at
+    the \a start position.
+
+    \sa setSpellCheckLanguage()
+*/
+void SyntaxHighlighter::spellCheck(const QString &text, int start, int count)
+{
+    if (d->spellCheckLanguage.isEmpty())
+        return;
+
+    const int end = std::min<qint64>(qint64(start) + count, text.size());
+    const QTextCharFormat spellErrorFormat = d->fontSettings.toTextCharFormat(C_SPELL_ERROR);
+    const int blockPosition = d->currentBlock.position();
+    const QList<Utils::SpellChecker::Range> ranges
+        = Utils::SpellChecker::instance()->misspelledRanges(text, d->spellCheckLanguage);
+
+    for (const Utils::SpellChecker::Range &range : ranges) {
+        const int wordEnd = range.start + range.length;
+        if (range.start < start || wordEnd > end)
+            continue;
+        if (d->spellCheckCursorPosition >= blockPosition + range.start
+            && d->spellCheckCursorPosition <= blockPosition + wordEnd) {
+            continue;
+        }
+        for (int i = range.start; i < wordEnd && i < d->formatChanges.size(); ++i) {
+            QTextCharFormat &format = d->formatChanges[i];
+            format.setUnderlineColor(spellErrorFormat.underlineColor());
+            format.setUnderlineStyle(spellErrorFormat.underlineStyle());
+        }
+    }
+}
+
+/*!
     The specified \a format is applied to all non-whitespace characters in the current text block
     with \a text, from the \a start position for a length of \a count characters.
     Whitespace characters are formatted with the visual whitespace format, merged with the
@@ -828,6 +865,41 @@ void SyntaxHighlighter::setIgnoreFolding(bool ignore)
 bool SyntaxHighlighter::ignoresFolding() const
 {
     return d->ignoreFolding;
+}
+
+void SyntaxHighlighter::setSpellCheckLanguage(const QString &language)
+{
+    if (d->spellCheckLanguage == language)
+        return;
+    d->spellCheckLanguage = language;
+    if (!language.isEmpty()) {
+        connect(Utils::SpellChecker::instance(), &Utils::SpellChecker::dictionaryChanged,
+                this, &SyntaxHighlighter::scheduleRehighlight, Qt::UniqueConnection);
+    }
+    rehighlight();
+}
+
+QString SyntaxHighlighter::spellCheckLanguage() const
+{
+    return d->spellCheckLanguage;
+}
+
+void SyntaxHighlighter::setSpellCheckCursorPosition(int position)
+{
+    if (d->spellCheckCursorPosition == position)
+        return;
+
+    const int previousPosition = d->spellCheckCursorPosition;
+    d->spellCheckCursorPosition = position;
+    if (d->spellCheckLanguage.isEmpty() || !d->doc)
+        return;
+
+    const QTextBlock previousBlock = d->doc->findBlock(previousPosition);
+    const QTextBlock currentBlock = d->doc->findBlock(position);
+    if (previousBlock.isValid())
+        rehighlightBlock(previousBlock);
+    if (currentBlock.isValid() && currentBlock != previousBlock)
+        rehighlightBlock(currentBlock);
 }
 
 void SyntaxHighlighter::clearExtraFormats(const QTextBlock &block)

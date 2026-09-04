@@ -297,6 +297,8 @@ QtcLibrary {
         "sortfiltermodel.h",
         "span.h",
         "../3rdparty/span/span.hpp",
+        "spellchecker.cpp",
+        "spellchecker.h",
         "store.cpp",
         "store.h",
         "storekey.h",
@@ -437,6 +439,22 @@ QtcLibrary {
         condition: qbs.targetOS.contains("macos")
         files: [
             "processhandle_mac.mm",
+        ]
+    }
+
+    Group {
+        name: "SpellChecker_macos"
+        condition: qbs.targetOS.contains("macos")
+        files: [
+            "spellchecker_mac.mm",
+        ]
+    }
+
+    Group {
+        name: "SpellChecker_windows"
+        condition: qbs.targetOS.contains("windows")
+        files: [
+            "spellchecker_win.cpp",
         ]
     }
 

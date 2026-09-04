@@ -58,6 +58,13 @@ public:
     void setIgnoreFolding(bool ignore);
     bool ignoresFolding() const;
 
+    // An empty language turns spell checking off, which is the default.
+    void setSpellCheckLanguage(const QString &language);
+    QString spellCheckLanguage() const;
+    // A word that the text cursor is on is being written and is not marked as
+    // misspelled. Pass -1 for no such word.
+    void setSpellCheckCursorPosition(int position);
+
 public slots:
     virtual void rehighlight();
     virtual void scheduleRehighlight();
@@ -83,6 +90,7 @@ protected:
     QTextCharFormat format(int pos) const;
 
     void formatSpaces(const QString &text, int start = 0, int count = INT_MAX);
+    void spellCheck(const QString &text, int start = 0, int count = INT_MAX);
     void setFormatWithSpaces(const QString &text, int start, int count,
                              const QTextCharFormat &format);
 

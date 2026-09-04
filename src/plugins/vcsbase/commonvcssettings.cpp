@@ -9,10 +9,16 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/spellchecker.h>
+
+#include <QComboBox>
+#include <QLocale>
+#include <QStandardItem>
 
 using namespace Core;
 using namespace Utils;
@@ -34,6 +40,63 @@ CommonVcsSettings &commonSettings()
 {
     static CommonVcsSettings settings;
     return settings;
+}
+
+void SpellCheckLanguageAspect::fixupComboBox(QComboBox *comboBox)
+{
+    comboBox->setMinimumContentsLength(20);
+}
+
+QString submitMessageSpellCheckLanguage()
+{
+    if (!commonSettings().spellCheck())
+        return {};
+    const QString language = commonSettings().spellCheckLanguage();
+    if (!language.isEmpty())
+        return language;
+
+    // Submit messages are written in English far more often than in the language the
+    // machine is set to, which is what the platform answers with.
+    SpellChecker *checker = SpellChecker::instance();
+    const QString platformLanguage = checker->defaultLanguage();
+    if (platformLanguage.startsWith("en"))
+        return platformLanguage;
+    const QString english = Utils::findOrDefault(checker->availableLanguages(),
+                                                 [](const QString &candidate) {
+                                                     return candidate.startsWith("en");
+                                                 });
+    return english.isEmpty() ? platformLanguage : english;
+}
+
+static QString languageDisplayName(const QString &language)
+{
+    const QLocale locale(QString(language).replace('-', '_'));
+    if (locale.language() == QLocale::C)
+        return language;
+    const QString name = QLocale::languageToString(locale.language());
+    if (!language.contains('_') && !language.contains('-'))
+        return name;
+    return QString("%1 (%2)").arg(name, QLocale::territoryToString(locale.territory()));
+}
+
+static void fillSpellCheckLanguageItems(const StringSelectionAspect::ResultCallback &callback)
+{
+    auto defaultItem = new QStandardItem(Tr::tr("<Default>"));
+    defaultItem->setToolTip(Tr::tr("English, if a dictionary for it is installed, "
+                                   "otherwise the system language."));
+    defaultItem->setData(QString());
+    QList<QStandardItem *> items{defaultItem};
+
+    QList<QStandardItem *> languageItems;
+    for (const QString &language : SpellChecker::instance()->availableLanguages()) {
+        auto item = new QStandardItem(languageDisplayName(language));
+        item->setData(language);
+        languageItems.append(item);
+    }
+    Utils::sort(languageItems, [](QStandardItem *a, QStandardItem *b) {
+        return a->text().localeAwareCompare(b->text()) < 0;
+    });
+    callback(items + languageItems);
 }
 
 CommonVcsSettings::CommonVcsSettings()
@@ -91,11 +154,22 @@ CommonVcsSettings::CommonVcsSettings()
     vcsShowStatusInterval.setRange(1, 20);
     vcsShowStatusInterval.setToolTip(Tr::tr("Specifies the file status update refresh interval."));
 
+    spellCheck.setSettingsKey("SpellCheck");
+    spellCheck.setDefaultValue(true);
+    spellCheck.setLabelText(Tr::tr("Check spelling of submit messages in"));
+    spellCheck.setVisible(SpellChecker::instance()->isAvailable());
+    spellCheckLanguage.setSettingsKey("SpellCheckLanguage");
+    spellCheckLanguage.setFillCallback(fillSpellCheckLanguageItems);
+    spellCheckLanguage.setComboBoxEditable(false);
+    spellCheckLanguage.setEnabler(&spellCheck);
+    spellCheckLanguage.setVisible(SpellChecker::instance()->isAvailable());
+
     setLayouter([this] {
         using namespace Layouting;
         return Column {
             Row { vcsShowStatus, vcsShowStatusInterval, st },
             Row { lineWrap, lineWrapWidth, st },
+            Row { spellCheck, spellCheckLanguage, st },
             Form {
                 submitMessageCheckScript, br,
                 nickNameMailMap, br,

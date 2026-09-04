@@ -60,6 +60,8 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
         }
         break;
     }
+
+    spellCheck(text);
 }
 
 QString GitSubmitHighlighter::commentMarker() const

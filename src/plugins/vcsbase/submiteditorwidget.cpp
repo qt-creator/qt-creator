@@ -11,10 +11,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
+#include <texteditor/syntaxhighlighter.h>
+
 #include <utils/algorithm.h>
 #include <utils/completingtextedit.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
+#include <utils/spellchecker.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -781,10 +784,79 @@ void SubmitEditorWidget::addDescriptionEditContextMenuAction(QAction *a)
             .append(SubmitEditorWidgetPrivate::AdditionalContextMenuAction(-1, a));
 }
 
+// Offers the corrections for the misspelled word at pos, if there is one, at the top of menu.
+static void addSpellingActions(QMenu *menu, CompletingTextEdit *description, const QPoint &pos)
+{
+    // The language the highlighter checks with, so that only a word the editor actually
+    // marked gets a menu.
+    const auto highlighter = description->findChild<TextEditor::SyntaxHighlighter *>(
+        {}, Qt::FindDirectChildrenOnly);
+    const QString language = highlighter ? highlighter->spellCheckLanguage() : QString();
+    if (language.isEmpty())
+        return;
+
+    // The whole block, the way the highlighter checks it: whether a token is prose or
+    // code depends on the characters next to it, and the word the caret sits in is left
+    // alone while it is being typed.
+    const QTextCursor clicked = description->cursorForPosition(pos);
+    const QTextBlock block = clicked.block();
+    SpellChecker *checker = SpellChecker::instance();
+    const QList<SpellChecker::Range> ranges = checker->misspelledRanges(block.text(), language);
+    const int caret = description->textCursor().position();
+
+    QTextCursor cursor;
+    for (const SpellChecker::Range &range : ranges) {
+        const int start = block.position() + range.start;
+        const int end = start + range.length;
+        if (clicked.position() < start || clicked.position() > end)
+            continue;
+        if (caret >= start && caret <= end)
+            return;
+        cursor = QTextCursor(description->document());
+        cursor.setPosition(start);
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+        break;
+    }
+    if (cursor.isNull())
+        return;
+    const QString word = cursor.selectedText();
+
+    const QList<QAction *> actions = menu->actions();
+    QAction *before = actions.isEmpty() ? nullptr : actions.first();
+    const QStringList suggestions = checker->suggestions(word, language);
+    for (const QString &suggestion : suggestions) {
+        auto action = new QAction(suggestion, menu);
+        QObject::connect(action, &QAction::triggered, description, [cursor, suggestion]() mutable {
+            cursor.insertText(suggestion);
+        });
+        menu->insertAction(before, action);
+    }
+    if (suggestions.isEmpty()) {
+        auto action = new QAction(Tr::tr("No Spelling Suggestions"), menu);
+        action->setEnabled(false);
+        menu->insertAction(before, action);
+    }
+    menu->insertSeparator(before);
+
+    auto learn = new QAction(Tr::tr("Add \"%1\" to Dictionary").arg(word), menu);
+    QObject::connect(learn, &QAction::triggered, description, [word, language, checker] {
+        checker->learnWord(word, language);
+    });
+    menu->insertAction(before, learn);
+
+    auto ignore = new QAction(Tr::tr("Ignore \"%1\"").arg(word), menu);
+    QObject::connect(ignore, &QAction::triggered, description, [word, language, checker] {
+        checker->ignoreWord(word, language);
+    });
+    menu->insertAction(before, ignore);
+    menu->insertSeparator(before);
+}
+
 void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
 {
     QMenu *menu = d->description->createStandardContextMenu();
     menu->setAttribute(Qt::WA_DeleteOnClose);
+    addSpellingActions(menu, d->description, pos);
     // Extend
     for (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a :
          std::as_const(d->descriptionEditContextMenuActions)) {

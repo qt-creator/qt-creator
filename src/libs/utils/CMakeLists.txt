@@ -154,6 +154,7 @@ add_qtc_library(Utils
     smallstringview.h
     sortfiltermodel.h
     span.h
+    spellchecker.cpp spellchecker.h
     store.cpp store.h
     storekey.h
     stringtable.cpp stringtable.h
@@ -257,6 +258,7 @@ extend_qtc_library(Utils CONDITION MSVC
 
 extend_qtc_library(Utils CONDITION WIN32
   SOURCES
+    spellchecker_win.cpp
     touchbar/touchbar.cpp
   DEPENDS
     user32 iphlpapi ws2_32 shell32 ole32
@@ -271,6 +273,7 @@ extend_qtc_library(Utils CONDITION APPLE
     fileutils_mac.mm fileutils_mac.h
     processhandle_mac.mm
     pathchooser.mm
+    spellchecker_mac.mm
     theme/theme_mac.mm theme/theme_mac.h
     touchbar/touchbar_appdelegate_mac.mm touchbar/touchbar_appdelegate_mac_p.h
     touchbar/touchbar_mac.mm touchbar/touchbar_mac_p.h

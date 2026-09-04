@@ -99,6 +99,7 @@ enum TextStyle : quint8 {
     C_WARNING_CONTEXT,
     C_ERROR,
     C_ERROR_CONTEXT,
+    C_SPELL_ERROR,
 
     C_DECLARATION,
     C_FUNCTION_DEFINITION,

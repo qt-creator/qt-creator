@@ -25,6 +25,7 @@ Project {
         "persistentsettings/persistentsettings.qbs",
         "process/process.qbs",
         "settings/settings.qbs",
+        "spellchecker/spellchecker.qbs",
         "stringutils/stringutils.qbs",
         "synchronizedvalue/synchronizedvalue.qbs",
         "templateengine/templateengine.qbs",

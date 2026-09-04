@@ -11,12 +11,15 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <texteditor/fontsettings.h>
+
 #include <utils/completingtextedit.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
+#include <vcsbase/commonvcssettings.h>
 #include <vcsbase/submitfilemodel.h>
 
 #include <QApplication>
@@ -104,6 +107,20 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
     m_gitSubmitPanel(new GitSubmitPanel)
 {
     m_highlighter = new GitSubmitHighlighter(QChar(), descriptionEdit());
+    const auto applyFontSettings = [this] {
+        m_highlighter->setFontSettings(TextEditor::globalFontSettings().data());
+        m_highlighter->rehighlight();
+    };
+    applyFontSettings();
+    connect(&TextEditor::globalFontSettings(), &TextEditor::FontSettings::changed,
+            this, applyFontSettings);
+    m_highlighter->setSpellCheckLanguage(VcsBase::Internal::submitMessageSpellCheckLanguage());
+    connect(&VcsBase::Internal::commonSettings(), &AspectContainer::applied, this, [this] {
+        m_highlighter->setSpellCheckLanguage(VcsBase::Internal::submitMessageSpellCheckLanguage());
+    });
+    connect(descriptionEdit(), &QTextEdit::cursorPositionChanged, this, [this] {
+        m_highlighter->setSpellCheckCursorPosition(descriptionEdit()->textCursor().position());
+    });
 
     m_emailValidator = new QRegularExpressionValidator(QRegularExpression("[^@ ]+@[^@ ]+\\.[a-zA-Z]+"), this);
     const QPixmap error = Utils::Icons::CRITICAL.pixmap();

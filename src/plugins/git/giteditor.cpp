@@ -13,8 +13,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 
+#include <vcsbase/commonvcssettings.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsoutputwindow.h>
 
@@ -235,14 +237,28 @@ void GitEditorWidget::init()
     if (!isCommitEditor && !isRebaseEditor && !isReflogEditor)
         return;
     const QString commentMarker = gitClient().commentMarker(source());
-    if (isCommitEditor)
-        textDocument()->resetSyntaxHighlighter(
-            [commentMarker] { return new GitSubmitHighlighter(commentMarker); });
-    else if (isRebaseEditor)
+    if (isCommitEditor) {
+        textDocument()->resetSyntaxHighlighter([commentMarker] {
+            auto highlighter = new GitSubmitHighlighter(commentMarker);
+            highlighter->setSpellCheckLanguage(VcsBase::Internal::submitMessageSpellCheckLanguage());
+            return highlighter;
+        });
+        connect(&VcsBase::Internal::commonSettings(), &AspectContainer::applied, this, [this] {
+            if (TextEditor::SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter()) {
+                highlighter->setSpellCheckLanguage(
+                    VcsBase::Internal::submitMessageSpellCheckLanguage());
+            }
+        });
+        connect(this, &PlainTextEdit::cursorPositionChanged, this, [this] {
+            if (TextEditor::SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
+                highlighter->setSpellCheckCursorPosition(textCursor().position());
+        });
+    } else if (isRebaseEditor) {
         textDocument()->resetSyntaxHighlighter(
             [commentMarker] { return new GitRebaseHighlighter(commentMarker); });
-    else if (isReflogEditor)
+    } else if (isReflogEditor) {
         textDocument()->resetSyntaxHighlighter([] { return new GitReflogHighlighter; });
+    }
 }
 
 void GitEditorWidget::keyPressEvent(QKeyEvent *e)

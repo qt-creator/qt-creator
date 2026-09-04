@@ -224,6 +224,8 @@ Project {
                 "highlighter_test.h",
                 "mergeconflict_test.cpp",
                 "mergeconflict_test.h",
+                "spellcheck_test.cpp",
+                "spellcheck_test.h",
                 "texteditor_test.cpp",
                 "texteditor_test.h",
             ]
