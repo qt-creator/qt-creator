@@ -92,7 +92,7 @@ public:
 
     bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
 
-    // Re-run CMake with explicit flags. Used by the MCP reconfigure tool and
+    // Re-run CMake with explicit flags. Used by the MCP cmake_reconfigure tool and
     // other callers that need direct control over the reparse parameters.
     enum ReparseParameters {
         REPARSE_DEFAULT = 0,

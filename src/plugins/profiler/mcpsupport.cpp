@@ -56,15 +56,16 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("start_profiler")
+            .name("profiler_qml_start")
             .title("Start the QML profiler")
             .description(
                 "Starts the QML profiler on the current startup project (QML profiler run mode), "
-                "using its active run configuration and kit. Does not build first - use the build "
-                "tool beforehand if it may be out of date. Recording starts automatically; poll "
-                "get_profiler_status for progress, and use stop_profiler (or let the application "
-                "exit) to finalize the trace. Returns as soon as the run is requested, unlike "
-                "run_project, which waits for the run to finish.")
+                "using its active run configuration and kit. Does not build first - use the "
+                "build_project tool beforehand if it may be out of date. Recording starts "
+                "automatically; poll profiler_qml_get_status for progress, and use "
+                "profiler_qml_stop (or let the application exit) to finalize the trace. Returns "
+                "as soon as the run is requested, unlike run_project, which waits for the run "
+                "to finish.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -87,7 +88,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_profiler_status")
+            .name("profiler_qml_get_status")
             .title("Get QML profiler status")
             .description(
                 "Returns the QML profiler state (Idle/AppRunning/AppStopRequested/AppDying, or "
@@ -133,12 +134,12 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("stop_profiler")
+            .name("profiler_qml_stop")
             .title("Stop the QML profiler")
             .description(
                 "Stops the running QML profiler session by requesting its run control to stop, "
                 "which finalizes the trace. Returns an error if no profiler session is running. "
-                "Poll get_profiler_status afterwards for the finalized event count.")
+                "Poll profiler_qml_get_status afterwards for the finalized event count.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -156,16 +157,16 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("start_perf_profiler")
+            .name("profiler_perf_start")
             .title("Start the CPU (perf) profiler")
             .description(
                 "Starts the CPU (perf) profiler on the current startup project (perf profiler run "
                 "mode), using its active run configuration and kit. Does not build first - use the "
-                "build tool beforehand if it may be out of date. Recording starts automatically; "
-                "poll get_perf_profiler_status, and use stop_perf_profiler (or let the application "
-                "exit) to finalize the trace. Returns as soon as the run is requested, unlike "
-                "run_project with run_mode \"PerfProfiler.RunMode\", which waits for the run to "
-                "finish and gives no access to the trace.")
+                "build_project tool beforehand if it may be out of date. Recording starts "
+                "automatically; poll profiler_perf_get_status, and use profiler_perf_stop (or let "
+                "the application exit) to finalize the trace. Returns as soon as the run is "
+                "requested, unlike run_project with run_mode \"PerfProfiler.RunMode\", which "
+                "waits for the run to finish and gives no access to the trace.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -188,7 +189,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_perf_profiler_status")
+            .name("profiler_perf_get_status")
             .title("Get CPU (perf) profiler status")
             .description(
                 "Returns whether the perf profiler is recording, whether a perf run is active, and "
@@ -229,12 +230,12 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("stop_perf_profiler")
+            .name("profiler_perf_stop")
             .title("Stop the CPU (perf) profiler")
             .description(
                 "Stops the running perf profiler session by requesting its run control to stop, "
                 "which finalizes the trace. Returns an error if no perf session is running. Poll "
-                "get_perf_profiler_status afterwards for the finalized sample count.")
+                "profiler_perf_get_status afterwards for the finalized sample count.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .outputSchema(
                 Tool::OutputSchema{}

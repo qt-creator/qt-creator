@@ -106,7 +106,7 @@ static QString projectTypeFromMimeType(const QString &mimeType)
 }
 
 // Returns a {name, path, branch, type} JSON object for a single project.  Used by
-// list_projects (which also injects is_active) and by resolveProjects (which
+// project_list (which also injects is_active) and by resolveProjects (which
 // populates the candidates array for ambiguous-name errors).
 static QJsonObject projectInfoObject(const Project *p)
 {
@@ -163,7 +163,7 @@ struct ProjectResolution
 
 // Resolves the single project a tool should act on from a (projectName,
 // projectPath) pair, applying the same dual-key rules and error conventions as
-// set_active_project. When both are empty: defaults to the startup project if
+// project_set_active. When both are empty: defaults to the startup project if
 // defaultToStartup is true (error reason "no_startup_project" when there is
 // none), otherwise fails with reason "no_target". A name matching multiple
 // loaded projects fails with reason "ambiguous_name" plus a candidates array.
@@ -244,7 +244,7 @@ static QJsonObject projectModulesObject(Project *project)
 
 // Tracks the outcome of every build observed since plugin load. Subscribes
 // globally to BuildManager signals (not per-tool) so the verdict is always
-// current even if get_build_status is called long after the build finished.
+// current even if build_get_status is called long after the build finished.
 struct BuildStateTracker
 {
     enum class LastResult { NeverBuilt, Success, Failure, Canceled };
@@ -490,7 +490,7 @@ static Utils::Result<int> readCount(const QJsonObject &args, const QString &key,
 }
 
 // Accumulates the Compile Output pane text (build AND deploy step output) so it
-// can be inspected via get_compile_output - deploy errors in particular are not
+// can be inspected via build_get_compile_output - deploy errors in particular are not
 // otherwise surfaced through MCP.
 static BoundedOutput &compileOutput()
 {
@@ -1032,7 +1032,7 @@ static FindFlags mcpFindFlags(bool regex, bool caseSensitive)
     return flags;
 }
 
-// Search helper used by search_in_files
+// Search helper used by search_projects
 using McpResponseCallback = std::function<void(const QJsonObject &)>;
 
 static void mcpFindInFiles(
@@ -1080,7 +1080,7 @@ static void mcpFindInFiles(
     });
 }
 
-// Replace helper used by replace_in_files
+// Replace helper used by fs_replace_in_projects
 static void mcpReplace(
     FileContainer fileContainer,
     bool regex,
@@ -1363,10 +1363,10 @@ void registerMcpTools()
     // Leaked on purpose: its destructor runs at exit(), on released memory.
     static ProjectExplorer::IssuesManager &issuesManager = *new ProjectExplorer::IssuesManager;
 
-    // Slot guard for serializing concurrent build() tool calls.  Qt Creator's
+    // Slot guard for serializing concurrent build_project tool calls.  Qt Creator's
     // BuildManager queues projects internally but emits a single
     // buildQueueFinished signal for the whole queue -- two concurrent MCP
-    // build() tasks would both receive the first queue's verdict.  This struct
+    // build_project tasks would both receive the first queue's verdict.  This struct
     // ensures only one MCP-initiated build task has live signal connections at
     // a time; other callers wait in the heartbeat or refuse immediately,
     // depending on the on_busy parameter.
@@ -1388,7 +1388,7 @@ void registerMcpTools()
     }();
     Q_UNUSED(buildTrackerSetup)
 
-    // Output schema for `build`. Designed so the AI doesn't have to inspect
+    // Output schema for `build_project`. Designed so the AI doesn't have to inspect
     // `issues` to guess the build verdict — `succeeded` is the single source
     // of truth, mirrored by the tool's TaskStatus (completed vs failed).
     const auto buildOutputSchema
@@ -1425,7 +1425,7 @@ void registerMcpTools()
                   QJsonObject{
                       {"type", "array"},
                       {"description",
-                       "Same shape as list_issues' issues array. Empty on successful "
+                       "Same shape as build_list_issues' issues array. Empty on successful "
                        "builds with no warnings."}})
               .addProperty(
                   "summary_text",
@@ -1441,7 +1441,7 @@ void registerMcpTools()
                       {"description",
                        "Tail of the failed build's stdout+stderr, truncated to keep the "
                        "reply small. Empty when the build succeeded; the issues array "
-                       "carries the diagnostics either way. Call get_compile_output for "
+                       "carries the diagnostics either way. Call build_get_compile_output for "
                        "more of the text."}})
               .addRequired("succeeded")
               .addRequired("error_count")
@@ -1453,7 +1453,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Schema::Tool()
-            .name("build")
+            .name("build_project")
             .title("Build project")
             .description(
                 "Builds the chosen project (or the active startup project if no name is "
@@ -1461,13 +1461,13 @@ void registerMcpTools()
                 "{succeeded, error_count, warning_count, duration_ms, issues, "
                 "summary_text}. The TaskStatus mirrors the verdict — `completed` on "
                 "success, `failed` on build failure. The `issues` array carries any "
-                "warnings/errors recorded by the build (same shape as list_issues)."
+                "warnings/errors recorded by the build (same shape as build_list_issues)."
                 "\n\n"
                 "Use `succeeded` to decide success/failure — don't try to infer it from "
-                "the issues array. This verdict is the return value of build() itself; "
-                "you don't need get_build_status to confirm it."
+                "the issues array. This verdict is the return value of build_project itself; "
+                "you don't need build_get_status to confirm it."
                 "\n\n"
-                "When two build() calls arrive concurrently, on_busy controls the "
+                "When two build_project calls arrive concurrently, on_busy controls the "
                 "behaviour: \"queue\" (default) waits for the in-progress build to finish "
                 "before starting this one; \"refuse\" returns immediately with "
                 "succeeded:false and reason:\"build_in_progress\" so the caller can "
@@ -1519,11 +1519,11 @@ void registerMcpTools()
             const ProjectResolution resolution
                 = resolveTargetProject(projectName, projectPath, /*defaultToStartup=*/true);
             if (!resolution.project) {
-                // Enrich the shared resolution error with build's verdict fields
+                // Enrich the shared resolution error with build_project's verdict fields
                 // so the response still satisfies the output schema, then surface
                 // it as a tool error the AI can act on (e.g. retry with project_path).
                 QJsonObject body = resolution.error;
-                body.remove("success"); // build() reports via "succeeded", not "success"
+                body.remove("success"); // build_project reports via "succeeded", not "success"
                 body["succeeded"] = false;
                 body["error_count"] = 0;
                 body["warning_count"] = 0;
@@ -1789,7 +1789,7 @@ void registerMcpTools()
                 [state]() {
                     // Only tear down a build that is still ours. On normal
                     // completion buildQueueFinished already released the slot,
-                    // and a queued build() may now hold it -- releasing here
+                    // and a queued build_project may now hold it -- releasing here
                     // would wipe theirs and let a third caller claim it mid-build.
                     if (state->buildStarted && !state->finished) {
                         BuildManager::cancel();
@@ -1809,7 +1809,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_issues")
+            .name("build_list_issues")
             .title("List current issues (warnings and errors)")
             .description("List current issues (warnings and errors)")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -1818,7 +1818,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_file_issues")
+            .name("build_list_file_issues")
             .title("List current issues for file (warnings and errors)")
             .description("List current issues for file (warnings and errors)")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -1843,7 +1843,7 @@ void registerMcpTools()
         QJsonObject issuesField{
             {"type", "object"},
             {"description",
-             "Build issues — present when the build failed; same format as list_issues"}};
+             "Build issues — present when the build failed; same format as build_list_issues"}};
         if (issSchema._properties) {
             QJsonObject props;
             for (auto it = issSchema._properties->cbegin(); it != issSchema._properties->cend();
@@ -2040,11 +2040,11 @@ void registerMcpTools()
                 "if the process crashed or the terminal launch failed) and succeeded (exit "
                 "code 0). "
                 "On build failure, returns isError=true with structured content in the same "
-                "format as list_issues (issues array + summary). "
+                "format as build_list_issues (issues array + summary). "
                 "By default this is a normal run; pass run_mode to run the project under a "
                 "different, non-interactive run mode such as an analyzer (the run must finish "
-                "on its own). Interactive modes have dedicated tools: use start_debug for "
-                "debugging and start_profiler for the QML profiler. "
+                "on its own). Interactive modes have dedicated tools: use debugger_start for "
+                "debugging and profiler_qml_start for the QML profiler. "
                 "Returns an error if there is no startup project, no active build configuration, "
                 "or the project cannot currently be run in the requested mode.")
             .inputSchema(
@@ -2057,21 +2057,21 @@ void registerMcpTools()
                          "run mode (\"RunConfiguration.NormalRunMode\"). Examples: "
                          "\"PerfProfiler.RunMode\", \"RunConfiguration.QmlProfilerRunMode\". The "
                          "mode must have a run worker registered for the project's device and "
-                         "run to completion; interactive modes belong to start_debug / "
-                         "start_profiler."}}))
+                         "run to completion; interactive modes belong to debugger_start / "
+                         "profiler_qml_start."}}))
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .outputSchema(runToolOutputSchema),
         makeRunCallback(Utils::Id(Constants::NORMAL_RUN_MODE), "Run finished"));
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_run_modes")
+            .name("run_list_modes")
             .title("Get run modes")
             .description(
                 "Lists every run mode that has a registered run worker, and whether the current "
                 "startup project can be run in each one right now (with the reason if not). Use a "
                 "runnable id as run_project's run_mode; interactive modes have dedicated tools "
-                "(start_debug, start_profiler).")
+                "(debugger_start, profiler_qml_start).")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2091,7 +2091,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("select_project_panel")
+            .name("project_show_panel")
             .title("Select a project settings panel")
             .description(
                 "Switches to Projects mode and shows one of the active project's settings "
@@ -2133,7 +2133,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("search_in_files")
+            .name("search_projects")
             .title("Search for pattern in project files")
             .description(
                 "Search for a text pattern in files matching a file pattern within a "
@@ -2240,7 +2240,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("replace_in_files")
+            .name("fs_replace_in_projects")
             .title("Replace pattern in project files")
             .description(
                 "Replace all matches of a text pattern in files matching a file pattern "
@@ -2310,7 +2310,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_build_status")
+            .name("build_get_status")
             .title("Get current build status and last-build verdict")
             .description(
                 "Returns the current build state plus the verdict of the most recent "
@@ -2319,7 +2319,7 @@ void registerMcpTools()
                 "started). "
                 "last_finished_at, last_error_count, last_warning_count, and "
                 "last_duration_ms give timing and quality data without a separate "
-                "list_issues call. summary_text is a human-readable one-liner.")
+                "build_list_issues call. summary_text is a human-readable one-liner.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2357,14 +2357,14 @@ void registerMcpTools()
     compileOutput(); // start capturing build/deploy output from now on
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_compile_output")
+            .name("build_get_compile_output")
             .title("Get compile and deploy output")
             .description("Returns the tail of the recent Compile Output pane text, including "
                          "build step and deploy step output. Use it to see why a build or "
-                         "deployment failed when build/run_project reports a failure without "
-                         "detail. Prefer list_issues for the structured diagnostics; this is "
-                         "the raw text, and asking for a large max_chars can return more than "
-                         "a client will accept in one reply.")
+                         "deployment failed when build_project/run_project reports a failure "
+                         "without detail. Prefer build_list_issues for the structured "
+                         "diagnostics; this is the raw text, and asking for a large max_chars "
+                         "can return more than a client will accept in one reply.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}.addProperty(
@@ -2414,7 +2414,7 @@ void registerMcpTools()
     generalMessagesBuffer(); // start capturing General Messages from now on
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_general_messages")
+            .name("ui_read_general_messages")
             .title("Get General Messages output")
             .description("Returns the recent General Messages pane text - the warnings, errors "
                          "and status that plugins surface to the user outside the Compile Output "
@@ -2429,7 +2429,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_files_in_projects")
+            .name("project_find_files")
             .title("Find files in project")
             .description("Find all files matching the pattern in a given project")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -2485,7 +2485,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_projects")
+            .name("project_list")
             .title("List all available projects")
             .description(
                 "List all loaded projects. Each entry includes the project name, its file "
@@ -2517,7 +2517,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_project_modules")
+            .name("project_get_modules")
             .title("Get a project's targets and dependencies")
             .description(
                 "Describes a project's structure: its runnable application targets (name, "
@@ -2575,7 +2575,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_kits")
+            .name("kit_list")
             .title("List all available kits")
             .description(
                 "List all kits configured in Qt Creator. Each entry includes the kit name, "
@@ -2618,19 +2618,19 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_kit_aspects")
+            .name("kit_get_aspects")
             .title("List the configurable aspects of a kit")
             .description(
                 "List the configurable aspects of a kit (debugger, toolchains, Qt version, "
                 "device, ...). Each entry has the aspect id, its display name, a human-readable "
                 "current value, and the raw stored value. Use the aspect id with "
-                "get_kit_aspect_options and set_kit_value.")
+                "kit_get_aspect_options and kit_set_value.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty("kit_id",
                                  QJsonObject{{"type", "string"},
-                                             {"description", "Kit id (as reported by list_kits)"}})
+                                             {"description", "Kit id (as reported by kit_list)"}})
                     .addRequired("kit_id"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -2655,19 +2655,19 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_kit_aspect_options")
+            .name("kit_get_aspect_options")
             .title("List the valid values for a kit aspect")
             .description(
                 "List the values a kit aspect can be set to (for item-backed aspects such as the "
                 "debugger, toolchain, Qt version or device). Each option has a value (to pass to "
-                "set_kit_value) and a display name. An empty list means the aspect is free-form.")
+                "kit_set_value) and a display name. An empty list means the aspect is free-form.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty("kit_id", QJsonObject{{"type", "string"}})
                     .addProperty("aspect_id",
                                  QJsonObject{{"type", "string"},
-                                             {"description", "Aspect id (from get_kit_aspects)"}})
+                                             {"description", "Aspect id (from kit_get_aspects)"}})
                     .addRequired("kit_id")
                     .addRequired("aspect_id"))
             .outputSchema(
@@ -2690,10 +2690,10 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_kit_value")
+            .name("kit_set_value")
             .title("Set the value of a kit aspect")
             .description(
-                "Set a kit aspect to a value. Pass the value reported by get_kit_aspect_options "
+                "Set a kit aspect to a value. Pass the value reported by kit_get_aspect_options "
                 "for item-backed aspects (the exact stored type is preserved); free-form aspects "
                 "take the value as-is.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -2733,12 +2733,12 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_project_kits")
+            .name("kit_list_for_project")
             .title("List kits a project is configured for")
             .description(
                 "List the kits a project is configured for (one per build target). "
                 "Defaults to the active startup project when neither project_name nor "
-                "project_path is given. Each kit entry has the same fields as list_kits "
+                "project_path is given. Each kit entry has the same fields as kit_list "
                 "plus is_active, which marks the kit of the project's active target. When "
                 "multiple loaded projects share the same display name, pass project_path to "
                 "disambiguate (returns reason:\"ambiguous_name\" with candidates otherwise).")
@@ -2775,11 +2775,11 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("add_kits_to_project")
+            .name("kit_add_to_project")
             .title("Add kits to a project")
             .description(
                 "Adds a build target for each of the given kits to a project. Kits may be "
-                "identified by kit id or display name (see list_kits). Defaults to the "
+                "identified by kit id or display name (see kit_list). Defaults to the "
                 "active startup project when neither project_name nor project_path is given. "
                 "Returns a per-kit results array with status added/already_present/"
                 "not_found/failed; the call does not abort on the first error. When "
@@ -2829,12 +2829,12 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("remove_kits")
+            .name("kit_remove")
             .title("Remove kits")
             .description(
                 "Removes kits from Qt Creator, identified by kit id or display name (see "
-                "list_kits). Use it to clean up after detect_device_tools, which creates a kit "
-                "per toolchain found on a device; list_kits reports each kit's run and build "
+                "kit_list). Use it to clean up after device_detect_tools, which creates a kit "
+                "per toolchain found on a device; kit_list reports each kit's run and build "
                 "device, so the kits belonging to a device can be picked out. Returns a per-kit "
                 "results array with status removed/not_found/sdk_provided/ambiguous_name; the "
                 "call does not abort on the first error. SDK-provided kits cannot be removed. "
@@ -2866,7 +2866,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_build_configs")
+            .name("build_list_configs")
             .title("List available build configurations")
             .description("List available build configurations")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -2886,7 +2886,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("switch_build_config")
+            .name("build_switch_config")
             .title("Switch to a specific build configuration")
             .description("Switch to a specific build configuration")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
@@ -2909,7 +2909,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("add_build_config")
+            .name("build_add_config")
             .title("Add a build configuration")
             .description(
                 "Creates a new build configuration for the active project's kit and, unless "
@@ -2948,7 +2948,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_current_project")
+            .name("project_get_current")
             .title("Get the currently active project")
             .description("Get the currently active project")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -2979,7 +2979,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_active_project")
+            .name("project_set_active")
             .title("Set the active startup project")
             .description(
                 "Changes the active startup project (the one Qt Creator builds, runs, and "
@@ -3055,13 +3055,13 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("open_project")
+            .name("project_open")
             .title("Open a project")
             .description(
                 "Opens a project in Qt Creator from a project file path (e.g., "
                 "CMakeLists.txt, a .pro, .qbs, or .qmlproject file). If the project is "
                 "already open, returns success with already_open=true. The opened project "
-                "is added to the session; use set_active_project to make it the startup "
+                "is added to the session; use project_set_active to make it the startup "
                 "project.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -3089,7 +3089,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_current_build_config")
+            .name("build_get_current_config")
             .title("Get the currently active build configuration")
             .description("Get the currently active build configuration")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -3103,7 +3103,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool()
-            .name("known_repositories_in_projects")
+            .name("project_list_repositories")
             .title("Get known version control repositories in all projects")
             .description(
                 "List all known version control repositories (e.g., Git, Subversion) that are "
@@ -3137,7 +3137,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool()
-            .name("project_dependencies")
+            .name("project_get_dependencies")
             .title("List project dependencies for all projects")
             .description("List project dependencies for all projects")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -3165,7 +3165,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_run_configurations")
+            .name("run_list_configs")
             .title("Get run configurations")
             .description(
                 "Returns the project's existing run configurations. Each entry includes the "
@@ -3200,13 +3200,13 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("configure_run_config")
+            .name("run_configure")
             .title("Configure a run configuration")
             .description(
                 "Selects an existing run configuration (by display name or type id, see "
-                "get_run_configurations) as the active one and/or sets its executable. Setting "
+                "run_list_configs) as the active one and/or sets its executable. Setting "
                 "the executable only works for run configurations that have one, such as the "
-                "bare-metal \"Custom Executable\" configuration. Then start_debug (with no "
+                "bare-metal \"Custom Executable\" configuration. Then debugger_start (with no "
                 "arguments) debugs it via its run configuration's own launch path. Several run "
                 "configurations share one type id, so an id matching more than one fails with "
                 "reason \"ambiguous\" and the matching display names in \"candidates\", rather "
@@ -3257,7 +3257,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_devices")
+            .name("device_list")
             .title("List configured devices")
             .description(
                 "Lists all devices known to Qt Creator (ProjectExplorer::DeviceManager), with "
@@ -3278,7 +3278,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("add_device")
+            .name("device_add")
             .title("Add a device")
             .description(
                 "Creates a new device of the given device-type id (e.g. 'GenericLinuxOsType') and "
@@ -3294,7 +3294,7 @@ void registerMcpTools()
                             {"type", "string"},
                             {"description",
                              "Device-type id, e.g. 'GenericLinuxOsType'. See the 'type' field of "
-                             "list_devices, or use list_device_types."}})
+                             "device_list, or use device_list_types."}})
                     .addProperty(
                         "displayName",
                         QJsonObject{
@@ -3344,7 +3344,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_device_parameters")
+            .name("device_set_parameters")
             .title("Update device parameters")
             .description(
                 "Updates the display name and/or SSH parameters of an existing device. Only the "
@@ -3388,13 +3388,13 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("remove_device")
+            .name("device_remove")
             .title("Remove a device")
             .description(
                 "Removes the device with the given id from the DeviceManager. As in the Devices "
                 "preferences page, an auto-detected device can only be removed while it is "
                 "disconnected; the local desktop device can never be removed. Kits referring to "
-                "the device are left behind, so remove those with remove_kits.")
+                "the device are left behind, so remove those with kit_remove.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -3427,7 +3427,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("test_device")
+            .name("device_test")
             .title("Test a device connection")
             .description(
                 "Runs the device's connection tester (IDevice::createDeviceTester()), collecting "
@@ -3515,7 +3515,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("detect_device_tools")
+            .name("device_detect_tools")
             .title("Detect tools on a device and create kits")
             .description(
                 "Connects to the device and runs the same auto-detection as the device "
@@ -3590,10 +3590,10 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_device_types")
+            .name("device_list_types")
             .title("List available device types")
             .description(
-                "Lists the device-type ids that can be passed to add_device, with their display "
+                "Lists the device-type ids that can be passed to device_add, with their display "
                 "names and whether they can be created programmatically.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(Tool::InputSchema{})

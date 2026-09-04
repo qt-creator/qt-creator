@@ -267,7 +267,7 @@ static Utils::Result<ResolvedTestRun> resolveTestRun(
         if (!notFound.isEmpty())
             return ResultError(
                 QString("Test name(s) not found in the current Autotest model: %1. "
-                        "If you recently added or renamed these tests, call reconfigure "
+                        "If you recently added or renamed these tests, call cmake_reconfigure "
                         "first to trigger a re-parse, then retry.")
                     .arg(notFound.join(", ")));
         // Let each root turn its own items into configurations: the default is
@@ -473,7 +473,7 @@ void registerMcpTools()
                       {"items", QJsonObject{{"type", "string"}}},
                       {"description",
                        "Names of tests that failed, fataled, or were skipped. Use "
-                       "get_test_details with these names for full info."}})
+                       "test_get_details with these names for full info."}})
               .addProperty(
                   "tests_with_warnings",
                   QJsonObject{
@@ -490,16 +490,16 @@ void registerMcpTools()
                       {"type", "array"},
                       {"description",
                        "Build errors/warnings from the pre-test build. Present only when "
-                       "summary.build_failed is true — folded in by run_tests so the AI "
-                       "can diagnose the build failure without a separate list_issues "
-                       "call. Same shape as list_issues' issues array (objects with type, "
+                       "summary.build_failed is true — folded in by test_run so the AI "
+                       "can diagnose the build failure without a separate build_list_issues "
+                       "call. Same shape as build_list_issues' issues array (objects with type, "
                        "description, file, line, id). Absent when the build succeeded."}})
               .addRequired("summary")
               .addRequired("failures")
               .addRequired("tests_with_warnings")
               .addRequired("summary_text");
 
-    // run_tests answers before the run necessarily ends, so it needs the fields
+    // test_run answers before the run necessarily ends, so it needs the fields
     // that say so.
     const auto runTestsOutputSchema
         = Tool::OutputSchema{testSummaryOutputSchema}
@@ -546,10 +546,10 @@ void registerMcpTools()
                                       "is still running."}})
               .addRequired("finished");
 
-    // ---- run_tests (long-running async tool) ----
+    // ---- test_run (long-running async tool) ----
     ToolRegistry::registerTool(
         Tool{}
-            .name("run_tests")
+            .name("test_run")
             .title("Run tests")
             .description(
                 "Build (if needed) and run autotests, then return a compact summary: "
@@ -560,12 +560,12 @@ void registerMcpTools()
                 "timeout. Equivalent to clicking Run (or Debug, with mode='debug') in "
                 "the Tests pane. Returns once the run finishes. "
                 "To see per-test details (messages, file/line, etc.), follow up with "
-                "get_test_details using ANY test name from the run — failures, "
-                "warnings, or just a passing test you want to inspect. get_test_details "
+                "test_get_details using ANY test name from the run — failures, "
+                "warnings, or just a passing test you want to inspect. test_get_details "
                 "returns the full message log for every named test regardless of its "
                 "outcome; an empty messages[] means the test simply didn't emit anything. "
                 "NOTE: each call replaces the current snapshot — if the user has just "
-                "run something interesting in the UI, call get_last_test_results first "
+                "run something interesting in the UI, call test_get_last_results first "
                 "instead of clobbering it."
                 "\n\n"
                 "Read `finished` first. When it is true the summary is this run's result. "
@@ -573,7 +573,7 @@ void registerMcpTools()
                 "the response carries a run_id, elapsed_ms and a reason of "
                 "\"still_running\", or \"joined_existing_run\" if the run it is waiting "
                 "for is one that was already going. "
-                "Call run_tests again with that run_id to keep waiting, and repeat until "
+                "Call test_run again with that run_id to keep waiting, and repeat until "
                 "finished is true. Do not start a second run and do not sleep between "
                 "calls: each call does the waiting for you."
                 "\n\n"
@@ -608,9 +608,9 @@ void registerMcpTools()
                              "'Class::function' for frameworks that list functions - "
                              "CTest entries have none, so only the whole test runs. "
                              "Names typically come from `failures` or `tests_with_warnings` "
-                             "in a previous summary, or from list_tests. Names must already "
+                             "in a previous summary, or from test_list. Names must already "
                              "be present in Autotest's current model — if a name is not "
-                             "found, call reconfigure first to trigger a re-parse (needed "
+                             "found, call cmake_reconfigure first to trigger a re-parse (needed "
                              "after adding or renaming test functions)."}})
                     .addProperty(
                         "mode",
@@ -767,7 +767,7 @@ void registerMcpTools()
                             body["summary_text"]
                                 = QString("Joined a run already in progress, not the "
                                           "selection requested; still running after %1 ms. "
-                                          "Call run_tests again with run_id:%2 to collect "
+                                          "Call test_run again with run_id:%2 to collect "
                                           "it, then again to run what you asked for.")
                                       .arg(elapsedMs)
                                       .arg(state->generation);
@@ -775,14 +775,14 @@ void registerMcpTools()
                             body["run_id"] = qint64(state->generation);
                             body["summary_text"]
                                 = QString("Tests still running after %1 ms. Nothing has "
-                                          "failed — call run_tests again with run_id:%2 to "
+                                          "failed — call test_run again with run_id:%2 to "
                                           "keep waiting.")
                                       .arg(elapsedMs)
                                       .arg(state->generation);
                         } else {
                             body["summary_text"]
                                 = QString("Still waiting for test discovery after %1 ms; no "
-                                          "run has started. Call run_tests again to keep "
+                                          "run has started. Call test_run again to keep "
                                           "waiting.")
                                       .arg(elapsedMs);
                         }
@@ -796,7 +796,7 @@ void registerMcpTools()
                                 QJsonObject body = noResultBody(
                                     "call_cancelled",
                                     "This call was cancelled. The test run it was "
-                                    "waiting for is still going -- call run_tests "
+                                    "waiting for is still going -- call test_run "
                                     "again with its run_id to collect it.");
                                 body["finished"] = false;
                                 body["run_id"] = qint64(state->generation);
@@ -807,7 +807,7 @@ void registerMcpTools()
                                     .structuredContent(noResultBody(
                                         "call_cancelled",
                                         "This call was cancelled before any test run "
-                                        "started. Nothing is running; call run_tests "
+                                        "started. Nothing is running; call test_run "
                                         "again to start one."))
                                     .isError(true);
                             }
@@ -823,13 +823,13 @@ void registerMcpTools()
                                 .structuredContent(noResultBody(
                                     "no_run_started",
                                     "No test run was started, so there is no result. Call "
-                                    "run_tests again."))
+                                    "test_run again."))
                                 .isError(true);
                         }
                         if (runSlot.inProgress && runSlot.generation == state->generation) {
                             QJsonObject body = noResultBody(
                                 "still_running",
-                                QString("Run %1 has not produced results yet. Call run_tests "
+                                QString("Run %1 has not produced results yet. Call test_run "
                                         "again with run_id:%1 to keep waiting.")
                                     .arg(state->generation));
                             body["finished"] = false;
@@ -840,7 +840,7 @@ void registerMcpTools()
                         QJsonObject body = noResultBody(
                             "superseded",
                             QString("The results of run %1 are no longer available — another "
-                                    "run replaced them. Call run_tests again to re-run.")
+                                    "run replaced them. Call test_run again to re-run.")
                                 .arg(state->generation));
                         body["run_id"] = qint64(state->generation);
                         return CallToolResult{}.structuredContent(body).isError(true);
@@ -853,12 +853,12 @@ void registerMcpTools()
                         result["reason"] = "joined_existing_run";
                         result["summary_text"]
                             = QString("%1 (from a run already in progress, not the selection "
-                                      "requested — run_tests again once it is done to run "
+                                      "requested — test_run again once it is done to run "
                                       "exactly what you asked for)")
                                   .arg(result.value("summary_text").toString());
                     }
                     // Fold build issues inline when the build that gates the
-                    // test run failed. Saves the AI a separate list_issues call
+                    // test run failed. Saves the AI a separate build_list_issues call
                     // to find out WHY the build broke.
                     if (!state->buildIssues.isEmpty())
                         result.insert("build_issues", state->buildIssues);
@@ -996,7 +996,7 @@ void registerMcpTools()
             auto deferUntilParsed = [model, resolveAndRun, state]() {
                 state->waitingForParser = true;
                 qCDebug(mcpAutotest)
-                    << "run_tests: deferring until the test parser finishes discovery";
+                    << "test_run: deferring until the test parser finishes discovery";
                 TestCodeParser *parser = model->parser();
                 auto connFinished = std::make_shared<QMetaObject::Connection>();
                 auto connFailed = std::make_shared<QMetaObject::Connection>();
@@ -1017,7 +1017,7 @@ void registerMcpTools()
                     TestTreeModel *liveModel = TestTreeModel::instance();
                     if (discoveryCanStillArrive(liveModel)) {
                         qCDebug(mcpAutotest)
-                            << "run_tests: parsingFinished fired but another scan is pending, "
+                            << "test_run: parsingFinished fired but another scan is pending, "
                                "waiting for full convergence";
                         return; // connections stay installed
                     }
@@ -1046,7 +1046,7 @@ void registerMcpTools()
                         if (discoveryCanStillArrive(TestTreeModel::instance()))
                             return;
                         watchdog->deleteLater();
-                        qCDebug(mcpAutotest) << "run_tests: parser went quiet, resolving now";
+                        qCDebug(mcpAutotest) << "test_run: parser went quiet, resolving now";
                         stopWaiting();
                         resolveAndRun();
                     });
@@ -1058,7 +1058,7 @@ void registerMcpTools()
                 if (runSlot.generation != runId) {
                     state->resolveError
                         = QString("No test run with id %1 is known: a newer run has "
-                                  "replaced it, or it predates a restart. Call run_tests "
+                                  "replaced it, or it predates a restart. Call test_run "
                                   "without run_id to start one.")
                               .arg(runId);
                     state->errorReason = "unknown_run_id";
@@ -1104,32 +1104,32 @@ void registerMcpTools()
             return ResultOk;
         });
 
-    // ---- get_last_test_results (sync read-only) ----
+    // ---- test_get_last_results (sync read-only) ----
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_last_test_results")
+            .name("test_get_last_results")
             .title("Read the most recent test run summary")
             .description(
                 "Read-only summary of the most recent test run. Reflects whatever was "
-                "last executed — by run_tests OR by the user clicking Run/Debug in the "
+                "last executed — by test_run OR by the user clicking Run/Debug in the "
                 "Tests pane. Returns counts plus name lists for failures and "
-                "tests-with-warnings. Use get_test_details with specific test names to "
-                "see per-test messages, file/line, and full debug log. Calling run_tests "
+                "tests-with-warnings. Use test_get_details with specific test names to "
+                "see per-test messages, file/line, and full debug log. Calling test_run "
                 "instead would re-execute and potentially erase a flaky or debug-only "
                 "failure.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .outputSchema(testSummaryOutputSchema),
         wrap([](const QJsonObject &) { return resultsManager().summary(); }));
 
-    // ---- get_test_status (sync read-only) ----
+    // ---- test_get_status (sync read-only) ----
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_test_status")
+            .name("test_get_status")
             .title("Check test-run state without clobbering")
             .description(
                 "Reports whether a test run is currently in progress and "
                 "whether the snapshot holds results worth looking at. Call this before "
-                "run_tests if there's any chance the user has just produced an "
+                "test_run if there's any chance the user has just produced an "
                 "interesting result (e.g. a debug-mode failure) in the Tests pane that "
                 "you don't want to overwrite.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -1221,18 +1221,18 @@ void registerMcpTools()
                    "test slot's declaration, not the emit site, so all messages "
                    "in one outcome share a line number."}}}}}};
 
-    // ---- get_test_details (sync read-only) ----
+    // ---- test_get_details (sync read-only) ----
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_test_details")
+            .name("test_get_details")
             .title("Get per-test details from the most recent run")
             .description(
                 "Per-test details for the named tests from the most recent run. By "
                 "default returns only the small, actionable fields — status, 'failure' "
                 "(the extracted assertion for a failing test), 'warnings' (any warning "
                 "lines), file/line, duration — so a build/test/fix loop never has to "
-                "wade through a huge log. Names typically come from run_tests / "
-                "get_last_test_results (`failures` / `tests_with_warnings`); unmatched "
+                "wade through a huge log. Names typically come from test_run / "
+                "test_get_last_results (`failures` / `tests_with_warnings`); unmatched "
                 "names appear in `not_found`."
                 "\n\n"
                 "Pass include:[\"log\"] for the full (tail-capped) output as `message`, "
@@ -1306,16 +1306,16 @@ void registerMcpTools()
             return resultsManager().testDetails(names, includeLog, includeMessages);
         }));
 
-    // ---- list_tests (sync read-only) ----
+    // ---- test_list (sync read-only) ----
     ToolRegistry::registerTool(
         Tool{}
-            .name("list_tests")
+            .name("test_list")
             .title("Discover the available tests in the active project")
             .description(
                 "Read-only: enumerate every test class Autotest currently knows "
                 "about, with its functions. Useful as a discovery step before "
-                "calling run_tests — gives exact class and function names to pass "
-                "as run_tests({scope: \"named\", names: [\"Class::function\"]}) "
+                "calling test_run — gives exact class and function names to pass "
+                "as test_run({scope: \"named\", names: [\"Class::function\"]}) "
                 "without guessing from build artifacts. Each entry carries the "
                 "framework label (e.g. \"Qt Test\", \"Google Test\"). "
                 "Returns empty if Autotest hasn't finished parsing yet or the "

@@ -306,7 +306,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_file_symbols")
+            .name("cpp_get_file_symbols")
             .title("Get C++ symbols in a file")
             .description(
                 "Returns the C++ symbols (classes, functions, enums, declarations) in a file "
@@ -384,7 +384,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_file_problems")
+            .name("cpp_get_file_problems")
             .title("Get C++ diagnostics for a file")
             .description(
                 "Returns the C++ code model diagnostics (parser and semantic warnings and "
@@ -443,7 +443,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_references")
+            .name("cpp_find_references")
             .title("Find C++ references")
             .description(
                 "Finds all references (usages) of the C++ symbol at a position, using the "
@@ -531,7 +531,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_symbol_info")
+            .name("cpp_get_symbol_info")
             .title("Get C++ symbol info and definition")
             .description(
                 "Resolves the C++ symbol at a position and returns its name, fully qualified "
@@ -619,7 +619,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_type_hierarchy")
+            .name("cpp_get_type_hierarchy")
             .title("Get C++ type hierarchy")
             .description(
                 "Returns the base and derived class hierarchy of the C++ class or struct at "
@@ -697,7 +697,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_callers")
+            .name("cpp_find_callers")
             .title("Find C++ callers")
             .description(
                 "Finds the callers of the C++ function at a position - the incoming call "
@@ -805,7 +805,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_callees")
+            .name("cpp_find_callees")
             .title("Find C++ callees")
             .description(
                 "Finds the functions called by the C++ function at a position - the "
@@ -950,14 +950,14 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_symbols")
+            .name("cpp_find_symbols")
             .title("Search C++ symbols in the project")
             .description(
                 "Searches the project-wide C++ code model index by name - a fast "
                 "\"go to symbol\". The index holds classes, enums, function DEFINITIONS, "
                 "signals and type aliases; it does NOT contain plain declarations (data "
                 "members, globals, or member functions that are only declared), so an "
-                "empty result does NOT prove a name is unused - use get_file_symbols for "
+                "empty result does NOT prove a name is unused - use cpp_get_file_symbols for "
                 "the complete symbol list of a known file. Give a case-insensitive name "
                 "substring; optionally restrict by \"kind\" and cap the count with "
                 "\"limit\". Results are ranked (exact, then prefix, then substring) so the "
@@ -1115,7 +1115,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("rename_symbol")
+            .name("cpp_rename_symbol")
             .title("Rename a C++ symbol")
             .description(
                 "Renames the C++ symbol at a position across the whole project, using the "
@@ -1368,7 +1368,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_completions")
+            .name("cpp_get_completions")
             .title("Get C++ code completions")
             .description(
                 "Returns the C++ code-completion proposals at a position, as the editor "
@@ -1508,7 +1508,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_quick_fixes")
+            .name("cpp_get_quick_fixes")
             .title("Get C++ quick-fixes")
             .description(
                 "Lists the C++ quick-fixes and refactoring actions the editor offers at a "
@@ -1620,7 +1620,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("find_overrides")
+            .name("cpp_find_overrides")
             .title("Find C++ virtual function overrides")
             .description(
                 "Finds the overriding implementations of the virtual C++ member function "

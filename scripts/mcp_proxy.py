@@ -21,7 +21,7 @@ working on Qt Creator itself, including when several instances are running.
 
 Usage: python3 mcp_proxy.py [--prefer-cwd] [--port N]
 
-  --prefer-cwd  Query each candidate's get_current_project tool and use only
+  --prefer-cwd  Query each candidate's project_get_current tool and use only
                 the instance whose active project path contains the current
                 working directory. If no running instance matches, attach to
                 nothing (rather than an unrelated instance) -- this keeps
@@ -226,7 +226,7 @@ def _find_best_port(prefer_cwd, fixed_port=None):
     for port, sid in candidates:
         body = json.dumps({
             'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call',
-            'params': {'name': 'get_current_project', 'arguments': {}},
+            'params': {'name': 'project_get_current', 'arguments': {}},
         }).encode()
         try:
             c = http.client.HTTPConnection('127.0.0.1', port, timeout=PROBE_TIMEOUT)
@@ -240,7 +240,7 @@ def _find_best_port(prefer_cwd, fixed_port=None):
             result = json.loads(r.read())
             c.close()
         except (OSError, json.JSONDecodeError) as e:
-            _log(f"port {port}: get_current_project failed ({e})")
+            _log(f"port {port}: project_get_current failed ({e})")
             continue
         result_obj = result.get('result', {})
         data = result_obj.get('structuredContent')
@@ -256,11 +256,11 @@ def _find_best_port(prefer_cwd, fixed_port=None):
                         data = parsed
                     break
         if not data:
-            _log(f"port {port}: get_current_project returned no project data; result={result!r}")
+            _log(f"port {port}: project_get_current returned no project data; result={result!r}")
             continue
         project_dir = data.get('projectDirectory', '')
         if not project_dir:
-            _log(f"port {port}: get_current_project missing projectDirectory; data={data!r}")
+            _log(f"port {port}: project_get_current missing projectDirectory; data={data!r}")
             continue
         project_dir_norm = os.path.normcase(os.path.normpath(project_dir))
         match = cwd_norm == project_dir_norm or cwd_norm.startswith(project_dir_norm + os.sep)

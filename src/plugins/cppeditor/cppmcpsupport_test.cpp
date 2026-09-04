@@ -91,7 +91,7 @@ void CppMcpSupportTest::testGetFileSymbols()
                           "int add(int a, int b) { return a + b; }\n",
                           &file));
 
-    const QJsonArray symbols = callTool("get_file_symbols",
+    const QJsonArray symbols = callTool("cpp_get_file_symbols",
                                         {{"file", file.toFSPathString()}}).value("symbols").toArray();
 
     const QJsonObject add = objectNamed(symbols, "add");
@@ -109,7 +109,7 @@ void CppMcpSupportTest::testGetSymbolInfo()
     Utils::FilePath file;
     QVERIFY(writeAndParse(dir, "int add(int a, int b) { return a + b; }\n", &file));
 
-    const QJsonObject info = callTool("get_symbol_info",
+    const QJsonObject info = callTool("cpp_get_symbol_info",
                                       {{"file", file.toFSPathString()}, {"line", 1}, {"column", 5}});
     QCOMPARE(info.value("name").toString(), QString("add"));
     QCOMPARE(info.value("kind").toString(), QString("function"));
@@ -128,7 +128,7 @@ void CppMcpSupportTest::testFindReferences()
                           &file));
 
     // g at line 1, column 12; one declaration + two calls.
-    const QJsonArray refs = callTool("find_references",
+    const QJsonArray refs = callTool("cpp_find_references",
                                      {{"file", file.toFSPathString()}, {"line", 1}, {"column", 12}})
                                 .value("references").toArray();
     QCOMPARE(refs.size(), 3);
@@ -146,7 +146,7 @@ void CppMcpSupportTest::testGetTypeHierarchy()
                           &file));
 
     // Base at line 1, column 8.
-    const QJsonObject hierarchy = callTool("get_type_hierarchy",
+    const QJsonObject hierarchy = callTool("cpp_get_type_hierarchy",
                                            {{"file", file.toFSPathString()}, {"line", 1}, {"column", 8}});
     QCOMPARE(hierarchy.value("name").toString(), QString("Base"));
     QCOMPARE(objectNamed(hierarchy.value("derived").toArray(), "Derived").value("name").toString(),
@@ -165,7 +165,7 @@ void CppMcpSupportTest::testFindOverrides()
                           &file));
 
     // Base::f at line 1, column 28.
-    const QJsonObject result = callTool("find_overrides",
+    const QJsonObject result = callTool("cpp_find_overrides",
                                         {{"file", file.toFSPathString()}, {"line", 1}, {"column", 28}});
     QVERIFY(result.value("is_virtual").toBool());
     QStringList names;
@@ -187,7 +187,7 @@ void CppMcpSupportTest::testRenameSymbolDryRun()
 
     // g at line 1, column 12; the declaration and both calls get rewritten.
     QString error;
-    const QJsonObject result = callTool("rename_symbol",
+    const QJsonObject result = callTool("cpp_rename_symbol",
                                         {{"file", file.toFSPathString()},
                                          {"line", 1},
                                          {"column", 12},
@@ -221,7 +221,7 @@ void CppMcpSupportTest::testResultCap()
                           "int c() { return 0; }\n",
                           &file));
 
-    const QJsonObject result = callTool("get_file_symbols",
+    const QJsonObject result = callTool("cpp_get_file_symbols",
                                         {{"file", file.toFSPathString()}, {"limit", 2}});
     QCOMPARE(result.value("symbols").toArray().size(), 2);
     QVERIFY(result.value("truncated").toBool());
@@ -231,7 +231,7 @@ void CppMcpSupportTest::testResultCap()
 void CppMcpSupportTest::testErrorHandling()
 {
     QString error;
-    callTool("get_file_symbols", {}, &error); // missing required "file"
+    callTool("cpp_get_file_symbols", {}, &error); // missing required "file"
     QVERIFY(!error.isEmpty());
 
     // An asynchronous tool must be refused as such, not merely be absent.
@@ -242,7 +242,7 @@ void CppMcpSupportTest::testErrorHandling()
     QVERIFY2(error.contains("No registered tool"), qPrintable(error));
 
     // A valid identifier is required for a rename.
-    callTool("rename_symbol",
+    callTool("cpp_rename_symbol",
              {{"file", "/x.cpp"}, {"line", 1}, {"column", 1}, {"new_name", "1bad"}},
              &error);
     QVERIFY2(error.contains("not a valid C++ identifier"), qPrintable(error));

@@ -787,7 +787,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_breakpoints")
+            .name("debugger_get_breakpoints")
             .title("Get current breakpoints")
             .description("Returns all breakpoints currently set in Qt Creator's debugger")
             .annotations(ToolAnnotations{}.readOnlyHint(true).destructiveHint(false))
@@ -806,7 +806,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_threads")
+            .name("debugger_get_threads")
             .title("Get current threads")
             .description(
                 "Returns all threads of the current debug session. "
@@ -848,7 +848,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("select_thread")
+            .name("debugger_select_thread")
             .title("Select a thread")
             .description(
                 "Switches the current thread in the active debug session. "
@@ -860,7 +860,8 @@ void registerMcpTools()
                         "id",
                         QJsonObject{
                             {"type", "string"},
-                            {"description", "Thread ID to select (as returned by get_threads)"}})
+                            {"description",
+                             "Thread ID to select (as returned by debugger_get_threads)"}})
                     .addRequired("id"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -878,13 +879,13 @@ void registerMcpTools()
             {"type", "object"},
             {"required", QJsonArray{"iname", "name", "value", "type", "value_editable", "has_children"}},
             {"properties", QJsonObject{
-                {"iname",          QJsonObject{{"type", "string"},  {"description", "Internal name, e.g. \"local.myVar\". Use as key for get_variable / set_variable."}}},
+                {"iname",          QJsonObject{{"type", "string"},  {"description", "Internal name, e.g. \"local.myVar\". Use as key for debugger_get_variable / debugger_set_variable."}}},
                 {"name",           QJsonObject{{"type", "string"},  {"description", "Display name"}}},
                 {"value",          QJsonObject{{"type", "string"},  {"description", "Raw value as reported by the debugger"}}},
-                {"display_value",  QJsonObject{{"type", "string"},  {"description", "Value as shown in the Locals view, honoring the display format set via set_display_format"}}},
+                {"display_value",  QJsonObject{{"type", "string"},  {"description", "Value as shown in the Locals view, honoring the display format set via debugger_set_display_format"}}},
                 {"type",           QJsonObject{{"type", "string"},  {"description", "Type name"}}},
                 {"address",        QJsonObject{{"type", "string"},  {"description", "Memory address, e.g. \"0x1234\""}}},
-                {"value_editable", QJsonObject{{"type", "boolean"}, {"description", "Whether the value can be changed via set_variable"}}},
+                {"value_editable", QJsonObject{{"type", "boolean"}, {"description", "Whether the value can be changed via debugger_set_variable"}}},
                 {"has_children",   QJsonObject{{"type", "boolean"}, {"description", "Whether the variable has child members"}}},
             }},
         };
@@ -892,13 +893,14 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_variables")
+            .name("debugger_get_variables")
             .title("List local variables")
             .description(
                 "Returns local variables for the current stack frame. "
                 "Optionally includes watch expressions. "
-                "Variables with has_children=true may include a children array if already expanded; "
-                "otherwise call get_variable with the variable's iname to retrieve sub-fields. "
+                "Variables with has_children=true may include a children array if already "
+                "expanded; otherwise call debugger_get_variable with the variable's iname to "
+                "retrieve sub-fields. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
@@ -934,12 +936,12 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_variable")
+            .name("debugger_get_variable")
             .title("Get a variable")
             .description(
                 "Returns the details of a single variable by its iname, including its children "
                 "if it has any (e.g. struct members or array elements). "
-                "If a child also has has_children=true, call get_variable again with that child's iname "
+                "If a child also has has_children=true, call debugger_get_variable again with that child's iname "
                 "to retrieve its sub-fields. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
@@ -989,7 +991,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_variable")
+            .name("debugger_set_variable")
             .title("Set a variable value")
             .description(
                 "Changes the value of a variable in the current debug session. "
@@ -1055,7 +1057,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("debugger_expanded_inames")
+            .name("debugger_get_expanded_inames")
             .title("List expanded variable inames")
             .description(
                 "Returns the sorted set of inames currently marked as expanded in the Locals and "
@@ -1080,7 +1082,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("debugger_console_message")
+            .name("debugger_print_console_message")
             .title("Print a message to the QML Debugger Console")
             .description(
                 "Appends a message of the given type to the QML Debugger Console, exactly as the "
@@ -1114,7 +1116,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("set_display_format")
+            .name("debugger_set_display_format")
             .title("Set a variable's display format")
             .description(
                 "Sets the display format of a single variable (by iname) in the current debug "
@@ -1153,13 +1155,14 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("add_watch_expression")
+            .name("debugger_add_watch_expression")
             .title("Add a watch expression")
             .description(
                 "Adds an expression to the watch list in the current debug session. "
                 "The expression is evaluated and its value updated as execution progresses. "
                 "Returns the iname of the new watch entry (e.g. \"watch.0\"), which can be used "
-                "with get_variable, set_variable, and remove_watch_expression. "
+                "with debugger_get_variable, debugger_set_variable, and "
+                "debugger_remove_watch_expression. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
@@ -1193,7 +1196,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("remove_watch_expression")
+            .name("debugger_remove_watch_expression")
             .title("Remove a watch expression")
             .description(
                 "Removes a watch expression from the current debug session by its iname. "
@@ -1223,7 +1226,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_call_stack")
+            .name("debugger_get_call_stack")
             .title("Get current call stack")
             .description(
                 "Returns the call stack (stack frames) of the current debug session. "
@@ -1262,11 +1265,11 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("select_frame")
+            .name("debugger_select_frame")
             .title("Select a stack frame")
             .description(
                 "Switches the current stack frame in the active debug session. "
-                "Subsequent get_variables / evaluate_expression calls operate on the selected frame. "
+                "Subsequent debugger_get_variables / debugger_evaluate_expression calls operate on the selected frame. "
                 "Returns an error if no debug session is active or the debugger is not paused.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).idempotentHint(true))
             .inputSchema(
@@ -1275,7 +1278,7 @@ void registerMcpTools()
                         "level",
                         QJsonObject{
                             {"type", "integer"},
-                            {"description", "Frame level to select (as returned by get_call_stack, 0 = innermost)"}})
+                            {"description", "Frame level to select (as returned by debugger_get_call_stack, 0 = innermost)"}})
                     .addRequired("level"))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1290,10 +1293,11 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("delete_breakpoint")
+            .name("debugger_delete_breakpoint")
             .title("Delete a breakpoint")
             .description(
-                "Deletes a breakpoint by its ID (as returned by get_breakpoints or add_breakpoint)")
+                "Deletes a breakpoint by its ID (as returned by debugger_get_breakpoints or "
+                "debugger_add_breakpoint)")
             .annotations(ToolAnnotations().destructiveHint(true).idempotentHint(true))
             .inputSchema(
                 Tool::InputSchema{}
@@ -1313,7 +1317,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("add_breakpoint")
+            .name("debugger_add_breakpoint")
             .title("Add a breakpoint")
             .description("Adds a new breakpoint in Qt Creator's debugger.")
             .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(false))
@@ -1499,7 +1503,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("run_to_line")
+            .name("debugger_run_to_line")
             .title("Run to line")
             .description(
                 "Resumes execution until it reaches the given 1-based line in the given file, "
@@ -1571,7 +1575,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("evaluate_expression")
+            .name("debugger_evaluate_expression")
             .title("Evaluate expression in debugger")
             .description(
                 "Evaluates an expression in the context of the current debug session. "
@@ -1609,13 +1613,13 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("start_debug")
+            .name("debugger_start")
             .title("Start debugging")
             .description(
                 "Starts a debug session and returns once the launch has been requested; poll "
                 "debugger_get_status for the session state. With no arguments, debugs the "
                 "current startup project using its active run configuration and kit (does not "
-                "build first - use the build tool beforehand if it may be out of date). If "
+                "build first - use the build_project tool beforehand if it may be out of date). If "
                 "\"executable\" is given, debugs that executable directly (no project or build "
                 "needed) with an optional kit, arguments, working directory and QML debugging. "
                 "If \"remote_channel\" is also given, attaches to an already-running gdbserver "
@@ -1709,7 +1713,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("stop_debug")
+            .name("debugger_stop")
             .title("Stop debugging")
             .description(
                 "Stops the current debug session. "

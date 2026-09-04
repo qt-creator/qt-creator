@@ -89,7 +89,7 @@ Then point the MCP client at `127.0.0.1:8080`. The same SSH session (without
 
 - **Enables:** iterating the Python bridge (`cdbbridge.py` reloads per debug
   session), observing call stacks/variables/stepping, and - if the MCP's
-  `execute_command`/`evaluate_expression` reaches the cdb console - running the
+  `execute_command`/`debugger_evaluate_expression` reaches the cdb console - running the
   isolated bridge acceptance test from `cdb-reference.md` section 7 remotely.
 - **Does not:** rebuild `qtcreatorcdbext` or hot-reload its DLL; C++ extension
   changes still need a local rebuild + Creator restart on the Windows box.

@@ -58,7 +58,7 @@ static CMakeTarget resolveCMakeTarget(const QString &projectName)
         if (!target.project) {
             target.reason = "project_not_found";
             target.message
-                = QString("No open project named '%1'. Run 'list_projects' to see available names.")
+                = QString("No open project named '%1'. Run 'project_list' to see available names.")
                       .arg(projectName);
             return target;
         }
@@ -217,7 +217,7 @@ void registerMcpTools()
                 QJsonObject{
                     {"type", "array"},
                     {"description",
-                     "CMake errors and warnings, same shape as list_issues' issues array."}})
+                     "CMake errors and warnings, same shape as build_list_issues' issues array."}})
             .addProperty("summary_text", QJsonObject{{"type", "string"}})
             .addRequired("succeeded")
             .addRequired("error_count")
@@ -228,15 +228,15 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("reconfigure")
+            .name("cmake_reconfigure")
             .title("Re-run CMake on a project")
             .description(
                 "Re-runs CMake on a project (equivalent to Build → Run CMake) and "
                 "blocks until CMake finishes. Returns a verdict: {succeeded, error_count, "
                 "warning_count, duration_ms, issues, summary_text}. Use after editing "
-                "CMakeLists.txt to add a target or test so the next build/run_tests sees "
-                "the refreshed target list; the natural pattern is reconfigure → build "
-                "→ run_tests. Uses the startup project if 'project' is omitted.")
+                "CMakeLists.txt to add a target or test so the next build_project/test_run sees "
+                "the refreshed target list; the natural pattern is cmake_reconfigure → "
+                "build_project → test_run. Uses the startup project if 'project' is omitted.")
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .inputSchema(
                 Tool::InputSchema{}
@@ -246,7 +246,7 @@ void registerMcpTools()
                             {"type", "string"},
                             {"description",
                              "Name of the project to reconfigure. Uses the startup project if "
-                             "omitted. Run 'list_projects' to see available names."}})
+                             "omitted. Run 'project_list' to see available names."}})
                     .addProperty(
                         "mode",
                         QJsonObject{
@@ -305,7 +305,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("reset_cmake_configuration")
+            .name("cmake_reset_configuration")
             .title("Reset a project's CMake configuration")
             .description(
                 "Discards the CMake configuration of the project's ACTIVE build configuration "
@@ -314,10 +314,10 @@ void registerMcpTools()
                 "CMakeCache.txt, CMakeFiles and the file-api reply directory in that build "
                 "directory, so cache values set outside the configuration's initial CMake "
                 "arguments are lost. Use this when a build directory is stale or broken - after "
-                "a failed first configure, a plain reconfigure keeps re-running CMake without "
-                "the initial arguments and cannot recover on its own. Switch configurations with "
-                "switch_build_config to reset another one. Returns the same verdict as "
-                "reconfigure.")
+                "a failed first configure, a plain cmake_reconfigure keeps re-running CMake "
+                "without the initial arguments and cannot recover on its own. Switch "
+                "configurations with build_switch_config to reset another one. Returns the same "
+                "verdict as cmake_reconfigure.")
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .inputSchema(
                 Tool::InputSchema{}
@@ -327,7 +327,7 @@ void registerMcpTools()
                             {"type", "string"},
                             {"description",
                              "Name of the project to reset. Uses the startup project if "
-                             "omitted. Run 'list_projects' to see available names."}})
+                             "omitted. Run 'project_list' to see available names."}})
                     .addProperty(
                         "reconfigure",
                         QJsonObject{

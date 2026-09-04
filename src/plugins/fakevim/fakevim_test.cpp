@@ -23824,7 +23824,7 @@ void FakeVimTester::test_mcp_keys()
     // cursor is where the keys left it: after "ihello <Esc>" it sits on the
     // inserted space, column 6 of line 1.
     const Utils::Result<Mcp::Schema::CallToolResult> result = Mcp::ToolRegistry::callToolForTests(
-        "fakevim_keys",
+        "fakevim_send_keys",
         Mcp::Schema::CallToolRequestParams{}.arguments(QJsonObject{{"keys", "ihello <Esc>"}}));
     QVERIFY2(result, result ? "" : qPrintable(result.error()));
     QVERIFY(!result->isError().value_or(false));
@@ -23837,7 +23837,7 @@ void FakeVimTester::test_mcp_keys()
     // through the still existing handler.
     useFakeVim.setValue(false);
     const Utils::Result<Mcp::Schema::CallToolResult> disabled = Mcp::ToolRegistry::callToolForTests(
-        "fakevim_keys",
+        "fakevim_send_keys",
         Mcp::Schema::CallToolRequestParams{}.arguments(QJsonObject{{"keys", "x"}}));
     QVERIFY(!disabled);
     QVERIFY2(disabled.error().contains("disabled"), qPrintable(disabled.error()));
@@ -23861,7 +23861,7 @@ void FakeVimTester::test_mcp_argument_validation()
     // An argument the tool does not declare is refused, and the message says
     // which names it does take.
     const auto unknown = ToolRegistry::callToolForTests(
-        "fakevim_keys",
+        "fakevim_send_keys",
         Params{}.arguments(QJsonObject{{"keys", "x"}, {"mode", "keys"}}));
     QVERIFY(!unknown);
     QVERIFY2(unknown.error().contains("Unknown argument \"mode\""), qPrintable(unknown.error()));
@@ -23870,21 +23870,21 @@ void FakeVimTester::test_mcp_argument_validation()
     QCOMPARE(data.text(), QByteArray("some text"));
 
     // A required argument that is not there is refused by name.
-    const auto missing = ToolRegistry::callToolForTests("fakevim_keys", Params{});
+    const auto missing = ToolRegistry::callToolForTests("fakevim_send_keys", Params{});
     QVERIFY(!missing);
     QVERIFY2(missing.error().contains("Missing required argument \"keys\""),
              qPrintable(missing.error()));
 
     // A value of the wrong kind is refused, saying what was wanted.
     const auto wrongType = ToolRegistry::callToolForTests(
-        "fakevim_keys", Params{}.arguments(QJsonObject{{"keys", 42}}));
+        "fakevim_send_keys", Params{}.arguments(QJsonObject{{"keys", 42}}));
     QVERIFY(!wrongType);
     QVERIFY2(wrongType.error().contains("wants a string"), qPrintable(wrongType.error()));
     QCOMPARE(data.text(), QByteArray("some text"));
 
     // And a call that keeps to the schema still goes through.
     const auto good = ToolRegistry::callToolForTests(
-        "fakevim_keys", Params{}.arguments(QJsonObject{{"keys", "x"}}));
+        "fakevim_send_keys", Params{}.arguments(QJsonObject{{"keys", "x"}}));
     QVERIFY2(good, good ? "" : qPrintable(good.error()));
     QCOMPARE(data.text(), QByteArray("ome text"));
 

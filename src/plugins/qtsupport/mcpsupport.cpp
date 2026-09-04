@@ -33,7 +33,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("get_qt_directory")
+            .name("qt_get_directory")
             .title("Get Qt directory for the current project")
             .description(
                 "Returns the Qt installation paths for the Qt version used by the active kit "
@@ -112,7 +112,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("add_qt_version")
+            .name("qt_add_version")
             .title("Register a Qt version")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .description(

@@ -13,18 +13,18 @@ reflected in the other.
 ## Building and running tests
 
 Build and test through a Qt Creator MCP server when the instance behind it has
-this checkout open: ask `get_current_project` and compare its
+this checkout open: ask `project_get_current` and compare its
 `project_directory` with the directory you are working in. An agent started
 from within Qt Creator always talks to that instance. Use these instead of
 invoking a compiler or build tool from the shell:
 
-- `build` to build, `get_build_status` to see whether it is still running and
+- `build_project` to build, `build_get_status` to see whether it is still running and
   whether it succeeded.
-- `get_compile_output` and `list_issues` / `get_file_problems` to read what
+- `build_get_compile_output` and `build_list_issues` / `cpp_get_file_problems` to read what
   failed. Do not re-run the build just to see its output again.
-- `run_tests`, `get_test_status`, `get_last_test_results`, `get_test_details`
+- `test_run`, `test_get_status`, `test_get_last_results`, `test_get_details`
   for tests.
-- `list_build_configs`, `get_current_build_config` and `switch_build_config`
+- `build_list_configs`, `build_get_current_config` and `build_switch_config`
   when the target configuration matters. Do not switch it without saying so.
 
 The instance behind the MCP server is the user's own editor: it holds their

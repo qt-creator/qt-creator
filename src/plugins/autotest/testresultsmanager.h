@@ -33,7 +33,7 @@ public:
     // Recovery hook for the case where TestRunner accepts our runTests()
     // call but never emits testRunStarted/testRunFinished — e.g. configs
     // silently rejected by precheckTestConfigurations. Caller (a 5-second
-    // QTimer::singleShot watchdog set up in the run_tests tool handler in
+    // QTimer::singleShot watchdog set up in the test_run tool handler in
     // mcpcommands.cpp::registerCommands) invokes this when it detects
     // that the underlying runner is no longer running but our m_running
     // flag is still true. Clears state and emits runFinished so the task

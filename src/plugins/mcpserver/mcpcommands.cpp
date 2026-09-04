@@ -3375,7 +3375,7 @@ void McpCommands::registerCommands()
                 "widget); otherwise the current focus widget receives the input. "
                 "It types TEXT: a special key has no notation here, so a \"\\n\" in the input "
                 "is a newline character rather than a Return press - use press_keys for a key "
-                "sequence, or fakevim_keys for Vim notation such as \":w<CR>\".")
+                "sequence, or fakevim_send_keys for Vim notation such as \":w<CR>\".")
             .annotations(ToolAnnotations{}.readOnlyHint(false))
             .inputSchema(
                 addWidgetQueryProps(Tool::InputSchema{})

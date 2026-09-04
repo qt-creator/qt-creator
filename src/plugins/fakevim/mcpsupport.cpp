@@ -29,7 +29,7 @@ void registerMcpTools()
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("fakevim_keys")
+            .name("fakevim_send_keys")
             .title("Send keystrokes to FakeVim")
             .description(
                 "Funnels a string of keystrokes into the FakeVim handler of the current "
