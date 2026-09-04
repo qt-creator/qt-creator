@@ -59,6 +59,7 @@ struct VTermState
 
   const VTermStateCallbacks *callbacks;
   void *cbdata;
+  bool callbacks_has_premove;
 
   const VTermStateFallbacks *fallbacks;
   void *fbdata;
