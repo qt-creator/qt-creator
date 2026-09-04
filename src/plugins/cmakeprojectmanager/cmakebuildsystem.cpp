@@ -1109,7 +1109,33 @@ static Result<bool> removeFileArgumentSilently(
     const int to = argument.toPositionInDocument(document) + filePos.length;
     removeTextAndEmptyLine(widget, from, to - from);
 
-    widget->autoIndent();
+    if (!Core::DocumentManager::saveDocument(editor->document()))
+        return ResultError("Changes to " + filePos.cmakeFile.toUserOutput()
+                           + " could not be saved.");
+    return true;
+}
+
+// The argument keeps the place it had: what the line is indented by is the
+// author's, and a name is no reason to reconsider it.
+static Result<bool> renameFileArgumentSilently(
+        const CMakeBuildSystem::ProjectFileArgumentPosition &filePos, const QString &newFileName)
+{
+    BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(
+        {filePos.cmakeFile, filePos.line, filePos.column - 1},
+        Constants::CMAKE_EDITOR_ID,
+        Core::EditorManager::DoNotMakeVisible | Core::EditorManager::DoNotChangeCurrentEditor));
+    if (!editor) {
+        return ResultError("BaseTextEditor cannot be obtained for "
+                           + filePos.cmakeFile.toUserOutput() + ":"
+                           + QString::number(filePos.line) + ":"
+                           + QString::number(filePos.column - 1));
+    }
+
+    // If quotes were used for the source file, skip the starting quote
+    if (filePos.quoted)
+        editor->setCursorPosition(editor->position() + 1);
+
+    editor->replace(filePos.relativeFileName.size(), newFileName);
     if (!Core::DocumentManager::saveDocument(editor->document()))
         return ResultError("Changes to " + filePos.cmakeFile.toUserOutput()
                            + " could not be saved.");
@@ -1220,28 +1246,9 @@ bool CMakeBuildSystem::renameFile(
     bool haveGlobbing = false;
     do {
         if (!fileToRename->fromGlobbing) {
-            BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
-                Core::EditorManager::openEditorAt(
-                    {fileToRename->cmakeFile, fileToRename->line, fileToRename->column - 1},
-                    Constants::CMAKE_EDITOR_ID,
-                    Core::EditorManager::DoNotMakeVisible
-                        | Core::EditorManager::DoNotChangeCurrentEditor));
-            if (!editor) {
-                qCCritical(cmakeBuildSystemLog).noquote()
-                << "BaseTextEditor cannot be obtained for" << fileToRename->cmakeFile.path()
-                << fileToRename->line << fileToRename->column;
-                return false;
-            }
-
-            // If quotes were used for the source file, skip the starting quote
-            if (fileToRename->quoted)
-                editor->setCursorPosition(editor->position() + 1);
-
-            editor->replace(fileToRename->relativeFileName.size(), newRelPathName);
-            editor->editorWidget()->autoIndent();
-            if (!Core::DocumentManager::saveDocument(editor->document())) {
-                qCCritical(cmakeBuildSystemLog).noquote()
-                << "Changes to" << fileToRename->cmakeFile.path() << "could not be saved.";
+            const Result<bool> renamed = renameFileArgumentSilently(*fileToRename, newRelPathName);
+            if (!renamed) {
+                qCCritical(cmakeBuildSystemLog).noquote() << renamed.error();
                 return false;
             }
         } else {
@@ -1595,6 +1602,16 @@ private slots:
         compareWithExpected(m_directory);
     }
 
+    void testRenameFiles()
+    {
+        copyTestcases("rename");
+
+        renameIn("indented.cmake", "Main.qml", "Main2.qml");
+        renameIn("same_line.cmake", "Main.qml", "Main2.qml");
+
+        compareWithExpected(m_directory);
+    }
+
 private:
     void copyTestcases(const QString &name)
     {
@@ -1649,6 +1666,22 @@ private:
             if (!removed)
                 QFAIL(qPrintable(removed.error()));
         }
+    }
+
+    void renameIn(const QString &cmakeFileName, const QString &fileName, const QString &newFileName)
+    {
+        const FilePath cmakeFile = m_directory.pathAppended(cmakeFileName);
+        const DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+
+        const Result<ProjectFileArgumentPosition> position
+            = fileArgumentPosition(document, m_signatures, cmakeFile, 1, "appTestQuick", fileName);
+        if (!position)
+            QFAIL(qPrintable(position.error()));
+
+        const Result<bool> renamed = renameFileArgumentSilently(*position, newFileName);
+        if (!renamed)
+            QFAIL(qPrintable(renamed.error()));
     }
 
     using ProjectFileArgumentPosition = CMakeBuildSystem::ProjectFileArgumentPosition;
