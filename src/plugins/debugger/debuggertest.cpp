@@ -96,6 +96,7 @@ private slots:
     void testDebugInfoDirectory();
     void testDebugInfoFile();
     void testMergePlatformQtPath();
+    void testNormalizedSourcePathPrefix();
 
     void testScratchEditorAdoptsSavedName();
     void testNamespaceFromQObjectRtti_data();
@@ -1017,6 +1018,19 @@ void DebuggerUnitTests::testMergePlatformQtPath()
     platformUser.insert(platform.firstKey(), elsewhere);
     QCOMPARE(mergePlatformQtPath(sources, {}, platformUser).value(platform.firstKey()),
              elsewhere);
+}
+
+void DebuggerUnitTests::testNormalizedSourcePathPrefix()
+{
+    // The prefix is matched against the debug information, so nothing but the
+    // separators may be touched. In particular a leading "./" has to survive.
+    QCOMPARE(normalizedSourcePathPrefix("  ./ogr  "), QString("./ogr"));
+    QCOMPARE(normalizedSourcePathPrefix("/build/../qt"), QString("/build/../qt"));
+
+    // Backslashes go, on every host: a Windows prefix can be entered while
+    // debugging a Windows target from a Linux host.
+    QCOMPARE(normalizedSourcePathPrefix("C:\\work\\qt"), QString("C:/work/qt"));
+    QCOMPARE(normalizedSourcePathPrefix("(C:\\work\\.*)\\src"), QString("(C:/work/.*)/src"));
 }
 
 void DebuggerUnitTests::testScratchEditorAdoptsSavedName()

@@ -13,6 +13,7 @@
 
 #include <utils/elfreader.h>
 #include <utils/fileutils.h>
+#include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -39,7 +40,8 @@ class SourcePathMappingModel;
 
 enum { SourceColumn, TargetColumn, ColumnCount };
 
-using Mapping = QPair<FilePath, FilePath>;
+// Neither side is a path on this machine, so both are kept as typed.
+using Mapping = QPair<QString, QString>;
 
 class DebuggerSourcePathMappingWidget : public QGroupBox
 {
@@ -72,6 +74,7 @@ private:
     QPushButton *m_removeButton;
     QLineEdit *m_sourceLineEdit;
     Utils::PathChooser *m_targetChooser;
+    Utils::Guard m_editFieldGuard;
 };
 
 // Qt's various build paths for unpatched versions.
@@ -111,11 +114,10 @@ public:
     Mapping mappingAt(int row) const;
     bool isNewPlaceHolderAt(int row) { return isNewPlaceHolder(rawMappingAt(row)); }
 
-    void addMapping(const QString &source, const QString &target)
-        { addRawMapping(source, QDir::toNativeSeparators(target)); }
+    void addMapping(const QString &source, const QString &target);
 
     void addNewMappingPlaceHolder()
-        { addRawMapping(m_newSourcePlaceHolder, m_newTargetPlaceHolder); }
+        { addMapping(m_newSourcePlaceHolder, m_newTargetPlaceHolder); }
 
     void setSource(int row, const QString &);
     void setTarget(int row, const QString &);
@@ -123,7 +125,6 @@ public:
 private:
     inline bool isNewPlaceHolder(const Mapping &m) const;
     inline Mapping rawMappingAt(int row) const;
-    void addRawMapping(const QString &source, const QString &target);
 
     const QString m_newSourcePlaceHolder;
     const QString m_newTargetPlaceHolder;
@@ -147,7 +148,7 @@ SourcePathMap SourcePathMappingModel::sourcePathMap() const
     for (int r = 0; r < rows; ++r) {
         const Mapping m = mappingAt(r); // Skip placeholders.
         if (!m.first.isEmpty() && !m.second.isEmpty())
-            rc.insert(m.first.toUrlishString(), m.second.toUrlishString());
+            rc.insert(m.first, m.second);
     }
     return rc;
 }
@@ -157,19 +158,19 @@ bool SourcePathMappingModel::isNewPlaceHolder(const Mapping &m) const
 {
     const QChar lessThan('<');
     const QChar greaterThan('>');
-    return m.first.isEmpty() || m.first.pathView().startsWith(lessThan)
+    return m.first.isEmpty() || m.first.startsWith(lessThan)
            || m.first.endsWith(greaterThan)
-           || m.first.toUrlishString() == m_newSourcePlaceHolder
-           || m.second.isEmpty() || m.second.pathView().startsWith(lessThan)
+           || m.first == m_newSourcePlaceHolder
+           || m.second.isEmpty() || m.second.startsWith(lessThan)
            || m.second.endsWith(greaterThan)
-           || m.second.toUrlishString() == m_newTargetPlaceHolder;
+           || m.second == m_newTargetPlaceHolder;
 }
 
 // Return raw, unfixed mapping
 Mapping SourcePathMappingModel::rawMappingAt(int row) const
 {
-    return Mapping(FilePath::fromUserInput(item(row, SourceColumn)->text()),
-                   FilePath::fromUserInput(item(row, TargetColumn)->text()));
+    return Mapping(item(row, SourceColumn)->text(),
+                   item(row, TargetColumn)->text());
 }
 
 // Return mapping, empty if it is the place holder.
@@ -187,7 +188,7 @@ void SourcePathMappingModel::setSourcePathMap(const SourcePathMap &m)
         addMapping(it.key(), it.value());
 }
 
-void SourcePathMappingModel::addRawMapping(const QString &source, const QString &target)
+void SourcePathMappingModel::addMapping(const QString &source, const QString &target)
 {
     QList<QStandardItem *> items;
     auto sourceItem = new QStandardItem(source);
@@ -209,7 +210,7 @@ void SourcePathMappingModel::setTarget(int row, const QString &t)
 {
     QStandardItem *targetItem = item(row, TargetColumn);
     QTC_ASSERT(targetItem, return);
-    targetItem->setText(t.isEmpty() ? m_newTargetPlaceHolder : QDir::toNativeSeparators(t));
+    targetItem->setText(t.isEmpty() ? m_newTargetPlaceHolder : t);
 }
 
 /*!
@@ -313,18 +314,19 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
 
 QString DebuggerSourcePathMappingWidget::editSourceField() const
 {
-    return QDir::cleanPath(m_sourceLineEdit->text().trimmed());
+    return normalizedSourcePathPrefix(m_sourceLineEdit->text());
 }
 
 QString DebuggerSourcePathMappingWidget::editTargetField() const
 {
-    return m_targetChooser->unexpandedFilePath().toUrlishString();
+    return m_targetChooser->unexpandedFilePath().toFSPathString();
 }
 
 void DebuggerSourcePathMappingWidget::setEditFieldMapping(const Mapping &m)
 {
-    m_sourceLineEdit->setText(m.first.toUserOutput());
-    m_targetChooser->setFilePath(m.second);
+    const GuardLocker locker(m_editFieldGuard);
+    m_sourceLineEdit->setText(m.first);
+    m_targetChooser->setFilePath(FilePath::fromUserInput(m.second));
 }
 
 void DebuggerSourcePathMappingWidget::slotCurrentRowChanged
@@ -394,7 +396,7 @@ void DebuggerSourcePathMappingWidget::slotAddQt()
     if (qtSourcesPath.isEmpty())
         return;
     for (const QString &buildPath : qtBuildPaths())
-        m_model->addMapping(buildPath, qtSourcesPath.toUrlishString());
+        m_model->addMapping(buildPath, qtSourcesPath.toFSPathString());
     resizeColumns();
     setCurrentRow(m_model->rowCount() - 1);
     markSettingsDirty();
@@ -411,6 +413,8 @@ void DebuggerSourcePathMappingWidget::slotRemove()
 
 void DebuggerSourcePathMappingWidget::slotEditSourceFieldChanged()
 {
+    if (m_editFieldGuard.isLocked())
+        return;
     const int row = currentRow();
     if (row >= 0) {
         m_model->setSource(row, editSourceField());
@@ -420,11 +424,19 @@ void DebuggerSourcePathMappingWidget::slotEditSourceFieldChanged()
 
 void DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged()
 {
+    if (m_editFieldGuard.isLocked())
+        return;
     const int row = currentRow();
     if (row >= 0) {
         m_model->setTarget(row, editTargetField());
         updateEnabled();
     }
+}
+
+QString normalizedSourcePathPrefix(const QString &input)
+{
+    QString prefix = input.trimmed();
+    return prefix.replace('\\', '/');
 }
 
 SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,

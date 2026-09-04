@@ -44,6 +44,12 @@ SourcePathMap mergePlatformQtPath(const QString &qtSourceLocation,
                                   const QStringList &qtBuildSourceRoots,
                                   const SourcePathMap &in);
 
+/* The source side of a mapping as it is stored and handed to the debugger:
+ * trimmed, and with backslashes turned into slashes. It is not a path on this
+ * machine, but GDB is handed it unquoted in "set substitute-path" and reads a
+ * backslash as an escape. */
+QString normalizedSourcePathPrefix(const QString &input);
+
 /* Merge the run parameters' own mappings over the given ones, expanding
  * macros. User settings win. */
 SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,
