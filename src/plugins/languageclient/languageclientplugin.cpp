@@ -6,6 +6,7 @@
 #include "languageclientoutline.h"
 #include "languageclientsettings.h"
 #include "languageclienttr.h"
+#include "mcptools.h"
 #include "snippet.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -52,6 +53,7 @@ void LanguageClientPlugin::initialize()
     setupLanguageClientProjectPanel();
     setupLanguageClientManager();
     setupLanguageClientOutline();
+    registerMcpTools();
 
 #ifdef WITH_TESTS
     addTestCreator(&createSnippetParsingTest);

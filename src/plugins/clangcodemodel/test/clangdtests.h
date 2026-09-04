@@ -14,6 +14,7 @@ QObject *createClangdTestFollowSymbol();
 QObject *createClangdTestHighlighting();
 QObject *createClangdTestIndirectChanges();
 QObject *createClangdTestLocalReferences();
+QObject *createClangdTestMcpTools();
 QObject *createClangdTestTooltips();
 
 } // ClangCodeModel::Internal

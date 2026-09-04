@@ -13,6 +13,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
+    Depends { name: "McpServerLib" }
 
     files: [
         "callandtypehierarchy.cpp",
@@ -60,6 +61,8 @@ QtcPlugin {
         "locatorfilter.h",
         "lspinspector.cpp",
         "lspinspector.h",
+        "mcptools.cpp",
+        "mcptools.h",
         "mimetypesaspect.cpp",
         "mimetypesaspect.h",
         "progressmanager.cpp",

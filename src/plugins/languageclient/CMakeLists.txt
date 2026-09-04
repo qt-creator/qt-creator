@@ -5,6 +5,7 @@ elseif (MINGW)
 endif()
 
 add_qtc_plugin(LanguageClient
+  DEPENDS McpServerLib
   PUBLIC_DEPENDS LanguageServerProtocol Qt::Core
   PLUGIN_DEPENDS ProjectExplorer Core TextEditor
   SOURCES
@@ -32,6 +33,7 @@ add_qtc_plugin(LanguageClient
     languageclienttr.h
     locatorfilter.cpp locatorfilter.h
     lspinspector.cpp lspinspector.h
+    mcptools.cpp mcptools.h
     mimetypesaspect.cpp mimetypesaspect.h
     progressmanager.cpp progressmanager.h
     semantichighlightsupport.cpp semantichighlightsupport.h

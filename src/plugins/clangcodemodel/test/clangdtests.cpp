@@ -19,6 +19,7 @@
 #include <cppeditor/semantichighlighter.h>
 
 #include <languageclient/languageclientmanager.h>
+#include <languageclient/mcptools.h>
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
@@ -44,11 +45,14 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonObject>
 #include <QPair>
+#include <QPointer>
 #include <QScopedPointer>
 #include <QTest>
 #include <QTimer>
 
+#include <memory>
 #include <tuple>
 
 using namespace CPlusPlus;
@@ -2338,6 +2342,121 @@ void ClangdTestIndirectChanges::test()
     QVERIFY(src->marks().isEmpty());
 }
 
+// The MCP tools the LanguageClient plugin answers through a language server,
+// driven against clangd.
+class ClangdTestMcpTools final : public ClangdTest
+{
+    Q_OBJECT
+
+public:
+    ClangdTestMcpTools()
+    {
+        setProjectFileName("find-usages.pro");
+        setSourceFileNames({"main.cpp"}); // defs.h stays closed: a tool has to open it.
+    }
+
+private slots:
+    void testHover();
+    void testHoverOpensAndClosesFile();
+    void testHoverWithoutServer();
+    void testArgumentErrors();
+};
+
+// Runs one of the LanguageClient MCP tool functions to completion.
+static Result<QJsonObject> runMcpTool(
+    void (*tool)(const QJsonObject &, const LanguageClient::ToolResultHandler &),
+    const QJsonObject &args)
+{
+    struct State
+    {
+        Result<QJsonObject> result = ResultError(QString("The tool did not answer in time."));
+        bool answered = false;
+    };
+    auto state = std::make_shared<State>();
+    QEventLoop loop;
+    const QPointer<QEventLoop> loopGuard(&loop);
+    tool(args, [state, loopGuard](const Result<QJsonObject> &result) {
+        state->result = result;
+        state->answered = true;
+        if (loopGuard)
+            loopGuard->quit();
+    });
+    if (!state->answered) {
+        QTimer::singleShot(timeOutInMs(), &loop, &QEventLoop::quit);
+        loop.exec();
+    }
+    return state->result;
+}
+
+void ClangdTestMcpTools::testHover()
+{
+    // func1 is called at main.cpp:19:5; clangd answers with its declaration.
+    const Result<QJsonObject> result = runMcpTool(
+        &LanguageClient::lspHover,
+        {{"file", filePath("main.cpp").toFSPathString()}, {"line", 19}, {"column", 5}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    const QString contents = result->value("contents").toString();
+    QVERIFY2(contents.contains("func1"), qPrintable(contents));
+    const QStringList formats{"markdown", "plaintext"};
+    QVERIFY(formats.contains(result->value("format").toString()));
+    const QJsonObject range = result->value("range").toObject();
+    QCOMPARE(range.value("line").toInt(), 19);
+    QCOMPARE(range.value("column").toInt(), 5);
+    QCOMPARE(range.value("end_column").toInt(), 10);
+}
+
+void ClangdTestMcpTools::testHoverOpensAndClosesFile()
+{
+    const FilePath header = filePath("defs.h");
+    QVERIFY(!TextDocument::textDocumentForFilePath(header));
+
+    // func1 is declared at defs.h:24:6.
+    const Result<QJsonObject> result = runMcpTool(
+        &LanguageClient::lspHover, {{"file", header.toFSPathString()}, {"line", 24}, {"column", 6}});
+    if (!result)
+        QFAIL(qPrintable(result.error()));
+    QVERIFY(result->value("contents").toString().contains("func1"));
+
+    // The file was opened to ask, and stays open for follow-up questions...
+    QVERIFY(TextDocument::textDocumentForFilePath(header));
+    // ...until the tools let go of it. The document the fixture opened is not theirs.
+    LanguageClient::closeDocumentsOpenedByMcpTools();
+    QVERIFY(!TextDocument::textDocumentForFilePath(header));
+    QCOMPARE(TextDocument::textDocumentForFilePath(filePath("main.cpp")),
+             static_cast<TextDocument *>(document("main.cpp")));
+}
+
+void ClangdTestMcpTools::testHoverWithoutServer()
+{
+    const FilePath notes = filePath("notes.txt");
+    QVERIFY(TestCase::writeFile(notes, "hello\n"));
+    const Result<QJsonObject> result = runMcpTool(
+        &LanguageClient::lspHover, {{"file", notes.toFSPathString()}, {"line", 1}, {"column", 1}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("No language server"), qPrintable(result.error()));
+    QVERIFY(!TextDocument::textDocumentForFilePath(notes)); // Opened to find out, closed again.
+}
+
+void ClangdTestMcpTools::testArgumentErrors()
+{
+    Result<QJsonObject> result = runMcpTool(&LanguageClient::lspHover, {});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("Requires"), qPrintable(result.error()));
+
+    result = runMcpTool(&LanguageClient::lspHover,
+                        {{"file", "/no/such/file.cpp"}, {"line", 1}, {"column", 1}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("does not exist"), qPrintable(result.error()));
+
+    result = runMcpTool(&LanguageClient::lspHover,
+                        {{"file", filePath("main.cpp").toFSPathString()},
+                         {"line", 10000},
+                         {"column", 1}});
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("out of range"), qPrintable(result.error()));
+}
+
 QObject *createClangdTestCompletion()
 {
     return new ClangdTestCompletion;
@@ -2371,6 +2490,11 @@ QObject *createClangdTestIndirectChanges()
 QObject *createClangdTestLocalReferences()
 {
     return new ClangdTestLocalReferences;
+}
+
+QObject *createClangdTestMcpTools()
+{
+    return new ClangdTestMcpTools;
 }
 
 QObject *createClangdTestTooltips()

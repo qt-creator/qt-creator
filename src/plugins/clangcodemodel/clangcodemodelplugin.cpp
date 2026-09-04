@@ -89,6 +89,7 @@ void ClangCodeModelPlugin::initialize()
     addTestCreator(createClangdTestHighlighting);
     addTestCreator(createClangdTestIndirectChanges);
     addTestCreator(createClangdTestLocalReferences);
+    addTestCreator(createClangdTestMcpTools);
     addTestCreator(createClangdTestTooltips);
     addTestCreator(createClangFixItTest);
 #endif
