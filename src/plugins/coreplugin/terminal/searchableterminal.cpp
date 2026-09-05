@@ -3,6 +3,8 @@
 
 #include "searchableterminal.h"
 
+#include <utils/aggregate.h>
+
 #include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QRegularExpression>

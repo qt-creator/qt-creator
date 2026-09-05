@@ -8,7 +8,7 @@
 
 #include <solutions/terminal/terminalview.h>
 
-#include <utils/aggregate.h>
+namespace Utils::Aggregation { class Aggregate; }
 
 namespace Core {
 
