@@ -36,7 +36,6 @@ public:
     Utils::BoolAspect logDiff{this};
     Utils::FilePathAspect repositoryBrowserCmd{this};
     Utils::BoolAspect graphLog{this};
-    Utils::BoolAspect colorLog{this};
     Utils::BoolAspect allBranches{this};
     Utils::BoolAspect firstParent{this};
     Utils::BoolAspect followRenames{this};

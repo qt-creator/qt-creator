@@ -745,10 +745,6 @@ public:
                                                Tr::tr("Show textual graph log."));
         mapSetting(graphButton, &settings().graphLog);
 
-        QAction *colorButton = addToggleButton(QStringList{colorOption},
-                                        Tr::tr("Color"), Tr::tr("Use colors in log."));
-        mapSetting(colorButton, &settings().colorLog);
-
         if (fileRelated) {
             QAction *followButton = addToggleButton(
                         followOption, Tr::tr("Follow"),
@@ -1825,7 +1821,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
     editor->setWorkingDirectory(workingDir);
 
-    QStringList arguments = {"log", decorateOption};
+    QStringList arguments = {"log", decorateOption, colorOption};
     int logCount = settings().logCount();
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
