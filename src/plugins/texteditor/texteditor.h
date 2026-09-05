@@ -220,6 +220,7 @@ public:
     QTextCursor textCursorAt(int position) const;
     Utils::Text::Position lineColumn() const;
     void convertPosition(int pos, int *line, int *column) const;
+    void setCursorPositionIndicatorVisible(bool visible);
     using PlainTextEdit::cursorRect;
     QRect cursorRect(int pos) const;
     void setCursorPosition(int pos);

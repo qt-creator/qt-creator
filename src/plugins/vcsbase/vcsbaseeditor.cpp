@@ -736,6 +736,7 @@ bool VcsBaseDescriptionEditorWidget::isValidRevision(const QString &revision) co
 void VcsBaseEditorWidget::setParameters(const VcsBaseEditorParameters &parameters)
 {
     d->m_parameters = parameters;
+    setCursorPositionIndicatorVisible(parameters.type != LogOutput);
 }
 
 static void regexpFromString(

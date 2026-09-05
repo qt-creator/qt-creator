@@ -3790,6 +3790,11 @@ Text::Position TextEditorWidget::lineColumn() const
     return Utils::Text::Position::fromCursor(textCursor());
 }
 
+void TextEditorWidget::setCursorPositionIndicatorVisible(bool visible)
+{
+    d->m_cursorPositionButton->setVisible(visible);
+}
+
 QRect TextEditorWidget::cursorRect(int pos) const
 {
     QTextCursor tc = textCursor();
