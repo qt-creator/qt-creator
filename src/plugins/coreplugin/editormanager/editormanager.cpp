@@ -3361,7 +3361,8 @@ void EditorManagerPrivate::addNativeDirAndOpenWithActions(
 
         // Open Terminal Here
         addMenuAction(contextMenu, FileUtils::msgTerminalHereAction(), enabled, d, [filePath] {
-            FileUtils::openTerminal(filePath.parentDir(), {});
+            const FilePath dir = filePath.isDir() ? filePath : filePath.parentDir();
+            FileUtils::openTerminal(dir, {});
         });
 
         // Find in This Directory
