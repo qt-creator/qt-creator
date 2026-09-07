@@ -173,6 +173,8 @@ QtcPlugin {
             "secretaspect.h",
             "settingsmode.cpp",
             "settingsmode.h",
+            "settingstransfer.cpp",
+            "settingstransfer.h",
             "sidebar.cpp",
             "sidebar.h",
             "sidebarwidget.cpp",

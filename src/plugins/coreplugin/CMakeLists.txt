@@ -277,6 +277,8 @@ add_qtc_plugin(Core
     sessionview.h
     settingsmode.cpp
     settingsmode.h
+    settingstransfer.cpp
+    settingstransfer.h
     sidebar.cpp
     sidebar.h
     sidebarwidget.cpp

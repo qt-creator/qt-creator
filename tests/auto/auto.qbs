@@ -31,6 +31,7 @@ Project {
         "qtprofiler/qtprofiler.qbs",
         "qttasktree/qttasktree.qbs",
         "sdktool/sdktool.qbs",
+        "settingstransfer/settingstransfer.qbs",
         "solutions/solutions.qbs",
         "texteditor/texteditor.qbs",
         "toolchaincache/toolchaincache.qbs",
