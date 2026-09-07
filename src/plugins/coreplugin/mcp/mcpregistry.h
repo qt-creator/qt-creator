@@ -26,6 +26,17 @@ namespace Core::McpRegistry {
 
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
+// Defs that carry no constraints beyond "an object" alias to QJsonObject; these
+// let such aliases take part in the generated conversions unchanged.
+template<> inline Utils::Result<QJsonObject> fromJson<QJsonObject>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError(QString("Expected JSON object"));
+    return val.toObject();
+}
+
+inline QJsonObject toJson(const QJsonObject &data) { return data; }
+
 template<typename T>
 Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
 {
@@ -52,6 +63,8 @@ struct Icon {
     const std::optional<QString>& mime_type() const { return _mime_type; }
     const std::optional<QStringList>& sizes() const { return _sizes; }
     const std::optional<Theme>& theme() const { return _theme; }
+
+    bool operator==(const Icon &other) const = default;
 };
 
 QString toString(const Icon::Theme &v);
@@ -85,6 +98,8 @@ struct Argument {
     const bool& repeated() const { return _repeated; }
     const std::optional<QString>& default_() const { return _default_; }
     const std::optional<QString>& value() const { return _value; }
+
+    bool operator==(const Argument &other) const = default;
 };
 
 QString toString(const Argument::Type &v);
@@ -107,6 +122,8 @@ struct KeyValueInput {
     const bool& required() const { return _required; }
     const bool& secret() const { return _secret; }
     const std::optional<QString>& default_() const { return _default_; }
+
+    bool operator==(const KeyValueInput &other) const = default;
 };
 
 template<>
@@ -146,6 +163,8 @@ struct Package {
     const std::optional<QList<Argument>>& package_arguments() const { return _package_arguments; }
     const std::optional<QList<KeyValueInput>>& headers() const { return _headers; }
     const std::optional<QList<KeyValueInput>>& env_vars() const { return _env_vars; }
+
+    bool operator==(const Package &other) const = default;
 };
 
 QString toString(const Package::Registry_type &v);
@@ -174,6 +193,8 @@ struct Remote {
     const Type& type() const { return _type; }
     const QString& url() const { return _url; }
     const std::optional<QList<KeyValueInput>>& headers() const { return _headers; }
+
+    bool operator==(const Remote &other) const = default;
 };
 
 QString toString(const Remote::Type &v);
@@ -212,6 +233,8 @@ struct Server {
     const std::optional<QList<Icon>>& icons() const { return _icons; }
     const std::optional<QList<Package>>& packages() const { return _packages; }
     const std::optional<QList<Remote>>& remotes() const { return _remotes; }
+
+    bool operator==(const Server &other) const = default;
 };
 
 QString toString(const Server::Status &v);
@@ -230,6 +253,8 @@ struct McpRegistry {
     const QString& generated_at() const { return _generated_at; }
     const int& count() const { return _count; }
     const QList<Server>& servers() const { return _servers; }
+
+    bool operator==(const McpRegistry &other) const = default;
 };
 
 template<>

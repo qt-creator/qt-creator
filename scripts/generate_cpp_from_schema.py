@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import argparse
+import copy
 import json
 import re
 import sys
@@ -48,15 +49,107 @@ public:
     Patch &operator=(std::nullopt_t) { m_null = true; m_value.reset(); return *this; }
     Patch &operator=(const T &value) { m_null = false; m_value = value; return *this; }
 
+    bool operator==(const Patch &other) const = default;
+
 private:
     bool m_null = false;
     std::optional<T> m_value;
 };
 '''
 
+_RECURSIVE_CLASS = '''
+/**
+ * Optional value stored indirectly, for types that contain themselves.
+ */
+template<typename T>
+class Recursive
+{
+public:
+    Recursive() = default;
+    Recursive(const T &value) : m_value(std::make_unique<T>(value)) {}
+    Recursive(const Recursive &other) { *this = other; }
+    Recursive(Recursive &&other) = default;
+
+    Recursive &operator=(const Recursive &other)
+    {
+        if (this != &other)
+            m_value = other.m_value ? std::make_unique<T>(*other.m_value) : nullptr;
+        return *this;
+    }
+    Recursive &operator=(Recursive &&other) = default;
+    Recursive &operator=(const T &value)
+    {
+        m_value = std::make_unique<T>(value);
+        return *this;
+    }
+
+    bool operator==(const Recursive &other) const
+    {
+        if (!m_value || !other.m_value)
+            return !m_value && !other.m_value;
+        return *m_value == *other.m_value;
+    }
+
+    bool has_value() const { return m_value != nullptr; }
+    explicit operator bool() const { return has_value(); }
+    const T &operator*() const { return *m_value; }
+    const T *operator->() const { return m_value.get(); }
+
+private:
+    std::unique_ptr<T> m_value;
+};
+'''
+
+_INT_JSON_HELPERS = '''
+template<>
+inline Utils::Result<int> fromJson<int>(const QJsonValue &val)
+{
+    if (!val.isDouble())
+        return Utils::ResultError(QString("Expected a number"));
+    return val.toInt();
+}
+
+inline QJsonValue toJsonValue(int value) { return value; }
+'''
+
+# Maps owner type name -> set of property names declared as Recursive<T>
+# because the property type refers back to the owner.
+_recursive_fields: dict = {}
+
+# Set when a namespace of integer constants is used as a list element or union
+# alternative, where the plain int it degrades to needs its own conversions.
+_needs_int_json: bool = False
+
 # Maps variant_type_str -> alias_name for inline union aliases already emitted.
 # Prevents redefinition of fromJson/toJsonValue for equivalent variant types.
 _emitted_variant_sigs: dict = {}
+
+# Maps alias name -> the type it ultimately denotes. Aliases are typedefs, so
+# two variants spelled differently can name the same C++ type and must not
+# both define fromJson.
+_canonical_alias: dict = {}
+
+def _variant_alias_for(signature: str):
+    """The already emitted alias denoting this variant, if any.
+
+    Aliases are typedefs, so a union spelled out in a struct property and a
+    named type alias can be the same C++ type and must share their
+    serializers.
+    """
+    return _emitted_variant_sigs.get(_canonical_signature(signature))
+
+def _register_variant_alias(signature: str, name: str) -> None:
+    _emitted_variant_sigs[_canonical_signature(signature)] = name
+    _canonical_alias[name] = f"std::variant<{_canonical_signature(signature)}>"
+
+def _canonical_signature(signature: str) -> str:
+    """Rewrite a variant signature in terms of the types the aliases denote."""
+    def canonical(member: str) -> str:
+        if member.startswith("QList<") and member.endswith(">"):
+            return f"QList<{canonical(member[len('QList<'):-1])}>"
+        return _canonical_alias.get(member, member)
+
+    return ", ".join(canonical(m.strip()) for m in signature.split(","))
 
 def _relative_to_cwd(arg: str) -> str:
     """`arg` relative to the working directory, if it denotes a path below it."""
@@ -80,6 +173,7 @@ def invocation_comment() -> str:
 def make_header(namespace: str, export_header: str = None) -> str:
     export_include = f'\n#include "{export_header}"\n' if export_header else ''
     co_result_include = '\n#include <utils/co_result.h>' if _cxx20 else ''
+    memory_include = '#include <memory>\n' if _recursive_fields else ''
     return f'''/*
  This file is auto-generated. Do not edit manually.
  Generated with:
@@ -100,10 +194,10 @@ def make_header(namespace: str, export_header: str = None) -> str:
 
 #include <cmath>
 #include <limits>
-#include <variant>
+{memory_include}#include <variant>
 
 namespace {namespace} {{
-{_PATCH_CLASS if _three_state else ''}
+{_PATCH_CLASS if _three_state else ''}{_RECURSIVE_CLASS if _recursive_fields else ''}
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
 // Defs that carry no constraints beyond "an object" alias to QJsonObject; these
@@ -125,7 +219,102 @@ Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
         return result;
     return Utils::ResultError(field + ": " + result.error());
 }}
-'''
+{_INT_JSON_HELPERS if _needs_int_json else ''}'''
+
+def compute_recursive_fields(types: dict) -> dict:
+    """Optional $ref properties whose type refers back to the declaring type.
+
+    Such a member cannot be a ``std::optional<T>``: T is still incomplete
+    where it is declared. They are stored in a ``Recursive<T>`` instead, which
+    holds the value behind a pointer. Only value positions count; a reference
+    below an array or a map is behind a container and stays complete-agnostic.
+
+    A nullable reference (``anyOf`` of a ``$ref`` and ``null``) is an optional
+    value position too, and needs the indirection whether or not the property
+    is required.
+    """
+    def value_refs(spec):
+        if isinstance(spec, dict):
+            if "$ref" in spec:
+                yield ref_type(spec["$ref"])
+                return
+            for key, val in spec.items():
+                if key in ("items", "additionalProperties", "description"):
+                    continue
+                yield from value_refs(val)
+        elif isinstance(spec, list):
+            for item in spec:
+                yield from value_refs(item)
+
+    graph = {name: {r for r in value_refs(spec) if r in types}
+             for name, spec in types.items()}
+
+    def reaches(start, target):
+        seen, pending = set(), [start]
+        while pending:
+            current = pending.pop()
+            if current == target:
+                return True
+            if current in seen:
+                continue
+            seen.add(current)
+            pending.extend(graph.get(current, ()))
+        return False
+
+    recursive = {}
+    for name, spec in types.items():
+        required = spec.get("required", [])
+        for prop, prop_spec in spec.get("properties", {}).items():
+            ref = _extract_ref(prop_spec)
+            if ref:
+                # A plain reference is only optional when not required; a
+                # required one is stored by value and cannot be self-referential.
+                if prop in required:
+                    continue
+                target = ref_type(ref)
+            else:
+                target = _extract_nullable_ref(prop_spec)
+                if not target:
+                    continue
+            if reaches(target, name):
+                recursive.setdefault(name, set()).add(prop)
+    return recursive
+
+def _is_recursive_field(owner, prop) -> bool:
+    """Whether a property is stored as ``Recursive<T>`` in its owner."""
+    return prop in _recursive_fields.get(owner, ())
+
+def uses_int_constant_namespace_indirectly(types: dict) -> bool:
+    """Whether a namespace of integer constants appears in a list or a union.
+
+    In those positions the type name is not usable and degrades to plain
+    ``int``, which then needs the fromJson/toJsonValue overloads the named
+    types would otherwise provide.
+    """
+    def indirect_refs(spec):
+        if isinstance(spec, dict):
+            for key, val in spec.items():
+                if key == "items":
+                    ref = _extract_ref(val) if isinstance(val, dict) else None
+                    if ref:
+                        yield ref_type(ref)
+                    yield from indirect_refs(val)
+                elif key in ("anyOf", "oneOf") and isinstance(val, list):
+                    for item in val:
+                        if not isinstance(item, dict):
+                            continue
+                        ref = _extract_ref(item)
+                        if ref:
+                            yield ref_type(ref)
+                        yield from indirect_refs(item)
+                elif key != "description":
+                    yield from indirect_refs(val)
+        elif isinstance(spec, list):
+            for item in spec:
+                yield from indirect_refs(item)
+
+    return any(is_integer_const_namespace(name, types)
+               for spec in types.values() for name in indirect_refs(spec))
 
 def make_footer(namespace: str) -> str:
     return f'''
@@ -418,6 +607,11 @@ def is_integer_const_namespace(type_name, types):
         return True
     return False
 
+def ref_cpp_type(ref, types):
+    """C++ type for a $ref, mapping constant namespaces to their underlying int."""
+    name = ref_type(ref)
+    return "int" if is_integer_const_namespace(name, types) else name
+
 def is_simple_type_alias(type_name, types):
     """Check if a type is a simple primitive alias (e.g. using Foo = QString).
     These types convert directly to QJsonValue without needing toJson()."""
@@ -576,6 +770,10 @@ def find_shared_fields(variant_type_names, types):
     Returns a list of (field_name, cpp_return_type) in sorted order.
     """
     if not variant_type_names:
+        return []
+    # Alternatives that are not generated structs have no fields to share.
+    if not all("properties" in types.get(n, {}) or "allOf" in types.get(n, {})
+               for n in variant_type_names):
         return []
 
     def field_info(type_name, field_name):
@@ -981,13 +1179,126 @@ def _integral_only_guard(name):
         f"        }}",
     ]
 
-def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None):
+def _name_array_of_union_items(spec, types, emit):
+    """Give a name to array alternatives whose element type is itself a union.
+
+    ``(Command | CodeAction)[] | null`` has no name for the element type in the
+    schema, so the element would degrade to QJsonValue. The element union
+    becomes its own alias, named after its members so that two schemas
+    describing the same union share it, and the item spec is rewritten to
+    reference that alias. Returns (rewritten_spec, extra_code_lines).
+    """
+    items = spec.get("anyOf", spec.get("oneOf"))
+    if not items:
+        return spec, []
+    extra = []
+    rewritten = None
+    for index, item in enumerate(items):
+        if item.get("type") != "array":
+            continue
+        element = item.get("items", {})
+        element_items = element.get("anyOf", element.get("oneOf", []))
+        if not element_items:
+            continue
+        refs = [ref_cpp_type(r, types or {}) for e in element_items if (r := _extract_ref(e))]
+        if not refs or len(refs) != len(element_items):
+            continue
+        signature = ", ".join(refs)
+        alias = "Or".join(refs)
+        if emit and not _variant_alias_for(signature):
+            extra.extend(_build_inline_union_code(alias, refs, types))
+            _register_variant_alias(signature, alias)
+        if rewritten is None:
+            rewritten = copy.deepcopy(spec)
+        key = "anyOf" if "anyOf" in spec else "oneOf"
+        rewritten[key][index]["items"] = {"$ref": f"#/definitions/{alias}"}
+    return (rewritten or spec), extra
+
+def _union_ref_branches(name, ref_names, types):
+    """fromJson branches trying the $ref members that are unions themselves, so
+    that a value the object dispatch cannot handle still finds its alternative."""
+    lines = []
+    for ref_name in ref_names:
+        if not is_union_type_name(ref_name, types or {}):
+            continue
+        lines.append(f"    {{")
+        lines.append(f"        auto result = fromJson<{ref_name}>(val);")
+        lines.append(f"        if (result) co_return {name}(*result);")
+        lines.append(f"    }}")
+    return lines
+
+def _plain_item_branches(name, plain_items):
+    """fromJson branches for the non-$ref members of a union, which the $ref
+    dispatch below cannot recognise."""
+    lines = []
+    for item in plain_items:
+        json_type = item["type"]
+        if json_type == "array":
+            items_ref = _extract_ref(item.get("items", {}))
+            if items_ref:
+                elem_type = ref_type(items_ref)
+                lines.append(f"    if (val.isArray()) {{")
+                lines.append(f"        bool ok = true;")
+                lines.append(f"        QList<{elem_type}> list;")
+                lines.append(f"        for (const auto &elem : val.toArray()) {{")
+                lines.append(f"            auto r = fromJson<{elem_type}>(elem);")
+                lines.append(f"            if (!r) {{ ok = false; break; }}")
+                lines.append(f"            list.append(*r);")
+                lines.append(f"        }}")
+                lines.append(f"        if (ok) co_return {name}(std::move(list));")
+                lines.append(f"    }}")
+                continue
+            item_t = item.get("items", {}).get("type")
+            elem_cpp = cpp_type(item_t) if item_t else None
+            elem_expr = _json_extract_expr(elem_cpp, "elem") if elem_cpp else None
+            if elem_expr:
+                lines.append(f"    if (val.isArray()) {{")
+                lines.append(f"        QList<{elem_cpp}> list;")
+                lines.append(f"        for (const auto &elem : val.toArray())")
+                lines.append(f"            list.append({elem_expr});")
+                lines.append(f"        co_return {name}(std::move(list));")
+                lines.append(f"    }}")
+            else:
+                lines.append(f"    if (val.isArray())")
+                lines.append(f"        co_return {name}(val.toArray());")
+        elif json_type == "string":
+            lines.append(f"    if (val.isString())")
+            lines.append(f"        co_return {name}(val.toString());")
+        elif json_type == "integer":
+            lines.append(f"    if (val.isDouble())")
+            lines.append(f"        co_return {name}(val.toInt());")
+        elif json_type == "number":
+            lines.append(f"    if (val.isDouble())")
+            lines.append(f"        co_return {name}(val.toDouble());")
+        elif json_type == "boolean":
+            lines.append(f"    if (val.isBool())")
+            lines.append(f"        co_return {name}(val.toBool());")
+        elif json_type == "null":
+            lines.append(f"    if (val.isNull())")
+            lines.append(f"        co_return {name}(std::monostate{{}});")
+    return lines
+
+def _not_object_guard(name, nested_union_branches):
+    """Emit the guard rejecting non-object input of a union of objects.
+
+    The non-object alternatives are tried inside the guard, so it only needs a
+    block when there are any."""
+    error = f'        co_return Utils::ResultError("Invalid {name}: expected object");'
+    if not nested_union_branches:
+        return ["    if (!val.isObject())", error]
+    return (["    if (!val.isObject()) {"]
+            + [f"    {line}" for line in nested_union_branches]
+            + [error, "    }"])
+
+def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None,
+                emit_item_unions=True):
     """Generate code for union types (std::variant)
     skip_to_json: if True, skip generating toJsonValue function (for duplicate signatures)
     skip_from_json: if True, skip generating fromJson specialization (for duplicate variant signatures)
     """
+    spec, item_union_lines = _name_array_of_union_items(spec, types, emit_item_unions)
     prefix = doc_comment(spec.get('description', ''))
-    lines = []
+    lines = list(item_union_lines)
     variant_types = []
     
     # Handle type: ["string", "integer"] pattern
@@ -1000,7 +1311,7 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
         for item in spec.get("anyOf", spec.get("oneOf", [])):
             ref = _extract_ref(item)
             if ref:
-                variant_types.append(ref_type(ref))
+                variant_types.append(ref_cpp_type(ref, types or {}))
             elif "type" in item:
                 json_type = item["type"]
                 if json_type == "array" and "items" in item:
@@ -1065,7 +1376,7 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
     # For anyOf/oneOf - dispatch on const field if possible, else try each
     elif "anyOf" in spec or "oneOf" in spec:
         items = spec.get("anyOf", spec.get("oneOf", []))
-        ref_names = [ref_type(r) for item in items if (r := _extract_ref(item))]
+        ref_names = [ref_cpp_type(r, types or {}) for item in items if (r := _extract_ref(item))]
         # Collect plain-type items (non-$ref items with a "type" field)
         plain_items = [item for item in items if not _extract_ref(item) and "type" in item]
         # Open-union catch-all ({"title": "other", "not": {...}}), matching the
@@ -1135,10 +1446,13 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                             fj.append(f"        co_return {name}(val.toArray());")
 
         elif ref_names:
+            # A union of objects can still have array or scalar members; those
+            # never match the object dispatch below, so they are tried first.
+            fj.extend(_plain_item_branches(name, plain_items))
+            nested_union_branches = _union_ref_branches(name, ref_names, types)
             dispatch_field, dispatch_map = find_dispatch_field(ref_names, types) if types else (None, None)
             if dispatch_field:
-                fj.append(f"    if (!val.isObject())")
-                fj.append(f'        co_return Utils::ResultError("Invalid {name}: expected object");')
+                fj.extend(_not_object_guard(name, nested_union_branches))
                 fj.append(f"    const QString dispatchValue = val.toObject().value(\"{dispatch_field}\").toString();")
                 first = True
                 for ref_name, const_val in dispatch_map.items():
@@ -1187,8 +1501,8 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                 lines.append("        return {};")
                 lines.append("    }, val);")
                 lines.append("}")
-                shared_fields = [] if has_open_union_fallback \
-                    else find_shared_fields(ref_names, types)
+                shared_fields = [] if has_open_union_fallback or skip_to_json \
+                    or len(ref_names) != len(items) else find_shared_fields(ref_names, types)
                 for field, ret_type in shared_fields:
                     lines.append("")
                     if _emit_comments:
@@ -1201,8 +1515,7 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                 # Try presence-based dispatch on unique required fields
                 presence_map = find_presence_dispatch(ref_names, types) if types else {}
                 if presence_map:
-                    fj.append(f"    if (!val.isObject())")
-                    fj.append(f'        co_return Utils::ResultError("Invalid {name}: expected object");')
+                    fj.extend(_not_object_guard(name, nested_union_branches))
                     fj.append(f"    const QJsonObject obj = val.toObject();")
                     # Emit a branch for each type that has a unique field
                     for ref_name in ref_names:
@@ -1218,6 +1531,10 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                         fj.append(f"        if (result) co_return {name}(*result);")
                         fj.append(f"    }}")
                 else:
+                    if nested_union_branches:
+                        fj.append(f"    if (!val.isObject()) {{")
+                        fj.extend(f"    {line}" for line in nested_union_branches)
+                        fj.append(f"    }}")
                     for ref_name in ref_names:
                         fj.append(f"    if (val.isObject()) {{")
                         fj.append(f"        auto result = fromJson<{ref_name}>(val);")
@@ -1235,9 +1552,11 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
     # Emit shared-field getters for presence/try-each unions too
     if "anyOf" in spec or "oneOf" in spec:
         items = spec.get("anyOf", spec.get("oneOf", []))
-        ref_names = [ref_type(r) for item in items if (r := _extract_ref(item))]
-        # Only for pure $ref unions (not already handled by the const-dispatch branch above)
-        if ref_names and types and "QJsonObject" not in variant_types:
+        ref_names = [ref_cpp_type(r, types or {}) for item in items if (r := _extract_ref(item))]
+        # Only for pure $ref unions (not already handled by the const-dispatch branch above).
+        # Aliases of an already emitted variant share its accessors.
+        if ref_names and types and not skip_to_json and len(ref_names) == len(items) \
+                and "QJsonObject" not in variant_types:
             _, had_dispatch = find_dispatch_field(ref_names, types)
             if not had_dispatch:
                 for field, ret_type in find_shared_fields(ref_names, types):
@@ -1259,7 +1578,9 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
             if all(not _extract_ref(item) and "type" in item for item in items):
                 is_primitive_union = True
 
-        if not is_primitive_union:
+        if not is_primitive_union and _variant_needs_typed_visitor(variant_types):
+            lines.extend(_typed_toJsonValue_lines(name, variant_types, types)[1:-1])
+        elif not is_primitive_union:
             # For object-ref unions, generate toJson(->QJsonObject) first,
             # then toJsonValue delegates to it.
             lines.append(f"inline QJsonObject toJson(const {name} &val) {{")
@@ -1293,7 +1614,13 @@ def parse_union(name, spec, skip_to_json=False, skip_from_json=False, types=None
                 for vt in variant_types:
                     if vt.startswith("QList<"):
                         elem_type = vt[len("QList<"):-1]
-                        elem_fn = "toJson" if needs_to_json(elem_type, types) else ""
+                        if not needs_to_json(elem_type, types or {}):
+                            elem_fn = ""
+                        elif is_enum_type(elem_type, types or {}) \
+                                or is_union_type_name(elem_type, types or {}):
+                            elem_fn = "toJsonValue"
+                        else:
+                            elem_fn = "toJson"
                         lines.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
                         lines.append(f"            QJsonArray arr;")
                         lines.append(f"            for (const auto &elem : v)")
@@ -1312,7 +1639,8 @@ def is_union_type_name(type_name, types):
     """Check if a type name refers to a union type"""
     if type_name in types:
         return is_union_type(types[type_name])
-    return False
+    # Aliases the generator itself introduced for inline unions.
+    return type_name in _emitted_variant_sigs.values()
 
 def escape_keyword(name):
     """Escape C++ keywords by appending underscore"""
@@ -1325,7 +1653,14 @@ def escape_keyword(name):
                     "double", "signed", "unsigned", "bool", "true", "false",
                     "if", "else", "for", "while", "do", "switch", "case",
                     "break", "continue", "return", "goto", "try", "catch",
-                    "throw", "sizeof", "alignof", "decltype", "typeid"}
+                    "throw", "sizeof", "alignof", "alignas", "decltype", "typeid",
+                    "export", "union", "explicit", "mutable",
+                    "nullptr", "noexcept", "constexpr", "consteval", "constinit",
+                    "concept", "requires", "thread_local", "static_assert", "asm",
+                    "const_cast", "static_cast", "dynamic_cast", "reinterpret_cast",
+                    "co_await", "co_return", "co_yield", "wchar_t", "char8_t",
+                    "char16_t", "char32_t", "and", "or", "not", "xor", "compl",
+                    "bitand", "bitor", "and_eq", "or_eq", "not_eq", "xor_eq"}
     return f"{name}_" if name in cpp_keywords else name
 
 def sanitize_identifier(value):
@@ -1418,6 +1753,8 @@ def is_typed_map(spec):
         return None
     if spec.get("properties"):
         return None
+    if t == "array" and (items_ref := _extract_ref(add_props.get("items", {}))):
+        return list_type(ref_type(items_ref))
     return cpp_type(t)
 
 def is_open_map(spec):
@@ -1450,6 +1787,13 @@ def _json_extract_expr(cpp_t, val_expr):
     }
     return _map.get(cpp_t)
 
+def array_item_cpp_type(spec):
+    """The element type of a plain array, any JSON value when the items are unconstrained."""
+    items = spec.get("items", {})
+    if is_untyped_any(items):
+        return "QJsonValue"
+    return cpp_type(items.get("type", "string"))
+
 def is_untyped_any(spec):
     """Property with no type/$ref/composition constraints → any JSON value (QJsonValue)."""
     if not isinstance(spec, dict):
@@ -1477,6 +1821,64 @@ def _toJsonValue_visit_lines(alias):
         "}",
         "",
     ]
+
+_SCALAR_VARIANT_TYPES = {"QString", "int", "double", "bool", "std::monostate",
+                         "QJsonArray", "QStringList"}
+
+def _is_anonymous_object(spec):
+    """Whether spec is an object literal without properties, carrying no schema."""
+    return (spec.get("type") == "object" and not spec.get("properties")
+            and not spec.get("additionalProperties") and "$ref" not in spec)
+
+def _variant_needs_typed_visitor(variant_types):
+    """Whether the alternatives differ enough to need a per-type visitor."""
+    return not all(vt not in _SCALAR_VARIANT_TYPES and not vt.startswith("QList<")
+                   for vt in variant_types)
+
+def _typed_toJsonValue_lines(alias, variant_types, types):
+    """toJsonValue(const alias&) dispatching on each alternative in turn.
+
+    Needed where the alternatives do not all serialize the same way: a list
+    becomes an array, a scalar its own JSON value, a struct an object.
+    """
+    def element_call(elem_type, expr):
+        if not needs_to_json(elem_type, types or {}):
+            return expr
+        fn = "toJsonValue" if is_enum_type(elem_type, types or {}) \
+            or is_union_type_name(elem_type, types or {}) else "toJson"
+        return f"{fn}({expr})"
+
+    lines = ["", f"inline QJsonValue toJsonValue(const {alias} &val) {{",
+             "    return std::visit([](const auto &v) -> QJsonValue {",
+             "        using T = std::decay_t<decltype(v)>;"]
+    for vt in variant_types:
+        if vt == "std::monostate":
+            lines.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
+            lines.append("            return QJsonValue(QJsonValue::Null);")
+            lines.append("        } else")
+        elif vt.startswith("QList<") or vt == "QStringList":
+            elem_type = "QString" if vt == "QStringList" else vt[len("QList<"):-1]
+            lines.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
+            lines.append("            QJsonArray arr;")
+            lines.append("            for (const auto &elem : v)")
+            lines.append(f"                arr.append({element_call(elem_type, 'elem')});")
+            lines.append("            return arr;")
+            lines.append("        } else")
+        elif vt == "QJsonObject":
+            lines.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
+            lines.append("            return v;")
+            lines.append("        } else")
+        elif vt not in _SCALAR_VARIANT_TYPES:
+            lines.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
+            lines.append(f"            return {element_call(vt, 'v')};")
+            lines.append("        } else")
+    lines.append("        {")
+    lines.append("            return QVariant::fromValue(v).toJsonValue();")
+    lines.append("        }")
+    lines.append("    }, val);")
+    lines.append("}")
+    lines.append("")
+    return lines
 
 def _map_anyof_info(spec):
     """Detect a map property whose additionalProperties is an anyOf union type.
@@ -1603,6 +2005,47 @@ def _build_map_value_variant_code(alias_name, variant_types):
     return lines
 
 
+_PRIMITIVE_JSON_TYPES = {"string", "integer", "number", "boolean"}
+
+# Primitives that may take part in a union with named types.
+_PRIMITIVE_UNION_JSON_TYPES = _PRIMITIVE_JSON_TYPES | {"null"}
+
+def _nullable_primitive_of(spec):
+    """The primitive type of an `anyOf: [{type: T}, {type: "null"}]` spec."""
+    if not isinstance(spec, dict):
+        return None
+    items = spec.get("anyOf", spec.get("oneOf"))
+    if not isinstance(items, list) or len(items) != 2:
+        return None
+    item_types = [i.get("type") for i in items
+                  if isinstance(i, dict) and set(i) == {"type"}]
+    if len(item_types) != 2 or "null" not in item_types:
+        return None
+    base = next(t for t in item_types if t != "null")
+    return base if base in _PRIMITIVE_JSON_TYPES else None
+
+def normalize_nullable_primitives(obj):
+    """Rewrite nullable primitive properties into the `type: [T, "null"]` form.
+
+    A schema is free to spell a nullable scalar as a union of the scalar and
+    null. As a union it has no C++ type to name and would degrade to a
+    QString; as a nullable scalar it becomes std::optional<T>.
+    """
+    if isinstance(obj, dict):
+        properties = obj.get("properties")
+        if isinstance(properties, dict):
+            for spec in properties.values():
+                base = _nullable_primitive_of(spec)
+                if base:
+                    spec.pop("anyOf", None)
+                    spec.pop("oneOf", None)
+                    spec["type"] = [base, "null"]
+        for value in obj.values():
+            normalize_nullable_primitives(value)
+    elif isinstance(obj, list):
+        for item in obj:
+            normalize_nullable_primitives(item)
+
 def _nullable_type(spec):
     """Handle type: [T, "null"] (nullable scalar) in JSON Schema.
 
@@ -1630,9 +2073,15 @@ def _nullable_ref_array_type(spec):
     items_ref = _extract_ref(spec.get("items", {}))
     return ref_type(items_ref) if items_ref else None
 
-def _is_patch_field(spec, is_optional):
-    """True if an optional nullable field should be modeled as Patch<T>."""
+def _is_patch_field(spec, is_optional, owner=None, prop=None):
+    """True if an optional nullable field should be modeled as Patch<T>.
+
+    A recursive field is stored as ``Recursive<T>``, which cannot hold the
+    three states: for it null and absent both mean "no value".
+    """
     if not _three_state or not is_optional:
+        return False
+    if owner is not None and _is_recursive_field(owner, prop):
         return False
     if _nullable_type(spec)[1]:
         return True
@@ -1714,7 +2163,7 @@ def _emit_toJson(name, props, types, required, lines, has_additional_props,
                 if prop in required:
                     post_lines.append(f"    else")
                     post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
-                elif _is_patch_field(spec, is_optional):
+                elif _is_patch_field(spec, is_optional, name, prop):
                     post_lines.append(f"    else if (data._{sanitize_identifier(prop)}.isNull())")
                     post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
             else:
@@ -1731,14 +2180,15 @@ def _emit_toJson(name, props, types, required, lines, has_additional_props,
                 if prop in required:
                     post_lines.append(f"    else")
                     post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
-                elif _is_patch_field(spec, is_optional):
+                elif _is_patch_field(spec, is_optional, name, prop):
                     post_lines.append(f"    else if (data._{sanitize_identifier(prop)}.isNull())")
                     post_lines.append(f"        obj.insert(\"{prop}\", QJsonValue::Null);")
         elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
             item_type = ref_type(_extract_ref(spec.get("items", {})))
             is_enum = is_enum_type(item_type, types)
             is_union = is_union_type_name(item_type, types)
-            if is_simple_type_alias(item_type, types):
+            if is_simple_type_alias(item_type, types) \
+                    or is_integer_const_namespace(item_type, types):
                 arr_fn = ""  # plain QJsonValue-convertible alias
             else:
                 arr_fn = "toJsonValue" if (is_enum or is_union) else "toJson"
@@ -1836,15 +2286,31 @@ def _emit_toJson(name, props, types, required, lines, has_additional_props,
                 post_lines.append(f"    obj.insert(\"{prop}\", map_{prop_name});")
         elif is_typed_map(spec) is not None:
             val_type = is_typed_map(spec)
-            if is_optional:
+            deref = "->" if is_optional else "."
+            if val_type.startswith("QList<"):
+                item_fn = "toJsonValue" if is_enum_type(val_type[6:-1], types) else "toJson"
+                indent = "    " if is_optional else ""
+                if is_optional:
+                    post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value()) {{")
+                post_lines.append(f"{indent}    QJsonObject map_{prop_name};")
+                post_lines.append(f"{indent}    for (auto it = data._{sanitize_identifier(prop)}{deref}constBegin(); it != data._{sanitize_identifier(prop)}{deref}constEnd(); ++it) {{")
+                post_lines.append(f"{indent}        QJsonArray arr_{prop_name};")
+                post_lines.append(f"{indent}        for (const auto &v : it.value()) arr_{prop_name}.append({item_fn}(v));")
+                post_lines.append(f"{indent}        map_{prop_name}.insert(it.key(), arr_{prop_name});")
+                post_lines.append(f"{indent}    }}")
+                post_lines.append(f"{indent}    obj.insert(\"{prop}\", map_{prop_name});")
+                if is_optional:
+                    post_lines.append(f"    }}")
+            elif is_optional:
                 post_lines.append(f"    if (data._{sanitize_identifier(prop)}.has_value()) {{")
                 post_lines.append(f"        QJsonObject map_{prop_name};")
                 if val_type in ("QString", "QJsonObject", "int", "double", "bool"):
                     post_lines.append(f"        for (auto it = data._{sanitize_identifier(prop)}->constBegin(); it != data._{sanitize_identifier(prop)}->constEnd(); ++it)")
                     post_lines.append(f"            map_{prop_name}.insert(it.key(), QJsonValue(it.value()));")
                 else:
+                    map_fn = "toJsonValue" if is_enum_type(val_type, types)                         or is_union_type_name(val_type, types) else "toJson"
                     post_lines.append(f"        for (auto it = data._{sanitize_identifier(prop)}->constBegin(); it != data._{sanitize_identifier(prop)}->constEnd(); ++it)")
-                    post_lines.append(f"            map_{prop_name}.insert(it.key(), toJsonValue(it.value()));")
+                    post_lines.append(f"            map_{prop_name}.insert(it.key(), {map_fn}(it.value()));")
                 post_lines.append(f"        obj.insert(\"{prop}\", map_{prop_name});")
                 post_lines.append(f"    }}")
             else:
@@ -1853,8 +2319,9 @@ def _emit_toJson(name, props, types, required, lines, has_additional_props,
                     post_lines.append(f"    for (auto it = data._{sanitize_identifier(prop)}.constBegin(); it != data._{sanitize_identifier(prop)}.constEnd(); ++it)")
                     post_lines.append(f"        map_{prop_name}.insert(it.key(), QJsonValue(it.value()));")
                 else:
+                    map_fn = "toJsonValue" if is_enum_type(val_type, types)                         or is_union_type_name(val_type, types) else "toJson"
                     post_lines.append(f"    for (auto it = data._{sanitize_identifier(prop)}.constBegin(); it != data._{sanitize_identifier(prop)}.constEnd(); ++it)")
-                    post_lines.append(f"        map_{prop_name}.insert(it.key(), toJsonValue(it.value()));")
+                    post_lines.append(f"        map_{prop_name}.insert(it.key(), {map_fn}(it.value()));")
                 post_lines.append(f"    obj.insert(\"{prop}\", map_{prop_name});")
         elif is_const_string(spec):
             const_value = spec["const"]
@@ -1960,27 +2427,37 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         any_of = items.get("anyOf", [])
         if not any_of:
             return []
-        names = [ref_type(r) for item in any_of if (r := _extract_ref(item))]
+        names = [ref_cpp_type(r, types) for item in any_of if (r := _extract_ref(item))]
         return names if len(names) == len(any_of) else []
 
     def field_anyof_ref_names(spec):
-        """Return ref type name list if spec is a non-array field with anyOf/oneOf containing
-        only $refs or arrays-of-$refs.  Array items are returned as QList<RefType>."""
+        """Return the C++ type list if spec is a non-array field with anyOf/oneOf.
+
+        Members are $refs, arrays of $refs (as QList<RefType>) or primitives, so
+        that a union of a flag and an options object keeps both alternatives.
+        """
         if spec.get("type") == "array":
             return []
         any_of = spec.get("anyOf", spec.get("oneOf", []))
         if not any_of:
             return []
+        # A nullable reference is an optional field, not a variant.
+        if _extract_nullable_ref(spec):
+            return []
         names = []
         for item in any_of:
             ref = _extract_ref(item)
             if ref:
-                names.append(ref_type(ref))
+                names.append(ref_cpp_type(ref, types))
             elif item.get("type") == "array" and "$ref" in item.get("items", {}):
                 names.append(list_type(ref_type(item["items"]["$ref"])))
+            elif set(item) == {"type"} and item["type"] in _PRIMITIVE_UNION_JSON_TYPES:
+                names.append(cpp_type(item["type"]))
+            elif _is_anonymous_object(item):
+                names.append("QJsonObject")
             else:
                 return []  # unrecognised item shape — bail out
-        return names
+        return names if len(set(names)) > 1 else []
 
     # Recursively generate sub-structs for inline nested objects.
     sub_struct_blocks = []   # code strings to prepend
@@ -2084,37 +2561,37 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             ref_names = array_items_anyof_ref_names(spec)
             if ref_names:
                 variant_str = ", ".join(ref_names)
-                if variant_str in _emitted_variant_sigs:
+                if existing := _variant_alias_for(variant_str):
                     # Reuse the already-emitted alias to avoid fromJson redefinition
-                    union_alias = _emitted_variant_sigs[variant_str]
+                    union_alias = existing
                 else:
                     union_alias = name + prop[0].upper() + prop[1:] + "Item"
                     sub_struct_blocks.append("\n".join(_build_inline_union_code(union_alias, ref_names, types)))
-                    _emitted_variant_sigs[variant_str] = union_alias
+                    _register_variant_alias(variant_str, union_alias)
                 array_item_union_names[prop] = union_alias
             else:
                 fref_names = field_anyof_ref_names(spec)
                 if fref_names:
                     variant_str = ", ".join(fref_names)
-                    if variant_str in _emitted_variant_sigs:
+                    if existing := _variant_alias_for(variant_str):
                         # Reuse the already-emitted alias to avoid fromJson redefinition
-                        union_alias = _emitted_variant_sigs[variant_str]
+                        union_alias = existing
                     else:
                         union_alias = name + prop[0].upper() + prop[1:]
                         sub_struct_blocks.append("\n".join(_build_inline_union_code(union_alias, fref_names, types)))
-                        _emitted_variant_sigs[variant_str] = union_alias
+                        _register_variant_alias(variant_str, union_alias)
                     field_union_names[prop] = union_alias
                 elif _map_anyof_info(spec):
                     # Map with anyOf-typed additionalProperties values
                     variant_types, val_alias = _map_anyof_info(spec)
                     val_alias = name + prop[0].upper() + prop[1:] + "Value"
                     variant_str = ", ".join(variant_types)
-                    if variant_str not in _emitted_variant_sigs:
+                    if existing := _variant_alias_for(variant_str):
+                        val_alias = existing
+                    else:
                         block = _build_map_value_variant_code(val_alias, variant_types)
                         sub_struct_blocks.append("\n".join(block))
-                        _emitted_variant_sigs[variant_str] = val_alias
-                    else:
-                        val_alias = _emitted_variant_sigs[variant_str]
+                        _register_variant_alias(variant_str, val_alias)
                     full_map_type = f"QMap<QString, {val_alias}>"
                     map_value_union_names[prop] = (val_alias, full_map_type)
 
@@ -2152,7 +2629,10 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 t = "int"  # namespace of int constants, not a C++ type
             else:
                 t = nested_short_names.get(t, t)  # use short name if nested
-            decl_type = f"std::optional<{t}>" if is_optional else t
+            if _is_recursive_field(name, prop):
+                decl_type = f"Recursive<{t}>"
+            else:
+                decl_type = f"std::optional<{t}>" if is_optional else t
             lines.extend(pre_lines)
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         # Handle nullable $ref (anyOf with $ref + null)
@@ -2162,7 +2642,9 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 t = "int"
             else:
                 t = nested_short_names.get(t, t)
-            if _is_patch_field(spec, is_optional):
+            if _is_recursive_field(name, prop):
+                decl_type = f"Recursive<{t}>"
+            elif _is_patch_field(spec, is_optional, name, prop):
                 decl_type = f"Patch<{t}>"
             else:
                 decl_type = f"std::optional<{t}>"  # always optional (nullable)
@@ -2170,7 +2652,10 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
             item_type = ref_type(_extract_ref(spec.get("items", {})))
-            item_type = nested_short_names.get(item_type, item_type)  # use short name if nested
+            if is_integer_const_namespace(item_type, types):
+                item_type = "int"  # namespace of int constants, not a C++ type
+            else:
+                item_type = nested_short_names.get(item_type, item_type)  # short name if nested
             decl_type = list_type(item_type, is_optional)
             lines.extend(pre_lines)
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
@@ -2202,7 +2687,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             lines.extend(pre_lines)
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif spec.get("type") == "array":
-            item_type = cpp_type(spec["items"].get("type", "string"))
+            item_type = array_item_cpp_type(spec)
             decl_type = list_type(item_type, is_optional)
             lines.extend(pre_lines)
             lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
@@ -2281,7 +2766,10 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 inner_type = nested_short_names.get(inner_type, inner_type)
         elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
             list_item_type = ref_type(_extract_ref(spec.get("items", {})))
-            list_item_type = nested_short_names.get(list_item_type, list_item_type)  # use short name if nested
+            if is_integer_const_namespace(list_item_type, types):
+                list_item_type = "int"
+            else:
+                list_item_type = nested_short_names.get(list_item_type, list_item_type)
             inner_type = list_type(list_item_type)
         elif _three_state and _nullable_ref_array_type(spec):
             item_type = _nullable_ref_array_type(spec)
@@ -2297,7 +2785,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         elif prop in map_value_union_names:
             _, inner_type = map_value_union_names[prop]
         elif spec.get("type") == "array":
-            list_item_type = cpp_type(spec["items"].get("type", "string"))
+            list_item_type = array_item_cpp_type(spec)
             inner_type = list_type(list_item_type)
         elif is_open_map(spec):
             inner_type = "QMap<QString, QJsonValue>"
@@ -2311,14 +2799,16 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             inner_type = cpp_type(base_t if base_t else spec.get("type", "string"))
             if is_nullable and not is_optional:
                 inner_type = f"std::optional<{inner_type}>"
-        if _is_patch_field(spec, is_optional):
+        if _is_recursive_field(name, prop):
+            setter_type = inner_type
+        elif _is_patch_field(spec, is_optional, name, prop):
             setter_type = f"Patch<{inner_type}>"
         elif is_optional:
             setter_type = f"std::optional<{inner_type}>"
         else:
             setter_type = inner_type
         lines.append(f"    {name}& {prop_name}({_param_type(setter_type)} v) {{ _{sanitize_identifier(prop)} = v; return *this; }}")
-        if _is_patch_field(spec, is_optional):
+        if _is_patch_field(spec, is_optional, name, prop):
             lines.append(f"    {name}& {prop_name}({_param_type(inner_type)} v) {{ _{sanitize_identifier(prop)} = v; return *this; }}")
         # For open-map fields emit a per-key adder and a QJsonObject merger
         if is_open_map(spec):
@@ -2418,6 +2908,9 @@ def parse_struct(name, props, types, required=None, description='', nested_child
     if has_additional_props:
         lines.append(f"    const QJsonObject& additionalProperties() const {{ return _additionalProperties; }}")
 
+    lines.append("")
+    lines.append(f"    bool operator==(const {name} &other) const = default;")
+
     lines.append("};\n")
     # Emit serializers for nested child types at namespace scope (before parent serializers)
     for _child_serial in child_serial_blocks:
@@ -2492,7 +2985,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                     fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
         elif _extract_nullable_ref(spec):
             t = _extract_nullable_ref(spec)
-            is_patch = _is_patch_field(spec, is_optional)
+            is_patch = _is_patch_field(spec, is_optional, name, prop)
             if is_integer_const_namespace(t, types):
                 fj_lines.append(f"    if (obj.contains(\"{prop}\") && !obj[\"{prop}\"].isNull())")
                 fj_lines.append(f"        result._{sanitize_identifier(prop)} = obj[\"{prop}\"].toInt();")
@@ -2511,19 +3004,22 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             item_type = ref_type(_extract_ref(spec.get("items", {})))
             # Use qualified short-name when the item type is nested inside this struct
             item_type_fj = f"{name}::{nested_short_names[item_type]}" if item_type in nested_short_names else item_type
-            is_enum = is_enum_type(item_type, types)
-            is_union = is_union_type_name(item_type, types)
+            if is_integer_const_namespace(item_type, types):
+                item_type_fj = "int"
+                item_expr = "v.toInt()"
+            else:
+                item_expr = f"co_await fromJson<{item_type_fj}>(\"{prop}\", v)"
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isArray()) {{")
             fj_lines.append(f"        const QJsonArray arr = obj[\"{prop}\"].toArray();")
             if is_optional:
                 fj_lines.append(f"        {list_type(item_type_fj)} list_{prop_name};")
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
-                fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{item_type_fj}>(\"{prop}\", v));")
+                fj_lines.append(f"            list_{prop_name}.append({item_expr});")
                 fj_lines.append(f"        }}")
                 fj_lines.append(f"        result._{sanitize_identifier(prop)} = list_{prop_name};")
             else:
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
-                fj_lines.append(f"            result._{sanitize_identifier(prop)}.append(co_await fromJson<{item_type_fj}>(\"{prop}\", v));")
+                fj_lines.append(f"            result._{sanitize_identifier(prop)}.append({item_expr});")
                 fj_lines.append(f"        }}")
             fj_lines.append(f"    }}")
         elif _three_state and _nullable_ref_array_type(spec):
@@ -2576,7 +3072,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 fj_lines.append(f"        }}")
             fj_lines.append(f"    }}")
         elif spec.get("type") == "array":
-            item_type = cpp_type(spec["items"].get("type", "string"))
+            item_type = array_item_cpp_type(spec)
             _item_expr = _json_extract_expr(item_type, "v")
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isArray()) {{")
             fj_lines.append(f"        const QJsonArray arr = obj[\"{prop}\"].toArray();")
@@ -2620,7 +3116,15 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isObject()) {{")
             fj_lines.append(f"        const QJsonObject mapObj_{prop_name} = obj[\"{prop}\"].toObject();")
             fj_lines.append(f"        QMap<QString, {val_type}> map_{prop_name};")
-            if val_type in ("QString", "QJsonObject", "int", "double", "bool"):
+            if val_type.startswith("QList<"):
+                item_type = val_type[len("QList<"):-1]
+                fj_lines.append(f"        for (auto it = mapObj_{prop_name}.constBegin(); it != mapObj_{prop_name}.constEnd(); ++it) {{")
+                fj_lines.append(f"            {val_type} list_{prop_name};")
+                fj_lines.append(f"            for (const QJsonValue &v : it.value().toArray())")
+                fj_lines.append(f"                list_{prop_name}.append(co_await fromJson<{item_type}>(v));")
+                fj_lines.append(f"            map_{prop_name}.insert(it.key(), list_{prop_name});")
+                fj_lines.append(f"        }}")
+            elif val_type in ("QString", "QJsonObject", "int", "double", "bool"):
                 extract = _json_extract_expr(val_type, "it.value()") or "it.value().toString()"
                 fj_lines.append(f"        for (auto it = mapObj_{prop_name}.constBegin(); it != mapObj_{prop_name}.constEnd(); ++it)")
                 fj_lines.append(f"            map_{prop_name}.insert(it.key(), {extract});")
@@ -2784,12 +3288,27 @@ def _build_inline_union_code(union_alias, ref_names, types):
 
     # Separate list types from object/scalar types
     list_types = [(rn, rn[6:-1]) for rn in ref_names if rn.startswith("QList<")]  # (full, inner)
-    obj_names = [rn for rn in ref_names if not rn.startswith("QList<")]
+    obj_names = [rn for rn in ref_names
+                 if not rn.startswith("QList<") and rn not in _SCALAR_VARIANT_TYPES
+                 and rn != "QJsonObject"]
+    scalar_names = [rn for rn in ref_names if rn in _SCALAR_VARIANT_TYPES]
 
     fj = [
         "template<>",
         f"inline Utils::Result<{union_alias}> fromJson<{union_alias}>(const QJsonValue &val) {{",
     ]
+
+    # A scalar alternative is recognised by the JSON type, before any object is
+    # probed for a match.
+    _scalar_tests = {"std::monostate": ("isNull()", "std::monostate{}"),
+                     "bool": ("isBool()", "val.toBool()"),
+                     "QString": ("isString()", "val.toString()"),
+                     "int": ("isDouble()", "val.toInt()"),
+                     "double": ("isDouble()", "val.toDouble()")}
+    for scalar in scalar_names:
+        if test := _scalar_tests.get(scalar):
+            fj.append(f"    if (val.{test[0]})")
+            fj.append(f"        co_return {union_alias}({test[1]});")
 
     # Handle list types first (check isArray)
     for list_t, inner_t in list_types:
@@ -2836,33 +3355,17 @@ def _build_inline_union_code(union_alias, ref_names, types):
                 fj.append(f"        auto result = fromJson<{ref_name}>(val);")
                 fj.append(f"        if (result) co_return {union_alias}(*result);")
                 fj.append(f"    }}")
+        if "QJsonObject" in ref_names:
+            fj.append(f"    if (val.isObject())")
+            fj.append(f"        co_return {union_alias}(val.toObject());")
         fj.append(f'    co_return Utils::ResultError("Invalid {union_alias}");')
     fj.append("}")
     union_lines.extend(finalize_from_json(fj))
 
-    # toJsonValue — custom if list types present, otherwise default
+    # toJsonValue — per-alternative when they do not serialize alike
     if not _read_only:
-        if list_types:
-            union_lines.append("")
-            union_lines.append(f"inline QJsonValue toJsonValue(const {union_alias} &val) {{")
-            union_lines.append("    return std::visit([](const auto &v) -> QJsonValue {")
-            union_lines.append("        using T = std::decay_t<decltype(v)>;")
-            first = True
-            for list_t, inner_t in list_types:
-                kw = "if" if first else "} else if"
-                first = False
-                union_lines.append(f"        {kw} constexpr (std::is_same_v<T, {list_t}>) {{")
-                union_lines.append(f"            QJsonArray arr;")
-                union_lines.append(f"            for (const auto &item : v) arr.append(toJson(item));")
-                union_lines.append(f"            return arr;")
-            union_lines.append("        } else if constexpr (std::is_same_v<T, QJsonObject>) {")
-            union_lines.append("            return v;")
-            union_lines.append("        } else {")
-            union_lines.append("            return toJson(v);")
-            union_lines.append("        }")
-            union_lines.append("    }, val);")
-            union_lines.append("}")
-            union_lines.append("")
+        if _variant_needs_typed_visitor(ref_names):
+            union_lines.extend(_typed_toJsonValue_lines(union_alias, ref_names, types))
         else:
             union_lines.extend(_toJsonValue_visit_lines(union_alias))
     return union_lines
@@ -3165,11 +3668,13 @@ def main():
     _three_state = args.three_state
     _cxx20 = not args.no_cxx20
     _emitted_variant_sigs = {}  # reset per run
+    _canonical_alias.clear()
     schema_path = Path(args.schema)
     output_path = Path(args.output)
     namespace = args.namespace
-    with open(schema_path) as f:
+    with open(schema_path, encoding="utf-8") as f:
         schema = json.load(f)
+    normalize_nullable_primitives(schema)
 
     def _get_types(s):
         if "definitions" in s:
@@ -3236,7 +3741,7 @@ def main():
             seen_files.add(rel_path)
             ext_path = schema_path.parent / rel_path
             if ext_path.is_file():
-                with open(ext_path) as ef:
+                with open(ext_path, encoding="utf-8") as ef:
                     ext_schema = json.load(ef)
                 ext_types = _get_types(ext_schema)
                 if ext_types:
@@ -3274,6 +3779,9 @@ def main():
         inline_builtin_json_refs(types, builtins_present)
 
     # --- BEGIN FULL REFACTOR: Robust dependency-graph-based emission ---
+    global _recursive_fields, _needs_int_json
+    _recursive_fields = compute_recursive_fields(types)
+    _needs_int_json = uses_int_constant_namespace_indirectly(types)
     export_header = args.export_header if args.cpp_output else None
     code = [make_header(namespace, export_header=export_header)]
     order = topo_sort_types(types)
@@ -3282,6 +3790,8 @@ def main():
     emitted = set()
     variant_signatures = {}
     alias_fromjson_emitted = set()  # track underlying types that already have fromJson
+    if _needs_int_json:
+        alias_fromjson_emitted.add("int")  # the header already provides fromJson<int>
 
     # Helper: extract all $ref-referenced type names from a spec (non-recursive).
     # Only follows actual JSON $ref links, NOT description text.
@@ -3399,12 +3909,12 @@ def main():
 
         h_output = "\n".join(h_blocks)
         h_output = re.sub(r'\n{3,}', '\n\n', h_output)
-        with open(output_path, "w") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(h_output)
 
         cpp_output = "\n".join(cpp_blocks)
         cpp_output = re.sub(r'\n{3,}', '\n\n', cpp_output)
-        with open(cpp_output_path, "w") as f:
+        with open(cpp_output_path, "w", encoding="utf-8") as f:
             f.write(cpp_output)
 
         print(f"Generated C++ header at {output_path}")
@@ -3412,7 +3922,7 @@ def main():
     else:
         output = "\n".join(code)
         output = re.sub(r'\n{3,}', '\n\n', output)
-        with open(output_path, "w") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(output)
         print(f"Generated C++ header at {output_path}")
 
@@ -3426,14 +3936,16 @@ def _emit_type_alias(name, spec, code, emitted, variant_signatures, alias_fromjs
             code.append(result)
             emitted.add(name)
             return
-        _, signature = parse_union(name, spec, skip_to_json=True, skip_from_json=True, types=types)
-        if signature in variant_signatures:
+        _, signature = parse_union(name, spec, skip_to_json=True, skip_from_json=True,
+                                   types=types, emit_item_unions=False)
+        if _variant_alias_for(signature):
             result, _ = parse_union(name, spec, skip_to_json=True, skip_from_json=True, types=types)
             code.append(result)
+            _canonical_alias[name] = f"std::variant<{_canonical_signature(signature)}>"
         else:
             result, _ = parse_union(name, spec, skip_to_json=_read_only, skip_from_json=False, types=types)
             code.append(result)
-            variant_signatures[signature] = name
+            _register_variant_alias(signature, name)
     elif enum_keyed_map_info(spec) is not None:
         enum_vals, val_type = enum_keyed_map_info(spec)
         prefix = doc_comment(spec.get('description', ''))
@@ -3557,6 +4069,41 @@ def _emit_type_alias(name, spec, code, emitted, variant_signatures, alias_fromjs
             alias_lines.append(f"    return obj;")
             alias_lines.append(f"}}")
         code.append("\n".join(alias_lines) + "\n")
+    elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
+        item_type = ref_cpp_type(_extract_ref(spec["items"]), types)
+        list_t = list_type(item_type)
+        alias_lines = [doc_comment(spec.get('description', '')).rstrip('\n')] if _emit_comments \
+            and spec.get('description') else []
+        alias_lines.append(f"using {name} = {list_t};")
+        _canonical_alias[name] = f"QList<{_canonical_alias.get(item_type, item_type)}>"
+        # Aliases are typedefs, so two aliases of the same list type would
+        # define the same specialization twice.
+        if list_t not in alias_fromjson_emitted:
+            alias_fromjson_emitted.add(list_t)
+            fj = [
+                "template<>",
+                f"inline Utils::Result<{name}> fromJson<{name}>(const QJsonValue &val) {{",
+                "    if (!val.isArray())",
+                f'        co_return Utils::ResultError("Expected JSON array for {name}");',
+                f"    {name} result;",
+                "    for (const QJsonValue &v : val.toArray())",
+                f"        result.append(co_await fromJson<{item_type}>(v));",
+                "    co_return result;",
+                "}",
+            ]
+            alias_lines.append("")
+            alias_lines.extend(finalize_from_json(fj))
+            if not _read_only:
+                item_fn = "" if not needs_to_json(item_type, types) else (
+                    "toJsonValue" if is_enum_type(item_type, types)
+                    or is_union_type_name(item_type, types) else "toJson")
+                alias_lines.append("")
+                alias_lines.append(f"inline QJsonArray toJson(const {name} &data) {{")
+                alias_lines.append("    QJsonArray arr;")
+                alias_lines.append(f"    for (const auto &v : data) arr.append({json_call(item_fn, 'v')});")
+                alias_lines.append("    return arr;")
+                alias_lines.append("}")
+        code.append("\n".join(alias_lines) + "\n")
     else:
         # Handle $ref-only type aliases (e.g. "EmptyResult": {"$ref": "#/$defs/Result"})
         if '$ref' in spec:
@@ -3612,6 +4159,7 @@ def _emit_type_alias(name, spec, code, emitted, variant_signatures, alias_fromjs
                 alias_lines.append("}")
             if not skip_fromjson:
                 alias_fromjson_emitted.add(target_type)
+            _canonical_alias[name] = _canonical_alias.get(target_type, target_type)
             code.append("\n".join(alias_lines) + "\n")
         else:
             code.append(f"// Skipped unknown type alias: {name}\n")

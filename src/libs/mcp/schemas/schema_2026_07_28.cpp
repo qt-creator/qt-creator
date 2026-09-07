@@ -998,14 +998,29 @@ QJsonValue toJsonValue(const CreateMessageResultContent &val)
 {
     return std::visit([](const auto &v) -> QJsonValue {
         using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, TextContent>) {
+            return toJson(v);
+        } else
+        if constexpr (std::is_same_v<T, ImageContent>) {
+            return toJson(v);
+        } else
+        if constexpr (std::is_same_v<T, AudioContent>) {
+            return toJson(v);
+        } else
+        if constexpr (std::is_same_v<T, ToolUseContent>) {
+            return toJson(v);
+        } else
+        if constexpr (std::is_same_v<T, ToolResultContent>) {
+            return toJson(v);
+        } else
         if constexpr (std::is_same_v<T, QList<SamplingMessageContentBlock>>) {
             QJsonArray arr;
-            for (const auto &item : v) arr.append(toJson(item));
+            for (const auto &elem : v)
+                arr.append(toJsonValue(elem));
             return arr;
-        } else if constexpr (std::is_same_v<T, QJsonObject>) {
-            return v;
-        } else {
-            return toJson(v);
+        } else
+        {
+            return QVariant::fromValue(v).toJsonValue();
         }
     }, val);
 }

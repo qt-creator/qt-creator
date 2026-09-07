@@ -28,6 +28,17 @@ namespace Acp::Registry {
 
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
+// Defs that carry no constraints beyond "an object" alias to QJsonObject; these
+// let such aliases take part in the generated conversions unchanged.
+template<> inline Utils::Result<QJsonObject> fromJson<QJsonObject>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError(QString("Expected JSON object"));
+    return val.toObject();
+}
+
+inline QJsonObject toJson(const QJsonObject &data) { return data; }
+
 template<typename T>
 Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
 {
@@ -54,6 +65,8 @@ struct binaryTarget {
     const QString& cmd() const { return _cmd; }
     const std::optional<QStringList>& args() const { return _args; }
     const std::optional<QMap<QString, QString>>& env() const { return _env; }
+
+    bool operator==(const binaryTarget &other) const = default;
 };
 
 template<>
@@ -103,6 +116,8 @@ struct packageDistribution {
     const QString& package() const { return _package; }
     const std::optional<QStringList>& args() const { return _args; }
     const std::optional<QMap<QString, QString>>& env() const { return _env; }
+
+    bool operator==(const packageDistribution &other) const = default;
 };
 
 template<>
@@ -124,6 +139,8 @@ struct ACPAgent {
         const std::optional<binaryDistribution>& binary() const { return _binary; }
         const std::optional<packageDistribution>& npx() const { return _npx; }
         const std::optional<packageDistribution>& uvx() const { return _uvx; }
+
+        bool operator==(const Distribution &other) const = default;
     };
 
     QString _id{};  //!< Unique agent identifier (lowercase, hyphens allowed)
@@ -156,6 +173,8 @@ struct ACPAgent {
     const std::optional<QString>& license() const { return _license; }
     const std::optional<QString>& icon() const { return _icon; }
     const Distribution& distribution() const { return _distribution; }
+
+    bool operator==(const ACPAgent &other) const = default;
 };
 
 template<>
@@ -179,6 +198,8 @@ struct ACPAgentRegistry {
 
     const QString& version() const { return _version; }
     const QList<ACPAgent>& agents() const { return _agents; }
+
+    bool operator==(const ACPAgentRegistry &other) const = default;
 };
 
 template<>

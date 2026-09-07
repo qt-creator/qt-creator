@@ -97,6 +97,8 @@ struct Annotations {
     const std::optional<QList<Role>>& audience() const { return _audience; }
     const std::optional<QString>& lastModified() const { return _lastModified; }
     const std::optional<double>& priority() const { return _priority; }
+
+    bool operator==(const Annotations &other) const = default;
 };
 
 template<>
@@ -122,6 +124,8 @@ struct AudioContent {
     const std::optional<Annotations>& annotations() const { return _annotations; }
     const QString& data() const { return _data; }
     const QString& mimeType() const { return _mimeType; }
+
+    bool operator==(const AudioContent &other) const = default;
 };
 
 template<>
@@ -147,6 +151,8 @@ struct BaseMetadata {
 
     const QString& name() const { return _name; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const BaseMetadata &other) const = default;
 };
 
 template<>
@@ -169,6 +175,8 @@ struct BlobResourceContents {
     const QString& blob() const { return _blob; }
     const std::optional<QString>& mimeType() const { return _mimeType; }
     const QString& uri() const { return _uri; }
+
+    bool operator==(const BlobResourceContents &other) const = default;
 };
 
 template<>
@@ -188,6 +196,8 @@ struct BooleanSchema {
     const std::optional<bool>& default_() const { return _default_; }
     const std::optional<QString>& description() const { return _description; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const BooleanSchema &other) const = default;
 };
 
 template<>
@@ -244,6 +254,8 @@ struct Icon {
     const std::optional<QStringList>& sizes() const { return _sizes; }
     const QString& src() const { return _src; }
     const std::optional<Theme>& theme() const { return _theme; }
+
+    bool operator==(const Icon &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const Icon::Theme &v);
@@ -307,6 +319,8 @@ struct Implementation {
     const std::optional<QString>& title() const { return _title; }
     const QString& version() const { return _version; }
     const std::optional<QString>& websiteUrl() const { return _websiteUrl; }
+
+    bool operator==(const Implementation &other) const = default;
 };
 
 template<>
@@ -336,6 +350,8 @@ struct ResultMetaObject {
     ResultMetaObject& iodotmodelcontextprotocolslashserverInfo(const std::optional<Implementation> & v) { _iodotmodelcontextprotocolslashserverInfo = v; return *this; }
 
     const std::optional<Implementation>& iodotmodelcontextprotocolslashserverInfo() const { return _iodotmodelcontextprotocolslashserverInfo; }
+
+    bool operator==(const ResultMetaObject &other) const = default;
 };
 
 template<>
@@ -395,6 +411,8 @@ struct CacheableResult {
     const CacheScope& cacheScope() const { return _cacheScope; }
     const QString& resultType() const { return _resultType; }
     const int& ttlMs() const { return _ttlMs; }
+
+    bool operator==(const CacheableResult &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const CacheableResult::CacheScope &v);
@@ -425,6 +443,8 @@ struct ImageContent {
     const std::optional<Annotations>& annotations() const { return _annotations; }
     const QString& data() const { return _data; }
     const QString& mimeType() const { return _mimeType; }
+
+    bool operator==(const ImageContent &other) const = default;
 };
 
 template<>
@@ -445,6 +465,8 @@ struct TextContent {
     const std::optional<MetaObject>& _meta() const { return __meta; }
     const std::optional<Annotations>& annotations() const { return _annotations; }
     const QString& text() const { return _text; }
+
+    bool operator==(const TextContent &other) const = default;
 };
 
 template<>
@@ -467,6 +489,8 @@ struct TextResourceContents {
     const std::optional<QString>& mimeType() const { return _mimeType; }
     const QString& text() const { return _text; }
     const QString& uri() const { return _uri; }
+
+    bool operator==(const TextResourceContents &other) const = default;
 };
 
 template<>
@@ -499,6 +523,8 @@ struct EmbeddedResource {
     const std::optional<MetaObject>& _meta() const { return __meta; }
     const std::optional<Annotations>& annotations() const { return _annotations; }
     const EmbeddedResourceResource& resource() const { return _resource; }
+
+    bool operator==(const EmbeddedResource &other) const = default;
 };
 
 template<>
@@ -571,6 +597,8 @@ struct ResourceLink {
     const std::optional<int>& size() const { return _size; }
     const std::optional<QString>& title() const { return _title; }
     const QString& uri() const { return _uri; }
+
+    bool operator==(const ResourceLink &other) const = default;
 };
 
 template<>
@@ -637,6 +665,8 @@ struct ToolResultContent {
     const std::optional<bool>& isError() const { return _isError; }
     const std::optional<QJsonValue>& structuredContent() const { return _structuredContent; }
     const QString& toolUseId() const { return _toolUseId; }
+
+    bool operator==(const ToolResultContent &other) const = default;
 };
 
 template<>
@@ -672,6 +702,8 @@ struct ToolUseContent {
     const QMap<QString, QJsonValue>& input() const { return _input; }
     QJsonObject inputAsObject() const { QJsonObject o; for (auto it = _input.constBegin(); it != _input.constEnd(); ++it) o.insert(it.key(), it.value()); return o; }
     const QString& name() const { return _name; }
+
+    bool operator==(const ToolUseContent &other) const = default;
 };
 
 template<>
@@ -732,6 +764,8 @@ struct CreateMessageResult {
     const QString& model() const { return _model; }
     const Role& role() const { return _role; }
     const std::optional<QString>& stopReason() const { return _stopReason; }
+
+    bool operator==(const CreateMessageResult &other) const = default;
 };
 
 template<>
@@ -774,6 +808,8 @@ struct ElicitResult {
 
     const Action& action() const { return _action; }
     const std::optional<QMap<QString, ElicitResultContentValue>>& content() const { return _content; }
+
+    bool operator==(const ElicitResult &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const ElicitResult::Action &v);
@@ -811,6 +847,8 @@ struct Root {
     const std::optional<MetaObject>& _meta() const { return __meta; }
     const std::optional<QString>& name() const { return _name; }
     const QString& uri() const { return _uri; }
+
+    bool operator==(const Root &other) const = default;
 };
 
 template<>
@@ -830,6 +868,8 @@ struct ListRootsResult {
     ListRootsResult& addRoot(const Root & v) { _roots.append(v); return *this; }
 
     const QList<Root>& roots() const { return _roots; }
+
+    bool operator==(const ListRootsResult &other) const = default;
 };
 
 template<>
@@ -866,6 +906,8 @@ struct ClientCapabilities {
 
         const std::optional<QJsonObject>& form() const { return _form; }
         const std::optional<QJsonObject>& url() const { return _url; }
+
+        bool operator==(const Elicitation &other) const = default;
     };
 
     /** Present if the client supports sampling from an LLM. */
@@ -882,6 +924,8 @@ struct ClientCapabilities {
 
         const std::optional<QJsonObject>& context() const { return _context; }
         const std::optional<QJsonObject>& tools() const { return _tools; }
+
+        bool operator==(const Sampling &other) const = default;
     };
 
     std::optional<Elicitation> _elicitation{};  //!< Present if the client supports elicitation from the server.
@@ -911,6 +955,8 @@ struct ClientCapabilities {
     const std::optional<QMap<QString, QJsonObject>>& extensions() const { return _extensions; }
     const std::optional<QJsonObject>& roots() const { return _roots; }
     const std::optional<Sampling>& sampling() const { return _sampling; }
+
+    bool operator==(const ClientCapabilities &other) const = default;
 };
 
 template<>
@@ -1016,6 +1062,8 @@ struct RequestMetaObject {
     const std::optional<LoggingLevel>& iodotmodelcontextprotocolslashlogLevel() const { return _iodotmodelcontextprotocolslashlogLevel; }
     const QString& iodotmodelcontextprotocolslashprotocolVersion() const { return _iodotmodelcontextprotocolslashprotocolVersion; }
     const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+
+    bool operator==(const RequestMetaObject &other) const = default;
 };
 
 template<>
@@ -1045,6 +1093,8 @@ struct CallToolRequestParams {
     const std::optional<InputResponses>& inputResponses() const { return _inputResponses; }
     const QString& name() const { return _name; }
     const std::optional<QString>& requestState() const { return _requestState; }
+
+    bool operator==(const CallToolRequestParams &other) const = default;
 };
 
 template<>
@@ -1065,6 +1115,8 @@ struct CallToolRequest {
 
     const RequestId& id() const { return _id; }
     const CallToolRequestParams& params() const { return _params; }
+
+    bool operator==(const CallToolRequest &other) const = default;
 };
 
 template<>
@@ -1121,6 +1173,8 @@ struct CallToolResult {
     const std::optional<bool>& isError() const { return _isError; }
     const QString& resultType() const { return _resultType; }
     const std::optional<QJsonValue>& structuredContent() const { return _structuredContent; }
+
+    bool operator==(const CallToolResult &other) const = default;
 };
 
 template<>
@@ -1151,6 +1205,8 @@ struct ModelHint {
     ModelHint& name(const std::optional<QString> & v) { _name = v; return *this; }
 
     const std::optional<QString>& name() const { return _name; }
+
+    bool operator==(const ModelHint &other) const = default;
 };
 
 template<>
@@ -1211,6 +1267,8 @@ struct ModelPreferences {
     const std::optional<QList<ModelHint>>& hints() const { return _hints; }
     const std::optional<double>& intelligencePriority() const { return _intelligencePriority; }
     const std::optional<double>& speedPriority() const { return _speedPriority; }
+
+    bool operator==(const ModelPreferences &other) const = default;
 };
 
 template<>
@@ -1231,6 +1289,8 @@ struct SamplingMessage {
     const std::optional<MetaObject>& _meta() const { return __meta; }
     const CreateMessageResultContent& content() const { return _content; }
     const Role& role() const { return _role; }
+
+    bool operator==(const SamplingMessage &other) const = default;
 };
 
 template<>
@@ -1295,6 +1355,8 @@ struct ToolAnnotations {
     const std::optional<bool>& openWorldHint() const { return _openWorldHint; }
     const std::optional<bool>& readOnlyHint() const { return _readOnlyHint; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const ToolAnnotations &other) const = default;
 };
 
 template<>
@@ -1330,6 +1392,8 @@ struct Tool {
 
         const std::optional<QString>& dollarschema() const { return _dollarschema; }
         const QJsonObject& additionalProperties() const { return _additionalProperties; }
+
+        bool operator==(const InputSchema &other) const = default;
     };
 
     /**
@@ -1348,6 +1412,8 @@ struct Tool {
 
         const std::optional<QString>& dollarschema() const { return _dollarschema; }
         const QJsonObject& additionalProperties() const { return _additionalProperties; }
+
+        bool operator==(const OutputSchema &other) const = default;
     };
 
     std::optional<MetaObject> __meta{};
@@ -1428,6 +1494,8 @@ struct Tool {
     const QString& name() const { return _name; }
     const std::optional<OutputSchema>& outputSchema() const { return _outputSchema; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const Tool &other) const = default;
 };
 
 template<>
@@ -1464,6 +1532,8 @@ struct ToolChoice {
     ToolChoice& mode(const std::optional<Mode> & v) { _mode = v; return *this; }
 
     const std::optional<Mode>& mode() const { return _mode; }
+
+    bool operator==(const ToolChoice &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const ToolChoice::Mode &v);
@@ -1543,6 +1613,8 @@ struct CreateMessageRequestParams {
     const std::optional<double>& temperature() const { return _temperature; }
     const std::optional<ToolChoice>& toolChoice() const { return _toolChoice; }
     const std::optional<QList<Tool>>& tools() const { return _tools; }
+
+    bool operator==(const CreateMessageRequestParams &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const CreateMessageRequestParams::IncludeContext &v);
@@ -1566,6 +1638,8 @@ struct CreateMessageRequest {
     CreateMessageRequest& params(const CreateMessageRequestParams & v) { _params = v; return *this; }
 
     const CreateMessageRequestParams& params() const { return _params; }
+
+    bool operator==(const CreateMessageRequest &other) const = default;
 };
 
 template<>
@@ -1601,6 +1675,8 @@ struct LegacyTitledEnumSchema {
     const QStringList& enum_() const { return _enum_; }
     const std::optional<QStringList>& enumNames() const { return _enumNames; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const LegacyTitledEnumSchema &other) const = default;
 };
 
 template<>
@@ -1634,6 +1710,8 @@ struct NumberSchema {
     const std::optional<double>& minimum() const { return _minimum; }
     const std::optional<QString>& title() const { return _title; }
     const Type& type() const { return _type; }
+
+    bool operator==(const NumberSchema &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const NumberSchema::Type &v);
@@ -1676,6 +1754,8 @@ struct StringSchema {
     const std::optional<int>& maxLength() const { return _maxLength; }
     const std::optional<int>& minLength() const { return _minLength; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const StringSchema &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const StringSchema::Format &v);
@@ -1703,6 +1783,8 @@ struct TitledMultiSelectEnumSchema {
 
             const QString& const_() const { return _const_; }
             const QString& title() const { return _title; }
+
+            bool operator==(const AnyOfItem &other) const = default;
         };
 
         QList<AnyOfItem> _anyOf{};  //!< Array of enum options with values and display labels.
@@ -1711,6 +1793,8 @@ struct TitledMultiSelectEnumSchema {
         Items& addAnyOf(const AnyOfItem & v) { _anyOf.append(v); return *this; }
 
         const QList<AnyOfItem>& anyOf() const { return _anyOf; }
+
+        bool operator==(const Items &other) const = default;
     };
 
     std::optional<QStringList> _default_{};  //!< Optional default value.
@@ -1734,6 +1818,8 @@ struct TitledMultiSelectEnumSchema {
     const std::optional<int>& maxItems() const { return _maxItems; }
     const std::optional<int>& minItems() const { return _minItems; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const TitledMultiSelectEnumSchema &other) const = default;
 };
 
 template<>
@@ -1762,6 +1848,8 @@ struct TitledSingleSelectEnumSchema {
 
         const QString& const_() const { return _const_; }
         const QString& title() const { return _title; }
+
+        bool operator==(const OneOfItem &other) const = default;
     };
 
     std::optional<QString> _default_{};  //!< Optional default value.
@@ -1779,6 +1867,8 @@ struct TitledSingleSelectEnumSchema {
     const std::optional<QString>& description() const { return _description; }
     const QList<OneOfItem>& oneOf() const { return _oneOf; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const TitledSingleSelectEnumSchema &other) const = default;
 };
 
 template<>
@@ -1801,6 +1891,8 @@ struct UntitledMultiSelectEnumSchema {
         Items& addEnum(const QString & v) { _enum_.append(v); return *this; }
 
         const QStringList& enum_() const { return _enum_; }
+
+        bool operator==(const Items &other) const = default;
     };
 
     std::optional<QStringList> _default_{};  //!< Optional default value.
@@ -1824,6 +1916,8 @@ struct UntitledMultiSelectEnumSchema {
     const std::optional<int>& maxItems() const { return _maxItems; }
     const std::optional<int>& minItems() const { return _minItems; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const UntitledMultiSelectEnumSchema &other) const = default;
 };
 
 template<>
@@ -1853,6 +1947,8 @@ struct UntitledSingleSelectEnumSchema {
     const std::optional<QString>& description() const { return _description; }
     const QStringList& enum_() const { return _enum_; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const UntitledSingleSelectEnumSchema &other) const = default;
 };
 
 template<>
@@ -1895,6 +1991,8 @@ struct ElicitRequestFormParams {
         const std::optional<QString>& dollarschema() const { return _dollarschema; }
         const QMap<QString, PrimitiveSchemaDefinition>& properties() const { return _properties; }
         const std::optional<QStringList>& required() const { return _required; }
+
+        bool operator==(const RequestedSchema &other) const = default;
     };
 
     QString _message{};  //!< The message to present to the user describing what information is being requested.
@@ -1909,6 +2007,8 @@ struct ElicitRequestFormParams {
 
     const QString& message() const { return _message; }
     const RequestedSchema& requestedSchema() const { return _requestedSchema; }
+
+    bool operator==(const ElicitRequestFormParams &other) const = default;
 };
 
 template<>
@@ -1931,6 +2031,8 @@ struct ElicitRequestURLParams {
 
     const QString& message() const { return _message; }
     const QString& url() const { return _url; }
+
+    bool operator==(const ElicitRequestURLParams &other) const = default;
 };
 
 template<>
@@ -1961,6 +2063,8 @@ struct ElicitRequest {
     ElicitRequest& params(const ElicitRequestParams & v) { _params = v; return *this; }
 
     const ElicitRequestParams& params() const { return _params; }
+
+    bool operator==(const ElicitRequest &other) const = default;
 };
 
 template<>
@@ -1984,6 +2088,8 @@ struct ListRootsRequest {
         Params& _meta(const std::optional<MetaObject> & v) { __meta = v; return *this; }
 
         const std::optional<MetaObject>& _meta() const { return __meta; }
+
+        bool operator==(const Params &other) const = default;
     };
 
     std::optional<Params> _params{};
@@ -1991,6 +2097,8 @@ struct ListRootsRequest {
     ListRootsRequest& params(const std::optional<Params> & v) { _params = v; return *this; }
 
     const std::optional<Params>& params() const { return _params; }
+
+    bool operator==(const ListRootsRequest &other) const = default;
 };
 
 template<>
@@ -2051,6 +2159,8 @@ struct InputRequiredResult {
     const std::optional<InputRequests>& inputRequests() const { return _inputRequests; }
     const std::optional<QString>& requestState() const { return _requestState; }
     const QString& resultType() const { return _resultType; }
+
+    bool operator==(const InputRequiredResult &other) const = default;
 };
 
 template<>
@@ -2075,6 +2185,8 @@ struct CallToolResultResponse {
 
     const RequestId& id() const { return _id; }
     const CallToolResultResponseResult& result() const { return _result; }
+
+    bool operator==(const CallToolResultResponse &other) const = default;
 };
 
 template<>
@@ -2103,6 +2215,8 @@ struct NotificationMetaObject {
     NotificationMetaObject& iodotmodelcontextprotocolslashsubscriptionId(const std::optional<RequestId> & v) { _iodotmodelcontextprotocolslashsubscriptionId = v; return *this; }
 
     const std::optional<RequestId>& iodotmodelcontextprotocolslashsubscriptionId() const { return _iodotmodelcontextprotocolslashsubscriptionId; }
+
+    bool operator==(const NotificationMetaObject &other) const = default;
 };
 
 template<>
@@ -2128,6 +2242,8 @@ struct CancelledNotificationParams {
     const std::optional<NotificationMetaObject>& _meta() const { return __meta; }
     const std::optional<QString>& reason() const { return _reason; }
     const RequestId& requestId() const { return _requestId; }
+
+    bool operator==(const CancelledNotificationParams &other) const = default;
 };
 
 template<>
@@ -2150,6 +2266,8 @@ struct CancelledNotification {
     CancelledNotification& params(const CancelledNotificationParams & v) { _params = v; return *this; }
 
     const CancelledNotificationParams& params() const { return _params; }
+
+    bool operator==(const CancelledNotification &other) const = default;
 };
 
 template<>
@@ -2172,6 +2290,8 @@ struct ClientNotification {
     ClientNotification& params(const CancelledNotificationParams & v) { _params = v; return *this; }
 
     const CancelledNotificationParams& params() const { return _params; }
+
+    bool operator==(const ClientNotification &other) const = default;
 };
 
 template<>
@@ -2197,6 +2317,8 @@ struct PromptReference {
 
     const QString& name() const { return _name; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const PromptReference &other) const = default;
 };
 
 template<>
@@ -2211,6 +2333,8 @@ struct ResourceTemplateReference {
     ResourceTemplateReference& uri(const QString & v) { _uri = v; return *this; }
 
     const QString& uri() const { return _uri; }
+
+    bool operator==(const ResourceTemplateReference &other) const = default;
 };
 
 template<>
@@ -2237,6 +2361,8 @@ struct CompleteRequestParams {
 
         const QString& name() const { return _name; }
         const QString& value() const { return _value; }
+
+        bool operator==(const Argument &other) const = default;
     };
 
     /** Additional, optional context for completions */
@@ -2247,6 +2373,8 @@ struct CompleteRequestParams {
         Context& addArgument(const QString &key, const QString & v) { if (!_arguments) _arguments = QMap<QString, QString>{}; (*_arguments)[key] = v; return *this; }
 
         const std::optional<QMap<QString, QString>>& arguments() const { return _arguments; }
+
+        bool operator==(const Context &other) const = default;
     };
 
     RequestMetaObject __meta{};
@@ -2263,6 +2391,8 @@ struct CompleteRequestParams {
     const Argument& argument() const { return _argument; }
     const std::optional<Context>& context() const { return _context; }
     const CompleteRequestParamsRef& ref() const { return _ref; }
+
+    bool operator==(const CompleteRequestParams &other) const = default;
 };
 
 template<>
@@ -2290,6 +2420,8 @@ struct CompleteRequest {
 
     const RequestId& id() const { return _id; }
     const CompleteRequestParams& params() const { return _params; }
+
+    bool operator==(const CompleteRequest &other) const = default;
 };
 
 template<>
@@ -2304,6 +2436,8 @@ struct RequestParams {
     RequestParams& _meta(const RequestMetaObject & v) { __meta = v; return *this; }
 
     const RequestMetaObject& _meta() const { return __meta; }
+
+    bool operator==(const RequestParams &other) const = default;
 };
 
 template<>
@@ -2326,6 +2460,8 @@ struct DiscoverRequest {
 
     const RequestId& id() const { return _id; }
     const RequestParams& params() const { return _params; }
+
+    bool operator==(const DiscoverRequest &other) const = default;
 };
 
 template<>
@@ -2353,6 +2489,8 @@ struct GetPromptRequestParams {
     const std::optional<InputResponses>& inputResponses() const { return _inputResponses; }
     const QString& name() const { return _name; }
     const std::optional<QString>& requestState() const { return _requestState; }
+
+    bool operator==(const GetPromptRequestParams &other) const = default;
 };
 
 template<>
@@ -2370,6 +2508,8 @@ struct GetPromptRequest {
 
     const RequestId& id() const { return _id; }
     const GetPromptRequestParams& params() const { return _params; }
+
+    bool operator==(const GetPromptRequest &other) const = default;
 };
 
 template<>
@@ -2391,6 +2531,8 @@ struct PaginatedRequestParams {
 
     const RequestMetaObject& _meta() const { return __meta; }
     const std::optional<QString>& cursor() const { return _cursor; }
+
+    bool operator==(const PaginatedRequestParams &other) const = default;
 };
 
 template<>
@@ -2408,6 +2550,8 @@ struct ListPromptsRequest {
 
     const RequestId& id() const { return _id; }
     const PaginatedRequestParams& params() const { return _params; }
+
+    bool operator==(const ListPromptsRequest &other) const = default;
 };
 
 template<>
@@ -2425,6 +2569,8 @@ struct ListResourceTemplatesRequest {
 
     const RequestId& id() const { return _id; }
     const PaginatedRequestParams& params() const { return _params; }
+
+    bool operator==(const ListResourceTemplatesRequest &other) const = default;
 };
 
 template<>
@@ -2442,6 +2588,8 @@ struct ListResourcesRequest {
 
     const RequestId& id() const { return _id; }
     const PaginatedRequestParams& params() const { return _params; }
+
+    bool operator==(const ListResourcesRequest &other) const = default;
 };
 
 template<>
@@ -2459,6 +2607,8 @@ struct ListToolsRequest {
 
     const RequestId& id() const { return _id; }
     const PaginatedRequestParams& params() const { return _params; }
+
+    bool operator==(const ListToolsRequest &other) const = default;
 };
 
 template<>
@@ -2482,6 +2632,8 @@ struct ReadResourceRequestParams {
     const std::optional<InputResponses>& inputResponses() const { return _inputResponses; }
     const std::optional<QString>& requestState() const { return _requestState; }
     const QString& uri() const { return _uri; }
+
+    bool operator==(const ReadResourceRequestParams &other) const = default;
 };
 
 template<>
@@ -2499,6 +2651,8 @@ struct ReadResourceRequest {
 
     const RequestId& id() const { return _id; }
     const ReadResourceRequestParams& params() const { return _params; }
+
+    bool operator==(const ReadResourceRequest &other) const = default;
 };
 
 template<>
@@ -2533,6 +2687,8 @@ struct SubscriptionFilter {
     const std::optional<QStringList>& resourceSubscriptions() const { return _resourceSubscriptions; }
     const std::optional<bool>& resourcesListChanged() const { return _resourcesListChanged; }
     const std::optional<bool>& toolsListChanged() const { return _toolsListChanged; }
+
+    bool operator==(const SubscriptionFilter &other) const = default;
 };
 
 template<>
@@ -2555,6 +2711,8 @@ struct SubscriptionsListenRequestParams {
 
     const RequestMetaObject& _meta() const { return __meta; }
     const SubscriptionFilter& notifications() const { return _notifications; }
+
+    bool operator==(const SubscriptionsListenRequestParams &other) const = default;
 };
 
 template<>
@@ -2576,6 +2734,8 @@ struct SubscriptionsListenRequest {
 
     const RequestId& id() const { return _id; }
     const SubscriptionsListenRequestParams& params() const { return _params; }
+
+    bool operator==(const SubscriptionsListenRequest &other) const = default;
 };
 
 template<>
@@ -2621,6 +2781,8 @@ struct Result {
     const std::optional<ResultMetaObject>& _meta() const { return __meta; }
     const QString& resultType() const { return _resultType; }
     const QJsonObject& additionalProperties() const { return _additionalProperties; }
+
+    bool operator==(const Result &other) const = default;
 };
 
 template<>
@@ -2645,6 +2807,8 @@ struct CompleteResult {
         const std::optional<bool>& hasMore() const { return _hasMore; }
         const std::optional<int>& total() const { return _total; }
         const QStringList& values() const { return _values; }
+
+        bool operator==(const Completion &other) const = default;
     };
 
     std::optional<ResultMetaObject> __meta{};
@@ -2667,6 +2831,8 @@ struct CompleteResult {
     const std::optional<ResultMetaObject>& _meta() const { return __meta; }
     const Completion& completion() const { return _completion; }
     const QString& resultType() const { return _resultType; }
+
+    bool operator==(const CompleteResult &other) const = default;
 };
 
 template<>
@@ -2689,6 +2855,8 @@ struct CompleteResultResponse {
 
     const RequestId& id() const { return _id; }
     const CompleteResult& result() const { return _result; }
+
+    bool operator==(const CompleteResultResponse &other) const = default;
 };
 
 template<>
@@ -2711,6 +2879,8 @@ struct ServerCapabilities {
         Prompts& listChanged(std::optional<bool> v) { _listChanged = v; return *this; }
 
         const std::optional<bool>& listChanged() const { return _listChanged; }
+
+        bool operator==(const Prompts &other) const = default;
     };
 
     /** Present if the server offers any resources to read. */
@@ -2723,6 +2893,8 @@ struct ServerCapabilities {
 
         const std::optional<bool>& listChanged() const { return _listChanged; }
         const std::optional<bool>& subscribe() const { return _subscribe; }
+
+        bool operator==(const Resources &other) const = default;
     };
 
     /** Present if the server offers any tools to call. */
@@ -2732,6 +2904,8 @@ struct ServerCapabilities {
         Tools& listChanged(std::optional<bool> v) { _listChanged = v; return *this; }
 
         const std::optional<bool>& listChanged() const { return _listChanged; }
+
+        bool operator==(const Tools &other) const = default;
     };
 
     std::optional<QJsonObject> _completions{};  //!< Present if the server supports argument autocompletion suggestions.
@@ -2767,6 +2941,8 @@ struct ServerCapabilities {
     const std::optional<Prompts>& prompts() const { return _prompts; }
     const std::optional<Resources>& resources() const { return _resources; }
     const std::optional<Tools>& tools() const { return _tools; }
+
+    bool operator==(const ServerCapabilities &other) const = default;
 };
 
 template<>
@@ -2863,6 +3039,8 @@ struct DiscoverResult {
     const QString& resultType() const { return _resultType; }
     const QStringList& supportedVersions() const { return _supportedVersions; }
     const int& ttlMs() const { return _ttlMs; }
+
+    bool operator==(const DiscoverResult &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const DiscoverResult::CacheScope &v);
@@ -2887,6 +3065,8 @@ struct DiscoverResultResponse {
 
     const RequestId& id() const { return _id; }
     const DiscoverResult& result() const { return _result; }
+
+    bool operator==(const DiscoverResultResponse &other) const = default;
 };
 
 template<>
@@ -2917,6 +3097,8 @@ struct Error {
     const int& code() const { return _code; }
     const std::optional<QJsonValue>& data() const { return _data; }
     const QString& message() const { return _message; }
+
+    bool operator==(const Error &other) const = default;
 };
 
 template<>
@@ -2939,6 +3121,8 @@ struct PromptMessage {
 
     const ContentBlock& content() const { return _content; }
     const Role& role() const { return _role; }
+
+    bool operator==(const PromptMessage &other) const = default;
 };
 
 template<>
@@ -2972,6 +3156,8 @@ struct GetPromptResult {
     const std::optional<QString>& description() const { return _description; }
     const QList<PromptMessage>& messages() const { return _messages; }
     const QString& resultType() const { return _resultType; }
+
+    bool operator==(const GetPromptResult &other) const = default;
 };
 
 template<>
@@ -2996,6 +3182,8 @@ struct GetPromptResultResponse {
 
     const RequestId& id() const { return _id; }
     const GetPromptResultResponseResult& result() const { return _result; }
+
+    bool operator==(const GetPromptResultResponse &other) const = default;
 };
 
 template<>
@@ -3018,6 +3206,8 @@ struct HeaderMismatchError {
 
     const Error& error() const { return _error; }
     const std::optional<RequestId>& id() const { return _id; }
+
+    bool operator==(const HeaderMismatchError &other) const = default;
 };
 
 template<>
@@ -3044,6 +3234,8 @@ struct Icons {
     Icons& addIcon(const Icon & v) { if (!_icons) _icons = QList<Icon>{}; (*_icons).append(v); return *this; }
 
     const std::optional<QList<Icon>>& icons() const { return _icons; }
+
+    bool operator==(const Icons &other) const = default;
 };
 
 template<>
@@ -3063,6 +3255,8 @@ struct InputResponseRequestParams {
     const RequestMetaObject& _meta() const { return __meta; }
     const std::optional<InputResponses>& inputResponses() const { return _inputResponses; }
     const std::optional<QString>& requestState() const { return _requestState; }
+
+    bool operator==(const InputResponseRequestParams &other) const = default;
 };
 
 template<>
@@ -3085,6 +3279,8 @@ struct InternalError {
     const int& code() const { return _code; }
     const std::optional<QJsonValue>& data() const { return _data; }
     const QString& message() const { return _message; }
+
+    bool operator==(const InternalError &other) const = default;
 };
 
 template<>
@@ -3116,6 +3312,8 @@ struct InvalidParamsError {
     const int& code() const { return _code; }
     const std::optional<QJsonValue>& data() const { return _data; }
     const QString& message() const { return _message; }
+
+    bool operator==(const InvalidParamsError &other) const = default;
 };
 
 template<>
@@ -3138,6 +3336,8 @@ struct InvalidRequestError {
     const int& code() const { return _code; }
     const std::optional<QJsonValue>& data() const { return _data; }
     const QString& message() const { return _message; }
+
+    bool operator==(const InvalidRequestError &other) const = default;
 };
 
 template<>
@@ -3155,6 +3355,8 @@ struct JSONRPCErrorResponse {
 
     const Error& error() const { return _error; }
     const std::optional<RequestId>& id() const { return _id; }
+
+    bool operator==(const JSONRPCErrorResponse &other) const = default;
 };
 
 template<>
@@ -3175,6 +3377,8 @@ struct JSONRPCNotification {
     const QString& method() const { return _method; }
     const std::optional<QMap<QString, QJsonValue>>& params() const { return _params; }
     QJsonObject paramsAsObject() const { if (!_params) return {}; QJsonObject o; for (auto it = _params->constBegin(); it != _params->constEnd(); ++it) o.insert(it.key(), it.value()); return o; }
+
+    bool operator==(const JSONRPCNotification &other) const = default;
 };
 
 template<>
@@ -3198,6 +3402,8 @@ struct JSONRPCRequest {
     const QString& method() const { return _method; }
     const std::optional<QMap<QString, QJsonValue>>& params() const { return _params; }
     QJsonObject paramsAsObject() const { if (!_params) return {}; QJsonObject o; for (auto it = _params->constBegin(); it != _params->constEnd(); ++it) o.insert(it.key(), it.value()); return o; }
+
+    bool operator==(const JSONRPCRequest &other) const = default;
 };
 
 template<>
@@ -3215,6 +3421,8 @@ struct JSONRPCResultResponse {
 
     const RequestId& id() const { return _id; }
     const Result& result() const { return _result; }
+
+    bool operator==(const JSONRPCResultResponse &other) const = default;
 };
 
 template<>
@@ -3266,6 +3474,8 @@ struct PromptArgument {
     const QString& name() const { return _name; }
     const std::optional<bool>& required() const { return _required; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const PromptArgument &other) const = default;
 };
 
 template<>
@@ -3316,6 +3526,8 @@ struct Prompt {
     const std::optional<QList<Icon>>& icons() const { return _icons; }
     const QString& name() const { return _name; }
     const std::optional<QString>& title() const { return _title; }
+
+    bool operator==(const Prompt &other) const = default;
 };
 
 template<>
@@ -3386,6 +3598,8 @@ struct ListPromptsResult {
     const QList<Prompt>& prompts() const { return _prompts; }
     const QString& resultType() const { return _resultType; }
     const int& ttlMs() const { return _ttlMs; }
+
+    bool operator==(const ListPromptsResult &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const ListPromptsResult::CacheScope &v);
@@ -3410,6 +3624,8 @@ struct ListPromptsResultResponse {
 
     const RequestId& id() const { return _id; }
     const ListPromptsResult& result() const { return _result; }
+
+    bool operator==(const ListPromptsResultResponse &other) const = default;
 };
 
 template<>
@@ -3470,6 +3686,8 @@ struct ResourceTemplate {
     const QString& name() const { return _name; }
     const std::optional<QString>& title() const { return _title; }
     const QString& uriTemplate() const { return _uriTemplate; }
+
+    bool operator==(const ResourceTemplate &other) const = default;
 };
 
 template<>
@@ -3542,6 +3760,8 @@ struct ListResourceTemplatesResult {
     const QList<ResourceTemplate>& resourceTemplates() const { return _resourceTemplates; }
     const QString& resultType() const { return _resultType; }
     const int& ttlMs() const { return _ttlMs; }
+
+    bool operator==(const ListResourceTemplatesResult &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const ListResourceTemplatesResult::CacheScope &v);
@@ -3568,6 +3788,8 @@ struct ListResourceTemplatesResultResponse {
 
     const RequestId& id() const { return _id; }
     const ListResourceTemplatesResult& result() const { return _result; }
+
+    bool operator==(const ListResourceTemplatesResultResponse &other) const = default;
 };
 
 template<>
@@ -3636,6 +3858,8 @@ struct Resource {
     const std::optional<int>& size() const { return _size; }
     const std::optional<QString>& title() const { return _title; }
     const QString& uri() const { return _uri; }
+
+    bool operator==(const Resource &other) const = default;
 };
 
 template<>
@@ -3706,6 +3930,8 @@ struct ListResourcesResult {
     const QList<Resource>& resources() const { return _resources; }
     const QString& resultType() const { return _resultType; }
     const int& ttlMs() const { return _ttlMs; }
+
+    bool operator==(const ListResourcesResult &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const ListResourcesResult::CacheScope &v);
@@ -3730,6 +3956,8 @@ struct ListResourcesResultResponse {
 
     const RequestId& id() const { return _id; }
     const ListResourcesResult& result() const { return _result; }
+
+    bool operator==(const ListResourcesResultResponse &other) const = default;
 };
 
 template<>
@@ -3800,6 +4028,8 @@ struct ListToolsResult {
     const QString& resultType() const { return _resultType; }
     const QList<Tool>& tools() const { return _tools; }
     const int& ttlMs() const { return _ttlMs; }
+
+    bool operator==(const ListToolsResult &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const ListToolsResult::CacheScope &v);
@@ -3824,6 +4054,8 @@ struct ListToolsResultResponse {
 
     const RequestId& id() const { return _id; }
     const ListToolsResult& result() const { return _result; }
+
+    bool operator==(const ListToolsResultResponse &other) const = default;
 };
 
 template<>
@@ -3847,6 +4079,8 @@ struct LoggingMessageNotificationParams {
     const QJsonValue& data() const { return _data; }
     const LoggingLevel& level() const { return _level; }
     const std::optional<QString>& logger() const { return _logger; }
+
+    bool operator==(const LoggingMessageNotificationParams &other) const = default;
 };
 
 template<>
@@ -3863,6 +4097,8 @@ struct LoggingMessageNotification {
     LoggingMessageNotification& params(const LoggingMessageNotificationParams & v) { _params = v; return *this; }
 
     const LoggingMessageNotificationParams& params() const { return _params; }
+
+    bool operator==(const LoggingMessageNotification &other) const = default;
 };
 
 template<>
@@ -3889,6 +4125,8 @@ struct MethodNotFoundError {
     const int& code() const { return _code; }
     const std::optional<QJsonValue>& data() const { return _data; }
     const QString& message() const { return _message; }
+
+    bool operator==(const MethodNotFoundError &other) const = default;
 };
 
 template<>
@@ -3910,6 +4148,8 @@ struct MissingRequiredClientCapabilityError {
 
     const Error& error() const { return _error; }
     const std::optional<RequestId>& id() const { return _id; }
+
+    bool operator==(const MissingRequiredClientCapabilityError &other) const = default;
 };
 
 template<>
@@ -3938,6 +4178,8 @@ struct Notification {
     const QString& method() const { return _method; }
     const std::optional<QMap<QString, QJsonValue>>& params() const { return _params; }
     QJsonObject paramsAsObject() const { if (!_params) return {}; QJsonObject o; for (auto it = _params->constBegin(); it != _params->constEnd(); ++it) o.insert(it.key(), it.value()); return o; }
+
+    bool operator==(const Notification &other) const = default;
 };
 
 template<>
@@ -3952,6 +4194,8 @@ struct NotificationParams {
     NotificationParams& _meta(const std::optional<NotificationMetaObject> & v) { __meta = v; return *this; }
 
     const std::optional<NotificationMetaObject>& _meta() const { return __meta; }
+
+    bool operator==(const NotificationParams &other) const = default;
 };
 
 template<>
@@ -3971,6 +4215,8 @@ struct PaginatedRequest {
     const RequestId& id() const { return _id; }
     const QString& method() const { return _method; }
     const PaginatedRequestParams& params() const { return _params; }
+
+    bool operator==(const PaginatedRequest &other) const = default;
 };
 
 template<>
@@ -4003,6 +4249,8 @@ struct PaginatedResult {
     const std::optional<ResultMetaObject>& _meta() const { return __meta; }
     const std::optional<QString>& nextCursor() const { return _nextCursor; }
     const QString& resultType() const { return _resultType; }
+
+    bool operator==(const PaginatedResult &other) const = default;
 };
 
 template<>
@@ -4025,6 +4273,8 @@ struct ParseError {
     const int& code() const { return _code; }
     const std::optional<QJsonValue>& data() const { return _data; }
     const QString& message() const { return _message; }
+
+    bool operator==(const ParseError &other) const = default;
 };
 
 template<>
@@ -4051,6 +4301,8 @@ struct ProgressNotificationParams {
     const double& progress() const { return _progress; }
     const ProgressToken& progressToken() const { return _progressToken; }
     const std::optional<double>& total() const { return _total; }
+
+    bool operator==(const ProgressNotificationParams &other) const = default;
 };
 
 template<>
@@ -4067,6 +4319,8 @@ struct ProgressNotification {
     ProgressNotification& params(const ProgressNotificationParams & v) { _params = v; return *this; }
 
     const ProgressNotificationParams& params() const { return _params; }
+
+    bool operator==(const ProgressNotification &other) const = default;
 };
 
 template<>
@@ -4083,6 +4337,8 @@ struct PromptListChangedNotification {
     PromptListChangedNotification& params(const std::optional<NotificationParams> & v) { _params = v; return *this; }
 
     const std::optional<NotificationParams>& params() const { return _params; }
+
+    bool operator==(const PromptListChangedNotification &other) const = default;
 };
 
 template<>
@@ -4146,6 +4402,8 @@ struct ReadResourceResult {
     const QList<EmbeddedResourceResource>& contents() const { return _contents; }
     const QString& resultType() const { return _resultType; }
     const int& ttlMs() const { return _ttlMs; }
+
+    bool operator==(const ReadResourceResult &other) const = default;
 };
 
 MCPSERVER_EXPORT QString toString(const ReadResourceResult::CacheScope &v);
@@ -4177,6 +4435,8 @@ struct ReadResourceResultResponse {
 
     const RequestId& id() const { return _id; }
     const ReadResourceResultResponseResult& result() const { return _result; }
+
+    bool operator==(const ReadResourceResultResponse &other) const = default;
 };
 
 template<>
@@ -4196,6 +4456,8 @@ struct Request {
     const QString& method() const { return _method; }
     const std::optional<QMap<QString, QJsonValue>>& params() const { return _params; }
     QJsonObject paramsAsObject() const { if (!_params) return {}; QJsonObject o; for (auto it = _params->constBegin(); it != _params->constEnd(); ++it) o.insert(it.key(), it.value()); return o; }
+
+    bool operator==(const Request &other) const = default;
 };
 
 template<>
@@ -4216,6 +4478,8 @@ struct ResourceContents {
     const std::optional<MetaObject>& _meta() const { return __meta; }
     const std::optional<QString>& mimeType() const { return _mimeType; }
     const QString& uri() const { return _uri; }
+
+    bool operator==(const ResourceContents &other) const = default;
 };
 
 template<>
@@ -4232,6 +4496,8 @@ struct ResourceListChangedNotification {
     ResourceListChangedNotification& params(const std::optional<NotificationParams> & v) { _params = v; return *this; }
 
     const std::optional<NotificationParams>& params() const { return _params; }
+
+    bool operator==(const ResourceListChangedNotification &other) const = default;
 };
 
 template<>
@@ -4249,6 +4515,8 @@ struct ResourceRequestParams {
 
     const RequestMetaObject& _meta() const { return __meta; }
     const QString& uri() const { return _uri; }
+
+    bool operator==(const ResourceRequestParams &other) const = default;
 };
 
 template<>
@@ -4266,6 +4534,8 @@ struct ResourceUpdatedNotificationParams {
 
     const std::optional<NotificationMetaObject>& _meta() const { return __meta; }
     const QString& uri() const { return _uri; }
+
+    bool operator==(const ResourceUpdatedNotificationParams &other) const = default;
 };
 
 template<>
@@ -4282,6 +4552,8 @@ struct ResourceUpdatedNotification {
     ResourceUpdatedNotification& params(const ResourceUpdatedNotificationParams & v) { _params = v; return *this; }
 
     const ResourceUpdatedNotificationParams& params() const { return _params; }
+
+    bool operator==(const ResourceUpdatedNotification &other) const = default;
 };
 
 template<>
@@ -4309,6 +4581,8 @@ struct SubscriptionsAcknowledgedNotificationParams {
 
     const std::optional<NotificationMetaObject>& _meta() const { return __meta; }
     const SubscriptionFilter& notifications() const { return _notifications; }
+
+    bool operator==(const SubscriptionsAcknowledgedNotificationParams &other) const = default;
 };
 
 template<>
@@ -4334,6 +4608,8 @@ struct SubscriptionsAcknowledgedNotification {
     SubscriptionsAcknowledgedNotification& params(const SubscriptionsAcknowledgedNotificationParams & v) { _params = v; return *this; }
 
     const SubscriptionsAcknowledgedNotificationParams& params() const { return _params; }
+
+    bool operator==(const SubscriptionsAcknowledgedNotification &other) const = default;
 };
 
 template<>
@@ -4350,6 +4626,8 @@ struct ToolListChangedNotification {
     ToolListChangedNotification& params(const std::optional<NotificationParams> & v) { _params = v; return *this; }
 
     const std::optional<NotificationParams>& params() const { return _params; }
+
+    bool operator==(const ToolListChangedNotification &other) const = default;
 };
 
 template<>
@@ -4402,6 +4680,8 @@ struct SubscriptionsListenResultMetaObject {
 
     const std::optional<Implementation>& iodotmodelcontextprotocolslashserverInfo() const { return _iodotmodelcontextprotocolslashserverInfo; }
     const RequestId& iodotmodelcontextprotocolslashsubscriptionId() const { return _iodotmodelcontextprotocolslashsubscriptionId; }
+
+    bool operator==(const SubscriptionsListenResultMetaObject &other) const = default;
 };
 
 template<>
@@ -4434,6 +4714,8 @@ struct SubscriptionsListenResult {
 
     const SubscriptionsListenResultMetaObject& _meta() const { return __meta; }
     const QString& resultType() const { return _resultType; }
+
+    bool operator==(const SubscriptionsListenResult &other) const = default;
 };
 
 template<>
@@ -4475,6 +4757,8 @@ struct SubscriptionsListenResultResponse {
 
     const RequestId& id() const { return _id; }
     const SubscriptionsListenResult& result() const { return _result; }
+
+    bool operator==(const SubscriptionsListenResultResponse &other) const = default;
 };
 
 template<>
@@ -4497,6 +4781,8 @@ struct UnsupportedProtocolVersionError {
 
     const Error& error() const { return _error; }
     const std::optional<RequestId>& id() const { return _id; }
+
+    bool operator==(const UnsupportedProtocolVersionError &other) const = default;
 };
 
 template<>
