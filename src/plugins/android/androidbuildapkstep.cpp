@@ -358,8 +358,12 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     connect(keystoreLocationChooser, &PathChooser::textChanged, this, [this, keystoreLocationChooser] {
         const FilePath file = keystoreLocationChooser->unexpandedFilePath();
         m_step->setKeystorePath(file);
+        const bool wasChecked = m_signPackageCheckBox->isChecked();
         m_signPackageCheckBox->setChecked(!file.isEmpty());
-        if (!file.isEmpty())
+        // If the checkbox just became checked, signPackageCheckBoxToggled()
+        // already queues a setCertificates() call. Calling it again here too
+        // would pop up the keystore password dialog twice.
+        if (!file.isEmpty() && wasChecked)
             setCertificates();
     });
 
