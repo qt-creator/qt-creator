@@ -455,6 +455,17 @@ PyType PyType::lookupType(const std::string &typeNameIn, ULONG64 module)
     return PyType();
 }
 
+void PyType::clearUnresolvedTypes()
+{
+    auto &cache = typeCache();
+    for (auto it = cache.begin(); it != cache.end();) {
+        if (it->second.m_resolved.value_or(false))
+            ++it;
+        else
+            it = cache.erase(it);
+    }
+}
+
 bool PyType::resolve() const
 {
     if (m_resolved)
@@ -536,6 +547,7 @@ PY_FUNC_RET_STD_STRING(module, PY_OBJ_NAME)
 PY_FUNC(moduleId, PY_OBJ_NAME, "K")
 PY_FUNC(arrayElements, PY_OBJ_NAME, "k")
 PY_FUNC_RET_BOOL(resolved, PY_OBJ_NAME)
+PY_FUNC_RET_BOOL(unresolvable, PY_OBJ_NAME)
 PY_FUNC_DECL(templateArguments, PY_OBJ_NAME)
 {
     PY_IMPL_GUARD;
@@ -573,6 +585,8 @@ static PyMethodDef typeMethods[] = {
      "Returns all template arguments."},
     {"resolved",            PyCFunction(resolved),              METH_NOARGS,
      "Returns whether the type is resolved"},
+    {"unresolvable",        PyCFunction(unresolvable),          METH_NOARGS,
+     "Returns whether looking the type up has been tried and failed"},
 
     {NULL}  /* Sentinel */
 };

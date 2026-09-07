@@ -3,6 +3,7 @@
 
 #include "eventcallback.h"
 #include "extensioncontext.h"
+#include "pytype.h"
 #include "stringutils.h"
 #include "gdbmihelpers.h"
 
@@ -232,6 +233,7 @@ STDMETHODIMP EventCallback::LoadModule(
     __in ULONG TimeDateStamp
     )
 {
+    PyType::clearUnresolvedTypes();
     return m_wrapped ? m_wrapped->LoadModule(ImageFileHandle, BaseOffset,
                                              ModuleSize, ModuleName, ImageName,
                                              CheckSum, TimeDateStamp) : S_OK;

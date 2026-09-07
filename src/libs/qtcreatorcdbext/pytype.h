@@ -30,6 +30,8 @@ public:
     ULONG64 moduleId() const;
     int arrayElements() const;
     bool resolved() const { return m_resolved.value_or(false); }
+    // Looked up already, and not found - as opposed to not looked up yet.
+    bool unresolvable() const { return m_resolved.has_value() && !*m_resolved; }
 
     struct TemplateArgument
     {
@@ -49,6 +51,7 @@ public:
     bool isValid() const;
 
     static PyType lookupType(const std::string &typeName, ULONG64 module = 0);
+    static void clearUnresolvedTypes();
 
 private:
     bool resolve() const;

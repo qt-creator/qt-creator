@@ -494,6 +494,9 @@ class Dumper(DumperBase):
         else:
             return typeName
 
+    def nativeTypeIsUsable(self, nativeType) -> bool:
+        return not nativeType.unresolvable()
+
     def lookupNativeType(self, name: str, module=0) -> cdbext.Type:
         if name.startswith('void'):
             return FakeVoidType(name, self)
