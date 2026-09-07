@@ -20,11 +20,7 @@ QtcPlugin {
         "copilotsettings.cpp",
         "copilotsettings.h",
         "copilottr.h",
-        "requests/checkstatus.h",
-        "requests/getcompletions.h",
-        "requests/signinconfirm.h",
-        "requests/signininitiate.h",
-        "requests/signout.h",
+        "copilotrequests.h",
     ]
 
     Group {

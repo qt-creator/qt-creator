@@ -7,19 +7,26 @@
 
 #include <texteditor/textdocument.h>
 
-#include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/lspjsonrpc.h>
 
+#include <utils/link.h>
 #include <utils/searchresultitem.h>
 
 #include <functional>
 
 namespace Core { class SearchResult; }
-namespace LanguageServerProtocol { class MessageId; }
 
 namespace LanguageClient {
 
 class Client;
 enum class LinkTarget { SymbolDef, SymbolTypeDef, SymbolImplementation };
+
+/// The document and position a request is made for.
+struct DocumentPosition
+{
+    LanguageServerProtocol::TextDocumentIdentifier textDocument;
+    LanguageServerProtocol::Position position;
+};
 
 class LANGUAGECLIENT_EXPORT SymbolSupport : public QObject
 {
@@ -27,18 +34,22 @@ public:
     explicit SymbolSupport(Client *client);
 
     bool supportsFindLink(TextEditor::TextDocument *document, LinkTarget target) const;
-    LanguageServerProtocol::MessageId findLinkAt(TextEditor::TextDocument *document,
-                                                 const QTextCursor &cursor,
-                                                 Utils::LinkHandler callback,
-                                                 const bool resolveTarget,
-                                                 const LinkTarget target);
+    LanguageServerProtocol::MessageId findLinkAt(
+        TextEditor::TextDocument *document,
+        const QTextCursor &cursor,
+        Utils::LinkHandler callback,
+        const bool resolveTarget,
+        const LinkTarget target);
 
     bool supportsFindUsages(TextEditor::TextDocument *document) const;
-    using ResultHandler = std::function<void(const QList<LanguageServerProtocol::Location> &)>;
+    /// The found locations, plus the result as it arrived, which carries whatever
+    /// the server adds to a location beyond the protocol.
+    using ResultHandler = std::function<
+        void(const QList<LanguageServerProtocol::Location> &, const QJsonValue &rawResult)>;
     std::optional<LanguageServerProtocol::MessageId> findUsages(
-            TextEditor::TextDocument *document,
-            const QTextCursor &cursor,
-            const ResultHandler &handler = {});
+        TextEditor::TextDocument *document,
+        const QTextCursor &cursor,
+        const ResultHandler &handler = {});
 
     bool supportsRename(TextEditor::TextDocument *document);
     void renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor,
@@ -58,27 +69,26 @@ public:
     void setRenameResultsEnhancer(const RenameResultsEnhancer &enhancer);
 
 private:
-    void handleFindReferencesResponse(
-        const LanguageServerProtocol::FindReferencesRequest::Response &response,
-        const QString &wordUnderCursor,
-        const ResultHandler &handler);
+    void handleFindReferencesResult(const QJsonObject &response,
+                                    const QString &wordUnderCursor,
+                                    const ResultHandler &handler);
 
     void requestPrepareRename(TextEditor::TextDocument *document,
-                              const LanguageServerProtocol::TextDocumentPositionParams &params,
+                              const DocumentPosition &position,
                               const QString &placeholder,
                               const QString &oldSymbolName, const std::function<void()> &callback,
                               bool preferLowerCaseFileNames);
-    void requestRename(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
-                       Core::SearchResult *search);
-    Core::SearchResult *createSearch(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
+    void requestRename(const DocumentPosition &position, Core::SearchResult *search);
+    Core::SearchResult *createSearch(const DocumentPosition &position,
                                      const QString &placeholder, const QString &oldSymbolName,
                                      const std::function<void()> &callback,
                                      bool preferLowerCaseFileNames);
-    void startRenameSymbol(const LanguageServerProtocol::TextDocumentPositionParams &params,
+    void startRenameSymbol(const DocumentPosition &position,
                            const QString &placeholder, const QString &oldSymbolName,
                            const std::function<void()> &callback, bool preferLowerCaseFileNames);
-    void handleRenameResponse(Core::SearchResult *search,
-                              const LanguageServerProtocol::RenameRequest::Response &response);
+    void handleRenameResult(
+        Core::SearchResult *search,
+        const Utils::Result<LanguageServerProtocol::RenameRequestResult> &result);
     void applyRename(const Utils::SearchResultItems &checkedItems, Core::SearchResult *search);
     QString derivePlaceholder(const QString &oldSymbol, const QString &newSymbol);
 

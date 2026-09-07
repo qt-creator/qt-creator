@@ -7,7 +7,8 @@
 
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <languageserverprotocol/progresssupport.h>
+
+#include <languageserverprotocol/lspmessages.h>
 
 #include <QTime>
 #include <QTimer>
@@ -27,31 +28,47 @@ ProgressManager::~ProgressManager()
     reset();
 }
 
-void ProgressManager::handleProgress(const LanguageServerProtocol::ProgressParams &params)
+// The progress value is untyped in the protocol; its "kind" tells the report apart.
+static QString progressKind(const ProgressParams &params)
 {
-    const ProgressToken &token = params.token();
-    ProgressParams::ProgressType value = params.value();
-    if (auto begin = std::get_if<WorkDoneProgressBegin>(&value))
-        beginProgress(token, *begin);
-    else if (auto report = std::get_if<WorkDoneProgressReport>(&value))
-        reportProgress(token, *report);
-    else if (auto end = std::get_if<WorkDoneProgressEnd>(&value))
-        endProgress(token, *end);
+    return params.value().toObject().value("kind").toString();
 }
 
-void ProgressManager::setTitleForToken(const LanguageServerProtocol::ProgressToken &token,
+void ProgressManager::handleProgress(const ProgressParams &params)
+{
+    const ProgressToken &token = params.token();
+    const QString kind = progressKind(params);
+    if (kind == "begin") {
+        if (const Utils::Result<WorkDoneProgressBegin> begin
+            = fromJson<WorkDoneProgressBegin>(params.value())) {
+            beginProgress(token, *begin);
+        }
+    } else if (kind == "report") {
+        if (const Utils::Result<WorkDoneProgressReport> report
+            = fromJson<WorkDoneProgressReport>(params.value())) {
+            reportProgress(token, *report);
+        }
+    } else if (kind == "end") {
+        if (const Utils::Result<WorkDoneProgressEnd> end
+            = fromJson<WorkDoneProgressEnd>(params.value())) {
+            endProgress(token, *end);
+        }
+    }
+}
+
+void ProgressManager::setTitleForToken(const ProgressToken &token,
                                          const QString &message)
 {
     m_titles.insert(token, message);
 }
 
-void ProgressManager::setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
+void ProgressManager::setClickHandlerForToken(const ProgressToken &token,
                                               const std::function<void()> &handler)
 {
     m_clickHandlers.insert(token, handler);
 }
 
-void ProgressManager::setCancelHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
+void ProgressManager::setCancelHandlerForToken(const ProgressToken &token,
                                                const std::function<void ()> &handler)
 {
     m_cancelHandlers.insert(token, handler);
@@ -64,9 +81,9 @@ void ProgressManager::reset()
         endProgressReport(token);
 }
 
-bool ProgressManager::isProgressEndMessage(const LanguageServerProtocol::ProgressParams &params)
+bool ProgressManager::isProgressEndMessage(const ProgressParams &params)
 {
-    return std::holds_alternative<WorkDoneProgressEnd>(params.value());
+    return progressKind(params) == "end";
 }
 
 static Utils::Id languageClientProgressId(const ProgressToken &token)
@@ -97,10 +114,13 @@ void ProgressManager::beginProgress(const ProgressToken &token, const WorkDonePr
     progressItem.showBarTimer->start();
     progressItem.cancelable = begin.cancellable().value_or(false);
     m_progress[token] = progressItem;
-    reportProgress(token, begin);
+    reportProgress(token, WorkDoneProgressReport()
+                              .cancellable(begin.cancellable())
+                              .message(begin.message())
+                              .percentage(begin.percentage()));
 }
 
-void ProgressManager::spawnProgressBar(const LanguageServerProtocol::ProgressToken &token)
+void ProgressManager::spawnProgressBar(const ProgressToken &token)
 {
     ProgressItem &progressItem = m_progress[token];
     QTC_ASSERT(progressItem.futureInterface, return);
@@ -131,9 +151,8 @@ void ProgressManager::spawnProgressBar(const LanguageServerProtocol::ProgressTok
 void ProgressManager::cancelProgress(const ProgressToken &token)
 {
     QTC_ASSERT(m_client, return);
-    WorkDoneProgressCancelParams cancelParams;
-    cancelParams.setToken(token);
-    m_client->sendMessage(WorkDoneProgressCancelNotification(cancelParams));
+    m_client->sendNotification<WorkDoneProgressCancelNotification>(
+        WorkDoneProgressCancelParams().token(token));
     ProgressItem &progressItem = m_progress[token];
     QTC_ASSERT(progressItem.futureInterface, return);
     progressItem.futureInterface->cancelAndFinish();
@@ -154,7 +173,7 @@ void ProgressManager::reportProgress(const ProgressToken &token,
         progress.message = *message;
     }
     if (progress.futureInterface) {
-        if (const std::optional<double> &percentage = report.percentage(); percentage.has_value())
+        if (const std::optional<int> &percentage = report.percentage(); percentage.has_value())
             progress.futureInterface->setProgressValue(*percentage);
     }
 }

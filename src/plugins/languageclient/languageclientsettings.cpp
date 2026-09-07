@@ -22,6 +22,7 @@
 #include <texteditor/plaintexteditorfactory.h>
 #include <texteditor/textmark.h>
 
+#include <utils/mimeutils.h>
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/guiutils.h>

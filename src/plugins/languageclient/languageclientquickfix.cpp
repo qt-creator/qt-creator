@@ -10,13 +10,14 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/quickfix.h>
 
+#include <languageserverprotocol/lsputils.h>
 
-using namespace LanguageServerProtocol;
 using namespace TextEditor;
 
 namespace LanguageClient {
 
-CodeActionQuickFixOperation::CodeActionQuickFixOperation(const CodeAction &action, Client *client)
+CodeActionQuickFixOperation::CodeActionQuickFixOperation(
+    const LanguageServerProtocol::CodeAction &action, Client *client)
     : m_action(action)
     , m_client(client)
 {
@@ -27,13 +28,14 @@ void CodeActionQuickFixOperation::perform()
 {
     if (!m_client)
         return;
-    if (std::optional<WorkspaceEdit> edit = m_action.edit())
+    if (const std::optional<LanguageServerProtocol::WorkspaceEdit> &edit = m_action.edit())
         applyWorkspaceEdit(m_client, *edit);
-    else if (std::optional<Command> command = m_action.command())
+    else if (const std::optional<LanguageServerProtocol::Command> &command = m_action.command())
         m_client->executeCommand(*command);
 }
 
-CommandQuickFixOperation::CommandQuickFixOperation(const Command &command, Client *client)
+CommandQuickFixOperation::CommandQuickFixOperation(
+    const LanguageServerProtocol::Command &command, Client *client)
     : m_command(command)
     , m_client(client)
 { setDescription(command.title()); }
@@ -47,8 +49,7 @@ void CommandQuickFixOperation::perform()
 
 IAssistProposal *LanguageClientQuickFixAssistProcessor::perform()
 {
-    CodeActionParams params;
-    params.setContext({});
+    LanguageServerProtocol::CodeActionParams params;
     QTextCursor cursor = interface()->cursor();
     if (!cursor.hasSelection()) {
         if (cursor.atBlockEnd() || cursor.atBlockStart())
@@ -58,23 +59,19 @@ IAssistProposal *LanguageClientQuickFixAssistProcessor::perform()
     }
     if (!cursor.hasSelection())
         cursor.select(QTextCursor::LineUnderCursor);
-    Range range(cursor);
-    params.setRange(range);
+    params.range(LanguageServerProtocol::rangeOf(cursor));
     const Utils::FilePath filePath = interface()->filePath();
-    const DocumentUri &uri = m_client->hostPathToServerUri(filePath);
-    params.setTextDocument(TextDocumentIdentifier(uri));
-    CodeActionParams::CodeActionContext context;
-    context.setDiagnostics(m_client->diagnosticsAt(filePath, cursor));
-    params.setContext(context);
-
-    CodeActionRequest request(params);
-    request.setResponseCallback([this](const CodeActionRequest::Response &response){
-        handleCodeActionResponse(response);
-    });
+    params.textDocument(
+        LanguageServerProtocol::TextDocumentIdentifier().uri(m_client->uriFor(filePath)));
+    params.context(LanguageServerProtocol::CodeActionContext().diagnostics(
+        m_client->diagnosticsAt(filePath, cursor)));
 
     m_client->addAssistProcessor(this);
-    m_client->requestCodeActions(request);
-    m_currentRequest = request.id();
+    m_currentRequest = m_client->sendRequest<LanguageServerProtocol::CodeActionRequest>(
+        params,
+        [this](const Utils::Result<LanguageServerProtocol::CodeActionRequestResult> &result) {
+            handleCodeActionResponse(result);
+        });
     return nullptr;
 }
 
@@ -87,35 +84,36 @@ void LanguageClientQuickFixAssistProcessor::cancel()
     }
 }
 
-QuickFixOperations LanguageClientQuickFixAssistProcessor::resultToOperations(const LanguageServerProtocol::CodeActionResult &result)
+QuickFixOperations LanguageClientQuickFixAssistProcessor::resultToOperations(
+    const LanguageServerProtocol::CodeActionRequestResult &result)
 {
-    auto list = std::get_if<QList<std::variant<Command, CodeAction>>>(&result);
+    const auto list = std::get_if<QList<LanguageServerProtocol::CommandOrCodeAction>>(&result);
     if (!list)
         return {};
 
     QuickFixOperations ops;
-    for (const std::variant<Command, CodeAction> &item : *list) {
-        if (auto action = std::get_if<CodeAction>(&item))
+    for (const LanguageServerProtocol::CommandOrCodeAction &item : *list) {
+        if (const auto action = std::get_if<LanguageServerProtocol::CodeAction>(&item))
             ops << new CodeActionQuickFixOperation(*action, m_client);
-        else if (auto command = std::get_if<Command>(&item))
+        else if (const auto command = std::get_if<LanguageServerProtocol::Command>(&item))
             ops << new CommandQuickFixOperation(*command, m_client);
     }
     return ops;
 }
 
-void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(const CodeActionRequest::Response &response)
+void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(
+    const Utils::Result<LanguageServerProtocol::CodeActionRequestResult> &result)
 {
     m_currentRequest.reset();
-    if (const std::optional<CodeActionRequest::Response::Error> &error = response.error())
-        m_client->log(*error);
+    if (!result)
+        m_client->log(QtMsgType::QtCriticalMsg, result.error());
     m_client->removeAssistProcessor(this);
-    GenericProposal *proposal = nullptr;
-    if (const std::optional<CodeActionResult> &result = response.result())
-        proposal = handleCodeActionResult(*result);
+    GenericProposal *proposal = result ? handleCodeActionResult(*result) : nullptr;
     setAsyncProposalAvailable(proposal);
 }
 
-GenericProposal *LanguageClientQuickFixAssistProcessor::handleCodeActionResult(const CodeActionResult &result)
+GenericProposal *LanguageClientQuickFixAssistProcessor::handleCodeActionResult(
+    const LanguageServerProtocol::CodeActionRequestResult &result)
 {
     return GenericProposal::createProposal(interface(), resultToOperations(result));
 }

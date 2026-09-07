@@ -7,6 +7,8 @@
 
 #include <coreplugin/progressmanager/futureprogress.h>
 
+#include <languageserverprotocol/lsptypes.h>
+
 #include <QElapsedTimer>
 #include <QFutureInterface>
 #include <QPointer>
@@ -14,14 +16,6 @@
 QT_BEGIN_NAMESPACE
 class QTimer;
 QT_END_NAMESPACE
-
-namespace LanguageServerProtocol {
-class ProgressParams;
-class ProgressToken;
-class WorkDoneProgressBegin;
-class WorkDoneProgressReport;
-class WorkDoneProgressEnd;
-} // namespace LanguageServerProtocol
 
 namespace LanguageClient {
 
@@ -33,12 +27,11 @@ public:
     ProgressManager(Client *client);
     ~ProgressManager();
     void handleProgress(const LanguageServerProtocol::ProgressParams &params);
-    void setTitleForToken(const LanguageServerProtocol::ProgressToken &token,
-                          const QString &message);
-    void setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
-                                 const std::function<void()> &handler);
-    void setCancelHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
-                                  const std::function<void()> &handler);
+    void setTitleForToken(const LanguageServerProtocol::ProgressToken &token, const QString &message);
+    void setClickHandlerForToken(
+        const LanguageServerProtocol::ProgressToken &token, const std::function<void()> &handler);
+    void setCancelHandlerForToken(
+        const LanguageServerProtocol::ProgressToken &token, const std::function<void()> &handler);
     void endProgressReport(const LanguageServerProtocol::ProgressToken &token);
 
     void reset();
@@ -46,12 +39,15 @@ public:
     static bool isProgressEndMessage(const LanguageServerProtocol::ProgressParams &params);
 
 private:
-    void beginProgress(const LanguageServerProtocol::ProgressToken &token,
-                       const LanguageServerProtocol::WorkDoneProgressBegin &begin);
-    void reportProgress(const LanguageServerProtocol::ProgressToken &token,
-                        const LanguageServerProtocol::WorkDoneProgressReport &report);
-    void endProgress(const LanguageServerProtocol::ProgressToken &token,
-                     const LanguageServerProtocol::WorkDoneProgressEnd &end);
+    void beginProgress(
+        const LanguageServerProtocol::ProgressToken &token,
+        const LanguageServerProtocol::WorkDoneProgressBegin &begin);
+    void reportProgress(
+        const LanguageServerProtocol::ProgressToken &token,
+        const LanguageServerProtocol::WorkDoneProgressReport &report);
+    void endProgress(
+        const LanguageServerProtocol::ProgressToken &token,
+        const LanguageServerProtocol::WorkDoneProgressEnd &end);
     void spawnProgressBar(const LanguageServerProtocol::ProgressToken &token);
     void cancelProgress(const LanguageServerProtocol::ProgressToken &token);
 

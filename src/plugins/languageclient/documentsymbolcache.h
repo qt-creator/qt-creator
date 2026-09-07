@@ -6,8 +6,7 @@
 #include "languageclient_global.h"
 #include "languageclientutils.h"
 
-#include <languageserverprotocol/languagefeatures.h>
-#include <languageserverprotocol/lsptypes.h>
+#include <languageserverprotocol/lspjsonrpc.h>
 
 #include <QMap>
 #include <QObject>
@@ -24,22 +23,23 @@ class LANGUAGECLIENT_EXPORT DocumentSymbolCache : public QObject
 public:
     DocumentSymbolCache(Client *client);
 
-    void requestSymbols(const LanguageServerProtocol::DocumentUri &uri, Schedule schedule);
+    void requestSymbols(const QString &uri, Schedule schedule);
 
 signals:
-    void gotSymbols(const LanguageServerProtocol::DocumentUri &uri,
-                    const LanguageServerProtocol::DocumentSymbolsResult &symbols);
+    void gotSymbols(
+        const QString &uri, const LanguageServerProtocol::DocumentSymbolRequestResult &symbols);
 
 private:
     void requestSymbolsImpl();
-    void handleResponse(const LanguageServerProtocol::DocumentUri &uri,
-                        const LanguageServerProtocol::DocumentSymbolsRequest::Response &response);
+    void handleResponse(
+        const QString &uri,
+        const Utils::Result<LanguageServerProtocol::DocumentSymbolRequestResult> &result);
 
-    QMap<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::DocumentSymbolsResult> m_cache;
-    QMap<LanguageServerProtocol::DocumentUri, LanguageServerProtocol::MessageId> m_runningRequests;
+    QMap<QString, LanguageServerProtocol::DocumentSymbolRequestResult> m_cache;
+    QMap<QString, LanguageServerProtocol::MessageId> m_runningRequests;
     Client *m_client = nullptr;
     QTimer m_compressionTimer;
-    QSet<LanguageServerProtocol::DocumentUri> m_compressedUris;
+    QSet<QString> m_compressedUris;
 };
 
 } // namespace LanguageClient

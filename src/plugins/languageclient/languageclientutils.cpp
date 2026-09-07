@@ -15,6 +15,8 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/processprogress.h>
 
+#include <languageserverprotocol/lsputils.h>
+
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -42,11 +44,10 @@ namespace LanguageClient {
 
 static ChangeSet::Range convertRange(const QTextDocument *doc, const Range &range)
 {
-    int start = range.start().toPositionInDocument(doc);
-    int end = range.end().toPositionInDocument(doc);
-    // This addesses an issue from the python language server where the reported end line
-    // was behind the actual end of the document. As a workaround treat every position after
-    // the end of the document as the end of the document.
+    int start = positionInDocument(range.start(), doc);
+    int end = positionInDocument(range.end(), doc);
+    // See the overload above for why a position past the end of the document is
+    // treated as its end.
     if (end < 0 && range.end().line() >= doc->blockCount()) {
         QTextCursor tc(doc->firstBlock());
         tc.movePosition(QTextCursor::End);
@@ -65,25 +66,31 @@ ChangeSet editsToChangeSet(const QList<TextEdit> &edits, const QTextDocument *do
 
 bool applyTextDocumentEdit(const Client *client, const TextDocumentEdit &edit)
 {
-    const QList<TextEdit> &edits = edit.edits();
+    QList<TextEdit> edits;
+    for (const TextDocumentEditEditsItem &item : edit.edits()) {
+        if (const auto textEdit = std::get_if<TextEdit>(&item))
+            edits << *textEdit;
+        else if (const auto annotated = std::get_if<AnnotatedTextEdit>(&item))
+            edits << TextEdit().range(annotated->range()).newText(annotated->newText());
+    }
     if (edits.isEmpty())
         return true;
-    const DocumentUri &uri = edit.textDocument().uri();
-    const FilePath &filePath = client->serverUriToHostPath(uri);
-    LanguageClientValue<int> version = edit.textDocument().version();
-    if (!version.isNull() && version.value(0) < client->documentVersion(filePath))
-        return false;
+    const QString &uri = edit.textDocument().uri();
+    const FilePath &filePath = client->filePathFor(uri);
+    if (const std::optional<int> &version = edit.textDocument().version()) {
+        if (*version < client->documentVersion(filePath))
+            return false;
+    }
     return applyTextEdits(client, uri, edits);
 }
 
-bool applyTextEdits(const Client *client, const DocumentUri &uri, const QList<TextEdit> &edits)
+bool applyTextEdits(const Client *client, const QString &uri, const QList<TextEdit> &edits)
 {
-    return applyTextEdits(client, client->serverUriToHostPath(uri), edits);
+    return applyTextEdits(client, client->filePathFor(uri), edits);
 }
 
-bool applyTextEdits(const Client *client,
-                    const Utils::FilePath &filePath,
-                    const QList<LanguageServerProtocol::TextEdit> &edits)
+bool applyTextEdits(
+    const Client *client, const Utils::FilePath &filePath, const QList<TextEdit> &edits)
 {
     if (edits.isEmpty())
         return true;
@@ -93,10 +100,9 @@ bool applyTextEdits(const Client *client,
 
 void applyTextEdit(TextEditorWidget *editorWidget, const TextEdit &edit, bool newTextIsSnippet)
 {
-    const Range range = edit.range();
     const QTextDocument *doc = editorWidget->document();
-    const int start = range.start().toPositionInDocument(doc);
-    const int end = range.end().toPositionInDocument(doc);
+    const int start = positionInDocument(edit.range().start(), doc);
+    const int end = positionInDocument(edit.range().end(), doc);
     if (newTextIsSnippet) {
         editorWidget->replace(start, end - start, {});
         editorWidget->insertCodeSnippet(start, edit.newText(), &parseSnippet);
@@ -108,17 +114,25 @@ void applyTextEdit(TextEditorWidget *editorWidget, const TextEdit &edit, bool ne
 bool applyWorkspaceEdit(const Client *client, const WorkspaceEdit &edit)
 {
     bool result = true;
-    const auto documentChanges = edit.documentChanges().value_or(QList<DocumentChange>());
+    const auto documentChanges = edit.documentChanges().value_or(
+        QList<WorkspaceEditDocumentChangesItem>());
     if (!documentChanges.isEmpty()) {
-        for (const DocumentChange &documentChange : documentChanges)
+        for (const WorkspaceEditDocumentChangesItem &documentChange : documentChanges)
             result |= applyDocumentChange(client, documentChange);
     } else {
-        const WorkspaceEdit::Changes &changes = edit.changes().value_or(WorkspaceEdit::Changes());
+        const auto changes = edit.changes().value_or(QMap<QString, QList<TextEdit>>());
         for (auto it = changes.cbegin(); it != changes.cend(); ++it)
             result |= applyTextEdits(client, it.key(), it.value());
         return result;
     }
     return result;
+}
+
+Utils::Link linkFor(const Client *client, const Location &location)
+{
+    return Utils::Link(client->filePathFor(location.uri()),
+                       location.range().start().line() + 1,
+                       location.range().start().character());
 }
 
 static QTextCursor endOfLineCursor(const QTextCursor &cursor)
@@ -128,11 +142,10 @@ static QTextCursor endOfLineCursor(const QTextCursor &cursor)
     return ret;
 }
 
-void updateCodeActionRefactoringMarker(Client *client,
-                                       const QList<CodeAction> &actions,
-                                       const DocumentUri &uri)
+void updateCodeActionRefactoringMarker(
+    Client *client, const QList<CodeAction> &actions, const QString &uri)
 {
-    TextDocument* doc = TextDocument::textDocumentForFilePath(client->serverUriToHostPath(uri));
+    TextDocument *doc = TextDocument::textDocumentForFilePath(client->filePathFor(uri));
     if (!doc)
         return;
     const QList<TextEditorWidget *> editorWidgets = TextEditorWidget::textEditorWidgetsForDocument(doc);
@@ -141,7 +154,7 @@ void updateCodeActionRefactoringMarker(Client *client,
 
     QHash<int, RefactorMarker> markersAtBlock;
     const auto addMarkerForCursor = [&](const CodeAction &action, const Range &range) {
-        const QTextCursor cursor = endOfLineCursor(range.start().toTextCursor(doc->document()));
+        const QTextCursor cursor = endOfLineCursor(toTextCursor(range.start(), doc->document()));
         const auto it = markersAtBlock.find(cursor.blockNumber());
         if (it != markersAtBlock.end()) {
             it->tooltip = Tr::tr("Show available quick fixes");
@@ -154,8 +167,7 @@ void updateCodeActionRefactoringMarker(Client *client,
         RefactorMarker marker;
         marker.type = client->id();
         marker.cursor = cursor;
-        if (action.isValid())
-            marker.tooltip = action.title();
+        marker.tooltip = action.title();
         if (action.edit()) {
             marker.callback = [client = QPointer(client),
                                edit = action.edit()](const TextEditorWidget *) {
@@ -173,22 +185,28 @@ void updateCodeActionRefactoringMarker(Client *client,
     };
 
     for (const CodeAction &action : actions) {
-        const QList<Diagnostic> &diagnostics = action.diagnostics().value_or(QList<Diagnostic>());
-        if (std::optional<WorkspaceEdit> edit = action.edit()) {
+        const QList<Diagnostic> diagnostics = action.diagnostics().value_or(QList<Diagnostic>());
+        if (const std::optional<WorkspaceEdit> &edit = action.edit()) {
             if (diagnostics.isEmpty()) {
-                QList<TextEdit> edits;
-                if (std::optional<QList<DocumentChange>> documentChanges = edit->documentChanges()) {
-                    for (const DocumentChange &change : *documentChanges) {
-                        if (auto edit = std::get_if<TextDocumentEdit>(&change)) {
-                            if (edit->textDocument().uri() == uri)
-                                edits << edit->edits();
+                QList<Range> ranges;
+                if (const auto &documentChanges = edit->documentChanges()) {
+                    for (const WorkspaceEditDocumentChangesItem &change : *documentChanges) {
+                        const auto documentEdit = std::get_if<TextDocumentEdit>(&change);
+                        if (!documentEdit || documentEdit->textDocument().uri() != uri)
+                            continue;
+                        for (const TextDocumentEditEditsItem &item : documentEdit->edits()) {
+                            if (const auto textEdit = std::get_if<TextEdit>(&item))
+                                ranges << textEdit->range();
+                            else if (const auto annotated = std::get_if<AnnotatedTextEdit>(&item))
+                                ranges << annotated->range();
                         }
                     }
-                } else if (std::optional<WorkspaceEdit::Changes> localChanges = edit->changes()) {
-                    edits = (*localChanges)[uri];
+                } else if (const auto &localChanges = edit->changes()) {
+                    for (const TextEdit &textEdit : localChanges->value(uri))
+                        ranges << textEdit.range();
                 }
-                for (const TextEdit &edit : std::as_const(edits))
-                    addMarkerForCursor(action, edit.range());
+                for (const Range &range : std::as_const(ranges))
+                    addMarkerForCursor(action, range);
             }
         }
         for (const Diagnostic &diagnostic : diagnostics)
@@ -210,6 +228,17 @@ public:
     QPointer<Client> m_client;
     QPointer<QWidget> m_outline;
 };
+
+bool registrationApplies(const QJsonValue &registrationOptions,
+                         const Utils::FilePath &filePath,
+                         const QString &mimeType)
+{
+    const Utils::Result<TextDocumentRegistrationOptions> options
+        = fromJson<TextDocumentRegistrationOptions>(registrationOptions);
+    if (!options)
+        return true;
+    return applies(options->documentSelector(), filePath, Utils::mimeTypeForName(mimeType));
+}
 
 void updateEditorToolBar(Core::IEditor *editor)
 {
@@ -304,7 +333,15 @@ void updateEditorToolBar(Core::IEditor *editor)
     }
 }
 
-static CodeModelIcon::Type symbolTypeToIconType(SymbolKind kind, const QList<SymbolTag> &tags)
+// Symbol tags beyond the one the protocol defines, which servers use to convey
+// the visibility of a symbol.
+namespace SymbolTag {
+constexpr int Private = 2;
+constexpr int Protected = 4;
+constexpr int Static = 8;
+} // namespace SymbolTag
+
+static CodeModelIcon::Type symbolTypeToIconType(int kind, const QList<int> &tags)
 {
     const auto isPrivate = [&] { return tags.contains(SymbolTag::Private); };
     const auto isProtected = [&] { return tags.contains(SymbolTag::Protected); };
@@ -370,23 +407,22 @@ static CodeModelIcon::Type symbolTypeToIconType(SymbolKind kind, const QList<Sym
         return Enumerator;
     case SymbolKind::Struct:
         return Struct;
-    case SymbolKind::File:
+    default:
         break;
     }
     return Unknown;
 }
 
-const QIcon symbolIcon(int type, const QList<SymbolTag> &tags)
+const QIcon symbolIcon(int type, const QList<int> &tags)
 {
-    if (type < int(SymbolKind::FirstSymbolKind) || type > int(SymbolKind::LastSymbolKind))
+    if (type < SymbolKind::File || type > SymbolKind::TypeParameter)
         return {};
 
-    const auto kind = static_cast<SymbolKind>(type);
-    if (kind == SymbolKind::File)
+    if (type == SymbolKind::File)
         return Icons::NEWFILE.icon();
 
     using namespace Utils::CodeModelIcon;
-    const Type iconType = symbolTypeToIconType(kind, tags);
+    const Type iconType = symbolTypeToIconType(type, tags);
     static QMap<Type, QIcon> icons;
     const auto icon = icons.constFind(iconType);
     if (icon != icons.constEnd())
@@ -395,17 +431,17 @@ const QIcon symbolIcon(int type, const QList<SymbolTag> &tags)
     return icons[iconType] = iconForType(iconType);
 }
 
-bool applyDocumentChange(const Client *client, const DocumentChange &change)
+bool applyDocumentChange(const Client *client, const WorkspaceEditDocumentChangesItem &change)
 {
     if (!client)
         return false;
 
-    if (const auto e = std::get_if<TextDocumentEdit>(&change)) {
-        return applyTextDocumentEdit(client, *e);
-    } else if (const auto createOperation = std::get_if<CreateFileOperation>(&change)) {
-        const FilePath filePath = createOperation->uri().toFilePath(client->hostPathMapper());
+    if (const auto documentEdit = std::get_if<TextDocumentEdit>(&change)) {
+        return applyTextDocumentEdit(client, *documentEdit);
+    } else if (const auto createOperation = std::get_if<LanguageServerProtocol::CreateFile>(&change)) {
+        const FilePath filePath = client->filePathFor(createOperation->uri());
         if (filePath.exists()) {
-            if (const std::optional<CreateFileOptions> options = createOperation->options()) {
+            if (const std::optional<CreateFileOptions> &options = createOperation->options()) {
                 if (options->overwrite().value_or(false)) {
                     if (!filePath.removeFile())
                         return false;
@@ -415,15 +451,15 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             }
         }
         return filePath.ensureExistingFile();
-    } else if (const auto renameOperation = std::get_if<RenameFileOperation>(&change)) {
-        const FilePath oldPath = renameOperation->oldUri().toFilePath(client->hostPathMapper());
+    } else if (const auto renameOperation = std::get_if<RenameFile>(&change)) {
+        const FilePath oldPath = client->filePathFor(renameOperation->oldUri());
         if (!oldPath.exists())
             return false;
-        const FilePath newPath = renameOperation->newUri().toFilePath(client->hostPathMapper());
+        const FilePath newPath = client->filePathFor(renameOperation->newUri());
         if (oldPath == newPath)
             return true;
         if (newPath.exists()) {
-            if (const std::optional<CreateFileOptions> options = renameOperation->options()) {
+            if (const std::optional<RenameFileOptions> &options = renameOperation->options()) {
                 if (options->overwrite().value_or(false)) {
                     if (!newPath.removeFile())
                         return false;
@@ -433,9 +469,9 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             }
         }
         return bool(oldPath.renameFile(newPath));
-    } else if (const auto deleteOperation = std::get_if<DeleteFileOperation>(&change)) {
-        const FilePath filePath = deleteOperation->uri().toFilePath(client->hostPathMapper());
-        if (const std::optional<DeleteFileOptions> options = deleteOperation->options()) {
+    } else if (const auto deleteOperation = std::get_if<LanguageServerProtocol::DeleteFile>(&change)) {
+        const FilePath filePath = client->filePathFor(deleteOperation->uri());
+        if (const std::optional<DeleteFileOptions> &options = deleteOperation->options()) {
             if (!filePath.exists())
                 return options->ignoreIfNotExists().value_or(false);
             if (filePath.isDir() && options->recursive().value_or(false))

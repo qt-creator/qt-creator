@@ -5,6 +5,8 @@
 
 #include "client.h"
 
+#include <languageserverprotocol/lspmessages.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/textdocument.h>
 
@@ -18,7 +20,7 @@ DocumentSymbolCache::DocumentSymbolCache(Client *client)
 {
     auto connectDocument = [this](Core::IDocument *document) {
         connect(document, &Core::IDocument::contentsChanged, this, [document, this]() {
-            const auto uri = m_client->hostPathToServerUri(document->filePath());
+            const QString uri = m_client->uriFor(document->filePath());
             m_cache.remove(uri);
             auto requestIdIt = m_runningRequests.find(uri);
             if (requestIdIt != m_runningRequests.end()) {
@@ -38,7 +40,7 @@ DocumentSymbolCache::DocumentSymbolCache(Client *client)
     connect(&m_compressionTimer, &QTimer::timeout, this, &DocumentSymbolCache::requestSymbolsImpl);
 }
 
-void DocumentSymbolCache::requestSymbols(const DocumentUri &uri, Schedule schedule)
+void DocumentSymbolCache::requestSymbols(const QString &uri, Schedule schedule)
 {
     if (m_runningRequests.contains(uri))
         return;
@@ -53,11 +55,10 @@ void DocumentSymbolCache::requestSymbols(const DocumentUri &uri, Schedule schedu
     }
 }
 
-static bool clientSupportsDocumentSymbols(const Client *client, const DocumentUri &uri)
+static bool clientSupportsDocumentSymbols(const Client *client, const QString &uri)
 {
     QTC_ASSERT(client, return false);
-    const auto doc = TextEditor::TextDocument::textDocumentForFilePath(
-        uri.toFilePath(client->hostPathMapper()));
+    const auto doc = TextEditor::TextDocument::textDocumentForFilePath(client->filePathFor(uri));
     return client->supportsDocumentSymbols(doc);
 }
 
@@ -67,7 +68,7 @@ void DocumentSymbolCache::requestSymbolsImpl()
         m_compressionTimer.start(200);
         return;
     }
-    for (const DocumentUri &uri : std::as_const(m_compressedUris)) {
+    for (const QString &uri : std::as_const(m_compressedUris)) {
         auto entry = m_cache.find(uri);
         if (entry != m_cache.end()) {
             emit gotSymbols(uri, entry.value());
@@ -75,32 +76,34 @@ void DocumentSymbolCache::requestSymbolsImpl()
         }
 
         if (!LanguageClient::clientSupportsDocumentSymbols(m_client, uri)) {
-            emit gotSymbols(uri, nullptr);
+            emit gotSymbols(uri, std::monostate{});
             continue;
         }
 
-        const DocumentSymbolParams params((TextDocumentIdentifier(uri)));
-        DocumentSymbolsRequest request(params);
-        request.setResponseCallback([uri, self = QPointer<DocumentSymbolCache>(this)](
-                                        const DocumentSymbolsRequest::Response &response) {
-            if (self)
-                self->handleResponse(uri, response);
-        });
-        m_runningRequests[uri] = request.id();
-        m_client->sendMessage(request);
+        DocumentSymbolParams params;
+        params.textDocument(TextDocumentIdentifier().uri(uri));
+        m_runningRequests[uri] = m_client->sendRequest<DocumentSymbolRequest>(
+            params,
+            [uri, self = QPointer<DocumentSymbolCache>(this)](
+                const Utils::Result<DocumentSymbolRequestResult> &result) {
+                if (self)
+                    self->handleResponse(uri, result);
+            });
     }
     m_compressedUris.clear();
 }
 
-void DocumentSymbolCache::handleResponse(const DocumentUri &uri,
-                                         const DocumentSymbolsRequest::Response &response)
+void DocumentSymbolCache::handleResponse(
+    const QString &uri, const Utils::Result<DocumentSymbolRequestResult> &result)
 {
     m_runningRequests.remove(uri);
-    if (std::optional<DocumentSymbolsRequest::Response::Error> error = response.error()) {
+    if (!result) {
         if (m_client)
-            m_client->log(*error);
+            m_client->log(QtMsgType::QtCriticalMsg, result.error());
     }
-    const DocumentSymbolsResult &symbols = response.result().value_or(DocumentSymbolsResult());
+    const DocumentSymbolRequestResult symbols = result
+                                                    ? *result
+                                                    : DocumentSymbolRequestResult(std::monostate{});
     m_cache[uri] = symbols;
     emit gotSymbols(uri, symbols);
 }

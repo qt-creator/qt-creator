@@ -18,7 +18,9 @@ public:
 
 protected:
     LanguageClient::DiagnosticManager *createDiagnosticManager() override;
-    void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;
+    void handleDiagnostics(
+        const LanguageServerProtocol::PublishDiagnosticsParams &params,
+        const QJsonObject &raw) override;
 
 private:
     void initClientCapabilities();

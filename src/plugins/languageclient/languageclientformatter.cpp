@@ -7,6 +7,8 @@
 #include "dynamiccapabilities.h"
 #include "languageclientutils.h"
 
+#include <languageserverprotocol/lsputils.h>
+
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <utils/mimeutils.h>
@@ -39,27 +41,27 @@ LanguageClientFormatter::~LanguageClientFormatter()
     cancelCurrentRequest();
 }
 
-void LanguageClientFormatter::handleResponse(const ResponseType &response)
+void LanguageClientFormatter::handleResponse(const Utils::Result<ResultType> &result)
 {
     m_currentRequest = std::nullopt;
-    const std::optional<ResponseType::Error> &error = response.error();
-    if (QTC_GUARD(m_client) && error)
-        m_client->log(*error);
+    if (!result) {
+        if (QTC_GUARD(m_client))
+            m_client->log(QtMsgType::QtCriticalMsg, result.error());
+    }
     Utils::ChangeSet changeSet;
-    if (std::optional<LanguageClientArray<TextEdit>> result = response.result()) {
-        if (!result->isNull())
-            changeSet = editsToChangeSet(result->toList(), m_document->document());
+    if (result) {
+        if (const auto edits = std::get_if<QList<TextEdit>>(&*result))
+            changeSet = editsToChangeSet(*edits, m_document->document());
     }
     if (m_formatCallback)
         m_formatCallback(changeSet);
 }
 
-static const FormattingOptions formattingOptions(const TextEditor::TabSettingsData &settings)
+static FormattingOptions formattingOptions(const TextEditor::TabSettingsData &settings)
 {
-    FormattingOptions options;
-    options.setTabSize(settings.m_tabSize);
-    options.setInsertSpace(settings.m_tabPolicy == TextEditor::TabSettingsData::SpacesOnlyTabPolicy);
-    return options;
+    return FormattingOptions()
+        .tabSize(settings.m_tabSize)
+        .insertSpaces(settings.m_tabPolicy == TextEditor::TabSettingsData::SpacesOnlyTabPolicy);
 }
 
 template <typename RequestType>
@@ -70,32 +72,25 @@ bool canRequest(QPointer<Client> client, TextEditor::TextDocument *document)
     const FilePath &filePath = document->filePath();
     const DynamicCapabilities dynamicCapabilities = client->dynamicCapabilities();
 
-    QString method;
-    if constexpr(std::is_same_v<RequestType, DocumentFormattingRequest>) {
-        method = DocumentFormattingRequest::methodName;
-    } else {
-        method = DocumentRangeFormattingRequest::methodName;
-    }
+    const QString method = RequestType::method;
 
     if (std::optional<bool> registered = dynamicCapabilities.isRegistered(method)) {
         if (!*registered)
             return false;
-        const TextDocumentRegistrationOptions option(dynamicCapabilities.option(method).toObject());
-        if (option.isValid()
-            && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
-            return false;;
+        if (!registrationApplies(dynamicCapabilities.option(method), filePath,
+                                 document->mimeType())) {
+            return false;
         }
     } else {
-        std::optional<std::variant<bool, WorkDoneProgressOptions>> provider;
-        if constexpr(std::is_same_v<RequestType, DocumentFormattingRequest>) {
-            provider = client->capabilities().documentFormattingProvider();
+        bool supported = false;
+        if constexpr (std::is_same_v<RequestType, DocumentFormattingRequest>) {
+            if (const auto &provider = client->capabilities().documentFormattingProvider())
+                supported = !std::holds_alternative<bool>(*provider) || std::get<bool>(*provider);
         } else {
-            provider = client->capabilities().documentRangeFormattingProvider();
+            if (const auto &provider = client->capabilities().documentRangeFormattingProvider())
+                supported = !std::holds_alternative<bool>(*provider) || std::get<bool>(*provider);
         }
-        if (!provider.has_value())
-            return false;
-        const auto boolvalue = std::get_if<bool>(&*provider);
-        if (boolvalue && !*boolvalue)
+        if (!supported)
             return false;
     }
 
@@ -122,18 +117,11 @@ void LanguageClientFormatter::format(const QTextCursor &cursor,
     cancelCurrentRequest();
 
     m_formatCallback = callback;
-    auto request = m_formattingRequester->prepareRequest(cursor, tabSettings, this);
-    std::visit([this](auto &&value) {
-        using T = std::decay_t<decltype(value)>;
-        if constexpr (std::is_same_v<T, std::monostate>) {
-            return;
-        } else {
-            m_currentRequest = value.id();
-            m_client->sendMessage(value);
-            // ignore first contents changed, because this function is called inside a begin/endEdit block
-            m_ignoreCancel = true;
-        }
-    }, request);
+    m_currentRequest = m_formattingRequester->sendRequest(cursor, tabSettings, this);
+    if (m_currentRequest) {
+        // ignore first contents changed, because this function is called inside a begin/endEdit block
+        m_ignoreCancel = true;
+    }
 }
 
 void LanguageClientFormatter::cancelCurrentRequest()
@@ -157,28 +145,27 @@ RangeFormattingRequest::RangeFormattingRequest(Client *client, TextEditor::TextD
 {
 }
 
-IFormattingRequest::RequestType RangeFormattingRequest::prepareRequest(
-    const QTextCursor &cursor, const TextEditor::TabSettingsData &settings, LanguageClientFormatter *formatter)
+std::optional<MessageId> RangeFormattingRequest::sendRequest(
+    const QTextCursor &cursor,
+    const TextEditor::TabSettingsData &settings,
+    LanguageClientFormatter *formatter)
 {
     if (!canRequest<DocumentRangeFormattingRequest>(m_client, m_document))
-        return std::monostate();
-    const FilePath &filePath = m_document->filePath();
+        return {};
     DocumentRangeFormattingParams params;
-    const DocumentUri uri = m_client->hostPathToServerUri(filePath);
-    params.setTextDocument(TextDocumentIdentifier(uri));
-    params.setOptions(formattingOptions(settings));
-    if (!cursor.hasSelection()) {
+    params.textDocument(TextDocumentIdentifier().uri(m_client->uriFor(m_document->filePath())));
+    params.options(formattingOptions(settings));
+    if (cursor.hasSelection()) {
+        params.range(rangeOf(cursor));
+    } else {
         QTextCursor c = cursor;
         c.select(QTextCursor::LineUnderCursor);
-        params.setRange(Range(c));
-    } else {
-        params.setRange(Range(cursor));
+        params.range(rangeOf(c));
     }
-    DocumentRangeFormattingRequest request(params);
-    request.setResponseCallback([formatter](const DocumentRangeFormattingRequest::Response &response) {
-        formatter->handleResponse(response);
-    });
-    return request;
+    return m_client->sendRequest<DocumentRangeFormattingRequest>(
+        params, [formatter](const Utils::Result<LanguageClientFormatter::ResultType> &result) {
+            formatter->handleResponse(result);
+        });
 }
 
 FullFormattingRequest::FullFormattingRequest(Client *client, TextEditor::TextDocument *document)
@@ -186,23 +173,21 @@ FullFormattingRequest::FullFormattingRequest(Client *client, TextEditor::TextDoc
 {
 }
 
-IFormattingRequest::RequestType FullFormattingRequest::prepareRequest(
-    const QTextCursor &cursor, const TextEditor::TabSettingsData &settings, LanguageClientFormatter *formatter)
+std::optional<MessageId> FullFormattingRequest::sendRequest(
+    const QTextCursor &cursor,
+    const TextEditor::TabSettingsData &settings,
+    LanguageClientFormatter *formatter)
 {
     Q_UNUSED(cursor)
     if (!canRequest<DocumentFormattingRequest>(m_client, m_document))
-        return std::monostate();
-    const FilePath &filePath = m_document->filePath();
+        return {};
     DocumentFormattingParams params;
-    const DocumentUri uri = m_client->hostPathToServerUri(filePath);
-    params.setTextDocument(TextDocumentIdentifier(uri));
-    params.setOptions(formattingOptions(settings));
-
-    DocumentFormattingRequest request(params);
-    request.setResponseCallback([formatter](const DocumentFormattingRequest::Response &response) {
-        formatter->handleResponse(response);
-    });
-    return request;
+    params.textDocument(TextDocumentIdentifier().uri(m_client->uriFor(m_document->filePath())));
+    params.options(formattingOptions(settings));
+    return m_client->sendRequest<DocumentFormattingRequest>(
+        params, [formatter](const Utils::Result<LanguageClientFormatter::ResultType> &result) {
+            formatter->handleResponse(result);
+        });
 }
 
 } // namespace LanguageClient

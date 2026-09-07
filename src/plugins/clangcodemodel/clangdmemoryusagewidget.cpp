@@ -6,7 +6,6 @@
 #include "clangcodemodeltr.h"
 #include "clangdclient.h"
 
-#include <languageserverprotocol/jsonobject.h>
 
 #include <utils/itemviews.h>
 #include <utils/treemodel.h>
@@ -21,33 +20,38 @@ using namespace Utils;
 
 namespace ClangCodeModel::Internal {
 
-class MemoryTree : public JsonObject
+// The memory usage clangd reports is a tree of arbitrarily named components,
+// which no schema describes. See https://clangd.llvm.org/extensions#memory-usage
+class MemoryTree
 {
 public:
-    using JsonObject::JsonObject;
+    MemoryTree() = default;
+    explicit MemoryTree(const QJsonObject &object) : m_object(object) {}
 
     // number of bytes used, including child components
-    qint64 total() const { return qint64(typedValue<double>(totalKey)); }
+    qint64 total() const { return qint64(m_object.value(totalKey).toDouble()); }
 
     // number of bytes used, excluding child components
-    qint64 self() const { return qint64(typedValue<double>(selfKey)); }
+    qint64 self() const { return qint64(m_object.value(selfKey).toDouble()); }
 
     // named child components
     using NamedComponent = std::pair<MemoryTree, QString>;
     QList<NamedComponent> children() const
     {
         QList<NamedComponent> components;
-        const auto obj = operator const QJsonObject &();
-        for (auto it = obj.begin(); it != obj.end(); ++it) {
-            if (it.key() == QLatin1String(totalKey) || it.key() == QLatin1String(selfKey))
+        for (auto it = m_object.begin(); it != m_object.end(); ++it) {
+            if (it.key() == totalKey || it.key() == selfKey)
                 continue;
-            components.push_back({MemoryTree(it.value()), it.key()});
+            components.push_back({MemoryTree(it.value().toObject()), it.key()});
         }
         return components;
     }
 
-    static constexpr LanguageServerProtocol::Key totalKey{"_total"};
-    static constexpr LanguageServerProtocol::Key selfKey{"_self"};
+private:
+    static constexpr QLatin1StringView totalKey{"_total"};
+    static constexpr QLatin1StringView selfKey{"_self"};
+
+    QJsonObject m_object;
 };
 
 
@@ -160,16 +164,13 @@ void ClangdMemoryUsageWidget::Private::setupUi()
 
 void ClangdMemoryUsageWidget::Private::getMemoryTree()
 {
-    Request<MemoryTree, std::nullptr_t, JsonObject> request("$/memoryUsage", {});
-    request.setResponseCallback([this](decltype(request)::Response response) {
+    qCDebug(clangdLog) << "sending memory usage request";
+    currentRequest = client->sendRawRequest({}, "$/memoryUsage",
+                                            [this](const QJsonObject &response) {
         currentRequest.reset();
         qCDebug(clangdLog) << "received memory usage response";
-        if (const auto result = response.result())
-            model.update(*result);
-    });
-    qCDebug(clangdLog) << "sending memory usage request";
-    currentRequest = request.id();
-    client->sendMessage(request, ClangdClient::SendDocUpdates::Ignore);
+        model.update(MemoryTree(response.value("result").toObject()));
+    }, ClangdClient::SendDocUpdates::Ignore);
 }
 
 } // namespace ClangCodeModel::Internal

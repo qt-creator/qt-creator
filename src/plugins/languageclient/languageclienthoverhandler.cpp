@@ -4,10 +4,13 @@
 #include "languageclienthoverhandler.h"
 
 #include "client.h"
+#include "languageclientutils.h"
 #include "dynamiccapabilities.h"
 
+#include <languageserverprotocol/lsputils.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
 #include <utils/mimeutils.h>
 
 using namespace LanguageServerProtocol;
@@ -29,7 +32,7 @@ void HoverHandler::abort()
         m_client->cancelRequest(*m_currentRequest);
         m_currentRequest.reset();
     }
-    m_response = {};
+    m_pendingHover.reset();
 }
 
 void HoverHandler::setPreferDiagnosticts(bool prefer)
@@ -37,27 +40,25 @@ void HoverHandler::setPreferDiagnosticts(bool prefer)
     m_preferDiagnostics = prefer;
 }
 
-void HoverHandler::setHelpItem(const LanguageServerProtocol::MessageId &msgId,
-                               const Core::HelpItem &help)
+void HoverHandler::setHelpItem(const MessageId &msgId, const Core::HelpItem &help)
 {
-    if (msgId == m_response.id()) {
-        if (std::optional<HoverResult> result = m_response.result()) {
-            if (auto hover = std::get_if<Hover>(&(*result)))
-                setContent(hover->content());
-        }
-        m_response = {};
-        setLastHelpItemIdentified(help);
-        m_report(priority());
-    }
+    if (!m_pendingHover || !(msgId == m_pendingHover->first))
+        return;
+    setContent(m_pendingHover->second.contents());
+    m_pendingHover.reset();
+    setLastHelpItemIdentified(help);
+    m_report(priority());
 }
 
 bool HoverHandler::reportDiagnostics(const QTextCursor &cursor)
 {
-    const QList<Diagnostic> &diagnostics = m_client->diagnosticsAt(m_filePath, cursor);
+    const QList<Diagnostic> diagnostics = m_client->diagnosticsAt(m_filePath, cursor);
     if (diagnostics.isEmpty())
         return false;
 
-    const QStringList messages = Utils::transform(diagnostics, &Diagnostic::message);
+    const QStringList messages = Utils::transform(diagnostics, [](const Diagnostic &diagnostic) {
+        return plainText(diagnostic.message());
+    });
     setToolTip(messages.join('\n'));
     m_report(Priority_Diagnostic);
     return true;
@@ -75,7 +76,7 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         return;
     }
     m_filePath = editorWidget->textDocument()->filePath();
-    m_response = {};
+    m_pendingHover.reset();
     m_report = report;
 
     QTextCursor cursor = editorWidget->textCursor();
@@ -83,21 +84,18 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     if (m_preferDiagnostics && reportDiagnostics(cursor))
         return;
 
-    const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
+    const std::optional<ServerCapabilitiesHoverProvider> &provider
         = m_client->capabilities().hoverProvider();
     const bool *boolvalue = provider.has_value() ? std::get_if<bool>(&*provider) : nullptr;
     bool sendMessage = provider.has_value() && (!boolvalue || *boolvalue);
     if (std::optional<bool> registered = m_client->dynamicCapabilities().isRegistered(
-            HoverRequest::methodName)) {
+            HoverRequest::method)) {
         sendMessage = *registered;
         if (sendMessage) {
-            const TextDocumentRegistrationOptions option(
-                m_client->dynamicCapabilities().option(HoverRequest::methodName).toObject());
-            if (option.isValid()) {
-                sendMessage = option.filterApplies(editorWidget->textDocument()->filePath(),
-                                                   Utils::mimeTypeForName(
-                                                       editorWidget->textDocument()->mimeType()));
-            }
+            sendMessage = registrationApplies(
+                m_client->dynamicCapabilities().option(HoverRequest::method),
+                editorWidget->textDocument()->filePath(),
+                editorWidget->textDocument()->mimeType());
         }
     }
     if (!sendMessage) {
@@ -105,33 +103,35 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
         return;
     }
 
-    HoverRequest request{
-        TextDocumentPositionParams(TextDocumentIdentifier(m_client->hostPathToServerUri(m_filePath)),
-                                   Position(cursor))};
-    m_currentRequest = request.id();
-    request.setResponseCallback(
-        [this, cursor](const HoverRequest::Response &response) { handleResponse(response, cursor); });
-    m_client->sendMessage(request);
+    HoverParams params;
+    params.textDocument(TextDocumentIdentifier().uri(m_client->uriFor(m_filePath)));
+    params.position(positionOf(cursor));
+    // The id is only known after sending, and the callback needs it to tell the
+    // help item provider which request it is answering.
+    const auto id = std::make_shared<MessageId>();
+    *id = m_client->sendRequest<HoverRequest>(
+        params, [this, cursor, id](const Utils::Result<HoverRequestResult> &result) {
+            handleResponse(*id, result, cursor);
+        });
+    m_currentRequest = *id;
 }
 
-void HoverHandler::handleResponse(const HoverRequest::Response &response, const QTextCursor &cursor)
+void HoverHandler::handleResponse(
+    const MessageId &id, const Utils::Result<HoverRequestResult> &result, const QTextCursor &cursor)
 {
     m_currentRequest.reset();
-    if (std::optional<HoverRequest::Response::Error> error = response.error()) {
+    if (!result) {
         if (m_client)
-            m_client->log(*error);
-    }
-    if (std::optional<HoverResult> result = response.result()) {
-        if (auto hover = std::get_if<Hover>(&(*result))) {
-            if (m_helpItemProvider) {
-                m_response = response;
-                m_helpItemProvider(response, m_filePath);
-                return;
-            }
-            setContent(hover->content());
-        } else if (!m_preferDiagnostics && reportDiagnostics(cursor)) {
+            m_client->log(QtMsgType::QtCriticalMsg, result.error());
+    } else if (const auto hover = std::get_if<Hover>(&*result)) {
+        if (m_helpItemProvider) {
+            m_pendingHover = {id, *hover};
+            m_helpItemProvider(id, *hover, m_filePath);
             return;
         }
+        setContent(hover->contents());
+    } else if (!m_preferDiagnostics && reportDiagnostics(cursor)) {
+        return;
     }
     m_report(priority());
 }
@@ -144,20 +144,23 @@ static QString toolTipForMarkedStrings(const QList<MarkedString> &markedStrings)
             tooltip += '\n';
         if (auto string = std::get_if<QString>(&markedString))
             tooltip += *string;
-        else if (auto string = std::get_if<MarkedLanguageString>(&markedString))
+        else if (auto string = std::get_if<MarkedStringWithLanguage>(&markedString))
             tooltip += string->value() + " [" + string->language() + ']';
     }
     return tooltip;
 }
 
-void HoverHandler::setContent(const HoverContent &hoverContent)
+void HoverHandler::setContent(const HoverContents &contents)
 {
-    if (auto markupContent = std::get_if<MarkupContent>(&hoverContent))
-        setToolTip(markupContent->content(), markupContent->textFormat());
-    else if (auto markedString = std::get_if<MarkedString>(&hoverContent))
+    if (auto markupContent = std::get_if<MarkupContent>(&contents)) {
+        setToolTip(
+            markupContent->value(),
+            markupContent->kind() == MarkupKind::markdown ? Qt::MarkdownText : Qt::PlainText);
+    } else if (auto markedString = std::get_if<MarkedString>(&contents)) {
         setToolTip(toolTipForMarkedStrings({*markedString}), Qt::MarkdownText);
-    else if (auto markedStrings = std::get_if<QList<MarkedString>>(&hoverContent))
+    } else if (auto markedStrings = std::get_if<QList<MarkedString>>(&contents)) {
         setToolTip(toolTipForMarkedStrings(*markedStrings), Qt::MarkdownText);
+    }
 }
 
 } // namespace LanguageClient

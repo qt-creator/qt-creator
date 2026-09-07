@@ -11,7 +11,7 @@ void DynamicCapabilities::registerCapability(const QList<Registration> &registra
 {
     for (const Registration& registration : registrations) {
         const QString &method = registration.method();
-        m_capability[method].enable(registration.id(), registration.registerOptions());
+        m_capability[method].enable(registration.id(), registration.registerOptions().value_or(QJsonValue()));
         m_methodForId.insert(registration.id(), method);
     }
 }

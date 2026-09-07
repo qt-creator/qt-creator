@@ -138,7 +138,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const AudioContent &data);
 struct BaseMetadata {
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for Tool,
@@ -508,7 +508,7 @@ struct ResourceLink {
      */
     std::optional<int> _size{};
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for Tool,
@@ -1221,7 +1221,7 @@ MCPSERVER_EXPORT QString dispatchValue(const ClientNotification &val);
 struct PromptReference {
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for Tool,
@@ -1525,7 +1525,7 @@ struct Implementation {
     std::optional<QList<Icon>> _icons{};
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for Tool,
@@ -2591,7 +2591,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ModelHint &data);
  * The server's preferences for model selection, requested of the client during sampling.
  *
  * Because LLMs can vary along multiple dimensions, choosing the "best" model is
- * rarely straightforward.  Different models excel in different areas—some are
+ * rarely straightforward.  Different models excel in different areas--some are
  * faster but less capable, others are more capable but more expensive, and so
  * on. This interface allows servers to express their priorities across multiple
  * dimensions to help clients make an appropriate selection for their use case.
@@ -2863,7 +2863,7 @@ struct Tool {
      */
     std::optional<OutputSchema> _outputSchema{};
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for Tool,
@@ -4069,7 +4069,7 @@ struct PromptArgument {
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     std::optional<bool> _required{};  //!< Whether this argument must be provided.
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for Tool,
@@ -4115,7 +4115,7 @@ struct Prompt {
     std::optional<QList<Icon>> _icons{};
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for Tool,
@@ -4206,7 +4206,7 @@ struct ResourceTemplate {
     std::optional<QString> _mimeType{};  //!< The MIME type for all resources that match this template. This should only be included if all resources matching this template have the same type.
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for Tool,
@@ -4307,7 +4307,7 @@ struct Resource {
      */
     std::optional<int> _size{};
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for Tool,

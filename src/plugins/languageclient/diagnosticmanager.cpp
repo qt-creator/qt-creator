@@ -3,6 +3,8 @@
 
 #include "diagnosticmanager.h"
 
+#include <languageserverprotocol/lsputils.h>
+
 #include "client.h"
 #include "languageclientmanager.h"
 
@@ -34,8 +36,8 @@ public:
     TextMark(TextDocument *doc, const Diagnostic &diag, const Client *client)
         : TextEditor::TextMark(doc, diag.range().start().line() + 1, {client->name(), client->id()})
     {
-        setLineAnnotation(diag.message());
-        setToolTip(diag.message());
+        setLineAnnotation(plainText(diag.message()));
+        setToolTip(plainText(diag.message()));
         switch (diag.severity().value_or(DiagnosticSeverity::Hint)) {
         case DiagnosticSeverity::Error:
             setColor(Theme::CodeModel_Error_TextMarkColor);
@@ -55,7 +57,7 @@ public:
 struct VersionedDiagnostics
 {
     std::optional<int> version;
-    QList<LanguageServerProtocol::Diagnostic> diagnostics;
+    QList<Diagnostic> diagnostics;
 };
 
 class Marks
@@ -109,9 +111,10 @@ DiagnosticManager::~DiagnosticManager()
     clearDiagnostics();
 }
 
-void DiagnosticManager::setDiagnostics(const FilePath &filePath,
-                                       const QList<Diagnostic> &diagnostics,
-                                       const std::optional<int> &version)
+void DiagnosticManager::setDiagnostics(
+    const FilePath &filePath,
+    const QList<Diagnostic> &diagnostics,
+    const std::optional<int> &version)
 {
     hideDiagnostics(filePath);
     d->m_diagnostics[filePath] = {version, filteredDiagnostics(diagnostics)};
@@ -182,13 +185,12 @@ Client *DiagnosticManager::client() const
     return d->m_client;
 }
 
-TextEditor::TextMark *DiagnosticManager::createTextMark(TextDocument *doc,
-                                                        const Diagnostic &diagnostic,
-                                                        bool /*isProjectFile*/) const
+TextEditor::TextMark *DiagnosticManager::createTextMark(
+    TextDocument *doc, const Diagnostic &diagnostic, bool /*isProjectFile*/) const
 {
     static const QIcon icon = Icon::fromTheme("edit-copy");
     auto mark = new TextMark(doc, diagnostic, d->m_client);
-    mark->setActionsProvider([text = diagnostic.message()] {
+    mark->setActionsProvider([text = plainText(diagnostic.message())] {
         QAction *action = new QAction();
         action->setIcon(icon);
         action->setToolTip(Core::msgCopyToClipboard());
@@ -201,9 +203,7 @@ TextEditor::TextMark *DiagnosticManager::createTextMark(TextDocument *doc,
 }
 
 std::optional<Task> DiagnosticManager::createTask(
-        TextDocument *doc,
-        const LanguageServerProtocol::Diagnostic &diagnostic,
-        bool isProjectFile) const
+    TextDocument *doc, const Diagnostic &diagnostic, bool isProjectFile) const
 {
     if (!isProjectFile && !d->m_forceCreateTasks)
         return {};
@@ -211,7 +211,7 @@ std::optional<Task> DiagnosticManager::createTask(
     Task::TaskType taskType = Task::TaskType::Unknown;
     QIcon icon;
 
-    if (const std::optional<DiagnosticSeverity> severity = diagnostic.severity()) {
+    if (const std::optional<int> &severity = diagnostic.severity()) {
         switch (*severity) {
         case DiagnosticSeverity::Error:
             taskType = Task::TaskType::Error;
@@ -236,15 +236,15 @@ std::optional<Task> DiagnosticManager::createTask(
     task.preventFlashing();
     task.preventTextMarkCreation();
 
-    if (const std::optional<CodeDescription> codeDescription = diagnostic.codeDescription())
+    if (const std::optional<CodeDescription> &codeDescription = diagnostic.codeDescription())
         task.addLinkDetail(codeDescription->href());
 
     return task;
 }
 
-QString DiagnosticManager::taskText(const LanguageServerProtocol::Diagnostic &diagnostic) const
+QString DiagnosticManager::taskText(const Diagnostic &diagnostic) const
 {
-    return diagnostic.message();
+    return plainText(diagnostic.message());
 }
 
 void DiagnosticManager::setTaskCategory(const Utils::Id &taskCategory)
@@ -258,9 +258,9 @@ void DiagnosticManager::setForceCreateTasks(bool forceCreateTasks)
 }
 
 QTextEdit::ExtraSelection DiagnosticManager::createDiagnosticSelection(
-    const LanguageServerProtocol::Diagnostic &diagnostic, QTextDocument *textDocument) const
+    const Diagnostic &diagnostic, QTextDocument *textDocument) const
 {
-    const DiagnosticSeverity severity = diagnostic.severity().value_or(DiagnosticSeverity::Warning);
+    const int severity = diagnostic.severity().value_or(DiagnosticSeverity::Warning);
     TextStyle style;
     if (severity == DiagnosticSeverity::Error)
         style = C_ERROR;
@@ -272,9 +272,9 @@ QTextEdit::ExtraSelection DiagnosticManager::createDiagnosticSelection(
         return {};
 
     QTextCursor cursor(textDocument);
-    cursor.setPosition(diagnostic.range().start().toPositionInDocument(textDocument));
-    cursor.setPosition(diagnostic.range().end().toPositionInDocument(textDocument),
-                       QTextCursor::KeepAnchor);
+    cursor.setPosition(positionInDocument(diagnostic.range().start(), textDocument));
+    cursor.setPosition(
+        positionInDocument(diagnostic.range().end(), textDocument), QTextCursor::KeepAnchor);
 
     const QTextCharFormat format = globalFontSettings().data().toTextCharFormat(style);
 
@@ -304,8 +304,8 @@ void DiagnosticManager::clearDiagnostics()
     QTC_ASSERT(d->m_marks.isEmpty(), d->m_marks.clear());
 }
 
-QList<Diagnostic> DiagnosticManager::diagnosticsAt(const FilePath &filePath,
-                                                   const QTextCursor &cursor) const
+QList<Diagnostic> DiagnosticManager::diagnosticsAt(
+    const FilePath &filePath, const QTextCursor &cursor) const
 {
     const int documentRevision = d->m_client->documentVersion(filePath);
     auto it = d->m_diagnostics.find(filePath);
@@ -313,14 +313,13 @@ QList<Diagnostic> DiagnosticManager::diagnosticsAt(const FilePath &filePath,
         return {};
     if (documentRevision != it->version.value_or(documentRevision))
         return {};
-    return Utils::filtered(it->diagnostics, [range = Range(cursor)](const Diagnostic &diagnostic) {
-        return diagnostic.range().overlaps(range);
+    return Utils::filtered(it->diagnostics, [range = rangeOf(cursor)](const Diagnostic &diagnostic) {
+        return overlaps(diagnostic.range(), range);
     });
 }
 
-bool DiagnosticManager::hasDiagnostic(const FilePath &filePath,
-                                      const TextDocument *doc,
-                                      const LanguageServerProtocol::Diagnostic &diag) const
+bool DiagnosticManager::hasDiagnostic(
+    const FilePath &filePath, const TextDocument *doc, const Diagnostic &diag) const
 {
     if (!doc)
         return false;

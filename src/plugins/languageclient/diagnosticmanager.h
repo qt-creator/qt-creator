@@ -7,6 +7,7 @@
 
 #include <languageserverprotocol/lsptypes.h>
 
+#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <QTextEdit>
@@ -31,9 +32,10 @@ public:
     explicit DiagnosticManager(Client *client);
     ~DiagnosticManager() override;
 
-    virtual void setDiagnostics(const Utils::FilePath &filePath,
-                                const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
-                                const std::optional<int> &version);
+    virtual void setDiagnostics(
+        const Utils::FilePath &filePath,
+        const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
+        const std::optional<int> &version);
 
     void showDiagnostics(const Utils::FilePath &filePath, int version);
     void hideDiagnostics(const Utils::FilePath &filePath);
@@ -44,11 +46,11 @@ public:
     void clearDiagnostics();
 
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
+        const Utils::FilePath &filePath, const QTextCursor &cursor) const;
+    bool hasDiagnostic(
         const Utils::FilePath &filePath,
-        const QTextCursor &cursor) const;
-    bool hasDiagnostic(const Utils::FilePath &filePath,
-                       const TextEditor::TextDocument *doc,
-                       const LanguageServerProtocol::Diagnostic &diag) const;
+        const TextEditor::TextDocument *doc,
+        const LanguageServerProtocol::Diagnostic &diag) const;
     bool hasDiagnostics(const TextEditor::TextDocument *doc) const;
 
 signals:
@@ -56,9 +58,10 @@ signals:
 
 protected:
     Client *client() const;
-    virtual TextEditor::TextMark *createTextMark(TextEditor::TextDocument *doc,
-                                                 const LanguageServerProtocol::Diagnostic &diagnostic,
-                                                 bool isProjectFile) const;
+    virtual TextEditor::TextMark *createTextMark(
+        TextEditor::TextDocument *doc,
+        const LanguageServerProtocol::Diagnostic &diagnostic,
+        bool isProjectFile) const;
 
     virtual std::optional<ProjectExplorer::Task> createTask(
         TextEditor::TextDocument *doc,

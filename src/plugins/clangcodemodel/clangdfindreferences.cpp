@@ -18,7 +18,10 @@
 #include <cppeditor/cpptoolsreuse.h>
 
 #include <languageclient/languageclientsymbolsupport.h>
-#include <languageserverprotocol/lsptypes.h>
+
+#include <languageclient/languageclientutils.h>
+
+#include <languageserverprotocol/lsputils.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -71,7 +74,9 @@ class ClangdFindReferences::CheckUnusedData
 public:
     CheckUnusedData(ClangdFindReferences *q, const Link &link, SearchResult *search,
                     const LinkHandler &callback)
-        : q(q), link(link), linkAsPosition(link.target.line, link.target.column), search(search),
+        : q(q), link(link),
+          linkAsPosition(Position().line(link.target.line).character(link.target.column)),
+          search(search),
           callback(callback) {}
     ~CheckUnusedData();
 
@@ -100,14 +105,14 @@ public:
             const SearchResultItems &checkedItems,
             bool preserveCase,
             bool preferLowerCaseFileNames);
-    void handleFindUsagesResult(const QList<Location> &locations);
+    void handleFindUsagesResult(const QList<Location> &locations, const QJsonValue &rawResult);
     void finishSearch();
     void reportAllSearchResultsAndFinish();
     void addSearchResultsForFile(const FilePath &file, const ReferencesFileData &fileData);
     ClangdAstNode getContainingFunction(const ClangdAstPath &astPath, const Range& range);
 
     ClangdFindReferences * const q;
-    QMap<DocumentUri, ReferencesFileData> fileData;
+    QMap<QString, ReferencesFileData> fileData;
     QList<MessageId> pendingAstRequests;
     QPointer<SearchResult> search;
     std::optional<ReplacementData> replacementData;
@@ -168,9 +173,10 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
         SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
     const std::optional<MessageId> requestId = client->symbolSupport().findUsages(
-                document, cursor, [self = QPointer(this)](const QList<Location> &locations) {
+                document, cursor, [self = QPointer(this)](const QList<Location> &locations,
+                                                          const QJsonValue &rawResult) {
         if (self)
-            self->d->handleFindUsagesResult(locations);
+            self->d->handleFindUsagesResult(locations, rawResult);
     });
 
     if (!requestId) {
@@ -213,27 +219,30 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, const Link &lin
         client->openExtraFile(targetFilePath, contents);
         d->checkUnusedData->openedExtraFileForLink = true;
     }
-    const TextDocumentIdentifier documentId(client->hostPathToServerUri(targetFilePath));
-    const Position pos(link.target.line - 1, link.target.column);
-    ReferenceParams params(TextDocumentPositionParams(documentId, pos));
-    params.setContext(ReferenceParams::ReferenceContext(true));
-    FindReferencesRequest request(params);
-    request.setResponseCallback([self = QPointer(this)]
-                                (const FindReferencesRequest::Response &response) {
-        if (self) {
-            const LanguageClientArray<Location> locations = response.result().value_or(nullptr);
-            self->d->handleFindUsagesResult(locations.isNull() ? QList<Location>()
-                                                               : locations.toList());
-        }
-    });
-
-    client->sendMessage(request, ClangdClient::SendDocUpdates::Ignore);
-    QObject::connect(d->search, &SearchResult::canceled, this, [this, client, id = request.id()] {
+    ReferenceParams params;
+    params.textDocument(TextDocumentIdentifier().uri(client->uriFor(targetFilePath)));
+    params.position(Position().line(link.target.line - 1).character(link.target.column));
+    params.context(ReferenceContext().includeDeclaration(true));
+    const MessageId requestId = client->sendRawRequest(
+        toJson(params),
+        ReferencesRequest::method,
+        [self = QPointer(this)](const QJsonObject &response) {
+            if (!self)
+                return;
+            const Utils::Result<ReferencesRequestResult> result
+                = LanguageServerProtocol::result<ReferencesRequest>(response);
+            const QList<Location> *locations
+                = result ? std::get_if<QList<Location>>(&*result) : nullptr;
+            self->d->handleFindUsagesResult(locations ? *locations : QList<Location>(),
+                                            response.value("result"));
+        },
+        ClangdClient::SendDocUpdates::Ignore);
+    QObject::connect(d->search, &SearchResult::canceled, this, [this, client, id = requestId] {
         client->cancelRequest(id);
         d->canceled = true;
         d->finishSearch();
     });
-    QObject::connect(d->search, &SearchResult::destroyed, this, [this, client, id = request.id()] {
+    QObject::connect(d->search, &SearchResult::destroyed, this, [this, client, id = requestId] {
         client->cancelRequest(id);
         d->canceled = true;
         d->finishSearch();
@@ -273,7 +282,8 @@ void ClangdFindReferences::Private::handleRenameRequest(
                 preferLowerCaseFileNames);
 }
 
-void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location> &locations)
+void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location> &locations,
+                                                           const QJsonValue &rawResult)
 {
     if (!search || canceled) {
         finishSearch();
@@ -296,13 +306,20 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
         finishSearch();
     });
 
-    for (const Location &loc : locations) {
-        fileData[loc.uri()].itemData.emplaceBack(
-            loc.range(), QJsonObject(loc).value("containerName").toString(), QString());
+    // The container name is a clangd extension the generated type drops.
+    // See https://clangd.llvm.org/extensions#reference-container
+    const QJsonArray rawLocations = rawResult.toArray();
+    for (int i = 0; i < locations.size(); ++i) {
+        const Location &loc = locations.at(i);
+        const QString containerName = i < rawLocations.size()
+                                          ? rawLocations.at(i).toObject()
+                                                .value("containerName").toString()
+                                          : QString();
+        fileData[loc.uri()].itemData.emplaceBack(loc.range(), containerName, QString());
     }
     QSet<FilePath> canonicalFilePaths;
     for (auto it = fileData.begin(); it != fileData.end();) {
-        const Utils::FilePath filePath = client()->serverUriToHostPath(it.key());
+        const Utils::FilePath filePath = client()->filePathFor(it.key());
         if (!filePath.exists()) { // https://github.com/clangd/clangd/issues/935
             it = fileData.erase(it);
             continue;
@@ -329,7 +346,7 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
     }
 
     for (auto it = fileData.begin(); it != fileData.end(); ++it) {
-        const FilePath filePath = client()->serverUriToHostPath(it.key());
+        const FilePath filePath = client()->filePathFor(it.key());
         const TextDocument * const doc = client()->documentForFilePath(filePath);
         const bool openExtraFile = !doc && (!checkUnusedData
                 || !checkUnusedData->openedExtraFileForLink
@@ -396,7 +413,7 @@ void ClangdFindReferences::Private::reportAllSearchResultsAndFinish()
 {
     if (!checkUnusedData) {
         for (auto it = fileData.begin(); it != fileData.end(); ++it)
-            addSearchResultsForFile(client()->serverUriToHostPath(it.key()), it.value());
+            addSearchResultsForFile(client()->filePathFor(it.key()), it.value());
     }
     finishSearch();
 }
@@ -434,7 +451,8 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
                 if (checkUnusedData->link.targetFilePath == file) {
                     const ClangdAstNode containingFunction = getContainingFunction(astPath, range);
                     isRecursiveCall = containingFunction.hasRange()
-                            && containingFunction.range().contains(checkUnusedData->linkAsPosition);
+                            && contains(containingFunction.range(),
+                                        checkUnusedData->linkAsPosition);
                 }
                 checkUnusedData->recursiveCallDetected = checkUnusedData->recursiveCallDetected
                         || isRecursiveCall;
@@ -496,7 +514,7 @@ ClangdAstNode ClangdFindReferences::Private::getContainingFunction(
 
         if (it->isFunction()) {
             if (lastCompoundStmtNode && lastCompoundStmtNode->hasRange()
-                && lastCompoundStmtNode->range().contains(range)) {
+                && contains(lastCompoundStmtNode->range(), range)) {
                 containingFuncNode = &*it;
                 break;
             }
@@ -687,7 +705,7 @@ public:
     Private(ClangdFindLocalReferences *q, CppEditorWidget *editorWidget, const QTextCursor &cursor,
             const RenameCallback &callback)
         : q(q), editorWidget(editorWidget), document(editorWidget->textDocument()), cursor(cursor),
-          callback(callback), uri(client()->hostPathToServerUri(document->filePath())),
+          callback(callback), uri(client()->uriFor(document->filePath())),
           revision(document->document()->revision())
     {}
 
@@ -696,6 +714,7 @@ public:
     void getDefinitionAst(const Link &link);
     void checkDefinitionAst(const ClangdAstNode &ast);
     void handleReferences(const QList<Location> &references);
+
     void finish();
 
     ClangdFindLocalReferences * const q;
@@ -703,7 +722,7 @@ public:
     const QPointer<TextDocument> document;
     const QTextCursor cursor;
     RenameCallback callback;
-    const DocumentUri uri;
+    const QString uri;
     const int revision;
     Link defLink;
 };
@@ -776,7 +795,8 @@ void ClangdFindLocalReferences::Private::checkDefinitionAst(const ClangdAstNode 
                 break;
 
             qCDebug(clangdLog) << "finding references for local var";
-            const auto refsHandler = [sentinel = QPointer(q), this](const QList<Location> &refs) {
+            const auto refsHandler = [sentinel = QPointer(q), this](
+                                         const QList<Location> &refs, const QJsonValue &) {
                 if (sentinel)
                     handleReferences(refs);
             };
@@ -795,8 +815,8 @@ void ClangdFindLocalReferences::Private::handleReferences(const QList<Location> 
 {
     qCDebug(clangdLog) << "found" << references.size() << "local references";
 
-    const auto transformLocation = [mapper = client()->hostPathMapper()](const Location &loc) {
-        return loc.toLink(mapper);
+    const auto transformLocation = [this](const Location &loc) {
+        return linkFor(client(), loc);
     };
 
     Utils::Links links = Utils::transform(references, transformLocation);
@@ -810,7 +830,7 @@ void ClangdFindLocalReferences::Private::handleReferences(const QList<Location> 
         const Position pos = r.start();
         symbol = QString(r.end().character() - pos.character(), 'x');
         if (editorWidget && document) {
-            const QTextCursor cursor = pos.toTextCursor(document->document());
+            const QTextCursor cursor = toTextCursor(pos, document->document());
             const QList<Text::Range> occurrencesInComments
                 = symbolOccurrencesInDeclarationComments(editorWidget, cursor);
             for (const Text::Range &range : occurrencesInComments) {

@@ -40,11 +40,9 @@
 #include <languageclient/languageclientsymbolsupport.h>
 #include <languageclient/languageclientutils.h>
 #include <languageclient/progressmanager.h>
-#include <languageserverprotocol/clientcapabilities.h>
-#include <languageserverprotocol/diagnostics.h>
-#include <languageserverprotocol/progresssupport.h>
-#include <languageserverprotocol/textsynchronization.h>
-#include <languageserverprotocol/workspace.h>
+
+#include <languageserverprotocol/lsputils.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -85,46 +83,11 @@ using namespace Utils;
 
 namespace ClangCodeModel::Internal {
 
-using Key = LanguageServerProtocol::Key;
-
 Q_LOGGING_CATEGORY(clangdLog, "qtc.clangcodemodel.clangd", QtWarningMsg);
 Q_LOGGING_CATEGORY(clangdLogAst, "qtc.clangcodemodel.clangd.ast", QtWarningMsg);
 static Q_LOGGING_CATEGORY(clangdLogServer, "qtc.clangcodemodel.clangd.server", QtWarningMsg);
 static QString indexingToken() { return "backgroundIndexProgress"; }
 
-class SymbolDetails : public JsonObject
-{
-public:
-    using JsonObject::JsonObject;
-
-    static constexpr Key usrKey{"usr"};
-
-    // the unqualified name of the symbol
-    QString name() const { return typedValue<QString>(nameKey); }
-
-    // the enclosing namespace, class etc (without trailing ::)
-    // [NOTE: This is not true, the trailing colons are included]
-    QString containerName() const { return typedValue<QString>(containerNameKey); }
-
-    // the clang-specific “unified symbol resolution” identifier
-    QString usr() const { return typedValue<QString>(usrKey); }
-
-    // the clangd-specific opaque symbol ID
-    std::optional<QString> id() const { return optionalValue<QString>(idKey); }
-
-    bool isValid() const override
-    {
-        return contains(nameKey) && contains(containerNameKey) && contains(usrKey);
-    }
-};
-
-class SymbolInfoRequest : public Request<LanguageClientArray<SymbolDetails>, std::nullptr_t, TextDocumentPositionParams>
-{
-public:
-    using Request::Request;
-    explicit SymbolInfoRequest(const TextDocumentPositionParams &params)
-        : Request("textDocument/symbolInfo", params) {}
-};
 
 class ClangdOutlineItem : public LanguageClientOutlineItem
 {
@@ -135,8 +98,7 @@ private:
         if (valid()) {
             switch (role) {
             case Qt::DisplayRole:
-                return ClangdClient::displayNameFromDocumentSymbol(
-                    static_cast<SymbolKind>(type()), name(), detail());
+                return ClangdClient::displayNameFromDocumentSymbol(type(), name(), detail());
             case Qt::ForegroundRole:
                 if ((detail().endsWith("class") || detail().endsWith("struct"))
                     && range().end() == selectionRange().end()) {
@@ -218,31 +180,19 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
     return interface;
 }
 
-class DiagnosticsCapabilities : public JsonObject
+// The capabilities clangd defines on top of the protocol.
+// See https://clangd.llvm.org/extensions
+static QJsonObject clangdExtraCapabilities()
 {
-public:
-    using JsonObject::JsonObject;
-    void enableCategorySupport() { insert(Key{"categorySupport"}, true); }
-    void enableCodeActionsInline() {insert(Key{"codeActionsInline"}, true);}
-};
-
-class InactiveRegionsCapabilities : public JsonObject
-{
-public:
-    using JsonObject::JsonObject;
-    void enableInactiveRegionsSupport() { insert(Key{"inactiveRegions"}, true); }
-};
-
-class ClangdTextDocumentClientCapabilities : public TextDocumentClientCapabilities
-{
-public:
-    using TextDocumentClientCapabilities::TextDocumentClientCapabilities;
-
-    void setPublishDiagnostics(const DiagnosticsCapabilities &caps)
-    { insert(Key{"publishDiagnostics"}, caps); }
-    void setInactiveRegionsCapabilities(const InactiveRegionsCapabilities &caps)
-    { insert(Key{"inactiveRegionsCapabilities"}, caps); }
-};
+    return QJsonObject{
+        {"textDocument",
+         QJsonObject{
+             {"publishDiagnostics",
+              QJsonObject{{"categorySupport", true}, {"codeActionsInline", true}}},
+             {"inactiveRegionsCapabilities", QJsonObject{{"inactiveRegions", true}}},
+             {"completion", QJsonObject{{"editsNearCursor", true}}},
+             {"references", QJsonObject{{"container", true}}}}}};
+}
 
 static qint64 getRevision(const TextDocument *doc)
 {
@@ -329,11 +279,12 @@ public:
     QString searchTermFromCursor(const QTextCursor &cursor) const;
     QTextCursor adjustedCursor(const QTextCursor &cursor, const TextDocument *doc);
 
-    void setHelpItemForTooltip(const MessageId &token,
-                               const Utils::FilePath &filePath,
-                               const QString &fqn = {},
-                               HelpItem::Category category = HelpItem::Unknown,
-                               const QString &type = {});
+    void setHelpItemForTooltip(
+        const MessageId &token,
+        const Utils::FilePath &filePath,
+        const QString &fqn = {},
+        HelpItem::Category category = HelpItem::Unknown,
+        const QString &type = {});
 
     void handleSemanticTokens(TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
                               int version, bool force);
@@ -429,45 +380,33 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
     for (const Client *client : clients)
         qCWarning(clangdLog) << client->name() << client->stateString();
     ClientCapabilities caps = Client::defaultClientCapabilities();
-    std::optional<TextDocumentClientCapabilities> textCaps = caps.textDocument();
-    if (textCaps) {
-        ClangdTextDocumentClientCapabilities clangdTextCaps(*textCaps);
-        clangdTextCaps.clearDocumentHighlight();
-        DiagnosticsCapabilities diagnostics;
-        diagnostics.enableCategorySupport();
-        diagnostics.enableCodeActionsInline();
-        clangdTextCaps.setPublishDiagnostics(diagnostics);
-        InactiveRegionsCapabilities inactiveRegions;
-        inactiveRegions.enableInactiveRegionsSupport();
-        clangdTextCaps.setInactiveRegionsCapabilities(inactiveRegions);
-        std::optional<TextDocumentClientCapabilities::CompletionCapabilities> completionCaps
-                = textCaps->completion();
-        if (completionCaps)
-            clangdTextCaps.setCompletion(ClangdCompletionCapabilities(*completionCaps));
-
-        // https://clangd.llvm.org/extensions#reference-container
-        if (const auto references = textCaps->references()) {
-            QJsonObject obj = *references;
-            obj.insert("container", true);
-            clangdTextCaps.setReferences(DynamicRegistrationCapabilities(obj));
+    if (std::optional<TextDocumentClientCapabilities> textCaps = caps.textDocument()) {
+        textCaps->documentHighlight(std::nullopt);
+        if (std::optional<CompletionClientCapabilities> completion = textCaps->completion()) {
+            if (std::optional<ClientCompletionItemOptions> item = completion->completionItem()) {
+                item->snippetSupport(false);
+                completion->completionItem(item);
+            }
+            textCaps->completion(completion);
         }
 
         // clangd handles the LSP 3.18 proposed symbol tags, which we use for
-        // more precise symbol icons.
-        if (auto symbolCaps = textCaps->documentSymbol()) {
-            SymbolCapabilities::SymbolTagCapabilities symbolTagCaps;
-            QList<SymbolTag> symbolTags;
-            for (int i = int(SymbolTag::FirstTag); i <= int(SymbolTag::LastTag); ++i)
-                symbolTags << static_cast<SymbolTag>(i);
-            symbolTagCaps.setValueSet(symbolTags);
-            symbolCaps->setSymbolTag(symbolTagCaps);
-            clangdTextCaps.setDocumentSymbol(*symbolCaps);
+        // more precise symbol icons. They run from Deprecated (1) to ReadOnly (20).
+        if (std::optional<DocumentSymbolClientCapabilities> symbolCaps
+                = textCaps->documentSymbol()) {
+            constexpr int lastProposedSymbolTag = 20;
+            QList<int> symbolTags;
+            for (int tag = SymbolTag::Deprecated; tag <= lastProposedSymbolTag; ++tag)
+                symbolTags << tag;
+            symbolCaps->tagSupport(ClientSymbolTagOptions().valueSet(symbolTags));
+            textCaps->documentSymbol(symbolCaps);
         }
 
-        caps.setTextDocument(clangdTextCaps);
+        caps.textDocument(*textCaps);
     }
-    caps.clearExperimental();
+    caps.experimental(std::nullopt);
     setClientCapabilities(caps);
+    setExtraClientCapabilities(clangdExtraCapabilities());
     setLocatorsEnabled(false);
     setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
     progressManager()->setTitleForToken(indexingToken(),
@@ -485,17 +424,16 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
                                     int version, bool force) {
         d->handleSemanticTokens(doc, tokens, version, force);
     });
-    hoverHandler()->setHelpItemProvider([this](const HoverRequest::Response &response,
-                                               const Utils::FilePath &filePath) {
-        gatherHelpItemForTooltip(response, filePath);
-    });
-    registerCustomMethod(inactiveRegionsMethodName(), [this](const JsonRpcMessage &msg) {
+    hoverHandler()->setHelpItemProvider(
+        [this](const MessageId &id, const Hover &hover, const Utils::FilePath &filePath) {
+            gatherHelpItemForTooltip(id, hover, filePath);
+        });
+    registerCustomMethod(inactiveRegionsMethodName(), [this](const QJsonObject &msg) {
         handleInactiveRegions(this, msg);
         return true;
     });
 
-    connect(this, &Client::workDone, this,
-            [this](const ProgressToken &token) {
+    connect(this, &Client::workDone, this, [this](const ProgressToken &token) {
         const QString * const val = std::get_if<QString>(&token);
         if (val && *val == indexingToken()) {
             d->isFullyIndexed = true;
@@ -559,12 +497,12 @@ void ClangdClient::openExtraFile(const Utils::FilePath &filePath, const QString 
     }
 
     TextDocumentItem item;
-    item.setLanguageId("cpp");
-    item.setUri(hostPathToServerUri(filePath));
-    item.setText(std::move(text));
-    item.setVersion(0);
-    sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
-                SendDocUpdates::Ignore);
+    item.languageId("cpp");
+    item.uri(uriFor(filePath));
+    item.text(std::move(text));
+    item.version(0);
+    sendNotification<DidOpenTextDocumentNotification>(
+        DidOpenTextDocumentParams().textDocument(item), SendDocUpdates::Ignore);
 
     d->openedExtraFiles.insert(filePath, 1);
 }
@@ -577,9 +515,9 @@ void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
     if (--it.value() > 0)
         return;
     d->openedExtraFiles.erase(it);
-    sendMessage(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
-            TextDocumentIdentifier{hostPathToServerUri(filePath)})),
-                SendDocUpdates::Ignore);
+    sendNotification<DidCloseTextDocumentNotification>(
+        DidCloseTextDocumentParams().textDocument(TextDocumentIdentifier().uri(uriFor(filePath))),
+        SendDocUpdates::Ignore);
 }
 
 void ClangdClient::findUsages(const CppEditor::CursorInEditor &cursor,
@@ -655,7 +593,7 @@ void ClangdClient::findUsages(const CppEditor::CursorInEditor &cursor,
             return;
         d->findUsages(doc.data(), adjustedCursor, name, replacement, renameCallback, categorize);
     };
-    requestSymbolInfo(cursor.textDocument()->filePath(), Range(adjustedCursor).start(),
+    requestSymbolInfo(cursor.textDocument()->filePath(), positionOf(adjustedCursor),
                       symbolInfoHandler);
 }
 
@@ -665,26 +603,36 @@ void ClangdClient::checkUnused(const Utils::Link &link, Core::SearchResult *sear
     new ClangdFindReferences(this, link, search, callback);
 }
 
-void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
+void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params,
+                                     const QJsonObject &raw)
 {
-    const DocumentUri &uri = params.uri();
-    Client::handleDiagnostics(params);
+    // clangd puts its extensions next to the fields the protocol defines, where the
+    // generated type drops them. Carry them in the diagnostic's data instead.
+    PublishDiagnosticsParams enrichedParams = params;
+    const QJsonArray rawDiagnostics = raw.value("diagnostics").toArray();
+    QList<Diagnostic> diagnostics = params.diagnostics();
+    for (int i = 0; i < diagnostics.size() && i < rawDiagnostics.size(); ++i)
+        diagnostics[i].data(rawDiagnostics.at(i));
+    enrichedParams.diagnostics(diagnostics);
+
+    const QString &uri = params.uri();
+    Client::handleDiagnostics(enrichedParams, raw);
     const int docVersion = documentVersion(uri);
     if (params.version().value_or(docVersion) != docVersion)
         return;
     QList<CodeAction> allCodeActions;
-    for (const Diagnostic &diagnostic : params.diagnostics()) {
-        const ClangdDiagnostic clangdDiagnostic(diagnostic);
-        auto codeActions = clangdDiagnostic.codeActions();
+    for (const Diagnostic &diagnostic : std::as_const(diagnostics)) {
+        std::optional<QList<CodeAction>> codeActions = ClangdDiagnostic(diagnostic).codeActions();
         if (codeActions && !codeActions->isEmpty()) {
             for (CodeAction &action : *codeActions)
-                action.setDiagnostics({diagnostic});
+                action.diagnostics(QList<Diagnostic>{diagnostic});
             allCodeActions << *codeActions;
         } else {
             // We know that there's only one kind of diagnostic for which clangd has
             // a quickfix tweak, so let's not be wasteful.
-            const Diagnostic::Code code = diagnostic.code().value_or(Diagnostic::Code());
-            const QString * const codeString = std::get_if<QString>(&code);
+            const QString * const codeString = diagnostic.code()
+                                                   ? std::get_if<QString>(&*diagnostic.code())
+                                                   : nullptr;
             if (codeString && *codeString == "-Wswitch")
                 requestCodeActions(uri, diagnostic);
         }
@@ -733,9 +681,9 @@ private:
 
     QList<Diagnostic> filteredDiagnostics(const QList<Diagnostic> &diagnostics) const override
     {
-        return Utils::filtered(diagnostics, [](const Diagnostic &diag){
-            const Diagnostic::Code code = diag.code().value_or(Diagnostic::Code());
-            const QString * const codeString = std::get_if<QString>(&code);
+        return Utils::filtered(diagnostics, [](const Diagnostic &diag) {
+            const QString * const codeString = diag.code() ? std::get_if<QString>(&*diag.code())
+                                                           : nullptr;
             return !codeString || (*codeString != "drv_unknown_argument"
                                    && !codeString->startsWith("drv_unsupported_opt"));
         });
@@ -751,7 +699,7 @@ private:
 
     QString taskText(const Diagnostic &diagnostic) const override
     {
-        QString text = diagnostic.message();
+        QString text = plainText(diagnostic.message());
         auto splitIndex = text.indexOf("\n\n");
         if (splitIndex >= 0)
             text.truncate(splitIndex);
@@ -770,8 +718,7 @@ DiagnosticManager *ClangdClient::createDiagnosticManager()
     return diagnosticManager;
 }
 
-LanguageClientOutlineItem *ClangdClient::createOutlineItem(
-    const LanguageServerProtocol::DocumentSymbol &symbol)
+LanguageClientOutlineItem *ClangdClient::createOutlineItem(const DocumentSymbol &symbol)
 {
     return new ClangdOutlineItem(this, symbol);
 }
@@ -857,7 +804,7 @@ bool ClangdClient::testingEnabled() const
     return d->isTesting;
 }
 
-QString ClangdClient::displayNameFromDocumentSymbol(SymbolKind kind, const QString &name,
+QString ClangdClient::displayNameFromDocumentSymbol(int kind, const QString &name,
                                                     const QString &detail)
 {
     switch (kind) {
@@ -967,9 +914,8 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
                        optionsBuilder.isClStyle());
     QJsonObject settings;
     addCompilationDb(settings, cdbChanges);
-    DidChangeConfigurationParams configChangeParams;
-    configChangeParams.setSettings(settings);
-    sendMessage(DidChangeConfigurationNotification(configChangeParams));
+    sendNotification<DidChangeConfigurationNotification>(
+        DidChangeConfigurationParams().settings(settings));
     emit configChanged();
 }
 
@@ -981,7 +927,7 @@ std::optional<bool> ClangdClient::hasVirtualFunctionAt(TextDocument *doc, int re
             || highlightingData->virtualRanges.second != revision) {
         return {};
     }
-    const auto matcher = [range](const Range &r) { return range.overlaps(r); };
+    const auto matcher = [range](const Range &r) { return overlaps(range, r); };
     return Utils::contains(highlightingData->virtualRanges.first, matcher);
 }
 
@@ -994,31 +940,24 @@ MessageId ClangdClient::getAndHandleAst(const TextDocOrFile &doc, const AstHandl
 MessageId ClangdClient::requestSymbolInfo(const Utils::FilePath &filePath, const Position &position,
                                           const SymbolInfoHandler &handler)
 {
-    const TextDocumentIdentifier docId(hostPathToServerUri(filePath));
-    const TextDocumentPositionParams params(docId, position);
-    SymbolInfoRequest symReq(params);
-    symReq.setResponseCallback([handler, reqId = symReq.id()]
-                               (const SymbolInfoRequest::Response &response) {
-        const auto result = response.result();
-        if (!result) {
-            handler({}, {}, reqId);
+    // See https://clangd.llvm.org/extensions#symbol-info-request
+    const QJsonObject params{{"textDocument", QJsonObject{{"uri", uriFor(filePath)}}},
+                             {"position", toJson(position)}};
+    return sendRawRequest(params, "textDocument/symbolInfo",
+                          [handler](const QJsonObject &response) {
+        // According to the documentation, we should receive a single object here,
+        // but it's a list. No idea what it means if there's more than one entry.
+        // We choose the first one.
+        const QJsonArray symbols = response.value("result").toArray();
+        if (symbols.isEmpty()) {
+            handler({}, {}, messageId(response));
             return;
         }
-
-        // According to the documentation, we should receive a single
-        // object here, but it's a list. No idea what it means if there's
-        // more than one entry. We choose the first one.
-        const auto list = std::get_if<QList<SymbolDetails>>(&(*result));
-        if (!list || list->isEmpty()) {
-            handler({}, {}, reqId);
-            return;
-        }
-
-        const SymbolDetails &sd = list->first();
-        handler(sd.name(), sd.containerName(), reqId);
+        const QJsonObject symbol = symbols.first().toObject();
+        handler(symbol.value("name").toString(),
+                symbol.value("containerName").toString(),
+                messageId(response));
     });
-    sendMessage(symReq);
-    return symReq.id();
 }
 
 #ifdef WITH_TESTS
@@ -1094,25 +1033,17 @@ void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &curs
 
 void ClangdClient::switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit)
 {
-    class SwitchSourceHeaderRequest : public Request<QJsonValue, std::nullptr_t, TextDocumentIdentifier>
-    {
-    public:
-        using Request::Request;
-        explicit SwitchSourceHeaderRequest(const DocumentUri &uri)
-            : Request("textDocument/switchSourceHeader", TextDocumentIdentifier(uri))
-        {}
-    };
-    SwitchSourceHeaderRequest req(hostPathToServerUri(filePath));
-    req.setResponseCallback([inNextSplit, pathMapper = hostPathMapper()](
-                                const SwitchSourceHeaderRequest::Response &response) {
-        if (const std::optional<QJsonValue> result = response.result()) {
-            const DocumentUri uri = DocumentUri::fromProtocol(result->toString());
-            const Utils::FilePath filePath = uri.toFilePath(pathMapper);
-            if (!filePath.isEmpty())
-                CppEditor::openEditor(filePath, inNextSplit);
-        }
+    // See https://clangd.llvm.org/extensions#switch-between-sourceheader
+    const QJsonObject params{{"uri", uriFor(filePath)}};
+    sendRawRequest(params, "textDocument/switchSourceHeader",
+                   [this, inNextSplit](const QJsonObject &response) {
+        const QString uri = response.value("result").toString();
+        if (uri.isEmpty())
+            return;
+        const Utils::FilePath filePath = filePathFor(uri);
+        if (!filePath.isEmpty())
+            CppEditor::openEditor(filePath, inNextSplit);
     });
-    sendMessage(req);
 }
 
 void ClangdClient::findLocalUsages(CppEditor::CppEditorWidget *editorWidget,
@@ -1144,15 +1075,15 @@ void ClangdClient::findLocalUsages(CppEditor::CppEditorWidget *editorWidget,
     });
 }
 
-void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverResponse,
-                                            const Utils::FilePath &filePath)
+void ClangdClient::gatherHelpItemForTooltip(
+    const MessageId &id, const Hover &hover, const Utils::FilePath &filePath)
 {
-    if (const std::optional<HoverResult> result = hoverResponse.result()) {
-        if (auto hover = std::get_if<Hover>(&(*result))) {
-            const HoverContent content = hover->content();
+    {
+        {
+            const HoverContents content = hover.contents();
             const MarkupContent *const markup = std::get_if<MarkupContent>(&content);
             if (markup) {
-                const QString markupString = markup->content();
+                const QString markupString = markup->value();
 
                 // Macros aren't locatable via the AST, so parse the formatted string.
                 static const QString magicMacroPrefix = "### macro `";
@@ -1162,10 +1093,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                     if (closingQuoteIndex != -1) {
                         const QString macroName = markupString.mid(nameStart,
                                                                    closingQuoteIndex - nameStart);
-                        d->setHelpItemForTooltip(hoverResponse.id(),
-                                                 filePath,
-                                                 macroName,
-                                                 HelpItem::Macro);
+                        d->setHelpItemForTooltip(id, filePath, macroName, HelpItem::Macro);
                         return;
                     }
                 }
@@ -1194,9 +1122,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                         continue;
                     const auto markupFilePath = Utils::FilePath::fromUserInput(possibleFilePath);
                     if (markupFilePath.exists()) {
-                        d->setHelpItemForTooltip(hoverResponse.id(),
-                                                 filePath,
-                                                 markupFilePath.fileName(),
+                        d->setHelpItemForTooltip(id, filePath, markupFilePath.fileName(),
                                                  HelpItem::Brief);
                         return;
                     }
@@ -1207,14 +1133,12 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
 
     const TextDocument * const doc = documentForFilePath(filePath);
     QTC_ASSERT(doc, return);
-    const auto astHandler = [this, filePath, hoverResponse](const ClangdAstNode &ast,
-                                                            const MessageId &) {
-        const MessageId id = hoverResponse.id();
+    const auto astHandler = [this, filePath, id, hover](const ClangdAstNode &ast,
+                                                       const MessageId &) {
         Range range;
-        if (const std::optional<HoverResult> result = hoverResponse.result()) {
-            if (auto hover = std::get_if<Hover>(&(*result)))
-                range = hover->range().value_or(Range());
-        }
+        if (const std::optional<Range> &hoverRange = hover.range())
+            range = Range(Position(hoverRange->start().line(), hoverRange->start().character()),
+                          Position(hoverRange->end().line(), hoverRange->end().character()));
         const ClangdAstPath path = getAstPath(ast, range);
         if (path.isEmpty()) {
             d->setHelpItemForTooltip(id, filePath);
@@ -1346,9 +1270,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
 }
 
 bool ClangdClient::gatherMemberFunctionOverrideHelpItemForTooltip(
-    const LanguageServerProtocol::MessageId &token,
-    const Utils::FilePath &filePath,
-    const QList<ClangdAstNode> &path)
+    const MessageId &token, const Utils::FilePath &filePath, const QList<ClangdAstNode> &path)
 {
     // Heuristic: If we encounter a member function re-declaration, continue under the
     // assumption that the base class holds the documentation.
@@ -1459,7 +1381,7 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
                 const std::optional<ClangdAstNode> clangdAst = astCache.get(doc);
                 if (!clangdAst)
                     return cursor;
-                const ClangdAstPath clangdAstPath = getAstPath(*clangdAst, Range(cursor));
+                const ClangdAstPath clangdAstPath = getAstPath(*clangdAst, rangeOf(cursor));
                 for (auto it = clangdAstPath.rbegin(); it != clangdAstPath.rend(); ++it) {
                     if (it->detailIs("operator->") && it->arcanaContains("CXXMethod"))
                         return cursor;
@@ -1509,11 +1431,12 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
     return cursor;
 }
 
-void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token,
-                                                  const Utils::FilePath &filePath,
-                                                  const QString &fqn,
-                                                  HelpItem::Category category,
-                                                  const QString &type)
+void ClangdClient::Private::setHelpItemForTooltip(
+    const MessageId &token,
+    const Utils::FilePath &filePath,
+    const QString &fqn,
+    HelpItem::Category category,
+    const QString &type)
 {
     QStringList helpIds;
     QString mark;
@@ -1621,11 +1544,19 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
     data->highlighter->run();
 }
 
-std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
+std::optional<QList<CodeAction>> ClangdDiagnostic::codeActions() const
 {
-    auto actions = optionalArray<LanguageServerProtocol::CodeAction>(Key{"codeActions"});
-    if (!actions)
-        return actions;
+    if (!m_diagnostic.data())
+        return std::nullopt;
+    const QJsonValue rawActions = m_diagnostic.data()->toObject().value("codeActions");
+    if (!rawActions.isArray())
+        return std::nullopt;
+    QList<CodeAction> parsed;
+    for (const QJsonValue &rawAction : rawActions.toArray()) {
+        if (const Utils::Result<CodeAction> action = fromJson<CodeAction>(rawAction))
+            parsed << *action;
+    }
+    std::optional<QList<CodeAction>> actions = parsed;
     static const QStringList badCodeActions{
         "remove constant to silence this warning", // QTCREATORBUG-18593
     };
@@ -1640,7 +1571,9 @@ std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 
 QString ClangdDiagnostic::category() const
 {
-    return typedValue<QString>(Key{"category"});
+    if (!m_diagnostic.data())
+        return {};
+    return m_diagnostic.data()->toObject().value("category").toString();
 }
 
 MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
@@ -1654,7 +1587,7 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
 
     // If the entire AST is requested and the document's AST is in the cache and it is up to date,
     // call the handler.
-    const bool fullAstRequested = !range.isValid();
+    const bool fullAstRequested = isEmpty(range);
     if (fullAstRequested) {
         if (const auto ast = textDoc ? astCache.get(textDoc) : externalAstCache.get(filePath)) {
             qCDebug(clangdLog) << "using AST from cache";

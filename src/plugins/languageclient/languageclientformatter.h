@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/lspjsonrpc.h>
 
 #include <texteditor/formatter.h>
 
@@ -19,16 +19,16 @@ class LanguageClientFormatter;
 class IFormattingRequest
 {
 public:
-    using RequestType = std::variant<std::monostate,
-        LanguageServerProtocol::DocumentRangeFormattingRequest,
-        LanguageServerProtocol::DocumentFormattingRequest>;
     IFormattingRequest(Client *, TextEditor::TextDocument *);
     virtual ~IFormattingRequest() = default;
-    virtual RequestType prepareRequest(
+    /// Sends the request, answering its id, or nothing when the server cannot
+    /// format this document.
+    virtual std::optional<LanguageServerProtocol::MessageId> sendRequest(
         const QTextCursor &cursor,
         const TextEditor::TabSettingsData &settings,
         LanguageClientFormatter *formatter)
         = 0;
+
 protected:
     QPointer<Client> m_client;
     TextEditor::TextDocument *m_document;
@@ -38,7 +38,7 @@ class RangeFormattingRequest : public IFormattingRequest
 {
 public:
     RangeFormattingRequest(Client *client, TextEditor::TextDocument *document);
-    RequestType prepareRequest(
+    std::optional<LanguageServerProtocol::MessageId> sendRequest(
         const QTextCursor &cursor,
         const TextEditor::TabSettingsData &settings,
         LanguageClientFormatter *formatter) override;
@@ -48,7 +48,7 @@ class FullFormattingRequest : public IFormattingRequest
 {
 public:
     FullFormattingRequest(Client *client, TextEditor::TextDocument *document);
-    RequestType prepareRequest(
+    std::optional<LanguageServerProtocol::MessageId> sendRequest(
         const QTextCursor &cursor,
         const TextEditor::TabSettingsData &settings,
         LanguageClientFormatter *formatter) override;
@@ -57,9 +57,8 @@ public:
 class LanguageClientFormatter : public TextEditor::Formatter
 {
 public:
-    using ResponseType = LanguageServerProtocol::Response<
-        LanguageServerProtocol::LanguageClientArray<LanguageServerProtocol::TextEdit>,
-        std::nullptr_t>;
+    // The full and the range request answer the same type.
+    using ResultType = LanguageServerProtocol::DocumentFormattingRequestResult;
 
     LanguageClientFormatter(TextEditor::TextDocument *document, Client *client);
     ~LanguageClientFormatter() override;
@@ -69,7 +68,7 @@ public:
                 const TextEditor::FormatCallback &callback) override;
 
     void setMode(FormatMode mode) override;
-    void handleResponse(const ResponseType &response);
+    void handleResponse(const Utils::Result<ResultType> &result);
 
 private:
     void cancelCurrentRequest();

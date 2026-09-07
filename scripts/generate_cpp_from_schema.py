@@ -26,6 +26,11 @@ _cxx20: bool = True
 # omitted and null carry different meanings (e.g. ACP v2).
 _three_state: bool = False
 
+# The DLL export/import macro, in split mode only. A member whose definition
+# moves to the .cpp needs it; one that stays inline in the header does not.
+# Set via --export-macro.
+_export_macro: str = ''
+
 _PATCH_CLASS = '''
 /**
  * Three-state field for upsert patch semantics: absent (leave unchanged),
@@ -413,9 +418,33 @@ def finalize_from_json(lines):
     return lines
 
 
+# Schema prose uses a zero width space or a division slash to keep "**/"
+# from closing a JSDoc comment; _escape_comment covers that once they are
+# plain slashes again.
+_ASCII_REPLACEMENTS = {
+    '\u200b': '',
+    '\u2215': '/',
+    '\u2014': '--',
+    '\u2013': '-',
+    '\u2018': "'",
+    '\u2019': "'",
+    '\u201c': '"',
+    '\u201d': '"',
+    '\u2026': '...',
+    '\u00a0': ' ',
+}
+
+
+def _ascii_comment(text):
+    """Replace non-ASCII characters in comment text, the sources are ASCII-only."""
+    text = ''.join(_ASCII_REPLACEMENTS.get(c, c) for c in text)
+    return ''.join(c if ord(c) < 128 else f'U+{ord(c):04X}' for c in text)
+
+
 def _escape_comment(text):
     """Break /* and */ so schema prose cannot open or close the block comment."""
-    return re.sub(r'/\*|\*/', lambda m: m.group(0)[0] + '\\' + m.group(0)[1], text)
+    text = _ascii_comment(text)
+    return re.sub(r'(?<=\*)(?=/)|(?<=/)(?=\*)', r'\\', text)
 
 
 def doc_comment(text, indent=''):
@@ -523,6 +552,27 @@ def _extract_anyof_enum(spec):
 
 def parse_enum(name, spec):
     prefix = doc_comment(spec.get('description', ''))
+    # A set of named values that does not close the type: anything of the base
+    # type is still valid, so the names become constants rather than an enum.
+    # "constantsNamespace" names the namespace holding them when the type
+    # itself keeps the definition name; without it the namespace takes that
+    # name and references to the definition use the base type.
+    if "constants" in spec:
+        lines = []
+        namespace = spec.get("constantsNamespace", name)
+        if namespace != name:
+            lines.append(f'using {name} = {cpp_type(spec.get("type"))};')
+            lines.append("")
+        lines.append(f"namespace {namespace} {{")
+        for constant in spec["constants"]:
+            const_name = sanitize_identifier(constant["name"])
+            value = constant["value"]
+            if spec.get("type") == "string":
+                lines.append(f'    constexpr char {const_name}[] = "{value}";')
+            else:
+                lines.append(f"    constexpr int {const_name} = {value};")
+        lines.append(f"}} // namespace {namespace}")
+        return prefix + '\n'.join(lines)
     # Normalise anyOf/oneOf-with-const into the standard enum form
     normalised = _extract_anyof_enum(spec)
     if normalised:
@@ -600,6 +650,8 @@ def is_integer_const_namespace(type_name, types):
     if type_name not in types:
         return False
     spec = types[type_name]
+    if "constants" in spec and "constantsNamespace" not in spec:
+        return spec.get("type") == "integer"
     normalised = _extract_anyof_enum(spec)
     if normalised and normalised.get("type") == "integer":
         return True
@@ -617,6 +669,8 @@ def is_simple_type_alias(type_name, types):
     These types convert directly to QJsonValue without needing toJson()."""
     if type_name in types:
         spec = types[type_name]
+        if "constants" in spec and "constantsNamespace" not in spec:
+            return False  # a namespace of constants, not a type
         return spec.get("type") in ("string", "integer", "number", "boolean") and "enum" not in spec and "properties" not in spec
     return False
 
@@ -1662,7 +1716,10 @@ def escape_keyword(name):
                     "const_cast", "static_cast", "dynamic_cast", "reinterpret_cast",
                     "co_await", "co_return", "co_yield", "wchar_t", "char8_t",
                     "char16_t", "char32_t", "and", "or", "not", "xor", "compl",
-                    "bitand", "bitor", "and_eq", "or_eq", "not_eq", "xor_eq"}
+                    "bitand", "bitor", "and_eq", "or_eq", "not_eq", "xor_eq",
+                    # Not a keyword, but a macro in the Windows SDK headers,
+                    # which expand it wherever they have been included first.
+                    "interface"}
     return f"{name}_" if name in cpp_keywords else name
 
 def sanitize_identifier(value):
@@ -2382,7 +2439,7 @@ def accepts_additional_props(spec):
     additional = spec.get("additionalProperties")
     return additional is True or additional == {}
 
-def parse_struct(name, props, types, required=None, description='', nested_children=None, children_of=None, original_name=None, has_additional_props=False):
+def parse_struct(name, props, types, required=None, description='', nested_children=None, children_of=None, original_name=None, has_additional_props=False, nested=False):
     if required is None:
         required = []
     if nested_children is None:
@@ -2483,7 +2540,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         grandchildren = (children_of or {}).get(child_name, {})
         short_name = nested_short_name(effective_prefix, child_name)
         nested_short_names[child_name] = short_name
-        child_full = parse_struct(short_name, child_props_n, types, child_required_n, child_desc_n, nested_children=grandchildren, children_of=children_of, original_name=child_name, has_additional_props=accepts_additional_props(child_details))
+        child_full = parse_struct(short_name, child_props_n, types, child_required_n, child_desc_n, nested_children=grandchildren, children_of=children_of, original_name=child_name, has_additional_props=accepts_additional_props(child_details), nested=True)
         _collect_sub_struct_output(child_full, short_name, name,
                                    child_preamble_blocks, child_struct_inserts, child_serial_blocks)
 
@@ -2497,7 +2554,8 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                                     spec.get("required", []),
                                     spec.get("description", ""),
                                     original_name=sub_name,
-                                    has_additional_props=accepts_additional_props(spec))
+                                    has_additional_props=accepts_additional_props(spec),
+                                    nested=True)
             _collect_sub_struct_output(sub_code, short_sub_name, name,
                                        child_preamble_blocks, child_struct_inserts, child_serial_blocks)
             sub_struct_names[prop] = short_sub_name
@@ -2511,7 +2569,8 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                                     items_spec.get("required", []),
                                     items_spec.get("description", ""),
                                     original_name=sub_name,
-                                    has_additional_props=accepts_additional_props(items_spec))
+                                    has_additional_props=accepts_additional_props(items_spec),
+                                    nested=True)
             _collect_sub_struct_output(sub_code, short_sub_name, name,
                                        child_preamble_blocks, child_struct_inserts, child_serial_blocks)
             array_item_struct_names[prop] = short_sub_name
@@ -2613,7 +2672,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             inline_comment = ''
         else:
             pre_lines = []
-            inline_comment = f'  //!< {prop_desc}' if prop_desc else ''
+            inline_comment = f'  //!< {_ascii_comment(prop_desc)}' if prop_desc else ''
         if prop in inline_enum_names:
             t = inline_enum_names[prop]
             decl_type = f"std::optional<{t}>" if is_optional else t
@@ -2911,9 +2970,24 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         lines.append(f"    const QJsonObject& additionalProperties() const {{ return _additionalProperties; }}")
 
     lines.append("")
-    lines.append(f"    bool operator==(const {name} &other) const = default;")
+    # A struct that mentions itself cannot default the comparison in the class body:
+    # deciding whether the defaulted operator is deleted sends
+    # QTypeTraits::has_operator_equal back through the struct's own members and into
+    # itself, which GCC rejects as an incomplete type. A declaration already satisfies
+    # the trait, so the default goes out of line.
+    self_referential = not nested and any(
+        re.search(rf"\b{re.escape(name)}\b", decl_type) for decl_type in prop_decl_types.values())
+    if self_referential:
+        # In split mode the definition below lands in the .cpp, so the member has
+        # to be exported on its own: the struct itself is not.
+        export = f"{_export_macro} " if _export_macro else ""
+        lines.append(f"    {export}bool operator==(const {name} &other) const;")
+    else:
+        lines.append(f"    bool operator==(const {name} &other) const = default;")
 
     lines.append("};\n")
+    if self_referential:
+        lines.append(f"inline bool {name}::operator==(const {name} &other) const = default;\n")
     # Emit serializers for nested child types at namespace scope (before parent serializers)
     for _child_serial in child_serial_blocks:
         lines.append(_child_serial)
@@ -3568,6 +3642,14 @@ def _split_code_block(code_block, export_macro=None):
             i += 1
             continue
 
+        # Detect the out-of-line defaulted comparison of a self-referential struct.
+        # Its declaration is already in the struct body, so only the definition moves.
+        if re.match(r'^inline\s+bool\s+\w+::operator==\(.*\)\s*const\s*=\s*default;$', stripped):
+            cpp_lines.append(re.sub(r'^inline\s+', '', stripped))
+            cpp_lines.append('')
+            i += 1
+            continue
+
         # Detect inline free functions at column 0 (toString, toJson, toJsonValue, dispatchValue, shared field accessors)
         if stripped.startswith('inline ') and '{' in stripped and not stripped.startswith('inline enum') and not stripped.startswith('inline struct'):
             end = _find_matching_brace(lines, i)
@@ -3665,10 +3747,12 @@ def main():
     )
     args = parser.parse_args()
     global _emit_comments, _emitted_variant_sigs, _read_only, _three_state, _cxx20
+    global _export_macro
     _emit_comments = not args.no_comments
     _read_only = args.read_only
     _three_state = args.three_state
     _cxx20 = not args.no_cxx20
+    _export_macro = args.export_macro if args.cpp_output else ''
     _emitted_variant_sigs = {}  # reset per run
     _canonical_alias.clear()
     schema_path = Path(args.schema)
@@ -3840,8 +3924,9 @@ def main():
     deferred = []
     for name in order:
         spec = types[name]
-        # 1. Enums (classic pattern or anyOf/oneOf with const values)
-        if ("enum" in spec and spec.get("type") == "string") or _extract_anyof_enum(spec):
+        # 1. Enums (classic pattern or anyOf/oneOf with const values), and the
+        # named constants of a type that stays open
+        if ("enum" in spec and spec.get("type") == "string") or _extract_anyof_enum(spec)                 or "constants" in spec:
             code.append(parse_enum(name, spec))
             emitted.add(name)
             continue

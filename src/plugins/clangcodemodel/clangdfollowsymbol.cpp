@@ -12,8 +12,9 @@
 #include <cppeditor/cppvirtualfunctionproposalitem.h>
 
 #include <languageclient/languageclientsymbolsupport.h>
-#include <languageserverprotocol/lsptypes.h>
-#include <languageserverprotocol/jsonrpcmessages.h>
+#include <languageclient/languageclientutils.h>
+
+#include <languageserverprotocol/lsputils.h>
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -77,7 +78,7 @@ public:
             CppEditorWidget *editorWidget, const FilePath &filePath, const LinkHandler &callback,
             bool openInSplit)
         : q(q), client(client), origin(origin), cursor(cursor), editorWidget(editorWidget),
-          uri(client->hostPathToServerUri(filePath)), callback(callback),
+          uri(client->uriFor(filePath)), callback(callback),
           virtualFuncAssistProvider(q),
           docRevision(editorWidget ? editorWidget->textDocument()->document()->revision() : -1),
           openInSplit(openInSplit) {}
@@ -85,7 +86,8 @@ public:
     void goToTypeDefinition();
     void handleGotoDefinitionResult();
     void sendGotoImplementationRequest(const Utils::Link &link);
-    void handleGotoImplementationResult(const GotoImplementationRequest::Response &response);
+    void handleGotoImplementationResult(
+        const Utils::Result<ImplementationRequestResult> &result);
     void handleDocumentInfoResults();
     void closeTempDocuments();
     bool addOpenFile(const FilePath &filePath);
@@ -97,7 +99,7 @@ public:
     const Origin origin;
     const QTextCursor cursor;
     const QPointer<CppEditor::CppEditorWidget> editorWidget;
-    const DocumentUri uri;
+    const QString uri;
     const LinkHandler callback;
     VirtualFunctionAssistProvider virtualFuncAssistProvider;
     QList<MessageId> pendingSymbolInfoRequests;
@@ -170,7 +172,7 @@ ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, Origin origin,
             self->d->handleGotoDefinitionResult();
     };
     client->getAndHandleAst(document, astHandler, ClangdClient::AstCallbackMode::AlwaysAsync,
-                            Range(cursor));
+                            rangeOf(cursor));
 }
 
 ClangdFollowSymbol::~ClangdFollowSymbol()
@@ -272,19 +274,22 @@ void ClangdFollowSymbol::Private::sendGotoImplementationRequest(const Link &link
 {
     if (!client->documentForFilePath(link.targetFilePath) && addOpenFile(link.targetFilePath))
         client->openExtraFile(link.targetFilePath);
-    const Position position(link.target.line - 1, link.target.column);
-    const TextDocumentIdentifier documentId(client->hostPathToServerUri(link.targetFilePath));
-    GotoImplementationRequest req(TextDocumentPositionParams(documentId, position));
-    req.setResponseCallback([sentinel = QPointer(q), this, reqId = req.id()]
-                            (const GotoImplementationRequest::Response &response) {
-        qCDebug(clangdLog) << "received go to implementation reply";
-        if (!sentinel)
-            return;
-        pendingGotoImplRequests.removeOne(reqId);
-        handleGotoImplementationResult(response);
-    });
-    client->sendMessage(req, ClangdClient::SendDocUpdates::Ignore);
-    pendingGotoImplRequests << req.id();
+    ImplementationParams params;
+    params.textDocument(TextDocumentIdentifier().uri(client->uriFor(link.targetFilePath)));
+    params.position(Position().line(link.target.line - 1).character(link.target.column));
+    MessageId reqId;
+    reqId = client->sendRequest<ImplementationRequest>(
+        params,
+        [sentinel = QPointer(q), this, &reqId](
+            const Utils::Result<ImplementationRequestResult> &result) {
+            qCDebug(clangdLog) << "received go to implementation reply";
+            if (!sentinel)
+                return;
+            pendingGotoImplRequests.removeOne(reqId);
+            handleGotoImplementationResult(result);
+        },
+        ClangdClient::SendDocUpdates::Ignore);
+    pendingGotoImplRequests << reqId;
     qCDebug(clangdLog) << "sending go to implementation request" << link.target.line;
 }
 
@@ -324,8 +329,8 @@ IAssistProposal *ClangdFollowSymbol::VirtualFunctionAssistProcessor::createPropo
     m_running = !final;
 
     QList<AssistProposalItemInterface *> items;
-    bool needsBaseDeclEntry = !m_followSymbol->d->defLinkNode.range()
-            .contains(Position(m_followSymbol->d->cursor));
+    bool needsBaseDeclEntry = !contains(m_followSymbol->d->defLinkNode.range(),
+                                        positionOf(m_followSymbol->d->cursor));
     for (const SymbolData &symbol : std::as_const(m_followSymbol->d->symbolsToDisplay)) {
         Link link = symbol.second;
         if (m_followSymbol->d->defLink == link) {
@@ -380,26 +385,29 @@ ClangdFollowSymbol::VirtualFunctionAssistProvider::createProcessor(const AssistI
 
 void ClangdFollowSymbol::Private::goToTypeDefinition()
 {
-    GotoTypeDefinitionRequest req(TextDocumentPositionParams(TextDocumentIdentifier{uri},
-                                                             Position(cursor)));
-    req.setResponseCallback([sentinel = QPointer(q), this, reqId = req.id()]
-                            (const GotoTypeDefinitionRequest::Response &response) {
-        qCDebug(clangdLog) << "received go to type definition reply";
-        if (!sentinel)
-            return;
-        Link link;
-
-        if (const std::optional<GotoResult> &result = response.result()) {
-            if (const auto ploc = std::get_if<Location>(&*result)) {
-                link = {ploc->toLink(client->hostPathMapper())};
-            } else if (const auto plloc = std::get_if<QList<Location>>(&*result)) {
-                if (!plloc->empty())
-                    link = plloc->first().toLink(client->hostPathMapper());
+    TypeDefinitionParams params;
+    params.textDocument(TextDocumentIdentifier().uri(uri));
+    params.position(positionOf(cursor));
+    client->sendRequest<TypeDefinitionRequest>(
+        params,
+        [sentinel = QPointer(q), this](const Utils::Result<TypeDefinitionRequestResult> &result) {
+            qCDebug(clangdLog) << "received go to type definition reply";
+            if (!sentinel)
+                return;
+            Link link;
+            if (result) {
+                if (const auto location = std::get_if<Definition>(&*result)) {
+                    if (const auto single = std::get_if<Location>(location))
+                        link = linkFor(client, *single);
+                    else if (const auto locations = std::get_if<QList<Location>>(location);
+                             locations && !locations->isEmpty()) {
+                        link = linkFor(client, locations->first());
+                    }
+                }
             }
-        }
-        q->emitDone(link);
-    });
-    client->sendMessage(req, ClangdClient::SendDocUpdates::Ignore);
+            q->emitDone(link);
+        },
+        ClangdClient::SendDocUpdates::Ignore);
     qCDebug(clangdLog) << "sending go to type definition request";
 }
 
@@ -423,17 +431,17 @@ void ClangdFollowSymbol::Private::handleGotoDefinitionResult()
 }
 
 void ClangdFollowSymbol::Private::handleGotoImplementationResult(
-        const GotoImplementationRequest::Response &response)
+        const Utils::Result<ImplementationRequestResult> &result)
 {
-    auto transformLink = [mapper = client->hostPathMapper()](const Location &loc) {
-        return loc.toLink(mapper);
-    };
-    if (const std::optional<GotoResult> &result = response.result()) {
+    auto transformLink = [this](const Location &location) { return linkFor(client, location); };
+    if (result) {
         QList<Link> newLinks;
-        if (const auto ploc = std::get_if<Location>(&*result))
-            newLinks = {transformLink(*ploc)};
-        if (const auto plloc = std::get_if<QList<Location>>(&*result))
-            newLinks = transform(*plloc, transformLink);
+        if (const auto definition = std::get_if<Definition>(&*result)) {
+            if (const auto single = std::get_if<Location>(definition))
+                newLinks = {transformLink(*single)};
+            else if (const auto locations = std::get_if<QList<Location>>(definition))
+                newLinks = transform(*locations, transformLink);
+        }
         for (const Link &link : std::as_const(newLinks)) {
             if (!allLinks.contains(link)) {
                 allLinks << link;
@@ -484,7 +492,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
                 handleDocumentInfoResults();
             }
         };
-        const Position pos(link.target.line - 1, link.target.column);
+        const Position pos = Position().line(link.target.line - 1).character(link.target.column);
         const MessageId reqId = client->requestSymbolInfo(link.targetFilePath, pos,
                                                           symbolInfoHandler);
         pendingSymbolInfoRequests << reqId;
@@ -498,7 +506,8 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
     const TextDocument * const defLinkDoc = client->documentForFilePath(defLinkFilePath);
     const auto defLinkDocVariant = defLinkDoc ? ClangdClient::TextDocOrFile(defLinkDoc)
                                               : ClangdClient::TextDocOrFile(defLinkFilePath);
-    const Position defLinkPos(defLink.target.line - 1, defLink.target.column);
+    const Position defLinkPos = Position().line(defLink.target.line - 1)
+                                    .character(defLink.target.column);
     const auto astHandler = [this, sentinel = QPointer(q)]
             (const ClangdAstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for def link";
@@ -510,7 +519,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
     };
     client->getAndHandleAst(defLinkDocVariant, astHandler,
                             ClangdClient::AstCallbackMode::AlwaysAsync,
-                            Range(defLinkPos, defLinkPos));
+                            Range().start(defLinkPos).end(defLinkPos));
 }
 
 void ClangdFollowSymbol::Private::closeTempDocuments()

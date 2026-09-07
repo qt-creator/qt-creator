@@ -81,7 +81,7 @@ public:
 
     static void logJsonRpcMessage(const LspLogMessage::MessageSender sender,
                                   const QString &clientName,
-                                  const LanguageServerProtocol::JsonRpcMessage &message);
+                                  const QJsonObject &message);
 
     static void showInspector();
 

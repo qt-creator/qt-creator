@@ -3,11 +3,7 @@
 
 #pragma once
 
-#include "requests/checkstatus.h"
-#include "requests/getcompletions.h"
-#include "requests/signinconfirm.h"
-#include "requests/signininitiate.h"
-#include "requests/signout.h"
+#include "copilotrequests.h"
 
 #include <languageclient/client.h>
 
@@ -28,27 +24,23 @@ public:
 
     void scheduleRequest(TextEditor::TextEditorWidget *editor);
     void requestCompletions(TextEditor::TextEditorWidget *editor);
-    void handleCompletions(const GetCompletionRequest::Response &response,
-                           TextEditor::TextEditorWidget *editor);
+    void handleCompletions(
+        const Utils::Result<Completions> &result,
+        const LanguageServerProtocol::Position &requestPosition,
+        TextEditor::TextEditorWidget *editor);
     void cancelRunningRequest(TextEditor::TextEditorWidget *editor);
 
-    void requestCheckStatus(
-        bool localChecksOnly,
-        std::function<void(const CheckStatusRequest::Response &response)> callback);
-
-    void requestSignOut(std::function<void(const SignOutRequest::Response &response)> callback);
-
+    using StatusHandler = std::function<void(const Utils::Result<Status> &)>;
+    void requestCheckStatus(bool localChecksOnly, const StatusHandler &callback);
+    void requestSignOut(const StatusHandler &callback);
     void requestSignInInitiate(
-        std::function<void(const SignInInitiateRequest::Response &response)> callback);
-
-    void requestSignInConfirm(
-        const QString &userCode,
-        std::function<void(const SignInConfirmRequest::Response &response)> callback);
+        const std::function<void(const Utils::Result<SignInInitiateResult> &)> &callback);
+    void requestSignInConfirm(const QString &userCode, const StatusHandler &callback);
 
     bool canOpenProject(ProjectExplorer::Project *project) override;
 
 private:
-    QHash<TextEditor::TextEditorWidget *, GetCompletionRequest> m_runningRequests;
+    QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_runningRequests;
     struct ScheduleData
     {
         int cursorPosition = -1;

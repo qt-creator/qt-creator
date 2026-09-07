@@ -157,13 +157,14 @@ public:
 void JLSClient::executeCommand(const LanguageServerProtocol::Command &command)
 {
     if (command.command() == "java.apply.workspaceEdit") {
-        const QJsonArray arguments = command.arguments().value_or(QJsonArray());
+        const QList<QJsonValue> arguments = command.arguments().value_or(QList<QJsonValue>());
         for (const QJsonValue &argument : arguments) {
-            if (!argument.isObject())
-                continue;
-            LanguageServerProtocol::WorkspaceEdit edit(argument.toObject());
-            if (edit.isValid())
-                LanguageClient::applyWorkspaceEdit(this, edit);
+            const Utils::Result<LanguageServerProtocol::WorkspaceEdit> edit
+                = LanguageServerProtocol::fromJson<LanguageServerProtocol::WorkspaceEdit>(argument);
+            if (edit)
+                LanguageClient::applyWorkspaceEdit(this, *edit);
+            else
+                log(QtWarningMsg, edit.error());
         }
     } else {
         Client::executeCommand(command);

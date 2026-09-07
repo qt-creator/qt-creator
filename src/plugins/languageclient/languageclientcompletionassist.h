@@ -5,7 +5,9 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/completion.h>
+#include <languageserverprotocol/lspjsonrpc.h>
+
+#include <utils/filepath.h>
 #include <texteditor/codeassist/assistproposaliteminterface.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -14,6 +16,10 @@
 #include <QScopedPointer>
 
 #include <optional>
+
+QT_BEGIN_NAMESPACE
+class QTextDocument;
+QT_END_NAMESPACE
 
 namespace TextEditor {
 class IAssistProposal;
@@ -73,7 +79,8 @@ protected:
         const QList<LanguageServerProtocol::CompletionItem> &items) const;
 
 private:
-    void handleCompletionResponse(const LanguageServerProtocol::CompletionRequest::Response &response);
+    void handleCompletionResult(
+        const Utils::Result<LanguageServerProtocol::CompletionRequestResult> &result);
 
     Utils::FilePath m_filePath;
     QPointer<Client> m_client;

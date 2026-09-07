@@ -31,44 +31,6 @@ using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace std::string_view_literals;
 
-namespace {
-
-class RequestWithResponse : public LanguageServerProtocol::JsonRpcMessage
-{
-    sol::main_function m_callback;
-    LanguageServerProtocol::MessageId m_id;
-
-public:
-    RequestWithResponse(const QJsonObject &obj, const sol::function &cb)
-        : LanguageServerProtocol::JsonRpcMessage(obj)
-        , m_callback(cb)
-    {
-        m_id = LanguageServerProtocol::MessageId(obj["id"]);
-    }
-
-    std::optional<LanguageServerProtocol::ResponseHandler> responseHandler() const override
-    {
-        if (!m_id.isValid()) {
-            qWarning() << "Invalid 'id' in request:" << toJsonObject();
-            return std::nullopt;
-        }
-
-        return LanguageServerProtocol::ResponseHandler{
-            m_id, [callback = m_callback](const JsonRpcMessage &msg) {
-                if (!callback.valid()) {
-                    qWarning() << "Invalid Lua callback";
-                    return;
-                }
-
-                auto result = ::Lua::void_safe_call(
-                    callback, ::Lua::toTable(callback.lua_state(), msg.toJsonObject()));
-                QTC_CHECK_RESULT(result);
-            }};
-    }
-};
-
-} // anonymous namespace
-
 namespace LanguageClient::Lua {
 
 static void registerLuaApi();
@@ -411,12 +373,12 @@ public:
                 c->registerCustomMethod(
                     msg,
                     [self = QPointer<LuaClientWrapper>(this),
-                     name = msg](const LanguageServerProtocol::JsonRpcMessage &m) {
+                     name = msg](const QJsonObject &m) {
                         if (!self)
                             return false;
 
                         auto func = self->m_messageCallbacks.value(name);
-                        auto table = ::Lua::toTable(func.lua_state(), m.toJsonObject());
+                        auto table = ::Lua::toTable(func.lua_state(), m);
                         auto result = func.call(table);
                         if (!result.valid()) {
                             qWarning() << "Error calling message callback for:" << name << ":"
@@ -440,10 +402,9 @@ public:
         if (!messageValue.isObject())
             throw sol::error("Message is not an object");
 
-        const LanguageServerProtocol::JsonRpcMessage request(messageValue.toObject());
         for (Client *c : LanguageClientManager::clientsForSettingId(m_clientSettingsId)) {
             if (c)
-                c->sendMessage(request);
+                c->sendRawMessage(messageValue.toObject());
         }
     }
 
@@ -469,14 +430,12 @@ public:
         if (!messageValue.isObject())
             throw sol::error("Message is not an object");
 
-        const LanguageServerProtocol::JsonRpcMessage request(messageValue.toObject());
-
         const QList<Client *> clients = clientsForDocument(document);
         QTC_CHECK(clients.size() == 1);
 
         for (Client *c : clients) {
             if (c)
-                c->sendMessage(request);
+                c->sendRawMessage(messageValue.toObject());
         }
     }
 
@@ -487,11 +446,7 @@ public:
         if (!messageValue.isObject())
             throw sol::error("Message is not an object");
 
-        QJsonObject obj = messageValue.toObject();
-        const auto id = QUuid::createUuid().toString();
-        obj["id"] = id;
-
-        const RequestWithResponse request{obj, callback};
+        const QJsonObject obj = messageValue.toObject();
 
         auto clients = clientsForDocument(document);
 
@@ -499,8 +454,20 @@ public:
         QTC_ASSERT(clients.size() == 1, throw sol::error("Multiple clients for document found"));
         QTC_ASSERT(clients.front(), throw sol::error("Client is null"));
 
-        clients.front()->sendMessage(request);
-        return id;
+        const auto handler = [callback](const QJsonObject &response) {
+            if (!callback.valid()) {
+                qWarning() << "Invalid Lua callback";
+                return;
+            }
+            const auto result = ::Lua::void_safe_call(
+                callback, ::Lua::toTable(callback.lua_state(), response));
+            QTC_CHECK_RESULT(result);
+        };
+        return clients.front()
+            ->sendRawRequest(obj.value("params").toObject(),
+                             obj.value("method").toString(),
+                             handler)
+            .toString();
     }
 
     void cancelRequest(const QString &id)
@@ -788,7 +755,7 @@ static void registerLuaApi()
                 if (clients.empty())
                     return {false, "No client found."};
 
-                return {true, clients.first()->hostPathToServerUri(path).toString()};
+                return {true, clients.first()->uriFor(path)};
             });
 
         wrapperClass["sendMessageWithIdForDocument"]

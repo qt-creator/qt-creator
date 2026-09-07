@@ -9,7 +9,7 @@
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/quickfix.h>
 
-#include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/lspjsonrpc.h>
 
 #include <QPointer>
 
@@ -68,15 +68,15 @@ public:
 
 protected:
     TextEditor::QuickFixOperations resultToOperations(
-        const LanguageServerProtocol::CodeActionResult &result);
+        const LanguageServerProtocol::CodeActionRequestResult &result);
     void setOnlyKinds(const QList<LanguageServerProtocol::CodeActionKind> &only);
     Client *client() { return m_client; }
 
 private:
     void handleCodeActionResponse(
-        const LanguageServerProtocol::CodeActionRequest::Response &response);
+        const Utils::Result<LanguageServerProtocol::CodeActionRequestResult> &result);
     virtual TextEditor::GenericProposal *handleCodeActionResult(
-        const LanguageServerProtocol::CodeActionResult &result);
+        const LanguageServerProtocol::CodeActionRequestResult &result);
 
     Client *m_client = nullptr; // not owned
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;

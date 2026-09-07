@@ -5,6 +5,8 @@
 
 #include "languageclienttr.h"
 
+#include <languageserverprotocol/lspjsonrpc.h>
+
 #include <QLocalSocket>
 #include <QLoggingCategory>
 
@@ -27,9 +29,9 @@ BaseClientInterface::~BaseClientInterface()
     m_buffer.close();
 }
 
-void BaseClientInterface::sendMessage(const JsonRpcMessage message)
+void BaseClientInterface::sendMessage(const QJsonObject &message)
 {
-    const BaseMessage baseMessage = message.toBaseMessage();
+    const BaseMessage baseMessage = toBaseMessage(message);
     sendData(baseMessage.header());
     sendData(baseMessage.content);
 }
@@ -71,12 +73,10 @@ void BaseClientInterface::parseData(const QByteArray &data)
 
 void BaseClientInterface::parseCurrentMessage()
 {
-    if (m_currentMessage.mimeType == JsonRpcMessage::jsonRpcMimeType()) {
-        emit messageReceived(JsonRpcMessage(m_currentMessage));
-    } else {
-        emit error(Tr::tr("Cannot handle MIME type \"%1\" of message.")
-                       .arg(QString::fromUtf8(m_currentMessage.mimeType)));
-    }
+    if (const Utils::Result<QJsonObject> message = fromBaseMessage(m_currentMessage))
+        emit messageReceived(*message);
+    else
+        emit error(message.error());
     m_currentMessage = BaseMessage();
 }
 

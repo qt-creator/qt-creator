@@ -93,20 +93,19 @@ void AuthWidget::checkStatus()
     setState("Checking status ...", {}, true);
 
     m_client->requestCheckStatus(
-        false, guardedCallback(this, [this](const CheckStatusRequest::Response &response) {
-            if (response.error()) {
-                setState("Failed to authenticate", response.error()->message(), false);
+        false, guardedCallback(this, [this](const Utils::Result<Copilot::Status> &result) {
+            if (!result) {
+                setState("Failed to authenticate", result.error(), false);
                 return;
             }
-            const CheckStatusResponse result = *response.result();
 
-            if (result.user().isEmpty()) {
+            if (result->user.isEmpty()) {
                 setState("Sign in", {}, false);
                 m_status = Status::SignedOut;
                 return;
             }
 
-            setState("Sign out " + result.user(), {}, false);
+            setState("Sign out " + result->user, {}, false);
             m_status = Status::SignedIn;
         }));
 }
@@ -140,37 +139,36 @@ void AuthWidget::signIn()
 
     setState("Signing in ...", {}, true);
 
-    m_client->requestSignInInitiate(
-        guardedCallback(this, [this](const SignInInitiateRequest::Response &response) {
-            if (response.error()) {
-                const QString error
-                    = Tr::tr("The sign-in request failed: %1").arg(response.error()->message());
+    m_client->requestSignInInitiate(guardedCallback(
+        this, [this](const Utils::Result<Copilot::SignInInitiateResult> &result) {
+            if (!result) {
+                const QString error = Tr::tr("The sign-in request failed: %1").arg(result.error());
                 setState("Sign in", error, false);
                 return;
             }
 
-            Utils::setClipboardAndSelection(response.result()->userCode());
+            Utils::setClipboardAndSelection(result->userCode);
 
-            QDesktopServices::openUrl(QUrl(response.result()->verificationUri()));
+            QDesktopServices::openUrl(QUrl(result->verificationUri));
 
             m_statusLabel->setText(Tr::tr("A browser window will open. Enter the code %1 when "
                                           "asked.\nThe code has been copied to your clipboard.")
-                                       .arg(response.result()->userCode()));
+                                       .arg(result->userCode));
             m_statusLabel->setVisible(true);
 
             m_client->requestSignInConfirm(
-                response.result()->userCode(),
-                guardedCallback(this, [this](const SignInConfirmRequest::Response &response) {
-                    if (response.error()) {
-                        QMessageBox::critical(
-                            this,
-                            Tr::tr("Login Failed"),
-                            Tr::tr("The login request failed: %1").arg(response.error()->message()));
-                        setState("Sign in", response.error()->message(), false);
+                result->userCode,
+                guardedCallback(this, [this](const Utils::Result<Copilot::Status> &result) {
+                    if (!result) {
+                        QMessageBox::critical(this,
+                                              Tr::tr("Login Failed"),
+                                              Tr::tr("The login request failed: %1")
+                                                  .arg(result.error()));
+                        setState("Sign in", result.error(), false);
                         return;
                     }
 
-                    setState("Sign Out " + response.result()->user(), {}, false);
+                    setState("Sign Out " + result->user, {}, false);
                 }));
         }));
 }
@@ -181,12 +179,13 @@ void AuthWidget::signOut()
 
     setState("Signing out ...", {}, true);
 
-    m_client->requestSignOut(guardedCallback(this, [this](const SignOutRequest::Response &response) {
-        QTC_ASSERT(!response.error(), return);
-        QTC_ASSERT(response.result()->status() == "NotSignedIn", return);
+    m_client->requestSignOut(
+        guardedCallback(this, [this](const Utils::Result<Copilot::Status> &result) {
+            QTC_ASSERT(result, return);
+            QTC_ASSERT(result->status == "NotSignedIn", return);
 
-        checkStatus();
-    }));
+            checkStatus();
+        }));
 }
 
 } // namespace Copilot

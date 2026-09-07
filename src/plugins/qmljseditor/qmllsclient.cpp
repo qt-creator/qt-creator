@@ -21,6 +21,8 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
+#include <languageserverprotocol/lsptypes.h>
+
 #include <qmljs/qmljsicons.h>
 
 #include <QLoggingCategory>
@@ -54,18 +56,15 @@ void QmllsClient::updateQmllsSemanticHighlightingCapability()
     const QString methodName = QStringLiteral("textDocument/semanticTokens");
     if (!qmllsSettings()->useQmllsSemanticHighlighting()) {
         LanguageServerProtocol::Unregistration unregister;
-        unregister.setMethod(methodName);
-        unregister.setId({});
+        unregister.method(methodName);
         this->unregisterCapabilities({unregister});
     } else {
-        const LanguageServerProtocol::ServerCapabilities &caps = this->capabilities();
-        const std::optional<LanguageServerProtocol::SemanticTokensOptions> &options
-            = caps.semanticTokensProvider();
+        const std::optional<LanguageServerProtocol::ServerCapabilitiesSemanticTokensProvider> &options
+            = this->capabilities().semanticTokensProvider();
         if (options) {
             LanguageServerProtocol::Registration registeration;
-            registeration.setMethod(methodName);
-            registeration.setId({});
-            registeration.setRegisterOptions(QJsonObject{*options});
+            registeration.method(methodName);
+            registeration.registerOptions(LanguageServerProtocol::toJsonValue(*options));
             this->registerCapabilities({registeration});
         } else {
             qCWarning(qmllsLog) << "qmlls does not support semantic highlighting";
@@ -89,7 +88,8 @@ private:
         return nullptr;
     }
 
-    TextEditor::GenericProposal *handleCodeActionResult(const LanguageServerProtocol::CodeActionResult &result) override
+    TextEditor::GenericProposal *handleCodeActionResult(
+        const LanguageServerProtocol::CodeActionRequestResult &result) override
     {
         QuickFixOperations operations = resultToOperations(result);
 

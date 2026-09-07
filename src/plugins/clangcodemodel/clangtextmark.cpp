@@ -15,6 +15,8 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
 
+#include <languageserverprotocol/lsputils.h>
+
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -105,7 +107,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
                               FadingIndicator::SmallText);
 }
 
-ClangDiagnostic::Severity convertSeverity(DiagnosticSeverity src)
+ClangDiagnostic::Severity convertSeverity(int src)
 {
     if (src == DiagnosticSeverity::Error)
         return ClangDiagnostic::Severity::Error;
@@ -123,11 +125,13 @@ ClangSourceRange convertRange(const FilePath &filePath, const Range &src)
 
 ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
                                   const FilePath &filePath,
-                                  const DocumentUri::PathMapper &mapper)
+                                  const ClangdClient *client)
 {
+    const Diagnostic &diagnostic = src.diagnostic();
     ClangDiagnostic target;
-    target.location = convertRange(filePath, src.range()).start;
-    const QStringList messages = src.message().split("\n\n", Qt::SkipEmptyParts);
+    target.location = convertRange(filePath, diagnostic.range()).start;
+    const QStringList messages = plainText(diagnostic.message())
+                                     .split("\n\n", Qt::SkipEmptyParts);
     if (!messages.isEmpty())
         target.text = messages.first();
     for (int i = 1; i < messages.size(); ++i) {
@@ -148,7 +152,7 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
                 line = match.captured(6).toInt(&ok);
                 column = 0;
             }
-            FilePath auxFilePath = mapper(FilePath::fromUserInput(match.captured(1)));
+            FilePath auxFilePath = FilePath::fromUserInput(match.captured(1));
             if (auxFilePath.isRelativePath() && auxFilePath.fileName() == filePath.fileName())
                 auxFilePath = filePath;
             aux.location = {auxFilePath, line, column - 1};
@@ -168,10 +172,10 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
         target.children << aux;
     }
     target.category = src.category();
-    if (src.severity())
-        target.severity = convertSeverity(*src.severity());
-    const Diagnostic::Code code = src.code().value_or(Diagnostic::Code());
-    const QString * const codeString = std::get_if<QString>(&code);
+    if (diagnostic.severity())
+        target.severity = convertSeverity(*diagnostic.severity());
+    const QString * const codeString = diagnostic.code() ? std::get_if<QString>(&*diagnostic.code())
+                                                         : nullptr;
     if (codeString && codeString->startsWith("-W")) {
         target.enableOption = *codeString;
         target.disableOption = "-Wno-" + codeString->mid(2);
@@ -180,7 +184,7 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
         const std::optional<WorkspaceEdit> edit = codeAction.edit();
         if (!edit)
             continue;
-        const std::optional<WorkspaceEdit::Changes> changes = edit->changes();
+        const auto &changes = edit->changes();
         if (!changes)
             continue;
         ClangDiagnostic fixItDiag;
@@ -188,7 +192,7 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
         for (auto it = changes->cbegin(); it != changes->cend(); ++it) {
             for (const TextEdit &textEdit : it.value()) {
                 fixItDiag.fixIts << ClangFixIt(textEdit.newText(),
-                                               convertRange(it.key().toFilePath(mapper),
+                                               convertRange(client->filePathFor(it.key()),
                                                             textEdit.range()));
             }
         }
@@ -207,8 +211,7 @@ ClangdTextMark::ClangdTextMark(TextEditor::TextDocument *doc,
                            int(diagnostic.range().start().line() + 1),
                            {client->name(), client->id()})
     , m_lspDiagnostic(diagnostic)
-    , m_diagnostic(
-          convertDiagnostic(ClangdDiagnostic(diagnostic), doc->filePath(), client->hostPathMapper()))
+    , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), doc->filePath(), client))
     , m_client(client)
 {
     setSettingsPage(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
@@ -220,7 +223,7 @@ ClangdTextMark::ClangdTextMark(TextEditor::TextDocument *doc,
                         : TextEditor::TextMark::NormalPriority);
     setIcon(isError ? Icons::CODEMODEL_ERROR.icon() : Icons::CODEMODEL_WARNING.icon());
     if (isProjectFile) {
-        setLineAnnotation(diagnostic.message());
+        setLineAnnotation(plainText(diagnostic.message()));
         setColor(isError ? Theme::CodeModel_Error_TextMarkColor
                          : Theme::CodeModel_Warning_TextMarkColor);
     }

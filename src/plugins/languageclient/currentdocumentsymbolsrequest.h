@@ -5,19 +5,25 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/lsptypes.h>
+
+#include <utils/filepath.h>
+
+#include <functional>
 
 #include <QtTaskTree/QTaskTree>
 
 namespace LanguageClient {
 
+/// Maps a URI as the server spells it to the path on the host.
+using UriToFilePath = std::function<Utils::FilePath(const QString &uri)>;
+
 class LANGUAGECLIENT_EXPORT CurrentDocumentSymbolsData
 {
 public:
     Utils::FilePath m_filePath;
-    LanguageServerProtocol::DocumentUri::PathMapper m_pathMapper;
-    LanguageServerProtocol::DocumentSymbolsResult m_symbols;
+    UriToFilePath m_uriToFilePath;
+    LanguageServerProtocol::DocumentSymbolRequestResult m_symbols;
 };
 
 class LANGUAGECLIENT_EXPORT CurrentDocumentSymbolsRequest : public QObject

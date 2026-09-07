@@ -30,25 +30,27 @@ void CurrentDocumentSymbolsRequest::start()
     }
 
     DocumentSymbolCache *symbolCache = client->documentSymbolCache();
-    DocumentUri currentUri = client->hostPathToServerUri(document->filePath());
-    DocumentUri::PathMapper pathMapper = client->hostPathMapper();
+    const QString currentUri = client->uriFor(document->filePath());
+    const UriToFilePath uriToFilePath = [client = QPointer<Client>(client)](const QString &uri) {
+        return client ? client->filePathFor(uri) : FilePath();
+    };
 
     const auto reportFailure = [this] {
         clearConnections();
         emit done(DoneResult::Error);
     };
 
-    const auto updateSymbols = [this, currentUri, pathMapper](const DocumentUri &uri,
-                                                              const DocumentSymbolsResult &symbols)
-    {
-        if (uri != currentUri) // We might get updates for not current editor
-            return;
+    const auto updateSymbols =
+        [this,
+         currentUri,
+         uriToFilePath](const QString &uri, const DocumentSymbolRequestResult &symbols) {
+            if (uri != currentUri) // We might get updates for not current editor
+                return;
 
-        const FilePath filePath = pathMapper ? currentUri.toFilePath(pathMapper) : FilePath();
-        m_currentDocumentSymbolsData = {filePath, pathMapper, symbols};
-        clearConnections();
-        emit done(DoneResult::Success);
-    };
+            m_currentDocumentSymbolsData = {uriToFilePath(currentUri), uriToFilePath, symbols};
+            clearConnections();
+            emit done(DoneResult::Success);
+        };
 
     m_connections.append(connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
                                  this, reportFailure));

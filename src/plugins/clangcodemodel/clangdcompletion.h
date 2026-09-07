@@ -5,7 +5,6 @@
 
 #include <languageclient/languageclientcompletionassist.h>
 #include <languageclient/languageclientfunctionhint.h>
-#include <languageserverprotocol/clientcapabilities.h>
 
 namespace TextEditor { class IAssistProcessor; }
 namespace ClangCodeModel::Internal {
@@ -27,13 +26,6 @@ private:
     bool isInCommentOrString(const TextEditor::AssistInterface *interface) const;
 
     ClangdClient * const m_client;
-};
-
-class ClangdCompletionCapabilities
-        : public LanguageServerProtocol::TextDocumentClientCapabilities::CompletionCapabilities
-{
-public:
-    explicit ClangdCompletionCapabilities(const JsonObject &object);
 };
 
 class ClangdFunctionHintProvider : public LanguageClient::FunctionHintAssistProvider

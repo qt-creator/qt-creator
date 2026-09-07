@@ -7,62 +7,41 @@
 
 #include "client.h"
 
-#include <languageserverprotocol/workspace.h>
-
 #include <QtTaskTree/QTaskTree>
 
 namespace LanguageClient {
 
-template <typename Request>
-class LANGUAGECLIENT_EXPORT ClientRequest
+/// A workspace symbol request as a task, which cancels the request when it goes away.
+class LANGUAGECLIENT_EXPORT ClientWorkspaceSymbolRequest
 {
 public:
-    virtual ~ClientRequest()
-    {
-        if (m_id)
-            m_client->cancelRequest(*m_id); // In order to not to invoke a response callback anymore
-    }
+    ~ClientWorkspaceSymbolRequest();
 
     void setClient(Client *client) { m_client = client; }
     Client *client() const { return m_client; }
-    void setParams(const typename Request::Parameters &params) { m_params = params; }
+    void setParams(const LanguageServerProtocol::WorkspaceSymbolParams &params)
+    { m_params = params; }
+    /// The clangd extension capping the number of symbols the server looks for.
+    void setLimit(int limit) { m_limit = limit; }
+    using ResultHandler = std::function<void(
+        const Utils::Result<LanguageServerProtocol::WorkspaceSymbolRequestResult> &)>;
+    void setResultHandler(const ResultHandler &handler) { m_handler = handler; }
 
-    void start()
-    {
-        QTC_ASSERT(!isRunning(), return);
-        if (!preStartCheck()) {
-            m_callback({});
-            return;
-        }
-        Request request(m_params);
-        request.setResponseCallback([this](const typename Request::Response &response) {
-            m_response = response;
-            m_id = {};
-            m_callback(response);
-        });
-        m_id = request.id();
-        m_client->sendMessage(request);
-    }
-
+    void start();
     bool isRunning() const { return m_id.has_value(); }
-    virtual bool preStartCheck() { return m_client && m_client->reachable() && m_params.isValid(); }
+    bool supported() const;
 
-    typename Request::Response response() const { return m_response; }
-    void setResponseCallback(typename Request::ResponseCallback callback) { m_callback = callback; }
+    const Utils::Result<LanguageServerProtocol::WorkspaceSymbolRequestResult> &result() const
+    { return m_result; }
 
 private:
     Client *m_client = nullptr;
-    typename Request::Parameters m_params;
-    typename Request::ResponseCallback m_callback;
+    LanguageServerProtocol::WorkspaceSymbolParams m_params;
+    ResultHandler m_handler;
     std::optional<LanguageServerProtocol::MessageId> m_id;
-    typename Request::Response m_response;
-};
-
-class LANGUAGECLIENT_EXPORT ClientWorkspaceSymbolRequest
-    : public ClientRequest<LanguageServerProtocol::WorkspaceSymbolRequest>
-{
-public:
-    bool preStartCheck() override;
+    int m_limit = -1;
+    Utils::Result<LanguageServerProtocol::WorkspaceSymbolRequestResult> m_result
+        = Utils::ResultError(QString());
 };
 
 class ClientWorkspaceSymbolRequestTaskAdapter final

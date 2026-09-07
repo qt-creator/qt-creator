@@ -5,7 +5,7 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/lsptypes.h>
+#include <languageserverprotocol/lsputils.h>
 #include <utils/treemodel.h>
 
 namespace TextEditor { class TextEditorWidget; }
@@ -29,11 +29,12 @@ public:
     LanguageServerProtocol::Range range() const { return m_range; }
     LanguageServerProtocol::Range selectionRange() const { return m_selectionRange; }
     LanguageServerProtocol::Position pos() const { return m_range.start(); }
-    bool contains(const LanguageServerProtocol::Position &pos) const {
-        return m_range.contains(pos);
+    bool contains(const LanguageServerProtocol::Position &pos) const
+    {
+        return LanguageServerProtocol::contains(m_range, pos);
     }
 
-    bool valid() const { return m_range.isValid(); }
+    bool valid() const { return m_valid; }
 
 protected:
     // TreeItem interface
@@ -43,7 +44,7 @@ protected:
     QString name() const { return m_name; }
     QString detail() const { return m_detail; }
     int type() const { return m_type; }
-    QList<LanguageServerProtocol::SymbolTag> tags() const { return m_tags; }
+    QList<int> tags() const { return m_tags; }
 
 private:
     QString m_name;
@@ -51,7 +52,10 @@ private:
     LanguageServerProtocol::Range m_range;
     LanguageServerProtocol::Range m_selectionRange;
     int m_type = -1;
-    QList<LanguageServerProtocol::SymbolTag> m_tags;
+    QList<int> m_tags;
+    // A default constructed item carries no symbol; the generated Range has no
+    // way to tell that by itself.
+    bool m_valid = false;
 };
 
 Utils::TreeViewComboBox *createOutlineComboBox(Client *client, TextEditor::TextEditorWidget *editorWidget);

@@ -9,8 +9,7 @@
 #include <languageclient/languageclienthoverhandler.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientsettings.h>
-#include <languageserverprotocol/diagnostics.h>
-#include <languageserverprotocol/initializemessages.h>
+#include <languageserverprotocol/lsputils.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
@@ -25,8 +24,6 @@ using namespace Utils;
 using namespace Core;
 
 namespace Coco {
-
-using Key = LanguageServerProtocol::Key;
 
 CocoLanguageClient::CocoLanguageClient(const FilePath &coco, const FilePath &csmes)
     : Client(clientInterface(coco, csmes))
@@ -52,10 +49,8 @@ CocoLanguageClient::CocoLanguageClient(const FilePath &coco, const FilePath &csm
     for (IDocument *openDocument : DocumentModel::openedDocuments())
         onDocumentOpened(openDocument);
 
-    ClientInfo info;
-    info.setName("CocoQtCreator");
-    info.setVersion(QGuiApplication::applicationDisplayName());
-    setClientInfo(info);
+    setClientInfo(
+        ClientInfo().name("CocoQtCreator").version(QGuiApplication::applicationDisplayName()));
 
     initClientCapabilities();
 }
@@ -117,27 +112,23 @@ static TextEditor::TextStyle styleForSeverity(const CocoDiagnosticSeverity &seve
     return C_TEXT;
 }
 
-class CocoDiagnostic : public Diagnostic
+/// The coverage severity \a diagnostic reports, which extends the protocol's own.
+static std::optional<CocoDiagnosticSeverity> cocoSeverity(const Diagnostic &diagnostic)
 {
-public:
-    using Diagnostic::Diagnostic;
-    std::optional<CocoDiagnosticSeverity> cocoSeverity() const
-    {
-        if (auto val = optionalValue<int>(severityKey))
-            return std::make_optional(static_cast<CocoDiagnosticSeverity>(*val));
-        return std::nullopt;
-    }
-};
+    if (const std::optional<int> &severity = diagnostic.severity())
+        return static_cast<CocoDiagnosticSeverity>(*severity);
+    return std::nullopt;
+}
 
 class CocoTextMark : public TextEditor::TextMark
 {
 public:
-    CocoTextMark(TextEditor::TextDocument *doc, const CocoDiagnostic &diag, const Id &clientId)
+    CocoTextMark(TextEditor::TextDocument *doc, const Diagnostic &diag, const Id &clientId)
         : TextEditor::TextMark(doc, diag.range().start().line() + 1, {"Coco", clientId})
-        , m_severity(diag.cocoSeverity())
+        , m_severity(cocoSeverity(diag))
     {
-        setLineAnnotation(diag.message());
-        setToolTip(diag.message());
+        setLineAnnotation(plainText(diag.message()));
+        setToolTip(plainText(diag.message()));
         updateAnnotationColor();
     }
 
@@ -184,20 +175,18 @@ private:
                                          const Diagnostic &diagnostic,
                                          bool /*isProjectFile*/) const override
     {
-        const CocoDiagnostic cocoDiagnostic(diagnostic);
-        if (std::optional<CocoDiagnosticSeverity> severity = cocoDiagnostic.cocoSeverity())
-            return new CocoTextMark(doc, cocoDiagnostic, client()->id());
+        if (cocoSeverity(diagnostic))
+            return new CocoTextMark(doc, diagnostic, client()->id());
         return nullptr;
     }
 
     QTextEdit::ExtraSelection createDiagnosticSelection(const Diagnostic &diagnostic,
                                                         QTextDocument *textDocument) const override
     {
-        if (std::optional<CocoDiagnosticSeverity> severity = CocoDiagnostic(diagnostic)
-                                                                 .cocoSeverity()) {
+        if (std::optional<CocoDiagnosticSeverity> severity = cocoSeverity(diagnostic)) {
             QTextCursor cursor(textDocument);
-            cursor.setPosition(diagnostic.range().start().toPositionInDocument(textDocument));
-            cursor.setPosition(diagnostic.range().end().toPositionInDocument(textDocument),
+            cursor.setPosition(positionInDocument(diagnostic.range().start(), textDocument));
+            cursor.setPosition(positionInDocument(diagnostic.range().end(), textDocument),
                                QTextCursor::KeepAnchor);
 
             const TextEditor::TextStyle style = styleForSeverity(*severity);
@@ -223,34 +212,22 @@ DiagnosticManager *CocoLanguageClient::createDiagnosticManager()
     return new CocoDiagnosticManager(this);
 }
 
-void CocoLanguageClient::handleDiagnostics(const PublishDiagnosticsParams &params)
+void CocoLanguageClient::handleDiagnostics(const PublishDiagnosticsParams &params,
+                                           const QJsonObject &raw)
 {
     using namespace TextEditor;
-    Client::handleDiagnostics(params);
-    TextDocument *document = documentForFilePath(serverUriToHostPath(params.uri()));
+    Client::handleDiagnostics(params, raw);
+    TextDocument *document = documentForFilePath(filePathFor(params.uri()));
     for (BaseTextEditor *editor : BaseTextEditor::textEditorsForDocument(document))
         editor->editorWidget()->addHoverHandler(hoverHandler());
 }
 
-class CocoTextDocumentCapabilities : public TextDocumentClientCapabilities
-{
-public:
-    using TextDocumentClientCapabilities::TextDocumentClientCapabilities;
-    void enableCodecoverageSupport()
-    {
-        JsonObject coverageSupport(QJsonObject{{"codeCoverageSupport", true}});
-        insert(Key("publishDiagnostics"), coverageSupport);
-    }
-};
-
 void CocoLanguageClient::initClientCapabilities()
 {
-    ClientCapabilities capabilities = defaultClientCapabilities();
-    CocoTextDocumentCapabilities textDocumentCapabilities(
-        capabilities.textDocument().value_or(TextDocumentClientCapabilities()));
-    textDocumentCapabilities.enableCodecoverageSupport();
-    capabilities.setTextDocument(textDocumentCapabilities);
-    setClientCapabilities(capabilities);
+    // Coco reports code coverage through the diagnostics it publishes.
+    setExtraClientCapabilities(
+        {{"textDocument",
+          QJsonObject{{"publishDiagnostics", QJsonObject{{"codeCoverageSupport", true}}}}}});
 }
 
 void CocoLanguageClient::onDocumentOpened(IDocument *document)

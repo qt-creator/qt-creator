@@ -22,6 +22,8 @@
 
 #include <languageclient/languageclientfunctionhint.h>
 
+#include <languageserverprotocol/lsputils.h>
+
 #include <projectexplorer/headerpath.h>
 
 #include <texteditor/codeassist/assistinterface.h>
@@ -176,7 +178,7 @@ public:
 private:
     IAssistProposal *perform() override;
     QList<AssistProposalItemInterface *> generateCompletionItems(
-            const QList<LanguageServerProtocol::CompletionItem> &items) const override;
+        const QList<CompletionItem> &items) const override;
 
     ClangdClient * const m_client;
     QElapsedTimer m_timer;
@@ -205,8 +207,8 @@ private:
         const SignatureInformation signature = m_sigis.signatures().at(index);
         QString label = signature.label();
 
-        const QStringList parameters = Utils::transform(signature.parameters().value_or(Parameters()),
-                                                        &ParameterInformation::label);
+        const QStringList parameters = Utils::transform(
+            signature.parameters().value_or(Parameters()), &ParameterInformation::label);
         if (parameters.size() <= m_currentArg)
             return label;
 
@@ -339,21 +341,23 @@ void ClangdCompletionItem::apply(TextEditorWidget *editorWidget,
 
     const CompletionItem item = this->item();
     QChar typedChar = triggeredCommitCharacter();
-    const auto edit = item.textEdit();
+    if (!item.textEdit())
+        return;
+    const auto edit = std::get_if<TextEdit>(&*item.textEdit());
     if (!edit)
         return;
 
     const int labelOpenParenOffset = item.label().indexOf('(');
     const int labelClosingParenOffset = item.label().indexOf(')');
-    const auto kind = static_cast<CompletionItemKind::Kind>(
-                item.kind().value_or(CompletionItemKind::Text));
+    const int kind = item.kind().value_or(CompletionItemKind::Text);
     const bool isMacroCall = kind == CompletionItemKind::Text && labelOpenParenOffset != -1
-            && labelClosingParenOffset > labelOpenParenOffset; // Heuristic
+                             && labelClosingParenOffset > labelOpenParenOffset; // Heuristic
     const bool isLambdaCall = kind == CompletionItemKind::Variable && labelOpenParenOffset != -1
-                             && labelClosingParenOffset > labelOpenParenOffset;
+                              && labelClosingParenOffset > labelOpenParenOffset;
     const bool isFunctionLike = kind == CompletionItemKind::Function
-            || kind == CompletionItemKind::Method || kind == CompletionItemKind::Constructor
-            || isMacroCall || isLambdaCall;
+                                || kind == CompletionItemKind::Method
+                                || kind == CompletionItemKind::Constructor || isMacroCall
+                                || isLambdaCall;
 
     QString rawInsertText = edit->newText();
 
@@ -378,8 +382,7 @@ void ClangdCompletionItem::apply(TextEditorWidget *editorWidget,
     bool setAutoCompleteSkipPos = false;
     int currentPos = editorWidget->position();
     const QTextDocument * const doc = editorWidget->document();
-    const Range range = edit->range();
-    const int rangeStart = range.start().toPositionInDocument(doc);
+    const int rangeStart = positionInDocument(edit->range().start(), doc);
     if (isFunctionLike && globalCompletionSettings().autoInsertBrackets()) {
         // If the user typed the opening parenthesis, they'll likely also type the closing one,
         // in which case it would be annoying if we put the cursor after the already automatically
@@ -492,14 +495,10 @@ void ClangdCompletionItem::apply(TextEditorWidget *editorWidget,
 
 ClangdCompletionItem::SpecialQtType ClangdCompletionItem::getQtType(const CompletionItem &item)
 {
-    const std::optional<MarkupOrString> doc = item.documentation();
+    const auto &doc = item.documentation();
     if (!doc)
         return SpecialQtType::None;
-    QString docText;
-    if (std::holds_alternative<QString>(*doc))
-        docText = std::get<QString>(*doc);
-    else if (std::holds_alternative<MarkupContent>(*doc))
-        docText = std::get<MarkupContent>(*doc).content();
+    const QString docText = plainText(*doc);
     if (docText.contains("Annotation: qt_signal"))
         return SpecialQtType::Signal;
     if (docText.contains("Annotation: qt_slot"))
@@ -712,15 +711,13 @@ IAssistProposal *ClangdCompletionAssistProcessor::perform()
 }
 
 QList<AssistProposalItemInterface *> ClangdCompletionAssistProcessor::generateCompletionItems(
-        const QList<CompletionItem> &items) const
+    const QList<CompletionItem> &items) const
 {
     qCDebug(clangdLog) << "received" << items.count() << "completions";
 
-    auto itemGenerator = [](const QList<LanguageServerProtocol::CompletionItem> &items) {
-        return Utils::transform<QList<AssistProposalItemInterface *>>(items,
-            [](const LanguageServerProtocol::CompletionItem &item) {
-                return new ClangdCompletionItem(item);
-        });
+    auto itemGenerator = [](const QList<CompletionItem> &items) {
+        return Utils::transform<QList<AssistProposalItemInterface *>>(
+            items, [](const CompletionItem &item) { return new ClangdCompletionItem(item); });
     };
 
     // If there are signals among the candidates, we employ the built-in code model to find out
@@ -767,16 +764,6 @@ IFunctionHintProposalModel *ClangdFunctionHintProcessor::createModel(
     const SignatureHelp &signatureHelp) const
 {
     return new ClangdFunctionHintProposalModel(signatureHelp);
-}
-
-ClangdCompletionCapabilities::ClangdCompletionCapabilities(const JsonObject &object)
-    : TextDocumentClientCapabilities::CompletionCapabilities(object)
-{
-    insert(LanguageServerProtocol::Key{"editsNearCursor"}, true); // For dot-to-arrow correction.
-    if (std::optional<CompletionItemCapbilities> completionItemCaps = completionItem()) {
-        completionItemCaps->setSnippetSupport(false);
-        setCompletionItem(*completionItemCaps);
-    }
 }
 
 ClangdFunctionHintProvider::ClangdFunctionHintProvider(ClangdClient *client)

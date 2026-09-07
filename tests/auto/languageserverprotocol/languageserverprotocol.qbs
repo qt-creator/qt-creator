@@ -1,8 +1,7 @@
 import qbs
 
 QtcAutotest {
-    name: "Language Server Protocol autotest"
-    Depends { name: "Utils" }
+    name: "LanguageServerProtocol autotest"
     Depends { name: "LanguageServerProtocol" }
     files: "tst_languageserverprotocol.cpp"
 }

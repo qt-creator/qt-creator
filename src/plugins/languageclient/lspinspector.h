@@ -7,8 +7,9 @@
 
 #include <utils/jsonrpcinspector.h>
 
-#include <languageserverprotocol/jsonrpcmessages.h>
-#include <languageserverprotocol/servercapabilities.h>
+#include <languageserverprotocol/lsptypes.h>
+
+#include <QJsonObject>
 
 namespace LanguageClient {
 
@@ -27,9 +28,9 @@ public:
 
     void log(LspLogMessage::MessageSender sender,
              const QString &clientName,
-             const LanguageServerProtocol::JsonRpcMessage &message);
-    void clientInitialized(const QString &clientName,
-                           const LanguageServerProtocol::ServerCapabilities &capabilities);
+             const QJsonObject &message);
+    void clientInitialized(
+        const QString &clientName, const LanguageServerProtocol::ServerCapabilities &capabilities);
     void updateCapabilities(const QString &clientName,
                             const DynamicCapabilities &dynamicCapabilities);
 

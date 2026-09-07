@@ -24,6 +24,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 
+#include <utils/mimeutils.h>
 #include <utils/algorithm.h>
 #include <utils/shutdownguard.h>
 
@@ -87,13 +88,14 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
     qCDebug(Log) << "add client: " << client->name() << client;
     managerInstance->m_clients << client;
     connect(client, &Client::finished, managerInstance, [client]() { clientFinished(client); });
-    connect(client,
-            &Client::initialized,
-            managerInstance,
-            [client](const LanguageServerProtocol::ServerCapabilities &capabilities) {
-                emit managerInstance->clientInitialized(client);
-                managerInstance->m_inspector.clientInitialized(client->name(), capabilities);
-            });
+    connect(
+        client,
+        &Client::initialized,
+        managerInstance,
+        [client](const ServerCapabilities &capabilities) {
+            emit managerInstance->clientInitialized(client);
+            managerInstance->m_inspector.clientInitialized(client->name(), capabilities);
+        });
     connect(client,
             &Client::capabilitiesChanged,
             managerInstance,
@@ -531,7 +533,7 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
 
 void LanguageClientManager::logJsonRpcMessage(const LspLogMessage::MessageSender sender,
                                               const QString &clientName,
-                                              const LanguageServerProtocol::JsonRpcMessage &message)
+                                              const QJsonObject &message)
 {
     instance()->m_inspector.log(sender, clientName, message);
 }

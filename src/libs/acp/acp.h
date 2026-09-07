@@ -1300,7 +1300,7 @@ ACPLIB_EXPORT QJsonObject toJson(const TextContent &data);
 /**
  * Content blocks represent displayable information in the Agent Client Protocol.
  *
- * They provide a structured way to handle various types of user-facing content—whether
+ * They provide a structured way to handle various types of user-facing content--whether
  * it's text from language models, images for analysis, or embedded resources for context.
  *
  * Content blocks appear in:
@@ -2387,11 +2387,11 @@ ACPLIB_EXPORT QString name(const AuthMethod &val);
 struct Implementation {
     /**
      * Intended for programmatic or logical use, but can be used as a display
-     * name fallback if title isn’t present.
+     * name fallback if title isn't present.
      */
     QString _name{};
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable
+     * Intended for UI and end-user contexts -- optimized to be human-readable
      * and easily understood.
      *
      * If not provided, the name should be used for display.

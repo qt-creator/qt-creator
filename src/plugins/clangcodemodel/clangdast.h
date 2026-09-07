@@ -4,16 +4,14 @@
 #pragma once
 
 #include <coreplugin/helpitem.h>
-#include <languageserverprotocol/jsonobject.h>
+
+#include <languageserverprotocol/lspjsonrpc.h>
+
+#include <QJsonObject>
 
 #include <functional>
 
 namespace LanguageClient { class Client; }
-namespace LanguageServerProtocol {
-class MessageId;
-class Position;
-class Range;
-}
 namespace Utils { class FilePath; }
 
 QT_BEGIN_NAMESPACE
@@ -26,10 +24,13 @@ namespace ClangCodeModel::Internal {
 QStringView subViewLen(const QString &s, qsizetype start, qsizetype length);
 QStringView subViewEnd(const QString &s, qsizetype start, qsizetype end);
 
-class ClangdAstNode : public LanguageServerProtocol::JsonObject
+/// A node of the AST clangd reports, which the protocol does not describe.
+/// See https://clangd.llvm.org/extensions#ast
+class ClangdAstNode
 {
 public:
-    using JsonObject::JsonObject;
+    ClangdAstNode() = default;
+    explicit ClangdAstNode(const QJsonObject &object) : m_object(object) {}
 
     // The general kind of node, such as “expression”. Corresponds to clang’s base AST node type,
     // such as Expr. The most common are “expression”, “statement”, “type” and “declaration”.
@@ -86,18 +87,26 @@ public:
     // For debugging.
     void print(int indent = 0) const;
 
-    bool isValid() const override;
+    bool isValid() const;
+
+    friend bool operator==(const ClangdAstNode &first, const ClangdAstNode &second)
+    { return first.m_object == second.m_object; }
+
+private:
+    QJsonObject m_object;
 };
 using ClangdAstPath = QList<ClangdAstNode>;
 
 ClangdAstPath getAstPath(const ClangdAstNode &root, const LanguageServerProtocol::Range &range);
 ClangdAstPath getAstPath(const ClangdAstNode &root, const LanguageServerProtocol::Position &pos);
 
-using AstHandler = std::function<void(const ClangdAstNode &node,
-                                      const LanguageServerProtocol::MessageId &requestId)>;
-LanguageServerProtocol::MessageId requestAst(LanguageClient::Client *client,
-        const Utils::FilePath &filePath, const LanguageServerProtocol::Range range,
-        const AstHandler &handler);
+using AstHandler = std::function<
+    void(const ClangdAstNode &node, const LanguageServerProtocol::MessageId &requestId)>;
+LanguageServerProtocol::MessageId requestAst(
+    LanguageClient::Client *client,
+    const Utils::FilePath &filePath,
+    const LanguageServerProtocol::Range range,
+    const AstHandler &handler);
 
 } // namespace ClangCodeModel::Internal
 

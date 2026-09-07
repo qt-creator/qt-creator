@@ -5,7 +5,7 @@
 
 #include "qmljseditor_global.h"
 
-#include <languageserverprotocol/servercapabilities.h>
+#include <languageserverprotocol/lsptypes.h>
 #include <texteditor/textdocument.h>
 #include <qmljstools/qmljssemanticinfo.h>
 

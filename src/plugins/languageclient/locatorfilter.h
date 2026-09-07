@@ -7,15 +7,19 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-namespace LanguageServerProtocol { class DocumentSymbol; };
+namespace LanguageServerProtocol {
+struct DocumentSymbol;
+}
 
 namespace LanguageClient {
 
 class Client;
 class CurrentDocumentSymbolsData;
 
-using DocSymbolModifier = std::function<void(Core::LocatorFilterEntry &,
-    const LanguageServerProtocol::DocumentSymbol &, const Core::LocatorFilterEntry &)>;
+using DocSymbolModifier = std::function<void(
+    Core::LocatorFilterEntry &,
+    const LanguageServerProtocol::DocumentSymbol &,
+    const Core::LocatorFilterEntry &)>;
 
 Core::LocatorFilterEntries LANGUAGECLIENT_EXPORT currentDocumentSymbols(const QString &input,
     const CurrentDocumentSymbolsData &currentSymbolsData, const DocSymbolModifier &docSymbolModifier);

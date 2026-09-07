@@ -14,6 +14,8 @@
 #include <languageclient/currentdocumentsymbolsrequest.h>
 #include <languageclient/locatorfilter.h>
 
+#include <languageserverprotocol/lsputils.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 
@@ -100,12 +102,12 @@ static void filterCurrentResults(QPromise<void> &promise, const LocatorStorage &
     };
     QList<Entry> docEntries;
 
-    const auto docSymbolModifier = [&docEntries](LocatorFilterEntry &entry,
-                                                 const DocumentSymbol &info,
-                                                 const LocatorFilterEntry &parent) {
+    const auto docSymbolModifier = [&docEntries](
+                                       LocatorFilterEntry &entry,
+                                       const DocumentSymbol &info,
+                                       const LocatorFilterEntry &parent) {
         entry.displayName = ClangdClient::displayNameFromDocumentSymbol(
-            static_cast<SymbolKind>(info.kind()), info.name(),
-            info.detail().value_or(QString()));
+            info.kind(), info.name(), info.detail().value_or(QString()));
         entry.extraInfo = parent.extraInfo;
         if (!entry.extraInfo.isEmpty())
             entry.extraInfo.append("::");
@@ -136,7 +138,7 @@ static void filterCurrentResults(QPromise<void> &promise, const LocatorStorage &
         QList<Entry> definitions;
         for (const Entry &candidate : duplicates) {
             const DocumentSymbol symbol = candidate.symbol;
-            const SymbolKind kind = static_cast<SymbolKind>(symbol.kind());
+            const int kind = symbol.kind();
             if (kind != SymbolKind::Class && kind != SymbolKind::Function)
                 break;
             const Range range = symbol.range();
@@ -148,8 +150,8 @@ static void filterCurrentResults(QPromise<void> &promise, const LocatorStorage &
                     definitions << candidate;
                 continue;
             }
-            const int startPos = selectionRange.end().toPositionInDocument(&doc);
-            const int endPos = range.end().toPositionInDocument(&doc);
+            const int startPos = positionInDocument(selectionRange.end(), &doc);
+            const int endPos = positionInDocument(range.end(), &doc);
             const QString functionBody = contents.mid(startPos, endPos - startPos);
 
             // Hacky, but I don't see anything better.

@@ -11,7 +11,6 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/itemviewfind.h>
 
-#include <languageserverprotocol/languagefeatures.h>
 
 #include <texteditor/ioutlinewidget.h>
 #include <texteditor/textdocument.h>
@@ -34,14 +33,14 @@ namespace LanguageClient {
 
 static const QList<SymbolInformation> sortedSymbols(const QList<SymbolInformation> &symbols)
 {
-    return Utils::sorted(symbols, [](const SymbolInformation &a, const SymbolInformation &b){
+    return Utils::sorted(symbols, [](const SymbolInformation &a, const SymbolInformation &b) {
         return a.location().range().start() < b.location().range().start();
     });
 }
 
 static const QList<DocumentSymbol> sortedSymbols(const QList<DocumentSymbol> &symbols)
 {
-    return Utils::sorted(symbols, [](const DocumentSymbol &a, const DocumentSymbol &b){
+    return Utils::sorted(symbols, [](const DocumentSymbol &a, const DocumentSymbol &b) {
         return a.range().start() < b.range().start();
     });
 }
@@ -84,7 +83,7 @@ public:
         auto mimeData = new Utils::DropMimeData;
         for (const QModelIndex &index : indexes) {
             if (LanguageClientOutlineItem *item = itemForIndex(index); item->valid()) {
-                const LanguageServerProtocol::Position pos = item->pos();
+                const Position pos = item->pos();
                 mimeData->addFile(m_filePath, pos.line() + 1, pos.character());
             }
         }
@@ -120,7 +119,7 @@ private:
 
     void contextMenuEvent(QContextMenuEvent *event) final;
 
-    void handleResponse(const DocumentUri &uri, const DocumentSymbolsResult &response);
+    void handleResponse(const QString &uri, const DocumentSymbolRequestResult &response);
     void updateTextCursor(const QModelIndex &proxyIndex);
     void updateSelectionInTree();
     void onItemActivated(const QModelIndex &index);
@@ -131,7 +130,7 @@ private:
     DragSortFilterProxyModel m_proxyModel;
     Utils::NavigationTreeView m_view;
     Utils::AnnotatedItemDelegate m_delegate;
-    DocumentUri m_uri;
+    QString m_uri;
     bool m_sync = false;
     bool m_sorted = false;
 };
@@ -142,14 +141,14 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
     , m_editorWidget(editorWidget)
     , m_model(client)
     , m_view(this)
-    , m_uri(m_client->hostPathToServerUri(editorWidget->textDocument()->filePath()))
+    , m_uri(m_client->uriFor(editorWidget->textDocument()->filePath()))
 {
     connect(client->documentSymbolCache(),
             &DocumentSymbolCache::gotSymbols,
             this,
             &LanguageClientOutlineWidget::handleResponse);
     connect(client, &Client::documentUpdated, this, [this](TextEditor::TextDocument *document) {
-        if (m_client && m_uri == m_client->hostPathToServerUri(document->filePath()))
+        if (m_client && m_uri == m_client->uriFor(document->filePath()))
             m_client->documentSymbolCache()->requestSymbols(m_uri, Schedule::Delayed);
     });
 
@@ -225,8 +224,8 @@ void LanguageClientOutlineWidget::contextMenuEvent(QContextMenuEvent *event)
     event->accept();
 }
 
-void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
-                                                 const DocumentSymbolsResult &result)
+void LanguageClientOutlineWidget::handleResponse(
+    const QString &uri, const DocumentSymbolRequestResult &result)
 {
     if (uri != m_uri)
         return;
@@ -255,12 +254,12 @@ void LanguageClientOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex
 static LanguageClientOutlineItem *itemForCursor(const LanguageClientOutlineModel &m_model,
                                                 const QTextCursor &cursor)
 {
-    const Position pos(cursor);
+    const Position pos = positionOf(cursor);
     LanguageClientOutlineItem *result = nullptr;
     m_model.forAllItems([&](LanguageClientOutlineItem *candidate){
         if (!candidate->valid() || !candidate->contains(pos))
             return;
-        if (result && candidate->range().contains(result->range()))
+        if (result && contains(candidate->range(), result->range()))
             return; // skip item if the range is equal or bigger than the previous found range
         result = candidate;
     });
@@ -296,7 +295,7 @@ public:
     OutlineComboBox(Client *client, TextEditor::TextEditorWidget *editorWidget);
 
 private:
-    void updateModel(const DocumentUri &resultUri, const DocumentSymbolsResult &result);
+    void updateModel(const QString &resultUri, const DocumentSymbolRequestResult &result);
     void updateEntry();
     void activateEntry();
     void documentUpdated(TextEditor::TextDocument *document);
@@ -306,7 +305,7 @@ private:
     QSortFilterProxyModel m_proxyModel;
     QPointer<Client> m_client;
     TextEditor::TextEditorWidget *m_editorWidget;
-    const DocumentUri m_uri;
+    const QString m_uri;
     Utils::AnnotatedItemDelegate m_delegate;
 };
 
@@ -321,7 +320,7 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::TextEditorWidget *e
     : m_model(client)
     , m_client(client)
     , m_editorWidget(editorWidget)
-    , m_uri(m_client->hostPathToServerUri(editorWidget->textDocument()->filePath()))
+    , m_uri(m_client->uriFor(editorWidget->textDocument()->filePath()))
 {
     m_proxyModel.setSourceModel(&m_model);
     const bool sorted = LanguageClientSettings::outlineComboBoxIsSorted();
@@ -356,7 +355,7 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::TextEditorWidget *e
     documentUpdated(editorWidget->textDocument());
 }
 
-void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSymbolsResult &result)
+void OutlineComboBox::updateModel(const QString &resultUri, const DocumentSymbolRequestResult &result)
 {
     if (m_uri != resultUri)
         return;
@@ -413,7 +412,8 @@ LanguageClientOutlineItem::LanguageClientOutlineItem(const SymbolInformation &in
     : m_name(info.name())
     , m_range(info.location().range())
     , m_type(info.kind())
-    , m_tags(info.symbolTags().value_or(QList<SymbolTag>()))
+    , m_tags(info.tags().value_or(QList<int>()))
+    , m_valid(true)
 { }
 
 LanguageClientOutlineItem::LanguageClientOutlineItem(Client *client, const DocumentSymbol &info)
@@ -422,9 +422,10 @@ LanguageClientOutlineItem::LanguageClientOutlineItem(Client *client, const Docum
     , m_range(info.range())
     , m_selectionRange(info.selectionRange())
     , m_type(info.kind())
-    , m_tags(info.symbolTags().value_or(QList<SymbolTag>()))
+    , m_tags(info.tags().value_or(QList<int>()))
+    , m_valid(true)
 {
-    const QList<LanguageServerProtocol::DocumentSymbol> children = sortedSymbols(
+    const QList<DocumentSymbol> children = sortedSymbols(
         info.children().value_or(QList<DocumentSymbol>()));
     for (const DocumentSymbol &child : children)
         appendChild(client->createOutlineItem(child));

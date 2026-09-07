@@ -4,7 +4,9 @@
 #include "languageclientfunctionhint.h"
 #include "client.h"
 
-#include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/lspmessages.h>
+#include <languageserverprotocol/lsputils.h>
+
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -13,16 +15,15 @@
 #include <QScopedPointer>
 
 using namespace TextEditor;
-using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
 
 QString FunctionHintProposalModel::text(int index) const
 {
-    using Parameters = QList<ParameterInformation>;
+    using Parameters = QList<LanguageServerProtocol::ParameterInformation>;
     if (index < 0 || m_sigis.signatures().size() <= index)
         return {};
-    const SignatureInformation signature = m_sigis.signatures().at(index);
+    const LanguageServerProtocol::SignatureInformation signature = m_sigis.signatures().at(index);
     int parametersIndex = signature.activeParameter().value_or(-1);
     if (parametersIndex < 0) {
         if (index == m_sigis.activeSignature().value_or(-1))
@@ -32,8 +33,9 @@ QString FunctionHintProposalModel::text(int index) const
     if (parametersIndex < 0)
         return label;
 
-    const QStringList parameters = Utils::transform(signature.parameters().value_or(Parameters()),
-                                                    &ParameterInformation::label);
+    const QStringList parameters = Utils::transform(
+        signature.parameters().value_or(Parameters()),
+        &LanguageServerProtocol::ParameterInformation::label);
     if (parameters.size() <= parametersIndex)
         return label;
 
@@ -54,13 +56,16 @@ IAssistProposal *FunctionHintProcessor::perform()
     QTC_ASSERT(m_client, return nullptr);
     if (m_pos < 0)
         m_pos = interface()->position();
-    auto uri = m_client->hostPathToServerUri(interface()->filePath());
-    SignatureHelpRequest request(
-        (TextDocumentPositionParams(TextDocumentIdentifier(uri), Position(interface()->cursor()))));
-    request.setResponseCallback([this](auto response) { this->handleSignatureResponse(response); });
+    LanguageServerProtocol::SignatureHelpParams params;
+    params.textDocument(LanguageServerProtocol::TextDocumentIdentifier().uri(
+        m_client->uriFor(interface()->filePath())));
+    params.position(LanguageServerProtocol::positionOf(interface()->cursor()));
     m_client->addAssistProcessor(this);
-    m_client->sendMessage(request);
-    m_currentRequest = request.id();
+    m_currentRequest = m_client->sendRequest<LanguageServerProtocol::SignatureHelpRequest>(
+        params,
+        [this](const Utils::Result<LanguageServerProtocol::SignatureHelpRequestResult> &result) {
+            handleSignatureResponse(result);
+        });
     return nullptr;
 }
 
@@ -75,28 +80,29 @@ void FunctionHintProcessor::cancel()
 }
 
 IFunctionHintProposalModel *FunctionHintProcessor::createModel(
-    const SignatureHelp &signatureHelp) const
+    const LanguageServerProtocol::SignatureHelp &signatureHelp) const
 {
     return new FunctionHintProposalModel(signatureHelp);
 }
 
-void FunctionHintProcessor::handleSignatureResponse(const SignatureHelpRequest::Response &response)
+void FunctionHintProcessor::handleSignatureResponse(
+    const Utils::Result<LanguageServerProtocol::SignatureHelpRequestResult> &result)
 {
     QTC_ASSERT(m_client, setAsyncProposalAvailable(nullptr); return);
     m_currentRequest.reset();
-    if (auto error = response.error())
-        m_client->log(*error);
+    if (!result)
+        m_client->log(QtMsgType::QtCriticalMsg, result.error());
     m_client->removeAssistProcessor(this);
-    auto result = response.result().value_or(LanguageClientValue<SignatureHelp>());
-    if (result.isNull()) {
+    const auto signatureHelp = result ? std::get_if<LanguageServerProtocol::SignatureHelp>(&*result)
+                                      : nullptr;
+    if (!signatureHelp) {
         setAsyncProposalAvailable(nullptr);
         return;
     }
-    const SignatureHelp &signatureHelp = result.value();
-    if (signatureHelp.signatures().isEmpty()) {
+    if (signatureHelp->signatures().isEmpty()) {
         setAsyncProposalAvailable(nullptr);
     } else {
-        FunctionHintProposalModelPtr model(createModel(signatureHelp));
+        FunctionHintProposalModelPtr model(createModel(*signatureHelp));
         setAsyncProposalAvailable(new FunctionHintProposal(m_pos, model));
     }
 }

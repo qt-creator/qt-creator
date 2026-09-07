@@ -5,12 +5,13 @@
 
 #include "languageclientmanager.h"
 #include "languageclienttr.h"
+#include "languageclientutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <languageserverprotocol/callhierarchy.h>
-#include <languageserverprotocol/typehierarchy.h>
+#include <languageserverprotocol/lspmessages.h>
+#include <languageserverprotocol/lsputils.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/typehierarchy.h>
@@ -38,12 +39,18 @@ enum {
 };
 }
 
+struct HierarchyPosition
+{
+    TextDocumentIdentifier textDocument;
+    Position position;
+};
+
 static bool sorter(const TreeItem *a, const TreeItem *b)
 {
     return a->data(0, Qt::DisplayRole).toString() < b->data(0, Qt::DisplayRole).toString();
 }
 
-template<class Item, class Params, class Request, class Result>
+template<class Item, class Request, class Result>
 class HierarchyItem : public TreeItem
 {
 public:
@@ -53,7 +60,7 @@ public:
     {
         if (client) {
             const Position start = m_item.selectionRange().start();
-            const FilePath path = client->serverUriToHostPath(m_item.uri());
+            const FilePath path = client->filePathFor(m_item.uri());
             m_link = Link(path, start.line() + 1, start.character());
         }
     }
@@ -65,8 +72,7 @@ protected:
         case Qt::DecorationRole:
             if (hasTag(SymbolTag::Deprecated))
                 return Utils::Icons::WARNING.icon();
-            return symbolIcon(
-                int(m_item.symbolKind()), m_item.symbolTags().value_or(QList<SymbolTag>()));
+            return symbolIcon(m_item.kind(), m_item.tags().value_or(QList<int>()));
         case Qt::DisplayRole:
             return m_item.name();
         case Qt::ToolTipRole:
@@ -102,20 +108,17 @@ private:
         if (!m_client)
             return;
 
-        Params params;
-        params.setItem(m_item);
-        Request request(params);
-        request.setResponseCallback(
-            [this](const typename Request::Response &response) {
-                const std::optional<LanguageClientArray<Result>> result = response.result();
-                if (result && !result->isNull()) {
-                    for (const Result &item : result->toList()) {
-                        if (item.isValid())
-                            insertOrderedChild(new HierarchyItem(getSourceItem(item), m_client), sorter);
-                    }
+        typename Request::Params params;
+        params.item(m_item);
+        m_client->template sendRequest<Request>(
+            params, [this](const Utils::Result<typename Request::Result> &result) {
+                if (!result)
+                    return;
+                if (const auto items = std::get_if<QList<Result>>(&*result)) {
+                    for (const Result &item : *items)
+                        insertOrderedChild(new HierarchyItem(getSourceItem(item), m_client), sorter);
                 }
             });
-        m_client->sendMessage(request);
     }
 
     Item getSourceItem(const Result &result)
@@ -128,9 +131,9 @@ private:
             return result;
     }
 
-    bool hasTag(const SymbolTag tag) const
+    bool hasTag(int tag) const
     {
-        if (const std::optional<QList<SymbolTag>> tags = m_item.symbolTags())
+        if (const std::optional<QList<int>> &tags = m_item.tags())
             return tags->contains(tag);
         return false;
     }
@@ -141,13 +144,11 @@ private:
     Link m_link;
 };
 
-class CallHierarchyIncomingItem : public HierarchyItem<CallHierarchyItem,
-                                                       CallHierarchyCallsParams,
-                                                       CallHierarchyIncomingCallsRequest,
-                                                       CallHierarchyIncomingCall>
+class CallHierarchyIncomingItem
+    : public HierarchyItem<CallHierarchyItem, CallHierarchyIncomingCallsRequest, CallHierarchyIncomingCall>
 {
 public:
-    CallHierarchyIncomingItem(const LanguageServerProtocol::CallHierarchyItem &item, Client *client)
+    CallHierarchyIncomingItem(const CallHierarchyItem &item, Client *client)
         : HierarchyItem(item, client)
     {}
 
@@ -164,13 +165,11 @@ private:
     }
 };
 
-class CallHierarchyOutgoingItem : public HierarchyItem<CallHierarchyItem,
-                                                       CallHierarchyCallsParams,
-                                                       CallHierarchyOutgoingCallsRequest,
-                                                       CallHierarchyOutgoingCall>
+class CallHierarchyOutgoingItem
+    : public HierarchyItem<CallHierarchyItem, CallHierarchyOutgoingCallsRequest, CallHierarchyOutgoingCall>
 {
 public:
-    CallHierarchyOutgoingItem(const LanguageServerProtocol::CallHierarchyItem &item, Client *client)
+    CallHierarchyOutgoingItem(const CallHierarchyItem &item, Client *client)
         : HierarchyItem(item, client)
     {}
 
@@ -195,7 +194,7 @@ public:
     {
         if (QTC_GUARD(client)) {
             const Position start = m_item.selectionRange().start();
-            const FilePath path = client->serverUriToHostPath(m_item.uri());
+            const FilePath path = client->filePathFor(m_item.uri());
             m_link = Link(path, start.line() + 1, start.character());
         }
     }
@@ -205,10 +204,9 @@ private:
     {
         switch (role) {
         case Qt::DecorationRole:
-            if (m_item.symbolTags().value_or(QList<SymbolTag>()).contains(SymbolTag::Deprecated))
+            if (m_item.tags().value_or(QList<int>()).contains(SymbolTag::Deprecated))
                 return Utils::Icons::WARNING.icon();
-            return symbolIcon(
-                int(m_item.symbolKind()), m_item.symbolTags().value_or(QList<SymbolTag>()));
+            return symbolIcon(m_item.kind(), m_item.tags().value_or(QList<int>()));
         case Qt::DisplayRole:
             return m_item.name();
         case LinkRole:
@@ -222,11 +220,10 @@ private:
     Link m_link;
 };
 
-
-class CallHierarchyRootItem : public HierarchyRootItem<LanguageServerProtocol::CallHierarchyItem>
+class CallHierarchyRootItem : public HierarchyRootItem<CallHierarchyItem>
 {
 public:
-    CallHierarchyRootItem(const LanguageServerProtocol::CallHierarchyItem &item, Client *client)
+    CallHierarchyRootItem(const CallHierarchyItem &item, Client *client)
         : HierarchyRootItem(item, client)
     {
         appendChild(new CallHierarchyIncomingItem(item, client));
@@ -234,13 +231,11 @@ public:
     }
 };
 
-class TypeHierarchyBasesItem : public HierarchyItem<TypeHierarchyItem,
-                                                    TypeHierarchyParams,
-                                                    TypeHierarchySupertypesRequest,
-                                                    TypeHierarchyItem>
+class TypeHierarchyBasesItem
+    : public HierarchyItem<TypeHierarchyItem, TypeHierarchySupertypesRequest, TypeHierarchyItem>
 {
 public:
-    TypeHierarchyBasesItem(const LanguageServerProtocol::TypeHierarchyItem &item, Client *client)
+    TypeHierarchyBasesItem(const TypeHierarchyItem &item, Client *client)
         : HierarchyItem(item, client)
     {}
 
@@ -257,13 +252,11 @@ private:
     }
 };
 
-class TypeHierarchyDerivedItem : public HierarchyItem<TypeHierarchyItem,
-                                                      TypeHierarchyParams,
-                                                      TypeHierarchySubtypesRequest,
-                                                      TypeHierarchyItem>
+class TypeHierarchyDerivedItem
+    : public HierarchyItem<TypeHierarchyItem, TypeHierarchySubtypesRequest, TypeHierarchyItem>
 {
 public:
-    TypeHierarchyDerivedItem(const LanguageServerProtocol::TypeHierarchyItem &item, Client *client)
+    TypeHierarchyDerivedItem(const TypeHierarchyItem &item, Client *client)
         : HierarchyItem(item, client)
     {}
 
@@ -280,10 +273,10 @@ private:
     }
 };
 
-class TypeHierarchyRootItem : public HierarchyRootItem<LanguageServerProtocol::TypeHierarchyItem>
+class TypeHierarchyRootItem : public HierarchyRootItem<TypeHierarchyItem>
 {
 public:
-    TypeHierarchyRootItem(const LanguageServerProtocol::TypeHierarchyItem &item, Client *client)
+    TypeHierarchyRootItem(const TypeHierarchyItem &item, Client *client)
         : HierarchyRootItem(item, client)
     {
         appendChild(new TypeHierarchyBasesItem(item, client));
@@ -375,10 +368,10 @@ public:
         if (!client)
             return;
 
-        TextDocumentPositionParams params;
-        params.setTextDocument(TextDocumentIdentifier(client->hostPathToServerUri(document->filePath())));
-        params.setPosition(Position(editorWidget->textCursor()));
-        sendRequest(client, params, document);
+        HierarchyPosition position;
+        position.textDocument = TextDocumentIdentifier().uri(client->uriFor(document->filePath()));
+        position.position = positionOf(editorWidget->textCursor());
+        sendRequest(client, position, document);
     }
 
 protected:
@@ -389,10 +382,9 @@ protected:
         item->forChildrenAtLevel(1, [&](const TreeItem *child) { m_view->expand(child->index()); });
     }
 
-    void send(Client *client, const JsonRpcMessage &request, const MessageId &requestId)
+    void setRunningRequest(Client *client, const MessageId &requestId)
     {
         m_runningRequest = std::make_pair(QPointer<Client>(client), requestId);
-        client->sendMessage(request);
     }
 
     void resetRunningRequest()
@@ -402,9 +394,7 @@ protected:
 
 private:
     virtual void sendRequest(
-        Client *client,
-        const TextDocumentPositionParams &params,
-        const IDocument *document) = 0;
+        Client *client, const HierarchyPosition &position, const IDocument *document) = 0;
 
     void onItemDoubleClicked(const QModelIndex &index)
     {
@@ -436,33 +426,36 @@ public:
 
 private:
     void sendRequest(
-        Client *client, const TextDocumentPositionParams &params, const IDocument *document) override
+        Client *client, const HierarchyPosition &position, const IDocument *document) override
     {
         if (!supportsCallHierarchy(client, document))
             return;
 
-        PrepareCallHierarchyRequest request(params);
-        request.setResponseCallback([this, client = QPointer<Client>(client)](
-                                        const PrepareCallHierarchyRequest::Response &response) {
-            handlePrepareResponse(client, response);
-        });
-        send(client, request, request.id());
+        CallHierarchyPrepareParams params;
+        params.textDocument(position.textDocument);
+        params.position(position.position);
+        setRunningRequest(
+            client,
+            client->sendRequest<CallHierarchyPrepareRequest>(
+                params,
+                [this, client = QPointer<Client>(client)](
+                    const Utils::Result<CallHierarchyPrepareRequestResult> &result) {
+                    handlePrepareResult(client, result);
+                }));
     }
 
-    void handlePrepareResponse(Client *client,
-                               const PrepareCallHierarchyRequest::Response &response)
+    void handlePrepareResult(
+        Client *client, const Utils::Result<CallHierarchyPrepareRequestResult> &result)
     {
         resetRunningRequest();
         if (!client)
             return;
-        const std::optional<PrepareCallHierarchyRequest::Response::Error> error = response.error();
-        if (error)
-            client->log(*error);
-
-        const std::optional<LanguageClientArray<LanguageServerProtocol::CallHierarchyItem>>
-            result = response.result();
-        if (result && !result->isNull()) {
-            for (const LanguageServerProtocol::CallHierarchyItem &item : result->toList())
+        if (!result) {
+            client->log(QtMsgType::QtCriticalMsg, result.error());
+            return;
+        }
+        if (const auto items = std::get_if<QList<CallHierarchyItem>>(&*result)) {
+            for (const CallHierarchyItem &item : *items)
                 addItem(new CallHierarchyRootItem(item, client));
         }
     }
@@ -480,33 +473,36 @@ private:
     }
 
     void sendRequest(
-        Client *client, const TextDocumentPositionParams &params, const IDocument *document) override
+        Client *client, const HierarchyPosition &position, const IDocument *document) override
     {
         if (!supportsTypeHierarchy(client, document))
             return;
 
-        PrepareTypeHierarchyRequest request(params);
-        request.setResponseCallback([this, client = QPointer<Client>(client)](
-                                        const PrepareTypeHierarchyRequest::Response &response) {
-            handlePrepareResponse(client, response);
-        });
-        send(client, request, request.id());
+        TypeHierarchyPrepareParams params;
+        params.textDocument(position.textDocument);
+        params.position(position.position);
+        setRunningRequest(
+            client,
+            client->sendRequest<TypeHierarchyPrepareRequest>(
+                params,
+                [this, client = QPointer<Client>(client)](
+                    const Utils::Result<TypeHierarchyPrepareRequestResult> &result) {
+                    handlePrepareResult(client, result);
+                }));
     }
 
-    void handlePrepareResponse(Client *client,
-                               const PrepareTypeHierarchyRequest::Response &response)
+    void handlePrepareResult(
+        Client *client, const Utils::Result<TypeHierarchyPrepareRequestResult> &result)
     {
         resetRunningRequest();
         if (!client)
             return;
-        const std::optional<PrepareTypeHierarchyRequest::Response::Error> error = response.error();
-        if (error)
-            client->log(*error);
-
-        const std::optional<LanguageClientArray<LanguageServerProtocol::TypeHierarchyItem>>
-            result = response.result();
-        if (result && !result->isNull()) {
-            for (const LanguageServerProtocol::TypeHierarchyItem &item : result->toList())
+        if (!result) {
+            client->log(QtMsgType::QtCriticalMsg, result.error());
+            return;
+        }
+        if (const auto items = std::get_if<QList<TypeHierarchyItem>>(&*result)) {
+            for (const TypeHierarchyItem &item : *items)
                 addItem(new TypeHierarchyRootItem(item, client));
         }
     }
@@ -559,33 +555,30 @@ void setupCallHierarchyFactory()
     static CallHierarchyFactory theCallHierarchyFactory;
 }
 
-static bool supportsHierarchy(
-    Client *client,
-    const IDocument *document,
-    const QString &methodName,
-    const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider)
+static bool supportsHierarchy(Client *client, const IDocument *document,
+                              const QString &methodName, bool hasProvider)
 {
     std::optional<bool> registered = client->dynamicCapabilities().isRegistered(methodName);
     bool supported = registered.value_or(false);
     if (registered) {
         if (supported) {
-            const QJsonValue &options = client->dynamicCapabilities().option(methodName);
-            const TextDocumentRegistrationOptions docOptions(options);
-            supported = docOptions.filterApplies(document->filePath(),
-                                                 Utils::mimeTypeForName(document->mimeType()));
+            supported = registrationApplies(client->dynamicCapabilities().option(methodName),
+                                            document->filePath(),
+                                            document->mimeType());
         }
     } else {
-        supported = provider.has_value();
+        supported = hasProvider;
     }
     return supported;
 }
 
 bool supportsCallHierarchy(Client *client, const IDocument *document)
 {
-    return supportsHierarchy(client,
-                             document,
-                             PrepareCallHierarchyRequest::methodName,
-                             client->capabilities().callHierarchyProvider());
+    return supportsHierarchy(
+        client,
+        document,
+        CallHierarchyPrepareRequest::method,
+        client->capabilities().callHierarchyProvider().has_value());
 }
 
 void setupTypeHierarchyFactory()
@@ -595,10 +588,11 @@ void setupTypeHierarchyFactory()
 
 bool supportsTypeHierarchy(Client *client, const IDocument *document)
 {
-    return supportsHierarchy(client,
-                             document,
-                             PrepareTypeHierarchyRequest::methodName,
-                             client->capabilities().typeHierarchyProvider());
+    return supportsHierarchy(
+        client,
+        document,
+        TypeHierarchyPrepareRequest::method,
+        client->capabilities().typeHierarchyProvider().has_value());
 }
 
 } // namespace LanguageClient

@@ -15,8 +15,7 @@ QT_END_NAMESPACE
 namespace LanguageClient {
 class Client;
 class ExpandedSemanticToken;
-}
-namespace LanguageServerProtocol { class JsonRpcMessage; }
+} // namespace LanguageClient
 namespace TextEditor {
 class HighlightingResult;
 class TextDocument;
@@ -39,7 +38,6 @@ void doSemanticHighlighting(
 
 
 QString inactiveRegionsMethodName();
-void handleInactiveRegions(LanguageClient::Client *client,
-                           const LanguageServerProtocol::JsonRpcMessage &msg);
+void handleInactiveRegions(LanguageClient::Client *client, const QJsonObject &msg);
 
 } // namespace ClangCodeModel::Internal

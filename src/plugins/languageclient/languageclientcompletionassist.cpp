@@ -7,7 +7,7 @@
 #include "languageclientutils.h"
 #include "snippet.h"
 
-#include <languageserverprotocol/completion.h>
+#include <languageserverprotocol/lsputils.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
@@ -34,6 +34,17 @@ using namespace TextEditor;
 
 namespace LanguageClient {
 
+/// The edit of \a item as a plain text edit, replacing where the server offers both.
+static std::optional<TextEdit> textEditOf(const CompletionItem &item)
+{
+    if (!item.textEdit())
+        return std::nullopt;
+    if (const auto edit = std::get_if<TextEdit>(&*item.textEdit()))
+        return *edit;
+    const auto &edit = std::get<InsertReplaceEdit>(*item.textEdit());
+    return TextEdit().range(edit.replace()).newText(edit.newText());
+}
+
 LanguageClientCompletionItem::LanguageClientCompletionItem(CompletionItem item)
     : m_item(std::move(item))
 { }
@@ -50,7 +61,8 @@ bool LanguageClientCompletionItem::implicitlyApplies() const
 
 bool LanguageClientCompletionItem::prematurelyApplies(const QChar &typedCharacter) const
 {
-    if (m_item.commitCharacters() && m_item.commitCharacters()->contains(typedCharacter)) {
+    if (m_item.commitCharacters()
+        && m_item.commitCharacters()->contains(QString(typedCharacter))) {
         m_triggeredCommitCharacter = typedCharacter;
         return true;
     }
@@ -61,7 +73,7 @@ void LanguageClientCompletionItem::apply(TextEditorWidget *editorWidget,
                                          int /*basePosition*/) const
 {
     QTC_ASSERT(editorWidget, return);
-    if (auto edit = m_item.textEdit()) {
+    if (const std::optional<TextEdit> edit = textEditOf(m_item)) {
         applyTextEdit(editorWidget, *edit, isSnippet());
     } else {
         const int pos = editorWidget->position();
@@ -103,8 +115,7 @@ QIcon LanguageClientCompletionItem::icon() const
 {
     QIcon icon;
     using namespace Utils::CodeModelIcon;
-    const int kind = m_item.kind().value_or(CompletionItemKind::Text);
-    switch (kind) {
+    switch (m_item.kind().value_or(CompletionItemKind::Text)) {
     case CompletionItemKind::Method:
     case CompletionItemKind::Function:
     case CompletionItemKind::Constructor: icon = iconForType(FuncPublic); break;
@@ -125,15 +136,9 @@ QIcon LanguageClientCompletionItem::icon() const
 
 QString LanguageClientCompletionItem::detail() const
 {
-    if (auto _doc = m_item.documentation()) {
-        auto doc = *_doc;
-        QString detailDocText;
-        if (const auto s = std::get_if<QString>(&doc)) {
-            detailDocText = *s;
-        } else if (const auto m = std::get_if<MarkupContent>(&doc)) {
-            // TODO markdown parser?
-            detailDocText = m->content();
-        }
+    if (const auto &documentation = m_item.documentation()) {
+        // TODO markdown parser?
+        const QString detailDocText = plainText(*documentation);
         if (!detailDocText.isEmpty())
             return detailDocText;
     }
@@ -142,12 +147,12 @@ QString LanguageClientCompletionItem::detail() const
 
 bool LanguageClientCompletionItem::isSnippet() const
 {
-    return m_item.insertTextFormat() == CompletionItem::Snippet;
+    return m_item.insertTextFormat() == InsertTextFormat::Snippet;
 }
 
 bool LanguageClientCompletionItem::isValid() const
 {
-    return m_item.isValid();
+    return !m_item.label().isEmpty();
 }
 
 quint64 LanguageClientCompletionItem::hash() const
@@ -199,12 +204,10 @@ bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) c
     }
     if (isSnippet())
         return false;
-    if (auto edit = m_item.textEdit()) {
-        const auto range = edit->range();
-        const int start = range.start().toPositionInDocument(doc);
-        const int end = range.end().toPositionInDocument(doc);
-        auto text = textAt(doc, start, end - start);
-        return text == edit->newText();
+    if (const std::optional<TextEdit> edit = textEditOf(m_item)) {
+        const int start = positionInDocument(edit->range().start(), doc);
+        const int end = positionInDocument(edit->range().end(), doc);
+        return textAt(doc, start, end - start) == edit->newText();
     }
     const QString textToInsert(m_item.insertText().value_or(text()));
     const int length = textToInsert.size();
@@ -213,7 +216,7 @@ bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) c
 
 bool LanguageClientCompletionItem::isDeprecated() const
 {
-    if (const auto tags = m_item.tags(); tags && tags->contains(CompletionItem::Deprecated))
+    if (const auto &tags = m_item.tags(); tags && tags->contains(CompletionItemTag::Deprecated))
         return true;
     if (const auto deprecated = m_item.deprecated())
         return *deprecated;
@@ -394,7 +397,7 @@ QTextDocument *LanguageClientCompletionAssistProcessor::document() const
 }
 
 QList<AssistProposalItemInterface *> LanguageClientCompletionAssistProcessor::generateCompletionItems(
-    const QList<LanguageServerProtocol::CompletionItem> &items) const
+    const QList<CompletionItem> &items) const
 {
     return Utils::transform<QList<AssistProposalItemInterface *>>(
         items, [](const CompletionItem &item) { return new LanguageClientCompletionItem(item); });
@@ -438,34 +441,32 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform()
         QObject::disconnect(m_postponedUpdateConnection);
         m_postponedUpdateConnection = {};
     }
-    CompletionParams::CompletionContext context;
+    CompletionContext context;
     if (interface()->reason() == ActivationCharacter) {
-        context.setTriggerKind(CompletionParams::TriggerCharacter);
-        QChar triggerCharacter = interface()->characterAt(interface()->position() - 1);
+        context.triggerKind(CompletionTriggerKind::TriggerCharacter);
+        const QChar triggerCharacter = interface()->characterAt(interface()->position() - 1);
         if (!triggerCharacter.isNull())
-            context.setTriggerCharacter(triggerCharacter);
+            context.triggerCharacter(QString(triggerCharacter));
     } else {
-        context.setTriggerKind(CompletionParams::Invoked);
+        context.triggerKind(CompletionTriggerKind::Invoked);
     }
-    CompletionParams params;
     int line;
     int column;
     if (!Utils::Text::convertPosition(interface()->textDocument(), m_pos, &line, &column))
         return nullptr;
     --line; // line is 0 based in the protocol
-    params.setPosition({line, column});
-    params.setContext(context);
-    params.setTextDocument(
-        TextDocumentIdentifier(m_client->hostPathToServerUri(interface()->filePath())));
+    CompletionParams params;
+    params.position(Position().line(line).character(column));
+    params.context(context);
+    params.textDocument(TextDocumentIdentifier().uri(m_client->uriFor(interface()->filePath())));
+    QJsonObject paramsObject = toJson(params);
     if (const int limit = m_client->completionResultsLimit(); limit >= 0)
-        params.setLimit(limit);
-    CompletionRequest completionRequest(params);
-    completionRequest.setResponseCallback([this](auto response) {
-        this->handleCompletionResponse(response);
-    });
-    m_client->sendMessage(completionRequest);
+        paramsObject.insert("limit", limit);
+    m_currentRequest = m_client->sendRawRequest(
+        paramsObject, CompletionRequest::method, [this](const QJsonObject &response) {
+            handleCompletionResult(result<CompletionRequest>(response));
+        });
     m_client->addAssistProcessor(this);
-    m_currentRequest = completionRequest.id();
     m_filePath = interface()->filePath();
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime()
                               << " : request completions at " << m_pos
@@ -492,18 +493,15 @@ void LanguageClientCompletionAssistProcessor::cancel()
     }
 }
 
-void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
-    const CompletionRequest::Response &response)
+void LanguageClientCompletionAssistProcessor::handleCompletionResult(
+    const Utils::Result<CompletionRequestResult> &result)
 {
     // We must report back to the code assistant under all circumstances
     qCDebug(LOGLSPCOMPLETION) << QTime::currentTime() << " : got completions";
     m_currentRequest.reset();
     QTC_ASSERT(m_client, setAsyncProposalAvailable(nullptr); return);
-    if (auto error = response.error())
-        m_client->log(*error);
-
-    const std::optional<CompletionResult> &result = response.result();
-    if (!result || std::holds_alternative<std::nullptr_t>(*result)) {
+    if (!result) {
+        m_client->log(QtCriticalMsg, result.error());
         setAsyncProposalAvailable(nullptr);
         m_client->removeAssistProcessor(this);
         return;
@@ -511,7 +509,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
 
     QList<CompletionItem> items;
     if (const auto list = std::get_if<CompletionList>(&*result))
-        items = list->items().value_or(QList<CompletionItem>());
+        items = list->items();
     else if (const auto l = std::get_if<QList<CompletionItem>>(&*result))
         items = *l;
     auto proposalItems = generateCompletionItems(items);

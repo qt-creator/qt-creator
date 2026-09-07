@@ -7,7 +7,7 @@
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
-#include <languageserverprotocol/lsptypes.h>
+#include <languageserverprotocol/lsputils.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -62,8 +62,8 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
          QJsonObject{{"name", "Copilot"}, {"version", qApp->applicationVersion()}}},
     });
 
-    registerCustomMethod("LogMessage", [](const LanguageServerProtocol::JsonRpcMessage &message) {
-        qCDebug(copilotClientLog) << message.toJsonObject()
+    registerCustomMethod("LogMessage", [](const QJsonObject &message) {
+        qCDebug(copilotClientLog) << message
                                          .value("params")
                                          .toObject()
                                          .value("message")
@@ -172,72 +172,68 @@ void CopilotClient::requestCompletions(TextEditorWidget *editor)
         return;
 
     const FilePath filePath = editor->textDocument()->filePath();
-    GetCompletionRequest request{
-        {TextDocumentIdentifier(hostPathToServerUri(filePath)),
-         documentVersion(filePath),
-         Position(cursor.mainCursor())}};
-    request.setResponseCallback([this, editor = QPointer<TextEditorWidget>(editor)](
-                                    const GetCompletionRequest::Response &response) {
-        QTC_ASSERT(editor, return);
-        handleCompletions(response, editor);
-    });
-    m_runningRequests[editor] = request;
-    sendMessage(request);
+    const Position position = positionOf(cursor.mainCursor());
+    const GetCompletionParams params{uriFor(filePath), documentVersion(filePath), position};
+    m_runningRequests[editor] = sendRequest<GetCompletionRequest>(
+        params,
+        [this, editor = QPointer<TextEditorWidget>(editor), position](
+            const Utils::Result<Completions> &result) {
+            QTC_ASSERT(editor, return);
+            handleCompletions(result, position, editor);
+        });
 }
 
-void CopilotClient::handleCompletions(const GetCompletionRequest::Response &response,
+void CopilotClient::handleCompletions(const Utils::Result<Completions> &result,
+                                      const Position &requestPosition,
                                       TextEditorWidget *editor)
 {
-    if (response.error())
-        log(*response.error());
-
-    int requestPosition = -1;
-    if (const auto requestParams = m_runningRequests.take(editor).params())
-        requestPosition = requestParams->position().toPositionInDocument(editor->document());
+    m_runningRequests.remove(editor);
+    if (!result) {
+        log(QtCriticalMsg, result.error());
+        return;
+    }
 
     const MultiTextCursor cursors = editor->multiTextCursor();
     if (cursors.hasMultipleCursors())
         return;
 
-    if (cursors.hasSelection() || cursors.mainCursor().position() != requestPosition)
+    if (cursors.hasSelection()
+        || cursors.mainCursor().position() != positionInDocument(requestPosition,
+                                                                 editor->document())) {
         return;
-
-    if (const std::optional<GetCompletionResponse> result = response.result()) {
-        auto isValidCompletion = [](const Completion &completion) {
-            return completion.isValid() && !completion.text().trimmed().isEmpty();
-        };
-        QList<Completion> completions = Utils::filtered(result->completions().toListOrEmpty(),
-                                                              isValidCompletion);
-
-        // remove trailing whitespaces from the end of the completions
-        for (Completion &completion : completions) {
-            const LanguageServerProtocol::Range range = completion.range();
-            if (range.start().line() != range.end().line())
-                continue; // do not remove trailing whitespaces for multi-line replacements
-
-            const QString completionText = completion.text();
-            const int end = int(completionText.size()) - 1; // empty strings have been removed above
-            int delta = 0;
-            while (delta <= end && completionText[end - delta].isSpace())
-                ++delta;
-
-            if (delta > 0)
-                completion.setText(completionText.chopped(delta));
-        }
-        auto suggestions = Utils::transform(completions, [](const Completion &c){
-            auto toTextPos = [](const LanguageServerProtocol::Position pos){
-                return Text::Position{pos.line() + 1, pos.character()};
-            };
-
-            Text::Range range{toTextPos(c.range().start()), toTextPos(c.range().end())};
-            Text::Position pos{toTextPos(c.position())};
-            return TextSuggestion::Data{range, pos, c.text()};
-        });
-        if (completions.isEmpty())
-            return;
-        editor->insertSuggestion(
-            std::make_unique<TextEditor::CyclicSuggestion>(suggestions, editor->document()));
     }
+
+    auto isValidCompletion = [](const Completion &completion) {
+        return !completion.text.trimmed().isEmpty();
+    };
+    QList<Completion> completions = Utils::filtered(result->completions, isValidCompletion);
+
+    // remove trailing whitespaces from the end of the completions
+    for (Completion &completion : completions) {
+        if (completion.range.start().line() != completion.range.end().line())
+            continue; // do not remove trailing whitespaces for multi-line replacements
+
+        const QString completionText = completion.text;
+        const int end = int(completionText.size()) - 1; // empty strings have been removed above
+        int delta = 0;
+        while (delta <= end && completionText[end - delta].isSpace())
+            ++delta;
+
+        if (delta > 0)
+            completion.text = completionText.chopped(delta);
+    }
+    if (completions.isEmpty())
+        return;
+    auto suggestions = Utils::transform(completions, [](const Completion &c) {
+        auto toTextPos = [](const Position &pos) {
+            return Text::Position{pos.line() + 1, pos.character()};
+        };
+
+        Text::Range range{toTextPos(c.range.start()), toTextPos(c.range.end())};
+        return TextSuggestion::Data{range, toTextPos(c.position), c.text};
+    });
+    editor->insertSuggestion(
+        std::make_unique<TextEditor::CyclicSuggestion>(suggestions, editor->document()));
 }
 
 void CopilotClient::cancelRunningRequest(TextEditor::TextEditorWidget *editor)
@@ -245,45 +241,29 @@ void CopilotClient::cancelRunningRequest(TextEditor::TextEditorWidget *editor)
     const auto it = m_runningRequests.constFind(editor);
     if (it == m_runningRequests.constEnd())
         return;
-    cancelRequest(it->id());
+    cancelRequest(*it);
     m_runningRequests.erase(it);
 }
 
-void CopilotClient::requestCheckStatus(
-    bool localChecksOnly, std::function<void(const CheckStatusRequest::Response &response)> callback)
+void CopilotClient::requestCheckStatus(bool localChecksOnly, const StatusHandler &callback)
 {
-    CheckStatusRequest request{localChecksOnly};
-    request.setResponseCallback(callback);
-
-    sendMessage(request);
+    sendRequest<CheckStatusRequest>(CheckStatusParams{localChecksOnly}, callback);
 }
 
-void CopilotClient::requestSignOut(
-    std::function<void(const SignOutRequest::Response &response)> callback)
+void CopilotClient::requestSignOut(const StatusHandler &callback)
 {
-    SignOutRequest request;
-    request.setResponseCallback(callback);
-
-    sendMessage(request);
+    sendRequest<SignOutRequest>({}, callback);
 }
 
 void CopilotClient::requestSignInInitiate(
-    std::function<void(const SignInInitiateRequest::Response &response)> callback)
+    const std::function<void(const Utils::Result<SignInInitiateResult> &)> &callback)
 {
-    SignInInitiateRequest request;
-    request.setResponseCallback(callback);
-
-    sendMessage(request);
+    sendRequest<SignInInitiateRequest>({}, callback);
 }
 
-void CopilotClient::requestSignInConfirm(
-    const QString &userCode,
-    std::function<void(const SignInConfirmRequest::Response &response)> callback)
+void CopilotClient::requestSignInConfirm(const QString &userCode, const StatusHandler &callback)
 {
-    SignInConfirmRequest request(userCode);
-    request.setResponseCallback(callback);
-
-    sendMessage(request);
+    sendRequest<SignInConfirmRequest>(SignInConfirmParams{userCode}, callback);
 }
 
 bool CopilotClient::canOpenProject(Project *project)

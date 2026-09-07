@@ -56,10 +56,10 @@ private:
         return nullptr;
     }
 
-    TextEditor::GenericProposal *handleCodeActionResult(const CodeActionResult &result) override
+    TextEditor::GenericProposal *handleCodeActionResult(
+        const CodeActionRequestResult &result) override
     {
-        auto toOperation =
-            [this](const std::variant<Command, CodeAction> &item) -> QuickFixOperation * {
+        auto toOperation = [this](const CommandOrCodeAction &item) -> QuickFixOperation * {
             if (auto action = std::get_if<CodeAction>(&item)) {
                 const std::optional<QList<Diagnostic>> diagnostics = action->diagnostics();
                 if (!diagnostics.has_value() || diagnostics->isEmpty())
@@ -70,9 +70,9 @@ private:
             return nullptr;
         };
 
-        if (auto list = std::get_if<QList<std::variant<Command, CodeAction>>>(&result)) {
+        if (auto list = std::get_if<QList<CommandOrCodeAction>>(&result)) {
             QuickFixOperations ops;
-            for (const std::variant<Command, CodeAction> &item : *list) {
+            for (const CommandOrCodeAction &item : *list) {
                 if (QuickFixOperation *op = toOperation(item)) {
                     op->setDescription("clangd: " + op->description());
                     ops << op;

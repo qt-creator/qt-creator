@@ -1,10 +1,11 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "basemessage.h"
+#include "lspbasemessage.h"
 
-#include "jsonrpcmessages.h"
 #include "languageserverprotocoltr.h"
+
+#include <utils/qtcassert.h>
 
 #include <QBuffer>
 
@@ -25,12 +26,12 @@ constexpr char headerSeparator[] = "\r\n";
 constexpr char contentTypeFieldName[] = "Content-Type";
 
 BaseMessage::BaseMessage()
-    : mimeType(JsonRpcMessage::jsonRpcMimeType())
+    : mimeType(jsonRpcMimeType)
 { }
 
 BaseMessage::BaseMessage(const QByteArray &mimeType, const QByteArray &content,
                          int expectedLength, const TextEncoding &encoding)
-    : mimeType(mimeType.isEmpty() ? JsonRpcMessage::jsonRpcMimeType() : mimeType)
+    : mimeType(mimeType.isEmpty() ? QByteArray(jsonRpcMimeType) : mimeType)
     , content(content)
     , contentLength(expectedLength)
     , encoding(encoding)
@@ -48,10 +49,10 @@ bool BaseMessage::operator==(const BaseMessage &other) const
 static QPair<QByteArray, QByteArray> splitHeaderFieldLine(const QByteArray &headerFieldLine)
 {
     static const int fieldSeparatorLength = int(std::strlen(headerFieldSeparator));
-    int assignmentIndex = headerFieldLine.indexOf(headerFieldSeparator);
+    const int assignmentIndex = headerFieldLine.indexOf(headerFieldSeparator);
     if (assignmentIndex >= 0) {
         return {headerFieldLine.mid(0, assignmentIndex),
-                    headerFieldLine.mid(assignmentIndex + fieldSeparatorLength)};
+                headerFieldLine.mid(assignmentIndex + fieldSeparatorLength)};
     }
     qCWarning(parseLog) << "Unexpected header line:" << QLatin1String(headerFieldLine);
     return {};
@@ -62,7 +63,7 @@ static void parseContentType(BaseMessage &message, QByteArray contentType, QStri
     if (contentType.startsWith('"') && contentType.endsWith('"'))
         contentType = contentType.mid(1, contentType.length() - 2);
     QList<QByteArray> contentTypeElements = contentType.split(';');
-    QByteArray mimeTypeName = contentTypeElements.takeFirst();
+    const QByteArray mimeTypeName = contentTypeElements.takeFirst();
     TextEncoding encoding;
     for (const QByteArray &_contentTypeElement : std::as_const(contentTypeElements)) {
         const QByteArray &contentTypeElement = _contentTypeElement.trimmed();
@@ -73,8 +74,7 @@ static void parseContentType(BaseMessage &message, QByteArray contentType, QStri
                 encoding = TextEncoding(charset);
             if (!encoding.isValid()) {
                 parseError = Tr::tr("Cannot decode content with \"%1\". Falling back to \"%2\".")
-                                 .arg(QLatin1String(charset),
-                                      QLatin1String(defaultCharset));
+                                 .arg(QLatin1String(charset), QLatin1String(defaultCharset));
             }
         }
     }
@@ -88,7 +88,8 @@ static void parseContentLength(BaseMessage &message, QByteArray contentLength, Q
     message.contentLength = contentLength.toInt(&ok);
     if (!ok) {
         parseError = Tr::tr("Expected an integer in \"%1\", but got \"%2\".")
-                .arg(QString::fromLatin1(contentLengthFieldName), QString::fromLatin1(contentLength));
+                         .arg(QString::fromLatin1(contentLengthFieldName),
+                              QString::fromLatin1(contentLength));
     }
 }
 
@@ -120,11 +121,11 @@ void BaseMessage::parse(QBuffer *data, QString &parseError, BaseMessage &message
             parseContentType(message, headerFieldValue, parseError);
         } else {
             qCWarning(parseLog) << "Unexpected header field" << QLatin1String(headerFieldName)
-                                  << "in" << QLatin1String(headerFieldLine);
+                                << "in" << QLatin1String(headerFieldLine);
         }
     }
 
-    // the complete header wasn't received jet, waiting for the rest of it and reparse
+    // the complete header wasn't received yet, wait for the rest of it and reparse
     message = BaseMessage();
     data->seek(startPos);
 }
@@ -153,7 +154,7 @@ QByteArray BaseMessage::header() const
     QByteArray header;
     header.append(lengthHeader());
     if (encoding != defaultEncoding()
-            || (!mimeType.isEmpty() && mimeType != JsonRpcMessage::jsonRpcMimeType())) {
+        || (!mimeType.isEmpty() && mimeType != jsonRpcMimeType)) {
         header.append(typeHeader());
     }
     header.append(headerSeparator);
@@ -163,17 +164,17 @@ QByteArray BaseMessage::header() const
 QByteArray BaseMessage::lengthHeader() const
 {
     return QByteArray(contentLengthFieldName)
-            + QByteArray(headerFieldSeparator)
-            + QString::number(content.size()).toLatin1()
-            + QByteArray(headerSeparator);
+           + QByteArray(headerFieldSeparator)
+           + QString::number(content.size()).toLatin1()
+           + QByteArray(headerSeparator);
 }
 
 QByteArray BaseMessage::typeHeader() const
 {
     return QByteArray(contentTypeFieldName)
-            + QByteArray(headerFieldSeparator)
-            + mimeType + "; " + contentCharsetName + "=" + encoding.name()
-            + QByteArray(headerSeparator);
+           + QByteArray(headerFieldSeparator)
+           + mimeType + "; " + contentCharsetName + "=" + encoding.name()
+           + QByteArray(headerSeparator);
 }
 
 } // namespace LanguageServerProtocol

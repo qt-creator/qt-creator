@@ -30,7 +30,6 @@ class LanguageClientPlugin final : public ExtensionSystem::IPlugin
 public:
     LanguageClientPlugin()
     {
-        qRegisterMetaType<LanguageServerProtocol::JsonRpcMessage>();
     }
 
 private:

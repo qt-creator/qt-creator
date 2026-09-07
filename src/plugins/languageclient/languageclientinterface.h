@@ -5,7 +5,9 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/jsonrpcmessages.h>
+#include <languageserverprotocol/lspbasemessage.h>
+
+#include <QJsonObject>
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
@@ -25,7 +27,7 @@ public:
 
     ~BaseClientInterface() override;
 
-    void sendMessage(const LanguageServerProtocol::JsonRpcMessage message);
+    void sendMessage(const QJsonObject &message);
     void start() { startImpl(); }
 
     virtual Utils::FilePath serverDeviceTemplate() const = 0;
@@ -33,7 +35,7 @@ public:
     void resetBuffer();
 
 signals:
-    void messageReceived(const LanguageServerProtocol::JsonRpcMessage message);
+    void messageReceived(const QJsonObject &message);
     void finished();
     void error(const QString &message);
     void started();

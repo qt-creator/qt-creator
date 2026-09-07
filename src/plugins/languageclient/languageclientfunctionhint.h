@@ -5,7 +5,7 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/lspjsonrpc.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
@@ -54,7 +54,7 @@ private:
     virtual TextEditor::IFunctionHintProposalModel *createModel(
         const LanguageServerProtocol::SignatureHelp &signatureHelp) const;
     void handleSignatureResponse(
-        const LanguageServerProtocol::SignatureHelpRequest::Response &response);
+        const Utils::Result<LanguageServerProtocol::SignatureHelpRequestResult> &result);
 
     QPointer<Client> m_client;
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;

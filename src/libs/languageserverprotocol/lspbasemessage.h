@@ -1,4 +1,4 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
@@ -8,7 +8,6 @@
 #include <utils/textcodec.h>
 
 #include <QByteArray>
-#include <QCoreApplication>
 #include <QLoggingCategory>
 
 QT_BEGIN_NAMESPACE
@@ -19,12 +18,15 @@ namespace LanguageServerProtocol {
 
 LANGUAGESERVERPROTOCOL_EXPORT Q_DECLARE_LOGGING_CATEGORY(parseLog)
 
+/// A message as it travels over the wire: a header and its content.
 class LANGUAGESERVERPROTOCOL_EXPORT BaseMessage
 {
 public:
+    static constexpr char jsonRpcMimeType[] = "application/vscode-jsonrpc";
+
     BaseMessage();
     BaseMessage(const QByteArray &mimeType, const QByteArray &content,
-                int expectedLength, const Utils::TextEncoding &codec);
+                int expectedLength, const Utils::TextEncoding &encoding);
     BaseMessage(const QByteArray &mimeType, const QByteArray &content);
 
     bool operator==(const BaseMessage &other) const;
@@ -46,4 +48,4 @@ private:
     QByteArray typeHeader() const;
 };
 
-} // namespace LanguageClient
+} // namespace LanguageServerProtocol

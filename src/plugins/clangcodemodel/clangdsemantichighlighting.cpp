@@ -14,7 +14,8 @@
 #include <cppeditor/semantichighlighter.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/semantichighlightsupport.h>
-#include <languageserverprotocol/lsptypes.h>
+
+#include <languageserverprotocol/lsputils.h>
 #include <texteditor/blockrange.h>
 #include <texteditor/textstyles.h>
 
@@ -177,8 +178,9 @@ void doSemanticHighlighting(
                 << '\t' << r.line << r.column << r.length << int(r.textStyles.mainStyle);
             if (r.textStyles.mainStyle != C_VIRTUAL_METHOD)
                 continue;
-            const Position startPos(r.line - 1, r.column - 1);
-            virtualRanges << Range(startPos, startPos.withOffset(r.length, &doc));
+            const Position startPos = Position().line(r.line - 1).character(r.column - 1);
+            virtualRanges << Range().start(startPos)
+                                 .end(withOffset(startPos, r.length, &doc));
         }
         QMetaObject::invokeMethod(LanguageClientManager::instance(),
                                   [filePath, virtualRanges, docRevision] {
@@ -221,40 +223,24 @@ void ExtraHighlightingResultsCollector::collect()
     }
 }
 
-class InactiveRegionsParams : public JsonObject
+// See https://clangd.llvm.org/extensions#inactive-regions
+void handleInactiveRegions(LanguageClient::Client *client, const QJsonObject &msg)
 {
-public:
-    using JsonObject::JsonObject;
-
-    DocumentUri uri() const { return TextDocumentIdentifier(value("textDocument")).uri(); }
-    QList<Range> inactiveRegions() const {
-        return array<Range>(LanguageServerProtocol::Key{"regions"});
-    }
-};
-
-class InactiveRegionsNotification : public Notification<InactiveRegionsParams>
-{
-public:
-    explicit InactiveRegionsNotification(const InactiveRegionsParams &params)
-        : Notification(inactiveRegionsMethodName(), params) {}
-    using Notification::Notification;
-};
-
-void handleInactiveRegions(LanguageClient::Client *client, const JsonRpcMessage &msg)
-{
-    const auto params = InactiveRegionsNotification(msg.toJsonObject()).params();
-    if (!params)
-        return;
+    const QJsonObject params = msg.value("params").toObject();
+    const QString uri = params.value("textDocument").toObject().value("uri").toString();
     auto *const doc = qobject_cast<CppEditor::CppEditorDocument *>(
-        client->documentForFilePath(params->uri().toFilePath(client->hostPathMapper())));
+        client->documentForFilePath(client->filePathFor(uri)));
     if (!doc)
         return;
 
-    const QList<Range> inactiveRegions = params->inactiveRegions();
     QList<BlockRange> ifdefedOutBlocks;
-    for (const Range &r : inactiveRegions) {
-        const int startPos = Position(r.start().line(), 0).toPositionInDocument(doc->document());
-        const int endPos = r.end().toPositionInDocument(doc->document()) + 1;
+    for (const QJsonValue &region : params.value("regions").toArray()) {
+        const Utils::Result<Range> range = fromJson<Range>(region);
+        if (!range)
+            continue;
+        const int startPos = positionInDocument(Position().line(range->start().line()).character(0),
+                                                doc->document());
+        const int endPos = positionInDocument(range->end(), doc->document()) + 1;
         ifdefedOutBlocks.emplaceBack(startPos, endPos);
     }
     doc->setIfdefedOutBlocks(ifdefedOutBlocks);

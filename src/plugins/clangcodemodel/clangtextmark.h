@@ -20,10 +20,11 @@ class ClangdClient;
 class ClangdTextMark : public TextEditor::TextMark
 {
 public:
-    ClangdTextMark(TextEditor::TextDocument *doc,
-                   const LanguageServerProtocol::Diagnostic &diagnostic,
-                   bool isProjectFile,
-                   ClangdClient *client);
+    ClangdTextMark(
+        TextEditor::TextDocument *doc,
+        const LanguageServerProtocol::Diagnostic &diagnostic,
+        bool isProjectFile,
+        ClangdClient *client);
 
 private:
     bool addToolTipContent(QLayout *target) const override;

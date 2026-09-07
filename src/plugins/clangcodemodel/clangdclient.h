@@ -19,8 +19,9 @@ namespace Core {
 class HelpItem;
 class SearchResult;
 }
-namespace CppEditor { class CppEditorWidget; }
-namespace LanguageServerProtocol { class Range; }
+namespace CppEditor {
+class CppEditorWidget;
+}
 namespace ProjectExplorer {
 class Project;
 class Task;
@@ -83,43 +84,48 @@ public:
                          CppEditor::RenameCallback &&callback);
 
     void gatherHelpItemForTooltip(
-            const LanguageServerProtocol::HoverRequest::Response &hoverResponse,
-            const Utils::FilePath &filePath);
-    bool gatherMemberFunctionOverrideHelpItemForTooltip(const LanguageServerProtocol::MessageId &token,
+        const LanguageServerProtocol::MessageId &id,
+        const LanguageServerProtocol::Hover &hover,
+        const Utils::FilePath &filePath);
+    bool gatherMemberFunctionOverrideHelpItemForTooltip(
+        const LanguageServerProtocol::MessageId &token,
         const Utils::FilePath &uri,
         const QList<ClangdAstNode> &path);
 
-    void setVirtualRanges(const Utils::FilePath &filePath,
-                          const QList<LanguageServerProtocol::Range> &ranges, int revision);
+    void setVirtualRanges(
+        const Utils::FilePath &filePath,
+        const QList<LanguageServerProtocol::Range> &ranges,
+        int revision);
 
     void enableTesting();
     bool testingEnabled() const;
 
-    static QString displayNameFromDocumentSymbol(LanguageServerProtocol::SymbolKind kind,
-                                                 const QString &name, const QString &detail);
+    static QString displayNameFromDocumentSymbol(int kind, const QString &name,
+                                                 const QString &detail);
 
     static void handleUiHeaderChange(const QString &fileName);
 
     void updateParserConfig(const Utils::FilePath &filePath,
                             const CppEditor::BaseEditorDocumentParser::Configuration &config);
-    std::optional<bool> hasVirtualFunctionAt(TextEditor::TextDocument *doc, int revision,
-                                               const LanguageServerProtocol::Range &range);
+    std::optional<bool> hasVirtualFunctionAt(
+        TextEditor::TextDocument *doc, int revision, const LanguageServerProtocol::Range &range);
 
     using TextDocOrFile = std::variant<const TextEditor::TextDocument *, Utils::FilePath>;
-    using AstHandler = std::function<void(const ClangdAstNode &ast,
-                                                const LanguageServerProtocol::MessageId &)>;
+    using AstHandler
+        = std::function<void(const ClangdAstNode &ast, const LanguageServerProtocol::MessageId &)>;
     enum class AstCallbackMode { SyncIfPossible, AlwaysAsync };
-    LanguageServerProtocol::MessageId getAndHandleAst(const TextDocOrFile &doc,
-                                                     const AstHandler &astHandler,
-                                                      AstCallbackMode callbackMode,
-                                                      const LanguageServerProtocol::Range &range);
+    LanguageServerProtocol::MessageId getAndHandleAst(
+        const TextDocOrFile &doc,
+        const AstHandler &astHandler,
+        AstCallbackMode callbackMode,
+        const LanguageServerProtocol::Range &range);
 
-    using SymbolInfoHandler = std::function<void(const QString &name, const QString &prefix,
-                                                 const LanguageServerProtocol::MessageId &)>;
+    using SymbolInfoHandler = std::function<
+        void(const QString &name, const QString &prefix, const LanguageServerProtocol::MessageId &)>;
     LanguageServerProtocol::MessageId requestSymbolInfo(
-            const Utils::FilePath &filePath,
-            const LanguageServerProtocol::Position &position,
-            const SymbolInfoHandler &handler);
+        const Utils::FilePath &filePath,
+        const LanguageServerProtocol::Position &position,
+        const SymbolInfoHandler &handler);
 
 #ifdef WITH_TESTS
     ClangdFollowSymbol *currentFollowSymbolOperation();
@@ -137,7 +143,9 @@ signals:
     void configChanged();
 
 private:
-    void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;
+    void handleDiagnostics(
+        const LanguageServerProtocol::PublishDiagnosticsParams &params,
+        const QJsonObject &raw) override;
     void handleDocumentOpened(TextEditor::TextDocument *doc) override;
     void handleDocumentClosed(TextEditor::TextDocument *doc) override;
     QTextCursor adjustedCursorForHighlighting(const QTextCursor &cursor,
@@ -161,12 +169,22 @@ private:
     Private * const d;
 };
 
-class ClangdDiagnostic : public LanguageServerProtocol::Diagnostic
+/// A diagnostic together with the extensions clangd attaches to it, which the
+/// client moves into the diagnostic's data when it arrives.
+/// See https://clangd.llvm.org/extensions
+class ClangdDiagnostic
 {
 public:
-    using Diagnostic::Diagnostic;
+    explicit ClangdDiagnostic(const LanguageServerProtocol::Diagnostic &diagnostic)
+        : m_diagnostic(diagnostic)
+    {}
+
+    const LanguageServerProtocol::Diagnostic &diagnostic() const { return m_diagnostic; }
     std::optional<QList<LanguageServerProtocol::CodeAction>> codeActions() const;
     QString category() const;
+
+private:
+    LanguageServerProtocol::Diagnostic m_diagnostic;
 };
 
 } // namespace ClangCodeModel::Internal

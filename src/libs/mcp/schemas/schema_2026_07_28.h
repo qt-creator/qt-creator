@@ -137,7 +137,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const AudioContent &data);
 struct BaseMetadata {
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for {@link Tool},
@@ -294,7 +294,7 @@ struct Implementation {
     std::optional<QList<Icon>> _icons{};
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for {@link Tool},
@@ -567,7 +567,7 @@ struct ResourceLink {
      */
     std::optional<int> _size{};
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for {@link Tool},
@@ -1218,7 +1218,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ModelHint &data);
  * The server's preferences for model selection, requested of the client during sampling.
  *
  * Because LLMs can vary along multiple dimensions, choosing the "best" model is
- * rarely straightforward.  Different models excel in different areas—some are
+ * rarely straightforward.  Different models excel in different areas--some are
  * faster but less capable, others are more capable but more expensive, and so
  * on. This interface allows servers to express their priorities across multiple
  * dimensions to help clients make an appropriate selection for their use case.
@@ -1370,7 +1370,7 @@ struct Tool {
      * A JSON Schema object defining the expected parameters for the tool.
      *
      * Tool arguments are always JSON objects, so `type: "object"` is required at the root.
-     * Beyond that, any JSON Schema 2020-12 keyword may appear alongside `type` — including
+     * Beyond that, any JSON Schema 2020-12 keyword may appear alongside `type` -- including
      * composition keywords (`oneOf`, `anyOf`, `allOf`, `not`), conditional keywords
      * (`if`/`then`/`else`), reference keywords (`$ref`, `$defs`, `$anchor`), and any other
      * standard validation or annotation keywords.
@@ -1445,7 +1445,7 @@ struct Tool {
      * A JSON Schema object defining the expected parameters for the tool.
      *
      * Tool arguments are always JSON objects, so `type: "object"` is required at the root.
-     * Beyond that, any JSON Schema 2020-12 keyword may appear alongside `type` — including
+     * Beyond that, any JSON Schema 2020-12 keyword may appear alongside `type` -- including
      * composition keywords (`oneOf`, `anyOf`, `allOf`, `not`), conditional keywords
      * (`if`/`then`/`else`), reference keywords (`$ref`, `$defs`, `$anchor`), and any other
      * standard validation or annotation keywords.
@@ -1467,7 +1467,7 @@ struct Tool {
      */
     std::optional<OutputSchema> _outputSchema{};
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for {@link Tool},
@@ -2303,7 +2303,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ClientNotification &data);
 struct PromptReference {
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for {@link Tool},
@@ -2449,7 +2449,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const RequestParams &data);
  * A request from the client asking the server to advertise its supported
  * protocol versions, capabilities, and other metadata. Servers **MUST**
  * implement `server/discover`. Clients **MAY** call it but are not required
- * to — version negotiation can also happen inline via per-request `_meta`.
+ * to -- version negotiation can also happen inline via per-request `_meta`.
  */
 struct DiscoverRequest {
     RequestId _id{};
@@ -3456,7 +3456,7 @@ struct PromptArgument {
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     std::optional<bool> _required{};  //!< Whether this argument must be provided.
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for {@link Tool},
@@ -3502,7 +3502,7 @@ struct Prompt {
     std::optional<QList<Icon>> _icons{};
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for {@link Tool},
@@ -3658,7 +3658,7 @@ struct ResourceTemplate {
     std::optional<QString> _mimeType{};  //!< The MIME type for all resources that match this template. This should only be included if all resources matching this template have the same type.
     QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for {@link Tool},
@@ -3828,7 +3828,7 @@ struct Resource {
      */
     std::optional<int> _size{};
     /**
-     * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+     * Intended for UI and end-user contexts -- optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
      *
      * If not provided, the name should be used for display (except for {@link Tool},
@@ -4109,7 +4109,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const LoggingMessageNotification &data);
 /**
  * A JSON-RPC error indicating that the requested method does not exist or is not available.
  *
- * In MCP, a server returns this error when a client invokes a method the server does not implement — either a genuinely unknown method, or one gated behind a server capability the server did not advertise (e.g., calling `prompts/list` when the `prompts` capability was not advertised).
+ * In MCP, a server returns this error when a client invokes a method the server does not implement -- either a genuinely unknown method, or one gated behind a server capability the server did not advertise (e.g., calling `prompts/list` when the `prompts` capability was not advertised).
  *
  * A request that requires a client capability the client did not declare is signalled instead by {@link MissingRequiredClientCapabilityError} (`-32021`).
  */
@@ -4668,7 +4668,7 @@ struct SubscriptionsListenResultMetaObject {
     std::optional<Implementation> _iodotmodelcontextprotocolslashserverInfo{};
     /**
      * Identifies the subscription stream this response closes, so the client can
-     * correlate it with the originating subscription — mirroring the same key on
+     * correlate it with the originating subscription -- mirroring the same key on
      * the stream's notifications. The value is the JSON-RPC ID of the
      * `subscriptions/listen` request that opened the stream (and equals this
      * response's `id`).

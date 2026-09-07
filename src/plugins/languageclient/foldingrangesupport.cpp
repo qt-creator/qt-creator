@@ -5,10 +5,14 @@
 
 #include "client.h"
 #include "languageclientmanager.h"
+#include "languageclientutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+
+#include <languageserverprotocol/lspmessages.h>
+#include <languageserverprotocol/lsputils.h>
 
 #include <QSet>
 
@@ -135,18 +139,19 @@ private:
         if (!m_client->documentOpen(doc))
             return;
 
-        const auto filterApplies = [doc] (const TextDocumentRegistrationOptions *options) {
-            return options->filterApplies(doc->filePath(), Utils::mimeTypeForName(doc->mimeType()));
-        };
-        TextDocumentRegistrationOptions options(
-            m_client->dynamicCapabilities().option(FoldingRangeRequest::methodName).toObject());
-        if (options.isValid() && !filterApplies(&options)) {
-            return;
-        } else if (auto provider = m_client->capabilities().foldingRangeProvider()) {
-            using Options = ServerCapabilities::FoldingRangeRegistrationOptions;
-            if (auto options = std::get_if<Options>(&*provider)) {
-                if (!filterApplies(options))
+        const QJsonValue registration = m_client->dynamicCapabilities().option(
+            FoldingRangeRequest::method);
+        if (!registration.isUndefined() && !registration.isNull()) {
+            if (!registrationApplies(registration, doc->filePath(), doc->mimeType()))
+                return;
+        } else if (const auto &provider = m_client->capabilities().foldingRangeProvider()) {
+            if (const auto options = std::get_if<FoldingRangeRegistrationOptions>(&*provider)) {
+                if (!applies(
+                        options->documentSelector(),
+                        doc->filePath(),
+                        Utils::mimeTypeForName(doc->mimeType()))) {
                     return;
+                }
             }
         } else {
             return;
@@ -155,33 +160,30 @@ private:
         doc->setFoldingIndentExternallyProvided(true);
 
         const Utils::FilePath filePath = doc->filePath();
-        const TextDocumentIdentifier docId(m_client->hostPathToServerUri(filePath));
-        auto responseCallback = [this,
-                                 filePath,
-                                 documentVersion = m_client->documentVersion(filePath)](
-                                    const FoldingRangeRequest::Response &response) {
-            m_runningRequests.remove(filePath);
-            if (const auto error = response.error()) {
-                qCDebug(logFolding);
-            } else {
-                handleFoldingRanges(filePath, response.result().value_or(nullptr), documentVersion);
-            }
-        };
-        TextDocumentParams params;
-        params.setTextDocument(docId);
-        FoldingRangeRequest request(params);
-        request.setResponseCallback(responseCallback);
+        FoldingRangeParams params;
+        params.textDocument(TextDocumentIdentifier().uri(m_client->uriFor(filePath)));
+        auto responseCallback =
+            [this, filePath, documentVersion = m_client->documentVersion(filePath)](
+                const Utils::Result<FoldingRangeRequestResult> &result) {
+                m_runningRequests.remove(filePath);
+                if (!result) {
+                    qCDebug(logFolding) << result.error();
+                    return;
+                }
+                handleFoldingRanges(filePath, *result, documentVersion);
+            };
         qCDebug(logFolding) << "Requesting folding ranges for" << filePath << "with version"
                             << m_client->documentVersion(filePath);
         MessageId &id = m_runningRequests[filePath];
         if (id.isValid())
             m_client->cancelRequest(id);
-        id = request.id();
-        m_client->sendMessage(request);
+        id = m_client->sendRequest<FoldingRangeRequest>(params, responseCallback);
     }
 
     void handleFoldingRanges(
-        const Utils::FilePath &filePath, const FoldingRangeResult &result, int documentVersion)
+        const Utils::FilePath &filePath,
+        const FoldingRangeRequestResult &result,
+        int documentVersion)
     {
         TextDocument * const doc = TextDocument::textDocumentForFilePath(filePath);
         if (!doc || LanguageClientManager::clientForDocument(doc) != m_client)
@@ -203,7 +205,7 @@ private:
             TextBlockUserData::setFoldingStartIncluded(b, false);
             TextBlockUserData::setFoldingEndIncluded(b, false);
         }
-        for (const FoldingRange &range : *ranges) {
+        for (const FoldingRange &range : newRanges) {
             const QTextBlock start = docdoc->findBlockByNumber(range.startLine() + 1);
             const QTextBlock end = docdoc->findBlockByNumber(range.endLine() + 1);
             for (QTextBlock b = start; b != end; b = b.next())
@@ -213,7 +215,7 @@ private:
 
     Client * const m_client;
     QSet<TextDocument *> m_queued;
-    QHash<Utils::FilePath, LanguageServerProtocol::MessageId> m_runningRequests;
+    QHash<Utils::FilePath, MessageId> m_runningRequests;
     std::pair<int, QList<FoldingRange>> m_savedRanges;
 };
 

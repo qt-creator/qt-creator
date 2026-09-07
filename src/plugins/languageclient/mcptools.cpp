@@ -15,12 +15,9 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 
-#include <languageserverprotocol/callhierarchy.h>
-#include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/lspmessages.h>
 #include <languageserverprotocol/lsptypes.h>
-#include <languageserverprotocol/servercapabilities.h>
-#include <languageserverprotocol/typehierarchy.h>
-#include <languageserverprotocol/workspace.h>
+#include <languageserverprotocol/lsputils.h>
 
 #include <texteditor/textdocument.h>
 
@@ -278,14 +275,18 @@ static Result<Position> positionFor(TextDocument *document, int line, int column
     }
     QTextCursor cursor(doc);
     cursor.setPosition(block.position() + qBound(0, column - 1, qMax(0, block.length() - 1)));
-    return Position(cursor);
+    return positionOf(cursor);
 }
 
-static TextDocumentPositionParams positionParams(const Resolved &resolved, const Position &position)
+// The document and the position, as every position based request takes them.
+template<typename Params>
+static Params positionParams(const Resolved &resolved, const Position &position)
 {
-    return TextDocumentPositionParams(
-        TextDocumentIdentifier(resolved.client->hostPathToServerUri(resolved.document->filePath())),
-        position);
+    Params params;
+    params.textDocument(
+        TextDocumentIdentifier().uri(resolved.client->uriFor(resolved.document->filePath())));
+    params.position(position);
+    return params;
 }
 
 // A range as 1-based lines and columns. Columns count UTF-16 units, as the
@@ -300,9 +301,9 @@ static QJsonObject rangeJson(const Range &range)
 
 // The host path a server URI stands for, spelled canonically: a server may
 // report the same file both through a symlink and directly.
-static QString hostPathString(const Client *client, const DocumentUri &uri)
+static QString hostPathString(const Client *client, const QString &uri)
 {
-    const FilePath path = client->serverUriToHostPath(uri);
+    const FilePath path = client->filePathFor(uri);
     const FilePath canonical = path.canonicalPath();
     return (canonical.isEmpty() ? path : canonical).toUserOutput();
 }
@@ -377,17 +378,16 @@ struct ResponseFailure
     QString text() const { return QString("%1 (error %2)").arg(message).arg(code); }
 };
 
-template<typename Response>
-static std::optional<ResponseFailure> failureOf(const Response &response)
+// The error a raw response carries, which unlike the typed one keeps the code.
+static std::optional<ResponseFailure> failureOf(const QJsonObject &response)
 {
-    if (const auto error = response.error())
-        return ResponseFailure{error->code(), error->message()};
-    return std::nullopt;
+    if (!response.contains("error"))
+        return std::nullopt;
+    const ResponseError error = ResponseError::fromJsonObject(response.value("error").toObject());
+    return ResponseFailure{error.code, error.message};
 }
 
-constexpr int methodNotFoundCode = -32601;
-
-static QString symbolKindName(SymbolKind kind)
+static QString symbolKindName(int kind)
 {
     switch (kind) {
     case SymbolKind::File: return QStringLiteral("file");
@@ -426,7 +426,7 @@ static QJsonObject hierarchyItemJson(const Client *client, const Item &item)
 {
     const Range selection = item.selectionRange();
     QJsonObject json{{"name", item.name()},
-                     {"kind", symbolKindName(item.symbolKind())},
+                     {"kind", symbolKindName(item.kind())},
                      {"file", hostPathString(client, item.uri())},
                      {"line", selection.start().line() + 1},
                      {"column", selection.start().character() + 1}};
@@ -441,7 +441,7 @@ static QString markedStringText(const MarkedString &marked)
 {
     if (const QString *plain = std::get_if<QString>(&marked))
         return *plain;
-    if (const MarkedLanguageString *code = std::get_if<MarkedLanguageString>(&marked))
+    if (const MarkedStringWithLanguage *code = std::get_if<MarkedStringWithLanguage>(&marked))
         return "```" + code->language() + '\n' + code->value() + "\n```";
     return {};
 }
@@ -469,14 +469,14 @@ void lspHover(const QJsonObject &args, const ToolResultHandler &handler)
             return;
         }
 
-        HoverRequest request(positionParams(*resolved, *position));
-        request.setResponseCallback([handler](const HoverRequest::Response &response) {
-            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
-                handler(ResultError(failure->text()));
+        resolved->client->sendRequest<HoverRequest>(
+            positionParams<HoverParams>(*resolved, *position),
+            [handler](const Result<HoverRequestResult> &hoverResult) {
+            if (!hoverResult) {
+                handler(ResultError(hoverResult.error()));
                 return;
             }
-            const std::optional<HoverResult> hoverResult = response.result();
-            const Hover *hover = hoverResult ? std::get_if<Hover>(&*hoverResult) : nullptr;
+            const Hover *hover = std::get_if<Hover>(&*hoverResult);
             if (!hover) {
                 handler(QJsonObject{{"contents", QString()},
                                     {"format", QStringLiteral("plaintext")},
@@ -486,9 +486,9 @@ void lspHover(const QJsonObject &args, const ToolResultHandler &handler)
             }
             QString text;
             QString format = QStringLiteral("plaintext");
-            const HoverContent content = hover->content();
+            const HoverContents content = hover->contents();
             if (const MarkupContent *markup = std::get_if<MarkupContent>(&content)) {
-                text = markup->content();
+                text = markup->value();
                 if (markup->kind() == MarkupKind::markdown)
                     format = QStringLiteral("markdown");
             } else if (const MarkedString *marked = std::get_if<MarkedString>(&content)) {
@@ -506,7 +506,6 @@ void lspHover(const QJsonObject &args, const ToolResultHandler &handler)
                 result.insert("range", rangeJson(*range));
             handler(result);
         });
-        resolved->client->sendMessage(request);
     });
 }
 
@@ -554,18 +553,17 @@ private:
         ++m_pending;
         auto self = this->shared_from_this();
         m_fetcher.send(m_resolved.client, item,
-                       [self, node, level](const std::optional<ResponseFailure> &failure,
-                                           const Children &children) {
-            self->handleChildren(node, level, failure, children);
+                       [self, node, level](const QString &error, const Children &children) {
+            self->handleChildren(node, level, error, children);
         });
     }
 
-    void handleChildren(const std::shared_ptr<Node> &node, int level,
-                        const std::optional<ResponseFailure> &failure, const Children &children)
+    void handleChildren(const std::shared_ptr<Node> &node, int level, const QString &error,
+                        const Children &children)
     {
         --m_pending;
-        if (failure && m_error.isEmpty())
-            m_error = m_fetcher.describe(*failure);
+        if (!error.isEmpty() && m_error.isEmpty())
+            m_error = error;
         if (m_error.isEmpty()) {
             for (const auto &[item, extra] : children) {
                 ++m_total;
@@ -640,26 +638,13 @@ public:
     template<typename Handler>
     void send(Client *client, const Item &item, const Handler &handler) const
     {
-        CallHierarchyCallsParams params;
-        params.setItem(item);
         if (m_incoming) {
             sendRequest<CallHierarchyIncomingCallsRequest, CallHierarchyIncomingCall>(
-                client, params, &CallHierarchyIncomingCall::from, handler);
+                client, item, m_incoming, &CallHierarchyIncomingCall::from, handler);
         } else {
             sendRequest<CallHierarchyOutgoingCallsRequest, CallHierarchyOutgoingCall>(
-                client, params, &CallHierarchyOutgoingCall::to, handler);
+                client, item, m_incoming, &CallHierarchyOutgoingCall::to, handler);
         }
-    }
-
-    QString describe(const ResponseFailure &failure) const
-    {
-        // The capability does not say which directions a server implements;
-        // clangd before 20.1 answers outgoing calls with "method not found".
-        if (failure.code == methodNotFoundCode && !m_incoming) {
-            return QString("The language server does not implement outgoing calls (clangd "
-                           "needs version 20.1 or newer).");
-        }
-        return failure.text();
     }
 
     void decorate(QJsonObject &result, int total) const
@@ -675,25 +660,45 @@ public:
     }
 
 private:
+    // The raw request, so that the error code tells a server that does not
+    // implement the direction from one whose answer failed: the capability does
+    // not say which directions a server implements, and clangd before 20.1
+    // answers outgoing calls with "method not found".
     template<typename Request, typename Call, typename Handler>
-    static void sendRequest(Client *client, const CallHierarchyCallsParams &params,
-                            CallHierarchyItem (Call::*otherEnd)() const, const Handler &handler)
+    static void sendRequest(Client *client, const CallHierarchyItem &item, bool incoming,
+                            const CallHierarchyItem &(Call::*otherEnd)() const,
+                            const Handler &handler)
     {
-        Request request(params);
-        request.setResponseCallback([handler, otherEnd](const typename Request::Response &response) {
+        typename Request::Params params;
+        params.item(item);
+        client->sendRawRequest(toJson(params), QString::fromLatin1(Request::method),
+                               [handler, incoming, otherEnd](const QJsonObject &response) {
+            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+                if (failure->code == ErrorCodes::MethodNotFound && !incoming) {
+                    handler(QString("The language server does not implement outgoing calls "
+                                    "(clangd needs version 20.1 or newer)."), {});
+                    return;
+                }
+                handler(failure->text(), {});
+                return;
+            }
+            const Result<typename Request::Result> result
+                = LanguageServerProtocol::result<Request>(response);
+            if (!result) {
+                handler(result.error(), {});
+                return;
+            }
             QList<QPair<CallHierarchyItem, QJsonObject>> children;
-            const std::optional<ResponseFailure> failure = failureOf(response);
-            if (!failure && response.result()) {
-                for (const Call &call : response.result()->toListOrEmpty()) {
+            if (const auto *calls = std::get_if<QList<Call>>(&*result)) {
+                for (const Call &call : *calls) {
                     QJsonArray fromRanges;
                     for (const Range &range : call.fromRanges())
                         fromRanges.append(rangeJson(range));
                     children.append({(call.*otherEnd)(), QJsonObject{{"from_ranges", fromRanges}}});
                 }
             }
-            handler(failure, children);
+            handler(QString(), children);
         });
-        client->sendMessage(request);
     }
 
     const bool m_incoming;
@@ -715,15 +720,11 @@ public:
     template<typename Handler>
     void send(Client *client, const Item &item, const Handler &handler) const
     {
-        TypeHierarchyParams params;
-        params.setItem(item);
         if (m_supertypes)
-            sendRequest<TypeHierarchySupertypesRequest>(client, params, handler);
+            sendRequest<TypeHierarchySupertypesRequest>(client, item, handler);
         else
-            sendRequest<TypeHierarchySubtypesRequest>(client, params, handler);
+            sendRequest<TypeHierarchySubtypesRequest>(client, item, handler);
     }
-
-    QString describe(const ResponseFailure &failure) const { return failure.text(); }
 
     void decorate(QJsonObject &result, int total) const
     {
@@ -737,20 +738,23 @@ public:
 
 private:
     template<typename Request, typename Handler>
-    static void sendRequest(Client *client, const TypeHierarchyParams &params,
-                            const Handler &handler)
+    static void sendRequest(Client *client, const TypeHierarchyItem &item, const Handler &handler)
     {
-        Request request(params);
-        request.setResponseCallback([handler](const typename Request::Response &response) {
+        typename Request::Params params;
+        params.item(item);
+        client->sendRequest<Request>(
+            params, [handler](const Result<typename Request::Result> &result) {
+            if (!result) {
+                handler(result.error(), {});
+                return;
+            }
             QList<QPair<TypeHierarchyItem, QJsonObject>> children;
-            const std::optional<ResponseFailure> failure = failureOf(response);
-            if (!failure && response.result()) {
-                for (const TypeHierarchyItem &item : response.result()->toListOrEmpty())
+            if (const auto *items = std::get_if<QList<TypeHierarchyItem>>(&*result)) {
+                for (const TypeHierarchyItem &item : *items)
                     children.append({item, QJsonObject()});
             }
-            handler(failure, children);
+            handler(QString(), children);
         });
-        client->sendMessage(request);
     }
 
     const bool m_supertypes;
@@ -790,16 +794,16 @@ void lspCallHierarchy(const QJsonObject &args, const ToolResultHandler &handler)
             return;
         }
 
-        PrepareCallHierarchyRequest request(positionParams(*resolved, *position));
-        request.setResponseCallback([resolved = *resolved, location, incoming, depth, limit,
-                                     handler](const PrepareCallHierarchyRequest::Response &response) {
-            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
-                handler(ResultError(failure->text()));
+        resolved->client->sendRequest<CallHierarchyPrepareRequest>(
+            positionParams<CallHierarchyPrepareParams>(*resolved, *position),
+            [resolved = *resolved, location, incoming, depth, limit,
+             handler](const Result<CallHierarchyPrepareRequestResult> &result) {
+            if (!result) {
+                handler(ResultError(result.error()));
                 return;
             }
-            const QList<CallHierarchyItem> items
-                = response.result() ? response.result()->toListOrEmpty()
-                                    : QList<CallHierarchyItem>();
+            const auto *found = std::get_if<QList<CallHierarchyItem>>(&*result);
+            const QList<CallHierarchyItem> items = found ? *found : QList<CallHierarchyItem>();
             if (items.isEmpty() || !resolved.client) {
                 handler(ResultError(QString("Nothing at %1:%2:%3 to build a call hierarchy "
                                             "for. Point at a function name.")
@@ -811,7 +815,6 @@ void lspCallHierarchy(const QJsonObject &args, const ToolResultHandler &handler)
                 resolved, CallsFetcher(incoming), depth, limit, handler);
             walk->start(items.first());
         });
-        resolved->client->sendMessage(request);
     });
 }
 
@@ -849,16 +852,16 @@ void lspTypeHierarchy(const QJsonObject &args, const ToolResultHandler &handler)
             return;
         }
 
-        PrepareTypeHierarchyRequest request(positionParams(*resolved, *position));
-        request.setResponseCallback([resolved = *resolved, location, direction, depth, limit,
-                                     handler](const PrepareTypeHierarchyRequest::Response &response) {
-            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
-                handler(ResultError(failure->text()));
+        resolved->client->sendRequest<TypeHierarchyPrepareRequest>(
+            positionParams<TypeHierarchyPrepareParams>(*resolved, *position),
+            [resolved = *resolved, location, direction, depth, limit,
+             handler](const Result<TypeHierarchyPrepareRequestResult> &result) {
+            if (!result) {
+                handler(ResultError(result.error()));
                 return;
             }
-            const QList<TypeHierarchyItem> items
-                = response.result() ? response.result()->toListOrEmpty()
-                                    : QList<TypeHierarchyItem>();
+            const auto *found = std::get_if<QList<TypeHierarchyItem>>(&*result);
+            const QList<TypeHierarchyItem> items = found ? *found : QList<TypeHierarchyItem>();
             if (items.isEmpty() || !resolved.client) {
                 handler(ResultError(QString("Nothing at %1:%2:%3 to build a type hierarchy "
                                             "for. Point at a class name.")
@@ -909,7 +912,6 @@ void lspTypeHierarchy(const QJsonObject &args, const ToolResultHandler &handler)
                 });
             up->start(root);
         });
-        resolved->client->sendMessage(request);
     });
 }
 
@@ -942,13 +944,13 @@ void lspReferences(const QJsonObject &args, const ToolResultHandler &handler)
             return;
         }
 
-        ReferenceParams params(positionParams(*resolved, *position));
-        params.setContext(ReferenceParams::ReferenceContext(includeDeclaration));
-        FindReferencesRequest request(params);
-        request.setResponseCallback([resolved = *resolved, includeDeclaration, limit, handler](
-                                        const FindReferencesRequest::Response &response) {
-            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
-                handler(ResultError(failure->text()));
+        ReferenceParams params = positionParams<ReferenceParams>(*resolved, *position);
+        params.context(ReferenceContext().includeDeclaration(includeDeclaration));
+        resolved->client->sendRequest<ReferencesRequest>(
+            params, [resolved = *resolved, includeDeclaration, limit,
+                     handler](const Result<ReferencesRequestResult> &result) {
+            if (!result) {
+                handler(ResultError(result.error()));
                 return;
             }
             if (!resolved.client) {
@@ -956,24 +958,23 @@ void lspReferences(const QJsonObject &args, const ToolResultHandler &handler)
                 return;
             }
             QList<QJsonObject> references;
-            if (response.result()) {
-                for (const Location &found : response.result()->toListOrEmpty())
+            if (const auto *locations = std::get_if<QList<Location>>(&*result)) {
+                for (const Location &found : *locations)
                     references.append(locationJson(resolved.client, found));
             }
             sortAndDedupeLocations(references);
             int total = 0;
             bool truncated = false;
-            QJsonObject result{{"references", cappedArray(references, limit, &total, &truncated)},
-                               {"include_declaration", includeDeclaration},
-                               {"total", total},
-                               {"truncated", truncated}};
+            QJsonObject json{{"references", cappedArray(references, limit, &total, &truncated)},
+                             {"include_declaration", includeDeclaration},
+                             {"total", total},
+                             {"truncated", truncated}};
             if (total == 0) {
-                result.insert("note", "No references found. Is the position on an identifier, "
-                                      "and has the server indexed the project?");
+                json.insert("note", "No references found. Is the position on an identifier, "
+                                    "and has the server indexed the project?");
             }
-            handler(result);
+            handler(json);
         });
-        resolved->client->sendMessage(request);
     });
 }
 
@@ -1044,15 +1045,28 @@ struct EditList
     int otherChanges = 0;
 };
 
+// The plain text edits of a document edit; a snippet edit has no plain text.
+static QList<TextEdit> plainEdits(const TextDocumentEdit &edit)
+{
+    QList<TextEdit> edits;
+    for (const TextDocumentEditEditsItem &item : edit.edits()) {
+        if (const auto *textEdit = std::get_if<TextEdit>(&item))
+            edits.append(*textEdit);
+        else if (const auto *annotated = std::get_if<AnnotatedTextEdit>(&item))
+            edits.append(TextEdit().range(annotated->range()).newText(annotated->newText()));
+    }
+    return edits;
+}
+
 static EditList listEdits(const Client *client, const WorkspaceEdit &edit)
 {
     EditList list;
     FileTexts texts;
-    const auto add = [&](const DocumentUri &uri, const QList<TextEdit> &edits) {
+    const auto add = [&](const QString &uri, const QList<TextEdit> &edits) {
         const QString file = hostPathString(client, uri);
         if (!list.files.contains(file))
             list.files.append(file);
-        const QStringList lines = texts.lines(client->serverUriToHostPath(uri));
+        const QStringList lines = texts.lines(client->filePathFor(uri));
         for (const TextEdit &textEdit : edits) {
             const Range range = textEdit.range();
             QJsonObject json = rangeJson(range);
@@ -1065,15 +1079,16 @@ static EditList listEdits(const Client *client, const WorkspaceEdit &edit)
             list.edits.append(json);
         }
     };
-    const std::optional<QList<DocumentChange>> documentChanges = edit.documentChanges();
+    const std::optional<QList<WorkspaceEditDocumentChangesItem>> documentChanges
+        = edit.documentChanges();
     if (documentChanges && !documentChanges->isEmpty()) {
-        for (const DocumentChange &change : *documentChanges) {
+        for (const WorkspaceEditDocumentChangesItem &change : *documentChanges) {
             if (const TextDocumentEdit *textDocumentEdit = std::get_if<TextDocumentEdit>(&change))
-                add(textDocumentEdit->textDocument().uri(), textDocumentEdit->edits());
+                add(textDocumentEdit->textDocument().uri(), plainEdits(*textDocumentEdit));
             else
                 ++list.otherChanges;
         }
-    } else if (const std::optional<WorkspaceEdit::Changes> changes = edit.changes()) {
+    } else if (const std::optional<QMap<QString, QList<TextEdit>>> changes = edit.changes()) {
         for (auto it = changes->cbegin(); it != changes->cend(); ++it)
             add(it.key(), it.value());
     }
@@ -1110,59 +1125,52 @@ private:
         return true;
     }
 
-    TextDocumentPositionParams params() const
-    {
-        return positionParams(m_resolved, m_position);
-    }
-
     // Asks whether the position can be renamed at all, and learns the old name.
     void prepare()
     {
         if (clientGone())
             return;
-        PrepareRenameRequest request(params());
         auto self = shared_from_this();
-        request.setResponseCallback([self](const PrepareRenameRequest::Response &response) {
-            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
-                self->m_handler(ResultError(QString("Cannot rename here: %1").arg(failure->text())));
+        m_resolved.client->sendRequest<PrepareRenameRequest>(
+            positionParams<PrepareRenameParams>(m_resolved, m_position),
+            [self](const Result<PrepareRenameRequestResult> &result) {
+            if (!result) {
+                self->m_handler(ResultError(QString("Cannot rename here: %1").arg(result.error())));
                 return;
             }
-            const std::optional<PrepareRenameResult> result = response.result();
-            if (!result || std::holds_alternative<std::nullptr_t>(*result)) {
+            const PrepareRenameResult *prepared = std::get_if<PrepareRenameResult>(&*result);
+            if (!prepared) {
                 self->m_handler(ResultError(QString("Nothing renamable at %1:%2:%3.")
                                                 .arg(self->m_location.file.toUserOutput())
                                                 .arg(self->m_location.line)
                                                 .arg(self->m_location.column)));
                 return;
             }
-            if (const PlaceHolderResult *placeHolder = std::get_if<PlaceHolderResult>(&*result))
-                self->m_oldName = placeHolder->placeHolder();
+            if (const auto *placeholder = std::get_if<PrepareRenamePlaceholder>(prepared))
+                self->m_oldName = placeholder->placeholder();
             self->rename();
         });
-        m_resolved.client->sendMessage(request);
     }
 
     void rename()
     {
         if (clientGone())
             return;
-        RenameParams params;
-        params.setTextDocument(this->params().textDocument());
-        params.setPosition(m_position);
-        params.setNewName(m_newName);
-        RenameRequest request(params);
+        RenameParams params = positionParams<RenameParams>(m_resolved, m_position);
+        params.newName(m_newName);
         auto self = shared_from_this();
-        request.setResponseCallback([self](const RenameRequest::Response &response) {
+        m_resolved.client->sendRequest<RenameRequest>(
+            params, [self](const Result<RenameRequestResult> &result) {
             // A clash within the same scope is the server's to detect: clangd
             // refuses it here, with the place of the other declaration.
-            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+            if (!result) {
                 self->m_handler(ResultError(QString("The language server refused the rename: %1")
-                                                .arg(failure->text())));
+                                                .arg(result.error())));
                 return;
             }
             if (self->clientGone())
                 return;
-            const std::optional<WorkspaceEdit> edit = response.result();
+            const WorkspaceEdit *edit = std::get_if<WorkspaceEdit>(&*result);
             if (!edit) {
                 self->m_handler(ResultError(QString("The language server returned no edits.")));
                 return;
@@ -1177,7 +1185,6 @@ private:
                 self->m_oldName = self->m_edits.edits.value(0).value("old_text").toString();
             self->findClashes();
         });
-        m_resolved.client->sendMessage(request);
     }
 
     // Other symbols already called by the new name, anywhere the server knows
@@ -1193,26 +1200,24 @@ private:
             finish();
             return;
         }
-        WorkspaceSymbolParams params;
-        params.setQuery(m_newName);
-        params.setLimit(50);
-        WorkspaceSymbolRequest request(params);
         auto self = shared_from_this();
-        request.setResponseCallback([self](const WorkspaceSymbolRequest::Response &response) {
+        m_resolved.client->sendRequest<WorkspaceSymbolRequest>(
+            WorkspaceSymbolParams().query(m_newName),
+            [self](const Result<WorkspaceSymbolRequestResult> &result) {
             if (self->clientGone())
                 return;
-            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
+            if (!result) {
                 self->m_note = QString("Looking for other declarations named \"%1\" failed: %2")
-                                   .arg(self->m_newName, failure->text());
-            } else if (response.result()) {
-                for (const SymbolInformation &symbol : response.result()->toListOrEmpty()) {
+                                   .arg(self->m_newName, result.error());
+            } else if (const auto *found = std::get_if<QList<SymbolInformation>>(&*result)) {
+                for (const SymbolInformation &symbol : *found) {
                     if (symbol.name() != self->m_newName)
                         continue; // The query matches fuzzily.
                     QJsonObject conflict = locationJson(self->m_resolved.client, symbol.location());
                     conflict.remove("end_line");
                     conflict.remove("end_column");
                     conflict.insert("name", symbol.name());
-                    conflict.insert("kind", symbolKindName(SymbolKind(symbol.kind())));
+                    conflict.insert("kind", symbolKindName(symbol.kind()));
                     if (const std::optional<QString> container = symbol.containerName();
                             container && !container->isEmpty()) {
                         conflict.insert("container", *container);
@@ -1222,7 +1227,6 @@ private:
             }
             self->finish();
         });
-        m_resolved.client->sendMessage(request);
     }
 
     void finish()
@@ -1280,10 +1284,10 @@ private:
             QList<TextEdit> edits;
         };
         QMap<QString, FileEdits> perFile;
-        const auto gather = [this, &perFile](const DocumentUri &uri, const QList<TextEdit> &edits) {
+        const auto gather = [this, &perFile](const QString &uri, const QList<TextEdit> &edits) {
             FileEdits &fileEdits = perFile[hostPathString(m_resolved.client, uri)];
             if (fileEdits.path.isEmpty())
-                fileEdits.path = m_resolved.client->serverUriToHostPath(uri);
+                fileEdits.path = m_resolved.client->filePathFor(uri);
             for (const TextEdit &edit : edits) {
                 const bool known = Utils::anyOf(fileEdits.edits, [&edit](const TextEdit &other) {
                     return other.range().start() == edit.range().start()
@@ -1294,15 +1298,16 @@ private:
                     fileEdits.edits.append(edit);
             }
         };
-        const std::optional<QList<DocumentChange>> documentChanges = m_edit.documentChanges();
+        const std::optional<QList<WorkspaceEditDocumentChangesItem>> documentChanges
+            = m_edit.documentChanges();
         if (documentChanges && !documentChanges->isEmpty()) {
-            for (const DocumentChange &change : *documentChanges) {
+            for (const WorkspaceEditDocumentChangesItem &change : *documentChanges) {
                 if (const TextDocumentEdit *textEdit = std::get_if<TextDocumentEdit>(&change))
-                    gather(textEdit->textDocument().uri(), textEdit->edits());
+                    gather(textEdit->textDocument().uri(), plainEdits(*textEdit));
                 else
                     applyDocumentChange(m_resolved.client, change);
             }
-        } else if (const std::optional<WorkspaceEdit::Changes> changes = m_edit.changes()) {
+        } else if (const std::optional<QMap<QString, QList<TextEdit>>> changes = m_edit.changes()) {
             for (auto it = changes->cbegin(); it != changes->cend(); ++it)
                 gather(it.key(), it.value());
         }
@@ -1367,14 +1372,14 @@ void lspRename(const QJsonObject &args, const ToolResultHandler &handler)
             handler(ResultError(resolved.error()));
             return;
         }
-        const std::optional<std::variant<ServerCapabilities::RenameOptions, bool>> provider
+        const std::optional<ServerCapabilitiesRenameProvider> provider
             = resolved->client->capabilities().renameProvider();
         bool supported = provider.has_value();
         bool prepareSupported = false;
         if (provider) {
             if (const bool *enabled = std::get_if<bool>(&*provider))
                 supported = *enabled;
-            else if (const auto *options = std::get_if<ServerCapabilities::RenameOptions>(&*provider))
+            else if (const auto *options = std::get_if<RenameOptions>(&*provider))
                 prepareSupported = options->prepareProvider().value_or(false);
         }
         if (!supported) {
@@ -1400,10 +1405,11 @@ template<typename Request>
 static void sendGotoRequest(const Resolved &resolved, const Position &position, const QString &kind,
                             const ToolResultHandler &handler)
 {
-    Request request(positionParams(resolved, position));
-    request.setResponseCallback([resolved, kind, handler](const typename Request::Response &response) {
-        if (const std::optional<ResponseFailure> failure = failureOf(response)) {
-            handler(ResultError(failure->text()));
+    resolved.client->sendRequest<Request>(
+        positionParams<typename Request::Params>(resolved, position),
+        [resolved, kind, handler](const Result<typename Request::Result> &result) {
+        if (!result) {
+            handler(ResultError(result.error()));
             return;
         }
         if (!resolved.client) {
@@ -1411,12 +1417,18 @@ static void sendGotoRequest(const Resolved &resolved, const Position &position, 
             return;
         }
         QList<QJsonObject> locations;
-        if (const std::optional<GotoResult> result = response.result()) {
-            if (const Location *location = std::get_if<Location>(&*result)) {
+        if (const Definition *definition = std::get_if<Definition>(&*result)) {
+            if (const Location *location = std::get_if<Location>(definition)) {
                 locations.append(locationJson(resolved.client, *location));
-            } else if (const QList<Location> *list = std::get_if<QList<Location>>(&*result)) {
+            } else if (const QList<Location> *list = std::get_if<QList<Location>>(definition)) {
                 for (const Location &location : *list)
                     locations.append(locationJson(resolved.client, location));
+            }
+        } else if (const auto *links = std::get_if<QList<DefinitionLink>>(&*result)) {
+            for (const DefinitionLink &link : *links) {
+                locations.append(locationJson(
+                    resolved.client,
+                    Location().uri(link.targetUri()).range(link.targetSelectionRange())));
             }
         }
         sortAndDedupeLocations(locations);
@@ -1432,7 +1444,6 @@ static void sendGotoRequest(const Resolved &resolved, const Position &position, 
         }
         handler(json);
     });
-    resolved.client->sendMessage(request);
 }
 
 void lspDefinition(const QJsonObject &args, const ToolResultHandler &handler)
@@ -1473,11 +1484,11 @@ void lspDefinition(const QJsonObject &args, const ToolResultHandler &handler)
             return;
         }
         if (kind == QLatin1String("definition"))
-            sendGotoRequest<GotoDefinitionRequest>(*resolved, *position, kind, handler);
+            sendGotoRequest<DefinitionRequest>(*resolved, *position, kind, handler);
         else if (kind == QLatin1String("type_definition"))
-            sendGotoRequest<GotoTypeDefinitionRequest>(*resolved, *position, kind, handler);
+            sendGotoRequest<TypeDefinitionRequest>(*resolved, *position, kind, handler);
         else
-            sendGotoRequest<GotoImplementationRequest>(*resolved, *position, kind, handler);
+            sendGotoRequest<ImplementationRequest>(*resolved, *position, kind, handler);
     });
 }
 
@@ -1503,14 +1514,12 @@ void lspSymbols(const QJsonObject &args, const ToolResultHandler &handler)
             handler(ResultError(unsupported(*resolved, "searching symbols")));
             return;
         }
-        WorkspaceSymbolParams params;
-        params.setQuery(query);
-        params.setLimit(limit + 1); // One more than reported, to learn whether there were more.
-        WorkspaceSymbolRequest request(params);
-        request.setResponseCallback([resolved = *resolved, query, limit, handler](
-                                        const WorkspaceSymbolRequest::Response &response) {
-            if (const std::optional<ResponseFailure> failure = failureOf(response)) {
-                handler(ResultError(failure->text()));
+        resolved->client->sendRequest<WorkspaceSymbolRequest>(
+            WorkspaceSymbolParams().query(query),
+            [resolved = *resolved, query, limit,
+             handler](const Result<WorkspaceSymbolRequestResult> &result) {
+            if (!result) {
+                handler(ResultError(result.error()));
                 return;
             }
             if (!resolved.client) {
@@ -1520,15 +1529,14 @@ void lspSymbols(const QJsonObject &args, const ToolResultHandler &handler)
             // The server ranks its answer, so the order is kept.
             QJsonArray symbols;
             int total = 0;
-            if (response.result()) {
-                const QList<SymbolInformation> found = response.result()->toListOrEmpty();
-                total = int(found.size());
-                for (const SymbolInformation &symbol : found) {
+            if (const auto *found = std::get_if<QList<SymbolInformation>>(&*result)) {
+                total = int(found->size());
+                for (const SymbolInformation &symbol : *found) {
                     if (symbols.size() >= limit)
                         break;
                     QJsonObject json = locationJson(resolved.client, symbol.location());
                     json.insert("name", symbol.name());
-                    json.insert("kind", symbolKindName(SymbolKind(symbol.kind())));
+                    json.insert("kind", symbolKindName(symbol.kind()));
                     if (const std::optional<QString> container = symbol.containerName();
                             container && !container->isEmpty()) {
                         json.insert("container", *container);
@@ -1536,17 +1544,16 @@ void lspSymbols(const QJsonObject &args, const ToolResultHandler &handler)
                     symbols.append(json);
                 }
             }
-            QJsonObject result{{"query", query},
-                               {"symbols", symbols},
-                               {"total", qMin(total, limit)},
-                               {"truncated", total > limit}};
+            QJsonObject json{{"query", query},
+                             {"symbols", symbols},
+                             {"total", qMin(total, limit)},
+                             {"truncated", total > limit}};
             if (total == 0) {
-                result.insert("note", "No symbols match. The server matches fuzzily on the "
-                                      "name; has it indexed the project?");
+                json.insert("note", "No symbols match. The server matches fuzzily on the "
+                                    "name; has it indexed the project?");
             }
-            handler(result);
+            handler(json);
         });
-        resolved->client->sendMessage(request);
     });
 }
 

@@ -28,17 +28,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <languageserverprotocol/completion.h>
-#include <languageserverprotocol/diagnostics.h>
-#include <languageserverprotocol/initializemessages.h>
-#include <languageserverprotocol/jsonrpcmessages.h>
-#include <languageserverprotocol/languagefeatures.h>
-#include <languageserverprotocol/messages.h>
-#include <languageserverprotocol/progresssupport.h>
-#include <languageserverprotocol/servercapabilities.h>
-#include <languageserverprotocol/shutdownmessages.h>
-#include <languageserverprotocol/textsynchronization.h>
-#include <languageserverprotocol/workspace.h>
+#include <languageserverprotocol/lspmessages.h>
+#include <languageserverprotocol/lsputils.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -58,6 +49,7 @@
 #include <utils/stringutils.h>
 
 #include <QDebug>
+#include <QUuid>
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QLoggingCategory>
@@ -106,7 +98,7 @@ public:
     {
         QMetaObject::invokeMethod(m_interface, &BaseClientInterface::start);
     }
-    void sendMessage(const JsonRpcMessage &message)
+    void sendMessage(const QJsonObject &message)
     {
         QMetaObject::invokeMethod(m_interface, [this, message] { m_interface->sendMessage(message); });
     }
@@ -116,7 +108,7 @@ public:
     }
 
 signals:
-    void messageReceived(const JsonRpcMessage &message);
+    void messageReceived(const QJsonObject &message);
     void started();
     void error(const QString &message);
     void finished();
@@ -138,8 +130,8 @@ public:
     {
         using namespace ProjectExplorer;
 
-        m_clientInfo.setName(QGuiApplication::applicationDisplayName());
-        m_clientInfo.setVersion(Utils::appInfo().displayVersion);
+        m_clientInfo.name(QGuiApplication::applicationDisplayName());
+        m_clientInfo.version(Utils::appInfo().displayVersion);
 
         m_clientProviders.completionAssistProvider = new LanguageClientCompletionAssistProvider(q);
         m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(q);
@@ -164,8 +156,8 @@ public:
                 this,
                 &ClientPrivate::documentClosed);
 
-        m_tokenSupport.setTokenTypesMap(SemanticTokens::defaultTokenTypesMap());
-        m_tokenSupport.setTokenModifiersMap(SemanticTokens::defaultTokenModifiersMap());
+        m_tokenSupport.setTokenTypesMap(defaultTokenTypesMap());
+        m_tokenSupport.setTokenModifiersMap(defaultTokenModifiersMap());
 
         m_shutdownTimer.setInterval(20 /*seconds*/ * 1000);
         connect(&m_shutdownTimer, &QTimer::timeout, this, [this] {
@@ -223,16 +215,18 @@ public:
         bool updateFunctionHint = false;
         bool updateSemanticToken = false;
         for (const R &reg : regs) {
-            if (reg.method() == CompletionRequest::methodName)
+            if (reg.method() == CompletionRequest::method)
                 updateCompletion = true;
-            if (reg.method() == SignatureHelpRequest::methodName)
+            if (reg.method() == SignatureHelpRequest::method)
                 updateFunctionHint = true;
             if (reg.method() == "textDocument/semanticTokens") {
                 updateSemanticToken = true;
                 if constexpr (std::is_same_v<R, Registration>) {
-                    const SemanticTokensOptions options(reg.registerOptions());
-                    if (options.isValid())
-                        m_tokenSupport.setLegend(options.legend());
+                    const Utils::Result<SemanticTokensOptions> options
+                        = fromJson<SemanticTokensOptions>(
+                            reg.registerOptions().value_or(QJsonValue()));
+                    if (options)
+                        m_tokenSupport.setLegend(options->legend());
                 }
             }
         }
@@ -249,36 +243,30 @@ public:
         emit q->capabilitiesChanged(m_dynamicCapabilities);
     }
 
-    void sendMessageNow(const JsonRpcMessage &message);
-    void handleResponse(const MessageId &id,
-                        const JsonRpcMessage &message);
-    void handleMethod(const QString &method,
-                      const MessageId &id,
-                      const JsonRpcMessage &message);
+    void sendMessageNow(const QJsonObject &message);
+    void handleResponse(const MessageId &id, const QJsonObject &message);
+    void handleMethod(const QString &method, const MessageId &id, const QJsonObject &message);
 
-    void initializeCallback(const LanguageServerProtocol::InitializeRequest::Response &initResponse);
-    void shutDownCallback(const LanguageServerProtocol::ShutdownRequest::Response &shutdownResponse);
+    void initializeCallback(const Utils::Result<InitializeResult> &result);
+    void shutDownCallback(const Utils::Result<std::monostate> &result);
     bool sendWorkspceFolderChanges() const;
-    void log(const LanguageServerProtocol::ShowMessageParams &message);
+    void log(int messageType, const QString &message);
 
-    LanguageServerProtocol::LanguageClientValue<LanguageServerProtocol::MessageActionItem>
-    showMessageBox(const LanguageServerProtocol::ShowMessageRequestParams &message);
+    ShowMessageRequestResult showMessageBox(const ShowMessageRequestParams &message);
 
-    void removeDiagnostics(const LanguageServerProtocol::DocumentUri &uri);
+    void removeDiagnostics(const QString &uri);
     void resetAssistProviders(TextEditor::TextDocument *document);
 
     void sendPostponedDocumentUpdates(Schedule semanticTokensSchedule);
+    int serverTextDocumentSyncKind() const;
 
     void updateCompletionProvider(TextEditor::TextDocument *document);
     void updateFunctionHintProvider(TextEditor::TextDocument *document);
 
     void requestDocumentHighlights(TextEditor::TextEditorWidget *widget);
     void requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget);
-    LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(TextEditor::TextDocument *document) const;
-    void handleSemanticTokens(const LanguageServerProtocol::SemanticTokens &tokens);
-    void requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
-                            const LanguageServerProtocol::Range &range,
-                            const QList<LanguageServerProtocol::Diagnostic> &diagnostics);
+    void requestCodeActions(
+        const QString &uri, const Range &range, const QList<Diagnostic> &diagnostics);
     void documentClosed(Core::IDocument *document);
     void sendOpenNotification(const FilePath &filePath, const QString &mimeType,
                               const QString &content, int version);
@@ -299,8 +287,7 @@ public:
     }
 
     Client::State m_state = Client::Uninitialized;
-    QHash<LanguageServerProtocol::MessageId,
-          LanguageServerProtocol::ResponseHandler::Callback> m_responseHandlers;
+    QHash<MessageId, std::function<void(const QJsonObject &)>> m_responseHandlers;
     QString m_displayName;
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;
@@ -316,14 +303,14 @@ public:
 
     QSet<TextEditor::TextDocument *> m_postponedDocuments;
     QMap<Utils::FilePath, int> m_documentVersions;
-    std::unordered_map<TextEditor::TextDocument *,
-                       QList<LanguageServerProtocol::DidChangeTextDocumentParams::TextDocumentContentChangeEvent>>
+    std::unordered_map<TextEditor::TextDocument *, QList<TextDocumentContentChangePartial>>
         m_documentsToUpdate;
     QHash<TextEditor::TextEditorWidget *, QTimer *> m_documentHighlightsTimer;
     QTimer m_documentUpdateTimer;
     const Utils::Id m_id;
-    LanguageServerProtocol::ClientCapabilities m_clientCapabilities{q->defaultClientCapabilities()};
-    LanguageServerProtocol::ServerCapabilities m_serverCapabilities;
+    ClientCapabilities m_clientCapabilities{q->defaultClientCapabilities()};
+    QJsonObject m_extraClientCapabilities;
+    ServerCapabilities m_serverCapabilities;
     DynamicCapabilities m_dynamicCapabilities;
     struct AssistProviders
     {
@@ -334,7 +321,7 @@ public:
 
     AssistProviders m_clientProviders;
     QHash<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
-    QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
+    QHash<TextEditor::TextEditorWidget *, MessageId> m_highlightRequests;
     QHash<QString, Client::CustomMethodHandler> m_customHandlers;
     static const int MaxRestarts = 5;
     int m_restartsLeft = MaxRestarts;
@@ -344,7 +331,7 @@ public:
     DocumentSymbolCache m_documentSymbolCache{q};
     HoverHandler m_hoverHandler{q};
     QSet<Core::IEditor *> m_activeEditors;
-    QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
+    QHash<QString, TextEditor::HighlightingResults> m_highlights;
     QPointer<BuildConfiguration> m_bc;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
     SymbolSupport m_symbolSupport{q};
@@ -358,7 +345,7 @@ public:
     bool m_locatorsEnabled = true;
     bool m_autoRequestCodeActions = true;
     QTimer m_shutdownTimer;
-    LanguageServerProtocol::ClientInfo m_clientInfo;
+    ClientInfo m_clientInfo;
     QJsonValue m_configuration;
     int m_completionResultsLimit = -1;
     const Utils::FilePath m_serverDeviceTemplate;
@@ -403,160 +390,135 @@ Client::~Client()
 
 static ClientCapabilities generateClientCapabilities()
 {
-    ClientCapabilities capabilities;
     WorkspaceClientCapabilities workspaceCapabilities;
-    WorkspaceClientCapabilities::WorkspaceEditCapabilities workspaceEditCapabilities;
-    workspaceEditCapabilities.setDocumentChanges(true);
-    using ResourceOperationKind
-        = WorkspaceClientCapabilities::WorkspaceEditCapabilities::ResourceOperationKind;
-    workspaceEditCapabilities.setResourceOperations({ResourceOperationKind::Create,
-                                                     ResourceOperationKind::Rename,
-                                                     ResourceOperationKind::Delete});
-    workspaceCapabilities.setWorkspaceEdit(workspaceEditCapabilities);
-    workspaceCapabilities.setWorkspaceFolders(true);
-    workspaceCapabilities.setApplyEdit(true);
-    DynamicRegistrationCapabilities allowDynamicRegistration;
-    allowDynamicRegistration.setDynamicRegistration(true);
-    workspaceCapabilities.setDidChangeConfiguration(allowDynamicRegistration);
-    workspaceCapabilities.setExecuteCommand(allowDynamicRegistration);
-    workspaceCapabilities.setConfiguration(true);
-    SemanticTokensWorkspaceClientCapabilities semanticTokensWorkspaceClientCapabilities;
-    semanticTokensWorkspaceClientCapabilities.setRefreshSupport(true);
-    workspaceCapabilities.setSemanticTokens(semanticTokensWorkspaceClientCapabilities);
-    FoldingRangeWorkspaceClientCapabilities foldingRangeWorkspaceClientCapabilities;
-    foldingRangeWorkspaceClientCapabilities.setRefreshSupport(true);
-    workspaceCapabilities.setFoldingRange(foldingRangeWorkspaceClientCapabilities);
-    capabilities.setWorkspace(workspaceCapabilities);
+    workspaceCapabilities.workspaceEdit(
+        WorkspaceEditClientCapabilities().documentChanges(true).resourceOperations(QList{
+            ResourceOperationKind::create,
+            ResourceOperationKind::rename,
+            ResourceOperationKind::delete_}));
+    workspaceCapabilities.workspaceFolders(true);
+    workspaceCapabilities.applyEdit(true);
+    workspaceCapabilities.didChangeConfiguration(
+        DidChangeConfigurationClientCapabilities().dynamicRegistration(true));
+    workspaceCapabilities.executeCommand(
+        ExecuteCommandClientCapabilities().dynamicRegistration(true));
+    workspaceCapabilities.configuration(true);
+    workspaceCapabilities.semanticTokens(
+        SemanticTokensWorkspaceClientCapabilities().refreshSupport(true));
+    workspaceCapabilities.foldingRange(
+        FoldingRangeWorkspaceClientCapabilities().refreshSupport(true));
 
     TextDocumentClientCapabilities documentCapabilities;
-    TextDocumentClientCapabilities::SynchronizationCapabilities syncCapabilities;
-    syncCapabilities.setDynamicRegistration(true);
-    syncCapabilities.setWillSave(true);
-    syncCapabilities.setWillSaveWaitUntil(false);
-    syncCapabilities.setDidSave(true);
-    documentCapabilities.setSynchronization(syncCapabilities);
+    documentCapabilities.synchronization(TextDocumentSyncClientCapabilities()
+                                             .dynamicRegistration(true)
+                                             .willSave(true)
+                                             .willSaveWaitUntil(false)
+                                             .didSave(true));
 
-    SymbolCapabilities symbolCapabilities;
-    SymbolCapabilities::SymbolKindCapabilities symbolKindCapabilities;
-    symbolKindCapabilities.setValueSet(
-        {SymbolKind::File,       SymbolKind::Module,       SymbolKind::Namespace,
-         SymbolKind::Package,    SymbolKind::Class,        SymbolKind::Method,
-         SymbolKind::Property,   SymbolKind::Field,        SymbolKind::Constructor,
-         SymbolKind::Enum,       SymbolKind::Interface,    SymbolKind::Function,
-         SymbolKind::Variable,   SymbolKind::Constant,     SymbolKind::String,
-         SymbolKind::Number,     SymbolKind::Boolean,      SymbolKind::Array,
-         SymbolKind::Object,     SymbolKind::Key,          SymbolKind::Null,
-         SymbolKind::EnumMember, SymbolKind::Struct,       SymbolKind::Event,
-         SymbolKind::Operator,   SymbolKind::TypeParameter});
-    symbolCapabilities.setSymbolKind(symbolKindCapabilities);
-    SymbolCapabilities::SymbolTagCapabilities symbolTagCapabilities;
+    QList<int> symbolKinds;
+    for (int kind = SymbolKind::File; kind <= SymbolKind::TypeParameter; ++kind)
+        symbolKinds << kind;
     // Only Deprecated exists in LSP 3.17; the other tags are still proposals,
     // and strict servers refuse to initialize when they are advertised.
-    symbolTagCapabilities.setValueSet({SymbolTag::Deprecated});
-    symbolCapabilities.setSymbolTag(symbolTagCapabilities);
-    symbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
-    documentCapabilities.setDocumentSymbol(symbolCapabilities);
+    documentCapabilities.documentSymbol(
+        DocumentSymbolClientCapabilities()
+            .symbolKind(ClientSymbolKindOptions().valueSet(symbolKinds))
+            .tagSupport(ClientSymbolTagOptions().valueSet({SymbolTag::Deprecated}))
+            .hierarchicalDocumentSymbolSupport(true));
 
-    TextDocumentClientCapabilities::CompletionCapabilities completionCapabilities;
-    completionCapabilities.setDynamicRegistration(true);
-    TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemKindCapabilities
-        completionItemKindCapabilities;
-    completionItemKindCapabilities.setValueSet(
-        {CompletionItemKind::Text,         CompletionItemKind::Method,
-         CompletionItemKind::Function,     CompletionItemKind::Constructor,
-         CompletionItemKind::Field,        CompletionItemKind::Variable,
-         CompletionItemKind::Class,        CompletionItemKind::Interface,
-         CompletionItemKind::Module,       CompletionItemKind::Property,
-         CompletionItemKind::Unit,         CompletionItemKind::Value,
-         CompletionItemKind::Enum,         CompletionItemKind::Keyword,
-         CompletionItemKind::Snippet,      CompletionItemKind::Color,
-         CompletionItemKind::File,         CompletionItemKind::Reference,
-         CompletionItemKind::Folder,       CompletionItemKind::EnumMember,
-         CompletionItemKind::Constant,     CompletionItemKind::Struct,
-         CompletionItemKind::Event,        CompletionItemKind::Operator,
-         CompletionItemKind::TypeParameter});
-    completionCapabilities.setCompletionItemKind(completionItemKindCapabilities);
-    TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemCapbilities
-        completionItemCapbilities;
-    completionItemCapbilities.setSnippetSupport(true);
-    completionItemCapbilities.setCommitCharacterSupport(true);
-    completionCapabilities.setCompletionItem(completionItemCapbilities);
-    documentCapabilities.setCompletion(completionCapabilities);
+    QList<int> completionItemKinds;
+    for (int kind = CompletionItemKind::Text; kind <= CompletionItemKind::TypeParameter; ++kind) {
+        completionItemKinds << kind;
+    }
+    documentCapabilities.completion(
+        CompletionClientCapabilities()
+            .dynamicRegistration(true)
+            .completionItemKind(ClientCompletionItemOptionsKind().valueSet(completionItemKinds))
+            .completionItem(
+                ClientCompletionItemOptions().snippetSupport(true).commitCharactersSupport(true)));
 
-    TextDocumentClientCapabilities::CodeActionCapabilities codeActionCapabilities;
-    TextDocumentClientCapabilities::CodeActionCapabilities::CodeActionLiteralSupport literalSupport;
-    literalSupport.setCodeActionKind(
-        TextDocumentClientCapabilities::CodeActionCapabilities::CodeActionLiteralSupport::
-            CodeActionKind(QStringList{"*"}));
-    codeActionCapabilities.setCodeActionLiteralSupport(literalSupport);
-    documentCapabilities.setCodeAction(codeActionCapabilities);
+    documentCapabilities.codeAction(CodeActionClientCapabilities().codeActionLiteralSupport(
+        ClientCodeActionLiteralOptions().codeActionKind(
+            ClientCodeActionKindOptions().valueSet({"*"}))));
 
-    TextDocumentClientCapabilities::HoverCapabilities hover;
-    hover.setContentFormat({MarkupKind::markdown, MarkupKind::plaintext});
-    hover.setDynamicRegistration(true);
-    documentCapabilities.setHover(hover);
+    documentCapabilities.hover(HoverClientCapabilities().dynamicRegistration(true).contentFormat(
+        QList{MarkupKind::markdown, MarkupKind::plaintext}));
 
-    TextDocumentClientCapabilities::RenameClientCapabilities rename;
-    rename.setPrepareSupport(true);
-    rename.setDynamicRegistration(true);
-    documentCapabilities.setRename(rename);
+    documentCapabilities.rename(
+        RenameClientCapabilities().dynamicRegistration(true).prepareSupport(true));
 
-    TextDocumentClientCapabilities::FoldingRangeClientCapabilities foldingRange;
-    TextDocumentClientCapabilities::FoldingRangeClientCapabilities::KindCapabilities foldingRangeKind;
-    foldingRangeKind.setValueSet({FoldingRangeKind::comment(), FoldingRangeKind::imports(), FoldingRangeKind::region()});
-    foldingRange.setDynamicRegistration(true);
-    foldingRange.setFoldingRangeKind(foldingRangeKind);
-    foldingRange.setLineFoldingOnly(true);
-    documentCapabilities.setFoldingRange(foldingRange);
+    documentCapabilities.foldingRange(
+        FoldingRangeClientCapabilities()
+            .dynamicRegistration(true)
+            .lineFoldingOnly(true)
+            .foldingRangeKind(ClientFoldingRangeKindOptions().valueSet(
+                QList<FoldingRangeKind>{"comment", "imports", "region"})));
 
-    TextDocumentClientCapabilities::SignatureHelpCapabilities signatureHelp;
-    signatureHelp.setDynamicRegistration(true);
-    TextDocumentClientCapabilities::SignatureHelpCapabilities::SignatureInformationCapabilities info;
-    info.setDocumentationFormat({MarkupKind::markdown, MarkupKind::plaintext});
-    info.setActiveParameterSupport(true);
-    signatureHelp.setSignatureInformation(info);
-    documentCapabilities.setSignatureHelp(signatureHelp);
+    documentCapabilities.signatureHelp(
+        SignatureHelpClientCapabilities().dynamicRegistration(true).signatureInformation(
+            ClientSignatureInformationOptions()
+                .documentationFormat(QList{MarkupKind::markdown, MarkupKind::plaintext})
+                .activeParameterSupport(true)));
 
-    documentCapabilities.setReferences(allowDynamicRegistration);
-    documentCapabilities.setDocumentHighlight(allowDynamicRegistration);
-    documentCapabilities.setDefinition(allowDynamicRegistration);
-    documentCapabilities.setTypeDefinition(allowDynamicRegistration);
-    documentCapabilities.setImplementation(allowDynamicRegistration);
-    documentCapabilities.setFormatting(allowDynamicRegistration);
-    documentCapabilities.setRangeFormatting(allowDynamicRegistration);
-    documentCapabilities.setOnTypeFormatting(allowDynamicRegistration);
-    SemanticTokensClientCapabilities tokens;
-    tokens.setDynamicRegistration(true);
-    FullSemanticTokenOptions tokenOptions;
-    tokenOptions.setDelta(true);
-    SemanticTokensClientCapabilities::Requests tokenRequests;
-    tokenRequests.setFull(tokenOptions);
-    tokens.setRequests(tokenRequests);
-    tokens.setTokenTypes({"type",
-                          "class",
-                          "enumMember",
-                          "typeParameter",
-                          "parameter",
-                          "variable",
-                          "function",
-                          "macro",
-                          "keyword",
-                          "comment",
-                          "string",
-                          "number",
-                          "operator"});
-    tokens.setTokenModifiers({"declaration", "definition"});
-    tokens.setFormats({"relative"});
-    documentCapabilities.setSemanticTokens(tokens);
-    documentCapabilities.setCallHierarchy(allowDynamicRegistration);
-    documentCapabilities.setTypeHierarchy(allowDynamicRegistration);
-    capabilities.setTextDocument(documentCapabilities);
+    documentCapabilities.references(ReferenceClientCapabilities().dynamicRegistration(true));
+    documentCapabilities.documentHighlight(
+        DocumentHighlightClientCapabilities().dynamicRegistration(true));
+    documentCapabilities.definition(DefinitionClientCapabilities().dynamicRegistration(true));
+    documentCapabilities.typeDefinition(
+        TypeDefinitionClientCapabilities().dynamicRegistration(true));
+    documentCapabilities.implementation(
+        ImplementationClientCapabilities().dynamicRegistration(true));
+    documentCapabilities.formatting(
+        DocumentFormattingClientCapabilities().dynamicRegistration(true));
+    documentCapabilities.rangeFormatting(
+        DocumentRangeFormattingClientCapabilities().dynamicRegistration(true));
+    documentCapabilities.onTypeFormatting(
+        DocumentOnTypeFormattingClientCapabilities().dynamicRegistration(true));
 
-    WindowClientClientCapabilities window;
-    window.setWorkDoneProgress(true);
-    capabilities.setWindow(window);
+    documentCapabilities.semanticTokens(SemanticTokensClientCapabilities()
+                                            .dynamicRegistration(true)
+                                            .requests(ClientSemanticTokensRequestOptions().full(
+                                                ClientSemanticTokensRequestFullDelta().delta(true)))
+                                            .tokenTypes(
+                                                {"type",
+                                                 "class",
+                                                 "enumMember",
+                                                 "typeParameter",
+                                                 "parameter",
+                                                 "variable",
+                                                 "function",
+                                                 "macro",
+                                                 "keyword",
+                                                 "comment",
+                                                 "string",
+                                                 "number",
+                                                 "operator"})
+                                            .tokenModifiers({"declaration", "definition"})
+                                            .formats({TokenFormat::relative}));
 
+    documentCapabilities.callHierarchy(CallHierarchyClientCapabilities().dynamicRegistration(true));
+    documentCapabilities.typeHierarchy(TypeHierarchyClientCapabilities().dynamicRegistration(true));
+
+    ClientCapabilities capabilities;
+    capabilities.workspace(workspaceCapabilities);
+    capabilities.textDocument(documentCapabilities);
+    capabilities.window(WindowClientCapabilities().workDoneProgress(true));
     return capabilities;
+}
+
+/// Recursively adds everything in  extra to  object, replacing scalars.
+static void mergeJson(QJsonObject &object, const QJsonObject &extra)
+{
+    for (auto it = extra.constBegin(); it != extra.constEnd(); ++it) {
+        const QJsonValue existing = object.value(it.key());
+        if (existing.isObject() && it.value().isObject()) {
+            QJsonObject merged = existing.toObject();
+            mergeJson(merged, it.value().toObject());
+            object.insert(it.key(), merged);
+        } else {
+            object.insert(it.key(), it.value());
+        }
+    }
 }
 
 void Client::initialize()
@@ -566,32 +528,37 @@ void Client::initialize()
     QTC_ASSERT(d->m_state == Uninitialized, return);
     qCDebug(LOGLSPCLIENT) << "initializing language server " << d->m_displayName;
     InitializeParams params;
-    params.setClientInfo(d->m_clientInfo);
-    params.setCapabilities(d->m_clientCapabilities);
-    params.setInitializationOptions(d->m_initializationOptions);
+    params.clientInfo(d->m_clientInfo);
+    params.capabilities(d->m_clientCapabilities);
+    params.initializationOptions(d->m_initializationOptions);
     if (d->m_bc && d->m_bc->project())
-        params.setRootUri(hostPathToServerUri(d->m_bc->project()->projectDirectory()));
+        params.rootUri(uriFor(d->m_bc->project()->projectDirectory()));
 
     auto projectFilter = [this](Project *project) { return canOpenProject(project); };
-    auto toWorkSpaceFolder = [this](Project *pro) {
-        return WorkSpaceFolder(hostPathToServerUri(pro->projectDirectory()), pro->displayName());
+    auto toWorkspaceFolder = [this](Project *pro) {
+        return WorkspaceFolder().uri(uriFor(pro->projectDirectory())).name(pro->displayName());
     };
-    const QList<WorkSpaceFolder> workspaces
-        = Utils::transform(Utils::filtered(ProjectManager::projects(), projectFilter),
-                           toWorkSpaceFolder);
+    const QList<WorkspaceFolder> workspaces = Utils::transform(
+        Utils::filtered(ProjectManager::projects(), projectFilter), toWorkspaceFolder);
     if (workspaces.isEmpty())
-        params.setWorkSpaceFolders(nullptr);
+        params.workspaceFolders(InitializeParamsWorkspaceFolders(std::monostate{}));
     else
-        params.setWorkSpaceFolders(workspaces);
-    InitializeRequest initRequest(params);
-    initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse) {
-        d->initializeCallback(initResponse);
-    });
-    if (std::optional<ResponseHandler> responseHandler = initRequest.responseHandler())
-        d->m_responseHandlers[responseHandler->id] = responseHandler->callback;
+        params.workspaceFolders(InitializeParamsWorkspaceFolders(workspaces));
 
+    const MessageId id = nextMessageId();
+    d->m_responseHandlers[id] = [this](const QJsonObject &response) {
+        d->initializeCallback(LanguageServerProtocol::result<InitializeRequest>(response));
+    };
+    QJsonObject request = requestObject<InitializeRequest>(id, params);
+    if (!d->m_extraClientCapabilities.isEmpty()) {
+        QJsonObject requestParams = request.value("params").toObject();
+        QJsonObject capabilities = requestParams.value("capabilities").toObject();
+        mergeJson(capabilities, d->m_extraClientCapabilities);
+        requestParams.insert("capabilities", capabilities);
+        request.insert("params", requestParams);
+    }
     // directly send content now otherwise the state check of sendContent would fail
-    d->sendMessageNow(initRequest);
+    d->sendMessageNow(request);
     d->setState(InitializeRequested);
 }
 
@@ -599,11 +566,9 @@ void Client::shutdown()
 {
     QTC_ASSERT(d->m_state == Initialized, emit finished(); return);
     qCDebug(LOGLSPCLIENT) << "shutdown language server " << d->m_displayName;
-    ShutdownRequest shutdown;
-    shutdown.setResponseCallback([this](const ShutdownRequest::Response &shutdownResponse){
-        d->shutDownCallback(shutdownResponse);
+    sendRequest<ShutdownRequest>({}, [this](const Utils::Result<std::monostate> &result) {
+        d->shutDownCallback(result);
     });
-    sendMessage(shutdown);
     d->setState(ShutdownRequested);
     d->m_shutdownTimer.start();
 }
@@ -646,7 +611,7 @@ void Client::resetRestartCounter()
     d->m_restartsLeft = ClientPrivate::MaxRestarts;
 }
 
-void Client::setClientInfo(const LanguageServerProtocol::ClientInfo &clientInfo)
+void Client::setClientInfo(const ClientInfo &clientInfo)
 {
     d->m_clientInfo = clientInfo;
 }
@@ -656,7 +621,12 @@ ClientCapabilities Client::defaultClientCapabilities()
     return generateClientCapabilities();
 }
 
-void Client::setClientCapabilities(const LanguageServerProtocol::ClientCapabilities &caps)
+void Client::setExtraClientCapabilities(const QJsonObject &caps)
+{
+    d->m_extraClientCapabilities = caps;
+}
+
+void Client::setClientCapabilities(const ClientCapabilities &caps)
 {
     d->m_clientCapabilities = caps;
 }
@@ -691,19 +661,18 @@ void Client::openDocument(TextEditor::TextDocument *document)
     }
     d->openRequiredShadowDocuments(document);
 
-    const QString method(DidOpenTextDocumentNotification::methodName);
+    const QString method(DidOpenTextDocumentNotification::method);
     if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         if (!*registered)
             return;
-        const TextDocumentRegistrationOptions option(
-            d->m_dynamicCapabilities.option(method).toObject());
-        if (option.isValid()
-            && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
+        if (!registrationApplies(d->m_dynamicCapabilities.option(method), filePath,
+                                 document->mimeType())) {
             return;
         }
-    } else if (std::optional<ServerCapabilities::TextDocumentSync> _sync
-               = d->m_serverCapabilities.textDocumentSync()) {
-        if (auto options = std::get_if<TextDocumentSyncOptions>(&*_sync)) {
+    } else if (
+        const std::optional<ServerCapabilitiesTextDocumentSync> &sync
+        = d->m_serverCapabilities.textDocumentSync()) {
+        if (const auto options = std::get_if<TextDocumentSyncOptions>(&*sync)) {
             if (!options->openClose().value_or(true))
                 return;
         }
@@ -769,50 +738,82 @@ void Client::setActivatable(bool activatable)
     d->m_activatable = activatable;
 }
 
-void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdates,
-                         Schedule semanticTokensSchedule)
+void Client::sendRawMessage(const QJsonObject &message, SendDocUpdates sendUpdates,
+                            Schedule semanticTokensSchedule)
 {
-    QScopeGuard guard([this, responseHandler = message.responseHandler()](){
-        if (responseHandler) {
-            static ResponseError<std::nullptr_t> error;
-            if (!error.isValid()) {
-                error.setCode(-32803); // RequestFailed
-                error.setMessage("The server is currently in an unreachable state.");
-            }
-            QJsonObject response;
-            response[idKey] = responseHandler->id;
-            response[errorKey] = QJsonObject(error);
-            QMetaObject::invokeMethod(this, [callback = responseHandler->callback, response](){
-                callback(JsonRpcMessage(response));
-            }, Qt::QueuedConnection);
-        }
-    });
-
     QTC_ASSERT(d->m_clientInterface, return);
     if (d->m_state == Shutdown || d->m_state == ShutdownRequested) {
-        auto key = message.toJsonObject().contains(methodKey) ? QString(methodKey) : QString(idKey);
-        const QString method = message.toJsonObject()[key].toString();
-        qCDebug(LOGLSPCLIENT) << "Ignoring message " << method << " because client is shutting down";
+        const QString key = message.contains("method") ? QString("method") : QString("id");
+        qCDebug(LOGLSPCLIENT) << "Ignoring message " << message.value(key).toString()
+                              << "because client is shutting down";
         return;
     }
     QTC_ASSERT(d->m_state == Initialized, return);
-    guard.dismiss();
 
     if (sendUpdates == SendDocUpdates::Send)
         d->sendPostponedDocumentUpdates(semanticTokensSchedule);
-    if (std::optional<ResponseHandler> responseHandler = message.responseHandler())
-        d->m_responseHandlers[responseHandler->id] = responseHandler->callback;
-    QString error;
-    if (!QTC_GUARD(message.isValid(&error)))
-        Core::MessageManager::writeFlashing(error);
     d->sendMessageNow(message);
+}
+
+MessageId Client::sendRawRequest(
+    const QJsonObject &params,
+    const QString &method,
+    const std::function<void(const QJsonObject &)> &callback,
+    SendDocUpdates sendUpdates,
+    Schedule semanticTokensSchedule)
+{
+    const MessageId id = nextMessageId();
+    const QJsonObject message{{"jsonrpc", "2.0"}, {"id", id.toJsonValue()},
+                              {"method", method}, {"params", params}};
+    sendJsonRpcMessage(message, callback, sendUpdates, semanticTokensSchedule);
+    return id;
+}
+
+MessageId Client::nextMessageId() const
+{
+    return MessageId(QUuid::createUuid().toString());
+}
+
+void Client::sendJsonRpcMessage(const QJsonObject &message,
+                                const std::function<void(const QJsonObject &)> &responseCallback,
+                                SendDocUpdates sendUpdates,
+                                Schedule semanticTokensSchedule)
+{
+    if (responseCallback && !reachable()) {
+        // Answer right away; no response is going to arrive for this one.
+        QJsonObject response{
+            {"id", message.value("id")},
+            {"error",
+             ResponseError{
+                 LSPErrorCodes::RequestFailed,
+                 "The server is currently in an unreachable state.",
+                 {}}
+                 .toJsonObject()}};
+        QMetaObject::invokeMethod(
+            this, [responseCallback, response] { responseCallback(response); },
+            Qt::QueuedConnection);
+        return;
+    }
+    if (responseCallback) {
+        // The response is dispatched by the id the message carries.
+        d->m_responseHandlers[messageId(message)] = responseCallback;
+    }
+    sendRawMessage(message, sendUpdates, semanticTokensSchedule);
+}
+
+static CancelParams cancelParams(const MessageId &id)
+{
+    const QJsonValue value = id.toJsonValue();
+    if (value.isDouble())
+        return CancelParams().id(value.toInt());
+    return CancelParams().id(value.toString());
 }
 
 void Client::cancelRequest(const MessageId &id)
 {
     d->m_responseHandlers.remove(id);
     if (reachable())
-        sendMessage(CancelRequest(CancelParameter(id)), SendDocUpdates::Ignore);
+        sendNotification<CancelNotification>(cancelParams(id), SendDocUpdates::Ignore);
 }
 
 void Client::closeDocument(TextEditor::TextDocument *document,
@@ -853,15 +854,15 @@ void ClientPrivate::updateCompletionProvider(TextEditor::TextDocument *document)
     bool useLanguageServer = m_serverCapabilities.completionProvider().has_value();
     auto clientCompletionProvider = static_cast<LanguageClientCompletionAssistProvider *>(
         m_clientProviders.completionAssistProvider.data());
-    if (m_dynamicCapabilities.isRegistered(CompletionRequest::methodName).value_or(false)) {
-        const QJsonValue &options = m_dynamicCapabilities.option(CompletionRequest::methodName);
-        const TextDocumentRegistrationOptions docOptions(options);
-        useLanguageServer = docOptions.filterApplies(document->filePath(),
-                                                     Utils::mimeTypeForName(document->mimeType()));
+    if (m_dynamicCapabilities.isRegistered(CompletionRequest::method).value_or(false)) {
+        const QJsonValue &options = m_dynamicCapabilities.option(CompletionRequest::method);
+        useLanguageServer = registrationApplies(options, document->filePath(),
+                                                document->mimeType());
 
-        const ServerCapabilities::CompletionOptions completionOptions(options);
-        if (completionOptions.isValid())
-            clientCompletionProvider->setTriggerCharacters(completionOptions.triggerCharacters());
+        const Utils::Result<CompletionOptions> completionOptions = fromJson<CompletionOptions>(
+            options);
+        if (completionOptions)
+            clientCompletionProvider->setTriggerCharacters(completionOptions->triggerCharacters());
     }
 
     if (document->completionAssistProvider() != clientCompletionProvider) {
@@ -881,15 +882,15 @@ void ClientPrivate::updateFunctionHintProvider(TextEditor::TextDocument *documen
     bool useLanguageServer = m_serverCapabilities.signatureHelpProvider().has_value();
     auto clientFunctionHintProvider = static_cast<FunctionHintAssistProvider *>(
         m_clientProviders.functionHintProvider.data());
-    if (m_dynamicCapabilities.isRegistered(SignatureHelpRequest::methodName).value_or(false)) {
-        const QJsonValue &options = m_dynamicCapabilities.option(SignatureHelpRequest::methodName);
-        const TextDocumentRegistrationOptions docOptions(options);
-        useLanguageServer = docOptions.filterApplies(document->filePath(),
-                                                     Utils::mimeTypeForName(document->mimeType()));
+    if (m_dynamicCapabilities.isRegistered(SignatureHelpRequest::method).value_or(false)) {
+        const QJsonValue &options = m_dynamicCapabilities.option(SignatureHelpRequest::method);
+        useLanguageServer = registrationApplies(options, document->filePath(),
+                                                document->mimeType());
 
-        const ServerCapabilities::SignatureHelpOptions signatureOptions(options);
-        if (signatureOptions.isValid())
-            clientFunctionHintProvider->setTriggerCharacters(signatureOptions.triggerCharacters());
+        const Utils::Result<SignatureHelpOptions> signatureOptions = fromJson<SignatureHelpOptions>(
+            options);
+        if (signatureOptions)
+            clientFunctionHintProvider->setTriggerCharacters(signatureOptions->triggerCharacters());
     }
 
     if (document->functionHintAssistProvider() != clientFunctionHintProvider) {
@@ -932,14 +933,15 @@ void ClientPrivate::requestDocumentHighlights(TextEditor::TextEditorWidget *widg
 void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget)
 {
     QTC_ASSERT(q->reachable(), return);
-    const auto uri = q->hostPathToServerUri(widget->textDocument()->filePath());
-    if (m_dynamicCapabilities.isRegistered(DocumentHighlightsRequest::methodName).value_or(false)) {
-        TextDocumentRegistrationOptions option(
-            m_dynamicCapabilities.option(DocumentHighlightsRequest::methodName));
-        if (!option.filterApplies(widget->textDocument()->filePath()))
+    const QString uri = q->uriFor(widget->textDocument()->filePath());
+    const QString method(DocumentHighlightRequest::method);
+    if (m_dynamicCapabilities.isRegistered(method).value_or(false)) {
+        if (!registrationApplies(m_dynamicCapabilities.option(method),
+                                 widget->textDocument()->filePath())) {
             return;
+        }
     } else {
-        std::optional<std::variant<bool, WorkDoneProgressOptions>> provider
+        const std::optional<ServerCapabilitiesDocumentHighlightProvider> &provider
             = m_serverCapabilities.documentHighlightProvider();
         if (!provider.has_value())
             return;
@@ -953,22 +955,24 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
 
     const QTextCursor adjustedCursor = q->adjustedCursorForHighlighting(widget->textCursor(),
                                                                         widget->textDocument());
-    DocumentHighlightsRequest request(
-        TextDocumentPositionParams(TextDocumentIdentifier(uri), Position{adjustedCursor}));
+    DocumentHighlightParams params;
+    params.textDocument(TextDocumentIdentifier().uri(uri));
+    params.position(positionOf(adjustedCursor));
     auto connection = connect(widget, &QObject::destroyed, this, [this, widget]() {
         if (m_highlightRequests.contains(widget))
             q->cancelRequest(m_highlightRequests.take(widget));
     });
-    request.setResponseCallback(
-        [widget, this, uri, connection, adjustedCursor]
-        (const DocumentHighlightsRequest::Response &response)
-        {
+    m_highlightRequests[widget] = q->sendRequest<DocumentHighlightRequest>(
+        params,
+        [widget, this, connection, adjustedCursor](
+            const Utils::Result<DocumentHighlightRequestResult> &result) {
             m_highlightRequests.remove(widget);
             disconnect(connection);
             const Id &id = TextEditor::TextEditorWidget::CodeSemanticsSelection;
             QList<QTextEdit::ExtraSelection> selections;
-            const std::optional<DocumentHighlightsResult> &result = response.result();
-            if (!result.has_value() || std::holds_alternative<std::nullptr_t>(*result)) {
+            const auto highlights = result ? std::get_if<QList<DocumentHighlight>>(&*result)
+                                           : nullptr;
+            if (!highlights) {
                 widget->setExtraSelections(id, selections);
                 return;
             }
@@ -976,11 +980,10 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
             const QTextCharFormat &format =
                 widget->textDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
             QTextDocument *document = widget->document();
-            const auto highlights = std::get_if<QList<DocumentHighlight>>(&*result);
             for (const auto &highlight : *highlights) {
                 QTextEdit::ExtraSelection selection{widget->textCursor(), format};
-                const int &start = highlight.range().start().toPositionInDocument(document);
-                const int &end = highlight.range().end().toPositionInDocument(document);
+                const int start = positionInDocument(highlight.range().start(), document);
+                const int end = positionInDocument(highlight.range().end(), document);
                 if (start < 0 || end < 0)
                     continue;
                 selection.cursor.setPosition(start);
@@ -1006,8 +1009,6 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
             }
             widget->setExtraSelections(id, selections);
         });
-    m_highlightRequests[widget] = request.id();
-    q->sendMessage(request);
 }
 
 void Client::activateDocument(TextEditor::TextDocument *document)
@@ -1093,19 +1094,19 @@ void ClientPrivate::sendOpenNotification(const FilePath &filePath, const QString
                                          const QString &content, int version)
 {
     TextDocumentItem item;
-    item.setLanguageId(TextDocumentItem::mimeTypeToLanguageId(mimeType));
-    item.setUri(q->hostPathToServerUri(filePath));
-    item.setText(content);
-    item.setVersion(version);
-    q->sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
-                   Client::SendDocUpdates::Ignore);
+    item.languageId(mimeTypeToLanguageId(mimeType));
+    item.uri(q->uriFor(filePath));
+    item.text(content);
+    item.version(version);
+    q->sendNotification<DidOpenTextDocumentNotification>(
+        DidOpenTextDocumentParams().textDocument(item), Client::SendDocUpdates::Ignore);
 }
 
 void ClientPrivate::sendCloseNotification(const FilePath &filePath)
 {
-    q->sendMessage(DidCloseTextDocumentNotification(DidCloseTextDocumentParams(
-            TextDocumentIdentifier{q->hostPathToServerUri(filePath)})),
-                   Client::SendDocUpdates::Ignore);
+    q->sendNotification<DidCloseTextDocumentNotification>(
+        DidCloseTextDocumentParams().textDocument(TextDocumentIdentifier().uri(q->uriFor(filePath))),
+        Client::SendDocUpdates::Ignore);
 }
 
 void ClientPrivate::openRequiredShadowDocuments(const TextEditor::TextDocument *doc)
@@ -1150,10 +1151,12 @@ void Client::setShadowDocument(const Utils::FilePath &filePath, const QString &c
             return;
         shadowIt.value().first = content;
         if (!shadowIt.value().second.isEmpty()) {
-            VersionedTextDocumentIdentifier docId(hostPathToServerUri(filePath));
-            docId.setVersion(++d->m_documentVersions[filePath]);
-            const DidChangeTextDocumentParams params(docId, content);
-            sendMessage(DidChangeTextDocumentNotification(params), SendDocUpdates::Ignore);
+            DidChangeTextDocumentParams params;
+            params.textDocument(VersionedTextDocumentIdentifier()
+                                    .uri(uriFor(filePath))
+                                    .version(++d->m_documentVersions[filePath]));
+            params.contentChanges({TextDocumentContentChangeWholeDocument().text(content)});
+            sendNotification<DidChangeTextDocumentNotification>(params, SendDocUpdates::Ignore);
             return;
         }
     }
@@ -1198,33 +1201,35 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
         return;
     bool send = true;
     bool includeText = false;
-    const QString method(DidSaveTextDocumentNotification::methodName);
+    const QString method(DidSaveTextDocumentNotification::method);
     if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         send = *registered;
         if (send) {
-            const TextDocumentSaveRegistrationOptions option(
-                        d->m_dynamicCapabilities.option(method).toObject());
-            if (option.isValid()) {
-                send = option.filterApplies(document->filePath(),
-                                                   Utils::mimeTypeForName(document->mimeType()));
-                includeText = option.includeText().value_or(includeText);
-            }
+            const QJsonValue &options = d->m_dynamicCapabilities.option(method);
+            send = registrationApplies(options, document->filePath(), document->mimeType());
+            const Utils::Result<TextDocumentSaveRegistrationOptions> option
+                = fromJson<TextDocumentSaveRegistrationOptions>(options);
+            if (option)
+                includeText = option->includeText().value_or(includeText);
         }
-    } else if (std::optional<ServerCapabilities::TextDocumentSync> _sync
-               = d->m_serverCapabilities.textDocumentSync()) {
-        if (auto options = std::get_if<TextDocumentSyncOptions>(&*_sync)) {
-            if (std::optional<SaveOptions> saveOptions = options->save())
-                includeText = saveOptions->includeText().value_or(includeText);
+    } else if (
+        const std::optional<ServerCapabilitiesTextDocumentSync> &sync
+        = d->m_serverCapabilities.textDocumentSync()) {
+        if (const auto options = std::get_if<TextDocumentSyncOptions>(&*sync)) {
+            if (const std::optional<TextDocumentSyncOptionsSave> &save = options->save()) {
+                if (const auto saveOptions = std::get_if<SaveOptions>(&*save))
+                    includeText = saveOptions->includeText().value_or(includeText);
+            }
         }
     }
     if (!send || !shouldSendDidSave(document))
         return;
-    DidSaveTextDocumentParams params(
-                TextDocumentIdentifier(hostPathToServerUri(document->filePath())));
+    DidSaveTextDocumentParams params;
+    params.textDocument(TextDocumentIdentifier().uri(uriFor(document->filePath())));
     d->openRequiredShadowDocuments(document);
     if (includeText)
-        params.setText(document->plainText());
-    sendMessage(DidSaveTextDocumentNotification(params), SendDocUpdates::Send, Schedule::Now);
+        params.text(document->plainText());
+    sendNotification<DidSaveTextDocumentNotification>(params, SendDocUpdates::Send, Schedule::Now);
 }
 
 void Client::documentWillSave(Core::IDocument *document)
@@ -1234,26 +1239,25 @@ void Client::documentWillSave(Core::IDocument *document)
     if (d->m_openedDocument.find(textDocument) == d->m_openedDocument.end())
         return;
     bool send = false;
-    const QString method(WillSaveTextDocumentNotification::methodName);
+    const QString method(WillSaveTextDocumentNotification::method);
     if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         send = *registered;
         if (send) {
-            const TextDocumentRegistrationOptions option(d->m_dynamicCapabilities.option(method));
-            if (option.isValid()) {
-                send = option.filterApplies(filePath,
-                                                   Utils::mimeTypeForName(document->mimeType()));
-            }
+            send = registrationApplies(d->m_dynamicCapabilities.option(method), filePath,
+                                       document->mimeType());
         }
-    } else if (std::optional<ServerCapabilities::TextDocumentSync> _sync
-               = d->m_serverCapabilities.textDocumentSync()) {
-        if (auto options = std::get_if<TextDocumentSyncOptions>(&*_sync))
+    } else if (
+        const std::optional<ServerCapabilitiesTextDocumentSync> &sync
+        = d->m_serverCapabilities.textDocumentSync()) {
+        if (const auto options = std::get_if<TextDocumentSyncOptions>(&*sync))
             send = options->willSave().value_or(send);
     }
     if (!send)
         return;
-    const WillSaveTextDocumentParams params(
-        TextDocumentIdentifier(hostPathToServerUri(filePath)));
-    sendMessage(WillSaveTextDocumentNotification(params));
+    WillSaveTextDocumentParams params;
+    params.textDocument(TextDocumentIdentifier().uri(uriFor(filePath)));
+    params.reason(TextDocumentSaveReason::Manual);
+    sendNotification<WillSaveTextDocumentNotification>(params);
 }
 
 void Client::documentContentsChanged(TextEditor::TextDocument *document,
@@ -1268,14 +1272,16 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
         cancelRequest(d->m_runningFindLinkRequest);
     if (d->m_diagnosticManager)
         d->m_diagnosticManager->disableDiagnostics(document);
-    const QString method(DidChangeTextDocumentNotification::methodName);
-    TextDocumentSyncKind syncKind = d->m_serverCapabilities.textDocumentSyncKindHelper();
+    const QString method(DidChangeTextDocumentNotification::method);
+    int syncKind = d->serverTextDocumentSyncKind();
     if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         syncKind = *registered ? TextDocumentSyncKind::Full : TextDocumentSyncKind::None;
         if (syncKind != TextDocumentSyncKind::None) {
-            const TextDocumentChangeRegistrationOptions option(
-                                    d->m_dynamicCapabilities.option(method).toObject());
-            syncKind = option.isValid() ? option.syncKind() : syncKind;
+            const Utils::Result<TextDocumentChangeRegistrationOptions> option
+                = fromJson<TextDocumentChangeRegistrationOptions>(
+                    d->m_dynamicCapabilities.option(method));
+            if (option)
+                syncKind = option->syncKind();
         }
     }
 
@@ -1301,24 +1307,22 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             auto &queue = d->m_documentsToUpdate[document];
             bool append = true;
             if (!queue.isEmpty() && charsRemoved == 0) {
-                auto &prev = queue.last();
-                const int prevStart = prev.range()->start()
-                        .toPositionInDocument(document->document());
+                TextDocumentContentChangePartial &prev = queue.last();
+                const int prevStart = positionInDocument(prev.range().start(), document->document());
                 if (prevStart + prev.text().size() == position) {
-                    prev.setText(prev.text() + text);
+                    prev.text(prev.text() + text);
                     append = false;
                 }
             }
             if (append) {
-                DidChangeTextDocumentParams::TextDocumentContentChangeEvent change;
-                change.setRange(Range(cursor));
-                change.setRangeLength(cursor.selectionEnd() - cursor.selectionStart());
-                change.setText(text);
-                queue << change;
+                queue << TextDocumentContentChangePartial()
+                             .range(rangeOf(cursor))
+                             .rangeLength(cursor.selectionEnd() - cursor.selectionStart())
+                             .text(text);
             }
         } else {
             d->m_documentsToUpdate[document] = {
-                DidChangeTextDocumentParams::TextDocumentContentChangeEvent(document->plainText())};
+                TextDocumentContentChangePartial().text(document->plainText())};
         }
     }
     cursor.insertText(text);
@@ -1404,94 +1408,80 @@ void Client::findLinkAt(TextEditor::TextDocument *document,
         target);
 }
 
-void Client::requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
-                                const LanguageServerProtocol::Diagnostic &diagnostic)
+void Client::requestCodeActions(const QString &uri, const Diagnostic &diagnostic)
 {
     d->requestCodeActions(uri, diagnostic.range(), {diagnostic});
 }
 
-void Client::requestCodeActions(const DocumentUri &uri, const QList<Diagnostic> &diagnostics)
+void Client::requestCodeActions(const QString &uri, const QList<Diagnostic> &diagnostics)
 {
     d->requestCodeActions(uri, {}, diagnostics);
 }
 
-void ClientPrivate::requestCodeActions(const DocumentUri &uri,
-                                       const Range &range,
-                                       const QList<Diagnostic> &diagnostics)
+void ClientPrivate::requestCodeActions(
+    const QString &uri, const Range &range, const QList<Diagnostic> &diagnostics)
 {
-    const Utils::FilePath fileName = q->serverUriToHostPath(uri);
+    const Utils::FilePath fileName = q->filePathFor(uri);
     TextEditor::TextDocument *doc = TextEditor::TextDocument::textDocumentForFilePath(fileName);
     if (!doc)
         return;
 
     CodeActionParams codeActionParams;
-    CodeActionParams::CodeActionContext context;
-    context.setDiagnostics(diagnostics);
-    codeActionParams.setContext(context);
-    codeActionParams.setTextDocument(TextDocumentIdentifier(uri));
-    if (range.isEmpty()) {
-        Position start(0, 0);
+    codeActionParams.context(CodeActionContext().diagnostics(diagnostics));
+    codeActionParams.textDocument(TextDocumentIdentifier().uri(uri));
+    if (isEmpty(range)) {
         const QTextBlock &lastBlock = doc->document()->lastBlock();
-        Position end(lastBlock.blockNumber(), lastBlock.length() - 1);
-        codeActionParams.setRange(Range(start, end));
+        codeActionParams.range(
+            Range()
+                .start(Position().line(0).character(0))
+                .end(Position().line(lastBlock.blockNumber()).character(lastBlock.length() - 1)));
     } else {
-        codeActionParams.setRange(range);
+        codeActionParams.range(range);
     }
-    CodeActionRequest request(codeActionParams);
-    request.setResponseCallback(
-        [uri, q = QPointer<Client>(q)](const CodeActionRequest::Response &response) {
-        if (q)
-            q->handleCodeActionResponse(response, uri);
-    });
-    q->requestCodeActions(request);
+    q->requestCodeActions(codeActionParams);
 }
 
-void Client::requestCodeActions(const CodeActionRequest &request)
+void Client::requestCodeActions(const CodeActionParams &params)
 {
-    if (!request.isValid(nullptr))
-        return;
+    const QString uri = params.textDocument().uri();
+    const Utils::FilePath fileName = filePathFor(uri);
 
-    const Utils::FilePath fileName = request.params()
-                                         .value_or(CodeActionParams())
-                                         .textDocument()
-                                         .uri()
-                                         .toFilePath(hostPathMapper());
-
-    const QString method(CodeActionRequest::methodName);
+    const QString method(CodeActionRequest::method);
     if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         if (!*registered)
             return;
-        const TextDocumentRegistrationOptions option(
-            d->m_dynamicCapabilities.option(method).toObject());
-        if (option.isValid() && !option.filterApplies(fileName))
+        if (!registrationApplies(d->m_dynamicCapabilities.option(method), fileName))
             return;
     } else {
-        std::variant<bool, CodeActionOptions> provider
+        const ServerCapabilitiesCodeActionProvider provider
             = d->m_serverCapabilities.codeActionProvider().value_or(false);
         const auto boolvalue = std::get_if<bool>(&provider);
         if (boolvalue && !*boolvalue)
             return;
     }
 
-    sendMessage(request);
+    sendRequest<CodeActionRequest>(
+        params,
+        [uri, self = QPointer<Client>(this)](const Utils::Result<CodeActionRequestResult> &result) {
+            if (self)
+                self->handleCodeActionResult(result, uri);
+        });
 }
 
-void Client::handleCodeActionResponse(const CodeActionRequest::Response &response,
-                                          const DocumentUri &uri)
+void Client::handleCodeActionResult(
+    const Utils::Result<CodeActionRequestResult> &result, const QString &uri)
 {
-    if (const std::optional<CodeActionRequest::Response::Error> &error = response.error())
-        log(*error);
-    if (const std::optional<CodeActionResult> &result = response.result()) {
-        if (auto list = std::get_if<QList<std::variant<Command, CodeAction>>>(&*result)) {
-            QList<CodeAction> codeActions;
-            for (const std::variant<Command, CodeAction> &item : *list) {
-                if (auto action = std::get_if<CodeAction>(&item))
-                    codeActions << *action;
-                else if (auto command = std::get_if<Command>(&item))
-                    Q_UNUSED(command) // todo
-            }
-            updateCodeActionRefactoringMarker(this, codeActions, uri);
+    if (!result) {
+        log(QtMsgType::QtCriticalMsg, result.error());
+        return;
+    }
+    if (const auto list = std::get_if<QList<CommandOrCodeAction>>(&*result)) {
+        QList<CodeAction> codeActions;
+        for (const CommandOrCodeAction &item : *list) {
+            if (const auto action = std::get_if<CodeAction>(&item))
+                codeActions << *action;
         }
+        updateCodeActionRefactoringMarker(this, codeActions, uri);
     }
 }
 
@@ -1499,10 +1489,13 @@ void Client::executeCommand(const Command &command)
 {
     bool serverSupportsExecuteCommand = d->m_serverCapabilities.executeCommandProvider().has_value();
     serverSupportsExecuteCommand = d->m_dynamicCapabilities
-                                       .isRegistered(ExecuteCommandRequest::methodName)
+                                       .isRegistered(ExecuteCommandRequest::method)
                                        .value_or(serverSupportsExecuteCommand);
-    if (serverSupportsExecuteCommand)
-        sendMessage(ExecuteCommandRequest(ExecuteCommandParams(command)));
+    if (serverSupportsExecuteCommand) {
+        sendRequest<ExecuteCommandRequest>(
+            ExecuteCommandParams().command(command.command()).arguments(command.arguments()),
+            [](const Utils::Result<ExecuteCommandRequestResult> &) {});
+    }
 }
 
 Project *Client::project() const
@@ -1530,26 +1523,22 @@ void Client::buildConfigurationOpened(BuildConfiguration *bc)
     Project *project = bc->project();
     if (!d->sendWorkspceFolderChanges() || !canOpenProject(project))
         return;
-    WorkspaceFoldersChangeEvent event;
-    event.setAdded({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
-                                    project->displayName())});
-    DidChangeWorkspaceFoldersParams params;
-    params.setEvent(event);
-    DidChangeWorkspaceFoldersNotification change(params);
-    sendMessage(change);
+    const WorkspaceFolder folder
+        = WorkspaceFolder().uri(uriFor(project->projectDirectory())).name(project->displayName());
+    sendNotification<DidChangeWorkspaceFoldersNotification>(
+        DidChangeWorkspaceFoldersParams().event(WorkspaceFoldersChangeEvent().added({folder})));
 }
 
 void Client::buildConfigurationClosed(BuildConfiguration *bc)
 {
     Project *project = bc->project();
     if (d->sendWorkspceFolderChanges() && canOpenProject(project)) {
-        WorkspaceFoldersChangeEvent event;
-        event.setRemoved({WorkSpaceFolder(hostPathToServerUri(project->projectDirectory()),
-                                          project->displayName())});
-        DidChangeWorkspaceFoldersParams params;
-        params.setEvent(event);
-        DidChangeWorkspaceFoldersNotification change(params);
-        sendMessage(change);
+        const WorkspaceFolder folder = WorkspaceFolder()
+                                           .uri(uriFor(project->projectDirectory()))
+                                           .name(project->displayName());
+        sendNotification<DidChangeWorkspaceFoldersNotification>(
+            DidChangeWorkspaceFoldersParams().event(
+                WorkspaceFoldersChangeEvent().removed({folder})));
     }
     if (bc == d->m_bc) {
         if (d->m_state == Initialized) {
@@ -1597,12 +1586,10 @@ void Client::updateConfiguration(const QJsonValue &configuration)
         << QJsonDocument(mergedConfig.toObject()).toJson(QJsonDocument::Indented);
 
     if (reachable() && !mergedConfig.toObject().isEmpty()
-        && d->m_dynamicCapabilities.isRegistered(DidChangeConfigurationNotification::methodName)
+        && d->m_dynamicCapabilities.isRegistered(DidChangeConfigurationNotification::method)
                .value_or(true)) {
-        DidChangeConfigurationParams params;
-        params.setSettings(mergedConfig);
-        DidChangeConfigurationNotification notification(params);
-        sendMessage(notification);
+        sendNotification<DidChangeConfigurationNotification>(
+            DidChangeConfigurationParams().settings(mergedConfig));
     }
 }
 
@@ -1627,9 +1614,9 @@ bool Client::isSupportedFile(const Utils::FilePath &filePath, const QString &mim
     return d->m_languagFilter.isSupported(filePath, mimeType);
 }
 
-bool Client::isSupportedUri(const DocumentUri &uri) const
+bool Client::isSupportedUri(const QString &uri) const
 {
-    const FilePath &filePath = serverUriToHostPath(uri);
+    const FilePath filePath = filePathFor(uri);
     return d->m_languagFilter.isSupported(filePath, Utils::mimeTypeForFile(filePath).name());
 }
 
@@ -1650,8 +1637,7 @@ QList<Diagnostic> Client::diagnosticsAt(const FilePath &filePath, const QTextCur
     return {};
 }
 
-bool Client::hasDiagnostic(const FilePath &filePath,
-                           const LanguageServerProtocol::Diagnostic &diag) const
+bool Client::hasDiagnostic(const FilePath &filePath, const Diagnostic &diag) const
 {
     if (d->m_diagnosticManager)
         return d->m_diagnosticManager->hasDiagnostic(filePath, documentForFilePath(filePath), diag);
@@ -1712,12 +1698,11 @@ bool Client::supportsDocumentSymbols(const TextEditor::TextDocument *doc) const
     if (!doc || !reachable())
         return false;
     DynamicCapabilities dc = dynamicCapabilities();
-    if (dc.isRegistered(DocumentSymbolsRequest::methodName).value_or(false)) {
-        TextDocumentRegistrationOptions options(dc.option(DocumentSymbolsRequest::methodName));
-        return !options.isValid()
-               || options.filterApplies(doc->filePath(), Utils::mimeTypeForName(doc->mimeType()));
+    if (dc.isRegistered(DocumentSymbolRequest::method).value_or(false)) {
+        return registrationApplies(
+            dc.option(DocumentSymbolRequest::method), doc->filePath(), doc->mimeType());
     }
-    const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
+    const std::optional<ServerCapabilitiesDocumentSymbolProvider> &provider
         = capabilities().documentSymbolProvider();
     if (!provider.has_value())
         return false;
@@ -1806,11 +1791,11 @@ ProgressManager *Client::progressManager()
     return &d->m_progressManager;
 }
 
-void Client::handleMessage(const LanguageServerProtocol::JsonRpcMessage &message)
+void Client::handleMessage(const QJsonObject &message)
 {
     LanguageClientManager::logJsonRpcMessage(LspLogMessage::ServerMessage, name(), message);
-    const MessageId id(message.toJsonObject().value(idKey));
-    const QString method = message.toJsonObject().value(methodKey).toString();
+    const MessageId id = messageId(message);
+    const QString method = messageMethod(message);
     if (method.isEmpty())
         d->handleResponse(id, message);
     else
@@ -1917,37 +1902,47 @@ SemanticTokenSupport *Client::semanticTokenSupport()
     return &d->m_tokenSupport;
 }
 
-void ClientPrivate::log(const ShowMessageParams &message)
+void ClientPrivate::log(int messageType, const QString &message)
 {
-    q->log(message.qtMsgType(), message.toString());
+    QtMsgType type = QtDebugMsg;
+    switch (messageType) {
+    case MessageType::Error:
+        type = QtCriticalMsg;
+        break;
+    case MessageType::Warning:
+        type = QtWarningMsg;
+        break;
+    case MessageType::Info:
+        type = QtInfoMsg;
+        break;
+    default:
+        break;
+    }
+    q->log(type, message);
 }
 
-LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
-    const ShowMessageRequestParams &message)
+ShowMessageRequestResult ClientPrivate::showMessageBox(const ShowMessageRequestParams &message)
 {
     QMessageBox box;
     box.setWindowTitle(q->name());
-    box.setText(message.toString());
+    box.setText(message.message());
     switch (message.type()) {
-    case ShowMessageParams::MessageType::Error:
+    case MessageType::Error:
         box.setIcon(QMessageBox::Critical);
         break;
-    case ShowMessageParams::MessageType::Warning:
+    case MessageType::Warning:
         box.setIcon(QMessageBox::Warning);
         break;
-    case ShowMessageParams::MessageType::Info:
+    case MessageType::Info:
         box.setIcon(QMessageBox::Information);
         break;
-    case ShowMessageParams::MessageType::Log:
-        box.setIcon(QMessageBox::NoIcon);
-        break;
-    case ShowMessageParams::MessageType::Debug:
+    default:
         box.setIcon(QMessageBox::NoIcon);
         break;
     }
 
     QHash<QAbstractButton *, MessageActionItem> itemForButton;
-    if (const std::optional<QList<MessageActionItem>> actions = message.actions()) {
+    if (const std::optional<QList<MessageActionItem>> &actions = message.actions()) {
         for (const MessageActionItem &action : *actions) {
             auto button = box.addButton(action.title(), QMessageBox::ActionRole);
             connect(button, &QPushButton::clicked, &box, &QMessageBox::accept);
@@ -1956,10 +1951,8 @@ LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
     }
 
     if (box.exec() == QDialog::Rejected || itemForButton.isEmpty())
-        return {};
-    const MessageActionItem &item = itemForButton.value(box.clickedButton());
-    return item.isValid() ? LanguageClientValue<MessageActionItem>(item)
-                          : LanguageClientValue<MessageActionItem>();
+        return std::monostate{};
+    return itemForButton.value(box.clickedButton());
 }
 
 void ClientPrivate::resetAssistProviders(TextEditor::TextDocument *document)
@@ -1987,24 +1980,27 @@ void ClientPrivate::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule
     struct DocumentUpdate
     {
         TextEditor::TextDocument *document;
-        DidChangeTextDocumentNotification notification;
+        DidChangeTextDocumentParams params;
     };
     const auto updates = Utils::transform<QList<DocumentUpdate>>(m_documentsToUpdate,
                                                                  [this](const auto &elem) {
         TextEditor::TextDocument * const document = elem.first;
         const FilePath &filePath = document->filePath();
-        const LanguageServerProtocol::DocumentUri uri = q->hostPathToServerUri(filePath);
-        VersionedTextDocumentIdentifier docId(uri);
-        docId.setVersion(m_documentVersions[filePath]);
         DidChangeTextDocumentParams params;
-        params.setTextDocument(docId);
-        params.setContentChanges(elem.second);
-        return DocumentUpdate{document, DidChangeTextDocumentNotification(params)};
+        params.textDocument(VersionedTextDocumentIdentifier()
+                                .uri(q->uriFor(filePath))
+                                .version(m_documentVersions[filePath]));
+        params.contentChanges(
+            Utils::transform(elem.second, [](const TextDocumentContentChangePartial &c) {
+                return TextDocumentContentChangeEvent(c);
+            }));
+        return DocumentUpdate{document, params};
     });
     m_documentsToUpdate.clear();
 
     for (const DocumentUpdate &update : updates) {
-        q->sendMessage(update.notification, Client::SendDocUpdates::Ignore);
+        q->sendNotification<DidChangeTextDocumentNotification>(
+            update.params, Client::SendDocUpdates::Ignore);
         emit q->documentUpdated(update.document);
 
         if (currentWidget && currentWidget->textDocument() == update.document)
@@ -2028,22 +2024,19 @@ void ClientPrivate::sendPostponedDocumentUpdates(Schedule semanticTokensSchedule
     }
 }
 
-void ClientPrivate::handleResponse(const MessageId &id, const JsonRpcMessage &message)
+void ClientPrivate::handleResponse(const MessageId &id, const QJsonObject &message)
 {
     if (auto handler = m_responseHandlers.take(id))
         handler(message);
 }
 
-template<typename T>
-static ResponseError<T> createInvalidParamsError(const QString &message)
+static QJsonObject invalidParamsResponse(const MessageId &id, const QString &message)
 {
-    ResponseError<T> error;
-    error.setMessage(message);
-    error.setCode(ResponseError<T>::InvalidParams);
-    return error;
+    return errorResponseObject(id, ResponseError{ErrorCodes::InvalidParams, message, {}});
 }
 
-void ClientPrivate::handleMethod(const QString &method, const MessageId &id, const JsonRpcMessage &message)
+void ClientPrivate::handleMethod(
+    const QString &method, const MessageId &id, const QJsonObject &message)
 {
     const auto customHandler = m_customHandlers.constFind(method);
     if (customHandler != m_customHandlers.constEnd()) {
@@ -2052,186 +2045,162 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
             return;
     }
 
-    auto invalidParamsErrorMessage = [&](const JsonObject &params) {
-        return Tr::tr("Invalid parameter in \"%1\":\n%2")
-            .arg(method, QString::fromUtf8(QJsonDocument(params).toJson(QJsonDocument::Indented)));
-    };
-
-    auto createDefaultResponse = [&]() {
-        Response<std::nullptr_t, JsonObject> response;
-        if (QTC_GUARD(id.isValid()))
-            response.setId(id);
-        response.setResult(nullptr);
-        return response;
+    auto createDefaultResponse = [&] {
+        QTC_CHECK(id.isValid());
+        return responseObject<ShutdownRequest>(id, {});
     };
 
     const bool isRequest = id.isValid();
     bool responseSend = false;
-    auto sendResponse =
-        [&](const JsonRpcMessage &response) {
-            responseSend = true;
-            if (q->reachable()) {
-                q->sendMessage(response);
-            } else {
-                qCDebug(LOGLSPCLIENT)
-                    << QString("Dropped response to request %1 id %2 for unreachable server %3")
-                           .arg(method, id.toString(), q->name());
-            }
-        };
+    auto sendResponse = [&](const QJsonObject &response) {
+        responseSend = true;
+        if (q->reachable()) {
+            q->sendRawMessage(response);
+        } else {
+            qCDebug(LOGLSPCLIENT)
+                << QString("Dropped response to request %1 id %2 for unreachable server %3")
+                       .arg(method, id.toString(), q->name());
+        }
+    };
 
-    if (method == PublishDiagnosticsNotification::methodName) {
-        auto params = PublishDiagnosticsNotification(message.toJsonObject()).params().value_or(
-            PublishDiagnosticsParams());
-        if (params.isValid())
-            q->handleDiagnostics(params);
+    // Answers the request with \a result, or with the reason its parameters
+    // could not be read.
+    const auto respondTo = [&]<typename M>(const Utils::Result<typename M::Params> &params,
+                                           auto &&handler) {
+        if (!params) {
+            q->log(QtMsgType::QtCriticalMsg, params.error());
+            if (isRequest)
+                sendResponse(invalidParamsResponse(id, params.error()));
+            return;
+        }
+        if constexpr (M::isRequest)
+            sendResponse(responseObject<M>(id, handler(*params)));
         else
-            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
-    } else if (method == LogMessageNotification::methodName) {
-        auto params = LogMessageNotification(message.toJsonObject()).params().value_or(
-            LogMessageParams());
-        if (params.isValid())
-            log(params);
-        else
-            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
-    } else if (method == ShowMessageNotification::methodName) {
-        auto params = ShowMessageNotification(message.toJsonObject()).params().value_or(
-            ShowMessageParams());
-        if (params.isValid())
-            log(params);
-        else
-            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
-    } else if (method == ShowMessageRequest::methodName) {
-        auto request = ShowMessageRequest(message.toJsonObject());
-        ShowMessageRequest::Response response(id);
-        auto params = request.params().value_or(ShowMessageRequestParams());
-        if (params.isValid()) {
-            response.setResult(showMessageBox(params));
-        } else {
-            const QString errorMessage = invalidParamsErrorMessage(params);
-            q->log(QtMsgType::QtCriticalMsg, errorMessage);
-            response.setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
-        }
-        sendResponse(response);
-    } else if (method == RegisterCapabilityRequest::methodName) {
-        auto params = RegisterCapabilityRequest(message.toJsonObject()).params().value_or(
-            RegistrationParams());
-        if (params.isValid()) {
-            q->registerCapabilities(params.registrations());
-            sendResponse(createDefaultResponse());
-        } else {
-            const QString errorMessage = invalidParamsErrorMessage(params);
-            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
-            RegisterCapabilityRequest::Response response(id);
-            response.setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
-            sendResponse(response);
-        }
-    } else if (method == UnregisterCapabilityRequest::methodName) {
-        auto params = UnregisterCapabilityRequest(message.toJsonObject()).params().value_or(
-            UnregistrationParams());
-        if (params.isValid()) {
-            q->unregisterCapabilities(params.unregistrations());
-            sendResponse(createDefaultResponse());
-        } else {
-            const QString errorMessage = invalidParamsErrorMessage(params);
-            q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(params));
-            UnregisterCapabilityRequest::Response response(id);
-            response.setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
-            sendResponse(response);
-        }
-    } else if (method == ApplyWorkspaceEditRequest::methodName) {
-        ApplyWorkspaceEditRequest::Response response(id);
-        auto params = ApplyWorkspaceEditRequest(message.toJsonObject()).params().value_or(
-            ApplyWorkspaceEditParams());
-        if (params.isValid()) {
-            ApplyWorkspaceEditResult result;
-            result.setApplied(applyWorkspaceEdit(q, params.edit()));
-            response.setResult(result);
-        } else {
-            const QString errorMessage = invalidParamsErrorMessage(params);
-            q->log(QtMsgType::QtCriticalMsg, errorMessage);
-            response.setError(createInvalidParamsError<std::nullptr_t>(errorMessage));
-        }
-        sendResponse(response);
-    } else if (method == WorkSpaceFolderRequest::methodName) {
-        WorkSpaceFolderRequest::Response response(id);
+            handler(*params);
+    };
+
+    if (method == PublishDiagnosticsNotification::method) {
+        respondTo.template operator()<PublishDiagnosticsNotification>(
+            LanguageServerProtocol::params<PublishDiagnosticsNotification>(message),
+            [&](const PublishDiagnosticsParams &params) {
+                q->handleDiagnostics(params, message.value("params").toObject());
+            });
+    } else if (method == LogMessageNotification::method) {
+        respondTo.template operator()<LogMessageNotification>(
+            LanguageServerProtocol::params<LogMessageNotification>(message),
+            [&](const LogMessageParams &params) { log(params.type(), params.message()); });
+    } else if (method == ShowMessageNotification::method) {
+        respondTo.template operator()<ShowMessageNotification>(
+            LanguageServerProtocol::params<ShowMessageNotification>(message),
+            [&](const ShowMessageParams &params) { log(params.type(), params.message()); });
+    } else if (method == ShowMessageRequest::method) {
+        respondTo.template operator()<ShowMessageRequest>(
+            LanguageServerProtocol::params<ShowMessageRequest>(message),
+            [&](const ShowMessageRequestParams &params) { return showMessageBox(params); });
+    } else if (method == RegistrationRequest::method) {
+        respondTo.template operator()<RegistrationRequest>(
+            LanguageServerProtocol::params<RegistrationRequest>(message),
+            [&](const RegistrationParams &params) {
+                q->registerCapabilities(params.registrations());
+                return std::monostate{};
+            });
+    } else if (method == UnregistrationRequest::method) {
+        respondTo.template operator()<UnregistrationRequest>(
+            LanguageServerProtocol::params<UnregistrationRequest>(message),
+            [&](const UnregistrationParams &params) {
+                q->unregisterCapabilities(params.unregisterations());
+                return std::monostate{};
+            });
+    } else if (method == ApplyWorkspaceEditRequest::method) {
+        respondTo.template operator()<ApplyWorkspaceEditRequest>(
+            LanguageServerProtocol::params<ApplyWorkspaceEditRequest>(message),
+            [&](const ApplyWorkspaceEditParams &params) {
+                return ApplyWorkspaceEditResult().applied(applyWorkspaceEdit(q, params.edit()));
+            });
+    } else if (method == WorkspaceFoldersRequest::method) {
         const QList<ProjectExplorer::Project *> projects
             = ProjectExplorer::ProjectManager::projects();
-        if (projects.isEmpty()) {
-            response.setResult(nullptr);
-        } else {
-            response.setResult(Utils::transform(
-                projects,
-                [this](ProjectExplorer::Project *project) {
-                    return WorkSpaceFolder(q->hostPathToServerUri(project->projectDirectory()),
-                                           project->displayName());
-                }));
+        WorkspaceFoldersRequestResult result{std::monostate{}};
+        if (!projects.isEmpty()) {
+            result = Utils::transform(projects, [this](ProjectExplorer::Project *project) {
+                return WorkspaceFolder()
+                    .uri(q->uriFor(project->projectDirectory()))
+                    .name(project->displayName());
+            });
         }
-        sendResponse(response);
-    } else if (method == WorkDoneProgressCreateRequest::methodName) {
+        sendResponse(responseObject<WorkspaceFoldersRequest>(id, result));
+    } else if (method == WorkDoneProgressCreateRequest::method) {
         sendResponse(createDefaultResponse());
-    } else if (method == SemanticTokensRefreshRequest::methodName) {
+    } else if (method == SemanticTokensRefreshRequest::method) {
         m_tokenSupport.refresh();
         sendResponse(createDefaultResponse());
-    } else if (method == FoldingRangeRefreshRequest::methodName) {
+    } else if (method == FoldingRangeRefreshRequest::method) {
         m_foldingSupport.refresh();
         sendResponse(createDefaultResponse());
-    } else if (method == ProgressNotification::methodName) {
-        if (std::optional<ProgressParams> params
-            = ProgressNotification(message.toJsonObject()).params()) {
-            if (!params->isValid())
-                q->log(QtMsgType::QtCriticalMsg, invalidParamsErrorMessage(*params));
-            m_progressManager.handleProgress(*params);
-            if (ProgressManager::isProgressEndMessage(*params))
-                emit q->workDone(params->token());
-        }
-    } else if (method == ConfigurationRequest::methodName) {
-        ConfigurationRequest::Response response;
+    } else if (method == ProgressNotification::method) {
+        respondTo.template operator()<ProgressNotification>(
+            LanguageServerProtocol::params<ProgressNotification>(message),
+            [&](const ProgressParams &params) {
+                m_progressManager.handleProgress(params);
+                if (ProgressManager::isProgressEndMessage(params))
+                    emit q->workDone(params.token());
+            });
+    } else if (method == ConfigurationRequest::method) {
         QJsonArray result;
-        if (QTC_GUARD(id.isValid()))
-            response.setId(id);
-        ConfigurationRequest configurationRequest(message.toJsonObject());
-        if (std::optional<ConfigurationParams> params = configurationRequest.params()) {
-            const QList<ConfigurationParams::ConfigurationItem> items = params->items();
-            for (const ConfigurationParams::ConfigurationItem &item : items) {
-                if (const std::optional<QString> section = item.section())
+        const Utils::Result<ConfigurationParams> params
+            = LanguageServerProtocol::params<ConfigurationRequest>(message);
+        if (params) {
+            for (const ConfigurationItem &item : params->items()) {
+                if (const std::optional<QString> &section = item.section())
                     result.append(m_configuration[*section]);
                 else
                     result.append({});
             }
         }
-        response.setResult(result);
-        sendResponse(response);
+        sendResponse(responseObject<ConfigurationRequest>(id, result));
     } else if (isRequest) {
-        Response<JsonObject, JsonObject> response(id);
-        ResponseError<JsonObject> error;
-        error.setCode(ResponseError<JsonObject>::MethodNotFound);
-        error.setMessage(QString("The client cannot handle the method '%1'.").arg(method));
-        response.setError(error);
-        sendResponse(response);
+        sendResponse(errorResponseObject(
+            id,
+            ResponseError{ErrorCodes::MethodNotFound,
+                          QString("The client cannot handle the method '%1'.").arg(method),
+                          {}}));
     }
 
     // we got a request and handled it somewhere above but we missed to generate a response for it
     QTC_ASSERT(!isRequest || responseSend, sendResponse(createDefaultResponse()));
 }
 
-void Client::handleDiagnostics(const PublishDiagnosticsParams &params)
+void Client::handleDiagnostics(const PublishDiagnosticsParams &params, const QJsonObject &raw)
 {
-    const DocumentUri &uri = params.uri();
-
-    const QList<Diagnostic> &diagnostics
-        = Utils::filtered(params.diagnostics(), &Diagnostic::isValid);
+    Q_UNUSED(raw)
+    const QString &uri = params.uri();
     if (!d->m_diagnosticManager)
         d->m_diagnosticManager = createDiagnosticManager();
-    const FilePath &path = serverUriToHostPath(uri);
-    d->m_diagnosticManager->setDiagnostics(path, diagnostics, params.version());
+    const FilePath &path = filePathFor(uri);
+    d->m_diagnosticManager->setDiagnostics(path, params.diagnostics(), params.version());
     if (LanguageClientManager::clientForFilePath(path) == this) {
         d->m_diagnosticManager->showDiagnostics(path, d->m_documentVersions.value(path));
         if (d->m_autoRequestCodeActions)
-            requestCodeActions(uri, diagnostics);
+            requestCodeActions(uri, params.diagnostics());
     }
 }
 
-void ClientPrivate::sendMessageNow(const JsonRpcMessage &message)
+int ClientPrivate::serverTextDocumentSyncKind() const
+{
+    const std::optional<ServerCapabilitiesTextDocumentSync> &sync
+        = m_serverCapabilities.textDocumentSync();
+    if (!sync)
+        return TextDocumentSyncKind::None;
+    if (const auto kind = std::get_if<int>(&*sync))
+        return *kind;
+    if (const auto options = std::get_if<TextDocumentSyncOptions>(&*sync)) {
+        if (const std::optional<int> &kind = options->change())
+            return *kind;
+    }
+    return TextDocumentSyncKind::None;
+}
+
+void ClientPrivate::sendMessageNow(const QJsonObject &message)
 {
     LanguageClientManager::logJsonRpcMessage(LspLogMessage::ClientMessage, q->name(), message);
     m_clientInterface->sendMessage(message);
@@ -2249,9 +2218,9 @@ int Client::documentVersion(const Utils::FilePath &filePath) const
     return d->m_documentVersions.value(filePath);
 }
 
-int Client::documentVersion(const LanguageServerProtocol::DocumentUri &uri) const
+int Client::documentVersion(const QString &uri) const
 {
-    return documentVersion(serverUriToHostPath(uri));
+    return documentVersion(filePathFor(uri));
 }
 
 void Client::setDocumentChangeUpdateThreshold(int msecs)
@@ -2259,81 +2228,49 @@ void Client::setDocumentChangeUpdateThreshold(int msecs)
     d->m_documentUpdateTimer.setInterval(msecs);
 }
 
-void ClientPrivate::initializeCallback(const InitializeRequest::Response &initResponse)
+void ClientPrivate::initializeCallback(const Utils::Result<InitializeResult> &result)
 {
     if (m_state != Client::InitializeRequested) {
         qCWarning(LOGLSPCLIENT) << "Dropping initialize response in unexpected state " << m_state;
-        qCDebug(LOGLSPCLIENT) << initResponse.toJsonObject();
         return;
     }
-    if (std::optional<ResponseError<InitializeError>> error = initResponse.error()) {
-        if (std::optional<InitializeError> data = error->data()) {
-            if (data->retry()) {
-                const QString title(Tr::tr("Language Server \"%1\" Initialization Error").arg(m_displayName));
-                auto result = QMessageBox::warning(Core::ICore::dialogParent(),
-                                                   title,
-                                                   error->message(),
-                                                   QMessageBox::Retry | QMessageBox::Cancel,
-                                                   QMessageBox::Retry);
-                if (result == QMessageBox::Retry) {
-                    setState(Client::Uninitialized);
-                    q->initialize();
-                    return;
-                }
-            }
-        }
-        q->setError(Tr::tr("Initialization error: %1.").arg(error->message()));
+    if (!result) {
+        q->setError(Tr::tr("Initialization error: %1.").arg(result.error()));
         emit q->finished();
         return;
     }
-    if (const std::optional<InitializeResult> &result = initResponse.result()) {
-        if (!result->isValid()) { // continue on ill formed result
-            q->log(
-                QtMsgType::QtCriticalMsg,
-                QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
-                    + Tr::tr("Initialize result is invalid."));
-        }
-        const std::optional<ServerInfo> serverInfo = result->serverInfo();
-        if (serverInfo) {
-            if (!serverInfo->isValid()) {
-                q->log(
-                    QtMsgType::QtCriticalMsg,
-                    QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
-                        + Tr::tr("Server Info is invalid."));
-            } else {
-                m_serverName = serverInfo->name();
-                if (const std::optional<QString> version = serverInfo->version())
-                    m_serverVersion = *version;
-            }
-        }
 
-        m_serverCapabilities = result->capabilities();
-    } else {
-        q->log(QtMsgType::QtCriticalMsg, Tr::tr("No initialize result."));
+    if (const std::optional<ServerInfo> &serverInfo = result->serverInfo()) {
+        m_serverName = serverInfo->name();
+        if (const std::optional<QString> &version = serverInfo->version())
+            m_serverVersion = *version;
     }
+    m_serverCapabilities = result->capabilities();
 
     if (auto completionProvider = qobject_cast<LanguageClientCompletionAssistProvider *>(
             m_clientProviders.completionAssistProvider)) {
-        completionProvider->setTriggerCharacters(
-            m_serverCapabilities.completionProvider()
-                .value_or(ServerCapabilities::CompletionOptions())
-                .triggerCharacters());
+        completionProvider->setTriggerCharacters(m_serverCapabilities.completionProvider()
+                                                     .value_or(CompletionOptions())
+                                                     .triggerCharacters());
     }
     if (auto functionHintAssistProvider = qobject_cast<FunctionHintAssistProvider *>(
             m_clientProviders.functionHintProvider)) {
         functionHintAssistProvider->setTriggerCharacters(
             m_serverCapabilities.signatureHelpProvider()
-                .value_or(ServerCapabilities::SignatureHelpOptions())
+                .value_or(SignatureHelpOptions())
                 .triggerCharacters());
     }
-    auto tokenProvider = m_serverCapabilities.semanticTokensProvider().value_or(
-        SemanticTokensOptions());
-    if (tokenProvider.isValid())
-        m_tokenSupport.setLegend(tokenProvider.legend());
+    if (const std::optional<ServerCapabilitiesSemanticTokensProvider> &tokenProvider
+        = m_serverCapabilities.semanticTokensProvider()) {
+        if (const auto options = std::get_if<SemanticTokensOptions>(&*tokenProvider))
+            m_tokenSupport.setLegend(options->legend());
+        else if (const auto options = std::get_if<SemanticTokensRegistrationOptions>(&*tokenProvider))
+            m_tokenSupport.setLegend(options->legend());
+    }
 
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     setState(Client::Initialized);
-    q->sendMessage(InitializeNotification(InitializedParams()));
+    q->sendNotification<InitializedNotification>({});
 
     q->updateConfiguration(m_configuration);
 
@@ -2345,15 +2282,15 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     emit q->initialized(m_serverCapabilities);
 }
 
-void ClientPrivate::shutDownCallback(const ShutdownRequest::Response &shutdownResponse)
+void ClientPrivate::shutDownCallback(const Utils::Result<std::monostate> &result)
 {
     m_shutdownTimer.stop();
     QTC_ASSERT(m_state == Client::ShutdownRequested, return);
     QTC_ASSERT(m_clientInterface, return);
-    if (std::optional<ShutdownRequest::Response::Error> error = shutdownResponse.error())
-        q->log(*error);
+    if (!result)
+        q->log(QtMsgType::QtCriticalMsg, result.error());
     // directly send content now otherwise the state check of sendContent would fail
-    sendMessageNow(ExitNotification());
+    sendMessageNow(notificationObject<ExitNotification>());
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " shutdown";
     setState(Client::Shutdown);
     m_shutdownTimer.start();
@@ -2363,8 +2300,8 @@ bool ClientPrivate::sendWorkspceFolderChanges() const
 {
     if (!q->reachable())
         return false;
-    if (m_dynamicCapabilities.isRegistered(
-                DidChangeWorkspaceFoldersNotification::methodName).value_or(false)) {
+    if (m_dynamicCapabilities.isRegistered(DidChangeWorkspaceFoldersNotification::method)
+            .value_or(false)) {
         return true;
     }
     if (auto workspace = m_serverCapabilities.workspace()) {
@@ -2401,8 +2338,7 @@ bool Client::fileBelongsToProject(const Utils::FilePath &filePath) const
     return project() && project()->isKnownFile(filePath);
 }
 
-LanguageClientOutlineItem *Client::createOutlineItem(
-    const LanguageServerProtocol::DocumentSymbol &symbol)
+LanguageClientOutlineItem *Client::createOutlineItem(const DocumentSymbol &symbol)
 {
     return new LanguageClientOutlineItem(this, symbol);
 }
@@ -2413,35 +2349,27 @@ static FilePath toHostPath(const FilePath serverDeviceTemplate, const FilePath l
     return onDevice.localSource().value_or(onDevice);
 }
 
-DocumentUri::PathMapper Client::hostPathMapper() const
+QString Client::uriFor(const Utils::FilePath &path) const
 {
-    using namespace std::placeholders;
+    return uriFromPath(d->m_serverDeviceTemplate.withNewPath(path.path()));
+}
+
+FilePath Client::filePathFor(const QString &uri) const
+{
+    const FilePath serverPath = pathFromUri(uri);
+    if (serverPath.isEmpty())
+        return {};
 
     // If the server is local, no mapping is needed
     if (d->m_serverDeviceTemplate.isLocal())
-        return std::identity{};
+        return serverPath;
 
     // If both server and project are on the same device, map the paths to the remote device.
-    if (project() && project()->projectFilePath().isSameDevice(d->m_serverDeviceTemplate)) {
-        return [this](const FilePath &serverPath) {
-            return d->m_serverDeviceTemplate.withNewPath(serverPath.path());
-        };
-    }
+    if (project() && project()->projectFilePath().isSameDevice(d->m_serverDeviceTemplate))
+        return d->m_serverDeviceTemplate.withNewPath(serverPath.path());
 
     // If the server is remote, but the project is local, map server paths to host paths
-    return std::bind(&toHostPath, d->m_serverDeviceTemplate, _1);
-}
-
-FilePath Client::serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const
-{
-    return uri.toFilePath(hostPathMapper());
-}
-
-DocumentUri Client::hostPathToServerUri(const Utils::FilePath &path) const
-{
-    return DocumentUri::fromFilePath(path, [&](const Utils::FilePath &clientPath) {
-        return d->m_serverDeviceTemplate.withNewPath(clientPath.path());
-    });
+    return toHostPath(d->m_serverDeviceTemplate, serverPath);
 }
 
 OsType Client::osType() const

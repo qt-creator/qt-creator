@@ -5,7 +5,12 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/client.h>
+#include <languageserverprotocol/lsptypes.h>
+
+#include <utils/qtcassert.h>
+
+#include <QHash>
+#include <QJsonValue>
 
 namespace LanguageClient {
 

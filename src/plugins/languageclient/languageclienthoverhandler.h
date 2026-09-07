@@ -5,8 +5,10 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/languagefeatures.h>
+#include <languageserverprotocol/lspjsonrpc.h>
 #include <texteditor/basehoverhandler.h>
+
+#include <QTextCursor>
 
 #include <functional>
 
@@ -14,8 +16,10 @@ namespace LanguageClient {
 
 class Client;
 
-using HelpItemProvider = std::function<void(const LanguageServerProtocol::HoverRequest::Response &,
-                                            const Utils::FilePath &path)>;
+using HelpItemProvider = std::function<void(
+    const LanguageServerProtocol::MessageId &id,
+    const LanguageServerProtocol::Hover &hover,
+    const Utils::FilePath &path)>;
 
 class LANGUAGECLIENT_EXPORT HoverHandler final : public TextEditor::BaseHoverHandler
 {
@@ -41,15 +45,19 @@ protected:
                        ReportPriority report) override;
 
 private:
-    void handleResponse(const LanguageServerProtocol::HoverRequest::Response &response,
-                        const QTextCursor &cursor);
-    void setContent(const LanguageServerProtocol::HoverContent &content);
+    void handleResponse(
+        const LanguageServerProtocol::MessageId &id,
+        const Utils::Result<LanguageServerProtocol::HoverRequestResult> &result,
+        const QTextCursor &cursor);
+    void setContent(const LanguageServerProtocol::HoverContents &contents);
     bool reportDiagnostics(const QTextCursor &cursor);
 
     QPointer<Client> m_client;
     std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
     Utils::FilePath m_filePath;
-    LanguageServerProtocol::HoverRequest::Response m_response;
+    // Kept while the help item provider works on it.
+    std::optional<std::pair<LanguageServerProtocol::MessageId, LanguageServerProtocol::Hover>>
+        m_pendingHover;
     TextEditor::BaseHoverHandler::ReportPriority m_report;
     HelpItemProvider m_helpItemProvider;
     bool m_preferDiagnostics = true;

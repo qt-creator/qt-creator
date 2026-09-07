@@ -3,6 +3,8 @@
 
 #include "lspinspector.h"
 
+#include <languageserverprotocol/lspjsonrpc.h>
+
 #include "client.h"
 #include "languageclientmanager.h"
 #include "languageclientsettings.h"
@@ -140,7 +142,7 @@ void LspCapabilitiesWidget::setCapabilities(const Capabilities &serverCapabiliti
     if (m_capabilitiesView->model())
         m_capabilitiesView->model()->deleteLater();
     m_capabilitiesView->setModel(
-        createJsonModel(Tr::tr("Server Capabilities"), QJsonObject(serverCapabilities.capabilities)));
+        createJsonModel(Tr::tr("Server Capabilities"), toJson(serverCapabilities.capabilities)));
 
     m_dynamicCapabilities = serverCapabilities.dynamicCapabilities;
     const QStringList &methods = m_dynamicCapabilities.registeredMethods();
@@ -169,7 +171,7 @@ static QString sendMessage(Client *client, const QString &msg)
 
     QString parseError;
     BaseMessage baseMsg;
-    QByteArray asUtf8 = msg.toUtf8();
+    const QByteArray asUtf8 = msg.toUtf8();
     QBuffer buf;
     buf.open(QIODevice::WriteOnly);
     buf.write(QString("Content-Length: %1\r\n\r\n").arg(asUtf8.size()).toUtf8());
@@ -182,11 +184,11 @@ static QString sendMessage(Client *client, const QString &msg)
     if (!parseError.isEmpty())
         return parseError;
 
-    auto rpcMessage = JsonRpcMessage(baseMsg);
-    if (!rpcMessage.parseError().isEmpty())
-        return rpcMessage.parseError();
+    const Utils::Result<QJsonObject> message = fromBaseMessage(baseMsg);
+    if (!message)
+        return message.error();
 
-    client->sendMessage(rpcMessage, Client::SendDocUpdates::Send, LanguageClient::Schedule::Delayed);
+    client->sendRawMessage(*message);
 
     return {};
 }
@@ -229,7 +231,7 @@ static QWidget *createMessageEditor(QComboBox *clients)
     using namespace Layouting;
     Column {
         messageEditor->editorWidget(),
-        Row { st, errorLabel, PushButton { text(Tr::tr("Send message")), onClicked(container, send) } },
+        Row { st, errorLabel, PushButton { Layouting::text(Tr::tr("Send message")), onClicked(container, send) } },
         noMargin,
     }.attachTo(container);
     // clang-format on
@@ -271,13 +273,13 @@ LspInspector::LspInspector()
 
 void LspInspector::log(LspLogMessage::MessageSender sender,
                        const QString &clientName,
-                       const JsonRpcMessage &message)
+                       const QJsonObject &message)
 {
-    JsonRpcInspector::log(sender, clientName, message.toJsonObject());
+    JsonRpcInspector::log(sender, clientName, message);
 }
 
-void LspInspector::clientInitialized(const QString &clientName,
-                                     const ServerCapabilities &capabilities)
+void LspInspector::clientInitialized(
+    const QString &clientName, const ServerCapabilities &capabilities)
 {
     m_capabilities[clientName].capabilities = capabilities;
     m_capabilities[clientName].dynamicCapabilities.reset();

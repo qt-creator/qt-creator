@@ -6,7 +6,9 @@
 #include "client.h"
 #include "dynamiccapabilities.h"
 #include "languageclientutils.h"
+
 #include "languageclienttr.h"
+#include <languageserverprotocol/lsputils.h>
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -81,129 +83,148 @@ SymbolSupport::SymbolSupport(Client *client)
     : m_client(client)
 {}
 
-template<typename Request, typename R>
-static MessageId sendTextDocumentPositionParamsRequest(Client *client,
-                                                       const Request &request,
-                                                       R ServerCapabilities::*member)
+/// Whether the server offers this capability, treating a plain false as absent.
+template<typename Provider>
+static bool providerEnabled(const std::optional<Provider> &provider)
 {
-    if (!request.isValid(nullptr))
-        return {};
-    const DocumentUri uri = request.params()->textDocument().uri();
-    const bool supportedFile = client->isSupportedUri(uri);
-    const DynamicCapabilities dynamicCapabilities = client->dynamicCapabilities();
-    const ServerCapabilities serverCapability = client->capabilities();
-    bool sendMessage = dynamicCapabilities.isRegistered(Request::methodName).value_or(false);
-    if (sendMessage) {
-        const TextDocumentRegistrationOptions option(
-            dynamicCapabilities.option(Request::methodName));
-        if (option.isValid())
-            sendMessage = option.filterApplies(
-                Utils::FilePath::fromString(QUrl(uri).adjusted(QUrl::PreferLocalFile).toString()));
-        else
-            sendMessage = supportedFile;
-    } else {
-        const auto provider = std::mem_fn(member)(serverCapability);
-        const bool *boolvalue = provider.has_value() ? std::get_if<bool>(&*provider) : nullptr;
-        sendMessage = provider.has_value() && (!boolvalue || *boolvalue);
-    }
-    if (sendMessage) {
-        client->sendMessage(request);
-        return request.id();
-    }
-    return {};
+    if (!provider)
+        return false;
+    const auto enabled = std::get_if<bool>(&*provider);
+    return !enabled || *enabled;
 }
 
-template<typename Request>
-static void handleGotoResponse(const typename Request::Response &response,
-                               Utils::LinkHandler callback,
-                               std::optional<Utils::Link> linkUnderCursor,
-                               const Client *client)
+/// Whether \a client answers this method for the document \a uri denotes.
+template<typename M>
+static bool handlesDocument(Client *client, const QString &uri, bool providerSupported)
 {
-    if (std::optional<GotoResult> result = response.result()) {
-        if (std::holds_alternative<std::nullptr_t>(*result)) {
+    const DynamicCapabilities dynamicCapabilities = client->dynamicCapabilities();
+    if (const std::optional<bool> registered = dynamicCapabilities.isRegistered(M::method)) {
+        if (!*registered)
+            return false;
+        return registrationApplies(dynamicCapabilities.option(M::method),
+                                   client->filePathFor(uri));
+    }
+    return providerSupported;
+}
+
+template<typename Params>
+static Params positionParams(const DocumentPosition &position)
+{
+    return Params().textDocument(position.textDocument).position(position.position);
+}
+
+/// The link the first location of \a result points to.
+static Utils::Link linkOf(const Definition &definition, const Client *client)
+{
+    if (const auto location = std::get_if<Location>(&definition))
+        return linkFor(client, *location);
+    const QList<Location> &locations = std::get<QList<Location>>(definition);
+    return locations.isEmpty() ? Utils::Link() : linkFor(client, locations.first());
+}
+
+template<typename Result>
+static void handleGotoResult(const Utils::Result<Result> &result,
+                             const Utils::LinkHandler &callback,
+                             const std::optional<Utils::Link> &linkUnderCursor,
+                             const Client *client)
+{
+    if (!result) {
+        callback({});
+        return;
+    }
+    if (const auto definition = std::get_if<Definition>(&*result)) {
+        const Utils::Link link = linkOf(*definition, client);
+        callback(link.hasValidTarget() ? linkUnderCursor.value_or(link) : Utils::Link());
+    } else if (const auto links = std::get_if<QList<DefinitionLink>>(&*result)) {
+        if (links->isEmpty()) {
             callback({});
-        } else if (auto ploc = std::get_if<Location>(&*result)) {
-            callback(linkUnderCursor.value_or(ploc->toLink(client->hostPathMapper())));
-        } else if (auto plloc = std::get_if<QList<Location>>(&*result)) {
-            if (!plloc->isEmpty())
-                callback(linkUnderCursor.value_or(plloc->value(0).toLink(client->hostPathMapper())));
-            else
-                callback({});
+        } else {
+            const DefinitionLink &target = links->first();
+            callback(linkUnderCursor.value_or(
+                Utils::Link(client->filePathFor(target.targetUri()),
+                            target.targetSelectionRange().start().line() + 1,
+                            target.targetSelectionRange().start().character())));
         }
     } else {
         callback({});
     }
 }
 
-static TextDocumentPositionParams generateDocPosParams(TextEditor::TextDocument *document,
-                                                       const QTextCursor &cursor,
-                                                       const Client *client)
+static DocumentPosition documentPosition(TextEditor::TextDocument *document,
+                                         const QTextCursor &cursor,
+                                         const Client *client)
 {
-    const DocumentUri uri = client->hostPathToServerUri(document->filePath());
-    const TextDocumentIdentifier documentId(uri);
-    const Position pos(cursor);
-    return TextDocumentPositionParams(documentId, pos);
+    return {TextDocumentIdentifier().uri(client->uriFor(document->filePath())), positionOf(cursor)};
 }
 
-template<typename Request, typename R>
-static MessageId sendGotoRequest(TextEditor::TextDocument *document,
-                                 const QTextCursor &cursor,
-                                 Utils::LinkHandler callback,
-                                 Client *client,
-                                 std::optional<Utils::Link> linkUnderCursor,
-                                 R ServerCapabilities::*member)
+template<typename M>
+static MessageId sendGotoRequest(
+    TextEditor::TextDocument *document,
+    const QTextCursor &cursor,
+    Utils::LinkHandler callback,
+    Client *client,
+    std::optional<Utils::Link> linkUnderCursor,
+    bool providerSupported)
 {
-    Request request(generateDocPosParams(document, cursor, client));
-    request.setResponseCallback([callback, linkUnderCursor, client](
-                                    const typename Request::Response &response) {
-        handleGotoResponse<Request>(response, callback, linkUnderCursor, client);
-    });
-    return sendTextDocumentPositionParamsRequest(client, request, member);
+    const DocumentPosition position = documentPosition(document, cursor, client);
+    if (!handlesDocument<M>(client, position.textDocument.uri(), providerSupported))
+        return {};
+    return client->sendRequest<M>(
+        positionParams<typename M::Params>(position),
+        [callback, linkUnderCursor, client](const Utils::Result<typename M::Result> &result) {
+            handleGotoResult(result, callback, linkUnderCursor, client);
+        });
 }
 
 bool SymbolSupport::supportsFindLink(TextEditor::TextDocument *document, LinkTarget target) const
 {
-    const DocumentUri uri = m_client->hostPathToServerUri(document->filePath());
     const DynamicCapabilities dynamicCapabilities = m_client->dynamicCapabilities();
-    const ServerCapabilities serverCapability = m_client->capabilities();
+    const ServerCapabilities &serverCapability = m_client->capabilities();
     QString methodName;
-    std::optional<std::variant<bool, ServerCapabilities::RegistrationOptions>> provider;
+    // Whether the server announced the capability, and whether it announced it as
+    // a plain false.
+    bool hasProvider = false;
+    bool disabled = false;
+    const auto readProvider = [&](const auto &provider) {
+        hasProvider = provider.has_value();
+        if (hasProvider) {
+            if (const auto enabled = std::get_if<bool>(&*provider))
+                disabled = !*enabled;
+        }
+    };
     switch (target) {
     case LinkTarget::SymbolDef:
-        methodName = GotoDefinitionRequest::methodName;
-        provider = serverCapability.definitionProvider();
+        methodName = DefinitionRequest::method;
+        readProvider(serverCapability.definitionProvider());
         break;
     case LinkTarget::SymbolTypeDef:
-        methodName = GotoTypeDefinitionRequest::methodName;
-        provider = serverCapability.typeDefinitionProvider();
+        methodName = TypeDefinitionRequest::method;
+        readProvider(serverCapability.typeDefinitionProvider());
         break;
     case LinkTarget::SymbolImplementation:
-        methodName = GotoImplementationRequest::methodName;
-        provider = serverCapability.implementationProvider();
+        methodName = ImplementationRequest::method;
+        readProvider(serverCapability.implementationProvider());
         break;
     }
     if (methodName.isEmpty())
         return false;
     bool supported = dynamicCapabilities.isRegistered(methodName).value_or(false);
     if (supported) {
-        const TextDocumentRegistrationOptions option(dynamicCapabilities.option(methodName));
-        if (option.isValid())
-            supported = option.filterApplies(
-                Utils::FilePath::fromString(QUrl(uri).adjusted(QUrl::PreferLocalFile).toString()));
-        else
-            supported = m_client->isSupportedUri(uri);
+        supported = registrationApplies(dynamicCapabilities.option(methodName),
+                                        document->filePath(),
+                                        document->mimeType());
     } else {
-        const bool *boolvalue = provider.has_value() ? std::get_if<bool>(&*provider) : nullptr;
-        supported = provider.has_value() && (!boolvalue || *boolvalue);
+        supported = hasProvider && !disabled;
     }
     return supported;
 }
 
-MessageId SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
-                                    const QTextCursor &cursor,
-                                    Utils::LinkHandler callback,
-                                    const bool resolveTarget,
-                                    const LinkTarget target)
+MessageId SymbolSupport::findLinkAt(
+    TextEditor::TextDocument *document,
+    const QTextCursor &cursor,
+    Utils::LinkHandler callback,
+    const bool resolveTarget,
+    const LinkTarget target)
 {
     if (!m_client->reachable())
         return {};
@@ -219,29 +240,31 @@ MessageId SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
         linkUnderCursor = link;
     }
 
-    const TextDocumentPositionParams params = generateDocPosParams(document, cursor, m_client);
     switch (target) {
     case LinkTarget::SymbolDef:
-        return sendGotoRequest<GotoDefinitionRequest>(document,
-                                                      cursor,
-                                                      callback,
-                                                      m_client,
-                                                      linkUnderCursor,
-                                                      &ServerCapabilities::definitionProvider);
+        return sendGotoRequest<DefinitionRequest>(
+            document,
+            cursor,
+            callback,
+            m_client,
+            linkUnderCursor,
+            providerEnabled(m_client->capabilities().definitionProvider()));
     case LinkTarget::SymbolTypeDef:
-        return sendGotoRequest<GotoTypeDefinitionRequest>(document,
-                                                          cursor,
-                                                          callback,
-                                                          m_client,
-                                                          linkUnderCursor,
-                                                          &ServerCapabilities::typeDefinitionProvider);
+        return sendGotoRequest<TypeDefinitionRequest>(
+            document,
+            cursor,
+            callback,
+            m_client,
+            linkUnderCursor,
+            providerEnabled(m_client->capabilities().typeDefinitionProvider()));
     case LinkTarget::SymbolImplementation:
-        return sendGotoRequest<GotoImplementationRequest>(document,
-                                                          cursor,
-                                                          callback,
-                                                          m_client,
-                                                          linkUnderCursor,
-                                                          &ServerCapabilities::implementationProvider);
+        return sendGotoRequest<ImplementationRequest>(
+            document,
+            cursor,
+            callback,
+            m_client,
+            linkUnderCursor,
+            providerEnabled(m_client->capabilities().implementationProvider()));
     }
     return {};
 }
@@ -250,13 +273,11 @@ bool SymbolSupport::supportsFindUsages(TextEditor::TextDocument *document) const
 {
     if (!m_client || !m_client->reachable())
         return false;
-    if (m_client->dynamicCapabilities().isRegistered(FindReferencesRequest::methodName)) {
-        QJsonObject options
-            = m_client->dynamicCapabilities().option(FindReferencesRequest::methodName).toObject();
-        const TextDocumentRegistrationOptions docOps(options);
-        if (docOps.isValid()
-            && !docOps.filterApplies(document->filePath(),
-                                     Utils::mimeTypeForName(document->mimeType()))) {
+    if (m_client->dynamicCapabilities().isRegistered(ReferencesRequest::method)) {
+        if (!registrationApplies(
+                m_client->dynamicCapabilities().option(ReferencesRequest::method),
+                document->filePath(),
+                document->mimeType())) {
             return false;
         }
     } else if (auto referencesProvider = m_client->capabilities().referencesProvider()) {
@@ -369,33 +390,32 @@ static void filterFileAliases(ItemDataPerPath &itemDataPerPath)
 }
 
 static Utils::SearchResultItems generateSearchResultItems(
-    const LanguageClientArray<Location> &locations, Client *client)
+    const QList<Location> &locations, Client *client)
 {
-    if (locations.isNull())
-        return {};
     ItemDataPerPath rangesInDocument;
-    for (const Location &location : locations.toList()) {
-        rangesInDocument[location.uri().toFilePath(client->hostPathMapper())]
+    for (const Location &location : locations) {
+        rangesInDocument[client->filePathFor(location.uri())]
             << ItemData{SymbolSupport::convertRange(location.range()), {}};
     }
     filterFileAliases(rangesInDocument);
     return generateSearchResultItems(rangesInDocument, client, nullptr, false);
 }
 
-void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Response &response,
-                                                 const QString &wordUnderCursor,
-                                                 const ResultHandler &handler)
+void SymbolSupport::handleFindReferencesResult(const QJsonObject &response,
+                                               const QString &wordUnderCursor,
+                                               const ResultHandler &handler)
 {
-    const auto result = response.result();
+    const Utils::Result<ReferencesRequestResult> result
+        = LanguageServerProtocol::result<ReferencesRequest>(response);
+    const QList<Location> *locations = result ? std::get_if<QList<Location>>(&*result) : nullptr;
     if (handler) {
-        const LanguageClientArray<Location> locations = result.value_or(nullptr);
-        handler(locations.isNull() ? QList<Location>() : locations.toList());
+        handler(locations ? *locations : QList<Location>(), response.value("result"));
         return;
     }
-    if (result) {
+    if (locations) {
         Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
             Tr::tr("Find References with %1 for:").arg(m_client->name()), "", wordUnderCursor);
-        search->addResults(generateSearchResultItems(*result, m_client),
+        search->addResults(generateSearchResultItems(*locations, m_client),
                            Core::SearchResult::AddOrdered);
         connect(search, &Core::SearchResult::activated, [](const Utils::SearchResultItem &item) {
             Core::EditorManager::openEditorAtSearchResult(item);
@@ -406,24 +426,28 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
     }
 }
 
-std::optional<MessageId> SymbolSupport::findUsages(TextEditor::TextDocument *document,
-                                                   const QTextCursor &cursor,
-                                                   const ResultHandler &handler)
+std::optional<MessageId> SymbolSupport::findUsages(
+    TextEditor::TextDocument *document, const QTextCursor &cursor, const ResultHandler &handler)
 {
     if (!supportsFindUsages(document))
         return {};
-    ReferenceParams params(generateDocPosParams(document, cursor, m_client));
-    params.setContext(ReferenceParams::ReferenceContext(true));
-    FindReferencesRequest request(params);
+    const DocumentPosition position = documentPosition(document, cursor, m_client);
+    if (!handlesDocument<ReferencesRequest>(
+            m_client,
+            position.textDocument.uri(),
+            providerEnabled(m_client->capabilities().referencesProvider()))) {
+        return {};
+    }
+    ReferenceParams params = positionParams<ReferenceParams>(position);
+    params.context(ReferenceContext().includeDeclaration(true));
     QTextCursor termCursor(cursor);
     termCursor.select(QTextCursor::WordUnderCursor);
-    request.setResponseCallback([this, wordUnderCursor = termCursor.selectedText(), handler](
-                                    const FindReferencesRequest::Response &response) {
-        handleFindReferencesResponse(response, wordUnderCursor, handler);
-    });
-
-    sendTextDocumentPositionParamsRequest(m_client, request, &ServerCapabilities::referencesProvider);
-    return request.id();
+    return m_client->sendRawRequest(
+        toJson(params),
+        ReferencesRequest::method,
+        [this, wordUnderCursor = termCursor.selectedText(), handler](const QJsonObject &response) {
+            handleFindReferencesResult(response, wordUnderCursor, handler);
+        });
 }
 
 static bool supportsRename(Client *client,
@@ -433,23 +457,17 @@ static bool supportsRename(Client *client,
     if (!client->reachable())
         return false;
     prepareSupported = false;
-    if (client->dynamicCapabilities().isRegistered(RenameRequest::methodName)) {
-        QJsonObject options
-            = client->dynamicCapabilities().option(RenameRequest::methodName).toObject();
-        prepareSupported = ServerCapabilities::RenameOptions(options).prepareProvider().value_or(
-            false);
-        const TextDocumentRegistrationOptions docOps(options);
-        if (docOps.isValid()
-            && !docOps.filterApplies(document->filePath(),
-                                     Utils::mimeTypeForName(document->mimeType()))) {
+    if (client->dynamicCapabilities().isRegistered(RenameRequest::method)) {
+        QJsonObject options = client->dynamicCapabilities().option(RenameRequest::method).toObject();
+        prepareSupported = options.value("prepareProvider").toBool(false);
+        if (!registrationApplies(options, document->filePath(), document->mimeType()))
             return false;
-        }
     }
     if (auto renameProvider = client->capabilities().renameProvider()) {
         if (const auto b = std::get_if<bool>(&*renameProvider)) {
             if (!*b)
                 return false;
-        } else if (const auto opt = std::get_if<ServerCapabilities::RenameOptions>(&*renameProvider)) {
+        } else if (const auto opt = std::get_if<RenameOptions>(&*renameProvider)) {
             prepareSupported = opt->prepareProvider().value_or(false);
         }
     } else {
@@ -470,7 +488,7 @@ void SymbolSupport::renameSymbol(TextEditor::TextDocument *document,
                                  const std::function<void ()> &callback,
                                  bool preferLowerCaseFileNames)
 {
-    const TextDocumentPositionParams params = generateDocPosParams(document, cursor, m_client);
+    const DocumentPosition position = documentPosition(document, cursor, m_client);
     QTextCursor tc = cursor;
     tc.select(QTextCursor::WordUnderCursor);
     const QString oldSymbolName = tc.selectedText();
@@ -478,17 +496,17 @@ void SymbolSupport::renameSymbol(TextEditor::TextDocument *document,
     bool prepareSupported;
     if (!LanguageClient::supportsRename(m_client, document, prepareSupported)) {
         const QString error = Tr::tr("Renaming is not supported with %1").arg(m_client->name());
-        createSearch(params, derivePlaceholder(oldSymbolName, newSymbolName),
+        createSearch(position, derivePlaceholder(oldSymbolName, newSymbolName),
                      {}, callback, {})->finishSearch(true, error);
     } else if (prepareSupported) {
         requestPrepareRename(document,
-                             generateDocPosParams(document, cursor, m_client),
+                             position,
                              newSymbolName,
                              oldSymbolName,
                              callback,
                              preferLowerCaseFileNames);
     } else {
-        startRenameSymbol(generateDocPosParams(document, cursor, m_client),
+        startRenameSymbol(position,
                           newSymbolName,
                           oldSymbolName,
                           callback,
@@ -497,72 +515,88 @@ void SymbolSupport::renameSymbol(TextEditor::TextDocument *document,
 }
 
 void SymbolSupport::requestPrepareRename(TextEditor::TextDocument *document,
-                                         const TextDocumentPositionParams &params,
+                                         const DocumentPosition &position,
                                          const QString &placeholder,
                                          const QString &oldSymbolName,
                                          const std::function<void()> &callback,
                                          bool preferLowerCaseFileNames)
 {
-    PrepareRenameRequest request(params);
-    request.setResponseCallback([this,
-                                 params,
-                                 placeholder,
-                                 oldSymbolName,
-                                 callback,
-                                 preferLowerCaseFileNames,
-                                 document = QPointer<TextEditor::TextDocument>(document)](
-                                    const PrepareRenameRequest::Response &response) {
-        const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
-        if (error.has_value()) {
-            m_client->log(*error);
-            createSearch(params, placeholder, {}, callback, {})
-                    ->finishSearch(true, error->toString());
-        }
+    m_client->sendRequest<PrepareRenameRequest>(
+        positionParams<PrepareRenameParams>(position),
+        [this,
+         position,
+         placeholder,
+         oldSymbolName,
+         callback,
+         preferLowerCaseFileNames,
+         document = QPointer<TextEditor::TextDocument>(document)](
+            const Utils::Result<PrepareRenameRequestResult> &result) {
+            if (!result) {
+                m_client->log(QtMsgType::QtCriticalMsg, result.error());
+                createSearch(position, placeholder, {}, callback, {})
+                    ->finishSearch(true, result.error());
+                return;
+            }
 
-        const std::optional<PrepareRenameResult> &result = response.result();
-        if (result.has_value()) {
-            if (const auto placeHolderResult = std::get_if<PlaceHolderResult>(&*result)) {
-                startRenameSymbol(
-                    params,
-                    placeholder.isEmpty() ? placeHolderResult->placeHolder() : placeholder,
-                    oldSymbolName,
-                    callback,
-                    preferLowerCaseFileNames);
-            } else if (const auto range = std::get_if<Range>(&*result)) {
+            const auto renameResult = std::get_if<PrepareRenameResult>(&*result);
+            if (!renameResult) {
+                startRenameSymbol(position, placeholder, oldSymbolName, callback,
+                                  preferLowerCaseFileNames);
+                return;
+            }
+            if (const auto placeHolder = std::get_if<PrepareRenamePlaceholder>(&*renameResult)) {
+                startRenameSymbol(position,
+                                  placeholder.isEmpty() ? placeHolder->placeholder() : placeholder,
+                                  oldSymbolName,
+                                  callback,
+                                  preferLowerCaseFileNames);
+            } else if (const auto range = std::get_if<Range>(&*renameResult)) {
                 if (document) {
-                    const int start = range->start().toPositionInDocument(document->document());
-                    const int end = range->end().toPositionInDocument(document->document());
+                    const int start = positionInDocument(range->start(), document->document());
+                    const int end = positionInDocument(range->end(), document->document());
                     const QString reportedSymbolName = document->textAt(start, end - start);
-                    startRenameSymbol(params,
+                    startRenameSymbol(position,
                                       derivePlaceholder(reportedSymbolName, placeholder),
                                       reportedSymbolName,
                                       callback,
                                       preferLowerCaseFileNames);
                 } else {
-                    startRenameSymbol(params, placeholder, oldSymbolName, callback,
+                    startRenameSymbol(position, placeholder, oldSymbolName, callback,
                                       preferLowerCaseFileNames);
                 }
+            } else {
+                startRenameSymbol(position, placeholder, oldSymbolName, callback,
+                                  preferLowerCaseFileNames);
             }
-        }
-    });
-    m_client->sendMessage(request);
+        });
 }
 
-void SymbolSupport::requestRename(const TextDocumentPositionParams &positionParams,
-                                  Core::SearchResult *search)
+void SymbolSupport::requestRename(const DocumentPosition &position, Core::SearchResult *search)
 {
     if (m_renameRequestIds[search].isValid())
         m_client->cancelRequest(m_renameRequestIds[search]);
-    RenameParams params(positionParams);
-    params.setNewName(search->textToReplace());
-    RenameRequest request(params);
-    request.setResponseCallback([this, search](const RenameRequest::Response &response) {
-        handleRenameResponse(search, response);
-    });
-    m_renameRequestIds[search] = request.id();
-    m_client->sendMessage(request);
+    RenameParams params = positionParams<RenameParams>(position);
+    params.newName(search->textToReplace());
+    m_renameRequestIds[search] = m_client->sendRequest<RenameRequest>(
+        params, [this, search](const Utils::Result<RenameRequestResult> &result) {
+            handleRenameResult(search, result);
+        });
     if (search->isInteractive())
         search->popup();
+}
+
+/// The edits of a document edit, dropping the annotations Qt Creator does not
+/// show.
+static QList<TextEdit> textEdits(const TextDocumentEdit &documentEdit)
+{
+    QList<TextEdit> edits;
+    for (const TextDocumentEditEditsItem &item : documentEdit.edits()) {
+        if (const auto edit = std::get_if<TextEdit>(&item))
+            edits << *edit;
+        else if (const auto annotated = std::get_if<AnnotatedTextEdit>(&item))
+            edits << TextEdit().range(annotated->range()).newText(annotated->newText());
+    }
+    return edits;
 }
 
 static Utils::SearchResultItems generateReplaceItems(
@@ -571,48 +605,51 @@ static Utils::SearchResultItems generateReplaceItems(
     Utils::SearchResultItems items;
     auto convertEdits = [](const QList<TextEdit> &edits) {
         return Utils::transform(edits, [](const TextEdit &edit) {
-            return ItemData{SymbolSupport::convertRange(edit.range()), QVariant(edit)};
+            return ItemData{SymbolSupport::convertRange(edit.range()), QVariant(toJson(edit))};
         });
     };
     ItemDataPerPath rangesInDocument;
-    auto documentChanges = edits.documentChanges().value_or(QList<DocumentChange>());
-    const DocumentUri::PathMapper &pathMapper = client->hostPathMapper();
+    const auto documentChanges = edits.documentChanges().value_or(
+        QList<WorkspaceEditDocumentChangesItem>());
     if (!documentChanges.isEmpty()) {
-        for (const DocumentChange &documentChange : std::as_const(documentChanges)) {
+        for (const WorkspaceEditDocumentChangesItem &documentChange : documentChanges) {
             if (const auto edit = std::get_if<TextDocumentEdit>(&documentChange)) {
-                rangesInDocument[edit->textDocument().uri().toFilePath(pathMapper)] = convertEdits(
-                    edit->edits());
+                rangesInDocument[client->filePathFor(edit->textDocument().uri())]
+                    = convertEdits(textEdits(*edit));
             } else {
                 Utils::SearchResultItem item;
 
-                if (const auto op = std::get_if<CreateFileOperation>(&documentChange)) {
-                    item.setLineText(op->message(pathMapper));
-                    item.setFilePath(op->uri().toFilePath(pathMapper));
-                    item.setUserData(QVariant(*op));
-                } else if (const auto op = std::get_if<RenameFileOperation>(&documentChange)) {
-                    item.setLineText(op->message(pathMapper));
-                    item.setFilePath(op->oldUri().toFilePath(pathMapper));
-                    item.setUserData(QVariant(*op));
-                } else if (const auto op = std::get_if<DeleteFileOperation>(&documentChange)) {
-                    item.setLineText(op->message(pathMapper));
-                    item.setFilePath(op->uri().toFilePath(pathMapper));
-                    item.setUserData(QVariant(*op));
+                if (const auto op = std::get_if<LanguageServerProtocol::CreateFile>(
+                        &documentChange)) {
+                    item.setLineText(Tr::tr("Create %1").arg(op->uri()));
+                    item.setFilePath(client->filePathFor(op->uri()));
+                    item.setUserData(QVariant(toJson(*op)));
+                } else if (const auto op = std::get_if<RenameFile>(&documentChange)) {
+                    item.setLineText(Tr::tr("Rename %1 to %2").arg(op->oldUri(), op->newUri()));
+                    item.setFilePath(client->filePathFor(op->oldUri()));
+                    item.setUserData(QVariant(toJson(*op)));
+                } else if (
+                    const auto op = std::get_if<LanguageServerProtocol::DeleteFile>(
+                        &documentChange)) {
+                    item.setLineText(Tr::tr("Delete %1").arg(op->uri()));
+                    item.setFilePath(client->filePathFor(op->uri()));
+                    item.setUserData(QVariant(toJson(*op)));
                 }
 
                 items << item;
             }
         }
     } else {
-        auto changes = edits.changes().value_or(WorkspaceEdit::Changes());
+        const auto changes = edits.changes().value_or(QMap<QString, QList<TextEdit>>());
         for (auto it = changes.begin(), end = changes.end(); it != end; ++it)
-            rangesInDocument[it.key().toFilePath(pathMapper)] = convertEdits(it.value());
+            rangesInDocument[client->filePathFor(it.key())] = convertEdits(it.value());
     }
     filterFileAliases(rangesInDocument);
     items += generateSearchResultItems(rangesInDocument, client, search, limitToProjects);
     return items;
 }
 
-Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams &positionParams,
+Core::SearchResult *SymbolSupport::createSearch(const DocumentPosition &position,
                                                 const QString &placeholder,
                                                 const QString &oldSymbolName,
                                                 const std::function<void()> &callback,
@@ -633,11 +670,11 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
     connect(search, &Core::SearchResult::activated, [](const Utils::SearchResultItem &item) {
         Core::EditorManager::openEditorAtSearchResult(item);
     });
-    connect(search, &Core::SearchResult::replaceTextChanged, this, [this, search, positionParams]() {
+    connect(search, &Core::SearchResult::replaceTextChanged, this, [this, search, position]() {
         search->setUserData(search->userData().toList().first(2));
         search->setReplaceEnabled(false);
         search->restart();
-        requestRename(positionParams, search);
+        requestRename(position, search);
     });
 
     auto resetConnection
@@ -656,46 +693,49 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
     return search;
 }
 
-void SymbolSupport::startRenameSymbol(const TextDocumentPositionParams &positionParams,
+void SymbolSupport::startRenameSymbol(const DocumentPosition &position,
                                       const QString &placeholder,
                                       const QString &oldSymbolName,
                                       const std::function<void()> &callback,
                                       bool preferLowerCaseFileNames)
 {
-    requestRename(positionParams,
-                  createSearch(positionParams, placeholder, oldSymbolName, callback,
+    requestRename(position,
+                  createSearch(position, placeholder, oldSymbolName, callback,
                                preferLowerCaseFileNames));
 }
 
-void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
-                                         const RenameRequest::Response &response)
+void SymbolSupport::handleRenameResult(
+    Core::SearchResult *search, const Utils::Result<RenameRequestResult> &result)
 {
     m_renameRequestIds.remove(search);
-    const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
     QString errorMessage;
-    if (error.has_value()) {
-        errorMessage = error->toString();
+    if (!result) {
+        errorMessage = result.error();
         if (errorMessage.contains("Cannot rename symbol: new name is the same as the old name"))
             errorMessage = Tr::tr("Start typing to see replacements."); // clangd optimization
         else
-            m_client->log(*error);
+            m_client->log(QtMsgType::QtCriticalMsg, errorMessage);
     }
 
-    const std::optional<WorkspaceEdit> &edits = response.result();
-    if (edits.has_value()) {
+    const WorkspaceEdit *edits = result ? std::get_if<WorkspaceEdit>(&*result) : nullptr;
+    if (edits) {
         const Utils::SearchResultItems items = generateReplaceItems(
             *edits, m_client, search, m_limitRenamingToProjects);
         search->addResults(items, Core::SearchResult::AddOrdered);
         if (m_renameResultsEnhancer) {
             Utils::SearchResultItems additionalItems = m_renameResultsEnhancer(items);
             for (Utils::SearchResultItem &item : additionalItems) {
-                TextEdit edit;
                 const Utils::Text::Position startPos = item.mainRange().begin;
                 const Utils::Text::Position endPos = item.mainRange().end;
-                edit.setRange({{startPos.line - 1, startPos.column},
-                               {endPos.line - 1, endPos.column}});
-                edit.setNewText(search->textToReplace());
-                item.setUserData(QVariant(edit));
+                const TextEdit edit
+                    = TextEdit()
+                          .range(
+                              Range()
+                                  .start(
+                                      Position().line(startPos.line - 1).character(startPos.column))
+                                  .end(Position().line(endPos.line - 1).character(endPos.column)))
+                          .newText(search->textToReplace());
+                item.setUserData(QVariant(toJson(edit)));
             }
             search->addResults(additionalItems, Core::SearchResult::AddSortedByPosition);
         }
@@ -703,7 +743,7 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
         search->setReplaceEnabled(true);
         search->finishSearch(false);
     } else {
-        search->finishSearch(error.has_value(), errorMessage);
+        search->finishSearch(!result, errorMessage);
     }
 }
 
@@ -711,21 +751,34 @@ void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
                                 Core::SearchResult *search)
 {
     QMap<Utils::FilePath, QList<TextEdit>> editsForDocuments;
-    QList<DocumentChange> changes;
+    QList<WorkspaceEditDocumentChangesItem> changes;
     for (const Utils::SearchResultItem &item : checkedItems) {
         const auto filePath = Utils::FilePath::fromUserInput(item.path().value(0));
         const QJsonObject jsonObject = item.userData().toJsonObject();
-        if (const TextEdit edit(jsonObject); edit.isValid())
-            editsForDocuments[filePath] << edit;
-        else if (const CreateFileOperation createFile(jsonObject); createFile.isValid())
-            changes << createFile;
-        else if (const RenameFileOperation renameFile(jsonObject); renameFile.isValid())
-            changes << renameFile;
-        else if (const DeleteFileOperation deleteFile(jsonObject); deleteFile.isValid())
-            changes << deleteFile;
+        // A file operation names itself in its "kind"; everything else is an edit.
+        const QString kind = jsonObject.value("kind").toString();
+        if (kind.isEmpty()) {
+            if (const Utils::Result<TextEdit> edit = fromJson<TextEdit>(jsonObject)) {
+                editsForDocuments[filePath] << *edit;
+            }
+        } else if (kind == "create") {
+            if (const Utils::Result<LanguageServerProtocol::CreateFile> op
+                = fromJson<LanguageServerProtocol::CreateFile>(jsonObject)) {
+                changes << *op;
+            }
+        } else if (kind == "rename") {
+            if (const Utils::Result<RenameFile> op = fromJson<RenameFile>(jsonObject)) {
+                changes << *op;
+            }
+        } else if (kind == "delete") {
+            if (const Utils::Result<LanguageServerProtocol::DeleteFile> op
+                = fromJson<LanguageServerProtocol::DeleteFile>(jsonObject)) {
+                changes << *op;
+            }
+        }
     }
 
-    for (const DocumentChange &change : std::as_const(changes))
+    for (const WorkspaceEditDocumentChangesItem &change : std::as_const(changes))
         applyDocumentChange(m_client, change);
 
     for (auto it = editsForDocuments.begin(), end = editsForDocuments.end(); it != end; ++it)

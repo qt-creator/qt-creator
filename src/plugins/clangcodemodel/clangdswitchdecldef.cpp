@@ -8,7 +8,7 @@
 
 #include <cppeditor/cppeditorwidget.h>
 #include <languageclient/documentsymbolcache.h>
-#include <languageserverprotocol/lsptypes.h>
+#include <languageserverprotocol/lsputils.h>
 #include <texteditor/textdocument.h>
 #include <utils/qtcassert.h>
 
@@ -31,7 +31,7 @@ class ClangdSwitchDeclDef::Private
 public:
     Private(ClangdSwitchDeclDef * q, ClangdClient *client, TextDocument *doc,
             const QTextCursor &cursor, CppEditorWidget *editorWidget, const LinkHandler &callback)
-        : q(q), client(client), document(doc), uri(client->hostPathToServerUri(doc->filePath())),
+        : q(q), client(client), document(doc), uri(client->uriFor(doc->filePath())),
           cursor(cursor), editorWidget(editorWidget), callback(callback)
     {}
 
@@ -42,12 +42,12 @@ public:
     ClangdSwitchDeclDef * const q;
     ClangdClient * const client;
     const QPointer<TextDocument> document;
-    const DocumentUri uri;
+    const QString uri;
     const QTextCursor cursor;
     const QPointer<CppEditorWidget> editorWidget;
     const LinkHandler callback;
     std::optional<ClangdAstNode> ast;
-    std::optional<DocumentSymbolsResult> docSymbols;
+    std::optional<DocumentSymbolRequestResult> docSymbols;
     bool done = false;
 };
 
@@ -65,16 +65,18 @@ ClangdSwitchDeclDef::ClangdSwitchDeclDef(ClangdClient *client, TextDocument *doc
     connect(qApp, &QApplication::focusChanged,
             this, &ClangdSwitchDeclDef::emitDone, Qt::QueuedConnection);
 
-    connect(client->documentSymbolCache(), &DocumentSymbolCache::gotSymbols, this,
-            [this](const DocumentUri &uri, const DocumentSymbolsResult &symbols) {
-        if (uri != d->uri)
-            return;
-        d->client->documentSymbolCache()->disconnect(this);
-        d->docSymbols = symbols;
-        if (d->ast)
-            d->handleDeclDefSwitchReplies();
-    });
-
+    connect(
+        client->documentSymbolCache(),
+        &DocumentSymbolCache::gotSymbols,
+        this,
+        [this](const QString &uri, const DocumentSymbolRequestResult &symbols) {
+            if (uri != d->uri)
+                return;
+            d->client->documentSymbolCache()->disconnect(this);
+            d->docSymbols = symbols;
+            if (d->ast)
+                d->handleDeclDefSwitchReplies();
+        });
 
     // Retrieve AST and document symbols.
     const auto astHandler = [this, self = QPointer(this)]
@@ -117,7 +119,7 @@ std::optional<ClangdAstNode> ClangdSwitchDeclDef::Private::getFunctionNode() con
 {
     QTC_ASSERT(ast, return {});
 
-    const ClangdAstPath path = getAstPath(*ast, Range(cursor));
+    const ClangdAstPath path = getAstPath(*ast, rangeOf(cursor));
     for (auto it = path.rbegin(); it != path.rend(); ++it) {
         if (it->role() == "declaration"
                 && (it->kind() == "CXXMethod" || it->kind() == "CXXConversion"
@@ -137,12 +139,17 @@ QTextCursor ClangdSwitchDeclDef::Private::cursorForFunctionName(const ClangdAstN
     if (!symbolList)
         return {};
     const Range &astRange = functionNode.range();
+    const Range range
+        = Range()
+              .start(
+                  Position().line(astRange.start().line()).character(astRange.start().character()))
+              .end(Position().line(astRange.end().line()).character(astRange.end().character()));
     QList symbolsToCheck = *symbolList;
     while (!symbolsToCheck.isEmpty()) {
         const DocumentSymbol symbol = symbolsToCheck.takeFirst();
-        if (symbol.range() == astRange)
-            return symbol.selectionRange().start().toTextCursor(document->document());
-        if (symbol.range().contains(astRange))
+        if (symbol.range() == range)
+            return toTextCursor(symbol.selectionRange().start(), document->document());
+        if (contains(symbol.range(), range))
             symbolsToCheck << symbol.children().value_or(QList<DocumentSymbol>());
     }
     return {};

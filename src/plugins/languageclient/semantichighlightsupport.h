@@ -5,7 +5,7 @@
 
 #include "languageclient_global.h"
 
-#include <languageserverprotocol/servercapabilities.h>
+#include <languageserverprotocol/lspjsonrpc.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 
@@ -18,6 +18,60 @@ namespace Core { class IEditor; }
 
 namespace LanguageClient {
 class Client;
+
+// The token types and modifiers the protocol names, as the indices and bits
+// this plugin maps them to. The names themselves come from the meta model, via
+// LanguageServerProtocol::SemanticTokenTypes and ::SemanticTokenModifiers.
+enum TokenType {
+    namespaceToken,
+    typeToken,
+    classToken,
+    enumToken,
+    interfaceToken,
+    structToken,
+    typeParameterToken,
+    parameterToken,
+    variableToken,
+    propertyToken,
+    enumMemberToken,
+    eventToken,
+    functionToken,
+    methodToken,
+    macroToken,
+    keywordToken,
+    modifierToken,
+    commentToken,
+    stringToken,
+    numberToken,
+    regexpToken,
+    operatorToken,
+    decoratorToken,
+    labelToken
+};
+
+enum TokenModifier {
+    declarationModifier = 0x1,
+    definitionModifier = 0x2,
+    readonlyModifier = 0x4,
+    staticModifier = 0x8,
+    deprecatedModifier = 0x10,
+    abstractModifier = 0x20,
+    asyncModifier = 0x40,
+    modificationModifier = 0x80,
+    documentationModifier = 0x100,
+    defaultLibraryModifier = 0x200
+};
+
+enum class SemanticRequestType {
+    None = 0x0,
+    Full = 0x1,
+    FullDelta = 0x2,
+    Range = 0x4
+};
+Q_DECLARE_FLAGS(SemanticRequestTypes, SemanticRequestType)
+
+LANGUAGECLIENT_EXPORT QMap<QString, int> defaultTokenTypesMap();
+LANGUAGECLIENT_EXPORT QMap<QString, int> defaultTokenModifiersMap();
 
 class LANGUAGECLIENT_EXPORT ExpandedSemanticToken
 {
@@ -68,14 +122,15 @@ private:
     void reloadSemanticTokensImpl(TextEditor::TextDocument *doc, int remainingRerequests = 3);
     void updateSemanticTokensImpl(TextEditor::TextDocument *doc, int remainingRerequests = 3);
     void queueDocumentReload(TextEditor::TextDocument *doc);
-    LanguageServerProtocol::SemanticRequestTypes supportedSemanticRequests(
-        TextEditor::TextDocument *document) const;
-    void handleSemanticTokens(const Utils::FilePath &filePath,
-                              const LanguageServerProtocol::SemanticTokensResult &result,
-                              int documentVersion);
-    void handleSemanticTokensDelta(const Utils::FilePath &filePath,
-                                   const LanguageServerProtocol::SemanticTokensDeltaResult &result,
-                                   int documentVersion);
+    SemanticRequestTypes supportedSemanticRequests(TextEditor::TextDocument *document) const;
+    void handleSemanticTokens(
+        const Utils::FilePath &filePath,
+        const LanguageServerProtocol::SemanticTokensRequestResult &result,
+        int documentVersion);
+    void handleSemanticTokensDelta(
+        const Utils::FilePath &filePath,
+        const LanguageServerProtocol::SemanticTokensDeltaRequestResult &result,
+        int documentVersion);
     void highlight(const Utils::FilePath &filePath, bool force = false);
     void updateFormatHash();
     void currentEditorChanged();
@@ -105,3 +160,5 @@ private:
 };
 
 } // namespace LanguageClient
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(LanguageClient::SemanticRequestTypes)

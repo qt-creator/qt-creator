@@ -8,6 +8,8 @@
 #include "languageclientutils.h"
 #include "semantichighlightsupport.h"
 
+#include <languageserverprotocol/lspjsonrpc.h>
+
 #include <texteditor/refactoringchanges.h>
 
 namespace Core { class IDocument; }
@@ -28,16 +30,6 @@ namespace Utils { namespace Text { class Range; } }
 QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
-
-namespace LanguageServerProtocol {
-class ClientCapabilities;
-class ClientInfo;
-class ProgressToken;
-class PublishDiagnosticsParams;
-class Registration;
-class ServerCapabilities;
-class Unregistration;
-} // namespace LanguageServerProtocol
 
 namespace LanguageClient {
 class BaseClientInterface;
@@ -69,11 +61,59 @@ public:
     QString name() const;
 
     enum class SendDocUpdates { Send, Ignore };
-    void sendMessage(const LanguageServerProtocol::JsonRpcMessage &message,
-                     SendDocUpdates sendUpdates = SendDocUpdates::Send,
-                     Schedule semanticTokensSchedule = Schedule::Delayed);
+
+    /*
+     * Sending with the generated protocol types. The message type  M is one
+     * of the traits in languageserverprotocol/lspmessages.h, which names the
+     * method as well as the parameter and result types.
+     */
+    template<typename M>
+    LanguageServerProtocol::MessageId sendRequest(
+        const typename M::Params &params,
+        const std::function<void(const Utils::Result<typename M::Result> &)> &callback,
+        SendDocUpdates sendUpdates = SendDocUpdates::Send,
+        Schedule semanticTokensSchedule = Schedule::Delayed)
+    {
+        static_assert(M::isRequest, "this message is a notification");
+        const LanguageServerProtocol::MessageId id = nextMessageId();
+        sendJsonRpcMessage(
+            LanguageServerProtocol::requestObject<M>(id, params),
+            [callback](const QJsonObject &response) {
+                callback(LanguageServerProtocol::result<M>(response));
+            },
+            sendUpdates,
+            semanticTokensSchedule);
+        return id;
+    }
+
+    template<typename M>
+    void sendNotification(const typename M::Params &params,
+                          SendDocUpdates sendUpdates = SendDocUpdates::Send,
+                          Schedule semanticTokensSchedule = Schedule::Delayed)
+    {
+        static_assert(!M::isRequest, "this message is a request");
+        sendJsonRpcMessage(
+            LanguageServerProtocol::notificationObject<M>(params),
+            {},
+            sendUpdates,
+            semanticTokensSchedule);
+    }
 
     void cancelRequest(const LanguageServerProtocol::MessageId &id);
+
+    /*
+     * Sending a message the generated types cannot describe: a server
+     * extension, or a message a script assembled at runtime.
+     */
+    LanguageServerProtocol::MessageId sendRawRequest(
+        const QJsonObject &params,
+        const QString &method,
+        const std::function<void(const QJsonObject &)> &callback,
+        SendDocUpdates sendUpdates = SendDocUpdates::Send,
+        Schedule semanticTokensSchedule = Schedule::Delayed);
+    void sendRawMessage(const QJsonObject &message,
+                        SendDocUpdates sendUpdates = SendDocUpdates::Send,
+                        Schedule semanticTokensSchedule = Schedule::Delayed);
 
     // server state handling
     void start();
@@ -100,6 +140,9 @@ public:
     // capabilities
     static LanguageServerProtocol::ClientCapabilities defaultClientCapabilities();
     void setClientCapabilities(const LanguageServerProtocol::ClientCapabilities &caps);
+    /// Capabilities the generated types do not describe, merged into the ones
+    /// above when initializing. This is how a server extension is announced.
+    void setExtraClientCapabilities(const QJsonObject &caps);
     const LanguageServerProtocol::ServerCapabilities &capabilities() const;
     QString serverName() const;
     QString serverVersion() const;
@@ -117,7 +160,7 @@ public:
     void setActivateDocumentAutomatically(bool enabled);
     bool isSupportedDocument(const TextEditor::TextDocument *document) const;
     bool isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const;
-    bool isSupportedUri(const LanguageServerProtocol::DocumentUri &uri) const;
+    bool isSupportedUri(const QString &uri) const;
     virtual void openDocument(TextEditor::TextDocument *document);
     void closeDocument(TextEditor::TextDocument *document,
                        const std::optional<Utils::FilePath> &overwriteFilePath = {});
@@ -141,7 +184,7 @@ public:
     void cursorPositionChanged(TextEditor::TextEditorWidget *widget);
     bool documentUpdatePostponed(const Utils::FilePath &fileName) const;
     int documentVersion(const Utils::FilePath &filePath) const;
-    int documentVersion(const LanguageServerProtocol::DocumentUri &uri) const;
+    int documentVersion(const QString &uri) const;
     void setDocumentChangeUpdateThreshold(int msecs);
 
     // workspace control
@@ -154,13 +197,13 @@ public:
     void updateConfiguration(const QJsonValue &configuration);
 
     // commands
-    void requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
-                            const LanguageServerProtocol::Diagnostic &diagnostic);
-    void requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
-                            const QList<LanguageServerProtocol::Diagnostic> &diagnostics);
-    void requestCodeActions(const LanguageServerProtocol::CodeActionRequest &request);
-    void handleCodeActionResponse(const LanguageServerProtocol::CodeActionRequest::Response &response,
-                                  const LanguageServerProtocol::DocumentUri &uri);
+    void requestCodeActions(const QString &uri, const LanguageServerProtocol::Diagnostic &diagnostic);
+    void requestCodeActions(
+        const QString &uri, const QList<LanguageServerProtocol::Diagnostic> &diagnostics);
+    void requestCodeActions(const LanguageServerProtocol::CodeActionParams &params);
+    void handleCodeActionResult(
+        const Utils::Result<LanguageServerProtocol::CodeActionRequestResult> &result,
+        const QString &uri);
     virtual void executeCommand(const LanguageServerProtocol::Command &command);
 
     // language support
@@ -178,10 +221,10 @@ public:
     DocumentSymbolCache *documentSymbolCache();
     HoverHandler *hoverHandler();
     SemanticTokenSupport *semanticTokenSupport();
-    QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(const Utils::FilePath &filePath,
-                                                            const QTextCursor &cursor) const;
-    bool hasDiagnostic(const Utils::FilePath &filePath,
-                       const LanguageServerProtocol::Diagnostic &diag) const;
+    QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(
+        const Utils::FilePath &filePath, const QTextCursor &cursor) const;
+    bool hasDiagnostic(
+        const Utils::FilePath &filePath, const LanguageServerProtocol::Diagnostic &diag) const;
     bool hasDiagnostics(const TextEditor::TextDocument *document) const;
     void hideDiagnostics(const Utils::FilePath &documentPath);
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
@@ -194,26 +237,19 @@ public:
     virtual LanguageClientOutlineItem *createOutlineItem(
         const LanguageServerProtocol::DocumentSymbol &symbol);
 
-    LanguageServerProtocol::DocumentUri::PathMapper hostPathMapper() const;
-    Utils::FilePath serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const;
-    LanguageServerProtocol::DocumentUri hostPathToServerUri(const Utils::FilePath &path) const;
+    /// The URI the server uses for  path, and the path a server URI denotes.
+    QString uriFor(const Utils::FilePath &path) const;
+    Utils::FilePath filePathFor(const QString &uri) const;
     Utils::OsType osType() const;
 
     // custom methods
-    using CustomMethodHandler = std::function<bool(
-        const LanguageServerProtocol::JsonRpcMessage &message)>;
+    using CustomMethodHandler = std::function<bool(const QJsonObject &message)>;
     void registerCustomMethod(const QString &method, const CustomMethodHandler &handler);
 
     // logging
     enum class LogTarget { Console, Ui };
     void setLogTarget(LogTarget target);
     void log(QtMsgType msgType, const QString &message) const;
-
-    template<typename Error>
-    void log(const LanguageServerProtocol::ResponseError<Error> &responseError) const
-    {
-        log(QtMsgType::QtCriticalMsg, responseError.toString());
-    }
 
     // Caller takes ownership.
     using CustomInspectorTab = std::pair<QWidget *, QString>;
@@ -239,10 +275,19 @@ signals:
     void finished();
 
 protected:
+    LanguageServerProtocol::MessageId nextMessageId() const;
+    void sendJsonRpcMessage(const QJsonObject &message,
+                            const std::function<void(const QJsonObject &)> &responseCallback,
+                            SendDocUpdates sendUpdates,
+                            Schedule semanticTokensSchedule);
+
     void setError(const QString &message);
     ProgressManager *progressManager();
-    void handleMessage(const LanguageServerProtocol::JsonRpcMessage &message);
-    virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
+    void handleMessage(const QJsonObject &message);
+    /// \a raw is the notification's parameter object, which carries the
+    /// server extensions the generated type drops.
+    virtual void handleDiagnostics(
+        const LanguageServerProtocol::PublishDiagnosticsParams &params, const QJsonObject &raw);
     virtual DiagnosticManager *createDiagnosticManager();
     virtual void startImpl();
 

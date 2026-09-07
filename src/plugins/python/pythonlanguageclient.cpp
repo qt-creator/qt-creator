@@ -17,7 +17,6 @@
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
-#include <languageserverprotocol/workspace.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -37,7 +36,6 @@
 #include <QJsonDocument>
 
 using namespace LanguageClient;
-using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace TextEditor;
@@ -215,19 +213,18 @@ void PyLSClient::updateConfiguration()
 
 void PyLSClient::openDocument(TextDocument *document)
 {
-    using namespace LanguageServerProtocol;
     if (reachable()) {
         const FilePath documentPath = document->filePath();
         if (isSupportedDocument(document) && !pythonProjectForFile(documentPath)) {
             const FilePath workspacePath = documentPath.parentDir();
             if (!m_extraWorkspaceDirs.contains(workspacePath)) {
-                WorkspaceFoldersChangeEvent event;
-                event.setAdded({WorkSpaceFolder(hostPathToServerUri(workspacePath),
-                                                workspacePath.fileName())});
-                DidChangeWorkspaceFoldersParams params;
-                params.setEvent(event);
-                DidChangeWorkspaceFoldersNotification change(params);
-                sendMessage(change);
+                const LanguageServerProtocol::WorkspaceFolder folder
+                    = LanguageServerProtocol::WorkspaceFolder()
+                          .uri(uriFor(workspacePath))
+                          .name(workspacePath.fileName());
+                sendNotification<LanguageServerProtocol::DidChangeWorkspaceFoldersNotification>(
+                    LanguageServerProtocol::DidChangeWorkspaceFoldersParams().event(
+                        LanguageServerProtocol::WorkspaceFoldersChangeEvent().added({folder})));
                 m_extraWorkspaceDirs.append(workspacePath);
             }
         }

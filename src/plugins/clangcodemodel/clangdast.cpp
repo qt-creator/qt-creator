@@ -4,8 +4,9 @@
 #include "clangdast.h"
 
 #include <languageclient/client.h>
-#include <languageserverprotocol/jsonkeys.h>
-#include <languageserverprotocol/lsptypes.h>
+
+#include <languageserverprotocol/lsputils.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/filepath.h>
 
@@ -18,26 +19,38 @@ using namespace Utils;
 
 namespace ClangCodeModel::Internal {
 
-static constexpr LanguageServerProtocol::Key roleKey{"role"};
-static constexpr LanguageServerProtocol::Key arcanaKey{"arcana"};
+static std::optional<QString> optionalString(const QJsonObject &object, const QString &key)
+{
+    if (!object.contains(key))
+        return std::nullopt;
+    return object.value(key).toString();
+}
 
-QString ClangdAstNode::role() const { return typedValue<QString>(roleKey); }
-QString ClangdAstNode::kind() const { return typedValue<QString>(kindKey); }
-std::optional<QString> ClangdAstNode::detail() const
+QString ClangdAstNode::role() const { return m_object.value("role").toString(); }
+QString ClangdAstNode::kind() const { return m_object.value("kind").toString(); }
+std::optional<QString> ClangdAstNode::detail() const { return optionalString(m_object, "detail"); }
+std::optional<QString> ClangdAstNode::arcana() const { return optionalString(m_object, "arcana"); }
+
+Range ClangdAstNode::range() const
 {
-    return optionalValue<QString>(detailKey);
+    return fromJson<Range>(m_object.value("range")).value_or(Range());
 }
-std::optional<QString> ClangdAstNode::arcana() const
+
+bool ClangdAstNode::hasRange() const { return m_object.contains("range"); }
+
+bool ClangdAstNode::isValid() const
 {
-    return optionalValue<QString>(arcanaKey);
+    return m_object.contains("role") && m_object.contains("kind");
 }
-Range ClangdAstNode::range() const { return typedValue<Range>(rangeKey); }
-bool ClangdAstNode::hasRange() const { return contains(rangeKey); }
-bool ClangdAstNode::isValid() const { return contains(roleKey) && contains(kindKey); }
 
 std::optional<QList<ClangdAstNode>> ClangdAstNode::children() const
 {
-    return optionalArray<ClangdAstNode>(childrenKey);
+    if (!m_object.contains("children"))
+        return std::nullopt;
+    QList<ClangdAstNode> children;
+    for (const QJsonValue &child : m_object.value("children").toArray())
+        children << ClangdAstNode(child.toObject());
+    return children;
 }
 
 bool ClangdAstNode::arcanaContains(const QString &s) const
@@ -160,10 +173,11 @@ bool ClangdAstNode::hasConstType() const
     return ptrRefCount <= constCount;
 }
 
-bool ClangdAstNode::childContainsRange(int index, const LanguageServerProtocol::Range &range) const
+bool ClangdAstNode::childContainsRange(int index, const Range &range) const
 {
     const std::optional<QList<ClangdAstNode>> childList = children();
-    return childList && childList->size() > index && childList->at(index).range().contains(range);
+    return childList && childList->size() > index
+           && contains(childList->at(index).range(), range);
 }
 
 bool ClangdAstNode::hasChildWithRole(const QString &role) const
@@ -257,8 +271,9 @@ ClangdAstNode::FileStatus ClangdAstNode::fileStatus(const FilePath &thisFile) co
 
 void ClangdAstNode::print(int indent) const
 {
-    (qDebug().noquote() << QByteArray(indent, ' ')).quote() << role() << kind()
-            << detail().value_or(QString()) << arcana().value_or(QString()) << range();
+    (qDebug().noquote() << QByteArray(indent, ' ')).quote()
+        << role() << kind() << detail().value_or(QString()) << arcana().value_or(QString())
+        << toJson(range());
     for (const ClangdAstNode &c : children().value_or(QList<ClangdAstNode>()))
         c.print(indent + 2);
 }
@@ -292,7 +307,7 @@ public:
 private:
     void visitNode(const ClangdAstNode &node, bool isRoot = false)
     {
-        if (!isRoot && (!node.hasRange() || !node.range().contains(m_range)))
+        if (!isRoot && (!node.hasRange() || !contains(node.range(), m_range)))
             return;
         m_path << node;
 
@@ -327,7 +342,7 @@ private:
         } else {
             for (auto it = std::lower_bound(children->cbegin(), children->cend(), m_range,
                                             leftOfRange);
-                 it != children->cend() && !m_range.isLeftOf(it->range()); ++it) {
+                 it != children->cend() && !isLeftOf(m_range, it->range()); ++it) {
                 childrenToCheck << *it;
             }
         }
@@ -346,7 +361,7 @@ private:
         // operators, which appear at the end of the list, but whose range is the same
         // as the class name. Therefore, we must force them not to compare less to
         // anything else.
-        return node.range().isLeftOf(range) && !node.arcanaContains(" implicit ");
+        return isLeftOf(node.range(), range) && !node.arcanaContains(" implicit ");
     };
 
     const ClangdAstNode &m_root;
@@ -363,52 +378,19 @@ ClangdAstPath getAstPath(const ClangdAstNode &root, const Range &range)
 
 ClangdAstPath getAstPath(const ClangdAstNode &root, const Position &pos)
 {
-    return getAstPath(root, Range(pos, pos));
+    return getAstPath(root, Range().start(pos).end(pos));
 }
 
 MessageId requestAst(Client *client, const FilePath &filePath, const Range range,
                      const AstHandler &handler)
 {
-    class AstParams : public JsonObject
-    {
-    public:
-        AstParams(const TextDocumentIdentifier &document, const Range &range = {})
-        {
-            setTextDocument(document);
-            if (range.isValid())
-                setRange(range);
-        }
-
-        using JsonObject::JsonObject;
-
-        // The open file to inspect.
-        TextDocumentIdentifier textDocument() const
-        { return typedValue<TextDocumentIdentifier>(textDocumentKey); }
-        void setTextDocument(const TextDocumentIdentifier &id) { insert(textDocumentKey, id); }
-
-        // The region of the source code whose AST is fetched. The highest-level node that entirely
-        // contains the range is returned.
-        std::optional<Range> range() const { return optionalValue<Range>(rangeKey); }
-        void setRange(const Range &range) { insert(rangeKey, range); }
-
-        bool isValid() const override { return contains(textDocumentKey); }
-    };
-
-    class AstRequest : public Request<ClangdAstNode, std::nullptr_t, AstParams>
-    {
-    public:
-        using Request::Request;
-        explicit AstRequest(const AstParams &params) : Request("textDocument/ast", params) {}
-    };
-
-    AstRequest request(AstParams(TextDocumentIdentifier(client->hostPathToServerUri(filePath)),
-                                 range));
-    request.setResponseCallback([handler, reqId = request.id()](AstRequest::Response response) {
-        const auto result = response.result();
-        handler(result ? *result : ClangdAstNode(), reqId);
+    QJsonObject params{{"textDocument", QJsonObject{{"uri", client->uriFor(filePath)}}}};
+    if (!isEmpty(range))
+        params.insert("range", toJson(range));
+    return client->sendRawRequest(params, "textDocument/ast",
+                                  [handler](const QJsonObject &response) {
+        handler(ClangdAstNode(response.value("result").toObject()), messageId(response));
     });
-    client->sendMessage(request, Client::SendDocUpdates::Ignore);
-    return request.id();
 }
 
 } // namespace ClangCodeModel::Internal
