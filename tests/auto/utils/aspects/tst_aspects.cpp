@@ -8,6 +8,7 @@
 #include <utils/pathchooser.h>
 #include <utils/theme/theme.h>
 #include <utils/layoutbuilder.h>
+#include <utils/store.h>
 
 #include <QAbstractButton>
 #include <QDoubleSpinBox>
@@ -51,6 +52,9 @@ private slots:
     void filePathAspectAppliesOncePerEdit();
     void filePathAspectConfiguresEveryChooser();
     void containerPassesVisibilityToItems();
+    void testVolatileFromMapKeepsAppliedValue();
+    void testVolatileFromMapWithChecker();
+    void testFilePathVolatileFromMapWithChecker();
 };
 
 void tst_Aspects::initTestCase()
@@ -462,6 +466,62 @@ void tst_Aspects::containerPassesVisibilityToItems()
     container.setVisible(true);
     QVERIFY(container.number.isVisible());
     QVERIFY(!spinBox(widget)->isHidden());
+};
+
+void tst_Aspects::testVolatileFromMapKeepsAppliedValue()
+{
+    StringAspect aspect;
+    aspect.setAutoApply(false);
+    aspect.setSettingsKey("Value");
+    aspect.setValue("applied");
+
+    Store map;
+    map.insert("Value", "imported");
+    aspect.volatileFromMap(map);
+
+    QCOMPARE(aspect.volatileValue(), QString("imported"));
+    QCOMPARE(aspect.value(), QString("applied"));
+    QVERIFY(aspect.isDirty());
+}
+
+// The checker's volatile value must be imported before the aspect's own: the
+// checker notifies on change, and its handler resets the volatile value to the
+// applied one.
+
+void tst_Aspects::testVolatileFromMapWithChecker()
+{
+    StringAspect aspect;
+    aspect.setAutoApply(false);
+    aspect.setSettingsKey("Value");
+    aspect.makeCheckable(CheckBoxPlacement::Right, "Enabled", "Value.Check");
+    aspect.setValue("applied");
+    aspect.setChecked(false);
+
+    Store map;
+    map.insert("Value", "imported");
+    map.insert("Value.Check", true);
+    aspect.volatileFromMap(map);
+
+    QCOMPARE(aspect.volatileValue(), QString("imported"));
+    QVERIFY(aspect.isDirty());
+}
+
+void tst_Aspects::testFilePathVolatileFromMapWithChecker()
+{
+    FilePathAspect aspect;
+    aspect.setAutoApply(false);
+    aspect.setSettingsKey("Path");
+    aspect.makeCheckable(CheckBoxPlacement::Right, "Enabled", "Path.Check");
+    aspect.setValue(QString("/applied"));
+    aspect.setChecked(false);
+
+    Store map;
+    map.insert("Path", "/imported");
+    map.insert("Path.Check", true);
+    aspect.volatileFromMap(map);
+
+    QCOMPARE(aspect.volatileValue(), QString("/imported"));
+    QVERIFY(aspect.isDirty());
 }
 
 QTEST_MAIN(tst_Aspects)
