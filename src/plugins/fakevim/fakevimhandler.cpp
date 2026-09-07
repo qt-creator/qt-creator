@@ -17924,12 +17924,12 @@ static const QSet<QString> &builtinFunctionNames()
     return builtins;
 }
 
-// strptime() is POSIX and MSVC's C library has none. Vim documents the
+// strptime() is POSIX and MSVC's and MinGW's C library have none. Vim documents the
 // function as "Not available on all systems", tells a script to ask
 // exists("*strptime") before using it, and ships no stand-in of its own - so
 // neither does this. Where the platform has nothing to parse with, the name is
 // absent, which is the answer a script is written to expect.
-#ifdef Q_CC_MSVC
+#ifdef Q_OS_WIN
 static const bool haveStrptime = false;
 #else
 static const bool haveStrptime = true;
@@ -23502,7 +23502,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         // not fill in stays at zero, which is where a day or month of "0" can
         // carry a date back into the one before - as it does in Vim, which
         // forwards to the same platform function.
-#ifndef Q_CC_MSVC
+#ifndef Q_OS_WIN
         const QByteArray format = arg(0).toString().toLocal8Bit();
         const QByteArray text = arg(1).toString().toLocal8Bit();
         struct tm parts = {};
