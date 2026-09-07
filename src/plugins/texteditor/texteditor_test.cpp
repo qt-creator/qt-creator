@@ -6,6 +6,7 @@
 #include "texteditor_test.h"
 
 #include "storagesettings.h"
+#include "displaysettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "texteditor.h"
@@ -106,6 +107,8 @@ private slots:
     void testIndentUnindent();
     void testMakefileForcesTabPolicy();
     void testTextDocumentChanged();
+    void testIndentationGuides_data();
+    void testIndentationGuides();
     void testMoveLinesEndingInEmptyLine();
 };
 
@@ -309,6 +312,88 @@ void TextEditorTest::testTextDocumentChanged()
 
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(widget.textDocument(), document.data());
+}
+
+void TextEditorTest::testIndentationGuides_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("prefix");
+    QTest::addColumn<int>("cursorWidth");
+
+    const QList<QString> texts = {"", "  ", "\t", "\t\tvalue", " \t \tvalue"};
+    for (int i = 0; i < texts.size(); ++i) {
+        for (const QString &prefix : {QString(), QString("+")}) {
+            if (!prefix.isEmpty() && texts.at(i).contains('\t'))
+                continue;
+            for (int cursorWidth : {1, 2, 4}) {
+                const QString name = QString("text%1-prefix%2-cursor%3")
+                                         .arg(i).arg(prefix.size()).arg(cursorWidth);
+                QTest::newRow(qPrintable(name)) << texts.at(i) << prefix << cursorWidth;
+            }
+        }
+    }
+}
+
+void TextEditorTest::testIndentationGuides()
+{
+    QFETCH(QString, text);
+    QFETCH(QString, prefix);
+    QFETCH(int, cursorWidth);
+
+    class GuideEditorWidget : public TextEditorWidget
+    {
+    public:
+        using TextEditorWidget::setVisualIndentOffset;
+        using TextEditorWidget::triggerPendingUpdates;
+    } widget;
+    widget.setTextDocument(TextDocumentPtr(new TextDocument));
+    widget.triggerPendingUpdates();
+    widget.setVisualIndentOffset(prefix.size());
+    widget.setCursorWidth(cursorWidth);
+    widget.resize(600, 200);
+
+    TabSettingsData settings = widget.textDocument()->tabSettings();
+    settings.m_autoDetect = false;
+    settings.m_tabSize = 8;
+    settings.m_indentSize = 4;
+    widget.textDocument()->setTabSettings(settings);
+    const QString neighbour = prefix + QString(16, ' ') + "value";
+    widget.setPlainText(neighbour + '\n' + prefix + text + '\n' + neighbour);
+
+    DisplaySettingsData display = widget.displaySettings();
+    display.m_visualizeIndent = false;
+    display.m_visualizeWhitespace = false;
+    display.m_textWrapping = false;
+    display.m_displayMinimap = false;
+    widget.setDisplaySettings(display);
+    widget.show();
+    const QImage withoutGuides = widget.viewport()->grab().toImage();
+    display.m_visualizeIndent = true;
+    widget.setDisplaySettings(display);
+    const QImage withGuides = widget.viewport()->grab().toImage();
+
+    QTextCursor reference(widget.document()->firstBlock());
+    const QTextBlock target = reference.block().next();
+    QTextCursor targetCursor(target);
+    const QRect targetRect = widget.cursorRect(targetCursor);
+    const qreal scale = withGuides.devicePixelRatio();
+    const int tolerance = qMax(1, qRound(scale));
+    const int depth = text.simplified().isEmpty() ? 16 : settings.indentationColumn(text);
+    for (int column = 0; column < depth; column += settings.m_indentSize) {
+        reference.setPosition(prefix.size() + column);
+        const int x = qRound(widget.cursorRect(reference).right() * scale);
+        bool foundGuide = false;
+        for (int dx = -tolerance; dx <= tolerance; ++dx) {
+            int changedPixels = 0;
+            for (int y = qRound((targetRect.top() + 2) * scale);
+                 y < qRound((targetRect.bottom() - 2) * scale); ++y) {
+                if (withGuides.pixel(x + dx, y) != withoutGuides.pixel(x + dx, y))
+                    ++changedPixels;
+            }
+            foundGuide |= changedPixels >= targetRect.height() * scale / 2;
+        }
+        QVERIFY2(foundGuide, qPrintable(QString("Missing guide at column %1").arg(column)));
+    }
 }
 
 // Regression test for QTCREATORBUG-34933.
