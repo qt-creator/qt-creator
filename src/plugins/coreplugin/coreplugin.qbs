@@ -25,8 +25,13 @@ QtcPlugin {
     ]
 
     cpp.dynamicLibraries: {
-        if (qbs.targetOS.contains("windows"))
-            return ["ole32", "user32"]
+        var libs = []
+        if (qbs.targetOS.contains("windows")) {
+            libs.push("ole32", "user32");
+            if (qbs.toolchain.contains("mingw"))
+                libs.push("uuid");
+        }
+        return libs;
     }
 
     cpp.frameworks: qbs.targetOS.contains("macos") ? ["AppKit"] : undefined

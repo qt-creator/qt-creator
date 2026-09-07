@@ -43,6 +43,7 @@ QtcLibrary {
     }
 
     Export {
-        cpp.includePaths: project.ide_source_tree + "/src/libs/3rdparty/quickjs/src"
+        Depends { name: "cpp" }
+        cpp.systemIncludePaths: project.ide_source_tree + "/src/libs/3rdparty/quickjs/src"
     }
 }
