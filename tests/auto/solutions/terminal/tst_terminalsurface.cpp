@@ -9,6 +9,7 @@
 #include <QRegularExpression>
 #include <QStringList>
 
+#include <limits>
 #include <memory>
 #include <variant>
 
@@ -19,6 +20,8 @@ class tst_TerminalSurface : public QObject
     Q_OBJECT
 
 private:
+    static constexpr int notFound = std::numeric_limits<int>::min();
+
     std::unique_ptr<TerminalSurface> m_surface;
 
     QString textAt(int y) const
@@ -417,50 +420,211 @@ private slots:
         }
     }
 
-    void resizeKeepsTheCursorOnItsCharacter_data()
+    int rowOfThePrompt() const
     {
-        QTest::addColumn<int>("promptLength");
+        for (int y = 0; y < m_surface->fullSize().height(); ++y) {
+            if (rowText(y).startsWith("PP>"))
+                return y;
+        }
+        return notFound;
+    }
+
+    QByteArray promptWithInput(int inputLength) const
+    {
+        QByteArray out = QByteArray("PP> ") + QByteArray(inputLength, 'e');
+        if ((out.size() % m_surface->liveSize().width()) == 0)
+            out += " \r\x1b[K";
+        return out;
+    }
+
+    static QByteArray repaintFrom(int rowsAbove)
+    {
+        QByteArray out;
+        if (rowsAbove > 0)
+            out = "\x1b[" + QByteArray::number(rowsAbove) + "A";
+        return out + "\r\x1b[J";
+    }
+
+    void aShellsRepaintAfterAResizeLandsOnItsPrompt_data()
+    {
+        QTest::addColumn<int>("inputLength");
         QTest::addColumn<QList<QSize>>("sizes");
 
-        QTest::newRow("full row, narrower") << 19 << QList<QSize>{{10, 6}};
-        QTest::newRow("full row, wider") << 19 << QList<QSize>{{40, 6}};
-        QTest::newRow("short prompt") << 5 << QList<QSize>{{11, 6}, {30, 6}};
-        QTest::newRow("wrapped prompt") << 34 << QList<QSize>{{13, 6}, {29, 6}};
+        QTest::newRow("wrapped input, narrower") << 60 << QList<QSize>{{30, 12}};
+        QTest::newRow("wrapped input, wider") << 60 << QList<QSize>{{70, 12}};
+        QTest::newRow("input filling a row, narrower") << 36 << QList<QSize>{{15, 12}};
+        QTest::newRow("input filling a row, wider") << 36 << QList<QSize>{{55, 12}};
+        QTest::newRow("input over three rows") << 100 << QList<QSize>{{25, 12}};
+        QTest::newRow("one column at a time")
+            << 60 << QList<QSize>{{36, 12}, {34, 12}, {32, 12}, {30, 12}, {32, 12}, {34, 12}};
+        QTest::newRow("drag a corner") << 60 << QList<QSize>{{31, 10}, {60, 16}, {24, 12}};
+    }
+
+    void aShellsRepaintAfterAResizeLandsOnItsPrompt()
+    {
+        QFETCH(int, inputLength);
+        QFETCH(QList<QSize>, sizes);
+
+        initSurface({40, 12});
+        const QString history = write({"history one", "history two"});
+        m_surface->dataFromPty(promptWithInput(inputLength));
+
+        const QString expected = history + "PP> " + QString(inputLength, 'e');
+        QCOMPARE(surfaceText(), expected);
+
+        for (const QSize &size : sizes) {
+            QVERIFY(rowOfThePrompt() != notFound);
+            const int rowsBelowThePrompt = m_surface->cursor().position.y() - rowOfThePrompt();
+            QVERIFY(rowsBelowThePrompt >= 0);
+
+            resizeTo(size);
+            m_surface->dataFromPty(repaintFrom(rowsBelowThePrompt) + promptWithInput(inputLength));
+
+            QVERIFY2(surfaceText() == expected,
+                     qPrintable(QString("after resize to %1x%2 and a repaint from %3 rows "
+                                        "above:\n  got      %4\n  expected %5")
+                                    .arg(size.width())
+                                    .arg(size.height())
+                                    .arg(rowsBelowThePrompt)
+                                    .arg(surfaceText(), expected)));
+        }
+    }
+
+    void aResizeKeepsTheCursorWhereTheApplicationLeftIt_data()
+    {
+        QTest::addColumn<int>("inputLength");
+        QTest::addColumn<QList<QSize>>("sizes");
+
+        QTest::newRow("one row, narrower") << 14 << QList<QSize>{{10, 6}};
+        QTest::newRow("one row, wider") << 14 << QList<QSize>{{40, 6}};
+        QTest::newRow("short input") << 2 << QList<QSize>{{11, 6}, {30, 6}};
+        QTest::newRow("wrapped input") << 31 << QList<QSize>{{13, 6}, {29, 6}};
+        QTest::newRow("very narrow and back") << 14 << QList<QSize>{{3, 6}, {20, 6}};
         QTest::newRow("drag one column at a time")
-            << 19
+            << 14
             << QList<QSize>{{19, 6}, {18, 6}, {17, 6}, {16, 6}, {17, 6}, {18, 6}, {19, 6}, {20, 6}};
     }
 
-    void resizeKeepsTheCursorOnItsCharacter()
+    void aResizeKeepsTheCursorWhereTheApplicationLeftIt()
     {
-        QFETCH(int, promptLength);
+        QFETCH(int, inputLength);
         QFETCH(QList<QSize>, sizes);
 
-        initSurface({20, 6});
+        const int width = 20;
+        initSurface({width, 6});
         write({"history one", "history two"});
+        m_surface->dataFromPty(promptWithInput(inputLength));
 
-        m_surface->dataFromPty(QString(promptLength, '.').toUtf8() + "Z");
-
-        const auto cursorIsAfterTheZ = [this] {
-            const QPoint pos = m_surface->cursor().position;
-            QPoint before = pos - QPoint(1, 0);
-            if (before.x() < 0)
-                before = {m_surface->liveSize().width() - 1, pos.y() - 1};
-
-            return m_surface->fetchCell(before.x(), before.y()).text == QString("Z")
-                   || m_surface->fetchCell(pos.x(), pos.y()).text == QString("Z");
-        };
-        QVERIFY(cursorIsAfterTheZ());
+        const int written = 4 + inputLength;
+        int rowsBelowThePrompt = written / width;
+        int column = written % width;
+        if (column == 0) {
+            --rowsBelowThePrompt;
+            column = width;
+        }
 
         for (const QSize &size : sizes) {
             resizeTo(size);
-            QVERIFY2(cursorIsAfterTheZ(),
-                     qPrintable(QString("after resize to %1x%2 the cursor is at %3,%4")
+            column = qMin(column, size.width());
+            QVERIFY(rowOfThePrompt() != notFound);
+
+            const QPoint cursor = m_surface->cursor().position;
+            const QPoint wanted{qMin(column, size.width() - 1),
+                                rowOfThePrompt() + rowsBelowThePrompt};
+            QVERIFY2(cursor == wanted,
+                     qPrintable(QString("after resizing to %1x%2 the cursor is at %3,%4 instead "
+                                        "of %5,%6")
                                     .arg(size.width())
                                     .arg(size.height())
-                                    .arg(m_surface->cursor().position.x())
-                                    .arg(m_surface->cursor().position.y())));
+                                    .arg(cursor.x())
+                                    .arg(cursor.y())
+                                    .arg(wanted.x())
+                                    .arg(wanted.y())));
         }
+    }
+
+    void aCursorParkedOnACharacterIsNotTakenForADeferredWrap()
+    {
+        initSurface({20, 6});
+        write({"history one", "history two"});
+        m_surface->dataFromPty(QByteArray(20, 'x') + "\r" + QByteArray(19, 'x'));
+
+        const int row = m_surface->cursor().position.y();
+        int column = 19;
+        QCOMPARE(m_surface->cursor().position, QPoint(column, row));
+
+        for (const QSize &size : {QSize{19, 6}, {18, 6}, {17, 6}, {18, 6}, {19, 6}, {20, 6}}) {
+            resizeTo(size);
+            column = qMin(column, size.width());
+
+            QCOMPARE(m_surface->cursor().position, QPoint(qMin(column, size.width() - 1), row));
+        }
+    }
+
+    void aResizeKeepsTheTextBelowAParkedCursor()
+    {
+        initSurface({100, 10});
+
+        const QString written(500, 'a');
+        m_surface->dataFromPty(written.toUtf8());
+        QCOMPARE(surfaceText(), written);
+
+        for (const QSize &size : {QSize{20, 10}, {1, 6}, {100, 10}}) {
+            resizeTo(size);
+            QVERIFY2(surfaceText() == written,
+                     qPrintable(QString("after resize to %1x%2, %3 of %4 characters are left")
+                                    .arg(size.width())
+                                    .arg(size.height())
+                                    .arg(surfaceText().size())
+                                    .arg(written.size())));
+        }
+    }
+
+    void aResizeKeepsBlankLinesAboveAParkedCursor()
+    {
+        initSurface({20, 6});
+        write({"", "", "one", "two"});
+        m_surface->dataFromPty(promptWithInput(56));
+
+        resizeTo({60, 6});
+
+        QCOMPARE(rowText(0), QString());
+        QCOMPARE(rowText(1), QString());
+        QCOMPARE(rowText(2), QString("one"));
+        QCOMPARE(rowText(3), QString("two"));
+        QCOMPARE(rowText(4), QString("PP> ") + QString(56, 'e'));
+    }
+
+    void aWriteAfterANarrowingContinuesWhereTheWriterLeftOff()
+    {
+        initSurface({20, 6});
+
+        const QString filled = QString(19, '.') + "Z";
+        m_surface->dataFromPty(filled.toUtf8());
+
+        resizeTo({10, 6});
+        m_surface->dataFromPty("Y");
+
+        QCOMPARE(rowText(0), QString(10, '.'));
+        QCOMPARE(rowText(1), QString("Y") + QString(8, '.') + "Z");
+    }
+
+    void aResizeDoesNotLeaveTheCursorInsideAWideCharacter()
+    {
+        initSurface({20, 6});
+
+        const QChar wide(0x4f60);
+        m_surface->dataFromPty(QString(11, 'a').toUtf8() + QString(5, wide).toUtf8() + "b");
+
+        resizeTo({14, 6});
+
+        const QPoint cursor = m_surface->cursor().position;
+        QVERIFY2(cursor.x() == 0 || m_surface->cellWidthAt(cursor.x() - 1, cursor.y()) == 1,
+                 qPrintable(QString("the cursor at %1,%2 is the second half of the character at "
+                                    "%3,%2")
+                                .arg(cursor.x())
+                                .arg(cursor.y())
+                                .arg(cursor.x() - 1)));
     }
 
     void aWriteAfterAResizeDoesNotOverwriteTheLastCharacter()
@@ -471,11 +635,11 @@ private slots:
         m_surface->dataFromPty(filled.toUtf8());
         QCOMPARE(surfaceText(), filled);
 
-        resizeTo({10, 6});
+        resizeTo({40, 6});
         m_surface->dataFromPty("Y");
 
         QCOMPARE(surfaceText(), filled + "Y");
-        QCOMPARE(rowText(2), QString("Y"));
+        QCOMPARE(rowText(0), filled + "Y");
     }
 
     int interiorHole(int y) const

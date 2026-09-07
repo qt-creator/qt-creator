@@ -206,9 +206,6 @@ void Scrollback::closeLastLine()
 
 void Scrollback::appendLine(Line line)
 {
-    if (line.isEmpty())
-        return;
-
     m_lines.push_back(std::move(line));
     m_cum.push_back(m_cum.back() + m_lines.back().rowCount(m_width));
     m_cachedRow = -1;

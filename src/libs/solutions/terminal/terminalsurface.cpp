@@ -382,17 +382,6 @@ struct TerminalSurfacePrivate
         return info && info->continuation;
     }
 
-    bool cursorIsPending(VTermPos cursor)
-    {
-        if (cursor.col != liveSize().width() - 1)
-            return false;
-
-        VTermScreenCell cell;
-        VTermPos pos{cursor.row, cursor.col};
-        vterm_screen_get_cell(m_vtermScreen, pos, &cell);
-        return cell.chars[0] != 0;
-    }
-
     static int cellColumns(const VTermScreenCell &cell)
     {
         return cell.width < 1 ? 1 : int(cell.width);
@@ -413,40 +402,12 @@ struct TerminalSurfacePrivate
         return cursorRow;
     }
 
-    struct Place
+    struct CursorInLine
     {
-        int row = 0;
-        int col = 0;
+        int line = -1;
+        int rowInLine = 0;
+        int column = 0;
     };
-
-    static Place placeColumn(const Scrollback::Line &line, int cols, int column)
-    {
-        int row = 0;
-        int used = 0;
-        int consumed = 0;
-
-        for (const VTermScreenCell &cell : line.chars()) {
-            if (consumed >= column)
-                return {row, used};
-
-            const int width = cellColumns(cell);
-            if (used + width > cols) {
-                ++row;
-                used = 0;
-            }
-            used += width;
-            consumed += width;
-        }
-
-        for (int extra = column - consumed; extra > 0; --extra) {
-            if (used + 1 > cols) {
-                ++row;
-                used = 0;
-            }
-            ++used;
-        }
-        return {row, used};
-    }
 
     const VTermScreenCell &blankCell()
     {
@@ -461,12 +422,12 @@ struct TerminalSurfacePrivate
         return m_blank;
     }
 
-    std::vector<Scrollback::Line> gatherScreenLines(int *cursorLine, int *cursorColumn)
+    std::vector<Scrollback::Line> gatherScreenLines(CursorInLine *cursorInLine)
     {
         VTermState *state = vterm_obtain_state(m_vterm.get());
         VTermPos cursor;
         vterm_state_get_cursorpos(state, &cursor);
-        const int cursorCol = cursor.col + (cursorIsPending(cursor) ? 1 : 0);
+        const int cursorCol = cursor.col + vterm_state_get_at_phantom(state);
 
         const int cols = liveSize().width();
         const int lastRow = lastUsedScreenRow(cursor.row);
@@ -481,6 +442,7 @@ struct TerminalSurfacePrivate
         }
 
         std::vector<VTermScreenCell> rowCells(static_cast<size_t>(cols));
+        int rowsInLine = joined ? lines.back().rowCount(cols) : 0;
 
         for (int y = 0; y <= lastRow; ++y) {
             for (int x = 0; x < cols; ++x) {
@@ -489,11 +451,12 @@ struct TerminalSurfacePrivate
             }
 
             const bool continuation = y == 0 ? joined : screenRowIsContinuation(y);
-            if (!continuation || lines.empty())
+            if (!continuation || lines.empty()) {
                 lines.emplace_back();
+                rowsInLine = 0;
+            }
 
             Scrollback::Line &line = lines.back();
-            const int before = line.columns();
 
             int take = cols;
             const bool wrapsIntoNext = y < lastRow && screenRowIsContinuation(y + 1);
@@ -508,20 +471,17 @@ struct TerminalSurfacePrivate
                     --take;
             }
 
-            if (y == cursor.row) {
-                *cursorLine = int(lines.size()) - 1;
-                *cursorColumn = before + qMin(cursorCol, cols);
-            }
+            if (y == cursor.row)
+                *cursorInLine = {int(lines.size()) - 1, rowsInLine, cursorCol};
 
             line.appendChars(rowCells.data(), take);
+            ++rowsInLine;
         }
 
         if (lines.empty())
             lines.emplace_back();
-        if (*cursorLine < 0) {
-            *cursorLine = int(lines.size()) - 1;
-            *cursorColumn = 0;
-        }
+        if (cursorInLine->line < 0)
+            cursorInLine->line = int(lines.size()) - 1;
 
         return lines;
     }
@@ -530,9 +490,8 @@ struct TerminalSurfacePrivate
     {
         const int newCols = newSize.width();
 
-        int cursorLine = -1;
-        int cursorColumn = 0;
-        std::vector<Scrollback::Line> lines = gatherScreenLines(&cursorLine, &cursorColumn);
+        CursorInLine cursor;
+        std::vector<Scrollback::Line> lines = gatherScreenLines(&cursor);
 
         const auto totalRows = [&] {
             int rows = 0;
@@ -543,20 +502,17 @@ struct TerminalSurfacePrivate
 
         while (totalRows() < newSize.height() && m_scrollback->lineCount() > 0) {
             lines.insert(lines.begin(), m_scrollback->takeLastLine());
-            ++cursorLine;
+            ++cursor.line;
         }
 
         const int total = totalRows();
 
-        int cursorRow = 0;
-        for (int i = 0; i < cursorLine; ++i)
+        int cursorRow = cursor.rowInLine;
+        for (int i = 0; i < cursor.line; ++i)
             cursorRow += lines[size_t(i)].rowCount(newCols);
-        const Place cursorPlace = placeColumn(lines[size_t(cursorLine)], newCols, cursorColumn);
-        cursorRow += cursorPlace.row;
 
-        int firstScreenRow = qMax(0, total - newSize.height());
-        if (cursorRow < firstScreenRow)
-            firstScreenRow = cursorRow;
+        const int firstScreenRow = qMax(0, qMax(total, cursorRow + 1) - newSize.height());
+        cursorRow = qMax(cursorRow, firstScreenRow);
 
         m_reflowing = true;
         m_blankValid = false;
@@ -609,8 +565,17 @@ struct TerminalSurfacePrivate
             }
         }
 
-        vterm_state_set_cursorpos(state,
-                                  VTermPos{cursorRow - firstScreenRow, cursorPlace.col});
+        const int cursorScreenRow = cursorRow - firstScreenRow;
+        int cursorColumn = qMin(cursor.column, newCols);
+        if (cursorColumn < newCols) {
+            VTermScreenCell cell;
+            const VTermPos pos{cursorScreenRow, cursorColumn};
+            vterm_screen_get_cell(m_vtermScreen, pos, &cell);
+            if (isSpacer(cell))
+                --cursorColumn;
+        }
+
+        vterm_state_set_cursorpos(state, VTermPos{cursorScreenRow, cursorColumn});
 
         m_reflowing = false;
 

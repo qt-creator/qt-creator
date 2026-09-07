@@ -23,7 +23,6 @@ public:
         void close();
 
         const std::vector<VTermScreenCell> &chars() const { return m_chars; }
-        int columns() const { return m_columns; }
         bool isEmpty() const { return m_chars.empty(); }
 
         int rowCount(int cols) const;
