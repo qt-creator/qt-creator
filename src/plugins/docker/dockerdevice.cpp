@@ -419,6 +419,14 @@ QList<MountPair> parseMounts(const QStringList &entries)
     return Utils::transform(entries, &parseMount);
 }
 
+QList<MountPair> parseMounts(const QStringList &entries, MacroExpander *expander)
+{
+    if (!expander)
+        return parseMounts(entries);
+    return parseMounts(
+        Utils::transform(entries, [expander](const QString &e) { return expander->expand(e); }));
+}
+
 FilePath mapToContainerPath(const QList<MountPair> &mounts, const FilePath &hostPath)
 {
     for (const MountPair &mount : mounts) {
@@ -495,16 +503,10 @@ Result<FilePath> hostPathFor(
         Tr::tr("localSource: No mount point found for %1").arg(devicePath.toUserOutput()));
 }
 
-// The aspect's own operator()() expands macros, mounts.value() does not, and the
-// default entry is "%{Config:DefaultProjectDirectory:NativeFilePath}". Expand
-// before splitting, so a macro containing a colon cannot look like a separator.
+// The aspect's own operator()() expands macros, mounts.value() does not.
 QList<MountPair> DockerDevicePrivate::mountPairs(const QStringList &entries) const
 {
-    Utils::MacroExpander *expander = q->mounts.macroExpander();
-    if (!expander)
-        return parseMounts(entries);
-    return parseMounts(
-        Utils::transform(entries, [expander](const QString &e) { return expander->expand(e); }));
+    return parseMounts(entries, q->mounts.macroExpander());
 }
 
 Tasks DockerDevicePrivate::validateMounts() const
@@ -512,12 +514,8 @@ Tasks DockerDevicePrivate::validateMounts() const
     Tasks result;
 
     for (const MountPair &mount : mountPairs(q->mounts.value())) {
-        if (!mount.path.isDir()) {
-            const QString message = Tr::tr("Path \"%1\" is not a directory or does not exist.")
-                                        .arg(mount.path.toUserOutput());
-
-            result.append(Task(Task::Error, message, {}, -1, {}));
-        }
+        if (const Result<> res = validateMount(mount); !res)
+            result.append(Task(Task::Error, res.error(), {}, -1, {}));
     }
     return result;
 }
@@ -708,35 +706,38 @@ static QStringList toMountArg(const MountPair &mi)
     return QStringList{"--mount", mountArg};
 }
 
-static Result<> isValidMountInfo(const MountPair &mi)
+Result<> validateMount(const MountPair &mi)
 {
     if (!mi.path.isLocal())
-        return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
+        return make_unexpected(Tr::tr("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
 
     if (mi.path.isEmpty() && mi.containerPath.isEmpty())
-        return make_unexpected(QString("Both paths are empty."));
+        return make_unexpected(Tr::tr("Both paths are empty."));
 
     if (mi.path.isEmpty()) {
-        return make_unexpected(QString("The local path is empty, the container path is \"%1\".")
+        return make_unexpected(Tr::tr("The local path is empty, the container path is \"%1\".")
                                    .arg(mi.containerPath.toUserOutput()));
     }
 
     if (mi.containerPath.isEmpty()) {
-        return make_unexpected(
-            QString("The container path is empty, the local path is \"%1\".").arg(mi.path.toUserOutput()));
+        return make_unexpected(Tr::tr("The container path is empty, the local path is \"%1\".")
+                                   .arg(mi.path.toUserOutput()));
     }
 
     if (!mi.path.isAbsolutePath() || !mi.containerPath.isAbsolutePath()) {
-        return make_unexpected(QString("The path \"%1\" or \"%2\" is not absolute.")
-                                   .arg(mi.path.toUserOutput())
-                                   .arg(mi.containerPath.toUserOutput()));
+        return make_unexpected(Tr::tr("The path \"%1\" or \"%2\" is not absolute.")
+                                   .arg(mi.path.toUserOutput(), mi.containerPath.toUserOutput()));
     }
 
-    if (mi.containerPath.isRootPath())
-        return make_unexpected(QString("The path \"%1\" is root.").arg(mi.containerPath.toUserOutput()));
+    if (mi.containerPath.isRootPath()) {
+        return make_unexpected(
+            Tr::tr("The path \"%1\" is root.").arg(mi.containerPath.toUserOutput()));
+    }
 
-    if (!mi.path.exists())
-        return make_unexpected(QString("The path \"%1\" does not exist.").arg(mi.path.toUserOutput()));
+    if (!mi.path.exists()) {
+        return make_unexpected(
+            Tr::tr("The path \"%1\" does not exist.").arg(mi.path.toUserOutput()));
+    }
 
     return {};
 }
@@ -803,7 +804,7 @@ QStringList DockerDevicePrivate::createMountArgs(const CreateCommandLineParams &
     }
 
     for (const MountPair &mi : mounts) {
-        if (isValidMountInfo(mi))
+        if (validateMount(mi))
             cmds += toMountArg(mi);
     }
 

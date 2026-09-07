@@ -6,9 +6,12 @@
 #include "dockerdevice.h"
 #include "dockersettings.h"
 
+#include <projectexplorer/task.h>
+
 #include <utils/filepath.h>
 #include <utils/macroexpander.h>
 
+#include <QTemporaryDir>
 #include <QTest>
 
 using namespace Utils;
@@ -200,6 +203,52 @@ private slots:
         QCOMPARE(source->path(), (FilePath::fromUserInput(dir) / "a.pro").path());
     }
 
+    // Which entries make it onto the docker command line, and which are dropped
+    // for the "Paths to mount" label to warn about. The reasons are translated,
+    // so only the verdict is compared.
+    void testValidateMount_data()
+    {
+        QTest::addColumn<QString>("entry");
+        QTest::addColumn<bool>("isValid");
+
+        const QString dir = m_existingDir.path();
+
+        QTest::newRow("existing directory") << dir << true;
+        QTest::newRow("mapped to a container path") << dir + ":/work" << true;
+        // An entry whose macro expanded to nothing, which is what the default
+        // entry does when there is no default project directory.
+        QTest::newRow("empty") << QString() << false;
+        QTest::newRow("relative host path") << "src:/work" << false;
+        QTest::newRow("container root") << dir + ":/" << false;
+        QTest::newRow("does not exist") << dir + "/nope" << false;
+    }
+
+    void testValidateMount()
+    {
+        QFETCH(QString, entry);
+        QFETCH(bool, isValid);
+
+        const Result<> res = validateMount(parseMount(entry));
+        QCOMPARE(bool(res), isValid);
+        // The label shows the reason, so a silent rejection is of no use.
+        if (!isValid)
+            QVERIFY(!res.error().isEmpty());
+    }
+
+    // Device validation answers from the same rule, so an entry that will be
+    // dropped is not reported as fine on the way into a build.
+    void testValidateReportsDroppedMount()
+    {
+        const DockerDevice::Ptr device = DockerDevice::create(&dockerSettings());
+        device->mounts.setValue({m_existingDir.path()});
+        QVERIFY(device->validate().isEmpty());
+
+        // The container path is the root, which docker refuses, so the entry
+        // never reaches the command line.
+        device->mounts.setValue({m_existingDir.path() + ":/"});
+        QCOMPARE(device->validate().size(), 1);
+    }
+
     // The way in has to agree with the way out, or a file handed to a process in
     // the container and a file read back from it end up at different places.
     void testMapToContainerPath_data()
@@ -252,6 +301,9 @@ private slots:
         QVERIFY(device->configuredDevicePath(device->rootPath().withNewPath("/work/a.pro"))
                     .isEmpty());
     }
+
+private:
+    QTemporaryDir m_existingDir;
 };
 
 QObject *createDockerMountTest()

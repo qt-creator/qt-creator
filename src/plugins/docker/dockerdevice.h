@@ -45,6 +45,16 @@ std::pair<QString, QString> splitMountEntry(const QString &entry);
 MountPair parseMount(const QString &entry);
 QList<MountPair> parseMounts(const QStringList &entries);
 
+// The same for entries as the user wrote them. The default entry is
+// "%{Config:DefaultProjectDirectory:NativeFilePath}", so the macros are
+// expanded before the split, or one containing a colon would look like a
+// separator.
+QList<MountPair> parseMounts(const QStringList &entries, Utils::MacroExpander *expander);
+
+// Why a mount is left off the docker command line, if it is. Docker would
+// refuse to create the container for those, so they are dropped instead.
+Utils::Result<> validateMount(const MountPair &mount);
+
 // Where a host path shows up inside the container, for a mount that names its
 // container path. Empty when no such mount covers it, leaving the caller with
 // the plain path. The way back is DockerDevicePrivate::localSource().

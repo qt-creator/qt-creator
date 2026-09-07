@@ -58,11 +58,25 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     auto pathListLabel = new InfoLabel(Tr::tr("Paths to mount:"));
     pathListLabel->setElideMode(Qt::ElideNone);
-    pathListLabel->setAdditionalToolTip(Tr::tr("Source directory list should not be empty."));
 
     auto markupMounts = [dockerDevice, pathListLabel] {
-        const bool isEmpty = dockerDevice->mounts.volatileValue().isEmpty();
-        pathListLabel->setType(isEmpty ? InfoLabelType::Warning : InfoLabelType::None);
+        const QStringList entries = dockerDevice->mounts.volatileValue();
+        QStringList warnings;
+        if (entries.isEmpty()) {
+            warnings.append(Tr::tr("Source directory list should not be empty."));
+        } else {
+            const QList<MountPair> mounts
+                = parseMounts(entries, dockerDevice->mounts.macroExpander());
+            for (int i = 0; i < entries.size(); ++i) {
+                const Result<> res = validateMount(mounts.at(i));
+                if (!res) {
+                    warnings.append(
+                        Tr::tr("\"%1\" is not mounted: %2").arg(entries.at(i), res.error()));
+                }
+            }
+        }
+        pathListLabel->setType(warnings.isEmpty() ? InfoLabelType::None : InfoLabelType::Warning);
+        pathListLabel->setAdditionalToolTip(warnings.join('\n'));
     };
     markupMounts();
 
