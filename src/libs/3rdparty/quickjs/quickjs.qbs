@@ -12,7 +12,7 @@ QtcLibrary {
         cpp.defines: "WIN32_LEAN_AND_MEAN"
     }
     Properties {
-        condition: !qbs.targetOS.contains("windows")
+        condition: !qbs.targetOS.contains("windows") && !qbs.targetOS.contains("darwin")
         cpp.defines: ["_POSIX_C_SOURCE='200112L'", "_DEFAULT_SOURCE"]
     }
     cpp.defines: base
