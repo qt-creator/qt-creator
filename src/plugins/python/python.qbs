@@ -81,6 +81,8 @@ QtcPlugin {
         name: "tests"
         prefix: "tests/"
         files: [
+            "pylspprune_test.cpp",
+            "pylspprune_test.h",
             "pyprojecttoml_test.cpp",
             "pyprojecttoml_test.h",
         ]

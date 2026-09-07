@@ -28,6 +28,8 @@ add_qtc_plugin(Python
 extend_qtc_plugin(Python
   CONDITION WITH_TESTS
   SOURCES
+    tests/pylspprune_test.cpp
+    tests/pylspprune_test.h
     tests/pyprojecttoml_test.cpp
     tests/pyprojecttoml_test.h
 )

@@ -24,5 +24,6 @@ void pipIsUsableAsync(
     const Utils::FilePath &python, const std::function<void(const bool)> &callback);
 
 QString pythonVersion(const Utils::FilePath &python);
+Utils::FilePath localPylspRoot();
 
 } // Python::Internal

@@ -10,6 +10,7 @@
 #include "pythonsettings.h"
 #include "pythontr.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/processprogress.h>
 
@@ -216,6 +217,11 @@ QString pythonVersion(const FilePath &python)
     if (const std::optional<QString> version = DataFromProcess<QString>::getData(params))
         return *version;
     return {};
+}
+
+FilePath localPylspRoot()
+{
+    return Core::ICore::userResourcePath("pylsp");
 }
 
 } // namespace Python::Internal

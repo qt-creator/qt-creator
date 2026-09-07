@@ -13,6 +13,7 @@
 #include "pythonwizardpage.h"
 
 #ifdef WITH_TESTS
+#include "tests/pylspprune_test.h"
 #include "tests/pyprojecttoml_test.h"
 #endif // WITH_TESTS
 
@@ -79,6 +80,7 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
 #ifdef WITH_TESTS
+        addTestCreator(createPylspPruneTest);
         addTestCreator(createPyProjectTomlTest);
 #endif
         Core::IOptionsPage::registerCategory(

@@ -50,6 +50,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
+#include <QLoggingCategory>
 #include <QPointer>
 #include <QPushButton>
 #include <QSettings>
@@ -66,6 +67,8 @@ namespace Python::Internal {
 
 // This is defacto the unapplied state of PythonSettings::defaultInterpreter().id()
 static QString s_defaultId;
+
+static Q_LOGGING_CATEGORY(pylspLog, "qtc.python.pylsp", QtWarningMsg)
 
 InterpreterModel::InterpreterModel(const std::function<bool(QString)> &isDefaultId)
 {
@@ -729,6 +732,45 @@ static bool alreadyRegistered(const Interpreter &candidate)
                         });
 }
 
+std::optional<QStringList> activePythonVersions(const QList<Interpreter> &interpreters)
+{
+    QStringList versions;
+    for (const Interpreter &interpreter : interpreters) {
+        if (!interpreter.command.isLocal() || !interpreter.command.isExecutableFile())
+            continue;
+        const QString version = pythonVersion(interpreter.command);
+        // The interpreter is there, we just cannot read its version right now.
+        if (version.isEmpty()) {
+            qCDebug(pylspLog) << "Not pruning, no version for" << interpreter.command;
+            return std::nullopt;
+        }
+        versions << version;
+    }
+    return versions;
+}
+
+void prunePylspInstallations(const FilePath &pylspRoot, const QStringList &keepVersions)
+{
+    if (!pylspRoot.isDir())
+        return;
+
+    const FilePaths versionDirs
+        = pylspRoot.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
+    for (const FilePath &dir : versionDirs) {
+        if (keepVersions.contains(dir.fileName()))
+            continue;
+        qCDebug(pylspLog) << "Removing stale pylsp installation" << dir;
+        const Result<> removed = dir.removeRecursively();
+        QTC_CHECK_RESULT(removed);
+    }
+}
+
+static void pruneStalePylspInstallations(const QList<Interpreter> &interpreters)
+{
+    if (const std::optional<QStringList> versions = activePythonVersions(interpreters))
+        prunePylspInstallations(localPylspRoot(), *versions);
+}
+
 PythonSettings::PythonSettings()
 {
     QTC_ASSERT(!settingsInstance, return);
@@ -755,12 +797,17 @@ PythonSettings::PythonSettings()
                 settingsInstance->addInterpreter(interpreter);
         }
     };
+    const auto onPruneSetup = [](Async<void> &task) {
+        task.setConcurrentCallData(pruneStalePylspInstallations, settingsInstance->m_interpreters);
+    };
 
+    // The group is sequential, so the prune sees the settled interpreter list.
     const Group recipe {
         finishAllAndSuccess,
         Utils::HostOsInfo::isWindowsHost()
             ? AsyncTask<QList<Interpreter>>(onRegistrySetup, onTaskDone) : nullItem,
-        AsyncTask<QList<Interpreter>>(onPathSetup, onTaskDone)
+        AsyncTask<QList<Interpreter>>(onPathSetup, onTaskDone),
+        AsyncTask<void>(onPruneSetup)
     };
     m_taskTreeRunner.start(recipe);
 

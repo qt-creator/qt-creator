@@ -92,6 +92,12 @@ private:
 
 void setupPythonSettings();
 
+// The versions the pylsp installations are keyed by, or nothing if an
+// interpreter is there but does not report one.
+std::optional<QStringList> activePythonVersions(
+    const QList<PythonSettings::Interpreter> &interpreters);
+void prunePylspInstallations(const Utils::FilePath &pylspRoot, const QStringList &keepVersions);
+
 class InterpreterModel final : public Utils::ListModel<PythonSettings::Interpreter>
 {
 public:

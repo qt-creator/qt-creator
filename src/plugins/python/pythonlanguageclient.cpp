@@ -71,7 +71,7 @@ static FilePath pyLspPath(const FilePath &python)
 {
     const QString version = pythonVersion(python);
     if (python.isLocal())
-        return Core::ICore::userResourcePath() / "pylsp" / version;
+        return localPylspRoot() / version;
     if (const Result<FilePath> tmpDir = python.tmpDir())
         return *tmpDir / "qc-pylsp" / version;
     return {};
