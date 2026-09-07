@@ -129,7 +129,7 @@ IDeviceConstPtr EnvironmentAspect::device() const
     case RunDevice:
         return RunDeviceKitAspect::device(m_kit);
     case HostDevice:
-        DeviceManager::defaultDesktopDevice();
+        return DeviceManager::defaultDesktopDevice();
     }
     return {};
 }
