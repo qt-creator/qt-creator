@@ -34,6 +34,8 @@
 #include <coreplugin/perspective.h>
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/taskhub.h>
 
 #include <qtsupport/baseqtversion.h>
@@ -41,6 +43,7 @@
 
 #include <texteditor/texteditor.h>
 
+#include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -639,6 +642,37 @@ static QString breakAtFunctionCommand(const QString &function,
      return result;
 }
 
+static QString moduleForSourceFile(const FilePath &sourceFile)
+{
+    const Project *project = ProjectManager::projectForFile(sourceFile);
+    if (!project)
+        return {};
+    // An import library is not a module that gets loaded.
+    const FilePaths binaries = Utils::filtered(project->binariesForSourceFile(sourceFile),
+                                               [](const FilePath &binary) {
+        const QStringView suffix = binary.suffixView();
+        return suffix.compare(u"dll", Qt::CaseInsensitive) == 0
+                || suffix.compare(u"exe", Qt::CaseInsensitive) == 0;
+    });
+    if (binaries.size() != 1)
+        return {};
+    QString module = binaries.first().completeBaseName();
+    for (QChar &c : module) {
+        if (!c.isLetterOrNumber() && c != '_')
+            c = '_';
+    }
+    return module;
+}
+
+static BreakpointParameters scopedToModule(const BreakpointParameters &params)
+{
+    if (params.type != BreakpointByFileAndLine || !params.module.isEmpty())
+        return params;
+    BreakpointParameters result = params;
+    result.module = moduleForSourceFile(params.fileName);
+    return result;
+}
+
 void CdbEngine::runEngine()
 {
     if (debug)
@@ -911,7 +945,7 @@ void CdbEngine::executeRunToLine(const ContextData &data)
         bp.textPosition = data.textPosition;
     }
 
-    runCommand({cdbAddBreakpointCommand(bp, m_sourcePathMappings), BuiltinCommand,
+    runCommand({cdbAddBreakpointCommand(scopedToModule(bp), m_sourcePathMappings), BuiltinCommand,
                [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); }});
     continueInferior();
 }
@@ -2672,10 +2706,12 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
         response.textPosition.line =
             int(lineCorrection->fixLineNumber(parameters.fileName,
                                               unsigned(parameters.textPosition.line)));
-        QString cmd = cdbAddBreakpointCommand(response, m_sourcePathMappings, responseId);
+        QString cmd = cdbAddBreakpointCommand(scopedToModule(response), m_sourcePathMappings,
+                                              responseId);
         runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
     } else {
-        QString cmd = cdbAddBreakpointCommand(parameters, m_sourcePathMappings, responseId);
+        QString cmd = cdbAddBreakpointCommand(scopedToModule(parameters), m_sourcePathMappings,
+                                              responseId);
         runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
     }
     if (!parameters.enabled)
@@ -2757,7 +2793,8 @@ void CdbEngine::updateBreakpoint(const Breakpoint &bp)
     } else {
         // Delete and re-add, triggering update
         runCommand({cdbClearBreakpointCommand(bp), NoFlags});
-        QString cmd = cdbAddBreakpointCommand(parameters, m_sourcePathMappings, responseId);
+        QString cmd = cdbAddBreakpointCommand(scopedToModule(parameters), m_sourcePathMappings,
+                                              responseId);
         runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
         m_pendingBreakpointMap.insert(bp);
         listBreakpoints();
