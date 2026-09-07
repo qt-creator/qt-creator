@@ -28,6 +28,15 @@ namespace Mcp::Generated::Schema::_2025_11_25 {
 
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
+template<typename T>
+Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
+{
+    const Utils::Result<T> result = fromJson<T>(val);
+    if (result)
+        return result;
+    return Utils::ResultError(field + ": " + result.error());
+}
+
 /** The sender or recipient of messages and data in a conversation. */
 enum class Role {
     assistant,
@@ -50,7 +59,7 @@ struct Annotations {
      *
      * It can include multiple entries to indicate content useful for multiple audiences (e.g., `["user", "assistant"]`).
      */
-    std::optional<QList<Role>> _audience;
+    std::optional<QList<Role>> _audience{};
     /**
      * The moment the resource was last modified, as an ISO 8601 formatted string.
      *
@@ -59,7 +68,7 @@ struct Annotations {
      * Examples: last activity timestamp in an open file, timestamp when the resource
      * was attached, etc.
      */
-    std::optional<QString> _lastModified;
+    std::optional<QString> _lastModified{};
     /**
      * Describes how important this data is for operating the server.
      *
@@ -67,7 +76,7 @@ struct Annotations {
      * effectively required, while 0 means "least important," and indicates that
      * the data is entirely optional.
      */
-    std::optional<double> _priority;
+    std::optional<double> _priority{};
 
     Annotations& audience(const std::optional<QList<Role>> & v) { _audience = v; return *this; }
     Annotations& addAudience(const Role & v) { if (!_audience) _audience = QList<Role>{}; (*_audience).append(v); return *this; }
@@ -86,10 +95,10 @@ MCPSERVER_EXPORT QJsonObject toJson(const Annotations &data);
 
 /** Audio provided to or from an LLM. */
 struct AudioContent {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<Annotations> _annotations;  //!< Optional annotations for the client.
-    QString _data;  //!< The base64-encoded audio data.
-    QString _mimeType;  //!< The MIME type of the audio. Different providers may support different audio types.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations for the client.
+    QString _data{};  //!< The base64-encoded audio data.
+    QString _mimeType{};  //!< The MIME type of the audio. Different providers may support different audio types.
 
     AudioContent& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     AudioContent& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -112,7 +121,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const AudioContent &data);
 
 /** Base interface for metadata with name (identifier) and title (display name) properties. */
 struct BaseMetadata {
-    QString _name;  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
+    QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
@@ -121,7 +130,7 @@ struct BaseMetadata {
      * where `annotations.title` should be given precedence over using `name`,
      * if present).
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
 
     BaseMetadata& name(const QString & v) { _name = v; return *this; }
     BaseMetadata& title(const std::optional<QString> & v) { _title = v; return *this; }
@@ -136,10 +145,10 @@ MCPSERVER_EXPORT Utils::Result<BaseMetadata> fromJson<BaseMetadata>(const QJsonV
 MCPSERVER_EXPORT QJsonObject toJson(const BaseMetadata &data);
 
 struct BlobResourceContents {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _blob;  //!< A base64-encoded string representing the binary data of the item.
-    std::optional<QString> _mimeType;  //!< The MIME type of this resource, if known.
-    QString _uri;  //!< The URI of this resource.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _blob{};  //!< A base64-encoded string representing the binary data of the item.
+    std::optional<QString> _mimeType{};  //!< The MIME type of this resource, if known.
+    QString _uri{};  //!< The URI of this resource.
 
     BlobResourceContents& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     BlobResourceContents& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -161,9 +170,9 @@ MCPSERVER_EXPORT Utils::Result<BlobResourceContents> fromJson<BlobResourceConten
 MCPSERVER_EXPORT QJsonObject toJson(const BlobResourceContents &data);
 
 struct BooleanSchema {
-    std::optional<bool> _default_;
-    std::optional<QString> _description;
-    std::optional<QString> _title;
+    std::optional<bool> _default_{};
+    std::optional<QString> _description{};
+    std::optional<QString> _title{};
 
     BooleanSchema& default_(std::optional<bool> v) { _default_ = v; return *this; }
     BooleanSchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -192,7 +201,7 @@ MCPSERVER_EXPORT QJsonValue toJsonValue(const ProgressToken &val);
  * Include this in the `task` field of the request parameters.
  */
 struct TaskMetadata {
-    std::optional<int> _ttl;  //!< Requested duration in milliseconds to retain task from creation.
+    std::optional<int> _ttl{};  //!< Requested duration in milliseconds to retain task from creation.
 
     TaskMetadata& ttl(std::optional<int> v) { _ttl = v; return *this; }
 
@@ -210,16 +219,16 @@ struct CallToolRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<QMap<QString, QJsonValue>> _arguments;  //!< Arguments to use for the tool call.
-    QString _name;  //!< The name of the tool.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> _arguments{};  //!< Arguments to use for the tool call.
+    QString _name{};  //!< The name of the tool.
     /**
      * If specified, the caller is requesting task-augmented execution for this request.
      * The request will return a CreateTaskResult immediately, and the actual result can be
@@ -228,7 +237,7 @@ struct CallToolRequestParams {
      * Task augmentation is subject to capability negotiation - receivers MUST declare support
      * for task augmentation of specific request types in their capabilities.
      */
-    std::optional<TaskMetadata> _task;
+    std::optional<TaskMetadata> _task{};
 
     CallToolRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     CallToolRequestParams& arguments(const std::optional<QMap<QString, QJsonValue>> & v) { _arguments = v; return *this; }
@@ -259,8 +268,8 @@ using RequestId = std::variant<QString, int>;
 
 /** Used by the client to invoke a tool provided by the server. */
 struct CallToolRequest {
-    RequestId _id;
-    CallToolRequestParams _params;
+    RequestId _id{};
+    CallToolRequestParams _params{};
 
     CallToolRequest& id(const RequestId & v) { _id = v; return *this; }
     CallToolRequest& params(const CallToolRequestParams & v) { _params = v; return *this; }
@@ -275,10 +284,10 @@ MCPSERVER_EXPORT Utils::Result<CallToolRequest> fromJson<CallToolRequest>(const 
 MCPSERVER_EXPORT QJsonObject toJson(const CallToolRequest &data);
 
 struct TextResourceContents {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<QString> _mimeType;  //!< The MIME type of this resource, if known.
-    QString _text;  //!< The text of the item. This must only be set if the item can actually be represented as text (not binary data).
-    QString _uri;  //!< The URI of this resource.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QString> _mimeType{};  //!< The MIME type of this resource, if known.
+    QString _text{};  //!< The text of the item. This must only be set if the item can actually be represented as text (not binary data).
+    QString _uri{};  //!< The URI of this resource.
 
     TextResourceContents& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     TextResourceContents& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -313,9 +322,9 @@ MCPSERVER_EXPORT QJsonValue toJsonValue(const EmbeddedResourceResource &val);
  * of the LLM and/or the user.
  */
 struct EmbeddedResource {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<Annotations> _annotations;  //!< Optional annotations for the client.
-    EmbeddedResourceResource _resource;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations for the client.
+    EmbeddedResourceResource _resource{};
 
     EmbeddedResource& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     EmbeddedResource& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -336,10 +345,10 @@ MCPSERVER_EXPORT QJsonObject toJson(const EmbeddedResource &data);
 
 /** An image provided to or from an LLM. */
 struct ImageContent {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<Annotations> _annotations;  //!< Optional annotations for the client.
-    QString _data;  //!< The base64-encoded image data.
-    QString _mimeType;  //!< The MIME type of the image. Different providers may support different image types.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations for the client.
+    QString _data{};  //!< The base64-encoded image data.
+    QString _mimeType{};  //!< The MIME type of the image. Different providers may support different image types.
 
     ImageContent& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ImageContent& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -378,14 +387,14 @@ struct Icon {
      * Optional MIME type override if the source MIME type is missing or generic.
      * For example: `"image/png"`, `"image/jpeg"`, or `"image/svg+xml"`.
      */
-    std::optional<QString> _mimeType;
+    std::optional<QString> _mimeType{};
     /**
      * Optional array of strings that specify sizes at which the icon can be used.
      * Each string should be in WxH format (e.g., `"48x48"`, `"96x96"`) or `"any"` for scalable formats like SVG.
      *
      * If not provided, the client should assume that the icon can be used at any size.
      */
-    std::optional<QStringList> _sizes;
+    std::optional<QStringList> _sizes{};
     /**
      * A standard URI pointing to an icon resource. May be an HTTP/HTTPS URL or a
      * `data:` URI with Base64-encoded image data.
@@ -396,8 +405,8 @@ struct Icon {
      * Consumers SHOULD take appropriate precautions when consuming SVGs as they can contain
      * executable JavaScript.
      */
-    QString _src;
-    std::optional<Theme> _theme;
+    QString _src{};
+    std::optional<Theme> _theme{};
 
     Icon& mimeType(const std::optional<QString> & v) { _mimeType = v; return *this; }
     Icon& sizes(const std::optional<QStringList> & v) { _sizes = v; return *this; }
@@ -429,14 +438,14 @@ MCPSERVER_EXPORT QJsonObject toJson(const Icon &data);
  * Note: resource links returned by tools are not guaranteed to appear in the results of `resources/list` requests.
  */
 struct ResourceLink {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<Annotations> _annotations;  //!< Optional annotations for the client.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations for the client.
     /**
      * A description of what this resource represents.
      *
      * This can be used by clients to improve the LLM's understanding of available resources. It can be thought of like a "hint" to the model.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * Optional set of sized icons that the client can display in a user interface.
      *
@@ -448,15 +457,15 @@ struct ResourceLink {
      * - `image/svg+xml` - SVG images (scalable but requires security precautions)
      * - `image/webp` - WebP images (modern, efficient format)
      */
-    std::optional<QList<Icon>> _icons;
-    std::optional<QString> _mimeType;  //!< The MIME type of this resource, if known.
-    QString _name;  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
+    std::optional<QList<Icon>> _icons{};
+    std::optional<QString> _mimeType{};  //!< The MIME type of this resource, if known.
+    QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
      * The size of the raw resource content, in bytes (i.e., before base64 encoding or any tokenization), if known.
      *
      * This can be used by Hosts to display file sizes and estimate context window usage.
      */
-    std::optional<int> _size;
+    std::optional<int> _size{};
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
@@ -465,8 +474,8 @@ struct ResourceLink {
      * where `annotations.title` should be given precedence over using `name`,
      * if present).
      */
-    std::optional<QString> _title;
-    QString _uri;  //!< The URI of this resource.
+    std::optional<QString> _title{};
+    QString _uri{};  //!< The URI of this resource.
 
     ResourceLink& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ResourceLink& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -500,9 +509,9 @@ MCPSERVER_EXPORT QJsonObject toJson(const ResourceLink &data);
 
 /** Text provided to or from an LLM. */
 struct TextContent {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<Annotations> _annotations;  //!< Optional annotations for the client.
-    QString _text;  //!< The text content of the message.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations for the client.
+    QString _text{};  //!< The text content of the message.
 
     TextContent& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     TextContent& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -535,8 +544,8 @@ MCPSERVER_EXPORT QString dispatchValue(const ContentBlock &val);
 
 /** The server's response to a tool call. */
 struct CallToolResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QList<ContentBlock> _content;  //!< A list of content objects that represent the unstructured result of the tool call.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QList<ContentBlock> _content{};  //!< A list of content objects that represent the unstructured result of the tool call.
     /**
      * Whether the tool call ended in an error.
      *
@@ -551,8 +560,8 @@ struct CallToolResult {
      * server does not support tool calls, or any other exceptional conditions,
      * should be reported as an MCP error response.
      */
-    std::optional<bool> _isError;
-    std::optional<QMap<QString, QJsonValue>> _structuredContent;  //!< An optional JSON object that represents the structured result of the tool call.
+    std::optional<bool> _isError{};
+    std::optional<QMap<QString, QJsonValue>> _structuredContent{};  //!< An optional JSON object that represents the structured result of the tool call.
 
     CallToolResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     CallToolResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -580,15 +589,15 @@ MCPSERVER_EXPORT QJsonObject toJson(const CallToolResult &data);
 /** A request to cancel a task. */
 struct CancelTaskRequest {
     struct Params {
-        QString _taskId;  //!< The task identifier to cancel.
+        QString _taskId{};  //!< The task identifier to cancel.
 
         Params& taskId(const QString & v) { _taskId = v; return *this; }
 
         const QString& taskId() const { return _taskId; }
     };
 
-    RequestId _id;
-    Params _params;
+    RequestId _id{};
+    Params _params{};
 
     CancelTaskRequest& id(const RequestId & v) { _id = v; return *this; }
     CancelTaskRequest& params(const Params & v) { _params = v; return *this; }
@@ -608,7 +617,7 @@ MCPSERVER_EXPORT Utils::Result<CancelTaskRequest> fromJson<CancelTaskRequest>(co
 MCPSERVER_EXPORT QJsonObject toJson(const CancelTaskRequest &data);
 
 struct Result {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     QJsonObject _additionalProperties;  //!< additional properties
 
     Result& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
@@ -645,10 +654,10 @@ MCPSERVER_EXPORT QJsonValue toJsonValue(const TaskStatus &v);
 
 /** Data associated with a task. */
 struct Task {
-    QString _createdAt;  //!< ISO 8601 timestamp when the task was created.
-    QString _lastUpdatedAt;  //!< ISO 8601 timestamp when the task was last updated.
-    std::optional<int> _pollInterval;  //!< Suggested polling interval in milliseconds.
-    TaskStatus _status;  //!< Current task state.
+    QString _createdAt{};  //!< ISO 8601 timestamp when the task was created.
+    QString _lastUpdatedAt{};  //!< ISO 8601 timestamp when the task was last updated.
+    std::optional<int> _pollInterval{};  //!< Suggested polling interval in milliseconds.
+    TaskStatus _status{};  //!< Current task state.
     /**
      * Optional human-readable message describing the current task state.
      * This can provide context for any status, including:
@@ -656,9 +665,9 @@ struct Task {
      * - Summaries for "completed" status
      * - Diagnostic information for "failed" status (e.g., error details, what went wrong)
      */
-    std::optional<QString> _statusMessage;
-    QString _taskId;  //!< The task identifier.
-    std::optional<int> _ttl;  //!< Actual retention duration from creation in milliseconds, null for unlimited.
+    std::optional<QString> _statusMessage{};
+    QString _taskId{};  //!< The task identifier.
+    std::optional<int> _ttl{};  //!< Actual retention duration from creation in milliseconds, null for unlimited.
 
     Task& createdAt(const QString & v) { _createdAt = v; return *this; }
     Task& lastUpdatedAt(const QString & v) { _lastUpdatedAt = v; return *this; }
@@ -684,11 +693,11 @@ MCPSERVER_EXPORT QJsonObject toJson(const Task &data);
 
 /** The response to a tasks/cancel request. */
 struct CancelTaskResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _createdAt;  //!< ISO 8601 timestamp when the task was created.
-    QString _lastUpdatedAt;  //!< ISO 8601 timestamp when the task was last updated.
-    std::optional<int> _pollInterval;  //!< Suggested polling interval in milliseconds.
-    TaskStatus _status;  //!< Current task state.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _createdAt{};  //!< ISO 8601 timestamp when the task was created.
+    QString _lastUpdatedAt{};  //!< ISO 8601 timestamp when the task was last updated.
+    std::optional<int> _pollInterval{};  //!< Suggested polling interval in milliseconds.
+    TaskStatus _status{};  //!< Current task state.
     /**
      * Optional human-readable message describing the current task state.
      * This can provide context for any status, including:
@@ -696,9 +705,9 @@ struct CancelTaskResult {
      * - Summaries for "completed" status
      * - Diagnostic information for "failed" status (e.g., error details, what went wrong)
      */
-    std::optional<QString> _statusMessage;
-    QString _taskId;  //!< The task identifier.
-    std::optional<int> _ttl;  //!< Actual retention duration from creation in milliseconds, null for unlimited.
+    std::optional<QString> _statusMessage{};
+    QString _taskId{};  //!< The task identifier.
+    std::optional<int> _ttl{};  //!< Actual retention duration from creation in milliseconds, null for unlimited.
 
     CancelTaskResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     CancelTaskResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -729,8 +738,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const CancelTaskResult &data);
 
 /** Parameters for a `notifications/cancelled` notification. */
 struct CancelledNotificationParams {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<QString> _reason;  //!< An optional string describing the reason for the cancellation. This MAY be logged or presented to the user.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QString> _reason{};  //!< An optional string describing the reason for the cancellation. This MAY be logged or presented to the user.
     /**
      * The ID of the request to cancel.
      *
@@ -738,7 +747,7 @@ struct CancelledNotificationParams {
      * This MUST be provided for cancelling non-task requests.
      * This MUST NOT be used for cancelling tasks (use the `tasks/cancel` request instead).
      */
-    std::optional<RequestId> _requestId;
+    std::optional<RequestId> _requestId{};
 
     CancelledNotificationParams& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     CancelledNotificationParams& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -769,7 +778,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const CancelledNotificationParams &data);
  * For task cancellation, use the `tasks/cancel` request instead of this notification.
  */
 struct CancelledNotification {
-    CancelledNotificationParams _params;
+    CancelledNotificationParams _params{};
 
     CancelledNotification& params(const CancelledNotificationParams & v) { _params = v; return *this; }
 
@@ -787,8 +796,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const CancelledNotification &data);
 struct ClientCapabilities {
     /** Present if the client supports elicitation from the server. */
     struct Elicitation {
-        std::optional<QMap<QString, QJsonValue>> _form;
-        std::optional<QMap<QString, QJsonValue>> _url;
+        std::optional<QMap<QString, QJsonValue>> _form{};
+        std::optional<QMap<QString, QJsonValue>> _url{};
 
         Elicitation& form(const std::optional<QMap<QString, QJsonValue>> & v) { _form = v; return *this; }
         Elicitation& addForm(const QString &key, const QJsonValue &v) { if (!_form) _form = QMap<QString, QJsonValue>{}; (*_form)[key] = v; return *this; }
@@ -805,7 +814,7 @@ struct ClientCapabilities {
 
     /** Present if the client supports listing roots. */
     struct Roots {
-        std::optional<bool> _listChanged;  //!< Whether the client supports notifications for changes to the roots list.
+        std::optional<bool> _listChanged{};  //!< Whether the client supports notifications for changes to the roots list.
 
         Roots& listChanged(std::optional<bool> v) { _listChanged = v; return *this; }
 
@@ -818,8 +827,8 @@ struct ClientCapabilities {
          * Whether the client supports context inclusion via includeContext parameter.
          * If not declared, servers SHOULD only use `includeContext: "none"` (or omit it).
          */
-        std::optional<QMap<QString, QJsonValue>> _context;
-        std::optional<QMap<QString, QJsonValue>> _tools;  //!< Whether the client supports tool use via tools and toolChoice parameters.
+        std::optional<QMap<QString, QJsonValue>> _context{};
+        std::optional<QMap<QString, QJsonValue>> _tools{};  //!< Whether the client supports tool use via tools and toolChoice parameters.
 
         Sampling& context(const std::optional<QMap<QString, QJsonValue>> & v) { _context = v; return *this; }
         Sampling& addContext(const QString &key, const QJsonValue &v) { if (!_context) _context = QMap<QString, QJsonValue>{}; (*_context)[key] = v; return *this; }
@@ -840,7 +849,7 @@ struct ClientCapabilities {
         struct Requests {
             /** Task support for elicitation-related requests. */
             struct Elicitation {
-                std::optional<QMap<QString, QJsonValue>> _create;  //!< Whether the client supports task-augmented elicitation/create requests.
+                std::optional<QMap<QString, QJsonValue>> _create{};  //!< Whether the client supports task-augmented elicitation/create requests.
 
                 Elicitation& create(const std::optional<QMap<QString, QJsonValue>> & v) { _create = v; return *this; }
                 Elicitation& addCreate(const QString &key, const QJsonValue &v) { if (!_create) _create = QMap<QString, QJsonValue>{}; (*_create)[key] = v; return *this; }
@@ -852,7 +861,7 @@ struct ClientCapabilities {
 
             /** Task support for sampling-related requests. */
             struct Sampling {
-                std::optional<QMap<QString, QJsonValue>> _createMessage;  //!< Whether the client supports task-augmented sampling/createMessage requests.
+                std::optional<QMap<QString, QJsonValue>> _createMessage{};  //!< Whether the client supports task-augmented sampling/createMessage requests.
 
                 Sampling& createMessage(const std::optional<QMap<QString, QJsonValue>> & v) { _createMessage = v; return *this; }
                 Sampling& addCreateMessage(const QString &key, const QJsonValue &v) { if (!_createMessage) _createMessage = QMap<QString, QJsonValue>{}; (*_createMessage)[key] = v; return *this; }
@@ -862,8 +871,8 @@ struct ClientCapabilities {
                 QJsonObject createMessageAsObject() const { if (!_createMessage) return {}; QJsonObject o; for (auto it = _createMessage->constBegin(); it != _createMessage->constEnd(); ++it) o.insert(it.key(), it.value()); return o; }
             };
 
-            std::optional<Elicitation> _elicitation;  //!< Task support for elicitation-related requests.
-            std::optional<Sampling> _sampling;  //!< Task support for sampling-related requests.
+            std::optional<Elicitation> _elicitation{};  //!< Task support for elicitation-related requests.
+            std::optional<Sampling> _sampling{};  //!< Task support for sampling-related requests.
 
             Requests& elicitation(const std::optional<Elicitation> & v) { _elicitation = v; return *this; }
             Requests& sampling(const std::optional<Sampling> & v) { _sampling = v; return *this; }
@@ -872,9 +881,9 @@ struct ClientCapabilities {
             const std::optional<Sampling>& sampling() const { return _sampling; }
         };
 
-        std::optional<QMap<QString, QJsonValue>> _cancel;  //!< Whether this client supports tasks/cancel.
-        std::optional<QMap<QString, QJsonValue>> _list;  //!< Whether this client supports tasks/list.
-        std::optional<Requests> _requests;  //!< Specifies which request types can be augmented with tasks.
+        std::optional<QMap<QString, QJsonValue>> _cancel{};  //!< Whether this client supports tasks/cancel.
+        std::optional<QMap<QString, QJsonValue>> _list{};  //!< Whether this client supports tasks/list.
+        std::optional<Requests> _requests{};  //!< Specifies which request types can be augmented with tasks.
 
         Tasks& cancel(const std::optional<QMap<QString, QJsonValue>> & v) { _cancel = v; return *this; }
         Tasks& addCancel(const QString &key, const QJsonValue &v) { if (!_cancel) _cancel = QMap<QString, QJsonValue>{}; (*_cancel)[key] = v; return *this; }
@@ -891,11 +900,11 @@ struct ClientCapabilities {
         const std::optional<Requests>& requests() const { return _requests; }
     };
 
-    std::optional<Elicitation> _elicitation;  //!< Present if the client supports elicitation from the server.
-    std::optional<QMap<QString, QJsonObject>> _experimental;  //!< Experimental, non-standard capabilities that the client supports.
-    std::optional<Roots> _roots;  //!< Present if the client supports listing roots.
-    std::optional<Sampling> _sampling;  //!< Present if the client supports sampling from an LLM.
-    std::optional<Tasks> _tasks;  //!< Present if the client supports task-augmented requests.
+    std::optional<Elicitation> _elicitation{};  //!< Present if the client supports elicitation from the server.
+    std::optional<QMap<QString, QJsonObject>> _experimental{};  //!< Experimental, non-standard capabilities that the client supports.
+    std::optional<Roots> _roots{};  //!< Present if the client supports listing roots.
+    std::optional<Sampling> _sampling{};  //!< Present if the client supports sampling from an LLM.
+    std::optional<Tasks> _tasks{};  //!< Present if the client supports task-augmented requests.
 
     ClientCapabilities& elicitation(const std::optional<Elicitation> & v) { _elicitation = v; return *this; }
     ClientCapabilities& experimental(const std::optional<QMap<QString, QJsonObject>> & v) { _experimental = v; return *this; }
@@ -952,7 +961,7 @@ MCPSERVER_EXPORT Utils::Result<ClientCapabilities> fromJson<ClientCapabilities>(
 MCPSERVER_EXPORT QJsonObject toJson(const ClientCapabilities &data);
 
 struct NotificationParams {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
 
     NotificationParams& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     NotificationParams& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -969,7 +978,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const NotificationParams &data);
 
 /** This notification is sent from the client to the server after initialization has finished. */
 struct InitializedNotification {
-    std::optional<NotificationParams> _params;
+    std::optional<NotificationParams> _params{};
 
     InitializedNotification& params(const std::optional<NotificationParams> & v) { _params = v; return *this; }
 
@@ -983,11 +992,11 @@ MCPSERVER_EXPORT QJsonObject toJson(const InitializedNotification &data);
 
 /** Parameters for a `notifications/progress` notification. */
 struct ProgressNotificationParams {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<QString> _message;  //!< An optional message describing the current progress.
-    double _progress;  //!< The progress thus far. This should increase every time progress is made, even if the total is unknown.
-    ProgressToken _progressToken;  //!< The progress token which was given in the initial request, used to associate this notification with the request that is proceeding.
-    std::optional<double> _total;  //!< Total number of items to process (or total progress required), if known.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QString> _message{};  //!< An optional message describing the current progress.
+    double _progress{};  //!< The progress thus far. This should increase every time progress is made, even if the total is unknown.
+    ProgressToken _progressToken{};  //!< The progress token which was given in the initial request, used to associate this notification with the request that is proceeding.
+    std::optional<double> _total{};  //!< Total number of items to process (or total progress required), if known.
 
     ProgressNotificationParams& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ProgressNotificationParams& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -1014,7 +1023,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ProgressNotificationParams &data);
  * An out-of-band notification used to inform the receiver of a progress update for a long-running request.
  */
 struct ProgressNotification {
-    ProgressNotificationParams _params;
+    ProgressNotificationParams _params{};
 
     ProgressNotification& params(const ProgressNotificationParams & v) { _params = v; return *this; }
 
@@ -1032,7 +1041,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ProgressNotification &data);
  * The server should then request an updated list of roots using the ListRootsRequest.
  */
 struct RootsListChangedNotification {
-    std::optional<NotificationParams> _params;
+    std::optional<NotificationParams> _params{};
 
     RootsListChangedNotification& params(const std::optional<NotificationParams> & v) { _params = v; return *this; }
 
@@ -1046,11 +1055,11 @@ MCPSERVER_EXPORT QJsonObject toJson(const RootsListChangedNotification &data);
 
 /** Parameters for a `notifications/tasks/status` notification. */
 struct TaskStatusNotificationParams {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _createdAt;  //!< ISO 8601 timestamp when the task was created.
-    QString _lastUpdatedAt;  //!< ISO 8601 timestamp when the task was last updated.
-    std::optional<int> _pollInterval;  //!< Suggested polling interval in milliseconds.
-    TaskStatus _status;  //!< Current task state.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _createdAt{};  //!< ISO 8601 timestamp when the task was created.
+    QString _lastUpdatedAt{};  //!< ISO 8601 timestamp when the task was last updated.
+    std::optional<int> _pollInterval{};  //!< Suggested polling interval in milliseconds.
+    TaskStatus _status{};  //!< Current task state.
     /**
      * Optional human-readable message describing the current task state.
      * This can provide context for any status, including:
@@ -1058,9 +1067,9 @@ struct TaskStatusNotificationParams {
      * - Summaries for "completed" status
      * - Diagnostic information for "failed" status (e.g., error details, what went wrong)
      */
-    std::optional<QString> _statusMessage;
-    QString _taskId;  //!< The task identifier.
-    std::optional<int> _ttl;  //!< Actual retention duration from creation in milliseconds, null for unlimited.
+    std::optional<QString> _statusMessage{};
+    QString _taskId{};  //!< The task identifier.
+    std::optional<int> _ttl{};  //!< Actual retention duration from creation in milliseconds, null for unlimited.
 
     TaskStatusNotificationParams& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     TaskStatusNotificationParams& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -1093,7 +1102,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const TaskStatusNotificationParams &data);
  * An optional notification from the receiver to the requestor, informing them that a task's status has changed. Receivers are not required to send these notifications.
  */
 struct TaskStatusNotification {
-    TaskStatusNotificationParams _params;
+    TaskStatusNotificationParams _params{};
 
     TaskStatusNotification& params(const TaskStatusNotificationParams & v) { _params = v; return *this; }
 
@@ -1119,7 +1128,7 @@ MCPSERVER_EXPORT QString dispatchValue(const ClientNotification &val);
 
 /** Identifies a prompt. */
 struct PromptReference {
-    QString _name;  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
+    QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
@@ -1128,7 +1137,7 @@ struct PromptReference {
      * where `annotations.title` should be given precedence over using `name`,
      * if present).
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
 
     PromptReference& name(const QString & v) { _name = v; return *this; }
     PromptReference& title(const std::optional<QString> & v) { _title = v; return *this; }
@@ -1144,7 +1153,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const PromptReference &data);
 
 /** A reference to a resource or resource template definition. */
 struct ResourceTemplateReference {
-    QString _uri;  //!< The URI or URI template of the resource.
+    QString _uri{};  //!< The URI or URI template of the resource.
 
     ResourceTemplateReference& uri(const QString & v) { _uri = v; return *this; }
 
@@ -1169,7 +1178,7 @@ struct CompleteRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
@@ -1178,8 +1187,8 @@ struct CompleteRequestParams {
 
     /** The argument's information */
     struct Argument {
-        QString _name;  //!< The name of the argument
-        QString _value;  //!< The value of the argument to use for completion matching.
+        QString _name{};  //!< The name of the argument
+        QString _value{};  //!< The value of the argument to use for completion matching.
 
         Argument& name(const QString & v) { _name = v; return *this; }
         Argument& value(const QString & v) { _value = v; return *this; }
@@ -1190,7 +1199,7 @@ struct CompleteRequestParams {
 
     /** Additional, optional context for completions */
     struct Context {
-        std::optional<QMap<QString, QString>> _arguments;  //!< Previously-resolved variables in a URI template or prompt.
+        std::optional<QMap<QString, QString>> _arguments{};  //!< Previously-resolved variables in a URI template or prompt.
 
         Context& arguments(const std::optional<QMap<QString, QString>> & v) { _arguments = v; return *this; }
         Context& addArgument(const QString &key, const QString & v) { if (!_arguments) _arguments = QMap<QString, QString>{}; (*_arguments)[key] = v; return *this; }
@@ -1198,10 +1207,10 @@ struct CompleteRequestParams {
         const std::optional<QMap<QString, QString>>& arguments() const { return _arguments; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    Argument _argument;  //!< The argument's information
-    std::optional<Context> _context;  //!< Additional, optional context for completions
-    CompleteRequestParamsRef _ref;
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    Argument _argument{};  //!< The argument's information
+    std::optional<Context> _context{};  //!< Additional, optional context for completions
+    CompleteRequestParamsRef _ref{};
 
     CompleteRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     CompleteRequestParams& argument(const Argument & v) { _argument = v; return *this; }
@@ -1236,8 +1245,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const CompleteRequestParams &data);
 
 /** A request from the client to the server, to ask for completion options. */
 struct CompleteRequest {
-    RequestId _id;
-    CompleteRequestParams _params;
+    RequestId _id{};
+    CompleteRequestParams _params{};
 
     CompleteRequest& id(const RequestId & v) { _id = v; return *this; }
     CompleteRequest& params(const CompleteRequestParams & v) { _params = v; return *this; }
@@ -1257,16 +1266,16 @@ struct GetPromptRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<QMap<QString, QString>> _arguments;  //!< Arguments to use for templating the prompt.
-    QString _name;  //!< The name of the prompt or prompt template.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QString>> _arguments{};  //!< Arguments to use for templating the prompt.
+    QString _name{};  //!< The name of the prompt or prompt template.
 
     GetPromptRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     GetPromptRequestParams& arguments(const std::optional<QMap<QString, QString>> & v) { _arguments = v; return *this; }
@@ -1290,8 +1299,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const GetPromptRequestParams &data);
 
 /** Used by the client to get a prompt provided by the server. */
 struct GetPromptRequest {
-    RequestId _id;
-    GetPromptRequestParams _params;
+    RequestId _id{};
+    GetPromptRequestParams _params{};
 
     GetPromptRequest& id(const RequestId & v) { _id = v; return *this; }
     GetPromptRequest& params(const GetPromptRequestParams & v) { _params = v; return *this; }
@@ -1308,15 +1317,15 @@ MCPSERVER_EXPORT QJsonObject toJson(const GetPromptRequest &data);
 /** A request to retrieve the result of a completed task. */
 struct GetTaskPayloadRequest {
     struct Params {
-        QString _taskId;  //!< The task identifier to retrieve results for.
+        QString _taskId{};  //!< The task identifier to retrieve results for.
 
         Params& taskId(const QString & v) { _taskId = v; return *this; }
 
         const QString& taskId() const { return _taskId; }
     };
 
-    RequestId _id;
-    Params _params;
+    RequestId _id{};
+    Params _params{};
 
     GetTaskPayloadRequest& id(const RequestId & v) { _id = v; return *this; }
     GetTaskPayloadRequest& params(const Params & v) { _params = v; return *this; }
@@ -1338,15 +1347,15 @@ MCPSERVER_EXPORT QJsonObject toJson(const GetTaskPayloadRequest &data);
 /** A request to retrieve the state of a task. */
 struct GetTaskRequest {
     struct Params {
-        QString _taskId;  //!< The task identifier to query.
+        QString _taskId{};  //!< The task identifier to query.
 
         Params& taskId(const QString & v) { _taskId = v; return *this; }
 
         const QString& taskId() const { return _taskId; }
     };
 
-    RequestId _id;
-    Params _params;
+    RequestId _id{};
+    Params _params{};
 
     GetTaskRequest& id(const RequestId & v) { _id = v; return *this; }
     GetTaskRequest& params(const Params & v) { _params = v; return *this; }
@@ -1374,7 +1383,7 @@ struct Implementation {
      * and capabilities. For example, a server might describe the types of resources
      * or tools it provides, while a client might describe its intended use case.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * Optional set of sized icons that the client can display in a user interface.
      *
@@ -1386,8 +1395,8 @@ struct Implementation {
      * - `image/svg+xml` - SVG images (scalable but requires security precautions)
      * - `image/webp` - WebP images (modern, efficient format)
      */
-    std::optional<QList<Icon>> _icons;
-    QString _name;  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
+    std::optional<QList<Icon>> _icons{};
+    QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
@@ -1396,9 +1405,9 @@ struct Implementation {
      * where `annotations.title` should be given precedence over using `name`,
      * if present).
      */
-    std::optional<QString> _title;
-    QString _version;
-    std::optional<QString> _websiteUrl;  //!< An optional URL of the website for this implementation.
+    std::optional<QString> _title{};
+    QString _version{};
+    std::optional<QString> _websiteUrl{};  //!< An optional URL of the website for this implementation.
 
     Implementation& description(const std::optional<QString> & v) { _description = v; return *this; }
     Implementation& icons(const std::optional<QList<Icon>> & v) { _icons = v; return *this; }
@@ -1427,17 +1436,17 @@ struct InitializeRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    ClientCapabilities _capabilities;
-    Implementation _clientInfo;
-    QString _protocolVersion;  //!< The latest version of the Model Context Protocol that the client supports. The client MAY decide to support older versions as well.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    ClientCapabilities _capabilities{};
+    Implementation _clientInfo{};
+    QString _protocolVersion{};  //!< The latest version of the Model Context Protocol that the client supports. The client MAY decide to support older versions as well.
 
     InitializeRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     InitializeRequestParams& capabilities(const ClientCapabilities & v) { _capabilities = v; return *this; }
@@ -1464,8 +1473,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const InitializeRequestParams &data);
  * This request is sent from the client to the server when it first connects, asking it to begin initialization.
  */
 struct InitializeRequest {
-    RequestId _id;
-    InitializeRequestParams _params;
+    RequestId _id{};
+    InitializeRequestParams _params{};
 
     InitializeRequest& id(const RequestId & v) { _id = v; return *this; }
     InitializeRequest& params(const InitializeRequestParams & v) { _params = v; return *this; }
@@ -1485,19 +1494,19 @@ struct PaginatedRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * An opaque token representing the current pagination position.
      * If provided, the server should return results starting after this cursor.
      */
-    std::optional<QString> _cursor;
+    std::optional<QString> _cursor{};
 
     PaginatedRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     PaginatedRequestParams& cursor(const std::optional<QString> & v) { _cursor = v; return *this; }
@@ -1518,8 +1527,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const PaginatedRequestParams &data);
 
 /** Sent from the client to request a list of prompts and prompt templates the server has. */
 struct ListPromptsRequest {
-    RequestId _id;
-    std::optional<PaginatedRequestParams> _params;
+    RequestId _id{};
+    std::optional<PaginatedRequestParams> _params{};
 
     ListPromptsRequest& id(const RequestId & v) { _id = v; return *this; }
     ListPromptsRequest& params(const std::optional<PaginatedRequestParams> & v) { _params = v; return *this; }
@@ -1535,8 +1544,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListPromptsRequest &data);
 
 /** Sent from the client to request a list of resource templates the server has. */
 struct ListResourceTemplatesRequest {
-    RequestId _id;
-    std::optional<PaginatedRequestParams> _params;
+    RequestId _id{};
+    std::optional<PaginatedRequestParams> _params{};
 
     ListResourceTemplatesRequest& id(const RequestId & v) { _id = v; return *this; }
     ListResourceTemplatesRequest& params(const std::optional<PaginatedRequestParams> & v) { _params = v; return *this; }
@@ -1552,8 +1561,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListResourceTemplatesRequest &data);
 
 /** Sent from the client to request a list of resources the server has. */
 struct ListResourcesRequest {
-    RequestId _id;
-    std::optional<PaginatedRequestParams> _params;
+    RequestId _id{};
+    std::optional<PaginatedRequestParams> _params{};
 
     ListResourcesRequest& id(const RequestId & v) { _id = v; return *this; }
     ListResourcesRequest& params(const std::optional<PaginatedRequestParams> & v) { _params = v; return *this; }
@@ -1569,8 +1578,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListResourcesRequest &data);
 
 /** A request to retrieve a list of tasks. */
 struct ListTasksRequest {
-    RequestId _id;
-    std::optional<PaginatedRequestParams> _params;
+    RequestId _id{};
+    std::optional<PaginatedRequestParams> _params{};
 
     ListTasksRequest& id(const RequestId & v) { _id = v; return *this; }
     ListTasksRequest& params(const std::optional<PaginatedRequestParams> & v) { _params = v; return *this; }
@@ -1586,8 +1595,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListTasksRequest &data);
 
 /** Sent from the client to request a list of tools the server has. */
 struct ListToolsRequest {
-    RequestId _id;
-    std::optional<PaginatedRequestParams> _params;
+    RequestId _id{};
+    std::optional<PaginatedRequestParams> _params{};
 
     ListToolsRequest& id(const RequestId & v) { _id = v; return *this; }
     ListToolsRequest& params(const std::optional<PaginatedRequestParams> & v) { _params = v; return *this; }
@@ -1607,14 +1616,14 @@ struct RequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
 
     RequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
 
@@ -1635,8 +1644,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const RequestParams &data);
  * A ping, issued by either the server or the client, to check that the other party is still alive. The receiver must promptly respond, or else may be disconnected.
  */
 struct PingRequest {
-    RequestId _id;
-    std::optional<RequestParams> _params;
+    RequestId _id{};
+    std::optional<RequestParams> _params{};
 
     PingRequest& id(const RequestId & v) { _id = v; return *this; }
     PingRequest& params(const std::optional<RequestParams> & v) { _params = v; return *this; }
@@ -1656,15 +1665,15 @@ struct ReadResourceRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _uri;  //!< The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _uri{};  //!< The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.
 
     ReadResourceRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     ReadResourceRequestParams& uri(const QString & v) { _uri = v; return *this; }
@@ -1685,8 +1694,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const ReadResourceRequestParams &data);
 
 /** Sent from the client to the server, to read a specific resource URI. */
 struct ReadResourceRequest {
-    RequestId _id;
-    ReadResourceRequestParams _params;
+    RequestId _id{};
+    ReadResourceRequestParams _params{};
 
     ReadResourceRequest& id(const RequestId & v) { _id = v; return *this; }
     ReadResourceRequest& params(const ReadResourceRequestParams & v) { _params = v; return *this; }
@@ -1730,15 +1739,15 @@ struct SetLevelRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    LoggingLevel _level;  //!< The level of logging that the client wants to receive from the server. The server should send all logs at this level and higher (i.e., more severe) to the client as notifications/message.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    LoggingLevel _level{};  //!< The level of logging that the client wants to receive from the server. The server should send all logs at this level and higher (i.e., more severe) to the client as notifications/message.
 
     SetLevelRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     SetLevelRequestParams& level(const LoggingLevel & v) { _level = v; return *this; }
@@ -1759,8 +1768,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const SetLevelRequestParams &data);
 
 /** A request from the client to the server, to enable or adjust logging. */
 struct SetLevelRequest {
-    RequestId _id;
-    SetLevelRequestParams _params;
+    RequestId _id{};
+    SetLevelRequestParams _params{};
 
     SetLevelRequest& id(const RequestId & v) { _id = v; return *this; }
     SetLevelRequest& params(const SetLevelRequestParams & v) { _params = v; return *this; }
@@ -1780,15 +1789,15 @@ struct SubscribeRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _uri;  //!< The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _uri{};  //!< The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.
 
     SubscribeRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     SubscribeRequestParams& uri(const QString & v) { _uri = v; return *this; }
@@ -1811,8 +1820,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const SubscribeRequestParams &data);
  * Sent from the client to request resources/updated notifications from the server whenever a particular resource changes.
  */
 struct SubscribeRequest {
-    RequestId _id;
-    SubscribeRequestParams _params;
+    RequestId _id{};
+    SubscribeRequestParams _params{};
 
     SubscribeRequest& id(const RequestId & v) { _id = v; return *this; }
     SubscribeRequest& params(const SubscribeRequestParams & v) { _params = v; return *this; }
@@ -1832,15 +1841,15 @@ struct UnsubscribeRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _uri;  //!< The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _uri{};  //!< The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.
 
     UnsubscribeRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     UnsubscribeRequestParams& uri(const QString & v) { _uri = v; return *this; }
@@ -1863,8 +1872,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const UnsubscribeRequestParams &data);
  * Sent from the client to request cancellation of resources/updated notifications from the server. This should follow a previous resources/subscribe request.
  */
 struct UnsubscribeRequest {
-    RequestId _id;
-    UnsubscribeRequestParams _params;
+    RequestId _id{};
+    UnsubscribeRequestParams _params{};
 
     UnsubscribeRequest& id(const RequestId & v) { _id = v; return *this; }
     UnsubscribeRequest& params(const UnsubscribeRequestParams & v) { _params = v; return *this; }
@@ -1901,33 +1910,33 @@ struct ToolResultContent {
      *
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
-    std::optional<QMap<QString, QJsonValue>> __meta;
+    std::optional<QMap<QString, QJsonValue>> __meta{};
     /**
      * The unstructured result content of the tool use.
      *
      * This has the same format as CallToolResult.content and can include text, images,
      * audio, resource links, and embedded resources.
      */
-    QList<ContentBlock> _content;
+    QList<ContentBlock> _content{};
     /**
      * Whether the tool use resulted in an error.
      *
      * If true, the content typically describes the error that occurred.
      * Default: false
      */
-    std::optional<bool> _isError;
+    std::optional<bool> _isError{};
     /**
      * An optional structured result object.
      *
      * If the tool defined an outputSchema, this SHOULD conform to that schema.
      */
-    std::optional<QMap<QString, QJsonValue>> _structuredContent;
+    std::optional<QMap<QString, QJsonValue>> _structuredContent{};
     /**
      * The ID of the tool use this result corresponds to.
      *
      * This MUST match the ID from a previous ToolUseContent.
      */
-    QString _toolUseId;
+    QString _toolUseId{};
 
     ToolResultContent& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ToolResultContent& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -1962,15 +1971,15 @@ struct ToolUseContent {
      *
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
-    std::optional<QMap<QString, QJsonValue>> __meta;
+    std::optional<QMap<QString, QJsonValue>> __meta{};
     /**
      * A unique identifier for this tool use.
      *
      * This ID is used to match tool results to their corresponding tool uses.
      */
-    QString _id;
-    QMap<QString, QJsonValue> _input;  //!< The arguments to pass to the tool, conforming to the tool's input schema.
-    QString _name;  //!< The name of the tool to call.
+    QString _id{};
+    QMap<QString, QJsonValue> _input{};  //!< The arguments to pass to the tool, conforming to the tool's input schema.
+    QString _name{};  //!< The name of the tool to call.
 
     ToolUseContent& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ToolUseContent& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2019,10 +2028,10 @@ MCPSERVER_EXPORT QJsonValue toJsonValue(const CreateMessageResultContent &val);
  * to inspect the response (human in the loop) and decide whether to allow the server to see it.
  */
 struct CreateMessageResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    CreateMessageResultContent _content;
-    QString _model;  //!< The name of the model that generated the message.
-    Role _role;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    CreateMessageResultContent _content{};
+    QString _model{};  //!< The name of the model that generated the message.
+    Role _role{};
     /**
      * The reason why sampling stopped, if known.
      *
@@ -2034,7 +2043,7 @@ struct CreateMessageResult {
      *
      * This field is an open string to allow for provider-specific stop reasons.
      */
-    std::optional<QString> _stopReason;
+    std::optional<QString> _stopReason{};
 
     CreateMessageResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     CreateMessageResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2078,14 +2087,14 @@ struct ElicitResult {
         decline
     };
 
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    Action _action;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    Action _action{};
     /**
      * The submitted form data, only present when action is "accept" and mode was "form".
      * Contains values matching the requested schema.
      * Omitted for out-of-band mode responses.
      */
-    std::optional<QMap<QString, ElicitResultContentValue>> _content;
+    std::optional<QMap<QString, ElicitResultContentValue>> _content{};
 
     ElicitResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ElicitResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2118,7 +2127,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ElicitResult &data);
  * For example, a tools/call task would return the CallToolResult structure.
  */
 struct GetTaskPayloadResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     QJsonObject _additionalProperties;  //!< additional properties
 
     GetTaskPayloadResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
@@ -2139,11 +2148,11 @@ MCPSERVER_EXPORT QJsonObject toJson(const GetTaskPayloadResult &data);
 
 /** The response to a tasks/get request. */
 struct GetTaskResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _createdAt;  //!< ISO 8601 timestamp when the task was created.
-    QString _lastUpdatedAt;  //!< ISO 8601 timestamp when the task was last updated.
-    std::optional<int> _pollInterval;  //!< Suggested polling interval in milliseconds.
-    TaskStatus _status;  //!< Current task state.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _createdAt{};  //!< ISO 8601 timestamp when the task was created.
+    QString _lastUpdatedAt{};  //!< ISO 8601 timestamp when the task was last updated.
+    std::optional<int> _pollInterval{};  //!< Suggested polling interval in milliseconds.
+    TaskStatus _status{};  //!< Current task state.
     /**
      * Optional human-readable message describing the current task state.
      * This can provide context for any status, including:
@@ -2151,9 +2160,9 @@ struct GetTaskResult {
      * - Summaries for "completed" status
      * - Diagnostic information for "failed" status (e.g., error details, what went wrong)
      */
-    std::optional<QString> _statusMessage;
-    QString _taskId;  //!< The task identifier.
-    std::optional<int> _ttl;  //!< Actual retention duration from creation in milliseconds, null for unlimited.
+    std::optional<QString> _statusMessage{};
+    QString _taskId{};  //!< The task identifier.
+    std::optional<int> _ttl{};  //!< Actual retention duration from creation in milliseconds, null for unlimited.
 
     GetTaskResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     GetTaskResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2184,19 +2193,19 @@ MCPSERVER_EXPORT QJsonObject toJson(const GetTaskResult &data);
 
 /** Represents a root directory or file that the server can operate on. */
 struct Root {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * An optional name for the root. This can be used to provide a human-readable
      * identifier for the root, which may be useful for display purposes or for
      * referencing the root in other parts of the application.
      */
-    std::optional<QString> _name;
+    std::optional<QString> _name{};
     /**
      * The URI identifying the root. This *must* start with file:// for now.
      * This restriction may be relaxed in future versions of the protocol to allow
      * other URI schemes.
      */
-    QString _uri;
+    QString _uri{};
 
     Root& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     Root& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2221,8 +2230,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const Root &data);
  * or file that the server can operate on.
  */
 struct ListRootsResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QList<Root> _roots;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QList<Root> _roots{};
 
     ListRootsResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ListRootsResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2242,13 +2251,13 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListRootsResult &data);
 
 /** The response to a tasks/list request. */
 struct ListTasksResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * An opaque token representing the pagination position after the last returned result.
      * If present, there may be more results available.
      */
-    std::optional<QString> _nextCursor;
-    QList<Task> _tasks;
+    std::optional<QString> _nextCursor{};
+    QList<Task> _tasks{};
 
     ListTasksResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ListTasksResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2280,9 +2289,9 @@ MCPSERVER_EXPORT QJsonValue toJsonValue(const ClientResult &val);
 /** The server's response to a completion/complete request */
 struct CompleteResult {
     struct Completion {
-        std::optional<bool> _hasMore;  //!< Indicates whether there are additional completion options beyond those provided in the current response, even if the exact total is unknown.
-        std::optional<int> _total;  //!< The total number of completion options available. This can exceed the number of values actually sent in the response.
-        QStringList _values;  //!< An array of completion values. Must not exceed 100 items.
+        std::optional<bool> _hasMore{};  //!< Indicates whether there are additional completion options beyond those provided in the current response, even if the exact total is unknown.
+        std::optional<int> _total{};  //!< The total number of completion options available. This can exceed the number of values actually sent in the response.
+        QStringList _values{};  //!< An array of completion values. Must not exceed 100 items.
 
         Completion& hasMore(std::optional<bool> v) { _hasMore = v; return *this; }
         Completion& total(std::optional<int> v) { _total = v; return *this; }
@@ -2294,8 +2303,8 @@ struct CompleteResult {
         const QStringList& values() const { return _values; }
     };
 
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    Completion _completion;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    Completion _completion{};
 
     CompleteResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     CompleteResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2335,7 +2344,7 @@ struct ModelHint {
      * The client MAY also map the string to a different provider's model name or a different model family, as long as it fills a similar niche; for example:
      * - `gemini-1.5-flash` could match `claude-3-haiku-20240307`
      */
-    std::optional<QString> _name;
+    std::optional<QString> _name{};
 
     ModelHint& name(const std::optional<QString> & v) { _name = v; return *this; }
 
@@ -2366,7 +2375,7 @@ struct ModelPreferences {
      * is not important, while a value of 1 means cost is the most important
      * factor.
      */
-    std::optional<double> _costPriority;
+    std::optional<double> _costPriority{};
     /**
      * Optional hints to use for model selection.
      *
@@ -2376,19 +2385,19 @@ struct ModelPreferences {
      * The client SHOULD prioritize these hints over the numeric priorities, but
      * MAY still use the priorities to select from ambiguous matches.
      */
-    std::optional<QList<ModelHint>> _hints;
+    std::optional<QList<ModelHint>> _hints{};
     /**
      * How much to prioritize intelligence and capabilities when selecting a
      * model. A value of 0 means intelligence is not important, while a value of 1
      * means intelligence is the most important factor.
      */
-    std::optional<double> _intelligencePriority;
+    std::optional<double> _intelligencePriority{};
     /**
      * How much to prioritize sampling speed (latency) when selecting a model. A
      * value of 0 means speed is not important, while a value of 1 means speed is
      * the most important factor.
      */
-    std::optional<double> _speedPriority;
+    std::optional<double> _speedPriority{};
 
     ModelPreferences& costPriority(std::optional<double> v) { _costPriority = v; return *this; }
     ModelPreferences& hints(const std::optional<QList<ModelHint>> & v) { _hints = v; return *this; }
@@ -2409,9 +2418,9 @@ MCPSERVER_EXPORT QJsonObject toJson(const ModelPreferences &data);
 
 /** Describes a message issued to or received from an LLM API. */
 struct SamplingMessage {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    CreateMessageResultContent _content;
-    Role _role;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    CreateMessageResultContent _content{};
+    Role _role{};
 
     SamplingMessage& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     SamplingMessage& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2449,7 +2458,7 @@ struct ToolAnnotations {
      *
      * Default: true
      */
-    std::optional<bool> _destructiveHint;
+    std::optional<bool> _destructiveHint{};
     /**
      * If true, calling the tool repeatedly with the same arguments
      * will have no additional effect on its environment.
@@ -2458,7 +2467,7 @@ struct ToolAnnotations {
      *
      * Default: false
      */
-    std::optional<bool> _idempotentHint;
+    std::optional<bool> _idempotentHint{};
     /**
      * If true, this tool may interact with an "open world" of external
      * entities. If false, the tool's domain of interaction is closed.
@@ -2467,14 +2476,14 @@ struct ToolAnnotations {
      *
      * Default: true
      */
-    std::optional<bool> _openWorldHint;
+    std::optional<bool> _openWorldHint{};
     /**
      * If true, the tool does not modify its environment.
      *
      * Default: false
      */
-    std::optional<bool> _readOnlyHint;
-    std::optional<QString> _title;  //!< A human-readable title for the tool.
+    std::optional<bool> _readOnlyHint{};
+    std::optional<QString> _title{};  //!< A human-readable title for the tool.
 
     ToolAnnotations& destructiveHint(std::optional<bool> v) { _destructiveHint = v; return *this; }
     ToolAnnotations& idempotentHint(std::optional<bool> v) { _idempotentHint = v; return *this; }
@@ -2513,7 +2522,7 @@ struct ToolExecution {
         required
     };
 
-    std::optional<TaskSupport> _taskSupport;
+    std::optional<TaskSupport> _taskSupport{};
 
     ToolExecution& taskSupport(const std::optional<TaskSupport> & v) { _taskSupport = v; return *this; }
 
@@ -2536,9 +2545,9 @@ MCPSERVER_EXPORT QJsonObject toJson(const ToolExecution &data);
 struct Tool {
     /** A JSON Schema object defining the expected parameters for the tool. */
     struct InputSchema {
-        std::optional<QString> _dollarschema;
-        std::optional<QMap<QString, QJsonObject>> _properties;
-        std::optional<QStringList> _required;
+        std::optional<QString> _dollarschema{};
+        std::optional<QMap<QString, QJsonObject>> _properties{};
+        std::optional<QStringList> _required{};
 
         InputSchema& dollarschema(const std::optional<QString> & v) { _dollarschema = v; return *this; }
         InputSchema& properties(const std::optional<QMap<QString, QJsonObject>> & v) { _properties = v; return *this; }
@@ -2559,9 +2568,9 @@ struct Tool {
      * Currently restricted to type: "object" at the root level.
      */
     struct OutputSchema {
-        std::optional<QString> _dollarschema;
-        std::optional<QMap<QString, QJsonObject>> _properties;
-        std::optional<QStringList> _required;
+        std::optional<QString> _dollarschema{};
+        std::optional<QMap<QString, QJsonObject>> _properties{};
+        std::optional<QStringList> _required{};
 
         OutputSchema& dollarschema(const std::optional<QString> & v) { _dollarschema = v; return *this; }
         OutputSchema& properties(const std::optional<QMap<QString, QJsonObject>> & v) { _properties = v; return *this; }
@@ -2574,20 +2583,20 @@ struct Tool {
         const std::optional<QStringList>& required() const { return _required; }
     };
 
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * Optional additional tool information.
      *
      * Display name precedence order is: title, annotations.title, then name.
      */
-    std::optional<ToolAnnotations> _annotations;
+    std::optional<ToolAnnotations> _annotations{};
     /**
      * A human-readable description of the tool.
      *
      * This can be used by clients to improve the LLM's understanding of available tools. It can be thought of like a "hint" to the model.
      */
-    std::optional<QString> _description;
-    std::optional<ToolExecution> _execution;  //!< Execution-related properties for this tool.
+    std::optional<QString> _description{};
+    std::optional<ToolExecution> _execution{};  //!< Execution-related properties for this tool.
     /**
      * Optional set of sized icons that the client can display in a user interface.
      *
@@ -2599,9 +2608,9 @@ struct Tool {
      * - `image/svg+xml` - SVG images (scalable but requires security precautions)
      * - `image/webp` - WebP images (modern, efficient format)
      */
-    std::optional<QList<Icon>> _icons;
-    InputSchema _inputSchema;  //!< A JSON Schema object defining the expected parameters for the tool.
-    QString _name;  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
+    std::optional<QList<Icon>> _icons{};
+    InputSchema _inputSchema{};  //!< A JSON Schema object defining the expected parameters for the tool.
+    QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
      * An optional JSON Schema object defining the structure of the tool's output returned in
      * the structuredContent field of a CallToolResult.
@@ -2609,7 +2618,7 @@ struct Tool {
      * Defaults to JSON Schema 2020-12 when no explicit $schema is provided.
      * Currently restricted to type: "object" at the root level.
      */
-    std::optional<OutputSchema> _outputSchema;
+    std::optional<OutputSchema> _outputSchema{};
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
@@ -2618,7 +2627,7 @@ struct Tool {
      * where `annotations.title` should be given precedence over using `name`,
      * if present).
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
 
     Tool& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     Tool& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2674,7 +2683,7 @@ struct ToolChoice {
         required
     };
 
-    std::optional<Mode> _mode;
+    std::optional<Mode> _mode{};
 
     ToolChoice& mode(const std::optional<Mode> & v) { _mode = v; return *this; }
 
@@ -2699,7 +2708,7 @@ struct CreateMessageRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
@@ -2719,19 +2728,19 @@ struct CreateMessageRequestParams {
         thisServer
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<IncludeContext> _includeContext;
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<IncludeContext> _includeContext{};
     /**
      * The requested maximum number of tokens to sample (to prevent runaway completions).
      *
      * The client MAY choose to sample fewer tokens than the requested maximum.
      */
-    int _maxTokens;
-    QList<SamplingMessage> _messages;
-    std::optional<QMap<QString, QJsonValue>> _metadata;  //!< Optional metadata to pass through to the LLM provider. The format of this metadata is provider-specific.
-    std::optional<ModelPreferences> _modelPreferences;  //!< The server's preferences for which model to select. The client MAY ignore these preferences.
-    std::optional<QStringList> _stopSequences;
-    std::optional<QString> _systemPrompt;  //!< An optional system prompt the server wants to use for sampling. The client MAY modify or omit this prompt.
+    int _maxTokens{};
+    QList<SamplingMessage> _messages{};
+    std::optional<QMap<QString, QJsonValue>> _metadata{};  //!< Optional metadata to pass through to the LLM provider. The format of this metadata is provider-specific.
+    std::optional<ModelPreferences> _modelPreferences{};  //!< The server's preferences for which model to select. The client MAY ignore these preferences.
+    std::optional<QStringList> _stopSequences{};
+    std::optional<QString> _systemPrompt{};  //!< An optional system prompt the server wants to use for sampling. The client MAY modify or omit this prompt.
     /**
      * If specified, the caller is requesting task-augmented execution for this request.
      * The request will return a CreateTaskResult immediately, and the actual result can be
@@ -2740,19 +2749,19 @@ struct CreateMessageRequestParams {
      * Task augmentation is subject to capability negotiation - receivers MUST declare support
      * for task augmentation of specific request types in their capabilities.
      */
-    std::optional<TaskMetadata> _task;
-    std::optional<double> _temperature;
+    std::optional<TaskMetadata> _task{};
+    std::optional<double> _temperature{};
     /**
      * Controls how the model uses tools.
      * The client MUST return an error if this field is provided but ClientCapabilities.sampling.tools is not declared.
      * Default is `{ mode: "auto" }`.
      */
-    std::optional<ToolChoice> _toolChoice;
+    std::optional<ToolChoice> _toolChoice{};
     /**
      * Tools that the model may use during generation.
      * The client MUST return an error if this field is provided but ClientCapabilities.sampling.tools is not declared.
      */
-    std::optional<QList<Tool>> _tools;
+    std::optional<QList<Tool>> _tools{};
 
     CreateMessageRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     CreateMessageRequestParams& includeContext(const std::optional<IncludeContext> & v) { _includeContext = v; return *this; }
@@ -2808,8 +2817,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const CreateMessageRequestParams &data);
  * A request from the server to sample an LLM via the client. The client has full discretion over which model to select. The client should also inform the user before beginning sampling, to allow them to inspect the request (human in the loop) and decide whether to approve it.
  */
 struct CreateMessageRequest {
-    RequestId _id;
-    CreateMessageRequestParams _params;
+    RequestId _id{};
+    CreateMessageRequestParams _params{};
 
     CreateMessageRequest& id(const RequestId & v) { _id = v; return *this; }
     CreateMessageRequest& params(const CreateMessageRequestParams & v) { _params = v; return *this; }
@@ -2825,8 +2834,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const CreateMessageRequest &data);
 
 /** A response to a task-augmented request. */
 struct CreateTaskResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    Task _task;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    Task _task{};
 
     CreateTaskResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     CreateTaskResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -2852,15 +2861,15 @@ MCPSERVER_EXPORT Utils::Result<Cursor> fromJson<Cursor>(const QJsonValue &val);
  * This interface will be removed in a future version.
  */
 struct LegacyTitledEnumSchema {
-    std::optional<QString> _default_;
-    std::optional<QString> _description;
-    QStringList _enum_;
+    std::optional<QString> _default_{};
+    std::optional<QString> _description{};
+    QStringList _enum_{};
     /**
      * (Legacy) Display names for enum values.
      * Non-standard according to JSON schema 2020-12.
      */
-    std::optional<QStringList> _enumNames;
-    std::optional<QString> _title;
+    std::optional<QStringList> _enumNames{};
+    std::optional<QString> _title{};
 
     LegacyTitledEnumSchema& default_(const std::optional<QString> & v) { _default_ = v; return *this; }
     LegacyTitledEnumSchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -2888,12 +2897,12 @@ struct NumberSchema {
         number
     };
 
-    std::optional<int> _default_;
-    std::optional<QString> _description;
-    std::optional<int> _maximum;
-    std::optional<int> _minimum;
-    std::optional<QString> _title;
-    Type _type;
+    std::optional<int> _default_{};
+    std::optional<QString> _description{};
+    std::optional<int> _maximum{};
+    std::optional<int> _minimum{};
+    std::optional<QString> _title{};
+    Type _type{};
 
     NumberSchema& default_(std::optional<int> v) { _default_ = v; return *this; }
     NumberSchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -2930,12 +2939,12 @@ struct StringSchema {
         uri
     };
 
-    std::optional<QString> _default_;
-    std::optional<QString> _description;
-    std::optional<Format> _format;
-    std::optional<int> _maxLength;
-    std::optional<int> _minLength;
-    std::optional<QString> _title;
+    std::optional<QString> _default_{};
+    std::optional<QString> _description{};
+    std::optional<Format> _format{};
+    std::optional<int> _maxLength{};
+    std::optional<int> _minLength{};
+    std::optional<QString> _title{};
 
     StringSchema& default_(const std::optional<QString> & v) { _default_ = v; return *this; }
     StringSchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -2969,8 +2978,8 @@ struct TitledMultiSelectEnumSchema {
     /** Schema for array items with enum options and display labels. */
     struct Items {
         struct AnyOfItem {
-            QString _const_;  //!< The constant enum value.
-            QString _title;  //!< Display title for this option.
+            QString _const_{};  //!< The constant enum value.
+            QString _title{};  //!< Display title for this option.
 
             AnyOfItem& const_(const QString & v) { _const_ = v; return *this; }
             AnyOfItem& title(const QString & v) { _title = v; return *this; }
@@ -2979,7 +2988,7 @@ struct TitledMultiSelectEnumSchema {
             const QString& title() const { return _title; }
         };
 
-        QList<AnyOfItem> _anyOf;  //!< Array of enum options with values and display labels.
+        QList<AnyOfItem> _anyOf{};  //!< Array of enum options with values and display labels.
 
         Items& anyOf(const QList<AnyOfItem> & v) { _anyOf = v; return *this; }
         Items& addAnyOf(const AnyOfItem & v) { _anyOf.append(v); return *this; }
@@ -2987,12 +2996,12 @@ struct TitledMultiSelectEnumSchema {
         const QList<AnyOfItem>& anyOf() const { return _anyOf; }
     };
 
-    std::optional<QStringList> _default_;  //!< Optional default value.
-    std::optional<QString> _description;  //!< Optional description for the enum field.
-    Items _items;  //!< Schema for array items with enum options and display labels.
-    std::optional<int> _maxItems;  //!< Maximum number of items to select.
-    std::optional<int> _minItems;  //!< Minimum number of items to select.
-    std::optional<QString> _title;  //!< Optional title for the enum field.
+    std::optional<QStringList> _default_{};  //!< Optional default value.
+    std::optional<QString> _description{};  //!< Optional description for the enum field.
+    Items _items{};  //!< Schema for array items with enum options and display labels.
+    std::optional<int> _maxItems{};  //!< Maximum number of items to select.
+    std::optional<int> _minItems{};  //!< Minimum number of items to select.
+    std::optional<QString> _title{};  //!< Optional title for the enum field.
 
     TitledMultiSelectEnumSchema& default_(const std::optional<QStringList> & v) { _default_ = v; return *this; }
     TitledMultiSelectEnumSchema& addDefault(const QString & v) { if (!_default_) _default_ = QStringList{}; (*_default_).append(v); return *this; }
@@ -3028,8 +3037,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const TitledMultiSelectEnumSchema &data);
 /** Schema for single-selection enumeration with display titles for each option. */
 struct TitledSingleSelectEnumSchema {
     struct OneOfItem {
-        QString _const_;  //!< The enum value.
-        QString _title;  //!< Display label for this option.
+        QString _const_{};  //!< The enum value.
+        QString _title{};  //!< Display label for this option.
 
         OneOfItem& const_(const QString & v) { _const_ = v; return *this; }
         OneOfItem& title(const QString & v) { _title = v; return *this; }
@@ -3038,10 +3047,10 @@ struct TitledSingleSelectEnumSchema {
         const QString& title() const { return _title; }
     };
 
-    std::optional<QString> _default_;  //!< Optional default value.
-    std::optional<QString> _description;  //!< Optional description for the enum field.
-    QList<OneOfItem> _oneOf;  //!< Array of enum options with values and display labels.
-    std::optional<QString> _title;  //!< Optional title for the enum field.
+    std::optional<QString> _default_{};  //!< Optional default value.
+    std::optional<QString> _description{};  //!< Optional description for the enum field.
+    QList<OneOfItem> _oneOf{};  //!< Array of enum options with values and display labels.
+    std::optional<QString> _title{};  //!< Optional title for the enum field.
 
     TitledSingleSelectEnumSchema& default_(const std::optional<QString> & v) { _default_ = v; return *this; }
     TitledSingleSelectEnumSchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -3069,7 +3078,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const TitledSingleSelectEnumSchema &data);
 struct UntitledMultiSelectEnumSchema {
     /** Schema for the array items. */
     struct Items {
-        QStringList _enum_;  //!< Array of enum values to choose from.
+        QStringList _enum_{};  //!< Array of enum values to choose from.
 
         Items& enum_(const QStringList & v) { _enum_ = v; return *this; }
         Items& addEnum(const QString & v) { _enum_.append(v); return *this; }
@@ -3077,12 +3086,12 @@ struct UntitledMultiSelectEnumSchema {
         const QStringList& enum_() const { return _enum_; }
     };
 
-    std::optional<QStringList> _default_;  //!< Optional default value.
-    std::optional<QString> _description;  //!< Optional description for the enum field.
-    Items _items;  //!< Schema for the array items.
-    std::optional<int> _maxItems;  //!< Maximum number of items to select.
-    std::optional<int> _minItems;  //!< Minimum number of items to select.
-    std::optional<QString> _title;  //!< Optional title for the enum field.
+    std::optional<QStringList> _default_{};  //!< Optional default value.
+    std::optional<QString> _description{};  //!< Optional description for the enum field.
+    Items _items{};  //!< Schema for the array items.
+    std::optional<int> _maxItems{};  //!< Maximum number of items to select.
+    std::optional<int> _minItems{};  //!< Minimum number of items to select.
+    std::optional<QString> _title{};  //!< Optional title for the enum field.
 
     UntitledMultiSelectEnumSchema& default_(const std::optional<QStringList> & v) { _default_ = v; return *this; }
     UntitledMultiSelectEnumSchema& addDefault(const QString & v) { if (!_default_) _default_ = QStringList{}; (*_default_).append(v); return *this; }
@@ -3112,10 +3121,10 @@ MCPSERVER_EXPORT QJsonObject toJson(const UntitledMultiSelectEnumSchema &data);
 
 /** Schema for single-selection enumeration without display titles for options. */
 struct UntitledSingleSelectEnumSchema {
-    std::optional<QString> _default_;  //!< Optional default value.
-    std::optional<QString> _description;  //!< Optional description for the enum field.
-    QStringList _enum_;  //!< Array of enum values to choose from.
-    std::optional<QString> _title;  //!< Optional title for the enum field.
+    std::optional<QString> _default_{};  //!< Optional default value.
+    std::optional<QString> _description{};  //!< Optional description for the enum field.
+    QStringList _enum_{};  //!< Array of enum values to choose from.
+    std::optional<QString> _title{};  //!< Optional title for the enum field.
 
     UntitledSingleSelectEnumSchema& default_(const std::optional<QString> & v) { _default_ = v; return *this; }
     UntitledSingleSelectEnumSchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -3155,7 +3164,7 @@ struct ElicitRequestFormParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
@@ -3167,9 +3176,9 @@ struct ElicitRequestFormParams {
      * Only top-level properties are allowed, without nesting.
      */
     struct RequestedSchema {
-        std::optional<QString> _dollarschema;
-        QMap<QString, PrimitiveSchemaDefinition> _properties;
-        std::optional<QStringList> _required;
+        std::optional<QString> _dollarschema{};
+        QMap<QString, PrimitiveSchemaDefinition> _properties{};
+        std::optional<QStringList> _required{};
 
         RequestedSchema& dollarschema(const std::optional<QString> & v) { _dollarschema = v; return *this; }
         RequestedSchema& properties(const QMap<QString, PrimitiveSchemaDefinition> & v) { _properties = v; return *this; }
@@ -3182,13 +3191,13 @@ struct ElicitRequestFormParams {
         const std::optional<QStringList>& required() const { return _required; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _message;  //!< The message to present to the user describing what information is being requested.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _message{};  //!< The message to present to the user describing what information is being requested.
     /**
      * A restricted subset of JSON Schema.
      * Only top-level properties are allowed, without nesting.
      */
-    RequestedSchema _requestedSchema;
+    RequestedSchema _requestedSchema{};
     /**
      * If specified, the caller is requesting task-augmented execution for this request.
      * The request will return a CreateTaskResult immediately, and the actual result can be
@@ -3197,7 +3206,7 @@ struct ElicitRequestFormParams {
      * Task augmentation is subject to capability negotiation - receivers MUST declare support
      * for task augmentation of specific request types in their capabilities.
      */
-    std::optional<TaskMetadata> _task;
+    std::optional<TaskMetadata> _task{};
 
     ElicitRequestFormParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     ElicitRequestFormParams& message(const QString & v) { _message = v; return *this; }
@@ -3231,20 +3240,20 @@ struct ElicitRequestURLParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * The ID of the elicitation, which must be unique within the context of the server.
      * The client MUST treat this ID as an opaque value.
      */
-    QString _elicitationId;
-    QString _message;  //!< The message to present to the user explaining why the interaction is needed.
+    QString _elicitationId{};
+    QString _message{};  //!< The message to present to the user explaining why the interaction is needed.
     /**
      * If specified, the caller is requesting task-augmented execution for this request.
      * The request will return a CreateTaskResult immediately, and the actual result can be
@@ -3253,8 +3262,8 @@ struct ElicitRequestURLParams {
      * Task augmentation is subject to capability negotiation - receivers MUST declare support
      * for task augmentation of specific request types in their capabilities.
      */
-    std::optional<TaskMetadata> _task;
-    QString _url;  //!< The URL that the user should navigate to.
+    std::optional<TaskMetadata> _task{};
+    QString _url{};  //!< The URL that the user should navigate to.
 
     ElicitRequestURLParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     ElicitRequestURLParams& elicitationId(const QString & v) { _elicitationId = v; return *this; }
@@ -3297,8 +3306,8 @@ MCPSERVER_EXPORT QString message(const ElicitRequestParams &val);
 
 /** A request from the server to elicit additional information from the user via the client. */
 struct ElicitRequest {
-    RequestId _id;
-    ElicitRequestParams _params;
+    RequestId _id{};
+    ElicitRequestParams _params{};
 
     ElicitRequest& id(const RequestId & v) { _id = v; return *this; }
     ElicitRequest& params(const ElicitRequestParams & v) { _params = v; return *this; }
@@ -3317,14 +3326,14 @@ MCPSERVER_EXPORT QJsonObject toJson(const ElicitRequest &data);
  */
 struct ElicitationCompleteNotification {
     struct Params {
-        QString _elicitationId;  //!< The ID of the elicitation that completed.
+        QString _elicitationId{};  //!< The ID of the elicitation that completed.
 
         Params& elicitationId(const QString & v) { _elicitationId = v; return *this; }
 
         const QString& elicitationId() const { return _elicitationId; }
     };
 
-    Params _params;
+    Params _params{};
 
     ElicitationCompleteNotification& params(const Params & v) { _params = v; return *this; }
 
@@ -3353,9 +3362,9 @@ MCPSERVER_EXPORT QJsonObject toJson(const EnumSchema &val);
 MCPSERVER_EXPORT QJsonValue toJsonValue(const EnumSchema &val);
 
 struct Error {
-    int _code;  //!< The error type that occurred.
-    std::optional<QJsonValue> _data;  //!< Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
-    QString _message;  //!< A short description of the error. The message SHOULD be limited to a concise single sentence.
+    int _code{};  //!< The error type that occurred.
+    std::optional<QJsonValue> _data{};  //!< Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
+    QString _message{};  //!< A short description of the error. The message SHOULD be limited to a concise single sentence.
 
     Error& code(int v) { _code = v; return *this; }
     Error& data(const std::optional<QJsonValue> & v) { _data = v; return *this; }
@@ -3378,8 +3387,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const Error &data);
  * resources from the MCP server.
  */
 struct PromptMessage {
-    ContentBlock _content;
-    Role _role;
+    ContentBlock _content{};
+    Role _role{};
 
     PromptMessage& content(const ContentBlock & v) { _content = v; return *this; }
     PromptMessage& role(const Role & v) { _role = v; return *this; }
@@ -3395,9 +3404,9 @@ MCPSERVER_EXPORT QJsonObject toJson(const PromptMessage &data);
 
 /** The server's response to a prompts/get request from the client. */
 struct GetPromptResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<QString> _description;  //!< An optional description for the prompt.
-    QList<PromptMessage> _messages;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QString> _description{};  //!< An optional description for the prompt.
+    QList<PromptMessage> _messages{};
 
     GetPromptResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     GetPromptResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -3430,7 +3439,7 @@ struct Icons {
      * - `image/svg+xml` - SVG images (scalable but requires security precautions)
      * - `image/webp` - WebP images (modern, efficient format)
      */
-    std::optional<QList<Icon>> _icons;
+    std::optional<QList<Icon>> _icons{};
 
     Icons& icons(const std::optional<QList<Icon>> & v) { _icons = v; return *this; }
     Icons& addIcon(const Icon & v) { if (!_icons) _icons = QList<Icon>{}; (*_icons).append(v); return *this; }
@@ -3449,7 +3458,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const Icons &data);
 struct ServerCapabilities {
     /** Present if the server offers any prompt templates. */
     struct Prompts {
-        std::optional<bool> _listChanged;  //!< Whether this server supports notifications for changes to the prompt list.
+        std::optional<bool> _listChanged{};  //!< Whether this server supports notifications for changes to the prompt list.
 
         Prompts& listChanged(std::optional<bool> v) { _listChanged = v; return *this; }
 
@@ -3458,8 +3467,8 @@ struct ServerCapabilities {
 
     /** Present if the server offers any resources to read. */
     struct Resources {
-        std::optional<bool> _listChanged;  //!< Whether this server supports notifications for changes to the resource list.
-        std::optional<bool> _subscribe;  //!< Whether this server supports subscribing to resource updates.
+        std::optional<bool> _listChanged{};  //!< Whether this server supports notifications for changes to the resource list.
+        std::optional<bool> _subscribe{};  //!< Whether this server supports subscribing to resource updates.
 
         Resources& listChanged(std::optional<bool> v) { _listChanged = v; return *this; }
         Resources& subscribe(std::optional<bool> v) { _subscribe = v; return *this; }
@@ -3474,7 +3483,7 @@ struct ServerCapabilities {
         struct Requests {
             /** Task support for tool-related requests. */
             struct Tools {
-                std::optional<QMap<QString, QJsonValue>> _call;  //!< Whether the server supports task-augmented tools/call requests.
+                std::optional<QMap<QString, QJsonValue>> _call{};  //!< Whether the server supports task-augmented tools/call requests.
 
                 Tools& call(const std::optional<QMap<QString, QJsonValue>> & v) { _call = v; return *this; }
                 Tools& addCall(const QString &key, const QJsonValue &v) { if (!_call) _call = QMap<QString, QJsonValue>{}; (*_call)[key] = v; return *this; }
@@ -3484,16 +3493,16 @@ struct ServerCapabilities {
                 QJsonObject callAsObject() const { if (!_call) return {}; QJsonObject o; for (auto it = _call->constBegin(); it != _call->constEnd(); ++it) o.insert(it.key(), it.value()); return o; }
             };
 
-            std::optional<Tools> _tools;  //!< Task support for tool-related requests.
+            std::optional<Tools> _tools{};  //!< Task support for tool-related requests.
 
             Requests& tools(const std::optional<Tools> & v) { _tools = v; return *this; }
 
             const std::optional<Tools>& tools() const { return _tools; }
         };
 
-        std::optional<QMap<QString, QJsonValue>> _cancel;  //!< Whether this server supports tasks/cancel.
-        std::optional<QMap<QString, QJsonValue>> _list;  //!< Whether this server supports tasks/list.
-        std::optional<Requests> _requests;  //!< Specifies which request types can be augmented with tasks.
+        std::optional<QMap<QString, QJsonValue>> _cancel{};  //!< Whether this server supports tasks/cancel.
+        std::optional<QMap<QString, QJsonValue>> _list{};  //!< Whether this server supports tasks/list.
+        std::optional<Requests> _requests{};  //!< Specifies which request types can be augmented with tasks.
 
         Tasks& cancel(const std::optional<QMap<QString, QJsonValue>> & v) { _cancel = v; return *this; }
         Tasks& addCancel(const QString &key, const QJsonValue &v) { if (!_cancel) _cancel = QMap<QString, QJsonValue>{}; (*_cancel)[key] = v; return *this; }
@@ -3512,20 +3521,20 @@ struct ServerCapabilities {
 
     /** Present if the server offers any tools to call. */
     struct Tools {
-        std::optional<bool> _listChanged;  //!< Whether this server supports notifications for changes to the tool list.
+        std::optional<bool> _listChanged{};  //!< Whether this server supports notifications for changes to the tool list.
 
         Tools& listChanged(std::optional<bool> v) { _listChanged = v; return *this; }
 
         const std::optional<bool>& listChanged() const { return _listChanged; }
     };
 
-    std::optional<QMap<QString, QJsonValue>> _completions;  //!< Present if the server supports argument autocompletion suggestions.
-    std::optional<QMap<QString, QJsonObject>> _experimental;  //!< Experimental, non-standard capabilities that the server supports.
-    std::optional<QMap<QString, QJsonValue>> _logging;  //!< Present if the server supports sending log messages to the client.
-    std::optional<Prompts> _prompts;  //!< Present if the server offers any prompt templates.
-    std::optional<Resources> _resources;  //!< Present if the server offers any resources to read.
-    std::optional<Tasks> _tasks;  //!< Present if the server supports task-augmented requests.
-    std::optional<Tools> _tools;  //!< Present if the server offers any tools to call.
+    std::optional<QMap<QString, QJsonValue>> _completions{};  //!< Present if the server supports argument autocompletion suggestions.
+    std::optional<QMap<QString, QJsonObject>> _experimental{};  //!< Experimental, non-standard capabilities that the server supports.
+    std::optional<QMap<QString, QJsonValue>> _logging{};  //!< Present if the server supports sending log messages to the client.
+    std::optional<Prompts> _prompts{};  //!< Present if the server offers any prompt templates.
+    std::optional<Resources> _resources{};  //!< Present if the server offers any resources to read.
+    std::optional<Tasks> _tasks{};  //!< Present if the server supports task-augmented requests.
+    std::optional<Tools> _tools{};  //!< Present if the server offers any tools to call.
 
     ServerCapabilities& completions(const std::optional<QMap<QString, QJsonValue>> & v) { _completions = v; return *this; }
     ServerCapabilities& addCompletion(const QString &key, const QJsonValue &v) { if (!_completions) _completions = QMap<QString, QJsonValue>{}; (*_completions)[key] = v; return *this; }
@@ -3588,16 +3597,16 @@ MCPSERVER_EXPORT QJsonObject toJson(const ServerCapabilities &data);
 
 /** After receiving an initialize request from the client, the server sends this response. */
 struct InitializeResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    ServerCapabilities _capabilities;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    ServerCapabilities _capabilities{};
     /**
      * Instructions describing how to use the server and its features.
      *
      * This can be used by clients to improve the LLM's understanding of available tools, resources, etc. It can be thought of like a "hint" to the model. For example, this information MAY be added to the system prompt.
      */
-    std::optional<QString> _instructions;
-    QString _protocolVersion;  //!< The version of the Model Context Protocol that the server wants to use. This may not match the version that the client requested. If the client cannot support this version, it MUST disconnect.
-    Implementation _serverInfo;
+    std::optional<QString> _instructions{};
+    QString _protocolVersion{};  //!< The version of the Model Context Protocol that the server wants to use. This may not match the version that the client requested. If the client cannot support this version, it MUST disconnect.
+    Implementation _serverInfo{};
 
     InitializeResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     InitializeResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -3622,8 +3631,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const InitializeResult &data);
 
 /** A response to a request that indicates an error occurred. */
 struct JSONRPCErrorResponse {
-    Error _error;
-    std::optional<RequestId> _id;
+    Error _error{};
+    std::optional<RequestId> _id{};
 
     JSONRPCErrorResponse& error(const Error & v) { _error = v; return *this; }
     JSONRPCErrorResponse& id(const std::optional<RequestId> & v) { _id = v; return *this; }
@@ -3639,8 +3648,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const JSONRPCErrorResponse &data);
 
 /** A notification which does not expect a response. */
 struct JSONRPCNotification {
-    QString _method;
-    std::optional<QMap<QString, QJsonValue>> _params;
+    QString _method{};
+    std::optional<QMap<QString, QJsonValue>> _params{};
 
     JSONRPCNotification& method(const QString & v) { _method = v; return *this; }
     JSONRPCNotification& params(const std::optional<QMap<QString, QJsonValue>> & v) { _params = v; return *this; }
@@ -3659,9 +3668,9 @@ MCPSERVER_EXPORT QJsonObject toJson(const JSONRPCNotification &data);
 
 /** A request that expects a response. */
 struct JSONRPCRequest {
-    RequestId _id;
-    QString _method;
-    std::optional<QMap<QString, QJsonValue>> _params;
+    RequestId _id{};
+    QString _method{};
+    std::optional<QMap<QString, QJsonValue>> _params{};
 
     JSONRPCRequest& id(const RequestId & v) { _id = v; return *this; }
     JSONRPCRequest& method(const QString & v) { _method = v; return *this; }
@@ -3682,8 +3691,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const JSONRPCRequest &data);
 
 /** A successful (non-error) response to a request. */
 struct JSONRPCResultResponse {
-    RequestId _id;
-    Result _result;
+    RequestId _id{};
+    Result _result{};
 
     JSONRPCResultResponse& id(const RequestId & v) { _id = v; return *this; }
     JSONRPCResultResponse& result(const Result & v) { _result = v; return *this; }
@@ -3719,9 +3728,9 @@ MCPSERVER_EXPORT QJsonValue toJsonValue(const JSONRPCResponse &val);
 
 /** Describes an argument that a prompt can accept. */
 struct PromptArgument {
-    std::optional<QString> _description;  //!< A human-readable description of the argument.
-    QString _name;  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
-    std::optional<bool> _required;  //!< Whether this argument must be provided.
+    std::optional<QString> _description{};  //!< A human-readable description of the argument.
+    QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
+    std::optional<bool> _required{};  //!< Whether this argument must be provided.
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
@@ -3730,7 +3739,7 @@ struct PromptArgument {
      * where `annotations.title` should be given precedence over using `name`,
      * if present).
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
 
     PromptArgument& description(const std::optional<QString> & v) { _description = v; return *this; }
     PromptArgument& name(const QString & v) { _name = v; return *this; }
@@ -3750,9 +3759,9 @@ MCPSERVER_EXPORT QJsonObject toJson(const PromptArgument &data);
 
 /** A prompt or prompt template that the server offers. */
 struct Prompt {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<QList<PromptArgument>> _arguments;  //!< A list of arguments to use for templating the prompt.
-    std::optional<QString> _description;  //!< An optional description of what this prompt provides
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QList<PromptArgument>> _arguments{};  //!< A list of arguments to use for templating the prompt.
+    std::optional<QString> _description{};  //!< An optional description of what this prompt provides
     /**
      * Optional set of sized icons that the client can display in a user interface.
      *
@@ -3764,8 +3773,8 @@ struct Prompt {
      * - `image/svg+xml` - SVG images (scalable but requires security precautions)
      * - `image/webp` - WebP images (modern, efficient format)
      */
-    std::optional<QList<Icon>> _icons;
-    QString _name;  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
+    std::optional<QList<Icon>> _icons{};
+    QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
@@ -3774,7 +3783,7 @@ struct Prompt {
      * where `annotations.title` should be given precedence over using `name`,
      * if present).
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
 
     Prompt& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     Prompt& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -3803,13 +3812,13 @@ MCPSERVER_EXPORT QJsonObject toJson(const Prompt &data);
 
 /** The server's response to a prompts/list request from the client. */
 struct ListPromptsResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * An opaque token representing the pagination position after the last returned result.
      * If present, there may be more results available.
      */
-    std::optional<QString> _nextCursor;
-    QList<Prompt> _prompts;
+    std::optional<QString> _nextCursor{};
+    QList<Prompt> _prompts{};
 
     ListPromptsResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ListPromptsResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -3831,14 +3840,14 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListPromptsResult &data);
 
 /** A template description for resources available on the server. */
 struct ResourceTemplate {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<Annotations> _annotations;  //!< Optional annotations for the client.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations for the client.
     /**
      * A description of what this template is for.
      *
      * This can be used by clients to improve the LLM's understanding of available resources. It can be thought of like a "hint" to the model.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * Optional set of sized icons that the client can display in a user interface.
      *
@@ -3850,9 +3859,9 @@ struct ResourceTemplate {
      * - `image/svg+xml` - SVG images (scalable but requires security precautions)
      * - `image/webp` - WebP images (modern, efficient format)
      */
-    std::optional<QList<Icon>> _icons;
-    std::optional<QString> _mimeType;  //!< The MIME type for all resources that match this template. This should only be included if all resources matching this template have the same type.
-    QString _name;  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
+    std::optional<QList<Icon>> _icons{};
+    std::optional<QString> _mimeType{};  //!< The MIME type for all resources that match this template. This should only be included if all resources matching this template have the same type.
+    QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
@@ -3861,8 +3870,8 @@ struct ResourceTemplate {
      * where `annotations.title` should be given precedence over using `name`,
      * if present).
      */
-    std::optional<QString> _title;
-    QString _uriTemplate;  //!< A URI template (according to RFC 6570) that can be used to construct resource URIs.
+    std::optional<QString> _title{};
+    QString _uriTemplate{};  //!< A URI template (according to RFC 6570) that can be used to construct resource URIs.
 
     ResourceTemplate& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ResourceTemplate& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -3894,13 +3903,13 @@ MCPSERVER_EXPORT QJsonObject toJson(const ResourceTemplate &data);
 
 /** The server's response to a resources/templates/list request from the client. */
 struct ListResourceTemplatesResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * An opaque token representing the pagination position after the last returned result.
      * If present, there may be more results available.
      */
-    std::optional<QString> _nextCursor;
-    QList<ResourceTemplate> _resourceTemplates;
+    std::optional<QString> _nextCursor{};
+    QList<ResourceTemplate> _resourceTemplates{};
 
     ListResourceTemplatesResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ListResourceTemplatesResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -3922,14 +3931,14 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListResourceTemplatesResult &data);
 
 /** A known resource that the server is capable of reading. */
 struct Resource {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<Annotations> _annotations;  //!< Optional annotations for the client.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations for the client.
     /**
      * A description of what this resource represents.
      *
      * This can be used by clients to improve the LLM's understanding of available resources. It can be thought of like a "hint" to the model.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * Optional set of sized icons that the client can display in a user interface.
      *
@@ -3941,15 +3950,15 @@ struct Resource {
      * - `image/svg+xml` - SVG images (scalable but requires security precautions)
      * - `image/webp` - WebP images (modern, efficient format)
      */
-    std::optional<QList<Icon>> _icons;
-    std::optional<QString> _mimeType;  //!< The MIME type of this resource, if known.
-    QString _name;  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
+    std::optional<QList<Icon>> _icons{};
+    std::optional<QString> _mimeType{};  //!< The MIME type of this resource, if known.
+    QString _name{};  //!< Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn't present).
     /**
      * The size of the raw resource content, in bytes (i.e., before base64 encoding or any tokenization), if known.
      *
      * This can be used by Hosts to display file sizes and estimate context window usage.
      */
-    std::optional<int> _size;
+    std::optional<int> _size{};
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
      * even by those unfamiliar with domain-specific terminology.
@@ -3958,8 +3967,8 @@ struct Resource {
      * where `annotations.title` should be given precedence over using `name`,
      * if present).
      */
-    std::optional<QString> _title;
-    QString _uri;  //!< The URI of this resource.
+    std::optional<QString> _title{};
+    QString _uri{};  //!< The URI of this resource.
 
     Resource& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     Resource& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -3993,13 +4002,13 @@ MCPSERVER_EXPORT QJsonObject toJson(const Resource &data);
 
 /** The server's response to a resources/list request from the client. */
 struct ListResourcesResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * An opaque token representing the pagination position after the last returned result.
      * If present, there may be more results available.
      */
-    std::optional<QString> _nextCursor;
-    QList<Resource> _resources;
+    std::optional<QString> _nextCursor{};
+    QList<Resource> _resources{};
 
     ListResourcesResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ListResourcesResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -4029,8 +4038,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListResourcesResult &data);
  * structure or access specific locations that the client has permission to read from.
  */
 struct ListRootsRequest {
-    RequestId _id;
-    std::optional<RequestParams> _params;
+    RequestId _id{};
+    std::optional<RequestParams> _params{};
 
     ListRootsRequest& id(const RequestId & v) { _id = v; return *this; }
     ListRootsRequest& params(const std::optional<RequestParams> & v) { _params = v; return *this; }
@@ -4046,13 +4055,13 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListRootsRequest &data);
 
 /** The server's response to a tools/list request from the client. */
 struct ListToolsResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * An opaque token representing the pagination position after the last returned result.
      * If present, there may be more results available.
      */
-    std::optional<QString> _nextCursor;
-    QList<Tool> _tools;
+    std::optional<QString> _nextCursor{};
+    QList<Tool> _tools{};
 
     ListToolsResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ListToolsResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -4074,10 +4083,10 @@ MCPSERVER_EXPORT QJsonObject toJson(const ListToolsResult &data);
 
 /** Parameters for a `notifications/message` notification. */
 struct LoggingMessageNotificationParams {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QJsonValue _data;  //!< The data to be logged, such as a string message or an object. Any JSON serializable type is allowed here.
-    LoggingLevel _level;  //!< The severity of this log message.
-    std::optional<QString> _logger;  //!< An optional name of the logger issuing this message.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QJsonValue _data{};  //!< The data to be logged, such as a string message or an object. Any JSON serializable type is allowed here.
+    LoggingLevel _level{};  //!< The severity of this log message.
+    std::optional<QString> _logger{};  //!< An optional name of the logger issuing this message.
 
     LoggingMessageNotificationParams& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     LoggingMessageNotificationParams& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -4102,7 +4111,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const LoggingMessageNotificationParams &data
  * JSONRPCNotification of a log message passed from server to client. If no logging/setLevel request has been sent from the client, the server MAY decide which messages to send automatically.
  */
 struct LoggingMessageNotification {
-    LoggingMessageNotificationParams _params;
+    LoggingMessageNotificationParams _params{};
 
     LoggingMessageNotification& params(const LoggingMessageNotificationParams & v) { _params = v; return *this; }
 
@@ -4124,8 +4133,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const MultiSelectEnumSchema &val);
 MCPSERVER_EXPORT QJsonValue toJsonValue(const MultiSelectEnumSchema &val);
 
 struct Notification {
-    QString _method;
-    std::optional<QMap<QString, QJsonValue>> _params;
+    QString _method{};
+    std::optional<QMap<QString, QJsonValue>> _params{};
 
     Notification& method(const QString & v) { _method = v; return *this; }
     Notification& params(const std::optional<QMap<QString, QJsonValue>> & v) { _params = v; return *this; }
@@ -4143,9 +4152,9 @@ MCPSERVER_EXPORT Utils::Result<Notification> fromJson<Notification>(const QJsonV
 MCPSERVER_EXPORT QJsonObject toJson(const Notification &data);
 
 struct PaginatedRequest {
-    RequestId _id;
-    QString _method;
-    std::optional<PaginatedRequestParams> _params;
+    RequestId _id{};
+    QString _method{};
+    std::optional<PaginatedRequestParams> _params{};
 
     PaginatedRequest& id(const RequestId & v) { _id = v; return *this; }
     PaginatedRequest& method(const QString & v) { _method = v; return *this; }
@@ -4162,12 +4171,12 @@ MCPSERVER_EXPORT Utils::Result<PaginatedRequest> fromJson<PaginatedRequest>(cons
 MCPSERVER_EXPORT QJsonObject toJson(const PaginatedRequest &data);
 
 struct PaginatedResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * An opaque token representing the pagination position after the last returned result.
      * If present, there may be more results available.
      */
-    std::optional<QString> _nextCursor;
+    std::optional<QString> _nextCursor{};
 
     PaginatedResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     PaginatedResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -4188,7 +4197,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const PaginatedResult &data);
  * An optional notification from the server to the client, informing it that the list of prompts it offers has changed. This may be issued by servers without any previous subscription from the client.
  */
 struct PromptListChangedNotification {
-    std::optional<NotificationParams> _params;
+    std::optional<NotificationParams> _params{};
 
     PromptListChangedNotification& params(const std::optional<NotificationParams> & v) { _params = v; return *this; }
 
@@ -4202,8 +4211,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const PromptListChangedNotification &data);
 
 /** The server's response to a resources/read request from the client. */
 struct ReadResourceResult {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QList<EmbeddedResourceResource> _contents;
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QList<EmbeddedResourceResource> _contents{};
 
     ReadResourceResult& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ReadResourceResult& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -4226,7 +4235,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ReadResourceResult &data);
  * Include this in the `_meta` field under the key `io.modelcontextprotocol/related-task`.
  */
 struct RelatedTaskMetadata {
-    QString _taskId;  //!< The task identifier this message is associated with.
+    QString _taskId{};  //!< The task identifier this message is associated with.
 
     RelatedTaskMetadata& taskId(const QString & v) { _taskId = v; return *this; }
 
@@ -4239,8 +4248,8 @@ MCPSERVER_EXPORT Utils::Result<RelatedTaskMetadata> fromJson<RelatedTaskMetadata
 MCPSERVER_EXPORT QJsonObject toJson(const RelatedTaskMetadata &data);
 
 struct Request {
-    QString _method;
-    std::optional<QMap<QString, QJsonValue>> _params;
+    QString _method{};
+    std::optional<QMap<QString, QJsonValue>> _params{};
 
     Request& method(const QString & v) { _method = v; return *this; }
     Request& params(const std::optional<QMap<QString, QJsonValue>> & v) { _params = v; return *this; }
@@ -4259,9 +4268,9 @@ MCPSERVER_EXPORT QJsonObject toJson(const Request &data);
 
 /** The contents of a specific resource or sub-resource. */
 struct ResourceContents {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    std::optional<QString> _mimeType;  //!< The MIME type of this resource, if known.
-    QString _uri;  //!< The URI of this resource.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<QString> _mimeType{};  //!< The MIME type of this resource, if known.
+    QString _uri{};  //!< The URI of this resource.
 
     ResourceContents& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ResourceContents& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -4284,7 +4293,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ResourceContents &data);
  * An optional notification from the server to the client, informing it that the list of resources it can read from has changed. This may be issued by servers without any previous subscription from the client.
  */
 struct ResourceListChangedNotification {
-    std::optional<NotificationParams> _params;
+    std::optional<NotificationParams> _params{};
 
     ResourceListChangedNotification& params(const std::optional<NotificationParams> & v) { _params = v; return *this; }
 
@@ -4302,15 +4311,15 @@ struct ResourceRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _uri;  //!< The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _uri{};  //!< The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.
 
     ResourceRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     ResourceRequestParams& uri(const QString & v) { _uri = v; return *this; }
@@ -4331,8 +4340,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const ResourceRequestParams &data);
 
 /** Parameters for a `notifications/resources/updated` notification. */
 struct ResourceUpdatedNotificationParams {
-    std::optional<QMap<QString, QJsonValue>> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
-    QString _uri;  //!< The URI of the resource that has been updated. This might be a sub-resource of the one that the client actually subscribed to.
+    std::optional<QMap<QString, QJsonValue>> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    QString _uri{};  //!< The URI of the resource that has been updated. This might be a sub-resource of the one that the client actually subscribed to.
 
     ResourceUpdatedNotificationParams& _meta(const std::optional<QMap<QString, QJsonValue>> & v) { __meta = v; return *this; }
     ResourceUpdatedNotificationParams& add_meta(const QString &key, const QJsonValue &v) { if (!__meta) __meta = QMap<QString, QJsonValue>{}; (*__meta)[key] = v; return *this; }
@@ -4353,7 +4362,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ResourceUpdatedNotificationParams &dat
  * A notification from the server to the client, informing it that a resource has changed and may need to be read again. This should only be sent if the client previously sent a resources/subscribe request.
  */
 struct ResourceUpdatedNotification {
-    ResourceUpdatedNotificationParams _params;
+    ResourceUpdatedNotificationParams _params{};
 
     ResourceUpdatedNotification& params(const ResourceUpdatedNotificationParams & v) { _params = v; return *this; }
 
@@ -4369,7 +4378,7 @@ MCPSERVER_EXPORT QJsonObject toJson(const ResourceUpdatedNotification &data);
  * An optional notification from the server to the client, informing it that the list of tools it offers has changed. This may be issued by servers without any previous subscription from the client.
  */
 struct ToolListChangedNotification {
-    std::optional<NotificationParams> _params;
+    std::optional<NotificationParams> _params{};
 
     ToolListChangedNotification& params(const std::optional<NotificationParams> & v) { _params = v; return *this; }
 
@@ -4432,14 +4441,14 @@ struct TaskAugmentedRequestParams {
      * See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
      */
     struct Meta {
-        std::optional<ProgressToken> _progressToken;  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
     };
 
-    std::optional<Meta> __meta;  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
+    std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
     /**
      * If specified, the caller is requesting task-augmented execution for this request.
      * The request will return a CreateTaskResult immediately, and the actual result can be
@@ -4448,7 +4457,7 @@ struct TaskAugmentedRequestParams {
      * Task augmentation is subject to capability negotiation - receivers MUST declare support
      * for task augmentation of specific request types in their capabilities.
      */
-    std::optional<TaskMetadata> _task;
+    std::optional<TaskMetadata> _task{};
 
     TaskAugmentedRequestParams& _meta(const std::optional<Meta> & v) { __meta = v; return *this; }
     TaskAugmentedRequestParams& task(const std::optional<TaskMetadata> & v) { _task = v; return *this; }
@@ -4471,8 +4480,8 @@ MCPSERVER_EXPORT QJsonObject toJson(const TaskAugmentedRequestParams &data);
  * An error response that indicates that the server requires the client to provide additional information via an elicitation request.
  */
 struct URLElicitationRequiredError {
-    Error _error;
-    std::optional<RequestId> _id;
+    Error _error{};
+    std::optional<RequestId> _id{};
 
     URLElicitationRequiredError& error(const Error & v) { _error = v; return *this; }
     URLElicitationRequiredError& id(const std::optional<RequestId> & v) { _id = v; return *this; }

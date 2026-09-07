@@ -28,11 +28,20 @@ namespace Acp::Registry {
 
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
+template<typename T>
+Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
+{
+    const Utils::Result<T> result = fromJson<T>(val);
+    if (result)
+        return result;
+    return Utils::ResultError(field + ": " + result.error());
+}
+
 struct binaryTarget {
-    QString _archive;  //!< URL to download archive (.zip, .tar.gz, .tgz, .tar.bz2, .tbz2, or raw binary). Installer formats (.dmg, .pkg, .deb, .rpm) are not supported.
-    QString _cmd;  //!< Command to execute after extraction
-    std::optional<QStringList> _args;  //!< Command line arguments
-    std::optional<QMap<QString, QString>> _env;  //!< Environment variables
+    QString _archive{};  //!< URL to download archive (.zip, .tar.gz, .tgz, .tar.bz2, .tbz2, or raw binary). Installer formats (.dmg, .pkg, .deb, .rpm) are not supported.
+    QString _cmd{};  //!< Command to execute after extraction
+    std::optional<QStringList> _args{};  //!< Command line arguments
+    std::optional<QMap<QString, QString>> _env{};  //!< Environment variables
 
     binaryTarget& archive(const QString & v) { _archive = v; return *this; }
     binaryTarget& cmd(const QString & v) { _cmd = v; return *this; }
@@ -81,9 +90,9 @@ ACPLIB_EXPORT Utils::Result<binaryDistribution> fromJson<binaryDistribution>(con
 ACPLIB_EXPORT QJsonObject toJson(const binaryDistribution &data);
 
 struct packageDistribution {
-    QString _package;  //!< Package name (with optional version)
-    std::optional<QStringList> _args;  //!< Command line arguments
-    std::optional<QMap<QString, QString>> _env;  //!< Environment variables
+    QString _package{};  //!< Package name (with optional version)
+    std::optional<QStringList> _args{};  //!< Command line arguments
+    std::optional<QMap<QString, QString>> _env{};  //!< Environment variables
 
     packageDistribution& package(const QString & v) { _package = v; return *this; }
     packageDistribution& args(const std::optional<QStringList> & v) { _args = v; return *this; }
@@ -104,9 +113,9 @@ ACPLIB_EXPORT QJsonObject toJson(const packageDistribution &data);
 /** Schema for ACP agent registry entries */
 struct ACPAgent {
     struct Distribution {
-        std::optional<binaryDistribution> _binary;
-        std::optional<packageDistribution> _npx;
-        std::optional<packageDistribution> _uvx;
+        std::optional<binaryDistribution> _binary{};
+        std::optional<packageDistribution> _npx{};
+        std::optional<packageDistribution> _uvx{};
 
         Distribution& binary(const std::optional<binaryDistribution> & v) { _binary = v; return *this; }
         Distribution& npx(const std::optional<packageDistribution> & v) { _npx = v; return *this; }
@@ -117,15 +126,15 @@ struct ACPAgent {
         const std::optional<packageDistribution>& uvx() const { return _uvx; }
     };
 
-    QString _id;  //!< Unique agent identifier (lowercase, hyphens allowed)
-    QString _name;  //!< Display name
-    QString _version;  //!< Semantic version
-    QString _description;  //!< Brief description of the agent
-    std::optional<QString> _repository;  //!< Source code repository URL
-    std::optional<QStringList> _authors;  //!< List of authors
-    std::optional<QString> _license;  //!< SPDX license identifier or 'proprietary'
-    std::optional<QString> _icon;  //!< Icon URL (set automatically by the build from the required icon.svg file)
-    Distribution _distribution;
+    QString _id{};  //!< Unique agent identifier (lowercase, hyphens allowed)
+    QString _name{};  //!< Display name
+    QString _version{};  //!< Semantic version
+    QString _description{};  //!< Brief description of the agent
+    std::optional<QString> _repository{};  //!< Source code repository URL
+    std::optional<QStringList> _authors{};  //!< List of authors
+    std::optional<QString> _license{};  //!< SPDX license identifier or 'proprietary'
+    std::optional<QString> _icon{};  //!< Icon URL (set automatically by the build from the required icon.svg file)
+    Distribution _distribution{};
 
     ACPAgent& id(const QString & v) { _id = v; return *this; }
     ACPAgent& name(const QString & v) { _name = v; return *this; }
@@ -161,8 +170,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ACPAgent &data);
 
 /** Schema for the aggregated ACP agent registry index */
 struct ACPAgentRegistry {
-    QString _version;  //!< Registry schema version
-    QList<ACPAgent> _agents;  //!< List of registered agents
+    QString _version{};  //!< Registry schema version
+    QList<ACPAgent> _agents{};  //!< List of registered agents
 
     ACPAgentRegistry& version(const QString & v) { _version = v; return *this; }
     ACPAgentRegistry& agents(const QList<ACPAgent> & v) { _agents = v; return *this; }

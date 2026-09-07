@@ -171,19 +171,19 @@ Utils::Result<ACPAgent::Distribution> fromJson<ACPAgent::Distribution>(const QJs
     const QJsonObject obj = val.toObject();
     ACPAgent::Distribution result;
     if (obj.contains("binary") && obj["binary"].isObject()) {
-        const auto res0 = fromJson<binaryDistribution>(obj["binary"]);
+        const auto res0 = fromJson<binaryDistribution>("binary", obj["binary"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._binary = *res0;
     }
     if (obj.contains("npx") && obj["npx"].isObject()) {
-        const auto res1 = fromJson<packageDistribution>(obj["npx"]);
+        const auto res1 = fromJson<packageDistribution>("npx", obj["npx"]);
         if (!res1)
             return Utils::ResultError(res1.error());
         result._npx = *res1;
     }
     if (obj.contains("uvx") && obj["uvx"].isObject()) {
-        const auto res2 = fromJson<packageDistribution>(obj["uvx"]);
+        const auto res2 = fromJson<packageDistribution>("uvx", obj["uvx"]);
         if (!res2)
             return Utils::ResultError(res2.error());
         result._uvx = *res2;
@@ -239,7 +239,7 @@ Utils::Result<ACPAgent> fromJson<ACPAgent>(const QJsonValue &val)
     if (obj.contains("icon"))
         result._icon = obj.value("icon").toString();
     if (obj.contains("distribution") && obj["distribution"].isObject()) {
-        const auto res0 = fromJson<ACPAgent::Distribution>(obj["distribution"]);
+        const auto res0 = fromJson<ACPAgent::Distribution>("distribution", obj["distribution"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._distribution = *res0;
@@ -285,7 +285,7 @@ Utils::Result<ACPAgentRegistry> fromJson<ACPAgentRegistry>(const QJsonValue &val
     if (obj.contains("agents") && obj["agents"].isArray()) {
         const QJsonArray arr = obj["agents"].toArray();
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<ACPAgent>(v);
+            const auto res0 = fromJson<ACPAgent>("agents", v);
             if (!res0)
                 return Utils::ResultError(res0.error());
             result._agents.append(*res0);

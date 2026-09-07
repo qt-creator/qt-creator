@@ -45,6 +45,7 @@ private slots:
     void stopReasonEnum();
     void permissionOptionKindEnum();
     void enumInvalidType();
+    void structEnumFieldInvalidType();
 
     // --- Simple type aliases ---
     void sessionIdAlias();
@@ -233,6 +234,19 @@ void tst_Acp::enumInvalidType()
     // Passing a number where a string enum is expected
     auto r = fromJson<Role>(QJsonValue(42));
     QVERIFY(!r.has_value());
+}
+
+void tst_Acp::structEnumFieldInvalidType()
+{
+    const auto required = fromJson<PermissionOption>(QJsonValue(
+        QJsonObject{{"optionId", "o1"}, {"name", "Allow"}, {"kind", 42}}));
+    QVERIFY(!required.has_value());
+    QCOMPARE(required.error(), "kind: Expected JSON string for PermissionOptionKind");
+
+    const auto optional = fromJson<ToolCall>(QJsonValue(
+        QJsonObject{{"toolCallId", "t1"}, {"title", "Read"}, {"kind", 42}}));
+    QVERIFY(!optional.has_value());
+    QCOMPARE(optional.error(), "kind: Expected JSON string for ToolKind");
 }
 
 // =============================================================================

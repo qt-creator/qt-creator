@@ -105,6 +105,15 @@ def make_header(namespace: str, export_header: str = None) -> str:
 namespace {namespace} {{
 {_PATCH_CLASS if _three_state else ''}
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
+
+template<typename T>
+Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
+{{
+    const Utils::Result<T> result = fromJson<T>(val);
+    if (result)
+        return result;
+    return Utils::ResultError(field + ": " + result.error());
+}}
 '''
 
 def make_footer(namespace: str) -> str:
@@ -310,6 +319,8 @@ def parse_enum(name, spec):
             fj = []
             fj.append(f"template<>")
             fj.append(f"inline Utils::Result<{name}> fromJson<{name}>(const QJsonValue &val) {{")
+            fj.append(f"    if (!val.isString())")
+            fj.append(f'        co_return Utils::ResultError("Expected JSON string for {name}");')
             fj.append(f"    const QString str = val.toString();")
             for s, orig in pairs:
                 fj.append(f'    if (str == "{orig}") co_return {name}::{s};')
@@ -2000,6 +2011,8 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             ser_lines.append("")
             ser_lines.append(f"template<>")
             ser_lines.append(f"inline Utils::Result<{qname}> fromJson<{qname}>(const QJsonValue &val) {{")
+            ser_lines.append(f"    if (!val.isString())")
+            ser_lines.append(f"        return Utils::ResultError(\"Expected JSON string for {qname}\");")
             ser_lines.append(f"    const QString str = val.toString();")
             for v in values:
                 ser_lines.append(f"    if (str == \"{v}\") return {qname}::{sanitize_identifier(v)};")
@@ -2072,12 +2085,12 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             t = inline_enum_names[prop]
             decl_type = f"std::optional<{t}>" if is_optional else t
             # Doc comment already emitted on the nested enum class; skip it here.
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};")
         elif prop in sub_struct_names:
             t = sub_struct_names[prop]
             decl_type = f"std::optional<{t}>" if is_optional else t
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         # Handle $ref (direct or allOf-wrapped)
         elif _extract_ref(spec):
             t = ref_type(_extract_ref(spec))
@@ -2087,7 +2100,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 t = nested_short_names.get(t, t)  # use short name if nested
             decl_type = f"std::optional<{t}>" if is_optional else t
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         # Handle nullable $ref (anyOf with $ref + null)
         elif _extract_nullable_ref(spec):
             t = _extract_nullable_ref(spec)
@@ -2100,62 +2113,62 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             else:
                 decl_type = f"std::optional<{t}>"  # always optional (nullable)
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif spec.get("type") == "array" and _extract_ref(spec.get("items", {})):
             item_type = ref_type(_extract_ref(spec.get("items", {})))
             item_type = nested_short_names.get(item_type, item_type)  # use short name if nested
             decl_type = list_type(item_type, is_optional)
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif _three_state and _nullable_ref_array_type(spec):
             item_type = _nullable_ref_array_type(spec)
             item_type = nested_short_names.get(item_type, item_type)
             inner = list_type(item_type)
             decl_type = f"Patch<{inner}>" if is_optional else f"std::optional<{inner}>"
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif prop in array_item_struct_names:
             t = array_item_struct_names[prop]
             decl_type = list_type(t, is_optional)
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif prop in array_item_union_names:
             t = array_item_union_names[prop]
             decl_type = list_type(t, is_optional)
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif prop in field_union_names:
             t = field_union_names[prop]
             decl_type = f"std::optional<{t}>" if is_optional else t
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif prop in map_value_union_names:
             val_alias, full_map_type = map_value_union_names[prop]
             decl_type = f"std::optional<{full_map_type}>" if is_optional else full_map_type
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif spec.get("type") == "array":
             item_type = cpp_type(spec["items"].get("type", "string"))
             decl_type = list_type(item_type, is_optional)
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif is_open_map(spec):
             inner = "QMap<QString, QJsonValue>"
             decl_type = f"std::optional<{inner}>" if is_optional else inner
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif is_typed_map(spec) is not None:
             val_type = is_typed_map(spec)
             inner = f"QMap<QString, {val_type}>"
             decl_type = f"std::optional<{inner}>" if is_optional else inner
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         elif is_const_string(spec):
             pass  # const string fields are not stored in the struct
         elif is_untyped_any(spec):
             decl_type = "std::optional<QJsonValue>" if is_optional else "QJsonValue"
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         else:
             base_t, is_nullable = _nullable_type(spec)
             t = base_t if base_t else spec.get("type", "string")
@@ -2166,7 +2179,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             else:
                 decl_type = cpp_type(t)
             lines.extend(pre_lines)
-            lines.append(f"    {decl_type} _{sanitize_identifier(prop)};{inline_comment}")
+            lines.append(f"    {decl_type} _{sanitize_identifier(prop)}{{}};{inline_comment}")
         if not is_const_string(spec):
             prop_decl_types[prop] = decl_type
 
@@ -2374,13 +2387,16 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         is_optional = prop not in required
         if prop in inline_enum_names:
             t_fj = f"{name}::{inline_enum_names[prop]}"
-            fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isString())")
-            fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+            if is_optional:
+                fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
+                fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
+            else:
+                fj_lines.append(f"    result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
         elif prop in sub_struct_names:
             t = sub_struct_names[prop]
             t_fj = f"{name}::{t}"  # inline sub-structs are always nested inside this struct
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isObject())")
-            fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+            fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
         elif _extract_ref(spec):
             t = ref_type(_extract_ref(spec))
             if is_integer_const_namespace(t, types):
@@ -2407,16 +2423,19 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                         fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isBool())")
                     else:
                         fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
-                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
                 elif is_enum:
-                    fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isString())")
-                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                    if is_optional:
+                        fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
+                        fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
+                    else:
+                        fj_lines.append(f"    result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
                 elif is_union:
                     fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
-                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
                 else:
                     fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isObject())")
-                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                    fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
         elif _extract_nullable_ref(spec):
             t = _extract_nullable_ref(spec)
             is_patch = _is_patch_field(spec, is_optional)
@@ -2430,7 +2449,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 t_fj = f"{name}::{nested_short_names[t]}" if t in nested_short_names else t
                 # Nullable ref: only parse when present and non-null
                 fj_lines.append(f"    if (obj.contains(\"{prop}\") && !obj[\"{prop}\"].isNull())")
-                fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(obj[\"{prop}\"]);")
+                fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t_fj}>(\"{prop}\", obj[\"{prop}\"]);")
                 if is_patch:
                     fj_lines.append(f"    else if (obj.contains(\"{prop}\"))")
                     fj_lines.append(f"        result._{sanitize_identifier(prop)} = std::nullopt;")
@@ -2445,12 +2464,12 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             if is_optional:
                 fj_lines.append(f"        {list_type(item_type_fj)} list_{prop_name};")
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
-                fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{item_type_fj}>(v));")
+                fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{item_type_fj}>(\"{prop}\", v));")
                 fj_lines.append(f"        }}")
                 fj_lines.append(f"        result._{sanitize_identifier(prop)} = list_{prop_name};")
             else:
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
-                fj_lines.append(f"            result._{sanitize_identifier(prop)}.append(co_await fromJson<{item_type_fj}>(v));")
+                fj_lines.append(f"            result._{sanitize_identifier(prop)}.append(co_await fromJson<{item_type_fj}>(\"{prop}\", v));")
                 fj_lines.append(f"        }}")
             fj_lines.append(f"    }}")
         elif _three_state and _nullable_ref_array_type(spec):
@@ -2460,7 +2479,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             fj_lines.append(f"        const QJsonArray arr = obj[\"{prop}\"].toArray();")
             fj_lines.append(f"        {list_type(item_type_fj)} list_{prop_name};")
             fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
-            fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{item_type_fj}>(v));")
+            fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{item_type_fj}>(\"{prop}\", v));")
             fj_lines.append(f"        }}")
             fj_lines.append(f"        result._{sanitize_identifier(prop)} = list_{prop_name};")
             fj_lines.append(f"    }}")
@@ -2475,18 +2494,18 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             if is_optional:
                 fj_lines.append(f"        {list_type(t_fj)} list_{prop_name};")
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
-                fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{t_fj}>(v));")
+                fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{t_fj}>(\"{prop}\", v));")
                 fj_lines.append(f"        }}")
                 fj_lines.append(f"        result._{sanitize_identifier(prop)} = list_{prop_name};")
             else:
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
-                fj_lines.append(f"            result._{sanitize_identifier(prop)}.append(co_await fromJson<{t_fj}>(v));")
+                fj_lines.append(f"            result._{sanitize_identifier(prop)}.append(co_await fromJson<{t_fj}>(\"{prop}\", v));")
                 fj_lines.append(f"        }}")
             fj_lines.append(f"    }}")
         elif prop in field_union_names:
             t = field_union_names[prop]
             fj_lines.append(f"    if (obj.contains(\"{prop}\"))")
-            fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t}>(obj[\"{prop}\"]);")
+            fj_lines.append(f"        result._{sanitize_identifier(prop)} = co_await fromJson<{t}>(\"{prop}\", obj[\"{prop}\"]);")
         elif prop in array_item_union_names:
             t = array_item_union_names[prop]
             fj_lines.append(f"    if (obj.contains(\"{prop}\") && obj[\"{prop}\"].isArray()) {{")
@@ -2494,12 +2513,12 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             if is_optional:
                 fj_lines.append(f"        {list_type(t)} list_{prop_name};")
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
-                fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{t}>(v));")
+                fj_lines.append(f"            list_{prop_name}.append(co_await fromJson<{t}>(\"{prop}\", v));")
                 fj_lines.append(f"        }}")
                 fj_lines.append(f"        result._{sanitize_identifier(prop)} = list_{prop_name};")
             else:
                 fj_lines.append(f"        for (const QJsonValue &v : arr) {{")
-                fj_lines.append(f"            result._{sanitize_identifier(prop)}.append(co_await fromJson<{t}>(v));")
+                fj_lines.append(f"            result._{sanitize_identifier(prop)}.append(co_await fromJson<{t}>(\"{prop}\", v));")
                 fj_lines.append(f"        }}")
             fj_lines.append(f"    }}")
         elif spec.get("type") == "array":
@@ -2530,7 +2549,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
             fj_lines.append(f"        const QJsonObject mapObj_{prop_name} = obj[\"{prop}\"].toObject();")
             fj_lines.append(f"        {full_map_type} map_{prop_name};")
             fj_lines.append(f"        for (auto it = mapObj_{prop_name}.constBegin(); it != mapObj_{prop_name}.constEnd(); ++it) {{")
-            fj_lines.append(f"            map_{prop_name}.insert(it.key(), co_await fromJson<{val_alias}>(it.value()));")
+            fj_lines.append(f"            map_{prop_name}.insert(it.key(), co_await fromJson<{val_alias}>(\"{prop}\", it.value()));")
             fj_lines.append(f"        }}")
             fj_lines.append(f"        result._{sanitize_identifier(prop)} = map_{prop_name};")
             fj_lines.append(f"    }}")
@@ -2553,7 +2572,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 fj_lines.append(f"            map_{prop_name}.insert(it.key(), {extract});")
             else:
                 fj_lines.append(f"        for (auto it = mapObj_{prop_name}.constBegin(); it != mapObj_{prop_name}.constEnd(); ++it) {{")
-                fj_lines.append(f"            map_{prop_name}.insert(it.key(), co_await fromJson<{val_type}>(it.value()));")
+                fj_lines.append(f"            map_{prop_name}.insert(it.key(), co_await fromJson<{val_type}>(\"{prop}\", it.value()));")
                 fj_lines.append(f"        }}")
             fj_lines.append(f"        result._{sanitize_identifier(prop)} = map_{prop_name};")
             fj_lines.append(f"    }}")

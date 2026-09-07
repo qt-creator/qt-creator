@@ -26,6 +26,15 @@ namespace QtProfiler::Api::Schema {
 
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
+template<typename T>
+Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
+{
+    const Utils::Result<T> result = fromJson<T>(val);
+    if (result)
+        return result;
+    return Utils::ResultError(field + ": " + result.error());
+}
+
 /** A uniquely identifying ID for a request in JSON-RPC. */
 using RequestId = std::variant<QString, int>;
 
@@ -63,9 +72,9 @@ namespace ErrorCode {
     constexpr int Resource_not_found = -32002;
 } // namespace ErrorCode
 struct Error {
-    int _code;  //!< The error type that occurred.
-    std::optional<QJsonValue> _data;  //!< Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
-    QString _message;  //!< A short description of the error. The message SHOULD be limited to a concise single sentence.
+    int _code{};  //!< The error type that occurred.
+    std::optional<QJsonValue> _data{};  //!< Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).
+    QString _message{};  //!< A short description of the error. The message SHOULD be limited to a concise single sentence.
 
     Error& code(int v) { _code = v; return *this; }
     Error& data(const std::optional<QJsonValue> & v) { _data = v; return *this; }
@@ -105,8 +114,8 @@ inline QJsonObject toJson(const Error &data) {
 
 /** A response to a request that indicates an error occurred. */
 struct ErrorResponse {
-    Error _error;
-    RequestId _id;
+    Error _error{};
+    RequestId _id{};
 
     ErrorResponse& error(const Error & v) { _error = v; return *this; }
     ErrorResponse& id(const RequestId & v) { _id = v; return *this; }
@@ -128,13 +137,13 @@ inline Utils::Result<ErrorResponse> fromJson<ErrorResponse>(const QJsonValue &va
         return Utils::ResultError("Missing required field: id");
     ErrorResponse result;
     if (obj.contains("error") && obj["error"].isObject()) {
-        const auto res0 = fromJson<Error>(obj["error"]);
+        const auto res0 = fromJson<Error>("error", obj["error"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._error = *res0;
     }
     if (obj.contains("id")) {
-        const auto res1 = fromJson<RequestId>(obj["id"]);
+        const auto res1 = fromJson<RequestId>("id", obj["id"]);
         if (!res1)
             return Utils::ResultError(res1.error());
         result._id = *res1;
@@ -155,8 +164,8 @@ inline QJsonObject toJson(const ErrorResponse &data) {
 
 /** After receiving an openTraceFile request, the application sends this response. */
 struct OpenTraceFileResult {
-    bool _result;  //!< Indicates whether the trace file was successfully opened.
-    RequestId _id;
+    bool _result{};  //!< Indicates whether the trace file was successfully opened.
+    RequestId _id{};
 
     OpenTraceFileResult& result(bool v) { _result = v; return *this; }
     OpenTraceFileResult& id(const RequestId & v) { _id = v; return *this; }
@@ -179,7 +188,7 @@ inline Utils::Result<OpenTraceFileResult> fromJson<OpenTraceFileResult>(const QJ
     OpenTraceFileResult result;
     result._result = obj.value("result").toBool();
     if (obj.contains("id")) {
-        const auto res0 = fromJson<RequestId>(obj["id"]);
+        const auto res0 = fromJson<RequestId>("id", obj["id"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._id = *res0;
@@ -272,11 +281,11 @@ inline QJsonObject toJson(const TraceDiscardedNotification &data) {
 
 struct TraceEventSelectedNotification {
     struct Params {
-        QString _sourceFilePath;  //!< The file path of the source file to show.
-        int _lineNumber;  //!< The line number in the source file to show (1-based index).
-        int _columnNumber;  //!< The column number in the source file to show (1-based index).
-        std::optional<QString> _module;  //!< Binary/module name when no source file is available (optional).
-        std::optional<QString> _offset;  //!< Hex offset within the module, e.g. "0x12345" (optional).
+        QString _sourceFilePath{};  //!< The file path of the source file to show.
+        int _lineNumber{};  //!< The line number in the source file to show (1-based index).
+        int _columnNumber{};  //!< The column number in the source file to show (1-based index).
+        std::optional<QString> _module{};  //!< Binary/module name when no source file is available (optional).
+        std::optional<QString> _offset{};  //!< Hex offset within the module, e.g. "0x12345" (optional).
 
         Params& sourceFilePath(const QString & v) { _sourceFilePath = v; return *this; }
         Params& lineNumber(int v) { _lineNumber = v; return *this; }
@@ -291,7 +300,7 @@ struct TraceEventSelectedNotification {
         const std::optional<QString>& offset() const { return _offset; }
     };
 
-    Params _params;
+    Params _params{};
 
     TraceEventSelectedNotification& params(const Params & v) { _params = v; return *this; }
 
@@ -350,7 +359,7 @@ inline Utils::Result<TraceEventSelectedNotification> fromJson<TraceEventSelected
     if (obj.value("method").toString() != "traceEventSelected")
         return Utils::ResultError("Field 'method' must be 'traceEventSelected', got: " + obj.value("method").toString());
     if (obj.contains("params") && obj["params"].isObject()) {
-        const auto res0 = fromJson<TraceEventSelectedNotification::Params>(obj["params"]);
+        const auto res0 = fromJson<TraceEventSelectedNotification::Params>("params", obj["params"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._params = *res0;
@@ -369,9 +378,9 @@ inline QJsonObject toJson(const TraceEventSelectedNotification &data) {
 
 struct TraceFileLoadingFinishedNotification {
     struct Params {
-        QString _traceFilePath;  //!< The file path of the trace file.
-        bool _successful;  //!< The loading of the file was successful.
-        std::optional<QString> _errorMessage;  //!< Error message in case of failure.
+        QString _traceFilePath{};  //!< The file path of the trace file.
+        bool _successful{};  //!< The loading of the file was successful.
+        std::optional<QString> _errorMessage{};  //!< Error message in case of failure.
 
         Params& traceFilePath(const QString & v) { _traceFilePath = v; return *this; }
         Params& successful(bool v) { _successful = v; return *this; }
@@ -382,7 +391,7 @@ struct TraceFileLoadingFinishedNotification {
         const std::optional<QString>& errorMessage() const { return _errorMessage; }
     };
 
-    Params _params;
+    Params _params{};
 
     TraceFileLoadingFinishedNotification& params(const Params & v) { _params = v; return *this; }
 
@@ -433,7 +442,7 @@ inline Utils::Result<TraceFileLoadingFinishedNotification> fromJson<TraceFileLoa
     if (obj.value("method").toString() != "traceFileLoadingFinished")
         return Utils::ResultError("Field 'method' must be 'traceFileLoadingFinished', got: " + obj.value("method").toString());
     if (obj.contains("params") && obj["params"].isObject()) {
-        const auto res0 = fromJson<TraceFileLoadingFinishedNotification::Params>(obj["params"]);
+        const auto res0 = fromJson<TraceFileLoadingFinishedNotification::Params>("params", obj["params"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._params = *res0;
@@ -452,14 +461,14 @@ inline QJsonObject toJson(const TraceFileLoadingFinishedNotification &data) {
 
 struct TraceFileLoadingStartedNotification {
     struct Params {
-        QString _traceFilePath;  //!< The file path of the trace file.
+        QString _traceFilePath{};  //!< The file path of the trace file.
 
         Params& traceFilePath(const QString & v) { _traceFilePath = v; return *this; }
 
         const QString& traceFilePath() const { return _traceFilePath; }
     };
 
-    Params _params;
+    Params _params{};
 
     TraceFileLoadingStartedNotification& params(const Params & v) { _params = v; return *this; }
 
@@ -500,7 +509,7 @@ inline Utils::Result<TraceFileLoadingStartedNotification> fromJson<TraceFileLoad
     if (obj.value("method").toString() != "traceFileLoadingStarted")
         return Utils::ResultError("Field 'method' must be 'traceFileLoadingStarted', got: " + obj.value("method").toString());
     if (obj.contains("params") && obj["params"].isObject()) {
-        const auto res0 = fromJson<TraceFileLoadingStartedNotification::Params>(obj["params"]);
+        const auto res0 = fromJson<TraceFileLoadingStartedNotification::Params>("params", obj["params"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._params = *res0;
@@ -580,7 +589,7 @@ inline QString dispatchValue(const ApplicationNotification &val) {
 }
 /** Request to exit the application. */
 struct ExitRequest {
-    RequestId _id;
+    RequestId _id{};
 
     ExitRequest& id(const RequestId & v) { _id = v; return *this; }
 
@@ -600,7 +609,7 @@ inline Utils::Result<ExitRequest> fromJson<ExitRequest>(const QJsonValue &val) {
         return Utils::ResultError("Missing required field: method");
     ExitRequest result;
     if (obj.contains("id")) {
-        const auto res0 = fromJson<RequestId>(obj["id"]);
+        const auto res0 = fromJson<RequestId>("id", obj["id"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._id = *res0;
@@ -624,15 +633,15 @@ inline QJsonObject toJson(const ExitRequest &data) {
 /** Request to open a trace file. */
 struct OpenTraceFileRequest {
     struct Params {
-        QString _traceFilePath;
+        QString _traceFilePath{};
 
         Params& traceFilePath(const QString & v) { _traceFilePath = v; return *this; }
 
         const QString& traceFilePath() const { return _traceFilePath; }
     };
 
-    std::optional<RequestId> _id;
-    std::optional<Params> _params;
+    std::optional<RequestId> _id{};
+    std::optional<Params> _params{};
 
     OpenTraceFileRequest& id(const std::optional<RequestId> & v) { _id = v; return *this; }
     OpenTraceFileRequest& params(const std::optional<Params> & v) { _params = v; return *this; }
@@ -667,7 +676,7 @@ inline Utils::Result<OpenTraceFileRequest> fromJson<OpenTraceFileRequest>(const 
     const QJsonObject obj = val.toObject();
     OpenTraceFileRequest result;
     if (obj.contains("id")) {
-        const auto res0 = fromJson<RequestId>(obj["id"]);
+        const auto res0 = fromJson<RequestId>("id", obj["id"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._id = *res0;
@@ -677,7 +686,7 @@ inline Utils::Result<OpenTraceFileRequest> fromJson<OpenTraceFileRequest>(const 
     if (obj.value("method").toString() != "openTraceFile")
         return Utils::ResultError("Field 'method' must be 'openTraceFile', got: " + obj.value("method").toString());
     if (obj.contains("params") && obj["params"].isObject()) {
-        const auto res1 = fromJson<OpenTraceFileRequest::Params>(obj["params"]);
+        const auto res1 = fromJson<OpenTraceFileRequest::Params>("params", obj["params"]);
         if (!res1)
             return Utils::ResultError(res1.error());
         result._params = *res1;

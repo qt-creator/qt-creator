@@ -26,17 +26,26 @@ namespace Core::McpRegistry {
 
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
+template<typename T>
+Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
+{
+    const Utils::Result<T> result = fromJson<T>(val);
+    if (result)
+        return result;
+    return Utils::ResultError(field + ": " + result.error());
+}
+
 struct Icon {
     enum class Theme {
         light,
         dark
     };
 
-    QString _url;
-    std::optional<QString> _data;
-    std::optional<QString> _mime_type;
-    std::optional<QStringList> _sizes;
-    std::optional<Theme> _theme;
+    QString _url{};
+    std::optional<QString> _data{};
+    std::optional<QString> _mime_type{};
+    std::optional<QStringList> _sizes{};
+    std::optional<Theme> _theme{};
 
     const QString& url() const { return _url; }
     const std::optional<QString>& data() const { return _data; }
@@ -59,14 +68,14 @@ struct Argument {
         named
     };
 
-    Type _type;
-    std::optional<QString> _name;
-    std::optional<QString> _value_hint;
-    std::optional<QString> _description;
-    bool _required;
-    bool _repeated;
-    std::optional<QString> _default_;
-    std::optional<QString> _value;
+    Type _type{};
+    std::optional<QString> _name{};
+    std::optional<QString> _value_hint{};
+    std::optional<QString> _description{};
+    bool _required{};
+    bool _repeated{};
+    std::optional<QString> _default_{};
+    std::optional<QString> _value{};
 
     const Type& type() const { return _type; }
     const std::optional<QString>& name() const { return _name; }
@@ -87,11 +96,11 @@ template<>
 Utils::Result<Argument> fromJson<Argument>(const QJsonValue &val);
 
 struct KeyValueInput {
-    QString _name;
-    std::optional<QString> _description;
-    bool _required;
-    bool _secret;
-    std::optional<QString> _default_;
+    QString _name{};
+    std::optional<QString> _description{};
+    bool _required{};
+    bool _secret{};
+    std::optional<QString> _default_{};
 
     const QString& name() const { return _name; }
     const std::optional<QString>& description() const { return _description; }
@@ -118,15 +127,15 @@ struct Package {
         sse
     };
 
-    Registry_type _registry_type;
-    QString _identifier;
-    std::optional<QString> _version;
-    Transport_type _transport_type;
-    std::optional<QString> _runtime_hint;
-    std::optional<QList<Argument>> _runtime_arguments;
-    std::optional<QList<Argument>> _package_arguments;
-    std::optional<QList<KeyValueInput>> _headers;
-    std::optional<QList<KeyValueInput>> _env_vars;
+    Registry_type _registry_type{};
+    QString _identifier{};
+    std::optional<QString> _version{};
+    Transport_type _transport_type{};
+    std::optional<QString> _runtime_hint{};
+    std::optional<QList<Argument>> _runtime_arguments{};
+    std::optional<QList<Argument>> _package_arguments{};
+    std::optional<QList<KeyValueInput>> _headers{};
+    std::optional<QList<KeyValueInput>> _env_vars{};
 
     const Registry_type& registry_type() const { return _registry_type; }
     const QString& identifier() const { return _identifier; }
@@ -158,9 +167,9 @@ struct Remote {
         sse
     };
 
-    Type _type;
-    QString _url;
-    std::optional<QList<KeyValueInput>> _headers;
+    Type _type{};
+    QString _url{};
+    std::optional<QList<KeyValueInput>> _headers{};
 
     const Type& type() const { return _type; }
     const QString& url() const { return _url; }
@@ -182,16 +191,16 @@ struct Server {
         deleted
     };
 
-    QString _name;
-    std::optional<QString> _title;
-    QString _description;
-    QString _version;
-    Status _status;
-    std::optional<QString> _repository_url;
-    std::optional<QString> _website_url;
-    std::optional<QList<Icon>> _icons;
-    std::optional<QList<Package>> _packages;
-    std::optional<QList<Remote>> _remotes;
+    QString _name{};
+    std::optional<QString> _title{};
+    QString _description{};
+    QString _version{};
+    Status _status{};
+    std::optional<QString> _repository_url{};
+    std::optional<QString> _website_url{};
+    std::optional<QList<Icon>> _icons{};
+    std::optional<QList<Package>> _packages{};
+    std::optional<QList<Remote>> _remotes{};
 
     const QString& name() const { return _name; }
     const std::optional<QString>& title() const { return _title; }
@@ -214,9 +223,9 @@ template<>
 Utils::Result<Server> fromJson<Server>(const QJsonValue &val);
 
 struct McpRegistry {
-    QString _generated_at;
-    int _count;
-    QList<Server> _servers;
+    QString _generated_at{};
+    int _count{};
+    QList<Server> _servers{};
 
     const QString& generated_at() const { return _generated_at; }
     const int& count() const { return _count; }

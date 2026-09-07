@@ -15,6 +15,8 @@ QString toString(const Icon::Theme &v)
 template<>
 Utils::Result<Icon::Theme> fromJson<Icon::Theme>(const QJsonValue &val)
 {
+    if (!val.isString())
+        return Utils::ResultError("Expected JSON string for Icon::Theme");
     const QString str = val.toString();
     if (str == "light") return Icon::Theme::light;
     if (str == "dark") return Icon::Theme::dark;
@@ -43,8 +45,8 @@ Utils::Result<Icon> fromJson<Icon>(const QJsonValue &val)
         }
         result._sizes = list_sizes;
     }
-    if (obj.contains("theme") && obj["theme"].isString()) {
-        const auto res0 = fromJson<Icon::Theme>(obj["theme"]);
+    if (obj.contains("theme")) {
+        const auto res0 = fromJson<Icon::Theme>("theme", obj["theme"]);
         if (!res0)
             return Utils::ResultError(res0.error());
         result._theme = *res0;
@@ -64,6 +66,8 @@ QString toString(const Argument::Type &v)
 template<>
 Utils::Result<Argument::Type> fromJson<Argument::Type>(const QJsonValue &val)
 {
+    if (!val.isString())
+        return Utils::ResultError("Expected JSON string for Argument::Type");
     const QString str = val.toString();
     if (str == "positional") return Argument::Type::positional;
     if (str == "named") return Argument::Type::named;
@@ -83,12 +87,10 @@ Utils::Result<Argument> fromJson<Argument>(const QJsonValue &val)
     if (!obj.contains("repeated"))
         return Utils::ResultError("Missing required field: repeated");
     Argument result;
-    if (obj.contains("type") && obj["type"].isString()) {
-        const auto res0 = fromJson<Argument::Type>(obj["type"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._type = *res0;
-    }
+    const auto res0 = fromJson<Argument::Type>("type", obj["type"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._type = *res0;
     if (obj.contains("name"))
         result._name = obj.value("name").toString();
     if (obj.contains("value_hint"))
@@ -142,6 +144,8 @@ QString toString(const Package::Registry_type &v)
 template<>
 Utils::Result<Package::Registry_type> fromJson<Package::Registry_type>(const QJsonValue &val)
 {
+    if (!val.isString())
+        return Utils::ResultError("Expected JSON string for Package::Registry_type");
     const QString str = val.toString();
     if (str == "npm") return Package::Registry_type::npm;
     if (str == "pypi") return Package::Registry_type::pypi;
@@ -164,6 +168,8 @@ QString toString(const Package::Transport_type &v)
 template<>
 Utils::Result<Package::Transport_type> fromJson<Package::Transport_type>(const QJsonValue &val)
 {
+    if (!val.isString())
+        return Utils::ResultError("Expected JSON string for Package::Transport_type");
     const QString str = val.toString();
     if (str == "stdio") return Package::Transport_type::stdio;
     if (str == "streamable-http") return Package::Transport_type::streamableminushttp;
@@ -184,28 +190,24 @@ Utils::Result<Package> fromJson<Package>(const QJsonValue &val)
     if (!obj.contains("transport_type"))
         return Utils::ResultError("Missing required field: transport_type");
     Package result;
-    if (obj.contains("registry_type") && obj["registry_type"].isString()) {
-        const auto res0 = fromJson<Package::Registry_type>(obj["registry_type"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._registry_type = *res0;
-    }
+    const auto res0 = fromJson<Package::Registry_type>("registry_type", obj["registry_type"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._registry_type = *res0;
     result._identifier = obj.value("identifier").toString();
     if (obj.contains("version"))
         result._version = obj.value("version").toString();
-    if (obj.contains("transport_type") && obj["transport_type"].isString()) {
-        const auto res1 = fromJson<Package::Transport_type>(obj["transport_type"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._transport_type = *res1;
-    }
+    const auto res1 = fromJson<Package::Transport_type>("transport_type", obj["transport_type"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._transport_type = *res1;
     if (obj.contains("runtime_hint"))
         result._runtime_hint = obj.value("runtime_hint").toString();
     if (obj.contains("runtime_arguments") && obj["runtime_arguments"].isArray()) {
         const QJsonArray arr = obj["runtime_arguments"].toArray();
         QList<Argument> list_runtime_arguments;
         for (const QJsonValue &v : arr) {
-            const auto res2 = fromJson<Argument>(v);
+            const auto res2 = fromJson<Argument>("runtime_arguments", v);
             if (!res2)
                 return Utils::ResultError(res2.error());
             list_runtime_arguments.append(*res2);
@@ -216,7 +218,7 @@ Utils::Result<Package> fromJson<Package>(const QJsonValue &val)
         const QJsonArray arr = obj["package_arguments"].toArray();
         QList<Argument> list_package_arguments;
         for (const QJsonValue &v : arr) {
-            const auto res3 = fromJson<Argument>(v);
+            const auto res3 = fromJson<Argument>("package_arguments", v);
             if (!res3)
                 return Utils::ResultError(res3.error());
             list_package_arguments.append(*res3);
@@ -227,7 +229,7 @@ Utils::Result<Package> fromJson<Package>(const QJsonValue &val)
         const QJsonArray arr = obj["headers"].toArray();
         QList<KeyValueInput> list_headers;
         for (const QJsonValue &v : arr) {
-            const auto res4 = fromJson<KeyValueInput>(v);
+            const auto res4 = fromJson<KeyValueInput>("headers", v);
             if (!res4)
                 return Utils::ResultError(res4.error());
             list_headers.append(*res4);
@@ -238,7 +240,7 @@ Utils::Result<Package> fromJson<Package>(const QJsonValue &val)
         const QJsonArray arr = obj["env_vars"].toArray();
         QList<KeyValueInput> list_env_vars;
         for (const QJsonValue &v : arr) {
-            const auto res5 = fromJson<KeyValueInput>(v);
+            const auto res5 = fromJson<KeyValueInput>("env_vars", v);
             if (!res5)
                 return Utils::ResultError(res5.error());
             list_env_vars.append(*res5);
@@ -260,6 +262,8 @@ QString toString(const Remote::Type &v)
 template<>
 Utils::Result<Remote::Type> fromJson<Remote::Type>(const QJsonValue &val)
 {
+    if (!val.isString())
+        return Utils::ResultError("Expected JSON string for Remote::Type");
     const QString str = val.toString();
     if (str == "streamable-http") return Remote::Type::streamableminushttp;
     if (str == "sse") return Remote::Type::sse;
@@ -277,18 +281,16 @@ Utils::Result<Remote> fromJson<Remote>(const QJsonValue &val)
     if (!obj.contains("url"))
         return Utils::ResultError("Missing required field: url");
     Remote result;
-    if (obj.contains("type") && obj["type"].isString()) {
-        const auto res0 = fromJson<Remote::Type>(obj["type"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._type = *res0;
-    }
+    const auto res0 = fromJson<Remote::Type>("type", obj["type"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._type = *res0;
     result._url = obj.value("url").toString();
     if (obj.contains("headers") && obj["headers"].isArray()) {
         const QJsonArray arr = obj["headers"].toArray();
         QList<KeyValueInput> list_headers;
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<KeyValueInput>(v);
+            const auto res1 = fromJson<KeyValueInput>("headers", v);
             if (!res1)
                 return Utils::ResultError(res1.error());
             list_headers.append(*res1);
@@ -311,6 +313,8 @@ QString toString(const Server::Status &v)
 template<>
 Utils::Result<Server::Status> fromJson<Server::Status>(const QJsonValue &val)
 {
+    if (!val.isString())
+        return Utils::ResultError("Expected JSON string for Server::Status");
     const QString str = val.toString();
     if (str == "active") return Server::Status::active;
     if (str == "deprecated") return Server::Status::deprecated;
@@ -338,12 +342,10 @@ Utils::Result<Server> fromJson<Server>(const QJsonValue &val)
         result._title = obj.value("title").toString();
     result._description = obj.value("description").toString();
     result._version = obj.value("version").toString();
-    if (obj.contains("status") && obj["status"].isString()) {
-        const auto res0 = fromJson<Server::Status>(obj["status"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._status = *res0;
-    }
+    const auto res0 = fromJson<Server::Status>("status", obj["status"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._status = *res0;
     if (obj.contains("repository_url"))
         result._repository_url = obj.value("repository_url").toString();
     if (obj.contains("website_url"))
@@ -352,7 +354,7 @@ Utils::Result<Server> fromJson<Server>(const QJsonValue &val)
         const QJsonArray arr = obj["icons"].toArray();
         QList<Icon> list_icons;
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<Icon>(v);
+            const auto res1 = fromJson<Icon>("icons", v);
             if (!res1)
                 return Utils::ResultError(res1.error());
             list_icons.append(*res1);
@@ -363,7 +365,7 @@ Utils::Result<Server> fromJson<Server>(const QJsonValue &val)
         const QJsonArray arr = obj["packages"].toArray();
         QList<Package> list_packages;
         for (const QJsonValue &v : arr) {
-            const auto res2 = fromJson<Package>(v);
+            const auto res2 = fromJson<Package>("packages", v);
             if (!res2)
                 return Utils::ResultError(res2.error());
             list_packages.append(*res2);
@@ -374,7 +376,7 @@ Utils::Result<Server> fromJson<Server>(const QJsonValue &val)
         const QJsonArray arr = obj["remotes"].toArray();
         QList<Remote> list_remotes;
         for (const QJsonValue &v : arr) {
-            const auto res3 = fromJson<Remote>(v);
+            const auto res3 = fromJson<Remote>("remotes", v);
             if (!res3)
                 return Utils::ResultError(res3.error());
             list_remotes.append(*res3);
@@ -402,7 +404,7 @@ Utils::Result<McpRegistry> fromJson<McpRegistry>(const QJsonValue &val)
     if (obj.contains("servers") && obj["servers"].isArray()) {
         const QJsonArray arr = obj["servers"].toArray();
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<Server>(v);
+            const auto res0 = fromJson<Server>("servers", v);
             if (!res0)
                 return Utils::ResultError(res0.error());
             result._servers.append(*res0);

@@ -28,6 +28,15 @@ namespace Acp {
 
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
+template<typename T>
+Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
+{
+    const Utils::Result<T> result = fromJson<T>(val);
+    if (result)
+        return result;
+    return Utils::ResultError(field + ": " + result.error());
+}
+
 /**
  * JSON RPC Request Id
  *
@@ -51,7 +60,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const RequestId &val);
  * (e.g., during auth/configuration phases before any session is started).
  */
 struct ElicitationRequestScope {
-    RequestId _requestId;  //!< The request this elicitation is tied to.
+    RequestId _requestId{};  //!< The request this elicitation is tied to.
 
     ElicitationRequestScope& requestId(const RequestId & v) { _requestId = v; return *this; }
 
@@ -70,19 +79,19 @@ struct BooleanPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no title is provided.
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
     /**
      * Human-readable description.
      *
      * Optional. Omitted and `null` are equivalent and mean no description is provided.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * Default value.
      *
      * Optional. Omitted and `null` are equivalent and mean no default value is provided.
      */
-    std::optional<bool> _default_;
+    std::optional<bool> _default_{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -92,7 +101,7 @@ struct BooleanPropertySchema {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     BooleanPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
     BooleanPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -117,31 +126,31 @@ struct IntegerPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no title is provided.
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
     /**
      * Human-readable description.
      *
      * Optional. Omitted and `null` are equivalent and mean no description is provided.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * Minimum value (inclusive).
      *
      * Optional. Omitted and `null` are equivalent and mean there is no inclusive lower bound.
      */
-    std::optional<int> _minimum;
+    std::optional<int> _minimum{};
     /**
      * Maximum value (inclusive).
      *
      * Optional. Omitted and `null` are equivalent and mean there is no inclusive upper bound.
      */
-    std::optional<int> _maximum;
+    std::optional<int> _maximum{};
     /**
      * Default value.
      *
      * Optional. Omitted and `null` are equivalent and mean no default value is provided.
      */
-    std::optional<int> _default_;
+    std::optional<int> _default_{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -151,7 +160,7 @@ struct IntegerPropertySchema {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     IntegerPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
     IntegerPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -175,7 +184,7 @@ ACPLIB_EXPORT QJsonObject toJson(const IntegerPropertySchema &data);
 
 /** String item schema for multi-select enum properties. */
 struct StringMultiSelectItems {
-    QStringList _enum_;  //!< Allowed enum values.
+    QStringList _enum_{};  //!< Allowed enum values.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -185,7 +194,7 @@ struct StringMultiSelectItems {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     StringMultiSelectItems& enum_(const QStringList & v) { _enum_ = v; return *this; }
     StringMultiSelectItems& addEnum(const QString & v) { _enum_.append(v); return *this; }
@@ -202,14 +211,14 @@ ACPLIB_EXPORT QJsonObject toJson(const StringMultiSelectItems &data);
 
 /** A titled enum option with a const value, human-readable title, and optional description. */
 struct EnumOption {
-    QString _const_;  //!< The constant value for this option.
-    QString _title;  //!< Human-readable title for this option.
+    QString _const_{};  //!< The constant value for this option.
+    QString _title{};  //!< Human-readable title for this option.
     /**
      * Human-readable description.
      *
      * Optional. Omitted and `null` are equivalent and mean no description is provided.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -219,7 +228,7 @@ struct EnumOption {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     EnumOption& const_(const QString & v) { _const_ = v; return *this; }
     EnumOption& title(const QString & v) { _title = v; return *this; }
@@ -239,7 +248,7 @@ ACPLIB_EXPORT QJsonObject toJson(const EnumOption &data);
 
 /** Items definition for titled multi-select enum properties. */
 struct TitledMultiSelectItems {
-    QList<EnumOption> _anyOf;  //!< Titled enum options.
+    QList<EnumOption> _anyOf{};  //!< Titled enum options.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -249,7 +258,7 @@ struct TitledMultiSelectItems {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     TitledMultiSelectItems& anyOf(const QList<EnumOption> & v) { _anyOf = v; return *this; }
     TitledMultiSelectItems& addAnyOf(const EnumOption & v) { _anyOf.append(v); return *this; }
@@ -281,32 +290,32 @@ struct MultiSelectPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no title is provided.
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
     /**
      * Human-readable description.
      *
      * Optional. Omitted and `null` are equivalent and mean no description is provided.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * Minimum number of items to select.
      *
      * Optional. Omitted and `null` are equivalent and mean there is no minimum selection count.
      */
-    std::optional<int> _minItems;
+    std::optional<int> _minItems{};
     /**
      * Maximum number of items to select.
      *
      * Optional. Omitted and `null` are equivalent and mean there is no maximum selection count.
      */
-    std::optional<int> _maxItems;
-    MultiSelectItems _items;  //!< The items definition describing allowed values.
+    std::optional<int> _maxItems{};
+    MultiSelectItems _items{};  //!< The items definition describing allowed values.
     /**
      * Default selected values.
      *
      * Optional. Omitted and `null` are equivalent and mean no default selections are provided.
      */
-    std::optional<QJsonArray> _default_;
+    std::optional<QJsonArray> _default_{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -316,7 +325,7 @@ struct MultiSelectPropertySchema {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     MultiSelectPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
     MultiSelectPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -347,31 +356,31 @@ struct NumberPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no title is provided.
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
     /**
      * Human-readable description.
      *
      * Optional. Omitted and `null` are equivalent and mean no description is provided.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * Minimum value (inclusive).
      *
      * Optional. Omitted and `null` are equivalent and mean there is no inclusive lower bound.
      */
-    std::optional<double> _minimum;
+    std::optional<double> _minimum{};
     /**
      * Maximum value (inclusive).
      *
      * Optional. Omitted and `null` are equivalent and mean there is no inclusive upper bound.
      */
-    std::optional<double> _maximum;
+    std::optional<double> _maximum{};
     /**
      * Default value.
      *
      * Optional. Omitted and `null` are equivalent and mean no default value is provided.
      */
-    std::optional<double> _default_;
+    std::optional<double> _default_{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -381,7 +390,7 @@ struct NumberPropertySchema {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     NumberPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
     NumberPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -430,55 +439,55 @@ struct StringPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no title is provided.
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
     /**
      * Human-readable description.
      *
      * Optional. Omitted and `null` are equivalent and mean no description is provided.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * Minimum string length.
      *
      * Optional. Omitted and `null` are equivalent and mean there is no minimum length constraint.
      */
-    std::optional<int> _minLength;
+    std::optional<int> _minLength{};
     /**
      * Maximum string length.
      *
      * Optional. Omitted and `null` are equivalent and mean there is no maximum length constraint.
      */
-    std::optional<int> _maxLength;
+    std::optional<int> _maxLength{};
     /**
      * Pattern the string must match.
      *
      * Optional. Omitted and `null` are equivalent and mean there is no pattern constraint.
      */
-    std::optional<QString> _pattern;
+    std::optional<QString> _pattern{};
     /**
      * String format.
      *
      * Optional. Omitted and `null` are equivalent and mean there is no format constraint.
      */
-    std::optional<StringFormat> _format;
+    std::optional<StringFormat> _format{};
     /**
      * Default value.
      *
      * Optional. Omitted and `null` are equivalent and mean no default value is provided.
      */
-    std::optional<QString> _default_;
+    std::optional<QString> _default_{};
     /**
      * Enum values for untitled single-select enums.
      * Optional. Omitted and `null` are equivalent and mean no untitled single-select choices are
      * declared by `enum`.
      */
-    std::optional<QJsonArray> _enum_;
+    std::optional<QJsonArray> _enum_{};
     /**
      * Titled enum options for titled single-select enums.
      * Optional. Omitted and `null` are equivalent and mean no titled single-select choices are
      * declared by `oneOf`.
      */
-    std::optional<QJsonArray> _oneOf;
+    std::optional<QJsonArray> _oneOf{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -488,7 +497,7 @@ struct StringPropertySchema {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     StringPropertySchema& title(const std::optional<QString> & v) { _title = v; return *this; }
     StringPropertySchema& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -556,26 +565,26 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ElicitationSchemaType &v);
  * as required by the elicitation specification.
  */
 struct ElicitationSchema {
-    std::optional<ElicitationSchemaType> _type;  //!< Type discriminator. Always `"object"`.
+    std::optional<ElicitationSchemaType> _type{};  //!< Type discriminator. Always `"object"`.
     /**
      * Optional title for the schema.
      *
      * Optional. Omitted and `null` are equivalent and mean no title is provided.
      */
-    std::optional<QString> _title;
-    std::optional<QMap<QString, ElicitationPropertySchema>> _properties;  //!< Property definitions (must be primitive types).
+    std::optional<QString> _title{};
+    std::optional<QMap<QString, ElicitationPropertySchema>> _properties{};  //!< Property definitions (must be primitive types).
     /**
      * List of required property names.
      *
      * Optional. Omitted and `null` are equivalent and mean no property names are required.
      */
-    std::optional<QJsonArray> _required;
+    std::optional<QJsonArray> _required{};
     /**
      * Optional description of what this schema represents.
      *
      * Optional. Omitted and `null` are equivalent and mean no schema description is provided.
      */
-    std::optional<QString> _description;
+    std::optional<QString> _description{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -585,7 +594,7 @@ struct ElicitationSchema {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ElicitationSchema& type(const std::optional<ElicitationSchemaType> & v) { _type = v; return *this; }
     ElicitationSchema& title(const std::optional<QString> & v) { _title = v; return *this; }
@@ -622,14 +631,14 @@ using ToolCallId = QString;
  * during a tool call and needs to redirect it to the user.
  */
 struct ElicitationSessionScope {
-    SessionId _sessionId;  //!< The session this elicitation is tied to.
+    SessionId _sessionId{};  //!< The session this elicitation is tied to.
     /**
      * Optional tool call within the session.
      *
      * Optional. Omitted and `null` are equivalent and mean the elicitation is scoped to the
      * session without a specific tool call.
      */
-    std::optional<ToolCallId> _toolCallId;
+    std::optional<ToolCallId> _toolCallId{};
 
     ElicitationSessionScope& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     ElicitationSessionScope& toolCallId(const std::optional<ToolCallId> & v) { _toolCallId = v; return *this; }
@@ -645,7 +654,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ElicitationSessionScope &data);
 
 /** Form-based elicitation mode where the client renders a form from the provided schema. */
 struct ElicitationFormMode {
-    ElicitationSchema _requestedSchema;  //!< A JSON Schema describing the form fields to present to the user.
+    ElicitationSchema _requestedSchema{};  //!< A JSON Schema describing the form fields to present to the user.
     QJsonObject _additionalProperties;  //!< additional properties
 
     ElicitationFormMode& requestedSchema(const ElicitationSchema & v) { _requestedSchema = v; return *this; }
@@ -665,8 +674,8 @@ using ElicitationId = QString;
 
 /** URL-based elicitation mode where the client directs the user to a URL. */
 struct ElicitationUrlMode {
-    ElicitationId _elicitationId;  //!< The unique identifier for this elicitation.
-    QString _url;  //!< The URL to direct the user to.
+    ElicitationId _elicitationId{};  //!< The unique identifier for this elicitation.
+    QString _url{};  //!< The URL to direct the user to.
     QJsonObject _additionalProperties;  //!< additional properties
 
     ElicitationUrlMode& elicitationId(const ElicitationId & v) { _elicitationId = v; return *this; }
@@ -692,7 +701,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ElicitationUrlMode &data);
  * Elicitations are tied to a session (optionally a tool call) or a request.
  */
 struct CreateElicitationRequest {
-    QString _message;  //!< A human-readable message describing what input is needed.
+    QString _message{};  //!< A human-readable message describing what input is needed.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -702,7 +711,7 @@ struct CreateElicitationRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
     QJsonObject _additionalProperties;  //!< additional properties
 
     CreateElicitationRequest& message(const QString & v) { _message = v; return *this; }
@@ -722,8 +731,8 @@ ACPLIB_EXPORT QJsonObject toJson(const CreateElicitationRequest &data);
 
 /** An environment variable to set when launching an MCP server. */
 struct EnvVariable {
-    QString _name;  //!< The name of the environment variable.
-    QString _value;  //!< The value to set for the environment variable.
+    QString _name{};  //!< The name of the environment variable.
+    QString _value{};  //!< The value to set for the environment variable.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -731,7 +740,7 @@ struct EnvVariable {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     EnvVariable& name(const QString & v) { _name = v; return *this; }
     EnvVariable& value(const QString & v) { _value = v; return *this; }
@@ -749,11 +758,11 @@ ACPLIB_EXPORT QJsonObject toJson(const EnvVariable &data);
 
 /** Request to create a new terminal and execute a command. */
 struct CreateTerminalRequest {
-    SessionId _sessionId;  //!< The session ID for this request.
-    QString _command;  //!< The command to execute.
-    std::optional<QStringList> _args;  //!< Array of command arguments.
-    std::optional<QList<EnvVariable>> _env;  //!< Environment variables for the command.
-    std::optional<QString> _cwd;  //!< Working directory for the command. Must be an absolute path.
+    SessionId _sessionId{};  //!< The session ID for this request.
+    QString _command{};  //!< The command to execute.
+    std::optional<QStringList> _args{};  //!< Array of command arguments.
+    std::optional<QList<EnvVariable>> _env{};  //!< Environment variables for the command.
+    std::optional<QString> _cwd{};  //!< Working directory for the command. Must be an absolute path.
     /**
      * Maximum number of output bytes to retain.
      *
@@ -764,7 +773,7 @@ struct CreateTerminalRequest {
      * string output, even if this means the retained output is slightly less than the
      * specified limit.
      */
-    std::optional<int> _outputByteLimit;
+    std::optional<int> _outputByteLimit{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -772,7 +781,7 @@ struct CreateTerminalRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     CreateTerminalRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     CreateTerminalRequest& command(const QString & v) { _command = v; return *this; }
@@ -804,8 +813,8 @@ using TerminalId = QString;
 
 /** Request to kill a terminal without releasing it. */
 struct KillTerminalRequest {
-    SessionId _sessionId;  //!< The session ID for this request.
-    TerminalId _terminalId;  //!< The ID of the terminal to kill.
+    SessionId _sessionId{};  //!< The session ID for this request.
+    TerminalId _terminalId{};  //!< The ID of the terminal to kill.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -813,7 +822,7 @@ struct KillTerminalRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     KillTerminalRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     KillTerminalRequest& terminalId(const TerminalId & v) { _terminalId = v; return *this; }
@@ -835,10 +844,10 @@ ACPLIB_EXPORT QJsonObject toJson(const KillTerminalRequest &data);
  * Only available if the client supports the `fs.readTextFile` capability.
  */
 struct ReadTextFileRequest {
-    SessionId _sessionId;  //!< The session ID for this request.
-    QString _path;  //!< Absolute path to the file to read.
-    std::optional<int> _line;  //!< Line number to start reading from (1-based).
-    std::optional<int> _limit;  //!< Maximum number of lines to read.
+    SessionId _sessionId{};  //!< The session ID for this request.
+    QString _path{};  //!< Absolute path to the file to read.
+    std::optional<int> _line{};  //!< Line number to start reading from (1-based).
+    std::optional<int> _limit{};  //!< Maximum number of lines to read.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -846,7 +855,7 @@ struct ReadTextFileRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ReadTextFileRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     ReadTextFileRequest& path(const QString & v) { _path = v; return *this; }
@@ -868,8 +877,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ReadTextFileRequest &data);
 
 /** Request to release a terminal and free its resources. */
 struct ReleaseTerminalRequest {
-    SessionId _sessionId;  //!< The session ID for this request.
-    TerminalId _terminalId;  //!< The ID of the terminal to release.
+    SessionId _sessionId{};  //!< The session ID for this request.
+    TerminalId _terminalId{};  //!< The ID of the terminal to release.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -877,7 +886,7 @@ struct ReleaseTerminalRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ReleaseTerminalRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     ReleaseTerminalRequest& terminalId(const TerminalId & v) { _terminalId = v; return *this; }
@@ -916,9 +925,9 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const PermissionOptionKind &v);
 
 /** An option presented to the user when requesting permission. */
 struct PermissionOption {
-    PermissionOptionId _optionId;  //!< Unique identifier for this permission option.
-    QString _name;  //!< Human-readable label to display to the user.
-    PermissionOptionKind _kind;  //!< Hint about the nature of this permission option.
+    PermissionOptionId _optionId{};  //!< Unique identifier for this permission option.
+    QString _name{};  //!< Human-readable label to display to the user.
+    PermissionOptionKind _kind{};  //!< Hint about the nature of this permission option.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -926,7 +935,7 @@ struct PermissionOption {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     PermissionOption& optionId(const PermissionOptionId & v) { _optionId = v; return *this; }
     PermissionOption& name(const QString & v) { _name = v; return *this; }
@@ -961,9 +970,9 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const Role &v);
  * Optional annotations for the client. The client can use annotations to inform how objects are used or displayed
  */
 struct Annotations {
-    std::optional<QJsonArray> _audience;  //!< Intended recipients for this content, such as the user or assistant.
-    std::optional<QString> _lastModified;  //!< Timestamp indicating when the underlying resource was last modified.
-    std::optional<double> _priority;  //!< Relative importance of this content when clients choose what to surface.
+    std::optional<QJsonArray> _audience{};  //!< Intended recipients for this content, such as the user or assistant.
+    std::optional<QString> _lastModified{};  //!< Timestamp indicating when the underlying resource was last modified.
+    std::optional<double> _priority{};  //!< Relative importance of this content when clients choose what to surface.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -971,7 +980,7 @@ struct Annotations {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     Annotations& audience(const std::optional<QJsonArray> & v) { _audience = v; return *this; }
     Annotations& lastModified(const std::optional<QString> & v) { _lastModified = v; return *this; }
@@ -991,9 +1000,9 @@ ACPLIB_EXPORT QJsonObject toJson(const Annotations &data);
 
 /** Audio provided to or from an LLM. */
 struct AudioContent {
-    std::optional<Annotations> _annotations;  //!< Optional annotations that help clients decide how to display or route this content.
-    QString _data;  //!< Base64-encoded media payload.
-    QString _mimeType;  //!< MIME type describing the encoded media payload.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    QString _data{};  //!< Base64-encoded media payload.
+    QString _mimeType{};  //!< MIME type describing the encoded media payload.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1001,7 +1010,7 @@ struct AudioContent {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AudioContent& annotations(const std::optional<Annotations> & v) { _annotations = v; return *this; }
     AudioContent& data(const QString & v) { _data = v; return *this; }
@@ -1021,9 +1030,9 @@ ACPLIB_EXPORT QJsonObject toJson(const AudioContent &data);
 
 /** Binary resource contents. */
 struct BlobResourceContents {
-    QString _blob;  //!< Base64-encoded bytes for a binary resource payload.
-    std::optional<QString> _mimeType;  //!< MIME type describing the encoded media payload.
-    QString _uri;  //!< URI associated with this resource or media payload.
+    QString _blob{};  //!< Base64-encoded bytes for a binary resource payload.
+    std::optional<QString> _mimeType{};  //!< MIME type describing the encoded media payload.
+    QString _uri{};  //!< URI associated with this resource or media payload.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1031,7 +1040,7 @@ struct BlobResourceContents {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     BlobResourceContents& blob(const QString & v) { _blob = v; return *this; }
     BlobResourceContents& mimeType(const std::optional<QString> & v) { _mimeType = v; return *this; }
@@ -1051,9 +1060,9 @@ ACPLIB_EXPORT QJsonObject toJson(const BlobResourceContents &data);
 
 /** Text-based resource contents. */
 struct TextResourceContents {
-    std::optional<QString> _mimeType;  //!< MIME type describing the encoded media payload.
-    QString _text;  //!< Text payload carried by this content block.
-    QString _uri;  //!< URI associated with this resource or media payload.
+    std::optional<QString> _mimeType{};  //!< MIME type describing the encoded media payload.
+    QString _text{};  //!< Text payload carried by this content block.
+    QString _uri{};  //!< URI associated with this resource or media payload.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1061,7 +1070,7 @@ struct TextResourceContents {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     TextResourceContents& mimeType(const std::optional<QString> & v) { _mimeType = v; return *this; }
     TextResourceContents& text(const QString & v) { _text = v; return *this; }
@@ -1094,8 +1103,8 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const EmbeddedResourceResource &val);
 
 /** The contents of a resource, embedded into a prompt or tool call result. */
 struct EmbeddedResource {
-    std::optional<Annotations> _annotations;  //!< Optional annotations that help clients decide how to display or route this content.
-    EmbeddedResourceResource _resource;  //!< Embedded resource payload, either text or binary data.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    EmbeddedResourceResource _resource{};  //!< Embedded resource payload, either text or binary data.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1103,7 +1112,7 @@ struct EmbeddedResource {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     EmbeddedResource& annotations(const std::optional<Annotations> & v) { _annotations = v; return *this; }
     EmbeddedResource& resource(const EmbeddedResourceResource & v) { _resource = v; return *this; }
@@ -1121,10 +1130,10 @@ ACPLIB_EXPORT QJsonObject toJson(const EmbeddedResource &data);
 
 /** An image provided to or from an LLM. */
 struct ImageContent {
-    std::optional<Annotations> _annotations;  //!< Optional annotations that help clients decide how to display or route this content.
-    QString _data;  //!< Base64-encoded media payload.
-    QString _mimeType;  //!< MIME type describing the encoded media payload.
-    std::optional<QString> _uri;  //!< URI associated with this resource or media payload.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    QString _data{};  //!< Base64-encoded media payload.
+    QString _mimeType{};  //!< MIME type describing the encoded media payload.
+    std::optional<QString> _uri{};  //!< URI associated with this resource or media payload.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1132,7 +1141,7 @@ struct ImageContent {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ImageContent& annotations(const std::optional<Annotations> & v) { _annotations = v; return *this; }
     ImageContent& data(const QString & v) { _data = v; return *this; }
@@ -1154,13 +1163,13 @@ ACPLIB_EXPORT QJsonObject toJson(const ImageContent &data);
 
 /** A resource that the server is capable of reading, included in a prompt or tool call result. */
 struct ResourceLink {
-    std::optional<Annotations> _annotations;  //!< Optional annotations that help clients decide how to display or route this content.
-    std::optional<QString> _description;  //!< Optional human-readable details shown with this protocol object.
-    std::optional<QString> _mimeType;  //!< MIME type describing the encoded media payload.
-    QString _name;  //!< Human-readable name shown for this protocol object.
-    std::optional<int> _size;  //!< Optional size of the linked resource in bytes, if known.
-    std::optional<QString> _title;  //!< Optional display title for end-user UI.
-    QString _uri;  //!< URI associated with this resource or media payload.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    std::optional<QString> _description{};  //!< Optional human-readable details shown with this protocol object.
+    std::optional<QString> _mimeType{};  //!< MIME type describing the encoded media payload.
+    QString _name{};  //!< Human-readable name shown for this protocol object.
+    std::optional<int> _size{};  //!< Optional size of the linked resource in bytes, if known.
+    std::optional<QString> _title{};  //!< Optional display title for end-user UI.
+    QString _uri{};  //!< URI associated with this resource or media payload.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1168,7 +1177,7 @@ struct ResourceLink {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ResourceLink& annotations(const std::optional<Annotations> & v) { _annotations = v; return *this; }
     ResourceLink& description(const std::optional<QString> & v) { _description = v; return *this; }
@@ -1196,8 +1205,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ResourceLink &data);
 
 /** Text provided to or from an LLM. */
 struct TextContent {
-    std::optional<Annotations> _annotations;  //!< Optional annotations that help clients decide how to display or route this content.
-    QString _text;  //!< Text payload carried by this content block.
+    std::optional<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    QString _text{};  //!< Text payload carried by this content block.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1205,7 +1214,7 @@ struct TextContent {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     TextContent& annotations(const std::optional<Annotations> & v) { _annotations = v; return *this; }
     TextContent& text(const QString & v) { _text = v; return *this; }
@@ -1251,7 +1260,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ContentBlock &val);
 
 /** Standard content block (text, images, resources). */
 struct Content {
-    ContentBlock _content;  //!< The actual content block.
+    ContentBlock _content{};  //!< The actual content block.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1259,7 +1268,7 @@ struct Content {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     Content& content(const ContentBlock & v) { _content = v; return *this; }
     Content& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -1281,9 +1290,9 @@ ACPLIB_EXPORT QJsonObject toJson(const Content &data);
  * See protocol docs: [Content](https://agentclientprotocol.com/protocol/tool-calls#content)
  */
 struct Diff {
-    QString _path;  //!< The absolute file path being modified.
-    std::optional<QString> _oldText;  //!< The original content (None for new files).
-    QString _newText;  //!< The new content after modification.
+    QString _path{};  //!< The absolute file path being modified.
+    std::optional<QString> _oldText{};  //!< The original content (None for new files).
+    QString _newText{};  //!< The new content after modification.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1291,7 +1300,7 @@ struct Diff {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     Diff& path(const QString & v) { _path = v; return *this; }
     Diff& oldText(const std::optional<QString> & v) { _oldText = v; return *this; }
@@ -1317,7 +1326,7 @@ ACPLIB_EXPORT QJsonObject toJson(const Diff &data);
  * See protocol docs: [Terminal](https://agentclientprotocol.com/protocol/terminals)
  */
 struct Terminal {
-    TerminalId _terminalId;  //!< Identifier of the terminal instance to embed in the content stream.
+    TerminalId _terminalId{};  //!< Identifier of the terminal instance to embed in the content stream.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1325,7 +1334,7 @@ struct Terminal {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     Terminal& terminalId(const TerminalId & v) { _terminalId = v; return *this; }
     Terminal& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -1368,8 +1377,8 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ToolCallContent &val);
  * See protocol docs: [Following the Agent](https://agentclientprotocol.com/protocol/tool-calls#following-the-agent)
  */
 struct ToolCallLocation {
-    QString _path;  //!< The absolute file path being accessed or modified.
-    std::optional<int> _line;  //!< Optional line number within the file.
+    QString _path{};  //!< The absolute file path being accessed or modified.
+    std::optional<int> _line{};  //!< Optional line number within the file.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1377,7 +1386,7 @@ struct ToolCallLocation {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ToolCallLocation& path(const QString & v) { _path = v; return *this; }
     ToolCallLocation& line(std::optional<int> v) { _line = v; return *this; }
@@ -1451,14 +1460,14 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ToolKind &v);
  * See protocol docs: [Updating](https://agentclientprotocol.com/protocol/tool-calls#updating)
  */
 struct ToolCallUpdate {
-    ToolCallId _toolCallId;  //!< The ID of the tool call being updated.
-    std::optional<ToolKind> _kind;  //!< Update the tool kind.
-    std::optional<ToolCallStatus> _status;  //!< Update the execution status.
-    std::optional<QString> _title;  //!< Update the human-readable title.
-    std::optional<QJsonArray> _content;  //!< Replace the content collection.
-    std::optional<QJsonArray> _locations;  //!< Replace the locations collection.
-    std::optional<QJsonValue> _rawInput;  //!< Update the raw input.
-    std::optional<QJsonValue> _rawOutput;  //!< Update the raw output.
+    ToolCallId _toolCallId{};  //!< The ID of the tool call being updated.
+    std::optional<ToolKind> _kind{};  //!< Update the tool kind.
+    std::optional<ToolCallStatus> _status{};  //!< Update the execution status.
+    std::optional<QString> _title{};  //!< Update the human-readable title.
+    std::optional<QJsonArray> _content{};  //!< Replace the content collection.
+    std::optional<QJsonArray> _locations{};  //!< Replace the locations collection.
+    std::optional<QJsonValue> _rawInput{};  //!< Update the raw input.
+    std::optional<QJsonValue> _rawOutput{};  //!< Update the raw output.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1466,7 +1475,7 @@ struct ToolCallUpdate {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ToolCallUpdate& toolCallId(const ToolCallId & v) { _toolCallId = v; return *this; }
     ToolCallUpdate& kind(const std::optional<ToolKind> & v) { _kind = v; return *this; }
@@ -1502,9 +1511,9 @@ ACPLIB_EXPORT QJsonObject toJson(const ToolCallUpdate &data);
  * See protocol docs: [Requesting Permission](https://agentclientprotocol.com/protocol/tool-calls#requesting-permission)
  */
 struct RequestPermissionRequest {
-    SessionId _sessionId;  //!< The session ID for this request.
-    ToolCallUpdate _toolCall;  //!< Details about the tool call requiring permission.
-    QList<PermissionOption> _options;  //!< Available permission options for the user to choose from.
+    SessionId _sessionId{};  //!< The session ID for this request.
+    ToolCallUpdate _toolCall{};  //!< Details about the tool call requiring permission.
+    QList<PermissionOption> _options{};  //!< Available permission options for the user to choose from.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1512,7 +1521,7 @@ struct RequestPermissionRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     RequestPermissionRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     RequestPermissionRequest& toolCall(const ToolCallUpdate & v) { _toolCall = v; return *this; }
@@ -1533,8 +1542,8 @@ ACPLIB_EXPORT QJsonObject toJson(const RequestPermissionRequest &data);
 
 /** Request to get the current output and status of a terminal. */
 struct TerminalOutputRequest {
-    SessionId _sessionId;  //!< The session ID for this request.
-    TerminalId _terminalId;  //!< The ID of the terminal to get output from.
+    SessionId _sessionId{};  //!< The session ID for this request.
+    TerminalId _terminalId{};  //!< The ID of the terminal to get output from.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1542,7 +1551,7 @@ struct TerminalOutputRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     TerminalOutputRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     TerminalOutputRequest& terminalId(const TerminalId & v) { _terminalId = v; return *this; }
@@ -1560,8 +1569,8 @@ ACPLIB_EXPORT QJsonObject toJson(const TerminalOutputRequest &data);
 
 /** Request to wait for a terminal command to exit. */
 struct WaitForTerminalExitRequest {
-    SessionId _sessionId;  //!< The session ID for this request.
-    TerminalId _terminalId;  //!< The ID of the terminal to wait for.
+    SessionId _sessionId{};  //!< The session ID for this request.
+    TerminalId _terminalId{};  //!< The ID of the terminal to wait for.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1569,7 +1578,7 @@ struct WaitForTerminalExitRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     WaitForTerminalExitRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     WaitForTerminalExitRequest& terminalId(const TerminalId & v) { _terminalId = v; return *this; }
@@ -1591,9 +1600,9 @@ ACPLIB_EXPORT QJsonObject toJson(const WaitForTerminalExitRequest &data);
  * Only available if the client supports the `fs.writeTextFile` capability.
  */
 struct WriteTextFileRequest {
-    SessionId _sessionId;  //!< The session ID for this request.
-    QString _path;  //!< Absolute path to the file to write.
-    QString _content;  //!< The text content to write to the file.
+    SessionId _sessionId{};  //!< The session ID for this request.
+    QString _path{};  //!< Absolute path to the file to write.
+    QString _content{};  //!< The text content to write to the file.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1601,7 +1610,7 @@ struct WriteTextFileRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     WriteTextFileRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     WriteTextFileRequest& path(const QString & v) { _path = v; return *this; }
@@ -1621,9 +1630,9 @@ ACPLIB_EXPORT QJsonObject toJson(const WriteTextFileRequest &data);
 
 /** A JSON-RPC request object. */
 struct AgentRequest {
-    RequestId _id;  //!< The request id used to correlate the matching response.
-    QString _method;  //!< The method name to invoke.
-    std::optional<QString> _params;  //!< Method-specific request parameters.
+    RequestId _id{};  //!< The request id used to correlate the matching response.
+    QString _method{};  //!< The method name to invoke.
+    std::optional<QString> _params{};  //!< Method-specific request parameters.
 
     AgentRequest& id(const RequestId & v) { _id = v; return *this; }
     AgentRequest& method(const QString & v) { _method = v; return *this; }
@@ -1648,7 +1657,7 @@ struct AuthenticateResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AuthenticateResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -1669,7 +1678,7 @@ struct CloseSessionResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     CloseSessionResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -1690,7 +1699,7 @@ struct DeleteSessionResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     DeleteSessionResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -1731,17 +1740,17 @@ struct Error {
      * A number indicating the error type that occurred.
      * This must be an integer as defined in the JSON-RPC specification.
      */
-    int _code;
+    int _code{};
     /**
      * A string providing a short description of the error.
      * The message should be limited to a concise single sentence.
      */
-    QString _message;
+    QString _message{};
     /**
      * Optional primitive or structured value that contains additional information about the error.
      * This may include debugging information or context-specific details.
      */
-    std::optional<QJsonValue> _data;
+    std::optional<QJsonValue> _data{};
 
     Error& code(int v) { _code = v; return *this; }
     Error& message(const QString & v) { _message = v; return *this; }
@@ -1772,7 +1781,7 @@ struct LogoutCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     LogoutCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -1792,7 +1801,7 @@ struct AgentAuthCapabilities {
      * Optional. Omitted or `null` both mean the agent does not advertise support.
      * Supplying `{}` means the agent supports the logout method.
      */
-    std::optional<LogoutCapabilities> _logout;
+    std::optional<LogoutCapabilities> _logout{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1800,7 +1809,7 @@ struct AgentAuthCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AgentAuthCapabilities& logout(const std::optional<LogoutCapabilities> & v) { _logout = v; return *this; }
     AgentAuthCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -1816,8 +1825,8 @@ ACPLIB_EXPORT QJsonObject toJson(const AgentAuthCapabilities &data);
 
 /** MCP capabilities supported by the agent */
 struct McpCapabilities {
-    std::optional<bool> _http;  //!< Agent supports [`McpServer::Http`].
-    std::optional<bool> _sse;  //!< Agent supports [`McpServer::Sse`].
+    std::optional<bool> _http{};  //!< Agent supports [`McpServer::Http`].
+    std::optional<bool> _sse{};  //!< Agent supports [`McpServer::Sse`].
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1825,7 +1834,7 @@ struct McpCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     McpCapabilities& http(std::optional<bool> v) { _http = v; return *this; }
     McpCapabilities& sse(std::optional<bool> v) { _sse = v; return *this; }
@@ -1856,15 +1865,15 @@ ACPLIB_EXPORT QJsonObject toJson(const McpCapabilities &data);
  * See protocol docs: [Prompt Capabilities](https://agentclientprotocol.com/protocol/initialization#prompt-capabilities)
  */
 struct PromptCapabilities {
-    std::optional<bool> _image;  //!< Agent supports [`ContentBlock::Image`].
-    std::optional<bool> _audio;  //!< Agent supports [`ContentBlock::Audio`].
+    std::optional<bool> _image{};  //!< Agent supports [`ContentBlock::Image`].
+    std::optional<bool> _audio{};  //!< Agent supports [`ContentBlock::Audio`].
     /**
      * Agent supports embedded context in `session/prompt` requests.
      *
      * When enabled, the Client is allowed to include [`ContentBlock::Resource`]
      * in prompt requests for pieces of context that are referenced in the message.
      */
-    std::optional<bool> _embeddedContext;
+    std::optional<bool> _embeddedContext{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -1872,7 +1881,7 @@ struct PromptCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     PromptCapabilities& image(std::optional<bool> v) { _image = v; return *this; }
     PromptCapabilities& audio(std::optional<bool> v) { _audio = v; return *this; }
@@ -1906,7 +1915,7 @@ struct SessionAdditionalDirectoriesCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionAdditionalDirectoriesCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -1931,7 +1940,7 @@ struct SessionCloseCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionCloseCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -1956,7 +1965,7 @@ struct SessionDeleteCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionDeleteCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -1981,7 +1990,7 @@ struct SessionListCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionListCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -2006,7 +2015,7 @@ struct SessionResumeCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionResumeCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -2036,14 +2045,14 @@ struct SessionCapabilities {
      * Optional. Omitted or `null` both mean the agent does not advertise support.
      * Supplying `{}` means the agent supports listing sessions.
      */
-    std::optional<SessionListCapabilities> _list;
+    std::optional<SessionListCapabilities> _list{};
     /**
      * Whether the agent supports `session/delete`.
      *
      * Optional. Omitted or `null` both mean the agent does not advertise support.
      * Supplying `{}` means the agent supports deleting sessions from `session/list`.
      */
-    std::optional<SessionDeleteCapabilities> _delete_;
+    std::optional<SessionDeleteCapabilities> _delete_{};
     /**
      * Whether the agent supports `additionalDirectories` on supported session lifecycle requests.
      *
@@ -2055,21 +2064,21 @@ struct SessionCapabilities {
      * `SessionInfo.additionalDirectories` to report the complete ordered
      * additional-root list associated with a listed session.
      */
-    std::optional<SessionAdditionalDirectoriesCapabilities> _additionalDirectories;
+    std::optional<SessionAdditionalDirectoriesCapabilities> _additionalDirectories{};
     /**
      * Whether the agent supports `session/resume`.
      *
      * Optional. Omitted or `null` both mean the agent does not advertise support.
      * Supplying `{}` means the agent supports resuming sessions.
      */
-    std::optional<SessionResumeCapabilities> _resume;
+    std::optional<SessionResumeCapabilities> _resume{};
     /**
      * Whether the agent supports `session/close`.
      *
      * Optional. Omitted or `null` both mean the agent does not advertise support.
      * Supplying `{}` means the agent supports closing sessions.
      */
-    std::optional<SessionCloseCapabilities> _close;
+    std::optional<SessionCloseCapabilities> _close{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2077,7 +2086,7 @@ struct SessionCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionCapabilities& list(const std::optional<SessionListCapabilities> & v) { _list = v; return *this; }
     SessionCapabilities& delete_(const std::optional<SessionDeleteCapabilities> & v) { _delete_ = v; return *this; }
@@ -2108,11 +2117,11 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionCapabilities &data);
  * See protocol docs: [Agent Capabilities](https://agentclientprotocol.com/protocol/initialization#agent-capabilities)
  */
 struct AgentCapabilities {
-    std::optional<bool> _loadSession;  //!< Whether the agent supports `session/load`.
-    std::optional<PromptCapabilities> _promptCapabilities;  //!< Prompt capabilities supported by the agent.
-    std::optional<McpCapabilities> _mcpCapabilities;  //!< MCP capabilities supported by the agent.
-    std::optional<SessionCapabilities> _sessionCapabilities;  //!< Session lifecycle and prompt capabilities advertised by the agent.
-    std::optional<AgentAuthCapabilities> _auth;  //!< Authentication-related capabilities supported by the agent.
+    std::optional<bool> _loadSession{};  //!< Whether the agent supports `session/load`.
+    std::optional<PromptCapabilities> _promptCapabilities{};  //!< Prompt capabilities supported by the agent.
+    std::optional<McpCapabilities> _mcpCapabilities{};  //!< MCP capabilities supported by the agent.
+    std::optional<SessionCapabilities> _sessionCapabilities{};  //!< Session lifecycle and prompt capabilities advertised by the agent.
+    std::optional<AgentAuthCapabilities> _auth{};  //!< Authentication-related capabilities supported by the agent.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2120,7 +2129,7 @@ struct AgentCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AgentCapabilities& loadSession(std::optional<bool> v) { _loadSession = v; return *this; }
     AgentCapabilities& promptCapabilities(const std::optional<PromptCapabilities> & v) { _promptCapabilities = v; return *this; }
@@ -2150,9 +2159,9 @@ using AuthMethodId = QString;
  * This is the default authentication method type.
  */
 struct AuthMethodAgent {
-    AuthMethodId _id;  //!< Unique identifier for this authentication method.
-    QString _name;  //!< Human-readable name of the authentication method.
-    std::optional<QString> _description;  //!< Optional description providing more details about this authentication method.
+    AuthMethodId _id{};  //!< Unique identifier for this authentication method.
+    QString _name{};  //!< Human-readable name of the authentication method.
+    std::optional<QString> _description{};  //!< Optional description providing more details about this authentication method.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2160,7 +2169,7 @@ struct AuthMethodAgent {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AuthMethodAgent& id(const AuthMethodId & v) { _id = v; return *this; }
     AuthMethodAgent& name(const QString & v) { _name = v; return *this; }
@@ -2188,15 +2197,15 @@ ACPLIB_EXPORT QJsonObject toJson(const AuthMethodAgent &data);
  * The client MUST NOT pass this method to `authenticate`.
  */
 struct AuthMethodTerminal {
-    AuthMethodId _id;  //!< Unique identifier for this authentication method.
-    QString _name;  //!< Human-readable name of the authentication method.
-    std::optional<QString> _description;  //!< Optional description providing more details about this authentication method.
-    std::optional<QStringList> _args;  //!< Additional arguments to append to the configured agent invocation for terminal auth.
+    AuthMethodId _id{};  //!< Unique identifier for this authentication method.
+    QString _name{};  //!< Human-readable name of the authentication method.
+    std::optional<QString> _description{};  //!< Optional description providing more details about this authentication method.
+    std::optional<QStringList> _args{};  //!< Additional arguments to append to the configured agent invocation for terminal auth.
     /**
      * Additional environment variables to set on the configured agent invocation for terminal auth.
      * These values override same-named variables in the base launch configuration.
      */
-    std::optional<QMap<QString, QString>> _env;
+    std::optional<QMap<QString, QString>> _env{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2204,7 +2213,7 @@ struct AuthMethodTerminal {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AuthMethodTerminal& id(const AuthMethodId & v) { _id = v; return *this; }
     AuthMethodTerminal& name(const QString & v) { _name = v; return *this; }
@@ -2259,19 +2268,19 @@ struct Implementation {
      * Intended for programmatic or logical use, but can be used as a display
      * name fallback if title isn’t present.
      */
-    QString _name;
+    QString _name{};
     /**
      * Intended for UI and end-user contexts — optimized to be human-readable
      * and easily understood.
      *
      * If not provided, the name should be used for display.
      */
-    std::optional<QString> _title;
+    std::optional<QString> _title{};
     /**
      * Version of the implementation. Can be displayed to the user or used
      * for debugging or metrics purposes. (e.g. "1.0.0").
      */
-    QString _version;
+    QString _version{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2279,7 +2288,7 @@ struct Implementation {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     Implementation& name(const QString & v) { _name = v; return *this; }
     Implementation& title(const std::optional<QString> & v) { _title = v; return *this; }
@@ -2315,15 +2324,15 @@ struct InitializeResponse {
      *
      * The client should disconnect, if it doesn't support this version.
      */
-    ProtocolVersion _protocolVersion;
-    std::optional<AgentCapabilities> _agentCapabilities;  //!< Capabilities supported by the agent.
-    std::optional<QList<AuthMethod>> _authMethods;  //!< Authentication methods supported by the agent.
+    ProtocolVersion _protocolVersion{};
+    std::optional<AgentCapabilities> _agentCapabilities{};  //!< Capabilities supported by the agent.
+    std::optional<QList<AuthMethod>> _authMethods{};  //!< Authentication methods supported by the agent.
     /**
      * Information about the Agent name and version sent to the Client.
      *
      * Note: in future versions of the protocol, this will be required.
      */
-    std::optional<Implementation> _agentInfo;
+    std::optional<Implementation> _agentInfo{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2331,7 +2340,7 @@ struct InitializeResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     InitializeResponse& protocolVersion(const ProtocolVersion & v) { _protocolVersion = v; return *this; }
     InitializeResponse& agentCapabilities(const std::optional<AgentCapabilities> & v) { _agentCapabilities = v; return *this; }
@@ -2354,8 +2363,8 @@ ACPLIB_EXPORT QJsonObject toJson(const InitializeResponse &data);
 
 /** Information about a session returned by session/list */
 struct SessionInfo {
-    SessionId _sessionId;  //!< Unique identifier for the session
-    QString _cwd;  //!< The working directory for this session. Must be an absolute path.
+    SessionId _sessionId{};  //!< Unique identifier for the session
+    QString _cwd{};  //!< The working directory for this session. Must be an absolute path.
     /**
      * Additional workspace roots reported for this session. Each path must be absolute.
      *
@@ -2363,9 +2372,9 @@ struct SessionInfo {
      * by the Agent. Omitted and empty values are equivalent: the response
      * reports no additional roots.
      */
-    std::optional<QStringList> _additionalDirectories;
-    std::optional<QString> _title;  //!< Human-readable title for the session
-    std::optional<QString> _updatedAt;  //!< ISO 8601 timestamp of last activity
+    std::optional<QStringList> _additionalDirectories{};
+    std::optional<QString> _title{};  //!< Human-readable title for the session
+    std::optional<QString> _updatedAt{};  //!< ISO 8601 timestamp of last activity
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2373,7 +2382,7 @@ struct SessionInfo {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionInfo& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     SessionInfo& cwd(const QString & v) { _cwd = v; return *this; }
@@ -2398,12 +2407,12 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionInfo &data);
 
 /** Response from listing sessions. */
 struct ListSessionsResponse {
-    QList<SessionInfo> _sessions;  //!< Array of session information objects
+    QList<SessionInfo> _sessions{};  //!< Array of session information objects
     /**
      * Opaque cursor token. If present, pass this in the next request's cursor parameter
      * to fetch the next page. If absent, there are no more results.
      */
-    std::optional<QString> _nextCursor;
+    std::optional<QString> _nextCursor{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2411,7 +2420,7 @@ struct ListSessionsResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ListSessionsResponse& sessions(const QList<SessionInfo> & v) { _sessions = v; return *this; }
     ListSessionsResponse& addSession(const SessionInfo & v) { _sessions.append(v); return *this; }
@@ -2430,7 +2439,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ListSessionsResponse &data);
 
 /** A boolean on/off toggle session configuration option payload. */
 struct SessionConfigBoolean {
-    bool _currentValue;  //!< The current value of the boolean option.
+    bool _currentValue{};  //!< The current value of the boolean option.
 
     SessionConfigBoolean& currentValue(bool v) { _currentValue = v; return *this; }
 
@@ -2475,9 +2484,9 @@ using SessionConfigValueId = QString;
 
 /** A possible value for a session configuration option. */
 struct SessionConfigSelectOption {
-    SessionConfigValueId _value;  //!< Unique identifier for this option value.
-    QString _name;  //!< Human-readable label for this option value.
-    std::optional<QString> _description;  //!< Optional description for this option value.
+    SessionConfigValueId _value{};  //!< Unique identifier for this option value.
+    QString _name{};  //!< Human-readable label for this option value.
+    std::optional<QString> _description{};  //!< Optional description for this option value.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2485,7 +2494,7 @@ struct SessionConfigSelectOption {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionConfigSelectOption& value(const SessionConfigValueId & v) { _value = v; return *this; }
     SessionConfigSelectOption& name(const QString & v) { _name = v; return *this; }
@@ -2505,9 +2514,9 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionConfigSelectOption &data);
 
 /** A group of possible values for a session configuration option. */
 struct SessionConfigSelectGroup {
-    SessionConfigGroupId _group;  //!< Unique identifier for this group.
-    QString _name;  //!< Human-readable label for this group.
-    QList<SessionConfigSelectOption> _options;  //!< The set of option values in this group.
+    SessionConfigGroupId _group{};  //!< Unique identifier for this group.
+    QString _name{};  //!< Human-readable label for this group.
+    QList<SessionConfigSelectOption> _options{};  //!< The set of option values in this group.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2515,7 +2524,7 @@ struct SessionConfigSelectGroup {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionConfigSelectGroup& group(const SessionConfigGroupId & v) { _group = v; return *this; }
     SessionConfigSelectGroup& name(const QString & v) { _name = v; return *this; }
@@ -2544,8 +2553,8 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const SessionConfigSelectOptions &val);
 
 /** A single-value selector (dropdown) session configuration option payload. */
 struct SessionConfigSelect {
-    SessionConfigValueId _currentValue;  //!< The currently selected value.
-    SessionConfigSelectOptions _options;  //!< The set of selectable options.
+    SessionConfigValueId _currentValue{};  //!< The currently selected value.
+    SessionConfigSelectOptions _options{};  //!< The set of selectable options.
 
     SessionConfigSelect& currentValue(const SessionConfigValueId & v) { _currentValue = v; return *this; }
     SessionConfigSelect& options(const SessionConfigSelectOptions & v) { _options = v; return *this; }
@@ -2561,10 +2570,10 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionConfigSelect &data);
 
 /** A session configuration option selector and its current state. */
 struct SessionConfigOption {
-    SessionConfigId _id;  //!< Unique identifier for the configuration option.
-    QString _name;  //!< Human-readable label for the option.
-    std::optional<QString> _description;  //!< Optional description for the Client to display to the user.
-    std::optional<SessionConfigOptionCategory> _category;  //!< Optional semantic category for this option (UX only).
+    SessionConfigId _id{};  //!< Unique identifier for the configuration option.
+    QString _name{};  //!< Human-readable label for the option.
+    std::optional<QString> _description{};  //!< Optional description for the Client to display to the user.
+    std::optional<SessionConfigOptionCategory> _category{};  //!< Optional semantic category for this option (UX only).
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2572,7 +2581,7 @@ struct SessionConfigOption {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
     QJsonObject _additionalProperties;  //!< additional properties
 
     SessionConfigOption& id(const SessionConfigId & v) { _id = v; return *this; }
@@ -2604,9 +2613,9 @@ using SessionModeId = QString;
  * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
  */
 struct SessionMode {
-    SessionModeId _id;  //!< Stable identifier used to refer to this protocol object in later messages.
-    QString _name;  //!< Human-readable name shown for this protocol object.
-    std::optional<QString> _description;  //!< Optional human-readable details shown with this protocol object.
+    SessionModeId _id{};  //!< Stable identifier used to refer to this protocol object in later messages.
+    QString _name{};  //!< Human-readable name shown for this protocol object.
+    std::optional<QString> _description{};  //!< Optional human-readable details shown with this protocol object.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2614,7 +2623,7 @@ struct SessionMode {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionMode& id(const SessionModeId & v) { _id = v; return *this; }
     SessionMode& name(const QString & v) { _name = v; return *this; }
@@ -2634,8 +2643,8 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionMode &data);
 
 /** The set of modes and the one currently active. */
 struct SessionModeState {
-    SessionModeId _currentModeId;  //!< The current mode the Agent is in.
-    QList<SessionMode> _availableModes;  //!< The set of modes that the Agent can operate in
+    SessionModeId _currentModeId{};  //!< The current mode the Agent is in.
+    QList<SessionMode> _availableModes{};  //!< The set of modes that the Agent can operate in
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2643,7 +2652,7 @@ struct SessionModeState {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionModeState& currentModeId(const SessionModeId & v) { _currentModeId = v; return *this; }
     SessionModeState& availableModes(const QList<SessionMode> & v) { _availableModes = v; return *this; }
@@ -2667,8 +2676,8 @@ struct LoadSessionResponse {
      *
      * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
      */
-    std::optional<SessionModeState> _modes;
-    std::optional<QJsonArray> _configOptions;  //!< Initial session configuration options if supported by the Agent.
+    std::optional<SessionModeState> _modes{};
+    std::optional<QJsonArray> _configOptions{};  //!< Initial session configuration options if supported by the Agent.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2676,7 +2685,7 @@ struct LoadSessionResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     LoadSessionResponse& modes(const std::optional<SessionModeState> & v) { _modes = v; return *this; }
     LoadSessionResponse& configOptions(const std::optional<QJsonArray> & v) { _configOptions = v; return *this; }
@@ -2701,7 +2710,7 @@ struct LogoutResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     LogoutResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -2724,14 +2733,14 @@ struct NewSessionResponse {
      *
      * Used in all subsequent requests for this conversation.
      */
-    SessionId _sessionId;
+    SessionId _sessionId{};
     /**
      * Initial mode state if supported by the Agent
      *
      * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
      */
-    std::optional<SessionModeState> _modes;
-    std::optional<QJsonArray> _configOptions;  //!< Initial session configuration options if supported by the Agent.
+    std::optional<SessionModeState> _modes{};
+    std::optional<QJsonArray> _configOptions{};  //!< Initial session configuration options if supported by the Agent.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2739,7 +2748,7 @@ struct NewSessionResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     NewSessionResponse& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     NewSessionResponse& modes(const std::optional<SessionModeState> & v) { _modes = v; return *this; }
@@ -2783,7 +2792,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const StopReason &v);
  * See protocol docs: [Check for Completion](https://agentclientprotocol.com/protocol/prompt-turn#4-check-for-completion)
  */
 struct PromptResponse {
-    StopReason _stopReason;  //!< Indicates why the agent stopped processing the turn.
+    StopReason _stopReason{};  //!< Indicates why the agent stopped processing the turn.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2791,7 +2800,7 @@ struct PromptResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     PromptResponse& stopReason(const StopReason & v) { _stopReason = v; return *this; }
     PromptResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -2812,8 +2821,8 @@ struct ResumeSessionResponse {
      *
      * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
      */
-    std::optional<SessionModeState> _modes;
-    std::optional<QJsonArray> _configOptions;  //!< Initial session configuration options if supported by the Agent.
+    std::optional<SessionModeState> _modes{};
+    std::optional<QJsonArray> _configOptions{};  //!< Initial session configuration options if supported by the Agent.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2821,7 +2830,7 @@ struct ResumeSessionResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ResumeSessionResponse& modes(const std::optional<SessionModeState> & v) { _modes = v; return *this; }
     ResumeSessionResponse& configOptions(const std::optional<QJsonArray> & v) { _configOptions = v; return *this; }
@@ -2839,7 +2848,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ResumeSessionResponse &data);
 
 /** Response to `session/set_config_option` method. */
 struct SetSessionConfigOptionResponse {
-    QList<SessionConfigOption> _configOptions;  //!< The full set of configuration options and their current values.
+    QList<SessionConfigOption> _configOptions{};  //!< The full set of configuration options and their current values.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2847,7 +2856,7 @@ struct SetSessionConfigOptionResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SetSessionConfigOptionResponse& configOptions(const QList<SessionConfigOption> & v) { _configOptions = v; return *this; }
     SetSessionConfigOptionResponse& addConfigOption(const SessionConfigOption & v) { _configOptions.append(v); return *this; }
@@ -2871,7 +2880,7 @@ struct SetSessionModeResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SetSessionModeResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -2893,7 +2902,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const AgentResponse &val);
 
 /** Notification sent by the agent when a URL-based elicitation is complete. */
 struct CompleteElicitationNotification {
-    ElicitationId _elicitationId;  //!< The ID of the elicitation that completed.
+    ElicitationId _elicitationId{};  //!< The ID of the elicitation that completed.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2903,7 +2912,7 @@ struct CompleteElicitationNotification {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     CompleteElicitationNotification& elicitationId(const ElicitationId & v) { _elicitationId = v; return *this; }
     CompleteElicitationNotification& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -2921,7 +2930,7 @@ ACPLIB_EXPORT QJsonObject toJson(const CompleteElicitationNotification &data);
 
 /** All text that was typed after the command name is provided as input. */
 struct UnstructuredCommandInput {
-    QString _hint;  //!< A hint to display when the input hasn't been provided yet
+    QString _hint{};  //!< A hint to display when the input hasn't been provided yet
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2929,7 +2938,7 @@ struct UnstructuredCommandInput {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     UnstructuredCommandInput& hint(const QString & v) { _hint = v; return *this; }
     UnstructuredCommandInput& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -2958,9 +2967,9 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const AvailableCommandInput &val);
 
 /** Information about a command. */
 struct AvailableCommand {
-    QString _name;  //!< Command name (e.g., `create_plan`, `research_codebase`).
-    QString _description;  //!< Human-readable description of what the command does.
-    std::optional<AvailableCommandInput> _input;  //!< Input for the command if required
+    QString _name{};  //!< Command name (e.g., `create_plan`, `research_codebase`).
+    QString _description{};  //!< Human-readable description of what the command does.
+    std::optional<AvailableCommandInput> _input{};  //!< Input for the command if required
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2968,7 +2977,7 @@ struct AvailableCommand {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AvailableCommand& name(const QString & v) { _name = v; return *this; }
     AvailableCommand& description(const QString & v) { _description = v; return *this; }
@@ -2988,7 +2997,7 @@ ACPLIB_EXPORT QJsonObject toJson(const AvailableCommand &data);
 
 /** Available commands are ready or have changed */
 struct AvailableCommandsUpdate {
-    QList<AvailableCommand> _availableCommands;  //!< Commands the agent can execute
+    QList<AvailableCommand> _availableCommands{};  //!< Commands the agent can execute
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -2996,7 +3005,7 @@ struct AvailableCommandsUpdate {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AvailableCommandsUpdate& availableCommands(const QList<AvailableCommand> & v) { _availableCommands = v; return *this; }
     AvailableCommandsUpdate& addAvailableCommand(const AvailableCommand & v) { _availableCommands.append(v); return *this; }
@@ -3013,7 +3022,7 @@ ACPLIB_EXPORT QJsonObject toJson(const AvailableCommandsUpdate &data);
 
 /** Session configuration options have been updated. */
 struct ConfigOptionUpdate {
-    QList<SessionConfigOption> _configOptions;  //!< The full set of configuration options and their current values.
+    QList<SessionConfigOption> _configOptions{};  //!< The full set of configuration options and their current values.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3021,7 +3030,7 @@ struct ConfigOptionUpdate {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ConfigOptionUpdate& configOptions(const QList<SessionConfigOption> & v) { _configOptions = v; return *this; }
     ConfigOptionUpdate& addConfigOption(const SessionConfigOption & v) { _configOptions.append(v); return *this; }
@@ -3040,14 +3049,14 @@ using MessageId = QString;
 
 /** A streamed item of content */
 struct ContentChunk {
-    ContentBlock _content;  //!< A single item of content
+    ContentBlock _content{};  //!< A single item of content
     /**
      * A unique identifier for the message this chunk belongs to.
      *
      * All chunks belonging to the same message share the same `messageId`.
      * A change in `messageId` indicates a new message has started.
      */
-    std::optional<MessageId> _messageId;
+    std::optional<MessageId> _messageId{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3055,7 +3064,7 @@ struct ContentChunk {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ContentChunk& content(const ContentBlock & v) { _content = v; return *this; }
     ContentChunk& messageId(const std::optional<MessageId> & v) { _messageId = v; return *this; }
@@ -3077,7 +3086,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ContentChunk &data);
  * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
  */
 struct CurrentModeUpdate {
-    SessionModeId _currentModeId;  //!< The ID of the current mode
+    SessionModeId _currentModeId{};  //!< The ID of the current mode
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3085,7 +3094,7 @@ struct CurrentModeUpdate {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     CurrentModeUpdate& currentModeId(const SessionModeId & v) { _currentModeId = v; return *this; }
     CurrentModeUpdate& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -3146,13 +3155,13 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const PlanEntryStatus &v);
  * See protocol docs: [Plan Entries](https://agentclientprotocol.com/protocol/agent-plan#plan-entries)
  */
 struct PlanEntry {
-    QString _content;  //!< Human-readable description of what this task aims to accomplish.
+    QString _content{};  //!< Human-readable description of what this task aims to accomplish.
     /**
      * The relative importance of this task.
      * Used to indicate which tasks are most critical to the overall goal.
      */
-    PlanEntryPriority _priority;
-    PlanEntryStatus _status;  //!< Current execution status of this task.
+    PlanEntryPriority _priority{};
+    PlanEntryStatus _status{};  //!< Current execution status of this task.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3160,7 +3169,7 @@ struct PlanEntry {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     PlanEntry& content(const QString & v) { _content = v; return *this; }
     PlanEntry& priority(const PlanEntryPriority & v) { _priority = v; return *this; }
@@ -3194,7 +3203,7 @@ struct Plan {
      * When updating a plan, the agent must send a complete list of all entries
      * with their current status. The client replaces the entire plan with each update.
      */
-    QList<PlanEntry> _entries;
+    QList<PlanEntry> _entries{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3202,7 +3211,7 @@ struct Plan {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     Plan& entries(const QList<PlanEntry> & v) { _entries = v; return *this; }
     Plan& addEntry(const PlanEntry & v) { _entries.append(v); return *this; }
@@ -3224,8 +3233,8 @@ ACPLIB_EXPORT QJsonObject toJson(const Plan &data);
  * This allows clients to display dynamic session names and track session state changes.
  */
 struct SessionInfoUpdate {
-    std::optional<QString> _title;  //!< Human-readable title for the session. Set to null to clear.
-    std::optional<QString> _updatedAt;  //!< ISO 8601 timestamp of last activity. Set to null to clear.
+    std::optional<QString> _title{};  //!< Human-readable title for the session. Set to null to clear.
+    std::optional<QString> _updatedAt{};  //!< ISO 8601 timestamp of last activity. Set to null to clear.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3233,7 +3242,7 @@ struct SessionInfoUpdate {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionInfoUpdate& title(const std::optional<QString> & v) { _title = v; return *this; }
     SessionInfoUpdate& updatedAt(const std::optional<QString> & v) { _updatedAt = v; return *this; }
@@ -3258,22 +3267,22 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionInfoUpdate &data);
  * See protocol docs: [Tool Calls](https://agentclientprotocol.com/protocol/tool-calls)
  */
 struct ToolCall {
-    ToolCallId _toolCallId;  //!< Unique identifier for this tool call within the session.
-    QString _title;  //!< Human-readable title describing what the tool is doing.
+    ToolCallId _toolCallId{};  //!< Unique identifier for this tool call within the session.
+    QString _title{};  //!< Human-readable title describing what the tool is doing.
     /**
      * The category of tool being invoked.
      * Helps clients choose appropriate icons and UI treatment.
      */
-    std::optional<ToolKind> _kind;
-    std::optional<ToolCallStatus> _status;  //!< Current execution status of the tool call.
-    std::optional<QList<ToolCallContent>> _content;  //!< Content produced by the tool call.
+    std::optional<ToolKind> _kind{};
+    std::optional<ToolCallStatus> _status{};  //!< Current execution status of the tool call.
+    std::optional<QList<ToolCallContent>> _content{};  //!< Content produced by the tool call.
     /**
      * File locations affected by this tool call.
      * Enables "follow-along" features in clients.
      */
-    std::optional<QList<ToolCallLocation>> _locations;
-    std::optional<QJsonValue> _rawInput;  //!< Raw input parameters sent to the tool.
-    std::optional<QJsonValue> _rawOutput;  //!< Raw output returned by the tool.
+    std::optional<QList<ToolCallLocation>> _locations{};
+    std::optional<QJsonValue> _rawInput{};  //!< Raw input parameters sent to the tool.
+    std::optional<QJsonValue> _rawOutput{};  //!< Raw output returned by the tool.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3281,7 +3290,7 @@ struct ToolCall {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ToolCall& toolCallId(const ToolCallId & v) { _toolCallId = v; return *this; }
     ToolCall& title(const QString & v) { _title = v; return *this; }
@@ -3313,8 +3322,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ToolCall &data);
 
 /** Cost information for a session. */
 struct Cost {
-    double _amount;  //!< Total cumulative cost for session.
-    QString _currency;  //!< ISO 4217 currency code (e.g., "USD", "EUR").
+    double _amount{};  //!< Total cumulative cost for session.
+    QString _currency{};  //!< ISO 4217 currency code (e.g., "USD", "EUR").
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3322,7 +3331,7 @@ struct Cost {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     Cost& amount(double v) { _amount = v; return *this; }
     Cost& currency(const QString & v) { _currency = v; return *this; }
@@ -3340,9 +3349,9 @@ ACPLIB_EXPORT QJsonObject toJson(const Cost &data);
 
 /** Context window and cost update for a session. */
 struct UsageUpdate {
-    int _used;  //!< Tokens currently in context.
-    int _size;  //!< Total context window size in tokens.
-    std::optional<Cost> _cost;  //!< Cumulative session cost (optional).
+    int _used{};  //!< Tokens currently in context.
+    int _size{};  //!< Total context window size in tokens.
+    std::optional<Cost> _cost{};  //!< Cumulative session cost (optional).
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3350,7 +3359,7 @@ struct UsageUpdate {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     UsageUpdate& used(int v) { _used = v; return *this; }
     UsageUpdate& size(int v) { _size = v; return *this; }
@@ -3399,8 +3408,8 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const SessionUpdate &val);
  * See protocol docs: [Agent Reports Output](https://agentclientprotocol.com/protocol/prompt-turn#3-agent-reports-output)
  */
 struct SessionNotification {
-    SessionId _sessionId;  //!< The ID of the session this update pertains to.
-    SessionUpdate _update;  //!< The actual update content.
+    SessionId _sessionId{};  //!< The ID of the session this update pertains to.
+    SessionUpdate _update{};  //!< The actual update content.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3408,7 +3417,7 @@ struct SessionNotification {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionNotification& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     SessionNotification& update(const SessionUpdate & v) { _update = v; return *this; }
@@ -3426,8 +3435,8 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionNotification &data);
 
 /** A JSON-RPC notification object. */
 struct AgentNotification {
-    QString _method;  //!< The notification method name.
-    std::optional<QString> _params;  //!< Method-specific notification parameters.
+    QString _method{};  //!< The notification method name.
+    std::optional<QString> _params{};  //!< Method-specific notification parameters.
 
     AgentNotification& method(const QString & v) { _method = v; return *this; }
     AgentNotification& params(const std::optional<QString> & v) { _params = v; return *this; }
@@ -3451,7 +3460,7 @@ struct AuthenticateRequest {
      * The ID of the authentication method to use.
      * Must be one of the methods advertised in the initialize response.
      */
-    AuthMethodId _methodId;
+    AuthMethodId _methodId{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3459,7 +3468,7 @@ struct AuthenticateRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AuthenticateRequest& methodId(const AuthMethodId & v) { _methodId = v; return *this; }
     AuthenticateRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -3483,7 +3492,7 @@ ACPLIB_EXPORT QJsonObject toJson(const AuthenticateRequest &data);
  * Only available if the Agent supports the `sessionCapabilities.close` capability.
  */
 struct CloseSessionRequest {
-    SessionId _sessionId;  //!< The ID of the session to close.
+    SessionId _sessionId{};  //!< The ID of the session to close.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3491,7 +3500,7 @@ struct CloseSessionRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     CloseSessionRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     CloseSessionRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -3511,7 +3520,7 @@ ACPLIB_EXPORT QJsonObject toJson(const CloseSessionRequest &data);
  * Only available if the Agent supports the `sessionCapabilities.delete` capability.
  */
 struct DeleteSessionRequest {
-    SessionId _sessionId;  //!< The ID of the session to delete.
+    SessionId _sessionId{};  //!< The ID of the session to delete.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3519,7 +3528,7 @@ struct DeleteSessionRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     DeleteSessionRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     DeleteSessionRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -3548,7 +3557,7 @@ struct AuthCapabilities {
      * configured agent invocation in an interactive terminal. When `true`, the
      * agent may include `terminal` entries in its authentication methods.
      */
-    std::optional<bool> _terminal;
+    std::optional<bool> _terminal{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3556,7 +3565,7 @@ struct AuthCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     AuthCapabilities& terminal(std::optional<bool> v) { _terminal = v; return *this; }
     AuthCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -3583,7 +3592,7 @@ struct BooleanConfigOptionCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     BooleanConfigOptionCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -3605,7 +3614,7 @@ struct SessionConfigOptionsCapabilities {
      * `configOptions`, and the client may send `session/set_config_option`
      * requests with `type: "boolean"` and a boolean `value`.
      */
-    std::optional<BooleanConfigOptionCapabilities> _boolean;
+    std::optional<BooleanConfigOptionCapabilities> _boolean{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3613,7 +3622,7 @@ struct SessionConfigOptionsCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SessionConfigOptionsCapabilities& boolean(const std::optional<BooleanConfigOptionCapabilities> & v) { _boolean = v; return *this; }
     SessionConfigOptionsCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -3635,7 +3644,7 @@ struct ClientSessionCapabilities {
      * Omitted or `null` both mean the client does not advertise support for any
      * config option extensions.
      */
-    std::optional<SessionConfigOptionsCapabilities> _configOptions;
+    std::optional<SessionConfigOptionsCapabilities> _configOptions{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3643,7 +3652,7 @@ struct ClientSessionCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ClientSessionCapabilities& configOptions(const std::optional<SessionConfigOptionsCapabilities> & v) { _configOptions = v; return *this; }
     ClientSessionCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -3672,7 +3681,7 @@ struct ElicitationFormCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ElicitationFormCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -3699,7 +3708,7 @@ struct ElicitationUrlCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ElicitationUrlCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -3719,14 +3728,14 @@ struct ElicitationCapabilities {
      * Optional. Omitted and `null` are equivalent and mean form support is not advertised.
      * Supplying `{}` explicitly advertises form support.
      */
-    std::optional<ElicitationFormCapabilities> _form;
+    std::optional<ElicitationFormCapabilities> _form{};
     /**
      * Whether the client supports URL-based elicitation.
      *
      * Optional. Omitted or `null` both mean the client does not advertise support.
      * Supplying `{}` means the client supports URL-based elicitation.
      */
-    std::optional<ElicitationUrlCapabilities> _url;
+    std::optional<ElicitationUrlCapabilities> _url{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3736,7 +3745,7 @@ struct ElicitationCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ElicitationCapabilities& form(const std::optional<ElicitationFormCapabilities> & v) { _form = v; return *this; }
     ElicitationCapabilities& url(const std::optional<ElicitationUrlCapabilities> & v) { _url = v; return *this; }
@@ -3758,8 +3767,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ElicitationCapabilities &data);
  * See protocol docs: [FileSystem](https://agentclientprotocol.com/protocol/initialization#filesystem)
  */
 struct FileSystemCapabilities {
-    std::optional<bool> _readTextFile;  //!< Whether the Client supports `fs/read_text_file` requests.
-    std::optional<bool> _writeTextFile;  //!< Whether the Client supports `fs/write_text_file` requests.
+    std::optional<bool> _readTextFile{};  //!< Whether the Client supports `fs/read_text_file` requests.
+    std::optional<bool> _writeTextFile{};  //!< Whether the Client supports `fs/write_text_file` requests.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3767,7 +3776,7 @@ struct FileSystemCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     FileSystemCapabilities& readTextFile(std::optional<bool> v) { _readTextFile = v; return *this; }
     FileSystemCapabilities& writeTextFile(std::optional<bool> v) { _writeTextFile = v; return *this; }
@@ -3796,21 +3805,21 @@ struct ClientCapabilities {
      * File system capabilities supported by the client.
      * Determines which file operations the agent can request.
      */
-    std::optional<FileSystemCapabilities> _fs;
-    std::optional<bool> _terminal;  //!< Whether the Client support all `terminal/*` methods.
+    std::optional<FileSystemCapabilities> _fs{};
+    std::optional<bool> _terminal{};  //!< Whether the Client support all `terminal/*` methods.
     /**
      * Session-related capabilities supported by the client.
      *
      * Optional. Omitted or `null` both mean the client does not advertise any
      * session-related extensions.
      */
-    std::optional<ClientSessionCapabilities> _session;
+    std::optional<ClientSessionCapabilities> _session{};
     /**
      * Authentication capabilities supported by the client.
      * Determines which authentication method types the agent may include
      * in its `InitializeResponse`.
      */
-    std::optional<AuthCapabilities> _auth;
+    std::optional<AuthCapabilities> _auth{};
     /**
      * Elicitation capabilities supported by the client.
      * Determines which elicitation modes the agent may use.
@@ -3818,7 +3827,7 @@ struct ClientCapabilities {
      * Optional. Omitted or `null` both mean the client does not advertise
      * elicitation support.
      */
-    std::optional<ElicitationCapabilities> _elicitation;
+    std::optional<ElicitationCapabilities> _elicitation{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3826,7 +3835,7 @@ struct ClientCapabilities {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ClientCapabilities& fs(const std::optional<FileSystemCapabilities> & v) { _fs = v; return *this; }
     ClientCapabilities& terminal(std::optional<bool> v) { _terminal = v; return *this; }
@@ -3856,14 +3865,14 @@ ACPLIB_EXPORT QJsonObject toJson(const ClientCapabilities &data);
  * See protocol docs: [Initialization](https://agentclientprotocol.com/protocol/initialization)
  */
 struct InitializeRequest {
-    ProtocolVersion _protocolVersion;  //!< The latest protocol version supported by the client.
-    std::optional<ClientCapabilities> _clientCapabilities;  //!< Capabilities supported by the client.
+    ProtocolVersion _protocolVersion{};  //!< The latest protocol version supported by the client.
+    std::optional<ClientCapabilities> _clientCapabilities{};  //!< Capabilities supported by the client.
     /**
      * Information about the Client name and version sent to the Agent.
      *
      * Note: in future versions of the protocol, this will be required.
      */
-    std::optional<Implementation> _clientInfo;
+    std::optional<Implementation> _clientInfo{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3871,7 +3880,7 @@ struct InitializeRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     InitializeRequest& protocolVersion(const ProtocolVersion & v) { _protocolVersion = v; return *this; }
     InitializeRequest& clientCapabilities(const std::optional<ClientCapabilities> & v) { _clientCapabilities = v; return *this; }
@@ -3895,8 +3904,8 @@ ACPLIB_EXPORT QJsonObject toJson(const InitializeRequest &data);
  * Only available if the Agent supports the `sessionCapabilities.list` capability.
  */
 struct ListSessionsRequest {
-    std::optional<QString> _cwd;  //!< Filter sessions by working directory. Must be an absolute path.
-    std::optional<QString> _cursor;  //!< Opaque cursor token from a previous response's nextCursor field for cursor-based pagination
+    std::optional<QString> _cwd{};  //!< Filter sessions by working directory. Must be an absolute path.
+    std::optional<QString> _cursor{};  //!< Opaque cursor token from a previous response's nextCursor field for cursor-based pagination
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3904,7 +3913,7 @@ struct ListSessionsRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ListSessionsRequest& cwd(const std::optional<QString> & v) { _cwd = v; return *this; }
     ListSessionsRequest& cursor(const std::optional<QString> & v) { _cursor = v; return *this; }
@@ -3922,8 +3931,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ListSessionsRequest &data);
 
 /** An HTTP header to set when making requests to the MCP server. */
 struct HttpHeader {
-    QString _name;  //!< The name of the HTTP header.
-    QString _value;  //!< The value to set for the HTTP header.
+    QString _name{};  //!< The name of the HTTP header.
+    QString _value{};  //!< The value to set for the HTTP header.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3931,7 +3940,7 @@ struct HttpHeader {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     HttpHeader& name(const QString & v) { _name = v; return *this; }
     HttpHeader& value(const QString & v) { _value = v; return *this; }
@@ -3949,9 +3958,9 @@ ACPLIB_EXPORT QJsonObject toJson(const HttpHeader &data);
 
 /** HTTP transport configuration for MCP. */
 struct McpServerHttp {
-    QString _name;  //!< Human-readable name identifying this MCP server.
-    QString _url;  //!< URL to the MCP server.
-    QList<HttpHeader> _headers;  //!< HTTP headers to set when making requests to the MCP server.
+    QString _name{};  //!< Human-readable name identifying this MCP server.
+    QString _url{};  //!< URL to the MCP server.
+    QList<HttpHeader> _headers{};  //!< HTTP headers to set when making requests to the MCP server.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3959,7 +3968,7 @@ struct McpServerHttp {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     McpServerHttp& name(const QString & v) { _name = v; return *this; }
     McpServerHttp& url(const QString & v) { _url = v; return *this; }
@@ -3980,9 +3989,9 @@ ACPLIB_EXPORT QJsonObject toJson(const McpServerHttp &data);
 
 /** SSE transport configuration for MCP. */
 struct McpServerSse {
-    QString _name;  //!< Human-readable name identifying this MCP server.
-    QString _url;  //!< URL to the MCP server.
-    QList<HttpHeader> _headers;  //!< HTTP headers to set when making requests to the MCP server.
+    QString _name{};  //!< Human-readable name identifying this MCP server.
+    QString _url{};  //!< URL to the MCP server.
+    QList<HttpHeader> _headers{};  //!< HTTP headers to set when making requests to the MCP server.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -3990,7 +3999,7 @@ struct McpServerSse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     McpServerSse& name(const QString & v) { _name = v; return *this; }
     McpServerSse& url(const QString & v) { _url = v; return *this; }
@@ -4011,10 +4020,10 @@ ACPLIB_EXPORT QJsonObject toJson(const McpServerSse &data);
 
 /** Stdio transport configuration for MCP. */
 struct McpServerStdio {
-    QString _name;  //!< Human-readable name identifying this MCP server.
-    QString _command;  //!< Absolute path to the MCP server executable.
-    QStringList _args;  //!< Command-line arguments to pass to the MCP server.
-    QList<EnvVariable> _env;  //!< Environment variables to set when launching the MCP server.
+    QString _name{};  //!< Human-readable name identifying this MCP server.
+    QString _command{};  //!< Absolute path to the MCP server executable.
+    QStringList _args{};  //!< Command-line arguments to pass to the MCP server.
+    QList<EnvVariable> _env{};  //!< Environment variables to set when launching the MCP server.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4022,7 +4031,7 @@ struct McpServerStdio {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     McpServerStdio& name(const QString & v) { _name = v; return *this; }
     McpServerStdio& command(const QString & v) { _command = v; return *this; }
@@ -4075,8 +4084,8 @@ ACPLIB_EXPORT QString name(const McpServer &val);
  * See protocol docs: [Loading Sessions](https://agentclientprotocol.com/protocol/session-setup#loading-sessions)
  */
 struct LoadSessionRequest {
-    QList<McpServer> _mcpServers;  //!< List of MCP servers to connect to for this session.
-    QString _cwd;  //!< The working directory for this session. Must be an absolute path.
+    QList<McpServer> _mcpServers{};  //!< List of MCP servers to connect to for this session.
+    QString _cwd{};  //!< The working directory for this session. Must be an absolute path.
     /**
      * Additional workspace roots to activate for this session. Each path must be absolute.
      *
@@ -4085,8 +4094,8 @@ struct LoadSessionRequest {
      * session. It may differ from any previously used or reported list as long as
      * the request `cwd` matches the session's `cwd`.
      */
-    std::optional<QStringList> _additionalDirectories;
-    SessionId _sessionId;  //!< The ID of the session to load.
+    std::optional<QStringList> _additionalDirectories{};
+    SessionId _sessionId{};  //!< The ID of the session to load.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4094,7 +4103,7 @@ struct LoadSessionRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     LoadSessionRequest& mcpServers(const QList<McpServer> & v) { _mcpServers = v; return *this; }
     LoadSessionRequest& addMcpServer(const McpServer & v) { _mcpServers.append(v); return *this; }
@@ -4129,7 +4138,7 @@ struct LogoutRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     LogoutRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -4147,7 +4156,7 @@ ACPLIB_EXPORT QJsonObject toJson(const LogoutRequest &data);
  * See protocol docs: [Creating a Session](https://agentclientprotocol.com/protocol/session-setup#creating-a-session)
  */
 struct NewSessionRequest {
-    QString _cwd;  //!< The working directory for this session. Must be an absolute path.
+    QString _cwd{};  //!< The working directory for this session. Must be an absolute path.
     /**
      * Additional workspace roots for this session. Each path must be absolute.
      *
@@ -4155,8 +4164,8 @@ struct NewSessionRequest {
      * remains the base for relative paths. When omitted or empty, no
      * additional roots are activated for the new session.
      */
-    std::optional<QStringList> _additionalDirectories;
-    QList<McpServer> _mcpServers;  //!< List of MCP (Model Context Protocol) servers the agent should connect to.
+    std::optional<QStringList> _additionalDirectories{};
+    QList<McpServer> _mcpServers{};  //!< List of MCP (Model Context Protocol) servers the agent should connect to.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4164,7 +4173,7 @@ struct NewSessionRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     NewSessionRequest& cwd(const QString & v) { _cwd = v; return *this; }
     NewSessionRequest& additionalDirectories(const std::optional<QStringList> & v) { _additionalDirectories = v; return *this; }
@@ -4192,7 +4201,7 @@ ACPLIB_EXPORT QJsonObject toJson(const NewSessionRequest &data);
  * See protocol docs: [User Message](https://agentclientprotocol.com/protocol/prompt-turn#1-user-message)
  */
 struct PromptRequest {
-    SessionId _sessionId;  //!< The ID of the session to send this user message to
+    SessionId _sessionId{};  //!< The ID of the session to send this user message to
     /**
      * The blocks of content that compose the user's message.
      *
@@ -4208,7 +4217,7 @@ struct PromptRequest {
      * as it avoids extra round-trips and allows the message to include
      * pieces of context from sources the agent may not have access to.
      */
-    QList<ContentBlock> _prompt;
+    QList<ContentBlock> _prompt{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4216,7 +4225,7 @@ struct PromptRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     PromptRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     PromptRequest& prompt(const QList<ContentBlock> & v) { _prompt = v; return *this; }
@@ -4242,8 +4251,8 @@ ACPLIB_EXPORT QJsonObject toJson(const PromptRequest &data);
  * Only available if the Agent supports the `sessionCapabilities.resume` capability.
  */
 struct ResumeSessionRequest {
-    SessionId _sessionId;  //!< The ID of the session to resume.
-    QString _cwd;  //!< The working directory for this session. Must be an absolute path.
+    SessionId _sessionId{};  //!< The ID of the session to resume.
+    QString _cwd{};  //!< The working directory for this session. Must be an absolute path.
     /**
      * Additional workspace roots to activate for this session. Each path must be absolute.
      *
@@ -4252,8 +4261,8 @@ struct ResumeSessionRequest {
      * session. It may differ from any previously used or reported list as long as
      * the request `cwd` matches the session's `cwd`.
      */
-    std::optional<QStringList> _additionalDirectories;
-    std::optional<QList<McpServer>> _mcpServers;  //!< List of MCP servers to connect to for this session.
+    std::optional<QStringList> _additionalDirectories{};
+    std::optional<QList<McpServer>> _mcpServers{};  //!< List of MCP servers to connect to for this session.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4261,7 +4270,7 @@ struct ResumeSessionRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ResumeSessionRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     ResumeSessionRequest& cwd(const QString & v) { _cwd = v; return *this; }
@@ -4285,8 +4294,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ResumeSessionRequest &data);
 
 /** Request parameters for setting a session configuration option. */
 struct SetSessionConfigOptionRequest {
-    SessionId _sessionId;  //!< The ID of the session to set the configuration option for.
-    SessionConfigId _configId;  //!< The ID of the configuration option to set.
+    SessionId _sessionId{};  //!< The ID of the session to set the configuration option for.
+    SessionConfigId _configId{};  //!< The ID of the configuration option to set.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4294,7 +4303,7 @@ struct SetSessionConfigOptionRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
     QJsonObject _additionalProperties;  //!< additional properties
 
     SetSessionConfigOptionRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
@@ -4316,8 +4325,8 @@ ACPLIB_EXPORT QJsonObject toJson(const SetSessionConfigOptionRequest &data);
 
 /** Request parameters for setting a session mode. */
 struct SetSessionModeRequest {
-    SessionId _sessionId;  //!< The ID of the session to set the mode for.
-    SessionModeId _modeId;  //!< The ID of the mode to set.
+    SessionId _sessionId{};  //!< The ID of the session to set the mode for.
+    SessionModeId _modeId{};  //!< The ID of the mode to set.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4325,7 +4334,7 @@ struct SetSessionModeRequest {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SetSessionModeRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     SetSessionModeRequest& modeId(const SessionModeId & v) { _modeId = v; return *this; }
@@ -4343,9 +4352,9 @@ ACPLIB_EXPORT QJsonObject toJson(const SetSessionModeRequest &data);
 
 /** A JSON-RPC request object. */
 struct ClientRequest {
-    RequestId _id;  //!< The request id used to correlate the matching response.
-    QString _method;  //!< The method name to invoke.
-    std::optional<QString> _params;  //!< Method-specific request parameters.
+    RequestId _id{};  //!< The request id used to correlate the matching response.
+    QString _method{};  //!< The method name to invoke.
+    std::optional<QString> _params{};  //!< Method-specific request parameters.
 
     ClientRequest& id(const RequestId & v) { _id = v; return *this; }
     ClientRequest& method(const QString & v) { _method = v; return *this; }
@@ -4371,7 +4380,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ElicitationContentValue &val);
 
 /** The user accepted the elicitation and provided content. */
 struct ElicitationAcceptAction {
-    std::optional<QJsonObject> _content;  //!< The user-provided content, if any, as an object matching the requested schema.
+    std::optional<QJsonObject> _content{};  //!< The user-provided content, if any, as an object matching the requested schema.
 
     ElicitationAcceptAction& content(const std::optional<QJsonObject> & v) { _content = v; return *this; }
 
@@ -4394,7 +4403,7 @@ struct CreateElicitationResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
     QJsonObject _additionalProperties;  //!< additional properties
 
     CreateElicitationResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -4412,7 +4421,7 @@ ACPLIB_EXPORT QJsonObject toJson(const CreateElicitationResponse &data);
 
 /** Response containing the ID of the created terminal. */
 struct CreateTerminalResponse {
-    TerminalId _terminalId;  //!< The unique identifier for the created terminal.
+    TerminalId _terminalId{};  //!< The unique identifier for the created terminal.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4420,7 +4429,7 @@ struct CreateTerminalResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     CreateTerminalResponse& terminalId(const TerminalId & v) { _terminalId = v; return *this; }
     CreateTerminalResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -4443,7 +4452,7 @@ struct KillTerminalResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     KillTerminalResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -4457,7 +4466,7 @@ ACPLIB_EXPORT QJsonObject toJson(const KillTerminalResponse &data);
 
 /** Response containing the contents of a text file. */
 struct ReadTextFileResponse {
-    QString _content;  //!< Content payload returned by this response.
+    QString _content{};  //!< Content payload returned by this response.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4465,7 +4474,7 @@ struct ReadTextFileResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ReadTextFileResponse& content(const QString & v) { _content = v; return *this; }
     ReadTextFileResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -4488,7 +4497,7 @@ struct ReleaseTerminalResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     ReleaseTerminalResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -4502,7 +4511,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ReleaseTerminalResponse &data);
 
 /** The user selected one of the provided options. */
 struct SelectedPermissionOutcome {
-    PermissionOptionId _optionId;  //!< The ID of the option the user selected.
+    PermissionOptionId _optionId{};  //!< The ID of the option the user selected.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4510,7 +4519,7 @@ struct SelectedPermissionOutcome {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     SelectedPermissionOutcome& optionId(const PermissionOptionId & v) { _optionId = v; return *this; }
     SelectedPermissionOutcome& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -4543,7 +4552,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const RequestPermissionOutcome &val);
 
 /** Response to a permission request. */
 struct RequestPermissionResponse {
-    RequestPermissionOutcome _outcome;  //!< The user's decision on the permission request.
+    RequestPermissionOutcome _outcome{};  //!< The user's decision on the permission request.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4551,7 +4560,7 @@ struct RequestPermissionResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     RequestPermissionResponse& outcome(const RequestPermissionOutcome & v) { _outcome = v; return *this; }
     RequestPermissionResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -4567,8 +4576,8 @@ ACPLIB_EXPORT QJsonObject toJson(const RequestPermissionResponse &data);
 
 /** Exit status of a terminal command. */
 struct TerminalExitStatus {
-    std::optional<int> _exitCode;  //!< The process exit code (may be null if terminated by signal).
-    std::optional<QString> _signal;  //!< The signal that terminated the process (may be null if exited normally).
+    std::optional<int> _exitCode{};  //!< The process exit code (may be null if terminated by signal).
+    std::optional<QString> _signal{};  //!< The signal that terminated the process (may be null if exited normally).
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4576,7 +4585,7 @@ struct TerminalExitStatus {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     TerminalExitStatus& exitCode(std::optional<int> v) { _exitCode = v; return *this; }
     TerminalExitStatus& signal(const std::optional<QString> & v) { _signal = v; return *this; }
@@ -4594,9 +4603,9 @@ ACPLIB_EXPORT QJsonObject toJson(const TerminalExitStatus &data);
 
 /** Response containing the terminal output and exit status. */
 struct TerminalOutputResponse {
-    QString _output;  //!< The terminal output captured so far.
-    bool _truncated;  //!< Whether the output was truncated due to byte limits.
-    std::optional<TerminalExitStatus> _exitStatus;  //!< Exit status if the command has completed.
+    QString _output{};  //!< The terminal output captured so far.
+    bool _truncated{};  //!< Whether the output was truncated due to byte limits.
+    std::optional<TerminalExitStatus> _exitStatus{};  //!< Exit status if the command has completed.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4604,7 +4613,7 @@ struct TerminalOutputResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     TerminalOutputResponse& output(const QString & v) { _output = v; return *this; }
     TerminalOutputResponse& truncated(bool v) { _truncated = v; return *this; }
@@ -4624,8 +4633,8 @@ ACPLIB_EXPORT QJsonObject toJson(const TerminalOutputResponse &data);
 
 /** Response containing the exit status of a terminal command. */
 struct WaitForTerminalExitResponse {
-    std::optional<int> _exitCode;  //!< The process exit code (may be null if terminated by signal).
-    std::optional<QString> _signal;  //!< The signal that terminated the process (may be null if exited normally).
+    std::optional<int> _exitCode{};  //!< The process exit code (may be null if terminated by signal).
+    std::optional<QString> _signal{};  //!< The signal that terminated the process (may be null if exited normally).
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4633,7 +4642,7 @@ struct WaitForTerminalExitResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     WaitForTerminalExitResponse& exitCode(std::optional<int> v) { _exitCode = v; return *this; }
     WaitForTerminalExitResponse& signal(const std::optional<QString> & v) { _signal = v; return *this; }
@@ -4658,7 +4667,7 @@ struct WriteTextFileResponse {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     WriteTextFileResponse& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
@@ -4679,7 +4688,7 @@ using ClientResponse = std::variant<QJsonObject>;
  * See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/prompt-turn#cancellation)
  */
 struct CancelNotification {
-    SessionId _sessionId;  //!< The ID of the session to cancel operations for.
+    SessionId _sessionId{};  //!< The ID of the session to cancel operations for.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4687,7 +4696,7 @@ struct CancelNotification {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     CancelNotification& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     CancelNotification& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -4703,8 +4712,8 @@ ACPLIB_EXPORT QJsonObject toJson(const CancelNotification &data);
 
 /** A JSON-RPC notification object. */
 struct ClientNotification {
-    QString _method;  //!< The notification method name.
-    std::optional<QString> _params;  //!< Method-specific notification parameters.
+    QString _method{};  //!< The notification method name.
+    std::optional<QString> _params{};  //!< Method-specific notification parameters.
 
     ClientNotification& method(const QString & v) { _method = v; return *this; }
     ClientNotification& params(const std::optional<QString> & v) { _params = v; return *this; }
@@ -4724,7 +4733,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ClientNotification &data);
  * See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/cancellation)
  */
 struct CancelRequestNotification {
-    RequestId _requestId;  //!< The ID of the request to cancel.
+    RequestId _requestId{};  //!< The ID of the request to cancel.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
@@ -4732,7 +4741,7 @@ struct CancelRequestNotification {
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
      */
-    std::optional<QJsonObject> __meta;
+    std::optional<QJsonObject> __meta{};
 
     CancelRequestNotification& requestId(const RequestId & v) { _requestId = v; return *this; }
     CancelRequestNotification& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
