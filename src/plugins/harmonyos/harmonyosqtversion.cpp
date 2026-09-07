@@ -32,7 +32,6 @@ QSet<Id> HarmonyOsQtVersion::availableFeatures() const
 {
     QSet<Id> features = QtVersion::availableFeatures();
     features.insert(QtSupport::Constants::FEATURE_MOBILE);
-    features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }
