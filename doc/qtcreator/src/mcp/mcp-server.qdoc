@@ -66,6 +66,20 @@
             connect to the server from a web application.
     \endtable
 
+    \section1 Select the tools to offer
+
+    The list at the bottom of the page holds every tool the \QC MCP server can
+    offer. Clear the check box of a tool to hide it from MCP clients. To find a
+    tool in the list, enter part of its name or description in the filter field.
+
+    To reuse a selection elsewhere, for example on another computer, select
+    \uicontrol Export and save it as a file. Select \uicontrol Import to read
+    such a file, and then \uicontrol Apply to put the selection into use.
+
+    A file describes the whole selection, so importing it also turns tools back
+    on that it does not mention. Tools that the file mentions but that this \QC
+    does not have are ignored.
+
     \section1 Use MCP clients
 
     When you enable the ACP Client extension and use an ACP client in \QC, it

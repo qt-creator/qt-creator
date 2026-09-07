@@ -9,6 +9,7 @@ inline constexpr char ACTION_ID[] = "MCPServer.Action";
 inline constexpr char MENU_ID[] = "MCPServer.Menu";
 
 inline constexpr char SETTINGS_PAGE_ID[] = "MCPServer.SettingsPage";
+inline constexpr char TOOL_SELECTION_ID[] = "MCPServer.ToolSelection";
 
 // About action
 inline constexpr char ABOUT_ACTION_ID[] = "MCPServer.About";

@@ -15,6 +15,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/mcp/mcpmanager.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/settingstransfer.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -310,6 +311,10 @@ private:
             descItem->setEditable(false);
 
             model->appendRow({checkItem, nameItem, descItem});
+
+            QObject::connect(aspect, &BaseAspect::volatileValueChanged, view, [aspect, checkItem] {
+                checkItem->setCheckState(aspect->volatileValue() ? Qt::Checked : Qt::Unchecked);
+            });
         }
 
         auto *proxy = new ToolFilterProxyModel(view);
@@ -353,7 +358,13 @@ private:
                         model->data(topLeft, Qt::CheckStateRole).toInt() == Qt::Checked);
             });
 
-        return Column{noMargin, Row{st, filterEdit}, view};
+        const Core::SettingsTransfer transfer{
+            this,
+            Constants::TOOL_SELECTION_ID,
+            Tr::tr("MCP Tool Selection"),
+            "mcp-tool-selection"};
+
+        return Column{noMargin, Row{Core::settingsTransferButtons(transfer), st, filterEdit}, view};
     }
 
     QMap<QString, BoolAspect *> m_toolAspects;
