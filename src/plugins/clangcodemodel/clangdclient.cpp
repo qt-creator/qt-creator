@@ -312,8 +312,11 @@ public:
 class ClangdClient::Private
 {
 public:
-    Private(ClangdClient *q, BuildConfiguration *bc)
-        : q(q), buildConfig(bc), settings(CppEditor::clangdSettingsForProject(bc))
+    Private(ClangdClient *q, BuildConfiguration *bc, const Utils::FilePath &jsonDbDir)
+        : q(q)
+        , buildConfig(bc)
+        , settings(CppEditor::clangdSettingsForProject(bc))
+        , jsonDbDir(jsonDbDir)
     {}
 
     void findUsages(TextDocument *document, const QTextCursor &cursor,
@@ -343,6 +346,7 @@ public:
     ClangdClient * const q;
     const QPointer<BuildConfiguration> buildConfig;
     const CppEditor::ClangdSettings::Data settings;
+    const Utils::FilePath jsonDbDir;
     QList<ClangdFollowSymbol *> followSymbolOps;
     ClangdSwitchDeclDef *switchDeclDef = nullptr;
     ClangdFindLocalReferences *findLocalRefs = nullptr;
@@ -388,7 +392,7 @@ static void addCompilationDb(QJsonObject &parentObject, const QJsonObject &cdb)
 }
 
 ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDbDir, const Id &id)
-    : Client(clientInterface(bc, jsonDbDir), id), d(new Private(this, bc))
+    : Client(clientInterface(bc, jsonDbDir), id), d(new Private(this, bc, jsonDbDir))
 {
     setName(Tr::tr("clangd"));
     setSupportedLanguage(supportedLanguage());
@@ -947,7 +951,8 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     const FilePath includeDir = d->settings.clangdIncludePath(d->kit());
     CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                 *projectPart, warningsConfigForProject(project()), includeDir,
-                ProjectExplorer::Macro::toMacros(config.editorDefines()));
+                ProjectExplorer::Macro::toMacros(config.editorDefines()),
+                wrappedHeadersDir(d->jsonDbDir));
     const CppEditor::ProjectFile file(filePath, CppEditor::ProjectFile::classify(filePath));
     const QJsonArray projectPartOptions = fullProjectPartOptions(
                 optionsBuilder, globalClangOptions());

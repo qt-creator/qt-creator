@@ -37,6 +37,9 @@ CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
         const ProjectExplorer::Macros &extraMacros,
         const Utils::FilePath &wrappedHeadersDir = {});
 
+// Where a code model on a device finds the wrapped Qt headers, empty for one on the host.
+Utils::FilePath wrappedHeadersDir(const Utils::FilePath &compilationDbDir);
+
 CppEditor::ProjectPart::ConstPtr projectPartForFile(const Utils::FilePath &filePath);
 
 Utils::FilePath currentCppEditorDocumentFilePath();

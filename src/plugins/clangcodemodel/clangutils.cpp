@@ -69,12 +69,11 @@ QString diagnosticCategoryPrefixRemoved(const QString &text)
 }
 
 // The headers that tag signals and slots for clangd are part of this Creator, so a clangd on a
-// device cannot read them. Put a copy beside the compile database it is pointed at, and return
-// the directory to look them up in.
-static FilePath wrappedHeadersFor(const FilePath &baseDir)
+// device cannot read them. Put a copy beside the compile database it is pointed at.
+static void deployWrappedHeaders(const FilePath &baseDir)
 {
     if (baseDir.isLocal())
-        return {};
+        return;
 
     const FilePath source = Core::ICore::resourcePath("cplusplus/wrappedQtHeaders");
     const FilePath target = baseDir / "wrappedQtHeaders";
@@ -82,14 +81,18 @@ static FilePath wrappedHeadersFor(const FilePath &baseDir)
         {{"*.h"}, DirFilterFlag::Files, DirIteratorFlag::Subdirectories});
     for (const FilePath &header : headers) {
         const Result<QByteArray> contents = header.fileContents();
-        QTC_ASSERT_RESULT(contents, return {});
+        QTC_ASSERT_RESULT(contents, return);
         const FilePath deployed = target.resolvePath(header.relativePathFromDir(source));
         if (deployed.fileContents() == contents)
             continue;
-        QTC_ASSERT_RESULT(deployed.parentDir().ensureWritableDir(), return {});
-        QTC_ASSERT_RESULT(deployed.writeFileContents(*contents), return {});
+        QTC_ASSERT_RESULT(deployed.parentDir().ensureWritableDir(), return);
+        QTC_ASSERT_RESULT(deployed.writeFileContents(*contents), return);
     }
-    return baseDir;
+}
+
+FilePath wrappedHeadersDir(const FilePath &compilationDbDir)
+{
+    return compilationDbDir.isLocal() ? FilePath() : compilationDbDir;
 }
 
 void generateCompilationDB(
@@ -101,10 +104,11 @@ void generateCompilationDB(
     const QStringList &projectOptions,
     const FilePath &clangIncludeDir)
 {
-    const FilePath wrappedHeadersDir = wrappedHeadersFor(baseDir);
+    deployWrappedHeaders(baseDir);
+    const FilePath headersDir = wrappedHeadersDir(baseDir);
     CppEditor::generateCompilationDB(
         promise, projectInfoList, baseDir, purpose, projectOptions, [&](const ProjectPart &pp) {
-            return clangOptionsBuilder(pp, warningsConfig, clangIncludeDir, {}, wrappedHeadersDir);
+            return clangOptionsBuilder(pp, warningsConfig, clangIncludeDir, {}, headersDir);
         });
 }
 

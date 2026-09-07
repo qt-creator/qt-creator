@@ -339,7 +339,8 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
         return;
 
     FilePath baseDir = m_wrappedHeadersDir;
-    if (baseDir.isEmpty()) {
+    const bool deployed = !baseDir.isEmpty();
+    if (!deployed) {
         // Without a directory of their own, the headers are the ones this Creator ships, which
         // only a code model running on the host can read.
         if (!m_projectPart.topLevelProject.isLocal())
@@ -350,7 +351,8 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
     QStringList args;
     for (const QString &relPath : relPaths) {
         const FilePath fullPath = baseDir / relPath;
-        QTC_ASSERT(fullPath.exists(), continue);
+        // Deployed copies sit on a device, where the check would cost a round trip per part.
+        QTC_ASSERT(deployed || fullPath.exists(), continue);
         args << (includeUserPathOption + fullPath.nativePath());
     }
 
