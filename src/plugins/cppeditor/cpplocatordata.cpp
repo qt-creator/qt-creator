@@ -53,7 +53,7 @@ void CppLocatorData::onDocumentUpdated(const CPlusPlus::Document::Ptr &document)
         }
     }
 
-    if (!isPending && document->filePath().suffix() != "moc")
+    if (!isPending && !document->filePath().hasSuffix(u"moc"))
         m_pendingDocuments.append(document);
 
     flushPendingDocument(false);

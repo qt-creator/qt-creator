@@ -2007,7 +2007,7 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
 
         QString oldFileName = oldFilePath.fileName();
         QString newFileName = newFilePath.fileName();
-        const bool isUiFile = oldFilePath.suffix() == "ui" && newFilePath.suffix() == "ui";
+        const bool isUiFile = oldFilePath.hasSuffix(u"ui") && newFilePath.hasSuffix(u"ui");
         const bool moved = oldFilePath.absolutePath() != newFilePath.absolutePath();
         if (isUiFile) {
             if (moved)

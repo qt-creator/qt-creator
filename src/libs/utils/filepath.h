@@ -168,6 +168,7 @@ public:
     QString suffix() const;
     QStringView suffixView() const;
     QString completeSuffix() const;
+    bool hasSuffix(QStringView suffix, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
     [[nodiscard]] QList<QStringView> pathComponents() const;
 

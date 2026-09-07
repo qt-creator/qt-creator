@@ -412,13 +412,13 @@ static Result<> loadColorScheme(const FilePath &path)
 {
     if (path.endsWith("Xdefaults"))
         return loadXdefaults(path);
-    else if (path.suffix() == "itermcolors")
+    else if (path.hasSuffix(u"itermcolors"))
         return loadItermColors(path);
-    else if (path.suffix() == "json")
+    else if (path.hasSuffix(u"json"))
         return loadVsCodeOrWindows(path);
-    else if (path.suffix() == "colorscheme")
+    else if (path.hasSuffix(u"colorscheme"))
         return loadKonsoleColorScheme(path);
-    else if (path.suffix() == "theme" || path.completeSuffix() == "theme.txt")
+    else if (path.hasSuffix(u"theme") || path.completeSuffix() == "theme.txt")
         return loadXFCE4ColorScheme(path);
 
     return make_unexpected(Tr::tr("Unknown color scheme format."));

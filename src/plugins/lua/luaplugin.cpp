@@ -337,7 +337,7 @@ public:
 
         pluginSpecsFromArchiveFactories().push_back([](const FilePath &path) -> QList<PluginSpec *> {
             if (path.isFile()) {
-                if (path.suffix() == "lua") {
+                if (path.hasSuffix(u"lua")) {
                     Utils::Result<PluginSpec *> spec = loadPlugin(path);
                     QTC_CHECK_RESULT(spec);
                     if (spec)

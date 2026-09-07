@@ -107,7 +107,7 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     connect(m_scriptChooser, &PathChooser::rawPathChanged, this, [this] {
         if (m_interactive) {
             const FilePath file = m_scriptChooser->filePath();
-            m_scriptCheckBox->setChecked(file.suffix() == "sh" || file.suffix() == "bat");
+            m_scriptCheckBox->setChecked(file.hasSuffix(u"sh") || file.hasSuffix(u"bat"));
         }
         forceUpdateCheck();
     });

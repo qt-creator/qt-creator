@@ -94,9 +94,9 @@ public:
         setChecker([](const DeviceConstRef &device, const FilePath &candidate) -> Result<> {
             IDevice::ConstPtr dev = device.lock();
             QTC_ASSERT(dev, return ResultError(ResultAssert));
-            if (dev->osType() == OsTypeWindows && candidate.suffix() == "bat")
+            if (dev->osType() == OsTypeWindows && candidate.hasSuffix(u"bat"))
                 return ResultOk;
-            if (dev->osType() != OsTypeWindows && candidate.suffix() == "sh")
+            if (dev->osType() != OsTypeWindows && candidate.hasSuffix(u"sh"))
                 return ResultOk;
             return ResultError(Tr::tr("File suffix does not match OS type."));
         });

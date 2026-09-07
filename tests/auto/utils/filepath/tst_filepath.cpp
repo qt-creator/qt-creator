@@ -52,6 +52,9 @@ private slots:
     void fileName_data();
     void fileName();
 
+    void hasSuffix_data();
+    void hasSuffix();
+
     void relativePathFromDir_specials();
     void relativePathFromDir_data();
     void relativePathFromDir();
@@ -616,6 +619,40 @@ void tst_filepath::fileName()
     QFETCH(int, components);
     QFETCH(QString, result);
     QCOMPARE(FilePath::fromString(path).fileNameWithPathComponents(components), result);
+}
+
+void tst_filepath::hasSuffix_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<QString>("suffix");
+    QTest::addColumn<bool>("sensitive");
+    QTest::addColumn<bool>("result");
+
+    QTest::newRow("match") << "/foo/bar.dll" << "dll" << true << true;
+    QTest::newRow("mismatch") << "/foo/bar.exe" << "dll" << true << false;
+    QTest::newRow("other case") << "/foo/bar.DLL" << "dll" << true << false;
+    QTest::newRow("other case, insensitive") << "/foo/bar.DLL" << "dll" << false << true;
+    QTest::newRow("same case, insensitive") << "/foo/bar.dll" << "dll" << false << true;
+    QTest::newRow("no suffix") << "/foo/bar" << "dll" << true << false;
+    QTest::newRow("no suffix, none expected") << "/foo/bar" << "" << true << true;
+    QTest::newRow("dot in directory") << "/foo.dll/bar" << "dll" << true << false;
+    QTest::newRow("complete suffix") << "/foo/bar.ui.qml" << "ui.qml" << true << true;
+    QTest::newRow("part of complete suffix") << "/foo/bar.ui.qml" << "qml" << true << false;
+    QTest::newRow("leading dot given") << "/foo/bar.dll" << ".dll" << true << false;
+}
+
+void tst_filepath::hasSuffix()
+{
+    QFETCH(QString, path);
+    QFETCH(QString, suffix);
+    QFETCH(bool, sensitive);
+    QFETCH(bool, result);
+
+    const FilePath filePath = FilePath::fromString(path);
+    const Qt::CaseSensitivity cs = sensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    QCOMPARE(filePath.hasSuffix(suffix, cs), result);
+    if (sensitive)
+        QCOMPARE(filePath.hasSuffix(suffix), result);
 }
 
 void tst_filepath::relativePathFromDir_specials()

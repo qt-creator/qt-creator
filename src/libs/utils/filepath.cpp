@@ -722,6 +722,21 @@ QString FilePath::suffix() const
 }
 
 /*!
+    Returns whether the suffix (extension) of the file is \a suffix, compared
+    with the case sensitivity \a cs.
+
+    The suffix is given without the leading '.'. The case sensitivity of the
+    file system the path lives on is not taken into account, pass
+    \c Qt::CaseInsensitive where it matters.
+
+    \sa suffixView()
+*/
+bool FilePath::hasSuffix(QStringView suffix, Qt::CaseSensitivity cs) const
+{
+    return suffixView().compare(suffix, cs) == 0;
+}
+
+/*!
    Returns the complete suffix (extension) of the file.
 
     The complete suffix consists of all characters in the file after

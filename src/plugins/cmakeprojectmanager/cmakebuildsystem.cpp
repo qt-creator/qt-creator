@@ -3240,7 +3240,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
     const QString relativePath = baseDirectory.relativePathFromDir(project);
     FilePath generatedFilePath = buildConfiguration()->buildDirectory().resolvePath(relativePath);
 
-    if (sourceFile.suffix() == "ui") {
+    if (sourceFile.hasSuffix(u"ui")) {
         const QString generatedFileName = "ui_" + sourceFile.completeBaseName() + ".h";
 
         auto targetNode = this->project()->nodeForFilePath(sourceFile);
@@ -3266,7 +3266,7 @@ FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 
         return generatedFilePaths;
     }
-    if (sourceFile.suffix() == "scxml") {
+    if (sourceFile.hasSuffix(u"scxml")) {
         generatedFilePath = generatedFilePath.pathAppended(sourceFile.completeBaseName());
         return {generatedFilePath.stringAppended(".h"), generatedFilePath.stringAppended(".cpp")};
     }
@@ -4364,7 +4364,7 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
     // Prepare a hash with all .cmake files
     m_dotCMakeFilesHash.clear();
     auto handleDotCMakeFiles = [&](const CMakeFileInfo &cmakeFile) {
-        if (cmakeFile.path.suffix() == "cmake") {
+        if (cmakeFile.path.hasSuffix(u"cmake")) {
             Utils::Link link;
             link.targetFilePath = cmakeFile.path;
             link.target.line = 1;

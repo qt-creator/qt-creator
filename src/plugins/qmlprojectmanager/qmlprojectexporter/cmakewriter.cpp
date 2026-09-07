@@ -428,7 +428,7 @@ void CMakeWriter::collectResources(const NodePtr &node, QStringList &res, QStrin
 bool CMakeWriter::hasMesh(const NodePtr &node) const
 {
     for (const auto &path : node->assets) {
-        if (path.suffix()=="mesh")
+        if (path.hasSuffix(u"mesh"))
             return true;
     }
 

@@ -781,7 +781,7 @@ void EnvironmentChanges::fromVariant(const QVariant &v)
 
         // Backwards compat
         const bool isScript = isScriptVariant.isValid()
-            ? isScriptVariant.toBool() : file.suffix() == "sh" || file.suffix() == "bat";
+            ? isScriptVariant.toBool() : file.hasSuffix(u"sh") || file.hasSuffix(u"bat");
 
         setFile(file, isScript);
         if (!m_file.isEmpty()) {

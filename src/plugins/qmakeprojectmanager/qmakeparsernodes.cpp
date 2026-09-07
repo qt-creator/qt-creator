@@ -474,7 +474,7 @@ void QmakePriFile::setIncludedInExactParse(bool b)
 
 bool QmakePriFile::canAddSubProject(const FilePath &proFilePath) const
 {
-    return proFilePath.suffix() == "pro" || proFilePath.suffix() == "pri";
+    return proFilePath.hasSuffix(u"pro") || proFilePath.hasSuffix(u"pri");
 }
 
 static FilePath simplifyProFilePath(const FilePath &proFilePath)

@@ -649,7 +649,7 @@ bool AndroidBuildApkWidget::isOpenSslLibsIncluded()
 QString AndroidBuildApkWidget::openSslIncludeFileContent(const FilePath &projectPath)
 {
     QString openSslPath = AndroidConfig::openSslLocation().path();
-    if (projectPath.suffixView() == u"pro")
+    if (projectPath.hasSuffix(u"pro"))
         return "android: include(" + openSslPath + "/openssl.pri)";
     if (projectPath.fileNameView() == u"CMakeLists.txt")
         return "if (ANDROID)\n    include(" + openSslPath + "/CMakeLists.txt)\nendif()";

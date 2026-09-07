@@ -83,7 +83,7 @@ static QHash<QString, IndexFiles> collectIndexedFiles(const FilePath &indexFolde
     while (dirIt.hasNext()) {
         dirIt.next();
         FilePath path = FilePath::fromString(dirIt.filePath());
-        if (path.suffix() != "idx")
+        if (!path.hasSuffix(u"idx"))
             continue;
 
         QString baseName = path.completeBaseName();

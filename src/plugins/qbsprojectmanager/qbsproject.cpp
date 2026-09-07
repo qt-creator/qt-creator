@@ -344,7 +344,7 @@ void QbsBuildSystem::buildFile(FileNode *file)
 
 bool QbsBuildSystem::canBuildFile(ProjectExplorer::FileNode *file) const
 {
-    return file->filePath().suffix() != "qbs";
+    return !file->filePath().hasSuffix(u"qbs");
 }
 
 ProjectExplorer::DeploymentKnowledge QbsBuildSystem::deploymentKnowledge() const

@@ -155,7 +155,7 @@ static const FilePath findQmlProjectUpwards(const FilePath &folder)
 static bool findAndOpenProject(const FilePath &filePath)
 {
     if (Project *project = ProjectManager::projectForFile(filePath)) {
-        if (project->projectFilePath().suffix() == "qmlproject") {
+        if (project->projectFilePath().hasSuffix(u"qmlproject")) {
             openQds(project->projectFilePath(), QdsMode::Full);
             return true;
         }

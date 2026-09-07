@@ -428,7 +428,7 @@ void CMakeGenerator::insertFile(NodePtr &node, const FilePath &path) const
 
     if (path.fileName() == "qmldir") {
         readQmlDir(path, node);
-    } else if (path.suffix() == "cpp") {
+    } else if (path.hasSuffix(u"cpp")) {
         node->sources.push_back(path);
     } else if (isQmlFile(path)) {
         node->files.push_back(path);

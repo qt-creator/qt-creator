@@ -510,7 +510,7 @@ static void setupEnvAndCommandLineFromUserInput(Environment *env, CommandLine *c
         break;
     }
 
-    if (file.isDir() || (file.isFile() && file.suffix() == "json")) {
+    if (file.isDir() || (file.isFile() && file.hasSuffix(u"json"))) {
         env->set("BAUHAUS_CONFIG", file.nativePath());
         *cmdLine = CommandLine{ FilePath("axivion_ci").withExecutableSuffix() };
     } else {

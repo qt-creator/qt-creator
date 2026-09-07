@@ -136,7 +136,7 @@ void QmlMainFileAspect::updateFileComboBox()
         mainScriptPath = mainScript().relativeChildPath(projectDir);
 
     for (const FilePath &fn : std::as_const(sortedFiles)) {
-        if (fn.suffixView() != u"qml")
+        if (!fn.hasSuffix(u"qml"))
             continue;
 
         auto item = new QStandardItem(fn.toUrlishString());
