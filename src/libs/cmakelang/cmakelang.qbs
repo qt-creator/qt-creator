@@ -1,10 +1,13 @@
 import qbs
+import qbs.Environment
 import qbs.File
 import qbs.FileInfo
 import qbs.TextFile
 
 QtcLibrary {
     name: "CMakeLang"
+
+    property bool autoGenerateParser: Environment.getEnv("QTC_CMAKELANG_AUTOGENERATE_PARSER")
 
     cpp.defines: base.concat([
         "CMAKELANG_LIBRARY"
@@ -31,6 +34,17 @@ QtcLibrary {
     ]
 
     Group {
+        name: "generated parser files"
+        condition: !autoGenerateParser
+        files: [
+            "cmakeparser.cpp",
+            "cmakeparser.h",
+            "cmakeparsertable.cpp",
+            "cmakeparsertable_p.h",
+        ]
+    }
+
+    Group {
         fileTags: ["qlalrInput"]
         files: [ "cmakelang.g" ]
     }
@@ -39,6 +53,7 @@ QtcLibrary {
     // and we want the input file to appear as a relative path in the generated files.
     Rule {
         inputs: ["qlalrInput"]
+        condition: product.autoGenerateParser
         Artifact { filePath: input.fileName; fileTags: ["qlalrInput.real"] }
         prepare: {
             var cmd = new JavaScriptCommand();
@@ -50,6 +65,7 @@ QtcLibrary {
 
     Rule {
         inputs: ["qlalrInput.real"]
+        condition: product.autoGenerateParser
         Artifact { filePath: "cmakeparsertable_p.h"; fileTags: ["hpp"] }
         Artifact { filePath: "cmakeparsertable.cpp"; fileTags: ["cpp"] }
         Artifact { filePath: "cmakeparser.h"; fileTags: ["hpp"] }
@@ -61,9 +77,6 @@ QtcLibrary {
             generateCmd.workingDirectory = product.buildDirectory;
             generateCmd.description = "generating cmake parser";
 
-            // The copies next to the grammar are refreshed only where they
-            // differ, so a build leaves the source tree alone unless the
-            // grammar really changed.
             var copyCmd = new JavaScriptCommand();
             copyCmd.sourceCode = function() {
                 function contents(filePath) {
