@@ -258,6 +258,12 @@ private slots:
     void test_vim_pattern_lookbehind_limit();
     void test_vim_script_block_abbreviations();
     void test_vim_command_line_ctrl_u();
+    void test_vim_insert_ctrl_r_literal();
+    void test_vim_insert_0_ctrl_d();
+    void test_vim_replace_return();
+    void test_vim_command_line_ctrl_w();
+    void test_vim_command_line_ctrl_b_e();
+    void test_vim_ctrl_q_literal();
     void test_vim_script_searchpair();
     void test_vim9_matchit();
     void test_vim_script_setline_place();
@@ -526,6 +532,8 @@ private slots:
     void test_vim_search_messages();
     void test_vim_nrformats();
     void test_vim_insert_ctrl_a_e_y();
+    void test_vim_insert_ctrl_at();
+    void test_vim_insert_no_text_yet();
     void test_vim_visual_numbers();
     void test_vim_joinspaces_gdefault();
     void test_vim_matchpairs();
@@ -10060,6 +10068,205 @@ void FakeVimTester::test_vim_command_line_ctrl_u()
     QCOMPARE(visual, QLatin1String("from visual"));
 }
 
+void FakeVimTester::test_vim_command_line_ctrl_w()
+{
+    // On the command line CTRL-W takes away the word before the cursor, and
+    // the blanks in front of it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "abc");
+    KEYS(":s/a/foo bar<C-w>X/<CR>", X "foo Xbc");
+    // With nothing but blanks between them and a word, that word goes too.
+    data.setText(X "abc");
+    KEYS(":s/a/foo <C-w>X/<CR>", X "Xbc");
+    // Punctuation makes a word of its own.
+    data.setText(X "abc");
+    KEYS(":s/a/foo.<C-w>X/<CR>", X "fooXbc");
+    data.setText(X "abc");
+    KEYS(":s/a/foo..<C-w>X/<CR>", X "fooXbc");
+    // Digits and "_" belong to the word.
+    data.setText(X "abc");
+    KEYS(":s/a/foo_b9<C-w>X/<CR>", X "Xbc");
+    // Only what is before the cursor, and the rest stays.
+    data.setText(X "abc");
+    KEYS(":s/a/foo bar/<Home><Right><Right><Right><Right><Right><Right><Right>"
+         "<C-w>X<CR>", X "X barbc");
+}
+
+void FakeVimTester::test_vim_command_line_ctrl_b_e()
+{
+    // On the command line CTRL-B goes to its start and CTRL-E to its end, so a
+    // range can be put in front of a command already typed. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "abc" N "abc");
+    KEYS(":s/a/X/<C-b>2<CR>", "abc" N X "Xbc");
+    data.setText(X "abc" N "abc");
+    KEYS(":s/a/X/<C-b>2<C-e>g<CR>", "abc" N X "Xbc");
+    // And on the search line as well.
+    data.setText(X "abcd" N "abcd");
+    KEYS("/cd<C-b>ab<CR>x", "abcd" N X "bcd");
+}
+
+void FakeVimTester::test_vim_ctrl_q_literal()
+{
+    // CTRL-Q takes a code point as digits like CTRL-V does, and is the only
+    // way to it on the command line, where CTRL-V pastes the clipboard.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "abc");
+    KEYS(":s/a/<C-q>065/<CR>", X "Abc");
+    data.setText(X "abc");
+    KEYS(":s/a/<C-q>x42/<CR>", X "Bbc");
+    data.setText(X "abc");
+    KEYS(":s/a/<C-q>u0043/<CR>", X "Cbc");
+    data.setText(X "abc");
+    KEYS(":s/a/<C-q>o101/<CR>", X "Abc");
+    data.setText(X "abc");
+    KEYS(":s/a/<C-q>009/<CR>", "\t" X "bc");
+    // And in insert mode, beside CTRL-V.
+    data.setText(X "abc");
+    KEYS("A<C-q>065<Esc>", "abc" X "A");
+    data.setText(X "abc");
+    KEYS("A<C-q>009<Esc>", "abc" X "\t");
+    data.setText(X "abc");
+    KEYS("A<C-v>065<Esc>", "abc" X "A");
+}
+
+void FakeVimTester::test_vim_insert_ctrl_r_literal()
+{
+    // CTRL-R CTRL-O puts a register in as it stands, a linewise one above this
+    // line; CTRL-R CTRL-P does the same but moves it to this line's indent.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "abc");
+    KEYS("\"ayiwA-<C-r><C-o>aZ<Esc>", "abc-abc" X "Z");
+    data.setText(X "abc");
+    KEYS("\"ayiwA-<C-r><C-p>a<Esc>", "abc-ab" X "c");
+    // A linewise register goes above this line, the cursor before what was
+    // there.
+    data.setText(X "abc" N "def");
+    KEYS("yyjA-<C-r><C-o>0Z<Esc>", "abc" N "abc" N X "Zdef-");
+    data.setText(X "abc" N "def");
+    KEYS("yyjA-<C-r><C-p>0Z<Esc>", "abc" N "abc" N X "Zdef-");
+    // Neither writes over anything in replace mode.
+    data.setText(X "abcdef");
+    KEYS("\"ayiwRQ<C-r><C-o>a<Esc>", "Qabcde" X "fbcdef");
+    data.setText(X "abcdef" N "xy");
+    KEYS("yyjRQ<C-r><C-o>0<Esc>", "abcdef" N "abcdef" N X "Qy");
+
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=4");
+    data.setText("    " X "xy" N "        ab");
+    KEYS("yyjA-<C-r><C-o>0<Esc>", "    xy" N "    xy" N X "        ab-");
+    data.setText("    " X "xy" N "        ab");
+    KEYS("yyjA-<C-r><C-p>0<Esc>", "    xy" N "        xy" N X "        ab-");
+    data.setText("        " X "xy" N "ab");
+    KEYS("yyjA-<C-r><C-p>0<Esc>", "        xy" N "xy" N X "ab-");
+}
+
+void FakeVimTester::test_vim_insert_0_ctrl_d()
+{
+    // "0 CTRL-D" and "^ CTRL-D" take all the indentation off the line and
+    // remove themselves; what "^" took comes back on the next line.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set nosmartindent");
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=4");
+
+    data.setText("        " X "abc");
+    KEYS("A0<C-d>y<Esc>", "abc" X "y");
+    data.setText(X "abc");
+    KEYS("A0<C-d>y<Esc>", "abc" X "y");
+    data.setText("        " X "abc");
+    KEYS("A^<C-d>y<Esc>", "abc" X "y");
+    // Only the last one of them is the flag.
+    data.setText("        " X "abc");
+    KEYS("A00<C-d>y<Esc>", "abc0" X "y");
+
+    // The flag has to be the key right before CTRL-D, or it is a plain one.
+    data.setText("        " X "abc");
+    KEYS("A0x<C-d>y<Esc>", "    abc0x" X "y");
+    data.setText("        " X "abc");
+    KEYS("A0<BS><C-d>y<Esc>", "    abc" X "y");
+    data.setText("        " X "abc");
+    KEYS("A0<Left><C-d>y<Esc>", "    abc" X "y0");
+
+    // Only "^" hands the indentation on, only to the line right below, and
+    // only while still inserting.
+    data.setText("        " X "abc");
+    KEYS("A^<C-d>y<CR>z<Esc>", "abcy" N "        " X "z");
+    data.setText("        " X "abc");
+    KEYS("A^<C-d>y<CR>z<CR>w<Esc>", "abcy" N "        z" N "        " X "w");
+    data.setText("        " X "abc");
+    KEYS("A0<C-d>y<CR>z<Esc>", "abcy" N X "z");
+    data.setText("        " X "abc");
+    KEYS("A^<C-d>y<Esc>oz<Esc>", "abcy" N X "z");
+
+    data.doCommand("set noautoindent");
+    data.setText("        " X "abc");
+    KEYS("A^<C-d>y<CR>z<Esc>", "abcy" N X "z");
+    data.doCommand("set autoindent");
+
+    data.doCommand("set noexpandtab");
+    data.setText("\t" X "abc");
+    KEYS("A0<C-d>y<Esc>", "abc" X "y");
+}
+
+void FakeVimTester::test_vim_replace_return()
+{
+    // A return in replace mode writes over nothing: it opens a line, which a
+    // backspace closes again. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set nosmartindent");
+    data.doCommand("set noautoindent");
+    data.doCommand("set backspace=indent,eol,start");
+
+    data.setText(X "abcdef");
+    KEYS("RX<CR>Y<Esc>", "X" N X "Ycdef");
+    data.setText(X "abcdef");
+    KEYS("RX<C-m>Y<Esc>", "X" N X "Ycdef");
+    data.setText(X "abcdef");
+    KEYS("RX<C-j>Y<Esc>", "X" N X "Ycdef");
+    data.setText(X "abcdef");
+    KEYS("R<CR><Esc>", "" N X "abcdef");
+    data.setText(X "abcdef");
+    KEYS("RX<CR><CR>Y<Esc>", "X" N "" N X "Ycdef");
+    data.setText(X "ab");
+    KEYS("RXY<CR>Z<Esc>", "XY" N X "Z");
+    // One undo takes the whole lot back.
+    data.setText(X "abcdef");
+    KEYS("RX<CR>Y<Esc>u", X "abcdef");
+    // A count writes the whole lot over again, further along.
+    data.setText(X "abcdefghij");
+    KEYS("2RX<CR><Esc>", "X" N "X" N X "cdefghij");
+
+    // A backspace takes the break out again, and goes on unwinding.
+    data.setText(X "abcdef");
+    KEYS("RX<CR>Y<BS><BS><Esc>", X "Xbcdef");
+    data.setText(X "abcdef");
+    KEYS("RXY<CR><BS><BS><Esc>", X "Xbcdef");
+    data.setText("ab" X "cdef");
+    KEYS("RX<CR>Y<BS><BS><BS><Esc>", "a" X "bcdef");
+
+    // The automatic indentation a return brings goes the same way.
+    data.doCommand("set autoindent");
+    data.setText("    " X "abcdef");
+    KEYS("RX<CR>Y<Esc>", "    X" N "    " X "Ycdef");
+    data.setText("    " X "abcdef");
+    KEYS("RX<CR>Y<BS><BS><Esc>", "    X" N "  " X " bcdef");
+    data.setText("    " X "abcdef");
+    KEYS("RX<CR><BS><Esc>", "    X" N "  " X " bcdef");
+    data.setText("    " X "abcdef");
+    KEYS("RX<CR><BS><BS><BS><BS><BS><BS><Esc>", "   " X " abcdef");
+}
+
 void FakeVimTester::test_vim_script_searchpair()
 {
     // searchpair() answers where the other end of a nested pair is, counting
@@ -16702,6 +16909,34 @@ void FakeVimTester::test_vim_insert_ctrl_g()
     KEYS("jix<Up>y<Esc>u", X "a" N "xb");
     data.setText("abc");
     KEYS("ixy<Esc>u", X "abc");
+
+    // The column the insert started in, not the one the cursor stands in.
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3li<C-g>jx<Esc>", "abcdef" N "ghi" X "xjkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3li<C-g><Down>x<Esc>", "abcdef" N "ghi" X "xjkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("j3li<C-g>kx<Esc>", "abc" X "xdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("j3li<C-g><Up>x<Esc>", "abc" X "xdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3liuv<C-g>jz<Esc>", "abcuvdef" N "ghi" X "zjkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("j3liuv<C-g>kz<Esc>", "abc" X "zdef" N "ghiuvjkl");
+    // Where the other line is shorter, as far as it reaches.
+    data.setText(X "abcdef" N "gh");
+    KEYS("3li<C-g>jx<Esc>", "abcdef" N "gh" X "x");
+    // And nowhere at all past the last line.
+    data.setText(X "abc");
+    KEYS("1li<C-g>jx<Esc>", "a" X "xbc");
+    data.setText(X "abcdef");
+    KEYS("3li<C-g>kx<Esc>", "abc" X "xdef");
+    // Twice takes two lines, and the column is still the one it started in.
+    data.setText(X "abcdef" N "ghijkl" N "mnopqr");
+    KEYS("3li<C-g>j<C-g>jx<Esc>", "abcdef" N "ghijkl" N "mno" X "xpqr");
+    data.setText(X "abcdef" N "ghijkl" N "mnopqr");
+    KEYS("3liuv<C-g>jp<C-g>jz<Esc>",
+         "abcuvdef" N "ghipjkl" N "mno" X "zpqr");
 
     data.setText("abc");
     KEYS("ixy<Esc>A<C-@><Esc>", "xyabcx" X "y");
@@ -25014,6 +25249,58 @@ void FakeVimTester::test_vim_insert_ctrl_a_e_y()
     // The character taken is the one in the column the cursor stands in.
     data.setText(X "ab" N "wxyz");
     KEYS("llA<C-e><Esc>", "ab" X "y" N "wxyz");
+    // Insert entered with "I", which moves the cursor to the first non-blank.
+    data.setText(X "abc" N "def");
+    KEYS("Ixyz<Esc>jI<C-a><Esc>", "xyzabc" N "xy" X "zdef");
+    data.setText(X "abc" N "def" N "ghi");
+    KEYS("Ixyz<Esc>jI<C-a><Esc>jI<C-a><Esc>",
+         "xyzabc" N "xyzdef" N "xy" X "zghi");
+    data.setText(X "  wxyz" N "abcd");
+    KEYS("I<C-e><Esc>", "  " X "cwxyz" N "abcd");
+    data.setText(X "abcd" N "  wxyz");
+    KEYS("jI<C-y><Esc>", "abcd" N "  " X "cwxyz");
+}
+
+void FakeVimTester::test_vim_insert_ctrl_at()
+{
+    // CTRL-@ puts in the text of the insert before it like CTRL-A, and stops
+    // inserting - so what follows is taken as commands. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "abc" N "def");
+    KEYS("Ixyz<Esc>jI<C-@>q<Esc>", "xyzabc" N "xy" X "zdef");
+    // What was typed before it stays, and the old text goes in after it.
+    data.setText(X "abc" N "def");
+    KEYS("Ixyz<Esc>jIpq<C-@>r<Esc>", "xyzabc" N "pqxy" X "zdef");
+    // A count repeats the whole insert, as leaving it with Escape would.
+    data.setText(X "abc" N "def");
+    KEYS("Ixyz<Esc>j2I<C-@>q<Esc>", "xyzabc" N "xyzxy" X "zdef");
+    // A previous insert that spans lines comes in as its lines.
+    data.setText(X "abc" N "def");
+    KEYS("Ix<CR>y<Esc>GI<C-@>q<Esc>", "x" N "yabc" N "x" N X "ydef");
+}
+
+void FakeVimTester::test_vim_insert_no_text_yet()
+{
+    // With no insert behind them CTRL-A and CTRL-@ have nothing to put in and
+    // say so. CTRL-A stays in insert mode, CTRL-@ leaves it even then.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    data.setText(X "abc");
+    KEYS("I<C-@>ll<Esc>", "ab" X "c");
+    QCOMPARE(message, QLatin1String("E29: No inserted text yet"));
+    message.clear();
+    data.setText(X "abc");
+    KEYS("I<C-a>q<Esc>", X "qabc");
+    QCOMPARE(message, QLatin1String("E29: No inserted text yet"));
 }
 
 void FakeVimTester::test_vim_nrformats()

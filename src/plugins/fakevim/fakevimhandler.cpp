@@ -210,6 +210,8 @@ enum SubSubMode
     SurroundSubSubMode,             // Used for cs, ds, ys
     SurroundWithFunctionSubSubMode, // Used for ys{motion}f
     CtrlVUnicodeSubSubMode,         // Used for Ctrl-v based unicode input
+    CtrlRLiteralSubSubMode,         // Used for CTRL-R CTRL-O
+    CtrlRIndentSubSubMode,          // Used for CTRL-R CTRL-P
     ExpressionSubSubMode            // Used for the "=" expression register (CTRL-R =)
 };
 
@@ -2177,6 +2179,22 @@ public:
     }
     void deleteChar() { if (m_pos) m_buffer.remove(--m_pos, 1); m_anchor = m_userPos = m_pos; }
 
+    void deleteWord()
+    {
+        const auto isWord = [](QChar c) { return c.isLetterOrNumber() || c == '_'; };
+        int pos = m_pos;
+        while (pos > 0 && m_buffer.at(pos - 1).isSpace())
+            --pos;
+        if (pos > 0) {
+            const bool word = isWord(m_buffer.at(pos - 1));
+            while (pos > 0 && !m_buffer.at(pos - 1).isSpace()
+                   && isWord(m_buffer.at(pos - 1)) == word)
+                --pos;
+        }
+        m_buffer.remove(pos, m_pos - pos);
+        m_anchor = m_userPos = m_pos = pos;
+    }
+
     void moveLeft() { if (m_pos) m_userPos = --m_pos; }
     void moveRight() { if (m_pos < m_buffer.size()) m_userPos = ++m_pos; }
     void moveStart() { m_userPos = m_pos = 0; }
@@ -2238,6 +2256,15 @@ public:
             // so that the range visual mode puts on the line is not part of it.
             m_buffer.remove(0, m_pos);
             m_anchor = m_userPos = m_pos = 0;
+        } else if (input.isControl('w')) {
+            // The word before the cursor goes, and the blanks in front of it.
+            deleteWord();
+        } else if (input.isControl('b')) {
+            moveStart();
+            m_anchor = m_pos;
+        } else if (input.isControl('e')) {
+            moveEnd();
+            m_anchor = m_pos;
         } else if (input.isShift(Key_Left)) {
             moveLeft();
         } else if (input.isShift(Key_Right)) {
@@ -2289,6 +2316,72 @@ private:
     int m_anchor = 0;
     int m_userPos = 0; // last position of inserted text (for retrieving history items)
     bool m_historyAutoSave = true; // store items to history on clear()?
+};
+
+// The digits CTRL-V and CTRL-Q take for a code point:
+//     ^VXnn or ^Vxnn with 00 <= nn <= FF
+//     BMP Unicode codepoints ^Vunnnn with 0000 <= nnnn <= FFFF
+//     any Unicode codepoint ^VUnnnnnnnn with 00000000 <= nnnnnnnn <= 7FFFFFFF
+//     ^Vnnn with 000 <= nnn <= 255
+//     ^VOnnn or ^Vonnn with 000 <= nnn <= 377
+class LiteralInput
+{
+public:
+    void start() { m_base = 0; m_accumulator = 0; }
+
+    // The text to put in, once the digits are complete. Nothing while more of
+    // them are wanted; "again" comes back set where what ended them was not
+    // one of them and has to be taken as itself.
+    std::optional<QString> take(const Input &input, bool *again)
+    {
+        *again = false;
+        if (m_base == 0) {
+            if (input.is('x') || input.is('X')) {
+                m_length = 2;
+                m_base = 16;
+            } else if (input.is('O') || input.is('o')) {
+                m_length = 3;
+                m_base = 8;
+            } else if (input.is('u')) {
+                m_length = 4;
+                m_base = 16;
+            } else if (input.is('U')) {
+                m_length = 8;
+                m_base = 16;
+            } else if (input.isDigit()) {
+                bool ok;
+                m_accumulator = input.toInt(&ok, 10);
+                m_length = 2;
+                m_base = 10;
+            } else {
+                return QString(input.raw());
+            }
+            return std::nullopt;
+        }
+
+        bool ok;
+        const int digit = input.toInt(&ok, m_base);
+        if (ok)
+            m_accumulator = m_accumulator * m_base + digit;
+        --m_length;
+        if (m_length > 0 && ok)
+            return std::nullopt;
+
+        *again = !ok;
+        QString text;
+        if (QChar::requiresSurrogates(m_accumulator)) {
+            text.append(QChar(QChar::highSurrogate(m_accumulator)));
+            text.append(QChar(QChar::lowSurrogate(m_accumulator)));
+        } else {
+            text.append(QChar(m_accumulator));
+        }
+        return text;
+    }
+
+private:
+    int m_accumulator = 0;
+    int m_length = 0;
+    int m_base = 0;
 };
 
 // Mappings for a specific mode (trie structure)
@@ -3330,6 +3423,12 @@ public:
     // indentation again, matching Vim (QTCREATORBUG-15009). -1 means none.
     int m_autoIndentBlock = -1;
 
+    // The key typed before the current one in insert mode, which "0 CTRL-D"
+    // and "^ CTRL-D" look at to tell themselves from a plain CTRL-D.
+    Input m_lastInsertInput;
+    // What "^ CTRL-D" took off, to be handed to the next line. -1 means none.
+    int m_oldIndent = -1;
+
     bool m_anchorPastEnd;
     bool m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
     bool m_motionFailed = false; // the last motion had nowhere to go
@@ -3570,6 +3669,7 @@ public:
     // auto-indent
     QString tabExpand(int len) const;
     Column indentation(const QString &line) const;
+    QStringList linesAtThisIndent(const QString &text) const;
     void insertAutomaticIndentation(bool goingDown, bool forceAutoIndent = false);
     QString commentLeaderOf(const QString &line) const;
     void autoWrapLine();
@@ -3604,6 +3704,7 @@ public:
 
     // register handling
     QString registerContents(int reg) const;
+    void insertRegisterLiterally(int reg, bool fixIndent);
     void setRegister(int reg, const QString &contents, RangeMode mode);
     void setRegisterFromScript(int reg, const QString &contents, RangeMode mode);
     RangeMode registerRangeMode(int reg) const;
@@ -3844,9 +3945,7 @@ public:
     mutable bool m_fileNameChars[256] = {};
     mutable QString m_fileNameSource;  // the 'isfname' that table was read from
 
-    int m_ctrlVAccumulator;
-    int m_ctrlVLength;
-    int m_ctrlVBase;
+    LiteralInput m_literalInput;
 
     QTimer m_fixCursorTimer;
     QTimer m_inputTimer;
@@ -4190,9 +4289,6 @@ void FakeVimHandler::Private::init()
     m_searchStartPosition = 0;
     m_searchFromScreenLine = 0;
     m_firstVisibleLine = 0;
-    m_ctrlVAccumulator = 0;
-    m_ctrlVLength = 0;
-    m_ctrlVBase = 0;
 
     initSingleShotTimer(&m_fixCursorTimer, 0, this, &FakeVimHandler::Private::onFixCursorTimeout);
     initSingleShotTimer(&m_autocmdTimer, 0, this, &FakeVimHandler::Private::onAutocmdTimeout);
@@ -4848,6 +4944,24 @@ bool FakeVimHandler::Private::handleCommandBufferPaste(const Input &input)
         buffer.insertText(text);
         updateMiniBuffer();
         return true;
+    }
+    if (inCommandLine && input.isControl('q')) {
+        // The literal-key prefix is CTRL-Q here, CTRL-V being taken by paste.
+        g.minibufferData = input;
+        m_literalInput.start();
+        return true;
+    }
+    if (g.minibufferData.isControl('q')) {
+        bool again = false;
+        const std::optional<QString> text = m_literalInput.take(input, &again);
+        if (!text)
+            return true;
+        g.minibufferData = Input();
+        CommandBuffer &buffer = (g.subsubmode == SearchSubSubMode)
+            ? g.searchBuffer : g.commandBuffer;
+        buffer.insertText(*text);
+        updateMiniBuffer();
+        return again ? handleCommandBufferPaste(input) : true;
     }
     if (input.isControl('r') && inCommandLine) {
         g.minibufferData = input;
@@ -6435,18 +6549,9 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
                 // moved over by as much as the first one needs to sit at this
                 // line's indent.
                 const bool behind = input.is('p') && g.subsubmode == CloseSquareSubSubMode;
-                QStringList put = registerContents(m_register).split('\n');
-                if (!put.isEmpty() && put.constLast().isEmpty())
-                    put.removeLast();
-                if (!put.isEmpty()) {
-                    const int here = indentation(block().text()).logical;
-                    const int first = indentation(put.constFirst()).logical;
-                    QStringList moved;
-                    for (const QString &one : std::as_const(put)) {
-                        const QString rest = one.mid(indentation(one).physical);
-                        const int width = qMax(0, indentation(one).logical - first + here);
-                        moved << (rest.isEmpty() ? rest : tabExpand(width) + rest);
-                    }
+                const QStringList moved =
+                        linesAtThisIndent(registerContents(m_register));
+                if (!moved.isEmpty()) {
                     if (refuseUnmodifiable())
                         return true;
                     pushUndoState();
@@ -8173,6 +8278,8 @@ EventResult FakeVimHandler::Private::handleInsertOrReplaceMode(const Input &inpu
     else
         handleReplaceMode(input);
 
+    m_lastInsertInput = input;
+
     if (!hasValidEditor())
         return EventHandled;
 
@@ -8243,6 +8350,24 @@ void FakeVimHandler::Private::handleReplaceMode(const Input &input)
         q->modeChanged(isInsertMode());
         g.insertMode = "i";
         triggerAutocmd("InsertChange");
+    } else if (g.submode == CtrlRSubMode) {
+        if (g.subsubmode == CtrlRLiteralSubSubMode
+                || g.subsubmode == CtrlRIndentSubSubMode) {
+            // CTRL-O and CTRL-P put the register in without writing over
+            // anything, even here.
+            insertRegisterLiterally(input.asChar().unicode(),
+                                    g.subsubmode == CtrlRIndentSubSubMode);
+            g.submode = NoSubMode;
+            g.subsubmode = NoSubSubMode;
+        } else if (input.isControl('o') || input.isControl('p')) {
+            g.subsubmode = input.isControl('o') ? CtrlRLiteralSubSubMode
+                                                : CtrlRIndentSubSubMode;
+        } else {
+            // What CTRL-R holds up is written over what stands there, as typing is.
+            overwriteText(registerContents(input.asChar().unicode()));
+            g.submode = NoSubMode;
+        }
+        updateMiniBuffer();
     } else if (input.isControl('o')) {
         enterCommandMode(ReplaceMode);
     } else if (input.isBackspace()) {
@@ -8281,11 +8406,18 @@ void FakeVimHandler::Private::handleReplaceMode(const Input &input)
         g.submode = CtrlRSubMode;
         g.subsubmode = NoSubSubMode;
         updateMiniBuffer();
-    } else if (g.submode == CtrlRSubMode) {
-        // What CTRL-R holds up is written over what stands there, as typing is.
-        overwriteText(registerContents(input.asChar().unicode()));
+    } else if (input.isReturn() || input.isControl('j') || input.isControl('m')) {
+        // A return writes over nothing: it opens a line. What it puts in - the
+        // break and any automatic indentation - a backspace takes out again,
+        // one character at a time, which is what the newline marker means.
+        m_replaceTyped.append(QLatin1Char('\n'));
+        joinPreviousEditBlock();
         g.submode = NoSubMode;
-        updateMiniBuffer();
+        const int before = position();
+        insertNewLine();
+        m_replacedChars.append(QString(qMax(1, position() - before), QLatin1Char('\n')));
+        setTargetColumn();
+        endEditBlock();
     } else {
         overwriteText(charToInsert(input.text()));
     }
@@ -8470,70 +8602,43 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             g.commandBuffer.clear();
             updateMiniBuffer();
             triggerCmdlineAutocmd("CmdlineEnter", "=");
+        } else if (g.subsubmode == CtrlRLiteralSubSubMode
+                   || g.subsubmode == CtrlRIndentSubSubMode) {
+            insertRegisterLiterally(input.asChar().unicode(),
+                                    g.subsubmode == CtrlRIndentSubSubMode);
+            g.submode = NoSubMode;
+            g.subsubmode = NoSubSubMode;
+        } else if (input.isControl('o') || input.isControl('p')) {
+            g.subsubmode = input.isControl('o') ? CtrlRLiteralSubSubMode
+                                                : CtrlRIndentSubSubMode;
         } else {
             m_cursor.insertText(registerContents(input.asChar().unicode()));
             g.submode = NoSubMode;
         }
     } else if (g.submode == CtrlVSubMode) {
-        if (g.subsubmode == NoSubSubMode) {
+        bool again = false;
+        const std::optional<QString> text = m_literalInput.take(input, &again);
+        if (!text) {
             g.subsubmode = CtrlVUnicodeSubSubMode;
-            m_ctrlVAccumulator = 0;
-            if (input.is('x') || input.is('X')) {
-                // ^VXnn or ^Vxnn with 00 <= nn <= FF
-                // BMP Unicode codepoints ^Vunnnn with 0000 <= nnnn <= FFFF
-                // any Unicode codepoint ^VUnnnnnnnn with 00000000 <= nnnnnnnn <= 7FFFFFFF
-                // ^Vnnn with 000 <= nnn <= 255
-                // ^VOnnn or ^Vonnn with 000 <= nnn <= 377
-                m_ctrlVLength = 2;
-                m_ctrlVBase = 16;
-            } else if (input.is('O') || input.is('o')) {
-                m_ctrlVLength = 3;
-                m_ctrlVBase = 8;
-            } else if (input.is('u')) {
-                m_ctrlVLength = 4;
-                m_ctrlVBase = 16;
-            } else if (input.is('U')) {
-                m_ctrlVLength = 8;
-                m_ctrlVBase = 16;
-            } else if (input.isDigit()) {
-                bool ok;
-                m_ctrlVAccumulator = input.toInt(&ok, 10);
-                m_ctrlVLength = 2;
-                m_ctrlVBase = 10;
-            } else {
-                insertInInsertMode(input.raw());
-                g.submode = NoSubMode;
-                g.subsubmode = NoSubSubMode;
-            }
         } else {
-            bool ok;
-            int current = input.toInt(&ok, m_ctrlVBase);
-            if (ok)
-                m_ctrlVAccumulator = m_ctrlVAccumulator * m_ctrlVBase + current;
-            --m_ctrlVLength;
-            if (m_ctrlVLength == 0 || !ok) {
-                QString s;
-                if (QChar::requiresSurrogates(m_ctrlVAccumulator)) {
-                    s.append(QChar(QChar::highSurrogate(m_ctrlVAccumulator)));
-                    s.append(QChar(QChar::lowSurrogate(m_ctrlVAccumulator)));
-                } else {
-                    s.append(QChar(m_ctrlVAccumulator));
-                }
-                insertInInsertMode(s);
-                g.submode = NoSubMode;
-                g.subsubmode = NoSubSubMode;
-
-                // Try again without Ctrl-V interpretation.
-                if (!ok)
-                    handleInsertMode(input);
-            }
+            g.submode = NoSubMode;
+            g.subsubmode = NoSubSubMode;
+            insertInInsertMode(*text);
+            // Try again without Ctrl-V interpretation.
+            if (again)
+                handleInsertMode(input);
         }
     } else if (input.isControl('o')) {
         enterCommandMode(InsertMode);
     } else if (input.isControl('a')) {
         // The text of the insert before this one, put in again.
-        m_cursor.insertText(m_buffer->lastInsertedText);
-        setTargetColumn();
+        if (m_buffer->lastInsertedText.isEmpty()) {
+            showMessage(MessageError, Tr::tr("E29: No inserted text yet"));
+        } else {
+            setAnchor();
+            m_cursor.insertText(m_buffer->lastInsertedText);
+            setTargetColumn();
+        }
     } else if (input.isControl('e') || input.isControl('y')) {
         // The character below or above the cursor, where the line reaches that
         // far.
@@ -8541,12 +8646,14 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         const int column = position() - block().position();
         const QString line = other.isValid() ? other.text() : QString();
         if (column < line.size()) {
+            setAnchor();
             m_cursor.insertText(QString(line.at(column)));
             setTargetColumn();
         }
-    } else if (input.isControl('v')) {
+    } else if (input.isControl('v') || input.isControl('q')) {
         g.submode = CtrlVSubMode;
         g.subsubmode = NoSubSubMode;
+        m_literalInput.start();
         updateMiniBuffer();
     } else if (input.isControl('r')) {
         g.submode = CtrlRSubMode;
@@ -8564,8 +8671,8 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         } else if (input.is('j') || input.isKey(Key_Down)
                    || input.is('k') || input.isKey(Key_Up)) {
             // A line down or up, to the column the insert started in.
-            const int column = m_buffer->insertState.pos1 >= 0
-                                   ? columnAt(m_buffer->insertState.pos1) : 0;
+            const int column =
+                columnAt(isInsertStateValid() ? m_buffer->insertState.pos1 : position());
             if (input.is('j') || input.isKey(Key_Down))
                 moveDown();
             else
@@ -8577,8 +8684,11 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         updateMiniBuffer();
     } else if (input.isControl('@')) {
         // CTRL-@ does the same and stops inserting.
-        insertInInsertMode(m_buffer->lastInsertedText);
-        leaveCurrentMode();
+        if (m_buffer->lastInsertedText.isEmpty())
+            showMessage(MessageError, Tr::tr("E29: No inserted text yet"));
+        else
+            insertInInsertMode(m_buffer->lastInsertedText);
+        finishInsertMode();
     } else if (input.isControl('w')) {
         const int blockNumber = m_cursor.blockNumber();
         const int endPos = position();
@@ -8719,11 +8829,23 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isControl('d')) {
         // Take one shiftwidth of indentation off the current line, which - a
         // tab being wider than that - can leave blanks behind where it sat.
+        // A "0" or "^" typed immediately before takes all of it instead, and
+        // goes away itself; "^" hands what it took to the next line.
+        const bool allIndent = (m_lastInsertInput.is('0') || m_lastInsertInput.is('^'))
+                && position() > block().position();
+        if (allIndent) {
+            if (m_lastInsertInput.is('^'))
+                m_oldIndent = indentation(lineContents(cursorLine() + 1)).logical;
+            moveLeft();
+            setAnchor();
+            moveRight();
+            removeText(currentRange());
+        }
         const int fromEnd = distanceToLineEnd();
         const int line = cursorLine() + 1;
         const QString text = lineContents(line);
         const Column indent = indentation(text);
-        const int wanted = qMax(0, indent.logical - shiftWidth());
+        const int wanted = allIndent ? 0 : qMax(0, indent.logical - shiftWidth());
         if (indent.physical > 0 || wanted > 0)
             setLineContents(line, tabExpand(wanted) + text.mid(indent.physical));
         moveWithShiftedLine(fromEnd);
@@ -8841,7 +8963,7 @@ void FakeVimHandler::Private::insertInInsertMode(const QString &text)
     m_autoIndentBlock = -1;
     joinPreviousEditBlock();
     insertText(text);
-    if (s.smartIndent() && isElectricCharacter(text.at(0))) {
+    if (s.smartIndent() && !text.isEmpty() && isElectricCharacter(text.at(0))) {
         const QString leftText = block().text()
                .left(position() - 1 - block().position());
         if (leftText.simplified().isEmpty()) {
@@ -28325,6 +28447,8 @@ void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
     g.returnToMode = returnToMode;
     m_positionPastEnd = false;
     m_anchorPastEnd = false;
+    m_lastInsertInput = Input();
+    m_oldIndent = -1;
 
     q->modeChanged(isInsertMode());
 }
@@ -28417,12 +28541,35 @@ QString FakeVimHandler::Private::tabExpand(int n) const
          + QString(n % ts, ' ');
 }
 
+QStringList FakeVimHandler::Private::linesAtThisIndent(const QString &text) const
+{
+    QStringList lines = text.split('\n');
+    if (!lines.isEmpty() && lines.constLast().isEmpty())
+        lines.removeLast();
+    if (lines.isEmpty())
+        return lines;
+    const int here = indentation(block().text()).logical;
+    const int first = indentation(lines.constFirst()).logical;
+    QStringList moved;
+    for (const QString &one : std::as_const(lines)) {
+        const QString rest = one.mid(indentation(one).physical);
+        const int width = qMax(0, indentation(one).logical - first + here);
+        moved << (rest.isEmpty() ? rest : tabExpand(width) + rest);
+    }
+    return moved;
+}
+
 void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown, bool forceAutoIndent)
 {
+    const int oldIndent = m_oldIndent;
+    m_oldIndent = -1;
+
     if (!forceAutoIndent && !s.autoIndent() && !s.smartIndent())
         return;
 
-    if (s.smartIndent()) {
+    if (oldIndent >= 0) {
+        insertText(tabExpand(oldIndent));
+    } else if (s.smartIndent()) {
         QTextBlock bl = block();
         Range range(bl.position(), bl.position());
         indentText(range, '\n');
@@ -29446,6 +29593,24 @@ CommandBuffer *FakeVimHandler::Private::historyBuffer(const QString &name)
     if (name == "expr" || name == "=")
         return &m_expressionBuffer;
     return nullptr;
+}
+
+void FakeVimHandler::Private::insertRegisterLiterally(int reg, bool fixIndent)
+{
+    QString text = registerContents(reg);
+    if (text.isEmpty())
+        return;
+    if (registerRangeMode(reg) != RangeLineMode) {
+        m_cursor.insertText(text);
+        return;
+    }
+    // A linewise register goes above this line, at its indent for CTRL-P.
+    if (fixIndent)
+        text = linesAtThisIndent(text).join('\n');
+    if (!text.endsWith('\n'))
+        text.append('\n');
+    m_cursor.setPosition(block().position());
+    m_cursor.insertText(text);
 }
 
 QString FakeVimHandler::Private::registerContents(int reg) const
