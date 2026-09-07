@@ -12676,7 +12676,7 @@ bool FakeVimHandler::Private::handleExFileTypeCommand(const ExCommand &cmd)
     if (words.isEmpty()) {
         showMessage(MessageInfo,
                     QString("filetype detection:%1  plugin:OFF  indent:OFF")
-                        .arg(g.filetypeDetection ? "ON" : "OFF"));
+                        .arg(QLatin1String(g.filetypeDetection ? "ON" : "OFF")));
         return true;
     }
     // "plugin" and "indent" name a switch this engine does not have; what
