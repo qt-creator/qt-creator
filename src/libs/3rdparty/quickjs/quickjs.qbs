@@ -3,6 +3,12 @@ QtcLibrary {
     type: "staticlibrary"
 
     cpp.warningLevel: "none"
+    cpp.cLanguageVersion: "c11"
+
+    Properties {
+        condition: qbs.targetOS.contains("windows")
+        cpp.defines: base.concat(["WIN32_LEAN_AND_MEAN"])
+    }
 
     Group {
         name: "Sources"
