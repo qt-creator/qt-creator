@@ -94,6 +94,7 @@ private:
     bool m_singleShotScheduled = false;
     bool m_reparseTimerTimedOut = false;
     QSet<Utils::FilePath> m_postponedFiles;
+    QSet<Utils::FilePath> m_applicationTargetFiles; // refreshed on every full parse
     State m_parserState = Idle;
     QList<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
     QTimer m_reparseTimer;
