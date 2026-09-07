@@ -37,6 +37,7 @@
 #include <QFont>
 #include <QGuiApplication>
 #include <QHBoxLayout>
+#include <QHash>
 #include <QLabel>
 #include <QLoggingCategory>
 #include <QMessageBox>
@@ -86,14 +87,15 @@ private:
     WrapperNode *m_parent;
 };
 
-bool compareNodes(const Node *n1, const Node *n2)
+static bool compareNodes(const Node *n1, const QString &displayName1,
+                         const Node *n2, const QString &displayName2)
 {
     if (n1->priority() > n2->priority())
         return true;
     if (n1->priority() < n2->priority())
         return false;
 
-    const int displayNameResult = caseFriendlyCompare(n1->displayName(), n2->displayName());
+    const int displayNameResult = caseFriendlyCompare(displayName1, displayName2);
     if (displayNameResult != 0)
         return displayNameResult < 0;
 
@@ -102,9 +104,20 @@ bool compareNodes(const Node *n1, const Node *n2)
     return filePathResult < 0;
 }
 
+bool compareNodes(const Node *n1, const Node *n2)
+{
+    return compareNodes(n1, n1->displayName(), n2, n2->displayName());
+}
+
 static bool sortWrapperNodes(const WrapperNode *w1, const WrapperNode *w2)
 {
-    return compareNodes(w1->node(), w2->node());
+    return compareNodes(w1->node(), w1->displayName(), w2->node(), w2->displayName());
+}
+
+static void sortWrapperNodesRecursively(WrapperNode *parent)
+{
+    parent->sortChildren(&sortWrapperNodes);
+    parent->forFirstLevelChildren(&sortWrapperNodesRecursively);
 }
 
 /// Appends to `dest` clones of children of `first` and `second`, removing duplicates (recursively).
@@ -440,6 +453,60 @@ static bool compareProjectNames(const WrapperNode *lhs, const WrapperNode *rhs)
     return p1 < p2; // sort by pointer value
 }
 
+// Append to same-named siblings the shortest tail of their directory path that tells them apart.
+static void disambiguateSiblingNames(WrapperNode *parent)
+{
+    QHash<QString, QList<WrapperNode *>> byDisplayName;
+    parent->forFirstLevelChildren([&byDisplayName](WrapperNode *child) {
+        if (child->node())
+            byDisplayName[child->displayName()] << child;
+    });
+
+    for (const QList<WrapperNode *> &sameName : std::as_const(byDisplayName)) {
+        if (sameName.size() < 2)
+            continue;
+
+        const QList<QStringList> dirs = Utils::transform(sameName, [](const WrapperNode *child) {
+            return child->node()->filePath().parentDir().path().split('/', Qt::SkipEmptyParts);
+        });
+        QList<int> depths(dirs.size(), 1);
+        const auto hintsForDepths = [&dirs, &depths] {
+            QStringList hints;
+            for (int i = 0; i < dirs.size(); ++i) {
+                const QStringList &dir = dirs.at(i);
+                hints << QStringList(dir.mid(qMax(0, dir.size() - depths.at(i)))).join('/');
+            }
+            return hints;
+        };
+
+        QStringList hints = hintsForDepths();
+        while (true) {
+            QHash<QString, int> occurrences;
+            for (const QString &hint : std::as_const(hints))
+                ++occurrences[hint];
+            bool deepened = false;
+            for (int i = 0; i < hints.size(); ++i) {
+                if (occurrences.value(hints.at(i)) > 1 && depths.at(i) < dirs.at(i).size()) {
+                    ++depths[i];
+                    deepened = true;
+                }
+            }
+            if (!deepened)
+                break;
+            hints = hintsForDepths();
+        }
+
+        for (int i = 0; i < sameName.size(); ++i) {
+            WrapperNode * const child = sameName.at(i);
+            const QString &hint = hints.at(i);
+            if (!hint.isEmpty())
+                child->setDisplayName(child->displayName() + " (" + hint + ')');
+        }
+    }
+
+    parent->forFirstLevelChildren(&disambiguateSiblingNames);
+}
+
 void FlatModel::addOrRebuildProjectModel(Project *project)
 {
     QElapsedTimer timer;
@@ -480,7 +547,9 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
         project->containerNode()->addNestedNode(std::move(projectFileNode));
     }
 
-    container->sortChildren(&sortWrapperNodes);
+    disambiguateSiblingNames(container);
+
+    sortWrapperNodesRecursively(container);
 
     container->forAllChildren([this](WrapperNode *node) {
         if (node->node()) {

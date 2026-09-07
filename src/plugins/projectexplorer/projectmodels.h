@@ -32,6 +32,7 @@ public:
 
     Node * node() const { return m_node; }
     QString displayName() const;
+    void setDisplayName(const QString &name) { m_displayName = name; }
 
 private:
     QVariant data(int column, int role) const override;
