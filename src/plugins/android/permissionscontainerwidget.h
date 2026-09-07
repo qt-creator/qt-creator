@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/result.h>
+
 #include <QWidget>
 #include <QStringList>
 #include <QTreeView>
@@ -35,7 +37,7 @@ private:
     void editAttributes();
     void updateAddRemovePermissionButtons();
     void defaultPermissionOrFeatureCheckBoxClicked();
-    void updateManifestPermissions();
+    Utils::Result<> updateManifestPermissions();
     void loadPermissionsFromManifest();
 
     TextEditor::TextEditorWidget *m_textEditorWidget = nullptr;

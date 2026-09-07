@@ -22,6 +22,7 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QListWidget>
+#include <QMessageBox>
 #include <QPushButton>
 
 using namespace Utils;
@@ -364,13 +365,22 @@ bool PermissionsContainerWidget::initialize(TextEditor::TextEditorWidget *textEd
 
 void PermissionsContainerWidget::addPermission()
 {
-    QString permission = m_permissionsComboBox->currentText().trimmed();
-    if (!permission.isEmpty()) {
-        if (m_permissionsModel->addPermission(permission).isValid()) {
-            updateManifestPermissions();
-            emit permissionsModified();
-        }
+    const QString permission = m_permissionsComboBox->currentText().trimmed();
+    if (permission.isEmpty())
+        return;
+
+    const QModelIndex added = m_permissionsModel->addPermission(permission);
+    if (!added.isValid())
+        return;
+
+    if (const Utils::Result<> result = updateManifestPermissions(); !result) {
+        m_permissionsModel->removePermission(added.row());
+        QMessageBox::warning(this, Tr::tr("Add Permission"),
+                             Tr::tr("Cannot add permission: %1").arg(result.error()));
+        return;
     }
+
+    emit permissionsModified();
 }
 
 void PermissionsContainerWidget::editAttributes()
@@ -466,12 +476,19 @@ void PermissionsContainerWidget::editAttributes()
 
 void PermissionsContainerWidget::removePermission()
 {
-    QModelIndex index = m_permissionsListView->currentIndex();
-    if (index.isValid()) {
-        m_permissionsModel->removePermission(index.row());
-        updateManifestPermissions();
-        emit permissionsModified();
+    const QModelIndex index = m_permissionsListView->currentIndex();
+    if (!index.isValid())
+        return;
+
+    m_permissionsModel->removePermission(index.row());
+    if (const Utils::Result<> result = updateManifestPermissions(); !result) {
+        loadPermissionsFromManifest();
+        QMessageBox::warning(this, Tr::tr("Remove Permission"),
+                             Tr::tr("Cannot remove permission: %1").arg(result.error()));
+        return;
     }
+
+    emit permissionsModified();
 }
 
 void PermissionsContainerWidget::updateAddRemovePermissionButtons()
@@ -487,29 +504,32 @@ void PermissionsContainerWidget::updateAddRemovePermissionButtons()
 
 void PermissionsContainerWidget::defaultPermissionOrFeatureCheckBoxClicked()
 {
-    updateManifestPermissions();
+    if (const Utils::Result<> result = updateManifestPermissions(); !result) {
+        QMessageBox::warning(this, Tr::tr("Permissions"),
+                             Tr::tr("Cannot update the manifest: %1").arg(result.error()));
+        refresh();
+        return;
+    }
     emit permissionsModified();
 }
 
-void PermissionsContainerWidget::updateManifestPermissions()
+Utils::Result<> PermissionsContainerWidget::updateManifestPermissions()
 {
-    Utils::FilePath manifestPath;
-    manifestPath = m_textEditorWidget->textDocument()->filePath();
+    Utils::FilePath manifestPath = m_textEditorWidget->textDocument()->filePath();
 
     if (manifestPath.isEmpty() || !manifestPath.exists())
-        return;
+        return Utils::ResultError(Tr::tr("The manifest file does not exist."));
 
-    bool includeDefaultPermissions = m_defaultPermissonsCheckBox->isChecked();
-    bool includeDefaultFeatures = m_defaultFeaturesCheckBox->isChecked();
-
-    Android::Internal::updateManifestPermissions(
+    const Utils::Result<> result = Android::Internal::updateManifestPermissions(
         manifestPath,
         m_permissionsModel->permissions().keys(),
-        includeDefaultPermissions,
-        includeDefaultFeatures);
+        m_defaultPermissonsCheckBox->isChecked(),
+        m_defaultFeaturesCheckBox->isChecked());
+    if (!result)
+        return result;
 
-    if (m_textEditorWidget && m_textEditorWidget->textDocument())
-        m_textEditorWidget->textDocument()->reload();
+    m_textEditorWidget->textDocument()->reload();
+    return Utils::ResultOk;
 }
 
 void PermissionsContainerWidget::refresh()
