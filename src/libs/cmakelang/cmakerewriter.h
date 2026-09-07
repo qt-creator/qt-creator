@@ -44,7 +44,8 @@ public:
     // line the argument stands on is.
     void insertAfter(ArgumentAST *argument, const QStringList &values);
 
-    // Puts values after the last argument of the call.
+    // Puts values after the last argument of the call: a line each, indented
+    // the way that argument is, or on the same line where the call is on one.
     void append(CommandAST *command, const QStringList &values);
 
     bool isEmpty() const { return _edits.isEmpty(); }

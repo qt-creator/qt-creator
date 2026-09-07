@@ -135,7 +135,11 @@ void Rewriter::append(CommandAST *command, const QStringList &values)
 
     ArgumentAST *last = command->arguments().last();
     const int position = last ? last->token.end() : command->rightParen.begin();
-    addEdit(position, 0, lines(values, position));
+    // A call the author spelled out on one line keeps standing on one.
+    if (command->name.line == command->rightParen.line)
+        addEdit(position, 0, u' ' + values.join(u' '));
+    else
+        addEdit(position, 0, lines(values, position));
 }
 
 QList<Edit> Rewriter::edits() const

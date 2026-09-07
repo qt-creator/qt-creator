@@ -300,6 +300,18 @@ static ArgumentAST *lastValueOfKeyword(CommandAST *command,
     return nullptr;
 }
 
+// The values the keyword takes in the call.
+static QList<ArgumentAST *> valuesOfKeyword(CommandAST *command,
+                                            const Signature &signature,
+                                            const QString &keyword)
+{
+    for (const KeywordArguments &group : groupArguments(command, signature)) {
+        if (group.keyword && group.keyword->value() == keyword)
+            return group.values;
+    }
+    return {};
+}
+
 // The keyword that the argument is the only value of, and that taking the
 // argument away would leave without any.
 static ArgumentAST *keywordLeftEmpty(CommandAST *command,
@@ -887,6 +899,80 @@ static CommandAST *commandTakingSources(const DocumentPtr &document,
                            namedWithFirstArgument("target_sources", targetName));
 }
 
+// Whether values can go at the end of the set(): a CACHE entry or a
+// PARENT_SCOPE gives what stands there a meaning a file would take.
+static bool takesMoreValues(CommandAST *command)
+{
+    return !Utils::anyOf(command->arguments(), [](ArgumentAST *argument) {
+        const QString value = argument->value();
+        return value == "CACHE" || value == "PARENT_SCOPE";
+    });
+}
+
+// The set() call that fills the variable the argument expands, when the
+// argument is nothing but that expansion: of those that run with the command,
+// the last one before it, which is the one whose value the command reads.
+static CommandAST *setCommandBehind(const DocumentPtr &document,
+                                    CommandAST *command,
+                                    ArgumentAST *argument)
+{
+    CommandAST *result = nullptr;
+    for (CommandAST *candidate : document->commands()) {
+        if (candidate->name.begin() >= command->name.begin())
+            break;
+        ArgumentAST *variable = candidate->arguments().first();
+        if (!candidate->isNamed("set") || !variable
+            || argument->value() != QString("${%1}").arg(variable->value())) {
+            continue;
+        }
+        // The last one is the one whose value the command reads, so a file
+        // that cannot go there does not go into an earlier list either.
+        if (document->runsWith(candidate, command))
+            result = takesMoreValues(candidate) ? candidate : nullptr;
+    }
+    return result;
+}
+
+// The set() call the arguments take their files out of, when they all take
+// them out of the one. Where they name several such variables, no one of them
+// is the list a new file belongs to, and it goes into the call itself.
+static CommandAST *setCommandForArguments(const DocumentPtr &document,
+                                          CommandAST *command,
+                                          const QList<ArgumentAST *> &arguments)
+{
+    CommandAST *result = nullptr;
+    for (ArgumentAST *argument : arguments) {
+        CommandAST *set = setCommandBehind(document, command, argument);
+        if (!set)
+            continue;
+        if (result && result != set)
+            return nullptr;
+        result = set;
+    }
+    return result;
+}
+
+// The set() call that keeps the sources of a call that takes them out of a
+// variable, the way the wizards write them. The files go there, so that the
+// list stays the one place the sources of the target are named, and the
+// branches that all expand it keep building the same ones.
+static CommandAST *setCommandForSources(const DocumentPtr &document,
+                                        CommandAST *command,
+                                        const Signature &signature)
+{
+    ArgumentAST *target = command->arguments().first();
+    QList<ArgumentAST *> sources;
+    for (const KeywordArguments &group : groupArguments(command, signature)) {
+        if (group.keyword)
+            continue;
+        for (ArgumentAST *value : group.values) {
+            if (value != target)
+                sources.append(value);
+        }
+    }
+    return setCommandForArguments(document, command, sources);
+}
+
 static Result<bool> insertFilesSilently(const FilePath &targetCMakeFile,
                                         const DocumentPtr &document,
                                         const SignatureTable &signatures,
@@ -923,12 +1009,28 @@ static Result<bool> insertFilesSilently(const FilePath &targetCMakeFile,
 
     // The files go after the last value of the keyword that already takes
     // their kind, so that the keyword is not spelled a second time. Only a
-    // keyword the call does not have yet is written with them.
+    // keyword the call does not have yet is written with them. Where the place
+    // they would take is an expansion of a variable, they go into the set()
+    // that fills it instead.
+    CommandAST *sourcesSet = takesSources ? setCommandForSources(
+                                                document,
+                                                takesSources,
+                                                signatures.signature(takesSources->commandName()))
+                                          : nullptr;
+
     Rewriter rewriter(document);
     QStringList newKeywords;
     for (const KeywordedFiles &newFile : newFiles) {
         if (ArgumentAST *argument = lastValue(newFile)) {
-            rewriter.insertAfter(argument, {newFile.files});
+            const QList<ArgumentAST *> values = valuesOfKeyword(command, signature, newFile.keyword);
+            if (CommandAST *set = setCommandForArguments(document, command, values))
+                rewriter.append(set, {newFile.files});
+            else
+                rewriter.insertAfter(argument, {newFile.files});
+            continue;
+        }
+        if (newFile.keyword.isEmpty() && sourcesSet) {
+            rewriter.append(sourcesSet, {newFile.files});
             continue;
         }
         newKeywords.append(newFile.keyword.isEmpty()
@@ -1720,6 +1822,7 @@ private slots:
         addTo("existing_keyword.cmake", {"Item.qml"});
         addTo("indented_keyword.cmake", {"Item.qml", "extra.cpp"});
         addTo("new_keyword.cmake", {"Item.qml", "logo.png"});
+        addTo("keyword_variable.cmake", {"Item.qml"});
 
         compareWithExpected(m_directory);
     }
@@ -1827,6 +1930,93 @@ private:
 QObject *createQmlModuleFilesTest()
 {
     return new QmlModuleFilesTest;
+}
+
+class SourceFilesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase()
+    {
+        m_projectDir = std::make_unique<CppEditor::Tests::TemporaryCopiedDir>(
+            ":/cmakeprojectmanager/testcases/sourcefiles/add");
+        m_directory = m_projectDir->filePath().canonicalPath();
+
+        // The file goes in relative to the project, so it has to be there.
+        QVERIFY(m_directory.pathAppended("newwidget.cpp").writeFileContents({}));
+    }
+
+    void cleanupTestCase()
+    {
+        Core::EditorManager::closeAllEditors(/*askAboutModifiedEditors=*/false);
+        m_projectDir.reset();
+    }
+
+    void testAddFiles_data()
+    {
+        QTest::addColumn<QString>("cmakeFileName");
+        QTest::addColumn<int>("targetDefinitionLine");
+        QTest::addColumn<QString>("targetName");
+
+        QTest::newRow("wizard variable") << "wizard_variable.cmake" << 16 << "HelloQt";
+        QTest::newRow("spelled out") << "spelled_out.cmake" << 5 << "HelloQt";
+        QTest::newRow("variable target") << "variable_target.cmake" << 7 << "HelloQt";
+        QTest::newRow("target_sources variable")
+            << "target_sources_variable.cmake" << 9 << "HelloQt";
+        QTest::newRow("two variables") << "two_variables.cmake" << 13 << "HelloQt";
+
+        // A call and a list that stand on one line keep standing on one.
+        QTest::newRow("one line") << "one_line.cmake" << 7 << "HelloQt";
+        QTest::newRow("one line call") << "one_line_call.cmake" << 5 << "HelloQt";
+
+        // What the end of the set() spells out is not a file, so the files go
+        // into the call instead.
+        QTest::newRow("cache variable") << "cache_variable.cmake" << 7 << "HelloQt";
+        QTest::newRow("parent scope") << "parent_scope.cmake" << 7 << "HelloQt";
+
+        // The library is written first, so that the line the application is on
+        // still holds once the set() before it has grown a file.
+        QTest::newRow("reused variable, library") << "reused_variable.cmake" << 15 << "HelloLib";
+        QTest::newRow("reused variable, application") << "reused_variable.cmake" << 9 << "HelloQt";
+    }
+
+    void testAddFiles()
+    {
+        QFETCH(QString, cmakeFileName);
+        QFETCH(int, targetDefinitionLine);
+        QFETCH(QString, targetName);
+
+        const FilePath cmakeFile = m_directory.pathAppended(cmakeFileName);
+        const DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+
+        CommandAST *command = findCommand(document, startsOnLine(targetDefinitionLine));
+        QVERIFY(command);
+
+        const Result<bool> inserted
+            = insertFilesSilently(cmakeFile,
+                                  document,
+                                  m_signatures,
+                                  command,
+                                  targetName,
+                                  {m_directory.pathAppended("newwidget.cpp")},
+                                  m_directory);
+        if (!inserted)
+            QFAIL(qPrintable(inserted.error()));
+    }
+
+    void testExpectedContents() { compareWithExpected(m_directory); }
+
+private:
+    std::unique_ptr<CppEditor::Tests::TemporaryCopiedDir> m_projectDir;
+    FilePath m_directory;
+    SignatureTable m_signatures;
+};
+
+QObject *createSourceFilesTest()
+{
+    return new SourceFilesTest;
 }
 #endif
 

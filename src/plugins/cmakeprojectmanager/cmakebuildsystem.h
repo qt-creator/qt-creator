@@ -319,6 +319,7 @@ private:
 QObject *createAddDependenciesTest();
 QObject *createBinariesForSourceFileTest();
 QObject *createQmlModuleFilesTest();
+QObject *createSourceFilesTest();
 #endif
 
 QString quoteString(const QString &fileName);
