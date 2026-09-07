@@ -215,6 +215,23 @@ void CompilerOptionsBuilderTest::testHeaderPathOptionsOrderMsvc()
                           "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")}));
 }
 
+void CompilerOptionsBuilderTest::testFrameworkHeaderPathOption()
+{
+    TestHelper t;
+    t.headerPaths.append(HeaderPath::makeFramework(Utils::FilePath("/tmp/framework_path")));
+    CompilerOptionsBuilder compilerOptionsBuilder{t.finalize(), UseSystemHeader::No,
+                UseTweakedHeaderPaths::Yes, UseLanguageDefines::No, UseBuildSystemWarnings::No,
+                "/dummy"};
+    compilerOptionsBuilder.addHeaderPathOptions();
+
+    QCOMPARE(compilerOptionsBuilder.options(),
+             (QStringList{"-nostdinc", "-nostdinc++", "-I" + t.toNative("/tmp/path"),
+                          "-isystem", t.toNative("/tmp/system_path"),
+                          "-iframework", t.toNative("/tmp/framework_path"),
+                          "-isystem", t.toNative("/dummy"),
+                          "-isystem", t.toNative("/tmp/builtin_path")}));
+}
+
 void CompilerOptionsBuilderTest::testUseSystemHeader()
 {
     TestHelper t;

@@ -36,6 +36,7 @@ const char undefineOption[] = "-U";
 const char includeUserPathOption[] = "-I";
 const char includeUserPathOptionWindows[] = "/I";
 const char includeSystemPathOption[] = "-isystem";
+const char includeSystemFrameworkPathOption[] = "-iframework";
 
 const char includeFileOptionGcc[] = "-include";
 const char includeFileOptionCl[] = "/FI";
@@ -684,7 +685,7 @@ void CompilerOptionsBuilder::addIncludeDirOptionForPath(const HeaderPath &path)
 {
     if (path.type == HeaderPathType::Framework) {
         QTC_ASSERT(!isClStyle(), return;);
-        add({"-F", path.path.nativePath()});
+        add({includeSystemFrameworkPathOption, path.path.nativePath()});
         return;
     }
 
