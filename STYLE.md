@@ -46,6 +46,7 @@ editing Qt Creator code.
 - Exception: a namespace containing only a single class declaration goes on one line: `namespace MyPlugin { class MyClass; }`.
 - No using-directives in headers; don't rely on them for defining classes/functions or accessing global functions. Otherwise OK — place near top after includes (never `#include` after a using-directive).
 - Exported symbols in a plugin/lib namespace (`MyPlugin`); non-exported in `MyPlugin::Internal`.
+- Qualify calls to free functions from the `Utils` namespace with `Utils::`, even where a using-directive makes it unnecessary.
 
 ## C++ features
 - `#pragma once`, not header guards. No exceptions, RTTI, `dynamic_cast`, or virtual inheritance unless truly needed.
@@ -72,6 +73,10 @@ editing Qt Creator code.
 - Prefer `Utils::Process` over `QProcess`.
 - If `Utils::FilePath`/`Utils::Process` are insufficient, enhance them rather than fall back to `QString`/`QProcess`.
 - Avoid platform `#ifdef`s unless needed for locally executed code; even then prefer `Utils::HostInfo`.
+
+## Assertions
+- Use `QTC_ASSERT(cond, action)` (runs `action`, typically `return`, `return {}`, `continue`, `break`), `QTC_CHECK(cond)` (reports only) or `QTC_GUARD(cond)` (reports and evaluates to the condition) from `utils/qtcassert.h`, not `Q_ASSERT`.
+- Unlike `Q_ASSERT` these also report in release builds and none of them aborts.
 
 ## Plugin dependencies
 - Keep hard run-time dependencies between plugins and to external libraries as few as reasonably possible.
@@ -103,3 +108,7 @@ editing Qt Creator code.
 
 ## Documentation
 - Put documentation into .cpp
+- Do not describe the change you are making in the source: that belongs in the commit message.
+- Otherwise treat a comment as an indication of a code smell, and comment only what is not evident from the code. Needing one usually means the code should be clearer.
+- Out of the source entirely: notes aimed at the reviewer, where code was taken from, bug numbers. Exception: a workaround for a bug outside Creator does name it (`// Work around QTBUG-12345.`).
+- When editing an existing comment, keep the wording close to the original.

@@ -605,6 +605,11 @@
             an additional \c{Internal} namespace, e.g. \c{MyPlugin::Internal}.
     \endlist
 
+    Qualify calls to free functions from the \c Utils namespace with
+    \c{Utils::}, even where a using-directive makes that unnecessary. Names
+    such as \c{sorted()} or \c{qtcEnvironmentVariable()} do not say where they
+    come from otherwise.
+
     \section2 Passing File Names
 
     \QC API expects file names in portable format, that is, with slashes (/)
@@ -642,6 +647,24 @@
         \li Avoid platform #ifdefs unless they are absolutely needed for locally
             executed code, and even then prefer Utils::HostInfo over #ifdefs.
     \endlist
+
+    \section2 Assertions
+
+    Use the macros from \c{utils/qtcassert.h} instead of \c{Q_ASSERT}:
+
+    \list
+        \li \c{QTC_ASSERT(condition, action)} reports a failing condition and
+            then runs \c action, which is typically \c return, \c{return {}},
+            \c continue, or \c break.
+        \li \c{QTC_CHECK(condition)} only reports.
+        \li \c{QTC_GUARD(condition)} reports and evaluates to the condition,
+            for use where an expression is needed.
+    \endlist
+
+    Unlike \c{Q_ASSERT}, these also report in release builds, and none of them
+    aborts. A broken invariant leaves a trace in the log and the affected code
+    path is left, instead of taking down an application that holds unsaved user
+    data.
 
     \section2 Plugin Dependencies
 
@@ -1466,5 +1489,33 @@
 
     In the .cpp files, you can document the implementation if the
     implementation is not obvious.
+
+    \section2 Writing Comments
+
+    Do not describe the change you are making in the source. What changed, and
+    why, belongs in the commit message.
+
+    Otherwise, treat a comment as an indication of a code smell, and comment
+    only what is not evident from the code itself. A comment that restates what
+    the code does adds maintenance work without adding information, and needing
+    one is usually a hint that the code should be made clearer instead.
+
+    Some comments do not belong in the source at all:
+
+    \list
+        \li A note aimed at the reviewer, such as why an approach was chosen
+            over the obvious alternative, or what was measured. Reviewers read
+            the commit message, and unlike a comment it does not age with the
+            code.
+        \li An account of where a file or a piece of code was taken from.
+        \li Bug numbers. Where a change came from is discoverable through the
+            version history and the \c Fixes or \c{Task-number} trailer of the
+            commit that introduced it. The exception is a workaround for a bug
+            outside \QC, where \c{// Work around QTBUG-12345.} says what has to
+            be fixed elsewhere before the workaround can go.
+    \endlist
+
+    When you edit an existing comment, keep the wording close to the original.
+    Rewording the parts that did not change makes the change harder to read.
 
 */
