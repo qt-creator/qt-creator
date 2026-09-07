@@ -151,6 +151,9 @@ private:
     void handleQmlDebugMessageAvailable(const GdbMi &stopReason);
     void handleResolveSymbol(const DebuggerResponse &command, const QString &symbol, DisassemblerAgent *agent);
     void handleResolveSymbolHelper(const QList<quint64> &addresses, DisassemblerAgent *agent);
+    void insertBreakpointCommands(const Breakpoint &bp,
+                                  const BreakpointParameters &params,
+                                  const QString &responseId);
     void handleBreakInsert(const DebuggerResponse &response, const Breakpoint &bp);
     void syncExceptionBreakpoints();
     void handleCheckWow64(const DebuggerResponse &response, const GdbMi &stack);

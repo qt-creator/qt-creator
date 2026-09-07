@@ -72,6 +72,8 @@ DEBUGGER_EXPORT QString normalizedSourceFileName(
     QHash<QString, QString> *cache = nullptr,
     const std::function<bool(const QString &)> &isFile = {});
 
+DEBUGGER_EXPORT QStringList cdbModuleNames(const Utils::FilePaths &binaries);
+
 DEBUGGER_EXPORT QString cdbModuleName(const Utils::FilePaths &binaries);
 
 DEBUGGER_EXPORT BreakpointParameters scopedToModule(

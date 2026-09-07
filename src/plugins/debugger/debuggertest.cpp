@@ -1004,6 +1004,17 @@ void DebuggerUnitTests::testCdbImplBreakpointModuleScope()
     QVERIFY(cdbModuleName({}).isEmpty());
     QVERIFY(cdbModuleName({FilePath::fromUserInput("C:/build/core.lib")}).isEmpty());
 
+    // A source in several modules names each of them.
+    QCOMPARE(cdbModuleNames({FilePath::fromUserInput("C:/build/a.dll"),
+                             FilePath::fromUserInput("C:/build/b.lib"),
+                             FilePath::fromUserInput("C:/build/b.dll")}),
+             QStringList({"a", "b"}));
+
+    // Binaries cdb cannot tell apart are one module, not one each.
+    QCOMPARE(cdbModuleNames({FilePath::fromUserInput("C:/build/my-app.exe"),
+                             FilePath::fromUserInput("C:/build/my+app.dll")}),
+             QStringList("my_app"));
+
     const auto always = [](const FilePath &) { return QString("core"); };
     BreakpointParameters params(BreakpointByFileAndLine);
     params.fileName = FilePath::fromUserInput("C:/src/main.cpp");

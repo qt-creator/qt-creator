@@ -623,12 +623,23 @@ static QString moduleForSourceFile(const FilePath &sourceFile)
     return cdbModuleName(project->binariesForSourceFile(sourceFile));
 }
 
-static BreakpointParameters scopedToModule(const BreakpointParameters &params)
+static QStringList modulesForBreakpoint(const BreakpointParameters &params)
 {
     if (params.type != BreakpointByFileAndLine || !params.module.isEmpty())
+        return {};
+    const Project *project = ProjectManager::projectForFile(params.fileName);
+    if (!project)
+        return {};
+    return cdbModuleNames(project->binariesForSourceFile(params.fileName));
+}
+
+static BreakpointParameters scopedToModule(const BreakpointParameters &params)
+{
+    const QStringList modules = modulesForBreakpoint(params);
+    if (modules.size() != 1)
         return params;
     BreakpointParameters result = params;
-    result.module = moduleForSourceFile(params.fileName);
+    result.module = modules.first();
     return result;
 }
 
@@ -1988,6 +1999,10 @@ void CdbEngine::handleBreakInsert(const DebuggerResponse &response, const Breakp
     // add break point for every match
     const int parentResponseId = bp->responseId().toInt();
     quint16 subBreakPointID = 0;
+    bp->forFirstLevelChildren([&subBreakPointID, parentResponseId](SubBreakpointItem *sub) {
+        subBreakPointID = qMax(subBreakPointID,
+                               quint16(sub->responseId.toInt() - parentResponseId));
+    });
     const QLatin1String matchPrefix("Matched: ");
     for (auto line = reply.constBegin(), end = reply.constEnd(); line != end; ++line) {
         if (!line->startsWith(matchPrefix))
@@ -2020,7 +2035,7 @@ void CdbEngine::handleBreakInsert(const DebuggerResponse &response, const Breakp
         if (functionStart > 0)
             functionName = functionName.mid(functionStart);
         sub->params.functionName = functionName;
-        sub->displayName = bp->displayName() + '.' + QString::number(subBreakPointID);
+        sub->displayName = QString("%1.%2").arg(bp->modelId()).arg(subBreakPointID);
         runCommand({cdbAddBreakpointCommand(sub->params, m_sourcePathMappings, sub->responseId), NoFlags});
     }
 }
@@ -2619,6 +2634,48 @@ unsigned BreakpointCorrectionContext::fixLineNumber(const FilePath &filePath,
     return correctedLine;
 }
 
+static QString enableBreakpointCommand(const QString &responseId, bool on)
+{
+    const QString command(on ? QString("be") : QString("bd"));
+    return command + ' ' + responseId;
+}
+
+void CdbEngine::insertBreakpointCommands(const Breakpoint &bp,
+                                         const BreakpointParameters &params,
+                                         const QString &responseId)
+{
+    // On a re-insert the caller has cleared the whole id range, so leftovers
+    // would only keep their minor ids occupied.
+    bp->removeChildren();
+    const QStringList modules = modulesForBreakpoint(params);
+    if (modules.size() > 1) {
+        // An offset expression resolves to a single address, so a source file
+        // that ends up in several modules needs one breakpoint per module.
+        // The minor part of the id is what they have to fit in, shared with the
+        // sub-breakpoints an ambiguous match adds later.
+        QTC_CHECK(modules.size() < cdbBreakPointIdMinorPart);
+        int minor = 0;
+        for (const QString &module : modules) {
+            if (++minor == cdbBreakPointIdMinorPart)
+                break;
+            const QString subId = QString::number(responseId.toInt() + minor);
+            SubBreakpoint sub = bp->findOrCreateSubBreakpoint(subId);
+            sub->params = params;
+            sub->params.module = module;
+            sub->displayName = QString("%1.%2").arg(bp->modelId()).arg(minor);
+            runCommand({cdbAddBreakpointCommand(sub->params, m_sourcePathMappings, subId),
+                        BuiltinCommand,
+                        [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); }});
+        }
+        return;
+    }
+    BreakpointParameters scoped = params;
+    if (modules.size() == 1)
+        scoped.module = modules.first();
+    runCommand({cdbAddBreakpointCommand(scoped, m_sourcePathMappings, responseId), BuiltinCommand,
+                [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); }});
+}
+
 void CdbEngine::insertBreakpoint(const Breakpoint &bp)
 {
     BreakpointParameters parameters = bp->requestedParameters();
@@ -2654,7 +2711,6 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
         runCommand(cmd);
         return;
     }
-    const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
     BreakpointParameters response = parameters;
     const QString responseId = breakPointCdbId(bp);
     QScopedPointer<BreakpointCorrectionContext> lineCorrection(
@@ -2665,16 +2721,15 @@ void CdbEngine::insertBreakpoint(const Breakpoint &bp)
         response.textPosition.line =
             int(lineCorrection->fixLineNumber(parameters.fileName,
                                               unsigned(parameters.textPosition.line)));
-        QString cmd = cdbAddBreakpointCommand(scopedToModule(response), m_sourcePathMappings,
-                                              responseId);
-        runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
-    } else {
-        QString cmd = cdbAddBreakpointCommand(scopedToModule(parameters), m_sourcePathMappings,
-                                              responseId);
-        runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
     }
-    if (!parameters.enabled)
-        runCommand({"bd " + responseId, NoFlags});
+    insertBreakpointCommands(bp, response, responseId);
+    if (!parameters.enabled) {
+        if (!bp->hasChildren())
+            runCommand({enableBreakpointCommand(responseId, false), NoFlags});
+        bp->forFirstLevelChildren([this](SubBreakpointItem *sub) {
+            runCommand({enableBreakpointCommand(sub->responseId, false), NoFlags});
+        });
+    }
     // Ensure enabled/disabled is correct in handler and line number is there.
     bp->setParameters(response);
     bp->setResponseId(responseId);
@@ -2714,12 +2769,6 @@ void CdbEngine::syncExceptionBreakpoints()
     runCommand({breakOnException ? "sxe eh" : "sxn eh", NoFlags});
 }
 
-static QString enableBreakpointCommand(const QString &responseId, bool on)
-{
-    const QString command(on ? QString("be") : QString("bd"));
-    return command + ' ' + responseId;
-}
-
 void CdbEngine::updateBreakpoint(const Breakpoint &bp)
 {
     BreakpointParameters parameters = bp->requestedParameters();
@@ -2731,7 +2780,6 @@ void CdbEngine::updateBreakpoint(const Breakpoint &bp)
         syncExceptionBreakpoints();
         return;
     }
-    const auto handleBreakInsertCB = [this, bp](const DebuggerResponse &r) { handleBreakInsert(r, bp); };
     BreakpointParameters response = parameters;
     const QString responseId = breakPointCdbId(bp);
     notifyBreakpointChangeProceeding(bp);
@@ -2752,9 +2800,7 @@ void CdbEngine::updateBreakpoint(const Breakpoint &bp)
     } else {
         // Delete and re-add, triggering update
         runCommand({cdbClearBreakpointCommand(bp), NoFlags});
-        QString cmd = cdbAddBreakpointCommand(scopedToModule(parameters), m_sourcePathMappings,
-                                              responseId);
-        runCommand({cmd, BuiltinCommand, handleBreakInsertCB});
+        insertBreakpointCommands(bp, parameters, responseId);
         m_pendingBreakpointMap.insert(bp);
         listBreakpoints();
     }

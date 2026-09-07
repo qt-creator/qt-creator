@@ -812,10 +812,10 @@ void CdbImpl::execute(const ExecutionRequest &request)
     }
 }
 
-// The module cdb knows the given binaries as, empty unless there is exactly
-// one that gets loaded. cdb spells a module after its file name with
-// everything that is not a letter, a digit or an underscore replaced.
-QString cdbModuleName(const FilePaths &binaries)
+// The modules cdb knows the given binaries as. cdb spells a module after its
+// file name with everything that is not a letter, a digit or an underscore
+// replaced, so two binaries can end up under the same name.
+QStringList cdbModuleNames(const FilePaths &binaries)
 {
     // An import library is not a module that gets loaded.
     const FilePaths loadable = Utils::filtered(binaries, [](const FilePath &binary) {
@@ -823,14 +823,24 @@ QString cdbModuleName(const FilePaths &binaries)
         return suffix.compare(u"dll", Qt::CaseInsensitive) == 0
             || suffix.compare(u"exe", Qt::CaseInsensitive) == 0;
     });
-    if (loadable.size() != 1)
-        return {};
-    QString module = loadable.first().completeBaseName();
-    for (QChar &c : module) {
-        if (!c.isLetterOrNumber() && c != '_')
-            c = '_';
-    }
-    return module;
+    QStringList modules = Utils::transform(loadable, [](const FilePath &binary) {
+        QString module = binary.completeBaseName();
+        for (QChar &c : module) {
+            if (!c.isLetterOrNumber() && c != '_')
+                c = '_';
+        }
+        return module;
+    });
+    modules.removeDuplicates();
+    return modules;
+}
+
+// The module cdb knows the given binaries as, empty unless there is exactly
+// one that gets loaded.
+QString cdbModuleName(const FilePaths &binaries)
+{
+    const QStringList modules = cdbModuleNames(binaries);
+    return modules.size() == 1 ? modules.first() : QString();
 }
 
 // Names the module a breakpoint by file and line belongs to. Without one cdb
