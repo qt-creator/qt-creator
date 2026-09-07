@@ -29,7 +29,6 @@ inline constexpr char FEATURE_QT_WEBKIT[] = "QtSupport.Wizards.FeatureQtWebkit";
 inline constexpr char FEATURE_QT_3D[] = "QtSupport.Wizards.FeatureQt3d";
 inline constexpr char FEATURE_QT_CANVAS3D_PREFIX[] = "QtSupport.Wizards.FeatureQtCanvas3d";
 inline constexpr char FEATURE_QT_QML_CMAKE_API[] = "QtSupport.Wizards.FeatureQtQmlCMakeApi";
-inline constexpr char FEATURE_QT_CONSOLE[] = "QtSupport.Wizards.FeatureQtConsole";
 inline constexpr char FEATURE_MOBILE[] = "QtSupport.Wizards.FeatureMobile";
 inline constexpr char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
 

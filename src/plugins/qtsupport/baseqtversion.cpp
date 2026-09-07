@@ -462,7 +462,6 @@ QSet<Id> QtVersion::availableFeatures() const
 
     features.insert(Constants::FEATURE_QWIDGETS);
     features.insert(Constants::FEATURE_QT_WEBKIT);
-    features.insert(Constants::FEATURE_QT_CONSOLE);
 
     if (qtVersion() < QVersionNumber(4, 7, 0))
         return features;

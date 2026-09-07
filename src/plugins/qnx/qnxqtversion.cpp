@@ -62,7 +62,6 @@ QSet<Id> QnxQtVersion::availableFeatures() const
 {
     QSet<Id> features = QtSupport::QtVersion::availableFeatures();
     features.insert(QNX_QNX_FEATURE);
-    features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }

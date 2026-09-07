@@ -72,7 +72,6 @@ QSet<Utils::Id> IosQtVersion::availableFeatures() const
 {
     QSet<Utils::Id> features = QtSupport::QtVersion::availableFeatures();
     features.insert(QtSupport::Constants::FEATURE_MOBILE);
-    features.remove(QtSupport::Constants::FEATURE_QT_CONSOLE);
     features.remove(QtSupport::Constants::FEATURE_QT_WEBKIT);
     return features;
 }
