@@ -100,6 +100,7 @@ public:
     ProjectExplorer::ProjectNode *buildableSubProject(ProjectExplorer::FileNode *file) const override;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
+    Utils::FilePaths binariesForSourceFile(const Utils::FilePath &sourceFile) const final;
 
     bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
 
@@ -315,6 +316,7 @@ private:
 
 #ifdef WITH_TESTS
 QObject *createAddDependenciesTest();
+QObject *createBinariesForSourceFileTest();
 QObject *createQmlModuleFilesTest();
 #endif
 

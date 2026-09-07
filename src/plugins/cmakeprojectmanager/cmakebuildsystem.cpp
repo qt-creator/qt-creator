@@ -1510,6 +1510,39 @@ bool CMakeBuildSystem::addDependencies(
     return BuildSystem::addDependencies(context, dependencies);
 }
 
+static FilePaths linkingBinaries(const QList<CMakeBuildTarget> &targets,
+                                 const FilePath &sourceFile)
+{
+    QStringList pendingTargets;
+    for (const CMakeBuildTarget &target : targets) {
+        if (target.sourceFiles.contains(sourceFile))
+            pendingTargets << target.title;
+    }
+    FilePaths binaries;
+    QSet<QString> seenTargets;
+    while (!pendingTargets.isEmpty()) {
+        const QString title = pendingTargets.takeLast();
+        if (!Utils::insert(seenTargets, title))
+            continue;
+        const CMakeBuildTarget target
+            = Utils::findOrDefault(targets, Utils::equal(&CMakeBuildTarget::title, title));
+        if (target.targetType == ExecutableType || target.targetType == DynamicLibraryType) {
+            if (!target.executable.isEmpty())
+                binaries << target.executable;
+            continue;
+        }
+        // Code from a static library ends up in whatever links it.
+        const QString artifact = target.artifact.fileName();
+        if (artifact.isEmpty())
+            continue;
+        for (const CMakeBuildTarget &other : targets) {
+            if (other.linkedLibraryFileNames.contains(artifact))
+                pendingTargets << other.title;
+        }
+    }
+    return binaries;
+}
+
 #ifdef WITH_TESTS
 // Compares every file of the directory against its _expected.cmake sibling.
 static void compareWithExpected(const FilePath &directory)
@@ -1587,6 +1620,63 @@ private slots:
 QObject *createAddDependenciesTest()
 {
     return new AddDependenciesTest;
+}
+
+class BinariesForSourceFileTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        CMakeBuildTarget app;
+        app.title = "App";
+        app.targetType = ExecutableType;
+        app.executable = "/b/App.exe";
+        app.sourceFiles = {"/s/main.cpp"};
+        app.linkedLibraryFileNames = {"Shared.lib", "Direct.lib"};
+
+        CMakeBuildTarget shared;
+        shared.title = "Shared";
+        shared.targetType = DynamicLibraryType;
+        shared.artifact = "Shared.dll";
+        shared.executable = "/b/Shared.dll";
+        shared.sourceFiles = {"/s/shared.cpp"};
+        shared.linkedLibraryFileNames = {"Direct.lib"};
+
+        CMakeBuildTarget direct;
+        direct.title = "Direct";
+        direct.targetType = StaticLibraryType;
+        direct.artifact = "Direct.lib";
+        direct.sourceFiles = {"/s/direct.cpp"};
+        direct.linkedLibraryFileNames = {"Nested.lib"};
+
+        CMakeBuildTarget nested;
+        nested.title = "Nested";
+        nested.targetType = StaticLibraryType;
+        nested.artifact = "Nested.lib";
+        nested.sourceFiles = {"/s/nested.cpp"};
+
+        CMakeBuildTarget utility;
+        utility.title = "Utility";
+        utility.sourceFiles = {"/s/utility.cpp"};
+
+        const QList<CMakeBuildTarget> targets{app, shared, direct, nested, utility};
+
+        QCOMPARE(linkingBinaries(targets, "/s/main.cpp"), FilePaths{"/b/App.exe"});
+        QCOMPARE(linkingBinaries(targets, "/s/shared.cpp"), FilePaths{"/b/Shared.dll"});
+        QCOMPARE(Utils::sorted(linkingBinaries(targets, "/s/direct.cpp")),
+                 FilePaths({"/b/App.exe", "/b/Shared.dll"}));
+        QCOMPARE(Utils::sorted(linkingBinaries(targets, "/s/nested.cpp")),
+                 FilePaths({"/b/App.exe", "/b/Shared.dll"}));
+        QCOMPARE(linkingBinaries(targets, "/s/utility.cpp"), FilePaths());
+        QCOMPARE(linkingBinaries(targets, "/s/unknown.cpp"), FilePaths());
+    }
+};
+
+QObject *createBinariesForSourceFileTest()
+{
+    return new BinariesForSourceFileTest;
 }
 
 // Stands in for what Qt6QmlMacros.cmake declares: the keywords of the command
@@ -1739,6 +1829,11 @@ QObject *createQmlModuleFilesTest()
     return new QmlModuleFilesTest;
 }
 #endif
+
+FilePaths CMakeBuildSystem::binariesForSourceFile(const FilePath &sourceFile) const
+{
+    return linkingBinaries(m_buildTargets, sourceFile);
+}
 
 FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {

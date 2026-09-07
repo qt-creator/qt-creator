@@ -37,6 +37,7 @@ public:
     Utils::FilePath sourceDirectory;
     Utils::FilePath makeCommand;
     Utils::FilePaths libraryDirectories;
+    QStringList linkedLibraryFileNames;
     Utils::FilePaths sourceFiles;
 
     Backtrace backtrace;

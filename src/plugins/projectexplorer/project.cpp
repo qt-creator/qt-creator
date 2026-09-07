@@ -1182,6 +1182,11 @@ ProjectNode *Project::productNodeForFilePath(
 
 FilePaths Project::binariesForSourceFile(const FilePath &sourceFile) const
 {
+    if (const BuildSystem * const bs = activeBuildSystem()) {
+        const FilePaths binaries = bs->binariesForSourceFile(sourceFile);
+        if (!binaries.isEmpty())
+            return binaries;
+    }
     if (!rootProjectNode())
         return {};
     const QList<Node *> fileNodes = rootProjectNode()->findNodes([&sourceFile](Node *n) {

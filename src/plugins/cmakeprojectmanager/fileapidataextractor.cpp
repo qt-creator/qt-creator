@@ -259,6 +259,19 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
         ct.sourceFiles.append(sourceDirectory.resolvePath(si.path));
     }
 
+    if (t.link) {
+        for (const FragmentInfo &f : t.link->fragments) {
+            if (f.role != "libraries")
+                continue;
+            const QStringList parts = ProcessArgs::splitArgs(f.fragment, HostOsInfo::hostOs());
+            for (const QString &part : parts) {
+                if (part.startsWith('-'))
+                    continue;
+                ct.linkedLibraryFileNames.append(FilePath::fromUserInput(part).fileName());
+            }
+        }
+    }
+
     // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
     ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
     ct.targetFolder = t.folderTargetProperty;

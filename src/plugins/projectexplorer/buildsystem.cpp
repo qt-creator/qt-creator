@@ -296,6 +296,12 @@ FilePaths BuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
     return {};
 }
 
+FilePaths BuildSystem::binariesForSourceFile(const FilePath &sourceFile) const
+{
+    Q_UNUSED(sourceFile)
+    return {};
+}
+
 QVariant BuildSystem::additionalData(Utils::Id id) const
 {
     Q_UNUSED(id)
