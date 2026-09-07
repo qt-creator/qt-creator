@@ -32,6 +32,7 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
+#include <utils/result.h>
 
 #include <QElapsedTimer>
 #include <QEventLoop>
@@ -57,6 +58,38 @@ static bool waitFor(const std::function<bool()> &predicate, int timeoutMs)
         loop.exec();
     }
     return predicate();
+}
+
+// A Windows device for the test target, registered so that device-rooted process and file
+// access resolves to it, and connected - which is what deploys the command bridge. Removing
+// it again is left to the caller, whose cleanup guard has to survive a failing assertion.
+static Result<IDevicePtr> connectedWindowsDevice(const SshParameters &params)
+{
+    IDeviceFactory *factory
+        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [](IDeviceFactory *f) {
+              return f->deviceType() == Constants::GenericWindowsOsType;
+          });
+    if (!factory)
+        return ResultError(QString("No Windows device factory was registered."));
+    const IDevicePtr device = factory->construct();
+    if (!device)
+        return ResultError(QString("Failed to construct a Windows device from the factory."));
+    device->sshParametersAspectContainer().setSshParameters(params);
+    DeviceManager::addDevice(device);
+
+    QEventLoop loop;
+    QTimer timeout;
+    timeout.setSingleShot(true);
+    QObject::connect(&timeout, &QTimer::timeout, &loop, [&loop] { loop.exit(1); });
+    timeout.start(60 * 1000);
+    device->tryToConnect(Continuation<>(&loop, [&loop](const Result<> &res) {
+        loop.exit(res ? 0 : 1);
+    }));
+    if (loop.exec() != 0) {
+        DeviceManager::removeDevice(device->id());
+        return ResultError(QString("Failed to connect to the device."));
+    }
+    return device;
 }
 
 // The sessions a process runs in, empty when it does not run at all, and nothing when the
@@ -109,16 +142,10 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
               "plain QTC_SSH_TEST_* values) to a reachable Windows-over-SSH host.");
     }
 
-    // Build the device and register it so device-rooted process/file routing resolves to it.
-    auto windowsDeviceFactory
-        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [&](IDeviceFactory *f) {
-              return f->deviceType() == Constants::GenericWindowsOsType;
-          });
-    QVERIFY2(windowsDeviceFactory, "No Windows device factory was registered.");
-    const IDevicePtr device = windowsDeviceFactory->construct();
-    QVERIFY2(device, "Failed to construct a Windows device from the factory.");
-    device->sshParametersAspectContainer().setSshParameters(params);
-    DeviceManager::addDevice(device);
+    const Result<IDevicePtr> created = connectedWindowsDevice(params);
+    if (!created)
+        QFAIL(qPrintable(created.error()));
+    const IDevicePtr device = *created;
 
     const Id deviceId = device->id();
     const QString sourceId = deviceId.toString();
@@ -139,18 +166,6 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
         DeviceManager::removeDevice(deviceId);
     });
 
-    // Establish the connection (sets up file access and deploys the command bridge).
-    {
-        QEventLoop loop;
-        QTimer timeout;
-        timeout.setSingleShot(true);
-        QObject::connect(&timeout, &QTimer::timeout, &loop, [&] { loop.exit(1); });
-        timeout.start(60 * 1000);
-        device->tryToConnect(Continuation<>(this, [&](const Result<> &res) {
-            loop.exit(res ? 0 : 1);
-        }));
-        QCOMPARE(loop.exec(), 0);
-    }
     QCOMPARE(device->deviceState(), IDevice::DeviceReadyToUse);
 
     // Browsing the device root must list the drives (C:/, ...) so the root is navigable in the
@@ -435,31 +450,14 @@ void WindowsDeviceDetectionTest::testRunsInTheDeviceUsersSession()
               "Windows-over-SSH host.");
     }
 
-    auto windowsDeviceFactory
-        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [&](IDeviceFactory *f) {
-              return f->deviceType() == Constants::GenericWindowsOsType;
-          });
-    QVERIFY2(windowsDeviceFactory, "No Windows device factory was registered.");
-    const IDevicePtr device = windowsDeviceFactory->construct();
-    QVERIFY2(device, "Failed to construct a Windows device from the factory.");
-    device->sshParametersAspectContainer().setSshParameters(params);
-    DeviceManager::addDevice(device);
+    const Result<IDevicePtr> created = connectedWindowsDevice(params);
+    if (!created)
+        QFAIL(qPrintable(created.error()));
+    const IDevicePtr device = *created;
 
     const Id deviceId = device->id();
     const FilePath deviceRoot = device->rootPath();
     const QScopeGuard cleanup([&] { DeviceManager::removeDevice(deviceId); });
-
-    {
-        QEventLoop loop;
-        QTimer timeout;
-        timeout.setSingleShot(true);
-        QObject::connect(&timeout, &QTimer::timeout, &loop, [&] { loop.exit(1); });
-        timeout.start(60 * 1000);
-        device->tryToConnect(Continuation<>(this, [&](const Result<> &res) {
-            loop.exit(res ? 0 : 1);
-        }));
-        QCOMPARE(loop.exec(), 0);
-    }
 
     // Whether the device user is logged on at all is a property of the machine, not of the
     // code under test.
@@ -528,31 +526,14 @@ void WindowsDeviceDetectionTest::testRunsWithoutADesktopSession()
               "Windows-over-SSH host.");
     }
 
-    auto windowsDeviceFactory
-        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [&](IDeviceFactory *f) {
-              return f->deviceType() == Constants::GenericWindowsOsType;
-          });
-    QVERIFY2(windowsDeviceFactory, "No Windows device factory was registered.");
-    const IDevicePtr device = windowsDeviceFactory->construct();
-    QVERIFY2(device, "Failed to construct a Windows device from the factory.");
-    device->sshParametersAspectContainer().setSshParameters(params);
-    DeviceManager::addDevice(device);
+    const Result<IDevicePtr> created = connectedWindowsDevice(params);
+    if (!created)
+        QFAIL(qPrintable(created.error()));
+    const IDevicePtr device = *created;
 
     const Id deviceId = device->id();
     const FilePath deviceRoot = device->rootPath();
     const QScopeGuard removeDevice([&] { DeviceManager::removeDevice(deviceId); });
-
-    {
-        QEventLoop loop;
-        QTimer timeout;
-        timeout.setSingleShot(true);
-        QObject::connect(&timeout, &QTimer::timeout, &loop, [&] { loop.exit(1); });
-        timeout.start(60 * 1000);
-        device->tryToConnect(Continuation<>(this, [&](const Result<> &res) {
-            loop.exit(res ? 0 : 1);
-        }));
-        QCOMPARE(loop.exec(), 0);
-    }
 
     const QString user = params.userName().section('\\', -1).section('@', 0, 0);
     if (!userSession(deviceRoot, user).isEmpty())
@@ -610,15 +591,10 @@ void WindowsDeviceDetectionTest::testStopKillsTheRemoteApplication()
               "Windows-over-SSH host.");
     }
 
-    auto windowsDeviceFactory
-        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [&](IDeviceFactory *f) {
-              return f->deviceType() == Constants::GenericWindowsOsType;
-          });
-    QVERIFY2(windowsDeviceFactory, "No Windows device factory was registered.");
-    const IDevicePtr device = windowsDeviceFactory->construct();
-    QVERIFY2(device, "Failed to construct a Windows device from the factory.");
-    device->sshParametersAspectContainer().setSshParameters(params);
-    DeviceManager::addDevice(device);
+    const Result<IDevicePtr> created = connectedWindowsDevice(params);
+    if (!created)
+        QFAIL(qPrintable(created.error()));
+    const IDevicePtr device = *created;
 
     const Id deviceId = device->id();
     const FilePath deviceRoot = device->rootPath();
@@ -638,18 +614,6 @@ void WindowsDeviceDetectionTest::testStopKillsTheRemoteApplication()
         victim.removeFile();
         DeviceManager::removeDevice(deviceId);
     });
-
-    {
-        QEventLoop loop;
-        QTimer timeout;
-        timeout.setSingleShot(true);
-        QObject::connect(&timeout, &QTimer::timeout, &loop, [&] { loop.exit(1); });
-        timeout.start(60 * 1000);
-        device->tryToConnect(Continuation<>(this, [&](const Result<> &res) {
-            loop.exit(res ? 0 : 1);
-        }));
-        QCOMPARE(loop.exec(), 0);
-    }
 
     QString tempDir = device->systemEnvironment().value("TEMP");
     if (tempDir.isEmpty())
