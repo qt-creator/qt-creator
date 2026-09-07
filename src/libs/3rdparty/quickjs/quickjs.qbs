@@ -2,13 +2,20 @@ QtcLibrary {
     name: "quickjsng"
     type: "staticlibrary"
 
+    useQt: false
+
     cpp.warningLevel: "none"
     cpp.cLanguageVersion: "c11"
 
     Properties {
         condition: qbs.targetOS.contains("windows")
-        cpp.defines: base.concat(["WIN32_LEAN_AND_MEAN"])
+        cpp.defines: "WIN32_LEAN_AND_MEAN"
     }
+    Properties {
+        condition: !qbs.targetOS.contains("windows")
+        cpp.defines: ["_POSIX_C_SOURCE='200112L'", "_DEFAULT_SOURCE"]
+    }
+    cpp.defines: base
 
     Group {
         name: "Sources"
