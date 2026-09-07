@@ -4,8 +4,11 @@ add_qtc_library(quickjsng
   STATIC
   SOURCES
     src/builtin-array-fromasync.h
-    src/cutils.c
+    src/builtin-iterator-zip.h
+    src/builtin-iterator-zip-keyed.h
     src/cutils.h
+    src/dtoa.c
+    src/dtoa.h
     src/libregexp-opcode.h
     src/libregexp.c
     src/libregexp.h
@@ -18,8 +21,6 @@ add_qtc_library(quickjsng
     src/quickjs-opcode.h
     src/quickjs.c
     src/quickjs.h
-    src/xsum.c
-    src/xsum.h
   SBOM_ARGS
     SBOM_ENTITY_TYPE THIRD_PARTY_LIBRARY_WITH_FILES
     USE_ATTRIBUTION_FILES
