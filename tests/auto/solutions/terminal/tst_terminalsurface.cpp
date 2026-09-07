@@ -819,6 +819,20 @@ private slots:
         QCOMPARE(rowText(3), QString("two"));
     }
 
+    void poppingARowFromTheScrollbackKeepsTheRestOfItsLine()
+    {
+        initSurface({20, 6});
+
+        const QString expected = write({QString(45, 'C'), "d0", "d1", "d2", "d3", "d4"});
+        QVERIFY(m_surface->fullSize().height() > m_surface->liveSize().height());
+
+        m_surface->dataFromPty("\x1b[?1049h");
+        resizeTo({20, 10});
+        m_surface->dataFromPty("\x1b[?1049l");
+
+        QCOMPARE(surfaceText(), expected);
+    }
+
     void aWideCharacterIsNotSplitByRewrapping()
     {
         initSurface({20, 6});

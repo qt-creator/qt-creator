@@ -259,7 +259,7 @@ bool Scrollback::popRow(int cols, VTermScreenCell *cells)
     if (subRow == 0)
         m_lines.erase(m_lines.begin() + lineIndex);
     else
-        line.takeRows(m_width, subRow);
+        line = line.takeRows(m_width, subRow);
 
     rebuildIndex();
     return true;
