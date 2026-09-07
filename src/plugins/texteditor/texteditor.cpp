@@ -797,6 +797,7 @@ public:
                             int cursorPosition) const;
     void paintAdditionalVisualWhitespaces(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintIndentDepth(PaintEventData &data, QPainter &painter, const PaintEventBlockData &blockData);
+    QRectF replacementRect(const QTextBlock &block, const QRectF &lineRect) const;
     void paintReplacement(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintWidgetBackground(const PaintEventData &data, QPainter &painter) const;
     void paintOverlays(const PaintEventData &data, QPainter &painter) const;
@@ -5751,6 +5752,14 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     if (lineRect.isNull())
         return;
 
+    QRectF annotationLineRect = lineRect;
+    const QTextBlock nextBlock = data.block.next();
+    if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::BetweenLines
+            && nextBlock.isValid() && !nextBlock.isVisible()
+            && q->replacementVisible(data.block.blockNumber())) {
+        annotationLineRect.setRight(replacementRect(data.block, lineRect).right());
+    }
+
     Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
         return mark1->priority() > mark2->priority();
     });
@@ -5769,15 +5778,16 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         return;
     QRectF boundingRect;
     if (m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines) {
-        boundingRect = QRectF(lineRect.bottomLeft(), blockData.boundingRect.bottomRight());
+        boundingRect = QRectF(annotationLineRect.bottomLeft(), blockData.boundingRect.bottomRight());
     } else {
-        boundingRect = QRectF(lineRect.topLeft().x(), lineRect.topLeft().y(),
-                              q->viewport()->width() - lineRect.right(), lineRect.height());
-        x = lineRect.right();
+        boundingRect = QRectF(annotationLineRect.topLeft().x(), annotationLineRect.topLeft().y(),
+                              q->viewport()->width() - annotationLineRect.right(),
+                              annotationLineRect.height());
+        x = annotationLineRect.right();
         if (m_displaySettings.m_annotationAlignment == AnnotationAlignment::NextToMargin
-                && data.rightMargin > lineRect.right() + offset
+                && data.rightMargin > annotationLineRect.right() + offset
                 && q->viewport()->width() > data.rightMargin + minimalContentWidth) {
-            offset = data.rightMargin - lineRect.right();
+            offset = data.rightMargin - annotationLineRect.right();
         } else if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::NextToContent) {
             marks = availableMarks(marks, boundingRect, q->fontMetrics(), itemOffset);
             if (boundingRect.width() > 0)
@@ -6273,6 +6283,17 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     painter.restore();
 }
 
+QRectF TextEditorWidgetPrivate::replacementRect(const QTextBlock &block,
+                                                const QRectF &lineRect) const
+{
+    const QString replacement = QLatin1String(" {") + q->foldReplacementText(block)
+                                + QLatin1String("}; ");
+    return QRectF(lineRect.right() + 12,
+                  lineRect.top(),
+                  q->fontMetrics().horizontalAdvance(replacement),
+                  lineRect.height());
+}
+
 void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &painter,
                                                qreal top) const
 {
@@ -6304,12 +6325,7 @@ void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &p
         lineRect.adjust(0, 0, -1, -1);
 
         QString replacement = q->foldReplacementText(data.block);
-        QString rectReplacement = QLatin1String(" {") + replacement + QLatin1String("}; ");
-
-        QRectF collapseRect(lineRect.right() + 12,
-                            lineRect.top(),
-                            q->fontMetrics().horizontalAdvance(rectReplacement),
-                            lineRect.height());
+        const QRectF collapseRect = replacementRect(data.block, lineRect);
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.translate(.5, .5);
         painter.drawRoundedRect(collapseRect.adjusted(0, 0, 0, -1), 3, 3);
