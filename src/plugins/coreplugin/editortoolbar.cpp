@@ -27,6 +27,7 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QPointer>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -83,6 +84,7 @@ struct EditorToolBarPrivate
     QHBoxLayout *m_toplayout = nullptr;
 
     QPoint m_dragStartPosition;
+    QPointer<QWidget> m_focusBeforeListContextMenu;
 
     bool m_isStandalone;
 };
@@ -128,6 +130,8 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_activeToolBar = d->m_defaultToolBar;
 
     d->m_lockButton->setEnabled(false);
+
+    d->m_editorList->installEventFilter(this);
 
     d->m_dragHandle->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
     d->m_dragHandle->setToolTip(Tr::tr("Drag to open the document in another split."));
@@ -193,6 +197,9 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
        QMenu menu;
        fillListContextMenu(&menu);
        menu.exec(d->m_editorList->mapToGlobal(p));
+       if (d->m_focusBeforeListContextMenu && d->m_editorList->hasFocus())
+           d->m_focusBeforeListContextMenu->setFocus();
+       d->m_focusBeforeListContextMenu = nullptr;
     });
     connect(d->m_dragHandleMenu, &QMenu::aboutToShow, this, [this] {
        fillListContextMenu(d->m_dragHandleMenu);
@@ -449,6 +456,14 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
 
 bool EditorToolBar::eventFilter(QObject *obj, QEvent *event)
 {
+    if (obj == d->m_editorList) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            auto me = static_cast<QMouseEvent *>(event);
+            if (me->button() == Qt::RightButton)
+                d->m_focusBeforeListContextMenu = QApplication::focusWidget();
+        }
+        return Utils::StyledBar::eventFilter(obj, event);
+    }
     if (obj == d->m_dragHandle) {
         if (event->type() == QEvent::MouseButtonPress) {
             auto me = static_cast<QMouseEvent *>(event);
