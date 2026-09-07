@@ -109,7 +109,7 @@ public:
         m_timer->start();
     }
 
-    bool isRunning() const override { return m_socket.isOpen(); }
+    bool isRunning() const override { return m_socket.state() == QTcpSocket::ConnectedState; }
     void writeRaw(const QByteArray &data) override
     {
         if (m_socket.isOpen())
