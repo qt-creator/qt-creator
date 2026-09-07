@@ -13,6 +13,7 @@
 #include <QJsonObject>
 #include <QMap>
 #include <QQueue>
+#include <QSet>
 
 #include <optional>
 
@@ -74,10 +75,12 @@ protected:
     void handleReadMemory(const QJsonObject &response);
     void handleDisassemble(const QJsonObject &response);
     void handleBreakpointsSet(const QJsonObject &response);
+    void handleBreakpointChanged(const QJsonObject &event);
     void reportStop();
-    void reportInferiorDone(const InferiorResultData &result);
+    void reportInferiorDone(InferiorResultData result);
 
     int postRequest(const QString &command, const QJsonObject &arguments = {});
+    void logRequest(int seq, const QString &command, const QJsonObject &arguments);
     // The launch body is this layer's passthrough configuration; a superset
     // builds its own from what it was started with.
     virtual void postLaunchOrAttach();
@@ -108,6 +111,11 @@ protected:
     bool m_runReported = false;
     bool m_runRequestPending = false;
     std::optional<InferiorResultData> m_pendingResult;
+    bool m_inferiorDoneReported = false;
+    // A detach ends the session without ending the debuggee, and the adapter
+    // reports the end of the session the same way either way.
+    bool m_detaching = false;
+    bool m_shuttingDown = false;
 
     // The stop event carries no frame, so the location has to be asked for.
     class StackTraceRequest
@@ -124,6 +132,7 @@ protected:
 private:
     void sendBreakpointsFor(const Utils::FilePath &file);
     void sendFunctionBreakpoints();
+    void sendDetach();
     void queueVariables(const QString &iname, int reference);
     void continueLocalsWalk();
     void reportLocals();
@@ -135,7 +144,11 @@ private:
     {
     public:
         quint64 requestId = 0;
+        BreakpointOp op = BreakpointOp::Insert;
         int modelId = 0;
+        // What the adapter answered for it, which is how a later change to it
+        // is named.
+        QString responseId;
         BreakpointParameters params;
         bool enabled = true;
     };
@@ -143,6 +156,11 @@ private:
     QList<Breakpoint> m_functionBreakpoints;
     // Which file's answer a setBreakpoints reply is, routed by sequence number.
     QHash<int, Utils::FilePath> m_breakpointRequests;
+    // The same for the function breakpoints, which are one array of their own.
+    QSet<int> m_functionBreakpointRequests;
+
+    // Finds the request a change the adapter reports belongs to.
+    const Breakpoint *breakpointForResponseId(const QString &responseId) const;
 
     // One node of the locals tree. The protocol answers a level at a time, so
     // the tree is collected flat and assembled once the walk is done.
@@ -159,6 +177,8 @@ private:
         QStringList childINames;
     };
     quint64 m_localsRequestId = 0;
+    // The locals fetch, kept for RepeatLastCommand.
+    std::optional<RefreshRequest> m_lastLocalsRequest;
     QSet<QString> m_expandedINames;
     QMap<QString, Local> m_locals;
     QStringList m_localRoots;
@@ -171,6 +191,7 @@ private:
     public:
         quint64 requestId = 0;
         quint64 address = 0;
+        quint64 length = 0;
     };
     QHash<int, MemoryRequest> m_memoryRequests;
 

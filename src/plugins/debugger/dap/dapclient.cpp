@@ -60,6 +60,7 @@ int DapClient::postRequest(const QString &command, const QJsonObject &arguments)
     qCDebug(logCategory()) << msg;
 
     m_dataProvider->writeRaw(msg);
+    emit requestSent(requestSeq, command, arguments);
     return requestSeq;
 }
 

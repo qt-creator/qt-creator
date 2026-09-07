@@ -55,9 +55,13 @@ static DebuggerEngineSetupData dapImplSetupData()
     // adapter turns out not to have them.
     data.capabilities = BreakConditionCapability | ShowMemoryCapability
                       | DisassemblerCapability | OperateByInstructionCapability;
+    data.extraCapabilities = DebuggerExtraCapability::Detach
+                           | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
+        if (query.startMode == AttachToCore)
+            return false;
         return query.type == BreakpointByFileAndLine || query.type == BreakpointByFunction;
     };
     return data;
@@ -133,6 +137,8 @@ void DapImpl::start()
 
     m_client = new DapImplClient(provider, this);
 
+    connect(m_client, &DapClient::requestSent,
+            this, &DapImpl::logRequest);
     connect(m_client, &DapClient::started,
             this, &DapImpl::handleStarted);
     connect(m_client, &DapClient::done,
@@ -196,12 +202,15 @@ void DapImpl::reportUnsupported(const QString &what)
 int DapImpl::postRequest(const QString &command, const QJsonObject &arguments)
 {
     QTC_ASSERT(m_client, return -1);
-    const int seq = m_client->postRequest(command, arguments);
+    return m_client->postRequest(command, arguments);
+}
+
+void DapImpl::logRequest(int seq, const QString &command, const QJsonObject &arguments)
+{
     emit message(QString::number(seq) + command + '('
                      + QString::fromUtf8(QJsonDocument(arguments).toJson(QJsonDocument::Compact))
                      + ')',
                  LogInput);
-    return seq;
 }
 
 void DapImpl::postLaunchOrAttach()
@@ -216,9 +225,9 @@ void DapImpl::shutdownInferior(ShutdownMode mode)
         emit inferiorEvent(InferiorEvent::ShutdownFinished);
         return;
     }
+    m_shuttingDown = true;
     if (mode == ShutdownMode::Detach) {
-        postRequest("disconnect", QJsonObject{{"restart", false},
-                                              {"terminateDebuggee", false}});
+        sendDetach();
     } else if (m_client->capabilities().supportsTerminateRequest) {
         postRequest("terminate", QJsonObject{{"restart", false}});
     } else {
@@ -230,7 +239,10 @@ void DapImpl::shutdownInferior(ShutdownMode mode)
 void DapImpl::shutdownEngine()
 {
     if (m_client) {
-        m_client->sendDisconnect();
+        // DapClient::sendDisconnect() takes the debuggee with it, which is the
+        // one thing a session that detached must not do.
+        if (!m_detaching)
+            m_client->sendDisconnect();
         m_client->dataProvider()->kill();
     }
     emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
@@ -249,6 +261,12 @@ void DapImpl::execute(const ExecutionRequest &request)
 
     switch (request.command) {
     case ExecutionCommand::Continue:
+        // A resume the engine asked for before it heard that the debuggee had
+        // ended. There is nothing left for the adapter to continue.
+        if (m_inferiorDoneReported) {
+            emit inferiorEvent(InferiorEvent::InferiorIll);
+            return;
+        }
         m_stopRequested = false;
         reportRunRequested();
         m_client->sendContinue(m_currentThreadId);
@@ -274,14 +292,14 @@ void DapImpl::execute(const ExecutionRequest &request)
         m_client->sendStepOut(m_currentThreadId);
         return;
     case ExecutionCommand::Detach:
-        m_client->sendDisconnect();
+        sendDetach();
         return;
     case ExecutionCommand::Abort:
         m_client->sendTerminate();
         return;
     case ExecutionCommand::JumpToLine:
         if (!m_client->capabilities().supportsGotoTargetsRequest) {
-            reportUnsupported("Jump to Line");
+            reportUnsupported(Tr::tr("Jump to Line"));
             return;
         }
         postRequest("gotoTargets",
@@ -290,16 +308,28 @@ void DapImpl::execute(const ExecutionRequest &request)
                                 {"line", request.context.textPosition.line}});
         return;
     case ExecutionCommand::RunToLine:
+        reportUnsupported(Tr::tr("Run to Line"));
+        return;
     case ExecutionCommand::RunToFunction:
-        reportUnsupported("Run to Line");
+        reportUnsupported(Tr::tr("Run to Function"));
+        return;
+    case ExecutionCommand::RepeatLastCommand:
+        if (m_lastLocalsRequest)
+            refresh(*m_lastLocalsRequest);
         return;
     case ExecutionCommand::Return:
     case ExecutionCommand::ResetInferior:
     case ExecutionCommand::RecordReverse:
-    case ExecutionCommand::RepeatLastCommand:
         reportUnsupported(Tr::tr("this command"));
         return;
     }
+}
+
+void DapImpl::sendDetach()
+{
+    m_detaching = true;
+    postRequest("disconnect", QJsonObject{{"restart", false},
+                                          {"terminateDebuggee", false}});
 }
 
 void DapImpl::sendBreakpointsFor(const FilePath &file)
@@ -347,7 +377,10 @@ void DapImpl::sendFunctionBreakpoints()
             item.insert("condition", breakpoint.params.condition);
         breakpoints.append(item);
     }
-    m_client->setFunctionBreakpoints(breakpoints);
+    const int seq = m_client->postRequest("setFunctionBreakpoints",
+                                          QJsonObject{{"breakpoints", breakpoints}});
+    if (seq >= 0)
+        m_functionBreakpointRequests.insert(seq);
 }
 
 void DapImpl::changeBreakpoint(const BreakpointChangeRequest &request)
@@ -362,68 +395,97 @@ void DapImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     }
 
     const BreakpointParameters &params = request.params;
-    const bool byFunction = params.type == BreakpointByFunction;
-    const FilePath file = params.fileName;
+    bool byFunction = params.type == BreakpointByFunction;
+    FilePath file = params.fileName;
+    bool inArray = false;
 
-    QList<Breakpoint> &list = byFunction ? m_functionBreakpoints
-                                         : m_sourceBreakpoints[file];
-    const auto sameModel = [&request](const Breakpoint &b) {
-        return b.modelId == request.modelId;
-    };
-
-    switch (request.op) {
-    case BreakpointOp::Insert:
-        list.append({request.requestId, request.modelId, params, params.enabled});
-        break;
-    case BreakpointOp::Remove:
-        Utils::eraseOne(list, sameModel);
-        break;
-    case BreakpointOp::Update:
-        if (const auto it = std::find_if(list.begin(), list.end(), sameModel);
-            it != list.end()) {
-            it->params = params;
+    if (request.op == BreakpointOp::Insert) {
+        QList<Breakpoint> &list = byFunction ? m_functionBreakpoints
+                                             : m_sourceBreakpoints[file];
+        list.append({request.requestId, request.op, request.modelId, {}, params,
+                     params.enabled});
+        inArray = params.enabled;
+    } else {
+        // A change names the breakpoint by what the adapter called it and
+        // brings no location along, so which array has to go out again is
+        // looked up rather than taken from the request.
+        const auto named = [&request](const Breakpoint &breakpoint) {
+            if (!request.responseId.isEmpty())
+                return breakpoint.responseId == request.responseId;
+            return !request.params.fileName.isEmpty()
+                   && breakpoint.modelId == request.modelId;
+        };
+        QList<Breakpoint> *list = nullptr;
+        if (Utils::contains(m_functionBreakpoints, named)) {
+            byFunction = true;
+            list = &m_functionBreakpoints;
+        } else {
+            for (auto it = m_sourceBreakpoints.begin(); it != m_sourceBreakpoints.end(); ++it) {
+                if (Utils::contains(*it, named)) {
+                    byFunction = false;
+                    file = it.key();
+                    list = &*it;
+                    break;
+                }
+            }
+        }
+        if (!list) {
+            emit breakpointEvent(request.requestId, request.op, false);
+            return;
+        }
+        const auto it = std::find_if(list->begin(), list->end(), named);
+        if (request.op == BreakpointOp::Remove) {
+            list->erase(it);
+        } else {
+            if (!params.fileName.isEmpty())
+                it->params = params;
             it->enabled = params.enabled;
             it->requestId = request.requestId;
+            it->op = request.op;
+            inArray = it->enabled;
         }
-        break;
-    case BreakpointOp::EnableSub:
-        QTC_CHECK(false);
-        break;
     }
 
     // Until the adapter says it is ready for configuration, the set is only
     // remembered: DAP takes breakpoints between "initialized" and
     // "configurationDone", not before.
-    if (!m_configured)
-        return;
+    if (m_configured) {
+        if (byFunction)
+            sendFunctionBreakpoints();
+        else
+            sendBreakpointsFor(file);
+    }
 
-    if (byFunction)
-        sendFunctionBreakpoints();
-    else
-        sendBreakpointsFor(file);
-
-    // A removal has no reply of its own: the whole file goes out again and the
-    // answer only lists what is left, so it is acknowledged here.
-    if (request.op == BreakpointOp::Remove)
-        emit breakpointEvent(request.requestId, BreakpointOp::Remove, true);
+    // The answer to a setBreakpoints lists what was sent, so only what is in
+    // the array gets a reply of its own. A removal is not, and neither is a
+    // disabled breakpoint - DAP expresses that by leaving it out.
+    if (!inArray)
+        emit breakpointEvent(request.requestId, request.op, true);
 }
 
 void DapImpl::handleBreakpointsSet(const QJsonObject &response)
 {
     const int seq = response.value("request_seq").toInt();
+    const bool byFunction = m_functionBreakpointRequests.remove(seq);
     const FilePath file = m_breakpointRequests.take(seq);
+    QList<Breakpoint> &known = byFunction ? m_functionBreakpoints : m_sourceBreakpoints[file];
     const QJsonArray reported = response.value("body").toObject()
                                     .value("breakpoints").toArray();
 
     // The answer is positional: it lists the breakpoints that were sent, in the
     // order they were sent, so only the enabled ones line up with it.
     QList<Breakpoint> sent;
-    for (const Breakpoint &breakpoint : m_sourceBreakpoints.value(file)) {
-        if (breakpoint.enabled)
-            sent.append(breakpoint);
+    for (Breakpoint &breakpoint : known) {
+        if (!breakpoint.enabled)
+            continue;
+        // What the adapter calls it is how a later change to it will be named.
+        const QJsonObject item = reported.at(sent.size()).toObject();
+        if (item.contains("id"))
+            breakpoint.responseId = QString::number(item.value("id").toInt());
+        sent.append(breakpoint);
     }
 
-    for (int i = 0; i < sent.size() && i < reported.size(); ++i) {
+    for (int i = 0; i < sent.size(); ++i) {
         const QJsonObject item = reported.at(i).toObject();
         const bool verified = item.value("verified").toBool();
         GdbMi bkpt;
@@ -438,10 +500,64 @@ void DapImpl::handleBreakpointsSet(const QJsonObject &response)
         data.addChild(bkpt);
         // An unverified breakpoint is one the adapter has taken but not bound
         // yet, which is what a breakpoint set before the program is loaded
-        // always is. Only "failed" says it was refused.
-        emit breakpointEvent(sent.at(i).requestId, BreakpointOp::Insert,
-                             verified || item.value("reason").toString() != "failed", data);
+        // always is. Only "failed" says it was refused - as does an answer that
+        // does not list it at all, which a refused request lists nothing in.
+        const bool taken = i < reported.size()
+                           && (verified || item.value("reason").toString() != "failed");
+        emit breakpointEvent(sent.at(i).requestId, sent.at(i).op, taken, data);
     }
+}
+
+const DapImpl::Breakpoint *DapImpl::breakpointForResponseId(const QString &responseId) const
+{
+    for (const QList<Breakpoint> &known : m_sourceBreakpoints) {
+        for (const Breakpoint &breakpoint : known) {
+            if (breakpoint.responseId == responseId)
+                return &breakpoint;
+        }
+    }
+    for (const Breakpoint &breakpoint : m_functionBreakpoints) {
+        if (breakpoint.responseId == responseId)
+            return &breakpoint;
+    }
+    return nullptr;
+}
+
+void DapImpl::handleBreakpointChanged(const QJsonObject &event)
+{
+    const QJsonObject body = event.value("body").toObject();
+    // "new" and "removed" are about breakpoints of the adapter's own making,
+    // which nothing here has a request to answer for.
+    if (body.value("reason").toString() != "changed")
+        return;
+
+    const QJsonObject item = body.value("breakpoint").toObject();
+    const QString responseId = QString::number(item.value("id").toInt());
+    GdbMi bkpt;
+    bkpt.m_type = GdbMi::Tuple;
+    bkpt.addChild(constMi("number", responseId));
+    if (item.contains("line"))
+        bkpt.addChild(constMi("line", QString::number(item.value("line").toInt())));
+    const QString path = item.value("source").toObject().value("path").toString();
+    if (!path.isEmpty()) {
+        bkpt.addChild(constMi("file", path));
+        bkpt.addChild(constMi("fullname", path));
+    }
+    const QString address = item.value("instructionReference").toString();
+    if (address.startsWith("0x"))
+        bkpt.addChild(constMi("addr", address));
+    // A field the update does not carry counts as the default rather than as
+    // unchanged, so what the event leaves out is filled in from the request.
+    if (const Breakpoint *known = breakpointForResponseId(responseId)) {
+        bkpt.addChild(constMi("enabled", known->enabled ? "y" : "n"));
+        if (!known->params.condition.isEmpty())
+            bkpt.addChild(constMi("cond", known->params.condition));
+    }
+
+    GdbMi data;
+    data.m_type = GdbMi::List;
+    data.addChild(bkpt);
+    emit breakpointModified(data);
 }
 
 void DapImpl::refresh(const RefreshRequest &request)
@@ -450,6 +566,7 @@ void DapImpl::refresh(const RefreshRequest &request)
 
     switch (request.kind) {
     case RefreshKind::Locals:
+        m_lastLocalsRequest = request;
         m_localsRequestId = request.requestId;
         m_expandedINames = request.expandedINames;
         m_locals.clear();
@@ -469,6 +586,17 @@ void DapImpl::refresh(const RefreshRequest &request)
     case RefreshKind::Threads:
         if (const int seq = m_client->postRequest("threads"); seq >= 0)
             m_threadRequests.insert(seq, request.requestId);
+        return;
+    case RefreshKind::AllSymbols:
+        // Nothing loads symbols over the protocol; what the caller is after is
+        // what the adapter reads them for.
+        refresh({request.requestId, RefreshKind::FullStack});
+        refresh({request.requestId, RefreshKind::Locals});
+        return;
+    case RefreshKind::DebuggingHelpers:
+        // There are no dumpers behind a stock adapter, so reloading them is
+        // asking it for the values again.
+        refresh({request.requestId, RefreshKind::Locals});
         return;
     default:
         // Modules, registers, symbols and snapshots have no counterpart the
@@ -493,6 +621,11 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         return;
     }
 
+    // The handlers below read a body an unsuccessful answer does not have, so
+    // the reason it gives is passed on here or nowhere.
+    if (!success && !command.isEmpty())
+        emit message(command + ": " + response.value("message").toString(), LogError);
+
     switch (type) {
     case DapResponseType::Initialize:
         return;
@@ -507,6 +640,7 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         if (m_pendingResult) {
             const InferiorResultData result = *m_pendingResult;
             m_pendingResult.reset();
+            m_inferiorDoneReported = true;
             emit inferiorDone(result);
         }
         return;
@@ -533,14 +667,13 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
             emit inferiorEvent(InferiorEvent::StopFailed);
         return;
     case DapResponseType::SetBreakpoints:
+    case DapResponseType::SetFunctionBreakpoints:
         handleBreakpointsSet(response);
         return;
     case DapResponseType::Launch:
     case DapResponseType::Attach:
-        if (!success) {
-            emit message(response.value("message").toString(), LogError);
+        if (!success)
             emit inferiorEvent(InferiorEvent::EngineRunFailed);
-        }
         return;
     case DapResponseType::Evaluate:
         emit message(response.value("body").toObject().value("result").toString(),
@@ -577,7 +710,18 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         return;
     }
     if (command == "disassemble") {
-        handleDisassemble(response);
+        if (success)
+            handleDisassemble(response);
+        return;
+    }
+    if (m_shuttingDown && (command == "terminate" || command == "disconnect")) {
+        // The shutdown the engine asked for is over once the adapter has
+        // answered for it, whether or not it could do what was asked.
+        emit inferiorEvent(InferiorEvent::ShutdownFinished);
+        return;
+    }
+    if (command == "disconnect" && m_detaching) {
+        reportInferiorDone({0, InferiorExitStatus::Detached});
         return;
     }
     if (command == "gotoTargets" && success) {
@@ -589,9 +733,6 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
                                                              .value("id").toInt()}});
         }
         return;
-    }
-    if (!success && !command.isEmpty()) {
-        emit message(command + ": " + response.value("message").toString(), LogError);
     }
 }
 
@@ -610,6 +751,9 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         return;
     case DapEventType::Stopped:
         handleStopped(event);
+        return;
+    case DapEventType::DapBreakpoint:
+        handleBreakpointChanged(event);
         return;
     case DapEventType::Exited: {
         InferiorResultData result;
@@ -657,8 +801,11 @@ void DapImpl::handleStopped(const QJsonObject &event)
     m_inferiorRunning = false;
 
     const QString reason = body.value("reason").toString();
-    if (reason == "exception") {
-        emit signalReceived(reason, body.value("description").toString());
+    if (reason == "exception" || reason == "signal") {
+        // The protocol names no signals. "text" is where an adapter says what
+        // it was, if it says anything at all.
+        emit signalReceived(body.value("text").toString(),
+                            body.value("description").toString());
     }
 
     // Report the stop only once the location is known, as the other backends do.
@@ -672,13 +819,22 @@ void DapImpl::handleStopped(const QJsonObject &event)
 
 // An adapter can be done before the engine has been told the run started, and
 // the engine only accepts the two in that order.
-void DapImpl::reportInferiorDone(const InferiorResultData &result)
+void DapImpl::reportInferiorDone(InferiorResultData result)
 {
+    if (m_inferiorDoneReported)
+        return;
     m_inferiorRunning = false;
+    // The engine asked for this end. It hears about it as the answer to its own
+    // request, and an exit reported on top of that is one it would act on.
+    if (m_shuttingDown)
+        return;
+    if (m_detaching)
+        result.exitStatus = InferiorExitStatus::Detached;
     if (!m_runReported) {
         m_pendingResult = result;
         return;
     }
+    m_inferiorDoneReported = true;
     emit inferiorDone(result);
 }
 
@@ -900,7 +1056,7 @@ void DapImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64
                                               QJsonObject{{"memoryReference", reference},
                                                           {"count", qint64(lengthOrSize)}});
         if (seq >= 0)
-            m_memoryRequests.insert(seq, {requestId, addr});
+            m_memoryRequests.insert(seq, {requestId, addr, lengthOrSize});
         return;
     }
     if (!m_client->capabilities().supportsWriteMemoryRequest) {
@@ -915,8 +1071,14 @@ void DapImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64
 void DapImpl::handleReadMemory(const QJsonObject &response)
 {
     const MemoryRequest request = m_memoryRequests.take(response.value("request_seq").toInt());
-    const QByteArray data = QByteArray::fromBase64(
+    if (request.length == 0)
+        return;
+    QByteArray data = QByteArray::fromBase64(
         response.value("body").toObject().value("data").toString().toUtf8());
+    // A read the adapter refused, or answered only in part, is still an answer:
+    // what could not be read reads as zero, as it does in the other backends.
+    data.truncate(qsizetype(request.length));
+    data.append(QByteArray(qsizetype(request.length) - data.size(), char(0)));
     emit memoryDataReceived(request.requestId, request.address, data);
 }
 
@@ -945,6 +1107,11 @@ void DapImpl::handleDisassemble(const QJsonObject &response)
     const DisassemblyRequest request
         = m_disassemblyRequests.take(response.value("request_seq").toInt());
     DisassemblerLines lines;
+    QString function;
+    quint64 functionAddress = 0;
+    QString sourceFile;
+    int sourceLine = 0;
+    int bytesLength = 0;
     for (const QJsonValue &value : response.value("body").toObject()
                                        .value("instructions").toArray()) {
         const QJsonObject item = value.toObject();
@@ -952,8 +1119,32 @@ void DapImpl::handleDisassemble(const QJsonObject &response)
         line.address = item.value("address").toString().toULongLong(nullptr, 0);
         line.data = item.value("instruction").toString();
         line.bytes = item.value("instructionBytes").toString();
+        bytesLength = qMax(bytesLength, int(line.bytes.size()));
+
+        // Only the instruction a function starts at is named, so the ones after
+        // it belong to the last name seen.
+        const QString symbol = item.value("symbol").toString();
+        if (!symbol.isEmpty() && symbol != function) {
+            function = symbol;
+            functionAddress = line.address;
+            DisassemblerLine header;
+            header.data = "Function: " + symbol;
+            lines.appendLine(header);
+        }
+        line.function = function;
+        if (functionAddress != 0 && line.address >= functionAddress)
+            line.offset = uint(line.address - functionAddress);
+
+        const QString file = item.value("location").toObject().value("path").toString();
+        const int number = item.value("line").toInt();
+        if (!file.isEmpty() && number != 0 && (file != sourceFile || number != sourceLine)) {
+            sourceFile = file;
+            sourceLine = number;
+            lines.appendSourceLine(file, number);
+        }
         lines.appendLine(line);
     }
+    lines.setBytesLength(bytesLength);
     emit disassemblyReceived(request.requestId, lines);
 }
 

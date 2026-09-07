@@ -939,6 +939,8 @@ private slots:
     void sendsNoRequestADapAdapterCannotAnswer();
     void reportsTheThreadsADapAdapterListsAgainstTheStoppedOne();
     void stepsTheThreadThatWasSelectedFromADapAdapter();
+    void reportsADetachFromADapAdapterAsOne();
+    void acknowledgesEveryBreakpointADapAdapterAnswersFor();
 
     void testAdditionalQmlStackCapability_data() { addBackendRows(); }
     void testAdditionalQmlStackCapability();
@@ -9787,9 +9789,10 @@ class AdverseDapAdapter : public FakeDapAdapter
 };
 
 // An adapter that can be driven: it keeps every request it was sent, it stops
-// when the configuration is done and again after each step, and it has two
-// threads. It offers no capability beyond the configuration request, so a jump
-// has nothing to go on. A resume is answered but never followed by a stop.
+// when the configuration is done and again after each step, it has two threads,
+// and it takes every breakpoint it is sent. It offers no capability beyond the
+// configuration and the function breakpoints, so a jump has nothing to go on. A
+// resume is answered but never followed by a stop.
 class DrivenDapAdapter : public FakeDapAdapter
 {
 public:
@@ -9818,8 +9821,29 @@ private:
         m_requests.append(request);
         const QString command = request.value("command").toString();
         if (command == "initialize") {
-            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true}});
+            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true},
+                                         {"supportsFunctionBreakpoints", true}});
             sendEvent("initialized");
+            return;
+        }
+        if (command == "disconnect") {
+            // The session ends as the adapter lets go, before it gets round to
+            // answering for the request that ended it.
+            sendEvent("terminated");
+            respond(request, QJsonObject{});
+            return;
+        }
+        if (command == "setBreakpoints" || command == "setFunctionBreakpoints") {
+            // One answer per breakpoint that was sent, in the order they were
+            // sent, which is all the protocol says about which is which.
+            QJsonArray taken;
+            for (const QJsonValue &value : request.value("arguments").toObject()
+                                               .value("breakpoints").toArray()) {
+                taken.append(QJsonObject{{"id", ++m_breakpointId},
+                                         {"verified", true},
+                                         {"line", value.toObject().value("line")}});
+            }
+            respond(request, QJsonObject{{"breakpoints", taken}});
             return;
         }
         if (command == "threads") {
@@ -9842,6 +9866,7 @@ private:
     }
 
     QList<QJsonObject> m_requests;
+    int m_breakpointId = 100;
 };
 
 // The engine takes the run being reported and its outcome only in that order,
@@ -10273,6 +10298,139 @@ void tst_backends::stepsTheThreadThatWasSelectedFromADapAdapter()
 
     // The thread the user picked is the one that steps, whatever last stopped.
     QCOMPARE(adapter.argumentsOf("stepIn").value("threadId").toInt(), 4);
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::reportsADetachFromADapAdapterAsOne()
+{
+    DrivenDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "driven";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> threadsById;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&threadsById](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Threads)
+            threadsById[requestId] = data;
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    debuggerBackend.execute({ExecutionCommand::Detach});
+    QTRY_VERIFY2_WITH_TIMEOUT(!debuggerBackend.inferiorResults().isEmpty(),
+                              "a detach was never answered for", s_timeout);
+
+    // Letting go of the debuggee is the whole of what tells a detach from an
+    // exit, at both ends: the adapter is told to leave it be, and the session
+    // is not reported as one that ended it.
+    QVERIFY(adapter.argumentsOf("disconnect").contains("terminateDebuggee"));
+    QVERIFY(!adapter.argumentsOf("disconnect").value("terminateDebuggee").toBool());
+    QCOMPARE(debuggerBackend.inferiorResults().constFirst().exitStatus,
+             InferiorExitStatus::Detached);
+
+    // The adapter ends the session once it has let go, and that end is not a
+    // second end of the debuggee. An answer to a later request is what proves
+    // it had arrived by the time this is checked.
+    engine->refresh({.requestId = 700, .kind = RefreshKind::Threads});
+    QTRY_VERIFY_WITH_TIMEOUT(threadsById.contains(700), s_timeout);
+    QCOMPARE(debuggerBackend.inferiorResults().size(), 1);
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::acknowledgesEveryBreakpointADapAdapterAnswersFor()
+{
+    DrivenDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "driven";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, BreakpointOp> acknowledged;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&acknowledged](quint64 requestId, BreakpointOp op, bool ok, const GdbMi &) {
+        if (ok)
+            acknowledged[requestId] = op;
+    });
+
+    BreakpointChangeRequest byLine;
+    byLine.op = BreakpointOp::Insert;
+    byLine.requestId = 601;
+    byLine.modelId = 61;
+    byLine.params.type = BreakpointByFileAndLine;
+    byLine.params.fileName = FilePath::fromString("/nonexistent/main.c");
+    byLine.params.textPosition.line = 12;
+    byLine.params.enabled = true;
+
+    BreakpointChangeRequest byFunction;
+    byFunction.op = BreakpointOp::Insert;
+    byFunction.requestId = 602;
+    byFunction.modelId = 62;
+    byFunction.params.type = BreakpointByFunction;
+    byFunction.params.functionName = "main";
+    byFunction.params.enabled = true;
+
+    // The client only exists once the session starts, and the protocol only
+    // takes breakpoints once the adapter says it is ready for them.
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, this,
+            [engine, byLine, byFunction](InferiorEvent event) {
+        if (event == InferiorEvent::EngineSetupOk) {
+            engine->changeBreakpoint(byLine);
+            engine->changeBreakpoint(byFunction);
+        }
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+
+    QTRY_VERIFY2_WITH_TIMEOUT(acknowledged.contains(601),
+                              "a breakpoint by file and line was never acknowledged", s_timeout);
+    // A breakpoint by function name is an array of its own for the protocol,
+    // and its answer comes back on its own as well.
+    QTRY_VERIFY2_WITH_TIMEOUT(acknowledged.contains(602),
+                              "a breakpoint by function name was never acknowledged", s_timeout);
+    QCOMPARE(adapter.argumentsOf("setFunctionBreakpoints").value("breakpoints").toArray()
+                 .first().toObject().value("name").toString(), QString("main"));
+
+    BreakpointChangeRequest update = byLine;
+    update.op = BreakpointOp::Update;
+    update.requestId = 603;
+    update.params.condition = "x == 1";
+    engine->changeBreakpoint(update);
+    QTRY_VERIFY2_WITH_TIMEOUT(acknowledged.contains(603),
+                              "a breakpoint update was never acknowledged", s_timeout);
+    QCOMPARE(adapter.argumentsOf("setBreakpoints", 1).value("breakpoints").toArray()
+                 .first().toObject().value("condition").toString(), QString("x == 1"));
+
+    // What the engine is told happened is what it asked for: the file's whole
+    // array goes out again for an update, but only one breakpoint changed.
+    QCOMPARE(acknowledged.value(601), BreakpointOp::Insert);
+    QCOMPARE(acknowledged.value(602), BreakpointOp::Insert);
+    QCOMPARE(acknowledged.value(603), BreakpointOp::Update);
 
     engine->shutdownEngine();
 }

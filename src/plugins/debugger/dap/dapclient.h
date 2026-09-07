@@ -162,6 +162,10 @@ signals:
     void done();
     void readyReadStandardError();
 
+    // What went out, for whoever logs the traffic: every request passes here,
+    // not only the ones a caller assembled itself.
+    void requestSent(int seq, const QString &command, const QJsonObject &arguments);
+
     void responseReady(DapResponseType type, const QJsonObject &response);
     void eventReady(DapEventType type, const QJsonObject &response);
 
