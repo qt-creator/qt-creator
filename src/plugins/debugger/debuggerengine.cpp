@@ -417,6 +417,11 @@ void DebuggerRunParameters::populateQmlFileFinder(const RunControl *runControl)
 
 FilePath DebuggerRunParameters::mapToProjectPath(const QString &debuggerOutput) const
 {
+    // resolvePath() answers an empty path with the build directory itself,
+    // which without a build configuration is the debugger executable.
+    if (debuggerOutput.isEmpty())
+        return {};
+
     const FilePath fullBuild = m_buildDirectory.resolvePath(debuggerOutput);
     const FilePath local = fullBuild.localSource().value_or(fullBuild);
     return m_projectSourceDirectory.withNewMappedPath(local);

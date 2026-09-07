@@ -18,6 +18,7 @@
 #include <cppeditor/cpptoolstestcase.h>
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
@@ -28,6 +29,8 @@
 #include <QVersionNumber>
 #include <QSignalSpy>
 #include <QTestEventLoop>
+
+#include <memory>
 
 //#define WITH_BENCHMARK
 #ifdef WITH_BENCHMARK
@@ -69,6 +72,7 @@ private slots:
     void testRegisterValue();
 
     void testInferiorStartData();
+    void testMapsAnEmptyFileNameToNothing();
 
 private:
     CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
@@ -449,6 +453,24 @@ void DebuggerUnitTests::testInferiorStartData()
         QCOMPARE(remoteData->attachPid.pid(), 4711);
         QVERIFY(remoteData->remoteExecutable.isEmpty());
     }
+}
+
+// A session without a build configuration - an attach, or a foreign debug
+// adapter - has none, and the debugger's own path stands in for one.
+void DebuggerUnitTests::testMapsAnEmptyFileNameToNothing()
+{
+    Kit *kit = KitManager::defaultKit();
+    QVERIFY(kit);
+
+    const std::unique_ptr<RunControl> runControl(
+        new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE));
+    runControl->setKit(kit);
+    const DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl.get());
+    if (rp.buildDirectory().isEmpty())
+        QSKIP("The kit has no debugger to stand in for a build directory.");
+
+    // What a stack frame that names no file would otherwise be opened from.
+    QVERIFY(rp.mapToProjectPath({}).isEmpty());
 }
 
 QObject *createDebuggerTest()
