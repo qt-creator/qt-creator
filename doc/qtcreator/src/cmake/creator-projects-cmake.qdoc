@@ -99,6 +99,40 @@
     box. The change takes effect after you go to \uicontrol Build and select
     \uicontrol {Run CMake}.
 
+    \section1 Find header files not listed as sources
+
+    CMake does not need the header files of a target to be listed in
+    \c add_executable() or \c add_library(), because the compiler reports them
+    while it compiles the sources. \QC lists the files that the project lists,
+    so a header that is left out is missing from the \uicontrol Projects view,
+    and the code model has to guess which include paths and preprocessor
+    definitions apply to it.
+
+    To ask the compiler for the header files instead, go to \preferences >
+    \uicontrol CMake > \uicontrol General, and select
+    \uicontrol {Find header files by asking the compiler}.
+
+    \QC then runs the compiler in dependency mode over the source files of the
+    project and adds the header files that they include to the
+    \uicontrol Projects view and to the code model. Only the header files
+    inside the source directory and the build directory are added. The rest
+    come from the compiler or from an installed package, and the include paths
+    of the project already cover them.
+
+    The header files appear in the \uicontrol {Header Files} group of the
+    target that compiles the source file which includes them. Because there is
+    no entry for them in the CMake files, you cannot remove or rename them from
+    the \uicontrol Projects view.
+
+    The first run scans the whole project, which takes a while on a large one,
+    and shows its progress in the \uicontrol Progress bar. \QC keeps the result
+    in the build directory and afterwards only scans the source files whose
+    header files changed.
+
+    \note Header files that nothing includes stay hidden, as do the ones that
+    only a build configuration other than the current one includes. Listing the
+    header files in the CMake files is still the only way to show them all.
+
     \sa {Build with CMake}{How to: Build with CMake}, {CMake}, {Open projects},
     {File System}, {Projects}
 */

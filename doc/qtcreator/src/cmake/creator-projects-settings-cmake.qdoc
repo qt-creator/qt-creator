@@ -63,6 +63,12 @@
             source group in the \uicontrol Projects view.
         \li \l{Hide subfolder names in Projects view}
     \row
+        \li \uicontrol {Find header files by asking the compiler}
+        \li Runs the compiler in dependency mode over the source files to find
+            the header files that are not listed in the CMake files, and adds
+            them to the \uicontrol Projects view and to the code model.
+        \li \l{Find header files not listed as sources}
+    \row
         \li \uicontrol {Show advanced options by default}
         \li Shows all CMake variables by default in
             \uicontrol {Initial Configuration} and

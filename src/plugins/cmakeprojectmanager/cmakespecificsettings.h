@@ -38,6 +38,7 @@ public:
     Utils::BoolAspect askBeforePresetsReload{this};
     Utils::BoolAspect askBeforeApplyingConfigurationChanges{this};
     Utils::BoolAspect showSourceSubFolders{this};
+    Utils::BoolAspect scanHeaderDependencies{this};
     Utils::BoolAspect showAdvancedOptionsByDefault{this};
     Utils::BoolAspect useJunctionsForSourceAndBuildDirectories{this};
     Utils::BoolAspect maintenanceToolDependencyProvider{this};

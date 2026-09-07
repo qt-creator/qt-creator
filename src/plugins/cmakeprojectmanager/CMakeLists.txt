@@ -48,6 +48,9 @@ add_qtc_plugin(CMakeProjectManager
     fileapidataextractor.cpp fileapidataextractor.h
     fileapiparser.cpp fileapiparser.h
     fileapireader.cpp fileapireader.h
+    headerdependencies.cpp headerdependencies.h
+    headerdependencyscanner.cpp headerdependencyscanner.h
+    headerdependencyupdater.cpp headerdependencyupdater.h
     presetsparser.cpp presetsparser.h
     presetsmacros.cpp presetsmacros.h
     projecttreehelper.cpp projecttreehelper.h
@@ -64,6 +67,33 @@ add_qtc_test(tst_cmake_test_presets
     presetsparser.cpp
     presetsmacros.cpp
     testpresetshelper.cpp
+)
+
+add_qtc_test(tst_headerdependencies
+  CONDITION WITH_TESTS
+  DEPENDS Utils
+  SOURCES
+    tests/tst_headerdependencies.cpp
+    headerdependencies.cpp
+)
+
+add_qtc_test(tst_headerdependencyscanner
+  CONDITION WITH_TESTS
+  DEPENDS Utils ProjectExplorer
+  SOURCES
+    tests/tst_headerdependencyscanner.cpp
+    headerdependencies.cpp
+    headerdependencyscanner.cpp
+)
+
+add_qtc_test(tst_headerdependencyupdater
+  CONDITION WITH_TESTS
+  DEPENDS Utils ProjectExplorer CppEditor Core
+  SOURCES
+    tests/tst_headerdependencyupdater.cpp
+    headerdependencies.cpp
+    headerdependencyscanner.cpp
+    headerdependencyupdater.cpp
 )
 
 file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*)

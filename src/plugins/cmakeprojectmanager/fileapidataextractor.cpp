@@ -909,11 +909,65 @@ static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
     return currentNode;
 }
 
+/*!
+    Adds the headers that the compiler reported for the sources of \a td and
+    that are not listed in the project themselves.
+
+    They go where a listed header would go, so that a project which leaves its
+    headers out of add_executable() or add_library() still looks complete. They
+    are not listed in the project, because there is no entry in the CMake files
+    for an action to operate on.
+
+    Only the headers below \a sourceDirectory are shown. A generated one such as
+    \c ui_mainwindow.h lives in the build directory, and nesting it here would
+    spell out its absolute path next to the sources.
+*/
+static void addHeaderDependencies(ProjectNode *targetRoot,
+                                  const FilePath &topSourceDirectory,
+                                  const FilePath &sourceDirectory,
+                                  const TargetDetails &td,
+                                  const QHash<FilePath, FilePaths> &projectHeaders,
+                                  const QSet<FilePath> &alreadyListed)
+{
+    if (projectHeaders.isEmpty())
+        return;
+
+    FilePaths headers;
+    for (const SourceInfo &si : td.sources) {
+        const FilePath sourcePath = topSourceDirectory.resolvePath(si.path);
+        headers += projectHeaders.value(sourcePath);
+    }
+    FilePath::removeDuplicates(headers);
+
+    std::vector<std::unique_ptr<FileNode>> nodes;
+    for (const FilePath &header : headers) {
+        if (alreadyListed.contains(header) || !header.isChildOf(sourceDirectory))
+            continue;
+
+        auto node = std::make_unique<FileNode>(header, Node::fileTypeForFileName(header));
+        node->setListInProject(false);
+        nodes.emplace_back(std::move(node));
+    }
+
+    if (nodes.empty())
+        return;
+
+    static const QString headerGroup = "Header Files";
+    FolderNode *insertNode = createSourceGroupNode(headerGroup, sourceDirectory, targetRoot);
+
+    if (cmakeSettingsForProject(targetRoot->getProject()).showSourceSubFolders())
+        insertNode->addNestedNodes(std::move(nodes), sourceDirectory);
+    else
+        for (auto &node : nodes)
+            insertNode->addNode(std::move(node));
+}
+
 static void addCompileGroups(ProjectNode *targetRoot,
                              const FilePath &topSourceDirectory,
                              const FilePath &sourceDirectory,
                              const FilePath &buildDirectory,
-                             const TargetDetails &td)
+                             const TargetDetails &td,
+                             const QHash<FilePath, FilePaths> &projectHeaders)
 {
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
 
@@ -1012,6 +1066,13 @@ static void addCompileGroups(ProjectNode *targetRoot,
                     10,
                     Tr::tr("<Other Locations>"),
                     std::move(otherFileNodes));
+
+    addHeaderDependencies(targetRoot,
+                          topSourceDirectory,
+                          sourceDirectory,
+                          td,
+                          projectHeaders,
+                          alreadyListed);
 }
 
 static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLevelBuildDir,
@@ -1044,7 +1105,8 @@ static void addTargets(
     const std::vector<TargetDetails> &targetDetails,
     const FilePath &sourceDir,
     const FilePath &buildDir,
-    const QList<CMakeBuildTarget> &generatedBuildTargets)
+    const QList<CMakeBuildTarget> &generatedBuildTargets,
+    const QHash<FilePath, FilePaths> &projectHeaders)
 {
     QHash<QString, const TargetDetails *> targetDetailsHash;
     for (const TargetDetails &t : targetDetails)
@@ -1111,7 +1173,7 @@ static void addTargets(
         tNode->setTargetInformation(td.artifacts, td.type);
         tNode->setBuildDirectory(directoryBuildDir(config, buildDir, t.directory));
 
-        addCompileGroups(tNode, sourceDir, dir, tNode->buildDirectory(), td);
+        addCompileGroups(tNode, sourceDir, dir, tNode->buildDirectory(), td, projectHeaders);
         addGeneratedFilesNode(tNode, buildDir, td);
     }
 }
@@ -1122,7 +1184,8 @@ static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
     const QSet<CMakeFileInfo> &cmakeFiles,
     const FilePath &sourceDirectory,
     const FilePath &buildDirectory,
-    const QList<CMakeBuildTarget> &generatedBuildTargets)
+    const QList<CMakeBuildTarget> &generatedBuildTargets,
+    const QHash<FilePath, FilePaths> &projectHeaders)
 {
     std::unique_ptr<CMakeProjectNode> result = std::make_unique<CMakeProjectNode>(sourceDirectory);
 
@@ -1148,7 +1211,8 @@ static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
                data.targetDetails,
                sourceDirectory,
                buildDirectory,
-               generatedBuildTargets);
+               generatedBuildTargets,
+               projectHeaders);
     if (cancelFuture.isCanceled())
         return {};
 
@@ -1310,7 +1374,8 @@ static void setSubprojectBuildSupport(FileApiQtcData &result)
 // --------------------------------------------------------------------
 
 FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input,
-                           const FilePath &sourceDir, const FilePath &buildDir)
+                           const FilePath &sourceDir, const FilePath &buildDir,
+                           const QHash<FilePath, FilePaths> &projectHeaders)
 {
     FileApiQtcData result;
 
@@ -1338,7 +1403,13 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
         return {};
 
     auto rootProjectNode = generateRootProjectNode(
-        cancelFuture, data, result.cmakeFiles, sourceDir, buildDir, result.buildTargets);
+        cancelFuture,
+        data,
+        result.cmakeFiles,
+        sourceDir,
+        buildDir,
+        result.buildTargets,
+        projectHeaders);
     if (cancelFuture.isCanceled())
         return {};
     ProjectTree::applyTreeManager(rootProjectNode.get(), ProjectTree::AsyncPhase); // QRC nodes

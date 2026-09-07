@@ -68,6 +68,7 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
             askBeforeReConfigureInitialParams,
             askBeforePresetsReload,
             showSourceSubFolders,
+            scanHeaderDependencies,
             showAdvancedOptionsByDefault,
             useJunctionsForSourceAndBuildDirectories,
             st
@@ -124,6 +125,19 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
     showSourceSubFolders.setDefaultValue(true);
     showSourceSubFolders.setLabelText(
                 ::CMakeProjectManager::Tr::tr("Show subfolders inside source group folders"));
+
+    scanHeaderDependencies.setSettingsKey("ScanHeaderDependencies");
+    scanHeaderDependencies.setDefaultValue(false);
+    scanHeaderDependencies.setLabelText(
+        ::CMakeProjectManager::Tr::tr("Find header files by asking the compiler"));
+    scanHeaderDependencies.setToolTip(
+        ::CMakeProjectManager::Tr::tr(
+            "Run the compiler in dependency mode over every source file to find the "
+            "headers it includes, so that headers that are not listed in "
+            "add_executable() or add_library() still reach the code model.<br><br>"
+            "The result is stored in the build directory and only sources whose "
+            "headers changed are scanned again. The first scan after configuring "
+            "runs over the whole project and takes a while on a large one."));
 
     showAdvancedOptionsByDefault.setSettingsKey("ShowAdvancedOptionsByDefault");
     showAdvancedOptionsByDefault.setDefaultValue(false);

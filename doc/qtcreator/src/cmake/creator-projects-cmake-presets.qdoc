@@ -66,6 +66,7 @@
                "AskReConfigureInitialParams": false,
                "AutorunCMake": false,
                "PackageManagerAutoSetup": false,
+               "ScanHeaderDependencies": true,
                "ShowAdvancedOptionsByDefault": true,
                "ShowSourceSubFolders": false,
                "UseJunctionsForSourceAndBuildDirectories": true
@@ -370,13 +371,19 @@
             \l {Set up vcpkg package manager}{vcpkg} package manager for use with CMake.
         \li \l{Using CMake with Package Managers}
     \row
+        \li \c {ScanHeaderDependencies}
+        \li Runs the compiler in dependency mode over the source files to find
+            the header files that are not listed in the CMake files, and adds
+            them to the \uicontrol Projects view and to the code model.
+        \li \l{Find header files not listed as sources}
+    \row
         \li \c {ShowAdvancedOptionsByDefault}
         \li Shows all CMake variables by default in
             \uicontrol {Initial Configuration} and
             \uicontrol {Current Configuration}.
         \li \l{Viewing Advanced Variables}
     \row
-        \li \c {ShowSourceSubfolders}
+        \li \c {ShowSourceSubFolders}
         \li Hides subfolder names and arranges the files according to their
             source group in the \uicontrol Projects view.
         \li \l{Hide subfolder names in Projects view}
@@ -406,6 +413,7 @@
         "AskReConfigureInitialParams": false,
         "AutorunCMake": false,
         "PackageManagerAutoSetup": false,
+        "ScanHeaderDependencies": true,
         "ShowAdvancedOptionsByDefault": true,
         "ShowSourceSubFolders": false,
         "UseJunctionsForSourceAndBuildDirectories": true

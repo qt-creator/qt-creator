@@ -59,7 +59,8 @@ static void doParse(QPromise<FileApiQtcData> &promise,
                     const FilePath &replyFilePath,
                     const FilePath &sourceDirectory,
                     const FilePath &buildDirectory,
-                    const QString &cmakeBuildType)
+                    const QString &cmakeBuildType,
+                    const QHash<FilePath, FilePaths> &projectHeaders)
 {
     FileApiQtcData result;
     const QFuture<void> canceler(promise.future());
@@ -69,7 +70,7 @@ static void doParse(QPromise<FileApiQtcData> &promise,
                                                 cmakeBuildType,
                                                 result.errorMessage);
     if (result.errorMessage.isEmpty()) {
-        result = extractData(canceler, data, sourceDirectory, buildDirectory);
+        result = extractData(canceler, data, sourceDirectory, buildDirectory, projectHeaders);
     } else {
         qWarning() << result.errorMessage;
         result.cache = std::move(data.cache);
@@ -83,6 +84,11 @@ static void doParse(QPromise<FileApiQtcData> &promise,
 FileApiReader::~FileApiReader()
 {
     resetData();
+}
+
+void FileApiReader::setProjectHeaders(const QHash<FilePath, FilePaths> &projectHeaders)
+{
+    m_projectHeaders = projectHeaders;
 }
 
 void FileApiReader::setParameters(const BuildDirParameters &p)
@@ -183,11 +189,14 @@ void FileApiReader::parse(bool forceCMakeRun,
     const BuildDirParameters params = m_parameters;
     const QString cmakeBuildType = params.cmakeBuildType == "Build" ? "" : params.cmakeBuildType;
 
-    const auto onParseSetup = [this, params, cmakeBuildType](Async<FileApiQtcData> &task) {
+    const QHash<FilePath, FilePaths> projectHeaders = m_projectHeaders;
+
+    const auto onParseSetup = [this, params, cmakeBuildType, projectHeaders](
+                                  Async<FileApiQtcData> &task) {
         const FilePath replyFilePath = FileApiParser::scanForCMakeReplyFile(params.buildDirectory);
         m_lastReplyTimestamp = replyFilePath.lastModified();
         task.setConcurrentCallData(doParse, replyFilePath, params.sourceDirectory,
-                                   params.buildDirectory, cmakeBuildType);
+                                   params.buildDirectory, cmakeBuildType, projectHeaders);
         task.setThreadPool(ProjectExplorerPlugin::sharedThreadPool());
     };
 

@@ -51,7 +51,8 @@ public:
 };
 
 FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input,
-                           const Utils::FilePath &sourceDir, const Utils::FilePath &buildDir);
+                           const Utils::FilePath &sourceDir, const Utils::FilePath &buildDir,
+                           const QHash<Utils::FilePath, Utils::FilePaths> &projectHeaders = {});
 
 #ifdef WITH_TESTS
 QObject *createImportedLibraryDirectoriesTest();

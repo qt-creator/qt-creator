@@ -173,7 +173,36 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
 
     wireUpConnections();
 
+    wireUpHeaderDependencySetting();
+
     m_isMultiConfig = CMakeGeneratorKitAspect::isMultiConfigGenerator(bc->kit());
+}
+
+// The setting lives in the global settings or in the project's own, and which of the two
+// applies is itself a setting, so all three have to be watched for the value they add up to.
+void CMakeBuildSystem::wireUpHeaderDependencySetting()
+{
+    m_scanningHeaderDependencies
+        = cmakeSettingsForProject(project()).scanHeaderDependencies();
+
+    const auto onChanged = [this] {
+        const bool scanning = cmakeSettingsForProject(project()).scanHeaderDependencies();
+        if (scanning == m_scanningHeaderDependencies)
+            return;
+
+        m_scanningHeaderDependencies = scanning;
+        if (!scanning)
+            m_headerDependencyUpdater.cancel();
+        reparse(REPARSE_DEFAULT);
+    };
+
+    cmakeSettingsForProject(nullptr).scanHeaderDependencies.addOnChanged(this, onChanged);
+
+    if (auto cmakeProject = qobject_cast<CMakeProject *>(project())) {
+        CMakeSpecificSettings &projectSettings = cmakeProject->settings();
+        projectSettings.scanHeaderDependencies.addOnChanged(this, onChanged);
+        projectSettings.useGlobalSettings.addOnChanged(this, onChanged);
+    }
 }
 
 CMakeBuildSystem::~CMakeBuildSystem()
@@ -2481,6 +2510,9 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
     updateReparseParameters(reparseParameters);
 
     m_reader.setParameters(m_parameters);
+    m_reader.setProjectHeaders(configureHeaderDependencyUpdater()
+                                   ? m_headerDependencyUpdater.projectHeaderMap()
+                                   : QHash<FilePath, FilePaths>());
 
     if (reparseParameters & REPARSE_URGENT) {
         qCDebug(cmakeBuildSystemLog) << "calling requestReparse";
@@ -2792,8 +2824,9 @@ void CMakeBuildSystem::updateProjectData()
             rpp.setFlagsForC({kitInfo.cToolchain, cFlags, includeFileBaseDir});
     }
 
-    m_cppCodeModelUpdater->update({p, kitInfo, buildConfiguration()->environment(), rpps},
-                                  m_extraCompilers);
+    const ProjectUpdateInfo updateInfo{p, kitInfo, buildConfiguration()->environment(), rpps};
+    m_cppCodeModelUpdater->update(updateInfo, m_extraCompilers);
+    updateHeaderDependencies(updateInfo);
 
     {
         const bool mergedHeaderPathsAndQmlImportPaths = kit()->value(
@@ -2825,6 +2858,63 @@ void CMakeBuildSystem::updateProjectData()
     emit buildConfiguration()->buildTypeChanged();
 
     qCDebug(cmakeBuildSystemLog) << "All CMake project data up to date.";
+}
+
+/*!
+    Returns the prefix that \c cl prints in front of every \c /showIncludes
+    line, as \a config has it.
+
+    CMake detects the prefix per language, so a project without C++ in it only
+    has the C variant. CMake keeps the value in the compiler information file
+    of the build directory rather than in the cache, which is why
+    cmake-helper/qtcreator-project.cmake puts it there.
+*/
+static QString showIncludesPrefix(const CMakeConfig &config)
+{
+    const QString cxxPrefix = config.stringValueOf("CMAKE_CXX_CL_SHOWINCLUDES_PREFIX");
+    if (!cxxPrefix.isEmpty())
+        return cxxPrefix;
+
+    return config.stringValueOf("CMAKE_C_CL_SHOWINCLUDES_PREFIX");
+}
+
+bool CMakeBuildSystem::configureHeaderDependencyUpdater()
+{
+    if (!cmakeSettingsForProject(project()).scanHeaderDependencies()) {
+        m_headerDependencyUpdater.cancel();
+        return false;
+    }
+
+    const FilePath buildDirectory = buildConfiguration()->buildDirectory();
+    m_headerDependencyUpdater.setStoreFile(
+        buildDirectory / ProjectExplorer::Constants::PROJECT_QTC_DIR / "header-deps");
+    m_headerDependencyUpdater.setProjectDirectories(m_parameters.sourceDirectory, buildDirectory);
+    m_headerDependencyUpdater.setShowIncludesPrefix(showIncludesPrefix(m_configurationFromCMake));
+    return true;
+}
+
+void CMakeBuildSystem::updateHeaderDependencies(const ProjectUpdateInfo &updateInfo)
+{
+    if (!configureHeaderDependencyUpdater())
+        return;
+
+    m_headerDependencyUpdater.update(
+        updateInfo,
+        buildConfiguration()->environment(),
+        [this, updateInfo](const RawProjectParts &parts, bool storedResultsChanged) {
+            ProjectUpdateInfo enriched = updateInfo;
+            enriched.rawProjectParts = parts;
+            m_cppCodeModelUpdater->update(enriched, m_extraCompilers);
+
+            if (!storedResultsChanged)
+                return;
+
+            // The tree was generated before the scan ran, so generate it again from
+            // the CMake reply, now that the headers are known. A source that stays
+            // stale is scanned again on that run, but records the same result and
+            // asks for nothing.
+            reparse(REPARSE_DEFAULT);
+        });
 }
 
 void CMakeBuildSystem::updateFileSystemNodes(std::unique_ptr<FolderNode> &&folderNode)

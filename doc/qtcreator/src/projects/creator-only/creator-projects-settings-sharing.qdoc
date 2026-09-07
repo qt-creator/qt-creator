@@ -91,6 +91,7 @@
           <value type="bool" key="AskReConfigureInitialParams">false</value>
           <value type="bool" key="AutorunCMake">false</value>
           <value type="bool" key="PackageManagerAutoSetup">false</value>
+          <value type="bool" key="ScanHeaderDependencies">true</value>
           <value type="bool" key="ShowAdvancedOptionsByDefault">true</value>
           <value type="bool" key="ShowSourceSubFolders">false</value>
           <value type="bool" key="UseGlobalSettings">false</value>

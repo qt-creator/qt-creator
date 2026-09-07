@@ -7,6 +7,7 @@
 #include "cmakebuildtarget.h"
 #include "cmaketool.h"
 #include "fileapireader.h"
+#include "headerdependencyupdater.h"
 
 #include <cmakelang/cmakesignature.h>
 
@@ -240,6 +241,9 @@ private:
     void updateCMakeConfiguration();
 
     void updateProjectData();
+    void wireUpHeaderDependencySetting();
+    bool configureHeaderDependencyUpdater();
+    void updateHeaderDependencies(const ProjectExplorer::ProjectUpdateInfo &updateInfo);
     void updateExtraData();
     void updateFallbackProjectData();
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers();
@@ -279,6 +283,8 @@ private:
     ParseGuard m_currentGuard;
 
     ProjectExplorer::ProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    HeaderDependencyUpdater m_headerDependencyUpdater;
+    bool m_scanningHeaderDependencies = false;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;

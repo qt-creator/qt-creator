@@ -98,6 +98,12 @@ Project {
             "fileapiparser.h",
             "fileapireader.cpp",
             "fileapireader.h",
+            "headerdependencies.cpp",
+            "headerdependencies.h",
+            "headerdependencyscanner.cpp",
+            "headerdependencyscanner.h",
+            "headerdependencyupdater.cpp",
+            "headerdependencyupdater.h",
             "mcptools.cpp",
             "mcptools.h",
             "presetsparser.cpp",
@@ -127,6 +133,40 @@ Project {
             "presetsmacros.cpp",
             "testpresetshelper.cpp",
             "tests/tst_cmake_test_presets.cpp",
+        ]
+    }
+
+    QtcAutotest {
+        name: "CMake header dependencies test"
+        Depends { name: "Utils" }
+        files: [
+            "headerdependencies.cpp",
+            "tests/tst_headerdependencies.cpp",
+        ]
+    }
+
+    QtcAutotest {
+        name: "CMake header dependency scanner test"
+        Depends { name: "ProjectExplorer" }
+        Depends { name: "Utils" }
+        files: [
+            "headerdependencies.cpp",
+            "headerdependencyscanner.cpp",
+            "tests/tst_headerdependencyscanner.cpp",
+        ]
+    }
+
+    QtcAutotest {
+        name: "CMake header dependency updater test"
+        Depends { name: "Core" }
+        Depends { name: "CppEditor" }
+        Depends { name: "ProjectExplorer" }
+        Depends { name: "Utils" }
+        files: [
+            "headerdependencies.cpp",
+            "headerdependencyscanner.cpp",
+            "headerdependencyupdater.cpp",
+            "tests/tst_headerdependencyupdater.cpp",
         ]
     }
 }

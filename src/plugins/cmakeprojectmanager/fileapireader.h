@@ -22,6 +22,7 @@ public:
     ~FileApiReader() override;
 
     void setParameters(const BuildDirParameters &p);
+    void setProjectHeaders(const QHash<Utils::FilePath, Utils::FilePaths> &projectHeaders);
 
     void resetData();
     void parse(bool forceCMakeRun,
@@ -68,6 +69,7 @@ private:
     bool m_lastCMakeFailed = false;
 
     BuildDirParameters m_parameters;
+    QHash<Utils::FilePath, Utils::FilePaths> m_projectHeaders;
 
     // Notification on changes outside of creator:
     std::unique_ptr<Utils::FilePathWatcher> m_watcher;
