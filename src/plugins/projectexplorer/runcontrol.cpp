@@ -318,6 +318,11 @@ void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return);
     d->data.runConfigId = runConfig->id();
+
+    // The device env fetch is async, warm the cache.
+    if (const IDevice::ConstPtr device = RunDeviceKitAspect::device(runConfig->kit()))
+        device->systemEnvironmentWithError();
+
     d->data.runnable = runConfig->runnable();
     d->data.extraData = runConfig->extraData();
     d->data.displayName = runConfig->expandedDisplayName();
