@@ -36,6 +36,7 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QElapsedTimer>
 #include <QEventLoop>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -258,6 +259,8 @@ class CategoryFilterModel : public QSortFilterProxyModel
 public:
     CategoryFilterModel() = default;
 
+    void refilter() { invalidateFilter(); }
+
 private:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 };
@@ -291,8 +294,9 @@ bool CategoryFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
     const QRegularExpression regex = filterRegularExpression();
 
     for (const IOptionsPage *page : category->pages) {
-        if (page->displayCategory().contains(regex) || page->displayName().contains(regex)
-            || page->matches(regex))
+        if (page->displayCategory().contains(regex) || page->displayName().contains(regex))
+            return true;
+        if (page->hasKeywords() && page->matches(regex))
             return true;
     }
 
@@ -503,6 +507,8 @@ public:
         m_currentlySwitching = false;
     };
     void askToApplySettings(const std::function<void()> &callback);
+    void startKeywordScan();
+    void scanKeywords();
 
     bool askToLeave(bool aboutToShutdown = false); // returns true if ok to leave
 
@@ -518,6 +524,7 @@ private:
     QAbstractButton *m_sortCheckBox;
     QListView *m_categoryList;
     QLabel *m_headerLabel;
+    QTimer m_keywordTimer;
 
     LargerDialogButtonBox m_buttonBoxLong;
     LargerDialogButtonBox m_buttonBoxShort;
@@ -599,12 +606,17 @@ SettingsWidget::SettingsWidget()
             &Utils::FancyLineEdit::filterChanged,
             &m_proxyModel,
             [this](const QString &filter) {
+                if (!filter.isEmpty())
+                    startKeywordScan();
                 m_proxyModel.setFilterRegularExpression(
                     QRegularExpression(QRegularExpression::escape(filter),
                                        QRegularExpression::CaseInsensitiveOption));
             });
     connect(m_filterLineEdit, &Utils::FancyLineEdit::filterChanged,
             this, &SettingsWidget::filter);
+
+    m_keywordTimer.setInterval(10);
+    connect(&m_keywordTimer, &QTimer::timeout, this, &SettingsWidget::scanKeywords);
     m_categoryList->setFocus();
 
     Utils::Internal::setCheckSettingsDirtyHook([widget = QPointer<SettingsWidget>(this), this] {
@@ -801,6 +813,8 @@ void SettingsWidget::ensureCategoryWidget(Category *category)
         return;
 
     m_model.ensurePages(category);
+    if (!m_filterLineEdit->text().isEmpty())
+        startKeywordScan();
     auto tabWidget = new QTabWidget;
     tabWidget->tabBar()->setObjectName("qc_settings_main_tabbar"); // easier lookup in Squish
     for (IOptionsPage *page : std::as_const(category->pages)) {
@@ -822,7 +836,8 @@ void SettingsWidget::updateEnabledTabs(Category *category, const QString &search
     for (int i = 0; i < category->pages.size(); ++i) {
         const IOptionsPage *page = category->pages.at(i);
         const bool enabled = searchText.isEmpty() || page->category().toString().contains(regex)
-                             || page->displayName().contains(regex) || page->matches(regex);
+                             || page->displayName().contains(regex)
+                             || (page->hasKeywords() && page->matches(regex));
         category->tabWidget->setTabEnabled(i, enabled);
         if (enabled && firstEnabledTab < 0)
             firstEnabledTab = i;
@@ -985,6 +1000,37 @@ void SettingsWidget::filter(const QString &text)
 
     Category *category = m_model.categories().at(currentIndex.row());
     updateEnabledTabs(category, text);
+}
+
+void SettingsWidget::startKeywordScan()
+{
+    if (!m_keywordTimer.isActive())
+        m_keywordTimer.start();
+}
+
+void SettingsWidget::scanKeywords()
+{
+    QList<IOptionsPage *> pending;
+    for (const Category *category : m_model.categories()) {
+        for (IOptionsPage *page : category->pages) {
+            if (!page->hasKeywords())
+                pending.append(page);
+        }
+    }
+
+    QElapsedTimer budget;
+    budget.start();
+    qsizetype scanned = 0;
+    for (; scanned < pending.size() && budget.elapsed() < 15; ++scanned)
+        pending.at(scanned)->ensureKeywords();
+
+    if (scanned == pending.size())
+        m_keywordTimer.stop();
+
+    if (scanned > 0) {
+        m_proxyModel.refilter();
+        filter(m_filterLineEdit->text());
+    }
 }
 
 void SettingsWidget::apply()

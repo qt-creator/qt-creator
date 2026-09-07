@@ -636,6 +636,26 @@ void IOptionsPagePrivate::checkFixedKeywords() const
     }
 }
 
+/*!
+    Returns whether the search keywords of the page are known already, so that
+    matches() answers without building the page widget.
+*/
+bool IOptionsPage::hasKeywords() const
+{
+    return d->m_keywordsInitialized;
+}
+
+/*!
+    Determines the search keywords of the page, building its widget if that is
+    what it takes. Lets a caller move that cost off a keystroke.
+
+    \sa hasKeywords()
+*/
+void IOptionsPage::ensureKeywords()
+{
+    d->keywords();
+}
+
 bool IOptionsPage::matches(const QRegularExpression &regexp) const
 {
     const QStringList keywords = d->keywords();

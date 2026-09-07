@@ -65,6 +65,8 @@ public:
 
     std::optional<Utils::AspectContainer *> aspects() const;
     bool matches(const QRegularExpression &regexp) const;
+    bool hasKeywords() const;
+    void ensureKeywords();
 
 protected:
     void setId(Utils::Id id);
