@@ -749,6 +749,19 @@ void BaseAspect::volatileToMap(Store &map) const
               settingsKey());
 }
 
+/*!
+    Retrieves the volatile value of this BaseAspect from the Store \a map.
+
+    The default implementation does nothing. An aspect that keeps a volatile
+    value of its own overrides this; one that does not is left untouched,
+    rather than having its applied value written behind the back of the
+    container being edited.
+*/
+void BaseAspect::volatileFromMap(const Store &map)
+{
+    Q_UNUSED(map)
+}
+
 void BaseAspect::addToLayout(Layouting::Layout &parent) const
 {
     const_cast<BaseAspect *>(this)->addToLayoutImpl(parent);
@@ -924,6 +937,12 @@ public:
     {
         if (m_checked)
             m_checked->volatileToMap(map);
+    }
+
+    void volatileFromMap(const Store &map)
+    {
+        if (m_checked)
+            m_checked->volatileFromMap(map);
     }
 
     template<class Widget>
@@ -1178,6 +1197,13 @@ void StringAspect::volatileToMap(Store &map) const
 {
     saveToMap(map, volatileValue(), defaultValue(), settingsKey());
     d->m_checkerImpl.volatileToMap(map);
+}
+
+void StringAspect::volatileFromMap(const Store &map)
+{
+    d->m_checkerImpl.volatileFromMap(map);
+    if (!skipSave())
+        setVolatileValue(map.value(settingsKey(), defaultValue()).toString());
 }
 
 /*!
@@ -1860,6 +1886,13 @@ void FilePathAspect::volatileToMap(Store &map) const
 {
     saveToMap(map, volatileValue(), defaultValue(), settingsKey());
     d->m_checkerImpl.volatileToMap(map);
+}
+
+void FilePathAspect::volatileFromMap(const Store &map)
+{
+    d->m_checkerImpl.volatileFromMap(map);
+    if (!skipSave())
+        setVolatileValue(map.value(settingsKey(), defaultValue()).toString());
 }
 
 void FilePathAspect::setFocusToInputField()
@@ -3626,6 +3659,12 @@ void AspectContainer::volatileToMap(Store &map) const
 {
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->volatileToMap(map);
+}
+
+void AspectContainer::volatileFromMap(const Store &map)
+{
+    for (BaseAspect *aspect : std::as_const(d->m_items))
+        aspect->volatileFromMap(map);
 }
 
 void AspectContainer::readSettings()

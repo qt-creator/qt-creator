@@ -141,6 +141,7 @@ public:
     virtual void toMap(Store &map) const;
     virtual void toActiveMap(Store &map) const { toMap(map); }
     virtual void volatileToMap(Store &map) const;
+    virtual void volatileFromMap(const Store &map);
 
     void addToLayout(Layouting::Layout &parent) const;
 
@@ -378,6 +379,16 @@ public:
     bool isDirty() const override
     {
         return m_value != m_volatileValue;
+    }
+
+    void volatileFromMap(const Store &map) override
+    {
+        if (skipSave())
+            return;
+
+        const QVariant val = map.value(settingsKey(), toSettingsValue(defaultVariantValue()));
+        const QVariant converted = fromSettingsValue(val);
+        setVolatileValue(converted.value<ValueType>());
     }
 
     QVariant toSettingsValue(const QVariant &valueToSave) const override {
@@ -766,6 +777,7 @@ public:
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
     void volatileToMap(Utils::Store &map) const override;
+    void volatileFromMap(const Utils::Store &map) override;
 
 signals:
     void validChanged(bool validState);
@@ -857,6 +869,7 @@ public:
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
     void volatileToMap(Utils::Store &map) const override;
+    void volatileFromMap(const Utils::Store &map) override;
 
     void setFocusToInputField();
 
@@ -1129,6 +1142,7 @@ public:
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
     void volatileToMap(Utils::Store &map) const override;
+    void volatileFromMap(const Utils::Store &map) override;
 
     void readSettings() override;
     void writeSettings() const override;
