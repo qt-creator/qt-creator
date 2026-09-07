@@ -526,12 +526,21 @@ class DumperBase():
         self.ptrSize = lambda: result
         return result
 
+    # Whether the debugger's answer for a type describes it. Debug info that
+    # arrives with a later library load can turn a no into a yes, so an answer
+    # that is not usable must not be kept.
+    def nativeTypeIsUsable(self, native_type):
+        return True
+
     def lookupType(self, typename):
         if not isinstance(typename, str):
             raise RuntimeError('ARG ERROR FOR lookupType, got %s' % type(typename))
 
         typeid = self.typeid_for_string(typename)
         native_type = self.type_nativetype_cache.get(typeid)
+        if native_type is not None and not self.nativeTypeIsUsable(native_type):
+            del self.type_nativetype_cache[typeid]
+            native_type = None
         if native_type is None:
             native_type = self.lookupNativeType(typename)
             if native_type is None:

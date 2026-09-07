@@ -204,6 +204,12 @@ struct InferiorTestData
     // A local whose value is longer than any string limit worth configuring.
     QString longStringLocal;
     QString expandableChild;
+    // A line the inferior reaches while a library it loads at runtime is
+    // loaded, plus a global whose target type only that library's debug
+    // info describes, and a member of that type.
+    int libraryLoadedLine = 0;
+    QString libraryTypeSymbol;
+    QString libraryTypeChild;
     QString inspectorObject;
     QString inspectorProperty;
     QString inspectorPropertyExpression;
@@ -1082,6 +1088,8 @@ private slots:
     void refreshesLocalsAndStack();
     void expandsContainerLocalWhenExpanded_data() { addBackendRows(); }
     void expandsContainerLocalWhenExpanded();
+    void resolvesATypeArrivingWithALaterLibrary_data() { addBackendRows(); }
+    void resolvesATypeArrivingWithALaterLibrary();
     void honorsDumperOptionsFromTheRequest_data() { addBackendRows(); }
     void honorsDumperOptionsFromTheRequest();
     void honorsTheStringLengthLimitFromTheRequest_data() { addBackendRows(); }
@@ -1295,6 +1303,7 @@ private:
     bool m_hasQtDeclarativeDebugInfo = false;
     bool m_hasNativeCallHook = false;
     FilePath m_inferiorLib;
+    FilePath m_inferiorLibMsvc;
     QTemporaryDir m_tempDir = QTemporaryDir(QCoreApplication::applicationDirPath()
                                             + "/qt_tst_backend_XXXXXX");
 };
@@ -1933,6 +1942,7 @@ void tst_backends::initTestCase()
                                 .withExecutableSuffix();
     m_inferiorLib = FilePath::fromString(m_tempDir.path())
                    / (HostOsInfo::isWindowsHost() ? "inferiorlib.dll" : "inferiorlib.so");
+    m_inferiorLibMsvc = FilePath::fromString(m_tempDir.path()) / "inferiorlib_msvc.dll";
 
     const QStringList inferiorLines = {
         "#include <chrono>",
@@ -1953,6 +1963,9 @@ void tst_backends::initTestCase()
         "#include <sys/prctl.h>",
         "#endif",
         "",
+        "struct LibProbe;",
+        "int probeStorage = 4711;",
+        "LibProbe *libProbe = (LibProbe *) &probeStorage;",
         "volatile int globalValue = 41;",
         "volatile bool keepSpinning = true;",
         "const char *globalMessage = \"hi\";",
@@ -2032,13 +2045,6 @@ void tst_backends::initTestCase()
         "#ifdef __linux__",
         "    prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);",
         "#endif",
-        "#ifdef _WIN32",
-        "    HMODULE h = LoadLibraryW(L\"" + QString(m_inferiorLib.nativePath()).replace('\\', "\\\\") + "\");",
-        "    if (h)",
-        "        FreeLibrary(h);",
-        "#else",
-        "    dlclose(dlopen(\"" + m_inferiorLib.nativePath() + "\", RTLD_NOW));",
-        "#endif",
         "    if (argc > 1 && strcmp(argv[1], \"crash\") == 0)",
         "        crash();",
         "    if (argc > 1 && strcmp(argv[1], \"abort\") == 0)",
@@ -2048,6 +2054,20 @@ void tst_backends::initTestCase()
         "        survivableCrash();",
         "#endif",
         "    bump();",
+        "#ifdef _WIN32",
+        "    HMODULE handle = LoadLibraryW(L\"@INFERIORLIB_WINDOWS@\");",
+        "#else",
+        "    void *handle = dlopen(\"@INFERIORLIB@\", RTLD_NOW);",
+        "#endif",
+        "    printf(\"lib=%d\\n\", handle ? 1 : 0); // library loaded line",
+        "    fflush(stdout);",
+        "#ifdef _WIN32",
+        "    if (handle)",
+        "        FreeLibrary(handle);",
+        "#else",
+        "    if (handle)",
+        "        dlclose(handle);",
+        "#endif",
         "    stepIntoKnownFrame();",
         "    multi(1);",
         "    multi(2.0);",
@@ -2092,6 +2112,8 @@ void tst_backends::initTestCase()
             cppInferiorData.knownFrameStepLine = i + 1;
         if (inferiorLines.at(i).contains("thunk step line"))
             thunkStepLine = i + 1;
+        if (inferiorLines.at(i).contains("library loaded line"))
+            cppInferiorData.libraryLoadedLine = i + 1;
     }
     QVERIFY(cppInferiorData.breakpointLine > 0);
     cppInferiorData.localMarker = "localValue";
@@ -2108,16 +2130,32 @@ void tst_backends::initTestCase()
     cppInferiorData.workingDirectoryReportPrefix = "cwd=";
     cppInferiorData.disassemblySourceMarker = "globalValue = localValue";
     cppInferiorData.expectedExitCode = 7;
+    cppInferiorData.libraryTypeSymbol = "libProbe";
+    cppInferiorData.libraryTypeChild = "probeValue";
     QVERIFY(cppInferiorData.secondBreakpointLine > 0);
     QVERIFY(cppInferiorData.deepRecursionBreakpointLine > 0);
     QVERIFY(cppInferiorData.multiLocationBreakpointLine > 0);
     QVERIFY(cppInferiorData.spinBodyLine > 0);
     QVERIFY(cppInferiorData.knownFrameStepLine > 0);
     QVERIFY(thunkStepLine > 0);
+    QVERIFY(cppInferiorData.libraryLoadedLine > 0);
+
+    // Both variants keep the line numbering above: only the path the inferior
+    // loads differs, so each toolchain gets a library its debugger can read.
+    const auto sourceForLibrary = [&inferiorLines](const FilePath &library) {
+        QStringList lines;
+        for (const QString &line : inferiorLines) {
+            lines.append(QString(line)
+                             .replace("@INFERIORLIB_WINDOWS@",
+                                      QString(library.nativePath()).replace('\\', "\\\\"))
+                             .replace("@INFERIORLIB@", library.nativePath()));
+        }
+        return lines.join('\n').toUtf8();
+    };
 
     QFile file(cppInferiorData.source.toFSPathString());
     QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::Text));
-    file.write(inferiorLines.join('\n').toUtf8());
+    file.write(sourceForLibrary(m_inferiorLib));
     file.close();
 
     if (needsCompiler) {
@@ -2141,14 +2179,23 @@ void tst_backends::initTestCase()
                                            compile, compileTimer.elapsed())));
     }
 
-    if (compiler.isExecutableFile()) {
-        const FilePath inferiorLibSource = FilePath::fromString(m_tempDir.path())
-                                          / "inferiorlib.cpp";
+    const FilePath inferiorLibSource = FilePath::fromString(m_tempDir.path()) / "inferiorlib.cpp";
+    {
+        // The struct is what the test is after: its definition reaches the
+        // debugger only once the library is loaded.
         QFile libFile(inferiorLibSource.toFSPathString());
         QVERIFY(libFile.open(QIODevice::WriteOnly | QIODevice::Text));
-        libFile.write(QByteArrayLiteral("extern \"C\" int inferiorLibFunc() { return 0; }\n"));
+        libFile.write(QByteArrayLiteral(
+            "struct LibProbe { int probeValue; };\n"
+            "extern \"C\" LibProbe *inferiorLibProbe()\n"
+            "{\n"
+            "    static LibProbe probe = {0};\n"
+            "    return &probe;\n"
+            "}\n"));
         libFile.close();
+    }
 
+    if (compiler.isExecutableFile()) {
         QStringList compileLibArgs = {"-shared"};
         if (!HostOsInfo::isWindowsHost())
             compileLibArgs << "-fPIC";
@@ -2200,12 +2247,44 @@ void tst_backends::initTestCase()
         msvcInferiorData.thunkStepLine = thunkStepLine;
         msvcInferiorData.executable = (FilePath::fromString(m_tempDir.path()) / "inferior_msvc")
                                      .withExecutableSuffix();
+        msvcInferiorData.source = FilePath::fromString(m_tempDir.path()) / "inferior_msvc.cpp";
+        QFile msvcFile(msvcInferiorData.source.toFSPathString());
+        QVERIFY(msvcFile.open(QIODevice::WriteOnly | QIODevice::Text));
+        msvcFile.write(sourceForLibrary(m_inferiorLibMsvc));
+        msvcFile.close();
+
+        // cdb.exe reads PDBs, so the library carrying LibProbe has to be an
+        // MSVC one too - what g++ builds above has DWARF debug info only.
+        const FilePath libPdbPath = FilePath::fromString(m_tempDir.path())
+                                   / "inferiorlib_msvc.pdb";
+        const QStringList cdbCompileLibArgs = {
+            "/nologo", "/Zi", "/Od", "/EHsc", "/LD",
+            "/Fe:" + m_inferiorLibMsvc.nativePath(),
+            "/Fd:" + libPdbPath.nativePath(),
+            inferiorLibSource.nativePath(),
+        };
+        Process cdbCompileLib;
+        cdbCompileLib.setCommand({cdbCompiler, cdbCompileLibArgs});
+        cdbCompileLib.setEnvironment(cdbCompileEnv);
+        QElapsedTimer cdbCompileLibTimer;
+        cdbCompileLibTimer.start();
+        cdbCompileLib.runBlocking(s_compileTimeout);
+        if (cdbCompileLib.result() != ProcessResult::FinishedWithSuccess) {
+            qWarning("%s", qPrintable(compileFailure("compiling the Cdb inferior library",
+                                                     cdbCompileLib,
+                                                     cdbCompileLibTimer.elapsed())));
+        }
+        // cdb.exe itself completes the type from the library's PDB - "dt
+        // inferiorlib_msvc!LibProbe" answers - but nothing that reaches the
+        // dumper does, whether the type was looked up before the load or not.
+        msvcInferiorData.libraryTypeSymbol.clear();
+
         const FilePath pdbPath = FilePath::fromString(m_tempDir.path()) / "inferior_msvc.pdb";
         const QStringList cdbCompileArgs = {
             "/nologo", "/Zi", "/Od", "/EHsc",
             "/Fe:" + msvcInferiorData.executable.nativePath(),
             "/Fd:" + pdbPath.nativePath(),
-            cppInferiorData.source.nativePath(),
+            msvcInferiorData.source.nativePath(),
         };
         Process cdbCompile;
         cdbCompile.setCommand({cdbCompiler, cdbCompileArgs});
@@ -5153,6 +5232,79 @@ void tst_backends::expandsContainerLocalWhenExpanded()
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
     const QString nested = responses.value(int(RefreshKind::Locals)).toString();
     QVERIFY2(nested.contains(childIName + '.'), qPrintable("nested: " + nested));
+}
+
+void tst_backends::resolvesATypeArrivingWithALaterLibrary()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData data = inferiorTestData(backend);
+    if (data.libraryTypeSymbol.isEmpty() || data.libraryLoadedLine == 0)
+        QSKIP("inferior loads no library carrying a type of its own");
+    if (auto result = checkCapability(backend, Debugger::AddWatcherCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, GdbMi> locals;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&locals](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Locals)
+            locals[requestId] = data;
+    });
+
+    QJsonObject watcher;
+    watcher.insert("iname", "watch.0");
+    watcher.insert("exp", toHex(data.libraryTypeSymbol));
+    QJsonArray watchers;
+    watchers.append(watcher);
+
+    RefreshRequest request;
+    request.kind = RefreshKind::Locals;
+    request.watchers = watchers;
+    request.expandedINames = {"watch.0"};
+
+    // Asking for the pointee here is what makes the backend look the type up
+    // while the library is not loaded, so the answer is that it has none.
+    request.requestId = 130;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(locals.contains(130), s_timeout);
+    QVERIFY2(findItemByIName(locals.value(130), "watch.0").isValid(),
+             qPrintable("no watch on " + data.libraryTypeSymbol + " before the library load: "
+                        + locals.value(130).toString()));
+
+    QHash<quint64, bool> insertResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&insertResults](quint64 requestId, BreakpointOp op, bool ok, const GdbMi &) {
+        if (op == BreakpointOp::Insert)
+            insertResults[requestId] = ok;
+    });
+    BreakpointChangeRequest breakpointRequest;
+    breakpointRequest.op = BreakpointOp::Insert;
+    breakpointRequest.requestId = 131;
+    breakpointRequest.params.type = BreakpointByFileAndLine;
+    breakpointRequest.params.fileName = data.source;
+    breakpointRequest.params.textPosition.line = data.libraryLoadedLine;
+    breakpointRequest.params.enabled = true;
+    engine->changeBreakpoint(breakpointRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(131), s_timeout);
+    QVERIFY2(insertResults.value(131), "breakpoint on the library-loaded line failed to insert");
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), data.libraryLoadedLine);
+
+    request.requestId = 132;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(locals.contains(132), s_timeout);
+    const QString afterLoad = locals.value(132).toString();
+    QVERIFY2(afterLoad.contains(data.libraryTypeChild),
+             qPrintable("the type the library brought along did not resolve, so "
+                        + data.libraryTypeSymbol + " has no " + data.libraryTypeChild
+                        + " member: " + afterLoad));
 }
 
 void tst_backends::honorsDumperOptionsFromTheRequest()

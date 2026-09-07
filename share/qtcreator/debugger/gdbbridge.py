@@ -394,6 +394,9 @@ class Dumper(DumperBase):
                 self.type_enum_display_cache[typeid] = lambda intval, addr, form: \
                     self.nativeTypeEnumDisplay(nativeType, intval, form)
 
+        if not self.nativeTypeIsUsable(nativeType):
+            return typeid
+
         self.type_nativetype_cache[typeid] = nativeType
 
 # FIXME: Field offset caching (or later extraction?) broken
@@ -1253,6 +1256,11 @@ class Dumper(DumperBase):
     def nativeValueDereferenceReference(self, value):
         nativeValue = value.nativeValue
         return self.fromNativeValue(nativeValue.cast(nativeValue.type.target()))
+
+    def nativeTypeIsUsable(self, nativeType):
+        if nativeType.code not in (gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION):
+            return True
+        return nativeType.sizeof != 0
 
     def nativeDynamicType(self, address, base_typeid):
         # Needed for Gdb13393 test.
