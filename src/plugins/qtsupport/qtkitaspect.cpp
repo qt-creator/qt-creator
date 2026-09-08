@@ -393,7 +393,7 @@ Id QtKitAspect::id()
 
 int QtKitAspect::qtVersionId(const Kit *k)
 {
-    if (!k)
+    if (!k || !QtVersionManager::isLoaded())
         return -1;
 
     int id = -1;
@@ -421,6 +421,8 @@ void QtKitAspect::setQtVersionId(Kit *k, const int id)
 
 QtVersion *QtKitAspect::qtVersion(const Kit *k)
 {
+    if (!k || !QtVersionManager::isLoaded())
+        return nullptr;
     return QtVersionManager::version(qtVersionId(k));
 }
 
