@@ -7,6 +7,7 @@
 #include "../cppprojectfile.h"
 #include "../cpprefactoringchanges.h"
 #include "cppquickfix.h"
+#include "cppquickfixhelpers.h"
 
 #include <cplusplus/Overview.h>
 #include <projectexplorer/projectmanager.h>
@@ -95,33 +96,7 @@ int countNames(const Name *name)
  */
 void removeLine(const CppRefactoringFile *file, AST *ast, ChangeSet &changeSet)
 {
-    RefactoringFile::Range range = file->range(ast);
-    --range.start;
-    while (range.start >= 0) {
-        QChar current = file->charAt(range.start);
-        if (!current.isSpace()) {
-            ++range.start;
-            break;
-        }
-        if (current == QChar::ParagraphSeparator)
-            break;
-        --range.start;
-    }
-    range.start = std::max(0, range.start);
-    while (range.end < file->document()->characterCount()) {
-        QChar current = file->charAt(range.end);
-        if (!current.isSpace())
-            break;
-        if (current == QChar::ParagraphSeparator)
-            break;
-        ++range.end;
-    }
-    range.end = std::min(file->document()->characterCount(), range.end);
-    const bool newLineStart = file->charAt(range.start) == QChar::ParagraphSeparator;
-    const bool newLineEnd = file->charAt(range.end) == QChar::ParagraphSeparator;
-    if (!newLineEnd && newLineStart)
-        ++range.start;
-    changeSet.remove(range);
+    removeRangeAndSurroundingBlankLine(file, file->range(ast), changeSet);
 }
 
 /**

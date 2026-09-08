@@ -44,6 +44,8 @@ class CPPEDITOR_EXPORT CppSearchResultFilter : public Core::SearchResultFilter
 
 namespace Internal {
 
+bool isProperUsage(const CPlusPlus::Usage &usage, const CPlusPlus::Symbol *symbol);
+
 class CppFindReferencesParameters
 {
 public:

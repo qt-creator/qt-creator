@@ -1,0 +1,2 @@
+Inline Function Call
+Inline Function Call and Remove Function If Unused

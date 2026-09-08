@@ -44,4 +44,8 @@ CPlusPlus::FullySpecifiedType typeOfExpr(
     const CPlusPlus::Snapshot &snapshot,
     const CPlusPlus::LookupContext &context);
 
+// Removes the given range, trimming exactly one surrounding blank line.
+void removeRangeAndSurroundingBlankLine(
+    const CppRefactoringFile *file, Utils::ChangeSet::Range range, Utils::ChangeSet &changeSet);
+
 } // namespace CppEditor::Internal

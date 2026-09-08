@@ -12,6 +12,8 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
+#include <algorithm>
+
 using namespace CPlusPlus;
 using namespace Utils;
 
@@ -194,6 +196,37 @@ const QStringList magicQObjectFunctions()
 {
     static QStringList list{"metaObject", "qt_metacast", "qt_metacall", "qt_static_metacall"};
     return list;
+}
+
+void removeRangeAndSurroundingBlankLine(
+    const CppRefactoringFile *file, ChangeSet::Range range, ChangeSet &changeSet)
+{
+    --range.start;
+    while (range.start >= 0) {
+        const QChar current = file->charAt(range.start);
+        if (!current.isSpace()) {
+            ++range.start;
+            break;
+        }
+        if (current == QChar::ParagraphSeparator)
+            break;
+        --range.start;
+    }
+    range.start = std::max(0, range.start);
+    while (range.end < file->document()->characterCount()) {
+        const QChar current = file->charAt(range.end);
+        if (!current.isSpace())
+            break;
+        if (current == QChar::ParagraphSeparator)
+            break;
+        ++range.end;
+    }
+    range.end = std::min(file->document()->characterCount(), range.end);
+    const bool newLineStart = file->charAt(range.start) == QChar::ParagraphSeparator;
+    const bool newLineEnd = file->charAt(range.end) == QChar::ParagraphSeparator;
+    if (!newLineEnd && newLineStart)
+        ++range.start;
+    changeSet.remove(range);
 }
 
 } // namespace CppEditor::Internal

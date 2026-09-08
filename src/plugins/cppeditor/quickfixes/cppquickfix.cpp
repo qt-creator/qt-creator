@@ -24,6 +24,7 @@
 #include "createdeclarationfromuse.h"
 #include "extractfunction.h"
 #include "extractliteralasparameter.h"
+#include "inlinefunctioncall.h"
 #include "insertfunctiondefinition.h"
 #include "layoutpreview.h"
 #include "logicaloperationquickfixes.h"
@@ -126,6 +127,7 @@ void createCppQuickFixFactories()
     registerCreateDeclarationFromUseQuickfixes();
     registerExtractFunctionQuickfix();
     registerExtractLiteralAsParameterQuickfix();
+    registerInlineFunctionCallQuickfix();
     registerInsertFunctionDefinitionQuickfixes();
     registerInsertVirtualMethodsQuickfix();
     registerLayoutPreviewQuickfix();

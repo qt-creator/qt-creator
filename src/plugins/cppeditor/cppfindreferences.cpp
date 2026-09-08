@@ -102,6 +102,17 @@ void CppSearchResultFilter::setValue(bool &member, bool value)
 
 namespace Internal {
 
+bool isProperUsage(const CPlusPlus::Usage &usage, const CPlusPlus::Symbol *symbol)
+{
+    if (!usage.tags.testFlag(CPlusPlus::Usage::Tag::Declaration))
+        return usage.containingFunctionSymbol != symbol;
+    return usage.tags.testAnyFlags({CPlusPlus::Usage::Tag::Override,
+                                    CPlusPlus::Usage::Tag::MocInvokable,
+                                    CPlusPlus::Usage::Tag::Template,
+                                    CPlusPlus::Usage::Tag::Operator,
+                                    CPlusPlus::Usage::Tag::ConstructorDestructor});
+}
+
 static QByteArray getSource(const FilePath &fileName, const WorkingCopy &workingCopy)
 {
     if (const auto source = workingCopy.source(fileName))
@@ -782,24 +793,15 @@ void CppFindReferences::checkUnused(Core::SearchResult *search, const Link &link
                                     const CPlusPlus::LookupContext &context,
                                     const LinkHandler &callback)
 {
-    const auto isProperUsage = [symbol](const CPlusPlus::Usage &usage) {
-        if (!usage.tags.testFlag(CPlusPlus::Usage::Tag::Declaration))
-            return usage.containingFunctionSymbol != symbol;
-        return usage.tags.testAnyFlags({CPlusPlus::Usage::Tag::Override,
-                                        CPlusPlus::Usage::Tag::MocInvokable,
-                                        CPlusPlus::Usage::Tag::Template,
-                                        CPlusPlus::Usage::Tag::Operator,
-                                        CPlusPlus::Usage::Tag::ConstructorDestructor});
-    };
     const auto watcher = new QFutureWatcher<CPlusPlus::Usage>();
     connect(watcher, &QFutureWatcherBase::finished, watcher,
-            [watcher, link, callback, search, isProperUsage] {
+            [watcher, link, callback, search, symbol] {
         const QScopeGuard cleanup([callback, link] { callback(link); });
         watcher->deleteLater();
         if (watcher->isCanceled())
             return;
         for (int i = 0; i < watcher->future().resultCount(); ++i) {
-            if (isProperUsage(watcher->resultAt(i)))
+            if (isProperUsage(watcher->resultAt(i), symbol))
                 return;
         }
         for (int i = 0; i < watcher->future().resultCount(); ++i) {
@@ -813,9 +815,9 @@ void CppFindReferences::checkUnused(Core::SearchResult *search, const Link &link
         }
     });
     connect(watcher, &QFutureWatcherBase::resultsReadyAt, search,
-            [watcher, isProperUsage](int first, int end) {
+            [watcher, symbol](int first, int end) {
         for (int i = first; i < end; ++i) {
-            if (isProperUsage(watcher->resultAt(i))) {
+            if (isProperUsage(watcher->resultAt(i), symbol)) {
                 watcher->cancel();
                 break;
             }

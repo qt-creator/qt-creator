@@ -257,6 +257,8 @@ QtcPlugin {
             "extractfunction.h",
             "extractliteralasparameter.cpp",
             "extractliteralasparameter.h",
+            "inlinefunctioncall.cpp",
+            "inlinefunctioncall.h",
             "insertfunctiondefinition.cpp",
             "insertfunctiondefinition.h",
             "layoutpreview.cpp",
