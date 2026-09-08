@@ -1205,7 +1205,7 @@ class DapServer():
         except Exception as error:
             self.sendResponse(request, success=False, message=str(error))
             return
-        self.sendResponse(request)
+        self.sendResponse(request, body={'qtcDumpers': self.dumperSetup})
 
     def cmd_qtc_fetchModules(self, request):
         # gdb's Python API lists the objfiles but not where they are loaded or

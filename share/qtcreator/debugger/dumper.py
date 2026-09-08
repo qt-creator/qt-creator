@@ -2831,7 +2831,9 @@ typename))
             m = sys.modules[mod]
             import importlib
             importlib.reload(m)
-        self.setupDumpers(args)
+        msg = self.setupDumpers(args)
+        self.reportResult(msg, args)
+        return msg
 
     def loadDumpers(self, args):
         msg = self.setupDumpers()
