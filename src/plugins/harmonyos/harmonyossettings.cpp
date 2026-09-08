@@ -46,8 +46,9 @@ HarmonyOsSettings::HarmonyOsSettings()
     additionalPackages.setExpectedKind(PathChooserKind::ExistingDirectory);
     additionalPackages.setLabelText(Tr::tr("Additional packages:"));
     additionalPackages.setToolTip(
-        Tr::tr("Directory holding the third-party libraries built for HarmonyOS that Qt needs "
-               "at run time. Their contents are added to the application package."));
+        Tr::tr("Installation prefix of the third-party libraries built for HarmonyOS that Qt "
+               "needs at run time - the directory their \"lib\" is in. Their contents are "
+               "added to the application package."));
 
     runWithoutInstalling.setSettingsKey("RunWithoutInstalling");
     runWithoutInstalling.setLabelText(Tr::tr("Run without installing"));
