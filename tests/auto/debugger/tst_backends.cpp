@@ -961,6 +961,10 @@ private slots:
     void testReloadModuleSymbolsCapability();
     void testResetInferiorCapability_data() { addBackendRows(); }
     void testResetInferiorCapability();
+    void runsUserCommandsWhenResettingTheInferior_data() { addBackendRows(); }
+    void runsUserCommandsWhenResettingTheInferior();
+    void runsAUserStartScriptAtStartup_data() { addBackendRows(); }
+    void runsAUserStartScriptAtStartup();
     void testReturnFromFunctionCapability_data() { addBackendRows(); }
     void testReturnFromFunctionCapability();
     void testReverseSteppingCapability_data() { addBackendRows(); }
@@ -1168,6 +1172,8 @@ private:
         Debugger::Internal::GdbImplFlags gdbFlags = Debugger::Internal::GdbImplFlag::PseudoTracepoints);
     std::unique_ptr<DebuggerBackend> createEngineWithBreakEvents(
         Backend backend, const QStringList &breakEvents);
+    std::unique_ptr<DebuggerBackend> createEngineWithStartScript(
+        Backend backend, const Utils::FilePath &startScript);
     std::unique_ptr<DebuggerBackend> createEngineWithConfiguredPaths(
         Backend backend, const QList<QPair<QString, QString>> &sourcePathMap);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
@@ -1338,6 +1344,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .flags = gdbFlags | (nativeMixed ? GdbImplFlags(GdbImplFlag::NativeMixedDebugging)
                                              : GdbImplFlags()),
+            .userCommands = {.forReset = {userCommandProbe(backend, UserCommandHook::Reset).command}},
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(DapStartData{
@@ -1460,6 +1467,22 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
 }
 
 // The debugger's own list of events to break on, where it has one.
+// A debugger given a start script of its own. Only backends whose start data
+// carries one can be built here.
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithStartScript(
+    Backend backend, const FilePath &startScript)
+{
+    if (backend != Backend::Gdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          Environment::systemEnvironment()},
+        .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                            Environment::systemEnvironment()},
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+        .userCommands = {.startScript = startScript}}));
+}
+
 std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithBreakEvents(
     Backend backend, const QStringList &breakEvents)
 {
@@ -3400,6 +3423,75 @@ void tst_backends::testResetInferiorCapability()
     // would have arrived by now. A backend that swaps processes must not emit one.
     QVERIFY2(debuggerBackend->inferiorResults().isEmpty(),
              "restarting the inferior was reported as the inferior exiting");
+}
+
+void tst_backends::runsUserCommandsWhenResettingTheInferior()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::ResetInferiorCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    const UserCommandProbe probe = userCommandProbe(backend, UserCommandHook::Reset);
+    if (probe.marker.isEmpty())
+        QSKIP("This backend's start data carries no commands for a reset.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+
+    QStringList messages;
+    connect(debuggerBackend->engine(), &DebuggerEngineInterface::message, this,
+            [&messages](const QString &text, int, int) { messages.append(text); });
+    QVERIFY(!messages.join(' ').contains(probe.marker));
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::ResetInferior});
+
+    QTRY_VERIFY2_WITH_TIMEOUT(messages.join(' ').contains(probe.marker),
+                              qPrintable("resetting the inferior ran no configured command - "
+                                         "log: " + messages.join(' ').right(300)), s_timeout);
+}
+
+void tst_backends::runsAUserStartScriptAtStartup()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+
+    const FilePath script = FilePath::fromString(m_tempDir.path()) / "startscript.txt";
+    QVERIFY(script.writeFileContents("echo QTCSTARTSCRIPTMARKER\n"));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngineWithStartScript(backend, script);
+    if (!debuggerBackend)
+        QSKIP("This backend's start data carries no start script.");
+
+    QStringList messages;
+    connect(debuggerBackend->engine(), &DebuggerEngineInterface::message, this,
+            [&messages](const QString &text, int, int) { messages.append(text); });
+    debuggerBackend->engine()->start();
+
+    QTRY_VERIFY2_WITH_TIMEOUT(messages.join(' ').contains("QTCSTARTSCRIPTMARKER"),
+                              qPrintable("the start script was never sourced - log: "
+                                         + messages.join(' ').right(300)), s_timeout);
+
+    // A script that cannot be read has to be reported, not passed on silently.
+    const FilePath missing = FilePath::fromString(m_tempDir.path()) / "no-such-startscript.txt";
+    QVERIFY(!missing.exists());
+    std::unique_ptr<DebuggerBackend> withoutScript
+        = createEngineWithStartScript(backend, missing);
+    QVERIFY(withoutScript);
+
+    QStringList warnings;
+    connect(withoutScript->engine(), &DebuggerEngineInterface::message, this,
+            [&warnings](const QString &text, int channel, int) {
+        if (channel == Debugger::LogWarning)
+            warnings.append(text);
+    });
+    withoutScript->engine()->start();
+
+    QTRY_VERIFY2_WITH_TIMEOUT(warnings.join(' ').contains(missing.toUserOutput()),
+                              qPrintable("an unreadable start script was not reported - "
+                                         "warnings: " + warnings.join(' ').right(300)), s_timeout);
 }
 
 void tst_backends::testReturnFromFunctionCapability()
