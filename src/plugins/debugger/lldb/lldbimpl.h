@@ -82,6 +82,8 @@ private:
     void runCommand(const DebuggerCommand &command);
     void restartWatchdog();
     void reportInferiorExitIfComplete();
+    void reportEngineSetupOk();
+    void reportEngineSetupFailed();
 
     LldbImplStartData m_startData;
     bool m_continueAtNextSpontaneousStop = false;
@@ -96,6 +98,7 @@ private:
     bool m_inferiorExitReported = false;
     void interruptInferior();
 
+    bool m_engineSetupReported = false;
     bool m_inferiorRunning = false;
     bool m_interruptOnceRunning = false;
     bool m_resumeAfterAttachPending = false;

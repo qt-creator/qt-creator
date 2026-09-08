@@ -384,16 +384,16 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
             cmd.arg("symbolfile", coreData->executable.path());
             coreFileForRunEngine = coreData->coreFile;
         } else {
-            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+            reportEngineSetupFailed();
             return;
         }
         cmd.callback = [this, coreFile = coreFileForRunEngine](const DebuggerResponse &response) {
             const bool success = response.data["success"].toInt();
             if (!success) {
-                emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+                reportEngineSetupFailed();
                 return;
             }
-            emit inferiorEvent(InferiorEvent::EngineSetupOk);
+            reportEngineSetupOk();
             if (!std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
                 for (const QString &command : m_startData.postAttachCommands) {
                     const QString trimmed = command.trimmed();
@@ -430,8 +430,8 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
     });
     connect(&m_lldbProc, &Process::done, this, [this] {
         m_watchdog.stop();
-        if (m_lldbProc.result() == ProcessResult::StartFailed)
-            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+        if (!m_engineSetupReported)
+            reportEngineSetupFailed();
         emit engineProcessFinished(m_lldbProc.resultData());
     });
 }
@@ -857,6 +857,18 @@ void LldbImpl::refresh(const RefreshRequest &request)
     }
 }
 
+void LldbImpl::reportEngineSetupOk()
+{
+    m_engineSetupReported = true;
+    emit inferiorEvent(InferiorEvent::EngineSetupOk);
+}
+
+void LldbImpl::reportEngineSetupFailed()
+{
+    m_engineSetupReported = true;
+    emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+}
+
 void LldbImpl::fetchLocationAfterStop(InferiorEvent event)
 {
     DebuggerCommand cmd("fetchStack");
@@ -1082,7 +1094,7 @@ void LldbImpl::handleStateReport(const GdbMi &item)
     else if (state == "inferiorill")
         emit inferiorEvent(InferiorEvent::InferiorIll);
     else if (state == "enginesetupfailed")
-        emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+        reportEngineSetupFailed();
     else if (state == "enginerunfailed")
         emit inferiorEvent(InferiorEvent::EngineRunFailed);
     else if (state == "enginerunandinferiorrunok") {
