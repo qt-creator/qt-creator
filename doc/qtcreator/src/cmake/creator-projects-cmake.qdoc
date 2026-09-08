@@ -246,7 +246,8 @@
 
         \li Matching parentheses and quotes
 
-        \li A quick fix for creating source files that do not exist yet, with
+        \li A quick fix for creating files that a command names but which do
+            not exist yet, with
             \inlineimage {icons/refactormarker.png} {Light bulb icon}
             on the lines that name one
 
@@ -254,7 +255,7 @@
 
     Warnings and errors are displayed in \l {Issues}.
 
-    \section1 Create missing source files
+    \section1 Create missing files
 
     When you add a source file that does not exist to a command such as
     \c add_executable or \c target_sources, CMake stops the configure run with
@@ -270,6 +271,11 @@
 
     Either way, \QC creates the file and the directories that lead to it,
     opens it in the editor, and runs CMake again.
+
+    \c add_subdirectory works the same way: when the directory it names does
+    not exist, or has no \c CMakeLists.txt, the quick fix creates an empty
+    \c CMakeLists.txt there. The binary directory, which is the optional
+    second argument, is left to CMake.
 
     \section1 Install missing Qt packages
 

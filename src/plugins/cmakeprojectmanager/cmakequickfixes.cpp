@@ -4,6 +4,7 @@
 #include "cmakequickfixes.h"
 
 #include "cmakebuildsystem.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -32,6 +33,8 @@
 #include <QTextDocument>
 #include <QTimer>
 
+#include <optional>
+
 #ifdef WITH_TESTS
 #include <utils/temporarydirectory.h>
 #include <QTest>
@@ -49,7 +52,7 @@ const char REFACTOR_MARKER_ID[] = "CMakeEditor.CreateSourceFile";
 
 // The extensions CMake tries when it looks for a source file, plus the ones the
 // Qt CMake API takes as file arguments.
-static bool hasSourceFileSuffix(const QString &path)
+static bool hasSourceFileSuffix(const FilePath &filePath)
 {
     static const QSet<QString> suffixes = {
         "c",   "c++",  "cc",   "cpp",  "cxx", "cu",  "mpp", "m",    "mm",  "ixx",
@@ -57,11 +60,11 @@ static bool hasSourceFileSuffix(const QString &path)
         "in",  "txx",  "f",    "for",  "f77", "f90", "f95", "f03",  "hip", "ispc",
         "qml", "qrc",  "ui",   "ts",   "js",  "json", "py", "qdoc", "rc"};
 
-    return suffixes.contains(FilePath::fromUserInput(path).suffix().toLower());
+    return suffixes.contains(filePath.suffix().toLower());
 }
 
-// The commands that take source files as input, the only ones a missing file is
-// an error for. Commands such as add_custom_command, configure_file or
+// The commands that take source files as input, the ones a missing file is an
+// error for. Commands such as add_custom_command, configure_file or
 // qt_add_translations name files that the build produces, and CMake creates
 // those itself.
 static bool takesSourceFiles(CMakeLang::CommandAST *command)
@@ -78,10 +81,9 @@ static bool takesSourceFiles(CMakeLang::CommandAST *command)
     return commands.contains(name);
 }
 
-// The file an argument of a CMake command names, if it names a source file that
-// is not on disk. CMake stops the configure run with "Cannot find source file"
-// on those.
-static FilePath missingSourceFile(const QString &argument, const FilePath &directory)
+// The path an argument stands for, as far as it can be told from the file
+// alone.
+static std::optional<FilePath> resolvedPath(const QString &argument, const FilePath &directory)
 {
     // An OPTIONS list goes to moc or uic verbatim, and -f and --include= carry
     // a header of their own.
@@ -94,11 +96,21 @@ static FilePath missingSourceFile(const QString &argument, const FilePath &direc
 
     // Anything left to expand is unknown here: variables, generator
     // expressions, environment lookups.
-    if (path.contains('$') || !hasSourceFileSuffix(path))
+    if (path.contains('$'))
         return {};
 
-    const FilePath filePath = directory.resolvePath(path);
-    return filePath.exists() ? FilePath() : filePath;
+    return directory.resolvePath(path);
+}
+
+// The file an argument of a CMake command names, if it names a source file that
+// is not on disk. CMake stops the configure run with "Cannot find source file"
+// on those.
+static FilePath missingSourceFile(const QString &argument, const FilePath &directory)
+{
+    const std::optional<FilePath> filePath = resolvedPath(argument, directory);
+    if (!filePath || !hasSourceFileSuffix(*filePath) || filePath->exists())
+        return {};
+    return *filePath;
 }
 
 static bool covers(int begin, int end, int position)
@@ -115,15 +127,39 @@ struct MissingSourceFile
     FilePath filePath;
 };
 
+// add_subdirectory takes the source directory as its first argument, and a
+// binary directory as its optional second one. CMake stops when the source
+// directory does not exist or holds no CMakeLists.txt, and both cases are
+// fixed by creating that file.
+static QList<MissingSourceFile> missingSubdirectoryFile(CMakeLang::CommandAST *command,
+                                                        const FilePath &directory)
+{
+    CMakeLang::ArgumentAST *argument = command->arguments().first();
+    if (!argument)
+        return {};
+
+    const std::optional<FilePath> sourceDirectory = resolvedPath(argument->value(), directory);
+    if (!sourceDirectory || (sourceDirectory->exists() && !sourceDirectory->isDir()))
+        return {};
+
+    const FilePath cmakeLists = sourceDirectory->pathAppended(Constants::CMAKE_LISTS_TXT);
+    if (cmakeLists.exists())
+        return {};
+
+    return {{argument->token.begin(), argument->token.end(), cmakeLists}};
+}
+
 // The missing source files of one command, in source order and each of them
 // once.
 static QList<MissingSourceFile> missingSourceFilesOfCommand(CMakeLang::CommandAST *command,
                                                             const FilePath &directory)
 {
-    QList<MissingSourceFile> result;
+    if (command->isNamed("add_subdirectory"))
+        return missingSubdirectoryFile(command, directory);
     if (!takesSourceFiles(command))
-        return result;
+        return {};
 
+    QList<MissingSourceFile> result;
     FilePaths seen;
     for (CMakeLang::ArgumentAST *argument : command->arguments()) {
         const FilePath filePath = missingSourceFile(argument->value(), directory);
@@ -365,6 +401,9 @@ private slots:
         m_directory = std::make_unique<TemporaryDirectory>("cmake-quickfixes-XXXXXX");
         QVERIFY(m_directory->isValid());
         QVERIFY(m_directory->filePath("existing.cpp").ensureExistingFile());
+        QVERIFY(m_directory->filePath("existing_sub").ensureWritableDir());
+        QVERIFY(m_directory->filePath("existing_sub/CMakeLists.txt").ensureExistingFile());
+        QVERIFY(m_directory->filePath("bare_sub").ensureWritableDir());
     }
 
     void cleanupTestCase() { m_directory.reset(); }
@@ -481,6 +520,31 @@ private slots:
 
         QTest::newRow("uic option")
             << "qt_wrap_ui(out existing.cpp OPTIONS --incl|ude=widget.h)\n"
+            << QStringList();
+
+        QTest::newRow("subdirectory that does not exist")
+            << "add_subdirectory(myl|ib)\n"
+            << QStringList{"mylib/CMakeLists.txt"};
+
+        QTest::newRow("subdirectory without a CMakeLists.txt")
+            << "add_subdirectory(bare|_sub)\n"
+            << QStringList{"bare_sub/CMakeLists.txt"};
+
+        QTest::newRow("subdirectory that is set up")
+            << "add_subdirectory(existing|_sub)\n"
+            << QStringList();
+
+        // The second argument is the binary directory, which CMake creates.
+        QTest::newRow("binary directory of a subdirectory")
+            << "add_subdirectory(mylib mylib_bu|ild)\n"
+            << QStringList{"mylib/CMakeLists.txt"};
+
+        QTest::newRow("subdirectory that is a file")
+            << "add_subdirectory(existing|.cpp)\n"
+            << QStringList();
+
+        QTest::newRow("subdirectory behind a variable")
+            << "add_subdirectory(${SUBDIR}|)\n"
             << QStringList();
     }
 
