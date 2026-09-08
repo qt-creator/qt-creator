@@ -7,13 +7,17 @@
 #include "actionmanager/actioncontainer.h"
 #include "actionmanager/command.h"
 #include "coreconstants.h"
+#include "editormanager/editormanager.h"
+#include "editormanager/ieditor.h"
 #include "externaltool.h"
 #include "externaltoolmanager.h"
 #include "icontext.h"
 #include "icore.h"
 
+#include <utils/aggregate.h>
 #include <utils/filepath.h>
 #include <utils/macroexpander.h>
+#include <utils/plaintextedit/plaintextedit.h>
 
 #include <QAction>
 #include <QMenu>
@@ -37,6 +41,7 @@ private slots:
     void testUnresolvedVariables_data();
     void testUnresolvedVariables();
     void testActionStateFollowsTheCommand();
+    void testReplaceSelectionNeedsAWritableEditor();
 };
 
 // Every field of the command is scanned, so dropping one of them from the scan
@@ -145,6 +150,50 @@ void ExternalToolTest::testActionStateFollowsTheCommand()
     QVERIFY(QMetaObject::invokeMethod(ICore::instance(), "contextChanged",
                                       Q_ARG(Core::Context, Core::Context())));
     QVERIFY(!action->isEnabled());
+}
+
+void ExternalToolTest::testReplaceSelectionNeedsAWritableEditor()
+{
+    const QMap<QString, QList<ExternalTool *>> original = ExternalToolManager::toolsByCategory();
+    const QScopeGuard restore([original] { ExternalToolManager::setToolsByCategory(original); });
+
+    // The manager takes ownership, and hands it back to the guard above.
+    auto tool = new ExternalTool;
+    tool->setId("Test.ReplaceSelectionTool");
+    tool->setDisplayName("Test Replace Selection Tool");
+    tool->setExecutables({FilePath::fromString("tool")});
+    tool->setOutputHandling(ExternalTool::ReplaceSelection);
+
+    QMap<QString, QList<ExternalTool *>> tools = original;
+    tools[QString()].append(tool);
+    ExternalToolManager::setToolsByCategory(tools);
+
+    Command *command = ActionManager::command(Id("Tools.External.").withSuffix(tool->id()));
+    QVERIFY(command);
+    QAction *action = command->actionForContext(Constants::C_GLOBAL);
+    QVERIFY(action);
+
+    // A run that left a document open cannot check the no-editor case.
+    if (!EditorManager::currentEditor())
+        QVERIFY(!action->isEnabled());
+
+    QString title = "readonly.txt";
+    IEditor *editor = EditorManager::openEditorWithContents(
+        Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, "text");
+    QVERIFY(editor);
+    const QScopeGuard closeEditor([editor] { EditorManager::closeEditors({editor}, false); });
+    PlainTextEdit *edit = Aggregation::query<PlainTextEdit>(editor->widget());
+    QVERIFY(edit);
+
+    ActionContainer *menu = ActionManager::actionContainer(Id(Constants::M_TOOLS_EXTERNAL));
+
+    edit->setReadOnly(true);
+    QVERIFY(QMetaObject::invokeMethod(menu->menu(), "aboutToShow"));
+    QVERIFY(!action->isEnabled());
+
+    edit->setReadOnly(false);
+    QVERIFY(QMetaObject::invokeMethod(menu->menu(), "aboutToShow"));
+    QVERIFY(action->isEnabled());
 }
 
 QObject *createExternalToolTest()

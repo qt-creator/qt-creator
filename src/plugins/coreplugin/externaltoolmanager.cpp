@@ -11,7 +11,11 @@
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/actioncontainer.h"
 #include "actionmanager/command.h"
+#include "editormanager/editormanager.h"
+#include "editormanager/ieditor.h"
 
+#include <utils/aggregate.h>
+#include <utils/plaintextedit/plaintextedit.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -145,12 +149,28 @@ static void parseDirectory(const FilePath &directory,
     }
 }
 
+static bool replacesSelection(const ExternalTool *tool)
+{
+    return tool->outputHandling() == ExternalTool::ReplaceSelection
+           || tool->errorHandling() == ExternalTool::ReplaceSelection;
+}
+
+static bool hasWritableTextEditor()
+{
+    IEditor *editor = EditorManager::currentEditor();
+    if (!editor)
+        return false;
+    const PlainTextEdit *edit = Aggregation::query<PlainTextEdit>(editor->widget());
+    return edit && !edit->isReadOnly();
+}
+
 static void updateActionStates()
 {
     for (auto it = d->m_actions.cbegin(), end = d->m_actions.cend(); it != end; ++it) {
         const ExternalTool *tool = d->m_tools.value(it.key());
         it.value()->setEnabled(tool && tool->emptyVariables().isEmpty()
-                               && tool->unresolvedVariables().isEmpty());
+                               && tool->unresolvedVariables().isEmpty()
+                               && (!replacesSelection(tool) || hasWritableTextEditor()));
     }
 }
 
