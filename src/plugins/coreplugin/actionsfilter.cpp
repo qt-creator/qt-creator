@@ -329,12 +329,18 @@ void ActionsFilter::collectEntriesForAction(QAction *action,
     }
 }
 
+static bool isHiddenFromFilter(const Command *command)
+{
+    return command && command->property("actionsfilter.hide").toBool();
+}
+
 void ActionsFilter::collectEntriesForCommands(ActionEntryCache *cache) const
 {
     const QList<Command *> commands = Core::ActionManager::commands();
     for (const Command *command : commands) {
         QAction *action = command->action();
-        if (!cache->isEnabled(action))
+        // Filter out commands that have separate QActions in the menu, like external tools
+        if (!cache->isEnabled(action) || isHiddenFromFilter(command))
             continue;
 
         QString text = command->description();
@@ -363,10 +369,11 @@ void ActionsFilter::collectEntriesForCommands(ActionEntryCache *cache) const
 void ActionsFilter::collectEntriesForLastTriggered(ActionEntryCache *cache) const
 {
     for (ActionFilterEntryData &data : m_lastTriggered) {
-        if (!data.action) {
-            if (Command *command = Core::ActionManager::command(data.commandId))
-                data.action = command->action();
-        }
+        const Command *command = Core::ActionManager::command(data.commandId);
+        if (isHiddenFromFilter(command))
+            continue;
+        if (!data.action && command)
+            data.action = command->action();
         if (!data.action || !cache->isEnabled(data.action))
             continue;
         LocatorFilterEntry filterEntry;

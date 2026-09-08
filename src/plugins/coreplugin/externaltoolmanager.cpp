@@ -14,8 +14,6 @@
 #include "editormanager/editormanager.h"
 #include "editormanager/ieditor.h"
 
-#include <utils/aggregate.h>
-#include <utils/plaintextedit/plaintextedit.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -34,6 +32,7 @@ struct ExternalToolManagerPrivate
     QMap<QString, ExternalTool *> m_tools;
     QMap<QString, QList<ExternalTool *> > m_categoryMap;
     QMap<QString, QAction *> m_actions;
+    QMap<QString, QAction *> m_menuActions;
     QMap<QString, ActionContainer *> m_containers;
     QAction *m_configureSeparator;
     QAction *m_configureAction;
@@ -73,11 +72,7 @@ ExternalToolManager::ExternalToolManager()
     ActionContainer *mtools = ActionManager::actionContainer(Constants::M_TOOLS);
     mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
 
-    connect(mexternaltools->menu(), &QMenu::aboutToShow,
-            this, updateActionStates);
-    // Shortcuts and the locator reach the actions without opening the menu.
-    connect(ICore::instance(), &ICore::contextChanged,
-            this, updateActionStates);
+    connect(mexternaltools->menu(), &QMenu::aboutToShow, this, updateActionStates);
 
     QMap<QString, QMultiMap<int, ExternalTool*> > categoryPriorityMap;
     QMap<QString, ExternalTool *> tools;
@@ -149,28 +144,11 @@ static void parseDirectory(const FilePath &directory,
     }
 }
 
-static bool replacesSelection(const ExternalTool *tool)
-{
-    return tool->outputHandling() == ExternalTool::ReplaceSelection
-           || tool->errorHandling() == ExternalTool::ReplaceSelection;
-}
-
-static bool hasWritableTextEditor()
-{
-    IEditor *editor = EditorManager::currentEditor();
-    if (!editor)
-        return false;
-    const PlainTextEdit *edit = Aggregation::query<PlainTextEdit>(editor->widget());
-    return edit && !edit->isReadOnly();
-}
-
 static void updateActionStates()
 {
-    for (auto it = d->m_actions.cbegin(), end = d->m_actions.cend(); it != end; ++it) {
+    for (auto it = d->m_menuActions.cbegin(), end = d->m_menuActions.cend(); it != end; ++it) {
         const ExternalTool *tool = d->m_tools.value(it.key());
-        it.value()->setEnabled(tool && tool->emptyVariables().isEmpty()
-                               && tool->unresolvedVariables().isEmpty()
-                               && (!replacesSelection(tool) || hasWritableTextEditor()));
+        it.value()->setEnabled(tool && tool->canExecute());
     }
 }
 
@@ -184,28 +162,54 @@ QMap<QString, ExternalTool *> ExternalToolManager::toolsById()
     return d->m_tools;
 }
 
+// The command's action is never disabled, so its shortcut works as soon as the tool can run,
+// whether or not the menu was shown since. The menu shows separate actions with the state.
+static QAction *createMenuAction(ExternalTool *tool, Command *command)
+{
+    auto action = new QAction(m_instance);
+    QObject::connect(action, &QAction::triggered, tool, [tool] { tool->execute(); });
+    // Only shown in the menu. The command handles the shortcut.
+    action->setShortcutContext(Qt::WidgetShortcut);
+    action->setShortcuts(command->keySequences());
+    QObject::connect(command, &Command::keySequenceChanged, action, [action, command] {
+        action->setShortcuts(command->keySequences());
+    });
+    return action;
+}
+
 void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalTool *> > &tools)
 {
     // clear menu
     ActionContainer *mexternaltools = ActionManager::actionContainer(Id(Constants::M_TOOLS_EXTERNAL));
+    for (QAction *action : std::as_const(d->m_menuActions)) {
+        const QObjectList menus = action->associatedObjects();
+        for (QObject *menu : menus) {
+            if (auto widget = qobject_cast<QWidget *>(menu))
+                widget->removeAction(action);
+        }
+    }
     mexternaltools->clear();
 
     // delete old tools and create list of new ones
     QMap<QString, ExternalTool *> newTools;
     QMap<QString, QAction *> newActions;
+    QMap<QString, QAction *> newMenuActions;
     for (auto it = tools.cbegin(), end = tools.cend(); it != end; ++it) {
         const QList<ExternalTool *> values = it.value();
         for (ExternalTool *tool : values) {
             const QString id = tool->id();
             if (d->m_tools.value(id) == tool) {
                 newActions.insert(id, d->m_actions.value(id));
+                newMenuActions.insert(id, d->m_menuActions.value(id));
                 // remove from list to prevent deletion
                 d->m_tools.remove(id);
                 d->m_actions.remove(id);
+                d->m_menuActions.remove(id);
             }
             newTools.insert(id, tool);
         }
     }
+    qDeleteAll(d->m_menuActions);
     qDeleteAll(d->m_tools);
     const Id externalToolsPrefix = "Tools.External.";
     for (auto remainingActions = d->m_actions.cbegin(), end = d->m_actions.cend();
@@ -218,10 +222,12 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
     // assign the new stuff
     d->m_tools = newTools;
     d->m_actions = newActions;
+    d->m_menuActions = newMenuActions;
     d->m_categoryMap = tools;
     // create menu structure and remove no-longer used containers
     // add all the category menus, QMap is nicely sorted
     QMap<QString, ActionContainer *> newContainers;
+    QMap<QString, ActionContainer *> containers;
     for (auto it = tools.cbegin(), end = tools.cend(); it != end; ++it) {
         ActionContainer *container = nullptr;
         const QString &containerName = it.key();
@@ -235,28 +241,41 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
             newContainers.insert(containerName, container);
             mexternaltools->addMenu(container, Constants::G_DEFAULT_ONE);
             container->menu()->setTitle(containerName);
+            // The container does not know about the menu actions.
+            container->setOnAllDisabledBehavior(ActionContainer::Show);
         }
+        containers.insert(containerName, container);
+    }
+    // The menu actions are appended, so add them after all category menus.
+    for (auto it = tools.cbegin(), end = tools.cend(); it != end; ++it) {
+        QMenu *menu = containers.value(it.key())->menu();
         const QList<ExternalTool *> values = it.value();
         for (ExternalTool *tool : values) {
             const QString &toolId = tool->id();
             // tool action and command
             QAction *action = nullptr;
-            Command *command = nullptr;
+            QAction *menuAction = nullptr;
             if (d->m_actions.contains(toolId)) {
                 action = d->m_actions.value(toolId);
-                command = ActionManager::command(externalToolsPrefix.withSuffix(toolId));
+                menuAction = d->m_menuActions.value(toolId);
             } else {
                 ActionBuilder external(m_instance, externalToolsPrefix.withSuffix(toolId));
                 external.setCommandAttribute(Command::CA_UpdateText);
                 external.addOnTriggered(tool, [tool] { tool->execute(); });
                 action = external.contextAction();
                 d->m_actions.insert(toolId, action);
-                command = external.command();
+                // Only show the menu actions in the actions locator filter, since they
+                // are enabled/disabled correctly.
+                external.command()->setProperty("actionsfilter.hide", true);
+                menuAction = createMenuAction(tool, external.command());
+                d->m_menuActions.insert(toolId, menuAction);
             }
-            action->setText(tool->displayName());
-            action->setToolTip(tool->description());
-            action->setWhatsThis(tool->description());
-            container->addAction(command, Constants::G_DEFAULT_TWO);
+            for (QAction *a : {action, menuAction}) {
+                a->setText(tool->displayName());
+                a->setToolTip(tool->description());
+                a->setWhatsThis(tool->description());
+            }
+            menu->addAction(menuAction);
         }
     }
 
