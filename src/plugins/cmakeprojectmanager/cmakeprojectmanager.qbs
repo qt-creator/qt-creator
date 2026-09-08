@@ -59,6 +59,8 @@ Project {
             "cmakeprojectnodes.cpp",
             "cmakeprojectnodes.h",
             "cmakeprojectplugin.cpp",
+            "cmakequickfixes.cpp",
+            "cmakequickfixes.h",
             "cmaketool.cpp",
             "cmaketool.h",
             "cmaketoolmanager.cpp",

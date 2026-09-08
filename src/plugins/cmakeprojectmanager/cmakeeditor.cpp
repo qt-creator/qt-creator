@@ -11,6 +11,7 @@
 #include "cmakeoutline.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakequickfixes.h"
 #include "cmakeutils.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -420,6 +421,8 @@ CMakeTextDocument::CMakeTextDocument()
 {
     setId(Constants::CMAKE_EDITOR_ID);
     setMimeType(Utils::Constants::CMAKE_MIMETYPE);
+    setQuickFixAssistProvider(&cmakeQuickFixAssistProvider());
+    setupCMakeQuickFixMarkers(this);
 }
 
 //
@@ -540,6 +543,7 @@ public:
 
         ActionContainer *contextMenu = ActionManager::createMenu(Constants::M_CONTEXT);
         contextMenu->addAction(ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR));
+        contextMenu->addAction(ActionManager::command(TextEditor::Constants::QUICKFIX_THIS));
         contextMenu->addSeparator(Context(Constants::CMAKE_EDITOR_ID));
         contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
     }

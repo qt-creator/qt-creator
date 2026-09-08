@@ -30,6 +30,7 @@ add_qtc_plugin(CMakeProjectManager
     cmakeprojectmanagertr.h
     cmakeprojectnodes.cpp cmakeprojectnodes.h
     cmakeprojectplugin.cpp
+    cmakequickfixes.cpp cmakequickfixes.h
     mcptools.cpp mcptools.h
     cmakesettingspage.cpp cmakesettingspage.h
     cmakespecificsettings.cpp cmakespecificsettings.h

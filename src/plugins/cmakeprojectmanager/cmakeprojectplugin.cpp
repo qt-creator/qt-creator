@@ -17,6 +17,7 @@
 #include "cmakeprojectimporter.h"
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakequickfixes.h"
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
 #include "mcptools.h"
@@ -79,6 +80,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createCMakeOutputParserTest);
         addTestCreator(createCMakeAutogenParserTest);
         addTestCreator(createCMakeProjectImporterTest);
+        addTestCreator(createCMakeQuickFixesTest);
         addTestCreator(createAddDependenciesTest);
         addTestCreator(createQmlModuleFilesTest);
         addTestCreator(createTestPresetsInheritanceTest);

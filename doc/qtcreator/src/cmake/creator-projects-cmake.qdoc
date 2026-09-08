@@ -246,9 +246,30 @@
 
         \li Matching parentheses and quotes
 
+        \li A quick fix for creating source files that do not exist yet, with
+            \inlineimage {icons/refactormarker.png} {Light bulb icon}
+            on the lines that name one
+
     \endlist
 
     Warnings and errors are displayed in \l {Issues}.
+
+    \section1 Create missing source files
+
+    When you add a source file that does not exist to a command such as
+    \c add_executable or \c target_sources, CMake stops the configure run with
+    a \e {Cannot find source file} error.
+
+    \QC marks the lines that name such a file with
+    \inlineimage {icons/refactormarker.png} {Light bulb icon}.
+    Select it to create the file.
+
+    Or, place the cursor on the file name, or anywhere in the command that
+    lists it, select \key {Alt+Enter}, and then select
+    \uicontrol {Create File}.
+
+    Either way, \QC creates the file and the directories that lead to it,
+    opens it in the editor, and runs CMake again.
 
     \section1 Install missing Qt packages
 
@@ -265,8 +286,8 @@
 
     \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
 
-    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
-    {Snippets}
+    \sa {Build with CMake}{How To: Build with CMake}, {Apply quick fixes},
+    {CMake}, {Completion}, {Snippets}
 */
 
 /*!
