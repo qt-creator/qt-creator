@@ -8,9 +8,12 @@
 #include "gitplugin.h"
 #include "gitsettings.h"
 #include "gittr.h"
+#include "gitutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
+
+#include <diffeditor/diffutils.h>
 
 #ifdef WITH_TESTS
 #include "extensionsystem/iplugin.h"
@@ -32,10 +35,12 @@
 
 #include <QAction>
 #include <QDateTime>
+#include <QFuture>
 #include <QLabel>
 #include <QLayout>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QPromise>
 #include <QTimer>
 
 #ifdef WITH_TESTS
@@ -86,6 +91,64 @@ private:
 
     CommitInfo m_info;
 };
+
+struct EditorLineDiff
+{
+    QStringList oldLines;
+    QString newLine;
+    bool isValid = false;
+};
+
+static EditorLineDiff editorLineDiff(const DiffEditor::ChunkData &chunk, int editorLine)
+{
+    EditorLineDiff result;
+    QStringList pendingOldLines;
+    int currentEditorLine = 0;
+    for (const DiffEditor::RowData &row : chunk.rows) {
+        if (row.equal) {
+            pendingOldLines.clear();
+            if (row.line[DiffEditor::RightSide].textLineType
+                == DiffEditor::TextLineData::TextLine) {
+                ++currentEditorLine;
+            }
+            continue;
+        }
+
+        const DiffEditor::TextLineData &oldLine = row.line[DiffEditor::LeftSide];
+        if (oldLine.textLineType == DiffEditor::TextLineData::TextLine)
+            pendingOldLines.append(oldLine.text);
+
+        const DiffEditor::TextLineData &newLine = row.line[DiffEditor::RightSide];
+        if (newLine.textLineType != DiffEditor::TextLineData::TextLine)
+            continue;
+        if (++currentEditorLine == editorLine) {
+            result.oldLines = pendingOldLines;
+            result.newLine = newLine.text;
+            result.isValid = true;
+            return result;
+        }
+        pendingOldLines.clear();
+    }
+    return result;
+}
+
+static EditorLineDiff editorLineDiffAgainstEditorText(const QString &baseText,
+                                                       const QString &editorText,
+                                                       int editorLine)
+{
+    return editorLineDiff(diffChunkAgainstEditorText(baseText, editorText), editorLine);
+}
+
+static void computeEditorLineDiff(QPromise<EditorLineDiff> &promise,
+                                  const QString &baseText,
+                                  const QString &editorText,
+                                  int editorLine)
+{
+    const DiffEditor::ChunkData chunk = diffChunkAgainstEditorText(
+        baseText, editorText, QFuture<void>(promise.future()));
+    if (!promise.isCanceled())
+        promise.addResult(editorLineDiff(chunk, editorLine));
+}
 
 class BlameController : public QObject
 {

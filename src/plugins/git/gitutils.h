@@ -3,11 +3,16 @@
 
 #pragma once
 
+#include <QFuture>
 #include <QString>
+
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
+
+namespace DiffEditor { class ChunkData; }
 
 namespace Git::Internal {
 
@@ -21,5 +26,9 @@ public:
 
 // Make QInputDialog  play nicely
 bool inputText(QWidget *parent, const QString &title, const QString &prompt, QString *s);
+
+DiffEditor::ChunkData diffChunkAgainstEditorText(
+    const QString &baseText, const QString &editorText,
+    const std::optional<QFuture<void>> &future = {});
 
 } // Git::Internal
