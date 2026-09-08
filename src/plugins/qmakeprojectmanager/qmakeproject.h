@@ -83,6 +83,7 @@ public:
     bool canBuildFile(ProjectExplorer::FileNode *file) const override;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &file) const final;
+    Utils::FilePaths binariesForSourceFile(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
     QList<QPair<Utils::Id, QString>> generators() const override;
     void runGenerator(Utils::Id id) override;
@@ -91,7 +92,7 @@ public:
     void buildFinished(bool success);
     void activeTargetWasChanged(ProjectExplorer::Target *);
 
-    Utils::FilePath executableFor(const QmakeProFile *file);
+    Utils::FilePath executableFor(const QmakeProFile *file) const;
 
     void updateCppCodeModel();
 
@@ -102,6 +103,7 @@ public:
     void collectApplicationData(const QmakeProFile *file,
                                 ProjectExplorer::DeploymentData &deploymentData);
     Utils::FilePaths allLibraryTargetFiles(const QmakeProFile *file) const;
+    Utils::FilePath productBinary(const QmakeProFile *file) const;
     void collectLibraryData(const QmakeProFile *file,
             ProjectExplorer::DeploymentData &deploymentData);
     void startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay);
@@ -199,5 +201,9 @@ private:
     ProjectExplorer::Task m_generatorError;
     bool m_firstParseNeeded = true;
 };
+
+#ifdef WITH_TESTS
+namespace Internal { QObject *createQmakeProjectTest(); }
+#endif
 
 } // namespace QmakeProjectManager

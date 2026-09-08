@@ -1551,6 +1551,9 @@ void QmakeProFile::evaluate(QPromise<QmakeEvalResultPtr> &promise, const QmakeEv
         result->newVarValues[Variable::PrecompiledHeader] = ProFileEvaluator::sourcesToFiles(exactReader->fixifiedValues(
                     QLatin1String("PRECOMPILED_HEADER"), input.projectDir.path(), input.buildDirectory.path(), false));
         result->newVarValues[Variable::LibDirectories] = libDirectories(exactReader);
+        result->newVarValues[Variable::Libs] = exactReader->values(QLatin1String("LIBS"));
+        result->newVarValues[Variable::LibsPrivate]
+                = exactReader->values(QLatin1String("LIBS_PRIVATE"));
         result->newVarValues[Variable::Config] = exactReader->values(QLatin1String("CONFIG"));
         result->newVarValues[Variable::QmlImportPath] = exactReader->absolutePathValues(
                     QLatin1String("QML_IMPORT_PATH"), input.projectDir.path());
