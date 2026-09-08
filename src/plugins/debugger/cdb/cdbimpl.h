@@ -46,6 +46,8 @@ public:
     bool breakOnMain = false;
     bool enableHeapDebugging = false;
     bool ignoreFirstChanceAccessViolation = false;
+    // The program gets a console of its own, so its output goes there.
+    bool useTerminal = false;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
     int qtVersion = 0;

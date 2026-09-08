@@ -223,6 +223,8 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     // it without any symbol path at all.
     if (!symbolPaths.isEmpty())
         cdbCommand.addArgs({"-y", symbolPaths.join(';')});
+    if (m_startData.useTerminal)
+        cdbCommand.addArg("-2");
     if (m_startData.ignoreFirstChanceAccessViolation)
         cdbCommand.addArg("-x");
     if (!m_startData.additionalArguments.isEmpty())
@@ -250,6 +252,14 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     env.set("_NT_DEBUGGER_EXTENSION_PATH", m_startData.extensionDir.nativePath());
     if (!env.hasKey(Constants::NO_DEBUG_HEAP))
         env.set(Constants::NO_DEBUG_HEAP, m_startData.enableHeapDebugging ? "0" : "1");
+    // Without a console of its own, QTestLib and qDebug() have to reach the
+    // debugger through OutputDebugString to be seen at all.
+    if (!m_startData.useTerminal) {
+        for (const QString &key : QStringList{"QT_LOGGING_TO_CONSOLE", "QT_FORCE_STDERR_LOGGING"}) {
+            if (!env.hasKey(key))
+                env.set(key, "0");
+        }
+    }
     m_cdbProc.setEnvironment(env);
 
     m_watchdog.setSingleShot(true);
@@ -302,6 +312,7 @@ CdbImpl::~CdbImpl()
 
 void CdbImpl::start()
 {
+    emit message(QString("Launching %1").arg(m_cdbProc.commandLine().toUserOutput()), LogMisc);
     m_cdbProc.start();
 }
 

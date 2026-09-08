@@ -219,6 +219,8 @@ struct InferiorTestData
     QString heapFlagReportPrefix;
     // What it prints after handling an access violation of its own, if it can.
     QString survivedAccessViolationMarker;
+    // What it prints the value of the variable named in QTC_BACKEND_ENV_QUERY behind.
+    QString environmentQueryPrefix;
     QString workingDirectoryReportPrefix;
     FilePath moduleSymbolsPath;
     QString falseLiteral = "0";
@@ -1055,6 +1057,10 @@ private slots:
     void continueSignalsExitedForSpontaneousExit();
     void reportsApplicationOutput_data() { addBackendRows(); }
     void reportsApplicationOutput();
+    void keepsQtLoggingOffTheConsoleWithoutATerminal_data() { addBackendRows(); }
+    void keepsQtLoggingOffTheConsoleWithoutATerminal();
+    void asksCdbForItsOwnConsoleWithATerminal_data() { addBackendRows(); }
+    void asksCdbForItsOwnConsoleWithATerminal();
     void ignoresAFirstChanceAccessViolationWhenAsked_data() { addBackendRows(); }
     void ignoresAFirstChanceAccessViolationWhenAsked();
     void passesTheHeapDebuggingFlagToTheDebuggee_data() { addBackendRows(); }
@@ -1233,6 +1239,8 @@ private:
         Backend backend, bool enableHeapDebugging);
     std::unique_ptr<DebuggerBackend> createEngineForAccessViolations(
         Backend backend, bool ignoreFirstChance, const QStringList &inferiorArguments);
+    std::unique_ptr<DebuggerBackend> createEngineWithTerminal(
+        Backend backend, bool useTerminal, const Utils::Environment &inferiorEnvironment);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData,
         Debugger::Internal::GdbImplFlags gdbFlags = {});
@@ -1630,6 +1638,22 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngineForAccessViolations(
         .ignoreFirstChanceAccessViolation = ignoreFirstChance}));
 }
 
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithTerminal(
+    Backend backend, bool useTerminal, const Environment &inferiorEnvironment)
+{
+    if (backend != Backend::Cdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          Environment::systemEnvironment()},
+        .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                            inferiorEnvironment},
+        .extensionDir = m_backendData[backend].cdbExtensionDir,
+        .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+        .useTerminal = useTerminal}));
+}
+
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
     Backend backend, const InferiorStartData &inferiorStartData, GdbImplFlags gdbFlags)
 {
@@ -2000,6 +2024,10 @@ void tst_backends::initTestCase()
         "    recurse(40);",
         "    if (const char *marker = getenv(\"QTC_BACKEND_ENV_MARKER\"))",
         "        printf(\"env=%s\\n\", marker);",
+        "    if (const char *queried = getenv(\"QTC_BACKEND_ENV_QUERY\")) {",
+        "        const char *value = getenv(queried);",
+        "        printf(\"query=%s=%s\\n\", queried, value ? value : \"unset\");",
+        "    }",
         "    const char *heap = getenv(\"_NO_DEBUG_HEAP\");",
         "    printf(\"heap=%s\\n\", heap ? heap : \"unset\");",
         "    char cwd[1024] = {0};",
@@ -2046,6 +2074,7 @@ void tst_backends::initTestCase()
     cppInferiorData.afterThrowOutputMarker = "caught 42";
     cppInferiorData.environmentReportPrefix = "env=";
     cppInferiorData.heapFlagReportPrefix = "heap=";
+    cppInferiorData.environmentQueryPrefix = "query=";
     cppInferiorData.workingDirectoryReportPrefix = "cwd=";
     cppInferiorData.disassemblySourceMarker = "globalValue = localValue";
     cppInferiorData.expectedExitCode = 7;
@@ -4673,6 +4702,91 @@ void tst_backends::reportsApplicationOutput()
                                                  "channels saw:\n  %2")
                                              .arg(marker, otherChannels.join("\n  ").left(600))),
                               s_timeout);
+}
+
+void tst_backends::keepsQtLoggingOffTheConsoleWithoutATerminal()
+{
+    QFETCH(Backend, backend);
+
+    const QString prefix = inferiorTestData(backend).environmentQueryPrefix;
+    if (prefix.isEmpty())
+        QSKIP("inferior cannot be asked for a variable of its environment");
+
+    auto reportedValue = [&](bool useTerminal, const QString &variable) -> QString {
+        Environment inferiorEnvironment = Environment::systemEnvironment();
+        inferiorEnvironment.set("QTC_BACKEND_ENV_QUERY", variable);
+        inferiorEnvironment.unset(variable);
+        std::unique_ptr<DebuggerBackend> debuggerBackend
+            = createEngineWithTerminal(backend, useTerminal, inferiorEnvironment);
+        if (!debuggerBackend)
+            return {};
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        QStringList applicationOutput;
+        connect(engine, &DebuggerEngineInterface::message, this,
+                [&applicationOutput](const QString &text, int channel, int) {
+            if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+                applicationOutput.append(text);
+        });
+        engine->start();
+        const QString expected = prefix + variable + '=';
+        QString reported;
+        auto sawTheAnswer = [&] {
+            for (const QString &line : std::as_const(applicationOutput)) {
+                const int at = line.indexOf(expected);
+                if (at < 0)
+                    continue;
+                reported = line.mid(at + expected.size()).trimmed();
+                return true;
+            }
+            return false;
+        };
+        [&] { QTRY_VERIFY_WITH_TIMEOUT(sawTheAnswer(), s_warmUpTimeout); }();
+        debuggerBackend->clearEvents();
+        engine->shutdownInferior(ShutdownMode::Kill);
+        [&debuggerBackend] {
+            QTRY_VERIFY_WITH_TIMEOUT(
+                debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+        }();
+        engine->shutdownEngine();
+        return reported;
+    };
+
+    const QString withoutTerminal = reportedValue(false, "QT_LOGGING_TO_CONSOLE");
+    if (withoutTerminal.isEmpty())
+        QSKIP("This backend's start data says nothing about a terminal.");
+    QCOMPARE(withoutTerminal, QString("0"));
+    QCOMPARE(reportedValue(false, "QT_FORCE_STDERR_LOGGING"), QString("0"));
+}
+
+void tst_backends::asksCdbForItsOwnConsoleWithATerminal()
+{
+    QFETCH(Backend, backend);
+
+    auto launchCommand = [&](bool useTerminal) -> QString {
+        std::unique_ptr<DebuggerBackend> debuggerBackend = createEngineWithTerminal(
+            backend, useTerminal, Environment::systemEnvironment());
+        if (!debuggerBackend)
+            return {};
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        QString launched;
+        connect(engine, &DebuggerEngineInterface::message, this,
+                [&launched](const QString &text, int, int) {
+            if (text.startsWith("Launching "))
+                launched = text;
+        });
+        engine->start();
+        [&launched] { QTRY_VERIFY_WITH_TIMEOUT(!launched.isEmpty(), s_timeout); }();
+        engine->shutdownEngine();
+        return launched;
+    };
+
+    const QString withTerminal = launchCommand(true);
+    if (withTerminal.isEmpty())
+        QSKIP("This backend reports no command line of its own.");
+    QVERIFY2(withTerminal.contains(" -2"),
+             qPrintable("the debugger was not asked for a console: " + withTerminal));
+    QVERIFY2(!launchCommand(false).contains(" -2"),
+             "the debugger was asked for a console although none was wanted");
 }
 
 void tst_backends::ignoresAFirstChanceAccessViolationWhenAsked()
