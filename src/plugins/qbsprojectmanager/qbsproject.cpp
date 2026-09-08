@@ -357,6 +357,117 @@ FilePaths QbsBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
     return FilePaths::fromStrings(session()->filesGeneratedFrom(sourceFile.toUrlishString()));
 }
 
+static bool hasTag(const QJsonObject &object, const QString &key, const QString &tag)
+{
+    return object.value(key).toArray().contains(tag);
+}
+
+// Tags of the products, and of the artifacts, that a process loads as a module.
+static bool hasLoadedBinaryTag(const QJsonObject &object, const QString &key)
+{
+    return hasTag(object, key, "application") || hasTag(object, key, "dynamiclibrary")
+           || hasTag(object, key, "loadablemodule");
+}
+
+// Types of the products whose code is linked into whatever depends on them.
+static bool hasLinkedInTag(const QJsonObject &product)
+{
+    return hasTag(product, "type", "staticlibrary") || hasTag(product, "type", "objectlibrary");
+}
+
+// The tag of the archive a static library produces.
+static bool hasArchiveTag(const QJsonObject &object, const QString &key)
+{
+    return hasTag(object, key, "staticlibrary");
+}
+
+using TagPredicate = bool (*)(const QJsonObject &, const QString &);
+
+static FilePath targetArtifact(const QJsonObject &product, const FilePath &top,
+                               TagPredicate hasWantedTag)
+{
+    FilePath artifact;
+    forAllArtifacts(product, ArtifactType::Generated, [&](const QJsonObject &a) {
+        if (!artifact.isEmpty())
+            return;
+        if (hasWantedTag(a, "file-tags"))
+            artifact = top.withNewPath(a.value("file-path").toString());
+    });
+    return artifact;
+}
+
+static FilePaths binariesLinkingProduct(const QHash<QString, QJsonObject> &productsByName,
+                                        const QString &startProduct, const FilePath &top)
+{
+    FilePaths binaries;
+    QStringList pendingProducts{startProduct};
+    QSet<QString> seen;
+    while (!pendingProducts.isEmpty()) {
+        const QString name = pendingProducts.takeLast();
+        if (!Utils::insert(seen, name))
+            continue;
+        const QJsonObject product = productsByName.value(name);
+        if (hasLoadedBinaryTag(product, "type")) {
+            const FilePath binary = targetArtifact(product, top, hasLoadedBinaryTag);
+            if (!binary.isEmpty())
+                binaries << binary;
+            continue;
+        }
+        if (!hasLinkedInTag(product))
+            continue;
+        // Code from a static or object library ends up in whatever links it.
+        for (auto it = productsByName.cbegin(); it != productsByName.cend(); ++it) {
+            if (it.value().value("dependencies").toArray().contains(name))
+                pendingProducts << it.key();
+        }
+    }
+    return binaries;
+}
+
+static FilePaths linkingBinaries(const QJsonObject &projectData, const FilePath &sourceFile,
+                                 const FilePath &top)
+{
+    QHash<QString, QJsonObject> productsByName;
+    QStringList startProducts;
+    forAllProducts(projectData, [&](const QJsonObject &product) {
+        // A product excluded by its condition is never built, so nothing links
+        // its code and it links nothing itself.
+        if (!product.value("is-enabled").toBool())
+            return;
+        const QString name = product.value("full-display-name").toString();
+        productsByName.insert(name, product);
+        forAllArtifacts(product, ArtifactType::Source, [&](const QJsonObject &a) {
+            if (top.withNewPath(a.value("file-path").toString()) == sourceFile
+                && !startProducts.contains(name)) {
+                startProducts << name;
+            }
+        });
+    });
+
+    FilePaths binaries;
+    for (const QString &name : std::as_const(startProducts)) {
+        FilePaths reached = binariesLinkingProduct(productsByName, name, top);
+        if (reached.isEmpty()) {
+            // Nothing links this archive, so it is the only binary carrying the
+            // code, exactly as the generic fallback would have answered.
+            const FilePath archive = targetArtifact(productsByName.value(name), top, hasArchiveTag);
+            if (archive.isEmpty())
+                continue;
+            reached = {archive};
+        }
+        for (const FilePath &binary : std::as_const(reached)) {
+            if (!binaries.contains(binary))
+                binaries << binary;
+        }
+    }
+    return binaries;
+}
+
+FilePaths QbsBuildSystem::binariesForSourceFile(const FilePath &sourceFile) const
+{
+    return linkingBinaries(m_projectData, sourceFile, project()->projectFilePath());
+}
+
 bool QbsBuildSystem::isProjectEditable() const
 {
     return !isParsing() && !BuildManager::isBuilding(target());
@@ -1379,3 +1490,198 @@ void QbsBuildSystem::updateBuildTargetData()
 }
 
 } // namespace QbsProjectManager::Internal
+
+#ifdef WITH_TESTS
+
+#include <QJsonDocument>
+#include <QTest>
+
+namespace QbsProjectManager::Internal {
+
+// The shape of what a resolved qbs project reports for an application, two
+// dynamic libraries and a loadable module, the static library all three of
+// them link, the second static library behind that one, an object library one
+// of the dynamic libraries links, a static library nothing links, and a
+// disabled product.
+static const char projectDataJson[] = R"({
+    "products": [
+        {
+            "full-display-name": "app",
+            "is-enabled": true,
+            "type": ["application"],
+            "dependencies": ["alpha", "base"],
+            "groups": [{"source-artifacts": [
+                {"file-path": "/s/app/main.cpp"},
+                {"file-path": "/s/shared/shared.h"}
+            ]}],
+            "generated-artifacts": [
+                {"file-path": "/b/app/main.cpp.o", "file-tags": ["obj", "cpp_obj"]},
+                {"file-path": "/b/app/app", "file-tags": ["application", "installable"]}
+            ]
+        },
+        {
+            "full-display-name": "core",
+            "is-enabled": true,
+            "type": ["staticlibrary"],
+            "dependencies": ["base"],
+            "groups": [{"source-artifacts": [
+                {"file-path": "/s/core/core.cpp"},
+                {"file-path": "/s/core/core.h"}
+            ]}],
+            "generated-artifacts": [
+                {"file-path": "/b/core/libcore.a", "file-tags": ["staticlibrary"]}
+            ]
+        },
+        {
+            "full-display-name": "base",
+            "is-enabled": true,
+            "type": ["staticlibrary"],
+            "dependencies": [],
+            "groups": [{"source-artifacts-from-wildcards": [
+                {"file-path": "/s/base/base.cpp"}
+            ]}],
+            "generated-artifacts": [
+                {"file-path": "/b/base/libbase.a", "file-tags": ["staticlibrary"]}
+            ]
+        },
+        {
+            "full-display-name": "plugin",
+            "is-enabled": true,
+            "type": ["loadablemodule"],
+            "dependencies": ["core"],
+            "groups": [{"source-artifacts": [{"file-path": "/s/plugin/plugin.cpp"}]}],
+            "generated-artifacts": [
+                {"file-path": "/b/plugin/libplugin.so", "file-tags": ["loadablemodule"]}
+            ]
+        },
+        {
+            "full-display-name": "winonly",
+            "is-enabled": false,
+            "type": ["application"],
+            "dependencies": ["core"],
+            "groups": [{"source-artifacts": [{"file-path": "/s/winonly/win.cpp"}]}],
+            "generated-artifacts": [
+                {"file-path": "/b/winonly/winonly", "file-tags": ["application"]}
+            ]
+        },
+        {
+            "full-display-name": "objlib",
+            "is-enabled": true,
+            "type": ["objectlibrary"],
+            "dependencies": [],
+            "groups": [{"source-artifacts": [{"file-path": "/s/objlib/obj.cpp"}]}],
+            "generated-artifacts": [
+                {"file-path": "/b/objlib/obj.cpp.o", "file-tags": ["obj", "objectlibrary"]}
+            ]
+        },
+        {
+            "full-display-name": "orphan",
+            "is-enabled": true,
+            "type": ["staticlibrary"],
+            "dependencies": [],
+            "groups": [{"source-artifacts": [
+                {"file-path": "/s/orphan/orphan.cpp"},
+                {"file-path": "/s/shared/shared.h"}
+            ]}],
+            "generated-artifacts": [
+                {"file-path": "/b/orphan/liborphan.a", "file-tags": ["staticlibrary"]}
+            ]
+        },
+        {
+            "full-display-name": "tool",
+            "is-enabled": true,
+            "type": [],
+            "dependencies": [],
+            "groups": [{"source-artifacts": [{"file-path": "/s/tool/tool.sh"}]}]
+        }
+    ],
+    "sub-projects": [
+        {
+            "products": [
+                {
+                    "full-display-name": "alpha",
+                    "is-enabled": true,
+                    "type": ["dynamiclibrary"],
+                    "dependencies": ["core"],
+                    "groups": [{"source-artifacts": [{"file-path": "/s/alpha/alpha.cpp"}]}],
+                    "generated-artifacts": [
+                        {"file-path": "/b/alpha/.sosymbols/libalpha.so",
+                         "file-tags": ["dynamiclibrary_symbols"]},
+                        {"file-path": "/b/alpha/libalpha.so", "file-tags": ["dynamiclibrary"]}
+                    ]
+                },
+                {
+                    "full-display-name": "beta",
+                    "is-enabled": true,
+                    "type": ["dynamiclibrary"],
+                    "dependencies": ["core", "objlib"],
+                    "groups": [{"source-artifacts": [{"file-path": "/s/beta/beta.cpp"}]}],
+                    "generated-artifacts": [
+                        {"file-path": "/b/beta/libbeta.so", "file-tags": ["dynamiclibrary"]}
+                    ]
+                }
+            ]
+        }
+    ]
+})";
+
+class QbsProjectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testBinariesForSourceFile()
+    {
+        const QJsonObject projectData = QJsonDocument::fromJson(projectDataJson).object();
+        QVERIFY(!projectData.isEmpty());
+        const FilePath top = FilePath::fromString("/s/top.qbs");
+        const auto binaries = [&](const QString &source) {
+            return Utils::sorted(linkingBinaries(projectData, FilePath::fromString(source), top));
+        };
+
+        QCOMPARE(binaries("/s/app/main.cpp"), FilePaths{"/b/app/app"});
+        QCOMPARE(binaries("/s/alpha/alpha.cpp"), FilePaths{"/b/alpha/libalpha.so"});
+        QCOMPARE(binaries("/s/plugin/plugin.cpp"), FilePaths{"/b/plugin/libplugin.so"});
+
+        // Code from a static library ends up in everything linking it, and in
+        // neither the application behind those nor its own archive.
+        const FilePaths linkingCore{"/b/alpha/libalpha.so", "/b/beta/libbeta.so",
+                                    "/b/plugin/libplugin.so"};
+        QCOMPARE(binaries("/s/core/core.cpp"), linkingCore);
+        QCOMPARE(binaries("/s/core/core.h"), linkingCore);
+
+        // A static library reached through another one, here also linked by
+        // the application directly.
+        QCOMPARE(binaries("/s/base/base.cpp"),
+                 FilePaths({"/b/alpha/libalpha.so", "/b/app/app", "/b/beta/libbeta.so",
+                            "/b/plugin/libplugin.so"}));
+
+        // An object library is not packaged into an archive, but its code is
+        // linked in just the same.
+        QCOMPARE(binaries("/s/objlib/obj.cpp"), FilePaths{"/b/beta/libbeta.so"});
+
+        // A static library nothing links is where its code stops, so it
+        // answers with its own archive rather than with nothing.
+        QCOMPARE(binaries("/s/orphan/orphan.cpp"), FilePaths{"/b/orphan/liborphan.a"});
+        QCOMPARE(binaries("/s/shared/shared.h"),
+                 FilePaths({"/b/app/app", "/b/orphan/liborphan.a"}));
+
+        // A product excluded by its condition counts for nothing, neither for
+        // its own sources nor as something linking the static library.
+        QCOMPARE(binaries("/s/winonly/win.cpp"), FilePaths());
+
+        QCOMPARE(binaries("/s/tool/tool.sh"), FilePaths());
+        QCOMPARE(binaries("/s/app/unknown.cpp"), FilePaths());
+    }
+};
+
+QObject *createQbsProjectTest()
+{
+    return new QbsProjectTest;
+}
+
+} // namespace QbsProjectManager::Internal
+
+#include "qbsproject.moc"
+
+#endif // WITH_TESTS

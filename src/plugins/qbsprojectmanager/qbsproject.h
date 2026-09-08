@@ -63,6 +63,7 @@ public:
         Utils::FilePaths *notRenamed) final;
     bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
+    Utils::FilePaths binariesForSourceFile(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;
     void buildFile(ProjectExplorer::FileNode *file) final;
@@ -155,5 +156,9 @@ private:
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
     ProjectExplorer::Task m_fileUpdateError;
 };
+
+#ifdef WITH_TESTS
+QObject *createQbsProjectTest();
+#endif
 
 } // namespace QbsProjectManager::Internal

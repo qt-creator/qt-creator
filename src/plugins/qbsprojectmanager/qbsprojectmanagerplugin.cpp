@@ -109,6 +109,10 @@ QbsProjectManagerPlugin::~QbsProjectManagerPlugin()
 
 void QbsProjectManagerPlugin::initialize()
 {
+#ifdef WITH_TESTS
+    addTestCreator(createQbsProjectTest);
+#endif
+
     d = new QbsProjectManagerPluginPrivate;
 
     Core::IOptionsPage::registerCategory(
