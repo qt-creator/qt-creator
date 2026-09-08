@@ -60,6 +60,7 @@ private:
     void configureTarget();
     void handleResponse(DapResponseType type, const QJsonObject &response);
     void handleEvent(DapEventType type, const QJsonObject &event);
+    void interruptInferior();
     void handleStopped(const QJsonObject &event);
     void handleStackTrace(const QJsonObject &response);
     void reportStop();
@@ -92,6 +93,9 @@ private:
     int m_currentFrameId = -1;
     bool m_stopRequested = false;
     bool m_inferiorRunning = false;
+    bool m_resumePending = false;
+    bool m_stopPending = false;
+    bool m_interruptOnceRunning = false;
 
     // The stop event carries no frame, so the location has to be asked for.
     // The answer is routed by the request's sequence number.

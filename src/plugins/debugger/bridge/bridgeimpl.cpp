@@ -336,15 +336,23 @@ void BridgeImpl::execute(const ExecutionRequest &request)
             return;
         }
         m_stopRequested = false;
+        m_resumePending = true;
         m_client->sendContinue(m_currentThreadId);
         return;
     case ExecutionCommand::Interrupt:
+        if (m_stopPending) {
+            m_stopRequested = true;
+            return;
+        }
+        if (m_resumePending) {
+            m_interruptOnceRunning = true;
+            return;
+        }
         if (!m_inferiorRunning) {
             emit inferiorEvent(InferiorEvent::StopOk);
             return;
         }
-        m_stopRequested = true;
-        m_client->dataProvider()->interrupt();
+        interruptInferior();
         return;
     case ExecutionCommand::StepIn:
         postRequest("stepIn", stepArguments(request.flag));
@@ -551,17 +559,28 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         postLaunchOrAttach();
         return;
     }
-    case DapResponseType::ConfigurationDone:
+    case DapResponseType::ConfigurationDone: {
         emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
-        m_inferiorRunning = true;
+        const bool attaching
+            = std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData);
+        m_inferiorRunning = !attaching;
+        m_stopPending = attaching;
         return;
+    }
     case DapResponseType::Continue:
         if (!success && response.value("message").toString() == "The program is not being run.") {
             emit inferiorEvent(InferiorEvent::InferiorIll);
             return;
         }
         emit inferiorEvent(success ? InferiorEvent::RunOk : InferiorEvent::RunFailed);
+        m_resumePending = false;
         m_inferiorRunning = success;
+        if (std::exchange(m_interruptOnceRunning, false)) {
+            if (success)
+                interruptInferior();
+            else
+                emit inferiorEvent(InferiorEvent::StopFailed);
+        }
         return;
     case DapResponseType::StepIn:
     case DapResponseType::StepOut:
@@ -853,12 +872,19 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
     }
 }
 
+void BridgeImpl::interruptInferior()
+{
+    m_stopRequested = true;
+    m_client->dataProvider()->interrupt();
+}
+
 void BridgeImpl::handleStopped(const QJsonObject &event)
 {
     const QJsonObject body = event.value("body").toObject();
     m_currentThreadId = body.value("threadId").toInt();
     m_currentFrameId = 1;
     m_inferiorRunning = false;
+    m_stopPending = false;
 
     // Report the stop only once the location is known, as the other backends do.
     const int seq = m_client->stackTrace(m_currentThreadId);
