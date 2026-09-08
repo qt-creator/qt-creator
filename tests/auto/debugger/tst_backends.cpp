@@ -706,9 +706,9 @@ static bool reportsDumperTypes(Backend backend)
     switch (backend) {
     case Backend::Gdb:
     case Backend::Lldb:
+    case Backend::Cdb:
     case Backend::Bridge:
         return true;
-    case Backend::Cdb: // CdbEngine reports them; CdbImpl not yet - needs the VM
     case Backend::Pdb: // formats python values directly, with no dumper modules
     case Backend::Qml: // no python dumpers at all
         break;

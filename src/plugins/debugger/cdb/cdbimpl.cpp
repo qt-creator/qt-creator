@@ -1162,7 +1162,10 @@ void CdbImpl::loadConfiguredDumpers()
                 emit message(output.childAt(i).data(), LogMisc);
         }});
     }
-    runCommand({"theDumper.loadDumpers(None)", ScriptCommand});
+    runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
+               [this](const DebuggerResponse &response) {
+        emit refreshDataReceived(0, RefreshKind::DebuggingHelpers, response.data["result"]);
+    }});
 }
 
 void CdbImpl::setupScripting()
@@ -1580,7 +1583,13 @@ void CdbImpl::refresh(const RefreshRequest &request)
         return;
     }
     if (request.kind == RefreshKind::DebuggingHelpers) {
-        refresh({request.requestId, RefreshKind::Locals});
+        const quint64 requestId = request.requestId;
+        runCommand({"theDumper.reloadDumpers(None)", ScriptCommand,
+                   [this, requestId](const DebuggerResponse &response) {
+            emit refreshDataReceived(requestId, RefreshKind::DebuggingHelpers,
+                                     response.data["result"]);
+        }});
+        refresh({requestId, RefreshKind::Locals});
         return;
     }
     if (request.kind == RefreshKind::AllSymbols) {
