@@ -487,16 +487,16 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
     if (!remoteData.attachPid.isValid() && remoteData.remoteExecutable.isEmpty()) {
         const bool stoppedAlready = (m_attachPhase == AttachPhase::Stopped);
         m_attachPhase = AttachPhase::Idle;
-        if (stoppedAlready)
+        if (response.resultClass != ResultDone) {
+            if (!stoppedAlready)
+                emit inferiorEvent(InferiorEvent::EngineIll);
             return;
-        if (response.resultClass == ResultDone) {
-            for (const QString &command : m_startData.userCommands.afterConnect)
-                runCommand({command, DebuggerCommand::NativeCommand});
-            runPostAttachCommands();
-            emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
-        } else {
-            emit inferiorEvent(InferiorEvent::EngineIll);
         }
+        for (const QString &command : m_startData.userCommands.afterConnect)
+            runCommand({command, DebuggerCommand::NativeCommand});
+        runPostAttachCommands();
+        if (!stoppedAlready)
+            emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
         return;
     }
 

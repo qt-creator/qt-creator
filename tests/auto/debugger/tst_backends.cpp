@@ -648,6 +648,36 @@ static QString responseTimeMarker(Backend backend)
     return {};
 }
 
+// The user command hooks that fire on their own occasion rather than at
+// startup, so that only the occasion can cover them.
+enum class UserCommandHook { Reset, AfterConnect };
+
+// The command a backend is given for a hook, and what that command prints.
+// Empty means its start data carries no such hook.
+struct UserCommandProbe
+{
+    QString command;
+    QString marker;
+};
+
+static UserCommandProbe userCommandProbe(Backend backend, UserCommandHook hook)
+{
+    switch (backend) {
+    case Backend::Gdb: {
+        const QString marker = hook == UserCommandHook::Reset ? QString("QTCFORRESETMARKER")
+                                                              : QString("QTCAFTERCONNECTMARKER");
+        return {"echo " + marker + "\\n", marker};
+    }
+    case Backend::Lldb:
+    case Backend::Cdb:
+    case Backend::Pdb:
+    case Backend::Qml:
+    case Backend::Bridge:
+        break;
+    }
+    return {};
+}
+
 static bool limitsStackDepth(Backend backend)
 {
     switch (backend) {
@@ -1106,6 +1136,8 @@ private slots:
     void attachesToTerminalRunProcess();
     void attachesToRunningRemoteServer_data() { addBackendRows(); }
     void attachesToRunningRemoteServer();
+    void runsUserCommandsAfterConnectingToARemoteServer_data() { addBackendRows(); }
+    void runsUserCommandsAfterConnectingToARemoteServer();
     void attachesToRemoteProcessByPid_data() { addBackendRows(); }
     void attachesToRemoteProcessByPid();
     void runsRemoteExecutableViaExtendedRemote_data() { addBackendRows(); }
@@ -1478,7 +1510,9 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
                                               Environment::systemEnvironment()},
             .inferiorStartData = inferiorStartData,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .flags = gdbFlags}));
+            .flags = gdbFlags,
+            .userCommands = {.afterConnect
+                                 = {userCommandProbe(backend, UserCommandHook::AfterConnect).command}}}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(DapStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -8286,6 +8320,51 @@ void tst_backends::attachesToRunningRemoteServer()
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
     engine->shutdownEngine();
 
+    QTRY_COMPARE_WITH_TIMEOUT(gdbserverProcess.state(), ProcessState::NotRunning, s_timeout);
+}
+
+void tst_backends::runsUserCommandsAfterConnectingToARemoteServer()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToRemoteServer); !result)
+        QSKIP(qPrintable(result.error()));
+    const UserCommandProbe probe = userCommandProbe(backend, UserCommandHook::AfterConnect);
+    if (probe.marker.isEmpty())
+        QSKIP("This backend's start data carries no commands for after connecting.");
+
+    if (!m_gdbserverPath.isExecutableFile())
+        QSKIP("gdbserver not found - set QTC_GDBSERVER_PATH_FOR_TEST to override.");
+
+    Process gdbserverProcess;
+    QString gdbserverOutput;
+    const QString port = startGdbserver(gdbserverProcess, {},
+                                        {inferiorTestData(backend).executable.nativePath()},
+                                        &gdbserverOutput);
+    QVERIFY2(!port.isEmpty(),
+             qPrintable("could not parse gdbserver's port from: " + gdbserverOutput));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(backend,
+        AttachToRemoteServerData{"localhost:" + port, inferiorTestData(backend).executable});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList messages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&messages](const QString &text, int, int) { messages.append(text); });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineIll), s_timeout);
+    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk));
+
+    QTRY_VERIFY2_WITH_TIMEOUT(messages.join(' ').contains(probe.marker),
+                              qPrintable("connecting to the server ran no configured command - "
+                                         "log: " + messages.join(' ').right(300)), s_timeout);
+
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
     QTRY_COMPARE_WITH_TIMEOUT(gdbserverProcess.state(), ProcessState::NotRunning, s_timeout);
 }
 
