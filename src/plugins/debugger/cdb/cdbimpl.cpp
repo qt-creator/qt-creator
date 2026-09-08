@@ -1387,6 +1387,27 @@ void CdbImpl::insertMainBreakpoint()
     insertBreakpoint(0, id, 0, params, false);
 }
 
+// The debug runtime calls these when it has something to say about a bad free,
+// a wild pointer or a failed assertion, which is the point to stop at.
+void CdbImpl::insertCrtDebugReportBreakpoints()
+{
+    const QString module = m_startData.crtDebugReportModule;
+    if (module.isEmpty())
+        return;
+    const QString report = QLatin1String(Constants::CRT_DEBUG_REPORT);
+    const QList<QPair<QString, QString>> locations = {
+        {module, report}, {module, report + 'W'}, {module + 'D', report}};
+    for (const auto &[inModule, function] : locations) {
+        BreakpointParameters params(BreakpointByFunction);
+        params.functionName = function;
+        params.module = inModule;
+        params.enabled = true;
+        const QString id = nextBreakpointId();
+        m_internalBreakpointIds.insert(id);
+        insertBreakpoint(0, id, 0, params, false);
+    }
+}
+
 void CdbImpl::resumeAfterSetup()
 {
     if (!m_commandForToken.isEmpty()) {
@@ -1951,6 +1972,8 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
             initializeSession([this] {
                 for (const QString &command : m_startData.startupCommands)
                     runCommand({command, NoFlags});
+                if (!isCore())
+                    insertCrtDebugReportBreakpoints();
                 if (m_isResetRestart) {
                     m_isResetRestart = false;
                     // insertBreakpoint() writes back into m_insertedBreakpoints.

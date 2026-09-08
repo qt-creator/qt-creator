@@ -48,6 +48,8 @@ public:
     bool ignoreFirstChanceAccessViolation = false;
     // The program gets a console of its own, so its output goes there.
     bool useTerminal = false;
+    // The C runtime to break in when it reports a debug problem, empty for none.
+    QString crtDebugReportModule;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
     int qtVersion = 0;
@@ -115,6 +117,7 @@ private:
     void syncExceptionEvents();
     void interruptInferior();
     void insertMainBreakpoint();
+    void insertCrtDebugReportBreakpoints();
     void resumeAfterSetup();
     class InterpreterBreakpoint
     {

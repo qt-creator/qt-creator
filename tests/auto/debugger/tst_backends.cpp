@@ -221,6 +221,11 @@ struct InferiorTestData
     QString survivedAccessViolationMarker;
     // What it prints the value of the variable named in QTC_BACKEND_ENV_QUERY behind.
     QString environmentQueryPrefix;
+    // A program built against the debug C runtime, which it asks to report.
+    Utils::FilePath debugCrtExecutable;
+    QString pastCrtReportMarker;
+    // The C runtime that program reports through.
+    QString crtDebugReportModule;
     QString workingDirectoryReportPrefix;
     FilePath moduleSymbolsPath;
     QString falseLiteral = "0";
@@ -1059,6 +1064,8 @@ private slots:
     void continueSignalsExitedForSpontaneousExit();
     void reportsApplicationOutput_data() { addBackendRows(); }
     void reportsApplicationOutput();
+    void stopsWhereTheDebugRuntimeReports_data() { addBackendRows(); }
+    void stopsWhereTheDebugRuntimeReports();
     void keepsQtLoggingOffTheConsoleWithoutATerminal_data() { addBackendRows(); }
     void keepsQtLoggingOffTheConsoleWithoutATerminal();
     void asksCdbForItsOwnConsoleWithATerminal_data() { addBackendRows(); }
@@ -1221,6 +1228,8 @@ private:
     void addBackendRows();
     void warmUpBackends();
     void buildOtherWordWidthInferior(const FilePath &compiler, InferiorTestData &data);
+    void buildDebugCrtInferior(const FilePath &compiler, const Utils::Environment &environment,
+                               InferiorTestData &data);
     // The flags default to what the settings default to, so a test only names
     // what it wants to be different.
     std::unique_ptr<DebuggerBackend> createEngine(Backend backend,
@@ -1243,6 +1252,8 @@ private:
         Backend backend, bool ignoreFirstChance, const QStringList &inferiorArguments);
     std::unique_ptr<DebuggerBackend> createEngineWithTerminal(
         Backend backend, bool useTerminal, const Utils::Environment &inferiorEnvironment);
+    std::unique_ptr<DebuggerBackend> createEngineForTheDebugRuntime(
+        Backend backend, const QString &crtDebugReportModule);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData,
         Debugger::Internal::GdbImplFlags gdbFlags = {});
@@ -1654,6 +1665,23 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithTerminal(
         .extensionFileName = m_backendData[backend].cdbExtensionFileName,
         .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
         .useTerminal = useTerminal}));
+}
+
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineForTheDebugRuntime(
+    Backend backend, const QString &crtDebugReportModule)
+{
+    if (backend != Backend::Cdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          Environment::systemEnvironment()},
+        .inferiorStartData = ProcessRunData{
+            {inferiorTestData(backend).debugCrtExecutable, {}}, {},
+            Environment::systemEnvironment()},
+        .extensionDir = m_backendData[backend].cdbExtensionDir,
+        .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+        .crtDebugReportModule = crtDebugReportModule}));
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
@@ -2187,6 +2215,7 @@ void tst_backends::initTestCase()
         cdbCompile.runBlocking(s_compileTimeout);
         if (cdbCompile.result() == ProcessResult::FinishedWithSuccess) {
             buildOtherWordWidthInferior(cdbCompiler, msvcInferiorData);
+            buildDebugCrtInferior(cdbCompiler, cdbCompileEnv, msvcInferiorData);
             m_backendData[Backend::Cdb].inferiorData = msvcInferiorData;
             m_backendData[Backend::Cdb].inferiorData.versionLine = cdbVersionLine;
             m_backendData[Backend::Cdb].inferiorData.answersRedundantContinue = true;
@@ -2320,6 +2349,57 @@ void tst_backends::initTestCase()
 // The inferior a host debugs through its compatibility layer for the other word
 // width. Built with the toolchain's own environment for that width, which the
 // tests skip without.
+void tst_backends::buildDebugCrtInferior(const FilePath &compiler,
+                                         const Environment &environment, InferiorTestData &data)
+{
+    const QStringList lines = {
+        "#include <crtdbg.h>",
+        "#include <cstdio>",
+        "",
+        "volatile bool keepSpinning = true;",
+        "",
+        "int main()",
+        "{",
+        "    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);",
+        "    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);",
+        "    _CrtDbgReport(_CRT_WARN, __FILE__, __LINE__, nullptr, \"reporting\\n\");",
+        "    printf(\"past the crt report\\n\");",
+        "    fflush(stdout);",
+        "    while (keepSpinning)",
+        "        ;",
+        "    return 0;",
+        "}",
+        "",
+    };
+    const FilePath source = FilePath::fromString(m_tempDir.path()) / "inferior_debugcrt.cpp";
+    if (!source.writeFileContents(lines.join('\n').toUtf8())) {
+        qWarning("Could not write %s.", qPrintable(source.toUserOutput()));
+        return;
+    }
+    const FilePath executable = (FilePath::fromString(m_tempDir.path()) / "inferior_debugcrt")
+                                    .withExecutableSuffix();
+    const FilePath pdb = FilePath::fromString(m_tempDir.path()) / "inferior_debugcrt.pdb";
+    Process compile;
+    compile.setCommand({compiler, {"/nologo", "/Zi", "/Od", "/MDd", "/EHsc",
+                                   "/Fe:" + executable.nativePath(),
+                                   "/Fd:" + pdb.nativePath(),
+                                   "/Fo:" + FilePath::fromString(m_tempDir.path()).nativePath()
+                                       + "\\",
+                                   source.nativePath()}});
+    compile.setEnvironment(environment);
+    QElapsedTimer timer;
+    timer.start();
+    compile.runBlocking(s_compileTimeout);
+    if (compile.result() != ProcessResult::FinishedWithSuccess) {
+        qWarning("%s", qPrintable(compileFailure("compiling the debug runtime inferior",
+                                                 compile, timer.elapsed())));
+        return;
+    }
+    data.debugCrtExecutable = executable;
+    data.pastCrtReportMarker = "past the crt report";
+    data.crtDebugReportModule = "ucrtbase";
+}
+
 void tst_backends::buildOtherWordWidthInferior(const FilePath &compiler, InferiorTestData &data)
 {
     const QString configured = qtcEnvironmentVariable("QTC_MSVC_ENV_BAT_32");
@@ -4704,6 +4784,58 @@ void tst_backends::reportsApplicationOutput()
                                                  "channels saw:\n  %2")
                                              .arg(marker, otherChannels.join("\n  ").left(600))),
                               s_timeout);
+}
+
+void tst_backends::stopsWhereTheDebugRuntimeReports()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.debugCrtExecutable.isEmpty())
+        QSKIP("no program built against the debug C runtime to report from");
+
+    auto runWithModule = [&](const QString &module, QStringList *output) -> bool {
+        std::unique_ptr<DebuggerBackend> debuggerBackend
+            = createEngineForTheDebugRuntime(backend, module);
+        if (!debuggerBackend)
+            return false;
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        connect(engine, &DebuggerEngineInterface::message, this,
+                [output](const QString &text, int channel, int) {
+            if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+                output->append(text);
+        });
+        engine->start();
+        const bool stopped = [&] {
+            [&] {
+                QTRY_VERIFY_WITH_TIMEOUT(
+                    debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                        || output->join(' ').contains(testData.pastCrtReportMarker),
+                    s_warmUpTimeout);
+            }();
+            return debuggerBackend->contains(InferiorEvent::SpontaneousStop);
+        }();
+        debuggerBackend->clearEvents();
+        engine->shutdownInferior(ShutdownMode::Kill);
+        [&debuggerBackend] {
+            QTRY_VERIFY_WITH_TIMEOUT(
+                debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+        }();
+        engine->shutdownEngine();
+        return stopped;
+    };
+
+    QStringList withoutModule;
+    if (!runWithModule({}, &withoutModule) && withoutModule.isEmpty())
+        QSKIP("This backend's start data names no C runtime to break in.");
+    QVERIFY2(withoutModule.join(' ').contains(testData.pastCrtReportMarker),
+             qPrintable("the program never got past its report: " + withoutModule.join(' ')));
+
+    QStringList withModule;
+    QVERIFY2(runWithModule(testData.crtDebugReportModule, &withModule),
+             qPrintable("the report did not stop the program: " + withModule.join(' ')));
+    QVERIFY2(!withModule.join(' ').contains(testData.pastCrtReportMarker),
+             "the program ran past its report although the debugger was to stop there");
 }
 
 void tst_backends::keepsQtLoggingOffTheConsoleWithoutATerminal()
