@@ -209,6 +209,9 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         case RefreshKind::Threads:
             threadsHandler()->setThreads(data);
             break;
+        case RefreshKind::DebuggingHelpers:
+            watchHandler()->addDumpers(data["dumpers"]);
+            break;
         default:
             break;
         }

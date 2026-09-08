@@ -197,8 +197,9 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         runCommand({"python sys.path.insert(1, '" + m_startData.dumperScriptsDir.path() + "')"});
         runCommand({"python from gdbbridge import *"});
         loadExtraDumpers();
-        runCommand({"loadDumpers", [this, isPlainRun](const DebuggerResponse &) {
+        runCommand({"loadDumpers", [this, isPlainRun](const DebuggerResponse &response) {
             m_dumpersReady = true;
+            emit refreshDataReceived(0, RefreshKind::DebuggingHelpers, response.data);
             runCommand({m_startData.isSet(GdbImplFlag::LoadSystemDumpers)
                             ? QLatin1String("importPlainDumpers on")
                             : QLatin1String("importPlainDumpers off")});
@@ -967,7 +968,9 @@ void GdbImpl::refresh(const RefreshRequest &request)
         runCommand({"sharedlibrary " + dotEscape(request.path.path())});
         return;
     case RefreshKind::DebuggingHelpers:
-        runCommand({"reloadDumpers"});
+        runCommand({"reloadDumpers", [this, requestId](const DebuggerResponse &response) {
+            emit refreshDataReceived(requestId, RefreshKind::DebuggingHelpers, response.data);
+        }});
         refresh({requestId, RefreshKind::Locals});
         return;
     case RefreshKind::ModuleSymbols: {

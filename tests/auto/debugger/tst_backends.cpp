@@ -693,6 +693,24 @@ static bool limitsStackDepth(Backend backend)
     return false;
 }
 
+// Whether a backend's dumper layer answers with the types it knows. A property
+// of the bridge script rather than a claim the frontend could act on: the
+// reload happens either way.
+static bool reportsDumperTypes(Backend backend)
+{
+    switch (backend) {
+    case Backend::Gdb:
+    case Backend::Lldb:
+    case Backend::Bridge:
+        return true;
+    case Backend::Cdb: // CdbEngine reports them; CdbImpl not yet - needs the VM
+    case Backend::Pdb: // formats python values directly, with no dumper modules
+    case Backend::Qml: // no python dumpers at all
+        break;
+    }
+    return false;
+}
+
 // Whether a container local looks different with and without the debugging
 // helpers. lldb's own synthetic children shape std::vector either way, and Qml
 // has no python dumpers at all.
@@ -6620,6 +6638,15 @@ void tst_backends::reloadsDebuggingHelpersAndSymbols()
     engine->refresh(debuggingHelpersRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
     QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains("localValue"));
+    if (reportsDumperTypes(backend)) {
+        QTRY_VERIFY2_WITH_TIMEOUT(responses.contains(int(RefreshKind::DebuggingHelpers)),
+                                  "reloading the helpers reported no types", s_timeout);
+        const GdbMi dumpers
+            = responses.value(int(RefreshKind::DebuggingHelpers))["dumpers"];
+        QVERIFY2(dumpers.childCount() > 0, "the answer carried no dumper types");
+        QVERIFY2(!dumpers.childAt(0)["type"].data().isEmpty(),
+                 qPrintable("a reported dumper names no type: " + dumpers.toString(true)));
+    }
 
     responses.remove(int(RefreshKind::FullStack));
     RefreshRequest allSymbolsRequest;

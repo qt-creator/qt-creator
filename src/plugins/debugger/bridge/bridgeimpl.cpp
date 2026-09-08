@@ -234,6 +234,18 @@ static GdbMi dumperResultOf(const QJsonObject &response)
     return result;
 }
 
+// What the dumpers know, reported once with the initialize answer.
+static GdbMi dumperTypesOf(const QJsonObject &response)
+{
+    const QString payload = response.value("body").toObject().value("qtcDumpers").toString();
+    if (payload.isEmpty())
+        return {};
+    QStringDecoder decoder(QStringDecoder::Utf8);
+    GdbMi result;
+    result.fromString('{' + payload + '}', decoder);
+    return result;
+}
+
 void BridgeImpl::handleStandardError()
 {
     const QString error = m_client->dataProvider()->readAllStandardError();
@@ -515,6 +527,7 @@ void BridgeImpl::refresh(const RefreshRequest &request)
                     QJsonObject{{"module", request.path.path()}});
         return;
     case RefreshKind::DebuggingHelpers:
+        m_pendingDumpersRequestId = request.requestId;
         postRequest("qtc/reloadDumpers", {});
         refresh({request.requestId, RefreshKind::Locals});
         return;
@@ -530,10 +543,14 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
     const bool success = response.value("success").toBool();
 
     switch (type) {
-    case DapResponseType::Initialize:
+    case DapResponseType::Initialize: {
+        const GdbMi dumpers = dumperTypesOf(response);
+        if (dumpers.isValid())
+            emit refreshDataReceived(0, RefreshKind::DebuggingHelpers, dumpers);
         configureTarget();
         postLaunchOrAttach();
         return;
+    }
     case DapResponseType::ConfigurationDone:
         emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
         m_inferiorRunning = true;
@@ -569,7 +586,12 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         break;
     }
 
-    if (command == "qtc/fetchVariables") {
+    if (command == "qtc/reloadDumpers") {
+        const GdbMi dumpers = dumperTypesOf(response);
+        if (dumpers.isValid())
+            emit refreshDataReceived(m_pendingDumpersRequestId, RefreshKind::DebuggingHelpers,
+                                     dumpers);
+    } else if (command == "qtc/fetchVariables") {
         emit refreshDataReceived(m_pendingLocalsRequestId, RefreshKind::Locals,
                                  dumperResultOf(response));
     } else if (command == "qtc/fetchModules") {

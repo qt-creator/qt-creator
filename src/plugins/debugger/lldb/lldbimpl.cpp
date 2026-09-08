@@ -323,7 +323,9 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
             executeDebuggerCommand(m_startData.extraDumperCommands, {});
 
         // addDumperModule only remembers the module; this is what imports it.
-        runCommand({"loadDumpers"});
+        runCommand({"loadDumpers", [this](const DebuggerResponse &response) {
+            emit refreshDataReceived(0, RefreshKind::DebuggingHelpers, response.data);
+        }});
 
         DebuggerCommand cmd("setupInferior");
         cmd.arg("breakonmain", m_startData.breakOnMain);
@@ -841,7 +843,9 @@ void LldbImpl::refresh(const RefreshRequest &request)
         return;
     }
     case RefreshKind::DebuggingHelpers:
-        runCommand({"reloadDumpers"});
+        runCommand({"reloadDumpers", [this, requestId](const DebuggerResponse &response) {
+            emit refreshDataReceived(requestId, RefreshKind::DebuggingHelpers, response.data);
+        }});
         refresh({requestId, RefreshKind::Locals});
         return;
     case RefreshKind::AllSymbols:

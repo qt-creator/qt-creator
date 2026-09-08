@@ -104,6 +104,7 @@ private:
     QHash<int, StackTraceRequest> m_stackTraceRequests;
 
     quint64 m_pendingLocalsRequestId = 0;
+    quint64 m_pendingDumpersRequestId = 0;
     quint64 m_pendingModulesRequestId = 0;
     quint64 m_pendingSymbolsRequestId = 0;
     quint64 m_pendingRegistersRequestId = 0;
