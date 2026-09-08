@@ -75,9 +75,17 @@
             an entry to the path list.
         \li In \uicontrol {Source path}, specify the source path in
             the debug information of the executable as reported by the debugger.
-        \li In \uicontrol {Target path}, specify the actual location
-            of the source tree on the local machine.
+        \li In \uicontrol {Target path}, specify the location of the source
+            tree as seen by the debugger. This is either a path on the local
+            machine or, if the debugger runs on a device, a path on that
+            device.
     \endlist
+
+    You can type a device path the way the debugger sees it, or write the
+    device scheme in front of it, as in \c {docker://<image>/<path>}. Both
+    forms work. To pick the path from a device instead of typing it, select
+    \uicontrol Remote from the menu next to \uicontrol Browse, or the device
+    from the \uicontrol Devices list in the file dialog.
 
     \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */

@@ -236,7 +236,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
                   "be used in the debugger can be entered here.</p>"
                   "<p>This is useful when using a copy of the source tree "
                   "at a location different from the one "
-                  "at which the modules where built, for example, while "
+                  "at which the modules were built, for example, while "
                   "doing remote debugging.</p>"
                   "<p>If source is specified as a regular expression by starting it with an "
                   "open parenthesis, the paths in the ELF are matched with the "
@@ -275,6 +275,12 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
 
     // Edit part
     m_targetChooser->setExpectedKind(PathChooserKind::ExistingDirectory);
+    m_targetChooser->setAllowPathFromDevice(true);
+    m_targetChooser->setValidationFunction([](const QString &text) -> Result<> {
+        if (text.trimmed().isEmpty())
+            return ResultError(Tr::tr("The path must not be empty."));
+        return ResultOk;
+    });
     m_targetChooser->setHistoryCompleter("Debugger.MappingTarget.History");
     connect(m_sourceLineEdit, &QLineEdit::textChanged,
             this, &DebuggerSourcePathMappingWidget::slotEditSourceFieldChanged);
@@ -289,8 +295,10 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
     editSourceLabel->setBuddy(m_sourceLineEdit);
     editLayout->addRow(editSourceLabel, m_sourceLineEdit);
 
-    const QString targetToolTip = "<p>" + Tr::tr("The actual location of the source "
-        "tree on the local machine");
+    const QString targetToolTip = "<p>" + Tr::tr("The location of the source tree as seen by "
+        "the debugger. This is either a path on the local machine, or, if the debugger runs "
+        "on a device, a path on that device, given either the way the debugger sees it or "
+        "with the device scheme in front, such as <b>docker://&lt;image&gt;/&lt;path&gt;</b>.");
     auto editTargetLabel = new QLabel(Tr::tr("&Target path:"));
     editTargetLabel->setToolTip(targetToolTip);
     editTargetLabel->setBuddy(m_targetChooser);
