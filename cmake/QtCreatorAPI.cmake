@@ -1187,7 +1187,7 @@ function(add_qtc_test name)
   endif()
 
   if (_arg_NEEDS_GUI)
-    list(APPEND EXTRA_ARGUMENTS "-platform" "minimal")
+    list(APPEND EXTRA_ARGUMENTS "-platform" "offscreen")
   endif()
   list(APPEND EXTRA_ARGUMENTS "-silent")
 
