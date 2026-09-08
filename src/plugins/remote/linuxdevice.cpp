@@ -213,7 +213,7 @@ public:
 
     void setOsTypeFromUnameResult(const RunResult &result);
 
-    Environment getEnvironment();
+    Result<Environment> getEnvironment();
     void invalidateEnvironmentCache();
 
     void closeConnection(bool announce)
@@ -237,7 +237,7 @@ void LinuxDevicePrivate::invalidateEnvironmentCache()
     m_environmentCache.reset();
 }
 
-Environment LinuxDevicePrivate::getEnvironment()
+Result<Environment> LinuxDevicePrivate::getEnvironment()
 {
     QReadLocker locker(&m_environmentCacheLock);
     if (m_environmentCache.has_value())
@@ -248,10 +248,10 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_environmentCache.has_value())
         return *m_environmentCache;
 
-    const auto env = q->getUnixEnvironment();
+    const Result<Environment> env = q->getUnixEnvironment();
     if (!env) {
         qCWarning(linuxDeviceLog) << env.error();
-        return {};
+        return ResultError(env.error());
     }
 
     m_environmentCache = *env;
@@ -279,7 +279,7 @@ Result<RunResult> LinuxDeviceAccess::runInShellImpl(
 Result<Environment> LinuxDeviceAccess::deviceEnvironment() const
 {
     if (m_devicePrivate->checkDisconnectedWithWarning())
-        return {};
+        return ResultError(Tr::tr("Device is not connected."));
 
     return m_devicePrivate->getEnvironment();
 }
@@ -1063,7 +1063,8 @@ void LinuxDevicePrivate::setupFileAccess(const Continuation<> &cont)
             });
             fileAccess->setPidMarker(pidMarkerTemplate());
             Utils::expected<void, CmdBridge::FileAccess::DeployError> deployAndInitResult
-                = fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath, getEnvironment());
+                = fileAccess->deployAndInit(Core::ICore::libexecPath(), rootPath,
+                                            getEnvironment().value_or(Environment(q->osType())));
             if (deployAndInitResult)
                 return DeviceFileAccessPtr(std::move(fileAccess));
             return Utils::make_unexpected(deployAndInitResult.error());
