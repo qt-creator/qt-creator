@@ -12,7 +12,9 @@
     \li In \uicontrol {Peripheral description file}, specify a path to
         a file that describes the peripherals on the device.
     \li In \uicontrol Host, select the host name and port number
-        to connect to the debug server provider.
+        to connect to the debug server provider. The debugger resolves
+        the host name, so it must be valid on the computer or device
+        that runs the debugger.
     \li In \uicontrol {Executable file}, enter the path to the
         debug server provider executable.
 

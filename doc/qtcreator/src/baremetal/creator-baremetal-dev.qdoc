@@ -72,6 +72,20 @@
 
     The available settings depend on the debug server provider.
 
+    \section1 Where do the debug server and the debugger run
+
+    \QC starts the debug server on the computer where \QC itself runs, but the
+    debugger connects to it from wherever the kit runs the debugger. The two are
+    the same computer only for a local kit.
+
+    Therefore, set \uicontrol Host to an address that is valid where the
+    \e debugger runs. If the kit runs the debugger in a Docker container, for
+    example, a debug server that listens on the loopback interface only, as
+    OpenOCD does by default, is reachable as \c 127.0.0.1 just when the
+    container shares the network of the host (\c {--network host}). In a bridged
+    container, \c host.docker.internal resolves to the address of the bridge,
+    where the debug server does not listen, and the connection times out.
+
     \sa {Add kits}, {Enable and disable plugins},
     {Bare Metal}{How to: Develop for Bare Metal}
 */

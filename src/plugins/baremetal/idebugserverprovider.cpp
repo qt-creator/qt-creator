@@ -312,7 +312,10 @@ HostWidget::HostWidget(QWidget *parent)
 {
     m_hostLineEdit = new QLineEdit(this);
     m_hostLineEdit->setToolTip(Tr::tr("Enter TCP/IP hostname of the debug server, "
-                                      "like \"localhost\" or \"192.0.2.1\"."));
+                                      "like \"localhost\" or \"192.0.2.1\".\n\n"
+                                      "The debugger connects to this address itself, so it must "
+                                      "be valid where the debugger runs. That is not necessarily "
+                                      "the computer that starts the debug server."));
     m_portSpinBox = new QSpinBox(this);
     m_portSpinBox->setRange(0, 65535);
     m_portSpinBox->setToolTip(Tr::tr("Enter TCP/IP port which will be listened by "
