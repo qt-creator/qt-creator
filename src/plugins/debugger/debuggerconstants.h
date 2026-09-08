@@ -105,7 +105,8 @@ enum class DebuggerExtraCapability : unsigned
     SkipKnownFrames      = 1u << 9,
     JumpTargetCheck      = 1u << 10, // Refusing a jump to a line of several locations.
     PeripheralRegisters  = 1u << 11,
-    ContinueAfterAttach  = 1u << 12
+    ContinueAfterAttach  = 1u << 12,
+    ThreadEvent          = 1u << 13 // Reporting a thread appearing or going away.
 };
 Q_DECLARE_FLAGS(DebuggerExtraCapabilities, DebuggerExtraCapability)
 Q_DECLARE_OPERATORS_FOR_FLAGS(DebuggerExtraCapabilities)

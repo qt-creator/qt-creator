@@ -118,6 +118,8 @@ enum class BreakpointOp { Insert, Remove, Update, EnableSub };
 
 enum class LibraryEvent { Loaded, Unloaded };
 
+enum class ThreadEvent { Created, Exited };
+
 // Why a backend stopped answering, as far as it can tell. Fetching debug info
 // can take minutes on a slow server, and blaming the debugger misleads the user.
 enum class NotRespondingCause { Unknown, FetchingDebugInfo };
@@ -288,6 +290,8 @@ signals:
     void refreshDataReceived(quint64 requestId, RefreshKind kind, const GdbMi &data);
 
     void libraryEvent(LibraryEvent event, const GdbMi &data);
+
+    void threadEvent(ThreadEvent event, const GdbMi &data);
 
     void breakpointModified(const GdbMi &data);
 

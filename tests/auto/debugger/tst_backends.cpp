@@ -753,6 +753,10 @@ public:
                 [this](InferiorEvent event) { m_events.append(event); });
         connect(m_engine.get(), &DebuggerEngineInterface::inferiorDone, this,
                 [this](const InferiorResultData &resultData) { m_inferiorResults.append(resultData); });
+        connect(m_engine.get(), &DebuggerEngineInterface::threadEvent, this,
+                [this](ThreadEvent event, const GdbMi &data) {
+            m_threadEvents.append({event, data["id"].data()});
+        });
         connect(m_engine.get(), &DebuggerEngineInterface::breakpointEvent, this,
                 [this](quint64, BreakpointOp op, bool ok, const GdbMi &data) {
             if (op == BreakpointOp::Insert && ok && data.childCount() > 0)
@@ -789,7 +793,18 @@ public:
 
     QString breakpointResponseId() const { return m_breakpointResponseId; }
 
+    QStringList threadIds(ThreadEvent event) const
+    {
+        QStringList ids;
+        for (const auto &[recorded, id] : m_threadEvents) {
+            if (recorded == event)
+                ids.append(id);
+        }
+        return ids;
+    }
+
 private:
+    QList<QPair<ThreadEvent, QString>> m_threadEvents;
     std::unique_ptr<DebuggerEngineInterface> m_engine;
     QList<InferiorEvent> m_events;
     QList<InferiorResultData> m_inferiorResults;
@@ -904,6 +919,8 @@ private slots:
     void testJumpToLineCapability();
     void testLibraryEventCapability_data() { addBackendRows(); }
     void testLibraryEventCapability();
+    void testThreadEventCapability_data() { addBackendRows(); }
+    void testThreadEventCapability();
     void testOperateByInstructionCapability_data() { addBackendRows(); }
     void testOperateByInstructionCapability();
     void testRegisterCapability_data() { addBackendRows(); }
@@ -3190,6 +3207,28 @@ void tst_backends::testLibraryEventCapability()
     QTRY_VERIFY_WITH_TIMEOUT(std::any_of(unloaded.cbegin(), unloaded.cend(), [](const GdbMi &data) {
         return data["target-name"].data().contains("inferiorlib", Qt::CaseInsensitive);
     }), s_timeout);
+}
+
+void tst_backends::testThreadEventCapability()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkExtraCapability(backend, Debugger::DebuggerExtraCapability::ThreadEvent); !result)
+        QSKIP(qPrintable(result.error()));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    const QStringList created = debuggerBackend->threadIds(ThreadEvent::Created);
+    QVERIFY2(!created.isEmpty(), "the inferior's own thread was never reported as created");
+    const QString threadId = created.constFirst();
+    QVERIFY(!threadId.isEmpty());
+
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->threadIds(ThreadEvent::Exited).contains(threadId),
+                              "the killed inferior's thread was never reported as exited",
+                              s_timeout);
 }
 
 void tst_backends::testOperateByInstructionCapability()

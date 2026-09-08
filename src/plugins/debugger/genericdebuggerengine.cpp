@@ -71,6 +71,18 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             gotoLocation(Location(cleanFileName.isEmpty() ? fileName : cleanFileName, lineNumber));
         }
     });
+    connect(m_backend.get(), &DebuggerEngineInterface::threadEvent, this,
+            [this](ThreadEvent event, const GdbMi &data) {
+        const QString id = data["id"].data();
+        if (event == ThreadEvent::Exited) {
+            threadsHandler()->removeThread(id);
+            return;
+        }
+        ThreadData thread;
+        thread.id = id;
+        thread.groupId = data["group-id"].data();
+        threadsHandler()->updateThread(thread);
+    });
     connect(m_backend.get(), &DebuggerEngineInterface::libraryEvent, this,
             [this](LibraryEvent event, const GdbMi &data) {
         const QString id = data["id"].data();

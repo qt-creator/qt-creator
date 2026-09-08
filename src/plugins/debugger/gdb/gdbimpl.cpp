@@ -104,7 +104,8 @@ static DebuggerEngineSetupData gdbImplSetupData()
                            | DebuggerExtraCapability::SkipKnownFrames
                            | DebuggerExtraCapability::JumpTargetCheck
                            | DebuggerExtraCapability::PeripheralRegisters
-                           | DebuggerExtraCapability::ContinueAfterAttach;
+                           | DebuggerExtraCapability::ContinueAfterAttach
+                           | DebuggerExtraCapability::ThreadEvent;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToTerminalStub
@@ -2260,6 +2261,18 @@ void GdbImpl::handleOutputLine(const QString &line)
         else if (asyncClass == u"thread-group-started") {
             m_inferiorPid = result["pid"].data().toLongLong();
             emit inferiorPidKnown(ProcessHandle(m_inferiorPid));
+        }
+        else if (asyncClass == u"thread-created") {
+            emit message(QString("Thread %1 created.").arg(result["id"].data()), StatusBar, 1000);
+            emit threadEvent(ThreadEvent::Created, result);
+        }
+        else if (asyncClass == u"thread-exited") {
+            emit message(QString("Thread %1 in group %2 exited.")
+                             .arg(result["id"].data(), result["group-id"].data()), StatusBar, 1000);
+            emit threadEvent(ThreadEvent::Exited, result);
+        }
+        else if (asyncClass == u"thread-selected") {
+            emit message(QString("Thread %1 selected.").arg(result["id"].data()), StatusBar, 1000);
         }
         else if (asyncClass == u"breakpoint-created") {
             const GdbMi bkpt = result["bkpt"];
