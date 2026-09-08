@@ -150,7 +150,7 @@ Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp
     rp.setInferior(inferior);
     rp.setSymbolFile(bin);
     rp.setStartMode(AttachToRemoteServer);
-    rp.setCommandsAfterConnect(initCommands()); // .. and here?
+    rp.setCommandsAfterConnect(initCommands());
     rp.setCommandsForReset(resetCommands());
     if (m_startupMode == GdbServerProvider::StartupOnNetwork)
         rp.setRemoteChannel(channel().toString());
@@ -294,7 +294,10 @@ void GdbServerProviderConfigWidget::setFromProvider()
 QString GdbServerProviderConfigWidget::defaultInitCommandsTooltip()
 {
     return Tr::tr("Enter GDB commands to reset the board "
-                  "and to write the nonvolatile memory.");
+                  "and to write the nonvolatile memory.\n\n"
+                  "GDB runs them after it has connected to the debug server, which is what "
+                  "lets them use \"monitor\" and \"load\". To set up the debug server itself, "
+                  "use its own configuration file or command line, as it starts before GDB.");
 }
 
 QString GdbServerProviderConfigWidget::defaultResetCommandsTooltip()

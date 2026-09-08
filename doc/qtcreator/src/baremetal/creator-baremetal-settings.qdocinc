@@ -23,8 +23,8 @@
 
 //! [baremetal-init-reset]
 
-    \li In \uicontrol {Init commands}, enter the commands
-        to execute when initializing the connection.
+    \li In \uicontrol {Init commands}, enter the commands to execute
+        after the debugger has connected to the debug server.
     \li In \uicontrol {Reset commands}, enter the commands
         to execute when resetting the connection.
     \li Select \uicontrol Apply to add the debug server provider.

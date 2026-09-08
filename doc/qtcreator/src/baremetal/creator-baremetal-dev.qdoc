@@ -86,6 +86,20 @@
     container, \c host.docker.internal resolves to the address of the bridge,
     where the debug server does not listen, and the connection times out.
 
+    \section1 When do the commands run
+
+    \QC starts the debug server first, and starts the debugger only once the
+    server process is up. The debugger then connects to the server, and runs the
+    commands from \uicontrol {Init commands} after the connection has succeeded.
+
+    Commands such as \c {monitor reset halt} or \c load therefore cannot run any
+    earlier, because they need that connection. If the server needs a setting
+    before it accepts a debugger connection, put it into the configuration file
+    or the command line of the server, not into \uicontrol {Init commands}. With
+    OpenOCD, for example, a target that it cannot examine makes it answer
+    \c {attempted 'gdb' connection rejected}, whatever
+    \uicontrol {Init commands} holds.
+
     \sa {Add kits}, {Enable and disable plugins},
     {Bare Metal}{How to: Develop for Bare Metal}
 */
