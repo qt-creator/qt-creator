@@ -217,6 +217,8 @@ struct InferiorTestData
     QString environmentReportPrefix;
     // What the inferior prints the debug heap flag it was started with behind.
     QString heapFlagReportPrefix;
+    // What it prints after handling an access violation of its own, if it can.
+    QString survivedAccessViolationMarker;
     QString workingDirectoryReportPrefix;
     FilePath moduleSymbolsPath;
     QString falseLiteral = "0";
@@ -1053,6 +1055,8 @@ private slots:
     void continueSignalsExitedForSpontaneousExit();
     void reportsApplicationOutput_data() { addBackendRows(); }
     void reportsApplicationOutput();
+    void ignoresAFirstChanceAccessViolationWhenAsked_data() { addBackendRows(); }
+    void ignoresAFirstChanceAccessViolationWhenAsked();
     void passesTheHeapDebuggingFlagToTheDebuggee_data() { addBackendRows(); }
     void passesTheHeapDebuggingFlagToTheDebuggee();
     void passesInferiorEnvironmentToTheDebuggee_data() { addBackendRows(); }
@@ -1227,6 +1231,8 @@ private:
         Backend backend, const QList<QPair<QString, QString>> &sourcePathMap);
     std::unique_ptr<DebuggerBackend> createEngineWithHeapDebugging(
         Backend backend, bool enableHeapDebugging);
+    std::unique_ptr<DebuggerBackend> createEngineForAccessViolations(
+        Backend backend, bool ignoreFirstChance, const QStringList &inferiorArguments);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData,
         Debugger::Internal::GdbImplFlags gdbFlags = {});
@@ -1607,6 +1613,23 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithHeapDebugging(
         .enableHeapDebugging = enableHeapDebugging}));
 }
 
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineForAccessViolations(
+    Backend backend, bool ignoreFirstChance, const QStringList &inferiorArguments)
+{
+    if (backend != Backend::Cdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          Environment::systemEnvironment()},
+        .inferiorStartData = ProcessRunData{
+            {inferiorTestData(backend).executable, inferiorArguments}, {},
+            Environment::systemEnvironment()},
+        .extensionDir = m_backendData[backend].cdbExtensionDir,
+        .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+        .ignoreFirstChanceAccessViolation = ignoreFirstChance}));
+}
+
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
     Backend backend, const InferiorStartData &inferiorStartData, GdbImplFlags gdbFlags)
 {
@@ -1931,6 +1954,19 @@ void tst_backends::initTestCase()
         "    *p = 1;",
         "}",
         "",
+        "#ifdef _MSC_VER",
+        "extern \"C\" void survivableCrash()",
+        "{",
+        "    __try {",
+        "        volatile int *p = nullptr;",
+        "        *p = 1;",
+        "    } __except (EXCEPTION_EXECUTE_HANDLER) {",
+        "        printf(\"survived the access violation\\n\");",
+        "        fflush(stdout);",
+        "    }",
+        "}",
+        "#endif",
+        "",
         "template<typename T> void multi(T value)",
         "{",
         "    printf(\"multi=%d\\n\", int(value)); // multi-location breakpoint line",
@@ -1953,6 +1989,10 @@ void tst_backends::initTestCase()
         "        crash();",
         "    if (argc > 1 && strcmp(argv[1], \"abort\") == 0)",
         "        abort();",
+        "#ifdef _MSC_VER",
+        "    if (argc > 1 && strcmp(argv[1], \"survivable-crash\") == 0)",
+        "        survivableCrash();",
+        "#endif",
         "    bump();",
         "    stepIntoKnownFrame();",
         "    multi(1);",
@@ -2120,6 +2160,8 @@ void tst_backends::initTestCase()
             m_backendData[Backend::Cdb].inferiorData.versionLine = cdbVersionLine;
             m_backendData[Backend::Cdb].inferiorData.answersRedundantContinue = true;
             m_backendData[Backend::Cdb].inferiorData.moduleListMarker = "kernel32";
+            m_backendData[Backend::Cdb].inferiorData.survivedAccessViolationMarker
+                = "survived the access violation";
             m_backendData[Backend::Cdb].inferiorData.enableToggleWireMarker = "bd";
             m_backendData[Backend::Cdb].inferiorData.moduleSymbolsPath
                 = msvcInferiorData.executable;
@@ -4631,6 +4673,43 @@ void tst_backends::reportsApplicationOutput()
                                                  "channels saw:\n  %2")
                                              .arg(marker, otherChannels.join("\n  ").left(600))),
                               s_timeout);
+}
+
+void tst_backends::ignoresAFirstChanceAccessViolationWhenAsked()
+{
+    QFETCH(Backend, backend);
+
+    const QString marker = inferiorTestData(backend).survivedAccessViolationMarker;
+    if (marker.isEmpty())
+        QSKIP("inferior cannot handle an access violation of its own");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend
+        = createEngineForAccessViolations(backend, true, {"survivable-crash"});
+    if (!debuggerBackend)
+        QSKIP("This backend's start data says nothing about first chance violations.");
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList applicationOutput;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&applicationOutput](const QString &text, int channel, int) {
+        if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+            applicationOutput.append(text);
+    });
+
+    engine->start();
+    // The program prints this from its own handler, so it only gets there if the
+    // violation was passed to it instead of stopping the inferior.
+    QTRY_VERIFY2_WITH_TIMEOUT(applicationOutput.join(' ').contains(marker),
+                              "the inferior never handled the access violation itself",
+                              s_warmUpTimeout);
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                 && !debuggerBackend->contains(InferiorEvent::StopOk),
+             "the violation stopped the inferior although it was to be ignored");
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
 }
 
 void tst_backends::passesTheHeapDebuggingFlagToTheDebuggee()

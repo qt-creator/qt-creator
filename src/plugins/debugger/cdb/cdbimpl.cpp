@@ -223,6 +223,8 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     // it without any symbol path at all.
     if (!symbolPaths.isEmpty())
         cdbCommand.addArgs({"-y", symbolPaths.join(';')});
+    if (m_startData.ignoreFirstChanceAccessViolation)
+        cdbCommand.addArg("-x");
     if (!m_startData.additionalArguments.isEmpty())
         cdbCommand.addArgs(m_startData.additionalArguments, CommandLine::Raw);
     // cdb launches the inferior itself, so the inferior's environment and working directory

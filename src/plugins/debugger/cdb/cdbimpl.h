@@ -45,6 +45,7 @@ public:
     // Stop where the program starts, before anything of it has run.
     bool breakOnMain = false;
     bool enableHeapDebugging = false;
+    bool ignoreFirstChanceAccessViolation = false;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
     int qtVersion = 0;
