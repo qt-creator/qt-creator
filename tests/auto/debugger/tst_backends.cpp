@@ -198,6 +198,8 @@ struct InferiorTestData
     QString localMarker;
     QString functionMarker;
     QString expandableLocal;
+    // A local whose value is longer than any string limit worth configuring.
+    QString longStringLocal;
     QString expandableChild;
     QString inspectorObject;
     QString inspectorProperty;
@@ -1044,6 +1046,8 @@ private slots:
     void expandsContainerLocalWhenExpanded();
     void honorsDumperOptionsFromTheRequest_data() { addBackendRows(); }
     void honorsDumperOptionsFromTheRequest();
+    void honorsTheStringLengthLimitFromTheRequest_data() { addBackendRows(); }
+    void honorsTheStringLengthLimitFromTheRequest();
     void refreshesRegisters_data() { addBackendRows(); }
     void refreshesRegisters();
     void refreshesRegistersAfterResume_data() { addBackendRows(); }
@@ -1855,8 +1859,10 @@ void tst_backends::initTestCase()
         "extern \"C\" void bump()",
         "{",
         "    std::vector<std::string> localVector{\"seven\", \"eight\"};",
+        "    std::string longLocal(longText);",
         "    int localValue = globalValue + 1; // first breakpoint line",
         "    (void) localVector.size();",
+        "    (void) longLocal.size();",
         "    globalValue = localValue;",
         "    printf(\"value=%d\\n\", globalValue);",
         "    fflush(stdout);",
@@ -1953,6 +1959,7 @@ void tst_backends::initTestCase()
     QVERIFY(cppInferiorData.breakpointLine > 0);
     cppInferiorData.localMarker = "localValue";
     cppInferiorData.expandableLocal = "localVector";
+    cppInferiorData.longStringLocal = "longLocal";
     cppInferiorData.functionMarker = "bump";
     cppInferiorData.recursionDepthVariable = "depth";
     cppInferiorData.applicationOutputMarker = "after bump";
@@ -4777,6 +4784,58 @@ void tst_backends::honorsDumperOptionsFromTheRequest()
     QVERIFY2(plain.isValid(), "the container local was not reported without the helpers");
     QVERIFY2(fancy.toString() != plain.toString(),
              qPrintable("turning the debugging helpers off changed nothing: " + plain.toString()));
+}
+
+void tst_backends::honorsTheStringLengthLimitFromTheRequest()
+{
+    QFETCH(Backend, backend);
+
+    const QString local = inferiorTestData(backend).longStringLocal;
+    if (local.isEmpty())
+        QSKIP("inferior declares no local long enough to be cut short");
+    const QString iname = "local." + local;
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+
+    quint64 requestId = 140;
+    auto localsWithStringLimit = [&](int limit) -> GdbMi {
+        responses.clear();
+        RefreshRequest request;
+        request.kind = RefreshKind::Locals;
+        request.requestId = ++requestId;
+        // How much of the string is read, and how much of what was read is
+        // shown: either one left at its default would decide the outcome alone.
+        request.dumperOptions.maximalStringLength = limit;
+        request.dumperOptions.displayStringLimit = limit;
+        engine->refresh(request);
+        [&responses] {
+            QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+        }();
+        return findItemByIName(responses.value(int(RefreshKind::Locals)), iname);
+    };
+
+    const auto reportedValue = [](const GdbMi &item) {
+        return decodeData(item["value"].data(), item["valueencoded"].data());
+    };
+
+    const GdbMi cut = localsWithStringLimit(64);
+    QVERIFY2(cut.isValid(), "the long local was not reported at all");
+    QVERIFY2(!reportedValue(cut).contains("LONGTEXTEND"),
+             qPrintable("the value was reported in full despite the limit: "
+                        + reportedValue(cut).left(200)));
+
+    const GdbMi whole = localsWithStringLimit(4000);
+    QVERIFY2(reportedValue(whole).contains("LONGTEXTEND"),
+             qPrintable("the value stayed cut short with a limit past its length: "
+                        + reportedValue(whole).left(200)));
 }
 
 void tst_backends::limitsTheReportedStackDepth()
