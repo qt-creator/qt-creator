@@ -1146,6 +1146,8 @@ private slots:
     void runsUserCommandsAfterConnectingToARemoteServer();
     void exitsTheMonitorWhenClosing_data() { addBackendRows(); }
     void exitsTheMonitorWhenClosing();
+    void continuesAfterConnectingWhenConfigured_data() { addBackendRows(); }
+    void continuesAfterConnectingWhenConfigured();
     void attachesToRemoteProcessByPid_data() { addBackendRows(); }
     void attachesToRemoteProcessByPid();
     void runsRemoteExecutableViaExtendedRemote_data() { addBackendRows(); }
@@ -8549,6 +8551,41 @@ void tst_backends::runsUserCommandsAfterConnectingToARemoteServer()
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
     engine->shutdownEngine();
     QTRY_COMPARE_WITH_TIMEOUT(gdbserverProcess.state(), ProcessState::NotRunning, s_timeout);
+}
+
+void tst_backends::continuesAfterConnectingWhenConfigured()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToRemoteServer); !result)
+        QSKIP(qPrintable(result.error()));
+    if (auto result = checkExtraCapability(backend,
+            Debugger::DebuggerExtraCapability::ContinueInsteadOfRun); !result) {
+        QSKIP(qPrintable(result.error()));
+    }
+
+    if (!m_gdbserverPath.isExecutableFile())
+        QSKIP("gdbserver not found - set QTC_GDBSERVER_PATH_FOR_TEST to override.");
+
+    const FilePath &executable = inferiorTestData(backend).executable;
+    Process gdbserverProcess;
+    QString gdbserverOutput;
+    const QString port = startGdbserver(gdbserverProcess, {}, {executable.nativePath()},
+                                        &gdbserverOutput);
+    QVERIFY2(!port.isEmpty(),
+             qPrintable("could not parse gdbserver's port from: " + gdbserverOutput));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(backend,
+        AttachToRemoteServerData{"localhost:" + port, executable},
+        GdbImplFlag::ContinueInsteadOfRun);
+    QVERIFY(debuggerBackend);
+
+    debuggerBackend->engine()->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk),
+                             s_timeout);
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk),
+                              "the target that was handed over stopped was never resumed",
+                              s_timeout);
 }
 
 void tst_backends::exitsTheMonitorWhenClosing()

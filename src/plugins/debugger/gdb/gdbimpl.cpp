@@ -107,7 +107,8 @@ static DebuggerEngineSetupData gdbImplSetupData()
                            | DebuggerExtraCapability::ContinueAfterAttach
                            | DebuggerExtraCapability::ThreadEvent
                            | DebuggerExtraCapability::ExitMonitorAtClose
-                           | DebuggerExtraCapability::RunAsUser;
+                           | DebuggerExtraCapability::RunAsUser
+                           | DebuggerExtraCapability::ContinueInsteadOfRun;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToTerminalStub
@@ -500,6 +501,10 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
         runPostAttachCommands();
         if (!stoppedAlready)
             emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+        // The server handed the inferior over stopped, and a target that is
+        // loaded already is resumed rather than run.
+        if (m_startData.isSet(GdbImplFlag::ContinueInsteadOfRun))
+            continueAfterAttach();
         return;
     }
 
