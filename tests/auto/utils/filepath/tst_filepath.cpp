@@ -1180,6 +1180,9 @@ void tst_filepath::fromString_data()
     QTest::newRow("windows-folder") << D("c:/Windows", "", "", "c:/Windows");
     QTest::newRow("windows-folder-with-trailing-slash") << D("c:/Windows/", "", "", "c:/Windows/");
     QTest::newRow("windows-folder-slash") << D("C:/Windows", "", "", "C:/Windows");
+    QTest::newRow("windows-folder-backslash") << D("C:\\Windows", "", "", "C:/Windows");
+    QTest::newRow("windows-folder-mixed-slashes")
+        << D("C:/Windows\\System32", "", "", "C:/Windows/System32");
 
     QTest::newRow("docker-root-url") << D("docker://1234/", "docker", "1234", "/");
     QTest::newRow("docker-root-url-special-linux")

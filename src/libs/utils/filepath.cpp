@@ -1795,19 +1795,21 @@ void FilePath::setFromString(const QString &fileNameStr)
 #if 1
     // FIXME: Remove below once the calling code is adjusted
     QString dummy;
+    const QString *effective = &fileNameStr;
     if (fileNameView.contains(u'\\')) {
         QTC_CHECK(false);
-        dummy = fileNameView.toString();
+        dummy = fileNameStr;
         dummy.replace('\\', '/');
+        effective = &dummy;
         fileNameView = dummy;
     }
 #endif
 
     const auto setDirectly = [&]{
-        m_data = fileNameStr;
+        m_data = *effective;
         m_schemeLen = 0;
         m_hostLen = 0;
-        m_pathLen = fileNameStr.size();
+        m_pathLen = effective->size();
     };
 
     const QChar slash('/');
