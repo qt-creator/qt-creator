@@ -5,6 +5,7 @@
 #include <cmakelang/cmakeastvisitor.h>
 #include <cmakelang/cmakedocument.h>
 #include <cmakelang/cmakeengine.h>
+#include <cmakelang/cmakeindentation.h>
 #include <cmakelang/cmakelexer.h>
 #include <cmakelang/cmakeparser.h>
 #include <cmakelang/cmakerewriter.h>
@@ -200,6 +201,11 @@ private slots:
     void rewriterReplacesValues();
     void rewriterRemovesArguments();
     void rewriterInsertsValues();
+    void indentation_data();
+    void indentation();
+    void indentationOfHalfWrittenFiles_data();
+    void indentationOfHalfWrittenFiles();
+    void indentationKeepsMultilineValues();
 };
 
 void tst_CMakeLang::lexer_data()
@@ -1001,6 +1007,223 @@ void tst_CMakeLang::rewriterInsertsValues()
              "        backend.cpp\n"
              "        extra.cpp\n"
              ")\n");
+}
+
+// Stands in for what the CMake documentation and the cmake_parse_arguments()
+// calls of a project tell the editor about a command.
+static bool namesKeyword(const QString &command, const QString &argument)
+{
+    static const QHash<QString, QStringList> keywords = {
+        {"qt_internal_add_module", {"SOURCES", "LIBRARIES"}},
+        {"target_link_libraries", {"PRIVATE", "PUBLIC", "INTERFACE"}},
+        {"install", {"TARGETS", "RUNTIME", "DESTINATION", "INCLUDES"}},
+    };
+    return keywords.value(command.toLower()).contains(argument);
+}
+
+static QString indented(const QString &source)
+{
+    const Indentation indentation(source, namesKeyword);
+
+    QStringList result;
+    const QStringList lines = source.split(u'\n');
+    for (int line = 0; line < lines.size(); ++line) {
+        const int level = indentation.levelAt(line + 1);
+        if (level == Indentation::Keep) {
+            result << lines.at(line);
+            continue;
+        }
+        const QString text = lines.at(line).trimmed();
+        result << (text.isEmpty() ? QString() : QString(level * 4, u' ') + text);
+    }
+    return result.join(u'\n');
+}
+
+void tst_CMakeLang::indentation_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("body of a block") << "if(WIN32)\n"
+                                        "add_executable(app main.cpp)\n"
+                                        "else()\n"
+                                        "add_executable(app other.cpp)\n"
+                                        "endif()\n"
+                                     << "if(WIN32)\n"
+                                        "    add_executable(app main.cpp)\n"
+                                        "else()\n"
+                                        "    add_executable(app other.cpp)\n"
+                                        "endif()\n";
+
+    QTest::newRow("nested blocks") << "foreach(name IN LISTS names)\n"
+                                      "while(name)\n"
+                                      "message(STATUS ${name})\n"
+                                      "endwhile()\n"
+                                      "endforeach()\n"
+                                   << "foreach(name IN LISTS names)\n"
+                                      "    while(name)\n"
+                                      "        message(STATUS ${name})\n"
+                                      "    endwhile()\n"
+                                      "endforeach()\n";
+
+    QTest::newRow("arguments and the closing parenthesis") << "set(FRUITS\n"
+                                                              "APPLE\n"
+                                                              "BANANA\n"
+                                                              ")\n"
+                                                           << "set(FRUITS\n"
+                                                              "    APPLE\n"
+                                                              "    BANANA\n"
+                                                              ")\n";
+
+    QTest::newRow("a keyword of its own opens a list") << "qt_internal_add_module(Core\n"
+                                                          "SOURCES\n"
+                                                          "foo.cpp\n"
+                                                          "bar.cpp\n"
+                                                          "LIBRARIES\n"
+                                                          "Qt::Platform\n"
+                                                          ")\n"
+                                                       << "qt_internal_add_module(Core\n"
+                                                          "    SOURCES\n"
+                                                          "        foo.cpp\n"
+                                                          "        bar.cpp\n"
+                                                          "    LIBRARIES\n"
+                                                          "        Qt::Platform\n"
+                                                          ")\n";
+
+    QTest::newRow("a keyword next to the command name opens none")
+        << "target_link_libraries(app PRIVATE\n"
+           "Qt::Core\n"
+           "Qt::Gui\n"
+           ")\n"
+        << "target_link_libraries(app PRIVATE\n"
+           "    Qt::Core\n"
+           "    Qt::Gui\n"
+           ")\n";
+
+    QTest::newRow("a keyword that takes its value along closes the list")
+        << "install(TARGETS app\n"
+           "RUNTIME DESTINATION bin\n"
+           "INCLUDES\n"
+           "include\n"
+           ")\n"
+        << "install(TARGETS app\n"
+           "    RUNTIME DESTINATION bin\n"
+           "    INCLUDES\n"
+           "        include\n"
+           ")\n";
+
+    // The table names no keyword of set(), so nothing below it opens a list.
+    QTest::newRow("an unknown command lays its arguments out flat")
+        << "set(FRUITS\n"
+           "APPLE\n"
+           "BANANA\n"
+           "CHERRY)\n"
+        << "set(FRUITS\n"
+           "    APPLE\n"
+           "    BANANA\n"
+           "    CHERRY)\n";
+
+    QTest::newRow("a group of parentheses") << "if(A AND\n"
+                                               "(B OR\n"
+                                               "C)\n"
+                                               ")\n"
+                                            << "if(A AND\n"
+                                               "    (B OR\n"
+                                               "        C)\n"
+                                               ")\n";
+
+    QTest::newRow("comments go where the code goes") << "if(WIN32)\n"
+                                                        "# what this does\n"
+                                                        "add_executable(app main.cpp)\n"
+                                                        "endif()\n"
+                                                     << "if(WIN32)\n"
+                                                        "    # what this does\n"
+                                                        "    add_executable(app main.cpp)\n"
+                                                        "endif()\n";
+
+    QTest::newRow("a comment does not close a list") << "qt_internal_add_module(Core\n"
+                                                        "SOURCES\n"
+                                                        "# the sources\n"
+                                                        "foo.cpp\n"
+                                                        ")\n"
+                                                     << "qt_internal_add_module(Core\n"
+                                                        "    SOURCES\n"
+                                                        "        # the sources\n"
+                                                        "        foo.cpp\n"
+                                                        ")\n";
+
+    // if() is an ordinary identifier wherever it is not a command, so it opens
+    // no block there.
+    QTest::newRow("a block command used as a value") << "set(if 1)\n"
+                                                        "message(STATUS ${if})\n"
+                                                     << "set(if 1)\n"
+                                                        "message(STATUS ${if})\n";
+}
+
+void tst_CMakeLang::indentation()
+{
+    QFETCH(QString, source);
+    QFETCH(QString, expected);
+    QCOMPARE(indented(source), expected);
+}
+
+void tst_CMakeLang::indentationOfHalfWrittenFiles_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<int>("line");
+    QTest::addColumn<int>("expected");
+
+    // QTCREATORBUG-19417: the line below a call that spans lines belongs to
+    // the file again, however the arguments of the call were laid out.
+    QTest::newRow("below a call that spans lines") << "set(FRUITS APPLE\n"
+                                                      "           BANANA\n"
+                                                      "           CHERRY)\n"
+                                                   << 4 << 0;
+
+    QTest::newRow("inside a call that is not closed yet") << "add_executable(app\n" << 2 << 1;
+
+    QTest::newRow("below a block that is not closed yet") << "if(WIN32)\n" << 2 << 1;
+
+    QTest::newRow("inside a call inside a block") << "if(WIN32)\n"
+                                                     "    set(SOURCES\n"
+                                                  << 3 << 2;
+
+    QTest::newRow("below a keyword that opened a list") << "qt_internal_add_module(Core\n"
+                                                           "    SOURCES\n"
+                                                        << 3 << 2;
+
+    QTest::newRow("an endif() that nothing opens") << "endif()\n" << 1 << 0;
+
+    QTest::newRow("a closing parenthesis that nothing opens") << ")\n" << 1 << 0;
+
+    QTest::newRow("a block that the wrong command closes") << "if(WIN32)\n"
+                                                              "endforeach()\n"
+                                                           << 2 << 1;
+}
+
+void tst_CMakeLang::indentationOfHalfWrittenFiles()
+{
+    QFETCH(QString, source);
+    QFETCH(int, line);
+    QFETCH(int, expected);
+
+    const Indentation indentation(source, namesKeyword);
+    QCOMPARE(indentation.levelAt(line), expected);
+}
+
+void tst_CMakeLang::indentationKeepsMultilineValues()
+{
+    const QString source = "set(TEXT \"first\n"
+                           "  second\")\n"
+                           "message(STATUS ${TEXT})\n";
+    const Indentation indentation(source);
+
+    QCOMPARE(indentation.levelAt(1), 0);
+    QCOMPARE(indentation.levelAt(2), Indentation::Keep);
+    QCOMPARE(indentation.levelAt(3), 0);
+
+    // The tail of the value closed the call, so what follows is at file level.
+    QCOMPARE(indentation.levelAt(4), 0);
 }
 
 QTEST_GUILESS_MAIN(tst_CMakeLang)

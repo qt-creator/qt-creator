@@ -2563,6 +2563,7 @@ void CMakeBuildSystem::setupCommandSignatures()
     m_commandSignatures = {};
     for (const CMakeFileInfo &cmakeFile : std::as_const(m_cmakeFiles))
         m_commandSignatures.addDocument(cmakeFile.document);
+    ++m_commandSignaturesGeneration;
 }
 
 void CMakeBuildSystem::setupCMakeSymbolsHash()

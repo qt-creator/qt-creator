@@ -43,6 +43,7 @@ add_qtc_library(CMakeLang
     cmakeastvisitor.cpp cmakeastvisitor.h
     cmakedocument.cpp cmakedocument.h
     cmakeengine.cpp cmakeengine.h
+    cmakeindentation.cpp cmakeindentation.h
     cmakelexer.cpp cmakelexer.h
     cmakememorypool.h
     cmakerewriter.cpp cmakerewriter.h

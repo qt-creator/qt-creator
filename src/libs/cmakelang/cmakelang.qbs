@@ -23,6 +23,8 @@ QtcLibrary {
         "cmakedocument.h",
         "cmakeengine.cpp",
         "cmakeengine.h",
+        "cmakeindentation.cpp",
+        "cmakeindentation.h",
         "cmakelang.h",
         "cmakelexer.cpp",
         "cmakelexer.h",

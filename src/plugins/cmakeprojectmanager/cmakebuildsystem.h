@@ -178,6 +178,9 @@ public:
     const QHash<QString, Utils::Link> &cmakeSymbolsHash() const { return m_cmakeSymbolsHash; }
     CMakeKeywords projectKeywords() const { return m_projectKeywords; }
     CMakeLang::SignatureTable commandSignatures() const { return m_commandSignatures; }
+    // Counts up whenever the signatures change, so that what one reads out of
+    // them can be held on to.
+    int commandSignaturesGeneration() const { return m_commandSignaturesGeneration; }
     QStringList projectImportedTargets() const { return m_projectImportedTargets; }
     QStringList projectFindPackageVariables() const { return m_projectFindPackageVariables; }
     const QHash<QString, Utils::Link> &dotCMakeFilesHash() const { return m_dotCMakeFilesHash; }
@@ -278,6 +281,7 @@ private:
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;
     CMakeLang::SignatureTable m_commandSignatures;
+    int m_commandSignaturesGeneration = 0;
     QHash<QString, Utils::Link> m_cmakeSymbolsHash;
     QHash<QString, Utils::Link> m_dotCMakeFilesHash;
     QHash<QString, Utils::Link> m_findPackagesFilesHash;
