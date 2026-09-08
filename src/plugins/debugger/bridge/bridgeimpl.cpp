@@ -4,12 +4,11 @@
 #include "bridgeimpl.h"
 
 #include "../disassemblerlines.h"
+#include "../watchutils.h"
 
 #include "../dap/dapclient.h"
 
 #include <utils/environment.h>
-#include <utils/mimeconstants.h>
-#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -114,28 +113,31 @@ private:
 static DebuggerEngineSetupData bridgeImplSetupData()
 {
     DebuggerEngineSetupData data;
-    data.capabilities = ReloadModuleCapability | BreakConditionCapability
-                      | ShowModuleSymbolsCapability | RunToLineCapability | AddWatcherCapability
+    data.capabilities = ReloadModuleCapability | ReloadModuleSymbolsCapability
+                      | BreakConditionCapability | BreakOnThrowAndCatchCapability
+                      | ShowModuleSectionsCapability | ShowModuleSymbolsCapability
+                      | RunToLineCapability | AddWatcherCapability
+                      | AutoDerefPointersCapability | WatchComplexExpressionsCapability
                       | RegisterCapability | ShowMemoryCapability | DisassemblerCapability
                       | OperateByInstructionCapability | JumpToLineCapability
-                      | WatchpointByAddressCapability | WatchpointByExpressionCapability;
-    data.extraCapabilities = DebuggerExtraCapability::JumpTargetCheck
+                      | WatchpointByAddressCapability | WatchpointByExpressionCapability
+                      | CreateFullBacktraceCapability;
+    data.extraCapabilities = DebuggerExtraCapability::Detach
+                           | DebuggerExtraCapability::JumpTargetCheck
+                           | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::PeripheralRegisters
-                           | DebuggerExtraCapability::ThreadEvent;
+                           | DebuggerExtraCapability::SkipKnownFrames
+                           | DebuggerExtraCapability::ThreadEvent
+                           | DebuggerExtraCapability::SourceFiles
+                           | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
             return false;
-        if (query.type == WatchpointAtAddress || query.type == WatchpointAtExpression
-            || query.type == BreakpointByFunction || query.type == BreakpointByAddress) {
-            return true;
-        }
-        const MimeType mimeType = Utils::mimeTypeForFile(query.fileName);
-        return mimeType.matchesName(Utils::Constants::C_HEADER_MIMETYPE)
-               || mimeType.matchesName(Utils::Constants::C_SOURCE_MIMETYPE)
-               || mimeType.matchesName(Utils::Constants::CPP_HEADER_MIMETYPE)
-               || mimeType.matchesName(Utils::Constants::CPP_SOURCE_MIMETYPE);
+        // Native mixed debugging is not wired up here, so a QML breakpoint has
+        // nowhere to go.
+        return query.isCppBreakpoint();
     };
     return data;
 }
@@ -381,7 +383,9 @@ void BridgeImpl::execute(const ExecutionRequest &request)
                                 {"line", request.context.textPosition.line}});
         return;
     case ExecutionCommand::Detach:
-        m_client->sendDisconnect();
+        // Not DapClient::sendDisconnect(), which takes the debuggee with it.
+        m_detaching = true;
+        postRequest("disconnect", QJsonObject{{"restart", false}, {"terminateDebuggee", false}});
         return;
     case ExecutionCommand::Abort:
         m_client->sendTerminate();
@@ -502,12 +506,27 @@ void BridgeImpl::refresh(const RefreshRequest &request)
         return;
     }
     case RefreshKind::FullStack:
-        if (const int seq = m_client->stackTrace(m_currentThreadId, 0); seq >= 0)
+        if (const int seq = m_client->stackTrace(m_currentThreadId,
+                                                 qMax(request.stackDepthLimit, 0));
+            seq >= 0) {
             m_stackTraceRequests.insert(seq, {false, request.requestId});
+        }
         return;
     case RefreshKind::Registers:
         m_pendingRegistersRequestId = request.requestId;
         postRequest("qtc/fetchRegisters", QJsonObject{{"frameId", m_currentFrameId}});
+        return;
+    case RefreshKind::Threads:
+        m_pendingThreadsRequestId = request.requestId;
+        postRequest("qtc/fetchThreads", {});
+        return;
+    case RefreshKind::SourceFiles:
+        m_pendingSourceFilesRequestId = request.requestId;
+        postRequest("qtc/fetchSourceFiles", {});
+        return;
+    case RefreshKind::FullBacktrace:
+        m_pendingBacktraceRequestId = request.requestId;
+        postRequest("qtc/fetchFullBacktrace", {});
         return;
     case RefreshKind::PeripheralRegisters:
         for (const quint64 address : request.addresses) {
@@ -527,8 +546,12 @@ void BridgeImpl::refresh(const RefreshRequest &request)
         m_pendingSymbolsRequestId = request.requestId;
         postRequest("qtc/fetchSymbols", QJsonObject{{"module", request.path.path()}});
         return;
+    case RefreshKind::ModuleSections:
+        m_pendingSectionsRequestId = request.requestId;
+        postRequest("qtc/fetchSections", QJsonObject{{"module", request.path.path()}});
+        return;
     case RefreshKind::AllSymbols:
-        postRequest("qtc/loadSymbols", {});
+        postRequest("qtc/loadSymbols", QJsonObject{{"all", true}});
         refresh({request.requestId, RefreshKind::Modules});
         refresh({request.requestId, RefreshKind::FullStack});
         refresh({request.requestId, RefreshKind::Locals});
@@ -734,8 +757,67 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         result.addChild(constMi("modulepath", body.value("module").toString()));
         result.addChild(symbolList);
         emit refreshDataReceived(m_pendingSymbolsRequestId, RefreshKind::ModuleSymbols, result);
+    } else if (command == "qtc/fetchSections") {
+        if (!success) {
+            emit message(response.value("message").toString(), LogError);
+            return;
+        }
+        const QJsonObject body = response.value("body").toObject();
+        GdbMi sectionList;
+        sectionList.m_type = GdbMi::List;
+        sectionList.m_name = "sections";
+        for (const QJsonValue &value : body.value("sections").toArray()) {
+            const QJsonObject item = value.toObject();
+            GdbMi section;
+            section.m_type = GdbMi::Tuple;
+            section.addChild(constMi("from", item.value("from").toString()));
+            section.addChild(constMi("to", item.value("to").toString()));
+            section.addChild(constMi("address", item.value("address").toString()));
+            section.addChild(constMi("name", item.value("name").toString()));
+            section.addChild(constMi("flags", item.value("flags").toString()));
+            sectionList.addChild(section);
+        }
+        GdbMi result;
+        result.m_type = GdbMi::Tuple;
+        result.addChild(constMi("modulepath", body.value("module").toString()));
+        result.addChild(sectionList);
+        emit refreshDataReceived(m_pendingSectionsRequestId, RefreshKind::ModuleSections, result);
+    } else if (command == "qtc/loadSymbols") {
+        if (!success)
+            emit message("BridgeImpl: loading symbols failed: "
+                         + response.value("message").toString(), LogError);
     } else if (command == "terminate" || command == "disconnect") {
-        emit inferiorEvent(InferiorEvent::ShutdownFinished);
+        // A detach ends the session too, but the engine did not ask for it and
+        // hears about the debuggee the way it hears an exit.
+        if (m_detaching) {
+            m_inferiorRunning = false;
+            emit inferiorDone({0, InferiorExitStatus::Detached});
+        } else {
+            emit inferiorEvent(InferiorEvent::ShutdownFinished);
+        }
+    } else if (command == "qtc/fetchSourceFiles") {
+        const GdbMi reported = dumperResultOf(response);
+        GdbMi files;
+        files.m_type = GdbMi::List;
+        for (const GdbMi &item : reported["files"]) {
+            const QString file = item["file"].data();
+            if (file.endsWith("<built-in>"))
+                continue;
+            GdbMi entry;
+            entry.m_type = GdbMi::Tuple;
+            entry.addChild(constMi("file", file));
+            if (const GdbMi fullName = item["fullname"]; fullName.isValid())
+                entry.addChild(constMi("fullname", fullName.data()));
+            files.addChild(entry);
+        }
+        emit refreshDataReceived(m_pendingSourceFilesRequestId, RefreshKind::SourceFiles, files);
+    } else if (command == "qtc/fetchThreads") {
+        emit refreshDataReceived(m_pendingThreadsRequestId, RefreshKind::Threads,
+                                 dumperResultOf(response));
+    } else if (command == "qtc/fetchFullBacktrace") {
+        emit refreshDataReceived(m_pendingBacktraceRequestId, RefreshKind::FullBacktrace,
+                                 constMi({}, response.value("body").toObject()
+                                                 .value("output").toString()));
     } else if (command == "qtc/executeCommand") {
         const QString output = response.value("body").toObject().value("output").toString();
         if (!output.isEmpty())
@@ -782,6 +864,20 @@ void BridgeImpl::handleStackTrace(const QJsonObject &response)
         const int lineNumber = top.value("line").toInt();
         const FilePath fileName
             = FilePath::fromUserInput(top.value("source").toObject().value("path").toString());
+        // A step that ended in a frame the user did not ask to see is continued
+        // rather than reported: out of a function that only forwards, into one
+        // that only wraps.
+        if (request.fromStep && m_startData.skipKnownFrames) {
+            const QString function = top.value("name").toString();
+            if (isLeavableFunction(function, fileName.path())) {
+                execute({ExecutionCommand::StepOut});
+                return;
+            }
+            if (isSkippableFunction(function, fileName.path())) {
+                execute({ExecutionCommand::StepIn});
+                return;
+            }
+        }
         if (lineNumber != 0 && fileName.exists())
             emit locationChanged(fileName, lineNumber);
         reportStop();
@@ -804,12 +900,12 @@ void BridgeImpl::handleStackTrace(const QJsonObject &response)
             frame.addChild(child);
         };
         add("level", QString::number(level++));
-        add("func", item.value("name").toString());
+        add("function", item.value("name").toString());
         const QString path = item.value("source").toObject().value("path").toString();
         add("file", path);
         add("fullname", path);
         add("line", QString::number(item.value("line").toInt()));
-        add("addr", QString::number(item.value("instructionPointerReference").toInteger()));
+        add("address", QString::number(item.value("instructionPointerReference").toInteger()));
         frameList.addChild(frame);
     }
     GdbMi stack;
@@ -861,14 +957,15 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
     default:
         // An unmapped DAP event still arrives whole: the bridge announces the
         // debuggee's pid this way, which several views and the interrupt path need.
-        if (event.value("event").toString() == "qtc/interruptIgnored") {
+        const QString name = event.value("event").toString();
+        if (name == "qtc/interruptIgnored") {
             if (m_stopRequested) {
                 m_stopRequested = false;
                 emit inferiorEvent(InferiorEvent::StopFailed);
             }
             return;
         }
-        if (event.value("event").toString() == "qtc/breakpointModified") {
+        if (name == "qtc/breakpointModified") {
             const QString payload = event.value("body").toObject().value("bkpt").toString();
             GdbMi bkpt;
             QStringDecoder decoder(QStringDecoder::Utf8);
@@ -879,7 +976,20 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             emit breakpointModified(list);
             return;
         }
-        if (event.value("event").toString() == "process") {
+        if (name == "qtc/library") {
+            const QJsonObject body = event.value("body").toObject();
+            const QString path = body.value("path").toString();
+            GdbMi library;
+            library.m_type = GdbMi::Tuple;
+            library.addChild(constMi("id", path));
+            library.addChild(constMi("target-name", path));
+            library.addChild(constMi("host-name", path));
+            emit libraryEvent(body.value("reason").toString() == "unloaded"
+                                  ? LibraryEvent::Unloaded : LibraryEvent::Loaded,
+                              library);
+            return;
+        }
+        if (name == "process") {
             const qint64 pid = event.value("body").toObject()
                                    .value("systemProcessId").toInteger();
             if (pid != 0)
@@ -910,7 +1020,7 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
         reportStop();
         return;
     }
-    m_stackTraceRequests.insert(seq, {true, 0});
+    m_stackTraceRequests.insert(seq, {true, 0, body.value("reason").toString() == u"step"});
 }
 
 void BridgeImpl::reportStop()

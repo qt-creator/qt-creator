@@ -96,6 +96,7 @@ private:
     bool m_resumePending = false;
     bool m_stopPending = false;
     bool m_interruptOnceRunning = false;
+    bool m_detaching = false;
 
     // The stop event carries no frame, so the location has to be asked for.
     // The answer is routed by the request's sequence number.
@@ -104,6 +105,9 @@ private:
     public:
         bool reportsStop = false;
         quint64 refreshRequestId = 0;
+        // Whether a step brought the inferior here, which is the only stop the
+        // skip list has a say over.
+        bool fromStep = false;
     };
     QHash<int, StackTraceRequest> m_stackTraceRequests;
 
@@ -111,7 +115,11 @@ private:
     quint64 m_pendingDumpersRequestId = 0;
     quint64 m_pendingModulesRequestId = 0;
     quint64 m_pendingSymbolsRequestId = 0;
+    quint64 m_pendingSectionsRequestId = 0;
     quint64 m_pendingRegistersRequestId = 0;
+    quint64 m_pendingBacktraceRequestId = 0;
+    quint64 m_pendingThreadsRequestId = 0;
+    quint64 m_pendingSourceFilesRequestId = 0;
     // One memory request can end up as several reads: an unreadable range is
     // split until the readable part is known.
     class MemoryRequest

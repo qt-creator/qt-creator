@@ -92,6 +92,7 @@ public:
     QList<QPair<QString, QString>> sourcePathMap;
     Utils::FilePaths sourceDirectories;
     bool nativeMixedDebugging = false;
+    bool skipKnownFrames = false;
     // Dumper context the interface's RefreshRequest does not carry.
     int qtVersion = 0;
     QString qtNamespace;

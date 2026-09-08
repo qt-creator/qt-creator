@@ -684,11 +684,11 @@ static QString tracepointMessageTail(Backend backend)
 static QString detachMarker(Backend backend)
 {
     switch (backend) {
+    case Backend::Bridge:
     case Backend::Dap:
         return "terminateDebuggee\":false";
     case Backend::Gdb:
     case Backend::Lldb:
-    case Backend::Bridge:
     case Backend::Cdb:
     case Backend::Pdb:
     case Backend::Qml:
@@ -766,6 +766,7 @@ static UserCommandProbe userCommandProbe(Backend backend, UserCommandHook hook)
 static bool limitsStackDepth(Backend backend)
 {
     switch (backend) {
+    case Backend::Bridge:
     case Backend::Dap:
     case Backend::Gdb:
     case Backend::Lldb:
@@ -773,7 +774,6 @@ static bool limitsStackDepth(Backend backend)
         return true;
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Bridge:
         break;
     }
     return false;
@@ -1565,7 +1565,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .inferiorStartData = inferiorRunDataOverride.value_or(
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .bridgeStartData = dapHostRecipe(false)}));
+            .bridgeStartData = dapHostRecipe(false),
+            .skipKnownFrames = gdbFlags.testFlag(GdbImplFlag::SkipKnownFrames)}));
     case Backend::Dap: {
         const ProcessRunData debuggerRunData = debuggerRunDataOverride.value_or(
             ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -2859,7 +2860,10 @@ Utils::Result<> tst_backends::checkAcceptsBreakpoint(Backend backend, Breakpoint
     const DebuggerEngineSetupData &data = debuggerBackend->engine()->setupData();
     AcceptsBreakpointQuery query;
     query.type = type;
-    query.fileName = inferiorTestData(backend).source;
+    // Only a file and line breakpoint carries a file, so asking about any other
+    // type with one attached would let a backend answer by the file alone.
+    if (type == BreakpointByFileAndLine)
+        query.fileName = inferiorTestData(backend).source;
     query.startMode = Debugger::StartInternal;
     if (data.acceptsBreakpoint && data.acceptsBreakpoint(query))
         return Utils::ResultOk;
@@ -3642,12 +3646,20 @@ void tst_backends::testDetachCapability()
         QVERIFY2(keepSpinningAddress != 0, "could not find keepSpinning's address via nm");
         debuggerBackend->engine()->accessMemory(MemoryOp::Change, 0, keepSpinningAddress, 1, QByteArray(1, char(0)));
 
+        QStringList messages;
+        connect(debuggerBackend->engine(), &DebuggerEngineInterface::message, this,
+                [&messages](const QString &text, int, int) { messages.append(text); });
+
         debuggerBackend->clearEvents();
         debuggerBackend->execute({ExecutionCommand::Detach});
 
         QTRY_VERIFY2_WITH_TIMEOUT(!debuggerBackend->inferiorResults().isEmpty(),
                                   "Detach never signaled completion", s_timeout);
         QCOMPARE(debuggerBackend->inferiorResults().constFirst().exitStatus, InferiorExitStatus::Detached);
+        const QString marker = detachMarker(backend);
+        QVERIFY2(std::any_of(messages.cbegin(), messages.cend(), [&marker](const QString &text) {
+            return text.contains(marker);
+        }), qPrintable("Detach never sent \"" + marker + '"'));
     }
 
     {
@@ -3951,13 +3963,31 @@ void tst_backends::testReloadModuleSymbolsCapability()
         responses[int(kind)] = data;
     });
 
-    RefreshRequest moduleSymbolsRequest;
-    moduleSymbolsRequest.kind = RefreshKind::ModuleSymbols;
-    moduleSymbolsRequest.requestId = 82;
-    moduleSymbolsRequest.path = inferiorTestData(backend).moduleSymbolsPath;
-    engine->refresh(moduleSymbolsRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::ModuleSymbols)), s_timeout);
-    QVERIFY(responses.value(int(RefreshKind::ModuleSymbols)).toString().contains("bump"));
+    QStringList errors;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&errors](const QString &text, int channel, int) {
+        // Whatever lldb writes to stderr lands on this channel too, the
+        // debuggee's own debug info complaints included, so only take what
+        // names the load.
+        if (channel == Debugger::LogError && text.contains("symbol", Qt::CaseInsensitive))
+            errors.append(text);
+    });
+
+    RefreshRequest stackSymbolsRequest;
+    stackSymbolsRequest.kind = RefreshKind::StackSymbols;
+    stackSymbolsRequest.requestId = 82;
+    stackSymbolsRequest.path = inferiorTestData(backend).moduleSymbolsPath;
+    engine->refresh(stackSymbolsRequest);
+
+    // Loading symbols has no answer of its own. Asking for all of them next
+    // brings the module list with it, and that answer can only arrive once the
+    // loads before it have been processed.
+    RefreshRequest allSymbolsRequest;
+    allSymbolsRequest.kind = RefreshKind::AllSymbols;
+    allSymbolsRequest.requestId = 83;
+    engine->refresh(allSymbolsRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Modules)), s_timeout);
+    QVERIFY2(errors.isEmpty(), qPrintable("loading symbols was refused: " + errors.join(' ')));
 }
 
 void tst_backends::testResetInferiorCapability()
@@ -9161,6 +9191,8 @@ void tst_backends::reportsTheStackOfASelectedThread()
     QVERIFY2(functions.contains("main"),
              qPrintable("the selected thread's stack does not reach main, only: "
                         + functions.join(", ")));
+    QVERIFY2(frames.childAt(0)["address"].toAddress() != 0,
+             qPrintable(frames.childAt(0).toString()));
 
     debuggerBackend->clearEvents();
     engine->shutdownInferior(ShutdownMode::Kill);

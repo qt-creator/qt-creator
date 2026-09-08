@@ -82,6 +82,41 @@ def parseSymbolLine(line):
             'section': section, 'demangled': demangled.strip()}
 
 
+SECTION_HEADER_RE = re.compile(r"^(?:Exec|Object) file:(?:\s+`(.*)', file type .*\.)?$")
+SECTION_CONTINUATION_RE = re.compile(r"^\s*`(.*)', file type .*\.$")
+SECTION_RE = re.compile(r"^\s*(?:\[\d+\]\s+)?(0x[0-9A-Fa-f]+)->(0x[0-9A-Fa-f]+)"
+                        r" at (0x[0-9A-Fa-f]+):\s+(\S+)(.*)$")
+
+
+def parseSectionLines(lines, module):
+    # What 'maint info sections -all-objects' writes, grouped per object file:
+    #   Exec file: `/path/inferior', file type elf64-x86-64.
+    #    [9]  0x2000->0x201b at 0x2000: .init ALLOC LOAD READONLY CODE
+    # A long path goes on a line of its own, which reads as a header too.
+    wanted = os.path.realpath(module)
+    sections = []
+    active = False
+    for line in lines:
+        header = SECTION_HEADER_RE.match(line)
+        if header is None:
+            header = SECTION_CONTINUATION_RE.match(line)
+        elif header.group(1) is None:
+            continue
+        if header is not None:
+            if active:
+                break
+            active = os.path.realpath(header.group(1)) == wanted
+            continue
+        if not active:
+            continue
+        match = SECTION_RE.match(line)
+        if match:
+            sections.append({'from': match.group(1), 'to': match.group(2),
+                             'address': match.group(3), 'name': match.group(4),
+                             'flags': match.group(5).strip()})
+    return sections
+
+
 def warn(message):
     # Diagnostics must not go to stdout: that is the protocol stream. The C++
     # side reads stderr separately and shows it in the debugger log.
@@ -996,6 +1031,8 @@ class DapServer():
         arguments = request.get('arguments', {})
         threadId = arguments.get('threadId', 0)
         self._selectThread(threadId)
+        # Zero levels asks for every frame, as the protocol defines it.
+        levels = arguments.get('levels') or 0
 
         self.frameForId = {}
         frames = []
@@ -1005,6 +1042,8 @@ class DapServer():
         except gdb.error:
             frame = None
         while frame is not None and frame.is_valid():
+            if levels and len(frames) == levels:
+                break
             self.frameForId[frameId] = frame
             entry = {'id': frameId, 'name': frame.name() or '??', 'line': 0,
                      'column': 0}
@@ -1017,8 +1056,10 @@ class DapServer():
             frameId += 1
             frame = frame.older()
 
-        self.sendResponse(request, body={'stackFrames': frames,
-                                         'totalFrames': len(frames)})
+        body = {'stackFrames': frames}
+        if frame is None or not frame.is_valid():
+            body['totalFrames'] = len(frames)
+        self.sendResponse(request, body=body)
 
     def _captureDumperResult(self, name, request):
         # The dumpers report through reportResult(), which would print to the
@@ -1090,6 +1131,16 @@ class DapServer():
         self.sendResponse(request, body={
             'dumperResult': self._captureDumperResult('fetchStack', request)})
 
+    def cmd_qtc_fetchFullBacktrace(self, request):
+        # Ascending, because the stack view lists thread 1 first and gdb walks
+        # them the other way round.
+        try:
+            output = gdb.execute('thread apply all -ascending bt full',
+                                 to_string=True) or ''
+        except gdb.error as error:
+            output = str(error)
+        self.sendResponse(request, body={'output': output})
+
     def cmd_qtc_assignValue(self, request):
         args = request.get('arguments', {})
         self._selectFrame(args.get('frameid'))
@@ -1097,20 +1148,10 @@ class DapServer():
             'dumperResult': self._captureDumperResult('assignValue', request)})
 
     def cmd_qtc_fetchThreads(self, request):
-        # gdb's Python API exposes threads but not in the MI shape the C++ side
-        # parses, and -thread-info does; its result record carries the payload.
-        try:
-            output = gdb.execute('interpreter-exec mi "-thread-info"', to_string=True)
-        except gdb.error as error:
-            self.sendResponse(request, success=False, message=str(error))
-            return
-        if not output.lstrip().startswith('^done'):
-            # An error record has the same shape; passing its message on as a
-            # result would have the C++ side parse it as threads.
-            self.sendResponse(request, success=False, message=output.strip())
-            return
-        _, _, payload = output.partition(',')
-        self.sendResponse(request, body={'dumperResult': payload.strip()})
+        self._sendMiResult(request, '-thread-info')
+
+    def cmd_qtc_fetchSourceFiles(self, request):
+        self._sendMiResult(request, '-file-list-exec-source-files')
 
     def cmd_qtc_loadSymbols(self, request):
         args = request.get('arguments', {})
@@ -1157,6 +1198,23 @@ class DapServer():
 
         symbols = [entry for entry in map(parseSymbolLine, lines) if entry]
         self.sendResponse(request, body={'module': module, 'symbols': symbols})
+
+    def cmd_qtc_fetchSections(self, request):
+        args = request.get('arguments', {})
+        module = args.get('module') or ''
+        if not module:
+            self.sendResponse(request, success=False,
+                              message='No usable module path: %r' % args.get('module'))
+            return
+        try:
+            listing = gdb.execute('maint info sections -all-objects',
+                                  to_string=True) or ''
+        except gdb.error as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        self.sendResponse(request, body={
+            'module': module,
+            'sections': parseSectionLines(listing.splitlines(), module)})
 
     def cmd_qtc_configureTarget(self, request):
         # Tell gdb where the target's sources and libraries are, before the
@@ -1370,6 +1428,22 @@ class DapServer():
     #######################################################################
     # Helpers
     #######################################################################
+
+    def _sendMiResult(self, request, command):
+        # gdb's Python API does not expose everything in the shape the C++ side
+        # parses, and MI does; its result record carries the payload.
+        try:
+            output = gdb.execute('interpreter-exec mi "%s"' % command, to_string=True)
+        except gdb.error as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        if not output.lstrip().startswith('^done'):
+            # An error record has the same shape; passing its message on as a
+            # result would have the C++ side parse it as data.
+            self.sendResponse(request, success=False, message=output.strip())
+            return
+        _, _, payload = output.partition(',')
+        self.sendResponse(request, body={'dumperResult': payload.strip()})
 
     def _selectThread(self, threadId):
         for thread in gdb.selected_inferior().threads():

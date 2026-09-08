@@ -1314,6 +1314,7 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .sourcePathMap = sourcePathMap,
             .sourceDirectories = sourceDirectories,
             .nativeMixedDebugging = rp.isNativeMixedDebugging(),
+            .skipKnownFrames = settings().skipKnownFrames(),
             .qtVersion = rp.qtVersion(),
             .qtNamespace = rp.configuredQtNamespace()}));
     }
