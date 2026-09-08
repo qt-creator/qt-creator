@@ -56,6 +56,8 @@ public:
     bool isContainerRunning(const QString &containerId);
     bool imageExists(const QString &imageId);
 
+    Utils::FilePath dockerClient();
+
 signals:
     void dockerDaemonAvailableChanged();
     void networksChanged();
@@ -68,8 +70,6 @@ public:
     QString displayType() const;
 
 private:
-    Utils::FilePath dockerClient();
-
     ContainerToolSettings *m_settings = nullptr;
     std::optional<bool> m_dockerDaemonAvailable;
     QMutex m_daemonCheckGuard;
