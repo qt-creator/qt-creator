@@ -23,6 +23,8 @@ using namespace Utils;
 
 namespace Core::Internal {
 
+static const int kMaxHistory = 100;
+
 ExecuteFilter::ExecuteFilter()
 {
     setId("Execute custom commands");
@@ -80,8 +82,7 @@ void ExecuteFilter::acceptCommand(const QString &cmd)
         m_commandHistory.removeAt(index);
     if (index != 0)
         m_commandHistory.prepend(displayName);
-    static const int maxHistory = 100;
-    while (m_commandHistory.size() > maxHistory)
+    while (m_commandHistory.size() > kMaxHistory)
         m_commandHistory.removeLast();
 
     bool found;
@@ -184,8 +185,10 @@ void ExecuteFilter::saveState(QJsonObject &object) const
 
 void ExecuteFilter::restoreState(const QJsonObject &object)
 {
-    m_commandHistory = Utils::transform(object.value(historyKey).toArray().toVariantList(),
-                                        &QVariant::toString);
+    QVariantList history = object.value(historyKey).toArray().toVariantList();
+    if (history.size() > kMaxHistory)
+        history.resize(kMaxHistory);
+    m_commandHistory = Utils::transform(history, &QVariant::toString);
 }
 
 QString ExecuteFilter::headCommand() const
