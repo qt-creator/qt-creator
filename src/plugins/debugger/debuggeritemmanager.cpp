@@ -299,9 +299,7 @@ static Utils::FilePaths searchGdbPathsFromRegistry()
     return searchPaths;
 }
 
-void DebuggerModel::autoDetectGdbOrLldbDebuggers(
-    const FilePaths &searchPaths, const DetectionSource &detectionSource,
-    const ToolDetectionLogger &logger)
+static QStringList debuggerSearchFilters()
 {
     QStringList filters
         = {"gdb-i686-pc-mingw32",
@@ -326,6 +324,15 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
             "lldb-vscode-*",
         });
     }
+
+    return filters;
+}
+
+void DebuggerModel::autoDetectGdbOrLldbDebuggers(
+    const FilePaths &searchPaths, const DetectionSource &detectionSource,
+    const ToolDetectionLogger &logger)
+{
+    const QStringList filters = debuggerSearchFilters();
 
     if (searchPaths.isEmpty())
         return;
@@ -637,29 +644,7 @@ ExecutableItem autoDetectDebuggerRecipe(
     const DetectionSource &detectionSource,
     const LogCallback &logCallback)
 {
-    QStringList searchFilters
-        = {"gdb-i686-pc-mingw32",
-           "gdb-i686-pc-mingw32.exe",
-           "gdb",
-           "gdb.exe",
-           "gdb-multiarch",
-           "lldb",
-           "lldb.exe",
-           "lldb-[1-9]*",
-           "arm-none-eabi-gdb-py.exe",
-           "*-*-*-gdb"};
-
-    if (nativeDapDebuggersEnabled()) {
-        searchFilters.append({
-            "lldb-dap",
-            "lldb-dap.exe",
-            "lldb-dap-*",
-            // LLDB DAP server was named lldb-vscode prior LLVM 18.0.0
-            "lldb-vscode",
-            "lldb-vscode.exe",
-            "lldb-vscode-*",
-        });
-    }
+    const QStringList searchFilters = debuggerSearchFilters();
 
     static const auto searchDebuggers = [](QPromise<DebuggerItem> &promise,
                                            const FilePaths &searchPaths,
