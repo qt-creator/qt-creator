@@ -116,13 +116,6 @@ DIFFEDITOR_EXPORT InlineDiffRenderModel mapChunkToRenderModel(
     bool baselineEndsWithNewline = false,
     bool editorEndsWithNewline = false);
 
-// The declaration the code below line lastLine (1-based) belongs to, shown on
-// the placeholder of a collapsed region the way git puts it on a hunk header:
-// the closest line at or above lastLine that starts in column 0 with a letter,
-// an underscore or a dollar sign. Empty if there is none.
-// Exported for the autotest.
-DIFFEDITOR_EXPORT QString inlineDiffContextLine(const QTextDocument *document, int lastLine);
-
 // Opens (or reuses and re-targets) an editor with the given title that shows
 // the differences between the baseline and the document contents inline. The
 // editor shares the text with sourceDocument, so edits show up immediately in
@@ -143,12 +136,5 @@ DIFFEDITOR_EXPORT Core::IEditor *openInlineDiffEditor(
 // The text editor widget showing the document side of an inline diff editor,
 // e.g. for attaching revision annotations to a read only snapshot.
 DIFFEDITOR_EXPORT TextEditor::TextEditorWidget *inlineDiffEditorWidget(Core::IEditor *editor);
-
-enum class InlineDiffViewMode { Inline, SideBySide };
-
-// The view mode of an editor returned by openInlineDiffEditor: fully inline,
-// or the baseline in a read only view side by side with the editable text.
-DIFFEDITOR_EXPORT void setInlineDiffViewMode(Core::IEditor *editor, InlineDiffViewMode mode);
-DIFFEDITOR_EXPORT InlineDiffViewMode inlineDiffViewMode(Core::IEditor *editor);
 
 } // namespace DiffEditor

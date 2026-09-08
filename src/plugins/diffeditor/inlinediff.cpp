@@ -3,6 +3,8 @@
 
 #include "inlinediff.h"
 
+#include "inlinediff_p.h"
+
 #include "diffeditorconstants.h"
 #include "diffeditoricons.h"
 #include "diffeditortr.h"
@@ -716,6 +718,22 @@ static int baselineLineToEditor(const InlineDiffRenderModel &model, int baseline
         editorLine = baselineLine + (editorAnchor - baselineAnchor);
     }
     return editorLine;
+}
+
+// The editor line to go to for a baseline line. Outside the hunks the two sides
+// pair up line by line, which is what baselineLineToEditor() gives. A line
+// inside a hunk has no counterpart - the editor side replaced or dropped it -
+// so the first editor line of its change stands in, which for a pure removal is
+// the line it is shown above.
+static int baselineLineToEditorPosition(const InlineDiffRenderModel &model, int baselineLine)
+{
+    for (const InlineDiffChunk &hunk : model.hunks) {
+        if (hunk.baselineStartLine > baselineLine)
+            break;
+        if (baselineLine < hunk.baselineStartLine + int(hunk.baselineLines.size()))
+            return hunk.editorStartLine;
+    }
+    return baselineLineToEditor(model, baselineLine);
 }
 
 } // anonymous namespace
@@ -1551,28 +1569,37 @@ private:
     bool m_syncing = false;
 };
 
-// The views of the inline diff editor: text editor widgets with one extra entry
-// at the top of their context menu, "Copy as Patch". The editor sets it up, as
-// it knows the diff the patch is made of.
+// The views of the inline diff editor: text editor widgets with extra entries
+// at the top of their context menu. The editor fills them in, as it knows the
+// diff they act on; the cursor is the clicked position, for the entries that
+// act on a line rather than on the selection.
 class InlineDiffTextEditorWidget final : public TextEditorWidget
 {
 public:
-    void setExtraContextMenuAction(QAction *action) { m_extraAction = action; }
+    using MenuProvider = std::function<void(QMenu *, const QTextCursor &)>;
+
+    void setContextMenuProvider(const MenuProvider &filler) { m_menuProvider = filler; }
+
+    // the diff specific entries for the given position
+    void fillContextMenu(QMenu *menu, const QTextCursor &cursor)
+    {
+        if (m_menuProvider)
+            m_menuProvider(menu, cursor);
+    }
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override
     {
         QMenu menu;
-        if (m_extraAction) {
-            menu.addAction(m_extraAction);
+        fillContextMenu(&menu, cursorForPosition(event->pos()));
+        if (!menu.isEmpty())
             menu.addSeparator();
-        }
         appendStandardContextMenuActions(&menu);
         menu.exec(event->globalPos());
     }
 
 private:
-    QPointer<QAction> m_extraAction;
+    MenuProvider m_menuProvider;
 };
 
 class InlineDiffEditor final : public Core::IEditor
@@ -1607,7 +1634,7 @@ public:
         setWidget(m_splitter);
         m_decorator = new InlineDiffDecorator(m_widget);
         m_collapseController = new CollapseController(m_widget);
-        m_copyAsPatchAction = createCopyAsPatchAction(m_widget);
+        setupContextMenu(m_widget);
 
         m_toolBar = new QToolBar;
         // like the diff editor's view switcher, the icon shows the view that
@@ -1844,6 +1871,12 @@ public:
     Core::IDocument *document() const override { return m_document; }
     QWidget *toolBar() override { return m_toolBar; }
 
+    void fillContextMenu(TextEditorWidget *view, QMenu *menu, const QTextCursor &cursor)
+    {
+        QTC_ASSERT(view && (view == m_widget || view == m_baselineWidget), return);
+        static_cast<InlineDiffTextEditorWidget *>(view)->fillContextMenu(menu, cursor);
+    }
+
     int currentLine() const override { return m_widget->textCursor().blockNumber() + 1; }
     int currentColumn() const override { return m_widget->textCursor().positionInBlock(); }
     void gotoLine(int line, int column, bool centerLine) override
@@ -1856,23 +1889,45 @@ public:
     }
 
 private:
-    // Adds the "Copy as Patch" entry to the view's context menu and returns the
-    // action, which stays enabled while the view has a change to copy. Both
-    // views get their own: the line numbers of a selection mean different things
-    // on the baseline and on the editor side.
-    QAction *createCopyAsPatchAction(TextEditorWidget *view)
+    void setupContextMenu(InlineDiffTextEditorWidget *view)
     {
-        // the views are created here, so their type is known
-        auto widget = static_cast<InlineDiffTextEditorWidget *>(view);
-        auto action = new QAction(Tr::tr("Copy as Patch"), widget);
-        action->setObjectName("InlineDiffCopyAsPatchAction"); // autotest
-        action->setToolTip(Tr::tr("Copy the selected changes, or all of them, as a "
-                                  "unified diff."));
-        connect(action, &QAction::triggered, this, [this, view] { copyAsPatch(view); });
-        connect(view, &PlainTextEdit::selectionChanged,
-                this, [this] { updateCopyAsPatchActions(); });
-        widget->setExtraContextMenuAction(action);
-        return action;
+        view->setContextMenuProvider([this, view](QMenu *menu, const QTextCursor &cursor) {
+            auto goToSource = new QAction(Tr::tr("Go to Source"), menu);
+            goToSource->setObjectName("InlineDiffGoToSourceAction"); // autotest
+            goToSource->setToolTip(Tr::tr("Open the source file at this location."));
+            goToSource->setEnabled(!sourceFilePath().isEmpty());
+            connect(goToSource, &QAction::triggered, this, [this, view, cursor] {
+                openSource(view, cursor);
+            });
+            menu->addAction(goToSource);
+
+            auto copyAsPatchAction = new QAction(Tr::tr("Copy as Patch"), menu);
+            copyAsPatchAction->setObjectName("InlineDiffCopyAsPatchAction"); // autotest
+            copyAsPatchAction->setToolTip(Tr::tr("Copy the selected changes, or all of them, as "
+                                                 "a unified diff."));
+            copyAsPatchAction->setEnabled(hasChangeInLines(selectedEditorLines(view)));
+            connect(copyAsPatchAction, &QAction::triggered, this, [this, view] {
+                copyAsPatch(view);
+            });
+            menu->addAction(copyAsPatchAction);
+        });
+    }
+
+    Utils::FilePath sourceFilePath() const { return m_source->filePath(); }
+
+    void openSource(TextEditorWidget *view, const QTextCursor &cursor)
+    {
+        const Utils::FilePath filePath = sourceFilePath();
+        if (filePath.isEmpty())
+            return;
+        const int line = cursor.blockNumber() + 1;
+        if (view == m_baselineWidget) {
+            const int editorLine = qMin(baselineLineToEditorPosition(m_model, line),
+                                        m_source->document()->blockCount());
+            EditorManager::openEditorAt({filePath, editorLine, 0});
+            return;
+        }
+        EditorManager::openEditorAt({filePath, line, cursor.positionInBlock()});
     }
 
     // The line of the closest change above or below the cursor, 0 when there
@@ -1906,16 +1961,6 @@ private:
             m_previousChangeAction->setEnabled(adjacentChangeLine(/*forward=*/false) > 0);
         if (m_nextChangeAction)
             m_nextChangeAction->setEnabled(adjacentChangeLine(/*forward=*/true) > 0);
-    }
-
-    void updateCopyAsPatchActions()
-    {
-        if (m_copyAsPatchAction && m_widget)
-            m_copyAsPatchAction->setEnabled(hasChangeInLines(selectedEditorLines(m_widget)));
-        if (m_baselineCopyAsPatchAction && m_baselineWidget) {
-            m_baselineCopyAsPatchAction->setEnabled(
-                hasChangeInLines(selectedEditorLines(m_baselineWidget)));
-        }
     }
 
     // The editor side lines the view's selection covers, <-1, -1> when nothing
@@ -2077,7 +2122,7 @@ private:
         m_baselineWidget->setupGenericHighlighter();
         m_baselineDecorator = new InlineDiffDecorator(m_baselineWidget,
                                                       InlineDiffDecorator::DiffSide::Baseline);
-        m_baselineCopyAsPatchAction = createCopyAsPatchAction(m_baselineWidget);
+        setupContextMenu(m_baselineWidget);
         m_splitter->insertWidget(0, m_baselineWidget);
         updateBaselineDocument();
         if (m_baseline.setupBaselineView)
@@ -2175,7 +2220,6 @@ private:
                 m_aligner->update(m_model.hunks);
         }
         updateHunkControls();
-        updateCopyAsPatchActions();
         updateChangeNavigationActions();
         // the collapser runs last so its placeholder rows sit above any ghost
         // rows the decorator prepended on the same anchor line; in the side by
@@ -2298,11 +2342,11 @@ private:
     const TextDocumentPtr m_source;
     InlineDiffDocument *m_document = nullptr;
     QPointer<QSplitter> m_splitter;
-    QPointer<TextEditorWidget> m_widget;
+    QPointer<InlineDiffTextEditorWidget> m_widget;
     QPointer<InlineDiffDecorator> m_decorator;
     QPointer<CollapseController> m_collapseController;
     QPointer<HunkControls> m_hunkControls;
-    QPointer<TextEditorWidget> m_baselineWidget;
+    QPointer<InlineDiffTextEditorWidget> m_baselineWidget;
     QPointer<InlineDiffDecorator> m_baselineDecorator;
     QPointer<SideBySideAligner> m_aligner;
     TextDocumentPtr m_baselineDocument;
@@ -2316,8 +2360,6 @@ private:
     QAction *m_whitespaceAction = nullptr;
     QAction *m_patienceAction = nullptr;
     QAction *m_signsAction = nullptr;
-    QPointer<QAction> m_copyAsPatchAction;
-    QPointer<QAction> m_baselineCopyAsPatchAction; // recreated with the baseline view
     bool m_ignoreWhitespace = false;
     bool m_patience = false;
     InlineDiffViewMode m_viewMode = InlineDiffViewMode::Inline;
@@ -2380,6 +2422,15 @@ InlineDiffViewMode inlineDiffViewMode(Core::IEditor *editor)
     if (InlineDiffEditor *diffEditor = inlineDiffEditor(editor))
         return diffEditor->viewMode();
     return InlineDiffViewMode::Inline;
+}
+
+void fillInlineDiffContextMenu(Core::IEditor *editor,
+                               TextEditorWidget *view,
+                               QMenu *menu,
+                               const QTextCursor &cursor)
+{
+    if (InlineDiffEditor *diffEditor = inlineDiffEditor(editor))
+        diffEditor->fillContextMenu(view, menu, cursor);
 }
 
 } // namespace DiffEditor

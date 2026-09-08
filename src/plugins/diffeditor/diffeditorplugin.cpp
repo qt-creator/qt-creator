@@ -381,6 +381,7 @@ private slots:
     void testInlineDiffGoToFirstChange();
     void testInlineDiffChangeNavigation();
     void testInlineDiffScrollBarMarkers();
+    void testInlineDiffGoToSource();
 #endif // WITH_TESTS
 };
 
@@ -1632,6 +1633,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testDiffDocuments()
 }
 
 #include "inlinediff.h"
+#include "inlinediff_p.h"
 
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
@@ -1683,6 +1685,31 @@ private:
     const QVariant m_contextLines;
     const QVariant m_patience;
 };
+
+// the viewport position of a line's given column
+static QPoint viewportPoint(TextEditor::TextEditorWidget *view, int line, int column)
+{
+    const QTextBlock block = view->document()->findBlockByNumber(line - 1);
+    QTextCursor cursor(block);
+    cursor.setPosition(block.position() + column);
+    const QRect rect = view->cursorRect(cursor);
+    return QPoint(rect.left(), rect.center().y());
+}
+
+// Hands the entry with the given object name of the view's context menu, as a
+// right click at a viewport position fills it, to the given function. The menu
+// is filled without being popped up: a menu that waits for input runs an event
+// loop of its own, which a test cannot drive from the outside.
+static void onContextMenuEntry(Core::IEditor *editor,
+                               TextEditor::TextEditorWidget *view,
+                               const QPoint &pos,
+                               const QString &objectName,
+                               const std::function<void(QAction *)> &check)
+{
+    QMenu menu;
+    fillInlineDiffContextMenu(editor, view, &menu, view->cursorForPosition(pos));
+    check(menu.findChild<QAction *>(objectName));
+}
 
 } // namespace DiffEditor::Internal
 
@@ -2647,12 +2674,32 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
     });
     QVERIFY(diffWidget);
 
-    // the view's own action, as the context menu shows it
-    QAction *copyAsPatch = diffWidget->findChild<QAction *>("InlineDiffCopyAsPatchAction");
-    QVERIFY(copyAsPatch);
-    // nothing to copy before the diff arrived
-    QVERIFY(!copyAsPatch->isEnabled());
-    QTRY_VERIFY(copyAsPatch->isEnabled());
+    // The entry belongs to the context menu, so the test gets at it through
+    // one, opened over the first line: it acts on the selection, not on the
+    // position it was opened at.
+    const auto onCopyAsPatch = [](Core::IEditor *editor,
+                                  TextEditorWidget *view,
+                                  const std::function<void(QAction *)> &check) {
+        onContextMenuEntry(editor, view, viewportPoint(view, 1, 0),
+                           "InlineDiffCopyAsPatchAction", check);
+    };
+    const auto copyAsPatchEnabled = [&onCopyAsPatch](Core::IEditor *editor,
+                                                     TextEditorWidget *view) {
+        bool enabled = false;
+        onCopyAsPatch(editor, view, [&enabled](QAction *copyAsPatch) {
+            QVERIFY(copyAsPatch);
+            enabled = copyAsPatch->isEnabled();
+        });
+        return enabled;
+    };
+    const auto triggerCopyAsPatch = [&onCopyAsPatch](Core::IEditor *editor,
+                                                     TextEditorWidget *view) {
+        onCopyAsPatch(editor, view, [](QAction *copyAsPatch) {
+            QVERIFY(copyAsPatch);
+            copyAsPatch->trigger();
+        });
+    };
+    QTRY_VERIFY(copyAsPatchEnabled(diffEditor, diffWidget));
 
     QClipboard *clipboard = QGuiApplication::clipboard();
     clipboard->clear();
@@ -2680,7 +2727,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
                                "-line 18\n"
                                " line 19\n"
                                " line 20\n";
-    copyAsPatch->trigger();
+    triggerCopyAsPatch(diffEditor, diffWidget);
     QCOMPARE(clipboard->text(), header + firstHunk + secondHunk);
 
     // a selection covering the first change only leaves the other hunk out
@@ -2689,17 +2736,17 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     diffWidget->setTextCursor(cursor);
     clipboard->clear();
-    copyAsPatch->trigger();
+    triggerCopyAsPatch(diffEditor, diffWidget);
     QCOMPARE(clipboard->text(), header + firstHunk);
 
     // a selection without any change in it has nothing to copy
-    QVERIFY(copyAsPatch->isEnabled());
+    QVERIFY(copyAsPatchEnabled(diffEditor, diffWidget));
     cursor.setPosition(diffWidget->document()->findBlockByNumber(9).position());
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     diffWidget->setTextCursor(cursor);
-    QVERIFY(!copyAsPatch->isEnabled());
+    QVERIFY(!copyAsPatchEnabled(diffEditor, diffWidget));
     clipboard->clear();
-    copyAsPatch->trigger();
+    triggerCopyAsPatch(diffEditor, diffWidget);
     QVERIFY(clipboard->text().isEmpty());
 
     // "Ignore Whitespace" takes the re-indented line out of the view, so a
@@ -2713,17 +2760,17 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
     cursor.setPosition(diffWidget->document()->findBlockByNumber(4).position());
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     diffWidget->setTextCursor(cursor);
-    QVERIFY(copyAsPatch->isEnabled());
+    QVERIFY(copyAsPatchEnabled(diffEditor, diffWidget));
     whitespaceAction->setChecked(true);
-    QTRY_VERIFY(!copyAsPatch->isEnabled());
+    QTRY_VERIFY(!copyAsPatchEnabled(diffEditor, diffWidget));
 
     // the patch, however, is the real diff either way: its context lines have
     // to match the baseline file, or "git apply" rejects the hunk
     cursor.clearSelection();
     diffWidget->setTextCursor(cursor);
-    QVERIFY(copyAsPatch->isEnabled());
+    QVERIFY(copyAsPatchEnabled(diffEditor, diffWidget));
     clipboard->clear();
-    copyAsPatch->trigger();
+    triggerCopyAsPatch(diffEditor, diffWidget);
     QCOMPARE(clipboard->text(), header + firstHunk + secondHunk);
     whitespaceAction->setChecked(false);
 
@@ -2738,12 +2785,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
     QVERIFY(snapshotEditor);
     TextEditorWidget *snapshotWidget = inlineDiffEditorWidget(snapshotEditor);
     QVERIFY(snapshotWidget);
-    QAction *snapshotCopyAsPatch
-        = snapshotWidget->findChild<QAction *>("InlineDiffCopyAsPatchAction");
-    QVERIFY(snapshotCopyAsPatch);
-    QTRY_VERIFY(snapshotCopyAsPatch->isEnabled());
+    QTRY_VERIFY(copyAsPatchEnabled(snapshotEditor, snapshotWidget));
     clipboard->clear();
-    snapshotCopyAsPatch->trigger();
+    triggerCopyAsPatch(snapshotEditor, snapshotWidget);
     QCOMPARE(clipboard->text(), "--- a/my file.txt\n+++ b/my file.txt\n" + firstHunk
                                     + secondHunk);
 
@@ -2753,9 +2797,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCopyAsPatch()
     namedBaseline.sourceFileName = "sub dir/my file.txt";
     QCOMPARE(openInlineDiffEditor(snapshot, namedBaseline, "my file.txt (Staged)",
                                   /*readOnlySource=*/true), snapshotEditor);
-    QTRY_VERIFY(snapshotCopyAsPatch->isEnabled());
+    QTRY_VERIFY(copyAsPatchEnabled(snapshotEditor, snapshotWidget));
     clipboard->clear();
-    snapshotCopyAsPatch->trigger();
+    triggerCopyAsPatch(snapshotEditor, snapshotWidget);
     QCOMPARE(clipboard->text(), "--- a/sub dir/my file.txt\n+++ b/sub dir/my file.txt\n"
                                     + firstHunk + secondHunk);
 
@@ -3033,6 +3077,173 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffScrollBarMarkers()
     QTRY_COMPARE(markers(diffWidget).size(), 1);
 
     const QPointer<QWidget> diffWidgetGuard = diffEditor->widget();
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+// The "Go to Source" entry of both views' context menus opens the file the diff
+// is of at the position the menu was opened at, mapping a baseline line to the
+// editor line it pairs with.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffGoToSource()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard(/*hideUnchangedLines=*/false);
+
+    // a line inserted above the change, so the two sides number their lines
+    // differently and the baseline side has something to map, and a removal of
+    // more than one line, whose lines the editor side does not have at all
+    QStringList baselineLines;
+    for (int i = 1; i <= 30; ++i)
+        baselineLines << QString("line %1").arg(i);
+    QStringList editorLines = baselineLines;
+    editorLines.remove(23, 2);           // baseline lines 24 and 25
+    editorLines.insert(4, "inserted");   // 1-based editor line 5
+    editorLines[12] = "line 12 changed"; // editor line 13, baseline line 12
+    const QString baselineText = baselineLines.join('\n') + '\n';
+    const QString editorText = editorLines.join('\n') + '\n';
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile = FilePath::fromString(temporaryDir.path())
+                                / "testInlineDiffGoToSource.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    TextEditorWidget *sourceWidget = sourceTextEditor->editorWidget();
+    QVERIFY(sourceWidget);
+    const TextDocumentPtr sourceDocument = sourceWidget->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor
+        = openInlineDiffEditor(sourceDocument, baseline, "testInlineDiffGoToSource.txt");
+    QVERIFY(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
+    TextEditorWidget *diffWidget = Utils::findOrDefault(
+        diffEditor->widget()->findChildren<TextEditorWidget *>(),
+        [&sourceDocument](TextEditorWidget *widget) {
+            return widget->document() == sourceDocument->document();
+        });
+    QVERIFY(diffWidget);
+    diffEditor->widget()->resize(800, 600);
+    diffEditor->widget()->show();
+
+    const auto onGoToSourceAt = [](Core::IEditor *editor,
+                                   TextEditorWidget *view,
+                                   const QPoint &pos,
+                                   const std::function<void(QAction *)> &check) {
+        onContextMenuEntry(editor, view, pos, "InlineDiffGoToSourceAction", check);
+    };
+    const auto ghostedLines = [](TextEditorWidget *widget) {
+        QList<int> lines;
+        for (QTextBlock block = widget->document()->firstBlock(); block.isValid();
+             block = block.next()) {
+            if (!widget->editorLayout()
+                     ->layoutItemsForCategory(block, inlineDiffGhostCategory())
+                     .isEmpty())
+                lines << block.blockNumber() + 1;
+        }
+        return lines;
+    };
+
+    // the changed line carries the ghost row of the baseline line it replaces,
+    // the line below the removal the rows of the two lines it dropped
+    QTRY_COMPARE(ghostedLines(diffWidget), QList<int>({13, 25}));
+
+    // the editor side goes to the clicked line and column
+    const QPoint clicked = viewportPoint(diffWidget, 13, 3);
+    const int clickedColumn = diffWidget->cursorForPosition(clicked).positionInBlock();
+    QVERIFY(clickedColumn > 0);
+    onGoToSourceAt(diffEditor, diffWidget, clicked, [](QAction *goToSource) {
+        QVERIFY(goToSource);
+        QVERIFY(goToSource->isEnabled());
+        goToSource->trigger();
+    });
+    QTRY_COMPARE(EditorManager::currentEditor(), sourceEditor);
+    QCOMPARE(sourceWidget->textCursor().blockNumber() + 1, 13);
+    QCOMPARE(sourceWidget->textCursor().positionInBlock(), clickedColumn);
+
+    // the baseline side of the side by side view counts baseline lines, which
+    // the entry maps to the editor line they pair with: baseline line 18 is
+    // editor line 19, one below because of the inserted line above it
+    EditorManager::activateEditor(diffEditor);
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
+    const QList<TextEditorWidget *> sideWidgets
+        = diffEditor->widget()->findChildren<TextEditorWidget *>();
+    QCOMPARE(sideWidgets.size(), 2);
+    TextEditorWidget *baselineWidget = sideWidgets.first() == diffWidget ? sideWidgets.last()
+                                                                         : sideWidgets.first();
+    QTRY_COMPARE(baselineWidget->document()->toPlainText(), baselineText);
+    // tall enough for the whole file, so that every line has a viewport position
+    diffEditor->widget()->resize(1000, 1000);
+    diffEditor->widget()->show();
+    QCOMPARE(diffWidget->document()->findBlockByNumber(18).text(), QString("line 18"));
+
+    sourceEditor->gotoLine(1, 0);
+    onGoToSourceAt(diffEditor, baselineWidget, viewportPoint(baselineWidget, 18, 3),
+                   [](QAction *goToSource) {
+        QVERIFY(goToSource);
+        QVERIFY(goToSource->isEnabled());
+        goToSource->trigger();
+    });
+    QTRY_COMPARE(EditorManager::currentEditor(), sourceEditor);
+    QCOMPARE(sourceWidget->textCursor().blockNumber() + 1, 19);
+    QCOMPARE(sourceWidget->textCursor().positionInBlock(), 0);
+
+    // the removed baseline lines have no editor line of their own, so the entry
+    // goes to the line the removal is shown above: editor line 25 for both of
+    // baseline lines 24 and 25, not one line further down for the second of them
+    QCOMPARE(diffWidget->document()->findBlockByNumber(24).text(), QString("line 26"));
+    for (int baselineLine : {24, 25}) {
+        sourceEditor->gotoLine(1, 0);
+        onGoToSourceAt(diffEditor, baselineWidget, viewportPoint(baselineWidget, baselineLine, 3),
+                       [](QAction *goToSource) {
+            QVERIFY(goToSource);
+            QVERIFY(goToSource->isEnabled());
+            goToSource->trigger();
+        });
+        QTRY_COMPARE(sourceWidget->textCursor().blockNumber() + 1, 25);
+    }
+
+    // a read only snapshot has no source to go to, not even with a baseline
+    // naming the file it is a revision of, the way git's do: that file exists,
+    // but its lines are not the ones the snapshot shows
+    InlineDiffBaseline snapshotBaseline = baseline;
+    snapshotBaseline.contextDirectory = FilePath::fromString(temporaryDir.path());
+    snapshotBaseline.sourceFileName = sourceFile.fileName();
+    const TextDocumentPtr snapshot(new TextDocument);
+    snapshot->document()->setPlainText(editorText);
+    snapshot->document()->setModified(false);
+    IEditor *snapshotEditor = openInlineDiffEditor(
+        snapshot,
+        snapshotBaseline,
+        "testInlineDiffGoToSource.txt (Staged)",
+        /*readOnlySource=*/true);
+    QVERIFY(snapshotEditor);
+    TextEditorWidget *snapshotWidget = inlineDiffEditorWidget(snapshotEditor);
+    QVERIFY(snapshotWidget);
+    snapshotEditor->widget()->resize(800, 600);
+    snapshotEditor->widget()->show();
+    onGoToSourceAt(snapshotEditor, snapshotWidget, viewportPoint(snapshotWidget, 1, 0),
+                   [](QAction *goToSource) {
+        QVERIFY(goToSource);
+        QVERIFY(!goToSource->isEnabled());
+    });
+
+    const QPointer<QWidget> snapshotWidgetGuard = snapshotWidget;
+    QVERIFY(EditorManager::closeEditors({snapshotEditor}, false));
+    QTRY_VERIFY(snapshotWidgetGuard.isNull());
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
     QTRY_VERIFY(diffWidgetGuard.isNull());
 }
