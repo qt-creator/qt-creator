@@ -1069,6 +1069,7 @@ static QJsonArray getRunConfigurations()
 
 static QJsonObject configureRunConfig(const QString &idOrName,
                                       const QString &executable,
+                                      const std::optional<QString> &arguments,
                                       bool setActive)
 {
     Project *project = ProjectManager::startupProject();
@@ -1116,6 +1117,14 @@ static QJsonObject configureRunConfig(const QString &idOrName,
         }
         aspect->setExecutable(FilePath::fromUserInput(executable));
     }
+    if (arguments) {
+        auto aspect = match->aspect<ArgumentsAspect>();
+        if (!aspect) {
+            return {{"success", false}, {"reason", "no_arguments_aspect"},
+                    {"message", "Run configuration has no arguments aspect."}};
+        }
+        aspect->setArguments(*arguments);
+    }
     if (setActive)
         bc->setActiveRunConfiguration(match);
     return {{"success", true},
@@ -1123,7 +1132,8 @@ static QJsonObject configureRunConfig(const QString &idOrName,
             {"id", match->id().toString()},
             {"name", match->expandedDisplayName()},
             {"active", match == target->activeRunConfiguration()},
-            {"executable", match->runnable().command.executable().toUserOutput()}};
+            {"executable", match->runnable().command.executable().toUserOutput()},
+            {"arguments", match->runnable().command.arguments()}};
 }
 
 // Helper: compute FindFlags from regex/caseSensitive booleans
@@ -3978,7 +3988,8 @@ void registerMcpTools()
             .title("Configure a run configuration")
             .description(
                 "Selects an existing run configuration (by display name or type id, see "
-                "run_list_configs) as the active one and/or sets its executable. Setting "
+                "run_list_configs) as the active one and/or sets its executable and the "
+                "arguments the application is started with. Setting "
                 "the executable only works for run configurations that have one, such as the "
                 "bare-metal \"Custom Executable\" configuration. Then debugger_start (with no "
                 "arguments) debugs it via its run configuration's own launch path. Several run "
@@ -4001,6 +4012,13 @@ void registerMcpTools()
                             {"description",
                              "Executable to set on the run configuration (local path)."}})
                     .addProperty(
+                        "arguments",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Command-line arguments to start the application with, as one "
+                             "string; an empty one clears them."}})
+                    .addProperty(
                         "set_active",
                         QJsonObject{
                             {"type", "boolean"},
@@ -4016,6 +4034,7 @@ void registerMcpTools()
                     .addProperty("name", QJsonObject{{"type", "string"}})
                     .addProperty("active", QJsonObject{{"type", "boolean"}})
                     .addProperty("executable", QJsonObject{{"type", "string"}})
+                    .addProperty("arguments", QJsonObject{{"type", "string"}})
                     .addProperty(
                         "candidates",
                         QJsonObject{
@@ -4023,8 +4042,10 @@ void registerMcpTools()
                     .addRequired("success")),
         wrap([](const QJsonObject &p) {
             const bool setActive = p.contains("set_active") ? p.value("set_active").toBool() : true;
+            const std::optional<QString> arguments = p.contains("arguments")
+                ? std::make_optional(p.value("arguments").toString()) : std::nullopt;
             return configureRunConfig(
-                p.value("id").toString(), p.value("executable").toString(), setActive);
+                p.value("id").toString(), p.value("executable").toString(), arguments, setActive);
         }));
 
     // --- Device management tools -------------------------------------------
