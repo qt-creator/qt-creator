@@ -3260,10 +3260,14 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
           }).workingDirectory;
 
     QList<BuildTargetInfo> appTargetList;
-    // Android and HarmonyOS build applications as module libraries, not executables.
+    // Android and HarmonyOS build applications as module libraries, not executables. That
+    // holds for a build device running HarmonyOS as well: what Qt Creator builds there for
+    // the device it runs on is a module for the runner to load.
     const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(kit());
-    const bool moduleLibraryIsApp = deviceType == Android::Constants::ANDROID_DEVICE_TYPE
-                                    || deviceType == HarmonyOs::Constants::HARMONYOS_DEVICE_TYPE;
+    const bool moduleLibraryIsApp
+        = deviceType == Android::Constants::ANDROID_DEVICE_TYPE
+          || deviceType == HarmonyOs::Constants::HARMONYOS_DEVICE_TYPE
+          || deviceType == HarmonyOs::Constants::HARMONYOS_BUILD_DEVICE_TYPE;
 
     auto isAppTarget = [moduleLibraryIsApp](const CMakeBuildTarget &ct) {
         return ct.targetType == ExecutableType

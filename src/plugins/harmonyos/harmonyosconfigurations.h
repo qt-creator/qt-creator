@@ -3,7 +3,15 @@
 
 #pragma once
 
+#include <QString>
+
+namespace ProjectExplorer { class Abi; }
+
 namespace HarmonyOs::Internal {
+
+// The HarmonyOS ABI name, as used by the Qt installation directories, the ohos mkspec
+// and the SDK's CMake toolchain file.
+QString ohosAbiName(const ProjectExplorer::Abi &abi);
 
 // Re-detect toolchains and rebuild the automatic kit list from the configured SDK.
 void applyConfig();

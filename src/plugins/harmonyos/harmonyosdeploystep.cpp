@@ -289,6 +289,36 @@ static Result<> addPermission(const FilePath &moduleJson, const QString &name)
     return ResultOk;
 }
 
+// How the package is asked to run something by an application that may not start an
+// ability by name: an implicit want carrying a scheme of its own, which the ability the
+// launch has to reach is the one to declare. Qt Creator on the device sends it; a package
+// that does not hold the runner has no business answering it.
+static Result<> declareLaunchScheme(const FilePath &moduleJson, const QString &scheme)
+{
+    const Result<QByteArray> contents = moduleJson.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+
+    QString text = QString::fromUtf8(*contents);
+    if (text.contains("\"" + scheme + "\""))
+        return ResultOk;
+
+    static const QRegularExpression re("\"skills\"\\s*:\\s*\\[");
+    const QRegularExpressionMatch match = re.match(text);
+    if (!match.hasMatch())
+        return ResultError(Tr::tr("No skill list in \"%1\".").arg(moduleJson.toUserOutput()));
+
+    text.insert(match.capturedEnd(),
+                "\n          {\n"
+                "            \"actions\": [\"ohos.want.action.viewData\"],\n"
+                "            \"entities\": [\"entity.system.browsable\"],\n"
+                "            \"uris\": [{ \"scheme\": \"" + scheme + "\" }]\n"
+                "          },");
+    if (const Result<qint64> written = moduleJson.writeFileContents(text.toUtf8()); !written)
+        return ResultError(written.error());
+    return ResultOk;
+}
+
 // A native package is only unpacked on the device when the module declares it.
 static Result<> declareHnpPackage(const FilePath &moduleJson, const QString &fileName)
 {
@@ -948,6 +978,11 @@ private:
         const FilePath moduleJson = m_project.pathAppended("entry/src/main/module.json5");
         if (const Result<> added = addPermission(moduleJson, "ohos.permission.INTERNET"); !added) {
             emit addOutput(added.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        if (const Result<> declared
+            = declareLaunchScheme(moduleJson, Constants::HARMONYOS_RUN_SCHEME); !declared) {
+            emit addOutput(declared.error(), OutputFormat::ErrorMessage);
             return false;
         }
         emit addOutput(Tr::tr("Packaging a runner: the application is handed over at every "
@@ -1787,6 +1822,35 @@ private slots:
         QCOMPARE(text(moduleJson).count("hnpPackages"), 1);
     }
 
+    void testDeclareLaunchScheme()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath moduleJson = FilePath::fromString(dir.filePath("module.json5"));
+        QVERIFY(moduleJson.writeFileContents(abilityManifest()));
+
+        QVERIFY(declareLaunchScheme(moduleJson, "qtcrun"));
+        const QString once = text(moduleJson);
+        QVERIFY(once.contains("\"scheme\": \"qtcrun\""));
+        QVERIFY(once.contains("ohos.want.action.viewData"));
+        // In the skill list of the ability that is launched, and beside what was there.
+        QVERIFY(once.indexOf("qtcrun") > once.indexOf("\"skills\""));
+        QVERIFY(once.indexOf("qtcrun") < once.indexOf("entity.system.home"));
+
+        QVERIFY(declareLaunchScheme(moduleJson, "qtcrun"));
+        QCOMPARE(text(moduleJson).count("qtcrun"), 1);
+    }
+
+    void testDeclareLaunchSchemeWithoutSkills()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath moduleJson = FilePath::fromString(dir.filePath("module.json5"));
+        QVERIFY(moduleJson.writeFileContents(manifest()));
+
+        QVERIFY(!declareLaunchScheme(moduleJson, "qtcrun"));
+    }
+
     void testSetLaunchArguments()
     {
         QTemporaryDir dir;
@@ -2263,6 +2327,29 @@ private:
         {
             "name": "ohos.permission.FILE_ACCESS_PERSIST"
         }
+    ]
+  }
+})";
+    }
+
+    // As the Qt for HarmonyOS template generates it, down to the skill the launcher needs.
+    static QByteArray abilityManifest()
+    {
+        return R"({
+  "module": {
+    "name": "entry",
+    "mainElement": "QAbility",
+    "abilities": [
+      {
+        "name": "QAbility",
+        "exported": true,
+        "skills": [
+          {
+            "entities": ["entity.system.home"],
+            "actions": ["action.system.home"]
+          }
+        ]
+      }
     ]
   }
 })";

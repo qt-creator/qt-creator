@@ -50,6 +50,10 @@ inline constexpr int HARMONYOS_CHANNEL_PORT = 8126;
 // The library that takes the application's place in the package and maps whatever the
 // channel offers, so that a run needs no package of its own.
 inline constexpr char HARMONYOS_RUNNER_LIBRARY[] = "libqtcrunner.so";
+// The scheme a package holding the runner declares. Qt Creator running on the device has no
+// other way to start it: the "aa" command is not reachable from an application sandbox, and
+// only an implicit want can be sent from one.
+inline constexpr char HARMONYOS_RUN_SCHEME[] = "qtcrun";
 
 inline const Utils::Id HARMONYOS_SERIAL_NUMBER = "HarmonyOS.SerialNumber";
 

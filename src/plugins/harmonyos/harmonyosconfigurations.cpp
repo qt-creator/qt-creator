@@ -90,9 +90,7 @@ static Abis harmonyOsQtAbis(const QtVersion *v)
     return {};
 }
 
-// The HarmonyOS ABI name (as used by the Qt installation directories and the ohos mkspec),
-// used to disambiguate kits when several target architectures are installed.
-static QString ohosAbiName(const Abi &abi)
+QString ohosAbiName(const Abi &abi)
 {
     if (abi.architecture() == Abi::ArmArchitecture)
         return abi.wordWidth() == 64 ? QString("arm64-v8a") : QString("armeabi-v7a");

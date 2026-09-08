@@ -20,14 +20,19 @@
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
+#include <QtTaskTree/QBarrier>
 #include <QtTaskTree/qtasktree.h>
 
+#include <QDesktopServices>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QUrl>
+
+#include <optional>
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
@@ -119,6 +124,54 @@ HarmonyOsExtras harmonyOsExtras(const FilePath &buildDir, const QString &buildKe
     return extras;
 }
 
+// A length no application can have, so what follows it is not one.
+constexpr quint32 argumentsAnnouncement = 0xffffffff;
+
+static void announce(QTcpSocket *socket, quint32 size)
+{
+    const char header[4] = {char((size >> 24) & 0xff), char((size >> 16) & 0xff),
+                            char((size >> 8) & 0xff), char(size & 0xff)};
+    socket->write(header, sizeof(header));
+}
+
+// The runner asks what to run by connecting, and gets a length and that many bytes. Read
+// when it asks rather than when the run starts, so a rebuild between runs needs no new
+// package. It holds the channel open for as long as the application runs and reports over
+// it what it did, which belongs in the application's own output.
+//
+// Arguments go ahead of the application, announced by a length no application can have, and
+// only where the launch cannot carry them: an empty list there is an answer too, and takes
+// the launch URI the platform passes out of the application's way.
+static void serveRunner(QTcpSocket *socket, const FilePath &library,
+                        const std::optional<QStringList> &arguments, RunControl *runControl)
+{
+    QObject::connect(socket, &QTcpSocket::readyRead, socket, [socket, runControl] {
+        const QString text = QString::fromUtf8(socket->readAll());
+        for (const QString &line : text.split('\n', Qt::SkipEmptyParts))
+            runControl->postMessage(line, StdOutFormat);
+    });
+
+    const Result<QByteArray> contents = library.fileContents();
+    if (!contents) {
+        runControl->postMessage(contents.error(), ErrorMessageFormat);
+        socket->disconnectFromHost();
+        return;
+    }
+    if (arguments) {
+        QByteArray payload;
+        for (const QString &argument : *arguments)
+            payload += argument.toUtf8() + '\0';
+        announce(socket, argumentsAnnouncement);
+        announce(socket, quint32(payload.size()));
+        socket->write(payload);
+    }
+    const quint32 size = quint32(contents->size());
+    announce(socket, size);
+    socket->write(*contents);
+    runControl->postMessage(Tr::tr("Handed %1 to the runner (%2 bytes).")
+                                .arg(library.fileName()).arg(size), NormalMessageFormat);
+}
+
 class HarmonyOsRunConfiguration final : public RunConfiguration
 {
 public:
@@ -161,13 +214,129 @@ public:
     }
 };
 
+// Whether this is the Qt Creator that runs on the device, which is the only one that can
+// hand an application to the runner there: the channel is that device's own loopback, and
+// the want that starts the runner can only be sent from an application on it. Not an
+// OsType: what the build device says about the system it builds on is the Linux the
+// toolchains behind it are for.
+#ifdef Q_OS_OHOS
+constexpr bool runsOnTheDevice = true;
+#else
+constexpr bool runsOnTheDevice = false;
+#endif
+
+// Building for the platform produces an application module rather than a program, and the
+// only thing that loads one is the runner in an installed package. So a run offers it over
+// the same channel a run from a host does, and needs no forward for it: an application's
+// loopback is the device's own, and the port the runner asks on can be bound here. Nothing
+// else of the host route is available - hdc is on the other side of it, and from an
+// application sandbox the "aa" command can neither start the runner nor stop it again.
+static Group handoverRecipe(RunControl *runControl, const FilePath &library,
+                            const QStringList &arguments)
+{
+    const Storage<std::unique_ptr<QTcpServer>> channelStorage;
+    const QStoredBarrier answeredBarrier;
+    const QStoredBarrier finishedBarrier;
+
+    const auto openChannel = [runControl, library, arguments, channelStorage, answeredBarrier,
+                              finishedBarrier] {
+        QBarrier * const answered = answeredBarrier.activeStorage();
+        QBarrier * const finished = finishedBarrier.activeStorage();
+        auto server = std::make_unique<QTcpServer>();
+        if (!server->listen(QHostAddress::LocalHost, Constants::HARMONYOS_CHANNEL_PORT)) {
+            runControl->postMessage(Tr::tr("Could not open the channel the runner asks on: %1")
+                                        .arg(server->errorString()), ErrorMessageFormat);
+            return false;
+        }
+        server->setMaxPendingConnections(1);
+        QTcpServer * const channel = server.get();
+        QObject::connect(channel, &QTcpServer::newConnection, channel,
+                         [channel, runControl, library, arguments, answered, finished] {
+            QTcpSocket * const socket = channel->nextPendingConnection();
+            QTC_ASSERT(socket, return);
+            QObject::connect(socket, &QTcpSocket::disconnected, socket,
+                             [socket, channel, finished] {
+                socket->deleteLater();
+                // The runner closes the channel when the application's main() has returned,
+                // so this is the run being over. Ending it takes the channel down, and with
+                // it this socket, which a socket does not survive being emitted from - so
+                // leave the emission first. Posting to the channel is what keeps the call
+                // from reaching a barrier that a cancel has taken away in the meantime.
+                QMetaObject::invokeMethod(channel, [finished] { finished->advance(); },
+                                          Qt::QueuedConnection);
+            });
+            serveRunner(socket, library, arguments, runControl);
+            answered->advance();
+        });
+        *channelStorage = std::move(server);
+        return true;
+    };
+
+    // An implicit want is all an application may send, so the runner is reached through the
+    // scheme its package declares rather than by name.
+    const auto askForTheRunner = [runControl] {
+        const QUrl url(QString("%1://run")
+                           .arg(QString::fromLatin1(Constants::HARMONYOS_RUN_SCHEME)));
+        if (QDesktopServices::openUrl(url))
+            return true;
+        runControl->postMessage(Tr::tr("The device did not accept \"%1\".")
+                                    .arg(url.toString()), ErrorMessageFormat);
+        return false;
+    };
+
+    return Group {
+        channelStorage,
+        answeredBarrier,
+        finishedBarrier,
+        QSyncTask(openChannel),
+        QSyncTask(askForTheRunner),
+        Group {
+            parallel,
+            stopOnSuccessOrError,
+            barrierAwaiterTask(answeredBarrier),
+            timeoutTask(30s),
+            onGroupDone([runControl](DoneWith result) {
+                if (result != DoneWith::Success) {
+                    runControl->postMessage(
+                        Tr::tr("The runner did not ask for the application. A package that "
+                               "holds it has to be installed, and it must not already be "
+                               "running: a launch reaches a running instance instead of "
+                               "starting one."), ErrorMessageFormat);
+                }
+            })
+        },
+        QSyncTask([runControl] { runControl->reportStarted(); }),
+        barrierAwaiterTask(finishedBarrier),
+        onGroupDone([runControl](DoneWith result) {
+            if (result == DoneWith::Cancel) {
+                runControl->postMessage(
+                    Tr::tr("The channel is closed, but the application keeps running: "
+                           "stopping an ability is not something an application may do."),
+                    NormalMessageFormat);
+            }
+        })
+    }.withCancel([runControl] {
+        return makeObjectSignal(runControl, &RunControl::canceled);
+    });
+}
+
 class HarmonyOsBuildDeviceRunWorkerFactory final : public RunWorkerFactory
 {
 public:
     HarmonyOsBuildDeviceRunWorkerFactory()
     {
         setId("HarmonyOsBuildDeviceRunWorkerFactory");
-        setRecipeProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) -> Group {
+            BuildConfiguration * const bc = runControl->buildConfiguration();
+            const FilePath library = runsOnTheDevice && bc
+                ? applicationLibrary(bc->buildDirectory(), bc->activeBuildKey()) : FilePath();
+            if (!library.isEmpty()) {
+                const QStringList launchArguments
+                    = harmonyOsExtras(bc->buildDirectory(), bc->activeBuildKey()).launchArguments;
+                return handoverRecipe(runControl, library,
+                                      launchArguments
+                                          + runControl->commandLine().splitArguments());
+            }
             return runControl->processRecipe(runControl->processTask());
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
@@ -227,9 +396,7 @@ public:
 
             // Running without installing: the package holds the runner, and this is the
             // channel it asks on. A reverse forward puts this listener on the device's own
-            // loopback, the runner connects to it, and the library the build just produced
-            // goes over as a length and that many bytes. Read at connect time, so a rebuild
-            // between runs needs no new package.
+            // loopback, and the runner connects to it.
             const bool viaChannel = settings().runWithoutInstalling();
             const FilePath library = viaChannel
                 ? applicationLibrary(bc->buildDirectory(), bc->activeBuildKey()) : FilePath();
@@ -254,31 +421,7 @@ public:
                     while (QTcpSocket * const socket = channel->nextPendingConnection()) {
                         QObject::connect(socket, &QTcpSocket::disconnected,
                                          socket, &QTcpSocket::deleteLater);
-                        // Whatever the runner reports about the handover belongs in the
-                        // application's own output.
-                        QObject::connect(socket, &QTcpSocket::readyRead, socket,
-                                         [socket, runControl] {
-                            const QString text = QString::fromUtf8(socket->readAll());
-                            for (const QString &line : text.split('\n', Qt::SkipEmptyParts))
-                                runControl->postMessage(line, StdOutFormat);
-                        });
-
-                        const Result<QByteArray> contents = library.fileContents();
-                        if (!contents) {
-                            runControl->postMessage(contents.error(), ErrorMessageFormat);
-                            socket->disconnectFromHost();
-                            continue;
-                        }
-                        const quint32 size = quint32(contents->size());
-                        const char header[4] = {char((size >> 24) & 0xff),
-                                                char((size >> 16) & 0xff),
-                                                char((size >> 8) & 0xff),
-                                                char(size & 0xff)};
-                        socket->write(header, sizeof(header));
-                        socket->write(*contents);
-                        runControl->postMessage(
-                            Tr::tr("Handed %1 to the runner (%2 bytes).")
-                                .arg(library.fileName()).arg(size), NormalMessageFormat);
+                        serveRunner(socket, library, std::nullopt, runControl);
                     }
                 });
                 *channelStorage = std::move(server);

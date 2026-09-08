@@ -18,6 +18,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #include <arpa/inet.h>
 #include <cstdarg>
@@ -50,6 +51,18 @@ static void note(const char *format, ...)
     ::printf("qtcrunner: %s\n", text);
 }
 
+// What the IDE hands over. It takes charge of the arguments where the launch cannot carry
+// them - an implicit want has none, and leaves its own URI where the application expects
+// its first argument.
+struct Launch
+{
+    std::vector<std::string> arguments;
+    bool argumentsGiven = false;
+};
+
+static const size_t ArgumentsAnnouncement = 0xffffffffu;
+static const size_t ArgumentsLimit = 1024u * 1024;
+
 static int channel()
 {
     const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -78,16 +91,49 @@ static bool readFully(int fd, char *at, size_t left)
     return true;
 }
 
-// The IDE announces the application as a length and that many bytes.
-static bool receive(int fd, std::string *error)
+static bool readSize(int fd, size_t *size)
 {
     unsigned char header[4] = {0};
-    if (!readFully(fd, reinterpret_cast<char *>(header), sizeof(header))) {
+    if (!readFully(fd, reinterpret_cast<char *>(header), sizeof(header)))
+        return false;
+    *size = (size_t(header[0]) << 24) | (size_t(header[1]) << 16) | (size_t(header[2]) << 8)
+            | size_t(header[3]);
+    return true;
+}
+
+// The IDE announces the application as a length and that many bytes, and can send the
+// arguments ahead of it, announced by a length no application can have.
+static bool receive(int fd, Launch *launch, std::string *error)
+{
+    size_t size = 0;
+    if (!readSize(fd, &size)) {
         *error = "no application on the channel";
         return false;
     }
-    const size_t size = (size_t(header[0]) << 24) | (size_t(header[1]) << 16)
-                        | (size_t(header[2]) << 8) | size_t(header[3]);
+    if (size == ArgumentsAnnouncement) {
+        size_t bytes = 0;
+        if (!readSize(fd, &bytes) || bytes > ArgumentsLimit) {
+            *error = "the announced arguments are not plausible";
+            return false;
+        }
+        std::string text(bytes, '\0');
+        if (bytes > 0 && !readFully(fd, &text[0], bytes)) {
+            *error = "the channel closed inside the arguments";
+            return false;
+        }
+        for (size_t at = 0; at < bytes;) {
+            const size_t end = text.find('\0', at);
+            if (end == std::string::npos)
+                break;
+            launch->arguments.push_back(text.substr(at, end - at));
+            at = end + 1;
+        }
+        launch->argumentsGiven = true;
+        if (!readSize(fd, &size)) {
+            *error = "no application on the channel";
+            return false;
+        }
+    }
     if (size == 0 || size > 512u * 1024 * 1024) {
         *error = "the announced size is not plausible: " + std::to_string(size);
         return false;
@@ -125,6 +171,7 @@ static bool receive(int fd, std::string *error)
 extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv)
 {
     note("main() entered, argc %d, connecting to port %d", argc, ChannelPort);
+    Launch launch;
     const int fd = channel();
     if (fd < 0) {
         // Nothing is holding the channel open: run whatever was left here last time, so a
@@ -133,7 +180,7 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
              errno);
     } else {
         std::string error;
-        if (!receive(fd, &error)) {
+        if (!receive(fd, &launch, &error)) {
             note("%s", error.c_str());
             ::dprintf(fd, "runner: %s\n", error.c_str());
             ::close(fd);
@@ -175,6 +222,17 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
             ::close(fd);
         }
         return 1;
+    }
+
+    static char self[] = "qtcrunner";
+    std::vector<char *> values;
+    if (launch.argumentsGiven) {
+        values.push_back(argc > 0 ? argv[0] : self);
+        for (std::string &argument : launch.arguments)
+            values.push_back(&argument[0]);
+        values.push_back(nullptr);
+        argc = int(values.size()) - 1;
+        argv = values.data();
     }
 
     note("calling the application's main()");

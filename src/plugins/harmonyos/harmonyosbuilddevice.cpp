@@ -3,10 +3,14 @@
 
 #include "harmonyosbuilddevice.h"
 
+#include "harmonyosconfigurations.h"
 #include "harmonyosconstants.h"
 #include "harmonyossdk.h"
 #include "harmonyossettings.h"
 #include "harmonyostr.h"
+
+#include <cmakeprojectmanager/cmakeconfigitem.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
 
 #include <coreplugin/icore.h>
 
@@ -223,26 +227,59 @@ static void detectLoopbackBuildDevice()
                               << "to ~/.ssh/authorized_keys on this device.";
 }
 
-// The compiler on the device's PATH is a link into an OpenHarmony SDK, and the headers of
-// EGL and the other platform libraries sit in that SDK's sysroot, which CMake looks at only
-// once the kit names it.
-static void setSysRootFromToolchain(Kit *kit)
+// The compiler on the device's PATH is a link into an OpenHarmony SDK.
+static FilePath sdkRootFromToolchain(const Toolchain *toolchain)
 {
-    if (!SysRootKitAspect::sysRoot(kit).isEmpty())
-        return;
-    const Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(kit);
-    if (!toolchain)
-        return;
     const FilePath compiler = toolchain->compilerCommand();
     for (const FilePath &path : {compiler, compiler.symLinkTarget()}) {
         if (path.isEmpty())
             continue;
-        const FilePath sysroot = Sdk::sysrootPath(path.parentDir().parentDir());
-        if (!sysroot.isEmpty()) {
-            SysRootKitAspect::setSysRoot(kit, sysroot);
-            return;
-        }
+        const FilePath sdkRoot = path.parentDir().parentDir();
+        if (!Sdk::sysrootPath(sdkRoot).isEmpty())
+            return sdkRoot;
     }
+    return {};
+}
+
+// The headers of EGL and the other platform libraries sit in that SDK's sysroot, which
+// CMake looks at only once the kit names it. The Qt on the device is a native build, so
+// unlike a cross-built one its qt.toolchain.cmake says nothing about OpenHarmony: without
+// the SDK's own toolchain file chain-loaded behind it CMake produces a plain Linux
+// executable rather than the application module the platform loads, and no deployment
+// settings for the run configuration to read the application from.
+static void completeKit(Kit *kit)
+{
+    const Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(kit);
+    if (!toolchain)
+        return;
+    const FilePath sdkRoot = sdkRootFromToolchain(toolchain);
+    if (sdkRoot.isEmpty())
+        return;
+
+    if (SysRootKitAspect::sysRoot(kit).isEmpty())
+        SysRootKitAspect::setSysRoot(kit, Sdk::sysrootPath(sdkRoot));
+
+    using namespace CMakeProjectManager;
+    const FilePath toolchainFile = Sdk::cmakeToolchainFile(sdkRoot);
+    if (toolchainFile.isEmpty())
+        return;
+    const CMakeConfig before = CMakeConfigurationKitAspect::configuration(kit);
+    CMakeConfig config = before;
+    if (config.valueOf("QT_CHAINLOAD_TOOLCHAIN_FILE").isEmpty()) {
+        config.insert(CMakeConfigItem("QT_CHAINLOAD_TOOLCHAIN_FILE", CMakeConfigItem::FILEPATH,
+                                      toolchainFile.path().toUtf8()));
+        // That toolchain file picks no architecture of its own and stops without one.
+        config.insert(CMakeConfigItem("OHOS_ARCH", CMakeConfigItem::STRING,
+                                      ohosAbiName(toolchain->targetAbi()).toUtf8()));
+    }
+    // The compiler that toolchain file picks is the SDK's own, and the one on the device's
+    // PATH a link to it. A kit naming the link differs from what lands in the cache
+    // forever, and every build asks whether to apply the difference, so leave the choice
+    // where it is made.
+    config.remove("CMAKE_C_COMPILER");
+    config.remove("CMAKE_CXX_COMPILER");
+    if (config != before)
+        CMakeConfigurationKitAspect::setConfiguration(kit, config);
 }
 
 static bool isLoopbackKit(const Kit *kit)
@@ -272,7 +309,7 @@ static void detectToolsOnLoopbackDevice()
         const QList<Kit *> kits = Utils::filtered(KitManager::kits(), &isLoopbackKit);
         if (!kits.isEmpty()) {
             for (Kit *kit : kits)
-                setSysRootFromToolchain(kit);
+                completeKit(kit);
             return;
         }
         device->runAutoDetect(logger, [] {
@@ -315,7 +352,7 @@ void setupHarmonyOsBuildDevice()
     QObject::connect(KitManager::instance(), &KitManager::kitAdded,
                      KitManager::instance(), [](Kit *kit) {
         if (isLoopbackKit(kit))
-            setSysRootFromToolchain(kit);
+            completeKit(kit);
     });
     QObject::connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
                      DeviceManager::instance(), whenRestored, Qt::SingleShotConnection);
