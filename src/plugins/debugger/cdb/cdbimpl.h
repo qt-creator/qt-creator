@@ -46,6 +46,8 @@ public:
     bool breakOnMain = false;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
+    int qtVersion = 0;
+    QString qtNamespace;
     // Only the ctrl-c stub next to the qtcreator executable makes
     // Process::interrupt() reach a console cdb.exe.
     bool useCtrlCStub = false;
@@ -197,7 +199,6 @@ private:
     QHash<QString, BreakpointParameters> m_insertedBreakpoints;
     bool m_resumeWhenRepliesDrain = false;
     bool m_isResetRestart = false;
-    int m_currentFrameIndex = 0;
     DebuggerCommand m_lastDebuggableCommand;
     bool m_evaluatingCondition = false;
     bool m_expandingTracepoint = false;

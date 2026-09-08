@@ -1408,31 +1408,6 @@ void CdbImpl::initializeSession(const std::function<void()> &whenReady)
     }});
 }
 
-static GdbMi dumperShapedLocals(const GdbMi &reply)
-{
-    GdbMi items;
-    items.m_type = GdbMi::List;
-    items.m_name = "data";
-    for (const GdbMi &item : reply) {
-        const QString encoding = item["valueencoded"].data();
-        GdbMi decoded;
-        decoded.m_type = GdbMi::Tuple;
-        for (const GdbMi &field : item) {
-            if (field.m_name == "valueencoded")
-                continue;
-            if (field.m_name == "value" && !encoding.isEmpty())
-                decoded.addChild(constMi("value", decodeData(field.data(), encoding)));
-            else
-                decoded.addChild(field);
-        }
-        items.addChild(decoded);
-    }
-    GdbMi result;
-    result.m_type = GdbMi::Tuple;
-    result.addChild(items);
-    return result;
-}
-
 static GdbMi interpreterStackFrames(const GdbMi &msg)
 {
     static const QLatin1String prefix("qmlstack=");
@@ -1618,37 +1593,40 @@ void CdbImpl::refresh(const RefreshRequest &request)
         return;
     }
     const quint64 requestId = request.requestId;
-    DebuggerCommand cmd("locals", ExtensionCommand,
-                       [this, requestId](const DebuggerResponse &response) {
-        emit refreshDataReceived(requestId, RefreshKind::Locals,
-                                 dumperShapedLocals(response.data));
-    });
-    QString args = "-v -D";
-    if (request.dumperOptions.useDebuggingHelpers)
-        args += " -c";
-    const QStringList expanded(request.expandedINames.cbegin(), request.expandedINames.cend());
-    if (!expanded.isEmpty())
-        args += " -e " + expanded.join(',');
-    for (const QJsonValue &value : request.watchers) {
-        const QJsonObject watcher = value.toObject();
-        const QString expr = QString::fromUtf8(
-            QByteArray::fromHex(watcher.value("exp").toString().toUtf8()));
-        if (expr.isEmpty())
-            continue;
-        if (!args.contains(" -W"))
-            args += " -W";
-        args += " -w " + watcher.value("iname").toString() + " \"" + expr + '"';
-    }
-    args += ' ' + QString::number(m_currentFrameIndex);
-    cmd.args = args;
+    const DumperOptions &options = request.dumperOptions;
+    DebuggerCommand cmd("theDumper.fetchVariables", ScriptCommand);
+    cmd.arg("fancy", options.useDebuggingHelpers);
+    cmd.arg("autoderef", request.autoDerefPointers);
+    cmd.arg("dyntype", options.useDynamicType);
+    cmd.arg("qobjectnames", options.showQObjectNames);
+    cmd.arg("timestamps", options.logTimeStamps);
+    cmd.arg("stringcutoff", options.maximalStringLength);
+    cmd.arg("displaystringlimit", options.displayStringLimit);
+    cmd.arg("qtversion", m_startData.qtVersion);
+    cmd.arg("qtnamespace", m_startData.qtNamespace);
+    cmd.arg("passexceptions", qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE"));
+    cmd.arg("partialvar", request.partialVariable);
+    cmd.arg("context", request.context);
+    cmd.arg("nativemixed", m_startData.nativeMixed);
+    cmd.arg("allowinferiorcalls", request.allowInferiorCalls);
+    cmd.arg("expanded", request.expandedForDumpers());
+    cmd.arg("typeformats", request.typeFormats);
+    cmd.arg("formats", request.individualFormats);
+    cmd.arg("formattypes", request.formatTypes);
+    cmd.arg("watchers", request.watchers);
     m_lastDebuggableCommand = cmd;
-    m_lastDebuggableCommand.callback = {};
+    m_lastDebuggableCommand.arg("passexceptions", true);
+    cmd.callback = [this, requestId](const DebuggerResponse &response) {
+        emit refreshDataReceived(requestId, RefreshKind::Locals, response.data["result"]);
+    };
     runCommand(cmd);
 }
 
 void CdbImpl::activateFrame(int index)
 {
-    m_currentFrameIndex = index;
+    if (index < 0)
+        return;
+    runCommand({".frame " + hexAddress(quint64(index)), NoFlags});
 }
 
 void CdbImpl::selectThread(const QString &threadId)

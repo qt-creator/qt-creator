@@ -1292,7 +1292,7 @@ quint64 tst_backends::symbolAddressFromDebugger(DebuggerEngineInterface *engine,
 
     QJsonObject watcher;
     watcher.insert("iname", QString("watch.0"));
-    watcher.insert("exp", toHex('&' + symbolName));
+    watcher.insert("exp", toHex(symbolName));
     QJsonArray watchers;
     watchers.append(watcher);
 
@@ -1319,7 +1319,10 @@ quint64 tst_backends::symbolAddressFromDebugger(DebuggerEngineInterface *engine,
     if (!replied)
         return 0;
 
-    QString address = findItemByIName(reply, "watch.0")["address"].data();
+    const GdbMi watched = findItemByIName(reply, "watch.0");
+    QString address = watched["address"].data();
+    if (address.isEmpty())
+        address = watched["origaddr"].data();
     if (address.startsWith("0x"))
         address.remove(0, 2);
     bool ok = false;
