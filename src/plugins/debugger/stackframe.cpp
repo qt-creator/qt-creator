@@ -211,4 +211,13 @@ static QDebug operator<<(QDebug d, const  StackFrame &f)
     return d;
 }
 
+QString msgMissingSource(const FilePath &file, const QString &function)
+{
+    if (!file.isEmpty())
+        return Tr::tr("Source file \"%1\" was not found.").arg(file.toUserOutput());
+    if (!function.isEmpty())
+        return Tr::tr("No source file is known for \"%1\".").arg(function);
+    return Tr::tr("No source file is known for this location.");
+}
+
 } // Debugger::Internal

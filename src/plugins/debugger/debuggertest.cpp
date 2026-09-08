@@ -22,6 +22,7 @@
 #include "debuggerruncontrol.h"
 #include "debuggersourcepathmappingwidget.h"
 #include "enginemanager.h"
+#include "logwindow.h"
 #include "gdb/gdbengine.h"
 #include "registerhandler.h"
 #include "stackframe.h"
@@ -137,6 +138,11 @@ private slots:
     void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testOnlyMachineCodeIsOfferedADisassembly();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
+    void testMissingSourceMessage();
+    void testASkippedTopFrameNamesItsMissingSource();
+    void testSkippedMachineryFramesStaySilent();
+    void testTheDisassemblyMessageIsSaidOncePerStop();
+
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
@@ -1914,6 +1920,113 @@ void DebuggerUnitTests::testAnEmptyDisassemblyLeavesTheViewAlone()
     const int before = DocumentModel::entryCount();
     agent.setContents({});
     QCOMPARE(DocumentModel::entryCount(), before);
+}
+
+void DebuggerUnitTests::testMissingSourceMessage()
+{
+    const FilePath file = FilePath::fromUserInput("/src/foo.cpp");
+    QVERIFY(msgMissingSource(file, "main").contains(file.toUserOutput()));
+    QVERIFY(msgMissingSource({}, "main").contains("main"));
+
+    // A location with neither must not be reported as an empty name.
+    QVERIFY(!msgMissingSource({}, {}).contains("\"\""));
+}
+
+// A stack the way a backend reports one, with usability stated rather than
+// looked up on disk.
+static GdbMi stackReply(const QStringList &frames)
+{
+    QStringDecoder decoder(QStringDecoder::Utf8);
+    GdbMi data;
+    data.fromString('[' + frames.join(',') + ']', decoder);
+    return data;
+}
+
+void DebuggerUnitTests::testASkippedTopFrameNamesItsMissingSource()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const QStringList frames
+        = {R"({level="0",function="abort",file="/usr/src/abort.c",usable="0"})",
+           R"({level="1",function="main",file="/src/main.cpp",usable="1"})"};
+    const auto mentions = [engine] {
+        return engine->logWindow()->inputContents().count("/usr/src/abort.c");
+    };
+
+    engine->stackHandler()->setFramesAndCurrentIndex(stackReply(frames), true);
+    QCOMPARE(engine->stackHandler()->currentIndex(), 1);
+    QVERIFY2(mentions() > 0, qPrintable("nothing said about the frame that was skipped:\n"
+                                        + engine->logWindow()->inputContents()));
+
+    // The same stop refreshing its stack does not say it again.
+    const int said = mentions();
+    engine->stackHandler()->setFramesAndCurrentIndex(stackReply(frames), true);
+    QCOMPARE(mentions(), said);
+}
+
+void DebuggerUnitTests::testSkippedMachineryFramesStaySilent()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const QStringList frames
+        = {R"({level="0",function="qt_message_fatal",machinery="1",usable="0"})",
+           R"({level="1",function="main",file="/src/main.cpp",usable="1"})"};
+
+    const bool wasCollapsing = settings().collapseMachineryFrames();
+    const QScopeGuard restore([wasCollapsing] {
+        settings().collapseMachineryFrames.setValue(wasCollapsing);
+    });
+
+    // Collapsed, the run is a placeholder for frames nobody asked to see;
+    // expanded, it is the machinery frames themselves. Skipping either is
+    // deliberate, so there is nothing to explain.
+    for (const bool collapsing : {true, false}) {
+        settings().collapseMachineryFrames.setValue(collapsing);
+        const QString before = engine->logWindow()->inputContents();
+        engine->stackHandler()->setFramesAndCurrentIndex(stackReply(frames), true);
+        QVERIFY2(engine->logWindow()->inputContents() == before,
+                 qPrintable(QString("a machinery frame was explained away (collapsing %1): %2")
+                                .arg(collapsing)
+                                       .arg(engine->logWindow()->inputContents()
+                                                .mid(before.size()))));
+    }
+}
+
+void DebuggerUnitTests::testTheDisassemblyMessageIsSaidOncePerStop()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] {
+        delete engine;
+        EditorManager::closeAllEditors(false);
+    });
+    engine->setRunParameters({});
+
+    StackFrame frame;
+    frame.function = "ntdll!RtlAllocateHeap";
+    frame.address = 0x1000;
+    const Location loc(frame);
+    QVERIFY(loc.canBeDisassembled());
+    QVERIFY(!loc.hasDebugInfo());
+
+    const auto mentions = [engine, &frame] {
+        return engine->logWindow()->inputContents().count(frame.function);
+    };
+
+    engine->gotoLocation(loc);
+    const int said = mentions();
+    QVERIFY2(said > 0, qPrintable("nothing said before showing disassembly:\n"
+                                  + engine->logWindow()->inputContents()));
+
+    // An action that merely re-shows the current location does not repeat it.
+    engine->gotoLocation(loc);
+    QCOMPARE(mentions(), said);
 }
 
 void DebuggerUnitTests::testScratchEditorAdoptsSavedName()

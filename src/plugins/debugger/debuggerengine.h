@@ -606,6 +606,7 @@ public:
     // Convenience
     void showMessage(const QString &msg, int channel = LogDebug, int timeout = -1) const;
     void showStatusMessage(const QString &msg, int timeout = -1) const;
+    void showMissingSourceMessage(const QString &msg) const;
 
     virtual void resetLocation();
     virtual void gotoLocation(const Internal::Location &location);
