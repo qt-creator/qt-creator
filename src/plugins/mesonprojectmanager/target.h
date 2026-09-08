@@ -59,6 +59,7 @@ struct Target
     const std::optional<QString> subproject;
     const SourceGroupList sources;
     const bool buildByDefault;
+    const QStringList linkedFiles;
 
     static Type toType(const QString &typeStr)
     {
@@ -118,7 +119,8 @@ struct Target
            QStringList &&extraFiles,
            QString &&subproject,
            SourceGroupList &&sources,
-           bool buildByDefault)
+           bool buildByDefault,
+           QStringList &&linkedFiles)
         : type{toType(type)}
         , name{std::move(name)}
         , id{std::move(id)}
@@ -129,6 +131,7 @@ struct Target
                                          : std::optional<QString>{std::move(subproject)}}
         , sources{std::move(sources)}
         , buildByDefault{buildByDefault}
+        , linkedFiles{std::move(linkedFiles)}
     {}
 };
 

@@ -105,6 +105,25 @@ static Target::SourceGroupList extract_sources(const QJsonArray &sources)
     return res;
 }
 
+static QStringList extract_linked_files(const QJsonArray &sources)
+{
+    QStringList linked;
+    for (const QJsonValue &source : sources) {
+        const QJsonObject srcObj = source.toObject();
+        if (!srcObj.contains("linker"))
+            continue;
+        const QStringList parameters = srcObj["parameters"].toVariant().toStringList();
+        static const QString wholeArchive = QStringLiteral("/WHOLEARCHIVE:");
+        for (const QString &parameter : parameters) {
+            if (parameter.startsWith(wholeArchive, Qt::CaseInsensitive))
+                linked << parameter.mid(wholeArchive.size());
+            else if (!parameter.startsWith('-'))
+                linked << parameter;
+        }
+    }
+    return linked;
+}
+
 static Target extract_target(const QJsonValue &target)
 {
     auto targetObj = target.toObject();
@@ -117,7 +136,8 @@ static Target extract_target(const QJsonValue &target)
         targetObj["extra_files"].toVariant().toStringList(),
         targetObj["subproject"].toString(),
         extract_sources(targetObj["target_sources"].toArray()),
-        targetObj["build_by_default"].toBool()
+        targetObj["build_by_default"].toBool(),
+        extract_linked_files(targetObj["target_sources"].toArray())
     };
 }
 

@@ -25,6 +25,7 @@ public:
 
     static QString name() { return "meson"; }
     void triggerParsing() final;
+    Utils::FilePaths binariesForSourceFile(const Utils::FilePath &sourceFile) const final;
 
     inline const BuildOptionsList &buildOptions() const { return m_parser.buildOptions(); }
     inline const TargetsList &targets() const { return m_parser.targets(); }
@@ -54,5 +55,9 @@ private:
 };
 
 void setupMesonBuildSystem();
+
+#ifdef WITH_TESTS
+QObject *createMesonBuildSystemTest();
+#endif
 
 } // MesonProjectManager::Internal

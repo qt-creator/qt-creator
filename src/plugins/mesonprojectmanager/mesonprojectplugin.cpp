@@ -50,6 +50,10 @@ class MesonProjectPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+#ifdef WITH_TESTS
+        addTestCreator(createMesonBuildSystemTest);
+#endif
+
         Core::IOptionsPage::registerCategory(
             Constants::SettingsPage::CATEGORY, Tr::tr("Meson"), Constants::Icons::MESON_BW);
 

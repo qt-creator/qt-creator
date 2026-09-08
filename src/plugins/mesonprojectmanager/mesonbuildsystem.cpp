@@ -243,6 +243,64 @@ void MesonBuildSystem::triggerParsing()
     parseProject();
 }
 
+static FilePaths linkingBinaries(const TargetsList &targets,
+                                 const FilePath &buildDir,
+                                 const FilePath &sourceFile)
+{
+    QHash<QString, const Target *> targetsById;
+    QStringList pendingTargets;
+    for (const Target &target : targets) {
+        targetsById.insert(target.id, &target);
+        const auto isSourceFile = [&sourceFile](const QString &source) {
+            return FilePath::fromString(source) == sourceFile;
+        };
+        for (const Target::SourceGroup &group : target.sources) {
+            if (Utils::contains(group.sources, isSourceFile)
+                || Utils::contains(group.generatedSources, isSourceFile)) {
+                pendingTargets << target.id;
+            }
+        }
+    }
+
+    FilePaths binaries;
+    QSet<QString> seenTargets;
+    while (!pendingTargets.isEmpty()) {
+        const QString id = pendingTargets.takeLast();
+        if (!Utils::insert(seenTargets, id))
+            continue;
+        const Target * const target = targetsById.value(id);
+        if (!target || target->fileName.isEmpty())
+            continue;
+        const FilePath artifact = FilePath::fromString(target->fileName.first());
+        if (target->type == Target::Type::executable
+            || target->type == Target::Type::sharedLibrary
+            || target->type == Target::Type::sharedModule) {
+            binaries << artifact;
+            continue;
+        }
+        if (target->type != Target::Type::staticLibrary)
+            continue;
+        // Code from a static library ends up in whatever links it. The linker
+        // arguments are relative to the build directory.
+        const FilePath artifactOnDevice = buildDir.withNewPath(artifact.path());
+        const auto isArtifact = [&buildDir, &artifactOnDevice](const QString &linked) {
+            return buildDir.resolvePath(linked) == artifactOnDevice;
+        };
+        for (const Target &other : targets) {
+            if (Utils::anyOf(other.linkedFiles, isArtifact))
+                pendingTargets << other.id;
+        }
+    }
+    return binaries;
+}
+
+FilePaths MesonBuildSystem::binariesForSourceFile(const FilePath &sourceFile) const
+{
+    // Meson reports the artifacts under the build directory with symlinks resolved.
+    return linkingBinaries(targets(), buildConfiguration()->buildDirectory().canonicalPath(),
+                           sourceFile);
+}
+
 bool MesonBuildSystem::needsSetup()
 {
     const FilePath buildDir = buildConfiguration()->buildDirectory();
@@ -373,3 +431,127 @@ void setupMesonBuildSystem()
 }
 
 } // MesonProjectManager::Internal
+
+#ifdef WITH_TESTS
+
+#include "mesoninfoparser.h"
+
+#include <QTest>
+
+namespace MesonProjectManager::Internal {
+
+// What "meson introspect --all" reports for an application, two shared
+// libraries and the static library both of them link, plus a static library
+// of the same name in a subdirectory and the tool linking that one, and an
+// MSVC-style library linking the first archive whole.
+static const char introspectionJson[] = R"({
+    "targets": [
+        {
+            "name": "core", "id": "core@sta", "type": "static library",
+            "filename": ["/b/libcore.a"],
+            "target_sources": [
+                {"language": "cpp", "parameters": ["-I/b/libcore.a.p", "-g"],
+                 "sources": ["/s/core.cpp"], "generated_sources": []},
+                {"linker": ["gcc-ar"], "parameters": ["csrDT"]}
+            ]
+        },
+        {
+            "name": "alpha", "id": "alpha@sha", "type": "shared library",
+            "filename": ["/b/libalpha.so"],
+            "target_sources": [
+                {"language": "cpp", "parameters": ["-I/b/libalpha.so.p", "-g"],
+                 "sources": ["/s/alpha.cpp"], "generated_sources": []},
+                {"linker": ["/usr/bin/g++"],
+                 "parameters": ["-shared", "-Wl,-soname,libalpha.so", "libcore.a"]}
+            ]
+        },
+        {
+            "name": "beta", "id": "beta@sha", "type": "shared library",
+            "filename": ["/b/libbeta.so"],
+            "target_sources": [
+                {"language": "cpp", "parameters": ["-I/b/libbeta.so.p", "-g"],
+                 "sources": ["/s/beta.cpp"], "generated_sources": []},
+                {"linker": ["/usr/bin/g++"],
+                 "parameters": ["-shared", "-Wl,-soname,libbeta.so", "libcore.a"]}
+            ]
+        },
+        {
+            "name": "app", "id": "app@exe", "type": "executable",
+            "filename": ["/b/app"],
+            "target_sources": [
+                {"language": "cpp", "parameters": ["-I/b/app.p", "-g"],
+                 "sources": ["/s/main.cpp"], "generated_sources": []},
+                {"linker": ["/usr/bin/g++"], "parameters": ["libalpha.so"]}
+            ]
+        },
+        {
+            "name": "core", "id": "sub@@core@sta", "type": "static library",
+            "filename": ["/b/sub/libcore.a"],
+            "target_sources": [
+                {"language": "cpp", "parameters": ["-I/b/sub/libcore.a.p", "-g"],
+                 "sources": ["/s/sub/core.cpp"], "generated_sources": []},
+                {"linker": ["gcc-ar"], "parameters": ["csrDT"]}
+            ]
+        },
+        {
+            "name": "tool", "id": "tool@exe", "type": "executable",
+            "filename": ["/b/tool"],
+            "target_sources": [
+                {"language": "cpp", "parameters": ["-I/b/tool.p", "-g"],
+                 "sources": ["/s/tool.cpp"], "generated_sources": []},
+                {"linker": ["/usr/bin/g++"], "parameters": ["sub/libcore.a"]}
+            ]
+        },
+        {
+            "name": "gamma", "id": "gamma@sha", "type": "shared library",
+            "filename": ["/b/gamma.dll"],
+            "target_sources": [
+                {"language": "cpp", "parameters": ["/I/b/gamma.dll.p"],
+                 "sources": ["/s/gamma.cpp"], "generated_sources": []},
+                {"linker": ["link"], "parameters": ["/DLL", "/WHOLEARCHIVE:libcore.a"]}
+            ]
+        }
+    ],
+    "buildoptions": [],
+    "projectinfo": {"buildsystem_files": ["/s/meson.build"], "subprojects": []}
+})";
+
+class MesonBuildSystemTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testBinariesForSourceFile()
+    {
+        const TargetsList targets = MesonInfoParser::parse(QByteArray(introspectionJson)).targets;
+        QCOMPARE(targets.size(), 7u);
+        const auto binaries = [&targets](const QString &source) {
+            return Utils::sorted(
+                linkingBinaries(targets, FilePath("/b"), FilePath::fromString(source)));
+        };
+
+        QCOMPARE(binaries("/s/main.cpp"), FilePaths{"/b/app"});
+        QCOMPARE(binaries("/s/alpha.cpp"), FilePaths{"/b/libalpha.so"});
+
+        // Code from a static library ends up in both libraries linking it, and
+        // in neither the application behind them nor its own archive.
+        QCOMPARE(binaries("/s/core.cpp"),
+                 FilePaths({"/b/gamma.dll", "/b/libalpha.so", "/b/libbeta.so"}));
+
+        // An archive of the same name elsewhere is a different library.
+        QCOMPARE(binaries("/s/sub/core.cpp"), FilePaths{"/b/tool"});
+
+        QCOMPARE(binaries("/s/unknown.cpp"), FilePaths());
+    }
+};
+
+QObject *createMesonBuildSystemTest()
+{
+    return new MesonBuildSystemTest;
+}
+
+} // namespace MesonProjectManager::Internal
+
+#include "mesonbuildsystem.moc"
+
+#endif // WITH_TESTS
