@@ -813,6 +813,33 @@ def check_watchpoint_is_not_asked_for_locations(bridge):
     assert 'type="hw watchpoint"' in payload, payload
 
 
+def check_an_idle_interrupt_does_not_end_the_session(bridge):
+    savedIn, savedOut = os.dup(0), os.dup(1)
+    protocol = os.pipe()
+    devnull = os.open(os.devnull, os.O_RDONLY)
+    reads = []
+    try:
+        os.dup2(devnull, 0)
+        os.dup2(protocol[1], 1)
+        peer = Peer(bridge)
+        realRead = peer.server._readMessage
+
+        def readMessage():
+            reads.append(len(reads))
+            if len(reads) == 1:
+                raise KeyboardInterrupt()
+            return realRead()  # end of the redirected stdin: ends the loop
+
+        peer.server._readMessage = readMessage
+        peer.server.run()
+    finally:
+        os.dup2(savedIn, 0)
+        os.dup2(savedOut, 1)
+        os.close(devnull)
+    assert len(reads) == 2, \
+        "the loop did not read again after the interrupt: %r" % reads
+
+
 def check_interrupt_does_not_end_the_session(bridge):
     # An interrupt reaches the bridge as KeyboardInterrupt, which is not an
     # Exception: unhandled, it would take the read loop with it.
@@ -1093,6 +1120,8 @@ checks = {
     "moving-a-breakpoint-recreates-it": check_moving_a_breakpoint_recreates_it,
     "watchpoint-is-not-asked-for-locations": check_watchpoint_is_not_asked_for_locations,
     "interrupt-does-not-end-the-session": check_interrupt_does_not_end_the_session,
+    "an-idle-interrupt-does-not-end-the-session":
+        check_an_idle_interrupt_does_not_end_the_session,
     "failed-breakpoint-request-carries-the-modelid":
         check_failed_breakpoint_request_carries_the_modelid,
     "stdout-cannot-corrupt-the-protocol": check_stdout_cannot_corrupt_the_protocol,

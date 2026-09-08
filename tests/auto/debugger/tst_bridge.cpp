@@ -93,6 +93,8 @@ void tst_Bridge::protocol_data()
         << "watchpoint-is-not-asked-for-locations";
     QTest::newRow("interrupt does not end the session")
         << "interrupt-does-not-end-the-session";
+    QTest::newRow("an idle interrupt does not end the session")
+        << "an-idle-interrupt-does-not-end-the-session";
     QTest::newRow("failed breakpoint request carries the modelid")
         << "failed-breakpoint-request-carries-the-modelid";
     QTest::newRow("moving a breakpoint recreates it")

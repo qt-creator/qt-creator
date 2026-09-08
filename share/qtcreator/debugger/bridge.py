@@ -288,6 +288,8 @@ class DapServer():
         while self.running:
             try:
                 message = self._readMessage()
+            except KeyboardInterrupt:
+                continue
             except Exception as error:
                 warn('DAP read error: %s' % error)
                 break
