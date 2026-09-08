@@ -575,16 +575,19 @@ void GitGraphView::showCommit(const QModelIndex &index)
     const QModelIndex sourceIndex = m_filterModel->mapToSource(index);
     if (!sourceIndex.isValid())
         return;
+    const QModelIndex commitIndex
+        = sourceIndex.parent().isValid() ? sourceIndex.parent() : sourceIndex;
+    if (commitIndex.row() < 0 || commitIndex.row() >= m_model->commitCount())
+        return;
     {
         SetInContext block(m_blockRefresh);
-        const QModelIndex commitIndex
-            = sourceIndex.parent().isValid() ? sourceIndex.parent() : sourceIndex;
         const CommitEntry &entry = m_model->entryAt(commitIndex.row());
-        // Show the whole commit for commit rows and for files of parentless
+        const QList<FileChange> &files = m_model->filesAt(commitIndex.row());
+        // Show the whole commit for commit rows, and for files of parentless
         // commits, whose changes cannot be diffed against "<hash>^".
-        if (sourceIndex.parent().isValid() && !entry.parents.isEmpty()) {
-            const FileChange &file
-                = m_model->filesAt(commitIndex.row()).at(sourceIndex.row());
+        if (sourceIndex.parent().isValid() && !entry.parents.isEmpty()
+            && sourceIndex.row() < files.size()) {
+            const FileChange &file = files.at(sourceIndex.row());
             showFileChanges(entry.hash, file.path, file.oldPath);
         } else {
             gitClient().show(m_repository, entry.hash);
