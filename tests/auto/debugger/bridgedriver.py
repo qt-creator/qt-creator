@@ -838,6 +838,10 @@ def check_an_idle_interrupt_does_not_end_the_session(bridge):
         os.close(devnull)
     assert len(reads) == 2, \
         "the loop did not read again after the interrupt: %r" % reads
+    peer.readFd = protocol[0]
+    messages = peer.messages()
+    ignored = [m for m in messages if m.get("event") == "qtc/interruptIgnored"]
+    assert len(ignored) == 1, json.dumps(messages)
 
 
 def check_interrupt_does_not_end_the_session(bridge):

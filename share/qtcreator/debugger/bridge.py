@@ -289,6 +289,7 @@ class DapServer():
             try:
                 message = self._readMessage()
             except KeyboardInterrupt:
+                self.sendEvent('qtc/interruptIgnored')
                 continue
             except Exception as error:
                 warn('DAP read error: %s' % error)

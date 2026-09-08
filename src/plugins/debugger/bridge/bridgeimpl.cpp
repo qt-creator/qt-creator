@@ -355,12 +355,15 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         interruptInferior();
         return;
     case ExecutionCommand::StepIn:
+        m_resumePending = true;
         postRequest("stepIn", stepArguments(request.flag));
         return;
     case ExecutionCommand::StepOver:
+        m_resumePending = true;
         postRequest("next", stepArguments(request.flag));
         return;
     case ExecutionCommand::StepOut:
+        m_resumePending = true;
         m_client->sendStepOut(m_currentThreadId);
         return;
     case ExecutionCommand::RunToLine:
@@ -586,6 +589,14 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
     case DapResponseType::StepOut:
     case DapResponseType::StepOver:
         emit inferiorEvent(success ? InferiorEvent::RunOk : InferiorEvent::RunFailed);
+        m_resumePending = false;
+        m_inferiorRunning = success;
+        if (std::exchange(m_interruptOnceRunning, false)) {
+            if (success)
+                interruptInferior();
+            else
+                emit inferiorEvent(InferiorEvent::StopFailed);
+        }
         return;
     case DapResponseType::StackTrace:
         handleStackTrace(response);
@@ -850,6 +861,13 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
     default:
         // An unmapped DAP event still arrives whole: the bridge announces the
         // debuggee's pid this way, which several views and the interrupt path need.
+        if (event.value("event").toString() == "qtc/interruptIgnored") {
+            if (m_stopRequested) {
+                m_stopRequested = false;
+                emit inferiorEvent(InferiorEvent::StopFailed);
+            }
+            return;
+        }
         if (event.value("event").toString() == "qtc/breakpointModified") {
             const QString payload = event.value("body").toObject().value("bkpt").toString();
             GdbMi bkpt;
