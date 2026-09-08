@@ -51,6 +51,11 @@ enum ElfSectionHeaderType
     Elf_SHT_SYMTAB_SHNDX  = 18
 };
 
+enum ElfSectionHeaderFlag
+{
+    Elf_SHF_COMPRESSED = 0x800
+};
+
 enum ElfDynamicTag
 {
     Elf_DT_NULL   = 0,
@@ -170,7 +175,7 @@ public:
 public:
     QFile file;
     QByteArray raw;
-    union { const char *start; const uchar *ustart; };
+    union { const char *start = nullptr; const uchar *ustart; };
     quint64 fdlen = 0;
     FilePath binary;
 };

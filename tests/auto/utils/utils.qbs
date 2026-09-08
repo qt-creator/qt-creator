@@ -8,6 +8,7 @@ Project {
         "commandline/commandline.qbs",
         "covariantcallback/covariantcallback.qbs",
         "dialogtask/dialogtask.qbs",
+        "elfreader/elfreader.qbs",
         "expander/expander.qbs",
         "expected/expected.qbs",
         "filepath/filepath.qbs",

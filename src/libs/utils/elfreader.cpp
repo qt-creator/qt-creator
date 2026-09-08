@@ -4,11 +4,13 @@
 #include "elfreader.h"
 
 #include "qtcassert.h"
+#include "result.h"
 #include "utilstr.h"
 
 #include <QDir>
 #include <QtEndian>
 
+#include <limits>
 #include <new> // std::bad_alloc
 
 namespace Utils {
@@ -130,6 +132,11 @@ static QString msgInvalidElfObject(const FilePath &binary, const QString &why)
            .arg(binary.toUserOutput(), why);
 }
 
+static bool isInFile(quint64 offset, quint64 size, quint64 fdlen)
+{
+    return offset <= fdlen && size <= fdlen - offset;
+}
+
 ElfReader::Result ElfReader::readIt()
 {
     if (!m_elfData.sectionHeaders.isEmpty())
@@ -203,7 +210,9 @@ ElfReader::Result ElfReader::readIt()
 
     quint32 e_shentsize = getHalfWord(data, m_elfData);
 
-    if (e_shentsize % 4) {
+    // parseSectionHeader() consumes 40 (24) bytes of the 64 (40) a header has.
+    const quint32 minShentSize = is64Bit ? 64 : 40;
+    if (e_shentsize % 4 || e_shentsize < minShentSize) {
         m_errorString = msgInvalidElfObject(m_binary, Tr::tr("unexpected e_shentsize"));
         return Corrupt;
     }
@@ -212,7 +221,7 @@ ElfReader::Result ElfReader::readIt()
     quint32 e_shtrndx   = getHalfWord(data, m_elfData);
     QTC_CHECK(data == mapper.ustart + (is64Bit ? 64 : 52));
 
-    if (quint64(e_shnum) * e_shentsize > fdlen) {
+    if (!isInFile(e_shoff, quint64(e_shnum) * e_shentsize, fdlen)) {
         const QString reason = Tr::tr("announced %n sections, each %1 bytes, exceed file size", nullptr, e_shnum)
                                .arg(e_shentsize);
         m_errorString = msgInvalidElfObject(m_binary, reason);
@@ -232,8 +241,7 @@ ElfReader::Result ElfReader::readIt()
         parseSectionHeader(mapper.ustart + soff, &strtab, m_elfData);
         const quint64 stringTableFileOffset = strtab.offset;
 
-        if (quint32(stringTableFileOffset + e_shentsize) >= fdlen
-                || stringTableFileOffset == 0) {
+        if (stringTableFileOffset + e_shentsize >= fdlen || stringTableFileOffset == 0) {
             const QString reason = Tr::tr("string table seems to be at 0x%1").arg(soff, 0, 16);
             m_errorString = msgInvalidElfObject(m_binary, reason);
             return Corrupt;
@@ -244,24 +252,29 @@ ElfReader::Result ElfReader::readIt()
             ElfSectionHeader sh;
             parseSectionHeader(s, &sh, m_elfData);
 
-            if (stringTableFileOffset + sh.index > fdlen) {
+            if (!isInFile(stringTableFileOffset, sh.index, fdlen)) {
                 const QString reason = Tr::tr("section name %1 of %2 behind end of file")
                                        .arg(i).arg(e_shnum);
                 m_errorString = msgInvalidElfObject(m_binary, reason);
                 return Corrupt;
             }
 
-            sh.name = mapper.start + stringTableFileOffset + sh.index;
+            const char *sectionName = mapper.start + stringTableFileOffset + sh.index;
+            sh.name = QByteArray(sectionName,
+                qstrnlen(sectionName, qsizetype(fdlen - stringTableFileOffset - sh.index)));
             if (sh.name == ".gdb_index") {
                 m_elfData.symbolsType = FastSymbols;
             } else if (sh.name == ".debug_info") {
                 m_elfData.symbolsType = PlainSymbols;
             } else if (sh.name == ".gnu_debuglink") {
-                m_elfData.debugLink = QByteArray(mapper.start + sh.offset);
+                if (isInFile(sh.offset, sh.size, fdlen)) {
+                    const char *link = mapper.start + sh.offset;
+                    m_elfData.debugLink = QByteArray(link, qstrnlen(link, qsizetype(sh.size)));
+                }
                 m_elfData.symbolsType = LinkedSymbols;
             } else if (sh.name == ".note.gnu.build-id") {
                 m_elfData.symbolsType = BuildIdSymbols;
-                if (sh.size > 16)
+                if (sh.size > 16 && isInFile(sh.offset, sh.size, fdlen))
                     m_elfData.buildId = QByteArray(mapper.start + sh.offset + 16,
                                                    sh.size - 16).toHex();
             }
@@ -280,21 +293,79 @@ ElfReader::Result ElfReader::readIt()
     return Ok;
 }
 
+enum { Elf_ELFCOMPRESS_ZLIB = 1 };
+
+static Result<> uncompressSection(ElfMapper *mapper, const ElfData &elfData,
+                                  const QByteArray &name)
+{
+    // Elf32_Chdr / Elf64_Chdr: ch_type, [ch_reserved,] ch_size, ch_addralign.
+    const bool is64Bit = elfData.elfclass == Elf_ELFCLASS64;
+    const quint64 headerSize = is64Bit ? 24 : 12;
+    if (mapper->fdlen <= headerSize) {
+        return ResultError(Tr::tr("Compressed section \"%1\" is too small.")
+                               .arg(QString::fromUtf8(name)));
+    }
+
+    const uchar *data = mapper->ustart;
+    const quint32 type = getWord(data, elfData);
+    if (is64Bit)
+        getWord(data, elfData); // ch_reserved
+    const quint64 size = is64Bit ? getOffset(data, elfData) : getWord(data, elfData);
+    if (type != Elf_ELFCOMPRESS_ZLIB) {
+        return ResultError(Tr::tr("Section \"%1\" uses unsupported compression type %2.")
+                               .arg(QString::fromUtf8(name)).arg(type));
+    }
+    if (size > quint64(std::numeric_limits<quint32>::max())) {
+        return ResultError(Tr::tr("Compressed section \"%1\" is too large.")
+                               .arg(QString::fromUtf8(name)));
+    }
+
+    // qUncompress() expects the uncompressed size in front of the zlib stream.
+    QByteArray compressed(4, Qt::Uninitialized);
+    qToBigEndian<quint32>(quint32(size), compressed.data());
+    compressed.append(mapper->start + headerSize, qsizetype(mapper->fdlen - headerSize));
+    QByteArray uncompressed = qUncompress(compressed);
+    // qUncompress() grows its buffer past the announced size, so a mismatch
+    // here means the stream and ch_size disagree.
+    if (quint64(uncompressed.size()) != size) {
+        return ResultError(Tr::tr("Could not uncompress section \"%1\".")
+                               .arg(QString::fromUtf8(name)));
+    }
+
+    mapper->raw = std::move(uncompressed);
+    mapper->start = mapper->raw.constData();
+    mapper->fdlen = mapper->raw.size();
+    return ResultOk;
+}
+
 std::unique_ptr<ElfMapper> ElfReader::readSection(const QByteArray &name)
 {
-    std::unique_ptr<ElfMapper> mapper;
     readIt();
-    int i = m_elfData.indexOf(name);
+    const int i = m_elfData.indexOf(name);
     if (i == -1)
-        return mapper;
+        return {};
 
-    mapper.reset(new ElfMapper(this));
+    std::unique_ptr<ElfMapper> mapper(new ElfMapper(this));
     if (!mapper->map())
-        return mapper;
+        return {};
 
     const ElfSectionHeader &section = m_elfData.sectionHeaders.at(i);
+    if (!isInFile(section.offset, section.size, mapper->fdlen)) {
+        m_errorString = msgInvalidElfObject(m_binary,
+            Tr::tr("section \"%1\" reaches beyond the end of the file")
+                .arg(QString::fromUtf8(name)));
+        return {};
+    }
+
     mapper->start += section.offset;
     mapper->fdlen = section.size;
+    if (section.flags & Elf_SHF_COMPRESSED) {
+        const Utils::Result<> res = uncompressSection(mapper.get(), m_elfData, name);
+        if (!res) {
+            m_errorString = res.error();
+            return {};
+        }
+    }
     return mapper;
 }
 
@@ -312,8 +383,8 @@ QStringList ElfReader::neededLibraries()
         return {};
     const ElfSectionHeader &dynamic = m_elfData.sectionHeaders.at(dynamicIndex);
     const ElfSectionHeader &strings = m_elfData.sectionHeaders.at(stringsIndex);
-    if (dynamic.offset + dynamic.size > mapper.fdlen
-        || strings.offset + strings.size > mapper.fdlen) {
+    if (!isInFile(dynamic.offset, dynamic.size, mapper.fdlen)
+        || !isInFile(strings.offset, strings.size, mapper.fdlen)) {
         return {};
     }
 
