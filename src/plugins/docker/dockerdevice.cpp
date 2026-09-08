@@ -1004,6 +1004,7 @@ public:
 
         connect(showUnnamedContainers, &QCheckBox::toggled, this, [this] {
             m_proxyModel->invalidate();
+            updateSelection();
         });
 
         m_proxyModel->setSourceModel(&m_model);
@@ -1092,15 +1093,8 @@ public:
                 errorLabel->setVisible(true);
         });
 
-        connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
-            const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
-            QTC_ASSERT(selectedRows.size() == 1, return);
-            m_buttons->button(QDialogButtonBox::Ok)->setEnabled(selectedRows.size() == 1);
-            const QString user = deviceUsingImage(selectedItem());
-            m_inUseLabel->setText(Tr::tr("%1 already uses this image. Another device for it "
-                                         "detects the same tools a second time.").arg(user));
-            m_inUseLabel->setVisible(!user.isEmpty());
-        });
+        connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged,
+                this, &DockerDeviceSetupWizard::updateSelection);
 
         m_process->start();
     }
@@ -1108,8 +1102,19 @@ public:
     DockerImageItem *selectedItem() const
     {
         const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
-        QTC_ASSERT(selectedRows.size() == 1, return nullptr);
+        if (selectedRows.size() != 1)
+            return nullptr;
         return m_model.itemForIndex(m_proxyModel->mapToSource(selectedRows.front()));
+    }
+
+    void updateSelection()
+    {
+        const DockerImageItem *item = selectedItem();
+        m_buttons->button(QDialogButtonBox::Ok)->setEnabled(item);
+        const QString user = deviceUsingImage(item);
+        m_inUseLabel->setText(Tr::tr("%1 already uses this image. Another device for it "
+                                     "detects the same tools a second time.").arg(user));
+        m_inUseLabel->setVisible(!user.isEmpty());
     }
 
     QString deviceUsingImage(const DockerImageItem *item) const
