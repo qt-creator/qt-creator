@@ -1219,6 +1219,11 @@ void DebuggerUnitTests::testFindsASourceFileOnTheDebuggerDevice()
     runControl->setKit(kit);
     const DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl.get());
 
+    const bool wasOn = commonSettings().lookUpSourcesOnDebuggerDevice();
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(true);
+    const QScopeGuard restore(
+        [wasOn] { commonSettings().lookUpSourcesOnDebuggerDevice.setValue(wasOn); });
+
     // The debugger binary itself is the one file the debugger's device is
     // known to have, so it stands in for a source only that device can see.
     const FilePath debugger = rp.debugger().command.executable();
@@ -1238,6 +1243,11 @@ void DebuggerUnitTests::testFindsASourceFileOnTheDebuggerDevice()
     if (here.isEmpty())
         QSKIP("The current directory has no file to name relatively.");
     QVERIFY(rp.findOnDebuggerDevice(here.first().fileName()).isEmpty());
+
+    // Turning the lookup off has to reach both routes, so it sits in the one
+    // place they share rather than in either engine's cleanupFullName().
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(false);
+    QVERIFY(rp.findOnDebuggerDevice(debugger.path()).isEmpty());
 }
 
 void DebuggerUnitTests::testCdbSourcePathMapping()

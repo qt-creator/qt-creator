@@ -53,6 +53,7 @@ public:
     Utils::BoolAspect raiseOnInterrupt{this};
     Utils::BoolAspect breakpointsFullPathByDefault{this};
     Utils::BoolAspect resolveBreakpointSymlinks{this};
+    Utils::BoolAspect lookUpSourcesOnDebuggerDevice{this};
     Utils::BoolAspect warnOnReleaseBuilds{this};
     Utils::BoolAspect collapseMachineryFrames{this};
     Utils::BoolAspect useGenericDebugger{this};

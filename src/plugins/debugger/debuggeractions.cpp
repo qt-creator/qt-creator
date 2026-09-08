@@ -34,6 +34,7 @@ DebuggerSettings::DebuggerSettings() :
     raiseOnInterrupt{commonSettings().raiseOnInterrupt},
     breakpointsFullPathByDefault{commonSettings().breakpointsFullPathByDefault},
     resolveBreakpointSymlinks{commonSettings().resolveBreakpointSymlinks},
+    lookUpSourcesOnDebuggerDevice{commonSettings().lookUpSourcesOnDebuggerDevice},
     warnOnReleaseBuilds{commonSettings().warnOnReleaseBuilds},
     collapseMachineryFrames{commonSettings().collapseMachineryFrames},
     useGenericDebugger{commonSettings().useGenericDebugger},

@@ -147,6 +147,16 @@ CommonSettings::CommonSettings()
                "the unresolved path."));
     resolveBreakpointSymlinks.setLabelText(Tr::tr("Resolve symbolic links in breakpoint paths"));
 
+    lookUpSourcesOnDebuggerDevice.setSettingsKey(debugModeGroup, "LookUpSourcesOnDebuggerDevice");
+    lookUpSourcesOnDebuggerDevice.setDefaultValue(true);
+    lookUpSourcesOnDebuggerDevice.setToolTip(
+        Tr::tr("Looks for a source file the debugger reports on the device the debugger itself "
+               "runs on, once it is not readable on the host. This finds sources that exist only "
+               "inside a container or on a remote device, at the price of one lookup on that "
+               "device for every name the debugger reports for the first time."));
+    lookUpSourcesOnDebuggerDevice.setLabelText(
+        Tr::tr("Look for sources on the debugger's device"));
+
     raiseOnInterrupt.setSettingsKey(debugModeGroup, "RaiseOnInterrupt");
     raiseOnInterrupt.setDefaultValue(true);
     raiseOnInterrupt.setLabelText(Tr::tr("Bring %1 to foreground when application interrupts")
@@ -213,6 +223,7 @@ CommonSettings::CommonSettings()
                 warnOnReleaseBuilds,
                 breakpointsFullPathByDefault,
                 resolveBreakpointSymlinks,
+                lookUpSourcesOnDebuggerDevice,
                 forceLoggingToConsole,
                 collapseMachineryFrames,
                 useGenericDebugger,

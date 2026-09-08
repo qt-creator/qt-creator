@@ -541,6 +541,9 @@ FilePath DebuggerRunParameters::mapToDebuggerDevice(const QString &debuggerOutpu
 
 FilePath DebuggerRunParameters::findOnDebuggerDevice(const QString &debuggerOutput) const
 {
+    if (!settings().lookUpSourcesOnDebuggerDevice())
+        return {};
+
     const auto it = m_debuggerDeviceSources.constFind(debuggerOutput);
     if (it != m_debuggerDeviceSources.constEnd())
         return *it;
