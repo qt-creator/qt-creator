@@ -129,7 +129,7 @@ private slots:
 
         m_view->ctrlHover({9, 0});
 
-        QVERIFY(QToolTip::isVisible());
+        QTRY_VERIFY(QToolTip::isVisible());
         QCOMPARE(QToolTip::text(), QString("http://example.com"));
 
         m_view->ctrlHover({40, 0});
