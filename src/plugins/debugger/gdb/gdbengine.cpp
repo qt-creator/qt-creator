@@ -1698,10 +1698,14 @@ FilePath GdbEngine::cleanupFullName(const QString &fileName)
             return {};
     }
 
-    if (!settings().autoEnrichParameters())
+    if (cleanFilePath.isReadableFile())
         return cleanFilePath;
 
-    if (cleanFilePath.isReadableFile())
+    const FilePath onDebuggerDevice = runParameters().findOnDebuggerDevice(fileName);
+    if (!onDebuggerDevice.isEmpty())
+        return onDebuggerDevice;
+
+    if (!settings().autoEnrichParameters())
         return cleanFilePath;
 
     const FilePath sysroot = runParameters().sysRoot();

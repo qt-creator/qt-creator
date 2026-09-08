@@ -116,6 +116,7 @@ private slots:
     void testCdbImplRegistersTree();
     void testCdbImplSetParameterArguments();
     void testMapsAnEmptyFileNameToNothing();
+    void testFindsASourceFileOnTheDebuggerDevice();
     void testCdbSourcePathMapping();
     void testCdbBreakpointFileName();
 
@@ -1206,6 +1207,37 @@ void DebuggerUnitTests::testMapsAnEmptyFileNameToNothing()
 
     // What a stack frame that names no file would otherwise be opened from.
     QVERIFY(rp.mapToProjectPath({}).isEmpty());
+}
+
+void DebuggerUnitTests::testFindsASourceFileOnTheDebuggerDevice()
+{
+    Kit *kit = KitManager::defaultKit();
+    QVERIFY(kit);
+
+    const std::unique_ptr<RunControl> runControl(
+        new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE));
+    runControl->setKit(kit);
+    const DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl.get());
+
+    // The debugger binary itself is the one file the debugger's device is
+    // known to have, so it stands in for a source only that device can see.
+    const FilePath debugger = rp.debugger().command.executable();
+    const FilePath dir = debugger.parentDir();
+    if (!debugger.isReadableFile() || dir.fileName().isEmpty())
+        QSKIP("The kit has no readable debugger below a named directory.");
+
+    QCOMPARE(rp.findOnDebuggerDevice(debugger.path()), debugger);
+
+    const QString viaParent = dir.path() + "/../" + dir.fileName() + "/" + debugger.fileName();
+    QCOMPARE(rp.findOnDebuggerDevice(viaParent), debugger);
+
+    // A relative name is rejected outright, and the only way to tell that
+    // from failing the readability probe is to name a file that does exist
+    // where a relative name would be resolved.
+    const FilePaths here = FilePath::currentWorkingPath().dirEntries(DirFilterFlag::Files);
+    if (here.isEmpty())
+        QSKIP("The current directory has no file to name relatively.");
+    QVERIFY(rp.findOnDebuggerDevice(here.first().fileName()).isEmpty());
 }
 
 void DebuggerUnitTests::testCdbSourcePathMapping()

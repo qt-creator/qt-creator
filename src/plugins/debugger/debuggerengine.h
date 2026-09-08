@@ -300,8 +300,19 @@ public:
     void populateQmlFileFinder(const ProjectExplorer::RunControl *runControl);
 
     Utils::FilePath mapToProjectPath(const QString &debuggerOutput) const;
+    Utils::FilePath findOnDebuggerDevice(const QString &debuggerOutput) const;
 
 private:
+    Utils::FilePath mapToDebuggerDevice(const QString &debuggerOutput) const;
+
+    // Looking a file up costs a stat, on the debugger's device even a round
+    // trip, and the stack view and the breakpoint handler ask for the same
+    // names again at every stop. Nothing invalidates these: they live and die
+    // with the run parameters, and a stale miss only answers what the mapping
+    // alone would have.
+    mutable QHash<QString, Utils::FilePath> m_mappedPaths;
+    mutable QHash<QString, Utils::FilePath> m_debuggerDeviceSources;
+
     Utils::ProcessHandle m_attachPid;
     Utils::ProcessHandle m_serverAttachPid;
     QUrl m_qmlServer; // Used by Qml debugging.

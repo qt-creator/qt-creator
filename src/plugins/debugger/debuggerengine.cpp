@@ -510,9 +510,45 @@ FilePath DebuggerRunParameters::mapToProjectPath(const QString &debuggerOutput) 
     if (debuggerOutput.isEmpty())
         return {};
 
+    const auto it = m_mappedPaths.constFind(debuggerOutput);
+    if (it != m_mappedPaths.constEnd())
+        return *it;
+
     const FilePath fullBuild = m_buildDirectory.resolvePath(debuggerOutput);
     const FilePath local = fullBuild.localSource().value_or(fullBuild);
-    return m_projectSourceDirectory.withNewMappedPath(local);
+    const FilePath mapped = m_projectSourceDirectory.withNewMappedPath(local);
+    const FilePath result = [&] {
+        if (mapped.isReadableFile())
+            return mapped;
+        const FilePath onDebuggerDevice = findOnDebuggerDevice(debuggerOutput);
+        return onDebuggerDevice.isEmpty() ? mapped : onDebuggerDevice;
+    }();
+
+    m_mappedPaths.insert(debuggerOutput, result);
+    return result;
+}
+
+// Sources that exist only where the debugger itself runs, e.g. inside a container.
+FilePath DebuggerRunParameters::mapToDebuggerDevice(const QString &debuggerOutput) const
+{
+    // A relative name would resolve against the debugger's working directory,
+    // which says nothing about where the sources are.
+    if (!FilePath::fromString(debuggerOutput).isAbsolutePath())
+        return {};
+
+    return m_debugger.command.executable().withNewPath(debuggerOutput).cleanPath();
+}
+
+FilePath DebuggerRunParameters::findOnDebuggerDevice(const QString &debuggerOutput) const
+{
+    const auto it = m_debuggerDeviceSources.constFind(debuggerOutput);
+    if (it != m_debuggerDeviceSources.constEnd())
+        return *it;
+
+    const FilePath candidate = mapToDebuggerDevice(debuggerOutput);
+    const FilePath result = candidate.isReadableFile() ? candidate : FilePath();
+    m_debuggerDeviceSources.insert(debuggerOutput, result);
+    return result;
 }
 
 namespace Internal {
