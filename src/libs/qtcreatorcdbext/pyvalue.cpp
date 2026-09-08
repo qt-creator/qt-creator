@@ -186,7 +186,10 @@ PyType PyValue::type()
         if (FAILED(m_symbolGroup->GetSymbolTypeName(m_index, &typeName[0], size, NULL)))
             typeName.clear();
     }
-    m_type = PyType(params.Module, params.TypeId, typeName, tag());
+    // An entry cast to a module-qualified type, as completePointerType() does,
+    // reports that name back. The module belongs to the type, not to its name.
+    m_type = PyType(params.Module, params.TypeId,
+                    SymbolGroupValue::stripModuleFromType(typeName), tag());
     return *m_type;
 }
 
@@ -253,6 +256,24 @@ bool PyValue::hasChildren()
     return childCount() != 0;
 }
 
+// dbgeng leaves a pointer whose pointee type only another module defines
+// without children. A cast naming that module completes the type.
+bool PyValue::completePointerType()
+{
+    const std::string pointerType = type().name();
+    const std::string targetType = SymbolGroupValue::completablePointerTarget(pointerType);
+    if (targetType.empty())
+        return false;
+    const std::string qualifiedType = PyType::lookupType(targetType).name(true);
+    if (qualifiedType.find('!') == std::string::npos)
+        return false;
+    countEngineCall("OutputAsType");
+    if (FAILED(m_symbolGroup->OutputAsType(m_index, (qualifiedType + " *").c_str())))
+        return false;
+    m_type.reset();
+    return true;
+}
+
 bool PyValue::expand()
 {
     if (!m_symbolGroup)
@@ -263,6 +284,8 @@ bool PyValue::expand()
         return false;
     if (params.Flags & DEBUG_SYMBOL_EXPANDED)
         return true;
+    if (params.SubElements == 0)
+        completePointerType();
     dumpSymbolGroup(m_symbolGroup);
     {
         EngineTimer timer("ExpandSymbol");

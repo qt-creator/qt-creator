@@ -4,6 +4,7 @@
 #include "common.h"
 #include "iinterfacepointer.h"
 #include <sstream>
+#include <vector>
 
 std::string winErrorMessage(unsigned long error)
 {
@@ -109,6 +110,32 @@ std::string moduleNameByOffset(CIDebugSymbols *symbols, ULONG64 offset)
     if (FAILED(hr))
         return std::string();
     return std::string(buf);
+}
+
+// Returns the base of the first loaded module that accept() takes, or 0. The
+// modules with their symbols at hand come before those that would have to load
+// them first: asking a module with deferred symbols about a type loads them,
+// which is what makes a miss over a few hundred modules take seconds.
+ULONG64 findModule(CIDebugSymbols *symbols, const std::function<bool(ULONG64 base)> &accept)
+{
+    ULONG loaded = 0;
+    ULONG unloaded = 0;
+    if (FAILED(symbols->GetNumberModules(&loaded, &unloaded)) || loaded == 0)
+        return 0;
+    std::vector<DEBUG_MODULE_PARAMETERS> modules(loaded);
+    if (FAILED(symbols->GetModuleParameters(loaded, NULL, 0, modules.data())))
+        return 0;
+    for (const bool deferred : {false, true}) {
+        for (const DEBUG_MODULE_PARAMETERS &candidate : modules) {
+            if (candidate.Flags & DEBUG_MODULE_UNLOADED)
+                continue;
+            if ((candidate.SymbolType == DEBUG_SYMTYPE_DEFERRED) != deferred)
+                continue;
+            if (accept(candidate.Base))
+                return candidate.Base;
+        }
+    }
+    return 0;
 }
 
 std::string sourceFileNameByOffset(CIDebugSymbols *symbols, ULONG64 offset, PULONG lineNumber)

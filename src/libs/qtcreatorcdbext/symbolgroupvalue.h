@@ -112,6 +112,12 @@ public:
     static unsigned isMovable(const std::string &, const SymbolGroupValue &v);
     static bool isArrayType(const std::string &);
     static bool isVTableType(const std::string &t);
+    static bool isIntegralType(const std::string &typeName);
+    static bool isFloatType(const std::string &typeName);
+    // What a childless pointer would have to be cast to for dbgeng to give it
+    // children, or an empty string when no cast can help.
+    static std::string completablePointerTarget(const std::string &pointerType);
+    static bool isTypeOfSymbolNamed(const std::string &answeredType, const std::string &name);
     // add pointer type 'Foo' -> 'Foo *', 'Foo *' -> 'Foo **'
     static std::string pointerType(const std::string &type);
     // Symbol Name/(Expression) of a pointed-to instance ('Foo' at 0x10') ==> '*(Foo *)0x10'

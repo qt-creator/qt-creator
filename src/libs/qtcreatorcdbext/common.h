@@ -7,6 +7,7 @@
 // It is recommended for extensions to use 64 bit headers from wdbgexts so
 // the extensions could support 64 bit targets.
 
+#include <functional>
 #include <string>
 #include <sstream>
 
@@ -65,6 +66,7 @@ ULONG currentThreadId(CIDebugClient *client);
 ULONG currentProcessId(IDebugSystemObjects *sysObjects);
 ULONG currentProcessId(CIDebugClient *client);
 std::string moduleNameByOffset(CIDebugSymbols *symbols, ULONG64 offset);
+ULONG64 findModule(CIDebugSymbols *symbols, const std::function<bool(ULONG64 base)> &accept);
 std::string sourceFileNameByOffset(CIDebugSymbols *symbols, ULONG64 offset, PULONG lineNumber);
 
 #ifdef QTC_TRACE

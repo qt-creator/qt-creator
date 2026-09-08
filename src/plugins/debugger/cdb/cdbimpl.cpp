@@ -3855,7 +3855,9 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
             QStringDecoder decoder(QStringEncoder::System);
             GdbMi data;
             data.fromString(payload, decoder);
-            if (data.isValid())
+            // An answer without script output, like the one a typed "locals"
+            // gives, is what the user asked to see.
+            if (data.isValid() && !scriptMessages(data).isEmpty())
                 logScriptMessages(data);
             else if (!payload.isEmpty())
                 emit message(payload, LogMisc);

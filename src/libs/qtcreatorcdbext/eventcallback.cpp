@@ -3,8 +3,9 @@
 
 #include "eventcallback.h"
 #include "extensioncontext.h"
-#include "stringutils.h"
 #include "gdbmihelpers.h"
+#include "stringutils.h"
+#include "symbolgroupnode.h"
 
 #ifdef WITH_PYTHON
 #include "pytype.h"
@@ -220,6 +221,9 @@ STDMETHODIMP EventCallback::ExitProcess(
 {
     ExtensionContext::instance().report('E', 0, 0, eventContextC, "Process exited (%lu)",
                                         ExitCode);
+    // UnloadModule does not reliably arrive for every module of a process that
+    // exits, so a mapping would otherwise survive into the next session.
+    SymbolGroupNode::clearTypeModules();
     const HRESULT hr = m_wrapped ? m_wrapped->ExitProcess(ExitCode) : S_OK;
     // Remotely debugged process exited, there is no session-inactive notification.
     // Note: We get deleted here, so, order is important.
@@ -242,6 +246,7 @@ STDMETHODIMP EventCallback::LoadModule(
     PyType::moduleLoaded(BaseOffset);
 #endif
     justMyCodeImageChanged(BaseOffset);
+    SymbolGroupNode::clearTypeModules();
     return m_wrapped ? m_wrapped->LoadModule(ImageFileHandle, BaseOffset,
                                              ModuleSize, ModuleName, ImageName,
                                              CheckSum, TimeDateStamp) : S_OK;
@@ -259,6 +264,7 @@ STDMETHODIMP EventCallback::UnloadModule(
     // Just My Code keeps per image state, which goes stale with the image.
     justMyCodeImageChanged(BaseOffset);
     ExtensionContext::instance().report('E', 0, 0, "module_unloaded", "0x%llx", BaseOffset);
+    SymbolGroupNode::clearTypeModules();
     return m_wrapped ? m_wrapped->UnloadModule(ImageBaseName, BaseOffset) : S_OK;
 }
 
@@ -312,5 +318,8 @@ STDMETHODIMP EventCallback::ChangeSymbolState(
     if (Flags & (DEBUG_CSS_PATHS | DEBUG_CSS_SYMBOL_OPTIONS))
         PyType::symbolsChanged();
 #endif
+    if (Flags & (DEBUG_CSS_LOADS | DEBUG_CSS_UNLOADS | DEBUG_CSS_PATHS
+                 | DEBUG_CSS_SYMBOL_OPTIONS))
+        SymbolGroupNode::clearTypeModules();
     return m_wrapped ? m_wrapped->ChangeSymbolState(Flags, Argument) : S_OK;
 }

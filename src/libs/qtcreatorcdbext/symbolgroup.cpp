@@ -176,8 +176,10 @@ std::string SymbolGroup::dump(const std::string &iname,
             DebugPrint() << "SymbolGroup::dump(" << iname << '/'
                          << aNode->absoluteFullIName() <<" resolves to " << node->absoluteFullIName()
                          << " expanded=" << node->isExpanded();
-        if (!node->isExpanded() && node->canExpand() && !node->expand(errorMessage))
+        if (!node->isExpanded() && (node->canExpand() || node->completePointerType())
+                && !node->expand(errorMessage)) {
             return std::string();
+        }
         node->addFlags(SymbolGroupNode::ExpandedByRequest);
         // After expansion, run the complex dumpers
         if (p.dumpFlags & DumpParameters::DumpComplexDumpers)

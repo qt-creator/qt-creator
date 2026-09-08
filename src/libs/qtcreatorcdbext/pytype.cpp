@@ -43,40 +43,6 @@ enum TypeCodes {
     TypeCodeRValueReference,
 };
 
-static bool isType(const std::string &typeName, const std::vector<std::string> &types)
-{
-    return std::find(types.begin(), types.end(), typeName) != types.end();
-}
-
-static bool isIntegralType(const std::string &typeName)
-{
-    static const std::vector<std::string> integralTypes(
-                {"bool",
-                 "char",
-                 "unsigned char",
-                 "char16_t",
-                 "char32_t",
-                 "wchar_t",
-                 "short",
-                 "unsigned short",
-                 "int",
-                 "unsigned int",
-                 "long",
-                 "unsigned long",
-                 "int64",
-                 "unsigned int64",
-                 "__int64",
-                 "unsigned __int64",
-                 "HRESULT"});
-    return isType(typeName, integralTypes);
-}
-
-static bool isFloatType(const std::string &typeName)
-{
-    static const std::vector<std::string> floatTypes({"float", "double"});
-    return isType(typeName, floatTypes);
-}
-
 static bool isArrayPointerAtPosition(const std::string &typeName, size_t position)
 {
     if (typeName.length() < position + 3)
@@ -250,6 +216,30 @@ static std::string getModuleName(ULONG64 module)
     return std::string();
 }
 
+static std::string getTypeName(ULONG64 module, unsigned long typeId)
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG size = 0;
+    countEngineCall("GetTypeName");
+    symbols->GetTypeName(module, typeId, NULL, 0, &size);
+    if (size == 0)
+        return std::string();
+
+    std::string name(size - 1, '\0');
+    countEngineCall("GetTypeName");
+    if (FAILED(symbols->GetTypeName(module, typeId, &name[0], size, &size)))
+        return std::string();
+    return name;
+}
+
+static bool getPlainTypeId(ULONG64 module, const std::string &name, ULONG *typeId)
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    countEngineCall("GetTypeId");
+    return symbols->GetTypeId(module, name.c_str(), typeId) == S_OK
+           && !SymbolGroupValue::isTypeOfSymbolNamed(getTypeName(module, *typeId), name);
+}
+
 static std::unordered_map<std::string, PyType> &typeCache()
 {
     static std::unordered_map<std::string, PyType> cache;
@@ -293,23 +283,14 @@ PyType::PyType(const std::string &name, ULONG64 module)
 std::string PyType::name(bool withModule) const
 {
     if (m_name.empty() && m_resolved.value_or(false)) {
-        auto symbols = ExtensionCommandContext::instance()->symbols();
-        ULONG size = 0;
-        countEngineCall("GetTypeName");
-        symbols->GetTypeName(m_module, m_typeId, NULL, 0, &size);
-        if (size == 0)
+        m_name = getTypeName(m_module, m_typeId);
+        if (m_name.empty())
             return std::string();
-
-        std::string typeName(size - 1, '\0');
-        countEngineCall("GetTypeName");
-        if (FAILED(symbols->GetTypeName(m_module, m_typeId, &typeName[0], size, &size)))
-            return std::string();
-
-        m_name = typeName;
         typeCache()[m_name] = *this;
     }
 
-    if (withModule && !isIntegralType(m_name) && !isFloatType(m_name)) {
+    if (withModule && !SymbolGroupValue::isIntegralType(m_name)
+            && !SymbolGroupValue::isFloatType(m_name)) {
         std::string completeName = module();
         if (!completeName.empty())
             completeName.append("!");
@@ -344,9 +325,9 @@ int PyType::code() const
             return TypeCodeArray;
         if (typeName.find("<function>") == 0)
             return TypeCodeFunction;
-        if (isIntegralType(typeName))
+        if (SymbolGroupValue::isIntegralType(typeName))
             return TypeCodeIntegral;
-        if (isFloatType(typeName))
+        if (SymbolGroupValue::isFloatType(typeName))
             return TypeCodeFloat;
         if (knownType(name(), 0) != KT_Unknown)
             return TypeCodeStruct;
@@ -361,7 +342,8 @@ int PyType::code() const
         case SymTagFunctionType: return TypeCodeFunction;
         case SymTagPointerType: return TypeCodePointer;
         case SymTagArrayType: return TypeCodeArray;
-        case SymTagBaseType: return isIntegralType(name()) ? TypeCodeIntegral : TypeCodeFloat;
+        case SymTagBaseType:
+            return SymbolGroupValue::isIntegralType(name()) ? TypeCodeIntegral : TypeCodeFloat;
         default: break;
         }
     }
@@ -537,47 +519,23 @@ void PyType::symbolsChanged()
     }
 }
 
-// Asks every loaded module for the type, those with their symbols at hand
-// before those that would have to load them first: GetTypeId() on a module
-// with deferred symbols loads them, which is what makes a miss take seconds.
 static bool findTypeInModules(const std::string &name, ULONG *typeId, ULONG64 *module)
 {
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-    ULONG loaded = 0;
-    ULONG unloaded = 0;
-    countEngineCall("GetNumberModules");
-    if (FAILED(symbols->GetNumberModules(&loaded, &unloaded)) || loaded == 0)
-        return false;
-    std::vector<DEBUG_MODULE_PARAMETERS> modules(loaded);
-    countEngineCall("GetModuleParameters");
-    if (FAILED(symbols->GetModuleParameters(loaded, NULL, 0, modules.data())))
-        return false;
-    for (const bool deferred : {false, true}) {
-        for (const DEBUG_MODULE_PARAMETERS &candidate : modules) {
-            if (candidate.Flags & DEBUG_MODULE_UNLOADED)
-                continue;
-            if ((candidate.SymbolType == DEBUG_SYMTYPE_DEFERRED) != deferred)
-                continue;
-            countEngineCall("GetTypeId");
-            if (symbols->GetTypeId(candidate.Base, name.c_str(), typeId) == S_OK) {
-                *module = candidate.Base;
-                return true;
-            }
-        }
-    }
-    return false;
+    *module = findModule(symbols, [&](ULONG64 base) {
+        return getPlainTypeId(base, name, typeId);
+    });
+    return *module != 0;
 }
 
 static bool findTypeInModulesLoadedSince(const std::string &name, size_t firstModule,
                                          ULONG *typeId, ULONG64 *module)
 {
-    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     const std::vector<ULONG64> &modules = loadedModules();
     for (size_t i = firstModule; i < modules.size(); ++i) {
         if (modules[i] == 0)
             continue;
-        countEngineCall("GetTypeId");
-        if (symbols->GetTypeId(modules[i], name.c_str(), typeId) == S_OK) {
+        if (getPlainTypeId(modules[i], name, typeId)) {
             *module = modules[i];
             return true;
         }
@@ -623,14 +581,16 @@ bool PyType::resolve() const
             EngineTimer timer("TypeSearch");
             ULONG64 module = 0;
             countEngineCall("GetSymbolTypeId");
-            bool found = symbols->GetSymbolTypeId(m_name.c_str(), &typeId, &module) == S_OK;
+            bool found = symbols->GetSymbolTypeId(m_name.c_str(), &typeId, &module) == S_OK
+                         && !SymbolGroupValue::isTypeOfSymbolNamed(
+                             getTypeName(module, typeId), m_name);
             // The module offered with the lookup - the one of the value being
             // dumped - comes after the engine's own answer, so that a name several
             // modules know resolves the same whatever was dumped last, and before
             // the search over all of them, which is what it is there to save.
-            if (!found && m_module != 0 && !isIntegralType(m_name) && !isFloatType(m_name)) {
-                countEngineCall("GetTypeId");
-                found = symbols->GetTypeId(m_module, m_name.c_str(), &typeId) == S_OK;
+            if (!found && m_module != 0 && !SymbolGroupValue::isIntegralType(m_name)
+                    && !SymbolGroupValue::isFloatType(m_name)) {
+                found = getPlainTypeId(m_module, m_name, &typeId);
                 module = m_module;
             }
             if (!found)

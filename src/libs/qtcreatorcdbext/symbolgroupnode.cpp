@@ -9,6 +9,7 @@
 #include "extensioncontext.h"
 
 #include <algorithm>
+#include <map>
 
 typedef std::vector<int>::size_type VectorIndexType;
 typedef std::vector<std::string> StringVector;
@@ -1018,6 +1019,22 @@ static inline std::string watchExpression(ULONG64 address,
     return str.str();
 }
 
+// Where a type was found, empty if no module completes it. Valid only as long
+// as the modules and their symbols do not change.
+// SymbolGroupNode::clearTypeModules() drops it when they do.
+static std::map<std::string, std::string> &typeModules()
+{
+    static std::map<std::string, std::string> modules;
+    return modules;
+}
+
+// Whether it has already been shown that no module completes the type.
+static bool knownWithoutModule(const std::string &typeName)
+{
+    const auto known = typeModules().find(typeName);
+    return known != typeModules().end() && known->second.empty();
+}
+
 int SymbolGroupNode::dumpNode(std::ostream &str,
                               const std::string &aName,
                               const std::string &aFullIName,
@@ -1034,12 +1051,12 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     std::string encoding;
     std::wstring value = simpleDumpValue(ctx, &encoding);
 
+    ULONG64 referencedAddr = 0;
     if (addr) {
         str << std::hex << std::showbase << ",address=\"" << addr << '"';
         if (SymbolGroupValue::isPointerType(t)) {
             std::string::size_type pointerPos = value.rfind(L"0x");
             if (pointerPos != std::string::npos) {
-                ULONG64 referencedAddr = 0;
                 std::wistringstream istr(value.substr(pointerPos + 2u));
                 istr >> std::hex >> referencedAddr;
                 if (referencedAddr)
@@ -1079,6 +1096,14 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
             else
                 childCountGuess = unsigned(children().size());
         }
+    }
+    // A pointer dbgeng left childless gets children from the cast
+    // completePointerType() does, whose module scan is too expensive to run for
+    // a node nobody asked to expand. Claim a child and let expand() find out.
+    if (childCountGuess == 0 && !uninitialized && referencedAddr) {
+        const std::string target = SymbolGroupValue::completablePointerTarget(t);
+        if (!target.empty() && !knownWithoutModule(target))
+            childCountGuess = 1;
     }
     // No children..suppose we are editable and enabled.
     if (m_parameters.Flags & DEBUG_SYMBOL_READ_ONLY) {
@@ -1177,6 +1202,66 @@ bool SymbolGroupNode::collapse(std::string *errorMessage)
     return true;
 }
 
+void SymbolGroupNode::clearTypeModules()
+{
+    typeModules().clear();
+}
+
+static bool moduleHasType(CIDebugSymbols *symbols, ULONG64 base, const std::string &typeName)
+{
+    ULONG typeId = 0;
+    if (symbols->GetTypeId(base, typeName.c_str(), &typeId) != S_OK)
+        return false;
+    char buf[BufSize];
+    if (FAILED(symbols->GetTypeName(base, typeId, buf, BufSize, NULL)))
+        return false;
+    return !SymbolGroupValue::isTypeOfSymbolNamed(buf, typeName);
+}
+
+static std::string moduleDefiningType(const std::string &typeName)
+{
+    const auto known = typeModules().find(typeName);
+    if (known != typeModules().end())
+        return known->second;
+
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    const ULONG64 base = findModule(symbols, [&](ULONG64 candidate) {
+        return moduleHasType(symbols, candidate, typeName);
+    });
+    const std::string module = base ? moduleNameByOffset(symbols, base) : std::string();
+    typeModules()[typeName] = module;
+    return module;
+}
+
+// dbgeng leaves a pointer whose pointee type only another module defines
+// without children. A cast naming that module completes the type.
+bool SymbolGroupNode::completePointerType()
+{
+    // expand() refuses such a node, and would leave the cast on it.
+    if (flags() & Uninitialized)
+        return false;
+    const std::string pointerType = type();
+    const std::string targetType = SymbolGroupValue::completablePointerTarget(pointerType);
+    if (targetType.empty())
+        return false;
+    const std::string module = moduleDefiningType(targetType);
+    if (module.empty())
+        return false;
+
+    std::string errorMessage;
+    if (!typeCast(module + '!' + targetType + " *", &errorMessage)) {
+        typeModules()[targetType].clear();
+        return false;
+    }
+    if (canExpand())
+        return true;
+    // The qualified type would otherwise stay on the node and be reported as
+    // its type from here on, for a cast that bought nothing.
+    typeCast(pointerType, &errorMessage);
+    typeModules()[targetType].clear();
+    return false;
+}
+
 // Expand!
 bool SymbolGroupNode::expand(std::string *errorMessage)
 {
@@ -1186,7 +1271,7 @@ bool SymbolGroupNode::expand(std::string *errorMessage)
                     << m_index << DebugNodeFlags(flags());
     if (isExpanded())
         return true;
-    if (!canExpand()) {
+    if (!canExpand() && !completePointerType()) {
         *errorMessage = msgExpandFailed(name(), absoluteFullIName(), m_index,
                                         "No subelements to expand in node.");
         return false;

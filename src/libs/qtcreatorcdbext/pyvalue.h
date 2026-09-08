@@ -46,6 +46,8 @@ public:
 private:
     static void indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta);
 
+    bool completePointerType();
+
     unsigned long m_index = 0;
     CIDebugSymbolGroup *m_symbolGroup = nullptr;  // not owned
     // A symbol keeps its type for as long as its group lives; asked once.

@@ -17,6 +17,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <limits>
+#include <cstring>
 #include <ctype.h>
 #include <unordered_map>
 
@@ -597,6 +598,97 @@ bool SymbolGroupValue::isVTableType(const std::string &t)
     return t.compare(0, sizeof(vtableTypeC) - 1, vtableTypeC) == 0;
 }
 
+static bool isType(const std::string &typeName, const std::vector<std::string> &types)
+{
+    return std::find(types.begin(), types.end(), typeName) != types.end();
+}
+
+bool SymbolGroupValue::isIntegralType(const std::string &typeName)
+{
+    static const std::vector<std::string> integralTypes(
+                {"bool",
+                 "char",
+                 "signed char",
+                 "unsigned char",
+                 "char16_t",
+                 "char32_t",
+                 "wchar_t",
+                 "short",
+                 "unsigned short",
+                 "int",
+                 "unsigned int",
+                 "long",
+                 "unsigned long",
+                 "long long",
+                 "unsigned long long",
+                 "int64",
+                 "unsigned int64",
+                 "__int8",
+                 "unsigned __int8",
+                 "__int16",
+                 "unsigned __int16",
+                 "__int32",
+                 "unsigned __int32",
+                 "__int64",
+                 "unsigned __int64",
+                 "HRESULT"});
+    return isType(typeName, integralTypes);
+}
+
+bool SymbolGroupValue::isFloatType(const std::string &typeName)
+{
+    static const std::vector<std::string> floatTypes({"float", "double"});
+    return isType(typeName, floatTypes);
+}
+
+// IDebugSymbols::GetTypeId() and GetSymbolTypeId() also match a symbol of that
+// name, case insensitively, when the module itself has no such type. They
+// answer then with a pointer, array or reference to the very type asked for,
+// which is what tells such a match from a type that genuinely spells out a
+// pointer, like a typedef to one.
+bool SymbolGroupValue::isTypeOfSymbolNamed(const std::string &answeredType,
+                                           const std::string &name)
+{
+    std::string target = stripClassPrefixes(answeredType);
+    // A leading const belongs to the innermost type, whatever the depth.
+    if (target.compare(0, 6, "const ") == 0)
+        target.erase(0, 6);
+    // The indirection can be of any depth, so peel one level at a time and
+    // compare after each: only "Foo *" answered for "Foo" is such a match,
+    // while "void *" answered for HANDLE is the type the typedef names. The
+    // symbol match is case insensitive, so the name it answers with need not
+    // be spelled the way it was asked for.
+    for (;;) {
+        trimBack(target);
+        if (endsWith(target, " const") || endsWith(target, "*const")) {
+            target.erase(target.size() - 5);
+            trimBack(target);
+        }
+        if (target.empty())
+            return false;
+        const char last = target.back();
+        if (last == '*' || last == '&') {
+            target.pop_back();
+        } else if (last == ']') {
+            const std::string::size_type bracket = target.rfind('[');
+            if (bracket == std::string::npos)
+                return false;
+            target.erase(bracket);
+        } else {
+            return false;
+        }
+        trimBack(target);
+        // The const of a pointed-to type comes last once a level is peeled.
+        std::string candidate = target;
+        if (endsWith(candidate, " const")) {
+            candidate.erase(candidate.size() - 6);
+            trimBack(candidate);
+        }
+        if (_stricmp(candidate.c_str(), name.c_str()) == 0)
+            return true;
+    }
+}
+
 // add pointer type 'Foo' -> 'Foo *', 'Foo *' -> 'Foo **'
 std::string SymbolGroupValue::pointerType(const std::string &type)
 {
@@ -650,6 +742,22 @@ std::string SymbolGroupValue::stripPointerType(const std::string &t)
     if (const unsigned stripLength = isPointerType(t))
         return t.substr(0, t.size() - stripLength);
     return t;
+}
+
+// A builtin needs no module and is what such a pointer mostly points to, so
+// looking one up would scan every module for nothing.
+std::string SymbolGroupValue::completablePointerTarget(const std::string &pointerType)
+{
+    if (!isPointerType(pointerType))
+        return std::string();
+    const std::string targetType = stripConst(stripClassPrefixes(stripPointerType(pointerType)));
+    // dbgeng's own placeholders, like "<function>", are no type any module has.
+    if (targetType.empty() || targetType.front() == '<' || targetType == "void"
+        || isIntegralType(targetType) || isFloatType(targetType)
+        || targetType.find_first_of("!(*[") != std::string::npos) {
+        return std::string();
+    }
+    return targetType;
 }
 
 // Strip "class Foo", "struct Bar"-> "Foo", "Bar "

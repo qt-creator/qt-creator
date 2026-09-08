@@ -237,6 +237,7 @@ public:
     bool expandRunComplexDumpers(const SymbolGroupValueContext &ctx, std::string *errorMessage);
     bool isExpanded() const { return !children().empty(); }
     bool canExpand() const { return m_parameters.SubElements > 0; }
+    bool completePointerType();
     bool collapse(std::string *errorMessage);
     void runComplexDumpers(const SymbolGroupValueContext &ctx);
     // Cast to a different type. Works only on unexpanded nodes
@@ -256,6 +257,10 @@ public:
     static std::string msgAssignError(const std::string &nodeName,
                                       const std::string &value,
                                       const std::string &why);
+
+    // Forget which module defines which type, as a module or its symbols
+    // coming or going changes that.
+    static void clearTypeModules();
 
 private:
     const SymbolGroupNode *symbolGroupNodeParent() const;

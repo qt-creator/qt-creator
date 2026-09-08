@@ -2298,6 +2298,8 @@ private slots:
     void resolvesATypeArrivingWithALaterLibrary();
     void stridesAnArrayOfATypeArrivingWithALaterLibrary_data() { addBackendRows(); }
     void stridesAnArrayOfATypeArrivingWithALaterLibrary();
+    void expandsAPointerToALibraryTypeInASymbolGroup_data() { addBackendRows(); }
+    void expandsAPointerToALibraryTypeInASymbolGroup();
     void readsALocalOfATypeOnlyALibraryDefines_data() { addBackendRows(); }
     void readsALocalOfATypeOnlyALibraryDefines();
     void honorsDumperOptionsFromTheRequest_data() { addBackendRows(); }
@@ -4466,12 +4468,9 @@ void tst_backends::initTestCase()
             qWarning("%s", qPrintable(compileFailure("compiling the Cdb inferior library",
                                                      cdbCompileLib,
                                                      cdbCompileLibTimer.elapsed())));
+            msvcInferiorData.libraryTypeSymbol.clear();
+            msvcInferiorData.libraryTypeLocal.clear();
         }
-        // cdb.exe itself completes the type from the library's PDB - "dt
-        // inferiorlib_msvc!LibProbe" answers - but nothing that reaches the
-        // dumper does, whether the type was looked up before the load or not.
-        msvcInferiorData.libraryTypeSymbol.clear();
-        msvcInferiorData.libraryTypeLocal.clear();
 
         const FilePath pdbPath = FilePath::fromString(m_tempDir.path()) / "inferior_msvc.pdb";
         const QStringList cdbCompileArgs = {
@@ -9474,6 +9473,8 @@ void tst_backends::stridesAnArrayOfATypeArrivingWithALaterLibrary()
     const InferiorTestData data = inferiorTestData(backend);
     if (data.libraryTypeSymbol.isEmpty() || data.libraryLoadedLine == 0)
         QSKIP("inferior loads no library carrying a type of its own");
+    if (backend == Backend::Cdb)
+        QSKIP("The probe handle typedef of the Cdb inferior is not covered by the cast yet.");
     if (!takesIndividualFormats(backend))
         QSKIP("This backend takes no display format for a single item.");
     if (auto result = checkCapability(backend, Debugger::AddWatcherCapability); !result)
@@ -9555,6 +9556,60 @@ void tst_backends::stridesAnArrayOfATypeArrivingWithALaterLibrary()
                  qPrintable("the elements of " + symbols.at(i)
                             + " all sit at the same address: " + watchItem.toString()));
     }
+}
+
+// The extension's own "locals" command reads through a symbol group, not
+// through the dumpers that CdbImpl uses, and dbgeng leaves a pointer there
+// childless while its module only declares the type pointed to.
+void tst_backends::expandsAPointerToALibraryTypeInASymbolGroup()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Cdb)
+        QSKIP("only the cdb extension reads locals through a symbol group");
+    const InferiorTestData data = inferiorTestData(backend);
+    if (data.libraryTypeSymbol.isEmpty() || data.libraryLoadedLine == 0)
+        QSKIP("inferior loads no library carrying a type of its own");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> insertResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&insertResults](quint64 requestId, BreakpointOp op, bool ok, const GdbMi &) {
+        if (op == BreakpointOp::Insert)
+            insertResults[requestId] = ok;
+    });
+    BreakpointChangeRequest breakpointRequest;
+    breakpointRequest.op = BreakpointOp::Insert;
+    breakpointRequest.requestId = 146;
+    breakpointRequest.params.type = BreakpointByFileAndLine;
+    breakpointRequest.params.fileName = data.source;
+    breakpointRequest.params.textPosition.line = data.libraryLoadedLine;
+    breakpointRequest.params.enabled = true;
+    engine->changeBreakpoint(breakpointRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(146), s_timeout);
+    QVERIFY2(insertResults.value(146), "breakpoint on the library-loaded line failed to insert");
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), data.libraryLoadedLine);
+
+    QString reply;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&reply](const QString &text, int channel, int) {
+        // The command is logged as it goes out and names the watch too.
+        if (channel != Debugger::LogInput && text.contains("iname=\"watch.0\""))
+            reply = text;
+    });
+    engine->executeDebuggerCommand("!qtcreatorcdbext.locals -D -e watch.0 -W -w watch.0 "
+                                       + data.libraryTypeSymbol + " 0",
+                                   {});
+    QTRY_VERIFY_WITH_TIMEOUT(!reply.isEmpty(), s_timeout);
+    QVERIFY2(reply.contains("iname=\"watch.0." + data.libraryTypeChild + '"'),
+             qPrintable(data.libraryTypeSymbol + " expanded without its member: " + reply));
 }
 
 void tst_backends::readsALocalOfATypeOnlyALibraryDefines()
