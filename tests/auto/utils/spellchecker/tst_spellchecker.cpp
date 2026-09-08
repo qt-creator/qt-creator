@@ -16,6 +16,8 @@ class tst_SpellChecker : public QObject
 
 private slots:
     void initTestCase();
+    void testWordRanges_data();
+    void testWordRanges();
     void testMisspelledWords_data();
     void testMisspelledWords();
     void testSuggestions();
@@ -28,24 +30,51 @@ private:
 
 void tst_SpellChecker::initTestCase()
 {
-    SpellChecker *checker = SpellChecker::instance();
-    if (!checker->isAvailable())
-        QSKIP("This operating system provides no spell checking service");
-
-    m_language = Utils::findOrDefault(checker->availableLanguages(), [](const QString &language) {
+    const QStringList languages = SpellChecker::instance()->availableLanguages();
+    m_language = Utils::findOrDefault(languages, [](const QString &language) {
         return language.startsWith("en");
     });
-    if (m_language.isEmpty())
-        QSKIP("No English dictionary is installed");
+}
+
+static QStringList wordsAt(const QString &text, const QList<SpellChecker::Range> &ranges)
+{
+    return Utils::transform<QStringList>(ranges, [&text](const SpellChecker::Range &range) {
+        return text.mid(range.start, range.length);
+    });
 }
 
 QStringList tst_SpellChecker::misspelledWords(const QString &text) const
 {
-    const QList<SpellChecker::Range> ranges
-        = SpellChecker::instance()->misspelledRanges(text, m_language);
-    return Utils::transform<QStringList>(ranges, [&text](const SpellChecker::Range &range) {
-        return text.mid(range.start, range.length);
-    });
+    return wordsAt(text, SpellChecker::instance()->misspelledRanges(text, m_language));
+}
+
+void tst_SpellChecker::testWordRanges_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QStringList>("expected");
+
+    QTest::newRow("empty") << QString() << QStringList();
+    QTest::newRow("punctuation") << "-> ()" << QStringList();
+    QTest::newRow("sentence") << "A mispelled word" << QStringList{"A", "mispelled", "word"};
+    QTest::newRow("start of text") << "mispelled at the start"
+                                   << QStringList{"mispelled", "at", "the", "start"};
+    QTest::newRow("sentence end") << "A mispelled word." << QStringList{"A", "mispelled", "word"};
+    QTest::newRow("apostrophe") << "It doesn't matter" << QStringList{"It", "doesn't", "matter"};
+    QTest::newRow("identifier") << "The mispelled_word and camelCase"
+                                << QStringList{"The", "mispelled", "word", "and", "camelCase"};
+    QTest::newRow("file name") << "Add mainwindow.cpp here"
+                               << QStringList{"Add", "mainwindow.cpp", "here"};
+    QTest::newRow("path") << "src/libs/spellcheckr.cpp"
+                          << QStringList{"src", "libs", "spellcheckr.cpp"};
+    QTest::newRow("numbers") << "Qt6 and 12345" << QStringList{"Qt6", "and"};
+}
+
+void tst_SpellChecker::testWordRanges()
+{
+    QFETCH(QString, text);
+    QFETCH(QStringList, expected);
+
+    QCOMPARE(wordsAt(text, SpellChecker::wordRanges(text)), expected);
 }
 
 void tst_SpellChecker::testMisspelledWords_data()
@@ -70,6 +99,9 @@ void tst_SpellChecker::testMisspelledWords_data()
 
 void tst_SpellChecker::testMisspelledWords()
 {
+    if (m_language.isEmpty())
+        QSKIP("No spell checking service or no English dictionary is installed");
+
     QFETCH(QString, text);
     QFETCH(QStringList, expected);
 
@@ -78,6 +110,9 @@ void tst_SpellChecker::testMisspelledWords()
 
 void tst_SpellChecker::testSuggestions()
 {
+    if (m_language.isEmpty())
+        QSKIP("No spell checking service or no English dictionary is installed");
+
     const QStringList suggestions = SpellChecker::instance()->suggestions("mispelled", m_language);
     QVERIFY(!suggestions.isEmpty());
 }

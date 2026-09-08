@@ -36,6 +36,9 @@ public:
     // removed. Positions are relative to the beginning of text.
     QList<Range> misspelledRanges(const QString &text, const QString &language) const;
 
+    // The words of text, for the platforms whose service checks one word at a time.
+    static QList<Range> wordRanges(const QString &text);
+
     virtual QStringList suggestions(const QString &word, const QString &language) const;
     virtual void learnWord(const QString &word, const QString &language);
     virtual void ignoreWord(const QString &word, const QString &language);

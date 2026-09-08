@@ -459,6 +459,14 @@ QtcLibrary {
     }
 
     Group {
+        name: "SpellChecker_unix"
+        condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("macos")
+        files: [
+            "spellchecker_unix.cpp",
+        ]
+    }
+
+    Group {
         name: "MimeTypes"
         prefix: "mimetypes2/"
         files: [

@@ -283,6 +283,7 @@ extend_qtc_library(Utils CONDITION APPLE
 
 extend_qtc_library(Utils CONDITION UNIX AND NOT APPLE
   SOURCES
+    spellchecker_unix.cpp
     touchbar/touchbar.cpp
 )
 
