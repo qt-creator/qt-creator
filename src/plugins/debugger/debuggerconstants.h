@@ -107,7 +107,8 @@ enum class DebuggerExtraCapability : unsigned
     PeripheralRegisters  = 1u << 11,
     ContinueAfterAttach  = 1u << 12,
     ThreadEvent          = 1u << 13, // Reporting a thread appearing or going away.
-    ExitMonitorAtClose   = 1u << 14  // Shutting a debug monitor down with the session.
+    ExitMonitorAtClose   = 1u << 14, // Shutting a debug monitor down with the session.
+    RunAsUser            = 1u << 15  // Running the debugger as somebody else.
 };
 Q_DECLARE_FLAGS(DebuggerExtraCapabilities, DebuggerExtraCapability)
 Q_DECLARE_OPERATORS_FOR_FLAGS(DebuggerExtraCapabilities)

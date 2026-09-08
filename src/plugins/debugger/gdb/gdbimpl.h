@@ -93,6 +93,7 @@ public:
     Utils::TriState useDebugInfoD;
     int qtVersion = 0;
     QString qtNamespace;
+    QString runAsUser;
     Utils::FilePath extraDumperFile;
     QString extraDumperCommands;
     GdbImplSearchPaths searchPaths;
@@ -190,6 +191,7 @@ private:
     void restartWatchdog();
     bool usesOutputCollector() const;
     void requestInferiorInterrupt();
+    void interruptProcessAsUser(qint64 pid);
     void runCommandNow(const DebuggerCommand &command);
     void handleOutputLine(const QString &line);
     void handleResultRecord(DebuggerResponse *response);

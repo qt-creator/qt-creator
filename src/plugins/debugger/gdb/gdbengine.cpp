@@ -5332,8 +5332,11 @@ static GdbImplUserCommands gdbImplUserCommands(const DebuggerRunParameters &rp)
 static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
 {
     const bool windowsMain = rp.toolChainAbi().os() == Abi::WindowsOS && !rp.useTerminal();
+    ProcessRunData debuggerRunData = rp.debugger();
+    if (!rp.runAsUser().isEmpty())
+        RunControl::provideAskPassEntry(debuggerRunData.environment);
     return {
-        .debuggerRunData = rp.debugger(),
+        .debuggerRunData = debuggerRunData,
         .inferiorStartData = inferiorStartData(rp),
         .dumperScriptsDir = ICore::resourcePath("debugger"),
         .mainFunctionName = QLatin1String(windowsMain ? "qMain" : "main"),
@@ -5341,6 +5344,7 @@ static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
         .useDebugInfoD = settings().useDebugInfoD(),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
+        .runAsUser = rp.runAsUser(),
         .extraDumperFile = settings().extraDumperFile(),
         .extraDumperCommands = settings().extraDumperCommands(),
         .searchPaths = gdbImplSearchPaths(rp),

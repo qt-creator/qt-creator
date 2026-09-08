@@ -106,7 +106,8 @@ static DebuggerEngineSetupData gdbImplSetupData()
                            | DebuggerExtraCapability::PeripheralRegisters
                            | DebuggerExtraCapability::ContinueAfterAttach
                            | DebuggerExtraCapability::ThreadEvent
-                           | DebuggerExtraCapability::ExitMonitorAtClose;
+                           | DebuggerExtraCapability::ExitMonitorAtClose
+                           | DebuggerExtraCapability::RunAsUser;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToTerminalStub
@@ -156,6 +157,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         gdbCommand.addArg("-nx");
     m_gdbProc.setCommand(gdbCommand);
     m_gdbProc.setEnvironment(m_startData.debuggerRunData.environment);
+    m_gdbProc.setRunAsUser(m_startData.runAsUser);
     if (m_startData.debuggerRunData.workingDirectory.isDir())
         m_gdbProc.setWorkingDirectory(m_startData.debuggerRunData.workingDirectory);
 
@@ -1845,16 +1847,36 @@ void GdbImpl::runCommand(const DebuggerCommand &command)
     runCommandNow(command);
 }
 
+// A debugger running as another user cannot signal the inferior itself: the
+// signal has to be sent with the same rights the inferior was started with.
+void GdbImpl::interruptProcessAsUser(qint64 pid)
+{
+    Process process;
+    process.setCommand({"kill", {"-s", "SIGINT", QString::number(pid)}});
+    process.setRunAsUser(m_startData.runAsUser);
+    process.setEnvironment(m_startData.debuggerRunData.environment);
+    process.runBlocking();
+    if (process.result() != ProcessResult::FinishedWithSuccess) {
+        emit message(QString("Interrupting the inferior as %1 failed: %2")
+                         .arg(m_startData.runAsUser, process.cleanedStdErr().trimmed()), LogError);
+    }
+}
+
 void GdbImpl::requestInferiorInterrupt()
 {
+    const auto interrupt = [this](qint64 pid) {
+        if (!m_startData.runAsUser.isEmpty()) {
+            interruptProcessAsUser(pid);
+            return;
+        }
+        QString errorMessage;
+        if (!interruptProcess(pid, &errorMessage))
+            emit message(errorMessage, LogError);
+    };
     if (const auto *attachData = std::get_if<AttachToProcessData>(&m_startData.inferiorStartData)) {
-        QString errorMessage;
-        if (!interruptProcess(attachData->pid.pid(), &errorMessage))
-            emit message(errorMessage, LogError);
+        interrupt(attachData->pid.pid());
     } else if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
-        QString errorMessage;
-        if (!interruptProcess(m_inferiorPid, &errorMessage))
-            emit message(errorMessage, LogError);
+        interrupt(m_inferiorPid);
     } else if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
         emit interruptTerminalRequested();
     } else {

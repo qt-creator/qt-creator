@@ -965,6 +965,8 @@ private slots:
     void runsUserCommandsWhenResettingTheInferior();
     void runsAUserStartScriptAtStartup_data() { addBackendRows(); }
     void runsAUserStartScriptAtStartup();
+    void runsTheDebuggerAsTheConfiguredUser_data() { addBackendRows(); }
+    void runsTheDebuggerAsTheConfiguredUser();
     void testReturnFromFunctionCapability_data() { addBackendRows(); }
     void testReturnFromFunctionCapability();
     void testReverseSteppingCapability_data() { addBackendRows(); }
@@ -1176,6 +1178,8 @@ private:
         Backend backend, const QStringList &breakEvents);
     std::unique_ptr<DebuggerBackend> createEngineWithStartScript(
         Backend backend, const Utils::FilePath &startScript);
+    std::unique_ptr<DebuggerBackend> createEngineRunningAsUser(
+        Backend backend, const QString &user, const Utils::Environment &debuggerEnvironment);
     std::unique_ptr<DebuggerBackend> createEngineWithConfiguredPaths(
         Backend backend, const QList<QPair<QString, QString>> &sourcePathMap);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
@@ -1469,6 +1473,22 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
 }
 
 // The debugger's own list of events to break on, where it has one.
+// A debugger that has to be started as somebody else. Only backends whose
+// start data carries the user can be built here.
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineRunningAsUser(
+    Backend backend, const QString &user, const Environment &debuggerEnvironment)
+{
+    if (backend != Backend::Gdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          debuggerEnvironment},
+        .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                            Environment::systemEnvironment()},
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+        .runAsUser = user}));
+}
+
 // A debugger given a start script of its own. Only backends whose start data
 // carries one can be built here.
 std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithStartScript(
@@ -3451,6 +3471,75 @@ void tst_backends::runsUserCommandsWhenResettingTheInferior()
     QTRY_VERIFY2_WITH_TIMEOUT(messages.join(' ').contains(probe.marker),
                               qPrintable("resetting the inferior ran no configured command - "
                                          "log: " + messages.join(' ').right(300)), s_timeout);
+}
+
+void tst_backends::runsTheDebuggerAsTheConfiguredUser()
+{
+    QFETCH(Backend, backend);
+
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Running a process as another user is a no-op on this platform.");
+    if (auto result = checkExtraCapability(backend,
+            Debugger::DebuggerExtraCapability::RunAsUser); !result) {
+        QSKIP(qPrintable(result.error()));
+    }
+
+    // sudo cannot be asked for a password here, so a stub takes its place: it
+    // records how it was called and runs what it was given.
+    const FilePath stubDir = FilePath::fromString(m_tempDir.path()) / "runasuser";
+    QVERIFY(stubDir.ensureWritableDir());
+    const FilePath log = stubDir / "sudo.log";
+    const FilePath stub = stubDir / "sudo";
+    QVERIFY(stub.writeFileContents(QString(R"(#!/bin/sh
+echo "args: $@" >> %1
+echo "askpass: $SUDO_ASKPASS" >> %1
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -u) shift 2;;
+    -A|-E) shift;;
+    *) break;;
+  esac
+done
+exec "$@"
+)").arg(log.nativePath()).toUtf8()));
+    QFile::setPermissions(stub.toFSPathString(),
+                          QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+
+    Environment debuggerEnvironment = Environment::systemEnvironment();
+    debuggerEnvironment.prependOrSetPath(stubDir);
+    // The library resolves the wrapper itself, so the stub has to be findable
+    // from this process as well.
+    const QByteArray originalPath = qgetenv("PATH");
+    qputenv("PATH", (stubDir.nativePath() + ":" + QString::fromLocal8Bit(originalPath)).toLocal8Bit());
+
+    const QString user = "qtc-test-user";
+    std::unique_ptr<DebuggerBackend> debuggerBackend
+        = createEngineRunningAsUser(backend, user, debuggerEnvironment);
+    if (!debuggerBackend) {
+        qputenv("PATH", originalPath);
+        QSKIP("This backend's start data carries no user to run as.");
+    }
+
+    debuggerBackend->engine()->start();
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk),
+                              "the debugger never came up through the wrapper", s_timeout);
+
+    const QString firstCall = QString::fromUtf8(log.fileContents().value_or(QByteArray()));
+    QVERIFY2(firstCall.contains("-u " + user),
+             qPrintable("the debugger was not started as the configured user: " + firstCall));
+    QVERIFY2(firstCall.contains(m_backendData[backend].path.nativePath()),
+             qPrintable("the wrapper was not given the debugger to run: " + firstCall));
+
+    // Interrupting has to take the same route, or the signal is refused.
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Interrupt});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk),
+                              "the inferior never stopped", s_timeout);
+    const QString afterInterrupt = QString::fromUtf8(log.fileContents().value_or(QByteArray()));
+    QVERIFY2(afterInterrupt.contains("kill -s SIGINT"),
+             qPrintable("the interrupt did not go through the wrapper: " + afterInterrupt));
+
+    qputenv("PATH", originalPath);
 }
 
 void tst_backends::runsAUserStartScriptAtStartup()
