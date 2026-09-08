@@ -100,6 +100,17 @@ const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
 const char DockerDeviceExtraArgs[] = "DockerDeviceExtraCreateArguments";
 const char DockerDeviceEnvironment[] = "DockerDeviceEnvironment";
 
+static QString repoAndTagFor(const QString &repo, const QString &tag, const QString &imageId)
+{
+    if (repo == "<none>")
+        return imageId;
+
+    if (tag == "<none>")
+        return repo;
+
+    return repo + ':' + tag;
+}
+
 class DockerDeviceFileAccess final : public CmdBridge::FileAccess
 {
 public:
@@ -1018,6 +1029,10 @@ public:
         auto errorLabel = new InfoLabel(fail, InfoLabelType::Error, this);
         errorLabel->setVisible(false);
 
+        m_inUseLabel = new InfoLabel({}, InfoLabelType::Warning, this);
+        m_inUseLabel->setWordWrap(true);
+        m_inUseLabel->setVisible(false);
+
         m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
         using namespace Layouting;
@@ -1028,6 +1043,7 @@ public:
                 statusLabel,
                 m_view,
             },
+            m_inUseLabel,
             m_log,
             errorLabel,
             Row{showUnnamedContainers, m_buttons},
@@ -1080,18 +1096,42 @@ public:
             const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
             QTC_ASSERT(selectedRows.size() == 1, return);
             m_buttons->button(QDialogButtonBox::Ok)->setEnabled(selectedRows.size() == 1);
+            const QString user = deviceUsingImage(selectedItem());
+            m_inUseLabel->setText(Tr::tr("%1 already uses this image. Another device for it "
+                                         "detects the same tools a second time.").arg(user));
+            m_inUseLabel->setVisible(!user.isEmpty());
         });
 
         m_process->start();
     }
 
+    DockerImageItem *selectedItem() const
+    {
+        const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
+        QTC_ASSERT(selectedRows.size() == 1, return nullptr);
+        return m_model.itemForIndex(m_proxyModel->mapToSource(selectedRows.front()));
+    }
+
+    QString deviceUsingImage(const DockerImageItem *item) const
+    {
+        if (!item)
+            return {};
+        const QString repoAndTag = repoAndTagFor(item->repo, item->tag, item->imageId);
+        QString name;
+        DeviceManager::forEachDevice([&](const IDeviceConstPtr &dev) {
+            if (!name.isEmpty() || dev->type() != m_settings->typeId())
+                return;
+            const auto device = std::dynamic_pointer_cast<const DockerDevice>(dev);
+            if (device && device->repoAndTag() == repoAndTag)
+                name = device->displayName();
+        });
+        return name;
+    }
+
     using DockerDevicePtr = DockerDevice::Ptr; // trick lupdate, QTBUG-140636
     DockerDevicePtr createDevice() const
     {
-        const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
-        QTC_ASSERT(selectedRows.size() == 1, return {});
-        DockerImageItem *item = m_model.itemForIndex(
-            m_proxyModel->mapToSource(selectedRows.front()));
+        DockerImageItem *item = selectedItem();
         QTC_ASSERT(item, return {});
 
         DockerDevicePtr device = DockerDevice::create(m_settings);
@@ -1116,6 +1156,7 @@ public:
     TreeView *m_view = nullptr;
     SortFilterModel *m_proxyModel = nullptr;
     QTextBrowser *m_log = nullptr;
+    InfoLabel *m_inUseLabel = nullptr;
     QDialogButtonBox *m_buttons;
 
     Process *m_process = nullptr;
@@ -1314,13 +1355,7 @@ QSet<int> PortMappings::usedContainerPorts() const
 // Used for "docker run"
 QString DockerDevice::repoAndTag() const
 {
-    if (repo() == "<none>")
-        return imageId();
-
-    if (tag() == "<none>")
-        return repo();
-
-    return repo() + ':' + tag();
+    return Internal::repoAndTagFor(repo(), tag(), imageId());
 }
 
 QString DockerDevice::repoAndTagEncoded() const
