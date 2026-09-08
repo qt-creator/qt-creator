@@ -7,6 +7,7 @@
 
 #include "../breakpoint.h"
 #include "../debuggerconstants.h"
+#include "../debuggerinternalconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -245,6 +246,8 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     Environment env = runData.environment.hasChanges() ? runData.environment
                                                        : Environment::systemEnvironment();
     env.set("_NT_DEBUGGER_EXTENSION_PATH", m_startData.extensionDir.nativePath());
+    if (!env.hasKey(Constants::NO_DEBUG_HEAP))
+        env.set(Constants::NO_DEBUG_HEAP, m_startData.enableHeapDebugging ? "0" : "1");
     m_cdbProc.setEnvironment(env);
 
     m_watchdog.setSingleShot(true);

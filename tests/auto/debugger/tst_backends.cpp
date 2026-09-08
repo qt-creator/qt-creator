@@ -215,6 +215,8 @@ struct InferiorTestData
     QString longTextSymbol;
     QString applicationOutputMarker;
     QString environmentReportPrefix;
+    // What the inferior prints the debug heap flag it was started with behind.
+    QString heapFlagReportPrefix;
     QString workingDirectoryReportPrefix;
     FilePath moduleSymbolsPath;
     QString falseLiteral = "0";
@@ -1051,6 +1053,8 @@ private slots:
     void continueSignalsExitedForSpontaneousExit();
     void reportsApplicationOutput_data() { addBackendRows(); }
     void reportsApplicationOutput();
+    void passesTheHeapDebuggingFlagToTheDebuggee_data() { addBackendRows(); }
+    void passesTheHeapDebuggingFlagToTheDebuggee();
     void passesInferiorEnvironmentToTheDebuggee_data() { addBackendRows(); }
     void passesInferiorEnvironmentToTheDebuggee();
     void reportsSourcePathsInStackFrames_data() { addBackendRows(); }
@@ -1221,6 +1225,8 @@ private:
         Backend backend, const QString &user, const Utils::Environment &debuggerEnvironment);
     std::unique_ptr<DebuggerBackend> createEngineWithConfiguredPaths(
         Backend backend, const QList<QPair<QString, QString>> &sourcePathMap);
+    std::unique_ptr<DebuggerBackend> createEngineWithHeapDebugging(
+        Backend backend, bool enableHeapDebugging);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData,
         Debugger::Internal::GdbImplFlags gdbFlags = {});
@@ -1585,6 +1591,22 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithConfiguredPaths(
             .sourcePathMap = sourcePathMap}}));
 }
 
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithHeapDebugging(
+    Backend backend, bool enableHeapDebugging)
+{
+    if (backend != Backend::Cdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          Environment::systemEnvironment()},
+        .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                            Environment::systemEnvironment()},
+        .extensionDir = m_backendData[backend].cdbExtensionDir,
+        .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+        .enableHeapDebugging = enableHeapDebugging}));
+}
+
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
     Backend backend, const InferiorStartData &inferiorStartData, GdbImplFlags gdbFlags)
 {
@@ -1938,6 +1960,8 @@ void tst_backends::initTestCase()
         "    recurse(40);",
         "    if (const char *marker = getenv(\"QTC_BACKEND_ENV_MARKER\"))",
         "        printf(\"env=%s\\n\", marker);",
+        "    const char *heap = getenv(\"_NO_DEBUG_HEAP\");",
+        "    printf(\"heap=%s\\n\", heap ? heap : \"unset\");",
         "    char cwd[1024] = {0};",
         "#ifdef _WIN32",
         "    GetCurrentDirectoryA(DWORD(sizeof(cwd)), cwd);",
@@ -1981,6 +2005,7 @@ void tst_backends::initTestCase()
     cppInferiorData.throwsAnException = true;
     cppInferiorData.afterThrowOutputMarker = "caught 42";
     cppInferiorData.environmentReportPrefix = "env=";
+    cppInferiorData.heapFlagReportPrefix = "heap=";
     cppInferiorData.workingDirectoryReportPrefix = "cwd=";
     cppInferiorData.disassemblySourceMarker = "globalValue = localValue";
     cppInferiorData.expectedExitCode = 7;
@@ -4606,6 +4631,56 @@ void tst_backends::reportsApplicationOutput()
                                                  "channels saw:\n  %2")
                                              .arg(marker, otherChannels.join("\n  ").left(600))),
                               s_timeout);
+}
+
+void tst_backends::passesTheHeapDebuggingFlagToTheDebuggee()
+{
+    QFETCH(Backend, backend);
+
+    const QString prefix = inferiorTestData(backend).heapFlagReportPrefix;
+    if (prefix.isEmpty())
+        QSKIP("inferior does not report the debug heap flag it was started with");
+
+    auto reportedFlag = [&](bool enableHeapDebugging) -> QString {
+        std::unique_ptr<DebuggerBackend> debuggerBackend
+            = createEngineWithHeapDebugging(backend, enableHeapDebugging);
+        if (!debuggerBackend)
+            return {};
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        QStringList applicationOutput;
+        connect(engine, &DebuggerEngineInterface::message, this,
+                [&applicationOutput](const QString &text, int channel, int) {
+            if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+                applicationOutput.append(text);
+        });
+        engine->start();
+        QString reported;
+        auto sawTheFlag = [&] {
+            for (const QString &line : std::as_const(applicationOutput)) {
+                const int at = line.indexOf(prefix);
+                if (at < 0)
+                    continue;
+                reported = line.mid(at + prefix.size()).trimmed();
+                return true;
+            }
+            return false;
+        };
+        [&] { QTRY_VERIFY_WITH_TIMEOUT(sawTheFlag(), s_warmUpTimeout); }();
+        debuggerBackend->clearEvents();
+        engine->shutdownInferior(ShutdownMode::Kill);
+        [&debuggerBackend] {
+            QTRY_VERIFY_WITH_TIMEOUT(
+                debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+        }();
+        engine->shutdownEngine();
+        return reported;
+    };
+
+    const QString withoutHeapDebugging = reportedFlag(false);
+    if (withoutHeapDebugging.isEmpty())
+        QSKIP("This backend's start data carries no heap debugging setting yet.");
+    QCOMPARE(withoutHeapDebugging, QString("1"));
+    QCOMPARE(reportedFlag(true), QString("0"));
 }
 
 void tst_backends::passesInferiorEnvironmentToTheDebuggee()
