@@ -105,7 +105,8 @@ static DebuggerEngineSetupData gdbImplSetupData()
                            | DebuggerExtraCapability::JumpTargetCheck
                            | DebuggerExtraCapability::PeripheralRegisters
                            | DebuggerExtraCapability::ContinueAfterAttach
-                           | DebuggerExtraCapability::ThreadEvent;
+                           | DebuggerExtraCapability::ThreadEvent
+                           | DebuggerExtraCapability::ExitMonitorAtClose;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToTerminalStub
@@ -582,6 +583,8 @@ void GdbImpl::shutdownEngine()
         emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
         return;
     }
+    if (m_startData.isSet(GdbImplFlag::ExitMonitorAtClose))
+        runCommand({"monitor exit", DebuggerCommand::NativeCommand});
     runCommand({"-gdb-exit", [this](const DebuggerResponse &response) {
         if (response.resultClass == ResultExit)
             return;

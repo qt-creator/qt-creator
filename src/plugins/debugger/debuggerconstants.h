@@ -106,7 +106,8 @@ enum class DebuggerExtraCapability : unsigned
     JumpTargetCheck      = 1u << 10, // Refusing a jump to a line of several locations.
     PeripheralRegisters  = 1u << 11,
     ContinueAfterAttach  = 1u << 12,
-    ThreadEvent          = 1u << 13 // Reporting a thread appearing or going away.
+    ThreadEvent          = 1u << 13, // Reporting a thread appearing or going away.
+    ExitMonitorAtClose   = 1u << 14  // Shutting a debug monitor down with the session.
 };
 Q_DECLARE_FLAGS(DebuggerExtraCapabilities, DebuggerExtraCapability)
 Q_DECLARE_OPERATORS_FOR_FLAGS(DebuggerExtraCapabilities)

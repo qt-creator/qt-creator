@@ -1142,6 +1142,8 @@ private slots:
     void attachesToRunningRemoteServer();
     void runsUserCommandsAfterConnectingToARemoteServer_data() { addBackendRows(); }
     void runsUserCommandsAfterConnectingToARemoteServer();
+    void exitsTheMonitorWhenClosing_data() { addBackendRows(); }
+    void exitsTheMonitorWhenClosing();
     void attachesToRemoteProcessByPid_data() { addBackendRows(); }
     void attachesToRemoteProcessByPid();
     void runsRemoteExecutableViaExtendedRemote_data() { addBackendRows(); }
@@ -8456,6 +8458,54 @@ void tst_backends::runsUserCommandsAfterConnectingToARemoteServer()
 
     engine->shutdownInferior(ShutdownMode::Kill);
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    engine->shutdownEngine();
+    QTRY_COMPARE_WITH_TIMEOUT(gdbserverProcess.state(), ProcessState::NotRunning, s_timeout);
+}
+
+void tst_backends::exitsTheMonitorWhenClosing()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToRemoteServer); !result)
+        QSKIP(qPrintable(result.error()));
+    if (auto result = checkExtraCapability(backend,
+            Debugger::DebuggerExtraCapability::ExitMonitorAtClose); !result) {
+        QSKIP(qPrintable(result.error()));
+    }
+
+    if (!m_gdbserverPath.isExecutableFile())
+        QSKIP("gdbserver not found - set QTC_GDBSERVER_PATH_FOR_TEST to override.");
+
+    const FilePath &executable = inferiorTestData(backend).executable;
+    Process gdbserverProcess;
+    QString gdbserverOutput;
+    // A server started without a program of its own outlives the inferior it
+    // runs, so only the monitor command can be what ends it here.
+    const QString port = startGdbserver(gdbserverProcess, {"--multi"}, {}, &gdbserverOutput);
+    QVERIFY2(!port.isEmpty(),
+             qPrintable("could not parse gdbserver's port from: " + gdbserverOutput));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(backend,
+        AttachToRemoteServerData{"localhost:" + port, executable, {}, executable},
+        GdbImplFlag::ExitMonitorAtClose);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+                             s_timeout);
+
+    // The inferior has to be stopped before the session closes: a monitor
+    // command is refused while the target runs, which is also the order the
+    // engine's own shutdown sequence produces.
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Interrupt});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk), s_timeout);
+
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+    QCOMPARE(gdbserverProcess.state(), ProcessState::Running);
+
     engine->shutdownEngine();
     QTRY_COMPARE_WITH_TIMEOUT(gdbserverProcess.state(), ProcessState::NotRunning, s_timeout);
 }

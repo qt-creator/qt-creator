@@ -58,6 +58,7 @@ enum class GdbImplFlag {
     ContinueAfterAttach  = 1 << 14,
     PseudoTracepoints    = 1 << 15,
     UseCtrlCStub         = 1 << 16,
+    ExitMonitorAtClose   = 1 << 17,
 };
 Q_DECLARE_FLAGS(GdbImplFlags, GdbImplFlag)
 

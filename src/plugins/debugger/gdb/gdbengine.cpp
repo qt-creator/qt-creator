@@ -5292,6 +5292,8 @@ static GdbImplFlags gdbImplFlags(const DebuggerRunParameters &rp)
     flags.setFlag(GdbImplFlag::ContinueAfterAttach, rp.continueAfterAttach());
     flags.setFlag(GdbImplFlag::PseudoTracepoints, settings().usePseudoTracepoints());
     flags.setFlag(GdbImplFlag::UseCtrlCStub, rp.useCtrlCStub());
+    flags.setFlag(GdbImplFlag::ExitMonitorAtClose,
+                  rp.closeMode() == KillAndExitMonitorAtClose);
     flags.setFlag(GdbImplFlag::IntelDisassembly, settings().intelFlavor());
     return flags;
 }
