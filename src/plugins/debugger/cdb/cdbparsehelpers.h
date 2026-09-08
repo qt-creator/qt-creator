@@ -31,6 +31,11 @@ enum { cdbBreakPointStartId = 100000,
        cdbBreakPointIdMinorPart = 100,
        cdbInternalBreakPointStartId = 80000};
 
+// Ids of the one-shot breakpoints a Run to Line request arms, outside both the
+// breakhandler namespace and the ids cdb hands out on its own.
+enum { cdbRunToLineStartId = 90000,
+       cdbRunToLineIdCount = 100};
+
 QString breakPointCdbId(const Breakpoint &bp);
 
 // Convert breakpoint in CDB syntax (applying source path mappings using native paths).

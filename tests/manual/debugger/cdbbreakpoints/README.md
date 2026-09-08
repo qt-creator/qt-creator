@@ -109,8 +109,43 @@ still unresolved because none of their modules is among the 100. The two
 unscoped ones instead end the session after 96 modules.
 
 The debugger derives the modules from the project (`modulesForBreakpoint()`
-in `cdbengine.cpp`, `binariesForSourceFile()` in `cmakebuildsystem.cpp`),
-which is why a breakpoint set in the editor now carries one, and one
-breakpoint per binary when the source ends up in several.
+in `cdbengine.cpp`, `BuildSystem::binariesForSourceFile()`, implemented for
+CMake, qmake, qbs and meson), which is why a breakpoint set in the editor
+now carries one, and one breakpoint per binary when the source ends up in
+several. Run to Line arms the same group of scoped breakpoints, whichever
+module is reached first dropping the rest.
 QTCREATORBUG-27058 and QTCREATORBUG-30265 have the reports this came from,
 including 42 s against 20 s application startup on a real project.
+
+## multimodule: one source in two libraries
+
+`multimodule/` covers what the benchmark above cannot: a `shared.cpp` linked
+into both `alpha.dll` and `beta.dll`, with a `main()` that calls through alpha
+before beta. It needs no Qt. Open `multimodule/CMakeLists.txt` with an MSVC
+kit, build, and run the two checks below on `app`. The `base` local says which
+module the stop is in, 10 in alpha and 20 in beta.
+
+Breakpoint on the `int result = base + 1;` line of `shared.cpp`, then Start
+Debugging. One scoped sub-breakpoint goes in per binary, and the stop is the
+first arrival:
+
+    <bu100101 `beta!C:\...\multimodule\shared.cpp:3`
+    <bu100102 `alpha!C:\...\multimodule\shared.cpp:3`
+     Breakpoint 100102 hit
+     alpha!sharedValue+0x9:
+
+Breakpoint on `main.cpp:8` instead, and Run to Line on the same `shared.cpp`
+line once stopped there. The group goes in one-shot, from an id range of its
+own, and the module that gets there first drops the rest:
+
+    <bc 90000-90099
+    <bu90000 /1 `beta!C:\...\multimodule\shared.cpp:3`
+    <bu90001 /1 `alpha!C:\...\multimodule\shared.cpp:3`
+     Breakpoint 90001 hit
+     alpha!sharedValue+0x9:
+    <bc 90000-90099
+
+Unscoped - which is what Run to Line did before it took the module list into
+account - cdb binds the expression in beta alone, without an error to show for
+it, so the run passes through alpha and stops on the second arrival with `base`
+reading 20.

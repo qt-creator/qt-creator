@@ -1081,6 +1081,12 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
     m_process.interrupt();
 }
 
+static QString clearRunToLineBreakpointsCommand()
+{
+    return QString("bc %1-%2").arg(cdbRunToLineStartId)
+                              .arg(cdbRunToLineStartId + cdbRunToLineIdCount - 1);
+}
+
 void CdbEngine::executeRunToLine(const ContextData &data)
 {
     // Add one-shot breakpoint
@@ -1095,8 +1101,31 @@ void CdbEngine::executeRunToLine(const ContextData &data)
         bp.textPosition = data.textPosition;
     }
 
-    runCommand({cdbAddBreakpointCommand(scopedToModule(bp), m_sourcePathMappings), BuiltinCommand,
-               [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); }});
+    // A request supersedes the breakpoints an earlier one left behind.
+    runCommand({clearRunToLineBreakpointsCommand(), NoFlags});
+
+    const auto insert = [this](const BreakpointParameters &params, const QString &responseId) {
+        runCommand({cdbAddBreakpointCommand(params, m_sourcePathMappings, responseId),
+                    BuiltinCommand,
+                    [this](const DebuggerResponse &r) { handleBreakInsert(r, Breakpoint()); }});
+    };
+    const QStringList modules = modulesForBreakpoint(bp);
+    if (modules.size() > 1) {
+        // An unscoped offset expression binds in one module only, so arm one
+        // breakpoint per module the line was built into. The group acts as a
+        // single one-shot breakpoint: whichever module is reached first drops
+        // the rest.
+        int minor = 0;
+        for (const QString &module : modules) {
+            if (minor == cdbRunToLineIdCount)
+                break;
+            BreakpointParameters scoped = bp;
+            scoped.module = module;
+            insert(scoped, QString::number(cdbRunToLineStartId + minor++));
+        }
+    } else {
+        insert(scopedToModule(bp), {});
+    }
     continueInferior();
 }
 
@@ -2077,6 +2106,9 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
     const unsigned stopFlags = examineStopReason(stopReason, &message, &exceptionBoxMessage,
                                                  conditionalBreakPointTriggered);
     m_stopMode = NoStopRequested;
+    const int hitId = stopReason["breakpointId"].toInt();
+    if (hitId >= cdbRunToLineStartId && hitId < cdbRunToLineStartId + cdbRunToLineIdCount)
+        runCommand({clearRunToLineBreakpointsCommand(), NoFlags});
     // Do the non-blocking log reporting
     if (stopFlags & StopReportLog)
         showMessage(message, LogMisc);
