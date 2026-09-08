@@ -47,6 +47,9 @@ static bool isOverridingPalette(const Theme *theme)
     if (theme->flag(Theme::DerivePaletteFromTheme))
         return true;
     if (theme->flag(Theme::DerivePaletteFromThemeIfNeeded)) {
+        // Linux system palette is unrelated to color scheme theme asks for or not reported at all
+        if (HostOsInfo::isLinuxHost())
+            return true;
         const Qt::ColorScheme systemTheme = qGuiApp->styleHints()->colorScheme();
         return systemTheme != Qt::ColorScheme::Unknown && systemTheme != theme->colorScheme();
     }
