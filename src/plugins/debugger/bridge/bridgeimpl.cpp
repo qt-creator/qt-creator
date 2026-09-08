@@ -120,7 +120,8 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                       | OperateByInstructionCapability | JumpToLineCapability
                       | WatchpointByAddressCapability | WatchpointByExpressionCapability;
     data.extraCapabilities = DebuggerExtraCapability::JumpTargetCheck
-                           | DebuggerExtraCapability::PeripheralRegisters;
+                           | DebuggerExtraCapability::PeripheralRegisters
+                           | DebuggerExtraCapability::ThreadEvent;
     data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
@@ -784,6 +785,18 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         result.exitCode = event.value("body").toObject().value("exitCode").toInt();
         m_inferiorRunning = false;
         emit inferiorDone(result);
+        return;
+    }
+    case DapEventType::DapThread: {
+        const QJsonObject body = event.value("body").toObject();
+        const QString id = QString::number(body.value("threadId").toInteger());
+        const bool started = body.value("reason").toString() == "started";
+        emit message(started ? QString("Thread %1 created.").arg(id)
+                             : QString("Thread %1 exited.").arg(id), StatusBar, 1000);
+        GdbMi data;
+        data.m_type = GdbMi::Tuple;
+        data.addChild(constMi("id", id));
+        emit threadEvent(started ? ThreadEvent::Created : ThreadEvent::Exited, data);
         return;
     }
     case DapEventType::Output: {

@@ -105,6 +105,7 @@ class FakeBreakpoint():
 
 class FakeThread():
     def __init__(self, num):
+        self.num = num
         self.global_num = num
         self.name = "inferior"
 
@@ -169,7 +170,9 @@ def makeFakeGdb():
                                           exited=FakeEventRegistry(),
                                           breakpoint_modified=FakeEventRegistry(),
                                           new_objfile=FakeEventRegistry(),
-                                          free_objfile=FakeEventRegistry())
+                                          free_objfile=FakeEventRegistry(),
+                                          new_thread=FakeEventRegistry(),
+                                          thread_exited=FakeEventRegistry())
     module.breakpoints = lambda: tuple(module.breakpointObjects)
     module.objfiles = lambda: list(module.objfileList)
     module.selected_inferior = lambda: FakeInferior()

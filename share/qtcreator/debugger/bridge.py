@@ -120,6 +120,7 @@ class DapServer():
         self.lastStopEvent = None
         self.lastExitCode = None
         self.inferiorExited = False
+        self.announcedThreads = set()
 
         gdb.events.stop.connect(self._onStop)
         gdb.events.exited.connect(self._onExited)
@@ -130,6 +131,10 @@ class DapServer():
         freed = getattr(gdb.events, 'free_objfile', None)  # gdb 11+
         if freed is not None:
             freed.connect(self._onFreeObjfile)
+        gdb.events.new_thread.connect(self._onNewThread)
+        gone = getattr(gdb.events, 'thread_exited', None)  # gdb 13+
+        if gone is not None:
+            gone.connect(self._onThreadExited)
 
     #######################################################################
     # Transport
@@ -314,6 +319,39 @@ class DapServer():
 
     def _onStop(self, event):
         self.lastStopEvent = event
+        self._syncThreads()
+
+    def _onNewThread(self, event):
+        thread = getattr(event, 'inferior_thread', None)
+        if thread is not None:
+            self._reportThreadStarted(thread.num)
+
+    def _onThreadExited(self, event):
+        thread = getattr(event, 'inferior_thread', None)
+        if thread is not None:
+            self._reportThreadGone(thread.num)
+
+    def _reportThreadStarted(self, num):
+        if num in self.announcedThreads:
+            return
+        self.announcedThreads.add(num)
+        self.sendEvent('thread', {'reason': 'started', 'threadId': num})
+
+    def _reportThreadGone(self, num):
+        if num not in self.announcedThreads:
+            return
+        self.announcedThreads.discard(num)
+        self.sendEvent('thread', {'reason': 'exited', 'threadId': num})
+
+    def _syncThreads(self):
+        live = set()
+        try:
+            for thread in gdb.selected_inferior().threads():
+                live.add(thread.num)
+        except gdb.error:
+            pass
+        for num in sorted(self.announcedThreads - live):
+            self._reportThreadGone(num)
 
     def _onBreakpointModified(self, bp):
         if str(bp.number) not in self.breakpointById:
@@ -323,6 +361,7 @@ class DapServer():
     def _onExited(self, event):
         self.inferiorExited = True
         self.lastExitCode = getattr(event, 'exit_code', None)
+        self._syncThreads()
 
     def _onNewObjfile(self, event):
         self._reportLibrary('loaded', getattr(event, 'new_objfile', None))
@@ -545,6 +584,7 @@ class DapServer():
             gdb.execute('kill' if terminateDebuggee else 'detach', to_string=True)
         except gdb.error:
             pass
+        self._syncThreads()
         self.sendResponse(request)
         self.running = False
         # Leaving the loop only ends the -ex command; gdb would then read the
