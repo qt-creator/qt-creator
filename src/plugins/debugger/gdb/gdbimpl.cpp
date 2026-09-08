@@ -161,7 +161,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         const bool isPlainRun = std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)
             && !std::get<ProcessRunData>(m_startData.inferiorStartData).command.executable().isEmpty();
         if (!isPlainRun)
-            emit inferiorEvent(InferiorEvent::EngineSetupOk);
+            reportEngineSetupOk();
 
         const bool targetAsync = m_startData.isSet(GdbImplFlag::ForceTargetAsync)
             || std::holds_alternative<AttachToRemoteServerData>(m_startData.inferiorStartData);
@@ -231,11 +231,11 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
                         + inferiorRunData.command.executable().nativePath(),
                        [this](const DebuggerResponse &response) {
                 if (response.resultClass != ResultDone) {
-                    emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+                    reportEngineSetupFailed();
                     return;
                 }
 
-                emit inferiorEvent(InferiorEvent::EngineSetupOk);
+                reportEngineSetupOk();
 
                 if (m_startData.isSet(GdbImplFlag::BreakOnMain))
                     runCommand({"tbreak " + m_startData.mainFunctionName});
@@ -309,7 +309,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
                         if (response.resultClass == ResultDone)
                             sendAttach();
                         else
-                            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+                            reportEngineSetupFailed();
                     }});
                 }});
             } else {
@@ -345,7 +345,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
                     if (response.resultClass == ResultDone)
                         connectToTarget();
                     else
-                        emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+                        reportEngineSetupFailed();
                 }});
             }
             return;
@@ -358,7 +358,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
             runCommand({"-file-symbol-file " + coreData->executable.nativePath(),
                        [this, coreFile = coreData->coreFile](const DebuggerResponse &response) {
                 if (response.resultClass != ResultDone) {
-                    emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+                    reportEngineSetupFailed();
                     return;
                 }
                 runCommand({"target core " + coreFile.nativePath(),
@@ -388,8 +388,8 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
     connect(&m_gdbProc, &Process::done, this, [this] {
         m_watchdog.stop();
         m_outputCollector.shutdown();
-        if (m_gdbProc.result() == ProcessResult::StartFailed)
-            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+        if (!m_engineSetupReported)
+            reportEngineSetupFailed();
         emit engineProcessFinished(m_gdbProc.resultData());
     });
     connect(&m_outputCollector, &OutputCollector::byteDelivery, this, [this](const QByteArray &ba) {
@@ -2020,6 +2020,18 @@ void GdbImpl::setTokenBarrier()
 {
     emit message("--- token barrier ---", LogMiscInput);
     m_oldestAcceptableToken = m_lastToken;
+}
+
+void GdbImpl::reportEngineSetupOk()
+{
+    m_engineSetupReported = true;
+    emit inferiorEvent(InferiorEvent::EngineSetupOk);
+}
+
+void GdbImpl::reportEngineSetupFailed()
+{
+    m_engineSetupReported = true;
+    emit inferiorEvent(InferiorEvent::EngineSetupFailed);
 }
 
 void GdbImpl::handleOutputLine(const QString &line)

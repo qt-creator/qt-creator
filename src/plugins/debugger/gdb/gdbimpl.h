@@ -192,6 +192,8 @@ private:
     void runCommandNow(const DebuggerCommand &command);
     void handleOutputLine(const QString &line);
     void handleResultRecord(DebuggerResponse *response);
+    void reportEngineSetupOk();
+    void reportEngineSetupFailed();
 
     GdbImplStartData m_startData;
     qint64 m_inferiorPid = -1;
@@ -210,6 +212,7 @@ private:
     bool m_interpreterHookStop = false;
     QStringDecoder m_outputDecoder{"UTF-8"};
     QHash<int, DebuggerCommand> m_commandForToken;
+    bool m_engineSetupReported = false;
     bool m_interruptRequested = false;
     bool m_expectTerminalTrap = false;
     int m_gdbVersion = 0;
