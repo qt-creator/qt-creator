@@ -64,6 +64,19 @@
         \li \uicontrol {Enable cross-origin access}
         \li Turns on cross-origin resource sharing (CORS), which you need to
             connect to the server from a web application.
+    \row
+        \li \uicontrol {Require an authentication token}
+        \li Serves only requests that carry the token in an
+            \c {Authorization: Bearer <token>} header. Without it, every process
+            that can reach the port is served, which on a loopback address means
+            every process of every user logged in to the computer.
+    \row
+        \li \uicontrol {Token}
+        \li The token to send. \QC generates one each time it starts and hands
+            it to the clients it configures itself. It is not stored, so a
+            client that you configure by hand needs the new token after a
+            restart. Select \uicontrol Regenerate to replace it, which locks
+            out the clients that still hold the previous one.
     \endtable
 
     \section1 Select the tools to offer
@@ -87,6 +100,10 @@
 
     To use the MCP server for other products, such as Claude Code, you must
     configure it. For more information, see the documentation of the product.
+
+    When \uicontrol {Require an authentication token} is on, such a client also
+    has to send the token from \uicontrol Token as an
+    \c {Authorization: Bearer <token>} header.
 
     \section2 Inspect client communication
 

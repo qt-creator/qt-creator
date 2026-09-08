@@ -12,6 +12,14 @@ Project {
     }
 
     QtcAutotest {
+        name: "McpAuth autotest"
+        Depends { name: "McpServerLib" }
+        Depends { name: "Utils" }
+        Depends { name: "Qt.network" }
+        files: "tst_mcpauth.cpp"
+    }
+
+    QtcAutotest {
         name: "ToolValidation autotest"
         Depends { name: "McpServerLib" }
         Depends { name: "Utils" }

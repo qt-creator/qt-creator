@@ -108,6 +108,12 @@ public:
     */
     void setCorsEnabled(bool enabled);
 
+    /*! \brief Requires every HTTP request to carry the given bearer token.
+        \param token The expected token, or an empty value to serve any peer
+               that passes the transport-level checks.
+    */
+    void setAuthToken(const QByteArray &token);
+
     /*! \brief Binds the server to custom IO streams for manual JSONRPC message handling.
         \param outputHandler Function to handle outgoing data.
         \return A function to handle incoming data, or an error.

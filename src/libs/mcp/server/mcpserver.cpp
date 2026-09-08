@@ -368,7 +368,8 @@ public:
                 "mcp-session-id, last-event-id, mcp-protocol-version");
             headers.append(
                 "Access-Control-Allow-Headers",
-                "Content-Type, mcp-session-id, last-event-id, mcp-protocol-version");
+                "Authorization, Content-Type, mcp-session-id, last-event-id, "
+                "mcp-protocol-version");
         }
 
         if (!sessionId.isNull())
@@ -383,6 +384,37 @@ public:
             return true;
         const QHostAddress address(host);
         return !address.isNull() && address.isLoopback();
+    }
+
+    // Compared over the full length whatever the input, so that the time a
+    // rejection takes does not tell a peer how much of the token it guessed.
+    static bool tokenMatches(const QByteArray &expected, const QByteArray &actual)
+    {
+        if (expected.size() != actual.size())
+            return false;
+        quint8 differing = 0;
+        for (qsizetype i = 0; i < expected.size(); ++i)
+            differing |= quint8(expected.at(i)) ^ quint8(actual.at(i));
+        return differing == 0;
+    }
+
+    // Loopback only says the peer is on this machine, which every other
+    // process of every logged-in user is too. A token says it is the peer the
+    // developer handed it to.
+    Result<void> validateAuthorization(const QHttpServerRequest &req) const
+    {
+        if (authToken.isEmpty())
+            return {};
+
+        const QByteArray authorization
+            = QByteArrayView(req.headers().value("Authorization")).toByteArray();
+        const QByteArray scheme = authorization.left(7);
+        if (scheme.compare("bearer ", Qt::CaseInsensitive) != 0)
+            return ResultError(QString("No bearer token"));
+        if (!tokenMatches(authToken, authorization.mid(scheme.size()).trimmed()))
+            return ResultError(QString("Bearer token not accepted"));
+
+        return {};
     }
 
     // A peer that reaches the port is not necessarily the one the developer
@@ -429,8 +461,24 @@ public:
         m_server.route(
             path,
             method,
-            [this, handler = std::move(handler)](
+            [this, method, handler = std::move(handler)](
                 const QHttpServerRequest &req, QHttpServerResponder &responder) {
+                // A CORS preflight carries no Authorization header, so demanding
+                // one there would refuse the request that asks whether the real
+                // one may be sent. It reaches no handler and reads nothing.
+                if (method != QHttpServerRequest::Method::Options) {
+                    if (const Result<void> allowed = validateAuthorization(req); !allowed) {
+                        qCWarning(mcpServerLog) << "Rejected request:" << allowed.error();
+                        QHttpHeaders headers = corsHeaders({});
+                        headers.append("content-type", "text/plain");
+                        headers.append("WWW-Authenticate", "Bearer");
+                        responder.write(
+                            "Unauthorized",
+                            headers,
+                            QHttpServerResponse::StatusCode::Unauthorized);
+                        return;
+                    }
+                }
                 if (const Result<void> valid = validateRequest(req); !valid) {
                     qCWarning(mcpServerLog) << "Rejected request:" << valid.error();
                     QHttpHeaders headers = corsHeaders({});
@@ -1594,6 +1642,7 @@ public:
     void cancelPendingToolInterface(Schema::RequestId id, const QString &sessionId);
 
     bool enableCors = false;
+    QByteArray authToken;
 
     // Sessions are handed out to any peer that asks, so their number is a
     // resource the peer controls unless it is bounded here. Only a DELETE ends
@@ -2026,6 +2075,11 @@ void Server::setResourceFallbackCallback(const ResourceCallback &callback)
 void Server::setCorsEnabled(bool enabled)
 {
     d->enableCors = enabled;
+}
+
+void Server::setAuthToken(const QByteArray &token)
+{
+    d->authToken = token;
 }
 
 struct ToolInterfacePrivate

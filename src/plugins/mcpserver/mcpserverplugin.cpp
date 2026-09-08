@@ -41,6 +41,7 @@
 #include <QLineEdit>
 #include <QPainter>
 #include <QPushButton>
+#include <QRandomGenerator>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
@@ -371,16 +372,41 @@ private:
     QMap<QString, Schema::Tool> m_toolMetadata;
 };
 
+// 128 bits from the system generator, hex encoded so it survives a command line
+// and a copy-paste into a client configuration unchanged.
+static QString generateAuthToken()
+{
+    QByteArray raw(16, Qt::Uninitialized);
+    QRandomGenerator::system()->fillRange(reinterpret_cast<quint32 *>(raw.data()), 4);
+    return QString::fromLatin1(raw.toHex());
+}
+
 class McpServerPluginSettings : public AspectContainer
 {
 public:
     McpServerPluginSettings(McpServerPlugin *plugin);
 
+    // A token passed on the command line wins over the generated one, and
+    // applies to the run that passed it and no other.
+    void setAuthTokenOverride(const QString &token) { m_authTokenOverride = token.toUtf8(); }
+
+    QByteArray requiredAuthToken() const
+    {
+        if (!m_authTokenOverride.isEmpty())
+            return m_authTokenOverride;
+        return requireAuthToken() ? authToken().toUtf8() : QByteArray();
+    }
+
     BoolAspect enabled{this};
     ListenAddressAspect listenAddress{this};
     IntegerAspect port{this};
     BoolAspect enableCors{this};
+    BoolAspect requireAuthToken{this};
+    StringAspect authToken{this};
     ToolEnablerAspect enabledTools{this};
+
+private:
+    QByteArray m_authTokenOverride;
 };
 
 class McpServerSettingsPage : public Core::IOptionsPage
@@ -474,6 +500,19 @@ public:
             Utils::setDialogsInteractive(false);
         }
 
+        // A caller that starts this instance itself, "-mcp-token <token>", picks
+        // the token instead of reading the stored one. Other users of this
+        // machine can read a command line, so a token given this way is only as
+        // private as the process list.
+        for (int i = 0; i + 1 < arguments.size(); ++i) {
+            if (arguments.at(i) != "-mcp-token")
+                continue;
+            const QString token = arguments.at(i + 1);
+            if (token.isEmpty())
+                return ResultError(Tr::tr("-mcp-token requires a non-empty token."));
+            settings.setAuthTokenOverride(token);
+        }
+
         // Dump the registered tools to a qdoc fragment and quit, for the doc
         // build to keep the tool list current. Hooked to coreOpened so every
         // plugin has registered its tools first; the server is not needed.
@@ -529,7 +568,10 @@ public:
         qCDebug(mcpPlugin) << "(Re)-starting MCP server...";
         qDeleteAll(m_server.boundTcpServers());
 
+        const QByteArray token = settings.requiredAuthToken();
+
         m_server.setCorsEnabled(settings.enableCors());
+        m_server.setAuthToken(token);
 
         McpManager::removeMcpServer(QT_MCPSERVER_MANAGER_ID);
 
@@ -537,6 +579,8 @@ public:
             qCInfo(mcpPlugin) << "MCP server is disabled in settings, not starting.";
             return;
         }
+
+        QTC_ASSERT(!settings.requireAuthToken() || !token.isEmpty(), return);
 
         QTcpServer *tcpServer = new QTcpServer(this);
         if (!tcpServer->listen(settings.listenAddress.hostAddress(), settings.port())
@@ -562,12 +606,17 @@ public:
                                       .arg(tcpServer->serverAddress().toString())
                                       .arg(tcpServer->serverPort()));
 
+            const QStringList headers = token.isEmpty()
+                                            ? QStringList()
+                                            : QStringList{"Authorization: Bearer "
+                                                          + QString::fromUtf8(token)};
+
             const auto serverInfo = McpManager::ServerInfo{
                 QT_MCPSERVER_MANAGER_ID,
                 "Qt Creator builtin",
                 McpManager::ConnectionType::Streamable_Http,
                 url,
-                {},
+                headers,
                 {}};
 
             QTC_CHECK(McpManager::registerMcpServer(serverInfo));
@@ -738,6 +787,26 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
             "This is necessary if you want to connect to the server from a web application."));
     enableCors.setDefaultValue(false);
 
+    requireAuthToken.setSettingsKey("RequireAuthToken");
+    requireAuthToken.setEnabler(&enabled);
+    requireAuthToken.setLabel(Tr::tr("Require an authentication token:"));
+    requireAuthToken.setToolTip(
+        Tr::tr(
+            "Serve only requests that carry the token below in an Authorization header. "
+            "Clients that Qt Creator configures itself are given the token; other clients "
+            "need it copied into their own configuration."));
+    requireAuthToken.setDefaultValue(true);
+
+    authToken.setEnabler(&requireAuthToken);
+    authToken.setDisplayStyle(StringAspect::DisplayStyle::LabelDisplay);
+    authToken.setValue(generateAuthToken(), BaseAspect::BeQuiet);
+    authToken.setToolTip(
+        Tr::tr(
+            "The token clients have to send as \"Authorization: Bearer <token>\". "
+            "It is generated for this run and not stored, so a client configured by "
+            "hand needs it again after a restart. Regenerate it to lock out clients "
+            "that hold the previous one."));
+
     enabledTools.setSettingsGroup("EnabledTools");
     enabledTools.setToolTip(Tr::tr("Select which tools to enable or disable"));
 
@@ -745,9 +814,25 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
     connect(&listenAddress, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
     connect(&port, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
     connect(&enableCors, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
+    connect(&requireAuthToken, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
+    connect(&authToken, &BaseAspect::changed, plugin, &McpServerPlugin::restartServer);
 
     setLayouter([this, plugin]() {
         using namespace Layouting;
+        auto regenerateToken = new QPushButton(Tr::tr("Regenerate"));
+        connect(regenerateToken, &QPushButton::clicked, this, [this] {
+            authToken.setVolatileValue(generateAuthToken());
+        });
+        const auto updateRegenerateToken = [this, regenerateToken] {
+            regenerateToken->setEnabled(requireAuthToken.volatileValue());
+        };
+        connect(
+            &requireAuthToken,
+            &BaseAspect::volatileValueChanged,
+            regenerateToken,
+            updateRegenerateToken);
+        updateRegenerateToken();
+
         auto statusLabel = new QLabel();
         auto statusIcon = new QLabel();
 
@@ -791,6 +876,8 @@ McpServerPluginSettings::McpServerPluginSettings(McpServerPlugin *plugin)
             Tr::tr("Listen on:"), listenAddress, br,
             port, br,
             enableCors, br,
+            requireAuthToken, br,
+            Tr::tr("Token:"), Row{noMargin, authToken, regenerateToken}, br,
             statusIcon, statusLabel, br,
             enabledTools, br,
         };

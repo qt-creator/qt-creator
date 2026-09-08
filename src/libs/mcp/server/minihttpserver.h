@@ -54,6 +54,7 @@ enum class StatusCode : int {
     Accepted = 202,
     NoContent = 204,
     BadRequest = 400,
+    Unauthorized = 401,
     NotFound = 404,
     PayloadTooLarge = 413,
     RequestHeaderFieldsTooLarge = 431,
@@ -69,6 +70,7 @@ inline QByteArray statusText(StatusCode code)
         return "Accepted";
     case StatusCode::NoContent: return "No Content";
     case StatusCode::BadRequest: return "Bad Request";
+    case StatusCode::Unauthorized: return "Unauthorized";
     case StatusCode::NotFound:  return "Not Found";
     case StatusCode::PayloadTooLarge: return "Content Too Large";
     case StatusCode::RequestHeaderFieldsTooLarge: return "Request Header Fields Too Large";

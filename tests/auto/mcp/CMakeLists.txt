@@ -6,6 +6,11 @@ add_qtc_test(tst_minihttpserver
     "${PROJECT_SOURCE_DIR}/src/libs/mcp/server/minihttpserver.h"
 )
 
+add_qtc_test(tst_mcpauth
+  DEPENDS McpServerLib Utils Qt::Network
+  SOURCES tst_mcpauth.cpp
+)
+
 add_qtc_test(tst_toolvalidation
   DEPENDS McpServerLib Utils
   SOURCES tst_toolvalidation.cpp
