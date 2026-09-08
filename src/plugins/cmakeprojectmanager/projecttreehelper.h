@@ -4,6 +4,7 @@
 #pragma once
 
 #include "cmakeprojectnodes.h"
+#include "conditionalsources.h"
 
 #include <utils/filepath.h>
 
@@ -36,6 +37,11 @@ void addCMakeInputs(ProjectExplorer::FolderNode *root,
                     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&rootInputs);
 
 void addCMakePresets(ProjectExplorer::FolderNode *root, const Utils::FilePath &sourceDir);
+
+void addConditionalSources(
+    ProjectExplorer::FolderNode *root,
+    const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+    const QList<ConditionalSource> &sources);
 
 QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> addCMakeLists(
     CMakeProjectNode *root, std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&cmakeLists);

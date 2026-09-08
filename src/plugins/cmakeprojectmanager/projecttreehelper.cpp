@@ -147,6 +147,54 @@ void addCMakePresets(FolderNode *root, const Utils::FilePath &sourceDir)
     root->addNode(std::move(cmakeVFolder));
 }
 
+void addConditionalSources(FolderNode *root,
+                           const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
+                           const QList<ConditionalSource> &sources)
+{
+    if (sources.isEmpty())
+        return;
+
+    QHash<QString, FolderNode *> targetNodes;
+    QHash<Utils::FilePath, QList<FolderNode *>> directoryTargets;
+    root->forEachGenericNode([&targetNodes, &directoryTargets](Node *node) {
+        FolderNode *folder = node->asFolderNode();
+        if (!folder || folder->buildKey().isEmpty())
+            return;
+        targetNodes.insert(folder->buildKey(), folder);
+        directoryTargets[folder->filePath()].append(folder);
+    });
+
+    QList<FolderNode *> insertNodes;
+    QHash<FolderNode *, Utils::FilePaths> grouped;
+
+    for (const ConditionalSource &source : sources) {
+        FolderNode *insertNode = targetNodes.value(source.target);
+        if (!insertNode && source.target.isEmpty()) {
+            const QList<FolderNode *> targets = directoryTargets.value(source.directory);
+            if (targets.size() == 1)
+                insertNode = targets.first();
+        }
+        if (!insertNode)
+            insertNode = cmakeListsNodes.value(source.directory);
+        if (!insertNode)
+            continue;
+
+        if (!grouped.contains(insertNode))
+            insertNodes.append(insertNode);
+        grouped[insertNode].append(source.path);
+    }
+
+    for (FolderNode *insertNode : std::as_const(insertNodes)) {
+        std::vector<std::unique_ptr<FileNode>> files;
+        for (const Utils::FilePath &path : grouped.value(insertNode)) {
+            auto file = std::make_unique<FileNode>(path, Node::fileTypeForFileName(path));
+            file->setEnabled(false);
+            files.emplace_back(std::move(file));
+        }
+        insertNode->addNestedNodes(std::move(files), insertNode->filePath());
+    }
+}
+
 QHash<Utils::FilePath, ProjectNode *> addCMakeLists(
     CMakeProjectNode *root, std::vector<std::unique_ptr<FileNode>> &&cmakeLists)
 {

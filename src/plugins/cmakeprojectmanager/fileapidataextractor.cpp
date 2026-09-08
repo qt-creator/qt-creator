@@ -7,6 +7,7 @@
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
 #include "cmakeutils.h"
+#include "conditionalsources.h"
 #include "fileapiparser.h"
 #include "projecttreehelper.h"
 
@@ -968,6 +969,7 @@ static void addTargets(
 static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
     const QFuture<void> &cancelFuture,
     PreprocessedData &data,
+    const QSet<CMakeFileInfo> &cmakeFiles,
     const FilePath &sourceDirectory,
     const FilePath &buildDirectory,
     const QList<CMakeBuildTarget> &generatedBuildTargets)
@@ -997,6 +999,18 @@ static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
                sourceDirectory,
                buildDirectory,
                generatedBuildTargets);
+    if (cancelFuture.isCanceled())
+        return {};
+
+    QSet<FilePath> knownFiles;
+    result->forEachGenericNode([&knownFiles](const Node *n) { knownFiles.insert(n->filePath()); });
+    addConditionalSources(result.get(),
+                          cmakeListsNodes,
+                          conditionalSources(cancelFuture,
+                                             cmakeFiles,
+                                             knownFiles,
+                                             sourceDirectory,
+                                             buildDirectory));
     if (cancelFuture.isCanceled())
         return {};
 
@@ -1173,8 +1187,8 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
     if (cancelFuture.isCanceled())
         return {};
 
-    auto rootProjectNode
-        = generateRootProjectNode(cancelFuture, data, sourceDir, buildDir, result.buildTargets);
+    auto rootProjectNode = generateRootProjectNode(
+        cancelFuture, data, result.cmakeFiles, sourceDir, buildDir, result.buildTargets);
     if (cancelFuture.isCanceled())
         return {};
     ProjectTree::applyTreeManager(rootProjectNode.get(), ProjectTree::AsyncPhase); // QRC nodes

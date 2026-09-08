@@ -77,6 +77,8 @@ Project {
             "cmakeautocompleter.cpp",
             "cmakespecificsettings.h",
             "cmakespecificsettings.cpp",
+            "conditionalsources.cpp",
+            "conditionalsources.h",
             "configmodel.cpp",
             "configmodel.h",
             "configmodelitemdelegate.cpp",

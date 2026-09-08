@@ -38,6 +38,7 @@ add_qtc_plugin(CMakeProjectManager
     cmaketoolmanager.cpp cmaketoolmanager.h
     cmaketoolsettingsaccessor.cpp cmaketoolsettingsaccessor.h
     cmakeutils.cpp cmakeutils.h
+    conditionalsources.cpp conditionalsources.h
     configmodel.cpp configmodel.h
     configmodelitemdelegate.cpp configmodelitemdelegate.h
     fileapidataextractor.cpp fileapidataextractor.h
