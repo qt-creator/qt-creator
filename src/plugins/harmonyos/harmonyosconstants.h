@@ -26,9 +26,6 @@ inline constexpr int HARMONYOS_GATE_PORT = 8124;
 inline constexpr char HARMONYOS_NATIVE_PACKAGE[] = "qtctools";
 inline constexpr char HARMONYOS_NATIVE_PACKAGE_VERSION[] = "1.0";
 inline constexpr char HARMONYOS_DEBUG_PLUGIN[] = "qtcdebug";
-// User storage, which the application and the terminal application that builds for it see
-// under the same path.
-inline constexpr char HARMONYOS_USER_STORAGE[] = "/storage/Users/";
 inline constexpr char HARMONYOS_USER_DOCUMENTS[] = "/storage/Users/currentUser/Documents";
 inline constexpr char HARMONYOS_NATIVE_PACKAGE_BIN[] = "/data/app/qtctools.org/qtctools_1.0/bin";
 inline constexpr char HARMONYOS_DEBUG_SERVER_PATH[]

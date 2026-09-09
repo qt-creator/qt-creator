@@ -26,6 +26,14 @@ Environment hdcEnvironment()
     return env;
 }
 
+// Where the compiler and its utilities sit. The SDK keeps them in an "llvm" folder, the
+// native package Qt Creator carries on the device has one flat "bin" instead.
+static FilePath toolchainBinPath(const FilePath &native)
+{
+    const FilePath llvm = native.pathAppended("llvm/bin");
+    return llvm.isDir() ? llvm : native.pathAppended("bin");
+}
+
 FilePath nativeSdkPath(const FilePath &sdkRoot)
 {
     if (sdkRoot.isEmpty())
@@ -44,7 +52,7 @@ FilePath nativeSdkPath(const FilePath &sdkRoot)
 
     for (const QString &candidate : candidates) {
         const FilePath native = candidate.isEmpty() ? sdkRoot : sdkRoot.pathAppended(candidate);
-        if (native.pathAppended("llvm").isDir() && native.pathAppended("sysroot").isDir())
+        if (native.pathAppended("sysroot").isDir() && toolchainBinPath(native).isDir())
             return native;
     }
     return {};
@@ -56,7 +64,7 @@ FilePath clangCompiler(const FilePath &sdkRoot, bool cxx)
     if (native.isEmpty())
         return {};
     const QString compiler = cxx ? QString("clang++") : QString("clang");
-    return native.pathAppended("llvm/bin").pathAppended(compiler).withExecutableSuffix();
+    return toolchainBinPath(native).pathAppended(compiler).withExecutableSuffix();
 }
 
 FilePath lldbCommand(const FilePath &sdkRoot)
@@ -64,7 +72,7 @@ FilePath lldbCommand(const FilePath &sdkRoot)
     const FilePath native = nativeSdkPath(sdkRoot);
     if (native.isEmpty())
         return {};
-    return native.pathAppended("llvm/bin/lldb").withExecutableSuffix();
+    return toolchainBinPath(native).pathAppended("lldb").withExecutableSuffix();
 }
 
 FilePath cmakeToolchainFile(const FilePath &sdkRoot)

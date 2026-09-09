@@ -14,6 +14,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/devicesupport/desktopdevice.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
@@ -22,19 +23,15 @@
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
-
 #include <remote/sshdevicewizard.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDialog>
 #include <QLoggingCategory>
-#include <QHostAddress>
-#include <QTcpSocket>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -59,17 +56,6 @@ HarmonyOsBuildDevice::HarmonyOsBuildDevice()
 
 // A binary reaching the device unsigned is refused by its code signing, and one
 // signed twice is refused as well, so an already signed binary is left alone.
-Result<> HarmonyOsBuildDevice::ensureReachable(const FilePath &other) const
-{
-#ifdef Q_OS_OHOS
-    if (other.isLocal() && sshParameters().host() == "127.0.0.1"
-        && other.path().startsWith(Constants::HARMONYOS_USER_STORAGE)) {
-        return ResultOk;
-    }
-#endif
-    return LinuxDevice::ensureReachable(other);
-}
-
 Result<QByteArray> HarmonyOsBuildDevice::prepareExecutableForUpload(const QByteArray &binary) const
 {
     const FilePath signTool = Sdk::binarySignTool(settings().sdkLocation());
@@ -138,103 +124,79 @@ static void addNativePackageToPath()
         {{"PATH", bin.path(), EnvironmentItem::Append}});
 }
 
-// Qt Creator running on a HarmonyOS device is one process boundary away from a toolchain.
-// Nothing in its own sandbox may execute a compiler - the platform refuses to execute any
-// file that did not arrive in an installed package - but the terminal application's SSH
-// server on loopback answers, and its environment holds a native clang and cmake. That
-// connection is how anything gets built here, so the device for it is worth finding rather
-// than asking for: everything about it is known except whether something is listening.
-static bool somethingSpeaksSshOnLoopback()
+// The string is what settings from before the toolchain moved into Qt Creator's own
+// package hold, when this device was an SSH server on loopback.
+static const char thisDeviceId[] = "HarmonyOs.BuildDevice.Loopback";
+
+// Everything a build needs travels in Qt Creator's own native package, which is also the
+// only place the platform lets it execute anything from. So building here happens in this
+// process, and the device to build on is this one: what it answers about files, processes
+// and its environment is what any local device answers.
+class HarmonyOsThisDevice final : public DesktopDevice
 {
-    QTcpSocket socket;
-    socket.connectToHost(QHostAddress::LocalHost, Constants::HARMONYOS_SSH_PORT);
-    if (!socket.waitForConnected(1000) || !socket.waitForReadyRead(2000))
-        return false;
-    return socket.readAll().startsWith("SSH-");
-}
+public:
+    using Ptr = std::shared_ptr<HarmonyOsThisDevice>;
 
-// The server is reached with a key, and ssh has a place for those: the one it looks in
-// by default, so nothing has to be configured and the file is where anyone would look for
-// it. ssh-keygen travels in the native package.
-static FilePath privateKey()
+    static Ptr create() { return Ptr(new HarmonyOsThisDevice); }
+
+    FilePath rootPath() const final { return filePath("/"); }
+
+    // DesktopDevice detects its tools here, and no kit can be created while the settings
+    // are still being read. Public because the device this plugin makes itself is not made
+    // by IDeviceFactory, which would call it.
+    void initDeviceToolAspects() final { IDevice::initDeviceToolAspects(); }
+
+private:
+    HarmonyOsThisDevice()
+    {
+        setupId(IDevice::AutoDetected, thisDeviceId);
+        setType(Constants::HARMONYOS_BUILD_DEVICE_TYPE);
+        setDisplayType(Tr::tr("HarmonyOS Build Device"));
+        setDefaultDisplayName(Tr::tr("HarmonyOS Build Device (this device)"));
+        setOsType(OsTypeLinux);
+        // Made again on every start, which leaves the settings free to hold a device
+        // someone configured themselves, and that is what the factory constructs.
+        setPersistent(false);
+        DeviceManager::setDeviceState(id(), IDevice::DeviceReadyToUse, false);
+    }
+};
+
+// Nothing is probed for: a device to build on exists for as long as Qt Creator runs here.
+static void detectThisBuildDevice()
 {
-    const FilePath key = FileUtils::homePath().pathAppended(".ssh/id_ed25519");
-    if (key.exists())
-        return key;
-    // Not checked for existence first: what the platform installs there are symlinks into
-    // a directory the application may execute from but not stat, so every such check says
-    // the tool is not there while running it works.
-    const FilePath keygen = FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN)
-                                .pathAppended("ssh-keygen");
-    if (const Result<> created = key.parentDir().ensureWritableDir(); !created)
-        return {};
-
-    Process process;
-    process.setCommand({keygen, {"-t", "ed25519", "-q", "-N", "", "-f", key.path()}});
-    process.runBlocking(30s);
-    if (!key.exists())
-        return {};
-    return key;
-}
-
-static const char loopbackDeviceId[] = "HarmonyOs.BuildDevice.Loopback";
-
-// Completes what is there rather than only creating what is not: a device from an earlier
-// run whose key never got written would otherwise stay unusable forever.
-static void detectLoopbackBuildDevice()
-{
-    IDevice::Ptr device;
     for (int i = 0, n = DeviceManager::deviceCount(); i < n; ++i) {
         const IDevice::Ptr known = DeviceManager::deviceAt(i);
         if (!known || known->type() != Constants::HARMONYOS_BUILD_DEVICE_TYPE)
             continue;
-        if (known->id() != Utils::Id(loopbackDeviceId))
+        if (known->id() != Utils::Id(thisDeviceId))
             return;                     // somebody configured their own, leave it alone
-        device = known;
+        // Settings written before this device stopped being saved hold it as the SSH
+        // server it used to be, and what the factory made of that is not this device.
+        DeviceManager::removeDevice(known->id());
+        break;
     }
-    if (!device && !somethingSpeaksSshOnLoopback())
-        return;
-
-    const bool isNew = !device;
-    if (isNew)
-        device = HarmonyOsBuildDevice::create();
-
-    SshParameters parameters = device->sshParameters();
-    if (!parameters.privateKeyFile().isEmpty() && parameters.privateKeyFile().exists())
-        return;                         // set up already
-
-    parameters.setHost("127.0.0.1");
-    parameters.setPort(Constants::HARMONYOS_SSH_PORT);
-    // That server takes any name and runs the session as the application it belongs to,
-    // so there is nothing to ask the user for.
-    parameters.setUserName("device");
-    const FilePath key = privateKey();
-    if (key.isEmpty())
-        return;
-    parameters.setPrivateKeyFile(key);
-    parameters.setAuthenticationType(SshParameters::AuthenticationTypeSpecificKey);
-    DeviceRef(device).setSshParameters(parameters);
-
-    if (isNew) {
-        device->setupId(IDevice::AutoDetected, loopbackDeviceId);
-        device->setDisplayName(Tr::tr("HarmonyOS Build Device (this device)"));
-        DeviceManager::addDevice(device);
-    }
-    // The server has to be told to accept this key, which is not this plugin's to do
-    // silently: it lives in another application's configuration.
-    qCWarning(buildDeviceLog) << "Build device on loopback ready to authorise; add"
-                              << key.stringAppended(".pub").path()
-                              << "to ~/.ssh/authorized_keys on this device.";
+    const HarmonyOsThisDevice::Ptr device = HarmonyOsThisDevice::create();
+    device->initDeviceToolAspects();
+    DeviceManager::addDevice(device);
 }
 
-// The compiler on the device's PATH is a link into an OpenHarmony SDK.
+// The compiler on the device's PATH sits in a native package laid out like the OpenHarmony
+// SDK it was taken from, one directory below the root the sysroot and the toolchain file
+// are found under.
 static FilePath sdkRootFromToolchain(const Toolchain *toolchain)
 {
     const FilePath compiler = toolchain->compilerCommand();
+    FilePaths candidates;
     for (const FilePath &path : {compiler, compiler.symLinkTarget()}) {
-        if (path.isEmpty())
-            continue;
-        const FilePath sdkRoot = path.parentDir().parentDir();
+        if (!path.isEmpty())
+            candidates.append(path.parentDir().parentDir());
+    }
+    // "/data/app/bin" is where the platform links what the installed native packages
+    // provide. An entry there may be executed but neither read nor followed, so a compiler
+    // detected under that name tells nothing about where its sysroot is. The package Qt
+    // Creator carries it in does.
+    candidates.append(FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN).parentDir());
+    for (const FilePath &sdkRoot : candidates) {
         if (!Sdk::sysrootPath(sdkRoot).isEmpty())
             return sdkRoot;
     }
@@ -272,50 +234,41 @@ static void completeKit(Kit *kit)
         config.insert(CMakeConfigItem("OHOS_ARCH", CMakeConfigItem::STRING,
                                       ohosAbiName(toolchain->targetAbi()).toUtf8()));
     }
-    // The compiler that toolchain file picks is the SDK's own, and the one on the device's
-    // PATH a link to it. A kit naming the link differs from what lands in the cache
-    // forever, and every build asks whether to apply the difference, so leave the choice
-    // where it is made.
+    // The toolchain file picks the compiler itself. A kit naming it as well differs from
+    // what lands in the cache forever, and every build asks whether to apply the
+    // difference, so leave the choice where it is made.
     config.remove("CMAKE_C_COMPILER");
     config.remove("CMAKE_CXX_COMPILER");
     if (config != before)
         CMakeConfigurationKitAspect::setConfiguration(kit, config);
 }
 
-static bool isLoopbackKit(const Kit *kit)
+static bool isThisDeviceKit(const Kit *kit)
 {
-    return BuildDeviceKitAspect::deviceId(kit) == Utils::Id(loopbackDeviceId);
+    return BuildDeviceKitAspect::deviceId(kit) == Utils::Id(thisDeviceId);
 }
 
-static void detectToolsOnLoopbackDevice()
+static void detectToolsOnThisDevice()
 {
-    const IDevice::Ptr device = DeviceManager::find(Utils::Id(loopbackDeviceId));
-    if (!device || !somethingSpeaksSshOnLoopback())
+    const IDevice::Ptr device = DeviceManager::find(Utils::Id(thisDeviceId));
+    if (!device)
         return;
+
+    // Kits that the generic kit setup created do not go through KitManager::registerKit(),
+    // so no signal announced them.
+    const QList<Kit *> kits = Utils::filtered(KitManager::kits(), &isThisDeviceKit);
+    if (!kits.isEmpty()) {
+        for (Kit *kit : kits)
+            completeKit(kit);
+        return;
+    }
 
     const ToolDetectionLogger logger([](const QString &message) {
         qCDebug(buildDeviceLog) << "detecting:" << message;
     });
-    // Nothing can be read from the device before it is connected: until then it has no
-    // file access, and every query about a path on it answers as if it did not exist.
-    device->tryToConnect({device.get(), [device, logger](const Result<> &connected) {
-        if (!connected) {
-            qCWarning(buildDeviceLog) << "the build device refused the connection:"
-                                      << connected.error();
-            return;
-        }
-        // Kits that the generic kit setup created do not go through
-        // KitManager::registerKit(), so no signal announced them.
-        const QList<Kit *> kits = Utils::filtered(KitManager::kits(), &isLoopbackKit);
-        if (!kits.isEmpty()) {
-            for (Kit *kit : kits)
-                completeKit(kit);
-            return;
-        }
-        device->runAutoDetect(logger, [] {
-            qCDebug(buildDeviceLog) << "detection done," << KitManager::kits().size() << "kits";
-        });
-    }});
+    device->runAutoDetect(logger, [] {
+        qCDebug(buildDeviceLog) << "detection done," << KitManager::kits().size() << "kits";
+    });
 }
 
 #endif // Q_OS_OHOS
@@ -346,12 +299,12 @@ void setupHarmonyOsBuildDevice()
     const auto whenRestored = [] {
         if (!DeviceManager::isLoaded() || !KitManager::isLoaded())
             return;
-        detectLoopbackBuildDevice();
-        detectToolsOnLoopbackDevice();
+        detectThisBuildDevice();
+        detectToolsOnThisDevice();
     };
     QObject::connect(KitManager::instance(), &KitManager::kitAdded,
                      KitManager::instance(), [](Kit *kit) {
-        if (isLoopbackKit(kit))
+        if (isThisDeviceKit(kit))
             completeKit(kit);
     });
     QObject::connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
