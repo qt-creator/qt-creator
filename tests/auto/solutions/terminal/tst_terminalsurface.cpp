@@ -833,6 +833,38 @@ private slots:
         QCOMPARE(surfaceText(), expected);
     }
 
+    void aCellFilledWithCombiningMarksIsNotReadPastItsEnd()
+    {
+        initSurface({20, 4});
+
+        // A base character plus five combining marks fills all six of the
+        // cell's character slots, so no terminating zero is stored after them.
+        m_surface->dataFromPty("A\xcc\x81\xcc\x81\xcc\x81\xcc\x81\xcc\x81");
+
+        const TerminalCell cell = m_surface->fetchCell(0, 0);
+        QCOMPARE(cell.text.size(), 6);
+    }
+
+    void aCombiningSequenceIsComposedAndItsNeighbourIsNot()
+    {
+        // A guard on how many character slots fetchCharAt reads, not a
+        // reproduction of reading too many: with the slot count hard-coded at
+        // six the written NUL still sits in front of the stale tail and blocks
+        // composition, so this passes either way. It is here to hold the
+        // composition behaviour still while the read is bounded.
+        m_surface->dataFromPty(QString(QChar(0x0061)).toUtf8()      // a
+                               + QString(QChar(0x0308)).toUtf8()    // combining diaeresis
+                               + QString(QChar(0x00e9)).toUtf8());  // e-acute, precomposed
+
+        QCOMPARE(m_surface->fetchCharAt(0, 0), char32_t(0x00e4)); // a-diaeresis, composed
+        QCOMPARE(m_surface->fetchCharAt(1, 0), char32_t(0x00e9));
+
+        // And in the other order, so neither read is being served by the
+        // other one having run first.
+        QCOMPARE(m_surface->fetchCharAt(1, 0), char32_t(0x00e9));
+        QCOMPARE(m_surface->fetchCharAt(0, 0), char32_t(0x00e4));
+    }
+
     void anOscNumberIsNotAccumulatedWithoutABound()
     {
         initSurface({20, 4});

@@ -236,7 +236,9 @@ struct TerminalSurfacePrivate
     {
         TerminalCell result;
         result.width = cell.width;
-        result.text = QString::fromUcs4(reinterpret_cast<const char32_t *>(cell.chars));
+        const auto *chars = reinterpret_cast<const char32_t *>(cell.chars);
+        const auto *charsEnd = std::find(chars, chars + VTERM_MAX_CHARS_PER_CELL, char32_t(0));
+        result.text = QString::fromUcs4(chars, charsEnd - chars);
 
         const VTermColor *bg = &cell.bg;
         const VTermColor *fg = &cell.fg;
@@ -769,10 +771,18 @@ std::u32string::value_type TerminalSurface::fetchCharAt(int x, int y) const
     if (cell->chars[1] == 0 && cell->chars[0] < 0x80)
         return cell->chars[0];
 
-    QString s = QString::fromUcs4(reinterpret_cast<const char32_t *>(cell->chars), 6)
-                    .normalized(QString::NormalizationForm_C);
+    // Stop at the first zero as the fetch does. Reading all six slots composed
+    // the leading code point with whatever the previous cell left in the tail
+    // of cellAt's static, or with the tail of the blank the scrollback pads
+    // with, neither of which this cell ever wrote.
+    const auto *chars = reinterpret_cast<const char32_t *>(cell->chars);
+    const auto *charsEnd = std::find(chars, chars + VTERM_MAX_CHARS_PER_CELL, char32_t(0));
+    const QString s = QString::fromUcs4(chars, charsEnd - chars)
+                          .normalized(QString::NormalizationForm_C);
     const QList<uint> ucs4 = s.toUcs4();
-    return std::u32string(ucs4.begin(), ucs4.end()).front();
+    if (ucs4.isEmpty())
+        return 0;
+    return ucs4.front();
 }
 
 TerminalCell TerminalSurface::fetchCell(int x, int y) const
