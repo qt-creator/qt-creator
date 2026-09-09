@@ -5,6 +5,8 @@
 
 #include <texteditor/textdocument.h>
 
+namespace TextEditor { class TextEditorWidget; }
+
 namespace CMakeProjectManager::Internal {
 
 class CMakeOutlineModel;
@@ -23,6 +25,10 @@ public:
 private:
     CMakeOutlineModel * const m_outlineModel;
 };
+
+// Gives an editor that is not the CMake editor itself, such as the snippet
+// editor of the preferences, the highlighting and the indentation of one.
+void decorateCMakeEditor(TextEditor::TextEditorWidget *editor);
 
 void setupCMakeEditor();
 

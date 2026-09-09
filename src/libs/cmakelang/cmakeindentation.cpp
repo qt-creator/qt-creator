@@ -85,8 +85,8 @@ public:
 class Scanner
 {
 public:
-    explicit Scanner(const KeywordPredicate &isKeyword)
-        : _isKeyword(isKeyword)
+    explicit Scanner(const Style &style)
+        : _style(style)
     {}
 
     QList<int> levels(QStringView source);
@@ -97,7 +97,7 @@ private:
     void closeCommand(const CommandKind &kind);
     bool namesKeyword(const Frame &frame, const Token &token) const;
 
-    const KeywordPredicate &_isKeyword;
+    const Style &_style;
     QList<Construct> _constructs;
     QList<Frame> _parens;
     QString _command;
@@ -222,7 +222,7 @@ void Scanner::apply(const QList<Token> &tokens, int level)
 
     Frame &frame = _parens[lineFrame];
     if (namesKeyword(frame, *arguments.constFirst()))
-        frame.keywordList = arguments.size() == 1;
+        frame.keywordList = _style.indentKeywordValues && arguments.size() == 1;
 }
 
 void Scanner::closeCommand(const CommandKind &kind)
@@ -242,25 +242,21 @@ void Scanner::closeCommand(const CommandKind &kind)
 
 bool Scanner::namesKeyword(const Frame &frame, const Token &token) const
 {
-    if (!_isKeyword || frame.command.isEmpty())
-        return false;
     if (token.isNot(Parser::T_IDENTIFIER) && token.isNot(Parser::T_UNQUOTED_ARGUMENT))
         return false;
-
-    // A command may take an argument that is spelled the way one of its values
-    // is documented, so only what looks like a keyword counts as one.
-    for (const QChar c : token.spelling) {
-        if (!c.isUpper() && !c.isDigit() && c != u'_')
-            return false;
-    }
-    return _isKeyword(frame.command, token.spelling.toString());
+    return _style.namesKeyword(frame.command, token.spelling);
 }
 
 } // namespace
 
-Indentation::Indentation(QStringView source, const KeywordPredicate &isKeyword)
+bool CMakeLang::namesControlCommand(QStringView name)
 {
-    Scanner scanner(isKeyword);
+    return commandKind(name).role != PlainCommand;
+}
+
+Indentation::Indentation(QStringView source, const Style &style)
+{
+    Scanner scanner(style);
     _levels = scanner.levels(source);
 }
 

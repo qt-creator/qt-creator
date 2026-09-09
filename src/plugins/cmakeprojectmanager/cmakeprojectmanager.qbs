@@ -26,6 +26,8 @@ Project {
             "cmakebuildconfiguration.h",
             "cmakebuildstep.cpp",
             "cmakebuildstep.h",
+            "cmakecodestyle.cpp",
+            "cmakecodestyle.h",
             "cmakebuildsystem.cpp",
             "cmakebuildsystem.h",
             "cmakebuildtarget.h",

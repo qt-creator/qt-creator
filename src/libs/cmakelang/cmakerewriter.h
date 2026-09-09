@@ -4,6 +4,7 @@
 #pragma once
 
 #include "cmakedocument.h"
+#include "cmakeedit.h"
 #include "cmakelang.h"
 
 #include <QList>
@@ -11,15 +12,6 @@
 #include <QStringList>
 
 namespace CMakeLang {
-
-// What to put in place of the span the position and the length name.
-class Edit
-{
-public:
-    int position = 0;
-    int length = 0;
-    QString text;
-};
 
 // Changes to a parsed file, spelled out in terms of its AST. What the changes
 // amount to is a list of edits to the text: nothing outside their spans moves,

@@ -23,6 +23,7 @@
 
 #include <texteditor/command.h>
 #include <texteditor/formattexteditor.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
@@ -30,6 +31,7 @@
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcsettings.h>
 
 #include <QMenu>
 
@@ -39,17 +41,35 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
+// Where cmake-format stands unless the user points somewhere else.
+static const char defaultFormatCommand[] = "cmake-format";
+
 class CMakeFormatterSettings : public AspectContainer
 {
 public:
+    enum Formatter {
+        BuiltIn,
+        CMakeFormat
+    };
+
     CMakeFormatterSettings()
     {
         setAutoApply(false);
         setSettingsGroups(Constants::CMAKEFORMATTER_SETTINGS_GROUP,
                           Constants::CMAKEFORMATTER_GENERAL_GROUP);
 
+        formatter.setSettingsKey("formatter");
+        formatter.setDefaultValue(formatterOfStoredSettings());
+        formatter.setDisplayStyle(SelectionAspect::DisplayStyle::RadioButtons);
+        formatter.setLabelText(Tr::tr("Formatter:"));
+        formatter.addOption(Tr::tr("Built-in"),
+                            Tr::tr("Lays the file out the way the CMake files of Qt are laid "
+                                   "out. Needs nothing installed."));
+        formatter.addOption(Tr::tr("CMakeFormat"),
+                            Tr::tr("Hands the file to the cmake-format command below."));
+
         command.setSettingsKey("autoFormatCommand");
-        command.setDefaultValue("cmake-format");
+        command.setDefaultValue(defaultFormatCommand);
         command.setExpectedKind(PathChooserKind::ExistingCommand);
 
         autoFormatOnSave.setSettingsKey("autoFormatOnSave");
@@ -75,6 +95,8 @@ public:
             cmakeFormatter->setOpenExternalLinks(true);
 
             return Column {
+                formatter,
+                Space(10),
                 Row { cmakeFormatter, command },
                 Space(10),
                 Group {
@@ -100,8 +122,15 @@ public:
 
         Core::Command *cmd = ActionManager::registerAction(&formatFile, Constants::CMAKEFORMATTER_ACTION_ID);
         connect(&formatFile, &QAction::triggered, this, [this] {
+            IEditor *editor = EditorManager::currentEditor();
+            if (formatter() == BuiltIn) {
+                if (editor)
+                    format(editor->document());
+                return;
+            }
+
             auto command = formatCommand();
-            if (auto editor = EditorManager::currentEditor())
+            if (editor)
                 extendCommandWithConfigs(command, editor->document()->filePath());
 
             TextEditor::formatCurrentFile(command);
@@ -112,11 +141,11 @@ public:
         auto updateActions = [this] {
             auto editor = EditorManager::currentEditor();
 
-            formatFile.setEnabled(haveValidFormatCommand && editor
-                                  && isApplicable(editor->document()));
+            formatFile.setEnabled(haveFormatter() && editor && isApplicable(editor->document()));
         };
 
         autoFormatMime.addOnChanged(this, updateActions);
+        formatter.addOnChanged(this, updateActions);
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
                 this, updateActions);
         connect(EditorManager::instance(), &EditorManager::aboutToSave,
@@ -127,11 +156,37 @@ public:
         const FilePath commandPath = command().searchInPath();
         haveValidFormatCommand = commandPath.exists() && commandPath.isExecutableFile();
 
-        formatFile.setEnabled(haveValidFormatCommand);
-        connect(&command, &FilePathAspect::validChanged, this, [this](bool validState) {
+        updateActions();
+        connect(&command, &FilePathAspect::validChanged, this, [this, updateActions](bool validState) {
             haveValidFormatCommand = validState;
-            formatFile.setEnabled(haveValidFormatCommand);
+            updateActions();
         });
+    }
+
+    // Settings written before there was a built-in formatter carry no
+    // "formatter" key. Where they have cmake-format wired up - formatting on
+    // save, or a command of their own - stay with cmake-format, so that such
+    // an installation keeps laying its files out as it did, through the
+    // configuration files findConfigs() picks up next to them.
+    static Formatter formatterOfStoredSettings()
+    {
+        const SettingsGroupNester nester({Constants::CMAKEFORMATTER_SETTINGS_GROUP,
+                                          Constants::CMAKEFORMATTER_GENERAL_GROUP});
+        QtcSettings &settings = userSettings();
+        const QString storedCommand = settings.value("autoFormatCommand").toString();
+        const bool wiredUp = settings.value("autoFormatOnSave", false).toBool()
+                             || (!storedCommand.isEmpty()
+                                 && storedCommand != QLatin1String(defaultFormatCommand));
+        return wiredUp ? CMakeFormat : BuiltIn;
+    }
+
+    bool haveFormatter() const { return formatter() == BuiltIn || haveValidFormatCommand; }
+
+    // Lays the document out through the indenter of the CMake editor.
+    static void format(IDocument *document)
+    {
+        if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(document))
+            textDocument->formatContents();
     }
 
     bool isApplicable(const IDocument *document) const;
@@ -189,6 +244,7 @@ public:
         }
     }
 
+    SelectionAspect formatter{this};
     FilePathAspect command{this};
     bool haveValidFormatCommand{false};
     BoolAspect autoFormatOnSave{this};
@@ -236,6 +292,11 @@ void CMakeFormatterSettings::applyIfNecessary(IDocument *document, IDocument::Sa
         }
     }
 
+    if (formatter() == BuiltIn) {
+        format(document);
+        return;
+    }
+
     TextEditor::Command command = formatCommand();
     if (!command.isValid())
         return;
@@ -256,6 +317,16 @@ static CMakeFormatterSettings &formatterSettings()
 {
     static CMakeFormatterSettings theSettings;
     return theSettings;
+}
+
+bool cmakeFormatIsFormatter()
+{
+    return formatterSettings().formatter() == CMakeFormatterSettings::CMakeFormat;
+}
+
+void onFormatterChanged(QObject *guard, const std::function<void()> &handler)
+{
+    formatterSettings().formatter.addOnChanged(guard, handler);
 }
 
 class CMakeFormatterSettingsPage final : public Core::IOptionsPage

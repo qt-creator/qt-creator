@@ -4,6 +4,7 @@
 #include "cmakeautogenparser.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
+#include "cmakecodestyle.h"
 #include "cmakebuildsystem.h"
 #include "cmakeeditor.h"
 #include "cmakeformatter.h"
@@ -68,6 +69,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         setupCMakeBuildStep();
         setupCMakeInstallStep();
 
+        setupCMakeCodeStyle();
         setupCMakeEditor();
         setupCMakeOutline();
 
@@ -92,6 +94,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createQmlModuleFilesTest);
         addTestCreator(createSourceFilesTest);
         addTestCreator(createCMakeUsagesTest);
+        addTestCreator(createCMakeCodeStyleTest);
         addTestCreator(createTestPresetsInheritanceTest);
 #endif
 
@@ -100,7 +103,8 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
                                                          Constants::CMAKE_LISTS_TXT);
 
         TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
-                                                   Tr::tr("CMake", "SnippetProvider"));
+                                                   Tr::tr("CMake", "SnippetProvider"),
+                                                   &decorateCMakeEditor);
         const auto issuesGenerator = [](const Kit *k) {
             Tasks result;
             if (CMakeKitAspect::cmakeExecutable(k).isEmpty()) {

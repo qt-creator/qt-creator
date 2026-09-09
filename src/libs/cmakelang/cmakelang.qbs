@@ -21,8 +21,11 @@ QtcLibrary {
         "cmakeastvisitor.h",
         "cmakedocument.cpp",
         "cmakedocument.h",
+        "cmakeedit.h",
         "cmakeengine.cpp",
         "cmakeengine.h",
+        "cmakeformatter.cpp",
+        "cmakeformatter.h",
         "cmakeindentation.cpp",
         "cmakeindentation.h",
         "cmakelang.h",
@@ -33,6 +36,8 @@ QtcLibrary {
         "cmakerewriter.h",
         "cmakesignature.cpp",
         "cmakesignature.h",
+        "cmakestyle.cpp",
+        "cmakestyle.h",
     ]
 
     Group {

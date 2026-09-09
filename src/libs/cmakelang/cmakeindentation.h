@@ -4,17 +4,16 @@
 #pragma once
 
 #include "cmakelang.h"
+#include "cmakestyle.h"
 
 #include <QList>
-#include <QString>
-
-#include <functional>
 
 namespace CMakeLang {
 
-// Whether the argument names a keyword of the command, the way the signature
-// of the command spells it.
-using KeywordPredicate = std::function<bool(const QString &command, const QString &argument)>;
+// Whether the name is one of the commands that open, continue or close a
+// nesting: if, elseif, else, endif, foreach, endforeach, while, endwhile,
+// function, endfunction, macro, endmacro, block and endblock.
+CMAKELANG_EXPORT bool namesControlCommand(QStringView name);
 
 // How deep every line of a CMake file sits, counted in indentation levels.
 //
@@ -38,7 +37,7 @@ public:
     static constexpr int Keep = -1;
 
     // The source is read while the object is built and is not kept.
-    explicit Indentation(QStringView source, const KeywordPredicate &isKeyword = {});
+    explicit Indentation(QStringView source, const Style &style = {});
 
     int lineCount() const { return int(_levels.size()); }
 

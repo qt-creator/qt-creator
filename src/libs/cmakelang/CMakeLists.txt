@@ -42,11 +42,14 @@ add_qtc_library(CMakeLang
     cmakeast.cpp cmakeast.h
     cmakeastvisitor.cpp cmakeastvisitor.h
     cmakedocument.cpp cmakedocument.h
+    cmakeedit.h
     cmakeengine.cpp cmakeengine.h
+    cmakeformatter.cpp cmakeformatter.h
     cmakeindentation.cpp cmakeindentation.h
     cmakelexer.cpp cmakelexer.h
     cmakememorypool.h
     cmakerewriter.cpp cmakerewriter.h
     cmakesignature.cpp cmakesignature.h
+    cmakestyle.cpp cmakestyle.h
     ${CMAKELANG_PARSER_SOURCES}
 )

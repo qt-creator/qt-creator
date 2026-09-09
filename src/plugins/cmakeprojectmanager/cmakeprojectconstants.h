@@ -44,12 +44,18 @@ namespace Settings {
 inline constexpr char GENERAL_ID[] = "CMakeSpecificSettings";
 inline constexpr char TOOLS_ID[] = "K.CMake.Tools";
 inline constexpr char FORMATTER_ID[] = "K.CMake.Formatter";
+inline constexpr char CODE_STYLE_ID[] = "K.CMake.Formatter.CodeStyle";
 inline constexpr char CATEGORY[] = "K.CMake";
 inline constexpr char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
 } // namespace Settings
 
 // Snippets
 inline constexpr char CMAKE_SNIPPETS_GROUP_ID[] = "CMake";
+
+// Code style
+inline constexpr char CMAKE_LANGUAGE_ID[] = "CMakeProjectManager.CMakeLanguage";
+inline constexpr char CMAKE_CODE_STYLE_SETTINGS_ID[] = "CMakeProjectManager.CodeStyleSettings";
+inline constexpr char CMAKE_GLOBAL_CODE_STYLE_ID[] = "CMakeProjectManager.GlobalCodeStyle";
 
 namespace Icons {
 inline constexpr char FILE_OVERLAY[] = ":/cmakeproject/images/fileoverlay_cmake.png";

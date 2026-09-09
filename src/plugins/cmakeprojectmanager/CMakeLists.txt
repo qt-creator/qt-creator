@@ -11,6 +11,7 @@ add_qtc_plugin(CMakeProjectManager
     cmakebuildconfiguration.cpp cmakebuildconfiguration.h
     cmakebuildsystem.cpp cmakebuildsystem.h
     cmakebuildstep.cpp cmakebuildstep.h
+    cmakecodestyle.cpp cmakecodestyle.h
     cmakebuildtarget.h
     cmakeconfigitem.cpp cmakeconfigitem.h
     cmakeeditor.cpp cmakeeditor.h

@@ -5,6 +5,7 @@
 #include <cmakelang/cmakeastvisitor.h>
 #include <cmakelang/cmakedocument.h>
 #include <cmakelang/cmakeengine.h>
+#include <cmakelang/cmakeformatter.h>
 #include <cmakelang/cmakeindentation.h>
 #include <cmakelang/cmakelexer.h>
 #include <cmakelang/cmakeparser.h>
@@ -206,6 +207,14 @@ private slots:
     void indentationOfHalfWrittenFiles_data();
     void indentationOfHalfWrittenFiles();
     void indentationKeepsMultilineValues();
+    void formatting_data();
+    void formatting();
+    void formattingLeavesFormattedFilesAlone_data();
+    void formattingLeavesFormattedFilesAlone();
+    void formattingEditsAreMinimal();
+    void styleSwitches_data();
+    void styleSwitches();
+    void formattingKeepsWhatItIsGiven();
 };
 
 void tst_CMakeLang::lexer_data()
@@ -1021,9 +1030,16 @@ static bool namesKeyword(const QString &command, const QString &argument)
     return keywords.value(command.toLower()).contains(argument);
 }
 
+static Style testStyle()
+{
+    Style style;
+    style.isKeyword = namesKeyword;
+    return style;
+}
+
 static QString indented(const QString &source)
 {
-    const Indentation indentation(source, namesKeyword);
+    const Indentation indentation(source, testStyle());
 
     QStringList result;
     const QStringList lines = source.split(u'\n');
@@ -1207,7 +1223,7 @@ void tst_CMakeLang::indentationOfHalfWrittenFiles()
     QFETCH(int, line);
     QFETCH(int, expected);
 
-    const Indentation indentation(source, namesKeyword);
+    const Indentation indentation(source, testStyle());
     QCOMPARE(indentation.levelAt(line), expected);
 }
 
@@ -1224,6 +1240,259 @@ void tst_CMakeLang::indentationKeepsMultilineValues()
 
     // The tail of the value closed the call, so what follows is at file level.
     QCOMPARE(indentation.levelAt(4), 0);
+}
+
+static QString formatted(const QString &source, const Style &style = testStyle())
+{
+    QString result = source;
+    const QList<Edit> edits = formattingEdits(source, style);
+    for (auto it = edits.crbegin(); it != edits.crend(); ++it)
+        result.replace(it->position, it->length, it->text);
+    return result;
+}
+
+void tst_CMakeLang::formatting_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("the parentheses of a call") << "IF( WIN32 )\n"
+                                                  "add_executable( app  main.cpp )\n"
+                                                  "ENDIF( WIN32 )\n"
+                                               << "IF(WIN32)\n"
+                                                  "    add_executable(app main.cpp)\n"
+                                                  "ENDIF(WIN32)\n";
+
+    QTest::newRow("whitespace at the end of a line and of the file")
+        << "set(a 1)   \n"
+           "\n"
+           "   \n"
+           "set(b 2)"
+        << "set(a 1)\n"
+           "\n"
+           "\n"
+           "set(b 2)\n";
+
+    // Nothing is packed onto a line the author did not put it on.
+    QTest::newRow("the line breaks stay") << "target_sources(app PRIVATE\n"
+                                             "a.cpp\n"
+                                             "b.cpp)\n"
+                                          << "target_sources(app PRIVATE\n"
+                                             "    a.cpp\n"
+                                             "    b.cpp)\n";
+
+    QTest::newRow("a group within the arguments stands apart") << "if(NOT (A OR B))\n"
+                                                               << "if(NOT (A OR B))\n";
+
+    QTest::newRow("a comment keeps the column it is in") << "set(a 1)    # first\n"
+                                                            "set(bb 2)   # second\n"
+                                                         << "set(a 1)    # first\n"
+                                                            "set(bb 2)   # second\n";
+
+    QTest::newRow("a comment gets a space at least") << "set(a 1)# note\n"
+                                                     << "set(a 1) # note\n";
+
+    QTest::newRow("a value that spans lines is untouched") << "set(TEXT \"first\n"
+                                                              "  second\")\n"
+                                                              "message(  STATUS   ${TEXT} )\n"
+                                                           << "set(TEXT \"first\n"
+                                                              "  second\")\n"
+                                                              "message(STATUS ${TEXT})\n";
+
+    QTest::newRow("a bracket comment is untouched") << "#[[\n"
+                                                       "  what this file does\n"
+                                                       "]]\n"
+                                                       "message( X )\n"
+                                                    << "#[[\n"
+                                                       "  what this file does\n"
+                                                       "]]\n"
+                                                       "message(X)\n";
+
+    QTest::newRow("the layout of a keyword list") << "qt_internal_add_module(Core\n"
+                                                     "SOURCES\n"
+                                                     "foo.cpp\n"
+                                                     ")\n"
+                                                  << "qt_internal_add_module(Core\n"
+                                                     "    SOURCES\n"
+                                                     "        foo.cpp\n"
+                                                     ")\n";
+
+    QTest::newRow("the name of a call meets its parenthesis") << "message ( STATUS x )\n"
+                                                              << "message(STATUS x)\n";
+}
+
+void tst_CMakeLang::formatting()
+{
+    QFETCH(QString, source);
+    QFETCH(QString, expected);
+    QCOMPARE(formatted(source), expected);
+}
+
+void tst_CMakeLang::formattingLeavesFormattedFilesAlone_data()
+{
+    QTest::addColumn<QString>("source");
+
+    QTest::newRow("a block") << "if(WIN32)\n"
+                                "    add_executable(app main.cpp)\n"
+                                "else()\n"
+                                "    add_executable(app other.cpp)\n"
+                                "endif()\n";
+
+    QTest::newRow("a keyword list") << "qt_internal_add_module(Core\n"
+                                       "    SOURCES\n"
+                                       "        foo.cpp\n"
+                                       "    LIBRARIES\n"
+                                       "        Qt::Platform\n"
+                                       ")\n";
+
+    QTest::newRow("a trailing comment") << "set(a 1) # note\n";
+
+    QTest::newRow("a value that spans lines") << "set(TEXT \"first\n"
+                                                 "  second\")\n";
+
+    QTest::newRow("a blank line") << "set(a 1)\n"
+                                     "\n"
+                                     "set(b 2)\n";
+}
+
+void tst_CMakeLang::formattingLeavesFormattedFilesAlone()
+{
+    QFETCH(QString, source);
+
+    QVERIFY(formattingEdits(source, testStyle()).isEmpty());
+
+    // And what it does to a file it does once: running it again finds nothing.
+    QCOMPARE(formatted(formatted(source)), formatted(source));
+}
+
+void tst_CMakeLang::formattingEditsAreMinimal()
+{
+    const QString source = "set(a  1)\nset(b 2)\n";
+    const QList<Edit> edits = formattingEdits(source, {});
+
+    QCOMPARE(edits.size(), 1);
+    QCOMPARE(edits.first().position, 5);
+    QCOMPARE(edits.first().length, 2);
+    QCOMPARE(edits.first().text, QString(" "));
+
+    // The editor applies them to the text they were measured against, so they
+    // come in order and none of them reaches into the next.
+    const QString messy = "IF( WIN32 )\nadd_executable( app  main.cpp )\nENDIF( WIN32 )";
+    int reached = 0;
+    for (const Edit &edit : formattingEdits(messy, {})) {
+        QVERIFY(edit.position >= reached);
+        reached = edit.position + edit.length;
+    }
+    QVERIFY(reached <= messy.size());
+}
+
+void tst_CMakeLang::styleSwitches_data()
+{
+    QTest::addColumn<Style>("style");
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("expected");
+
+    Style spaceAfterControl = testStyle();
+    spaceAfterControl.spaceBeforeControlParen = true;
+
+    // if() keeps the space, and the call in the body does not get one.
+    QTest::newRow("a space after a control keyword") << spaceAfterControl
+                                                     << "if (WIN32)\n"
+                                                        "message (STATUS x)\n"
+                                                        "endif ()\n"
+                                                     << "if (WIN32)\n"
+                                                        "    message(STATUS x)\n"
+                                                        "endif ()\n";
+
+    QTest::newRow("a space after a control keyword is put back")
+        << spaceAfterControl << "if(WIN32)\n"
+                                "endif()\n"
+        << "if (WIN32)\n"
+           "endif ()\n";
+
+    Style spaceAfterCommand = testStyle();
+    spaceAfterCommand.spaceBeforeCommandParen = true;
+
+    QTest::newRow("a space after a command name") << spaceAfterCommand
+                                                  << "if(WIN32)\n"
+                                                     "message(STATUS x)\n"
+                                                     "endif()\n"
+                                                  << "if(WIN32)\n"
+                                                     "    message (STATUS x)\n"
+                                                     "endif()\n";
+
+    Style flatKeywords = testStyle();
+    flatKeywords.indentKeywordValues = false;
+
+    QTest::newRow("a keyword opens no list") << flatKeywords
+                                             << "qt_internal_add_module(Core\n"
+                                                "SOURCES\n"
+                                                "foo.cpp\n"
+                                                ")\n"
+                                             << "qt_internal_add_module(Core\n"
+                                                "    SOURCES\n"
+                                                "    foo.cpp\n"
+                                                ")\n";
+
+    Style tidyComments = testStyle();
+    tidyComments.keepCommentColumn = false;
+
+    QTest::newRow("a comment loses its column") << tidyComments
+                                                << "set(a 1)    # first\n"
+                                                   "set(bb 2)   # second\n"
+                                                << "set(a 1) # first\n"
+                                                   "set(bb 2) # second\n";
+
+    Style twoSpaces = testStyle();
+    twoSpaces.indentation = [](int level) { return QString(level * 2, u' '); };
+
+    QTest::newRow("two spaces a level") << twoSpaces
+                                        << "if(WIN32)\n"
+                                           "message(STATUS x)\n"
+                                           "endif()\n"
+                                        << "if(WIN32)\n"
+                                           "  message(STATUS x)\n"
+                                           "endif()\n";
+
+    Style tabs = testStyle();
+    tabs.indentation = [](int level) { return QString(level, u'\t'); };
+
+    QTest::newRow("tabs") << tabs
+                          << "if(WIN32)\n"
+                             "message(STATUS x)\n"
+                             "endif()\n"
+                          << "if(WIN32)\n"
+                             "\tmessage(STATUS x)\n"
+                             "endif()\n";
+}
+
+void tst_CMakeLang::styleSwitches()
+{
+    QFETCH(Style, style);
+    QFETCH(QString, source);
+    QFETCH(QString, expected);
+
+    QCOMPARE(formatted(source, style), expected);
+
+    // Whatever the style, running it again finds nothing left to do.
+    QVERIFY(formattingEdits(expected, style).isEmpty());
+}
+
+void tst_CMakeLang::formattingKeepsWhatItIsGiven()
+{
+    Style tidy = testStyle();
+    tidy.keepCommentColumn = false;
+
+    const QString source = "set(a 1)    # note\n";
+    QCOMPARE(formatted(source, testStyle()), source);
+
+    // Keeping the column keeps what stands there, so a column an earlier run
+    // took away does not come back. Whatever shows the setting at work has to
+    // lay the text out from the source every time rather than from what it
+    // last showed.
+    const QString tidied = formatted(source, tidy);
+    QCOMPARE(tidied, QString("set(a 1) # note\n"));
+    QCOMPARE(formatted(tidied, testStyle()), tidied);
 }
 
 QTEST_GUILESS_MAIN(tst_CMakeLang)

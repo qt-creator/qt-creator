@@ -6,6 +6,7 @@
 
 #include "cmakeautocompleter.h"
 #include "cmakebuildsystem.h"
+#include "cmakecodestyle.h"
 #include "cmakefilecompletionassist.h"
 #include "cmakeindenter.h"
 #include "cmakeoutline.h"
@@ -31,6 +32,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/mimeconstants.h>
+#include <utils/mimeutils.h>
 #include <utils/textutils.h>
 #include <utils/tooltip/tooltip.h>
 
@@ -116,6 +118,8 @@ private:
 
 void CMakeEditorWidget::finalizeInitialization()
 {
+    setLanguageSettingsId(Constants::CMAKE_LANGUAGE_ID);
+
     if (const auto document = qobject_cast<CMakeTextDocument *>(textDocument()))
         setToolbarOutline(createCMakeOutlineComboBox(this, document->outlineModel()));
 }
@@ -412,6 +416,15 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     }
 
     processLinkCallback(link);
+}
+
+void decorateCMakeEditor(TextEditorWidget *editor)
+{
+    const MimeType mimeType = Utils::mimeTypeForName(Utils::Constants::CMAKE_MIMETYPE);
+    editor->textDocument()->setMimeType(mimeType.name());
+    editor->configureGenericHighlighter(mimeType);
+    editor->textDocument()->setIndenter(createCMakeIndenter(editor->textDocument()->document()));
+    editor->setAutoCompleter(new CMakeAutoCompleter);
 }
 
 CMakeTextDocument::CMakeTextDocument()
