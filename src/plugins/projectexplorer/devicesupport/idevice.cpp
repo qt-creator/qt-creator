@@ -1356,6 +1356,9 @@ std::function<void(Layouting::Layout *)> IDevice::autoDetectGui()
     using namespace Layouting;
     return [device = shared_from_this()](Layout *layout) {
         auto button = new QPushButton(Tr::tr("Run Auto-Detection Now"));
+        auto kitButton = new QPushButton(Tr::tr("Create Kits Now"));
+        kitButton->setToolTip(Tr::tr("Set up kits for this device's detected toolchains."));
+        kitButton->setVisible(device->d->autoCreateKits.isVisible());
         auto logView = new QPlainTextEdit;
         logView->setReadOnly(true);
         logView->setMaximumHeight(120);
@@ -1379,7 +1382,21 @@ std::function<void(Layouting::Layout *)> IDevice::autoDetectGui()
                 device->runAutoDetect(logger, onDone);
             });
 
-        layout->addItems({Row{button, st}, br, logView, br});
+        QObject::connect(kitButton, &QPushButton::clicked, kitButton,
+            [device, lv = QPointer<QPlainTextEdit>(logView)] {
+                const QList<Kit *> before = KitManager::kits();
+                KitManager::createKitsForBuildDevice(device);
+                const QList<Kit *> added = Utils::filtered(KitManager::kits(),
+                    [&before](Kit *kit) { return !before.contains(kit); });
+                if (!lv)
+                    return;
+                if (added.isEmpty())
+                    lv->appendPlainText(Tr::tr("No new kits."));
+                for (const Kit *kit : added)
+                    lv->appendPlainText(Tr::tr("Created kit \"%1\".").arg(kit->displayName()));
+            });
+
+        layout->addItems({Row{button, kitButton, st}, br, logView, br});
     };
 }
 
