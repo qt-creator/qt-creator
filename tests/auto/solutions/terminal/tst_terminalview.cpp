@@ -4,11 +4,20 @@
 #include <solutions/terminal/terminalview.h>
 
 #include <QTest>
+#include <QTextDocument>
 #include <QToolTip>
+#include <QUrl>
 
 #include <memory>
 
 using namespace TerminalSolution;
+
+// The tooltip is handed over as explicit rich text, so that whether it is read
+// as markup does not depend on the characters the target happens to carry.
+static QString asToolTip(const QString &target)
+{
+    return QLatin1String("<html>") + target.toHtmlEscaped() + QLatin1String("</html>");
+}
 
 class TestView : public TerminalView
 {
@@ -139,20 +148,38 @@ private slots:
         m_view->ctrlHover({9, 0});
 
         QTRY_VERIFY(QToolTip::isVisible());
-        QCOMPARE(QToolTip::text(), QString("http://example.com"));
+        QCOMPARE(QToolTip::text(), asToolTip("http://example.com"));
 
         m_view->ctrlHover({40, 0});
         QTRY_VERIFY(!QToolTip::isVisible());
     }
 
-    void aSniffedLinkHasNoToolTip()
+    void aHyperlinkWithAnUnparseableUriIsNotALink()
     {
-        // The text is the target, so there is nothing to tell.
+        const QString target = "http://[oops";
+        QVERIFY2(!QUrl(target).isValid(), "this test needs a uri QUrl rejects");
+
+        m_view->writeToTerminal("\x1b]8;;" + target.toUtf8()
+                                    + "\x1b\\This is a link\x1b]8;;\x1b\\",
+                                true);
+
+        m_view->ctrlClick({9, 0});
+
+        // There is no encoded form to put in the tooltip, so the reader would
+        // be offered an underlined, clickable target they were never shown.
+        // Only activation is checked: hiding the tooltip is what the code did
+        // before this too, so that says nothing about which of them ran.
+        QVERIFY(!m_view->activated);
+    }
+
+    void aSniffedLinkShowsItsTargetAsAToolTip()
+    {
         m_view->writeToTerminal("sniffed", true);
 
         m_view->ctrlHover({0, 0});
 
-        QVERIFY(!QToolTip::isVisible());
+        QTRY_VERIFY(QToolTip::isVisible());
+        QCOMPARE(QToolTip::text(), asToolTip("sniffed-target"));
     }
 
     void aSelectionSurvivesOutputBelowIt()
@@ -195,6 +222,23 @@ private slots:
         m_view->surface()->clearAll();
 
         QTRY_VERIFY(!m_view->selection().has_value());
+    }
+
+    void aToolTipSaysWhichFormatItIs()
+    {
+        m_view->writeToTerminal(
+            "\x1b]8;;http://example.com/?a=1&b=2\x1b\\This is a link\x1b]8;;\x1b\\", true);
+
+        m_view->ctrlHover({9, 0});
+
+        QTRY_VERIFY(QToolTip::isVisible());
+
+        // Escaping the target removes every '<', which is the character
+        // Qt::mightBeRichText looks for, so a target carrying an '&' and left
+        // at Qt::AutoText would reach the reader as "&amp;".
+        QVERIFY2(Qt::mightBeRichText(QToolTip::text()),
+                 "the tooltip is read as plain text, so its escapes are shown as they are");
+        QCOMPARE(QToolTip::text(), asToolTip("http://example.com/?a=1&b=2"));
     }
 
     void aBurstOfResizesIsCoalesced()

@@ -28,6 +28,7 @@
 #include <QTextItem>
 #include <QTextLayout>
 #include <QToolTip>
+#include <QUrl>
 
 static Q_LOGGING_CATEGORY(terminalLog, "qtc.terminal", QtWarningMsg)
 static Q_LOGGING_CATEGORY(selectionLog, "qtc.terminal.selection", QtWarningMsg)
@@ -1437,6 +1438,13 @@ bool TerminalView::checkLinkAt(const QPoint &pos)
     const std::optional<Hyperlink> hyperlink
         = d->m_surface->hyperlinkAt(globalToGrid(viewportToGlobal(pos)));
     if (hyperlink) {
+        // A uri QUrl will not parse has no encoded form to show, and a link
+        // whose target the reader cannot be shown is not offered at all:
+        // underlining it would invite a click on something it never named.
+        if (!QUrl(hyperlink->url).isValid()) {
+            clearLinkSelection();
+            return false;
+        }
         return setLinkSelection(LinkSelection{{hyperlink->start, hyperlink->end},
                                               Link{.text = hyperlink->url, .isUri = true}});
     }
@@ -1456,18 +1464,25 @@ bool TerminalView::checkLinkAt(const QPoint &pos)
 
 void TerminalView::showLinkToolTip(const Link &link)
 {
-    // A sniffed link is its own target; only a uri the application supplied can name
-    // something other than the text it is shown on.
-    if (!link.isUri) {
-        QToolTip::hideText();
-        return;
-    }
+    // A uri the application supplied names something other than the text it is
+    // shown on, so it is shown encoded and a character cannot pass for one it
+    // only resembles. A sniffed target is read off the screen already.
+    const QString shown = link.isUri ? QString::fromUtf8(QUrl(link.text).toEncoded())
+                                     : link.text;
 
     const int maxWidth = screen()->availableGeometry().width() / 2;
-    const QString text
-        = QFontMetrics(QToolTip::font()).elidedText(link.text, Qt::ElideMiddle, maxWidth);
+    const QString text = QFontMetrics(QToolTip::font())
+                             .elidedText(shown, Qt::ElideMiddle, maxWidth)
+                             .toHtmlEscaped();
 
-    QToolTip::showText(QCursor::pos(), text, this);
+    // Escaping is not enough on its own: QToolTip leaves the format at
+    // Qt::AutoText, and Qt::mightBeRichText decides by looking for a '<',
+    // which escaping has just removed - so a target carrying an '&' would be
+    // read as plain text and shown as "&amp;". Name the format instead of
+    // letting the target pick it.
+    QToolTip::showText(QCursor::pos(),
+                       QLatin1String("<html>") + text + QLatin1String("</html>"),
+                       this);
 }
 
 TerminalView::TextAndOffsets TerminalView::textAt(const QPoint &pos) const
