@@ -257,12 +257,9 @@ DocumentModel::Entry *DocumentModelPrivate::removeDocument(int idx)
     int row = idx + 1/*<no document>*/;
     beginRemoveRows(QModelIndex(), row, row);
     DocumentModel::Entry *entry = m_entries.takeAt(idx);
+    m_entryByFixedPath.removeIf([entry](auto it) { return it.value() == entry; });
     endRemoveRows();
 
-    const FilePath fixedPath = DocumentManager::filePathKey(entry->filePath(),
-                                                            DocumentManager::ResolveLinks);
-    if (!fixedPath.isEmpty())
-        m_entryByFixedPath.remove(fixedPath);
     disconnect(entry->document, &IDocument::changed, this, nullptr);
     disambiguateDisplayNames(entry);
     return entry;
@@ -506,15 +503,13 @@ void DocumentModelPrivate::removeAllSuspendedEntries(PinnedFileRemovalPolicy pin
         if (pinnedFileRemovalPolicy == DoNotRemovePinnedFiles && entry->pinned)
             continue;
 
-        const FilePath fixedPath = DocumentManager::filePathKey(entry->filePath(),
-                                                                DocumentManager::ResolveLinks);
-        int row = i + 1/*<no document>*/;
+        int row = i + 1 /*<no document>*/;
         d->beginRemoveRows(QModelIndex(), row, row);
-        delete d->m_entries.takeAt(i);
+        d->m_entries.removeAt(i);
+        d->m_entryByFixedPath.removeIf([entry](auto it) { return it.value() == entry; });
         d->endRemoveRows();
 
-        if (!fixedPath.isEmpty())
-            d->m_entryByFixedPath.remove(fixedPath);
+        delete entry;
     }
     QSet<QString> displayNames;
     for (DocumentModel::Entry *entry : std::as_const(d->m_entries)) {
@@ -622,7 +617,9 @@ DocumentModel::Entry *DocumentModel::entryForFilePath(const Utils::FilePath &fil
     if (filePath.isEmpty())
         return nullptr;
     const FilePath fixedPath = DocumentManager::filePathKey(filePath, DocumentManager::ResolveLinks);
-    return d->m_entryByFixedPath.value(fixedPath);
+    Entry *entry = d->m_entryByFixedPath.value(fixedPath);
+    QTC_ASSERT(!entry || d->m_entries.contains(entry), return nullptr);
+    return entry;
 }
 
 QList<IDocument *> DocumentModel::openedDocuments()
