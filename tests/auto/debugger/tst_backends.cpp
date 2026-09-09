@@ -313,6 +313,9 @@ struct InferiorTestData
     QString libraryTypedefSymbol;
     QString libraryTypeLocal;
     QString libraryTypeChild;
+    // More globals whose target type only that library describes, each with a
+    // member of that type, found by the debugger in other ways.
+    QList<QPair<QString, QString>> otherLibraryTypeProbes;
     QString inspectorObject;
     QString inspectorProperty;
     QString inspectorPropertyExpression;
@@ -3961,6 +3964,9 @@ void tst_backends::initTestCase()
         "LibProbe *libProbe = (LibProbe *) &probeStorage;",
         "typedef LibProbe ProbeHandle;",
         "ProbeHandle *probeHandle = (ProbeHandle *) &probeStorage;",
+        "struct SecondProbe;",
+        "int secondStorage = 4712;",
+        "SecondProbe *pointerToSecond = (SecondProbe *) &secondStorage;",
         "volatile int globalValue = 41;",
         "volatile bool keepSpinning = true;",
         "const char *globalMessage = \"hi\";",
@@ -4217,6 +4223,7 @@ void tst_backends::initTestCase()
     cppInferiorData.libraryTypedefSymbol = "probeHandle";
     cppInferiorData.libraryTypeLocal = "localProbe";
     cppInferiorData.libraryTypeChild = "probeValue";
+    cppInferiorData.otherLibraryTypeProbes = {{"pointerToSecond", "secondValue"}};
     QVERIFY(cppInferiorData.secondBreakpointLine > 0);
     QVERIFY(cppInferiorData.recursiveCallLine > 0);
     QVERIFY(cppInferiorData.recursionEntryLine > 0);
@@ -4278,6 +4285,12 @@ void tst_backends::initTestCase()
             "extern \"C\" LibProbe *inferiorLibProbe()\n"
             "{\n"
             "    static LibProbe probe = {0};\n"
+            "    return &probe;\n"
+            "}\n"
+            "struct SecondProbe { int secondValue; };\n"
+            "extern \"C\" SecondProbe *inferiorLibSecond()\n"
+            "{\n"
+            "    static SecondProbe probe = {0};\n"
             "    return &probe;\n"
             "}\n"));
         libFile.close();
@@ -9295,6 +9308,11 @@ void tst_backends::resolvesATypeArrivingWithALaterLibrary()
     if (auto result = checkCapability(backend, Debugger::AddWatcherCapability); !result)
         QSKIP(qPrintable(result.error()));
 
+    // The first one is what the array format strides over.
+    const QList<QPair<QString, QString>> probes
+        = QList<QPair<QString, QString>>{{data.libraryTypeSymbol, data.libraryTypeChild}}
+          + data.otherLibraryTypeProbes;
+
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -9306,25 +9324,33 @@ void tst_backends::resolvesATypeArrivingWithALaterLibrary()
             locals[requestId] = data;
     });
 
-    QJsonObject watcher;
-    watcher.insert("iname", "watch.0");
-    watcher.insert("exp", toHex(data.libraryTypeSymbol));
     QJsonArray watchers;
-    watchers.append(watcher);
+    QSet<QString> expandedINames;
+    for (int i = 0; i < probes.size(); ++i) {
+        const QString iname = "watch." + QString::number(i);
+        QJsonObject watcher;
+        watcher.insert("iname", iname);
+        watcher.insert("exp", toHex(probes.at(i).first));
+        watchers.append(watcher);
+        expandedINames.insert(iname);
+    }
 
     RefreshRequest request;
     request.kind = RefreshKind::Locals;
     request.watchers = watchers;
-    request.expandedINames = {"watch.0"};
+    request.expandedINames = expandedINames;
 
-    // Asking for the pointee here is what makes the backend look the type up
-    // while the library is not loaded, so the answer is that it has none.
+    // Asking for the pointee here is what makes the backend look the types up
+    // while the library is not loaded, so for those it has none.
     request.requestId = 130;
     engine->refresh(request);
     QTRY_VERIFY_WITH_TIMEOUT(locals.contains(130), s_timeout);
-    QVERIFY2(findItemByIName(locals.value(130), "watch.0").isValid(),
-             qPrintable("no watch on " + data.libraryTypeSymbol + " before the library load: "
-                        + locals.value(130).toString()));
+    for (int i = 0; i < probes.size(); ++i) {
+        const QString iname = "watch." + QString::number(i);
+        QVERIFY2(findItemByIName(locals.value(130), iname).isValid(),
+                 qPrintable("no watch on " + probes.at(i).first
+                            + " before the library load: " + locals.value(130).toString()));
+    }
 
     QHash<quint64, bool> insertResults;
     connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
@@ -9354,17 +9380,24 @@ void tst_backends::resolvesATypeArrivingWithALaterLibrary()
     // A dumper puts the pointee's members straight under the watcher, while a
     // stock adapter reports the dereferenced pointer as a child of its own,
     // which leaves the member one level further down.
-    const GdbMi watchItem = findItemByIName(locals.value(132), "watch.0");
-    for (const GdbMi &child : watchItem["children"])
-        request.expandedINames.insert(child["iname"].data());
+    for (int i = 0; i < probes.size(); ++i) {
+        const GdbMi watchItem = findItemByIName(locals.value(132), "watch." + QString::number(i));
+        for (const GdbMi &child : watchItem["children"])
+            request.expandedINames.insert(child["iname"].data());
+    }
     request.requestId = 133;
     engine->refresh(request);
     QTRY_VERIFY_WITH_TIMEOUT(locals.contains(133), s_timeout);
     const QString afterLoad = locals.value(133).toString();
-    QVERIFY2(afterLoad.contains(data.libraryTypeChild),
-             qPrintable("the type the library brought along did not resolve, so "
-                        + data.libraryTypeSymbol + " has no " + data.libraryTypeChild
-                        + " member: " + afterLoad));
+    QStringList withoutTheirMember;
+    for (int i = 0; i < probes.size(); ++i) {
+        const QString iname = "watch." + QString::number(i);
+        if (!findItemByIName(locals.value(133), iname).toString().contains(probes.at(i).second))
+            withoutTheirMember.append(probes.at(i).first);
+    }
+    QVERIFY2(withoutTheirMember.isEmpty(),
+             qPrintable("the type behind " + withoutTheirMember.join(", ")
+                        + " did not resolve, so it has no member: " + afterLoad));
 
     if (!takesIndividualFormats(backend))
         return;
