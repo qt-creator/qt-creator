@@ -43,6 +43,8 @@
 #include <QTextLayout>
 #include <QToolTip>
 
+#include <algorithm>
+
 using namespace Core;
 using namespace QtTaskTree;
 using namespace Utils;
@@ -489,41 +491,127 @@ void TerminalWidget::setClipboard(const QString &text)
     setClipboardAndSelection(text);
 }
 
-std::optional<TerminalSolution::TerminalView::Link> TerminalWidget::toLink(const QString &text)
+std::optional<TerminalSolution::TerminalView::Link> TerminalWidget::toPathOrWebLink(
+    const QString &text)
 {
-    if (text.size() > 0) {
-        QString result = chopIfEndsWith(text, ':');
+    if (text.isEmpty())
+        return std::nullopt;
 
-        if (!result.isEmpty()) {
-            if (result.startsWith("~/"))
-                result = QDir::homePath() + result.mid(1);
+    QString result = chopIfEndsWith(text, ':');
+    if (result.isEmpty())
+        return std::nullopt;
 
-            Utils::Link link = Utils::Link::fromString(result, true);
-
-            if (!link.targetFilePath.isEmpty() && !link.targetFilePath.isAbsolutePath())
-                link.targetFilePath = m_cwd.pathAppended(link.targetFilePath.path());
-
-            if (link.hasValidTarget()
-                && (link.targetFilePath.scheme().toString().startsWith("http")
-                    || link.targetFilePath.exists())) {
-                return Link{link.targetFilePath.toUrlishString(), link.target.line, link.target.column};
-            }
-        }
-        if (!m_cwd.isEmpty() && Utils::allOf(text, [](QChar c) {
-                c = c.toLower();
-                return c.isDigit() || (c >= 'a' && c <= 'f');
-            })) {
-            Link link{QString("vcs:///%1").arg(text)};
-            return link;
-        }
+    if (result.startsWith("~/")) {
+        // For a shell running elsewhere the text names a different filesystem.
+        if (!shellFilePath().isLocal())
+            return std::nullopt;
+        result = QDir::homePath() + result.mid(1);
     }
 
+    // A web address is handed to the desktop when activated and is never
+    // resolved as a path, so it needs neither a directory nor a check that it
+    // exists. Naming only a host leaves its path empty, so it is the host that
+    // has to be there. It is also read before a line and column postfix is
+    // taken off the end: that postfix is a trailing ":<digits>", which is what
+    // a port is, so https://host:8443 would otherwise be reached for at 443.
+    const FilePath web = FilePath::fromUserInput(result);
+    const QString webScheme = web.scheme().toString();
+    if (webScheme == u"http" || webScheme == u"https") {
+        if (web.host().isEmpty())
+            return std::nullopt;
+        return Link{web.toUrlishString()};
+    }
+
+    Utils::Link link = Utils::Link::fromString(result, true);
+    const QString scheme = link.targetFilePath.scheme().toString();
+
+    if (link.targetFilePath.isEmpty())
+        return std::nullopt;
+
+    // Everything else is treated as a path, and only a plain one: a scheme or
+    // a host would turn the existence check below into a request to whatever
+    // they name.
+    if (!scheme.isEmpty() || !link.targetFilePath.host().isEmpty())
+        return std::nullopt;
+
+    if (link.targetFilePath.isAbsolutePath()) {
+        // An absolute path printed by a shell elsewhere names a file on that
+        // machine, so look for it there rather than here.
+        if (!shellFilePath().isLocal())
+            link.targetFilePath = shellFilePath().withNewPath(link.targetFilePath.path());
+    } else {
+        // Resolve against the directory the shell reported, or failing that
+        // the one Qt Creator started it in. With neither, there is nothing the
+        // reader chose to resolve against.
+        const FilePath base = !m_cwd.isEmpty()
+                                  ? m_cwd
+                                  : m_openParameters.workingDirectory.value_or(FilePath{});
+        if (base.isEmpty())
+            return std::nullopt;
+        link.targetFilePath = base.pathAppended(link.targetFilePath.path());
+    }
+
+    if (link.hasValidTarget() && link.targetFilePath.exists())
+        return Link{link.targetFilePath.toUrlishString(), link.target.line, link.target.column};
+
     return std::nullopt;
+}
+
+std::optional<TerminalSolution::TerminalView::Link> TerminalWidget::toLink(const QString &text)
+{
+    constexpr qsizetype maxCachedLinks = 32;
+
+    // Detection runs on every pointer move with Control held, and the path
+    // branch below asks the shell's device whether the file exists - for a
+    // shell in a container or over ssh, a round trip on the GUI thread. The
+    // pointer crosses the same handful of words over and over, so keep the
+    // answer for each of them rather than only for the last one: a single slot
+    // was defeated by moving back and forth between two words, which is most
+    // of what the pointer does.
+    const auto cached = std::find_if(m_linkCache.begin(),
+                                     m_linkCache.end(),
+                                     [&text, this](const LinkCache &entry) {
+                                         return entry.text == text && entry.cwd == m_cwd;
+                                     });
+    if (cached != m_linkCache.end()) {
+        std::rotate(m_linkCache.begin(), cached, std::next(cached));
+        return m_linkCache.first().link;
+    }
+
+    const std::optional<Link> link = sniffLink(text);
+    m_linkCache.prepend(LinkCache{text, m_cwd, link});
+    if (m_linkCache.size() > maxCachedLinks)
+        m_linkCache.removeLast();
+    return link;
+}
+
+std::optional<TerminalSolution::TerminalView::Link> TerminalWidget::sniffLink(const QString &text)
+{
+    if (const std::optional<Link> link = toPathOrWebLink(text))
+        return link;
+
+    if (m_cwd.isEmpty())
+        return std::nullopt;
+
+    const bool looksLikeRevision = text.size() >= 7 && text.size() <= 40
+                                   && Utils::allOf(text, [](QChar c) {
+                                          c = c.toLower();
+                                          return c.isDigit() || (c >= 'a' && c <= 'f');
+                                      });
+    if (!looksLikeRevision)
+        return std::nullopt;
+
+    return Link{QString("vcs:///%1").arg(text)};
 }
 
 void TerminalWidget::onReadyRead(bool forceFlush)
 {
     QByteArray data = m_process->readAllRawStandardOutput();
+
+    // Whether a path names a file that exists can only have changed because
+    // something ran, so the cached answers stand until the shell writes. This
+    // is what keeps a "no such file" answer from outliving the file's creation.
+    m_linkCache.clear();
 
     writeToTerminal(data, forceFlush);
 }
@@ -620,25 +708,18 @@ void TerminalWidget::linkActivated(const Link &link)
     }
 
     if (link.text.startsWith("vcs:///")) {
-        QString reference = link.text.mid(7);
-        IVersionControl *vcs = VcsManager::findVersionControlForDirectory(m_cwd);
-
-        if (vcs) {
-            vcs->vcsDescribe(m_cwd, reference);
-            return;
-        }
-
+        if (IVersionControl *vcs = VcsManager::findVersionControlForDirectory(m_cwd))
+            vcs->vcsDescribe(m_cwd, link.text.mid(7));
         return;
     }
 
-    FilePath filePath = FilePath::fromUserInput(link.text);
-
-    if (filePath.scheme().toString().startsWith("http")) {
-        QDesktopServices::openUrl(QUrl::fromUserInput(link.text));
+    const QUrl url = QUrl::fromUserInput(link.text);
+    if (url.scheme() == u"http" || url.scheme() == u"https") {
+        QDesktopServices::openUrl(url);
         return;
     }
 
-    open(filePath);
+    open(FilePath::fromUserInput(link.text));
 }
 
 void TerminalWidget::focusInEvent(QFocusEvent *event)

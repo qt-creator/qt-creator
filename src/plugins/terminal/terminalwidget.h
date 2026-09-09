@@ -74,6 +74,8 @@ protected:
     qint64 writeToPty(const QByteArray &data) override;
     bool resizePty(QSize newSize) override;
     void setClipboard(const QString &text) override;
+    std::optional<TerminalView::Link> toPathOrWebLink(const QString &text);
+    std::optional<TerminalView::Link> sniffLink(const QString &text);
     std::optional<TerminalView::Link> toLink(const QString &text) override;
 
     void registerShortcut(Core::Command *command);
@@ -94,6 +96,18 @@ private:
 
     Utils::FilePath m_cwd;
     Utils::CommandLine m_currentCommand;
+
+    // The answer sniffLink gave for the word the pointer was last over.
+    struct LinkCache
+    {
+        QString text;
+        Utils::FilePath cwd;
+        std::optional<TerminalView::Link> link;
+    };
+    // Most recently used first, bounded in toLink. Dropped whenever the shell
+    // writes, because that is the only thing that can create or remove the
+    // file an entry's answer is about.
+    QList<LinkCache> m_linkCache;
 
     RegisteredAction m_copy;
     RegisteredAction m_paste;
