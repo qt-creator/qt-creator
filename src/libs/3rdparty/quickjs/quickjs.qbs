@@ -23,8 +23,11 @@ QtcLibrary {
 
         files: [
             "builtin-array-fromasync.h",
-            "cutils.c",
+            "builtin-iterator-zip.h",
+            "builtin-iterator-zip-keyed.h",
             "cutils.h",
+            "dtoa.c",
+            "dtoa.h",
             "libregexp-opcode.h",
             "libregexp.c",
             "libregexp.h",
@@ -37,8 +40,6 @@ QtcLibrary {
             "quickjs-opcode.h",
             "quickjs.c",
             "quickjs.h",
-            "xsum.c",
-            "xsum.h",
         ]
     }
 
