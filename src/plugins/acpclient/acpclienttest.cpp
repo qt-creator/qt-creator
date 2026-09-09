@@ -34,6 +34,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/markdownbrowser.h>
 
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QDir>
 #include <QDoubleSpinBox>
@@ -519,6 +520,11 @@ private slots:
     void testChatPanelLiveUsageDelta();
     void testChatPanelTokenUsageToggle();
     void testChatPanelElicitationForm();
+    void testChatPanelElicitationSingleSelect();
+    void testChatPanelElicitationWizard();
+    void testChatPanelElicitationCustomAnswerAnswersAlone();
+    void testChatPanelElicitationWizardQuestionOrder();
+    void testChatPanelElicitationWizardStepLabelScale();
     void testChatPanelElicitationDecline();
     void testChatPanelElicitationUnsupportedRequired();
     void testChatPanelElicitationNumberPrecision();
@@ -2285,6 +2291,79 @@ void AcpClientTest::testChatPanelUnchangedUsageElapsedOnly()
     QVERIFY2(!stats.first().contains("USD"), qPrintable(stats.first()));
 }
 
+static V2::ElicitationSchema &addQuestion(V2::ElicitationSchema &schema, const QString &id,
+                                          const QString &title,
+                                          const QList<V2::EnumOption> &options)
+{
+    schema.addProperty(id, V2::StringPropertySchema().title(title).oneOf(options));
+    schema.addProperty(
+        id + "_custom",
+        V2::StringPropertySchema()
+            .title(QStringLiteral("Other"))
+            ._meta(QJsonObject{{"_askUserQuestionCustomAnswer",
+                                QJsonObject{{"isCustomAnswer", true}, {"questionId", id}}}}));
+    return schema;
+}
+
+// The question pages of an elicitation, in the order they are asked.
+static QList<QWidget *> questionPages(const QWidget *parent)
+{
+    return parent->findChildren<QWidget *>(QLatin1String("elicitationQuestion"));
+}
+
+// The question on screen, which is the only page that is not hidden.
+static QWidget *currentQuestionPage(const QWidget *parent)
+{
+    const QList<QWidget *> pages = questionPages(parent);
+    for (QWidget *page : pages) {
+        if (!page->isHidden())
+            return page;
+    }
+    return nullptr;
+}
+
+// The input of the question titled `title`, which is the last widget of the
+// block that title heads, wherever that block sits.
+static QWidget *findField(const QWidget *parent, const QString &title)
+{
+    if (!parent)
+        return nullptr;
+    const QList<QLabel *> titles
+        = parent->findChildren<QLabel *>(QLatin1String("elicitationTitle"));
+    for (QLabel *label : titles) {
+        if (label->text() != title)
+            continue;
+        QLayout *block = label->parentWidget()->layout();
+        QLayoutItem *input = block ? block->itemAt(block->count() - 1) : nullptr;
+        return input ? input->widget() : nullptr;
+    }
+    return nullptr;
+}
+
+// The description shown between a question and its answer.
+static QString fieldDescription(const QWidget *parent, const QString &title)
+{
+    const QList<QLabel *> titles
+        = parent->findChildren<QLabel *>(QLatin1String("elicitationTitle"));
+    for (QLabel *label : titles) {
+        if (label->text() != title)
+            continue;
+        const auto *description = label->parentWidget()->findChild<QLabel *>(
+            QLatin1String("elicitationDescription"));
+        return description ? description->text() : QString();
+    }
+    return {};
+}
+static Utils::QtcButton *findButton(const QWidget *parent, const QString &text)
+{
+    const QList<Utils::QtcButton *> buttons = parent->findChildren<Utils::QtcButton *>();
+    for (Utils::QtcButton *button : buttons) {
+        if (button->text() == text)
+            return button;
+    }
+    return nullptr;
+}
+
 // The elicitation form renders the requested schema, refuses to submit while
 // a required field is empty, and reports the entered values.
 void AcpClientTest::testChatPanelElicitationForm()
@@ -2323,14 +2402,12 @@ void AcpClientTest::testChatPanelElicitationForm()
     auto *edit = panel.messageView()->findChild<QLineEdit *>();
     QVERIFY(edit);
 
-    // Descriptions surface as tooltips on the input, on its form row label,
-    // and on multi-select items.
-    QCOMPARE(edit->toolTip(), "The name used in the greeting");
-    const QList<QLabel *> labels = panel.messageView()->findChildren<QLabel *>();
-    QVERIFY(Utils::anyOf(labels, [](const QLabel *label) {
-        return label->text() == QLatin1String("Your name:")
-               && label->toolTip() == QLatin1String("The name used in the greeting");
-    }));
+    // The description of a question is read between its title and its answer,
+    // and the description of a multi-select item is its tooltip.
+    QCOMPARE(fieldDescription(panel.messageView(), "Your name"),
+             "The name used in the greeting");
+    // Read once, not again inside the input it describes.
+    QVERIFY(edit->placeholderText().isEmpty());
     const QList<Utils::QtcCheckBox *> checkBoxes
         = panel.messageView()->findChildren<Utils::QtcCheckBox *>();
     QVERIFY(Utils::anyOf(checkBoxes, [](const Utils::QtcCheckBox *box) {
@@ -2338,20 +2415,34 @@ void AcpClientTest::testChatPanelElicitationForm()
                && box->toolTip() == QLatin1String("The warm one");
     }));
 
-    Utils::QtcButton *submit = nullptr;
-    const QList<Utils::QtcButton *> buttons
-        = panel.messageView()->findChildren<Utils::QtcButton *>();
-    for (Utils::QtcButton *button : buttons) {
-        if (button->text() == QLatin1String("Submit"))
-            submit = button;
-    }
+    Utils::QtcButton *submit = findButton(panel.messageView(), "Submit");
+    Utils::QtcButton *next = findButton(panel.messageView(), "Next");
     QVERIFY(submit);
+    QVERIFY(next);
 
-    // The required field is empty, so nothing is emitted yet.
-    submit->click();
+    // Three properties are three questions, asked one at a time.
+    const QList<QWidget *> pages = questionPages(panel.messageView());
+    QCOMPARE(pages.size(), 3);
+
+    // Walk to the question the required field belongs to. Which one that is
+    // follows from the order of the properties, which the schema decides.
+    for (int step = 0; step < pages.size(); ++step) {
+        if (findField(currentQuestionPage(panel.messageView()), "Your name"))
+            break;
+        next->click();
+    }
+    QWidget *namePage = currentQuestionPage(panel.messageView());
+    QCOMPARE(findField(namePage, "Your name"), edit);
+
+    // Empty and required, so the wizard does not move past it.
+    next->click();
+    QCOMPARE(currentQuestionPage(panel.messageView()), namePage);
     QVERIFY(acceptedIds.isEmpty());
 
     edit->setText("Alice");
+    for (int step = 0; step < pages.size() && !submit->isEnabled(); ++step)
+        next->click();
+    QVERIFY(submit->isEnabled());
     submit->click();
     QCOMPARE(acceptedIds.size(), 1);
     QCOMPARE(acceptedIds.first(), QJsonValue(7));
@@ -2363,15 +2454,299 @@ void AcpClientTest::testChatPanelElicitationForm()
     QVERIFY(!edit->isEnabled());
 }
 
-static Utils::QtcButton *findButton(const QWidget *parent, const QString &text)
+// A single-select enum offers its options as radio buttons: all of them are
+// visible, the default one is checked, and picking another one is reported.
+void AcpClientTest::testChatPanelElicitationSingleSelect()
 {
-    const QList<Utils::QtcButton *> buttons = parent->findChildren<Utils::QtcButton *>();
+    // The chat scale multiplies the spacings of the conversation, so the
+    // tokens below are only the plain ones at 100 percent.
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    const QList<V2::EnumOption> options
+        = {V2::EnumOption()
+               .const_(QStringLiteral("simple"))
+               .title(QStringLiteral("Simple pick"))
+               .description(QStringLiteral("One of a few")),
+           V2::EnumOption().const_(QStringLiteral("quick")).title(QStringLiteral("Quick pick"))};
+    request.requestedSchema = V2::ElicitationSchema().addProperty(
+        "mode",
+        V2::StringPropertySchema()
+            .title(QStringLiteral("Demo type"))
+            .description(QStringLiteral("Which demo elicitation to show"))
+            .default_(QStringLiteral("quick"))
+            .oneOf(options));
+
+    QList<QJsonObject> acceptedContents;
+    QObject::connect(&panel, &ChatPanel::elicitationAccepted, &panel,
+                     [&](const QJsonValue &, const QJsonObject &content) {
+                         acceptedContents.append(content);
+                     });
+
+    panel.addElicitationRequest(QJsonValue(9), request);
+
+    // No combo box hides the options.
+    QVERIFY(panel.messageView()->findChildren<QComboBox *>().isEmpty());
+
+    // A single question is asked as a plain form, without wizard chrome.
+    QVERIFY(questionPages(panel.messageView()).isEmpty());
+    QVERIFY(!findButton(panel.messageView(), "Next"));
+    QVERIFY(!findButton(panel.messageView(), "Back"));
+
+    // A question reads title, description, answer, in that order, with the
+    // title standing out. The three are spaced by a token of their own rather
+    // than by whatever the style would hand out.
+    using namespace Utils::StyleHelper::SpacingTokens;
+    QWidget *field = findField(panel.messageView(), "Demo type");
+    QVERIFY(field);
+    QLayout *block = field->parentWidget()->layout();
+    QCOMPARE(block->spacing(), GapVXxs);
+    QCOMPARE(block->count(), 3);
+    auto *title = qobject_cast<QLabel *>(block->itemAt(0)->widget());
+    auto *description = qobject_cast<QLabel *>(block->itemAt(1)->widget());
+    QVERIFY(title);
+    QVERIFY(description);
+    QCOMPARE(title->text(), "Demo type");
+    QVERIFY(title->font().bold());
+    QCOMPARE(description->text(), "Which demo elicitation to show");
+    QVERIFY(!description->font().bold());
+    QCOMPARE(block->itemAt(2)->widget(), field);
+
+    const QList<Utils::QtcRadioButton *> radios
+        = panel.messageView()->findChildren<Utils::QtcRadioButton *>();
+    QCOMPARE(radios.size(), 2);
+    QCOMPARE(radios.at(0)->text(), "Simple pick");
+    QCOMPARE(radios.at(0)->toolTip(), "One of a few");
+    QCOMPARE(radios.at(1)->text(), "Quick pick");
+
+    // The default of the schema decides which one starts out checked.
+    QVERIFY(!radios.at(0)->isChecked());
+    QVERIFY(radios.at(1)->isChecked());
+
+    radios.at(0)->click();
+    QVERIFY(!radios.at(1)->isChecked());
+
+    Utils::QtcButton *submit = nullptr;
+    const QList<Utils::QtcButton *> buttons
+        = panel.messageView()->findChildren<Utils::QtcButton *>();
     for (Utils::QtcButton *button : buttons) {
-        if (button->text() == text)
-            return button;
+        if (button->text() == QLatin1String("Submit"))
+            submit = button;
     }
-    return nullptr;
+    QVERIFY(submit);
+
+    submit->click();
+
+    QCOMPARE(acceptedContents.size(), 1);
 }
+
+
+// Several questions are asked one at a time: Back and Next walk them, the last
+// one carries the submit, and a custom answer is asked next to the question it
+// belongs to rather than on a page of its own.
+void AcpClientTest::testChatPanelElicitationWizard()
+{
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    V2::ElicitationSchema schema;
+    addQuestion(schema, "question_0", "Demo type",
+                {V2::EnumOption().const_("Single choice").title("Single choice"),
+                 V2::EnumOption().const_("Multi-select").title("Multi-select")});
+    // One option more than the first question, so the two pages differ in
+    // height.
+    addQuestion(schema, "question_1", "Intensity",
+                {V2::EnumOption().const_("full").title("full"),
+                 V2::EnumOption().const_("lite").title("lite"),
+                 V2::EnumOption().const_("ultra").title("ultra")});
+    request.requestedSchema = schema;
+
+    QList<QJsonObject> acceptedContents;
+    QObject::connect(&panel, &ChatPanel::elicitationAccepted, &panel,
+                     [&](const QJsonValue &, const QJsonObject &content) {
+                         acceptedContents.append(content);
+                     });
+
+    panel.addElicitationRequest(QJsonValue(11), request);
+
+    const QList<QWidget *> pages = questionPages(panel.messageView());
+    QCOMPARE(pages.size(), 2);
+
+    Utils::QtcButton *back = findButton(panel.messageView(), "Back");
+    Utils::QtcButton *next = findButton(panel.messageView(), "Next");
+    Utils::QtcButton *submit = findButton(panel.messageView(), "Submit");
+    QVERIFY(back);
+    QVERIFY(next);
+    QVERIFY(submit);
+
+    // The first question has nothing before it and something after it, and
+    // cannot be submitted past. Only that question is on screen.
+    QCOMPARE(currentQuestionPage(panel.messageView()), pages.at(0));
+    QVERIFY(pages.at(1)->isHidden());
+    QVERIFY(back->isHidden());
+    QVERIFY(!next->isHidden());
+    QVERIFY(submit->isHidden());
+    QVERIFY(!submit->isEnabled());
+
+    // The question and the custom answer that belongs to it share a page, and
+    // each question has an "Other" of its own.
+    QVERIFY(findField(pages.at(0), "Demo type"));
+    QVERIFY(findField(pages.at(0), "Other"));
+    QVERIFY(findField(pages.at(1), "Intensity"));
+    QVERIFY(findField(pages.at(1), "Other"));
+    QVERIFY(!findField(pages.at(0), "Intensity"));
+
+    // An answer of one's own replaces the offered ones, which are out of reach
+    // while it holds text.
+    auto *custom = qobject_cast<QLineEdit *>(findField(pages.at(0), "Other"));
+    QWidget *offered = findField(pages.at(0), "Demo type");
+    QVERIFY(custom);
+    QVERIFY(offered);
+    QVERIFY(offered->isEnabled());
+    custom->setText("something of my own");
+    QVERIFY(!offered->isEnabled());
+    custom->clear();
+    QVERIFY(offered->isEnabled());
+
+    // The widget is as tall as the question it shows, so the shorter question
+    // does not reserve the room the longer one needs.
+    QWidget *card = pages.at(0)->parentWidget();
+    QVERIFY(card);
+    const int shortQuestionHeight = card->sizeHint().height();
+
+    next->click();
+
+    QVERIFY(card->sizeHint().height() > shortQuestionHeight);
+    QCOMPARE(currentQuestionPage(panel.messageView()), pages.at(1));
+    QVERIFY(pages.at(0)->isHidden());
+    QVERIFY(!back->isHidden());
+    QVERIFY(next->isHidden());
+    QVERIFY(!submit->isHidden());
+    QVERIFY(submit->isEnabled());
+
+    back->click();
+    QCOMPARE(currentQuestionPage(panel.messageView()), pages.at(0));
+
+    next->click();
+    submit->click();
+
+    // Every question is reported, whichever page it was answered on. The
+    // custom answers were left empty, so they are not.
+    QCOMPARE(acceptedContents.size(), 1);
+    const QJsonObject content = acceptedContents.first();
+    QCOMPARE(content.value("question_0").toString(), "Single choice");
+    QCOMPARE(content.value("question_1").toString(), "full");
+    QVERIFY(!content.contains("question_0_custom"));
+    QVERIFY(!content.contains("question_1_custom"));
+}
+
+// An answer of one's own is the answer: the offered one it replaces is out of
+// The questions are asked in the order the required array names them, which is
+// the only order the agent chose that survives being parsed - the property map
+// and a QJsonObject both sort their keys.
+void AcpClientTest::testChatPanelElicitationWizardQuestionOrder()
+{
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    V2::ElicitationSchema schema;
+    // Sorted by key the style question comes first, so asking what to build
+    // first is something only an order of its own can do.
+    addQuestion(schema, "kind", "What to build",
+                {V2::EnumOption().const_("app").title("app")});
+    addQuestion(schema, "style", "Which style",
+                {V2::EnumOption().const_("plain").title("plain")});
+    schema.required(QJsonArray{"style", "kind"});
+    request.requestedSchema = schema;
+
+    panel.addElicitationRequest(QJsonValue(21), request);
+
+    const QList<QWidget *> pages = questionPages(panel.messageView());
+    QCOMPARE(pages.size(), 2);
+    QVERIFY(findField(pages.at(0), "Which style"));
+    QVERIFY(findField(pages.at(1), "What to build"));
+}
+
+// "Question 1 of 2" is inside the conversation, so it follows the chat zoom
+// like the questions under it.
+void AcpClientTest::testChatPanelElicitationWizardStepLabelScale()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    V2::ElicitationSchema schema;
+    addQuestion(schema, "question_0", "First",
+                {V2::EnumOption().const_("a").title("a")});
+    addQuestion(schema, "question_1", "Second",
+                {V2::EnumOption().const_("b").title("b")});
+    request.requestedSchema = schema;
+
+    panel.addElicitationRequest(QJsonValue(22), request);
+
+    QLabel *step = nullptr;
+    const QList<QLabel *> labels = panel.messageView()->findChildren<QLabel *>();
+    for (QLabel *label : labels) {
+        if (label->text().startsWith("Question 1"))
+            step = label;
+    }
+    QVERIFY(step);
+    const int height = step->height();
+    const qreal pointSize = step->font().pointSizeF();
+
+    ChatFontScale::setScale(2.0);
+
+    QCOMPARE(step->font().pointSizeF(), pointSize * 2);
+    QCOMPARE(step->height(), height * 2);
+}
+
+// reach, and is not reported next to it either.
+void AcpClientTest::testChatPanelElicitationCustomAnswerAnswersAlone()
+{
+    ChatPanel panel;
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    V2::ElicitationSchema schema;
+    addQuestion(schema, "question_0", "Demo type",
+                {V2::EnumOption().const_("Single choice").title("Single choice"),
+                 V2::EnumOption().const_("Multi-select").title("Multi-select")});
+    schema.required(QJsonArray{"question_0"});
+    request.requestedSchema = schema;
+
+    QList<QJsonObject> acceptedContents;
+    QObject::connect(&panel, &ChatPanel::elicitationAccepted, &panel,
+                     [&](const QJsonValue &, const QJsonObject &content) {
+                         acceptedContents.append(content);
+                     });
+
+    panel.addElicitationRequest(QJsonValue(12), request);
+
+    auto *custom = qobject_cast<QLineEdit *>(findField(panel.messageView(), "Other"));
+    QVERIFY(custom);
+    custom->setText("something of my own");
+
+    Utils::QtcButton *submit = findButton(panel.messageView(), "Submit");
+    QVERIFY(submit);
+    submit->click();
+
+    QCOMPARE(acceptedContents.size(), 1);
+    const QJsonObject content = acceptedContents.first();
+    QCOMPARE(content.value("question_0_custom").toString(), "something of my own");
+    QVERIFY(!content.contains("question_0"));
+}
+
 
 // Declining an elicitation form reports the request id and locks the form.
 void AcpClientTest::testChatPanelElicitationDecline()
@@ -2443,18 +2818,19 @@ void AcpClientTest::testChatPanelElicitationNumberPrecision()
 
     panel.addElicitationRequest(QJsonValue(20), request);
 
-    // QtcDoubleSpinBox has no Q_OBJECT of its own; the base class is enough to
-    // find it and no other double spin box is in the form.
-    const QList<QDoubleSpinBox *> spins
-        = panel.messageView()->findChildren<QDoubleSpinBox *>();
-    QCOMPARE(spins.size(), 2);
-    // The form is built in property order: "ratio" sorts before "threshold".
-    QDoubleSpinBox *ratio = spins.first();
-    QDoubleSpinBox *threshold = spins.last();
+    // Two properties are two questions, each with its own row.
+    auto *ratio = qobject_cast<QDoubleSpinBox *>(findField(panel.messageView(), "ratio"));
+    auto *threshold = qobject_cast<QDoubleSpinBox *>(findField(panel.messageView(), "threshold"));
+    QVERIFY(ratio);
+    QVERIFY(threshold);
     QCOMPARE(threshold->value(), 0.001);
 
     ratio->setValue(3.14159);
     QCOMPARE(ratio->value(), 3.14159);
+
+    Utils::QtcButton *next = findButton(panel.messageView(), "Next");
+    QVERIFY(next);
+    next->click();
 
     Utils::QtcButton *submit = findButton(panel.messageView(), "Submit");
     QVERIFY(submit);

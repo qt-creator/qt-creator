@@ -38,7 +38,6 @@
 #include <QComboBox>
 #include <QDateTime>
 #include <QDoubleSpinBox>
-#include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -60,6 +59,8 @@ using namespace Acp::V2;
 using namespace Utils::StyleHelper::SpacingTokens;
 
 namespace AcpClient::Internal {
+
+static void applyChatStatsFormat(QLabel *label);
 
 // ---------------------------------------------------------------------------
 // AvatarWidget — circular avatar for agent messages
@@ -794,6 +795,14 @@ public:
             Utils::QtcButton::SmallPrimary, this);
         m_declineButton = new Utils::QtcButton(Tr::tr("Decline"),
                                                Utils::QtcButton::SmallSecondary, this);
+        if (isWizard()) {
+            m_backButton = new Utils::QtcButton(Tr::tr("Back"),
+                                                Utils::QtcButton::SmallSecondary, this);
+            m_nextButton = new Utils::QtcButton(Tr::tr("Next"),
+                                                Utils::QtcButton::SmallPrimary, this);
+            buttonLayout->addWidget(m_backButton);
+            buttonLayout->addWidget(m_nextButton);
+        }
         buttonLayout->addWidget(m_submitButton);
         buttonLayout->addWidget(m_declineButton);
         buttonLayout->addStretch();
@@ -813,13 +822,8 @@ public:
         m_bodyLayout->addWidget(m_statusLabel);
 
         QObject::connect(m_submitButton, &Utils::QtcButton::clicked, this, [this] {
-            const QStringList missing = missingRequiredFields();
-            if (!missing.isEmpty()) {
-                m_errorLabel->setText(
-                    Tr::tr("Required: %1").arg(missing.join(QStringLiteral(", "))));
-                m_errorLabel->show();
+            if (!reportMissing(missingRequiredFields()))
                 return;
-            }
             resolve(Tr::tr("Submitted"));
             emit accepted(collectContent());
         });
@@ -827,12 +831,63 @@ public:
             resolve(Tr::tr("Declined"));
             emit declined();
         });
+
+        if (isWizard()) {
+            QObject::connect(m_backButton, &Utils::QtcButton::clicked, this, [this] {
+                showPage(m_currentPage - 1);
+            });
+            QObject::connect(m_nextButton, &Utils::QtcButton::clicked, this, [this] {
+                const int current = m_currentPage;
+                if (reportMissing(missingRequiredFields(current)))
+                    showPage(current + 1);
+            });
+            showPage(0);
+        }
+    }
+
+    // More than one question is walked with Back and Next; a single one is a
+    // plain form.
+    bool isWizard() const { return m_questionPages.size() > 1; }
+
+    // Which question is shown, and which of the buttons that question needs:
+    // the last one is submitted rather than followed by another.
+    void showPage(int requested)
+    {
+        const int count = m_questionPages.size();
+        const int page = std::clamp(requested, 0, count - 1);
+        m_currentPage = page;
+        for (int index = 0; index < count; ++index)
+            m_questionPages.at(index)->setVisible(index == page);
+        m_stepLabel->setText(Tr::tr("Question %1 of %2").arg(page + 1).arg(count));
+        m_errorLabel->hide();
+
+        const bool last = page == count - 1;
+        m_backButton->setVisible(page > 0);
+        m_nextButton->setVisible(!last);
+        m_submitButton->setVisible(last);
+        // Hiding the button is what the eye goes by, but clicking it is not
+        // the only way to reach it, so an unanswered question also cannot be
+        // submitted past.
+        m_submitButton->setEnabled(last && !m_hasUnsupportedRequiredField);
+    }
+
+    bool reportMissing(const QStringList &missing)
+    {
+        if (missing.isEmpty())
+            return true;
+        m_errorLabel->setText(Tr::tr("Required: %1").arg(missing.join(QStringLiteral(", "))));
+        m_errorLabel->show();
+        return false;
     }
 
     void resolve(const QString &statusText)
     {
         m_submitButton->setEnabled(false);
         m_declineButton->setEnabled(false);
+        if (isWizard()) {
+            m_backButton->setEnabled(false);
+            m_nextButton->setEnabled(false);
+        }
         for (QWidget *input : std::as_const(m_inputs))
             input->setEnabled(false);
         m_errorLabel->hide();
@@ -863,26 +918,161 @@ private:
         QString key;
         QString label;
         bool required = false;
+        int page = 0;
         std::function<bool()> hasValue;
         std::function<QJsonValue()> value;
+        // Set on a question that an answer of one's own replaces, and true
+        // while that answer holds text.
+        std::function<bool()> replaced;
     };
+
+    static bool isReplaced(const Field &field)
+    {
+        return field.replaced && field.replaced();
+    }
 
     static QString propertyLabel(const std::optional<QString> &title, const QString &key)
     {
         return title.value_or(key);
     }
 
-    void addField(QFormLayout *form, const QString &label, const QString &description,
+    // A question reads top to bottom: what is asked, in bold; what it means,
+    // below that; the answer last. The three belong together, so they sit in a
+    // block of their own, tighter than the questions are apart.
+    void addField(QVBoxLayout *layout, const QString &label, const QString &description,
                   QWidget *input, Field field)
     {
-        form->addRow(label + QStringLiteral(":"), input);
+        auto *block = new QWidget(this);
+        auto *blockLayout = new QVBoxLayout(block);
+        blockLayout->setContentsMargins(0, 0, 0, 0);
+        blockLayout->setSpacing(GapVXxs);
+
+        auto *title = new QLabel(label, block);
+        title->setObjectName("elicitationTitle");
+        QFont titleFont = QApplication::font();
+        titleFont.setBold(true);
+        setChatFont(title, titleFont);
+        blockLayout->addWidget(title);
+
         if (!description.isEmpty()) {
-            input->setToolTip(description);
-            if (QWidget *rowLabel = form->labelForField(input))
-                rowLabel->setToolTip(description);
+            auto *descriptionLabel = new QLabel(description, block);
+            descriptionLabel->setObjectName("elicitationDescription");
+            descriptionLabel->setTextFormat(Qt::PlainText);
+            descriptionLabel->setWordWrap(true);
+            QPalette pal = descriptionLabel->palette();
+            pal.setColor(QPalette::WindowText,
+                         Utils::creatorColor(Utils::Theme::Token_Text_Muted));
+            descriptionLabel->setPalette(pal);
+            blockLayout->addWidget(descriptionLabel);
         }
+
+        blockLayout->addWidget(input);
+        layout->addWidget(block);
         m_inputs.append(input);
+        m_inputOfProperty.insert(field.key, input);
         m_fields.append(std::move(field));
+    }
+
+    // An answer of one's own replaces the ones that were offered, so those are
+    // out of reach while it holds text, and are not reported either: a
+    // single-select always has one of its options checked, so taking it out of
+    // reach alone would still answer the question twice.
+    void linkCustomAnswers(const QMap<QString, ElicitationPropertySchema> &properties)
+    {
+        for (auto it = properties.constBegin(); it != properties.constEnd(); ++it) {
+            const QString owner = customAnswerOwner(it.value());
+            if (owner.isEmpty())
+                continue;
+            auto *custom = qobject_cast<QLineEdit *>(m_inputOfProperty.value(it.key()));
+            QWidget *offered = m_inputOfProperty.value(owner);
+            if (!custom || !offered)
+                continue;
+            QObject::connect(custom, &QLineEdit::textChanged, offered,
+                             [offered](const QString &text) {
+                                 offered->setEnabled(text.isEmpty());
+                             });
+            offered->setEnabled(custom->text().isEmpty());
+            for (Field &field : m_fields) {
+                if (field.key == owner)
+                    field.replaced = [custom] { return !custom->text().isEmpty(); };
+            }
+        }
+    }
+
+    static QVBoxLayout *newQuestionLayout()
+    {
+        auto *layout = new QVBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(GapVS);
+        return layout;
+    }
+
+    // The question a property answers, when it is not one of its own: an
+    // askUserQuestion custom answer names the question it belongs to, and is
+    // asked next to it rather than on a page of its own.
+    static QString customAnswerOwner(const ElicitationPropertySchema &property)
+    {
+        const QJsonObject meta = std::visit(
+            [](const auto &schema) -> QJsonObject {
+                if constexpr (requires { schema._meta(); })
+                    return schema._meta().asOptional().value_or(QJsonObject());
+                else
+                    return {};
+            },
+            property);
+        const QJsonObject custom = meta.value("_askUserQuestionCustomAnswer").toObject();
+        if (!custom.value("isCustomAnswer").toBool())
+            return {};
+        return custom.value("questionId").toString();
+    }
+
+    // The order the agent wrote its questions in is gone by the time the
+    // schema is parsed: the properties are a QMap, and a QJsonObject sorts its
+    // keys as well. The required array survives as written, so it leads, and
+    // whatever it does not name follows.
+    static QStringList orderedKeys(const QMap<QString, ElicitationPropertySchema> &properties,
+                                   const QStringList &required)
+    {
+        QStringList keys;
+        for (const QString &key : required) {
+            if (properties.contains(key) && !keys.contains(key))
+                keys.append(key);
+        }
+        for (auto it = properties.constBegin(); it != properties.constEnd(); ++it) {
+            if (!keys.contains(it.key()))
+                keys.append(it.key());
+        }
+        return keys;
+    }
+
+    // The properties of the schema, grouped into the questions the wizard
+    // walks. Properties keep their order within a question.
+    static QList<QStringList> questionsOf(
+        const QMap<QString, ElicitationPropertySchema> &properties,
+        const QStringList &required)
+    {
+        const QStringList keys = orderedKeys(properties, required);
+        QList<QStringList> questions;
+        QHash<QString, int> pageOfQuestion;
+        for (const QString &key : keys) {
+            if (!customAnswerOwner(properties.value(key)).isEmpty())
+                continue;
+            pageOfQuestion.insert(key, questions.size());
+            questions.append({key});
+        }
+        for (const QString &key : keys) {
+            const QString owner = customAnswerOwner(properties.value(key));
+            if (owner.isEmpty())
+                continue;
+            // A custom answer for a question that is not in the schema still
+            // has to be answerable, so it becomes a question of its own.
+            const auto page = pageOfQuestion.constFind(owner);
+            if (page != pageOfQuestion.constEnd())
+                questions[*page].append(key);
+            else
+                questions.append({key});
+        }
+        return questions;
     }
 
     void buildForm(const ElicitationSchema &schema)
@@ -891,36 +1081,68 @@ private:
         for (const QJsonValue &entry : schema.required().asOptional().value_or(QJsonArray()))
             required.append(entry.toString());
 
-        auto *form = new QFormLayout;
-        form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-        m_bodyLayout->addLayout(form);
-
         const QMap<QString, ElicitationPropertySchema> properties
             = schema.properties().value_or(QMap<QString, ElicitationPropertySchema>());
-        for (auto it = properties.constBegin(); it != properties.constEnd(); ++it) {
-            const QString key = it.key();
+        const QList<QStringList> questions = questionsOf(properties, required);
+
+        if (questions.size() < 2) {
+            QVBoxLayout *form = newQuestionLayout();
+            m_bodyLayout->addLayout(form);
+            for (const QStringList &question : questions) {
+                for (const QString &key : question)
+                    addProperty(form, key, properties.value(key), required, 0);
+            }
+            linkCustomAnswers(properties);
+            return;
+        }
+
+        // More than one question is asked one at a time, so a long list of
+        // them does not have to be read before the first can be answered.
+        m_stepLabel = new QLabel(this);
+        applyChatStatsFormat(m_stepLabel);
+        m_bodyLayout->addWidget(m_stepLabel);
+
+        // The questions are shown one at a time by hiding the others rather
+        // than by stacking them: a stack is as tall as its tallest page, which
+        // would leave a short question padded out to the longest one.
+        for (int page = 0; page < questions.size(); ++page) {
+            auto *pageWidget = new QWidget(this);
+            pageWidget->setObjectName("elicitationQuestion");
+            QVBoxLayout *form = newQuestionLayout();
+            pageWidget->setLayout(form);
+            for (const QString &key : questions.at(page))
+                addProperty(form, key, properties.value(key), required, page);
+            m_bodyLayout->addWidget(pageWidget);
+            m_questionPages.append(pageWidget);
+        }
+        linkCustomAnswers(properties);
+    }
+
+    void addProperty(QVBoxLayout *form, const QString &key,
+                     const ElicitationPropertySchema &property, const QStringList &required,
+                     int page)
+    {
+        {
             Field field;
             field.key = key;
             field.required = required.contains(key);
+            field.page = page;
 
-            if (const auto *str = std::get_if<StringPropertySchema>(&it.value())) {
+            if (const auto *str = std::get_if<StringPropertySchema>(&property)) {
                 field.label = propertyLabel(str->title().asOptional(), key);
                 const QString description = str->description().asOptional().value_or(QString());
                 const QJsonArray options = singleSelectOptions(*str);
                 if (!options.isEmpty()) {
-                    auto *combo = comboForOptions(options, str->default_().asOptional());
-                    field.hasValue = [] { return true; };
-                    field.value = [combo] { return QJsonValue(combo->currentData().toString()); };
-                    addField(form, field.label, description, combo, field);
+                    addSingleSelectField(form, options, str->default_().asOptional(), description,
+                                         field);
                 } else {
                     auto *edit = new Utils::QtcLineEdit(this);
                     edit->setText(str->default_().asOptional().value_or(QString()));
-                    edit->setPlaceholderText(description);
                     field.hasValue = [edit] { return !edit->text().isEmpty(); };
                     field.value = [edit] { return QJsonValue(edit->text()); };
                     addField(form, field.label, description, edit, field);
                 }
-            } else if (const auto *num = std::get_if<NumberPropertySchema>(&it.value())) {
+            } else if (const auto *num = std::get_if<NumberPropertySchema>(&property)) {
                 field.label = propertyLabel(num->title().asOptional(), key);
                 const double minimum = num->minimum().asOptional().value_or(
                     std::numeric_limits<double>::lowest());
@@ -938,7 +1160,7 @@ private:
                 field.value = [spin] { return QJsonValue(spin->value()); };
                 addField(form, field.label, num->description().asOptional().value_or(QString()),
                          spin, field);
-            } else if (const auto *integer = std::get_if<IntegerPropertySchema>(&it.value())) {
+            } else if (const auto *integer = std::get_if<IntegerPropertySchema>(&property)) {
                 field.label = propertyLabel(integer->title().asOptional(), key);
                 auto *spin = new Utils::QtcSpinBox(this);
                 spin->setRange(integer->minimum().asOptional().value_or(
@@ -950,7 +1172,7 @@ private:
                 field.value = [spin] { return QJsonValue(spin->value()); };
                 addField(form, field.label,
                          integer->description().asOptional().value_or(QString()), spin, field);
-            } else if (const auto *boolean = std::get_if<BooleanPropertySchema>(&it.value())) {
+            } else if (const auto *boolean = std::get_if<BooleanPropertySchema>(&property)) {
                 field.label = propertyLabel(boolean->title().asOptional(), key);
                 auto *check = new Utils::QtcCheckBox({}, this);
                 check->setChecked(boolean->default_().asOptional().value_or(false));
@@ -958,13 +1180,17 @@ private:
                 field.value = [check] { return QJsonValue(check->isChecked()); };
                 addField(form, field.label,
                          boolean->description().asOptional().value_or(QString()), check, field);
-            } else if (const auto *multi = std::get_if<MultiSelectPropertySchema>(&it.value())) {
+            } else if (const auto *multi = std::get_if<MultiSelectPropertySchema>(&property)) {
                 field.label = propertyLabel(multi->title().asOptional(), key);
                 addMultiSelectField(form, *multi, field);
             } else {
                 auto *label = new QLabel(Tr::tr("Unsupported field type"), this);
                 label->setEnabled(false);
-                form->addRow(propertyLabel({}, key) + QStringLiteral(":"), label);
+                field.label = propertyLabel({}, key);
+                // Nothing can be entered, so the field never holds a value.
+                field.hasValue = [] { return false; };
+                field.value = [] { return QJsonValue(); };
+                addField(form, field.label, {}, label, field);
                 if (field.required)
                     m_hasUnsupportedRequiredField = true;
             }
@@ -1002,26 +1228,51 @@ private:
         return result;
     }
 
-    QComboBox *comboForOptions(const QJsonArray &options,
-                               const std::optional<QString> &defaultValue)
+    // One radio button per option, so every answer stays readable without
+    // opening anything. Radio buttons sharing a parent are exclusive, and the
+    // container is what the form row and the resolved state operate on.
+    void addSingleSelectField(QVBoxLayout *form, const QJsonArray &options,
+                              const std::optional<QString> &defaultValue,
+                              const QString &description, Field field)
     {
-        auto *combo = new Utils::QtcComboBox(Utils::QtcComboBox::SmallPrimary, this);
+        auto *group = new QWidget(this);
+        auto *layout = new QVBoxLayout(group);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(PaddingVXxs);
+
+        auto buttons = std::make_shared<QList<QPair<QString, Utils::QtcRadioButton *>>>();
+        Utils::QtcRadioButton *defaultButton = nullptr;
         for (const QJsonValue &entry : options) {
             const QJsonObject option = entry.toObject();
-            combo->addItem(option.value("label").toString(), option.value("value").toString());
-            const QString description = option.value("description").toString();
-            if (!description.isEmpty())
-                combo->setItemData(combo->count() - 1, description, Qt::ToolTipRole);
+            const QString value = option.value("value").toString();
+            auto *button = new Utils::QtcRadioButton(option.value("label").toString(), group);
+            button->setToolTip(option.value("description").toString());
+            layout->addWidget(button);
+            buttons->append({value, button});
+            if (defaultValue && value == *defaultValue)
+                defaultButton = button;
         }
-        if (defaultValue) {
-            const int index = combo->findData(*defaultValue);
-            if (index >= 0)
-                combo->setCurrentIndex(index);
-        }
-        return combo;
+        if (!defaultButton && !buttons->isEmpty())
+            defaultButton = buttons->first().second;
+        if (defaultButton)
+            defaultButton->setChecked(true);
+
+        field.hasValue = [buttons] {
+            return Utils::anyOf(*buttons, [](const QPair<QString, Utils::QtcRadioButton *> &option) {
+                return option.second->isChecked();
+            });
+        };
+        field.value = [buttons] {
+            for (const auto &[value, button] : *buttons) {
+                if (button->isChecked())
+                    return QJsonValue(value);
+            }
+            return QJsonValue();
+        };
+        addField(form, field.label, description, group, field);
     }
 
-    void addMultiSelectField(QFormLayout *form, const MultiSelectPropertySchema &schema,
+    void addMultiSelectField(QVBoxLayout *form, const MultiSelectPropertySchema &schema,
                              Field field)
     {
         auto *group = new QWidget(this);
@@ -1080,11 +1331,14 @@ private:
         m_bodyLayout->addWidget(link);
     }
 
-    QStringList missingRequiredFields() const
+    // The required fields left empty, of one question or of all of them.
+    QStringList missingRequiredFields(std::optional<int> page = {}) const
     {
         QStringList missing;
         for (const Field &field : m_fields) {
-            if (field.required && !field.hasValue())
+            if (page && field.page != *page)
+                continue;
+            if (field.required && !field.hasValue() && !isReplaced(field))
                 missing.append(field.label);
         }
         return missing;
@@ -1094,7 +1348,7 @@ private:
     {
         QJsonObject content;
         for (const Field &field : m_fields) {
-            if (field.hasValue())
+            if (field.hasValue() && !isReplaced(field))
                 content.insert(field.key, field.value());
         }
         return content;
@@ -1102,10 +1356,17 @@ private:
 
     QList<Field> m_fields;
     QList<QWidget *> m_inputs;
+    QHash<QString, QWidget *> m_inputOfProperty;
     bool m_hasUnsupportedRequiredField = false;
     Utils::InfoLabel *m_errorLabel = nullptr;
     Utils::QtcButton *m_submitButton = nullptr;
     Utils::QtcButton *m_declineButton = nullptr;
+    // Only set when the schema asks more than one question.
+    QList<QWidget *> m_questionPages;
+    int m_currentPage = 0;
+    QLabel *m_stepLabel = nullptr;
+    Utils::QtcButton *m_backButton = nullptr;
+    Utils::QtcButton *m_nextButton = nullptr;
     QLabel *m_statusLabel = nullptr;
 };
 
