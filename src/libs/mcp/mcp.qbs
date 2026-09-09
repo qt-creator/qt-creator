@@ -16,6 +16,8 @@ QtcLibrary {
         files: [
             "../schemas/schema_2025_11_25.cpp",
             "../schemas/schema_2025_11_25.h",
+            "../schemas/schema_2026_07_28.cpp",
+            "../schemas/schema_2026_07_28.h",
             "mcpserver.cpp",
             "mcpserver.h",
             "mcpserver_global.h",

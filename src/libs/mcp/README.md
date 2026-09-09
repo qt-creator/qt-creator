@@ -10,4 +10,13 @@ python3 scripts/generate_cpp_from_schema.py \
     --export-macro MCPSERVER_EXPORT \
     --export-header ../server/mcpserver_global.h \
     --no-cxx20
+
+python3 scripts/generate_cpp_from_schema.py \
+    src/libs/mcp/schemas/schema-2026-07-28.json \
+    src/libs/mcp/schemas/schema_2026_07_28.h \
+    --namespace Mcp::Generated::Schema::_2026_07_28 \
+    --cpp-output src/libs/mcp/schemas/schema_2026_07_28.cpp \
+    --export-macro MCPSERVER_EXPORT \
+    --export-header ../server/mcpserver_global.h \
+    --no-cxx20
 ```
