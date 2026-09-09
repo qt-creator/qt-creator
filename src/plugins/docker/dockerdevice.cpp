@@ -30,6 +30,7 @@
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/fsengine/fsengine.h>
+#include <utils/globaltasktree.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
@@ -1722,6 +1723,33 @@ Result<Environment> DockerDevice::systemEnvironmentWithError() const
 Result<Environment> DockerDevice::systemEnvironmentIfKnown() const
 {
     return systemEnvironmentWithError();
+}
+
+void DockerDevice::runAutoDetect(
+    const ToolDetectionLogger &logger, const std::function<void()> &onDone)
+{
+    const Result<> containerAccess = updateContainerAccess();
+    if (!containerAccess) {
+        if (logger) {
+            logger.logTopLevel(Tr::tr("Failed to start container."));
+            logger.logItem(containerAccess.error());
+        }
+        onDone();
+        return;
+    }
+
+    const auto log = [logger](const QString &msg) {
+        if (logger)
+            logger.logTopLevel(msg);
+    };
+    // clang-format off
+    const QtTaskTree::Group recipe {
+        autoDetectDeviceToolsRecipe(logger),
+        removeDetectedKitItemsRecipe(shared_from_this(), log),
+        kitDetectionRecipe(shared_from_this(), DetectionSource::FromSystem, log)
+    };
+    // clang-format on
+    GlobalTaskTree::start(recipe, {}, onDone);
 }
 
 void DockerDevice::aboutToBeRemoved() const

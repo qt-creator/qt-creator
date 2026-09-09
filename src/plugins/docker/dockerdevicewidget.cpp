@@ -7,8 +7,6 @@
 #include "dockerdevice.h"
 #include "dockertr.h"
 
-#include <projectexplorer/kitaspect.h>
-
 #include <utils/commandline.h>
 #include <utils/guiutils.h>
 #include <utils/infolabel.h>
@@ -21,7 +19,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QPushButton>
-#include <QTextBrowser>
 #include <QToolButton>
 
 using namespace ProjectExplorer;
@@ -99,72 +96,6 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     connect(&dockerDevice->mounts, &FilePathListAspect::volatileValueChanged, this, markupMounts);
 
-    auto logView = new QTextBrowser;
-
-    auto autoDetectButton = new QPushButton(Tr::tr("Auto-detect Kit Items"));
-    auto undoAutoDetectButton = new QPushButton(Tr::tr("Remove Auto-Detected Kit Items"));
-    auto listAutoDetectedButton = new QPushButton(Tr::tr("List Auto-Detected Kit Items"));
-    const QList<QWidget *> tempDisabledWidgets = {autoDetectButton, undoAutoDetectButton,
-                                                  listAutoDetectedButton};
-    connect(autoDetectButton,
-            &QPushButton::clicked,
-            this,
-            [this, logView, dockerDevice, tempDisabledWidgets] {
-                logView->clear();
-                Result<> startResult = dockerDevice->updateContainerAccess();
-
-                if (!startResult) {
-                    logView->append(Tr::tr("Failed to start container."));
-                    logView->append(startResult.error());
-                    return;
-                }
-
-                const auto log = [logView](const QString &msg) { logView->append(msg); };
-                // clang-format off
-                const QtTaskTree::Group recipe {
-                    dockerDevice->autoDetectDeviceToolsRecipe(),
-                    ProjectExplorer::removeDetectedKitItemsRecipe(dockerDevice, log),
-                    ProjectExplorer::kitDetectionRecipe(dockerDevice, DetectionSource::FromSystem, log)
-                };
-                // clang-format on
-
-                const auto onTaskTreeSetup = [logView, tempDisabledWidgets] {
-                    for (QWidget *widget : tempDisabledWidgets)
-                        widget->setEnabled(false);
-                    logView->append(Tr::tr("Starting auto-detection..."));
-                };
-
-                const auto onTaskTreeDone = [logView, tempDisabledWidgets] {
-                    for (QWidget *widget : tempDisabledWidgets)
-                        widget->setEnabled(true);
-                    logView->append(Tr::tr("Done."));
-                };
-
-                m_detectionRunner.start(recipe, onTaskTreeSetup, onTaskTreeDone);
-
-                if (m_api->dockerDaemonAvailable().value_or(false) == false)
-                    logView->append(
-                        Tr::tr("%1 daemon appears to be stopped.").arg(m_api->displayType()));
-                else
-                    logView->append(
-                        Tr::tr("%1 daemon appears to be running.").arg(m_api->displayType()));
-                updateDaemonStateTexts();
-            });
-
-    connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, device] {
-        logView->clear();
-        m_detectionRunner.start(
-            ProjectExplorer::removeDetectedKitItemsRecipe(device, [logView](const QString &msg) {
-                logView->append(msg);
-            })
-        );
-    });
-
-    connect(listAutoDetectedButton, &QPushButton::clicked, this, [logView, device] {
-        logView->clear();
-        listAutoDetected(device, [logView](const QString &msg) { logView->append(msg); });
-    });
-
     auto createLineLabel = new QLabel(dockerDevice->createCommandLineForDisplay().toUserOutput());
     createLineLabel->setWordWrap(true);
     createLineLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -200,14 +131,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             pathListLabel, dockerDevice->mounts, br,
             Tr::tr("Port mappings:"), dockerDevice->portMappings, br,
             Tr::tr("Command line:"), createLineLabel, br,
-            dockerDevice->deviceToolsGui(), br,
-            Span(2, Row {
-                autoDetectButton,
-                undoAutoDetectButton,
-                listAutoDetectedButton,
-                st,
-            }), br,
-            Tr::tr("Detection log:"), logView
+            dockerDevice->deviceToolsGui(),
+            dockerDevice->autoDetectGui(),
         }, br,
     }.attachTo(this);
     // clang-format on
