@@ -25,4 +25,11 @@ Project {
         Depends { name: "Utils" }
         files: "tst_toolvalidation.cpp"
     }
+
+    QtcAutotest {
+        name: "McpDialect autotest"
+        Depends { name: "McpServerLib" }
+        Depends { name: "Utils" }
+        files: "tst_mcpdialect.cpp"
+    }
 }

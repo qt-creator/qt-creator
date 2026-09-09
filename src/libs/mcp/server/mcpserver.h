@@ -39,6 +39,21 @@ class ToolInterface;
 MCPSERVER_EXPORT Utils::Result<> validateToolArguments(
     const Schema::Tool &tool, const Schema::CallToolRequestParams &params);
 
+// Which revision a message is to be answered under. Over HTTP the revision is
+// stated twice - in the MCP-Protocol-Version header and in the _meta of the
+// body - and the two have to agree before either is acted on.
+enum class Dialect {
+    Legacy,      // 2025-11-25 and its predecessors, which state no version in the body
+    Revision2026,
+    Mismatch,    // the header and the body name different revisions
+    Unsupported, // the body names a revision this server does not know
+};
+
+// versionHeader is empty when the transport carried no header, or when there
+// is no HTTP request behind the message at all, in which case the body is
+// taken at its word.
+MCPSERVER_EXPORT Dialect dialectFor(const QJsonObject &message, const QString &versionHeader);
+
 class MCPSERVER_EXPORT Inspector
 {
 public:

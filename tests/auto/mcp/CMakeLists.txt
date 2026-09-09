@@ -15,3 +15,8 @@ add_qtc_test(tst_toolvalidation
   DEPENDS McpServerLib Utils
   SOURCES tst_toolvalidation.cpp
 )
+
+add_qtc_test(tst_mcpdialect
+  DEPENDS McpServerLib Utils
+  SOURCES tst_mcpdialect.cpp
+)

@@ -626,6 +626,16 @@ int main(int argc, char *argv[])
                     .mimeType("text/plain"));
         });
 
+    // The time is a different one on every tick, which gives subscribers
+    // something to receive.
+    QTimer *currentTimeTimer = new QTimer(&app);
+    QObject::connect(currentTimeTimer, &QTimer::timeout, []() {
+        s_server->sendNotification(
+            Mcp::Schema::ResourceUpdatedNotification().params(
+                Mcp::Schema::ResourceUpdatedNotificationParams().uri("file:///current_time")));
+    });
+    currentTimeTimer->start(5000);
+
     if (app.arguments().contains("--stdio")) {
         qDebug() << "Binding to stdio";
         auto bindResult = server.bindIO([](const QByteArray &data) {

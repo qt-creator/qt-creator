@@ -3,6 +3,9 @@
 
 #include "mcpserver.h"
 
+#include "../schemas/schema_2026_07_28.h"
+
+#include <utils/algorithm.h>
 #include <utils/result.h>
 #include <utils/utility.h>
 
@@ -14,7 +17,9 @@
 #include <QTcpServer>
 #include <QTimer>
 
+#include <algorithm>
 #include <cmath>
+#include <map>
 
 #ifdef MCP_SERVER_HAS_QT_HTTP_SERVER
 #include <QHttpServer>
@@ -87,8 +92,193 @@ enum ErrorCodes {
     serverErrorEnd = -32000,
     ServerNotInitialized = -32002,
     UnknownErrorCode = -32001,
+    // Implementation-defined. The -32000..-32099 range is nominally the
+    // server's, but the specification allocates inside it - the schemas here
+    // carry -32020, -32021 and -32022 for 2026-07-28 and -32042 for
+    // 2025-11-25 - so these two sit at the far end of it, where the allocated
+    // codes are furthest away, starting one in from -32099, which
+    // serverErrorStart above already names. A revision that reaches this far
+    // would collide silently, which is a property of the range rather than of
+    // the choice.
+    TooManySubscriptions = -32098,
+    SubscriptionIdInUse = -32097,
     RequestCancelled = -32800,
+    // Reserved for the MCP specification since 2026-07-28. -32021
+    // (MissingRequiredClientCapability) has nowhere to be raised: a capability
+    // the client lacks only shows up once a tool asks for something, and is
+    // answered there as a tool error.
+    HeaderMismatch = -32020,
+    UnsupportedProtocolVersion = -32022,
 };
+
+namespace V2026 = Generated::Schema::_2026_07_28;
+
+// The 2026-07-28 revision drops the initialize handshake and the session
+// header: each request instead carries its protocol version, the client's
+// capabilities and the client's identity in these reserved _meta keys.
+namespace MetaKey {
+constexpr QLatin1String protocolVersion{"io.modelcontextprotocol/protocolVersion"};
+constexpr QLatin1String clientCapabilities{"io.modelcontextprotocol/clientCapabilities"};
+constexpr QLatin1String clientInfo{"io.modelcontextprotocol/clientInfo"};
+constexpr QLatin1String serverInfo{"io.modelcontextprotocol/serverInfo"};
+constexpr QLatin1String subscriptionId{"io.modelcontextprotocol/subscriptionId"};
+} // namespace MetaKey
+
+constexpr QLatin1String kVersion2026{"2026-07-28"};
+
+// Keep this list sorted in descending order of version, so that the first entry
+// is the latest supported version. Used to negotiate in the initialize request
+// body (onInitialize) and to validate the MCP-Protocol-Version header on all
+// subsequent HTTP requests.
+static const QStringList kSupportedProtocolVersions
+    = {"2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"};
+
+// Freshness hint for the list/read results that 2026-07-28 requires to be
+// cacheable. Scoped private: the tool set is specific to this Qt Creator
+// instance, so shared intermediaries must not serve it to anyone else.
+//
+// A minute is what a client may serve a stale list for, and it is a ceiling
+// rather than a schedule: a list that changes sends list_changed, and a client
+// that listens for it re-reads at once. One that does not listen is the one
+// this bounds.
+static constexpr int kCacheTtlMs = 60000;
+constexpr QLatin1String kCacheScopePrivate{"private"};
+constexpr QLatin1String kResultTypeComplete{"complete"};
+constexpr QLatin1String kResultTypeInputRequired{"input_required"};
+constexpr QLatin1String kResultTypeTask{"task"};
+
+// Tasks left core in 2026-07-28 and are negotiated as an extension: the client
+// names it in its per-request capabilities, the server in server/discover.
+constexpr QLatin1String kTasksExtension{"io.modelcontextprotocol/tasks"};
+
+// Polling is how a 2026-07-28 client follows a task, so a handle that carried no
+// interval would leave it guessing.
+static constexpr int kDefaultTaskPollIntervalMs = 1000;
+
+// How long a request parked on input_required waits for the retry that would
+// resume it. Nothing obliges a client to come back, and the parked continuation
+// owns the suspended tool call, so an entry that never expired would pin it for
+// the lifetime of the process. Long enough for a person to be asked a question
+// and answer it.
+static constexpr int kPendingInputTtlMs = 300000;
+
+// Synthetic session identifiers for 2026-07-28 clients carry this prefix, which
+// is how code further down recognises which revision it is answering.
+constexpr QLatin1String kSession2026Prefix{"2026-07-28:"};
+
+static bool is2026Session(const QString &sessionId)
+{
+    return sessionId.startsWith(kSession2026Prefix);
+}
+
+static QJsonValue toJsonValue(const Schema::RequestId &id)
+{
+    return std::visit([](const auto &v) { return QJsonValue(v); }, id);
+}
+
+static Schema::RequestId toRequestId(const QJsonValue &id)
+{
+    if (id.isString())
+        return id.toString();
+    return id.toInt();
+}
+
+// Methods a 2026-07-28 client may call. initialize, ping, logging/setLevel and
+// resources/subscribe|unsubscribe were removed in this revision, so they must
+// not be reachable through it. tasks/* stopped being core as well, but comes
+// back as the io.modelcontextprotocol/tasks extension and is served here in
+// that role.
+static bool isKnown2026Method(const QString &method)
+{
+    static const QSet<QString> methods{
+        "server/discover",
+        "subscriptions/listen",
+        "tools/list",
+        "tools/call",
+        "prompts/list",
+        "prompts/get",
+        "resources/list",
+        "resources/read",
+        "resources/templates/list",
+        "completion/complete",
+        "tasks/get",
+        "tasks/update",
+        "tasks/cancel",
+    };
+    return methods.contains(method);
+}
+
+// Results of these methods carry the CacheableResult fields (ttlMs, cacheScope).
+static bool is2026CacheableMethod(const QString &method)
+{
+    static const QSet<QString> methods{
+        "tools/list",
+        "prompts/list",
+        "resources/list",
+        "resources/read",
+        "resources/templates/list",
+    };
+    return methods.contains(method);
+}
+
+static QJsonObject requestMeta(const QJsonObject &message)
+{
+    return message.value("params").toObject().value("_meta").toObject();
+}
+
+Dialect dialectFor(const QJsonObject &message, const QString &versionHeader)
+{
+    const QString version = requestMeta(message).value(MetaKey::protocolVersion).toString();
+
+    // A 2026-07-28 client states the revision in both places; an older one
+    // states it in the header alone and leaves the body silent. So it is a
+    // header naming 2026-07-28 that is held to the body's word, in both
+    // directions, and a body with no header behind it is taken at its word.
+    if (!versionHeader.isEmpty() && (versionHeader == kVersion2026) != (version == kVersion2026))
+        return Dialect::Mismatch;
+
+    if (version == kVersion2026)
+        return Dialect::Revision2026;
+
+    // It is the value that decides and not the presence of the key: an older
+    // client that states its own version is still an older client, and belongs
+    // with the handlers that speak to it.
+    if (version.isEmpty() || kSupportedProtocolVersions.contains(version))
+        return Dialect::Legacy;
+
+    return Dialect::Unsupported;
+}
+
+// The tasks extension names the same fields as the retired core tasks did, but
+// spells the two durations in milliseconds. ttlMs is required and nullable.
+static QJsonObject toExtensionTask(const Schema::Task &task)
+{
+    QJsonObject obj{
+        {"taskId", task.taskId()},
+        {"status", Schema::toString(task.status())},
+        {"createdAt", task.createdAt()},
+        {"lastUpdatedAt", task.lastUpdatedAt()},
+        {"ttlMs", task.ttl() ? QJsonValue(*task.ttl()) : QJsonValue(QJsonValue::Null)},
+    };
+    if (task.pollInterval())
+        obj.insert("pollIntervalMs", *task.pollInterval());
+    if (task.statusMessage())
+        obj.insert("statusMessage", *task.statusMessage());
+    return obj;
+}
+
+static bool declaresTasksExtension(const QJsonObject &clientCapabilities)
+{
+    return clientCapabilities.value("extensions").toObject().contains(kTasksExtension);
+}
+
+// 2026-07-28 dropped the per-request `task` opt-in from elicitation and
+// sampling params; the surrounding task carries that meaning instead.
+static QJsonObject withoutLegacyTask(QJsonObject params)
+{
+    params.remove("task");
+    return params;
+}
 
 class SseStream : public QObject
 {
@@ -190,6 +380,69 @@ struct Responder
     std::function<void(const QByteArray &)> writeSSE;
     std::function<bool()> isCanceled;
 };
+
+static QJsonObject jsonRpcError(const QJsonValue &id, int code, const QString &message)
+{
+    return QJsonObject{
+        {"jsonrpc", "2.0"},
+        {"id", id},
+        {"error", QJsonObject{{"code", code}, {"message", message}}}};
+}
+
+// The errors 2026-07-28 reserves for a malformed request - a header that
+// contradicts the body, an unsupported version - are the ones it also requires
+// to carry 400 Bad Request. Errors that are merely the answer to a well-formed
+// call stay on the 200 that JSON-RPC expects.
+static void writeError(
+    const Responder &responder, const QJsonValue &id, int code, const QString &message)
+{
+    responder.writeData(
+        QJsonDocument(jsonRpcError(id, code, message)).toJson(QJsonDocument::Compact),
+        "application/json",
+        QHttpServerResponse::StatusCode::BadRequest);
+}
+
+// The request body, or nothing once the malformed one has been answered.
+static std::optional<QJsonObject> parseRequestBody(const QByteArray &data,
+                                                   const Responder &responder)
+{
+    QJsonParseError parseError;
+    const QJsonDocument document = QJsonDocument::fromJson(data, &parseError);
+    if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
+        responder.writeData(
+            "Invalid JSON body", "text/plain", QHttpServerResponse::StatusCode::BadRequest);
+        return {};
+    }
+    return document.object();
+}
+
+// Lifts a response produced by the shared handlers to what 2026-07-28 requires:
+// every result is tagged with its resultType, list and read results carry the
+// caching hints, and the server identifies itself in the result's _meta.
+static QJsonObject to2026Response(
+    QJsonObject response, const QString &method, const Schema::Implementation &serverInfo)
+{
+    if (!response.contains("result"))
+        return response;
+
+    QJsonObject result = response.value("result").toObject();
+    // An interim input_required result already states its type; only ordinary
+    // results need tagging as complete.
+    if (!result.contains("resultType"))
+        result.insert("resultType", QString(kResultTypeComplete));
+
+    if (is2026CacheableMethod(method) && !result.contains("ttlMs")) {
+        result.insert("ttlMs", kCacheTtlMs);
+        result.insert("cacheScope", QString(kCacheScopePrivate));
+    }
+
+    QJsonObject meta = result.value("_meta").toObject();
+    meta.insert(MetaKey::serverInfo, Schema::toJson(serverInfo));
+    result.insert("_meta", meta);
+
+    response.insert("result", result);
+    return response;
+}
 
 struct ToolInterfacePrivate;
 
@@ -324,10 +577,24 @@ class ServerPrivate : public std::enable_shared_from_this<ServerPrivate>
 public:
     QString instructions;
 
-    // Protocol versions this server can speak, latest first. Used both for
-    // negotiation in the initialize request body (onInitialize) and to validate
-    // the MCP-Protocol-Version header on all subsequent HTTP requests.
-    static const QStringList kSupportedProtocolVersions;
+    // 2026-07-28 removed the initialize handshake, so it can never be the
+    // outcome of one: a client that gets here speaks an older revision.
+    static constexpr QLatin1String kLatestHandshakeVersion{"2025-11-25"};
+
+    // A stream opened by subscriptions/listen, with the notification types it
+    // opted in to. 2026-07-28 has no session header, so these cannot be
+    // reached through the session-keyed SSE fan-out.
+    struct Listener
+    {
+        std::function<void(const QByteArray &)> send;
+        std::function<bool()> isCanceled;
+        V2026::SubscriptionFilter filter;
+        QJsonValue subscriptionId;
+        // The subscription id is the client's own JSON-RPC id, so it says
+        // nothing about who opened the subscription. Only the session it was
+        // opened for may end it.
+        QString session;
+    };
 
     ServerPrivate(Schema::Implementation serverInfo)
         : serverInfo(serverInfo)
@@ -493,10 +760,17 @@ public:
 
     // A session whose peer walked away without DELETE would keep its slot for
     // the rest of the run, so the cap alone would trade an unbounded leak for a
-    // permanent refusal. validateSession() stamps lastSeen on every request, so
-    // a session that is still in use can never be the one reclaimed here.
+    // permanent refusal. lastSeen is stamped on every request, so a session
+    // that is still in use is never the one reclaimed here - except for the one
+    // client that sends none: a 2026-07-28 client that opened a subscription
+    // and listens. That one is reclaimed too, rather than pinning a slot for
+    // the rest of the run, and deleteSession() ends its subscriptions where it
+    // can hear it: a stream that goes quiet on its own is the failure this is
+    // the other side of.
     void reclaimIdleSessions()
     {
+        pruneCanceledListeners();
+
         const QDateTime now = QDateTime::currentDateTime();
         QStringList idle;
         for (auto it = m_sessions.cbegin(); it != m_sessions.cend(); ++it) {
@@ -529,11 +803,15 @@ public:
 
     void sendNotification(const Schema::ServerNotification &notification, const QString &sessionId)
     {
-        auto data = QJsonDocument(toJson(notification)).toJson(QJsonDocument::Compact);
+        const QJsonObject json = toJson(notification);
+        auto data = QJsonDocument(json).toJson(QJsonDocument::Compact);
 
-        if (m_ioOutputHandler) {
+        if (m_ioOutputHandler)
             m_ioOutputHandler(data);
-        }
+
+        // 2026-07-28 listeners cannot be reached through the session-keyed
+        // fan-out below, and receive only what their filter named.
+        deliverTo2026Listeners(json, sessionId);
 
         for (auto it = m_sseStreams.begin(); it != m_sseStreams.end();) {
             if (!(*it)->sendData(data, sessionId))
@@ -700,9 +978,11 @@ public:
         // * If the client does not support the version in the server's response,
         //   it SHOULD disconnect.
         // Latest supported version by the server.
-        QString negotiatedVersion = kSupportedProtocolVersions.first();
-        if (kSupportedProtocolVersions.contains(request.params().protocolVersion()))
+        QString negotiatedVersion = kLatestHandshakeVersion;
+        if (kSupportedProtocolVersions.contains(request.params().protocolVersion())
+            && request.params().protocolVersion() != kVersion2026) {
             negotiatedVersion = request.params().protocolVersion();
+        }
 
         qCDebug(mcpServerLog).noquote()
             << "Client initialized with protocol version" << Schema::toJson(request.params());
@@ -745,6 +1025,559 @@ public:
         if (m_inspector)
             m_inspector->onSessionStarted(sessionId);
         return sessionId;
+    }
+
+    V2026::Implementation serverInfo2026() const
+    {
+        const auto converted = V2026::fromJson<V2026::Implementation>(Schema::toJson(serverInfo));
+        return converted ? *converted : V2026::Implementation{};
+    }
+
+    struct Client
+    {
+        Schema::ClientCapabilities capabilities;
+        Schema::Implementation info;
+        QDateTime lastSeen = QDateTime::currentDateTime();
+        // Declared per request via the 2026-07-28 extensions capability. A task
+        // must never be handed to a client that did not ask for one.
+        bool supportsTasks = false;
+    };
+
+    // 2026-07-28 has no session identifier. The shared handlers still need a
+    // session to hang client capabilities off, so requests are grouped by the
+    // client's self-reported identity and the entry is rewritten on every
+    // request: the revision forbids inferring capabilities from earlier ones.
+    //
+    // The grouping is bookkeeping, not authority: nothing obliges a client to
+    // name itself, so unrelated clients land on the same entry and overwrite
+    // each other. Read what a request needs while it is being dispatched;
+    // anything that outlives it has to capture it first. Where the identity
+    // guards something - ending a subscription is the one place - it can only
+    // tell differently named clients apart, and has to answer for the rest by
+    // refusing rather than by guessing.
+    //
+    // Empty when a new entry would pass kMaxSessions.
+    QString sessionFor2026(const QJsonObject &meta, const Client &client)
+    {
+        const QJsonObject info = meta.value(MetaKey::clientInfo).toObject();
+        const QString sessionId = QString("%1%2/%3")
+                                      .arg(kSession2026Prefix,
+                                           info.value("name").toString("anonymous"),
+                                           info.value("version").toString("unknown"));
+
+        if (!m_sessions.contains(sessionId)) {
+            if (sessionLimitReached())
+                return {};
+            if (m_inspector)
+                m_inspector->onSessionStarted(sessionId);
+        }
+
+        m_sessions.insert(sessionId, client);
+
+        return sessionId;
+    }
+
+    // The client a 2026-07-28 request declares in its _meta. Both revisions
+    // describe the same JSON for the capability subset this server cares
+    // about, so the generated codecs are bridged through JSON rather than
+    // field by field. Unknown members - the revision's own `extensions`, the
+    // earlier one's `tasks` - drop out; a capabilities object that cannot be
+    // read at all does not, since a client that declares nothing and a client
+    // whose declaration is broken have to be told apart.
+    Result<Client> clientFor2026(const QJsonObject &meta) const
+    {
+        const QJsonValue declared = meta.value(MetaKey::clientCapabilities);
+        if (!declared.isUndefined() && !declared.isObject())
+            return ResultError(QString("%1 is not an object").arg(MetaKey::clientCapabilities));
+
+        const QJsonObject caps = declared.toObject();
+        const Result<Schema::ClientCapabilities> capabilities
+            = Schema::fromJson<Schema::ClientCapabilities>(caps);
+        if (!capabilities)
+            return ResultError(capabilities.error());
+
+        Client client;
+        client.capabilities = *capabilities;
+        client.supportsTasks = declaresTasksExtension(caps);
+        if (const auto impl = Schema::fromJson<Schema::Implementation>(
+                meta.value(MetaKey::clientInfo).toObject())) {
+            client.info = *impl;
+        }
+        return client;
+    }
+
+    void on2026Discover(const QJsonValue &id, const Responder &responder)
+    {
+        auto caps = V2026::ServerCapabilities()
+                        .prompts(V2026::ServerCapabilities::Prompts{}.listChanged(true))
+                        .tools(V2026::ServerCapabilities::Tools{}.listChanged(true))
+                        .resources(V2026::ServerCapabilities::Resources{}
+                                       .listChanged(true)
+                                       .subscribe(true))
+                        .extensions(QMap<QString, QJsonObject>{{kTasksExtension, QJsonObject{}}});
+
+        if (m_completionCallback)
+            caps.completions(QJsonObject{});
+
+        auto result = V2026::DiscoverResult()
+                          .resultType(kResultTypeComplete)
+                          .supportedVersions(kSupportedProtocolVersions)
+                          .capabilities(caps)
+                          .ttlMs(kCacheTtlMs)
+                          .cacheScope(V2026::DiscoverResult::CacheScope::private_)
+                          ._meta(V2026::ResultMetaObject()
+                                     .iodotmodelcontextprotocolslashserverInfo(serverInfo2026()));
+
+        if (!instructions.isEmpty())
+            result.instructions(instructions);
+
+        responder.write(QJsonDocument(QJsonObject{
+            {"jsonrpc", "2.0"}, {"id", id}, {"result", V2026::toJson(result)}}));
+    }
+
+    // Entry point for 2026-07-28 traffic. Only the version-specific RPCs are
+    // served here; the payloads the two revisions share are handed to
+    // onRequest() and their responses lifted on the way out.
+    // The header and the body have been held to each other by onData(), so the
+    // version this acts on is the body's.
+    void on2026Data(const Responder &responder, const QJsonObject &message)
+    {
+        const QString method = message.value("method").toString();
+        const QJsonValue id = message.value("id");
+        const QJsonObject meta = requestMeta(message);
+        const bool isNotification = !message.contains("id");
+
+        const QString version = meta.value(MetaKey::protocolVersion).toString();
+
+        if (version != kVersion2026) {
+            if (isNotification) {
+                qCWarning(mcpServerLog)
+                    << "Discarding" << method << "sent with protocol version" << version;
+                responder.writeStatus(QHttpServerResponse::StatusCode::BadRequest);
+                return;
+            }
+            writeError(
+                responder,
+                id,
+                UnsupportedProtocolVersion,
+                QString("Unsupported protocol version \"%1\"").arg(version));
+            return;
+        }
+
+        if (!isNotification && !isKnown2026Method(method)) {
+            responder.write(QJsonDocument(jsonRpcError(
+                id,
+                MethodNotFound,
+                QString("Method \"%1\" is not part of protocol version %2")
+                    .arg(method, kVersion2026))));
+            return;
+        }
+
+        if (method == "server/discover") {
+            on2026Discover(id, responder);
+            return;
+        }
+
+        const Result<Client> client = clientFor2026(meta);
+        if (!client) {
+            if (isNotification) {
+                qCWarning(mcpServerLog)
+                    << "Discarding" << method << "with unreadable _meta:" << client.error();
+                responder.writeStatus(QHttpServerResponse::StatusCode::BadRequest);
+                return;
+            }
+            writeError(responder, id, InvalidParams, client.error());
+            return;
+        }
+
+        const QString sessionId = sessionFor2026(meta, *client);
+        if (sessionId.isEmpty()) {
+            qCWarning(mcpServerLog)
+                << "Refusing new session, session limit reached:" << m_sessions.size();
+            responder.writeData("Too many sessions",
+                                "text/plain",
+                                QHttpServerResponse::StatusCode::ServiceUnavailable);
+            return;
+        }
+
+        if (isNotification) {
+            on2026Notification(message, responder, sessionId);
+            return;
+        }
+
+        if (method == "subscriptions/listen") {
+            on2026Listen(id, message, responder, sessionId);
+            return;
+        }
+
+        Responder lifted = responder;
+        lifted.write = [responder, method, info = serverInfo](QJsonDocument doc) {
+            responder.write(QJsonDocument(to2026Response(doc.object(), method, info)));
+        };
+        lifted.writeSSE = [responder, method, info = serverInfo](const QByteArray &raw) {
+            const QJsonObject obj = QJsonDocument::fromJson(raw).object();
+            responder.writeSSE(QJsonDocument(to2026Response(obj, method, info))
+                                   .toJson(QJsonDocument::Compact));
+        };
+
+        const QJsonObject params = message.value("params").toObject();
+
+        if (method == "tasks/get") {
+            on2026TaskGet(id, params.value("taskId").toString(), lifted);
+            return;
+        }
+        if (method == "tasks/update") {
+            on2026TaskUpdate(
+                id,
+                params.value("taskId").toString(),
+                params.value("inputResponses").toObject(),
+                lifted);
+            return;
+        }
+        if (method == "tasks/cancel") {
+            on2026TaskCancel(id, params.value("taskId").toString(), lifted);
+            return;
+        }
+
+        // A retry carrying requestState resumes the call that asked for input
+        // rather than starting a new one.
+        const QString requestState = params.value("requestState").toString();
+        if (!requestState.isEmpty()) {
+            const auto pending = m_pendingInput.find(requestState);
+            if (pending == m_pendingInput.end()) {
+                responder.write(QJsonDocument(jsonRpcError(
+                    id,
+                    InvalidParams,
+                    QString("Unknown or expired requestState \"%1\"").arg(requestState))));
+                return;
+            }
+            const ResumeInput resume = pending->second.resume;
+            m_pendingInput.erase(pending);
+            resume(message.value("params").toObject().value("inputResponses").toObject(), lifted, id);
+            return;
+        }
+
+        onLegacyData(QJsonDocument(message), lifted, sessionId);
+    }
+
+    // subscriptions/listen replaces the HTTP GET stream and
+    // resources/subscribe: one long-lived response stream carrying only the
+    // change notifications the client opted in to.
+    void on2026Listen(
+        const QJsonValue &id,
+        const QJsonObject &message,
+        const Responder &responder,
+        const QString &sessionId)
+    {
+        // A client that opens a stream and disappears is only noticed when
+        // something is delivered, which on a quiet server may be never.
+        pruneCanceledListeners();
+
+        // The pair (session, id) is all a cancel has to go on, so the server
+        // keeps it unique rather than accepting a second subscription that
+        // neither it nor the client could then end. Refused rather than
+        // replaced: two instances of one client report one identity, and the
+        // one that listened first must not lose its stream to the one that
+        // listened second.
+        const auto sameSubscription = [&id, &sessionId](const Listener &l) {
+            return l.subscriptionId == id && l.session == sessionId;
+        };
+        if (Utils::anyOf(m_listeners, sameSubscription)) {
+            qCWarning(mcpServerLog) << "Refusing subscription" << id << "of session" << sessionId
+                                    << ": that id is already open";
+            writeError(
+                responder,
+                id,
+                SubscriptionIdInUse,
+                "A subscription under this request id is already open for this session; "
+                "cancel it before listening again");
+            return;
+        }
+
+        // Nothing obliges a client to end a subscription before opening
+        // another, and a stream that cannot report itself closed is never
+        // pruned, so the count is capped rather than left to the client.
+        const int held = listenerCount(sessionId);
+        if (held >= kMaxListenersPerSession) {
+            qCWarning(mcpServerLog) << "Refusing subscription" << id << "of session" << sessionId
+                                    << ": the session already holds" << held;
+            writeError(
+                responder,
+                id,
+                TooManySubscriptions,
+                QString(
+                    "This session already holds %1 subscriptions; end one before "
+                    "opening another")
+                    .arg(kMaxListenersPerSession));
+            return;
+        }
+
+        const QJsonObject filterJson
+            = message.value("params").toObject().value("notifications").toObject();
+        const auto parsedFilter = V2026::fromJson<V2026::SubscriptionFilter>(filterJson);
+        const V2026::SubscriptionFilter filter = parsedFilter ? *parsedFilter
+                                                              : V2026::SubscriptionFilter{};
+
+        // The acknowledgement opens the stream and must be the first message
+        // carrying the subscription's ID. A result would instead tell the
+        // client the subscription has ended, so none is written here.
+        const auto ack = V2026::SubscriptionsAcknowledgedNotification().params(
+            V2026::SubscriptionsAcknowledgedNotificationParams().notifications(filter));
+
+        QJsonObject ackJson = V2026::toJson(ack);
+        QJsonObject ackParams = ackJson.value("params").toObject();
+        QJsonObject ackMeta = ackParams.value("_meta").toObject();
+        ackMeta.insert(MetaKey::subscriptionId, id);
+        ackParams.insert("_meta", ackMeta);
+        ackJson.insert("params", ackParams);
+        responder.writeSSE(QJsonDocument(ackJson).toJson(QJsonDocument::Compact));
+
+        m_listeners.push_back(
+            Listener{responder.writeSSE, responder.isCanceled, filter, id, sessionId});
+    }
+
+    // notifications/cancelled is the only notification a 2026-07-28 client
+    // sends. Against a listen request it ends the subscription; against
+    // anything else it cancels a call the shared handlers are running.
+    void on2026Notification(
+        const QJsonObject &message, const Responder &responder, const QString &sessionId)
+    {
+        if (message.value("method").toString() != "notifications/cancelled") {
+            // The revision removed the rest, and the shared handlers still
+            // answer to some of their names.
+            qCWarning(mcpServerLog) << "Discarding notification a 2026-07-28 client cannot send:"
+                                    << message.value("method").toString();
+            responder.writeStatus(QHttpServerResponse::StatusCode::BadRequest);
+            return;
+        }
+
+        // A subscription is named by the client's own request id, and the
+        // session is the identity the client reported. The pair is not a proof
+        // of ownership - two instances of one client share it - but on2026Listen()
+        // keeps it unique, so it singles out at most one subscription and the
+        // cancel cannot end a second client's by mistake.
+        const QJsonValue requestId = message.value("params").toObject().value("requestId");
+        const auto listener = std::find_if(m_listeners.begin(),
+                                           m_listeners.end(),
+                                           [&requestId, &sessionId](const Listener &l) {
+                                               return l.subscriptionId == requestId
+                                                      && l.session == sessionId;
+                                           });
+
+        if (listener == m_listeners.end()) {
+            onLegacyData(QJsonDocument(message), responder, sessionId);
+            return;
+        }
+
+        m_listeners.erase(listener);
+        responder.writeStatus(QHttpServerResponse::StatusCode::Accepted);
+    }
+
+    // Reports the current state of a task. Terminal states carry the payload the
+    // original request would have returned synchronously.
+    void on2026TaskGet(const QJsonValue &id, const QString &taskId, const Responder &responder)
+    {
+        const auto it = m_tasks.find(taskId);
+        if (it == m_tasks.end()) {
+            responder.write(QJsonDocument(jsonRpcError(
+                id, InvalidParams, QString("Task with ID \"%1\" not found").arg(taskId))));
+            return;
+        }
+
+        // While the task waits on input its status is ours, not the tool's.
+        if (it->second.inputRequests.isEmpty())
+            it->second.update(it->second.callbacks.updateTask(it->second.task), shared_from_this());
+
+        QJsonObject result = toExtensionTask(it->second.task);
+        result.insert("resultType", QString(kResultTypeComplete));
+
+        switch (it->second.task.status()) {
+        case Schema::TaskStatus::completed: {
+            const Result<Schema::CallToolResult> r = it->second.callbacks.result();
+            if (r) {
+                QJsonObject payload = Schema::toJson(*r);
+                payload.insert("resultType", QString(kResultTypeComplete));
+                result.insert("result", payload);
+            } else {
+                result.insert("status", Schema::toString(Schema::TaskStatus::failed));
+                result.insert(
+                    "error",
+                    QJsonObject{{"code", InternalError}, {"message", r.error()}});
+            }
+            break;
+        }
+        case Schema::TaskStatus::failed: {
+            const Result<Schema::CallToolResult> r = it->second.callbacks.result();
+            result.insert(
+                "error",
+                QJsonObject{
+                    {"code", InternalError},
+                    {"message", r ? QString("Task failed") : r.error()}});
+            break;
+        }
+        case Schema::TaskStatus::input_required:
+            result.insert("inputRequests", it->second.inputRequests);
+            break;
+        default:
+            break;
+        }
+
+        responder.write(
+            QJsonDocument(QJsonObject{{"jsonrpc", "2.0"}, {"id", id}, {"result", result}}));
+    }
+
+    // Delivers the answers a task asked for and lets it continue.
+    void on2026TaskUpdate(
+        const QJsonValue &id,
+        const QString &taskId,
+        const QJsonObject &inputResponses,
+        const Responder &responder)
+    {
+        const auto it = m_tasks.find(taskId);
+        if (it == m_tasks.end()) {
+            responder.write(QJsonDocument(jsonRpcError(
+                id, InvalidParams, QString("Task with ID \"%1\" not found").arg(taskId))));
+            return;
+        }
+
+        if (it->second.inputHandlers.empty()) {
+            responder.write(QJsonDocument(jsonRpcError(
+                id,
+                InvalidParams,
+                QString("Task with ID \"%1\" is not waiting for input").arg(taskId))));
+            return;
+        }
+
+        // Only the requests this answers are done with; a tool that asked
+        // twice keeps waiting for the other one. Everything is taken off the
+        // task before any continuation runs, since one may finish the task or
+        // ask again.
+        std::vector<std::pair<QJsonObject, std::function<void(const QJsonObject &)>>> answered;
+        for (const QString &key : inputResponses.keys()) {
+            const auto handler = it->second.inputHandlers.find(key);
+            if (handler == it->second.inputHandlers.end())
+                continue;
+            answered.emplace_back(inputResponses.value(key).toObject(), handler->second);
+            it->second.inputHandlers.erase(handler);
+            it->second.inputRequests.remove(key);
+        }
+
+        if (answered.empty()) {
+            responder.write(QJsonDocument(jsonRpcError(
+                id,
+                InvalidParams,
+                QString("None of \"%1\" answers a request task \"%2\" is waiting for: \"%3\"")
+                    .arg(inputResponses.keys().join("\", \""),
+                         taskId,
+                         it->second.inputRequests.keys().join("\", \"")))));
+            return;
+        }
+
+        // Acknowledge only once the answers are known to reach a handler, and
+        // before running them: the tool may finish the task inline.
+        responder.write(QJsonDocument(QJsonObject{
+            {"jsonrpc", "2.0"},
+            {"id", id},
+            {"result", QJsonObject{{"resultType", QString(kResultTypeComplete)}}}}));
+
+        if (it->second.inputHandlers.empty())
+            it->second.task.status(Schema::TaskStatus::working);
+
+        for (const auto &[response, handler] : answered)
+            handler(response);
+    }
+
+    void on2026TaskCancel(const QJsonValue &id, const QString &taskId, const Responder &responder)
+    {
+        const auto it = m_tasks.find(taskId);
+        if (it == m_tasks.end()) {
+            responder.write(QJsonDocument(jsonRpcError(
+                id, InvalidParams, QString("Task with ID \"%1\" not found").arg(taskId))));
+            return;
+        }
+
+        // Cancellation is cooperative: acknowledge the intent either way.
+        if (it->second.callbacks.cancelTask)
+            (*it->second.callbacks.cancelTask)();
+        it->second.task.status(Schema::TaskStatus::cancelled);
+
+        responder.write(QJsonDocument(QJsonObject{
+            {"jsonrpc", "2.0"},
+            {"id", id},
+            {"result", QJsonObject{{"resultType", QString(kResultTypeComplete)}}}}));
+    }
+
+    // True when a listener asked for this notification. Request-scoped
+    // notifications never travel here: they belong on the response stream of
+    // the request that caused them.
+    static bool wantsNotification(const V2026::SubscriptionFilter &filter, const QJsonObject &n)
+    {
+        const QString method = n.value("method").toString();
+
+        if (method == "notifications/tools/list_changed")
+            return filter.toolsListChanged().value_or(false);
+        if (method == "notifications/prompts/list_changed")
+            return filter.promptsListChanged().value_or(false);
+        if (method == "notifications/resources/list_changed")
+            return filter.resourcesListChanged().value_or(false);
+        if (method == "notifications/resources/updated") {
+            const QString uri = n.value("params").toObject().value("uri").toString();
+            return filter.resourceSubscriptions().value_or(QStringList{}).contains(uri);
+        }
+        return false;
+    }
+
+    void pruneCanceledListeners()
+    {
+        std::erase_if(m_listeners, [](const Listener &listener) {
+            return listener.isCanceled && listener.isCanceled();
+        });
+    }
+
+    int listenerCount(const QString &sessionId) const
+    {
+        return Utils::count(m_listeners, [&sessionId](const Listener &l) {
+            return l.session == sessionId;
+        });
+    }
+
+    void deliverTo2026Listeners(const QJsonObject &notification, const QString &sessionId)
+    {
+        pruneCanceledListeners();
+
+        // Named before anything is sent, and looked up again for each: a send
+        // may reach back into m_listeners - a session deleted from under it,
+        // another listen - which would erase from or reallocate the vector
+        // while it is walked, and would leave a subscription that is gone by
+        // then being sent to.
+        QList<std::pair<QString, QJsonValue>> targets;
+        for (const Listener &listener : m_listeners) {
+            // A notification naming a session is for that one alone, as it is
+            // for the SSE streams.
+            if (!sessionId.isEmpty() && listener.session != sessionId)
+                continue;
+            if (wantsNotification(listener.filter, notification))
+                targets.append({listener.session, listener.subscriptionId});
+        }
+
+        for (const auto &[session, subscriptionId] : targets) {
+            const auto still = std::find_if(
+                m_listeners.cbegin(),
+                m_listeners.cend(),
+                [&session, &subscriptionId](const Listener &l) {
+                    return l.session == session && l.subscriptionId == subscriptionId;
+                });
+            if (still == m_listeners.cend())
+                continue;
+
+            QJsonObject tagged = notification;
+            QJsonObject params = tagged.value("params").toObject();
+            QJsonObject meta = params.value("_meta").toObject();
+            meta.insert(MetaKey::subscriptionId, subscriptionId);
+            params.insert("_meta", meta);
+            tagged.insert("params", params);
+            still->send(QJsonDocument(tagged).toJson(QJsonDocument::Compact));
+        }
     }
 
     void deleteSession(const QString &sessionId);
@@ -1024,16 +1857,24 @@ public:
                                    == Schema::ToolExecution::TaskSupport::required;
         const bool toolSupportsTask = toolExecution.taskSupport()
                                       != Schema::ToolExecution::TaskSupport::forbidden;
-        const bool clientRequestsTask = request.params().task().has_value();
+        // 2026-07-28 clients never ask for a task per call: declaring the tasks
+        // extension says they can accept one, and the server decides. Only the
+        // older per-request flag can conflict with a tool that forbids tasks.
+        const bool clientAcceptsTask
+            = is2026Session(sessionId)
+                  ? m_sessions.value(sessionId).value_or(Client{}).supportsTasks
+                  : request.params().task().has_value();
+        const bool clientDemandsTask = !is2026Session(sessionId)
+                                       && request.params().task().has_value();
 
-        if ((toolNeedsTask && !clientRequestsTask) || (!toolSupportsTask && clientRequestsTask)) {
+        if ((toolNeedsTask && !clientAcceptsTask) || (!toolSupportsTask && clientDemandsTask)) {
             qCWarning(mcpServerLog)
                 << QString(
                        "Received call for tool %1"
                        "which %2 tasks, but the client %3 a task")
                        .arg(request.params().name())
                        .arg(toolNeedsTask ? QLatin1String("requires") : QLatin1String("does not support"))
-                       .arg(clientRequestsTask ? QLatin1String("requested") : QLatin1String("did not request"));
+                       .arg(clientAcceptsTask ? QLatin1String("accepts") : QLatin1String("does not accept"));
             responder.write(QJsonDocument(toJson(
                 Schema::JSONRPCErrorResponse()
                     .error(
@@ -1219,16 +2060,95 @@ public:
         (*it)->onTaskUpdate(task);
     }
 
-    void onData(const QByteArray &data, const Responder &responder, QString sessionId)
+    // The legacy HTTP+SSE transport is all session header, and 2026-07-28 has
+    // none of one: a request of that revision arriving on /message would be
+    // answered over a stream whose responder cannot carry a status at all, and
+    // a listener registered from it would name the synthetic session rather
+    // than the stream's, so closing the stream would not reach it. Refuse the
+    // revision on this transport rather than half-serve it. Returns true when
+    // the request was refused.
+    bool refuse2026OnSseTransport(
+        const QJsonObject &message, const QString &versionHeader, const Responder &responder)
     {
-        QJsonParseError parseError;
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(data, &parseError);
-        if (parseError.error != QJsonParseError::NoError || !jsonDoc.isObject()) {
-            responder.writeData(
-                "Invalid JSON body", "text/plain", QHttpServerResponse::StatusCode::BadRequest);
+        const QString version = requestMeta(message).value(MetaKey::protocolVersion).toString();
+        if (version != kVersion2026 && versionHeader != kVersion2026)
+            return false;
+
+        const QString method = message.value("method").toString();
+        qCWarning(mcpServerLog) << "Refusing" << method << "of protocol version" << kVersion2026
+                                << "on the HTTP+SSE transport, which carries no such session";
+        if (message.contains("id")) {
+            // Not writeError(): that one carries the 400 a Streamable HTTP
+            // client watches for, and the /message responder drops the status
+            // before the route answers 200 anyway.
+            responder.write(QJsonDocument(jsonRpcError(
+                message.value("id"),
+                UnsupportedProtocolVersion,
+                QString(
+                    "Protocol version \"%1\" is not served over the HTTP+SSE transport; "
+                    "use the Streamable HTTP endpoint")
+                    .arg(kVersion2026))));
+        }
+        return true;
+    }
+
+    // A request whose header contradicts its body is refused rather than
+    // answered under either revision. Both refusals are 400s, which is what a
+    // 2026-07-28 client watches for.
+    void refuseVersionMismatch(
+        const Responder &responder,
+        const QJsonObject &message,
+        const QString &versionHeader,
+        const QString &version)
+    {
+        const QString method = message.value("method").toString();
+        if (!message.contains("id")) {
+            qCWarning(mcpServerLog) << "Discarding" << method << "sent with protocol version"
+                                    << version << "under header" << versionHeader;
+            responder.writeStatus(QHttpServerResponse::StatusCode::BadRequest);
             return;
         }
+        writeError(
+            responder,
+            message.value("id"),
+            HeaderMismatch,
+            QString("MCP-Protocol-Version header \"%1\" does not match the requested "
+                    "protocol version \"%2\"")
+                .arg(versionHeader, version));
+    }
 
+    // versionHeader is the MCP-Protocol-Version the HTTP transport carried, and
+    // is empty when there was none - or no HTTP request behind this at all.
+    void onData(
+        const QJsonObject &message,
+        const Responder &responder,
+        QString sessionId,
+        const QString &versionHeader = {})
+    {
+        // Decided here rather than in the branch that acts on it: the header
+        // and the body are held to each other first.
+        switch (dialectFor(message, versionHeader)) {
+        case Dialect::Mismatch:
+            refuseVersionMismatch(
+                responder,
+                message,
+                versionHeader,
+                requestMeta(message).value(MetaKey::protocolVersion).toString());
+            return;
+        case Dialect::Legacy:
+            onLegacyData(QJsonDocument(message), responder, sessionId);
+            return;
+        case Dialect::Revision2026:
+        case Dialect::Unsupported:
+            // on2026Data() refuses a revision this server does not know.
+            on2026Data(responder, message);
+            return;
+        }
+    }
+
+    void onLegacyData(
+        const QJsonDocument &jsonDoc, const Responder &responder, QString sessionId)
+    {
         const auto request = Schema::fromJson<Schema::JSONRPCRequest>(jsonDoc.object());
         const auto clientRequest = Schema::fromJson<Schema::ClientRequest>(jsonDoc.object());
         if (request && clientRequest) {
@@ -1337,6 +2257,12 @@ public:
     bool validateSession(QString sessionId)
     {
         if (sessionId.isEmpty())
+            return false;
+
+        // 2026-07-28 carries no session identifier, so the server never hands
+        // one of these out and a client presenting one is choosing the revision
+        // its request is answered under. The prefix is the server's own.
+        if (is2026Session(sessionId))
             return false;
 
         auto it = m_sessions.find(sessionId);
@@ -1586,6 +2512,14 @@ public:
         TaskCallbacks callbacks;
         UniqueDeleteLaterTimer timer;
 
+        // Set while a task-backed tool waits on tasks/update. The task reports
+        // these to tasks/get and stops polling the tool for status until the
+        // client answers. A tool may ask more than once before the first is
+        // answered - elicit() and then sample() - so each key keeps the
+        // continuation that belongs to it.
+        QJsonObject inputRequests;
+        std::map<QString, std::function<void(const QJsonObject &)>> inputHandlers;
+
         void createTimer(const std::weak_ptr<ServerPrivate> &server)
         {
             if (auto ttl = task.ttl()) {
@@ -1627,14 +2561,47 @@ public:
 
     std::map<QString, TaskAndCallbacks> m_tasks;
 
-    struct Client
-    {
-        Schema::ClientCapabilities capabilities;
-        Schema::Implementation info;
-        QDateTime lastSeen = QDateTime::currentDateTime();
-    };
-
     QMap<QString, std::optional<Client>> m_sessions;
+
+    std::vector<Listener> m_listeners;
+
+    // Tool calls suspended on a multi round-trip request, keyed by the
+    // requestState token handed to the client. The stored callable owns the
+    // suspended ToolInterface and resumes it on the client's retry; each entry
+    // carries the timer that drops it if that retry never comes.
+    using ResumeInput
+        = std::function<void(const QJsonObject &, const Responder &, const QJsonValue &)>;
+    struct PendingInput
+    {
+        ResumeInput resume;
+        UniqueDeleteLaterTimer timer;
+    };
+    std::map<QString, PendingInput> m_pendingInput;
+
+    // Parks a tool call that asked the client for input, under the token the
+    // client was handed to retry with.
+    void addPendingInput(const QString &token, ResumeInput resume)
+    {
+        PendingInput pending;
+        pending.resume = std::move(resume);
+        pending.timer.reset(new QTimer());
+        pending.timer->setSingleShot(true);
+        pending.timer->setInterval(kPendingInputTtlMs);
+        QObject::connect(
+            pending.timer.get(),
+            &QTimer::timeout,
+            [server = weak_from_this(), token] {
+                if (auto d = server.lock()) {
+                    qCWarning(mcpServerLog)
+                        << "Client never retried the request that asked for input; dropping"
+                        << token;
+                    d->m_pendingInput.erase(token);
+                }
+            });
+        pending.timer->start();
+
+        m_pendingInput.insert_or_assign(token, std::move(pending));
+    }
 
     QMap<int, std::function<void(Schema::JSONRPCResponse)>> m_serverRequests;
     QMap<SessionAndRequestId, std::weak_ptr<ToolInterfacePrivate>> m_pendingToolInterfaces;
@@ -1649,15 +2616,13 @@ public:
     // a streamable-HTTP session, so the bound needs a way to give a slot back;
     // see reclaimIdleSessions().
     static constexpr int kMaxSessions = 64;
+    // Subscriptions one session may hold at once. A client needs a stream per
+    // set of notifications it wants, which is one for all of them.
+    static constexpr int kMaxListenersPerSession = 8;
     static constexpr int kSessionIdleTimeoutSecs = 30 * 60;
 
     Inspector *m_inspector = nullptr;
 };
-
-// Keep this list sorted in descending order of version, so that the first entry
-// is the latest supported version.
-const QStringList ServerPrivate::kSupportedProtocolVersions
-    = {"2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"};
 
 Server::Server(Schema::Implementation serverInfo)
     : d(std::make_shared<ServerPrivate>(serverInfo))
@@ -1738,7 +2703,16 @@ Server::Server(Schema::Implementation serverInfo)
                 d->sendDataTo(data, sessionId);
             };
 
-            d->onData(req.body(), r, sessionId);
+            if (const std::optional<QJsonObject> message = parseRequestBody(req.body(), r)) {
+                const QString versionHeader
+                    = QString::fromUtf8(req.headers().value("mcp-protocol-version"));
+                if (d->refuse2026OnSseTransport(*message, versionHeader, r)) {
+                    responder.write(d->corsHeaders(sessionId),
+                                    QHttpServerResponse::StatusCode::Ok);
+                    return;
+                }
+                d->onData(*message, r, sessionId, versionHeader);
+            }
 
             responder.write(d->corsHeaders(sessionId), QHttpServerResponse::StatusCode::Ok);
         });
@@ -1856,7 +2830,7 @@ Server::Server(Schema::Implementation serverInfo)
                it MUST respond with 400 Bad Request.
             */
             if (req.headers().contains("mcp-protocol-version")
-                && !ServerPrivate::kSupportedProtocolVersions.contains(
+                && !kSupportedProtocolVersions.contains(
                     QString::fromUtf8(req.headers().value("mcp-protocol-version")))) {
                 responder.write(
                     "Unsupported MCP protocol version",
@@ -1865,23 +2839,29 @@ Server::Server(Schema::Implementation serverInfo)
                 return;
             }
 
-            if (!req.headers().contains("mcp-session-id") && d->sessionLimitReached()) {
-                qCWarning(mcpServerLog)
-                    << "Refusing new session, session limit reached:" << d->m_sessions.size();
-                responder.write(
-                    "Too many sessions",
-                    errorHeaders,
-                    QHttpServerResponse::StatusCode::ServiceUnavailable);
+            // The session the rest of this route needs follows from the body,
+            // so it is parsed before the responder that will carry the answer
+            // exists; this one carries the answer to a body that is not JSON.
+            Responder malformed;
+            malformed.writeData = [&responder, errorHeaders](
+                                      const QByteArray &data,
+                                      const char *,
+                                      QHttpServerResponse::StatusCode status) {
+                responder.write(data, errorHeaders, status);
+            };
+            const std::optional<QJsonObject> body = parseRequestBody(req.body(), malformed);
+            if (!body)
                 return;
-            }
+            const QJsonObject message = *body;
 
-            const QString sessionId = req.headers().contains("mcp-session-id")
-                                          ? QString::fromUtf8(req.headers().value("mcp-session-id"))
-                                          : d->createNewSessionId();
-
+            // Only initialize establishes a session. Minting one for any other
+            // anonymous POST announces a session that is never registered, and
+            // 2026-07-28 requests never carry the header at all, so they would
+            // mint one per request.
+            QString sessionId;
             if (req.headers().contains("mcp-session-id")) {
-                bool validSessionId = !sessionId.isNull();
-                if (!validSessionId || !d->validateSession(sessionId)) {
+                sessionId = QString::fromUtf8(req.headers().value("mcp-session-id"));
+                if (sessionId.isNull() || !d->validateSession(sessionId)) {
                     qCInfo(mcpServerLog) << "Received request with invalid session ID:"
                                          << req.headers().value("mcp-session-id");
 
@@ -1891,6 +2871,17 @@ Server::Server(Schema::Implementation serverInfo)
                         QHttpServerResponse::StatusCode::NotFound);
                     return;
                 }
+            } else if (message.value("method").toString() == QLatin1String("initialize")) {
+                if (d->sessionLimitReached()) {
+                    qCWarning(mcpServerLog)
+                        << "Refusing new session, session limit reached:" << d->m_sessions.size();
+                    responder.write(
+                        "Too many sessions",
+                        errorHeaders,
+                        QHttpServerResponse::StatusCode::ServiceUnavailable);
+                    return;
+                }
+                sessionId = d->createNewSessionId();
             }
 
             qCDebug(mcpServerIOLog).noquote() << "Received request with headers:\n"
@@ -1941,7 +2932,11 @@ Server::Server(Schema::Implementation serverInfo)
                 sseStream->sendData(data, sessionId);
             };
 
-            d->onData(req.body(), r, sessionId);
+            d->onData(
+                message,
+                r,
+                sessionId,
+                QString::fromUtf8(req.headers().value("mcp-protocol-version")));
         });
 }
 
@@ -2016,7 +3011,8 @@ Result<std::function<void(QByteArray)>> Server::bindIO(std::function<void(QByteA
     r.isCanceled = [] { return false; };
 
     return [this, r = std::move(r)](QByteArray data) mutable {
-        d->onData(data, r, {});
+        if (const std::optional<QJsonObject> message = parseRequestBody(data, r))
+            d->onData(*message, r, {});
     };
 }
 
@@ -2095,6 +3091,7 @@ struct ToolInterfacePrivate
     bool _isFinished = false;
     bool _isTask = false;
     QString _taskId;
+    bool _supportsTasks = false;
 
     // Explicit constructor (C++17 has no parenthesized aggregate initialization).
     ToolInterfacePrivate(
@@ -2108,7 +3105,15 @@ struct ToolInterfacePrivate
         , _initialRequest(std::move(initialRequest))
         , _sessionId(std::move(sessionId))
         , _responder(std::move(responder))
-    {}
+    {
+        // A 2026-07-28 session entry belongs to whichever client wrote it last,
+        // so everything this call needs from it is taken here, while the request
+        // that wrote it is still being dispatched.
+        if (auto server = _server.lock()) {
+            const auto session = server->m_sessions.value(_sessionId);
+            _supportsTasks = session && session->supportsTasks;
+        }
+    }
 
     ~ToolInterfacePrivate()
     {
@@ -2121,6 +3126,55 @@ struct ToolInterfacePrivate
         if (auto server = _server.lock())
             server->m_pendingToolInterfaces.remove(
                 ServerPrivate::SessionAndRequestId{_sessionId, _initialRequest.id()});
+    }
+
+    // The pending entry is keyed by the id of the request being served, so it
+    // moves with the id: removeFromPending() reads the id as it is by then, and
+    // a notifications/cancelled names the id the client itself used.
+    void takeOverRequestId(const Schema::RequestId &id)
+    {
+        auto server = _server.lock();
+        if (!server) {
+            _initialRequest.id(id);
+            return;
+        }
+        const auto key = [this] {
+            return ServerPrivate::SessionAndRequestId{_sessionId, _initialRequest.id()};
+        };
+        const auto pending = server->m_pendingToolInterfaces.take(key());
+        _initialRequest.id(id);
+        if (!pending.expired())
+            server->m_pendingToolInterfaces.insert(key(), pending);
+    }
+
+    // Parks a request the tool made from inside a task. There is no open
+    // request to answer, so it surfaces through tasks/get instead and the
+    // client replies with tasks/update.
+    Utils::Result<> suspendTaskForInput(
+        const QString &key,
+        const QJsonObject &inputRequest,
+        const std::function<void(const QJsonObject &)> &onResponse)
+    {
+        auto server = _server.lock();
+        if (!server)
+            return Utils::ResultError(QString("Task is no longer available"));
+
+        const auto it = server->m_tasks.find(_taskId);
+        if (it == server->m_tasks.end())
+            return Utils::ResultError(QString("Task is no longer available"));
+
+        // The key is what tasks/update answers under, so two requests of one
+        // kind cannot both be outstanding. Refusing the second tells the tool;
+        // taking its place would drop the first one's continuation.
+        if (it->second.inputHandlers.count(key)) {
+            return Utils::ResultError(
+                QString("A %1 request of this task is already waiting for an answer").arg(key));
+        }
+
+        it->second.inputRequests.insert(key, inputRequest);
+        it->second.inputHandlers[key] = onResponse;
+        it->second.task.status(Schema::TaskStatus::input_required);
+        return Utils::ResultOk;
     }
 
     void cancel()
@@ -2236,6 +3290,43 @@ void ServerPrivate::deleteSession(const QString &sessionId)
         }
     }
 
+    // A subscription outlives the request that opened it, so reclaiming the
+    // session has to end it too: nothing else would, and the deterministic
+    // 2026-07-28 identifier hands the next client of that name the stale one.
+    //
+    // Ended where the client can hear it rather than by dropping the entry: the
+    // revision has the server send notifications/cancelled naming the listen
+    // request to terminate its stream, and says so for stdio in particular,
+    // where no closed connection would say it instead. A stream that simply
+    // stops delivering is indistinguishable from a quiet server.
+    //
+    // Named before anything is sent, and looked up again for each, for the
+    // reason deliverTo2026Listeners() gives: a send may reach back into
+    // m_listeners and erase from or reallocate the vector while it is walked.
+    QList<QJsonValue> subscriptions;
+    for (const Listener &listener : m_listeners) {
+        if (listener.session == sessionId)
+            subscriptions.append(listener.subscriptionId);
+    }
+
+    for (const QJsonValue &subscriptionId : subscriptions) {
+        const auto still = std::find_if(
+            m_listeners.cbegin(),
+            m_listeners.cend(),
+            [&sessionId, &subscriptionId](const Listener &l) {
+                return l.session == sessionId && l.subscriptionId == subscriptionId;
+            });
+        if (still == m_listeners.cend())
+            continue;
+
+        const auto ended = V2026::CancelledNotification().params(
+            V2026::CancelledNotificationParams()
+                .requestId(toRequestId(subscriptionId))
+                .reason(QString("The session this subscription was opened for was reclaimed")));
+        still->send(QJsonDocument(V2026::toJson(ended)).toJson(QJsonDocument::Compact));
+    }
+    std::erase_if(m_listeners, [&sessionId](const Listener &l) { return l.session == sessionId; });
+
     if (m_inspector)
         m_inspector->onSessionEnded(sessionId);
 }
@@ -2254,6 +3345,40 @@ ToolInterface::~ToolInterface() {}
 const Schema::ClientCapabilities &ToolInterface::clientCapabilities() const
 {
     return d->_clientCapabilities;
+}
+
+// Suspends a tool call under the multi round-trip request pattern: the client
+// is told what input is needed and retries the original request with the
+// answer, at which point the stored continuation resumes the tool. This
+// replaces the server-initiated requests that 2026-07-28 removed.
+static void suspendForInput(
+    ServerPrivate &server,
+    const std::shared_ptr<ToolInterfacePrivate> &tool,
+    const QString &key,
+    const QJsonObject &inputRequest,
+    const std::function<void(const QJsonObject &)> &onResponse)
+{
+    const QString token = QUuid::createUuid().toString(QUuid::WithoutBraces);
+
+    server.addPendingInput(
+        token,
+        [tool, key, onResponse](
+            const QJsonObject &responses, const Responder &responder, const QJsonValue &requestId) {
+            // The retry is a new JSON-RPC request, so the tool must answer on
+            // its responder and under its id.
+            tool->_responder = responder;
+            tool->takeOverRequestId(toRequestId(requestId));
+            onResponse(responses.value(key).toObject());
+        });
+
+    tool->_responder.write(QJsonDocument(QJsonObject{
+        {"jsonrpc", "2.0"},
+        {"id", toJsonValue(tool->_initialRequest.id())},
+        {"result",
+         QJsonObject{
+             {"resultType", QString(kResultTypeInputRequired)},
+             {"requestState", token},
+             {"inputRequests", QJsonObject{{key, inputRequest}}}}}}));
 }
 
 void ToolInterface::elicit(
@@ -2297,7 +3422,10 @@ void ToolInterface::elicit(
         return;
     }
 
-    if (wantsTask
+    // Task-flavoured elicitation is a 2025-11-25 capability. Under 2026-07-28
+    // it is the tasks extension that governs it, and the tool call's own task
+    // carries the request, so the per-request flag has no meaning there.
+    if (wantsTask && !is2026Session(d->_sessionId)
         && (!d->_clientCapabilities.tasks() || !d->_clientCapabilities.tasks()->requests()
             || !d->_clientCapabilities.tasks()->requests()->elicitation()
             || !d->_clientCapabilities.tasks()->requests()->elicitation()->create())) {
@@ -2308,6 +3436,31 @@ void ToolInterface::elicit(
     }
 
     if (auto serverPrivate = d->_server.lock()) {
+        if (is2026Session(d->_sessionId)) {
+            const QJsonObject request{
+                {"method", "elicitation/create"},
+                {"params", withoutLegacyTask(Schema::toJson(params))}};
+            const auto onResponse = [cb](const QJsonObject &response) {
+                if (auto parsed = Schema::fromJson<Schema::ElicitResult>(response))
+                    cb(*parsed);
+                else
+                    cb(Utils::ResultError(
+                        "Failed to parse elicit result from client: " + parsed.error()));
+            };
+
+            if (d->_isTask) {
+                if (const Utils::Result<> suspended
+                    = d->suspendTaskForInput("elicitation", request, onResponse);
+                    !suspended) {
+                    cb(Utils::ResultError(suspended.error()));
+                }
+                return;
+            }
+
+            suspendForInput(*serverPrivate, d, "elicitation", request, onResponse);
+            return;
+        }
+
         serverPrivate->sendServerRequest(
             Schema::ElicitRequest().params(params),
             d->_sessionId,
@@ -2396,6 +3549,31 @@ void ToolInterface::sample(
     }
 
     if (auto serverPrivate = d->_server.lock()) {
+        if (is2026Session(d->_sessionId)) {
+            const QJsonObject request{
+                {"method", "sampling/createMessage"},
+                {"params", withoutLegacyTask(Schema::toJson(params))}};
+            const auto onResponse = [cb](const QJsonObject &response) {
+                if (auto parsed = Schema::fromJson<Schema::CreateMessageResult>(response))
+                    cb(*parsed);
+                else
+                    cb(Utils::ResultError(
+                        "Failed to parse sample result from client: " + parsed.error()));
+            };
+
+            if (d->_isTask) {
+                if (const Utils::Result<> suspended
+                    = d->suspendTaskForInput("sampling", request, onResponse);
+                    !suspended) {
+                    cb(Utils::ResultError(suspended.error()));
+                }
+                return;
+            }
+
+            suspendForInput(*serverPrivate, d, "sampling", request, onResponse);
+            return;
+        }
+
         serverPrivate->sendServerRequest(
             Schema::CreateMessageRequest().params(params),
             d->_sessionId, // sessionId is not needed for samples as they are one-off and not associated with a task
@@ -2480,7 +3658,13 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
     if (!onResultCallback)
         return Utils::ResultError("onResultCallback callback must not be empty");
 
-    if (!d->_initialRequest.params().task()) {
+    // 2025-11-25 clients ask for a task per request; 2026-07-28 clients instead
+    // declare the tasks extension once and let the server decide.
+    const bool tasksNegotiated = is2026Session(d->_sessionId)
+                                     ? d->_supportsTasks
+                                     : d->_initialRequest.params().task().has_value();
+
+    if (!tasksNegotiated) {
         if (!pollingIntervalMs) {
             qCWarning(mcpServerLog)
                 << "Attempted to start a task without providing a polling interval for a client "
@@ -2565,12 +3749,15 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
     d->_isTask = true;
 
     if (auto serverPrivate = d->_server.lock()) {
+        const bool is2026 = is2026Session(d->_sessionId);
         auto taskId = QUuid::createUuid().toString();
         auto task = Schema::Task()
                         .taskId(taskId)
                         .ttl(ttlMs)
                         .status(Schema::TaskStatus::working)
-                        .pollInterval(pollingIntervalMs)
+                        .pollInterval(
+                            is2026 ? pollingIntervalMs.value_or(kDefaultTaskPollIntervalMs)
+                                   : pollingIntervalMs)
                         .createdAt(QDateTime::currentDateTime().toString(Qt::ISODate))
                         .lastUpdatedAt(QDateTime::currentDateTime().toString(Qt::ISODate));
 
@@ -2580,12 +3767,22 @@ Utils::Result<ToolInterface::TaskProgressNotify> ToolInterface::startTask(
             std::make_pair(taskId, ServerPrivate::TaskAndCallbacks(task, callbacks, d->_server)));
         d->_taskId = taskId;
 
-        QJsonObject json = Schema::toJson(
-            Schema::JSONRPCResultResponse()
-                .id(d->_initialRequest.id())
-                .result(
-                    Schema::Result().additionalProperties(
-                        Schema::toJson(Schema::CreateTaskResult().task(task)))));
+        QJsonObject json;
+        if (is2026) {
+            QJsonObject result = toExtensionTask(task);
+            result.insert("resultType", QString(kResultTypeTask));
+            json = QJsonObject{
+                {"jsonrpc", "2.0"},
+                {"id", toJsonValue(d->_initialRequest.id())},
+                {"result", result}};
+        } else {
+            json = Schema::toJson(
+                Schema::JSONRPCResultResponse()
+                    .id(d->_initialRequest.id())
+                    .result(
+                        Schema::Result().additionalProperties(
+                            Schema::toJson(Schema::CreateTaskResult().task(task)))));
+        }
 
         d->_responder.write(QJsonDocument(json));
 
