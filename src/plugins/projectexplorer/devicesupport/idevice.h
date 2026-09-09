@@ -331,7 +331,7 @@ public:
     virtual Utils::Result<Utils::Environment> systemEnvironmentIfKnown() const;
     virtual Utils::Result<Utils::Environment> sourcedEnvironment(const Utils::FilePath &script) const;
 
-    virtual void aboutToBeRemoved() const {}
+    virtual void aboutToBeRemoved() const;
 
     virtual Utils::Result<> ensureReachable(const Utils::FilePath &other) const;
     virtual Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const;

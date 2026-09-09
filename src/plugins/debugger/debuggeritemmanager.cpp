@@ -604,8 +604,9 @@ void DebuggerModel::detectDebuggers(
 {
     QTC_ASSERT(device, return);
     const bool isDesktopDevice = device->id() == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
-    const DetectionSource detectionSource = isDesktopDevice ? DetectionSource::FromSystem
-                                                            : DetectionSource::Manual;
+    const DetectionSource detectionSource
+        = isDesktopDevice ? DetectionSource(DetectionSource::FromSystem)
+                          : DetectionSource(DetectionSource::Manual, device->id().toString());
     autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource, logger);
     if (isDesktopDevice) {
         autoDetectCdbDebuggers(logger);

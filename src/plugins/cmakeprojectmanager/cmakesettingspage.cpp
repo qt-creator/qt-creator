@@ -541,8 +541,8 @@ void CMakeToolConfigWidget::redetect()
     // Step 1: Detect
     std::vector<std::unique_ptr<CMakeTool>> toAdd;
     for (const IDeviceConstPtr &dev : m_deviceComboBox.selectedDevices()) {
-        auto detected
-            = CMakeToolManager::autoDetectCMakeTools(dev->toolSearchPaths(), dev->rootPath());
+        auto detected = CMakeToolManager::autoDetectCMakeTools(
+            dev->toolSearchPaths(), dev->rootPath(), dev->id().toString());
         for (auto &&tool : detected)
             toAdd.push_back(std::move(tool));
     }

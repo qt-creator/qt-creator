@@ -10,11 +10,14 @@
 #include "sshparameters.h"
 
 #include "../kit.h"
+#include "../kitaspect.h"
 #include "../kitmanager.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 #include "../target.h"
+
+#include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -1457,6 +1460,14 @@ void IDevice::runAutoDetect(
     };
     GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onRecipeDone);
     deregisterToolDetectionTask(token);
+}
+
+void IDevice::aboutToBeRemoved() const
+{
+    QTaskTree tree(removeDetectedKitsRecipe(shared_from_this(), [](const QString &msg) {
+        Core::MessageManager::writeSilently(msg);
+    }));
+    tree.runBlocking();
 }
 
 FilePath IDevice::rootPath() const
