@@ -22,6 +22,8 @@
             finding the overrides of a virtual function, and getting code
             completions or quick-fixes at a position
         \li Renaming a C++ symbol across the project
+        \li Working with the editor: opening a file at a line and column,
+            reading where the text cursor is, and selecting a range of text
         \li Inspecting Git repositories: status, log, diff, and blame
         \li Reading, writing, and searching files, also on remote devices
     \endlist

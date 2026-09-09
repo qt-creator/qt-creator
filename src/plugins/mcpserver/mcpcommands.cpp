@@ -3931,6 +3931,82 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("editor_get_cursor_position")
+            .title("Get the text cursor position in the current editor")
+            .description(
+                "Returns where the text cursor sits in the editor the user is working in: the "
+                "\"path\" of that editor, the 1-based \"line\" and \"column\", and the "
+                "\"line_text\" of the line it is on, cut to 400 characters with "
+                "\"line_text_truncated\" set when the line is longer. When the cursor has a "
+                "selection, \"has_selection\" is true and it spans "
+                "\"selection_start_line\"/\"selection_start_column\" to "
+                "\"selection_end_line\"/\"selection_end_column\", which editor_select_text "
+                "turns back into the selected text. \"cursor_count\" is above 1 when the "
+                "editor holds several cursors, in which case the position reported is the main "
+                "one. This is how to resolve a request phrased as \"the current line\" or "
+                "\"the method the cursor is in\": the coordinates are the 1-based line and "
+                "column that editor_open, editor_select_text and the cpp_* and lsp_* tools "
+                "take, so cpp_get_symbol_info resolves the symbol under the cursor and "
+                "cpp_get_file_symbols the one it sits inside. This is the text cursor: the "
+                "mouse pointer is ui_get_pointer_position, and editor_move_cursor moves that "
+                "pointer rather than the caret. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("path", QJsonObject{{"type", "string"}})
+                    .addProperty("line", QJsonObject{{"type", "integer"}})
+                    .addProperty("column", QJsonObject{{"type", "integer"}})
+                    .addProperty("line_text", QJsonObject{{"type", "string"}})
+                    .addProperty("line_text_truncated", QJsonObject{{"type", "boolean"}})
+                    .addProperty("cursor_count", QJsonObject{{"type", "integer"}})
+                    .addProperty("has_selection", QJsonObject{{"type", "boolean"}})
+                    .addProperty("selection_start_line", QJsonObject{{"type", "integer"}})
+                    .addProperty("selection_start_column", QJsonObject{{"type", "integer"}})
+                    .addProperty("selection_end_line", QJsonObject{{"type", "integer"}})
+                    .addProperty("selection_end_column", QJsonObject{{"type", "integer"}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addRequired("reason")),
+        wrap([](const QJsonObject &) -> QJsonObject {
+            Core::IEditor *editor = Core::EditorManager::currentEditor();
+            auto *textEditor = editor ? TextEditor::TextEditorWidget::fromEditor(editor) : nullptr;
+            if (!textEditor) {
+                Core::IDocument *document = editor ? editor->document() : nullptr;
+                if (!document)
+                    return {{"reason", "no_text_editor"}, {"message", "No editor is current."}};
+                return {
+                    {"reason", "no_text_editor"},
+                    {"path", document->filePath().toUserOutput()},
+                    {"message", "The current editor is not a text editor."}};
+            }
+
+            const Utils::MultiTextCursor cursors = textEditor->multiTextCursor();
+            const QTextCursor cursor = cursors.mainCursor();
+            const QTextBlock block = cursor.block();
+            const QString lineText = block.text();
+            QJsonObject result{
+                {"reason", "ok"},
+                {"path", textEditor->textDocument()->filePath().toUserOutput()},
+                {"line", block.blockNumber() + 1},
+                {"column", cursor.positionInBlock() + 1},
+                {"line_text", lineText.left(maxReportedTextLength)},
+                {"cursor_count", cursors.cursorCount()},
+                {"has_selection", cursor.hasSelection()}};
+            if (lineText.size() > maxReportedTextLength)
+                result.insert("line_text_truncated", true);
+            if (cursor.hasSelection()) {
+                const QTextDocument *doc = textEditor->document();
+                const QTextBlock first = doc->findBlock(cursor.selectionStart());
+                const QTextBlock last = doc->findBlock(cursor.selectionEnd());
+                result["selection_start_line"] = first.blockNumber() + 1;
+                result["selection_start_column"] = cursor.selectionStart() - first.position() + 1;
+                result["selection_end_line"] = last.blockNumber() + 1;
+                result["selection_end_column"] = cursor.selectionEnd() - last.position() + 1;
+            }
+            return result;
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("editor_get_folds")
             .title("Get the code-folding structure of the current editor")
             .description(
