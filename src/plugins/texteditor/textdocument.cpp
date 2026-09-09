@@ -725,7 +725,7 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, SaveOption option)
     if (savesAs)
         applyEditorConfigForSaveAs(target);
 
-    if (option != SaveOption::AutoSave) {
+    if (option != SaveOption::AutoSave && option != SaveOption::PreserveContent) {
         cursor.beginEditBlock();
         cursor.movePosition(QTextCursor::Start);
 

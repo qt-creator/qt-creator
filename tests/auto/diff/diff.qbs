@@ -5,5 +5,6 @@ Project {
     references: [
         "differ/differ.qbs",
         "inlinediff/inlinediff.qbs",
+        "mergemodel/mergemodel.qbs",
     ]
 }

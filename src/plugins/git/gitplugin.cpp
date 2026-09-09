@@ -99,6 +99,7 @@
 #include <QScopeGuard>
 #include <QSplitter>
 #include <QTimer>
+#include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -258,11 +259,8 @@ public:
     void diffChangedFile(const FilePath &repository, const QString &relativePath,
                          VcsFileStatus::Section section) final
     {
-        // a conflicted file is opened in the normal text editor, where its
-        // merge conflict markers can be resolved inline; the diff view has no
-        // conflict controls
         if (section == VcsFileStatus::Section::Conflicted) {
-            EditorManager::openEditor(repository.resolvePath(relativePath));
+            gitClient().merge(repository, {relativePath});
             return;
         }
         if (section == VcsFileStatus::Section::Staged)
@@ -440,6 +438,7 @@ public:
     QAction *m_menuAction = nullptr;
     QAction *m_repositoryBrowserAction = nullptr;
     QAction *m_mergeToolAction = nullptr;
+    QAction *m_openMergeEditorAction = nullptr;
     QAction *m_submoduleUpdateAction = nullptr;
     QAction *m_abortMergeAction = nullptr;
     QAction *m_abortRebaseAction = nullptr;
@@ -750,6 +749,14 @@ GitPluginPrivate::GitPluginPrivate()
                      Tr::tr("Diff Staged Changes in \"%1\""),
                      "Git.DiffStaged", context, true,
                      std::bind(&GitPluginPrivate::diffStagedCurrentFile, this));
+
+    m_openMergeEditorAction = createFileAction(
+        currentFileMenu, Tr::tr("Open Current File in Merge Editor"),
+        Tr::tr("Open \"%1\" in Merge Editor"), "Git.OpenMergeEditor", context, true, [this] {
+            const VcsBasePluginState state = currentState();
+            if (state.hasFile())
+                gitClient().openMergeEditor(state.currentFileTopLevel(), state.relativeCurrentFile());
+        });
 
     createFileAction(currentFileMenu,
                      //: Avoid translating "Log"
@@ -1972,6 +1979,7 @@ void GitPluginPrivate::updateContinueAndAbortCommands()
                 gitClient().checkCommandInProgress(currentState().topLevel());
 
         m_mergeToolAction->setVisible(gitCommandInProgress != GitClient::NoCommand);
+        m_openMergeEditorAction->setVisible(gitCommandInProgress != GitClient::NoCommand);
         m_abortMergeAction->setVisible(gitCommandInProgress == GitClient::Merge);
         m_abortCherryPickAction->setVisible(gitCommandInProgress == GitClient::CherryPick);
         m_abortRevertAction->setVisible(gitCommandInProgress == GitClient::Revert);
@@ -1987,6 +1995,7 @@ void GitPluginPrivate::updateContinueAndAbortCommands()
         m_interactiveRebaseAction->setEnabled(gitCommandInProgress == GitClient::NoCommand);
     } else {
         m_mergeToolAction->setVisible(false);
+        m_openMergeEditorAction->setVisible(false);
         m_abortMergeAction->setVisible(false);
         m_abortCherryPickAction->setVisible(false);
         m_abortRevertAction->setVisible(false);
@@ -2525,6 +2534,15 @@ private slots:
     void testGerritEscape();
     void testCommitMessageHighlighting_data();
     void testCommitMessageHighlighting();
+    void testAddFileHandler();
+    void testMergeEditorFromFileLists_data();
+    void testMergeEditorFromFileLists();
+    void testMergeEditorTextSwitching();
+    void testMergeEditorTextSwitchingAfterSourceClosed();
+    void testMergeWithoutToolOpensMergeEditor_data();
+    void testMergeWithoutToolOpensMergeEditor();
+    void testMergeEditorStagesGitHunks_data();
+    void testMergeEditorStagesGitHunks();
     void testSharedBranchViews();
     void testBranchModelAsyncCommands();
     void testBranchModelMergedDuringRefresh_data();
@@ -3207,7 +3225,8 @@ void GitTest::testInlineDiffFile()
 
 // Builds a repo whose file.txt is left unmerged: "base" is committed first,
 // then "local" on the current branch and "side" on the merged branch.
-static void createConflictedRepo(const FilePath &repo)
+static void createConflictedRepo(const FilePath &repo, const QByteArray &local = "local\n",
+                                 const QStringList &files = {"file.txt"})
 {
     const auto runGit = [repo](const QStringList &arguments) {
         return gitClient().vcsSynchronousExec(repo, arguments).result()
@@ -3217,15 +3236,17 @@ static void createConflictedRepo(const FilePath &repo)
     QVERIFY(runGit({"config", "user.email", "test@test"}));
     QVERIFY(runGit({"config", "user.name", "test"}));
     QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
-    const FilePath file = repo / "file.txt";
-    QVERIFY(file.writeFileContents("base\n"));
-    QVERIFY(runGit({"add", "file.txt"}));
+    for (const QString &file : files)
+        QVERIFY((repo / file).writeFileContents("base\n"));
+    QVERIFY(runGit(QStringList{"add"} + files));
     QVERIFY(runGit({"commit", "-m", "initial"}));
     QVERIFY(runGit({"checkout", "-b", "side"}));
-    QVERIFY(file.writeFileContents("side\n"));
+    for (const QString &file : files)
+        QVERIFY((repo / file).writeFileContents("side\n"));
     QVERIFY(runGit({"commit", "-am", "side"}));
     QVERIFY(runGit({"checkout", "-"}));
-    QVERIFY(file.writeFileContents("local\n"));
+    for (const QString &file : files)
+        QVERIFY((repo / file).writeFileContents(local));
     QVERIFY(runGit({"commit", "-am", "local"}));
     QVERIFY(!runGit({"merge", "side"})); // conflicts
 }
@@ -5145,6 +5166,406 @@ void GitTest::testBranchRefreshRetry()
     QTRY_COMPARE(refreshFinishedSpy.size(), 1);
     QCOMPARE(refreshFinishedSpy.takeFirst().at(0).toBool(), true);
     QVERIFY(model.localBranchNames().contains("main"));
+}
+
+void GitTest::testMergeEditorFromFileLists_data()
+{
+    QTest::addColumn<QString>("entryPoint");
+    QTest::newRow("commit-window") << QString("commit");
+    QTest::newRow("changes-view") << QString("changes");
+    QTest::newRow("conflict-dialog") << QString("dialog");
+}
+
+void GitTest::testMergeEditorFromFileLists()
+{
+    QFETCH(QString, entryPoint);
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repo = FilePath::fromString(directory.path());
+    const QStringList files{"file.txt", "second.txt"};
+    createConflictedRepo(repo, "local\n", files);
+    // The Creator preference must take precedence over Git's external tool.
+    QVERIFY(gitClient().vcsSynchronousExec(repo, {"config", "merge.tool", "missing-tool"}).result()
+            == ProcessResult::FinishedWithSuccess);
+    const bool previous = settings().useInternalMergeTool();
+    const auto restore = qScopeGuard([previous] {
+        settings().useInternalMergeTool.setValue(previous);
+    });
+    settings().useInternalMergeTool.setValue(true);
+    QList<QPointer<Core::IDocument>> opened;
+    const auto cleanup = qScopeGuard([&opened, repo, files] {
+        for (const QPointer<Core::IDocument> &document : opened) {
+            if (document)
+                EditorManager::closeDocuments({document}, false);
+        }
+        for (const QString &file : files) {
+            if (Core::IDocument *document = Core::DocumentModel::documentForFilePath(repo / file))
+                EditorManager::closeDocuments({document}, false);
+        }
+    });
+    if (entryPoint == "commit") {
+        GitSubmitEditor submit;
+        CommitData data;
+        data.panelInfo.repository = repo;
+        for (const QString &file : files)
+            data.files.append({UnmergedFile | ModifiedFile, file});
+        submit.setCommitData(data);
+        submit.diffSelectedRows({0, 1});
+    } else if (entryPoint == "changes") {
+        for (const QString &file : files)
+            dd->diffChangedFile(repo, file, VcsFileStatus::Section::Conflicted);
+    } else {
+        bool enabled = false;
+        QTimer::singleShot(0, this, [&enabled] {
+            auto dialog = qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+            if (!dialog)
+                return;
+            for (QAbstractButton *button : dialog->buttons()) {
+                if (button->text().contains("Merge Tool")) {
+                    enabled = button->isEnabled();
+                    if (enabled)
+                        button->click();
+                    else
+                        dialog->reject();
+                    return;
+                }
+            }
+            dialog->reject();
+        });
+        gitClient().handleMergeConflicts(repo, {}, files, "merge");
+        QVERIFY(enabled);
+    }
+    for (const QString &file : files) {
+        IEditor *editor = Utils::findOrDefault(
+            Core::DocumentModel::editorsForOpenedDocuments(), [&file](IEditor *candidate) {
+                return candidate->document()->displayName() == file + " (Merge)";
+            });
+        QVERIFY(editor);
+        opened.append(editor->document());
+        QTRY_VERIFY(editor->widget()->findChild<QToolButton *>("MergeEditor.Conflict.0.Current"));
+        // Opening the same conflict again must keep its existing merge editor.
+        gitClient().merge(repo, {file});
+        QCOMPARE(EditorManager::currentEditor(), editor);
+        QCOMPARE((repo / file).fileContents().value_or(QByteArray()).count("<<<<<<<"), 1);
+    }
+}
+
+void GitTest::testMergeEditorTextSwitching()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repo = FilePath::fromString(directory.path());
+    createConflictedRepo(repo);
+    const FilePath file = repo / "file.txt";
+    const QByteArray diskText = file.fileContents().value_or(QByteArray());
+    QList<QPointer<Core::IDocument>> opened;
+    const auto cleanup = qScopeGuard([&opened, file] {
+        for (const QPointer<Core::IDocument> &document : opened) {
+            if (document)
+                EditorManager::closeDocuments({document}, false);
+        }
+        if (Core::IDocument *document = Core::DocumentModel::documentForFilePath(file))
+            EditorManager::closeDocuments({document}, false);
+    });
+    gitClient().openMergeEditor(repo, "file.txt");
+    IEditor *mergeEditor = EditorManager::currentEditor();
+    QVERIFY(mergeEditor);
+    opened.append(mergeEditor->document());
+    auto result = mergeEditor->widget()->findChild<TextEditor::TextEditorWidget *>("MergeEditor.Result");
+    QVERIFY(result);
+    QTRY_VERIFY(result->findChild<QToolButton *>("MergeEditor.Conflict.0.Current"));
+    QTextCursor cursor(result->document());
+    cursor.insertText("from merge\n");
+    auto textAction = mergeEditor->toolBar()->findChild<QAction *>("MergeEditor.EditAsText");
+    QVERIFY(textAction);
+    textAction->trigger();
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
+    QVERIFY(textEditor);
+    QCOMPARE(textEditor->document()->filePath(), file);
+    QCOMPARE(textEditor->editorWidget()->toPlainText(), "from merge\n" + QString::fromUtf8(diskText));
+    QVERIFY(textEditor->document()->isModified());
+    QCOMPARE(textEditor->editorWidget()->textCursor().blockNumber(), 1);
+    QCOMPARE(file.fileContents().value_or(QByteArray()), diskText);
+    cursor = QTextCursor(textEditor->editorWidget()->document());
+    cursor.insertText("from text\n");
+
+    // Explicitly switching back works independently of the default tool preference.
+    const bool previous = settings().useInternalMergeTool();
+    const auto restore = qScopeGuard([previous] {
+        settings().useInternalMergeTool.setValue(previous);
+    });
+    settings().useInternalMergeTool.setValue(false);
+    Command *command = ActionManager::command("Git.OpenMergeEditor");
+    QVERIFY(command);
+    QTRY_VERIFY(command->action()->isEnabled());
+    command->action()->trigger();
+    QTRY_VERIFY(EditorManager::currentEditor() != textEditor);
+    mergeEditor = EditorManager::currentEditor();
+    opened.append(mergeEditor->document());
+    result = mergeEditor->widget()->findChild<TextEditor::TextEditorWidget *>("MergeEditor.Result");
+    QVERIFY(result);
+    QVERIFY(result->toPlainText().startsWith("from text\nfrom merge\n"));
+    QTRY_VERIFY(result->findChild<QToolButton *>("MergeEditor.Conflict.0.Current"));
+    result->findChild<QToolButton *>("MergeEditor.Conflict.0.Current")->click();
+    mergeEditor->toolBar()->findChild<QAction *>("MergeEditor.EditAsText")->trigger();
+    QCOMPARE(EditorManager::currentEditor(), textEditor);
+    QCOMPARE(textEditor->editorWidget()->toPlainText(), QString("from text\nfrom merge\nlocal\n"));
+    QVERIFY(textEditor->document()->isModified());
+    QCOMPARE(file.fileContents().value_or(QByteArray()), diskText);
+    QVERIFY(!gitClient().vcsSynchronousExec(repo, {"ls-files", "--unmerged"}).cleanedStdOut().isEmpty());
+}
+
+void GitTest::testMergeEditorTextSwitchingAfterSourceClosed()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repo = FilePath::fromString(directory.path());
+    createConflictedRepo(repo);
+    const FilePath file = repo / "file.txt";
+    const QByteArray diskText = file.fileContents().value_or(QByteArray());
+    QList<QPointer<Core::IDocument>> opened;
+    const auto cleanup = qScopeGuard([&opened, file] {
+        for (const QPointer<Core::IDocument> &document : opened) {
+            if (document)
+                EditorManager::closeDocuments({document}, false);
+        }
+        if (Core::IDocument *document = Core::DocumentModel::documentForFilePath(file))
+            EditorManager::closeDocuments({document}, false);
+    });
+
+    gitClient().openMergeEditor(repo, "file.txt");
+    IEditor *mergeEditor = EditorManager::currentEditor();
+    QVERIFY(mergeEditor);
+    QPointer<IEditor> mergeEditorGuard = mergeEditor;
+    opened.append(mergeEditor->document());
+    auto result = mergeEditor->widget()->findChild<TextEditor::TextEditorWidget *>(
+        "MergeEditor.Result");
+    QVERIFY(result);
+    QTRY_VERIFY(result->findChild<QToolButton *>("MergeEditor.Conflict.0.Current"));
+    result->findChild<QToolButton *>("MergeEditor.Conflict.0.Current")->click();
+
+    Core::IDocument *sourceDocument = Core::DocumentModel::documentForFilePath(file);
+    QVERIFY(sourceDocument);
+    QVERIFY(EditorManager::closeDocuments({sourceDocument}, false));
+
+    auto textAction = mergeEditor->toolBar()->findChild<QAction *>("MergeEditor.EditAsText");
+    QVERIFY(textAction);
+    textAction->trigger();
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
+    QVERIFY(textEditor);
+    QCOMPARE(textEditor->document()->filePath(), file);
+    QCOMPARE(textEditor->editorWidget()->toPlainText(), "local\n");
+    QVERIFY(textEditor->document()->isModified());
+    QCOMPARE(file.fileContents().value_or(QByteArray()), diskText);
+    QVERIFY(mergeEditorGuard.isNull());
+}
+
+void GitTest::testMergeWithoutToolOpensMergeEditor_data()
+{
+    QTest::addColumn<QString>("operation");
+    QTest::newRow("merge") << QString("merge");
+    QTest::newRow("rebase") << QString("rebase");
+    QTest::newRow("cherry-pick") << QString("cherry-pick");
+    QTest::newRow("revert") << QString("revert");
+}
+
+void GitTest::testMergeWithoutToolOpensMergeEditor()
+{
+    QFETCH(QString, operation);
+    const bool atomicSaveWasDisabled = FileUtils::atomicSaveDisabled();
+    const auto restoreAtomicSave = qScopeGuard([atomicSaveWasDisabled] {
+        FileUtils::setAtomicSaveDisabled(atomicSaveWasDisabled);
+    });
+    FileUtils::setAtomicSaveDisabled(true);
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    const QByteArray local = "local \x1b[31mred\x1b[0m\n";
+    createConflictedRepo(repo, local);
+    if (operation != "merge") {
+        QVERIFY(gitClient().vcsSynchronousExec(repo, {"merge", "--abort"}).result()
+                == ProcessResult::FinishedWithSuccess);
+        const QStringList arguments = operation == "revert"
+                                          ? QStringList{"revert", "side"}
+                                          : QStringList{operation, "side"};
+        QVERIFY(gitClient().vcsSynchronousExec(repo, arguments).result()
+                != ProcessResult::FinishedWithSuccess);
+    }
+    const FilePath file = repo / "file.txt";
+    const auto conflictedContents = file.fileContents();
+    QVERIFY(conflictedContents);
+    QVERIFY(file.writeFileContents(QByteArray("??????\n") + *conflictedContents));
+
+    // An explicitly empty repository setting takes precedence over a possible
+    // user-wide merge tool, making the fallback deterministic.
+    QVERIFY(gitClient().vcsSynchronousExec(repo, {"config", "merge.tool", ""}).result()
+            == ProcessResult::FinishedWithSuccess);
+    gitClient().merge(repo);
+
+    QTRY_VERIFY(EditorManager::currentEditor()
+                && EditorManager::currentEditor()->document()->displayName()
+                       == QString("file.txt (Merge)"));
+    QToolBar *toolBar = qobject_cast<QToolBar *>(EditorManager::currentEditor()->toolBar());
+    QVERIFY(toolBar);
+    QAction *useCurrent = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
+        return action->text() == "Use Current";
+    });
+    QAction *markResolved = Utils::findOrDefault(toolBar->actions(), [](QAction *action) {
+        return action->text() == "Mark Resolved";
+    });
+    QVERIFY(useCurrent);
+    QVERIFY(markResolved);
+    QTRY_VERIFY(useCurrent->isEnabled());
+    const QString incomingRef = QString::fromLatin1(operation == "merge" ? "MERGE_HEAD"
+                                : operation == "rebase" ? "REBASE_HEAD"
+                                : operation == "cherry-pick" ? "CHERRY_PICK_HEAD"
+                                : "Parent of the commit being reverted");
+    QVERIFY(Utils::anyOf(EditorManager::currentEditor()->widget()->findChildren<QLabel *>(),
+                         [](QLabel *label) {
+        return label->text().startsWith("Current:") && label->text().contains("HEAD");
+    }));
+    QVERIFY(Utils::anyOf(EditorManager::currentEditor()->widget()->findChildren<QLabel *>(),
+                         [&incomingRef](QLabel *label) {
+        return label->text().startsWith("Incoming:") && label->text().contains(incomingRef);
+    }));
+    useCurrent->trigger();
+    QTRY_VERIFY(markResolved->isEnabled());
+    markResolved->trigger();
+    QTRY_VERIFY(!markResolved->isEnabled());
+    QTRY_VERIFY(gitClient().vcsSynchronousExec(repo, {"ls-files", "--unmerged"})
+                    .cleanedStdOut().isEmpty());
+    QCOMPARE(file.fileContents().value_or(QByteArray()), QByteArray("??????\n") + (operation == "rebase" ? QByteArray("side\n") : local));
+    QVERIFY(EditorManager::closeDocuments({EditorManager::currentDocument()}, false));
+}
+
+void GitTest::testMergeEditorStagesGitHunks_data()
+{
+    QTest::addColumn<QByteArray>("base");
+    QTest::addColumn<QByteArray>("ours");
+    QTest::addColumn<QByteArray>("theirs");
+    QTest::addColumn<bool>("changeMode");
+    QTest::newRow("trimmed")
+        << QByteArray("header\r\nbase\r\nfooter\r\n")
+        << QByteArray("header\r\nleading\r\nours\r\ntrailing\r\nfooter\r\n")
+        << QByteArray("header\r\nleading\r\nincoming  \r\ntrailing\r\nfooter\r\n")
+        << !HostOsInfo::isWindowsHost();
+    QTest::newRow("joined")
+        << QByteArray("header\nbase one\ncommon\nbase two\nfooter\n")
+        << QByteArray("header\nours one\ncommon\nours two\nfooter\n")
+        << QByteArray("header\nincoming one\ncommon\nincoming two  \nfooter\n")
+        << false;
+}
+
+void GitTest::testMergeEditorStagesGitHunks()
+{
+    QFETCH(QByteArray, base);
+    QFETCH(QByteArray, ours);
+    QFETCH(QByteArray, theirs);
+    QFETCH(bool, changeMode);
+    const QByteArray editedContents = theirs.contains("\r\n") ? QByteArray("edited\r\n")
+                                                                 : QByteArray("edited\n");
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repo = FilePath::fromString(directory.path());
+    const auto runGit = [repo](const QStringList &args) {
+        return gitClient().vcsSynchronousExec(repo, args, RunFlag::NoOutput);
+    };
+    const auto ok = [&runGit](const QStringList &args) {
+        return runGit(args).result() == ProcessResult::FinishedWithSuccess;
+    };
+    const FilePath file = repo / "file.txt";
+    QVERIFY(ok({"init", "-b", "main", "."}));
+    QVERIFY(ok({"config", "user.email", "test@test"}));
+    QVERIFY(ok({"config", "user.name", "test"}));
+    QVERIFY(ok({"config", "commit.gpgsign", "false"}));
+    QVERIFY(ok({"config", "core.autocrlf", "false"}));
+    QVERIFY(ok({"config", "merge.conflictStyle", "merge"}));
+    QVERIFY(ok({"config", "merge.tool", ""}));
+    QVERIFY((repo / ".gitattributes").writeFileContents("file.txt -text whitespace\n"));
+    QVERIFY(file.writeFileContents(base));
+    QVERIFY(ok({"add", "."}));
+    QVERIFY(ok({"commit", "-m", "base"}));
+    QVERIFY(ok({"checkout", "-b", "side"}));
+    QVERIFY(file.writeFileContents(theirs));
+    QVERIFY(ok({"commit", "-am", "side"}));
+    QVERIFY(ok({"checkout", "main"}));
+    QVERIFY(file.writeFileContents(ours));
+    QVERIFY(ok({"add", "file.txt"}));
+    if (changeMode) {
+        QVERIFY(file.setPermissions(file.permissions() | QFile::ExeOwner));
+        QVERIFY(ok({"update-index", "--chmod=+x", "file.txt"}));
+    }
+    QVERIFY(ok({"commit", "-m", "current"}));
+    QVERIFY(!ok({"merge", "side"}));
+    const QByteArray conflicted = file.fileContents().value_or(QByteArray());
+    QCOMPARE(conflicted.count("<<<<<<< "), 1);
+
+    gitClient().merge(repo);
+    QTRY_VERIFY(EditorManager::currentEditor()
+                && EditorManager::currentEditor()->document()->displayName() == "file.txt (Merge)");
+    IEditor *editor = EditorManager::currentEditor();
+    const auto toolbar = qobject_cast<QToolBar *>(editor->toolBar());
+    QVERIFY(toolbar);
+    const auto action = [toolbar](const QString &text) {
+        return Utils::findOrDefault(toolbar->actions(), [&text](QAction *item) {
+            return item->text() == text;
+        });
+    };
+    QAction *useIncoming = action("Use Incoming");
+    QAction *markResolved = action("Mark Resolved");
+    QVERIFY(useIncoming);
+    QVERIFY(markResolved);
+    QTRY_VERIFY(useIncoming->isEnabled());
+    useIncoming->trigger();
+    auto *resultWidget = editor->widget()->findChild<TextEditorWidget *>("MergeEditor.Result");
+    QVERIFY(resultWidget);
+    QTRY_VERIFY(!resultWidget->toPlainText().contains("<<<<<<< "));
+    QTRY_VERIFY(markResolved->isEnabled());
+    markResolved->trigger();
+    QTRY_VERIFY(runGit({"ls-files", "--unmerged"}).cleanedStdOut().isEmpty());
+    QCOMPARE(runGit({"show", ":file.txt"}).rawStdOut(), theirs);
+    QTextCursor resultCursor(resultWidget->document());
+    resultCursor.select(QTextCursor::Document);
+    resultCursor.insertText("edited\n");
+    QCOMPARE(resultWidget->toPlainText(), QString("edited\n"));
+    QTRY_VERIFY(editor->document()->isModified());
+    QTRY_VERIFY(markResolved->isEnabled());
+    markResolved->trigger();
+    QTRY_COMPARE(file.fileContents().value_or(QByteArray()), editedContents);
+    QTRY_VERIFY(runGit({"ls-files", "--unmerged"}).cleanedStdOut().isEmpty());
+    QTRY_COMPARE(runGit({"show", ":file.txt"}).rawStdOut(), editedContents);
+    const QString stage = runGit({"ls-files", "--stage", "--", "file.txt"}).cleanedStdOut();
+    QVERIFY(stage.startsWith(changeMode ? "100755 " : "100644 "));
+    QVERIFY(EditorManager::closeDocuments({editor->document()}, false));
+}
+
+void GitTest::testAddFileHandler()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repo = FilePath::fromString(temporaryDir.path());
+    const auto runGit = [repo](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repo, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "."}));
+    QVERIFY(runGit({"config", "user.email", "test@test"}));
+    QVERIFY(runGit({"config", "user.name", "test"}));
+    QVERIFY((repo / "file.txt").writeFileContents("content\n"));
+
+    bool callbackCalled = false;
+    bool succeeded = false;
+    gitClient().addFile(
+        repo, "file.txt", [&callbackCalled, &succeeded](const CommandResult &result) {
+            callbackCalled = true;
+            succeeded = result.result() == ProcessResult::FinishedWithSuccess;
+        });
+    QTRY_VERIFY(callbackCalled);
+    QVERIFY(succeeded);
+    QCOMPARE(gitClient().vcsSynchronousExec(repo, {"diff", "--cached", "--name-only"})
+                 .cleanedStdOut()
+                 .trimmed(),
+             QString("file.txt"));
 }
 
 void GitTest::testGerritEscape_data()

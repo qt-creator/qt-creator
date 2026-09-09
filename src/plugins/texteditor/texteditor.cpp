@@ -5298,9 +5298,11 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
             pState->height = 0;
         }
 
+        const int viewHeight = q->editorLayout()->additionalBlockHeight(block, false)
+                               - documentLayout->additionalBlockHeight(block, false);
         const QPoint pos
             = q->blockBoundingGeometry(block).translated(q->contentOffset()).topLeft().toPoint()
-              + QPoint(0, documentLayout->embeddedWidgetOffset(block, carrier));
+              + QPoint(0, documentLayout->embeddedWidgetOffset(block, carrier) + viewHeight);
 
         int h = carrier->embedHeight();
         if (h == pState->height && pos == carrier->pos())
@@ -5328,6 +5330,7 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         forceUpdateScrollbarSize();
     });
     connect(q->document()->documentLayout(), &QAbstractTextDocumentLayout::update, carrier, position);
+    connect(q->editorLayout(), &QAbstractTextDocumentLayout::update, carrier, position);
     connect(q->verticalScrollBar(), &QScrollBar::valueChanged, carrier, position);
     connect(result.get(), &EmbeddedWidgetInterface::resized, carrier, [position, this]() {
         position();
@@ -10315,7 +10318,13 @@ void TextEditorWidgetPrivate::updateHighlightScrollBarNow()
             const int end = layout->offsetForLine(layout->firstLineNumberOf(bottom))
                             + layout->lineSpacing();
             m_highlightScrollBarController->addHighlight(
-                {it.key(), pos, qMax(end - pos, 1), highlight.color, Highlight::NormalPriority});
+                {it.key(),
+                 pos,
+                 qMax(end - pos, 1),
+                 highlight.color,
+                 highlight.priority == TextEditorWidget::ScrollBarHighlight::Priority::High
+                     ? Highlight::HighPriority
+                     : Highlight::NormalPriority});
         }
     }
 }

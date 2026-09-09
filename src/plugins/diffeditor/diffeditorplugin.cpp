@@ -8,6 +8,7 @@
 #include "diffeditor.h"
 #include "diffeditortr.h"
 #include "inlinediff.h"
+#include "mergeeditor.h"
 #include "sidebysidediffeditorwidget.h"
 #include "unifieddiffeditorwidget.h"
 
@@ -23,6 +24,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/icore.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -38,13 +40,15 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/plaintextedit/plaintextedit.h>
+#include <utils/widgets.h>
 
 #include <QAbstractButton>
 #include <QAction>
 #include <QComboBox>
-#include <QScopeGuard>
+#include <QDir>
 #include <QMenu>
 #include <QPointer>
+#include <QScopeGuard>
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QTimer>
@@ -633,7 +637,9 @@ class DiffEditorPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
 
 private:
-    void initialize() final;
+    Utils::Result<> initialize(const QStringList &arguments) final;
+    QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
+                           const QStringList &arguments) final;
     void updateDiffCurrentFileAction();
     void updateDiffOpenFilesAction();
     void diffCurrentFile();
@@ -716,8 +722,37 @@ private slots:
 #endif // WITH_TESTS
 };
 
-void DiffEditorPlugin::initialize()
+QObject *DiffEditorPlugin::remoteCommand(const QStringList &options,
+                                       const QString &workingDirectory, const QStringList &)
 {
+    if (options.isEmpty())
+        return nullptr;
+    const QStringList names = {"-merge-base", "-merge-ours", "-merge-theirs", "-merge-result"};
+    std::array<Utils::FilePath, 4> files;
+    for (int i = 0; i < names.size(); ++i) {
+        const int index = options.indexOf(names[i]);
+        if (index < 0 || index + 1 >= options.size()) {
+            Utils::AsynchronousMessageBox::warning(
+                Tr::tr("Cannot Open Merge"),
+                Tr::tr("Specify -merge-base, -merge-ours, -merge-theirs and -merge-result."));
+            return nullptr;
+        }
+        const QString path = options.at(index + 1);
+        if (!path.isEmpty())
+            files[i] = Utils::FilePath::fromString(workingDirectory)
+                           .resolvePath(Utils::FilePath::fromUserInput(path));
+    }
+    return openMergeEditorFromFiles(files, this);
+}
+
+Utils::Result<> DiffEditorPlugin::initialize(const QStringList &arguments)
+{
+    connect(ICore::instance(), &ICore::coreOpened, this, [this, arguments] {
+        remoteCommand(arguments, QDir::currentPath(), {});
+    });
+#ifdef WITH_TESTS
+    addTestCreator(createMergeEditorTest);
+#endif
     setupDiffEditorFactory();
 
     //register actions
@@ -785,6 +820,7 @@ void DiffEditorPlugin::initialize()
     updateDiffCurrentFileAction();
     updateDiffOpenFilesAction();
     updateRangeComparisonActions();
+    return Utils::ResultOk;
 }
 
 void DiffEditorPlugin::updateRangeComparisonActions()
@@ -3381,6 +3417,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testRangeComparisonActions()
 }
 
 #include "inlinediff.h"
+#include "mergeeditor.h"
 #include "inlinediff_p.h"
 
 #include <texteditor/fontsettings.h>

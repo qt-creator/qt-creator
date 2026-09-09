@@ -89,6 +89,59 @@
     \inlineimage {icons/linkicon.png} {Synchronize Horizontal Scroll Bars}
     (\uicontrol {Synchronize Horizontal Scroll Bars}).
 
+    \section1 Resolve merge conflicts
+
+    Git opens conflicted files from the commit window and Changes view in the
+    internal merge editor by default. To use the merge tool configured in Git,
+    disable \uicontrol {Use internal merge tool} in the Git preferences.
+
+    The merge editor shows the current and incoming versions above an editable
+    result, which initially occupies about one quarter of the view. Use the
+    inline buttons to choose the current version, incoming
+    version, or both versions for a conflict. Review the result before saving.
+    A border and matching conflict number identify the active conflict in all
+    three panes. Scrolling synchronizes the centers of the panes, and resizing
+    the panes keeps the active conflict centered.
+
+    Unchanged lines are initially hidden, keeping three lines of context around
+    changes. Use \uicontrol {Hide Unchanged Lines} to toggle this behavior.
+    Select a \uicontrol {Show unchanged lines} button
+    to reveal a hidden section, or disable the toolbar action to reveal all
+    unchanged lines.
+
+    For an integrated Git merge, select \uicontrol {Edit as Text} to continue
+    in the normal text editor. Your partial resolutions remain unsaved changes;
+    unresolved conflicts are shown with their original markers. Use
+    \uicontrol {Open in Merge Editor} above the text editor or in the Git
+    \uicontrol {Current File} menu to switch back, including your text edits.
+
+    \section2 Use Qt Creator as an external merge tool
+
+    Pass each merge input and the existing result file with its own option:
+
+    \code
+    qtcreator -client -block -merge-base "base.txt" -merge-ours "ours.txt" -merge-theirs "theirs.txt" -merge-result "result.txt"
+    \endcode
+
+    The result file initially contains the conflict markers. You can save
+    partial resolutions: unresolved conflicts are written back with their
+    original markers and labels. Saving preserves the detected encoding and
+    line endings. \uicontrol {Mark Resolved} is available only after all
+    conflicts are resolved; it also stages the result for an integrated Git
+    merge. The three input files are read-only. With an existing \QC instance,
+    \c {-client -block} waits until the merge editor closes.
+
+    For Git, configure a custom merge tool:
+
+    \code
+    git config mergetool.qtcreator.cmd 'qtcreator -client -block -merge-base "$BASE" -merge-ours "$LOCAL" -merge-theirs "$REMOTE" -merge-result "$MERGED"'
+    git config mergetool.qtcreator.trustExitCode false
+    git mergetool --tool=qtcreator
+    \endcode
+
+    Git asks whether the merge succeeded after the editor closes. Closing the
+    editor alone does not mark the file as resolved in Git.
+
     \section1 Revert and apply changes
 
     To revert the changes, right-click added text and then select

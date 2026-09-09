@@ -15,8 +15,11 @@ add_qtc_plugin(DiffEditor
     diffutils.cpp diffutils.h
     inlinediff.cpp inlinediff.h
     inlinediff_p.h
+    mergeeditor.cpp mergeeditor.h
+    mergemodel.cpp mergemodel.h
     selectabletexteditorwidget.cpp selectabletexteditorwidget.h
     sidebysidediffeditorwidget.cpp sidebysidediffeditorwidget.h
+    textdiffmodel.cpp textdiffmodel.h
     unifieddiffeditorwidget.cpp unifieddiffeditorwidget.h
 )
 

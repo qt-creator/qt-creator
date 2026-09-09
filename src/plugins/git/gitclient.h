@@ -236,6 +236,7 @@ public:
                         DiffMode diffMode = Unstaged) const;
     void diffBranch(const Utils::FilePath &workingDirectory,
                     const QString &branchName) const;
+    void openMergeEditor(const Utils::FilePath &workingDirectory, const QString &fileName);
     void merge(const Utils::FilePath &workingDirectory, const QStringList &unmergedFileNames = {});
 
     void status(const Utils::FilePath &workingDirectory);
@@ -249,7 +250,8 @@ public:
     void reset(const Utils::FilePath &workingDirectory, const QString &argument, const QString &commit = {});
     void removeStaleRemoteBranches(const Utils::FilePath &workingDirectory, const QString &remote);
     void recoverDeletedFiles(const Utils::FilePath &workingDirectory);
-    void addFile(const Utils::FilePath &workingDirectory, const QString &fileName);
+    void addFile(const Utils::FilePath &workingDirectory, const QString &fileName,
+                 const VcsBase::CommandHandler &handler = {});
     Utils::Result<QString> synchronousLog(const Utils::FilePath &workingDirectory,
                                           const QStringList &arguments,
                                           VcsBase::RunFlags flags = VcsBase::RunFlag::None);

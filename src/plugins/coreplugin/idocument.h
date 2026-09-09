@@ -53,7 +53,7 @@ public:
         FlagIgnore
     };
 
-    enum class SaveOption { AutoSave, DisableFormatOnSave, None };
+    enum class SaveOption { AutoSave, DisableFormatOnSave, PreserveContent, None };
 
     IDocument(QObject *parent = nullptr);
     ~IDocument() override;

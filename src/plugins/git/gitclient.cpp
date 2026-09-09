@@ -24,6 +24,7 @@
 
 #include <diffeditor/diffeditorconstants.h>
 #include <diffeditor/diffutils.h>
+#include <diffeditor/mergeeditor.h>
 
 #include <QtTaskTree/QConditional>
 
@@ -33,12 +34,14 @@
 
 #include <utils/ansiescapecodehandler.h>
 #include <utils/algorithm.h>
+#include <utils/textfileformat.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
 #include <utils/differ.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/infobar.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -1498,6 +1501,231 @@ static IEditor *openInlineDiff(const FilePath &topLevel,
     return diffEditor;
 }
 
+static bool isMissingMergeStage(const QString &error)
+{
+    return error.contains("does not exist")
+           || error.contains("not at stage")
+           || error.contains("exists on disk, but not in");
+}
+
+static void fetchMergeStage(const FilePath &workingDirectory, const QString &relativeFile,
+                            const FilePath &sourceFile, int stage, const QString &displayName,
+                            const DiffEditor::MergeInput::SnapshotCallback &callback,
+                            const QString &reference = {})
+{
+    if (!reference.isEmpty()) {
+        gitClient().enqueueCommand(
+            {workingDirectory,
+             {"log", "--no-show-signature", "--decorate=short", "-1",
+              "--format=%h%d: %s", reference, "--"},
+             RunFlag::NoOutput | RunFlag::ForceCLocale,
+             {}, {},
+             [workingDirectory, relativeFile, sourceFile, stage, displayName,
+              callback, reference](const CommandResult &result) {
+                 const QString revision = result.result() == ProcessResult::FinishedWithSuccess
+                                              ? result.cleanedStdOut().trimmed() : reference;
+                 fetchMergeStage(workingDirectory, relativeFile, sourceFile, stage,
+                                 revision + " - " + displayName, callback);
+             }});
+        return;
+    }
+    const TextEncoding encoding = gitClient().encoding(GitClient::EncodingSource, sourceFile);
+    gitClient().enqueueCommand(
+        {workingDirectory,
+         {"show", QString(":%1:%2").arg(stage).arg(relativeFile)},
+         RunFlag::NoOutput | RunFlag::ForceCLocale,
+         {},
+         gitClient().encoding(GitClient::EncodingSource, sourceFile),
+         [callback, displayName, encoding](const CommandResult &result) {
+             if (result.result() == ProcessResult::FinishedWithSuccess) {
+                 TextFileFormat format;
+                 format.setEncoding(encoding);
+                 format.detectFromData(result.rawStdOut());
+                 QString text;
+                 if (!format.decode(result.rawStdOut(), &text) || text.contains(QChar::Null)) {
+                     callback(Utils::ResultError(Tr::tr("The merge input is not valid text.")));
+                     return;
+                 }
+                 callback(DiffEditor::MergeSnapshot{true, text, displayName});
+                 return;
+             }
+             const QString error = result.cleanedStdErr();
+             if (isMissingMergeStage(error)) {
+                 callback(DiffEditor::MergeSnapshot{false, {}, displayName});
+                 return;
+             }
+             callback(Utils::ResultError(error));
+         }});
+}
+
+static constexpr char mergeEditorInfoId[] = "Git.MergeEditor";
+
+static IEditor *openInternalMergeEditor(const FilePath &topLevel, const FilePath &filePath)
+{
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::openEditor(
+        filePath, {}, EditorManager::DoNotChangeCurrentEditor | EditorManager::DoNotMakeVisible));
+    if (!textEditor || !textEditor->editorWidget())
+        return nullptr;
+
+    const QString relativeFile = filePath.relativeChildPath(topLevel).path();
+    const QString title = Tr::tr("%1 (Merge)").arg(filePath.fileName());
+    DiffEditor::MergeInput input;
+    input.id = "git-merge:" + topLevel.path() + ":" + relativeFile;
+    input.title = title;
+    input.resultDocument = textEditor->editorWidget()->textDocumentPtr();
+    input.fetchBase = [topLevel, relativeFile, filePath](
+                          const DiffEditor::MergeInput::SnapshotCallback &callback) {
+        fetchMergeStage(topLevel, relativeFile, filePath, 1, Tr::tr("BASE"), callback);
+    };
+    const GitClient::CommandInProgress operation = gitClient().checkCommandInProgress(topLevel);
+    QString oursRole = Tr::tr("HEAD");
+    QString theirsRole = Tr::tr("MERGE_HEAD");
+    QString theirsReference = "MERGE_HEAD";
+    if (operation == GitClient::Rebase || operation == GitClient::RebaseMerge) {
+        oursRole = Tr::tr("HEAD: upstream and commits already replayed");
+        theirsRole = Tr::tr("REBASE_HEAD: commit being replayed");
+        theirsReference = "REBASE_HEAD";
+    } else if (operation == GitClient::CherryPick) {
+        theirsRole = Tr::tr("CHERRY_PICK_HEAD: commit being applied");
+        theirsReference = "CHERRY_PICK_HEAD";
+    } else if (operation == GitClient::Revert) {
+        theirsRole = Tr::tr("Parent of the commit being reverted");
+        theirsReference = "REVERT_HEAD^";
+    }
+    input.fetchOurs = [topLevel, relativeFile, filePath, oursRole](
+                         const DiffEditor::MergeInput::SnapshotCallback &callback) {
+        fetchMergeStage(topLevel, relativeFile, filePath, 2, oursRole, callback, "HEAD");
+    };
+    input.fetchTheirs = [topLevel, relativeFile, filePath, theirsRole, theirsReference](
+                           const DiffEditor::MergeInput::SnapshotCallback &callback) {
+        fetchMergeStage(topLevel, relativeFile, filePath, 3, theirsRole, callback, theirsReference);
+    };
+    input.checkConflictFree = [topLevel, relativeFile](
+                                  const DiffEditor::MergeInput::ConflictFreeCallback &callback) {
+        gitClient().enqueueCommand(
+            {topLevel,
+             {"--literal-pathspecs", "diff", "--check", "--no-ext-diff", "--", relativeFile},
+             RunFlag::NoOutput | RunFlag::ForceCLocale,
+             {},
+             {},
+             [callback](const CommandResult &result) {
+                 if (result.result() == ProcessResult::FinishedWithSuccess) {
+                     callback(true);
+                     return;
+                 }
+                 static const QRegularExpression marker(
+                     R"(:[0-9]+: leftover conflict marker\.$)",
+                     QRegularExpression::MultilineOption);
+                 // Git exits with 2 for both whitespace errors and conflict markers.
+                 const QString output = result.cleanedStdOut();
+                 callback(result.result() == ProcessResult::FinishedWithError
+                          && result.exitCode() == 2 && result.cleanedStdErr().isEmpty()
+                          && !output.isEmpty() && !marker.match(output).hasMatch());
+             }});
+    };
+    input.markResolved = [topLevel, relativeFile](
+                             const QByteArray &contents,
+                             const DiffEditor::MergeInput::MarkResolvedCallback &callback) {
+        auto &client = gitClient();
+        client.enqueueCommand(
+            {topLevel,
+             {"hash-object", "-w", "--path=" + relativeFile, "--stdin"},
+             RunFlag::ShowStdOut,
+             {},
+             {},
+             [topLevel, relativeFile, callback](const CommandResult &hashResult) {
+                 if (hashResult.result() != ProcessResult::FinishedWithSuccess) {
+                     callback(false);
+                     return;
+                 }
+                 const QString object = hashResult.cleanedStdOut().trimmed();
+                 if (object.isEmpty()) {
+                     callback(false);
+                     return;
+                 }
+                 gitClient().enqueueCommand(
+                     {topLevel,
+                      {"--literal-pathspecs", "ls-files", "--stage", "--", relativeFile},
+                      RunFlag::ShowStdOut,
+                      {},
+                      {},
+                      [topLevel, relativeFile, object, callback](const CommandResult &indexResult) {
+                          if (indexResult.result() != ProcessResult::FinishedWithSuccess) {
+                              callback(false);
+                              return;
+                          }
+                          QString modes[4];
+                          for (const QString &entry : indexResult.cleanedStdOut().split('\n')) {
+                              const QStringList fields = entry.section('\t', 0, 0).split(' ');
+                              if (fields.size() != 3)
+                                  continue;
+                              const int stage = fields.at(2).toInt();
+                              if (stage >= 0 && stage <= 3)
+                                  modes[stage] = fields.first();
+                          }
+                          const QString &base = modes[1];
+                          const QString &ours = modes[2];
+                          const QString &theirs = modes[3];
+                          QString mode;
+                          if (!ours.isEmpty() && !theirs.isEmpty()) {
+                              if (ours == theirs || theirs == base)
+                                  mode = ours;
+                              else if (ours == base)
+                                  mode = theirs;
+                          } else if (ours.isEmpty() && theirs.isEmpty() && base.isEmpty()) {
+                              mode = modes[0];
+                          }
+                          if (mode != "100644" && mode != "100755" && mode != "120000") {
+                              callback(false);
+                              return;
+                          }
+                          gitClient().enqueueCommand(
+                              {topLevel,
+                               {"update-index", "--add", "--cacheinfo",
+                                mode + "," + object + "," + relativeFile},
+                               RunFlag::None,
+                               {},
+                               {},
+                               [callback](const CommandResult &stageResult) {
+                                   callback(stageResult.result()
+                                            == ProcessResult::FinishedWithSuccess);
+                               }});
+                      }});
+             },
+             contents});
+    };
+    input.refresh = [topLevel] { gitClient().requestModificationUpdate(topLevel); };
+    input.openTextEditor = [topLevel, filePath, relativeFile](
+                               int line, const QString &originalText,
+                               const QString &resultText) {
+        if (IEditor *editor = EditorManager::openEditor(filePath)) {
+            auto textDocument = qobject_cast<TextEditor::TextDocument *>(editor->document());
+            if (!textDocument)
+                return false;
+            if (textDocument->plainText() != resultText) {
+                if (textDocument->plainText() != originalText)
+                    return false;
+                textDocument->setPlainText(resultText);
+                textDocument->document()->setModified(true);
+            }
+            Utils::InfoBar *infoBar = editor->document()->infoBar();
+            if (!infoBar->containsInfo(mergeEditorInfoId)) {
+                Utils::InfoBarEntry entry(mergeEditorInfoId, Tr::tr("Editing a merge result."));
+                entry.setInfoType(Utils::InfoLabelType::Information);
+                entry.addCustomButton(Tr::tr("Open in Merge Editor"), [topLevel, relativeFile] {
+                    gitClient().openMergeEditor(topLevel, relativeFile);
+                });
+                infoBar->addInfo(entry);
+            }
+            editor->gotoLine(line);
+            return true;
+        }
+        return false;
+    };
+    textEditor->document()->infoBar()->removeInfo(mergeEditorInfoId);
+    return DiffEditor::openMergeEditor(input, title);
+}
+
 void GitClient::inlineDiffFile(const FilePath &workingDirectory, const QString &fileName)
 {
     const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
@@ -1916,8 +2144,37 @@ void GitClient::diffBranch(const FilePath &workingDirectory, const QString &bran
     });
 }
 
+void GitClient::openMergeEditor(const FilePath &workingDirectory, const QString &fileName)
+{
+    const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
+    const FilePath filePath = workingDirectory.resolvePath(fileName);
+    if (!openInternalMergeEditor(topLevel, filePath))
+        EditorManager::openEditor(filePath);
+}
+
 void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmergedFileNames)
 {
+    if (settings().useInternalMergeTool()) {
+        QStringList files = unmergedFileNames;
+        if (files.isEmpty()) {
+            QString statusOutput;
+            if (gitStatus(workingDirectory, ShowAll, &statusOutput) != StatusResult::Failed) {
+                const ParsedRepoStatus status = parsePorcelainStatus(statusOutput);
+                const VcsFileStatusList conflictedFiles = Utils::filtered(
+                    status.fileStatus, [](const VcsFileStatus &file) {
+                        return file.section == VcsFileStatus::Section::Conflicted;
+                    });
+                files = Utils::transform(conflictedFiles, [](const VcsFileStatus &file) {
+                    return file.relativePath;
+                });
+            }
+        }
+
+        for (const QString &file : std::as_const(files))
+            openMergeEditor(workingDirectory, file);
+        return;
+    }
+
     startMergeTool(workingDirectory, unmergedFileNames);
 }
 
@@ -2384,9 +2641,10 @@ void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
                     {}, {}, commandHandler});
 }
 
-void GitClient::addFile(const FilePath &workingDirectory, const QString &fileName)
+void GitClient::addFile(const FilePath &workingDirectory, const QString &fileName,
+                        const VcsBase::CommandHandler &handler)
 {
-    enqueueCommand({workingDirectory, {"add", fileName}});
+    enqueueCommand({workingDirectory, {"add", "--", fileName}, RunFlag::None, {}, {}, handler});
 }
 
 Result<QString> GitClient::synchronousLog(const FilePath &workingDirectory,
@@ -4205,8 +4463,10 @@ void GitClient::handleMergeConflicts(const FilePath &workingDir, const QString &
                              QMessageBox::NoButton, ICore::dialogParent());
     QPushButton *mergeToolButton = mergeOrAbort.addButton(Tr::tr("Run &Merge Tool"),
                                                           QMessageBox::AcceptRole);
-    const QString mergeTool = readConfigValue(workingDir, "merge.tool");
-    if (mergeTool.isEmpty() || mergeTool.startsWith("vimdiff")) {
+    const QString mergeTool = settings().useInternalMergeTool()
+                                  ? QString() : readConfigValue(workingDir, "merge.tool");
+    if (!settings().useInternalMergeTool()
+        && (mergeTool.isEmpty() || mergeTool.startsWith("vimdiff"))) {
         mergeToolButton->setEnabled(false);
         mergeToolButton->setToolTip(Tr::tr("Only graphical merge tools are supported. "
                                        "Please configure merge.tool."));

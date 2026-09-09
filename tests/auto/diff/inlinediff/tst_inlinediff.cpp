@@ -17,6 +17,7 @@ class tst_InlineDiff : public QObject
 
 private slots:
     void identicalTexts();
+    void ignoresWhitespace();
     void modifiedLine();
     void pureDeletion();
     void deletionAtStart();
@@ -255,6 +256,19 @@ void tst_InlineDiff::identicalTexts()
 {
     const InlineDiffRenderModel model = compute("a\nb\nc\n", "a\nb\nc\n");
     QVERIFY(model.isEmpty());
+}
+
+void tst_InlineDiff::ignoresWhitespace()
+{
+    const InlineDiffRenderModel model
+        = computeInlineDiffRenderModel("value();\n", "  value();\n", true);
+    QVERIFY(model.computed);
+    QVERIFY(model.isEmpty());
+
+    const InlineDiffRenderModel shown
+        = computeInlineDiffRenderModel("value();\n", "  value();\n");
+    QVERIFY(!shown.isEmpty());
+    QVERIFY(!shown.chunk.rows.isEmpty());
 }
 
 void tst_InlineDiff::modifiedLine()

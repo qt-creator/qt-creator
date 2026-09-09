@@ -15,6 +15,8 @@ inline constexpr char C_DIFF_EDITOR_DESCRIPTION[] = "DiffEditor.Description";
 inline constexpr char SIDE_BY_SIDE_VIEW_ID[] = "DiffEditor.SideBySide";
 inline constexpr char UNIFIED_VIEW_ID[] = "DiffEditor.Unified";
 inline constexpr char SELECT_ENCODING[] = "DiffEditor.SelectEncoding";
+inline constexpr char SCROLL_BAR_RESOLVED_MERGE_HUNKS[]
+    = "DiffEditor.ScrollBarResolvedMergeHunks";
 
 inline constexpr char G_TOOLS_DIFF[] = "QtCreator.Group.Tools.Diff";
 

@@ -315,6 +315,9 @@ Result<> IDocument::open(const FilePath &filePath, const FilePath &realFilePath)
     If \a option is \c SaveOption::DisableFormatOnSave, the document should be saved
     normally, but no "Format on Save" kind of activity should be performed.
 
+    If \a option is \c SaveOption::PreserveContent, the document should be saved
+    without changing its text as part of the save operation.
+
     Returns whether saving was successful.
 
     If saving was successful saved is emitted.
@@ -343,6 +346,9 @@ Result<> IDocument::save(const FilePath &filePath, SaveOption option)
 
     If \a option is \c SaveOption::DisableFormatOnSave, the document should be saved
     normally, but no "Format on Save" kind of activity should be performed.
+
+    If \a option is \c SaveOption::PreserveContent, the document should be saved
+    without changing its text as part of the save operation.
 
     Returns whether saving was successful, including an error message when it was not.
 

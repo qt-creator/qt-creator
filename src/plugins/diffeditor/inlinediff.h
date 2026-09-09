@@ -6,6 +6,8 @@
 #include "diffeditor_global.h"
 #include "diffutils.h"
 
+#include <utils/differ.h>
+
 #include <texteditor/inlinediffdecorator.h>
 #include <texteditor/textdocument.h>
 
@@ -115,6 +117,13 @@ DIFFEDITOR_EXPORT InlineDiffRenderModel mapChunkToRenderModel(
     const ChunkData &chunk,
     bool baselineEndsWithNewline = false,
     bool editorEndsWithNewline = false);
+
+// Computes the model used by the inline diff editor. Exported for the autotest.
+DIFFEDITOR_EXPORT InlineDiffRenderModel computeInlineDiffRenderModel(
+    const QString &baselineText,
+    const QString &editorText,
+    bool ignoreWhitespace = false,
+    Utils::Differ::DiffAlgorithm algorithm = Utils::Differ::Default);
 
 // Opens (or reuses and re-targets) an editor with the given title that shows
 // the differences between the baseline and the document contents inline. The

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "inlinediff.h"
+#include "textdiffmodel.h"
 
 #include "inlinediff_p.h"
 
@@ -291,35 +292,45 @@ static void ignoreWhitespaceChanges(ChunkData &chunk)
     }
 }
 
-static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
-                               const QString &baselineText, const QString &editorText,
-                               bool ignoreWhitespace, Differ::DiffAlgorithm algorithm)
+static InlineDiffRenderModel createRenderModel(
+    const QString &baselineText, const QString &editorText, bool ignoreWhitespace, Differ::DiffAlgorithm algorithm,
+    const std::optional<QFuture<void>> &cancellation = {})
 {
     if (baselineText == editorText) {
         InlineDiffRenderModel model;
         model.computed = true; // no differences, as opposed to no diff at all
         model.baselineEndsWithNewline = model.editorEndsWithNewline
             = editorText.endsWith('\n');
-        promise.addResult(model);
-        return;
+        return model;
     }
 
-    Differ differ(QFuture<void>(promise.future()));
-    differ.setDiffAlgorithm(algorithm);
-    const QList<Diff> diffList
-        = Differ::cleanupLineDiffSemantics(differ.diff(baselineText, editorText));
-    QList<Diff> leftDiffList;
-    QList<Diff> rightDiffList;
-    Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
-    const ChunkData chunkData = DiffUtils::calculateOriginalData(leftDiffList, rightDiffList);
-    if (promise.isCanceled())
-        return;
-    ChunkData displayChunk = chunkData;
+    const TextDiff textDiff = computeTextDiff(baselineText, editorText, algorithm, cancellation);
+    ChunkData displayChunk = textDiff.chunk;
     if (ignoreWhitespace)
         ignoreWhitespaceChanges(displayChunk);
-    InlineDiffRenderModel model = mapChunkToRenderModel(displayChunk, baselineText.endsWith('\n'),
-                                                        editorText.endsWith('\n'));
-    model.chunk = chunkData;
+    InlineDiffRenderModel model = mapChunkToRenderModel(displayChunk,
+                                                        textDiff.leftEndsWithNewline,
+                                                        textDiff.rightEndsWithNewline);
+    model.chunk = textDiff.chunk;
+    return model;
+}
+
+InlineDiffRenderModel computeInlineDiffRenderModel(const QString &baselineText,
+                                                   const QString &editorText,
+                                                   bool ignoreWhitespace,
+                                                   Differ::DiffAlgorithm algorithm)
+{
+    return createRenderModel(baselineText, editorText, ignoreWhitespace, algorithm);
+}
+
+static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
+                               const QString &baselineText, const QString &editorText,
+                               bool ignoreWhitespace, Differ::DiffAlgorithm algorithm)
+{
+    const InlineDiffRenderModel model = createRenderModel(
+        baselineText, editorText, ignoreWhitespace, algorithm, QFuture<void>(promise.future()));
+    if (promise.isCanceled())
+        return;
     promise.addResult(model);
 }
 

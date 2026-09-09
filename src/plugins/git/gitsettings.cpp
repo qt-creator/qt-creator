@@ -39,6 +39,13 @@ GitSettings::GitSettings()
     binaryPath.setExpectedKind(PathChooserKind::ExistingCommand);
     binaryPath.setHistoryCompleter("Git.Command.History");
 
+    useInternalMergeTool.setSettingsKey("UseInternalMergeTool");
+    useInternalMergeTool.setDefaultValue(true);
+    useInternalMergeTool.setLabelText(Tr::tr("Use internal merge tool"));
+    useInternalMergeTool.setToolTip(
+        Tr::tr("Open conflicted files in Qt Creator's merge editor.\n"
+               "Disable to use the merge tool configured in Git."));
+
     pullRebase.setSettingsKey("PullRebase");
     pullRebase.setLabelText(Tr::tr("Pull with rebase"));
 
@@ -154,6 +161,7 @@ GitSettings::GitSettings()
                 Column {
                     Row { logCount, timeout, st },
                     Row { pullRebase, rebaseMerges, updateRefs, st },
+                    useInternalMergeTool,
                 }
             },
 

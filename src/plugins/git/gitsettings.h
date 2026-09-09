@@ -20,6 +20,7 @@ class GitSettings final : public VcsBase::VcsBaseSettings
 public:
     GitSettings();
 
+    Utils::BoolAspect useInternalMergeTool{this};
     Utils::BoolAspect pullRebase{this};
     Utils::BoolAspect rebaseMerges{this};
     Utils::BoolAspect updateRefs{this};

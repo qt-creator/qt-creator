@@ -400,9 +400,12 @@ public:
     class ScrollBarHighlight
     {
     public:
+        enum class Priority { Normal, High };
+
         int firstLine = 1;
         int lastLine = 1;
         Utils::Theme::Color color = Utils::Theme::TextColorNormal;
+        Priority priority = Priority::Normal;
     };
     // Publishes markers the widget draws on its scroll bar next to its own
     // ones (search results, marks), e.g. for the changes of an inline diff or

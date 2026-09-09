@@ -19,5 +19,11 @@
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-diff-editor.html",
+    "Arguments" : [
+        {"Name": "-merge-base", "Parameter": "file", "Description": "Base file for an external merge"},
+        {"Name": "-merge-ours", "Parameter": "file", "Description": "Current file for an external merge"},
+        {"Name": "-merge-theirs", "Parameter": "file", "Description": "Incoming file for an external merge"},
+        {"Name": "-merge-result", "Parameter": "file", "Description": "Result file for an external merge"}
+    ],
     ${IDE_PLUGIN_DEPENDENCIES}
 }
