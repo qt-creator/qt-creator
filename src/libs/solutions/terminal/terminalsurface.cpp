@@ -396,7 +396,8 @@ struct TerminalSurfacePrivate
             for (int x = 0; x < cols; ++x) {
                 VTermScreenCell cell;
                 VTermPos pos{y, x};
-                vterm_screen_get_cell(m_vtermScreen, pos, &cell);
+                if (!vterm_screen_get_cell(m_vtermScreen, pos, &cell))
+                    continue;
                 if (!isSpacer(cell) && cell.chars[0] != 0)
                     return y;
             }
@@ -414,10 +415,20 @@ struct TerminalSurfacePrivate
     const VTermScreenCell &blankCell()
     {
         if (!m_blankValid) {
-            const VTermPos pos{0, 0};
-            vterm_screen_get_cell(m_vtermScreen, pos, &m_blank);
-            m_blank.chars[0] = 0;
+            // A blank carries no text, no hyperlink and no attributes, only the
+            // colours it is painted with. Those are the screen's defaults, and
+            // asking the state for them keeps them the only thing a blank
+            // carries: reading them off the cell at (0, 0) instead, as this
+            // did, handed that cell's uri and attributes to every blank in the
+            // scrollback, so an OSC 8 hyperlink written at the top left turned
+            // the unwritten tail of every scrolled-back row into a link to it.
+            // set_default_colors marks the colours it stores as the defaults,
+            // so toVariantColor still resolves them through the theme.
+            m_blank = {};
             m_blank.width = 1;
+            vterm_state_get_default_colors(vterm_obtain_state(m_vterm.get()),
+                                           &m_blank.fg,
+                                           &m_blank.bg);
             m_blankValid = true;
             m_scrollback->setBlank(m_blank);
         }
@@ -449,7 +460,8 @@ struct TerminalSurfacePrivate
         for (int y = 0; y <= lastRow; ++y) {
             for (int x = 0; x < cols; ++x) {
                 VTermPos pos{y, x};
-                vterm_screen_get_cell(m_vtermScreen, pos, &rowCells[size_t(x)]);
+                if (!vterm_screen_get_cell(m_vtermScreen, pos, &rowCells[size_t(x)]))
+                    rowCells[size_t(x)] = blankCell();
             }
 
             const bool continuation = y == 0 ? joined : screenRowIsContinuation(y);
@@ -468,8 +480,7 @@ struct TerminalSurfacePrivate
             } else if (take > 0 && rowCells[size_t(take - 1)].chars[0] == 0) {
                 VTermScreenCell next;
                 const VTermPos pos{y + 1, 0};
-                vterm_screen_get_cell(m_vtermScreen, pos, &next);
-                if (cellColumns(next) == 2)
+                if (vterm_screen_get_cell(m_vtermScreen, pos, &next) && cellColumns(next) == 2)
                     --take;
             }
 
@@ -572,8 +583,7 @@ struct TerminalSurfacePrivate
         if (cursorColumn < newCols) {
             VTermScreenCell cell;
             const VTermPos pos{cursorScreenRow, cursorColumn};
-            vterm_screen_get_cell(m_vtermScreen, pos, &cell);
-            if (isSpacer(cell))
+            if (vterm_screen_get_cell(m_vtermScreen, pos, &cell) && isSpacer(cell))
                 --cursorColumn;
         }
 
@@ -689,7 +699,8 @@ struct TerminalSurfacePrivate
 
         static VTermScreenCell refCell{};
         VTermPos vtp{y, x};
-        vterm_screen_get_cell(m_vtermScreen, vtp, &refCell);
+        if (!vterm_screen_get_cell(m_vtermScreen, vtp, &refCell))
+            return nullptr;
 
         return &refCell;
     }

@@ -885,6 +885,37 @@ private slots:
         QCOMPARE(m_surface->fetchCharAt(0, 0), char32_t(0x00e4));
     }
 
+    void aBlankCellCarriesNoHyperlink()
+    {
+        // Enough short lines to push rows into the scrollback. Their unwritten
+        // columns are padded with the blank cell, which is what this is about.
+        for (int i = 0; i < 40; ++i)
+            m_surface->dataFromPty("short\r\n");
+
+        const int scrollbackRows = m_surface->fullSize().height()
+                                   - m_surface->liveSize().height();
+        QVERIFY(scrollbackRows > 0);
+
+        // A closed hyperlink on the first cell of the *live* screen, written
+        // without scrolling so it stays there. The blank used to be a copy of
+        // that cell with only its text cleared, and it is re-read on demand,
+        // so its uri reached every padded column of every scrolled-back row.
+        m_surface->dataFromPty("\x1b[H\x1b]8;;http://example.com\x1b\\x\x1b]8;;\x1b\\");
+
+        // Control: the cell it was written on does carry it, so a blank coming
+        // back empty is not the uri table having gone missing.
+        const std::optional<Hyperlink> onTheLink = m_surface->hyperlinkAt({0, scrollbackRows});
+        QVERIFY(onTheLink.has_value());
+        QCOMPARE(onTheLink->url, QString("http://example.com"));
+
+        // The padded columns of a scrolled-back row were never written.
+        for (int y = 0; y < qMin(scrollbackRows, 4); ++y) {
+            const std::optional<Hyperlink> onABlank = m_surface->hyperlinkAt({10, y});
+            QVERIFY2(!onABlank.has_value(),
+                     qPrintable(QString("blank at row %1 carries a link").arg(y)));
+        }
+    }
+
     void anOscNumberIsNotAccumulatedWithoutABound()
     {
         initSurface({20, 4});
