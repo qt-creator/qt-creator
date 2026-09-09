@@ -864,23 +864,28 @@ static bool widgetQueryIsEmpty(const WidgetQuery &q)
            && q.windowTitle.isEmpty();
 }
 
+// A widget's text is reported as an excerpt: for a text edit it is the whole
+// document, and ui_find_widgets answers with one per match.
+static constexpr int maxReportedTextLength = 400;
+
 // The visible, human-readable text of a widget, used both to match a query
 // and to describe a resolved widget in the generated tutorial. Accelerator
-// markers ('&') are stripped so a query text of "OK" matches a "&OK" button.
+// markers ('&') are stripped from the widgets that carry a caption, so a query
+// text of "OK" matches a "&OK" button. What an input or a document holds is
+// content rather than a caption, and is reported as it stands.
 static QString widgetVisibleText(const QWidget *w)
 {
-    QString text;
     if (auto b = qobject_cast<const QAbstractButton *>(w))
-        text = b->text();
-    else if (auto l = qobject_cast<const QLabel *>(w))
-        text = l->text();
-    else if (auto c = qobject_cast<const QComboBox *>(w))
-        text = c->currentText();
-    else if (auto g = qobject_cast<const QGroupBox *>(w))
-        text = g->title();
-    else if (auto le = qobject_cast<const QLineEdit *>(w))
-        text = le->text();
-    return text.remove('&');
+        return QString(b->text()).remove('&');
+    if (auto l = qobject_cast<const QLabel *>(w))
+        return QString(l->text()).remove('&');
+    if (auto g = qobject_cast<const QGroupBox *>(w))
+        return QString(g->title()).remove('&');
+    if (auto c = qobject_cast<const QComboBox *>(w))
+        return c->currentText();
+    if (auto le = qobject_cast<const QLineEdit *>(w))
+        return le->text();
+    return w->property("plainText").toString();
 }
 
 // The text of the QLabel this widget is a buddy of (via setBuddy or an
@@ -954,10 +959,11 @@ static QJsonObject describeWidget(QWidget *w)
 {
     QWidget *win = w->window();
     const QPoint topLeft = w->mapToGlobal(QPoint(0, 0));
+    const QString text = widgetVisibleText(w);
     QJsonObject result{
         {"class", QString::fromLatin1(w->metaObject()->className())},
         {"object_name", w->objectName()},
-        {"text", widgetVisibleText(w)},
+        {"text", text.left(maxReportedTextLength)},
         {"visible", w->isVisible()},
         {"enabled", w->isEnabled()},
         {"x", topLeft.x()},
@@ -968,6 +974,8 @@ static QJsonObject describeWidget(QWidget *w)
         // winId() would force-create a native handle on an unmapped window,
         // so only report it for a window that is actually on screen.
         {"window_id", (win && win->isVisible()) ? double(win->winId()) : 0}};
+    if (text.size() > maxReportedTextLength)
+        result.insert("text_truncated", true);
     if (const QString buddy = buddyText(w); !buddy.isEmpty())
         result.insert("buddy_text", buddy);
     if (auto button = qobject_cast<QAbstractButton *>(w); button && button->isCheckable()) {
@@ -985,7 +993,7 @@ static QString describeWidgetShort(QWidget *w)
 {
     return QString("%1(object_name=\"%2\", text=\"%3\")")
         .arg(QString::fromLatin1(w->metaObject()->className()), w->objectName(),
-             widgetVisibleText(w));
+             widgetVisibleText(w).left(maxReportedTextLength));
 }
 
 // Resolves a query to exactly one widget or explains why it could not: empty
@@ -3069,7 +3077,8 @@ void McpCommands::registerCommands()
             .description(
                 "Resolves a semantic widget query against the live Qt Creator UI by walking "
                 "all widgets (including dialogs and popups). Returns every match with its "
-                "class, objectName, visible text, enabled/visible state, checked state where "
+                "class, objectName, visible text - an excerpt for a long one, with "
+                "text_truncated set - enabled/visible state, checked state where "
                 "the widget has one - with the three-way check_state for a tristate check box, "
                 "whose \"checked\" is true for the partial state too - geometry in root "
                 "coordinates and top-level window id. This is the addressing layer for "

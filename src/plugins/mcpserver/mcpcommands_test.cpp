@@ -13,6 +13,7 @@
 #include <utils/filepath.h>
 #include <utils/temporarydirectory.h>
 
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QScopeGuard>
 #include <QTest>
@@ -54,6 +55,7 @@ private slots:
     void testSelectTextSpansWholeLinesByDefault();
     void testSelectTextTakesOneBasedColumns();
     void testSelectTextRejectsAnInvalidRange();
+    void testFindWidgetsReportsATextEditAsAnExcerpt();
 };
 
 void McpCommandsTest::testSelectTextSpansWholeLinesByDefault()
@@ -124,6 +126,33 @@ void McpCommandsTest::testSelectTextRejectsAnInvalidRange()
         = callTool("editor_select_text", {{"start_line", 1}, {"end_line", 99}}, &error);
     QVERIFY2(error.isEmpty(), qPrintable(error));
     QCOMPARE(pastEnd.value("reason").toString(), QString("invalid_range"));
+}
+
+void McpCommandsTest::testFindWidgetsReportsATextEditAsAnExcerpt()
+{
+    TemporaryDirectory dir("qtc-mcpcommands-XXXXXX");
+    QVERIFY(dir.isValid());
+    const QScopeGuard closeEditors([] { Core::EditorManager::closeAllEditors(false); });
+    // The ampersands are content, not accelerator markers, and the document is
+    // longer than the excerpt the tool answers with.
+    TextEditor::TextEditorWidget *widget
+        = openText(dir, "cmake --build . && ctest\n" + QByteArray(600, 'x'));
+    QVERIFY(widget);
+    widget->setObjectName("mcpCommandsTestEdit");
+
+    QString error;
+    const QJsonObject result = callTool(
+        "ui_find_widgets",
+        {{"object_name", "mcpCommandsTestEdit"}, {"include_invisible", true}},
+        &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(result.value("count").toInt(), 1);
+
+    const QJsonObject found = result.value("widgets").toArray().first().toObject();
+    const QString text = found.value("text").toString();
+    QVERIFY(text.startsWith("cmake --build . && ctest"));
+    QCOMPARE(text.size(), 400);
+    QVERIFY(found.value("text_truncated").toBool());
 }
 
 QObject *createMcpCommandsTest()
