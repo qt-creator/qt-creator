@@ -44,6 +44,15 @@ using namespace std::chrono_literals;
 // Minimum time between two refreshes. (30fps)
 static constexpr milliseconds minRefreshInterval = 33ms;
 
+// vterm reports a width of zero for the second half of a wide character whose
+// first half has been overwritten. Such a cell still occupies the column it
+// was read from, so both the rectangle it is painted into and the number of
+// columns the paint loop advances by have to come from the same clamp.
+static int columnsOf(const TerminalCell &cell)
+{
+    return qMax(1, cell.width);
+}
+
 class TerminalViewPrivate
 {
 public:
@@ -830,14 +839,21 @@ int TerminalView::paintCell(QPainter &p,
         }
     }
 
-    return cell.width;
+    return columnsOf(cell);
 }
 
 void TerminalView::paintCursor(QPainter &p) const
 {
     auto cursor = d->m_surface->cursor();
 
-    const int cursorCellWidth = d->m_surface->cellWidthAt(cursor.position.x(), cursor.position.y());
+    // The same clamp the paint loop applies through columnsOf, for the same
+    // reason: a cell of width zero - the trailing half of a wide character
+    // whose first half was overwritten, or a fetch that failed - still
+    // occupies the column the cursor is in, and a rectangle spanning no
+    // columns draws neither a cursor nor the password lock.
+    const int cursorCellWidth = qMax(1,
+                                     d->m_surface->cellWidthAt(cursor.position.x(),
+                                                               cursor.position.y()));
 
     if (!d->m_preEditString.isEmpty()) {
         cursor.shape = Cursor::Shape::Underline;
@@ -941,13 +957,12 @@ void TerminalView::paintCells(QPainter &p, QPaintEvent *event) const
     for (int cellY = startRow; cellY < endRow; ++cellY) {
         for (int cellX = 0; cellX < d->m_surface->liveSize().width();) {
             const auto cell = d->m_surface->fetchCell(cellX, cellY);
+            const int columns = columnsOf(cell);
 
             QRectF cellRect(gridToGlobal({cellX, cellY}),
-                            QSizeF{d->m_cellSize.width() * cell.width, d->m_cellSize.height()});
+                            QSizeF{d->m_cellSize.width() * columns, d->m_cellSize.height()});
 
-            int numCells = paintCell(p, cellRect, {cellX, cellY}, cell, f, searchIt);
-
-            cellX += numCells;
+            cellX += paintCell(p, cellRect, {cellX, cellY}, cell, f, searchIt);
         }
     }
 }
