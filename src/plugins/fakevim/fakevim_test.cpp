@@ -515,6 +515,7 @@ private slots:
     void test_vim_script_winsaveview();
     void test_vim_command_gi();
     void test_vim_command_g_underscore();
+    void test_vim_command_gp_cursor();
     void test_vim_command_put_with_indent();
     void test_vim_command_go();
     void test_vim_command_g_ampersand();
@@ -668,6 +669,7 @@ private slots:
     void test_vim_shift_blockwise();
     void test_vim_visual_reselect_count();
     void test_vim_visual_end_of_document();
+    void test_vim_visual_end_on_empty_line();
     void test_vim_case_operator_column();
     void test_vim_tag_object_empty();
     void test_vim_operator_force();
@@ -3204,6 +3206,19 @@ void FakeVimTester::test_vim_indent()
          "  " X "return i;" N
          "}" N
          "");
+
+    // A shift leaves a line that has no character at all alone. Values taken
+    // from Vim 9.1.
+    data.setText("abc" N N "def");
+    KEYS("0Vj>", "  " X "abc" N N "def");
+    data.setText("abc" N N "def");
+    KEYS("0Vj2>", "    " X "abc" N N "def");
+    data.setText("abc" N N "def");
+    KEYS("0>j", "  " X "abc" N N "def");
+    data.setText("abc" N N "def");
+    KEYS("0j>>", "abc" N X N "def");
+    data.setText("abc" N N N "def");
+    KEYS("0VG>", "  " X "abc" N N N "  def");
 }
 
 void FakeVimTester::test_vim_marks()
@@ -6295,6 +6310,22 @@ void FakeVimTester::test_vim_ex_delete()
     COMMAND("u", "abc" N "def" N X "abc" N "ghi" N "ghi" N "jkl");
     // The two addresses are in the wrong order, which Vim refuses to act on.
     COMMAND("5,.+1d", "abc" N "def" N X "abc" N "ghi" N "ghi" N "jkl");
+
+    // The cursor ends on the first non-blank of the line that takes the
+    // deleted ones place, whatever 'startofline' says. Values taken from
+    // Vim 9.1.
+    data.doCommand("set nostartofline");
+    data.setText("  ab" X "c" N "  def" N "  ghi");
+    COMMAND("2d", "  abc" N "  " X "ghi");
+    data.setText("  ab" X "c" N "  def" N "  ghi");
+    COMMAND("1d", "  " X "def" N "  ghi");
+    data.setText("  ab" X "c" N "  def" N "  ghi");
+    COMMAND("3d", "  abc" N "  " X "def");
+    data.setText("  ab" X "c" N "  def" N "  ghi");
+    COMMAND("2,3d", "  " X "abc");
+    data.setText("  ab" X "c" N N "  ghi");
+    COMMAND("1d", X N "  ghi");
+    data.doCommand("set startofline");
 }
 
 void FakeVimTester::test_vim_ex_change()
@@ -6320,6 +6351,25 @@ void FakeVimTester::test_vim_ex_shift()
     COMMAND(">>", "abc" N "      " X "def" N "ghi" N "jkl");
     COMMAND("<", "abc" N "    " X "def" N "ghi" N "jkl");
     COMMAND("<<", "abc" N X "def" N "ghi" N "jkl");
+
+    // An Ex shift ends on the last line of the range. Values taken from
+    // Vim 9.1.
+    data.setText("abc" N N "def");
+    COMMAND("1,3>", "  abc" N N "  " X "def");
+    data.setText("abc" N " " N "def");
+    COMMAND("1,3>", "  abc" N "   " N "  " X "def");
+    data.setText("  abc" N N "  def");
+    COMMAND("1,3<", "abc" N N X "def");
+    data.setText("  abc" N "  def" N "  ghi");
+    COMMAND("2,3>", "  abc" N "    def" N "    " X "ghi");
+    data.setText("abc" N "def" N "ghi");
+    COMMAND("1,2>2", "abc" N "  def" N "  " X "ghi");
+
+    // Without 'startofline' the column stays where it was.
+    data.doCommand("set nostartofline");
+    data.setText("  ab" X "c" N "  def" N "  ghi");
+    COMMAND("1,2>", "    abc" N "    " X "def" N "  ghi");
+    data.doCommand("set startofline");
 }
 
 void FakeVimTester::test_vim_ex_move()
@@ -11709,6 +11759,19 @@ void FakeVimTester::test_vim_ex_put()
     QCOMPARE(run("put =''", "j0l"), QLatin1String("alpha/beta//gamma  at 3,1"));
     // The cursor goes to the first non-blank of the last line put.
     QCOMPARE(run("put ='   ind'", "j0l"), QLatin1String("alpha/beta/   ind/gamma  at 3,4"));
+    // A charwise register holds one line more than it has breaks, so one
+    // ending in a break puts an empty line of its own.
+    QCOMPARE(run("call setreg('c', 'CCC' . nr2char(10), 'v') | put c", "0l"),
+             QLatin1String("alpha/CCC//beta/gamma  at 3,1"));
+    QCOMPARE(run("call setreg('c', 'a' . nr2char(10) . 'b', 'v') | put c", "0l"),
+             QLatin1String("alpha/a/b/beta/gamma  at 3,1"));
+    QCOMPARE(run("call setreg('c', nr2char(10), 'v') | put c", "0l"),
+             QLatin1String("alpha///beta/gamma  at 3,1"));
+    QCOMPARE(run("call setreg('c', 'CCC' . nr2char(10), 'v') | put! c", "0l"),
+             QLatin1String("CCC//alpha/beta/gamma  at 2,1"));
+    // A blockwise register ends each of its lines, as a linewise one does.
+    QCOMPARE(run("call setreg('c', 'a' . nr2char(10) . 'b', 'b') | put c", "0l"),
+             QLatin1String("alpha/a/b/beta/gamma  at 3,1"));
     // An empty register is an error, and nothing is put.
     QVERIFY(run("put z", "j0l").contains(QLatin1String("E353")));
 
@@ -11717,6 +11780,12 @@ void FakeVimTester::test_vim_ex_put()
     data.doKeys("yy");
     data.doCommand("put");
     QCOMPARE(data.text(), QByteArray("alpha\nalpha\nbeta\ngamma"));
+
+    // A yank ending on an empty line carries that line into the put.
+    data.setText(X "abc" N N "def");
+    data.doKeys("0lvjy");
+    data.doCommand("put");
+    QCOMPARE(data.text(), QByteArray("abc\nbc\n\n\n\ndef"));
     data.doCommand("unlet g:e");
 }
 
@@ -26952,6 +27021,86 @@ void FakeVimTester::test_vim_command_g_underscore()
     KEYS("ylgp", "aa" X "bc");
 }
 
+void FakeVimTester::test_vim_command_gp_cursor()
+{
+    // "gp" and "gP" leave the cursor behind the text they put in, which is one
+    // character past its last one, or the start of the line behind the last one
+    // put in for whole lines. A column past the end of the line falls back on
+    // its last character. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    // Characters put in leave the cursor on the one behind them.
+    data.setText(X "abcdef");
+    KEYS("y2lgP", "ab" X "abcdef");
+    data.setText(X "abcdef");
+    KEYS("y2lgp", "aab" X "bcdef");
+    data.setText(X "abcdef");
+    KEYS("y3lgp", "aabc" X "bcdef");
+    data.setText(X "abc def ghi");
+    KEYS("yiwwgP", "abc abc" X "def ghi");
+    data.setText(X "abcdef");
+    KEYS("y2l3gp", "aababab" X "bcdef");
+    // Twice over, the second put starts where the first one left off.
+    data.setText(X "abcdef");
+    KEYS("y2lgpgp", "aabbab" X "cdef");
+    // Nothing sits behind text put in at the end of a line, so the cursor
+    // stays on its last character.
+    data.setText(X "abcdef");
+    KEYS("y2l$gp", "abcdefa" X "b");
+    data.setText(X "abc" N "def");
+    KEYS("y2l$gp", "abca" X "b" N "def");
+    // Characters running over a break leave the cursor on the line the last
+    // of them went to.
+    data.setText(X "abc" N "def");
+    KEYS("vjygp", "aabc" N "d" X "bc" N "def");
+    data.setText(X "abc" N "def");
+    KEYS("vjyGgP", "abc" N "abc" N "d" X "def");
+    data.setText(X "abc" N "def");
+    KEYS("vjy$gp", "abcabc" N X "d" N "def");
+    // Whole lines leave the cursor on the first column of the line behind
+    // them, blank or not.
+    data.setText(X "abc" N "def");
+    KEYS("yGgp", "abc" N "abc" N "def" N X "def");
+    data.setText(X "  abc" N "def" N "   ghi");
+    KEYS("0yyjgp", "  abc" N "def" N "  abc" N X "   ghi");
+    data.setText(X "abc" N "def");
+    KEYS("yy2gp", "abc" N "abc" N "abc" N X "def");
+    data.setText(X "abc" N "def");
+    KEYS("yyGgP", "abc" N "abc" N X "def");
+    // With no line behind the last one put in, the cursor takes its start.
+    data.setText(X "abc" N "def");
+    KEYS("yyGgp", "abc" N "def" N X "abc");
+    data.setText(X "abc" N "def");
+    KEYS("Vjygp", "abc" N "abc" N "def" N X "def");
+    // A block leaves the cursor behind what went into its last line.
+    data.setText(X "abc" N "def");
+    KEYS("l<C-v>jygP", "abbc" N "de" X "ef");
+    data.setText(X "abc" N "def");
+    KEYS("l<C-v>jygp", "abbc" N "dee" X "f");
+    data.setText(X "abc" N "def" N "ghi");
+    KEYS("l<C-v>jjygp", "abbc" N "deef" N "ghh" X "i");
+    data.setText(X "ab" N "cd");
+    KEYS("$<C-v>jygp", "abb" N "cd" X "d");
+    data.setText(X "ab" N "cd");
+    KEYS("<C-v>jlyjgp", "ab" N "cabd" N " c" X "d");
+    // A break ending a charwise register puts a line of its own, and the
+    // cursor lands on the first column behind it.
+    data.doCommand("call setreg('c', 'XY' . nr2char(10), 'v')");
+    data.setText(X "abc" N "def");
+    KEYS("\"cgp", "aXY" N X "bc" N "def");
+    data.setText(X "abc" N "def");
+    KEYS("\"cgP", "XY" N X "abc" N "def");
+    // Whole lines replacing part of a line break it open, and the cursor takes
+    // the start of what is left of it.
+    data.doCommand("call setreg('c', 'XY' . nr2char(10), 'V')");
+    data.setText(X "abc" N "def");
+    KEYS("lvl\"cgp", "a" N "XY" N X N "def");
+    // Characters replacing whole lines become lines of their own.
+    data.doCommand("call setreg('c', 'XY', 'v')");
+    data.setText(X "abc" N "def");
+    KEYS("V\"cgp", "XY" N X "def");
+}
+
 void FakeVimTester::test_vim_command_put_with_indent()
 {
     // "]p" puts lines in behind this one and "[p" in front of it, each moved over
@@ -30705,6 +30854,65 @@ void FakeVimTester::test_vim_visual_end_of_document()
     // A line break of its own is still taken.
     data.setText("|abcdefghij" N "klmn");
     KEYS("0lv$d", "a" X "klmn");
+}
+
+void FakeVimTester::test_vim_visual_end_on_empty_line()
+{
+    // An inclusive charwise area whose end is on an empty line takes that
+    // lines break as well. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText(X "abc" N N "def");
+    KEYS("0vjc-<esc>", X "-def");
+
+    data.setText(X "abc" N N "def");
+    KEYS("0v$jc-<esc>", X "-def");
+
+    data.setText(X "abc" N N "def");
+    KEYS("0vjs-<esc>", X "-def");
+
+    data.setText(X "abc" N N N "def");
+    KEYS("0vjjc-<esc>", X "-def");
+
+    data.setText(X "abc" N "def" N N "ghi");
+    KEYS("0jvjc-<esc>", "abc" N X "-ghi");
+
+    data.setText(X "abc" N N "def");
+    KEYS("0lvjc-<esc>", "a" X "-def");
+
+    // The area may as well begin on the empty line, or run backwards.
+    data.setText(X "abc" N N "def");
+    KEYS("0jvc-<esc>", "abc" N X "-def");
+
+    data.setText(X "abc" N N N "def");
+    KEYS("0jvjc-<esc>", "abc" N X "-def");
+
+    data.setText(X "abc" N N "def");
+    KEYS("0jvd", "abc" N X "def");
+
+    data.setText(X "abc" N N "def");
+    KEYS("0jvkc-<esc>", X "-def");
+
+    data.setText(X "abc" N N "def");
+    KEYS("0jjvkc-<esc>", "abc" N X "-ef");
+
+    // The last line of the document has no break to take.
+    data.setText(X "abc" N "def" N);
+    KEYS("0vjjc-<esc>", X "-");
+
+    // A yank keeps the break, so what comes back has the empty line.
+    data.setText(X "abc" N N "def");
+    KEYS("0lvjyP", "a" X "bc" N N "bc" N N "def");
+
+    data.setText(X "abc" N N "def");
+    KEYS("0vjyP", X "abc" N N "abc" N N "def");
+
+    data.setText(X "abc" N N "def");
+    KEYS("0jvyP", "abc" N X N N "def");
+
+    data.setText(X "abc" N N N "def");
+    KEYS("0jvjyP", "abc" N X N N N N "def");
 }
 
 void FakeVimTester::test_vim_case_operator_column()

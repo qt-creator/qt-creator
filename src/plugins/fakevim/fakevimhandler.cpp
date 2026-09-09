@@ -3435,6 +3435,8 @@ public:
     // marks on.
     int m_lastInsertedFrom = -1;
     int m_lastInsertedTo = -1;
+    // Behind the text the last put inserted, which is where "gp" ends up.
+    int m_lastPutEnd = -1;
 
     // Block number of a freshly auto-indented line that has not received any
     // typed content yet. Leaving such a line untouched removes the automatic
@@ -4139,6 +4141,10 @@ struct PendingChange
         // a line, which a forced block keeps for every one of its lines.
         VisualMode motionForce = NoVisualMode;
         bool motionToEndOfLine = false;
+        // Whether the area an operator works on is one Visual mode marked out.
+        // A yank is still in Visual mode when the area is fixed up, every
+        // other operator has left it by then.
+        bool visualArea = false;
         bool gflag = false;  // whether current command started with 'g'
 
         // Extra data for ';'.
@@ -5916,8 +5922,13 @@ void FakeVimHandler::Private::fixSelection()
 
     if (g.movetype == MoveInclusive) {
         if (anchor() <= position()) {
-            if (!atBlockEnd())
+            if (!atBlockEnd()) {
                 setPosition(position() + 1); // correction
+            } else if (atEmptyLine() && !atDocumentEnd()
+                       && (isVisualMode() || g.visualArea)) {
+                // The character the cursor is on there is the line break.
+                setPosition(position() + 1);
+            }
 
             // Omit first character in selection if it's line break on non-empty line.
             int start = anchor();
@@ -6226,6 +6237,7 @@ void FakeVimHandler::Private::clearCurrentMode()
     g.movetype = MoveInclusive;
     g.motionForce = NoVisualMode;
     g.motionToEndOfLine = false;
+    g.visualArea = false;
     g.gflag = false;
     g.surroundUpperCaseS = false;
     g.surroundFunction.clear();
@@ -7895,18 +7907,9 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         }
 
         pasteText(!input.is('P'));
-        if (g.gflag) {
-            // gp and gP leave the cursor behind what was put in, not on it.
-            const RangeMode mode = registerRangeMode(m_register);
-            if (mode == RangeLineMode) {
-                moveDown();
-                moveToStartOfLine();
-            } else {
-                const int put = registerContents(m_register).size();
-                moveRight(qMin(put, rightDist()));
-            }
-            setTargetColumn();
-        }
+        // gp and gP leave the cursor behind what was put in, not on it.
+        if (g.gflag && m_lastPutEnd >= 0)
+            setPosition(m_lastPutEnd);
         setTargetColumn();
         finishMovement();
     } else if (input.is('q')) {
@@ -11873,6 +11876,9 @@ bool FakeVimHandler::Private::handleExYankDeleteCommand(const ExCommand &cmd)
         setCurrentRange(range);
         const int had = document()->blockCount();
         removeText(currentRange());
+        // ":d" is not in the list 'startofline' governs: it always lands on
+        // the first non-blank of the line that took the range place.
+        moveToFirstNonBlankOnLine();
         reportLineChange(LinesDeleted, had - document()->blockCount());
     }
 
@@ -12280,6 +12286,10 @@ bool FakeVimHandler::Private::handleExPutCommand(const ExCommand &cmd)
                         Tr::tr("E353: Nothing in register %1").arg(QChar(reg)));
             return true;
         }
+        // A charwise register holds one line more than it has breaks; a
+        // linewise or blockwise one ends each of its lines.
+        if (registerRangeMode(reg) == RangeCharMode)
+            text += '\n';
     }
     // Whatever it held goes in as lines, so the last one ends too.
     if (!text.endsWith('\n'))
@@ -13985,11 +13995,16 @@ bool FakeVimHandler::Private::handleExShiftCommand(const ExCommand &cmd)
     Range range = cmd.range;
     parseRangeCount(cmd.args.mid(i), &range);
 
+    const int endLine = lineForPosition(range.endPos);
     setCurrentRange(range);
     if (c == '<')
         shiftRegionLeft(repeat);
     else
         shiftRegionRight(repeat);
+
+    // An Ex shift ends on the last line of the range, not the first.
+    setPosition(firstPositionInLine(endLine));
+    handleStartOfLine();
 
     leaveVisualMode();
 
@@ -26380,6 +26395,11 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     beginEditBlock();
     QTextBlock block = document()->findBlockByLineNumber(beginLine - 1);
     while (block.isValid() && lineNumber(block) <= endLine) {
+        // A line without any character at all is left alone.
+        if (block.text().isEmpty()) {
+            block = block.next();
+            continue;
+        }
         const Column col = indentation(block.text());
         QTextCursor tc = m_cursor;
         tc.setPosition(block.position());
@@ -27819,6 +27839,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
     if (refuseUnmodifiable())
         return;
     m_lastInsertedFrom = -1;
+    m_lastPutEnd = -1;
     QString text = registerContents(m_register);
     RangeMode rangeMode = registerRangeMode(m_register);
     const int had = document()->blockCount();
@@ -27872,6 +27893,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
         const int pos = position() + 1;
         const QString lines = QLatin1Char('\n') + text.repeated(count());
         insertText(lines);
+        m_lastPutEnd = position();
         markPutRange();
         setPosition(pos);
         m_targetColumn = 0;
@@ -27887,6 +27909,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 moveRight();
             const int pos = position();
             insertText(text.repeated(count()));
+            m_lastPutEnd = position();
             if (text.contains('\n'))
                 setPosition(pos);
             else
@@ -27912,6 +27935,9 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 insertText(text.repeated(count()).left(text.size() * count() - 1));
             else
                 insertText(text.repeated(count()));
+            // The lines put in end with a break, so what follows them is the
+            // start of the next line - unless the break had to be left out.
+            m_lastPutEnd = lastLine ? block().position() : position();
             setPosition(pos);
             moveToFirstNonBlankOnLine();
             break;
@@ -27945,6 +27971,7 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
                 // insert text
                 const QString line = lines.at(i).repeated(count());
                 tc.insertText(line);
+                m_lastPutEnd = tc.position();
 
                 // next line
                 block = block.next();
@@ -28347,6 +28374,8 @@ void FakeVimHandler::Private::leaveVisualMode(bool saveArea, bool afterOperator)
 {
     if (!isVisualMode())
         return;
+
+    g.visualArea = true;
 
     if (isVisualLineMode()) {
         g.rangemode = RangeLineMode;
