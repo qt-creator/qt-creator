@@ -1004,11 +1004,9 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
     data.cmakePreset = configurePreset.name;
 
     if (!configurePreset.cmakeExecutable) {
-        const CMakeTool *cmakeTool = CMakeToolManager::defaultCMakeTool();
-        if (cmakeTool) {
-            configurePreset.cmakeExecutable = cmakeTool->cmakeExecutable();
-        } else {
-            configurePreset.cmakeExecutable = FilePath();
+        configurePreset.cmakeExecutable
+            = IDevice::deviceToolPath(Constants::CMAKE_TOOL_ID, projectDirectory);
+        if (configurePreset.cmakeExecutable->isEmpty()) {
             TaskHub::addTask<BuildSystemTask>(
                 Task::TaskType::DisruptingError, Tr::tr("<No CMake Tool available>"));
         }
