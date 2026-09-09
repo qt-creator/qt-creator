@@ -302,6 +302,37 @@ private slots:
                     .isEmpty());
     }
 
+    // The host-gateway mapping is docker's alone: podman writes the name into
+    // /etc/hosts by itself and refuses the flag where it cannot determine the
+    // address. A mapping among the extra arguments stays the user's.
+    void testHostGatewayMapping()
+    {
+        const QString mapping = "--add-host=host.docker.internal:host-gateway";
+
+        const DockerDevice::Ptr docker = DockerDevice::create(&dockerSettings());
+        docker->mountCmdBridge.setValue(false);
+        QVERIFY(docker->createCommandLine().arguments().contains(mapping));
+
+        const DockerDevice::Ptr podman = DockerDevice::create(&podmanSettings());
+        podman->mountCmdBridge.setValue(false);
+        QVERIFY(!podman->createCommandLine().arguments().contains(mapping));
+
+        // The user's own mapping reaches the command line, and ours stays away.
+        docker->extraArgs.setValue("--add-host=host.docker.internal:10.1.2.3");
+        const QString args = docker->createCommandLine().arguments();
+        QVERIFY(args.contains("--add-host=host.docker.internal:10.1.2.3"));
+        QVERIFY(!args.contains(mapping));
+
+        // The flag's other spelling maps the name just as well.
+        docker->extraArgs.setValue("--add-host host.docker.internal:10.1.2.3");
+        QVERIFY(!docker->createCommandLine().arguments().contains(mapping));
+
+        // A mention that is not a mapping leaves the name unresolvable without
+        // ours, so it has to stay.
+        docker->extraArgs.setValue("-e SERVER=host.docker.internal:8080");
+        QVERIFY(docker->createCommandLine().arguments().contains(mapping));
+    }
+
 private:
     QTemporaryDir m_existingDir;
 };

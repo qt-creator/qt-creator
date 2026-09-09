@@ -838,6 +838,22 @@ bool DockerDevicePrivate::isImageAvailable() const
     return false;
 }
 
+// Only an --add-host for the name is a mapping of it, in either of the flag's
+// two spellings. A mere mention, in an environment variable or a search domain,
+// is not, and must not take the mapping away.
+static bool mapsHostInternalName(const QString &extraArgs, OsType osType)
+{
+    const QStringList args = ProcessArgs::splitArgs(extraArgs, osType);
+    for (int i = 0; i < args.size(); ++i) {
+        if (args.at(i).startsWith("--add-host=host.docker.internal:"))
+            return true;
+        if (args.at(i) == "--add-host" && i + 1 < args.size()
+            && args.at(i + 1).startsWith("host.docker.internal:"))
+            return true;
+    }
+    return false;
+}
+
 CommandLine DockerDevicePrivate::createCommandLine(const CreateCommandLineParams &p)
 {
     CommandLine dockerCreate{m_containerSettings->binaryPath(), {"create", "-i", "--rm"}};
@@ -859,6 +875,13 @@ CommandLine DockerDevicePrivate::createCommandLine(const CreateCommandLineParams
     if (!p.network.isEmpty()) {
         dockerCreate.addArg("--network");
         dockerCreate.addArg(p.network);
+    }
+
+    // Docker Desktop provides this name by itself, a plain Linux engine does not.
+    // Podman always does, and refuses the mapping when it cannot determine the address.
+    if (m_containerSettings->typeId() == Constants::DOCKER_DEVICE_TYPE
+        && !mapsHostInternalName(p.extraArgs, m_containerSettings->binaryPath().osType())) {
+        dockerCreate.addArg("--add-host=host.docker.internal:host-gateway");
     }
 
     dockerCreate.addArgs(createMountArgs(p));
