@@ -238,6 +238,7 @@ private slots:
     void test_vim_script_dicts();
     void test_vim_script_indexed_let();
     void test_vim_script_functions();
+    void test_vim_script_defer();
     void test_vim_script_string_builtins();
     void test_vim_script_collection_builtins();
     void test_vim_script_map_filter();
@@ -392,6 +393,8 @@ private slots:
     void test_vim_word_motion_stops_at_line_end();
     void test_vim_sentence_motion();
     void test_vim_sentence_text_object();
+    void test_vim_counted_inner_word();
+    void test_vim_counted_visual_word();
     void test_vim_failed_text_object();
     void test_vim_middle_of_line();
     void test_vim_ascii_key();
@@ -567,6 +570,9 @@ private slots:
     void test_vim_command_jumps();
     void test_vim_script_bufexists();
     void test_vim_method_motions();
+    void test_vim_section_motions();
+    void test_vim_section_motion_ranges();
+    void test_vim_backward_exclusive_motions();
     void test_vim_insert_whichwrap_brackets();
     void test_vim_script_float_format();
     void test_vim_script_math_functions();
@@ -1920,7 +1926,7 @@ void FakeVimTester::test_vim_delete_inner_word()
     data.setText("x" N X "" N "" N "" N "" N "" N "  ");
     KEYS("3diw", "x" N X "" N "  ");
     data.setText("x" N X "" N "" N "" N "" N "" N "" N "  ");
-    KEYS("4diw", "x" N X "" N "  ");
+    KEYS("4diw", "x" N " " X " ");
 
     // delete single-character-word
     data.setText("a " X "b c");
@@ -1971,6 +1977,22 @@ void FakeVimTester::test_vim_delete_a_word()
     KEYS("2daw", "x" N X "" N "  ");
     data.setText("x" N X "" N "" N "" N "" N "" N "" N "  ");
     KEYS("3daw", "x" N " " X " ");
+
+    // The object ends on the line break of the empty line it reaches, that
+    // being the last character there. A delete takes whole lines, a yank and
+    // a change stay charwise. Values taken from Vim 9.1.
+    const char *empties = X "abc" N "" N "" N "def";
+
+    data.setText(empties);
+    KEYS("0l2daw", X "def");
+    data.setText(empties);
+    KEYS("0l2daW", X "def");
+    data.setText(empties);
+    KEYS("0l2cawX<Esc>", X "X" N "def");
+    data.setText(empties);
+    KEYS("0l2yawP", X "abc" N "" N "abc" N "" N "" N "def");
+    data.setText(X "abc" N "" N "" N "" N "def");
+    KEYS("0l2daw", X "" N "def");
 
     // delete single-character-word
     data.setText("a," X "b,c");
@@ -3818,9 +3840,9 @@ void FakeVimTester::test_vim_script_bufexists()
 
 void FakeVimTester::test_vim_method_motions()
 {
-    // "]m"/"[m" go to the next/previous "{", "]M"/"[M" to the next/previous
-    // "}" - simply the nearest brace in that direction, never the one the
-    // cursor already sits on (repeating the same command always advances).
+    // "[m"/"]m" go to the start of the previous/next method, "[M"/"]M" to its
+    // end. Vim finds them by walking out of the braces the cursor sits in, so
+    // the answer is not simply the nearest brace once the code nests.
     // Values taken from Vim 9.1.
     TestData data;
     setup(&data);
@@ -3997,6 +4019,967 @@ void FakeVimTester::test_vim_method_motions()
     KEYS("]mx", "class C ");
     data.setText(X "class C {");
     KEYS("d]m", "{");
+
+    // Nested blocks are climbed out of, and a count asks for that many
+    // methods, clamped to the outermost one reached.
+    data.setText(
+        X "class foo {" N
+        "  void a() {" N
+        "    if (x) {" N
+        "      b();" N
+        "    }" N
+        "  }" N
+        "  void c() {" N
+        "  }" N
+        "}");
+    KEYS("4G0[m",
+         "class foo {" N
+         "  void a() " X "{" N
+         "    if (x) {" N
+         "      b();" N
+         "    }" N
+         "  }" N
+         "  void c() {" N
+         "  }" N
+         "}");
+    KEYS("4G02[m",
+         "class foo " X "{" N
+         "  void a() {" N
+         "    if (x) {" N
+         "      b();" N
+         "    }" N
+         "  }" N
+         "  void c() {" N
+         "  }" N
+         "}");
+    KEYS("4G03[m",
+         "class foo " X "{" N
+         "  void a() {" N
+         "    if (x) {" N
+         "      b();" N
+         "    }" N
+         "  }" N
+         "  void c() {" N
+         "  }" N
+         "}");
+    KEYS("4G0[M",
+         "class foo " X "{" N
+         "  void a() {" N
+         "    if (x) {" N
+         "      b();" N
+         "    }" N
+         "  }" N
+         "  void c() {" N
+         "  }" N
+         "}");
+    KEYS("4G0]m",
+         "class foo {" N
+         "  void a() {" N
+         "    if (x) {" N
+         "      b();" N
+         "    }" N
+         "  }" N
+         "  void c() " X "{" N
+         "  }" N
+         "}");
+    KEYS("4G0]M",
+         "class foo {" N
+         "  void a() {" N
+         "    if (x) {" N
+         "      b();" N
+         "    }" N
+         "  " X "}" N
+         "  void c() {" N
+         "  }" N
+         "}");
+    KEYS("4G02]M",
+         "class foo {" N
+         "  void a() {" N
+         "    if (x) {" N
+         "      b();" N
+         "    }" N
+         "  }" N
+         "  void c() {" N
+         "  " X "}" N
+         "}");
+    KEYS("9G0[m",
+         "class foo {" N
+         "  void a() {" N
+         "    if (x) {" N
+         "      b();" N
+         "    }" N
+         "  }" N
+         "  void c() " X "{" N
+         "  }" N
+         "}");
+    KEYS("8G0]m",
+         "class foo {" N
+         "  void a() {" N
+         "    if (x) {" N
+         "      b();" N
+         "    }" N
+         "  }" N
+         "  void c() {" N
+         "  }" N
+         X "}");
+
+    // A brace sharing its line with other text is where Vim lands, the
+    // section motions would take the line.
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N
+        "" N
+        "int b()" N
+        "{ return 0; }" N
+        "" N
+        "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+    KEYS("G0[m",
+         "void a()" N
+         "{" N
+         "}" N
+         "" N
+         "int b()" N
+         "{ return 0; }" N
+         "" N
+         "int c()" N
+         "{ return 0;" N
+         X "}" N
+         "");
+    KEYS("6G$[M",
+         "void a()" N
+         "{" N
+         "}" N
+         "" N
+         "int b()" N
+         X "{ return 0; }" N
+         "" N
+         "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+    KEYS("6G$]M",
+         "void a()" N
+         "{" N
+         "}" N
+         "" N
+         "int b()" N
+         "{ return 0; }" N
+         "" N
+         "int c()" N
+         X "{ return 0;" N
+         "}" N
+         "");
+    KEYS("6G0]M",
+         "void a()" N
+         "{" N
+         "}" N
+         "" N
+         "int b()" N
+         "{ return 0; " X "}" N
+         "" N
+         "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+    KEYS("3G0[M",
+         "void a()" N
+         X "{" N
+         "}" N
+         "" N
+         "int b()" N
+         "{ return 0; }" N
+         "" N
+         "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+    KEYS("3G0]m",
+         "void a()" N
+         "{" N
+         "}" N
+         "" N
+         "int b()" N
+         X "{ return 0; }" N
+         "" N
+         "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    data.setText(
+        X "// comment" N
+        "class foo {" N
+        "  int method_one() {" N
+        "    body_one();" N
+        "  }" N
+        "  int method_two() {" N
+        "    body_two();" N
+        "  }" N
+        "}");
+    KEYS("8G0[m",
+         "// comment" N
+         "class foo {" N
+         "  int method_one() {" N
+         "    body_one();" N
+         "  }" N
+         "  int method_two() " X "{" N
+         "    body_two();" N
+         "  }" N
+         "}");
+    KEYS("8G02[m",
+         "// comment" N
+         "class foo {" N
+         "  int method_one() " X "{" N
+         "    body_one();" N
+         "  }" N
+         "  int method_two() {" N
+         "    body_two();" N
+         "  }" N
+         "}");
+    KEYS("8G0[M",
+         "// comment" N
+         "class foo {" N
+         "  int method_one() {" N
+         "    body_one();" N
+         "  " X "}" N
+         "  int method_two() {" N
+         "    body_two();" N
+         "  }" N
+         "}");
+
+    // Nowhere to go: the cursor stays put and a waiting operator is
+    // dropped.
+    KEYS("1G0[m",
+         X "// comment" N
+         "class foo {" N
+         "  int method_one() {" N
+         "    body_one();" N
+         "  }" N
+         "  int method_two() {" N
+         "    body_two();" N
+         "  }" N
+         "}");
+    KEYS("1G0d[m",
+         X "// comment" N
+         "class foo {" N
+         "  int method_one() {" N
+         "    body_one();" N
+         "  }" N
+         "  int method_two() {" N
+         "    body_two();" N
+         "  }" N
+         "}");
+
+    KEYS("4G0d[m",
+         "// comment" N
+         "class foo {" N
+         "  int method_one()" X " " N
+         "    body_one();" N
+         "  }" N
+         "  int method_two() {" N
+         "    body_two();" N
+         "  }" N
+         "}");
+}
+
+void FakeVimTester::test_vim_section_motions()
+{
+    // "[[" and "[]" are line-based: the search starts above the line the
+    // cursor sits on, it lands on the brace in column 1, and it falls back to
+    // the start of the file. A count that overshoots does not move at all.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }" N "" N "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+
+    KEYS("G0[[",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         X "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("[[",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         X "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("[[",
+         "void a()" N
+         X "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("[[",
+         X "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("[[",
+         X "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("6Gl[[",
+         "void a()" N
+         X "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("9G$[[",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         X "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("G03[[",
+         "void a()" N
+         X "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("G05[[",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         X "");
+
+    KEYS("2G02[[",
+         "void a()" N
+         X "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("5G02[[",
+         X "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("1G$[[",
+         X "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("G0[]",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         X "}" N
+         "");
+
+    KEYS("3G0[]",
+         X "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    KEYS("9G$d[[",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         X ";" N
+         "}" N
+         "");
+
+    data.setText(
+        X "a" N
+        "{ p" N
+        "b" N
+        "{ x" N
+        "c");
+
+    KEYS("4G0ll[[",
+         "a" N
+         X "{ p" N
+         "b" N
+         "{ x" N
+         "c");
+
+    KEYS("4G0lld[[",
+         "a" N
+         X "x" N
+         "c");
+
+    data.setText(
+        X "a" N
+        "} p" N
+        "b" N
+        "} x" N
+        "c");
+
+    KEYS("4G0ll[]",
+         "a" N
+         X "} p" N
+         "b" N
+         "} x" N
+         "c");
+
+    KEYS("2G0ll[]",
+         X "a" N
+         "} p" N
+         "b" N
+         "} x" N
+         "c");
+
+    KEYS("2G0lld[]",
+         X "p" N
+         "b" N
+         "} x" N
+         "c");
+
+    // The last of the counted sections may be the edge of the document, and
+    // there the motion settles on the first non-blank of the line it stopped
+    // on rather than in the column it stopped in.
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "{ x" N
+        "    yyy");
+
+    KEYS("03]]",
+         "void a()" N
+         "{" N
+         "}" N "" N "{ x" N
+         "    " X "yyy");
+
+    KEYS("G$]]",
+         "void a()" N
+         "{" N
+         "}" N "" N "{ x" N
+         "    " X "yyy");
+
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "{ x" N
+        "yyy");
+
+    KEYS("03]]",
+         "void a()" N
+         "{" N
+         "}" N "" N "{ x" N
+         X "yyy");
+
+    data.setText(
+        X "a" N
+        "}" N "" N "b" N
+        "    ccc");
+
+    KEYS("02][",
+         "a" N
+         "}" N "" N "b" N
+         "    " X "ccc");
+
+    data.setText(
+        X "    aaa" N
+        "b" N
+        "}" N
+        "c");
+
+    KEYS("G02[]",
+         "    " X "aaa" N
+         "b" N
+         "}" N
+         "c");
+
+    data.setText(
+        X "    aaa" N
+        "xxxxxxxx" N
+        "{" N
+        "b");
+
+    KEYS("G02[[",
+         "    " X "aaa" N
+         "xxxxxxxx" N
+         "{" N
+         "b");
+
+    KEYS("1G$[[",
+         "    " X "aaa" N
+         "xxxxxxxx" N
+         "{" N
+         "b");
+
+    // The count is not met at all here, so the motion fails and moves nothing.
+    KEYS("1G$2[[",
+         "    aa" X "a" N
+         "xxxxxxxx" N
+         "{" N
+         "b");
+
+    // The column it settles in is the one a following "j" keeps.
+    KEYS("G02[[j",
+         "    aaa" N
+         "xxxx" X "xxxx" N
+         "{" N
+         "b");
+}
+
+void FakeVimTester::test_vim_section_motion_ranges()
+{
+    // The section motions are exclusive charwise motions, so an operator over
+    // one follows the same rules as over any other charwise motion. A forward
+    // motion looking for the start of a section stops on the last character of
+    // the last line, inclusive, one looking for the end of a section stops in
+    // column 1 there. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set noexpandtab");
+    data.doCommand("set tabstop=8");
+    data.doCommand("set shiftwidth=8");
+
+    const char *text =
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }";
+
+    data.setText(text);
+    KEYS("0>]]",
+         "\t" X "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }");
+
+    data.setText(text);
+    KEYS("2G0>[[",
+         "\t" X "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }");
+
+    data.setText(text);
+    KEYS("0>][",
+         "\t" X "void a()" N
+         "\t{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }");
+
+    data.setText(text);
+    KEYS("3G0>[]",
+         "\t" X "void a()" N
+         "\t{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }");
+
+    data.setText(text);
+    KEYS("5G0>]]",
+         "void a()" N
+         "{" N
+         "}" N "" N "\t" X "int b()" N
+         "\t{ return 0; }");
+
+    data.setText(text);
+    KEYS("0>3]]",
+         "\t" X "void a()" N
+         "\t{" N
+         "\t}" N "" N "\tint b()" N
+         "\t{ return 0; }");
+
+    data.setText(text);
+    KEYS("0d]]",
+         X "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }");
+
+    data.setText(text);
+    KEYS("4G0d][",
+         "void a()" N
+         "{" N
+         "}" N X "{ return 0; }");
+
+    data.setText(text);
+    KEYS("5G0d]]",
+         "void a()" N
+         "{" N
+         "}" N X "");
+
+    data.setText(text);
+    KEYS("6G0d]]",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N X "");
+
+    data.setText(text);
+    KEYS("0d3]]", X "");
+
+    data.setText(text);
+    KEYS("6G0y]]:put =strlen(getreg(nr2char(34)))<CR>",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N X "13");
+
+    data.setText(X "abc def");
+    KEYS("1G$d[[", X "f");
+
+    data.setText(X "abc def");
+    KEYS("1G0d]]", X "");
+
+    data.setText(
+        X "aa" N
+        "bb" N
+        "cc");
+
+    KEYS("3G0d[[", X "cc");
+
+    data.setText(
+        X "aa" N
+        "bb" N
+        "cc");
+
+    KEYS("2G0d]]", X "aa");
+
+    data.setText(
+        X "aa" N
+        "bb" N
+        "cc");
+
+    KEYS("2G0>]]",
+         "aa" N
+         "\t" X "bb" N
+         "\tcc");
+
+    data.setText(
+        X "aa" N
+        "bb" N
+        "cc");
+
+    KEYS("0>]]",
+         "\t" X "aa" N
+         "\tbb" N
+         "\tcc");
+
+    data.setText(
+        X "aa" N
+        "bb" N
+        "cc");
+
+    KEYS("2G0y]]:put =getregtype(nr2char(34))<CR>",
+         "aa" N
+         "bb" N X "v" N
+         "cc");
+
+    data.setText(
+        X "aa" N
+        "bb" N
+        "cc");
+
+    KEYS("2G0y]]:put =strlen(getreg(nr2char(34)))<CR>",
+         "aa" N
+         "bb" N X "5" N
+         "cc");
+
+    data.setText(
+        X "aa" N
+        "bb" N
+        "cc");
+
+    KEYS("3G0y[[:put =getregtype(nr2char(34))<CR>",
+         "aa" N X "V" N
+         "bb" N
+         "cc");
+
+    // A count that cannot be satisfied at all is a failed motion. It moves
+    // nothing, and it takes the operator waiting on it down with it, so the
+    // keys after it are commands again.
+    const char *sections =
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }";
+
+    data.setText(sections);
+
+    KEYS("G0d5]]ix<Esc>",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         X "x{ return 0; }");
+
+    data.setText(sections);
+
+    KEYS("G0y5[[ix<Esc>",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         X "x{ return 0; }");
+
+    data.setText(sections);
+
+    KEYS("G0d5][ix<Esc>",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         X "x{ return 0; }");
+
+    data.setText(sections);
+
+    KEYS("2G0d5[]ix<Esc>",
+         "void a()" N
+         X "x{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }");
+
+    // The count of the aborted command does not carry over either.
+    data.setText(sections);
+
+    KEYS("G0d5[[3ix<Esc>",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "xx" X "x{ return 0; }");
+
+    data.setText(sections);
+
+    KEYS("2G0d5[[l",
+         "void a()" N
+         X "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }");
+}
+
+void FakeVimTester::test_vim_backward_exclusive_motions()
+{
+    // An exclusive motion whose end lands in column 1 ends at the end of the
+    // previous line instead, and takes whole lines when it also starts at or
+    // before the first non-blank. The end of a backward motion is where the
+    // cursor started. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }" N "" N "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+
+    KEYS("G0y[[:put =getregtype(nr2char(34))<CR>",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         X "V" N
+         "}" N
+         "");
+
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }" N "" N "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+
+    KEYS("G0y{:put =getregtype(nr2char(34))<CR>",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N X "V" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }" N "" N "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+
+    KEYS("5G0y?{<CR>:put =getregtype(nr2char(34))<CR>",
+         "void a()" N
+         "{" N
+         X "V" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }" N "" N "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+
+    KEYS("2G0ma9G0y`a:put =getregtype(nr2char(34))<CR>",
+         "void a()" N
+         "{" N
+         X "V" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }" N "" N "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+
+    KEYS("G0c[[ZZ<esc>",
+         "void a()" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "Z" X "Z" N
+         "");
+
+    // A start that is past the indent keeps the motion charwise, with the end
+    // on the last character of the previous line.
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }" N "" N "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+
+    KEYS("2G0db",
+         "void " X "a" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }" N "" N "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+
+    KEYS("2G0dB",
+         "void" X " " N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    data.setText(
+        X "void a()" N
+        "{" N
+        "}" N "" N "int b()" N
+        "{ return 0; }" N "" N "int c()" N
+        "{ return 0;" N
+        "}" N
+        "");
+
+    KEYS("2G0yb:put =strlen(getreg(nr2char(34)))<CR>",
+         "void a()" N
+         X "2" N
+         "{" N
+         "}" N "" N "int b()" N
+         "{ return 0; }" N "" N "int c()" N
+         "{ return 0;" N
+         "}" N
+         "");
+
+    data.setText(X "one two." N "three four." N "five six." N "");
+    KEYS("3G0y(:put =getregtype(nr2char(34))<CR>",
+         "one two." N "three four." N X "V" N "five six." N "");
+
+    // An empty line before the end line leaves the end in its column 1.
+    data.setText(X "xaa" N "bb" N "" N "cc" N "");
+    KEYS("4G0d?aa<CR>", X "x" N "cc" N "");
+
+    data.setText(X "xaa" N "bb" N "" N "cc" N "");
+    KEYS("4G0y?aa<CR>:put =getregtype(nr2char(34))<CR>",
+         "xaa" N X "v" N "bb" N "" N "cc" N "");
+
+    data.setText(X "xaa" N "bb" N "" N "cc" N "");
+    KEYS("4G0y?aa<CR>:put =strlen(getreg(nr2char(34)))<CR>",
+         "xaa" N X "6" N "bb" N "" N "cc" N "");
+
+    data.setText(X "  aa" N "bb" N "cc" N "");
+    KEYS("3G0d?aa<CR>", X "cc" N "");
+
+    data.setText(X "  aa" N "bb" N "cc" N "");
+    KEYS("3G0d?a<CR>", "  " X "a" N "cc" N "");
+
+    data.setText(X "  aa" N "bb" N "cc" N "");
+    KEYS("3G0y?a<CR>:put =strlen(getreg(nr2char(34)))<CR>",
+         "  aa" N X "4" N "bb" N "cc" N "");
 }
 
 void FakeVimTester::test_vim_insert_whichwrap_brackets()
@@ -9746,6 +10729,113 @@ void FakeVimTester::test_vim_script_functions()
     // Named parameters followed by "...".
     data.doCommand("function Tag(name, ...) | return a:name . \":\" . a:0 | endfunction");
     QCOMPARE(echo("Tag(\"x\", 1, 2)"), QLatin1String("x:2"));
+}
+
+void FakeVimTester::test_vim_script_defer()
+{
+    // ":defer Func(args)" queues a call for when the function returns.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    auto source = [&](const char *text) {
+        QTemporaryFile file;
+        QVERIFY(file.open());
+        file.write(text);
+        file.flush();
+        data.doCommand(QLatin1String("source ") + file.fileName());
+    };
+
+    data.doCommand("function Push(x) | call add(g:acc, a:x) | endfunction");
+
+    // The queued calls happen after the body, latest first.
+    source("function Basic()\n"
+           "  defer Push('d1')\n"
+           "  defer Push('d2')\n"
+           "  call Push('body')\n"
+           "endfunction\n");
+    data.doCommand("let g:acc = [] | call Basic()");
+    QCOMPARE(echo("g:acc"), QLatin1String("['body', 'd2', 'd1']"));
+
+    // The arguments are what they were where the ":defer" stood.
+    source("function ArgTime()\n"
+           "  let l:n = 1\n"
+           "  defer Push(l:n)\n"
+           "  let l:n = 2\n"
+           "  call Push(l:n)\n"
+           "endfunction\n");
+    data.doCommand("let g:acc = [] | call ArgTime()");
+    QCOMPARE(echo("g:acc"), QLatin1String("[2, 1]"));
+
+    // A ":return" runs them too, before its value reaches the caller.
+    source("function Ret()\n"
+           "  defer Push('ret')\n"
+           "  return 42\n"
+           "endfunction\n");
+    data.doCommand("let g:acc = []");
+    QCOMPARE(echo("Ret()"), QLatin1String("42"));
+    QCOMPARE(echo("g:acc"), QLatin1String("['ret']"));
+
+    // So does an exception on its way out, which still arrives unchanged.
+    source("function Thrown()\n"
+           "  defer Push('unwound')\n"
+           "  throw 'boom'\n"
+           "endfunction\n");
+    data.doCommand("let g:acc = []");
+    source("try\n"
+           "  call Thrown()\n"
+           "catch\n"
+           "  let g:err = v:exception\n"
+           "endtry\n");
+    QCOMPARE(echo("g:err"), QLatin1String("boom"));
+    QCOMPARE(echo("g:acc"), QLatin1String("['unwound']"));
+
+    // One ":defer" met three times queues three calls.
+    source("function Loop()\n"
+           "  for i in range(3)\n"
+           "    defer Push(i)\n"
+           "  endfor\n"
+           "endfunction\n");
+    data.doCommand("let g:acc = [] | call Loop()");
+    QCOMPARE(echo("g:acc"), QLatin1String("[2, 1, 0]"));
+
+    // Each function has its own queue, run when that one returns.
+    source("function Inner()\n"
+           "  defer Push('inner')\n"
+           "endfunction\n");
+    source("function Outer()\n"
+           "  defer Push('outer')\n"
+           "  call Inner()\n"
+           "endfunction\n");
+    data.doCommand("let g:acc = [] | call Outer()");
+    QCOMPARE(echo("g:acc"), QLatin1String("['inner', 'outer']"));
+
+    // A local Funcref is resolved at the ":defer", where it is still in reach.
+    source("function Fr()\n"
+           "  let l:F = function('Push')\n"
+           "  defer l:F('fr')\n"
+           "endfunction\n");
+    data.doCommand("let g:acc = [] | call Fr()");
+    QCOMPARE(echo("g:acc"), QLatin1String("['fr']"));
+
+    // A builtin is as good a callee as a user function.
+    source("function Builtin()\n"
+           "  defer add(g:acc, 'builtin')\n"
+           "endfunction\n");
+    data.doCommand("let g:acc = [] | call Builtin()");
+    QCOMPARE(echo("g:acc"), QLatin1String("['builtin']"));
+
+    // There is nothing to queue a call on outside a function.
+    message.clear();
+    data.doCommand("defer Push(1)");
+    QCOMPARE(message, QLatin1String("E193: defer not inside a function"));
 }
 
 void FakeVimTester::test_vim_script_string_builtins()
@@ -17835,6 +18925,53 @@ void FakeVimTester::test_vim_a_word_blanks()
     // At the end of the line there are none to take but the ones in front.
     data.setText("a b");
     KEYS("$daw", X "a");
+
+    // Blanks beyond the end of the line are none of the objects business, so
+    // a step that started on the line end takes no trailing blank either.
+    data.setText("abc" N "" N "def ghi");
+    KEYS("0l2daw", X " ghi");
+    data.setText("  abc" N "" N "def ghi");
+    KEYS("3l2daw", "  " X " ghi");
+    data.setText("abc" N "" N "def ghi jkl");
+    KEYS("0l3daw", X " jkl");
+    data.setText("abc def" N "" N "ghi jkl");
+    KEYS("0l3daw", X " jkl");
+
+    // A step that started on a word does take them, even where that word is
+    // the first on its line.
+    data.setText("a" N "b c");
+    KEYS("0l2daw", X "c");
+    data.setText("a" N "b c d");
+    KEYS("0l3daw", X "d");
+
+    // The ones in front are taken once, after the whole count, and only where
+    // the object came to rest on a word.
+    data.setText("abc def" N "ghi jkl");
+    KEYS("fdv2awd", "abc " X "jkl");
+    data.setText("abc  def  " N "ghi");
+    KEYS("fdv2awd", "ab" X "c");
+    data.setText("abc def ghi");
+    KEYS("fd2daw", "ab" X "c");
+    data.setText("  abc  def  " N "ghi");
+    KEYS("fd2daw", "  ab" X "c");
+    data.setText("abc def" N "" N "" N "ghi");
+    KEYS("fd2daw", "abc" X " " N "ghi");
+    data.setText("a bc.de fg");
+    KEYS("fbv3awd", "a " X "fg");
+    data.setText("ab  cd  ef");
+    KEYS("fcv3awd", "ab " X " ");
+
+    // A step with nowhere left to go leaves the object short of its count,
+    // which cancels a pending operator and stops a visual selection where it
+    // stood, and takes no blanks in front either way.
+    data.setText("abc def" N "ghi jkl");
+    KEYS("2G$v3awd", "abc def" N "ghi" X " ");
+    data.setText("abc" N "" N "def ghi");
+    KEYS("3G$v3awd", "abc" N "" N "def" X " ");
+    data.setText("abc  def");
+    KEYS("$2daw", "abc  de" X "f");
+    data.setText("abc def ghi");
+    KEYS("fd3daw", "abc def gh" X "i");
 }
 
 void FakeVimTester::test_vim_insert_take_back()
@@ -18036,6 +19173,168 @@ void FakeVimTester::test_vim_sentence_text_object()
     KEYS("fTvisd", "One. " X " Three.");
 }
 
+void FakeVimTester::test_vim_counted_inner_word()
+{
+    // A count on "iw" adds words and runs of blanks in turn, an empty line
+    // counting as one of the latter. An object that ends up in the first
+    // column ends on the line before it, and covering whole lines that way
+    // makes the range linewise. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    const char *empties = X "abc" N "" N "" N "def";
+
+    data.setText(empties);
+    KEYS("0l2diw", X "" N "def");
+    data.setText(empties);
+    KEYS("0l3diw", X "");
+    data.setText(empties);
+    KEYS("0lyiw:put =strlen(getreg(nr2char(34)))<CR>",
+         "abc" N X "3" N "" N "" N "def");
+    data.setText(empties);
+    KEYS("0l2yiw:put =getregtype(nr2char(34))<CR>",
+         "abc" N X "V" N "" N "" N "def");
+    data.setText(empties);
+    KEYS("0l2yiw:put =strlen(getreg(nr2char(34)))<CR>",
+         "abc" N X "5" N "" N "" N "def");
+    data.setText(empties);
+    KEYS("0l3yiw:put =getregtype(nr2char(34))<CR>",
+         "abc" N X "v" N "" N "" N "def");
+    data.setText(empties);
+    KEYS("0l3yiw:put =strlen(getreg(nr2char(34)))<CR>",
+         "abc" N X "9" N "" N "" N "def");
+
+    // Starting on an empty line, the object is that line and nothing else.
+    data.setText(empties);
+    KEYS("2G0yiw:put =getregtype(nr2char(34))<CR>",
+         "abc" N "" N X "v" N "" N "def");
+    data.setText(empties);
+    KEYS("2G0yiw:put =strlen(getreg(nr2char(34)))<CR>",
+         "abc" N "" N X "0" N "" N "def");
+    data.setText(empties);
+    KEYS("2G0diw", "abc" N X "" N "" N "def");
+    data.setText(empties);
+    KEYS("2G02yiw:put =getregtype(nr2char(34))<CR>",
+         "abc" N "" N X "V" N "" N "def");
+    data.setText(empties);
+    KEYS("2G02yiw:put =strlen(getreg(nr2char(34)))<CR>",
+         "abc" N "" N X "2" N "" N "def");
+    data.setText(empties);
+    KEYS("2G02diw", "abc" N X "def");
+
+    const char *empty = X "abc" N "" N "def";
+
+    data.setText(empty);
+    KEYS("0l2diw", X "def");
+    data.setText(empty);
+    KEYS("0l3diw", X "");
+    data.setText(empty);
+    KEYS("0l2yiw:put =getregtype(nr2char(34))<CR>", "abc" N X "V" N "" N "def");
+    data.setText(empty);
+    KEYS("0l2yiw:put =strlen(getreg(nr2char(34)))<CR>",
+         "abc" N X "5" N "" N "def");
+
+    // Without empty lines to cross, the range stays charwise.
+    const char *words = X "abc def ghi";
+
+    data.setText(words);
+    KEYS("0l2diw", X "def ghi");
+    data.setText(words);
+    KEYS("0l3diw", X " ghi");
+    data.setText(words);
+    KEYS("0l2yiw:put =getregtype(nr2char(34))<CR>", "abc def ghi" N X "v");
+    data.setText(words);
+    KEYS("0l2yiw:put =strlen(getreg(nr2char(34)))<CR>", "abc def ghi" N X "4");
+
+    // A run of blanks ends with the line it sits on.
+    const char *trailing = X "abc  " N "  def";
+
+    data.setText(trailing);
+    KEYS("0l2diw", X "" N "  def");
+    data.setText(trailing);
+    KEYS("0l2yiw:put =getregtype(nr2char(34))<CR>", "abc  " N X "v" N "  def");
+    data.setText(trailing);
+    KEYS("0l2yiw:put =strlen(getreg(nr2char(34)))<CR>", "abc  " N X "5" N "  def");
+    data.setText(trailing);
+    KEYS("0l3diw", X "def");
+    data.setText(trailing);
+    KEYS("0l3yiw:put =strlen(getreg(nr2char(34)))<CR>", "abc  " N X "8" N "  def");
+    data.setText(trailing);
+    KEYS("0l4diw", X "");
+}
+
+void FakeVimTester::test_vim_counted_visual_word()
+{
+    // A counted word object in visual mode reaches over the line ends where
+    // the "l" motion stops. Where the count runs out of document, Vim takes
+    // what it can and leaves the cursor one past the last character.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    const char *empties = X "abc" N "" N "" N "def";
+
+    data.setText(empties);
+    KEYS("0lv2iw", "abc" N "" N X "" N "def");
+    data.setText(empties);
+    KEYS("0lv3iw", "abc" N "" N "" N "de" X "f");
+    data.setText(empties);
+    KEYS("0lv4iw", "abc" N "" N "" N "def" X);
+    data.setText(empties);
+    KEYS("0lv5iw", "abc" N "" N "" N "def" X);
+    data.setText(empties);
+    KEYS("0lv2aw", "abc" N "" N X "" N "def");
+    data.setText(empties);
+    KEYS("0lv3aw", "abc" N "" N "" N "de" X "f");
+    data.setText(empties);
+    KEYS("0lv4aw", "abc" N "" N "" N "def" X);
+
+    data.setText(empties);
+    KEYS("0lv2iwd", X "def");
+    data.setText(empties);
+    KEYS("0lv3iwd", X "");
+    data.setText(empties);
+    KEYS("0lv4iwd", X "");
+    data.setText(empties);
+    KEYS("0lv2awd", X "def");
+    data.setText(empties);
+    KEYS("0lv3awd", X "");
+
+    // A single line end is none of the objects, so the next word follows the
+    // one the selection started in.
+    data.setText(X "abc" N "def");
+    KEYS("0lv2iw", "abc" N "de" X "f");
+    data.setText(X "abc" N "def");
+    KEYS("0lv2aw", "abc" N "de" X "f");
+    data.setText(X "abc" N "def");
+    KEYS("0lv2iwd", X "");
+
+    // The blanks after a word are taken where the step reaching them started
+    // on a word, here the first one of the line below.
+    data.setText(X "a" N "b c d");
+    KEYS("$v2aw", "a" N "b" X " c d");
+    data.setText(X "a" N "b c d");
+    KEYS("$v2awd", X "c d");
+
+    data.setText(X "abc" N "" N "def ghi");
+    KEYS("0lv3aw", "abc" N "" N "def gh" X "i");
+    data.setText(X "abc" N "" N "def ghi");
+    KEYS("0lv3awd", X "");
+
+    // A run of blanks ends with the line it sits on, so it takes two counts
+    // to reach the word below.
+    const char *blanks = X "abc  " N "  def";
+
+    data.setText(blanks);
+    KEYS("0lv2iw", "abc " X " " N "  def");
+    data.setText(blanks);
+    KEYS("0lv3iw", "abc  " N " " X " def");
+    data.setText(blanks);
+    KEYS("0lv2aw", "abc  " N "  de" X "f");
+    data.setText(blanks);
+    KEYS("0lv3iwd", X "def");
+}
+
 void FakeVimTester::test_vim_failed_text_object()
 {
     // Not finding what a text object asks for cancels the operator; the key
@@ -18051,6 +19350,79 @@ void FakeVimTester::test_vim_failed_text_object()
 
     // What the operator was waiting for is gone, so the next key stands alone.
     KEYS("di(w", "one" X ". two." N "three");
+
+    // A count that runs out of document fails a word object too. The cursor
+    // is left where the last object that could be taken ended.
+    const char *empties = X "abc" N "" N "" N "def";
+
+    data.setText(empties);
+    KEYS("0l4diw", "abc" N "" N "" N "de" X "f");
+    data.setText(empties);
+    KEYS("0l5diw", "abc" N "" N "" N "de" X "f");
+    data.setText(empties);
+    KEYS("0l4yiw", "abc" N "" N "" N "de" X "f");
+    data.setText(empties);
+    KEYS("0l4diW", "abc" N "" N "" N "de" X "f");
+    data.setText(empties);
+    KEYS("0l4daw", "abc" N "" N "" N "de" X "f");
+    data.setText(empties);
+    KEYS("0l4>iw", "abc" N "" N "" N "de" X "f");
+
+    // The count of the failed object does not carry over either, and the keys
+    // after it are commands again.
+    data.setText(empties);
+    KEYS("0l4d2iw", "abc" N "" N "" N "de" X "f");
+    data.setText(empties);
+    KEYS("0l4ciwX<Esc>", "abc" N "" N "" N "d" X "f");
+    data.setText(empties);
+    KEYS("0l4diwix<Esc>", "abc" N "" N "" N "de" X "xf");
+
+    // One line and one word leave nothing to extend into.
+    data.setText(X "abc");
+    KEYS("0l2diw", "ab" X "c");
+    data.setText(X "abc");
+    KEYS("$2diw", "ab" X "c");
+    data.setText(X "abc def");
+    KEYS("0l4diw", "abc de" X "f");
+    data.setText(X "abc def");
+    KEYS("0l3daw", "abc de" X "f");
+    data.setText(X "abc def");
+    KEYS("0l3daW", "abc de" X "f");
+    data.setText(X "abc def" N "ghi");
+    KEYS("0l6diw", "abc def" N "gh" X "i");
+    data.setText(X "abc def ghi");
+    KEYS("0l5diw", X "");
+    data.setText(X "abc def ghi");
+    KEYS("0l6diw", "abc def gh" X "i");
+
+    // A trailing empty line is a run of blanks of its own, so it still counts
+    // as an object. Only what would follow it does not.
+    const char *trailing = X "abc" N "" N "";
+
+    data.setText(trailing);
+    KEYS("0l2diw", X "");
+    data.setText(trailing);
+    KEYS("0l3diw", "abc" N "" N X "");
+    data.setText(trailing);
+    KEYS("0l4diw", "abc" N "" N X "");
+    data.setText(trailing);
+    KEYS("0l2daw", X "");
+    data.setText(trailing);
+    KEYS("0l3daw", "abc" N "" N X "");
+
+    const char *trailing2 = X "abc" N "" N "" N "";
+
+    data.setText(trailing2);
+    KEYS("0l3diw", X "");
+    data.setText(trailing2);
+    KEYS("0l4diw", "abc" N "" N "" N X "");
+
+    const char *blanks = X "abc" N "   " N "";
+
+    data.setText(blanks);
+    KEYS("0l3diw", X "");
+    data.setText(blanks);
+    KEYS("0l4diw", "abc" N "   " N X "");
 }
 
 void FakeVimTester::test_vim_middle_of_line()
@@ -24955,6 +26327,12 @@ void FakeVimTester::test_vim_script_findfile()
         data.doCommand("echo " + expr);
         return message;
     };
+    // The answers are shortened against the working directory, so pin it away
+    // from the layout below.
+    QTemporaryDir elsewhere;
+    QVERIFY(elsewhere.isValid());
+    const QString before = value("getcwd()");
+    data.doCommand("cd " + elsewhere.path());
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     QVERIFY(QDir(dir.path()).mkpath("A/deep"));
@@ -24983,6 +26361,17 @@ void FakeVimTester::test_vim_script_findfile()
     QCOMPARE(value("finddir('dup.h')"), QString());
     QCOMPARE(value("finddir('nodir')"), QString());
     QCOMPARE(value("exists('*findfile') .. exists('*finddir')"), QLatin1String("11"));
+    // With the layout below the working directory the answers are relative to it.
+    data.doCommand("cd " + dir.path());
+    QCOMPARE(value("findfile('dup.h')"), QLatin1String("A/dup.h"));
+    QCOMPARE(value("findfile('dup.h', '', 2)"), QLatin1String("B/dup.h"));
+    QCOMPARE(value("string(findfile('dup.h', '', -1))"),
+             QLatin1String("['A/dup.h', 'B/dup.h']"));
+    QCOMPARE(value("finddir('deep')"), QLatin1String("A/deep"));
+    data.doCommand("set path=A,B");
+    QCOMPARE(value("findfile('dup.h')"), QLatin1String("A/dup.h"));
+    QCOMPARE(value("findfile('dup.h', '', 2)"), QLatin1String("B/dup.h"));
+    data.doCommand("cd " + before);
     data.doCommand("set path=.,/usr/include,,");
 }
 
@@ -25290,6 +26679,12 @@ void FakeVimTester::test_vim_script_bufname()
         data.doCommand("echo " + expr);
         return message;
     };
+    // The name is shortened against the working directory, so pin it away from
+    // the one asked about.
+    QTemporaryDir elsewhere;
+    QVERIFY(elsewhere.isValid());
+    const QString before = value("getcwd()");
+    data.doCommand("cd " + elsewhere.path());
     data.handler->setCurrentFileName("/tmp/there/y.c");
     QCOMPARE(value("bufname()"), QLatin1String("/tmp/there/y.c"));
     QCOMPARE(value("bufname('%')"), QLatin1String("/tmp/there/y.c"));
@@ -25301,6 +26696,7 @@ void FakeVimTester::test_vim_script_bufname()
     data.handler->setCurrentFileName(QString());
     QCOMPARE(value("bufname()"), QString());
     QCOMPARE(value("exists('*bufname')"), QLatin1String("1"));
+    data.doCommand("cd " + before);
 }
 
 void FakeVimTester::test_vim_reflow_comment()

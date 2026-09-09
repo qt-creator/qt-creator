@@ -1127,20 +1127,36 @@ static void searchBackward(QTextCursor *tc, const QRegularExpression &needleExp,
     tc->setPosition(tc->position() + match.capturedLength(), KeepAnchor);
 }
 
-// Commands [[, []
-static void bracketSearchBackward(QTextCursor *tc, const QString &needleExp, int repeat)
+// Commands [[, [], [m, [M
+// Answers whether the count could be satisfied, the last one on the edge of the
+// document counting as satisfied.
+static bool bracketSearchBackward(QTextCursor *tc, const QString &needleExp, int repeat,
+                                  bool skipCurrentLine)
 {
     const QRegularExpression re(needleExp);
     QTextCursor tc2 = *tc;
-    tc2.setPosition(tc2.position() - 1);
+    if (skipCurrentLine) {
+        const QTextBlock previous = tc2.block().previous();
+        if (!previous.isValid()) {
+            if (repeat > 1)
+                return false;
+            tc->setPosition(0, KeepAnchor);
+            return true;
+        }
+        tc2.setPosition(previous.position() + previous.length() - 1);
+    } else {
+        tc2.setPosition(tc2.position() - 1);
+    }
     searchBackward(&tc2, re, &repeat);
-    if (repeat <= 1)
-        tc->setPosition(tc2.isNull() ? 0 : tc2.position(), KeepAnchor);
+    if (repeat > 1)
+        return false;
+    tc->setPosition(tc2.isNull() ? 0 : tc2.anchor(), KeepAnchor);
+    return true;
 }
 
 // Commands ][, ]]
 // When ]] is used after an operator, then also stops below a '}' in the first column.
-static void bracketSearchForward(QTextCursor *tc, const QString &needleExp, int repeat,
+static bool bracketSearchForward(QTextCursor *tc, const QString &needleExp, int repeat,
                                  bool searchWithCommand)
 {
     static const QRegularExpression reWithCommand("^\\}|^\\{");
@@ -1148,18 +1164,19 @@ static void bracketSearchForward(QTextCursor *tc, const QString &needleExp, int 
     QTextCursor tc2 = *tc;
     tc2.setPosition(tc2.position() + 1);
     searchForward(&tc2, searchWithCommand ? reWithCommand : reNeedle, &repeat);
-    if (repeat <= 1) {
-        if (tc2.isNull()) {
-            tc->setPosition(tc->document()->characterCount() - 1, KeepAnchor);
-        } else {
-            tc->setPosition(tc2.position() - 1, KeepAnchor);
-            if (searchWithCommand && tc->document()->characterAt(tc->position()).unicode() == '}') {
-                QTextBlock block = tc->block().next();
-                if (block.isValid())
-                    tc->setPosition(block.position(), KeepAnchor);
-            }
+    if (repeat > 1)
+        return false;
+    if (tc2.isNull()) {
+        tc->setPosition(tc->document()->characterCount() - 1, KeepAnchor);
+    } else {
+        tc->setPosition(tc2.position() - 1, KeepAnchor);
+        if (searchWithCommand && tc->document()->characterAt(tc->position()).unicode() == '}') {
+            QTextBlock block = tc->block().next();
+            if (block.isValid())
+                tc->setPosition(block.position(), KeepAnchor);
         }
     }
+    return true;
 }
 
 static char backslashed(char t)
@@ -3010,6 +3027,9 @@ public:
     void search(const SearchData &sd, bool showMessages = true);
     bool searchNext(bool forward = true);
     void searchBalanced(bool forward, QChar needle, QChar other);
+    int searchBalancedPosition(int from, bool forward, QChar needle, QChar other,
+                              int levels) const;
+    bool moveToMethodBrace(bool forward, bool start);
     void highlightMatches(const QString &needle);
     void stopIncrementalFind();
     void updateFind(bool isComplete);
@@ -3218,10 +3238,15 @@ public:
         m_cursor.movePosition(Left, KeepAnchor, n);
         setTargetColumn();
     }
+    // Not moveRight(), whose visual-mode clamp is the "l" motion stopping at
+    // the last character of the line. A text object steps over the line end.
     void moveToNextCharacter() {
-        moveRight();
-        if (atEndOfLine())
-            moveRight();
+        m_cursor.movePosition(Right, KeepAnchor);
+        if (atEndOfLine()) {
+            q->fold(1, false);
+            m_cursor.movePosition(Right, KeepAnchor);
+        }
+        setTargetColumn();
     }
     void moveToPreviousCharacter() {
         moveLeft();
@@ -3378,9 +3403,9 @@ public:
     bool isPassthroughKey(const Input &input) const;
     void updateEditor();
 
-    void selectTextObject(bool simple, bool inner);
-    void selectWordTextObject(bool inner);
-    void selectWORDTextObject(bool inner);
+    bool selectTextObject(bool simple, bool inner);
+    bool selectWordTextObject(bool inner);
+    bool selectWORDTextObject(bool inner);
     void selectSentenceTextObject(bool inner);
     void selectParagraphTextObject(bool inner);
     void changeNumbers(int step);
@@ -3474,6 +3499,12 @@ public:
         // The script it was defined in, which is what "<SID>" stands for there.
         int scriptId = 0;
     };
+    // What a ":defer" queued: both the callable and its arguments are settled
+    // when the ":defer" runs, not when the call happens.
+    struct DeferredCall {
+        VimValue callable;
+        QList<VimValue> args;
+    };
     struct AutoCommand {
         QString group; // the ":augroup" it belongs to, empty for none
         QString event;
@@ -3555,6 +3586,7 @@ public:
     QList<int> m_functionSourceLines;
     QString m_throwpoint; // where the exception being carried was thrown
     QStringList m_callStack; // user functions currently running, for <stack>
+    QList<QList<DeferredCall>> m_deferredCalls; // one list per running function
     QString sourceChain(bool asThrowPoint, bool bareInnermost = false) const;
     QSet<QString> m_sourcesInFlight; // guards against :source/:import cycles
     QList<QHash<QString, VimValue>> m_localScopes;
@@ -3870,6 +3902,8 @@ public:
                          const ExCommand &header);
     VimValue callUserFunction(const QString &name, const UserFunction &fn,
                               const QList<VimValue> &args);
+    void execDefer(const ExCommand &cmd);
+    void runDeferredCalls();
     bool optionValue(const QString &name, VimValue *result);
     // The option an argument of ":set" names, where it names one it SETS.
     // Nothing for a query or for a name that is no option: neither is
@@ -5900,17 +5934,22 @@ void FakeVimHandler::Private::fixSelection()
         }
     }
 
-    if (g.movetype == MoveExclusive) {
-        if (anchor() < position() && atBlockStart()) {
-            // Exclusive motion ending at the beginning of line
-            // becomes inclusive and end is moved to end of previous line.
-            g.movetype = MoveInclusive;
-            moveToStartOfLine();
-            moveLeft();
+    if (g.movetype == MoveExclusive && anchor() != position()) {
+        const bool backwards = position() < anchor();
+        const int end = backwards ? anchor() : position();
+        if (blockAt(end).position() == end) {
+            // An exclusive motion ending at the beginning of a line ends at
+            // the end of the previous line instead, and becomes linewise if it
+            // also starts at or before the first non-blank.
+            if (backwards) {
+                setAnchorAndPosition(end - 1, position());
+            } else {
+                g.movetype = MoveInclusive;
+                moveToStartOfLine();
+                moveLeft();
+            }
 
-            // Exclusive motion ending at the beginning of line and
-            // starting at or before first non-blank on a line becomes linewise.
-            if (isFirstNonBlankOnLine(anchor()))
+            if (isFirstNonBlankOnLine(qMin(anchor(), position())))
                 g.movetype = MoveLineWise;
         }
     }
@@ -5942,13 +5981,10 @@ void FakeVimHandler::Private::fixSelection()
             }
 
             // More than one line, all of them complete: a delete takes whole
-            // lines, a yank and a change stay charwise. An inner-word motion
-            // over empty lines ends one line short of Vim.
+            // lines, a yank and a change stay charwise.
             if (g.submode == DeleteSubMode && g.motionForce == NoVisualMode
                     && start < block().position() && isFirstNonBlankOnLine(start)
                     && atBlockEnd()) {
-                if (atEmptyLine() && atEmptyLine(position() + 1))
-                    moveRight();
                 g.movetype = MoveLineWise;
                 g.rangemode = RangeLineMode;
             }
@@ -6632,9 +6668,9 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             g.subsubdata = Input('i');
 
         if (input.is('w'))
-            selectWordTextObject(g.subsubdata.is('i'));
+            handled = selectWordTextObject(g.subsubdata.is('i'));
         else if (input.is('W'))
-            selectWORDTextObject(g.subsubdata.is('i'));
+            handled = selectWORDTextObject(g.subsubdata.is('i'));
         else if (input.is('s'))
             selectSentenceTextObject(g.subsubdata.is('i'));
         else if (input.is('p'))
@@ -6690,6 +6726,7 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             handled = true;
         } else {
             int pos = position();
+            bool sectionMoveDone = true;
             if (input.is('p') || input.is('P')) {
                 // "]p" puts the lines in behind this one, "[p" in front of it, each
                 // moved over by as much as the first one needs to sit at this
@@ -6730,21 +6767,17 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
             else if (input.is(')') && g.subsubmode == CloseSquareSubSubMode)
                 searchBalanced(true, ')', '(');
             else if (input.is('[') && g.subsubmode == OpenSquareSubSubMode)
-                bracketSearchBackward(&m_cursor, "^\\{", count());
+                sectionMoveDone = bracketSearchBackward(&m_cursor, "^\\{", count(), true);
             else if (input.is('[') && g.subsubmode == CloseSquareSubSubMode)
-                bracketSearchForward(&m_cursor, "^\\}", count(), false);
+                sectionMoveDone = bracketSearchForward(&m_cursor, "^\\}", count(), false);
             else if (input.is(']') && g.subsubmode == OpenSquareSubSubMode)
-                bracketSearchBackward(&m_cursor, "^\\}", count());
+                sectionMoveDone = bracketSearchBackward(&m_cursor, "^\\}", count(), true);
             else if (input.is(']') && g.subsubmode == CloseSquareSubSubMode)
-                bracketSearchForward(&m_cursor, "^\\{", count(), g.submode != NoSubMode);
-            else if (input.is('m') && g.subsubmode == OpenSquareSubSubMode)
-                bracketSearchBackward(&m_cursor, "\\{", count());
-            else if (input.is('m') && g.subsubmode == CloseSquareSubSubMode)
-                bracketSearchForward(&m_cursor, "\\{", count(), false);
-            else if (input.is('M') && g.subsubmode == OpenSquareSubSubMode)
-                bracketSearchBackward(&m_cursor, "\\}", count());
-            else if (input.is('M') && g.subsubmode == CloseSquareSubSubMode)
-                bracketSearchForward(&m_cursor, "\\}", count(), false);
+                sectionMoveDone = bracketSearchForward(&m_cursor, "^\\{", count(),
+                                                       g.submode != NoSubMode);
+            else if (input.is('m') || input.is('M'))
+                sectionMoveDone = moveToMethodBrace(g.subsubmode == CloseSquareSubSubMode,
+                                                    input.is('m'));
             else if (input.is('\'') || input.is('`')) {
                 const bool exact = input.is('`');
                 if (jumpToNearbyMark(g.subsubmode == CloseSquareSubSubMode, exact, count())) {
@@ -6758,6 +6791,41 @@ bool FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
                 }
             } else if (input.is('z'))
                 q->foldGoTo(g.subsubmode == OpenSquareSubSubMode ? -count() : count(), true);
+
+            if (!sectionMoveDone) {
+                // Nowhere to go: the command is over, and it takes an
+                // operator waiting on it down with it.
+                g.subsubmode = NoSubSubMode;
+                g.submode = NoSubMode;
+                return true;
+            }
+
+            if (input.is('m') || input.is('M'))
+                g.movetype = MoveExclusive;
+
+            if (input.is('[') || input.is(']')) {
+                // The section motions are exclusive. A forward one that gets
+                // to the last line of the document stops on its last
+                // character, inclusive, or in column 1 if it is looking for
+                // the end of a section.
+                g.movetype = MoveExclusive;
+                if (g.subsubmode == CloseSquareSubSubMode
+                        && block() == document()->lastBlock()) {
+                    if (input.is('[')) {
+                        moveToStartOfLine();
+                    } else if (block().length() > 1) {
+                        moveToEndOfLine();
+                        g.movetype = MoveInclusive;
+                    }
+                }
+                if (g.submode == NoSubMode) {
+                    // Without an operator the column the motion ended in does
+                    // not survive: it settles on the first non-blank.
+                    moveToFirstNonBlankOnLine(&m_cursor);
+                    setTargetColumn();
+                }
+            }
+
             handled = pos != position();
             if (handled) {
                 if (lineForPosition(pos) != lineForPosition(position()))
@@ -25162,6 +25230,10 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
         } else if (c.cmd == "try") {
             ++index;
             execTry(cmds, index, active);
+        } else if (isCommand(c.cmd, "defe", "defer")) {
+            if (active)
+                execDefer(c);
+            ++index;
         } else if (c.cmd == "throw") {
             if (active) {
                 VimValue v;
@@ -25616,6 +25688,76 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
         showMessage(MessageError, Tr::tr("Invalid function definition: %1").arg(header.args));
 }
 
+void FakeVimHandler::Private::execDefer(const ExCommand &cmd)
+{
+    if (m_deferredCalls.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E193: %1 not inside a function").arg(cmd.cmd));
+        return;
+    }
+    const QString args = cmd.args.trimmed();
+    if (args.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E471: Argument required"));
+        return;
+    }
+    static const QRegularExpression re(
+        "^([A-Za-z_][A-Za-z0-9_:#]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*)\\s*\\(");
+    const QRegularExpressionMatch m = re.match(args);
+    if (!m.hasMatch()) {
+        showMessage(MessageError, Tr::tr("E107: Missing parentheses: %1").arg(args));
+        return;
+    }
+
+    // Both the function and its arguments are settled here rather than at the
+    // call: whatever a funcref was read out of is gone by then.
+    DeferredCall call;
+    const QString key = functionKey(m.captured(1));
+    VimValue held;
+    QString error;
+    if (!g.userFunctions.contains(key) && evaluateExpression(m.captured(1), &held, &error)
+        && held.isFunc()) {
+        call.callable = held;
+    } else {
+        call.callable = VimValue::func(key);
+    }
+    const QStringList exprs = parameterList(args, m.capturedEnd());
+    for (const QString &expr : exprs) {
+        VimValue v;
+        if (!evaluateExpression(expr, &v, &error)) {
+            showMessage(MessageError, error);
+            return;
+        }
+        call.args.append(v);
+    }
+
+    m_deferredCalls.last().append(call);
+}
+
+void FakeVimHandler::Private::runDeferredCalls()
+{
+    // Latest first, and an exception being carried out of the function neither
+    // stops them nor is added to by one of them.
+    const QList<DeferredCall> calls = m_deferredCalls.takeLast();
+    const bool savedThrowing = m_throwing;
+    const QString savedException = m_exception;
+    const bool savedReturning = m_returning;
+    const VimValue savedReturnValue = m_returnValue;
+    const LoopSignal savedSignal = m_loopSignal;
+    for (int i = calls.size() - 1; i >= 0; --i) {
+        m_throwing = false;
+        m_returning = false;
+        m_loopSignal = NoSignal;
+        VimValue result;
+        QString error;
+        if (!invokeCallable(calls.at(i).callable, calls.at(i).args, &result, &error))
+            showMessage(MessageError, error);
+    }
+    m_throwing = savedThrowing;
+    m_exception = savedException;
+    m_returning = savedReturning;
+    m_returnValue = savedReturnValue;
+    m_loopSignal = savedSignal;
+}
+
 VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
     const UserFunction &fn, const QList<VimValue> &args)
 {
@@ -25680,8 +25822,11 @@ VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
     m_scriptContexts.append(fn.scriptId);
     m_functionLines.append(0);
     m_functionSourceLines.append(0);
+    m_deferredCalls.append(QList<DeferredCall>());
     int index = 0;
     execSequence(fn.body, index, true);
+    const VimValue result = m_returning ? m_returnValue : VimValue();
+    runDeferredCalls();
     m_callStack.removeLast();
     m_scriptContexts.removeLast();
     m_functionLines.removeLast();
@@ -25690,7 +25835,6 @@ VimValue FakeVimHandler::Private::callUserFunction(const QString &name,
     if (fn.vim9)
         --m_defDepth;
 
-    const VimValue result = m_returning ? m_returnValue : VimValue();
     m_loopSignal = savedSignal;
     m_returning = savedReturning;
     m_returnValue = savedReturnValue;
@@ -25910,20 +26054,20 @@ bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
     return handled;
 }
 
-void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar other)
+int FakeVimHandler::Private::searchBalancedPosition(int from, bool forward, QChar needle,
+                                                    QChar other, int levels) const
 {
     const int last = lastPositionInDocument();
-    int pos = position();
+    int pos = from;
 
-    // A count asks for that many levels; failing to reach one leaves the
-    // cursor where it was.
-    for (int repeat = count(); repeat > 0; --repeat) {
+    // The character the search starts on does not count as a hit.
+    for (int repeat = levels; repeat > 0; --repeat) {
         int level = 1;
         int probe = pos;
         while (level > 0) {
             probe += forward ? 1 : -1;
             if (probe < 0 || probe > last)
-                return;
+                return -1;
             const QChar c = characterAt(probe);
             if (c == other)
                 ++level;
@@ -25933,9 +26077,94 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
         pos = probe;
     }
 
+    return pos;
+}
+
+void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar other)
+{
+    // A count asks for that many levels; failing to reach one leaves the
+    // cursor where it was.
+    const int pos = searchBalancedPosition(position(), forward, needle, other, count());
+    if (pos == -1)
+        return;
+
     recordJump();
     setPosition(pos);
     setTargetColumn();
+}
+
+bool FakeVimHandler::Private::moveToMethodBrace(bool forward, bool start)
+{
+    const QChar needle = forward ? '}' : '{';
+    const QChar other = forward ? '{' : '}';
+    const int last = lastPositionInDocument();
+
+    // Climb out of every block the cursor sits in, keeping the outermost brace
+    // reached and the one one level further in.
+    int outerPos = -1;
+    int innerPos = -1;
+    int pos = -1;
+    int probe = position();
+    forever {
+        pos = searchBalancedPosition(probe, forward, needle, other, 1);
+        if (pos == -1) {
+            pos = outerPos;
+            break;
+        }
+        innerPos = outerPos;
+        outerPos = pos;
+        probe = pos;
+    }
+
+    // "[m" and "]M" want a brace of the same kind as the one climbed to, the
+    // other two want the one facing it.
+    const bool same = (needle == '{') == start;
+    int n = count();
+    if (innerPos != -1) {
+        pos = innerPos;
+        probe = innerPos;
+        if (same)
+            --n;
+    } else {
+        pos = -1;
+        probe = position();
+    }
+
+    while (n > 0) {
+        forever {
+            probe += forward ? 1 : -1;
+            if (probe < 0 || probe > last) {
+                n = 0;
+                break;
+            }
+            const QChar c = characterAt(probe);
+            if (c != '{' && c != '}')
+                continue;
+            if ((c == needle && same) || (n == 1 && !same)) {
+                outerPos = probe;
+                pos = probe;
+                n = 0;
+            } else if (outerPos == -1) {
+                outerPos = probe;
+                pos = probe;
+            } else {
+                pos = searchBalancedPosition(probe, forward, needle, other, 1);
+                if (pos == -1)
+                    n = 0;
+                else
+                    probe = pos;
+            }
+            break;
+        }
+        --n;
+    }
+
+    if (pos == -1)
+        return false;
+
+    setPosition(pos);
+    setTargetColumn();
+    return true;
 }
 
 QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, int count,
@@ -29367,7 +29596,9 @@ QString FakeVimHandler::Private::visualDotCommand() const
     return command;
 }
 
-void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
+// Answers whether the count could be satisfied. Vim fails the object as soon as
+// an extension has nowhere left to go.
+bool FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
 {
     const int position1 = this->position();
     const int anchor1 = this->anchor();
@@ -29375,12 +29606,19 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
     bool forward = anchor1 <= position1;
     const int repeat = count();
 
+    // Vim steps twice to reach the next object, over the last character and
+    // then over the line end, so it runs out one character early.
+    const auto outOfDocument = [this] {
+        return block() == document()->lastBlock()
+                && position() + 1 >= lastPositionInDocument(true);
+    };
+
     // set anchor if not already set
     if (setupAnchor) {
         // Select nothing with 'inner' on empty line.
         if (inner && atEmptyLine() && repeat == 1) {
             g.movetype = MoveExclusive;
-            return;
+            return true;
         }
         moveToBoundaryStart(1, simple, false);
         setAnchor();
@@ -29390,16 +29628,35 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
         moveToPreviousCharacter();
     }
 
+    bool inclusive = true;
+
     if (inner) {
-        moveToBoundaryEnd(repeat, simple);
+        moveToBoundaryEnd(1, simple);
+        // Every further count takes the next word, or the next run of blanks,
+        // and neither of them reaches beyond the end of its line. An empty
+        // line is such a run of its own, and the object then ends before the
+        // line below it, which is what makes the range linewise.
+        for (int i = 1; i < repeat; ++i) {
+            if (isNoVisualMode() && outOfDocument())
+                return false;
+            if (atDocumentEnd())
+                break;
+            moveToNextCharacter();
+            if (atEmptyLine() && block().next().isValid()) {
+                setPosition(block().next().position());
+                inclusive = false;
+            } else {
+                moveToBoundaryEnd(1, simple);
+                inclusive = true;
+            }
+        }
     } else {
         const int direction = forward ? 1 : -1;
-        bool tookLeadingSpace = false;
+        bool includeWhite = false;
+        bool ranOut = false;
         for (int i = 0; i < repeat; ++i) {
             // select leading spaces
-            bool leadingSpace = characterAtCursor().isSpace();
-            if (i == 0)
-                tookLeadingSpace = leadingSpace;
+            const bool leadingSpace = characterAtCursor().isSpace();
             if (leadingSpace) {
                 if (forward)
                     moveToNextBoundaryStart(1, simple);
@@ -29415,69 +29672,76 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
 
             // select trailing spaces if no leading space
             QChar afterCursor = characterAt(position() + direction);
-            if (!leadingSpace && afterCursor.isSpace() && afterCursor != ParagraphSeparator
-                && !atBlockStart()) {
+            if (!leadingSpace && afterCursor.isSpace() && afterCursor != ParagraphSeparator) {
                 if (forward)
                     moveToNextBoundaryEnd(1, simple);
                 else
                     moveToNextBoundaryStart(1, simple, false);
             }
 
-            // if there are no trailing spaces in selection select all leading spaces
-            // after previous character
-            if (setupAnchor && (!characterAtCursor().isSpace() || atBlockEnd())) {
-                int min = block().position();
-                int pos = anchor();
-                while (pos >= min && characterAt(--pos).isSpace()) {}
-                if (pos >= min)
-                    setAnchorAndPosition(pos + 1, position());
-            }
+            if (i == 0)
+                includeWhite = setupAnchor && !leadingSpace;
 
             if (i + 1 < repeat) {
-                if (forward)
-                    moveToNextCharacter();
-                else
+                if (!forward) {
                     moveToPreviousCharacter();
+                } else if (outOfDocument()) {
+                    if (isNoVisualMode())
+                        return false;
+                    // Vim steps before it finds out there is nowhere to go, so
+                    // the cursor ends one past the last character.
+                    moveToNextCharacter();
+                    ranOut = true;
+                    break;
+                } else {
+                    moveToNextCharacter();
+                }
             }
         }
 
-        // The blanks that follow the words belong to "aw" as well, unless it
-        // took the ones in front of them.
-        if (forward && !tookLeadingSpace && !characterAtCursor().isSpace()) {
-            int pos = position();
-            const int last = lastPositionInDocument();
-            while (pos < last
-                   && (characterAt(pos + 1) == ' ' || characterAt(pos + 1) == '\t')) {
-                ++pos;
-            }
-            if (pos != position())
-                setAnchorAndPosition(anchor(), pos);
+        // An object that began on a word takes the spaces in front of it when it
+        // ends on one too, once for the whole count, and never the indent.
+        if (includeWhite && !ranOut && !characterAtCursor().isSpace()) {
+            const int start = anchor();
+            const int min = blockAt(start).position();
+            int pos = start;
+            while (pos > min && characterAt(pos - 1).isSpace())
+                --pos;
+            if (pos > min && pos < start)
+                setAnchorAndPosition(pos, position());
         }
     }
 
     if (inner) {
-        g.movetype = MoveInclusive;
+        g.movetype = inclusive ? MoveInclusive : MoveExclusive;
     } else {
         g.movetype = MoveExclusive;
         if (isNoVisualMode()) {
-            moveToNextCharacter();
-            stopMotionAtEndOfLine();
+            if (atEmptyLine() && position() > anchor()) {
+                // The line break is the last character of an empty line, so the
+                // object ends on that line and does not reach the one below.
+                g.movetype = MoveInclusive;
+            } else {
+                moveToNextCharacter();
+                stopMotionAtEndOfLine();
+            }
         } else if (isVisualLineMode()) {
             g.visualMode = VisualCharMode;
         }
     }
 
     setTargetColumn();
+    return true;
 }
 
-void FakeVimHandler::Private::selectWordTextObject(bool inner)
+bool FakeVimHandler::Private::selectWordTextObject(bool inner)
 {
-    selectTextObject(false, inner);
+    return selectTextObject(false, inner);
 }
 
-void FakeVimHandler::Private::selectWORDTextObject(bool inner)
+bool FakeVimHandler::Private::selectWORDTextObject(bool inner)
 {
-    selectTextObject(true, inner);
+    return selectTextObject(true, inner);
 }
 
 void FakeVimHandler::Private::selectSentenceTextObject(bool inner)
