@@ -13,6 +13,11 @@
             "type": "string",
             "description": "One paragraph; appears as a blockquote in the generated tutorial."
         },
+        "vars": {
+            "type": "object",
+            "description": "Placeholders the scenario's strings use as {name}, so a machine-specific path or kit name stays out of the file. Overridden per run with --set name=value. A value may itself use {scratch}.",
+            "additionalProperties": { "type": ["string", "number", "boolean"] }
+        },
         "setup": {
             "type": "object",
             "additionalProperties": false,
@@ -83,6 +88,10 @@
                         "blocks": {
                             "type": "boolean",
                             "description": "Set true for a modal dialog that a later step dismisses; the runner fires the call and continues."
+                        },
+                        "optional": {
+                            "type": "boolean",
+                            "description": "Set true where the action may legitimately be unavailable, e.g. a tidying step with nothing to do. It is then recorded as skipped and the run continues; the step reports ok either way, so a baseline does not depend on the state the run started in."
                         }
                     }
                 },
@@ -240,6 +249,171 @@
                         "read_pane": {
                             "type": "string",
                             "description": "A pane display name; its text is saved as an artefact."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "click_item"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "click_item": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["item"],
+                            "description": "Clicks one row of the item view the query selects.",
+                            "properties": {
+                                "item": { "type": "string", "description": "Full path of the row, as ui_find_items reports it (the labels leading to it, joined by \" / \")." },
+                                "double_click": { "type": "boolean", "description": "Double-click instead; some views act only on that." },
+                                "context_menu": { "type": "boolean", "description": "Ask the row for its context menu instead of clicking it; drive it with a menu step." },
+                                "object_name": { "$ref": "#/definitions/widgetQueryFields/object_name" },
+                                "text": { "$ref": "#/definitions/widgetQueryFields/text" },
+                                "class_name": { "$ref": "#/definitions/widgetQueryFields/class_name" },
+                                "window_title": { "$ref": "#/definitions/widgetQueryFields/window_title" },
+                                "include_invisible": { "$ref": "#/definitions/widgetQueryFields/include_invisible" }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "open"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "open": {
+                            "type": "string",
+                            "description": "A file path to open in the editor. Supports vars."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "select_text"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "select_text": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["start_line", "end_line"],
+                            "description": "Selects text in the current editor (1-based lines and columns).",
+                            "properties": {
+                                "start_line": { "type": "integer" },
+                                "end_line": { "type": "integer" },
+                                "start_column": { "type": "integer", "description": "Defaults to the start of the line." },
+                                "end_column": { "type": "integer", "description": "Defaults to the end of the line." },
+                                "expect": { "type": "string", "description": "Fail unless the selection is exactly this. Asserts that the line numbers still mean what the scenario says." }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "activate_mode"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "activate_mode": {
+                            "type": "string",
+                            "description": "A mode id, e.g. \"Welcome\" or \"Edit\". Fails if the mode does not become the current one, which it only does once its context exists. Preferences is a mode, so this is how a scenario leaves it."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "settings_page"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "settings_page": {
+                            "type": "string",
+                            "description": "A preferences page id, e.g. \"D.ProjectExplorer.KitsOptions\" (settings_show_page lists them)."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "build"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "build": {
+                            "description": "Builds the startup project and fails on a build error.",
+                            "oneOf": [
+                                { "type": "boolean" },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "project_name": { "type": "string" },
+                                        "project_path": { "type": "string" },
+                                        "timeout": { "type": "number", "description": "Seconds to wait for the build. Default 300." }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "run"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "run": {
+                            "description": "Runs the startup project. Dispatched rather than awaited, since a windowed application does not exit by itself; observe it with wait_for_output.",
+                            "oneOf": [
+                                { "type": "boolean" },
+                                {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "run_mode": { "type": "string", "description": "Run-mode id; defaults to the normal one." }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "wait_for_output"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "wait_for_output": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["text"],
+                            "description": "Polls an output pane until one of its lines contains the text.",
+                            "properties": {
+                                "text": { "type": "string", "description": "The text to wait for. Supports vars." },
+                                "pane": { "type": "string", "description": "Pane display name. Default \"Application Output\"." },
+                                "timeout": { "type": "number", "description": "Seconds to poll before failing. Default 30." }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "remove"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "remove": {
+                            "type": "string",
+                            "description": "A path to remove recursively, so a scenario can start from nothing. Removing what is not there succeeds. Supports vars."
                         }
                     }
                 },

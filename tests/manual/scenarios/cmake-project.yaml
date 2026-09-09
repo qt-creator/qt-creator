@@ -1,0 +1,208 @@
+# yaml-language-server: $schema=./scenario.schema.json
+name: Create, build and run a CMake widgets application
+intent: >
+  The whole development story in one walkthrough: what the installation
+  detected for itself (its build device and its kit), a Qt Widgets application
+  made with the wizard, one line typed into the editor, a build, and a run.
+  Nothing in it is host-specific, so the same file runs against a Qt Creator on
+  the developer's desktop and against one running on a device - override the
+  vars for the latter, since the paths and the kit are then the device's.
+  It stops the application and closes the project again at the end, so it can
+  be run repeatedly. A run that fails half way leaves its project open, and
+  removing that project's directory under it makes the wizard's own open fail:
+  close it before rerunning.
+
+vars:
+  # Where the wizard puts the project. The default is the runner's own scratch
+  # directory, which only works when Qt Creator sees the same file system as
+  # the runner: pass --set workspace=<a directory on the device> otherwise.
+  workspace: "{scratch}"
+  project: scenariodemo
+  # The row to select on the Kits page. "Manual" is the category every
+  # installation has; --set kit="<the kit's row>" shows one particular kit.
+  kit: Manual
+  title: Built by a scenario
+
+steps:
+  - describe: Close whatever a previous run left open
+    # Removing the directory of a project that is still open makes the
+    # wizard's own open fail later. With nothing open the action is disabled,
+    # which is what "optional" is for.
+    call_action: ProjectExplorer.ClearSession
+    optional: true
+
+  - describe: Start from a project directory that does not exist yet
+    remove: "{workspace}/{project}"
+
+  - describe: Show what Qt Creator detected as a build device
+    settings_page: AA.Device Settings
+
+  - describe: Capture the Devices page
+    screenshot:
+
+  - describe: Show the kits it has
+    settings_page: D.ProjectExplorer.KitsOptions
+
+  - describe: Select the kit, so the page shows what it was given
+    click_item:
+      class_name: QTreeView
+      item: "{kit}"
+
+  - describe: Capture the Kits page
+    screenshot:
+
+  - describe: Leave Preferences
+    # Preferences is a mode, not a modal dialog: Escape does not leave it.
+    activate_mode: Welcome
+
+  - describe: Open the New Project dialog
+    caption: File > New Project
+    call_action: QtCreator.New
+
+  - describe: Wait for the template list
+    wait_for:
+      object_name: templateCategoryView
+
+  - describe: Pick the Qt application templates
+    click_item:
+      object_name: templateCategoryView
+      # The path is the tree's own labels, indentation included.
+      item: "Projects /   Application (Qt)"
+
+  - describe: Pick the Qt Widgets Application template
+    click_item:
+      object_name: templatesView
+      item: Qt Widgets Application
+
+  - describe: Start the wizard
+    click_widget:
+      text: Choose...
+      window_title: New Project
+
+  - describe: Wait for the location page
+    wait_for:
+      object_name: nameLineEdit
+
+  - describe: Select the suggested name
+    press_keys:
+      keys: Ctrl+A
+      object_name: nameLineEdit
+
+  - describe: Name the project
+    type_text:
+      object_name: nameLineEdit
+      input: "{project}"
+
+  - describe: Select the suggested location
+    press_keys:
+      keys: Ctrl+A
+      object_name: LineEdit
+      window_title: Qt Widgets Application
+
+  - describe: Say where it goes
+    type_text:
+      object_name: LineEdit
+      window_title: Qt Widgets Application
+      input: "{workspace}"
+
+  - describe: On to the build system
+    click_widget:
+      text: Next >
+
+  - describe: Build it with CMake
+    select_combo_item:
+      object_name: BuildSystem
+      item: CMake
+
+  - describe: On to the class details
+    click_widget:
+      text: Next >
+
+  - describe: On to the translation file
+    click_widget:
+      text: Next >
+
+  - describe: On to the kit selection
+    click_widget:
+      text: Next >
+
+  - describe: The wizard offers the kit it has
+    click_widget:
+      text: Next >
+
+  - describe: Create the project
+    click_widget:
+      text: Finish
+
+  - describe: Wait for the generated sources
+    wait_for:
+      class_name: TextEditor::TextEditorWidget
+    timeout: 60
+
+  - describe: Open the generated main.cpp
+    open: "{workspace}/{project}/main.cpp"
+
+  - describe: Put the caret behind the window's construction
+    select_text:
+      start_line: 8
+      end_line: 8
+      expect: "    MainWindow w;"
+
+  - describe: Put the caret behind it, keeping the line
+    # select_text leaves the line selected, and Return would replace it.
+    press_keys:
+      keys: End
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: Make room for one line of its own
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: Give the window a title
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: 'w.setWindowTitle("{title}");'
+
+  - describe: Save the file
+    # File > Save belongs to the editor's context, so it is disabled whenever
+    # the editor is not the current one, which a completion popup is enough to
+    # bring about. Save All is global and saves the same file.
+    call_action: QtCreator.SaveAll
+
+  - describe: Show the Compile Output
+    call_action: QtCreator.Pane.CompileOutput
+
+  - describe: Build the project
+    build:
+      timeout: 600
+
+  - describe: Keep the compile output
+    read_pane: Compile Output
+
+  - describe: Capture the build result
+    screenshot:
+
+  - describe: Show the Application Output
+    call_action: QtCreator.Pane.ApplicationOutput
+
+  - describe: Run it
+    run: true
+
+  - describe: Wait for the application to start
+    wait_for_output:
+      pane: Application Output
+      text: "{project}"
+      timeout: 120
+
+  - describe: Keep the application output
+    read_pane: Application Output
+
+  - describe: Stop the application
+    # Not every run control is still active here: a device that starts the
+    # application outside Qt Creator has finished its run already.
+    call_action: ProjectExplorer.Stop
+    optional: true
+
+  - describe: Close the project again
+    call_action: ProjectExplorer.ClearSession

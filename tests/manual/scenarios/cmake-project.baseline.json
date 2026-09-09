@@ -1,0 +1,371 @@
+{
+  "name": "Create, build and run a CMake widgets application",
+  "steps": [
+    {
+      "step": 1,
+      "describe": "Close whatever a previous run left open",
+      "tool": "call_action",
+      "check": {
+        "ok": true
+      }
+    },
+    {
+      "step": 2,
+      "describe": "Start from a project directory that does not exist yet",
+      "tool": "remove",
+      "check": {
+        "success": true
+      }
+    },
+    {
+      "step": 3,
+      "describe": "Show what Qt Creator detected as a build device",
+      "tool": "settings_page",
+      "check": {
+        "page": "AA.Device Settings"
+      }
+    },
+    {
+      "step": 4,
+      "describe": "Capture the Devices page",
+      "tool": "screenshot",
+      "check": {
+        "window_title": "Qt Creator"
+      }
+    },
+    {
+      "step": 5,
+      "describe": "Show the kits it has",
+      "tool": "settings_page",
+      "check": {
+        "page": "D.ProjectExplorer.KitsOptions"
+      }
+    },
+    {
+      "step": 6,
+      "describe": "Select the kit, so the page shows what it was given",
+      "tool": "click_item",
+      "check": {
+        "path": "{kit}",
+        "text": "{kit}",
+        "selected": true
+      }
+    },
+    {
+      "step": 7,
+      "describe": "Capture the Kits page",
+      "tool": "screenshot",
+      "check": {
+        "window_title": "Qt Creator"
+      }
+    },
+    {
+      "step": 8,
+      "describe": "Leave Preferences",
+      "tool": "activate_mode",
+      "check": {
+        "current_mode": "Welcome"
+      }
+    },
+    {
+      "step": 9,
+      "describe": "Open the New Project dialog",
+      "tool": "call_action",
+      "check": {
+        "ok": true
+      }
+    },
+    {
+      "step": 10,
+      "describe": "Wait for the template list",
+      "tool": "wait_for",
+      "check": {
+        "appeared": true
+      }
+    },
+    {
+      "step": 11,
+      "describe": "Pick the Qt application templates",
+      "tool": "click_item",
+      "check": {
+        "path": "Projects /   Application (Qt)",
+        "text": "  Application (Qt)",
+        "selected": true
+      }
+    },
+    {
+      "step": 12,
+      "describe": "Pick the Qt Widgets Application template",
+      "tool": "click_item",
+      "check": {
+        "path": "Projects /   Application (Qt) / Qt Widgets Application",
+        "text": "Qt Widgets Application",
+        "selected": true
+      }
+    },
+    {
+      "step": 13,
+      "describe": "Start the wizard",
+      "tool": "click_widget",
+      "check": {
+        "class": "QPushButton",
+        "object_name": "",
+        "text": "Choose..."
+      }
+    },
+    {
+      "step": 14,
+      "describe": "Wait for the location page",
+      "tool": "wait_for",
+      "check": {
+        "appeared": true
+      }
+    },
+    {
+      "step": 15,
+      "describe": "Select the suggested name",
+      "tool": "press_keys",
+      "check": {
+        "keys": "Ctrl+A"
+      }
+    },
+    {
+      "step": 16,
+      "describe": "Name the project",
+      "tool": "type_text",
+      "check": {
+        "class": "Utils::FancyLineEdit",
+        "object_name": "nameLineEdit",
+        "text": "{project}"
+      }
+    },
+    {
+      "step": 17,
+      "describe": "Select the suggested location",
+      "tool": "press_keys",
+      "check": {
+        "keys": "Ctrl+A"
+      }
+    },
+    {
+      "step": 18,
+      "describe": "Say where it goes",
+      "tool": "type_text",
+      "check": {
+        "class": "Utils::FancyLineEdit",
+        "object_name": "LineEdit",
+        "text": "{workspace}"
+      }
+    },
+    {
+      "step": 19,
+      "describe": "On to the build system",
+      "tool": "click_widget",
+      "check": {
+        "class": "QPushButton",
+        "object_name": "__qt__passive_wizardbutton1",
+        "text": "Next >"
+      }
+    },
+    {
+      "step": 20,
+      "describe": "Build it with CMake",
+      "tool": "select_combo_item",
+      "check": {
+        "class": "QComboBox",
+        "object_name": "BuildSystem",
+        "text": "CMake"
+      }
+    },
+    {
+      "step": 21,
+      "describe": "On to the class details",
+      "tool": "click_widget",
+      "check": {
+        "class": "QPushButton",
+        "object_name": "__qt__passive_wizardbutton1",
+        "text": "Next >"
+      }
+    },
+    {
+      "step": 22,
+      "describe": "On to the translation file",
+      "tool": "click_widget",
+      "check": {
+        "class": "QPushButton",
+        "object_name": "__qt__passive_wizardbutton1",
+        "text": "Next >"
+      }
+    },
+    {
+      "step": 23,
+      "describe": "On to the kit selection",
+      "tool": "click_widget",
+      "check": {
+        "class": "QPushButton",
+        "object_name": "__qt__passive_wizardbutton1",
+        "text": "Next >"
+      }
+    },
+    {
+      "step": 24,
+      "describe": "The wizard offers the kit it has",
+      "tool": "click_widget",
+      "check": {
+        "class": "QPushButton",
+        "object_name": "__qt__passive_wizardbutton1",
+        "text": "Next >"
+      }
+    },
+    {
+      "step": 25,
+      "describe": "Create the project",
+      "tool": "click_widget",
+      "check": {
+        "class": "QPushButton",
+        "object_name": "qt_wizard_finish",
+        "text": "Finish"
+      }
+    },
+    {
+      "step": 26,
+      "describe": "Wait for the generated sources",
+      "tool": "wait_for",
+      "check": {
+        "appeared": true
+      }
+    },
+    {
+      "step": 27,
+      "describe": "Open the generated main.cpp",
+      "tool": "open_file",
+      "check": {
+        "ok": true
+      }
+    },
+    {
+      "step": 28,
+      "describe": "Put the caret behind the window's construction",
+      "tool": "select_text",
+      "check": {
+        "text": "    MainWindow w;"
+      }
+    },
+    {
+      "step": 29,
+      "describe": "Put the caret behind it, keeping the line",
+      "tool": "press_keys",
+      "check": {
+        "keys": "End"
+      }
+    },
+    {
+      "step": 30,
+      "describe": "Make room for one line of its own",
+      "tool": "press_keys",
+      "check": {
+        "keys": "Return"
+      }
+    },
+    {
+      "step": 31,
+      "describe": "Give the window a title",
+      "tool": "type_text",
+      "check": {
+        "class": "CppEditor::CppEditorWidget",
+        "object_name": "",
+        "text": ""
+      }
+    },
+    {
+      "step": 32,
+      "describe": "Save the file",
+      "tool": "call_action",
+      "check": {
+        "ok": true
+      }
+    },
+    {
+      "step": 33,
+      "describe": "Show the Compile Output",
+      "tool": "call_action",
+      "check": {
+        "ok": true
+      }
+    },
+    {
+      "step": 34,
+      "describe": "Build the project",
+      "tool": "build",
+      "check": {
+        "succeeded": true,
+        "error_count": 0,
+        "warning_count": 0
+      }
+    },
+    {
+      "step": 35,
+      "describe": "Keep the compile output",
+      "tool": "read_pane",
+      "check": {
+        "reason": "ok"
+      }
+    },
+    {
+      "step": 36,
+      "describe": "Capture the build result",
+      "tool": "screenshot",
+      "check": {
+        "window_title": "main.cpp @ {project} - Qt Creator"
+      }
+    },
+    {
+      "step": 37,
+      "describe": "Show the Application Output",
+      "tool": "call_action",
+      "check": {
+        "ok": true
+      }
+    },
+    {
+      "step": 38,
+      "describe": "Run it",
+      "tool": "run",
+      "check": {
+        "dispatched": true
+      }
+    },
+    {
+      "step": 39,
+      "describe": "Wait for the application to start",
+      "tool": "wait_for_output",
+      "check": {
+        "found": true
+      }
+    },
+    {
+      "step": 40,
+      "describe": "Keep the application output",
+      "tool": "read_pane",
+      "check": {
+        "reason": "ok"
+      }
+    },
+    {
+      "step": 41,
+      "describe": "Stop the application",
+      "tool": "call_action",
+      "check": {
+        "ok": true
+      }
+    },
+    {
+      "step": 42,
+      "describe": "Close the project again",
+      "tool": "call_action",
+      "check": {
+        "ok": true
+      }
+    }
+  ]
+}

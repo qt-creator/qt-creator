@@ -62,9 +62,12 @@ scenario. Later, re-run in check mode:
 resolving to a different widget, an assertion count changing, a screenshot
 resizing, and so on. The baseline deliberately stores only stable fields
 (which widget was acted on: class, objectName, text; `widget_exists` counts;
-screenshot dimensions), not volatile ones (screen geometry, window ids, pane
-text with timestamps), so it flags behaviour changes rather than cosmetic
-noise. Regenerate it with `--update-baseline` when a change is intended.
+the size of a screenshot that named its window), not volatile ones (screen
+geometry, the main window's size, window ids, pane text with timestamps), so it
+flags behaviour changes rather than cosmetic noise. A var's value is written
+back as its `{name}` placeholder, so the run's own scratch directory (or a path
+passed with `--set`) does not end up in the file. Regenerate it with
+`--update-baseline` when a change is intended.
 
 ## Recording a video
 
@@ -118,6 +121,7 @@ Top level:
 
 - `name` - title, also the default output subdirectory.
 - `intent` - one paragraph; appears as a blockquote in the tutorial.
+- `vars` - placeholders the steps use as `{name}` (see below).
 - `setup.open` - a file path to open first (supports `{scratch}`).
 - `steps` - a list; each step has a `describe` (the tutorial sentence) plus
   exactly one action key.
@@ -131,7 +135,7 @@ Action keys mirror the MCP tool names. Each step has exactly one:
 
 | Key                 | Notes |
 |---------------------|-------|
-| `call_action`       | Value is an action id. Add `blocks: true` for a modal dialog that a later step dismisses. |
+| `call_action`       | Value is an action id. Add `blocks: true` for a modal dialog that a later step dismisses, or `optional: true` where the action may legitimately be disabled (a tidying step with nothing to do). |
 | `click_widget`      | Query; must resolve to exactly one widget. |
 | `type_text`         | `input:` plus optional query fields. |
 | `press_keys`        | A key/chord, e.g. `press_keys: "Ctrl+K"` or `press_keys: {keys: Escape, ...query}`. |
@@ -142,6 +146,15 @@ Action keys mirror the MCP tool names. Each step has exactly one:
 | `wait_for`          | `widget_exists`; polls until present; `timeout:` seconds (default 15). |
 | `read_pane`         | Value is a pane display name; text saved as an artefact. |
 | `screenshot`        | Optional query selects the window; PNG saved under `shots/`. |
+| `click_item`        | A query for a tree, list or table plus `item:`, the row's full path as `find_items` reports it. `double_click:`/`context_menu:` where a view wants those. |
+| `open`              | A file path to open in the editor (`setup.open` covers the first one). |
+| `select_text`       | `start_line`/`end_line` plus optional columns in the current editor; `expect:` asserts the selected text. |
+| `activate_mode`     | A mode id, e.g. `Welcome`. |
+| `settings_page`     | A preferences page id, e.g. `D.ProjectExplorer.KitsOptions`. |
+| `build`             | Builds the startup project and fails on a build error; `timeout:` seconds (default 300). |
+| `run`               | Runs it. Dispatched, not awaited (see below). |
+| `wait_for_output`   | `text:` plus `pane:` (default Application Output) and `timeout:`; polls the pane until a line contains the text. Only what the dispatched run itself wrote counts. |
+| `remove`            | A path to remove recursively, so a scenario can start from nothing. Removing what is not there succeeds. |
 
 `{scratch}` in any string expands to a fresh per-run temporary directory, so a
 run never depends on the developer's home state.
@@ -159,5 +172,61 @@ cursor. `menu` opens submenus and triggers the item through the menu API
 (`activate_menu_item`), so it also triggers the effect - no separate
 `call_action` needed.
 
+`run` is dispatched on its own connection rather than awaited: the MCP
+`run_project` tool returns when the application exits, which a windowed
+application does not do by itself. What the run did is observed with
+`wait_for_output` on the Application Output, and `ProjectExplorer.Stop` ends
+it. The pane keeps what earlier runs wrote, and a needle as general as the
+project name matches those lines too, so `run` notes how long the pane is and
+`wait_for_output` looks only past that mark. Without it the second run of a
+scenario matches the first run's output and stops an application that never
+started. `build` does wait, attaching to the running build by its id for as long as
+the step's `timeout` allows.
+
+Preferences is a mode, not a modal dialog, so a `settings_page` step returns at
+once and Escape does not leave the page. Switch away with `activate_mode`.
+
+`select_text` selects, so a following `Return` would replace the line. Add an
+`End` (or `Home`) `press_keys` step to put the caret at one end of the
+selection first. The `expect:` field is what keeps a hard-coded line number
+honest: it fails the moment the line means something else.
+
 There is deliberately no `sleep`: wait only on observable conditions
-(`wait_for`). See `about-dialog.yaml` for a complete example.
+(`wait_for`, `wait_for_output`). See `about-dialog.yaml` for a small complete
+example and `cmake-project.yaml` for a whole development story - detected
+device and kit, the wizard, an edit, a build and a run.
+
+## Vars
+
+A scenario declares its own placeholders under `vars` and uses them as
+`{name}` in any string. `--set NAME=VALUE` (repeatable) overrides one per run:
+
+    vars:
+      workspace: "{scratch}"
+      kit: Manual
+
+    ./run_scenario.py cmake-project.yaml --port 8765 --set kit="Manual / Desktop"
+
+This is what keeps a machine-specific path, project name or kit out of the
+file. A var's value may itself use `{scratch}`, which is how a default stays
+self-contained. Keep the defaults working on a plain desktop build, so the
+scenario runs with no `--set` at all.
+
+## Driving a Qt Creator that runs elsewhere
+
+The runner only needs an MCP port, so a Qt Creator on another machine or on a
+device is driven by the same scenario file once its port is forwarded (for
+example `hdc fport tcp:8767 tcp:8767` for a HarmonyOS device, then
+`--port 8767`). Two things change:
+
+- **Paths in the scenario are the remote side's.** `{scratch}` is a directory
+  on the machine the runner itself is on, so it is only a usable location when
+  Qt Creator shares that file system. Otherwise pass the remote path in with
+  `--set`.
+- **The DISPLAY-bound parts do not apply**: `--video` records the local
+  `$DISPLAY`, `--window-manager` starts one on it, and a `menu` step drives
+  the menu with the local pointer. Everything else is in-process in the
+  Creator being driven, so it works regardless of where that is.
+- **Screenshots still land next to the tutorial.** `ui_screenshot` writes the
+  file where Qt Creator runs, so when that file does not turn up locally the
+  runner asks for the image itself and writes it under `shots/`.

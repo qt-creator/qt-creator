@@ -20,6 +20,7 @@ See README.md for the scenario format and examples.
 """
 
 import argparse
+import base64
 import http.client
 import json
 import os
@@ -97,9 +98,35 @@ class McpClient:
         sid = resp.getheader("mcp-session-id")
         if sid:
             self.session_id = sid
-        body = resp.read().decode("utf-8", "replace")
+        try:
+            raw = resp.read()
+        except http.client.IncompleteRead as e:
+            # A tool that streams progress while it works (build_project,
+            # run_project) answers as an event stream and does not terminate
+            # it, so the partial body is the whole answer.
+            raw = e.partial
+        content_type = resp.getheader("content-type") or ""
         conn.close()
+        body = raw.decode("utf-8", "replace")
+        if content_type.startswith("text/event-stream"):
+            return self._reply_from_events(body)
         return json.loads(body) if body else {}
+
+    @staticmethod
+    def _reply_from_events(body):
+        """The JSON-RPC reply out of an event stream, whose earlier events are
+        the progress notifications sent while the tool ran."""
+        reply = {}
+        for line in body.splitlines():
+            if not line.startswith("data:"):
+                continue
+            try:
+                event = json.loads(line[len("data:"):])
+            except ValueError:
+                continue
+            if isinstance(event, dict) and ("result" in event or "error" in event):
+                reply = event
+        return reply
 
     def initialize(self):
         self._rpc({
@@ -292,6 +319,25 @@ def widget_identity(w):
             "text": w.get("text")}
 
 
+def item_desc(r):
+    """One-line description of a resolved item-view row for the tutorial."""
+    if not isinstance(r, dict):
+        return ""
+    state = "selected" if r.get("selected") else "not selected"
+    if r.get("has_children"):
+        state += ", expanded" if r.get("expanded") else ", collapsed"
+    return '"{path}" row {row} ({state})'.format(
+        path=r.get("path", ""), row=r.get("row"), state=state)
+
+
+def item_identity(r):
+    """The stable identity of a resolved row: which row was acted on, not
+    where it was."""
+    if not isinstance(r, dict):
+        return {}
+    return {"path": r.get("path"), "text": r.get("text"), "selected": r.get("selected")}
+
+
 def compare_baseline(expected, actual):
     """Returns a list of human-readable mismatch strings (empty == match)."""
     diffs = []
@@ -312,16 +358,19 @@ def compare_baseline(expected, actual):
 
 
 class Runner:
-    def __init__(self, client, scenario, out_dir, scratch):
+    def __init__(self, client, scenario, out_dir, scratch, variables=None):
         self.client = client
         self.scenario = scenario
         self.out_dir = out_dir
         self.scratch = scratch
+        self.vars = dict(variables or {})
+        self.vars.setdefault("scratch", str(scratch))
         self.shots_dir = out_dir / "shots"
         self.shots_dir.mkdir(parents=True, exist_ok=True)
         self.report = []          # (index, describe, call_line, note, shot_rel)
         self.checks = []          # per-step stable observations for --check
         self.pending = []         # (thread, holder) for blocking invoke_action
+        self.pane_marks = {}      # pane name -> lines it held when a run started
         self.step_no = 0
         self.video_t0 = None      # monotonic recording start, if recording
         self.video_rel = None     # report-relative path to the recording
@@ -363,9 +412,26 @@ class Runner:
 
     def subst(self, value):
         if isinstance(value, str):
-            return value.replace("{scratch}", str(self.scratch))
+            for name, replacement in self.vars.items():
+                value = value.replace("{" + name + "}", replacement)
+            return value
         if isinstance(value, dict):
             return {k: self.subst(v) for k, v in value.items()}
+        return value
+
+    def unsubst(self, value):
+        # The reverse of subst, for what goes into a committed baseline. A
+        # var's value is the run's own (a fresh temporary directory, or a path
+        # given with --set), so the placeholder is the comparable form. Named
+        # vars win over the implicit "scratch" where the two are equal.
+        if isinstance(value, str):
+            names = sorted(self.vars, key=lambda n: (-len(self.vars[n]), n == "scratch"))
+            for name in names:
+                if self.vars[name]:
+                    value = value.replace(self.vars[name], "{" + name + "}")
+            return value
+        if isinstance(value, dict):
+            return {k: self.unsubst(v) for k, v in value.items()}
         return value
 
     def record(self, describe, call_line, note="", shot_rel=None, tool=None, check=None):
@@ -374,8 +440,8 @@ class Runner:
         # ids, transient visible/enabled state): a regression check must react
         # to behaviour changes, not to a window moving a few pixels.
         if check is not None:
-            self.checks.append(
-                {"step": self.step_no, "describe": describe, "tool": tool, "check": check})
+            self.checks.append({"step": self.step_no, "describe": describe, "tool": tool,
+                                "check": self.unsubst(check)})
 
     def call_or_fail(self, tool, args, describe):
         is_error, structured, text = self.client.call(tool, args)
@@ -404,6 +470,14 @@ class Runner:
             self.record(step["describe"], call_line, tool="call_action",
                         check={"dispatched": True},
                         note="Dispatched (opens a modal dialog; dismissed by a later step).")
+        elif step.get("optional"):
+            # A step that tidies up can have nothing to do, and its action is
+            # then disabled. Such a step reports ok either way, so a baseline
+            # does not depend on the state the run started in.
+            is_error, _, text = self.client.call("ui_call_action", {"id": action})
+            self.record(step["describe"], call_line, tool="call_action", check={"ok": True},
+                        note=("Skipped: " + (text or "the action is not available")
+                              if is_error else ""))
         else:
             self.call_or_fail("ui_call_action", {"id": action}, step["describe"])
             self.record(step["describe"], call_line, tool="call_action", check={"ok": True})
@@ -412,6 +486,104 @@ class Runner:
         self.call_or_fail("editor_open", {"path": path}, describe)
         self.record(describe, 'open_file path="{}"'.format(path),
                     tool="open_file", check={"ok": True})
+
+    def do_remove(self, step):
+        # Recursive removal of a path that does not exist succeeds, so this is
+        # the idempotent "start from nothing" step a rerunnable scenario needs.
+        path = self.subst(step["remove"])
+        r = self.call_or_fail("fs_remove", {"path": path, "recursive": True},
+                              step["describe"])
+        self.record(step["describe"], 'remove path="{}"'.format(path),
+                    note="Removed (or already absent).",
+                    tool="remove", check={"success": (r or {}).get("success")})
+
+    def do_click_item(self, step):
+        args = self.subst(step["click_item"])
+        self.point_at({k: v for k, v in args.items()
+                       if k not in ("item", "double_click", "context_menu")})
+        r = self.call_or_fail("ui_click_item", args, step["describe"])
+        self.record(step["describe"], "click_item " + json.dumps(args),
+                    note="Clicked row: " + item_desc(r),
+                    tool="click_item", check=item_identity(r))
+
+    def do_select_text(self, step):
+        args = self.subst(step["select_text"])
+        expected = args.pop("expect", None)
+        r = self.call_or_fail("editor_select_text", args, step["describe"])
+        selected = (r or {}).get("text", "")
+        if expected is not None and selected != expected:
+            raise ScenarioError("step {}: selected {}, expected {}".format(
+                self.step_no, json.dumps(selected), json.dumps(expected)))
+        self.record(step["describe"], "select_text " + json.dumps(args),
+                    note="Selected " + json.dumps(selected),
+                    tool="select_text", check={"text": selected})
+
+    def do_activate_mode(self, step):
+        mode = step["activate_mode"]
+        r = self.call_or_fail("ui_activate_mode", {"mode": mode}, step["describe"])
+        current = (r or {}).get("current_mode")
+        if current != mode:
+            raise ScenarioError('step {}: mode "{}" did not activate, it is "{}" - a mode '
+                                "only activates once its context exists".format(
+                                    self.step_no, mode, current))
+        self.record(step["describe"], 'activate_mode mode="{}"'.format(mode),
+                    note="The mode is now " + str(current),
+                    tool="activate_mode", check={"current_mode": current})
+
+    def do_settings_page(self, step):
+        page = step["settings_page"]
+        r = self.call_or_fail("settings_show_page", {"page_id": page}, step["describe"])
+        reason = (r or {}).get("reason")
+        if reason != "ok":
+            raise ScenarioError('step {}: preferences page "{}" was not shown: {}'.format(
+                self.step_no, page, reason))
+        self.record(step["describe"], 'settings_page page_id="{}"'.format(page),
+                    note="Preferences shows " + page,
+                    tool="settings_page", check={"page": (r or {}).get("page")})
+
+    def do_build(self, step):
+        spec = self.subst(step["build"]) if isinstance(step["build"], dict) else {}
+        timeout = float(spec.pop("timeout", 300))
+        deadline = time.monotonic() + timeout
+        r = self.call_or_fail("build_project", spec, step["describe"]) or {}
+        # build_project blocks for its own wait_ms only, then hands back a
+        # build_id to attach to - the way to wait for a long build without
+        # holding an HTTP request open past the client's timeout.
+        while r.get("reason") == "still_building" and time.monotonic() < deadline:
+            r = self.call_or_fail("build_project", {"build_id": r["build_id"]},
+                                  step["describe"]) or {}
+        if not r.get("finished"):
+            raise ScenarioError("step {}: the build did not finish within {}s ({})".format(
+                self.step_no, timeout, r.get("reason")))
+        if not r.get("succeeded"):
+            raise ScenarioError("step {}: the build failed: {}".format(
+                self.step_no, r.get("summary_text") or json.dumps(r.get("issues"))))
+        self.record(step["describe"], "build " + json.dumps(spec),
+                    note="{} ({} errors, {} warnings).".format(
+                        r.get("summary_text"), r.get("error_count"), r.get("warning_count")),
+                    tool="build", check={"succeeded": True,
+                                         "error_count": r.get("error_count"),
+                                         "warning_count": r.get("warning_count")})
+
+    def do_run(self, step):
+        spec = step["run"] if isinstance(step["run"], dict) else {}
+        args = {}
+        if spec.get("run_mode"):
+            args["run_mode"] = spec["run_mode"]
+        # An earlier run's lines stay in the pane, and a needle as general as
+        # the project name matches those, so note where this run's own output
+        # begins.
+        self.mark_pane("Application Output")
+        # run_project returns when the application exits, which a windowed
+        # application does not do by itself, so fire it on its own connection
+        # and let a later wait_for_output prove it came up. Unlike a blocking
+        # call_action this is never joined: the application outlives the run.
+        threading.Thread(target=lambda: self.client.call("run_project", args),
+                         daemon=True).start()
+        self.record(step["describe"], "run " + json.dumps(args), tool="run",
+                    check={"dispatched": True},
+                    note="Dispatched (the application keeps running; wait_for_output "
+                         "observes it).")
 
     def do_click(self, step):
         query = self.subst(step["click_widget"])
@@ -524,6 +696,33 @@ class Runner:
         raise ScenarioError("step {}: timed out after {}s waiting for {}"
                             .format(self.step_no, timeout, query))
 
+    def mark_pane(self, name):
+        is_error, r, _ = self.client.call("ui_read_output_pane", {"name": name})
+        text = "" if is_error or not r else (r.get("text") or "")
+        self.pane_marks[name] = len(text.splitlines())
+
+    def do_wait_for_output(self, step):
+        spec = self.subst(step["wait_for_output"])
+        pane = spec.get("pane", "Application Output")
+        needle = spec["text"]
+        timeout = float(spec.get("timeout", 30))
+        deadline = time.monotonic() + timeout
+        skip = self.pane_marks.get(pane, 0)
+        while time.monotonic() < deadline:
+            r = self.call_or_fail("ui_read_output_pane", {"name": pane},
+                                  step["describe"]) or {}
+            lines = (r.get("text") or "").splitlines()
+            for line in reversed(lines[skip:] if len(lines) >= skip else lines):
+                if needle in line:
+                    self.record(step["describe"],
+                                'wait_for_output pane="{}" text={}'.format(
+                                    pane, json.dumps(needle)),
+                                note="Matched: " + line.strip(),
+                                tool="wait_for_output", check={"found": True})
+                    return
+        raise ScenarioError("step {}: {} never showed {} within {}s".format(
+            self.step_no, pane, json.dumps(needle), timeout))
+
     def do_read_pane(self, step):
         name = step["read_pane"]
         r = self.call_or_fail("ui_read_output_pane", {"name": name}, step["describe"])
@@ -550,13 +749,29 @@ class Runner:
         args["path"] = str(shot)
         args["embed"] = False
         r = self.call_or_fail("ui_screenshot", args, step["describe"])
-        rel = os.path.relpath(shot, self.out_dir)
-        self.record(step["describe"], "screenshot " + json.dumps(query),
-                    note="Captured {}x{} of \"{}\".".format(
-                        r.get("width"), r.get("height"), r.get("window_title")),
-                    shot_rel=rel, tool="screenshot",
-                    check={"width": r.get("width"), "height": r.get("height"),
-                           "window_title": r.get("window_title")})
+        note = "Captured {}x{} of \"{}\".".format(
+            r.get("width"), r.get("height"), r.get("window_title"))
+        if not shot.exists():
+            # "path" is where the Qt Creator being driven writes, which is not
+            # this machine when it runs on a device: ask for the PNG itself.
+            self.fetch_screenshot(shot, query)
+        rel = os.path.relpath(shot, self.out_dir) if shot.exists() else None
+        if rel is None:
+            note += " The file stayed on the machine Qt Creator runs on."
+        # A named window's size is a property of the layout and belongs in the
+        # baseline. The main window's is the display's, and does not.
+        check = {"window_title": r.get("window_title")}
+        if query:
+            check.update({"width": r.get("width"), "height": r.get("height")})
+        self.record(step["describe"], "screenshot " + json.dumps(query), note=note,
+                    shot_rel=rel, tool="screenshot", check=check)
+
+    def fetch_screenshot(self, shot, query):
+        args = dict(query)
+        args["embed"] = True
+        is_error, r, _ = self.client.call("ui_screenshot", args)
+        if not is_error and r and r.get("base64_png"):
+            shot.write_bytes(base64.b64decode(r["base64_png"]))
 
     # --- driver --------------------------------------------------------
 
@@ -581,6 +796,8 @@ class Runner:
                 self.do_invoke_action(step)
             elif "click_widget" in step:
                 self.do_click(step)
+            elif "click_item" in step:
+                self.do_click_item(step)
             elif "type_text" in step:
                 self.do_type(step)
             elif "press_keys" in step:
@@ -589,12 +806,28 @@ class Runner:
                 self.do_menu(step)
             elif "select_combo_item" in step:
                 self.do_select(step)
+            elif "open" in step:
+                self.do_open(self.subst(step["open"]), step["describe"])
+            elif "select_text" in step:
+                self.do_select_text(step)
+            elif "activate_mode" in step:
+                self.do_activate_mode(step)
+            elif "settings_page" in step:
+                self.do_settings_page(step)
+            elif "build" in step:
+                self.do_build(step)
+            elif "run" in step:
+                self.do_run(step)
+            elif "remove" in step:
+                self.do_remove(step)
             elif "expect" in step:
                 self.do_expect(step, True)
             elif "expect_gone" in step:
                 self.do_expect(step, False)
             elif "wait_for" in step:
                 self.do_wait_for(step)
+            elif "wait_for_output" in step:
+                self.do_wait_for_output(step)
             elif "read_pane" in step:
                 self.do_read_pane(step)
             elif "screenshot" in step:
@@ -683,6 +916,12 @@ def main():
                     help="MCP port of a running Qt Creator (default 8765)")
     ap.add_argument("--out", help="Output directory for the tutorial "
                     "(default: <scenario-dir>/out/<name>)")
+    ap.add_argument("--set", action="append", default=[], metavar="NAME=VALUE",
+                    dest="set_vars",
+                    help="Override one of the scenario's vars (repeatable), e.g. "
+                         "--set workspace=/home/me/tmp. A var is written {NAME} in the "
+                         "scenario and is how a machine-specific path or kit name stays "
+                         "out of the file.")
     ap.add_argument("--qtcreator", help="Path to a Qt Creator binary to launch "
                     "(otherwise attach to --port)")
     ap.add_argument("--timeout", type=float, default=60,
@@ -727,6 +966,17 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     scratch = Path(tempfile.mkdtemp(prefix="scenario-"))
 
+    # A var's value may itself use {scratch}, so expand it here: substitution
+    # at step time is one pass and would leave a nested placeholder behind.
+    variables = {"scratch": str(scratch)}
+    assignments = list((scenario.get("vars") or {}).items())
+    for kv in args.set_vars:
+        if "=" not in kv:
+            raise SystemExit("--set wants NAME=VALUE, got " + kv)
+        assignments.append(tuple(kv.split("=", 1)))
+    for key, value in assignments:
+        variables[key] = str(value).replace("{scratch}", str(scratch))
+
     recorder = None
     wm = None
     child = None
@@ -762,7 +1012,7 @@ def main():
                                 .format(args.port, args.timeout))
         client = McpClient(args.host, args.port)
         client.initialize()
-        runner = Runner(client, scenario, out_dir, scratch)
+        runner = Runner(client, scenario, out_dir, scratch, variables)
 
         if args.video:
             display = os.environ.get("DISPLAY")
