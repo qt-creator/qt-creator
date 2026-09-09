@@ -106,6 +106,17 @@ namespace {namespace} {{
 {_PATCH_CLASS if _three_state else ''}
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
+// Defs that carry no constraints beyond "an object" alias to QJsonObject; these
+// let such aliases take part in the generated conversions unchanged.
+template<> inline Utils::Result<QJsonObject> fromJson<QJsonObject>(const QJsonValue &val)
+{{
+    if (!val.isObject())
+        return Utils::ResultError(QString("Expected JSON object"));
+    return val.toObject();
+}}
+
+inline QJsonObject toJson(const QJsonObject &data) {{ return data; }}
+
 template<typename T>
 Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
 {{
@@ -241,6 +252,41 @@ def doc_comment(text, indent=''):
     result += f'{indent} */\n'
     return result
 
+
+# Schema defs describing arbitrary JSON that are mutually recursive
+# (JSONValue -> JSONObject -> JSONValue). C++ cannot express that as value
+# types, so $refs to them are rewritten to the equivalent plain JSON specs,
+# which map onto QJsonValue/QJsonObject/QJsonArray.
+BUILTIN_JSON_DEFS = {
+    "JSONValue": {},
+    "JSONObject": {"type": "object"},
+    "JSONArray": {"type": "array"},
+}
+
+def builtin_json_ref(ref, present):
+    """The builtin a $ref names, if it points at a top level definition of this
+    schema. A pointer that goes deeper, or into another file, names something
+    else that happens to end in the same word."""
+    parts = ref.split("/") if isinstance(ref, str) else []
+    if len(parts) != 3 or parts[0] != "#" or parts[2] not in present:
+        return None
+    return parts[2]
+
+def inline_builtin_json_refs(node, present):
+    """Recursively replace {"$ref": "#/$defs/JSONObject"} and friends with the
+    plain JSON spec they stand for, preserving any sibling keys (description)."""
+    if isinstance(node, list):
+        for item in node:
+            inline_builtin_json_refs(item, present)
+        return
+    if not isinstance(node, dict):
+        return
+    if builtin := builtin_json_ref(node.get("$ref"), present):
+        del node["$ref"]
+        for key, value in BUILTIN_JSON_DEFS[builtin].items():
+            node.setdefault(key, value)
+    for value in node.values():
+        inline_builtin_json_refs(value, present)
 
 def cpp_type(json_type):
     mapping = {
@@ -1861,6 +1907,12 @@ def _emit_toJson(name, props, types, required, lines, has_additional_props,
     lines.append("")  # blank line after toJson
 
 
+def accepts_additional_props(spec):
+    """True when a schema keeps arbitrary extra keys, which must then be
+    preserved verbatim instead of dropped on round-trip."""
+    additional = spec.get("additionalProperties")
+    return additional is True or additional == {}
+
 def parse_struct(name, props, types, required=None, description='', nested_children=None, children_of=None, original_name=None, has_additional_props=False):
     if required is None:
         required = []
@@ -1952,7 +2004,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
         grandchildren = (children_of or {}).get(child_name, {})
         short_name = nested_short_name(effective_prefix, child_name)
         nested_short_names[child_name] = short_name
-        child_full = parse_struct(short_name, child_props_n, types, child_required_n, child_desc_n, nested_children=grandchildren, children_of=children_of, original_name=child_name)
+        child_full = parse_struct(short_name, child_props_n, types, child_required_n, child_desc_n, nested_children=grandchildren, children_of=children_of, original_name=child_name, has_additional_props=accepts_additional_props(child_details))
         _collect_sub_struct_output(child_full, short_name, name,
                                    child_preamble_blocks, child_struct_inserts, child_serial_blocks)
 
@@ -1965,7 +2017,8 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                                     types,
                                     spec.get("required", []),
                                     spec.get("description", ""),
-                                    original_name=sub_name)
+                                    original_name=sub_name,
+                                    has_additional_props=accepts_additional_props(spec))
             _collect_sub_struct_output(sub_code, short_sub_name, name,
                                        child_preamble_blocks, child_struct_inserts, child_serial_blocks)
             sub_struct_names[prop] = short_sub_name
@@ -1978,7 +2031,8 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                                     types,
                                     items_spec.get("required", []),
                                     items_spec.get("description", ""),
-                                    original_name=sub_name)
+                                    original_name=sub_name,
+                                    has_additional_props=accepts_additional_props(items_spec))
             _collect_sub_struct_output(sub_code, short_sub_name, name,
                                        child_preamble_blocks, child_struct_inserts, child_serial_blocks)
             array_item_struct_names[prop] = short_sub_name
@@ -3211,6 +3265,14 @@ def main():
     if not types:
         print("Schema format not recognized. Needs 'definitions', 'components.schemas', or '$defs'.")
         sys.exit(1)
+
+    # Inline the recursive arbitrary-JSON defs before anything inspects the graph.
+    builtins_present = {n for n in BUILTIN_JSON_DEFS if n in types}
+    if builtins_present:
+        for name in builtins_present:
+            del types[name]
+        inline_builtin_json_refs(types, builtins_present)
+
     # --- BEGIN FULL REFACTOR: Robust dependency-graph-based emission ---
     export_header = args.export_header if args.cpp_output else None
     code = [make_header(namespace, export_header=export_header)]
@@ -3279,7 +3341,7 @@ def main():
                     code.append(parse_struct(name, merged_props, types, merged_required, spec.get("description", "")))
                     emitted.add(name)
             else:
-                has_additional_props = spec.get("additionalProperties") in ({}, True)
+                has_additional_props = accepts_additional_props(spec)
                 # Types with both properties and oneOf (discriminated struct+variant pattern)
                 # need additionalProperties to preserve variant-specific fields
                 if not has_additional_props and ("oneOf" in spec or "anyOf" in spec):

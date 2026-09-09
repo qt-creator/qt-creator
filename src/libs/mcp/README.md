@@ -8,5 +8,6 @@ python3 scripts/generate_cpp_from_schema.py \
     --namespace Mcp::Generated::Schema::_2025_11_25 \
     --cpp-output src/libs/mcp/schemas/schema_2025_11_25.cpp \
     --export-macro MCPSERVER_EXPORT \
-    --export-header ../server/mcpserver_global.h
+    --export-header ../server/mcpserver_global.h \
+    --no-cxx20
 ```

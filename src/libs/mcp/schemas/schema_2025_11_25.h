@@ -28,6 +28,17 @@ namespace Mcp::Generated::Schema::_2025_11_25 {
 
 template<typename T> Utils::Result<T> fromJson(const QJsonValue &val) = delete;
 
+// Defs that carry no constraints beyond "an object" alias to QJsonObject; these
+// let such aliases take part in the generated conversions unchanged.
+template<> inline Utils::Result<QJsonObject> fromJson<QJsonObject>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError(QString("Expected JSON object"));
+    return val.toObject();
+}
+
+inline QJsonObject toJson(const QJsonObject &data) { return data; }
+
 template<typename T>
 Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
 {
@@ -220,10 +231,14 @@ struct CallToolRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -1179,10 +1194,14 @@ struct CompleteRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     /** The argument's information */
@@ -1267,10 +1286,14 @@ struct GetPromptRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -1437,10 +1460,14 @@ struct InitializeRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -1495,10 +1522,14 @@ struct PaginatedRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -1617,10 +1648,14 @@ struct RequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -1666,10 +1701,14 @@ struct ReadResourceRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -1740,10 +1779,14 @@ struct SetLevelRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -1790,10 +1833,14 @@ struct SubscribeRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -1842,10 +1889,14 @@ struct UnsubscribeRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -2709,10 +2760,14 @@ struct CreateMessageRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     /**
@@ -3165,10 +3220,14 @@ struct ElicitRequestFormParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     /**
@@ -3241,10 +3300,14 @@ struct ElicitRequestURLParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -4312,10 +4375,14 @@ struct ResourceRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
@@ -4442,10 +4509,14 @@ struct TaskAugmentedRequestParams {
      */
     struct Meta {
         std::optional<ProgressToken> _progressToken{};  //!< If specified, the caller is requesting out-of-band progress notifications for this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.
+        QJsonObject _additionalProperties;  //!< additional properties
 
         Meta& progressToken(const std::optional<ProgressToken> & v) { _progressToken = v; return *this; }
+        Meta& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+        Meta& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
         const std::optional<ProgressToken>& progressToken() const { return _progressToken; }
+        const QJsonObject& additionalProperties() const { return _additionalProperties; }
     };
 
     std::optional<Meta> __meta{};  //!< See [General fields: `_meta`](/specification/2025-11-25/basic/index#meta) for notes on `_meta` usage.
