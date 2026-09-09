@@ -245,7 +245,7 @@ IDebugServerProviderConfigWidget::IDebugServerProviderConfigWidget(
         IDebugServerProvider *provider)
     : m_provider(provider)
 {
-    Q_ASSERT(provider);
+    QTC_ASSERT(provider, return);
 
     m_mainLayout = new QFormLayout(this);
     m_mainLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
