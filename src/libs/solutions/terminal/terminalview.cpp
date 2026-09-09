@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "terminalview.h"
+#include "boxdrawing.h"
 #include "glyphcache.h"
 #include "terminalsurface.h"
 
@@ -320,7 +321,12 @@ void TerminalView::setFont(const QFont &font)
     qCInfo(terminalLog) << font.family() << font.pointSize() << qfm.averageCharWidth()
                         << qfm.maxWidth() << viewport()->size();
 
-    d->m_cellSize = {qfm.averageCharWidth(), (double) qCeil(qfm.height())};
+    // A whole number of device pixels per cell. Otherwise every column starts at a
+    // different sub-pixel phase and the characters that should tile get seams.
+    const qreal dpr = devicePixelRatioF();
+    const qreal onePixel = 1.0 / dpr;
+    d->m_cellSize = {qMax(onePixel, snapToDevicePixel(qfm.averageCharWidth(), dpr)),
+                     qMax(onePixel, qCeil(qfm.height() * dpr) / dpr)};
 
     QAbstractScrollArea::setFont(font);
 
@@ -693,6 +699,21 @@ static void drawTextItemDecoration(QPainter &painter,
     painter.setBrush(oldBrush);
 }
 
+// A cell that is painted by hand has no glyph run to take the decoration metrics
+// from, and QRawFont::fromFont() resolves the font engine on every call, so keep
+// the handful of fonts a terminal paints with around.
+static QRawFont rawFontFor(const QFont &font)
+{
+    static QCache<QFont, QRawFont> cache(16);
+
+    if (const QRawFont *cached = cache.object(font))
+        return *cached;
+
+    const QRawFont rawFont = QRawFont::fromFont(font);
+    cache.insert(font, new QRawFont(rawFont));
+    return rawFont;
+}
+
 bool TerminalView::paintFindMatches(QPainter &p,
                                     QList<SearchHit>::const_iterator &it,
                                     const QRectF &cellRect,
@@ -757,39 +778,55 @@ int TerminalView::paintCell(QPainter &p,
     f.setItalic(cell.italic);
 
     if (!cell.text.isEmpty()) {
-        const auto r = GlyphCache::instance().get(f, cell.text);
+        // Box drawing and block elements are painted by hand: they have to tile, which
+        // font glyphs cannot guarantee. The font's bold and italic do not reach them;
+        // the geometry is the same at any weight, as in other terminals.
+        const bool boxDrawingPainted = cell.text.size() == 1
+                                       && paintBoxDrawingCharacter(p,
+                                                                   cellRect,
+                                                                   cell.text.at(0).unicode(),
+                                                                   devicePixelRatioF());
 
+        const auto r = boxDrawingPainted ? nullptr : GlyphCache::instance().get(f, cell.text);
+
+        QPointF brOffset;
         if (r) {
             const auto brSize = r->boundingRect().size();
-            QPointF brOffset;
             if (brSize.width() > cellRect.size().width())
                 brOffset.setX(-(brSize.width() - cellRect.size().width()) / 2.0);
             if (brSize.height() > cellRect.size().height())
                 brOffset.setY(-(brSize.height() - cellRect.size().height()) / 2.0);
+        }
 
-            QPointF finalPos = cellRect.topLeft() + brOffset;
+        const qreal dpr = devicePixelRatioF();
+        QPointF finalPos = cellRect.topLeft() + brOffset;
+        finalPos = {snapToDevicePixel(finalPos.x(), dpr), snapToDevicePixel(finalPos.y(), dpr)};
 
+        if (r)
             p.drawGlyphRun(finalPos, *r);
 
-            bool tempLink = false;
-            if (d->m_linkSelection) {
-                int chPos = d->m_surface->gridToPos(gridPos);
-                tempLink = chPos >= d->m_linkSelection->start && chPos < d->m_linkSelection->end;
-            }
-            if (cell.underlineStyle != QTextCharFormat::NoUnderline || cell.strikeOut || tempLink) {
-                QTextItem::RenderFlags flags;
-                //flags.setFlag(QTextItem::RenderFlag::Underline, cell.format.fontUnderline());
-                flags.setFlag(QTextItem::StrikeOut, cell.strikeOut);
-                finalPos.setY(finalPos.y() + r->rawFont().ascent());
-                drawTextItemDecoration(p,
-                                       finalPos,
-                                       tempLink ? QTextCharFormat::DashUnderline
-                                                : cell.underlineStyle,
-                                       flags,
-                                       cellRect.size().width(),
-                                       {},
-                                       r->rawFont());
-            }
+        bool tempLink = false;
+        if (d->m_linkSelection) {
+            int chPos = d->m_surface->gridToPos(gridPos);
+            tempLink = chPos >= d->m_linkSelection->start && chPos < d->m_linkSelection->end;
+        }
+        if (cell.underlineStyle != QTextCharFormat::NoUnderline || cell.strikeOut || tempLink) {
+            // Hand painted cells have no glyph run, but they carry the same
+            // decorations, so take the metrics from the font itself.
+            const QRawFont rawFont = r ? r->rawFont() : rawFontFor(f);
+            // Only StrikeOut and Overline are read from the flags, the
+            // underline comes from the style argument below.
+            QTextItem::RenderFlags flags;
+            flags.setFlag(QTextItem::StrikeOut, cell.strikeOut);
+            finalPos.setY(finalPos.y() + rawFont.ascent());
+            drawTextItemDecoration(p,
+                                   finalPos,
+                                   tempLink ? QTextCharFormat::DashUnderline
+                                            : cell.underlineStyle,
+                                   flags,
+                                   cellRect.size().width(),
+                                   {},
+                                   rawFont);
         }
     }
 
@@ -1432,6 +1469,11 @@ TerminalView::TextAndOffsets TerminalView::textAt(const QPoint &pos) const
 
 bool TerminalView::event(QEvent *event)
 {
+    if (event->type() == QEvent::DevicePixelRatioChange) {
+        // The cell size is snapped to device pixels, so it has to be recalculated.
+        setFont(font());
+    }
+
     if (event->type() == QEvent::Paint) {
         QPainter p(this);
         p.fillRect(QRect(QPoint(0, 0), size()),

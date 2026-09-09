@@ -1,6 +1,7 @@
 add_qtc_library(TerminalLib
   DEPENDS Qt::Core Qt::Widgets libvterm
   SOURCES
+    boxdrawing.cpp boxdrawing.h
     celliterator.cpp celliterator.h
     glyphcache.cpp glyphcache.h
     keys.cpp keys.h

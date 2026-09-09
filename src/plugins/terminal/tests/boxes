@@ -1,0 +1,347 @@
+#!/usr/bin/python3
+
+import sys
+
+# Python picks the locale encoding when stdout is not a console, which on
+# Windows cannot encode any of the characters below.
+sys.stdout.reconfigure(encoding='utf-8')
+
+WIDTH = 72
+
+STYLES = {
+  'light': dict(tl='┌', tr='┐', bl='└', br='┘', h='─', v='│',
+                lt='├', rt='┤', tt='┬', bt='┴', x='┼'),
+  'heavy': dict(tl='┏', tr='┓', bl='┗', br='┛', h='━', v='┃',
+                lt='┣', rt='┫', tt='┳', bt='┻', x='╋'),
+  'double': dict(tl='╔', tr='╗', bl='╚', br='╝', h='═', v='║',
+                 lt='╠', rt='╣', tt='╦', bt='╩', x='╬'),
+  'round': dict(tl='╭', tr='╮', bl='╰', br='╯', h='─', v='│',
+                lt='├', rt='┤', tt='┬', bt='┴', x='┼'),
+}
+
+# Where an outer frame of one weight meets inner rules of another. The inner
+# rules cross each other with their own weight's cross, so that is not here.
+MIXED = {
+  ('heavy', 'light'): dict(tt='┯', bt='┷', lt='┠', rt='┨'),
+  ('light', 'heavy'): dict(tt='┰', bt='┸', lt='┝', rt='┥'),
+  ('double', 'light'): dict(tt='╤', bt='╧', lt='╟', rt='╢'),
+  ('light', 'double'): dict(tt='╥', bt='╨', lt='╞', rt='╡'),
+}
+
+DASHES = (('┌', '┐', '└', '┘', '┄', '┆'), ('┏', '┓', '┗', '┛', '┅', '┇'),
+          ('┌', '┐', '└', '┘', '┈', '┊'), ('┏', '┓', '┗', '┛', '┉', '┋'),
+          ('┌', '┐', '└', '┘', '╌', '╎'), ('┏', '┓', '┗', '┛', '╍', '╏'))
+
+# Private use area, so no glyph to write here. Hard is the filled
+# triangle, soft the line, in the powerline project's names.
+RIGHT_HARD, RIGHT_SOFT = '\ue0b0', '\ue0b1'
+LEFT_HARD, LEFT_SOFT = '\ue0b2', '\ue0b3'
+
+RESET = '\x1b[0m'
+
+# The decorations the terminal draws itself, by their SGR parameter. They
+# have to reach hand painted cells too, not only cells with a font glyph.
+DECORATIONS = {
+  'underlined': '4',
+  'doubly underlined': '4:2',
+  'curly underlined': '4:3',
+  'dotted underlined': '4:4',
+  'dashed underlined': '4:5',
+  'struck out': '9',
+  'underlined and struck out': '4;9',
+}
+
+
+def hint(text):
+  print(f'\x1b[1m ⎆ {text}\x1b[0m')
+
+
+def show(lines, decoration=''):
+  for line in lines:
+    line = line.rstrip()
+    print(sgr(DECORATIONS[decoration], line) if decoration else line)
+
+
+def seg(fg, bg, text):
+  return f'\x1b[38;5;{fg}m\x1b[48;5;{bg}m{text}'
+
+
+def sgr(codes, text):
+  return f'\x1b[{codes}m{text}{RESET}'
+
+
+def box(style, w, h):
+  s = STYLES[style]
+  return ([s['tl'] + s['h'] * (w - 2) + s['tr']]
+          + [s['v'] + ' ' * (w - 2) + s['v']] * (h - 2)
+          + [s['bl'] + s['h'] * (w - 2) + s['br']])
+
+
+def grid(style, cols, bands):
+  s = STYLES[style]
+
+  def rule(left, mid, right):
+    return left + mid.join(s['h'] * c for c in cols) + right
+
+  out = [rule(s['tl'], s['tt'], s['tr'])]
+  for band, rows in enumerate(bands):
+    if band:
+      out.append(rule(s['lt'], s['x'], s['rt']))
+    out += [s['v'] + s['v'].join(' ' * c for c in cols) + s['v']] * rows
+  out.append(rule(s['bl'], s['bt'], s['br']))
+  return out
+
+
+def mixed_grid(outer, inner, cols, bands):
+  o, i, j = STYLES[outer], STYLES[inner], MIXED[(outer, inner)]
+
+  def rule(left, mid, right, ch):
+    return left + mid.join(ch * c for c in cols) + right
+
+  out = [rule(o['tl'], j['tt'], o['tr'], o['h'])]
+  for band, rows in enumerate(bands):
+    if band:
+      out.append(rule(j['lt'], i['x'], j['rt'], i['h']))
+    out += [o['v'] + i['v'].join(' ' * c for c in cols) + o['v']] * rows
+  out.append(rule(o['bl'], j['bt'], o['br'], o['h']))
+  return out
+
+
+def beside(blocks, gap=1):
+  height = max(len(b) for b in blocks)
+  padded = [b + [''] * (height - len(b)) for b in blocks]
+  widths = [max(len(line) for line in b) for b in padded]
+  return [(' ' * gap).join(b[r].ljust(w) for b, w in zip(padded, widths))
+          for r in range(height)]
+
+
+def nest(blocks):
+  out = list(blocks[0])
+  for b in blocks[1:]:
+    top = (len(out) - len(b)) // 2
+    col = (len(out[0]) - len(b[0])) // 2
+    for r, line in enumerate(b):
+      row = out[top + r]
+      out[top + r] = row[:col] + line + row[col + len(line):]
+  return out
+
+
+def chart(first, last):
+  out = ['       ' + ' '.join(f'{i:X}' for i in range(16))]
+  for base in range(first - first % 16, last + 1, 16):
+    cells = (chr(c) if first <= c <= last else ' '
+             for c in range(base, base + 16))
+    out.append(f'U+{base >> 4:03X}x ' + ' '.join(cells))
+  return out
+
+
+def frames(decoration=''):
+  if decoration:
+    hint(f'The same, {decoration}: the decoration reaches the cell')
+  else:
+    hint('Change the font size and rerun: the frames stay solid at any size')
+  print()
+
+  hint('A long run of ─ and │: unbroken, no dashes, no gaps')
+  show(box('light', WIDTH, 4), decoration)
+  print()
+
+  hint('The same at every weight: light, heavy, double, rounded')
+  for style in STYLES:
+    show(box(style, WIDTH, 3), decoration)
+  print()
+
+  hint('Corners meet their edges, down to a frame of nothing but corners')
+  show(beside([box(style, n, n) for style in STYLES for n in range(2, 6)]),
+       decoration)
+  print()
+
+  hint('Arcs join the straight edges without a step or a kink')
+  show(beside([box('round', w, 5) for w in (10, 22, 34)]), decoration)
+  print()
+
+  hint('Nested frames: the gap between them is the same all the way round')
+  show(nest([box(style, 68 - 8 * i, 15 - 2 * i) for i, style in enumerate(
+      ('light', 'heavy', 'double', 'round', 'light', 'heavy', 'double'))]),
+       decoration)
+  print()
+
+  hint('Dashed edges: the dashes keep their rhythm across the whole run')
+  for tl, tr, bl, br, h, v in DASHES:
+    show([tl + h * (WIDTH - 2) + tr,
+          v + ' ' * (WIDTH - 2) + v,
+          bl + h * (WIDTH - 2) + br], decoration)
+  print()
+
+  hint('Diagonals meet corner to corner, so the stripes never break')
+  for diagonal in '╱╲╳':
+    show([diagonal * WIDTH] * 4, decoration)
+    print()
+
+  hint('An X of ╱ and ╲: two straight lines crossing in one cell')
+  size = 17
+  rows = []
+  for r in range(size):
+    row = [' '] * size
+    row[r], row[size - 1 - r] = '╲', '╱'
+    if r == size - 1 - r:
+      row[r] = '╳'
+    rows.append(''.join(row))
+  show(rows, decoration)
+  print()
+
+  hint('Stubs stop at the cell centre; weight changes happen there too')
+  show(['╴ ╵ ╶ ╷    ╸ ╹ ╺ ╻    ╼ ╽ ╾ ╿',
+        '',
+        '╶──────╴   ╺━━━━━━╸   ╶───╼━━━╸   ╺━━━╾───╴',
+        '',
+        '╷   ╻   ╷   ╻',
+        '│   ┃   │   ┃',
+        '│   ┃   ╽   ╿',
+        '│   ┃   ┃   │',
+        '╵   ╹   ╹   ╵'], decoration)
+
+
+def tables(decoration=''):
+  if decoration:
+    hint(f'The same, {decoration}: the decoration reaches the cell')
+    print()
+
+  hint('Junctions sit on the lines they join, at every weight')
+  for style in STYLES:
+    show(grid(style, [12, 16, 10, 14], [1, 1, 2]), decoration)
+    print()
+
+  hint('Mixed weights: a thin rule meets a thick frame centred on it')
+  for outer, inner in MIXED:
+    show(mixed_grid(outer, inner, [14, 14, 14], [1, 1]), decoration)
+    print()
+
+  hint('Touching frames stay two separate lines, side by side')
+  show([row * 4 for row in box('light', 18, 4)], decoration)
+  print()
+
+  hint('and stacked, sharing a row')
+  for _ in range(4):
+    show(box('light', 64, 3), decoration)
+  print()
+
+  hint('Every box drawing character, U+2500..U+257F')
+  show(chart(0x2500, 0x257f), decoration)
+
+
+def blocks(decoration=''):
+  if decoration:
+    hint(f'The same, {decoration}: the decoration reaches the cell')
+  else:
+    hint('Change the font size and rerun: the fills stay flat at any size')
+  print()
+
+  hint('A solid field: one flat area, no cross hatching, no seams')
+  show(['█' * WIDTH] * 5, decoration)
+  print()
+
+  hint('The three shades keep an even texture over the whole field')
+  for shade in '░▒▓':
+    show([shade * WIDTH] * 2, decoration)
+  print()
+
+  hint('▄ over ▀ is one solid band, ▀ over ▄ leaves a gap')
+  show(['▄' * WIDTH, '▀' * WIDTH, '', '▀' * WIDTH, '▄' * WIDTH], decoration)
+  print()
+
+  hint('▐ then ▌ is solid too, ▌ then ▐ leaves a gap')
+  show(['▐▌' * (WIDTH // 2), '▌▐' * (WIDTH // 2)], decoration)
+  print()
+
+  hint('Eighth wide stripes: same width everywhere, evenly spaced')
+  show([(eighth + '   ') * (WIDTH // 4) for eighth in '▏▎▍▌▕▐'], decoration)
+  print()
+
+  hint('Widening left blocks: eight distinct widths, no two the same')
+  show(['▏▎▍▌▋▊▉█' * (WIDTH // 8)], decoration)
+  print()
+
+  hint('Rising lower blocks: eight distinct heights, the last one full')
+  show(['▁▂▃▄▅▆▇█' * (WIDTH // 8)], decoration)
+  print()
+
+  hint('Quadrants tile: the checkerboards are regular, the pairs solid')
+  show(['▚▞' * (WIDTH // 2), '▞▚' * (WIDTH // 2), '',
+        '▘▝' * (WIDTH // 2), '▖▗' * (WIDTH // 2), '',
+        '▛▜' * (WIDTH // 2), '▙▟' * (WIDTH // 2)], decoration)
+  print()
+
+  hint('The edge eighths frame the field without touching each other')
+  show(['▔' * WIDTH] + ['▏' + ' ' * (WIDTH - 2) + '▕'] * 2 + ['▁' * WIDTH],
+       decoration)
+  print()
+
+  hint('Half blocks split the cell: the colours meet exactly mid cell')
+  gradient = []
+  for row in range(5):
+    line = ''
+    for col in range(WIDTH):
+      red = 40 + 215 * col // (WIDTH - 1)
+      top = 40 + 215 * (row * 2) // 9
+      bottom = 40 + 215 * (row * 2 + 1) // 9
+      line += f'\x1b[38;2;{red};{top};140m\x1b[48;2;{red};{bottom};140m▀'
+    gradient.append(line + RESET)
+  show(gradient, decoration)
+  print()
+
+  hint('A bar chart: the bars share one baseline and one flat top edge')
+  heights = [3, 7, 2, 8, 5, 1, 6, 4, 8, 3, 7, 5, 2, 6, 4, 8]
+  show([''.join('███ ' if h >= level else '    ' for h in heights)
+        for level in range(8, 0, -1)] + ['─' * (len(heights) * 4 - 1)],
+       decoration)
+  print()
+
+  hint('Every block element, U+2580..U+259F')
+  show(chart(0x2580, 0x259f), decoration)
+
+
+def powerline():
+  hint('Powerline separators fill their cell edge to edge, no light seam')
+  print()
+
+  hint('A prompt bar: each separator takes the colour of the segment left')
+  print(seg(255, 24, ' user@host ') + seg(24, 240, RIGHT_HARD)
+        + seg(250, 240, ' ~/dev/qt-creator ') + seg(240, 130, RIGHT_HARD)
+        + seg(16, 130, ' master ') + seg(130, 0, RIGHT_HARD) + RESET)
+  print()
+
+  hint('and right aligned, with the left facing separators')
+  print(seg(130, 0, LEFT_HARD) + seg(16, 130, ' 12:34 ')
+        + seg(240, 130, LEFT_HARD) + seg(250, 240, ' 0.42s ')
+        + seg(24, 240, LEFT_HARD) + seg(255, 24, ' ok ') + RESET)
+  print()
+
+  hint('Soft separators divide one segment without changing its colour')
+  print(seg(250, 240, f' one {RIGHT_SOFT} two {RIGHT_SOFT} three ')
+        + seg(240, 0, RIGHT_HARD) + RESET)
+  print(seg(240, 0, LEFT_HARD)
+        + seg(250, 240, f' three {LEFT_SOFT} two {LEFT_SOFT} one ') + RESET)
+  print()
+
+  hint('Repeated, they tile: a continuous zigzag, no light line between')
+  for separator in (RIGHT_HARD, LEFT_HARD):
+    print(''.join(seg(240, 24, separator) if col % 2 == 0
+                  else seg(24, 240, separator)
+                  for col in range(WIDTH // 2)) + RESET)
+  print()
+
+  hint('Uncoloured, so the outlines show: two triangles, two lines')
+  separators = (RIGHT_HARD, RIGHT_SOFT, LEFT_HARD, LEFT_SOFT)
+  show([' '.join(separators), '  '.join(s * 8 for s in separators)])
+
+
+if __name__ == '__main__':
+  for section in (frames, tables, blocks, powerline):
+    section()
+    print()
+
+  # A whole section takes a decoration too, by passing it a DECORATIONS
+  # key, but one chart is enough to see that it reaches the cell.
+  hint('Every hand painted character, underlined')
+  show(chart(0x2500, 0x259f), 'underlined')
