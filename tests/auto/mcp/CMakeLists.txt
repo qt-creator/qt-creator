@@ -20,3 +20,8 @@ add_qtc_test(tst_mcpdialect
   DEPENDS McpServerLib Utils
   SOURCES tst_mcpdialect.cpp
 )
+
+add_qtc_test(tst_mcpprotocol
+  DEPENDS McpServerLib Utils
+  SOURCES tst_mcpprotocol.cpp
+)
