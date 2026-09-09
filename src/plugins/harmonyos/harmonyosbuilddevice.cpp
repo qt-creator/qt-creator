@@ -23,6 +23,12 @@
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
+#include <projectexplorer/toolchainmanager.h>
+
+#include <qtsupport/qtkitaspect.h>
+#include <qtsupport/qtversionfactory.h>
+#include <qtsupport/qtversionmanager.h>
+
 #include <remote/sshdevicewizard.h>
 
 #include <utils/algorithm.h>
@@ -203,6 +209,73 @@ static FilePath sdkRootFromToolchain(const Toolchain *toolchain)
     return {};
 }
 
+// The compiler travels in Qt Creator's own package, so it is detected afresh on every
+// start and carries an id of its own each time. A kit restored from settings that an
+// unclean exit never wrote names one that no longer exists, and nothing puts a toolchain
+// back into a kit that already is there.
+static bool bindToolchain(Kit *kit)
+{
+    const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
+    if (!device)
+        return false;
+    const Toolchains toolchains = ToolchainManager::toolchains([&device](const Toolchain *tc) {
+        return tc->isSameDevice(device->rootPath());
+    });
+    const QList<ToolchainBundle> bundles = Utils::filtered(
+        ToolchainBundle::collectBundles(toolchains, ToolchainBundle::HandleMissing::NotApplicable),
+        &ToolchainBundle::isCompletelyValid);
+    if (bundles.isEmpty())
+        return false;
+    // The bundles are handed out in hash order, so "the first valid one" can be a different
+    // compiler from one start to the next. What this device builds with is the one in the
+    // package, as far as the name it was detected under still says so.
+    const FilePath packageBin = FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN);
+    const ToolchainBundle bundle = Utils::findOr(bundles, bundles.first(),
+                                                 [&packageBin](const ToolchainBundle &candidate) {
+        return Utils::anyOf(candidate.toolchains(), [&packageBin](const Toolchain *tc) {
+            const FilePath compiler = tc->compilerCommand();
+            return compiler.parentDir() == packageBin
+                   || compiler.symLinkTarget().parentDir() == packageBin;
+        });
+    });
+    ToolchainKitAspect::setBundle(kit, bundle);
+    return true;
+}
+
+// The Qt here came with Qt Creator's package rather than from an installer, so nothing
+// registered it, and a kit restored from settings that names one that is gone has its Qt
+// aspect cleared rather than set up again, for the same reason the toolchain aspect has.
+static void bindQtVersion(Kit *kit)
+{
+    const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
+    if (!device)
+        return;
+    const FilePath deviceRoot = device->rootPath();
+    QtSupport::QtVersion *version = QtSupport::QtVersionManager::version(
+        [&deviceRoot](const QtSupport::QtVersion *candidate) {
+            return candidate->isValid() && candidate->qtFilePath().isSameDevice(deviceRoot);
+        });
+    if (!version) {
+        const FilePath qmake = FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN)
+                                   .pathAppended("qmake");
+        if (!qmake.isExecutableFile())
+            return;
+        version = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(
+            qmake, DetectionSource::FromSystem);
+        if (!version)
+            return;
+        // A qmake that answers is not yet a Qt that can be built against, and registering
+        // one that cannot would keep it: the lookup above passes over it, so the next kit
+        // registers another one beside it.
+        if (!version->isValid()) {
+            delete version;
+            return;
+        }
+        QtSupport::QtVersionManager::addVersion(version);
+    }
+    QtSupport::QtKitAspect::setQtVersion(kit, version);
+}
+
 // The headers of EGL and the other platform libraries sit in that SDK's sysroot, which
 // CMake looks at only once the kit names it. The Qt on the device is a native build, so
 // unlike a cross-built one its qt.toolchain.cmake says nothing about OpenHarmony: without
@@ -211,6 +284,10 @@ static FilePath sdkRootFromToolchain(const Toolchain *toolchain)
 // settings for the run configuration to read the application from.
 static void completeKit(Kit *kit)
 {
+    if (!ToolchainKitAspect::cxxToolchain(kit) && bindToolchain(kit))
+        KitManager::completeKit(kit);
+    if (!QtSupport::QtKitAspect::qtVersion(kit))
+        bindQtVersion(kit);
     const Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(kit);
     if (!toolchain)
         return;
