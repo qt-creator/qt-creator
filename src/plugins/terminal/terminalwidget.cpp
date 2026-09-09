@@ -183,6 +183,36 @@ void TerminalWidget::setupPty()
     if (env.hasKey("CLINK_NOAUTORUN"))
         env.unset("CLINK_NOAUTORUN");
 
+    // Every variable the injected shell integration reads, so that an
+    // inherited value cannot steer it. The first four set, prepend to or
+    // append to arbitrary variables inside the running shell and put a
+    // directory at the front of its PATH. VSCODE_SHELL_INTEGRATION makes the
+    // script return before it has done anything, silently switching the
+    // integration off. VSCODE_SHELL_LOGIN makes it source /etc/profile and
+    // ~/.bash_profile instead of ~/.bashrc, and VSCODE_ZDOTDIR decides which
+    // rc files zsh reads. VSCODE_INJECTION gates the injected branches.
+    // VSCODE_SUGGEST turns on pwsh's completion machinery. VSCODE_NONCE is
+    // interpolated *unquoted* into the report printf, so a value holding a
+    // space reuses the format string and forges a second OSC 633 command
+    // report - a command in the tab title that nothing ran.
+    //
+    // Dropping them here is safe even for the two Qt Creator wants set:
+    // prepareProcess runs after this and sets VSCODE_INJECTION always and
+    // VSCODE_SHELL_LOGIN for a shell it started with -l.
+    for (const QString &name : {QString("VSCODE_ENV_REPLACE"),
+                                QString("VSCODE_ENV_PREPEND"),
+                                QString("VSCODE_ENV_APPEND"),
+                                QString("VSCODE_PATH_PREFIX"),
+                                QString("VSCODE_SHELL_INTEGRATION"),
+                                QString("VSCODE_SHELL_LOGIN"),
+                                QString("VSCODE_ZDOTDIR"),
+                                QString("VSCODE_INJECTION"),
+                                QString("VSCODE_SUGGEST"),
+                                QString("VSCODE_NONCE")}) {
+        if (env.hasKey(name))
+            env.unset(name);
+    }
+
     m_process->setProcessMode(ProcessMode::Writer);
     Utils::Pty::Data data;
     data.setPtyInputFlagsChangedHandler([this](Pty::PtyInputFlag flags) {
