@@ -50,6 +50,35 @@ using namespace Utils::Terminal;
 
 namespace Terminal {
 
+// A title that names a file or a directory is shown as its last component
+// alone; the default prompt on several distributions reports something like
+// "user@host: /a/very/long/path". Which titles those are has to be read off
+// the text - asking the filesystem is what this replaced, and for a shell in
+// a container or over ssh that is a request over a connection, repeated as
+// often as the program cares to change its title. Only a trailing token that
+// is a path counts, so a title such as "make -j8 [2/5]" is left as it is.
+static QString shortenedTitle(const QString &title)
+{
+    const QString token = title.mid(title.lastIndexOf(u' ') + 1);
+
+    // There is a last component to take only once a token names more than its
+    // own root. fromUserInput expands a leading ~ against this machine's home
+    // directory, so a bare ~ would otherwise be shown as the name that
+    // expansion produced rather than as anything the shell reported.
+    if (!token.contains(u'/') && !token.contains(u'\\'))
+        return title;
+
+    // fromUserInput normalises the separator, so a Windows path arrives here
+    // as one fileName() can split, and "make -j8 [2/5]" as one it will not
+    // call absolute.
+    const FilePath path = FilePath::fromUserInput(token);
+    if (!path.isAbsolutePath())
+        return title;
+
+    const QString name = path.fileName();
+    return name.isEmpty() ? title : name;
+}
+
 TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &openParameters)
     : Core::SearchableTerminal(parent)
     , m_context(Utils::Id("TerminalWidget_").withSuffix(QString::number((uintptr_t) this)))
@@ -89,7 +118,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
                     if (!m_title.isEmpty()
                         || m_openParameters.shellCommand.value_or(CommandLine{}).executable()
                                != titleFile) {
-                        m_title = titleFile.isFile() ? titleFile.baseName() : title;
+                        m_title = shortenedTitle(title);
                     }
                     emit titleChanged();
                 });
