@@ -9306,6 +9306,20 @@ void tst_backends::resolvesATypeArrivingWithALaterLibrary()
              qPrintable("the type the library brought along did not resolve, so "
                         + data.libraryTypeSymbol + " has no " + data.libraryTypeChild
                         + " member: " + afterLoad));
+
+    if (!takesIndividualFormats(backend))
+        return;
+
+    // The array format strides by the size of the type, which the backend only
+    // learns from the library, so a stride of zero is the answer from before.
+    request.requestId = 134;
+    request.individualFormats = {{"watch.0", Array10Format}};
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(locals.contains(134), s_timeout);
+    const GdbMi arrayItem = findItemByIName(locals.value(134), "watch.0");
+    QVERIFY2(arrayItem["addrstep"].toInt() > 0,
+             qPrintable("the array format over " + data.libraryTypeSymbol
+                        + " strides by nothing: " + locals.value(134).toString()));
 }
 
 void tst_backends::stridesAnArrayOfATypeArrivingWithALaterLibrary()

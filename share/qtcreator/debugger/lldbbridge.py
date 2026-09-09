@@ -434,7 +434,14 @@ class Dumper(DumperBase):
         typeid_str = self.native_type_key(nativeType)
         known_typeid = self.typeid_from_typekey.get(typeid_str, None)
         if known_typeid is not None:
-            return known_typeid
+            if self.type_size_cache.get(known_typeid) != 0:
+                return known_typeid
+            # Rebuilding searches all modules, so it is done once per step.
+            retried = self.perStepCache.setdefault('renative_types', set())
+            if known_typeid in retried:
+                return known_typeid
+            retried.add(known_typeid)
+            self.drop_native_type(known_typeid)
 
         code = nativeType.GetTypeClass()
 
