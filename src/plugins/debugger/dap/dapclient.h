@@ -110,7 +110,10 @@ struct Capabilities
     bool supportsExceptionFilterOptions = false;
     bool supportsSingleThreadExecutionRequests = false;
 
-    // exceptionBreakpointFilters?: ExceptionBreakpointsFilter[];
+    // What the adapter calls the exceptions it can break on. The ids are its
+    // own, so there is nothing to ask for that is not in here.
+    QStringList exceptionBreakpointFilters;
+
     // completionTriggerCharacters?: string[];
     // additionalModuleColumns?: ColumnDescriptor[];
     // supportedChecksumAlgorithms?: ChecksumAlgorithm[];
@@ -146,7 +149,8 @@ public:
 
     void evaluateVariable(const QString &expression, int frameId);
 
-    int stackTrace(int threadId);
+    // Levels 0 asks for every frame, as the protocol defines it.
+    int stackTrace(int threadId, int levels);
     int scopes(int frameId);
     void threads();
     void variables(int variablesReference);

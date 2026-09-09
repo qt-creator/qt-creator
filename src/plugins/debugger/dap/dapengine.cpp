@@ -923,7 +923,7 @@ void DapEngine::handleStoppedEvent(const QJsonObject &event)
     else
         notifyInferiorSpontaneousStop();
 
-    m_dapClient->stackTrace(m_currentThreadId);
+    m_dapClient->stackTrace(m_currentThreadId, 0);
     m_dapClient->threads();
 }
 
@@ -1009,7 +1009,7 @@ void DapEngine::updateAll()
 
 void DapEngine::updateLocals()
 {
-    m_dapClient->stackTrace(m_currentThreadId);
+    m_dapClient->stackTrace(m_currentThreadId, 0);
 }
 
 bool DapEngine::hasCapability(unsigned cap) const

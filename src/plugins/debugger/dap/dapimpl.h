@@ -72,6 +72,7 @@ protected:
     void handleStackTrace(const QJsonObject &response);
     void handleScopes(const QJsonObject &response);
     void handleVariables(const QJsonObject &response);
+    void handleWatcher(const QJsonObject &response);
     void handleReadMemory(const QJsonObject &response);
     void handleDisassemble(const QJsonObject &response);
     void handleBreakpointsSet(const QJsonObject &response);
@@ -88,6 +89,7 @@ protected:
 
     void sendCustomRequest(const QString &command, const QJsonObject &arguments,
                            const DapSessionChannel::Answer &answer);
+    void reportRunStarted();
     void reportRunning(bool running);
     void reportRunRequested();
     void reportRunResult(bool ok);
@@ -132,9 +134,12 @@ protected:
 private:
     void sendBreakpointsFor(const Utils::FilePath &file);
     void sendFunctionBreakpoints();
+    void sendExceptionBreakpoints();
     void sendDetach();
     void queueVariables(const QString &iname, int reference);
     void continueLocalsWalk();
+    void continueBacktrace();
+    void handleBacktraceFrames(const QJsonObject &response);
     void reportLocals();
     GdbMi localsItem(const QString &iname) const;
 
@@ -154,6 +159,9 @@ private:
     };
     QHash<Utils::FilePath, QList<Breakpoint>> m_sourceBreakpoints;
     QList<Breakpoint> m_functionBreakpoints;
+    // Whichever of the adapter's exception filters are on, as breakpoints of
+    // their own: they have no location, and no answer of their own either.
+    QList<Breakpoint> m_exceptionBreakpoints;
     // Which file's answer a setBreakpoints reply is, routed by sequence number.
     QHash<int, Utils::FilePath> m_breakpointRequests;
     // The same for the function breakpoints, which are one array of their own.
@@ -183,8 +191,21 @@ private:
     QMap<QString, Local> m_locals;
     QStringList m_localRoots;
     QQueue<QPair<QString, int>> m_pendingVariables;
+    // A watcher as the request named it: its iname and the expression to ask
+    // the adapter to evaluate for it.
+    QQueue<QPair<QString, QString>> m_pendingWatchers;
     QHash<int, QString> m_variableRequests;
+    QHash<int, QPair<QString, QString>> m_watcherRequests;
+    // A full backtrace is one stack per thread, and the protocol answers one
+    // request at a time, so the walk keeps what it has and what is still to come.
+    quint64 m_backtraceRequestId = 0;
+    int m_backtraceThreadsSeq = -1;
+    int m_backtraceFramesSeq = -1;
+    QQueue<QPair<int, QString>> m_backtraceThreads;
+    QString m_backtrace;
     QHash<int, quint64> m_threadRequests;
+    QHash<int, quint64> m_sourceFilesRequests;
+    QHash<int, quint64> m_moduleRequests;
 
     class MemoryRequest
     {

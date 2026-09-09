@@ -53,16 +53,23 @@ static DebuggerEngineSetupData dapImplSetupData()
     // Only what the protocol itself defines. Memory and disassembly are
     // optional in DAP, so they are offered here and refused per session if the
     // adapter turns out not to have them.
-    data.capabilities = BreakConditionCapability | ShowMemoryCapability
-                      | DisassemblerCapability | OperateByInstructionCapability;
+    data.capabilities = AddWatcherCapability | BreakConditionCapability
+                      | CreateFullBacktraceCapability | ShowMemoryCapability
+                      | DisassemblerCapability | OperateByInstructionCapability
+                      | BreakOnThrowAndCatchCapability | TracePointCapability
+                      | ReloadModuleCapability | WatchComplexExpressionsCapability;
     data.extraCapabilities = DebuggerExtraCapability::Detach
+                           | DebuggerExtraCapability::LibraryEvent
+                           | DebuggerExtraCapability::SourceFiles
+                           | DebuggerExtraCapability::ThreadEvent
                            | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
             return false;
-        return query.type == BreakpointByFileAndLine || query.type == BreakpointByFunction;
+        return query.type == BreakpointByFileAndLine || query.type == BreakpointByFunction
+               || query.type == BreakpointAtThrow || query.type == BreakpointAtCatch;
     };
     return data;
 }
@@ -219,6 +226,22 @@ void DapImpl::postLaunchOrAttach()
     postRequest(m_startData.attach ? "attach" : "launch", m_startData.configuration);
 }
 
+void DapImpl::reportRunStarted()
+{
+    reportRunning(true);
+    emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
+    m_inferiorRunning = true;
+    m_runReported = true;
+    // Whatever became of the debuggee while the launch was in flight is only
+    // reportable now that the run itself has been.
+    if (m_pendingResult) {
+        const InferiorResultData result = *m_pendingResult;
+        m_pendingResult.reset();
+        m_inferiorDoneReported = true;
+        emit inferiorDone(result);
+    }
+}
+
 void DapImpl::shutdownInferior(ShutdownMode mode)
 {
     if (!m_client) {
@@ -347,8 +370,12 @@ void DapImpl::sendBreakpointsFor(const FilePath &file)
             item.insert("condition", params.condition);
         if (params.ignoreCount > 0)
             item.insert("hitCondition", QString::number(params.ignoreCount));
-        if (params.tracepoint && !params.message.isEmpty())
-            item.insert("logMessage", params.message);
+        if (params.tracepoint && !params.message.isEmpty()) {
+            if (m_client->capabilities().supportsLogPoints)
+                item.insert("logMessage", params.message);
+            else
+                reportUnsupported(Tr::tr("logging a message instead of stopping"));
+        }
         breakpoints.append(item);
     }
     const int seq = m_client->postRequest(
@@ -359,6 +386,41 @@ void DapImpl::sendBreakpointsFor(const FilePath &file)
                     {"sourceModified", false}});
     if (seq >= 0)
         m_breakpointRequests.insert(seq, file);
+}
+
+// The adapter names the exceptions it can break on itself, so what to ask for
+// is picked out of what it offered: gdb calls them "throw" and "catch",
+// lldb-dap prefixes them with the language.
+static QString exceptionFilter(const QStringList &offered, BreakpointType type)
+{
+    const QString wanted = type == BreakpointAtThrow ? QString("throw") : QString("catch");
+    for (const QString &filter : offered) {
+        if (filter == wanted || filter.endsWith('_' + wanted))
+            return filter;
+    }
+    return {};
+}
+
+void DapImpl::sendExceptionBreakpoints()
+{
+    QTC_ASSERT(m_client, return);
+    const QStringList offered = m_client->capabilities().exceptionBreakpointFilters;
+    QJsonArray filters;
+    for (const Breakpoint &breakpoint : m_exceptionBreakpoints) {
+        if (!breakpoint.enabled)
+            continue;
+        const QString filter = exceptionFilter(offered, breakpoint.params.type);
+        if (filter.isEmpty()) {
+            // Nothing the adapter offered means what this breakpoint is.
+            reportUnsupported(breakpoint.params.type == BreakpointAtThrow
+                                  ? Tr::tr("breaking on a thrown exception")
+                                  : Tr::tr("breaking on a caught exception"));
+            emit breakpointEvent(breakpoint.requestId, breakpoint.op, false);
+            continue;
+        }
+        filters.append(filter);
+    }
+    m_client->postRequest("setExceptionBreakpoints", QJsonObject{{"filters", filters}});
 }
 
 void DapImpl::sendFunctionBreakpoints()
@@ -399,6 +461,48 @@ void DapImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     FilePath file = params.fileName;
     bool inArray = false;
 
+    // A change names the breakpoint by what the adapter called it and brings no
+    // location along, so which array has to go out again is looked up rather
+    // than taken from the request.
+    const auto named = [&request](const Breakpoint &breakpoint) {
+        if (!request.responseId.isEmpty())
+            return breakpoint.responseId == request.responseId;
+        return !request.params.fileName.isEmpty()
+               && breakpoint.modelId == request.modelId;
+    };
+
+    // An exception breakpoint has no location: what it is is one of the filters
+    // the adapter offered, and the set of them goes out as an array of its own.
+    if (params.type == BreakpointAtThrow || params.type == BreakpointAtCatch
+        || (request.op != BreakpointOp::Insert
+            && Utils::contains(m_exceptionBreakpoints, named))) {
+        if (request.op == BreakpointOp::Insert) {
+            m_exceptionBreakpoints.append({request.requestId, request.op, request.modelId, {},
+                                           params, params.enabled});
+        } else {
+            const auto it = std::find_if(m_exceptionBreakpoints.begin(),
+                                         m_exceptionBreakpoints.end(), named);
+            if (it == m_exceptionBreakpoints.end()) {
+                emit breakpointEvent(request.requestId, request.op, false);
+                return;
+            }
+            if (request.op == BreakpointOp::Remove) {
+                m_exceptionBreakpoints.erase(it);
+            } else {
+                it->enabled = params.enabled;
+                it->requestId = request.requestId;
+                it->op = request.op;
+            }
+        }
+        if (m_configured)
+            sendExceptionBreakpoints();
+        // Only what is in the array gets an answer of its own, and a filter
+        // that is off is expressed by leaving it out.
+        if (request.op == BreakpointOp::Remove || !params.enabled)
+            emit breakpointEvent(request.requestId, request.op, true);
+        return;
+    }
+
     if (request.op == BreakpointOp::Insert) {
         QList<Breakpoint> &list = byFunction ? m_functionBreakpoints
                                              : m_sourceBreakpoints[file];
@@ -406,15 +510,6 @@ void DapImpl::changeBreakpoint(const BreakpointChangeRequest &request)
                      params.enabled});
         inArray = params.enabled;
     } else {
-        // A change names the breakpoint by what the adapter called it and
-        // brings no location along, so which array has to go out again is
-        // looked up rather than taken from the request.
-        const auto named = [&request](const Breakpoint &breakpoint) {
-            if (!request.responseId.isEmpty())
-                return breakpoint.responseId == request.responseId;
-            return !request.params.fileName.isEmpty()
-                   && breakpoint.modelId == request.modelId;
-        };
         QList<Breakpoint> *list = nullptr;
         if (Utils::contains(m_functionBreakpoints, named)) {
             byFunction = true;
@@ -520,6 +615,10 @@ const DapImpl::Breakpoint *DapImpl::breakpointForResponseId(const QString &respo
         if (breakpoint.responseId == responseId)
             return &breakpoint;
     }
+    for (const Breakpoint &breakpoint : m_exceptionBreakpoints) {
+        if (breakpoint.responseId == responseId)
+            return &breakpoint;
+    }
     return nullptr;
 }
 
@@ -573,6 +672,14 @@ void DapImpl::refresh(const RefreshRequest &request)
         m_localRoots.clear();
         m_pendingVariables.clear();
         m_variableRequests.clear();
+        m_pendingWatchers.clear();
+        m_watcherRequests.clear();
+        for (const QJsonValue &value : request.watchers) {
+            const QJsonObject watcher = value.toObject();
+            const QString expression = QString::fromUtf8(
+                QByteArray::fromHex(watcher.value("exp").toString().toUtf8()));
+            m_pendingWatchers.enqueue({watcher.value("iname").toString(), expression});
+        }
         if (m_currentFrameId < 0) {
             reportLocals();
             return;
@@ -580,12 +687,40 @@ void DapImpl::refresh(const RefreshRequest &request)
         m_scopesSeq = m_client->scopes(m_currentFrameId);
         return;
     case RefreshKind::FullStack:
-        if (const int seq = m_client->stackTrace(m_currentThreadId); seq >= 0)
+        if (const int seq = m_client->stackTrace(m_currentThreadId,
+                                                 qMax(request.stackDepthLimit, 0));
+            seq >= 0) {
             m_stackTraceRequests.insert(seq, {false, request.requestId});
+        }
         return;
     case RefreshKind::Threads:
         if (const int seq = m_client->postRequest("threads"); seq >= 0)
             m_threadRequests.insert(seq, request.requestId);
+        return;
+    case RefreshKind::FullBacktrace:
+        m_backtraceRequestId = request.requestId;
+        m_backtrace.clear();
+        m_backtraceThreads.clear();
+        m_backtraceFramesSeq = -1;
+        m_backtraceThreadsSeq = m_client->postRequest("threads");
+        return;
+    case RefreshKind::Modules:
+        if (!m_client->capabilities().supportsModulesRequest) {
+            reportUnsupported(Tr::tr("the list of modules"));
+            emit refreshDataReceived(request.requestId, request.kind, {});
+            return;
+        }
+        if (const int seq = m_client->postRequest("modules"); seq >= 0)
+            m_moduleRequests.insert(seq, request.requestId);
+        return;
+    case RefreshKind::SourceFiles:
+        if (!m_client->capabilities().supportsLoadedSourcesRequest) {
+            reportUnsupported(Tr::tr("the list of source files"));
+            emit refreshDataReceived(request.requestId, request.kind, {});
+            return;
+        }
+        if (const int seq = m_client->postRequest("loadedSources"); seq >= 0)
+            m_sourceFilesRequests.insert(seq, request.requestId);
         return;
     case RefreshKind::AllSymbols:
         // Nothing loads symbols over the protocol; what the caller is after is
@@ -599,9 +734,9 @@ void DapImpl::refresh(const RefreshRequest &request)
         refresh({request.requestId, RefreshKind::Locals});
         return;
     default:
-        // Modules, registers, symbols and snapshots have no counterpart the
-        // protocol defines, so the view is answered with nothing rather than
-        // being left waiting.
+        // Registers, symbols and snapshots have no counterpart the protocol
+        // defines, so the view is answered with nothing rather than being left
+        // waiting.
         emit refreshDataReceived(request.requestId, request.kind, {});
         return;
     }
@@ -630,19 +765,6 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
     case DapResponseType::Initialize:
         return;
     case DapResponseType::ConfigurationDone:
-        postLaunchOrAttach();
-        reportRunning(true);
-        emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
-        m_inferiorRunning = true;
-        m_runReported = true;
-        // Whatever became of the debuggee while this was in flight is only
-        // reportable now that the run itself has been.
-        if (m_pendingResult) {
-            const InferiorResultData result = *m_pendingResult;
-            m_pendingResult.reset();
-            m_inferiorDoneReported = true;
-            emit inferiorDone(result);
-        }
         return;
     case DapResponseType::Continue:
         reportRunResult(success);
@@ -676,6 +798,10 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
             emit inferiorEvent(InferiorEvent::EngineRunFailed);
         return;
     case DapResponseType::Evaluate:
+        if (m_watcherRequests.contains(response.value("request_seq").toInt())) {
+            handleWatcher(response);
+            return;
+        }
         emit message(response.value("body").toObject().value("result").toString(),
                      LogMisc);
         return;
@@ -684,12 +810,23 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
     }
 
     if (command == "threads") {
-        const quint64 requestId = m_threadRequests.take(response.value("request_seq").toInt());
+        const int seq = response.value("request_seq").toInt();
+        const QJsonArray items = response.value("body").toObject().value("threads").toArray();
+        if (seq == m_backtraceThreadsSeq) {
+            m_backtraceThreadsSeq = -1;
+            for (const QJsonValue &value : items) {
+                const QJsonObject item = value.toObject();
+                m_backtraceThreads.enqueue({item.value("id").toInt(),
+                                            item.value("name").toString()});
+            }
+            continueBacktrace();
+            return;
+        }
+        const quint64 requestId = m_threadRequests.take(seq);
         GdbMi threads;
         threads.m_type = GdbMi::List;
         threads.m_name = "threads";
-        for (const QJsonValue &value : response.value("body").toObject()
-                                           .value("threads").toArray()) {
+        for (const QJsonValue &value : items) {
             const QJsonObject item = value.toObject();
             GdbMi thread;
             thread.m_type = GdbMi::Tuple;
@@ -703,6 +840,70 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         all.addChild(threads);
         all.addChild(constMi("current-thread-id", QString::number(m_currentThreadId)));
         emit refreshDataReceived(requestId, RefreshKind::Threads, all);
+        return;
+    }
+    if (command == "modules") {
+        const quint64 requestId = m_moduleRequests.take(response.value("request_seq").toInt());
+        GdbMi modules;
+        modules.m_type = GdbMi::List;
+        for (const QJsonValue &value : response.value("body").toObject()
+                                           .value("modules").toArray()) {
+            const QJsonObject item = value.toObject();
+            GdbMi module;
+            module.m_type = GdbMi::Tuple;
+            module.addChild(constMi("modulepath",
+                                    item.value("path").toString(item.value("name").toString())));
+            modules.addChild(module);
+        }
+        emit refreshDataReceived(requestId, RefreshKind::Modules, modules);
+        return;
+    }
+    if (command == "loadedSources") {
+        const quint64 requestId
+            = m_sourceFilesRequests.take(response.value("request_seq").toInt());
+        GdbMi files;
+        files.m_type = GdbMi::List;
+        for (const QJsonValue &value : response.value("body").toObject()
+                                           .value("sources").toArray()) {
+            const QJsonObject item = value.toObject();
+            const QString path = item.value("path").toString();
+            GdbMi file;
+            file.m_type = GdbMi::Tuple;
+            file.addChild(constMi("file", item.value("name").toString()));
+            if (!path.isEmpty())
+                file.addChild(constMi("fullname", path));
+            files.addChild(file);
+        }
+        emit refreshDataReceived(requestId, RefreshKind::SourceFiles, files);
+        return;
+    }
+    if (command == "setExceptionBreakpoints") {
+        // The answer lists the filters in the order they were asked for, if
+        // the adapter describes them at all - what it says about one of them
+        // is otherwise the outcome of the request as a whole.
+        const QStringList offered = m_client->capabilities().exceptionBreakpointFilters;
+        const QJsonArray reported = response.value("body").toObject()
+                                        .value("breakpoints").toArray();
+        int index = 0;
+        for (Breakpoint &breakpoint : m_exceptionBreakpoints) {
+            if (!breakpoint.enabled
+                || exceptionFilter(offered, breakpoint.params.type).isEmpty()) {
+                continue;
+            }
+            const QJsonObject item = reported.at(index++).toObject();
+            GdbMi data;
+            if (item.contains("id")) {
+                // How a later change to it is named, which is all there is to
+                // name it by: it has no location of its own.
+                breakpoint.responseId = QString::number(item.value("id").toInt());
+                GdbMi bkpt;
+                bkpt.m_type = GdbMi::Tuple;
+                bkpt.addChild(constMi("number", breakpoint.responseId));
+                data.m_type = GdbMi::List;
+                data.addChild(bkpt);
+            }
+            emit breakpointEvent(breakpoint.requestId, breakpoint.op, success, data);
+        }
         return;
     }
     if (command == "readMemory") {
@@ -747,6 +948,14 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
             sendBreakpointsFor(it.key());
         if (!m_functionBreakpoints.isEmpty())
             sendFunctionBreakpoints();
+        if (!m_exceptionBreakpoints.isEmpty())
+            sendExceptionBreakpoints();
+        // The launch goes out once the breakpoints have, and before the
+        // configuration is done: an adapter that starts the debuggee in its
+        // launch handler would otherwise run past them, and one that waits
+        // for the configuration still has the request in hand by then.
+        postLaunchOrAttach();
+        reportRunStarted();
         m_client->sendConfigurationDone();
         return;
     case DapEventType::Stopped:
@@ -761,11 +970,24 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         reportInferiorDone(result);
         return;
     }
+    case DapEventType::DapThread: {
+        const QJsonObject body = event.value("body").toObject();
+        GdbMi data;
+        data.m_type = GdbMi::Tuple;
+        data.addChild(constMi("id", QString::number(body.value("threadId").toInt())));
+        emit threadEvent(body.value("reason").toString() == "exited" ? ThreadEvent::Exited
+                                                                     : ThreadEvent::Created,
+                         data);
+        return;
+    }
     case DapEventType::Output: {
         const QJsonObject body = event.value("body").toObject();
         const QString category = body.value("category").toString();
-        emit message(body.value("output").toString(),
-                     category == "stderr" ? AppError : AppOutput);
+        // "console" is the adapter speaking, not the debuggee - what a log
+        // point prints comes that way.
+        const int channel = category == "stderr" ? AppError
+                          : category == "console" ? LogMisc : AppOutput;
+        emit message(body.value("output").toString(), channel);
         return;
     }
     default:
@@ -791,6 +1013,20 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         const qint64 pid = event.value("body").toObject().value("systemProcessId").toInteger();
         if (pid != 0)
             emit inferiorPidKnown(ProcessHandle(pid));
+    } else if (name == "module") {
+        const QJsonObject body = event.value("body").toObject();
+        const QJsonObject module = body.value("module").toObject();
+        // A module the adapter did not locate is still named, and the name is
+        // all there is to tell one from another.
+        const QString path = module.value("path").toString(module.value("name").toString());
+        GdbMi data;
+        data.m_type = GdbMi::Tuple;
+        data.addChild(constMi("id", module.value("id").toVariant().toString()));
+        data.addChild(constMi("target-name", path));
+        data.addChild(constMi("host-name", path));
+        emit libraryEvent(body.value("reason").toString() == "removed" ? LibraryEvent::Unloaded
+                                                                       : LibraryEvent::Loaded,
+                          data);
     }
 }
 
@@ -809,7 +1045,7 @@ void DapImpl::handleStopped(const QJsonObject &event)
     }
 
     // Report the stop only once the location is known, as the other backends do.
-    const int seq = m_client->stackTrace(m_currentThreadId);
+    const int seq = m_client->stackTrace(m_currentThreadId, 0);
     if (seq < 0) {
         reportStop();
         return;
@@ -847,8 +1083,14 @@ void DapImpl::reportStop()
 
 void DapImpl::handleStackTrace(const QJsonObject &response)
 {
-    const StackTraceRequest request
-        = m_stackTraceRequests.take(response.value("request_seq").toInt());
+    const int seq = response.value("request_seq").toInt();
+    if (seq == m_backtraceFramesSeq) {
+        handleBacktraceFrames(response);
+        return;
+    }
+    if (!m_stackTraceRequests.contains(seq))
+        return;
+    const StackTraceRequest request = m_stackTraceRequests.take(seq);
     const QJsonArray frames = response.value("body").toObject()
                                   .value("stackFrames").toArray();
 
@@ -897,6 +1139,38 @@ void DapImpl::handleStackTrace(const QJsonObject &response)
     emit refreshDataReceived(request.refreshRequestId, RefreshKind::FullStack, all);
 }
 
+void DapImpl::continueBacktrace()
+{
+    while (!m_backtraceThreads.isEmpty()) {
+        const QPair<int, QString> next = m_backtraceThreads.dequeue();
+        const int seq = m_client->stackTrace(next.first, 0);
+        if (seq >= 0) {
+            m_backtraceFramesSeq = seq;
+            m_backtrace += QString("Thread %1 (%2):\n").arg(next.first).arg(next.second);
+            return;
+        }
+    }
+    emit refreshDataReceived(m_backtraceRequestId, RefreshKind::FullBacktrace,
+                             constMi({}, m_backtrace));
+}
+
+void DapImpl::handleBacktraceFrames(const QJsonObject &response)
+{
+    m_backtraceFramesSeq = -1;
+    int level = 0;
+    for (const QJsonValue &value : response.value("body").toObject()
+                                       .value("stackFrames").toArray()) {
+        const QJsonObject item = value.toObject();
+        QString frame = QString("#%1  %2").arg(level++).arg(item.value("name").toString());
+        const QString path = item.value("source").toObject().value("path").toString();
+        if (!path.isEmpty())
+            frame += QString(" at %1:%2").arg(path).arg(item.value("line").toInt());
+        m_backtrace += frame + '\n';
+    }
+    m_backtrace += '\n';
+    continueBacktrace();
+}
+
 void DapImpl::selectThread(const QString &threadId)
 {
     m_currentThreadId = threadId.toInt();
@@ -921,6 +1195,17 @@ void DapImpl::continueLocalsWalk()
                                               QJsonObject{{"variablesReference", next.second}});
         if (seq >= 0) {
             m_variableRequests.insert(seq, next.first);
+            return;
+        }
+    }
+    while (!m_pendingWatchers.isEmpty()) {
+        const QPair<QString, QString> next = m_pendingWatchers.dequeue();
+        const int seq = m_client->postRequest("evaluate",
+                                              QJsonObject{{"expression", next.second},
+                                                          {"frameId", m_currentFrameId},
+                                                          {"context", "watch"}});
+        if (seq >= 0) {
+            m_watcherRequests.insert(seq, next);
             return;
         }
     }
@@ -1000,6 +1285,31 @@ void DapImpl::handleVariables(const QJsonObject &response)
         if (local.hasChildren && m_expandedINames.contains(local.iname))
             queueVariables(local.iname, local.reference);
     }
+    continueLocalsWalk();
+}
+
+void DapImpl::handleWatcher(const QJsonObject &response)
+{
+    const QPair<QString, QString> watcher
+        = m_watcherRequests.take(response.value("request_seq").toInt());
+    const QJsonObject body = response.value("body").toObject();
+
+    Local local;
+    local.iname = watcher.first;
+    local.name = watcher.second;
+    local.type = body.value("type").toString().section('\n', 0, 0);
+    // An expression the adapter could not evaluate has no value of its own, so
+    // what it said about it takes its place.
+    local.value = response.value("success").toBool() ? body.value("result").toString()
+                                                     : response.value("message").toString();
+    local.reference = body.value("variablesReference").toInt();
+    local.hasChildren = local.reference != 0;
+    local.address = body.value("memoryReference").toString().toULongLong(nullptr, 0);
+    m_localRoots.append(local.iname);
+    m_locals.insert(local.iname, local);
+
+    if (local.hasChildren && m_expandedINames.contains(local.iname))
+        queueVariables(local.iname, local.reference);
     continueLocalsWalk();
 }
 

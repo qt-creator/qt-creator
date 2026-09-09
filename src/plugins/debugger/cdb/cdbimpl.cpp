@@ -1878,6 +1878,11 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
         bkpt.addChild(constMi("number", reportedNumber));
         bkpt.addChild(constMi("enabled", "y"));
         bkpt.addChild(constMi("times", QString::number(times)));
+        // The model reads an update as the whole state of the breakpoint, so a
+        // condition left out of it counts as none rather than as unchanged.
+        const QString condition = m_conditionForBreakpointId.value(reportedNumber);
+        if (!condition.isEmpty())
+            bkpt.addChild(constMi("cond", condition));
         GdbMi list;
         list.m_type = GdbMi::List;
         list.addChild(bkpt);

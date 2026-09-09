@@ -158,8 +158,10 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
                 module.moduleName = module.modulePath.baseName();
                 module.startAddress = item["startaddress"].data().toULongLong();
                 module.endAddress = item["endaddress"].data().toULongLong();
-                module.symbolsRead = item["symbolsread"].data() == "Yes"
-                                     ? Module::ReadOk : Module::ReadFailed;
+                if (const GdbMi symbolsRead = item["symbolsread"]; symbolsRead.isValid()) {
+                    module.symbolsRead = symbolsRead.data() == "Yes"
+                                         ? Module::ReadOk : Module::ReadFailed;
+                }
                 handler->updateModule(module);
             }
             handler->endUpdateAll();

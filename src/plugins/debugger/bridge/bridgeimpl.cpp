@@ -502,7 +502,7 @@ void BridgeImpl::refresh(const RefreshRequest &request)
         return;
     }
     case RefreshKind::FullStack:
-        if (const int seq = m_client->stackTrace(m_currentThreadId); seq >= 0)
+        if (const int seq = m_client->stackTrace(m_currentThreadId, 0); seq >= 0)
             m_stackTraceRequests.insert(seq, {false, request.requestId});
         return;
     case RefreshKind::Registers:
@@ -905,7 +905,7 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
     m_stopPending = false;
 
     // Report the stop only once the location is known, as the other backends do.
-    const int seq = m_client->stackTrace(m_currentThreadId);
+    const int seq = m_client->stackTrace(m_currentThreadId, 0);
     if (seq < 0) {
         reportStop();
         return;

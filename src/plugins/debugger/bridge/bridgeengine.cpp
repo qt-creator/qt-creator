@@ -1220,7 +1220,7 @@ void BridgeEngine::handleStoppedEvent(const QJsonObject &event)
     else if (state() == InferiorRunOk)
         notifyInferiorSpontaneousStop();
 
-    m_dapClient->stackTrace(m_currentThreadId);
+    m_dapClient->stackTrace(m_currentThreadId, 0);
     m_dapClient->threads();
 }
 
@@ -1261,7 +1261,7 @@ void BridgeEngine::updateAll()
     // Refresh the stack; its response chains into the base updateLocals(),
     // which drives doUpdateLocals() -> qtc/fetchVariables.
     if (m_currentThreadId != -1)
-        m_dapClient->stackTrace(m_currentThreadId);
+        m_dapClient->stackTrace(m_currentThreadId, 0);
 
     reloadRegisters();
 }

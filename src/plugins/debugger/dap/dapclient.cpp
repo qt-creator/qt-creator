@@ -136,11 +136,11 @@ void DapClient::evaluateVariable(const QString &expression, int frameId)
                             {"context", "variables"}});
 }
 
-int DapClient::stackTrace(int threadId)
+int DapClient::stackTrace(int threadId, int levels)
 {
     QTC_ASSERT(threadId != -1, return -1);
     return postRequest("stackTrace",
-                       QJsonObject{{"threadId", threadId}, {"startFrame", 0}, {"levels", 10}});
+                       QJsonObject{{"threadId", threadId}, {"startFrame", 0}, {"levels", levels}});
 }
 
 int DapClient::scopes(int frameId)
@@ -345,6 +345,12 @@ void DapClient::fillCapabilities(const QJsonObject &response)
         = body.value("supportsExceptionFilterOptions").toBool();
     m_capabilities.supportsSingleThreadExecutionRequests
         = body.value("supportsSingleThreadExecutionRequests").toBool();
+
+    m_capabilities.exceptionBreakpointFilters.clear();
+    for (const QJsonValue &filter : body.value("exceptionBreakpointFilters").toArray()) {
+        m_capabilities.exceptionBreakpointFilters
+            .append(filter.toObject().value("filter").toString());
+    }
 }
 
 } // namespace Debugger::Internal

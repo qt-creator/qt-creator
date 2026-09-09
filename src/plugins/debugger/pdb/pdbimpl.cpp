@@ -653,6 +653,10 @@ void PdbImpl::handleOutputLine(const QString &line)
         bkpt.addChild(constMi("line", QString::number(it->request.params.textPosition.line)));
         bkpt.addChild(constMi("enabled", "y"));
         bkpt.addChild(constMi("times", item["times"].data()));
+        // The model reads an update as the whole state of the breakpoint, so a
+        // condition left out of it counts as none rather than as unchanged.
+        if (!it->request.params.condition.isEmpty())
+            bkpt.addChild(constMi("cond", it->request.params.condition));
         GdbMi list;
         list.m_type = GdbMi::List;
         list.addChild(bkpt);
