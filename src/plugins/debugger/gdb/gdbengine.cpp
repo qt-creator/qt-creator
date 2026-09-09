@@ -4657,10 +4657,7 @@ void GdbEngine::runEngine()
     } else if (isPlainEngine()) {
 
         claimInitialBreakpoints();
-        if (rp.useContinueInsteadOfRun())
-            runCommand({"-exec-continue", DebuggerCommand::RunRequest, CB(handleExecuteContinue)});
-        else
-            runCommand({"-exec-run", DebuggerCommand::RunRequest, CB(handleExecRun)});
+        runCommand({"-exec-run", DebuggerCommand::RunRequest, CB(handleExecRun)});
 
     }
 }
