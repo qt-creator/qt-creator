@@ -14,7 +14,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
-#include <utils/globaltasktree.h>
 #include <utils/id.h>
 #include <utils/qtcprocess.h>
 #include <utils/result.h>
@@ -157,11 +156,7 @@ void setupDeviceModule()
                     callback(res.error());
                     return;
                 }
-                // Toolchain and debugger detection run synchronously here; on-device
-                // tools (cmake, rsync, ...) are detected by the async recipe, after
-                // which the kits are (re)created.
-                device->requestToolDetection(device->toolSearchPaths());
-                GlobalTaskTree::start(device->autoDetectDeviceToolsRecipe(), {}, reportKits);
+                device->runAutoDetect({}, reportKits);
             };
 
             device->tryToConnect({Utils::shutdownGuard(), onConnected});
