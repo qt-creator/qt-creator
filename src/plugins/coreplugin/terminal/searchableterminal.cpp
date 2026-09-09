@@ -160,26 +160,24 @@ QList<TerminalSolution::SearchHit> TerminalSearch::searchRegex()
                               : QRegularExpression::CaseInsensitiveOption);
 
     QRegularExpressionMatchIterator it = re.globalMatch(allText);
-    int adjust = 0;
     auto itAdjust = adjustTable.begin();
-    while (it.hasNext()) {
-        QRegularExpressionMatch match = it.next();
-        int s = match.capturedStart();
-        int e = match.capturedEnd();
+    int adjust = 0;
 
-        // Update 'adjust' to account for characters > 2 bytes
-        if (itAdjust != adjustTable.end()) {
-            while (s > *itAdjust && itAdjust != adjustTable.end()) {
-                adjust++;
-                itAdjust++;
-            }
-            s -= adjust;
-            while (e > *itAdjust && itAdjust != adjustTable.end()) {
-                adjust++;
-                itAdjust++;
-            }
-            e -= adjust;
+    // Offsets into allText count UTF-16 code units; hits are reported in cells.
+    // Subtract one for each character before the offset that took two units.
+    // Matches arrive in increasing order, so one forward walk covers them all.
+    const auto toCellOffset = [&](int offset) {
+        while (itAdjust != adjustTable.end() && offset > *itAdjust) {
+            ++adjust;
+            ++itAdjust;
         }
+        return offset - adjust;
+    };
+
+    while (it.hasNext()) {
+        const QRegularExpressionMatch match = it.next();
+        const int s = toCellOffset(match.capturedStart());
+        const int e = toCellOffset(match.capturedEnd());
         hits << TerminalSolution::SearchHit{s, e};
     }
 
