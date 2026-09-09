@@ -175,6 +175,7 @@ struct InferiorTestData
     // "gdbserver --multi" - so its stub has to own the process from the start.
     bool remoteStubHostsProcess = false;
     QString enableToggleWireMarker;
+    QString symbolOptionsCommand;
     // Whether the backend's bridge resolves a QML breakpoint through casts on
     // the debug service, rather than marshalling the arguments and calling by
     // address the way the cdb one does.
@@ -1134,6 +1135,8 @@ private slots:
     void reportsEngineSetupFailure();
     void insertsABreakpointBehindABlockedDebugger_data() { addBackendRows(); }
     void insertsABreakpointBehindABlockedDebugger();
+    void leavesThePublicSymbolsOutOfTheSearch_data() { addBackendRows(); }
+    void leavesThePublicSymbolsOutOfTheSearch();
     void reportsAnUnresponsiveDebugger_data() { addBackendRows(); }
     void reportsAnUnresponsiveDebugger();
     void appliesConfiguredDebuggerOptions_data() { addBackendRows(); }
@@ -2302,6 +2305,7 @@ void tst_backends::initTestCase()
             m_backendData[Backend::Cdb].inferiorData.survivedAccessViolationMarker
                 = "survived the access violation";
             m_backendData[Backend::Cdb].inferiorData.enableToggleWireMarker = "bd";
+            m_backendData[Backend::Cdb].inferiorData.symbolOptionsCommand = ".symopt";
             m_backendData[Backend::Cdb].inferiorData.moduleSymbolsPath
                 = msvcInferiorData.executable;
         } else {
@@ -6885,6 +6889,46 @@ void tst_backends::insertsABreakpointBehindABlockedDebugger()
                               "a breakpoint issued behind a blocked debugger was never answered",
                               s_timeout + block);
     QVERIFY2(results.value(81), "inserting behind a blocked debugger failed");
+}
+
+void tst_backends::leavesThePublicSymbolsOutOfTheSearch()
+{
+    QFETCH(Backend, backend);
+
+    const QString command = inferiorTestData(backend).symbolOptionsCommand;
+    if (command.isEmpty())
+        QSKIP("This debugger has no symbol options to ask about.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList messages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&messages](const QString &text, int, int) { messages.append(text); });
+    engine->executeDebuggerCommand(command, {});
+
+    static const QLatin1String prefix("Symbol options are 0x");
+    QString reported;
+    auto sawTheOptions = [&] {
+        for (const QString &text : std::as_const(messages)) {
+            const int at = text.indexOf(prefix);
+            if (at < 0)
+                continue;
+            reported = text.mid(at + prefix.size());
+            reported.truncate(reported.indexOf(':'));
+            return true;
+        }
+        return false;
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(sawTheOptions(), "the debugger never told its symbol options",
+                              s_timeout);
+    bool ok = false;
+    const unsigned options = reported.toUInt(&ok, 16);
+    QVERIFY2(ok, qPrintable("unreadable symbol options: " + reported));
+    QVERIFY2(options & 0x8000u,
+             qPrintable(QString("the public symbols are still searched: 0x%1")
+                            .arg(options, 0, 16)));
 }
 
 void tst_backends::reportsAnUnresponsiveDebugger()

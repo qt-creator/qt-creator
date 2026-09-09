@@ -1422,6 +1422,7 @@ void CdbImpl::resumeAfterSetup()
 
 void CdbImpl::initializeSession(const std::function<void()> &whenReady)
 {
+    runCommand({".symopt+0x8000", NoFlags});
     runCommand({"sxn ibp", NoFlags});
     runCommand({"sxn ud", NoFlags});
     runCommand({"sxn 0x4000001f", NoFlags}); // The wow64 layer's own breakpoint.
