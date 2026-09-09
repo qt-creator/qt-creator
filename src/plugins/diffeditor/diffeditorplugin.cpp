@@ -366,6 +366,8 @@ private slots:
     void testMakePatch();
     void testReadPatch_data();
     void testReadPatch();
+    void testOpenPatch_data();
+    void testOpenPatch();
     void testFilterPatch_data();
     void testFilterPatch();
     void testDiffDocuments();
@@ -545,6 +547,8 @@ void DiffEditorPlugin::diffExternalFiles()
 #include <QToolBar>
 
 #include "diffutils.h"
+
+#include <utils/temporarydirectory.h>
 
 Q_DECLARE_METATYPE(DiffEditor::ChunkData)
 Q_DECLARE_METATYPE(DiffEditor::FileData)
@@ -1362,6 +1366,94 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
             }
         }
     }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testOpenPatch_data()
+{
+    QTest::addColumn<QString>("description");
+    QTest::addColumn<QString>("patchBody");
+
+    const QString gitPatch =
+        "diff --git a/test.txt b/test.txt\n"
+        "index 1234567..89abcde 100644\n"
+        "--- a/test.txt\n"
+        "+++ b/test.txt\n"
+        "@@ -1 +1,2 @@\n"
+        " line\n"
+        "+new\n";
+    const QString gitDescription =
+        "From abcdef1234567890abcdef1234567890abcdef12 Mon Sep 17 00:00:00 2001\n"
+        "Subject: [PATCH] Test patch\n"
+        "\n"
+        "---\n"
+        " test.txt | 1 +\n"
+        " 1 file changed, 1 insertion(+)";
+    QTest::newRow("git") << gitDescription << gitPatch;
+
+    const QString gitDescriptionWithQuotedDiff =
+        "From abcdef1234567890abcdef1234567890abcdef12 Mon Sep 17 00:00:00 2001\n"
+        "Subject: [PATCH] Test patch\n"
+        "\n"
+        "A message that quotes a diff:\n"
+        "--- old/example.txt\n"
+        "+++ new/example.txt\n"
+        "@@ -1 +1 @@\n"
+        "-old\n"
+        "+new\n"
+        "\n"
+        "Follow-up prose must remain in the description.\n"
+        "\n"
+        "---\n"
+        " test.txt | 1 +\n"
+        " 1 file changed, 1 insertion(+)";
+    QTest::newRow("git-description-with-quoted-diff")
+        << gitDescriptionWithQuotedDiff << gitPatch;
+
+    const QString mercurialDescription =
+        "# HG changeset patch\n"
+        "# User Test User <test@example.com>\n"
+        "Test patch";
+    const QString mercurialPatch =
+        "diff -r 123456789abc -r 987654321def test.txt\n"
+        "--- a/test.txt\n"
+        "+++ b/test.txt\n"
+        "@@ -1,1 +1,2 @@\n"
+        " line\n"
+        "+new\n";
+    QTest::newRow("mercurial") << mercurialDescription << mercurialPatch;
+
+    const QString unifiedDescription = "Description of a generic unified diff";
+    const QString unifiedPatch =
+        "--- old/test.txt\n"
+        "+++ new/test.txt\n"
+        "@@ -1,1 +1,2 @@\n"
+        " line\n"
+        "+new\n";
+    QTest::newRow("unified") << unifiedDescription << unifiedPatch;
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testOpenPatch()
+{
+    QFETCH(QString, description);
+    QFETCH(QString, patchBody);
+
+    TemporaryDirectory tempDir("qtc-diffeditor-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const FilePath filePath = tempDir.filePath("test.patch");
+    QVERIFY(filePath.writeFileContents((description + '\n' + patchBody).toUtf8()));
+
+    DiffEditorDocument document;
+    const Result<> result = document.open(filePath, filePath);
+    QVERIFY2(result, result ? "" : qPrintable(result.error()));
+    QCOMPARE(document.description(), description);
+
+    const FilePath patchWithoutDescriptionPath = tempDir.filePath("without-description.patch");
+    QVERIFY(patchWithoutDescriptionPath.writeFileContents(patchBody.toUtf8()));
+    const Result<> resultWithoutDescription
+        = document.open(patchWithoutDescriptionPath, patchWithoutDescriptionPath);
+    QVERIFY2(resultWithoutDescription,
+             resultWithoutDescription ? "" : qPrintable(resultWithoutDescription.error()));
+    QVERIFY(document.description().isEmpty());
 }
 
 using ListOfStringPairs = QList<QPair<QString, QString>>;

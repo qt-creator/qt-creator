@@ -13,6 +13,8 @@
 #include <coreplugin/dialogs/codecselector.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <QRegularExpression>
+
 using namespace Core;
 using namespace Utils;
 
@@ -303,6 +305,17 @@ Result<> DiffEditorDocument::open(const FilePath &filePath, const FilePath &real
                                   "The content is not of unified diff format.")
                 .arg(filePath.toUserOutput());
     } else {
+        // Patch formats may store a description before the first file diff.
+        static const QRegularExpression namedDiffStartPattern(
+            R"(^(?:diff --git |diff -r ))", QRegularExpression::MultilineOption);
+        static const QRegularExpression bareDiffStartPattern(
+            R"(^--- [^\n]*\n^\+\+\+ )",
+            QRegularExpression::MultilineOption);
+        QRegularExpressionMatch diffStartMatch = namedDiffStartPattern.match(readResult.content);
+        if (!diffStartMatch.hasMatch())
+            diffStartMatch = bareDiffStartPattern.match(readResult.content);
+        const int diffStart = diffStartMatch.capturedStart();
+        setDescription(diffStart > 0 ? readResult.content.left(diffStart).trimmed() : QString());
         setTemporary(false);
         emit temporaryStateChanged();
         setFilePath(filePath.absoluteFilePath());
