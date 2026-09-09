@@ -3,9 +3,16 @@
 
 #pragma once
 
+#include <QFlags>
 #include <QString>
 
 namespace TerminalSolution {
+
+enum class ClipboardTarget {
+    Clipboard = 0x01,
+    Selection = 0x02,
+};
+Q_DECLARE_FLAGS(ClipboardTargets, ClipboardTarget)
 
 class SurfaceIntegration
 {
@@ -15,8 +22,13 @@ public:
     virtual void onBell() {}
     virtual void onTitle(const QString &title) { Q_UNUSED(title) }
 
-    virtual void onSetClipboard(const QByteArray &text) { Q_UNUSED(text) }
-    virtual void onGetClipboard() {}
+    virtual void onSetClipboard(const QByteArray &text, ClipboardTargets targets)
+    {
+        Q_UNUSED(text)
+        Q_UNUSED(targets)
+    }
 };
 
 } // namespace TerminalSolution
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(TerminalSolution::ClipboardTargets)

@@ -23,7 +23,8 @@ public:
     void onBell() override;
     void onTitle(const QString &title) override;
 
-    void onSetClipboard(const QByteArray &text) override;
+    void onSetClipboard(const QByteArray &text,
+                        TerminalSolution::ClipboardTargets targets) override;
 
     void prepareProcess(Utils::Process &process);
 

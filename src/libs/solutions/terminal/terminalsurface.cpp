@@ -26,6 +26,7 @@ static QColor toQColor(const VTermColor &c)
 };
 
 constexpr int batchFlushSize = 256;
+constexpr qsizetype maxClipboardWriteSize = 8 * 1024 * 1024;
 
 struct TerminalSurfacePrivate
 {
@@ -154,33 +155,47 @@ struct TerminalSurfacePrivate
 
         memset(&m_vtermSelectionCallbacks, 0, sizeof(m_vtermSelectionCallbacks));
 
-        m_vtermSelectionCallbacks.query = [](VTermSelectionMask mask, void *user) {
-            if (!(mask & 0xF))
-                return 0;
-
-            auto p = static_cast<TerminalSurfacePrivate *>(user);
-            if (p->m_surfaceIntegration)
-                p->m_surfaceIntegration->onGetClipboard();
-
-            return 0;
-        };
-
         m_vtermSelectionCallbacks.set =
             [](VTermSelectionMask mask, VTermStringFragment frag, void *user) {
-                if (!(mask & 0xF))
+                ClipboardTargets targets;
+                if (mask & VTERM_SELECTION_CLIPBOARD)
+                    targets |= ClipboardTarget::Clipboard;
+                // SELECT is what libvterm makes of the parameter xterm
+                // documents as the default, an empty one, which is the form
+                // several programs send. xterm reads it as the primary
+                // selection, so that is what it names here. The cut buffers
+                // it also sets have no counterpart and are ignored, as is
+                // SECONDARY.
+                if (mask & (VTERM_SELECTION_PRIMARY | VTERM_SELECTION_SELECT))
+                    targets |= ClipboardTarget::Selection;
+                if (!targets)
                     return 0;
 
                 auto p = static_cast<TerminalSurfacePrivate *>(user);
-                if (frag.initial)
+                if (frag.initial) {
                     p->m_selectionBuffer.clear();
+                    p->m_selectionTooLong = false;
+                }
+
+                if (p->m_selectionTooLong)
+                    return 0;
+
+                if (p->m_selectionBuffer.size() + qsizetype(frag.len) > maxClipboardWriteSize) {
+                    p->m_selectionTooLong = true;
+                    p->m_selectionBuffer.clear();
+                    p->m_selectionBuffer.squeeze();
+                    return 0;
+                }
 
                 p->m_selectionBuffer.append(frag.str, frag.len);
                 if (!frag.final)
                     return 1;
 
                 if (p->m_surfaceIntegration)
-                    p->m_surfaceIntegration->onSetClipboard(p->m_selectionBuffer);
+                    p->m_surfaceIntegration->onSetClipboard(p->m_selectionBuffer, targets);
 
+                p->m_selectionBuffer.clear();
+                p->m_selectionBuffer.squeeze();
                 return 1;
             };
 
@@ -726,6 +741,7 @@ struct TerminalSurfacePrivate
     QTimer m_delayWriteTimer;
     QByteArray m_writeBuffer;
     QByteArray m_selectionBuffer;
+    bool m_selectionTooLong{false};
 
     TerminalSurface::WriteToPty m_writeToPty;
 

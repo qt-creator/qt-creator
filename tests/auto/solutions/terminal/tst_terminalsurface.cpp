@@ -1,6 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <solutions/terminal/surfaceintegration.h>
 #include <solutions/terminal/terminalsurface.h>
 
 #include <QTest>
@@ -15,6 +16,25 @@
 
 using namespace TerminalSolution;
 
+class ClipboardRecorder : public SurfaceIntegration
+{
+public:
+    QList<std::pair<QByteArray, ClipboardTargets>> writes;
+
+    void onOsc(int cmd, std::string_view str, bool initial, bool final) override
+    {
+        Q_UNUSED(cmd)
+        Q_UNUSED(str)
+        Q_UNUSED(initial)
+        Q_UNUSED(final)
+    }
+
+    void onSetClipboard(const QByteArray &text, ClipboardTargets targets) override
+    {
+        writes.append({text, targets});
+    }
+};
+
 class tst_TerminalSurface : public QObject
 {
     Q_OBJECT
@@ -22,6 +42,7 @@ class tst_TerminalSurface : public QObject
 private:
     static constexpr int notFound = std::numeric_limits<int>::min();
 
+    ClipboardRecorder m_recorder;
     std::unique_ptr<TerminalSurface> m_surface;
 
     QString textAt(int y) const
@@ -35,8 +56,10 @@ private:
 private slots:
     void initSurface(QSize size)
     {
+        m_recorder.writes.clear();
         m_surface = std::make_unique<TerminalSurface>(size);
         m_surface->setWriteToPty([](const QByteArray &data) { return qint64(data.size()); });
+        m_surface->setSurfaceIntegration(&m_recorder);
     }
 
     void init() { initSurface({80, 24}); }
@@ -983,6 +1006,59 @@ private slots:
         QCOMPARE(textAt(0), QString("link"));
         QVERIFY(!m_surface->hyperlinkAt({0, 0}));
     }
+
+    void aClipboardWriteReachesOnlyTheRequestedSelections()
+    {
+        m_surface->dataFromPty("\x1b]52;c;Y2xpcA==\x07");
+        m_surface->dataFromPty("\x1b]52;p;cHJpbQ==\x07");
+        m_surface->dataFromPty("\x1b]52;cp;Ym90aA==\x07");
+
+        QCOMPARE(m_recorder.writes.size(), 3);
+
+        QCOMPARE(m_recorder.writes.at(0).first, QByteArray("clip"));
+        QCOMPARE(m_recorder.writes.at(0).second, ClipboardTargets(ClipboardTarget::Clipboard));
+
+        QCOMPARE(m_recorder.writes.at(1).first, QByteArray("prim"));
+        QCOMPARE(m_recorder.writes.at(1).second, ClipboardTargets(ClipboardTarget::Selection));
+
+        QCOMPARE(m_recorder.writes.at(2).first, QByteArray("both"));
+        QCOMPARE(m_recorder.writes.at(2).second,
+                 ClipboardTarget::Clipboard | ClipboardTarget::Selection);
+    }
+
+    void aClipboardWriteNamingNoSelectionNamesThePrimaryOne()
+    {
+        // An empty parameter is the form xterm documents as the default, and
+        // reads there as the primary selection. libvterm turns it into
+        // SELECT together with cut buffer 0, which has no counterpart here.
+        m_surface->dataFromPty("\x1b]52;;Y2xpcA==\x07");
+
+        QCOMPARE(m_recorder.writes.size(), 1);
+        QCOMPARE(m_recorder.writes.at(0).first, QByteArray("clip"));
+        QCOMPARE(m_recorder.writes.at(0).second, ClipboardTargets(ClipboardTarget::Selection));
+    }
+
+    void aClipboardWriteNamingNothingQtHasIsIgnored()
+    {
+        m_surface->dataFromPty("\x1b]52;q;Y2xpcA==\x07"); // the secondary selection
+        m_surface->dataFromPty("\x1b]52;0;Y2xpcA==\x07"); // cut buffer 0 on its own
+
+        QVERIFY(m_recorder.writes.isEmpty());
+    }
+
+    void anOverlongClipboardWriteIsDiscardedWhole()
+    {
+        const QByteArray tooMuch(8 * 1024 * 1024 + 1, 'x');
+        m_surface->dataFromPty("\x1b]52;c;" + tooMuch.toBase64() + "\x07");
+
+        QVERIFY(m_recorder.writes.isEmpty());
+
+        m_surface->dataFromPty("\x1b]52;c;Y2xpcA==\x07");
+
+        QCOMPARE(m_recorder.writes.size(), 1);
+        QCOMPARE(m_recorder.writes.first().first, QByteArray("clip"));
+    }
+
 };
 
 QTEST_GUILESS_MAIN(tst_TerminalSurface)

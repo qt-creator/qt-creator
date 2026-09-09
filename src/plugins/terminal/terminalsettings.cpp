@@ -528,6 +528,13 @@ TerminalSettings::TerminalSettings()
     enableMouseTracking.setToolTip(Tr::tr("Enables mouse tracking in the terminal."));
     enableMouseTracking.setDefaultValue(true);
 
+    allowClipboardWrite.setSettingsKey("AllowClipboardWrite");
+    allowClipboardWrite.setLabelText(Tr::tr("Allow programs to set the clipboard"));
+    allowClipboardWrite.setToolTip(
+        Tr::tr("Lets a program running in the terminal replace the clipboard contents "
+               "using an escape sequence. Reading the clipboard is never allowed."));
+    allowClipboardWrite.setDefaultValue(false);
+
     setupColor(this, foregroundColor, "Foreground", creatorColor(Theme::TerminalForeground));
     setupColor(this, backgroundColor, "Background", creatorColor(Theme::TerminalBackground));
     setupColor(this, selectionColor, "Selection", creatorColor(Theme::TerminalSelection));
@@ -637,6 +644,7 @@ TerminalSettings::TerminalSettings()
                     audibleBell, st,
                     allowBlinkingCursor, st,
                     enableMouseTracking, st,
+                    allowClipboardWrite, st,
                 },
             },
             Group {

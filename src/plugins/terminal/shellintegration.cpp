@@ -10,6 +10,7 @@
 #include <utils/stringutils.h>
 
 #include <QApplication>
+#include <QClipboard>
 #include <QDir>
 #include <QLoggingCategory>
 
@@ -266,9 +267,22 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
     process.setEnvironment(env);
 }
 
-void ShellIntegration::onSetClipboard(const QByteArray &text)
+void ShellIntegration::onSetClipboard(const QByteArray &text,
+                                      TerminalSolution::ClipboardTargets targets)
 {
-    setClipboardAndSelection(QString::fromLocal8Bit(text));
+    if (!settings().allowClipboardWrite())
+        return;
+
+    // OSC 52 carries utf-8; the system codec is not what was sent.
+    const QString str = QString::fromUtf8(text);
+    QClipboard *clipboard = QApplication::clipboard();
+
+    if (targets.testFlag(TerminalSolution::ClipboardTarget::Clipboard))
+        clipboard->setText(str);
+    if (targets.testFlag(TerminalSolution::ClipboardTarget::Selection)
+        && clipboard->supportsSelection()) {
+        clipboard->setText(str, QClipboard::Selection);
+    }
 }
 
 } // namespace Terminal
