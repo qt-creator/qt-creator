@@ -32,6 +32,15 @@ public:
 
     void linkActivated(const Link &link) override { activated = link; }
 
+    // What a triple click builds: the whole row, ending one past its last cell.
+    void selectRow(int row)
+    {
+        const int width = surface()->liveSize().width();
+        setSelection(Selection{surface()->gridToPos({0, row}),
+                               surface()->gridToPos({width, row}),
+                               true});
+    }
+
     void ctrlHover(QPoint gridPos)
     {
         const QPoint pos = viewportPos(gridPos);
@@ -144,6 +153,48 @@ private slots:
         m_view->ctrlHover({0, 0});
 
         QVERIFY(!QToolTip::isVisible());
+    }
+
+    void aSelectionSurvivesOutputBelowIt()
+    {
+        m_view->writeToTerminal("one\r\ntwo\r\nthree", true);
+
+        m_view->selectRow(0);
+        QVERIFY(m_view->selection());
+
+        // Row 1 holds no selected cell: a row selection ends on the first cell
+        // of the row below, which is where the selection stops rather than
+        // where it reaches.
+        m_view->writeToTerminal("\x1b[2;1Hbelow", true);
+
+        QVERIFY2(m_view->selection(), "output on the row below cleared the selection");
+
+        // The control: damage that does reach the selected row clears it, so
+        // the check above is not passing because nothing is being cleared.
+        m_view->writeToTerminal("\x1b[1;1Hinside", true);
+
+        QVERIFY(!m_view->selection());
+    }
+
+    void aClearedScrollbackDropsTheSelection()
+    {
+        // Fill the scrollback, so that the rows the selection names are
+        // measured from a top that clearing is about to move.
+        for (int i = 0; i < 40; ++i)
+            m_view->writeToTerminal("line\r\n", true);
+
+        const int scrollbackRows = m_view->surface()->fullSize().height()
+                                   - m_view->surface()->liveSize().height();
+        QVERIFY(scrollbackRows > 0);
+
+        m_view->selectRow(scrollbackRows - 1);
+        QVERIFY(m_view->selection().has_value());
+
+        // Clearing reports a size change, not a damaged rectangle, so the
+        // overlap test that keeps a selection across a redraw never sees it.
+        m_view->surface()->clearAll();
+
+        QTRY_VERIFY(!m_view->selection().has_value());
     }
 
     void aBurstOfResizesIsCoalesced()

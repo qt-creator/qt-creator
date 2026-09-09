@@ -214,7 +214,16 @@ std::function<void()> TerminalView::surfaceUpdater() const
 void TerminalView::setupSurface()
 {
     d->m_surface = std::make_unique<TerminalSurface>(QSize{80, 60});
-    connect(d->m_surface.get(), &TerminalSurface::cleared, this, &TerminalView::cleared);
+    connect(d->m_surface.get(), &TerminalSurface::cleared, this, [this] {
+        // A selection is a pair of positions counted from the top of the
+        // scrollback, so dropping the scrollback moves every row they name.
+        // The overlap test on invalidated cannot catch this: clearing reports
+        // a size change, not a damaged rectangle, and the rows the selection
+        // names are still inside the new grid - they just hold other text now.
+        setSelection(std::nullopt);
+        clearLinkSelection();
+        emit cleared();
+    });
 
     if (d->m_surfaceIntegration)
         d->m_surface->setSurfaceIntegration(d->m_surfaceIntegration);
@@ -225,7 +234,15 @@ void TerminalView::setupSurface()
         updateScrollBars();
     });
     connect(d->m_surface.get(), &TerminalSurface::invalidated, this, [this](const QRect &rect) {
-        setSelection(std::nullopt);
+        if (d->m_selection) {
+            // end is one past the last selected cell, and a line selection
+            // puts it on the first cell of the next row, so the row it names
+            // is not part of the selection.
+            const int firstRow = d->m_surface->posToGrid(d->m_selection->start).y();
+            const int lastRow = d->m_surface->posToGrid(d->m_selection->end - 1).y();
+            if (rect.top() <= lastRow && rect.bottom() >= firstRow)
+                setSelection(std::nullopt);
+        }
         updateViewportRect(gridToViewport(rect));
         if (verticalScrollBar()->value() == verticalScrollBar()->maximum())
             verticalScrollBar()->setValue(d->m_surface->fullSize().height());
