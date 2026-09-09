@@ -159,6 +159,29 @@ public:
     std::optional<int> hitCount; //!< Number of times this has been hit.
 };
 
+// A tracepoint message carries captures: the $ADDRESS family, or an expression
+// in braces. The order is gdbtracepoint.py's capture types, which is what the
+// dumper side is told.
+enum class TracepointCaptureType {
+    Address, Caller, Callstack, FilePos, Function,
+    Pid, ProcessName, Tick, Tid, ThreadName, Expression
+};
+
+class TracepointCapture
+{
+public:
+    TracepointCaptureType type;
+    QString expression;
+    int start = 0;
+    int end = 0;
+};
+
+QList<TracepointCapture> parseTracepointCaptures(const QString &message);
+QString formatTracepointMessage(const QString &message,
+                                const QList<TracepointCapture> &captures,
+                                const GdbMi &values,
+                                const GdbMi &expressions);
+
 } // namespace Internal
 } // namespace Debugger
 

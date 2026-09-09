@@ -102,21 +102,6 @@ static void showExecutionError(const QString &message)
                                      Tr::tr("Cannot continue debugged process:") + '\n' + message);
 }
 
-enum class TracepointCaptureType
-{
-    Address,
-    Caller,
-    Callstack,
-    FilePos,
-    Function,
-    Pid,
-    ProcessName,
-    Tick,
-    Tid,
-    ThreadName,
-    Expression
-};
-
 struct TracepointCaptureData
 {
     TracepointCaptureType type;
@@ -5320,7 +5305,7 @@ static GdbImplSearchPaths gdbImplSearchPaths(const DebuggerRunParameters &rp)
     return paths;
 }
 
-static GdbImplUserCommands gdbImplUserCommands(const DebuggerRunParameters &rp)
+static DebuggerUserCommands gdbImplUserCommands(const DebuggerRunParameters &rp)
 {
     QStringList startupLines = settings().gdbStartupCommands().split('\n');
     startupLines += rp.additionalStartupCommands().split('\n');

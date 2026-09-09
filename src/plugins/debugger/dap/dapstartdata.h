@@ -88,6 +88,7 @@ public:
     BridgeStartData bridgeStartData;
     Utils::FilePaths extraDumperFiles;
     QStringList extraDumperCommands;
+    DebuggerUserCommands userCommands;
     Utils::FilePath sysroot;
     QList<QPair<QString, QString>> sourcePathMap;
     Utils::FilePaths sourceDirectories;

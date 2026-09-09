@@ -23,21 +23,10 @@
 
 namespace Debugger::Internal {
 
-enum class GdbImplTracepointCaptureType {
-    Address, Caller, Callstack, FilePos, Function,
-    Pid, ProcessName, Tick, Tid, ThreadName, Expression
-};
-struct GdbImplTracepointCaptureData
-{
-    GdbImplTracepointCaptureType type;
-    QString expression;
-    int start = 0;
-    int end = 0;
-};
 struct GdbImplTracepointInfo
 {
     QString message;
-    QList<GdbImplTracepointCaptureData> captures;
+    QList<TracepointCapture> captures;
 };
 
 enum class GdbImplFlag {
@@ -73,16 +62,6 @@ public:
     QMap<QString, QString> sourcePathMap;
 };
 
-class DEBUGGER_EXPORT GdbImplUserCommands
-{
-public:
-    Utils::FilePath startScript;
-    QString atStartup;
-    QString afterAttach;
-    QStringList afterConnect;
-    QStringList forReset;
-};
-
 class DEBUGGER_EXPORT GdbImplStartData
 {
 public:
@@ -98,7 +77,7 @@ public:
     Utils::FilePath extraDumperFile;
     QString extraDumperCommands;
     GdbImplSearchPaths searchPaths;
-    GdbImplUserCommands userCommands;
+    DebuggerUserCommands userCommands;
     std::chrono::seconds watchdogTimeout{0};
 
     bool isSet(GdbImplFlag flag) const { return flags.testFlag(flag); }
@@ -246,7 +225,7 @@ private:
 
     void handleTracepointInsert(quint64 requestId, const DebuggerResponse &response,
                                 const QString &message,
-                                const QList<GdbImplTracepointCaptureData> &captures);
+                                const QList<TracepointCapture> &captures);
     void handleTracepointHit(const GdbMi &data);
     QHash<QString, GdbImplTracepointInfo> m_tracepointsByNumber;
 

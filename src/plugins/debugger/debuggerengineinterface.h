@@ -49,6 +49,7 @@ public:
     ContextData context = {};
     QString functionName = {};
     bool currentFrameIsQml = false;
+    bool reverse = false;
 };
 
 enum class RefreshKind {
@@ -198,6 +199,17 @@ using InferiorStartData = std::variant<
     AttachToCoreData,
     AttachToQmlServerData
 >;
+
+// The commands the user configured, each run on the occasion it names.
+class DEBUGGER_EXPORT DebuggerUserCommands
+{
+public:
+    Utils::FilePath startScript;
+    QString atStartup;
+    QString afterAttach;
+    QStringList afterConnect;
+    QStringList forReset;
+};
 
 enum class DebuggerStartModeFlag
 {

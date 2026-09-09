@@ -576,8 +576,11 @@ void GdbImpl::handleExtendedRemoteAttach(const DebuggerResponse &response)
 
 void GdbImpl::shutdownInferior(ShutdownMode mode)
 {
+    // NeedsFullStop, not NeedsTemporaryStop: gdb takes neither command while
+    // the inferior runs, and there is nothing left to continue afterwards.
     runCommand({mode == ShutdownMode::Detach ? QLatin1String("detach") : QLatin1String("kill"),
-               DebuggerCommand::NativeCommand, [this](const DebuggerResponse &) {
+               DebuggerCommand::NativeCommand | DebuggerCommand::NeedsFullStop,
+               [this](const DebuggerResponse &) {
         emit inferiorEvent(InferiorEvent::ShutdownFinished);
     }});
 }
@@ -631,6 +634,14 @@ static bool resumesInferior(ExecutionCommand command)
     return false;
 }
 
+static QString withDirection(bool reverse, const char *command)
+{
+    QString result = QLatin1String(command);
+    if (reverse)
+        result += QLatin1String(" --reverse");
+    return result;
+}
+
 void GdbImpl::execute(const ExecutionRequest &request)
 {
     if (resumesInferior(request.command))
@@ -641,7 +652,7 @@ void GdbImpl::execute(const ExecutionRequest &request)
         if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml)
             runRunRequestCommand("executeContinue");
         else
-            runRunRequestCommand("-exec-continue");
+            runRunRequestCommand(withDirection(request.reverse, "-exec-continue"));
         break;
     case ExecutionCommand::Interrupt:
         if (!m_inferiorRunning && !m_runCommandPending) {
@@ -659,8 +670,9 @@ void GdbImpl::execute(const ExecutionRequest &request)
         if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml && !request.flag)
             runRunRequestCommand("executeNext");
         else
-            runRunRequestCommand(request.flag ? QLatin1String("-exec-next-instruction")
-                                              : QLatin1String("-exec-next"));
+            runRunRequestCommand(withDirection(request.reverse,
+                                               request.flag ? "-exec-next-instruction"
+                                                            : "-exec-next"));
         break;
     case ExecutionCommand::StepIn:
         if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml && !request.flag) {
@@ -668,9 +680,9 @@ void GdbImpl::execute(const ExecutionRequest &request)
         } else if (!request.flag) {
             if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging))
                 runCommand({"armInterpreterStepIn"});
-            runRunRequestCommand("-exec-step");
+            runRunRequestCommand(withDirection(request.reverse, "-exec-step"));
         } else {
-            runRunRequestCommand("-exec-step-instruction");
+            runRunRequestCommand(withDirection(request.reverse, "-exec-step-instruction"));
         }
         break;
     case ExecutionCommand::StepOut:
@@ -679,7 +691,7 @@ void GdbImpl::execute(const ExecutionRequest &request)
         else if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging))
             runRunRequestCommand("executeNativeMixedStepOut");
         else
-            runRunRequestCommand("-exec-finish");
+            runRunRequestCommand(withDirection(request.reverse, "-exec-finish"));
         break;
     case ExecutionCommand::Return:
         emit inferiorEvent(InferiorEvent::RunRequested);
@@ -1264,51 +1276,6 @@ static QString gdbBreakpointLocation(const BreakpointParameters &params, const Q
     }
 }
 
-static QList<GdbImplTracepointCaptureData> parseTracepointCaptures(const QString &message)
-{
-    static const QRegularExpression capsRegExp(
-        "(^|[^\\\\])(\\$(ADDRESS|CALLER|CALLSTACK|FILEPOS|FUNCTION|PID|PNAME|TICK|TID|TNAME)"
-        "|{[^}]+})");
-    QList<GdbImplTracepointCaptureData> caps;
-    QRegularExpressionMatch match = capsRegExp.match(message, 0);
-    while (match.hasMatch()) {
-        const QString t = match.captured(2);
-        const int start = int(match.capturedStart(2));
-        const int end = int(match.capturedEnd(2));
-        if (t[0] == '$') {
-            GdbImplTracepointCaptureType type;
-            if (t == "$ADDRESS")
-                type = GdbImplTracepointCaptureType::Address;
-            else if (t == "$CALLER")
-                type = GdbImplTracepointCaptureType::Caller;
-            else if (t == "$CALLSTACK")
-                type = GdbImplTracepointCaptureType::Callstack;
-            else if (t == "$FILEPOS")
-                type = GdbImplTracepointCaptureType::FilePos;
-            else if (t == "$FUNCTION")
-                type = GdbImplTracepointCaptureType::Function;
-            else if (t == "$PID")
-                type = GdbImplTracepointCaptureType::Pid;
-            else if (t == "$PNAME")
-                type = GdbImplTracepointCaptureType::ProcessName;
-            else if (t == "$TICK")
-                type = GdbImplTracepointCaptureType::Tick;
-            else if (t == "$TID")
-                type = GdbImplTracepointCaptureType::Tid;
-            else if (t == "$TNAME")
-                type = GdbImplTracepointCaptureType::ThreadName;
-            else
-                QTC_ASSERT(false, continue);
-            caps.append({type, {}, start, end});
-        } else {
-            caps.append({GdbImplTracepointCaptureType::Expression,
-                        t.mid(1, t.size() - 2), start, end});
-        }
-        match = capsRegExp.match(message, match.capturedEnd());
-    }
-    return caps;
-}
-
 void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
 {
     const BreakpointParameters &params = request.params;
@@ -1372,11 +1339,10 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
         if (params.threadSpec >= 0)
             cmd.arg("thread", params.threadSpec);
 
-        const QList<GdbImplTracepointCaptureData> captures =
-            parseTracepointCaptures(params.message);
+        const QList<TracepointCapture> captures = parseTracepointCaptures(params.message);
         if (!captures.isEmpty()) {
             QJsonArray caps;
-            for (const GdbImplTracepointCaptureData &cap : captures) {
+            for (const TracepointCapture &cap : captures) {
                 QJsonArray capJson;
                 capJson.append(static_cast<int>(cap.type));
                 capJson.append(cap.expression.isEmpty() ? QJsonValue(QJsonValue::Null)
@@ -1452,7 +1418,7 @@ void GdbImpl::handleInterpreterBreakpointInsert(quint64 requestId, const Debugge
 
 void GdbImpl::handleTracepointInsert(quint64 requestId, const DebuggerResponse &response,
                                      const QString &message,
-                                     const QList<GdbImplTracepointCaptureData> &captures)
+                                     const QList<TracepointCapture> &captures)
 {
     const GdbMi tracepoint = response.data["tracepoint"];
     if (response.resultClass != ResultDone || tracepoint.childCount() == 0) {
@@ -1524,37 +1490,9 @@ void GdbImpl::handleTracepointHit(const GdbMi &data)
     if (it == m_tracepointsByNumber.constEnd())
         return;
 
-    QString formatted = it->message;
-    const GdbMi miCaps = result["caps"];
-    const QList<GdbImplTracepointCaptureData> &caps = it->captures;
-    if (caps.size() == miCaps.childCount()) {
-        for (int i = caps.size() - 1; i >= 0; --i) {
-            const GdbImplTracepointCaptureData &cap = caps.at(i);
-            const GdbMi miCap = miCaps.childAt(i);
-            switch (cap.type) {
-            case GdbImplTracepointCaptureType::Callstack: {
-                QStringList frames;
-                for (const GdbMi &frame : miCap)
-                    frames.append(frame.data());
-                formatted.replace(cap.start, cap.end - cap.start, frames.join(" <- "));
-                break;
-            }
-            case GdbImplTracepointCaptureType::Expression: {
-                const QString key = miCap.data();
-                const GdbMi expression = data["expressions"][key.toLatin1().data()];
-                if (expression.isValid()) {
-                    const QString value = decodeData(expression["value"].data(),
-                                                     expression["valueencoded"].data());
-                    formatted.replace(cap.start, cap.end - cap.start, value);
-                }
-                break;
-            }
-            default:
-                formatted.replace(cap.start, cap.end - cap.start, miCap.data());
-            }
-        }
-    }
-    emit message(formatted, LogMisc);
+    emit message(formatTracepointMessage(it->message, it->captures, result["caps"],
+                                         data["expressions"]),
+                 LogMisc);
 }
 
 void GdbImpl::updateBreakpointCommand(const BreakpointChangeRequest &request)
@@ -2033,7 +1971,7 @@ void GdbImpl::runPostAttachCommands()
 
 void GdbImpl::runUserStartupCommands()
 {
-    const GdbImplUserCommands &commands = m_startData.userCommands;
+    const DebuggerUserCommands &commands = m_startData.userCommands;
     if (!commands.startScript.isEmpty()) {
         if (commands.startScript.isReadableFile()) {
             runCommand({"source " + commands.startScript.path()});

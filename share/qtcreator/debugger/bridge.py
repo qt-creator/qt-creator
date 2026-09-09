@@ -32,6 +32,8 @@ except ImportError:  # not POSIX
 
 import gdb
 
+from gdbtracepoint import GDBTracepoint
+
 
 def gdbLineArgument(value, what):
     # Rest-of-line gdb commands take everything to the end of the line and
@@ -158,6 +160,7 @@ class DapServer():
         self.announcedThreads = set()
 
         gdb.events.stop.connect(self._onStop)
+        gdb.events.cont.connect(self._onContinue)
         gdb.events.exited.connect(self._onExited)
         gdb.events.breakpoint_modified.connect(self._onBreakpointModified)
         # What MI reports as =library-loaded: without it the modules view stays
@@ -344,6 +347,11 @@ class DapServer():
             return
         try:
             handler(request)
+        except KeyboardInterrupt:
+            # An interrupt aimed at a running inferior can land next to the
+            # command that was about to resume it rather than inside it. It is
+            # not an Exception, so letting it through would end the read loop.
+            self.sendEvent('qtc/interruptIgnored')
         except Exception as error:
             warn('DAP handler %s failed: %s' % (command, error))
             self.sendResponse(request, success=False, message=str(error))
@@ -395,6 +403,11 @@ class DapServer():
         if str(bp.number) not in self.breakpointById:
             return
         self.sendEvent('qtc/breakpointModified', {'bkpt': self._breakpointToMi(bp)})
+
+    def _onContinue(self, event):
+        # The one thing this loop can say while it is blocked in a resuming
+        # command: the inferior is going now, so an interrupt would reach it.
+        self.sendEvent('qtc/inferiorResumed')
 
     def _onExited(self, event):
         self.inferiorExited = True
@@ -495,8 +508,19 @@ class DapServer():
                 body['source'] = {'path': sal.symtab.fullname()}
                 body['line'] = sal.line
         if reason == 'exception':
-            body['description'] = getattr(event, 'stop_signal', '')
+            signal = getattr(event, 'stop_signal', '')
+            body['text'] = signal
+            body['description'] = self._signalMeaning(signal)
         self.sendEvent('stopped', body)
+
+    def _signalMeaning(self, signal):
+        # gdb's own wording for the signal. Nothing but this command prints it,
+        # in the last column of a two-line table.
+        try:
+            lines = gdb.execute('info signals %s' % signal, to_string=True).splitlines()
+        except gdb.error:
+            return signal
+        return lines[1].split('\t')[-1].strip() if len(lines) > 1 else signal
 
     #######################################################################
     # Lifecycle requests
@@ -528,6 +552,7 @@ class DapServer():
             'supportsFunctionBreakpoints': True,
             'supportsConditionalBreakpoints': True,
             'supportsEvaluateForHovers': True,
+            'supportsStepBack': True,
             # What the dumpers registered, verbatim from setupDumpers().
             'qtcDumpers': self.dumperSetup,
         })
@@ -595,6 +620,26 @@ class DapServer():
             self._reportProcess()
             return
 
+        started = self._startInferior()
+        self.sendResponse(request)
+        self._execute('continue' if started else 'run')
+
+    def cmd_restart(self, request):
+        if self.attachMode:
+            self.sendResponse(request, success=False,
+                              message='Cannot restart a process we only attached to.')
+            return
+        try:
+            gdb.execute('kill', to_string=True)
+        except gdb.error as error:
+            warn('restart: killing the running inferior failed: %s' % error)
+        # The kill reported an exit, which is not this session ending. _execute
+        # clears that again before the replacement runs, so nothing is sent.
+        started = self._startInferior()
+        self.sendResponse(request)
+        self._execute('continue' if started else 'run')
+
+    def _startInferior(self):
         # 'start' rather than 'run': it stops at main, which is where the pid
         # becomes known, and the client has to have it before the run is
         # acknowledged. A binary without a main falls back to a plain run.
@@ -604,10 +649,8 @@ class DapServer():
             started = True
         except gdb.error as error:
             warn('start failed, running instead: %s' % error)
-
         self._reportProcess()
-        self.sendResponse(request)
-        self._execute('continue' if started else 'run')
+        return started
 
     def _reportProcess(self):
         try:
@@ -659,6 +702,51 @@ class DapServer():
     def cmd_stepOut(self, request):
         self.sendResponse(request)
         self._execute('finish')
+
+    def cmd_stepBack(self, request):
+        self.sendResponse(request)
+        self._execute('reverse-nexti' if self._byInstruction(request) else 'reverse-next')
+
+    def cmd_reverseContinue(self, request):
+        if not gdb.selected_inferior().threads():
+            self.sendResponse(request, success=False,
+                              message='The program is not being run.')
+            return
+        self.sendResponse(request)
+        self._execute('reverse-continue')
+
+    def cmd_qtc_reverseStepIn(self, request):
+        self.sendResponse(request)
+        self._execute('reverse-stepi' if self._byInstruction(request) else 'reverse-step')
+
+    def cmd_qtc_reverseStepOut(self, request):
+        self.sendResponse(request)
+        self._execute('reverse-finish')
+
+    def cmd_qtc_createSnapshot(self, request):
+        # No quoting: gcore takes the rest of the line, so quotes would end up
+        # in the file name.
+        path = gdbLineArgument(request.get('arguments', {}).get('path') or '',
+                               'the snapshot path')
+        if not path:
+            self.sendResponse(request, success=False, message='No usable snapshot path')
+            return
+        try:
+            gdb.execute('gcore %s' % path, to_string=True)
+        except gdb.error as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        self.sendResponse(request)
+
+    def cmd_qtc_return(self, request):
+        # Popping the frame runs nothing, so there is no stop to wait for. The
+        # client refreshes its views on the answer.
+        try:
+            gdb.execute('return', to_string=True)
+        except gdb.error as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        self.sendResponse(request)
 
     def cmd_qtc_jumpToLine(self, request):
         args = request.get('arguments', {})
@@ -772,10 +860,56 @@ class DapServer():
         for companion in self.companionBreakpoints.get(str(bp.number), ()):
             self._applyBreakpointArgs(companion, args)
 
+    # What a capture is formatted with. The dumpers take their options per
+    # request, and a tracepoint carries none of its own, so these are the ones
+    # gdb's own pseudo tracepoints are given.
+    TRACEPOINT_DUMPER_ARGS = {'fancy': 1,
+                              'autoderef': 1,
+                              'dyntype': 1,
+                              'qobjectnames': 1,
+                              'allowinferiorcalls': 1,
+                              'stringcutoff': 10000,
+                              'displaystringlimit': 100}
+
+    def _createTracepoint(self, args):
+        spec = '%s:%d' % (args.get('file', ''), int(args.get('line', 0)))
+        tp = GDBTracepoint(spec, temporary=bool(args.get('oneshot')))
+        tp.onModified = self._onTracepointModified
+        tp.onHit = self._onTracepointHit
+        tp.onExpression = self._onTracepointExpression
+        for capsType, expression in args.get('caps', []):
+            tp.addCaps(capsType, expression)
+        return tp
+
+    def _onTracepointExpression(self, tp, expression, value):
+        return self.dumper.tracepointExpression(tp, expression, value,
+                                                dict(self.TRACEPOINT_DUMPER_ARGS))
+
+    def _onTracepointModified(self, tp):
+        # The dumpers collect the captured expressions one by one as the hit is
+        # evaluated, so the previous hit's have to go first.
+        self.dumper.tpExpressions = {}
+        self.dumper.tpExpressionWarnings = []
+        self._onBreakpointModified(tp)
+
+    def _onTracepointHit(self, tp, result):
+        args = self.breakpointArgsById.get(str(tp.number), {})
+        expressions = ','.join('%s=%s' % (key, value)
+                               for key, value in self.dumper.tpExpressions.items())
+        self.sendEvent('qtc/tracepointHit',
+                       {'modelid': args.get('modelid'),
+                        'result': self.dumper.resultToMi(result),
+                        'expressions': '{%s}' % expressions})
+
     def _createGdbBreakpoint(self, args):
         bptype = args.get('type', self.BP_BY_FILE_AND_LINE)
         temporary = bool(args.get('oneshot'))
-        if bptype in self.CATCH_KINDS:
+        if args.get('tracepoint') and bptype == self.BP_BY_FILE_AND_LINE:
+            # A tracepoint reports and lets the inferior run on, which a gdb
+            # breakpoint cannot do: GDBTracepoint captures what the message
+            # asks for and never stops.
+            bp = self._createTracepoint(args)
+        elif bptype in self.CATCH_KINDS:
             bp = self._createCatchpoint(bptype)
         elif bptype in self.FUNCTION_FOR_TYPE:
             bp = gdb.Breakpoint(function=self.FUNCTION_FOR_TYPE[bptype],
@@ -804,8 +938,15 @@ class DapServer():
     def _fillLocationDict(self, target, location):
         if location.address is not None:
             target['addr'] = '0x%x' % location.address
-        if location.function:
-            target['func'] = location.function
+        # gdb.BreakpointLocation.function is the linkage name, so a C++ one
+        # arrives mangled. The symbol at the address has the name gdb's own MI
+        # reports.
+        function = None
+        if location.address is not None:
+            function = self._functionAt(location.address)
+        function = function or location.function
+        if function:
+            target['func'] = function
         source = location.source
         if source:
             target['file'] = source[0]
@@ -822,8 +963,6 @@ class DapServer():
                 self.breakpointArgsById.pop(key, None)
 
     def _functionAt(self, pc):
-        # gdb.Breakpoint.locations knows the function; without it (gdb < 13) the
-        # block at the address does.
         try:
             block = gdb.block_for_pc(int(pc))
         except (gdb.error, RuntimeError):
@@ -1101,17 +1240,17 @@ class DapServer():
         self.sendResponse(request, body={
             'dumperResult': self._captureDumperResult('fetchVariables', request)})
 
-    def cmd_qtc_runStartupCommands(self, request):
+    def cmd_qtc_runUserCommands(self, request):
         # The user's own gdb commands, or the script that replaces them. Blank
-        # lines are the caller's own formatting; comments are already filtered
+        # lines are the caller's own formatting, comments are already filtered
         # out on the way here.
         args = request.get('arguments', {})
         script = gdbLineArgument(args.get('script') or '', 'the startup script path')
         if script:
-            self._executeQuietly('source %s' % script)
+            self._executeAndReport('source %s' % script)
         for line in (args.get('commands') or '').splitlines():
             if line.strip():
-                self._executeQuietly(line)
+                self._executeAndReport(line)
         self.sendResponse(request)
 
     def cmd_qtc_fetchStack(self, request):

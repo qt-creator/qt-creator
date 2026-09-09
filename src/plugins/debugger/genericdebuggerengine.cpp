@@ -957,6 +957,7 @@ void GenericDebuggerEngine::continueInferior()
     ExecutionRequest request;
     request.command = ExecutionCommand::Continue;
     request.currentFrameIsQml = currentFrameIsQml(stackHandler());
+    request.reverse = isReverseDebugging();
     m_backend->execute(request);
 }
 
@@ -971,6 +972,7 @@ void GenericDebuggerEngine::executeStepOver(bool byInstruction)
     request.command = ExecutionCommand::StepOver;
     request.flag = byInstruction;
     request.currentFrameIsQml = currentFrameIsQml(stackHandler());
+    request.reverse = isReverseDebugging();
     m_backend->execute(request);
 }
 
@@ -980,6 +982,7 @@ void GenericDebuggerEngine::executeStepIn(bool byInstruction)
     request.command = ExecutionCommand::StepIn;
     request.flag = byInstruction;
     request.currentFrameIsQml = currentFrameIsQml(stackHandler());
+    request.reverse = isReverseDebugging();
     m_backend->execute(request);
 }
 
@@ -988,6 +991,7 @@ void GenericDebuggerEngine::executeStepOut()
     ExecutionRequest request;
     request.command = ExecutionCommand::StepOut;
     request.currentFrameIsQml = currentFrameIsQml(stackHandler());
+    request.reverse = isReverseDebugging();
     m_backend->execute(request);
 }
 

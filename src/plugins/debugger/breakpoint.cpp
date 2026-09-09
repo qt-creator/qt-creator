@@ -17,6 +17,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QDir>
+#include <QRegularExpression>
 
 using namespace Utils;
 
@@ -380,6 +381,89 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Debugger
 
     if (fileName.isEmpty())
         updateLocation(rp, originalLocation);
+}
+
+QList<TracepointCapture> parseTracepointCaptures(const QString &message)
+{
+    static const QRegularExpression capsRegExp(
+        "(^|[^\\\\])(\\$(ADDRESS|CALLER|CALLSTACK|FILEPOS|FUNCTION|PID|PNAME|TICK|TID|TNAME)"
+        "|{[^}]+})");
+    QList<TracepointCapture> caps;
+    QRegularExpressionMatch match = capsRegExp.match(message, 0);
+    while (match.hasMatch()) {
+        const QString t = match.captured(2);
+        const int start = int(match.capturedStart(2));
+        const int end = int(match.capturedEnd(2));
+        if (t[0] == '$') {
+            TracepointCaptureType type;
+            if (t == "$ADDRESS")
+                type = TracepointCaptureType::Address;
+            else if (t == "$CALLER")
+                type = TracepointCaptureType::Caller;
+            else if (t == "$CALLSTACK")
+                type = TracepointCaptureType::Callstack;
+            else if (t == "$FILEPOS")
+                type = TracepointCaptureType::FilePos;
+            else if (t == "$FUNCTION")
+                type = TracepointCaptureType::Function;
+            else if (t == "$PID")
+                type = TracepointCaptureType::Pid;
+            else if (t == "$PNAME")
+                type = TracepointCaptureType::ProcessName;
+            else if (t == "$TICK")
+                type = TracepointCaptureType::Tick;
+            else if (t == "$TID")
+                type = TracepointCaptureType::Tid;
+            else if (t == "$TNAME")
+                type = TracepointCaptureType::ThreadName;
+            else
+                QTC_ASSERT(false, continue);
+            caps.append({type, {}, start, end});
+        } else {
+            caps.append({TracepointCaptureType::Expression,
+                        t.mid(1, t.size() - 2), start, end});
+        }
+        match = capsRegExp.match(message, match.capturedEnd());
+    }
+    return caps;
+}
+
+QString formatTracepointMessage(const QString &message,
+                                const QList<TracepointCapture> &captures,
+                                const GdbMi &values,
+                                const GdbMi &expressions)
+{
+    QString formatted = message;
+    if (captures.size() != values.childCount())
+        return formatted;
+
+    // Back to front: a replacement moves everything behind it.
+    for (int i = captures.size() - 1; i >= 0; --i) {
+        const TracepointCapture &capture = captures.at(i);
+        const GdbMi value = values.childAt(i);
+        switch (capture.type) {
+        case TracepointCaptureType::Callstack: {
+            QStringList frames;
+            for (const GdbMi &frame : value)
+                frames.append(frame.data());
+            formatted.replace(capture.start, capture.end - capture.start, frames.join(" <- "));
+            break;
+        }
+        case TracepointCaptureType::Expression: {
+            const QString key = value.data();
+            const GdbMi expression = expressions[key.toLatin1().data()];
+            if (expression.isValid()) {
+                formatted.replace(capture.start, capture.end - capture.start,
+                                  decodeData(expression["value"].data(),
+                                             expression["valueencoded"].data()));
+            }
+            break;
+        }
+        default:
+            formatted.replace(capture.start, capture.end - capture.start, value.data());
+        }
+    }
+    return formatted;
 }
 
 } // namespace Debugger::Internal

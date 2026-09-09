@@ -58,15 +58,22 @@ private:
     void handleFinished();
     void handleStandardError();
     void configureTarget();
+    void runUserStartupCommands();
     void handleResponse(DapResponseType type, const QJsonObject &response);
     void handleEvent(DapEventType type, const QJsonObject &event);
     void interruptInferior();
+    void interruptGdb();
+    void handleResumeResponse(bool success);
     void handleStopped(const QJsonObject &event);
     void handleStackTrace(const QJsonObject &response);
     void reportStop();
     void handleBreakpointResponse(BreakpointOp op, const QJsonObject &response);
+    void handleTracepointHit(const QJsonObject &body);
 
     int postRequest(const QString &command, const QJsonObject &arguments = {});
+    void postWhenStopped(const QString &command, const QJsonObject &arguments,
+                         const BreakpointChangeRequest &request);
+    void failDeferredRequests();
     QJsonObject stepArguments(bool byInstruction) const;
     void fetchDisassemblyForTarget(quint64 requestId, quint64 address, const QString &target);
     void postLaunchOrAttach();
@@ -98,6 +105,22 @@ private:
     bool m_interruptOnceRunning = false;
     bool m_detaching = false;
     bool m_stepRequested = false;
+    bool m_shuttingDown = false;
+    bool m_inferiorResumed = false;
+    bool m_interruptOnceResumed = false;
+
+    // A request that arrived while the inferior was running: the bridge is
+    // blocked in the resume then, so the request goes out on a stop forced for
+    // it, and it is answered by hand if the inferior exits first.
+    class DeferredRequest
+    {
+    public:
+        QString command;
+        QJsonObject arguments;
+        quint64 requestId = 0;
+        BreakpointOp op = BreakpointOp::Insert;
+    };
+    QList<DeferredRequest> m_deferredRequests;
 
     // The stop event carries no frame, so the location has to be asked for.
     // The answer is routed by the request's sequence number.
@@ -149,7 +172,23 @@ private:
     quint64 m_nextPeripheralToken = 1000000;
     quint64 m_pendingModuleSymbolsRequestId = 0;
 
+    // The core file to be, kept until its request is answered.
+    class SnapshotRequest
+    {
+    public:
+        quint64 requestId = 0;
+        Utils::FilePath filePath;
+    };
+    QHash<int, SnapshotRequest> m_snapshotRequests;
+
     QHash<int, quint64> m_breakpointRequestIds;
+
+    struct Tracepoint
+    {
+        QString message;
+        QList<TracepointCapture> captures;
+    };
+    QHash<int, Tracepoint> m_tracepoints;
 };
 
 } // namespace Debugger::Internal

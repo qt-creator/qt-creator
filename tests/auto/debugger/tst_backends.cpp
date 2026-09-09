@@ -752,17 +752,22 @@ struct UserCommandProbe
 
 static UserCommandProbe userCommandProbe(Backend backend, UserCommandHook hook)
 {
+    const QString marker = hook == UserCommandHook::Reset ? QString("QTCFORRESETMARKER")
+                                                          : QString("QTCAFTERCONNECTMARKER");
     switch (backend) {
-    case Backend::Gdb: {
-        const QString marker = hook == UserCommandHook::Reset ? QString("QTCFORRESETMARKER")
-                                                              : QString("QTCAFTERCONNECTMARKER");
+    case Backend::Gdb:
         return {"echo " + marker + "\\n", marker};
-    }
+    case Backend::Bridge:
+        // Only the reset hook: there is no remote server to connect to yet.
+        // The bridge logs the command next to its output, so the marker is
+        // spelled in two pieces and only the answer carries it whole.
+        if (hook == UserCommandHook::Reset)
+            return {"printf \"QTCFOR%s\\n\", \"RESETMARKER\"", marker};
+        break;
     case Backend::Lldb:
     case Backend::Cdb:
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Bridge:
         break;
     }
     return {};
@@ -1148,6 +1153,8 @@ private slots:
     void testReturnFromFunctionCapability();
     void testReverseSteppingCapability_data() { addBackendRows(); }
     void testReverseSteppingCapability();
+    void stepsBackwardsWhileRecording_data() { addBackendRows(); }
+    void stepsBackwardsWhileRecording();
     void testRunCommandDeferralCapability_data() { addBackendRows(); }
     void testRunCommandDeferralCapability();
     void testRunToLineCapability_data() { addBackendRows(); }
@@ -1239,6 +1246,8 @@ private slots:
     void assignsValueToLocalVariable();
     void shutsDownCleanly_data() { addBackendRows(); }
     void shutsDownCleanly();
+    void shutsDownWhileTheInferiorRuns_data() { addBackendRows(); }
+    void shutsDownWhileTheInferiorRuns();
     void executesRunToLineFunctionAndJumpsToLine_data() { addBackendRows(); }
     void executesRunToLineFunctionAndJumpsToLine();
     void runsToAnAmbiguousLine_data() { addBackendRows(); }
@@ -1571,7 +1580,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .flags = gdbFlags | (nativeMixed ? GdbImplFlags(GdbImplFlag::NativeMixedDebugging)
                                              : GdbImplFlags()),
-            .userCommands = {.forReset = {userCommandProbe(backend, UserCommandHook::Reset).command}},
+            .userCommands
+                = {.forReset = {userCommandProbe(backend, UserCommandHook::Reset).command}},
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Bridge:
         return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(DapStartData{
@@ -1581,6 +1591,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
                 ProcessRunData{{inferiorTestData(backend).executable, {}}, {}, Environment::systemEnvironment()}),
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .bridgeStartData = dapHostRecipe(false),
+            .userCommands
+                = {.forReset = {userCommandProbe(backend, UserCommandHook::Reset).command}},
             .skipKnownFrames = gdbFlags.testFlag(GdbImplFlag::SkipKnownFrames)}));
     case Backend::Dap: {
         const ProcessRunData debuggerRunData = debuggerRunDataOverride.value_or(
@@ -1745,6 +1757,16 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngineRunningAsUser(
 std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithStartScript(
     Backend backend, const FilePath &startScript)
 {
+    if (backend == Backend::Bridge) {
+        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(DapStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                                Environment::systemEnvironment()},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .bridgeStartData = dapHostRecipe(false),
+            .userCommands = {.startScript = startScript}}));
+    }
     if (backend != Backend::Gdb)
         return nullptr;
     return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -4268,7 +4290,14 @@ void tst_backends::testReturnFromFunctionCapability()
     stackRequest.requestId = 220;
     engine->refresh(stackRequest);
     QTRY_VERIFY_WITH_TIMEOUT(stackReceived, s_timeout);
-    QVERIFY2(stackData.toString().contains("main"), "Return did not pop back into main()");
+    const GdbMi frames = stackData["stack"]["frames"];
+    QStringList functions;
+    for (int i = 0, count = frames.childCount(); i < count; ++i)
+        functions.append(frames.childAt(i)["function"].data());
+    QVERIFY2(functions.contains("main"),
+             qPrintable("Return did not pop back into main() - " + functions.join(' ')));
+    QVERIFY2(!functions.contains(inferiorTestData(backend).functionMarker),
+             qPrintable("Return left the popped frame on the stack - " + functions.join(' ')));
 }
 
 void tst_backends::testReverseSteppingCapability()
@@ -4314,6 +4343,61 @@ void tst_backends::testReverseSteppingCapability()
     engine->refresh(secondLocalsRequest);
     QTRY_VERIFY2_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)),
                               "session broken after stopping process record", s_timeout);
+}
+
+void tst_backends::stepsBackwardsWhileRecording()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::ReverseSteppingCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    const int start = debuggerBackend->stoppedLine();
+    QCOMPARE(start, inferiorTestData(backend).breakpointLine);
+
+    debuggerBackend->execute({ExecutionCommand::RecordReverse, true});
+
+    QStringList messages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&messages](const QString &text, int, int) { messages.append(text); });
+    engine->executeDebuggerCommand("info record", {});
+    QTRY_VERIFY2_WITH_TIMEOUT(std::any_of(messages.cbegin(), messages.cend(),
+                                          [](const QString &text) {
+        return text.contains("record-full");
+    }), "process record never actually activated", s_timeout);
+
+    const auto stepOver = [&debuggerBackend](bool reverse) {
+        debuggerBackend->clearEvents();
+        debuggerBackend->clearStoppedLocation();
+        debuggerBackend->execute({.command = ExecutionCommand::StepOver, .reverse = reverse});
+        [&debuggerBackend] {
+            QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                                     s_timeout);
+        }();
+    };
+
+    stepOver(false);
+    if (QTest::currentTestFailed())
+        return;
+    stepOver(false);
+    if (QTest::currentTestFailed())
+        return;
+    const int forward = debuggerBackend->stoppedLine();
+    QVERIFY2(forward > start,
+             qPrintable(QString("two steps stayed on line %1").arg(forward)));
+
+    // The two stops just recorded, walked back in the other order.
+    stepOver(true);
+    if (QTest::currentTestFailed())
+        return;
+    stepOver(true);
+    if (QTest::currentTestFailed())
+        return;
+    QCOMPARE(debuggerBackend->stoppedLine(), start);
 }
 
 void tst_backends::testRunCommandDeferralCapability()
@@ -6805,6 +6889,49 @@ void tst_backends::shutsDownCleanly()
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
                               "shutdownEngine() on an already-finished engine process never "
                               "reported EngineShutdownFinished", s_timeout);
+}
+
+void tst_backends::shutsDownWhileTheInferiorRuns()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    if (inferiorTestData(backend).spinBodyLine == 0)
+        QSKIP("This backend's inferior has nothing that keeps it running.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QString signalName;
+    connect(engine, &DebuggerEngineInterface::signalReceived, this,
+            [&signalName](const QString &name, const QString &) {
+        signalName = name;
+    });
+
+    // Continuing from the first breakpoint runs into the spin loop, which only
+    // ends when somebody takes the inferior away.
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk),
+                              "the inferior was never reported as running", s_timeout);
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+             "the inferior stopped again instead of reaching its spin loop");
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished),
+                              "killing a running inferior never reported ShutdownFinished",
+                              s_timeout);
+    // A stop the backend had to force to get the kill through is its own
+    // business, and would leave the session looking interactive again.
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+             "the shutdown reported a stop of its own");
+    QVERIFY2(signalName.isEmpty(),
+             qPrintable(QString("the shutdown reported a signal of its own (%1)")
+                            .arg(signalName)));
+    engine->shutdownEngine();
 }
 
 void tst_backends::executesRunToLineFunctionAndJumpsToLine()
@@ -9924,6 +10051,9 @@ void tst_backends::attachesToRemoteProcessByPid()
 
     Process target;
     target.setCommand({inferiorTestData(backend).executable, {}});
+    // gdbserver interrupts the process it attached to by signalling a whole
+    // process group, which reaches the target only if it leads one itself.
+    target.setDisableUnixTerminal();
     target.start();
     QVERIFY(target.waitForStarted());
     const qint64 pid = target.processId();

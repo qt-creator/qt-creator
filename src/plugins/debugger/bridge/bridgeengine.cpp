@@ -261,7 +261,7 @@ void BridgeEngine::runStartupCommands()
     const FilePath script = runParameters().overrideStartScript();
     if (!script.isEmpty()) {
         if (script.isReadableFile()) {
-            m_dapClient->postRequest("qtc/runStartupCommands",
+            m_dapClient->postRequest("qtc/runUserCommands",
                                      QJsonObject{{"script", script.path()}});
         } else {
             AsynchronousMessageBox::warning(
@@ -276,7 +276,7 @@ void BridgeEngine::runStartupCommands()
 
     const QString commands = nativeStartupCommands().trimmed();
     if (!commands.isEmpty())
-        m_dapClient->postRequest("qtc/runStartupCommands",
+        m_dapClient->postRequest("qtc/runUserCommands",
                                  QJsonObject{{"commands", commands}});
 }
 
@@ -1280,6 +1280,15 @@ void BridgeEngine::claimInitialBreakpoints()
     BreakpointManager::claimBreakpointsForEngine(this);
 }
 
+// Blank lines and comments are not commands.
+static QStringList commandLines(const QString &text)
+{
+    return Utils::filtered(text.split('\n'), [](const QString &line) {
+        const QString trimmed = line.trimmed();
+        return !trimmed.isEmpty() && !trimmed.startsWith('#');
+    });
+}
+
 DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
 {
     if (DebuggerEngine::isUsingGenericDebugger()) {
@@ -1298,11 +1307,13 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
         Utils::FilePaths extraDumperFiles;
         if (settings().extraDumperFile().isReadableFile())
             extraDumperFiles.append(settings().extraDumperFile());
-        QStringList extraDumperCommands = settings().extraDumperCommands().split('\n');
-        extraDumperCommands = Utils::filtered(extraDumperCommands, [](const QString &line) {
-            const QString trimmed = line.trimmed();
-            return !trimmed.isEmpty() && !trimmed.startsWith('#');
-        });
+        const QStringList extraDumperCommands
+            = commandLines(settings().extraDumperCommands());
+        const DebuggerUserCommands userCommands{
+            .startScript = rp.overrideStartScript(),
+            .atStartup = commandLines(settings().gdbStartupCommands() + '\n'
+                                      + rp.additionalStartupCommands()).join('\n'),
+            .forReset = rp.commandsForReset()};
         return new GenericDebuggerEngine("Bridge (BridgeImpl)", new BridgeImpl({
             .debuggerRunData = rp.debugger(),
             .inferiorStartData = inferiorStartData,
@@ -1310,6 +1321,7 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .bridgeStartData = dapHostRecipe(settings().loadGdbInit()),
             .extraDumperFiles = extraDumperFiles,
             .extraDumperCommands = extraDumperCommands,
+            .userCommands = userCommands,
             .sysroot = rp.sysRoot(),
             .sourcePathMap = sourcePathMap,
             .sourceDirectories = sourceDirectories,
