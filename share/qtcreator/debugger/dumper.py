@@ -532,15 +532,27 @@ class DumperBase():
     def nativeTypeIsUsable(self, native_type):
         return True
 
+    # The cached answer, and only while it is usable. What was derived from an
+    # unusable one goes with it, or the type keeps the size and the code that
+    # answer gave it.
+    def cached_nativetype(self, typeid):
+        native_type = self.type_nativetype_cache.get(typeid, None)
+        if native_type is None or self.nativeTypeIsUsable(native_type):
+            return native_type
+        del self.type_nativetype_cache[typeid]
+        self.type_size_cache.pop(typeid, None)
+        self.type_bitsize_cache.pop(typeid, None)
+        self.type_alignment_cache.pop(typeid, None)
+        self.type_code_cache.pop(typeid, None)
+        self.type_qobject_based_cache.pop(typeid, None)
+        return None
+
     def lookupType(self, typename):
         if not isinstance(typename, str):
             raise RuntimeError('ARG ERROR FOR lookupType, got %s' % type(typename))
 
         typeid = self.typeid_for_string(typename)
-        native_type = self.type_nativetype_cache.get(typeid)
-        if native_type is not None and not self.nativeTypeIsUsable(native_type):
-            del self.type_nativetype_cache[typeid]
-            native_type = None
+        native_type = self.cached_nativetype(typeid)
         if native_type is None:
             native_type = self.lookupNativeType(typename)
             if native_type is None:
@@ -1695,10 +1707,10 @@ class DumperBase():
 
     def putQObjectNameValue(self, value):
         typeid = value.typeid
+        native_type = self.cached_nativetype(typeid)
         if typeid in self.type_qobject_based_cache:
             is_qobject_based = self.type_qobject_based_cache[typeid]
         else:
-            native_type = self.type_nativetype_cache.get(typeid, None)
             try:
                 is_qobject_based = None if native_type is None \
                     else self.is_qobject_based(native_type)
@@ -4133,7 +4145,7 @@ typename))
         if targ is not None:
             return targ
 
-        native_type = self.type_nativetype_cache.get(typeid, None)
+        native_type = self.cached_nativetype(typeid)
         if native_type is not None:
             targ = self.nativeTemplateParameter(typeid, index, native_type)
             if targ is not None:
@@ -4192,14 +4204,15 @@ typename))
 
 
     def type_nativetype(self, typeid):
-        native_type = self.type_nativetype_cache.get(typeid, None)
+        native_type = self.cached_nativetype(typeid)
         if native_type is not None:
             return native_type
 
         typename = self.type_name(typeid)
         native_type = self.lookupNativeType(typename)
-        # Also cache unsuccessful attempts
-        self.type_nativetype_cache[typeid] = native_type
+        # A failed lookup is not kept: the type can arrive with a later library.
+        if native_type is not None:
+            self.type_nativetype_cache[typeid] = native_type
 
         return native_type
 
@@ -4266,9 +4279,7 @@ typename))
             return members
 
         members = []
-        native_type = self.type_nativetype_cache.get(typeid, None)
-        if native_type is None:
-            native_type = self.lookupNativeType(self.type_name(typeid))
+        native_type = self.type_nativetype(typeid)
         if not native_type is None:
             members = self.nativeListMembers(value, native_type, include_bases)
             #self.warn("FIELDS 2: %s" % ', '.join(str(f) for f in members))
