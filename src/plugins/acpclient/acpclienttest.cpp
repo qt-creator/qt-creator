@@ -534,6 +534,7 @@ private slots:
     void testChatPanelSpacingScale();
     void testChatPanelSpacingBaseAfterAttach();
     void testChatPanelSpacingStepsDoNotDrift();
+    void testChatPanelOptionHeightScale();
     void testChatPanelCornerRadiusScale();
     void testChatPanelWheelZoom();
     void testChatPanelZoomCommands();
@@ -2524,6 +2525,13 @@ void AcpClientTest::testChatPanelElicitationSingleSelect()
     QCOMPARE(radios.at(0)->toolTip(), "One of a few");
     QCOMPARE(radios.at(1)->text(), "Quick pick");
 
+    // An option is as tall as its text, not as tall as the padding the design
+    // widget would add to it, so the options keep the rhythm of the card.
+    for (Utils::QtcRadioButton *radio : radios) {
+        QVERIFY(radio->maximumHeight() < radio->sizeHint().height());
+        QVERIFY(radio->maximumHeight() >= radio->minimumSizeHint().height());
+    }
+
     // The default of the schema decides which one starts out checked.
     QVERIFY(!radios.at(0)->isChecked());
     QVERIFY(radios.at(1)->isChecked());
@@ -2539,6 +2547,16 @@ void AcpClientTest::testChatPanelElicitationSingleSelect()
             submit = button;
     }
     QVERIFY(submit);
+
+    // The buttons are set off from the form above them.
+    QLayout *buttonLayout = nullptr;
+    const QList<QHBoxLayout *> rows = panel.messageView()->findChildren<QHBoxLayout *>();
+    for (QHBoxLayout *row : rows) {
+        if (row->indexOf(submit) >= 0)
+            buttonLayout = row;
+    }
+    QVERIFY(buttonLayout);
+    QCOMPARE(buttonLayout->contentsMargins().top(), GapVM);
 
     submit->click();
 
@@ -2980,6 +2998,72 @@ void AcpClientTest::testChatPanelSpacingScale()
     QVERIFY(builtZoomed != zoomedLater);
     QCOMPARE(builtZoomed->layout()->spacing(), zoomedLater->layout()->spacing());
     QCOMPARE(builtZoomed->sizeHint(), zoomedLater->sizeHint());
+}
+
+// The height an option is pinned to follows the chat, so zooming after the
+// card was built neither cuts the option text off nor leaves the same question
+// two different heights.
+void AcpClientTest::testChatPanelOptionHeightScale()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    request.requestedSchema = V2::ElicitationSchema().addProperty(
+        "choice",
+        V2::StringPropertySchema().title("Demo type").oneOf(
+            {V2::EnumOption().const_("a").title("a"),
+             V2::EnumOption().const_("b").title("b")}));
+
+    ChatPanel panel;
+    panel.addElicitationRequest(QJsonValue(51), request);
+    QWidget *group = findField(panel.messageView(), "Demo type");
+    QVERIFY(group);
+    auto *zoomedLater = group->findChild<Utils::QtcRadioButton *>();
+    QVERIFY(zoomedLater);
+
+    const int unzoomedHeight = zoomedLater->height();
+    const QSize unzoomedHint = zoomedLater->sizeHint();
+
+    ChatFontScale::setScale(2.0);
+
+    // The option widget labels itself from its own font, so the text it paints
+    // grows with the chat and its hints grow with the text - a row pinned to
+    // the text is padding around larger text, not empty space around the same
+    // text at the application size.
+    QVERIFY2(zoomedLater->sizeHint().height() > unzoomedHint.height(),
+             qPrintable(QString("hint %1, unzoomed %2")
+                            .arg(zoomedLater->sizeHint().height())
+                            .arg(unzoomedHint.height())));
+    QVERIFY2(zoomedLater->sizeHint().width() > unzoomedHint.width(),
+             qPrintable(QString("hint %1, unzoomed %2")
+                            .arg(zoomedLater->sizeHint().width())
+                            .arg(unzoomedHint.width())));
+    QVERIFY2(zoomedLater->height() > unzoomedHeight,
+             qPrintable(QString("height %1, unzoomed %2")
+                            .arg(zoomedLater->height())
+                            .arg(unzoomedHeight)));
+
+    // The pinned row is between the hints the widget reports, as it is before
+    // the zoom: below what the widget asks for, and not under what it needs.
+    QVERIFY2(zoomedLater->maximumHeight() <= zoomedLater->sizeHint().height(),
+             qPrintable(QString("row %1, hint %2")
+                            .arg(zoomedLater->maximumHeight())
+                            .arg(zoomedLater->sizeHint().height())));
+    QVERIFY2(zoomedLater->maximumHeight() >= zoomedLater->minimumSizeHint().height(),
+             qPrintable(QString("row %1, minimum %2")
+                            .arg(zoomedLater->maximumHeight())
+                            .arg(zoomedLater->minimumSizeHint().height())));
+
+    // The same question, built while the chat is already zoomed.
+    panel.addElicitationRequest(QJsonValue(52), request);
+    QWidget *builtZoomed = findField(lastMessageWidget(panel), "Demo type");
+    QVERIFY(builtZoomed);
+    auto *option = builtZoomed->findChild<Utils::QtcRadioButton *>();
+    QVERIFY(option);
+    QCOMPARE(zoomedLater->minimumHeight(), option->minimumHeight());
 }
 
 // A widget that configures its layout the way QWidget subclasses in and below

@@ -781,6 +781,33 @@ void QtcComboBox::paintEvent(QPaintEvent *)
 
 constexpr TextFormat SwitchLabelTf
     {Theme::Token_Text_Default, StyleHelper::UiElementLabelMedium};
+
+// How far the widget's font is from the application's. A widget that was given
+// a font of its own - the chat scales the fonts of the widgets in it - labels
+// itself and draws its glyph that much larger, and one that was not is left
+// exactly as the design system sizes it.
+static qreal fontRatio(const QWidget *widget)
+{
+    const qreal own = widget->font().pointSizeF();
+    const qreal application = QApplication::font().pointSizeF();
+    if (own <= 0 || application <= 0)
+        return 1.;
+    return own / application;
+}
+
+static QFont scaledLabelFont(const QWidget *widget)
+{
+    QFont font = SwitchLabelTf.font();
+    font.setPointSizeF(font.pointSizeF() * fontRatio(widget));
+    return font;
+}
+
+static QSize scaledGlyph(const QSize &glyph, const QWidget *widget)
+{
+    const qreal ratio = fontRatio(widget);
+    return QSize(qMax(1, qRound(glyph.width() * ratio)),
+                 qMax(1, qRound(glyph.height() * ratio)));
+}
 constexpr QSize switchTrackS(32, 16);
 
 QtcSwitch::QtcSwitch(const QString &text, QWidget *parent)
@@ -882,21 +909,24 @@ QtcCheckBox::QtcCheckBox(const QString &text, QWidget *parent)
 
 QSize QtcCheckBox::sizeHint() const
 {
-    const QFontMetrics fm(SwitchLabelTf.font());
+    const QFontMetrics fm(scaledLabelFont(this));
+    const QSize box = scaledGlyph(checkBoxBoxS, this);
     const int textWidth = fm.size(Qt::TextShowMnemonic, text()).width();
-    const int width = checkBoxBoxS.width() + GapHM + textWidth;
-    return {width, PaddingVS + SwitchLabelTf.lineHeight() + PaddingVS};
+    const int width = box.width() + GapHM + textWidth;
+    const int lineHeight = qRound(SwitchLabelTf.lineHeight() * fontRatio(this));
+    return {width, PaddingVS + qMax(lineHeight, box.height()) + PaddingVS};
 }
 
 QSize QtcCheckBox::minimumSizeHint() const
 {
-    return checkBoxBoxS;
+    return scaledGlyph(checkBoxBoxS, this);
 }
 
 void QtcCheckBox::paintEvent([[maybe_unused]] QPaintEvent *event)
 {
-    const int boxY = (height() - checkBoxBoxS.height()) / 2;
-    const QRect boxR(QPoint(0, boxY), checkBoxBoxS);
+    const QSize boxS = scaledGlyph(checkBoxBoxS, this);
+    const int boxY = (height() - boxS.height()) / 2;
+    const QRect boxR(QPoint(0, boxY), boxS);
     const bool checkedEnabled = isChecked() && isEnabled();
     const bool hovered = underMouse();
     QPainter p(this);
@@ -918,21 +948,22 @@ void QtcCheckBox::paintEvent([[maybe_unused]] QPaintEvent *event)
     if (isChecked()) { // check mark
         const QColor color = creatorColor(isEnabled() ? Theme::Token_Text_On_Accent
                                                       : Theme::Token_Text_Subtle);
-        QPen pen(color, 2);
+        const qreal glyphScale = qreal(boxS.height()) / checkBoxBoxS.height();
+        QPen pen(color, 2 * glyphScale);
         pen.setCapStyle(Qt::RoundCap);
         pen.setJoinStyle(Qt::RoundJoin);
         p.setPen(pen);
         p.setBrush(Qt::NoBrush);
-        const QPointF check[] = {boxR.topLeft() + QPointF(4, 8.5),
-                                 boxR.topLeft() + QPointF(6.75, 11.25),
-                                 boxR.topLeft() + QPointF(12, 5)};
+        const QPointF check[] = {boxR.topLeft() + QPointF(4, 8.5) * glyphScale,
+                                 boxR.topLeft() + QPointF(6.75, 11.25) * glyphScale,
+                                 boxR.topLeft() + QPointF(12, 5) * glyphScale};
         p.drawPolyline(check, 3);
     }
     { // text label
-        const int boxAndGapWidth = checkBoxBoxS.width() + GapHM;
+        const int boxAndGapWidth = boxS.width() + GapHM;
         const QRect textR(boxAndGapWidth, 0, width() - boxAndGapWidth,
-                          boxY + checkBoxBoxS.height());
-        p.setFont(SwitchLabelTf.font());
+                          boxY + boxS.height());
+        p.setFont(scaledLabelFont(this));
         p.setPen(isEnabled() ? SwitchLabelTf.color() : creatorColor(Theme::Token_Text_Subtle));
         const QString elidedLabel =
             p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(), Qt::TextShowMnemonic);
@@ -956,21 +987,24 @@ QtcRadioButton::QtcRadioButton(const QString &text, QWidget *parent)
 
 QSize QtcRadioButton::sizeHint() const
 {
-    const QFontMetrics fm(SwitchLabelTf.font());
+    const QFontMetrics fm(scaledLabelFont(this));
+    const QSize circle = scaledGlyph(radioButtonCircleS, this);
     const int textWidth = fm.size(Qt::TextShowMnemonic, text()).width();
-    const int width = radioButtonCircleS.width() + GapHM + textWidth;
-    return {width, PaddingVS + SwitchLabelTf.lineHeight() + PaddingVS};
+    const int width = circle.width() + GapHM + textWidth;
+    const int lineHeight = qRound(SwitchLabelTf.lineHeight() * fontRatio(this));
+    return {width, PaddingVS + qMax(lineHeight, circle.height()) + PaddingVS};
 }
 
 QSize QtcRadioButton::minimumSizeHint() const
 {
-    return radioButtonCircleS;
+    return scaledGlyph(radioButtonCircleS, this);
 }
 
 void QtcRadioButton::paintEvent([[maybe_unused]] QPaintEvent *event)
 {
-    const int circleY = (height() - radioButtonCircleS.height()) / 2;
-    const QRectF circleR(QPointF(0, circleY), QSizeF(radioButtonCircleS));
+    const QSize circleS = scaledGlyph(radioButtonCircleS, this);
+    const int circleY = (height() - circleS.height()) / 2;
+    const QRectF circleR(QPointF(0, circleY), QSizeF(circleS));
     const bool checkedEnabled = isChecked() && isEnabled();
     const bool hovered = underMouse();
     QPainter p(this);
@@ -998,14 +1032,14 @@ void QtcRadioButton::paintEvent([[maybe_unused]] QPaintEvent *event)
         p.setPen(Qt::NoPen);
         p.setBrush(creatorColor(isEnabled() ? Theme::Token_Text_On_Accent
                                             : Theme::Token_Text_Subtle));
-        const qreal radius = radioButtonCircleS.width() / 4.;
+        const qreal radius = circleS.width() / 4.;
         p.drawEllipse(circleR.center(), radius, radius);
     }
     { // text label
-        const int circleAndGapWidth = radioButtonCircleS.width() + GapHM;
+        const int circleAndGapWidth = circleS.width() + GapHM;
         const QRect textR(circleAndGapWidth, 0, width() - circleAndGapWidth,
-                          circleY + radioButtonCircleS.height());
-        p.setFont(SwitchLabelTf.font());
+                          circleY + circleS.height());
+        p.setFont(scaledLabelFont(this));
         p.setPen(isEnabled() ? SwitchLabelTf.color() : creatorColor(Theme::Token_Text_Subtle));
         const QString elidedLabel =
             p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(), Qt::TextShowMnemonic);

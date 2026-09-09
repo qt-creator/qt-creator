@@ -789,7 +789,10 @@ public:
         m_bodyLayout->addWidget(m_errorLabel);
 
         auto *buttonLayout = new QHBoxLayout;
-        buttonLayout->setSpacing(PaddingHS);
+        buttonLayout->setSpacing(GapHS);
+        // The buttons act on the form above them rather than belonging to its
+        // last field, so they are set off from it by more than a row gap.
+        buttonLayout->setContentsMargins(0, GapVM, 0, 0);
         m_submitButton = new Utils::QtcButton(
             request.mode == ElicitationRequest::Mode::Form ? Tr::tr("Submit") : Tr::tr("Done"),
             Utils::QtcButton::SmallPrimary, this);
@@ -997,6 +1000,24 @@ private:
                     field.replaced = [custom] { return !custom->text().isEmpty(); };
             }
         }
+    }
+
+    // The option widgets pad themselves above and below their text, which
+    // reads as another gap between the options of one question - three times
+    // the gaps this card is otherwise built from. Pinning them to their text
+    // height puts the options on the same rhythm as everything around them.
+    // The text and the padding grow with the chat, so the height is pinned
+    // again whenever the scale changes; it would cut the text off otherwise.
+    static void compactOptionRow(QAbstractButton *option)
+    {
+        const auto applyHeight = [option] {
+            const int text = option->fontMetrics().lineSpacing();
+            const int padding = qRound(2 * PaddingVXxs * ChatFontScale::scale());
+            option->setFixedHeight(qMax(text + padding, option->minimumSizeHint().height()));
+        };
+        applyHeight();
+        QObject::connect(&ChatFontScale::instance(), &ChatFontScale::scaleChanged, option,
+                         applyHeight);
     }
 
     static QVBoxLayout *newQuestionLayout()
@@ -1238,7 +1259,7 @@ private:
         auto *group = new QWidget(this);
         auto *layout = new QVBoxLayout(group);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(PaddingVXxs);
+        layout->setSpacing(GapVXxs);
 
         auto buttons = std::make_shared<QList<QPair<QString, Utils::QtcRadioButton *>>>();
         Utils::QtcRadioButton *defaultButton = nullptr;
@@ -1247,6 +1268,7 @@ private:
             const QString value = option.value("value").toString();
             auto *button = new Utils::QtcRadioButton(option.value("label").toString(), group);
             button->setToolTip(option.value("description").toString());
+            compactOptionRow(button);
             layout->addWidget(button);
             buttons->append({value, button});
             if (defaultValue && value == *defaultValue)
@@ -1278,7 +1300,7 @@ private:
         auto *group = new QWidget(this);
         auto *layout = new QVBoxLayout(group);
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(PaddingVXxs);
+        layout->setSpacing(GapVXxs);
 
         auto boxes = std::make_shared<QList<QPair<QString, Utils::QtcCheckBox *>>>();
         const QJsonArray defaults = schema.default_().asOptional().value_or(QJsonArray());
@@ -1287,6 +1309,7 @@ private:
             auto *box = new Utils::QtcCheckBox(label, group);
             box->setChecked(defaults.contains(QJsonValue(value)));
             box->setToolTip(description);
+            compactOptionRow(box);
             layout->addWidget(box);
             boxes->append({value, box});
         };
