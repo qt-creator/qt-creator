@@ -175,6 +175,19 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 };
 
+class QTCREATOR_UTILS_EXPORT QtcRadioButton : public QAbstractButton
+{
+    Q_OBJECT
+
+public:
+    explicit QtcRadioButton(const QString &text, QWidget *parent = nullptr);
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+};
+
 class QTCREATOR_UTILS_EXPORT QtcProgressBar : public QProgressBar
 {
     Q_OBJECT

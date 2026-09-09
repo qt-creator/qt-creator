@@ -68,6 +68,12 @@ static QWidget *widgets()
     checkBoxChecked->setChecked(true);
     auto checkBoxUnchecked = new QtcCheckBox("Unchecked");
 
+    auto radioButtonChecked = new QtcRadioButton(withMnemonic("Checked"));
+    radioButtonChecked->setChecked(true);
+    auto radioButtonUnchecked = new QtcRadioButton("Unchecked");
+    auto radioButtonDisabled = new QtcRadioButton("Disabled");
+    radioButtonDisabled->setEnabled(false);
+
     auto spinBox = new QtcSpinBox;
     spinBox->setRange(-10, 10);
     auto doubleSpinBox = new QtcDoubleSpinBox;
@@ -198,6 +204,14 @@ static QWidget *widgets()
                 Column {
                     checkBoxChecked,
                     checkBoxUnchecked,
+                },
+            },
+            Group {
+                title("RadioButton"),
+                Column {
+                    radioButtonChecked,
+                    radioButtonUnchecked,
+                    radioButtonDisabled,
                 },
             },
             Group {

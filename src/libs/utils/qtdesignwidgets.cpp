@@ -937,6 +937,79 @@ void QtcCheckBox::paintEvent([[maybe_unused]] QPaintEvent *event)
     }
 }
 
+constexpr QSize radioButtonCircleS(16, 16);
+
+QtcRadioButton::QtcRadioButton(const QString &text, QWidget *parent)
+    : QAbstractButton(parent)
+{
+    setText(text);
+    setCheckable(true);
+    // As with QRadioButton, buttons sharing a parent or a button group answer
+    // the same question, so checking one unchecks the others.
+    setAutoExclusive(true);
+    setAttribute(Qt::WA_Hover);
+    setAttribute(Qt::WA_LayoutUsesWidgetRect);
+}
+
+QSize QtcRadioButton::sizeHint() const
+{
+    const QFontMetrics fm(SwitchLabelTf.font());
+    const int textWidth = fm.size(Qt::TextShowMnemonic, text()).width();
+    const int width = radioButtonCircleS.width() + GapHM + textWidth;
+    return {width, PaddingVS + SwitchLabelTf.lineHeight() + PaddingVS};
+}
+
+QSize QtcRadioButton::minimumSizeHint() const
+{
+    return radioButtonCircleS;
+}
+
+void QtcRadioButton::paintEvent([[maybe_unused]] QPaintEvent *event)
+{
+    const int circleY = (height() - radioButtonCircleS.height()) / 2;
+    const QRectF circleR(QPointF(0, circleY), QSizeF(radioButtonCircleS));
+    const bool checkedEnabled = isChecked() && isEnabled();
+    const bool hovered = underMouse();
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+
+    { // circle
+        const QBrush fill = creatorColor(
+            checkedEnabled ? (isDown()  ? Theme::Token_Accent_Subtle
+                              : hovered ? Theme::Token_Accent_Muted
+                                        : Theme::Token_Accent_Default)
+                           : isEnabled() && isDown() ? Theme::Token_Foreground_Muted
+                                                     : Theme::Token_Foreground_Subtle);
+        const QPen outline = checkedEnabled ? QPen(Qt::NoPen)
+                                            : creatorColor(hovered && isEnabled()
+                                                               ? Theme::Token_Stroke_Muted
+                                                               : Theme::Token_Stroke_Subtle);
+        p.setPen(outline);
+        p.setBrush(fill);
+        // A pen strokes centered on the path, so the outline needs half of its
+        // width to stay inside the widget.
+        const qreal inset = outline.style() == Qt::NoPen ? 0. : outline.widthF() / 2.;
+        p.drawEllipse(circleR.adjusted(inset, inset, -inset, -inset));
+    }
+    if (isChecked()) { // dot
+        p.setPen(Qt::NoPen);
+        p.setBrush(creatorColor(isEnabled() ? Theme::Token_Text_On_Accent
+                                            : Theme::Token_Text_Subtle));
+        const qreal radius = radioButtonCircleS.width() / 4.;
+        p.drawEllipse(circleR.center(), radius, radius);
+    }
+    { // text label
+        const int circleAndGapWidth = radioButtonCircleS.width() + GapHM;
+        const QRect textR(circleAndGapWidth, 0, width() - circleAndGapWidth,
+                          circleY + radioButtonCircleS.height());
+        p.setFont(SwitchLabelTf.font());
+        p.setPen(isEnabled() ? SwitchLabelTf.color() : creatorColor(Theme::Token_Text_Subtle));
+        const QString elidedLabel =
+            p.fontMetrics().elidedText(text(), Qt::ElideRight, textR.width(), Qt::TextShowMnemonic);
+        p.drawText(textR, SwitchLabelTf.drawTextFlags, elidedLabel);
+    }
+}
+
 constexpr int progressBarTrackHeight = PrimitiveM;
 constexpr int progressBarMinimumWidth = 64;
 
