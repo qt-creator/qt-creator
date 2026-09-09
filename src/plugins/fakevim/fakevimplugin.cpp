@@ -2796,7 +2796,8 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         }
         if (const Utils::Result<> saved = editor->document()->save(target); !saved)
             handler->showMessage(MessageError, saved.error());
-    } else if (cmd.matches("h", "help")) {
+    } else if (cmd.matches("h", "help") || cmd.matches("exu", "exusage")
+               || cmd.matches("viu", "viusage")) {
         // By action id, to keep the Help plugin out of the dependencies -
         // contextHelpRequested does the same.
         triggerAction("Help.Home");

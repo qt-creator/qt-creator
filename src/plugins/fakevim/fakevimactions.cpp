@@ -162,6 +162,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&bufType,        {},    "BufType",        "bt",  "");
     setup(&encoding,       "utf-8", "Encoding",     "enc", "");
     setup(&matchPairs,     "(:),{:},[:]", "MatchPairs", "mps", "");
+    setup(&quoteEscape,    "\\",  "QuoteEscape",   "qe",  "");
     setup(&cpoOptions,     "aABceFsz", "CpOptions", "cpo", "");
     setup(&runtimePath,    {},    "RuntimePath",    "rtp", "");
     setup(&modeline,       true,  "Modeline",       "ml",  "");

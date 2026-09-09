@@ -289,6 +289,8 @@ private slots:
     void test_vim9_exchange();
     void test_vim_script_unpack_rest();
     void test_vim_ex_put();
+    void test_vim_ex_iput();
+    void test_vim_cmdline_history();
     void test_vim_script_named_key_string();
     void test_vim_register_carriage_return();
     void test_vim_script_getchar();
@@ -446,6 +448,7 @@ private slots:
     void test_vim_autocmd_modechanged();
     void test_vim_read_from_command();
     void test_vim_ex_history();
+    void test_vim_ex_map_list();
     void test_vim_ex_join_count();
     void test_vim_command_nargs();
     void test_vim_autocmd_filewrite();
@@ -2189,6 +2192,25 @@ void FakeVimTester::test_vim_block_selection()
     data.setText("\"abc\\\"def\"");
     KEYS("2l" "di\"", "\"" X "\"");
     KEYS("u", "\"" X "abc\\\"def\"");
+
+    // Which characters escape a quote is 'quoteescape'. Values from Vim 9.1.
+    data.doCommand("set quoteescape=#");
+    data.setText("x = \"abc#\"def\" t");
+    KEYS("4l" "di\"", "x = \"" X "\" t");
+    data.setText("x = \"abc\\\"def\" t");
+    KEYS("4l" "di\"", "x = \"" X "\"def\" t");
+    // Any one of them does it.
+    data.doCommand("set quoteescape=#@");
+    data.setText("x = \"abc@\"def\" t");
+    KEYS("4l" "di\"", "x = \"" X "\" t");
+    // Nothing escapes where the value is empty.
+    data.doCommand("set quoteescape=");
+    data.setText("x = \"abc\\\"def\" t");
+    KEYS("4l" "di\"", "x = \"" X "\"def\" t");
+    // The options are shared with every other test.
+    data.doCommand("set quoteescape&");
+    data.setText("x = \"abc\\\"def\" t");
+    KEYS("4l" "di\"", "x = \"" X "\" t");
 }
 
 void FakeVimTester::test_vim_block_selection_insert()
@@ -16530,6 +16552,13 @@ void FakeVimTester::test_vim_ex_mode()
     KEYS("gQx", X "abc");
     data.doKeys("<Esc>");
     KEYS("visual<CR>x", X "bc");
+
+    // And ":ex" is that door from a command line.
+    data.setText("abc");
+    data.doCommand("ex");
+    KEYS("x", X "abc");
+    data.doKeys("<Esc>");
+    KEYS("visual<CR>x", X "bc");
 }
 
 void FakeVimTester::test_vim_selection_option()
@@ -16594,6 +16623,24 @@ void FakeVimTester::test_vim_map_leader()
     // it is a backslash.
     TestData data;
     setup(&data);
+    QString info;
+    data.handler->extraInformationChanged.set([&](const QString &text) { info = text; });
+    QString message;
+    data.handler->commandBufferChanged.set([&](const QString &msg, int, int, int) {
+        if (!msg.isEmpty() && !msg.startsWith("--"))
+            message = msg;
+    });
+    const auto list = [&](const QString &cmd) {
+        info.clear();
+        message.clear();
+        data.doCommand(cmd);
+        return info.isEmpty() ? message : info;
+    };
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
 
     data.doCommand("nmapclear");
     data.doCommand("unlet! g:mapleader");
@@ -16616,6 +16663,18 @@ void FakeVimTester::test_vim_map_leader()
     data.doCommand("let g:mapleader = \"-\"");
     data.setText("abc def");
     KEYS(",w", X "def");
+
+    // Both sides of a mapping are taken, and the listing shows the values,
+    // not the names. maparg() and its kin resolve the names in the keys they
+    // are asked about, so either spelling finds the same mapping.
+    data.doCommand("nmap <leader>r <leader>w");
+    QCOMPARE(list("nmap ,"), QString("n  ,w            dw\n"));
+    QCOMPARE(list("nmap ;"), QString("n  ;e            dw\n"));
+    QCOMPARE(list("nmap -"), QString("n  -r            -w\n"));
+    QCOMPARE(value("maparg('<leader>r', 'n')"), QLatin1String("-w"));
+    QCOMPARE(value("maparg('-r', 'n')"), QLatin1String("-w"));
+    QCOMPARE(value("mapcheck('<leader>r', 'n')"), QLatin1String("-w"));
+    QCOMPARE(value("hasmapto('<leader>w', 'n')"), QLatin1String("1"));
 
     data.doCommand("nmapclear");
     data.doCommand("unlet! g:mapleader g:maplocalleader");
@@ -17973,6 +18032,7 @@ void FakeVimTester::test_vim_command_accepted_batch()
     // what Vim's own message for a feature left out says.
     for (const QString &command : QStringList{"pedit /tmp/x", "psearch FOO", "pbuffer 1",
                                               "ptag FOO", "promptfind", "promptrepl",
+                                              "helpfind foo",
                                               "wlrestore", "xrestore",
                                               "mkspell /tmp/x.spl /tmp/y"}) {
         QVERIFY2(run(command).contains("E319"), qPrintable(command + ": " + message));
@@ -18033,7 +18093,8 @@ void FakeVimTester::test_vim_command_accepted_batch()
     QVERIFY2(run("saveas " + dir.path() + "/taken.txt").contains("E13"),
              qPrintable(message));
     // And none of the three is an unknown command any more.
-    for (const QString &command : QStringList{"checktime", "help", "helpclose"})
+    for (const QString &command : QStringList{"checktime", "help", "helpclose",
+                                              "exusage", "viusage"})
         QVERIFY2(!run(command).contains("E492"), qPrintable(command + ": " + message));
 }
 
@@ -30560,6 +30621,183 @@ void FakeVimTester::test_mcp_argument_validation()
     QCOMPARE(data.text(), QByteArray("ome text"));
 
     useFakeVim.setValue(savedUseFakeVim);
+}
+
+void FakeVimTester::test_vim_ex_map_list()
+{
+    // ":map" and its kin with no right hand side list what is mapped, laid
+    // out as Vim 9.1 lays it out: the mode in three columns, then the left
+    // hand side in twelve and at least one blank of its own, then the "*" a
+    // ":noremap" carries and one more blank. A left hand side given names the
+    // start of the ones to show. Vim lists in its own hash order, so the
+    // lines are sorted here. Mappings outlive a test slot, so every listing
+    // asks for a prefix of this slot's own.
+    TestData data;
+    setup(&data);
+    QString info;
+    data.handler->extraInformationChanged.set([&](const QString &text) { info = text; });
+    QString message;
+    data.handler->commandBufferChanged.set([&](const QString &msg, int, int, int) {
+        if (!msg.isEmpty() && !msg.startsWith("--"))
+            message = msg;
+    });
+    const auto list = [&](const QString &cmd) {
+        info.clear();
+        message.clear();
+        data.doCommand(cmd);
+        return info.isEmpty() ? message : info;
+    };
+
+    data.doCommand("nmap Q1b NB");
+    data.doCommand("nmap Q1aaaaaaaaaa TWELVE");
+    data.doCommand("nnoremap Q1cccccccccccc NOREMAP");
+    data.doCommand("vmap Q2v VIS");
+    data.doCommand("imap Q3i INS");
+
+    QCOMPARE(list("nmap Q1"), QString("n  Q1aaaaaaaaaa   TWELVE\n"
+                                      "n  Q1b           NB\n"
+                                      "n  Q1cccccccccccc * NOREMAP\n"));
+    QCOMPARE(list("map Q1"), list("nmap Q1"));
+    // ":nm" is ":nmap", not the bare ":map".
+    QCOMPARE(list("nm Q2"), QString("No mapping found"));
+    QCOMPARE(list("map Q2"), QString("v  Q2v           VIS\n"));
+    // The bang forms take the insert and command-line pair instead.
+    QCOMPARE(list("map Q3"), QString("No mapping found"));
+    QCOMPARE(list("map! Q3"), QString("i  Q3i           INS\n"));
+
+    QCOMPARE(list("nmap Q1z"), QString("No mapping found"));
+    QCOMPARE(list("unmap"), QString("E474: Invalid argument"));
+    QCOMPARE(list("nunmap"), QString("E474: Invalid argument"));
+
+    data.doCommand("nunmap Q1b");
+    data.doCommand("nunmap Q1aaaaaaaaaa");
+    data.doCommand("nunmap Q1cccccccccccc");
+    data.doCommand("vunmap Q2v");
+    data.doCommand("iunmap Q3i");
+    QCOMPARE(list("map Q"), QString("No mapping found"));
+}
+
+void FakeVimTester::test_vim_ex_iput()
+{
+    // ":iput" is ":put" with the text moved to the indentation of the line the
+    // range names: the first line lands on it, the rest keep their distance to
+    // the first, and nothing goes left of the margin. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set expandtab tabstop=8");
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto run = [&](const char *command, const char *reg) -> QString {
+        data.setText(X "no indent" N "    four" N "        eight" N "end");
+        data.doCommand(QLatin1String("call setreg('z', ") + reg + ", 'V')");
+        // The registers are shared with every other test.
+        data.doCommand("call setreg('q', '')");
+        data.doCommand(QLatin1String("let g:e = '' | try | ") + command
+                       + " | catch | let g:e = v:exception | endtry");
+        message.clear();
+        data.doCommand("echo line('.') . ',' . col('.') . g:e");
+        return QString::fromUtf8(data.text()).replace(QLatin1Char('\n'), QLatin1String("/"))
+               + "  at " + message;
+    };
+    const char *two = "['  two', '      six']";
+
+    QCOMPARE(run("2iput z", two),
+             QLatin1String("no indent/    four/    two/        six/        eight/end  at 4,9"));
+    QCOMPARE(run("3iput! z", two),
+             QLatin1String("no indent/    four/        two/            six/"
+                           "        eight/end  at 4,13"));
+    // ":0iput" puts in front of the first line and takes its indentation.
+    QCOMPARE(run("0iput z", two),
+             QLatin1String("two/    six/no indent/    four/        eight/end  at 2,5"));
+    // Behind the last line, where there is no break to put in front of.
+    QCOMPARE(run("4iput z", two),
+             QLatin1String("no indent/    four/        eight/end/two/    six  at 6,5"));
+    QCOMPARE(run("$iput z", "['  two']"),
+             QLatin1String("no indent/    four/        eight/end/two  at 5,1"));
+    // A range takes the indentation of its last line, as it puts after it.
+    QCOMPARE(run("1,2iput z", "['  two']"),
+             QLatin1String("no indent/    four/    two/        eight/end  at 3,5"));
+    QCOMPARE(run("2ip z", "['  two']"),
+             QLatin1String("no indent/    four/    two/        eight/end  at 3,5"));
+    QCOMPARE(run("2ipu z", "['  two']"),
+             QLatin1String("no indent/    four/    two/        eight/end  at 3,5"));
+    // An empty line stays empty rather than being filled up.
+    QCOMPARE(run("2iput z", "['  two', '', '      six']"),
+             QLatin1String("no indent/    four/    two//        six/        eight/end  at 5,9"));
+    // Text indented deeper than the line it goes to is moved left, and the
+    // margin stops it.
+    QCOMPARE(run("2iput z", "['        eight', '  two']"),
+             QLatin1String("no indent/    four/    eight/two/        eight/end  at 4,1"));
+    // The expression form is indented just the same.
+    QCOMPARE(run("2iput ='   expr'", "['  two']"),
+             QLatin1String("no indent/    four/    expr/        eight/end  at 3,5"));
+    QVERIFY(run("2iput q", "['  two']").contains(QLatin1String("E353")));
+
+    // With 'noexpandtab' the new indentation is written with tabs.
+    data.doCommand("set noexpandtab");
+    QCOMPARE(run("2iput z", two),
+             QLatin1String("no indent/    four/    two/\tsix/        eight/end  at 4,2"));
+    data.doCommand("unlet g:e");
+}
+
+void FakeVimTester::test_vim_cmdline_history()
+{
+    // The command line recalls with <Up>/<Down>, which only reach the entries
+    // starting with what was typed, and with <C-p>/<C-n>, which reach any -
+    // both walking one shared position. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    // Whatever earlier test slots typed is in this history as well.
+    const auto seed = [&] {
+        data.doCommand("call histdel('cmd')");
+        data.doCommand("call histadd('cmd', 's/a/X/')");
+        data.doCommand("call histadd('cmd', 's/b/Y/')");
+    };
+
+    data.doCommand("call histdel('cmd')");
+    data.setText(X "abc" N "abc");
+    KEYS(":s/a/X/<CR>", X "Xbc" N "abc");
+    KEYS("j:<C-p><CR>", "Xbc" N X "Xbc");
+
+    data.doCommand("call histdel('cmd')");
+    data.setText(X "abc" N "abc" N "abc");
+    KEYS(":s/a/X/<CR>:s/b/Y/<CR>", X "XYc" N "abc" N "abc");
+    KEYS("3G:<C-p><C-p><C-n><CR>", "XYc" N "abc" N X "aYc");
+
+    // <C-p> takes the newest entry whatever the line begins with, where <Up>
+    // finds nothing to take and leaves it - here no command at all.
+    seed();
+    data.setText(X "abc" N "abc");
+    KEYS(":zz<C-p><CR>", X "aYc" N "abc");
+    seed();
+    data.setText(X "abc" N "abc");
+    KEYS(":zz<Up><CR>", X "abc" N "abc");
+
+    // The position is a shared one, so <Up> carries on where <C-p> left off.
+    seed();
+    data.setText(X "abc" N "abc");
+    KEYS(":s<C-p><Up><CR>", X "Xbc" N "abc");
+
+    // Forward past the newest entry the typed line comes back.
+    seed();
+    data.setText(X "abc" N "abc");
+    KEYS(":zz<C-p><C-n><CR>", X "abc" N "abc");
+
+    // At the oldest entry there is nowhere to go, and it stays.
+    seed();
+    data.setText(X "abc" N "abc");
+    KEYS(":<C-p><C-p><C-p><CR>", X "Xbc" N "abc");
+
+    // The search history is one of its own.
+    data.doCommand("call histdel('search')");
+    data.doCommand("call histadd('search', 'abc')");
+    data.setText(X "xxx" N "abc");
+    KEYS("/<C-p><CR>", "xxx" N X "abc");
 }
 
 } // FakeVim::Internal

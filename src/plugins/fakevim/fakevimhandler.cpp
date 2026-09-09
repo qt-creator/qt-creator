@@ -1389,9 +1389,6 @@ static void setClipboardData(const QString &content, RangeMode mode,
 static const QMap<QString, int> &vimKeyNames()
 {
     static const QMap<QString, int> k = {
-        // FIXME: Should be value of mapleader.
-        {"LEADER", Key_Backslash},
-
         {"SPACE", Key_Space},
         {"TAB", Key_Tab},
         {"NL", Key_Return},
@@ -2073,10 +2070,11 @@ class History
 public:
     History() : m_items(QString()) {}
     void append(const QString &item);
-    const QString &move(QStringView prefix, int skip);
+    const QString &move(int skip, bool filtered);
     const QString &current() const { return m_items[m_index]; }
     const QStringList &items() const { return m_items; }
     void restart() { m_index = m_items.size() - 1; }
+    void restart(QStringView typed) { restart(); m_items[m_index] = typed.toString(); }
 
     // Vim numbers the entries of a history from one and keeps the numbers when
     // an entry is removed, so a number is not a position in the list.
@@ -2134,17 +2132,12 @@ void History::append(const QString &item)
     restart();
 }
 
-const QString &History::move(QStringView prefix, int skip)
+const QString &History::move(int skip, bool filtered)
 {
-    if (!current().startsWith(prefix))
-        restart();
-
-    if (m_items.last() != prefix)
-        m_items[m_items.size() - 1] = prefix.toString();
-
+    const QString filter = filtered ? m_items.last() : QString();
     int i = m_index + skip;
-    if (!prefix.isEmpty())
-        for (; i >= 0 && i < m_items.size() && !m_items[i].startsWith(prefix); i += skip)
+    if (!filter.isEmpty())
+        for (; i >= 0 && i < m_items.size() && !m_items[i].startsWith(filter); i += skip)
             ;
     if (i >= 0 && i < m_items.size())
         m_index = i;
@@ -2202,8 +2195,12 @@ public:
 
     void setHistoryAutoSave(bool autoSave) { m_historyAutoSave = autoSave; }
     bool userContentsValid() const { return m_userPos >= 0 && m_userPos <= m_buffer.size(); }
-    void historyDown() { if (userContentsValid()) setContents(m_history.move(userContents(), 1)); }
-    void historyUp() { if (userContentsValid()) setContents(m_history.move(userContents(), -1)); }
+    // <Up>/<Down> only reach the entries starting with what the user typed,
+    // <C-p>/<C-n> reach any - and both walk one shared position in the history.
+    void historyDown() { historyMove(1, true); }
+    void historyUp() { historyMove(-1, true); }
+    void historyNext() { historyMove(1, false); }
+    void historyPrev() { historyMove(-1, false); }
     const QStringList &historyItems() const { return m_history.items(); }
     const History &history() const { return m_history; }
     History &history() { return m_history; }
@@ -2289,6 +2286,10 @@ public:
             historyUp();
         } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
             historyDown();
+        } else if (input.isControl('p')) {
+            historyPrev();
+        } else if (input.isControl('n')) {
+            historyNext();
         } else if (input.isKey(Key_Delete)) {
             if (hasSelection()) {
                 deleteSelected();
@@ -2309,6 +2310,14 @@ public:
     }
 
 private:
+    void historyMove(int skip, bool filtered)
+    {
+        // A line no move put there is the user's own, and starts a walk over.
+        if (m_buffer != m_history.current() && userContentsValid())
+            m_history.restart(userContents());
+        setContents(m_history.move(skip, filtered));
+    }
+
     QString m_buffer;
     QChar m_prompt;
     History m_history;
@@ -3815,9 +3824,10 @@ public:
     bool handleExSweptCommands(const ExCommand &cmd);
     bool handleExIncludeSearchCommand(const ExCommand &cmd);
     bool handleExSplitAndDoCommand(const ExCommand &cmd);
-    bool handleExMapListCommand(const ExCommand &cmd);
     bool handleExMkVimrcCommand(const ExCommand &cmd);
-    void collectMappings(QStringList *out, const QByteArray &modes, bool asCommands);
+    void collectMappings(QStringList *out, const QByteArray &modes, bool asCommands,
+                         const QVector<Input> &prefix = {});
+    QString withLeadersExpanded(const QString &keys) const;
     bool isBufferReadOnly();
     bool handleExEchoCommand(const ExCommand &cmd);
 
@@ -9100,9 +9110,6 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
         // The count belonged to this command; the next one has its own.
         g.commandLineCount = 0;
         g.commandBuffer.clear();
-        // In Ex mode the next line is a command as well.
-        if (g.exMode && g.mode != ExMode)
-            enterExMode();
     } else if (!g.commandBuffer.handleInput(input)) {
         qDebug() << "IGNORED IN EX-MODE: " << input.key() << input.text();
         return EventUnhandled;
@@ -10112,6 +10119,22 @@ bool FakeVimHandler::Private::handleExTagCommand(const ExCommand &cmd)
     return false;
 }
 
+// Vim takes "<leader>" and "<localleader>" where the keys are written down,
+// with the value the variable holds at that moment, an unset or empty one
+// standing for a backslash.
+QString FakeVimHandler::Private::withLeadersExpanded(const QString &keys) const
+{
+    const auto value = [this](const QString &name) -> QString {
+        const QString text = g.variables.contains(name) ? g.variables.value(name).toString()
+                                                        : QString();
+        return text.isEmpty() ? QString(QLatin1Char('\\')) : text;
+    };
+    QString out = keys;
+    out.replace(QLatin1String("<localleader>"), value("maplocalleader"), Qt::CaseInsensitive);
+    out.replace(QLatin1String("<leader>"), value("mapleader"), Qt::CaseInsensitive);
+    return out;
+}
+
 bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
 {
     QByteArray modes;
@@ -10193,26 +10216,30 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
         break;
     }
 
-    // Vim writes "<leader>" and "<localleader>" out where the mapping is
-    // made, taking the value the variable holds at that moment.
-    const auto leaderValue = [this](const QString &name) -> QString {
-        if (!g.variables.contains(name))
-            return QString(QLatin1Char('\\'));
-        const QString text = g.variables.value(name).toString();
-        return text.isEmpty() ? QString(QLatin1Char('\\')) : text;
-    };
-    args.replace(QLatin1String("<localleader>"), leaderValue("maplocalleader"),
-                 Qt::CaseInsensitive);
-    args.replace(QLatin1String("<leader>"), leaderValue("mapleader"), Qt::CaseInsensitive);
+    args = withLeadersExpanded(args);
 
     static const QRegularExpression regexp("\\s+");
     const QString lhs = args.section(regexp, 0, 0);
     const QString rhs = args.section(regexp, 1);
-    if ((rhs.isNull() && type != Unmap) || (!rhs.isNull() && type == Unmap)) {
-        // FIXME: Dump mappings here.
-        //qDebug() << g.mappings;
+    if (rhs.isEmpty() && type != Unmap) {
+        // Without a right hand side the mappings are listed instead, a left
+        // hand side taken as the start of the ones to show.
+        QStringList listed;
+        collectMappings(&listed, modes, false, Inputs(lhs));
+        if (listed.isEmpty()) {
+            showMessage(MessageInfo, Tr::tr("No mapping found"));
+            return true;
+        }
+        listed.sort();
+        showExtraInformation(listed.join('\n') + '\n');
         return true;
     }
+    if (type == Unmap && lhs.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E474: Invalid argument"));
+        return true;
+    }
+    if (!rhs.isEmpty() && type == Unmap)
+        return true;
 
     Inputs key(lhs);
     //qDebug() << "MAPPING: " << modes << lhs << rhs;
@@ -10820,7 +10847,7 @@ static const QSet<QString> &stringsOptionNames()
     "patchexpr patchmode path pb pdev penc perldll pex pexpr pfn pheader pm pmbcs pmbfn "
     "popt pp previewpopup printdevice printencoding printexpr printfont printheader "
     "printmbcharset printmbfont printoptions pt pumborder pvp pythondll pythonhome "
-    "pythonthreedll pythonthreehome qe qftf quickfixtextfunc quoteescape renderoptions "
+    "pythonthreedll pythonthreehome qftf quickfixtextfunc renderoptions "
     "rightleftcmd rlc rop rtp rubydll ruf rulerformat runtimepath sbo sbr scl scrollopt "
     "sect sections sel selection selectmode sessionoptions sh shcf shell shellcmdflag "
     "shellpipe shellquote shellredir shellxescape shellxquote shm shortmess showbreak "
@@ -11911,7 +11938,8 @@ bool FakeVimHandler::Private::handleExPrintCommand(const ExCommand &cmd)
 // a register.
 bool FakeVimHandler::Private::handleExPutCommand(const ExCommand &cmd)
 {
-    if (!cmd.matches("pu", "put"))
+    const bool indented = cmd.matches("ip", "iput");
+    if (!indented && !cmd.matches("pu", "put"))
         return false;
 
     QString text;
@@ -11950,6 +11978,10 @@ bool FakeVimHandler::Private::handleExPutCommand(const ExCommand &cmd)
     // ":0put" puts in front of the first line, and so does ":1put!".
     const int target = blockAt(cmd.range.endPos).blockNumber();
     const int before = cmd.zeroAddress || cmd.hasBang ? target : target + 1;
+    if (indented) {
+        setPosition(firstPositionInLine(target + 1));
+        text = linesAtThisIndent(text).join('\n') + '\n';
+    }
     const int putLines = int(text.count('\n'));
 
     if (before >= lineCount) {
@@ -13082,45 +13114,66 @@ bool FakeVimHandler::Private::handleExWinCmdCommand(const ExCommand &cmd)
 }
 
 void FakeVimHandler::Private::collectMappings(QStringList *out, const QByteArray &modes,
-                                             bool asCommands)
+                                             bool asCommands, const QVector<Input> &prefix)
 {
+    const auto addOne = [&](const QVector<Input> &path, const Inputs &rhs, char forMode) -> void {
+        QString lhs;
+        for (const Input &in : path)
+            lhs += keyNameAsVimWritesIt(in.toString());
+        QString right;
+        if (rhs.isExpression()) {
+            right = rhs.expression();
+        } else if (rhs.isExCommand()) {
+            right = rhs.leadingKeys() + "<Cmd>" + rhs.exCommand() + "<CR>";
+        } else {
+            for (const Input &in : QVector<Input>(rhs))
+                right += keyNameAsVimWritesIt(in.toString());
+        }
+        if (asCommands) {
+            const QString command = QString(QChar(forMode))
+                                    + (rhs.noremap() ? QLatin1String("noremap")
+                                                     : QLatin1String("map"));
+            *out += command + ' ' + lhs + ' ' + right;
+            return;
+        }
+        // A left hand side that fills the column keeps one space of its own,
+        // so the flag never runs into it.
+        do {
+            lhs += ' ';
+        } while (lhs.size() < 12);
+        *out += QString(QChar(forMode)) + "  " + lhs
+                + (rhs.noremap() ? QLatin1String("* ") : QLatin1String("  ")) + right;
+    };
     const auto walk = [&](const ModeMapping &node, const QVector<Input> &keys, char forMode,
                           const auto &recurse) -> void {
         for (auto it = node.cbegin(); it != node.cend(); ++it) {
             QVector<Input> path = keys;
             path.append(it.key());
             const Inputs &rhs = it.value().value();
-            if (!rhs.isEmpty()) {
-                QString lhs;
-                for (const Input &in : path)
-                    lhs += keyNameAsVimWritesIt(in.toString());
-                QString right;
-                if (rhs.isExpression()) {
-                    right = rhs.expression();
-                } else if (rhs.isExCommand()) {
-                    right = rhs.leadingKeys() + "<Cmd>" + rhs.exCommand() + "<CR>";
-                } else {
-                    for (const Input &in : QVector<Input>(rhs))
-                        right += keyNameAsVimWritesIt(in.toString());
-                }
-                if (asCommands) {
-                    const QString command = QString(QChar(forMode))
-                                            + (rhs.noremap() ? QLatin1String("noremap")
-                                                             : QLatin1String("map"));
-                    *out += command + ' ' + lhs + ' ' + right;
-                } else {
-                    *out += QString(QChar(forMode)) + "  " + lhs.leftJustified(12)
-                            + (rhs.noremap() ? QLatin1String("* ") : QLatin1String("  "))
-                            + right;
-                }
-            }
+            if (!rhs.isEmpty())
+                addOne(path, rhs, forMode);
             recurse(it.value(), path, forMode, recurse);
         }
     };
     for (char mode : modes) {
         const auto table = g.mappings.constFind(mode);
-        if (table != g.mappings.constEnd())
-            walk(*table, QVector<Input>(), mode, walk);
+        if (table == g.mappings.constEnd())
+            continue;
+        const ModeMapping *node = &*table;
+        bool complete = true;
+        for (const Input &in : prefix) {
+            const auto child = node->constFind(in);
+            if (child == node->constEnd()) {
+                complete = false;
+                break;
+            }
+            node = &*child;
+        }
+        if (!complete)
+            continue;
+        if (!prefix.isEmpty() && !node->value().isEmpty())
+            addOne(prefix, node->value(), mode);
+        walk(*node, prefix, mode, walk);
     }
 }
 
@@ -13176,35 +13229,6 @@ bool FakeVimHandler::Private::handleExMkVimrcCommand(const ExCommand &cmd)
     }
     file.write(out.toUtf8());
     file.close();
-    return true;
-}
-
-bool FakeVimHandler::Private::handleExMapListCommand(const ExCommand &cmd)
-{
-    static const QList<QPair<QString, QByteArray>> tables = {
-        {"map", "nvo"}, {"nm", "nvo"}, {"nmap", "n"}, {"vmap", "v"}, {"xmap", "v"},
-        {"smap", "s"}, {"omap", "o"}, {"imap", "i"}, {"lmap", "l"}, {"cmap", "c"},
-        {"nnoremap", "n"}, {"vnoremap", "v"}, {"xnoremap", "v"}, {"snoremap", "s"},
-        {"onoremap", "o"}, {"inoremap", "i"}, {"lnoremap", "l"}, {"cnoremap", "c"},
-        {"noremap", "nvo"}};
-    QByteArray modes;
-    for (const auto &[name, forModes] : tables) {
-        if (cmd.cmd == name) {
-            modes = forModes;
-            break;
-        }
-    }
-    if (modes.isEmpty() || !cmd.args.trimmed().isEmpty())
-        return false;
-
-    QStringList listed;
-    collectMappings(&listed, modes, false);
-    if (listed.isEmpty()) {
-        showMessage(MessageInfo, Tr::tr("No mapping found"));
-        return true;
-    }
-    listed.sort();
-    showExtraInformation(listed.join('\n') + '\n');
     return true;
 }
 
@@ -13416,6 +13440,7 @@ bool FakeVimHandler::Private::handleExSweptCommands(const ExCommand &cmd)
         || cmd.matches("ptp", "ptprevious") || cmd.matches("ptr", "ptrewind")
         || cmd.matches("ptl", "ptlast") || cmd.matches("ptf", "ptfirst")
         || cmd.matches("promptf", "promptfind") || cmd.matches("promptr", "promptrepl")
+        || cmd.matches("helpf", "helpfind")
         || cmd.matches("wlr", "wlrestore") || cmd.matches("xr", "xrestore")
         || cmd.matches("mkspe", "mkspell")) {
         showMessage(MessageError,
@@ -19811,7 +19836,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         };
         // The keys asked about may be written in that notation too: "[<Space>"
         // and "[ " name the same mapping, and a plugin writes the first.
-        const QVector<Input> wantedKeys(Inputs(arg(0).toString()));
+        const QVector<Input> wantedKeys(Inputs(withLeadersExpanded(arg(0).toString())));
         const QString wanted = spell(wantedKeys);
         // Whether the keys stand somewhere in what a mapping does.
         const auto mentions = [&wantedKeys](const QVector<Input> &rhs) {
@@ -25275,6 +25300,10 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
         clearCurrentMode();
         updateMiniBuffer();
     }
+
+    // In Ex mode the line just run is followed by another one.
+    if (g.exMode)
+        enterExMode();
 }
 
 // Run an ex command line without touching the mode. ":" leaves insert or
@@ -25300,6 +25329,20 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
     // the name would mean.
     if (g.exMode && (cmd.matches("vi", "visual") || cmd.matches("vie", "view"))) {
         g.exMode = false;
+        return true;
+    }
+
+    // ":ex" is the way in from a command line. The file it takes is ":edit"'s,
+    // and that opens an editor of its own, which is not the one this mode
+    // would be entered on.
+    if (cmd.matches("ex", "ex")) {
+        const QString file = cmd.args.trimmed();
+        if (!file.isEmpty()) {
+            runNestedExCommands((cmd.hasBang ? QString("edit! ") : QString("edit ")) + file);
+            return true;
+        }
+        g.exMode = true;
+        enterExMode();
         return true;
     }
 
@@ -25341,7 +25384,6 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExWindowSizeCommand(cmd)
         || handleExSweptCommands(cmd)
         || handleExIncludeSearchCommand(cmd)
-        || handleExMapListCommand(cmd)
         || handleExMkVimrcCommand(cmd)
         || handleExSplitAndDoCommand(cmd)
         || handleExDelMarksCommand(cmd)
@@ -29122,11 +29164,12 @@ bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
         }
         return true;
     };
-    // Vim pairs quotes by 'quoteescape': at the escape character the scan skips
-    // the next one, so a quote behind a backslash is no delimiter of its own.
-    const auto afterNextQuote = [&quoteAt, this, sz, lineEnd](int from) {
+    // Vim pairs quotes by 'quoteescape': at one of its characters the scan
+    // skips the next one, so an escaped quote is no delimiter of its own.
+    const QString escapes = s.quoteEscape();
+    const auto afterNextQuote = [&quoteAt, &escapes, this, sz, lineEnd](int from) {
         for (int i = from; i + sz <= lineEnd; ++i) {
-            if (characterAt(i) == '\\')
+            if (escapes.contains(characterAt(i)))
                 ++i;
             else if (quoteAt(i))
                 return i + sz;

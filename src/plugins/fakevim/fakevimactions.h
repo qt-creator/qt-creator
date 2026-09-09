@@ -205,6 +205,10 @@ public:
     // extend what they match; the jumping here does not consult it yet.
     FvStringAspect matchPairs;
 
+    // Any of these characters makes the next one no quote of its own, which is
+    // what the quote text objects pair by.
+    FvStringAspect quoteEscape;
+
     // Which Vi compatibilities are in effect. None of the flags change anything
     // here, where the behavior is Vim's own, so this reports what Vim reports
     // and exists for the scripts that save it, set it and put it back.
