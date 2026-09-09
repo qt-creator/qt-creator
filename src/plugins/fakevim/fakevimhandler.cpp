@@ -3170,6 +3170,7 @@ public:
     void moveToBoundaryEnd(int count, bool simple, bool forward = true);
     void moveToNextWord(bool end, int count, bool simple, bool forward, bool emptyLines);
     void moveToNextWordStart(int count, bool simple, bool forward = true, bool emptyLines = true);
+    void stopMotionAtEndOfLine();
     void moveToNextWordEnd(int count, bool simple, bool forward = true, bool emptyLines = true);
     void moveToWordStart(int count, bool simple, bool forward = true, bool emptyLines = true);
     void moveToWordEnd(int count, bool simple, bool forward = true, bool emptyLines = true);
@@ -3708,8 +3709,9 @@ public:
     void autoWrapLine();
     // If the current line is a freshly auto-indented, still whitespace-only
     // line, remove that automatic indentation again (QTCREATORBUG-15009).
-    void clearUntouchedAutoIndentation();
+    void clearUntouchedAutoIndentation(bool upToCursor = false);
     void handleStartOfLine();
+    void handleStartOfLine(int wantedColumn);
 
     bool namesThisBuffer(const VimValue &buffer);
     CommandBuffer *historyBuffer(const QString &name);
@@ -5892,8 +5894,7 @@ void FakeVimHandler::Private::fixSelection()
         }
     }
 
-    if (g.movetype == MoveExclusive
-            && (g.subsubmode == NoSubSubMode || g.subsubmode == SearchSubSubMode)) {
+    if (g.movetype == MoveExclusive) {
         if (anchor() < position() && atBlockStart()) {
             // Exclusive motion ending at the beginning of line
             // becomes inclusive and end is moved to end of previous line.
@@ -5903,7 +5904,7 @@ void FakeVimHandler::Private::fixSelection()
 
             // Exclusive motion ending at the beginning of line and
             // starting at or before first non-blank on a line becomes linewise.
-            if (anchor() < block().position() && isFirstNonBlankOnLine(anchor()))
+            if (isFirstNonBlankOnLine(anchor()))
                 g.movetype = MoveLineWise;
         }
     }
@@ -5929,18 +5930,38 @@ void FakeVimHandler::Private::fixSelection()
                     setAnchorAndPosition(start, end);
             }
 
-            // If more than one line is selected and all are selected completely
-            // movement becomes linewise.
-            if (start < block().position() && isFirstNonBlankOnLine(start) && atBlockEnd()) {
-                if (g.submode != ChangeSubMode) {
+            // More than one line, all of them complete: a delete takes whole
+            // lines, a yank and a change stay charwise. An inner-word motion
+            // over empty lines ends one line short of Vim.
+            if (g.submode == DeleteSubMode && g.motionForce == NoVisualMode
+                    && start < block().position() && isFirstNonBlankOnLine(start)
+                    && atBlockEnd()) {
+                if (atEmptyLine() && atEmptyLine(position() + 1))
                     moveRight();
-                    if (atEmptyLine())
-                        moveRight();
-                }
                 g.movetype = MoveLineWise;
+                g.rangemode = RangeLineMode;
             }
         } else if (!m_anchorPastEnd) {
             setAnchorAndPosition(anchor() + 1, position());
+        }
+    }
+
+    // A charwise delete over more than one line that starts in the indent and
+    // has nothing but blanks left after its end takes whole lines instead.
+    if (g.submode == DeleteSubMode && g.motionForce == NoVisualMode) {
+        const int start = qMin(anchor(), position());
+        const int end = qMax(anchor(), position());
+        const QTextBlock last = blockAt(end);
+        if (blockAt(start) != last && end != last.position()
+                && isFirstNonBlankOnLine(start)) {
+            const int lineEnd = last.position() + last.length() - 1;
+            int at = end;
+            while (at < lineEnd && document()->characterAt(at).isSpace())
+                ++at;
+            if (at >= lineEnd) {
+                g.movetype = MoveLineWise;
+                g.rangemode = RangeLineMode;
+            }
         }
     }
 
@@ -6087,13 +6108,14 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         beginEditBlock();
         const int pos = position();
         const int had = document()->blockCount();
+        const int column = m_targetColumn;
         // Always delete something (e.g. 'dw' on an empty line deletes the line).
         if (pos == anchor() && g.movetype == MoveInclusive)
             removeText(Range(pos, pos + 1));
         else
             removeText(currentRange());
         if (g.movetype == MoveLineWise)
-            handleStartOfLine();
+            handleStartOfLine(column);
         endEditBlock();
         reportLineChange(LinesDeleted, had - document()->blockCount());
     } else if (g.submode == YankSubMode) {
@@ -7189,11 +7211,8 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             moveToWordEnd(count, simple, true);
         } else {
             moveToNextWordStart(count, simple, true);
-            // Command 'dw' deletes to the next word on the same line or to end of line.
-            if (g.submode == DeleteSubMode && count == 1) {
-                const QTextBlock currentBlock = blockAt(anchor());
-                setPosition(qMin(position(), currentBlock.position() + currentBlock.length()));
-            }
+            if (g.submode != NoSubMode)
+                stopMotionAtEndOfLine();
         }
     } else if (input.is('z')) {
         g.movetype =  MoveLineWise;
@@ -7831,10 +7850,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setPosition(appendLine ? lastPositionInLine(line) : firstPositionInLine(line));
         clearLastInsertion();
         setAnchor();
-        insertNewLine();
         if (appendLine) {
+            insertNewLine();
             m_buffer->insertState.newLineBefore = true;
         } else {
+            // Opening a line above the first one is no split of that line: it
+            // keeps its own indentation, and the new one takes "indent" below.
+            insertText(QString("\n"));
             moveUp();
             m_buffer->insertState.pos1 = position();
             m_buffer->insertState.newLineAfter = true;
@@ -7843,6 +7865,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             const int line = lineNumber(block());
             setLineContents(line, indent);
             setPosition(firstPositionInLine(line) + indent.size());
+            m_autoIndentBlock = block().blockNumber();
         }
         if (!leader.isEmpty())
             insertText(Register(leader.mid(indentation(leader).physical)));
@@ -8829,10 +8852,12 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             g.subsubmode = NoSubSubMode;
             VimValue value;
             QString error;
-            if (evaluateExpression(expr, &value, &error))
+            if (evaluateExpression(expr, &value, &error)) {
+                setAnchor();
                 m_cursor.insertText(value.toString());
-            else
+            } else {
                 showMessage(MessageError, error);
+            }
             updateMiniBuffer();
         } else if (input.isBackspace()) {
             if (g.commandBuffer.isEmpty()) {
@@ -8886,6 +8911,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             g.subsubmode = input.isControl('o') ? CtrlRLiteralSubSubMode
                                                 : CtrlRIndentSubSubMode;
         } else {
+            setAnchor();
             m_cursor.insertText(registerContents(input.asChar().unicode()));
             g.submode = NoSubMode;
         }
@@ -19921,8 +19947,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
     if (name == "getreginfo") {
         // What a register holds, as a dictionary: the lines, the kind, and how it stands to the
         // unnamed register - which one it points to when asked about that one itself.
-        const int reg = registerCode(arg(0).toString().isEmpty()
-                                         ? QChar('"') : arg(0).toString().at(0));
+        const QString spec = args.isEmpty() ? QString() : arg(0).toString();
+        const int reg = registerCode(spec.isEmpty() ? QChar('"') : spec.at(0));
         const QString contents = registerContents(reg);
         QMap<QString, VimValue> info;
         if (!contents.isEmpty()) {
@@ -20071,9 +20097,9 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         return true;
     }
     if (name == "getreg" || name == "getregtype") {
-        // What a register holds, and of what kind. An empty name is the unnamed
-        // register.
-        const QString spec = arg(0).toString();
+        // What a register holds, and of what kind. A missing or empty name is
+        // the unnamed register.
+        const QString spec = args.isEmpty() ? QString() : arg(0).toString();
         const int reg = spec.isEmpty() ? '"' : registerCode(spec.at(0));
         const Register stored = g.registers.value(reg);
         if (name == "getregtype") {
@@ -26743,6 +26769,24 @@ void FakeVimHandler::Private::moveToNextWord(bool end, int count, bool simple, b
     }
 }
 
+void FakeVimHandler::Private::stopMotionAtEndOfLine()
+{
+    // The line the motion reaches is as far as it gets, the last character on
+    // that line coming with it.
+    if (position() <= anchor())
+        return;
+    if (atBlockStart()) {
+        const QTextBlock previous = block().previous();
+        if (previous.length() > 1) {
+            setPosition(previous.position() + previous.length() - 2);
+            g.movetype = MoveInclusive;
+        }
+    } else if (atEndOfLine()) {
+        setPosition(position() - 1);
+        g.movetype = MoveInclusive;
+    }
+}
+
 void FakeVimHandler::Private::moveToNextWordStart(int count, bool simple, bool forward, bool emptyLines)
 {
     g.movetype = MoveExclusive;
@@ -26995,13 +27039,15 @@ int FakeVimHandler::Private::logicalToPhysicalColumn
     (const int logical, const QString &line) const
 {
     const int ts = tabStop();
+    int l = 0;
     int physical = 0;
-    for (int l = 0; l < logical && physical < line.size(); ++physical) {
-        QChar c = line.at(physical);
-        if (c == '\t')
-            l += ts - l % ts;
-        else
-            ++l;
+    for (; physical < line.size(); ++physical) {
+        const QChar c = line.at(physical);
+        const int width = c == '\t' ? ts - l % ts : 1;
+        // A wanted column anywhere inside a tab is on that tab.
+        if (l + width > logical)
+            break;
+        l += width;
     }
     return physical;
 }
@@ -27837,9 +27883,9 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
     switch (rangeMode) {
         case RangeCharMode: {
             m_targetColumn = 0;
-            const int pos = position() + 1;
             if (pasteAfter && rightDist() > 0)
                 moveRight();
+            const int pos = position();
             insertText(text.repeated(count()));
             if (text.contains('\n'))
                 setPosition(pos);
@@ -27931,13 +27977,14 @@ void FakeVimHandler::Private::cutSelectedText(int reg)
     if (!reg)
         reg = m_register;
 
+    const int column = m_targetColumn;
     g.submode = DeleteSubMode;
     yankText(range, reg);
     removeText(range);
     g.submode = NoSubMode;
 
     if (g.rangemode == RangeLineMode)
-        handleStartOfLine();
+        handleStartOfLine(column);
     else if (g.rangemode == RangeBlockMode)
         setPosition(qMin(position(), anchor()));
 }
@@ -28035,20 +28082,18 @@ void FakeVimHandler::Private::insertNewLine()
     if (m_buffer->editBlockLevel <= 1 && s.passKeys()
             && (s.autoIndent() || s.smartIndent())) {
         // Leaving an untouched auto-indented line clears its indentation.
-        clearUntouchedAutoIndentation();
+        clearUntouchedAutoIndentation(true);
         QKeyEvent event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, "\n");
         if (passEventToEditor(event, m_cursor)) {
             // The editor may auto-indent the freshly opened line itself. Remember
             // it so leaving it untouched removes that indentation (QTCREATORBUG-15009).
-            const QString text = block().text();
-            if (!text.isEmpty() && text.trimmed().isEmpty())
-                m_autoIndentBlock = block().blockNumber();
+            m_autoIndentBlock = block().blockNumber();
             return;
         }
     }
 
     // Leaving an untouched auto-indented line clears its indentation.
-    clearUntouchedAutoIndentation();
+    clearUntouchedAutoIndentation(true);
     const QString leader = s.formatOptions().contains('r') ? commentLeaderOf(block().text())
                                                            : QString();
     insertText(QString("\n"));
@@ -29202,18 +29247,20 @@ void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown, bool fo
 
     // Remember this as a freshly auto-indented line so that leaving it without
     // typing anything removes the indentation again (QTCREATORBUG-15009).
-    if (block().text().trimmed().isEmpty())
-        m_autoIndentBlock = block().blockNumber();
+    m_autoIndentBlock = block().blockNumber();
 }
 
-void FakeVimHandler::Private::clearUntouchedAutoIndentation()
+void FakeVimHandler::Private::clearUntouchedAutoIndentation(bool upToCursor)
 {
     const int pending = m_autoIndentBlock;
     m_autoIndentBlock = -1;
     // Only when we are still on that very line and nothing was typed on it.
     if (pending < 0 || pending != block().blockNumber())
         return;
-    const QString text = block().text();
+    // What follows the cursor is text that a line break is about to move down,
+    // so it does not count as typed on this line.
+    const QString line = block().text();
+    const QString text = upToCursor ? line.left(position() - block().position()) : line;
     if (text.isEmpty() || !text.trimmed().isEmpty())
         return;
     const int start = block().position();
@@ -29230,6 +29277,14 @@ void FakeVimHandler::Private::handleStartOfLine()
         moveToFirstNonBlankOnLine();
     else
         moveToTargetColumn();
+}
+
+// Removing text leaves the cursor at the start of what is gone, and takes the
+// column the cursor wanted with it, so a linewise delete has to hand it back.
+void FakeVimHandler::Private::handleStartOfLine(int wantedColumn)
+{
+    m_targetColumn = wantedColumn;
+    handleStartOfLine();
 }
 
 void FakeVimHandler::Private::replay(const QString &command, int repeat, bool withMappings)
@@ -29375,10 +29430,12 @@ void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
         g.movetype = MoveInclusive;
     } else {
         g.movetype = MoveExclusive;
-        if (isNoVisualMode())
+        if (isNoVisualMode()) {
             moveToNextCharacter();
-        else if (isVisualLineMode())
+            stopMotionAtEndOfLine();
+        } else if (isVisualLineMode()) {
             g.visualMode = VisualCharMode;
+        }
     }
 
     setTargetColumn();
@@ -30282,6 +30339,7 @@ void FakeVimHandler::Private::insertRegisterLiterally(int reg, bool fixIndent)
     if (text.isEmpty())
         return;
     if (registerRangeMode(reg) != RangeLineMode) {
+        setAnchor();
         m_cursor.insertText(text);
         return;
     }

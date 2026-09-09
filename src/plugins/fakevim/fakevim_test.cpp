@@ -259,6 +259,7 @@ private slots:
     void test_vim_script_block_abbreviations();
     void test_vim_command_line_ctrl_u();
     void test_vim_insert_ctrl_r_literal();
+    void test_vim_insert_ctrl_r_at_cursor();
     void test_vim_insert_0_ctrl_d();
     void test_vim_replace_return();
     void test_vim_command_line_ctrl_w();
@@ -388,6 +389,7 @@ private slots:
     void test_vim_change_marks();
     void test_vim_match_pair_fails();
     void test_vim_search_motion_kind();
+    void test_vim_word_motion_stops_at_line_end();
     void test_vim_sentence_motion();
     void test_vim_sentence_text_object();
     void test_vim_failed_text_object();
@@ -1222,6 +1224,25 @@ void FakeVimTester::test_vim_target_column_normal()
     KEYS("gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
     KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
     KEYS("^k", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+
+    // A tab is as wide as the tabstop makes it, and a wanted column anywhere
+    // inside one lands on the tab itself. Values taken from Vim 9.1.
+    data.setText("abcdefghij" N "\tx" N "abcdefghij");
+    KEYS("^4lj", "abcdefghij" N X "\tx" N "abcdefghij");
+    data.setText("abcdefghij" N "\tx" N "abcdefghij");
+    KEYS("^4ljj", "abcdefghij" N "\tx" N "abcd" X "efghij");
+    data.setText("abcdefghij" N "\tx" N "abcdefghij");
+    KEYS("^7lj", "abcdefghij" N X "\tx" N "abcdefghij");
+    data.setText("abcdefghij" N "\tx" N "abcdefghij");
+    KEYS("^8lj", "abcdefghij" N "\t" X "x" N "abcdefghij");
+    data.setText("abcdefghij" N "\tx" N "abcdefghij");
+    KEYS("G^4lk", "abcdefghij" N X "\tx" N "abcdefghij");
+    data.setText("abcdefghij" N "\tx" N "abcdefghij");
+    KEYS("G^4lkk", "abcd" X "efghij" N "\tx" N "abcdefghij");
+    data.setText("abcdefghij" N "\t\tx" N "abcdefghijklmnopq");
+    KEYS("^9lj", "abcdefghij" N "\t" X "\tx" N "abcdefghijklmnopq");
+    data.setText("abcdefghij" N "\t\tx" N "abcdefghijklmnopq");
+    KEYS("^9ljj", "abcdefghij" N "\t\tx" N "abcdefghi" X "jklmnopq");
 }
 
 void FakeVimTester::test_vim_target_column_visual_char()
@@ -1782,6 +1803,78 @@ void FakeVimTester::test_vim_delete()
          "{ return 0;" N
          "}" N
          X "");
+
+    // A charwise delete over more than one line whose start is in the indent
+    // and whose end has nothing but blanks after it takes whole lines, so what
+    // it puts in the register is linewise. Values taken from Vim 9.1.
+    data.setText("abc" N "def");
+    KEYS("2dwP", X "abc" N "def" N "");
+    data.setText("abc" N "def");
+    KEYS("d2wP", X "abc" N "def" N "");
+    data.setText("abc" N "def");
+    KEYS("2dwp", "" N X "abc" N "def");
+    data.setText("abc" N "defx  " N "ghi");
+    KEYS("d/x/e<CR>p", "ghi" N X "abc" N "defx  ");
+    data.setText("  abc" N "def");
+    KEYS("^d/f<CR>P", "  " X "abc" N "def");
+    data.setText("  ab" N "def" X "   ");
+    KEYS("d?a<CR>P", "  " X "ab" N "def   " N "");
+    data.setText("ab" N "def" X "   ");
+    KEYS("d?a<CR>", X "");
+
+    // A start past the indent, a rest that is not blank, a single line, a yank
+    // and a forced charwise motion all keep it charwise.
+    data.setText("abc" N "def");
+    KEYS("l2dwP", X "bc" N "defa");
+    data.setText("abc" N "def ghi");
+    KEYS("2dwP", X "abc" N "def ghi");
+    data.setText("abc def");
+    KEYS("2dwP", "abc de" X "f");
+    data.setText("abc" N "def");
+    KEYS("2ywP", X "abc" N "defabc" N "def");
+    data.setText("abc" N "def");
+    KEYS("dv/f<CR>P", X "abc" N "def");
+    data.setText("abc" N "defxy" N "ghi");
+    KEYS("d/x/e<CR>p", "y" X "abc" N "defx" N "ghi");
+    data.setText("  abc" N "def  ");
+    KEYS("^dv/f<CR>P", "  " X "abc" N "def  ");
+    data.setText("xyab   " N "def" X "   ");
+    KEYS("d?a<CR>", "xy" X "   ");
+
+    // An inclusive motion covering complete lines takes whole lines for a
+    // delete, but yanks and changes charwise. Values taken from Vim 9.1.
+    data.setText("abc" N "def" N "ghi");
+    KEYS("2dep", "ghi" N X "abc" N "def");
+    data.setText("abc" N "def" N "" N "ghi");
+    KEYS("2de", X "" N "ghi");
+    data.setText("abc" N "def" N "" N "ghi");
+    KEYS("2dep", "" N X "abc" N "def" N "ghi");
+    data.setText("abc  " N "  def" N "  ghi" N "jkl");
+    KEYS("3dawp", "jkl" N X "abc  " N "  def" N "  ghi");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("2yep", "a" X "abc" N "defbc" N "def" N "ghi");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("2cex<Esc>", X "x" N "ghi");
+
+    // A forced "v" flips the inclusiveness of a charwise motion, and a word
+    // motion under an operator stops on the last character of the line it
+    // reaches.
+    data.setText("abc" N "def");
+    KEYS("dv2w", X "f");
+    data.setText("abc" N "def");
+    KEYS("dv3w", X "f");
+    data.setText("abc" N "def");
+    KEYS("yv2wP", X "abc" N "deabc" N "def");
+    data.setText("abc def");
+    KEYS("wdvaw", "abc" X "f");
+
+    // An exclusive motion ending at the start of a line is pulled back onto the
+    // line before it, and taken linewise when it started in the indent - for
+    // every operator, not only for the plain motions. Values taken from Vim 9.1.
+    data.setText("void a()" N "{" N "}" N "" N "int b()" N "{ return 0; }");
+    KEYS("c]]xy<Esc>", "x" X "y" N "{" N "}" N "" N "int b()" N "{ return 0; }");
+    data.setText("  abc" N "  def" N "  ghi");
+    KEYS("jj0ma" "gg" "d`a", "  " X "ghi");
 }
 
 void FakeVimTester::test_vim_delete_inner_word()
@@ -3381,6 +3474,44 @@ void FakeVimTester::test_vim_copy_paste()
     // also for a word in the middle of the line
     data.setText("abc def ghi");
     KEYS("yiw" "w" "ve" "p", "abc ab" X "c ghi");
+
+    // A put leaves the cursor on the last character it put in, except that a
+    // multi-line charwise register leaves it on the FIRST one - wherever the
+    // text lands. Values taken from Vim 9.1.
+    data.setText("abc" N "def");
+    KEYS("lvjlyP", "a" X "bc" N "defbc" N "def");
+    data.setText("abc" N "def");
+    KEYS("lvjlyp", "ab" X "bc" N "defc" N "def");
+    data.setText("abc def" N "ghi jkl");
+    KEYS("lvjllyP", "a" X "bc def" N "ghi bc def" N "ghi jkl");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("lvjjlyP", "a" X "bc" N "def" N "ghibc" N "def" N "ghi");
+    data.setText("abc" N "def");
+    KEYS("lvjly2P", "a" X "bc" N "defbc" N "defbc" N "def");
+    data.setText("abc" N "def");
+    KEYS("lvjly$P", "ab" X "bc" N "defc" N "def");
+    data.setText("abc" N "def");
+    KEYS("lvjly$p", "abc" X "bc" N "def" N "def");
+    data.setText("abc" N "def" N "" N "ghi");
+    KEYS("lvjlyjjp", "abc" N "def" N X "bc" N "def" N "ghi");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("lvjlyGp", "abc" N "def" N "g" X "bc" N "defhi");
+
+    // A single line put stays on its last character, however it is spelled.
+    data.setText("abc");
+    KEYS("vlyP", "a" X "babc");
+    data.setText("abc");
+    KEYS("vlyp", "aa" X "bbc");
+    data.setText("abc def ghi");
+    KEYS("y2wwP", "abc abc def" X " def ghi");
+
+    // Blockwise and linewise puts are unaffected.
+    data.setText("abcd" N "efgh");
+    KEYS("l<C-v>jlyP", "a" X "bcbcd" N "efgfgh");
+    data.setText("abc" N "def");
+    KEYS("yyjP", "abc" N X "abc" N "def");
+    data.setText("abc" N "def");
+    KEYS("yyjp", "abc" N "def" N X "abc");
 }
 
 void FakeVimTester::test_vim_undo_redo()
@@ -10266,6 +10397,32 @@ void FakeVimTester::test_vim_insert_ctrl_r_literal()
     KEYS("yyjA-<C-r><C-p>0<Esc>", "    xy" N "        xy" N X "        ab-");
     data.setText("        " X "xy" N "ab");
     KEYS("yyjA-<C-r><C-p>0<Esc>", "        xy" N "xy" N X "ab-");
+}
+
+void FakeVimTester::test_vim_insert_ctrl_r_at_cursor()
+{
+    // What CTRL-R inserts goes in at the cursor and replaces nothing, so an
+    // insert that "a" or "$a" started keeps the character it appended after.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText(X "abc");
+    KEYS("a<C-r>=2*3<CR><Esc>", "a" X "6bc");
+    data.setText(X "abc def");
+    KEYS("wa<C-r>=2*3<CR><Esc>", "abc d" X "6ef");
+    data.setText(X "abc");
+    KEYS("yiwa<C-r>\"<Esc>", "aab" X "cbc");
+    data.setText(X "abc");
+    KEYS("yiw$a<C-r>\"<Esc>", "abcab" X "c");
+    data.setText(X "abc");
+    KEYS("yiwa<C-r><C-o>\"<Esc>", "aab" X "cbc");
+    data.setText(X "abc");
+    KEYS("yiwa<C-r><C-p>\"<Esc>", "aab" X "cbc");
+
+    // A linewise register put in this way is charwise all the same.
+    data.setText(X "abc" N "def");
+    KEYS("yyja<C-r>\"<Esc>", "abc" N "dabc" N X "ef");
 }
 
 void FakeVimTester::test_vim_insert_0_ctrl_d()
@@ -17258,14 +17415,45 @@ void FakeVimTester::test_vim_auto_indent_keys()
     data.setText("  abc");
     KEYS("A<CR>X<Esc>", "  abc" N X "X");
 
+    // With 'smartindent' the editor indents the opened line, but "O" on the
+    // first line is no split of it: what it pushes down keeps its own
+    // indentation.
     data.doCommand("set autoindent smartindent");
+    data.setText("    abc");
+    KEYS("O x<Esc>", "     " X "x" N "    abc");
+    data.setText("\tabc");
+    KEYS("O x<Esc>", "\t " X "x" N "\tabc");
+    data.setText("    abc" N "    def");
+    KEYS("jO x<Esc>", "    abc" N "     " X "x" N "    def");
+    data.setText("    abc");
+    KEYS("Ox<CR>y<Esc>", "    x" N "    " X "y" N "    abc");
+
+    // Leaving the opened line without typing takes the indentation out again.
+    data.setText("    abc");
+    KEYS("O<Esc>", X N "    abc");
+
+    // A line break that moves the rest of the line down leaves nothing of an
+    // untouched automatic indentation behind either.
+    data.setText("    abc");
+    KEYS("$i<CR><CR>x<Esc>", "    ab" N N "    " X "xc");
+    data.setText("    abc");
+    KEYS("$i<CR><CR><CR>x<Esc>", "    ab" N N N "    " X "xc");
+    data.setText("    abc");
+    KEYS("$i<CR><CR><Esc>", "    ab" N N "   " X " c");
+
+    // It stays as soon as something was typed on it, and a single break keeps
+    // it for the text it moved down.
+    data.setText("    abc");
+    KEYS("$i<CR><Esc>", "    ab" N "   " X " c");
+    data.setText("    abc");
+    KEYS("$i<CR>y<CR>x<Esc>", "    ab" N "    y" N "    " X "xc");
 }
 
 void FakeVimTester::test_vim_start_of_line_option()
 {
     // With 'startofline' the commands that jump to a line land on its first
-    // non-blank, and without it they keep the column. Values taken from
-    // Vim 9.1.
+    // non-blank, and without it they keep the column. A linewise delete is one
+    // of them, however it is spelled. Values taken from Vim 9.1.
     TestData data;
     setup(&data);
 
@@ -17274,6 +17462,10 @@ void FakeVimTester::test_vim_start_of_line_option()
     KEYS("llGx", "abc" N "   " X "ef");
     data.setText("abc" N "   def");
     KEYS("ll:2<CR>x", "abc" N "   " X "ef");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("04ldj", "  " X "ccc");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("04ldd", "  " X "bbb" N "  ccc");
 
     data.doCommand("set nostartofline");
     data.setText("abc" N "   def");
@@ -17282,8 +17474,33 @@ void FakeVimTester::test_vim_start_of_line_option()
     KEYS("ll:2<CR>x", "abc" N "  " X "def");
     data.setText("abc" N "def");
     KEYS("jllggx", "a" X "b" N "def");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("04ldj", "  cc" X "c");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("04ldd", "  bb" X "b" N "  ccc");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("04l2dd", "  cc" X "c");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("0j4ldk", "  cc" X "c");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("0j4ldj", "  aa" X "a");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("04lVjd", "  cc" X "c");
+
+    // Clamped to the end of the line it lands on, and a yank moves nothing.
+    data.setText("  aaa" N "  bbb" N "  c");
+    KEYS("04ldj", "  " X "c");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("04lyj", "  aa" X "a" N "  bbb" N "  ccc");
+
+    // The column it keeps is a virtual one, so a shift that puts a tab in front
+    // of it leaves the cursor on that tab.
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("04l>>", X "\t  aaa" N "  bbb" N "  ccc");
 
     data.doCommand("set startofline");
+    data.setText("  aaa" N "  bbb" N "  ccc");
+    KEYS("04l>>", "\t  " X "aaa" N "  bbb" N "  ccc");
 }
 
 void FakeVimTester::test_vim_key_notation_literal()
@@ -17635,6 +17852,55 @@ void FakeVimTester::test_vim_search_motion_kind()
     KEYS("ld/two<CR>", X "x" N "two");
     data.setText("a" N "b");
     KEYS("d}", X "");
+
+    // One line is span enough for the rule.
+    data.setText("aaa" N "bbb" N "ccc");
+    KEYS("d/bbb<CR>", X "bbb" N "ccc");
+    data.setText("  aaa" N "bbb" N "ccc");
+    KEYS("0d/bbb<CR>", X "bbb" N "ccc");
+    data.setText("aaa" N "bbb" N "ccc");
+    KEYS("ld/bbb<CR>", X "a" N "bbb" N "ccc");
+    data.setText("aaa" N "bbb" N "ccc");
+    KEYS("y/bbb<CR>P", X "aaa" N "aaa" N "bbb" N "ccc");
+    data.setText("aaa" N "bbb" N "ccc");
+    KEYS("c/bbb<CR>X<Esc>", X "X" N "bbb" N "ccc");
+    data.setText("aaa" N "" N "bbb");
+    KEYS("d}", X "" N "bbb");
+}
+
+void FakeVimTester::test_vim_word_motion_stops_at_line_end()
+{
+    // A "w" or "aw" an operator waits for reaches no further than the end of
+    // the line it lands on, and takes the last character on it along, so no
+    // such motion ever ends in the first column. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a" N "def");
+    KEYS("dw", X "" N "def");
+    data.setText("a" N "def");
+    KEYS("ywGp", "a" N "d" X "aef");
+    data.setText("a  " N "def");
+    KEYS("dw", X "" N "def");
+    data.setText("abc def" N "ghi");
+    KEYS("2dw", X "" N "ghi");
+    data.setText("abc" N "ghi");
+    KEYS("daw", X "" N "ghi");
+    data.setText("abc def" N "ghi");
+    KEYS("2daw", X "" N "ghi");
+
+    // An empty line has no character to take, so the motion does end there,
+    // and being exclusive in the first column it turns linewise.
+    data.setText("abc" N "" N "def");
+    KEYS("jdw", "abc" N X "def");
+    data.setText("a" N "" N "cdef");
+    KEYS("2dw", X "cdef");
+
+    // Two lines and more are the rule as it always was.
+    data.setText("abc" N "def");
+    KEYS("2dw", X "");
+    data.setText("abc" N "def ghi");
+    KEYS("2dw", X "ghi");
 }
 
 void FakeVimTester::test_vim_sentence_motion()
@@ -27050,6 +27316,33 @@ void FakeVimTester::test_vim_script_registers()
     QCOMPARE(echo("getreginfo('\"')['regtype'][0] == nr2char(22)"), QLatin1String("1"));
     QCOMPARE(echo("getreginfo('\"')['regtype'][1:]"), QLatin1String("2"));
     QCOMPARE(echo("string(getreginfo('\"')['regcontents'])"), QLatin1String("['ab', 'ef']"));
+
+    // What an operator whose motion stopped at the start of a line leaves
+    // behind is whole lines, so the register is linewise.
+    const auto brackets = [&] {
+        data.setText(X "void a()" N "{" N "}" N "" N "int b()" N "{ return 0; }");
+    };
+    brackets();
+    data.doKeys("d]]");
+    QCOMPARE(echo("getregtype('\"')"), QLatin1String("V"));
+    brackets();
+    data.doKeys("j" "d]]");
+    QCOMPARE(echo("getregtype('\"')"), QLatin1String("V"));
+    brackets();
+    data.doKeys("y]]");
+    QCOMPARE(echo("getregtype('\"')"), QLatin1String("V"));
+    data.setText(X "  abc" N "  def" N "  ghi");
+    data.doKeys("jj0ma" "gg" "y`a");
+    QCOMPARE(echo("getregtype('\"')"), QLatin1String("V"));
+
+    // Asked with no register at all, these answer about the unnamed one, which
+    // is not the yank register.
+    data.setText(X "abc" N "def");
+    data.doKeys("yy" "j" "x");
+    QCOMPARE(echo("getreg()"), QLatin1String("d"));
+    QCOMPARE(echo("getregtype()"), QLatin1String("v"));
+    QCOMPARE(echo("getreginfo()['regtype']"), QLatin1String("v"));
+    QCOMPARE(echo("getreginfo()['points_to']"), QLatin1String("-"));
 }
 
 void FakeVimTester::test_vim_script_mapping_queries()
