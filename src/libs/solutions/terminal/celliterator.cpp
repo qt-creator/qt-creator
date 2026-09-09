@@ -56,12 +56,10 @@ CellIterator &CellIterator::operator-=(int n)
         return *this;
 
     if (m_pos - n < 0)
-        throw new std::runtime_error("-= n too big!");
+        throw std::out_of_range("CellIterator moved before the start of the surface");
 
     m_pos -= n;
-
-    while (!updateChar() && m_pos > 0 && m_skipZeros)
-        m_pos--;
+    updateChar();
 
     m_state = State::INSIDE;
 
@@ -80,11 +78,7 @@ CellIterator &CellIterator::operator+=(int n)
     if (m_pos + n < m_maxpos + 1) {
         m_state = State::INSIDE;
         m_pos += n;
-        while (!updateChar() && m_pos < (m_maxpos + 1) && m_skipZeros)
-            m_pos++;
-
-        if (m_pos == m_maxpos + 1)
-            m_state = State::END;
+        updateChar();
     } else {
         *this = m_surface->end();
     }
