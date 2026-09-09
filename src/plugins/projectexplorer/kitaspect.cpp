@@ -537,7 +537,7 @@ Group kitDetectionRecipe(
         const auto root = device->rootPath();
 
         const FilePaths searchPaths
-            = Utils::transform(device->systemEnvironment().path(), [&root](const FilePath &path) {
+            = Utils::transform(device->toolSearchPaths(), [&root](const FilePath &path) {
                   return root.withNewPath(path.path());
               });
 

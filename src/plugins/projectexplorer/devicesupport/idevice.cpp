@@ -438,13 +438,20 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
 
     std::weak_ptr<IDevice> weakDevice = shared_from_this();
 
-    const auto onSetupSearch = [weakDevice, iterator, logger](Async<Data> &task) {
+    const Storage<FilePaths> searchPaths;
+
+    const auto setupSearchPaths = [weakDevice, searchPaths] {
+        if (const std::shared_ptr<IDevice> device = weakDevice.lock())
+            *searchPaths = device->toolSearchPaths();
+    };
+
+    const auto onSetupSearch = [weakDevice, iterator, logger, searchPaths](Async<Data> &task) {
         std::shared_ptr<IDevice> device = weakDevice.lock();
         if (!device)
             return;
         if (logger)
             logger.logTopLevel(Tr::tr("Searching for %1...").arg(iterator->label));
-        const FilePaths detectionPaths = device->toolSearchPaths();
+        const FilePaths detectionPaths = *searchPaths;
         const FilePath deviceRootPath = device->rootPath();
         const auto searchForTools = [deviceRootPath,
                                      detectionPaths](Data data, IDeviceConstPtr device) -> Data {
@@ -514,6 +521,8 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
 
     // clang-format off
     return Group {
+        searchPaths,
+        QSyncTask(setupSearchPaths),
         For (iterator) >> Do {
             AsyncTask<Data>(onSetupSearch, onSearchDone)
         },

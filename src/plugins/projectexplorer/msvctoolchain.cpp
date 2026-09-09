@@ -2524,6 +2524,8 @@ static ExecutableItem detectClangClRecipe(const FilePath &vswhere)
 
 Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
+    QTC_ASSERT(detector.device, return {});
+
     // Anything that is not a Windows machine has no clang-cl to find - that covers the local
     // desktop of a Linux or macOS host as well as a remote Linux device.
     if (detector.device->rootPath().osType() != OsTypeWindows)

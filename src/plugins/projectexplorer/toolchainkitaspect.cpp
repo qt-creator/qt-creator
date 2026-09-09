@@ -4,7 +4,6 @@
 #include "toolchainkitaspect.h"
 
 #include "devicesupport/devicekitaspects.h"
-#include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "kit.h"
 #include "kitaspect.h"
@@ -501,7 +500,11 @@ std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
     const DetectionSource &detectionSource,
     const LogCallback &logCallback) const
 {
-    const auto searchToolchains = [searchPaths](Async<Toolchain *> &async) {
+    const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
+    if (!device || searchPaths.isEmpty())
+        return {};
+
+    const auto searchToolchains = [device, searchPaths](Async<Toolchain *> &async) {
         async.setConcurrentCallData(
             [](QPromise<Toolchain *> &promise,
                IDevice::ConstPtr device,
@@ -517,7 +520,7 @@ std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
                     }
                 }
             },
-            DeviceManager::deviceForPath(searchPaths.first()),
+            device,
             searchPaths);
     };
 
