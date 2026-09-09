@@ -161,7 +161,6 @@ public:
     Utils::FilePath symbolFile;
     Utils::ProcessHandle attachPid;
     Utils::FilePath remoteExecutable;
-    bool useQnxTarget = false;
 };
 
 class DEBUGGER_EXPORT AttachToCoreData

@@ -220,6 +220,7 @@ private:
     bool m_interruptRequested = false;
     bool m_expectTerminalTrap = false;
     int m_gdbVersion = 0;
+    bool m_isQnxGdb = false;
     bool m_inferiorRunning = false;
     bool m_runCommandPending = false;
     bool m_interruptOnceRunning = false;

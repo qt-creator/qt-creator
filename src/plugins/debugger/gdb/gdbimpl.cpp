@@ -328,13 +328,12 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
             const QString channel = remoteData->channel;
             const bool needsFollowUp = remoteData->attachPid.isValid()
                                        || !remoteData->remoteExecutable.isEmpty();
-            const bool useQnxTarget = remoteData->useQnxTarget;
             if (HostOsInfo::isWindowsHost() && m_startData.isSet(GdbImplFlag::ElfTarget))
                 runCommand({"set osabi GNU/Linux"});
-            auto connectToTarget = [this, channel, needsFollowUp, useQnxTarget] {
+            auto connectToTarget = [this, channel, needsFollowUp] {
                 if (!needsFollowUp)
                     m_attachPhase = AttachPhase::AwaitingConnect;
-                const QLatin1String connectCommand = useQnxTarget
+                const QLatin1String connectCommand = m_isQnxGdb
                     ? QLatin1String("target qnx ")
                     : needsFollowUp ? QLatin1String("target extended-remote ")
                                     : QLatin1String("target remote ");
@@ -481,9 +480,8 @@ void GdbImpl::handleShowVersion(const DebuggerResponse &response)
         return;
     int gdbBuildVersion = -1;
     bool isMacGdb = false;
-    bool isQnxGdb = false;
     extractGdbVersion(response.consoleStreamOutput,
-                      &m_gdbVersion, &gdbBuildVersion, &isMacGdb, &isQnxGdb);
+                      &m_gdbVersion, &gdbBuildVersion, &isMacGdb, &m_isQnxGdb);
 }
 
 void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
@@ -524,7 +522,7 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
         }});
     } else {
         QString command;
-        if (remoteData.useQnxTarget)
+        if (m_isQnxGdb)
             command = "set nto-executable " + remoteData.remoteExecutable.nativePath();
         else
             command = "-gdb-set remote exec-file " + remoteData.remoteExecutable.nativePath();
