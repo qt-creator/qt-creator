@@ -159,6 +159,8 @@ FakeVimSettings::FakeVimSettings()
     setup(&commentString,  "// %s", "CommentString", "cms", "");
     setup(&modifiable,     true,  "Modifiable",     "ma",  "");
     setup(&selection,      "inclusive", "Selection", "sel", "");
+    setup(&selectMode,     {},    "SelectMode",     "slm", "");
+    setup(&keyModel,       {},    "KeyModel",       "km",  "");
     setup(&bufType,        {},    "BufType",        "bt",  "");
     setup(&encoding,       "utf-8", "Encoding",     "enc", "");
     setup(&matchPairs,     "(:),{:},[:]", "MatchPairs", "mps", "");

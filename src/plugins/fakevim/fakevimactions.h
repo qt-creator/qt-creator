@@ -191,6 +191,15 @@ public:
     // Whether the character the cursor is on belongs to a visual selection.
     FvStringAspect selection;
 
+    // Which commands start Select mode where they would start Visual mode:
+    // "cmd" for "v", "V" and CTRL-V, "key" for a shifted special key, "mouse"
+    // for a selection made with the mouse.
+    FvStringAspect selectMode;
+
+    // "startsel" lets a shifted special key start a selection, "stopsel" lets
+    // an unshifted one end it; either way the key moves as its unshifted self.
+    FvStringAspect keyModel;
+
     // What kind of buffer this is. Empty means an ordinary file, which is what
     // every buffer here is; scripts check it before touching one.
     FvStringAspect bufType;

@@ -387,6 +387,7 @@ private slots:
     void test_vim_change_marks();
     void test_vim_match_pair_fails();
     void test_vim_search_motion_kind();
+    void test_zz_key_differential();
     void test_vim_sentence_motion();
     void test_vim_sentence_text_object();
     void test_vim_failed_text_object();
@@ -654,6 +655,14 @@ private slots:
     void test_vim_motion_nowhere_to_go();
     void test_vim_marks_follow_the_text();
     void test_vim_visual_marks_when_left();
+    void test_vim_gv_after_visual_yank();
+    void test_vim_visual_paste_registers();
+    void test_vim_ft_repeat_after_operator();
+    void test_vim_visual_change_linewise();
+    void test_vim_shift_blockwise();
+    void test_vim_visual_reselect_count();
+    void test_vim_operator_force();
+    void test_vim_select_mode();
     void test_vim_script_hlsearch();
     void test_vim_script_heredoc_and_comments();
     void test_macros();
@@ -4533,6 +4542,8 @@ void FakeVimTester::test_vim_script_changenr_reg_recording_executing()
     data.doKeys("@a");
     QCOMPARE(value("g:probe"), QLatin1String("a"));
     QCOMPARE(value("reg_executing()"), QString());
+
+    data.doCommand("nunmap X");
 }
 
 void FakeVimTester::test_vim_script_strutf16len_utf16idx()
@@ -8641,6 +8652,66 @@ void FakeVimTester::test_vim_tag_text_object()
 
     data.setText("<a>f" X "<br/>g</a>");
     KEYS("dit", "<a>" X "</a>");
+
+    // In visual mode the area can only grow: what it already holds sends
+    // "it" over the tags around it, and from there outwards. Vim 9.1.
+    data.setText(X "<a><b>t</b></a>");
+    KEYS("ftvitd", "<a>" X "</a>");
+
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("ftvlitd", "<a>" X "</a>");
+
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("fuvhitd", "<a>" X "</a>");
+
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("ftvititd", "<a>" X "</a>");
+
+    data.setText(X "<a><b><c>t</c></b></a>");
+    KEYS("ftvititd", "<a>" X "</a>");
+
+    data.setText(X "<a><b><c>t</c></b></a>");
+    KEYS("ftvitititd", X);
+
+    data.setText(X "<b>tu</b>");
+    KEYS("ftvititd", X);
+
+    // "at" grows the same way, and the two mix.
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("ftvatatd", X);
+
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("ftvatitd", X);
+
+    data.setText(X "<b>tu</b>");
+    KEYS("ftvatatd", X);
+
+    // An area short of the inner block still just grows to it, and a count
+    // or an operator picks a level as before.
+    data.setText(X "<a><b>tuv</b></a>");
+    KEYS("ftvitd", "<a><b>" X "</b></a>");
+
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("ftvatd", "<a>" X "</a>");
+
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("ftvitatd", "<a>" X "</a>");
+
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("ftv2itd", "<a>" X "</a>");
+
+    data.setText(X "<a><b><c>t</c></b></a>");
+    KEYS("ftv2itd", "<a><b>" X "</b></a>");
+
+    data.setText(X "<a><b><c>t</c></b></a>");
+    KEYS("ftv2atd", "<a>" X "</a>");
+
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("ftditd", "<a><b>" X "</b></a>");
+
+    // "gv" hands back an area that "it" reads the same way.
+    data.setText(X "<a><b>tu</b></a>");
+    KEYS("ftvlyGgvitd", "<a>" X "</a>");
 }
 
 void FakeVimTester::test_vim_script_echo_expression()
@@ -17247,16 +17318,24 @@ void FakeVimTester::test_vim_numbered_registers()
 void FakeVimTester::test_vim_count_visual()
 {
     // A count in front of "v" selects that many characters and one in front
-    // of "V" that many lines. Values taken from Vim 9.1.
+    // of "V" that many lines - as long as no operator has run on a visual
+    // area yet, which would make the count repeat that instead. Values taken
+    // from Vim 9.1.
     TestData data;
-    setup(&data);
 
+    setup(&data);
     data.setText("abcdef");
     KEYS("2vd", X "cdef");
+
+    setup(&data);
     data.setText("abcdef");
     KEYS("3vd", X "def");
+
+    setup(&data);
     data.setText("a" N "b" N "c");
     KEYS("2Vd", X "c");
+
+    setup(&data);
     data.setText("a" N "b" N "c" N "d");
     KEYS("3Vd", X "d");
 }
@@ -17520,6 +17599,47 @@ void FakeVimTester::test_vim_search_motion_kind()
     KEYS("ld/two<CR>", X "x" N "two");
     data.setText("a" N "b");
     KEYS("d}", X "");
+}
+
+void FakeVimTester::test_zz_key_differential()
+{
+    struct Case { const char *tag; const char *text; const char *keys; };
+    static const Case cases[] = {
+#include "/data/dev/vim-measure/keys/table.inc"
+    };
+    QFile out("/data/dev/vim-measure/keys/fakevim.out");
+    QVERIFY(out.open(QIODevice::WriteOnly));
+    int written = 0;
+    for (const Case &one : cases) {
+        TestData data;
+        setup(&data);
+        QString message;
+        data.handler->commandBufferChanged.set(
+            [&](const QString &msg, int, int, int) {
+                if (!msg.isEmpty() && !msg.startsWith("--"))
+                    message = msg;
+            });
+        data.handler->extraInformationChanged.set([&](const QString &msg) { message = msg; });
+        data.handler->statusDataChanged.set([&](const QString &msg) { message = msg; });
+        QString text = QString::fromUtf8(one.text);
+        text.replace(QLatin1String("\\t"), QLatin1String("\t"));
+        text.replace(QLatin1String("\\n"), QLatin1String("\n"));
+        data.setText(text.toUtf8());
+        data.doKeys("gg");
+        message.clear();
+        data.doKeys(QString::fromUtf8(one.keys));
+        const QString got = QString::fromUtf8(data.text()).replace(QLatin1Char('\n'),
+                                                                   QLatin1String("\\n"));
+        const QTextCursor at = data.cursor();
+        out.write(QString("%1|%2|%3,%4||%5\n")
+                      .arg(QString::fromUtf8(one.tag), got)
+                      .arg(at.blockNumber() + 1).arg(at.positionInBlock() + 1)
+                      .arg(message.split('\n').first()).toUtf8());
+        out.flush();
+        ++written;
+    }
+    out.close();
+    qWarning("KEYDIFF wrote %d answers", written);
 }
 
 void FakeVimTester::test_vim_sentence_motion()
@@ -29900,6 +30020,622 @@ void FakeVimTester::test_vim_visual_marks_when_left()
     QCOMPARE(read("gv,v"), QLatin1String("1-2"));
     data.doKeys("<ESC>");
     data.doCommand("nunmap ,l | xunmap ,v");
+}
+
+void FakeVimTester::test_vim_gv_after_visual_yank()
+{
+    // "gv" reselects the area of the last selection, and a yank leaves behind
+    // exactly the characters it took - not one more. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|abcdef");
+    KEYS("vlly<ESC>gvd", "|def");
+
+    data.setText("|abcdefgh");
+    KEYS("vlly<ESC>gvx", "|defgh");
+
+    // A selection left by hand, and a linewise yank, were already right.
+    data.setText("|abcdef");
+    KEYS("vll<ESC>gvd", "|def");
+
+    data.setText("|one" N "two" N "three");
+    KEYS("Vjy<ESC>Ggvd", "|three");
+}
+
+void FakeVimTester::test_vim_visual_paste_registers()
+{
+    // "p" over a selection leaves what it replaced in the unnamed register,
+    // "P" leaves it in none. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|abc def");
+    KEYS("yiwwviwPP", "abc abab|cc");
+
+    data.setText("|abc def");
+    KEYS("yiwwviwPo<C-r>\"<ESC>", "abc abc" N "ab|c");
+
+    data.setText("|abc" N "def");
+    KEYS("yyjVPo<C-r>\"<ESC>", "abc" N "abc" N "abc" N "|");
+
+    // "p" does write it, and is meant to.
+    data.setText("|abc" N "def");
+    KEYS("yyjVpo<C-r>\"<ESC>", "abc" N "abc" N "def" N "|");
+}
+
+void FakeVimTester::test_vim_ft_repeat_after_operator()
+{
+    // ";" and "," repeat the last f/F/t/T, and an operator sees the repeat the
+    // way it would see the original. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|a.b.c.d");
+    KEYS("f.0d;", "|b.c.d");
+
+    data.setText("|a.b.c.d");
+    KEYS("t.0d;", "|.c.d");
+
+    data.setText("|a.b.c.d.e");
+    KEYS("f.0 2d;", "a|d.e");
+
+    data.setText("|a.b.c.d.e");
+    KEYS("df.2d;", "|d.e");
+
+    data.setText("|a.b.c.d");
+    KEYS("df.d;", "|c.d");
+
+    data.setText("|a.b.c.d");
+    KEYS("dt.d;", "|.c.d");
+
+    // Backwards, and as a motion of its own, was already right.
+    data.setText("|a.b.c.d");
+    KEYS("$dF.d,", "a.b.c|d");
+
+    data.setText("|a.b.c.d");
+    KEYS("$F.$d,", "a.b.c.|d");
+
+    data.setText("|a.b.c.d");
+    KEYS("f.;x", "a.b|c.d");
+
+    data.setText("|a.b.c.d");
+    KEYS("t.;x", "a.|.c.d");
+
+    data.setText("|a.b.c.d");
+    KEYS("$F.,x", "a.b.c|d");
+}
+
+void FakeVimTester::test_vim_visual_change_linewise()
+{
+    // "C", "R" and "S" change whole lines whatever kind the visual area is
+    // of, while "c" and "s" keep it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    // Surround emulation takes visual "S" for itself.
+    data.doCommand("set nosurround");
+
+    data.setText("abc" N "d|ef" N "ghi");
+    KEYS("vCX<esc>", "abc" N X "X" N "ghi");
+
+    data.setText("abc" N "d|ef" N "ghi");
+    KEYS("vRX<esc>", "abc" N X "X" N "ghi");
+
+    data.setText("abc" N "d|ef" N "ghi");
+    KEYS("vSX<esc>", "abc" N X "X" N "ghi");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("vjCX<esc>", X "X" N "ghi");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("vjRX<esc>", X "X" N "ghi");
+
+    data.setText("abc" N "d|ef" N "ghi");
+    KEYS("vjSX<esc>", "abc" N X "X");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("VjRX<esc>", X "X" N "ghi");
+
+    data.setText("abc" N "d|ef" N "ghi");
+    KEYS("VjSX<esc>", "abc" N X "X");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("l<c-v>jSX<esc>", X "X");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("l<c-v>jRX<esc>", X "X");
+
+    // "c" and "s" are not touched by this, and neither is blockwise "C".
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("vjsX<esc>", X "Xef" N "ghi");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("VjsX<esc>", X "X" N "ghi");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("l<c-v>jCX<esc>", "a" X "X" N "eX");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("l<c-v>jsX<esc>", "a" X "Xcd" N "eXgh");
+
+    // What a linewise change takes is put back linewise.
+    data.setText("abc" N "d|ef" N "ghi");
+    KEYS("vC<esc>p", "abc" N "" N X "def" N "ghi");
+}
+
+void FakeVimTester::test_vim_visual_reselect_count()
+{
+    // "[count]v", "[count]V" and "[count]<c-v>" reselect an area of the size
+    // and of the kind the last operator on a visual area worked on - the kind
+    // of the key just typed has no say in it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    // Nothing recorded yet leaves the count without a size to repeat.
+    data.setText("|abcdefghij");
+    KEYS("1vd", X "bcdefghij");
+
+    data.setText("|abcdefghij");
+    KEYS("vlly<esc>0l1vd", "a" X "efghij");
+
+    data.setText("|abcdefghij");
+    KEYS("vlly<esc>0l2vd", "a" X "hij");
+
+    data.setText("|abcdefghij");
+    KEYS("vly<esc>03vd", X "ghij");
+
+    data.setText("|abcdefghij");
+    KEYS("vy<esc>02vd", X "cdefghij");
+
+    // What is remembered of a single-line area is its width, not where it ended.
+    data.setText("|abcdefghij");
+    KEYS("3lvly<esc>0l1vd", "a" X "defghij");
+
+    data.setText("|abcdefghij");
+    KEYS("3lvly<esc>0l1v<esc>", "ab" X "cdefghij");
+
+    // The kind comes from the recorded area, not from the key.
+    data.setText("|abcdefghij");
+    KEYS("vlly<esc>0l1Vd", "a" X "efghij");
+
+    // Without a count nothing is repeated.
+    data.setText("|abcdefghij");
+    KEYS("vlly<esc>0lvd", "a" X "cdefghij");
+
+    data.setText("|abcdefghij");
+    KEYS("vlly<esc>0l1vy0P", "bc" X "dabcdefghij");
+
+    data.setText("|abcdefghij");
+    KEYS("vlly<esc>0l1v<esc>", "abc" X "defghij");
+
+    // An area taken to the end of the line is repeated as such.
+    data.setText("|abcdefghij" N "zzz");
+    KEYS("v$y<esc>0l1vd", "a" X "zzz");
+
+    // Whole lines.
+    data.setText("|a" N "b" N "c" N "d" N "e");
+    KEYS("Vjy<esc>gg1Vd", X "c" N "d" N "e");
+
+    data.setText("|a" N "b" N "c" N "d" N "e");
+    KEYS("Vjy<esc>gg2Vd", X "e");
+
+    data.setText("|a" N "b" N "c" N "d" N "e");
+    KEYS("Vy<esc>gg3Vd", X "d" N "e");
+
+    data.setText("|a" N "b" N "c" N "d" N "e");
+    KEYS("Vjy<esc>gg1vd", X "c" N "d" N "e");
+
+    data.setText("|a" N "b" N "c" N "d" N "e");
+    KEYS("Vjy<esc>gg1V<esc>", "a" N X "b" N "c" N "d" N "e");
+
+    // An area spanning lines is remembered by the column it ends in.
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("vjy<esc>gg1vd", X "ef" N "ghi");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("vjy<esc>gg2vd", X "hi");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("vjly<esc>gg1v<esc>", "abc" N "d" X "ef" N "ghi");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("lvjly<esc>gg1v<esc>", "abc" N "de" X "f" N "ghi");
+
+    // The last line is as far as the count reaches.
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("lvjly<esc>gg2v<esc>", "abc" N "def" N "gh" X "i");
+
+    // A block is remembered by its width.
+    data.setText("|abcd" N "efgh");
+    KEYS("l<c-v>jly<esc>gg1<c-v>d", X "cd" N "gh");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("l<c-v>jly<esc>gg2<c-v>d", X N "");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("l<c-v>jly<esc>gg1<c-v><esc>", "abcd" N "e" X "fgh");
+
+    // Only an operator records; leaving an area, and "gv", do not.
+    data.setText("|a" N "b" N "c" N "d" N "e");
+    KEYS("0vy<esc>Vj<esc>gg1Vd", X N "b" N "c" N "d" N "e");
+
+    data.setText("|abcdefghij");
+    KEYS("vlly<esc>gv<esc>0l1vd", "a" X "efghij");
+
+    // Operators other than a yank record as well.
+    data.setText("|abcdefghij");
+    KEYS("vllr-<esc>0l1vd", "-" X "efghij");
+
+    data.setText("|abcdefghij");
+    KEYS("vllc-<esc>0l1vd", "-" X "ghij");
+
+    data.setText("|abcdefghij");
+    KEYS("vllu<esc>0l1vd", "a" X "efghij");
+}
+
+void FakeVimTester::test_vim_operator_force()
+{
+    // "v", "V" or CTRL-V between an operator and its motion forces the kind of
+    // the motion: "V" linewise, CTRL-V blockwise, and "v" charwise, which for
+    // an already charwise motion means flipping its inclusiveness. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a|bcd" N "efgh");
+    KEYS("dvj", "a" X "fgh");
+
+    data.setText("|abcdef");
+    KEYS("dVl", X "");
+
+    data.setText("a|bcd" N "efgh");
+    KEYS("d<c-v>j", "a" X "cd" N "egh");
+
+    data.setText("a|b" N "abcdef");
+    KEYS("d<c-v>$", X "a" N "abcdef");
+
+    data.setText("|abcdef");
+    KEYS("dvfd", X "def");
+
+    data.setText("|abcdef");
+    KEYS("dv$", X "f");
+
+    data.setText("|abcdef");
+    KEYS("dvl", X "cdef");
+
+    data.setText("|abcdef");
+    KEYS("dve", X "f");
+
+    data.setText("a|bcd" N "efgh");
+    KEYS("cvjX<esc>", "a" X "Xfgh");
+
+    // A forced block that reaches the end of a line reaches it in every line.
+    data.setText("a|bcdefgh" N "efg");
+    KEYS("d<c-v>2$", X "a" N "e");
+
+    data.setText("a|bcd" N "efgh");
+    KEYS("yvjGp", "abcd" N "e" X "bcd" N "efgh");
+
+    data.setText("a|bcd" N "efgh");
+    KEYS("yVjGp", "abcd" N "efgh" N X "abcd" N "efgh");
+
+    data.setText("a|bcd" N "efgh");
+    KEYS("y<c-v>jGp", "abcd" N "e" X "bfgh" N " f");
+}
+
+void FakeVimTester::test_vim_select_mode()
+{
+    // "gh", "gH" and "g CTRL-H" start Select mode, where a printable key and
+    // <CR> replace the selection and keep typing, <BS> and <Del> just delete
+    // it, and a special key moves and extends it. CTRL-G goes back and forth
+    // to Visual mode, CTRL-O lets one Visual mode command through, and
+    // 'selectmode' and 'keymodel' say what else starts a selection. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|abcdef");
+    KEYS("ghX<esc>", X "Xbcdef");
+
+    data.setText("|abcdef");
+    KEYS("gh<c-o>lX<esc>", X "Xcdef");
+
+    data.setText("|abcdef");
+    KEYS("vll<c-g>X<esc>", X "Xdef");
+
+    data.setText("|abcdef");
+    KEYS("vll<c-g>XY<esc>", "X" X "Ydef");
+
+    data.setText("|abcdef");
+    KEYS("vl<c-g><c-o>lX<esc>", X "Xdef");
+
+    data.setText("|abcdef");
+    KEYS("vll<c-g><c-o>d<esc>", X "def");
+
+    data.setText("|abcdef");
+    KEYS("vll<c-g><bs><esc>", X "def");
+
+    data.setText("|abcdef");
+    KEYS("vll<c-g><cr><esc>", "" N X "def");
+
+    data.setText("|abcdef");
+    KEYS("vll<c-g><c-g>x<esc>", X "def");
+
+    data.setText("|abcdef");
+    KEYS("vll<c-g><esc>ix<esc>", "ab" X "xcdef");
+
+    data.setText("|abcdef");
+    KEYS("gh<del><esc>", X "bcdef");
+
+    // <BS> and <Del> delete and leave it at that, so "." repeats a delete.
+    data.setText("|abcdef");
+    KEYS("gh<del>ix<esc>", X "xbcdef");
+
+    data.setText("|abcdef");
+    KEYS("gh<del>.<esc>", X "cdef");
+
+    data.setText("|abc" N "def");
+    KEYS("gH<del>ix<esc>", X "xdef");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("0l<c-v>jl<c-g><del>ix<esc>", "a" X "xd" N "eh");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("0l<c-v>jl<c-g>d<esc>", "a" X "dd" N "edh");
+
+    data.setText("|abcdef");
+    KEYS("g<c-h>X<esc>", X "Xbcdef");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("g<c-h>jlX<esc>", "jl" X "Xbcd" N "efgh");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("0l<c-v>jl<c-g>X<esc>", "a" X "Xd" N "eXh");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("0l<c-v>jl<c-g><del><esc>", "a" X "d" N "eh");
+
+    data.setText("|abc" N "def");
+    KEYS("VcX<esc>", X "X" N "def");
+
+    data.setText("|abc" N "def");
+    KEYS("Vj<c-g>X<esc>", X "X");
+
+    data.setText("|abc" N "def");
+    KEYS("gH<c-g>cX<esc>", X "X" N "def");
+
+    // A printable key is no motion and no count in Select mode: it types.
+    data.setText("|abc" N "def");
+    KEYS("gHjX<esc>", "j" X "Xdef");
+
+    data.setText("|abcdef");
+    KEYS("gh2lX<esc>", "2l" X "Xbcdef");
+
+    data.setText("|abcdef");
+    KEYS("ghy<esc>", X "ybcdef");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("gHVX<esc>", "V" X "Xdef" N "ghi");
+
+    // <Tab> is not one of them.
+    data.setText("|abcdef");
+    KEYS("gh<tab><esc>", X "abcdef");
+
+    data.setText("|abcdef");
+    KEYS("gh<right>X<esc>", X "Xcdef");
+
+    data.setText("|abcdef");
+    KEYS("gh<left>X<esc>", X "Xbcdef");
+
+    data.setText("|abcdef");
+    KEYS("gh<s-right>X<esc>", X "X");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("gh<down>X<esc>", X "Xfgh");
+
+    data.setText("|abcdef");
+    KEYS("gh<c-o>2lX<esc>", X "Xdef");
+
+    data.setText("|abcdef");
+    KEYS("vll<c-g><c-o>y<esc>", X "abcdef");
+
+    data.setText("|abcdef");
+    KEYS("gh<esc>ix<esc>", X "xabcdef");
+
+    data.setText("|abc" N "def");
+    KEYS("gH<esc>ix<esc>", X "xabc" N "def");
+
+    data.setText("|abcdef");
+    KEYS("ghX<esc>u", X "abcdef");
+
+    // A linewise selection goes with the line break of its last line, unless
+    // that is the last line of the document.
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("gHX<esc>", X "Xdef" N "ghi");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("jgHX<esc>", "abc" N X "Xghi");
+
+    data.setText("|abc" N "def");
+    KEYS("jgHX<esc>", "abc" N X "X");
+
+    data.setText("|abc" N "def" N "ghi");
+    KEYS("gH<c-o>jX<esc>", X "Xghi");
+
+    data.setText("|abc" N "def");
+    KEYS("gH<del><esc>", X "def");
+
+    data.setText("|abc" N "def");
+    KEYS("gH<bs><esc>", X "def");
+
+    data.doCommand("set selectmode=cmd keymodel=");
+
+    data.setText("|abcdef");
+    KEYS("vllX<esc>", "ll" X "Xbcdef");
+
+    data.setText("|abcdef");
+    KEYS("Vx<esc>", X "x");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("<c-v>jlX<esc>", "jl" X "Xbcd" N "efgh");
+
+    data.doCommand("set selectmode=key keymodel=startsel");
+
+    data.setText("|abcdef");
+    KEYS("<s-right>X<esc>", X "Xcdef");
+
+    data.setText("|abcdef");
+    KEYS("<s-right><right>X<esc>", X "Xdef");
+
+    data.setText("|abcdef");
+    KEYS("<s-right><s-left>X<esc>", X "Xbcdef");
+
+    data.setText("|abcdef");
+    KEYS("<s-end>X<esc>", X "X");
+
+    data.setText("|abcdef");
+    KEYS("ll<s-home>X<esc>", X "Xdef");
+
+    data.setText("|abcd" N "efgh");
+    KEYS("<s-down>X<esc>", X "Xfgh");
+
+    data.doCommand("set selectmode=key keymodel=startsel,stopsel");
+
+    data.setText("|abcdef");
+    KEYS("<s-right><s-right>X<esc>", X "Xdef");
+
+    // "stopsel" ends the selection and still moves.
+    data.setText("|abcdef");
+    KEYS("<s-right><right>X<esc>", "a" X "cdef");
+
+    data.setText("|abcdef");
+    KEYS("<s-right><s-right><left>ix<esc>", "a" X "xbcdef");
+
+    // Without "selectmode" the same key starts Visual mode.
+    data.doCommand("set selectmode= keymodel=startsel");
+
+    data.setText("|abcdef");
+    KEYS("<s-right>X<esc>", X "");
+
+    data.setText("|abc def");
+    KEYS("<s-right><s-right>d<esc>", X " def");
+
+    data.doCommand("set selectmode=key keymodel=");
+
+    data.setText("|abcdef");
+    KEYS("<s-right>X<esc>", "abcd" X "f");
+}
+
+void FakeVimTester::test_vim_shift_blockwise()
+{
+    // A blockwise ">" or "<" moves the whitespace run starting at the block's
+    // left column, not the indentation of the line. Lines narrower than that
+    // column, and empty ones, are left alone, and 'shiftround' has no say.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=2");
+
+    data.setText("|abc" N "def");
+    KEYS("l<c-v>j>", "a" X "  bc" N "d  ef");
+
+    data.setText("|abc" N "def");
+    KEYS("l<c-v>j2>", "a" X "    bc" N "d    ef");
+
+    data.setText("|abcdef" N "ghijkl");
+    KEYS("2l<c-v>jl>", "ab" X "  cdef" N "gh  ijkl");
+
+    data.setText("|a  bc" N "d  ef");
+    KEYS("l<c-v>j<", "a" X "bc" N "def");
+
+    data.setText("|a bc" N "d ef");
+    KEYS("l<c-v>j<", "a" X "bc" N "def");
+
+    data.setText("|a    bc" N "d    ef");
+    KEYS("l<c-v>j2<", "a" X "bc" N "def");
+
+    // The block's left column need not be in the indentation, but where it is
+    // the whole indentation is what moves.
+    data.setText("|  abc" N "  def");
+    KEYS("<c-v>j>", X "    abc" N "    def");
+
+    data.setText("|  abc" N "  def");
+    KEYS("<c-v>j<", X "abc" N "def");
+
+    data.setText("|  abc" N "  def");
+    KEYS("l<c-v>j<", " " X "abc" N " def");
+
+    data.setText("|   abc" N "   def");
+    KEYS("<c-v>j<", X " abc" N " def");
+
+    data.setText("|abc" N "def");
+    KEYS("<c-v>j$>", X "  abc" N "  def");
+
+    // A line too short to reach the block, and an empty one, keep out of it.
+    data.setText("|abc" N "" N "def");
+    KEYS("l<c-v>2j>", "a" X "  bc" N "" N "d  ef");
+
+    data.setText("|abcdefgh" N "ab" N "abcdefgh");
+    KEYS("4l<c-v>2j>", "abcd" X "  efgh" N "ab" N "abcd  efgh");
+
+    // A line ending exactly at the block's left column is wide enough.
+    data.setText("|abcdefgh" N "abcd" N "abcdefgh");
+    KEYS("4l<c-v>2j>", "abcd" X "  efgh" N "abcd  " N "abcd  efgh");
+
+    // 'shiftround' is for the linewise shift only.
+    data.doCommand("set shiftwidth=4");
+    data.doCommand("set shiftround");
+    data.setText("|a bc");
+    KEYS("l<c-v>j>", "a" X "     bc");
+    data.doCommand("set noshiftround");
+    data.setText("|a bc");
+    KEYS("l<c-v>j>", "a" X "     bc");
+
+    // Where 'expandtab' is off, a tab is taken whenever one fits.
+    data.doCommand("set noexpandtab");
+    data.doCommand("set tabstop=8");
+    data.doCommand("set shiftwidth=4");
+    data.setText("|abc" N "def");
+    KEYS("l<c-v>j>", "a" X "    bc" N "d    ef");
+
+    data.doCommand("set shiftwidth=8");
+    data.setText("|abc" N "def");
+    KEYS("<c-v>j>", X "\tabc" N "\tdef");
+
+    data.setText("|abc" N "def");
+    KEYS("l<c-v>j>", "a" X "\t bc" N "d\t ef");
+
+    data.doCommand("set shiftwidth=2");
+    data.setText("|a\tbc" N "d\tef");
+    KEYS("l<c-v>j>", "a" X "\t  bc" N "d\t  ef");
+
+    data.setText("|a\tbc" N "d\tef");
+    KEYS("l<c-v>j<", "a" X "     bc" N "d     ef");
+
+    // Nothing to take away leaves the line as it was.
+    data.setText("|abc" N "def");
+    KEYS("l<c-v>j<", "a" X "bc" N "def");
+
+    data.doCommand("set tabstop=4");
+    data.doCommand("set shiftwidth=4");
+    data.setText("|\tabc" N "\tdef");
+    KEYS("<c-v>j>", X "\t\tabc" N "\t\tdef");
+
+    data.setText("|\tabc" N "\tdef");
+    KEYS("l<c-v>j>", "\t" X "\tabc" N "\t\tdef");
+
+    // What the run is worth is counted in columns, not characters.
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=2");
+    data.setText("|\tabc" N "\tdef");
+    KEYS("<c-v>j>", X "      abc" N "      def");
+
+    data.doCommand("set tabstop=8");
+    data.setText("|a  \tb" N "a  \tc");
+    KEYS("l<c-v>j>", "a" X "         b" N "a         c");
 }
 
 void FakeVimTester::test_vim_script_hlsearch()

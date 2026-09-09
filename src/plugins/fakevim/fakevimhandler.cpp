@@ -2951,6 +2951,9 @@ public:
     void finishInsertMode();
 
     EventResult handleCommandMode(const Input &);
+    EventResult handleSelectMode(const Input &);
+    bool handleSelectionKey(const Input &);
+    void replaceSelection();
 
     // return true only if input in current mode and sub-mode was correctly handled
     bool handleEscape();
@@ -2989,6 +2992,8 @@ public:
     bool moveToPreviousLineEnd();
     bool moveToNextLineStart();
     void fixSelection(); // Fix selection according to current range, move and command modes.
+    void applyMotionForce();
+    QString motionForceKey() const;
     bool finishSearch();
     void finishMovement(const QString &dotCommandMovement = QString());
 
@@ -3142,6 +3147,7 @@ public:
     bool indentWithExpression(int beginBlock, int endBlock);
     void shiftRegionLeft(int repeat = 1);
     void shiftRegionRight(int repeat = 1);
+    void shiftBlockRight(int repeat);
 
     void moveToFirstNonBlankOnLine();
     void moveToFirstNonBlankOnLine(QTextCursor *tc);
@@ -3333,6 +3339,7 @@ public:
     bool isVisualCharMode() const { return g.visualMode == VisualCharMode; }
     bool isVisualLineMode() const { return g.visualMode == VisualLineMode; }
     bool isVisualBlockMode() const { return g.visualMode == VisualBlockMode; }
+    bool isSelectMode() const { return g.selectMode && isVisualMode(); }
     char currentModeCode() const;
     // The mode as Vim names it, which is what mode() answers and what a
     // ModeChanged autocommand is told. Values taken from Vim 9.1; only the
@@ -3633,8 +3640,13 @@ public:
 
     // visual modes
     void toggleVisualMode(VisualMode visualMode);
-    void leaveVisualMode();
+    void leaveVisualMode(bool saveArea = true, bool afterOperator = true);
+    // Leaving a visual area without an operator updates "'<" and "'>", but not
+    // what "[count]v" reselects.
+    void abandonVisualMode() { leaveVisualMode(true, false); }
     void saveLastVisualMode();
+    void saveReselectArea();
+    void reselectVisualArea(int repeat);
 
     // marks
     Mark mark(QChar code) const;
@@ -3677,6 +3689,7 @@ public:
 
     // auto-indent
     QString tabExpand(int len) const;
+    QString tabExpandFrom(int column, int len) const;
     Column indentation(const QString &line) const;
     QStringList linesAtThisIndent(const QString &text) const;
     void insertAutomaticIndentation(bool goingDown, bool forceAutoIndent = false);
@@ -4023,6 +4036,11 @@ public:
 
         VisualMode lastVisualMode = NoVisualMode;
         bool lastVisualModeInverted = false;
+        // The size "[count]v" reselects, which only an operator on a visual
+        // area records. -1 as a column stands for "to the end of the line".
+        VisualMode reselectVisualMode = NoVisualMode;
+        int reselectLineCount = 0;
+        int reselectColumn = 0;
 
         Marks marks;
 
@@ -4085,6 +4103,10 @@ struct PendingChange
         SubSubMode subsubmode = NoSubSubMode;
         Input subsubdata;
         VisualMode visualMode = NoVisualMode;
+        // Whether the visual area is a Select mode one, and whether the single
+        // command CTRL-O lets through in Visual mode is to give it back.
+        bool selectMode = false;
+        bool selectModeAfterCommand = false;
         Input minibufferData;
 
         // [count] for current command, 0 if no [count] available
@@ -4096,6 +4118,11 @@ struct PendingChange
 
         MoveType movetype = MoveInclusive;
         RangeMode rangemode = RangeCharMode;
+        // The kind "v", "V" or CTRL-V typed between an operator and its motion
+        // forces the motion to be, and whether that motion ended at the end of
+        // a line, which a forced block keeps for every one of its lines.
+        VisualMode motionForce = NoVisualMode;
+        bool motionToEndOfLine = false;
         bool gflag = false;  // whether current command started with 'g'
 
         // Extra data for ';'.
@@ -5061,7 +5088,7 @@ EventResult FakeVimHandler::Private::handleKeyForMode(const Input &input)
     else if (g.subsubmode == SearchSubSubMode)
         return handleSearchSubSubMode(input);
     else if (g.mode == CommandMode)
-        return handleCommandMode(input);
+        return isSelectMode() ? handleSelectMode(input) : handleCommandMode(input);
     else if (g.mode == InsertMode || g.mode == ReplaceMode)
         return handleInsertOrReplaceMode(input);
     else if (g.mode == ExMode)
@@ -5801,6 +5828,30 @@ void FakeVimHandler::Private::moveToStartOfLineVisually()
     setTargetColumn();
 }
 
+void FakeVimHandler::Private::applyMotionForce()
+{
+    if (g.motionForce == VisualLineMode) {
+        g.movetype = MoveLineWise;
+    } else if (g.motionForce == VisualBlockMode) {
+        g.movetype = MoveInclusive;
+        g.rangemode = g.motionToEndOfLine ? RangeBlockAndTailMode : RangeBlockMode;
+    } else if (g.motionForce == VisualCharMode) {
+        // "v" only tells a charwise motion apart from a linewise one by
+        // flipping whichever inclusiveness it has.
+        g.movetype = g.movetype == MoveExclusive ? MoveInclusive : MoveExclusive;
+    }
+}
+
+QString FakeVimHandler::Private::motionForceKey() const
+{
+    switch (g.motionForce) {
+    case VisualCharMode: return "v";
+    case VisualLineMode: return "V";
+    case VisualBlockMode: return "<c-v>";
+    default: return QString();
+    }
+}
+
 void FakeVimHandler::Private::fixSelection()
 {
     if (g.rangemode == RangeBlockMode)
@@ -5945,6 +5996,15 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         || g.submode == ShiftLeftSubMode
         || g.submode == ShiftRightSubMode)
     {
+        // A yank is the one operator still in visual mode here, and
+        // "fixSelection" grows an inclusive selection by one character, so the
+        // area "gv" reads back has to be taken before it runs.
+        if (g.submode == YankSubMode && isVisualMode()) {
+            saveLastVisualMode();
+            saveReselectArea();
+        }
+
+        applyMotionForce();
         fixSelection();
 
         if (g.submode == ChangeSubMode
@@ -6020,7 +6080,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         reportLineChange(LinesDeleted, had - document()->blockCount());
     } else if (g.submode == YankSubMode) {
         bool isVisualModeYank = isVisualMode();
-        leaveVisualMode();
+        leaveVisualMode(false);
         const QTextCursor tc = m_cursor;
         if (g.rangemode == RangeBlockMode) {
             const int pos1 = tc.block().position();
@@ -6087,7 +6147,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             if (g.submode == ReplaceWithRegisterSubMode)
                 dotCommand = QString("\"%1%2").arg(QChar(m_register)).arg(dotCommand);
 
-            setDotCommand(dotCommand + dotCommandMovement);
+            setDotCommand(dotCommand + motionForceKey() + dotCommandMovement);
         }
     }
 
@@ -6120,6 +6180,8 @@ void FakeVimHandler::Private::clearCurrentMode()
     g.submode = NoSubMode;
     g.subsubmode = NoSubSubMode;
     g.movetype = MoveInclusive;
+    g.motionForce = NoVisualMode;
+    g.motionToEndOfLine = false;
     g.gflag = false;
     g.surroundUpperCaseS = false;
     g.surroundFunction.clear();
@@ -6919,6 +6981,7 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             moveToEndOfLine();
         }
         g.movetype = atEmptyLine() ? MoveExclusive : MoveInclusive;
+        g.motionToEndOfLine = true;
         if (g.submode == NoSubMode)
             m_targetColumn = -1;
         if (isVisualMode())
@@ -6957,11 +7020,9 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             moveDownVisually(lineOnTop() - cursorLine());
     } else if (input.is('f')) {
         g.subsubmode = FtSubSubMode;
-        g.movetype = MoveInclusive;
         g.subsubdata = input;
     } else if (input.is('F')) {
         g.subsubmode = FtSubSubMode;
-        g.movetype = MoveExclusive;
         g.subsubdata = input;
     } else if (!g.gflag && input.is('g')) {
         g.gflag = true;
@@ -7057,11 +7118,9 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
             handled = searchNext(input.is('n'));
         }
     } else if (input.is('t')) {
-        g.movetype = MoveInclusive;
         g.subsubmode = FtSubSubMode;
         g.subsubdata = input;
     } else if (input.is('T')) {
-        g.movetype = MoveExclusive;
         g.subsubmode = FtSubSubMode;
         g.subsubdata = input;
     } else if (input.is('w') || input.is('W')
@@ -7202,6 +7261,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
         handled = handleReflowSubMode(input);
     }
 
+    if (!handled && isOperatorPending()
+            && (input.is('v') || input.is('V') || input.isControl('v'))) {
+        g.motionForce = input.is('v') ? VisualCharMode
+                        : input.is('V') ? VisualLineMode : VisualBlockMode;
+        handled = true;
+    }
+
     if (!handled && isOperatorPending())
        handled = handleMovement(input);
 
@@ -7226,6 +7292,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
                 g.currentCommand.append(input.toString());
         }
 
+        if (g.selectModeAfterCommand && clearCount && clearRegister) {
+            g.selectModeAfterCommand = false;
+            g.selectMode = isVisualMode();
+        }
+
     } else {
         leaveCurrentMode();
         //qDebug() << "IGNORED IN COMMAND MODE: " << key << text
@@ -7242,10 +7313,99 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
     return handled ? EventHandled : EventCancelled;
 }
 
+EventResult FakeVimHandler::Private::handleSelectMode(const Input &input)
+{
+    if (input.isEscape())
+        return handleCommandMode(input);
+
+    if (input.isControl('g')) {
+        g.selectMode = false;
+        return EventHandled;
+    }
+
+    if (input.isControl('o')) {
+        g.selectMode = false;
+        g.selectModeAfterCommand = true;
+        return EventHandled;
+    }
+
+    // <BS> and <Del> delete the selection and leave it at that, the way "d"
+    // does; every other special key is a command, and acts on the selection as
+    // it does in Visual mode.
+    if (input.isBackspace() || input.isKey(Key_Delete))
+        return handleCommandMode(Input(QChar('d')));
+
+    // Anything else that types, and Return, replaces the selection.
+    const QString text = input.text();
+    if (!input.isReturn() && (text.size() != 1 || !text.at(0).isPrint()))
+        return handleCommandMode(input);
+
+    replaceSelection();
+    return handleInsertOrReplaceMode(input);
+}
+
+// 'keymodel' lets a shifted special key start a selection and an unshifted one
+// end it; either way the key moves as its unshifted self.
+bool FakeVimHandler::Private::handleSelectionKey(const Input &input)
+{
+    static const QList<int> selectionKeys = {Key_Left, Key_Right, Key_Up, Key_Down,
+                                             Key_Home, Key_End, Key_PageUp, Key_PageDown};
+    const int key = input.key();
+    if (!selectionKeys.contains(key))
+        return false;
+
+    const QStringList keyModel = s.keyModel().split(',');
+    if (input.isShift(key)) {
+        if (!keyModel.contains("startsel"))
+            return false;
+        if (isNoVisualMode()) {
+            toggleVisualMode(VisualCharMode);
+            g.selectMode = s.selectMode().split(',').contains("key");
+        }
+    } else if (input.isKey(key) && isVisualMode() && keyModel.contains("stopsel")) {
+        abandonVisualMode();
+        setAnchor();
+    } else {
+        return false;
+    }
+
+    return handleMovement(Input(key, NoModifier));
+}
+
+void FakeVimHandler::Private::replaceSelection()
+{
+    setDotCommand(visualDotCommand() + 'c');
+
+    if (isVisualBlockMode()) {
+        resetCount();
+        enterVisualInsertMode('c');
+    } else if (isVisualLineMode()) {
+        // The lines go the way "d" takes them, line break and all, where a
+        // linewise change would keep the line it empties - except that the last
+        // line of the document has no break to take. Insert mode follows
+        // without breaking the edit block, so both are one change to undo.
+        pushUndoState();
+        const bool toEnd = blockAt(qMax(anchor(), position())) == document()->lastBlock();
+        leaveVisualMode();
+        Range range = currentRange();
+        g.submode = DeleteSubMode;
+        yankText(range, m_register);
+        if (toEnd)
+            range.rangemode = RangeLineModeExclusive;
+        removeText(range);
+        g.submode = NoSubMode;
+        enterInsertMode();
+    } else {
+        leaveVisualMode();
+        g.submode = ChangeSubMode;
+        finishMovement();
+    }
+}
+
 bool FakeVimHandler::Private::handleEscape()
 {
     if (isVisualMode())
-        leaveVisualMode();
+        abandonVisualMode();
     leaveCurrentMode();
     return true;
 }
@@ -7260,7 +7420,9 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             + QString::number(count())
             + input.toString();
 
-    if (input.is('&')) {
+    if (handleSelectionKey(input)) {
+        // 'keymodel' took the key
+    } else if (input.is('&')) {
         handleExCommand(QLatin1String(g.gflag ? "%s//~/&" : "s"));
     } else if (input.is(':')) {
         enterExMode();
@@ -7306,9 +7468,12 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.is('<') || input.is('>') || input.is('=')) {
         g.submode = indentModeFromInput(input);
         if (isVisualMode()) {
+            const bool blockwise = isVisualBlockMode() && g.submode != IndentSubMode;
             leaveVisualMode();
             const int repeat = count();
-            if (g.submode == ShiftLeftSubMode)
+            if (blockwise)
+                shiftBlockRight(g.submode == ShiftLeftSubMode ? -repeat : repeat);
+            else if (g.submode == ShiftLeftSubMode)
                 shiftRegionLeft(repeat);
             else if (g.submode == ShiftRightSubMode)
                 shiftRegionRight(repeat);
@@ -7321,6 +7486,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (g.gflag && input.is('a')) {
         // "ga" says the same as ":ascii".
         handleExCommand("ascii");
+    } else if (g.gflag && (input.is('h') || input.is('H') || input.isControl('h'))) {
+        // "gh", "gH" and "g CTRL-H" start Select mode.
+        const VisualMode mode = input.is('h') ? VisualCharMode
+                                : input.is('H') ? VisualLineMode : VisualBlockMode;
+        if (g.visualMode != mode)
+            toggleVisualMode(mode);
+        g.selectMode = true;
     } else if ((!isVisualMode() && input.is('a')) || (isVisualMode() && input.is('A'))) {
         if (isVisualMode()) {
             if (!isVisualBlockMode())
@@ -7415,7 +7587,16 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         g.rangemode = RangeCharMode;
         g.movetype = MoveExclusive;
         g.submode = changeDeleteYankModeFromInput(input);
-    } else if ((input.is('c') || input.is('C') || input.is('s') || input.is('R'))
+    } else if (isVisualMode()
+               && (input.is('R') || (input.is('S') && !s.emulateSurround())
+                   || (input.is('C') && !isVisualBlockMode()))) {
+        // "C", "R" and "S" take whole lines whatever kind the area is of.
+        leaveVisualMode();
+        g.rangemode = RangeLineMode;
+        g.movetype = MoveLineWise;
+        g.submode = ChangeSubMode;
+        finishMovement();
+    } else if ((input.is('c') || input.is('s'))
           && (isVisualCharMode() || isVisualLineMode())) {
         leaveVisualMode();
         g.submode = ChangeSubMode;
@@ -7437,7 +7618,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             showMessage(MessageInfo, Tr::tr("Type Alt-Y, Alt-Y to quit FakeVim mode."));
 #endif
         } else {
-            leaveVisualMode();
+            abandonVisualMode();
         }
     } else if ((input.is('d') || input.is('x') || input.isKey(Key_Delete))
             && isVisualMode()) {
@@ -7458,8 +7639,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         handleStartOfLine();
         scrollToLine(cursorLine() - sline);
     } else if (input.isControl('g')) {
-        // CTRL-G says the same as ":file".
-        showFileInfo();
+        if (isVisualMode()) {
+            // CTRL-G goes back and forth between Visual and Select mode.
+            g.selectMode = true;
+        } else {
+            // CTRL-G says the same as ":file".
+            showFileInfo();
+        }
     } else if (g.gflag && input.is('8')) {
         // "g8": the bytes of the character under the cursor, in hex.
         const QByteArray bytes = QString(characterAtCursor()).toUtf8();
@@ -7730,16 +7916,23 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             setCursorPosition(to);
             setTargetColumn();
         }
-    } else if (input.is('v')) {
-        toggleVisualMode(VisualCharMode);
-        if (isVisualCharMode() && g.mvcount != 0)
-            moveRight(qMin(count() - 1, rightDist() - 1));
-    } else if (input.is('V')) {
-        toggleVisualMode(VisualLineMode);
-        if (isVisualLineMode() && g.mvcount != 0)
-            moveDown(count() - 1);
-    } else if (input.isControl('v')) {
-        toggleVisualMode(VisualBlockMode);
+    } else if (input.is('v') || input.is('V') || input.isControl('v')) {
+        // A count reselects an area of the size and the kind the last operator
+        // worked on, whatever kind the key just typed names.
+        if (g.mvcount != 0 && isNoVisualMode()
+                && m_buffer->reselectVisualMode != NoVisualMode) {
+            reselectVisualArea(count());
+        } else {
+            toggleVisualMode(input.is('v') ? VisualCharMode
+                             : input.is('V') ? VisualLineMode : VisualBlockMode);
+            if (g.mvcount != 0) {
+                if (isVisualCharMode())
+                    moveRight(qMin(count() - 1, rightDist() - 1));
+                else if (isVisualLineMode())
+                    moveDown(count() - 1);
+            }
+        }
+        g.selectMode = isVisualMode() && s.selectMode().split(',').contains("cmd");
     } else if (input.isControl('w')) {
         g.submode = WindowSubMode;
     } else if (input.is('x') && isNoVisualMode()) {
@@ -23180,7 +23373,10 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
                                                               : RangeCharMode;
         const int p1 = toChar(resolve(arg(0)));
         const int p2 = toChar(resolve(arg(1)));
-        const Range range(qMin(p1, p2), qMax(p1, p2), mode);
+        // Both ends name a character, and both belong to the region, while a
+        // charwise range ends one past its last one.
+        const int endPos = qMax(p1, p2) + (mode == RangeCharMode ? 1 : 0);
+        const Range range(qMin(p1, p2), endPos, mode);
         QString text = selectText(range);
         if (text.endsWith('\n'))
             text.chop(1);
@@ -25940,6 +26136,53 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
     shiftRegionRight(-repeat);
 }
 
+// A blockwise ">" or "<" shifts the block, not the line: what moves is the
+// whitespace run starting at the block's left column, and 'shiftround' has no
+// say in it.
+void FakeVimHandler::Private::shiftBlockRight(int repeat)
+{
+    if (refuseUnmodifiable())
+        return;
+
+    const QTextBlock anchorBlock = blockAt(anchor());
+    const QTextBlock positionBlock = blockAt(position());
+    int beginLine = lineNumber(anchorBlock);
+    int endLine = lineNumber(positionBlock);
+    if (beginLine > endLine)
+        std::swap(beginLine, endLine);
+    const int leftColumn =
+        qMin(physicalToLogicalColumn(anchor() - anchorBlock.position(), anchorBlock.text()),
+             physicalToLogicalColumn(position() - positionBlock.position(), positionBlock.text()));
+
+    const int sw = shiftWidth();
+    beginEditBlock();
+    QTextBlock block = document()->findBlockByLineNumber(beginLine - 1);
+    while (block.isValid() && lineNumber(block) <= endLine) {
+        const QString text = block.text();
+        const int width = physicalToLogicalColumn(text.size(), text);
+        if (!text.isEmpty() && width >= leftColumn) {
+            const int from = logicalToPhysicalColumn(leftColumn, text);
+            int to = from;
+            while (to < text.size() && (text.at(to) == ' ' || text.at(to) == '\t'))
+                ++to;
+            const int had = physicalToLogicalColumn(to, text) - leftColumn;
+            QTextCursor tc = m_cursor;
+            tc.setPosition(block.position() + from);
+            tc.setPosition(block.position() + to, KeepAnchor);
+            tc.insertText(tabExpandFrom(leftColumn, qMax(0, had + sw * repeat)));
+        }
+        block = block.next();
+    }
+    endEditBlock();
+
+    const QTextBlock first = document()->findBlockByLineNumber(beginLine - 1);
+    setPosition(first.position() + logicalToPhysicalColumn(leftColumn, first.text()));
+    setTargetColumn();
+
+    reportLineChange(repeat > 0 ? LinesShiftedRight : LinesShiftedLeft,
+                     endLine - beginLine + 1, qAbs(repeat));
+}
+
 void FakeVimHandler::Private::moveToTargetColumn()
 {
     const QTextBlock &bl = block();
@@ -26298,6 +26541,9 @@ bool FakeVimHandler::Private::handleFfTt(const QString &key, bool repeats)
     if (repeat == 0) {
         setPosition(pos - d - (exclusive ? d : 0));
         setTargetColumn();
+        // A repeat by ";" or "," is a motion of its own, and has to say how it
+        // ends for an operator - a forward one takes the character it lands on.
+        g.movetype = forward ? MoveInclusive : MoveExclusive;
         return true;
     }
 
@@ -27304,8 +27550,19 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
     // In visual mode paste text only inside selection.
     bool pasteAfter = isVisualMode() ? false : afterCursor;
 
-    if (isVisualMode())
-        cutSelectedText(g.submode == ReplaceWithRegisterSubMode ? '-' : '"');
+    if (isVisualMode()) {
+        if (g.submode == ReplaceWithRegisterSubMode) {
+            cutSelectedText('-');
+        } else {
+            // "P" over a selection puts the registers the delete wrote back the
+            // way they were, so what it replaced is left in none of them.
+            const int saved = m_register;
+            if (!afterCursor)
+                m_register = '_';
+            cutSelectedText();
+            m_register = saved;
+        }
+    }
 
     if (tookLastLine) {
         // Cutting away the last line took the line break before it, so what
@@ -27785,7 +28042,7 @@ int FakeVimHandler::Private::lineForPosition(int pos) const
 void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
 {
     if (visualMode == g.visualMode) {
-        leaveVisualMode();
+        abandonVisualMode();
     } else {
         m_positionPastEnd = false;
         m_anchorPastEnd = false;
@@ -27794,7 +28051,7 @@ void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
     }
 }
 
-void FakeVimHandler::Private::leaveVisualMode()
+void FakeVimHandler::Private::leaveVisualMode(bool saveArea, bool afterOperator)
 {
     if (!isVisualMode())
         return;
@@ -27812,8 +28069,13 @@ void FakeVimHandler::Private::leaveVisualMode()
         g.movetype = MoveInclusive;
     }
 
-    saveLastVisualMode();
+    if (saveArea) {
+        saveLastVisualMode();
+        if (afterOperator)
+            saveReselectArea();
+    }
     g.visualMode = NoVisualMode;
+    g.selectMode = false;
 }
 
 void FakeVimHandler::Private::saveLastVisualMode()
@@ -27832,6 +28094,58 @@ void FakeVimHandler::Private::saveLastVisualMode()
         setMark('>', CursorPosition(document(), to), isVisualLineMode());
         m_buffer->lastVisualModeInverted = anchor() > position();
         m_buffer->lastVisualMode = g.visualMode;
+    }
+}
+
+void FakeVimHandler::Private::saveReselectArea()
+{
+    if (!isVisualMode())
+        return;
+
+    const int from = qMin(anchor(), position());
+    const int to = qMax(anchor(), position());
+    const QTextBlock firstBlock = blockAt(from);
+    const QTextBlock lastBlock = blockAt(to);
+
+    m_buffer->reselectVisualMode = g.visualMode;
+    m_buffer->reselectLineCount = lastBlock.blockNumber() - firstBlock.blockNumber() + 1;
+
+    if (m_visualTargetColumn == -1) {
+        m_buffer->reselectColumn = -1;
+    } else if (isVisualLineMode()) {
+        m_buffer->reselectColumn = 0;
+    } else {
+        const int fromColumn =
+            physicalToLogicalColumn(from - firstBlock.position(), firstBlock.text());
+        const int toColumn = physicalToLogicalColumn(to - lastBlock.position(), lastBlock.text());
+        // A block and a single-line area are remembered by their width, an area
+        // spanning lines by the column it ends in.
+        m_buffer->reselectColumn = isVisualBlockMode() || m_buffer->reselectLineCount == 1
+            ? qAbs(toColumn - fromColumn) + 1 : toColumn + 1;
+    }
+}
+
+void FakeVimHandler::Private::reselectVisualArea(int repeat)
+{
+    const VisualMode mode = m_buffer->reselectVisualMode;
+    const int lineCount = m_buffer->reselectLineCount;
+    const int column = m_buffer->reselectColumn;
+
+    toggleVisualMode(mode);
+    setAnchor();
+
+    if (mode != VisualCharMode || lineCount > 1)
+        moveDown(lineCount * repeat - 1);
+
+    if (column == -1) {
+        moveToEndOfLine();
+        m_targetColumn = -1;
+        m_visualTargetColumn = -1;
+    } else if (mode != VisualLineMode) {
+        m_targetColumn = mode == VisualCharMode && lineCount > 1
+            ? column - 1 : logicalCursorColumn() + column * repeat - 1;
+        moveToTargetColumn();
+        setTargetColumn();
     }
 }
 
@@ -28576,11 +28890,23 @@ Column FakeVimHandler::Private::indentation(const QString &line) const
 
 QString FakeVimHandler::Private::tabExpand(int n) const
 {
-    int ts = tabStop();
+    return tabExpandFrom(0, n);
+}
+
+// Whitespace filling the logical columns [column, column + n), which unlike
+// tabExpand()'s does not have to start where the line does.
+QString FakeVimHandler::Private::tabExpandFrom(int column, int n) const
+{
+    const int ts = tabStop();
     if (expandTab() || ts < 1)
         return QString(n, ' ');
-    return QString(n / ts, '\t')
-         + QString(n % ts, ' ');
+    QString result;
+    int col = column;
+    while ((col / ts + 1) * ts <= column + n) {
+        result += '\t';
+        col = (col / ts + 1) * ts;
+    }
+    return result + QString(column + n - col, ' ');
 }
 
 QStringList FakeVimHandler::Private::linesAtThisIndent(const QString &text) const
@@ -29345,13 +29671,33 @@ bool FakeVimHandler::Private::selectTagTextObject(bool inner)
     // Innermost first.
     std::sort(enclosing.begin(), enclosing.end(),
               [](const Tag &a, const Tag &b) { return a.openStart > b.openStart; });
-    const int level = count() - 1;
+
+    int level = count() - 1;
+    bool include = !inner;
+    if (isVisualMode()) {
+        // What the area already holds is not what "it" or "at" can take: it
+        // grows over the tags of the block it holds, then to the ones outside.
+        const int from = qMin(anchor(), position());
+        const int to = qMax(anchor(), position());
+        while (level < enclosing.size()) {
+            const Tag &tag = enclosing.at(level);
+            const int p1 = include ? tag.openStart : tag.openEnd;
+            const int p2 = (include ? tag.closeEnd : tag.closeStart) - 1;
+            if (p1 < from || p2 > to)
+                break;
+            if (include)
+                ++level;
+            else
+                include = true;
+        }
+    }
+
     if (level >= enclosing.size())
         return false;
     const Tag &tag = enclosing.at(level);
 
-    int p1 = inner ? tag.openEnd : tag.openStart;
-    int p2 = inner ? tag.closeStart : tag.closeEnd;
+    int p1 = include ? tag.openStart : tag.openEnd;
+    int p2 = include ? tag.closeEnd : tag.closeStart;
 
     g.movetype = MoveExclusive;
     if (isVisualMode())
