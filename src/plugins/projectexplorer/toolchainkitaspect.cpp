@@ -187,9 +187,6 @@ private:
     std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
-    void listAutoDetected(
-        const QString &detectionSource, const LogCallback &logCallback) const override;
-
     Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
         const DetectionSource &detectionSource,
         const Utils::FilePath &rootPath,
@@ -559,15 +556,6 @@ std::optional<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::removeAutoD
 
         ToolchainManager::deregisterToolchains(toolchains);
     });
-}
-
-void ToolchainKitAspectFactory::listAutoDetected(
-    const QString &detectionSource, const LogCallback &logCallback) const
-{
-    for (const Toolchain *tc : ToolchainManager::toolchains()) {
-        if (tc->detectionSource().isAutoDetected() && tc->detectionSource().id == detectionSource)
-            logCallback(Tr::tr("Toolchain: %1.").arg(tc->displayName()));
-    }
 }
 
 Result<QtTaskTree::ExecutableItem> ToolchainKitAspectFactory::createAspectFromJson(

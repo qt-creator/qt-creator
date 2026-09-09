@@ -178,9 +178,6 @@ public:
     std::optional<QtTaskTree::ExecutableItem> removeAutoDetected(
         const QString &detectionSource, const LogCallback &logCallback) const override;
 
-    void listAutoDetected(
-        const QString &detectionSource, const LogCallback &logCallback) const override;
-
     Utils::Result<QtTaskTree::ExecutableItem> createAspectFromJson(
         const DetectionSource &detectionSource,
         const FilePath &rootPath,
@@ -472,16 +469,6 @@ std::optional<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::removeAutoDetec
     return QSyncTask([detectionSource, logCallback]() {
         CMakeToolManager::instance()->removeDetectedCMake(detectionSource, logCallback);
     });
-}
-
-void CMakeKitAspectFactory::listAutoDetected(
-    const QString &detectionSource, const LogCallback &logCallback) const
-{
-    for (const CMakeTool *tool : CMakeToolManager::cmakeTools()) {
-        if (tool->detectionSource().isAutoDetected()
-            && tool->detectionSource().id == detectionSource)
-            logCallback(Tr::tr("CMake tool: %1.").arg(tool->displayName()));
-    }
 }
 
 Utils::Result<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::createAspectFromJson(

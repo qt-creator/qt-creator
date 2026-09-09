@@ -63,8 +63,6 @@ public:
         const ProjectExplorer::LogCallback &logCallback);
     static void removeDetectedPython(
         const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
-    static void listDetectedPython(
-        const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
     static QString defaultInterpreterId();
 

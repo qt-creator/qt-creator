@@ -1307,13 +1307,6 @@ void PythonSettings::removeDetectedPython(
     interpreterModel().removeInterpreterFrom(detectionSource);
 }
 
-void PythonSettings::listDetectedPython(
-    const QString &detectionSource, const LogCallback &logCallback)
-{
-    for (Interpreter &interpreter: interpreterModel().interpreterFrom(detectionSource))
-        logCallback(Tr::tr("Python: %1.").arg(interpreter.name));
-}
-
 void PythonSettings::fixupPythonKits()
 {
     if (!KitManager::isLoaded()) {

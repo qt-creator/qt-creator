@@ -187,12 +187,6 @@ public:
             PythonSettings::removeDetectedPython(detectionSource, logCallback);
         });
     }
-
-    void listAutoDetected(
-        const QString &detectionSource, const LogCallback &logCallback) const override
-    {
-        PythonSettings::listDetectedPython(detectionSource, logCallback);
-    }
 };
 
 } // Internal
