@@ -170,7 +170,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
 
         const bool targetAsync = m_startData.isSet(GdbImplFlag::ForceTargetAsync)
             || std::holds_alternative<AttachToRemoteServerData>(m_startData.inferiorStartData);
-        runCommand({QString("-interpreter-exec console \"set target-async %1\"")
+        runCommand({QString("-interpreter-exec console \"set mi-async %1\"")
                         .arg(QLatin1String(targetAsync ? "on" : "off"))});
 
         // What GdbEngine::handleGdbStarted() sets, minus the settings-driven ones:
@@ -181,6 +181,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         runCommand({"show version", [this](const DebuggerResponse &response) {
             handleShowVersion(response);
             applyDebugInfoDSettings();
+            applyIndexCacheSetting();
         }});
         runCommand({"set breakpoint pending on"});
         runCommand({"set print elements 10000"});
@@ -188,8 +189,6 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         runCommand({"set width 0"});
         runCommand({"set height 0"});
         runCommand({"set max-completions 1000"});
-        if (m_startData.isSet(GdbImplFlag::UseIndexCache))
-            runCommand({"set index-cache on"});
         if (m_startData.isSet(GdbImplFlag::MultiInferior))
             runCommand({"set detach-on-fork off"});
         applySearchPaths();
@@ -1949,6 +1948,16 @@ void GdbImpl::applyDebugInfoDSettings()
     default:
         break;
     }
+}
+
+void GdbImpl::applyIndexCacheSetting()
+{
+    if (!m_startData.isSet(GdbImplFlag::UseIndexCache))
+        return;
+    // gdb 13 made "index-cache" a prefix command, and the plain form an alias
+    // that warns.
+    runCommand({m_gdbVersion >= 130000 ? QString("set index-cache enabled on")
+                                       : QString("set index-cache on")});
 }
 
 void GdbImpl::createSpecialBreakpoints()

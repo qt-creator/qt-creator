@@ -187,6 +187,7 @@ private:
     void loadExtraDumpers();
     void createSpecialBreakpoints();
     void applyDebugInfoDSettings();
+    void applyIndexCacheSetting();
     void runUserStartupCommands();
     void runPostAttachCommands();
     void restartWatchdog();

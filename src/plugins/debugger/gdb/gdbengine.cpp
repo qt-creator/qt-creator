@@ -1573,9 +1573,9 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
             .arg(gdbBuildVersion).arg(QLatin1String(isMacGdb ? " (APPLE)" : "")));
 
         if (usesExecInterrupt())
-            runCommand({"set target-async on", ConsoleCommand});
+            runCommand({"set " + asyncSetting() + " on", ConsoleCommand});
         else
-            runCommand({"set target-async off", ConsoleCommand});
+            runCommand({"set " + asyncSetting() + " off", ConsoleCommand});
 
         //runCommand("set build-id-verbose 2", ConsoleCommand);
 
@@ -1588,7 +1588,20 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
                 runCommand({"set debuginfod enabled off"});
             }
         }
+
+        if (settings().useIndexCache()) {
+            // gdb 13 made "index-cache" a prefix command, and the plain form an
+            // alias that warns.
+            runCommand({m_gdbVersion >= 130000 ? QString("set index-cache enabled on")
+                                               : QString("set index-cache on")});
+        }
     }
+}
+
+QString GdbEngine::asyncSetting() const
+{
+    // Renamed in gdb 7.8, and the old name warns since gdb 13.
+    return m_gdbVersion >= 70800 ? QString("mi-async") : QString("target-async");
 }
 
 void GdbEngine::handleDumperSetup(const DebuggerResponse &response)
@@ -3989,9 +4002,6 @@ void GdbEngine::handleGdbStarted()
     runCommand({"set breakpoint pending on"});
     runCommand({"set print elements 10000"});
 
-    if (settings().useIndexCache())
-        runCommand({"set index-cache on"});
-
     // Produces a few messages during symtab loading
     //runCommand("set verbose on");
 
@@ -4502,7 +4512,7 @@ void GdbEngine::setupInferior()
         // mi_execute_async_cli_command: Assertion `is_running (inferior_ptid)'
         // failed.\nA problem internal to GDB has been detected,[...]
         if (usesTargetAsync())
-            runCommand({"set target-async on", CB(handleSetTargetAsync)});
+            runCommand({"set " + asyncSetting() + " on", CB(handleSetTargetAsync)});
 
         if (symbolFile.isEmpty()) {
             showMessage(Tr::tr("No symbol file given."), StatusBar);

@@ -507,11 +507,17 @@ struct ConfiguredOptionProbe
 };
 
 static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
-                                                           const Utils::FilePath &existingDir)
+                                                           const Utils::FilePath &existingDir,
+                                                           const QString &versionLine)
 {
     switch (backend) {
-    case Backend::Gdb:
-        return {{"show index-cache", "The index cache is currently enabled."},
+    case Backend::Gdb: {
+        // gdb 13 made "index-cache" a prefix command, so the state is one line
+        // of several rather than the whole answer.
+        const QString indexCache = debuggerMajorVersion(versionLine) >= 13
+                                       ? QString("The index cache is on.")
+                                       : QString("The index cache is currently enabled.");
+        return {{"show index-cache", indexCache},
                 {"show detach-on-fork", "Whether gdb will detach the child of a fork is off."},
                 {"show mi-async", "Whether MI is in asynchronous mode is on."},
                 {"python print(theDumper.usePlainDumpers)", "True"},
@@ -520,6 +526,7 @@ static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
                 {"show directories", existingDir.path()},
                 {"show debug-file-directory", existingDir.path()},
                 {"show solib-search-path", "/qtc-test-solib"}};
+    }
     case Backend::Lldb:
         return {{"settings show target.exec-search-paths", "/qtc-test-solib"}};
     // Cdb has none: a query goes to a debugger whose inferior runs, which takes
@@ -2162,9 +2169,9 @@ void tst_backends::initTestCase()
         "#include <cstdio>",
         "#include <cstdlib>",
         "#include <cstring>",
+        "#include <functional>",
         "#include <thread>",
         "#include <string>",
-        "#include <utility>",
         "#include <vector>",
         "#ifdef _WIN32",
         "#include <windows.h>",
@@ -2208,11 +2215,18 @@ void tst_backends::initTestCase()
         "    fflush(stdout);",
         "}",
         "",
+        "extern \"C\" int knownFrameTarget();",
+        "",
         "extern \"C\" void stepIntoKnownFrame()",
         "{",
-        "    std::string movable = \"skipped\";",
-        "    std::string moved = std::move(movable); // known frame step line",
-        "    (void) moved.size();",
+        "    std::function<int()> forward = knownFrameTarget;",
+        "    int taken = forward(); // known frame step line",
+        "    (void) taken;",
+        "}",
+        "",
+        "extern \"C\" int knownFrameTarget()",
+        "{",
+        "    return globalValue;",
         "}",
         "",
         "extern \"C\" void spin()",
@@ -6225,8 +6239,8 @@ void tst_backends::skipsKnownFramesWhenStepping()
     if (testData.knownFrameStepLine == 0)
         QSKIP("inferior has no line whose step lands in a standard header");
 
-    // Stepping into std::move() lands in a standard header, which is what the
-    // setting is about: unskipped the stop is reported there, skipped the
+    // Calling through a std::function lands in a standard header, which is what
+    // the setting is about: unskipped the stop is reported there, skipped the
     // debugger keeps going until it is back in the code the user wrote.
     const auto stepIntoTheHeader = [this, backend, testData](bool skipKnownFrames) {
         std::pair<FilePath, int> location;
@@ -6276,7 +6290,7 @@ void tst_backends::skipsKnownFramesWhenStepping()
     const auto [unskippedFile, unskippedLine] = stepIntoTheHeader(false);
     QVERIFY2(!unskippedFile.isEmpty(), "the unskipped step never reported a location");
     QVERIFY2(unskippedFile != testData.source,
-             qPrintable("stepping into std::move() stayed in " + unskippedFile.toUserOutput()
+             qPrintable("the step stayed in " + unskippedFile.toUserOutput()
                         + ", so this toolchain has no known frame to skip"));
 
     const auto [skippedFile, skippedLine] = stepIntoTheHeader(true);
@@ -7494,7 +7508,8 @@ void tst_backends::appliesConfiguredDebuggerOptions()
     const FilePath moduleTrace = existingDir / "qtc_extra_dumper_loaded";
     QVERIFY((existingDir / "qtc_extra_dumper.py").writeFileContents(
         QString("open(r\"%1\", \"w\").close()\n").arg(moduleTrace.path()).toUtf8()));
-    const QList<ConfiguredOptionProbe> probes = configuredOptionProbes(backend, existingDir);
+    const QList<ConfiguredOptionProbe> probes
+        = configuredOptionProbes(backend, existingDir, inferiorTestData(backend).versionLine);
     std::unique_ptr<DebuggerBackend> debuggerBackend
         = createFullyConfiguredEngine(backend, Environment::systemEnvironment(), existingDir);
     if (!debuggerBackend)
@@ -7523,6 +7538,9 @@ void tst_backends::appliesConfiguredDebuggerOptions()
     }
     QTRY_VERIFY2_WITH_TIMEOUT(moduleTrace.exists(),
                               "the extra dumper module was never imported", s_timeout);
+    // Everything the startup sends is sent before the module import that just
+    // arrived, so a complaint about any of it would be here by now.
+    QVERIFY2(!sawMessage("is deprecated"), "a startup command used a deprecated spelling");
 
     for (const ConfiguredOptionProbe &probe : probes) {
         messages.clear();

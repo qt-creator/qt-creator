@@ -323,6 +323,7 @@ private: ////////// General Interface //////////
     bool m_expectTerminalTrap = false;
     bool usesExecInterrupt() const;
     bool usesTargetAsync() const;
+    QString asyncSetting() const;
 
     DebuggerCommandSequence m_onStop;
 
