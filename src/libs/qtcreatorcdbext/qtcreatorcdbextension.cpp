@@ -285,10 +285,12 @@ static inline StringContainer commandTokens(PCSTR args, int *token = 0)
     StringContainer tokens;
     CommandToken commandToken = extractToken(args, &args);
     if (commandToken.majorPart != 0) {
-        s_commandBuffer[commandToken.majorPart].append(args);
+        std::string &command = s_commandBuffer[commandToken.majorPart];
+        command.append(args);
         if (commandToken.minorPart == 0) {
-            DebugPrint() << commandToken.majorPart << ':' << s_commandBuffer[commandToken.majorPart];
-            splitCommand(s_commandBuffer[commandToken.majorPart].data(), std::back_inserter(tokens));
+            DebugPrint() << commandToken.majorPart << ':' << command;
+            splitCommand(command.data(), std::back_inserter(tokens));
+            s_commandBuffer.erase(commandToken.majorPart);
             if (token)
                 *token = commandToken.majorPart;
         } else if (token) {
