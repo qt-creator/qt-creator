@@ -49,6 +49,11 @@ public:
 
     ~JsEngineWatchdog() override
     {
+        // Quitting drops the queued unwatch(), which would leave the timer running.
+        if (isRunning()) {
+            QMetaObject::invokeMethod(
+                &m_evalTimer, [this] { stopWatching(); }, Qt::BlockingQueuedConnection);
+        }
         quit();
         wait();
     }
