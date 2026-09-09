@@ -404,9 +404,8 @@ static Result<> loadXFCE4ColorScheme(const FilePath &path)
     }
 
     const QStringList colors = ini.value(QLatin1String("Scheme/ColorPalette")).toStringList();
-    int i = 0;
-    for (const QString &color : colors)
-        s.colors[i++].setVolatileValue(QColor(color));
+    for (int i = 0; i < colors.size() && i < std::ssize(s.colors); ++i)
+        s.colors[i].setVolatileValue(QColor(colors.at(i)));
 
     return {};
 }
