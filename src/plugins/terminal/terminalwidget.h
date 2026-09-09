@@ -74,6 +74,9 @@ protected:
     qint64 writeToPty(const QByteArray &data) override;
     bool resizePty(QSize newSize) override;
     void setClipboard(const QString &text) override;
+    void confirmUnsafePaste(const QString &text,
+                            QObject *guard,
+                            const std::function<void(bool)> &onDecided) override;
     std::optional<TerminalView::Link> toPathOrWebLink(const QString &text);
     std::optional<TerminalView::Link> sniffLink(const QString &text);
     std::optional<TerminalView::Link> toLink(const QString &text) override;

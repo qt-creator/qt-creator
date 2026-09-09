@@ -19,6 +19,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -489,6 +490,67 @@ void TerminalWidget::updateCopyState()
 void TerminalWidget::setClipboard(const QString &text)
 {
     setClipboardAndSelection(text);
+}
+
+// The reader cannot judge a paste they cannot see, and the characters this is
+// being shown for are the ones with no glyph: dropped in raw they would be
+// invisible, and a newline would let the payload lay itself out as though it
+// were the dialog's own words. Caret notation makes them visible, and the
+// escaping is not optional - CheckableMessageBox names Qt::RichText for every
+// message it shows, so an unescaped payload would be markup in a dialog whose
+// whole job is to describe that payload.
+static QString asVisiblePasteText(const QString &text)
+{
+    const qsizetype maxShown = 512;
+
+    QString shown;
+    shown.reserve(qMin(text.size(), maxShown) * 2);
+    for (const QChar ch : text) {
+        if (shown.size() >= maxShown) {
+            shown += QChar(0x2026);
+            break;
+        }
+
+        const char16_t c = ch.unicode();
+        if (c < u' ' || c == 0x7f) {
+            shown += u'^';
+            shown += QChar(char16_t(c ^ 0x40));
+        } else if (c >= 0x80 && c <= 0x9f) {
+            shown += QLatin1String("\\x") + QString::number(c, 16);
+        } else {
+            shown += ch;
+        }
+    }
+
+    return shown.toHtmlEscaped();
+}
+
+void TerminalWidget::confirmUnsafePaste(const QString &text,
+                                        QObject *guard,
+                                        const std::function<void(bool)> &onDecided)
+{
+    const CheckableDecider decider([] { return settings().confirmUnsafePaste(); },
+                                   [] {
+                                       settings().confirmUnsafePaste.setValue(false);
+                                       settings().writeSettings();
+                                   });
+
+    CheckableMessageBox::question_async(
+        Tr::tr("Unsafe Paste"),
+        Tr::tr("The text to paste contains control characters, and the program running "
+               "in the terminal did not announce that it handles a paste as one. Pasting "
+               "it can run commands that the text only appears to contain."
+               "<br><br><code>%1</code><br><br>"
+               "Paste anyway?")
+            .arg(asVisiblePasteText(text)),
+        decider,
+        guard,
+        [onDecided](QMessageBox::StandardButton button) {
+            onDecided(button == QMessageBox::Yes);
+        },
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No,
+        QMessageBox::Yes);
 }
 
 std::optional<TerminalSolution::TerminalView::Link> TerminalWidget::toPathOrWebLink(

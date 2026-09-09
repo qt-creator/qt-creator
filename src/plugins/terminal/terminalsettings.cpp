@@ -535,6 +535,14 @@ TerminalSettings::TerminalSettings()
                "using an escape sequence. Reading the clipboard is never allowed."));
     allowClipboardWrite.setDefaultValue(false);
 
+    confirmUnsafePaste.setSettingsKey("ConfirmUnsafePaste");
+    confirmUnsafePaste.setLabelText(Tr::tr("Confirm pasting control characters"));
+    confirmUnsafePaste.setToolTip(
+        Tr::tr("Asks before pasting text that contains control characters into a program "
+               "that did not announce it can handle them. Such a paste can run commands "
+               "the text only appears to contain."));
+    confirmUnsafePaste.setDefaultValue(true);
+
     setupColor(this, foregroundColor, "Foreground", creatorColor(Theme::TerminalForeground));
     setupColor(this, backgroundColor, "Background", creatorColor(Theme::TerminalBackground));
     setupColor(this, selectionColor, "Selection", creatorColor(Theme::TerminalSelection));
@@ -645,6 +653,7 @@ TerminalSettings::TerminalSettings()
                     allowBlinkingCursor, st,
                     enableMouseTracking, st,
                     allowClipboardWrite, st,
+                    confirmUnsafePaste, st,
                 },
             },
             Group {

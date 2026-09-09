@@ -911,8 +911,33 @@ void TerminalSurface::flush()
     vterm_screen_flush_damage(d->m_vtermScreen);
 }
 
-void TerminalSurface::pasteFromClipboard(const QString &clipboardText)
+// The marker vterm_keyboard_end_paste writes is what tells the program the
+// bracketed region is over, so a paste carrying one of its own ends the region
+// early and everything after it arrives as ordinary typed input - which is the
+// whole of what bracketed paste is relied on to prevent, and is reachable
+// however the region was announced. It is a control the terminal emits and
+// never part of what a reader meant to paste, so drop it rather than ask about
+// it: a confirmation that was accepted would still send it. Removal can bring
+// the halves of a split marker together, so repeat until nothing is left.
+static QString withoutPasteEndMarker(const QString &text)
 {
+    static const QString csiForm = QStringLiteral("\x1b[201~");
+    // A C1 CSI reaches a program that reads single bytes as latin1. Spelt as a
+    // QChar because a \u escape naming a control character is ill-formed.
+    static const QString c1Form = QChar(0x9b) + QStringLiteral("201~");
+
+    QString result = text;
+    for (qsizetype before = -1; result.size() != before;) {
+        before = result.size();
+        result.remove(csiForm);
+        result.remove(c1Form);
+    }
+    return result;
+}
+
+void TerminalSurface::pasteFromClipboard(const QString &pastedText)
+{
+    const QString clipboardText = withoutPasteEndMarker(pastedText);
     if (clipboardText.isEmpty())
         return;
 

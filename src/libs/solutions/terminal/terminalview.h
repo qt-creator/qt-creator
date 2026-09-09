@@ -136,6 +136,16 @@ public:
     }
 
     virtual void setClipboard(const QString &text) { Q_UNUSED(text) }
+    // Answered later, and answered either way: paste() holds everything
+    // pasted after this one until it knows what became of this one.
+    virtual void confirmUnsafePaste(const QString &text,
+                                    QObject *guard,
+                                    const std::function<void(bool confirmed)> &onDecided)
+    {
+        Q_UNUSED(text)
+        Q_UNUSED(guard)
+        onDecided(true);
+    }
     virtual std::optional<Link> toLink(const QString &text)
     {
         Q_UNUSED(text)

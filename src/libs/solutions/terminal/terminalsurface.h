@@ -95,7 +95,7 @@ public:
     void dataFromPty(const QByteArray &data);
     void flush();
 
-    void pasteFromClipboard(const QString &text);
+    void pasteFromClipboard(const QString &pastedText);
 
     void sendKey(Qt::Key key);
     void sendKey(QKeyEvent *event);

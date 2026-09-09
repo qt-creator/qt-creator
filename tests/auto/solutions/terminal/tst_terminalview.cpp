@@ -24,11 +24,30 @@ class TestView : public TerminalView
 public:
     std::optional<Link> activated;
     QList<QSize> ptyResizes;
+    QByteArray ptyWrites;
+    int pasteConfirmations = 0;
+    std::function<void(bool)> pendingPaste;
 
     bool resizePty(QSize newSize) override
     {
         ptyResizes.append(newSize);
         return true;
+    }
+
+    qint64 writeToPty(const QByteArray &data) override
+    {
+        ptyWrites.append(data);
+        return data.size();
+    }
+
+    void confirmUnsafePaste(const QString &text,
+                            QObject *guard,
+                            const std::function<void(bool)> &onDecided) override
+    {
+        Q_UNUSED(text)
+        Q_UNUSED(guard)
+        ++pasteConfirmations;
+        pendingPaste = onDecided;
     }
 
     // Emulates the file/hash sniffing a host does on plain text.
@@ -266,6 +285,124 @@ private slots:
         m_view->ctrlClick({0, 0});
 
         QVERIFY(!m_view->activated);
+    }
+
+    void aPasteOfControlCharactersIsRefusedWhenNoOneIsBracketingIt()
+    {
+        m_view->writeToTerminal("\x1b[?2004l", true);
+        m_view->ptyWrites.clear();
+
+        m_view->paste("echo refused\necho two\n");
+
+        QCOMPARE(m_view->pasteConfirmations, 1);
+
+        m_view->pendingPaste(false);
+
+        // Nothing announces that a refused paste did not arrive, so the next
+        // one is used to order the check: pastes reach the pty in the order
+        // they were made, so if the refused one were coming it would be here
+        // by the time this one is.
+        m_view->paste("echo allowed");
+
+        QTRY_VERIFY(m_view->ptyWrites.contains("echo allowed"));
+        QVERIFY(!m_view->ptyWrites.contains("echo refused"));
+    }
+
+    void aPasteHeldForConfirmationKeepsItsPlace()
+    {
+        m_view->writeToTerminal("\x1b[?2004l", true);
+        m_view->ptyWrites.clear();
+
+        m_view->paste("first\n");
+        m_view->paste("second");
+
+        // The second needs no confirmation of its own. It still waits, or it
+        // would be spliced into the middle of the one being asked about. That
+        // it has not reached the pty yet is not worth asserting here - a
+        // paste does not reach it synchronously either way - so the order the
+        // two arrive in is what the check below is on.
+        QCOMPARE(m_view->pasteConfirmations, 1);
+
+        m_view->pendingPaste(true);
+
+        QTRY_VERIFY(m_view->ptyWrites.contains("second"));
+        QVERIFY2(m_view->ptyWrites.indexOf("first") < m_view->ptyWrites.indexOf("second"),
+                 m_view->ptyWrites.constData());
+    }
+
+    void aConfirmedPasteOfControlCharactersGoesThrough()
+    {
+        m_view->writeToTerminal("\x1b[?2004l", true);
+        m_view->ptyWrites.clear();
+
+        m_view->paste("echo one\necho two\n");
+
+        QCOMPARE(m_view->pasteConfirmations, 1);
+
+        m_view->pendingPaste(true);
+
+        QTRY_VERIFY(m_view->ptyWrites.contains("echo one"));
+    }
+
+    void aBracketedPasteIsNotConfirmed()
+    {
+        m_view->writeToTerminal("\x1b[?2004h", true);
+        m_view->ptyWrites.clear();
+
+        m_view->paste("echo one\necho two\n");
+
+        QCOMPARE(m_view->pasteConfirmations, 0);
+        QTRY_VERIFY(m_view->ptyWrites.contains("\x1b[200~"));
+        QVERIFY(m_view->ptyWrites.contains("echo one"));
+    }
+
+    void aPasteWithoutControlCharactersIsNotConfirmed()
+    {
+        m_view->writeToTerminal("\x1b[?2004l", true);
+        m_view->ptyWrites.clear();
+
+        m_view->paste("echo one");
+
+        QCOMPARE(m_view->pasteConfirmations, 0);
+        QTRY_VERIFY(m_view->ptyWrites.contains("echo one"));
+    }
+
+    void aBracketedPasteCannotCloseItsOwnRegion()
+    {
+        m_view->writeToTerminal("\x1b[?2004h", true);
+        m_view->ptyWrites.clear();
+
+        // The payload carries the marker that ends a bracketed region. Sent as
+        // it stands, the shell stops treating the paste as data there and runs
+        // the rest as typed input - which is the whole of what announcing
+        // bracketed paste is trusted for, and the branch that skips the
+        // confirmation is the branch that trusts it.
+        m_view->paste(QString::fromLatin1("one\x1b[201~two"));
+
+        QCOMPARE(m_view->pasteConfirmations, 0);
+
+        // Both halves of the payload still arrive; only the marker between
+        // them does not.
+        QTRY_VERIFY(m_view->ptyWrites.contains("two"));
+        QVERIFY(m_view->ptyWrites.contains("one"));
+
+        // Exactly one end marker, the one end_paste writes, and it is last.
+        QCOMPARE(m_view->ptyWrites.count(QByteArrayView("\x1b[201~")), 1);
+        QVERIFY(m_view->ptyWrites.endsWith("\x1b[201~"));
+    }
+
+    void aPasteCannotReassembleTheMarkerAsItIsRemoved()
+    {
+        m_view->writeToTerminal("\x1b[?2004h", true);
+        m_view->ptyWrites.clear();
+
+        // Taking out the inner marker brings the outer halves together, so a
+        // single pass over the text leaves a marker behind.
+        m_view->paste(QString::fromLatin1("\x1b[\x1b[201~201~done"));
+
+        QTRY_VERIFY(m_view->ptyWrites.contains("done"));
+        QCOMPARE(m_view->ptyWrites.count(QByteArrayView("\x1b[201~")), 1);
+        QVERIFY(m_view->ptyWrites.endsWith("\x1b[201~"));
     }
 };
 

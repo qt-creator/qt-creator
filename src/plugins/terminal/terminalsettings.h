@@ -35,6 +35,7 @@ public:
     Utils::BoolAspect enableMouseTracking{this};
 
     Utils::BoolAspect allowClipboardWrite{this};
+    Utils::BoolAspect confirmUnsafePaste{this};
 };
 
 TerminalSettings &settings();

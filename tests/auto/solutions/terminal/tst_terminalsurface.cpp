@@ -1059,6 +1059,16 @@ private slots:
         QCOMPARE(m_recorder.writes.first().first, QByteArray("clip"));
     }
 
+    void bracketedPasteModeIsVisibleToTheHost()
+    {
+        QVERIFY(!m_surface->isBracketedPasteEnabled());
+
+        m_surface->dataFromPty("\x1b[?2004h");
+        QVERIFY(m_surface->isBracketedPasteEnabled());
+
+        m_surface->dataFromPty("\x1b[?2004l");
+        QVERIFY(!m_surface->isBracketedPasteEnabled());
+    }
 };
 
 QTEST_GUILESS_MAIN(tst_TerminalSurface)

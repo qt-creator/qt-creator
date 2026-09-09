@@ -25,10 +25,13 @@
 #include <QRegularExpression>
 #include <QScreen>
 #include <QScrollBar>
+#include <QStringList>
 #include <QTextItem>
 #include <QTextLayout>
 #include <QToolTip>
 #include <QUrl>
+
+#include <utility>
 
 static Q_LOGGING_CATEGORY(terminalLog, "qtc.terminal", QtWarningMsg)
 static Q_LOGGING_CATEGORY(selectionLog, "qtc.terminal.selection", QtWarningMsg)
@@ -74,6 +77,9 @@ public:
 
     std::optional<TerminalView::Selection> m_selection;
     std::unique_ptr<TerminalSurface> m_surface;
+
+    bool m_pasteConfirmationOpen{false};
+    QStringList m_pendingPastes;
 
     QSizeF m_cellSize;
 
@@ -376,13 +382,17 @@ void TerminalView::copyToClipboard()
 
 void TerminalView::pasteFromClipboard()
 {
-    QClipboard *clipboard = QApplication::clipboard();
-    const QString clipboardText = clipboard->text(QClipboard::Clipboard);
+    paste(QApplication::clipboard()->text(QClipboard::Clipboard));
+}
 
-    if (clipboardText.isEmpty())
-        return;
-
-    d->m_surface->pasteFromClipboard(clipboardText);
+static bool containsControlCharacters(const QString &text)
+{
+    for (const QChar ch : text) {
+        const char16_t c = ch.unicode();
+        if ((c < u' ' && c != u'\t') || (c >= 0x7f && c <= 0x9f))
+            return true;
+    }
+    return false;
 }
 
 void TerminalView::paste(const QString &text)
@@ -390,7 +400,31 @@ void TerminalView::paste(const QString &text)
     if (text.isEmpty())
         return;
 
-    d->m_surface->pasteFromClipboard(text);
+    // A confirmation is answered later. Anything pasted while one is open
+    // waits for it, so that text the reader is still being asked about cannot
+    // arrive at the pty after text they pasted afterwards.
+    if (d->m_pasteConfirmationOpen) {
+        d->m_pendingPastes.append(text);
+        return;
+    }
+
+    if (d->m_surface->isBracketedPasteEnabled() || !containsControlCharacters(text)) {
+        d->m_surface->pasteFromClipboard(text);
+        return;
+    }
+
+    d->m_pasteConfirmationOpen = true;
+    confirmUnsafePaste(text, this, [this, text](bool confirmed) {
+        d->m_pasteConfirmationOpen = false;
+        if (confirmed)
+            d->m_surface->pasteFromClipboard(text);
+
+        // Each of these takes the branch it would have taken on its own; one
+        // that needs a confirmation of its own opens it and holds the rest.
+        const QStringList waiting = std::exchange(d->m_pendingPastes, {});
+        for (const QString &pending : waiting)
+            paste(pending);
+    });
 }
 
 void TerminalView::copyLinkToClipboard()
@@ -1291,13 +1325,10 @@ void TerminalView::mousePressEvent(QMouseEvent *event)
         }
     } else if (event->button() == Qt::MiddleButton) {
         QClipboard *clipboard = QApplication::clipboard();
-        if (clipboard->supportsSelection()) {
-            const QString selectionText = clipboard->text(QClipboard::Selection);
-            if (!selectionText.isEmpty())
-                d->m_surface->pasteFromClipboard(selectionText);
-        } else {
-            d->m_surface->pasteFromClipboard(textFromSelection());
-        }
+        if (clipboard->supportsSelection())
+            paste(clipboard->text(QClipboard::Selection));
+        else
+            paste(textFromSelection());
     }
 }
 void TerminalView::mouseMoveEvent(QMouseEvent *event)
