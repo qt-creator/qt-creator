@@ -332,6 +332,7 @@ void DeviceManager::removeDevice(Id id)
         FSEngine::removeDevice(device->rootPath());
 
     if (wasDefault) {
+        d->defaultDevices.remove(deviceType);
         for (int i = 0; i < d->devices.count(); ++i) {
             if (deviceAt(i)->type() == deviceType) {
                 d->defaultDevices.insert(deviceAt(i)->type(), deviceAt(i)->id());
