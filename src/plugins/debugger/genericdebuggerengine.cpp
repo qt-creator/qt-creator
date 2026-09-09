@@ -13,10 +13,13 @@
 #include "peripheralregisterhandler.h"
 #include "registerhandler.h"
 #include "sourcefileshandler.h"
+#include "sourceutils.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
 #include "watchwindow.h"
+
+#include <cppeditor/cppmodelmanager.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
@@ -1029,6 +1032,11 @@ void GenericDebuggerEngine::doUpdateLocals(const UpdateParameters &params)
                              .logTimeStamps = s.logTimeStamps(),
                              .maximalStringLength = int(s.maximalStringLength()),
                              .displayStringLimit = int(s.displayStringLimit())};
+    if (s.useCodeModel()) {
+        const StackFrame frame = stackHandler()->currentFrame();
+        request.uninitializedVariables = getUninitializedVariables(
+            CppEditor::CppModelManager::snapshot(), frame.function, frame.file, frame.line);
+    }
     m_backend->refresh(request);
 }
 } // namespace Debugger::Internal

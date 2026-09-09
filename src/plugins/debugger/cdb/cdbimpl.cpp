@@ -1653,6 +1653,7 @@ void CdbImpl::refresh(const RefreshRequest &request)
     cmd.arg("qtnamespace", m_startData.qtNamespace);
     cmd.arg("passexceptions", qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE"));
     cmd.arg("partialvar", request.partialVariable);
+    cmd.arg("uninitialized", request.uninitializedVariables);
     cmd.arg("context", request.context);
     cmd.arg("nativemixed", m_startData.nativeMixed);
     cmd.arg("allowinferiorcalls", request.allowInferiorCalls);

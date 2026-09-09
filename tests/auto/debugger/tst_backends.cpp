@@ -176,6 +176,7 @@ struct InferiorTestData
     bool remoteStubHostsProcess = false;
     QString enableToggleWireMarker;
     QString symbolOptionsCommand;
+    bool marksUninitializedVariables = false;
     // Whether the backend's bridge resolves a QML breakpoint through casts on
     // the debug service, rather than marshalling the arguments and calling by
     // address the way the cdb one does.
@@ -1093,6 +1094,8 @@ private slots:
     void resolvesATypeArrivingWithALaterLibrary();
     void honorsDumperOptionsFromTheRequest_data() { addBackendRows(); }
     void honorsDumperOptionsFromTheRequest();
+    void marksTheUninitializedVariablesTheRequestNames_data() { addBackendRows(); }
+    void marksTheUninitializedVariablesTheRequestNames();
     void honorsTheStringLengthLimitFromTheRequest_data() { addBackendRows(); }
     void honorsTheStringLengthLimitFromTheRequest();
     void refreshesRegisters_data() { addBackendRows(); }
@@ -2306,6 +2309,7 @@ void tst_backends::initTestCase()
                 = "survived the access violation";
             m_backendData[Backend::Cdb].inferiorData.enableToggleWireMarker = "bd";
             m_backendData[Backend::Cdb].inferiorData.symbolOptionsCommand = ".symopt";
+            m_backendData[Backend::Cdb].inferiorData.marksUninitializedVariables = true;
             m_backendData[Backend::Cdb].inferiorData.moduleSymbolsPath
                 = msvcInferiorData.executable;
         } else {
@@ -5357,6 +5361,48 @@ void tst_backends::honorsDumperOptionsFromTheRequest()
     QVERIFY2(plain.isValid(), "the container local was not reported without the helpers");
     QVERIFY2(fancy.toString() != plain.toString(),
              qPrintable("turning the debugging helpers off changed nothing: " + plain.toString()));
+}
+
+void tst_backends::marksTheUninitializedVariablesTheRequestNames()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (!testData.marksUninitializedVariables)
+        QSKIP("This backend's dumpers do not act on the variables named uninitialized.");
+    const QString iname = "local." + testData.localMarker;
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+
+    quint64 requestId = 150;
+    auto localsWithUninitialized = [&](const QStringList &uninitialized) -> GdbMi {
+        responses.clear();
+        RefreshRequest request;
+        request.kind = RefreshKind::Locals;
+        request.requestId = ++requestId;
+        request.uninitializedVariables = uninitialized;
+        engine->refresh(request);
+        [&responses] {
+            QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+        }();
+        return findItemByIName(responses.value(int(RefreshKind::Locals)), iname);
+    };
+
+    const GdbMi initialized = localsWithUninitialized({});
+    QVERIFY2(initialized.isValid(), "the local was not reported at all");
+    QVERIFY2(initialized["valueencoded"].data() != "optimizedout",
+             qPrintable("reported as out of scope unasked: " + initialized.toString()));
+
+    const GdbMi named = localsWithUninitialized({testData.localMarker});
+    QCOMPARE(named["valueencoded"].data(), QString("optimizedout"));
 }
 
 void tst_backends::honorsTheStringLengthLimitFromTheRequest()

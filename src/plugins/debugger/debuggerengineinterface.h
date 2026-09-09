@@ -81,6 +81,7 @@ public:
     RefreshKind kind = RefreshKind::Modules;
     Utils::FilePath path = {};
     QString partialVariable = {};
+    QStringList uninitializedVariables = {};
     QString context = {};
     QList<quint64> addresses = {};
     QJsonArray watchers = {};
