@@ -123,7 +123,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 // clang-format off
                 const QtTaskTree::Group recipe {
                     dockerDevice->autoDetectDeviceToolsRecipe(),
-                    ProjectExplorer::removeDetectedKitsRecipe(dockerDevice, log),
+                    ProjectExplorer::removeDetectedKitItemsRecipe(dockerDevice, log),
                     ProjectExplorer::kitDetectionRecipe(dockerDevice, DetectionSource::FromSystem, log)
                 };
                 // clang-format on
@@ -154,7 +154,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, device] {
         logView->clear();
         m_detectionRunner.start(
-            ProjectExplorer::removeDetectedKitsRecipe(device, [logView](const QString &msg) {
+            ProjectExplorer::removeDetectedKitItemsRecipe(device, [logView](const QString &msg) {
                 logView->append(msg);
             })
         );
