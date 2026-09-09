@@ -35,6 +35,11 @@ Project {
             cpp.generateManifestFile: false
         }
 
+        Properties {
+            condition: qbs.targetOS.contains("windows")
+            cpp.dynamicLibraries: [ "shell32" ]
+        }
+
         files: [
             "etwcapture-launcher.cpp",
             "etwcapture-launcher.rc",
