@@ -629,18 +629,17 @@ static QString debugInfoDaemonQuery(Backend backend)
 
 // pdbbridge.py's stackListFrames() reports the whole stack and takes no limit,
 // so a depth limit cannot reach it yet.
-// Whether attaching leaves the inferior running: lldb resumes it itself, and
-// the bridge acknowledges the attach as a running inferior, while gdb reports
-// the stop that attaching causes. A stock DAP adapter's answer to the attach
-// says neither, so the backend reports a running inferior and passes on
-// whatever the adapter does to the debuggee afterwards.
+// Whether attaching leaves the inferior running: lldb resumes it itself, while
+// gdb and the bridge report the stop that attaching causes. A stock DAP
+// adapter's answer to the attach says neither, so the backend reports a running
+// inferior and passes on whatever the adapter does to the debuggee afterwards.
 static bool attachResumesInferior(Backend backend)
 {
     switch (backend) {
     case Backend::Dap:
     case Backend::Lldb:
-    case Backend::Bridge:
         return true;
+    case Backend::Bridge:
     case Backend::Gdb:
     case Backend::Cdb:
     case Backend::Pdb:
@@ -758,16 +757,16 @@ static UserCommandProbe userCommandProbe(Backend backend, UserCommandHook hook)
     case Backend::Gdb:
         return {"echo " + marker + "\\n", marker};
     case Backend::Bridge:
-        // Only the reset hook: there is no remote server to connect to yet.
         // The bridge logs the command next to its output, so the marker is
         // spelled in two pieces and only the answer carries it whole.
         if (hook == UserCommandHook::Reset)
             return {"printf \"QTCFOR%s\\n\", \"RESETMARKER\"", marker};
-        break;
+        return {"printf \"QTCAFTER%s\\n\", \"CONNECTMARKER\"", marker};
     case Backend::Lldb:
     case Backend::Cdb:
     case Backend::Pdb:
     case Backend::Qml:
+    case Backend::Dap:
         break;
     }
     return {};
@@ -821,6 +820,7 @@ static bool reportsDumperTypes(Backend backend)
         return true;
     case Backend::Pdb: // formats python values directly, with no dumper modules
     case Backend::Qml: // no python dumpers at all
+    case Backend::Dap: // a foreign adapter, which knows nothing of the dumpers
         break;
     }
     return false;
@@ -1593,6 +1593,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .bridgeStartData = dapHostRecipe(false),
             .userCommands
                 = {.forReset = {userCommandProbe(backend, UserCommandHook::Reset).command}},
+            .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain),
             .skipKnownFrames = gdbFlags.testFlag(GdbImplFlag::SkipKnownFrames)}));
     case Backend::Dap: {
         const ProcessRunData debuggerRunData = debuggerRunDataOverride.value_or(
@@ -1933,7 +1934,11 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
                                               Environment::systemEnvironment()},
             .inferiorStartData = inferiorStartData,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
-            .bridgeStartData = dapHostRecipe(false)}));
+            .bridgeStartData = dapHostRecipe(false),
+            .userCommands = {.afterConnect
+                                 = {userCommandProbe(backend, UserCommandHook::AfterConnect).command}},
+            .continueAfterAttach = gdbFlags.testFlag(GdbImplFlag::ContinueAfterAttach),
+            .continueInsteadOfRun = gdbFlags.testFlag(GdbImplFlag::ContinueInsteadOfRun)}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -5784,7 +5789,8 @@ void tst_backends::resolvesATypeArrivingWithALaterLibrary()
     // A dumper puts the pointee's members straight under the watcher, while a
     // stock adapter reports the dereferenced pointer as a child of its own,
     // which leaves the member one level further down.
-    for (const GdbMi &child : findItemByIName(locals.value(132), "watch.0")["children"])
+    const GdbMi watchItem = findItemByIName(locals.value(132), "watch.0");
+    for (const GdbMi &child : watchItem["children"])
         request.expandedINames.insert(child["iname"].data());
     request.requestId = 133;
     engine->refresh(request);
@@ -10224,6 +10230,11 @@ void tst_backends::attachesToCoreFile()
         AttachToCoreData{coreFile, inferiorTestData(backend).executable});
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    // A core session has a capability set of its own, and it is an override,
+    // not a subset: an empty one leaves the session unable to do anything.
+    QVERIFY(engine->hasCapability(Debugger::ShowMemoryCapability, Debugger::AttachToCore));
+    QVERIFY(!engine->hasCapability(Debugger::JumpToLineCapability, Debugger::AttachToCore));
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOkAndInferiorUnrunnable)

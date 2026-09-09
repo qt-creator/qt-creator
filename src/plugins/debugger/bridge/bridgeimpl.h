@@ -101,13 +101,14 @@ private:
     bool m_stopRequested = false;
     bool m_inferiorRunning = false;
     bool m_resumePending = false;
-    bool m_stopPending = false;
     bool m_interruptOnceRunning = false;
     bool m_detaching = false;
     bool m_stepRequested = false;
     bool m_shuttingDown = false;
     bool m_inferiorResumed = false;
     bool m_interruptOnceResumed = false;
+    // Whether the next stop ends the setup rather than a run of its own.
+    bool m_reportsSetupStop = false;
 
     // A request that arrived while the inferior was running: the bridge is
     // blocked in the resume then, so the request goes out on a stop forced for

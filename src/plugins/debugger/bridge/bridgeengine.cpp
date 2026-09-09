@@ -9,6 +9,8 @@
 
 #include <debugger/dap/dapclient.h>
 
+#include <debugger/gdb/gdbengine.h>
+
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggerconstants.h>
@@ -1292,9 +1294,6 @@ static QStringList commandLines(const QString &text)
 DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
 {
     if (DebuggerEngine::isUsingGenericDebugger()) {
-        InferiorStartData inferiorStartData = rp.inferior();
-        if (rp.isLocalAttachEngine())
-            inferiorStartData = AttachToProcessData{rp.attachPid()};
         QList<QPair<QString, QString>> sourcePathMap;
         const SourcePathMap mergedMap = mergeStartParametersSourcePathMap(
             rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
@@ -1316,7 +1315,7 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .forReset = rp.commandsForReset()};
         return new GenericDebuggerEngine("Bridge (BridgeImpl)", new BridgeImpl({
             .debuggerRunData = rp.debugger(),
-            .inferiorStartData = inferiorStartData,
+            .inferiorStartData = inferiorStartData(rp),
             .dumperScriptsDir = ICore::resourcePath("debugger"),
             .bridgeStartData = dapHostRecipe(settings().loadGdbInit()),
             .extraDumperFiles = extraDumperFiles,
@@ -1325,6 +1324,9 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .sysroot = rp.sysRoot(),
             .sourcePathMap = sourcePathMap,
             .sourceDirectories = sourceDirectories,
+            .breakOnMain = rp.breakOnMain(),
+            .continueAfterAttach = rp.continueAfterAttach(),
+            .continueInsteadOfRun = rp.useContinueInsteadOfRun(),
             .nativeMixedDebugging = rp.isNativeMixedDebugging(),
             .skipKnownFrames = settings().skipKnownFrames(),
             .qtVersion = rp.qtVersion(),

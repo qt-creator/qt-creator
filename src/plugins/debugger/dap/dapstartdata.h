@@ -92,6 +92,9 @@ public:
     Utils::FilePath sysroot;
     QList<QPair<QString, QString>> sourcePathMap;
     Utils::FilePaths sourceDirectories;
+    bool breakOnMain = false;
+    bool continueAfterAttach = false;
+    bool continueInsteadOfRun = false;
     bool nativeMixedDebugging = false;
     bool skipKnownFrames = false;
     // Dumper context the interface's RefreshRequest does not carry.

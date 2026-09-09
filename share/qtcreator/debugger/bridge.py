@@ -134,6 +134,21 @@ class DapServer():
         self.attachMode = False
         self.dumperSetup = ''
 
+        # A remote server the session connects to, remembered between the
+        # request that names it and the configurationDone that connects.
+        self.remoteChannel = ''
+        self.remoteAttachPid = 0
+        self.remoteExecutable = ''
+        self.remoteCommandsAfterConnect = ''
+
+        # Whether the launch asked to stop at the main function, remembered
+        # between the launch request and the configurationDone that runs.
+        self.stopAtMain = False
+
+        # A core file the session was pointed at, remembered between the
+        # request that names it and the configurationDone that reads it.
+        self.coreFile = ''
+
         # The protocol stream. Set up by _claimStdio() before anything is
         # written; the inferior output pump uses it from its own thread.
         self.protocolFd = 1
@@ -561,6 +576,7 @@ class DapServer():
     def cmd_launch(self, request):
         self.attachMode = False
         arguments = request.get('arguments', {})
+        self.stopAtMain = bool(arguments.get('stopAtMain'))
         program = gdbLineArgument(arguments.get('program') or '', 'the program path')
         if not program:
             # Going on would leave gdb without an executable, and the session
@@ -612,7 +628,108 @@ class DapServer():
             return
         self.sendResponse(request)
 
+    def cmd_qtc_attachToRemoteServer(self, request):
+        # Only remembered here: connecting is deferred to configurationDone,
+        # just as running a launched inferior is.
+        arguments = request.get('arguments', {})
+        self.attachMode = True
+        channel = gdbLineArgument(arguments.get('channel') or '', 'the remote channel')
+        if not channel:
+            self.sendResponse(request, success=False, message='No usable remote channel')
+            return
+        symbolFile = gdbLineArgument(arguments.get('symbolFile') or '', 'the symbol file')
+        if symbolFile:
+            try:
+                gdb.execute('file %s' % quoteArgument(symbolFile), to_string=True)
+            except gdb.error as error:
+                self.sendResponse(request, success=False, message=str(error))
+                return
+        self.remoteChannel = channel
+        self.remoteAttachPid = int(arguments.get('attachPid', 0))
+        self.remoteExecutable = gdbLineArgument(arguments.get('remoteExecutable') or '',
+                                                'the remote executable') or ''
+        self.remoteCommandsAfterConnect = arguments.get('commandsAfterConnect') or ''
+        self.sendResponse(request)
+
+    def cmd_qtc_attachToCore(self, request):
+        # Only remembered here: reading the core is deferred to
+        # configurationDone, just as running a launched inferior is.
+        arguments = request.get('arguments', {})
+        self.attachMode = True
+        coreFile = gdbLineArgument(arguments.get('coreFile') or '', 'the core file')
+        if not coreFile:
+            self.sendResponse(request, success=False, message='No usable core file')
+            return
+        executable = gdbLineArgument(arguments.get('executable') or '', 'the executable')
+        if executable:
+            try:
+                gdb.execute('file %s' % quoteArgument(executable), to_string=True)
+            except gdb.error as error:
+                self.sendResponse(request, success=False, message=str(error))
+                return
+        self.coreFile = coreFile
+        self.sendResponse(request)
+
+    def _readCoreFile(self, request):
+        try:
+            gdb.execute('target core %s' % self.coreFile, to_string=True)
+        except gdb.error as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        self.sendResponse(request)
+        # The state the core recorded is all this session will ever see.
+        self._reportStopped()
+
+    def _connectToRemoteServer(self, request):
+        # 'target remote' takes over a stopped inferior and leaves no room for
+        # a follow-up, so anything still to be done needs the extended flavor.
+        followUp = self.remoteAttachPid or self.remoteExecutable
+        # The QNX flavour is this gdb's own: it names the target it was
+        # configured for, and the caller does not know.
+        useQnxTarget = 'qnx' in gdb.execute('show version', to_string=True)
+        if useQnxTarget:
+            connect = 'target qnx'
+        elif followUp:
+            connect = 'target extended-remote'
+        else:
+            connect = 'target remote'
+        try:
+            gdb.execute('%s %s' % (connect, self.remoteChannel), to_string=True)
+        except gdb.error as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        for command in self.remoteCommandsAfterConnect.split('\n'):
+            if command.strip():
+                self._executeAndReport(command)
+        if self.remoteAttachPid:
+            try:
+                gdb.execute('attach %d' % self.remoteAttachPid, to_string=True)
+            except gdb.error as error:
+                self.sendResponse(request, success=False, message=str(error))
+                return
+        elif self.remoteExecutable:
+            # No quoting: the command takes the rest of the line.
+            command = 'set nto-executable' if useQnxTarget \
+                      else 'set remote exec-file'
+            try:
+                gdb.execute('%s %s' % (command, self.remoteExecutable), to_string=True)
+            except gdb.error as error:
+                self.sendResponse(request, success=False, message=str(error))
+                return
+            self.sendResponse(request)
+            self._execute('run')
+            return
+        self.sendResponse(request)
+        self._reportStopped()
+        self._reportProcess()
+
     def cmd_configurationDone(self, request):
+        if self.coreFile:
+            self._readCoreFile(request)
+            return
+        if self.remoteChannel:
+            self._connectToRemoteServer(request)
+            return
         if self.attachMode:
             self.sendResponse(request)
             # Attaching already stopped the target; report the current state.
@@ -622,6 +739,10 @@ class DapServer():
 
         started = self._startInferior()
         self.sendResponse(request)
+        if started and self.stopAtMain:
+            # Starting stops at main, which is all that was asked for.
+            self._reportStopped()
+            return
         self._execute('continue' if started else 'run')
 
     def cmd_restart(self, request):
@@ -683,8 +804,13 @@ class DapServer():
     # Execution requests
     #######################################################################
 
+    def _isRunnable(self):
+        # A core file has the thread it recorded, so the threads alone do not
+        # say whether there is anything left to resume.
+        return bool(gdb.selected_inferior().threads()) and not self.coreFile
+
     def cmd_continue(self, request):
-        if not gdb.selected_inferior().threads():
+        if not self._isRunnable():
             self.sendResponse(request, success=False,
                               message='The program is not being run.')
             return
@@ -708,7 +834,7 @@ class DapServer():
         self._execute('reverse-nexti' if self._byInstruction(request) else 'reverse-next')
 
     def cmd_reverseContinue(self, request):
-        if not gdb.selected_inferior().threads():
+        if not self._isRunnable():
             self.sendResponse(request, success=False,
                               message='The program is not being run.')
             return

@@ -114,20 +114,31 @@ private:
 static DebuggerEngineSetupData bridgeImplSetupData()
 {
     DebuggerEngineSetupData data;
-    data.capabilities = ReloadModuleCapability | ReloadModuleSymbolsCapability
+    const unsigned coreCaps = AddWatcherCapability
+                            | AutoDerefPointersCapability
+                            | CreateFullBacktraceCapability
+                            | DisassemblerCapability
+                            | OperateByInstructionCapability
+                            | RegisterCapability
+                            | ShowMemoryCapability
+                            | ShowModuleSectionsCapability
+                            | ShowModuleSymbolsCapability
+                            | WatchComplexExpressionsCapability;
+    data.attachToCoreCapabilities = coreCaps;
+    data.capabilities = coreCaps
+                      | ReloadModuleCapability | ReloadModuleSymbolsCapability
                       | BreakConditionCapability | BreakIndividualLocationsCapability
                       | BreakOnThrowAndCatchCapability
-                      | ShowModuleSectionsCapability | ShowModuleSymbolsCapability
-                      | RunToLineCapability | AddWatcherCapability
-                      | AutoDerefPointersCapability | WatchComplexExpressionsCapability
-                      | RegisterCapability | ShowMemoryCapability | DisassemblerCapability
-                      | OperateByInstructionCapability | JumpToLineCapability
+                      | RunToLineCapability | JumpToLineCapability
                       | WatchpointByAddressCapability | WatchpointByExpressionCapability
-                      | CreateFullBacktraceCapability | ResetInferiorCapability
+                      | ResetInferiorCapability
                       | ReturnFromFunctionCapability | ReverseSteppingCapability
                       | SnapshotCapability
                       | TracePointCapability;
-    data.extraCapabilities = DebuggerExtraCapability::Detach
+    data.extraCapabilities = DebuggerExtraCapability::BreakOnMain
+                           | DebuggerExtraCapability::ContinueAfterAttach
+                           | DebuggerExtraCapability::ContinueInsteadOfRun
+                           | DebuggerExtraCapability::Detach
                            | DebuggerExtraCapability::JumpTargetCheck
                            | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::PeripheralRegisters
@@ -137,7 +148,9 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                            | DebuggerExtraCapability::ThreadEvent
                            | DebuggerExtraCapability::SourceFiles
                            | DebuggerExtraCapability::Threads;
-    data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess;
+    data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess
+                      | DebuggerStartModeFlag::AttachToRemoteServer
+                      | DebuggerStartModeFlag::AttachToCore;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
@@ -286,6 +299,28 @@ void BridgeImpl::postLaunchOrAttach()
         return;
     }
 
+    if (const auto remote = std::get_if<AttachToRemoteServerData>(&m_startData.inferiorStartData)) {
+        QJsonObject args{{"channel", remote->channel}};
+        if (!remote->symbolFile.isEmpty())
+            args.insert("symbolFile", remote->symbolFile.path());
+        if (remote->attachPid.isValid())
+            args.insert("attachPid", qint64(remote->attachPid.pid()));
+        if (!remote->remoteExecutable.isEmpty())
+            args.insert("remoteExecutable", remote->remoteExecutable.nativePath());
+        const QStringList &afterConnect = m_startData.userCommands.afterConnect;
+        if (!afterConnect.isEmpty())
+            args.insert("commandsAfterConnect", afterConnect.join('\n'));
+        postRequest("qtc/attachToRemoteServer", args);
+        return;
+    }
+
+    if (const auto core = std::get_if<AttachToCoreData>(&m_startData.inferiorStartData)) {
+        postRequest("qtc/attachToCore",
+                    QJsonObject{{"coreFile", core->coreFile.nativePath()},
+                                {"executable", core->executable.nativePath()}});
+        return;
+    }
+
     const auto runData = std::get_if<ProcessRunData>(&m_startData.inferiorStartData);
     QTC_ASSERT(runData, emit inferiorEvent(InferiorEvent::EngineRunFailed); return);
 
@@ -297,6 +332,8 @@ void BridgeImpl::postLaunchOrAttach()
                      {"args", inferiorArguments}};
     if (!runData->workingDirectory.isEmpty())
         args.insert("cwd", runData->workingDirectory.path());
+    if (m_startData.breakOnMain)
+        args.insert("stopAtMain", true);
 
     Environment debuggerEnv = m_startData.debuggerRunData.environment;
     debuggerEnv.setupEnglishOutput();
@@ -378,10 +415,6 @@ void BridgeImpl::execute(const ExecutionRequest &request)
             m_client->sendContinue(m_currentThreadId);
         return;
     case ExecutionCommand::Interrupt:
-        if (m_stopPending) {
-            m_stopRequested = true;
-            return;
-        }
         if (m_resumePending) {
             m_interruptOnceRunning = true;
             return;
@@ -687,15 +720,37 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         return;
     }
     case DapResponseType::ConfigurationDone: {
+        if (!success) {
+            emit message(response.value("message").toString(), LogError);
+            emit inferiorEvent(InferiorEvent::EngineRunFailed);
+            return;
+        }
+        if (std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData)) {
+            // A core is read, not run: the state it recorded ends the setup.
+            m_reportsSetupStop = true;
+            return;
+        }
+        const auto remote = std::get_if<AttachToRemoteServerData>(&m_startData.inferiorStartData);
+        if (remote && remote->remoteExecutable.isEmpty()) {
+            // The server hands its target over stopped, so the engine never
+            // sees it run: the stop that follows is the end of the setup.
+            m_reportsSetupStop = true;
+            m_inferiorRunning = false;
+            return;
+        }
+        if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
+            // Attaching stops the process, so that stop ends the setup too.
+            m_reportsSetupStop = true;
+            m_inferiorRunning = false;
+            return;
+        }
         emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
-        const bool attaching
-            = std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData);
-        m_inferiorRunning = !attaching;
-        m_stopPending = attaching;
+        m_inferiorRunning = true;
         return;
     }
     case DapResponseType::Continue:
         if (!success && response.value("message").toString() == "The program is not being run.") {
+            m_resumePending = false;
             emit inferiorEvent(InferiorEvent::InferiorIll);
             return;
         }
@@ -727,6 +782,11 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
     if (command == "stepBack" || command == "reverseContinue"
         || command == "qtc/reverseStepIn" || command == "qtc/reverseStepOut") {
         handleResumeResponse(success);
+    } else if (command == "qtc/attachToCore" || command == "qtc/attachToRemoteServer") {
+        if (!success) {
+            emit message(response.value("message").toString(), LogError);
+            emit inferiorEvent(InferiorEvent::EngineRunFailed);
+        }
     } else if (command == "qtc/createSnapshot") {
         const SnapshotRequest request
             = m_snapshotRequests.take(response.value("request_seq").toInt());
@@ -1176,7 +1236,6 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
     m_inferiorRunning = false;
     m_inferiorResumed = false;
     m_interruptOnceResumed = false;
-    m_stopPending = false;
 
     // The stop a shutdown had to force to get its own request read is not one
     // anybody asked for, and neither is the signal that made it.
@@ -1200,6 +1259,26 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
 
 void BridgeImpl::reportStop()
 {
+    if (std::exchange(m_reportsSetupStop, false)) {
+        m_stopRequested = false;
+        if (std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData)) {
+            emit inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
+            return;
+        }
+        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+        if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
+            if (m_startData.continueAfterAttach)
+                execute({ExecutionCommand::Continue});
+            return;
+        }
+        // Attaching to a process the server was pointed at stops it, and the
+        // session is expected to hand it back running, while a target that was
+        // handed over loaded is only resumed when the run asked for it.
+        const auto remote = std::get_if<AttachToRemoteServerData>(&m_startData.inferiorStartData);
+        if (remote && (remote->attachPid.isValid() || m_startData.continueInsteadOfRun))
+            execute({ExecutionCommand::Continue});
+        return;
+    }
     if (!m_deferredRequests.isEmpty()) {
         const QList<DeferredRequest> requests = std::exchange(m_deferredRequests, {});
         m_stopRequested = false;
