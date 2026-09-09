@@ -846,10 +846,17 @@ void TerminalSurface::clearAll()
 
 void TerminalSurface::resize(QSize newSize)
 {
+    if (newSize.width() < 1 || newSize.height() < 1)
+        return;
+
     if (newSize == d->liveSize())
         return;
 
     if (d->m_altscreen) {
+        // Nothing needs laying out while the alternate screen is up, but the
+        // scrollback stores logical lines that wrap when they are read, so it
+        // still has to learn the new width.
+        d->m_scrollback->setWidth(newSize.width());
         vterm_set_size(d->m_vterm.get(), newSize.height(), newSize.width());
         return;
     }

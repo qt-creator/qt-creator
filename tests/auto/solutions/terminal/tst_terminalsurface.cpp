@@ -833,6 +833,26 @@ private slots:
         QCOMPARE(surfaceText(), expected);
     }
 
+    void wideningInAltscreenKeepsTheScrollbackContent()
+    {
+        initSurface({20, 6});
+
+        const QString expected = write({QString(45, 'C'), "d0", "d1", "d2", "d3", "d4"});
+        QVERIFY(m_surface->fullSize().height() > m_surface->liveSize().height());
+
+        m_surface->dataFromPty("\x1b[?1049h");
+        resizeTo({40, 6});
+        m_surface->dataFromPty("\x1b[?1049l");
+
+        QCOMPARE(m_surface->liveSize().width(), 40);
+
+        // Reading every cell is what the renderer does on the next repaint. The
+        // scrollback holds logical lines that wrap when read, so widening has to
+        // reach it too: otherwise the columns are bounded by the new width while
+        // the row buffer is still built for the old one.
+        QCOMPARE(surfaceText(), expected);
+    }
+
     void aCellFilledWithCombiningMarksIsNotReadPastItsEnd()
     {
         initSurface({20, 4});
