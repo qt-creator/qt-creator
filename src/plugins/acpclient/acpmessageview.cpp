@@ -6,6 +6,7 @@
 #include "acpclienttr.h"
 #include "acpelicitationhandler.h"
 #include "acpsettings.h"
+#include "chatfontscale.h"
 #include "collapsibleframe.h"
 #include "sessionpickerwidget.h"
 #include "toolcalldetailwidget.h"
@@ -32,6 +33,7 @@
 #include <limits>
 
 #include <QAbstractTextDocumentLayout>
+#include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDateTime>
@@ -147,7 +149,7 @@ protected:
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
         const QColor bg = Utils::creatorColor(Utils::Theme::Token_Foreground_Default);
-        Utils::StyleHelper::drawCardBg(&p, rect(), bg, Qt::NoPen, RadiusS);
+        Utils::StyleHelper::drawCardBg(&p, rect(), bg, Qt::NoPen, chatRadius(RadiusS));
     }
 
 private:
@@ -173,6 +175,7 @@ public:
         setTextColor(Utils::creatorColor(Utils::Theme::Token_Text_Default));
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         setMinimumWidth(1);
+        setupChatBrowser(this);
 
         m_renderTimer = new QTimer(this);
         m_renderTimer->setSingleShot(true);
@@ -188,6 +191,7 @@ public:
                 m_heightUpdatePending = true;
                 QTimer::singleShot(0, this, [this] {
                     m_heightUpdatePending = false;
+                    m_cachedUnwrappedIdealWidth = -1;
                     updateBrowserHeight();
                     updateGeometry();
                 });
@@ -274,10 +278,10 @@ public:
         pal.setColor(QPalette::WindowText,
                      Utils::creatorColor(Utils::Theme::Token_Text_Subtle));
         m_label->setPalette(pal);
-        QFont f = m_label->font();
+        QFont f = QApplication::font();
         f.setItalic(true);
         f.setPointSizeF(f.pointSizeF() * 0.9);
-        m_label->setFont(f);
+        setChatFont(m_label, f);
         m_bodyLayout->addWidget(m_label);
     }
 
@@ -324,6 +328,7 @@ public:
         m_browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         m_browser->setMargins({0, 0, 0, 0});
         m_browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        setupChatBrowser(m_browser);
         connect(m_browser->document()->documentLayout(),
                 &QAbstractTextDocumentLayout::documentSizeChanged,
                 m_browser, [browser = m_browser] {
@@ -445,9 +450,7 @@ public:
         m_runningLabel = new QLabel(this);
         m_runningLabel->setWordWrap(true);
         m_runningLabel->setVisible(false);
-        QFont smallFont = m_runningLabel->font();
-        smallFont.setPointSizeF(smallFont.pointSizeF() * 0.9);
-        m_runningLabel->setFont(smallFont);
+        setChatFont(m_runningLabel, 0.9);
         runningRow->addWidget(m_runningLabel, 1);
         headerVBox->addLayout(runningRow);
 
@@ -545,7 +548,8 @@ protected:
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
         Utils::StyleHelper::drawCardBg(&p, rect(),
-            Utils::creatorColor(Utils::Theme::ChatToolCallBackground));
+            Utils::creatorColor(Utils::Theme::ChatToolCallBackground), Qt::NoPen,
+            chatRadius(RadiusS));
     }
 };
 
@@ -599,7 +603,8 @@ protected:
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
         Utils::StyleHelper::drawCardBg(&p, rect(),
-            Utils::creatorColor(Utils::Theme::ChatPlanBackground));
+            Utils::creatorColor(Utils::Theme::ChatPlanBackground), Qt::NoPen,
+            chatRadius(RadiusS));
     }
 };
 
@@ -720,12 +725,12 @@ protected:
     {
         QPainter p(this);
         const QColor bg = Utils::creatorColor(Utils::Theme::ChatToolCallBackground);
-        Utils::StyleHelper::drawCardBg(&p, rect(), bg);
+        Utils::StyleHelper::drawCardBg(&p, rect(), bg, Qt::NoPen, chatRadius(RadiusS));
         QRect clipRect = rect();
         clipRect.setWidth(3);
         p.setClipRect(clipRect);
         const QColor accent = Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Muted);
-        Utils::StyleHelper::drawCardBg(&p, rect(), accent);
+        Utils::StyleHelper::drawCardBg(&p, rect(), accent, Qt::NoPen, chatRadius(RadiusS));
     }
 
 private:
@@ -844,12 +849,12 @@ protected:
     {
         QPainter p(this);
         const QColor bg = Utils::creatorColor(Utils::Theme::ChatToolCallBackground);
-        Utils::StyleHelper::drawCardBg(&p, rect(), bg);
+        Utils::StyleHelper::drawCardBg(&p, rect(), bg, Qt::NoPen, chatRadius(RadiusS));
         QRect clipRect = rect();
         clipRect.setWidth(3);
         p.setClipRect(clipRect);
         const QColor accent = Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Muted);
-        Utils::StyleHelper::drawCardBg(&p, rect(), accent);
+        Utils::StyleHelper::drawCardBg(&p, rect(), accent, Qt::NoPen, chatRadius(RadiusS));
     }
 
 private:
@@ -1333,16 +1338,28 @@ static QString contextDeltaText(int contextDelta)
     return Tr::tr("%1 context").arg(sign + formatTokenCount(qAbs(contextDelta)));
 }
 
+static Utils::StyleHelper::TextFormat statsTextFormat()
+{
+    return {Utils::Theme::Token_Text_Muted, Utils::StyleHelper::UiElementCaption};
+}
+
 void applyStatsFormat(QLabel *label)
 {
-    Utils::StyleHelper::applyTf(
-        label,
-        {Utils::Theme::Token_Text_Muted, Utils::StyleHelper::UiElementCaption});
+    Utils::StyleHelper::applyTf(label, statsTextFormat());
+}
+
+// Stats shown inside the conversation follow the chat font scale.
+static void applyChatStatsFormat(QLabel *label)
+{
+    setChatTextFormat(label, statsTextFormat());
 }
 
 AcpMessageView::AcpMessageView(QWidget *parent)
     : QScrollArea(parent)
 {
+    setChatFont(this);
+    setChatSpacing(this);
+    enableChatZoom(this);
     setWidgetResizable(true);
     setFrameShape(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -1364,16 +1381,16 @@ AcpMessageView::AcpMessageView(QWidget *parent)
 
     m_elapsedLabel = new QLabel(trailingRow);
     m_elapsedLabel->setVisible(false);
-    QFont elapsedFont = m_elapsedLabel->font();
+    QFont elapsedFont = QApplication::font();
     elapsedFont.setPointSizeF(elapsedFont.pointSizeF() * 0.9);
     elapsedFont.setFamily(QStringLiteral("monospace"));
-    m_elapsedLabel->setFont(elapsedFont);
+    setChatFont(m_elapsedLabel, elapsedFont);
     trailingLayout->addWidget(m_elapsedLabel);
 
     m_usageLabel = new QLabel(trailingRow);
     m_usageLabel->setObjectName("liveUsage");
     m_usageLabel->setVisible(false);
-    applyStatsFormat(m_usageLabel);
+    applyChatStatsFormat(m_usageLabel);
     trailingLayout->addWidget(m_usageLabel);
 
     trailingLayout->addStretch();
@@ -1470,7 +1487,7 @@ void AcpMessageView::addTurnStats(int contextDelta, const std::optional<double> 
 
     auto *label = new QLabel(parts.join(QString(" %1 ").arg(QChar(0x00b7))), m_container);
     label->setObjectName("turnStats");
-    applyStatsFormat(label);
+    applyChatStatsFormat(label);
     label->setVisible(m_turnStatsVisible);
     m_turnStatsLabels.append(label);
     addWidget(label);

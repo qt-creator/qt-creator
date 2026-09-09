@@ -6,6 +6,7 @@
 #include "acpclienttr.h"
 #include "acpinspector.h"
 #include "acpsettings.h"
+#include "chatfontscale.h"
 
 #ifdef WITH_TESTS
 #include "acpclienttest.h"
@@ -55,6 +56,7 @@ public:
 #endif
 
         setupAcpSettings();
+        setupChatZoomActions(this);
 
         m_inspector = new AcpInspector;
 

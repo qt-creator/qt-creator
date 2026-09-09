@@ -3,6 +3,7 @@
 
 #include "sessionpickerwidget.h"
 #include "acpclienttr.h"
+#include "chatfontscale.h"
 
 #include <coreplugin/icore.h>
 
@@ -13,6 +14,7 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
+#include <QApplication>
 #include <QDateTime>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -127,7 +129,8 @@ protected:
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
         Utils::StyleHelper::drawCardBg(
-            &p, rect(), Utils::creatorColor(Utils::Theme::Token_Foreground_Muted));
+            &p, rect(), Utils::creatorColor(Utils::Theme::Token_Foreground_Muted), Qt::NoPen,
+            chatRadius(Utils::StyleHelper::SpacingTokens::RadiusS));
     }
 
     bool event(QEvent *e) override
@@ -148,10 +151,10 @@ private:
 static QLabel *createGroupHeaderLabel(const QString &text, QWidget *parent)
 {
     auto *label = new QLabel(text, parent);
-    QFont f = label->font();
+    QFont f = QApplication::font();
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() * 0.85);
-    label->setFont(f);
+    setChatFont(label, f);
     QPalette pal = label->palette();
     pal.setColor(QPalette::WindowText, pal.color(QPalette::PlaceholderText));
     label->setPalette(pal);

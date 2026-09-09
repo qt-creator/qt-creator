@@ -11,5 +11,6 @@ inline constexpr char SHOW_CHAT_ACTION_ID[] = "AcpClient.ShowChat";
 inline constexpr char OUTPUT_PANE_ID[] = "AcpClient.ChatPanel";
 inline constexpr char INSPECT_ACTION_ID[] = "AcpClient.Inspect";
 inline constexpr char SHOW_CHAT_SIDEPANEL_ACTION_ID[] = "AcpClient.ShowChatSidePanel";
+inline constexpr char C_ACP_CHAT[] = "AcpClient.Chat";
 
 } // namespace AcpClient::Constants

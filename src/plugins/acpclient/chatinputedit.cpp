@@ -3,6 +3,7 @@
 
 #include "chatinputedit.h"
 #include "acpclienttr.h"
+#include "chatfontscale.h"
 #include "chatinputcompletion.h"
 
 #include <utils/historycompleter.h>
@@ -60,6 +61,7 @@ ChatInputEdit::ChatInputEdit(QWidget *parent)
     };
     applyWidgetColors();
     connect(textDocument(), &TextEditor::TextDocument::fontSettingsChanged, this, applyWidgetColors);
+    enableChatZoom(this);
 
     m_completionProvider = new ChatInputCompletionProvider(this);
     textDocument()->setCompletionAssistProvider(m_completionProvider);

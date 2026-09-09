@@ -2,12 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "chatpanel.h"
+#include "acpclientconstants.h"
 #include "acpclienttr.h"
 #include "acpmessageview.h"
+#include "chatfontscale.h"
 #include "chatinputedit.h"
 #include "sessionpickerwidget.h"
 
 #include <coreplugin/coreicons.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/icore.h>
@@ -233,6 +236,7 @@ public:
         };
         applyWidgetColors();
         connect(textDocument(), &TextEditor::TextDocument::fontSettingsChanged, this, applyWidgetColors);
+        enableChatZoom(this);
     }
 
     // Pin the widget to a fixed number of text lines (used for the name editor).
@@ -491,6 +495,9 @@ private:
 ChatPanel::ChatPanel(QWidget *parent)
     : QWidget(parent)
 {
+    Core::IContext::attach(this, Core::Context(Constants::C_ACP_CHAT));
+    enableChatZoom(this);
+
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);

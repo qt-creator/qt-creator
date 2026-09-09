@@ -4,6 +4,7 @@
 #include "toolcalldetailwidget.h"
 
 #include "acpclienttr.h"
+#include "chatfontscale.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -20,6 +21,7 @@
 
 #include <QAbstractButton>
 #include <QAbstractTextDocumentLayout>
+#include <QApplication>
 #include <QHBoxLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -139,12 +141,13 @@ void ToolCallDetailWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     Utils::StyleHelper::drawCardBg(&p, rect(),
-        Utils::creatorColor(Utils::Theme::ChatToolCallBackground), palette().color(QPalette::Mid));
+        Utils::creatorColor(Utils::Theme::ChatToolCallBackground), palette().color(QPalette::Mid),
+        chatRadius(RadiusS));
     QRect clipRect = rect();
     clipRect.setWidth(3);
     p.setClipRect(clipRect);
     const QColor accent = Utils::creatorColor(toolCallBorderColor(m_status));
-    Utils::StyleHelper::drawCardBg(&p, rect(), accent);
+    Utils::StyleHelper::drawCardBg(&p, rect(), accent, Qt::NoPen, chatRadius(RadiusS));
 }
 
 void ToolCallDetailWidget::setContentMaxWidth(int width)
@@ -241,6 +244,7 @@ void ToolCallDetailWidget::addMarkdownContent(const QString &markdown)
     browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     browser->setMargins({0, 0, 0, 0});
     browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    setupChatBrowser(browser);
 
     // Auto-size height on document size changes (content change and reflow)
     connect(browser->document()->documentLayout(),
@@ -340,10 +344,10 @@ void ToolCallDetailWidget::addRawInputContent(const QJsonValue &rawInput)
             m_commandLabel = new QLabel(this);
             m_commandLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
             m_commandLabel->setWordWrap(true);
-            QFont mono = m_commandLabel->font();
+            QFont mono = QApplication::font();
             mono.setStyleHint(QFont::Monospace);
             mono.setFamily(QFont(QStringLiteral("monospace")).defaultFamily());
-            m_commandLabel->setFont(mono);
+            setChatFont(m_commandLabel, mono);
             if (m_contentMaxWidth >= 0)
                 m_commandLabel->setMaximumWidth(m_contentMaxWidth);
             m_bodyLayout->insertWidget(0, m_commandLabel);
@@ -364,6 +368,7 @@ void ToolCallDetailWidget::addRawInputContent(const QJsonValue &rawInput)
         browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         browser->setMargins({0, 0, 0, 0});
         browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        setupChatBrowser(browser);
 
         connect(browser->document()->documentLayout(),
                 &QAbstractTextDocumentLayout::documentSizeChanged,

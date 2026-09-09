@@ -4,22 +4,35 @@
 #include "acpclienttest.h"
 
 #include "acpchatcontroller.h"
+#include "acpclientconstants.h"
 #include "acpclientobject.h"
 #include "acpmessageview.h"
 #include "acppermissionhandler.h"
 #include "acpsettings.h"
 #include "acpstdiotransport.h"
 #include "acptransport.h"
+#include "chatfontscale.h"
+#include "chatinputedit.h"
 #include "chatpanel.h"
 
 #include <acp/acp.h>
 #include <acp/acpv2.h>
+
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+
+#include <texteditor/fontsettings.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/markdownbrowser.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -34,6 +47,8 @@
 #include <QLocale>
 #include <QScopeGuard>
 #include <QTest>
+#include <QVBoxLayout>
+#include <QWheelEvent>
 
 using namespace Acp;
 using namespace Utils;
@@ -508,6 +523,14 @@ private slots:
     void testChatPanelElicitationUnsupportedRequired();
     void testChatPanelElicitationNumberPrecision();
     void testChatPanelClearAnswersPendingRequests();
+    void testChatPanelFontScale();
+    void testChatPanelStatsScale();
+    void testChatPanelSpacingScale();
+    void testChatPanelSpacingBaseAfterAttach();
+    void testChatPanelSpacingStepsDoNotDrift();
+    void testChatPanelCornerRadiusScale();
+    void testChatPanelWheelZoom();
+    void testChatPanelZoomCommands();
 };
 
 // --- Tier 1a -----------------------------------------------------------------
@@ -2481,6 +2504,292 @@ void AcpClientTest::testChatPanelClearAnswersPendingRequests()
     panel.clear();
     QCOMPARE(cancelledPermissions.size(), 1);
     QCOMPARE(cancelledElicitations.size(), 1);
+}
+
+// The scale applies to the conversation only. The input area - its editor and
+// its controls - stays at the application font.
+void AcpClientTest::testChatPanelFontScale()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    ChatPanel panel;
+    panel.appendAgentText("Hello");
+    panel.finishAgentMessage();
+
+    auto *browser = panel.messageView()->findChild<Utils::MarkdownBrowser *>();
+    QVERIFY(browser);
+    const qreal messageSize = browser->font().pointSizeF();
+    const qreal messageViewSize = panel.messageView()->font().pointSizeF();
+    const qreal inputAreaSize = panel.font().pointSizeF();
+
+    ChatFontScale::setScale(1.5);
+
+    QCOMPARE(browser->font().pointSizeF(), messageSize * 1.5);
+    QCOMPARE(panel.messageView()->font().pointSizeF(), messageViewSize * 1.5);
+    QCOMPARE(panel.font().pointSizeF(), inputAreaSize);
+    QCOMPARE(panel.inputEdit()->textDocument()->fontSettings().fontZoom(), 100);
+}
+
+// The stats lines of a finished turn are part of the conversation, so they
+// follow the scale - including the line height they are pinned to.
+void AcpClientTest::testChatPanelStatsScale()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    ChatPanel panel;
+    panel.setUsage(V2::UsageUpdate().used(100).size(1000));
+    panel.setPrompting(true);
+    panel.setUsage(V2::UsageUpdate().used(350).size(1000));
+    panel.setPrompting(false);
+
+    auto *statsLabel = panel.messageView()->findChild<QLabel *>(QLatin1String("turnStats"));
+    QVERIFY(statsLabel);
+    const qreal statsSize = statsLabel->font().pointSizeF();
+    const int lineHeight = statsLabel->minimumHeight();
+
+    ChatFontScale::setScale(2.0);
+
+    QCOMPARE(statsLabel->font().pointSizeF(), statsSize * 2);
+    QCOMPARE(statsLabel->minimumHeight(), lineHeight * 2);
+}
+
+// The message widget that was added last, before the trailing stats row and
+// the bottom stretch.
+static QWidget *lastMessageWidget(const ChatPanel &panel)
+{
+    QLayout *layout = panel.messageView()->widget()->layout();
+    QLayoutItem *item = layout->itemAt(layout->count() - 3);
+    return item ? item->widget() : nullptr;
+}
+
+// Spacings and margins inside the conversation stay in proportion with the
+// text, for the widgets present when the chat is zoomed and for the ones that
+// arrive afterwards.
+void AcpClientTest::testChatPanelSpacingScale()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    ElicitationRequest request;
+    request.mode = ElicitationRequest::Mode::Form;
+    request.requestedSchema = V2::ElicitationSchema().addProperty(
+        "name", V2::StringPropertySchema());
+
+    ChatPanel panel;
+    QLayout *messageLayout = panel.messageView()->widget()->layout();
+    QVERIFY(messageLayout);
+    const int spacing = messageLayout->spacing();
+    const QMargins margins = messageLayout->contentsMargins();
+    QVERIFY(spacing > 0);
+
+    panel.addElicitationRequest(QJsonValue(41), request);
+    QWidget *zoomedLater = lastMessageWidget(panel);
+    QVERIFY(zoomedLater);
+
+    ChatFontScale::setScale(2.0);
+
+    QCOMPARE(messageLayout->spacing(), spacing * 2);
+    QCOMPARE(messageLayout->contentsMargins(), margins * 2);
+
+    // The same request, built while the chat is already zoomed, has to end up
+    // with the same spacings as the one that was rescaled.
+    panel.addElicitationRequest(QJsonValue(42), request);
+    QWidget *builtZoomed = lastMessageWidget(panel);
+    QVERIFY(builtZoomed);
+    QVERIFY(builtZoomed != zoomedLater);
+    QCOMPARE(builtZoomed->layout()->spacing(), zoomedLater->layout()->spacing());
+    QCOMPARE(builtZoomed->sizeHint(), zoomedLater->sizeHint());
+}
+
+// A widget that configures its layout the way QWidget subclasses in and below
+// Qt do - QAbstractScrollArea's scroll bar containers among them: attach it
+// first, set the spacings afterwards.
+class LateSpacingWidget : public QWidget
+{
+public:
+    explicit LateSpacingWidget(QWidget *parent)
+        : QWidget(parent)
+    {
+        auto *layout = new QVBoxLayout;
+        setLayout(layout);
+        layout->setContentsMargins(4, 4, 4, 4);
+        layout->setSpacing(2);
+        layout->addWidget(new QLabel("late", this));
+    }
+};
+
+// The spacings a widget sets in its own constructor are the base of the scale,
+// not the style defaults its layout carried while it was still empty.
+void AcpClientTest::testChatPanelSpacingBaseAfterAttach()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    QWidget root;
+    auto *rootLayout = new QVBoxLayout(&root);
+    setChatSpacing(&root);
+
+    // Parented before its constructor body runs, so the scaler sees the layout
+    // being attached.
+    auto *late = new LateSpacingWidget(&root);
+    rootLayout->addWidget(late);
+
+    QCOMPARE(late->layout()->contentsMargins(), QMargins(4, 4, 4, 4));
+    QCOMPARE(late->layout()->spacing(), 2);
+
+    ChatFontScale::setScale(2.0);
+
+    QCOMPARE(late->layout()->contentsMargins(), QMargins(8, 8, 8, 8));
+    QCOMPARE(late->layout()->spacing(), 4);
+
+    // A second step scales the same base, and is not the base itself.
+    ChatFontScale::setScale(3.0);
+
+    QCOMPARE(late->layout()->contentsMargins(), QMargins(12, 12, 12, 12));
+    QCOMPARE(late->layout()->spacing(), 6);
+}
+
+// Every step of the zoom scales the base the widget set itself. Stepping the
+// way Ctrl+wheel does, or zooming back out, must land on the same spacings as
+// reaching that scale in one go.
+void AcpClientTest::testChatPanelSpacingStepsDoNotDrift()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    const int baseSpacing = 3;
+    const int baseMargin = 4;
+
+    QWidget root;
+    auto *rootLayout = new QVBoxLayout(&root);
+    rootLayout->setContentsMargins(baseMargin, baseMargin, baseMargin, baseMargin);
+    rootLayout->setSpacing(baseSpacing);
+    rootLayout->addWidget(new QLabel("step", &root));
+    setChatSpacing(&root);
+
+    const qreal steps[] = {1.1, 1.2, 1.3, 1.4, 1.5, 1.0, 2.0, 3.0, 4.0, 1.0};
+    for (const qreal scale : steps) {
+        ChatFontScale::setScale(scale);
+        const int margin = qRound(baseMargin * scale);
+        QCOMPARE(rootLayout->spacing(), qRound(baseSpacing * scale));
+        QCOMPARE(rootLayout->contentsMargins(), QMargins(margin, margin, margin, margin));
+    }
+}
+
+// Number of pixels in the top left corner square that carry the full
+// background color, which shrinks as the corner gets rounder.
+static int filledCornerPixels(QWidget *widget, const QColor &fill)
+{
+    const QImage image = widget->grab().toImage();
+    const int size = qMin(12, qMin(image.width(), image.height()));
+    int count = 0;
+    for (int y = 0; y < size; ++y) {
+        for (int x = 0; x < size; ++x) {
+            if (image.pixelColor(x, y) == fill)
+                ++count;
+        }
+    }
+    return count;
+}
+
+// The rounded corners of the message bubbles follow the chat scale.
+void AcpClientTest::testChatPanelCornerRadiusScale()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    ChatPanel panel;
+    panel.addUserMessage("Hello");
+
+    QLabel *messageLabel = nullptr;
+    const QList<QLabel *> labels = panel.messageView()->findChildren<QLabel *>();
+    for (QLabel *label : labels) {
+        if (label->text() == "Hello") {
+            messageLabel = label;
+            break;
+        }
+    }
+    QVERIFY(messageLabel);
+    QWidget *bubble = messageLabel->parentWidget();
+    QVERIFY(bubble);
+    // Only the background of the bubble is of interest here, and the text would
+    // move around with the scale.
+    messageLabel->hide();
+    // A fixed size keeps the scale from changing the geometry as well, so the
+    // corner is the only difference between the two renderings.
+    bubble->setFixedSize(200, 60);
+
+    const QColor fill = Utils::creatorColor(Utils::Theme::Token_Foreground_Default);
+    const int roundedBySmallRadius = filledCornerPixels(bubble, fill);
+    QVERIFY(roundedBySmallRadius > 0);
+
+    ChatFontScale::setScale(2.0);
+
+    QVERIFY(filledCornerPixels(bubble, fill) < roundedBySmallRadius);
+}
+
+// The chat carries its own context, so Qt Creator's zoom commands - and
+// whatever shortcuts are configured for them - operate on the chat scale while
+// the chat has the focus.
+void AcpClientTest::testChatPanelZoomCommands()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.5);
+
+    ChatPanel panel;
+    const QList<Core::IContext *> contexts = Core::ICore::contextObjects(&panel);
+    QVERIFY(Utils::anyOf(contexts, [](const Core::IContext *context) {
+        return context->context().contains(Constants::C_ACP_CHAT);
+    }));
+
+    const auto chatAction = [](Utils::Id commandId) -> QAction * {
+        Core::Command *command = Core::ActionManager::command(commandId);
+        return command ? command->actionForContext(Constants::C_ACP_CHAT) : nullptr;
+    };
+
+    QAction *zoomIn = chatAction(Core::Constants::ZOOM_IN);
+    QAction *zoomOut = chatAction(Core::Constants::ZOOM_OUT);
+    QAction *resetZoom = chatAction(Core::Constants::ZOOM_RESET);
+    QVERIFY(zoomIn);
+    QVERIFY(zoomOut);
+    QVERIFY(resetZoom);
+
+    zoomIn->trigger();
+    QCOMPARE(ChatFontScale::scale(), 1.6);
+    zoomOut->trigger();
+    QCOMPARE(ChatFontScale::scale(), 1.5);
+    resetZoom->trigger();
+    QCOMPARE(ChatFontScale::scale(), 1.0);
+}
+
+// Ctrl+wheel over the message view zooms the chat in ten percent steps.
+void AcpClientTest::testChatPanelWheelZoom()
+{
+    const qreal originalScale = ChatFontScale::scale();
+    const QScopeGuard restoreScale([originalScale] { ChatFontScale::setScale(originalScale); });
+    ChatFontScale::setScale(1.0);
+
+    ChatPanel panel;
+    QWidget *viewport = panel.messageView()->viewport();
+
+    QWheelEvent zoomIn({}, {}, {}, {0, 120}, Qt::NoButton, Qt::ControlModifier,
+                       Qt::NoScrollPhase, false);
+    QVERIFY(QCoreApplication::sendEvent(viewport, &zoomIn));
+    QCOMPARE(ChatFontScale::scale(), 1.1);
+
+    QWheelEvent zoomOut({}, {}, {}, {0, -120}, Qt::NoButton, Qt::ControlModifier,
+                        Qt::NoScrollPhase, false);
+    QVERIFY(QCoreApplication::sendEvent(viewport, &zoomOut));
+    QCOMPARE(ChatFontScale::scale(), 1.0);
 }
 
 QObject *createAcpClientTest()

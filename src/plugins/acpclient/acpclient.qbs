@@ -51,6 +51,8 @@ Project {
             "acpterminalhandler.h",
             "acptransport.cpp",
             "acptransport.h",
+            "chatfontscale.cpp",
+            "chatfontscale.h",
             "chatinputcompletion.cpp",
             "chatinputcompletion.h",
             "chatinputedit.cpp",
