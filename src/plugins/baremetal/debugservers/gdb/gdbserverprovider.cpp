@@ -22,6 +22,7 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace BareMetal::Internal {
@@ -163,7 +164,7 @@ Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp
     return ResultOk;
 }
 
-std::optional<ProcessTask> GdbServerProvider::targetProcess(RunControl *runControl) const
+std::optional<BarrierKickerGetter> GdbServerProvider::serverRunner(RunControl *runControl) const
 {
     const CommandLine cmd = command();
     if (m_startupMode != GdbServerProvider::StartupOnNetwork || cmd.isEmpty())
@@ -171,10 +172,13 @@ std::optional<ProcessTask> GdbServerProvider::targetProcess(RunControl *runContr
 
     // Command arguments are in host OS style as the bare metal's GDB servers are launched
     // on the host, not on that target.
-    return runControl->processTaskWithModifier([cmd](Process &process) {
-        // Baremetal's GDB servers are launched on the host, not on the target.
-        process.setCommand(cmd.toLocal());
-    });
+    return [this, runControl, cmd](const QStoredBarrier &ready) {
+        return runControl->processTaskWithModifier([this, runControl, cmd, ready](Process &process) {
+            // Baremetal's GDB servers are launched on the host, not on the target.
+            process.setCommand(cmd.toLocal());
+            connectReadyBarrier(runControl, process, ready.activeStorage());
+        });
+    };
 }
 
 void GdbServerProvider::fromMap(const Store &data)

@@ -49,7 +49,7 @@ public:
 
     Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
         ProjectExplorer::RunControl *runControl) const final;
-    std::optional<Utils::ProcessTask> targetProcess(
+    std::optional<QtTaskTree::BarrierKickerGetter> serverRunner(
         ProjectExplorer::RunControl *runControl) const final;
 
     bool isValid() const override;

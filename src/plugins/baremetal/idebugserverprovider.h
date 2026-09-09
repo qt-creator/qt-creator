@@ -5,6 +5,8 @@
 
 #include <debugger/debuggerconstants.h>
 
+#include <QtTaskTree/QBarrier>
+
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 #include <utils/result.h>
@@ -66,13 +68,20 @@ public:
 
     virtual Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
             ProjectExplorer::RunControl *runControl) const = 0;
-    virtual std::optional<Utils::ProcessTask> targetProcess(
+    virtual std::optional<QtTaskTree::BarrierKickerGetter> serverRunner(
             ProjectExplorer::RunControl *runControl) const = 0;
 
     virtual bool isValid() const = 0;
     virtual bool isSimulator() const { return false; }
 
+    // Text the debug server writes once it accepts debugger connections. When
+    // it is empty, the server counts as ready as soon as it has started.
+    virtual QString readyMessage() const { return {}; }
+
 protected:
+    void connectReadyBarrier(ProjectExplorer::RunControl *runControl, Utils::Process &process,
+                             QtTaskTree::QBarrier *barrier) const;
+
     void setTypeDisplayName(const QString &typeDisplayName);
     void setEngineType(Debugger::DebuggerEngineType engineType);
 
@@ -173,5 +182,9 @@ protected:
     QLineEdit *m_hostLineEdit = nullptr;
     QSpinBox *m_portSpinBox = nullptr;
 };
+
+#ifdef WITH_TESTS
+QObject *createDebugServerReadyTest();
+#endif // WITH_TESTS
 
 } // namespace BareMetal::Internal

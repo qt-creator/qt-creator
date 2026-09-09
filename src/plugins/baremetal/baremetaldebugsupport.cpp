@@ -47,12 +47,12 @@ public:
             if (Result<> res = p->setupDebuggerRunParameters(rp, runControl); !res)
                 return runControl->errorTask(res.error());
 
-            const std::optional<ProcessTask> targetRunner = p->targetProcess(runControl);
-            if (!targetRunner)
+            const std::optional<BarrierKickerGetter> serverRunner = p->serverRunner(runControl);
+            if (!serverRunner)
                 return debuggerRecipe(runControl, rp);
 
             return {
-                When (*targetRunner, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+                When (*serverRunner, WorkflowPolicy::StopOnSuccessOrError) >> Do {
                     debuggerRecipe(runControl, rp)
                 }
             };

@@ -69,6 +69,8 @@ public:
 private:
     explicit OpenOcdGdbServerProvider();
 
+    QString readyMessage() const final { return {"for gdb connections"}; }
+
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 

@@ -29,6 +29,7 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace BareMetal::Internal {
@@ -187,12 +188,15 @@ Result<> UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &r
     return ResultOk;
 }
 
-std::optional<ProcessTask> UvscServerProvider::targetProcess(RunControl *runControl) const
+std::optional<BarrierKickerGetter> UvscServerProvider::serverRunner(RunControl *runControl) const
 {
-    return runControl->processTaskWithModifier([this, runControl](Process &process) {
-        process.setCommand({DebuggerKitAspect::runnable(runControl->kit()).command.executable(),
-                            {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}});
-    });
+    return [this, runControl](const QStoredBarrier &ready) {
+        return runControl->processTaskWithModifier([this, runControl, ready](Process &process) {
+            process.setCommand({DebuggerKitAspect::runnable(runControl->kit()).command.executable(),
+                                {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}});
+            connectReadyBarrier(runControl, process, ready.activeStorage());
+        });
+    };
 }
 
 void UvscServerProvider::fromMap(const Store &data)

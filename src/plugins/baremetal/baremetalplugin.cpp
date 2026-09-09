@@ -10,6 +10,7 @@
 
 #include "iarewparser.h"
 #include "iarewtoolchain.h"
+#include "idebugserverprovider.h"
 #include "keilparser.h"
 #include "keiltoolchain.h"
 #include "sdccparser.h"
@@ -60,6 +61,7 @@ class BareMetalPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createIarParserTest);
         addTestCreator(createKeilParserTest);
         addTestCreator(createSdccParserTest);
+        addTestCreator(createDebugServerReadyTest);
 #endif
     }
 

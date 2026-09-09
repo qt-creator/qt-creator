@@ -8,6 +8,7 @@
 #include "debugserverprovidermanager.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/qtcassert.h>
 
@@ -15,10 +16,12 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QTimer>
 #include <QUuid>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace QtTaskTree;
 using namespace Utils;
 
 namespace BareMetal::Internal {
@@ -29,6 +32,8 @@ const char engineTypeKeyC[] = "EngineType";
 
 const char hostKeyC[] = "Host";
 const char portKeyC[] = "Port";
+
+const std::chrono::seconds readyTimeout(10);
 
 static QString createId(const QString &id)
 {
@@ -88,6 +93,36 @@ QUrl IDebugServerProvider::channel() const
 QString IDebugServerProvider::channelPipe() const
 {
     return {};
+}
+
+void IDebugServerProvider::connectReadyBarrier(RunControl *runControl, Process &process,
+                                               QBarrier *barrier) const
+{
+    QTC_ASSERT(barrier, return);
+    const QString message = readyMessage();
+    if (message.isEmpty()) {
+        QObject::connect(&process, &Process::started, barrier, &QBarrier::advance);
+        return;
+    }
+
+    process.setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
+    process.setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
+    const auto onText = [barrier, message](const QString &text) {
+        if (text.contains(message))
+            barrier->advance();
+    };
+    QObject::connect(&process, &Process::textOnStandardOutput, barrier, onText);
+    QObject::connect(&process, &Process::textOnStandardError, barrier, onText);
+    QObject::connect(&process, &Process::started, barrier, [runControl, barrier] {
+        QTimer::singleShot(readyTimeout, barrier, [runControl, barrier] {
+            if (barrier->isRunning()) {
+                runControl->postMessage(Tr::tr("The debug server has not announced that it is "
+                                               "ready. Starting the debugger anyway."),
+                                        ErrorMessageFormat);
+                barrier->advance();
+            }
+        });
+    });
 }
 
 QString IDebugServerProvider::id() const
@@ -346,3 +381,132 @@ QUrl HostWidget::channel() const
 }
 
 } // BareMetal::Internal
+
+#ifdef WITH_TESTS
+
+#include "baremetalconstants.h"
+
+#include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/algorithm.h>
+
+#include <QTest>
+
+namespace BareMetal::Internal {
+
+class ReadyMessageProvider final : public IDebugServerProvider
+{
+public:
+    explicit ReadyMessageProvider(const QString &message)
+        : IDebugServerProvider("Test"), m_message(message)
+    {}
+
+    Result<> setupDebuggerRunParameters(DebuggerRunParameters &, RunControl *) const final
+    { return ResultOk; }
+    std::optional<BarrierKickerGetter> serverRunner(RunControl *) const final { return {}; }
+    bool isValid() const final { return true; }
+    QString readyMessage() const final { return m_message; }
+
+    using IDebugServerProvider::connectReadyBarrier;
+
+private:
+    const QString m_message;
+};
+
+class DebugServerReadyTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testReadyBarrier_data();
+    void testReadyBarrier();
+    void testOpenOcdReadyMessage();
+};
+
+void DebugServerReadyTest::testReadyBarrier_data()
+{
+    QTest::addColumn<QString>("readyMessage");
+    QTest::addColumn<QString>("standardOutput");
+    QTest::addColumn<QString>("standardError");
+    QTest::addColumn<bool>("readyOnStart");
+    QTest::addColumn<bool>("readyOnOutput");
+
+    const QString openOcdLine = "Info : Listening on port 3333 for gdb connections\n";
+
+    QTest::newRow("no ready message")
+        << QString() << QString() << QString() << true << true;
+    QTest::newRow("ready line on stderr")
+        << "for gdb connections" << QString() << openOcdLine << false << true;
+    QTest::newRow("ready line on stdout")
+        << "for gdb connections" << openOcdLine << QString() << false << true;
+    QTest::newRow("other output only")
+        << "for gdb connections" << "Info : clock speed 950 kHz\n"
+        << "Warn : target not examined yet\n" << false << false;
+}
+
+void DebugServerReadyTest::testReadyBarrier()
+{
+    QFETCH(QString, readyMessage);
+    QFETCH(QString, standardOutput);
+    QFETCH(QString, standardError);
+    QFETCH(bool, readyOnStart);
+    QFETCH(bool, readyOnOutput);
+
+    RunControl runControl(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    const ReadyMessageProvider provider(readyMessage);
+    Process process;
+    QStartedBarrier barrier;
+
+    provider.connectReadyBarrier(&runControl, process, &barrier);
+    QVERIFY(barrier.isRunning());
+
+    // What the process reports is under test here, not the process itself.
+    emit process.started();
+    QCOMPARE(!barrier.isRunning(), readyOnStart);
+
+    if (!standardOutput.isEmpty())
+        emit process.textOnStandardOutput(standardOutput);
+    if (!standardError.isEmpty())
+        emit process.textOnStandardError(standardError);
+    QCOMPARE(!barrier.isRunning(), readyOnOutput);
+}
+
+void DebugServerReadyTest::testOpenOcdReadyMessage()
+{
+    // Recorded from OpenOCD 0.12.0, which writes this to its standard error.
+    const QStringList lines = {
+        "Open On-Chip Debugger 0.12.0",
+        "Info : Listening on port 6666 for tcl connections",
+        "Info : Listening on port 4444 for telnet connections",
+        "Info : clock speed 950 kHz",
+        "Info : stm32f1x.cpu: hardware has 6 breakpoints, 4 watchpoints",
+        "Info : starting gdb server for stm32f1x.cpu on 3333",
+        "Info : Listening on port 3333 for gdb connections"
+    };
+
+    IDebugServerProviderFactory *factory
+        = Utils::findOrDefault(IDebugServerProviderFactory::factories(),
+                               [](IDebugServerProviderFactory *factory) {
+        return factory->id() == Constants::GDBSERVER_OPENOCD_PROVIDER_ID;
+    });
+    QVERIFY(factory);
+    const std::unique_ptr<IDebugServerProvider> provider(factory->create());
+
+    const QString message = provider->readyMessage();
+    QVERIFY(!message.isEmpty());
+    QVERIFY(lines.last().contains(message));
+    // Nothing the server writes before the gdb port is open may match.
+    for (qsizetype i = 0; i < lines.size() - 1; ++i)
+        QVERIFY2(!lines.at(i).contains(message), qPrintable(lines.at(i)));
+}
+
+QObject *createDebugServerReadyTest()
+{
+    return new DebugServerReadyTest;
+}
+
+} // BareMetal::Internal
+
+#endif // WITH_TESTS
+
+#include "idebugserverprovider.moc"
