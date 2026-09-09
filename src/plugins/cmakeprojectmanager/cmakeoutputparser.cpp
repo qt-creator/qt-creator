@@ -4,6 +4,7 @@
 #include "cmakeoutputparser.h"
 
 #include "cmakeprojectmanagertr.h"
+#include "qtinstallerpackages.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <updateinfo/updateinfoservice.h>
@@ -145,23 +146,27 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
             return {Status::InProgress, linkSpecs};
         }
         if (isUpdateInfoServiceAvailable()) {
-            QString packages;
+            QString components;
             if (m_nextLineIsPackageSpec) {
-                packages = trimmedLine.trimmed();
+                components = trimmedLine.trimmed();
                 m_nextLineIsPackageSpec = false;
             } else {
                 match = m_qtPackageError.match(trimmedLine);
                 if (match.hasMatch() && !m_lastTask.isNull()) {
-                    packages = match.captured(3);
-                    if (packages.isEmpty()) // CMake wrapped to the next line...
+                    m_qtVersion = match.captured(1);
+                    m_qtInstallerPlatform = match.captured(2);
+                    components = match.captured(3);
+                    if (components.isEmpty()) // CMake wrapped to the next line...
                         m_nextLineIsPackageSpec = true;
                 }
             }
-            if (!packages.isEmpty()) {
+            if (!components.isEmpty()) {
+                const QStringList packages = qtInstallerPackages(
+                    components.split(';', Qt::SkipEmptyParts), m_qtVersion, m_qtInstallerPlatform);
                 m_lastTask.addToDetails(trimmedLine.trimmed());
                 m_lastTask.addToDetails({});
                 m_lastTask.addLinkDetail(
-                    UpdateInfo::SERVICE_URL + packages,
+                    UpdateInfo::SERVICE_URL + packages.join(';'),
                     Tr::tr(
                         "👉 Click here to install the missing component with the Qt Online "
                         "Installer"));

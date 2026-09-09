@@ -247,7 +247,8 @@
         \li Matching parentheses and quotes
 
         \li A quick fix for creating files that a command names but which do
-            not exist yet, with
+            not exist yet, and for installing the Qt components that
+            \c find_package asks for but which you did not install, with
             \inlineimage {icons/refactormarker.png} {Light bulb icon}
             on the lines that name one
 
@@ -287,8 +288,20 @@
 
     Click the link to install the package with \QOI.
 
-    To turn off the messages, go to \preferences > \uicontrol CMake >
-    \uicontrol General and clear \uicontrol {Maintenance Tool dependency provider}.
+    You do not have to run CMake to get there. \QC marks the components that
+    the Qt of the kit does not have with
+    \inlineimage {icons/refactormarker.png} {Light bulb icon}.
+    Select it, or place the cursor on the name of the component, or anywhere
+    in the \c find_package call, select \key {Alt+Enter}, and then select
+    \uicontrol {Install Qt Component}. \QOI opens with the package that ships
+    the component.
+
+    Components that \c find_package lists as \c OPTIONAL_COMPONENTS are left
+    alone: a project that asks for those builds without them.
+
+    To turn off the messages and the light bulbs, go to \preferences >
+    \uicontrol CMake > \uicontrol General and clear
+    \uicontrol {Maintenance Tool dependency provider}.
 
     \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
 

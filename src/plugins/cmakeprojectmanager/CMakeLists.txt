@@ -51,6 +51,7 @@ add_qtc_plugin(CMakeProjectManager
     presetsparser.cpp presetsparser.h
     presetsmacros.cpp presetsmacros.h
     projecttreehelper.cpp projecttreehelper.h
+    qtinstallerpackages.cpp qtinstallerpackages.h
     targethelper.cpp targethelper.h
     testpresetshelper.cpp testpresetshelper.h
 )

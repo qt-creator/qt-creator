@@ -17,10 +17,12 @@ class TextDocument;
 namespace CMakeProjectManager::Internal {
 
 // The refactoring actions of the CMake editor. Offers to create the source
-// files a command names but which are not on disk yet.
+// files a command names but which are not on disk yet, and to install the Qt
+// components a find_package call asks for but which are not installed.
 TextEditor::IAssistProvider &cmakeQuickFixAssistProvider();
 
-// Marks the lines that name such a file with the quick fix light bulb.
+// Marks the lines that name such a file or component with the quick fix light
+// bulb.
 void setupCMakeQuickFixMarkers(TextEditor::TextDocument *document);
 
 #ifdef WITH_TESTS

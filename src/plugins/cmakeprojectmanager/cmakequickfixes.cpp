@@ -6,13 +6,23 @@
 #include "cmakebuildsystem.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakespecificsettings.h"
+#include "qtinstallerpackages.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitaspect.h>
+#include <qtsupport/qtversionmanager.h>
+
+#include <updateinfo/updateinfoservice.h>
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -29,10 +39,13 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 
+#include <QRegularExpression>
 #include <QTextBlock>
 #include <QTextDocument>
 #include <QTimer>
+#include <QVersionNumber>
 
+#include <functional>
 #include <optional>
 
 #ifdef WITH_TESTS
@@ -48,7 +61,7 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-const char REFACTOR_MARKER_ID[] = "CMakeEditor.CreateSourceFile";
+const char REFACTOR_MARKER_ID[] = "CMakeEditor.QuickFix";
 
 // The extensions CMake tries when it looks for a source file, plus the ones the
 // Qt CMake API takes as file arguments.
@@ -171,16 +184,198 @@ static QList<MissingSourceFile> missingSourceFilesOfCommand(CMakeLang::CommandAS
     return result;
 }
 
-// The missing source files the whole file names. Takes the text instead of a
-// document because it runs off the GUI thread.
-static QList<MissingSourceFile> missingSourceFilesOfText(const QString &text,
-                                                         const FilePath &directory)
+// The Qt of the kit a CMake file is configured with, as far as the quick fix
+// needs it. Empty when there is nothing to install into: no project, no Qt, a
+// Qt that the Qt Online Installer does not know, or no installer at all.
+struct QtInstallation
 {
-    QList<MissingSourceFile> result;
-    const CMakeLang::DocumentPtr document = CMakeLang::Document::fromSource(text);
-    for (CMakeLang::CommandAST *command : document->commands())
-        result += missingSourceFilesOfCommand(command, directory);
+    FilePath cmakeDir;
+    QString version;
+    QString installerPlatform;
+    int majorVersion = 0;
+
+    bool isEmpty() const { return cmakeDir.isEmpty(); }
+};
+
+static QtInstallation qtInstallation(const FilePath &cmakeFile)
+{
+    if (!ExtensionSystem::PluginManager::getObject<UpdateInfo::Service>())
+        return {};
+
+    Project *project = ProjectManager::projectForFile(cmakeFile);
+    if (!project || !cmakeSettingsForProject(project).maintenanceToolDependencyProvider())
+        return {};
+
+    const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(project->activeKit());
+    if (!qt)
+        return {};
+
+    // The installer names its packages after the directories it installs into,
+    // and puts both of the tools that identify a Qt into the same one, so
+    // whichever registered this Qt names them.
+    static const QRegularExpression layout("/([^/]+)/([^/]+)/bin/(?:qmake|qtpaths)");
+    const QRegularExpressionMatch match = layout.match(qt->qtFilePath().path());
+    if (!match.hasMatch())
+        return {};
+
+    const QString platform = qtInstallerPlatform(match.captured(2),
+                                                 qt->hostPrefixPath() != qt->prefix());
+    if (platform.isEmpty())
+        return {};
+
+    const QString version = match.captured(1);
+    return {qt->libraryPath().pathAppended("cmake"),
+            version,
+            platform,
+            QVersionNumber::fromString(version).majorVersion()};
+}
+
+// A Qt component that a find_package call asks for, and the span of the
+// argument that names it.
+struct QtComponent
+{
+    int begin = 0;
+    int end = 0;
+    QString name;
+};
+
+// Everything find_package takes besides the package name and its components.
+static bool isFindPackageKeyword(const QString &argument)
+{
+    static const QSet<QString> keywords = {
+        "BYPASS_PROVIDER",
+        "CMAKE_FIND_ROOT_PATH_BOTH",
+        "CONFIG",
+        "CONFIGS",
+        "EXACT",
+        "GLOBAL",
+        "HINTS",
+        "MODULE",
+        "NAMES",
+        "NO_CMAKE_ENVIRONMENT_PATH",
+        "NO_CMAKE_FIND_ROOT_PATH",
+        "NO_CMAKE_INSTALL_PREFIX",
+        "NO_CMAKE_PACKAGE_REGISTRY",
+        "NO_CMAKE_PATH",
+        "NO_CMAKE_SYSTEM_PACKAGE_REGISTRY",
+        "NO_CMAKE_SYSTEM_PATH",
+        "NO_DEFAULT_PATH",
+        "NO_MODULE",
+        "NO_PACKAGE_ROOT_PATH",
+        "NO_POLICY_SCOPE",
+        "NO_SYSTEM_ENVIRONMENT_PATH",
+        "ONLY_CMAKE_FIND_ROOT_PATH",
+        "OPTIONAL_COMPONENTS",
+        "PATHS",
+        "PATH_SUFFIXES",
+        "QUIET",
+        "REGISTRY_VIEW",
+        "REQUIRED"};
+
+    return keywords.contains(argument);
+}
+
+// The Qt components a find_package call asks for. find_package(Qt6Charts)
+// names one itself, find_package(Qt6 COMPONENTS Charts Widgets) lists them.
+// OPTIONAL_COMPONENTS are left out: those a project states it can do without.
+static QList<QtComponent> qtComponentsOfCommand(CMakeLang::CommandAST *command)
+{
+    if (!command->isNamed("find_package"))
+        return {};
+
+    QList<QtComponent> result;
+    bool isPackageName = true;
+    bool inComponents = false;
+    for (CMakeLang::ArgumentAST *argument : command->arguments()) {
+        const QString value = argument->value();
+        if (isPackageName) {
+            isPackageName = false;
+            // The version of Qt is a variable in the templates: Qt6, QT and
+            // Qt${QT_VERSION_MAJOR} all look for Qt.
+            static const QRegularExpression package(R"(^(?:Qt(?:[5-9]|\$\{[^}]*\})|QT)(.*)$)");
+            const QRegularExpressionMatch match = package.match(value);
+            if (!match.hasMatch())
+                return {};
+            if (const QString component = match.captured(1); !component.isEmpty())
+                result.append({argument->token.begin(), argument->token.end(), component});
+            continue;
+        }
+        if (value == "COMPONENTS") {
+            inComponents = true;
+        } else if (isFindPackageKeyword(value)) {
+            inComponents = false;
+        } else if (inComponents && !value.contains('$')) {
+            result.append({argument->token.begin(), argument->token.end(), value});
+        }
+    }
     return result;
+}
+
+// A Qt component the Qt of the kit does not have, and the package of the Qt
+// Online Installer that ships it.
+struct MissingQtComponent
+{
+    int begin = 0;
+    int end = 0;
+    QString component;
+    QString package;
+};
+
+// The missing Qt components of one command. A component is there when its
+// package configuration file is, which is what find_package looks for.
+static QList<MissingQtComponent> missingQtComponentsOfCommand(CMakeLang::CommandAST *command,
+                                                              const QtInstallation &qt)
+{
+    if (qt.isEmpty())
+        return {};
+
+    QList<MissingQtComponent> result;
+    for (const QtComponent &component : qtComponentsOfCommand(command)) {
+        const QString cmakePackage = QString("Qt%1%2").arg(qt.majorVersion).arg(component.name);
+        if (qt.cmakeDir.pathAppended(cmakePackage + "/" + cmakePackage + "Config.cmake").exists())
+            continue;
+
+        const QStringList packages
+            = qtInstallerPackages({component.name}, qt.version, qt.installerPlatform);
+        if (packages.isEmpty())
+            continue;
+        result.append({component.begin, component.end, component.name, packages.first()});
+    }
+    return result;
+}
+
+// What the light bulbs of a CMake file mark: the files a command names but
+// which are not on disk, and the Qt components it asks for but which are not
+// installed.
+struct QuickFixCandidates
+{
+    QList<MissingSourceFile> sourceFiles;
+    QList<MissingQtComponent> qtComponents;
+};
+
+// The candidates the whole file holds. Takes the text instead of a document
+// because it runs off the GUI thread.
+static QuickFixCandidates quickFixCandidatesOfText(const QString &text,
+                                                   const FilePath &directory,
+                                                   const QtInstallation &qt)
+{
+    QuickFixCandidates result;
+    const CMakeLang::DocumentPtr document = CMakeLang::Document::fromSource(text);
+    for (CMakeLang::CommandAST *command : document->commands()) {
+        result.sourceFiles += missingSourceFilesOfCommand(command, directory);
+        result.qtComponents += missingQtComponentsOfCommand(command, qt);
+    }
+    return result;
+}
+
+// The command a position is in, from its name to its closing parenthesis.
+static CMakeLang::CommandAST *commandAt(const CMakeLang::DocumentPtr &document, int position)
+{
+    for (CMakeLang::CommandAST *command : document->commands()) {
+        if (covers(command->name.begin(), command->rightParen.end(), position))
+            return command;
+    }
+    return nullptr;
 }
 
 // The missing source files the command around position names. The argument
@@ -190,13 +385,7 @@ static FilePaths missingSourceFiles(const CMakeLang::DocumentPtr &document,
                                     int position,
                                     const FilePath &directory)
 {
-    CMakeLang::CommandAST *command = nullptr;
-    for (CMakeLang::CommandAST *candidate : document->commands()) {
-        if (covers(candidate->name.begin(), candidate->rightParen.end(), position)) {
-            command = candidate;
-            break;
-        }
-    }
+    CMakeLang::CommandAST *command = commandAt(document, position);
     if (!command)
         return {};
 
@@ -206,6 +395,24 @@ static FilePaths missingSourceFiles(const CMakeLang::DocumentPtr &document,
             return {source.filePath};
     }
     return Utils::transform(missing, &MissingSourceFile::filePath);
+}
+
+// The missing Qt components the command around position asks for, by the same
+// rule: the argument under the cursor wins.
+static QList<MissingQtComponent> missingQtComponents(const CMakeLang::DocumentPtr &document,
+                                                     int position,
+                                                     const QtInstallation &qt)
+{
+    CMakeLang::CommandAST *command = commandAt(document, position);
+    if (!command)
+        return {};
+
+    const QList<MissingQtComponent> missing = missingQtComponentsOfCommand(command, qt);
+    for (const MissingQtComponent &component : missing) {
+        if (covers(component.begin, component.end, position))
+            return {component};
+    }
+    return missing;
 }
 
 class MarkerUpdater;
@@ -226,6 +433,15 @@ static QString createFileDescription(const FilePath &filePath, const FilePath &c
         .arg(filePath.relativePathFromDir(cmakeFile.absolutePath()));
 }
 
+static void runCMake(const FilePath &cmakeFile)
+{
+    const Project *project = ProjectManager::projectForFile(cmakeFile);
+    if (const auto buildSystem = qobject_cast<CMakeBuildSystem *>(
+            project ? project->activeBuildSystem() : nullptr)) {
+        buildSystem->runCMake();
+    }
+}
+
 static void createSourceFile(const FilePath &filePath, const FilePath &cmakeFile)
 {
     if (const Result<> writable = filePath.parentDir().ensureWritableDir(); !writable) {
@@ -240,12 +456,7 @@ static void createSourceFile(const FilePath &filePath, const FilePath &cmakeFile
 
     EditorManager::openEditor(filePath);
     refreshMarkers();
-
-    const Project *project = ProjectManager::projectForFile(cmakeFile);
-    if (const auto buildSystem = qobject_cast<CMakeBuildSystem *>(
-            project ? project->activeBuildSystem() : nullptr)) {
-        buildSystem->runCMake();
-    }
+    runCMake(cmakeFile);
 }
 
 class CreateSourceFileOperation final : public QuickFixOperation
@@ -265,20 +476,57 @@ private:
     const FilePath m_cmakeFile;
 };
 
+static QString installComponentDescription(const QString &component)
+{
+    return Tr::tr("Install Qt Component \"%1\"").arg(component);
+}
+
+// Installing one leaves the text of the CMake file alone as well, and the Qt
+// of the kit has the component afterwards.
+static void installQtComponent(const QString &package, const FilePath &cmakeFile)
+{
+    const auto service = ExtensionSystem::PluginManager::getObject<UpdateInfo::Service>();
+    if (!service || !service->installPackages(package))
+        return;
+
+    refreshMarkers();
+    runCMake(cmakeFile);
+}
+
+class InstallQtComponentOperation final : public QuickFixOperation
+{
+public:
+    InstallQtComponentOperation(const MissingQtComponent &component, const FilePath &cmakeFile)
+        : m_package(component.package)
+        , m_cmakeFile(cmakeFile)
+    {
+        setDescription(installComponentDescription(component.component));
+    }
+
+private:
+    void perform() final { installQtComponent(m_package, m_cmakeFile); }
+
+    const QString m_package;
+    const FilePath m_cmakeFile;
+};
+
 class CMakeQuickFixAssistProcessor final : public IAssistProcessor
 {
     IAssistProposal *perform() final
     {
         const AssistInterface *assistInterface = interface();
         const FilePath cmakeFile = assistInterface->filePath();
+        const int position = assistInterface->position();
         const CMakeLang::DocumentPtr document
             = CMakeLang::Document::fromSource(assistInterface->textDocument()->toPlainText());
 
         QuickFixOperations operations;
-        for (const FilePath &filePath : missingSourceFiles(document,
-                                                           assistInterface->position(),
-                                                           cmakeFile.absolutePath()))
+        for (const FilePath &filePath :
+             missingSourceFiles(document, position, cmakeFile.absolutePath()))
             operations << new CreateSourceFileOperation(filePath, cmakeFile);
+        for (const MissingQtComponent &component :
+             missingQtComponents(document, position, qtInstallation(cmakeFile)))
+            operations << new InstallQtComponentOperation(component, cmakeFile);
 
         return GenericProposal::createProposal(assistInterface, operations);
     }
@@ -300,8 +548,9 @@ IAssistProvider &cmakeQuickFixAssistProvider()
 }
 
 // Follows the text of a document and puts the quick fix light bulb next to
-// every line that names a source file which is not on disk. Looking the files
-// up touches the file system, which is why it happens off the GUI thread.
+// every line that names a source file which is not on disk, or a Qt component
+// which is not installed. Looking those up touches the file system, which is
+// why it happens off the GUI thread.
 class MarkerUpdater final : public QObject
 {
 public:
@@ -321,6 +570,27 @@ public:
                     if (editor->document() == m_document)
                         restart();
                 });
+        // Which Qt components are missing is up to the Qt of the kit, and that
+        // one changes without the file changing: another kit, another Qt,
+        // another configure run, or a component that came or went behind our
+        // back. Coming back to the editor picks up whatever happened.
+        connect(EditorManager::instance(), &EditorManager::currentEditorChanged, this,
+                [this](IEditor *editor) {
+                    if (editor && editor->document() == m_document)
+                        restart();
+                });
+        connect(ProjectManager::instance(), &ProjectManager::activeBuildConfigurationChanged,
+                this, [this] { restart(); });
+        connect(ProjectManager::instance(), &ProjectManager::projectAdded, this, [this] {
+            restart();
+        });
+        connect(ProjectManager::instance(), &ProjectManager::parsingFinishedActive, this, [this] {
+            restart();
+        });
+        connect(QtSupport::QtVersionManager::instance(),
+                &QtSupport::QtVersionManager::qtVersionsChanged, this, [this] { restart(); });
+        cmakeSettingsForProject(nullptr)
+            .maintenanceToolDependencyProvider.addOnChanged(this, [this] { restart(); });
         markerUpdaters().append(this);
     }
 
@@ -337,16 +607,17 @@ private:
 
         const int revision = m_document->document()->revision();
         Utils::futureSynchronizer()->addFuture(Utils::onResultReady(
-            Utils::asyncRun(&missingSourceFilesOfText,
+            Utils::asyncRun(&quickFixCandidatesOfText,
                             m_document->plainText(),
-                            cmakeFile.absolutePath()),
+                            cmakeFile.absolutePath(),
+                            qtInstallation(cmakeFile)),
             this,
-            [this, revision](const QList<MissingSourceFile> &missing) {
-                setMarkers(missing, revision);
+            [this, revision](const QuickFixCandidates &candidates) {
+                setMarkers(candidates, revision);
             }));
     }
 
-    void setMarkers(const QList<MissingSourceFile> &missing, int revision)
+    void setMarkers(const QuickFixCandidates &candidates, int revision)
     {
         QTextDocument *text = m_document->document();
         if (text->revision() != revision)
@@ -354,20 +625,35 @@ private:
 
         const FilePath cmakeFile = m_document->filePath();
         QHash<int, RefactorMarker> markers;
-        for (const MissingSourceFile &source : missing) {
-            const QTextBlock block = text->findBlock(source.begin);
+        const auto addMarker = [&markers, text](int position,
+                                                const QString &description,
+                                                const std::function<void()> &apply) {
+            const QTextBlock block = text->findBlock(position);
             if (markers.contains(block.blockNumber()))
-                continue;
+                return;
 
             RefactorMarker marker;
             marker.type = REFACTOR_MARKER_ID;
             marker.cursor = QTextCursor(block);
             marker.cursor.movePosition(QTextCursor::EndOfBlock);
-            marker.tooltip = createFileDescription(source.filePath, cmakeFile);
-            marker.callback = [filePath = source.filePath, cmakeFile](TextEditorWidget *) {
-                createSourceFile(filePath, cmakeFile);
-            };
+            marker.tooltip = description;
+            marker.callback = [apply](TextEditorWidget *) { apply(); };
             markers.insert(block.blockNumber(), marker);
+        };
+
+        for (const MissingSourceFile &source : candidates.sourceFiles) {
+            addMarker(source.begin,
+                      createFileDescription(source.filePath, cmakeFile),
+                      [filePath = source.filePath, cmakeFile] {
+                          createSourceFile(filePath, cmakeFile);
+                      });
+        }
+        for (const MissingQtComponent &component : candidates.qtComponents) {
+            addMarker(component.begin,
+                      installComponentDescription(component.component),
+                      [package = component.package, cmakeFile] {
+                          installQtComponent(package, cmakeFile);
+                      });
         }
 
         for (TextEditorWidget *widget : TextEditorWidget::textEditorWidgetsForDocument(m_document))
@@ -575,7 +861,7 @@ private slots:
                                "target_sources(app PRIVATE widget.cpp widget.cpp)\n";
 
         const QList<MissingSourceFile> missing
-            = missingSourceFilesOfText(source, m_directory->path());
+            = quickFixCandidatesOfText(source, m_directory->path(), {}).sourceFiles;
 
         QCOMPARE(missing.size(), 2);
         QCOMPARE(missing.at(0).filePath, m_directory->filePath("main.cpp"));
@@ -584,6 +870,161 @@ private slots:
         QCOMPARE(missing.at(1).filePath, m_directory->filePath("widget.cpp"));
         QCOMPARE(source.sliced(missing.at(1).begin, missing.at(1).end - missing.at(1).begin),
                  QString("widget.cpp"));
+    }
+
+    void testQtComponents_data()
+    {
+        QTest::addColumn<QString>("source");
+        QTest::addColumn<QStringList>("expected");
+
+        QTest::newRow("components")
+            << "find_package(Qt6 REQUIRED COMPONENTS Widgets Charts)\n"
+            << QStringList{"Widgets", "Charts"};
+
+        QTest::newRow("keyword behind the components")
+            << "find_package(Qt6 COMPONENTS Widgets REQUIRED)\n"
+            << QStringList{"Widgets"};
+
+        QTest::newRow("package that names the component")
+            << "find_package(Qt6Charts REQUIRED)\n"
+            << QStringList{"Charts"};
+
+        QTest::newRow("optional components")
+            << "find_package(Qt6 COMPONENTS Widgets OPTIONAL_COMPONENTS Charts)\n"
+            << QStringList{"Widgets"};
+
+        QTest::newRow("version of the package")
+            << "find_package(Qt6 6.5 REQUIRED COMPONENTS Widgets)\n"
+            << QStringList{"Widgets"};
+
+        QTest::newRow("major version behind a variable")
+            << "find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)\n"
+            << QStringList{"Widgets"};
+
+        QTest::newRow("the version probe of the project templates")
+            << "find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)\n"
+            << QStringList{"Widgets"};
+
+        QTest::newRow("component behind a variable")
+            << "find_package(Qt6 REQUIRED COMPONENTS ${EXTRA_COMPONENTS})\n"
+            << QStringList();
+
+        QTest::newRow("no components")
+            << "find_package(Qt6 REQUIRED)\n"
+            << QStringList();
+
+        QTest::newRow("another package")
+            << "find_package(Boost REQUIRED COMPONENTS system)\n"
+            << QStringList();
+    }
+
+    void testQtComponents()
+    {
+        QFETCH(QString, source);
+        QFETCH(QStringList, expected);
+
+        QStringList actual;
+        const CMakeLang::DocumentPtr document = CMakeLang::Document::fromSource(source);
+        for (CMakeLang::CommandAST *command : document->commands())
+            actual += Utils::transform(qtComponentsOfCommand(command), &QtComponent::name);
+        QCOMPARE(actual, expected);
+    }
+
+    // A component is installed when the Qt of the kit has its package
+    // configuration file, which is what find_package looks for.
+    void testMissingQtComponents()
+    {
+        const FilePath cmakeDir = m_directory->filePath("qt/lib/cmake");
+        QVERIFY(cmakeDir.pathAppended("Qt6Widgets").ensureWritableDir());
+        QVERIFY(cmakeDir.pathAppended("Qt6Widgets/Qt6WidgetsConfig.cmake").ensureExistingFile());
+
+        const QString source = "find_package(Qt6 REQUIRED COMPONENTS Widgets Charts)\n";
+        const CMakeLang::DocumentPtr document = CMakeLang::Document::fromSource(source);
+        const QList<MissingQtComponent> missing
+            = missingQtComponentsOfCommand(document->commands().first(),
+                                           {cmakeDir, "6.9.0", "clang_64", 6});
+
+        QCOMPARE(missing.size(), 1);
+        QCOMPARE(missing.first().component, QString("Charts"));
+        QCOMPARE(missing.first().package, QString("qt.qt6.690.addons.qtcharts"));
+        QCOMPARE(source.sliced(missing.first().begin,
+                               missing.first().end - missing.first().begin),
+                 QString("Charts"));
+    }
+
+    void testQtInstallerPackages_data()
+    {
+        QTest::addColumn<QStringList>("components");
+        QTest::addColumn<QString>("version");
+        QTest::addColumn<QString>("platform");
+        QTest::addColumn<QStringList>("expected");
+
+        QTest::newRow("addon")
+            << QStringList{"Charts"} << "6.9.0" << "clang_64"
+            << QStringList{"qt.qt6.690.addons.qtcharts"};
+
+        QTest::newRow("module of an addon")
+            << QStringList{"MultimediaWidgets"} << "6.9.0" << "clang_64"
+            << QStringList{"qt.qt6.690.addons.qtmultimedia"};
+
+        QTest::newRow("addon of the longest name")
+            << QStringList{"Quick3DPhysics"} << "6.9.0" << "clang_64"
+            << QStringList{"qt.qt6.690.addons.qtquick3dphysics"};
+
+        QTest::newRow("addon of another name")
+            << QStringList{"Core5Compat"} << "6.9.0" << "clang_64"
+            << QStringList{"qt.qt6.690.addons.qt5compat"};
+
+        QTest::newRow("module of an addon of another name")
+            << QStringList{"ProtobufQtCoreTypes"} << "6.9.0" << "clang_64"
+            << QStringList{"qt.qt6.690.addons.qtgrpc"};
+
+        QTest::newRow("tools of an addon of another name")
+            << QStringList{"ProtobufTools"} << "6.9.0" << "clang_64"
+            << QStringList{"qt.qt6.690.addons.qtgrpc"};
+
+        QTest::newRow("extension")
+            << QStringList{"WebEngineQuick"} << "6.9.0" << "clang_64"
+            << QStringList{"extensions.qtwebengine.690.clang_64"};
+
+        // Up to 6.8.0, the extensions were addons.
+        QTest::newRow("extension of an older Qt")
+            << QStringList{"WebEngineQuick"} << "6.7.0" << "clang_64"
+            << QStringList{"qt.qt6.670.addons.qtwebengine"};
+
+        QTest::newRow("standalone addon")
+            << QStringList{"Quick3D"} << "6.9.0" << "clang_64"
+            << QStringList{"qt.qt6.690.addons.qtquick3d"};
+
+        QTest::newRow("standalone addon of an older Qt")
+            << QStringList{"Quick3D"} << "6.7.0" << "clang_64"
+            << QStringList{"qt.qt6.670.qtquick3d"};
+
+        QTest::newRow("addon of a single platform")
+            << QStringList{"ActiveQt"} << "6.9.0" << "win64_msvc2022_64"
+            << QStringList{"qt.qt6.690.addons.qtactiveqt"};
+
+        QTest::newRow("addon of a single platform of another name")
+            << QStringList{"AxContainer"} << "6.9.0" << "win64_msvc2022_64"
+            << QStringList{"qt.qt6.690.addons.qtactiveqt"};
+
+        QTest::newRow("desktop package")
+            << QStringList{"Widgets"} << "6.9.0" << "clang_64"
+            << QStringList{"qt.qt6.690.clang_64"};
+
+        QTest::newRow("the same package twice")
+            << QStringList{"Widgets", "Network"} << "6.9.0" << "clang_64"
+            << QStringList{"qt.qt6.690.clang_64"};
+    }
+
+    void testQtInstallerPackages()
+    {
+        QFETCH(QStringList, components);
+        QFETCH(QString, version);
+        QFETCH(QString, platform);
+        QFETCH(QStringList, expected);
+
+        QCOMPARE(qtInstallerPackages(components, version, platform), expected);
     }
 
 private:

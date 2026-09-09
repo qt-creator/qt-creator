@@ -106,6 +106,8 @@ Project {
             "presetsmacros.h",
             "projecttreehelper.cpp",
             "projecttreehelper.h",
+            "qtinstallerpackages.cpp",
+            "qtinstallerpackages.h",
             "targethelper.cpp",
             "targethelper.h",
             "testpresetshelper.cpp",

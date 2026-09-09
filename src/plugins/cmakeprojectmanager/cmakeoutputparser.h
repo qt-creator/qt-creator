@@ -38,6 +38,8 @@ private:
     bool m_skippedFirstEmptyLine = false;
     int m_lines = 0;
     bool m_nextLineIsPackageSpec = false;
+    QString m_qtVersion;
+    QString m_qtInstallerPlatform;
 
     struct CallStackLine
     {

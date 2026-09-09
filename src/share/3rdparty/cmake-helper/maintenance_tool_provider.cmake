@@ -24,94 +24,30 @@ function(qt_maintenance_tool_get_component_platform platform_dir component_platf
   set(${component_platform} ${map_${platform_dir}} PARENT_SCOPE)
 endfunction()
 
-function(qt_maintenance_tool_get_addons addon_list)
-  set(${addon_list}
-    qt3d
-    qt5compat
-    qtcanvaspainter
-    qtcharts
-    qtconnectivity
-    qtcoap
-    qtdatavis3d
-    qtgraphs
-    qtgrpc
-    qthttpserver
-    qtimageformats
-    qtlocation
-    qtlottie
-    qtmultimedia
-    qtnetworkauth
-    qtpositioning
-    qtquick3d
-    qtquick3dphysics
-    qtquickeffectmaker
-    qtquicktimeline
-    qtopenapi
-    qtremoteobjects
-    qtscxml
-    qtsensors
-    qtserialbus
-    qtserialport
-    qtshadertools
-    qtspeech
-    qttasktree
-    qtvirtualkeyboard
-    qtwebchannel
-    qtwebsockets
-    qtwebview
-
-    # found in commercial version
-    qtapplicationmanager
-    qtinterfraceframework
-    qtlanguageserver
-    qtmqtt
-    qtstatemachine
-    qtopcua
-    tqtc-qtvncserver
-
-    PARENT_SCOPE
-  )
-endfunction()
-
-function(qt_maintenance_tool_get_extensions extensions)
-  set(${extensions}
-    qtinsighttracker
-    qtpdf
-    qtwebengine
-
-    PARENT_SCOPE
-  )
-endfunction()
-
-function(qt_maintenance_tool_get_standalone_addons standalone_addons_list)
-  set(${standalone_addons_list}
-    qtquick3d
-    qt5compat
-    qtshadertools
-    qtquicktimeline
-
-    PARENT_SCOPE
-  )
-endfunction()
-
-function(qt_maintenance_tool_install qt_major_version qt_package_list)
+# The installer names its packages after the two directories it installs into,
+# the Qt version and the build flavor. The path of qmake ends in them, and so
+# does the Qt prefix, which is what is left when the Qt was identified by
+# qtpaths and the distribution ships no qmake: QT_QMAKE_EXECUTABLE is empty
+# then.
+function(qt_maintenance_tool_get_qt_layout qt_version_number qt_build_flavor)
   if (QT_QMAKE_EXECUTABLE MATCHES ".*/(.*)/(.*)/bin/qmake")
-    set(qt_version_number ${CMAKE_MATCH_1})
-    string(REPLACE "." "" qt_version_number_dotless ${qt_version_number})
-    set(qt_build_flavor ${CMAKE_MATCH_2})
+    set(${qt_version_number} ${CMAKE_MATCH_1} PARENT_SCOPE)
+    set(${qt_build_flavor} ${CMAKE_MATCH_2} PARENT_SCOPE)
+    return()
+  endif()
 
-    set(additional_addons "")
-    qt_maintenance_tool_get_extensions(__qt_extensions)
-    if (qt_version_number VERSION_LESS 6.8.0)
-      set(additional_addons ${__qt_extensions})
+  foreach(qt_prefix IN LISTS CMAKE_PREFIX_PATH)
+    if (qt_prefix MATCHES ".*/(.*)/(.*)$")
+      set(${qt_version_number} ${CMAKE_MATCH_1} PARENT_SCOPE)
+      set(${qt_build_flavor} ${CMAKE_MATCH_2} PARENT_SCOPE)
+      return()
     endif()
-    if (WIN32)
-      list(APPEND additional_addons qtactiveqt)
-    endif()
-    if (UNIX AND NOT APPLE)
-      list(APPEND additional_addons qtwaylandcompositor)
-    endif()
+  endforeach()
+endfunction()
 
+function(qt_maintenance_tool_install qt_package_list)
+  qt_maintenance_tool_get_qt_layout(qt_version_number qt_build_flavor)
+  if (qt_build_flavor)
     qt_maintenance_tool_get_component_platform(${qt_build_flavor} component_platform)
     if (NOT component_platform)
       message(STATUS
@@ -121,73 +57,8 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
       return()
     endif()
 
-    set(installer_component_list "")
-    foreach (qt_package_name IN LISTS qt_package_list)
-      string(TOLOWER "${qt_package_name}" qt_package_name_lowercase)
-
-      qt_maintenance_tool_get_addons(__qt_addons)
-      if (qt_version_number VERSION_LESS 6.8.0)
-        qt_maintenance_tool_get_standalone_addons(__standalone_addons)
-        foreach(standalone_addon IN LISTS __standalone_addons)
-          list(REMOVE_ITEM __qt_addons ${standalone_addon})
-        endforeach()
-      endif()
-
-      # Is the package an addon?
-      set(install_addon FALSE)
-      foreach(addon IN LISTS __qt_addons additional_addons)
-        string(REGEX MATCH "^${addon}$" is_addon "qt${qt_package_name_lowercase}")
-        if (is_addon)
-          list(
-            APPEND installer_component_list
-            "qt.qt${qt_major_version}.${qt_version_number_dotless}.addons.${addon}"
-          )
-          set(install_addon TRUE)
-          break()
-        endif()
-      endforeach()
-
-      if (NOT install_addon)
-        set(install_extension FALSE)
-        foreach(extension IN LISTS __qt_extensions)
-          string(REGEX MATCH "^${extension}$" is_extension "qt${qt_package_name_lowercase}")
-          if (is_extension)
-            list(
-              APPEND installer_component_list
-              "extensions.${extension}.${qt_version_number_dotless}.${component_platform}"
-            )
-            set(install_extension TRUE)
-            break()
-          endif()
-        endforeach()
-
-        if (NOT install_extension)
-          set(install_standalone_addon FALSE)
-          foreach(standalone_addon IN LISTS __standalone_addons)
-            string(REGEX MATCH "^${standalone_addon}$" is_standalone_addon "qt${qt_package_name_lowercase}")
-            if (is_standalone_addon)
-              list(
-                APPEND installer_component_list
-                "qt.qt${qt_major_version}.${qt_version_number_dotless}.${standalone_addon}"
-              )
-              set(install_standalone_addon TRUE)
-              break()
-            endif()
-          endforeach()
-
-          if(NOT install_standalone_addon)
-            # Install the Desktop package
-            list(
-              APPEND installer_component_list
-              "qt.qt${qt_major_version}.${qt_version_number_dotless}.${component_platform}"
-            )
-          endif()
-        endif()
-      endif()
-    endforeach()
-
     # THIS MESSAGE IS PARSED IN THE CMakeOutputParser
-    message(WARNING "Qt packages are missing: ${qt_version_number}, ${qt_build_flavor}, ${installer_component_list}\n"
+    message(WARNING "Qt packages are missing: ${qt_version_number}, ${component_platform}, ${qt_package_list}\n"
                     "If you are using the Qt Online Installer, check the Issues view in Qt Creator "
                     "for a link that installs the missing component.")
   endif()
@@ -240,14 +111,14 @@ macro(qt_maintenance_tool_dependency method package_name)
         unset(__qt_find_package_searching_for_Qt6${pkg})
       endforeach()
       if (__qt_dependency_pkgs_to_install)
-        qt_maintenance_tool_install("${__qt_dependency_qt_major_version}" "${__qt_dependency_pkgs_to_install}")
+        qt_maintenance_tool_install("${__qt_dependency_pkgs_to_install}")
       endif()
     elseif(__qt_dependency_arg_REQUIRED AND NOT __qt_dependency_qt_package_name)
       # Install the Desktop package if Qt::Core is missing
       find_package(Qt${__qt_dependency_qt_major_version}Core
         PATHS ${CMAKE_PREFIX_PATH} ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH BYPASS_PROVIDER QUIET)
       if (NOT Qt${__qt_dependency_qt_major_version}$Core_FOUND)
-        qt_maintenance_tool_install("${__qt_dependency_qt_major_version}" Core)
+        qt_maintenance_tool_install(Core)
       endif()
     endif()
 
@@ -275,7 +146,7 @@ macro(qt_maintenance_tool_dependency method package_name)
       endif()
 
       if (__qt_dependency_arg_REQUIRED)
-        qt_maintenance_tool_install("${__qt_dependency_qt_major_version}" "${__qt_dependency_qt_package_name}")
+        qt_maintenance_tool_install("${__qt_dependency_qt_package_name}")
         find_package(${package_name} ${ARGN} BYPASS_PROVIDER)
       endif()
     endif()
