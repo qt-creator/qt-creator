@@ -1660,8 +1660,7 @@ void WindowsDevice::runAutoDetect(
         // attaches it: a debugger on the same device as the kit's build device is picked up
         // automatically. Remote CDB is not covered by the generic debugger detection.
         registerDeviceCdb(std::static_pointer_cast<WindowsDevice>(self), logger);
-        self->requestToolDetection(self->toolSearchPaths(), logger);
-        GlobalTaskTree::start(self->autoDetectDeviceToolsRecipe(logger), {}, onDone);
+        self->IDevice::runAutoDetect(logger, onDone);
     }));
 }
 

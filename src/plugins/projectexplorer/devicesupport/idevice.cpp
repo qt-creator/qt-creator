@@ -1404,6 +1404,7 @@ void IDevice::runAutoDetect(
     const ToolDetectionLogger &logger,
     const std::function<void()> &onDone)
 {
+    requestToolDetection(toolSearchPaths(), logger);
     GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onDone);
 }
 

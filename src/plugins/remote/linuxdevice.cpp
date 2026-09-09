@@ -1284,8 +1284,7 @@ void LinuxDevice::runAutoDetect(
             onDone();
             return;
         }
-        self->requestToolDetection(self->toolSearchPaths(), logger);
-        GlobalTaskTree::start(self->autoDetectDeviceToolsRecipe(logger), {}, onDone);
+        self->IDevice::runAutoDetect(logger, onDone);
     }));
 }
 

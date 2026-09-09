@@ -232,8 +232,7 @@ void HarmonyOsDevice::runAutoDetect(const ToolDetectionLogger &logger,
         onDone();
         return;
     }
-    requestToolDetection(toolSearchPaths(), logger);
-    GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onDone);
+    IDevice::runAutoDetect(logger, onDone);
 }
 
 ProcessInterface *HarmonyOsDevice::createProcessInterface() const
