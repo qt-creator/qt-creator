@@ -197,3 +197,95 @@ JsExpander::~JsExpander()
 }
 
 } // namespace Core
+
+
+#ifdef WITH_TESTS
+
+#include <utils/algorithm.h>
+
+#include <QMutex>
+#include <QTest>
+
+namespace Core::Internal {
+
+namespace {
+
+// Records what qWarning() and friends emit while it is alive, so that a test can
+// assert that a code path stays quiet. Messages arrive from any thread.
+class MessageLog
+{
+public:
+    MessageLog() { s_instance = this; m_previous = qInstallMessageHandler(&handler); }
+    ~MessageLog() { qInstallMessageHandler(m_previous); s_instance = nullptr; }
+
+    QStringList messages() const
+    {
+        QMutexLocker locker(&m_mutex);
+        return m_messages;
+    }
+
+private:
+    static void handler(QtMsgType type, const QMessageLogContext &context, const QString &message)
+    {
+        if (!s_instance)
+            return;
+        {
+            QMutexLocker locker(&s_instance->m_mutex);
+            s_instance->m_messages.append(message);
+        }
+        if (s_instance->m_previous)
+            s_instance->m_previous(type, context, message);
+    }
+
+    mutable QMutex m_mutex;
+    QStringList m_messages;
+    QtMessageHandler m_previous = nullptr;
+    static MessageLog *s_instance;
+};
+
+MessageLog *MessageLog::s_instance = nullptr;
+
+} // namespace
+
+class JsExpanderTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testExpanderStaysQuietWhenDestroyed();
+};
+
+// A JsExpander is created, used and destroyed right away in several places, most
+// notably by every wizard factory that the "New File"/"New Project" dialog
+// filters. Its evaluation watchdog runs in a thread of its own, which must not
+// leave a running timer behind for the expander's destructor to trip over.
+void JsExpanderTest::testExpanderStaysQuietWhenDestroyed()
+{
+    MessageLog log;
+
+    for (int i = 0; i < 5; ++i) {
+        JsExpander expander;
+        QString errorMessage;
+        // The watchdog interrupts an endless script. Getting that error back is
+        // what proves its thread and its timer are up before the expander goes.
+        expander.evaluate("for (;;) {}", &errorMessage);
+        QVERIFY(!errorMessage.isEmpty());
+        QCOMPARE(expander.evaluate("1 + 1"), QString("2"));
+    }
+
+    const QStringList timerMessages = Utils::filtered(log.messages(), [](const QString &message) {
+        return message.contains("Timers cannot be stopped");
+    });
+    QVERIFY2(timerMessages.isEmpty(), qPrintable(timerMessages.join('\n')));
+}
+
+QObject *createJsExpanderTest()
+{
+    return new JsExpanderTest;
+}
+
+} // namespace Core::Internal
+
+#endif // WITH_TESTS
+
+#include "jsexpander.moc"
