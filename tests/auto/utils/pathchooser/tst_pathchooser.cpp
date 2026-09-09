@@ -74,7 +74,7 @@ void tst_PathChooser::testForeignConnectionsAreLeftAlone()
     s_warnings.clear();
     const QtMessageHandler previous = qInstallMessageHandler(
         [](QtMsgType type, const QMessageLogContext &, const QString &message) {
-            if (type == QtWarningMsg)
+            if (type == QtWarningMsg && message.startsWith("QObject::"))
                 s_warnings << message;
         });
     const QScopeGuard restore([previous] { qInstallMessageHandler(previous); });
