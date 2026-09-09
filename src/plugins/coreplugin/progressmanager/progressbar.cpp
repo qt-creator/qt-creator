@@ -132,6 +132,8 @@ void ProgressBar::setFinished(bool b)
     if (b == m_finished)
         return;
     m_finished = b;
+    if (m_finished)
+        m_progressBar->setValue(m_progressBar->maximum());
     updateColor();
     updateCancelButton();
 }
