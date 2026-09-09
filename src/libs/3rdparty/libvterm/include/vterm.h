@@ -396,6 +396,10 @@ void vterm_mouse_button(VTerm *vt, int button, bool pressed, VTermModifier mod);
 /* Can't use -1 to indicate a missing argument; use this instead */
 #define CSI_ARG_MISSING ((1UL<<31)-1)
 
+/* Largest value an argument can hold. One below CSI_ARG_MISSING, so that an
+ * argument clamped to it is not then read back as an absent one. */
+#define CSI_ARG_MAX (CSI_ARG_MISSING-1)
+
 #define CSI_ARG_IS_MISSING(a) (CSI_ARG(a) == CSI_ARG_MISSING)
 #define CSI_ARG_OR(a,def)     (CSI_ARG(a) == CSI_ARG_MISSING ? (def) : CSI_ARG(a))
 #define CSI_ARG_COUNT(a)      (CSI_ARG(a) == CSI_ARG_MISSING || CSI_ARG(a) == 0 ? 1 : CSI_ARG(a))
@@ -471,6 +475,7 @@ void vterm_state_reset(VTermState *state, int hard);
 void vterm_state_get_cursorpos(const VTermState *state, VTermPos *cursorpos);
 void vterm_state_set_cursorpos(VTermState *state, VTermPos cursorpos);
 int  vterm_state_get_at_phantom(const VTermState *state);
+int  vterm_state_get_bracketedpaste(const VTermState *state);
 void vterm_state_get_default_colors(const VTermState *state, VTermColor *default_fg, VTermColor *default_bg);
 void vterm_state_get_palette_color(const VTermState *state, int index, VTermColor *col);
 void vterm_state_set_default_colors(VTermState *state, const VTermColor *default_fg, const VTermColor *default_bg);

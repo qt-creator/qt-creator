@@ -1,5 +1,6 @@
 #include "vterm_internal.h"
 
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -222,8 +223,16 @@ size_t vterm_input_write(VTerm *vt, const char *bytes, size_t len)
       if(c >= '0' && c <= '9') {
         if(vt->parser.v.csi.args[vt->parser.v.csi.argi] == CSI_ARG_MISSING)
           vt->parser.v.csi.args[vt->parser.v.csi.argi] = 0;
-        vt->parser.v.csi.args[vt->parser.v.csi.argi] *= 10;
-        vt->parser.v.csi.args[vt->parser.v.csi.argi] += c - '0';
+        /* Saturate rather than wrap, for the same reason as the OSC command
+         * number below: CSI_ARG masks the flag bit off, so a padded number
+         * would otherwise arrive as a different mode or attribute - 4294969300
+         * as 2004, which is bracketed paste, and 4294967304 as SGR 8. */
+        if(vt->parser.v.csi.args[vt->parser.v.csi.argi] > (CSI_ARG_MAX - (c - '0')) / 10)
+          vt->parser.v.csi.args[vt->parser.v.csi.argi] = CSI_ARG_MAX;
+        else {
+          vt->parser.v.csi.args[vt->parser.v.csi.argi] *= 10;
+          vt->parser.v.csi.args[vt->parser.v.csi.argi] += c - '0';
+        }
         break;
       }
       if(c == ':') {
@@ -263,9 +272,12 @@ size_t vterm_input_write(VTerm *vt, const char *bytes, size_t len)
       if(c >= '0' && c <= '9') {
         if(vt->parser.v.osc.command == -1)
           vt->parser.v.osc.command = 0;
+        /* Saturate rather than wrap: a padded number must not turn into a
+         * different command. INT_MAX matches no handler. */
+        if(vt->parser.v.osc.command > (INT_MAX - (c - '0')) / 10)
+          vt->parser.v.osc.command = INT_MAX;
         else
-          vt->parser.v.osc.command *= 10;
-        vt->parser.v.osc.command += c - '0';
+          vt->parser.v.osc.command = vt->parser.v.osc.command * 10 + (c - '0');
         break;
       }
       if(c == ';') {

@@ -116,6 +116,7 @@ public:
 
     void sendFocus(bool hasFocus);
     bool isInAltScreen();
+    bool isBracketedPasteEnabled() const;
 
 signals:
     void invalidated(QRect grid);

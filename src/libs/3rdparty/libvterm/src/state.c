@@ -2175,6 +2175,11 @@ int vterm_state_get_at_phantom(const VTermState *state)
   return state->at_phantom;
 }
 
+int vterm_state_get_bracketedpaste(const VTermState *state)
+{
+  return state->mode.bracketpaste;
+}
+
 void vterm_state_set_callbacks(VTermState *state, const VTermStateCallbacks *callbacks, void *user)
 {
   if(callbacks) {

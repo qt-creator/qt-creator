@@ -833,6 +833,36 @@ private slots:
         QCOMPARE(surfaceText(), expected);
     }
 
+    void anOscNumberIsNotAccumulatedWithoutABound()
+    {
+        initSurface({20, 4});
+
+        // The OSC command number is accumulated into an int with no limit on
+        // the digit count, so the value the dispatcher compares against is not
+        // necessarily the value that was written. 4294967304 is 2^32 + 8, and 8
+        // is the hyperlink handler.
+        m_surface->dataFromPty("\x1b]4294967304;;https://wrapped.invalid/\x1b\\");
+        m_surface->dataFromPty("X");
+
+        QVERIFY2(!m_surface->hyperlinkAt({0, 0}).has_value(),
+                 "an OSC number of 4294967304 was dispatched to the hyperlink handler");
+    }
+
+    void aCsiArgumentIsNotAccumulatedWithoutABound()
+    {
+        // CSI_ARG masks off the top bit, so a padded number used to arrive as
+        // whatever it masks down to. 4294969300 is 2^32 + 2004, and 2004 is
+        // bracketed paste - which the host reads to decide whether a paste
+        // needs confirming.
+        m_surface->dataFromPty("\x1b[?4294969300h");
+        QVERIFY(!m_surface->isBracketedPasteEnabled());
+
+        // The number it would have aliased to still works, so the check above
+        // is not passing because the mode became unreachable.
+        m_surface->dataFromPty("\x1b[?2004h");
+        QVERIFY(m_surface->isBracketedPasteEnabled());
+    }
+
     void aWideCharacterIsNotSplitByRewrapping()
     {
         initSurface({20, 6});

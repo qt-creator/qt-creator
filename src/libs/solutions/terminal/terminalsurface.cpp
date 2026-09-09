@@ -993,6 +993,11 @@ bool TerminalSurface::isInAltScreen()
     return d->m_altscreen;
 }
 
+bool TerminalSurface::isBracketedPasteEnabled() const
+{
+    return vterm_state_get_bracketedpaste(vterm_obtain_state(d->m_vterm.get()));
+}
+
 void TerminalSurface::setWriteToPty(WriteToPty writeToPty)
 {
     d->m_writeToPty = writeToPty;
