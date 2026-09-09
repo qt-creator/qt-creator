@@ -251,9 +251,22 @@ void McuSupportPlugin::extensionsInitialized()
 {
     DeviceManager::addDevice(McuSupportDevice::create());
 
-    connect(KitManager::instance(), &KitManager::kitsLoaded, this, [] {
+    connect(KitManager::instance(), &KitManager::kitsLoaded, this, [this] {
         McuKitManager::removeOutdatedKits();
         McuKitManager::createAutomaticKits(dd->m_settingsHandler);
+        if (!McuKitManager::isCMakeAvailable()) {
+            // The desktop device may still be detecting its CMake.
+            auto connection = std::make_shared<QMetaObject::Connection>();
+            *connection = connect(DeviceManager::instance(), &DeviceManager::deviceUpdated,
+                                  this, [connection](Utils::Id deviceId) {
+                if (deviceId != DeviceManager::defaultDesktopDevice()->id()
+                    || !McuKitManager::isCMakeAvailable()) {
+                    return;
+                }
+                QObject::disconnect(*connection);
+                McuKitManager::createAutomaticKits(dd->m_settingsHandler);
+            });
+        }
         McuKitManager::fixExistingKits(dd->m_settingsHandler);
         askUserAboutMcuSupportKitsSetup();
         askUserAboutRemovingUninstalledTargetsKits();

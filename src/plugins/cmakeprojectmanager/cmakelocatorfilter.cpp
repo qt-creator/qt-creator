@@ -614,8 +614,7 @@ private:
                                                    cbs->project()->projectDirectory());
 
             QVersionNumber ctestVersion;
-            if (const CMakeTool *tool = CMakeToolManager::findByCommand(
-                    CMakeKitAspect::cmakeExecutable(buildSystem->kit()))) {
+            if (const CMakeTool *tool = CMakeKitAspect::cmakeTool(buildSystem->kit())) {
                 const CMakeTool::Version version = tool->version();
                 ctestVersion = QVersionNumber(version.major, version.minor, version.patch);
             }

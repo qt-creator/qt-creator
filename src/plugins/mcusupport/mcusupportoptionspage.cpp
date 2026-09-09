@@ -11,9 +11,10 @@
 #include "mcutarget.h"
 #include "settingshandler.h"
 
-#include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
+
 #include <coreplugin/icore.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
@@ -82,7 +83,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
         m_statusInfoLabel->setOpenExternalLinks(false);
         mainLayout->addWidget(m_statusInfoLabel);
         connect(m_statusInfoLabel, &QLabel::linkActivated, this, [] {
-            Core::ICore::showSettings(CMakeProjectManager::Constants::Settings::TOOLS_ID);
+            Core::ICore::showSettings(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID);
         });
     }
 
@@ -176,6 +177,14 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
             &McuSupportOptions::packagesChanged,
             this,
             &McuSupportOptionsWidget::updateStatus);
+    connect(ProjectExplorer::DeviceManager::instance(),
+            &ProjectExplorer::DeviceManager::deviceUpdated,
+            this,
+            &McuSupportOptionsWidget::updateStatus);
+    connect(CMakeProjectManager::CMakeToolManager::instance(),
+            &CMakeProjectManager::CMakeToolManager::defaultCMakeChanged,
+            this,
+            &McuSupportOptionsWidget::updateStatus);
 
     showMcuTargetPackages();
 
@@ -187,7 +196,7 @@ void McuSupportOptionsWidget::updateStatus()
 {
     const McuTargetPtr mcuTarget = currentMcuTarget();
 
-    const bool cMakeAvailable = !CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty();
+    const bool cMakeAvailable = McuKitManager::isCMakeAvailable();
 
     // Page elements
     {
@@ -254,8 +263,8 @@ void McuSupportOptionsWidget::updateStatus()
         m_statusInfoLabel->setVisible(!cMakeAvailable);
         if (m_statusInfoLabel->isVisible()) {
             m_statusInfoLabel->setType(Utils::InfoLabelType::NotOk);
-            m_statusInfoLabel->setText(Tr::tr("No CMake tool was detected. Add a CMake tool in the "
-                                       "<a href=\"cmake\">CMake options</a> and select Apply."));
+            m_statusInfoLabel->setText(Tr::tr("No CMake tool was detected. Set a CMake path in "
+                                       "the <a href=\"cmake\">device options</a>."));
         }
     }
 }

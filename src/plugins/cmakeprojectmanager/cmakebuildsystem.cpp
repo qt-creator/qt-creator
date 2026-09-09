@@ -276,7 +276,7 @@ void CMakeBuildSystem::triggerParsing()
     // active code model updater when the next one will be triggered.
     m_cppCodeModelUpdater->cancel();
 
-    const CMakeTool *tool = CMakeToolManager::findByCommand(m_parameters.cmakeExecutable);
+    const CMakeTool *tool = CMakeToolManager::cmakeToolForPath(m_parameters.cmakeExecutable);
     CMakeTool::Version version = tool ? tool->version() : CMakeTool::Version();
     const bool isDebuggable = (version.major == 3 && version.minor >= 27) || version.major > 3;
 
@@ -3305,7 +3305,7 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
                                  << "setting parameters and requesting reparse"
                                  << reparseParametersString(reparseParameters);
 
-    const CMakeTool *tool = CMakeToolManager::findByCommand(parameters.cmakeExecutable);
+    const CMakeTool *tool = CMakeToolManager::cmakeToolForPath(parameters.cmakeExecutable);
     if (!tool || !tool->isValid()) {
         TaskHub::addTask<BuildSystemTask>(
                     Task::Error, Tr::tr("The kit needs to define a CMake tool to parse this project."));
@@ -5411,7 +5411,7 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
     if (!buildConfiguration())
         return {};
     const CMakeTool * const cmakeTool =
-        CMakeToolManager::findByCommand(m_parameters.cmakeExecutable);
+        CMakeToolManager::cmakeToolForPath(m_parameters.cmakeExecutable);
     if (!cmakeTool)
         return {};
     QList<QPair<Id, QString>> result;

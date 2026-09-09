@@ -22,6 +22,7 @@
 #include "cmakequickfixes.h"
 #include "cmakesemantichighlighter.h"
 #include "cmakesettingspage.h"
+#include "cmaketool.h"
 #include "cmaketoolmanager.h"
 #include "cmakeusages.h"
 #include "conditionalsources.h"
@@ -60,9 +61,28 @@ public:
     {
         setToolId(Constants::CMAKE_TOOL_ID);
         setToolType(DeviceToolAspect::BuildTool);
-        setFilePattern({"cmake"});
+        setFilePattern({"cmake",
+                        "/Applications/CMake.app/Contents/bin/cmake",
+                        "/usr/local/bin/cmake",
+                        "/opt/homebrew/bin/cmake",
+                        "/opt/local/bin/cmake",
+                        "C:/Program Files/CMake/bin/cmake",
+                        "C:/Program Files (x86)/CMake/bin/cmake"});
         setLabelText(Tr::tr("CMake executable:"));
         setDisplayName(Tr::tr("CMake"));
+        const Id checkId("CMakeProjectManager.DeviceToolCheck");
+        setChecker([checkId](const DeviceConstRef &device, const FilePath &candidate) -> Result<> {
+            // Absolute file patterns are looked up on the host, whatever the device is.
+            if (!candidate.isSameDevice(device.filePath("/")))
+                return ResultError(Tr::tr("CMake executable is not on the device."));
+            CMakeTool cmake(DetectionSource::FromSystem, checkId);
+            cmake.setFilePath(candidate);
+            if (!cmake.isValid()) {
+                return ResultError(Tr::tr("CMake executable does not provide required IDE "
+                                          "integration features."));
+            }
+            return ResultOk;
+        });
     }
 };
 
@@ -107,6 +127,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createAddDependenciesTest);
         addTestCreator(createBinariesForSourceFileTest);
         addTestCreator(createCMakeHelperDirectoryTest);
+        addTestCreator(createCMakeKitAspectTest);
         addTestCreator(createImportedLibraryDirectoriesTest);
         addTestCreator(createJavaBuildTargetTest);
         addTestCreator(createJavaExecutableTest);

@@ -27,7 +27,6 @@
 #include <rstlang/rstdocument.h>
 #include <rstlang/rstmarkdown.h>
 
-#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
@@ -39,6 +38,9 @@
 #include <QDateTime>
 #include <QMutex>
 #include <QStandardPaths>
+#include <QThread>
+
+#include <unordered_map>
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
@@ -94,6 +96,8 @@ class CMakeToolManagerPrivate
 public:
     Id m_defaultCMake;
     std::vector<std::unique_ptr<CMakeTool>> m_cmakeTools;
+    std::unordered_map<FilePath, std::unique_ptr<CMakeTool>> m_toolsForPath;
+    std::unordered_map<FilePath, CMakeTool *> m_lookupCache;
     Internal::CMakeToolSettingsAccessor m_accessor;
     FilePath m_junctionsDir;
     int m_junctionsHashLength = 32;
@@ -111,12 +115,9 @@ CMakeToolManager::CMakeToolManager()
     d = new CMakeToolManagerPrivate;
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &CMakeToolManager::saveCMakeTools);
-
-    DeviceManager::addToolDetector(this, Tr::tr("Searching for CMake..."),
-                                   [this](const ToolDetectionRequest &request,
-                                          const std::function<void()> &done) {
-        handleDeviceToolDetectionRequest(request, done);
-    });
+    const auto deviceChanged = [] { d->m_lookupCache.clear(); };
+    connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, this, deviceChanged);
+    connect(DeviceManager::instance(), &DeviceManager::deviceRemoved, this, deviceChanged);
 
     setObjectName("CMakeToolManager");
     ExtensionSystem::PluginManager::addObject(this);
@@ -152,6 +153,7 @@ bool CMakeToolManager::registerCMakeTool(std::unique_ptr<CMakeTool> &&tool)
     }), return false);
 
     d->m_cmakeTools.emplace_back(std::move(tool));
+    d->m_lookupCache.clear();
 
     emit m_instance->cmakeAdded(toolId);
 
@@ -166,6 +168,7 @@ void CMakeToolManager::deregisterCMakeTool(const Id &id)
 {
     auto toRemove = Utils::take(d->m_cmakeTools, Utils::equal(&CMakeTool::id, id));
     if (toRemove.has_value()) {
+        d->m_lookupCache.clear();
         ensureDefaultCMakeToolIsValid();
 
         updateDocumentation();
@@ -232,11 +235,8 @@ CMakeKeywords CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords()
 static CMakeTool *keywordTool()
 {
     CMakeTool *tool = nullptr;
-    if (auto bs = activeBuildSystemForCurrentProject()) {
-        const FilePath executable = CMakeKitAspect::cmakeExecutable(bs->kit());
-        if (!executable.isEmpty())
-            tool = CMakeToolManager::findByCommand(executable);
-    }
+    if (auto bs = activeBuildSystemForCurrentProject())
+        tool = CMakeKitAspect::cmakeTool(bs->kit());
     if (!tool)
         tool = CMakeToolManager::defaultCMakeTool();
     return tool;
@@ -282,16 +282,38 @@ CMakeTool *CMakeToolManager::findByCommand(const FilePath &command)
         Utils::equal(&CMakeTool::cmakeExecutable, CMakeTool::cmakeExecutable(command)));
 }
 
-Id CMakeToolManager::idForExecutable(const FilePath &cmakeExecutable)
-{
-    if (CMakeTool *tool = findByCommand(cmakeExecutable))
-        return tool->id();
-    return {};
-}
-
 CMakeTool *CMakeToolManager::findById(const Id &id)
 {
     return Utils::findOrDefault(d->m_cmakeTools, Utils::equal(&CMakeTool::id, id));
+}
+
+CMakeTool *CMakeToolManager::cmakeToolForPath(const FilePath &executable)
+{
+    if (executable.isEmpty())
+        return nullptr;
+
+    if (const auto it = d->m_lookupCache.find(executable); it != d->m_lookupCache.end())
+        return it->second;
+
+    const FilePath canonical = CMakeTool::cmakeExecutable(executable);
+    CMakeTool *tool = findByCommand(canonical);
+    if (!tool) {
+        if (const auto it = d->m_toolsForPath.find(executable); it != d->m_toolsForPath.end()) {
+            tool = it->second.get();
+        } else if (canonical.isExecutableFile()) {
+            auto newTool = std::make_unique<CMakeTool>(DetectionSource::FromSystem,
+                                                       CMakeTool::createId());
+            newTool->setFilePath(executable);
+            newTool->setDisplayName(executable.toUserOutput());
+            tool = d->m_toolsForPath.emplace(executable, std::move(newTool)).first->second.get();
+            if (!tool->qchFilePath().isEmpty())
+                updateDocumentation();
+        }
+    }
+    // A failed lookup on a remote device is cached too, as it costs round-trips.
+    if (tool || !executable.isLocal())
+        d->m_lookupCache.emplace(executable, tool);
+    return tool;
 }
 
 FilePath CMakeToolManager::executableForId(const Id id)
@@ -318,6 +340,10 @@ void CMakeToolManager::updateDocumentation()
     const QList<CMakeTool *> tools = cmakeTools();
     FilePaths docs;
     for (const auto tool : tools) {
+        if (!tool->qchFilePath().isEmpty())
+            docs.append(tool->qchFilePath());
+    }
+    for (const auto &[path, tool] : d->m_toolsForPath) {
         if (!tool->qchFilePath().isEmpty())
             docs.append(tool->qchFilePath());
     }
@@ -552,6 +578,7 @@ void CMakeToolManager::removeDetectedCMake(
         });
         if (!toRemove.has_value())
             break;
+        d->m_lookupCache.clear();
         logCallback(Tr::tr("Removing CMake tool \"%1\".").arg((*toRemove)->displayName()));
         emit m_instance->cmakeRemoved((*toRemove)->id());
     }
@@ -562,8 +589,12 @@ void CMakeToolManager::removeDetectedCMake(
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)
 {
+    // Device tool checkers run CMakeTools on worker threads, and those are never registered.
+    if (!QThread::isMainThread())
+        return;
     if (!tool || !Utils::contains(d->m_cmakeTools, tool))
         return;
+    d->m_lookupCache.clear();
     emit m_instance->cmakeUpdated(tool->id());
 }
 
@@ -590,33 +621,6 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
     // signaling:
     if (oldId != d->m_defaultCMake)
         emit m_instance->defaultCMakeChanged();
-}
-
-void CMakeToolManager::handleDeviceToolDetectionRequest(
-    const ToolDetectionRequest &request, const std::function<void()> &done)
-{
-    const auto future = Utils::asyncRun(
-        autoDetectCMakeTools, request.searchPaths, request.device->rootPath(), request.source);
-    const auto cont = [devId = request.device->id(), logger = request.logger, done](
-                          auto &&future) {
-        if (!DeviceManager::find(devId))
-            return;
-        auto detected = future.takeResult();
-        bool foundNew = false;
-        for (auto &&tool : detected) {
-            if (!CMakeToolManager::findByCommand(tool->cmakeExecutable())) {
-                foundNew = true;
-                if (logger)
-                    logger.logItem(
-                        Tr::tr("Found CMake: %1").arg(tool->cmakeExecutable().toUserOutput()));
-                CMakeToolManager::registerCMakeTool(std::move(tool));
-            }
-        }
-        if (logger && !foundNew)
-            logger.logItem(Tr::tr("No new CMake found."));
-        done();
-    };
-    Utils::onFinished(future, this, cont);
 }
 
 void Internal::setupCMakeToolManager(QObject *guard)

@@ -274,8 +274,8 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
              "C++ compiler is not located on the device.");
 
     // Qt and CMake are attached asynchronously after the kit appears, each by the owning plugin's
-    // kit aspect. Their kit values are checked generically (Qt version id / CMake tool id) so this
-    // test needs no QtSupport or CMakeProjectManager dependency. Each check is guarded on the
+    // kit aspect. Their kit values are checked generically (Qt version id / CMake executable) so
+    // this test needs no QtSupport or CMakeProjectManager dependency. Each check is guarded on the
     // aspect actually being registered: a -test run may not load those plugins (the full GUI
     // always does), so run with e.g. "-load QtSupport -load CMakeProjectManager" to exercise them.
     const auto aspectAvailable = [](const Id &id) {
@@ -297,12 +297,13 @@ void WindowsDeviceDetectionTest::testDetectToolchainsAndCreateKit()
 
     const Id cmakeAspectId("CMakeProjectManager.CMakeKitInformation");
     if (aspectAvailable(cmakeAspectId)) {
-        const bool cmakeAttached = waitFor([&] {
-            const QVariant v = kit->value(cmakeAspectId);
-            return v.isValid() && !v.toString().isEmpty();
-        }, 30 * 1000);
-        qDebug().noquote() << "  CMake: tool id" << kit->value(cmakeAspectId).toString();
-        QVERIFY2(cmakeAttached, "No CMake tool was attached to the kit.");
+        // An empty kit value means the build device's CMake.
+        const FilePath deviceCMake = device->deviceToolPath(Id("CMakeExecutable"));
+        const QString kitValue = kit->value(cmakeAspectId).toString();
+        qDebug().noquote() << "  CMake: kit" << kitValue << "device" << deviceCMake.toUserOutput();
+        QVERIFY2(!kitValue.isEmpty()
+                     || (deviceCMake.isSameDevice(deviceRoot) && deviceCMake.isExecutableFile()),
+                 "Neither the kit nor the device provides a CMake executable.");
     } else {
         qWarning("CMakeProjectManager not loaded; skipping the CMake attachment check.");
     }

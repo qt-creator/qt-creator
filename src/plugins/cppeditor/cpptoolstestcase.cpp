@@ -18,6 +18,8 @@
 #include <cplusplus/CppDocument.h>
 
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -529,7 +531,14 @@ Kit *kitWithQt()
 // The first valid kit with a C++ compiler and CMake, or null.
 Kit *kitWithCMake()
 {
-    return kitWithCxxCompilerAnd("CMakeProjectManager.CMakeKitInformation");
+    return Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        if (!k->isValid() || !ToolchainKitAspect::cxxToolchain(k))
+            return false;
+        if (k->value("CMakeProjectManager.CMakeKitInformation").isValid())
+            return true;
+        const IDevice::ConstPtr device = BuildDeviceKitAspect::device(k);
+        return device && !device->deviceToolPath("CMakeExecutable").isEmpty();
+    });
 }
 
 // The clangd settings live in ClangCodeModel, which sets these hooks.

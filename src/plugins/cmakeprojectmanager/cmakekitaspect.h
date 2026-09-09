@@ -7,6 +7,8 @@
 
 #include "cmakeconfigitem.h"
 
+#include <projectexplorer/devicesupport/idevicefwd.h>
+
 #include <utils/id.h>
 
 namespace ProjectExplorer { class KitAspect; }
@@ -14,13 +16,17 @@ namespace ProjectExplorer { class KitAspect; }
 namespace CMakeProjectManager {
 
 class CMakeKeywords;
+class CMakeTool;
 
 class CMAKE_EXPORT CMakeKitAspect
 {
 public:
     static Utils::Id id();
 
+    static CMakeTool *cmakeTool(const ProjectExplorer::Kit *k);
     static Utils::FilePath cmakeExecutable(const ProjectExplorer::Kit *k);
+    static Utils::FilePath cmakeExecutableForNewKit(
+        const ProjectExplorer::IDeviceConstPtr &buildDevice);
     static CMakeKeywords cmakeKeywords(const ProjectExplorer::Kit *k);
     static void setCMakeExecutable(ProjectExplorer::Kit *k,
                                    const Utils::FilePath &cmakeExecutable);
@@ -28,9 +34,6 @@ public:
 
     static ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k);
     static void openCMakeHelpUrl(ProjectExplorer::Kit *k, const QString &target);
-
-private:
-    friend class CMakeToolManager;
 };
 
 class CMAKE_EXPORT CMakeGeneratorKitAspect
@@ -73,6 +76,11 @@ public:
     static ProjectExplorer::KitAspect *createKitAspect(ProjectExplorer::Kit *k);
 };
 
-namespace Internal { void setupCMakeKitAspects(); }
+namespace Internal {
+void setupCMakeKitAspects();
+#ifdef WITH_TESTS
+QObject *createCMakeKitAspectTest();
+#endif
+} // Internal
 
 } // CMakeProjectManager

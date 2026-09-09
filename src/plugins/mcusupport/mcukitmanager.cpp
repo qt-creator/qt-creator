@@ -15,13 +15,13 @@
 #include "mcutarget.h"
 
 #include <cmakeprojectmanager/cmakekitaspect.h>
-#include <cmakeprojectmanager/cmaketoolmanager.h>
 
 #include <coreplugin/icore.h>
 
 #include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -498,6 +498,12 @@ QList<Kit *> outdatedKits()
 
 // Maintenance
 
+bool isCMakeAvailable()
+{
+    return !CMakeProjectManager::CMakeKitAspect::cmakeExecutableForNewKit(
+                DeviceManager::defaultDesktopDevice()).isEmpty();
+}
+
 static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settingsHandler)
 {
     const char upgradeMcuSupportKits[] = "UpgradeMcuSupportKits";
@@ -577,9 +583,9 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 return;
             }
 
-            if (CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty()) {
-                const QString message = Tr::tr("No CMake tool was detected. Add a CMake tool in Edit > Preferences > "
-                           "Kits > CMake.");
+            if (!isCMakeAvailable()) {
+                const QString message = Tr::tr("No CMake tool was detected. Set a CMake path in "
+                           "Edit > Preferences > Devices.");
                 autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
                 printMessage(message, true);
                 return;

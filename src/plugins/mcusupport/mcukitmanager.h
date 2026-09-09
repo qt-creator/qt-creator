@@ -24,6 +24,8 @@ enum class UpgradeOption { Ignore, Keep, Replace };
 // Kit Factory
 ProjectExplorer::Kit *newKit(const McuTarget *mcuTarget, const McuPackagePtr &qtForMCUsSdk);
 
+bool isCMakeAvailable();
+
 // Kit information
 QString generateKitNameFromTarget(const McuTarget *mcuTarget);
 QVersionNumber kitQulVersion(const ProjectExplorer::Kit *kit);

@@ -206,25 +206,6 @@ struct DirectoryData
     QVariant debugger;
 };
 
-static QString baseCMakeToolDisplayName(CMakeTool &tool)
-{
-    if (!tool.isValid())
-        return QString("CMake");
-
-    CMakeTool::Version version = tool.version();
-    return QString("CMake %1.%2.%3").arg(version.major).arg(version.minor).arg(version.patch);
-}
-
-static QString uniqueCMakeToolDisplayName(CMakeTool &tool)
-{
-    QString baseName = baseCMakeToolDisplayName(tool);
-
-    QStringList existingNames;
-    for (const CMakeTool *t : CMakeToolManager::cmakeTools())
-        existingNames << t->displayName();
-    return Utils::makeUniquelyNumbered(baseName, existingNames);
-}
-
 static const char probeStampName[] = "qtc-probe-stamp";
 
 // A probe directory outlives the session that created it, so that opening the project again
@@ -286,40 +267,12 @@ static Result<> discardUnusableProbe(const FilePath &probeDirectory, const QByte
 
 // CMakeProjectImporter
 
-static void cleanupTemporaryCMake(Kit *k, const QVariantList &vl)
-{
-    if (vl.isEmpty())
-        return; // No temporary CMake
-    QTC_ASSERT(vl.count() == 1, return);
-    CMakeKitAspect::setCMakeExecutable(k, FilePath()); // Always mark Kit as not using this Qt
-    CMakeToolManager::deregisterCMakeTool(Id::fromSetting(vl.at(0)));
-    qCDebug(cmInputLog) << "Temporary CMake tool cleaned up.";
-}
-
-static void persistTemporaryCMake(Kit *k, const QVariantList &vl)
-{
-    if (vl.isEmpty())
-        return; // No temporary CMake
-    QTC_ASSERT(vl.count() == 1, return);
-    const QVariant &data = vl.at(0);
-    CMakeTool *tmpCmake = CMakeToolManager::findById(Id::fromSetting(data));
-    FilePath actualCmake = CMakeKitAspect::cmakeExecutable(k);
-
-    // User changed Kit away from temporary CMake that was set up:
-    if (tmpCmake && actualCmake != tmpCmake->cmakeExecutable())
-        CMakeToolManager::deregisterCMakeTool(tmpCmake->id());
-
-    qCDebug(cmInputLog) << "Temporary CMake tool made persistent.";
-}
-
 CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const CMakeProject *project)
     : QtProjectImporter(path)
     , m_project(project)
     , m_presetsProbeDir(
           path.parentDir() / ProjectExplorer::Constants::PROJECT_QTC_DIR / "cmake-presets")
-{
-    useTemporaryKitAspect(CMakeKitAspect::id(), &cleanupTemporaryCMake, &persistTemporaryCMake);
-}
+{}
 
 using CharToHexList = QList<QPair<QString, QString>>;
 static const CharToHexList &charToHexList()
@@ -2139,24 +2092,12 @@ void CMakeProjectImporter::applyDirectoryDataToKit(const DirectoryData &data, Pr
     const DetectionSource detectionSource = !data.cmakePreset.isEmpty() ? DetectionSource::Temporary
                                                                         : DetectionSource::Manual;
 
-    CMakeTool *cmakeTool = CMakeToolManager::findByCommand(data.cmakeBinary);
-    if (!cmakeTool) {
-        qCDebug(cmInputLog) << "Creating temporary CMakeTool for" << data.cmakeBinary.toUserOutput();
-
-        UpdateGuard guard(*this);
-
-        auto newTool = std::make_unique<CMakeTool>(detectionSource, CMakeTool::createId());
-        newTool->setFilePath(data.cmakeBinary);
-        newTool->setDisplayName(uniqueCMakeToolDisplayName(*newTool));
-
-        cmakeTool = newTool.get();
-        CMakeToolManager::registerCMakeTool(std::move(newTool));
-        addTemporaryData(CMakeKitAspect::id(), cmakeTool->id().toSetting(), k);
-    }
-
     QtSupport::QtKitAspect::setQtVersion(k, data.qt.qt);
 
-    CMakeKitAspect::setCMakeExecutable(k, data.cmakeBinary);
+    FilePath cmake = data.cmakeBinary;
+    if (const CMakeTool *tool = CMakeToolManager::findByCommand(cmake))
+        cmake = tool->filePath(); // Keep the symlink the user registered.
+    CMakeKitAspect::setCMakeExecutable(k, cmake);
 
     CMakeConfigurationKitAspect::setConfiguration(
         k, CMakeConfigurationKitAspect::defaultConfiguration(k));
@@ -2167,6 +2108,12 @@ void CMakeProjectImporter::applyDirectoryDataToKit(const DirectoryData &data, Pr
 
     SysRootKitAspect::setSysRoot(k, data.sysroot);
     setupBuildAndRunDevice(k, data.cmakeSystemName, data.sysroot);
+
+    if (const IDevice::ConstPtr device = BuildDeviceKitAspect::device(k)) {
+        const FilePath deviceCMake = device->deviceToolPath(Constants::CMAKE_TOOL_ID);
+        if (!cmake.isEmpty() && !deviceCMake.isEmpty() && cmake.isSameFile(deviceCMake))
+            CMakeKitAspect::setCMakeExecutable(k, {}); // Follow the build device.
+    }
 
     for (const ToolchainDescriptionEx &cmtcd : std::as_const(data.toolchains)) {
         const ToolchainData tcd = findOrCreateToolchains(cmtcd);
@@ -2300,6 +2247,7 @@ private slots:
     void testQtFromFilesIsFoundByPrefixPath();
     void testPresetQmakeNotInPathFindsNoQt();
     void testPresetKitNameFollowsTheTemplate();
+    void testImportedCMakePath();
 };
 
 void CMakeProjectImporterTest::testCMakeProjectImporterQt_data()
@@ -2863,6 +2811,64 @@ void CMakeProjectImporterTest::testPresetKitNameFollowsTheTemplate()
     // A template that expands to nothing falls back to the display name of the preset.
     settings.presetKitNameTemplate.setValue("");
     QCOMPARE(kit->displayName(), QString("Preset Display Name"));
+}
+
+void CMakeProjectImporterTest::testImportedCMakePath()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Needs Unix symlinks and executable scripts");
+    QTemporaryDir temp;
+    QVERIFY(temp.isValid());
+    const FilePath root = FilePath::fromString(temp.path());
+    const FilePath script = root / "cmake";
+    const FilePath other = root / "other-cmake";
+    for (const FilePath &file : {script, other}) {
+        QVERIFY(file.writeFileContents("#!/bin/sh\n"));
+        QVERIFY(file.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+    }
+    const FilePath link = root / "link-to-cmake";
+    QVERIFY(QFile::link(script.path(), link.path()));
+
+    const IDevice::Ptr desktop = DeviceManager::find(
+        DeviceManager::defaultDesktopDevice()->id());
+    QVERIFY(desktop);
+    DeviceToolAspect *aspect = Utils::findOrDefault(
+        desktop->deviceToolAspects(DeviceToolAspect::AllTools), [](DeviceToolAspect *a) {
+            return a->toolId() == Constants::CMAKE_TOOL_ID;
+        });
+    QVERIFY(aspect);
+    const FilePath oldDeviceTool = aspect->toolPath();
+    const auto restoreDeviceTool = qScopeGuard([aspect, oldDeviceTool] {
+        aspect->setToolPath(oldDeviceTool);
+    });
+
+    const FilePath projectFile = root / "project/CMakeLists.txt";
+    QVERIFY(projectFile.parentDir().ensureWritableDir());
+    QVERIFY(projectFile.writeFileContents("project(importedcmake)"));
+    CMakeProject project(projectFile);
+    const CMakeProjectImporter importer(projectFile, &project);
+
+    const auto importedValue = [&](const FilePath &cmakeBinary) {
+        DirectoryData data;
+        data.cmakeBinary = cmakeBinary;
+        Kit k;
+        BuildDeviceKitAspect::setDeviceId(&k, desktop->id());
+        importer.applyDirectoryDataToKit(data, &k);
+        return FilePath::fromSettings(k.value(Constants::TOOL_ID));
+    };
+
+    // The same file as the build device's CMake follows the device.
+    aspect->setToolPath(script);
+    QCOMPARE(importedValue(link), FilePath());
+
+    // A registered tool keeps the path it was registered with.
+    aspect->setToolPath(other);
+    auto tool = std::make_unique<CMakeTool>(DetectionSource::Manual, CMakeTool::createId());
+    tool->setFilePath(link);
+    const Id id = tool->id();
+    QVERIFY(CMakeToolManager::registerCMakeTool(std::move(tool)));
+    const auto deregister = qScopeGuard([id] { CMakeToolManager::deregisterCMakeTool(id); });
+    QCOMPARE(importedValue(script), link);
 }
 
 QObject *createCMakeProjectImporterTest()
