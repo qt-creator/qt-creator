@@ -1,0 +1,1 @@
+Generate Missing Q_PROPERTY Members and Add BINDABLE Support
