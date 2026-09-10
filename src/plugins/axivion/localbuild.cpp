@@ -542,7 +542,6 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     }
 
     const QString createdPassFile = env.value("AXIVION_PASSFILE");
-    qCDebug(localDashLog) << "passfile:" << createdPassFile;
 
     CommandLine cmdLine;
     setupEnvAndCommandLineFromUserInput(&env, &cmdLine, settings().lastLocalBuildCommand(), dia.buildType());
@@ -580,7 +579,6 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
             const FilePath fp = FilePath::fromUserInput(createdPassFile);
             if (QTC_GUARD(fp.exists())) {
                 fp.removeFile();
-                qCDebug(localBuildLog) << "removed passfile: " << createdPassFile;
             }
         }
         QString state;

@@ -1466,7 +1466,7 @@ void updateEnvironmentForLocalBuild(Environment *env)
     if (bytes.size() < 256)
         bytes.append(256 - bytes.size(), 0x20);
     QTC_ASSERT(bytes.size() >= 256, qDebug() << bytes.size(); return);
-    QRandomGenerator *gen = QRandomGenerator::global();
+    QRandomGenerator *gen = QRandomGenerator::system();
     QByteArray key;
     key.reserve(bytes.size());
     for (int i = 0, end = bytes.size(); i < end; ++i)
