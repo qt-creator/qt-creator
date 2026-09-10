@@ -21,6 +21,7 @@
 
 #include <qmath.h>
 
+#include <optional>
 
 // Clamps float color values within (0, 255)
 static int clamp(float x)
@@ -953,24 +954,70 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
     if (isReadableOn(background, desiredForeground))
         return desiredForeground;
 
-    int h, s, v;
-    QColor foreground = desiredForeground;
-    foreground.getHsv(&h, &s, &v);
-    // adjust the color value to ensure better readability
-    if (luminance(background) < .5)
-        v = v + 64;
-    else if (v >= 64)
-        v = v - 64;
-    v %= 256;
+    int hue = 0;
+    int saturation = 0;
+    int value = 0;
+    desiredForeground.getHsv(&hue, &saturation, &value);
 
-    foreground.setHsv(h, s, v);
-    if (!isReadableOn(background, foreground)) {
-        s = (s + 128) % 256;    // adjust the saturation to ensure better readability
-        foreground.setHsv(h, s, v);
-        if (!isReadableOn(background, foreground)) // we failed to create some better foreground
-            return desiredForeground;
-    }
-    return foreground;
+    const auto atValue = [&](int v) {
+        return QColor::fromHsv(hue, saturation, v, desiredForeground.alpha());
+    };
+    const auto atSaturation = [&](int s) {
+        return QColor::fromHsv(hue, s, 255, desiredForeground.alpha());
+    };
+    // getHsv() and fromHsv() quantize, so the color at the desired value is not
+    // quite the desired color, and the round trip can land on a readable one.
+    // That one is then the nearest there is - it is a step away from what was
+    // asked for - and taking it leaves the bisection below with the unreadable
+    // end it assumes.
+    if (isReadableOn(background, atValue(value)))
+        return atValue(value);
+
+    // Readability is monotonic in the coordinate once the direction is fixed,
+    // so the readable color nearest the unreadable one is a bisection away.
+    const auto nearestReadable =
+        [&](const auto &colorAt, int unreadable, int limit) -> std::optional<int> {
+        if (!isReadableOn(background, colorAt(limit)))
+            return std::nullopt;
+        int readable = limit;
+        while (qAbs(readable - unreadable) > 1) {
+            const int middle = (readable + unreadable) / 2;
+            if (isReadableOn(background, colorAt(middle)))
+                readable = middle;
+            else
+                unreadable = middle;
+        }
+        return readable;
+    };
+
+    const std::optional<int> lighter = nearestReadable(atValue, value, 255);
+    const std::optional<int> darker = nearestReadable(atValue, value, 0);
+    if (lighter && darker)
+        return atValue(*lighter - value <= value - *darker ? *lighter : *darker);
+    if (lighter)
+        return atValue(*lighter);
+    if (darker)
+        return atValue(*darker);
+
+    // A saturated hue has a luminance ceiling that no value lifts: pure blue
+    // stays too dark for a dark background however bright it is made. Giving up
+    // saturation raises that ceiling, so the hue is kept and the value goes to
+    // the top with the saturation: of the three, only the hue survives here.
+    //
+    // A saturation that reads always exists: neither direction of the value
+    // reaching 3:1 means pure black does not read on this background, which
+    // leaves it dark enough for pure white to.
+    //
+    // The hue survives because that saturation is never 0. Reaching this line
+    // at all needs black to be unreadable, and black is atValue(0), so
+    // (luminance(background) + .05) / .05 <= 3, that is luminance <= .1. The
+    // bisection returns 0 only where one step of saturation already fails while
+    // white reads, and the least luminous color one step from white - hue 211,
+    // luminance .9917 - puts that at luminance >= (.9917 + .05) / 3 - .05, that
+    // is >= .297. No background is both.
+    const std::optional<int> desaturated = nearestReadable(atSaturation, saturation, 0);
+    QTC_ASSERT(desaturated, return desiredForeground);
+    return atSaturation(*desaturated);
 }
 
 static const QStringList &applicationFontFamilies()
