@@ -13,6 +13,22 @@
       }
     },
     {
+      "name": "harmonyos",
+      "displayName": "Qt Creator for HarmonyOS (arm64)",
+      "description": "Cross-compile Qt Creator itself for a HarmonyOS device, ready for the HarmonyOS plugin to package, sign, install and start it. Expects four environment variables. QT_HARMONYOS_ROOT points at a Qt for HarmonyOS installation, e.g. ~/Qt/6.12.0/harmonyos_arm64_v8a, and QT_HOST_PATH at the matching host Qt. QT_HARMONYOS_SDK points at the command-line-tools directory: the Qt installation remembers the toolchain file of the machine it was built on rather than the one here, and without this the build silently falls back to the host compiler. QT_HARMONYOS_PACKAGES is the prefix the third-party libraries Qt needs are installed under, without which harmonydeployqt stages none of them and the platform plugin cannot be loaded for want of libfontconfig.so.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/builds/harmonyos",
+      "toolchainFile": "$env{QT_HARMONYOS_ROOT}/lib/cmake/Qt6/qt.toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "QT_HOST_PATH": "$env{QT_HOST_PATH}",
+        "QT_CHAINLOAD_TOOLCHAIN_FILE": "$env{QT_HARMONYOS_SDK}/sdk/default/openharmony/native/build/cmake/ohos.toolchain.cmake",
+        "QT_ADDITIONAL_PACKAGES_PREFIX_PATH": "$env{QT_HARMONYOS_PACKAGES}",
+        "WITH_TESTS": "OFF",
+        "BUILD_WITH_PCH": "OFF"
+      }
+    },
+    {
       "name": "qtprofiler-wasm",
       "displayName": "qtprofiler (WebAssembly, multithread)",
       "description": "Cross-compile the standalone qtprofiler for Qt for WebAssembly. Builds only the Profiler plugin dependency closure plus the qtprofiler executable. Expects an activated emsdk (source emsdk_env.sh) and two environment variables: QT_WASM_ROOT pointing at a Qt for WebAssembly (multithread) installation, e.g. ~/Qt/6.11.1/wasm_multithread, and QT_HOST_PATH pointing at the matching host Qt, e.g. ~/Qt/6.11.1/macos.",
@@ -34,6 +50,11 @@
     }
   ],
   "buildPresets": [
+    {
+      "name": "harmonyos",
+      "displayName": "Qt Creator for HarmonyOS",
+      "configurePreset": "harmonyos"
+    },
     {
       "name": "qtprofiler-wasm",
       "displayName": "qtprofiler (WebAssembly)",

@@ -36,6 +36,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 qtc_handle_compiler_cache_support()
 qtc_handle_llvm_linker()
+qtc_handle_ohos_whole_archive()
 
 option(WITH_TESTS "Build Tests" ${ENV_QTC_WITH_TESTS})
 add_feature_info("Build tests" ${WITH_TESTS} "")

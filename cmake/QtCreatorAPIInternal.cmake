@@ -167,6 +167,24 @@ function(qtc_handle_llvm_linker)
   endif()
 endfunction()
 
+# CMake defines the WHOLE_ARCHIVE link feature per platform and linker, and has no
+# definition for OHOS. CMake 3.30 still picked one up from the Linux platform file, from
+# CMake 4 on there is none, and the TextEditor link then fails to generate with
+# "Feature 'WHOLE_ARCHIVE' is not supported", which reads like a porting problem and is
+# not one. ld.lld takes the same options the Linux definition uses.
+# Must be called after project(...).
+function(qtc_handle_ohos_whole_archive)
+  if (NOT OHOS OR CMAKE_LINK_LIBRARY_USING_WHOLE_ARCHIVE_SUPPORTED
+      OR CMAKE_CXX_LINK_LIBRARY_USING_WHOLE_ARCHIVE_SUPPORTED)
+    return()
+  endif()
+  set(CMAKE_CXX_LINK_LIBRARY_USING_WHOLE_ARCHIVE
+    "LINKER:--push-state,--whole-archive" "<LINK_ITEM>" "LINKER:--pop-state" PARENT_SCOPE)
+  set(CMAKE_CXX_LINK_LIBRARY_USING_WHOLE_ARCHIVE_SUPPORTED TRUE PARENT_SCOPE)
+  set(CMAKE_CXX_LINK_LIBRARY_WHOLE_ARCHIVE_ATTRIBUTES
+    LIBRARY_TYPE=STATIC DEDUPLICATION=YES OVERRIDE=DEFAULT PARENT_SCOPE)
+endfunction()
+
 function(qtc_enable_release_for_debug_configuration)
   if (MSVC)
     string(REPLACE "/Od" "/O2" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
