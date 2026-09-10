@@ -179,6 +179,8 @@ public:
     static QString exitMessage(const CommandLine &command, ProcessResult result, int exitCode,
                                std::chrono::milliseconds duration);
     QString exitMessage(FailureMessageFormat format = FailureMessageFormat::Plain) const;
+    QString exitMessage(const CommandLine &displayedCommand,
+                        FailureMessageFormat format = FailureMessageFormat::Plain) const;
     QString verboseExitMessage() const { return exitMessage(FailureMessageFormat::WithAllOutput); }
     std::chrono::milliseconds processDuration() const;
 

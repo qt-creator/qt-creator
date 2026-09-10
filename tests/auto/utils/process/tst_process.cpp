@@ -121,6 +121,7 @@ private slots:
     void removeArgsIf();
     void exitCode_data();
     void exitCode();
+    void exitMessageForDisplayedCommand();
     void runBlockingStdOut_data();
     void runBlockingStdOut();
     void runBlockingSignal_data();
@@ -681,6 +682,24 @@ void tst_Process::exitCode()
         QCOMPARE(process.exitCode(), exitCode);
         QCOMPARE(process.exitCode() == 0, process.result() == ProcessResult::FinishedWithSuccess);
     }
+}
+
+void tst_Process::exitMessageForDisplayedCommand()
+{
+    SubProcessConfig subConfig(ProcessTestApp::ExitCode::envVar(), QString::number(1));
+    Process process;
+    subConfig.setupSubProcess(&process);
+    process.runBlocking();
+
+    QCOMPARE(process.result(), ProcessResult::FinishedWithError);
+
+    const CommandLine displayed{FilePath::fromUserInput("/bin/conceal"),
+                                "--password *****", CommandLine::Raw};
+    const QString message = process.exitMessage(displayed);
+    QVERIFY(message.contains(displayed.toUserOutput()));
+    QVERIFY(!message.contains(process.commandLine().executable().fileName()));
+
+    QVERIFY(process.exitMessage().contains(process.commandLine().toUserOutput()));
 }
 
 void tst_Process::runBlockingStdOut_data()

@@ -1658,7 +1658,13 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result,
 
 QString Process::exitMessage(FailureMessageFormat format) const
 {
-    QString msg = exitMessage(commandLine(), result(), exitCode(), processDuration());
+    return exitMessage(commandLine(), format);
+}
+
+QString Process::exitMessage(const CommandLine &displayedCommand,
+                             FailureMessageFormat format) const
+{
+    QString msg = exitMessage(displayedCommand, result(), exitCode(), processDuration());
     if (result() == ProcessResult::StartFailed) {
         msg.append(' ');
         msg.append(errorString());

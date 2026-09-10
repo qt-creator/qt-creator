@@ -225,7 +225,9 @@ bool AbstractProcessStep::handleProcessDone(const Process &process)
 {
     const OutputFormat format = process.result() == ProcessResult::FinishedWithSuccess
                                     ? OutputFormat::NormalMessage : OutputFormat::ErrorMessage;
-    emit addOutput(process.exitMessage(), format);
+    const CommandLine displayed{d->m_displayedParams->effectiveCommand(),
+                                d->m_displayedParams->effectiveArguments(), CommandLine::Raw};
+    emit addOutput(process.exitMessage(displayed), format);
     if (d->outputFormatter && d->outputFormatter->hasFatalErrors())
         return false;
     return process.result() == ProcessResult::FinishedWithSuccess;
