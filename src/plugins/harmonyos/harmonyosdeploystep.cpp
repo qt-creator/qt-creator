@@ -1465,23 +1465,31 @@ private:
         m_unsignedPackage = packageDir(bc).pathAppended(buildKey + "-unsigned.hap");
         m_signedPackage = packageDir(bc).pathAppended(buildKey + ".hap");
 
-        CommandLine cmd{java, {"-jar", jar.nativePath(), "sign-app",
+        const auto arguments = [&](const QString &keyPwd, const QString &storePwd) {
+            return QStringList{"-jar", jar.nativePath(), "sign-app",
                                "-mode", "localSign",
                                "-signAlg", config.value(Constants::SIGNING_ALG_ENV_VAR,
                                                         "SHA256withECDSA"),
                                "-signCode", "1",
                                "-keyAlias", config.value(Constants::SIGNING_KEY_ALIAS_ENV_VAR),
-                               "-keyPwd", keyPassword,
-                               "-keystorePwd", storePassword,
+                               "-keyPwd", keyPwd,
+                               "-keystorePwd", storePwd,
                                "-keystoreFile",
                                config.value(Constants::SIGNING_STORE_FILE_ENV_VAR),
                                "-appCertFile",
                                config.value(Constants::SIGNING_CERT_PATH_ENV_VAR),
                                "-profileFile", config.value(Constants::SIGNING_PROFILE_ENV_VAR),
                                "-inFile", m_unsignedPackage.nativePath(),
-                               "-outFile", m_signedPackage.nativePath()}};
-        processParameters()->setCommandLine(cmd);
+                               "-outFile", m_signedPackage.nativePath()};
+        };
+        processParameters()->setCommandLine({java, arguments(keyPassword, storePassword)});
         processParameters()->setWorkingDirectory(packageDir(bc));
+
+        // The step prints the command line it starts, and these two are secrets.
+        setupProcessParameters(&m_concealedParams);
+        m_concealedParams.setWorkingDirectory(packageDir(bc));
+        m_concealedParams.setCommandLine({java, arguments("******", "******")});
+        setDisplayedParameters(&m_concealedParams);
         return true;
     }
 
@@ -1539,6 +1547,7 @@ private:
     FilePath m_signedPackage;
     QString m_content;
     QString m_signing;
+    ProcessParameters m_concealedParams;
 };
 
 class SignHapStepFactory final : public BuildStepFactory
