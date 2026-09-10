@@ -472,11 +472,20 @@ bool TerminalWidget::resizePty(QSize newSize)
 
 QString TerminalWidget::title() const
 {
-    const FilePath dir = cwd();
-    QString currentExecutable = currentCommand().isEmpty()
-                                    ? shellName()
-                                    : currentCommand().executable().fileName();
-    return Utils::joinStrings({currentExecutable, cwd().fileName()}, " - ");
+    QString title = m_title;
+    if (title.isEmpty()) {
+        title = currentCommand().isEmpty() ? shellName()
+                                           : currentCommand().executable().fileName();
+    }
+    // shortenedTitle has already reduced a title that ended in a path to that
+    // path's last component, which for the usual "\u@\h: \w" prompt is the
+    // last component of the working directory - the same string the label
+    // would otherwise end with. Show it once rather than as "qtc - qtc".
+    const QString dirName = cwd().fileName();
+    if (title == dirName)
+        return title;
+
+    return Utils::joinStrings({title, dirName}, " - ");
 }
 
 void TerminalWidget::updateCopyState()
