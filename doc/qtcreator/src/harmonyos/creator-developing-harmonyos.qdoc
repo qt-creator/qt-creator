@@ -27,14 +27,22 @@
         \li The HarmonyOS command-line tools, version 6.1 or newer, or an
             installation of DevEco Studio. The directory to point \QC at is the
             one that has both \c sdk and \c bin in it. The public OpenHarmony
-            SDK is not a substitute: it carries neither \c hvigor nor the
-            signing tools.
-        \li A Qt for HarmonyOS. \QC recognizes it by its \c ohos-clang mkspec.
+            SDK is not a substitute: it carries no \c hvigor, which packaging
+            an application needs.
+        \li A Qt for HarmonyOS. Qt Online Installer and Qt Maintenance Tool
+            offer one as \c {qt.qt6.<version>.harmonyos_arm64_v8a}, from Qt
+            6.12 on. \QC recognizes it by its \c ohos-clang mkspec. For a Qt
+            from a development branch, or for modules the package leaves out,
+            the \c {scripts/harmonyos/build_qt.py} script in the \QC sources
+            cross-builds one.
         \li A Java runtime. The SDK signs the package with
             \c hap-sign-tool.jar, which needs one.
         \li The third-party libraries Qt links against that the device does not
             carry, such as ICU, \c fontconfig, \c freetype, and \c libpng,
-            built for HarmonyOS and installed under one prefix.
+            built for HarmonyOS and installed under one prefix. The installed
+            package carries none of them, so it needs them as much as a Qt
+            built here does. The \c {scripts/harmonyos/install_third_party.py}
+            script in the \QC sources builds them with vcpkg.
         \li Signing material issued for a developer account: a certificate, a
             provisioning profile, a keystore, and the key alias. A provisioning
             profile is issued for one bundle name and, for debugging, for
@@ -63,12 +71,24 @@
             has the \c sdk and \c bin directories in it, or select
             \uicontrol {Auto-detect} to look for one in the usual places. The
             label below the field says what was found.
+        \li To install the public OpenHarmony SDK into that directory instead,
+            select \uicontrol Download. It covers the compilers, the sysroot,
+            and \c hdc, which is what building for a device and reaching one
+            take. Packaging an application still needs \c hvigor from Huawei's
+            command-line tools. The archive it comes in is a few gigabytes.
         \li In \uicontrol {Additional packages}, enter the installation prefix
             of the third-party libraries built for HarmonyOS, which is the
             directory their \c lib is in. \QC passes it to the build as
             \c QT_ADDITIONAL_PACKAGES_PREFIX_PATH, which adds the libraries
             into the package. Without them, the application installs and
             starts but cannot load the platform plugin.
+        \li In \uicontrol {Device-hosted SDK}, enter the root of an
+            OpenHarmony SDK whose own tools run on a device. Huawei publishes
+            it as \c native-ohos-x64, and its payload is for arm64 despite
+            that name. \QC takes a compiler, a CMake, and a sysroot out of it
+            and carries them in its own HarmonyOS package, which is what lets
+            a \QC that runs on a device build there. Leave the field empty
+            for a \QC that only builds on the host.
         \li Keep \uicontrol {Create kits automatically} selected to have \QC
             offer a kit for every Qt for HarmonyOS it knows about.
         \li Building for HarmonyOS needs a Qt that was cross-built for it. The
@@ -84,6 +104,19 @@
     \preferences > \uicontrol Kits > \uicontrol Compilers, and a device that
     \c hdc reports appears in \preferences > \uicontrol Devices >
     \uicontrol Devices, without any further configuration.
+
+    That toolchain is around 500 MB of the package it travels in. Configure
+    \QC with \c {-DQTC_HARMONYOS_DEVICE_TOOLCHAIN=OFF} to leave it out.
+
+    The Qt tools do not travel with it, because Qt cannot build them for
+    HarmonyOS yet. A \QC running on a device therefore needs a Qt that was
+    built on that device, registered once in \preferences >
+    \uicontrol Kits > \uicontrol {Qt Versions}. \QC completes the kit for
+    the device from it.
+
+    The \c {scripts/harmonyos/install_sdk.py} script in the \QC sources
+    installs the same SDK from the command line, and takes the release and the
+    components to unpack as arguments.
 
     \sa {Developing for HarmonyOS devices}, {HarmonyOS}{How to: Develop for
     HarmonyOS}, {Sign HarmonyOS packages}
