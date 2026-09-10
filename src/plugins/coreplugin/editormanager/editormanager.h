@@ -149,6 +149,14 @@ public:
 
     static void setWindowTitleAdditionHandler(WindowTitleHandler handler);
     static void setSessionTitleHandler(WindowTitleHandler handler);
+
+    // An editor area to put into a mode of its own, instead of taking the
+    // shared one with an EditorManagerPlaceHolder. Its splits and the editors
+    // in them stay as the mode was left, and the documents opened in it do not
+    // show up in the other modes. The caller takes ownership. \a modeId is the
+    // id of the mode the area belongs to: it names the area in the session,
+    // and is the mode raised when an editor in the area has to be shown.
+    static QWidget *createEditorArea(Utils::Id modeId);
     static void setWindowTitleVcsTopicHandler(WindowTitleHandler handler);
 
     enum ContextMenuFlag {

@@ -68,7 +68,7 @@ public:
         editorLayout->setContentsMargins(0, 0, 0, 0);
         editorLayout->setSpacing(0);
         editorLayout->addWidget(createToolBar());
-        editorLayout->addWidget(new EditorManagerPlaceHolder);
+        editorLayout->addWidget(EditorManager::createEditorArea(MODE_PROFILER));
         editorLayout->addWidget(new FindToolBarPlaceHolder(editorArea));
 
         auto editorAndRightPane = new MiniSplitter;

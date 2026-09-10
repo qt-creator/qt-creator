@@ -29,6 +29,7 @@
 #include "../vcsmanager.h"
 #include "documentmodel.h"
 #include "documentmodel_p.h"
+#include "editorarea.h"
 #include "editorview.h"
 #include "editorwindow.h"
 #include "ieditor.h"
@@ -1491,11 +1492,14 @@ IEditor *EditorManagerPrivate::activateEditor(EditorView *view, IEditor *editor,
                 ModeManager::setFocusToCurrentMode();
             } else {
                 if (!(flags & EditorManager::DoNotSwitchToEditMode)) {
-                    int index;
-                    findEditorArea(view, &index);
-                    if (index == 0) // main window --> we might need to switch mode
-                        if (!editor->widget()->isVisible())
-                            ModeManager::activateMode(Constants::MODE_EDIT);
+                    // In the main window the editor may sit in a mode that is
+                    // not showing, so raise the mode that shows its area.
+                    EditorArea *area = findEditorArea(view);
+                    if (area && area->window() == ICore::mainWindow()
+                        && !editor->widget()->isVisible()) {
+                        ModeManager::activateMode(
+                            area->id().isValid() ? area->id() : Id(Constants::MODE_EDIT));
+                    }
                 }
                 editor->widget()->setFocus();
                 if (!(flags & EditorManager::DoNotRaise))
@@ -2344,6 +2348,14 @@ void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWi
     }
 }
 
+void EditorManagerPrivate::updateWindowTitleForArea(EditorArea *area)
+{
+    // Only the area on screen says what its window shows.
+    if (!area->isVisible())
+        return;
+    updateWindowTitleForDocument(area->currentDocument(), area->window());
+}
+
 void EditorManagerPrivate::updateWindowTitle()
 {
     EditorArea *mainArea = mainEditorArea();
@@ -2427,11 +2439,14 @@ EditorView *EditorManagerPrivate::nextView(EditorView *view)
     EditorArea *area = findEditorArea(view, &index);
     QTC_ASSERT(area, return nullptr);
     QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return nullptr);
-    // find next editor area. this might be the same editor area if there's only one.
-    int nextIndex = index + 1;
-    if (nextIndex >= d->m_editorAreas.size())
-        nextIndex = 0;
-    return d->m_editorAreas.at(nextIndex)->findFirstView();
+    // find the next editor area that is on screen. this might be the same one.
+    const int count = d->m_editorAreas.size();
+    for (int i = 1; i <= count; ++i) {
+        EditorArea *next = d->m_editorAreas.at((index + i) % count);
+        if (next == area || next->isVisible())
+            return next->findFirstView();
+    }
+    return nullptr;
 }
 
 EditorView *EditorManagerPrivate::previousView(EditorView *view)
@@ -2444,11 +2459,14 @@ EditorView *EditorManagerPrivate::previousView(EditorView *view)
     EditorArea *area = findEditorArea(view, &index);
     QTC_ASSERT(area, return nullptr);
     QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return nullptr);
-    // find previous editor area. this might be the same editor area if there's only one.
-    int nextIndex = index - 1;
-    if (nextIndex < 0)
-        nextIndex = d->m_editorAreas.count() - 1;
-    return d->m_editorAreas.at(nextIndex)->findLastView();
+    // find the previous editor area that is on screen. this might be the same one.
+    const int count = d->m_editorAreas.size();
+    for (int i = 1; i <= count; ++i) {
+        EditorArea *previous = d->m_editorAreas.at((index - i + count) % count);
+        if (previous == area || previous->isVisible())
+            return previous->findLastView();
+    }
+    return nullptr;
 }
 
 void EditorManagerPrivate::gotoNextSplit()
@@ -2643,9 +2661,11 @@ void EditorManagerPrivate::editorAreaDestroyed(QObject *area)
             d->m_editorAreas.removeAt(i);
             --i; // we removed the current one
         } else if (r->window() == activeWin) {
-            // TODO this doesn't work well in case of multiple areas in the same window
-            // e.g if Edit, Design, and Debug mode have their own editor areas
-            newActiveArea = r;
+            // With several areas in one window the ones after the first belong
+            // to modes that are not showing, so prefer the first, and an area
+            // that is on screen over one that is not.
+            if (!newActiveArea || (r->isVisible() && !newActiveArea->isVisible()))
+                newActiveArea = r;
         }
     }
     // check if the destroyed editor area had the current view or current editor
@@ -2928,26 +2948,55 @@ void EditorManagerPrivate::removeCurrentSplit()
     updateActions();
 }
 
+// The view an area keeps when its splits go: the current one if it is in this
+// area, so that removing the splits of the area being worked in keeps the view
+// the user is in.
+static EditorView *viewToKeep(EditorArea *area)
+{
+    EditorView *current = EditorManagerPrivate::currentEditorView();
+    if (current && current->editorArea() == area)
+        return current;
+    if (area->currentView())
+        return area->currentView();
+    return area->findFirstView();
+}
+
+void EditorManagerPrivate::removeAllSplitsInAreas(const QList<EditorArea *> &areas)
+{
+    // Check if there are documents that should be closed because there are no other views
+    // with tabs open for it. All areas at once, so the question is asked once.
+    QList<std::pair<EditorArea *, EditorView *>> keptViews;
+    QSet<EditorView *> viewsToClose;
+    for (EditorArea *area : areas) {
+        if (!area->hasSplits())
+            continue;
+        EditorView *keep = viewToKeep(area);
+        QTC_ASSERT(keep, continue);
+        keptViews.append({area, keep});
+        EditorView *current = area->findFirstView();
+        while (current) {
+            if (current != keep)
+                viewsToClose.insert(current);
+            current = current->findNextView();
+        }
+    }
+    if (keptViews.isEmpty())
+        return;
+    const QSet<DocumentModel::Entry *> entriesToClose
+        = EditorManagerPrivate::entriesToCloseForTabbedViews(viewsToClose);
+    if (!entriesToClose.isEmpty() && !EditorManager::closeDocuments(toList(entriesToClose)))
+        return;
+    for (const auto &[area, keep] : std::as_const(keptViews))
+        area->unsplitAll(keep);
+}
+
 void EditorManagerPrivate::removeAllSplits()
 {
     EditorView *view = currentEditorView();
     QTC_ASSERT(view, return);
     EditorArea *currentArea = view->editorArea();
     QTC_ASSERT(currentArea, return);
-    // Check if there are documents that should be closed because there are no other views
-    // with tabs open for it.
-    QSet<EditorView *> viewsToClose; // all views from the area except the current one
-    EditorView *current = currentArea->findFirstView();
-    while (current) {
-        if (current != view)
-            viewsToClose.insert(current);
-        current = current->findNextView();
-    }
-    const QSet<DocumentModel::Entry *> entriesToClose
-        = EditorManagerPrivate::entriesToCloseForTabbedViews(viewsToClose);
-    if (!entriesToClose.isEmpty() && !EditorManager::closeDocuments(toList(entriesToClose)))
-        return;
-    currentArea->unsplitAll(view);
+    removeAllSplitsInAreas({currentArea});
 }
 
 void EditorManagerPrivate::setCurrentEditorFromContextChange()
@@ -2985,10 +3034,14 @@ QList<EditorView *> EditorManagerPrivate::allEditorViews()
 
 bool EditorManagerPrivate::hasMoreThanOneview()
 {
-    if (d->m_editorAreas.size() > 1)
-        return true;
-    QTC_ASSERT(d->m_editorAreas.size() > 0, return false);
-    return d->m_editorAreas.constFirst()->hasSplits();
+    // An area whose mode is not on screen holds no view to tell apart.
+    int shownViews = 0;
+    const QList<EditorView *> views = allEditorViews();
+    for (EditorView *view : views) {
+        if (view->isVisible() && ++shownViews > 1)
+            return true;
+    }
+    return false;
 }
 
 } // namespace Internal
@@ -4214,7 +4267,7 @@ QByteArray EditorManager::saveState()
     QByteArray bytes;
     QDataStream stream(&bytes, QIODevice::WriteOnly);
 
-    stream << QByteArray("EditorManagerV6");
+    stream << QByteArray("EditorManagerV7");
 
     // TODO: In case of split views it's not possible to restore these for all correctly with this
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
@@ -4259,6 +4312,14 @@ QByteArray EditorManager::saveState()
     const QVector<EditorWindow *> windows = editorWindows(d->m_editorAreas);
     const QVector<QVariantHash> windowStates = Utils::transform(windows, &EditorWindow::saveState);
     stream << windowStates;
+
+    // areas that a mode owns, under the id the mode gave them
+    QMap<QString, QByteArray> modeAreaStates;
+    for (EditorArea *area : std::as_const(d->m_editorAreas)) {
+        if (area->id().isValid())
+            modeAreaStates.insert(area->id().toString(), area->saveState());
+    }
+    stream << modeAreaStates;
     return bytes;
 }
 
@@ -4280,7 +4341,8 @@ static void restore(
     const std::function<void(QMap<QString, QPair<QVariant, QDate>>)> &editorStatesHandler,
     const std::function<bool(FileStateEntry)> &fileHandler,
     const std::function<void(QByteArray)> &splitterStateHandler,
-    const std::function<void(QVector<QVariantHash>)> &windowStateHandler)
+    const std::function<void(QVector<QVariantHash>)> &windowStateHandler,
+    const std::function<void(QMap<QString, QByteArray>)> &modeAreaStateHandler)
 {
     QDataStream stream(state);
     const int version = [&stream] {
@@ -4336,6 +4398,13 @@ static void restore(
         if (windowStateHandler)
             windowStateHandler(windowStates);
     }
+
+    if (version >= 7 && !stream.atEnd()) {
+        QMap<QString, QByteArray> modeAreaStates;
+        stream >> modeAreaStates;
+        if (modeAreaStateHandler)
+            modeAreaStateHandler(modeAreaStates);
+    }
 }
 
 /*!
@@ -4350,11 +4419,16 @@ static void restore(
 void EditorManager::restoreState(const QByteArray &state)
 {
     closeAllEditors(true);
-    // remove extra windows
-    for (int i = d->m_editorAreas.count() - 1; i > 0 /* keep first alive */; --i)
-        delete d->m_editorAreas.at(i); // automatically removes it from list
-    if (d->m_editorAreas.first()->hasSplits())
-        EditorManagerPrivate::removeAllSplits();
+    // remove extra windows. Deleting the area closes the window it belongs to;
+    // an area that a mode owns belongs to no window and stays.
+    for (int i = d->m_editorAreas.count() - 1; i > 0 /* keep first alive */; --i) {
+        if (windowForEditorArea(d->m_editorAreas.at(i)))
+            delete d->m_editorAreas.at(i); // automatically removes it from list
+    }
+    // The editors in every remaining area were just closed, so their splits
+    // hold nothing worth keeping either; the state below brings back what the
+    // session had.
+    EditorManagerPrivate::removeAllSplitsInAreas(d->m_editorAreas);
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -4389,7 +4463,17 @@ void EditorManager::restoreState(const QByteArray &state)
             window->show();
         }
     };
-    restore(state, setEditorStates, openFile, restoreSplitterState, restoreWindows);
+    const auto restoreModeAreas = [](const QMap<QString, QByteArray> &states) {
+        for (EditorArea *area : std::as_const(d->m_editorAreas)) {
+            if (!area->id().isValid())
+                continue;
+            const QByteArray state = states.value(area->id().toString());
+            if (!state.isEmpty())
+                area->restoreState(state);
+        }
+    };
+    restore(
+        state, setEditorStates, openFile, restoreSplitterState, restoreWindows, restoreModeAreas);
 
     // splitting and stuff results in focus trouble, that's why we set the focus again after restoration
     if (d->m_currentEditor) {
@@ -4414,6 +4498,7 @@ FilePaths EditorManagerPrivate::openFilesForState(const QByteArray &state, int m
             result << FilePath::fromUserInput(entry.filePath);
             return max < 0 || result.size() <= max;
         },
+        {},
         {},
         {});
     return result;
@@ -4586,11 +4671,8 @@ void EditorManager::gotoOtherSplit()
             nextView = area->findFirstView();
             QTC_CHECK(nextView != view);
         } else {
-            // find next editor area. this might be the same editor area if there's only one.
-            int nextIndex = index + 1;
-            if (nextIndex >= d->m_editorAreas.size())
-                nextIndex = 0;
-            nextView = d->m_editorAreas.at(nextIndex)->findFirstView();
+            // the next editor area on screen. this might be the same one.
+            nextView = EditorManagerPrivate::nextView(view);
             QTC_CHECK(nextView);
             // if we had only one editor area with only one view, we end up at the startpoint
             // in that case we need to split
@@ -4635,6 +4717,24 @@ void EditorManager::setWindowTitleAdditionHandler(WindowTitleHandler handler)
 void EditorManager::setSessionTitleHandler(WindowTitleHandler handler)
 {
     d->m_sessionTitleHandler = handler;
+}
+
+/*!
+    Returns an editor area to put into the mode with \a modeId, instead of
+    taking the shared one with an EditorManagerPlaceHolder. The caller takes
+    ownership. The id names the area in the session state, and is the mode
+    raised when an editor in the area has to be shown.
+
+    \sa EditorManagerPlaceHolder
+*/
+QWidget *EditorManager::createEditorArea(Utils::Id modeId)
+{
+    auto area = new Internal::EditorArea(modeId);
+    QObject::connect(area, &Internal::EditorArea::windowTitleNeedsUpdate, area, [area] {
+        Internal::EditorManagerPrivate::updateWindowTitleForArea(area);
+    });
+    Internal::EditorManagerPrivate::addEditorArea(area);
+    return area;
 }
 
 /*!

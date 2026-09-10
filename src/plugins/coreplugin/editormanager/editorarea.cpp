@@ -4,6 +4,7 @@
 #include "editorarea.h"
 
 #include "editormanager.h"
+#include "editormanager_p.h"
 #include "editorview.h"
 #include "ieditor.h"
 
@@ -16,8 +17,9 @@
 
 namespace Core::Internal {
 
-EditorArea::EditorArea()
-    : m_splitterOrView(new SplitterOrView)
+EditorArea::EditorArea(Utils::Id id)
+    : m_id(id)
+    , m_splitterOrView(new SplitterOrView)
 {
     IContext::attach(this, Context(Constants::C_EDITORMANAGER));
 
@@ -50,6 +52,11 @@ EditorArea::~EditorArea()
     setCurrentView(nullptr);
     disconnect(qApp, &QApplication::focusChanged,
                this, &EditorArea::focusChanged);
+}
+
+Utils::Id EditorArea::id() const
+{
+    return m_id;
 }
 
 IDocument *EditorArea::currentDocument() const
@@ -167,6 +174,25 @@ void EditorArea::updateCloseSplitButton()
 {
     if (EditorView *v = m_splitterOrView->view())
         v->setCloseSplitEnabled(false);
+}
+
+void EditorArea::showEvent(QShowEvent *)
+{
+    // The window title follows what the area on screen shows.
+    emit windowTitleNeedsUpdate();
+
+    // Whatever is opened next belongs to the area that is now on screen, not
+    // to the one of the mode that was left. An area in another window keeps
+    // the current view while that window is the one being worked in: a mode
+    // switch in the main window is not a reason to open the next editor there.
+    EditorView *current = EditorManagerPrivate::currentEditorView();
+    if (current
+        && (current->editorArea() == this
+            || (current->window() != window() && current->window()->isActiveWindow()))) {
+        return;
+    }
+    if (m_currentView)
+        EditorManagerPrivate::setCurrentView(m_currentView);
 }
 
 void EditorArea::hideEvent(QHideEvent *)

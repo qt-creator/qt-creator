@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/id.h>
+
 #include <QByteArray>
 #include <QPointer>
 #include <QWidget>
@@ -22,8 +24,12 @@ class EditorArea : public QWidget
     Q_OBJECT
 
 public:
-    EditorArea();
+    explicit EditorArea(Utils::Id id = {});
     ~EditorArea() override;
+
+    // Set for an area that a mode owns, empty for the shared one and for the
+    // area of an editor window.
+    Utils::Id id() const;
 
     IDocument *currentDocument() const;
     EditorView *currentView() const;
@@ -48,8 +54,10 @@ private:
     void setCurrentView(EditorView *view);
     void updateCurrentEditor(IEditor *editor);
     void updateCloseSplitButton();
+    void showEvent(QShowEvent *) override;
     void hideEvent(QHideEvent *) override;
 
+    const Utils::Id m_id;
     SplitterOrView *m_splitterOrView = nullptr;
     QPointer<EditorView> m_currentView;
     QPointer<IDocument> m_currentDocument;

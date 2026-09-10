@@ -170,6 +170,7 @@ public slots:
 
     static void split(Qt::Orientation orientation);
     static void removeAllSplits();
+    static void removeAllSplitsInAreas(const QList<EditorArea *> &areas);
     static void gotoPreviousSplit();
     static void gotoNextSplit();
     static void moveEditorToPreviousSplit();
@@ -233,6 +234,7 @@ private:
         QAction *saveWithoutFormattingAction,
         QAction *revertToSavedAction);
     static void updateWindowTitle();
+    static void updateWindowTitleForArea(EditorArea *area);
     static bool skipOpeningBigTextFile(const Utils::FilePath &filePath);
 
     static void addCopyFilePathActions(

@@ -23,6 +23,10 @@
     \uicontrol Profile mode. Switch between tools by selecting them in the menu
     on the toolbar.
 
+    \uicontrol Profile mode has an editor area of its own. Traces open there
+    and stay there, with splits of their own, so they leave the documents and
+    the layout you have in \uicontrol Edit mode alone.
+
     \section1 Overview of the profiling tools
 
     The following table describes the tools you can use in \QC to profile your
