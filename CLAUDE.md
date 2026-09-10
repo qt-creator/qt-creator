@@ -18,10 +18,12 @@ this checkout open: ask `project_get_current` and compare its
 from within Qt Creator always talks to that instance. Use these instead of
 invoking a compiler or build tool from the shell:
 
-- `build_project` to build, `build_get_status` to see whether it is still running and
-  whether it succeeded.
-- `build_get_compile_output` and `build_list_issues` / `cpp_get_file_problems` to read what
-  failed. Do not re-run the build just to see its output again.
+- `build_project` to start a build; it returns a `build_id` and does not wait.
+  `build_get_status` then waits for that build and reports whether it
+  succeeded. `build_cancel` stops one.
+- `build_get_issues` and `build_get_compile_output` / `cpp_get_file_problems`
+  to read what failed, passing the same `build_id`. Do not re-run the build
+  just to see its output again.
 - `test_run`, `test_get_status`, `test_get_last_results`, `test_get_details`
   for tests.
 - `build_list_configs`, `build_get_current_config` and `build_switch_config`

@@ -491,9 +491,9 @@ void registerMcpTools()
                       {"description",
                        "Build errors/warnings from the pre-test build. Present only when "
                        "summary.build_failed is true — folded in by test_run so the AI "
-                       "can diagnose the build failure without a separate build_list_issues "
-                       "call. Same shape as build_list_issues' issues array (objects with type, "
-                       "description, file, line, id). Absent when the build succeeded."}})
+                       "can diagnose the build failure without a separate build_get_issues "
+                       "call. Objects with type, description, file, line and id. Absent "
+                       "when the build succeeded."}})
               .addRequired("summary")
               .addRequired("failures")
               .addRequired("tests_with_warnings")
@@ -858,7 +858,7 @@ void registerMcpTools()
                                   .arg(result.value("summary_text").toString());
                     }
                     // Fold build issues inline when the build that gates the
-                    // test run failed. Saves the AI a separate build_list_issues call
+                    // test run failed. Saves the AI a separate build_get_issues call
                     // to find out WHY the build broke.
                     if (!state->buildIssues.isEmpty())
                         result.insert("build_issues", state->buildIssues);

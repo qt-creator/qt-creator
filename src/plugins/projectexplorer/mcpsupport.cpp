@@ -242,149 +242,6 @@ static QJsonObject projectModulesObject(Project *project)
     return obj;
 }
 
-// Tracks the outcome of every build observed since plugin load. Subscribes
-// globally to BuildManager signals (not per-tool) so the verdict is always
-// current even if build_get_status is called long after the build finished.
-struct BuildStateTracker
-{
-    enum class LastResult { NeverBuilt, Success, Failure, Canceled };
-
-    LastResult lastResult = LastResult::NeverBuilt;
-    qint64 currentBuildStartedMs = -1;
-    qint64 lastFinishedAt = -1;
-    qint64 lastDurationMs = -1;
-    int baselineErrorCount = 0;
-    int baselineWarningCount = 0;
-    bool canceled = false;
-    int lastErrorCount = 0;
-    int lastWarningCount = 0;
-
-    // Task counts are cumulative unless "Clear issues list on new build" is
-    // set, so a build's verdict reports what it added, not what the pane holds.
-    void armBuild(qint64 nowMs)
-    {
-        currentBuildStartedMs = nowMs;
-        baselineErrorCount = BuildManager::getErrorTaskCount();
-        baselineWarningCount = BuildManager::getWarningTaskCount();
-    }
-
-    // Fewer tasks than at build start means the list was cleared while the
-    // build ran, which leaves the baseline meaningless; what remains is then
-    // this build's own.
-    static int addedSinceStart(int current, int baseline)
-    {
-        return current >= baseline ? current - baseline : current;
-    }
-
-    void connectSignals()
-    {
-        auto *bm = BuildManager::instance();
-        if (!bm)
-            return;
-        // buildStateChanged fires on every per-project transition. Use it to
-        // detect build-start since BuildManager has no buildStarted signal.
-        QObject::connect(bm, &BuildManager::buildStateChanged, bm, [this]() {
-            if (currentBuildStartedMs >= 0 || !BuildManager::isBuilding())
-                return;
-            armBuild(QDateTime::currentMSecsSinceEpoch());
-        });
-        QObject::connect(bm, &BuildManager::buildQueueCanceled, bm, [this] { canceled = true; });
-        QObject::connect(bm, &BuildManager::buildQueueFinished, bm, [this](bool success) {
-            // Consumed before the guard below, so an unpaired cancel cannot
-            // reach the next build.
-            const bool wasCanceled = canceled;
-            canceled = false;
-            // An empty queue finishes without ever starting. Nothing was built,
-            // so leave the previous verdict rather than overwrite it with a
-            // synthetic one. cancel() can only follow a build that started.
-            if (currentBuildStartedMs < 0)
-                return;
-            const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
-            lastResult = wasCanceled ? LastResult::Canceled
-                         : success   ? LastResult::Success
-                                     : LastResult::Failure;
-            lastFinishedAt = nowMs;
-            lastDurationMs = nowMs - currentBuildStartedMs;
-            // Counted against the totals at build start, so unrelated
-            // code-model or app-output tasks stay out of the verdict and a
-            // deploy step's own failures stay in it.
-            lastErrorCount = addedSinceStart(BuildManager::getErrorTaskCount(), baselineErrorCount);
-            lastWarningCount
-                = addedSinceStart(BuildManager::getWarningTaskCount(), baselineWarningCount);
-            // A queued build starts right here, without a buildStateChanged
-            // of its own to arm it.
-            if (BuildManager::isBuilding())
-                armBuild(nowMs);
-            else
-                currentBuildStartedMs = -1;
-        });
-    }
-
-    QJsonObject statusSnapshot() const
-    {
-        const bool running = (currentBuildStartedMs >= 0) || BuildManager::isBuilding();
-
-        std::optional<std::pair<int, QString>> progress;
-        if (running)
-            progress = BuildManager::currentProgressPercent();
-
-        QString resultStr;
-        switch (lastResult) {
-        case LastResult::NeverBuilt: resultStr = QStringLiteral("never_built"); break;
-        case LastResult::Success:    resultStr = QStringLiteral("success");     break;
-        case LastResult::Failure:    resultStr = QStringLiteral("failure");     break;
-        case LastResult::Canceled:   resultStr = QStringLiteral("canceled");    break;
-        }
-
-        QString summaryText;
-        if (running) {
-            if (progress)
-                summaryText = QString("Building: %1% (%2)")
-                                  .arg(progress->first).arg(progress->second);
-            else
-                summaryText = QStringLiteral("Building");
-        } else if (lastResult == LastResult::NeverBuilt) {
-            summaryText = QStringLiteral("Idle (no build observed since plugin loaded)");
-        } else if (lastResult == LastResult::Canceled) {
-            summaryText = QString("Idle. Last build: canceled after %1 ms").arg(lastDurationMs);
-        } else if (lastResult == LastResult::Success) {
-            const qint64 dur = lastDurationMs;
-            summaryText = lastWarningCount == 0
-                              ? QString("Idle. Last build: succeeded in %1 ms").arg(dur)
-                              : QString("Idle. Last build: succeeded with %1 warning(s) in %2 ms")
-                                    .arg(lastWarningCount)
-                                    .arg(dur);
-        } else {
-            const qint64 dur = lastDurationMs;
-            summaryText
-                = QString("Idle. Last build: FAILED with %1 error(s), %2 warning(s) in %3 ms")
-                      .arg(lastErrorCount)
-                      .arg(lastWarningCount)
-                      .arg(dur);
-        }
-
-        QJsonObject out;
-        out.insert("running", running);
-        // progress_percent and current_step are only emitted when a live value exists;
-        // omitting them is correct since neither is in addRequired.
-        if (progress) {
-            out.insert("progress_percent", progress->first);
-            out.insert("current_step", progress->second);
-        }
-        out.insert("last_result", resultStr);
-        // Like progress_percent above, these are omitted rather than sent as 0:
-        // 0 is a legitimate epoch and a legitimate duration. Neither is required.
-        if (lastFinishedAt >= 0)
-            out.insert("last_finished_at", lastFinishedAt);
-        out.insert("last_error_count", lastErrorCount);
-        out.insert("last_warning_count", lastWarningCount);
-        if (lastDurationMs >= 0)
-            out.insert("last_duration_ms", lastDurationMs);
-        out.insert("summary_text", summaryText);
-        return out;
-    }
-};
-
 // Counts what it drops, so a reply can say how much is missing.
 class BoundedOutput
 {
@@ -489,6 +346,12 @@ static Utils::Result<int> readCount(const QJsonObject &args, const QString &key,
     return int(qBound<double>(INT_MIN, value.toDouble(), INT_MAX));
 }
 
+static QString withoutAnsiCodes(const QString &text)
+{
+    static const QRegularExpression csi("\x1B\\[[0-9;?]*[ -/]*[@-~]");
+    return QString(text).remove(csi);
+}
+
 // Accumulates the Compile Output pane text (build AND deploy step output) so it
 // can be inspected via build_get_compile_output - deploy errors in particular are not
 // otherwise surfaced through MCP.
@@ -496,8 +359,10 @@ static BoundedOutput &compileOutput()
 {
     static BoundedOutput out;
     static const QMetaObject::Connection conn = QObject::connect(
-        BuildManager::instance(), &BuildManager::outputText,
-        BuildManager::instance(), [](const QString &text) { out.append(text); });
+        BuildManager::instance(),
+        &BuildManager::outputText,
+        BuildManager::instance(),
+        [](const QString &text) { out.append(withoutAnsiCodes(text)); });
     Q_UNUSED(conn)
     return out;
 }
@@ -517,6 +382,495 @@ static QString &generalMessagesBuffer()
     }();
     Q_UNUSED(started)
     return buffer;
+}
+
+// Persistent issues manager for all PE mcp tools. Guarded rather than a plain
+// static: at exit() the TaskHub it is connected to is gone already.
+static ProjectExplorer::IssuesManager &issuesManager()
+{
+    static Utils::GuardedObject<ProjectExplorer::IssuesManager> manager;
+    return manager;
+}
+
+struct BuildRecord
+{
+    enum class State { Running, Succeeded, Failed, Canceled };
+
+    quint64 id = 0;
+    QString projectName;
+    FilePath projectDir;
+    State state = State::Running;
+    // queue() runs a modal loop before the build starts, and isBuilding() is
+    // false throughout it, so a record that has not seen it running yet must
+    // not be taken for stale.
+    bool everRunning = false;
+    QElapsedTimer elapsed;
+    qint64 durationMs = 0;
+    int baselineErrorCount = 0;
+    int baselineWarningCount = 0;
+    int errorCount = 0;
+    int warningCount = 0;
+    QJsonArray issues;
+    BoundedOutput output;
+
+    // Task counts are cumulative unless "Clear issues list on new build" is
+    // set. Fewer than at build start means the list was cleared while the
+    // build ran, which leaves the baseline meaningless.
+    static int addedSinceStart(int current, int baseline)
+    {
+        return current >= baseline ? current - baseline : current;
+    }
+};
+
+static constexpr int keptBuilds = 8;
+// Capped under the ~60 s clients typically use: a longer wait means the
+// transport drops the session, and the build dies with it.
+static constexpr qint64 defaultBuildWaitMs = 45000;
+static constexpr qint64 maxBuildWaitMs = 55000;
+static constexpr int defaultIssueCount = 50;
+static constexpr int maxIssueCount = 1000;
+
+// Seeded from the process start: a counter would hand out 1 again after every
+// restart, so an id held across one could name a different build.
+static quint64 lastBuildId = quint64(QDateTime::currentMSecsSinceEpoch());
+static quint64 runningBuildId = 0;
+static bool buildWasCanceled = false;
+
+static QList<BuildRecord> &buildRecords()
+{
+    static QList<BuildRecord> records;
+    return records;
+}
+
+static BuildRecord *buildRecord(quint64 id)
+{
+    for (BuildRecord &record : buildRecords()) {
+        if (record.id == id)
+            return &record;
+    }
+    return nullptr;
+}
+
+static BuildRecord *runningBuild()
+{
+    return runningBuildId == 0 ? nullptr : buildRecord(runningBuildId);
+}
+
+static BuildRecord &beginBuildRecord(Project *project)
+{
+    QList<BuildRecord> &records = buildRecords();
+    while (records.size() >= keptBuilds)
+        records.removeFirst();
+    BuildRecord record;
+    record.id = ++lastBuildId;
+    if (project) {
+        record.projectName = project->displayName();
+        record.projectDir = project->projectDirectory();
+    }
+    record.baselineErrorCount = BuildManager::getErrorTaskCount();
+    record.baselineWarningCount = BuildManager::getWarningTaskCount();
+    record.elapsed.start();
+    records.append(record);
+    runningBuildId = record.id;
+    return records.last();
+}
+
+static void finishBuildRecord(BuildRecord &record, BuildRecord::State state)
+{
+    record.state = state;
+    record.durationMs = record.elapsed.elapsed();
+    const QJsonObject data = issuesManager().getBuildIssues();
+    const QJsonObject summary = data.value("summary").toObject();
+    record.errorCount = summary.value("errorCount").toInt();
+    record.warningCount = summary.value("warningCount").toInt();
+    record.issues = data.value("issues").toArray();
+    if (runningBuildId == record.id)
+        runningBuildId = 0;
+}
+
+static void trackBuilds()
+{
+    BuildManager *manager = BuildManager::instance();
+    static const bool connected = [manager] {
+        // BuildManager has no buildStarted signal.
+        QObject::connect(manager, &BuildManager::buildStateChanged, manager, [] {
+            if (!BuildManager::isBuilding())
+                return;
+            BuildRecord *record = runningBuild();
+            if (!record)
+                record = &beginBuildRecord(nullptr);
+            record->everRunning = true;
+        });
+        QObject::connect(manager, &BuildManager::outputText, manager, [](const QString &text) {
+            if (BuildRecord *record = runningBuild())
+                record->output.append(withoutAnsiCodes(text));
+        });
+        // Arrives before buildQueueFinished(false), so the verdict below can
+        // tell a cancel from a build error.
+        QObject::connect(manager, &BuildManager::buildQueueCanceled, manager, [] {
+            buildWasCanceled = true;
+        });
+        QObject::connect(manager, &BuildManager::buildQueueFinished, manager, [](bool success) {
+            // Consumed before the guard below, so an unpaired cancel cannot
+            // reach the next build.
+            const bool canceled = buildWasCanceled;
+            buildWasCanceled = false;
+            BuildRecord *record = runningBuild();
+            if (!record)
+                return; // an empty queue finishes without anything having been built
+            finishBuildRecord(
+                *record,
+                canceled  ? BuildRecord::State::Canceled
+                : success ? BuildRecord::State::Succeeded
+                          : BuildRecord::State::Failed);
+            // A queued build starts right here, with no buildStateChanged of
+            // its own to record it.
+            if (BuildManager::isBuilding())
+                beginBuildRecord(nullptr).everRunning = true;
+        });
+        return true;
+    }();
+    Q_UNUSED(connected)
+}
+
+static void reclaimStaleBuild()
+{
+    BuildRecord *record = runningBuild();
+    if (record && record->everRunning && !BuildManager::isBuilding())
+        finishBuildRecord(*record, BuildRecord::State::Canceled);
+}
+
+static QString buildStateName(BuildRecord::State state)
+{
+    switch (state) {
+    case BuildRecord::State::Running:   return "running";
+    case BuildRecord::State::Succeeded: return "succeeded";
+    case BuildRecord::State::Failed:    return "failed";
+    case BuildRecord::State::Canceled:  return "canceled";
+    }
+    return "unknown";
+}
+
+static QJsonObject buildStatusObject(const BuildRecord &record)
+{
+    const bool running = record.state == BuildRecord::State::Running;
+    QJsonObject status{
+        {"build_id", qint64(record.id)},
+        {"state", buildStateName(record.state)},
+        {"error_count",
+         running ? BuildRecord::addedSinceStart(
+             BuildManager::getErrorTaskCount(), record.baselineErrorCount)
+                 : record.errorCount},
+        {"warning_count",
+         running ? BuildRecord::addedSinceStart(
+             BuildManager::getWarningTaskCount(), record.baselineWarningCount)
+                 : record.warningCount}};
+    if (!record.projectName.isEmpty())
+        status.insert("project", record.projectName);
+    if (running) {
+        status.insert("elapsed_ms", record.elapsed.elapsed());
+        if (const std::optional<QPair<int, QString>> progress
+            = BuildManager::currentProgressPercent()) {
+            status.insert("progress_percent", progress->first);
+            status.insert("current_step", progress->second);
+        }
+    } else {
+        status.insert("duration_ms", record.durationMs);
+    }
+    return status;
+}
+
+static Utils::Result<qint64> readNumber(
+    const QJsonObject &args, const QString &key, qint64 fallback)
+{
+    const QJsonValue value = args.value(key);
+    if (value.isUndefined() || value.isNull())
+        return fallback;
+    if (!value.isDouble())
+        return ResultError(QString("%1 must be a number").arg(key));
+    // Converting out of range is UB, and qint64's max has no exact double, so
+    // the bound is 2^63 -- the first double above it.
+    const double d = value.toDouble();
+    if (!(d >= -9223372036854775808.0 && d < 9223372036854775808.0))
+        return ResultError(QString("%1 is out of range").arg(key));
+    return qint64(d);
+}
+
+struct BuildLookup
+{
+    BuildRecord *record = nullptr;
+    QString reason;  // the state to report back when record is null
+    QString message;
+};
+
+static BuildLookup lookupBuild(const QJsonObject &args)
+{
+    const Utils::Result<qint64> id = readNumber(args, "build_id", 0);
+    if (!id)
+        return {nullptr, "invalid_arguments", id.error()};
+    if (*id < 0)
+        return {nullptr, "invalid_arguments", "build_id must not be negative"};
+    if (*id == 0) {
+        if (buildRecords().isEmpty()) {
+            return {nullptr, "never_built",
+                    "No build has run since Qt Creator started. Start one with "
+                    "build_project."};
+        }
+        return {&buildRecords().last(), {}, {}};
+    }
+    BuildRecord *record = buildRecord(quint64(*id));
+    if (!record) {
+        return {nullptr, "unknown_build_id",
+                QString("No build with id %1 is known: only the last %2 are kept, so it has "
+                        "been replaced by newer builds, or it predates a restart.")
+                    .arg(*id)
+                    .arg(keptBuilds)};
+    }
+    return {record, {}, {}};
+}
+
+static QJsonObject startBuild(const QJsonObject &args)
+{
+    const ProjectResolution resolution = resolveTargetProject(
+        args.value("project_name").toString(), args.value("project_path").toString(), true);
+    if (!resolution.project) {
+        QJsonObject body = resolution.error;
+        body.remove("success"); // this tool reports through "started"
+        body["started"] = false;
+        return body;
+    }
+
+    reclaimStaleBuild();
+    if (const BuildRecord *running = runningBuild()) {
+        return {{"started", false},
+                {"build_id", qint64(running->id)},
+                {"reason", "build_in_progress"},
+                {"message",
+                 QString("A build%1 is already running. Wait for build_id %2 with "
+                         "build_get_status, then call build_project again.")
+                     .arg(running->projectName.isEmpty()
+                              ? QString()
+                              : QString(" of '%1'").arg(running->projectName))
+                     .arg(running->id)}};
+    }
+
+    // Before buildProjects(): a queue with nothing to do emits
+    // buildQueueFinished from inside it.
+    const quint64 id = beginBuildRecord(resolution.project).id;
+    if (BuildManager::buildProjects({resolution.project}, ConfigSelection::Active) <= 0) {
+        if (const BuildRecord *ours = runningBuild(); ours && ours->id == id) {
+            runningBuildId = 0;
+            buildRecords().removeIf([id](const BuildRecord &record) { return record.id == id; });
+        }
+        return {{"started", false},
+                {"reason", "build_failed_to_start"},
+                {"message",
+                 "Nothing was queued to build. Check that the project is configured for "
+                 "the active kit."}};
+    }
+    return {{"started", true},
+            {"build_id", qint64(id)},
+            {"reason", "ok"},
+            {"message", QString("Building '%1'. Wait for it with build_get_status.")
+                            .arg(resolution.project->displayName())}};
+}
+
+static QJsonObject cancelBuild(const QJsonObject &args)
+{
+    const BuildLookup lookup = lookupBuild(args);
+    if (!lookup.record)
+        return {{"canceled", false}, {"reason", lookup.reason}, {"message", lookup.message}};
+    if (lookup.record->state != BuildRecord::State::Running) {
+        return {{"canceled", false},
+                {"build_id", qint64(lookup.record->id)},
+                {"reason", "not_running"},
+                {"message", QString("Build %1 already ended as %2.")
+                                .arg(lookup.record->id)
+                                .arg(buildStateName(lookup.record->state))}};
+    }
+    const quint64 id = lookup.record->id;
+    BuildManager::cancel();
+    return {{"canceled", true},
+            {"build_id", qint64(id)},
+            {"reason", "ok"},
+            {"message", QString("Cancelled build %1.").arg(id)}};
+}
+
+static QString severityWord(const QString &type)
+{
+    if (type == "ERROR")
+        return "error";
+    if (type == "WARNING")
+        return "warning";
+    return "info";
+}
+
+static QString issueLine(
+    const QJsonObject &issue, const FilePath &baseDir, bool withDetails, bool *relative)
+{
+    QString location;
+    const FilePath file = FilePath::fromUserInput(issue.value("file").toString());
+    if (!file.isEmpty()) {
+        if (!baseDir.isEmpty() && file.isChildOf(baseDir)) {
+            location = file.relativeChildPath(baseDir).path();
+            *relative = true;
+        } else {
+            location = file.toUserOutput();
+        }
+        const int line = issue.value("line").toInt();
+        if (line > 0)
+            location += ':' + QString::number(line);
+        location += ": ";
+    }
+    // Task::description() is the summary followed by the details.
+    const QString description = issue.value("description").toString();
+    const int firstBreak = description.indexOf('\n');
+    QString text = firstBreak < 0 ? description : description.left(firstBreak);
+    if (withDetails && firstBreak >= 0) {
+        QStringList details = description.mid(firstBreak + 1).split('\n');
+        // A compiler opens its detail block by restating the message the
+        // summary already is, at a path this line already names.
+        if (!text.isEmpty() && details.first().endsWith(text))
+            details.removeFirst();
+        if (!details.isEmpty())
+            text += '\n' + details.join('\n');
+    }
+    return location + severityWord(issue.value("type").toString()) + ": " + text;
+}
+
+static QJsonObject buildIssuesReply(const QJsonObject &args)
+{
+    const auto emptyReply = [](const QString &reason, const QString &message) {
+        return QJsonObject{{"reason", reason},
+                           {"message", message},
+                           {"issues", QJsonArray{}},
+                           {"error_count", 0},
+                           {"warning_count", 0},
+                           {"total", 0},
+                           {"truncated", false}};
+    };
+
+    const Utils::Result<int> requested = readCount(args, "max", defaultIssueCount);
+    if (!requested)
+        return emptyReply("invalid_arguments", requested.error());
+    const Utils::Result<int> requestedOffset = readCount(args, "offset", 0);
+    if (!requestedOffset)
+        return emptyReply("invalid_arguments", requestedOffset.error());
+    const int maxIssues = qBound(1, *requested, maxIssueCount);
+    const int skip = qMax(0, *requestedOffset);
+
+    QJsonArray issues;
+    FilePath baseDir;
+    quint64 buildId = 0;
+    if (args.value("scope").toString("build") == "current") {
+        issues = issuesManager().getCurrentIssues().value("issues").toArray();
+        if (const Project *project = ProjectManager::startupProject())
+            baseDir = project->projectDirectory();
+    } else {
+        const BuildLookup lookup = lookupBuild(args);
+        if (!lookup.record)
+            return emptyReply(lookup.reason, lookup.message);
+        if (lookup.record->state == BuildRecord::State::Running) {
+            QJsonObject body = emptyReply(
+                "still_building",
+                QString("Build %1 has not finished; its issues are collected when it does. "
+                        "Wait for it with build_get_status.")
+                    .arg(lookup.record->id));
+            body["build_id"] = qint64(lookup.record->id);
+            return body;
+        }
+        issues = lookup.record->issues;
+        baseDir = lookup.record->projectDir;
+        buildId = lookup.record->id;
+    }
+
+    const bool withDetails = args.value("details").toBool();
+    const FilePath file = FilePath::fromUserInput(args.value("file").toString());
+    const auto matchesFile = [&file](const QJsonObject &issue) {
+        return file.isEmpty()
+               || FilePath::fromUserInput(issue.value("file").toString()) == file;
+    };
+
+    int errorCount = 0;
+    int warningCount = 0;
+    for (const QJsonValue &value : std::as_const(issues)) {
+        const QJsonObject issue = value.toObject();
+        if (!matchesFile(issue))
+            continue;
+        const QString type = issue.value("type").toString();
+        if (type == "ERROR")
+            ++errorCount;
+        else if (type == "WARNING")
+            ++warningCount;
+    }
+
+    QString severity = args.value("severity").toString("auto");
+    if (severity == "auto")
+        severity = errorCount > 0 ? QStringLiteral("error") : QStringLiteral("warning");
+
+    QJsonArray lines;
+    int matched = 0;
+    bool relative = false;
+    for (const QJsonValue &value : std::as_const(issues)) {
+        const QJsonObject issue = value.toObject();
+        if (!matchesFile(issue))
+            continue;
+        const QString type = issue.value("type").toString();
+        const bool wanted = severity == "all" || (severity == "error" && type == "ERROR")
+                            || (severity == "warning" && type == "WARNING");
+        if (!wanted)
+            continue;
+        ++matched;
+        if (matched <= skip || lines.size() >= maxIssues)
+            continue;
+        lines.append(issueLine(issue, baseDir, withDetails, &relative));
+    }
+
+    QJsonObject reply{{"issues", lines},
+                      {"severity", severity},
+                      {"error_count", errorCount},
+                      {"warning_count", warningCount},
+                      {"total", matched},
+                      {"truncated", matched > skip + lines.size()}};
+    if (buildId != 0)
+        reply.insert("build_id", qint64(buildId));
+    if (relative)
+        reply.insert("base_dir", baseDir.toUserOutput());
+    return reply;
+}
+
+static QJsonObject compileOutputReply(const QJsonObject &args)
+{
+    const Utils::Result<int> requested = readCount(args, "max_chars", maxReplyOutputSize);
+    if (!requested) {
+        return {{"output", QString()},
+                {"truncated", false},
+                {"total_chars", 0},
+                {"reason", "invalid_arguments"},
+                {"message", requested.error()}};
+    }
+    const int maxChars = qBound(minReplyOutputSize, *requested, maxRequestableOutputSize);
+
+    if (args.value("scope").toString("build") == "session") {
+        const BoundedOutput &captured = compileOutput();
+        return {{"output", captured.tail(maxChars)},
+                {"truncated", captured.truncatedAt(maxChars)},
+                {"total_chars", captured.total()}};
+    }
+
+    const BuildLookup lookup = lookupBuild(args);
+    if (!lookup.record) {
+        return {{"output", QString()},
+                {"truncated", false},
+                {"total_chars", 0},
+                {"reason", lookup.reason},
+                {"message", lookup.message}};
+    }
+    const BoundedOutput &output = lookup.record->output;
+    return {{"build_id", qint64(lookup.record->id)},
+            {"output", output.digest(maxChars)},
+            {"truncated", output.truncatedAt(maxChars)},
+            {"total_chars", output.total()}};
 }
 
 static QStringList findFiles(const QList<Project *> &projects, const QRegularExpression &re)
@@ -1488,1046 +1842,510 @@ void registerMcpTools()
         };
     };
 
-    // Persistent issues manager for all PE mcp tools.
-    // Leaked on purpose: its destructor runs at exit(), on released memory.
-    static ProjectExplorer::IssuesManager &issuesManager = *new ProjectExplorer::IssuesManager;
-
-    // Slot guard for serializing concurrent build_project tool calls.  Qt Creator's
-    // BuildManager queues projects internally but emits a single
-    // buildQueueFinished signal for the whole queue -- two concurrent MCP
-    // build_project tasks would both receive the first queue's verdict.  This struct
-    // ensures only one MCP-initiated build task has live signal connections at
-    // a time; other callers wait in the heartbeat or refuse immediately,
-    // depending on the on_busy parameter.
-    // BuildManager emits one buildQueueFinished per queue, so concurrent calls
-    // would share a verdict. One MCP build is live at a time, and its verdict
-    // outlives the call, for collection by build_id.
-    struct BuildSlot
-    {
-        bool inProgress = false;
-        QPointer<Project> project;
-        QElapsedTimer elapsed;
-        QMetaObject::Connection outputConnection;
-        QMetaObject::Connection verdictConnection;
-
-        quint64 generation = 0; // build_id of the latest build; 0 means none yet
-        bool finished = false;  // the verdict below belongs to generation
-        bool succeeded = false;
-        bool canceled = false;  // stopped on request, not by a build error
-        qint64 durationMs = 0;
-        int errorCount = 0;
-        int warningCount = 0;
-        QJsonArray issues;
-        BoundedOutput output;
-        // queue() runs a modal loop (save files, stop applications) before the
-        // build starts, and isBuilding() is false throughout it. Without this,
-        // a slot another call just armed looks stale and gets reclaimed.
-        bool everRunning = false;
-
-        // A verdict connection outliving its slot would write the next build's
-        // outcome under this generation.
-        void release()
-        {
-            QObject::disconnect(outputConnection);
-            outputConnection = {};
-            QObject::disconnect(verdictConnection);
-            verdictConnection = {};
-            inProgress = false;
-            everRunning = false;
-            project = nullptr;
-        }
-    };
-    static BuildSlot buildSlot;
-    // The slot holds one build; the verdict has to outlive it, because a
-    // caller queued behind that build claims the slot as soon as it ends.
-    struct FinishedBuild
-    {
-        quint64 generation = 0;
-        bool succeeded = false;
-        bool canceled = false;
-        qint64 durationMs = 0;
-        int errorCount = 0;
-        int warningCount = 0;
-        QJsonArray issues;
-        QString output;
-    };
-    // on_busy:"queue" can stack several waiters, so one verdict deep is not
-    // enough: keep the last few and drop the oldest.
-    static QList<FinishedBuild> finishedBuilds;
-    static constexpr int keptVerdicts = 8;
-    static const auto keepVerdict = [](const FinishedBuild &v) {
-        // A launch that fails restores the slot it displaced, so the same
-        // generation can come back here. Archiving it twice would spend two
-        // of the kept slots on one build.
-        if (Utils::anyOf(finishedBuilds, [&v](const FinishedBuild &kept) {
-                return kept.generation == v.generation;
-            })) {
-            return;
-        }
-        finishedBuilds.append(v);
-        if (finishedBuilds.size() > keptVerdicts)
-            finishedBuilds.removeFirst();
-    };
-    static const auto findVerdict = [](quint64 generation) -> const FinishedBuild * {
-        const auto it = std::find_if(finishedBuilds.cbegin(),
-                                     finishedBuilds.cend(),
-                                     [generation](const FinishedBuild &v) {
-                                         return v.generation == generation;
-                                     });
-        return it == finishedBuilds.cend() ? nullptr : &*it;
-    };
-
-    // buildQueueCanceled arrives before buildQueueFinished(false), so the
-    // verdict below can tell a cancel from a compile failure.
-    static const QMetaObject::Connection buildCanceledConnection = QObject::connect(
-        BuildManager::instance(), &BuildManager::buildQueueCanceled, BuildManager::instance(), [] {
-            if (buildSlot.inProgress)
-                buildSlot.canceled = true;
-        });
-    Q_UNUSED(buildCanceledConnection)
-
-    // Seeded from the process start: a counter would hand out 1 again after
-    // every restart, so an id held across one could match a different build.
-    static quint64 lastBuildId = quint64(QDateTime::currentMSecsSinceEpoch());
-
-    // Capped under the ~60 s clients typically use: a longer wait means the
-    // transport drops the session, and the build dies with it.
-    static constexpr qint64 minBuildWaitMs = 1000;
-    static constexpr qint64 defaultBuildWaitMs = 45000;
-    static constexpr qint64 maxBuildWaitMs = 55000;
-
-    // Tracks the verdict of every build since plugin load. Wired up once via
-    // the immediately-invoked lambda so connectSignals() runs exactly once even
-    // if registerMcpTools() were ever called again.
-    static BuildStateTracker buildStateTracker;
-    static bool buildTrackerSetup = []() {
-        buildStateTracker.connectSignals();
-        return true;
-    }();
-    Q_UNUSED(buildTrackerSetup)
-
-    // Output schema for `build_project`. Designed so the AI doesn't have to inspect
-    // `issues` to guess the build verdict — `succeeded` is the single source
-    // of truth, mirrored by the tool's TaskStatus (completed vs failed).
-    const auto buildOutputSchema
-        = Tool::OutputSchema{}
-              .addProperty(
-                  "finished",
-                  QJsonObject{
-                      {"type", "boolean"},
-                      {"description",
-                       "Whether this response carries a final answer. Check it first: when "
-                       "false the build is still running and `succeeded` says nothing about "
-                       "it yet."}})
-              .addProperty(
-                  "succeeded",
-                  QJsonObject{
-                      {"type", "boolean"},
-                      {"description",
-                       "Whether the build completed without errors. Meaningful only when "
-                       "`finished` is true; then it is the single source of truth — use it "
-                       "rather than inspecting `issues` to decide success/failure."}})
-              .addProperty(
-                  "error_count",
-                  QJsonObject{
-                      {"type", "integer"},
-                      {"minimum", 0},
-                      {"description", "Number of error-level issues from this build."}})
-              .addProperty(
-                  "warning_count",
-                  QJsonObject{
-                      {"type", "integer"},
-                      {"minimum", 0},
-                      {"description", "Number of warning-level issues from this build."}})
-              .addProperty(
-                  "duration_ms",
-                  QJsonObject{
-                      {"type", "integer"},
-                      {"minimum", 0},
-                      {"description",
-                       "Wall-clock duration in milliseconds, from buildProjects() to "
-                       "buildQueueFinished."}})
-              .addProperty(
-                  "issues",
-                  QJsonObject{
-                      {"type", "array"},
-                      {"description",
-                       "Same shape as build_list_issues' issues array. Empty on successful "
-                       "builds with no warnings."}})
-              .addProperty(
-                  "summary_text",
-                  QJsonObject{
-                      {"type", "string"},
-                      {"description",
-                       "Human-readable one-liner like 'Build succeeded in 4523 ms' or "
-                       "'Build failed with 2 error(s), 3 warning(s) in 1820 ms'."}})
-              .addProperty(
-                  "output",
-                  QJsonObject{
-                      {"type", "string"},
-                      {"description",
-                       "Tail of the failed build's stdout+stderr, truncated to keep the "
-                       "reply small. Empty when the build succeeded; the issues array "
-                       "carries the diagnostics either way. Call build_get_compile_output for "
-                       "more of the text."}})
-              .addProperty(
-                  "reason",
-                  QJsonObject{
-                      {"type", "string"},
-                      {"description",
-                       "Why the call returned without a verdict: \"still_building\" (the "
-                       "call answered before the build did - the build continues), "
-                       "\"waiting_for_build_slot\" (another project held the slot for the "
-                       "whole wait, so this build never started -- there is no build_id), "
-                       "\"build_in_progress\" (on_busy:\"refuse\"), \"unknown_build_id\", "
-                       "\"invalid_arguments\", \"project_unloaded\", \"build_gone\" or "
-                       "\"build_failed_to_start\". On a finished build, \"canceled\" says "
-                       "it was stopped on request rather than by an error, and "
-                       "\"call_cancelled\" that this call was cancelled while the build "
-                       "itself may still be running."}})
-              .addProperty(
-                  "build_id",
-                  QJsonObject{
-                      {"type", "integer"},
-                      {"description",
-                       "Identifies the build this response is about. Pass it back to build "
-                       "to keep waiting for that same build, or to collect its verdict once "
-                       "it has finished."}})
-              .addProperty(
-                  "elapsed_ms",
-                  QJsonObject{
-                      {"type", "integer"},
-                      {"minimum", 0},
-                      {"description", "How long the build has been running. Set only while "
-                                      "it is still running."}})
-              .addProperty(
-                  "attached",
-                  QJsonObject{
-                      {"type", "boolean"},
-                      {"description",
-                       "Present when this call joined a build that was already running "
-                       "instead of starting one. That build may predate your last edit, so "
-                       "its verdict does not necessarily cover it."}})
-              .addProperty(
-                  "running_before_call_ms",
-                  QJsonObject{
-                      {"type", "integer"},
-                      {"minimum", 0},
-                      {"description",
-                       "How long the attached build had been running when this call "
-                       "arrived. Set only with attached."}})
-              .addProperty(
-                  "progress_percent",
-                  QJsonObject{
-                      {"type", "integer"},
-                      {"description", "Build progress, 0-100, while still running."}})
-              .addRequired("finished")
-              .addRequired("succeeded")
-              .addRequired("error_count")
-              .addRequired("warning_count")
-              .addRequired("duration_ms")
-              .addRequired("issues")
-              .addRequired("summary_text")
-              .addRequired("output");
+    issuesManager(); // start tracking issues from now on
+    trackBuilds();   // record every build from now on
+    compileOutput(); // start capturing build/deploy output from now on
 
     ToolRegistry::registerTool(
-        Schema::Tool()
+        Tool{}
             .name("build_project")
-            .title("Build project")
+            .title("Start a build")
             .description(
-                "Builds the chosen project (or the active startup project if no name is "
-                "given) and blocks until the build finishes or wait_ms elapses, whichever "
-                "comes first. Returns an explicit verdict: {finished, succeeded, "
-                "error_count, warning_count, duration_ms, issues, summary_text}."
+                "Starts a build of the named project - the startup project when no name is "
+                "given - and returns at once with a build_id. The build runs in the "
+                "background; this call never waits for it."
                 "\n\n"
-                "Read `finished` first. When it is true, `succeeded` decides "
-                "success/failure — don't try to infer it from the issues array, and you "
-                "don't need build_get_status to confirm it. When `finished` is false the "
-                "build has not produced a verdict yet and `succeeded` means nothing."
+                "Wait for the verdict with build_get_status, then read the diagnostics with "
+                "build_get_issues and the raw text with build_get_compile_output. None of "
+                "them are carried here, so a build that succeeds costs one small reply."
                 "\n\n"
-                "Builds routinely outlast a client's request timeout, so this tool always "
-                "answers: if the build is still running when wait_ms is up, the call "
-                "returns normally — not an error — with finished:false, "
-                "reason:\"still_building\", a build_id, elapsed_ms and progress_percent. "
-                "The build was not cancelled and keeps running. Call build_project again with "
-                "that build_id to keep waiting, and repeat until you get a verdict. Do not "
-                "start a second build and do not sleep between calls: each call does the "
-                "waiting for you."
-                "\n\n"
-                "A build_id attaches to that build — you get its verdict when it finishes, "
-                "or its stored verdict if it already has one. Without a build_id, a call "
-                "that lands while the same project is already building attaches to that "
-                "build rather than starting a second one. That build may have started "
-                "before your last edit, so such a reply carries attached:true and "
-                "running_before_call_ms: build_project again once it is in to get a verdict "
-                "that covers your changes."
-                "\n\n"
-                "The task status describes this call, not the build: a call that answers "
-                "before the build ends completes. Only finished and succeeded describe the "
-                "build itself."
-                "\n\n"
-                "on_busy applies when another build is in progress and this call cannot "
-                "attach to it — a different project, or any build started outside this "
-                "tool: \"queue\" (default) waits for it, \"refuse\" returns immediately "
-                "with reason:\"build_in_progress\".")
-            .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
+                "One build runs at a time. When one is already going this starts nothing and "
+                "answers reason:\"build_in_progress\" with that build's build_id: wait on "
+                "that id, then call again.")
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
                         "project_name",
                         QJsonObject{
+                            {"type", "string"},
                             {"description",
-                             "Name of the project to build. Pass project_path as well when "
-                             "multiple loaded projects share this name."},
-                            {"type", "string"}})
+                             "Project to build. Pass project_path as well when several "
+                             "loaded projects share the name."}})
                     .addProperty(
                         "project_path",
                         QJsonObject{
+                            {"type", "string"},
                             {"description",
                              "Absolute path to the project file (CMakeLists.txt, .pro, ...). "
-                             "Unambiguously identifies the project when several share the "
-                             "same display name."},
-                            {"type", "string"}})
+                             "Identifies the project when display names collide."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
                     .addProperty(
-                        "wait_ms",
+                        "started",
                         QJsonObject{
-                            {"description",
-                             "How long to block before returning reason:\"still_building\", "
-                             "in milliseconds (default 45000). Clamped to 1000-55000: a "
-                             "longer wait outlives the request timeout of typical clients, "
-                             "which drops the session and cancels the build. Poll with "
-                             "build_id instead of asking for a longer wait."},
-                            {"type", "integer"}})
+                            {"type", "boolean"},
+                            {"description", "Whether this call queued a build."}})
                     .addProperty(
                         "build_id",
                         QJsonObject{
+                            {"type", "integer"},
                             {"description",
-                             "Attach to the build with this id instead of starting one. Use "
-                             "the build_id from a previous still_building response."},
-                            {"type", "integer"}})
+                             "The build the other build_ tools answer for. Present both for "
+                             "a build this call started and for one it found running."}})
                     .addProperty(
-                        "on_busy",
+                        "reason",
                         QJsonObject{
-                            {"description",
-                             "Behaviour when a different project is already being built. "
-                             "\"queue\" (default): wait for it to finish, then build. "
-                             "\"refuse\": return immediately with reason \"build_in_progress\"."},
                             {"type", "string"},
-                            {"enum", QJsonArray{"queue", "refuse"}}}))
-            .outputSchema(buildOutputSchema)
+                            {"enum",
+                             QJsonArray{"ok", "build_in_progress", "build_failed_to_start",
+                                        "no_startup_project", "project_not_loaded",
+                                        "path_not_loaded", "ambiguous_name"}}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "candidates",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"description",
+                             "The projects an ambiguous name matched; pass one of their "
+                             "paths as project_path."}})
+                    .addRequired("started")
+                    .addRequired("reason")
+                    .addRequired("message"))
             .annotations(
-                Schema::ToolAnnotations()
+                ToolAnnotations{}
                     .destructiveHint(false)
-                    .idempotentHint(true)
+                    .idempotentHint(false)
                     .openWorldHint(false)
                     .readOnlyHint(false)),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject body = startBuild(params.argumentsAsObject());
+            const QString reason = body.value("reason").toString();
+            return CallToolResult{}
+                .structuredContent(body)
+                .isError(reason != "ok" && reason != "build_in_progress");
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("build_get_status")
+            .title("Wait for a build and report its verdict")
+            .description(
+                "Reports a build's state, waiting for it to finish first: a running build "
+                "blocks this call for up to wait_ms, a finished one answers at once. "
+                "Defaults to the most recent build, whether build_project or the user "
+                "started it."
+                "\n\n"
+                "state:\"running\" means the wait budget ran out, not that anything went "
+                "wrong - call again to keep waiting, and repeat until state is something "
+                "else. Never sleep between calls; the waiting happens here."
+                "\n\n"
+                "Counts only. Read the diagnostics with build_get_issues and the raw text "
+                "with build_get_compile_output.")
+            .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "build_id",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "Build to report on. Defaults to the most recent one."}})
+                    .addProperty(
+                        "wait_ms",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "How long to wait for a running build before answering "
+                             "state:\"running\" (default 45000). Clamped to 0-55000: a "
+                             "longer wait outlives the request timeout of typical clients, "
+                             "which drops the session and cancels the build. Pass 0 for an "
+                             "immediate snapshot."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "state",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum",
+                             QJsonArray{"running", "succeeded", "failed", "canceled",
+                                        "never_built", "unknown_build_id",
+                                        "invalid_arguments"}},
+                            {"description",
+                             "The build's verdict, and the only field that decides "
+                             "success. \"running\" means the wait budget ran out and the "
+                             "build continues."}})
+                    .addProperty("build_id", QJsonObject{{"type", "integer"}})
+                    .addProperty(
+                        "error_count",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"minimum", 0},
+                            {"description",
+                             "Errors this build produced. Read them with build_get_issues."}})
+                    .addProperty(
+                        "warning_count",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"minimum", 0},
+                            {"description",
+                             "Warnings this build produced. build_get_issues returns them "
+                             "when the build produced no errors, and on request otherwise."}})
+                    .addProperty("duration_ms", QJsonObject{{"type", "integer"}, {"minimum", 0}})
+                    .addProperty(
+                        "elapsed_ms",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"minimum", 0},
+                            {"description", "How long it has been running. Set only while "
+                                            "state is \"running\"."}})
+                    .addProperty("progress_percent", QJsonObject{{"type", "integer"}})
+                    .addProperty("current_step", QJsonObject{{"type", "string"}})
+                    .addProperty("project", QJsonObject{{"type", "string"}})
+                    .addProperty(
+                        "message",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Present only when state names a problem with the request."}})
+                    .addRequired("state")
+                    .addRequired("error_count")
+                    .addRequired("warning_count"))
+            .annotations(ToolAnnotations{}.readOnlyHint(true)),
         [](const Schema::CallToolRequestParams &params,
            const ToolInterface &toolInterface) -> Utils::Result<> {
-            // arguments() is optional: a tools/call may omit it entirely.
             const QJsonObject args = params.argumentsAsObject();
-            const QString projectName = args.value("project_name").toString();
-            const QString projectPath = args.value("project_path").toString();
-            const QString onBusy = args.value("on_busy").toString("queue");
-            // A wrongly-typed build_id would fall back to 0 and start a build
-            // instead of collecting one.
-            const auto readNumber
-                = [&args](const QString &key, qint64 fallback) -> Utils::Result<qint64> {
-                const QJsonValue v = args.value(key);
-                if (v.isUndefined() || v.isNull())
-                    return fallback;
-                if (!v.isDouble())
-                    return ResultError(QString("%1 must be a number").arg(key));
-                // Converting out of range is UB, and qint64's max has no exact
-                // double, so the bound is 2^63 -- the first double above it.
-                const double d = v.toDouble();
-                if (!(d >= -9223372036854775808.0 && d < 9223372036854775808.0))
-                    return ResultError(QString("%1 is out of range").arg(key));
-                return qint64(d);
-            };
-            const Utils::Result<qint64> buildIdArg = readNumber("build_id", 0);
-            const Utils::Result<qint64> waitMsArg = readNumber("wait_ms", defaultBuildWaitMs);
-            if (!buildIdArg || !waitMsArg || *buildIdArg < 0 || *waitMsArg < 0) {
-                const QString message = !buildIdArg  ? buildIdArg.error()
-                                        : !waitMsArg ? waitMsArg.error()
-                                        : *buildIdArg < 0
-                                            ? QString("build_id must not be negative")
-                                            : QString("wait_ms must not be negative");
-                toolInterface.finish(
-                    CallToolResult{}.isError(true).structuredContent(QJsonObject{
-                        {"finished", true},
-                        {"succeeded", false},
-                        {"reason", "invalid_arguments"},
-                        {"error_count", 0},
-                        {"warning_count", 0},
-                        {"duration_ms", 0},
-                        {"issues", QJsonArray{}},
-                        {"summary_text", message},
-                        {"output", QString()},
-                    }));
+            const Utils::Result<qint64> waitMsArg
+                = readNumber(args, "wait_ms", defaultBuildWaitMs);
+            const BuildLookup lookup = lookupBuild(args);
+            if (!waitMsArg || !lookup.record) {
+                toolInterface.finish(CallToolResult{}.isError(true).structuredContent(QJsonObject{
+                    {"state", waitMsArg ? lookup.reason : QString("invalid_arguments")},
+                    {"error_count", 0},
+                    {"warning_count", 0},
+                    {"message", waitMsArg ? lookup.message : waitMsArg.error()}}));
                 return ResultOk;
             }
-            const quint64 requestedBuildId = quint64(*buildIdArg);
-            const qint64 waitMs = qBound(minBuildWaitMs, *waitMsArg, maxBuildWaitMs);
-
-            // A build_id names the build already; resolving would only reject a
-            // collect whose project has since closed.
-            const ProjectResolution resolution
-                = requestedBuildId != 0
-                      ? ProjectResolution{}
-                      : resolveTargetProject(projectName, projectPath, true);
-            if (requestedBuildId == 0 && !resolution.project) {
-                // Enrich the shared resolution error with build's verdict fields
-                // so the response still satisfies the output schema, then surface
-                // it as a tool error the AI can act on (e.g. retry with project_path).
-                QJsonObject body = resolution.error;
-                body.remove("success"); // build() reports via "succeeded", not "success"
-                body["finished"] = true; // terminal: nothing is running for this call
-                body["succeeded"] = false;
-                body["error_count"] = 0;
-                body["warning_count"] = 0;
-                body["duration_ms"] = 0;
-                body["issues"] = QJsonArray{};
-                body["summary_text"] = resolution.error.value("message");
-                body["output"] = QString(); // required by the output schema
-                toolInterface.finish(CallToolResult{}.isError(true).structuredContent(body));
+            const qint64 waitMs = qBound<qint64>(0, *waitMsArg, maxBuildWaitMs);
+            if (waitMs == 0 || lookup.record->state != BuildRecord::State::Running) {
+                toolInterface.finish(CallToolResult{}.isError(false).structuredContent(
+                    buildStatusObject(*lookup.record)));
                 return ResultOk;
             }
-
-            // The launch is deferred into the heartbeat, so the project can be
-            // unloaded before we use it.
-            const QPointer<Project> targetProject = resolution.project;
 
             struct State
             {
-                bool bound = false;
-                bool boundedOut = false;
-                bool refused = false;
-                bool canceled = false;      // stopped on request, not by an error
-                bool startedBuild = false;  // this call launched it (may cancel it)
-                bool cancelRequested = false; // this call was cancelled, build may live on
-                bool haveVerdict = false;   // the snapshot below is filled in
-                quint64 generation = 0;
-                QJsonObject refusedBlockingInfo;
-                qint64 refusedElapsedMs = 0;
-                QJsonObject earlyError;
-                std::optional<Schema::TaskStatus> finalStatus;
+                quint64 id = 0;
+                qint64 waitMs = 0;
                 QElapsedTimer waited;
+                QJsonObject reply;
+                std::optional<Schema::TaskStatus> finalStatus;
 
-                // Snapshotted when the heartbeat resolves: in task mode the
-                // reply comes at tasks/result, by which point a later build may
-                // hold the slot.
-                bool succeeded = false;
-                qint64 durationMs = 0;
-                int errorCount = 0;
-                int warningCount = 0;
-                QJsonArray issues;
-                QString output;
-                bool attached = false;        // joined a build this call did not start
-                qint64 attachedAgeMs = 0;     // how long it had been running by then
-                bool ourBuildRunning = false; // false == still queued behind another project
-                qint64 boundedElapsedMs = 0;
-                std::optional<int> boundedProgress;
+                QJsonObject snapshot() const
+                {
+                    if (const BuildRecord *record = buildRecord(id))
+                        return buildStatusObject(*record);
+                    return {{"state", "unknown_build_id"},
+                            {"build_id", qint64(id)},
+                            {"error_count", 0},
+                            {"warning_count", 0},
+                            {"message", "Newer builds replaced this one before its verdict "
+                                        "could be read."}};
+                }
             };
             auto state = std::make_shared<State>();
-            // A call queued behind someone else's build spends the budget too.
+            state->id = lookup.record->id;
+            state->waitMs = waitMs;
             state->waited.start();
 
             using namespace std::chrono_literals;
-
-            const auto buildTask = toolInterface.startTask(
+            const auto statusTask = toolInterface.startTask(
                 1s,
-                [state, targetProject, onBusy, requestedBuildId, waitMs](
-                    Schema::Task task) -> Schema::Task {
-                    // The answer is already decided; another tick would rebind
-                    // and could overwrite it -- a verdict, a refusal and a
-                    // terminal pre-build failure are all as final as a
-                    // bounded-out call.
+                [state](Schema::Task task) -> Schema::Task {
                     if (state->finalStatus)
                         return task.status(*state->finalStatus);
 
-                    if (buildSlot.inProgress && BuildManager::isBuilding())
-                        buildSlot.everRunning = true;
-
-                    if (!state->bound && !state->refused) {
-                        bool waitForSlot = false;
-                        if (requestedBuildId != 0) {
-                            const FinishedBuild *kept = buildSlot.generation == requestedBuildId
-                                                            ? nullptr
-                                                            : findVerdict(requestedBuildId);
-                            if (kept) {
-                                // The slot moved on, but this build's verdict was kept.
-                                state->generation = requestedBuildId;
-                                state->haveVerdict = true;
-                                state->succeeded = kept->succeeded;
-                                state->canceled = kept->canceled;
-                                state->durationMs = kept->durationMs;
-                                state->errorCount = kept->errorCount;
-                                state->warningCount = kept->warningCount;
-                                state->issues = kept->issues;
-                                state->output = kept->output;
-                                state->finalStatus = kept->canceled
-                                                         ? Schema::TaskStatus::cancelled
-                                                     : kept->succeeded
-                                                         ? Schema::TaskStatus::completed
-                                                         : Schema::TaskStatus::failed;
-                                task.status(*state->finalStatus);
-                                task.statusMessage(QString::fromLatin1(
-                                    kept->canceled    ? "Build canceled"
-                                    : kept->succeeded ? "Build succeeded"
-                                                             : "Build failed"));
-                                Mcp::letTaskDieIn(task, 1min);
-                                return task;
-                            }
-                            if (buildSlot.generation != requestedBuildId) {
-                                state->earlyError = QJsonObject{
-                                    {"succeeded", false},
-                                    {"reason", "unknown_build_id"},
-                                    {"error_count", 0},
-                                    {"warning_count", 0},
-                                    {"duration_ms", 0},
-                                    {"issues", QJsonArray{}},
-                                    {"summary_text",
-                                     QString("No build with id %1 is known: only the last "
-                                             "%2 verdicts are kept, so it has been replaced "
-                                             "by newer builds, or it predates a restart. "
-                                             "Call build_project without build_id to start one.")
-                                         .arg(requestedBuildId)
-                                         .arg(keptVerdicts)},
-                                    {"output", QString()},
-                                };
-                                state->finalStatus = Schema::TaskStatus::failed;
-                                task.status(Schema::TaskStatus::failed);
-                                task.statusMessage("Unknown build_id");
-                                Mcp::letTaskDieIn(task, 1min);
-                                return task;
-                            }
-                            if (!buildSlot.inProgress && !buildSlot.finished) {
-                                state->earlyError = QJsonObject{
-                                    {"succeeded", false},
-                                    {"reason", "build_gone"},
-                                    {"build_id", qint64(requestedBuildId)},
-                                    {"error_count", 0},
-                                    {"warning_count", 0},
-                                    {"duration_ms", 0},
-                                    {"issues", QJsonArray{}},
-                                    {"summary_text",
-                                     "The build stopped without reporting a verdict. Call "
-                                     "build again to rebuild."},
-                                    {"output", QString()},
-                                };
-                                state->finalStatus = Schema::TaskStatus::failed;
-                                task.status(Schema::TaskStatus::failed);
-                                task.statusMessage("Build gone");
-                                Mcp::letTaskDieIn(task, 1min);
-                                return task;
-                            }
-                            state->generation = requestedBuildId;
-                            state->bound = true;
-                        } else if (!targetProject) {
-                            // Project was unloaded between resolution and launch.
-                            state->earlyError = QJsonObject{
-                                {"succeeded", false},
-                                {"reason", "project_unloaded"},
-                                {"error_count", 0},
-                                {"warning_count", 0},
-                                {"duration_ms", 0},
-                                {"issues", QJsonArray{}},
-                                {"summary_text",
-                                 "Target project was unloaded before the build could start."},
-                                {"output", QString()},
-                            };
-                            state->finalStatus = Schema::TaskStatus::failed;
-                            task.status(Schema::TaskStatus::failed);
-                            task.statusMessage("Target project was unloaded");
-                            Mcp::letTaskDieIn(task, 1min);
-                            return task;
-                        } else if (buildSlot.inProgress && buildSlot.everRunning
-                                   && !BuildManager::isBuilding()) {
-                            // Stale slot (shutdown, external cancel, missed signal).
-                            buildSlot.release();
-                        } else if (buildSlot.inProgress && buildSlot.project == targetProject) {
-                            // This build may have started before the caller's last
-                            // edit, so its verdict is not necessarily about the
-                            // sources on disk now. The reply says so.
-                            state->generation = buildSlot.generation;
-                            state->bound = true;
-                            state->attached = true;
-                            state->attachedAgeMs = buildSlot.elapsed.elapsed();
-                        } else if (buildSlot.inProgress && onBusy == "refuse") {
-                            state->refused = true;
-                            if (buildSlot.project)
-                                state->refusedBlockingInfo = projectInfoObject(buildSlot.project);
-                            state->refusedElapsedMs = buildSlot.elapsed.elapsed();
-                            state->finalStatus = Schema::TaskStatus::failed;
-                            task.status(Schema::TaskStatus::failed);
-                            task.statusMessage("Refused: another build is in progress");
-                            Mcp::letTaskDieIn(task, 1min);
-                            return task;
-                        } else if (buildSlot.inProgress) {
-                            waitForSlot = true;
-                            task.statusMessage(
-                                QString("Waiting for '%1' build to finish (%2 ms)...")
-                                    .arg(buildSlot.project ? buildSlot.project->displayName()
-                                                           : QStringLiteral("?"))
-                                    .arg(buildSlot.elapsed.elapsed()));
-                        } else if (BuildManager::isBuilding()) {
-                            // A build nobody started through here. buildProjects()
-                            // would only append to the pending queue, and the
-                            // running queue's buildQueueFinished would be taken
-                            // for this build's verdict.
-                            if (onBusy == "refuse") {
-                                state->refusedElapsedMs = 0;
-                                state->refused = true;
-                                state->finalStatus = Schema::TaskStatus::failed;
-                                task.status(Schema::TaskStatus::failed);
-                                task.statusMessage("Refused: another build is in progress");
-                                Mcp::letTaskDieIn(task, 1min);
-                                return task;
-                            }
-                            waitForSlot = true;
-                            task.statusMessage("Waiting for another build to finish...");
-                        }
-
-                        if (!state->bound && !state->refused && !waitForSlot) {
-                            const BuildSlot previous = buildSlot;
-                            buildSlot.inProgress = true;
-                            buildSlot.project = targetProject;
-                            buildSlot.elapsed.start();
-                            if (buildSlot.finished && buildSlot.generation != 0) {
-                                keepVerdict({buildSlot.generation,
-                                             buildSlot.succeeded,
-                                             buildSlot.canceled,
-                                             buildSlot.durationMs,
-                                             buildSlot.errorCount,
-                                             buildSlot.warningCount,
-                                             buildSlot.issues,
-                                             buildSlot.output.digest(maxReplyOutputSize)});
-                            }
-                            buildSlot.generation = ++lastBuildId;
-                            buildSlot.finished = false;
-                            buildSlot.succeeded = false;
-                            buildSlot.canceled = false;
-                            buildSlot.durationMs = 0;
-                            buildSlot.errorCount = 0;
-                            buildSlot.warningCount = 0;
-                            buildSlot.issues = QJsonArray{};
-                            buildSlot.output.clear();
-                            state->generation = buildSlot.generation;
-                            state->bound = true;
-                            state->startedBuild = true;
-
-                            buildSlot.outputConnection = QObject::connect(
-                                BuildManager::instance(),
-                                &BuildManager::outputText,
-                                BuildManager::instance(),
-                                [](const QString &text) { buildSlot.output.append(text); });
-
-                            // Before buildProjects(): an up-to-date queue emits
-                            // buildQueueFinished synchronously.
-                            buildSlot.verdictConnection = QObject::connect(
-                                BuildManager::instance(),
-                                &BuildManager::buildQueueFinished,
-                                BuildManager::instance(),
-                                [](bool success) {
-                                    buildSlot.succeeded = success;
-                                    buildSlot.durationMs = buildSlot.elapsed.elapsed();
-                                    const QJsonObject data = issuesManager.getBuildIssues();
-                                    const QJsonObject summary = data.value("summary").toObject();
-                                    buildSlot.errorCount = summary.value("errorCount").toInt();
-                                    buildSlot.warningCount = summary.value("warningCount").toInt();
-                                    buildSlot.issues = data.value("issues").toArray();
-                                    buildSlot.finished = true;
-                                    buildSlot.release();
-                                },
-                                Qt::SingleShotConnection);
-
-                            // Nothing queued means buildQueueFinished never fires.
-                            if (BuildManager::buildProjects({targetProject},
-                                                            ConfigSelection::Active)
-                                <= 0) {
-                                const QString capturedOutput
-                                    = buildSlot.output.digest(maxReplyOutputSize);
-                                buildSlot.release();
-                                // Nothing superseded the stored verdict, so leave
-                                // it collectable under its own build_id.
-                                buildSlot = previous;
-                                state->earlyError = QJsonObject{
-                                    {"succeeded", false},
-                                    {"reason", "build_failed_to_start"},
-                                    {"error_count", 0},
-                                    {"warning_count", 0},
-                                    {"duration_ms", 0},
-                                    {"issues", QJsonArray{}},
-                                    {"summary_text",
-                                     QStringLiteral("Build failed to start. Check that the "
-                                                    "project is configured for this kit.")},
-                                    {"output", capturedOutput},
-                                };
-                                state->finalStatus = Schema::TaskStatus::failed;
-                                task.status(Schema::TaskStatus::failed);
-                                task.statusMessage("Build failed to start");
-                                Mcp::letTaskDieIn(task, 1min);
-                                return task;
-                            }
-                        }
-                    }
-
-                    if (state->bound && buildSlot.generation == state->generation) {
-                        if (buildSlot.finished) {
-                            state->haveVerdict = true;
-                            state->succeeded = buildSlot.succeeded;
-                            state->canceled = buildSlot.canceled;
-                            state->durationMs = buildSlot.durationMs;
-                            state->errorCount = buildSlot.errorCount;
-                            state->warningCount = buildSlot.warningCount;
-                            state->issues = buildSlot.issues;
-                            state->output = buildSlot.output.digest(maxReplyOutputSize);
-                            state->finalStatus = buildSlot.canceled
-                                                     ? Schema::TaskStatus::cancelled
-                                                 : buildSlot.succeeded
-                                                     ? Schema::TaskStatus::completed
-                                                     : Schema::TaskStatus::failed;
-                            task.status(*state->finalStatus);
-                            task.statusMessage(QString::fromLatin1(
-                                buildSlot.canceled    ? "Build canceled"
-                                : buildSlot.succeeded ? "Build succeeded"
-                                                      : "Build failed"));
-                            Mcp::letTaskDieIn(task, 1min);
-                            return task;
-                        }
-                        if (!buildSlot.inProgress) {
-                            // Reclaimed under us: no verdict is coming for this id.
-                            state->earlyError = QJsonObject{
-                                {"succeeded", false},
-                                {"reason", "build_gone"},
-                                {"build_id", qint64(state->generation)},
-                                {"error_count", 0},
-                                {"warning_count", 0},
-                                {"duration_ms", 0},
-                                {"issues", QJsonArray{}},
-                                {"summary_text",
-                                 "The build stopped without reporting a verdict. Call build "
-                                 "again to rebuild."},
-                                {"output", QString()},
-                            };
-                            state->finalStatus = Schema::TaskStatus::failed;
-                            task.status(Schema::TaskStatus::failed);
-                            task.statusMessage("Build stopped without a verdict");
-                            Mcp::letTaskDieIn(task, 1min);
-                            return task;
-                        }
-                    }
-
-                    const FinishedBuild *keptForUs
-                        = state->bound && buildSlot.generation != state->generation
-                              ? findVerdict(state->generation)
-                              : nullptr;
-                    if (keptForUs) {
-                        // The slot moved on, but this build's verdict was kept.
-                        state->haveVerdict = true;
-                        state->succeeded = keptForUs->succeeded;
-                        state->canceled = keptForUs->canceled;
-                        state->durationMs = keptForUs->durationMs;
-                        state->errorCount = keptForUs->errorCount;
-                        state->warningCount = keptForUs->warningCount;
-                        state->issues = keptForUs->issues;
-                        state->output = keptForUs->output;
-                        state->finalStatus = keptForUs->canceled
-                                                 ? Schema::TaskStatus::cancelled
-                                             : keptForUs->succeeded
-                                                 ? Schema::TaskStatus::completed
-                                                 : Schema::TaskStatus::failed;
-                        task.status(*state->finalStatus);
-                        task.statusMessage(QString::fromLatin1(
-                            keptForUs->canceled    ? "Build canceled"
-                            : keptForUs->succeeded ? "Build succeeded"
-                                                     : "Build failed"));
-                        Mcp::letTaskDieIn(task, 1min);
-                        return task;
-                    }
-
-                    if (state->bound && buildSlot.generation != state->generation) {
-                        // Not the current build and not the one kept.
-                        state->earlyError = QJsonObject{
-                            {"succeeded", false},
-                            {"reason", "build_gone"},
-                            {"build_id", qint64(state->generation)},
-                            {"error_count", 0},
-                            {"warning_count", 0},
-                            {"duration_ms", 0},
-                            {"issues", QJsonArray{}},
-                            {"summary_text",
-                             "Another build replaced this one before its verdict could be "
-                             "read. Call build_project again to rebuild."},
-                            {"output", QString()},
-                        };
-                        state->finalStatus = Schema::TaskStatus::failed;
-                        task.status(Schema::TaskStatus::failed);
-                        task.statusMessage("Build superseded");
-                        Mcp::letTaskDieIn(task, 1min);
-                        return task;
-                    }
-
-                    if (state->waited.elapsed() >= waitMs) {
-                        state->boundedOut = true;
-                        state->ourBuildRunning = state->bound && buildSlot.inProgress
-                                                 && buildSlot.generation == state->generation;
-                        state->boundedElapsedMs = state->ourBuildRunning
-                                                      ? buildSlot.elapsed.elapsed()
-                                                      : state->waited.elapsed();
-                        if (auto progress = BuildManager::currentProgressPercent();
-                            progress && state->ourBuildRunning) {
-                            state->boundedProgress = progress->first;
-                        }
-                        state->finalStatus = Schema::TaskStatus::completed;
-                        task.status(Schema::TaskStatus::completed);
-                        task.statusMessage("Still building");
-                        Mcp::letTaskDieIn(task, 1min);
-                        return task;
-                    }
-
-                    // Only for a build this call is bound to: a queued caller would
-                    // otherwise report the blocking build's percentage as its own,
-                    // overwriting the "Waiting for ..." message set this tick.
-                    if (state->bound) {
-                        if (auto progress = BuildManager::currentProgressPercent()) {
+                    const BuildRecord *record = buildRecord(state->id);
+                    const bool running = record
+                                         && record->state == BuildRecord::State::Running;
+                    if (running && state->waited.elapsed() < state->waitMs) {
+                        if (const std::optional<QPair<int, QString>> progress
+                            = BuildManager::currentProgressPercent()) {
                             task.statusMessage(
                                 QString("%1 (%2%)").arg(progress->second).arg(progress->first));
                         }
+                        return task.status(Schema::TaskStatus::working);
                     }
-                    return task.status(Schema::TaskStatus::working);
+
+                    state->reply = state->snapshot();
+                    state->finalStatus = Schema::TaskStatus::completed;
+                    task.status(*state->finalStatus);
+                    task.statusMessage(state->reply.value("state").toString());
+                    Mcp::letTaskDieIn(task, 1min);
+                    return task;
                 },
                 [state]() -> Utils::Result<Schema::CallToolResult> {
-                    if (state->cancelRequested && !state->haveVerdict) {
-                        // The build may still be running; the empty snapshot reads
-                        // as a failure with no errors. Without a build_id there is
-                        // nothing to poll, so that answer is final instead.
-                        const bool pollable = state->generation != 0;
-                        QJsonObject body{
-                            {"finished", !pollable},
-                            {"succeeded", false},
-                            {"reason", "call_cancelled"},
-                            {"error_count", 0},
-                            {"warning_count", 0},
-                            {"duration_ms", 0},
-                            {"issues", QJsonArray{}},
-                            {"summary_text",
-                             pollable ? "This call was cancelled. The build it was waiting "
-                                        "for is still going -- call build_project again with "
-                                        "its build_id to collect it."
-                                      : "This call was cancelled before any build started. "
-                                        "Nothing is running; call build_project again to "
-                                        "start one."},
-                            {"output", QString()},
-                        };
-                        if (state->generation != 0)
-                            body["build_id"] = qint64(state->generation);
-                        return CallToolResult{}.structuredContent(body).isError(true);
-                    }
-                    if (!state->earlyError.isEmpty()) {
-                        // Terminal pre-build failure: no verdict signal will ever come.
-                        QJsonObject body = state->earlyError;
-                        body["finished"] = true;
-                        return CallToolResult{}.structuredContent(body).isError(true);
-                    }
-                    if (state->refused) {
-                        const QString blockName
-                            = state->refusedBlockingInfo.value("name").toString("?");
-                        return CallToolResult{}
-                            .structuredContent(QJsonObject{
-                                {"finished", true}, // this call is done; nothing is pending
-                                {"succeeded", false},
-                                {"reason", "build_in_progress"},
-                                {"blocking_project", state->refusedBlockingInfo},
-                                {"blocking_running_for_ms", state->refusedElapsedMs},
-                                {"error_count", 0},
-                                {"warning_count", 0},
-                                {"duration_ms", 0},
-                                {"issues", QJsonArray{}},
-                                {"summary_text",
-                                 state->refusedBlockingInfo.isEmpty()
-                                     ? QString("A build started outside this tool is in "
-                                               "progress. Pass on_busy:\"queue\" to wait, "
-                                               "or retry later.")
-                                     : QString("Build in progress for '%1' (%2 ms). Pass "
-                                               "on_busy:\"queue\" to wait, or retry later.")
-                                           .arg(blockName)
-                                           .arg(state->refusedElapsedMs)},
-                                {"output", QString()}, // required by the output schema
-                            })
-                            .isError(true);
-                    }
-                    if (state->boundedOut) {
-                        QJsonObject body{
-                            {"finished", false},
-                            {"succeeded", false},
-                            {"elapsed_ms", state->boundedElapsedMs},
-                            {"error_count", 0},
-                            {"warning_count", 0},
-                            {"duration_ms", 0},
-                            {"issues", QJsonArray{}},
-                            {"output", QString()},
-                        };
-                        if (!state->ourBuildRunning) {
-                            body["reason"] = "waiting_for_build_slot";
-                            body["summary_text"]
-                                = QString("Another project was still building after %1 ms, so "
-                                          "this build has not started. Call build_project again to "
-                                          "keep waiting for the slot.")
-                                      .arg(state->boundedElapsedMs);
-                            return CallToolResult{}.structuredContent(body).isError(false);
-                        }
-                        body["reason"] = "still_building";
-                        body["build_id"] = qint64(state->generation);
-                        // Said here as well as on the verdict: this reply is what
-                        // hands the build_id over, and the caller decides then
-                        // whether a build that predates its edits is what it wants.
-                        if (state->attached) {
-                            body["attached"] = true;
-                            body["running_before_call_ms"] = state->attachedAgeMs;
-                        }
-                        QString progressText;
-                        if (state->boundedProgress) {
-                            body["progress_percent"] = *state->boundedProgress;
-                            progressText = QString(" at %1%").arg(*state->boundedProgress);
-                        }
-                        body["summary_text"]
-                            = QString("Build still running%1 after %2 ms. It was not "
-                                      "cancelled. Call build_project again with "
-                                      "build_id:%3 to keep waiting.")
-                                  .arg(progressText)
-                                  .arg(state->boundedElapsedMs)
-                                  .arg(state->generation);
-                        return CallToolResult{}.structuredContent(body).isError(false);
-                    }
-
-                    if (!state->haveVerdict) {
-                        // The result was collected before the task went terminal.
-                        // The snapshot below is still empty, and would read as a
-                        // failure with no errors.
-                        QJsonObject body{
-                            {"finished", false},
-                            {"succeeded", false},
-                            {"reason",
-                             state->generation != 0 ? "still_building"
-                                                    : "waiting_for_build_slot"},
-                            {"error_count", 0},
-                            {"warning_count", 0},
-                            {"duration_ms", 0},
-                            {"issues", QJsonArray{}},
-                            {"output", QString()},
-                        };
-                        if (state->generation != 0) {
-                            body["build_id"] = qint64(state->generation);
-                            body["summary_text"]
-                                = QString("The build has not reported a verdict yet. Call "
-                                          "build_project again with build_id:%1 to keep "
-                                          "waiting.")
-                                      .arg(state->generation);
-                        } else {
-                            body["summary_text"] = "This call never started a build.";
-                        }
-                        return CallToolResult{}.structuredContent(body).isError(false);
-                    }
-
-                    QString summaryText;
-                    if (state->succeeded) {
-                        summaryText = state->warningCount == 0
-                                          ? QString("Build succeeded in %1 ms")
-                                                .arg(state->durationMs)
-                                          : QString("Build succeeded with %1 warning(s) in %2 ms")
-                                                .arg(state->warningCount)
-                                                .arg(state->durationMs);
-                    } else if (state->canceled) {
-                        summaryText = QString("Build canceled after %1 ms").arg(state->durationMs);
-                    } else {
-                        summaryText
-                            = QString("Build failed with %1 error(s), %2 warning(s) in %3 ms")
-                                  .arg(state->errorCount)
-                                  .arg(state->warningCount)
-                                  .arg(state->durationMs);
-                    }
-
-                    QJsonObject verdict{
-                        {"finished", true},
-                        {"succeeded", state->succeeded},
-                        {"build_id", qint64(state->generation)},
-                        {"error_count", state->errorCount},
-                        {"warning_count", state->warningCount},
-                        {"duration_ms", state->durationMs},
-                        {"issues", state->issues},
-                        {"summary_text", summaryText},
-                        {"output", state->succeeded ? QString() : state->output},
-                    };
-                    if (state->canceled)
-                        verdict["reason"] = "canceled";
-                    if (state->attached) {
-                        verdict["attached"] = true;
-                        verdict["running_before_call_ms"] = state->attachedAgeMs;
-                        verdict["summary_text"]
-                            = QString("%1 (from a build already in progress when this call "
-                                      "arrived, %2 ms in, so it may not include your latest "
-                                      "edits)")
-                                  .arg(summaryText)
-                                  .arg(state->attachedAgeMs);
-                    }
-                    return CallToolResult{}.structuredContent(verdict).isError(!state->succeeded);
+                    // The result can be collected before the task goes terminal.
+                    if (state->reply.isEmpty())
+                        state->reply = state->snapshot();
+                    return CallToolResult{}.structuredContent(state->reply).isError(false);
                 },
-                [state]() {
-                    state->cancelRequested = true;
-                    // Only tear down a build that is still ours. On normal
-                    // completion buildQueueFinished already released the slot,
-                    // and a queued build_project may now hold it -- releasing here
-                    // would wipe theirs and let a third caller claim it mid-build.
-                    // A bounded wait finishes first, so a request timeout no longer
-                    // reaches here. Once it has answered "not cancelled, poll with
-                    // build_id", the build is the next caller's, not this one's.
-                    if (state->startedBuild && !state->boundedOut && buildSlot.inProgress
-                        && buildSlot.generation == state->generation) {
-                        BuildManager::cancel();
-                        buildSlot.release();
-                    }
-                },
+                // Abandoning the wait leaves the build running.
+                [state]() { state->reply = state->snapshot(); },
                 Mcp::progressToken(params));
 
-            if (!buildTask) {
-                toolInterface.finish(
-                    CallToolResult{}.isError(true).addContent(
-                        Schema::TextContent{}.text(buildTask.error())));
-                return ResultOk;
+            if (!statusTask) {
+                toolInterface.finish(CallToolResult{}.isError(true).addContent(
+                    Schema::TextContent{}.text(statusTask.error())));
             }
             return ResultOk;
         });
 
     ToolRegistry::registerTool(
         Tool{}
-            .name("build_list_issues")
-            .title("List current issues (warnings and errors)")
-            .description("List current issues (warnings and errors)")
-            .annotations(ToolAnnotations{}.readOnlyHint(true))
-            .outputSchema(ProjectExplorer::IssuesManager::issuesSchema()),
-        wrap([](const QJsonObject &) { return issuesManager.getCurrentIssues(); }));
-
-    ToolRegistry::registerTool(
-        Tool{}
-            .name("build_list_file_issues")
-            .title("List current issues for file (warnings and errors)")
-            .description("List current issues for file (warnings and errors)")
+            .name("build_get_issues")
+            .title("List build errors and warnings")
+            .description(
+                "Errors and warnings of a build, one compiler-style line each "
+                "(\"src/foo.cpp:42: error: ...\"), relative to base_dir where they lie "
+                "under it. Reports on the most recent build unless build_id says "
+                "otherwise, and by default returns the errors, or the warnings when "
+                "the build produced no errors - so one call covers a build either way. "
+                "Pass details:true for the compiler's own echo of each issue, and "
+                "scope:\"current\" for everything in the Issues pane rather than one "
+                "build's own - a build system's parse errors, for instance, which no "
+                "build produced.")
             .annotations(ToolAnnotations{}.readOnlyHint(true))
             .inputSchema(
                 Tool::InputSchema{}
                     .addProperty(
-                        "path",
+                        "build_id",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "Build to report on. Defaults to the most recent one."}})
+                    .addProperty(
+                        "scope",
                         QJsonObject{
                             {"type", "string"},
-                            {"format", "uri"},
-                            {"description", "Absolute path of the file to open"}})
-                    .addRequired("path"))
-            .outputSchema(ProjectExplorer::IssuesManager::issuesSchema()),
-        wrap([](const QJsonObject &p) {
-            const QString path = p.value("path").toString();
-            return issuesManager.getCurrentIssues(Utils::FilePath::fromUserInput(path));
-        }));
+                            {"enum", QJsonArray{"build", "current"}},
+                            {"default", "build"},
+                            {"description",
+                             "\"build\" (default): what the build named by build_id "
+                             "produced. \"current\": everything the Issues pane holds now, "
+                             "which ignores build_id."}})
+                    .addProperty(
+                        "severity",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"auto", "error", "warning", "all"}},
+                            {"default", "auto"},
+                            {"description",
+                             "Which issues to return. \"auto\" (default) is the errors, "
+                             "or the warnings when there are no errors. error_count and "
+                             "warning_count are reported whichever you pick, and the "
+                             "reply says which severity it settled on."}})
+                    .addProperty(
+                        "file",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Absolute path of a single file to report on."}})
+                    .addProperty(
+                        "details",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"default", false},
+                            {"description",
+                             "Append each issue's detail lines - the offending source "
+                             "and the notes under it, which build_get_compile_output "
+                             "carries as well. Off by default; turn it on for a "
+                             "diagnostic whose summary alone does not say enough."}})
+                    .addProperty(
+                        "max",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "How many lines to return (default 50, clamped to 1-1000). "
+                             "The first error is usually the cause and the rest cascade."}})
+                    .addProperty(
+                        "offset",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "How many matching issues to skip, for reading past a "
+                             "truncated reply."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty(
+                        "issues",
+                        QJsonObject{
+                            {"type", "array"},
+                            {"items", QJsonObject{{"type", "string"}}},
+                            {"description",
+                             "\"<file>:<line>: <severity>: <summary>\", with the file left "
+                             "out when the issue has none."}})
+                    .addProperty(
+                        "base_dir",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "What the relative paths in issues are relative to. Present "
+                             "only when at least one path is relative."}})
+                    .addProperty("build_id", QJsonObject{{"type", "integer"}})
+                    .addProperty(
+                        "severity",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"error", "warning", "all"}},
+                            {"description", "Which severity the issues array holds, with "
+                                            "\"auto\" resolved."}})
+                    .addProperty(
+                        "error_count",
+                        QJsonObject{{"type", "integer"}, {"minimum", 0}})
+                    .addProperty(
+                        "warning_count",
+                        QJsonObject{{"type", "integer"}, {"minimum", 0}})
+                    .addProperty(
+                        "total",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"minimum", 0},
+                            {"description", "How many issues matched, before max cut the "
+                                            "list down."}})
+                    .addProperty(
+                        "truncated",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Whether matches were left out; raise max or move offset on "
+                             "to see them."}})
+                    .addProperty(
+                        "reason",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Present only when no issues could be reported: "
+                             "\"still_building\", \"never_built\", \"unknown_build_id\" or "
+                             "\"invalid_arguments\"."}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addRequired("issues")
+                    .addRequired("error_count")
+                    .addRequired("warning_count")
+                    .addRequired("total")
+                    .addRequired("truncated")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject body = buildIssuesReply(params.argumentsAsObject());
+            return CallToolResult{}
+                .structuredContent(body)
+                .isError(body.value("reason").toString() == "invalid_arguments");
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("build_get_compile_output")
+            .title("Get compile and deploy output")
+            .description(
+                "The raw Compile Output text of a build - the head and the tail of it, "
+                "since the first error is the cause and a link or deploy failure has "
+                "nothing before it. Prefer build_get_issues for the structured "
+                "diagnostics; reach for this when a build or deployment failed without "
+                "producing any."
+                "\n\n"
+                "Defaults to the most recent build. scope:\"session\" returns the pane's "
+                "whole text instead, across builds and deployments alike.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "build_id",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "Build to report on. Defaults to the most recent one."}})
+                    .addProperty(
+                        "scope",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum", QJsonArray{"build", "session"}},
+                            {"default", "build"},
+                            {"description",
+                             "\"build\" (default): one build's output. \"session\": "
+                             "everything the pane has shown since Qt Creator started, "
+                             "which ignores build_id."}})
+                    .addProperty(
+                        "max_chars",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "How much text to return (default 16384, clamped to "
+                             "1000-204928). A marker naming the dropped character count "
+                             "stands in for what was left out."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("output", QJsonObject{{"type", "string"}})
+                    .addProperty("build_id", QJsonObject{{"type", "integer"}})
+                    .addProperty(
+                        "truncated",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Whether output left out any of the kept text; raising "
+                             "max_chars returns the rest."}})
+                    .addProperty(
+                        "total_chars",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description",
+                             "Characters captured. Only the last 204800 are kept, so a "
+                             "larger number here means the rest is gone for good."}})
+                    .addProperty("reason", QJsonObject{{"type", "string"}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addRequired("output")
+                    .addRequired("truncated")
+                    .addRequired("total_chars")),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject body = compileOutputReply(params.argumentsAsObject());
+            return CallToolResult{}
+                .structuredContent(body)
+                .isError(body.value("reason").toString() == "invalid_arguments");
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("build_cancel")
+            .title("Cancel a running build")
+            .description(
+                "Stops the running build, as the Cancel Build button does. Defaults to "
+                "the most recent build, which fails with reason:\"not_running\" if it has "
+                "already ended.")
+            .inputSchema(
+                Tool::InputSchema{}.addProperty(
+                    "build_id",
+                    QJsonObject{
+                        {"type", "integer"},
+                        {"description", "Build to stop. Defaults to the most recent one."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("canceled", QJsonObject{{"type", "boolean"}})
+                    .addProperty("build_id", QJsonObject{{"type", "integer"}})
+                    .addProperty(
+                        "reason",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"enum",
+                             QJsonArray{"ok", "not_running", "never_built", "unknown_build_id",
+                                        "invalid_arguments"}}})
+                    .addProperty("message", QJsonObject{{"type", "string"}})
+                    .addRequired("canceled")
+                    .addRequired("reason")
+                    .addRequired("message"))
+            .annotations(ToolAnnotations{}.readOnlyHint(false).destructiveHint(false)),
+        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject body = cancelBuild(params.argumentsAsObject());
+            return CallToolResult{}
+                .structuredContent(body)
+                .isError(!body.value("canceled").toBool());
+        });
 
     // Shared output schema for run/debug tools.
     const auto runToolOutputSchema = [&]() {
@@ -2535,7 +2353,8 @@ void registerMcpTools()
         QJsonObject issuesField{
             {"type", "object"},
             {"description",
-             "Build issues — present when the build failed; same format as build_list_issues"}};
+             "Build issues — present when the build failed; same shape as the Issues "
+             "pane's tasks"}};
         if (issSchema._properties) {
             QJsonObject props;
             for (auto it = issSchema._properties->cbegin(); it != issSchema._properties->cend();
@@ -2703,7 +2522,7 @@ void registerMcpTools()
                         return;
                     QObject::disconnect(*rcStartedConn);
                     state->finished = true;
-                    state->failureIssues = issuesManager.getCurrentIssues();
+                    state->failureIssues = issuesManager().getCurrentIssues();
                     const int errorCount = state->failureIssues.value("summary")
                                                .toObject()
                                                .value("errorCount")
@@ -2732,7 +2551,7 @@ void registerMcpTools()
                 "if the process crashed or the terminal launch failed) and succeeded (exit "
                 "code 0). "
                 "On build failure, returns isError=true with structured content in the same "
-                "format as build_list_issues (issues array + summary). "
+                "shape as the Issues pane's tasks (issues array + summary). "
                 "By default this is a normal run; pass run_mode to run the project under a "
                 "different, non-interactive run mode such as an analyzer (the run must finish "
                 "on its own). Interactive modes have dedicated tools: use debugger_start for "
@@ -3000,108 +2819,6 @@ void registerMcpTools()
 
     // ===== Original PE tools =====
 
-    ToolRegistry::registerTool(
-        Tool{}
-            .name("build_get_status")
-            .title("Get current build status and last-build verdict")
-            .description(
-                "Returns the current build state plus the verdict of the most recent "
-                "build. Use last_result to distinguish 'success', 'failure', "
-                "'canceled', and 'never_built' (no build has run since Qt Creator "
-                "started). "
-                "last_finished_at, last_error_count, last_warning_count, and "
-                "last_duration_ms give timing and quality data without a separate "
-                "build_list_issues call. summary_text is a human-readable one-liner.")
-            .annotations(ToolAnnotations{}.readOnlyHint(true))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("running", QJsonObject{{"type", "boolean"}})
-                    .addProperty(
-                        "progress_percent",
-                        QJsonObject{{"type", "integer"}, {"minimum", 0}, {"maximum", 100}})
-                    .addProperty("current_step", QJsonObject{{"type", "string"}})
-                    .addProperty(
-                        "last_result",
-                        QJsonObject{
-                            {"type", "string"},
-                            {"enum",
-                             QJsonArray{"never_built", "success", "failure", "canceled"}}})
-                    .addProperty(
-                        "last_finished_at",
-                        QJsonObject{{"type", "integer"}, {"description", "Epoch milliseconds"}})
-                    .addProperty(
-                        "last_error_count",
-                        QJsonObject{{"type", "integer"}, {"minimum", 0}})
-                    .addProperty(
-                        "last_warning_count",
-                        QJsonObject{{"type", "integer"}, {"minimum", 0}})
-                    .addProperty(
-                        "last_duration_ms",
-                        QJsonObject{{"type", "integer"}, {"minimum", 0}})
-                    .addProperty("summary_text", QJsonObject{{"type", "string"}})
-                    .addRequired("running")
-                    .addRequired("last_result")
-                    .addRequired("last_error_count")
-                    .addRequired("last_warning_count")
-                    .addRequired("summary_text")),
-        wrap([](const QJsonObject &) { return buildStateTracker.statusSnapshot(); }));
-
-    compileOutput(); // start capturing build/deploy output from now on
-    ToolRegistry::registerTool(
-        Tool{}
-            .name("build_get_compile_output")
-            .title("Get compile and deploy output")
-            .description("Returns the tail of the recent Compile Output pane text, including "
-                         "build step and deploy step output. Use it to see why a build or "
-                         "deployment failed when build_project/run_project reports a failure "
-                         "without detail. Prefer build_list_issues for the structured "
-                         "diagnostics; this is the raw text, and asking for a large max_chars "
-                         "can return more than a client will accept in one reply.")
-            .annotations(ToolAnnotations{}.readOnlyHint(true))
-            .inputSchema(
-                Tool::InputSchema{}.addProperty(
-                    "max_chars",
-                    QJsonObject{
-                        {"description",
-                         "How much of the end of the output text to return (default 16384). "
-                         "Clamped to 1000-204928. Must be a number. A short marker naming "
-                         "the dropped character count is prepended when there was more."},
-                        {"type", "number"}}))
-            .outputSchema(
-                Tool::OutputSchema{}
-                    .addProperty("output", QJsonObject{{"type", "string"}})
-                    .addProperty(
-                        "truncated",
-                        QJsonObject{
-                            {"type", "boolean"},
-                            {"description",
-                             "Whether output left out any of the kept text; raising "
-                             "max_chars returns the rest."}})
-                    .addProperty(
-                        "total_chars",
-                        QJsonObject{
-                            {"type", "number"},
-                            {"description",
-                             "Characters captured since Qt Creator started. Only the last "
-                             "204800 are kept, so a larger number here means the rest is "
-                             "gone for good."}})
-                    .addRequired("output")
-                    .addRequired("truncated")
-                    .addRequired("total_chars")),
-        [](const CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
-            const Utils::Result<int> requested
-                = readCount(params.argumentsAsObject(), "max_chars", maxReplyOutputSize);
-            if (!requested)
-                return ResultError(requested.error());
-            const int maxChars
-                = qBound(minReplyOutputSize, *requested, maxRequestableOutputSize);
-            const BoundedOutput &captured = compileOutput();
-            return CallToolResult{}
-                .structuredContent(QJsonObject{{"output", captured.tail(maxChars)},
-                                               {"truncated", captured.truncatedAt(maxChars)},
-                                               {"total_chars", captured.total()}})
-                .isError(false);
-        });
 
     generalMessagesBuffer(); // start capturing General Messages from now on
     ToolRegistry::registerTool(

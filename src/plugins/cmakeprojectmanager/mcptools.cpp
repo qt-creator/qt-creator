@@ -217,7 +217,8 @@ void registerMcpTools()
                 QJsonObject{
                     {"type", "array"},
                     {"description",
-                     "CMake errors and warnings, same shape as build_list_issues' issues array."}})
+                     "CMake errors and warnings, as objects with type, description, "
+                     "file and line."}})
             .addProperty("summary_text", QJsonObject{{"type", "string"}})
             .addRequired("succeeded")
             .addRequired("error_count")
