@@ -21,6 +21,7 @@
 
 #include <qmath.h>
 
+
 // Clamps float color values within (0, 255)
 static int clamp(float x)
 {
@@ -920,11 +921,12 @@ double StyleHelper::luminance(const QColor &color)
     };
 
     static QHash<QRgb, double> cache;
-    QHash<QRgb, double>::iterator it = cache.find(color.rgb());
+    const QRgb rgb = color.rgb();
+    QHash<QRgb, double>::iterator it = cache.find(rgb);
     if (it == cache.end()) {
-        it = cache.insert(color.rgb(), 0.2126 * val(color.redF())
-                          + 0.7152 * val(color.greenF())
-                          + 0.0722 * val(color.blueF()));
+        it = cache.insert(rgb, 0.2126 * val(qRed(rgb) / 255.)
+                          + 0.7152 * val(qGreen(rgb) / 255.)
+                          + 0.0722 * val(qBlue(rgb) / 255.));
     }
     return it.value();
 }

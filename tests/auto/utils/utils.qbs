@@ -28,6 +28,7 @@ Project {
         "settings/settings.qbs",
         "spellchecker/spellchecker.qbs",
         "stringutils/stringutils.qbs",
+        "stylehelper/stylehelper.qbs",
         "synchronizedvalue/synchronizedvalue.qbs",
         "templateengine/templateengine.qbs",
         "terminalinterface/terminalinterface.qbs",
