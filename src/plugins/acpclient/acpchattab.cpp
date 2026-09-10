@@ -368,6 +368,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             QObject::disconnect(m_controller, &AcpChatController::sessionsListed,
                                 m_activePicker, nullptr);
             const FilePath firstSessionTarget = m_activePicker->defaultTarget();
+            m_activePicker->hide();
             m_activePicker->deleteLater();
             m_activePicker = nullptr;
             m_sessionPending = true;
