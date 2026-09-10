@@ -101,6 +101,13 @@ static FilePaths findQmakesInDir(const FilePath &dir)
     };
 
     for (const FilePath &candidate : candidates) {
+        // The glob also matches the wrappers an installation ships for other
+        // hosts: qmake.bat and qtpaths.bat for Windows, qtpaths.js for the Qt 5
+        // wasm targets. The Qt installer marks them executable just like the
+        // real thing, so only the name tells them apart.
+        const QString suffix = candidate.suffix();
+        if (dir.osType() != OsTypeWindows && (suffix == "bat" || suffix == "js"))
+            continue;
         if (isQmake(candidate) && !probablyMatchesExistingQmake(candidate))
             qmakes << candidate;
     }
