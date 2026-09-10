@@ -25,6 +25,8 @@ const char kNativePathPostfix[] = ":NativePath";
 const char kFileNamePostfix[] = ":FileName";
 const char kFileBaseNamePostfix[] = ":FileBaseName";
 
+const int kMaxNestingDepth = 20; // Limit recursion for expandNestedMacros
+
 class MacroExpanderPrivate
 {
 public:
@@ -32,8 +34,13 @@ public:
 
     static bool validateVarName(const QString &varName) { return !varName.startsWith("JS:"); }
 
-    bool expandNestedMacros(const QString &str, int *pos, QString *ret)
+    bool expandNestedMacros(const QString &str, int *pos, QString *ret, int depth = 0)
     {
+        if (depth > kMaxNestingDepth) {
+            m_aborted = true;
+            return false;
+        }
+
         QString varName;
         QString pattern, replace;
         QString defaultValue;
@@ -45,7 +52,8 @@ public:
 
         int i = *pos;
         int strLen = str.size();
-        varName.reserve(strLen - i);
+        // Reserve for a typical variable name at most (magic number 64)
+        varName.reserve(qMin(strLen - i, 64));
         for (; i < strLen; prev = c) {
             c = str.at(i++);
             if (c == '\\' && i < strLen) {
@@ -99,7 +107,7 @@ public:
                     m_unresolved->append(varName);
                 return false;
             } else if (c == '{' && prev == '%') {
-                if (!expandNestedMacros(str, &i, ret))
+                if (!expandNestedMacros(str, &i, ret, depth + 1))
                     return false;
                 varName.chop(1);
                 varName += *ret;

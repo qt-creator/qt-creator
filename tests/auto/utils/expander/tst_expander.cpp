@@ -652,6 +652,20 @@ private slots:
         QCOMPARE(expander.unresolvedVariables("%{Unknown} %{Unknown} %{AlsoUnknown}"),
                  (QStringList{"Unknown", "AlsoUnknown"}));
     }
+
+    void testNestingLimit()
+    {
+        MacroExpander expander;
+        // Resolves to its own name, so nesting it any number of times still expands to "a".
+        expander.registerVariable("a", "", [] { return "a"; });
+
+        QCOMPARE(expander.expand(QString("%{").repeated(5) + "a" + QString("}").repeated(5)),
+                 QString("a"));
+
+        // Beyond the nesting limit the expansion is refused instead of recursing further.
+        const QString tooDeep = QString("%{").repeated(100) + "a" + QString("}").repeated(100);
+        QVERIFY(expander.expand(tooDeep) != "a");
+    }
 };
 
 QTEST_GUILESS_MAIN(tst_expander)
