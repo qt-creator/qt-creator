@@ -67,7 +67,9 @@ signals:
 private:
     static void load();
     static void save();
-    static QList<IDevice::Ptr> fromMap(const Utils::Store &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
+    static QList<IDevice::Ptr> fromMap(const Utils::Store &map,
+                                       QHash<Utils::Id, Utils::Id> *defaultDevices,
+                                       QList<Utils::Store> *unrestoredDevices = nullptr);
     static Utils::Store toMap();
 
     // For SettingsWidget.

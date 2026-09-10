@@ -82,6 +82,7 @@ public:
 
     mutable QMutex mutex;
     QList<IDevice::Ptr> devices;
+    QList<Store> unrestoredDevices;
     QHash<Id, Id> defaultDevices;
     SynchronizedValue<QMap<Id, IDevice::DeviceState>> deviceStates;
     PersistentSettingsWriter *writer = nullptr;
@@ -139,7 +140,9 @@ void DeviceManager::load()
     // read devices file from user settings path
     QList<IDevice::Ptr> userDevices;
     if (reader.load(settingsFilePath("devices.xml")))
-        userDevices = fromMap(storeFromVariant(reader.restoreValues().value(DeviceManagerKey)), &defaultDevices);
+        userDevices = fromMap(storeFromVariant(reader.restoreValues().value(DeviceManagerKey)),
+                              &defaultDevices,
+                              &d->unrestoredDevices);
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
     for (IDevice::Ptr device : std::as_const(userDevices)) {
@@ -171,8 +174,13 @@ void DeviceManager::load()
     // Overwrite with the saved default devices.
     for (auto itr = defaultDevices.constBegin(); itr != defaultDevices.constEnd(); ++itr) {
         IDevice::ConstPtr device = find(itr.value());
-        if (device)
+        if (device) {
             d->defaultDevices[device->type()] = device->id();
+        } else if (Utils::anyOf(d->unrestoredDevices, [&itr](const Store &map) {
+                       return IDevice::idFromMap(map) == itr.value();
+                   })) {
+            d->defaultDevices.insert(itr.key(), itr.value());
+        }
     }
 
     // Trigger auto-connection
@@ -197,7 +205,8 @@ static const IDeviceFactory *restoreFactory(const Store &map)
     return factory;
 }
 
-QList<IDevice::Ptr> DeviceManager::fromMap(const Store &map, QHash<Id, Id> *defaultDevices)
+QList<IDevice::Ptr> DeviceManager::fromMap(
+    const Store &map, QHash<Id, Id> *defaultDevices, QList<Store> *unrestoredDevices)
 {
     QList<IDevice::Ptr> devices;
 
@@ -210,8 +219,13 @@ QList<IDevice::Ptr> DeviceManager::fromMap(const Store &map, QHash<Id, Id> *defa
     for (const QVariant &v : deviceList) {
         const Store map = storeFromVariant(v);
         const IDeviceFactory * const factory = restoreFactory(map);
-        if (!factory)
+        if (!factory) {
+            // Keep the entry, so disabling the plugin owning the type does not
+            // delete the device on the next save.
+            if (unrestoredDevices)
+                unrestoredDevices->append(map);
             continue;
+        }
         const IDevice::Ptr device = factory->construct();
         QTC_ASSERT(device, continue);
         device->fromMap(map);
@@ -237,6 +251,8 @@ Store DeviceManager::toMap()
             continue;
         deviceList << variantFromStore(store);
     }
+    for (const Store &store : std::as_const(d->unrestoredDevices))
+        deviceList << variantFromStore(store);
     map.insert(DeviceListKey, deviceList);
     return map;
 }
