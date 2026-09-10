@@ -94,6 +94,22 @@ for example an ssh client and its libraries")
   endforeach()
 
   set(_harmonyos_resources "/data/storage/el1/bundle/entry/resources/resfile")
+  set(_harmonyos_launch_arguments
+    "\"-pluginpath\", \"/data/storage/el1/bundle/libs/arm64\",
+        \"-resourcepath\", \"${_harmonyos_resources}/qtcreator\",
+        \"-load\", \"HarmonyOS\"")
+
+  # Nothing on the device starts Qt Creator with arguments, so an instance that is to be
+  # driven from the outside has to be told the port when it is packaged.
+  set(QTC_HARMONYOS_MCP_PORT "" CACHE STRING
+    "Port Qt Creator's MCP server listens on when it runs on a HarmonyOS device, \
+empty to not load the server at all")
+  if (QTC_HARMONYOS_MCP_PORT)
+    string(APPEND _harmonyos_launch_arguments
+      ",\n        \"-load\", \"McpServer\",
+        \"-mcp-port\", \"${QTC_HARMONYOS_MCP_PORT}\"")
+  endif()
+
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qtcreator-harmonyos-extras.json"
 "{
     \"resource-directories\": [
@@ -103,9 +119,7 @@ for example an ssh client and its libraries")
         ${_harmonyos_native_files}
     ],
     \"launch-arguments\": [
-        \"-pluginpath\", \"/data/storage/el1/bundle/libs/arm64\",
-        \"-resourcepath\", \"${_harmonyos_resources}/qtcreator\",
-        \"-load\", \"HarmonyOS\"
+        ${_harmonyos_launch_arguments}
     ]
 }
 ")
