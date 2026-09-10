@@ -32,7 +32,6 @@ void Scrollback::Line::appendChars(const VTermScreenCell *chars, int count)
         }
     }
 
-    m_chars.reserve(m_chars.size() + static_cast<size_t>(count));
     for (int i = 0; i < count; ++i) {
         const VTermScreenCell &cell = chars[i];
         if (isSpacer(cell))
