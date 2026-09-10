@@ -454,7 +454,6 @@ public:
         // Right-side window with editor, output etc.
         auto mainWindowSplitter = new MiniSplitter;
         mainWindowSplitter->addWidget(PerspectivesView::instance()->mainWindow());
-        mainWindowSplitter->addWidget(new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter));
         auto outputPane = new OutputPanePlaceHolder(MODE_DEBUG, mainWindowSplitter);
         outputPane->setObjectName("DebuggerOutputPanePlaceHolder");
         mainWindowSplitter->addWidget(outputPane);
