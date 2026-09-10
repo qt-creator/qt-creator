@@ -34,9 +34,11 @@
 #include <utils/stringutils.h>
 
 #include <QCryptographicHash>
+#include <QDateTime>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLocale>
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
@@ -114,6 +116,12 @@ class ProvisioningProfile
 public:
     QString bundleName;
     QStringList allowedAcls;
+    // Unix seconds, zero where the profile does not say.
+    qint64 notBefore = 0;
+    qint64 notAfter = 0;
+    // Only "udid" can be compared against what the device reports.
+    QString deviceIdType;
+    QStringList deviceIds;
 };
 
 // The signature around the JSON can hold stray braces, so the content is the first
@@ -142,7 +150,80 @@ static ProvisioningProfile readProvisioningProfile(const FilePath &profile)
     result.bundleName = json.value("bundle-info").toObject().value("bundle-name").toString();
     for (const QJsonValue &acl : json.value("acls").toObject().value("allowed-acls").toArray())
         result.allowedAcls.append(acl.toString());
+
+    const QJsonObject validity = json.value("validity").toObject();
+    result.notBefore = validity.value("not-before").toInteger();
+    result.notAfter = validity.value("not-after").toInteger();
+
+    const QJsonObject debugInfo = json.value("debug-info").toObject();
+    result.deviceIdType = debugInfo.value("device-id-type").toString();
+    for (const QJsonValue &id : debugInfo.value("device-ids").toArray())
+        result.deviceIds.append(id.toString());
     return result;
+}
+
+// hap-sign-tool signs whatever the profile says and it is the device that refuses,
+// with a message about neither the validity window nor the device it is for. Both can
+// be seen from here, so both are said here. Not fatal: the device decides, and a host
+// clock that is off should not stop a deploy.
+static Tasks provisioningProblems(const ProvisioningProfile &profile, const QString &udid)
+{
+    const auto dateText = [](qint64 seconds) {
+        return QLocale::system().toString(QDateTime::fromSecsSinceEpoch(seconds),
+                                          QLocale::ShortFormat);
+    };
+    const qint64 now = QDateTime::currentSecsSinceEpoch();
+
+    Tasks tasks;
+    if (profile.notAfter > 0 && profile.notAfter < now) {
+        DeploymentTask task(Task::Error, Tr::tr("The provisioning profile expired on %1.")
+                                             .arg(dateText(profile.notAfter)));
+        task.setDetails({Tr::tr("A device installs a package only while the profile it was "
+                                "signed with is valid. Get a new profile from the developer "
+                                "account the old one came from.")});
+        tasks.append(task);
+    } else if (profile.notBefore > now) {
+        DeploymentTask task(Task::Error, Tr::tr("The provisioning profile is valid from %1 on.")
+                                             .arg(dateText(profile.notBefore)));
+        task.setDetails({Tr::tr("Either the profile is not the one to use yet, or this "
+                                "computer's clock is wrong.")});
+        tasks.append(task);
+    }
+
+    if (!udid.isEmpty() && profile.deviceIdType == "udid" && !profile.deviceIds.isEmpty()
+        && !profile.deviceIds.contains(udid, Qt::CaseInsensitive)) {
+        DeploymentTask task(Task::Error,
+                            Tr::tr("The provisioning profile is not for this device."));
+        task.setDetails({Tr::tr("A debug profile installs only on the devices it lists under "
+                                "\"device-ids\". Register this device with the developer "
+                                "account and get a profile that has its UDID, which is %1.")
+                             .arg(udid)});
+        tasks.append(task);
+    }
+    return tasks;
+}
+
+// What a debug provisioning profile lists a device by. Empty when no device answers.
+static QString deviceUdid(const QString &serial)
+{
+    const FilePath hdc = Sdk::hdcCommand(settings().sdkLocation());
+    if (hdc.isEmpty())
+        return {};
+
+    CommandLine cmd{hdc};
+    if (!serial.isEmpty())
+        cmd.addArgs({"-t", serial});
+    cmd.addArgs({"shell", "bm", "get", "--udid"});
+
+    Process process;
+    process.setCommand(cmd);
+    process.setEnvironment(Sdk::hdcEnvironment());
+    process.runBlocking(std::chrono::seconds(5));
+
+    // "udid of current device is :" and the UDID on the line below it.
+    static const QRegularExpression re("\\b([0-9A-Fa-f]{64})\\b");
+    const QRegularExpressionMatch match = re.match(process.cleanedStdOut());
+    return match.hasMatch() ? match.captured(1) : QString();
 }
 
 // The permissions Qt asks for that a device only grants when the profile allows them.
@@ -713,6 +794,11 @@ private:
         m_buildKey = bc->activeBuildKey();
         m_project = projectDir(bc);
         m_package = packageDir(bc).pathAppended(m_buildKey + "-unsigned.hap");
+        m_serial.clear();
+        if (const auto device = std::dynamic_pointer_cast<const HarmonyOsDevice>(
+                RunDeviceKitAspect::device(kit()))) {
+            m_serial = device->serialNumber();
+        }
 
         processParameters()->setCommandLine({hvigor, {"assembleHap", "--no-daemon"}});
         processParameters()->setWorkingDirectory(m_project);
@@ -1164,6 +1250,13 @@ private:
             const ProvisioningProfile profile
                 = readProvisioningProfile(settings().signingProfile());
 
+            // The device is only asked when there is something to compare, since that
+            // costs a round trip.
+            const QString udid = profile.deviceIds.isEmpty() ? QString()
+                                                             : deviceUdid(m_serial);
+            for (const Task &task : provisioningProblems(profile, udid))
+                emit addTask(task);
+
             // A package can only be installed under the bundle name its profile is for.
             if (!profile.bundleName.isEmpty()) {
                 const FilePath appJson = m_project.pathAppended("AppScope/app.json5");
@@ -1250,6 +1343,7 @@ private:
     }
 
     QString m_buildKey;
+    QString m_serial;
     FilePath m_project;
     FilePath m_package;
     FilePath m_nativePackage;
@@ -1776,14 +1870,61 @@ private slots:
         QVERIFY(dir.isValid());
         const FilePath profile = FilePath::fromString(dir.filePath("profile.p7b"));
         // As in a real profile: DER bytes with a stray brace ahead of the JSON.
+        const QByteArray udid(64, 'A');
+        // Every raw string here has an even number of quotes in it, because moc
+        // does not read R"(...)" as raw and loses the class over an odd one.
         const QByteArray blob = QByteArray("0\x82\x0f{\x06\x09*\x86H")
-            + R"({"version-name":"2.0.0","bundle-info":{"bundle-name":"Qt.Greatest.App"},)"
-              R"("acls":{"allowed-acls":["ohos.permission.READ_PASTEBOARD"]}})";
+            + QByteArray(
+                  R"({"version-name":"2.0.0","bundle-info":{"bundle-name":"Qt.Greatest.App"},)"
+                  R"("validity":{"not-before":1786517983,"not-after":1818053383},)"
+                  R"("type":"debug","debug-info":{"device-id-type":"udid",)"
+                  R"("device-ids":["UDID"]},)"
+                  R"("acls":{"allowed-acls":["ohos.permission.READ_PASTEBOARD"]}})")
+                  .replace("UDID", udid);
         QVERIFY(profile.writeFileContents(blob));
 
         const ProvisioningProfile read = readProvisioningProfile(profile);
         QCOMPARE(read.bundleName, QString("Qt.Greatest.App"));
         QCOMPARE(read.allowedAcls, QStringList{"ohos.permission.READ_PASTEBOARD"});
+        QCOMPARE(read.notBefore, qint64(1786517983));
+        QCOMPARE(read.notAfter, qint64(1818053383));
+        QCOMPARE(read.deviceIdType, QString("udid"));
+        QCOMPARE(read.deviceIds.size(), 1);
+        QCOMPARE(read.deviceIds.first(), QString::fromLatin1(udid));
+    }
+
+    // Each of these would otherwise reach the user as a device message about
+    // something else entirely.
+    void testProvisioningProblems()
+    {
+        const qint64 now = QDateTime::currentSecsSinceEpoch();
+        const QString udid(64, 'a');
+
+        ProvisioningProfile valid;
+        valid.notBefore = now - 3600;
+        valid.notAfter = now + 3600;
+        valid.deviceIdType = "udid";
+        valid.deviceIds = {udid};
+        QVERIFY(provisioningProblems(valid, udid).isEmpty());
+        // Upper case in the profile, lower case from the device, same device.
+        QVERIFY(provisioningProblems(valid, udid.toUpper()).isEmpty());
+        // Nothing to compare against is not a problem to report.
+        QVERIFY(provisioningProblems(valid, {}).isEmpty());
+        QVERIFY(provisioningProblems({}, udid).isEmpty());
+
+        ProvisioningProfile expired = valid;
+        expired.notAfter = now - 60;
+        QCOMPARE(provisioningProblems(expired, udid).size(), 1);
+
+        ProvisioningProfile future = valid;
+        future.notBefore = now + 60;
+        QCOMPARE(provisioningProblems(future, udid).size(), 1);
+
+        QCOMPARE(provisioningProblems(valid, QString(64, 'b')).size(), 1);
+        // A profile that lists devices some other way cannot be compared at all.
+        ProvisioningProfile otherKind = valid;
+        otherKind.deviceIdType = "sn";
+        QVERIFY(provisioningProblems(otherKind, QString(64, 'b')).isEmpty());
     }
 
     void testDebugPluginSourceIsShipped()
