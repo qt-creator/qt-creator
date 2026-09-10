@@ -1188,6 +1188,8 @@ private slots:
     void continueSignalsExitedForSpontaneousExit();
     void reportsApplicationOutput_data() { addBackendRows(); }
     void reportsApplicationOutput();
+    void reportsAFirstChanceExceptionWhenAsked_data() { addBackendRows(); }
+    void reportsAFirstChanceExceptionWhenAsked();
     void stopsWhereTheDebugRuntimeReports_data() { addBackendRows(); }
     void stopsWhereTheDebugRuntimeReports();
     void keepsQtLoggingOffTheConsoleWithoutATerminal_data() { addBackendRows(); }
@@ -1382,6 +1384,8 @@ private:
         Backend backend, bool ignoreFirstChance, const QStringList &inferiorArguments);
     std::unique_ptr<DebuggerBackend> createEngineWithTerminal(
         Backend backend, bool useTerminal, const Utils::Environment &inferiorEnvironment);
+    std::unique_ptr<DebuggerBackend> createEngineReportingExceptions(
+        Backend backend, bool reportFirstChance);
     std::unique_ptr<DebuggerBackend> createEngineForTheDebugRuntime(
         Backend backend, const QString &crtDebugReportModule);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
@@ -1843,6 +1847,22 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngineForTheDebugRuntime(
         .extensionFileName = m_backendData[backend].cdbExtensionFileName,
         .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
         .crtDebugReportModule = crtDebugReportModule}));
+}
+
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineReportingExceptions(
+    Backend backend, bool reportFirstChance)
+{
+    if (backend != Backend::Cdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          Environment::systemEnvironment()},
+        .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                            Environment::systemEnvironment()},
+        .extensionDir = m_backendData[backend].cdbExtensionDir,
+        .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+        .reportFirstChanceExceptions = reportFirstChance}));
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
@@ -5133,6 +5153,57 @@ void tst_backends::reportsApplicationOutput()
                                                  "channels saw:\n  %2")
                                              .arg(marker, otherChannels.join("\n  ").left(600))),
                               s_timeout);
+}
+
+void tst_backends::reportsAFirstChanceExceptionWhenAsked()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (!testData.throwsAnException || testData.afterThrowOutputMarker.isEmpty())
+        QSKIP("inferior throws nothing the debugger could report");
+
+    auto reportsWith = [&](bool reportFirstChance, bool *sawTheThrow) -> int {
+        std::unique_ptr<DebuggerBackend> debuggerBackend
+            = createEngineReportingExceptions(backend, reportFirstChance);
+        if (!debuggerBackend)
+            return -1;
+        DebuggerEngineInterface *engine = debuggerBackend->engine();
+        int reports = 0;
+        connect(engine, &DebuggerEngineInterface::exceptionReported, this,
+                [&reports](const ExceptionReport &) { ++reports; });
+        QStringList applicationOutput;
+        connect(engine, &DebuggerEngineInterface::message, this,
+                [&applicationOutput](const QString &text, int channel, int) {
+            if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+                applicationOutput.append(text);
+        });
+        engine->start();
+        const QString marker = testData.afterThrowOutputMarker;
+        [&] {
+            QTRY_VERIFY_WITH_TIMEOUT(applicationOutput.join(' ').contains(marker),
+                                     s_warmUpTimeout);
+        }();
+        *sawTheThrow = applicationOutput.join(' ').contains(marker);
+        debuggerBackend->clearEvents();
+        engine->shutdownInferior(ShutdownMode::Kill);
+        [&debuggerBackend] {
+            QTRY_VERIFY_WITH_TIMEOUT(
+                debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
+        }();
+        engine->shutdownEngine();
+        return reports;
+    };
+
+    bool sawTheThrow = false;
+    const int asked = reportsWith(true, &sawTheThrow);
+    if (asked < 0)
+        QSKIP("This backend's start data says nothing about reporting exceptions.");
+    QVERIFY2(sawTheThrow, "the inferior never got past its own exception");
+    QVERIFY2(asked > 0, "the exception the inferior threw was never reported");
+
+    QCOMPARE(reportsWith(false, &sawTheThrow), 0);
+    QVERIFY2(sawTheThrow, "the inferior never got past its own exception");
 }
 
 void tst_backends::stopsWhereTheDebugRuntimeReports()

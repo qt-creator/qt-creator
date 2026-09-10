@@ -50,6 +50,8 @@ public:
     bool useTerminal = false;
     // The C runtime to break in when it reports a debug problem, empty for none.
     QString crtDebugReportModule;
+    bool reportFirstChanceExceptions = false;
+    bool reportSecondChanceExceptions = false;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
     int qtVersion = 0;

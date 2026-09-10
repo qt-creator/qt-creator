@@ -8,6 +8,7 @@
 #include "../breakpoint.h"
 #include "../debuggerconstants.h"
 #include "../debuggerinternalconstants.h"
+#include "../shared/hostutils.h"
 
 #include <utils/qtcassert.h>
 
@@ -1423,6 +1424,11 @@ void CdbImpl::resumeAfterSetup()
 void CdbImpl::initializeSession(const std::function<void()> &whenReady)
 {
     runCommand({".symopt+0x8000", NoFlags});
+    runCommand({m_extensionCommandPrefix
+                    + QString("setparameter firstChance=%1 secondChance=%2")
+                          .arg(m_startData.reportFirstChanceExceptions ? 1 : 0)
+                          .arg(m_startData.reportSecondChanceExceptions ? 1 : 0),
+                NoFlags});
     runCommand({"sxn ibp", NoFlags});
     runCommand({"sxn ud", NoFlags});
     runCommand({"sxn 0x4000001f", NoFlags}); // The wow64 layer's own breakpoint.
@@ -1936,6 +1942,28 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         command.callback(response);
         if (m_resumeWhenRepliesDrain)
             resumeAfterSetup();
+        return;
+    }
+
+    if (what == "exception") {
+        GdbMi data;
+        QStringDecoder decoder(QStringEncoder::System);
+        data.fromString(payload, decoder);
+        WinException exception;
+        exception.fromGdbMI(data);
+        if (exception.exceptionCode == winExceptionWX86Breakpoint
+                || exception.exceptionCode == winExceptionSetThreadName) {
+            return;
+        }
+        ExceptionReport report;
+        report.description = exception.toString(true).trimmed();
+        report.withoutLocation = exception.toString(false).trimmed();
+        report.file = FilePath::fromUserInput(exception.file);
+        report.line = exception.lineNumber;
+        report.fatal = isFatalWinException(exception.exceptionCode);
+        report.isCppException = exception.exceptionCode == winExceptionCppException;
+        if (!isDebuggerWinException(exception.exceptionCode))
+            emit exceptionReported(report);
         return;
     }
 

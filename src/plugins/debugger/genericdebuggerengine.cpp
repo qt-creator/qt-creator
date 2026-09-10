@@ -7,6 +7,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggertr.h"
+#include "debuggerinternalconstants.h"
 #include "disassembleragent.h"
 #include "memoryagent.h"
 #include "moduleshandler.h"
@@ -20,6 +21,7 @@
 #include "watchwindow.h"
 
 #include <cppeditor/cppmodelmanager.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
@@ -85,6 +87,18 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         thread.id = id;
         thread.groupId = data["group-id"].data();
         threadsHandler()->updateThread(thread);
+    });
+    connect(m_backend.get(), &DebuggerEngineInterface::exceptionReported, this,
+            [this](const ExceptionReport &report) {
+        showStatusMessage(report.description);
+        if (report.isCppException)
+            showMessage(report.description + '\n', AppOutput);
+        using namespace ProjectExplorer;
+        TaskHub::addTask(Task(report.fatal ? Task::Error : Task::Warning,
+                              Tr::tr("Debugger encountered an exception: %1")
+                                  .arg(report.withoutLocation),
+                              report.file, report.line,
+                              Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
     });
     connect(m_backend.get(), &DebuggerEngineInterface::libraryEvent, this,
             [this](LibraryEvent event, const GdbMi &data) {

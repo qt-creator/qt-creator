@@ -137,6 +137,17 @@ public:
     int modelId = 0;
 };
 
+class DEBUGGER_EXPORT ExceptionReport
+{
+public:
+    QString description;
+    QString withoutLocation;
+    Utils::FilePath file;
+    int line = 0;
+    bool fatal = false;
+    bool isCppException = false;
+};
+
 enum class MemoryOp { Fetch, Change };
 
 enum class ShutdownMode { Kill, Detach };
@@ -292,6 +303,8 @@ signals:
     void libraryEvent(LibraryEvent event, const GdbMi &data);
 
     void threadEvent(ThreadEvent event, const GdbMi &data);
+
+    void exceptionReported(const ExceptionReport &report);
 
     void breakpointModified(const GdbMi &data);
 
