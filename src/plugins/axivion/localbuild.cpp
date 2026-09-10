@@ -255,7 +255,7 @@ void checkForLocalBuildResults(const QString &projectName, const std::function<v
     auto cleanup = qScopeGuard([&db] { db.close(); });
 
     QSqlQuery query(db);
-    query.prepare("SELECT Data FROM axMetaData WHERE Name=\"version\"");
+    query.prepare("SELECT Data FROM axMetaData WHERE Name='version'");
     if (!query.exec() || !query.next())
         return;
     if (!query.value("Data").toString().startsWith("1."))
