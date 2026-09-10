@@ -151,6 +151,7 @@ Action keys mirror the MCP tool names. Each step has exactly one:
 | `select_text`       | `start_line`/`end_line` plus optional columns in the current editor; `expect:` asserts the selected text. |
 | `activate_mode`     | A mode id, e.g. `Welcome`. |
 | `settings_page`     | A preferences page id, e.g. `D.ProjectExplorer.KitsOptions`. |
+| `use_kit`           | A kit id or display name. Configures the open project for that kit if it is not already, and makes it the active one, as the kit selector does. This is how a scenario builds with a particular kit rather than with the one the wizard offered. |
 | `build`             | Builds the startup project and fails on a build error; `timeout:` seconds (default 300). |
 | `run`               | Runs it. Dispatched, not awaited (see below). |
 | `wait_for_output`   | `text:` plus `pane:` (default Application Output) and `timeout:`; polls the pane until a line contains the text. Only what the dispatched run itself wrote counts. |
@@ -195,6 +196,13 @@ There is deliberately no `sleep`: wait only on observable conditions
 (`wait_for`, `wait_for_output`). See `about-dialog.yaml` for a small complete
 example and `cmake-project.yaml` for a whole development story - detected
 device and kit, the wizard, an edit, a build and a run.
+
+`harmonyos-project.yaml` is that same story for a HarmonyOS device, and is the
+exception to the rule that a scenario runs anywhere: it needs a HarmonyOS SDK,
+signing material, a Qt for HarmonyOS and a paired device. It names the kit it
+wants in a var and selects it with `use_kit`, so it does not matter which kit
+the wizard offered. Its report is also where the manual's HarmonyOS screenshots
+come from.
 
 ## Vars
 

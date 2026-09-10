@@ -340,6 +340,19 @@
                 },
                 {
                     "type": "object",
+                    "required": ["describe", "use_kit"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "use_kit": {
+                            "type": "string",
+                            "description": "A kit id or display name (kit_list reports both). Configures the open project for that kit if it is not already, and makes it the active one, as the kit selector does. Supports vars."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
                     "required": ["describe", "build"],
                     "additionalProperties": false,
                     "properties": {

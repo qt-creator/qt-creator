@@ -541,6 +541,25 @@ class Runner:
                     note="Preferences shows " + page,
                     tool="settings_page", check={"page": (r or {}).get("page")})
 
+    def do_use_kit(self, step):
+        kit = self.subst(step["use_kit"])
+        # Adding is what makes the kit selectable at all, and it reports the
+        # kit it already had rather than failing, so both orders of running a
+        # scenario end in the same place.
+        r = self.call_or_fail("kit_add_to_project", {"kits": [kit]},
+                              step["describe"]) or {}
+        if not r.get("success"):
+            raise ScenarioError('step {}: kit "{}" was not added: {}'.format(
+                self.step_no, kit, r.get("message") or r.get("reason")))
+        r = self.call_or_fail("kit_set_active", {"kit": kit}, step["describe"]) or {}
+        if not r.get("success"):
+            raise ScenarioError('step {}: kit "{}" did not become active: {}'.format(
+                self.step_no, kit, r.get("message") or r.get("reason")))
+        name = (r.get("kit") or {}).get("name") or kit
+        self.record(step["describe"], 'use_kit kit="{}"'.format(kit),
+                    note="The project builds and runs with " + name,
+                    tool="use_kit", check={"kit": name})
+
     def do_build(self, step):
         spec = self.subst(step["build"]) if isinstance(step["build"], dict) else {}
         timeout = float(spec.pop("timeout", 300))
@@ -814,6 +833,8 @@ class Runner:
                 self.do_activate_mode(step)
             elif "settings_page" in step:
                 self.do_settings_page(step)
+            elif "use_kit" in step:
+                self.do_use_kit(step)
             elif "build" in step:
                 self.do_build(step)
             elif "run" in step:

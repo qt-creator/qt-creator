@@ -1,0 +1,221 @@
+# yaml-language-server: $schema=./scenario.schema.json
+name: Create, build and run a HarmonyOS application
+intent: >
+  The HarmonyOS development story, from an installation that has nothing open
+  to an application running on the tablet: what the HarmonyOS page found in the
+  SDK, the device hdc reports, the kit that came out of the two, a Qt Widgets
+  application made with the wizard, a build, and a run on the device. The
+  generated report is also where the manual's HarmonyOS screenshots come from.
+  This one is not portable, unlike cmake-project.yaml: it needs a HarmonyOS
+  SDK, signing material, a Qt for HarmonyOS, and a paired device, so it fails
+  on a plain desktop installation instead of testing anything there. Qt Creator
+  itself runs on the host and only the application goes to the device, so the
+  workspace is a host directory.
+  The HarmonyOS plugin is experimental, so it is off until it is enabled in
+  About Plugins, or loaded with "-load HarmonyOS". The kit the wizard offers is
+  whichever one is the default, so the scenario switches the project over to
+  the HarmonyOS kit itself rather than expecting a particular default.
+
+vars:
+  # Where the wizard puts the project, on the host that runs Qt Creator.
+  workspace: "{scratch}"
+  project: harmonydemo
+  # The kit to build with, named after the Qt version it was created from, so
+  # this changes with the Qt. It is also the row to select on the Kits page.
+  kit: Qt 6.13.0 for HarmonyOS ARM64-v8a
+  title: Built by a scenario
+
+steps:
+  - describe: Close whatever a previous run left open
+    call_action: ProjectExplorer.ClearSession
+    optional: true
+
+  - describe: Start from a project directory that does not exist yet
+    remove: "{workspace}/{project}"
+
+  - describe: Show what the HarmonyOS page made of the SDK
+    settings_page: ZZ.HarmonyOS Configurations
+
+  - describe: Capture the HarmonyOS page
+    # The signing section is part of this page, so the shot carries the paths
+    # of the account's own material. The report stays on the machine it ran on.
+    screenshot:
+
+  - describe: Show the device hdc reported
+    settings_page: AA.Device Settings
+
+  - describe: Capture the Devices page
+    screenshot:
+
+  - describe: Show the kit the SDK and the Qt produced
+    settings_page: D.ProjectExplorer.KitsOptions
+
+  - describe: Select the kit, so the page shows what it was given
+    click_item:
+      class_name: QTreeView
+      item: "{kit}"
+
+  - describe: Capture the Kits page
+    screenshot:
+
+  - describe: Leave Preferences
+    activate_mode: Welcome
+
+  - describe: Open the New Project dialog
+    caption: File > New Project
+    call_action: QtCreator.New
+
+  - describe: Wait for the template list
+    wait_for:
+      object_name: templateCategoryView
+
+  - describe: Pick the Qt application templates
+    click_item:
+      object_name: templateCategoryView
+      item: "Projects /   Application (Qt)"
+
+  - describe: Pick the Qt Widgets Application template
+    click_item:
+      object_name: templatesView
+      item: Qt Widgets Application
+
+  - describe: Start the wizard
+    click_widget:
+      text: Choose...
+      window_title: New Project
+
+  - describe: Wait for the location page
+    wait_for:
+      object_name: nameLineEdit
+
+  - describe: Select the suggested name
+    press_keys:
+      keys: Ctrl+A
+      object_name: nameLineEdit
+
+  - describe: Name the project
+    type_text:
+      object_name: nameLineEdit
+      input: "{project}"
+
+  - describe: Select the suggested location
+    press_keys:
+      keys: Ctrl+A
+      object_name: LineEdit
+      window_title: Qt Widgets Application
+
+  - describe: Say where it goes
+    type_text:
+      object_name: LineEdit
+      window_title: Qt Widgets Application
+      input: "{workspace}"
+
+  - describe: On to the build system
+    click_widget:
+      text: Next >
+
+  - describe: Build it with CMake
+    # A HarmonyOS package is built by the CMake build only.
+    select_combo_item:
+      object_name: BuildSystem
+      item: CMake
+
+  - describe: On to the class details
+    click_widget:
+      text: Next >
+
+  - describe: On to the translation file
+    click_widget:
+      text: Next >
+
+  - describe: On to the kit selection
+    click_widget:
+      text: Next >
+
+  - describe: Take the kit the wizard offers
+    click_widget:
+      text: Next >
+
+  - describe: Create the project
+    click_widget:
+      text: Finish
+
+  - describe: Wait for the generated sources
+    wait_for:
+      class_name: TextEditor::TextEditorWidget
+    timeout: 60
+
+  - describe: Build and run the project with the HarmonyOS kit
+    # The wizard configured it for the default kit, whichever that is.
+    use_kit: "{kit}"
+
+  - describe: Open the generated main.cpp
+    open: "{workspace}/{project}/main.cpp"
+
+  - describe: Put the caret behind the window's construction
+    select_text:
+      start_line: 8
+      end_line: 8
+      expect: "    MainWindow w;"
+
+  - describe: Put the caret behind it, keeping the line
+    press_keys:
+      keys: End
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: Make room for one line of its own
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: Give the window a title
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: 'w.setWindowTitle("{title}");'
+
+  - describe: Save the file
+    call_action: QtCreator.SaveAll
+
+  - describe: Show the Compile Output
+    call_action: QtCreator.Pane.CompileOutput
+
+  - describe: Build the project
+    # A cross build of the wizard's sources is quick, configuring it is not:
+    # CMake runs the SDK's toolchain file and finds the cross-built Qt.
+    build:
+      timeout: 900
+
+  - describe: Keep the compile output
+    read_pane: Compile Output
+
+  - describe: Capture the build result
+    screenshot:
+
+  - describe: Show the Application Output
+    call_action: QtCreator.Pane.ApplicationOutput
+
+  - describe: Package, sign, install and run it on the device
+    run: true
+
+  - describe: Wait for the application to be running on the device
+    # The device's own output does not reach the Application Output pane, so
+    # what is waited for is the log reader Qt Creator starts for the running
+    # application. It only gets that far once the package installed, "aa start"
+    # returned, and "pidof" found the process, so the line proves the run.
+    wait_for_output:
+      pane: Application Output
+      text: hilog
+      timeout: 600
+
+  - describe: Keep the application output
+    read_pane: Application Output
+
+  - describe: Capture the running application
+    screenshot:
+
+  - describe: Stop the application
+    call_action: ProjectExplorer.Stop
+    optional: true
+
+  - describe: Close the project again
+    call_action: ProjectExplorer.ClearSession
