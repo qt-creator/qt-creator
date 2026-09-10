@@ -240,7 +240,14 @@ size_t vterm_input_write(VTerm *vt, const char *bytes, size_t len)
         c = ';';
       }
       if(c == ';') {
-        vt->parser.v.csi.argi++;
+        /* Stay inside args[]: this advanced argi for every ';' with no bound,
+         * so a sequence carrying CSI_ARGS_MAX of them wrote CSI_ARG_MISSING
+         * over what follows the array - the parser's own callbacks pointer,
+         * which do_csi then dereferences. Arguments past the last slot
+         * overwrite it instead, which is what dropping them looks like to a
+         * caller that reads argi of them. */
+        if(vt->parser.v.csi.argi < CSI_ARGS_MAX-1)
+          vt->parser.v.csi.argi++;
         vt->parser.v.csi.args[vt->parser.v.csi.argi] = CSI_ARG_MISSING;
         break;
       }

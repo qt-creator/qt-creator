@@ -863,6 +863,21 @@ private slots:
         QVERIFY(m_surface->isBracketedPasteEnabled());
     }
 
+    void aCsiArgumentListDoesNotRunPastItsEnd()
+    {
+        // Every ';' advanced the argument index with no bound, and the
+        // arguments sit in a fixed-size array followed by the parser's own
+        // callbacks pointer - so a sequence with enough of them wrote over
+        // that pointer, and the next CSI dereferenced it.
+        m_surface->dataFromPty("\x1b[" + QByteArray(64, ';') + "m");
+
+        // Getting here at all is most of the point. A round trip through the
+        // parser afterwards shows it still works rather than merely not
+        // having crashed yet: SGR left the cursor at the origin.
+        m_surface->dataFromPty("ok");
+        QCOMPARE(textAt(0), QString("ok"));
+    }
+
     void aWideCharacterIsNotSplitByRewrapping()
     {
         initSurface({20, 6});
