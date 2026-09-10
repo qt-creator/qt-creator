@@ -1449,6 +1449,12 @@ DashboardMode currentDashboardMode()
 void updateEnvironmentForLocalBuild(Environment *env)
 {
     QTC_ASSERT(env, return);
+    // scrub possible environment variables that might interfer if derived and not overwritten here
+    env->unset("AXIVION_PASSFILE");
+    env->unset("AXIVION_LOCAL_BUILD");
+    env->unset("AXIVION_PASSWORD");
+    env->unset("AXIVION_USERNAME");
+    env->unset("AXIVION_DASHBOARD_URL");
     QTC_ASSERT(dd, return);
     QTC_ASSERT(dd->m_dashboardInfo && dd->m_currentProjectInfo, return);
     QTC_ASSERT((dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken)

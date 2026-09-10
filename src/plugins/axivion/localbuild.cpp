@@ -541,8 +541,6 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
             return false;
     }
 
-    const QString createdPassFile = env.value("AXIVION_PASSFILE");
-
     CommandLine cmdLine;
     setupEnvAndCommandLineFromUserInput(&env, &cmdLine, settings().lastLocalBuildCommand(), dia.buildType());
 
@@ -574,6 +572,7 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
         });
     };
 
+    const QString createdPassFile = env.value("AXIVION_PASSFILE");
     const auto onDone = [this, projectName, createdPassFile](const Process &process) {
         if (!createdPassFile.isEmpty()) {
             const FilePath fp = FilePath::fromUserInput(createdPassFile);
