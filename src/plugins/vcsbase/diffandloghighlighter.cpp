@@ -158,18 +158,18 @@ void DiffAndLogHighlighter::highlightBlock(const QString &text)
     const int length = text.size();
     const TextEditor::TextStyle format = d->analyzeLine(text);
 
-    if (d->m_enabled) {
-        if (format == TextEditor::C_ADDED_LINE) {
-            // Mark trailing whitespace.
-            const int trimmedLen = trimmedLength(text);
-            setFormatWithSpaces(text, 0, trimmedLen, formatForCategory(format));
-            if (trimmedLen != length)
-                setFormat(trimmedLen, length - trimmedLen, d->m_addedTrailingWhiteSpaceFormat);
-        } else if (format != TextEditor::C_TEXT) {
-            setFormatWithSpaces(text, 0, length, formatForCategory(format));
-        } else {
-            formatSpaces(text);
-        }
+    if (!d->m_enabled) {
+        formatSpaces(text);
+    } else if (format == TextEditor::C_ADDED_LINE) {
+        // Mark trailing whitespace.
+        const int trimmedLen = trimmedLength(text);
+        setFormatWithSpaces(text, 0, trimmedLen, formatForCategory(format));
+        if (trimmedLen != length)
+            setFormat(trimmedLen, length - trimmedLen, d->m_addedTrailingWhiteSpaceFormat);
+    } else if (format != TextEditor::C_TEXT) {
+        setFormatWithSpaces(text, 0, length, formatForCategory(format));
+    } else {
+        formatSpaces(text);
     }
 
     // codefolding:
