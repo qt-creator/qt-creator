@@ -56,6 +56,7 @@ private:
 
     void handleStarted();
     void handleFinished();
+    void reportEngineSetup(bool success);
     void handleStandardError();
     void configureTarget();
     void runUserStartupCommands();
@@ -105,6 +106,7 @@ private:
     bool m_detaching = false;
     bool m_stepRequested = false;
     bool m_shuttingDown = false;
+    bool m_setupReported = false;
     bool m_inferiorResumed = false;
     bool m_interruptOnceResumed = false;
     // Whether the next stop ends the setup rather than a run of its own.

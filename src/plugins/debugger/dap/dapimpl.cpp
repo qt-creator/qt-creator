@@ -152,6 +152,8 @@ void DapImpl::start()
             this, &DapImpl::handleFinished);
     connect(m_client, &DapClient::readyReadStandardError,
             this, &DapImpl::handleStandardError);
+    connect(m_client, &DapClient::unframedOutput,
+            this, [this](const QString &text) { emit message(text, LogOutput); });
     connect(m_client, &DapClient::responseReady,
             this, &DapImpl::handleResponse);
     connect(m_client, &DapClient::eventReady,
@@ -171,7 +173,6 @@ void DapImpl::start()
 
 void DapImpl::handleStarted()
 {
-    emit inferiorEvent(InferiorEvent::EngineSetupOk);
     postRequest("initialize",
                 QJsonObject{{"clientID", "QtCreator"},
                             {"clientName", "QtCreator"},
@@ -183,10 +184,21 @@ void DapImpl::handleStarted()
                             {"supportsMemoryReferences", true}});
 }
 
+// The setup is over once the adapter has answered for itself, not when its
+// process is up: only then is there a session to launch anything in.
+void DapImpl::reportEngineSetup(bool success)
+{
+    m_setupReported = true;
+    emit inferiorEvent(success ? InferiorEvent::EngineSetupOk
+                               : InferiorEvent::EngineSetupFailed);
+}
+
 void DapImpl::handleFinished()
 {
-    if (m_client->dataProvider()->result() == ProcessResult::StartFailed)
-        emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+    // An adapter that is gone without ever having answered leaves the session
+    // unopened, whether it failed to start or quit on its own.
+    if (!m_setupReported)
+        reportEngineSetup(false);
     else if (!m_runReported)
         emit inferiorEvent(InferiorEvent::EngineRunFailed);
     auto provider = qobject_cast<ProcessDataProvider *>(m_client->dataProvider());
@@ -763,6 +775,12 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
 
     switch (type) {
     case DapResponseType::Initialize:
+        if (!success) {
+            emit message(response.value("message").toString(), LogError);
+            reportEngineSetup(false);
+            return;
+        }
+        reportEngineSetup(true);
         return;
     case DapResponseType::ConfigurationDone:
         return;
@@ -794,8 +812,14 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         return;
     case DapResponseType::Launch:
     case DapResponseType::Attach:
-        if (!success)
-            emit inferiorEvent(InferiorEvent::EngineRunFailed);
+        if (!success) {
+            emit message(response.value("message").toString(), LogError);
+            // The run is claimed when the request goes out, so a refusal that
+            // comes back after that is the session ending rather than a run
+            // that never started.
+            emit inferiorEvent(m_runReported ? InferiorEvent::InferiorIll
+                                             : InferiorEvent::EngineRunFailed);
+        }
         return;
     case DapResponseType::Evaluate:
         if (m_watcherRequests.contains(response.value("request_seq").toInt())) {

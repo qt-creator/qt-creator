@@ -546,8 +546,7 @@ class DapServer():
         # user's own dumper module has to be added before that happens, and it
         # arrives with this request.
         args = request.get('arguments', {})
-        extraFile = args.get('qtcDumperFile')
-        if extraFile:
+        for extraFile in args.get('qtcDumperFiles') or []:
             try:
                 self.dumper.addDumperModule({'path': extraFile})
             except Exception as error:

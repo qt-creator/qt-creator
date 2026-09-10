@@ -63,6 +63,7 @@ protected:
     // own host needs to set up.
     virtual void handleStarted();
     void handleFinished();
+    void reportEngineSetup(bool success);
     void handleStandardError();
     // A superset extends the dispatch: whatever it does not claim lands here.
     virtual void handleResponse(DapResponseType type, const QJsonObject &response);
@@ -107,6 +108,7 @@ protected:
     bool m_inferiorRunning = false;
     bool m_stopRequested = false;
     bool m_configured = false;
+    bool m_setupReported = false;
     // The engine has to hear that the run began before it hears it ended,
     // and an adapter whose debuggee exits at once says both before the
     // configuration it was still answering has been acknowledged.

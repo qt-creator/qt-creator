@@ -183,6 +183,8 @@ void BridgeImpl::start()
     connect(m_client, &DapClient::started, this, &BridgeImpl::handleStarted);
     connect(m_client, &DapClient::done, this, &BridgeImpl::handleFinished);
     connect(m_client, &DapClient::readyReadStandardError, this, &BridgeImpl::handleStandardError);
+    connect(m_client, &DapClient::unframedOutput,
+            this, [this](const QString &text) { emit message(text, LogOutput); });
     connect(m_client, &DapClient::responseReady, this, &BridgeImpl::handleResponse);
     connect(m_client, &DapClient::eventReady, this, &BridgeImpl::handleEvent);
 
@@ -192,14 +194,15 @@ void BridgeImpl::start()
 
 void BridgeImpl::handleStarted()
 {
-    emit inferiorEvent(InferiorEvent::EngineSetupOk);
     // Not sendInitialize(): the user's extra dumpers have to travel with it,
     // because the bridge sets them up while answering.
     QJsonObject args{{"clientID", "QtCreator"}, {"clientName", "QtCreator"},
                      {"adapterID", m_startData.bridgeStartData.bridgeModule}};
     QJsonArray dumperFiles;
-    for (const FilePath &file : m_startData.extraDumperFiles)
-        dumperFiles.append(file.path());
+    for (const FilePath &file : m_startData.extraDumperFiles) {
+        if (file.isReadableFile())
+            dumperFiles.append(file.path());
+    }
     if (!dumperFiles.isEmpty())
         args.insert("qtcDumperFiles", dumperFiles);
     if (!m_startData.extraDumperCommands.isEmpty())
@@ -249,9 +252,21 @@ void BridgeImpl::runUserStartupCommands()
 void BridgeImpl::handleFinished()
 {
     auto provider = static_cast<BridgeImplDataProvider *>(m_client->dataProvider());
-    if (m_client->dataProvider()->result() == ProcessResult::StartFailed)
-        emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+    // A host that is gone without ever having answered leaves the session
+    // unopened, whether it failed to start or quit on its own.
+    reportEngineSetup(false);
     emit engineProcessFinished(provider->resultData());
+}
+
+// The setup is over once the host has answered for itself, not when its
+// process is up: everything the session needs arrives with that answer.
+void BridgeImpl::reportEngineSetup(bool success)
+{
+    if (m_setupReported)
+        return;
+    m_setupReported = true;
+    emit inferiorEvent(success ? InferiorEvent::EngineSetupOk
+                              : InferiorEvent::EngineSetupFailed);
 }
 
 static GdbMi constMi(const QString &name, const QString &data)
@@ -711,6 +726,12 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
 
     switch (type) {
     case DapResponseType::Initialize: {
+        if (!success) {
+            emit message(response.value("message").toString(), LogError);
+            reportEngineSetup(false);
+            return;
+        }
+        reportEngineSetup(true);
         const GdbMi dumpers = dumperTypesOf(response);
         if (dumpers.isValid())
             emit refreshDataReceived(0, RefreshKind::DebuggingHelpers, dumpers);

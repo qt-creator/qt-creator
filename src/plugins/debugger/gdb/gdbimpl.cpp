@@ -1926,20 +1926,33 @@ void GdbImpl::loadExtraDumpers()
         runCommand({m_startData.extraDumperCommands, DebuggerCommand::NativeCommand});
 }
 
+// 'set substitute-path' and 'directory' split their arguments the way a shell
+// would, so a path with spaces has to arrive quoted, with the backslashes of a
+// Windows path escaped for the same reason.
+static QString quotedPath(const QString &path)
+{
+    QString quoted = path;
+    quoted.replace('\\', "\\\\");
+    quoted.replace('"', "\\\"");
+    return '"' + quoted + '"';
+}
+
 void GdbImpl::applySearchPaths()
 {
     const GdbImplSearchPaths &paths = m_startData.searchPaths;
     if (!paths.sysRoot.isEmpty()) {
+        // 'set sysroot' takes the rest of the line and would keep the quotes.
         runCommand({"set sysroot " + paths.sysRoot.path()});
         // sysroot alone does not locate the sources, so relocate the most likely
         // place for the debug source as well.
-        runCommand({"set substitute-path /usr/src " + paths.sysRoot.path() + "/usr/src"});
+        runCommand({"set substitute-path /usr/src "
+                    + quotedPath(paths.sysRoot.path() + "/usr/src")});
     }
     for (auto it = paths.sourcePathMap.cbegin(), end = paths.sourcePathMap.cend(); it != end; ++it)
-        runCommand({"set substitute-path " + it.key() + " " + it.value()});
+        runCommand({"set substitute-path " + quotedPath(it.key()) + " " + quotedPath(it.value())});
     for (const QString &directory : paths.debugSourceLocation) {
         if (Utils::FilePath::fromUserInput(directory).isDir())
-            runCommand({"directory " + directory});
+            runCommand({"directory " + quotedPath(directory)});
         else
             emit message("# directory does not exist: " + directory, LogInput);
     }

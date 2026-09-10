@@ -520,6 +520,12 @@ static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
                 {"show directories", existingDir.path()},
                 {"show debug-file-directory", existingDir.path()},
                 {"show solib-search-path", "/qtc-test-solib"}};
+    case Backend::Bridge:
+        // Only what the bridge's own start data carries: it has no flags of its
+        // own, and the search paths it knows are the ones it configures gdb with.
+        return {{"show sysroot", "The current system root is \"/qtc-test-sysroot\"."},
+                {"show substitute-path", "`/qtc-test-from' -> `/qtc-test-to'."},
+                {"show directories", existingDir.path()}};
     case Backend::Lldb:
         return {{"settings show target.exec-search-paths", "/qtc-test-solib"}};
     // Cdb has none: a query goes to a debugger whose inferior runs, which takes
@@ -528,7 +534,6 @@ static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
     case Backend::Cdb:
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Bridge:
     case Backend::Dap:
         break;
     }
@@ -545,12 +550,14 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
 {
     switch (backend) {
     case Backend::Gdb:
+    // The bridge's host is gdb, and it reads the file before it takes stdio
+    // over, so the echo arrives ahead of the protocol rather than in it.
+    case Backend::Bridge:
         return {".gdbinit", "echo " + marker + "\\n\n"};
     case Backend::Lldb:
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
-    case Backend::Bridge:
     case Backend::Dap:
         break;
     }
@@ -1068,6 +1075,7 @@ private slots:
     void stopsAtBreakpointThroughDapAdapter();
     void reportsADapAdapterThatQuitsAtOnce();
     void reportsTheRunBeforeItsOutcomeThroughDapAdapter();
+    void reportsARefusedDapLaunchAsTheSessionEnding();
     void followsAResumeTheDapAdapterMakesOnItsOwn();
     void readsOnlyTheLocalScopeFromADapAdapter();
     void reportsASocketThatCannotConnect();
@@ -1697,6 +1705,27 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
                             .sourcePathMap = {{"/qtc-test-from", "/qtc-test-to"}}},
             .userCommands = {.atStartup = "echo QTCSTARTUPMARKER\\n",
                              .afterAttach = "echo QTCPOSTATTACHMARKER\\n"}}));
+    case Backend::Bridge:
+        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(DapStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              debuggerEnvironment},
+            .inferiorStartData = ProcessRunData{
+                {inferiorTestData(backend).executable, inferiorArguments, CommandLine::Raw}, {},
+                Environment::systemEnvironment()},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .bridgeStartData = dapHostRecipe(true),
+            .extraDumperFiles = {existingDir / "qtc_extra_dumper.py"},
+            // Split, so that the bridge's echo of the command cannot pass for
+            // its output.
+            .extraDumperCommands = {"printf \"QTC%s\\n\", \"EXTRADUMPERCOMMAND\""},
+            .userCommands = {.atStartup = "printf \"QTC%s\\n\", \"STARTUPMARKER\""},
+            .sysroot = FilePath::fromUserInput("/qtc-test-sysroot"),
+            .sourcePathMap = {{"/qtc-test-from", "/qtc-test-to"}},
+            .sourceDirectories = {existingDir},
+            // The host answers one message at a time, and a running debuggee
+            // leaves it inside a continue of its own, so anything asked here
+            // has to be asked while it is stopped.
+            .breakOnMain = true}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -1729,7 +1758,6 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .extraDumperCommands = "print('QTC' + 'EXTRADUMPERCOMMAND')"}));
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Bridge:
     case Backend::Dap:
         break;
     }
@@ -1801,8 +1829,36 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithBreakEvents(
 std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithConfiguredPaths(
     Backend backend, const QList<QPair<QString, QString>> &sourcePathMap)
 {
-    if (backend != Backend::Cdb)
+    switch (backend) {
+    case Backend::Gdb: {
+        QMap<QString, QString> mappings;
+        for (const QPair<QString, QString> &mapping : sourcePathMap)
+            mappings.insert(mapping.first, mapping.second);
+        return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                                Environment::systemEnvironment()},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .searchPaths = GdbImplSearchPaths{.sourcePathMap = mappings}}));
+    }
+    case Backend::Bridge:
+        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(DapStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              Environment::systemEnvironment()},
+            .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                                Environment::systemEnvironment()},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .bridgeStartData = dapHostRecipe(false),
+            .sourcePathMap = sourcePathMap}));
+    case Backend::Dap:
+    case Backend::Lldb:
+    case Backend::Pdb:
+    case Backend::Qml:
         return nullptr;
+    case Backend::Cdb:
+        break;
+    }
     return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
         .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
                                           Environment::systemEnvironment()},
@@ -9511,8 +9567,9 @@ void tst_backends::mapsTheReportedSourcePath()
 
     const InferiorTestData testData = inferiorTestData(backend);
     // Where the sources sit now, against the place they were built from, which is
-    // all the debug information knows about.
-    const FilePath mappedDir = FilePath::fromString(m_tempDir.path()) / "mapped";
+    // all the debug information knows about. The space in the name is deliberate:
+    // the path reaches the debugger as one argument of a command.
+    const FilePath mappedDir = FilePath::fromString(m_tempDir.path()) / "mapped sources";
     QVERIFY(mappedDir.ensureWritableDir());
     const FilePath mappedSource = mappedDir / testData.source.fileName();
     if (!mappedSource.exists())
@@ -10689,6 +10746,15 @@ protected:
                          {"body", body}});
     }
 
+    void refuse(const QJsonObject &request, const QString &why)
+    {
+        send(QJsonObject{{"type", "response"},
+                         {"request_seq", request.value("seq")},
+                         {"command", request.value("command")},
+                         {"success", false},
+                         {"message", why}});
+    }
+
     void sendEvent(const QString &event, const QJsonObject &body = {})
     {
         QJsonObject message{{"type", "event"}, {"event", event}};
@@ -10830,6 +10896,27 @@ class AdverseDapAdapter : public FakeDapAdapter
     }
 };
 
+// An adapter that will not run what it was asked to: it takes the initialize
+// and refuses the launch, which reaches the engine after the run has been
+// claimed on the launch going out.
+class RefusingDapAdapter : public FakeDapAdapter
+{
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        if (command == "initialize") {
+            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true}});
+            sendEvent("initialized");
+            return;
+        }
+        if (command == "launch") {
+            refuse(request, "no such program");
+            return;
+        }
+        respond(request, QJsonObject{});
+    }
+};
+
 // An adapter that can be driven: it keeps every request it was sent, it stops
 // when the configuration is done and again after each step, it has two threads,
 // and it takes every breakpoint it is sent. It offers no capability beyond the
@@ -10945,6 +11032,36 @@ void tst_backends::reportsTheRunBeforeItsOutcomeThroughDapAdapter()
     QVERIFY(runWasReportedFirst);
 
     engine->shutdownEngine();
+}
+
+// The run is claimed when the launch goes out, so an adapter that answers it
+// with a refusal ends a session the engine already believes is running, and a
+// run that never started is not what it can be told about.
+void tst_backends::reportsARefusedDapLaunchAsTheSessionEnding()
+{
+    RefusingDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "refusing";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::InferiorIll)
+                             || debuggerBackend.contains(InferiorEvent::EngineRunFailed)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::RunAndInferiorRunOk));
+    QVERIFY2(!debuggerBackend.contains(InferiorEvent::EngineRunFailed),
+             "a refusal that arrived after the run was claimed was reported as a run "
+             "that never started");
+    QVERIFY(debuggerBackend.contains(InferiorEvent::InferiorIll));
 }
 
 void tst_backends::followsAResumeTheDapAdapterMakesOnItsOwn()

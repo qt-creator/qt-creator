@@ -186,7 +186,7 @@ void BridgeEngine::handleDapStarted()
     QJsonObject args{{"clientID", "QtCreator"}, {"clientName", "QtCreator"}};
     const FilePath extraDumperFile = settings().extraDumperFile();
     if (extraDumperFile.isReadableFile())
-        args.insert("qtcDumperFile", extraDumperFile.path());
+        args.insert("qtcDumperFiles", QJsonArray{extraDumperFile.path()});
     const QString extraDumperCommands = settings().extraDumperCommands();
     if (!extraDumperCommands.isEmpty())
         args.insert("qtcDumperCommands", extraDumperCommands);
