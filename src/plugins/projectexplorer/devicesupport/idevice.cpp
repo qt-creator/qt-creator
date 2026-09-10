@@ -30,6 +30,7 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shutdownguard.h>
 #include <utils/synchronizedvalue.h>
 #include <utils/url.h>
 #include <utils/fsengine/fsengine.h>
@@ -1460,6 +1461,42 @@ void IDevice::runAutoDetect(
     };
     GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onRecipeDone);
     deregisterToolDetectionTask(token);
+}
+
+// Only a device offering kit creation gets kits out of the detection itself, so
+// they are created here when the device has none.
+void IDevice::detectToolsAndKits(
+    const std::function<void(const Result<QList<Kit *>> &)> &callback)
+{
+    const IDevice::Ptr self = shared_from_this();
+
+    const auto reportKits = [self, callback] {
+        const QList<Kit *> buildKits = Utils::filtered(KitManager::kits(), [self](Kit *kit) {
+            return BuildDeviceKitAspect::deviceId(kit) == self->id();
+        });
+        if (buildKits.isEmpty()) {
+            KitManager::createKitsForBuildDevice(self);
+        } else {
+            // Kits set up before the device was reachable can miss tools that are
+            // only detectable then, a CMake on the device for example, so bind the
+            // newly detected ones into the aspects that are still unset.
+            for (Kit *kit : buildKits)
+                KitManager::completeKit(kit);
+        }
+        callback(Utils::filtered(KitManager::kits(), [self](Kit *kit) {
+            return BuildDeviceKitAspect::deviceId(kit) == self->id()
+                   || RunDeviceKitAspect::deviceId(kit) == self->id();
+        }));
+    };
+
+    const auto onConnected = [self, reportKits, callback](const Result<> &res) {
+        if (!res)
+            callback(ResultError(res.error()));
+        else
+            self->runAutoDetect({}, reportKits);
+    };
+
+    tryToConnect({Utils::shutdownGuard(), onConnected});
 }
 
 void IDevice::aboutToBeRemoved() const

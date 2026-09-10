@@ -4080,49 +4080,19 @@ void registerMcpTools()
                 return;
             }
 
-            const auto reportKits = [device, callback] {
-                // requestToolDetection() only creates kits when kit creation is enabled for
-                // the device; create them explicitly so this tool always produces kits.
-                // Skip if the device already has kits (from a prior run or the enabled
-                // auto-creation) to avoid duplicates.
-                const bool hasKits = Utils::anyOf(KitManager::kits(), [&](Kit *k) {
-                    return BuildDeviceKitAspect::deviceId(k) == device->id();
-                });
-                if (!hasKits) {
-                    KitManager::createKitsForBuildDevice(device);
-                } else {
-                    // Existing kits may predate the detection of some tools: a remote CMake
-                    // tool, for example, only becomes detectable once the device is reachable,
-                    // which is typically after the kits were first created. Re-complete the
-                    // device's kits so newly detected tools get bound into aspects that are
-                    // still unset (completeKit() runs setup() for those and fix() otherwise).
-                    for (Kit *k : KitManager::kits()) {
-                        if (BuildDeviceKitAspect::deviceId(k) == device->id())
-                            KitManager::completeKit(k);
-                    }
-                }
-
-                QJsonArray kits;
-                for (Kit *k : KitManager::kits()) {
-                    if (BuildDeviceKitAspect::deviceId(k) == device->id()
-                        || RunDeviceKitAspect::deviceId(k) == device->id()) {
-                        kits.append(QJsonObject{{"id", k->id().toString()},
-                                                {"name", k->displayName()},
-                                                {"valid", k->isValid()}});
-                    }
-                }
-                callback({{"success", true}, {"kits", kits}});
-            };
-
-            const auto onConnected = [device, reportKits, callback](const Utils::Result<> &res) {
+            device->detectToolsAndKits([callback](const Utils::Result<QList<Kit *>> &res) {
                 if (!res) {
                     callback({{"success", false}, {"error", res.error()}});
                     return;
                 }
-                device->runAutoDetect({}, reportKits);
-            };
-
-            device->tryToConnect({Utils::shutdownGuard(), onConnected});
+                QJsonArray kits;
+                for (Kit *k : *res) {
+                    kits.append(QJsonObject{{"id", k->id().toString()},
+                                            {"name", k->displayName()},
+                                            {"valid", k->isValid()}});
+                }
+                callback({{"success", true}, {"kits", kits}});
+            });
         }));
 
     ToolRegistry::registerTool(

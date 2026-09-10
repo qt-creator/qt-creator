@@ -288,6 +288,8 @@ public:
     std::function<void(Layouting::Layout *)> autoDetectGui();
     virtual void runAutoDetect(const ToolDetectionLogger &logger,
                                const std::function<void()> &onDone);
+    void detectToolsAndKits(
+        const std::function<void(const Utils::Result<QList<Kit *>> &)> &callback);
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;
