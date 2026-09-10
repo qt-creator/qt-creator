@@ -34,6 +34,7 @@ add_subdirectory(qtcdebugger) ## windows only
 # add_subdirectory(qtcrashhandler)
 add_subdirectory(qtc-askpass)
 add_subdirectory(qtcreatorcrashhandler)
+add_subdirectory(qtcrunner) ## HarmonyOS only
 add_subdirectory(qtpromaker)
 add_subdirectory(sdktool)
 add_subdirectory(valgrindfake)

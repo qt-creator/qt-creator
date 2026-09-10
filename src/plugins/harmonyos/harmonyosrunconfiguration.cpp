@@ -114,6 +114,8 @@ HarmonyOsExtras harmonyOsExtras(const FilePath &buildDir, const QString &buildKe
         extras.nativePackageFiles.append(FilePath::fromUserInput(value.toString()));
     for (const QJsonValue &value : object.value("launch-arguments").toArray())
         extras.launchArguments.append(value.toString());
+    for (const QJsonValue &value : object.value("launch-schemes").toArray())
+        extras.launchSchemes.append(value.toString());
     return extras;
 }
 

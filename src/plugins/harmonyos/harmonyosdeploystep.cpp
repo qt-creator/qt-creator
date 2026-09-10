@@ -1243,6 +1243,16 @@ private:
                     return SetupResult::StopWithError;
                 }
             }
+            // A want cannot name an ability in another bundle, so a package that is to be
+            // reached from outside says which implicit ones it answers.
+            for (const QString &scheme : extras.launchSchemes) {
+                const Result<> declared = declareLaunchScheme(
+                    m_project.pathAppended("entry/src/main/module.json5"), scheme);
+                if (!declared) {
+                    emit addOutput(declared.error(), OutputFormat::ErrorMessage);
+                    return SetupResult::StopWithError;
+                }
+            }
             if (!completeStagedLibraries())
                 return SetupResult::StopWithError;
 
@@ -2031,7 +2041,8 @@ private slots:
         QVERIFY(build.pathAppended("app-harmonyos-extras.json").writeFileContents(
             R"({ "resource-directories": ["/tmp/share/app"],
                  "native-package-files": ["/tmp/bin/ssh", "/tmp/lib/libcrypto.so.3"],
-                 "launch-arguments": ["-resourcepath", "/data/x"] })"));
+                 "launch-arguments": ["-resourcepath", "/data/x"],
+                 "launch-schemes": ["qtcrun"] })"));
         const HarmonyOsExtras extras = harmonyOsExtras(build, "app");
         QCOMPARE(extras.resourceDirectories.size(), 1);
         QCOMPARE(extras.resourceDirectories.first(), FilePath::fromString("/tmp/share/app"));
@@ -2039,6 +2050,7 @@ private slots:
                  FilePaths({FilePath::fromString("/tmp/bin/ssh"),
                             FilePath::fromString("/tmp/lib/libcrypto.so.3")}));
         QCOMPARE(extras.launchArguments, QStringList({"-resourcepath", "/data/x"}));
+        QCOMPARE(extras.launchSchemes, QStringList{"qtcrun"});
     }
 
     void testNativePackagePath()

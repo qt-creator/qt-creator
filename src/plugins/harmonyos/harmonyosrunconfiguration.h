@@ -32,6 +32,8 @@ public:
     Utils::FilePaths resourceDirectories;
     Utils::FilePaths nativePackageFiles;
     QStringList launchArguments;
+    // Schemes of the implicit wants the package answers.
+    QStringList launchSchemes;
 };
 
 HarmonyOsExtras harmonyOsExtras(const Utils::FilePath &buildDir, const QString &buildKey);
