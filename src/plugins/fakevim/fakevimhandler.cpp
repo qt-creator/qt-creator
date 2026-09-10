@@ -26337,7 +26337,9 @@ void FakeVimHandler::Private::search(const SearchData &sd, bool showMessages)
         } else {
             // Set Cursor. In contrast to the main editor we have the cursor
             // position before the anchor position.
-            setAnchorAndPosition(match.position(), match.anchor());
+            const int matchBegin = match.anchor();
+            const int matchEnd = match.position();
+            setAnchorAndPosition(matchEnd, matchBegin);
         }
         applySearchOffset(match);
     };
