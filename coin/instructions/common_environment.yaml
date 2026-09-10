@@ -46,7 +46,7 @@ instructions:
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
-        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_22.1.8-based
+        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_23.1.1-based
       - type: EnvironmentVariable
         variableName: SDKTOOL_MACOSX_DEPLOYMENT_TARGET
         variableValue: 11.0
