@@ -432,7 +432,10 @@ FilePath DesktopDevice::rootPath() const
 void DesktopDevice::initDeviceToolAspects()
 {
     IDevice::initDeviceToolAspects();
-    GlobalTaskTree::start(autoDetectDeviceToolsRecipe());
+    // Restoring the stored aspect values happens only after construction.
+    QMetaObject::invokeMethod(this, [this] {
+        GlobalTaskTree::start(autoDetectDeviceToolsRecipe());
+    }, Qt::QueuedConnection);
 }
 
 #ifdef WITH_TESTS
