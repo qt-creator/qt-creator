@@ -70,7 +70,5 @@ QStringList adbSelector(const QString &serialNumber);
 
 QtTaskTree::ExecutableItem serialNumberRecipe(const QString &avdName,
                                            const QtTaskTree::Storage<QString> &serialNumberStorage);
-QtTaskTree::ExecutableItem startAvdRecipe(
-    const QString &avdName, const QtTaskTree::Storage<QString> &serialNumberStorage);
 
 } // namespace Android::Internal

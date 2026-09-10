@@ -61,6 +61,7 @@ public:
     QString openGLStatus() const;
 
     void startAvd();
+    void startAvdAsync();
 
     void updateDeviceFileAccess();
     void addActionsIfNotFound();
@@ -88,6 +89,8 @@ private:
 
 void setupDevicesWatcher();
 void updateAvdList();
+QtTaskTree::ExecutableItem startAvdRecipe(
+    const QString &avdName, const QtTaskTree::Storage<QString> &serialNumberStorage);
 QtTaskTree::Group createAvdRecipe(const QtTaskTree::Storage<std::optional<QString>> &errorStorage,
                                const CreateAvdInfo &info, bool force);
 
