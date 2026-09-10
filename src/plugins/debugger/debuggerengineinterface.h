@@ -59,6 +59,7 @@ enum class RefreshKind {
     Locals,
     FullBacktrace,
     InspectorTree,
+    ModuleSymbolState,
 };
 
 // What the dumpers need to know about the user's display preferences. All of it

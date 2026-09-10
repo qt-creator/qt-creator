@@ -21,6 +21,7 @@
 #include "watchwindow.h"
 
 #include <cppeditor/cppmodelmanager.h>
+#include <qtsupport/qtversionmanager.h>
 #include <projectexplorer/taskhub.h>
 
 #include <utils/checkablemessagebox.h>
@@ -111,6 +112,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             module.modulePath = modulePath;
             module.moduleName = module.hostPath.baseName();
             modulesHandler()->updateModule(module);
+            askAboutQtSymbols(module.hostPath);
         } else {
             modulesHandler()->removeModule(modulePath);
         }
@@ -134,6 +136,10 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             updateLocalsView(data);
             watchHandler()->notifyUpdateFinished();
             updateToolTips();
+            break;
+        case RefreshKind::ModuleSymbolState:
+            if (data["private"].data() == "0")
+                reportMissingQtSymbols(data["module"].data());
             break;
         case RefreshKind::InspectorTree:
             watchHandler()->insertItems(data["data"]);
@@ -577,6 +583,49 @@ void GenericDebuggerEngine::handleNotResponding(std::chrono::seconds waited,
         QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel, QMessageBox::NoButton,
         {{QMessageBox::Ok, Tr::tr("Stop Debugging")},
          {QMessageBox::Cancel, Tr::tr("Give the Debugger More Time")}});
+}
+
+void GenericDebuggerEngine::askAboutQtSymbols(const FilePath &module)
+{
+    if (!m_backend->hasExtraCapability(DebuggerExtraCapability::ModuleSymbolState))
+        return;
+    static const QRegularExpression debugQtCore("(Qt\\dCored)\\.dll");
+    const QRegularExpressionMatch match = debugQtCore.match(module.fileName());
+    if (!match.hasMatch())
+        return;
+    const FilePath modulePath = module.parentDir();
+    const QtSupport::QtVersion *version = QtSupport::QtVersionManager::version(
+        [modulePath](const QtSupport::QtVersion *version) {
+            return version->detectionSource().isAutoDetected()
+                   && version->binPath() == modulePath;
+        });
+    if (!version)
+        return;
+    const QString moduleName = match.captured(1);
+    if (modulePath.pathAppended(moduleName + ".pdb").exists())
+        return;
+    m_qtVersionOfModule.insert(moduleName, version->displayName());
+    RefreshRequest request;
+    request.kind = RefreshKind::ModuleSymbolState;
+    request.requestId = m_nextRefreshRequestId++;
+    request.path = FilePath::fromString(moduleName);
+    m_backend->refresh(request);
+}
+
+void GenericDebuggerEngine::reportMissingQtSymbols(const QString &module)
+{
+    const QString qtName = m_qtVersionOfModule.take(module);
+    if (qtName.isEmpty())
+        return;
+    showMessage("Missing Qt Debug Information Files package for " + qtName, LogMisc);
+    CheckableMessageBox::information(Tr::tr("Missing Qt Debug Information"),
+        Tr::tr("The installed %1 is missing debug information files.\n"
+               "Locals and Expression might not be able to display all Qt types in a "
+               "human readable format.\n\n"
+               "Install the \"Qt Debug Information Files\" Package from the "
+               "Maintenance Tool for this Qt installation to get all relevant "
+               "symbols for the debugger.").arg(qtName),
+        Key("CdbQtSdkPdbHint"));
 }
 
 void GenericDebuggerEngine::handleSignalReceived(const QString &name, const QString &meaning)

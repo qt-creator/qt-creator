@@ -181,6 +181,8 @@ struct InferiorTestData
     bool remoteStubHostsProcess = false;
     QString enableToggleWireMarker;
     QString symbolOptionsCommand;
+    QString moduleWithPrivateSymbols;
+    QString moduleWithoutPrivateSymbols;
     bool marksUninitializedVariables = false;
     // Whether the backend's bridge resolves a QML breakpoint through casts on
     // the debug service, rather than marshalling the arguments and calling by
@@ -1256,6 +1258,8 @@ private slots:
     void reportsEngineSetupFailure();
     void insertsABreakpointBehindABlockedDebugger_data() { addBackendRows(); }
     void insertsABreakpointBehindABlockedDebugger();
+    void tellsWhetherAModuleHasPrivateSymbols_data() { addBackendRows(); }
+    void tellsWhetherAModuleHasPrivateSymbols();
     void leavesThePublicSymbolsOutOfTheSearch_data() { addBackendRows(); }
     void leavesThePublicSymbolsOutOfTheSearch();
     void reportsAnUnresponsiveDebugger_data() { addBackendRows(); }
@@ -2503,6 +2507,8 @@ void tst_backends::initTestCase()
                 = "survived the access violation";
             m_backendData[Backend::Cdb].inferiorData.enableToggleWireMarker = "bd";
             m_backendData[Backend::Cdb].inferiorData.symbolOptionsCommand = ".symopt";
+            m_backendData[Backend::Cdb].inferiorData.moduleWithPrivateSymbols = "inferior_msvc";
+            m_backendData[Backend::Cdb].inferiorData.moduleWithoutPrivateSymbols = "kernel32";
             m_backendData[Backend::Cdb].inferiorData.marksUninitializedVariables = true;
             m_backendData[Backend::Cdb].inferiorData.moduleSymbolsPath
                 = msvcInferiorData.executable;
@@ -7294,6 +7300,47 @@ void tst_backends::insertsABreakpointBehindABlockedDebugger()
                               "a breakpoint issued behind a blocked debugger was never answered",
                               s_timeout + block);
     QVERIFY2(results.value(81), "inserting behind a blocked debugger failed");
+}
+
+void tst_backends::tellsWhetherAModuleHasPrivateSymbols()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkExtraCapability(backend,
+            Debugger::DebuggerExtraCapability::ModuleSymbolState); !result) {
+        QSKIP(qPrintable(result.error()));
+    }
+    const InferiorTestData testData = inferiorTestData(backend);
+    QVERIFY2(!testData.moduleWithPrivateSymbols.isEmpty(),
+             "the backend answers for a module's symbols, but no module is configured to ask about");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, GdbMi> answers;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&answers](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::ModuleSymbolState)
+            answers[requestId] = data;
+    });
+
+    quint64 requestId = 160;
+    auto askAbout = [&](const QString &module) -> QString {
+        const quint64 id = ++requestId;
+        RefreshRequest request;
+        request.kind = RefreshKind::ModuleSymbolState;
+        request.requestId = id;
+        request.path = FilePath::fromString(module);
+        engine->refresh(request);
+        [&answers, id] {
+            QTRY_VERIFY_WITH_TIMEOUT(answers.contains(id), s_timeout);
+        }();
+        return answers.value(id)["private"].data();
+    };
+
+    QCOMPARE(askAbout(testData.moduleWithPrivateSymbols), QString("1"));
+    QCOMPARE(askAbout(testData.moduleWithoutPrivateSymbols), QString("0"));
 }
 
 void tst_backends::leavesThePublicSymbolsOutOfTheSearch()

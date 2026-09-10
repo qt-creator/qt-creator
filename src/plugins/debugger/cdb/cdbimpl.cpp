@@ -185,7 +185,8 @@ static DebuggerEngineSetupData cdbImplSetupData()
                            | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::RunCommandDeferral
                            | DebuggerExtraCapability::Threads
-                           | DebuggerExtraCapability::BreakOnMain;
+                           | DebuggerExtraCapability::BreakOnMain
+                           | DebuggerExtraCapability::ModuleSymbolState;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToCore;
@@ -1617,6 +1618,21 @@ void CdbImpl::refresh(const RefreshRequest &request)
             }});
         };
         runCommand(cmd);
+        return;
+    }
+    if (request.kind == RefreshKind::ModuleSymbolState) {
+        const quint64 requestId = request.requestId;
+        const QString module = request.path.path();
+        runCommand({"ld " + module, BuiltinCommand});
+        runCommand({"lm m " + module, BuiltinCommand,
+                   [this, requestId, module](const DebuggerResponse &response) {
+            GdbMi state;
+            state.m_type = GdbMi::Tuple;
+            state.addChild(constMi("module", module));
+            const bool priv = response.data.data().contains("private pdb symbols");
+            state.addChild(constMi("private", priv ? "1" : "0"));
+            emit refreshDataReceived(requestId, RefreshKind::ModuleSymbolState, state);
+        }});
         return;
     }
     if (request.kind == RefreshKind::Threads) {

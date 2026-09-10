@@ -109,7 +109,8 @@ enum class DebuggerExtraCapability : unsigned
     ThreadEvent          = 1u << 13, // Reporting a thread appearing or going away.
     ExitMonitorAtClose   = 1u << 14, // Shutting a debug monitor down with the session.
     RunAsUser            = 1u << 15, // Running the debugger as somebody else.
-    ContinueInsteadOfRun = 1u << 16  // Resuming a target that is loaded and stopped already.
+    ContinueInsteadOfRun = 1u << 16, // Resuming a target that is loaded and stopped already.
+    ModuleSymbolState    = 1u << 17  // Answering whether a module has private symbols.
 };
 Q_DECLARE_FLAGS(DebuggerExtraCapabilities, DebuggerExtraCapability)
 Q_DECLARE_OPERATORS_FOR_FLAGS(DebuggerExtraCapabilities)

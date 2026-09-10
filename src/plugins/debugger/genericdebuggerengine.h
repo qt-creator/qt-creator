@@ -79,6 +79,8 @@ private:
     void applyBkptData(const GdbMi &bkpt, const Breakpoint &bp);
     void handleBreakpointModified(const GdbMi &data);
     void handleSignalReceived(const QString &name, const QString &meaning);
+    void askAboutQtSymbols(const Utils::FilePath &module);
+    void reportMissingQtSymbols(const QString &module);
     void handleNotResponding(std::chrono::seconds waited, const QStringList &pendingCommands,
                              NotRespondingCause cause);
     void reloadStack(int depthLimit);
@@ -86,6 +88,7 @@ private:
     Utils::FilePath cleanupFullName(const QString &fileName);
 
     const std::unique_ptr<DebuggerEngineInterface> m_backend;
+    QHash<QString, QString> m_qtVersionOfModule;
     QMultiMap<QString, Utils::FilePath> m_baseNameToFullName;
     quint64 m_nextBreakpointRequestId = 1;
     quint64 m_nextRefreshRequestId = 1;
