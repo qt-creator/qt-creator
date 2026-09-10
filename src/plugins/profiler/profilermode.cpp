@@ -77,10 +77,10 @@ public:
         editorAndRightPane->setStretchFactor(0, 1);
         editorAndRightPane->setStretchFactor(1, 0);
 
-        auto outputPane = new OutputPanePlaceHolder(MODE_PROFILER);
-        outputPane->setObjectName("ProfilerOutputPanePlaceHolder");
         auto editorAndOutputPane = new MiniSplitter;
         editorAndOutputPane->setOrientation(Qt::Vertical);
+        auto outputPane = new OutputPanePlaceHolder(MODE_PROFILER, editorAndOutputPane);
+        outputPane->setObjectName("ProfilerOutputPanePlaceHolder");
         editorAndOutputPane->addWidget(editorAndRightPane);
         editorAndOutputPane->addWidget(outputPane);
         editorAndOutputPane->setStretchFactor(0, 3);
