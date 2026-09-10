@@ -69,6 +69,9 @@ private:
     void handleScopeReply(const QVariantMap &response,
                           const std::shared_ptr<RefreshCollector> &pending,
                           const std::function<void()> &finishLeg);
+    QList<LookupRequest> appendV8Children(const QString &iname, const QString &exp,
+                                          const QVariantMap &resolved,
+                                          const std::shared_ptr<RefreshCollector> &pending);
     void lookupHandles(const QList<LookupRequest> &requests,
                        const std::shared_ptr<RefreshCollector> &pending,
                        const std::function<void()> &finishLeg);

@@ -508,6 +508,20 @@ std::function<void()> QmlImpl::legFinisher(const std::shared_ptr<RefreshCollecto
     };
 }
 
+static int v8ChildCount(const QVariantMap &data)
+{
+    const QString type = data.value(QLatin1String(TYPE)).toString();
+    if (type != "object" && type != "function")
+        return 0;
+    const QVariantList properties = data.value(QLatin1String("properties")).toList();
+    if (!properties.isEmpty())
+        return int(properties.size());
+    const QVariant value = data.value(QLatin1String(VALUE));
+    if (!value.isValid() || value.isNull())
+        return 0;
+    return value.toInt();
+}
+
 void QmlImpl::refreshLocals(const RefreshRequest &request)
 {
     const QJsonArray watchers = request.watchers;
@@ -530,22 +544,34 @@ void QmlImpl::refreshLocals(const RefreshRequest &request)
         DebuggerCommand cmd(EVALUATE);
         cmd.arg(EXPRESSION, exp);
         cmd.arg(FRAME, m_currentFrameIndex);
-        runCommand(cmd, [iname, hexExp, pending, finishLeg](const QVariantMap &resp) {
+        runCommand(cmd, [this, iname, exp, hexExp, pending, finishLeg](const QVariantMap &resp) {
             const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
             GdbMi item;
             item.m_type = GdbMi::Tuple;
             item.addChild(constMi(QStringLiteral("iname"), iname));
             item.addChild(constMi(QStringLiteral("wname"), hexExp));
+            int numchild = 0;
             if (resp.value(QLatin1String(SUCCESS)).toBool()) {
                 const auto [type, value] = v8TypeAndValue(body);
+                numchild = v8ChildCount(body);
                 item.addChild(constMi(QStringLiteral("type"), type));
                 item.addChild(constMi(QStringLiteral("value"), value));
             } else {
                 item.addChild(constMi(QStringLiteral("value"),
                                       body.value(QLatin1String("text")).toString()));
             }
-            item.addChild(constMi(QStringLiteral("numchild"), QStringLiteral("0")));
+            item.addChild(constMi(QStringLiteral("numchild"), QString::number(numchild)));
             pending->items.addChild(item);
+            if (numchild > 0 && pending->expandedINames.contains(iname)) {
+                const int handle = body.value(QLatin1String(REF),
+                                              body.value(QLatin1String(HANDLE))).toInt();
+                QList<LookupRequest> lookups = appendV8Children(iname, exp, body, pending);
+                if (lookups.isEmpty() && handle != 0
+                    && !body.contains(QLatin1String("properties"))) {
+                    lookups.append({handle, iname, exp, exp});
+                }
+                lookupHandles(lookups, pending, finishLeg);
+            }
             finishLeg();
         });
     }
@@ -582,20 +608,6 @@ void QmlImpl::refreshLocals(const RefreshRequest &request)
         }
         finishLeg();
     });
-}
-
-static int v8ChildCount(const QVariantMap &data)
-{
-    const QString type = data.value(QLatin1String(TYPE)).toString();
-    if (type != "object" && type != "function")
-        return 0;
-    const QVariantList properties = data.value(QLatin1String("properties")).toList();
-    if (!properties.isEmpty())
-        return int(properties.size());
-    const QVariant value = data.value(QLatin1String(VALUE));
-    if (!value.isValid() || value.isNull())
-        return 0;
-    return value.toInt();
 }
 
 static GdbMi watchItem(const QString &iname, const QString &name, const QString &exp,
@@ -653,6 +665,35 @@ void QmlImpl::handleScopeReply(const QVariantMap &response,
     lookupHandles(lookups, pending, finishLeg);
 }
 
+QList<QmlImpl::LookupRequest> QmlImpl::appendV8Children(
+    const QString &iname, const QString &exp, const QVariantMap &resolved,
+    const std::shared_ptr<RefreshCollector> &pending)
+{
+    QList<LookupRequest> nextRound;
+    const auto [parentType, parentValue] = v8TypeAndValue(resolved);
+    for (const QVariant &childValue : resolved.value(QLatin1String("properties")).toList()) {
+        const QVariantMap child = childValue.toMap();
+        const QString childName = child.value(QLatin1String(NAME)).toString();
+        if (childName.isEmpty() || childName.startsWith('.'))
+            continue;
+        const QString childExp = parentValue == "Array" ? QString(exp + '[' + childName + ']')
+                                                        : QString(exp + '.' + childName);
+        const QString childIName = iname + '.' + childName;
+        const auto [childType, childText] = v8TypeAndValue(child);
+        const int childNumChild = v8ChildCount(child);
+        pending->items.addChild(watchItem(childIName, childName, childExp, childType, childText,
+                                          childNumChild));
+
+        const int childHandle = child.value(QLatin1String(REF),
+                                            child.value(QLatin1String(HANDLE))).toInt();
+        const bool childExpanded = childNumChild > 0
+                                   && pending->expandedINames.contains(childIName);
+        if (childHandle != 0 && (childType.isEmpty() || childExpanded))
+            nextRound.append({childHandle, childIName, childName, childExp});
+    }
+    return nextRound;
+}
+
 void QmlImpl::lookupHandles(const QList<LookupRequest> &requests,
                             const std::shared_ptr<RefreshCollector> &pending,
                             const std::function<void()> &finishLeg)
@@ -689,27 +730,7 @@ void QmlImpl::lookupHandles(const QList<LookupRequest> &requests,
             pending->items.addChild(watchItem(iname, requestIt->name, requestIt->exp, type, value,
                                               numchild));
 
-            for (const QVariant &childValue : properties) {
-                const QVariantMap child = childValue.toMap();
-                const QString childName = child.value(QLatin1String(NAME)).toString();
-                if (childName.isEmpty() || childName.startsWith('.'))
-                    continue;
-                const QString childExp = value == "Array"
-                        ? QString(requestIt->exp + '[' + childName + ']')
-                        : QString(requestIt->exp + '.' + childName);
-                const QString childIName = iname + '.' + childName;
-                const auto [childType, childText] = v8TypeAndValue(child);
-                const int childNumChild = v8ChildCount(child);
-                pending->items.addChild(watchItem(childIName, childName, childExp, childType,
-                                                  childText, childNumChild));
-
-                const int childHandle = child.value(QLatin1String(REF),
-                                                    child.value(QLatin1String(HANDLE))).toInt();
-                const bool childExpanded = childNumChild > 0
-                                           && pending->expandedINames.contains(childIName);
-                if (childHandle != 0 && (childType.isEmpty() || childExpanded))
-                    nextRound.append({childHandle, childIName, childName, childExp});
-            }
+            nextRound.append(appendV8Children(iname, requestIt->exp, resolved, pending));
         }
         lookupHandles(nextRound, pending, finishLeg);
         finishLeg();

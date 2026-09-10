@@ -1248,6 +1248,8 @@ private slots:
     void refreshesLocalsAndStack();
     void expandsContainerLocalWhenExpanded_data() { addBackendRows(); }
     void expandsContainerLocalWhenExpanded();
+    void expandsWatchedContainerWhenExpanded_data() { addBackendRows(); }
+    void expandsWatchedContainerWhenExpanded();
     void resolvesATypeArrivingWithALaterLibrary_data() { addBackendRows(); }
     void resolvesATypeArrivingWithALaterLibrary();
     void honorsDumperOptionsFromTheRequest_data() { addBackendRows(); }
@@ -5881,6 +5883,57 @@ void tst_backends::expandsContainerLocalWhenExpanded()
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
     const QString nested = responses.value(int(RefreshKind::Locals)).toString();
     QVERIFY2(nested.contains(childIName + '.'), qPrintable("nested: " + nested));
+}
+
+void tst_backends::expandsWatchedContainerWhenExpanded()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::AddWatcherCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    const QString expression = inferiorTestData(backend).expandableLocal;
+    if (expression.isEmpty())
+        QSKIP("inferior declares no expandable container local");
+
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+
+    QJsonObject watcher;
+    watcher.insert("iname", "watch.0");
+    watcher.insert("exp", toHex(expression));
+    QJsonArray watchers;
+    watchers.append(watcher);
+
+    RefreshRequest request;
+    request.kind = RefreshKind::Locals;
+    request.requestId = 130;
+    request.watchers = watchers;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+    const GdbMi collapsed = responses.value(int(RefreshKind::Locals));
+    QVERIFY2(findItemByIName(collapsed, "watch.0").isValid(),
+             qPrintable("no watch.0 item in locals: " + collapsed.toString()));
+
+    responses.clear();
+    request.requestId = 131;
+    request.expandedINames = {"watch.0"};
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+    const GdbMi expandedData = responses.value(int(RefreshKind::Locals));
+    const QString expanded = expandedData.toString();
+    // A dumper may either name each child by its iname or nest an unnamed child
+    // list under the item, whose inames the view derives from the position.
+    QVERIFY2(expanded.contains("watch.0.")
+                 || findItemByIName(expandedData, "watch.0")["children"].childCount() > 0,
+             qPrintable("expanded: " + expanded));
 }
 
 void tst_backends::resolvesATypeArrivingWithALaterLibrary()
