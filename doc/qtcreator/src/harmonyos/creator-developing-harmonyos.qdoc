@@ -1,0 +1,170 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-developing-harmonyos.html
+    \previouspage creator-reference.html
+
+    \title Developing for HarmonyOS devices
+
+    \quotation
+    \l {HarmonyOS}{How to: Develop for HarmonyOS}
+    \endquotation
+
+    \summary {Build, deploy, run, and debug applications on HarmonyOS devices.}
+
+    \QC builds applications for HarmonyOS devices, packages them as a HarmonyOS
+    Ability Package (\c {.hap}), signs and installs the package, and runs and
+    debugs the application on the device.
+
+    Set the location of the HarmonyOS SDK, and \QC derives the rest from it: the
+    compilers appear as toolchains, connected devices are detected over \c hdc,
+    and a \l {Qt for HarmonyOS} produces a kit of its own.
+
+    \section1 What you need
+
+    \list
+        \li The HarmonyOS command-line tools, version 6.1 or newer, or an
+            installation of DevEco Studio. The directory to point \QC at is the
+            one that has both \c sdk and \c bin in it. The public OpenHarmony
+            SDK is not a substitute: it carries neither \c hvigor nor the
+            signing tools.
+        \li A Qt for HarmonyOS. \QC recognizes it by its \c ohos-clang mkspec.
+        \li A Java runtime. The SDK signs the package with
+            \c hap-sign-tool.jar, which needs one.
+        \li The third-party libraries Qt links against that the device does not
+            carry, such as ICU, \c fontconfig, \c freetype, and \c libpng,
+            built for HarmonyOS and installed under one prefix.
+        \li Signing material issued for a developer account: a certificate, a
+            provisioning profile, a keystore, and the key alias. A provisioning
+            profile is issued for one bundle name and, for debugging, for
+            particular devices. The device installs a package only under the
+            bundle name of the profile it was signed with.
+        \li A device with wireless debugging turned on, paired with the
+            computer.
+    \endlist
+
+    \sa {HarmonyOS}{How to: Develop for HarmonyOS},
+    {Manage kits}{How to: Manage kits}
+*/
+
+/*!
+    \page creator-how-to-set-up-harmonyos.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-harmonyos
+    \ingroup creator-how-to-sdks
+
+    \title Set up the HarmonyOS SDK
+
+    \list 1
+        \li Go to \preferences > \uicontrol SDKs > \uicontrol HarmonyOS.
+        \li In \uicontrol {HarmonyOS SDK location}, enter the directory that
+            has the \c sdk and \c bin directories in it, or select
+            \uicontrol {Auto-detect} to look for one in the usual places. The
+            label below the field says what was found.
+        \li In \uicontrol {Additional packages}, enter the installation prefix
+            of the third-party libraries built for HarmonyOS, which is the
+            directory their \c lib is in. \QC passes it to the build as
+            \c QT_ADDITIONAL_PACKAGES_PREFIX_PATH, which adds the libraries
+            into the package. Without them, the application installs and
+            starts but cannot load the platform plugin.
+        \li Keep \uicontrol {Create kits automatically} selected to have \QC
+            offer a kit for every Qt for HarmonyOS it knows about.
+    \endlist
+
+    Once the SDK location is set, the compilers in it appear in
+    \preferences > \uicontrol Kits > \uicontrol Compilers, and a device that
+    \c hdc reports appears in \preferences > \uicontrol Devices >
+    \uicontrol Devices, without any further configuration.
+
+    \sa {Developing for HarmonyOS devices}, {HarmonyOS}{How to: Develop for
+    HarmonyOS}, {Sign HarmonyOS packages}
+*/
+
+/*!
+    \page creator-how-to-sign-harmonyos-packages.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-harmonyos
+    \ingroup creator-how-to-sdks
+
+    \title Sign HarmonyOS packages
+
+    A HarmonyOS device installs only a signed package, so the signing material
+    is not optional. It is issued for a developer account and cannot be
+    generated locally.
+
+    \list 1
+        \li Go to \preferences > \uicontrol SDKs > \uicontrol HarmonyOS >
+            \uicontrol {Package Signing}.
+        \li Set \uicontrol {Certificate (.cer)},
+            \uicontrol {Provisioning profile (.p7b)},
+            \uicontrol {Keystore (.p12)}, and \uicontrol {Key alias} to what
+            the account issued.
+        \li Enter \uicontrol {Key password} and
+            \uicontrol {Keystore password}. \QC keeps them in the system
+            keychain. They can also be passed in the environment as
+            \c QT_HARMONYOS_SIGNING_KEY_PASSWORD and
+            \c QT_HARMONYOS_SIGNING_STORE_PASSWORD, which is what a build
+            machine would do. Only the passwords fall back to the environment,
+            so the other four have to be set here.
+    \endlist
+
+    \QC reads the provisioning profile before it packages, and reports what it
+    can see there as issues:
+
+    \list
+        \li It packages under the bundle name the profile is for, and says so
+            when that is not the name the project asked for.
+        \li It drops the restricted permissions the profile does not list under
+            \c allowed-acls, which the device would otherwise refuse the whole
+            package for, and names them, so they can be added to the profile.
+        \li It reports a profile whose validity expired or has not started
+            yet.
+        \li It reports a device whose UDID the profile does not list, which is
+            what a debug profile installs by.
+    \endlist
+
+    \sa {Developing for HarmonyOS devices}, {HarmonyOS}{How to: Develop for
+    HarmonyOS}, {Set up the HarmonyOS SDK}
+*/
+
+/*!
+    \page creator-how-to-add-harmonyos-devices.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-harmonyos
+    \ingroup creator-how-to-manage-kits
+
+    \title Connect HarmonyOS devices
+
+    \QC finds HarmonyOS devices through the \c hdc of the SDK, so a device that
+    \c hdc lists needs no configuration of its own.
+
+    \list 1
+        \li Turn on wireless debugging on the device, and note the address and
+            port it reports. The port changes every time.
+        \li Connect to it once from the command line, with the \c hdc of the
+            SDK:
+            \badcode
+            hdc tconn <address>:<port>
+            hdc list targets
+            \endcode
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices. The
+            device is there, and its page reports it as ready to use.
+    \endlist
+
+    A HarmonyOS device is also offered as a build device, for a project whose
+    sources and toolchain are on the device itself.
+
+    \section1 Create a kit
+
+    Register the Qt for HarmonyOS in \preferences > \uicontrol Kits >
+    \uicontrol {Qt Versions} > \uicontrol Add, and select its \c qmake. \QC
+    creates a kit for it, with the device as the run device and the compilers
+    from the SDK, and no further editing is needed.
+
+    \sa {Developing for HarmonyOS devices}, {HarmonyOS}{How to: Develop for
+    HarmonyOS}, {Manage kits}{How to: Manage kits}, {Managing kits}
+*/

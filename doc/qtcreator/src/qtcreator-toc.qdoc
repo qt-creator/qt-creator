@@ -73,6 +73,8 @@
                         \generatelist creator-how-to-b2qt
                     \li \l{Developing for Docker}
                         \generatelist creator-how-to-docker
+                    \li \l{Developing for HarmonyOS devices}
+                        \generatelist creator-how-to-harmonyos
                     \li \l{Developing for iOS}
                         \generatelist creator-how-to-ios
                     \li \l{Developing for MCUs}

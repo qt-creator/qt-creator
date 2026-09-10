@@ -55,6 +55,7 @@
 
     \list
         \li \l {Developing for Android}{Android}
+        \li \l {Developing for HarmonyOS devices}{HarmonyOS}
         \li \l {Developing for iOS}{iOS}
     \endlist
 

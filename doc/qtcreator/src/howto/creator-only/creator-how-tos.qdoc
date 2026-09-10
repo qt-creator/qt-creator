@@ -314,6 +314,19 @@
     \generatelist creator-how-to-docker
     \enddetails
 
+    \section2 HarmonyOS
+
+    \quotation
+    \l {Developing for HarmonyOS devices}
+    \endquotation
+
+    Install the HarmonyOS SDK and a Qt for HarmonyOS, and connect HarmonyOS
+    devices to the computer.
+
+    \details {How to develop for HarmonyOS devices}
+    \generatelist creator-how-to-harmonyos
+    \enddetails
+
     \section2 iOS
 
     \quotation

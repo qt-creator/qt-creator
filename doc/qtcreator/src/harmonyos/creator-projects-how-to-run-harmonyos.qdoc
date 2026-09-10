@@ -1,0 +1,96 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-run-on-harmonyos.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-harmonyos
+    \ingroup creator-how-to-run
+
+    \title Run on HarmonyOS devices
+
+    To build an application and run it on a device:
+
+    \list 1
+        \li Connect the device, as described in
+            \l {Connect HarmonyOS devices}.
+        \li Set the HarmonyOS SDK location and the signing material in
+            \preferences > \uicontrol SDKs > \uicontrol HarmonyOS, as described
+            in \l {Set up the HarmonyOS SDK} and
+            \l {Sign HarmonyOS packages}.
+        \li Activate the kit that has the device as its run device.
+        \li Select \imagerunsmall (\uicontrol Run).
+    \endlist
+
+    Running deploys first, and the whole chain is
+    \c harmonydeployqt, \c hvigor, \c hap-sign-tool, \c {hdc install}, and
+    \c {aa start}. The run then stays alive as long as the application does, by
+    following its \c hilog output. Stopping it force-stops the application.
+
+    \section1 Debug on a device
+
+    Select \uicontrol Debug > \uicontrol {Start Debugging} >
+    \uicontrol {Start Debugging of Startup Project}. The application starts, a
+    debug server starts inside it, \QC attaches to that, and breakpoints
+    resolve both in the application and in Qt.
+
+    Choose where to put a breakpoint with the attach in mind. The device
+    refuses \c PTRACE_TRACEME, so nothing can be launched under the debugger
+    and \QC attaches to an application that is already running. Whatever
+    \c main() reaches directly has therefore happened before the debugger
+    gets there. Put the breakpoint somewhere the event loop reaches later,
+    such as a slot or a destructor.
+
+    Frames in the system libraries stay nameless. Symbols are matched against
+    local copies of what the process mapped, and there are none for the
+    HarmonyOS framework.
+
+    \section1 Troubleshoot errors
+
+    \section2 A debug run fails without a message
+
+    A \QC that did not shut down cleanly leaves an \c hdc port forwarding
+    behind, and \c hdc refuses a second forwarding to the same remote port.
+    List ports with \c {hdc fport ls} and remove the stale one with
+    \c {hdc fport rm <local> <remote>}.
+
+    \section2 The application starts and quits at once
+
+    The application found no libraries to load. Check that
+    \uicontrol {Additional packages} points at the prefix the third-party
+    libraries are installed under, as described in
+    \l {Specify HarmonyOS deploy settings}. The device reports this as an
+    ArkTS \c TypeError that names nothing useful.
+
+    \section2 The application ignores a changed argument
+
+    \c {aa start} passes its parameters as arguments only when the process
+    starts, so an application that is still running keeps the old ones. Stop it
+    first.
+
+    \section2 Packaging fails, or the package is gone
+
+    Use command-line tools 6.1 or newer. Version 6.0.2 deletes the generated
+    project directly after packaging, and takes the package with it.
+
+    \section2 The build fails with "cmake: not found"
+
+    The build directory outlived the Qt it was configured with. Reset the CMake
+    configuration for the kit.
+
+    \section1 What is not possible
+
+    \list
+        \li Stopping in code that runs before the debugger attaches, such as a
+            static initializer or the early part of \c main().
+        \li Debugging an application that is not a Qt one. The debug server is
+            shipped and started as part of the Qt application package, and
+            there is no other foothold.
+    \endlist
+
+    \sa {HarmonyOS}{How to: Develop for HarmonyOS},
+    {Developing for HarmonyOS devices},
+    {Manage kits}{How to: Manage kits}, {Managing kits},
+    {Running applications}, {Specify HarmonyOS deploy settings}
+*/

@@ -1,0 +1,33 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-run-settings-harmonyos.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-harmonyos
+
+    \title Specify HarmonyOS run settings
+
+    \brief Settings for running applications on HarmonyOS devices.
+
+    To specify settings for running applications on the
+    \l {Managing kits}{Run device} that you select for a kit, go to
+    \uicontrol Projects > \uicontrol {Run Settings}.
+
+    The application runs on the device inside the package that was deployed to
+    it, so there is no executable to point at and no working directory to
+    choose. What the run configuration does carry is the arguments the
+    application is started with, which \QC passes to \c {aa start} and the
+    application receives as its own \c argv.
+
+    \uicontrol {Manage device configurations} opens
+    \preferences > \uicontrol Devices > \uicontrol Devices, where the device
+    the kit runs on is listed.
+
+    \sa {HarmonyOS}{How to: Develop for HarmonyOS},
+    {Developing for HarmonyOS devices},
+    {Manage kits}{How to: Manage kits},
+    {Configure projects for running}, {Managing kits},
+    {Specify HarmonyOS deploy settings}
+*/

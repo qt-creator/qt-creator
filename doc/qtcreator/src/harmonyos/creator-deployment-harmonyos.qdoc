@@ -1,0 +1,54 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-deployment-harmonyos.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-harmonyos
+
+    \title Specify HarmonyOS deploy settings
+
+    A HarmonyOS device runs an application from a signed HarmonyOS Ability
+    Package (\c {.hap}), so deploying means building one. Go to
+    \uicontrol Projects > \uicontrol {Deploy Settings} to see the steps of
+    \uicontrol {Deploy to HarmonyOS device}:
+
+    \list 1
+        \li \uicontrol {Build HarmonyOS package (.hap)} collects what the
+            application needs. It runs \c harmonydeployqt to stage the Qt
+            libraries, the QML imports and the plugins, adds the libraries the
+            staged ones need in turn, and generates the hvigor project.
+        \li \uicontrol {Package HarmonyOS application with hvigor} turns that
+            project into an unsigned package.
+        \li \uicontrol {Sign HarmonyOS package} signs it with
+            \c hap-sign-tool.jar and the material from
+            \preferences > \uicontrol SDKs > \uicontrol HarmonyOS.
+        \li \uicontrol {Install HarmonyOS package with hdc} installs it on the
+            device.
+    \endlist
+
+    Turn off \uicontrol {Run without installing} in
+    \preferences > \uicontrol SDKs > \uicontrol HarmonyOS to always reinstall,
+    which is what a changed package needs.
+
+    \section1 Libraries the device does not have
+
+    Qt links against ICU, \c fontconfig, \c freetype, and \c libpng, but a
+    HarmonyOS device carries none of them. Set \uicontrol {Additional packages}
+    to the prefix they are installed under, and the kit passes it to the build
+    as \c QT_ADDITIONAL_PACKAGES_PREFIX_PATH, which adds them to the package.
+    When one is missing anyway, \QC reports which staged library needs it.
+
+    \section1 What the application is called on the device
+
+    A provisioning profile is issued for one bundle name, and a device installs
+    a package only under that name. \QC therefore uses the name from the
+    profile rather than the one in the project, and reports it when the two
+    differ.
+
+    \sa {Build and Run}{How to: Build and Run},
+    {HarmonyOS}{How to: Develop for HarmonyOS},
+    {Developing for HarmonyOS devices}, {Sign HarmonyOS packages},
+    {Run on HarmonyOS devices}
+*/
