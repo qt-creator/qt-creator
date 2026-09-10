@@ -7,7 +7,7 @@ This project maintains two parallel build system descriptions: CMake
 
 Whenever you modify a `CMakeLists.txt` file, also update the corresponding
 `.qbs` file in the same directory (and vice versa). The two files describe
-the same targets, sources, and dependencies — changes to one must be
+the same targets, sources, and dependencies: changes to one must be
 reflected in the other.
 
 ## Building and running tests
@@ -35,7 +35,7 @@ that what you build is what they see.
 
 Build from the shell when `project_directory` is a different directory, which
 includes another checkout of this same repository, when no Qt Creator MCP
-server is connected, or when the user's own instructions call for it — and say
+server is connected, or when the user's own instructions call for it, and say
 which one you used. Never drive a shell build and an MCP build of the same build
 directory in parallel; they fight over the same files.
 
@@ -145,7 +145,7 @@ reference. Follow when writing or editing Qt Creator code.
 ### Namespaces
 - `{` on same line as `namespace`. Don't indent contents. Add `// namespace Foo` after closing brace if long.
 - Exception: a namespace containing only a single class declaration goes on one line: `namespace MyPlugin { class MyClass; }`.
-- No using-directives in headers; don't rely on them for defining classes/functions or accessing global functions. Otherwise OK — place near top after includes (never `#include` after a using-directive).
+- No using-directives in headers; don't rely on them for defining classes/functions or accessing global functions. Otherwise OK: place near top after includes (never `#include` after a using-directive).
 - Exported symbols in a plugin/lib namespace (`MyPlugin`); non-exported in `MyPlugin::Internal`.
 - Qualify calls to free functions from the `Utils` namespace with `Utils::`, even where a using-directive makes it unnecessary.
 
@@ -191,13 +191,13 @@ reference. Follow when writing or editing Qt Creator code.
 - Angle brackets for other plugins' headers. Blank line between peer-header blocks; alphabetize within a block.
 
 ### Casting
-- No C casts; use `static_cast`/`const_cast`/`reinterpret_cast`. No `dynamic_cast` — use `qobject_cast` for QObjects.
+- No C casts; use `static_cast`/`const_cast`/`reinterpret_cast`. No `dynamic_cast`, use `qobject_cast` for QObjects.
 
 ### Platform / portability
-- Beware `?:` with differing types (may crash). Beware alignment when casting pointers to a type with stricter alignment — use a union to force correct alignment.
+- Beware `?:` with differing types (may crash). Beware alignment when casting pointers to a type with stricter alignment, use a union to force correct alignment.
 - Static header declarations: integral types / arrays / structs only.
 - Function-scope statics are OK (not reentrant).
-- `char` signedness is platform-dependent — use `signed char`/`uchar` explicitly. Avoid 64-bit enum values. Don't mix const/non-const iterators. Don't inline virtual destructors in exported classes (vtable duplication / RTTI break).
+- `char` signedness is platform-dependent, use `signed char`/`uchar` explicitly. Avoid 64-bit enum values. Don't mix const/non-const iterators. Don't inline virtual destructors in exported classes (vtable duplication / RTTI break).
 
 ### Esthetics & design
 - Prefer unscoped enums over `static const int`/defines for constants. Verbose argument names in headers.
