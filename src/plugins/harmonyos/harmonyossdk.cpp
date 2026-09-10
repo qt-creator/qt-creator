@@ -3,6 +3,7 @@
 
 #include "harmonyossdk.h"
 #include "harmonyosconstants.h"
+#include "harmonyostr.h"
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -11,7 +12,9 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/elfreader.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
@@ -254,6 +257,164 @@ FilePath runnerLibrary(const FilePath &sdkRoot)
           loader.path(), source.path(), "-o", library.path()}});
     compile.runBlocking();
     return library.exists() ? library : FilePath();
+}
+
+// The single directory under "llvm/lib/clang", whose name is the compiler's version and
+// part of the layout a clang installation is found by.
+static QString clangVersion(const FilePath &native)
+{
+    const FilePaths versions = native.pathAppended("llvm/lib/clang")
+                                   .dirEntries(DirFilterFlag::Dirs
+                                               | DirFilterFlag::NoDotAndDotDot);
+    return versions.isEmpty() ? QString() : versions.first().fileName();
+}
+
+// The SDK's CMake keeps its modules in a directory named after its version.
+static QString cmakeShareDirectory(const FilePath &native)
+{
+    const FilePaths shares = native.pathAppended("build-tools/cmake/share")
+                                 .dirEntries(FileFilter({"cmake-*"},
+                                                        DirFilterFlag::Dirs
+                                                            | DirFilterFlag::NoDotAndDotDot));
+    return shares.isEmpty() ? QString() : shares.first().fileName();
+}
+
+Result<FilePath> deviceToolchainPackage(const FilePath &deviceSdkRoot, const FilePath &tree,
+                                        const std::function<bool()> &isCanceled)
+{
+    const FilePath native = nativeSdkPath(deviceSdkRoot);
+    if (native.isEmpty()) {
+        return ResultError(Tr::tr("\"%1\" does not hold an OpenHarmony native SDK.")
+                               .arg(deviceSdkRoot.toUserOutput()));
+    }
+    const FilePath llvm = native.pathAppended("llvm");
+    const FilePath clang = llvm.pathAppended("bin/clang");
+    if (!clang.isFile())
+        return ResultError(Tr::tr("\"%1\" is not in the SDK.").arg(clang.toUserOutput()));
+    if (ElfReader(clang).readHeaders().elfmachine != Elf_EM_AARCH64) {
+        return ResultError(Tr::tr("The compiler in \"%1\" does not run on a device. What "
+                                  "belongs here is the SDK published as \"native-ohos-x64\", "
+                                  "whose payload is for arm64 despite the name.")
+                               .arg(deviceSdkRoot.toUserOutput()));
+    }
+    const QString version = clangVersion(native);
+    const QString cmakeShare = cmakeShareDirectory(native);
+    if (version.isEmpty() || cmakeShare.isEmpty()) {
+        return ResultError(Tr::tr("\"%1\" has no compiler runtime or no CMake to take into "
+                                  "the package.").arg(deviceSdkRoot.toUserOutput()));
+    }
+
+    // What the tree was laid out from, so that pointing at another SDK lays it out again.
+    // The leading number is the revision of the layout itself.
+    const FilePath stamp = tree.pathAppended("qtctools.stamp");
+    const QByteArray state = "1 " + native.toFSPathString().toUtf8() + " "
+        + native.pathAppended("oh-uni-package.json").fileContents().value_or(QByteArray());
+    if (const Result<QByteArray> current = stamp.fileContents(); current && *current == state)
+        return tree;
+
+    if (const Result<> removed = tree.removeRecursively(); !removed)
+        return ResultError(removed.error());
+
+    const auto copy = [&isCanceled](const FilePath &from, const FilePath &to) -> Result<> {
+        if (!from.exists())
+            return ResultError(Tr::tr("\"%1\" is not in the SDK.").arg(from.toUserOutput()));
+        if (const Result<> created = to.parentDir().ensureWritableDir(); !created)
+            return created;
+        if (!from.isDir())
+            return from.copyFile(to);
+        // File by file, so that a cancel is seen within the sysroot, too.
+        const Result<FileUtils::CopyResult> copied = FileUtils::copyRecursively(
+            from, to,
+            [&isCanceled](const FilePath &source,
+                          const FilePath &target) -> Result<FileUtils::CopyResult> {
+                if (isCanceled && isCanceled())
+                    return FileUtils::CopyResult::Canceled;
+                if (const Result<> done = source.copyFile(target); !done)
+                    return ResultError(done.error());
+                return FileUtils::CopyResult::Done;
+            });
+        if (!copied)
+            return ResultError(copied.error());
+        if (*copied == FileUtils::CopyResult::Canceled)
+            return ResultError(Tr::tr("Canceled."));
+        return ResultOk;
+    };
+
+    const QString runtime = QString("lib/clang/%1/lib/aarch64-linux-ohos").arg(version);
+    const QList<QPair<FilePath, FilePath>> contents = {
+        // The driver picks its language from the name it was called by, and a native
+        // package has one flat "bin", so both names are the same binary twice.
+        {llvm.pathAppended("bin/clang"), tree.pathAppended("bin/clang")},
+        {llvm.pathAppended("bin/clang"), tree.pathAppended("bin/clang++")},
+        {llvm.pathAppended("bin/ld.lld"), tree.pathAppended("bin/ld.lld")},
+        {llvm.pathAppended("bin/llvm-ar"), tree.pathAppended("bin/llvm-ar")},
+        {llvm.pathAppended("bin/llvm-ranlib"), tree.pathAppended("bin/llvm-ranlib")},
+        {llvm.pathAppended("bin/llvm-strip"), tree.pathAppended("bin/llvm-strip")},
+        {native.pathAppended("build-tools/cmake/bin/cmake"), tree.pathAppended("bin/cmake")},
+        {native.pathAppended("build-tools/cmake/bin/ninja"), tree.pathAppended("bin/ninja")},
+        // ld.lld reads linker scripts with libxml2, and CMake and ninja were built against
+        // the C++ library the SDK carries rather than the older one the device has.
+        {llvm.pathAppended("lib/libxml2.so.16"), tree.pathAppended("lib/libxml2.so.16")},
+        {llvm.pathAppended("lib/aarch64-linux-ohos/libc++_shared.so"),
+         tree.pathAppended("lib/libc++_shared.so")},
+        {llvm.pathAppended("include/libcxx-ohos"), tree.pathAppended("include/libcxx-ohos")},
+        {llvm.pathAppended("lib/clang/" + version + "/include"),
+         tree.pathAppended("lib/clang/" + version + "/include")},
+        // Only the compiler runtime, not the sanitizers, which are 40 MB nobody asked for.
+        {llvm.pathAppended(runtime + "/libclang_rt.builtins.a"),
+         tree.pathAppended(runtime + "/libclang_rt.builtins.a")},
+        {llvm.pathAppended(runtime + "/clang_rt.crtbegin.o"),
+         tree.pathAppended(runtime + "/clang_rt.crtbegin.o")},
+        {llvm.pathAppended(runtime + "/clang_rt.crtend.o"),
+         tree.pathAppended(runtime + "/clang_rt.crtend.o")},
+        {llvm.pathAppended("lib/aarch64-linux-ohos"),
+         tree.pathAppended("lib/aarch64-linux-ohos")},
+        {native.pathAppended("build-tools/cmake/share/" + cmakeShare),
+         tree.pathAppended("share/" + cmakeShare)},
+        {native.pathAppended("sysroot"), tree.pathAppended("sysroot")},
+        {native.pathAppended("build/cmake/sdk_native_platforms.cmake"),
+         tree.pathAppended("build/cmake/sdk_native_platforms.cmake")},
+        {native.pathAppended("oh-uni-package.json"), tree.pathAppended("oh-uni-package.json")},
+    };
+    for (const QPair<FilePath, FilePath> &item : contents) {
+        if (isCanceled && isCanceled())
+            return ResultError(Tr::tr("Canceled."));
+        if (const Result<> copied = copy(item.first, item.second); !copied)
+            return ResultError(copied.error());
+    }
+
+    // The SDK's own toolchain file needs no adaptation beyond the two lines that assume the
+    // "llvm" directory it normally sits next to: the rest it derives from where it is read
+    // from, and a flat "bin" is all the difference.
+    const FilePath toolchainFile = native.pathAppended("build/cmake/ohos.toolchain.cmake");
+    const Result<QByteArray> chainload = toolchainFile.fileContents();
+    if (!chainload)
+        return ResultError(chainload.error());
+    QByteArray adapted = *chainload;
+    adapted.replace("\"${OHOS_SDK_NATIVE}/llvm/bin\"", "\"${OHOS_SDK_NATIVE}/bin\"");
+    adapted.replace("\"${OHOS_SDK_NATIVE}/llvm\"", "\"${OHOS_SDK_NATIVE}\"");
+    const FilePath adaptedFile = tree.pathAppended("build/cmake/ohos.toolchain.cmake");
+    if (const Result<qint64> written = adaptedFile.writeFileContents(adapted); !written)
+        return ResultError(written.error());
+
+    // In the application's context the package's files belong to someone else, and only
+    // what everyone may execute can be run at all.
+    const QFile::Permissions executable = QFile::ReadOwner | QFile::WriteOwner
+                                          | QFile::ExeOwner | QFile::ReadGroup
+                                          | QFile::ExeGroup | QFile::ReadOther
+                                          | QFile::ExeOther;
+    for (const QString &directory : {QString("bin"), QString("lib")}) {
+        const FilePaths files = tree.pathAppended(directory)
+                                    .dirEntries(DirFilterFlag::Files);
+        for (const FilePath &file : files) {
+            if (const Result<> set = file.setPermissions(executable); !set)
+                return ResultError(set.error());
+        }
+    }
+
+    if (const Result<qint64> written = stamp.writeFileContents(state); !written)
+        return ResultError(written.error());
+    return tree;
 }
 
 FilePath hvigorBinPath(const FilePath &sdkRoot)

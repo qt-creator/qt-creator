@@ -20,6 +20,7 @@ public:
     Utils::BoolAspect automaticKitCreation{this};
 
     Utils::FilePathAspect additionalPackages{this};
+    Utils::FilePathAspect deviceSdkLocation{this};
 
     Utils::BoolAspect runWithoutInstalling{this};
 

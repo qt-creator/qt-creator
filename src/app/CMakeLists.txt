@@ -99,6 +99,13 @@ for example an ssh client and its libraries")
         \"-resourcepath\", \"${_harmonyos_resources}/qtcreator\",
         \"-load\", \"HarmonyOS\"")
 
+  # A Qt Creator that runs on a device is of little use without something to build with,
+  # and the device executes only what a package brought. The plugin assembles the
+  # toolchain out of the device-hosted SDK set in Preferences and puts it into the same
+  # native package, which is around 500 MB, so it can be turned off.
+  option(QTC_HARMONYOS_DEVICE_TOOLCHAIN
+    "Carry a toolchain for building on the device in Qt Creator's HarmonyOS package" ON)
+
   # Nothing on the device starts Qt Creator with arguments, so an instance that is to be
   # driven from the outside has to be told the port when it is packaged.
   set(QTC_HARMONYOS_MCP_PORT "" CACHE STRING
@@ -108,6 +115,12 @@ empty to not load the server at all")
     string(APPEND _harmonyos_launch_arguments
       ",\n        \"-load\", \"McpServer\",
         \"-mcp-port\", \"${QTC_HARMONYOS_MCP_PORT}\"")
+  endif()
+
+  if (QTC_HARMONYOS_DEVICE_TOOLCHAIN)
+    set(_harmonyos_device_toolchain "true")
+  else()
+    set(_harmonyos_device_toolchain "false")
   endif()
 
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/qtcreator-harmonyos-extras.json"
@@ -120,7 +133,8 @@ empty to not load the server at all")
     ],
     \"launch-arguments\": [
         ${_harmonyos_launch_arguments}
-    ]
+    ],
+    \"device-toolchain\": ${_harmonyos_device_toolchain}
 }
 ")
 endif()

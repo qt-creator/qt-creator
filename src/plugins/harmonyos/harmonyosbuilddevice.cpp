@@ -125,13 +125,19 @@ static Q_LOGGING_CATEGORY(buildDeviceLog, "qtc.harmonyos.builddevice", QtWarning
 // What the platform installs from an application's native package is the only thing it may
 // execute, and nothing searches there. Appended rather than prepended: it is where a tool
 // is found when nothing else provides it, not a way to override what does.
-static void addNativePackageToPath()
+//
+// The libraries beside it are on the path for the same reason. The CMake and the ninja of
+// the toolchain carry no runpath at all, so without this they load the C++ library the
+// system happens to have, which is older than the one they were built against.
+static void addNativePackageToEnvironment()
 {
     const FilePath bin = FilePath::fromString(Constants::HARMONYOS_NATIVE_PACKAGE_BIN);
     if (Environment::systemEnvironment().pathListValue("PATH").contains(bin))
         return;
+    const FilePath lib = bin.parentDir().pathAppended("lib");
     Environment::modifySystemEnvironment(
-        {{"PATH", bin.path(), EnvironmentItem::Append}});
+        {{"PATH", bin.path(), EnvironmentItem::Append},
+         {"LD_LIBRARY_PATH", lib.path(), EnvironmentItem::Append}});
 }
 
 // The string is what settings from before the toolchain moved into Qt Creator's own
@@ -402,7 +408,7 @@ void setupHarmonyOsBuildDevice()
 {
     static HarmonyOsBuildDeviceFactory theHarmonyOsBuildDeviceFactory;
 #ifdef Q_OS_OHOS
-    addNativePackageToPath();
+    addNativePackageToEnvironment();
     // Adding a device before the saved ones are restored loses it: the restore replaces
     // the list. By the time this plugin is initialized they may or may not be there yet.
     const auto whenRestored = [] {

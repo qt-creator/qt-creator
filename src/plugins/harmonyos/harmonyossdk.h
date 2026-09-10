@@ -4,11 +4,14 @@
 #pragma once
 
 #include <utils/filepath.h>
+#include <utils/result.h>
 
 #include <QString>
 #include <QStringList>
 
 #include <QUrl>
+
+#include <functional>
 
 namespace Utils { class Environment; }
 
@@ -51,6 +54,16 @@ Utils::FilePath lldbServerForDevice(const Utils::FilePath &sdkRoot);
 
 // The sysroot of the native SDK.
 Utils::FilePath sysrootPath(const Utils::FilePath &sdkRoot);
+
+// A compiler, a CMake and a sysroot laid out as one installation, taken from a
+// device-hosted SDK, for Qt Creator to carry in its own package and build with once it
+// runs on a device. Assembled in the given directory, and again when the SDK it came from
+// changes. Returns an error describing what the given SDK does not have, or that
+// isCanceled said to stop.
+Utils::Result<Utils::FilePath> deviceToolchainPackage(
+    const Utils::FilePath &deviceSdkRoot,
+    const Utils::FilePath &tree,
+    const std::function<bool()> &isCanceled = {});
 
 // The library that holds an application at startup, built for the device from the source
 // shipped beside Qt Creator. It is built once and kept beside the settings, because the

@@ -91,7 +91,8 @@ enum ElfMachine
     Elf_EM_NONE   =  0,
     Elf_EM_386    =  3,
     Elf_EM_ARM    = 40,
-    Elf_EM_X86_64 = 62
+    Elf_EM_X86_64 = 62,
+    Elf_EM_AARCH64 = 183
 };
 
 enum DebugSymbolsType

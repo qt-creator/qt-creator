@@ -57,6 +57,9 @@ public:
     QStringList launchArguments;
     // Schemes of the implicit wants the package answers.
     QStringList launchSchemes;
+    // Whether the native package is to carry a toolchain for building on the device,
+    // which only Qt Creator's own package has a use for.
+    bool deviceToolchain = false;
 };
 
 HarmonyOsExtras harmonyOsExtras(const Utils::FilePath &buildDir, const QString &buildKey);

@@ -316,6 +316,16 @@ HarmonyOsSettings::HarmonyOsSettings()
                "needs at run time - the directory their \"lib\" is in. Their contents are "
                "added to the application package."));
 
+    deviceSdkLocation.setSettingsKey("DeviceSdkLocation");
+    deviceSdkLocation.setExpectedKind(PathChooserKind::ExistingDirectory);
+    deviceSdkLocation.setLabelText(Tr::tr("Device-hosted SDK:"));
+    deviceSdkLocation.setToolTip(
+        Tr::tr("An unpacked OpenHarmony \"native\" SDK whose binaries run on the device "
+               "rather than on this computer, published as \"native-ohos-x64\" although "
+               "the payload is for arm64. Qt Creator assembles a toolchain out of it and "
+               "carries it in its own package, which is what makes building on the device "
+               "possible. Leave it empty when the device is only a target."));
+
     runWithoutInstalling.setSettingsKey("RunWithoutInstalling");
     runWithoutInstalling.setLabelText(Tr::tr("Run without installing"));
     runWithoutInstalling.setToolTip(
@@ -395,7 +405,10 @@ HarmonyOsSettings::HarmonyOsSettings()
                     instruction,
                     Row { sdkLocation, autodetectButton, downloadButton },
                     status,
-                    Form { additionalPackages, br },
+                    Form {
+                        additionalPackages, br,
+                        deviceSdkLocation, br,
+                    },
                     automaticKitCreation,
                 },
             },

@@ -25,10 +25,13 @@
 #include <projectexplorer/task.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/commandline.h>
 #include <utils/elfreader.h>
 #include <utils/qtcprocess.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/store.h>
@@ -540,15 +543,20 @@ static bool addTreeToHash(QCryptographicHash &hash, const FilePath &root)
 // byte-stable across runs apart from hvigor's own scratch directories, which nothing is
 // packaged from. The debug server is added to the package from a directory beside the
 // generated project, so its staged content counts too - without it a package holding a
-// different lldb-server looks unchanged, and the install is skipped.
+// different lldb-server looks unchanged, and the install is skipped. That directory can hold
+// a whole toolchain, so it counts by the note of what it was staged from.
 static QString packagedContentFingerprint(const FilePath &project)
 {
     QCryptographicHash hash(QCryptographicHash::Sha256);
     if (!addTreeToHash(hash, project.pathAppended("entry")))
         return {};
-    const FilePath staged = project.parentDir().pathAppended("harmonyos-hnp/server");
-    if (staged.isDir() && !addTreeToHash(hash, staged))
-        return {};
+    const FilePath note = project.parentDir().pathAppended("harmonyos-hnp/server.stamp");
+    if (note.exists()) {
+        const Result<QByteArray> staged = note.fileContents();
+        if (!staged)
+            return {};
+        hash.addData(*staged);
+    }
     return QString::fromLatin1(hash.result().toHex());
 }
 
@@ -653,6 +661,24 @@ static LibraryWalk completeLibraries(const FilePath &libraries, const FilePaths 
     return walk;
 }
 
+// What a native package is made of: the toolchain by the stamp its layout carries, which
+// stands for hundreds of megabytes, and the other files by their content. Empty when there
+// is nothing to pack.
+static QByteArray nativePackageState(const FilePath &toolchain, const FilePaths &files)
+{
+    QByteArray state;
+    if (!toolchain.isEmpty())
+        state = toolchain.pathAppended("qtctools.stamp").fileContents().value_or("?");
+    for (const FilePath &file : files) {
+        const Result<QByteArray> contents = file.fileContents();
+        state += '\n' + file.toFSPathString().toUtf8() + ' '
+                 + (contents ? QCryptographicHash::hash(*contents, QCryptographicHash::Sha256)
+                                   .toHex()
+                             : QByteArray("?"));
+    }
+    return state;
+}
+
 static Result<> stageNativePackageFiles(const FilePaths &files, const FilePath &binDir)
 {
     if (const Result<> created = binDir.ensureWritableDir(); !created)
@@ -674,6 +700,75 @@ static Result<> stageNativePackageFiles(const FilePaths &files, const FilePath &
             return set;
     }
     return ResultOk;
+}
+
+struct StagedNativePackage
+{
+    FilePath source; // Empty when the package packed earlier is still current.
+    QByteArray state; // Empty when there is nothing to pack.
+};
+
+// Lays out what the native package is made of, which with a toolchain in it means copying
+// hundreds of megabytes, so it runs off the GUI thread. A package made of the very same
+// parts is used again.
+static Result<StagedNativePackage> stageNativePackage(const std::function<bool()> &isCanceled,
+                                                      const FilePath &deviceSdk,
+                                                      const FilePaths &contents,
+                                                      const FilePath &stagingDir,
+                                                      const FilePath &packed)
+{
+    const FilePath cache = stagingDir.pathAppended("toolchain");
+    FilePath toolchain;
+    if (deviceSdk.isEmpty()) {
+        if (cache.exists() && !cache.removeRecursively())
+            return ResultError(Tr::tr("Cannot remove \"%1\".").arg(cache.toUserOutput()));
+    } else {
+        const Result<FilePath> tree = Sdk::deviceToolchainPackage(deviceSdk, cache, isCanceled);
+        if (!tree)
+            return ResultError(tree.error());
+        toolchain = *tree;
+    }
+
+    const QByteArray state = nativePackageState(toolchain, contents);
+    const FilePath note = stagingDir.pathAppended("server.stamp");
+    if (!state.isEmpty() && packed.exists()
+        && note.fileContents().value_or(QByteArray()) == state) {
+        return StagedNativePackage{{}, state};
+    }
+    const FilePath source = stagingDir.pathAppended("server");
+    note.removeFile();
+    if (source.exists() && !source.removeRecursively())
+        return ResultError(Tr::tr("Cannot replace \"%1\".").arg(source.toUserOutput()));
+    if (state.isEmpty())
+        return StagedNativePackage{};
+
+    if (!toolchain.isEmpty()) {
+        // File by file, so that a cancel is seen between them.
+        const Result<FileUtils::CopyResult> copied = FileUtils::copyRecursively(
+            toolchain, source,
+            [&isCanceled](const FilePath &from,
+                          const FilePath &to) -> Result<FileUtils::CopyResult> {
+                if (isCanceled())
+                    return FileUtils::CopyResult::Canceled;
+                if (const Result<> done = from.copyFile(to); !done)
+                    return ResultError(done.error());
+                return FileUtils::CopyResult::Done;
+            });
+        if (!copied)
+            return ResultError(copied.error());
+        if (*copied == FileUtils::CopyResult::Canceled)
+            return ResultError(Tr::tr("Canceled."));
+        // What tells the assembled tree apart from the SDK it came from is of no use on
+        // the device.
+        source.pathAppended("qtctools.stamp").removeFile();
+    }
+    if (isCanceled())
+        return ResultError(Tr::tr("Canceled."));
+    if (const Result<> staged = stageNativePackageFiles(contents, source.pathAppended("bin"));
+        !staged) {
+        return ResultError(staged.error());
+    }
+    return StagedNativePackage{source, state};
 }
 
 // Builds the .hap via the Qt-generated CMake "<target>_make_hap" target.
@@ -1070,15 +1165,17 @@ private:
         return true;
     }
 
-    bool shipNativePackage(const FilePaths &files)
+    // The compiler that a Qt Creator running on the device builds with is laid out at the
+    // root of the native package, whose "bin" is the directory the other files are staged
+    // into as well, so that the driver finds its own installation next to itself.
+    QtTaskTree::SetupResult setupStaging(Async<Result<StagedNativePackage>> &task)
     {
-        const FilePath source = stagingDir().pathAppended("server");
-        if (source.exists() && !source.removeRecursively()) {
-            emit addOutput(Tr::tr("Cannot replace \"%1\".").arg(source.toUserOutput()),
-                           OutputFormat::ErrorMessage);
-            return false;
-        }
-        FilePaths contents = files;
+        m_nativePackage.clear();
+        m_packSource.clear();
+        m_packState.clear();
+        const HarmonyOsExtras extras
+            = harmonyOsExtras(buildConfiguration()->buildDirectory(), m_buildKey);
+        FilePaths contents = extras.nativePackageFiles;
         if (buildConfiguration()->buildType() == BuildConfiguration::Debug) {
             const FilePath server = Sdk::lldbServerForDevice(settings().sdkLocation());
             if (server.isEmpty()) {
@@ -1088,80 +1185,115 @@ private:
                 contents.append(server);
             }
         }
-        if (contents.isEmpty())
-            return true;
+        FilePath deviceSdk;
+        if (extras.deviceToolchain) {
+            deviceSdk = settings().deviceSdkLocation();
+            if (deviceSdk.isEmpty()) {
+                emit addOutput(Tr::tr("No device-hosted SDK is set in Preferences > SDKs > "
+                                      "HarmonyOS; this Qt Creator will run on the device but "
+                                      "not build there."), OutputFormat::Stdout);
+            }
+        }
+        task.setConcurrentCallData(
+            [deviceSdk, contents, staging = stagingDir(), packed = nativePackagePath()](
+                QPromise<Result<StagedNativePackage>> &promise) {
+                const Result<StagedNativePackage> staged = stageNativePackage(
+                    [&promise] { return promise.isCanceled(); }, deviceSdk, contents, staging,
+                    packed);
+                if (!promise.isCanceled())
+                    promise.addResult(staged);
+            });
+        // A cancel waits for the copying, which stops at the next file, so that a deploy
+        // started right after it does not work on the same tree.
+        task.setFutureSynchronizer(nullptr);
+        return QtTaskTree::SetupResult::Continue;
+    }
 
-        if (const Result<> staged = stageNativePackageFiles(contents,
-                                                            source.pathAppended("bin"));
-            !staged) {
+    bool finishStaging(const Async<Result<StagedNativePackage>> &task)
+    {
+        if (!task.isResultAvailable())
+            return false;
+        const Result<StagedNativePackage> staged = task.result();
+        if (!staged) {
             emit addOutput(staged.error(), OutputFormat::ErrorMessage);
             return false;
         }
+        if (staged->state.isEmpty())
+            return true;
+        m_packSource = staged->source;
+        m_packState = staged->state;
+        m_nativePackage = nativePackagePath();
+        return true;
+    }
 
-        m_nativePackage = packNativePackage(source);
-        if (m_nativePackage.isEmpty())
+    // With the device toolchain in it, this deflates hundreds of megabytes.
+    QtTaskTree::SetupResult setupPacking(Process &pack)
+    {
+        if (m_packageIsCurrent || m_packSource.isEmpty())
+            return QtTaskTree::SetupResult::StopWithSuccess;
+        const FilePath hnpcli = Sdk::hnpcliCommand(settings().sdkLocation());
+        if (hnpcli.isEmpty()) {
+            emit addOutput(Tr::tr("No \"hnpcli\" in the HarmonyOS SDK to pack a native "
+                                  "package with."), OutputFormat::ErrorMessage);
+            return QtTaskTree::SetupResult::StopWithError;
+        }
+        const FilePath packed = nativePackagePath();
+        const FilePath target = packed.parentDir();
+        packed.removeFile();
+        if (const Result<> created = target.ensureWritableDir(); !created) {
+            emit addOutput(created.error(), OutputFormat::ErrorMessage);
+            return QtTaskTree::SetupResult::StopWithError;
+        }
+        pack.setCommand({hnpcli, {"pack", "-i", m_packSource.nativePath(),
+                                  "-o", target.nativePath(),
+                                  "-n", Constants::HARMONYOS_NATIVE_PACKAGE,
+                                  "-v", Constants::HARMONYOS_NATIVE_PACKAGE_VERSION}});
+        emit addOutput(Tr::tr("Packing the native package."), OutputFormat::NormalMessage);
+        return QtTaskTree::SetupResult::Continue;
+    }
+
+    // Only a package that was packed completely is taken again by a later deploy.
+    bool finishPacking(const Process &pack)
+    {
+        const FilePath packed = nativePackagePath();
+        if (pack.result() != ProcessResult::FinishedWithSuccess || !packed.exists()) {
+            packed.removeFile();
+            emit addOutput(Tr::tr("Packing the native package failed: %1")
+                               .arg(pack.verboseExitMessage()), OutputFormat::ErrorMessage);
             return false;
-
-        const FilePath moduleJson = m_project.pathAppended("entry/src/main/module.json5");
-        const Result<> declared = declareHnpPackage(moduleJson, m_nativePackage.fileName());
-        if (!declared) {
-            emit addOutput(declared.error(), OutputFormat::ErrorMessage);
+        }
+        const FilePath note = stagingDir().pathAppended("server.stamp");
+        if (const Result<qint64> written = note.writeFileContents(m_packState); !written) {
+            emit addOutput(written.error(), OutputFormat::ErrorMessage);
             return false;
         }
         return true;
     }
 
-    FilePath packNativePackage(const FilePath &source)
-    {
-        const FilePath hnpcli = Sdk::hnpcliCommand(settings().sdkLocation());
-        if (hnpcli.isEmpty()) {
-            emit addOutput(Tr::tr("No \"hnpcli\" in the HarmonyOS SDK to pack a native "
-                                  "package with."), OutputFormat::ErrorMessage);
-            return {};
-        }
-        const FilePath target = stagingDir().pathAppended("package").pathAppended(hnpDirectory());
-        if (const Result<> created = target.ensureWritableDir(); !created) {
-            emit addOutput(created.error(), OutputFormat::ErrorMessage);
-            return {};
-        }
-
-        Process pack;
-        pack.setCommand({hnpcli, {"pack", "-i", source.nativePath(), "-o", target.nativePath(),
-                                  "-n", Constants::HARMONYOS_NATIVE_PACKAGE,
-                                  "-v", Constants::HARMONYOS_NATIVE_PACKAGE_VERSION}});
-        pack.runBlocking();
-        const FilePath packed
-            = target.pathAppended(QString(Constants::HARMONYOS_NATIVE_PACKAGE) + ".hnp");
-        if (!packed.exists()) {
-            emit addOutput(Tr::tr("Packing the native package failed: %1")
-                               .arg(pack.allOutput()), OutputFormat::ErrorMessage);
-            return {};
-        }
-        return packed;
-    }
-
     // Puts the packed native package into the package hvigor built, which leaves it out.
     // Signing refuses a native package the manifest does not describe.
-    bool addNativePackageToPackage()
+    QtTaskTree::SetupResult setupAddingNativePackage(Process &add)
     {
-        if (m_nativePackage.isEmpty())
-            return true;
+        if (m_packageIsCurrent || m_nativePackage.isEmpty())
+            return QtTaskTree::SetupResult::StopWithSuccess;
 
         BuildConfiguration * const bc = buildConfiguration();
-        QTC_ASSERT(bc, return false);
+        QTC_ASSERT(bc, return QtTaskTree::SetupResult::StopWithError);
         const FilePath jar = bc->environment().searchInPath("jar");
         if (jar.isEmpty()) {
             emit addOutput(Tr::tr("No \"jar\" to put the native package into the package "
                                   "with; nothing the application has to execute will be "
                                   "there."), OutputFormat::ErrorMessage);
-            return false;
+            return QtTaskTree::SetupResult::StopWithError;
         }
-
-        Process add;
         add.setCommand({jar, {"u0f", m_package.nativePath(), hnpDirectory().section('/', 0, 0)}});
         add.setWorkingDirectory(stagingDir().pathAppended("package"));
-        add.runBlocking();
-        if (add.exitCode() != 0) {
+        return QtTaskTree::SetupResult::Continue;
+    }
+
+    bool finishAddingNativePackage(const Process &add)
+    {
+        if (add.result() != ProcessResult::FinishedWithSuccess) {
             emit addOutput(Tr::tr("Putting the native package into the package failed: %1")
                                .arg(add.allOutput()), OutputFormat::ErrorMessage);
             return false;
@@ -1175,6 +1307,12 @@ private:
     }
 
     static QString hnpDirectory() { return "hnp/arm64-v8a"; }
+
+    FilePath nativePackagePath() const
+    {
+        return stagingDir().pathAppended("package").pathAppended(hnpDirectory())
+            .pathAppended(QString(Constants::HARMONYOS_NATIVE_PACKAGE) + ".hnp");
+    }
 
     // hvigor reuses the libraries of a previous run, which then lacks whatever was staged
     // since, so its output goes before packaging.
@@ -1203,7 +1341,7 @@ private:
             emit addOutput(copied.error(), OutputFormat::ErrorMessage);
             return false;
         }
-        return addNativePackageToPackage();
+        return true;
     }
 
     QtTaskTree::GroupItem runRecipe() final
@@ -1211,6 +1349,7 @@ private:
         using namespace QtTaskTree;
 
         const auto onSetup = [this](Process &process) {
+            m_packageIsCurrent = false;
             dropCMakeLeftovers();
             if (buildConfiguration()->buildType() == BuildConfiguration::Debug
                 && !shipDebugPlugin()) {
@@ -1224,8 +1363,15 @@ private:
                 = harmonyOsExtras(buildConfiguration()->buildDirectory(), m_buildKey);
             if (!shipResourceDirectories(extras.resourceDirectories))
                 return SetupResult::StopWithError;
-            if (!shipNativePackage(extras.nativePackageFiles))
-                return SetupResult::StopWithError;
+            if (!m_nativePackage.isEmpty()) {
+                const Result<> declared = declareHnpPackage(
+                    m_project.pathAppended("entry/src/main/module.json5"),
+                    m_nativePackage.fileName());
+                if (!declared) {
+                    emit addOutput(declared.error(), OutputFormat::ErrorMessage);
+                    return SetupResult::StopWithError;
+                }
+            }
             if (!extras.launchArguments.isEmpty()) {
                 const Result<QStringList> before = setLaunchArguments(
                     m_project.pathAppended(
@@ -1335,6 +1481,7 @@ private:
                                  signingFingerprint())) {
                 emit addOutput(Tr::tr("The package is already built from this content, so it "
                                       "was not packaged again."), OutputFormat::NormalMessage);
+                m_packageIsCurrent = true;
                 return SetupResult::StopWithSuccess;
             }
 
@@ -1347,7 +1494,18 @@ private:
                 return false;
             return keepPackage();
         };
-        return ProcessTask(onSetup, onDone);
+        return Group {
+            AsyncTask<Result<StagedNativePackage>>(
+                [this](Async<Result<StagedNativePackage>> &task) { return setupStaging(task); },
+                [this](const Async<Result<StagedNativePackage>> &task) {
+                    return finishStaging(task);
+                }),
+            ProcessTask(onSetup, onDone),
+            ProcessTask([this](Process &pack) { return setupPacking(pack); },
+                        [this](const Process &pack) { return finishPacking(pack); }),
+            ProcessTask([this](Process &add) { return setupAddingNativePackage(add); },
+                        [this](const Process &add) { return finishAddingNativePackage(add); })
+        };
     }
 
     void setupOutputFormatter(OutputFormatter *formatter) final
@@ -1361,6 +1519,9 @@ private:
     FilePath m_project;
     FilePath m_package;
     FilePath m_nativePackage;
+    FilePath m_packSource;
+    QByteArray m_packState;
+    bool m_packageIsCurrent = false;
 };
 
 class PackageHapStepFactory final : public BuildStepFactory
@@ -2079,12 +2240,15 @@ private slots:
         // A project that declares nothing gets nothing.
         QVERIFY(harmonyOsExtras(build, "app").resourceDirectories.isEmpty());
         QVERIFY(harmonyOsExtras(build, "app").launchArguments.isEmpty());
+        // The device toolchain is hundreds of megabytes, so it is only there on request.
+        QVERIFY(build.pathAppended("app-harmonyos-extras.json").writeFileContents("{}"));
+        QVERIFY(!harmonyOsExtras(build, "app").deviceToolchain);
 
         QVERIFY(build.pathAppended("app-harmonyos-extras.json").writeFileContents(
             R"({ "resource-directories": ["/tmp/share/app"],
                  "native-package-files": ["/tmp/bin/ssh", "/tmp/lib/libcrypto.so.3"],
                  "launch-arguments": ["-resourcepath", "/data/x"],
-                 "launch-schemes": ["qtcrun"] })"));
+                 "launch-schemes": ["qtcrun"], "device-toolchain": true })"));
         const HarmonyOsExtras extras = harmonyOsExtras(build, "app");
         QCOMPARE(extras.resourceDirectories.size(), 1);
         QCOMPARE(extras.resourceDirectories.first(), FilePath::fromString("/tmp/share/app"));
@@ -2093,6 +2257,7 @@ private slots:
                             FilePath::fromString("/tmp/lib/libcrypto.so.3")}));
         QCOMPARE(extras.launchArguments, QStringList({"-resourcepath", "/data/x"}));
         QCOMPARE(extras.launchSchemes, QStringList{"qtcrun"});
+        QVERIFY(extras.deviceToolchain);
     }
 
     void testNativePackagePath()
@@ -2165,14 +2330,128 @@ private slots:
         const QString bare = packagedContentFingerprint(project);
         QVERIFY(!bare.isEmpty());
 
-        const FilePath staged = root.pathAppended("harmonyos-hnp/server/bin");
-        QVERIFY(staged.ensureWritableDir());
-        QVERIFY(staged.pathAppended("lldb-server").writeFileContents("one"));
+        const FilePath note = root.pathAppended("harmonyos-hnp/server.stamp");
+        QVERIFY(note.parentDir().ensureWritableDir());
+        QVERIFY(note.writeFileContents("one"));
         const QString withServer = packagedContentFingerprint(project);
         QVERIFY(withServer != bare);
 
-        QVERIFY(staged.pathAppended("lldb-server").writeFileContents("another"));
+        QVERIFY(note.writeFileContents("another"));
         QVERIFY(packagedContentFingerprint(project) != withServer);
+    }
+
+    void testNativePackageState()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        QVERIFY(nativePackageState({}, {}).isEmpty());
+
+        const FilePath server = root.pathAppended("lldb-server");
+        QVERIFY(server.writeFileContents("one"));
+        const QByteArray one = nativePackageState({}, {server});
+        QVERIFY(!one.isEmpty());
+        QCOMPARE(nativePackageState({}, {server}), one);
+
+        // Another server of the same size, as a rebuilt one is.
+        QVERIFY(server.writeFileContents("two"));
+        const QByteArray two = nativePackageState({}, {server});
+        QVERIFY(two != one);
+
+        // The toolchain counts by its stamp alone, not by what it holds.
+        const FilePath toolchain = root.pathAppended("toolchain");
+        QVERIFY(toolchain.pathAppended("bin").ensureWritableDir());
+        QVERIFY(toolchain.pathAppended("qtctools.stamp").writeFileContents("1 sdk"));
+        const QByteArray withToolchain = nativePackageState(toolchain, {server});
+        QVERIFY(withToolchain != two);
+        QVERIFY(toolchain.pathAppended("bin/clang").writeFileContents("clang"));
+        QCOMPARE(nativePackageState(toolchain, {server}), withToolchain);
+        QVERIFY(toolchain.pathAppended("qtctools.stamp").writeFileContents("1 other sdk"));
+        QVERIFY(nativePackageState(toolchain, {server}) != withToolchain);
+    }
+
+    void testStageNativePackage()
+    {
+        const auto notCanceled = [] { return false; };
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        const FilePath staging = root.pathAppended("harmonyos-hnp");
+        const FilePath packed = staging.pathAppended("package/qtctools.hnp");
+        const FilePath server = root.pathAppended("lldb-server");
+        QVERIFY(server.writeFileContents("one"));
+
+        const Result<StagedNativePackage> first = stageNativePackage(notCanceled, {}, {server},
+                                                                     staging, packed);
+        QVERIFY(first);
+        QCOMPARE(first->source, staging.pathAppended("server"));
+        QVERIFY(first->source.pathAppended("bin/lldb-server").isFile());
+
+        // What finishPacking() leaves behind.
+        QVERIFY(packed.parentDir().ensureWritableDir());
+        QVERIFY(packed.writeFileContents("hnp"));
+        QVERIFY(staging.pathAppended("server.stamp").writeFileContents(first->state));
+        const Result<StagedNativePackage> again = stageNativePackage(notCanceled, {}, {server},
+                                                                     staging, packed);
+        QVERIFY(again);
+        QVERIFY(again->source.isEmpty());
+        QCOMPARE(again->state, first->state);
+
+        QVERIFY(server.writeFileContents("two"));
+        const Result<StagedNativePackage> changed = stageNativePackage(notCanceled, {}, {server},
+                                                                       staging, packed);
+        QVERIFY(changed);
+        QVERIFY(!changed->source.isEmpty());
+        QVERIFY(!staging.pathAppended("server.stamp").exists());
+
+        const Result<StagedNativePackage> none = stageNativePackage(notCanceled, {}, {}, staging,
+                                                                    packed);
+        QVERIFY(none);
+        QVERIFY(none->state.isEmpty());
+        QVERIFY(!staging.pathAppended("server").exists());
+    }
+
+    void testCancelStaging()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        const FilePath sdk = root.pathAppended("sdk");
+        QVERIFY(writeFakeDeviceSdk(sdk, Elf_EM_AARCH64));
+        const FilePath staging = root.pathAppended("harmonyos-hnp");
+        const FilePath packed = staging.pathAppended("package/qtctools.hnp");
+        const FilePath server = root.pathAppended("lldb-server");
+        QVERIFY(server.writeFileContents("one"));
+        int checks = 0;
+        const auto canceledSoon = [&checks] { return ++checks > 2; };
+        const auto notCanceled = [] { return false; };
+
+        // Stopped within one directory of the SDK, rather than only after all of it.
+        QVERIFY(sdk.pathAppended("native/sysroot/usr/lib/libm.so").writeFileContents("libm"));
+        const FilePath libc = staging.pathAppended("toolchain/sysroot/usr/lib/libc.so");
+        QVERIFY(!stageNativePackage([libc] { return libc.exists(); }, sdk, {server}, staging,
+                                    packed));
+        QVERIFY(libc.exists());
+        QVERIFY(!libc.parentDir().pathAppended("libm.so").exists());
+
+        // Stopped while the toolchain is laid out, which is then not taken as complete.
+        QVERIFY(!stageNativePackage(canceledSoon, sdk, {server}, staging, packed));
+        QVERIFY(!staging.pathAppended("toolchain/qtctools.stamp").exists());
+        const Result<StagedNativePackage> first
+            = stageNativePackage(notCanceled, sdk, {server}, staging, packed);
+        QVERIFY(first);
+        QVERIFY(first->source.pathAppended("bin/clang").isFile());
+
+        // Stopped while the laid out toolchain is copied into what is packed.
+        QVERIFY(server.writeFileContents("two"));
+        checks = 0;
+        QVERIFY(!stageNativePackage(canceledSoon, sdk, {server}, staging, packed));
+        const Result<StagedNativePackage> second
+            = stageNativePackage(notCanceled, sdk, {server}, staging, packed);
+        QVERIFY(second);
+        QVERIFY(second->source.pathAppended("bin/clang").isFile());
+        QVERIFY(second->source.pathAppended("bin/lldb-server").isFile());
+        QVERIFY(!second->source.pathAppended("qtctools.stamp").exists());
     }
 
     void testLibraryDirectories()
@@ -2334,7 +2613,146 @@ private slots:
         QVERIFY(!addPermission(moduleJson, "ohos.permission.INTERNET"));
     }
 
+    void testDeviceToolchainPackage()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.filePath("sdk"));
+        const FilePath tree = FilePath::fromString(dir.filePath("tree"));
+        QVERIFY(writeFakeDeviceSdk(root, Elf_EM_AARCH64));
+
+        const Result<FilePath> package = Sdk::deviceToolchainPackage(root, tree);
+        if (!package)
+            QFAIL(qPrintable(package.error()));
+        QCOMPARE(*package, tree);
+
+        // The layout clang and CMake expect of an installation, relative to the one
+        // directory a native package may execute from.
+        const QStringList expected = {
+            "bin/clang", "bin/clang++", "bin/ld.lld", "bin/llvm-ar", "bin/llvm-ranlib",
+            "bin/llvm-strip", "bin/cmake", "bin/ninja",
+            "lib/libxml2.so.16", "lib/libc++_shared.so",
+            "lib/aarch64-linux-ohos/libc++_shared.so",
+            "lib/clang/15.0.4/include/stddef.h",
+            "lib/clang/15.0.4/lib/aarch64-linux-ohos/libclang_rt.builtins.a",
+            "lib/clang/15.0.4/lib/aarch64-linux-ohos/clang_rt.crtbegin.o",
+            "lib/clang/15.0.4/lib/aarch64-linux-ohos/clang_rt.crtend.o",
+            "include/libcxx-ohos/vector",
+            "share/cmake-3.28/Modules/CMakeDetermineSystem.cmake",
+            "sysroot/usr/lib/libc.so",
+            "build/cmake/ohos.toolchain.cmake", "build/cmake/sdk_native_platforms.cmake",
+            "oh-uni-package.json",
+        };
+        for (const QString &file : expected)
+            QVERIFY2(tree.pathAppended(file).exists(), qPrintable(file));
+        // In the application's context the files belong to someone else, and only what
+        // everyone may execute can be run at all. On Windows Qt goes by the suffix instead.
+        if (!HostOsInfo::isWindowsHost()) {
+            QVERIFY(tree.pathAppended("bin/clang").isExecutableFile());
+            QVERIFY(tree.pathAppended("lib/libc++_shared.so").isExecutableFile());
+        }
+        // The sanitizer runtimes are 40 MB nobody asked for.
+        QVERIFY(!tree.pathAppended("lib/clang/15.0.4/lib/aarch64-linux-ohos/"
+                                   "libclang_rt.asan.so").exists());
+
+        const QString chainload = text(tree.pathAppended("build/cmake/ohos.toolchain.cmake"));
+        QVERIFY(chainload.contains("set(TOOLCHAIN_ROOT_PATH \"${OHOS_SDK_NATIVE}\")"));
+        QVERIFY(chainload.contains("set(TOOLCHAIN_BIN_PATH  \"${OHOS_SDK_NATIVE}/bin\")"));
+        QVERIFY(chainload.contains("OHOS_ARCH"));
+
+        // The same SDK is not laid out a second time.
+        const FilePath marker = tree.pathAppended("bin/marker");
+        QVERIFY(marker.writeFileContents("x").has_value());
+        QVERIFY(Sdk::deviceToolchainPackage(root, tree).has_value());
+        QVERIFY(marker.exists());
+
+        // Another SDK version is another toolchain.
+        QVERIFY(root.pathAppended("native/oh-uni-package.json")
+                    .writeFileContents("{\"version\": \"2.0\"}").has_value());
+        QVERIFY(Sdk::deviceToolchainPackage(root, tree).has_value());
+        QVERIFY(!marker.exists());
+
+        // The SDK for this host is published under an arm64 name as well, and its
+        // compiler does not run on a device.
+        const FilePath host = FilePath::fromString(dir.filePath("host"));
+        QVERIFY(writeFakeDeviceSdk(host, Elf_EM_X86_64));
+        const Result<FilePath> wrong
+            = Sdk::deviceToolchainPackage(host, FilePath::fromString(dir.filePath("wrong")));
+        QVERIFY(!wrong);
+        QVERIFY(wrong.error().contains("native-ohos-x64"));
+
+        // What is missing is named rather than left out of the package.
+        const FilePath cmake = root.pathAppended("native/build-tools/cmake/bin/cmake");
+        QVERIFY(cmake.removeFile().has_value());
+        const Result<FilePath> incomplete
+            = Sdk::deviceToolchainPackage(root, FilePath::fromString(dir.filePath("partial")));
+        QVERIFY(!incomplete);
+        QVERIFY2(incomplete.error().contains(cmake.fileName()),
+                 qPrintable(incomplete.error()));
+
+        // So is a compiler that is not there, which is not one built for the wrong host.
+        const FilePath clang = root.pathAppended("native/llvm/bin/clang");
+        QVERIFY(clang.removeFile().has_value());
+        const Result<FilePath> compilerless
+            = Sdk::deviceToolchainPackage(root, FilePath::fromString(dir.filePath("bare")));
+        QVERIFY(!compilerless);
+        QVERIFY2(compilerless.error().contains(clang.toUserOutput()),
+                 qPrintable(compilerless.error()));
+    }
+
 private:
+    // An SDK in the shape deviceToolchainPackage() takes apart. The compiler is an ELF
+    // header and nothing else: what is read of it is the machine it runs on.
+    static bool writeFakeDeviceSdk(const FilePath &root, quint16 machine)
+    {
+        QByteArray elf(64, '\0');
+        elf.replace(0, 4, "\177" "ELF");
+        elf[4] = 2;   // 64 bit
+        elf[5] = 1;   // little endian
+        elf[6] = 1;   // header version
+        elf[16] = 3;  // shared object
+        elf[18] = char(machine & 0xff);
+        elf[19] = char(machine >> 8);
+        elf[20] = 1;  // object version
+        elf[52] = 64; // e_ehsize
+        elf[54] = 56; // e_phentsize
+        elf[58] = 64; // e_shentsize
+
+        const QByteArray chainload =
+            "set(OHOS_ARCH \"arm64-v8a\")\n"
+            "set(TOOLCHAIN_ROOT_PATH \"${OHOS_SDK_NATIVE}/llvm\")\n"
+            "set(TOOLCHAIN_BIN_PATH  \"${OHOS_SDK_NATIVE}/llvm/bin\")\n";
+        const QString runtime = "llvm/lib/clang/15.0.4/lib/aarch64-linux-ohos/";
+        const QList<QPair<QString, QByteArray>> files = {
+            {"oh-uni-package.json", "{\"version\": \"1.0\"}"},
+            {"sysroot/usr/lib/libc.so", "sysroot"},
+            {"llvm/bin/clang", elf},
+            {"llvm/bin/ld.lld", elf},
+            {"llvm/bin/llvm-ar", elf},
+            {"llvm/bin/llvm-ranlib", elf},
+            {"llvm/bin/llvm-strip", elf},
+            {"llvm/lib/libxml2.so.16", "xml"},
+            {"llvm/lib/aarch64-linux-ohos/libc++_shared.so", "c++"},
+            {"llvm/lib/clang/15.0.4/include/stddef.h", "typedef int size_t;"},
+            {runtime + "libclang_rt.builtins.a", "builtins"},
+            {runtime + "clang_rt.crtbegin.o", "crtbegin"},
+            {runtime + "clang_rt.crtend.o", "crtend"},
+            {runtime + "libclang_rt.asan.so", "asan"},
+            {"llvm/include/libcxx-ohos/vector", "template<class T> class vector;"},
+            {"build-tools/cmake/bin/cmake", elf},
+            {"build-tools/cmake/bin/ninja", elf},
+            {"build-tools/cmake/share/cmake-3.28/Modules/CMakeDetermineSystem.cmake", "sys"},
+            {"build/cmake/ohos.toolchain.cmake", chainload},
+            {"build/cmake/sdk_native_platforms.cmake", "platforms"},
+        };
+        for (const QPair<QString, QByteArray> &file : files) {
+            const FilePath path = root.pathAppended("native").pathAppended(file.first);
+            if (!path.parentDir().ensureWritableDir() || !path.writeFileContents(file.second))
+                return false;
+        }
+        return true;
+    }
+
     static FilePath elfHostBinary()
     {
         const FilePath self = FilePath::fromString(QCoreApplication::applicationFilePath());

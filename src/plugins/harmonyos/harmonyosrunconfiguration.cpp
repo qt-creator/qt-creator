@@ -140,6 +140,7 @@ HarmonyOsExtras harmonyOsExtras(const FilePath &buildDir, const QString &buildKe
         extras.launchArguments.append(value.toString());
     for (const QJsonValue &value : object.value("launch-schemes").toArray())
         extras.launchSchemes.append(value.toString());
+    extras.deviceToolchain = object.value("device-toolchain").toBool();
     return extras;
 }
 
