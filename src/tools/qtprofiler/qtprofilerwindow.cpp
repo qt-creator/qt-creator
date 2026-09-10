@@ -232,6 +232,10 @@ WindowPrivate::WindowPrivate(Window *window)
             });
 
     connect(ctfManager, &CtfPlainViewManager::error, this, &WindowPrivate::onError);
+    connect(ctfManager, &CtfPlainViewManager::gotoSourceLocation, this,
+            [this](const QString &file, int line, int column) {
+                onGotoSourceLocation(file, line, column);
+            });
 
     connect(samplerManager, &SamplerViewManager::error, this, &WindowPrivate::onError);
     connect(samplerManager, &SamplerViewManager::gotoSourceLocation,

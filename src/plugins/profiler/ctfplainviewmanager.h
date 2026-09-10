@@ -51,6 +51,9 @@ public:
 signals:
     void error(const QString &error);
     void loadFinished();
+    // The source location of the selected event, as the trace spelled it. Only
+    // a trace whose producer recorded one has any.
+    void gotoSourceLocation(const QString &file, int line, int column);
 
 private:
     class CtfPlainViewManagerPrivate *d;

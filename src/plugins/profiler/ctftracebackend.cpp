@@ -48,6 +48,15 @@ CtfTraceBackend::CtfTraceBackend(Timeline::RangeDetailsWidget *details, QObject 
     });
 
     connect(&d->viewManager, &CtfPlainViewManager::error, this, &CtfTraceBackend::error);
+    connect(&d->viewManager, &CtfPlainViewManager::gotoSourceLocation, this,
+            [this](const QString &file, int line, int column) {
+        // The path is the one the machine that produced the trace saw, and a
+        // trace recorded elsewhere names files this one does not have.
+        const FilePath path = FilePath::fromUserInput(file);
+        if (!path.isAbsolutePath() || !path.isReadableFile())
+            return;
+        emit gotoSourceLocation({path, line, column});
+    });
     connect(&d->viewManager, &CtfPlainViewManager::loadFinished, this, [this] {
         updateThreadMenu();
         emit loadFinished();

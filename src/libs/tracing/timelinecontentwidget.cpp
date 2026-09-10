@@ -635,13 +635,17 @@ void TimelineContentWidget::selectItem(int modelIndex, int itemIndex)
         const TimelineModel *model = m_trackModels[modelIndex];
         const int newTypeId = model->typeId(itemIndex);
         const ItemLocation loc = model->location(itemIndex);
+        // A type is not enough to tell one place from another: a CTF trace types
+        // its events by name, so every `if` a CMake trace records shares a type
+        // while each names its own line.
+        const bool moved = newTypeId != m_currentTypeId || loc.file != m_currentFile
+                           || loc.line != m_currentLine || loc.column != m_currentColumn;
+        m_currentTypeId = newTypeId;
         m_currentFile = loc.file;
         m_currentLine = loc.line;
         m_currentColumn = loc.column;
-        if (newTypeId != m_currentTypeId) {
-            m_currentTypeId = newTypeId;
+        if (moved)
             emit m_aggregator->updateCursorPosition();
-        }
     } else {
         m_currentTypeId = -1;
         m_currentFile.clear();
@@ -751,9 +755,15 @@ bool TimelineContentWidget::selectionRangeReady() const
 void TimelineContentWidget::selectByAggregatorIndex(int aggModelIndex, int itemIndex)
 {
     const int pi = aggregatorToPainter(aggModelIndex);
-    // Pre-set typeId to suppress updateCursorPosition feedback to the caller.
-    if (pi >= 0 && pi < m_trackModels.size() && itemIndex >= 0 && m_selectedItemIndex != -1)
+    // Pre-set type and location to suppress updateCursorPosition feedback to
+    // the caller.
+    if (pi >= 0 && pi < m_trackModels.size() && itemIndex >= 0 && m_selectedItemIndex != -1) {
         m_currentTypeId = m_trackModels[pi]->typeId(itemIndex);
+        const ItemLocation loc = m_trackModels[pi]->location(itemIndex);
+        m_currentFile = loc.file;
+        m_currentLine = loc.line;
+        m_currentColumn = loc.column;
+    }
     selectItem(pi, itemIndex);
 }
 

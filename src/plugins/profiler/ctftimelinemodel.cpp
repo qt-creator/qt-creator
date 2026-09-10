@@ -19,6 +19,27 @@ namespace Profiler::Internal {
 using json = nlohmann::json;
 using namespace Constants;
 
+// The Chrome Trace Format has no place for a source location, so a producer
+// that knows one puts it among the event's arguments. CMake names the line a
+// command was called from as "<path>:<line>"; a Windows path brings a colon of
+// its own, which is why the line is taken from the end.
+static Timeline::ItemLocation locationFromArguments(const json &args)
+{
+    const auto it = args.find(CtfArgumentsLocationKey);
+    if (it == args.end() || !it->is_string())
+        return {};
+
+    const QString location = QString::fromStdString(it->get<std::string>());
+    const int colon = location.lastIndexOf(':');
+    if (colon < 1)
+        return {};
+    bool ok = false;
+    const int line = QStringView{location}.mid(colon + 1).toInt(&ok);
+    if (!ok)
+        return {};
+    return {location.left(colon), line, 0};
+}
+
 CtfTimelineModel::CtfTimelineModel(Timeline::TimelineModelAggregator *parent,
                                    CtfTraceManager *traceManager,
                                    const QString &tid,
@@ -83,6 +104,11 @@ Timeline::OrderedItemDetails CtfTimelineModel::orderedDetails(int index) const
     }
     emit detailsRequested(result.title);
     return result;
+}
+
+Timeline::ItemLocation CtfTimelineModel::location(int index) const
+{
+    return m_locations.value(index);
 }
 
 int CtfTimelineModel::expandedRow(int index) const
@@ -253,8 +279,10 @@ qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
     if (index >= m_details.size()) {
         m_details.resize(index + 1);
         m_details[index] = QMap<int, QPair<QString, QString>>();
+        m_locations.resize(index + 1);
     } else {
         m_details.insert(index, QMap<int, QPair<QString, QString>>());
+        m_locations.insert(index, {});
     }
     if (m_counterValues.size() > index) {
         // if the event was inserted before any counter, we need
@@ -278,6 +306,11 @@ qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
         // strip leading and trailing curled brackets:
         argsJson = argsJson.size() > 4 ? argsJson.mid(2, argsJson.size() - 4) : argsJson;
         m_details[index].insert(4, {reuse(Tr::tr("Arguments")), reuse(argsJson)});
+        Timeline::ItemLocation source = locationFromArguments(event["args"]);
+        if (!source.file.isEmpty()) {
+            source.file = reuse(source.file);
+            m_locations[index] = source;
+        }
     }
     if (eventPhase == CtfEventTypeInstant) {
         m_details[index].insert(6, {reuse(Tr::tr("Instant")), reuse(Tr::tr("true"))});

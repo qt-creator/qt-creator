@@ -80,6 +80,8 @@ QWidgetList CtfPlainViewManager::views(QWidget *parent)
     });
     connect(&d->traceManager, &CtfTraceManager::detailsRequested,
             d->statisticsView, &CtfStatisticsView::selectByTitle);
+    connect(d->traceView, &Timeline::TimelineWidget::gotoSourceLocation,
+            this, &CtfPlainViewManager::gotoSourceLocation);
 
     return {d->traceView, d->statisticsView};
 }

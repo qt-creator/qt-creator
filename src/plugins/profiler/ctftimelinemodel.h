@@ -32,6 +32,7 @@ public:
     QRgb color(int index) const override;
     Timeline::RowLabels labels() const override;
     Timeline::OrderedItemDetails orderedDetails(int index) const override;
+    Timeline::ItemLocation location(int index) const override;
     int expandedRow(int index) const override;
     int collapsedRow(int index) const override;
 
@@ -72,6 +73,7 @@ protected:
     int m_maxStackSize = 0;
     QList<int> m_rows;
     QList<QMap<int, QPair<QString, QString>>> m_details;
+    QList<Timeline::ItemLocation> m_locations; // parallel to m_details
     QSet<int> m_handledTypeIds;
     QStack<int> m_openEventIds;
     QSet<QString> m_reusableStrings;

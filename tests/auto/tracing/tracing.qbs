@@ -20,6 +20,7 @@ Project {
         "timelinerenderstate/timelinerenderstate.qbs",
         "timelineselectionrenderpass/timelineselectionrenderpass.qbs",
         "timelinezoomcontrol/timelinezoomcontrol.qbs",
-        "timelinescrollsync/timelinescrollsync.qbs"
+        "timelinescrollsync/timelinescrollsync.qbs",
+        "timelinecontentwidget/timelinecontentwidget.qbs"
     ]
 }

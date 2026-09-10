@@ -20,6 +20,8 @@ inline constexpr char CtfTracingClockTimestampKey[] = "ts";
 inline constexpr char CtfProcessIdKey[] = "pid";
 inline constexpr char CtfThreadIdKey[] = "tid";
 inline constexpr char CtfDurationKey[] = "dur";
+// CMake writes the line a command was called from here, as "<path>:<line>".
+inline constexpr char CtfArgumentsLocationKey[] = "location";
 
 inline constexpr char CtfEventTypeBegin[] = "B";
 inline constexpr char CtfEventTypeEnd[] = "E";
