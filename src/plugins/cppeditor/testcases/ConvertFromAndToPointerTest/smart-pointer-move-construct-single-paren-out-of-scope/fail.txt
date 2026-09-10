@@ -1,0 +1,4 @@
+pre-existing "most vexing parse" bug: "Type<Foo> f(someCall());" is misparsed as a
+function declarator, so the smart-pointer-specific code never runs and the old
+FromVariable fallback wrongly offers a broken conversion; unrelated to QTCREATORBUG-12733,
+not fixed here - see the double-paren fixture for the case that does exercise our check
