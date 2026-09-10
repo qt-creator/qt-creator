@@ -45,6 +45,7 @@ public:
     static void setDeviceState(
         Utils::Id deviceId, IDevice::DeviceState deviceState, bool announce = true);
     static IDevice::DeviceState deviceState(Utils::Id deviceId);
+    static void announceDeviceUpdate(Utils::Id deviceId);
 
     static bool isLoaded();
 

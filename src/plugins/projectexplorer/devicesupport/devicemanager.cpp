@@ -262,10 +262,17 @@ void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState newState, b
             return;
     }
 
-    if (announce && !ExtensionSystem::PluginManager::isShuttingDown()) {
-        emit s_instance->deviceUpdated(deviceId);
-        emit s_instance->updated();
-    }
+    if (announce)
+        announceDeviceUpdate(deviceId);
+}
+
+void DeviceManager::announceDeviceUpdate(Id deviceId)
+{
+    if (!d || !s_instance || ExtensionSystem::PluginManager::isShuttingDown())
+        return;
+
+    emit s_instance->deviceUpdated(deviceId);
+    emit s_instance->updated();
 }
 
 void DeviceManager::addDevice(const IDevice::Ptr &device)

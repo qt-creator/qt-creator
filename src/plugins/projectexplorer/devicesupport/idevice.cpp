@@ -507,9 +507,17 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
         }
     };
 
+    const auto onDone = [weakDevice] {
+        if (const std::shared_ptr<IDevice> device = weakDevice.lock())
+            DeviceManager::announceDeviceUpdate(device->id());
+    };
+
     // clang-format off
-    return For (iterator) >> Do {
-        AsyncTask<Data>(onSetupSearch, onSearchDone)
+    return Group {
+        For (iterator) >> Do {
+            AsyncTask<Data>(onSetupSearch, onSearchDone)
+        },
+        onGroupDone(onDone)
     };
     // clang-format on
 }
