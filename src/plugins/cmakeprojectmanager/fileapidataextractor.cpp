@@ -26,6 +26,10 @@
 #include <QLoggingCategory>
 #include <QtConcurrentMap>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace ProjectExplorer;
 using namespace Utils;
 using namespace CMakeProjectManager::Internal::FileApiDetails;
@@ -136,6 +140,7 @@ public:
 
     ConfigurationInfo codemodel;
     std::vector<TargetDetails> targetDetails;
+    std::vector<TargetDetails> importedTargetDetails;
 };
 
 static PreprocessedData preprocess(const QFuture<void> &cancelFuture, FileApiData &data,
@@ -157,6 +162,7 @@ static PreprocessedData preprocess(const QFuture<void> &cancelFuture, FileApiDat
     result.cmakeListNodes = std::move(cmakeFileResult.cmakeListNodes);
 
     result.targetDetails = std::move(data.targetDetails);
+    result.importedTargetDetails = std::move(data.importedTargetDetails);
 
     return result;
 }
@@ -271,14 +277,7 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                 ct.linkedLibraryFileNames.append(FilePath::fromUserInput(part).fileName());
             }
         }
-    }
 
-    // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
-    ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
-    ct.targetFolder = t.folderTargetProperty;
-
-    if (ct.targetType == ExecutableType) {
-        FilePaths librarySeachPaths;
         // Is this a GUI application?
         ct.linksToQtGui = Utils::contains(t.link->fragments, [](const FragmentInfo &f) {
             return f.role == "libraries"
@@ -286,7 +285,11 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                        || f.fragment.contains("Qt6Gui"));
         });
 
-        // Extract library directories for executables:
+        // Extract the library directories. Libraries need them as much as executables do:
+        // a dependency linked in privately stays off the link line of the executable, so
+        // its directory is only reachable through the library that does link it.
+        const FilePath buildDir = relativeLibs ? buildDirectory : currentBuildDir;
+        FilePaths librarySearchPaths;
         for (const FragmentInfo &f : t.link->fragments) {
             if (f.role == "flags") // ignore all flags fragments
                 continue;
@@ -310,7 +313,6 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                 if (part.startsWith("-"))
                     continue;
 
-                const FilePath buildDir = relativeLibs ? buildDirectory : currentBuildDir;
                 FilePath tmp = buildDir.resolvePath(part);
                 if (f.role == "libraries")
                     tmp = tmp.parentDir();
@@ -337,22 +339,27 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                                        "/usr/lib",
                                        "/usr/lib64",
                                        "/usr/local/lib"})) {
-                        librarySeachPaths.append(tmp);
+                        librarySearchPaths.append(tmp);
 
                         // Libraries often have their import libs in ../lib and the
                         // actual dll files in ../bin on windows. Qt is one example of that.
                         if (tmp.fileName() == "lib" && buildDir.osType() == OsTypeWindows) {
                             const FilePath path = tmp.parentDir().pathAppended("bin");
                             if (path.isDir())
-                                librarySeachPaths.append(path);
+                                librarySearchPaths.append(path);
                         }
                     }
                 }
             }
         }
-        ct.libraryDirectories = filteredUnique(librarySeachPaths);
-        qCInfo(cmakeLogger) << "libraryDirectories for target" << ct.title << ":" << ct.libraryDirectories;
+        ct.libraryDirectories = filteredUnique(librarySearchPaths);
+    }
 
+    // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
+    ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
+    ct.targetFolder = t.folderTargetProperty;
+
+    if (ct.targetType == ExecutableType) {
         // If there are start programs, there should also be an option to select none
         if (!t.launcherInfos.isEmpty()) {
             LauncherInfo info { "unused", Utils::FilePath(), QStringList() };
@@ -372,18 +379,161 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
     return ct;
 }
 
+// An imported target is the only place the directory of a prebuilt shared library is
+// written down: nothing links the library itself, only its import library, and that one
+// routinely lives elsewhere - "sdk/lib/x64/foo.lib" next to "sdk/bin/x64/foo.dll". The
+// artifacts of the imported target name both, so take the directory of the one the
+// loader will look for.
+static FilePaths importedLibraryDirectories(
+    const TargetDetails &t,
+    const FilePath &buildDirectory,
+    const QHash<QString, const TargetDetails *> &importedById)
+{
+    FilePaths directories;
+    QSet<QString> seenIds;
+    QStringList pendingIds;
+    for (const DependencyInfo &d : t.linkLibraries)
+        pendingIds.append(d.targetId);
+
+    while (!pendingIds.isEmpty()) {
+        const QString id = pendingIds.takeLast();
+        if (!Utils::insert(seenIds, id))
+            continue;
+        const TargetDetails *imported = importedById.value(id);
+        if (!imported)
+            continue;
+        for (const DependencyInfo &d : imported->interfaceLinkLibraries)
+            pendingIds.append(d.targetId);
+        if (imported->type != "SHARED_LIBRARY" && imported->type != "MODULE_LIBRARY")
+            continue;
+        for (const FilePath &artifact : imported->artifacts) {
+            // The import library adds nothing: whoever links it already contributed
+            // its directory through the link line.
+            if (artifact.suffix() == "lib" || artifact.suffix() == "a")
+                continue;
+            directories.append(buildDirectory.resolvePath(artifact).parentDir());
+        }
+    }
+    return directories;
+}
+
+#ifdef WITH_TESTS
+class ImportedLibraryDirectoriesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        const FilePath buildDirectory = "/b";
+
+        // An interface library carries a shared library without having an artifact of
+        // its own, so the walk has to pass through it.
+        TargetDetails interfaceLibrary;
+        interfaceLibrary.id = "Interface::@0";
+        interfaceLibrary.type = "INTERFACE_LIBRARY";
+        interfaceLibrary.interfaceLinkLibraries = {{"Shared::@0", -1}};
+
+        // Both artifacts are named, but only the one the loader opens says where it is.
+        TargetDetails sharedLibrary;
+        sharedLibrary.id = "Shared::@0";
+        sharedLibrary.type = "SHARED_LIBRARY";
+        sharedLibrary.artifacts = {"/sdk/lib/x64/shared.lib", "/sdk/bin/x64/shared.dll"};
+        // A cycle must not send the walk in circles.
+        sharedLibrary.interfaceLinkLibraries = {{"Interface::@0", -1}};
+
+        TargetDetails moduleLibrary;
+        moduleLibrary.id = "Module::@0";
+        moduleLibrary.type = "MODULE_LIBRARY";
+        moduleLibrary.artifacts = {"plugins/module.so"};
+
+        // The import library of an imported static library is on the link line of
+        // whoever links it, so its directory is known there already.
+        TargetDetails staticLibrary;
+        staticLibrary.id = "Static::@0";
+        staticLibrary.type = "STATIC_LIBRARY";
+        staticLibrary.artifacts = {"/sdk/lib/x64/static.lib"};
+
+        const QHash<QString, const TargetDetails *> importedById{
+            {interfaceLibrary.id, &interfaceLibrary},
+            {sharedLibrary.id, &sharedLibrary},
+            {moduleLibrary.id, &moduleLibrary},
+            {staticLibrary.id, &staticLibrary}};
+
+        TargetDetails app;
+        app.id = "App::@0";
+        app.type = "EXECUTABLE";
+        // "Local" is built here, so it is not among the imported targets.
+        app.linkLibraries = {{"Shared::@0", -1}, {"Static::@0", -1}, {"Local::@0", -1}};
+
+        QCOMPARE(importedLibraryDirectories(app, buildDirectory, importedById),
+                 FilePaths{"/sdk/bin/x64"});
+
+        TargetDetails viaInterface;
+        viaInterface.id = "ViaInterface::@0";
+        viaInterface.type = "EXECUTABLE";
+        viaInterface.linkLibraries = {{"Interface::@0", -1}};
+
+        QCOMPARE(importedLibraryDirectories(viaInterface, buildDirectory, importedById),
+                 FilePaths{"/sdk/bin/x64"});
+
+        // An artifact of a relative path is relative to the build directory.
+        TargetDetails viaModule;
+        viaModule.id = "ViaModule::@0";
+        viaModule.type = "EXECUTABLE";
+        viaModule.linkLibraries = {{"Module::@0", -1}};
+
+        QCOMPARE(importedLibraryDirectories(viaModule, buildDirectory, importedById),
+                 FilePaths{"/b/plugins"});
+
+        TargetDetails standalone;
+        standalone.id = "Standalone::@0";
+        standalone.type = "EXECUTABLE";
+
+        QCOMPARE(importedLibraryDirectories(standalone, buildDirectory, importedById),
+                 FilePaths());
+    }
+};
+
+QObject *createImportedLibraryDirectoriesTest()
+{
+    return new ImportedLibraryDirectoriesTest;
+}
+#endif
+
 static QList<CMakeBuildTarget> generateBuildTargets(const QFuture<void> &cancelFuture,
                                                     const PreprocessedData &input,
                                                     const FilePath &sourceDirectory,
                                                     const FilePath &buildDirectory,
                                                     bool relativeLibs)
 {
+    QHash<QString, QString> titleForId;
+    for (const TargetDetails &t : input.targetDetails)
+        titleForId.insert(t.id, t.name);
+
+    QHash<QString, const TargetDetails *> importedById;
+    for (const TargetDetails &t : input.importedTargetDetails)
+        importedById.insert(t.id, &t);
+
     QList<CMakeBuildTarget> result;
     result.reserve(input.targetDetails.size());
     for (const TargetDetails &t : input.targetDetails) {
         if (cancelFuture.isCanceled())
             return {};
-        result.append(toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs));
+        CMakeBuildTarget ct = toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs);
+        for (const DependencyInfo &d : t.dependencies) {
+            const QString title = titleForId.value(d.targetId);
+            if (!title.isEmpty())
+                ct.dependencyTitles.append(title);
+        }
+        ct.libraryDirectories = filteredUnique(
+            ct.libraryDirectories
+            + importedLibraryDirectories(t, buildDirectory, importedById));
+        if (!ct.libraryDirectories.isEmpty()) {
+            qCInfo(cmakeLogger) << "libraryDirectories for target" << ct.title << ":"
+                                << ct.libraryDirectories;
+        }
+        result.append(std::move(ct));
     }
     return result;
 }
@@ -1211,3 +1361,7 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
 }
 
 } // CMakeProjectManager::Internal
+
+#ifdef WITH_TESTS
+#include <fileapidataextractor.moc>
+#endif

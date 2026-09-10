@@ -1645,6 +1645,43 @@ static FilePaths linkingBinaries(const QList<CMakeBuildTarget> &targets,
     return binaries;
 }
 
+// A dependency keeps part of its library directories to itself. A shared library
+// resolves its private dependencies, so they stay off the link line of whoever uses it
+// - while the loader still has to find them at startup. A static library does pass them
+// on, but an imported one arrives as an import library, which routinely lives beside
+// the shared library instead of with it: "sdk/lib/x64/foo.lib" next to
+// "sdk/bin/x64/foo.dll". Either way a directory is missing, so the walk descends into
+// every dependency; what a binary already names itself the uniqueness of the result
+// absorbs.
+static FilePaths librarySearchPaths(const QList<CMakeBuildTarget> &targets,
+                                    const QString &buildKey)
+{
+    QHash<QString, const CMakeBuildTarget *> targetByTitle;
+    for (const CMakeBuildTarget &target : targets) {
+        if (target.targetType != UtilityType)
+            targetByTitle.insert(target.title, &target);
+    }
+
+    const CMakeBuildTarget *root = targetByTitle.value(buildKey);
+    if (!root)
+        return {};
+
+    FilePaths paths = root->libraryDirectories;
+    QSet<QString> seenTargets{buildKey};
+    QStringList pendingTargets = root->dependencyTitles;
+    while (!pendingTargets.isEmpty()) {
+        const QString title = pendingTargets.takeLast();
+        if (!Utils::insert(seenTargets, title))
+            continue;
+        const CMakeBuildTarget *target = targetByTitle.value(title);
+        if (!target)
+            continue;
+        paths += target->libraryDirectories;
+        pendingTargets += target->dependencyTitles;
+    }
+    return Utils::filteredUnique(paths);
+}
+
 #ifdef WITH_TESTS
 // Compares every file of the directory against its _expected.cmake sibling.
 static void compareWithExpected(const FilePath &directory)
@@ -1779,6 +1816,80 @@ private slots:
 QObject *createBinariesForSourceFileTest()
 {
     return new BinariesForSourceFileTest;
+}
+
+class LibrarySearchPathsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        CMakeBuildTarget app;
+        app.title = "App";
+        app.targetType = ExecutableType;
+        app.libraryDirectories = {"/b/middle"};
+        app.dependencyTitles = {"Middle", "Generate", "Archive"};
+
+        // Linked privately by Middle, so /b/inner is unknown to App.
+        CMakeBuildTarget middle;
+        middle.title = "Middle";
+        middle.targetType = DynamicLibraryType;
+        middle.libraryDirectories = {"/b/inner"};
+        middle.dependencyTitles = {"Inner"};
+
+        CMakeBuildTarget inner;
+        inner.title = "Inner";
+        inner.targetType = DynamicLibraryType;
+        inner.libraryDirectories = {"/b/deep", "/b/middle"};
+        inner.dependencyTitles = {"Deep"};
+
+        CMakeBuildTarget deep;
+        deep.title = "Deep";
+        deep.targetType = DynamicLibraryType;
+        // A cycle must not send the walk in circles.
+        deep.dependencyTitles = {"Middle"};
+
+        CMakeBuildTarget generate;
+        generate.title = "Generate";
+        generate.targetType = UtilityType;
+        generate.libraryDirectories = {"/b/utility"};
+
+        // A static library hands its dependencies to App, but as import libraries,
+        // which say nothing about where the loader will look. Both /b/archive and
+        // /b/hidden have to come out of the walk.
+        CMakeBuildTarget archive;
+        archive.title = "Archive";
+        archive.targetType = StaticLibraryType;
+        archive.libraryDirectories = {"/b/archive"};
+        archive.dependencyTitles = {"Hidden"};
+
+        CMakeBuildTarget hidden;
+        hidden.title = "Hidden";
+        hidden.targetType = DynamicLibraryType;
+        hidden.libraryDirectories = {"/b/hidden"};
+
+        CMakeBuildTarget other;
+        other.title = "Other";
+        other.targetType = ExecutableType;
+        other.libraryDirectories = {"/b/other"};
+
+        const QList<CMakeBuildTarget> targets{
+            app, middle, inner, deep, generate, archive, hidden, other};
+
+        QCOMPARE(librarySearchPaths(targets, "App"),
+                 FilePaths({"/b/middle", "/b/archive", "/b/hidden", "/b/inner", "/b/deep"}));
+        QCOMPARE(librarySearchPaths(targets, "Middle"),
+                 FilePaths({"/b/inner", "/b/deep", "/b/middle"}));
+        QCOMPARE(librarySearchPaths(targets, "Other"), FilePaths{"/b/other"});
+        QCOMPARE(librarySearchPaths(targets, "Generate"), FilePaths());
+        QCOMPARE(librarySearchPaths(targets, "Unknown"), FilePaths());
+    }
+};
+
+QObject *createLibrarySearchPathsTest()
+{
+    return new LibrarySearchPathsTest;
 }
 
 // Stands in for what Qt6QmlMacros.cmake declares: the keywords of the command
@@ -3137,16 +3248,6 @@ CMakeBuildConfiguration *CMakeBuildSystem::cmakeBuildConfiguration() const
     return static_cast<CMakeBuildConfiguration *>(BuildSystem::buildConfiguration());
 }
 
-static FilePaths librarySearchPaths(const CMakeBuildSystem *bs, const QString &buildKey)
-{
-    const CMakeBuildTarget cmakeBuildTarget
-        = Utils::findOrDefault(bs->buildTargets(), [buildKey](const auto &target) {
-              return target.title == buildKey && target.targetType != UtilityType;
-          });
-
-    return cmakeBuildTarget.libraryDirectories;
-}
-
 static bool isTestTarget(const QString &targetName, const FilePath &buildDir)
 {
     // The CTest file is always named CTestTestfile.cmake and lives in the build dir
@@ -3196,7 +3297,7 @@ static BuildTargetInfo createBuildTargetInfo(
     bti.runEnvModifier = [bs, buildKey = ct.title, qtBinPath](Environment &env, bool enabled) {
         if (!enabled)
             return;
-        env.prependOrSetLibrarySearchPaths(librarySearchPaths(bs, buildKey));
+        env.prependOrSetLibrarySearchPaths(librarySearchPaths(bs->buildTargets(), buildKey));
         // On Windows an application locates its Qt runtime DLLs via PATH. CMake's
         // library directories point at Qt's import-lib (lib) directory, not the DLL
         // (bin) directory, so add Qt's bin explicitly. Without it a Qt application

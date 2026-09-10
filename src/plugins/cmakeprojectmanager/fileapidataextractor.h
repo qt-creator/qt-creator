@@ -53,4 +53,8 @@ public:
 FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input,
                            const Utils::FilePath &sourceDir, const Utils::FilePath &buildDir);
 
+#ifdef WITH_TESTS
+QObject *createImportedLibraryDirectoriesTest();
+#endif
+
 } // CMakeProjectManager::Internal

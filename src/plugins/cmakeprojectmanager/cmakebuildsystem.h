@@ -318,6 +318,7 @@ private:
 #ifdef WITH_TESTS
 QObject *createAddDependenciesTest();
 QObject *createBinariesForSourceFileTest();
+QObject *createLibrarySearchPathsTest();
 QObject *createQmlModuleFilesTest();
 QObject *createSourceFilesTest();
 #endif

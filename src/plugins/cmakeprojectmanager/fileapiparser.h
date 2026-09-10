@@ -344,6 +344,7 @@ public:
     std::vector<CMakeFileInfo> cmakeFiles;
     FileApiDetails::ConfigurationInfo codemodel;
     std::vector<FileApiDetails::TargetDetails> targetDetails;
+    std::vector<FileApiDetails::TargetDetails> importedTargetDetails;
     std::vector<FileApiDetails::DirectoryDetails> directoryDetails;
     std::vector<FileApiDetails::Toolchain> toolchains;
     FileApiDetails::ConfigureLog configureLog;

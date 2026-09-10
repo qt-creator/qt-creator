@@ -1237,6 +1237,41 @@ FileApiData FileApiParser::parseData(const QFuture<void> &future,
         }
     }
 
+    // Imported targets are not part of the build system, so CMake reports them apart
+    // from it, and only from codemodel version 2.9 on. Only the ones something actually
+    // links to say where a shared library is, and a project defines far more than it
+    // uses, so read those files alone rather than all of them.
+    QHash<QString, QString> importedTargetFileForId;
+    for (const TargetInfo &t : result.codemodel.abstractTargets)
+        importedTargetFileForId.insert(t.id, t.jsonFile);
+
+    QStringList pendingIds;
+    for (const TargetDetails &t : result.targetDetails) {
+        for (const DependencyInfo &d : t.linkLibraries)
+            pendingIds.append(d.targetId);
+    }
+    QSet<QString> seenIds;
+    while (!pendingIds.isEmpty()) {
+        if (cancelCheck())
+            return {};
+        const QString id = pendingIds.takeLast();
+        if (!Utils::insert(seenIds, id))
+            continue;
+        const QString targetFile = importedTargetFileForId.value(id);
+        if (targetFile.isEmpty())
+            continue;
+        QString targetErrorMessage;
+        TargetDetails td = readTargetFile(replyDir, replyDir / targetFile, targetErrorMessage);
+        if (!targetErrorMessage.isEmpty()) {
+            qWarning() << "Failed to retrieve imported target data from cmake fileapi:"
+                       << targetErrorMessage;
+            continue;
+        }
+        for (const DependencyInfo &d : td.interfaceLinkLibraries)
+            pendingIds.append(d.targetId);
+        result.importedTargetDetails.emplace_back(std::move(td));
+    }
+
     for (const DirectoryInfo &d : result.codemodel.directories) {
         // Skip if we already have a directory entry (e.g. multiple configurations)
         if (d.jsonFile.isEmpty())

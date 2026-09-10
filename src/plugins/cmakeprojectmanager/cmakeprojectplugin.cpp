@@ -22,6 +22,7 @@
 #include "cmaketoolmanager.h"
 #include "cmakeusages.h"
 #include "conditionalsources.h"
+#include "fileapidataextractor.h"
 #include "mcptools.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -85,6 +86,8 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createCMakeQuickFixesTest);
         addTestCreator(createAddDependenciesTest);
         addTestCreator(createBinariesForSourceFileTest);
+        addTestCreator(createImportedLibraryDirectoriesTest);
+        addTestCreator(createLibrarySearchPathsTest);
         addTestCreator(createConditionalSourcesTest);
         addTestCreator(createQmlModuleFilesTest);
         addTestCreator(createSourceFilesTest);
