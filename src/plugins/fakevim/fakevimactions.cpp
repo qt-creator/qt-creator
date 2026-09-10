@@ -145,7 +145,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&formatListPat,  R"(^\s*\d\+[\]:.)}\t ]\s*)",
                                   "FormatListPat",  "flp", {});
     setup(&whichWrap,      "b,s", "WhichWrap",      "ww",  {});
-    setup(&joinSpaces,     false, "JoinSpaces",     "js",  {});
+    setup(&joinSpaces,     true,  "JoinSpaces",     "js",  {});
     setup(&ruler,          false, "Ruler",          "ru",  {});
     setup(&gDefault,       false, "GDefault",       "gd",  {});
     setup(&langMap,        QString(), "LangMap",       "lmap", {});
