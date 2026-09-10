@@ -134,7 +134,7 @@ void Utils::ProcessHelper::setAllowCoreDumps(bool enabled)
 {
 #if defined(Q_OS_UNIX) && QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
     UnixProcessParameters params = unixProcessParameters();
-    params.flags.setFlag(UnixProcessFlag::DisableCoreDumps, enabled);
+    params.flags.setFlag(UnixProcessFlag::DisableCoreDumps, !enabled);
     setUnixProcessParameters(params);
 #else
     Q_UNUSED(enabled)
