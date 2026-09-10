@@ -7,7 +7,6 @@
 #include "profilerrecorder.h"
 #include "profilersamplerruncontrol.h"
 #include "profilertr.h"
-#include "profilertracedocument.h"
 #include "profilertraceeditor.h"
 #include "qmlprofilerconstants.h"
 #include "recordingpage.h"
@@ -16,7 +15,6 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -244,26 +242,6 @@ public:
 
 static ProfilerStartEditorFactory *s_factory = nullptr;
 static QAction *s_openAction = nullptr;
-
-bool isProfilerStartPageOpen()
-{
-    const QList<IDocument *> documents = DocumentModel::openedDocuments();
-    for (IDocument *document : documents) {
-        if (document->id() == Constants::START_EDITOR_ID)
-            return true;
-    }
-    return false;
-}
-
-bool hasOpenTrace()
-{
-    const QList<IDocument *> documents = DocumentModel::openedDocuments();
-    for (IDocument *document : documents) {
-        if (qobject_cast<ProfilerTraceDocument *>(document))
-            return true;
-    }
-    return false;
-}
 
 IEditor *openProfilerStartPage()
 {

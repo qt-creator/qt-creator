@@ -23,8 +23,6 @@ Core::IEditor *openProfilerStartPage();
 QAction *profilerStartPageAction();
 
 // Whether that page is open, and whether any trace is.
-bool isProfilerStartPageOpen();
-bool hasOpenTrace();
 
 void setupProfilerStartEditor();
 void destroyProfilerStartEditor();

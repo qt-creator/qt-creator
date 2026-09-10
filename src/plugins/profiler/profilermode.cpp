@@ -246,22 +246,23 @@ void setupProfilerMode()
                      &ProjectExplorerPlugin::runActionsUpdated, theRecorder, &seedLaunchTarget);
     seedLaunchTarget();
 
-    // Entering the mode raises the page that starts a recording, so the mode
-    // button is a reliable way back to it however many traces are open. It is
-    // only opened when there is no trace to show instead, so recording one does
-    // not bring back a page that was deliberately closed.
+    // Entering the mode offers a recording when its editor shows nothing.
+    // Whatever is there instead - a trace, a source file, the documents a
+    // session restored - is what the user came to look at, and the tool bar
+    // has the start page one click away.
     QObject::connect(ModeManager::instance(), &ModeManager::currentModeChanged,
                      theProfilerMode, [](Id mode, Id) {
-        if (mode == MODE_PROFILER && (isProfilerStartPageOpen() || !hasOpenTrace()))
+        if (mode == MODE_PROFILER && !EditorManager::currentEditor())
             openProfilerStartPage();
     });
 
-    // Closing the last trace leaves nothing to look at; offer a recording again.
+    // Closing a trace that leaves nothing to look at; offer a recording again.
     // Closing the page itself is left alone, or it could not be closed at all.
     QObject::connect(EditorManager::instance(), &EditorManager::documentClosed,
                      theProfilerMode, [](IDocument *document) {
         if (qobject_cast<ProfilerTraceDocument *>(document)
-                && ModeManager::currentModeId() == MODE_PROFILER && !hasOpenTrace()) {
+                && ModeManager::currentModeId() == MODE_PROFILER
+                && !EditorManager::currentEditor()) {
             openProfilerStartPage();
         }
     });
