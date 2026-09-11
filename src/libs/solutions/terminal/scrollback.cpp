@@ -264,6 +264,16 @@ bool Scrollback::popRow(int cols, VTermScreenCell *cells)
     return true;
 }
 
+void Scrollback::visitCells(const std::function<void(VTermScreenCell &)> &visit)
+{
+    for (Line &line : m_lines) {
+        for (VTermScreenCell &cell : line.cells())
+            visit(cell);
+    }
+
+    m_cachedRow = -1;
+}
+
 void Scrollback::setBlank(const VTermScreenCell &blank)
 {
     m_blank = blank;

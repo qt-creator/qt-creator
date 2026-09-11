@@ -17,6 +17,8 @@ QtcLibrary {
         "keys.h",
         "scrollback.cpp",
         "scrollback.h",
+        "sixel.cpp",
+        "sixel.h",
         "surfaceintegration.h",
         "terminal.qrc",
         "terminal_global.h",

@@ -474,6 +474,9 @@ void *vterm_state_get_unrecognised_fbdata(VTermState *state);
 void vterm_state_reset(VTermState *state, int hard);
 void vterm_state_get_cursorpos(const VTermState *state, VTermPos *cursorpos);
 void vterm_state_set_cursorpos(VTermState *state, VTermPos cursorpos);
+/* Moves the cursor down one row, scrolling the scroll region when it is
+ * already on the bottom row, as IND does. */
+void vterm_state_index(VTermState *state);
 int  vterm_state_get_at_phantom(const VTermState *state);
 int  vterm_state_get_bracketedpaste(const VTermState *state);
 void vterm_state_get_default_colors(const VTermState *state, VTermColor *default_fg, VTermColor *default_bg);
@@ -549,6 +552,7 @@ typedef struct {
   VTermScreenCellAttrs attrs;
   VTermColor fg, bg;
   int uri;               /* Hyperlink index set by vterm_state_set_uri(), 0 for none */
+  uint32_t image;        /* Image tile written by vterm_screen_set_cell(), 0 for none */
 } VTermScreenCell;
 
 typedef struct {
@@ -623,6 +627,11 @@ int vterm_screen_get_attrs_extent(const VTermScreen *screen, VTermRect *extent, 
 int vterm_screen_get_cell(const VTermScreen *screen, VTermPos pos, VTermScreenCell *cell);
 
 void vterm_screen_set_cell(VTermScreen *screen, VTermPos pos, const VTermScreenCell *cell);
+
+/* Clears the image tile of every cell, on the primary screen as well as on the
+ * alternate one, for when an image is about to be given an id that a cell may
+ * still be naming. */
+void vterm_screen_forget_images(VTermScreen *screen);
 
 int vterm_screen_is_eol(const VTermScreen *screen, VTermPos pos);
 

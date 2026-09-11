@@ -31,6 +31,7 @@ typedef struct
   int uri;
 
   /* Extra state storage that isn't strictly pen-related */
+  uint32_t image;
   unsigned int protected_cell : 1;
   unsigned int dwl            : 1; /* on a DECDWL or DECDHL line */
   unsigned int dhl            : 2; /* on a DECDHL line (1=top 2=bottom) */
@@ -81,6 +82,7 @@ static inline void clearcell(const VTermScreen *screen, ScreenCell *cell)
   cell->chars[0] = 0;
   cell->pen = screen->pen;
   cell->pen.uri = 0;
+  cell->pen.image = 0;
 }
 
 static inline ScreenCell *getcell(const VTermScreen *screen, int row, int col)
@@ -203,6 +205,8 @@ static int putglyph(VTermGlyphInfo *info, VTermPos pos, void *user)
   cell->pen.protected_cell = info->protected_cell;
   cell->pen.dwl            = info->dwl;
   cell->pen.dhl            = info->dhl;
+  /* Text written over an image covers it */
+  cell->pen.image          = 0;
 
   damagerect(screen, rect);
 
@@ -727,6 +731,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
         dst->pen.small     = src->attrs.small;
         dst->pen.baseline  = src->attrs.baseline;
         dst->pen.uri       = src->uri;
+        dst->pen.image     = src->image;
 
         dst->pen.fg = src->fg;
         dst->pen.bg = src->bg;
@@ -1024,6 +1029,7 @@ int vterm_screen_get_cell(const VTermScreen *screen, VTermPos pos, VTermScreenCe
   cell->attrs.dhl = intcell->pen.dhl;
 
   cell->uri = intcell->pen.uri;
+  cell->image = intcell->pen.image;
 
   cell->fg = intcell->pen.fg;
   cell->bg = intcell->pen.bg;
@@ -1060,6 +1066,7 @@ void vterm_screen_set_cell(VTermScreen *screen, VTermPos pos, const VTermScreenC
   intcell->pen.small     = cell->attrs.small;
   intcell->pen.baseline  = cell->attrs.baseline;
   intcell->pen.uri       = cell->uri;
+  intcell->pen.image     = cell->image;
 
   intcell->pen.dwl = cell->attrs.dwl;
   intcell->pen.dhl = cell->attrs.dhl;
@@ -1072,6 +1079,23 @@ void vterm_screen_set_cell(VTermScreen *screen, VTermPos pos, const VTermScreenC
     if(next)
       next->chars[0] = (uint32_t) -1;
   }
+}
+
+void vterm_screen_forget_images(VTermScreen *screen)
+{
+  /* The buffer that is not shown keeps its cells across the altscreen switch,
+   * so it would bring back cells naming an id that has been given away. */
+  for(int bufidx = 0; bufidx < 2; bufidx++) {
+    ScreenCell *buffer = screen->buffers[bufidx];
+    if(!buffer)
+      continue;
+
+    for(int i = 0; i < screen->rows * screen->cols; i++)
+      buffer[i].pen.image = 0;
+  }
+
+  screen->pen.image = 0;
+  damagescreen(screen);
 }
 
 int vterm_screen_is_eol(const VTermScreen *screen, VTermPos pos)

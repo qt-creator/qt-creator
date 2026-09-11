@@ -6,6 +6,7 @@
 
 #include "keys.h"
 #include "scrollback.h"
+#include "sixel.h"
 
 #include <vterm.h>
 
@@ -15,6 +16,7 @@
 #include <QLoggingCategory>
 #include <QStringList>
 #include <QTimer>
+#include <QtMath>
 
 namespace TerminalSolution {
 
@@ -27,6 +29,15 @@ static QColor toQColor(const VTermColor &c)
 
 constexpr int batchFlushSize = 256;
 constexpr qsizetype maxClipboardWriteSize = 8 * 1024 * 1024;
+
+// Images live on until the cells that show them are gone, which cannot be seen
+// from an image, so they are kept to a budget instead. What falls out of it is
+// only shown as far back in the scrollback as the budget reaches.
+constexpr qint64 maxImageBytes = 64 * 1024 * 1024;
+
+// The cell size in device pixels a surface without a view in front of it lays
+// images out for
+constexpr QSizeF defaultCellSize{8, 16};
 
 struct TerminalSurfacePrivate
 {
@@ -148,6 +159,22 @@ struct TerminalSurfacePrivate
         m_vtermStateFallbacks.osc = [](int cmd, VTermStringFragment fragment, void *user) {
             auto p = static_cast<TerminalSurfacePrivate *>(user);
             return p->osc(cmd, fragment);
+        };
+
+        m_vtermStateFallbacks.dcs =
+            [](const char *command, size_t commandlen, VTermStringFragment fragment, void *user) {
+                auto p = static_cast<TerminalSurfacePrivate *>(user);
+                return p->dcs({command, qsizetype(commandlen)}, fragment);
+            };
+
+        m_vtermStateFallbacks.csi = [](const char *leader,
+                                       const long args[],
+                                       int argcount,
+                                       const char *intermed,
+                                       char command,
+                                       void *user) {
+            auto p = static_cast<TerminalSurfacePrivate *>(user);
+            return p->csi(leader, args, argcount, intermed, command);
         };
 
         VTermState *vts = vterm_obtain_state(m_vterm.get());
@@ -290,6 +317,7 @@ struct TerminalSurfacePrivate
         }
 
         result.strikeOut = cell.attrs.strike;
+        result.image = cell.image;
 
         return result;
     }
@@ -639,6 +667,219 @@ struct TerminalSurfacePrivate
         return 1;
     }
 
+    static bool isSixel(QByteArrayView command)
+    {
+        // Other DCS strings end in q as well, XTGETTCAP's DCS + q for one, so
+        // the introducer only counts as a sixel if all of it is P1;P2;P3.
+        if (command.isEmpty() || command.back() != 'q')
+            return false;
+
+        for (const char c : command.first(command.size() - 1)) {
+            if ((c < '0' || c > '9') && c != ';')
+                return false;
+        }
+
+        return true;
+    }
+
+    int dcs(QByteArrayView command, const VTermStringFragment &fragment)
+    {
+        if (!isSixel(command))
+            return 0;
+
+        VTermState *state = vterm_obtain_state(m_vterm.get());
+
+        if (fragment.initial) {
+            m_sixel.start();
+
+            // Control characters keep their meaning inside the data string, so
+            // the line breaks some encoders wrap their output at move the
+            // cursor. The image belongs where the sequence started.
+            vterm_state_get_cursorpos(state, &m_sixelOrigin);
+            m_sixelOrigin.col += vterm_state_get_at_phantom(state);
+        }
+
+        m_sixel.addData({fragment.str, qsizetype(fragment.len)});
+
+        if (fragment.final) {
+            vterm_state_set_cursorpos(state, m_sixelOrigin);
+            placeImage(m_sixel.takeImage());
+        }
+
+        return 1;
+    }
+
+    QSize pixelSize() const
+    {
+        const QSize live = liveSize();
+        return QSize(qMin(qRound(live.width() * m_cellSize.width()), SixelDecoder::maxDimension),
+                     qMin(qRound(live.height() * m_cellSize.height()), SixelDecoder::maxDimension));
+    }
+
+    void reply(const QByteArray &response)
+    {
+        m_writeBuffer.append(response);
+        m_delayWriteTimer.start();
+    }
+
+    // XTSMGRAPHICS, CSI ? Pi ; Pa ; Pv S. Applications that draw images ask how
+    // many colors and how much room they have before they encode anything.
+    int graphicsAttributes(const long args[], int argcount)
+    {
+        const long item = argcount > 0 ? CSI_ARG_OR(args[0], 0) : 0;
+
+        if (item == 1) {
+            reply("\x1b[?1;0;" + QByteArray::number(SixelDecoder::colorRegisterCount) + "S");
+            return 1;
+        }
+
+        if (item == 2) {
+            const QSize size = pixelSize();
+            reply("\x1b[?2;0;" + QByteArray::number(size.width()) + ";"
+                  + QByteArray::number(size.height()) + "S");
+            return 1;
+        }
+
+        return 0;
+    }
+
+    // The reports of CSI t, which are the other way to ask for the room an
+    // image has. The window manipulations that share the sequence are ignored.
+    int windowReport(const long args[], int argcount)
+    {
+        const long what = argcount > 0 ? CSI_ARG_OR(args[0], 0) : 0;
+
+        switch (what) {
+        case 14: { // text area size in pixels
+            const QSize size = pixelSize();
+            reply("\x1b[4;" + QByteArray::number(size.height()) + ";"
+                  + QByteArray::number(size.width()) + "t");
+            return 1;
+        }
+        case 16: // cell size in pixels
+            reply("\x1b[6;" + QByteArray::number(qRound(m_cellSize.height())) + ";"
+                  + QByteArray::number(qRound(m_cellSize.width())) + "t");
+            return 1;
+        case 18: { // text area size in cells
+            const QSize live = liveSize();
+            reply("\x1b[8;" + QByteArray::number(live.height()) + ";"
+                  + QByteArray::number(live.width()) + "t");
+            return 1;
+        }
+        }
+
+        return 0;
+    }
+
+    int csi(const char *leader, const long args[], int argcount, const char *intermed, char command)
+    {
+        if (intermed)
+            return 0;
+
+        if (leader && qstrcmp(leader, "?") == 0 && command == 'S')
+            return graphicsAttributes(args, argcount);
+
+        if (!leader && command == 't')
+            return windowReport(args, argcount);
+
+        return 0;
+    }
+
+    // A cell keeps the id it was written with for as long as it is kept, so an
+    // id that came round again would make the cells of the image that had it
+    // show the new one. Every tag is taken off the cells before that happens,
+    // which costs one pass over both screens and the scrollback for as many
+    // images as there are ids.
+    void forgetImages()
+    {
+        vterm_screen_forget_images(m_vtermScreen);
+        m_scrollback->visitCells([](VTermScreenCell &cell) { cell.image = 0; });
+
+        m_images.clear();
+        m_imageOrder.clear();
+        m_imageBytes = 0;
+
+        emit q->invalidated(QRect{{0, 0}, q->fullSize()});
+    }
+
+    int addImage(const QImage &image)
+    {
+        if (m_lastImageId == ImageCell::maxId) {
+            forgetImages();
+            m_lastImageId = 0;
+        }
+        ++m_lastImageId;
+
+        m_images.insert(m_lastImageId, Image{image, m_cellSize});
+        m_imageOrder.append(m_lastImageId);
+        m_imageBytes += image.sizeInBytes();
+
+        while (m_imageBytes > maxImageBytes && m_imageOrder.size() > 1)
+            m_imageBytes -= m_images.take(m_imageOrder.takeFirst()).image.sizeInBytes();
+
+        return m_lastImageId;
+    }
+
+    // Puts the image at the cursor, one tile per cell, and leaves the cursor on
+    // a fresh line below it, as a terminal with sixel scrolling does.
+    void placeImage(const QImage &image)
+    {
+        if (image.isNull() || m_cellSize.isEmpty())
+            return;
+
+        VTermState *state = vterm_obtain_state(m_vterm.get());
+        VTermPos pos;
+
+        if (vterm_state_get_at_phantom(state)) {
+            // The last column is written, the image belongs on the next line
+            vterm_state_index(state);
+            vterm_state_get_cursorpos(state, &pos);
+            vterm_state_set_cursorpos(state, VTermPos{.row = pos.row, .col = 0});
+        }
+
+        vterm_state_get_cursorpos(state, &pos);
+
+        const QSize live = liveSize();
+        const int startColumn = qBound(0, pos.col, live.width() - 1);
+        const int rows = qMin(qCeil(image.height() / m_cellSize.height()), ImageCell::maxRow + 1);
+        const int columns = qMin(qCeil(image.width() / m_cellSize.width()),
+                                 qMin(live.width() - startColumn, ImageCell::maxColumn + 1));
+
+        if (rows < 1 || columns < 1)
+            return;
+
+        const int id = addImage(image);
+
+        VTermScreenCell cell{};
+        // An image cell is not blank: the space keeps it from being trimmed as
+        // trailing whitespace when the lines are reflowed.
+        cell.chars[0] = ' ';
+        cell.width = 1;
+        vterm_state_get_default_colors(state, &cell.fg, &cell.bg);
+
+        for (int row = 0; row < rows; ++row) {
+            vterm_state_get_cursorpos(state, &pos);
+
+            for (int column = 0; column < columns; ++column) {
+                cell.image = ImageCell::tag(id, column, row);
+                const VTermPos cellPos{.row = pos.row, .col = startColumn + column};
+                vterm_screen_set_cell(m_vtermScreen, cellPos, &cell);
+            }
+
+            invalidate(VTermRect{.start_row = pos.row,
+                                 .end_row = pos.row + 1,
+                                 .start_col = startColumn,
+                                 .end_col = startColumn + columns});
+
+            // Scrolls once the image reaches the bottom, so that the row the
+            // cursor ends up on is below the image either way.
+            vterm_state_index(state);
+        }
+
+        vterm_state_get_cursorpos(state, &pos);
+        vterm_state_set_cursorpos(state, VTermPos{.row = pos.row, .col = 0});
+    }
+
     int setTerminalProperties(VTermProp prop, VTermValue *val)
     {
         switch (prop) {
@@ -753,6 +994,22 @@ struct TerminalSurfacePrivate
     bool m_uriTooLong{false};
     QHash<QByteArray, int> m_uriIds;
     QStringList m_uris;
+
+    struct Image
+    {
+        QImage image;
+        // The cell size the image was laid out for, so that it keeps its place
+        // in the text when the font changes size afterwards.
+        QSizeF cellSize;
+    };
+
+    SixelDecoder m_sixel;
+    VTermPos m_sixelOrigin{};
+    QHash<int, Image> m_images;
+    QList<int> m_imageOrder;
+    qint64 m_imageBytes{0};
+    int m_lastImageId{0};
+    QSizeF m_cellSize{defaultCellSize};
 };
 
 TerminalSurface::TerminalSurface(QSize initialGridSize)
@@ -861,8 +1118,30 @@ std::optional<Hyperlink> TerminalSurface::hyperlinkAt(QPoint gridPos) const
     return Hyperlink{d->m_uris.at(id - 1), start, end};
 }
 
+void TerminalSurface::setCellSize(QSizeF cellSize)
+{
+    d->m_cellSize = cellSize.isEmpty() ? defaultCellSize : cellSize;
+}
+
+std::optional<ImageTile> TerminalSurface::imageTile(quint32 tag) const
+{
+    const auto it = d->m_images.constFind(ImageCell::id(tag));
+    if (it == d->m_images.constEnd())
+        return std::nullopt;
+
+    const QSizeF cell = it->cellSize;
+    const QPointF topLeft{ImageCell::column(tag) * cell.width(),
+                          ImageCell::row(tag) * cell.height()};
+
+    return ImageTile{it->image, QRectF{topLeft, cell}};
+}
+
 void TerminalSurface::clearAll()
 {
+    d->m_images.clear();
+    d->m_imageOrder.clear();
+    d->m_imageBytes = 0;
+
     // Fake a scrollback clearing
     QByteArray data{"\x1b[3J"};
     vterm_input_write(d->m_vterm.get(), data.constData(), data.size());

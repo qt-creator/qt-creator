@@ -6,6 +6,7 @@ add_qtc_library(TerminalLib
     glyphcache.cpp glyphcache.h
     keys.cpp keys.h
     scrollback.cpp scrollback.h
+    sixel.cpp sixel.h
     surfaceintegration.h
     terminal_global.h
     terminal.qrc

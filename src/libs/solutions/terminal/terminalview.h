@@ -186,6 +186,14 @@ protected:
 
     void setupSurface();
 
+    // A row of cells showing consecutive tiles of one image, painted in one go
+    struct ImageRun
+    {
+        quint32 tag{0};
+        QPoint start;
+        int count{0};
+    };
+
     int paintCell(QPainter &p,
                   const QRectF &cellRect,
                   QPoint gridPos,
@@ -193,6 +201,7 @@ protected:
                   QFont &f,
                   QList<SearchHit>::const_iterator &searchIt) const;
     void paintCells(QPainter &painter, QPaintEvent *event) const;
+    void paintImages(QPainter &painter, const QList<ImageRun> &runs) const;
     void paintCursor(QPainter &painter) const;
     void paintPreedit(QPainter &painter) const;
     bool paintFindMatches(QPainter &painter,

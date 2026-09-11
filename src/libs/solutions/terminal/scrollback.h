@@ -7,6 +7,7 @@
 #include <vterm.h>
 
 #include <deque>
+#include <functional>
 #include <vector>
 
 namespace TerminalSolution {
@@ -23,6 +24,7 @@ public:
         void close();
 
         const std::vector<VTermScreenCell> &chars() const { return m_chars; }
+        std::vector<VTermScreenCell> &cells() { return m_chars; }
         bool isEmpty() const { return m_chars.empty(); }
 
         int rowCount(int cols) const;
@@ -59,6 +61,9 @@ public:
     void appendLine(Line line);
     Line takeLastLine();
     void closeLastLine();
+
+    // Calls `visit` for every cell that is kept, to rewrite what they refer to
+    void visitCells(const std::function<void(VTermScreenCell &)> &visit);
 
     void setBlank(const VTermScreenCell &blank);
     const VTermScreenCell *row(int index) const;

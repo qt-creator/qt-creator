@@ -1,0 +1,212 @@
+#!/usr/bin/python3
+
+import sys
+
+# Python picks the locale encoding when stdout is not a console, which on
+# Windows cannot encode any of the characters below.
+sys.stdout.reconfigure(encoding='utf-8')
+
+RESET = '\x1b[0m'
+
+
+class Image:
+  """A bitmap that keeps its own palette, the way a sixel image does."""
+
+  def __init__(self, width, height):
+    self.width = width
+    self.height = height
+    self.rows = [[None] * width for _ in range(height)]
+    self.palette = []
+    self.registers = {}
+
+  def register(self, color):
+    if color not in self.registers:
+      self.registers[color] = len(self.palette)
+      self.palette.append(color)
+    return self.registers[color]
+
+  def put(self, x, y, color):
+    if 0 <= x < self.width and 0 <= y < self.height:
+      self.rows[y][x] = self.register(color)
+
+
+def rle(sixels):
+  """The format's own run length encoding, !Pn before the repeated sixel."""
+  out = []
+  run = 1
+  for i in range(1, len(sixels) + 1):
+    if i < len(sixels) and sixels[i] == sixels[i - 1]:
+      run += 1
+      continue
+    out.append(f'!{run}{sixels[i - 1]}' if run > 3 else sixels[i - 1] * run)
+    run = 1
+  return ''.join(out)
+
+
+def encode(image):
+  out = [f'\x1bP0;1;0q"1;1;{image.width};{image.height}']
+
+  for i, (r, g, b) in enumerate(image.palette):
+    out.append(f'#{i};2;{r * 100 // 255};{g * 100 // 255};{b * 100 // 255}')
+
+  for top in range(0, image.height, 6):
+    band = image.rows[top:top + 6]
+    used = sorted({p for row in band for p in row if p is not None})
+    for n, color in enumerate(used):
+      if n:
+        out.append('$')  # back to the left edge, same band
+      sixels = []
+      for x in range(image.width):
+        bits = 0
+        for bit, row in enumerate(band):
+          if row[x] == color:
+            bits |= 1 << bit
+        sixels.append(chr(0x3f + bits))
+      out.append(f'#{color}' + rle(sixels))
+    out.append('-')  # one band down
+
+  out.append('\x1b\\')
+  return ''.join(out)
+
+
+def hint(text):
+  print(f'\x1b[1m ⎆ {text}\x1b[0m')
+
+
+def show(image):
+  sys.stdout.write(encode(image))
+  sys.stdout.flush()
+
+
+def bars(width, height, colors):
+  image = Image(width, height)
+  step = width / len(colors)
+  for x in range(width):
+    for y in range(height):
+      image.put(x, y, colors[min(int(x / step), len(colors) - 1)])
+  return image
+
+
+def gradient(width, height):
+  image = Image(width, height)
+  for y in range(height):
+    for x in range(width):
+      # Quantized, so that the palette stays inside the 256 registers
+      red = 255 * x // (width - 1) // 51 * 51
+      green = 255 * y // (height - 1) // 51 * 51
+      image.put(x, y, (red, green, 128))
+  return image
+
+
+def disc(diameter, color):
+  image = Image(diameter, diameter)
+  radius = diameter / 2
+  for y in range(diameter):
+    for x in range(diameter):
+      if (x + 0.5 - radius) ** 2 + (y + 0.5 - radius) ** 2 <= radius ** 2:
+        image.put(x, y, color)
+  return image
+
+
+def checkerboard(width, height, size, first, second):
+  image = Image(width, height)
+  for y in range(height):
+    for x in range(width):
+      image.put(x, y, first if (x // size + y // size) % 2 else second)
+  return image
+
+
+def frame(width, height, color):
+  image = Image(width, height)
+  for x in range(width):
+    image.put(x, 0, color)
+    image.put(x, height - 1, color)
+  for y in range(height):
+    image.put(0, y, color)
+    image.put(width - 1, y, color)
+  return image
+
+
+def colors():
+  hint('Six colors in equal bars: red green blue cyan magenta yellow')
+  show(bars(240, 24, [(255, 0, 0), (0, 255, 0), (0, 0, 255),
+                      (0, 255, 255), (255, 0, 255), (255, 255, 0)]))
+  print()
+
+  hint('A gradient: red rises to the right, green downwards, in even steps')
+  show(gradient(300, 60))
+  print()
+
+  hint('The palette the format starts with, registers 0 to 15, undefined')
+  # No color is defined here, so the terminal's own default palette shows
+  sixels = ''.join(f'#{i}' + '~' * 8 for i in range(16))
+  sys.stdout.write(f'\x1bP0;1;0q"1;1;128;6{sixels}\x1b\\')
+  print()
+
+
+def geometry():
+  hint('A square: as wide as it is tall, whatever the font size is')
+  show(frame(96, 96, (200, 200, 200)))
+  print()
+
+  hint('A disc: round, and the corners around it show the background')
+  show(disc(96, (80, 160, 255)))
+  print()
+
+  hint('A checkerboard: even squares, straight edges, no smearing')
+  show(checkerboard(128, 64, 8, (255, 255, 255), (0, 0, 0)))
+  print()
+
+  hint('Sizes that are not whole cells: each one grows by a pixel')
+  for width in range(20, 27):
+    show(bars(width, 8, [(255, 128, 0)]))
+  print()
+
+  hint('Wider than the terminal: clipped at the right edge, not scaled')
+  show(bars(4000, 12, [(255, 0, 0), (0, 255, 0), (0, 0, 255)]))
+  print()
+
+
+def placement():
+  hint('An image sits where the cursor is, and the text goes on below it')
+  print('before ', end='')
+  show(disc(48, (255, 200, 0)))
+  print('after')
+  print()
+
+  # One band of six pixels is one row, whatever the font size is, so the
+  # cursor gets back onto the image with a single move up.
+  hint('Images side by side, and text beside them, all on the one row')
+  show(bars(160, 6, [(255, 0, 0), (255, 128, 0)]))
+  sys.stdout.write('\x1b[1A\x1b[40C')
+  show(bars(160, 6, [(0, 160, 255), (0, 80, 255)]))
+  sys.stdout.write('\x1b[1A\x1b[80C')
+  print('and text')
+  print()
+
+  hint('Text written over an image covers just the cells it lands on')
+  show(checkerboard(240, 6, 3, (0, 120, 0), (0, 60, 0)))
+  sys.stdout.write('\x1b[1A\x1b[4C')
+  print(f'\x1b[1;97mover the image{RESET}')
+  print()
+
+  hint('Erasing the line an image is on takes the image with it')
+  show(bars(120, 6, [(255, 0, 0)]))
+  sys.stdout.write('\x1b[1A\x1b[2K')
+  print('the bar above is gone')
+  print()
+
+
+def scrolling():
+  hint('A tall image scrolls the screen, and stays whole in the scrollback')
+  show(gradient(200, 400))
+  print()
+
+  hint('Scroll back up: the images above are still there, in their place')
+  print()
+
+
+if __name__ == '__main__':
+  for section in (colors, geometry, placement, scrolling):
+    section()
+    print()

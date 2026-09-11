@@ -7,7 +7,9 @@
 
 #include "celliterator.h"
 
+#include <QImage>
 #include <QKeyEvent>
+#include <QRectF>
 #include <QSize>
 #include <QTextCharFormat>
 
@@ -23,6 +25,32 @@ struct TerminalSurfacePrivate;
 
 enum ColorIndex { Foreground = 16, Background = 17 };
 
+// A cell that shows part of an image names the image and the tile of it the
+// cell covers, packed into the one number a cell carries.
+namespace ImageCell {
+constexpr int columnBits = 10;
+constexpr int rowBits = 10;
+
+constexpr int maxId = (1 << (32 - columnBits - rowBits)) - 1;
+constexpr int maxColumn = (1 << columnBits) - 1;
+constexpr int maxRow = (1 << rowBits) - 1;
+
+inline quint32 tag(int id, int column, int row)
+{
+    return (quint32(id) << (columnBits + rowBits)) | (quint32(column) << rowBits) | quint32(row);
+}
+inline int id(quint32 tag) { return int(tag >> (columnBits + rowBits)); }
+inline int column(quint32 tag) { return int((tag >> rowBits) & maxColumn); }
+inline int row(quint32 tag) { return int(tag & maxRow); }
+} // namespace ImageCell
+
+struct ImageTile
+{
+    QImage image;
+    // The pixels of the image the cell shows, which may reach past its edge
+    QRectF source;
+};
+
 struct TerminalCell
 {
     int width;
@@ -33,6 +61,7 @@ struct TerminalCell
     std::variant<int, QColor> backgroundColor;
     QTextCharFormat::UnderlineStyle underlineStyle{QTextCharFormat::NoUnderline};
     bool strikeOut{false};
+    quint32 image{0};
 };
 
 struct Hyperlink
@@ -85,6 +114,15 @@ public:
     int cellWidthAt(int x, int y) const;
 
     std::optional<Hyperlink> hyperlinkAt(QPoint gridPos) const;
+
+    // The size of a cell in device pixels, which decides how many cells an
+    // image takes up and is what an application is told when it asks how much
+    // room it has. Device pixels, so that an application draws an image at the
+    // resolution of the screen rather than at a fraction of it.
+    void setCellSize(QSizeF cellSize);
+
+    // The image the cell tag refers to, if it is still around.
+    std::optional<ImageTile> imageTile(quint32 tag) const;
 
     QSize liveSize() const;
     QSize fullSize() const;

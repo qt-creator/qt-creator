@@ -44,6 +44,7 @@ private:
 
     ClipboardRecorder m_recorder;
     std::unique_ptr<TerminalSurface> m_surface;
+    QByteArray m_written;
 
     QString textAt(int y) const
     {
@@ -57,8 +58,12 @@ private slots:
     void initSurface(QSize size)
     {
         m_recorder.writes.clear();
+        m_written.clear();
         m_surface = std::make_unique<TerminalSurface>(size);
-        m_surface->setWriteToPty([](const QByteArray &data) { return qint64(data.size()); });
+        m_surface->setWriteToPty([this](const QByteArray &data) {
+            m_written += data;
+            return qint64(data.size());
+        });
         m_surface->setSurfaceIntegration(&m_recorder);
     }
 
@@ -1068,6 +1073,260 @@ private slots:
 
         m_surface->dataFromPty("\x1b[?2004l");
         QVERIFY(!m_surface->isBracketedPasteEnabled());
+    }
+
+    // The introducer and the terminator around the data of a sixel image
+    static QByteArray sixel(const QByteArray &data) { return "\x1bP0;0;0q" + data + "\x1b\\"; }
+
+    // An image one pixel wide and `count` bands of six pixels tall
+    static QByteArray bands(int count)
+    {
+        QByteArray data = "#0;2;100;0;0~";
+        for (int i = 1; i < count; ++i)
+            data += "-~";
+        return sixel(data);
+    }
+
+    void anImageCoversTheCellsItNeeds()
+    {
+        m_surface->setCellSize({10, 20});
+
+        // 25 pixels wide and 6 tall: three cells wide, one high
+        m_surface->dataFromPty(sixel("#0;2;100;0;0!25~"));
+
+        for (int x = 0; x < 3; ++x) {
+            const quint32 tag = m_surface->fetchCell(x, 0).image;
+            QVERIFY2(tag != 0, qPrintable(QString("no image in cell %1").arg(x)));
+            QCOMPARE(ImageCell::column(tag), x);
+            QCOMPARE(ImageCell::row(tag), 0);
+        }
+
+        QCOMPARE(m_surface->fetchCell(3, 0).image, 0u);
+    }
+
+    void anImageStartsAtTheCursorAndEndsOnAFreshLine()
+    {
+        m_surface->setCellSize({10, 20});
+
+        m_surface->dataFromPty("ab" + sixel("#0;2;100;0;0!25~"));
+        m_surface->dataFromPty("below");
+
+        QCOMPARE(m_surface->fetchCell(1, 0).image, 0u);
+        QVERIFY(m_surface->fetchCell(2, 0).image != 0);
+        QCOMPARE(textAt(1), QString("below"));
+    }
+
+    void aLineBreakInTheDataDoesNotMoveTheImage()
+    {
+        m_surface->setCellSize({10, 20});
+
+        // Some encoders wrap their output, and the line break moves the cursor
+        m_surface->dataFromPty(sixel("#0;2;100;0;0!25~\r\n-!25~"));
+
+        QVERIFY(m_surface->fetchCell(0, 0).image != 0);
+        QCOMPARE(m_surface->cursor().position.y(), 1);
+    }
+
+    void anImageAfterAFullLineStartsOnTheNextOne()
+    {
+        initSurface({20, 5});
+        m_surface->setCellSize({10, 20});
+
+        // A line filled to its last column leaves the cursor in the phantom
+        // column, where the next character would wrap
+        m_surface->dataFromPty("\x1b[5;1H" + QByteArray(20, 'a'));
+        m_surface->dataFromPty(sixel("#0;2;100;0;0!25~"));
+        m_surface->dataFromPty("X");
+
+        const int rows = m_surface->fullSize().height();
+        QCOMPARE(rowText(rows - 3).trimmed(), QString(20, 'a'));
+        QVERIFY(m_surface->fetchCell(0, rows - 2).image != 0);
+        QCOMPARE(rowText(rows - 1).trimmed(), QString("X"));
+    }
+
+    void theCellsOfAnImageFindTheirPartOfIt()
+    {
+        m_surface->setCellSize({10, 20});
+
+        m_surface->dataFromPty(sixel("#0;2;100;0;0!25~"));
+
+        const quint32 tag = m_surface->fetchCell(1, 0).image;
+        const std::optional<ImageTile> tile = m_surface->imageTile(tag);
+        QVERIFY(tile);
+        QCOMPARE(tile->image.size(), QSize(25, 6));
+        QCOMPARE(tile->source, QRectF(10, 0, 10, 20));
+    }
+
+    void anImageTallerThanTheScreenScrollsIt()
+    {
+        initSurface({20, 5});
+        m_surface->setCellSize({10, 6});
+
+        m_surface->dataFromPty(bands(6));
+
+        // Six rows of image and the row the cursor was left on, in five rows of
+        // screen and two of scrollback
+        QCOMPARE(m_surface->fullSize().height(), 7);
+
+        const int id = ImageCell::id(m_surface->fetchCell(0, 0).image);
+        QVERIFY(id != 0);
+        for (int y = 0; y < 6; ++y) {
+            const quint32 tag = m_surface->fetchCell(0, y).image;
+            QCOMPARE(ImageCell::id(tag), id);
+            QCOMPARE(ImageCell::row(tag), y);
+        }
+        QCOMPARE(m_surface->fetchCell(0, 6).image, 0u);
+    }
+
+    void theEmptySpaceAroundAnImageIsNotPartOfIt()
+    {
+        initSurface({20, 5});
+        m_surface->setCellSize({10, 6});
+
+        // Tall enough that the top row of the screen is a row of the image
+        m_surface->dataFromPty(bands(8));
+
+        QVERIFY(m_surface->fullSize().height() > m_surface->liveSize().height());
+        QVERIFY(m_surface->fetchCell(0, 0).image != 0);
+        QCOMPARE(m_surface->fetchCell(5, 0).image, 0u);
+    }
+
+    void anImageIdThatComesRoundAgainLeavesNoCellNamingIt()
+    {
+        initSurface({20, 5});
+        m_surface->setCellSize({10, 20});
+
+        const QByteArray image = sixel("#0;2;100;0;0!25~");
+        m_surface->dataFromPty(image);
+
+        const quint32 first = m_surface->fetchCell(0, 0).image;
+        QVERIFY(first != 0);
+        QVERIFY(m_surface->imageTile(first));
+
+        // Use up the ids, so that the next image is given the one of the first
+        for (int i = 0; i < ImageCell::maxId; ++i)
+            m_surface->dataFromPty(image);
+
+        // The id belongs to one of the new images now, so the cells of the
+        // first one must not be naming it any more: they would show it.
+        QCOMPARE(m_surface->fetchCell(0, 0).image, 0u);
+
+        // What was drawn after the ids came round is still shown
+        const int lastRow = m_surface->fullSize().height() - 2;
+        QVERIFY(m_surface->imageTile(m_surface->fetchCell(0, lastRow).image));
+    }
+
+    void anImageIdComingRoundOnTheAltscreenClearsThePrimaryToo()
+    {
+        initSurface({20, 5});
+        m_surface->setCellSize({10, 20});
+
+        const QByteArray image = sixel("#0;2;100;0;0!25~");
+        m_surface->dataFromPty(image);
+        QVERIFY(m_surface->fetchCell(0, 0).image != 0);
+
+        // The primary screen keeps its cells while the altscreen is up, so the
+        // ids coming round there have to reach them as well
+        m_surface->dataFromPty("\x1b[?1049h");
+        for (int i = 0; i < ImageCell::maxId; ++i)
+            m_surface->dataFromPty(image);
+        m_surface->dataFromPty("\x1b[?1049l");
+
+        QCOMPARE(m_surface->fetchCell(0, 0).image, 0u);
+    }
+
+    void textWrittenOverAnImageCoversIt()
+    {
+        m_surface->setCellSize({10, 20});
+
+        m_surface->dataFromPty(sixel("#0;2;100;0;0!25~"));
+        m_surface->dataFromPty("\x1b[H"
+                               "x");
+
+        QCOMPARE(m_surface->fetchCell(0, 0).image, 0u);
+        QVERIFY(m_surface->fetchCell(1, 0).image != 0);
+    }
+
+    void erasingTheScreenRemovesTheImage()
+    {
+        m_surface->setCellSize({10, 20});
+
+        m_surface->dataFromPty(sixel("#0;2;100;0;0!25~"));
+        m_surface->dataFromPty("\x1b[2J");
+
+        QCOMPARE(m_surface->fetchCell(0, 0).image, 0u);
+    }
+
+    void anImageInTheScrollbackSurvivesARewrap()
+    {
+        initSurface({20, 5});
+        m_surface->setCellSize({10, 20});
+
+        m_surface->dataFromPty(sixel("#0;2;100;0;0!25~"));
+        for (int i = 0; i < 10; ++i)
+            m_surface->dataFromPty("filler\r\n");
+
+        QVERIFY(m_surface->fullSize().height() > m_surface->liveSize().height());
+        const quint32 before = m_surface->fetchCell(2, 0).image;
+        QVERIFY(before != 0);
+
+        resizeTo({10, 5});
+
+        QCOMPARE(m_surface->fetchCell(2, 0).image, before);
+        QVERIFY(m_surface->imageTile(before));
+    }
+
+    void clearingTheTerminalForgetsTheImages()
+    {
+        m_surface->setCellSize({10, 20});
+
+        m_surface->dataFromPty(sixel("#0;2;100;0;0!25~"));
+        const quint32 tag = m_surface->fetchCell(0, 0).image;
+        QVERIFY(m_surface->imageTile(tag));
+
+        m_surface->clearAll();
+
+        QVERIFY(!m_surface->imageTile(tag));
+    }
+
+    void aStringThatOnlyLooksLikeASixelIsNotOne()
+    {
+        m_surface->setCellSize({10, 20});
+
+        // XTGETTCAP, which ends in a q as well
+        m_surface->dataFromPty("\x1bP+q544e\x1b\\"
+                               "text");
+
+        QCOMPARE(textAt(0), QString("text"));
+        QCOMPARE(m_surface->fetchCell(0, 0).image, 0u);
+    }
+
+    void theDeviceAttributesReportSixelSupport()
+    {
+        m_surface->dataFromPty("\x1b[c");
+
+        QTRY_COMPARE(m_written, QByteArray("\x1b[?1;2;4c"));
+    }
+
+    void theRoomAnImageHasIsReported()
+    {
+        initSurface({80, 24});
+        m_surface->setCellSize({10, 20});
+
+        m_surface->dataFromPty("\x1b[?2;1S");
+        QTRY_COMPARE(m_written, QByteArray("\x1b[?2;0;800;480S"));
+
+        m_written.clear();
+        m_surface->dataFromPty("\x1b[?1;1S");
+        QTRY_COMPARE(m_written, QByteArray("\x1b[?1;0;256S"));
+
+        m_written.clear();
+        m_surface->dataFromPty("\x1b[14t");
+        QTRY_COMPARE(m_written, QByteArray("\x1b[4;480;800t"));
+
+        m_written.clear();
+        m_surface->dataFromPty("\x1b[16t");
+        QTRY_COMPARE(m_written, QByteArray("\x1b[6;20;10t"));
     }
 };
 

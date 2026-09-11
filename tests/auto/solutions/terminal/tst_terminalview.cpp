@@ -69,6 +69,18 @@ public:
                                true});
     }
 
+    QPoint viewportPos(QPoint gridPos) const
+    {
+        return globalToViewport(gridToGlobal(gridPos).toPoint()) + QPoint(1, 1);
+    }
+
+    QImage renderViewport()
+    {
+        QImage image(viewport()->size(), QImage::Format_ARGB32);
+        viewport()->render(&image);
+        return image;
+    }
+
     void ctrlHover(QPoint gridPos)
     {
         const QPoint pos = viewportPos(gridPos);
@@ -94,12 +106,6 @@ public:
                           Qt::LeftButton,
                           Qt::ControlModifier);
         QCoreApplication::sendEvent(viewport(), &press);
-    }
-
-private:
-    QPoint viewportPos(QPoint gridPos) const
-    {
-        return globalToViewport(gridToGlobal(gridPos).toPoint()) + QPoint(1, 1);
     }
 };
 
@@ -276,6 +282,43 @@ private slots:
                                 .arg(m_view->ptyResizes.size())));
 
         QCOMPARE(m_view->ptyResizes.last(), m_view->surface()->liveSize());
+    }
+
+    void anImageIsPaintedOverTheCellsItCovers()
+    {
+        std::array<QColor, 20> colors;
+        colors.fill(Qt::black);
+        m_view->setColors(colors);
+
+        // A sixel image of 20 by 12 red pixels, which is a few cells wide
+        m_view->writeToTerminal("\x1bP0;1;0q\"1;1;20;12#0;2;100;0;0!20~-!20~\x1b\\", true);
+
+        const QImage rendered = m_view->renderViewport();
+
+        QCOMPARE(rendered.pixelColor(m_view->viewportPos({0, 0}) + QPoint(3, 3)), QColor(Qt::red));
+        QCOMPARE(rendered.pixelColor(m_view->viewportPos({20, 0})), QColor(Qt::black));
+    }
+
+
+    void aSelectionShowsOnAnImage()
+    {
+        std::array<QColor, 20> colors;
+        colors.fill(Qt::black);
+        // The selection colour of a theme is translucent, as it is painted over
+        // what it selects
+        colors[int(TerminalView::WidgetColorIdx::Selection)] = QColor(0, 0, 255, 0x7f);
+        m_view->setColors(colors);
+
+        m_view->writeToTerminal("\x1bP0;1;0q\"1;1;20;12#0;2;100;0;0!20~-!20~\x1b\\", true);
+
+        const QPoint inside = m_view->viewportPos({0, 0}) + QPoint(3, 3);
+        QCOMPARE(m_view->renderViewport().pixelColor(inside), QColor(Qt::red));
+
+        m_view->selectAll();
+        QVERIFY(m_view->selection());
+
+        // The image would cover the selection if it were only painted under it
+        QVERIFY(m_view->renderViewport().pixelColor(inside) != QColor(Qt::red));
     }
 
     void plainTextIsNotALink()
