@@ -33,6 +33,7 @@
 
 #ifdef WITH_TESTS
 #include <QTest>
+#include <QTextDocument>
 #endif
 
 using namespace TextEditor;
@@ -112,15 +113,15 @@ static bool isValidIdentifierChar(const QChar &chr)
     return chr.isLetterOrNumber() || chr == '_' || chr == '-';
 }
 
+// Where the word that ends at the position starts.  A word that starts the
+// file starts at nought, which is a position of its own and not the want of
+// one.
 static int findWordStart(const AssistInterface *interface, int pos)
 {
-    // Find start position
-    QChar chr;
-    do {
-        chr = interface->characterAt(--pos);
-    } while (pos > 0 && isValidIdentifierChar(chr));
+    while (pos > 0 && isValidIdentifierChar(interface->characterAt(pos - 1)))
+        --pos;
 
-    return ++pos;
+    return pos;
 }
 
 static int findFunctionStart(const AssistInterface *interface)
@@ -1113,6 +1114,40 @@ class CMakeFunctionHintTest final : public QObject
     }
 
 private slots:
+    // The call a position stands in.  A file that opens with one is what
+    // the CMakeLists.txt of a plugin looks like, and the name of the
+    // command starts at nought there.
+    void testTheCallAPositionStandsIn()
+    {
+        const QString source = "add_qtc_plugin(CMakeProjectManager\n"
+                               "  PLUGIN_CLASS CMakeProjectPlugin\n"
+                               "  SOURCES foo.cpp\n"
+                               ")\n";
+        QTextDocument document(source);
+
+        const auto nameAt = [&document](int position) {
+            QTextCursor cursor(&document);
+            cursor.setPosition(position);
+            const AssistInterface interface(cursor, {}, TextEditor::ExplicitlyInvoked);
+
+            const int end = findFunctionStart(&interface);
+            if (end <= findFunctionEnd(&interface))
+                return QString();
+
+            const int start = findWordStart(&interface, end);
+            return interface.textAt(start, end - start);
+        };
+
+        // Behind the parenthesis that opens the call.
+        QCOMPARE(nameAt(source.indexOf(u'(') + 1), "add_qtc_plugin");
+
+        // On the keyword that is being written.
+        QCOMPARE(nameAt(source.indexOf("PLUGIN_CLASS") + 6), "add_qtc_plugin");
+
+        // On the last line of the call.
+        QCOMPARE(nameAt(source.indexOf("foo.cpp")), "add_qtc_plugin");
+    }
+
     // What the hint shows before an argument is written is the call it
     // stands on, and what that call does.
     void testHintOfTheCall()
