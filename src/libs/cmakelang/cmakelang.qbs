@@ -15,12 +15,15 @@ QtcLibrary {
     cpp.includePaths: base.concat([sourceDirectory])
 
     Depends { name: "Parsing" }
+    Depends { name: "RstLang" }
 
     files: [
         "cmakeast.cpp",
         "cmakeast.h",
         "cmakeastvisitor.cpp",
         "cmakeastvisitor.h",
+        "cmakedoc.cpp",
+        "cmakedoc.h",
         "cmakedocument.cpp",
         "cmakedocument.h",
         "cmakeedit.h",
@@ -115,5 +118,6 @@ QtcLibrary {
 
     Export {
         Depends { name: "Parsing" }
+        Depends { name: "RstLang" }
     }
 }

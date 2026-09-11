@@ -37,13 +37,14 @@ endif()
 set_source_files_properties(cmakelang.g PROPERTIES HEADER_FILE_ONLY ON)
 
 add_qtc_library(CMakeLang
-  PUBLIC_DEPENDS Parsing
+  PUBLIC_DEPENDS Parsing RstLang
   DEPENDS Qt::Core
   SOURCES
     cmakelang.g
     cmakelang.h
     cmakeast.cpp cmakeast.h
     cmakeastvisitor.cpp cmakeastvisitor.h
+    cmakedoc.cpp cmakedoc.h
     cmakedocument.cpp cmakedocument.h
     cmakeedit.h
     cmakeformatter.cpp cmakeformatter.h

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <cmakelang/cmakeast.h>
+#include <cmakelang/cmakedoc.h>
 #include <cmakelang/cmakeastvisitor.h>
 #include <cmakelang/cmakedocument.h>
 #include <cmakelang/cmakeformatter.h>
@@ -11,7 +12,17 @@
 #include <cmakelang/cmakerewriter.h>
 #include <cmakelang/cmakesignature.h>
 
+#include <utils/algorithm.h>
+
+#include <QDir>
+#include <QSet>
+#include <QFileInfo>
+#include <QElapsedTimer>
+#include <QFile>
 #include <QTest>
+
+#include <functional>
+#include <optional>
 
 using namespace CMakeLang;
 
@@ -214,6 +225,13 @@ private slots:
     void styleSwitches_data();
     void styleSwitches();
     void formattingKeepsWhatItIsGiven();
+    void documentationComments();
+    void documentationOfModules();
+    void documentationOfIncludedModules();
+    void documentationOfCMakeModules();
+    void documentationOfCMakeHelp();
+    void documentationIgnoresCase();
+    void documentationTellsExamplesApart();
 };
 
 void tst_CMakeLang::lexer_data()
@@ -1492,6 +1510,569 @@ void tst_CMakeLang::formattingKeepsWhatItIsGiven()
     const QString tidied = formatted(source, tidy);
     QCOMPARE(tidied, QString("set(a 1) # note\n"));
     QCOMPARE(formatted(tidied, testStyle()), tidied);
+}
+
+// The way CMake documents a module, and the way a project documents a
+// function of its own: a bracket comment that opens with ".rst:".
+void tst_CMakeLang::documentationComments()
+{
+    const QString source = R"(#[[.rst:
+my_helper
+---------
+
+Does a thing.
+#]]
+function(my_helper target source)
+endfunction()
+
+#.rst:
+# .. command:: other_helper
+#
+#   Does another thing:
+#
+#   .. code-block:: cmake
+#
+#     other_helper(<name>)
+#
+#   ``<name>``
+#     What to call it.
+macro(other_helper name)
+endmacro()
+)";
+
+    const QList<DocComment> comments = CMakeLang::documentationComments(source);
+    QCOMPARE(comments.size(), 2);
+    QCOMPARE(comments.at(0).line, 2);
+    QCOMPARE(comments.at(0).text, "my_helper\n---------\n\nDoes a thing.\n");
+    QCOMPARE(comments.at(1).line, 11);
+
+    const DocumentPtr document = Document::fromSource(source);
+    QVERIFY(document->isValid());
+
+    const QList<Documentation> documentation = CMakeLang::documentation(document);
+    QCOMPARE(documentation.size(), 2);
+
+    // The comment names what it stands in front of, so it documents it.
+    QCOMPARE(documentation.at(0).name, "my_helper");
+    QCOMPARE(documentation.at(0).kind, Documentation::Command);
+    QCOMPARE(documentation.at(0).markdown(), "### my_helper\n\nDoes a thing.");
+
+    QCOMPARE(documentation.at(1).name, "other_helper");
+    QCOMPARE(documentation.at(1).kind, Documentation::Command);
+    QCOMPARE(documentation.at(1).signatures(), QStringList("other_helper(<name>)"));
+
+    const QList<ArgumentDoc> arguments = documentation.at(1).arguments();
+    QCOMPARE(arguments.size(), 1);
+    QCOMPARE(arguments.at(0).name, "<name>");
+    QCOMPARE(arguments.at(0).documentation, "What to call it.");
+
+    // A definition spells its parameters out whether it is documented or
+    // not.
+    CommandAST *definition = document->commands().first();
+    QCOMPARE(definitionSignature(definition), "my_helper(<target> <source>)");
+}
+
+// A module documents itself and the commands it provides.
+void tst_CMakeLang::documentationOfModules()
+{
+    const QString source = R"(#[=[.rst:
+FindPackageMessage
+------------------
+
+This module provides a command.
+
+.. command:: find_package_message
+
+  Prints a message:
+
+  .. code-block:: cmake
+
+    find_package_message(<PackageName> <message> <details>)
+#]=]
+
+function(find_package_message pkg msg details)
+endfunction()
+)";
+
+    const DocumentPtr document = Document::fromSource(source);
+    QVERIFY(document->isValid());
+
+    const QList<Documentation> documentation = CMakeLang::documentation(document);
+    QCOMPARE(documentation.size(), 2);
+
+    QCOMPARE(documentation.at(0).name, "FindPackageMessage");
+    QCOMPARE(documentation.at(0).kind, Documentation::Module);
+
+    QCOMPARE(documentation.at(1).name, "find_package_message");
+    QCOMPARE(documentation.at(1).kind, Documentation::Command);
+    QCOMPARE(documentation.at(1).line, 7);
+    QCOMPARE(documentation.at(1).signatures(),
+             QStringList("find_package_message(<PackageName> <message> <details>)"));
+    QCOMPARE(documentation.at(1).brief(),
+             "### find_package_message\n"
+             "\n"
+             "Prints a message:\n"
+             "\n"
+             "```cmake\n"
+             "find_package_message(<PackageName> <message> <details>)\n"
+             "```");
+}
+
+// A file of the Help of CMake names a module with a directive of its own,
+// and what the ".rst:" comments of that module carry stands in its place.
+static RstLang::ParseOptions cmakeHelpOptions(
+    const std::function<std::optional<QString>(const QString &)> &read)
+{
+    RstLang::ParseOptions options;
+    options.includeDirectives << "cmake-module";
+    options.resolveInclude =
+        [read](const QString &type, const QString &included) -> std::optional<QString> {
+        const std::optional<QString> source = read(included);
+        if (!source || type != "cmake-module")
+            return source;
+
+        QStringList blocks;
+        for (const DocComment &comment : CMakeLang::documentationComments(*source))
+            blocks.append(comment.text);
+        return blocks.join(QLatin1Char(10));
+    };
+    return options;
+}
+
+// The page the Help of CMake gives a module is one line that names the
+// module file, so what is read of the command a module provides is what the
+// module itself spells out.
+void tst_CMakeLang::documentationOfIncludedModules()
+{
+    const QString page = ".. cmake-module:: FindPackageMessage.cmake\n";
+
+    const auto documentationOf = [&page](const QString &module,
+                                         const QString &name) -> Documentation {
+        const RstLang::ParseOptions options = cmakeHelpOptions(
+            [&module](const QString &) { return std::optional<QString>(module); });
+        return documentationFor(RstLang::Document::fromSource(page, options),
+                                name,
+                                Documentation::Command);
+    };
+
+    // A module that says what the command it provides is called documents
+    // it, and the page of the module carries that documentation.
+    const QString declares = R"(#[=[.rst:
+FindPackageMessage
+------------------
+
+This module provides a command.
+
+.. command:: find_package_message
+
+  Prints a message once for each find result:
+
+  .. code-block:: cmake
+
+    find_package_message(<PackageName> <message> <details>)
+#]=]
+
+function(find_package_message pkg msg details)
+endfunction()
+)";
+
+    const Documentation declared = documentationOf(declares, "find_package_message");
+    QVERIFY2(declared.brief().startsWith("### find_package_message"),
+             qPrintable(declared.brief()));
+    QCOMPARE(declared.signatures(),
+             QStringList("find_package_message(<PackageName> <message> <details>)"));
+
+    // A module that only shows the command in use names it nowhere, so
+    // there is nothing of the command to read: what comes back is what the
+    // module is about.  A call that passes a value is no signature of it.
+    const QString shows = R"(#[=[.rst:
+FindPackageMessage
+------------------
+
+.. code-block:: cmake
+
+  find_package_message(<name> "message for user" "find result details")
+
+This function is intended to be used in FindXXX.cmake module files.
+
+Example:
+
+.. code-block:: cmake
+
+  if(X11_FOUND)
+    find_package_message(X11 "Found X11: ${X11_X11_LIB}" "[${X11_X11_LIB}]")
+  endif()
+#]=]
+
+function(find_package_message pkg msg details)
+endfunction()
+)";
+
+    const Documentation shown = documentationOf(shows, "find_package_message");
+    QVERIFY2(shown.brief().startsWith("### FindPackageMessage"),
+             qPrintable(shown.brief()));
+    QCOMPARE(shown.signatures(), QStringList());
+
+    // What the page says of the module is the page, not the block that
+    // documents the command standing in it.
+    const Documentation module = documentationOf(declares, "FindPackageMessage");
+    QVERIFY2(module.brief().startsWith("### FindPackageMessage"),
+             qPrintable(module.brief()));
+    QVERIFY(module.signatures().isEmpty());
+}
+
+// The modules CMake ships, which is where the documentation of the commands
+// they provide is written.  Point QTC_TEST_CMAKE_MODULES_DIR at the
+// "Modules" directory of an installation to run this over all of them.
+void tst_CMakeLang::documentationOfCMakeModules()
+{
+    const QString root = qEnvironmentVariable("QTC_TEST_CMAKE_MODULES_DIR");
+    if (root.isEmpty())
+        QSKIP("QTC_TEST_CMAKE_MODULES_DIR is not set.");
+
+    const QFileInfoList files = QDir(root).entryInfoList({"*.cmake"}, QDir::Files);
+    QVERIFY(!files.isEmpty());
+
+    QSet<QString> names;
+    qint64 bytes = 0;
+    QElapsedTimer timer;
+    timer.start();
+
+    for (const QFileInfo &info : files) {
+        QFile file(info.absoluteFilePath());
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        const QString source = QString::fromUtf8(file.readAll());
+        bytes += source.size();
+
+        const DocumentPtr document = Document::fromSource(source);
+        for (const Documentation &documentation : CMakeLang::documentation(document)) {
+            QVERIFY2(!documentation.name.isEmpty(), qPrintable(info.fileName()));
+            QVERIFY2(documentation.rst->isValid(),
+                     qPrintable(info.fileName() + ": " + documentation.rst->errorString()));
+            names.insert(documentation.name);
+
+            // A signature stands for any call of the command, so what a
+            // module shows by example is none: an example passes a value
+            // where a signature names the argument it stands for.
+            for (const QString &signature : documentation.signatures()) {
+                QVERIFY2(!signature.contains('"') && !signature.contains("${"),
+                         qPrintable(info.fileName() + ": " + signature));
+            }
+        }
+    }
+
+    QVERIFY(!names.isEmpty());
+
+    // The name is the one the documentation spells out.  A module may shout
+    // the definition of what it provides, and a name that is written in
+    // camel case keeps it.
+    QVERIFY(names.contains("check_cxx_source_compiles"));
+    QVERIFY(!names.contains("CHECK_CXX_SOURCE_COMPILES"));
+    QVERIFY(names.contains("FetchContent_Declare"));
+    QVERIFY(names.contains("FetchContent_MakeAvailable"));
+    QVERIFY(names.contains("ExternalProject_Add"));
+
+    qInfo("read %lld bytes of %lld files in %lld ms, %lld names documented",
+          bytes, qint64(files.size()), timer.elapsed(), qint64(names.size()));
+}
+
+// The Help of CMake, read the way the editor reads it: a file of it names
+// another with an include, and the documentation of a module stands in the
+// module itself.  Point QTC_TEST_CMAKE_HELP_DIR at the "Help" directory of
+// an installation to run this.
+void tst_CMakeLang::documentationOfCMakeHelp()
+{
+    const QString root = qEnvironmentVariable("QTC_TEST_CMAKE_HELP_DIR");
+    if (root.isEmpty())
+        QSKIP("QTC_TEST_CMAKE_HELP_DIR is not set.");
+
+    const auto read = [](const QString &path) -> std::optional<QString> {
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly))
+            return {};
+        return QString::fromUtf8(file.readAll());
+    };
+
+    const auto documentationOf = [&](const QString &path,
+                                     const QString &name) -> Documentation {
+        const QDir directory = QFileInfo(path).dir();
+        const RstLang::ParseOptions options = cmakeHelpOptions(
+            [&read, directory](const QString &included) {
+                return read(directory.filePath(included));
+            });
+
+        const std::optional<QString> source = read(path);
+        if (!source)
+            return {};
+        return documentationFor(RstLang::Document::fromSource(*source, options),
+                                name,
+                                Documentation::Command);
+    };
+
+    // A command of CMake itself.  What the Help says of it is rewritten
+    // from one version of CMake to the next, so what is asserted here is
+    // the shape of what is read rather than the wording of it.
+    const Documentation addExecutable
+        = documentationOf(root + "/command/add_executable.rst", "add_executable");
+    const QString addExecutableBrief = addExecutable.brief();
+    QVERIFY2(addExecutableBrief.startsWith("### add_executable"),
+             qPrintable(addExecutableBrief));
+    // Under the name stands what the command is for, and under that the
+    // call it takes.
+    QVERIFY2(addExecutableBrief.contains("```cmake"), qPrintable(addExecutableBrief));
+    const QStringList addExecutableSignatures = addExecutable.signatures();
+    QVERIFY(!addExecutableSignatures.isEmpty());
+    QVERIFY2(addExecutableSignatures.first().startsWith("add_executable("),
+             qPrintable(addExecutableSignatures.first()));
+
+    // A command whose documentation stands in a file of its own, behind an
+    // include, and that names itself through a substitution.
+    const Documentation findFile = documentationOf(root + "/command/find_file.rst",
+                                                   "find_file");
+    QVERIFY(findFile.brief().startsWith("### find_file"));
+    const QStringList findFileSignatures = findFile.signatures();
+    QVERIFY(!findFileSignatures.isEmpty());
+    QVERIFY2(findFileSignatures.first().startsWith("find_file"),
+             qPrintable(findFileSignatures.first()));
+    QVERIFY(!findFile.arguments().isEmpty());
+
+    // A module, whose documentation stands in the module itself rather than
+    // in the page that names it.  Which of the commands a module provides it
+    // documents is a thing every version of CMake decides anew, so what
+    // such a page gives is asserted in documentationOfIncludedModules().
+    const Documentation module = documentationOf(root + "/module/FindPackageMessage.rst",
+                                                 "FindPackageMessage");
+    QVERIFY2(module.brief().startsWith("### FindPackageMessage"),
+             qPrintable(module.brief()));
+
+    // The synopsis of a command is written as a parsed literal: it stands
+    // the way it is written, and the markup it carries is markup.
+    const Documentation cmakePath = documentationOf(root + "/command/cmake_path.rst",
+                                                    "cmake_path");
+    const QString synopsis = cmakePath.brief();
+    QVERIFY2(synopsis.contains("cmake_path(GET <path-var> ROOT_NAME <out-var>)"),
+             qPrintable(synopsis));
+    QVERIFY2(!synopsis.contains("`_"), qPrintable(synopsis));
+
+    for (const QString &signature : cmakePath.signatures())
+        QVERIFY2(!signature.contains("`_"), qPrintable(signature));
+
+    // A command of many modes documents one signature per mode, and the
+    // keyword that opens a mode is an argument of the command.
+    const Documentation file = documentationOf(root + "/command/file.rst", "file");
+    QVERIFY(file.signatures().size() > 20);
+
+    QHash<QString, QString> modes;
+    for (const ArgumentDoc &argument : file.arguments())
+        modes.insert(argument.name, argument.documentation);
+
+    QVERIFY2(modes.contains("WRITE"), qPrintable(QStringList(modes.keys()).join(' ')));
+    const QString write = modes.value("WRITE");
+    QVERIFY2(write.startsWith("```cmake"), qPrintable(write));
+    QVERIFY2(write.contains("file(WRITE <filename> <content>...)"), qPrintable(write));
+    // What the mode means stands under the call that opens it.
+    const QString writeMeans = write.section("```", 2).trimmed();
+    QVERIFY2(!writeMeans.isEmpty(), qPrintable(write));
+
+    // Two modes that share what is said about them each get to say it.
+    const QString append = modes.value("APPEND");
+    QVERIFY2(append.contains("file(APPEND <filename> <content>...)"), qPrintable(append));
+    QCOMPARE(append.section("```", 2).trimmed(), writeMeans);
+
+    // What the mode is called is not part of the call it opens.
+    QVERIFY(!modes.contains("<HASH>"));
+
+    // A call that is too long for one line carries on over the lines below
+    // it, and still is one call.
+    QVERIFY2(modes.contains("COPY_FILE"), qPrintable(QStringList(modes.keys()).join(' ')));
+    const QStringList copyFile = Utils::filtered(file.signatures(), [](const QString &call) {
+        return call.startsWith("file(COPY_FILE");
+    });
+    QCOMPARE(copyFile.size(), 1);
+    QVERIFY2(copyFile.first().contains("[RESULT <result>]"), qPrintable(copyFile.first()));
+
+    // A keyword that takes a value is documented with the value behind it,
+    // which is not what the reader writes.
+    QVERIFY(Utils::anyOf(modes.keys(), [](const QString &name) {
+        return name.startsWith("LIMIT_INPUT ");
+    }));
+}
+
+// CMake reads the name of a command without regard to its case: a module
+// documents "check_cxx_source_compiles" and defines
+// "CHECK_CXX_SOURCE_COMPILES", and both name the same macro.
+void tst_CMakeLang::documentationIgnoresCase()
+{
+    const QString source = R"(#[[.rst:
+CheckCXXSourceCompiles
+----------------------
+
+.. command:: check_cxx_source_compiles
+
+  Check once whether code can be built:
+
+  .. code-block:: cmake
+
+    check_cxx_source_compiles(<code> <resultVar>)
+#]]
+
+macro(CHECK_CXX_SOURCE_COMPILES SOURCE VAR)
+endmacro()
+)";
+
+    const DocumentPtr document = Document::fromSource(source);
+    QVERIFY(document->isValid());
+
+    const QList<Documentation> documentation = CMakeLang::documentation(document);
+    QCOMPARE(documentation.size(), 2);
+
+    // The name is the one the documentation spells, not the one the
+    // definition shouts.
+    const Documentation &command = documentation.at(1);
+    QCOMPARE(command.name, "check_cxx_source_compiles");
+    QCOMPARE(command.kind, Documentation::Command);
+
+    // Whichever way the reader writes it, it is the same command.
+    QVERIFY(command.isNamed("check_cxx_source_compiles"));
+    QVERIFY(command.isNamed("CHECK_CXX_SOURCE_COMPILES"));
+    QVERIFY(command.isNamed("Check_CXX_Source_Compiles"));
+    QVERIFY(!command.isNamed("check_c_source_compiles"));
+    QVERIFY(!command.isNamed(""));
+
+    // The signature is found however the call in the documentation is
+    // written.
+    QCOMPARE(command.signatures(), QStringList("check_cxx_source_compiles(<code> <resultVar>)"));
+
+    // A comment that documents what it stands in front of documents it
+    // whichever way the definition spells the name.
+    const QString shouted = R"(#[[.rst:
+my_helper
+---------
+
+Does a thing.
+#]]
+macro(MY_HELPER target)
+endmacro()
+)";
+
+    const QList<Documentation> helper = CMakeLang::documentation(
+        Document::fromSource(shouted));
+    QCOMPARE(helper.size(), 1);
+    QCOMPARE(helper.at(0).name, "my_helper");
+    QCOMPARE(helper.at(0).kind, Documentation::Command);
+
+    // The documentation of a command whose name is written in camel case
+    // keeps it, which is the way its module spells it.
+    const QString camel = R"(#[[.rst:
+.. command:: ExternalProject_Add
+
+  Adds a project:
+
+  .. code-block:: cmake
+
+    ExternalProject_Add(<name> [<option>...])
+#]]
+function(externalproject_add name)
+endfunction()
+)";
+
+    const QList<Documentation> external = CMakeLang::documentation(
+        Document::fromSource(camel));
+    QCOMPARE(external.size(), 1);
+    QCOMPARE(external.at(0).name, "ExternalProject_Add");
+    QVERIFY(external.at(0).isNamed("externalproject_add"));
+    QCOMPARE(external.at(0).signatures(),
+             QStringList("ExternalProject_Add(<name> [<option>...])"));
+
+    QVERIFY(isSameCommand("file", "FILE"));
+    QVERIFY(!isSameCommand("file", "files"));
+}
+
+// What the documentation of a command shows by example is not the way the
+// command is called: an example passes arguments rather than standing for
+// them, and what stands under a heading or behind a paragraph that
+// announces an example shows a use of the command.
+void tst_CMakeLang::documentationTellsExamplesApart()
+{
+    const QString numbered = R"(#[[.rst:
+FeatureSummary
+--------------
+
+.. command:: feature_summary
+
+  Logs what was found:
+
+  .. code-block:: cmake
+
+    feature_summary(WHAT <what> [FILENAME <file>])
+
+  Example 1, append everything to a log file:
+
+  .. code-block:: cmake
+
+    feature_summary(WHAT ALL FILENAME ${CMAKE_BINARY_DIR}/all.log APPEND)
+
+  Example 2, tell what was found:
+
+  .. code-block:: cmake
+
+    feature_summary(WHAT PACKAGES_FOUND DESCRIPTION "Build tools found:")
+#]]
+)";
+
+    const QList<Documentation> feature = CMakeLang::documentation(
+        Document::fromSource(numbered));
+    QCOMPARE(feature.size(), 2);
+    QCOMPARE(feature.at(1).name, "feature_summary");
+    QCOMPARE(feature.at(1).signatures(),
+             QStringList("feature_summary(WHAT <what> [FILENAME <file>])"));
+
+    // A heading that announces an example says of every block under it
+    // that it shows one, whatever the call in it looks like.
+    const QString heading = R"(#[[.rst:
+my_module
+---------
+
+Sets a target up:
+
+.. code-block:: cmake
+
+  my_module(<target>)
+
+Example
+^^^^^^^
+
+.. code-block:: cmake
+
+  my_module(app)
+#]]
+)";
+
+    const QList<Documentation> module = CMakeLang::documentation(
+        Document::fromSource(heading));
+    QCOMPARE(module.size(), 1);
+    QCOMPARE(module.at(0).name, "my_module");
+    QCOMPARE(module.at(0).signatures(), QStringList("my_module(<target>)"));
+
+    // So does the paragraph that opens the block.
+    const QString paragraph = R"(#[[.rst:
+my_helper
+---------
+
+Does a thing::
+
+  my_helper(<target>)
+
+For example::
+
+  my_helper(app)
+#]]
+)";
+
+    const QList<Documentation> helper = CMakeLang::documentation(
+        Document::fromSource(paragraph));
+    QCOMPARE(helper.size(), 1);
+    QCOMPARE(helper.at(0).signatures(), QStringList("my_helper(<target>)"));
 }
 
 QTEST_GUILESS_MAIN(tst_CMakeLang)
