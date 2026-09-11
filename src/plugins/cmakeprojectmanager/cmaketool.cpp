@@ -229,15 +229,17 @@ CMakeKeywords CMakeTool::keywords()
         if (m_introspection->m_haveKeywords)
             return m_introspection->m_keywords;
 
-        Process proc;
-
         const FilePath findCMakeRoot = TemporaryDirectory::masterDirectoryFilePath()
                                        / "find-root.cmake";
         findCMakeRoot.writeFileContents("message(${CMAKE_ROOT})");
 
         CommandLine command(cmakeExecutable(), {"-P", findCMakeRoot.nativePath()});
-        auto outputParser = [](const QString &stdOut, const QString &) -> std::optional<FilePath> {
-            QStringList output = filtered(stdOut.split('\n'), std::not_fn(&QString::isEmpty));
+        // A message() without a mode is printed to the standard error.
+        auto outputParser = [](const QString &stdOut,
+                               const QString &stdErr) -> std::optional<FilePath> {
+            const QString allOutput = stdOut + stdErr;
+            const QStringList output = filtered(allOutput.split('\n'),
+                                                std::not_fn(&QString::isEmpty));
             if (output.size() > 0)
                 return FilePath::fromString(output[0]);
             return {};
