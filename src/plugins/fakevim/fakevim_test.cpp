@@ -117,6 +117,7 @@ private slots:
     void test_vim_indent();
     void test_vim_marks();
     void test_vim_jumps();
+    void test_vim_jump_that_stays_put();
     void test_vim_current_column();
     void test_vim_copy_paste();
     void test_vim_undo_redo();
@@ -133,6 +134,7 @@ private slots:
     void test_vim_ex_move();
     void test_vim_ex_join();
     void test_vim_ex_normal();
+    void test_vim_ex_error_messages();
     void test_advanced_commands();
 
     void test_mcp_keys();
@@ -273,6 +275,9 @@ private slots:
     void test_vim_command_line_ctrl_u();
     void test_vim_insert_ctrl_r_literal();
     void test_vim_insert_ctrl_r_at_cursor();
+    void test_vim_insert_ctrl_r_doubled();
+    void test_vim_insert_ctrl_r_newline();
+    void test_vim_insert_ctrl_r_above_line();
     void test_vim_insert_0_ctrl_d();
     void test_vim_replace_return();
     void test_vim_command_line_ctrl_w();
@@ -378,6 +383,7 @@ private slots:
     void test_vim_count_past_last_line();
     void test_vim_reflow_word_motion();
     void test_vim_literal_insert();
+    void test_vim_ex_append();
     void test_vim_join_last_line();
     void test_vim_retab_cursor();
     void test_vim_undo_by_time();
@@ -566,6 +572,7 @@ private slots:
     void test_vim_command_z();
     void test_vim_script_execute_and_redir();
     void test_vim_command_sort();
+    void test_vim_command_sort_arguments();
     void test_vim_command_uniq();
     void test_vim_command_smagic();
     void test_vim_option_magic();
@@ -575,6 +582,7 @@ private slots:
     void test_vim_command_earlier_later();
     void test_vim_script_buffer_lines();
     void test_vim_substitute_flags();
+    void test_vim_substitute_flag_parsing();
     void test_vim_line_change_reports();
     void test_vim_search_offset();
     void test_vim_search_chain();
@@ -3385,6 +3393,32 @@ void FakeVimTester::test_vim_marks()
     KEYS("`a", X "  abc" N "  def" N "  ghi");            // 'a' still works
     COMMAND("delmarks!", X "  abc" N "  def" N "  ghi");  // delete all lowercase
     KEYS("`a", X "  abc" N "  def" N "  ghi");            // 'a' gone too
+}
+
+void FakeVimTester::test_vim_jump_that_stays_put()
+{
+    TestData data;
+    setup(&data);
+
+    // Entering the buffer is itself a jump, so "''" leads back to where the
+    // cursor arrived even before anything jumped.
+    data.setText("abc" N "def" N "ghi");
+    KEYS("jj``rZ", X "Zbc" N "def" N "ghi");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("jj''rZ", X "Zbc" N "def" N "ghi");
+
+    // A jump that ends where it started is no jump: it leaves the mark it
+    // found in place rather than putting its own position there.
+    data.setText("abc" N "def" N "ghi");
+    KEYS("jjG''rZ", X "Zbc" N "def" N "ghi");
+    data.setText("a" N "b" N "c" N "d");
+    KEYS("GGrZ''rQ", X "Q" N "b" N "c" N "Z");
+    data.setText("a" N "b" N "c" N "d");
+    KEYS("2GG''rQ", "a" N X "Q" N "c" N "d");
+
+    // Two jumps that do move leave the second one's starting point behind.
+    data.setText("a" N "b" N "c" N "d");
+    KEYS("G1GrZ''rQ", "Z" N "b" N "c" N X "Q");
 }
 
 void FakeVimTester::test_vim_jumps()
@@ -7657,6 +7691,108 @@ void FakeVimTester::test_vim_ex_join()
     COMMAND("u", "  abc" N X "  def" N "  ghi" N "  jkl");
     COMMAND("1j3", "  " X "abc def ghi" N "  jkl");
     COMMAND("u", X "  abc" N "  def" N "  ghi" N "  jkl");
+}
+
+void FakeVimTester::test_vim_ex_error_messages()
+{
+    // Values taken from Vim 9.1, measured as the first error a typed command
+    // reports (":silent!" leaves the follow-up "E476: Invalid command" behind
+    // in "v:errmsg", which is not what a user sees).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            // The mode line arrives through the same channel and would hide
+            // the answer of a command that reports nothing at all.
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto error = [&](const char *cmd) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String(cmd));
+        return message;
+    };
+
+    data.setText("abc" N "def" N "ghi");
+
+    // ":normal" without keys to replay has nothing to do and says so, with or
+    // without a range. It does not silently succeed.
+    QCOMPARE(error("normal"), QLatin1String("E471: Argument required"));
+    QCOMPARE(error("normal!"), QLatin1String("E471: Argument required"));
+    QCOMPARE(error("2normal"), QLatin1String("E471: Argument required"));
+
+    // An address past the last line is refused, and so is one in front of the
+    // first. The command does not run on the nearest line instead.
+    QCOMPARE(error("9"), QLatin1String("E16: Invalid range"));
+    QCOMPARE(error("9d"), QLatin1String("E16: Invalid range"));
+    QCOMPARE(error("1,9d"), QLatin1String("E16: Invalid range"));
+    QCOMPARE(error("$+1"), QLatin1String("E16: Invalid range"));
+    QCOMPARE(error(".+9"), QLatin1String("E16: Invalid range"));
+    QCOMPARE(error("-9"), QLatin1String("E16: Invalid range"));
+    QCOMPARE(error("2,9s/a/X/"), QLatin1String("E16: Invalid range"));
+    QCOMPARE(data.text(), "abc" N "def" N "ghi");
+
+    // "0" names the place in front of the first line and is an address like
+    // any other, and "$" is the last line.
+    data.doCommand("0,2d");
+    QCOMPARE(data.text(), "ghi");
+    data.setText("abc" N "def" N "ghi");
+    data.doCommand("$d");
+    QCOMPARE(data.text(), "abc" N "def");
+    data.setText("abc" N "def" N "ghi");
+
+    // ":delete" and ":yank" take a register name and a count and nothing else.
+    // What is left over is named in the error, the register having been read
+    // off the first character (":d foo" leaves "oo").
+    QCOMPARE(error("d x y"), QLatin1String("E488: Trailing characters: y"));
+    QCOMPARE(error("d xy"), QLatin1String("E488: Trailing characters: y"));
+    QCOMPARE(error("d 2 x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("d foo"), QLatin1String("E488: Trailing characters: oo"));
+    QCOMPARE(error("y x y"), QLatin1String("E488: Trailing characters: y"));
+    QCOMPARE(data.text(), "abc" N "def" N "ghi");
+
+    // The forms that do parse still work.
+    data.doCommand("d x");
+    QCOMPARE(data.text(), "def" N "ghi");
+    data.doCommand("d x 2");
+    QCOMPARE(data.text(), "");
+    data.setText("abc" N "def" N "ghi");
+    data.doCommand("1d 2");
+    QCOMPARE(data.text(), "ghi");
+    data.setText("abc" N "def" N "ghi");
+
+    // A command that is none names the whole command line, range and all.
+    QCOMPARE(error("foo"), QLatin1String("E492: Not an editor command: foo"));
+    QCOMPARE(error("1,2foo"), QLatin1String("E492: Not an editor command: 1,2foo"));
+    QCOMPARE(error("%foo bar"), QLatin1String("E492: Not an editor command: %foo bar"));
+
+    // ":k" is ":mark" under its older name and reports what ":mark" reports,
+    // for the spaced form as well as the glued one.
+    QCOMPARE(error("k"), QLatin1String("E471: Argument required"));
+    QCOMPARE(error("mark"), QLatin1String("E471: Argument required"));
+    QCOMPARE(error("delmarks"), QLatin1String("E471: Argument required"));
+    QCOMPARE(error("k ab"), QLatin1String("E488: Trailing characters: ab"));
+    QCOMPARE(error("mark ab"), QLatin1String("E488: Trailing characters: ab"));
+
+    // A name no mark can carry is refused. The letters and the digits can,
+    // and so can the ones a command sets itself.
+    const QLatin1String notAMark("E191: Argument must be a letter or forward/backward quote");
+    QCOMPARE(error("mark ."), notAMark);
+    QCOMPARE(error("mark -"), notAMark);
+    QCOMPARE(error("k ^"), notAMark);
+    QCOMPARE(error("k ("), notAMark);
+    QCOMPARE(error("mark z"), QLatin1String(""));
+    QCOMPARE(error("mark Z"), QLatin1String(""));
+    QCOMPARE(error("mark 0"), QLatin1String(""));
+    QCOMPARE(error("k u"), QLatin1String(""));
+    QCOMPARE(error("mark \""), QLatin1String(""));
+    QCOMPARE(error("mark ["), QLatin1String(""));
+
+    // The mark it sets is the one the range ends on.
+    data.setText("abc" N "def" N "ghi");
+    data.doCommand("3k u");
+    KEYS("'urZ", "abc" N "def" N X "Zhi");
 }
 
 void FakeVimTester::test_vim_ex_normal()
@@ -12390,6 +12526,94 @@ void FakeVimTester::test_vim_insert_ctrl_r_at_cursor()
     // A linewise register put in this way is charwise all the same.
     data.setText(X "abc" N "def");
     KEYS("yyja<C-r>\"<Esc>", "abc" N "dabc" N X "ef");
+}
+
+void FakeVimTester::test_vim_insert_ctrl_r_doubled()
+{
+    // A doubled CTRL-R takes the character behind it as the register, and puts
+    // that in as plain CTRL-R does. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText(X "abc def");
+    KEYS("dwA<C-r><C-r>-Z<Esc>", "defabc " X "Z");
+    data.setText(X "abc def");
+    KEYS("yiwA<C-r><C-r>0Z<Esc>", "abc defabc" X "Z");
+    data.setText(X "abc");
+    KEYS("yiwa<C-r><C-r>\"<Esc>", "aab" X "cbc");
+    // Neither a third CTRL-R nor a CTRL-O behind the doubled one names a
+    // register, so nothing is put in for it.
+    data.setText(X "abc def");
+    KEYS("yiwA<C-r><C-r><C-r>Z<Esc>", "abc def" X "Z");
+    data.setText(X "abc def");
+    KEYS("yiwA<C-r><C-r><C-o>Z<Esc>", "abc def" X "Z");
+    // What it holds up is written over what stands there in replace mode.
+    data.setText(X "abcdef");
+    KEYS("\"ayiwRQ<C-r><C-r>aZ<Esc>", "Qabcdef" X "Z");
+}
+
+void FakeVimTester::test_vim_insert_ctrl_r_newline()
+{
+    // CTRL-R types out what the register holds rather than putting it in, so
+    // every newline in it breaks the line as a typed one does, indentation and
+    // all. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    // The smartindent of the C++ editor behind the tests is not Vim's, which
+    // leaves a line that is not code alone.
+    data.doCommand("set nosmartindent");
+
+    data.setText(X "  foo" N "  bar" N "zzz");
+    KEYS("\"ay2yGA<C-r>aZ<Esc>",
+         "  foo" N "  bar" N "zzz  foo" N "  bar" N "  " X "Z");
+    data.setText(X "  foo" N "  bar" N "zzz");
+    KEYS("\"ay2yGA<C-r><C-r>aZ<Esc>",
+         "  foo" N "  bar" N "zzz  foo" N "  bar" N "  " X "Z");
+    // What stood behind the cursor goes down with the last line.
+    data.setText(X "  foo" N "  bar" N "zzzqqq");
+    KEYS("\"ay2yG$i<C-r>aZ<Esc>",
+         "  foo" N "  bar" N "zzzqq  foo" N "  bar" N "  " X "Zq");
+    // The indentation of the line the last newline opened is taken off again
+    // where nothing is typed on it.
+    data.setText(X "  foo" N "  bar" N "zzz");
+    KEYS("\"ay2yGA<C-r>a<Esc>",
+         "  foo" N "  bar" N "zzz  foo" N "  bar" N X "");
+    // Each break takes the indentation of the line in front of it, so the
+    // indentation the register carries adds to it.
+    data.setText(X "  foo" N "  bar" N "zzz");
+    KEYS("\"ay2yGo<C-r>aZ<Esc>",
+         "  foo" N "  bar" N "zzz" N "  foo" N "    bar" N "    " X "Z");
+    data.setText(X "    ab" N "  cd" N "zzz");
+    KEYS("\"ay2yGA<C-r>aZ<Esc>",
+         "    ab" N "  cd" N "zzz    ab" N "  cd" N "  " X "Z");
+}
+
+void FakeVimTester::test_vim_insert_ctrl_r_above_line()
+{
+    // CTRL-R CTRL-O and CTRL-R CTRL-P put a linewise register above the line
+    // the cursor stands in, the indentation the line carries kept where it is.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set nosmartindent");
+
+    data.setText(X "  foo" N "  bar" N "zzz");
+    KEYS("\"ay2yGo<C-r><C-p>aZ<Esc>",
+         "  foo" N "  bar" N "zzz" N "foo" N "bar" N X "Z");
+    data.setText(X "  foo" N "  bar" N "zzz");
+    KEYS("\"ay2yGo<C-r><C-o>aZ<Esc>",
+         "  foo" N "  bar" N "zzz" N "  foo" N "  bar" N X "Z");
+    // What the open line was indented by stays behind the cursor.
+    data.setText(X "  foo" N "  bar" N "    zzz");
+    KEYS("\"ay2yGo<C-r><C-p>aZ<Esc>",
+         "  foo" N "  bar" N "    zzz" N "    foo" N "    bar" N X "Z    ");
+    data.setText(X "  foo" N "  bar" N "    zzz");
+    KEYS("\"ay2yGo<C-r><C-o>aZ<Esc>",
+         "  foo" N "  bar" N "    zzz" N "  foo" N "  bar" N X "Z    ");
+    // CTRL-P takes the indentation of the line it puts the register above.
+    data.setText(X "  foo" N "  bar" N "    zzz");
+    KEYS("\"ay2yGA<C-r><C-p>aZ<Esc>",
+         "  foo" N "  bar" N "    foo" N "    bar" N X "Z    zzz");
 }
 
 void FakeVimTester::test_vim_insert_0_ctrl_d()
@@ -19347,6 +19571,68 @@ void FakeVimTester::test_vim_literal_insert()
     KEYS("A<C-v>9X<Esc>", "abc" X "\t");
 }
 
+void FakeVimTester::test_vim_ex_append()
+{
+    // ":insert", ":append" and ":change" read lines until one holds just a dot.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abc");
+    KEYS(":i<CR>xy<CR>zw<CR>.<CR>", "xy" N X "zw" N "abc");
+    data.setText("abc");
+    KEYS(":a<CR>xy<CR>.<CR>", "abc" N X "xy");
+    data.setText("abc");
+    KEYS(":a<CR>x<CR>y<CR>z<CR>.<CR>", "abc" N "x" N "y" N X "z");
+    data.setText("abc");
+    KEYS(":a<CR>.<CR>", X "abc");
+    data.setText("abc");
+    KEYS(":a<CR><CR>.<CR>", "abc" N X);
+
+    // Only a line that holds nothing but the dot ends it.
+    data.setText("abc");
+    KEYS(":a<CR>x.y<CR>.<CR>", "abc" N X "x.y");
+    data.setText("abc");
+    KEYS(":a<CR>..<CR>.<CR>", "abc" N X "..");
+    data.setText("abc");
+    KEYS(":a<CR> .<CR>.<CR>", "abc" N " " X ".");
+
+    // The lines are indented like the line the command was given on, in spaces,
+    // and "!" inverts 'autoindent'.
+    data.setText("  abc");
+    KEYS(":a<CR>xy<CR>.<CR>", "  abc" N "  " X "xy");
+    data.setText("  abc");
+    KEYS(":a<CR>  xy<CR>.<CR>", "  abc" N "    " X "xy");
+    data.setText("\tabc");
+    KEYS(":a<CR>xy<CR>.<CR>", "\tabc" N "        " X "xy");
+    data.setText("  abc");
+    KEYS(":a!<CR>xy<CR>.<CR>", "  abc" N X "xy");
+    data.setText("  abc");
+    KEYS(":1i<CR>xy<CR>.<CR>", "  " X "xy" N "  abc");
+    data.setText("  abc");
+    KEYS(":a<CR>  <CR>.<CR>", "  abc" N "   " X " ");
+
+    // A range reads its lines behind the last of them, ":insert" before it.
+    data.setText("abc" N "def" N "ghi");
+    KEYS(":2,3a<CR>xy<CR>.<CR>", "abc" N "def" N "ghi" N X "xy");
+    data.setText("abc" N "def" N "ghi");
+    KEYS(":2,3i<CR>xy<CR>.<CR>", "abc" N "def" N X "xy" N "ghi");
+    data.setText("abc" N "def");
+    KEYS(":0i<CR>xy<CR>.<CR>", X "xy" N "abc" N "def");
+
+    // ":change" takes the indentation from the first line it removes.
+    data.setText("  abc");
+    KEYS(":c<CR>xy<CR>.<CR>", "  " X "xy");
+    data.setText("abc" N "def" N "ghi");
+    KEYS(":1,2c<CR>xy<CR>.<CR>", X "xy" N "ghi");
+
+    // One undo step, and nothing that "." would repeat.
+    data.setText("abc");
+    KEYS(":i<CR>xy<CR>.<CR>u", X "abc");
+    data.setText("abc def");
+    KEYS("x:a<CR>xy<CR>.<CR>.", "bc def" N X "y");
+}
+
 void FakeVimTester::test_vim_join_last_line()
 {
     // The last line has nothing below it to join to. Values taken from
@@ -21990,7 +22276,7 @@ void FakeVimTester::test_vim_command_swept_batch()
     data.doKeys("3G");
     QCOMPARE(run("kc"), QString());
     QCOMPARE(value("line(\"'c\")"), QLatin1String("3"));
-    QVERIFY2(run("k bc").contains("E191"), qPrintable(message));
+    QVERIFY2(run("k bc").contains("E488"), qPrintable(message));
 
     // ":windo" and ":bufdo" run the command in every window or buffer, and
     // there is one of each here - which is what Vim does with one too.
@@ -29540,6 +29826,67 @@ void FakeVimTester::test_vim_substitute_flags()
     data.doCommand("set noignorecase report=2");
 }
 
+void FakeVimTester::test_vim_substitute_flag_parsing()
+{
+    // The flags of a ":substitute" end at the first character that is not one of
+    // them, behind which only a count may follow, so a blank separates the count
+    // and not the flags. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+
+    // A flag behind a blank is trailing garbage.
+    data.setText(X "abc b");
+    message.clear();
+    COMMAND("s/b/X/ g", X "abc b");
+    QCOMPARE(message, QLatin1String("E488: Trailing characters: g"));
+    data.setText(X "abc b");
+    message.clear();
+    COMMAND("s/b/X/g g", X "abc b");
+    QCOMPARE(message, QLatin1String("E488: Trailing characters: g"));
+    data.setText(X "abc b");
+    message.clear();
+    COMMAND("s/b/X/x", X "abc b");
+    QCOMPARE(message, QLatin1String("E488: Trailing characters: x"));
+
+    // What follows a flag that is not one is none of a count either.
+    data.setText(X "abc b");
+    message.clear();
+    COMMAND("s/b/X/x2", X "abc b");
+    QCOMPARE(message, QLatin1String("E488: Trailing characters: x2"));
+    data.setText(X "abc b");
+    message.clear();
+    COMMAND("s/b/X/2x", X "abc b");
+    QCOMPARE(message, QLatin1String("E488: Trailing characters: x"));
+
+    // A count of none is refused rather than taken as one.
+    data.setText(X "abc b");
+    message.clear();
+    COMMAND("s/b/X/ 0", X "abc b");
+    QCOMPARE(message, QLatin1String("E939: Positive count required"));
+
+    // A blank on either side of the count is no garbage.
+    data.setText(X "abc" N "abc");
+    COMMAND("s/b/X/2 ", "aXc" N X "aXc");
+
+    // Each "g" inverts what the one before it meant.
+    data.setText(X "abc b");
+    COMMAND("s/b/X/gg", X "aXc b");
+    data.setText(X "abc b");
+    COMMAND("s/b/X/ggg", X "aXc X");
+
+    // Where both "i" and "I" are given the last of them counts.
+    data.setText(X "abc B");
+    COMMAND("s/B/X/iI", X "abc X");
+    data.setText(X "abc B");
+    COMMAND("s/B/X/Ii", X "aXc B");
+}
+
 void FakeVimTester::test_vim_script_buffer_lines()
 {
     // getbufline() hands back the lines of a buffer as a list, however few are
@@ -29883,6 +30230,70 @@ void FakeVimTester::test_vim_command_sort()
     // One line is sorted already, and not even the cursor moves.
     data.setText(X "ccc" N "bbb" N "aaa");
     COMMAND("2sort", X "ccc" N "bbb" N "aaa");
+}
+
+void FakeVimTester::test_vim_command_sort_arguments()
+{
+    // What is no flag of ":sort" and no delimiter is an invalid argument, and
+    // only one flag may say what a number looks like. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+
+    data.setText(X "2,b" N "1,a");
+    message.clear();
+    COMMAND("sort e", X "2,b" N "1,a");
+    QCOMPARE(message, QLatin1String("E475: Invalid argument: e"));
+    data.setText(X "2,b" N "1,a");
+    message.clear();
+    COMMAND("sort zzz", X "2,b" N "1,a");
+    QCOMPARE(message, QLatin1String("E475: Invalid argument: zzz"));
+    data.setText(X "2,b" N "1,a");
+    message.clear();
+    COMMAND("sort nx", X "2,b" N "1,a");
+    QCOMPARE(message, QLatin1String("E474: Invalid argument"));
+    // Saying one of them twice is saying two of them.
+    data.setText(X "2,b" N "1,a");
+    message.clear();
+    COMMAND("sort nn", X "2,b" N "1,a");
+    QCOMPARE(message, QLatin1String("E474: Invalid argument"));
+
+    // Any character that is no flag opens the pattern, and closes it.
+    data.setText(X "2,b" N "1,a");
+    message.clear();
+    COMMAND("sort #.*,#", X "1,a" N "2,b");
+    QCOMPARE(message, QString());
+    data.setText(X "2,b" N "1,a");
+    message.clear();
+    COMMAND("sort 2", X "2,b" N "1,a");
+    QCOMPARE(message,
+             QLatin1String("E654: Missing delimiter after search pattern: "));
+    data.setText(X "2,b" N "1,a");
+    message.clear();
+    COMMAND("sort /abc", X "2,b" N "1,a");
+    QCOMPARE(message,
+             QLatin1String("E654: Missing delimiter after search pattern: abc"));
+
+    // A double quote starts a comment, and blanks are nothing at all.
+    data.setText(X "2,b" N "1,a");
+    message.clear();
+    COMMAND("sort \" x", X "1,a" N "2,b");
+    QCOMPARE(message, QString());
+    data.setText(X "2,b" N "1,a");
+    message.clear();
+    COMMAND("sort   n", X "1,a" N "2,b");
+    QCOMPARE(message, QString());
+
+    // One line is sorted already, and Vim does not look at the arguments.
+    data.setText(X "2,b");
+    message.clear();
+    COMMAND("sort zzz", X "2,b");
+    QCOMPARE(message, QString());
 }
 
 void FakeVimTester::test_vim_command_uniq()
@@ -30269,6 +30680,76 @@ void FakeVimTester::test_vim_command_z()
     QCOMPARE(shownAndCursor("9z+3"), QLatin1String("10 @10"));
     ten();
     QCOMPARE(shownAndCursor("8z+3"), QLatin1String("9\n10 @10"));
+
+    // A count of two for "." shows one line, not two: the window is
+    // (count+1)/2 lines to either side of the address, and an even count
+    // leaves out the line it cannot place.
+    ten();
+    QCOMPARE(shownAndCursor("5z.4"), QLatin1String("4\n5\n6 @6"));
+    ten();
+    QCOMPARE(shownAndCursor("5z.2"), QLatin1String("5 @5"));
+
+    // Without a count the window is as high as the screen, which is more
+    // than these three lines, so every form of it runs into an end of the
+    // buffer and the cursor stops where the window does.
+    const auto three = [&] { data.setText("a" N "b" N "c"); };
+    three();
+    QCOMPARE(shownAndCursor("2,3z"), QLatin1String("c @3"));
+    three();
+    QCOMPARE(shownAndCursor("1z"), QLatin1String("a\nb\nc @3"));
+    three();
+    QCOMPARE(shownAndCursor("1z+"), QLatin1String("b\nc @3"));
+    three();
+    QCOMPARE(shownAndCursor("1z-"), QLatin1String("a @1"));
+    three();
+    QCOMPARE(shownAndCursor("1,2z."), QLatin1String("a\nb\nc @3"));
+    // Nothing of the window is left, and the cursor goes to the first line.
+    three();
+    QCOMPARE(shownAndCursor("2z^"), QLatin1String(" @1"));
+    // The decorated form is two lines higher only where a count asked for a
+    // height, so this one is the screen's own.
+    three();
+    QCOMPARE(shownAndCursor("2z="),
+             QString("a\n" + dashes + "\nb\n" + dashes + "\nc @2"));
+
+    // A repeated "+" or "-" mark moves the window that many windows along,
+    // and a "+" or "-" that does not repeat the mark is only passed over.
+    // Values measured on the forty-line buffer "1".."40", address 20.
+    const auto forty = [&] {
+        QByteArray text = "1";
+        for (int i = 2; i <= 40; ++i)
+            text += N + QByteArray::number(i);
+        data.setText(text.constData());
+    };
+    forty();
+    QCOMPARE(shownAndCursor("20z--3"), QLatin1String("15\n16\n17 @17"));
+    forty();
+    QCOMPARE(shownAndCursor("20z+++2"), QLatin1String("25\n26 @26"));
+    forty();
+    QCOMPARE(shownAndCursor("20z-+3"), QLatin1String("18\n19\n20 @20"));
+    forty();
+    QCOMPARE(shownAndCursor("20z+-3"), QLatin1String("21\n22\n23 @23"));
+    forty();
+    QCOMPARE(shownAndCursor("20z=-3"),
+             QString("18\n19\n" + dashes + "\n20\n" + dashes + "\n21\n22 @20"));
+    // What follows the count is passed over as well.
+    forty();
+    QCOMPARE(shownAndCursor("20z+3x"), QLatin1String("21\n22\n23 @23"));
+
+    // A count that does not begin with a digit is refused, and nothing of
+    // the command happens.
+    const auto refused = [&](const QString &command) -> QString {
+        forty();
+        info.clear();
+        message.clear();
+        data.doCommand(command);
+        const QString error = info + message;
+        message.clear();
+        data.doCommand("echo line('.')");
+        return error + " @" + message;
+    };
+    QCOMPARE(refused("20z^^3"), QLatin1String("E144: non-numeric argument to :z @1"));
+    QCOMPARE(refused("20z+ 3"), QLatin1String("E144: non-numeric argument to :z @1"));
 }
 
 void FakeVimTester::test_vim_command_align()

@@ -212,6 +212,7 @@ enum SubSubMode
     CtrlVUnicodeSubSubMode,         // Used for Ctrl-v based unicode input
     CtrlRLiteralSubSubMode,         // Used for CTRL-R CTRL-O
     CtrlRIndentSubSubMode,          // Used for CTRL-R CTRL-P
+    CtrlRDoubledSubSubMode,         // Used for CTRL-R CTRL-R
     ExpressionSubSubMode            // Used for the "=" expression register (CTRL-R =)
 };
 
@@ -3028,6 +3029,7 @@ public:
     void handleReplaceMode(const Input &);
     void overwriteText(const QString &text);
     void finishInsertMode();
+    bool finishExAppendMode(const Input &input);
 
     EventResult handleCommandMode(const Input &);
     EventResult handleSelectMode(const Input &);
@@ -3536,6 +3538,11 @@ public:
     // typed content yet. Leaving such a line untouched removes the automatic
     // indentation again, matching Vim (QTCREATORBUG-15009). -1 means none.
     int m_autoIndentBlock = -1;
+    // Set while ":insert", ":append" or ":change" is reading lines, which a line
+    // holding just a dot ends.
+    bool m_exAppendMode = false;
+    // Width of the automatic indentation the last auto-indented line received.
+    int m_autoIndentSize = 0;
     // The comment leader put in automatically, and the line it went to.
     int m_commentLeaderBlock = -1;
     QString m_commentLeaderText;
@@ -3861,6 +3868,7 @@ public:
 
     // register handling
     QString registerContents(int reg);
+    void insertRegisterAsTyped(int reg);
     void insertRegisterLiterally(int reg, bool fixIndent);
     void setRegister(int reg, const QString &contents, RangeMode mode);
     void setRegisterFromScript(int reg, const QString &contents, RangeMode mode);
@@ -3868,7 +3876,15 @@ public:
     void getRegisterType(int *reg, bool *isClipboard, bool *isSelection, bool *append = nullptr) const;
 
     void recordJump(int position = -1);
+    void checkRecordedJump();
     void jump(int distance);
+
+    // A jump that ended up where it started leaves the marks it found in place,
+    // so what they held before it has to survive until the command is over.
+    bool m_jumpRecorded = false;
+    CursorPosition m_recordedJump;
+    Mark m_markBeforeJump;
+    Mark m_backTickMarkBeforeJump;
 
     QList<QTextEdit::ExtraSelection> m_extraSelections;
 
@@ -3890,6 +3906,7 @@ public:
     bool handleExYankDeleteCommand(const ExCommand &cmd);
     bool handleExChangeCommand(const ExCommand &cmd);
     bool handleExAppendCommand(const ExCommand &cmd);
+    QString exAppendIndent(int line, bool invert) const;
     bool handleExMoveCommand(const ExCommand &cmd);
     bool handleExCopyCommand(const ExCommand &cmd);
     bool handleExAlignCommand(const ExCommand &cmd);
@@ -4600,6 +4617,14 @@ void FakeVimHandler::Private::enterFakeVim()
 
     pullCursor();
 
+    // Entering a buffer is a jump in Vim, so "''" leads back to where the
+    // cursor stood on arrival even before any jump was made.
+    if (!mark('\'').isValid()) {
+        const Mark entered{CursorPosition(m_cursor)};
+        m_buffer->marks['\''] = entered;
+        m_buffer->marks['`'] = entered;
+    }
+
     updateFirstVisibleLine();
 }
 
@@ -5259,6 +5284,7 @@ Input FakeVimHandler::Private::announceKeyInput(const Input &input)
 EventResult FakeVimHandler::Private::handleDefaultKey(const Input &input)
 {
     const EventResult result = handleKeyForMode(announceKeyInput(input));
+    checkRecordedJump();
     if (!m_motionFailed)
         return result;
     // A motion with nowhere to go drops the keys that came with it.
@@ -8994,13 +9020,20 @@ void FakeVimHandler::Private::handleReplaceMode(const Input &input)
                                     g.subsubmode == CtrlRIndentSubSubMode);
             g.submode = NoSubMode;
             g.subsubmode = NoSubSubMode;
-        } else if (input.isControl('o') || input.isControl('p')) {
+        } else if (input.isControl('r') && g.subsubmode != CtrlRDoubledSubSubMode) {
+            // The register of a doubled CTRL-R is named by the character
+            // behind it, and goes in without anything in it being taken for
+            // a key, which is what is done here in either case.
+            g.subsubmode = CtrlRDoubledSubSubMode;
+        } else if ((input.isControl('o') || input.isControl('p'))
+                   && g.subsubmode != CtrlRDoubledSubSubMode) {
             g.subsubmode = input.isControl('o') ? CtrlRLiteralSubSubMode
                                                 : CtrlRIndentSubSubMode;
         } else {
             // What CTRL-R holds up is written over what stands there, as typing is.
             overwriteText(registerContents(input.asChar().unicode()));
             g.submode = NoSubMode;
+            g.subsubmode = NoSubSubMode;
         }
         updateMiniBuffer();
     } else if (input.isControl('o')) {
@@ -9084,6 +9117,7 @@ void FakeVimHandler::Private::overwriteText(const QString &text)
 
 void FakeVimHandler::Private::finishInsertMode()
 {
+    m_exAppendMode = false;
     // Leaving insert mode ends the word too, so an abbreviation typed with
     // nothing after it still takes effect (measured).
     expandInsertAbbreviation();
@@ -9174,6 +9208,49 @@ void FakeVimHandler::Private::finishInsertMode()
     leaveInsertAutocmd();
 }
 
+// ":insert", ":append" and ":change" read lines until one holds just a dot, and
+// leave the cursor on the first non-blank of the last line that was read.
+bool FakeVimHandler::Private::finishExAppendMode(const Input &input)
+{
+    if (!m_exAppendMode || !input.isReturn())
+        return false;
+
+    // Vim looks for the dot behind the automatic indentation, so anything typed
+    // in front of it keeps the line from ending the command.
+    const QString line = block().text();
+    int blanks = 0;
+    while (blanks < m_autoIndentSize && blanks < line.size() && line.at(blanks).isSpace())
+        ++blanks;
+    if (QStringView(line).mid(blanks) != QLatin1String("."))
+        return false;
+
+    const int dotLine = cursorLine();
+
+    joinPreviousEditBlock();
+    const QTextBlock dot = block();
+    const bool isLast = !dot.next().isValid();
+    QTextCursor tc = m_cursor;
+    tc.setPosition(isLast ? qMax(0, dot.position() - 1) : dot.position());
+    tc.setPosition(dot.position() + dot.length() - (isLast ? 1 : 0), QTextCursor::KeepAnchor);
+    insertText(tc, QString());
+    endEditBlock();
+
+    // An Ex command is not what "." repeats, so it leaves the dot command alone.
+    const QString dotCommand = g.dotCommand;
+    finishInsertMode();
+    g.dotCommand = dotCommand;
+
+    setPosition(firstPositionInLine(qMax(1, dotLine)));
+    moveToFirstNonBlankOnLine();
+    // A line of nothing but blanks has no non-blank to stop on, and the cursor
+    // does not sit past the last one.
+    if (atEndOfLine())
+        moveLeft();
+    setTargetColumn();
+
+    return true;
+}
+
 void FakeVimHandler::Private::handleInsertMode(const Input &input)
 {
     if (g.subsubmode == ExpressionSubSubMode) {
@@ -9228,6 +9305,9 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         return;
     }
 
+    if (finishExAppendMode(input))
+        return;
+
     if (input.isEscape()) {
         if (g.submode == CtrlRSubMode) {
             g.submode = NoSubMode;
@@ -9263,13 +9343,16 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
                                     g.subsubmode == CtrlRIndentSubSubMode);
             g.submode = NoSubMode;
             g.subsubmode = NoSubSubMode;
-        } else if (input.isControl('o') || input.isControl('p')) {
+        } else if (input.isControl('r') && g.subsubmode != CtrlRDoubledSubSubMode) {
+            g.subsubmode = CtrlRDoubledSubSubMode;
+        } else if ((input.isControl('o') || input.isControl('p'))
+                   && g.subsubmode != CtrlRDoubledSubSubMode) {
             g.subsubmode = input.isControl('o') ? CtrlRLiteralSubSubMode
                                                 : CtrlRIndentSubSubMode;
         } else {
-            setAnchor();
-            m_cursor.insertText(registerContents(input.asChar().unicode()));
+            insertRegisterAsTyped(input.asChar().unicode());
             g.submode = NoSubMode;
+            g.subsubmode = NoSubSubMode;
         }
     } else if (input.isControl('o')) {
         enterCommandMode(InsertMode);
@@ -10142,6 +10225,20 @@ bool FakeVimHandler::Private::parseLineRange(QString *line, ExCommand *cmd)
     if (beginLine == -1 || endLine == -1)
         return false;
 
+    // ":2match" and ":3match" carry their number in the command name, so the
+    // digits in front of them are no address to check.
+    static const QRegularExpression matchRe("^match\\b");
+    const bool numberedMatch = matchRe.match(*line).hasMatch();
+
+    // An address outside the buffer is no address at all, and the rest of the
+    // command line does not run either.
+    const int lastLine = document()->blockCount() - 1;
+    if (!numberedMatch
+        && (beginLine > lastLine || endLine > lastLine || beginLine < 0 || endLine < 0)) {
+        showMessage(MessageError, Tr::tr("E16: Invalid range"));
+        return false;
+    }
+
     const int beginPos = firstPositionInLine(qMin(beginLine, endLine) + 1, false);
     const int endPos = lastPositionInLine(qMax(beginLine, endLine) + 1, false);
     cmd->backwardsRange = endLine < beginLine;
@@ -10173,6 +10270,38 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
 // Defined with the other ways a string is shown, below.
 static QString shownAsTyped(const QString &text);
 
+// Vim inverts these flags for each time they are given, so ":s/a/b/gg" reaches
+// only the first match of a line.
+static bool substituteFlagSet(const QString &flags, QChar flag)
+{
+    return flags.count(flag) % 2 == 1;
+}
+
+// The flags of ":substitute" end at the first character that is not one of
+// them, behind which Vim takes a count and nothing else. Blanks separate the
+// count from what is in front of it, they do not separate the flags.
+static QString splitSubstituteFlags(const QString &text, int *count, QString *trailing)
+{
+    static const QString knownFlags = "&cegiInp#lr";
+    int i = 0;
+    while (i < text.size() && knownFlags.contains(text.at(i)))
+        ++i;
+    const QString flags = text.left(i);
+    while (i < text.size() && text.at(i).isSpace())
+        ++i;
+    int end = i;
+    while (end < text.size() && text.at(end).isDigit())
+        ++end;
+    if (end > i) {
+        *count = text.mid(i, end - i).toInt();
+        i = end;
+        while (i < text.size() && text.at(i).isSpace())
+            ++i;
+    }
+    *trailing = text.mid(i);
+    return flags;
+}
+
 bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 {
     // :[range]s[ubstitute]/{pattern}/{string}/[flags] [count]
@@ -10194,16 +10323,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
           : forceMagicOff ? std::optional<MagicLevel>(NoMagic)
                           : std::nullopt;
 
-    int count = 1;
-    bool hasCount = false;
     QString line = cmd.args;
-    static const QRegularExpression regexp("\\d+$");
-    const QRegularExpressionMatch match = regexp.match(line);
-    if (match.hasMatch()) {
-        count = match.captured().toInt();
-        hasCount = true;
-        line = line.left(match.capturedStart()).trimmed();
-    }
 
     if (cmd.cmd.isEmpty()) {
         // keep previous substitution flags on '&&' and '~&'
@@ -10259,24 +10379,30 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
         }
     }
 
-    // Only these are flags. One that is not is what Vim complains about rather
-    // than passing over - ":s/a/b/Q" is a typo, not a silent no-op.
+    // What is not a flag is what Vim complains about rather than passing over,
+    // so ":s/a/b/Q" is a typo and not a silent no-op.
     // FIXME: "r" is taken and not acted on. It is documented as reading the last
     // SEARCH pattern where an empty one would read the last SUBSTITUTE pattern, but no
     // difference between the two could be measured against Vim 9.1 - assigning
     // @/ appears to reset both - and an empty pattern already reads the last
     // search here. Measure that properly before implementing it.
-    static const QString knownFlags = "&cegiInp#lr";
-    for (int i = 0; i < g.lastSubstituteFlags.size(); ++i) {
-        const QChar flag = g.lastSubstituteFlags.at(i);
-        if (flag.isSpace() || knownFlags.contains(flag))
-            continue;
-        showMessage(MessageError, Tr::tr("E488: Trailing characters: %1")
-                    .arg(g.lastSubstituteFlags.mid(i)));
+    int count = 1;
+    bool hasCount = false;
+    QString trailing;
+    int given = -1;
+    g.lastSubstituteFlags = splitSubstituteFlags(g.lastSubstituteFlags, &given, &trailing);
+    if (given == 0) {
+        showMessage(MessageError, Tr::tr("E939: Positive count required"));
         return true;
     }
-
-    count = qMax(1, count);
+    if (given > 0) {
+        count = given;
+        hasCount = true;
+    }
+    if (!trailing.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E488: Trailing characters: %1").arg(trailing));
+        return true;
+    }
     if (g.lastSubstitutePattern.isEmpty()) {
         showMessage(MessageError, Tr::tr("E35: No previous regular expression"));
         return true;
@@ -10287,10 +10413,16 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     g.searchBuffer.historyPush(g.lastSearch);
     QString needle = g.lastSubstitutePattern;
 
-    // An "i" ignores case whatever 'ignorecase' says, an "I" never does.
-    if (g.lastSubstituteFlags.contains('i'))
+    // An "i" ignores case whatever 'ignorecase' says, an "I" never does, and
+    // where both are given the last of them counts.
+    QChar caseFlag;
+    for (const QChar c : std::as_const(g.lastSubstituteFlags)) {
+        if (c == 'i' || c == 'I')
+            caseFlag = c;
+    }
+    if (caseFlag == 'i')
         needle.prepend("\\c");
-    else if (g.lastSubstituteFlags.contains('I'))
+    else if (caseFlag == 'I')
         needle.prepend("\\C");
 
     PatternPosition wanted;
@@ -10303,11 +10435,11 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     QTextBlock printBlock;
     // With 'gdefault' a substitute reaches every place of a line by itself, and a
     // "g" among the flags says to reach only the first, as in Vim.
-    const bool global = g.lastSubstituteFlags.contains('g') != s.gDefault();
+    const bool global = substituteFlagSet(g.lastSubstituteFlags, 'g') != s.gDefault();
     // An "n" only counts what would be substituted, an "e" keeps quiet where
     // there is nothing to substitute at all.
     const bool countOnly = g.lastSubstituteFlags.contains('n');
-    const bool quiet = g.lastSubstituteFlags.contains('e');
+    const bool quiet = substituteFlagSet(g.lastSubstituteFlags, 'e');
     int beginPos = cmd.range.beginPos;
     int endPos = cmd.range.endPos;
     if (hasCount) {
@@ -10318,7 +10450,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 
     // A "c" asks about every match, so the substitute cannot run to completion
     // here: it goes on from the keys that answer the prompts.
-    if (g.lastSubstituteFlags.contains('c') && !countOnly) {
+    if (substituteFlagSet(g.lastSubstituteFlags, 'c') && !countOnly) {
         leaveVisualMode();
         g.substituteConfirm = {};
         SubstituteConfirm &c = g.substituteConfirm;
@@ -12375,6 +12507,11 @@ bool FakeVimHandler::Private::handleExNormalCommand(const ExCommand &cmd)
     if (!cmd.matches("norm", "normal"))
         return false;
 
+    if (cmd.args.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E471: Argument required"));
+        return true;
+    }
+
     const int beginLine = lineForPosition(cmd.range.beginPos);
     const int endLine = lineForPosition(cmd.range.endPos);
 
@@ -12444,9 +12581,21 @@ bool FakeVimHandler::Private::handleExYankDeleteCommand(const ExCommand &cmd)
     const bool hasRegisterArg = !cmd.args.isEmpty() && !cmd.args.at(0).isDigit();
     const int r = hasRegisterArg ? cmd.args.at(0).unicode() : m_register;
 
+    // A register name and a count is all the argument may hold, in that order:
+    // ":d foo" takes "f" for the register and refuses what is left.
+    QString rest = cmd.args.mid(hasRegisterArg ? 1 : 0).trimmed();
+    int digits = 0;
+    while (digits < rest.size() && rest.at(digits).isDigit())
+        ++digits;
+    const QString trailing = rest.mid(digits).trimmed();
+    if (!trailing.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E488: Trailing characters: %1").arg(trailing));
+        return true;
+    }
+
     // get [count] from arguments
     Range range = cmd.range;
-    parseRangeCount(cmd.args.mid(hasRegisterArg ? 1 : 0).trimmed(), &range);
+    parseRangeCount(rest, &range);
 
     yankText(range, r, remove);
 
@@ -12466,6 +12615,26 @@ bool FakeVimHandler::Private::handleExYankDeleteCommand(const ExCommand &cmd)
     return true;
 }
 
+// The indentation ":insert", ":append" and ":change" give the first line they
+// read, which Vim takes from the given line and writes out as spaces.
+QString FakeVimHandler::Private::exAppendIndent(int line, bool invert) const
+{
+    if (s.autoIndent() == invert)
+        return QString();
+    const QString text = blockAt(firstPositionInLine(line)).text();
+    const int ts = tabStop();
+    int column = 0;
+    for (const QChar c : text) {
+        if (c == ' ')
+            ++column;
+        else if (c == '\t')
+            column += ts - column % ts;
+        else
+            break;
+    }
+    return QString(column, ' ');
+}
+
 bool FakeVimHandler::Private::handleExAppendCommand(const ExCommand &cmd)
 {
     const bool before = cmd.matches("i", "insert");
@@ -12474,9 +12643,15 @@ bool FakeVimHandler::Private::handleExAppendCommand(const ExCommand &cmd)
     if (refuseUnmodifiable())
         return true;
 
-    const int at = qBound(1, cmd.hasRange ? cmd.count + 1 : cursorLine() + 1,
+    // A range reads its lines behind the last of them, as ":2,3a" does behind
+    // line 3.
+    const int at = qBound(1, cmd.hasRange ? blockAt(cmd.range.endPos).blockNumber() + 1
+                                          : cursorLine() + 1,
                           linesInDocument());
     const int target = before ? at : at + 1;
+    // The first automatic indentation comes from the line the command was given
+    // on, as wide as that one and made of spaces. "!" inverts 'autoindent'.
+    const QString indent = exAppendIndent(at, cmd.hasBang);
     pushUndoState();
     beginEditBlock();
     QTextCursor tc = m_cursor;
@@ -12489,7 +12664,14 @@ bool FakeVimHandler::Private::handleExAppendCommand(const ExCommand &cmd)
         insertText(tc, QString('\n'));
         setPosition(firstPositionInLine(target));
     }
+    if (!indent.isEmpty()) {
+        setAnchor();
+        insertText(m_cursor, indent);
+    }
+    m_autoIndentSize = indent.size();
+    m_autoIndentBlock = block().blockNumber();
     endEditBlock();
+    m_exAppendMode = true;
     enterInsertMode();
     return true;
 }
@@ -12502,11 +12684,17 @@ bool FakeVimHandler::Private::handleExChangeCommand(const ExCommand &cmd)
 
     Range range = cmd.range;
     range.rangemode = RangeLineModeExclusive;
+    // Here the indentation comes from the first line the change removes.
+    const QString indent = exAppendIndent(blockAt(range.beginPos).blockNumber() + 1, cmd.hasBang);
     removeText(range);
-    insertAutomaticIndentation(true, cmd.hasBang);
+    if (!indent.isEmpty()) {
+        setAnchor();
+        insertText(m_cursor, indent);
+    }
+    m_autoIndentSize = indent.size();
+    m_autoIndentBlock = block().blockNumber();
 
-    // FIXME: In Vim same or less number of lines can be inserted and position after insertion is
-    //        beginning of last inserted line.
+    m_exAppendMode = true;
     enterInsertMode();
 
     return true;
@@ -12691,8 +12879,6 @@ bool FakeVimHandler::Private::handleExAlignCommand(const ExCommand &cmd)
 // starts AFTER the address, the no-mark form starts AT it - caught only by
 // measuring each form in isolation with a fresh cursor position rather than
 // trusting that line.
-// Requires an explicit count: the count-less default (a window size derived
-// from 'scroll' or the window's own height) was not measured here.
 bool FakeVimHandler::Private::handleExZCommand(const ExCommand &cmd)
 {
     if (cmd.cmd != "z")
@@ -12700,14 +12886,38 @@ bool FakeVimHandler::Private::handleExZCommand(const ExCommand &cmd)
 
     QString args = cmd.args;
     QChar mark;
+    int marks = 1;
     if (!args.isEmpty() && QString("+-^.=").contains(args.at(0))) {
         mark = args.at(0);
         args = args.mid(1);
+        // Any further "+" or "-" is passed over, and as far as it repeats a
+        // "+" or "-" mark it multiplies the distance the window is moved by.
+        int skip = 0;
+        while (skip < args.size() && (args.at(skip) == '+' || args.at(skip) == '-'))
+            ++skip;
+        if (mark == '+' || mark == '-') {
+            while (marks <= skip && args.at(marks - 1) == mark)
+                ++marks;
+        }
+        args = args.mid(skip);
     }
-    bool ok = false;
-    const int count = args.trimmed().toInt(&ok);
-    if (!ok || count <= 0)
-        return true;
+    // Without a count the window is as high as the screen, which is what Vim
+    // takes from twice its own 'scroll'. What follows the count is ignored,
+    // but a count that does not start with a digit is not a count at all.
+    const bool hasCount = !args.isEmpty();
+    int bigness = qMax(1, 2 * (linesOnScreen() / 2));
+    if (hasCount) {
+        int end = 0;
+        while (end < args.size() && args.at(end).isDigit())
+            ++end;
+        if (end == 0) {
+            showMessage(MessageError, Tr::tr("E144: non-numeric argument to :z"));
+            return true;
+        }
+        bigness = args.left(end).toInt();
+        if (bigness <= 0)
+            return true;
+    }
 
     // With no address at all this is one line further than the current
     // line, not the current line itself - measured directly (":z3" with no
@@ -12721,36 +12931,41 @@ bool FakeVimHandler::Private::handleExZCommand(const ExCommand &cmd)
     int cursorLine;
     const bool decorate = mark == '=';
     if (mark == '-') {
-        firstLine = address - count + 1;
-        lastLine = address;
-        cursorLine = address;
+        firstLine = address - bigness * marks + 1;
+        lastLine = firstLine + bigness - 1;
+        cursorLine = qMin(lastLine, lastValid);
     } else if (mark == '.') {
-        firstLine = address - count / 2;
-        lastLine = firstLine + count - 1;
+        // Centred, and an even count leaves out the line it cannot place.
+        const int half = (bigness + 1) / 2;
+        firstLine = address - half + 1;
+        lastLine = address + half - 1;
         cursorLine = qMin(lastLine, lastValid);
     } else if (mark == '^') {
         // A window further back than "-"'s own, i.e. "-"'s firstLine minus
-        // count - measured with enough headroom that nothing clamps, since
-        // the clamped case alone cannot tell this from an off-by-one.
-        firstLine = address - 2 * count;
-        lastLine = address - count;
+        // the window height - measured with enough headroom that nothing
+        // clamps, since the clamped case alone cannot tell this from an
+        // off-by-one.
+        firstLine = address - 2 * bigness;
+        lastLine = address - bigness;
         cursorLine = qMin(lastLine, lastValid);
     } else if (mark == '=') {
-        const int half = (count + 1) / 2;
-        firstLine = address - half;
-        lastLine = address + half;
+        // The decorated form is two lines higher, but only where a count
+        // asked for a height at all.
+        const int half = (bigness + (hasCount ? 2 : 0) + 1) / 2;
+        firstLine = address - half + 1;
+        lastLine = address + half - 1;
         cursorLine = address;
     } else if (mark == '+') {
         // Starts AFTER the address (not at it) - unlike every other mark,
         // this one does NOT share its range with the no-mark form below,
         // despite the doc's own "no mark is the same as +" line.
-        firstLine = address + 1;
-        lastLine = address + count;
+        firstLine = address + bigness * (marks - 1) + 1;
+        lastLine = firstLine + bigness - 1;
         cursorLine = qMin(lastLine, lastValid);
     } else {
         // No mark at all: starts AT the address.
         firstLine = address;
-        lastLine = address + count - 1;
+        lastLine = address + bigness - 1;
         cursorLine = qMin(lastLine, lastValid);
     }
     firstLine = qMax(0, firstLine);
@@ -13360,7 +13575,7 @@ bool FakeVimHandler::Private::handleExMarksCommand(const ExCommand &cmd)
 bool FakeVimHandler::Private::handleExMarkCommand(const ExCommand &cmd)
 {
     QString name;
-    if (cmd.matches("ma", "mark")) {
+    if (cmd.matches("ma", "mark") || cmd.cmd == "k") {
         name = cmd.args.trimmed();
     } else if (cmd.cmd.size() == 2 && cmd.cmd.at(0) == 'k' && cmd.args.isEmpty()) {
         name = cmd.cmd.at(1);
@@ -13377,8 +13592,18 @@ bool FakeVimHandler::Private::handleExMarkCommand(const ExCommand &cmd)
         return true;
     }
 
+    // The marks a name can be given to, measured in Vim 9.1: the letters, the
+    // digits, and the ones a command sets itself.
+    static const QString nameable = "'`\"[]<>";
+    const QChar c = name.at(0);
+    if (!c.isLetterOrNumber() && !nameable.contains(c)) {
+        showMessage(MessageError, Tr::tr("E191: Argument must be a letter or forward/"
+                                         "backward quote"));
+        return true;
+    }
+
     const int line = blockAt(cmd.range.endPos).blockNumber();
-    setMark(name.at(0), CursorPosition(line, 0));
+    setMark(c, CursorPosition(line, 0));
 
     return true;
 }
@@ -14309,19 +14534,6 @@ bool FakeVimHandler::Private::handleExSweptCommands(const ExCommand &cmd)
         return true;
     }
 
-    // :k{mark} - the older spelling of ":mark", and the one that takes its
-    // argument glued to it as well.
-    if (cmd.cmd == "k" || (cmd.cmd.startsWith('k') && cmd.cmd.size() == 2)) {
-        const QString name = cmd.cmd.size() == 2 ? cmd.cmd.mid(1) : cmd.args.trimmed();
-        if (name.size() != 1) {
-            showMessage(MessageError, Tr::tr("E191: Argument must be a letter or forward/"
-                                             "backward quote"));
-            return true;
-        }
-        setMark(name.at(0), CursorPosition(m_cursor));
-        return true;
-    }
-
     // :windo and :bufdo run a command in every window or buffer. There is one
     // of each here, so it runs once - which is what Vim does with one too.
     if (cmd.matches("windo", "windo") || cmd.matches("bufd", "bufdo")) {
@@ -14546,7 +14758,7 @@ bool FakeVimHandler::Private::handleExDelMarksCommand(const ExCommand &cmd)
             for (char c = 'a'; c <= 'z'; ++c)
                 m_buffer->marks.remove(QLatin1Char(c));
         } else {
-            showMessage(MessageError, Tr::tr("Argument required."));
+            showMessage(MessageError, Tr::tr("E471: Argument required"));
         }
         return true;
     }
@@ -14693,19 +14905,59 @@ bool FakeVimHandler::Private::handleExSortCommand(const ExCommand &cmd)
     if (!cmd.matches("sor", "sort"))
         return false;
 
-    QString args = cmd.args.trimmed();
+    // Without a range the whole document is sorted.
+    int beginLine = lineForPosition(cmd.range.beginPos);
+    int endLine = lineForPosition(cmd.range.endPos);
+    if (!cmd.hasRange) {
+        beginLine = 1;
+        endLine = lineForPosition(lastPositionInDocument(true));
+    }
+    // A single line is sorted already, and Vim does not even move the cursor.
+    // It does not even look at the arguments.
+    if (endLine <= beginLine)
+        return true;
+
+    // Blanks between the flags mean nothing, a double quote starts a comment,
+    // and any other character that is no flag opens the pattern, which it also
+    // closes. What is left is neither, and Vim says so rather than sorting.
+    static const QString plainFlags = "ilru";
+    static const QString formatFlags = "bfnox";
+    const QString args = cmd.args;
     QString pattern;
-    const int patternAt = args.indexOf('/');
-    if (patternAt != -1) {
-        const int patternEnd = args.indexOf('/', patternAt + 1);
-        if (patternEnd == -1) {
-            showMessage(MessageError, Tr::tr("E682: Invalid search pattern or delimiter"));
+    QString flags;
+    int formats = 0;
+    for (int i = 0; i < args.size(); ++i) {
+        const QChar c = args.at(i);
+        if (c.isSpace())
+            continue;
+        if (c == '"')
+            break;
+        if (plainFlags.contains(c)) {
+            flags.append(c);
+        } else if (formatFlags.contains(c)) {
+            flags.append(c);
+            ++formats;
+        } else if (!c.isLetter() && pattern.isEmpty()) {
+            const int end = args.indexOf(c, i + 1);
+            if (end == -1) {
+                showMessage(MessageError,
+                            Tr::tr("E654: Missing delimiter after search pattern: %1")
+                                .arg(args.mid(i + 1)));
+                return true;
+            }
+            pattern = args.mid(i + 1, end - i - 1);
+            i = end;
+        } else {
+            showMessage(MessageError, Tr::tr("E475: Invalid argument: %1").arg(args.mid(i)));
             return true;
         }
-        pattern = args.mid(patternAt + 1, patternEnd - patternAt - 1);
-        args.remove(patternAt, patternEnd - patternAt + 1);
     }
-    const QString flags = args.simplified().remove(' ');
+    // Only one of them can say what a number looks like, and saying one twice
+    // is saying two of them.
+    if (formats > 1) {
+        showMessage(MessageError, Tr::tr("E474: Invalid argument"));
+        return true;
+    }
     const bool ignoreCase = flags.contains('i');
     const bool unique = flags.contains('u');
     const bool byMatch = flags.contains('r');
@@ -14716,17 +14968,6 @@ bool FakeVimHandler::Private::handleExSortCommand(const ExCommand &cmd)
     const bool floating = flags.contains('f');
     const bool numeric = decimal || hex || octal || binary;
     const Qt::CaseSensitivity sensitivity = ignoreCase ? Qt::CaseInsensitive : Qt::CaseSensitive;
-
-    // Without a range the whole document is sorted.
-    int beginLine = lineForPosition(cmd.range.beginPos);
-    int endLine = lineForPosition(cmd.range.endPos);
-    if (!cmd.hasRange) {
-        beginLine = 1;
-        endLine = lineForPosition(lastPositionInDocument(true));
-    }
-    // A single line is sorted already, and Vim does not even move the cursor.
-    if (endLine <= beginLine)
-        return true;
     Range range(firstPositionInLine(beginLine),
                 firstPositionInLine(endLine), RangeLineMode);
 
@@ -25820,7 +26061,8 @@ void FakeVimHandler::Private::execSequence(const QList<ExCommand> &cmds,
                     EventContext undefined;
                     undefined.target = c.cmd;
                     triggerAutocmd("CmdUndefined", undefined);
-                    showMessage(MessageError, Tr::tr("E492: Not an editor command: %1").arg(c.cmd));
+                    showMessage(MessageError,
+                                Tr::tr("E492: Not an editor command: %1").arg(c.original));
                 }
             }
             ++index;
@@ -29757,6 +29999,10 @@ void FakeVimHandler::Private::onContentsChanged(int position, int charsRemoved, 
     if (!m_inFakeVim) {
         m_buffer->lineUndoBlock = -1;
         m_buffer->lineUndoText.clear();
+        // Vim rereads the buffer, so the place "''" leads back to is wherever
+        // the cursor comes to rest in the text that arrived.
+        m_buffer->marks.remove('\'');
+        m_buffer->marks.remove('`');
     }
 
     // Where "U" puts the cursor: at the first of the changes to the line, which
@@ -30395,12 +30641,29 @@ void FakeVimHandler::Private::recordJump(int position)
 {
     CursorPosition pos = position >= 0 ? CursorPosition(document(), position)
                                        : CursorPosition(m_cursor);
+    m_jumpRecorded = true;
+    m_recordedJump = pos;
+    m_markBeforeJump = mark('\'');
+    m_backTickMarkBeforeJump = mark('`');
     setMark('\'', pos);
     setMark('`', pos);
     if (m_buffer->jumpListUndo.isEmpty() || m_buffer->jumpListUndo.top() != pos)
         m_buffer->jumpListUndo.push(pos);
     m_buffer->jumpListRedo.clear();
     UNDO_DEBUG("jumps: " << m_buffer->jumpListUndo);
+}
+
+// Vim's checkpcmark(): a jump command that did not move the cursor is no jump,
+// and the position it recorded gives way again to the one before it.
+void FakeVimHandler::Private::checkRecordedJump()
+{
+    if (!m_jumpRecorded)
+        return;
+    m_jumpRecorded = false;
+    if (!m_markBeforeJump.isValid() || CursorPosition(m_cursor) != m_recordedJump)
+        return;
+    m_buffer->marks['\''] = m_markBeforeJump;
+    m_buffer->marks['`'] = m_backTickMarkBeforeJump;
 }
 
 void FakeVimHandler::Private::jump(int distance)
@@ -30514,6 +30777,7 @@ void FakeVimHandler::Private::insertAutomaticIndentation(bool goingDown, bool fo
     // Remember this as a freshly auto-indented line so that leaving it without
     // typing anything removes the indentation again (QTCREATORBUG-15009).
     m_autoIndentBlock = block().blockNumber();
+    m_autoIndentSize = position() - block().position();
 }
 
 void FakeVimHandler::Private::clearUntouchedAutoIndentation(bool upToCursor)
@@ -31782,6 +32046,22 @@ CommandBuffer *FakeVimHandler::Private::historyBuffer(const QString &name)
     if (name == "expr" || name == "=")
         return &m_expressionBuffer;
     return nullptr;
+}
+
+void FakeVimHandler::Private::insertRegisterAsTyped(int reg)
+{
+    QString text = registerContents(reg);
+    if (registerRangeMode(reg) == RangeLineMode && !text.endsWith('\n'))
+        text.append('\n');
+    // Vim types out what CTRL-R holds up rather than putting it in, so each
+    // newline in it breaks the line the way a typed one does.
+    const QStringList lines = text.split('\n');
+    for (int i = 0; i < lines.size(); ++i) {
+        if (i > 0)
+            insertNewLine();
+        setAnchor();
+        m_cursor.insertText(lines.at(i));
+    }
 }
 
 void FakeVimHandler::Private::insertRegisterLiterally(int reg, bool fixIndent)
