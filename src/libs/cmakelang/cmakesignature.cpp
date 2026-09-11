@@ -129,6 +129,30 @@ bool forwardsArguments(CommandAST *command)
     return false;
 }
 
+// Whether the cmake_parse_arguments() call reads the arguments of the
+// command it stands in.  One that reads the values of an argument instead,
+// the way a call may look through what it was handed for PROPERTIES, says
+// nothing about the command.
+bool parsesOwnArguments(CommandAST *command)
+{
+    const ListView<ArgumentAST *> arguments = command->arguments();
+    ArgumentAST *first = arguments.first();
+    if (first && first->value() == "PARSE_ARGV")
+        return true;
+    if (forwardsArguments(command))
+        return true;
+
+    // A call may work through what an earlier one left over of the same
+    // arguments, the way cmake_print_properties() looks for its mode
+    // keyword in what the call for PROPERTIES did not take.
+    for (ArgumentAST *argument : arguments) {
+        const QString value = argument->value();
+        if (value.startsWith("${") && value.endsWith("_UNPARSED_ARGUMENTS}"))
+            return true;
+    }
+    return false;
+}
+
 } // namespace
 
 namespace CMakeLang {
@@ -237,7 +261,10 @@ void SignatureTable::addDocument(const DocumentPtr &document)
                 variables.append(arguments.at(1)->value(),
                                  expandArguments(variables, arguments, 2));
             } else if (command->isNamed("cmake_parse_arguments")) {
-                spelledOut = addKeywords(&definition.signature, command, variables) && spelledOut;
+                if (parsesOwnArguments(command)) {
+                    spelledOut = addKeywords(&definition.signature, command, variables)
+                                 && spelledOut;
+                }
             } else if (forwardsArguments(command)) {
                 definition.forwardsTo.append(command->commandName().toLower());
             }

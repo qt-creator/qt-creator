@@ -765,6 +765,29 @@ void tst_CMakeLang::signaturesNeedTheSource()
     QVERIFY(signatureOf("cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"FILES\")\n", "f")
                 .isEmpty());
 
+    // A call that reads the values of an argument instead of the arguments
+    // of the command says nothing about the command: what stands behind
+    // PROPERTIES is no keyword of the call itself.
+    const Signature nested
+        = signatureOf("function(f)\n"
+                      "  cmake_parse_arguments(_arg \"\" \"\" \"PROPERTIES\" ${ARGN})\n"
+                      "  cmake_parse_arguments(_prop \"\" \"OUTPUT_NAME\" \"\""
+                      " \"${_arg_PROPERTIES}\")\n"
+                      "endfunction()\n",
+                      "f");
+    QCOMPARE(nested.keywords(), QStringList({"PROPERTIES"}));
+
+    // A call that works through what an earlier one left over reads the
+    // arguments of the command as well: both keyword lists are its own.
+    const Signature leftover
+        = signatureOf("function(f)\n"
+                      "  cmake_parse_arguments(_arg \"\" \"\" \"PROPERTIES\" ${ARGN})\n"
+                      "  cmake_parse_arguments(_mode \"\" \"\" \"TARGETS;SOURCES\""
+                      " ${_arg_UNPARSED_ARGUMENTS})\n"
+                      "endfunction()\n",
+                      "f");
+    QCOMPARE(leftover.keywords(), QStringList({"PROPERTIES", "SOURCES", "TARGETS"}));
+
     QVERIFY(signatureOf("function(f)\nendfunction()\n", "f").isEmpty());
     QVERIFY(signatureOf("", "f").isEmpty());
 }
