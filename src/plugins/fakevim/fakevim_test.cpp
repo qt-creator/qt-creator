@@ -87,6 +87,7 @@ private slots:
     void test_vim_target_column_visual_block();
     void test_vim_target_column_visual_line();
     void test_vim_target_column_insert();
+    void test_vim_target_column_insert_past_end();
     void test_vim_target_column_replace();
 
     void test_vim_insert();
@@ -301,6 +302,7 @@ private slots:
     void test_vim_cmdline_history();
     void test_vim_script_named_key_string();
     void test_vim_register_carriage_return();
+    void test_vim_register_black_hole();
     void test_vim_script_getchar();
     void test_vim_script_eval();
     void test_vim_set_invert();
@@ -359,6 +361,7 @@ private slots:
     void test_vim_map_leader();
     void test_vim_auto_wrap();
     void test_vim_format_options_leader();
+    void test_vim_format_options_leader_flags();
     void test_vim_set_number_option();
     void test_vim_line_address_arithmetic();
     void test_vim_filter_range();
@@ -371,6 +374,8 @@ private slots:
     void test_vim_numbered_register_repeat();
     void test_vim_numbered_register_whole_lines();
     void test_vim_change_marks_after_operator();
+    void test_vim_ex_semicolon_range();
+    void test_vim_autoindent_kept_over_line_break();
     void test_vim_insert_ctrl_g();
     void test_vim_insert_abbreviation_word();
     void test_vim_substitute_expression();
@@ -398,6 +403,7 @@ private slots:
     void test_vim_dot_with_count();
     void test_vim_a_word_blanks();
     void test_vim_insert_take_back();
+    void test_vim_insert_take_back_line_break();
     void test_vim_change_marks();
     void test_vim_match_pair_fails();
     void test_vim_search_motion_kind();
@@ -1356,6 +1362,55 @@ void FakeVimTester::test_vim_target_column_insert()
     KEYS("<C-O>j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
     KEYS("<C-O>^<up>",
                     X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+}
+
+void FakeVimTester::test_vim_target_column_insert_past_end()
+{
+    // An insert past the end of a line counts the column from there, and the
+    // single command CTRL-O runs may leave the cursor past the end as well.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("abc" N "def");
+    KEYS("A<C-O>jZ<esc>", "abc" N "def" X "Z");
+    data.setText("abc" N "defgh");
+    KEYS("A<C-O>jZ<esc>", "abc" N "def" X "Zgh");
+    data.setText("ab" N "xyzw");
+    KEYS("A<C-O>jZ<esc>", "ab" N "xy" X "Zzw");
+    data.setText("abc" N "de");
+    KEYS("A<C-O>jZ<esc>", "abc" N "de" X "Z");
+    data.setText("abc" N "def");
+    KEYS("jA<C-O>kZ<esc>", "abc" X "Z" N "def");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("A<C-O>2jZ<esc>", "abc" N "def" N "ghi" X "Z");
+
+    // The command itself starts on the last character of the line, the way a
+    // command of its own does.
+    data.setText("abc");
+    KEYS("A<C-O>hZ<esc>", "a" X "Zbc");
+    data.setText("abcdef");
+    KEYS("A<C-O>hZ<esc>", "abcd" X "Zef");
+    data.setText("abc");
+    KEYS("A<C-O>lZ<esc>", "abc" X "Z");
+
+    // An insert that is not past the end is not moved there.
+    data.setText("abc" N "de");
+    KEYS("i<C-O>jZ<esc>", "abc" N X "Zde");
+    data.setText("abc");
+    KEYS("i<C-O>lZ<esc>", "a" X "Zbc");
+    data.setText("abc");
+    KEYS("i<C-O>$Z<esc>", "abc" X "Z");
+
+    // Only one command is taken, the rest is typed again.
+    data.setText("abc" N "def");
+    KEYS("A<C-O>jjZ<esc>", "abc" N "defj" X "Z");
+    data.setText("abc" N "def");
+    KEYS("A<C-O>jA Z<esc>", "abc" N "defA " X "Z");
+
+    // Replace mode counts the column the same way.
+    data.setText("abc" N "def");
+    KEYS("RXY<C-O>jZ<esc>", "XYc" N "de" X "Z");
 }
 
 void FakeVimTester::test_vim_target_column_replace()
@@ -9918,6 +9973,23 @@ void FakeVimTester::test_vim_reflow()
 
     data.setText("aaa |bbb ccc" N "ddd");
     KEYS("gwj", "aaa |bbb" N "ccc ddd");
+
+    // Where the reflow moves that character to another line the cursor goes
+    // with it.
+    data.setText("aaa bbb |ccc ddd eee");
+    KEYS("gww", "aaa bbb" N "|ccc ddd" N "eee");
+    data.setText("aaa bbb ccc |ddd eee");
+    KEYS("gww", "aaa bbb" N "ccc |ddd" N "eee");
+    data.setText("aaa bbb ccc ddd |eee");
+    KEYS("gww", "aaa bbb" N "ccc ddd" N "|eee");
+    data.setText("aaa bbb ccc ddd eee fff ggg |hhh");
+    KEYS("gww", "aaa bbb" N "ccc ddd" N "eee fff" N "ggg |hhh");
+    data.setText("aaa bbb ccc |ddd eee" N "fff ggg");
+    KEYS("gwj", "aaa bbb" N "ccc |ddd" N "eee fff" N "ggg");
+
+    // From a blank it keeps its place behind the word before it.
+    data.setText("aaa bbb ccc| ddd eee");
+    KEYS("gww", "aaa bbb" N "ccc| ddd" N "eee");
 }
 
 void FakeVimTester::test_vim_open_line_with_fold()
@@ -18549,13 +18621,151 @@ void FakeVimTester::test_vim_format_options_leader()
     data.setText("abc");
     KEYS("ox<Esc>", "abc" N X "x");
 
+    // The two are separate: an "r" alone says nothing about "o", and where both
+    // ask for a leader the opened line gets one, not two.
+    data.doCommand("set fo=r");
+    data.setText("// abc");
+    KEYS("ox<Esc>", "// abc" N X "x");
+    data.doCommand("set fo=ro");
+    data.setText("// abc");
+    KEYS("ox<Esc>", "// abc" N "// " X "x");
+    data.setText("// abc");
+    KEYS("A<CR>x<Esc>", "// abc" N "// " X "x");
+
+    // The indentation of the line comes along with its leader.
+    data.setText("  // abc");
+    KEYS("ox<Esc>", "  // abc" N "  // " X "x");
+    data.setText("  // abc");
+    KEYS("Ox<Esc>", "  // " X "x" N "  // abc");
+    data.setText("  // abc");
+    KEYS("A<CR>x<Esc>", "  // abc" N "  // " X "x");
+
+    // Nothing typed behind such a leader and its trailing blanks go.
+    data.setText("// abc");
+    KEYS("o<Esc>", "// abc" N "/" X "/");
+    data.setText("// abc");
+    KEYS("o<CR>x<Esc>", "// abc" N "//" N "// " X "x");
+
     data.doCommand("set fo=");
     data.setText("// abc");
     KEYS("A<CR>x<Esc>", "// abc" N X "x");
     data.setText("// abc");
     KEYS("ox<Esc>", "// abc" N X "x");
 
-    data.doCommand("set fo=tcq");
+    data.doCommand("set fo=tcq | set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-");
+}
+
+void FakeVimTester::test_vim_format_options_leader_flags()
+{
+    // The flags of the matching 'comments' entry decide what the opened line
+    // gets: an "s" leader is replaced by the middle leader of that comment and
+    // shifted by the offset the entry carries, an "e" one gives nothing
+    // downward, and an "f" one leaves the blanks it occupied. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set fo=croq | set noai | set nosi");
+    data.doCommand("set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-");
+
+    // The start of a comment brings the middle leader, the old indentation does
+    // not come with it.
+    data.setText("  /* abc");
+    KEYS("ox<Esc>", "  /* abc" N " * " X "x");
+    data.setText("  /*abc");
+    KEYS("ox<Esc>", "  /*abc" N " * " X "x");
+    data.setText("/*");
+    KEYS("ox<Esc>", "/*" N " * " X "x");
+
+    // A comment that ends on the line gives no leader at all, and so does its
+    // end leader on a line of its own.
+    data.setText("  /* abc */");
+    KEYS("ox<Esc>", "  /* abc */" N X "x");
+    data.setText("  */ abc");
+    KEYS("ox<Esc>", "  */ abc" N X "x");
+
+    // Upward there is no leader to repeat where the comment starts, and the end
+    // leader takes the middle one.
+    data.setText("  /* abc");
+    KEYS("Ox<Esc>", X "x" N "  /* abc");
+    data.setText("  */ abc");
+    KEYS("Ox<Esc>", "  *  " X "x" N "  */ abc");
+
+    // An "f" leader is for the first line only, the line below keeps its width.
+    data.setText("  - abc");
+    KEYS("ox<Esc>", "  - abc" N "    " X "x");
+
+    // A leader without any of those flags is repeated as it stands.
+    data.setText("  > abc");
+    KEYS("ox<Esc>", "  > abc" N "  > " X "x");
+    data.setText("  //\tabc");
+    KEYS("ox<Esc>", "  //\tabc" N "  //\t" X "x");
+    data.setText("\t// abc");
+    KEYS("ox<Esc>", "\t// abc" N "\t// " X "x");
+
+    // A return takes the leader from what stays on the line, the part in front
+    // of the cursor.
+    data.setText("  // " X "abc");
+    KEYS("i<CR>x<Esc>", "  // " N "  // " X "x" "abc");
+    data.setText("  " X "// abc");
+    KEYS("i<CR>x<Esc>", "  " N X "x" "// abc");
+
+    // With 'autoindent' the indentation is kept and the offset added to it.
+    data.doCommand("set ai");
+    data.setText("  /* abc");
+    KEYS("ox<Esc>", "  /* abc" N "   * " X "x");
+    data.setText("  */ abc");
+    KEYS("ox<Esc>", "  */ abc" N "  " X "x");
+    data.doCommand("set noai");
+
+    // The offset is the width the middle leader is moved by, and the blanks
+    // behind it go so that what follows them stays where it was.
+    data.doCommand("set comments=s0:/*,mb:*,ex:*/");
+    data.setText("    /* abc");
+    KEYS("ox<Esc>", "    /* abc" N "    *  " X "x");
+    data.setText("    /*   abc");
+    KEYS("ox<Esc>", "    /*   abc" N "    *    " X "x");
+    data.doCommand("set comments=s2:/*,mb:*,ex:*/");
+    data.setText("    /* abc");
+    KEYS("ox<Esc>", "    /* abc" N "  *" X "x");
+    data.setText("    /*   abc");
+    KEYS("ox<Esc>", "    /*   abc" N "  *  " X "x");
+    data.setText("  /*abc");
+    KEYS("ox<Esc>", "  /*abc" N "  * " X "x");
+    data.doCommand("set comments=s3:/*,mb:*,ex:*/");
+    data.setText("    /* abc");
+    KEYS("ox<Esc>", "    /* abc" N "   *" X "x");
+    data.doCommand("set comments=s-1:/*,mb:*,ex:*/");
+    data.setText("    /* abc");
+    KEYS("ox<Esc>", "    /* abc" N "    *  " X "x");
+
+    // An "r" among the flags puts the middle leader at the end of the old one.
+    data.doCommand("set comments=sr:/*,mb:*,ex:*/");
+    data.setText("    /* abc");
+    KEYS("ox<Esc>", "    /* abc" N "     * " X "x");
+
+    // A "b" on the middle leader asks for the blank behind it, which the old
+    // leader does not always have.
+    data.doCommand("set comments=s1:/*,m:*,ex:*/");
+    data.setText("  /*abc");
+    KEYS("ox<Esc>", "  /*abc" N " *" X "x");
+    data.doCommand("set comments=s1:/*,mb:**,ex:*/");
+    data.setText("  /* abc");
+    KEYS("ox<Esc>", "  /* abc" N " **" X "x");
+
+    // Without an end leader to look for, every comment ends on its first line.
+    data.doCommand("set comments=s1:/*,mb:*");
+    data.setText("  /* abc");
+    KEYS("ox<Esc>", "  /* abc" N X "x");
+
+    data.doCommand("set comments=f:-,b:#");
+    data.setText("    - abc");
+    KEYS("ox<Esc>", "    - abc" N "      " X "x");
+    data.doCommand("set comments=fb:-,b:#");
+    data.setText("    -abc");
+    KEYS("ox<Esc>", "    -abc" N X "x");
+
+    data.doCommand("set fo=tcq | set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-");
 }
 
 void FakeVimTester::test_vim_set_number_option()
@@ -18890,6 +19100,142 @@ void FakeVimTester::test_vim_change_marks_after_operator()
     data.setText(X "abc" N "def");
     KEYS(">j`]x", "\tabc" N "\td" X "e");
     data.doCommand("set noexpandtab | set shiftwidth=8");
+}
+
+void FakeVimTester::test_vim_ex_semicolon_range()
+{
+    // ";" separates two addresses like "," does, but it goes to the first of
+    // them before the second one is read, so an address relative to the line
+    // counts from there. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":2;+1d<CR>", "a" N X "d" N "e");
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":2;+2d<CR>", "a" N X "e");
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":.;+1d<CR>", X "c" N "d" N "e");
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":2;.+1d<CR>", "a" N X "d" N "e");
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":/c/;+1d<CR>", "a" N "b" N X "e");
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":2;$d<CR>", X "a");
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS("jjma:\'a;+1d<CR>", "a" N "b" N X "e");
+
+    // A "," counts a relative address from the line it started on.
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":2,+1d<CR>", "a" N X "c" N "d" N "e");
+
+    // The second address may be left out, which leaves the line ";" went to.
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":3;d<CR>", "a" N "b" N X "d" N "e");
+
+    // A range of its own goes to the last of the two.
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":2;+1<CR>", "a" N "b" N X "c" N "d" N "e");
+
+    // What the range covers is what the command works on, wherever it is.
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":2;+1m0<CR>", "b" N X "c" N "a" N "d" N "e");
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":2;+1y<CR>Gp", "a" N "b" N "c" N "d" N "e" N X "b" N "c");
+    data.setText("a" N "b" N "c" N "d" N "e");
+    KEYS(":2;+1s/./Z/<CR>", "a" N "Z" N X "Z" N "d" N "e");
+}
+
+void FakeVimTester::test_vim_autoindent_kept_over_line_break()
+{
+    // Leaving an auto-indented line on which nothing was typed takes its
+    // indentation away, and the line broken off from it still gets that
+    // indentation. Values taken from Vim 9.1, which has no indenter of its own
+    // to consult here, so "smartindent" is off.
+    TestData data;
+    setup(&data);
+    data.doCommand("set autoindent");
+    data.doCommand("set nosmartindent");
+    data.doCommand("set noexpandtab");
+
+    data.setText("    abc");
+    KEYS("cc<cr>Z<esc>", "" N "    " X "Z");
+    data.setText("    abc");
+    KEYS("o<cr>Z<esc>", "    abc" N "" N "    " X "Z");
+    data.setText("    abc");
+    KEYS("o<cr><cr>Z<esc>", "    abc" N "" N "" N "    " X "Z");
+    data.setText("    abc");
+    KEYS("O<cr>Z<esc>", "" N "    " X "Z" N "    abc");
+    data.setText("    abc");
+    KEYS("A<cr><cr>Z<esc>", "    abc" N "" N "    " X "Z");
+    data.setText("      abc");
+    KEYS("cc<cr><cr>Z<esc>", "" N "" N "      " X "Z");
+    data.setText("    abc" N "  def");
+    KEYS("jcc<cr>Z<esc>", "    abc" N "" N "  " X "Z");
+    data.setText("\tabc");
+    KEYS("cc<cr>Z<esc>", "" N "\t" X "Z");
+
+    // Typing on the line keeps its indentation where it is.
+    data.setText("    abc");
+    KEYS("ccx<cr>Z<esc>", "    x" N "    " X "Z");
+
+    // Nothing typed on either line leaves no indentation behind.
+    data.setText("    abc");
+    KEYS("cc<cr><esc>", "" N X "");
+}
+
+void FakeVimTester::test_vim_register_black_hole()
+{
+    // The black hole register takes what is written to it nowhere, and reading
+    // it gives nothing back. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    // What a command sends there is gone, and the other registers keep what
+    // they had.
+    data.setText("abc def");
+    KEYS("yiww\"_diwA<C-R>_<esc>", "abc" X " ");
+    data.setText("abc");
+    KEYS("yiw\"_yiwA<C-R>_<esc>", "ab" X "c");
+    data.setText("abc def");
+    KEYS("yiw\"_dwP", "ab" X "cdef");
+    data.setText("abc def");
+    KEYS("yiw\"_yiwP", "ab" X "cabc def");
+    data.setText("abc def");
+    KEYS("yiww\"_dwP", "abcab" X "c ");
+    data.setText("abc def");
+    KEYS("yiw\"_xP", "ab" X "cbc def");
+    data.setText("abc def");
+    KEYS("yiw\"_cwZ<esc>P", "ab" X "cZ def");
+    data.setText("abc def");
+    KEYS("yiwv\"_dP", "ab" X "cbc def");
+    data.setText("abc" N "def");
+    KEYS("yy\"_ddp", "def" N X "abc");
+
+    // Reading it gives nothing whether anything was sent there or not.
+    data.setText("abc def");
+    KEYS("yiwwdiwA<C-R>_<esc>", "abc" X " ");
+    data.setText("abc");
+    KEYS("yiwA<C-R>_<esc>", "ab" X "c");
+
+    // Putting from it puts nothing, not even the empty line a linewise
+    // register would bring.
+    data.setText("abc" N "def");
+    KEYS("\"_dd\"_p", X "def");
+    data.setText("abc" N "def");
+    KEYS("\"_yy\"_p", X "abc" N "def");
+    data.setText("abc" N "def");
+    KEYS("yy\"_dd\"_p", X "def");
+    data.setText("abc def");
+    KEYS("\"_dw\"_p", X "def");
+    data.setText("abc def");
+    KEYS("\"_yiw\"_P", X "abc def");
+    data.setText("abc def");
+    KEYS("yiw\"_dw\"_pP", "ab" X "cdef");
+
+    // Writing to it by name does nothing either.
+    data.setText("abc");
+    KEYS("yiw:let @_=\'zz\'<cr>A<C-R>_<esc>", "ab" X "c");
 }
 
 void FakeVimTester::test_vim_insert_ctrl_g()
@@ -19711,6 +20057,76 @@ void FakeVimTester::test_vim_a_word_blanks()
     KEYS("$2daw", "abc  de" X "f");
     data.setText("abc def ghi");
     KEYS("fd3daw", "abc def gh" X "i");
+}
+
+void FakeVimTester::test_vim_insert_take_back_line_break()
+{
+    // With nothing of its own left in the line, a backspace, CTRL-W or CTRL-U
+    // takes the line break before it, which needs "eol" among 'backspace', and
+    // "start" as well where the insert began in that line. Neither CTRL-W nor
+    // CTRL-U reaches over the break it just took. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set noautoindent nosmartindent");
+    data.doCommand("set backspace=indent,eol,start");
+    data.setText("abc" N "def");
+    KEYS("ji<C-w>Z<Esc>", "abc" X "Zdef");
+    data.setText("abc" N "def");
+    KEYS("ji<C-u>Z<Esc>", "abc" X "Zdef");
+    data.setText("abc" N "def");
+    KEYS("ji<BS>Z<Esc>", "abc" X "Zdef");
+
+    // The indent belongs to the line, so it goes before the break does.
+    data.setText("abc" N "  def");
+    KEYS("jI<C-w>Z<Esc>", "abc" N X "Zdef");
+    data.setText("abc" N "  def");
+    KEYS("jI<C-w><C-w>Z<Esc>", "abc" X "Zdef");
+    data.setText("abc def" N "  ghi");
+    KEYS("jA<C-w><C-w>Z<Esc>", "abc def" N X "Z");
+
+    data.setText("abc" N "  def");
+    KEYS("jA<C-u><C-u>Z<Esc>", "abc" X "Z");
+    data.setText("abc" N "  def");
+    KEYS("jA<C-u><C-u><C-u>Z<Esc>", X "Z");
+    data.setText("abc" N "  def");
+    KEYS("j0i<C-u>Z<Esc>", "abc" X "Z  def");
+    data.setText("abcde" N "fgh");
+    KEYS("ji<C-u><C-u>Z<Esc>", X "Zfgh");
+    data.setText("abc" N N "def");
+    KEYS("ji<C-u>Z<Esc>", "abc" X "Z" N "def");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("Gi<C-u><C-u>Z<Esc>", "abc" N X "Zghi");
+
+    // There is no break before the first line.
+    data.setText("abc" N "def");
+    KEYS("i<C-w>Z<Esc>", X "Zabc" N "def");
+
+    // "eol" alone leaves the break the insert started behind, "start" alone
+    // leaves every break.
+    data.doCommand("set backspace=eol");
+    data.setText("abc" N "def");
+    KEYS("ji<C-w>Z<Esc>", "abc" N X "Zdef");
+    data.setText("abc" N "def");
+    KEYS("jA<C-u><C-u>Z<Esc>", "abc" N "def" X "Z");
+    data.setText("abc");
+    KEYS("A<CR>x<BS><BS>Z<Esc>", "abc" X "Z");
+    data.setText("abc");
+    KEYS("A<CR>x<C-u><C-u>Z<Esc>", "abc" X "Z");
+
+    data.doCommand("set backspace=start");
+    data.setText("abc" N "def");
+    KEYS("ji<C-w>Z<Esc>", "abc" N X "Zdef");
+    data.setText("abc" N "def");
+    KEYS("jA<C-u><C-u>Z<Esc>", "abc" N X "Z");
+    data.setText("abc");
+    KEYS("A<CR>x<C-w><C-w>Z<Esc>", "abc" N X "Z");
+
+    data.doCommand("set backspace=");
+    data.setText("abc");
+    KEYS("A<CR>x<BS><BS>Z<Esc>", "abc" N X "Z");
+
+    data.doCommand("set backspace=indent,eol,start");
 }
 
 void FakeVimTester::test_vim_insert_take_back()

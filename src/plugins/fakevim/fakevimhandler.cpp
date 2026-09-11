@@ -3178,6 +3178,9 @@ public:
     void setTargetColumn();
     bool moveToMatchingParanthesis();
     int insertStartLimit(int from) const;
+    int insertStartPosition() const;
+    bool backspaceAllows(const QString &what) const;
+    void removeLineBreakBeforeCursor();
     int distanceToLineEnd() const;
     void moveWithShiftedLine(int fromEnd);
     int vimMatchingParenthesis(int pos) const;
@@ -3282,9 +3285,8 @@ public:
     QTextCursor m_cursor;
     bool m_cursorNeedsUpdate;
 
-    // Cursor position (block, column) to restore after the "gw" reflow.
-    int m_reflowSavedLine = 0;
-    int m_reflowSavedColumn = 0;
+    // Where the cursor stood before the "gw" reflow, which puts it back there.
+    int m_reflowSavedPosition = 0;
 
     bool moveToPreviousParagraph(int count = 1) { return moveToNextParagraph(-count); }
     bool moveToNextParagraph(int count = 1);
@@ -3471,6 +3473,9 @@ public:
     // typed content yet. Leaving such a line untouched removes the automatic
     // indentation again, matching Vim (QTCREATORBUG-15009). -1 means none.
     int m_autoIndentBlock = -1;
+    // The comment leader put in automatically, and the line it went to.
+    int m_commentLeaderBlock = -1;
+    QString m_commentLeaderText;
 
     // The key typed before the current one in insert mode, which "0 CTRL-D"
     // and "^ CTRL-D" look at to tell themselves from a plain CTRL-D.
@@ -3651,6 +3656,7 @@ public:
     void downCase(const Range &range);
 
     void reflowText(const Range &range);
+    void reflowKeepingCursor(const Range &range);
 
     void replaceText(const Range &range, const QString &str);
 
@@ -3670,10 +3676,13 @@ public:
     void cutSelectedText(int reg = 0);
 
     bool joinLines(int count, bool preserveSpace = false);
-    int commentLeaderLength(const QString &line) const;
+    int commentLeaderLength(const QString &line, int *entry = nullptr) const;
+    QString commentLeaderForNewLine(const QString &line, bool backward) const;
+    void insertCommentLeader(const QString &leader);
+    void trimUntouchedCommentLeader();
     bool hasCommentLeader(const QString &line) const;
 
-    void insertNewLine();
+    void insertNewLine(bool repeatCommentLeader = true);
 
     bool handleInsertInEditor(const Input &input);
     bool passEventToEditor(QEvent &event, QTextCursor &tc); // Pass event to editor widget without filtering. Returns true if event was processed.
@@ -6263,17 +6272,13 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
         const bool keepCursor = g.submode == ReflowKeepCursorSubMode;
         pushUndoState(false);
         beginEditBlock();
-        reflowText(currentRange());
+        if (keepCursor)
+            reflowKeepingCursor(currentRange());
+        else
+            reflowText(currentRange());
         endEditBlock();
-        if (keepCursor) {
-            // "gw" leaves the cursor where it was before the command.
-            const int line = qMin(m_reflowSavedLine, document()->blockCount() - 1);
-            const QTextBlock b = document()->findBlockByNumber(line);
-            setPosition(b.position() + qMin(m_reflowSavedColumn, qMax(b.length() - 1, 0)));
-            setTargetColumn();
-        } else if (g.movetype == MoveLineWise) {
+        if (!keepCursor && g.movetype == MoveLineWise)
             handleStartOfLine();
-        }
     }
 
     if (!dotCommandMovement.isEmpty()) {
@@ -7763,8 +7768,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (g.gflag && (input.is('q') || input.is('w'))) {
         const bool keepCursor = input.is('w');
         const QString op = keepCursor ? "gw" : "gq";
-        m_reflowSavedLine = m_cursor.blockNumber();
-        m_reflowSavedColumn = m_cursor.positionInBlock();
+        m_reflowSavedPosition = position();
         if (isVisualMode()) {
             pushUndoState();
             const int lines = qAbs(m_cursor.blockNumber() - blockAt(m_cursor.anchor()).blockNumber());
@@ -7772,16 +7776,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             leaveVisualMode();
             g.movetype = MoveLineWise;
             beginEditBlock();
-            reflowText(currentRange());
+            if (keepCursor)
+                reflowKeepingCursor(currentRange());
+            else
+                reflowText(currentRange());
             endEditBlock();
-            if (keepCursor) {
-                const int line = qMin(m_reflowSavedLine, document()->blockCount() - 1);
-                const QTextBlock b = document()->findBlockByNumber(line);
-                setPosition(b.position() + qMin(m_reflowSavedColumn, qMax(b.length() - 1, 0)));
-                setTargetColumn();
-            } else {
+            if (!keepCursor)
                 handleStartOfLine();
-            }
             g.submode = NoSubMode;
         } else {
             g.movetype = MoveLineWise;
@@ -7955,7 +7956,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         // An "o" among 'formatoptions' asks for the comment leader of the line
         // the new one is opened from.
         const QString leader = s.formatOptions().contains('o')
-                                   ? commentLeaderOf(block().text()) : QString();
+                                   ? commentLeaderForNewLine(block().text(), !insertAfter)
+                                   : QString();
 
         // "O" takes the indentation of the line it pushes down, not of the one
         // above it.
@@ -7991,7 +7993,9 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         clearLastInsertion();
         setAnchor();
         if (appendLine) {
-            insertNewLine();
+            // The leader of an opened line is what an "o" among 'formatoptions'
+            // asks for, not what an "r" does.
+            insertNewLine(false);
             m_buffer->insertState.newLineBefore = true;
         } else {
             // Opening a line above the first one is no split of that line: it
@@ -8007,8 +8011,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             setPosition(firstPositionInLine(line) + indent.size());
             m_autoIndentBlock = block().blockNumber();
         }
-        if (!leader.isEmpty())
-            insertText(Register(leader.mid(indentation(leader).physical)));
+        insertCommentLeader(leader);
         setTargetColumn();
         endEditBlock();
 
@@ -9022,6 +9025,7 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
                 setMark(']', CursorPosition(m_cursor), true);
             }
             clearUntouchedAutoIndentation();
+            trimUntouchedCommentLeader();
             finishInsertMode();
         }
     } else if (g.submode == CtrlRSubMode) {
@@ -9122,24 +9126,22 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         else
             insertInInsertMode(m_buffer->lastInsertedText);
         finishInsertMode();
-    } else if (input.isControl('w')) {
-        const int blockNumber = m_cursor.blockNumber();
+    } else if (input.isControl('w') || input.isControl('u')) {
         const int endPos = position();
-        moveToNextWordStart(1, false, false);
-        if (blockNumber != m_cursor.blockNumber())
-            moveToEndOfLine();
-        const int beginPos = qMax(position(), insertStartLimit(endPos));
+        const int lineStart = block().position();
+        int beginPos = lineStart;
+        if (input.isControl('w')) {
+            moveToNextWordStart(1, false, false);
+            // Neither reaches over the line break: where nothing of the line
+            // is left before the cursor, the break itself is what goes.
+            beginPos = qMax(position(), lineStart);
+        }
+        beginPos = qMax(beginPos, insertStartLimit(endPos));
         setPosition(beginPos);
-        removeText(Range(beginPos, endPos, RangeCharMode));
-    } else if (input.isControl('u')) {
-        const int blockNumber = m_cursor.blockNumber();
-        const int endPos = position();
-        moveToStartOfLine();
-        if (blockNumber != m_cursor.blockNumber())
-            moveToEndOfLine();
-        const int beginPos = qMax(position(), insertStartLimit(endPos));
-        setPosition(beginPos);
-        removeText(Range(beginPos, endPos, RangeCharMode));
+        if (beginPos == endPos)
+            removeLineBreakBeforeCursor();
+        else
+            removeText(Range(beginPos, endPos, RangeCharMode));
     } else if (input.isKey(Key_Insert)) {
         g.mode = ReplaceMode;
         q->modeChanged(isInsertMode());
@@ -9185,9 +9187,9 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         // pass C-h as backspace, too
         if (!handleInsertInEditor(Input(Qt::Key_Backspace, Qt::NoModifier))) {
             joinPreviousEditBlock();
-            if (!m_buffer->lastInsertion.isEmpty()
-                    || s.backspace().contains("start")
-                    || s.backspace().contains("2")) {
+            if (atBlockStart()) {
+                removeLineBreakBeforeCursor();
+            } else if (position() > insertStartLimit(position())) {
                 const int line = cursorLine() + 1;
                 const Column col = cursorColumn();
                 QString data = lineContents(line);
@@ -9895,7 +9897,13 @@ bool FakeVimHandler::Private::parseLineRange(QString *line, ExCommand *cmd)
     bool hasAddress = false;
     int beginLine = parseLineAddress(line, &hasAddress);
     int endLine;
-    if (line->startsWith(',')) {
+    if (line->startsWith(',') || line->startsWith(';')) {
+        // ";" as the separator goes to the first address before the second one
+        // is read, so an address relative to the line counts from there.
+        if (line->at(0) == ';' && beginLine >= 0) {
+            const int pos = firstPositionInLine(beginLine + 1, false);
+            setAnchorAndPosition(pos, pos);
+        }
         hasAddress = true;
         *line = line->mid(1).trimmed();
         endLine = parseLineAddress(line);
@@ -27171,11 +27179,44 @@ bool FakeVimHandler::Private::handleFfTt(const QString &key, bool repeats)
 // yet does 'backspace' decide whether what was there before goes as well.
 int FakeVimHandler::Private::insertStartLimit(int from) const
 {
-    const int start = qMax(0, m_buffer->insertState.pos1);
+    const int start = insertStartPosition();
     if (from > start)
         return start;
+    return backspaceAllows("start") ? 0 : start;
+}
+
+// Where the insert began. Until the first change is entered the insert state
+// keeps that position in pos2, pos1 being the invalid one.
+int FakeVimHandler::Private::insertStartPosition() const
+{
+    const BufferData::InsertState &state = m_buffer->insertState;
+    return qMax(0, isInsertStateValid() ? state.pos1 : state.pos2);
+}
+
+// 'backspace' names what an insert may take back: "eol" the line break before
+// it, "start" what stood there before the insert began. The numbers 0, 1 and 2
+// stand for nothing, for "indent,eol" and for "indent,eol,start".
+bool FakeVimHandler::Private::backspaceAllows(const QString &what) const
+{
     const QString option = s.backspace();
-    return option.contains("start") || option.contains("2") ? 0 : start;
+    if (option.contains(what) || option.contains('2'))
+        return true;
+    return what == "eol" && option.contains('1');
+}
+
+// With nothing of its own left in the line, a backspace, CTRL-W or CTRL-U
+// takes the line break before it, joining with the line above. Where the
+// insert began in this line that break stood there before it, so "start" has
+// to allow it as well.
+void FakeVimHandler::Private::removeLineBreakBeforeCursor()
+{
+    if (!atBlockStart() || block().blockNumber() == 0 || !backspaceAllows("eol"))
+        return;
+    if (position() <= insertStartPosition() && !backspaceAllows("start"))
+        return;
+    setAnchor();
+    m_cursor.deletePreviousChar();
+    setTargetColumn();
 }
 
 int FakeVimHandler::Private::distanceToLineEnd() const
@@ -27870,6 +27911,38 @@ void FakeVimHandler::Private::invertCase(const Range &range)
     });
 }
 
+// "gw" leaves the cursor on the character of the text it was on, which the
+// reflow has moved to another line. What the reflow changes are the blanks
+// between the words, so counting the non-blanks before the cursor finds that
+// character again. From a blank the cursor keeps its place behind the last
+// non-blank counted.
+void FakeVimHandler::Private::reflowKeepingCursor(const Range &range)
+{
+    const int from = blockAt(qMin(range.beginPos, range.endPos)).position();
+    const int saved = qBound(from, m_reflowSavedPosition, lastPositionInDocument());
+    const bool onBlank = document()->characterAt(saved).isSpace();
+    int nonBlanks = 0;
+    for (int pos = from; pos < saved; ++pos) {
+        if (!document()->characterAt(pos).isSpace())
+            ++nonBlanks;
+    }
+
+    reflowText(range);
+
+    const int end = lastPositionInDocument();
+    int pos = from;
+    for (int seen = 0; seen < nonBlanks && pos < end; ++pos) {
+        if (!document()->characterAt(pos).isSpace())
+            ++seen;
+    }
+    if (!onBlank) {
+        while (pos < end && document()->characterAt(pos).isSpace())
+            ++pos;
+    }
+    setPosition(pos);
+    setTargetColumn();
+}
+
 void FakeVimHandler::Private::reflowText(const Range &range)
 {
     if (refuseUnmodifiable())
@@ -28404,18 +28477,19 @@ void FakeVimHandler::Private::cutSelectedText(int reg)
 
 // How long the comment leader at the start of a line is, blanks in front of it included, or zero
 // where there is none.
-int FakeVimHandler::Private::commentLeaderLength(const QString &line) const
+int FakeVimHandler::Private::commentLeaderLength(const QString &line, int *entry) const
 {
     int at = 0;
     while (at < line.size() && (line.at(at) == ' ' || line.at(at) == '\t'))
         ++at;
     int longest = 0;
-    for (const QString &part : s.comments().split(',', Qt::SkipEmptyParts)) {
-        const int colon = part.indexOf(':');
+    const QStringList parts = s.comments().split(',', Qt::SkipEmptyParts);
+    for (int i = 0; i < parts.size(); ++i) {
+        const int colon = parts.at(i).indexOf(':');
         if (colon < 0)
             continue;
-        const QString flags = part.left(colon);
-        const QString leader = part.mid(colon + 1);
+        const QString flags = parts.at(i).left(colon);
+        const QString leader = parts.at(i).mid(colon + 1);
         if (leader.isEmpty() || !QStringView(line).mid(at).startsWith(leader))
             continue;
         if (flags.contains('b')) {
@@ -28423,9 +28497,160 @@ int FakeVimHandler::Private::commentLeaderLength(const QString &line) const
             if (behind >= line.size() || !(line.at(behind) == ' ' || line.at(behind) == '\t'))
                 continue;
         }
-        longest = qMax(longest, at + leader.size());
+        if (at + leader.size() <= longest)
+            continue;
+        longest = at + leader.size();
+        if (entry)
+            *entry = i;
     }
     return longest;
+}
+
+// What Vim puts in front of a line opened from "line": the flags of the matching
+// 'comments' entry can turn the leader of a comment start into the middle leader
+// of that comment, blank out one that is meant for the first line only, shift it
+// by the offset the entry carries, and drop it altogether where the comment ends
+// on the line. Going backward is the "O" command, which repeats no leader that
+// begins a comment.
+QString FakeVimHandler::Private::commentLeaderForNewLine(const QString &line, bool backward) const
+{
+    const auto isBlank = [](QChar c) { return c == ' ' || c == '\t'; };
+
+    int entry = -1;
+    int lead = commentLeaderLength(line, &entry);
+    if (lead == 0)
+        return {};
+    while (lead < line.size() && isBlank(line.at(lead)))
+        ++lead;
+
+    const QStringList parts = s.comments().split(',', Qt::SkipEmptyParts);
+    const QString flags = parts.at(entry).section(':', 0, 0);
+    const auto stringOf = [&parts](int at) {
+        return at >= 0 && at < parts.size() ? parts.at(at).section(':', 1) : QString();
+    };
+
+    QString replacement;
+    bool replace = false;
+    bool requireBlank = false;
+    bool extraSpace = false;
+    for (int at = 0; at < flags.size(); ++at) {
+        const QChar flag = flags.at(at);
+        if (flag == 'b') {
+            requireBlank = true;
+            continue;
+        }
+        if (flag != 's' && flag != 'm' && flag != 'e' && flag != 'f')
+            continue;
+        if (flag == 'e') {
+            // The end of a comment gives no leader downward, and the middle
+            // leader of the same comment upward.
+            if (!backward)
+                return {};
+            replacement = stringOf(entry - 1);
+            replace = true;
+            extraSpace = true;
+            break;
+        }
+        if (flag == 'f') {
+            // A leader for the first line only is not repeated, and downward it
+            // leaves the blanks it occupied.
+            if (backward)
+                return {};
+            replace = true;
+            break;
+        }
+        if (backward && flag == 's')
+            return {};
+        // The middle and the end leader of the comment are the entries that
+        // follow the one that matched.
+        const int middle = flag == 's' ? entry + 1 : entry;
+        if (flag == 's') {
+            replacement = stringOf(middle);
+            replace = true;
+            requireBlank = false;
+        }
+        requireBlank = requireBlank || parts.value(middle).section(':', 0, 0).contains('b');
+        if (!backward) {
+            const QString end = stringOf(middle + 1);
+            for (int pos = lead; pos < line.size(); ++pos) {
+                if (QStringView(line).mid(pos).startsWith(end))
+                    return {};
+            }
+        }
+        extraSpace = !isBlank(line.at(lead - 1)) && (lead == line.size() || requireBlank);
+        break;
+    }
+
+    QString leader = line.left(lead);
+    int indent = s.autoIndent() || s.smartIndent() ? indentation(line).logical : 0;
+    if (replace) {
+        int offset = 0;
+        bool rightAligned = false;
+        for (int at = 0; at < flags.size(); ) {
+            if (flags.at(at) == 'r' || flags.at(at) == 'l') {
+                rightAligned = flags.at(at) == 'r';
+                ++at;
+            } else if (flags.at(at).isDigit() || flags.at(at) == '-') {
+                int to = at + 1;
+                while (to < flags.size() && flags.at(to).isDigit())
+                    ++to;
+                offset = flags.mid(at, to - at).toInt();
+                at = to;
+            } else {
+                ++at;
+            }
+        }
+
+        if (rightAligned) {
+            int end = leader.size();
+            while (end > 0 && isBlank(leader.at(end - 1)))
+                --end;
+            const int at = qMax(0, end - replacement.size());
+            leader.replace(at, end - at, replacement);
+            for (int i = 0; i < at; ++i) {
+                if (!isBlank(leader.at(i)))
+                    leader[i] = ' ';
+            }
+        } else {
+            const int at = indentation(leader).physical;
+            leader.replace(at, qMin(replacement.size(), leader.size() - at), replacement);
+            for (int i = at + replacement.size(); i < leader.size(); ++i) {
+                if (isBlank(leader.at(i)))
+                    continue;
+                // A blank in front of a tab would move the tab stop.
+                if (i + 1 < leader.size() && leader.at(i + 1) == '\t')
+                    leader.remove(i--, 1);
+                else
+                    leader[i] = ' ';
+            }
+        }
+
+        if (s.autoIndent() || s.smartIndent())
+            indent = indentation(leader).logical;
+        if (indent + offset < 0) {
+            offset = -indent;
+            indent = 0;
+        } else {
+            indent += offset;
+        }
+
+        // The offset shifts the leader to the right, so the blanks behind it go
+        // to keep what follows them where it was.
+        while (offset > 0 && leader.endsWith(' ')) {
+            if (leader.mid(indentation(leader).physical).contains('\t'))
+                break;
+            leader.chop(1);
+            --offset;
+        }
+        if (!leader.isEmpty() && isBlank(leader.back()))
+            extraSpace = false;
+    }
+
+    if (extraSpace)
+        leader += ' ';
+    if (indent > 0)
+        leader = tabExpand(indent) + leader.mid(indentation(leader).physical);
+    return leader;
 }
 
 // Whether a line holds a comment leader anywhere, which is what makes taking one
@@ -28501,7 +28726,50 @@ bool FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
     return true;
 }
 
-void FakeVimHandler::Private::insertNewLine()
+// The leader carries the indentation the new line is to get, which takes the
+// place of what the automatic indentation put in.
+void FakeVimHandler::Private::insertCommentLeader(const QString &leader)
+{
+    if (leader.isEmpty())
+        return;
+    const int start = block().position();
+    const QString blank = block().text().left(position() - start);
+    if (!blank.isEmpty() && blank.trimmed().isEmpty()) {
+        joinPreviousEditBlock();
+        m_cursor.setPosition(start);
+        m_cursor.setPosition(start + blank.size(), KeepAnchor);
+        m_cursor.removeSelectedText();
+        endEditBlock();
+    }
+    insertText(leader);
+    m_commentLeaderBlock = block().blockNumber();
+    m_commentLeaderText = block().text().left(position() - block().position());
+}
+
+// Nothing typed behind such a leader and its trailing blanks go, which is what
+// Vim leaves of a comment line opened and left alone.
+void FakeVimHandler::Private::trimUntouchedCommentLeader()
+{
+    const int pending = m_commentLeaderBlock;
+    m_commentLeaderBlock = -1;
+    if (pending < 0 || pending != block().blockNumber())
+        return;
+    const QString line = block().text();
+    if (position() != block().position() + line.size() || line != m_commentLeaderText)
+        return;
+    int end = line.size();
+    while (end > 0 && (line.at(end - 1) == ' ' || line.at(end - 1) == '\t'))
+        --end;
+    if (end == line.size())
+        return;
+    joinPreviousEditBlock();
+    m_cursor.setPosition(block().position() + end);
+    m_cursor.setPosition(block().position() + line.size(), KeepAnchor);
+    m_cursor.removeSelectedText();
+    endEditBlock();
+}
+
+void FakeVimHandler::Private::insertNewLine(bool repeatCommentLeader)
 {
     if (refuseUnmodifiable())
         return;
@@ -28518,14 +28786,24 @@ void FakeVimHandler::Private::insertNewLine()
         }
     }
 
-    // Leaving an untouched auto-indented line clears its indentation.
+    // Leaving an untouched auto-indented line clears its indentation, which is
+    // still the indentation the line broken off from it is to get.
+    const QString blank = block().text().left(position() - block().position());
+    if (m_autoIndentBlock == block().blockNumber() && !blank.isEmpty()
+            && blank.trimmed().isEmpty()) {
+        m_oldIndent = indentation(blank).logical;
+    }
     clearUntouchedAutoIndentation(true);
-    const QString leader = s.formatOptions().contains('r') ? commentLeaderOf(block().text())
-                                                           : QString();
+    // Vim takes the leader from the part of the line that stays behind, the one
+    // in front of the cursor.
+    const QString leader = repeatCommentLeader && s.formatOptions().contains('r')
+                               ? commentLeaderForNewLine(
+                                     block().text().left(position() - block().position()), false)
+                               : QString();
+    trimUntouchedCommentLeader();
     insertText(QString("\n"));
     insertAutomaticIndentation(true);
-    if (!leader.isEmpty())
-        insertText(leader.mid(indentation(leader).physical));
+    insertCommentLeader(leader);
 }
 
 bool FakeVimHandler::Private::handleInsertInEditor(const Input &input)
@@ -29543,7 +29821,9 @@ void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
     if (isNoVisualMode()) {
         if (atEndOfLine()) {
             m_cursor.movePosition(Left, KeepAnchor);
-            if (m_targetColumn != -1)
+            // The column the insert stands in is the column a motion of the
+            // single command CTRL-O runs counts from, past the end or not.
+            if (m_targetColumn != -1 && returnToMode == CommandMode)
                 setTargetColumn();
         }
         setAnchor();
@@ -30878,6 +31158,10 @@ RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const
 
 void FakeVimHandler::Private::setRegister(int reg, const QString &contents, RangeMode mode)
 {
+    // The black hole takes what is written to it nowhere.
+    if (reg == '_')
+        return;
+
     if (reg == '/') {
         g.lastSearch = contents;
         return;
