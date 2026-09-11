@@ -123,8 +123,19 @@ void QmlImpl::beginConnection()
     m_connection.connectToHost(qmlData.server.host(), quint16(qmlData.server.port()));
 }
 
+void QmlImpl::sendDisconnect()
+{
+    if (m_disconnected || !m_v8Client
+        || m_v8Client->state() != QmlDebug::QmlDebugClient::Enabled) {
+        return;
+    }
+    m_disconnected = true;
+    runCommand({DISCONNECT});
+}
+
 void QmlImpl::shutdownInferior(ShutdownMode)
 {
+    sendDisconnect();
     emit inferiorEvent(InferiorEvent::ShutdownFinished);
 }
 
@@ -137,6 +148,14 @@ void QmlImpl::shutdownEngine()
 
 void QmlImpl::handleStateChanged(QmlDebug::QmlDebugClient::State state)
 {
+    static const QHash<QmlDebug::QmlDebugClient::State, QString> names {
+        {QmlDebug::QmlDebugClient::NotConnected, "not connected"},
+        {QmlDebug::QmlDebugClient::Unavailable, "unavailable"},
+        {QmlDebug::QmlDebugClient::Enabled, "enabled"}};
+    emit message(QString("Status of \"%1\" Version: %2 changed to '%3'.")
+                     .arg(m_v8Client->name())
+                     .arg(m_v8Client->serviceVersion())
+                     .arg(names.value(state)), LogMisc);
     if (state != QmlDebug::QmlDebugClient::Enabled)
         return;
     QTimer::singleShot(0, this, [this] { handleConnectHandshakeDone(); });
@@ -261,8 +280,12 @@ void QmlImpl::setScriptBreakpoint(quint64 requestId, const BreakpointChangeReque
     cmd.arg(TARGET, params.fileName.toUrlishString());
     cmd.arg(ENABLED, params.enabled);
     cmd.arg(LINE, params.textPosition.line - 1);
+    if (params.textPosition.column > 0)
+        cmd.arg(COLUMN, params.textPosition.column - 1);
     if (!params.condition.isEmpty())
         cmd.arg(CONDITION, params.condition);
+    if (params.ignoreCount > 0)
+        cmd.arg(IGNORECOUNT, params.ignoreCount);
 
     runCommand(cmd, [this, requestId, params, request](const QVariantMap &resp) {
         const bool success = resp.value(QLatin1String(SUCCESS)).toBool();
@@ -432,6 +455,7 @@ void QmlImpl::execute(const ExecutionRequest &request)
         break;
     }
     case ExecutionCommand::Detach:
+        sendDisconnect();
         emit inferiorDone({0, InferiorExitStatus::Detached});
         break;
     default:

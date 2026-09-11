@@ -123,6 +123,7 @@ private:
     void handleBreakEvent(const QVariantMap &response);
     void handleExceptionEvent(const QVariantMap &response);
 
+    void sendDisconnect();
     void beginConnection();
 
     QmlImplStartData m_startData;
@@ -142,6 +143,7 @@ private:
     bool m_inferiorRunning = false;
     bool m_interruptRequested = false;
     bool m_shuttingDown = false;
+    bool m_disconnected = false;
 
     QHash<quint32, InspectorCallback> m_inspectorCallbackForQueryId;
     QList<QmlDebug::EngineReference> m_qmlEngines;

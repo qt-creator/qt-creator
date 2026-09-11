@@ -3684,12 +3684,21 @@ void tst_backends::testDetachCapability()
                                  s_qmlStartupTimeout);
         QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
 
+        QStringList messages;
+        connect(debuggerBackend->engine(), &DebuggerEngineInterface::message, this,
+                [&messages](const QString &text, int, int) { messages.append(text); });
+
         debuggerBackend->clearEvents();
         debuggerBackend->execute({ExecutionCommand::Detach});
         QTRY_VERIFY2_WITH_TIMEOUT(!debuggerBackend->inferiorResults().isEmpty(),
                                   "Detach never signaled completion", s_timeout);
         QCOMPARE(debuggerBackend->inferiorResults().constFirst().exitStatus,
                  InferiorExitStatus::Detached);
+        // A debuggee left to itself has to be told, or it stays where the
+        // debugger stopped it.
+        QVERIFY2(std::any_of(messages.cbegin(), messages.cend(), [](const QString &text) {
+            return text.contains("disconnect");
+        }), "the detached debuggee was never told the session was over");
 
         debuggerBackend->clearEvents();
         debuggerBackend->engine()->shutdownEngine();
