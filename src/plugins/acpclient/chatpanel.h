@@ -139,8 +139,13 @@ private:
 
     std::optional<Acp::V2::UsageUpdate> m_usage;
     std::optional<Acp::V2::UsageUpdate> m_usageAtPromptStart;
+    // Whether the running turn has reported its usage yet, which is not
+    // recoverable from the figures: an update that changes nothing looks like
+    // no update at all.
+    bool m_usageReportedThisTurn = false;
     bool m_showTokenUsage = true;
     void updateUsageDisplay();
+    int usedAtPromptStart() const;
 
     // Widget shown in AcpChatWidget's tool bar while this panel's tab is active.
     QPointer<QWidget> m_toolBarWidget;

@@ -1324,6 +1324,15 @@ QString formatTokenCount(int tokens)
     return QString::number(tokens);
 }
 
+// What a turn did to the context, which a compaction can also shrink, so the
+// figure carries its sign.
+static QString contextDeltaText(int contextDelta)
+{
+    const QLocale locale = QLocale::system();
+    const QString sign = contextDelta < 0 ? locale.negativeSign() : locale.positiveSign();
+    return Tr::tr("%1 context").arg(sign + formatTokenCount(qAbs(contextDelta)));
+}
+
 void applyStatsFormat(QLabel *label)
 {
     Utils::StyleHelper::applyTf(
@@ -1362,6 +1371,7 @@ AcpMessageView::AcpMessageView(QWidget *parent)
     trailingLayout->addWidget(m_elapsedLabel);
 
     m_usageLabel = new QLabel(trailingRow);
+    m_usageLabel->setObjectName("liveUsage");
     m_usageLabel->setVisible(false);
     applyStatsFormat(m_usageLabel);
     trailingLayout->addWidget(m_usageLabel);
@@ -1437,15 +1447,14 @@ void AcpMessageView::setPrompting(bool prompting)
     m_usageLabel->setVisible(prompting && !m_usageLabel->text().isEmpty());
 }
 
-void AcpMessageView::setLiveUsage(int used, int size)
+void AcpMessageView::setLiveUsage(std::optional<int> contextDelta)
 {
-    if (size <= 0) {
+    if (!contextDelta) {
         m_usageLabel->clear();
         m_usageLabel->setVisible(false);
         return;
     }
-    m_usageLabel->setText(Tr::tr("%1 / %2 context")
-                              .arg(formatTokenCount(used), formatTokenCount(size)));
+    m_usageLabel->setText(contextDeltaText(*contextDelta));
     m_usageLabel->setVisible(m_prompting);
 }
 
@@ -1453,8 +1462,8 @@ void AcpMessageView::addTurnStats(int contextDelta, const std::optional<double> 
                                   const QString &currency)
 {
     QStringList parts;
-    if (contextDelta > 0)
-        parts << Tr::tr("+%1 context").arg(formatTokenCount(contextDelta));
+    if (contextDelta != 0)
+        parts << contextDeltaText(contextDelta);
     if (costDelta && *costDelta > 0)
         parts << QString("%1 %2").arg(QLocale::system().toString(*costDelta, 'f', 4), currency);
     parts << elapsedTimeText();

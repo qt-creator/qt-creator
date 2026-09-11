@@ -50,7 +50,8 @@ public:
     bool thoughtsVisible() const { return m_thoughtsVisible; }
 
     void setPrompting(bool prompting);
-    void setLiveUsage(int used, int size);
+    // What the running turn consumed so far; std::nullopt hides the figure.
+    void setLiveUsage(std::optional<int> contextDelta);
     void setTurnStatsVisible(bool visible);
     void addTurnStats(int contextDelta, const std::optional<double> &costDelta,
                       const QString &currency);

@@ -501,6 +501,7 @@ private slots:
     void testChatPanelTurnStats();
     void testChatPanelFirstTurnStats();
     void testChatPanelUnchangedUsageElapsedOnly();
+    void testChatPanelLiveUsageDelta();
     void testChatPanelTokenUsageToggle();
     void testChatPanelElicitationForm();
     void testChatPanelElicitationDecline();
@@ -2151,6 +2152,50 @@ void AcpClientTest::testChatPanelTurnStats()
     QVERIFY(Utils::anyOf(labels, [](const QLabel *label) {
         return label->text() == "350/1.0k";
     }));
+}
+
+// The context figure of a turn as it is shown, which carries the locale's own
+// sign rather than a literal one.
+static QString contextText(int delta)
+{
+    const QLocale locale = QLocale::system();
+    const QString sign = delta < 0 ? locale.negativeSign() : locale.positiveSign();
+    return sign + QString::number(qAbs(delta)) + QLatin1String(" context");
+}
+
+// While a turn runs, the message view shows what that turn consumed so far
+// rather than the cumulative session usage, and nothing before the first
+// usage update of the turn or after the turn ended. A turn whose context
+// shrank reports what it gave back, both while it runs and once it finished.
+void AcpClientTest::testChatPanelLiveUsageDelta()
+{
+    ChatPanel panel;
+    QLabel *liveUsage = panel.messageView()->findChild<QLabel *>("liveUsage");
+    QVERIFY(liveUsage);
+
+    panel.setUsage(V2::UsageUpdate().used(100).size(1000));
+    panel.setPrompting(true);
+    QVERIFY(liveUsage->text().isEmpty());
+
+    // An update that reports the same count is still an update, so the figure
+    // appears and stays: it may not blink out whenever the delta is zero.
+    panel.setUsage(V2::UsageUpdate().used(100).size(1000));
+    QCOMPARE(liveUsage->text(), contextText(0));
+
+    panel.setUsage(V2::UsageUpdate().used(350).size(1000));
+    QCOMPARE(liveUsage->text(), contextText(250));
+
+    // A compaction mid-turn gives context back.
+    panel.setUsage(V2::UsageUpdate().used(40).size(1000));
+    QCOMPARE(liveUsage->text(), contextText(-60));
+
+    panel.setPrompting(false);
+    QVERIFY(liveUsage->text().isEmpty());
+
+    // The finished turn states the same figure the live one showed last.
+    const QStringList stats = turnStatsTexts(panel);
+    QCOMPARE(stats.size(), 1);
+    QVERIFY2(stats.first().contains(contextText(-60)), qPrintable(stats.first()));
 }
 
 // The chat input's configuration menu toggle hides the usage figures and the

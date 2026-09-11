@@ -747,10 +747,12 @@ void ChatPanel::setPrompting(bool prompting)
     m_messageView->setPrompting(prompting);
 
     if (prompting) {
-        if (!wasPrompting)
+        if (!wasPrompting) {
             m_usageAtPromptStart = m_usage;
+            m_usageReportedThisTurn = false;
+        }
     } else if (wasPrompting && m_usage) {
-        const int usedBefore = m_usageAtPromptStart ? m_usageAtPromptStart->used() : 0;
+        const int usedBefore = usedAtPromptStart();
         std::optional<double> costDelta;
         QString currency;
         if (m_usage->cost().has_value()) {
@@ -763,6 +765,7 @@ void ChatPanel::setPrompting(bool prompting)
         }
         m_messageView->addTurnStats(m_usage->used() - usedBefore, costDelta, currency);
     }
+    updateUsageDisplay();
 }
 
 void ChatPanel::setSendEnabled(bool enabled)
@@ -870,6 +873,7 @@ void ChatPanel::setConfigOptions(const QList<SessionConfigOption> &configOptions
 void ChatPanel::setUsage(const Acp::V2::UsageUpdate &usage)
 {
     m_usage = usage;
+    m_usageReportedThisTurn = true;
     updateUsageDisplay();
 }
 
@@ -891,7 +895,7 @@ void ChatPanel::updateUsageDisplay()
     if (!m_showTokenUsage || size <= 0) {
         m_usageBar->hide();
         m_usageLabel->hide();
-        m_messageView->setLiveUsage(0, 0);
+        m_messageView->setLiveUsage(std::nullopt);
         return;
     }
     m_usageBar->setRange(0, size);
@@ -910,7 +914,16 @@ void ChatPanel::updateUsageDisplay()
     m_usageLabel->setText(QString("%1/%2").arg(formatTokenCount(used), formatTokenCount(size)));
     m_usageLabel->setToolTip(tooltip);
     m_usageLabel->show();
-    m_messageView->setLiveUsage(used, size);
+    // while a turn runs the view shows what that turn consumed so far
+    std::optional<int> turnDelta;
+    if (m_prompting && m_usageReportedThisTurn)
+        turnDelta = used - usedAtPromptStart();
+    m_messageView->setLiveUsage(turnDelta);
+}
+
+int ChatPanel::usedAtPromptStart() const
+{
+    return m_usageAtPromptStart ? m_usageAtPromptStart->used() : 0;
 }
 
 void ChatPanel::updateModeButton()
@@ -957,9 +970,10 @@ void ChatPanel::updateModeButton()
 void ChatPanel::clear()
 {
     m_messageView->clear();
-    m_messageView->setLiveUsage(0, 0);
+    m_messageView->setLiveUsage(std::nullopt);
     m_usage.reset();
     m_usageAtPromptStart.reset();
+    m_usageReportedThisTurn = false;
     if (m_usageBar)
         m_usageBar->hide();
     if (m_usageLabel)
