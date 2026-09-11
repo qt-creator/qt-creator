@@ -60,6 +60,16 @@ private:
     std::shared_ptr<SharedData> m_data;
 };
 
+// The console host a pseudo terminal is run through on Windows. The one that
+// comes with Windows is only updated along with the operating system and drops
+// what it does not know, images among it; a newer one can be put next to it.
+// `directory` has to hold both conpty.dll and OpenConsole.exe, and is empty to
+// go back to the console host of the system. Does nothing on other platforms.
+QTCREATOR_UTILS_EXPORT void setConsoleHostDirectory(const FilePath &directory);
+// The directory the console host in use comes from, empty for the one that
+// comes with the system.
+QTCREATOR_UTILS_EXPORT FilePath consoleHostDirectory();
+
 } // namespace Pty
 
 class QTCREATOR_UTILS_EXPORT ProcessRunData

@@ -3,6 +3,10 @@
 
 #include "processinterface.h"
 
+#ifdef Q_OS_WIN
+#include <conptyprocess.h>
+#endif
+
 #include "qtcassert.h"
 #include "qtcprocess.h"
 
@@ -71,6 +75,24 @@ void Data::resize(const QSize &size)
     m_size = size;
     if (m_data->m_handler)
         m_data->m_handler(size);
+}
+
+void setConsoleHostDirectory(const FilePath &directory)
+{
+#ifdef Q_OS_WIN
+    ConPtyProcess::setConsoleHostDirectory(directory.toFSPathString());
+#else
+    Q_UNUSED(directory)
+#endif
+}
+
+FilePath consoleHostDirectory()
+{
+#ifdef Q_OS_WIN
+    return FilePath::fromUserInput(ConPtyProcess::consoleHostDirectory());
+#else
+    return {};
+#endif
 }
 
 } // namespace Pty

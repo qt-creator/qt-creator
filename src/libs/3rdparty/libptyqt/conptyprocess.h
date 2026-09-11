@@ -24,6 +24,9 @@ typedef VOID* HPCON;
 
 class QWinEventNotifier;
 
+// The functions of one console host, see ConPtyProcess::setConsoleHostDirectory()
+struct ConsoleHostApi;
+
 class PtyBuffer : public QIODevice
 {
     friend class ConPtyProcess;
@@ -69,11 +72,26 @@ public:
     static bool isAvailable();
     void moveToThread(QThread *targetThread);
 
+    // The directory to take conpty.dll and OpenConsole.exe from. When it holds
+    // both, they are used instead of the console host that comes with Windows,
+    // which is only updated along with the operating system. Takes effect for
+    // the pseudo consoles created after it.
+    static void setConsoleHostDirectory(const QString &directory);
+    // The directory the console host in use comes from, empty for the one that
+    // comes with Windows.
+    static QString consoleHostDirectory();
+
 private:
     HRESULT createPseudoConsoleAndPipes(HPCON* phPC, HANDLE* phPipeIn, HANDLE* phPipeOut, qint16 cols, qint16 rows);
     HRESULT initializeStartupInfoAttachedToPseudoConsole(STARTUPINFOEX* pStartupInfo, HPCON hPC);
 
 private:
+    // The console host that made m_ptyHandler. An HPCON comes out of the heap
+    // of the module that created it and means nothing to another one, so the
+    // same module has to resize and close it, even after the terminal has been
+    // pointed at a different console host in the meantime.
+    const ConsoleHostApi *m_consoleHost{nullptr};
+
     HPCON m_ptyHandler{INVALID_HANDLE_VALUE};
     HANDLE m_hPipeIn{INVALID_HANDLE_VALUE}, m_hPipeOut{INVALID_HANDLE_VALUE};
 

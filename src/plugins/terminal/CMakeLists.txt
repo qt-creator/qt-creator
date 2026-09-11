@@ -3,6 +3,7 @@ add_qtc_plugin(Terminal
   PLUGIN_DEPENDS Core ProjectExplorer
   DEPENDS TerminalLib
   SOURCES
+    consolehost.cpp consolehost.h
     shellintegration.cpp shellintegration.h
     shellmodel.cpp shellmodel.h
     shortcutmap.cpp shortcutmap.h

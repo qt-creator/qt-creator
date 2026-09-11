@@ -3,8 +3,11 @@
 
 #include "terminalsettings.h"
 
+#include "consolehost.h"
 #include "terminalicons.h"
 #include "terminaltr.h"
+
+#include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -21,6 +24,7 @@
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLabel>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>
@@ -543,6 +547,18 @@ TerminalSettings::TerminalSettings()
                "the text only appears to contain."));
     confirmUnsafePaste.setDefaultValue(true);
 
+    consoleHostDirectory.setSettingsKey("ConsoleHostDirectory");
+    consoleHostDirectory.setLabelText(Tr::tr("Console host:"));
+    consoleHostDirectory.setExpectedKind(PathChooserKind::ExistingDirectory);
+    consoleHostDirectory.setToolTip(
+        Tr::tr("A directory holding conpty.dll and OpenConsole.exe to run the terminals "
+               "through. Leave it empty to take the downloaded one, or the console host "
+               "that comes with Windows when there is none."));
+
+    connect(&consoleHostDirectory, &BaseAspect::changed, this, [] {
+        Internal::ConsoleHost::apply();
+    });
+
     setupColor(this, foregroundColor, "Foreground", creatorColor(Theme::TerminalForeground));
     setupColor(this, backgroundColor, "Background", creatorColor(Theme::TerminalBackground));
     setupColor(this, selectionColor, "Selection", creatorColor(Theme::TerminalSelection));
@@ -575,6 +591,60 @@ TerminalSettings::TerminalSettings()
 
     setLayouter([this] {
         using namespace Layouting;
+
+        // An If builds the items of both of its branches and drops the ones
+        // it does not take, and nothing would own a group that is dropped, so
+        // the group is only made where it shows.
+        const auto consoleHostGroup = [this]() -> QWidget * {
+            if (!Internal::ConsoleHost::isSupportedPlatform())
+                return nullptr;
+
+            auto consoleHostStatus = new QLabel;
+            consoleHostStatus->setWordWrap(true);
+            auto downloadConsoleHost = new QPushButton(Tr::tr("Download..."));
+
+            // The path chooser is for a console host of one's own; when it is
+            // empty the downloaded one is taken, and showing that as the
+            // placeholder is what tells where it came from.
+            consoleHostDirectory.setPlaceHolderText(
+                Internal::ConsoleHost::inUse().toUserOutput());
+
+            const auto showConsoleHost = [consoleHostStatus] {
+                consoleHostStatus->setText(
+                    Internal::ConsoleHost::inUse().isEmpty()
+                        ? Tr::tr("A picture that a program prints into the terminal is not "
+                                 "shown: the console host that comes with Windows passes on "
+                                 "only the text.")
+                        : Tr::tr("A picture that a program prints into the terminal is "
+                                 "shown."));
+            };
+            showConsoleHost();
+            connect(&consoleHostDirectory, &BaseAspect::changed, consoleHostStatus,
+                    showConsoleHost);
+
+            const auto downloader = std::make_shared<QtTaskTree::QSingleTaskTreeRunner>();
+            connect(downloadConsoleHost, &QPushButton::clicked, downloadConsoleHost,
+                    [this, downloadConsoleHost, showConsoleHost, downloader] {
+                downloadConsoleHost->setEnabled(false);
+                downloader->start({Internal::ConsoleHost::downloadRecipe()}, {},
+                                  [this, downloadConsoleHost, showConsoleHost](
+                                      QtTaskTree::DoneWith result) {
+                    downloadConsoleHost->setEnabled(true);
+                    if (result == QtTaskTree::DoneWith::Success)
+                        consoleHostDirectory.setValue(Internal::ConsoleHost::downloadDirectory());
+                    showConsoleHost();
+                });
+            });
+
+            return Group {
+                title(Tr::tr("Console Host")),
+                Column {
+                    consoleHostStatus,
+                    consoleHostDirectory,
+                    Row { downloadConsoleHost, st },
+                },
+            }.emerge();
+        };
 
         auto loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
         auto resetTheme = new QPushButton(Tr::tr("Reset Theme"));
@@ -689,6 +759,7 @@ TerminalSettings::TerminalSettings()
                     }
                 },
             },
+            consoleHostGroup,
             Group {
                 title(Tr::tr("Default Shell")),
                 Column {

@@ -1,7 +1,9 @@
 #include "conptyprocess.h"
 #include <QFile>
+#include <QDir>
 #include <QFileInfo>
 #include <QThread>
+#include <deque>
 #include <sstream>
 #include <QTimer>
 #include <QMutexLocker>
@@ -723,6 +725,13 @@ extern "C" VOID WINAPI ConptyClosePseudoConsole(_In_ HPCON hPC)
 }
 
 
+struct ConsoleHostApi
+{
+    HRESULT (*createPseudoConsole)(COORD size, HANDLE hInput, HANDLE hOutput, DWORD dwFlags, HPCON *phPC);
+    HRESULT (*resizePseudoConsole)(HPCON hPC, COORD size);
+    VOID (*closePseudoConsole)(HPCON hPC);
+};
+
 //ConPTY is available only on Windows 10 released after 1903 (19H1) Windows release
 class WindowsContext
 {
@@ -747,13 +756,83 @@ public:
         return ctx;
     }
 
+    // A ConPTY newer than the one Windows comes with. conpty.dll starts the
+    // OpenConsole.exe next to it, so both have to be there.
+    bool loadConsoleHost(const QString &directory, ConsoleHostApi *api)
+    {
+        if (directory.isEmpty())
+            return false;
+
+        const QString library = directory + "/conpty.dll";
+        if (!QFileInfo::exists(library) || !QFileInfo::exists(directory + "/OpenConsole.exe"))
+            return false;
+
+        // An absolute path, so that only the directory it names and the system
+        // directory are searched for the libraries it needs itself.
+        const HMODULE module = LoadLibraryExW(
+                    reinterpret_cast<const wchar_t *>(QDir::toNativeSeparators(library).utf16()),
+                    nullptr,
+                    LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32);
+        if (!module)
+            return false;
+
+        api->createPseudoConsole = (CreatePseudoConsolePtr)
+                GetProcAddress(module, "ConptyCreatePseudoConsole");
+        api->resizePseudoConsole = (ResizePseudoConsolePtr)
+                GetProcAddress(module, "ConptyResizePseudoConsole");
+        api->closePseudoConsole = (ClosePseudoConsolePtr)
+                GetProcAddress(module, "ConptyClosePseudoConsole");
+
+        return api->createPseudoConsole && api->resizePseudoConsole && api->closePseudoConsole;
+    }
+
     bool init()
     {
-        createPseudoConsole = (CreatePseudoConsolePtr)ConptyCreatePseudoConsole;
-        resizePseudoConsole = (ResizePseudoConsolePtr)ConptyResizePseudoConsole;
-        closePseudoConsole = (ClosePseudoConsolePtr)ConptyClosePseudoConsole;
+        if (m_initialized)
+            return true;
 
+        ConsoleHostApi api{};
+        m_loadedConsoleHostDirectory = loadConsoleHost(m_consoleHostDirectory, &api)
+                                           ? m_consoleHostDirectory : QString();
+
+        if (m_loadedConsoleHostDirectory.isEmpty()) {
+            api.createPseudoConsole = (CreatePseudoConsolePtr)ConptyCreatePseudoConsole;
+            api.resizePseudoConsole = (ResizePseudoConsolePtr)ConptyResizePseudoConsole;
+            api.closePseudoConsole = (ClosePseudoConsolePtr)ConptyClosePseudoConsole;
+        }
+
+        // The pseudo consoles that are running hold a pointer to the set they
+        // were created with, so a set is added and never taken away again.
+        m_consoleHosts.push_back(api);
+        m_consoleHost = &m_consoleHosts.back();
+
+        m_initialized = true;
         return true;
+    }
+
+    // The console host to create a pseudo console with, and to resize and close
+    // that one with for as long as it lives.
+    const ConsoleHostApi *consoleHost()
+    {
+        init();
+        return m_consoleHost;
+    }
+
+    void setConsoleHostDirectory(const QString &directory)
+    {
+        if (m_consoleHostDirectory == directory)
+            return;
+
+        m_consoleHostDirectory = directory;
+        // The pseudo consoles that are already running keep the one they were
+        // created with, the next one is created with this.
+        m_initialized = false;
+    }
+
+    QString loadedConsoleHostDirectory()
+    {
+        init();
+        return m_loadedConsoleHostDirectory;
     }
 
     QString lastError()
@@ -763,9 +842,12 @@ public:
 
 public:
     //vars
-    CreatePseudoConsolePtr createPseudoConsole{nullptr};
-    ResizePseudoConsolePtr resizePseudoConsole{nullptr};
-    ClosePseudoConsolePtr closePseudoConsole{nullptr};
+    bool m_initialized{false};
+    QString m_consoleHostDirectory;
+    QString m_loadedConsoleHostDirectory;
+
+    std::deque<ConsoleHostApi> m_consoleHosts;
+    const ConsoleHostApi *m_consoleHost{nullptr};
 
 private:
     QString m_lastError;
@@ -806,8 +888,21 @@ HRESULT ConPtyProcess::createPseudoConsoleAndPipes(HPCON* phPC, HANDLE* phPipeIn
     if (CreatePipe(&hPipePTYIn, phPipeOut, NULL, 0) &&
             CreatePipe(phPipeIn, &hPipePTYOut, NULL, 0))
     {
+        // The console host that comes with Windows repaints the whole screen
+        // when the pseudo console is resized, unless it is asked not to. The
+        // newer one repaints in neither case and no longer lists the flag, so
+        // only the host that documents it is asked.
+        const bool ownConsoleHost
+            = !WindowsContext::instance().loadedConsoleHostDirectory().isEmpty();
+        const DWORD flags = !ownConsoleHost && checkConHostHasResizeQuirkOption()
+                                ? PSEUDOCONSOLE_RESIZE_QUIRK
+                                : 0;
+
+        // Kept for as long as the pseudo console lives, see the member
+        m_consoleHost = WindowsContext::instance().consoleHost();
+
         // Create the Pseudo Console of the required size, attached to the PTY-end of the pipes
-        hr = WindowsContext::instance().createPseudoConsole({cols, rows}, hPipePTYIn, hPipePTYOut, checkConHostHasResizeQuirkOption() ? PSEUDOCONSOLE_RESIZE_QUIRK : 0, phPC);
+        hr = m_consoleHost->createPseudoConsole({cols, rows}, hPipePTYIn, hPipePTYOut, flags, phPC);
 
         // Note: We can close the handles to the PTY-end of the pipes here
         // because the handles are dup'ed into the ConHost and will be released
@@ -1016,7 +1111,7 @@ bool ConPtyProcess::resize(qint16 cols, qint16 rows)
         return false;
     }
 
-    bool res = SUCCEEDED(WindowsContext::instance().resizePseudoConsole(m_ptyHandler, {cols, rows}));
+    bool res = SUCCEEDED(m_consoleHost->resizePseudoConsole(m_ptyHandler, {cols, rows}));
 
     if (res)
     {
@@ -1034,7 +1129,7 @@ bool ConPtyProcess::kill()
         m_aboutToDestruct = true;
 
         // Close ConPTY - this will terminate client process if running
-        WindowsContext::instance().closePseudoConsole(m_ptyHandler);
+        m_consoleHost->closePseudoConsole(m_ptyHandler);
     }
 
     // Clean-up the pipes
@@ -1121,6 +1216,16 @@ bool ConPtyProcess::isAvailable()
     if (buildNumber < CONPTY_MINIMAL_WINDOWS_VERSION)
         return false;
     return WindowsContext::instance().init();
+}
+
+void ConPtyProcess::setConsoleHostDirectory(const QString &directory)
+{
+    WindowsContext::instance().setConsoleHostDirectory(directory);
+}
+
+QString ConPtyProcess::consoleHostDirectory()
+{
+    return WindowsContext::instance().loadedConsoleHostDirectory();
 }
 
 void ConPtyProcess::moveToThread(QThread *targetThread)

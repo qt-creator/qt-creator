@@ -36,6 +36,9 @@ public:
 
     Utils::BoolAspect allowClipboardWrite{this};
     Utils::BoolAspect confirmUnsafePaste{this};
+
+    // Windows only, see consolehost.h
+    Utils::FilePathAspect consoleHostDirectory{this};
 };
 
 TerminalSettings &settings();

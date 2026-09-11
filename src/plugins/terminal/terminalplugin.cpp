@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "consolehost.h"
 #include "terminalpane.h"
 #include "terminalprocessimpl.h"
 #include "terminalsettings.h"
@@ -31,6 +32,8 @@ public:
     void extensionsInitialized() final
     {
         m_terminalPane = new TerminalPane(this);
+
+        ConsoleHost::apply();
 
         Core::IOptionsPage::registerCategory(
             "ZY.Terminal", Tr::tr("Terminal"), ":/terminal/images/settingscategory_terminal.png");

@@ -10,6 +10,8 @@ QtcPlugin {
     files: [
         "shellmodel.cpp",
         "shellmodel.h",
+        "consolehost.cpp",
+        "consolehost.h",
         "shellintegration.cpp",
         "shellintegration.h",
         "shortcutmap.cpp",
