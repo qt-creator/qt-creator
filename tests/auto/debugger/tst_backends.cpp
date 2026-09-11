@@ -503,7 +503,8 @@ static bool stackHasFunction(const QString &stack, const QString &function)
 struct ConfiguredOptionProbe
 {
     QString query;
-    QString expectedOutput;
+    // More than one where the debuggers in use word the same state differently.
+    QStringList acceptedOutputs;
 };
 
 static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
@@ -511,23 +512,24 @@ static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
 {
     switch (backend) {
     case Backend::Gdb:
-        return {{"show index-cache", "The index cache is currently enabled."},
-                {"show detach-on-fork", "Whether gdb will detach the child of a fork is off."},
-                {"show mi-async", "Whether MI is in asynchronous mode is on."},
-                {"python print(theDumper.usePlainDumpers)", "True"},
-                {"show sysroot", "The current system root is \"/qtc-test-sysroot\"."},
-                {"show substitute-path", "`/qtc-test-from' -> `/qtc-test-to'."},
-                {"show directories", existingDir.path()},
-                {"show debug-file-directory", existingDir.path()},
-                {"show solib-search-path", "/qtc-test-solib"}};
+        return {{"show index-cache", {"The index cache is currently enabled.",
+                                      "The index cache is on."}},
+                {"show detach-on-fork", {"Whether gdb will detach the child of a fork is off."}},
+                {"show mi-async", {"Whether MI is in asynchronous mode is on."}},
+                {"python print(theDumper.usePlainDumpers)", {"True"}},
+                {"show sysroot", {"The current system root is \"/qtc-test-sysroot\"."}},
+                {"show substitute-path", {"`/qtc-test-from' -> `/qtc-test-to'."}},
+                {"show directories", {existingDir.path()}},
+                {"show debug-file-directory", {existingDir.path()}},
+                {"show solib-search-path", {"/qtc-test-solib"}}};
     case Backend::Bridge:
         // Only what the bridge's own start data carries: it has no flags of its
         // own, and the search paths it knows are the ones it configures gdb with.
-        return {{"show sysroot", "The current system root is \"/qtc-test-sysroot\"."},
-                {"show substitute-path", "`/qtc-test-from' -> `/qtc-test-to'."},
-                {"show directories", existingDir.path()}};
+        return {{"show sysroot", {"The current system root is \"/qtc-test-sysroot\"."}},
+                {"show substitute-path", {"`/qtc-test-from' -> `/qtc-test-to'."}},
+                {"show directories", {existingDir.path()}}};
     case Backend::Lldb:
-        return {{"settings show target.exec-search-paths", "/qtc-test-solib"}};
+        return {{"settings show target.exec-search-paths", {"/qtc-test-solib"}}};
     // Cdb has none: a query goes to a debugger whose inferior runs, which takes
     // the interrupt the ctrl-c stub provides. What it was configured with shows
     // up in the startup traffic instead - see configuredOptionMarkers().
@@ -7735,13 +7737,20 @@ void tst_backends::appliesConfiguredDebuggerOptions()
     for (const ConfiguredOptionProbe &probe : probes) {
         messages.clear();
         engine->executeDebuggerCommand(probe.query, {});
-        const QString expected = probe.expectedOutput;
-        QTRY_VERIFY2_WITH_TIMEOUT(std::any_of(messages.cbegin(), messages.cend(),
-                                              [&expected](const QString &text) {
-                                                  return text.contains(expected);
-                                              }),
+        const QStringList accepted = probe.acceptedOutputs;
+        const auto answered = [&messages, &accepted] {
+            for (const QString &text : messages) {
+                for (const QString &answer : accepted) {
+                    if (text.contains(answer))
+                        return true;
+                }
+            }
+            return false;
+        };
+        QTRY_VERIFY2_WITH_TIMEOUT(answered(),
                                   qPrintable(QString("%1 never answered with \"%2\"")
-                                                 .arg(probe.query, expected)), s_timeout);
+                                                 .arg(probe.query,
+                                                      accepted.join("\" or \""))), s_timeout);
     }
 }
 
