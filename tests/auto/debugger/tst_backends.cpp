@@ -507,17 +507,11 @@ struct ConfiguredOptionProbe
 };
 
 static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
-                                                           const Utils::FilePath &existingDir,
-                                                           const QString &versionLine)
+                                                           const Utils::FilePath &existingDir)
 {
     switch (backend) {
-    case Backend::Gdb: {
-        // gdb 13 made "index-cache" a prefix command, so the state is one line
-        // of several rather than the whole answer.
-        const QString indexCache = debuggerMajorVersion(versionLine) >= 13
-                                       ? QString("The index cache is on.")
-                                       : QString("The index cache is currently enabled.");
-        return {{"show index-cache", indexCache},
+    case Backend::Gdb:
+        return {{"show index-cache", "The index cache is currently enabled."},
                 {"show detach-on-fork", "Whether gdb will detach the child of a fork is off."},
                 {"show mi-async", "Whether MI is in asynchronous mode is on."},
                 {"python print(theDumper.usePlainDumpers)", "True"},
@@ -526,7 +520,6 @@ static QList<ConfiguredOptionProbe> configuredOptionProbes(Backend backend,
                 {"show directories", existingDir.path()},
                 {"show debug-file-directory", existingDir.path()},
                 {"show solib-search-path", "/qtc-test-solib"}};
-    }
     case Backend::Lldb:
         return {{"settings show target.exec-search-paths", "/qtc-test-solib"}};
     // Cdb has none: a query goes to a debugger whose inferior runs, which takes
@@ -2396,7 +2389,7 @@ void tst_backends::initTestCase()
     file.close();
 
     if (needsCompiler) {
-        // The inferior uses <chrono>, list initialization and std::move, so it
+        // The inferior uses <chrono>, <functional> and list initialization, so it
         // needs C++11, and a compiler's default standard is not necessarily
         // that new - Apple clang's is not.
         QStringList compileArgs = {"-g", "-O0", "-std=c++11"};
@@ -7508,8 +7501,7 @@ void tst_backends::appliesConfiguredDebuggerOptions()
     const FilePath moduleTrace = existingDir / "qtc_extra_dumper_loaded";
     QVERIFY((existingDir / "qtc_extra_dumper.py").writeFileContents(
         QString("open(r\"%1\", \"w\").close()\n").arg(moduleTrace.path()).toUtf8()));
-    const QList<ConfiguredOptionProbe> probes
-        = configuredOptionProbes(backend, existingDir, inferiorTestData(backend).versionLine);
+    const QList<ConfiguredOptionProbe> probes = configuredOptionProbes(backend, existingDir);
     std::unique_ptr<DebuggerBackend> debuggerBackend
         = createFullyConfiguredEngine(backend, Environment::systemEnvironment(), existingDir);
     if (!debuggerBackend)
