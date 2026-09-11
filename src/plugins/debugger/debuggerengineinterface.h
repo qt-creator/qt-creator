@@ -157,6 +157,7 @@ class DEBUGGER_EXPORT AttachToProcessData
 {
 public:
     Utils::ProcessHandle pid;
+    QString crashParameter;
 };
 
 class DEBUGGER_EXPORT AttachToTerminalStubData
@@ -206,6 +207,7 @@ enum class DebuggerStartModeFlag
     AttachToRemoteServer = 1 << 3,
     AttachToCore = 1 << 4,
     AttachToQmlServer = 1 << 5,
+    AttachToCrashedProcess = 1 << 6,
 };
 Q_DECLARE_FLAGS(DebuggerStartModes, DebuggerStartModeFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(DebuggerStartModes)

@@ -25,6 +25,9 @@
 
 #include <chrono>
 #include <csignal>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 #include <optional>
 
 #include <QCoreApplication>
@@ -1334,6 +1337,8 @@ private slots:
     void stopsAtABreakpointInAnInferiorOfTheOtherWordWidth();
     void reportsTheStackOfAnInferiorOfTheOtherWordWidth_data() { addBackendRows(); }
     void reportsTheStackOfAnInferiorOfTheOtherWordWidth();
+    void attachesToACrashedProcess_data() { addBackendRows(); }
+    void attachesToACrashedProcess();
     void attachesToTerminalRunProcess_data() { addBackendRows(); }
     void attachesToTerminalRunProcess();
     void attachesToRunningRemoteServer_data() { addBackendRows(); }
@@ -1392,6 +1397,8 @@ private:
         Backend backend, bool reportFirstChance);
     std::unique_ptr<DebuggerBackend> createEngineForTheDebugRuntime(
         Backend backend, const QString &crtDebugReportModule);
+    std::unique_ptr<DebuggerBackend> createEngineForCrashedProcess(Backend backend,
+        Utils::ProcessHandle pid, const QString &crashParameter);
     std::unique_ptr<DebuggerBackend> createAttachEngine(Backend backend,
         const InferiorStartData &inferiorStartData,
         Debugger::Internal::GdbImplFlags gdbFlags = {});
@@ -1869,6 +1876,20 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngineReportingExceptions(
         .reportFirstChanceExceptions = reportFirstChance}));
 }
 
+std::unique_ptr<DebuggerBackend> tst_backends::createEngineForCrashedProcess(
+    Backend backend, ProcessHandle pid, const QString &crashParameter)
+{
+    if (backend != Backend::Cdb)
+        return nullptr;
+    return std::make_unique<DebuggerBackend>(std::make_unique<CdbImpl>(CdbImplStartData{
+        .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                          Environment::systemEnvironment()},
+        .inferiorStartData = AttachToProcessData{pid, crashParameter},
+        .extensionDir = m_backendData[backend].cdbExtensionDir,
+        .extensionFileName = m_backendData[backend].cdbExtensionFileName,
+        .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
+}
+
 std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
     Backend backend, const InferiorStartData &inferiorStartData, GdbImplFlags gdbFlags)
 {
@@ -2241,6 +2262,16 @@ void tst_backends::initTestCase()
         "        crash();",
         "    if (argc > 1 && strcmp(argv[1], \"abort\") == 0)",
         "        abort();",
+        "    if (argc > 2 && strcmp(argv[1], \"crash-on-file\") == 0) {",
+        "        while (true) {",
+        "            if (FILE *trigger = fopen(argv[2], \"r\")) {",
+        "                fclose(trigger);",
+        "                break;",
+        "            }",
+        "            std::this_thread::sleep_for(std::chrono::milliseconds(10));",
+        "        }",
+        "        crash();",
+        "    }",
         "#ifdef _MSC_VER",
         "    if (argc > 1 && strcmp(argv[1], \"survivable-crash\") == 0)",
         "        survivableCrash();",
@@ -9543,6 +9574,63 @@ void tst_backends::reportsTheStackOfAnInferiorOfTheOtherWordWidth()
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished), s_timeout);
     engine->shutdownEngine();
     target.waitForFinished();
+}
+
+void tst_backends::attachesToACrashedProcess()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend,
+            DebuggerStartModeFlag::AttachToCrashedProcess); !result) {
+        QSKIP(qPrintable(result.error()));
+    }
+
+#ifndef Q_OS_WIN
+    QSKIP("The crash parameter is an event handle the system hands a post-mortem "
+          "debugger, which only Windows does.");
+#else
+    SECURITY_ATTRIBUTES attributes{sizeof(attributes), nullptr, TRUE};
+    HANDLE crashEvent = CreateEventW(&attributes, TRUE, FALSE, nullptr);
+    QVERIFY(crashEvent);
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    const FilePath trigger = FilePath::fromString(m_tempDir.path()) / "crash-now";
+    trigger.removeFile();
+    Process target;
+    target.setCommand({testData.executable, {"crash-on-file", trigger.nativePath()}});
+    target.start();
+    QVERIFY(target.waitForStarted());
+
+    const QString crashParameter = QString::number(reinterpret_cast<quintptr>(crashEvent));
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngineForCrashedProcess(
+        backend, ProcessHandle(target.processId()), crashParameter);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    auto eventWasSignalled = [crashEvent] {
+        return WaitForSingleObject(crashEvent, 0) == WAIT_OBJECT_0;
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(eventWasSignalled(),
+                              "the debugger never answered the crash event",
+                              s_warmUpTimeout);
+
+    QVERIFY(trigger.writeFileContents("go"));
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk),
+                              "the process was never reported as held at its crash",
+                              s_warmUpTimeout);
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+             "attaching to the crashed process failed");
+
+    debuggerBackend->clearEvents();
+    engine->shutdownInferior(ShutdownMode::Detach);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::ShutdownFinished),
+                             s_timeout);
+    engine->shutdownEngine();
+    CloseHandle(crashEvent);
+    target.kill();
+    target.waitForFinished();
+#endif
 }
 
 void tst_backends::attachesToTerminalRunProcess()

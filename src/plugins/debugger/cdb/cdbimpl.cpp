@@ -189,7 +189,8 @@ static DebuggerEngineSetupData cdbImplSetupData()
                            | DebuggerExtraCapability::ModuleSymbolState;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
-                    | DebuggerStartModeFlag::AttachToCore;
+                    | DebuggerStartModeFlag::AttachToCore
+                    | DebuggerStartModeFlag::AttachToCrashedProcess;
     return data;
 }
 
@@ -242,6 +243,8 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     } else if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
         const auto &attachData = std::get<AttachToProcessData>(m_startData.inferiorStartData);
         cdbCommand.addArgs({"-p", QString::number(attachData.pid.pid())});
+        if (!attachData.crashParameter.isEmpty())
+            cdbCommand.addArgs({"-e", attachData.crashParameter, "-g"});
     } else if (std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData)) {
         const auto &coreData = std::get<AttachToCoreData>(m_startData.inferiorStartData);
         cdbCommand.addArgs({"-z", coreData.coreFile.nativePath()});
