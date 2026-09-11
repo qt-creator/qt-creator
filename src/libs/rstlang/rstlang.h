@@ -7,15 +7,15 @@
 
 #include <qglobal.h>
 
-#if defined(CMAKELANG_LIBRARY)
-#  define CMAKELANG_EXPORT Q_DECL_EXPORT
-#elif defined(CMAKELANG_STATIC_LIBRARY)
-#  define CMAKELANG_EXPORT
+#if defined(RSTLANG_LIBRARY)
+#  define RSTLANG_EXPORT Q_DECL_EXPORT
+#elif defined(RSTLANG_STATIC_LIBRARY)
+#  define RSTLANG_EXPORT
 #else
-#  define CMAKELANG_EXPORT Q_DECL_IMPORT
+#  define RSTLANG_EXPORT Q_DECL_IMPORT
 #endif
 
-namespace CMakeLang {
+namespace RstLang {
 
 // The pool the AST is allocated from, the engine that owns it and what it
 // reports are what every parser needs, so they are shared.
@@ -31,25 +31,27 @@ class Token;
 class Visitor;
 
 class AST;
-class SourceFileAST;
-class ElementAST;
-class CommandAST;
-class IfAST;
-class ElseIfClauseAST;
-class ElseClauseAST;
-class NestedCommandAST;
-class ForEachAST;
-class WhileAST;
-class FunctionAST;
-class MacroAST;
+class DocumentAST;
 class BlockAST;
-class ArgumentAST;
-class UnquotedArgumentAST;
-class QuotedArgumentAST;
-class BracketArgumentAST;
-class ParenGroupArgumentAST;
+class LineAST;
+class ParagraphAST;
+class LiteralBlockAST;
+class LineBlockAST;
+class BlockQuoteAST;
+class SectionAST;
+class DefinitionItemAST;
+class BulletItemAST;
+class EnumeratedItemAST;
+class FieldAST;
+class DirectiveAST;
+class SubstitutionAST;
+class TargetAST;
+class CommentAST;
+class TransitionAST;
+class FootnoteAST;
+class TableAST;
 
 template <typename T> class List;
 template <typename T> class ListView;
 
-} // namespace CMakeLang
+} // namespace RstLang

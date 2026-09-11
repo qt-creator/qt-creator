@@ -3,17 +3,17 @@
 
 #pragma once
 
-#include "cmakelang.h"
-#include "cmakememorypool.h"
+#include "memorypool.h"
+#include "parsing_global.h"
 
 #include <QList>
 #include <QString>
 
 #include <unordered_set>
 
-namespace CMakeLang {
+namespace Parsing {
 
-class CMAKELANG_EXPORT Diagnostic
+class PARSING_EXPORT Diagnostic
 {
 public:
     enum Kind {
@@ -31,7 +31,10 @@ public:
     bool isError() const { return kind == Error; }
 };
 
-class CMAKELANG_EXPORT Engine
+// What a parser and the AST it builds live in: the text that is parsed, the
+// pool the nodes are allocated from, the strings they share and what went
+// wrong on the way.
+class PARSING_EXPORT Engine
 {
     Engine(const Engine &other) = delete;
     void operator=(const Engine &other) = delete;
@@ -63,4 +66,4 @@ private:
     QList<Diagnostic> _diagnostics;
 };
 
-} // namespace CMakeLang
+} // namespace Parsing

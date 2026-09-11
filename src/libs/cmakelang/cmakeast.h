@@ -5,7 +5,8 @@
 
 #include "cmakelang.h"
 #include "cmakelexer.h"
-#include "cmakememorypool.h"
+
+#include <parsing/memorypool.h>
 
 #include <cstddef>
 #include <iterator>

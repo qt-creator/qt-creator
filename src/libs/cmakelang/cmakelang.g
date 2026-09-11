@@ -56,8 +56,9 @@
 
 #include "$header"
 #include "cmakeast.h"
-#include "cmakeengine.h"
 #include "cmakelexer.h"
+
+#include <parsing/engine.h>
 
 #include <vector>
 

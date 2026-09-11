@@ -5,54 +5,45 @@ import qbs.FileInfo
 import qbs.TextFile
 
 QtcLibrary {
-    name: "CMakeLang"
+    name: "RstLang"
 
-    property bool autoGenerateParser: Environment.getEnv("QTC_CMAKELANG_AUTOGENERATE_PARSER")
+    property bool autoGenerateParser: Environment.getEnv("QTC_RSTLANG_AUTOGENERATE_PARSER")
 
     cpp.defines: base.concat([
-        "CMAKELANG_LIBRARY"
+        "RSTLANG_LIBRARY"
     ])
     cpp.includePaths: base.concat([sourceDirectory])
 
     Depends { name: "Parsing" }
 
     files: [
-        "cmakeast.cpp",
-        "cmakeast.h",
-        "cmakeastvisitor.cpp",
-        "cmakeastvisitor.h",
-        "cmakedocument.cpp",
-        "cmakedocument.h",
-        "cmakeedit.h",
-        "cmakeformatter.cpp",
-        "cmakeformatter.h",
-        "cmakeindentation.cpp",
-        "cmakeindentation.h",
-        "cmakelang.h",
-        "cmakelexer.cpp",
-        "cmakelexer.h",
-        "cmakerewriter.cpp",
-        "cmakerewriter.h",
-        "cmakesignature.cpp",
-        "cmakesignature.h",
-        "cmakestyle.cpp",
-        "cmakestyle.h",
+        "rstast.cpp",
+        "rstast.h",
+        "rstastvisitor.cpp",
+        "rstastvisitor.h",
+        "rstdocument.cpp",
+        "rstdocument.h",
+        "rstlang.h",
+        "rstlexer.cpp",
+        "rstlexer.h",
+        "rstmarkdown.cpp",
+        "rstmarkdown.h",
     ]
 
     Group {
         name: "generated parser files"
         condition: !autoGenerateParser
         files: [
-            "cmakeparser.cpp",
-            "cmakeparser.h",
-            "cmakeparsertable.cpp",
-            "cmakeparsertable_p.h",
+            "rstparser.cpp",
+            "rstparser.h",
+            "rstparsertable.cpp",
+            "rstparsertable_p.h",
         ]
     }
 
     Group {
         fileTags: ["qlalrInput"]
-        files: [ "cmakelang.g" ]
+        files: [ "rstlang.g" ]
     }
 
     // Necessary because qlalr generates its outputs in the working directory,
@@ -72,16 +63,16 @@ QtcLibrary {
     Rule {
         inputs: ["qlalrInput.real"]
         condition: product.autoGenerateParser
-        Artifact { filePath: "cmakeparsertable_p.h"; fileTags: ["hpp"] }
-        Artifact { filePath: "cmakeparsertable.cpp"; fileTags: ["cpp"] }
-        Artifact { filePath: "cmakeparser.h"; fileTags: ["hpp"] }
-        Artifact { filePath: "cmakeparser.cpp"; fileTags: ["cpp"]}
+        Artifact { filePath: "rstparsertable_p.h"; fileTags: ["hpp"] }
+        Artifact { filePath: "rstparsertable.cpp"; fileTags: ["cpp"] }
+        Artifact { filePath: "rstparser.h"; fileTags: ["hpp"] }
+        Artifact { filePath: "rstparser.cpp"; fileTags: ["cpp"]}
         prepare: {
             var inputFile = "./" + input.fileName;
             var qlalr = FileInfo.joinPaths(product.Qt.core.libExecPath, "qlalr");
             var generateCmd = new Command(qlalr, ["--qt", "--no-debug", inputFile]);
             generateCmd.workingDirectory = product.buildDirectory;
-            generateCmd.description = "generating cmake parser";
+            generateCmd.description = "generating reStructuredText parser";
 
             var copyCmd = new JavaScriptCommand();
             copyCmd.sourceCode = function() {

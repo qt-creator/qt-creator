@@ -3,18 +3,18 @@
 
 #pragma once
 
-#include "cmakelang.h"
+#include "parsing_global.h"
 
 #include <cstddef>
 #include <new>
 
-namespace CMakeLang {
+namespace Parsing {
 
 // Nothing allocated from the pool is ever destroyed, so every AST node has to
 // stay trivially destructible.
 // Hand-rolled rather than a std::pmr::monotonic_buffer_resource: the libc++ the
 // OpenHarmony SDK carries has no <memory_resource>.
-class CMAKELANG_EXPORT MemoryPool
+class PARSING_EXPORT MemoryPool
 {
     MemoryPool(const MemoryPool &other) = delete;
     void operator=(const MemoryPool &other) = delete;
@@ -64,7 +64,7 @@ private:
         return block->data;
     }
 
-    // The AST of a typical CMake file fits in here, so parsing it does not
+    // The AST of a typical source file fits in here, so parsing it does not
     // reach the upstream allocator at all.
     alignas(std::max_align_t) std::byte _buffer[InitialSize];
     std::byte *_next = _buffer;
@@ -72,7 +72,7 @@ private:
     Block *_blocks = nullptr;
 };
 
-class CMAKELANG_EXPORT Managed
+class PARSING_EXPORT Managed
 {
     Managed(const Managed &other) = delete;
     void operator=(const Managed &other) = delete;
@@ -88,4 +88,4 @@ protected:
     ~Managed() = default;
 };
 
-} // namespace CMakeLang
+} // namespace Parsing

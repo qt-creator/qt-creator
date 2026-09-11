@@ -3,9 +3,10 @@
 
 #include "cmakeindentation.h"
 
-#include "cmakeengine.h"
 #include "cmakelexer.h"
 #include "cmakeparser.h"
+
+#include <parsing/engine.h>
 
 using namespace Qt::Literals::StringLiterals;
 

@@ -3,8 +3,9 @@
 
 #include "cmakelexer.h"
 
-#include "cmakeengine.h"
 #include "cmakeparser.h"
+
+#include <parsing/engine.h>
 
 using namespace CMakeLang;
 

@@ -4,7 +4,8 @@
 #pragma once
 
 #include "cmakeast.h"
-#include "cmakeengine.h"
+
+#include <parsing/engine.h>
 
 #include <QHash>
 #include <QList>

@@ -4,7 +4,6 @@
 #include <cmakelang/cmakeast.h>
 #include <cmakelang/cmakeastvisitor.h>
 #include <cmakelang/cmakedocument.h>
-#include <cmakelang/cmakeengine.h>
 #include <cmakelang/cmakeformatter.h>
 #include <cmakelang/cmakeindentation.h>
 #include <cmakelang/cmakelexer.h>

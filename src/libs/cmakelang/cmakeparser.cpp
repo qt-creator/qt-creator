@@ -1,5 +1,5 @@
 
-#line 187 "./cmakelang.g"
+#line 188 "./cmakelang.g"
 
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
@@ -316,71 +316,71 @@ bool Parser::parseElements()
     return false;
 }
 
-#line 504 "./cmakelang.g"
+#line 505 "./cmakelang.g"
 
 void Parser::reduce(int ruleno)
 {
 switch (ruleno) {
 
-#line 513 "./cmakelang.g"
+#line 514 "./cmakelang.g"
 
     case 0: {
     } break;
 
-#line 519 "./cmakelang.g"
+#line 520 "./cmakelang.g"
 
     case 1: {
         sym(1).element_list = nullptr;
     } break;
 
-#line 526 "./cmakelang.g"
+#line 527 "./cmakelang.g"
 
     case 2: {
     } break;
 
-#line 532 "./cmakelang.g"
+#line 533 "./cmakelang.g"
 
     case 3: {
         sym(1).element_list = appendTo(sym(1).element_list, sym(2).element);
     } break;
 
-#line 539 "./cmakelang.g"
+#line 540 "./cmakelang.g"
 
     case 4: {
         sym(1).element = sym(1).command;
     } break;
 
-#line 553 "./cmakelang.g"
+#line 554 "./cmakelang.g"
 
     case 11: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 560 "./cmakelang.g"
+#line 561 "./cmakelang.g"
 
     case 12: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 567 "./cmakelang.g"
+#line 568 "./cmakelang.g"
 
     case 13: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 574 "./cmakelang.g"
+#line 575 "./cmakelang.g"
 
     case 14: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 581 "./cmakelang.g"
+#line 582 "./cmakelang.g"
 
     case 15: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 588 "./cmakelang.g"
+#line 589 "./cmakelang.g"
 
     case 16: {
         IfAST *node = makeAstNode<IfAST>(sym(1).command, sym(3).element_list,
@@ -390,19 +390,19 @@ switch (ruleno) {
         sym(1).element = node;
     } break;
 
-#line 599 "./cmakelang.g"
+#line 600 "./cmakelang.g"
 
     case 17: {
         sym(1).elseif_clause_list = nullptr;
     } break;
 
-#line 606 "./cmakelang.g"
+#line 607 "./cmakelang.g"
 
     case 18: {
         sym(1).elseif_clause_list = appendTo(sym(1).elseif_clause_list, sym(2).elseif_clause);
     } break;
 
-#line 613 "./cmakelang.g"
+#line 614 "./cmakelang.g"
 
     case 19: {
         List<ElementAST *> *elements = sym(3).element_list;
@@ -411,13 +411,13 @@ switch (ruleno) {
         sym(1).elseif_clause = node;
     } break;
 
-#line 623 "./cmakelang.g"
+#line 624 "./cmakelang.g"
 
     case 20: {
         sym(1).else_clause = nullptr;
     } break;
 
-#line 630 "./cmakelang.g"
+#line 631 "./cmakelang.g"
 
     case 21: {
         List<ElementAST *> *elements = sym(3).element_list;
@@ -426,19 +426,19 @@ switch (ruleno) {
         sym(1).else_clause = node;
     } break;
 
-#line 640 "./cmakelang.g"
+#line 641 "./cmakelang.g"
 
     case 22: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 647 "./cmakelang.g"
+#line 648 "./cmakelang.g"
 
     case 23: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 654 "./cmakelang.g"
+#line 655 "./cmakelang.g"
 
     case 24: {
         ForEachAST *node = makeAstNode<ForEachAST>(sym(1).command, sym(3).element_list,
@@ -447,19 +447,19 @@ switch (ruleno) {
         sym(1).element = node;
     } break;
 
-#line 664 "./cmakelang.g"
+#line 665 "./cmakelang.g"
 
     case 25: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 671 "./cmakelang.g"
+#line 672 "./cmakelang.g"
 
     case 26: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 678 "./cmakelang.g"
+#line 679 "./cmakelang.g"
 
     case 27: {
         WhileAST *node = makeAstNode<WhileAST>(sym(1).command, sym(3).element_list,
@@ -468,19 +468,19 @@ switch (ruleno) {
         sym(1).element = node;
     } break;
 
-#line 688 "./cmakelang.g"
+#line 689 "./cmakelang.g"
 
     case 28: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 695 "./cmakelang.g"
+#line 696 "./cmakelang.g"
 
     case 29: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 702 "./cmakelang.g"
+#line 703 "./cmakelang.g"
 
     case 30: {
         FunctionAST *node = makeAstNode<FunctionAST>(sym(1).command, sym(3).element_list,
@@ -489,19 +489,19 @@ switch (ruleno) {
         sym(1).element = node;
     } break;
 
-#line 712 "./cmakelang.g"
+#line 713 "./cmakelang.g"
 
     case 31: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 719 "./cmakelang.g"
+#line 720 "./cmakelang.g"
 
     case 32: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 726 "./cmakelang.g"
+#line 727 "./cmakelang.g"
 
     case 33: {
         MacroAST *node = makeAstNode<MacroAST>(sym(1).command, sym(3).element_list,
@@ -510,19 +510,19 @@ switch (ruleno) {
         sym(1).element = node;
     } break;
 
-#line 736 "./cmakelang.g"
+#line 737 "./cmakelang.g"
 
     case 34: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 743 "./cmakelang.g"
+#line 744 "./cmakelang.g"
 
     case 35: {
         sym(1).command = makeCommand(location(1), location(2), sym(3).argument_list, location(4));
     } break;
 
-#line 750 "./cmakelang.g"
+#line 751 "./cmakelang.g"
 
     case 36: {
         BlockAST *node = makeAstNode<BlockAST>(sym(1).command, sym(3).element_list,
@@ -531,19 +531,19 @@ switch (ruleno) {
         sym(1).element = node;
     } break;
 
-#line 760 "./cmakelang.g"
+#line 761 "./cmakelang.g"
 
     case 37: {
         sym(1).argument_list = nullptr;
     } break;
 
-#line 767 "./cmakelang.g"
+#line 768 "./cmakelang.g"
 
     case 38: {
         sym(1).argument_list = appendTo(sym(1).argument_list, sym(2).argument);
     } break;
 
-#line 774 "./cmakelang.g"
+#line 775 "./cmakelang.g"
 
     case 39: {
         UnquotedArgumentAST *node = makeAstNode<UnquotedArgumentAST>(tokenAt(location(1)));
@@ -551,7 +551,7 @@ switch (ruleno) {
         sym(1).argument = node;
     } break;
 
-#line 783 "./cmakelang.g"
+#line 784 "./cmakelang.g"
 
     case 40: {
         UnquotedArgumentAST *node = makeAstNode<UnquotedArgumentAST>(tokenAt(location(1)));
@@ -559,7 +559,7 @@ switch (ruleno) {
         sym(1).argument = node;
     } break;
 
-#line 792 "./cmakelang.g"
+#line 793 "./cmakelang.g"
 
     case 41: {
         QuotedArgumentAST *node = makeAstNode<QuotedArgumentAST>(tokenAt(location(1)));
@@ -567,7 +567,7 @@ switch (ruleno) {
         sym(1).argument = node;
     } break;
 
-#line 801 "./cmakelang.g"
+#line 802 "./cmakelang.g"
 
     case 42: {
         BracketArgumentAST *node = makeAstNode<BracketArgumentAST>(tokenAt(location(1)));
@@ -575,7 +575,7 @@ switch (ruleno) {
         sym(1).argument = node;
     } break;
 
-#line 810 "./cmakelang.g"
+#line 811 "./cmakelang.g"
 
     case 43: {
         ParenGroupArgumentAST *node = makeAstNode<ParenGroupArgumentAST>(
@@ -584,7 +584,7 @@ switch (ruleno) {
         sym(1).argument = node;
     } break;
 
-#line 819 "./cmakelang.g"
+#line 820 "./cmakelang.g"
 
     } // switch
 }

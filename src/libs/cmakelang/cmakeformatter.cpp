@@ -3,10 +3,11 @@
 
 #include "cmakeformatter.h"
 
-#include "cmakeengine.h"
 #include "cmakeindentation.h"
 #include "cmakelexer.h"
 #include "cmakeparser.h"
+
+#include <parsing/engine.h>
 
 using namespace CMakeLang;
 

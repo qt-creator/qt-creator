@@ -29,6 +29,7 @@ Project {
         "qml/qml.qbs",
         "qmldebug/qmldebug.qbs",
         "qtprofiler/qtprofiler.qbs",
+        "rstlang/rstlang.qbs",
         "qttasktree/qttasktree.qbs",
         "sdktool/sdktool.qbs",
         "settingstransfer/settingstransfer.qbs",
