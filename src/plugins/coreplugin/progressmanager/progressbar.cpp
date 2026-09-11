@@ -78,7 +78,7 @@ ProgressBar::ProgressBar(Role role, QWidget *parent)
     using namespace Layouting;
     if (role == Default) {
         constexpr StyleHelper::TextFormat titleTf {
-            .themeColor = Theme::Token_Text_Default,
+            .themeColor = Theme::ProgressBarTitleColor,
             .uiElement = StyleHelper::UiElementCaptionStrong,
             .drawTextFlags = Qt::AlignCenter,
         };
