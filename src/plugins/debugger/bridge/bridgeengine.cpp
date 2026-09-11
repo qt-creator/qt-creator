@@ -1308,6 +1308,10 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             extraDumperFiles.append(settings().extraDumperFile());
         const QStringList extraDumperCommands
             = commandLines(settings().extraDumperCommands());
+        const TriState debugInfoD = settings().useDebugInfoD();
+        const std::optional<bool> useDebugInfoD
+            = debugInfoD == TriState::Default ? std::optional<bool>()
+                                              : std::optional<bool>(debugInfoD == TriState::Enabled);
         const DebuggerUserCommands userCommands{
             .startScript = rp.overrideStartScript(),
             .atStartup = commandLines(settings().gdbStartupCommands() + '\n'
@@ -1322,13 +1326,23 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .extraDumperCommands = extraDumperCommands,
             .userCommands = userCommands,
             .sysroot = rp.sysRoot(),
+            .runAsUser = rp.runAsUser(),
             .sourcePathMap = sourcePathMap,
             .sourceDirectories = sourceDirectories,
+            .useDebugInfoD = useDebugInfoD,
             .breakOnMain = rp.breakOnMain(),
+            .breakOnAbort = settings().breakOnAbort(),
+            .breakOnWarning = settings().breakOnWarning(),
+            .breakOnFatal = settings().breakOnFatal(),
             .continueAfterAttach = rp.continueAfterAttach(),
             .continueInsteadOfRun = rp.useContinueInsteadOfRun(),
+            .exitMonitorAtClose = rp.closeMode() == KillAndExitMonitorAtClose,
+            .intelDisassembly = settings().intelFlavor(),
+        .logTimeStamps = settings().logTimeStamps(),
             .nativeMixedDebugging = rp.isNativeMixedDebugging(),
+            .pseudoTracepoints = settings().usePseudoTracepoints(),
             .skipKnownFrames = settings().skipKnownFrames(),
+            .watchdogTimeout = std::chrono::seconds(settings().gdbWatchdogTimeout()),
             .qtVersion = rp.qtVersion(),
             .qtNamespace = rp.configuredQtNamespace()}));
     }

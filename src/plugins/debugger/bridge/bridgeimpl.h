@@ -12,6 +12,7 @@
 
 #include <QHash>
 #include <QJsonObject>
+#include <QTimer>
 
 #include <memory>
 
@@ -59,11 +60,13 @@ private:
     void reportEngineSetup(bool success);
     void handleStandardError();
     void configureTarget();
+    void createSpecialBreakpoints();
     void runUserStartupCommands();
     void handleResponse(DapResponseType type, const QJsonObject &response);
     void handleEvent(DapEventType type, const QJsonObject &event);
     void interruptInferior();
     void interruptGdb();
+    void interruptHost();
     void handleResumeResponse(bool success);
     void handleStopped(const QJsonObject &event);
     void handleStackTrace(const QJsonObject &response);
@@ -72,6 +75,7 @@ private:
     void handleTracepointHit(const QJsonObject &body);
 
     int postRequest(const QString &command, const QJsonObject &arguments = {});
+    void restartWatchdog();
     void postWhenStopped(const QString &command, const QJsonObject &arguments,
                          const BreakpointChangeRequest &request);
     void failDeferredRequests();
@@ -82,6 +86,17 @@ private:
 
     const DapStartData m_startData;
     DapClient *m_client = nullptr;
+    QTimer m_watchdog;
+    // What has gone out without an answer, by sequence number, for the
+    // watchdog to name.
+    class PendingRequest
+    {
+    public:
+        QString text;
+        QString command;
+        qint64 postTime = 0;
+    };
+    QHash<int, PendingRequest> m_pendingRequests;
 
     class DisassemblyRequest
     {
@@ -107,6 +122,7 @@ private:
     bool m_stepRequested = false;
     bool m_shuttingDown = false;
     bool m_setupReported = false;
+    bool m_monitorExitRequested = false;
     bool m_inferiorResumed = false;
     bool m_interruptOnceResumed = false;
     // Whether the next stop ends the setup rather than a run of its own.
@@ -174,6 +190,7 @@ private:
     QHash<quint64, PeripheralRequest> m_peripheralRequests;
     quint64 m_nextPeripheralToken = 1000000;
     quint64 m_pendingModuleSymbolsRequestId = 0;
+    quint64 m_pendingWatchPointRequestId = 0;
 
     // The core file to be, kept until its request is answered.
     class SnapshotRequest

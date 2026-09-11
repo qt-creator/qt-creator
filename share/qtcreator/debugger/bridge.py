@@ -126,6 +126,64 @@ def warn(message):
     sys.stderr.flush()
 
 
+class GdbOwnTracepoint():
+    # gdb creates a tracepoint only from the CLI and does not list it in
+    # gdb.breakpoints(), so there is nothing to hold on to: this drives the one
+    # gdb made by its number, and answers what a gdb.Breakpoint answers.
+    def __init__(self, source, line):
+        # A path with spaces in it needs quoting to pass as a linespec.
+        reply = gdb.execute('trace %s:%d' % (quoteArgument(source), line),
+                            to_string=True) or ''
+        match = re.search(r'\bTracepoint (\d+)\b', reply)
+        if not match:
+            raise gdb.error(reply.strip() or 'gdb created no tracepoint')
+        self.number = int(match.group(1))
+        self.location = '%s:%d' % (source, line)
+        # gdb has no temporary tracepoint, and one that never stops the
+        # inferior has no use for being one.
+        self.temporary = False
+        self.hit_count = 0
+        self._condition = ''
+        self._ignore_count = 0
+        self._enabled = True
+        self._valid = True
+
+    def is_valid(self):
+        return self._valid
+
+    def delete(self):
+        gdb.execute('delete %d' % self.number, to_string=True)
+        self._valid = False
+
+    @property
+    def condition(self):
+        return self._condition
+
+    @condition.setter
+    def condition(self, condition):
+        gdb.execute('condition %d %s' % (self.number, condition), to_string=True)
+        self._condition = condition
+
+    @property
+    def ignore_count(self):
+        return self._ignore_count
+
+    @ignore_count.setter
+    def ignore_count(self, count):
+        gdb.execute('ignore %d %d' % (self.number, count), to_string=True)
+        self._ignore_count = count
+
+    @property
+    def enabled(self):
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, enabled):
+        gdb.execute('%s %d' % ('enable' if enabled else 'disable', self.number),
+                    to_string=True)
+        self._enabled = enabled
+
+
 class DapServer():
     def __init__(self, dumper):
         self.dumper = dumper
@@ -161,6 +219,11 @@ class DapServer():
         self.breakpointArgsById = {}
         # Extra gdb breakpoints belonging to one of ours (catch fork/vfork).
         self.companionBreakpoints = {}
+        # The numbers of the breakpoints gdb made because we asked it to. gdb
+        # announces the ones the user makes in the console just the same, and
+        # only the number tells the two apart.
+        self.ownBreakpoints = set()
+        self.creatingOwnBreakpoints = 0
 
         # Rebuilt on every stop: maps a DAP frame id to a gdb.Frame, and a
         # stack level to one for the requests that count frames that way.
@@ -178,6 +241,8 @@ class DapServer():
         gdb.events.cont.connect(self._onContinue)
         gdb.events.exited.connect(self._onExited)
         gdb.events.breakpoint_modified.connect(self._onBreakpointModified)
+        gdb.events.breakpoint_created.connect(self._onBreakpointCreated)
+        gdb.events.breakpoint_deleted.connect(self._onBreakpointDeleted)
         # What MI reports as =library-loaded: without it the modules view stays
         # empty until the user asks for it by hand.
         gdb.events.new_objfile.connect(self._onNewObjfile)
@@ -329,6 +394,7 @@ class DapServer():
         # Keep gdb quiet and non-interactive; this loop owns stdio.
         for command in ['set pagination off', 'set confirm off',
                         'set width 0', 'set height 0',
+                        'set print elements 10000',
                         'set breakpoint pending on']:
             try:
                 gdb.execute(command, to_string=True)
@@ -418,6 +484,38 @@ class DapServer():
         if str(bp.number) not in self.breakpointById:
             return
         self.sendEvent('qtc/breakpointModified', {'bkpt': self._breakpointToMi(bp)})
+
+    def _onBreakpointCreated(self, bp):
+        # One of ours, whose number _createOwnBreakpoint collects: reading it
+        # here, while gdb is still installing the breakpoint, makes the
+        # installation itself fail.
+        if self.creatingOwnBreakpoints:
+            return
+        number = str(bp.number)
+        if number in self.ownBreakpoints:
+            return
+        self.sendEvent('qtc/breakpointCreated', {'bkpt': self._breakpointToMi(bp)})
+
+    def _onBreakpointDeleted(self, bp):
+        number = str(bp.number)
+        if number in self.ownBreakpoints:
+            self.ownBreakpoints.discard(number)
+            return
+        if self.creatingOwnBreakpoints:
+            return
+        self.sendEvent('qtc/breakpointDeleted', {'number': number})
+
+    def _createOwnBreakpoint(self, create):
+        # Which breakpoints gdb made here is taken from what appeared, not from
+        # the announcement: reading a breakpoint's number while gdb is still
+        # installing it makes the installation itself fail.
+        known = {str(bp.number) for bp in (gdb.breakpoints() or ())}
+        self.creatingOwnBreakpoints += 1
+        try:
+            return create()
+        finally:
+            self.creatingOwnBreakpoints -= 1
+            self.ownBreakpoints |= {str(bp.number) for bp in (gdb.breakpoints() or ())} - known
 
     def _onContinue(self, event):
         # The one thing this loop can say while it is blocked in a resuming
@@ -765,7 +863,8 @@ class DapServer():
         # acknowledged. A binary without a main falls back to a plain run.
         started = False
         try:
-            gdb.execute('start', to_string=True)
+            # 'start' makes a temporary breakpoint at main, which is ours.
+            self._createOwnBreakpoint(lambda: gdb.execute('start', to_string=True))
             started = True
         except gdb.error as error:
             warn('start failed, running instead: %s' % error)
@@ -791,6 +890,27 @@ class DapServer():
         # Leaving the loop only ends the -ex command; gdb would then read the
         # remaining protocol stream as gdb commands. Quit for good.
         gdb.execute('quit', to_string=True)
+
+    def cmd_qtc_shutdownInferior(self, request):
+        # The inferior goes, the session stays: something else is still to be
+        # shut down over the connection, a debug monitor for instance.
+        try:
+            gdb.execute('detach' if request.get('arguments', {}).get('detach')
+                        else 'kill', to_string=True)
+        except gdb.error:
+            pass
+        self._syncThreads()
+        self.sendResponse(request)
+
+    def cmd_qtc_exitMonitor(self, request):
+        # Nothing else ends a gdbserver started with --multi: it outlives both
+        # the inferior it ran and the connection.
+        try:
+            gdb.execute('monitor exit', to_string=True)
+        except gdb.error as error:
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        self.sendResponse(request)
 
     def cmd_disconnect(self, request):
         arguments = request.get('arguments', {})
@@ -902,7 +1022,7 @@ class DapServer():
         # Temporary breakpoint at the function, then continue until it is hit.
         func = request.get('arguments', {}).get('function', '')
         try:
-            gdb.Breakpoint(function=func, temporary=True)
+            self._createOwnBreakpoint(lambda: gdb.Breakpoint(function=func, temporary=True))
         except (gdb.error, RuntimeError) as error:
             self.sendResponse(request, success=False, message=str(error))
             return
@@ -915,10 +1035,12 @@ class DapServer():
         address = args.get('address')
         try:
             if address:
-                gdb.Breakpoint('*%s' % address, gdb.BP_BREAKPOINT, temporary=True)
+                self._createOwnBreakpoint(
+                    lambda: gdb.Breakpoint('*%s' % address, gdb.BP_BREAKPOINT, temporary=True))
             else:
-                gdb.Breakpoint(source=args.get('file', ''),
-                               line=int(args.get('line', 0)), temporary=True)
+                self._createOwnBreakpoint(
+                    lambda: gdb.Breakpoint(source=args.get('file', ''),
+                                           line=int(args.get('line', 0)), temporary=True))
         except (gdb.error, RuntimeError) as error:
             self.sendResponse(request, success=False, message=str(error))
             return
@@ -1030,10 +1152,13 @@ class DapServer():
         bptype = args.get('type', self.BP_BY_FILE_AND_LINE)
         temporary = bool(args.get('oneshot'))
         if args.get('tracepoint') and bptype == self.BP_BY_FILE_AND_LINE:
-            # A tracepoint reports and lets the inferior run on, which a gdb
-            # breakpoint cannot do: GDBTracepoint captures what the message
-            # asks for and never stops.
-            bp = self._createTracepoint(args)
+            if args.get('pseudotracepoint'):
+                # A tracepoint reports and lets the inferior run on, which a gdb
+                # breakpoint cannot do: GDBTracepoint captures what the message
+                # asks for and never stops.
+                bp = self._createTracepoint(args)
+            else:
+                bp = GdbOwnTracepoint(args.get('file', ''), int(args.get('line', 0)))
         elif bptype in self.CATCH_KINDS:
             bp = self._createCatchpoint(bptype)
         elif bptype in self.FUNCTION_FOR_TYPE:
@@ -1189,7 +1314,9 @@ class DapServer():
             result['what'] = self.CATCH_KINDS[requested][0]
             return self.dumper.resultToMi(result)
 
-        result['type'] = 'breakpoint'
+        # A tracepoint of gdb's own is what gdb calls itself, and it is what
+        # tells the two kinds of tracepoint apart.
+        result['type'] = 'tracepoint' if isinstance(bp, GdbOwnTracepoint) else 'breakpoint'
         locations = self._locationsOf(bp)
         if len(locations) == 1:
             self._fillLocationDict(result, locations[0])
@@ -1211,7 +1338,9 @@ class DapServer():
         body = {'modelid': args.get('modelid')}
         bp = None
         try:
-            bp = self._createGdbBreakpoint(args)
+            bp = self._createOwnBreakpoint(lambda: self._createGdbBreakpoint(args))
+            # A tracepoint is in none of gdb's lists, so it needs saying.
+            self.ownBreakpoints.add(str(bp.number))
             self.breakpointById[str(bp.number)] = bp
             self.breakpointArgsById[str(bp.number)] = args
             body['bkpt'] = self._breakpointToMi(bp)
@@ -1365,6 +1494,19 @@ class DapServer():
         self.sendResponse(request, body={
             'dumperResult': self._captureDumperResult('fetchVariables', request)})
 
+    def cmd_qtc_createSpecialBreakpoints(self, request):
+        # Internal breakpoints on abort(), qWarning() and qFatal(), which the
+        # dumpers create because the names they need depend on the namespace.
+        self._createOwnBreakpoint(
+            lambda: self.dumper.createSpecialBreakpoints(request.get('arguments', {})))
+        self.sendResponse(request)
+
+    def cmd_qtc_watchPoint(self, request):
+        # The widget under the cursor, which the dumpers find by calling
+        # QApplication::widgetAt() in the inferior.
+        self.sendResponse(request, body={
+            'dumperResult': self._captureDumperResult('watchPoint', request)})
+
     def cmd_qtc_runUserCommands(self, request):
         # The user's own gdb commands, or the script that replaces them. Blank
         # lines are the caller's own formatting, comments are already filtered
@@ -1510,6 +1652,15 @@ class DapServer():
             # likely place for them too, as GdbEngine does.
             self._executeQuietly('set substitute-path /usr/src %s'
                                  % quoteArgument(sysroot + '/usr/src'))
+        debuginfod = args.get('debuginfod')
+        if debuginfod is not None:
+            # The commands exist from gdb 10.1 on, and only in a build with
+            # debuginfod support, so an older or plainer gdb answers with an
+            # error that is left alone.
+            if debuginfod:
+                self._executeQuietly('set debuginfod verbose 1')
+            self._executeQuietly('set debuginfod enabled %s'
+                                 % ('on' if debuginfod else 'off'))
         self.sendResponse(request)
 
     def _executeQuietly(self, command):
@@ -1674,6 +1825,14 @@ class DapServer():
         args = request.get('arguments', {})
         token = args.get('token', 0)
         target = args.get('target', '')
+        flavor = args.get('flavor')
+        if flavor:
+            # Not every architecture has flavors, and the setting is not worth
+            # failing a disassembly over.
+            try:
+                gdb.execute('set disassembly-flavor %s' % flavor, to_string=True)
+            except gdb.error as error:
+                warn('setting the disassembly flavor failed: %s' % error)
         lastError = 'no disassembly'
         for flags in ('/rs', '/rm', '/r'):
             try:

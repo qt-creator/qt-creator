@@ -39,10 +39,12 @@ namespace {
 class BridgeImplDataProvider final : public IDataProvider
 {
 public:
-    BridgeImplDataProvider(const ProcessRunData &runData, const CommandLine &cmd, QObject *parent)
+    BridgeImplDataProvider(const ProcessRunData &runData, const CommandLine &cmd,
+                           const QString &runAsUser, QObject *parent)
         : IDataProvider(parent)
         , m_runData(runData)
         , m_cmd(cmd)
+        , m_runAsUser(runAsUser)
     {
         connect(&m_proc, &Process::started, this, &IDataProvider::started);
         connect(&m_proc, &Process::done, this, &IDataProvider::done);
@@ -67,6 +69,7 @@ public:
         env.setupEnglishOutput();
         m_proc.setEnvironment(env);
         m_proc.setCommand(m_cmd);
+        m_proc.setRunAsUser(m_runAsUser);
         m_proc.start();
     }
 
@@ -89,11 +92,13 @@ public:
     QString exitMessage() const final { return m_proc.exitMessage(); }
 
     Utils::ProcessResultData resultData() const { return m_proc.resultData(); }
+    qint64 processId() const { return m_proc.processId(); }
 
 private:
     Process m_proc;
     const ProcessRunData m_runData;
     const CommandLine m_cmd;
+    const QString m_runAsUser;
 };
 
 class BridgeImplClient final : public DapClient
@@ -126,6 +131,8 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                             | WatchComplexExpressionsCapability;
     data.attachToCoreCapabilities = coreCaps;
     data.capabilities = coreCaps
+                      | AddWatcherWhileRunningCapability
+                      | WatchWidgetsCapability
                       | ReloadModuleCapability | ReloadModuleSymbolsCapability
                       | BreakConditionCapability | BreakIndividualLocationsCapability
                       | BreakOnThrowAndCatchCapability
@@ -139,16 +146,20 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                            | DebuggerExtraCapability::ContinueAfterAttach
                            | DebuggerExtraCapability::ContinueInsteadOfRun
                            | DebuggerExtraCapability::Detach
+                           | DebuggerExtraCapability::ExitMonitorAtClose
                            | DebuggerExtraCapability::JumpTargetCheck
                            | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::PeripheralRegisters
+                           | DebuggerExtraCapability::RunAsUser
                            | DebuggerExtraCapability::RunCommandDeferral
                            | DebuggerExtraCapability::SignalReceived
                            | DebuggerExtraCapability::SkipKnownFrames
+                           | DebuggerExtraCapability::SpecialBreakpoints
                            | DebuggerExtraCapability::ThreadEvent
                            | DebuggerExtraCapability::SourceFiles
                            | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess
+                      | DebuggerStartModeFlag::AttachToTerminalStub
                       | DebuggerStartModeFlag::AttachToRemoteServer
                       | DebuggerStartModeFlag::AttachToCore;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
@@ -165,7 +176,19 @@ static DebuggerEngineSetupData bridgeImplSetupData()
 BridgeImpl::BridgeImpl(const DapStartData &startData)
     : DebuggerEngineInterface(bridgeImplSetupData())
     , m_startData(startData)
-{}
+{
+    m_watchdog.setSingleShot(true);
+    m_watchdog.setInterval(m_startData.watchdogTimeout);
+    connect(&m_watchdog, &QTimer::timeout, this, [this] {
+        if (m_pendingRequests.isEmpty())
+            return;
+        m_watchdog.start();
+        QStringList pending;
+        for (const PendingRequest &request : std::as_const(m_pendingRequests))
+            pending.append(request.text);
+        emit notResponding(m_startData.watchdogTimeout, pending);
+    });
+}
 
 BridgeImpl::~BridgeImpl() = default;
 
@@ -177,7 +200,8 @@ void BridgeImpl::start()
     cmd.addArgs({"-iex", "python from " + m_startData.bridgeStartData.bridgeModule + " import *"});
     cmd.addArgs({"-ex", "python " + m_startData.bridgeStartData.serverCall});
 
-    auto provider = new BridgeImplDataProvider(m_startData.debuggerRunData, cmd, this);
+    auto provider = new BridgeImplDataProvider(m_startData.debuggerRunData, cmd,
+                                               m_startData.runAsUser, this);
     m_client = new BridgeImplClient(provider, this);
 
     connect(m_client, &DapClient::started, this, &BridgeImpl::handleStarted);
@@ -228,8 +252,23 @@ void BridgeImpl::configureTarget()
         args.insert("sourceDirectories", directories);
     if (!m_startData.sysroot.isEmpty())
         args.insert("sysroot", m_startData.sysroot.path());
+    if (m_startData.useDebugInfoD)
+        args.insert("debuginfod", *m_startData.useDebugInfoD);
     if (!args.isEmpty())
         postRequest("qtc/configureTarget", args);
+}
+
+void BridgeImpl::createSpecialBreakpoints()
+{
+    // A core file has nothing to break in.
+    if (std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData))
+        return;
+    if (!m_startData.breakOnAbort && !m_startData.breakOnWarning && !m_startData.breakOnFatal)
+        return;
+    postRequest("qtc/createSpecialBreakpoints",
+                QJsonObject{{"breakonabort", m_startData.breakOnAbort},
+                            {"breakonwarning", m_startData.breakOnWarning},
+                            {"breakonfatal", m_startData.breakOnFatal}});
 }
 
 void BridgeImpl::runUserStartupCommands()
@@ -251,6 +290,7 @@ void BridgeImpl::runUserStartupCommands()
 
 void BridgeImpl::handleFinished()
 {
+    m_watchdog.stop();
     auto provider = static_cast<BridgeImplDataProvider *>(m_client->dataProvider());
     // A host that is gone without ever having answered leaves the session
     // unopened, whether it failed to start or quit on its own.
@@ -311,6 +351,11 @@ void BridgeImpl::postLaunchOrAttach()
 {
     if (const auto attach = std::get_if<AttachToProcessData>(&m_startData.inferiorStartData)) {
         postRequest("attach", QJsonObject{{"pid", qint64(attach->pid.pid())}});
+        return;
+    }
+
+    if (const auto stub = std::get_if<AttachToTerminalStubData>(&m_startData.inferiorStartData)) {
+        postRequest("attach", QJsonObject{{"pid", qint64(stub->pid.pid())}});
         return;
     }
 
@@ -380,10 +425,16 @@ void BridgeImpl::shutdownInferior(ShutdownMode mode)
     m_shuttingDown = true;
     // Answered only once the inferior is really gone: reporting it earlier
     // lets the engine shut the bridge down from under the kill.
-    if (mode == ShutdownMode::Detach)
+    if (m_startData.exitMonitorAtClose) {
+        // A monitor is shut down over the connection, so the host has to
+        // outlive the inferior here: a terminate takes it with it.
+        postRequest("qtc/shutdownInferior",
+                    QJsonObject{{"detach", mode == ShutdownMode::Detach}});
+    } else if (mode == ShutdownMode::Detach) {
         postRequest("disconnect", QJsonObject{{"restart", false}, {"terminateDebuggee", false}});
-    else
+    } else {
         postRequest("terminate", QJsonObject{{"restart", false}});
+    }
     // The bridge sits inside the command that resumed the inferior and reads
     // nothing while it runs, so the request above needs a stop to be seen.
     if (m_inferiorRunning)
@@ -392,6 +443,13 @@ void BridgeImpl::shutdownInferior(ShutdownMode mode)
 
 void BridgeImpl::shutdownEngine()
 {
+    if (m_client && m_startData.exitMonitorAtClose && !m_monitorExitRequested) {
+        // The monitor answers over the connection the terminate below ends,
+        // so the shutdown continues once it is gone.
+        m_monitorExitRequested = true;
+        postRequest("qtc/exitMonitor");
+        return;
+    }
     if (m_client) {
         m_client->sendTerminate();
         m_client->dataProvider()->kill();
@@ -517,11 +575,24 @@ int BridgeImpl::postRequest(const QString &command, const QJsonObject &arguments
 {
     QTC_ASSERT(m_client, return -1);
     const int seq = m_client->postRequest(command, arguments);
-    emit message(QString::number(seq) + command + '('
-                     + QString::fromUtf8(QJsonDocument(arguments).toJson(QJsonDocument::Compact))
-                     + ')',
-                 LogInput);
+    const QString text = QString::number(seq) + command + '('
+                         + QString::fromUtf8(
+                             QJsonDocument(arguments).toJson(QJsonDocument::Compact))
+                         + ')';
+    emit message(text, LogInput);
+    m_pendingRequests.insert(seq, {text, command, QDateTime::currentMSecsSinceEpoch()});
+    restartWatchdog();
     return seq;
+}
+
+void BridgeImpl::restartWatchdog()
+{
+    if (m_startData.watchdogTimeout == std::chrono::seconds::zero())
+        return;
+    if (m_pendingRequests.isEmpty())
+        m_watchdog.stop();
+    else
+        m_watchdog.start();
 }
 
 void BridgeImpl::postWhenStopped(const QString &command, const QJsonObject &arguments,
@@ -567,16 +638,19 @@ void BridgeImpl::postBreakpointRequest(const QString &request,
                      {"file", params.fileName.path()}};
 
     if (params.isTracepoint() && params.type == BreakpointByFileAndLine) {
-        const QList<TracepointCapture> captures = parseTracepointCaptures(params.message);
-        QJsonArray caps;
-        for (const TracepointCapture &capture : captures) {
-            caps.append(QJsonArray{int(capture.type),
-                                   capture.expression.isEmpty()
-                                       ? QJsonValue(QJsonValue::Null)
-                                       : QJsonValue(capture.expression)});
+        args["pseudotracepoint"] = m_startData.pseudoTracepoints;
+        if (m_startData.pseudoTracepoints) {
+            const QList<TracepointCapture> captures = parseTracepointCaptures(params.message);
+            QJsonArray caps;
+            for (const TracepointCapture &capture : captures) {
+                caps.append(QJsonArray{int(capture.type),
+                                       capture.expression.isEmpty()
+                                           ? QJsonValue(QJsonValue::Null)
+                                           : QJsonValue(capture.expression)});
+            }
+            args["caps"] = caps;
+            m_tracepoints[change.modelId] = {params.message, captures};
         }
-        args["caps"] = caps;
-        m_tracepoints[change.modelId] = {params.message, captures};
     }
 
     postWhenStopped(request, args, change);
@@ -723,6 +797,13 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
 {
     const QString command = response.value("command").toString();
     const bool success = response.value("success").toBool();
+    const PendingRequest answered = m_pendingRequests.take(response.value("request_seq").toInt());
+    if (m_startData.logTimeStamps && answered.postTime) {
+        const qint64 elapsed = QDateTime::currentMSecsSinceEpoch() - answered.postTime;
+        emit message(QString("Response time: %1: %2 s").arg(answered.command)
+                         .arg(elapsed / 1000.), LogTime);
+    }
+    restartWatchdog();
 
     switch (type) {
     case DapResponseType::Initialize: {
@@ -736,6 +817,7 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         if (dumpers.isValid())
             emit refreshDataReceived(0, RefreshKind::DebuggingHelpers, dumpers);
         runUserStartupCommands();
+        createSpecialBreakpoints();
         configureTarget();
         postLaunchOrAttach();
         return;
@@ -759,7 +841,8 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             m_inferiorRunning = false;
             return;
         }
-        if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
+        if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)
+            || std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
             // Attaching stops the process, so that stop ends the setup too.
             m_reportsSetupStop = true;
             m_inferiorRunning = false;
@@ -833,6 +916,10 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
     } else if (command == "qtc/fetchVariables") {
         emit refreshDataReceived(m_pendingLocalsRequestId, RefreshKind::Locals,
                                  dumperResultOf(response));
+    } else if (command == "qtc/watchPoint") {
+        const GdbMi result = dumperResultOf(response);
+        emit watchPointResolved(m_pendingWatchPointRequestId, result["selected"].toAddress(),
+                                result["expr"].data());
     } else if (command == "qtc/fetchModules") {
         GdbMi modules;
         modules.m_type = GdbMi::List;
@@ -972,7 +1059,13 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         if (!success)
             emit message("BridgeImpl: loading symbols failed: "
                          + response.value("message").toString(), LogError);
-    } else if (command == "terminate" || command == "disconnect") {
+    } else if (command == "qtc/exitMonitor") {
+        if (!success)
+            emit message("BridgeImpl: shutting the debug monitor down failed: "
+                         + response.value("message").toString(), LogError);
+        shutdownEngine();
+    } else if (command == "terminate" || command == "disconnect"
+               || command == "qtc/shutdownInferior") {
         // A detach ends the session too, but the engine did not ask for it and
         // hears about the debuggee the way it hears an exit.
         if (m_detaching) {
@@ -1006,9 +1099,11 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
                                  constMi({}, response.value("body").toObject()
                                                  .value("output").toString()));
     } else if (command == "qtc/executeCommand") {
-        const QString output = response.value("body").toObject().value("output").toString();
-        if (!output.isEmpty())
+        const QJsonObject body = response.value("body").toObject();
+        if (const QString output = body.value("output").toString(); !output.isEmpty())
             emit message(output, LogOutput);
+        if (const QString error = body.value("error").toString(); !error.isEmpty())
+            emit message(error, LogError);
     } else if (command == "qtc/enableSubBreakpoint") {
         handleBreakpointResponse(BreakpointOp::EnableSub, response);
     } else if (command == "qtc/insertBreakpoint") {
@@ -1169,7 +1264,7 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         if (name == "qtc/inferiorResumed") {
             m_inferiorResumed = true;
             if (std::exchange(m_interruptOnceResumed, false))
-                m_client->dataProvider()->interrupt();
+                interruptHost();
             return;
         }
         if (name == "qtc/interruptIgnored") {
@@ -1188,6 +1283,24 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             list.m_type = GdbMi::List;
             list.addChild(bkpt);
             emit breakpointModified(list);
+            return;
+        }
+        if (name == "qtc/breakpointCreated") {
+            // A breakpoint somebody else made, the user in the console for
+            // instance: nothing else would ever mention it.
+            const QString payload = event.value("body").toObject().value("bkpt").toString();
+            GdbMi bkpt;
+            QStringDecoder decoder(QStringDecoder::Utf8);
+            bkpt.fromString(payload, decoder);
+            emit breakpointEvent(0, BreakpointOp::Insert, true, bkpt);
+            return;
+        }
+        if (name == "qtc/breakpointDeleted") {
+            const QString number = event.value("body").toObject().value("number").toString();
+            GdbMi deleted;
+            deleted.m_type = GdbMi::Tuple;
+            deleted.addChild(constMi("number", number));
+            emit breakpointEvent(0, BreakpointOp::Remove, true, deleted);
             return;
         }
         if (name == "qtc/tracepointHit") {
@@ -1230,10 +1343,32 @@ void BridgeImpl::interruptGdb()
     // it is still getting there it is dropped, and gdb can die on it. The
     // bridge reports the resume from inside the command that does it, which is
     // the earliest point one can land.
-    if (m_inferiorResumed)
-        m_client->dataProvider()->interrupt();
-    else
+    if (!m_inferiorResumed) {
         m_interruptOnceResumed = true;
+        return;
+    }
+    interruptHost();
+}
+
+void BridgeImpl::interruptHost()
+{
+    if (m_startData.runAsUser.isEmpty()) {
+        m_client->dataProvider()->interrupt();
+        return;
+    }
+    // A host running as somebody else cannot be signalled from here: the
+    // signal has to be sent with the rights it was started with.
+    auto provider = static_cast<BridgeImplDataProvider *>(m_client->dataProvider());
+    Process interrupter;
+    interrupter.setCommand({"kill", {"-s", "SIGINT", QString::number(provider->processId())}});
+    interrupter.setRunAsUser(m_startData.runAsUser);
+    interrupter.setEnvironment(m_startData.debuggerRunData.environment);
+    interrupter.runBlocking();
+    if (interrupter.result() != ProcessResult::FinishedWithSuccess) {
+        emit message(QString("Interrupting the debugger as %1 failed: %2")
+                         .arg(m_startData.runAsUser, interrupter.cleanedStdErr().trimmed()),
+                     LogError);
+    }
 }
 
 void BridgeImpl::handleResumeResponse(bool success)
@@ -1290,6 +1425,13 @@ void BridgeImpl::reportStop()
         if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
             if (m_startData.continueAfterAttach)
                 execute({ExecutionCommand::Continue});
+            return;
+        }
+        if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
+            // The stub holds the inferior stopped until it is told to let it
+            // go, which is only safe once the debugger has it running.
+            execute({ExecutionCommand::Continue});
+            emit kickoffTerminalProcessRequested();
             return;
         }
         // Attaching to a process the server was pointed at stops it, and the
@@ -1361,7 +1503,8 @@ void BridgeImpl::fetchDisassemblyForTarget(quint64 requestId, quint64 address,
     const quint64 token = ++m_nextDisassemblyToken;
     m_disassemblyRequests.insert(token, {requestId, address, target});
     postRequest("qtc/disassemble",
-                QJsonObject{{"target", target}, {"token", qint64(token)}});
+                QJsonObject{{"target", target}, {"token", qint64(token)},
+                            {"flavor", m_startData.intelDisassembly ? "intel" : "att"}});
 }
 
 void BridgeImpl::executeDebuggerCommand(const QString &command, const WatchItemData &)
@@ -1411,9 +1554,11 @@ void BridgeImpl::setPeripheralRegisterValue(quint64 address, quint64 value)
                             {"data", QString::fromUtf8(data.toBase64())}});
 }
 
-void BridgeImpl::watchPoint(quint64 requestId, const QPoint &)
+void BridgeImpl::watchPoint(quint64 requestId, const QPoint &pnt)
 {
-    emit watchPointResolved(requestId, 0, {});
+    QTC_ASSERT(m_client, return);
+    m_pendingWatchPointRequestId = requestId;
+    postRequest("qtc/watchPoint", QJsonObject{{"x", pnt.x()}, {"y", pnt.y()}});
 }
 
 void BridgeImpl::createSnapshot(quint64 requestId)

@@ -13,8 +13,10 @@
 #include <QString>
 #include <QStringList>
 
+#include <chrono>
 #include <functional>
 #include <memory>
+#include <optional>
 
 namespace Debugger::Internal {
 
@@ -90,13 +92,31 @@ public:
     QStringList extraDumperCommands;
     DebuggerUserCommands userCommands;
     Utils::FilePath sysroot;
+    // Somebody else to run the debugger as, "root" for instance.
+    QString runAsUser;
     QList<QPair<QString, QString>> sourcePathMap;
     Utils::FilePaths sourceDirectories;
+    // Unset leaves whatever the debugger itself defaults to in place.
+    std::optional<bool> useDebugInfoD;
     bool breakOnMain = false;
+    // Break before abort(), qWarning() and qFatal() rather than in them.
+    bool breakOnAbort = false;
+    bool breakOnWarning = false;
+    bool breakOnFatal = false;
     bool continueAfterAttach = false;
     bool continueInsteadOfRun = false;
+    // Shutting a debug monitor (gdbserver --multi) down with the session.
+    bool exitMonitorAtClose = false;
+    bool intelDisassembly = false;
+    // Whether every command's turnaround goes into the log.
+    bool logTimeStamps = false;
     bool nativeMixedDebugging = false;
+    // Whether a tracepoint is the dumpers' own rather than the debugger's.
+    bool pseudoTracepoints = false;
     bool skipKnownFrames = false;
+    // How long a request may go unanswered before the user is told. Zero
+    // leaves the debugger unwatched.
+    std::chrono::seconds watchdogTimeout{0};
     // Dumper context the interface's RefreshRequest does not carry.
     int qtVersion = 0;
     QString qtNamespace;

@@ -592,12 +592,12 @@ static QString disassemblyFlavorWireMarker(Backend backend)
     switch (backend) {
     case Backend::Gdb:
         return "disassembly-flavor intel";
+    case Backend::Bridge:
     case Backend::Lldb:
         return "\"flavor\":\"intel\"";
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
-    case Backend::Bridge:
     case Backend::Dap:
         break;
     }
@@ -608,12 +608,12 @@ static QString disassemblyFlavorQuery(Backend backend)
 {
     switch (backend) {
     case Backend::Gdb:
+    case Backend::Bridge:
         return "show disassembly-flavor";
     case Backend::Lldb:
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
-    case Backend::Bridge:
     case Backend::Dap:
         break;
     }
@@ -624,12 +624,12 @@ static QString debugInfoDaemonQuery(Backend backend)
 {
     switch (backend) {
     case Backend::Gdb:
+    case Backend::Bridge:
         return "show debuginfod enabled";
     case Backend::Lldb:
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Cdb:
-    case Backend::Bridge:
     case Backend::Dap:
         break;
     }
@@ -667,20 +667,36 @@ static CommandLine quittingDebuggerCommand()
     return tool.isExecutableFile() ? CommandLine{tool, {}} : CommandLine{};
 }
 
-// The wire form a backend uses for a tracepoint when it is not the debugger's
-// own pseudo one.
-static QString realTracepointMarker(Backend backend)
+// The wire forms a backend uses for a tracepoint, the dumpers' pseudo one
+// first and the debugger's own second.
+static QPair<QString, QString> tracepointMarkers(Backend backend)
 {
     switch (backend) {
     case Backend::Gdb:
-        return "-break-insert";
-    case Backend::Lldb:
+        return {"createTracepoint", "-break-insert -f -a"};
     case Backend::Bridge:
+        // The choice travels with the insert request rather than being spelled
+        // out in a command of its own.
+        return {"\"pseudotracepoint\":true", "\"pseudotracepoint\":false"};
+    case Backend::Lldb:
     case Backend::Cdb:
     case Backend::Pdb:
     case Backend::Qml:
     case Backend::Dap:
         break;
+    }
+    return {};
+}
+
+// What the debugger made of an inserted breakpoint. The reply's shape differs
+// per backend: the breakpoint is a named child, or one of a list of them.
+static QString reportedBreakpointType(const GdbMi &data)
+{
+    if (const GdbMi type = data["type"]; type.isValid())
+        return type.data();
+    for (const GdbMi &child : data) {
+        if (const GdbMi type = child["type"]; type.isValid())
+            return type.data();
     }
     return {};
 }
@@ -734,12 +750,12 @@ static QString responseTimeMarker(Backend backend)
 {
     switch (backend) {
     case Backend::Gdb:
+    case Backend::Bridge:
         return "Response time";
     case Backend::Lldb:
     case Backend::Cdb:
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Bridge:
     case Backend::Dap:
         break;
     }
@@ -841,13 +857,13 @@ static bool reportsDumperTypes(Backend backend)
 static bool debuggingHelpersChangeContainerOutput(Backend backend)
 {
     switch (backend) {
+    case Backend::Bridge:
     case Backend::Gdb:
     case Backend::Pdb:
     case Backend::Cdb:
         return true;
     case Backend::Lldb:
     case Backend::Qml:
-    case Backend::Bridge:
     case Backend::Dap:
         break;
     }
@@ -877,6 +893,7 @@ static QString watchdogProbeCommand(Backend backend, int seconds)
 {
     switch (backend) {
     case Backend::Gdb:
+    case Backend::Bridge:
         // cmd.exe has no sleep, and "timeout /t" refuses to run with redirected input.
         if (HostOsInfo::isWindowsHost())
             return QString("shell ping -n %1 127.0.0.1").arg(seconds + 1);
@@ -891,7 +908,6 @@ static QString watchdogProbeCommand(Backend backend, int seconds)
         // pdb runs a statement typed at its prompt, which blocks it just as well.
         return QString("import time; time.sleep(%1)").arg(seconds);
     case Backend::Qml:
-    case Backend::Bridge:
     case Backend::Dap:
         break;
     }
@@ -1423,13 +1439,17 @@ private:
         Debugger::Internal::GdbImplFlags gdbFlags = {});
     // Every user-configurable debugger option turned on, so a test can check they arrive.
     // Paths that have to exist for the backend to pass them on use existingDir.
+    // The bridge answers one message at a time and a running inferior leaves it
+    // inside a continue of its own, so it stops at main unless a test wants the
+    // inferior to run on.
     std::unique_ptr<DebuggerBackend> createFullyConfiguredEngine(Backend backend,
         const Utils::Environment &debuggerEnvironment, const Utils::FilePath &existingDir,
-        const QString &inferiorArguments = {});
+        const QString &inferiorArguments = {}, bool stopAtMain = true);
     // The line defaults to the one the inferior declares for a breakpoint.
     std::unique_ptr<DebuggerBackend> launchAndStopAtBreakpoint(Backend backend,
         const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride = {},
-        int line = 0);
+        int line = 0,
+        Debugger::Internal::GdbImplFlags gdbFlags = Debugger::Internal::GdbImplFlag::PseudoTracepoints);
     std::unique_ptr<DebuggerBackend> stopAtBreakpoint(Backend backend, Process &helperInferior);
     bool hasCapability(Backend backend, Debugger::DebuggerCapabilities capability,
                        Debugger::DebuggerStartMode startMode = Debugger::NoStartMode);
@@ -1604,7 +1624,11 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .userCommands
                 = {.forReset = {userCommandProbe(backend, UserCommandHook::Reset).command}},
             .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain),
-            .skipKnownFrames = gdbFlags.testFlag(GdbImplFlag::SkipKnownFrames)}));
+            .intelDisassembly = gdbFlags.testFlag(GdbImplFlag::IntelDisassembly),
+            .logTimeStamps = gdbFlags.testFlag(GdbImplFlag::LogTimeStamps),
+            .pseudoTracepoints = gdbFlags.testFlag(GdbImplFlag::PseudoTracepoints),
+            .skipKnownFrames = gdbFlags.testFlag(GdbImplFlag::SkipKnownFrames),
+            .watchdogTimeout = watchdogTimeout}));
     case Backend::Dap: {
         const ProcessRunData debuggerRunData = debuggerRunDataOverride.value_or(
             ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -1678,11 +1702,12 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
 
 std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
     Backend backend, const Environment &debuggerEnvironment, const FilePath &existingDir,
-    const QString &inferiorArguments)
+    const QString &inferiorArguments, bool stopAtMain)
 {
     Q_UNUSED(debuggerEnvironment)
     Q_UNUSED(existingDir)
     Q_UNUSED(inferiorArguments)
+    Q_UNUSED(stopAtMain)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1724,10 +1749,12 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .sysroot = FilePath::fromUserInput("/qtc-test-sysroot"),
             .sourcePathMap = {{"/qtc-test-from", "/qtc-test-to"}},
             .sourceDirectories = {existingDir},
-            // The host answers one message at a time, and a running debuggee
-            // leaves it inside a continue of its own, so anything asked here
-            // has to be asked while it is stopped.
-            .breakOnMain = true}));
+            .useDebugInfoD = true,
+            .breakOnMain = stopAtMain,
+            .breakOnAbort = true,
+            .breakOnWarning = true,
+            .breakOnFatal = true,
+            .intelDisassembly = true}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -1772,6 +1799,16 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
 std::unique_ptr<DebuggerBackend> tst_backends::createEngineRunningAsUser(
     Backend backend, const QString &user, const Environment &debuggerEnvironment)
 {
+    if (backend == Backend::Bridge) {
+        return std::make_unique<DebuggerBackend>(std::make_unique<BridgeImpl>(DapStartData{
+            .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                              debuggerEnvironment},
+            .inferiorStartData = ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                                                Environment::systemEnvironment()},
+            .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
+            .bridgeStartData = dapHostRecipe(false),
+            .runAsUser = user}));
+    }
     if (backend != Backend::Gdb)
         return nullptr;
     return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1996,7 +2033,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
             .userCommands = {.afterConnect
                                  = {userCommandProbe(backend, UserCommandHook::AfterConnect).command}},
             .continueAfterAttach = gdbFlags.testFlag(GdbImplFlag::ContinueAfterAttach),
-            .continueInsteadOfRun = gdbFlags.testFlag(GdbImplFlag::ContinueInsteadOfRun)}));
+            .continueInsteadOfRun = gdbFlags.testFlag(GdbImplFlag::ContinueInsteadOfRun),
+            .exitMonitorAtClose = gdbFlags.testFlag(GdbImplFlag::ExitMonitorAtClose)}));
     case Backend::Lldb:
         return std::make_unique<DebuggerBackend>(std::make_unique<LldbImpl>(LldbImplStartData{
             .debuggerRunData = ProcessRunData{{m_backendData[backend].path, {}}, {},
@@ -2545,7 +2583,12 @@ void tst_backends::initTestCase()
         m_backendData[Backend::Bridge].inferiorData.versionLine = gdbVersionLine;
         m_backendData[Backend::Bridge].inferiorData.moduleListMarker = "libc";
         m_backendData[Backend::Bridge].inferiorData.moduleSymbolsPath = cppInferiorData.executable;
+        m_backendData[Backend::Bridge].inferiorData.longTextSymbol = "longText";
         m_backendData[Backend::Bridge].inferiorData.answersRedundantContinue = true;
+        m_backendData[Backend::Bridge].inferiorData.alienBreakpointCommand = "break spin";
+        m_backendData[Backend::Bridge].inferiorData.alienBreakpointDeleteCommand = "delete %1";
+        m_backendData[Backend::Bridge].inferiorData.enableToggleWireMarker
+            = "qtc/updateBreakpoint";
 
         m_backendData[Backend::Gdb].inferiorData = cppInferiorData;
         m_backendData[Backend::Gdb].inferiorData.qmlBreakpointsUseServiceCasts = true;
@@ -4209,7 +4252,9 @@ void tst_backends::runsTheDebuggerAsTheConfiguredUser()
 
     // sudo cannot be asked for a password here, so a stub takes its place: it
     // records how it was called and runs what it was given.
-    const FilePath stubDir = FilePath::fromString(m_tempDir.path()) / "runasuser";
+    // Per backend: a log shared with another row would answer for it.
+    const FilePath stubDir = FilePath::fromString(m_tempDir.path())
+                             / ("runasuser-" + backendName(backend));
     QVERIFY(stubDir.ensureWritableDir());
     const FilePath log = stubDir / "sudo.log";
     const FilePath stub = stubDir / "sudo";
@@ -4252,6 +4297,11 @@ exec "$@"
              qPrintable("the debugger was not started as the configured user: " + firstCall));
     QVERIFY2(firstCall.contains(m_backendData[backend].path.nativePath()),
              qPrintable("the wrapper was not given the debugger to run: " + firstCall));
+
+    // An interrupt needs something to interrupt: a backend that reports the
+    // setup before the inferior is going has nothing to signal yet.
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+                              "the inferior never started running", s_timeout);
 
     // Interrupting has to take the same route, or the signal is refused.
     debuggerBackend->clearEvents();
@@ -4984,10 +5034,12 @@ void tst_backends::testWatchpointByExpressionCapability()
 }
 
 std::unique_ptr<DebuggerBackend> tst_backends::launchAndStopAtBreakpoint(Backend backend,
-    const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride, int line)
+    const std::optional<Utils::ProcessRunData> &inferiorRunDataOverride, int line,
+    GdbImplFlags gdbFlags)
 {
     std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
-                                                                   inferiorRunDataOverride);
+                                                                   inferiorRunDataOverride, false,
+                                                                   {}, gdbFlags);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
@@ -6072,23 +6124,29 @@ void tst_backends::insertsARealTracepointWhenPseudoOnesAreOff()
 {
     QFETCH(Backend, backend);
 
-    const QString marker = realTracepointMarker(backend);
-    if (marker.isEmpty())
+    const auto [pseudoMarker, realMarker] = tracepointMarkers(backend);
+    if (realMarker.isEmpty())
         QSKIP("This backend has only one kind of tracepoint.");
     if (auto result = checkCapability(backend, Debugger::TracePointCapability); !result)
         QSKIP(qPrintable(result.error()));
 
     // A pseudo tracepoint is a dumper command; the debugger's own is a
     // breakpoint flagged as a tracepoint on the wire.
+    struct Insert
+    {
+        QString sent;
+        GdbMi reported;
+    };
     const auto insertTracepointWith = [this, backend](bool pseudoTracepoints) {
-        QStringList sent;
+        Insert insert;
         std::unique_ptr<DebuggerBackend> debuggerBackend
             = createEngine(backend, {}, {}, false, {},
                            pseudoTracepoints ? GdbImplFlags(GdbImplFlag::PseudoTracepoints)
                                              : GdbImplFlags());
         if (!debuggerBackend)
-            return sent;
+            return insert;
         DebuggerEngineInterface *engine = debuggerBackend->engine();
+        QStringList sent;
         connect(engine, &DebuggerEngineInterface::message, this,
                 [&sent](const QString &text, int channel, int) {
             if (channel == Debugger::LogInput)
@@ -6096,7 +6154,9 @@ void tst_backends::insertsARealTracepointWhenPseudoOnesAreOff()
         });
         QHash<quint64, bool> results;
         connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
-                [&results](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+                [&results, &insert](quint64 requestId, BreakpointOp, bool ok, const GdbMi &data) {
+            if (requestId == 91)
+                insert.reported = data;
             results[requestId] = ok;
         });
         connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
@@ -6120,21 +6180,24 @@ void tst_backends::insertsARealTracepointWhenPseudoOnesAreOff()
         [&] { QTRY_VERIFY_WITH_TIMEOUT(results.contains(91), s_timeout); }();
         if (!QTest::currentTestFailed())
             [&] { QVERIFY2(results.value(91), "the tracepoint insert failed"); }();
-        return sent;
+        insert.sent = sent.join('\n');
+        return insert;
     };
 
-    const QString withPseudo = insertTracepointWith(true).join('\n');
-    QVERIFY2(withPseudo.contains("createTracepoint"),
+    const Insert withPseudo = insertTracepointWith(true);
+    QVERIFY2(withPseudo.sent.contains(pseudoMarker),
              "a pseudo tracepoint did not go through the dumpers");
-    QVERIFY2(!withPseudo.contains(marker + " -f -a"),
+    QVERIFY2(!withPseudo.sent.contains(realMarker),
              "a pseudo tracepoint was inserted as the debugger's own");
 
-    const QString withoutPseudo = insertTracepointWith(false).join('\n');
-    QVERIFY2(!withoutPseudo.contains("createTracepoint"),
+    const Insert withoutPseudo = insertTracepointWith(false);
+    QVERIFY2(!withoutPseudo.sent.contains(pseudoMarker),
              "the dumpers were asked although pseudo tracepoints are off");
-    QVERIFY2(withoutPseudo.contains(marker) && withoutPseudo.contains(" -a "),
-             qPrintable("no \"" + marker + " ... -a\" on the wire, sent:\n  "
-                        + insertTracepointWith(false).join("\n  ")));
+    QVERIFY2(withoutPseudo.sent.contains(realMarker),
+             qPrintable("no \"" + realMarker + "\" on the wire, sent:\n  "
+                        + QString(withoutPseudo.sent).replace('\n', "\n  ")));
+    // What the debugger made of it, as the debugger itself calls it.
+    QCOMPARE(reportedBreakpointType(withoutPseudo.reported), QString("tracepoint"));
 }
 
 void tst_backends::continuesAfterAttachWhenConfigured()
@@ -6311,13 +6374,17 @@ void tst_backends::logsTheResponseTimeWhenConfigured()
     // Counting the markers needs a moment the count is final at: the answer to
     // a command sent after the ones being counted. Commands are answered in
     // order, so once it is here, a marker that was coming would be here too.
+    // The command goes out while the inferior is stopped: a backend that runs
+    // the console command inside the debugger cannot answer one while the
+    // inferior has the debugger busy.
     const auto markersWith = [this, backend, marker, versionLine](bool logTimeStamps) {
         int seen = -1;
         std::unique_ptr<DebuggerBackend> debuggerBackend
-            = createEngine(backend, {}, {}, false, {},
-                           logTimeStamps ? (GdbImplFlag::PseudoTracepoints
-                                            | GdbImplFlag::LogTimeStamps)
-                                         : GdbImplFlags(GdbImplFlag::PseudoTracepoints));
+            = launchAndStopAtBreakpoint(backend, {}, 0,
+                                        logTimeStamps
+                                            ? (GdbImplFlag::PseudoTracepoints
+                                               | GdbImplFlag::LogTimeStamps)
+                                            : GdbImplFlags(GdbImplFlag::PseudoTracepoints));
         if (!debuggerBackend)
             return seen;
         DebuggerEngineInterface *engine = debuggerBackend->engine();
@@ -6330,13 +6397,6 @@ void tst_backends::logsTheResponseTimeWhenConfigured()
             else if (text.contains(versionLine))
                 answered = true;
         });
-        engine->start();
-        [&] {
-            QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk),
-                                     s_timeout);
-        }();
-        if (QTest::currentTestFailed())
-            return seen;
         engine->executeDebuggerCommand("show version", {});
         [&] { QTRY_VERIFY_WITH_TIMEOUT(answered, s_timeout); }();
         if (QTest::currentTestFailed())
@@ -7880,7 +7940,7 @@ void tst_backends::breaksBeforeTheInferiorAborts()
     const FilePath existingDir = FilePath::fromString(m_tempDir.path()) / "specialbreakpoints";
     QVERIFY(existingDir.ensureWritableDir());
     std::unique_ptr<DebuggerBackend> debuggerBackend = createFullyConfiguredEngine(
-        backend, Environment::systemEnvironment(), existingDir, "abort");
+        backend, Environment::systemEnvironment(), existingDir, "abort", false);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -9880,8 +9940,12 @@ void tst_backends::attachesToTerminalRunProcess()
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
+    bool kickedOff = false;
     connect(engine, &DebuggerEngineInterface::kickoffTerminalProcessRequested, this,
-            [pid] { ::kill(pid, SIGCONT); });
+            [pid, &kickedOff] {
+        kickedOff = true;
+        ::kill(pid, SIGCONT);
+    });
     connect(engine, &DebuggerEngineInterface::interruptTerminalRequested, this,
             [&target] { target.interrupt(); });
 
@@ -9892,6 +9956,8 @@ void tst_backends::attachesToTerminalRunProcess()
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk)
                              || debuggerBackend->contains(InferiorEvent::RunFailed), s_timeout);
     QVERIFY(debuggerBackend->contains(InferiorEvent::RunOk));
+    // The stub is what holds the inferior: nothing resumes without being told.
+    QVERIFY(kickedOff);
 
     debuggerBackend->clearEvents();
     debuggerBackend->execute({ExecutionCommand::Interrupt});
