@@ -13,6 +13,7 @@ add_qtc_plugin(CMakeProjectManager
     cmakebuildstep.cpp cmakebuildstep.h
     cmakecodestyle.cpp cmakecodestyle.h
     cmakebuildtarget.h
+    cmakecommandkeywords.cpp cmakecommandkeywords.h
     cmakeconfigitem.cpp cmakeconfigitem.h
     cmakeeditor.cpp cmakeeditor.h
     cmakefilecompletionassist.cpp cmakefilecompletionassist.h

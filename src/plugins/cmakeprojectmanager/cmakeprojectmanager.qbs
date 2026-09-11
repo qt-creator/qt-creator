@@ -32,6 +32,8 @@ Project {
             "cmakebuildsystem.cpp",
             "cmakebuildsystem.h",
             "cmakebuildtarget.h",
+            "cmakecommandkeywords.cpp",
+            "cmakecommandkeywords.h",
             "cmakeconfigitem.cpp",
             "cmakeconfigitem.h",
             "cmakeeditor.cpp",

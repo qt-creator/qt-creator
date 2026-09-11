@@ -3,24 +3,17 @@
 
 #include "cmakeindenter.h"
 
-#include "cmakebuildsystem.h"
 #include "cmakecodestyle.h"
-#include "cmaketool.h"
-#include "cmaketoolmanager.h"
+#include "cmakecommandkeywords.h"
 
 #include <cmakelang/cmakeformatter.h>
 #include <cmakelang/cmakeindentation.h>
-#include <cmakelang/cmakesignature.h>
-
-#include <projectexplorer/buildsystem.h>
 
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 
-#include <utils/algorithm.h>
 #include <utils/changeset.h>
 
-#include <QPointer>
 #include <QTextDocument>
 
 #include <optional>
@@ -28,60 +21,6 @@
 using namespace TextEditor;
 
 namespace CMakeProjectManager::Internal {
-
-// The keywords a command takes: from the CMake documentation for the commands
-// CMake itself brings, and from the cmake_parse_arguments() calls of the
-// project for the ones it defines.
-class CommandKeywords
-{
-public:
-    void refresh();
-    bool contains(const QString &command, const QString &argument);
-
-private:
-    CMakeKeywords m_cmakeKeywords;
-    CMakeLang::SignatureTable m_signatures;
-    QHash<QString, QSet<QString>> m_perCommand;
-    QPointer<CMakeBuildSystem> m_buildSystem;
-    int m_generation = -1;
-};
-
-void CommandKeywords::refresh()
-{
-    if (m_cmakeKeywords.functionArgs.isEmpty()) {
-        const CMakeKeywords keywords = CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords();
-        if (!keywords.functionArgs.isEmpty()) {
-            m_cmakeKeywords = keywords;
-            m_perCommand.clear();
-        }
-    }
-
-    auto buildSystem = qobject_cast<CMakeBuildSystem *>(
-        ProjectExplorer::activeBuildSystemForCurrentProject());
-    if (!buildSystem)
-        return;
-
-    const int generation = buildSystem->commandSignaturesGeneration();
-    if (buildSystem == m_buildSystem && generation == m_generation)
-        return;
-
-    m_buildSystem = buildSystem;
-    m_generation = generation;
-    m_signatures = buildSystem->commandSignatures();
-    m_perCommand.clear();
-}
-
-bool CommandKeywords::contains(const QString &command, const QString &argument)
-{
-    auto it = m_perCommand.find(command);
-    if (it == m_perCommand.end()) {
-        QSet<QString> keywords = Utils::toSet(
-            m_cmakeKeywords.functionArgs.value(command.toLower()));
-        keywords += Utils::toSet(m_signatures.signature(command).keywords());
-        it = m_perCommand.insert(command, keywords);
-    }
-    return it->contains(argument);
-}
 
 class CMakeIndenter final : public TextEditor::TextIndenter
 {
