@@ -457,6 +457,63 @@ private slots:
         QCOMPARE((real / "dest/sub/file.txt").fileContents(), "reached");
     }
 
+    void tst_filter_keeps_one_member()
+    {
+        struct archive *a = archive_write_new();
+        archive_write_add_filter_none(a);
+        archive_write_set_format_pax_restricted(a);
+
+        const FilePath archive = FilePath::fromString(tempDir.path() + "/filtered.tar");
+        write_raw_archive(
+            a,
+            archive,
+            {{"sub/keep.txt", "kept", AE_IFREG, 0644, {}, {}},
+             {"sub/drop.txt", "dropped", AE_IFREG, 0644, {}, {}}});
+
+        const FilePath destination = FilePath::fromString(tempDir.path() + "/dest-filtered");
+        QStringList seen;
+        Unarchiver unarchiver;
+        unarchiver.setArchive(archive);
+        unarchiver.setDestination(destination);
+        unarchiver.setFilter([&seen](const QString &entry) {
+            seen.append(entry);
+            return entry.endsWith("keep.txt");
+        });
+        unarchiver.start();
+        const Result<> r = unarchiver.result();
+        if (!r)
+            QFAIL(qPrintable(r.error()));
+
+        // The filter sees every entry, under the name the archive carries.
+        QCOMPARE(seen, QStringList({"sub/keep.txt", "sub/drop.txt"}));
+        QCOMPARE((destination / "sub/keep.txt").fileContents(), "kept");
+        QVERIFY(!(destination / "sub/drop.txt").exists());
+    }
+
+    void tst_filter_does_not_excuse_a_traversal()
+    {
+        struct archive *a = archive_write_new();
+        archive_write_add_filter_none(a);
+        archive_write_set_format_pax_restricted(a);
+
+        const FilePath archive = FilePath::fromString(tempDir.path() + "/filtered-traversal.tar");
+        write_raw_archive(a, archive, {{"../escaped.txt", "pwned", AE_IFREG, 0644, {}, {}}});
+
+        bool wasOffered = false;
+        Unarchiver unarchiver;
+        unarchiver.setArchive(archive);
+        unarchiver.setDestination(FilePath::fromString(tempDir.path() + "/dest-filter-traversal"));
+        unarchiver.setFilter([&wasOffered](const QString &entry) {
+            wasOffered = true;
+            return !entry.contains("..");
+        });
+        unarchiver.start();
+
+        QVERIFY2(!unarchiver.result(), "a filter skipping a traversing entry excused it");
+        QVERIFY2(!wasOffered, "a traversing entry was offered to the filter");
+        QVERIFY(!FilePath::fromString(tempDir.path() + "/escaped.txt").exists());
+    }
+
     void tst_setuid_bit_is_not_restored()
     {
 #ifndef Q_OS_UNIX

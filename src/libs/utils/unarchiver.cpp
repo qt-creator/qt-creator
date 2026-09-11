@@ -132,7 +132,10 @@ static Result<> checkContained(const QString &path)
 }
 
 static Result<> unarchive(
-    QPromise<Result<>> &promise, const Utils::FilePath &archive, const Utils::FilePath &destination)
+    QPromise<Result<>> &promise,
+    const Utils::FilePath &archive,
+    const Utils::FilePath &destination,
+    const Unarchiver::Filter &entryFilter)
 {
     struct archive_entry *entry;
     int flags;
@@ -214,6 +217,9 @@ static Result<> unarchive(
         if (const Result<> contained = checkContained(entryPath); !contained)
             return ResultError(Tr::tr("Rejected archive entry: %1").arg(contained.error()));
 
+        if (entryFilter && !entryFilter(entryPath))
+            continue;
+
         const bool isSymlink = archive_entry_filetype(entry) == AE_IFLNK;
         const bool isHardlink = !isSymlink && archive_entry_hardlink(entry) != nullptr;
         if (isSymlink || isHardlink) {
@@ -260,7 +266,8 @@ static Result<> unarchive(
 #else
 
 // Without libarchive (WebAssembly) archive extraction is not supported.
-static Result<> unarchive(QPromise<Result<>> &, const Utils::FilePath &, const Utils::FilePath &)
+static Result<> unarchive(QPromise<Result<>> &, const Utils::FilePath &, const Utils::FilePath &,
+                          const Unarchiver::Filter &)
 {
     return ResultError(Tr::tr("Archive extraction is not supported on this platform."));
 }
@@ -268,9 +275,12 @@ static Result<> unarchive(QPromise<Result<>> &, const Utils::FilePath &, const U
 #endif // QTC_UTILS_WITH_LIBARCHIVE
 
 static void unarchivePromised(
-    QPromise<Result<>> &promise, const Utils::FilePath &archive, const Utils::FilePath &destination)
+    QPromise<Result<>> &promise,
+    const Utils::FilePath &archive,
+    const Utils::FilePath &destination,
+    const Unarchiver::Filter &filter)
 {
-    promise.addResult(unarchive(promise, archive, destination));
+    promise.addResult(unarchive(promise, archive, destination, filter));
 }
 
 Unarchiver::Unarchiver()
@@ -289,7 +299,7 @@ Unarchiver::Unarchiver()
 
 void Unarchiver::start()
 {
-    m_async.setConcurrentCallData(unarchivePromised, m_archive, m_destination);
+    m_async.setConcurrentCallData(unarchivePromised, m_archive, m_destination, m_filter);
     m_async.start();
 }
 
@@ -308,6 +318,11 @@ void Unarchiver::setArchive(const FilePath &archive)
 void Unarchiver::setDestination(const FilePath &destination)
 {
     m_destination = destination;
+}
+
+void Unarchiver::setFilter(const Filter &filter)
+{
+    m_filter = filter;
 }
 
 bool Unarchiver::isDone() const

@@ -19,8 +19,16 @@ class QTCREATOR_UTILS_EXPORT Unarchiver : public QObject
 public:
     Unarchiver();
 
+    // Decides, by its name inside the archive, whether to extract an entry.
+    // The name is the archive's own, as the extractor uses it. Entries refused
+    // as unsafe never reach the filter. Skipping a directory entry leaves the
+    // permissions of any kept child's parent at the default.
+    // Runs in the worker thread.
+    using Filter = std::function<bool(const QString &entry)>;
+
     void setArchive(const FilePath &archive);
     void setDestination(const FilePath &destination);
+    void setFilter(const Filter &filter);
 
     Result<> result() const;
 
@@ -39,6 +47,7 @@ private:
 
     FilePath m_archive;
     FilePath m_destination;
+    Filter m_filter;
 };
 
 using UnarchiverTask = QtTaskTree::QCustomTask<Unarchiver>;
