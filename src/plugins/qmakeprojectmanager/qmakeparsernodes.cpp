@@ -1567,6 +1567,7 @@ void QmakeProFile::evaluate(QPromise<QmakeEvalResultPtr> &promise, const QmakeEv
         result->newVarValues[Variable::TargetExt] = exactReader->values(QLatin1String("TARGET_EXT"));
         result->newVarValues[Variable::TargetVersionExt]
                 = exactReader->values(QLatin1String("TARGET_VERSION_EXT"));
+        result->newVarValues[Variable::StaticLibPrefix] = exactReader->values(QLatin1String("QMAKE_PREFIX_STATICLIB"));
         result->newVarValues[Variable::StaticLibExtension] = exactReader->values(QLatin1String("QMAKE_EXTENSION_STATICLIB"));
         result->newVarValues[Variable::ShLibExtension] = exactReader->values(QLatin1String("QMAKE_EXTENSION_SHLIB"));
         result->newVarValues[Variable::AndroidAbi] = exactReader->values(QLatin1String(Android::Constants::ANDROID_TARGET_ARCH));

@@ -79,6 +79,7 @@ enum class Variable {
     Version,
     TargetExt,
     TargetVersionExt,
+    StaticLibPrefix,
     StaticLibExtension,
     ShLibExtension,
     AndroidAbi,

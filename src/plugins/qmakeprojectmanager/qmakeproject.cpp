@@ -1280,54 +1280,64 @@ QString QmakeBuildSystem::deploymentHint() const
                   "project file.");
 }
 
-FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
+struct LibraryTargetInfo
 {
-    const Toolchain *const toolchain = ToolchainKitAspect::cxxToolchain(kit());
-    if (!toolchain)
-        return {};
+    Abi::OS os = Abi::UnknownOS;
+    QString target;
+    FilePath destDir;
+    QStringList config;
+    QString version;
+    QString targetVersionExt;
+    QString staticLibPrefix;
+    QString staticLibExtension;
+    QString shLibExtension;
+};
 
+static FilePaths libraryTargetFiles(const LibraryTargetInfo &info)
+{
     FilePaths libs;
-    TargetInformation ti = file->targetInformation();
-    QString targetFileName = ti.target;
-    const QStringList config = file->variableValue(Variable::Config);
-    const bool isStatic = config.contains(QLatin1String("static"));
-    const bool isPlugin = config.contains(QLatin1String("plugin"));
-    const bool nameIsVersioned = !isPlugin && !config.contains("unversioned_libname");
-    switch (toolchain->targetAbi().os()) {
+    QString targetFileName = info.target;
+    const bool isStatic = info.config.contains(QLatin1String("static"));
+    const bool isPlugin = info.config.contains(QLatin1String("plugin"));
+    const bool nameIsVersioned = !isPlugin && !isStatic
+                                 && !info.config.contains("unversioned_libname");
+    switch (info.os) {
     case Abi::WindowsOS: {
-        QString targetVersionExt = file->singleVariableValue(Variable::TargetVersionExt);
-        if (targetVersionExt.isEmpty()) {
-            const QString version = file->singleVariableValue(Variable::Version);
-            if (!version.isEmpty()) {
-                targetVersionExt = version.left(version.indexOf(QLatin1Char('.')));
+        if (isStatic) {
+            // "core.lib" for MSVC, "libcore.a" for MinGW.
+            targetFileName.prepend(info.staticLibPrefix);
+            targetFileName += QLatin1Char('.');
+            targetFileName += info.staticLibExtension.isEmpty() ? QLatin1String("lib")
+                                                                : info.staticLibExtension;
+        } else {
+            QString targetVersionExt = info.targetVersionExt;
+            if (targetVersionExt.isEmpty() && !info.version.isEmpty()) {
+                targetVersionExt = info.version.left(info.version.indexOf(QLatin1Char('.')));
                 if (targetVersionExt == QLatin1String("0"))
                     targetVersionExt.clear();
             }
+            targetFileName += targetVersionExt + QLatin1String(".dll");
         }
-        targetFileName += targetVersionExt + QLatin1Char('.');
-        targetFileName += QLatin1String(isStatic ? "lib" : "dll");
         libs << FilePath::fromString(targetFileName);
         break;
     }
     case Abi::DarwinOS: {
-        FilePath destDir = ti.destDir;
-        if (config.contains(QLatin1String("lib_bundle"))) {
-            destDir = destDir.pathAppended(ti.target + ".framework");
+        FilePath destDir = info.destDir;
+        if (info.config.contains(QLatin1String("lib_bundle"))) {
+            destDir = destDir.pathAppended(info.target + ".framework");
         } else {
-            if (!(isPlugin && config.contains(QLatin1String("no_plugin_name_prefix"))))
+            if (!(isPlugin && info.config.contains(QLatin1String("no_plugin_name_prefix"))))
                 targetFileName.prepend(QLatin1String("lib"));
 
             if (nameIsVersioned) {
                 targetFileName += QLatin1Char('.');
-                const QString version = file->singleVariableValue(Variable::Version);
-                QString majorVersion = version.left(version.indexOf(QLatin1Char('.')));
+                QString majorVersion = info.version.left(info.version.indexOf(QLatin1Char('.')));
                 if (majorVersion.isEmpty())
                     majorVersion = QLatin1String("1");
                 targetFileName += majorVersion;
             }
             targetFileName += QLatin1Char('.');
-            targetFileName += file->singleVariableValue(isStatic ? Variable::StaticLibExtension
-                                                                 : Variable::ShLibExtension);
+            targetFileName += isStatic ? info.staticLibExtension : info.shLibExtension;
         }
         libs << destDir / targetFileName;
         break;
@@ -1336,17 +1346,17 @@ FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) cons
     case Abi::BsdOS:
     case Abi::QnxOS:
     case Abi::UnixOS:
-        if (!(isPlugin && config.contains(QLatin1String("no_plugin_name_prefix"))))
+        if (!(isPlugin && info.config.contains(QLatin1String("no_plugin_name_prefix"))))
             targetFileName.prepend(QLatin1String("lib"));
 
         targetFileName += QLatin1Char('.');
         if (isStatic) {
-            libs << ti.destDir.pathAppended(targetFileName + QLatin1Char('a'));
+            libs << info.destDir.pathAppended(targetFileName + QLatin1Char('a'));
         } else {
             targetFileName += QLatin1String("so");
-            libs << ti.destDir / targetFileName;
+            libs << info.destDir / targetFileName;
             if (nameIsVersioned) {
-                QString version = file->singleVariableValue(Variable::Version);
+                QString version = info.version;
                 if (version.isEmpty())
                     version = QLatin1String("1.0.0");
                 QStringList versionComponents = version.split('.');
@@ -1355,7 +1365,7 @@ FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) cons
                 targetFileName += QLatin1Char('.');
                 while (!versionComponents.isEmpty()) {
                     const QString versionString = versionComponents.join(QLatin1Char('.'));
-                    libs << ti.destDir.pathAppended(targetFileName + versionString);
+                    libs << info.destDir.pathAppended(targetFileName + versionString);
                     versionComponents.removeLast();
                 }
             }
@@ -1366,6 +1376,26 @@ FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) cons
     }
 
     return libs;
+}
+
+FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
+{
+    const Toolchain *const toolchain = ToolchainKitAspect::cxxToolchain(kit());
+    if (!toolchain)
+        return {};
+
+    const TargetInformation ti = file->targetInformation();
+    LibraryTargetInfo info;
+    info.os = toolchain->targetAbi().os();
+    info.target = ti.target;
+    info.destDir = ti.destDir;
+    info.config = file->variableValue(Variable::Config);
+    info.version = file->singleVariableValue(Variable::Version);
+    info.targetVersionExt = file->singleVariableValue(Variable::TargetVersionExt);
+    info.staticLibPrefix = file->singleVariableValue(Variable::StaticLibPrefix);
+    info.staticLibExtension = file->singleVariableValue(Variable::StaticLibExtension);
+    info.shLibExtension = file->singleVariableValue(Variable::ShLibExtension);
+    return libraryTargetFiles(info);
 }
 
 void QmakeBuildSystem::collectLibraryData(const QmakeProFile *file, DeploymentData &deploymentData)
@@ -1732,8 +1762,52 @@ class QmakeProjectTest final : public QObject
     Q_OBJECT
 
 private slots:
+    void testLibraryTargetFiles();
     void testBinariesForSourceFile();
 };
+
+void QmakeProjectTest::testLibraryTargetFiles()
+{
+    LibraryTargetInfo info;
+    info.target = "core";
+    info.destDir = FilePath::fromString("/build/core");
+    info.staticLibPrefix = "lib";
+    info.staticLibExtension = "a";
+    info.shLibExtension = "so";
+
+    const auto fileNames = [](const FilePaths &libs) {
+        return Utils::transform<QStringList>(libs, [](const FilePath &lib) {
+            return lib.fileName();
+        });
+    };
+
+    info.os = Abi::LinuxOS;
+    QCOMPARE(fileNames(libraryTargetFiles(info)),
+             QStringList({"libcore.so", "libcore.so.1.0.0", "libcore.so.1.0", "libcore.so.1"}));
+    QCOMPARE(libraryTargetFiles(info).first().parentDir(), info.destDir);
+
+    info.config = QStringList("static");
+    QCOMPARE(fileNames(libraryTargetFiles(info)), QStringList("libcore.a"));
+
+    info.os = Abi::DarwinOS;
+    info.shLibExtension = "dylib";
+    QCOMPARE(fileNames(libraryTargetFiles(info)), QStringList("libcore.a"));
+    info.config.clear();
+    QCOMPARE(fileNames(libraryTargetFiles(info)), QStringList("libcore.1.dylib"));
+
+    // MSVC names an archive "core.lib", MinGW "libcore.a", and neither carries the version.
+    info.os = Abi::WindowsOS;
+    info.version = "2.0";
+    info.config = QStringList("static");
+    info.staticLibPrefix.clear();
+    info.staticLibExtension = "lib";
+    QCOMPARE(fileNames(libraryTargetFiles(info)), QStringList("core.lib"));
+    info.staticLibPrefix = "lib";
+    info.staticLibExtension = "a";
+    QCOMPARE(fileNames(libraryTargetFiles(info)), QStringList("libcore.a"));
+    info.config.clear();
+    QCOMPARE(fileNames(libraryTargetFiles(info)), QStringList("core2.dll"));
+}
 
 static bool writeProject(const FilePath &dir, const QString &proFile, const QByteArray &contents,
                          const QString &source)
@@ -1758,12 +1832,10 @@ void QmakeProjectTest::testBinariesForSourceFile()
                          "LIBS += -L$$OUT_PWD/../core -lcore\n",
                          "alpha.cpp"));
     // Name the archive instead of using -l, to cover the other rule in linksLibrary().
-    // Only on Linux: allLibraryTargetFiles() misnames a static library elsewhere.
     QVERIFY(writeProject(tmpDir.filePath("beta"), "beta.pro",
                          "TEMPLATE = lib\nTARGET = beta\nSOURCES = beta.cpp\n"
-                         "linux: LIBS += $$OUT_PWD/../core/"
-                         "$${QMAKE_PREFIX_STATICLIB}core.$${QMAKE_EXTENSION_STATICLIB}\n"
-                         "else: LIBS += -L$$OUT_PWD/../core -lcore\n",
+                         "LIBS += $$OUT_PWD/../core/"
+                         "$${QMAKE_PREFIX_STATICLIB}core.$${QMAKE_EXTENSION_STATICLIB}\n",
                          "beta.cpp"));
     QVERIFY(writeProject(tmpDir.filePath("gamma"), "gamma.pro",
                          "TEMPLATE = lib\nTARGET = gamma\nSOURCES = gamma.cpp\n"
