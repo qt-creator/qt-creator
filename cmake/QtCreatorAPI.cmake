@@ -1766,7 +1766,6 @@ endfunction()
                  [INCLUDES <directory>...]
                  [EXPLICIT_MOC <file>...]
                  [SKIP_AUTOMOC <file>...]
-                 [SKIP_PCH <value>]
                  [PROPERTIES <property> <value>...]
                  [PRIVATE_COMPILE_OPTIONS <option>...]
                  [PUBLIC_COMPILE_OPTIONS <option>...]
@@ -1774,7 +1773,8 @@ endfunction()
                  [GTEST]
                  [MANUALTEST]
                  [NEEDS_GUI]
-                 [EXCLUDE_FROM_PRECHECK])
+                 [EXCLUDE_FROM_PRECHECK]
+                 [SKIP_PCH])
 
   The test is built with ``WITH_TESTS`` defined and with ``SRCDIR``
   standing for the directory the call is in.  Whether it is built at
@@ -1803,11 +1803,6 @@ endfunction()
   ``SKIP_AUTOMOC <file>...``
     The files to keep ``moc`` away from.
 
-  ``SKIP_PCH <value>``
-    Build without the precompiled header.  Unlike the other commands,
-    this one reads a value behind the keyword, so it takes one:
-    ``SKIP_PCH ON``.
-
   ``PROPERTIES <property> <value>...``
     Properties to set on the target.
 
@@ -1830,10 +1825,13 @@ endfunction()
 
   ``EXCLUDE_FROM_PRECHECK``
     Leave the test out of the run that guards a commit.
+
+  ``SKIP_PCH``
+    Build without the precompiled header.
 #]=]
 function(add_qtc_test name)
-  cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK;NEEDS_GUI" "TIMEOUT"
-      "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION;PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS" ${ARGN})
+  cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK;NEEDS_GUI;SKIP_PCH" "TIMEOUT"
+      "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;CONDITION;PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS" ${ARGN})
 
   if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
