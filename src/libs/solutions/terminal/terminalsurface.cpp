@@ -556,7 +556,8 @@ struct TerminalSurfacePrivate
             return rows;
         };
 
-        while (totalRows() < newSize.height() && m_scrollback->lineCount() > 0) {
+        while (m_refillFromScrollback && totalRows() < newSize.height()
+               && m_scrollback->lineCount() > 0) {
             lines.insert(lines.begin(), m_scrollback->takeLastLine());
             ++cursor.line;
         }
@@ -986,6 +987,7 @@ struct TerminalSurfacePrivate
 
     TerminalSurface::WriteToPty m_writeToPty;
 
+    bool m_refillFromScrollback{true};
     bool m_reflowing{false};
     VTermScreenCell m_blank{};
     bool m_blankValid{false};
@@ -1116,6 +1118,11 @@ std::optional<Hyperlink> TerminalSurface::hyperlinkAt(QPoint gridPos) const
         ++end;
 
     return Hyperlink{d->m_uris.at(id - 1), start, end};
+}
+
+void TerminalSurface::setRefillFromScrollback(bool refill)
+{
+    d->m_refillFromScrollback = refill;
 }
 
 void TerminalSurface::setCellSize(QSizeF cellSize)

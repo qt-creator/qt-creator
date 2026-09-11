@@ -245,6 +245,13 @@ void TerminalWidget::setupPty()
             env.unset(name);
     }
 
+    // The console a shell on Windows draws against adds the rows a growing
+    // screen gains at its bottom and never takes any back out of its
+    // scrollback. A screen that does take them back puts the lines the shell
+    // repaints after a resize over the ones above them.
+    surface()->setRefillFromScrollback(
+        !HostOsInfo::isWindowsHost() || shellCommand.executable().needsDevice());
+
     m_process->setProcessMode(ProcessMode::Writer);
     Utils::Pty::Data data;
     data.setPtyInputFlagsChangedHandler([this](Pty::PtyInputFlag flags) {

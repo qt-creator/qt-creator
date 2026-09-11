@@ -832,6 +832,28 @@ private slots:
         QCOMPARE(trimmed(), expected);
     }
 
+    void aScreenThatDoesNotRefillLeavesTheScrollbackAlone()
+    {
+        initSurface({20, 6});
+        m_surface->setRefillFromScrollback(false);
+
+        const QString expected = write({"a", "b", "c", "d"});
+        QCOMPARE(m_surface->fullSize().height(), 6);
+
+        // Shrinking pushes rows out of the screen and into the scrollback
+        resizeTo({20, 3});
+        const int scrollback = m_surface->fullSize().height() - m_surface->liveSize().height();
+        QVERIFY(scrollback > 0);
+
+        resizeTo({20, 6});
+
+        // They stay there. A console counts the rows of its own screen, which
+        // gains them at the bottom, so a shell that repaints itself after a
+        // resize would draw over the lines above its cursor.
+        QCOMPARE(m_surface->fullSize().height() - m_surface->liveSize().height(), scrollback);
+        QCOMPARE(surfaceText(), expected);
+    }
+
     void blankLinesArePreserved()
     {
         initSurface({20, 6});

@@ -115,6 +115,13 @@ public:
 
     std::optional<Hyperlink> hyperlinkAt(QPoint gridPos) const;
 
+    // Whether a screen that gains rows takes them back out of the scrollback.
+    // A terminal in front of a Windows console must not: that console adds the
+    // rows at its bottom instead, so an application that repaints itself after
+    // a resize draws over the lines that are above its cursor here, but not
+    // there. Defaults to taking them.
+    void setRefillFromScrollback(bool refill);
+
     // The size of a cell in device pixels, which decides how many cells an
     // image takes up and is what an application is told when it asks how much
     // room it has. Device pixels, so that an application draws an image at the
