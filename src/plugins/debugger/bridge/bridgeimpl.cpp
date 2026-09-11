@@ -339,6 +339,7 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         }
         m_stopRequested = false;
         m_resumePending = true;
+        m_stepRequested = false;
         m_client->sendContinue(m_currentThreadId);
         return;
     case ExecutionCommand::Interrupt:
@@ -358,22 +359,27 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         return;
     case ExecutionCommand::StepIn:
         m_resumePending = true;
+        m_stepRequested = true;
         postRequest("stepIn", stepArguments(request.flag));
         return;
     case ExecutionCommand::StepOver:
         m_resumePending = true;
+        m_stepRequested = true;
         postRequest("next", stepArguments(request.flag));
         return;
     case ExecutionCommand::StepOut:
         m_resumePending = true;
+        m_stepRequested = true;
         m_client->sendStepOut(m_currentThreadId);
         return;
     case ExecutionCommand::RunToLine:
+        m_stepRequested = false;
         postRequest("qtc/runToLine",
                     QJsonObject{{"file", request.context.fileName.path()},
                                 {"line", request.context.textPosition.line}});
         return;
     case ExecutionCommand::RunToFunction:
+        m_stepRequested = false;
         postRequest("qtc/runToFunction",
                     QJsonObject{{"function", request.functionName}});
         return;
@@ -1020,7 +1026,8 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
         reportStop();
         return;
     }
-    m_stackTraceRequests.insert(seq, {true, 0, body.value("reason").toString() == u"step"});
+    m_stackTraceRequests.insert(seq, {true, 0, m_stepRequested
+                                     && body.value("reason").toString() == u"step"});
 }
 
 void BridgeImpl::reportStop()

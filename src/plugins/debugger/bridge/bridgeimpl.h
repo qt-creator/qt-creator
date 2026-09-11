@@ -97,6 +97,7 @@ private:
     bool m_stopPending = false;
     bool m_interruptOnceRunning = false;
     bool m_detaching = false;
+    bool m_stepRequested = false;
 
     // The stop event carries no frame, so the location has to be asked for.
     // The answer is routed by the request's sequence number.

@@ -1206,15 +1206,21 @@ class DapServer():
             self.sendResponse(request, success=False,
                               message='No usable module path: %r' % args.get('module'))
             return
-        try:
-            listing = gdb.execute('maint info sections -all-objects',
-                                  to_string=True) or ''
-        except gdb.error as error:
-            self.sendResponse(request, success=False, message=str(error))
-            return
-        self.sendResponse(request, body={
-            'module': module,
-            'sections': parseSectionLines(listing.splitlines(), module)})
+        # gdb silently ignores whichever of '-all-objects' and the legacy
+        # 'ALLOBJ' it does not know of, and then lists the executable alone,
+        # so a run that turns up nothing is worth repeating with the other.
+        sections = []
+        for keyword in ['-all-objects', 'ALLOBJ']:
+            try:
+                listing = gdb.execute('maint info sections %s' % keyword,
+                                      to_string=True) or ''
+            except gdb.error as error:
+                self.sendResponse(request, success=False, message=str(error))
+                return
+            sections = parseSectionLines(listing.splitlines(), module)
+            if sections:
+                break
+        self.sendResponse(request, body={'module': module, 'sections': sections})
 
     def cmd_qtc_configureTarget(self, request):
         # Tell gdb where the target's sources and libraries are, before the
