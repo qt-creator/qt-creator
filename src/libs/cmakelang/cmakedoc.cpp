@@ -288,6 +288,38 @@ private:
     QStringList _shown;
 };
 
+// What a definition list names: a term may spell out several arguments that
+// mean the same, as in "``PERMISSIONS`` and ``FILE_PERMISSIONS``", and each
+// of them is an argument the reader may write.  A term that spells out no
+// argument of its own names one all the same.
+QStringList termNames(const QString &term, const RstLang::MarkdownOptions &options)
+{
+    QStringList literals;
+    for (qsizetype i = 0; i < term.size();) {
+        const qsizetype open = term.indexOf("``"_L1, i);
+        if (open < 0)
+            break;
+        const qsizetype close = term.indexOf("``"_L1, open + 2);
+        if (close < 0)
+            break;
+
+        const QString literal = term.sliced(open + 2, close - open - 2).trimmed();
+        if (!literal.isEmpty())
+            literals.append(literal);
+        i = close + 2;
+    }
+
+    if (!literals.isEmpty())
+        return literals;
+
+    QString name = RstLang::inlineToMarkdown(term, options);
+    // What the argument is called reads as code, which is markup the
+    // name itself does not carry.
+    if (name.size() > 1 && name.startsWith(u'`') && name.endsWith(u'`'))
+        name = name.mid(1, name.size() - 2).trimmed();
+    return {name};
+}
+
 class Arguments: public RstLang::Visitor
 {
 public:
@@ -325,12 +357,9 @@ private:
 
     bool visit(RstLang::DefinitionItemAST *ast) override
     {
-        QString name = RstLang::inlineToMarkdown(ast->term(), _options);
-        // What the argument is called reads as code, which is markup the
-        // name itself does not carry.
-        if (name.startsWith(u'`') && name.endsWith(u'`'))
-            name = name.mid(1, name.size() - 2).trimmed();
-        add(name, RstLang::toMarkdown(ast->blocks(), _options));
+        const QString documentation = RstLang::toMarkdown(ast->blocks(), _options);
+        for (const QString &name : termNames(ast->term(), _options))
+            add(name, documentation);
 
         // An argument of an argument belongs to the argument, not to the
         // command.

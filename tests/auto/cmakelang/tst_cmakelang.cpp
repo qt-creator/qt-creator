@@ -233,6 +233,7 @@ private slots:
     void documentationOfCMakeHelp();
     void documentationIgnoresCase();
     void documentationTellsExamplesApart();
+    void documentationOfSeveralArguments();
 };
 
 void tst_CMakeLang::lexer_data()
@@ -2139,6 +2140,61 @@ For example::
         Document::fromSource(paragraph));
     QCOMPARE(helper.size(), 1);
     QCOMPARE(helper.at(0).signatures(), QStringList("my_helper(<target>)"));
+}
+
+// A term of a definition list may spell out several arguments that mean the
+// same, and each of them is one the reader may write.
+void tst_CMakeLang::documentationOfSeveralArguments()
+{
+    const QString source = R"(#[[.rst:
+.. command:: copy_it
+
+  Copies a thing:
+
+  .. code-block:: cmake
+
+    copy_it(<from> <to> [PERMISSIONS <permissions>...])
+
+  ``PERMISSIONS`` and ``FILE_PERMISSIONS``
+    What the copy may be used for.
+
+  ``NO_SOURCE_PERMISSIONS``
+    Nothing of the original carries over.
+
+  :variable:`CMAKE_INSTALL_MODE`
+    A term reads as code where a role makes it one, and the name is what
+    it says, not the markup around it.
+
+  Whatever is left over
+    A term that names no argument of its own names one all the same.
+#]]
+function(copy_it from to)
+endfunction()
+)";
+
+    const DocumentPtr document = Document::fromSource(source);
+    QVERIFY(document->isValid());
+
+    const QList<Documentation> documentation = CMakeLang::documentation(document);
+    QCOMPARE(documentation.size(), 1);
+
+    QStringList names;
+    QHash<QString, QString> text;
+    for (const ArgumentDoc &argument : documentation.at(0).arguments()) {
+        names.append(argument.name);
+        text.insert(argument.name, argument.documentation);
+    }
+
+    QCOMPARE(names,
+             QStringList({"PERMISSIONS",
+                          "FILE_PERMISSIONS",
+                          "NO_SOURCE_PERMISSIONS",
+                          "CMAKE_INSTALL_MODE",
+                          "Whatever is left over"}));
+
+    // What is said of the term is said of each argument it names.
+    QCOMPARE(text.value("PERMISSIONS"), "What the copy may be used for.");
+    QCOMPARE(text.value("FILE_PERMISSIONS"), text.value("PERMISSIONS"));
 }
 
 QTEST_GUILESS_MAIN(tst_CMakeLang)
