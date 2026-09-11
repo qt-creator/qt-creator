@@ -56,7 +56,7 @@ public:
     static void removeKitsForInterpreter(const Interpreter &interpreter);
     static bool interpreterIsValid(const Interpreter &interpreter);
 
-    static std::optional<QtTaskTree::ExecutableItem> autoDetect(
+    static QtTaskTree::ExecutableItem autoDetect(
         ProjectExplorer::Kit *kit,
         const Utils::FilePaths &searchPaths,
         const ProjectExplorer::DetectionSource &detectionSource,

@@ -15,9 +15,11 @@
 
 #include <debugger/debuggerkitaspect.h>
 
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -31,6 +33,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
+#include <utils/globaltasktree.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/listmodel.h>
@@ -820,6 +823,33 @@ PythonSettings::PythonSettings()
 
     writeToSettings(Core::ICore::settings());
 
+    connect(DeviceManager::instance(), &DeviceManager::toolDetectionRequested,
+            this, [](Id devId, const FilePaths &searchPaths, quint64 token,
+                     const ToolDetectionLogger &logger) {
+        const IDevicePtr device = DeviceManager::find(devId);
+        QTC_ASSERT(device, return);
+        device->registerToolDetectionTask(token);
+        if (logger)
+            logger.logTopLevel(Tr::tr("Searching for Python interpreters..."));
+
+        const bool isDesktopDevice = devId == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+        const DetectionSource detectionSource(
+            DetectionSource::FromSystem, isDesktopDevice ? QString() : devId.toString());
+        const LogCallback logCallback = [logger](const QString &message) {
+            if (logger)
+                logger.logItem(message);
+        };
+        const QList<Interpreter> known = interpreterModel().interpreters();
+        const ExecutableItem detector
+            = PythonSettings::autoDetect(nullptr, searchPaths, detectionSource, logCallback);
+        GlobalTaskTree::start(Group{detector}, {}, [devId, token, known, logger] {
+            if (logger && interpreterModel().interpreters() == known)
+                logger.logItem(Tr::tr("No new Python interpreters found."));
+            if (const IDevicePtr device = DeviceManager::find(devId))
+                device->deregisterToolDetectionTask(token);
+        });
+    });
+
     pylspOptionsPage();
 }
 
@@ -1221,7 +1251,7 @@ QString PythonSettings::defaultInterpreterId()
     return settingsInstance->m_defaultInterpreterId;
 }
 
-std::optional<ExecutableItem> PythonSettings::autoDetect(
+ExecutableItem PythonSettings::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
     const DetectionSource &detectionSource,
