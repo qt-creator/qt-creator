@@ -226,6 +226,7 @@ private slots:
     void styleSwitches();
     void formattingKeepsWhatItIsGiven();
     void documentationComments();
+    void documentedCommands();
     void documentationOfModules();
     void documentationOfIncludedModules();
     void documentationOfCMakeModules();
@@ -1572,6 +1573,55 @@ endmacro()
     QCOMPARE(definitionSignature(definition), "my_helper(<target> <source>)");
 }
 
+// An index of the commands the modules of CMake provide is scanned out of
+// their comments, and what the scan finds is what reading them says.
+void tst_CMakeLang::documentedCommands()
+{
+    const QString source = R"(#[[.rst:
+MyModule
+--------
+
+.. variable:: MY_VARIABLE
+
+  Not a command.
+
+.. command:: my_command
+
+  Does a thing.
+
+.. macro:: my_macro
+
+.. function:: my_function
+#]]
+
+# .. command:: not_documented
+
+macro(my_macro)
+endmacro()
+)";
+
+    const QStringList scanned = CMakeLang::documentedCommands(source);
+    QCOMPARE(scanned, QStringList({"my_command", "my_macro", "my_function"}));
+
+    QStringList read;
+    for (const DocComment &comment : CMakeLang::documentationComments(source)) {
+        const RstLang::DocumentPtr rst = RstLang::Document::fromSource(comment.text);
+        for (const Documentation &documentation : CMakeLang::documentation(rst)) {
+            if (documentation.kind == Documentation::Command)
+                read.append(documentation.name);
+        }
+    }
+    QCOMPARE(scanned, read);
+
+    // A module of CMake carries the line endings of the platform it was
+    // unpacked on, and a carriage return is no part of a name.
+    QCOMPARE(CMakeLang::documentedCommands(QString(source).replace('\n', "\r\n")), scanned);
+
+    // A comment that carries no documentation says nothing, however it is
+    // written.
+    QVERIFY(CMakeLang::documentedCommands("# .. command:: not_documented\n").isEmpty());
+}
+
 // A module documents itself and the commands it provides.
 void tst_CMakeLang::documentationOfModules()
 {
@@ -1734,6 +1784,7 @@ void tst_CMakeLang::documentationOfCMakeModules()
     QVERIFY(!files.isEmpty());
 
     QSet<QString> names;
+    QSet<QString> scanned;
     qint64 bytes = 0;
     QElapsedTimer timer;
     timer.start();
@@ -1743,6 +1794,11 @@ void tst_CMakeLang::documentationOfCMakeModules()
         QVERIFY(file.open(QIODevice::ReadOnly));
         const QString source = QString::fromUtf8(file.readAll());
         bytes += source.size();
+
+        // Whatever the scan of the comments finds is a name that reading
+        // them declares.
+        const QStringList commands = CMakeLang::documentedCommands(source);
+        scanned.unite(Utils::toSet(commands));
 
         const DocumentPtr document = Document::fromSource(source);
         for (const Documentation &documentation : CMakeLang::documentation(document)) {
@@ -1762,6 +1818,13 @@ void tst_CMakeLang::documentationOfCMakeModules()
     }
 
     QVERIFY(!names.isEmpty());
+    QVERIFY(!scanned.isEmpty());
+
+    // The names the editor indexes the modules by are scanned out of their
+    // comments, and a command CMake documents is documented in one of them.
+    QVERIFY(scanned.contains("check_cxx_source_compiles"));
+    QVERIFY(scanned.contains("FetchContent_Declare"));
+    QVERIFY(scanned.contains("ExternalProject_Add"));
 
     // The name is the one the documentation spells out.  A module may shout
     // the definition of what it provides, and a name that is written in
@@ -1771,6 +1834,9 @@ void tst_CMakeLang::documentationOfCMakeModules()
     QVERIFY(names.contains("FetchContent_Declare"));
     QVERIFY(names.contains("FetchContent_MakeAvailable"));
     QVERIFY(names.contains("ExternalProject_Add"));
+
+    for (const QString &command : scanned)
+        QVERIFY2(names.contains(command), qPrintable(command));
 
     qInfo("read %lld bytes of %lld files in %lld ms, %lld names documented",
           bytes, qint64(files.size()), timer.elapsed(), qint64(names.size()));

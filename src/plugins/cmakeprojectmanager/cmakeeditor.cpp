@@ -16,6 +16,8 @@
 #include "cmakeusages.h"
 #include "cmakeutils.h"
 
+#include <cmakelang/cmakedoc.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 
@@ -433,7 +435,13 @@ CMakeTextDocument::CMakeTextDocument()
     setId(Constants::CMAKE_EDITOR_ID);
     setMimeType(Utils::Constants::CMAKE_MIMETYPE);
     setQuickFixAssistProvider(&cmakeQuickFixAssistProvider());
+    setFunctionHintAssistProvider(&cmakeFunctionHintAssistProvider());
     setupCMakeQuickFixMarkers(this);
+
+    // What a hover and a completion of the file say comes from the keywords
+    // of CMake, and they are read while the file is being opened: a hover
+    // would otherwise wait for the whole Help of CMake to be read.
+    CMakeToolManager::readKeywords();
 }
 
 //
@@ -442,12 +450,8 @@ CMakeTextDocument::CMakeTextDocument()
 
 class CMakeHoverHandler final : public TextEditor::BaseHoverHandler
 {
-    mutable CMakeKeywords m_keywords;
     QString m_helpToolTip;
     QVariant m_contextHelp;
-
-public:
-    const CMakeKeywords &keywords() const;
 
     void identifyMatch(TextEditorWidget *editorWidget,
                        int pos,
@@ -455,12 +459,18 @@ public:
     void operateTooltip(TextEditorWidget *editorWidget, const QPoint &point) final;
 };
 
-const CMakeKeywords &CMakeHoverHandler::keywords() const
+// What the file being edited says about one of the names it defines.
+static QString localDocumentation(const QString &source, const QString &name)
 {
-    if (m_keywords.functions.isEmpty())
-        m_keywords = CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords();
+    if (!source.contains(".rst:"))
+        return {};
 
-    return m_keywords;
+    const CMakeLang::DocumentPtr document = CMakeLang::Document::fromSource(source);
+    for (const CMakeLang::Documentation &documentation : CMakeLang::documentation(document)) {
+        if (documentation.isNamed(name))
+            return documentation.markdown();
+    }
+    return {};
 }
 
 void CMakeHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
@@ -473,23 +483,28 @@ void CMakeHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
     cursor.setPosition(pos);
     const QString word = Text::wordUnderCursor(cursor);
 
+    // They are read anew for every hover: which module documents which
+    // command arrives after the keywords do, and a hover that kept the
+    // ones it saw first would never learn of it.
+    const CMakeKeywords keywords = CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords();
+
     FilePath helpFile;
     QString helpCategory;
-    struct
+    const struct
     {
         const QMap<QString, FilePath> &map;
         QString helpCategory;
-    } keywordsListMaps[] = {{keywords().functions, "command"},
-                            {keywords().variables, "variable"},
-                            {keywords().directoryProperties, "prop_dir"},
-                            {keywords().sourceProperties, "prop_sf"},
-                            {keywords().targetProperties, "prop_tgt"},
-                            {keywords().testProperties, "prop_test"},
-                            {keywords().properties, "prop_gbl"},
-                            {keywords().includeStandardModules, "module"},
-                            {keywords().findModules, "module"},
-                            {keywords().policies, "policy"},
-                            {keywords().environmentVariables, "envvar"}};
+    } keywordsListMaps[] = {{keywords.functions, "command"},
+                            {keywords.variables, "variable"},
+                            {keywords.directoryProperties, "prop_dir"},
+                            {keywords.sourceProperties, "prop_sf"},
+                            {keywords.targetProperties, "prop_tgt"},
+                            {keywords.testProperties, "prop_test"},
+                            {keywords.properties, "prop_gbl"},
+                            {keywords.includeStandardModules, "module"},
+                            {keywords.findModules, "module"},
+                            {keywords.policies, "policy"},
+                            {keywords.environmentVariables, "envvar"}};
 
     for (const auto &pair : keywordsListMaps) {
         if (pair.map.contains(word)) {
@@ -498,12 +513,43 @@ void CMakeHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
             break;
         }
     }
+
+    // CMake reads the name of a command without regard to its case, so a
+    // call that is written in another one names the same command.  A
+    // variable and a property are read the way they are written.
+    if (helpFile.isEmpty() && helpCategory.isEmpty()) {
+        const QMap<QString, FilePath> &functions = keywords.functions;
+        for (auto it = functions.cbegin(); it != functions.cend(); ++it) {
+            if (CMakeLang::isSameCommand(it.key(), word)) {
+                helpFile = it.value();
+                helpCategory = "command";
+                break;
+            }
+        }
+    }
     m_helpToolTip.clear();
-    if (!helpFile.isEmpty())
-        m_helpToolTip = CMakeToolManager::toolTipForRstHelpFile(helpFile);
+
+    // The documentation spells the name the way it is meant to be written,
+    // which is what the help is filed under.
+    QString helpName = word;
+    if (!helpFile.isEmpty()) {
+        const CMakeLang::Documentation documentation
+            = CMakeToolManager::documentation(word, helpFile);
+        m_helpToolTip = documentation.brief();
+        if (!documentation.name.isEmpty())
+            helpName = documentation.name;
+    }
+
+    // A function the file being edited defines documents itself in a
+    // ".rst:" comment of its own, the way the modules of CMake do.
+    if (m_helpToolTip.isEmpty())
+        m_helpToolTip = localDocumentation(editorWidget->document()->toPlainText(), word);
 
     m_contextHelp = QVariant::fromValue(
-        HelpItem({QString("%1/%2").arg(helpCategory, word), word}, {}, {}, HelpItem::Unknown));
+        HelpItem({QString("%1/%2").arg(helpCategory, helpName), helpName},
+                 {},
+                 {},
+                 HelpItem::Unknown));
 
     setPriority(!m_helpToolTip.isEmpty() ? Priority_Tooltip : Priority_None);
 }

@@ -64,6 +64,14 @@ void AssistProposalItem::setDetail(const QString &detail)
     m_detail = detail;
 }
 
+void AssistProposalItem::appendDetail(const QString &detail)
+{
+    if (m_detail.isEmpty())
+        m_detail = detail;
+    else
+        m_detail += '\n' + detail;
+}
+
 QString AssistProposalItem::detail() const
 {
     return m_detail;

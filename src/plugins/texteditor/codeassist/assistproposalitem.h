@@ -28,7 +28,8 @@ public:
     void setText(const QString &text);
 
     void setDetail(const QString &detail);
-    QString detail() const final;
+    void appendDetail(const QString &detail);
+    QString detail() const override;
 
     void setData(const QVariant &var);
     const QVariant &data() const;

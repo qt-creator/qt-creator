@@ -104,6 +104,13 @@ public:
 
 CMAKELANG_EXPORT QList<DocComment> documentationComments(const QString &source);
 
+// Which commands those comments declare, without reading what they say
+// about them.  This is what an index of the names the modules of CMake
+// provide takes: reading every one of them as reStructuredText costs more
+// than a name is worth, and what the documentation says is read where it
+// is shown.
+CMAKELANG_EXPORT QStringList documentedCommands(const QString &source);
+
 // Every name the ".rst:" comments of a CMake file document.  A comment that
 // names nothing documents the function or macro that follows it.
 CMAKELANG_EXPORT QList<Documentation> documentation(

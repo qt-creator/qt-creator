@@ -1,7 +1,7 @@
 add_qtc_plugin(CMakeProjectManager
   PLUGIN_CLASS CMakeProjectPlugin
   PLUGIN_DEPENDS Core CppEditor Debugger ProjectExplorer TextEditor QtSupport
-  DEPENDS CMakeLang McpServerLib
+  DEPENDS CMakeLang RstLang McpServerLib
   SOURCES
     builddirparameters.cpp builddirparameters.h
     cmake_global.h
@@ -51,14 +51,6 @@ add_qtc_plugin(CMakeProjectManager
     projecttreehelper.cpp projecttreehelper.h
     targethelper.cpp targethelper.h
     testpresetshelper.cpp testpresetshelper.h
-    3rdparty/rstparser/rstparser.cc 3rdparty/rstparser/rstparser.h
-  SBOM_ARGS
-    USE_ATTRIBUTION_FILES
-    CREATE_SBOM_FOR_EACH_ATTRIBUTION
-    ATTRIBUTION_FILE_PATHS
-      "${QtCreator_SOURCE_DIR}/qt_attributions.json"
-    ATTRIBUTION_IDS
-      vitaut-rstparser
 )
 
 add_qtc_test(tst_cmake_test_presets

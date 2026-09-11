@@ -89,6 +89,12 @@ public:
     bool autoCreateBuildDirectory() const;
     QList<Generator> supportedGenerators() const;
     CMakeKeywords keywords();
+
+    // Reading them takes a process of CMake and the files of its Help, and
+    // whoever asks for them first waits for that.  Reading them before
+    // they are asked for keeps that wait out of an editor.
+    void readKeywords();
+
     bool hasFileApi() const;
     Version version() const;
     QString versionDisplay() const;
@@ -104,6 +110,11 @@ public:
 
 private:
     void readInformation() const;
+
+    // Which module of CMake documents which of the commands the modules
+    // provide.  Nothing waits for this: a command whose module has not
+    // been read yet is one that no module documents, until it has.
+    void readModuleCommands();
 
     QStringList parseSyntaxHighlightingXml();
 

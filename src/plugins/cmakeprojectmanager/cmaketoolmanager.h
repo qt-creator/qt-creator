@@ -7,6 +7,8 @@
 
 #include "cmaketool.h"
 
+#include <cmakelang/cmakedoc.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspect.h>
 
@@ -44,6 +46,11 @@ public:
 
     static CMakeKeywords defaultProjectOrDefaultCMakeKeyWords();
 
+    // Reads them before they are asked for, so that whoever asks does not
+    // wait for the process and the files of the Help of CMake that reading
+    // them takes.
+    static void readKeywords();
+
     static CMakeTool *defaultCMakeTool();
     static void setDefaultCMakeTool(const Utils::Id &id);
     static CMakeTool *findByCommand(const Utils::FilePath &command);
@@ -56,7 +63,15 @@ public:
 
     static void updateDocumentation();
 
-    static QString toolTipForRstHelpFile(const Utils::FilePath &helpFile);
+    // What the documentation of that name says, read from the file that
+    // carries it: a reStructuredText file of the Help of CMake, or a CMake
+    // module that documents itself in a ".rst:" comment.  Null where the
+    // file says nothing about the name.
+    static CMakeLang::Documentation documentation(const QString &name,
+                                                  const Utils::FilePath &file);
+
+    // The same as Markdown, the way a tooltip shows it.
+    static QString toolTip(const QString &name, const Utils::FilePath &file);
 
     static Utils::FilePath mappedFilePath(ProjectExplorer::Project *project, const Utils::FilePath &path);
 

@@ -8,8 +8,6 @@
 #include "cmakespecificsettings.h"
 #include "cmaketoolsettingsaccessor.h"
 
-#include "3rdparty/rstparser/rstparser.h"
-
 #include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/helpmanager.h>
@@ -23,6 +21,12 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
+#include <cmakelang/cmakedoc.h>
+#include <cmakelang/cmakedocument.h>
+
+#include <rstlang/rstdocument.h>
+#include <rstlang/rstmarkdown.h>
+
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/pointeralgorithm.h>
@@ -30,9 +34,11 @@
 
 #include <nanotrace/nanotrace.h>
 
+#include <QCache>
 #include <QCryptographicHash>
+#include <QDateTime>
+#include <QMutex>
 #include <QStandardPaths>
-#include <stack>
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
@@ -93,137 +99,6 @@ public:
     int m_junctionsHashLength = 32;
 
     CMakeToolManagerPrivate();
-};
-
-class HtmlHandler : public rst::ContentHandler
-{
-private:
-    std::stack<QString> m_tags;
-
-    QStringList m_p;
-    QStringList m_h3;
-    QStringList m_cmake_code;
-
-    QString m_last_directive_type;
-    QString m_last_directive_class;
-
-    void StartBlock(rst::BlockType type) final
-    {
-        QString tag;
-        switch (type) {
-        case rst::REFERENCE_LINK:
-            // not used, HandleReferenceLink is used instead
-            break;
-        case rst::H1:
-            tag = "h1";
-            break;
-        case rst::H2:
-            tag = "h2";
-            break;
-        case rst::H3:
-            tag = "h3";
-            break;
-        case rst::H4:
-            tag = "h4";
-            break;
-        case rst::H5:
-            tag = "h5";
-            break;
-        case rst::CODE:
-            tag = "code";
-            break;
-        case rst::PARAGRAPH:
-            tag = "p";
-            break;
-        case rst::LINE_BLOCK:
-            tag = "pre";
-            break;
-        case rst::BLOCK_QUOTE:
-            if (m_last_directive_type == "code-block" && m_last_directive_class == "cmake")
-                tag = "cmake-code";
-            else
-                tag = "blockquote";
-            break;
-        case rst::BULLET_LIST:
-            tag = "ul";
-            break;
-        case rst::LIST_ITEM:
-            tag = "li";
-            break;
-        case rst::LITERAL_BLOCK:
-            tag = "pre";
-            break;
-        }
-
-        if (tag == "p")
-            m_p.push_back(QString());
-        if (tag == "h3")
-            m_h3.push_back(QString());
-        if (tag == "cmake-code")
-            m_cmake_code.push_back(QString());
-
-        if (tag == "code" && m_tags.top() == "p")
-            m_p.last().append("`");
-
-        m_tags.push(tag);
-    }
-
-    void EndBlock() final
-    {
-        // Add a new "p" collector for any `code` markup that comes afterwads
-        // since we are insterested only in the first paragraph.
-        if (m_tags.top() == "p")
-            m_p.push_back(QString());
-
-        if (m_tags.top() == "code" && !m_p.isEmpty()) {
-            m_tags.pop();
-
-            if (m_tags.size() > 0 && m_tags.top() == "p")
-                m_p.last().append("`");
-        } else {
-            m_tags.pop();
-        }
-    }
-
-    void HandleText(const char *text, std::size_t size) final
-    {
-        if (m_last_directive_type.endsWith("replace"))
-            return;
-
-        QString str = QString::fromUtf8(text, size);
-
-        if (m_tags.top() == "h3")
-            m_h3.last().append(str);
-        if (m_tags.top() == "p")
-            m_p.last().append(str);
-        if (m_tags.top() == "cmake-code")
-            m_cmake_code.last().append(str);
-        if (m_tags.top() == "code" && !m_p.isEmpty())
-            m_p.last().append(str);
-    }
-
-    void HandleDirective(const std::string &type, const std::string &name) final
-    {
-        m_last_directive_type = QString::fromStdString(type);
-        m_last_directive_class = QString::fromStdString(name);
-    }
-
-    void HandleReferenceLink(const std::string &type, const std::string &text) final
-    {
-        Q_UNUSED(type)
-        if (!m_p.isEmpty())
-            m_p.last().append(QString::fromStdString(text));
-    }
-
-public:
-    QString content() const
-    {
-        const QString title = m_h3.isEmpty() ? QString() : m_h3.first();
-        const QString description = m_p.isEmpty() ? QString() : m_p.first();
-        const QString cmakeCode = m_cmake_code.isEmpty() ? QString() : m_cmake_code.first();
-
-        return QString("### %1\n\n%2\n\n````\n%3\n````").arg(title, description, cmakeCode);
-    }
 };
 
 static CMakeToolManagerPrivate *d = nullptr;
@@ -347,6 +222,23 @@ CMakeKeywords CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords()
         return tool->keywords();
 
     return {};
+}
+
+void CMakeToolManager::readKeywords()
+{
+    // The keywords of the CMake that defaultProjectOrDefaultCMakeKeyWords()
+    // hands out.
+    CMakeTool *tool = nullptr;
+    if (auto bs = activeBuildSystemForCurrentProject()) {
+        const FilePath executable = CMakeKitAspect::cmakeExecutable(bs->kit());
+        if (!executable.isEmpty())
+            tool = findByCommand(executable);
+    }
+    if (!tool)
+        tool = defaultCMakeTool();
+
+    if (tool)
+        tool->readKeywords();
 }
 
 CMakeTool *CMakeToolManager::defaultCMakeTool()
@@ -473,26 +365,129 @@ static void createJunction(const FilePath &from, const FilePath &to)
 #endif
 }
 
-QString CMakeToolManager::toolTipForRstHelpFile(const FilePath &helpFile)
+// What a file of the Help of CMake documents, which is what it is named
+// after.
+static CMakeLang::Documentation::Kind kindOfHelpFile(const FilePath &file)
 {
-    static QHash<FilePath, QString> map;
+    const QString directory = file.parentDir().fileName();
+    if (directory == "command")
+        return CMakeLang::Documentation::Command;
+    if (directory == "variable")
+        return CMakeLang::Documentation::Variable;
+    if (directory == "envvar")
+        return CMakeLang::Documentation::EnvironmentVariable;
+    if (directory == "module")
+        return CMakeLang::Documentation::Module;
+    if (directory == "policy")
+        return CMakeLang::Documentation::Policy;
+    if (directory.startsWith("prop_"))
+        return CMakeLang::Documentation::Property;
+    return CMakeLang::Documentation::Unknown;
+}
+
+// The Help of CMake is written over several files: one names another with an
+// include, and the documentation of a module stands in the module itself.
+static RstLang::ParseOptions parseOptions(const FilePath &directory)
+{
+    RstLang::ParseOptions options;
+    options.includeDirectives << "cmake-module";
+    options.resolveInclude = [directory](const QString &type,
+                                         const QString &path) -> std::optional<QString> {
+        const Result<QByteArray> contents = directory.resolvePath(path).fileContents();
+        if (!contents)
+            return {};
+
+        const QString source = QString::fromUtf8(*contents);
+        if (type != "cmake-module")
+            return source;
+
+        // What a module documents it documents in a ".rst:" comment of its
+        // own.
+        QStringList blocks;
+        for (const CMakeLang::DocComment &comment : CMakeLang::documentationComments(source))
+            blocks.append(comment.text);
+        return blocks.join('\n');
+    };
+    return options;
+}
+
+static QList<CMakeLang::Documentation> readDocumentation(const FilePath &file)
+{
+    const Result<QByteArray> contents = file.fileContents();
+    if (!contents)
+        return {};
+
+    const QString source = QString::fromUtf8(*contents);
+
+    // Everything that is not written in reStructuredText already is a CMake
+    // file, and one of those carries the documentation of what it provides
+    // in its own comments.
+    if (file.suffix() != "rst")
+        return CMakeLang::documentation(CMakeLang::Document::fromSource(source));
+
+    const RstLang::DocumentPtr rst
+        = RstLang::Document::fromSource(source, parseOptions(file.parentDir()));
+
+    // The file is named after what it documents, and spells out what else it
+    // has to say about the commands of a module.
+    QList<CMakeLang::Documentation> result
+        = {CMakeLang::documentationFor(rst, file.completeBaseName(), kindOfHelpFile(file))};
+    result.append(CMakeLang::documentation(rst));
+    return result;
+}
+
+CMakeLang::Documentation CMakeToolManager::documentation(const QString &name,
+                                                         const FilePath &file)
+{
+    if (file.isEmpty())
+        return {};
+
+    // What a file was read to say, and when it said it.  A file of a
+    // project is written while it is being edited, and what it said then is
+    // not what it says now.
+    class Read
+    {
+    public:
+        QDateTime lastModified;
+        QList<CMakeLang::Documentation> documentation;
+    };
+
+    // One of these holds the parsed source of the file it was read from, so
+    // only the files that are being asked about are kept.
+    static QCache<FilePath, Read> cache(32);
     static QMutex mutex;
-    QMutexLocker locker(&mutex);
 
-    if (map.contains(helpFile))
-        return map.value(helpFile);
+    const QDateTime lastModified = file.lastModified();
 
-    auto content = helpFile.fileContents(1024).value_or(QByteArray());
-    content.replace("\r\n", "\n");
+    std::optional<QList<CMakeLang::Documentation>> documentation;
+    {
+        QMutexLocker locker(&mutex);
+        const Read *read = cache.object(file);
+        if (read && read->lastModified == lastModified)
+            documentation = read->documentation;
+    }
 
-    HtmlHandler handler;
-    rst::Parser parser(&handler);
-    parser.Parse(content.left(content.lastIndexOf('\n')));
+    // Reading the file and parsing what it says is what this costs, and no
+    // other reader waits for it.
+    if (!documentation) {
+        documentation = readDocumentation(file);
+        QMutexLocker locker(&mutex);
+        cache.insert(file, new Read{lastModified, *documentation});
+    }
 
-    const QString tooltip = handler.content();
+    for (const CMakeLang::Documentation &candidate : *documentation) {
+        if (candidate.isNamed(name))
+            return candidate;
+    }
 
-    map[helpFile] = tooltip;
-    return tooltip;
+    // A file that says nothing about the name still documents what it is
+    // there for.
+    return documentation->isEmpty() ? CMakeLang::Documentation() : documentation->first();
+}
+
+QString CMakeToolManager::toolTip(const QString &name, const FilePath &file)
+{
+    return CMakeToolManager::documentation(name, file).brief();
 }
 
 FilePath CMakeToolManager::mappedFilePath(Project *project, const FilePath &path)

@@ -6,9 +6,13 @@
 #include "cmakeprojectmanagertr.h"
 #include "cmaketoolmanager.h"
 
+#include <cmakelang/cmakedoc.h>
+
 #include <coreplugin/icore.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/datafromprocess.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -79,10 +83,13 @@ public:
     bool m_didAttemptToRun = false;
     bool m_haveCapabilitites = true;
     bool m_haveKeywords = false;
+    bool m_haveModuleCommands = false;
 
     Capabilities m_capabilities;
     CMakeKeywords m_keywords;
+    FilePath m_cmakeRoot;
     QMutex m_keywordsMutex;
+    QFuture<void> m_keywordsReader;
 };
 
 } // namespace Internal
@@ -123,7 +130,11 @@ CMakeTool::CMakeTool(const Store &map, bool fromSdk)
     setFilePath(FilePath::fromSettings(map.value(CMAKE_INFORMATION_COMMAND)));
 }
 
-CMakeTool::~CMakeTool() = default;
+CMakeTool::~CMakeTool()
+{
+    if (m_introspection)
+        m_introspection->m_keywordsReader.waitForFinished();
+}
 
 Id CMakeTool::createId()
 {
@@ -135,6 +146,8 @@ void CMakeTool::setFilePath(const FilePath &executable)
     if (m_executable == executable)
         return;
 
+    // What is being read is what the executable that is going away says.
+    m_introspection->m_keywordsReader.waitForFinished();
     m_introspection = std::make_unique<Internal::IntrospectionData>();
 
     m_executable = executable;
@@ -219,16 +232,37 @@ QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
     return isValid() ? m_introspection->m_capabilities.generators : QList<CMakeTool::Generator>();
 }
 
+// Which module documents which command.  A module of CMake carries the
+// documentation of what it provides in a ".rst:" comment of its own.  The
+// names are keyed the way CMake reads them, which is without regard to
+// their case: a module documents "check_cxx_source_compiles" and defines
+// "CHECK_CXX_SOURCE_COMPILES".
+static QMap<QString, FilePath> commandsOfModules(const FilePath &modules)
+{
+    QMap<QString, FilePath> result;
+    const FilePaths files = modules.dirEntries({{"*.cmake"}, DirFilterFlag::Files},
+                                               DirSortFlag::Name);
+    for (const FilePath &file : files) {
+        const Result<QByteArray> contents = file.fileContents();
+        if (!contents)
+            continue;
+
+        const QStringList commands = CMakeLang::documentedCommands(QString::fromUtf8(*contents));
+        for (const QString &command : commands)
+            result.insert(command.toLower(), file);
+    }
+    return result;
+}
+
 CMakeKeywords CMakeTool::keywords()
 {
     if (!isValid())
         return {};
 
+    // They are read once, and whoever asks for them while that is going on
+    // waits for what it reads.
+    QMutexLocker locker(&m_introspection->m_keywordsMutex);
     if (!m_introspection->m_haveKeywords && m_introspection->m_haveCapabilitites) {
-        QMutexLocker locker(&m_introspection->m_keywordsMutex);
-        if (m_introspection->m_haveKeywords)
-            return m_introspection->m_keywords;
-
         const FilePath findCMakeRoot = TemporaryDirectory::masterDirectoryFilePath()
                                        / "find-root.cmake";
         findCMakeRoot.writeFileContents("message(${CMAKE_ROOT})");
@@ -295,14 +329,54 @@ CMakeKeywords CMakeTool::keywords()
                 m_introspection->m_keywords.includeStandardModules[fileName] = filePath;
         }
 
+        // The commands the modules provide have no file of their own in the
+        // Help: which module documents which is read afterwards, and until
+        // it is, none of them is documented anywhere.
         const QStringList moduleFunctions = parseSyntaxHighlightingXml();
         for (const auto &function : moduleFunctions)
-            m_introspection->m_keywords.functions[function] = FilePath();
+            m_introspection->m_keywords.functions.insert(function, {});
 
+        m_introspection->m_cmakeRoot = cmakeRoot;
         m_introspection->m_haveKeywords = true;
     }
 
     return m_introspection->m_keywords;
+}
+
+void CMakeTool::readModuleCommands()
+{
+    FilePath modules;
+    {
+        QMutexLocker locker(&m_introspection->m_keywordsMutex);
+        if (m_introspection->m_haveModuleCommands || !m_introspection->m_haveKeywords)
+            return;
+        modules = m_introspection->m_cmakeRoot.pathAppended("Modules");
+    }
+
+    // The modules are read outside the lock: whoever asks for the keywords
+    // meanwhile is answered with the ones that are there.
+    const QMap<QString, FilePath> moduleCommands = commandsOfModules(modules);
+
+    QMutexLocker locker(&m_introspection->m_keywordsMutex);
+    QMap<QString, FilePath> &functions = m_introspection->m_keywords.functions;
+    // A command the Help of CMake has a file for is documented there; the
+    // ones left over are the ones the modules provide.
+    for (auto it = functions.begin(), end = functions.end(); it != end; ++it) {
+        if (it.value().isEmpty())
+            it.value() = moduleCommands.value(it.key().toLower());
+    }
+    m_introspection->m_haveModuleCommands = true;
+}
+
+void CMakeTool::readKeywords()
+{
+    if (m_introspection->m_keywordsReader.isRunning())
+        return;
+
+    m_introspection->m_keywordsReader = Utils::asyncRun([this] {
+        keywords();
+        readModuleCommands();
+    });
 }
 
 bool CMakeTool::hasFileApi() const

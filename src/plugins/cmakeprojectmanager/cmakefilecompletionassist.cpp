@@ -23,12 +23,17 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/asyncprocessor.h>
+#include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 
 #include <utils/async.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/utilsicons.h>
+
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
 
 using namespace TextEditor;
 using namespace ProjectExplorer;
@@ -42,7 +47,7 @@ using PerformInputDataPtr = std::shared_ptr<PerformInputData>;
 class CMakeFileCompletionAssist : public AsyncProcessor
 {
 public:
-    CMakeFileCompletionAssist();
+    explicit CMakeFileCompletionAssist(bool functionHintOnly = false);
 
     IAssistProposal *perform() final;
     IAssistProposal *performAsync() final { return nullptr; }
@@ -62,10 +67,16 @@ public:
 
 private:
     IAssistProposal *doPerform(const PerformInputDataPtr &data);
+    IAssistProposal *functionHint(const QString &functionName,
+                                  const PerformInputDataPtr &data,
+                                  const CMakeLang::DocumentPtr &document);
     PerformInputDataPtr generatePerformInputData() const;
+
+    // Whoever asks for the signature of a call is asking for that alone.
+    const bool m_functionHintOnly;
 };
 
-CMakeFileCompletionAssist::CMakeFileCompletionAssist()
+CMakeFileCompletionAssist::CMakeFileCompletionAssist(bool functionHintOnly)
     : m_variableIcon(CodeModelIcon::iconForType(CodeModelIcon::VarPublic))
     , m_projectVariableIcon(CodeModelIcon::iconForType(CodeModelIcon::VarPublicStatic))
     , m_functionIcon(CodeModelIcon::iconForType(CodeModelIcon::FuncPublic))
@@ -84,6 +95,7 @@ CMakeFileCompletionAssist::CMakeFileCompletionAssist()
                                .icon())
     , m_snippetCollector(Constants::CMAKE_SNIPPETS_GROUP_ID,
                          FileIconProvider::icon(FilePath::fromString(Constants::CMAKE_LISTS_TXT)))
+    , m_functionHintOnly(functionHintOnly)
 {}
 
 static bool isInComment(const AssistInterface *interface)
@@ -130,6 +142,20 @@ static int findFunctionStart(const AssistInterface *interface)
     return pos;
 }
 
+// Where the arguments of the call the cursor stands in begin, which is
+// behind the parenthesis that opens it.
+static int findArgumentsStart(const AssistInterface *interface)
+{
+    int pos = interface->position();
+
+    QChar chr;
+    do {
+        chr = interface->characterAt(--pos);
+    } while (pos > 0 && chr != '(');
+
+    return chr == '(' ? pos + 1 : interface->position();
+}
+
 static int findFunctionEnd(const AssistInterface *interface)
 {
     int pos = interface->position();
@@ -162,6 +188,29 @@ static int findPathStart(const AssistInterface *interface)
 struct MarkDownAssitProposalItem : public AssistProposalItem
 {
     Qt::TextFormat detailFormat() const override { return Qt::MarkdownText; }
+
+    // The file that documents the name of the item, where one does.  What
+    // it says is read when the item is the one being looked at: reading it
+    // for every item of a completion would read every file of the Help of
+    // CMake for one "${".
+    void setDocumentationFile(const FilePath &file) { m_documentationFile = file; }
+
+    QString detail() const override
+    {
+        const QString detail = AssistProposalItem::detail();
+        if (m_documentationFile.isEmpty())
+            return detail;
+
+        const QString documentation = CMakeToolManager::toolTip(text(), m_documentationFile);
+        if (documentation.isEmpty())
+            return detail;
+        if (detail.isEmpty())
+            return documentation;
+        return documentation + '\n' + detail;
+    }
+
+private:
+    FilePath m_documentationFile;
 };
 
 template<typename T>
@@ -175,6 +224,50 @@ static QList<AssistProposalItemInterface *> generateList(const T &words, const Q
     });
 }
 
+// What a documented argument is called where it is a keyword: the
+// documentation spells the value it takes out behind it, as in
+// "LIMIT_INPUT <max-in>".
+static QString keywordOfArgument(const QString &name)
+{
+    const QString keyword = name.section(' ', 0, 0);
+    if (keyword == name || keyword.isEmpty())
+        return {};
+
+    for (const QChar &c : keyword) {
+        if (!c.isUpper() && !c.isDigit() && c != '_')
+            return {};
+    }
+    return keyword;
+}
+
+// The keywords a command takes, each with what its documentation says about
+// it: a command like file() documents a signature of its own for every mode
+// it knows.
+static QList<AssistProposalItemInterface *> generateList(
+    const QStringList &words, const QIcon &icon, const QList<CMakeLang::ArgumentDoc> &arguments)
+{
+    QHash<QString, QString> documentation;
+    for (const CMakeLang::ArgumentDoc &argument : arguments) {
+        documentation.insert(argument.name, argument.documentation);
+
+        // A keyword that takes a value is documented with the value behind
+        // it, and the keyword alone is what the reader is writing.
+        const QString keyword = keywordOfArgument(argument.name);
+        if (!keyword.isEmpty() && !documentation.contains(keyword))
+            documentation.insert(keyword, argument.documentation);
+    }
+
+    QList<AssistProposalItemInterface *> list;
+    for (const QString &word : words) {
+        MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
+        item->setText(word);
+        item->setDetail(documentation.value(word));
+        item->setIcon(icon);
+        list << item;
+    }
+    return list;
+}
+
 static QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> &words,
                                                          const QIcon &icon)
 {
@@ -182,8 +275,7 @@ static QList<AssistProposalItemInterface *> generateList(const QMap<QString, Fil
     for (auto it = words.cbegin(); it != words.cend(); ++it) {
         MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
         item->setText(it.key());
-        if (!it.value().isEmpty())
-            item->setDetail(CMakeToolManager::toolTipForRstHelpFile(it.value()));
+        item->setDocumentationFile(it.value());
         item->setIcon(icon);
         list << item;
     }
@@ -229,11 +321,9 @@ static QList<AssistProposalItemInterface *> generateList(
         } else {
             auto item = static_cast<AssistProposalItem *>(hash.value(text));
 
-            QString detail = item->detail();
-            detail.append("\n");
-            detail.append(makeDetail(*it));
-
-            item->setDetail(detail);
+            // What the documentation of the name says comes first, and an
+            // item that a file documents has not read it yet.
+            item->appendDetail(makeDetail(*it));
         }
     }
     return list;
@@ -276,6 +366,245 @@ static int addFilePathItems(const AssistInterface *interface,
     }
 
     return startPos;
+}
+
+// What the documentation of a command says while it is being written: the
+// calls it spells out, with what each argument of them means.
+class CMakeFunctionHintModel final : public IFunctionHintProposalModel
+{
+public:
+    CMakeFunctionHintModel(const QStringList &signatures,
+                           const QList<CMakeLang::ArgumentDoc> &arguments)
+        : m_signatures(signatures)
+        , m_arguments(arguments)
+    {}
+
+    void reset() final {}
+    int size() const final { return m_signatures.size(); }
+    QString text(int index) const final;
+    int activeArgument(const QString &prefix) const final;
+
+private:
+    const CMakeLang::ArgumentDoc *documentationOf(const QString &argument) const;
+
+    QStringList m_signatures;
+    QList<CMakeLang::ArgumentDoc> m_arguments;
+
+    // What the cursor stands in, which the widget asks for before it asks
+    // for the text to show.
+    mutable int m_argument = 0;
+    mutable QString m_keyword;
+};
+
+const CMakeLang::ArgumentDoc *CMakeFunctionHintModel::documentationOf(
+    const QString &argument) const
+{
+    if (argument.isEmpty())
+        return nullptr;
+
+    for (const CMakeLang::ArgumentDoc &candidate : m_arguments) {
+        if (candidate.name == argument || candidate.name == '<' + argument + '>'
+            || keywordOfArgument(candidate.name) == argument) {
+            return &candidate;
+        }
+    }
+    return nullptr;
+}
+
+int CMakeFunctionHintModel::activeArgument(const QString &prefix) const
+{
+    // The call is over once its parenthesis is closed, and so is the hint.
+    int depth = 0;
+    for (const QChar &c : prefix) {
+        if (c == '(')
+            ++depth;
+        else if (c == ')' && depth-- == 0)
+            return -1;
+    }
+
+    const QStringList words = prefix.simplified().split(' ', Qt::SkipEmptyParts);
+
+    // A keyword says what the arguments behind it are for, so it is the one
+    // to explain for as long as it governs them.
+    m_keyword.clear();
+    for (const QString &word : words) {
+        if (documentationOf(word))
+            m_keyword = word;
+    }
+
+    m_argument = int(words.size());
+    if (!prefix.isEmpty() && prefix.back().isSpace())
+        ++m_argument;
+    return m_argument;
+}
+
+// The keyword a call opens with, which is what tells the signatures of a
+// command like file() apart.
+static QString modeOf(const QString &signature)
+{
+    const qsizetype open = signature.indexOf('(');
+    if (open < 0)
+        return {};
+
+    qsizetype end = open + 1;
+    while (end < signature.size()
+           && (signature.at(end).isUpper() || signature.at(end).isDigit()
+               || signature.at(end) == '_')) {
+        ++end;
+    }
+    if (end - open < 3)
+        return {};
+    if (end < signature.size() && !signature.at(end).isSpace() && signature.at(end) != ')')
+        return {};
+    return signature.mid(open + 1, end - open - 1);
+}
+
+// The markup of Markdown, as the rich text the hint is shown as.  What is
+// read back here is what the renderer of the documentation puts out.
+static QString inlineRichText(QStringView text)
+{
+    QString result;
+    for (qsizetype i = 0; i < text.size(); ++i) {
+        const QChar c = text.at(i);
+
+        // A backslash takes the markup off the character behind it.
+        if (c == '\\' && i + 1 < text.size()) {
+            result += QString(text.at(++i)).toHtmlEscaped();
+            continue;
+        }
+
+        if (c == '`') {
+            const qsizetype end = text.indexOf('`', i + 1);
+            if (end > i) {
+                result += "<code>" + text.mid(i + 1, end - i - 1).toString().toHtmlEscaped()
+                          + "</code>";
+                i = end;
+                continue;
+            }
+        }
+
+        if (c == '*') {
+            const bool strong = i + 1 < text.size() && text.at(i + 1) == '*';
+            const QLatin1String marker(strong ? "**" : "*");
+            const qsizetype from = i + marker.size();
+            const qsizetype end = text.indexOf(marker, from);
+            if (end > from) {
+                const QString inner = inlineRichText(text.mid(from, end - from));
+                result += strong ? "<b>" + inner + "</b>" : "<i>" + inner + "</i>";
+                i = end + marker.size() - 1;
+                continue;
+            }
+        }
+
+        result += QString(c).toHtmlEscaped();
+    }
+    return result;
+}
+
+// What the documentation says in a line: the hint has room for the first
+// paragraph of it, and the block of code that opens it is the signature the
+// hint shows already.
+static QString summaryOf(const QString &markdown)
+{
+    QStringList paragraph;
+    bool code = false;
+
+    const QStringList lines = markdown.split('\n');
+    for (const QString &line : lines) {
+        QString text = line.trimmed();
+        if (text.startsWith("```")) {
+            code = !code;
+            continue;
+        }
+        if (code)
+            continue;
+
+        if (text.isEmpty()) {
+            if (!paragraph.isEmpty())
+                break;
+            continue;
+        }
+
+        // The markers of a quote and of a list say how the text is laid
+        // out, not what it says.
+        while (text.startsWith("> "))
+            text = text.mid(2).trimmed();
+        paragraph.append(text);
+    }
+
+    return inlineRichText(paragraph.join(' '));
+}
+
+// The name of an argument, the brackets that say it is optional removed.
+static QString argumentName(const QString &argument)
+{
+    QString name = argument;
+    while (name.startsWith('[') || name.startsWith('{'))
+        name = name.mid(1);
+    while (name.endsWith(']') || name.endsWith('}') || name.endsWith("..."))
+        name.chop(name.endsWith("...") ? 3 : 1);
+    return name;
+}
+
+QString CMakeFunctionHintModel::text(int index) const
+{
+    // Once the call names the mode it is in, that is the one the reader is
+    // writing, whichever of the signatures the hint stands on.
+    QString signature = m_signatures.at(index);
+    if (!m_keyword.isEmpty()) {
+        for (const QString &candidate : m_signatures) {
+            if (modeOf(candidate) == m_keyword) {
+                signature = candidate;
+                break;
+            }
+        }
+    }
+
+    const qsizetype open = signature.indexOf('(');
+    if (open < 0)
+        return signature.toHtmlEscaped();
+
+    // The arguments of a call are separated by whitespace, and the one the
+    // cursor stands in is the one the reader is writing.
+    const QStringList arguments = signature.mid(open + 1, signature.lastIndexOf(')') - open - 1)
+                                      .simplified()
+                                      .split(' ', Qt::SkipEmptyParts);
+
+    QStringList shown;
+    for (int i = 0; i < arguments.size(); ++i) {
+        const QString argument = arguments.at(i).toHtmlEscaped();
+        shown << (i == m_argument - 1 ? "<b>" + argument + "</b>" : argument);
+    }
+    QString result = signature.first(open).toHtmlEscaped() + '(' + shown.join(' ') + ')';
+
+    // What the hint explains is the argument the cursor stands in, and what
+    // the call does while none is being written.
+    QString name = m_keyword;
+    if (name.isEmpty() && m_argument > 0 && m_argument <= arguments.size())
+        name = argumentName(arguments.at(m_argument - 1));
+    if (name.isEmpty())
+        name = modeOf(signature);
+
+    if (const CMakeLang::ArgumentDoc *documentation = documentationOf(name)) {
+        const QString summary = summaryOf(documentation->documentation);
+        if (!summary.isEmpty())
+            result += "<p>" + summary + "</p>";
+    }
+    return result;
+}
+
+// The definition of a function or macro the file being edited spells out.
+static CMakeLang::CommandAST *definitionOf(const CMakeLang::DocumentPtr &document,
+                                           const QString &name)
+{
+    for (CMakeLang::CommandAST *command : document->commands()) {
+        if (!command->isNamed("function") && !command->isNamed("macro"))
+            continue;
+        CMakeLang::ArgumentAST *argument = command->arguments().first();
+        if (argument && CMakeLang::isSameCommand(argument->value(), name))
+            return command;
+    }
+    return nullptr;
 }
 
 static QPair<QStringList, QStringList> getLocalFunctionsAndVariables(
@@ -458,6 +787,34 @@ PerformInputDataPtr CMakeFileCompletionAssist::generatePerformInputData() const
     return data;
 }
 
+// The documentation of the command, wherever it is written: in the Help of
+// CMake, in the module that provides the command, or in the file that is
+// being edited.
+static CMakeLang::Documentation documentationFor(const QString &name,
+                                                 const PerformInputDataPtr &data,
+                                                 const CMakeLang::DocumentPtr &document)
+{
+    // CMake reads the name of a command without regard to its case, and the
+    // name is offered the way it is meant to be written.
+    const QMap<QString, FilePath> *maps[]
+        = {&data->keywords.functions, &data->projectFunctions};
+    for (const QMap<QString, FilePath> *map : maps) {
+        auto file = map->constFind(name);
+        for (auto it = map->cbegin(); file == map->cend() && it != map->cend(); ++it) {
+            if (CMakeLang::isSameCommand(it.key(), name))
+                file = it;
+        }
+        if (file != map->cend() && !file.value().isEmpty())
+            return CMakeToolManager::documentation(name, file.value());
+    }
+
+    for (const CMakeLang::Documentation &documentation : CMakeLang::documentation(document)) {
+        if (documentation.isNamed(name))
+            return documentation;
+    }
+    return {};
+}
+
 IAssistProposal *CMakeFileCompletionAssist::perform()
 {
     IAssistProposal *result = immediateProposal();
@@ -467,6 +824,34 @@ IAssistProposal *CMakeFileCompletionAssist::perform()
         return doPerform(inputData);
     }));
     return result;
+}
+
+// How the command is called, with what the argument that is being written
+// means.
+IAssistProposal *CMakeFileCompletionAssist::functionHint(
+    const QString &functionName,
+    const PerformInputDataPtr &data,
+    const CMakeLang::DocumentPtr &document)
+{
+    if (functionName.isEmpty())
+        return nullptr;
+
+    const CMakeLang::Documentation documentation = documentationFor(functionName, data, document);
+    QStringList signatures = documentation.signatures();
+    if (signatures.isEmpty()) {
+        // A function the project defines and does not document still spells
+        // its parameters out.
+        const QString signature = CMakeLang::definitionSignature(
+            definitionOf(document, functionName));
+        if (!signature.isEmpty())
+            signatures.append(signature);
+    }
+    if (signatures.isEmpty())
+        return nullptr;
+
+    FunctionHintProposalModelPtr model(
+        new CMakeFunctionHintModel(signatures, documentation.arguments()));
+    return new FunctionHintProposal(findArgumentsStart(interface()), model);
 }
 
 IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr &data)
@@ -495,8 +880,16 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
         interface()->textAt(0, prevFunctionEnd + 1));
     auto [localFunctions, localVariables] = getLocalFunctionsAndVariables(document);
 
+    const CMakeLang::Documentation documentation = functionName.isEmpty()
+                                                       ? CMakeLang::Documentation()
+                                                       : documentationFor(functionName, data,
+                                                                          document);
+
     CMakeLang::SignatureTable localSignatures;
     localSignatures.addDocument(document);
+
+    if (m_functionHintOnly)
+        return functionHint(functionName, data, document);
 
     CMakeLang::Signature signature = data->signatures.signature(functionName);
     signature.add(localSignatures.signature(functionName));
@@ -586,11 +979,21 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
 
     const bool knowsArguments = data->keywords.functionArgs.contains(functionName)
                                 || !signature.isEmpty();
+
+    // Right behind the parenthesis that opens a call of a command that takes
+    // no keywords, what the reader is after is how the command is called.
+    // Where it takes keywords, those are what is being written, and the
+    // proposal of one says what it is for.
+    if (!knowsArguments && interface()->characterAt(interface()->position() - 1) == '(') {
+        if (IAssistProposal *hint = functionHint(functionName, data, document))
+            return hint;
+    }
+
     if (knowsArguments && !onlyFileItems()) {
         QStringList functionSymbols = data->keywords.functionArgs.value(functionName);
         functionSymbols += signature.keywords();
         functionSymbols.removeDuplicates();
-        items.append(generateList(functionSymbols, m_argsIcon));
+        items.append(generateList(functionSymbols, m_argsIcon, documentation.arguments()));
     } else if (functionName.isEmpty()) {
         // On a new line we just want functions
         items.append(generateList(data->keywords.functions, m_functionIcon));
@@ -623,6 +1026,27 @@ IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor(const Assis
     return new CMakeFileCompletionAssist;
 }
 
+IAssistProcessor *CMakeFunctionHintAssistProvider::createProcessor(const AssistInterface *) const
+{
+    return new CMakeFileCompletionAssist(/*functionHintOnly=*/true);
+}
+
+int CMakeFunctionHintAssistProvider::activationCharSequenceLength() const
+{
+    return 1;
+}
+
+bool CMakeFunctionHintAssistProvider::isActivationCharSequence(const QString &sequence) const
+{
+    return sequence.endsWith("(");
+}
+
+CompletionAssistProvider &cmakeFunctionHintAssistProvider()
+{
+    static CMakeFunctionHintAssistProvider theProvider;
+    return theProvider;
+}
+
 int CMakeFileCompletionAssistProvider::activationCharSequenceLength() const
 {
     return 4;
@@ -634,4 +1058,85 @@ bool CMakeFileCompletionAssistProvider::isActivationCharSequence(const QString &
            || sequence.endsWith("(") || sequence.endsWith("ENV{");
 }
 
+#ifdef WITH_TESTS
+
+// The documentation is written in Markdown, and the hint is shown as rich
+// text: nothing of the one may reach the reader through the other.
+class CMakeFunctionHintTest final : public QObject
+{
+    Q_OBJECT
+
+    // The way CMake documents a command of many modes.
+    static CMakeFunctionHintModel fileModel()
+    {
+        const QStringList signatures
+            = {"file(READ <filename> <variable> [OFFSET <offset>] [HEX])",
+               "file(WRITE <filename> <content>...)"};
+        const QList<CMakeLang::ArgumentDoc> arguments
+            = {{"READ",
+                "```cmake\nfile(READ <filename> <variable>)\n```\n\nRead content from a file "
+                "called `<filename>` and store it in a `<variable>`."},
+               {"WRITE",
+                "```cmake\nfile(WRITE <filename> <content>...)\n```\n\nWrite `<content>` into "
+                "a file called `<filename>`.\n\nMore that the hint has no room for."},
+               {"OFFSET <offset>", "Start from the given `<offset>`."}};
+        return CMakeFunctionHintModel(signatures, arguments);
+    }
+
+private slots:
+    // What the hint shows before an argument is written is the call it
+    // stands on, and what that call does.
+    void testHintOfTheCall()
+    {
+        const CMakeFunctionHintModel model = fileModel();
+        QCOMPARE(model.activeArgument(""), 0);
+        QCOMPARE(model.text(0),
+                 "file(READ &lt;filename&gt; &lt;variable&gt; [OFFSET &lt;offset&gt;] [HEX])"
+                 "<p>Read content from a file called <code>&lt;filename&gt;</code> and store "
+                 "it in a <code>&lt;variable&gt;</code>.</p>");
+    }
+
+    // Once the call names the mode it is in, that is the signature the
+    // reader is writing.
+    void testHintOfTheMode()
+    {
+        const CMakeFunctionHintModel model = fileModel();
+        QCOMPARE(model.activeArgument("WRITE "), 2);
+        QCOMPARE(model.text(0),
+                 "file(WRITE <b>&lt;filename&gt;</b> &lt;content&gt;...)"
+                 "<p>Write <code>&lt;content&gt;</code> into a file called "
+                 "<code>&lt;filename&gt;</code>.</p>");
+    }
+
+    // A keyword that takes a value is documented with the value behind it.
+    void testHintOfAKeyword()
+    {
+        const CMakeFunctionHintModel model = fileModel();
+        QCOMPARE(model.activeArgument("READ a b OFFSET"), 4);
+        QVERIFY(model.text(0).endsWith("<p>Start from the given <code>&lt;offset&gt;</code>.</p>"));
+    }
+
+    // The hint is over once the call is closed.
+    void testHintEnds() { QCOMPARE(fileModel().activeArgument("READ a b)"), -1); }
+
+    // A command that documents no argument of that name says nothing.
+    void testHintWithoutDocumentation()
+    {
+        const CMakeFunctionHintModel model({"my_helper(<target> <source>)"}, {});
+        QCOMPARE(model.activeArgument(""), 0);
+        QCOMPARE(model.text(0), "my_helper(&lt;target&gt; &lt;source&gt;)");
+    }
+};
+
+QObject *createCMakeFunctionHintTest()
+{
+    return new CMakeFunctionHintTest;
+}
+
+#endif // WITH_TESTS
+
 } // namespace CMakeProjectManager::Internal
+
+#ifdef WITH_TESTS
+#include "cmakefilecompletionassist.moc"
+#endif

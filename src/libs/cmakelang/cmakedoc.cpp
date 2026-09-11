@@ -9,6 +9,7 @@
 #include <rstlang/rstastvisitor.h>
 #include <rstlang/rstmarkdown.h>
 
+#include <QRegularExpression>
 #include <QStringList>
 
 using namespace Qt::Literals::StringLiterals;
@@ -500,6 +501,35 @@ QString definitionName(CommandAST *definition)
 QList<DocComment> CMakeLang::documentationComments(const QString &source)
 {
     return Extractor(source).extract();
+}
+
+// The line a comment declares a command on, such as
+// ".. command:: find_package_handle_standard_args".  A module of CMake
+// is shipped with the line endings of the platform it was unpacked on.
+static QRegularExpression commandDeclaration()
+{
+    QStringList types;
+    for (const DefinitionDirective &directive : definitionDirectives) {
+        if (directive.kind == Documentation::Command)
+            types.append(directive.type);
+    }
+
+    return QRegularExpression(
+        QString(R"(^[ \t]*\.\.[ \t]+(?:%1)::[ \t]*(\S+)[ \t]*\r?$)").arg(types.join('|')),
+        QRegularExpression::MultilineOption);
+}
+
+QStringList CMakeLang::documentedCommands(const QString &source)
+{
+    static const QRegularExpression declaration = commandDeclaration();
+
+    QStringList result;
+    for (const DocComment &comment : documentationComments(source)) {
+        QRegularExpressionMatchIterator commands = declaration.globalMatch(comment.text);
+        while (commands.hasNext())
+            result.append(commands.next().captured(1));
+    }
+    return result;
 }
 
 QList<Documentation> CMakeLang::documentation(const RstLang::DocumentPtr &rst)

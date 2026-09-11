@@ -544,20 +544,6 @@
         "Copyright": "Copyright (c) 2022 Chris Antos"
     },
     {
-        "Id": "vitaut-rstparser",
-        "Name": "RSTParser",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used by CMake support for parsing hover and code completion help.",
-        "Path": "@SOURCE_DIR@/src/plugins/cmakeprojectmanager/3rdparty/rstparser",
-        "Description": "RSTParser is an open-source C++ library for parsing reStructuredText.",
-        "Homepage": "https://github.com/vitaut-archive/rstparser",
-        "PURL": "pkg:github/vitaut-archive/rstparser",
-        "License": "BSD 2-Clause \"Simplified\" License",
-        "LicenseFile": "@SOURCE_DIR@/src/plugins/cmakeprojectmanager/3rdparty/rstparser/LICENSE.txt",
-        "Copyright": "Copyright (c) 2013, Victor Zverovich"
-    },
-    {
         "Id": "qtkeychain",
         "Name": "QtKeychain",
         "QDocModule": "qtcreator",
