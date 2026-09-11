@@ -186,6 +186,12 @@ public:
             }
 
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+            // appman-controller launches the application and asks it for a TCP QML connection.
+            if (rp.isNativeMixedDebugging()) {
+                return runControl->errorTask(
+                    msgCombinedEngineUnsupported("Qt Application Manager"));
+            }
+
             rp.setupPortsGatherer(runControl);
             rp.setStartMode(Debugger::AttachToRemoteServer);
             rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);

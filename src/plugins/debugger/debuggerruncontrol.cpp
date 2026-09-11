@@ -265,9 +265,13 @@ static ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
                 QString("QML channel assigned: %1:%2").arg(qmlChannel.host()).arg(qmlChannel.port()),
                 LogMessageFormat);
             runParameters.setQmlServer(qmlChannel);
+            // The combined engine opens no TCP QML connection, and fixupParameters() asks
+            // the inferior for a native one instead. A blocking TCP argument in addition
+            // would leave the inferior waiting for a connection that never comes.
             if (runParameters.isAddQmlServerInferiorCmdArgIfNeeded()
                 && runParameters.isQmlDebugging()
-                && runParameters.isCppDebugging()) {
+                && runParameters.isCppDebugging()
+                && !runParameters.isNativeMixedDebugging()) {
 
                 const int qmlServerPort = runParameters.qmlServer().port();
                 QTC_ASSERT(qmlServerPort > 0, return false);
@@ -858,7 +862,7 @@ public:
         setId(Constants::DEBUGGER_RUN_FACTORY);
         setRecipeProducer([](RunControl *runControl) {
             const DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
-            if (rp.isQmlDebugging()) {
+            if (rp.needsQmlChannel()) {
                 const IDevice::ConstPtr device = runControl->device();
                 if (device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
                     runControl->requestQmlChannel();
@@ -885,6 +889,13 @@ void setupDebuggerRunWorker()
 QString msgAttachToProcess()
 {
     return Tr::tr("&Attach to Process");
+}
+
+QString msgCombinedEngineUnsupported(const QString &platform)
+{
+    return Tr::tr("%1 does not support debugging C++ and QML with a combined engine. "
+                  "Select \"C++ and QML (separate engines)\" in Projects > Run > "
+                  "Debugger Settings.").arg(platform);
 }
 
 } // Debugger

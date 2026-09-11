@@ -120,6 +120,8 @@ public:
     bool isQmlDebugging() const { return m_isQmlDebugging; }
     void setQmlDebugging(bool on) { m_isQmlDebugging = on; }
 
+    void setNativeMixedEnabled(bool on) { m_nativeMixedEnabled = on; }
+
     void setRemoteChannel(const QString &channel) { m_remoteChannel = channel; }
     QString remoteChannel() const { return m_remoteChannel; }
 
@@ -253,6 +255,7 @@ public:
 
     bool isCppDebugging() const;
     bool isNativeMixedDebugging() const;
+    bool needsQmlChannel() const;
     bool isElfTarget() const;
 
     const Utils::MacroExpander *macroExpander() const { return m_macroExpander; }

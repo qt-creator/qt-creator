@@ -139,10 +139,15 @@ static Result<QString> startDebugExecutable(const QJsonObject &args)
     for (const QJsonValue &v : args.value("arguments").toArray())
         arguments << v.toString();
 
+    const bool qmlDebugging = args.value("qml_debugging").toBool(false);
     const QString remoteChannel = args.value("remote_channel").toString();
-    if (!remoteChannel.isEmpty() && args.value("qml_debugging").toBool(false)) {
+    if (!remoteChannel.isEmpty() && qmlDebugging) {
         return ResultError(QString("\"qml_debugging\" is not supported when attaching to a "
                                    "remote server."));
+    }
+    if (args.value("native_mixed").toBool(false) && !qmlDebugging) {
+        return ResultError(QString("\"native_mixed\" needs \"qml_debugging\" as well: the "
+                                   "combined engine debugs C++ and QML in one session."));
     }
 
     const Utils::Id runMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
@@ -155,9 +160,11 @@ static Result<QString> startDebugExecutable(const QJsonObject &args)
     inferior.workingDirectory = workingDir.isEmpty() ? executable.parentDir()
                                                      : FilePath::fromUserInput(workingDir);
     rp.setInferior(inferior);
-    // Native combined C++/QML debugging additionally needs QML debugging on; with
-    // QTC_DEBUGGER_NATIVE_MIXED set this makes isNativeMixedDebugging() true.
-    rp.setQmlDebugging(args.value("qml_debugging").toBool(false));
+    rp.setQmlDebugging(qmlDebugging);
+    // An external run has no DebuggerRunConfigurationAspect to take the combined
+    // engine from, so it says so itself. QTC_DEBUGGER_NATIVE_MIXED still wins.
+    if (args.contains("native_mixed"))
+        rp.setNativeMixedEnabled(args.value("native_mixed").toBool(false));
     DebuggerRunParameters::setBreakOnMainNextTime(false);
     rp.setBreakOnMain(args.value("break_at_main").toBool(false));
     if (remoteChannel.isEmpty()) {
@@ -1664,9 +1671,17 @@ void registerMcpTools()
                             {"type", "boolean"},
                             {"default", false},
                             {"description",
-                             "Enable QML debugging. With QTC_DEBUGGER_NATIVE_MIXED set this "
-                             "activates native combined C++/QML debugging. Cannot be combined "
-                             "with \"remote_channel\"."}})
+                             "Enable QML debugging. Cannot be combined with "
+                             "\"remote_channel\"."}})
+                    .addProperty(
+                        "native_mixed",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "Debug C++ and QML in one native combined session instead of "
+                             "starting a separate QML engine. Needs \"qml_debugging\" as well. "
+                             "The QTC_DEBUGGER_NATIVE_MIXED environment variable overrides "
+                             "this."}})
                     .addProperty(
                         "remote_channel",
                         QJsonObject{

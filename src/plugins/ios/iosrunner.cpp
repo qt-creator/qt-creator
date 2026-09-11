@@ -833,6 +833,10 @@ static Group debugRecipe(RunControl *runControl)
 
     BarrierKickerGetter kicker;
     if (isIosRunner) {
+        // iostool launches the application and asks it for a TCP QML connection.
+        if (rp.isNativeMixedDebugging())
+            return runControl->errorTask(msgCombinedEngineUnsupported("iOS"));
+
         const DebugInfo debugInfo{rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices,
                                   rp.isCppDebugging()};
         kicker = [runControl, debugInfo](const QStoredBarrier &barrier) {

@@ -54,7 +54,6 @@ public:
     Utils::BoolAspect breakpointsFullPathByDefault{this};
     Utils::BoolAspect resolveBreakpointSymlinks{this};
     Utils::BoolAspect warnOnReleaseBuilds{this};
-    Utils::BoolAspect nativeMixedMode{this};
     Utils::BoolAspect collapseMachineryFrames{this};
     Utils::BoolAspect useGenericDebugger{this};
     Utils::IntegerAspect maximalStackDepth{this};

@@ -166,12 +166,19 @@ public:
     AndroidDebugWorkerFactory()
     {
         setId("AndroidDebugWorkerFactory");
-        setRecipeProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) -> Group {
+            const DebuggerRunParameters rp = debuggerRunParameters(runControl);
+            // androidKicker() launches the application and asks it for a TCP QML connection.
+            if (rp.isNativeMixedDebugging())
+                return runControl->errorTask(msgCombinedEngineUnsupported("Android"));
+
             const auto kicker = [runControl](const QStoredBarrier &barrier) {
                 return androidKicker(barrier, runControl);
             };
-            return When (kicker) >> Do {
-                debuggerRecipe(runControl, debuggerRunParameters(runControl))
+            return Group {
+                When (kicker) >> Do {
+                    debuggerRecipe(runControl, rp)
+                }
             };
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);

@@ -35,7 +35,6 @@ DebuggerSettings::DebuggerSettings() :
     breakpointsFullPathByDefault{commonSettings().breakpointsFullPathByDefault},
     resolveBreakpointSymlinks{commonSettings().resolveBreakpointSymlinks},
     warnOnReleaseBuilds{commonSettings().warnOnReleaseBuilds},
-    nativeMixedMode{commonSettings().nativeMixedMode},
     collapseMachineryFrames{commonSettings().collapseMachineryFrames},
     useGenericDebugger{commonSettings().useGenericDebugger},
     maximalStackDepth{commonSettings().maximalStackDepth},

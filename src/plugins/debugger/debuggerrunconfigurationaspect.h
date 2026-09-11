@@ -7,7 +7,11 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+#include <optional>
+
 namespace Debugger {
+
+enum class LanguageSelection;
 
 class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
     : public ProjectExplorer::GlobalOrProjectAspect
@@ -23,6 +27,7 @@ public:
     bool useQmlDebugger() const;
     bool usePythonDebugger() const;
     void setUseQmlDebugger(bool value);
+    bool useCombinedEngine() const;
     bool useMultiProcess() const;
     void setUseMultiProcess(bool on);
     QString overrideStartup() const;
@@ -32,6 +37,7 @@ public:
         bool useCppDebugger = false;
         bool useQmlDebugger = false;
         bool usePythonDebugger = false;
+        bool useCombinedEngine = false;
         bool useMultiProcess = false;
         QString overrideStartup;
 
@@ -47,7 +53,7 @@ public:
             return BaseAspect::Data::Ptr(d);
         }
 
-        static BaseAspect::Data::Ptr createCombinedTestData()
+        static BaseAspect::Data::Ptr createCppAndQmlTestData()
         {
             auto *d = new Data;
             d->m_classId = &DebuggerRunConfigurationAspect::staticMetaObject;
@@ -62,11 +68,21 @@ public:
     };
 
 private:
-    Utils::TriStateAspect m_cppAspect;
-    Utils::TriStateAspect m_qmlAspect;
-    Utils::TriStateAspect m_pythonAspect;
+    struct LegacyLanguages
+    {
+        Utils::TriState cpp;
+        Utils::TriState qml;
+        Utils::TriState python;
+    };
+
+    LanguageSelection languages() const;
+    LanguageSelection legacyLanguages() const;
+    void setLanguages(LanguageSelection languages);
+
+    Utils::SelectionAspect m_languagesAspect;
     Utils::BoolAspect m_multiProcessAspect;
     Utils::StringAspect m_overrideStartupAspect;
+    std::optional<LegacyLanguages> m_legacyLanguages;
     ProjectExplorer::BuildConfiguration * const m_buildConfiguration;
 };
 

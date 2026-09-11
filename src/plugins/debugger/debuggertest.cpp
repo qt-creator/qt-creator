@@ -17,6 +17,7 @@
 #include "breakhandler.h"
 #include "genericdebuggerengine.h"
 #include "debuggeritem.h"
+#include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
 #include "debuggersourcepathmappingwidget.h"
 #include "enginemanager.h"
@@ -32,19 +33,23 @@
 
 #include <cppeditor/cpptoolstestcase.h>
 
-#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runcontrol.h>
 
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/store.h>
 
 #include <QTest>
 #include <QVersionNumber>
@@ -127,6 +132,10 @@ private slots:
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
+    void testUnresolvedLegacyLanguagesSurviveASave();
+    void testLegacyQmlAndPythonKeepsBothLanguages();
+    void testNativeMixedEnvironmentVariableWins();
+    void testCombinedEngineNeedsNoQmlChannel();
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
 
@@ -1855,6 +1864,110 @@ void DebuggerUnitTests::testTerminateMessage()
 
     QVERIFY(!isTerminateMessage(u"Application exited with exit code 1"));
     QVERIFY(!isTerminateMessage(u""));
+}
+
+void DebuggerUnitTests::testUnresolvedLegacyLanguagesSurviveASave()
+{
+    const FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    QVERIFY(projectManager.open(proFile));
+    QCOMPARE(projectManager.projects().size(), 1);
+    BuildConfiguration * const bc = projectManager.projects().first()->activeBuildConfiguration();
+    QVERIFY(bc);
+
+    // "C++: Automatic, QML: Enabled", as Qt Creator 18 and earlier wrote it.
+    Store legacy;
+    legacy.insert("RunConfiguration.UseQmlDebugger", TriState::Enabled.toVariant());
+    legacy.insert("RunConfiguration.UseCppDebuggerAuto", true);
+
+    DebuggerRunConfigurationAspect aspect(bc);
+    aspect.fromMap(legacy);
+
+    Store saved;
+    aspect.toMap(saved);
+
+    // Nothing has picked a combo box item yet, so saving must leave the settings alone. Writing
+    // out what they currently amount to would turn the automatic C++ choice into an explicit
+    // one, and there is no way back from that on the next load.
+    QCOMPARE(TriState::fromVariant(saved.value("RunConfiguration.UseCppDebugger")),
+             TriState::Default);
+    QCOMPARE(saved.value("RunConfiguration.UseCppDebuggerAuto").toBool(), true);
+    QCOMPARE(TriState::fromVariant(saved.value("RunConfiguration.UseQmlDebugger")),
+             TriState::Enabled);
+    QVERIFY(!saved.contains("RunConfiguration.DebuggerLanguages"));
+}
+
+void DebuggerUnitTests::testLegacyQmlAndPythonKeepsBothLanguages()
+{
+    const FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    QVERIFY(projectManager.open(proFile));
+    QCOMPARE(projectManager.projects().size(), 1);
+    BuildConfiguration * const bc = projectManager.projects().first()->activeBuildConfiguration();
+    QVERIFY(bc);
+
+    Store legacy;
+    legacy.insert("RunConfiguration.UseQmlDebugger", TriState::Enabled.toVariant());
+    legacy.insert("RunConfiguration.UsePythonDebugger", TriState::Enabled.toVariant());
+
+    DebuggerRunConfigurationAspect aspect(bc);
+    aspect.fromMap(legacy);
+
+    QVERIFY(aspect.useQmlDebugger());
+    QVERIFY(aspect.usePythonDebugger());
+}
+
+void DebuggerUnitTests::testNativeMixedEnvironmentVariableWins()
+{
+    const auto setOverride = [](const QString &value, EnvironmentItem::Operation operation) {
+        Environment::modifySystemEnvironment(
+            {EnvironmentItem("QTC_DEBUGGER_NATIVE_MIXED", value, operation)});
+    };
+
+    const bool wasSet = qtcEnvironmentVariableIsSet("QTC_DEBUGGER_NATIVE_MIXED");
+    const QString oldValue = qtcEnvironmentVariable("QTC_DEBUGGER_NATIVE_MIXED");
+    const QScopeGuard restore([&] {
+        setOverride(oldValue, wasSet ? EnvironmentItem::SetEnabled : EnvironmentItem::Unset);
+    });
+    setOverride({}, EnvironmentItem::Unset);
+
+    DebuggerRunParameters rp;
+    rp.setCppEngineType(GdbEngineType);
+    rp.setQmlDebugging(true);
+
+    rp.setNativeMixedEnabled(true);
+    QVERIFY(rp.isNativeMixedDebugging());
+    rp.setNativeMixedEnabled(false);
+    QVERIFY(!rp.isNativeMixedDebugging());
+
+    setOverride("1", EnvironmentItem::SetEnabled);
+    rp.setNativeMixedEnabled(false);
+    QVERIFY(rp.isNativeMixedDebugging());
+
+    setOverride("0", EnvironmentItem::SetEnabled);
+    rp.setNativeMixedEnabled(true);
+    QVERIFY(!rp.isNativeMixedDebugging());
+
+    setOverride({}, EnvironmentItem::Unset);
+    rp.setNativeMixedEnabled(true);
+    QVERIFY(rp.isNativeMixedDebugging());
+}
+
+void DebuggerUnitTests::testCombinedEngineNeedsNoQmlChannel()
+{
+    const auto usesQmlChannel = [](bool nativeMixed) {
+        DebuggerRunParameters rp;
+        rp.setCppEngineType(GdbEngineType);
+        rp.setQmlDebugging(true);
+        rp.setNativeMixedEnabled(nativeMixed);
+        RunControl runControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        rp.setupPortsGatherer(&runControl);
+        QTC_CHECK(runControl.usesDebugChannel());
+        return runControl.usesQmlChannel();
+    };
+
+    QVERIFY(usesQmlChannel(false));
+    QVERIFY(!usesQmlChannel(true));
 }
 
 QObject *createDebuggerTest()
