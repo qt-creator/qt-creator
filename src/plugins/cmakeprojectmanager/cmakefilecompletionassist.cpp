@@ -69,7 +69,8 @@ private:
     IAssistProposal *doPerform(const PerformInputDataPtr &data);
     IAssistProposal *functionHint(const QString &functionName,
                                   const PerformInputDataPtr &data,
-                                  const CMakeLang::DocumentPtr &document);
+                                  const CMakeLang::DocumentPtr &document,
+                                  const CMakeLang::SignatureTable &local);
     PerformInputDataPtr generatePerformInputData() const;
 
     // Whoever asks for the signature of a call is asking for that alone.
@@ -815,6 +816,31 @@ static CMakeLang::Documentation documentationFor(const QString &name,
     return {};
 }
 
+// What the arguments of a command mean.  A command that hands its arguments
+// on to another says nothing about them itself: what that one says about
+// them is what they mean, which is how extend_qtc_plugin() takes the
+// arguments of extend_qtc_target().  It may hand them on to more than one,
+// and may document some of them itself, so each of them has its say.
+static QList<CMakeLang::ArgumentDoc> argumentsOf(const CMakeLang::Documentation &documentation,
+                                                 const PerformInputDataPtr &data,
+                                                 const CMakeLang::DocumentPtr &document,
+                                                 const CMakeLang::SignatureTable &local)
+{
+    QList<CMakeLang::ArgumentDoc> arguments = documentation.arguments();
+    if (documentation.name.isEmpty())
+        return arguments;
+
+    QStringList forwarded = data->signatures.forwardsTo(documentation.name);
+    forwarded += local.forwardsTo(documentation.name);
+    forwarded.removeDuplicates();
+
+    for (const QString &command : forwarded) {
+        arguments = CMakeLang::mergedArguments(
+            arguments, documentationFor(command, data, document).arguments());
+    }
+    return arguments;
+}
+
 IAssistProposal *CMakeFileCompletionAssist::perform()
 {
     IAssistProposal *result = immediateProposal();
@@ -831,7 +857,8 @@ IAssistProposal *CMakeFileCompletionAssist::perform()
 IAssistProposal *CMakeFileCompletionAssist::functionHint(
     const QString &functionName,
     const PerformInputDataPtr &data,
-    const CMakeLang::DocumentPtr &document)
+    const CMakeLang::DocumentPtr &document,
+    const CMakeLang::SignatureTable &local)
 {
     if (functionName.isEmpty())
         return nullptr;
@@ -850,7 +877,7 @@ IAssistProposal *CMakeFileCompletionAssist::functionHint(
         return nullptr;
 
     FunctionHintProposalModelPtr model(
-        new CMakeFunctionHintModel(signatures, documentation.arguments()));
+        new CMakeFunctionHintModel(signatures, argumentsOf(documentation, data, document, local)));
     return new FunctionHintProposal(findArgumentsStart(interface()), model);
 }
 
@@ -889,7 +916,7 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
     localSignatures.addDocument(document);
 
     if (m_functionHintOnly)
-        return functionHint(functionName, data, document);
+        return functionHint(functionName, data, document, localSignatures);
 
     CMakeLang::Signature signature = data->signatures.signature(functionName);
     signature.add(localSignatures.signature(functionName));
@@ -985,7 +1012,7 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
     // Where it takes keywords, those are what is being written, and the
     // proposal of one says what it is for.
     if (!knowsArguments && interface()->characterAt(interface()->position() - 1) == '(') {
-        if (IAssistProposal *hint = functionHint(functionName, data, document))
+        if (IAssistProposal *hint = functionHint(functionName, data, document, localSignatures))
             return hint;
     }
 
@@ -993,7 +1020,9 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
         QStringList functionSymbols = data->keywords.functionArgs.value(functionName);
         functionSymbols += signature.keywords();
         functionSymbols.removeDuplicates();
-        items.append(generateList(functionSymbols, m_argsIcon, documentation.arguments()));
+        items.append(generateList(functionSymbols,
+                                  m_argsIcon,
+                                  argumentsOf(documentation, data, document, localSignatures)));
     } else if (functionName.isEmpty()) {
         // On a new line we just want functions
         items.append(generateList(data->keywords.functions, m_functionIcon));

@@ -207,6 +207,7 @@ private slots:
     void signatures();
     void signatureKeywords();
     void signaturesNeedTheSource();
+    void signaturesForwarded();
     void argumentGroups_data();
     void argumentGroups();
     void rewriterReplacesValues();
@@ -234,6 +235,7 @@ private slots:
     void documentationIgnoresCase();
     void documentationTellsExamplesApart();
     void documentationOfSeveralArguments();
+    void argumentsOfSeveralCommands();
 };
 
 void tst_CMakeLang::lexer_data()
@@ -786,6 +788,48 @@ static QString groupsOf(const QString &definition, const QString &call)
         dumped << '(' + parts.join(u' ') + ')';
     }
     return dumped.join(u' ');
+}
+
+// A command that hands its arguments on takes what the command it hands them
+// to says about them, so whoever reads the documentation has to be told where
+// they went.
+void tst_CMakeLang::signaturesForwarded()
+{
+    const QString source = R"(function(inner)
+  cmake_parse_arguments(_arg "OPTION" "" "SOURCES" ${ARGN})
+endfunction()
+
+function(middle target)
+  inner(${ARGN})
+endfunction()
+
+function(outer target)
+  middle(${ARGN})
+endfunction()
+
+function(alone target)
+  cmake_parse_arguments(_arg "" "" "FILES" ${ARGN})
+endfunction()
+)";
+
+    SignatureTable signatures;
+    signatures.addDocument(Document::fromSource(source));
+
+    // The keywords of the command at the end of the chain are the keywords
+    // of every command along it.
+    QCOMPARE(signatures.signature("outer").keywords(), QStringList({"OPTION", "SOURCES"}));
+
+    // Where they went, in the order they were handed on.
+    QCOMPARE(signatures.forwardsTo("outer"), QStringList({"middle", "inner"}));
+    QCOMPARE(signatures.forwardsTo("middle"), QStringList("inner"));
+    QCOMPARE(signatures.forwardsTo("inner"), QStringList());
+    QCOMPARE(signatures.forwardsTo("alone"), QStringList());
+
+    // A command the documents do not define hands nothing on.
+    QCOMPARE(signatures.forwardsTo("nowhere"), QStringList());
+
+    // A name is read the way CMake reads it.
+    QCOMPARE(signatures.forwardsTo("OUTER"), QStringList({"middle", "inner"}));
 }
 
 void tst_CMakeLang::argumentGroups_data()
@@ -2195,6 +2239,69 @@ endfunction()
     // What is said of the term is said of each argument it names.
     QCOMPARE(text.value("PERMISSIONS"), "What the copy may be used for.");
     QCOMPARE(text.value("FILE_PERMISSIONS"), text.value("PERMISSIONS"));
+}
+
+// A command that hands its arguments on to more than one takes what each of
+// them says about them, and what it says of them itself comes first.
+void tst_CMakeLang::argumentsOfSeveralCommands()
+{
+    const QString source = R"(#[[.rst:
+.. command:: extend_plugin
+
+  ``PLUGIN_DEPENDS``
+    The plugins it needs.
+#]]
+function(extend_plugin)
+endfunction()
+
+#[[.rst:
+.. command:: extend_target
+
+  ``SOURCES``
+    The files to build.
+
+  ``PLUGIN_DEPENDS``
+    Said again, by the command the arguments were handed to.
+#]]
+function(extend_target)
+endfunction()
+
+#[[.rst:
+.. command:: add_library
+
+  ``DEFINES``
+    What to build them with.
+#]]
+function(add_library)
+endfunction()
+)";
+
+    const QList<Documentation> documentation = CMakeLang::documentation(
+        Document::fromSource(source));
+    QCOMPARE(documentation.size(), 3);
+
+    QHash<QString, QList<ArgumentDoc>> arguments;
+    for (const Documentation &one : documentation)
+        arguments.insert(one.name, one.arguments());
+
+    // Every command along the chain says what it takes, and none of them is
+    // dropped for another having spoken.
+    QList<ArgumentDoc> merged = arguments.value("extend_plugin");
+    merged = mergedArguments(merged, arguments.value("extend_target"));
+    merged = mergedArguments(merged, arguments.value("add_library"));
+
+    QStringList names;
+    for (const ArgumentDoc &argument : std::as_const(merged))
+        names.append(argument.name);
+    QCOMPARE(names, QStringList({"PLUGIN_DEPENDS", "SOURCES", "DEFINES"}));
+
+    // What was said first about an argument is what it means.
+    QCOMPARE(merged.at(0).documentation, "The plugins it needs.");
+
+    // Nothing to add leaves them as they were, and added to nothing they are
+    // all of them.
+    QCOMPARE(mergedArguments(merged, {}), merged);
+    QCOMPARE(mergedArguments({}, merged), merged);
 }
 
 QTEST_GUILESS_MAIN(tst_CMakeLang)

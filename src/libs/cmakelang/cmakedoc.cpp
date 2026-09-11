@@ -733,3 +733,20 @@ QList<ArgumentDoc> Documentation::arguments() const
         arguments.accept(node);
     return arguments.result;
 }
+
+QList<ArgumentDoc> CMakeLang::mergedArguments(const QList<ArgumentDoc> &arguments,
+                                              const QList<ArgumentDoc> &other)
+{
+    QStringList named;
+    for (const ArgumentDoc &argument : arguments)
+        named.append(argument.name);
+
+    QList<ArgumentDoc> result = arguments;
+    for (const ArgumentDoc &argument : other) {
+        if (named.contains(argument.name))
+            continue;
+        named.append(argument.name);
+        result.append(argument);
+    }
+    return result;
+}

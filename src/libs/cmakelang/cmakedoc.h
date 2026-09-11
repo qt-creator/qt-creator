@@ -24,7 +24,19 @@ class CMAKELANG_EXPORT ArgumentDoc
 public:
     QString name;
     QString documentation;
+
+private:
+    friend bool operator==(const ArgumentDoc &, const ArgumentDoc &) = default;
 };
+
+// What more than one document says about the arguments of one command.  A
+// command that hands its arguments on takes what every command it hands
+// them to says about them, and may document some of them itself, so several
+// documents have a say.  They merge the way Signature::add() merges the
+// keywords of a command: whatever is said first about an argument is what
+// it means, and the rest is what the command takes besides.
+CMAKELANG_EXPORT QList<ArgumentDoc> mergedArguments(const QList<ArgumentDoc> &arguments,
+                                                    const QList<ArgumentDoc> &other);
 
 // What the documentation of one name says.  CMake writes the documentation
 // of its modules into the modules themselves, in a comment that opens with

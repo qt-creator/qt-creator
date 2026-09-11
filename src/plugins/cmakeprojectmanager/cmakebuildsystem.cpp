@@ -3050,10 +3050,13 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
         const QString name = argument->value();
         m_cmakeSymbolsHash.insert(name, linkTo(cmakeFile, argument));
 
-        if (command->isNamed("option"))
+        if (command->isNamed("option")) {
             m_projectKeywords.variables[name] = FilePath();
-        else
-            m_projectKeywords.functions[name] = FilePath();
+        } else {
+            // What the project says about the function stands in the file
+            // that defines it.
+            m_projectKeywords.functions[name] = cmakeFile.path;
+        }
     };
 
     m_projectImportedTargets.clear();

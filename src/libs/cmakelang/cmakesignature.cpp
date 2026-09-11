@@ -257,6 +257,33 @@ Signature SignatureTable::signature(const QString &commandName) const
     return resolve(commandName.toLower(), visited);
 }
 
+QStringList SignatureTable::forwardsTo(const QString &commandName) const
+{
+    QSet<QString> visited;
+    QStringList result;
+    collectForwarded(commandName.toLower(), visited, &result);
+    return result;
+}
+
+void SignatureTable::collectForwarded(const QString &name, QSet<QString> &visited,
+                                      QStringList *result) const
+{
+    if (visited.contains(name))
+        return;
+    visited.insert(name);
+
+    const auto it = _definitions.constFind(name);
+    if (it == _definitions.constEnd())
+        return;
+
+    for (const QString &forwarded : it->forwardsTo) {
+        if (visited.contains(forwarded))
+            continue;
+        result->append(forwarded);
+        collectForwarded(forwarded, visited, result);
+    }
+}
+
 Signature SignatureTable::resolve(const QString &name, QSet<QString> &visited) const
 {
     if (visited.contains(name))

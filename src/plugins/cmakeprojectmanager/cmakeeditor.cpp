@@ -541,9 +541,24 @@ void CMakeHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
     }
 
     // A function the file being edited defines documents itself in a
-    // ".rst:" comment of its own, the way the modules of CMake do.
+    // ".rst:" comment of its own, the way the modules of CMake do.  What
+    // the file says now beats what it said when it was last written.
     if (m_helpToolTip.isEmpty())
         m_helpToolTip = localDocumentation(editorWidget->document()->toPlainText(), word);
+
+    // A function the project defines elsewhere is documented in the file
+    // that defines it, which the build system knows.
+    if (m_helpToolTip.isEmpty()) {
+        if (auto bs = qobject_cast<CMakeBuildSystem *>(activeBuildSystemForCurrentProject())) {
+            const QMap<QString, FilePath> functions = bs->projectKeywords().functions;
+            for (auto it = functions.cbegin(); it != functions.cend(); ++it) {
+                if (it.value().isEmpty() || !CMakeLang::isSameCommand(it.key(), word))
+                    continue;
+                m_helpToolTip = CMakeToolManager::documentation(it.key(), it.value()).markdown();
+                break;
+            }
+        }
+    }
 
     m_contextHelp = QVariant::fromValue(
         HelpItem({QString("%1/%2").arg(helpCategory, helpName), helpName},

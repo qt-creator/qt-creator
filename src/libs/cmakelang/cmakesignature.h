@@ -65,6 +65,11 @@ public:
     // keywords are not spelled out in the source.
     Signature signature(const QString &commandName) const;
 
+    // The commands a command hands its arguments on to, the ones those hand
+    // them on to in turn included.  Whatever is said about the arguments of
+    // one of them is said about the arguments of this command.
+    QStringList forwardsTo(const QString &commandName) const;
+
 private:
     class Definition
     {
@@ -74,6 +79,8 @@ private:
     };
 
     Signature resolve(const QString &name, QSet<QString> &visited) const;
+    void collectForwarded(const QString &name, QSet<QString> &visited,
+                          QStringList *result) const;
 
     QHash<QString, Definition> _definitions;
 };
