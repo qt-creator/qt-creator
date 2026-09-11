@@ -15,6 +15,7 @@
 #include <utils/algorithm.h>
 
 #include <QDir>
+#include <QRegularExpression>
 #include <QSet>
 #include <QFileInfo>
 #include <QElapsedTimer>
@@ -236,6 +237,7 @@ private slots:
     void documentationTellsExamplesApart();
     void documentationOfSeveralArguments();
     void argumentsOfSeveralCommands();
+    void documentationOfTheQtCreatorAPI();
 };
 
 void tst_CMakeLang::lexer_data()
@@ -2325,6 +2327,87 @@ endfunction()
     // all of them.
     QCOMPARE(mergedArguments(merged, {}), merged);
     QCOMPARE(mergedArguments({}, merged), merged);
+}
+
+// The CMake API of Qt Creator, which documents the commands it defines the
+// way CMake documents the ones its modules define.  What a command takes and
+// what it says it takes have to agree: a keyword that is documented but not
+// declared is offered by the editor and does nothing, and one that is
+// declared but not documented is kept a secret.
+void tst_CMakeLang::documentationOfTheQtCreatorAPI()
+{
+    const QStringList paths = {SRCDIR "/../../../cmake/QtCreatorAPI.cmake",
+                               SRCDIR "/../../../cmake/QtCreatorAPIInternal.cmake"};
+
+    SignatureTable signatures;
+    QList<Documentation> documented;
+
+    for (const QString &path : paths) {
+        QFile file(path);
+        QVERIFY2(file.open(QIODevice::ReadOnly), qPrintable(path));
+
+        const DocumentPtr document = Document::fromSource(QString::fromUtf8(file.readAll()));
+        QVERIFY2(document->isValid(), qPrintable(path));
+
+        signatures.addDocument(document);
+        documented += CMakeLang::documentation(document);
+    }
+
+    QVERIFY(!documented.isEmpty());
+
+    // A keyword of a command is written in upper case, which tells a term
+    // that names one from a term that names a positional argument or reads
+    // as prose.
+    static const QRegularExpression keyword("^[A-Z][A-Z0-9_]+$");
+
+    QStringList problems;
+    int checked = 0;
+
+    for (const Documentation &documentation : documented) {
+        if (documentation.kind != Documentation::Command)
+            continue;
+
+        // A command that takes positional arguments alone declares no
+        // keywords, and then documents none either.
+        const Signature signature = signatures.signature(documentation.name);
+
+        // A term names the keyword and the values behind it, as in
+        // "DESTINATION <path>".
+        QSet<QString> described;
+        for (const ArgumentDoc &argument : documentation.arguments()) {
+            const QString name = argument.name.section(u' ', 0, 0);
+            if (keyword.match(name).hasMatch())
+                described.insert(name);
+        }
+
+        // The keywords a command hands on to another are documented where
+        // that other command documents them.
+        QSet<QString> inherited;
+        for (const QString &forwarded : signatures.forwardsTo(documentation.name))
+            inherited += Utils::toSet(signatures.signature(forwarded).keywords());
+
+        const QSet<QString> declared = Utils::toSet(signature.keywords()) - inherited;
+
+        const QStringList undeclared = Utils::sorted(Utils::toList(described - declared));
+        if (!undeclared.isEmpty()) {
+            problems.append(documentation.name + " documents " + undeclared.join(", ")
+                            + ", which it does not take");
+        }
+
+        const QStringList undocumented = Utils::sorted(Utils::toList(declared - described));
+        if (!undocumented.isEmpty()) {
+            problems.append(documentation.name + " takes " + undocumented.join(", ")
+                            + ", which it does not document");
+        }
+
+        ++checked;
+    }
+
+    QVERIFY2(problems.isEmpty(), qPrintable(problems.join(QLatin1Char(10))));
+
+    // A command that stops being recognised as one would leave the check
+    // silently, so the number of them read is part of what is asserted.
+    QCOMPARE(checked, 15);
 }
 
 QTEST_GUILESS_MAIN(tst_CMakeLang)
