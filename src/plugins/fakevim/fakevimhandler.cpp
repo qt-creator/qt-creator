@@ -457,6 +457,14 @@ struct SearchData
     bool highlightMatches = true;
 };
 
+// One link of a ";" chained search: "/foo/e;?bar" reads as two of them.
+struct SearchLink
+{
+    QChar prompt;
+    QString needle;
+    QString offset;
+};
+
 static QString replaceTildeWithHome(QString str)
 {
 #ifdef FAKEVIM_STANDALONE
@@ -577,7 +585,7 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle,
     int classNewline = -1; // where a "\_[" class starts, so it can take one too
     // Where the pattern starts out, which a "\v"/"\m"/"\M"/"\V" in it still
     // overrides below - so ":snomagic /\ma.b/" is magic after all (measured).
-    MagicLevel magic = forceMagic.value_or(Magic);
+    MagicLevel magic = forceMagic.value_or(settings().magic() ? Magic : NoMagic);
     bool percent = false; // saw "%" in very magic, waiting for the "("
     // "\%d123" and its kin name a character by its number.
     int numberBase = 0; // which base is being read, 0 for none
@@ -846,9 +854,8 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle,
                 pattern.append(c);
             }
         } else if (QString("(){}+|?").indexOf(c) != -1) {
-            // Magic wants a backslash on these to make them mean something,
-            // very magic wants one to take them literally, and the nomagic
-            // levels never give them a meaning.
+            // Only very magic gives these a meaning of their own, every other
+            // level wants a backslash on them to mean anything.
             bool special;
             if (magic == VeryMagic) {
                 special = !escape;
@@ -856,7 +863,7 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle,
                     curly = special;
                 else if (c == '}' && curly)
                     curly = false;
-            } else if (magic == Magic) {
+            } else {
                 if (c == '{') {
                     curly = escape;
                 } else if (c == '}' && curly) {
@@ -864,8 +871,6 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle,
                     escape = true;
                 }
                 special = escape;
-            } else {
-                special = false;
             }
             escape = false;
             // A multi Vim writes as "{-n,m}" wants as few as will do, which QRegularExpression
@@ -969,6 +974,14 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle,
                 pattern.append("?");
             else if (c == 'z')
                 zmark = true;
+            // What the magic levels write without a backslash: below them the
+            // backslash is what gives these their meaning.
+            else if (magic >= NoMagic && (c == '.' || c == '*'))
+                pattern.append(c);
+            else if (magic >= NoMagic && c == '[')
+                brace = true;
+            else if (magic == VeryNoMagic && (c == '^' || c == '$'))
+                pattern.append(c);
             else if (c == 'v')
                 magic = VeryMagic;
             else if (c == 'm')
@@ -1004,12 +1017,14 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle,
                 pattern.append("\\b");
             else if (magic == VeryMagic && c == '=')
                 pattern.append('?');
-            else if (c == '[' && magic != VeryNoMagic)
+            else if (c == '[' && magic <= Magic)
                 brace = true;
             else if (c.isLetter() && ignorecase)
                 pattern.append('[').append(c.toLower()).append(c.toUpper()).append(']');
             else if (magic >= NoMagic && QString(".*[]~").indexOf(c) != -1)
                 pattern.append('\\').append(c); // no meaning at these levels
+            else if (magic == VeryNoMagic && (c == '^' || c == '$'))
+                pattern.append('\\').append(c);
             else
                 pattern.append(c);
             if (pattern.size() > atomStart)
@@ -3024,7 +3039,7 @@ public:
     void clearCurrentMode();
 
     QTextCursor search(const SearchData &sd, int startPos, int count, bool showMessages);
-    void search(const SearchData &sd, bool showMessages = true);
+    bool search(const SearchData &sd, bool showMessages = true);
     bool searchNext(bool forward = true);
     void searchBalanced(bool forward, QChar needle, QChar other);
     int searchBalancedPosition(int from, bool forward, QChar needle, QChar other,
@@ -3176,6 +3191,7 @@ public:
     void moveToNonBlankOnLine(QTextCursor *tc);
     void moveToTargetColumn();
     void setTargetColumn();
+    void swapVisualBlockColumns();
     bool moveToMatchingParanthesis();
     int insertStartLimit(int from) const;
     int insertStartPosition() const;
@@ -3895,6 +3911,13 @@ public:
     bool handleExSourceCommand(const ExCommand &cmd);
     bool handleExImportCommand(const ExCommand &cmd);
     bool handleExSubstituteCommand(const ExCommand &cmd);
+    EventResult handleSubstituteConfirm(const Input &input);
+    bool nextSubstituteConfirmMatch();
+    void askSubstituteConfirm();
+    void skipSubstituteConfirmMatch();
+    void substituteConfirmedMatch();
+    void finishSubstituteConfirm();
+    void showSubstituteReport(int substitutions, int lines, bool countOnly);
     bool handleExTabNextCommand(const ExCommand &cmd);
     bool handleExTabPreviousCommand(const ExCommand &cmd);
     bool handleExTagCommand(const ExCommand &cmd);
@@ -4161,6 +4184,26 @@ struct PendingChange
     int added = 0;  // lines gained, negative when lines went
 };
 
+// Where a ":s" with the "c" flag stands: it asks about every match, so it
+// cannot run to completion in one go and has to carry its scan along.
+struct SubstituteConfirm
+{
+    bool active = false;
+    QRegularExpression pattern;
+    QString replacement;
+    PatternPosition wanted;
+    bool global = false;
+    bool quiet = false;
+    bool all = false;           // An "a" answers all that are left.
+    int line = 0;               // Where the scan stands, as a block number.
+    int column = 0;
+    int lastLine = 0;           // Last line of the range, as a block number.
+    int matches = 0;
+    int substitutions = 0;
+    int lines = 0;
+    int lastSubstituted = -1;   // Block number, or -1 for none yet.
+};
+
     static struct GlobalData
     {
         GlobalData()
@@ -4205,6 +4248,9 @@ struct PendingChange
         // Whether a blockwise yank leaves out the trailing whitespace of each
         // of its lines, which is what "zy" asks for.
         bool trimYank = false;
+        // Whether a count was typed after "z", which only "z<CR>" (the window
+        // height) and "zl"/"zh" (sideways scrolling) have a use for.
+        bool zCounted = false;
 
         // Extra data for ';'.
         Input semicolonType;  // 'f', 'F', 't', 'T'
@@ -4274,6 +4320,7 @@ struct PendingChange
         QString lastSubstituteFlags;
         QString lastSubstitutePattern;
         QString lastSubstituteReplacement;
+        SubstituteConfirm substituteConfirm;
 
         // Global marks.
         Marks marks;
@@ -5189,6 +5236,8 @@ EventResult FakeVimHandler::Private::handleKeyForMode(const Input &input)
 
     if (input == Nop)
         return EventHandled;
+    else if (g.substituteConfirm.active)
+        return handleSubstituteConfirm(input);
     else if (g.subsubmode == SearchSubSubMode)
         return handleSearchSubSubMode(input);
     else if (g.mode == CommandMode)
@@ -5415,6 +5464,33 @@ static void splitSearchOffset(QChar prompt, QString *needle, QString *offset)
     }
 }
 
+// A ";" behind the offset chains a second search onto the first: "/foo/;/bar"
+// finds "foo" and searches on for "bar" from there, with its own direction and
+// its own offset.
+static QList<SearchLink> splitSearchChain(QChar prompt, const QString &contents)
+{
+    QList<SearchLink> chain;
+    QChar dir = prompt;
+    QString rest = contents;
+    while (true) {
+        SearchLink link;
+        link.prompt = dir;
+        link.needle = rest;
+        splitSearchOffset(dir, &link.needle, &link.offset);
+        const int semicolon = link.offset.indexOf(';');
+        const QChar next = semicolon < 0 || semicolon + 1 >= link.offset.size()
+                               ? QChar() : link.offset.at(semicolon + 1);
+        if (next != '/' && next != '?') {
+            chain.append(link);
+            return chain;
+        }
+        rest = link.offset.mid(semicolon + 2);
+        link.offset.truncate(semicolon);
+        chain.append(link);
+        dir = next;
+    }
+}
+
 void FakeVimHandler::Private::updateFind(bool isComplete)
 {
     if (!isComplete && !s.incSearch())
@@ -5422,19 +5498,41 @@ void FakeVimHandler::Private::updateFind(bool isComplete)
 
     g.currentMessage.clear();
 
-    QString needle = g.searchBuffer.contents();
-    splitSearchOffset(g.searchBuffer.prompt(), &needle, &g.lastSearchOffset);
+    const QList<SearchLink> chain = splitSearchChain(g.searchBuffer.prompt(),
+                                                     g.searchBuffer.contents());
     if (isComplete) {
         setPosition(m_searchStartPosition);
-        if (!needle.isEmpty())
+        if (!chain.constFirst().needle.isEmpty())
             recordJump();
     }
 
-    SearchData sd;
-    sd.needle = needle;
-    sd.forward = g.lastSearchForward;
-    sd.highlightMatches = isComplete;
-    search(sd, isComplete);
+    // An operator takes its range from where the search began, so the place the
+    // links of the chain start from cannot be kept in the same place. The
+    // direction "n" repeats stays the one of the first link.
+    const int origin = m_searchStartPosition;
+    bool failed = chain.constLast().offset.startsWith(';');
+    for (int i = 0; i < chain.size() && !failed; ++i) {
+        const SearchLink &link = chain.at(i);
+        // Every link of the chain searches from where the one before it landed.
+        if (i > 0)
+            m_searchStartPosition = position();
+        g.lastSearchOffset = link.offset;
+        SearchData sd;
+        sd.needle = link.needle.isEmpty() ? g.lastSearch : link.needle;
+        sd.forward = link.prompt == '/';
+        sd.highlightMatches = isComplete && i == chain.size() - 1;
+        failed = !search(sd, isComplete);
+    }
+    m_searchStartPosition = origin;
+
+    // A chain that goes wrong anywhere leaves the cursor where it was.
+    if (failed && chain.size() > 1) {
+        setPosition(origin);
+        if (isComplete && chain.constLast().offset.startsWith(';')) {
+            showMessage(MessageError,
+                        Tr::tr("E1400: Expected ? or / after ';'"));
+        }
+    }
 }
 
 void FakeVimHandler::Private::resetCount()
@@ -6325,6 +6423,7 @@ void FakeVimHandler::Private::clearCurrentMode()
     g.visualArea = false;
     g.gflag = false;
     g.trimYank = false;
+    g.zCounted = false;
     g.surroundUpperCaseS = false;
     g.surroundFunction.clear();
     m_register = '"';
@@ -7318,7 +7417,12 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         setPosition(block.position() + qBound(0, column, qMax(0, size - 1)));
         setTargetColumn();
     } else if (input.is('M')) {
-        m_cursor = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()) / 2)));
+        // The middle of the text on the screen, which for a document that
+        // does not fill the window is the middle of the document, not the
+        // middle of the window.
+        const CursorPosition pos(
+            lineToBlockNumber((firstVisibleLine() + lastVisibleLine()) / 2), 0);
+        setCursorPosition(&m_cursor, pos);
         handleStartOfLine();
     } else if (g.gflag && (input.is('n') || input.is('N'))) {
         handled = selectSearchMatch(input.is('n'));
@@ -7943,12 +8047,16 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (!g.gflag && input.is('m')) {
         g.subsubmode = MarkSubSubMode;
     } else if (isVisualMode() && !g.gflag && (input.is('o') || input.is('O'))) {
-        int pos = position();
-        setAnchorAndPosition(pos, anchor());
-        std::swap(m_positionPastEnd, m_anchorPastEnd);
-        setTargetColumn();
-        if (m_positionPastEnd)
-            m_visualTargetColumn = -1;
+        if (input.is('O') && isVisualBlockMode()) {
+            swapVisualBlockColumns();
+        } else {
+            const int pos = position();
+            setAnchorAndPosition(pos, anchor());
+            std::swap(m_positionPastEnd, m_anchorPastEnd);
+            setTargetColumn();
+            if (m_positionPastEnd)
+                m_visualTargetColumn = -1;
+        }
     } else if (!g.gflag && (input.is('o') || input.is('O'))) {
         bool insertAfter = input.is('o');
         pushUndoState();
@@ -8594,6 +8702,19 @@ bool FakeVimHandler::Private::handleWindowSubMode(const Input &input)
 
 bool FakeVimHandler::Private::handleZSubMode(const Input &input)
 {
+    // A count after "z" is one only the window height and the sideways
+    // scrolling take, neither of which is here, and it leaves every other
+    // "z" command doing nothing at all.
+    if (input.isDigit()) {
+        g.zCounted = true;
+        return true;
+    }
+    if (g.zCounted) {
+        g.zCounted = false;
+        g.submode = NoSubMode;
+        return true;
+    }
+
     bool handled = true;
     bool foldMaybeClosed = false;
     if (input.isReturn() || input.is('t')
@@ -8608,8 +8729,17 @@ bool FakeVimHandler::Private::handleZSubMode(const Input &input)
         else
             align = Qt::AlignBottom;
         const bool moveToNonBlank = (input.is('.') || input.isReturn() || input.is('-'));
-        const int line = g.mvcount == 0 ? -1 : firstPositionInLine(count());
-        alignViewportToCursor(align, line, moveToNonBlank);
+        // A count names the line to align, and the cursor goes there. Only the
+        // three that move to the first non-blank leave the column, the others
+        // keep the one they are on.
+        if (g.mvcount != 0) {
+            const int column = m_cursor.positionInBlock();
+            const QTextBlock target =
+                document()->findBlockByNumber(qMin(count(), document()->blockCount()) - 1);
+            recordJump();
+            setPosition(target.position() + qMin(column, qMax(0, target.length() - 2)));
+        }
+        alignViewportToCursor(align, -1, moveToNonBlank);
     } else if (input.is('o') || input.is('c')) {
         // Open/close current fold.
         foldMaybeClosed = input.is('c');
@@ -9580,9 +9710,8 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
             g.searchBuffer.deleteChar();
     } else if (input.isReturn()) {
         leaveCmdlineAutocmd(g.searchBuffer.prompt(), QString(QChar(13)));
-        QString needle = g.searchBuffer.contents();
-        QString offset;
-        splitSearchOffset(g.searchBuffer.prompt(), &needle, &offset);
+        const QString needle = splitSearchChain(g.searchBuffer.prompt(),
+                                                g.searchBuffer.contents()).constLast().needle;
         if (!needle.isEmpty())
             g.lastSearch = needle;
         else
@@ -10005,14 +10134,20 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
             // among the flags keeps the flags that were used.
             g.lastSubstitutePattern = pattern.isEmpty() ? g.lastSearch : pattern;
             QString expanded;
+            const bool magic = forcedMagic ? *forcedMagic == Magic : s.magic();
             for (int i = 0; i < replacement.size(); ++i) {
-                if (replacement.at(i) == '\\' && i + 1 < replacement.size()) {
-                    expanded += replacement.at(i);
+                const QChar c = replacement.at(i);
+                const bool escaped = c == '\\' && i + 1 < replacement.size();
+                if (escaped && !magic && replacement.at(i + 1) == '~') {
+                    expanded += g.lastSubstituteReplacement;
+                    ++i;
+                } else if (escaped) {
+                    expanded += c;
                     expanded += replacement.at(++i);
-                } else if (replacement.at(i) == '~') {
+                } else if (c == '~' && magic) {
                     expanded += g.lastSubstituteReplacement;
                 } else {
-                    expanded += replacement.at(i);
+                    expanded += c;
                 }
             }
             g.lastSubstituteReplacement = expanded;
@@ -10026,9 +10161,8 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 
     // Only these are flags. One that is not is what Vim complains about rather
     // than passing over - ":s/a/b/Q" is a typo, not a silent no-op.
-    // FIXME: "c" and "r" are taken and not acted on. Confirming needs a prompt
-    // there is none of here. "r" is documented as reading the last SEARCH
-    // pattern where an empty one would read the last SUBSTITUTE pattern, but no
+    // FIXME: "r" is taken and not acted on. It is documented as reading the last
+    // SEARCH pattern where an empty one would read the last SUBSTITUTE pattern, but no
     // difference between the two could be measured against Vim 9.1 - assigning
     // @/ appears to reset both - and an empty pattern already reads the last
     // search here. Measure that properly before implementing it.
@@ -10080,6 +10214,24 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
         const int from = lineForPosition(endPos);
         beginPos = firstPositionInLine(from);
         endPos = firstPositionInLine(qMin(from + count - 1, linesInDocument()));
+    }
+
+    // A "c" asks about every match, so the substitute cannot run to completion
+    // here: it goes on from the keys that answer the prompts.
+    if (g.lastSubstituteFlags.contains('c') && !countOnly) {
+        leaveVisualMode();
+        g.substituteConfirm = {};
+        SubstituteConfirm &c = g.substituteConfirm;
+        c.active = true;
+        c.pattern = pattern;
+        c.replacement = g.lastSubstituteReplacement;
+        c.wanted = wanted;
+        c.global = global;
+        c.quiet = quiet;
+        c.line = blockAt(beginPos).blockNumber();
+        c.lastLine = blockAt(endPos).blockNumber();
+        askSubstituteConfirm();
+        return true;
     }
 
     int substitutions = 0;
@@ -10159,16 +10311,8 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
             showMessage(MessageError,
                         Tr::tr("E486: Pattern not found: %1").arg(g.lastSubstitutePattern));
         }
-    } else if (countOnly || substitutions > s.report()) {
-        QString what;
-        if (substitutions == 1)
-            what = countOnly ? Tr::tr("1 match") : Tr::tr("1 substitution");
-        else if (countOnly)
-            what = Tr::tr("%1 matches").arg(substitutions);
-        else
-            what = Tr::tr("%1 substitutions").arg(substitutions);
-        const QString where = lines == 1 ? Tr::tr("1 line") : Tr::tr("%1 lines").arg(lines);
-        showMessage(MessageInfo, Tr::tr("%1 on %2").arg(what, where));
+    } else {
+        showSubstituteReport(substitutions, lines, countOnly);
     }
 
     // "p" prints the last line a substitution was made in, "l" prints it the way
@@ -10186,6 +10330,205 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     }
 
     return true;
+}
+
+void FakeVimHandler::Private::showSubstituteReport(int substitutions, int lines,
+                                                   bool countOnly)
+{
+    if (!countOnly && substitutions <= s.report())
+        return;
+
+    QString what;
+    if (substitutions == 1)
+        what = countOnly ? Tr::tr("1 match") : Tr::tr("1 substitution");
+    else if (countOnly)
+        what = Tr::tr("%1 matches").arg(substitutions);
+    else
+        what = Tr::tr("%1 substitutions").arg(substitutions);
+    const QString where = lines == 1 ? Tr::tr("1 line") : Tr::tr("%1 lines").arg(lines);
+    showMessage(MessageInfo, Tr::tr("%1 on %2").arg(what, where));
+}
+
+// Move the scan of a confirming ":s" to the next match it would ask about.
+bool FakeVimHandler::Private::nextSubstituteConfirmMatch()
+{
+    SubstituteConfirm &c = g.substituteConfirm;
+    for (; c.line <= c.lastLine; ++c.line, c.column = 0) {
+        const QTextBlock block = document()->findBlockByNumber(c.line);
+        if (!block.isValid())
+            break;
+        const QString text = block.text();
+        for (int from = c.column; from <= text.size(); ) {
+            const QRegularExpressionMatch match = c.pattern.match(text, from);
+            if (!match.hasMatch())
+                break;
+            const int start = match.capturedStart();
+            if (!c.wanted.isSet()
+                    || positionAllowed(c.wanted, block.position() + start,
+                                       block.position() + match.capturedEnd())) {
+                c.column = start;
+                ++c.matches;
+                return true;
+            }
+            from = match.capturedEnd() > start ? match.capturedEnd() : start + 1;
+        }
+    }
+    return false;
+}
+
+// Ask about the next match, or, once an "a" has been answered, substitute
+// whatever is left without asking.
+void FakeVimHandler::Private::askSubstituteConfirm()
+{
+    SubstituteConfirm &c = g.substituteConfirm;
+    while (nextSubstituteConfirmMatch()) {
+        setCursorPosition(CursorPosition(c.line, c.column));
+        if (!c.all) {
+            showMessage(MessageInfo, Tr::tr("replace with %1 (y/n/a/q/l/^E/^Y)?")
+                        .arg(c.replacement));
+            return;
+        }
+        substituteConfirmedMatch();
+    }
+    finishSubstituteConfirm();
+}
+
+void FakeVimHandler::Private::skipSubstituteConfirmMatch()
+{
+    SubstituteConfirm &c = g.substituteConfirm;
+    if (!c.global) {
+        // Without a "g" only the first match of a line is ever offered, whether
+        // it is taken or not.
+        ++c.line;
+        c.column = 0;
+        return;
+    }
+    const QTextBlock block = document()->findBlockByNumber(c.line);
+    const QRegularExpressionMatch match = c.pattern.match(block.text(), c.column);
+    c.column = qMax(match.hasMatch() ? match.capturedEnd() : 0, c.column + 1);
+}
+
+void FakeVimHandler::Private::substituteConfirmedMatch()
+{
+    SubstituteConfirm &c = g.substituteConfirm;
+    const QTextBlock block = document()->findBlockByNumber(c.line);
+    QTC_ASSERT(block.isValid(), return);
+
+    QString text = block.text();
+    const int sizeBefore = text.size();
+    const int column = c.column;
+    int matchLength = 0;
+    const std::function<bool(int, int)> allowed
+        = [this, &c, &block, column, &matchLength](int start, int end) {
+              if (start != column)
+                  return false;
+              if (c.wanted.isSet()
+                      && !positionAllowed(c.wanted, block.position() + start,
+                                          block.position() + end)) {
+                  return false;
+              }
+              matchLength = end - start;
+              return true;
+          };
+    std::function<QString(const QRegularExpressionMatch &)> evaluate;
+    if (c.replacement.startsWith("\\=")) {
+        const QString expression = c.replacement.mid(2);
+        evaluate = [this, expression](const QRegularExpressionMatch &match) {
+            m_subMatches.clear();
+            for (int i = 0; i <= match.lastCapturedIndex(); ++i)
+                m_subMatches.append(match.captured(i));
+            VimValue value;
+            QString error;
+            if (!evaluateExpression(expression, &value, &error)) {
+                showMessage(MessageError, error);
+                return match.captured(0);
+            }
+            return value.toString();
+        };
+    }
+    if (substituteText(&text, c.pattern, c.replacement, false, allowed, evaluate) == 0) {
+        skipSubstituteConfirmMatch();
+        return;
+    }
+
+    if (c.substitutions == 0)
+        beginEditBlock();
+    else
+        joinPreviousEditBlock();
+    if (!m_buffer->undoState.position.isValid())
+        m_buffer->undoState.position = CursorPosition(c.line, 0);
+
+    const int blockPos = block.position();
+    QTextCursor tc = m_cursor;
+    tc.setPosition(blockPos);
+    tc.setPosition(blockPos + block.length() - 1, KeepAnchor);
+    tc.insertText(text);
+    endEditBlock();
+    setCursorPosition(CursorPosition(c.line, 0));
+
+    ++c.substitutions;
+    if (c.lastSubstituted != c.line)
+        ++c.lines;
+
+    // A replacement can bring lines of its own, which moves everything the scan
+    // has not reached yet down with it.
+    const int replaced = matchLength + text.size() - sizeBefore;
+    const QTextBlock endBlock = blockAt(blockPos + column + replaced);
+    const int added = endBlock.blockNumber() - c.line;
+    c.lastLine += added;
+    c.lastSubstituted = endBlock.blockNumber();
+    if (c.global) {
+        c.line = endBlock.blockNumber();
+        c.column = blockPos + column + replaced - endBlock.position();
+        if (replaced == 0)
+            ++c.column;
+    } else {
+        c.line = endBlock.blockNumber() + 1;
+        c.column = 0;
+    }
+}
+
+void FakeVimHandler::Private::finishSubstituteConfirm()
+{
+    SubstituteConfirm &c = g.substituteConfirm;
+    // Unlike a substitute that runs by itself, one that asks does not go to the
+    // first non-blank of the line at the end: the cursor stays on the match.
+    if (c.matches == 0) {
+        if (!c.quiet) {
+            showMessage(MessageError,
+                        Tr::tr("E486: Pattern not found: %1").arg(g.lastSubstitutePattern));
+        }
+    } else {
+        showSubstituteReport(c.substitutions, c.lines, false);
+    }
+    g.substituteConfirm = {};
+}
+
+EventResult FakeVimHandler::Private::handleSubstituteConfirm(const Input &input)
+{
+    SubstituteConfirm &c = g.substituteConfirm;
+    if (input.is('y') || input.is('l')) {
+        const bool last = input.is('l');
+        substituteConfirmedMatch();
+        if (last)
+            finishSubstituteConfirm();
+        else
+            askSubstituteConfirm();
+    } else if (input.is('n')) {
+        skipSubstituteConfirmMatch();
+        askSubstituteConfirm();
+    } else if (input.is('a')) {
+        c.all = true;
+        askSubstituteConfirm();
+    } else if (input.is('q') || input.isEscape()) {
+        finishSubstituteConfirm();
+    } else if (input.isControl('e')) {
+        scrollDown(1);
+    } else if (input.isControl('y')) {
+        scrollUp(1);
+    }
+    // Anything else leaves the prompt standing, as Vim does.
+    return EventHandled;
 }
 
 bool FakeVimHandler::Private::handleExTabNextCommand(const ExCommand &cmd)
@@ -26374,7 +26717,7 @@ QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, 
     return tc;
 }
 
-void FakeVimHandler::Private::search(const SearchData &sd, bool showMessages)
+bool FakeVimHandler::Private::search(const SearchData &sd, bool showMessages)
 {
     const int oldLine = cursorLine() - cursorLineOnScreen();
 
@@ -26408,7 +26751,8 @@ void FakeVimHandler::Private::search(const SearchData &sd, bool showMessages)
     }
 
     QTextCursor tc = search(sd, startPos, count(), showMessages);
-    if (tc.isNull()) {
+    const bool found = !tc.isNull();
+    if (!found) {
         tc = m_cursor;
         tc.setPosition(m_searchStartPosition);
     }
@@ -26436,6 +26780,8 @@ void FakeVimHandler::Private::search(const SearchData &sd, bool showMessages)
     m_searchCursor = m_cursor;
 
     setTargetColumn();
+
+    return found;
 }
 
 // What "gn" and "gN" reach over: the next place the last search pattern is found,
@@ -26527,9 +26873,16 @@ void FakeVimHandler::Private::applySearchOffset(const QTextCursor &match)
     if (offset.isEmpty())
         return;
 
+    // An offset is a place ("e", "s", "b") or a number of lines, and anything
+    // else is no offset at all.
+    const QChar kind = offset.at(0);
+    if (kind != 'e' && kind != 'b' && kind != 's' && kind != '+' && kind != '-'
+        && !kind.isDigit()) {
+        return;
+    }
+
     const int from = qMin(match.anchor(), match.position());
     const int to = qMax(match.anchor(), match.position());
-    const QChar kind = offset.at(0);
     if (kind == 'e' || kind == 'b' || kind == 's') {
         const int step = offset.mid(1).toInt();
         setPosition(qBound(0, stepOverChars(kind == 'e' ? to - 1 : from, step),
@@ -26813,6 +27166,43 @@ void FakeVimHandler::Private::setTargetColumn()
     QTextCursor tc = m_cursor;
     tc.movePosition(StartOfLine);
     m_targetColumnWrapped = m_cursor.position() - tc.position();
+}
+
+// "O" in a blockwise selection exchanges the left and the right corner of the
+// block, so that each of the two stays on the line it is on. Where that leaves
+// the cursor on the very column it was already on, Vim exchanges the corners a
+// second time, which puts the cursor on the other side of the block. The
+// columns are the virtual ones, and an edge beyond the end of a line keeps the
+// width the other line gives it.
+void FakeVimHandler::Private::swapVisualBlockColumns()
+{
+    const QTextBlock anchorBlock = blockAt(anchor());
+    const QString anchorText = anchorBlock.text();
+    const QString positionText = block().text();
+    const int anchorColumn = anchor() - anchorBlock.position();
+    const int positionColumn = position() - block().position();
+
+    const auto lastColumnOf = [this](int column, const QString &text) {
+        return column < text.size() ? physicalToLogicalColumn(column + 1, text) - 1
+                                    : physicalToLogicalColumn(column, text);
+    };
+
+    const int left = qMin(physicalToLogicalColumn(anchorColumn, anchorText),
+                          physicalToLogicalColumn(positionColumn, positionText));
+    const int right = qMax(lastColumnOf(anchorColumn, anchorText),
+                           lastColumnOf(positionColumn, positionText));
+
+    int newAnchor = anchorBlock.position() + logicalToPhysicalColumn(left, anchorText);
+    int newPosition = block().position() + logicalToPhysicalColumn(right, positionText);
+    if (newPosition == position()) {
+        newAnchor = anchorBlock.position() + logicalToPhysicalColumn(right, anchorText);
+        newPosition = block().position() + logicalToPhysicalColumn(left, positionText);
+    }
+
+    setAnchorAndPosition(newAnchor, newPosition);
+    m_positionPastEnd = false;
+    m_anchorPastEnd = false;
+    setTargetColumn();
 }
 
 /* if simple is given:
@@ -27697,8 +28087,16 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg, bool asDelet
             setRegister('1', text, range.rangemode);
             pointsTo = '1';
         }
-        // Always copy to " register too (except black hole register).
-        setRegister('"', text, range.rangemode);
+        // Always copy to " register too (except black hole register). An
+        // uppercase name appends, and what the unnamed register then stands for
+        // is everything that register holds, not only what was just added.
+        const QChar named(m_register);
+        if (named.isUpper()) {
+            pointsTo = named.toLower().unicode();
+            setRegister('"', registerContents(pointsTo), registerRangeMode(pointsTo));
+        } else {
+            setRegister('"', text, range.rangemode);
+        }
     }
 
     if (m_register != '_' && reg == m_register)
@@ -27795,6 +28193,7 @@ void FakeVimHandler::Private::transformText(
             if (range.rangemode == RangeBlockAndTailMode)
                 endColumn = INT_MAX - 1;
             QTextBlock block = document()->findBlock(range.beginPos);
+            const int firstBlockPosition = block.position();
             const QTextBlock lastBlock = document()->findBlock(range.endPos);
             while (block.isValid() && block.position() <= lastBlock.position()) {
                 int bCol = qMin(beginColumn, block.length() - 1);
@@ -27807,7 +28206,11 @@ void FakeVimHandler::Private::transformText(
                 transform();
                 block = block.next();
             }
-            tc.setPosition(range.beginPos);
+            // A block leaves the cursor in its top left corner, which is not
+            // where either of the two corners the selection was made from is.
+            const QTextBlock firstBlock = document()->findBlock(firstBlockPosition);
+            tc.setPosition(firstBlockPosition
+                           + qMin(beginColumn, qMax(0, firstBlock.length() - 2)));
             break;
         }
     }
@@ -30593,11 +30996,14 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count, int lastStartCol
     const bool octal = takeOctal && !match.captured("octal").isEmpty();
     const bool alpha = takeAlpha && !match.captured("alpha").isEmpty();
 
-    // A letter of its own is stepped on as far as the alphabet goes.
+    // A letter of its own is stepped on as far as the alphabet goes, at either
+    // end of it.
     if (alpha) {
         const QChar letter = whole.at(0);
-        const QChar last = letter.isUpper() ? QLatin1Char('Z') : QLatin1Char('z');
-        const QChar stepped(ushort(qMin(int(letter.unicode()) + count, int(last.unicode()))));
+        const int first = letter.isUpper() ? 'A' : 'a';
+        const int last = letter.isUpper() ? 'Z' : 'z';
+        const int wanted = int(letter.unicode()) + count;
+        const QChar stepped(ushort(qBound(first, wanted, last)));
         pos += block.position();
         pushUndoState();
         setAnchorAndPosition(pos, pos + len);
@@ -30609,33 +31015,52 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count, int lastStartCol
     QString prefix = hex || binary ? whole.left(2) : octal ? QString("0") : QString();
     const QString num = whole.mid(prefix.size());
 
-    // parse value
+    // Vim reads the magnitude as an unsigned 64 bit number and carries the sign
+    // beside it, so what steps past either end of the range wraps rather than
+    // overflowing: "0x0" one down is "0xffffffffffffffff".
     bool ok;
-    int base = hex ? 16 : binary ? 2 : octal ? 8 : 10;
-    qlonglong value = 0;  // decimal value
-    qlonglong uvalue = 0; // hexadecimal or octal value (only unsigned)
-    if (hex || binary || octal)
-        uvalue = num.toULongLong(&ok, base);
-    else
-        value = num.toLongLong(&ok, base);
+    const int base = hex ? 16 : binary ? 2 : octal ? 8 : 10;
+    quint64 value = num.toULongLong(&ok, base);
     if (!ok) {
         qWarning() << "Cannot parse number:" << num << "base:" << base;
         return false;
     }
 
-    // negative decimal number
-    if (!octal && !hex && !binary && pos > 0 && lineText[pos - 1] == '-') {
-        value = -value;
+    // A "-" in front belongs to a decimal number, the other bases ignore it.
+    const bool decimal = !hex && !binary && !octal;
+    bool negative = false;
+    if (decimal && pos > 0 && lineText[pos - 1] == '-') {
+        negative = true;
         --pos;
         ++len;
     }
 
-    // result to string
-    QString repl;
-    if (hex || binary || octal)
-        repl = QString::number(uvalue + count, base);
-    else
-        repl = QString::number(value + count, base);
+    // Stepping a negative number up takes its magnitude down, and the other way
+    // round.
+    bool subtract = count < 0;
+    if (negative)
+        subtract = !subtract;
+    const quint64 step = count < 0 ? quint64(-qlonglong(count)) : quint64(count);
+
+    const quint64 before = value;
+    value = subtract ? value - step : value + step;
+    // Only a decimal number has a sign to turn over when it wraps, the others
+    // are written the way they came out.
+    if (decimal) {
+        if (subtract && value > before) {
+            value = ~value + 1;
+            negative = !negative;
+        } else if (!subtract && value < before) {
+            value = ~value;
+            negative = !negative;
+        }
+        if (value == 0)
+            negative = false;
+    }
+
+    QString repl = QString::number(value, base);
+    if (negative)
+        repl.prepend('-');
 
     // convert hexadecimal number to upper-case if last letter was upper-case
     if (hex) {
@@ -30711,9 +31136,15 @@ bool FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
     int p1 = quotes.at(opener) + sz;
     int p2 = quotes.at(opener + 1) + sz;
     if (inner) {
-        p2 = qMax(p1, p2 - sz);
-        if (characterAt(p1) == ParagraphSeparator)
-            ++p1;
+        // Two or more of the inner object take the quotes along: that is what
+        // repeating the object over a selection already inside them does.
+        if (count() > 1) {
+            p1 -= sz;
+        } else {
+            p2 = qMax(p1, p2 - sz);
+            if (characterAt(p1) == ParagraphSeparator)
+                ++p1;
+        }
     } else {
         p1 -= sz;
         p2 -= sz - 1;

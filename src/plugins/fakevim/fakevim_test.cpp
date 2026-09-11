@@ -215,12 +215,17 @@ private slots:
     void test_vim_block_put_padding();
     void test_vim_block_put_unpadded();
     void test_vim_block_yank_untrailed();
+    void test_vim_visual_block_corners();
     void test_vim_insert_map_with_quotes();
     void test_vim_search_smartcase();
     void test_vim_replace_char_newline();
     void test_vim_backspace_option();
     void test_vim_open_line_with_fold();
     void test_vim_scroll_center_on_scroll();
+    void test_vim_scroll_count_line();
+    void test_vim_count_after_z();
+    void test_vim_middle_of_screen();
+    void test_vim_substitute_confirm();
     void test_vim_tab_with_zero_tabstop();
     void test_vim_timeout_options();
     void test_vim_selection_for_shortcut();
@@ -303,6 +308,7 @@ private slots:
     void test_vim_script_named_key_string();
     void test_vim_register_carriage_return();
     void test_vim_register_black_hole();
+    void test_vim_register_append_unnamed();
     void test_vim_script_getchar();
     void test_vim_script_eval();
     void test_vim_set_invert();
@@ -397,6 +403,7 @@ private slots:
     void test_vim_block_object_ahead();
     void test_vim_quoted_string_blanks();
     void test_vim_quote_object_pairing();
+    void test_vim_quote_object_count();
     void test_vim_empty_block_object();
     void test_vim_join_spacing();
     void test_vim_visual_join();
@@ -552,6 +559,7 @@ private slots:
     void test_vim_command_sort();
     void test_vim_command_uniq();
     void test_vim_command_smagic();
+    void test_vim_option_magic();
     void test_vim_command_gn();
     void test_vim_command_changelist();
     void test_vim_script_list_functions();
@@ -560,8 +568,10 @@ private slots:
     void test_vim_substitute_flags();
     void test_vim_line_change_reports();
     void test_vim_search_offset();
+    void test_vim_search_chain();
     void test_vim_search_messages();
     void test_vim_nrformats();
+    void test_vim_number_wraparound();
     void test_vim_insert_ctrl_a_e_y();
     void test_vim_insert_ctrl_at();
     void test_vim_insert_no_text_yet();
@@ -3143,6 +3153,10 @@ void FakeVimTester::test_vim_search()
     data.doCommand("set noincsearch");
     data.setText("abc def ghi def.");
     KEYS("fe/d<C-R><ESC>ef<CR>", "abc def ghi " X "def.");
+
+    // Both are global options, so put their defaults back for the tests that
+    // come after this one.
+    data.doCommand("set wrapscan incsearch");
 }
 
 void FakeVimTester::test_vim_nohlsearch_core_search()
@@ -9908,6 +9922,89 @@ void FakeVimTester::test_vim_plugin_window_events()
     QVERIFY(id > 0);
 }
 
+void FakeVimTester::test_vim_visual_block_corners()
+{
+    TestData data;
+    setup(&data);
+    data.doCommand("set tabstop=8");
+
+    // "o" exchanges the two corners of the selection. "O" exchanges the left
+    // and the right one instead, so that each stays on the line it is on, and
+    // where that leaves the cursor on the column it was already on it swaps
+    // them once more. Values taken from Vim 9.1.
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjlo<Esc>", "a" X "bcd" N "efgh" N "ijkl");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjlO<Esc>", "abcd" N "efgh" N "i" X "jkl");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjloo<Esc>", "abcd" N "efgh" N "ij" X "kl");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjlOO<Esc>", "abcd" N "efgh" N "ij" X "kl");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("jjl<c-v>kkho<Esc>", "abcd" N "efgh" N "i" X "jkl");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("jjl<c-v>kkhO<Esc>", "a" X "bcd" N "efgh" N "ijkl");
+
+    // Both of them leave the block itself alone, and a deletion puts the
+    // cursor in its top left corner whichever corner it was made from.
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjlod", "a" X "d" N "eh" N "il");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjlOd", "a" X "d" N "eh" N "il");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjlOx", "a" X "d" N "eh" N "il");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjlOrZ", "a" X "ZZd" N "eZZh" N "iZZl");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>lOd", "a" X "d" N "efgh" N "ijkl");
+
+    // The corner that moved is on its own line, so a motion after "O" grows
+    // the block from there.
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjlOjd", "a" X "d" N "eh" N "il");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjloOjd", "abcd" N "e" X "h" N "il");
+
+    // A corner beyond the end of its line keeps the column the other line
+    // gives it, and the block keeps the width that leaves.
+    data.setText(X "abcdef" N "abcdef" N "ab");
+    KEYS("ll<c-v>jjlO<Esc>", "abcdef" N "abcdef" N "a" X "b");
+    data.setText(X "abcdef" N "abcdef" N "ab");
+    KEYS("ll<c-v>jjlOd", "ab" X "def" N "abdef" N "ab");
+    data.setText(X "ab" N "abcdef" N "abcdef");
+    KEYS("<c-v>jjlllO<Esc>", "ab" N "abcdef" N X "abcdef");
+    data.setText(X "ab" N "abcdef" N "abcdef");
+    KEYS("<c-v>jjlllOd", X "" N "def" N "def");
+    data.setText(X "ab" N "abcdef" N "abcdef");
+    KEYS("<c-v>jjlllOOd", X "" N "def" N "def");
+
+    // "$" reaches to the end of every line, and "O" takes that back: the
+    // block is the one the two corners span.
+    data.setText(X "ab" N "abcdef" N "ab");
+    KEYS("l<c-v>jj$O<Esc>", "ab" N "abcdef" N "a" X "b");
+    data.setText(X "ab" N "abcdef" N "ab");
+    KEYS("l<c-v>jj$Od", X "a" N "adef" N "a");
+    data.setText(X "ab" N "abcdef" N "ab");
+    KEYS("l<c-v>jj$OOd", X "a" N "adef" N "a");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("l<c-v>jjl$O<Esc>", "abcd" N "efgh" N "i" X "jkl");
+
+    // The columns are the ones on the screen, so a corner on a tab covers the
+    // whole width of it.
+    data.setText(X "abc\tdef" N "abc\tdef");
+    KEYS("<c-v>jllllO<Esc>", "abc\tdef" N X "abc\tdef");
+    data.setText(X "abc\tdef" N "abc\tdef");
+    KEYS("<c-v>jlllOd", X "def" N "def");
+    data.setText(X "abc\tdef" N "abc\tdef");
+    KEYS("<c-v>jllllOd", X "ef" N "ef");
+
+    // Outside a blockwise selection "O" is "o".
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("lvjjlO<Esc>", "a" X "bcd" N "efgh" N "ijkl");
+    data.setText(X "abcd" N "efgh" N "ijkl");
+    KEYS("lVjjlO<Esc>", "a" X "bcd" N "efgh" N "ijkl");
+}
+
 void FakeVimTester::test_vim_visual_selection_focus_out()
 {
     // Visual-char selection is inclusive of the character under the cursor.
@@ -10060,6 +10157,238 @@ void FakeVimTester::test_vim_scroll_center_on_scroll()
     const int zzRow = cursorRow("zz");
     QVERIFY(zzRow > visibleLines / 4 && zzRow < visibleLines * 3 / 4);
     QVERIFY(cursorRow("zb") >= visibleLines * 3 / 4);
+}
+
+void FakeVimTester::test_vim_scroll_count_line()
+{
+    TestData data;
+    setup(&data);
+
+    // A count names the line "zt", "zz" and "zb" align, and the cursor goes
+    // there keeping the column it is on.
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("3l3zt", "abcdef" N "ghijkl" N "mno|pqr" N "stuvwx");
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("3l2zz", "abcdef" N "ghi|jkl" N "mnopqr" N "stuvwx");
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("3l3zb", "abcdef" N "ghijkl" N "mno|pqr" N "stuvwx");
+
+    // "z<CR>", "z." and "z-" go to the first non-blank of that line instead.
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("3l3z<CR>", "abcdef" N "ghijkl" N "|mnopqr" N "stuvwx");
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("3l3z.", "abcdef" N "ghijkl" N "|mnopqr" N "stuvwx");
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("3l4z-", "abcdef" N "ghijkl" N "mnopqr" N "|stuvwx");
+    data.setText("|abcdef" N "ghijkl" N "    mnopqr" N "stuvwx");
+    KEYS("3z<CR>", "abcdef" N "ghijkl" N "    |mnopqr" N "stuvwx");
+
+    // "zt" itself does not, so an indented line keeps the column as well.
+    data.setText("|abcdef" N "ghijkl" N "    mnopqr" N "stuvwx");
+    KEYS("3zt", "abcdef" N "ghijkl" N "|    mnopqr" N "stuvwx");
+
+    // A line past the end of the document is the last one, and a column past
+    // the end of the line the last one there.
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("9zt", "abcdef" N "ghijkl" N "mnopqr" N "|stuvwx");
+    data.setText("|abc" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("5l2zt", "abc" N "gh|ijkl" N "mnopqr" N "stuvwx");
+    data.setText("|abcdef" N "ghijkl" N "" N "stuvwx");
+    KEYS("3l3zt", "abcdef" N "ghijkl" N "|" N "stuvwx");
+
+    // A "0" is the motion to the first column, not a count, and the line the
+    // cursor is already on is no jump at all.
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("3l0zt", "|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("3l1zt", "abc|def" N "ghijkl" N "mnopqr" N "stuvwx");
+
+    // The line jumped away from is where the previous context mark is left.
+    data.setText("|abcdef" N "ghijkl" N "mnopqr" N "stuvwx");
+    KEYS("3l3zt``", "abc|def" N "ghijkl" N "mnopqr" N "stuvwx");
+}
+
+void FakeVimTester::test_vim_count_after_z()
+{
+    TestData data;
+    setup(&data);
+
+    // Nothing a count can be given to comes after "z", so the command it is
+    // given to does nothing at all.
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z3t", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z3b", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z3<CR>", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z4-", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z12t", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z2j", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z2.", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z2dd", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z2x", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("yyz2p", "|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+
+    // The keys after the one that ends the count are the ones that run.
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z2tx", "|111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z2<Esc>x", "|111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("3z2tx", "|111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z2zjx", "1111" N "|222" N "3333" N "4444" N "5555" N "6666");
+    data.setText("|1111" N "2222" N "3333" N "4444" N "5555" N "6666");
+    KEYS("z2yyjp", "1111" N "|1111" N "2222" N "2222" N "3333" N "4444" N "5555" N "6666");
+}
+
+void FakeVimTester::test_vim_substitute_confirm()
+{
+    TestData data;
+    setup(&data);
+
+    // A "c" asks before every match. Where the answers run out the substitute
+    // is given up on, and the cursor stays at the match it was asking about.
+    data.setText("abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>y<Esc>", "X" N "|abc");
+    data.setText("abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>yy", "X" N "|X");
+    data.setText("abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>n<Esc>", "abc" N "|abc");
+    data.setText("abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>ny", "abc" N "|X");
+    data.setText("abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>nn", "abc" N "|abc");
+
+    // "q" gives up, "a" takes everything that is left, "l" takes this one and
+    // nothing after it.
+    data.setText("abc" N "abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>yq", "X" N "|abc" N "abc");
+    data.setText("abc" N "abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>ya", "X" N "X" N "|X");
+    data.setText("abc" N "abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>q", "|abc" N "abc" N "abc");
+    data.setText("abc" N "abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>nay", "abc" N "X" N "|X");
+
+    // An answer that is none of them leaves the prompt standing rather than
+    // acting as a command of its own.
+    data.setText("abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>Y<Esc>", "|abc" N "abc");
+
+    // A "g" asks about every match of a line, without one only the first is
+    // ever offered, whether it is taken or not.
+    data.setText("abc abc");
+    KEYS(":s/abc/X/gc<CR>yy", "|X X");
+    data.setText("abc abc");
+    KEYS(":s/abc/X/gc<CR>ny", "|abc X");
+    data.setText("abc abc");
+    KEYS(":s/abc/X/gc<CR>yn", "X |abc");
+    data.setText("aa" N "aa");
+    KEYS(":%s/a/X/c<CR>nyy", "aa" N "|Xa");
+    data.setText("abc abc abc");
+    KEYS(":s/abc/X/gc<CR>ynq", "X abc |abc");
+    data.setText("abc abc abc");
+    KEYS(":s/abc/X/gc<CR>nl", "|abc X abc");
+    data.setText("abc");
+    KEYS(":s/b/X/c<CR>y", "|aXc");
+
+    // Scrolling is not an answer either.
+    data.setText("abc" N "abc" N "abc");
+    KEYS(":%s/abc/X/gc<CR>y<C-e>y<Esc>", "X" N "X" N "|abc");
+
+    // Whatever it took is one undo step.
+    data.setText("abc" N "abc" N "abc");
+    KEYS(":%s/abc/X/c<CR>yyyu", "|abc" N "abc" N "abc");
+    data.setText("abc abc abc");
+    KEYS(":s/abc/X/gc<CR>yyyu", "|abc abc abc");
+}
+
+void FakeVimTester::test_vim_register_append_unnamed()
+{
+    TestData data;
+    setup(&data);
+
+    // An uppercase name appends, and the unnamed register then stands for
+    // everything the register holds rather than for what was just added.
+    data.setText("abc" N "def");
+    KEYS("\"ayyj\"AyyggP", "|abc" N "def" N "abc" N "def");
+    data.setText("abc" N "def");
+    KEYS("\"ayyj\"Ayygg\"ap", "abc" N "|abc" N "def" N "def");
+    data.setText("abc" N "def");
+    KEYS("\"aywj\"AywggP", "abcde|fabc" N "def");
+    data.setText("abc");
+    KEYS("\"ayy\"Ayy\"ap", "abc" N "|abc" N "abc");
+    data.setText("abc" N "def" N "ghi");
+    KEYS("\"ayyj\"Ayyj\"AyyggP",
+         "|abc" N "def" N "ghi" N "abc" N "def" N "ghi");
+
+    // A delete appends the same way, and what it appended to is still what the
+    // unnamed register stands for.
+    data.setText("abc" N "def");
+    KEYS("\"addj\"AddP", "|abc" N "def" N "");
+
+    // A lowercase name does not append, so the register holds the last yank
+    // alone.
+    data.setText("abc" N "def");
+    KEYS("\"ayyj\"ayyggP", "|def" N "abc" N "def");
+}
+
+void FakeVimTester::test_vim_middle_of_screen()
+{
+    TestData data;
+    setup(&data);
+
+    // "M" goes to the middle of the lines on the screen, and a document that
+    // does not fill the window puts that in the middle of the document. The
+    // window here shows more lines than any of these documents has, so the
+    // first one on the screen is the first of the document throughout.
+    const auto firstOnScreen = [&] {
+        return data.editor()->cursorForPosition(QPoint(0, 0)).blockNumber();
+    };
+
+    data.setText("|a");
+    KEYS("Mx", "|");
+    QCOMPARE(firstOnScreen(), 0);
+
+    data.setText("|a" N "b");
+    KEYS("Mx", "|" N "b");
+
+    data.setText("|a" N "b" N "c");
+    KEYS("Mx", "a" N "|" N "c");
+
+    data.setText("|a" N "b" N "c" N "d");
+    KEYS("Mx", "a" N "|" N "c" N "d");
+
+    data.setText("|a" N "b" N "c" N "d" N "e");
+    KEYS("Mx", "a" N "b" N "|" N "d" N "e");
+
+    data.setText("|a" N "b" N "c" N "d" N "e" N "f");
+    KEYS("Mx", "a" N "b" N "|" N "d" N "e" N "f");
+
+    data.setText("|a" N "b" N "c" N "d" N "e" N "f" N "g");
+    KEYS("Mx", "a" N "b" N "c" N "|" N "e" N "f" N "g");
+    QCOMPARE(firstOnScreen(), 0);
+
+    // The first non-blank of that line, and a count is no count at all.
+    data.setText("|a" N "b" N "   c" N "d" N "e");
+    KEYS("Mx", "a" N "b" N "  | " N "d" N "e");
+
+    data.setText("|a" N "b" N "c" N "d" N "e");
+    KEYS("2Mx", "a" N "b" N "|" N "d" N "e");
+
+    // Where the cursor comes from makes no difference as long as the same
+    // lines are on the screen.
+    data.setText("|a" N "b" N "c" N "d" N "e");
+    KEYS("4GMx", "a" N "b" N "|" N "d" N "e");
+    QCOMPARE(firstOnScreen(), 0);
 }
 
 void FakeVimTester::test_vim_tab_with_zero_tabstop()
@@ -19850,6 +20179,37 @@ void FakeVimTester::test_vim_join_spacing()
     KEYS("3J", X "two");
 }
 
+void FakeVimTester::test_vim_quote_object_count()
+{
+    // A count of two or more on an inner quote object takes the quotes along.
+    // More than two changes nothing, and a count on the outer object neither.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a \"bc" X "d\" e");
+    KEYS("di\"", "a \"" X "\" e");
+    data.setText("a \"bc" X "d\" e");
+    KEYS("d2i\"", "a " X " e");
+    data.setText("a \"bc" X "d\" e");
+    KEYS("d3i\"", "a " X " e");
+    data.setText("a \"bc" X "d\" e");
+    KEYS("v2i\"d", "a " X " e");
+    data.setText("a \"bc" X "d\" e");
+    KEYS("c2i\"Z<Esc>", "a " X "Z e");
+    data.setText("a \"bc" X "d\" e");
+    KEYS("d2a\"", "a " X "e");
+
+    data.setText("a 'bc" X "d' e");
+    KEYS("d2i'", "a " X " e");
+    data.setText("a `bc" X "d` e");
+    KEYS("d2i`", "a " X " e");
+
+    // The cursor may sit in front of the quotes as well.
+    data.setText(X "a \"bcd\" e");
+    KEYS("d2i\"", "a " X " e");
+}
+
 void FakeVimTester::test_vim_empty_block_object()
 {
     // With the closing bracket alone on the line behind the opening one there
@@ -28460,6 +28820,19 @@ void FakeVimTester::test_vim_nrformats()
     KEYS("<C-a>", X "z");
     data.setText(X "Y");
     KEYS("3<C-a>", X "Z");
+    // The bottom of the alphabet is as far as a decrement goes.
+    data.setText(X "a");
+    KEYS("<C-x>", X "a");
+    data.setText(X "a");
+    KEYS("3<C-x>", X "a");
+    data.setText(X "A");
+    KEYS("<C-x>", X "A");
+    data.setText(X "c");
+    KEYS("5<C-x>", X "a");
+    data.setText(X "B");
+    KEYS("3<C-x>", X "A");
+    data.setText(X "M");
+    KEYS("30<C-x>", X "A");
     // The first number or letter from the cursor on is the one taken.
     data.setText(X "a 5");
     KEYS("<C-a>", X "b 5");
@@ -28468,6 +28841,95 @@ void FakeVimTester::test_vim_nrformats()
     data.setText(X "word 5");
     KEYS("<C-a>", X "xord 5");
     data.doCommand("set nrformats=bin,octal,hex");
+}
+
+void FakeVimTester::test_vim_number_wraparound()
+{
+    // Vim reads the magnitude of a number as unsigned 64 bit and keeps the sign
+    // beside it, so stepping past either end of the range wraps around rather
+    // than overflowing. Only a decimal number has the sign that turns over with
+    // it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set nrformats=bin,octal,hex");
+    data.setText(X "0x0");
+    KEYS("<C-x>", "0xfffffffffffffff" X "f");
+    data.setText(X "0b0");
+    KEYS("<C-x>", "0b111111111111111111111111111111111111111111111111111111111111111"
+                  X "1");
+    data.setText(X "00");
+    KEYS("<C-x>", "0177777777777777777777" X "7");
+    data.setText(X "0x7fffffffffffffff");
+    KEYS("<C-a>", "0x800000000000000" X "0");
+    data.setText(X "0xffffffffffffffff");
+    KEYS("<C-a>", "0x000000000000000" X "0");
+    data.setText(X "0xf");
+    KEYS("20<C-x>", "0xfffffffffffffff" X "b");
+    data.setText(X "0x10");
+    KEYS("<C-x>", "0x0" X "f");
+    // A decimal number goes on past what fits in a signed 64 bit one, and once
+    // the magnitude wraps the sign comes with it.
+    data.setText(X "9223372036854775807");
+    KEYS("<C-a>", "922337203685477580" X "8");
+    data.setText(X "-9223372036854775808");
+    KEYS("<C-x>", "-922337203685477580" X "9");
+    data.setText(X "18446744073709551615");
+    KEYS("<C-a>", "-1844674407370955161" X "5");
+    data.setText(X "18446744073709551614");
+    KEYS("3<C-a>", "-1844674407370955161" X "4");
+    data.setText(X "-18446744073709551615");
+    KEYS("<C-x>", "1844674407370955161" X "5");
+    // What stays in range is plain arithmetic, sign and all.
+    data.setText(X "0");
+    KEYS("100<C-x>", "-10" X "0");
+    data.setText(X "5");
+    KEYS("10<C-x>", "-" X "5");
+    data.setText(X "-3");
+    KEYS("5<C-a>", X "2");
+}
+
+void FakeVimTester::test_vim_search_chain()
+{
+    // A ";" behind the offset chains another search onto the first, which starts
+    // from where that one landed and brings its own direction and offset. The
+    // direction "n" repeats is the one of the first link, and a chain that goes
+    // wrong anywhere leaves the cursor where it was. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "foo bar foo baz");
+    KEYS("/foo/;/baz<CR>", "foo bar foo " X "baz");
+    data.setText(X "foo bar foo baz");
+    KEYS("/bar/;/foo<CR>", "foo bar " X "foo baz");
+    data.setText(X "abc" N "foo" N "bar" N "foo");
+    KEYS("/foo/;/bar<CR>", "abc" N "foo" N X "bar" N "foo");
+    // Every link takes its own offset.
+    data.setText(X "foo bar baz");
+    KEYS("/foo/e;/baz<CR>", "foo bar " X "baz");
+    data.setText(X "aaa foo bar baz");
+    KEYS("/foo/;/baz/e<CR>", "aaa foo bar ba" X "z");
+    data.setText(X "abc" N "foo" N "bar");
+    KEYS("/foo/;/bar/-1<CR>", "abc" N X "foo" N "bar");
+    // And its own direction, but what "n" repeats keeps the first one.
+    data.setText(X "foo AAA foo BBB baz foo");
+    KEYS("/baz/;?foo<CR>", "foo AAA " X "foo BBB baz foo");
+    KEYS("n", "foo AAA foo BBB baz " X "foo");
+    // More than two links chain as well.
+    data.setText(X "aaa foo bar baz qux");
+    KEYS("/foo/;/bar/;/qux<CR>", "aaa foo bar baz " X "qux");
+    // An operator reaches from where the first link started to where the last
+    // one landed.
+    data.setText(X "foo bar baz");
+    KEYS("d/bar/;/baz<CR>", X "baz");
+    data.setText(X "foo bar baz");
+    KEYS("y/bar/;/baz<CR>P", "foo bar" X " foo bar baz");
+    // A link that finds nothing, and a ";" with nothing behind it, leave the
+    // cursor alone.
+    data.setText(X "foo bar baz qux");
+    KEYS("/bar/;/nope<CR>", X "foo bar baz qux");
+    data.setText(X "foo bar baz");
+    KEYS("/bar/;<CR>", X "foo bar baz");
+    data.setText(X "foo bar baz qux");
+    KEYS("d/bar/;/nope<CR>", X "foo bar baz qux");
 }
 
 void FakeVimTester::test_vim_search_messages()
@@ -29124,6 +29586,115 @@ void FakeVimTester::test_vim_command_smagic()
     // Plain ":s" is unaffected, and stays magic.
     data.setText(X "a.b" N "axb");
     COMMAND("%s/a.b/X/", "X" N X "X");
+}
+
+void FakeVimTester::test_vim_option_magic()
+{
+    // 'nomagic' takes the meaning away from "." "*" and "[", and gives it to
+    // "\." "\*" and "\[" instead. What needs a backslash under 'magic' needs
+    // one here as well, so only very magic ever writes a group or a multi
+    // without one. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set nomagic");
+
+    data.setText(X "a.b" N "axb");
+    COMMAND("%s/a.b/X/", X "X" N "axb");
+    data.setText(X "a.b" N "axb");
+    COMMAND("%s/a\\.b/X/", "X" N X "X");
+    data.setText(X "ab*c" N "abbc");
+    COMMAND("%s/ab*c/X/", X "X" N "abbc");
+    data.setText(X "ab*c" N "abbc");
+    COMMAND("%s/ab\\*c/X/", "ab*c" N X "X");
+    data.setText(X "x[ab]y" N "xaby");
+    COMMAND("%s/[ab]/X/", X "xXy" N "xaby");
+    data.setText(X "x[ab]y" N "xaby");
+    COMMAND("%s/\\[ab]/X/", "x[Xb]y" N X "xXby");
+
+    // A group, an alternation and a multi keep the backslash they have under
+    // 'magic', and so do the character classes.
+    data.setText(X "abc" N "zbc");
+    COMMAND("%s/\\(a\\)\\(b\\)/\\2\\1/", X "bac" N "zbc");
+    data.setText(X "abbc" N "abc");
+    COMMAND("%s/ab\\+c/X/", "X" N X "X");
+    data.setText(X "abc" N "azc");
+    COMMAND("%s/a\\(b\\|z\\)c/X/", "X" N X "X");
+    data.setText(X "xaaay" N "xay");
+    COMMAND("%s/a\\{2}/X/", X "xXay" N "xay");
+    data.setText(X "abc" N "zbc");
+    COMMAND("%s/a\\wc/X/", X "X" N "zbc");
+
+    // "^" and "$" mean what they always mean, and an atom in the pattern still
+    // wins over the option.
+    data.setText(X "abc abc" N "xbc");
+    COMMAND("%s/^abc/X/", X "X abc" N "xbc");
+    data.setText(X "abc abc" N "abc x");
+    COMMAND("%s/abc$/X/", X "abc X" N "abc x");
+    data.setText(X "a.b" N "axb");
+    COMMAND("%s/\\ma.b/X/", "X" N X "X");
+
+    // A search reads the pattern the same way.
+    data.setText(X "a.c abc");
+    KEYS("/a.c<CR>x", X ".c abc");
+
+    // In the replacement it is the other way round: "~" is the replacement of
+    // the last substitute under 'magic', "\~" under 'nomagic'.
+    data.setText(X "abc abc abc");
+    data.doCommand("s/abc/xyz/");
+    COMMAND("s/abc/~/", X "xyz ~ abc");
+    data.setText(X "abc abc abc");
+    data.doCommand("s/abc/xyz/");
+    COMMAND("s/abc/\\~/", X "xyz xyz abc");
+    data.setText(X "abc abc abc");
+    data.doCommand("s/abc/xyz/");
+    COMMAND("s/abc/a\\~b/", X "xyz axyzb abc");
+
+    // ":smagic" and ":snomagic" carry the replacement with them too.
+    data.setText(X "abc abc abc");
+    data.doCommand("s/abc/xyz/");
+    COMMAND("smagic/abc/~/", X "xyz xyz abc");
+
+    data.doCommand("set magic");
+    data.setText(X "a.b" N "axb");
+    COMMAND("%s/\\Ma.b/X/", X "X" N "axb");
+    data.setText(X "a.c abc");
+    KEYS("/a.c<CR>x", "a.c " X "bc");
+    data.setText(X "abc abc abc");
+    data.doCommand("s/abc/xyz/");
+    COMMAND("s/abc/~/", X "xyz xyz abc");
+    data.setText(X "abc abc abc");
+    data.doCommand("s/abc/xyz/");
+    COMMAND("s/abc/\\~/", X "xyz ~ abc");
+    data.setText(X "abc abc abc");
+    data.doCommand("s/abc/xyz/");
+    COMMAND("snomagic/abc/\\~/", X "xyz xyz abc");
+
+    // Very nomagic wants a backslash on "^" and "$" as well, which is the one
+    // thing it takes beyond what 'nomagic' does.
+    data.setText(X "a.c" N "abc");
+    COMMAND("%s/\\Va.c/X/", X "X" N "abc");
+    data.setText(X "a.c" N "abc");
+    COMMAND("%s/\\Va\\.c/X/", "X" N X "X");
+    data.setText(X "x[ab]y" N "xaby");
+    COMMAND("%s/\\V[ab]/X/", X "xXy" N "xaby");
+    data.setText(X "x[ab]y" N "xaby");
+    COMMAND("%s/\\V\\[ab]/X/", "x[Xb]y" N X "xXby");
+    data.setText(X "abc" N "zbc");
+    COMMAND("%s/\\V\\(a\\)\\(b\\)/\\2\\1/", X "bac" N "zbc");
+    data.setText(X "abbc" N "abc");
+    COMMAND("%s/\\Vab\\+c/X/", "X" N X "X");
+    data.setText(X "abbc" N "ab*c");
+    COMMAND("%s/\\Vab\\*c/X/", X "X" N "ab*c");
+    data.setText(X "xaaay" N "xay");
+    COMMAND("%s/\\Va\\{2}/X/", X "xXay" N "xay");
+    data.setText(X "^abc" N "abc x");
+    COMMAND("%s/\\V^abc/X/", X "X" N "abc x");
+    data.setText(X "^abc" N "abc x");
+    COMMAND("%s/\\V\\^abc/X/", "^abc" N X "X x");
+    data.setText(X "abc$" N "x abc");
+    COMMAND("%s/\\Vabc\\$/X/", "abc$" N X "x X");
+    data.setText(X "abc$" N "x abc");
+    COMMAND("%s/\\Vabc$/X/", X "X" N "x abc");
 }
 
 void FakeVimTester::test_vim_script_execute_and_redir()

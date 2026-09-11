@@ -118,6 +118,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&smartCase,      false, "SmartCase",      "scs", Tr::tr("Use smartcase"));
     setup(&ignoreCase,     false, "IgnoreCase",     "ic",  Tr::tr("Use ignorecase"));
     setup(&wrapScan,       true,  "WrapScan",       "ws",  Tr::tr("Use wrapscan"));
+    setup(&magic,          true,  "Magic",          {},    {});
     setup(&tildeOp,        false, "TildeOp",        "top", Tr::tr("Use tildeop"));
     setup(&showCmd,        true,  "ShowCmd",        "sc",  Tr::tr("Show partial command"));
     setup(&relativeNumber, false, "RelativeNumber", "rnu", Tr::tr("Show line numbers relative to cursor"));
