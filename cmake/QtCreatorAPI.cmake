@@ -837,7 +837,6 @@ function(add_qtc_plugin target_name)
     COMPAT_VERSION
     PLUGIN_PATH
     PLUGIN_NAME
-    OUTPUT_NAME
     BUILD_DEFAULT
     PLUGIN_CLASS
     LONG_DESCRIPTION_MD
