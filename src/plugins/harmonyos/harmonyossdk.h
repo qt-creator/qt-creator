@@ -8,6 +8,8 @@
 #include <QString>
 #include <QStringList>
 
+#include <QUrl>
+
 namespace Utils { class Environment; }
 
 namespace HarmonyOs::Internal::Sdk {
@@ -87,5 +89,21 @@ void addToEnvironment(const Utils::FilePath &sdkRoot, Utils::Environment &env);
 // Best-effort location of an installed DevEco Studio SDK (Windows and macOS only).
 // Returns an empty path if none is found.
 Utils::FilePath detectDevEcoSdk();
+
+// The archive of the public OpenHarmony SDK published for this host, and the name of the
+// directory inside it that holds this host's components. The archive is a tarball of one
+// such directory per host, each holding one zip per component.
+struct PublicSdk
+{
+    QUrl url;
+    QString hostDirectory;
+};
+
+// Empty when the SDK is not published for this host.
+PublicSdk publicSdk();
+
+// The components of the public SDK that Qt Creator reads: "native" holds the compiler,
+// the sysroot and the CMake toolchain file, "toolchains" holds hdc and the signing tools.
+QStringList publicSdkComponents();
 
 } // namespace HarmonyOs::Internal::Sdk

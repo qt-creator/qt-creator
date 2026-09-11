@@ -9,15 +9,30 @@
 #include "harmonyostr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <QtTaskTree/QNetworkReplyWrapper>
+#include <QtTaskTree/qtasktree.h>
+
+#include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/networkaccessmanager.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
+#include <utils/unarchiver.h>
+#include <utils/widgets.h>
 
+#include <QCryptographicHash>
+#include <QFile>
 #include <QLabel>
+#include <QMessageBox>
+#include <QProgressDialog>
 #include <QPushButton>
+#include <QRegularExpression>
 
 using namespace Utils;
 
@@ -27,6 +42,257 @@ HarmonyOsSettings &settings()
 {
     static HarmonyOsSettings theSettings;
     return theSettings;
+}
+
+// SDK download
+
+static QString downloadTitle()
+{
+    return Tr::tr("Download HarmonyOS SDK");
+}
+
+static void reportDownloadError(const QString &error)
+{
+    QMessageBox::warning(Core::ICore::dialogParent(), downloadTitle(), error);
+}
+
+static void verifyArchive(QPromise<Result<>> &promise, const FilePath &archive,
+                          const QByteArray &sha256)
+{
+    QFile file(archive.toFSPathString());
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    if (!file.open(QIODevice::ReadOnly) || !hash.addData(&file)) {
+        promise.addResult(ResultError(Tr::tr("Cannot read \"%1\": %2.")
+                                          .arg(archive.toUserOutput(), file.errorString())));
+        return;
+    }
+    if (hash.result() != sha256) {
+        promise.addResult(ResultError(
+            Tr::tr("The checksum of the downloaded archive is not the published one.")));
+        return;
+    }
+    promise.addResult(ResultOk);
+}
+
+// Installs the components of the public OpenHarmony SDK that Qt Creator reads into sdkPath.
+// The archive they come in holds one directory per host and one zip per component in it,
+// and is a few gigabytes, so it is streamed to disk and only the wanted zips are unpacked
+// out of it.
+static QtTaskTree::GroupItem downloadSdkRecipe(const FilePath &sdkPath)
+{
+    using namespace QtTaskTree;
+
+    constexpr qint64 megaByte = 1024 * 1024;
+
+    struct DownloadStorage
+    {
+        DownloadStorage()
+        {
+            progressDialog.reset(createProgressDialog(0, downloadTitle(),
+                                                      Tr::tr("Downloading the SDK...")));
+        }
+        std::unique_ptr<QProgressDialog> progressDialog;
+        std::unique_ptr<QFile> file;
+        FilePath archive;
+        QByteArray sha256;
+        QMap<QString, FilePath> components;
+    };
+
+    const Storage<DownloadStorage> storage;
+    const Sdk::PublicSdk sdk = Sdk::publicSdk();
+    const QStringList wanted = Sdk::publicSdkComponents();
+    const FilePath workPath = sdkPath / "download";
+
+    const auto onSetup = [storage, sdk, workPath] {
+        if (sdk.url.isEmpty()) {
+            reportDownloadError(Tr::tr("The public OpenHarmony SDK is published for Linux, "
+                                       "Windows and macOS only."));
+            return SetupResult::StopWithError;
+        }
+        if (const Result<> writable = workPath.ensureWritableDir(); !writable) {
+            reportDownloadError(writable.error());
+            return SetupResult::StopWithError;
+        }
+        storage->archive = workPath / sdk.url.fileName();
+        storage->file.reset(new QFile(storage->archive.toFSPathString()));
+        if (!storage->file->open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            reportDownloadError(Tr::tr("Cannot write \"%1\": %2.")
+                                    .arg(storage->archive.toUserOutput(),
+                                         storage->file->errorString()));
+            return SetupResult::StopWithError;
+        }
+        return SetupResult::Continue;
+    };
+
+    const auto onReplyDone = [](const QNetworkReplyWrapper &query, DoneWith result) {
+        QNetworkReply *reply = query.reply();
+        QTC_ASSERT(reply, return false);
+        if (result == DoneWith::Success)
+            return true;
+        if (result == DoneWith::Error) {
+            reportDownloadError(Tr::tr("Downloading \"%1\" failed: %2.")
+                                    .arg(reply->url().toString(), reply->errorString()));
+        }
+        return false;
+    };
+
+    const auto onChecksumSetup = [sdk](QNetworkReplyWrapper &query) {
+        query.setRequest(QNetworkRequest(QUrl(sdk.url.toString() + ".sha256")));
+        query.setNetworkAccessManager(NetworkAccessManager::instance());
+    };
+    const auto onChecksumDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
+                                                       DoneWith result) {
+        if (!onReplyDone(query, result))
+            return DoneResult::Error;
+        const QByteArray published = query.reply()->readAll().simplified();
+        storage->sha256 = QByteArray::fromHex(published.split(' ').constFirst());
+        if (storage->sha256.size()
+            != QCryptographicHash::hashLength(QCryptographicHash::Sha256)) {
+            reportDownloadError(Tr::tr("The published checksum of the SDK archive cannot "
+                                       "be read."));
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onDownloadSetup = [storage, sdk](QNetworkReplyWrapper &query) {
+        query.setRequest(QNetworkRequest(sdk.url));
+        query.setNetworkAccessManager(NetworkAccessManager::instance());
+
+        QProgressDialog *progressDialog = storage->progressDialog.get();
+        QObject::connect(&query, &QNetworkReplyWrapper::downloadProgress, progressDialog,
+                         [progressDialog](qint64 received, qint64 total) {
+            // Gigabytes do not fit the dialog's int range, so it counts megabytes.
+            progressDialog->setRange(0, total / megaByte);
+            progressDialog->setValue(received / megaByte);
+        });
+        // Gigabytes do not fit into memory either, so the reply is drained as it arrives.
+        QObject::connect(&query, &QNetworkReplyWrapper::started, &query,
+                         [storage, queryPtr = &query] {
+            QNetworkReply *reply = queryPtr->reply();
+            QObject::connect(reply, &QNetworkReply::readyRead, reply, [storage, reply] {
+                if (storage->file->write(reply->readAll()) < 0)
+                    reply->abort();
+            });
+        });
+#if QT_CONFIG(ssl)
+        QObject::connect(&query, &QNetworkReplyWrapper::sslErrors, &query,
+                         [queryPtr = &query](const QList<QSslError> &errors) {
+            reportDownloadError(Tr::tr("The download was aborted: %1")
+                                    .arg(errors.constFirst().errorString()));
+            queryPtr->reply()->abort();
+        });
+#endif
+    };
+    const auto onDownloadDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
+                                                       DoneWith result) {
+        const bool written = storage->file->flush();
+        storage->file->close();
+        if (!onReplyDone(query, result))
+            return DoneResult::Error;
+        if (!written) {
+            reportDownloadError(Tr::tr("Cannot write \"%1\": %2.")
+                                    .arg(storage->archive.toUserOutput(),
+                                         storage->file->errorString()));
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onVerifySetup = [storage](Async<Result<>> &async) {
+        storage->progressDialog->setRange(0, 0);
+        storage->progressDialog->setLabelText(Tr::tr("Verifying the downloaded archive..."));
+        async.setConcurrentCallData(verifyArchive, storage->archive, storage->sha256);
+    };
+    const auto onVerifyDone = [](const Async<Result<>> &async, DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return DoneResult::Error;
+        if (!async.isResultAvailable()) {
+            reportDownloadError(Tr::tr("Verifying the downloaded archive failed."));
+            return DoneResult::Error;
+        }
+        if (const Result<> verified = async.result(); !verified) {
+            reportDownloadError(verified.error());
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onSelectSetup = [storage, sdk, wanted, workPath](Unarchiver &task) {
+        storage->progressDialog->setRange(0, 0);
+        storage->progressDialog->setLabelText(Tr::tr("Reading the archive..."));
+        task.setArchive(storage->archive);
+        task.setDestination(workPath);
+        // Where the host directory sits inside the archive differs between SDK versions,
+        // so the entries are matched by name rather than by depth.
+        const QRegularExpression pattern("(?:^|/)" + QRegularExpression::escape(sdk.hostDirectory)
+                                         + "/(\\w+)-[^/]*\\.zip$");
+        task.setFilter([storage, wanted, workPath, pattern](const QString &entry) {
+            const QRegularExpressionMatch match = pattern.match(entry);
+            if (!match.hasMatch() || !wanted.contains(match.captured(1)))
+                return false;
+            storage->components.insert(match.captured(1), workPath.resolvePath(entry));
+            return true;
+        });
+    };
+    const auto onSelectDone = [storage, wanted](const Unarchiver &task, DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return DoneResult::Error;
+        if (const Result<> unpacked = task.result(); !unpacked) {
+            reportDownloadError(Tr::tr("Unpacking the archive failed: %1").arg(unpacked.error()));
+            return DoneResult::Error;
+        }
+        const QStringList missing = Utils::filtered(wanted, [storage](const QString &name) {
+            return !storage->components.contains(name);
+        });
+        if (!missing.isEmpty()) {
+            reportDownloadError(Tr::tr("The archive holds no %1 for this computer.")
+                                    .arg(missing.join(", ")));
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    // Which components there are is known only once the archive has been read, so the loop
+    // asks the storage how far to go instead of iterating a list captured here.
+    const UntilIterator componentIterator([storage](qsizetype iteration) {
+        return iteration < storage->components.size();
+    });
+
+    const auto onComponentSetup = [storage, sdkPath, componentIterator](Unarchiver &task) {
+        const FilePath component = storage->components.values().at(componentIterator.iteration());
+        storage->progressDialog->setLabelText(Tr::tr("Unpacking %1...").arg(component.fileName()));
+        task.setArchive(component);
+        task.setDestination(sdkPath);
+    };
+    const auto onComponentDone = [](const Unarchiver &task, DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return DoneResult::Error;
+        if (const Result<> unpacked = task.result(); !unpacked) {
+            reportDownloadError(Tr::tr("Unpacking a component failed: %1").arg(unpacked.error()));
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onCancel = [storage] {
+        return makeObjectSignal(storage->progressDialog.get(), &QProgressDialog::canceled);
+    };
+
+    return Group {
+        storage,
+        Group {
+            onGroupSetup(onSetup),
+            QNetworkReplyWrapperTask(onChecksumSetup, onChecksumDone),
+            QNetworkReplyWrapperTask(onDownloadSetup, onDownloadDone),
+            AsyncTask<Result<>>(onVerifySetup, onVerifyDone),
+            UnarchiverTask(onSelectSetup, onSelectDone),
+            For (componentIterator) >> Do {
+                UnarchiverTask(onComponentSetup, onComponentDone),
+            },
+        }.withCancel(onCancel),
+        onGroupDone([workPath] { workPath.removeRecursively(); }),
+    };
 }
 
 HarmonyOsSettings::HarmonyOsSettings()
@@ -104,6 +370,13 @@ HarmonyOsSettings::HarmonyOsSettings()
 
         auto autodetectButton = new QPushButton(Tr::tr("Auto-detect"));
 
+        auto downloadButton = new QPushButton(Tr::tr("Download"));
+        downloadButton->setToolTip(
+            Tr::tr("Installs the public OpenHarmony SDK into the directory above. It carries "
+                   "the compilers, the sysroot and hdc, which covers building for a device and "
+                   "reaching one. Packaging an application additionally needs hvigor, which "
+                   "only Huawei's command-line tools carry."));
+
         auto status = new InfoLabel;
         status->setElideMode(Qt::ElideNone);
         status->setWordWrap(true);
@@ -120,7 +393,7 @@ HarmonyOsSettings::HarmonyOsSettings()
                 title(Tr::tr("HarmonyOS SDK")),
                 Column {
                     instruction,
-                    Row { sdkLocation, autodetectButton },
+                    Row { sdkLocation, autodetectButton, downloadButton },
                     status,
                     Form { additionalPackages, br },
                     automaticKitCreation,
@@ -177,6 +450,35 @@ HarmonyOsSettings::HarmonyOsSettings()
             }
             sdkLocation.pathChooser()->setFilePath(detected);
             updateStatus();
+        });
+
+        connect(downloadButton, &QPushButton::clicked, this, [this, status, updateStatus] {
+            const FilePath sdkPath = sdkLocation.pathChooser()->filePath();
+            if (sdkPath.isEmpty()) {
+                status->setType(InfoLabelType::Warning);
+                status->setText(Tr::tr("Enter the directory to install the SDK into first."));
+                return;
+            }
+            if (Sdk::isValidSdk(sdkPath)) {
+                reportDownloadError(Tr::tr("This directory already holds a HarmonyOS SDK."));
+                return;
+            }
+            const QString question
+                = Tr::tr("Download the public OpenHarmony SDK %1 into \"%2\"?\n\n"
+                         "The archive it comes in is a few gigabytes.")
+                      .arg(QString::fromLatin1(Constants::PUBLIC_SDK_VERSION),
+                           sdkPath.toUserOutput());
+            if (QMessageBox::question(Core::ICore::dialogParent(), downloadTitle(), question)
+                != QMessageBox::Yes) {
+                return;
+            }
+            m_sdkDownloader.start({downloadSdkRecipe(sdkPath)}, {},
+                                  [this, updateStatus](QtTaskTree::DoneWith result) {
+                if (result != QtTaskTree::DoneWith::Success)
+                    return;
+                updateStatus();
+                apply();
+            });
         });
 
         updateStatus();

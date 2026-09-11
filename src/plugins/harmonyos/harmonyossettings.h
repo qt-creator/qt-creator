@@ -7,6 +7,8 @@
 
 #include <utils/aspects.h>
 
+#include <QtTaskTree/QSingleTaskTreeRunner>
+
 namespace HarmonyOs::Internal {
 
 class HarmonyOsSettings final : public Utils::AspectContainer
@@ -38,6 +40,7 @@ private:
 
     QString m_keyPassword;
     QString m_storePassword;
+    QtTaskTree::QSingleTaskTreeRunner m_sdkDownloader;
 };
 
 HarmonyOsSettings &settings();

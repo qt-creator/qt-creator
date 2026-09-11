@@ -7,6 +7,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSysInfo>
 
 #include <coreplugin/icore.h>
 
@@ -368,6 +369,37 @@ FilePath detectDevEcoSdk()
             return candidate;
     }
     return {};
+}
+
+PublicSdk publicSdk()
+{
+    // The Linux and the Windows tools travel in one archive, macOS has one per
+    // architecture, and the payload of the Apple Silicon one is named after neither.
+    QString archive;
+    QString hostDirectory;
+    if (HostOsInfo::isLinuxHost()) {
+        archive = "ohos-sdk-windows_linux-public.tar.gz";
+        hostDirectory = "linux";
+    } else if (HostOsInfo::isWindowsHost()) {
+        archive = "ohos-sdk-windows_linux-public.tar.gz";
+        hostDirectory = "windows";
+    } else if (HostOsInfo::isMacHost()) {
+        archive = QSysInfo::currentCpuArchitecture() == "arm64"
+                      ? QString("L2-SDK-MAC-M1-PUBLIC.tar.gz")
+                      : QString("ohos-sdk-mac-public.tar.gz");
+        hostDirectory = "darwin";
+    } else {
+        return {};
+    }
+
+    const QString url = QString("https://repo.huaweicloud.com/openharmony/os/%1-Release/%2")
+                            .arg(Constants::PUBLIC_SDK_VERSION, archive);
+    return {QUrl(url), hostDirectory};
+}
+
+QStringList publicSdkComponents()
+{
+    return {"native", "toolchains"};
 }
 
 } // namespace HarmonyOs::Internal::Sdk

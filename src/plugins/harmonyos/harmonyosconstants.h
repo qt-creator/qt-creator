@@ -11,6 +11,9 @@ inline constexpr char HARMONYOS_SETTINGS_ID[] = "ZZ.HarmonyOS Configurations";
 inline constexpr char HARMONYOS_TOOLCHAIN_TYPEID[] = "Qt4ProjectManager.ToolChain.HarmonyOS";
 inline constexpr char HARMONYOS_QT_TYPE[] = "Qt4ProjectManager.QtVersion.HarmonyOS";
 
+// The OpenHarmony release whose public SDK the settings page offers to download.
+inline constexpr char PUBLIC_SDK_VERSION[] = "6.1";
+
 inline constexpr char HARMONYOS_DEVICE_TYPE[] = "HarmonyOS.Device.Type";
 inline constexpr char HARMONYOS_BUILD_DEVICE_TYPE[] = "HarmonyOS.BuildDevice.Type";
 
