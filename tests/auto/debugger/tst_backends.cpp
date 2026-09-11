@@ -8227,7 +8227,7 @@ void tst_backends::passesInferiorEnvironmentDiffToDebugger()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk), s_timeout);
-    QVERIFY2(inferiorPid != 0, "inferiorPidKnown() never fired");
+    QTRY_VERIFY2_WITH_TIMEOUT(inferiorPid != 0, "inferiorPidKnown() never fired", s_timeout);
 
     QByteArrayList entries;
     const auto inferiorHasOwnVariable = [&] {
@@ -8267,7 +8267,7 @@ void tst_backends::passesInferiorWorkingDirectoryToDebugger()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk), s_timeout);
-    QVERIFY2(inferiorPid != 0, "inferiorPidKnown() never fired");
+    QTRY_VERIFY2_WITH_TIMEOUT(inferiorPid != 0, "inferiorPidKnown() never fired", s_timeout);
 
     const FilePath cwdLink = FilePath::fromString("/proc/" + QString::number(inferiorPid) + "/cwd");
     QVERIFY2(cwdLink.isSymLink(), "could not read the inferior's /proc/.../cwd");
