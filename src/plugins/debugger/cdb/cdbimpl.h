@@ -129,12 +129,24 @@ private:
     };
     void resolvePendingInterpreterBreakpoints();
     void handleInterpreterMessage(const GdbMi &stopData);
+    void reportSplicedStack(quint64 requestId, const GdbMi &nativeFrames);
+    void runInterpreterCommand(const QString &function, const QString &resumeCommand);
+    bool handleNativeCallStop(const GdbMi &stopData, const QString &stopFunction);
+    void stepIntoNativeCallHookBody(const GdbMi &stopData);
+    void descendIntoNativeMethod(const GdbMi &stopData);
+    void stepOutOfMetacallTrampoline(const GdbMi &stopData);
+    void stepIntoNativeMethodBody(const GdbMi &stopData);
     void armInterpreterMessageWatch();
     void resumeFromInternalStop();
     void restartWatchdog();
     void insertInterpreterBreakpoint(quint64 requestId, int modelId,
                                      const BreakpointParameters &params, bool report);
+    void changeInterpreterBreakpoint(const BreakpointChangeRequest &request);
     void armInterpreterHooks();
+    void runServiceCommand(const DebuggerCommand &cmd);
+    void armServiceSafePoint();
+    void handleServiceSafePoint(const GdbMi &stopData);
+    void finishServiceSafePoint();
     void loadConfiguredDumpers();
     void setupScripting();
     void flushPendingBridgeWork();
@@ -148,6 +160,7 @@ private:
         QString file;
         int line = 0;
         quint64 address = 0;
+        quint64 entryAddress = 0;
     };
     static void parseFunctionDisassembly(const QString &reply, ResolvedFunction *function);
     void insertFunctionBreakpoint(quint64 requestId, const QString &id, bool enabled,
@@ -179,15 +192,24 @@ private:
     bool m_initialSessionIdleHandled = false;
     bool m_expectSpontaneousStop = false;
     bool m_inInternalStop = false;
+    bool m_stopReported = false;
+    bool m_expectStaleStop = false;
     bool m_callbackStop = false;
     QList<DebuggerCommand> m_deferredCommands;
     QHash<QString, bool> m_throwBreakpoints;
     Wow64State m_wow64State = Wow64State::Unknown;
     QList<std::function<void()>> m_pendingStackBitness;
     bool m_interpreterMessageWatchArmed = false;
-    QString m_interpreterMessageWatchId;
+    bool m_interpreterStepArmed = false;
+    bool m_atNativeToQmlBoundary = false;
+    QSet<QString> m_nativeCallHookIds;
+    QString m_metacallBreakpointId;
+    enum class NativeCallDescent { None, ToHookBody, ToMetacall, SteppingOut, ToMethodBody };
+    NativeCallDescent m_nativeCallDescent = NativeCallDescent::None;
+    int m_nativeCallStepsTaken = 0;
     Utils::ProcessHandle m_inferiorPid;
     bool m_sourceStepInto = false;
+    bool m_nativeMethodBodyHopPending = false;
     int m_thunkStepsTaken = 0;
     bool m_inferiorRunning = false;
     bool m_interruptRequested = false;
@@ -216,6 +238,13 @@ private:
     QSet<QString> m_interpreterMessageIds;
     QList<std::function<void()>> m_pendingBridgeWork;
     QList<InterpreterBreakpoint> m_pendingInterpreterBreakpoints;
+    QHash<int, int> m_interpreterBreakpointNumbers;
+    QString m_qtCoreModule;
+    QString m_qmlThreadId;
+    QString m_serviceSafePointId;
+    QList<DebuggerCommand> m_serviceCommands;
+    bool m_atInterruptStop = false;
+    bool m_resumeWhenServiceRepliesDrain = false;
 };
 
 } // namespace Debugger::Internal

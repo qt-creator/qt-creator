@@ -341,6 +341,21 @@ void CdbImpl::shutdownEngine()
     emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
 }
 
+// A step that has to pass through the QML interpreter: the bridge asks the debug
+// service what to do at the next JS statement, then the inferior is resumed. Whichever
+// comes first ends the step, the service's notification or the native stop.
+void CdbImpl::runInterpreterCommand(const QString &function, const QString &resumeCommand)
+{
+    armInterpreterMessageWatch();
+    runCommand({"theDumper." + function + "({})", ScriptCommand,
+               [this, resumeCommand](const DebuggerResponse &) {
+        m_expectSpontaneousStop = true;
+        m_inferiorRunning = true;
+        m_expectStaleStop = true;
+        runCommand({resumeCommand, NoFlags});
+    }});
+}
+
 void CdbImpl::execute(const ExecutionRequest &request)
 {
     if (m_inferiorExited && request.command != ExecutionCommand::Abort) {
@@ -355,11 +370,20 @@ void CdbImpl::execute(const ExecutionRequest &request)
         return;
     }
     m_inInternalStop = false;
+    m_stopReported = false;
+    m_expectStaleStop = false;
     switch (request.command) {
     case ExecutionCommand::Continue:
         if (m_inferiorRunning) {
             emit inferiorEvent(InferiorEvent::RunRequested);
             emit inferiorEvent(InferiorEvent::RunFailed);
+            break;
+        }
+        if (m_startData.nativeMixed && request.currentFrameIsQml) {
+            emit inferiorEvent(InferiorEvent::RunRequested);
+            emit inferiorEvent(InferiorEvent::RunOk);
+            m_interpreterStepArmed = false;
+            runInterpreterCommand("executeContinue", "g");
             break;
         }
         m_expectSpontaneousStop = true;
@@ -377,6 +401,23 @@ void CdbImpl::execute(const ExecutionRequest &request)
         interruptInferior();
         break;
     case ExecutionCommand::StepIn:
+        if (m_startData.nativeMixed && !request.flag) {
+            emit inferiorEvent(InferiorEvent::RunRequested);
+            emit inferiorEvent(InferiorEvent::RunOk);
+            m_interpreterStepArmed = true;
+            if (request.currentFrameIsQml) {
+                runInterpreterCommand("executeStep", "g");
+            } else {
+                // Crossing from C++ into QML: the interpreter is armed to pause at the
+                // next JS statement while the native step runs, and the step ends
+                // wherever the inferior arrives first.
+                adjustOperateByInstruction(false);
+                m_sourceStepInto = true;
+                m_thunkStepsTaken = 0;
+                runInterpreterCommand("armInterpreterStepIn", "t");
+            }
+            break;
+        }
         m_expectSpontaneousStop = true;
         m_inferiorRunning = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
@@ -387,6 +428,13 @@ void CdbImpl::execute(const ExecutionRequest &request)
         runCommand({"t", NoFlags});
         break;
     case ExecutionCommand::StepOver:
+        if (m_startData.nativeMixed && request.currentFrameIsQml && !request.flag) {
+            emit inferiorEvent(InferiorEvent::RunRequested);
+            emit inferiorEvent(InferiorEvent::RunOk);
+            m_interpreterStepArmed = true;
+            runInterpreterCommand("executeNext", "g");
+            break;
+        }
         m_expectSpontaneousStop = true;
         m_inferiorRunning = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
@@ -395,6 +443,17 @@ void CdbImpl::execute(const ExecutionRequest &request)
         runCommand({"p", NoFlags});
         break;
     case ExecutionCommand::StepOut:
+        if (m_startData.nativeMixed && (request.currentFrameIsQml || m_atNativeToQmlBoundary)) {
+            emit inferiorEvent(InferiorEvent::RunRequested);
+            emit inferiorEvent(InferiorEvent::RunOk);
+            m_interpreterStepArmed = true;
+            // Leaving a C++ method that QML called means arriving at the next JS
+            // statement, not in the metacall machinery the return lands in.
+            runInterpreterCommand(request.currentFrameIsQml ? QString("executeStepOut")
+                                                            : QString("armInterpreterStepIn"),
+                                  "g");
+            break;
+        }
         m_expectSpontaneousStop = true;
         m_inferiorRunning = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
@@ -629,6 +688,10 @@ void CdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             emit breakpointEvent(request.requestId, request.op, false, {});
             break;
         }
+        if (!request.params.isCppBreakpoint()) {
+            changeInterpreterBreakpoint(request);
+            break;
+        }
         if (m_throwBreakpoints.remove(request.responseId)) {
             syncExceptionEvents();
             emit breakpointEvent(request.requestId, request.op, true, {});
@@ -645,6 +708,10 @@ void CdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     case BreakpointOp::Update:
         if (request.responseId.isEmpty()) {
             emit breakpointEvent(request.requestId, request.op, false, {});
+            break;
+        }
+        if (!request.params.isCppBreakpoint()) {
+            changeInterpreterBreakpoint(request);
             break;
         }
         if (m_throwBreakpoints.contains(request.responseId)) {
@@ -714,6 +781,7 @@ void CdbImpl::parseFunctionDisassembly(const QString &reply, ResolvedFunction *f
             continue;
         if (!bodySeen) {
             bodySeen = true;
+            function->entryAddress = address;
             function->address = address;
             function->line = sourceLine;
         }
@@ -940,6 +1008,34 @@ void CdbImpl::reportTracepoint(const QStringList &tracepointMessages, const GdbM
     runCommand(cmd);
 }
 
+// A QML breakpoint lives in the NativeQmlDebugger service, so changing one is a
+// service round trip and not a cdb 'bc'/'bd'. The service only takes back the
+// number it handed out, and it has no update of its own, so an update is a
+// remove followed by a fresh insert. The number is tracked per model id: one
+// that was inserted while the service was not up yet is reported as pending
+// and only gets its number when the connector hook resolves it.
+void CdbImpl::changeInterpreterBreakpoint(const BreakpointChangeRequest &request)
+{
+    const quint64 requestId = request.requestId;
+    const BreakpointOp op = request.op;
+    const int modelId = request.modelId;
+    const BreakpointParameters params = request.params;
+    DebuggerCommand cmd("theDumper.removeInterpreterBreakpoint", ScriptCommand);
+    cmd.arg("id", m_interpreterBreakpointNumbers.value(modelId,
+                                                       request.responseId.toInt()));
+    cmd.callback = [this, requestId, op, modelId, params](const DebuggerResponse &response) {
+        const bool removed = response.resultClass == ResultDone;
+        m_interpreterBreakpointNumbers.remove(modelId);
+        if (op == BreakpointOp::Remove || !removed) {
+            emit breakpointEvent(requestId, op, removed, {});
+            return;
+        }
+        insertInterpreterBreakpoint(0, modelId, params, false);
+        emit breakpointEvent(requestId, op, true, {});
+    };
+    runServiceCommand(cmd);
+}
+
 void CdbImpl::insertInterpreterBreakpoint(quint64 requestId, int modelId,
                                           const BreakpointParameters &params, bool report)
 {
@@ -951,7 +1047,8 @@ void CdbImpl::insertInterpreterBreakpoint(quint64 requestId, int modelId,
     cmd.arg("condition", toHex(params.condition));
     cmd.arg("ignorecount", params.ignoreCount);
     const InterpreterBreakpoint pending{modelId, params};
-    cmd.callback = [this, requestId, report, pending](const DebuggerResponse &response) {
+    cmd.callback = [this, requestId, modelId, report, pending]
+                   (const DebuggerResponse &response) {
         if (response.resultClass != ResultDone) {
             if (report)
                 emit breakpointEvent(requestId, BreakpointOp::Insert, false, {});
@@ -966,6 +1063,9 @@ void CdbImpl::insertInterpreterBreakpoint(quint64 requestId, int modelId,
             result.fromString(text.mid(int(strlen("interpreterresult="))), decoder);
             break;
         }
+        const int number = result["number"].data().toInt();
+        if (number > 0)
+            m_interpreterBreakpointNumbers.insert(modelId, number);
         if (!report)
             return;
         GdbMi list;
@@ -979,7 +1079,82 @@ void CdbImpl::insertInterpreterBreakpoint(quint64 requestId, int modelId,
             m_pendingInterpreterBreakpoints.append(pending);
         emit breakpointEvent(requestId, BreakpointOp::Insert, true, list);
     };
-    runCommand(cmd);
+    runServiceCommand(cmd);
+}
+
+// An inferior call into the QML debug service needs the thread that owns the QML
+// engine stopped in code of its own. An interrupt gives neither: cdb makes the
+// injected break-in thread current, and the service faults when it runs there,
+// while a call on the interrupted QML thread hangs, as that thread sits in a
+// kernel wait and never comes back to user code to take it. So a service command
+// that arrives while the program runs, or at a stop an interrupt produced, waits
+// for the program to reach Qt's event delivery, which is such a place.
+void CdbImpl::runServiceCommand(const DebuggerCommand &cmd)
+{
+    if (!m_inferiorRunning && !m_atInterruptStop) {
+        runCommand(cmd);
+        return;
+    }
+    m_serviceCommands.append(cmd);
+    armServiceSafePoint();
+}
+
+void CdbImpl::armServiceSafePoint()
+{
+    if (!m_serviceSafePointId.isEmpty())
+        return;
+    if (m_qtCoreModule.isEmpty()) {
+        emit message("CdbImpl: no Qt core module, so a QML breakpoint cannot be "
+                     "changed while the program runs.", LogWarning);
+        return;
+    }
+    m_serviceSafePointId = nextBreakpointId();
+    m_internalBreakpointIds.insert(m_serviceSafePointId);
+    const DebuggerCommand arm{QString("bu%1 %2!QCoreApplication::notifyInternal2")
+                                  .arg(m_serviceSafePointId, m_qtCoreModule), NoFlags};
+    if (!m_inferiorRunning) {
+        runCommand(arm);
+        return;
+    }
+    // cdb takes what is written into a running session only at the next stop, so
+    // the breakpoint has to be set at a stop of the engine's own.
+    m_deferredCommands.append(arm);
+    if (!m_callbackStop) {
+        m_callbackStop = true;
+        interruptInferior();
+    }
+}
+
+// Every thread running an event loop delivers events, so the ones that do not
+// own the QML engine are passed over.
+void CdbImpl::handleServiceSafePoint(const GdbMi &stopData)
+{
+    if (!m_qmlThreadId.isEmpty() && stopData["threadId"].data() != m_qmlThreadId) {
+        resumeFromInternalStop();
+        return;
+    }
+    m_inInternalStop = true;
+    const QList<DebuggerCommand> commands = m_serviceCommands;
+    m_serviceCommands.clear();
+    for (const DebuggerCommand &command : commands)
+        runCommand(command);
+    m_resumeWhenServiceRepliesDrain = true;
+    finishServiceSafePoint();
+}
+
+// A round trip disables the message watch for its duration and enables it again
+// from its reply, so the resume has to wait for the last reply to have arrived.
+// Written before it, the resume runs first and leaves the watch disabled for the
+// whole run, and the breakpoint just inserted is then never announced.
+void CdbImpl::finishServiceSafePoint()
+{
+    if (!m_commandForToken.isEmpty())
+        return;
+    m_resumeWhenServiceRepliesDrain = false;
+    runCommand({"bc" + m_serviceSafePointId, NoFlags});
+    m_internalBreakpointIds.remove(m_serviceSafePointId);
+    m_serviceSafePointId.clear();
+    resumeFromInternalStop();
 }
 
 // The frame the current thread stopped in, however the extension reported it.
@@ -1015,6 +1190,16 @@ void CdbImpl::handleInterpreterMessage(const GdbMi &stopData)
             break;
         }
         if (isBreak) {
+            if (m_interpreterStepArmed) {
+                // The step this message answers is spent, and so is the native call
+                // hook that was armed along with it.
+                m_interpreterStepArmed = false;
+                runCommand({"theDumper.disarmInterpreterStep()", ScriptCommand,
+                           [this, stopData](const DebuggerResponse &) {
+                    reportStop(stopData);
+                }});
+                return;
+            }
             reportStop(stopData);
             return;
         }
@@ -1027,9 +1212,163 @@ void CdbImpl::handleInterpreterMessage(const GdbMi &stopData)
 // from after this resume, and that notification must not reach the client.
 void CdbImpl::resumeFromInternalStop()
 {
+    m_stopReported = false;
     m_expectSpontaneousStop = true;
     m_inferiorRunning = true;
+    m_expectStaleStop = true;
     runCommand({"g", NoFlags});
+}
+
+// A function breakpoint of cdb's sits on the entry instruction, i.e. ahead of the
+// prologue that establishes the frame the hook's argument is addressed against.
+// Reading it there gives whatever the stack slot held before. Run to the first
+// line of the body, where the frame is what the debug info describes.
+void CdbImpl::stepIntoNativeCallHookBody(const GdbMi &stopData)
+{
+    m_inInternalStop = true;
+    runCommand({"uf @$ip", BuiltinCommand,
+               [this, stopData](const DebuggerResponse &response) {
+        ResolvedFunction function;
+        parseFunctionDisassembly(response.data.data(), &function);
+        if (function.address == 0) {
+            descendIntoNativeMethod(stopData);
+            return;
+        }
+        m_nativeCallDescent = NativeCallDescent::ToHookBody;
+        m_inferiorRunning = true;
+        runCommand({"pa " + hexAddress(function.address), NoFlags});
+    }});
+}
+
+// Stopped in the hook the interpreter calls right before it dispatches a C++ method
+// called from QML. That dispatch goes through the generic metacall, which no single
+// step gets into, so break at the receiver's generated dispatch function instead.
+void CdbImpl::descendIntoNativeMethod(const GdbMi &stopData)
+{
+    m_inInternalStop = true;
+    m_interpreterStepArmed = false;
+    // Leaving QML for C++, so the interpreter step that raced this hook is spent,
+    // and so is the hook itself.
+    runCommand({"theDumper.disarmInterpreterStep()", ScriptCommand,
+               [this, stopData](const DebuggerResponse &) {
+        runCommand({"print('nativecalltarget=%d' % theDumper.nativeCallTargetAddress())",
+                    ScriptCommand, [this, stopData](const DebuggerResponse &response) {
+            static const QLatin1String prefix("nativecalltarget=");
+            quint64 address = 0;
+            for (const GdbMi &line : response.data["msg"]) {
+                const QString text = line.data();
+                if (text.startsWith(prefix))
+                    address = text.mid(prefix.size()).trimmed().toULongLong();
+            }
+            m_inInternalStop = false;
+            if (address == 0) {
+                // No debug info for the hook's argument, so where the call goes is
+                // anyone's guess. Report the hook itself rather than run on blindly.
+                reportStop(stopData);
+                return;
+            }
+            m_metacallBreakpointId = nextBreakpointId();
+            m_internalBreakpointIds.insert(m_metacallBreakpointId);
+            runCommand({QString("bu%1 /1 0x%2").arg(m_metacallBreakpointId,
+                                                    QString::number(address, 16)), NoFlags});
+            m_nativeCallDescent = NativeCallDescent::ToMetacall;
+            m_expectSpontaneousStop = true;
+            m_inferiorRunning = true;
+            runCommand({"g", NoFlags});
+        }});
+    }});
+}
+
+// Walk out of the generated qt_static_metacall trampoline into the method it
+// dispatches to, bounded in case the walk goes astray.
+void CdbImpl::stepOutOfMetacallTrampoline(const GdbMi &stopData)
+{
+    if (!stoppedFunction(stopData).contains("qt_static_metacall")
+            || m_nativeCallStepsTaken >= 32) {
+        m_nativeCallDescent = NativeCallDescent::None;
+        // An incremental link dispatches the call through a thunk, and the method
+        // itself is one step further on. Let the stop report walk that.
+        m_sourceStepInto = true;
+        m_thunkStepsTaken = 0;
+        m_nativeMethodBodyHopPending = true;
+        reportStop(stopData);
+        return;
+    }
+    ++m_nativeCallStepsTaken;
+    m_nativeCallDescent = NativeCallDescent::SteppingOut;
+    m_inferiorRunning = true;
+    runCommand({"t", NoFlags});
+}
+
+// The step that ends the descent lands on the method's entry instruction, i.e. on
+// its opening brace and ahead of the prologue, where the arguments and "this" still
+// read as whatever the stack held before. Step to the first line of the body, where
+// the frame is what the debug information describes.
+void CdbImpl::stepIntoNativeMethodBody(const GdbMi &stopData)
+{
+    const GdbMi stack = stopData["stack"];
+    bool ok = false;
+    const quint64 ip = stack.childCount() == 0
+            ? 0 : stack.childAt(0)["address"].data().toULongLong(&ok, 0);
+    if (!ok) {
+        reportStop(stopData);
+        return;
+    }
+    m_inInternalStop = true;
+    runCommand({"uf @$ip", BuiltinCommand,
+               [this, stopData, ip](const DebuggerResponse &response) {
+        ResolvedFunction function;
+        parseFunctionDisassembly(response.data.data(), &function);
+        // Not on the entry after all, so the frame is already established. Running
+        // to an address behind the current one would take the inferior anywhere.
+        if (function.entryAddress != ip || function.address <= ip) {
+            reportStop(stopData);
+            return;
+        }
+        m_nativeCallDescent = NativeCallDescent::ToMethodBody;
+        m_inferiorRunning = true;
+        runCommand({"l+t", NoFlags});
+        runCommand({"p", NoFlags});
+    }});
+}
+
+// The stops the descent needs are the engine's own. The client only gets to see
+// where it ends, in the C++ method the interpreter was about to call.
+bool CdbImpl::handleNativeCallStop(const GdbMi &stopData, const QString &stopFunction)
+{
+    if (m_interruptRequested) {
+        // The user wants the inferior where it is, not where the descent was headed.
+        m_nativeCallDescent = NativeCallDescent::None;
+        return false;
+    }
+    const QString breakpointId = stopData["breakpointId"].data();
+    if (m_nativeCallDescent == NativeCallDescent::ToMethodBody) {
+        m_nativeCallDescent = NativeCallDescent::None;
+        reportStop(stopData);
+        return true;
+    }
+    if (m_nativeCallDescent == NativeCallDescent::ToHookBody) {
+        m_nativeCallDescent = NativeCallDescent::None;
+        descendIntoNativeMethod(stopData);
+        return true;
+    }
+    if (stopFunction.endsWith("qt_v4AboutToCallNativeMethodHook")
+            || m_nativeCallHookIds.contains(breakpointId)) {
+        m_nativeCallStepsTaken = 0;
+        stepIntoNativeCallHookBody(stopData);
+        return true;
+    }
+    if (m_nativeCallDescent == NativeCallDescent::ToMetacall
+            && breakpointId != m_metacallBreakpointId) {
+        // Something else got there first, so the method is never reached this way.
+        m_nativeCallDescent = NativeCallDescent::None;
+        runCommand({"bc" + m_metacallBreakpointId, NoFlags});
+        return false;
+    }
+    if (m_nativeCallDescent == NativeCallDescent::None)
+        return false;
+    stepOutOfMetacallTrampoline(stopData);
+    return true;
 }
 
 // qt_qmlDebugMessageAvailable() has an empty body, so a release Qt inlines it away
@@ -1057,7 +1396,6 @@ void CdbImpl::armInterpreterMessageWatch()
         const QString watchId = nextBreakpointId();
         m_internalBreakpointIds.insert(watchId);
         m_interpreterMessageIds.insert(watchId);
-        m_interpreterMessageWatchId = watchId;
         runCommand({QString("ba%1 w4 %2!qt_qmlDebugMessageLength").arg(watchId, service),
                     NoFlags});
     }});
@@ -1081,7 +1419,8 @@ void CdbImpl::resolvePendingInterpreterBreakpoints()
         cmd.arg("enabled", breakpoint.params.enabled);
         cmd.arg("condition", toHex(breakpoint.params.condition));
         cmd.arg("ignorecount", breakpoint.params.ignoreCount);
-        cmd.callback = [this, outstanding](const DebuggerResponse &response) {
+        const int modelId = breakpoint.modelId;
+        cmd.callback = [this, outstanding, modelId](const DebuggerResponse &response) {
             if (response.resultClass != ResultDone) {
                 emit message(QString("CdbImpl: could not resolve a pending QML "
                                      "breakpoint: %1").arg(response.data["msg"].data()),
@@ -1096,6 +1435,9 @@ void CdbImpl::resolvePendingInterpreterBreakpoints()
                     all.fromStringMultiple(text, decoder);
                     if (all["asyncclass"].data() != "breakpointmodified")
                         continue;
+                    const int number = all["interpreterasync"]["number"].data().toInt();
+                    if (number > 0)
+                        m_interpreterBreakpointNumbers.insert(modelId, number);
                     GdbMi list;
                     list.m_type = GdbMi::List;
                     list.addChild(all["interpreterasync"]);
@@ -1136,6 +1478,18 @@ void CdbImpl::armInterpreterHooks()
         m_interpreterMessageIds.insert(messageId);
         runCommand({"bu" + messageId + ' ' + module + "!qt_qmlDebugMessageAvailable", NoFlags});
     }
+    // Where the interpreter is about to dispatch a C++ method called from QML.
+    // The breakpoint only fires while the bridge has the hook flag set, which it
+    // does for the duration of a step from a QML frame. A Qt without the hook
+    // leaves it deferred, and the step stays a step over the call.
+    for (const QString &module : {QString("Qt6Qmld"), QString("Qt6Qml"),
+                                  QString("Qt5Qmld"), QString("Qt5Qml")}) {
+        const QString hookId = nextBreakpointId();
+        m_internalBreakpointIds.insert(hookId);
+        m_nativeCallHookIds.insert(hookId);
+        runCommand({"bu" + hookId + ' ' + module + "!qt_v4AboutToCallNativeMethodHook",
+                    NoFlags});
+    }
     // A release Qt inlines qt_qmlDebugConnectorOpen() into its only caller,
     // QQmlNativeDebugConnector::open(), which leaves the exported symbol the
     // breakpoints above name orphaned. Watch the store that function makes to
@@ -1143,6 +1497,7 @@ void CdbImpl::armInterpreterHooks()
     // put the code. Qt linked into the executable is not covered.
     runCommand({"lm1m m Qt?Core*", BuiltinCommand, [this](const DebuggerResponse &response) {
         const QString qtCore = moduleName(response.data.data());
+        m_qtCoreModule = qtCore;
         if (qtCore.isEmpty()) {
             emit message("CdbImpl: no Qt core module, so no QML breakpoint resolver hook.",
                          LogWarning);
@@ -1228,6 +1583,11 @@ void CdbImpl::setupScripting()
                 flushPendingBridgeWork();
                 return;
             }
+            // The bridge picks the session mode up from a locals fetch, which a
+            // QML frame answers from the interpreter before it reads the options.
+            // The interpreter steps go by that flag, so set it here for good.
+            if (m_startData.nativeMixed)
+                runCommand({"theDumper.nativeMixed = 1", ScriptCommand});
             loadConfiguredDumpers();
             flushPendingBridgeWork();
         }});
@@ -1247,6 +1607,8 @@ void CdbImpl::restartSession()
     m_expectSpontaneousStop = false;
     m_interruptRequested = false;
     m_inInternalStop = false;
+    m_stopReported = false;
+    m_expectStaleStop = false;
     m_callbackStop = false;
     m_deferredCommands.clear();
     m_throwBreakpoints.clear();
@@ -1263,7 +1625,11 @@ void CdbImpl::restartSession()
     m_interpreterResolverIds.clear();
     m_interpreterMessageIds.clear();
     m_interpreterMessageWatchArmed = false;
-    m_interpreterMessageWatchId.clear();
+    m_interpreterStepArmed = false;
+    m_atNativeToQmlBoundary = false;
+    m_nativeCallHookIds.clear();
+    m_metacallBreakpointId.clear();
+    m_nativeCallDescent = NativeCallDescent::None;
     m_pendingBridgeWork.clear();
     m_currentBuiltinResponseToken = -1;
     m_currentBuiltinResponse.clear();
@@ -1544,6 +1910,118 @@ static GdbMi stackTreeFromFrames(const GdbMi &reply,
     return wrapper;
 }
 
+// Where the QML frames belong in a native mixed stack: the frame that reports a QML
+// debug event, or the interpreter itself when a C++ method called from QML is where
+// the inferior stopped.
+static bool isQmlSplicePoint(const QString &function)
+{
+    return function.startsWith("qt_qmlDebugMessageAvailable")
+           || function.contains("QV4::Moth::VME::");
+}
+
+static int qmlSpliceIndex(const GdbMi &frames)
+{
+    for (int index = 0, total = frames.childCount(); index < total; ++index) {
+        if (isQmlSplicePoint(frames.childAt(index)["function"].data()))
+            return index;
+    }
+    return -1;
+}
+
+// Mirrors DumperBase.isInterpreterMachineryFrame(), which marks the same frames for
+// gdb and lldb, where the stack is built in the bridge rather than in the engine.
+static bool isInterpreterMachineryFrame(const QString &function)
+{
+    if (function.startsWith("qt_qmlDebug") || function.startsWith("qt_v4")
+            || function.startsWith("debug_slowPath")) {
+        return true;
+    }
+    static const QStringList needles = {"QV4::Moth::VME::", "QV4::doCall",
+                                        "QV4::Function::call", "QV4::convertAndCall",
+                                        "QQmlNativeDebugConnector::", "DebugService",
+                                        "NativeDebugger::", "QtPrivate::",
+                                        "QMetaObject::activate", "doActivate"};
+    for (const QString &needle : needles) {
+        if (function.contains(needle))
+            return true;
+    }
+    // Lambdas in the V4 dispatch. Only sensible because the caller limits the check
+    // to the block below the interpreter.
+    return function.endsWith("operator()");
+}
+
+// A frame on the metacall path from the interpreter down to a C++ method: the generated
+// trampolines, and whatever the Qt libraries do between them. A frame the inferior has
+// no source for is machinery too, which in a release build is all of them.
+static bool isQmlCallMachineryFrame(const GdbMi &frame)
+{
+    const QString function = frame["function"].data();
+    if (function.contains("qt_static_metacall") || function.contains("qt_metacall"))
+        return true;
+    if (frame["fullname"].data().isEmpty())
+        return true;
+    const QString module = frame["from"].data();
+    return module.size() > 2 && module.startsWith("Qt") && module.at(2).isDigit();
+}
+
+static GdbMi markedAsMachinery(const GdbMi &frame)
+{
+    GdbMi marked = frame;
+    marked.addChild(constMi("usable", "0"));
+    marked.addChild(constMi("machinery", "1"));
+    return marked;
+}
+
+// Puts the QML frames on top of the native frame running the interpreter. Neither that
+// frame and the interpreter machinery below it, nor the metacall run above it, are of
+// interest to the user, so they are marked for the view to collapse.
+static GdbMi splicedFrames(const GdbMi &nativeFrames, const GdbMi &qmlFrames, int spliceIndex)
+{
+    int metacallRun = spliceIndex;
+    while (metacallRun > 0 && isQmlCallMachineryFrame(nativeFrames.childAt(metacallRun - 1)))
+        --metacallRun;
+
+    GdbMi frames;
+    frames.m_type = GdbMi::List;
+    bool inMachinery = false;
+    for (int index = 0, total = nativeFrames.childCount(); index < total; ++index) {
+        const GdbMi &frame = nativeFrames.childAt(index);
+        if (index == spliceIndex) {
+            for (const GdbMi &qmlFrame : qmlFrames)
+                frames.addChild(qmlFrame);
+            inMachinery = true;
+        }
+        bool machinery = index >= metacallRun && index < spliceIndex;
+        if (inMachinery) {
+            inMachinery = isInterpreterMachineryFrame(frame["function"].data());
+            machinery = inMachinery;
+        }
+        frames.addChild(machinery ? markedAsMachinery(frame) : frame);
+    }
+    return frames;
+}
+
+// The QML frames live in the interpreter, so only the bridge can produce them.
+void CdbImpl::reportSplicedStack(quint64 requestId, const GdbMi &nativeFrames)
+{
+    DebuggerCommand cmd("print('qmlstack=%s' % __import__('json').dumps("
+                        "theDumper.extractInterpreterStack()))", ScriptCommand);
+    // Asking the service runs the inferior, which makes dbgeng re-announce the stop
+    // the call was made from. That notification is the engine's own doing.
+    m_inInternalStop = true;
+    cmd.callback = [this, requestId, nativeFrames](const DebuggerResponse &response) {
+        m_inInternalStop = false;
+        const GdbMi qmlFrames = response.resultClass == ResultDone
+                                    ? interpreterStackFrames(response.data["msg"])
+                                    : GdbMi();
+        const GdbMi frames = splicedFrames(nativeFrames, qmlFrames,
+                                           qmlSpliceIndex(nativeFrames));
+        emit refreshDataReceived(requestId, RefreshKind::FullStack,
+                                 stackTreeFromFrames(frames, sourcePathMap()));
+    };
+    runCommand(cmd);
+}
+
 void CdbImpl::refresh(const RefreshRequest &request)
 {
     if (m_wow64State == Wow64State::Unknown) {
@@ -1587,6 +2065,10 @@ void CdbImpl::refresh(const RefreshRequest &request)
         const quint64 requestId = request.requestId;
         DebuggerCommand cmd("stack", ExtensionCommand,
                            [this, requestId](const DebuggerResponse &response) {
+            if (m_startData.nativeMixed && qmlSpliceIndex(response.data) >= 0) {
+                reportSplicedStack(requestId, response.data);
+                return;
+            }
             emit refreshDataReceived(requestId, RefreshKind::FullStack,
                                      stackTreeFromFrames(response.data, sourcePathMap()));
         });
@@ -1877,6 +2359,8 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
             m_currentBuiltinResponse.clear();
             if (m_resumeWhenRepliesDrain)
                 resumeAfterSetup();
+            if (m_resumeWhenServiceRepliesDrain)
+                finishServiceSafePoint();
         } else {
             if (!m_currentBuiltinResponse.isEmpty())
                 m_currentBuiltinResponse.push_back('\n');
@@ -1961,6 +2445,8 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         command.callback(response);
         if (m_resumeWhenRepliesDrain)
             resumeAfterSetup();
+        if (m_resumeWhenServiceRepliesDrain)
+            finishServiceSafePoint();
         return;
     }
 
@@ -2052,19 +2538,6 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
             });
             return;
         }
-        m_inferiorRunning = false;
-        // Held back while the session ran; cdb runs them before any resume
-        // written after them.
-        const QList<DebuggerCommand> deferred = m_deferredCommands;
-        m_deferredCommands.clear();
-        for (const DebuggerCommand &cmd : deferred)
-            runCommand(cmd);
-        if (m_callbackStop) {
-            // Ours, to get a command in: the client never learns about it.
-            m_callbackStop = false;
-            resumeFromInternalStop();
-            return;
-        }
         GdbMi stopData;
         QStringDecoder decoder(QStringEncoder::System);
         stopData.fromString(payload, decoder);
@@ -2074,13 +2547,53 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         // Qt does not ship; that the engine itself is driving the inferior is
         // known either way.
         const QString stopFunction = stoppedFunction(stopData);
-        if (m_inInternalStop && !m_interruptRequested
-                && stopData["reason"].data() != "breakpoint"
-                && stopData["breakpointId"].data().isEmpty()) {
+        // cdb cannot stop where it is already stopped, so while the client sits on
+        // a stop of ours anything announced here is that same stop coming back from
+        // an inferior call, and acting on it a second time would take the inferior
+        // away from under the client.
+        if (m_stopReported && !m_inferiorRunning && !m_callbackStop && !m_interruptRequested)
+            return;
+        // Same while a stop of the engine's own is still being worked on: nothing was
+        // resumed since, so cdb sits where it was and the announcement is that stop.
+        if (m_inInternalStop && !m_inferiorRunning && !m_callbackStop
+                && !m_interruptRequested) {
             return;
         }
+        // The resume written after a round trip of the engine's own gets the stop
+        // those calls were made from announced once more, without a reason or a
+        // breakpoint id. Taking it for the stop that ends the resume would leave the
+        // client's commands going into a live session, where they never execute.
+        if (m_expectStaleStop && !m_interruptRequested && !m_callbackStop
+                && stopData["reason"].data() != "breakpoint"
+                && stopData["breakpointId"].data().isEmpty()) {
+            m_expectStaleStop = false;
+            return;
+        }
+        m_expectStaleStop = false;
+        m_inferiorRunning = false;
+        m_atInterruptStop = m_interruptRequested;
+        // Held back while the session ran; cdb runs them before any resume
+        // written after them.
+        const QList<DebuggerCommand> deferred = m_deferredCommands;
+        m_deferredCommands.clear();
+        for (const DebuggerCommand &cmd : deferred)
+            runCommand(cmd);
+        if (!m_serviceSafePointId.isEmpty() && !m_interruptRequested
+                && stopData["breakpointId"].data() == m_serviceSafePointId) {
+            handleServiceSafePoint(stopData);
+            return;
+        }
+        if (m_callbackStop) {
+            // Ours, to get a command in: the client never learns about it.
+            m_callbackStop = false;
+            resumeFromInternalStop();
+            return;
+        }
+        if (m_startData.nativeMixed && handleNativeCallStop(stopData, stopFunction))
+            return;
         if (stopFunction.endsWith("qt_qmlDebugMessageAvailable")
                 || m_interpreterMessageIds.contains(stopData["breakpointId"].data())) {
+            m_qmlThreadId = stopData["threadId"].data();
             m_inInternalStop = true;
             handleInterpreterMessage(stopData);
             return;
@@ -2088,6 +2601,7 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         if (stopFunction.endsWith("qt_qmlDebugConnectorOpen")
                 || (stopData["reason"].data() == "breakpoint"
                     && m_interpreterResolverIds.contains(stopData["breakpointId"].data()))) {
+            m_qmlThreadId = stopData["threadId"].data();
             m_inInternalStop = true;
             resolvePendingInterpreterBreakpoints();
             return;
@@ -2162,6 +2676,23 @@ static bool landedOnLinkerThunk(const GdbMi &stopData)
     return top["fullname"].data().isEmpty() && top["function"].data().contains("ILT+");
 }
 
+// True if the frame the inferior stopped in was called straight from the QML
+// interpreter through the metacall machinery, with no user C++ frame in between.
+// Stepping out of it returns to the QML caller.
+static bool atNativeToQmlBoundary(const GdbMi &frames)
+{
+    const int total = qMin(frames.childCount(), 25);
+    for (int index = 1; index < total; ++index) {
+        const GdbMi &frame = frames.childAt(index);
+        const QString function = frame["function"].data();
+        if (function.contains("QV4::Moth::VME::") || function.contains("callInternal"))
+            return true;
+        if (!isQmlCallMachineryFrame(frame))
+            return false;
+    }
+    return false;
+}
+
 void CdbImpl::reportStop(const GdbMi &stopData)
 {
     if (m_wow64State == Wow64State::Unknown) {
@@ -2175,7 +2706,25 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         return;
     }
     m_sourceStepInto = false;
+    if (m_nativeMethodBodyHopPending) {
+        m_nativeMethodBodyHopPending = false;
+        stepIntoNativeMethodBody(stopData);
+        return;
+    }
+    // The native half of a mixed step got there first, so the interpreter step lost
+    // the race. Take it back, or it fires on some later continue.
+    if (m_interpreterStepArmed) {
+        m_interpreterStepArmed = false;
+        m_inInternalStop = true;
+        runCommand({"theDumper.disarmInterpreterStep()", ScriptCommand,
+                   [this, stopData](const DebuggerResponse &) {
+            m_inInternalStop = false;
+            reportStop(stopData);
+        }});
+        return;
+    }
     const GdbMi stack = stopData["stack"];
+    m_atNativeToQmlBoundary = m_startData.nativeMixed && atNativeToQmlBoundary(stack);
     if (stack.childCount() > 0) {
         const GdbMi &topFrame = stack.childAt(0);
         const QString fullName = mappedFromDebugger(topFrame["fullname"].data(),
@@ -2185,6 +2734,7 @@ void CdbImpl::reportStop(const GdbMi &stopData)
     }
     m_inferiorRunning = false;
     m_inInternalStop = false;
+    m_stopReported = true;
     if (m_interruptRequested) {
         m_interruptRequested = false;
         emit inferiorEvent(InferiorEvent::StopOk);
@@ -2235,16 +2785,19 @@ void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
         return;
     }
     if (dbgCmd.flags & ScriptCommand) {
-        // A dumper script may talk to the QML service, whose replies write the very
-        // global the message watch sits on. Keep it out of our own traffic.
-        const QString watchId = m_interpreterMessageWatchId;
-        if (!watchId.isEmpty())
-            runCommand({"bd" + watchId, NoFlags});
+        // A dumper script talks to the QML service, and the service answers by
+        // writing the global the message watch sits on and calling the hook the
+        // message breakpoint sits in. Both would report our own traffic as a stop
+        // of the inferior's, so keep them out of it for the round trip.
+        const QStringList messageIds(m_interpreterMessageIds.cbegin(),
+                                     m_interpreterMessageIds.cend());
+        for (const QString &id : messageIds)
+            runCommand({"bd" + id, NoFlags});
         const DebuggerCommand::Callback callback = dbgCmd.callback;
         DebuggerCommand scriptCmd("script", ExtensionCommand,
-                                  [this, watchId, callback](const DebuggerResponse &r) {
-            if (!watchId.isEmpty())
-                runCommand({"be" + watchId, NoFlags});
+                                  [this, messageIds, callback](const DebuggerResponse &r) {
+            for (const QString &id : messageIds)
+                runCommand({"be" + id, NoFlags});
             if (callback)
                 callback(r);
         });

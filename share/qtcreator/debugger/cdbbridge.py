@@ -353,6 +353,53 @@ class Dumper(DumperBase):
             raise RuntimeError('Cannot resolve %s' % qualified)
         return RawServiceVariable(self, address)
 
+    def nativeCallHookAddress(self):
+        # The flag the interpreter checks before calling the dispatch hook. It
+        # only exists in a Qt carrying the qtdeclarative change, and without it
+        # a step from QML into a C++ method stays a step over the call.
+        if not hasattr(self, 'nativeCallHookAddr'):
+            module = self.qtDeclarativeModuleName()
+            name = 'qt_v4NativeCallHookEnabled'
+            if module:
+                name = '%s!%s' % (module, name)
+            try:
+                self.nativeCallHookAddr = cdbext.getAddressByName(name)
+            except Exception:
+                self.nativeCallHookAddr = 0
+        return self.nativeCallHookAddr
+
+    def setNativeCallHookEnabled(self, enabled):
+        address = self.nativeCallHookAddress()
+        if not address:
+            return
+        try:
+            cdbext.writeRawMemory(address, bytes([1 if enabled else 0]))
+        except Exception as error:
+            self.warn('Cannot write the native call hook flag: %s' % error)
+
+    def armNativeCallStepIn(self):
+        self.setNativeCallHookEnabled(True)
+
+    def disarmNativeCallStepIn(self):
+        self.setNativeCallHookEnabled(False)
+
+    def nativeCallTargetAddress(self):
+        # Stopped in the dispatch hook, the receiver's generated
+        # qt_static_metacall is where the method about to be called is
+        # dispatched from, so that is where to break.
+        try:
+            meta = self.parseAndEvaluate('receiverMeta')
+            return 0 if meta is None else meta['d']['static_metacall'].pointer()
+        except Exception as error:
+            self.warn('Cannot resolve the native method target: %s' % error)
+            return 0
+
+    def doContinue(self):
+        # No-op for cdb. The gdb/lldb bridges own the inferior and resume it at
+        # the end of a step. Here the engine writes the commands, so it issues
+        # the resume itself once this script command has returned.
+        pass
+
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         # No-op for cdb. The gdb/lldb bridges set a Python-side breakpoint on
         # qt_qmlDebugConnectorOpen here to resolve pending QML breakpoints;
