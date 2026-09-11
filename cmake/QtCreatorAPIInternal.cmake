@@ -465,6 +465,104 @@ function(condition_info varName condition)
   endif()
 endfunction()
 
+#[=[.rst:
+.. command:: extend_qtc_target
+
+  Adds to a target of Qt Creator, whatever kind it is:
+
+  .. code-block:: cmake
+
+    extend_qtc_target(<target>
+                      [CONDITION <condition>...]
+                      [FEATURE_INFO <text>]
+                      [SOURCES_PREFIX <path>]
+                      [SOURCES_PREFIX_FROM_TARGET <target>]
+                      [SOURCES <file>...]
+                      [SOURCES_PROPERTIES <property> <value>...]
+                      [DEPENDS <library>...]
+                      [PUBLIC_DEPENDS <library>...]
+                      [DEFINES <define>...]
+                      [PUBLIC_DEFINES <define>...]
+                      [INCLUDES <directory>...]
+                      [SYSTEM_INCLUDES <directory>...]
+                      [PUBLIC_INCLUDES <directory>...]
+                      [PUBLIC_SYSTEM_INCLUDES <directory>...]
+                      [EXPLICIT_MOC <file>...]
+                      [SKIP_AUTOMOC <file>...]
+                      [EXTRA_TRANSLATIONS <file>...]
+                      [PRIVATE_COMPILE_OPTIONS <option>...]
+                      [PUBLIC_COMPILE_OPTIONS <option>...]
+                      [PROPERTIES <property> <value>...]
+                      [SBOM_ARGS <argument>...])
+
+  This is what ``extend_qtc_plugin()``, ``extend_qtc_library()``,
+  ``extend_qtc_test()`` and ``extend_qtc_executable()`` do the work
+  with, and it is those a plugin or a library calls.
+
+  ``CONDITION <condition>...``
+    Everything else is added only where the condition holds.
+
+  ``FEATURE_INFO <text>``
+    Report the condition among the features of the build, under that
+    text.
+
+  ``SOURCES_PREFIX <path>``
+    The directory the sources are named relative to.
+
+  ``SOURCES_PREFIX_FROM_TARGET <target>``
+    The same, read off the directory another target was defined in.
+
+  ``SOURCES <file>...``
+    The files to add to the target.
+
+  ``SOURCES_PROPERTIES <property> <value>...``
+    Properties to set on those files.
+
+  ``DEPENDS <library>...``, ``PUBLIC_DEPENDS <library>...``
+    The libraries to link, privately or for whoever links the target as
+    well.
+
+  ``DEFINES <define>...``, ``PUBLIC_DEFINES <define>...``
+    What to define while building the target, and while building
+    whatever links it.
+
+  ``INCLUDES <directory>...``, ``SYSTEM_INCLUDES <directory>...``
+    Where to look for headers.  A system directory is one whose
+    warnings are none of this target's business.
+
+  ``PUBLIC_INCLUDES <directory>...``,
+  ``PUBLIC_SYSTEM_INCLUDES <directory>...``
+    The same, for whoever links the target.
+
+  ``EXPLICIT_MOC <file>...``
+    The files to run ``moc`` over itself.
+
+  ``SKIP_AUTOMOC <file>...``
+    The files to keep ``moc`` away from.
+
+  ``EXTRA_TRANSLATIONS <file>...``
+    Files to read translatable text from beyond the sources.
+
+  ``PRIVATE_COMPILE_OPTIONS <option>...``,
+  ``PUBLIC_COMPILE_OPTIONS <option>...``
+    Options for the compiler, for the target and for whoever links it.
+
+  ``PROPERTIES <property> <value>...``
+    Properties to set on the target.
+
+  ``SBOM_ARGS <argument>...``
+    What to tell the software bill of materials about the target.
+
+  The sources of a plugin that only some builds have:
+
+  .. code-block:: cmake
+
+    extend_qtc_plugin(MyPlugin
+      CONDITION WIN32
+      SOURCES
+        mywindowsthing.cpp mywindowsthing.h
+    )
+#]=]
 function(extend_qtc_target target_name)
   set(opt_args "")
   set(single_args

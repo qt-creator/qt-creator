@@ -79,6 +79,27 @@ qtc_check_default_values_for_list(EXECUTABLES)
 qtc_check_default_values_for_list(LIBRARIES)
 qtc_check_default_values_for_list(TESTS)
 
+#[=[.rst:
+.. command:: qtc_plugin_enabled
+
+  Tells whether a plugin of Qt Creator is being built:
+
+  .. code-block:: cmake
+
+    qtc_plugin_enabled(<out-var> <plugin>)
+
+  A plugin that no ``add_qtc_plugin()`` call defines is an error, so
+  that a name that is written wrong does not read as a plugin that is
+  turned off.
+
+  ``<out-var>``
+    The variable to set, in the scope of the caller, to ``ON`` where the
+    plugin is built and to ``OFF`` where it is not.
+
+  ``<plugin>``
+    The name of the plugin, spelled the way ``add_qtc_plugin()`` was
+    called with it.
+#]=]
 function(qtc_plugin_enabled varName name)
   if (NOT (name IN_LIST __QTC_PLUGINS))
     message(FATAL_ERROR "qtc_plugin_enabled: Unknown plugin target \"${name}\"")
@@ -90,6 +111,27 @@ function(qtc_plugin_enabled varName name)
   endif()
 endfunction()
 
+#[=[.rst:
+.. command:: qtc_library_enabled
+
+  Tells whether a library of Qt Creator is being built:
+
+  .. code-block:: cmake
+
+    qtc_library_enabled(<out-var> <library>)
+
+  A library that no ``add_qtc_library()`` call defines is an error, so
+  that a name that is written wrong does not read as a library that is
+  turned off.
+
+  ``<out-var>``
+    The variable to set, in the scope of the caller, to ``ON`` where the
+    library is built and to ``OFF`` where it is not.
+
+  ``<library>``
+    The name of the library, spelled the way ``add_qtc_library()`` was
+    called with it.
+#]=]
 function(qtc_library_enabled varName name)
   if (NOT (name IN_LIST __QTC_LIBRARIES))
     message(FATAL_ERROR "qtc_library_enabled: Unknown library target \"${name}\"")
@@ -127,6 +169,158 @@ function(get_default_defines varName allow_ascii_casts)
   set(${varName} ${default_defines_copy} PARENT_SCOPE)
 endfunction()
 
+#[=[.rst:
+.. command:: add_qtc_library
+
+  Adds a library of Qt Creator, which the plugins and the other
+  libraries of it build against:
+
+  .. code-block:: cmake
+
+    add_qtc_library(<name>
+                    [STATIC|SHARED|OBJECT]
+                    [DESTINATION <path>]
+                    [COMPONENT <component>]
+                    [SOURCES_PREFIX <path>]
+                    [CONDITION <condition>...]
+                    [BUILD_DEFAULT <ON|OFF>]
+                    [FEATURE_INFO]
+                    [DEPENDS <library>...]
+                    [PUBLIC_DEPENDS <library>...]
+                    [SOURCES <file>...]
+                    [DEFINES <define>...]
+                    [PUBLIC_DEFINES <define>...]
+                    [INCLUDES <directory>...]
+                    [SYSTEM_INCLUDES <directory>...]
+                    [PUBLIC_INCLUDES <directory>...]
+                    [PUBLIC_SYSTEM_INCLUDES <directory>...]
+                    [EXPLICIT_MOC <file>...]
+                    [SKIP_AUTOMOC <file>...]
+                    [EXTRA_TRANSLATIONS <file>...]
+                    [PRIVATE_COMPILE_OPTIONS <option>...]
+                    [PUBLIC_COMPILE_OPTIONS <option>...]
+                    [PROPERTIES <property> <value>...]
+                    [SBOM_ARGS <argument>...]
+                    [ALLOW_ASCII_CASTS]
+                    [EXCLUDE_FROM_INSTALL]
+                    [SKIP_TRANSLATION]
+                    [SKIP_PCH])
+
+  The call defines the target ``<name>`` and the alias
+  ``QtCreator::<name>`` that the rest of the build refers to it by.
+  Whether the library is built at all is the cache variable
+  ``BUILD_LIBRARY_<NAME>``.
+
+  What the library is:
+
+  ``STATIC``, ``SHARED``, ``OBJECT``
+    What kind of library to build.  A shared one by default, a static
+    one where the build is static, and ``SHARED`` asks for a shared one
+    even then.
+
+  ``DESTINATION <path>``
+    Where the library is installed.  Defaults to the directory the
+    binaries of the installation go into.
+
+  ``COMPONENT <component>``
+    The component of the installation the library belongs to.
+
+  ``SOURCES_PREFIX <path>``
+    The directory the sources are named relative to, for a library
+    whose sources do not stand beside the call.
+
+  Whether it is built:
+
+  ``CONDITION <condition>...``
+    The library is built only where the condition holds.
+
+  ``BUILD_DEFAULT <ON|OFF>``
+    What ``BUILD_LIBRARY_<NAME>`` defaults to.  Defaults to
+    ``BUILD_LIBRARIES_BY_DEFAULT``, and the environment variable
+    ``QTC_BUILD_LIBRARY_<NAME>`` overrides either.
+
+  ``FEATURE_INFO``
+    Report the library among the features of the build, which a library
+    that is not one to choose is left out of.
+
+  What it needs and what it is built from:
+
+  ``DEPENDS <library>...``, ``PUBLIC_DEPENDS <library>...``
+    The libraries to link, privately or for whoever links this one as
+    well.
+
+  ``SOURCES <file>...``
+    The files to build.
+
+  ``DEFINES <define>...``
+    What to define while building the library.
+
+  ``PUBLIC_DEFINES <define>...``
+    What to define while building the library and while building
+    whatever links it.
+
+  ``INCLUDES <directory>...``
+    Where to look for headers while building the library.
+
+  ``SYSTEM_INCLUDES <directory>...``
+    The same, for a directory whose warnings are none of this library's
+    business.
+
+  ``PUBLIC_INCLUDES <directory>...``
+    Where to look for headers, for this library and for whoever links
+    it.
+
+  ``PUBLIC_SYSTEM_INCLUDES <directory>...``
+    The same, for a directory whose warnings are nobody's business.
+
+  ``EXPLICIT_MOC <file>...``
+    The files to run ``moc`` over itself, where letting it find them
+    does not do.
+
+  ``SKIP_AUTOMOC <file>...``
+    The files to keep ``moc`` away from.
+
+  ``EXTRA_TRANSLATIONS <file>...``
+    Files to read translatable text from beyond the sources.
+
+  ``PRIVATE_COMPILE_OPTIONS <option>...``
+    Options for the compiler while building the library.
+
+  ``PUBLIC_COMPILE_OPTIONS <option>...``
+    The same, for whoever links the library as well.
+
+  ``PROPERTIES <property> <value>...``
+    Properties to set on the target, after the ones the call sets
+    itself.
+
+  ``SBOM_ARGS <argument>...``
+    What to tell the software bill of materials about the library,
+    where one is generated.
+
+  ``ALLOW_ASCII_CASTS``
+    Build without the definitions that keep a QString from being built
+    out of a byte array by itself.
+
+  ``EXCLUDE_FROM_INSTALL``
+    Build the library but install nothing of it.
+
+  ``SKIP_TRANSLATION``
+    Leave the library out of the translations.
+
+  ``SKIP_PCH``
+    Build without the precompiled header.
+
+  A library of Qt Creator:
+
+  .. code-block:: cmake
+
+    add_qtc_library(MyLib
+      DEPENDS Qt::Core
+      PUBLIC_DEPENDS Utils
+      SOURCES
+        mylib.cpp mylib.h
+    )
+#]=]
 function(add_qtc_library name)
   set(opt_args
     STATIC
@@ -425,6 +619,211 @@ function(markdown_to_json resultVarName filepath)
   set("${resultVarName}" "\"${result}\"" PARENT_SCOPE)
 endfunction()
 
+#[=[.rst:
+.. command:: add_qtc_plugin
+
+  Adds a plugin of Qt Creator, which is a shared library the plugin
+  manager loads at run time, together with the meta data it needs to do
+  so:
+
+  .. code-block:: cmake
+
+    add_qtc_plugin(<name>
+                   [PLUGIN_CLASS <class>]
+                   [PLUGIN_NAME <name>]
+                   [PLUGIN_PATH <path>]
+                   [VERSION <version>]
+                   [COMPAT_VERSION <version>]
+                   [LONG_DESCRIPTION_MD <file>]
+                   [LICENSE_MD <file>]
+                   [CONDITION <condition>...]
+                   [BUILD_DEFAULT <ON|OFF>]
+                   [INTERNAL_ONLY]
+                   [PLUGIN_DEPENDS <plugin>...]
+                   [PLUGIN_RECOMMENDS <plugin>...]
+                   [PLUGIN_TEST_DEPENDS <plugin>...]
+                   [PLUGIN_MANUAL_DEPENDS <id> <version> <type>...]
+                   [DEPENDS <library>...]
+                   [PUBLIC_DEPENDS <library>...]
+                   [SOURCES <file>...]
+                   [DEFINES <define>...]
+                   [PUBLIC_DEFINES <define>...]
+                   [INCLUDES <directory>...]
+                   [SYSTEM_INCLUDES <directory>...]
+                   [PUBLIC_INCLUDES <directory>...]
+                   [PUBLIC_SYSTEM_INCLUDES <directory>...]
+                   [EXPLICIT_MOC <file>...]
+                   [SKIP_AUTOMOC <file>...]
+                   [EXTRA_TRANSLATIONS <file>...]
+                   [PRIVATE_COMPILE_OPTIONS <option>...]
+                   [PUBLIC_COMPILE_OPTIONS <option>...]
+                   [PROPERTIES <property> <value>...]
+                   [SBOM_ARGS <argument>...]
+                   [EXPORT]
+                   [SKIP_INSTALL]
+                   [SKIP_TRANSLATION]
+                   [SKIP_PCH])
+
+  The call defines the target ``<name>``, the alias
+  ``QtCreator::<name>`` that the rest of the build refers to it by, and
+  writes the library into the plugin directory of the build.
+
+  Whether the plugin is built at all is the cache variable
+  ``BUILD_PLUGIN_<NAME>``.  Where a ``<name>.json.in`` file stands
+  beside the call, it is configured into the meta data of the plugin,
+  with ``IDE_PLUGIN_DEPENDENCIES`` standing for the dependencies
+  declared here and ``IDE_VERSION`` for the version of Qt Creator.
+
+  What the plugin is:
+
+  ``PLUGIN_CLASS <class>``
+    The class that implements ``ExtensionSystem::IPlugin``.  Defaults to
+    the name of the target with ``Plugin`` behind it.
+
+  ``PLUGIN_NAME <name>``
+    The name the plugin is known by, which is the one of its meta data,
+    of its library and of its export symbol.  Defaults to the name of
+    the target.
+
+  ``PLUGIN_PATH <path>``
+    Where the library is written and installed.  Defaults to the plugin
+    directory of the installation.
+
+  ``VERSION <version>``
+    The version of the plugin, which the plugins that depend on it are
+    written against.  Defaults to the version of Qt Creator.
+
+  ``COMPAT_VERSION <version>``
+    The oldest version of the plugin that one built against this one
+    still works with.  Defaults to ``VERSION``.
+
+  ``LONG_DESCRIPTION_MD <file>``
+    A Markdown file whose text becomes the description the extension
+    manager shows.
+
+  ``LICENSE_MD <file>``
+    A Markdown file whose text becomes the license the extension
+    manager shows.
+
+  Whether it is built:
+
+  ``CONDITION <condition>...``
+    The plugin is built only where the condition holds.  Where it does
+    not, the call does nothing but say so.
+
+  ``BUILD_DEFAULT <ON|OFF>``
+    What ``BUILD_PLUGIN_<NAME>`` defaults to.  Defaults to
+    ``BUILD_PLUGINS_BY_DEFAULT``, and the environment variable
+    ``QTC_BUILD_PLUGIN_<NAME>`` overrides either.
+
+  ``INTERNAL_ONLY``
+    The plugin is not one to choose: it gets no cache variable of its
+    own and is left out of the report of what is built.
+
+  What it needs:
+
+  ``PLUGIN_DEPENDS <plugin>...``
+    The plugins this one needs.  They are written into its meta data,
+    so that the plugin manager loads them first, and are linked
+    publicly.
+
+  ``PLUGIN_RECOMMENDS <plugin>...``
+    The plugins this one uses where they are there.  They are written
+    into its meta data as optional dependencies.
+
+  ``PLUGIN_TEST_DEPENDS <plugin>...``
+    The plugins the tests of this one need, written into its meta data
+    as dependencies of the tests.
+
+  ``PLUGIN_MANUAL_DEPENDS <id> <version> <type>...``
+    Dependencies to write into the meta data the way they stand, three
+    arguments to each of them.  This is for a plugin that is not a
+    target of this build.
+
+  ``DEPENDS <library>...``
+    The libraries to link, and the targets to build first.
+
+  ``PUBLIC_DEPENDS <library>...``
+    The same, for what whoever links this plugin links as well.
+
+  What it is built from:
+
+  ``SOURCES <file>...``
+    The files to build.  A header among them is installed with the
+    plugin where the plugin is one to build against.
+
+  ``DEFINES <define>...``
+    What to define while building the plugin.
+
+  ``PUBLIC_DEFINES <define>...``
+    What to define while building the plugin and while building
+    whatever links it.
+
+  ``INCLUDES <directory>...``
+    Where to look for headers while building the plugin.
+
+  ``SYSTEM_INCLUDES <directory>...``
+    The same, for a directory whose warnings are none of this plugin's
+    business.
+
+  ``PUBLIC_INCLUDES <directory>...``
+    Where to look for headers, for this plugin and for whoever links
+    it.
+
+  ``PUBLIC_SYSTEM_INCLUDES <directory>...``
+    The same, for a directory whose warnings are nobody's business.
+
+  ``EXPLICIT_MOC <file>...``
+    The files to run ``moc`` over itself, where letting it find them
+    does not do.
+
+  ``SKIP_AUTOMOC <file>...``
+    The files to keep ``moc`` away from.
+
+  ``EXTRA_TRANSLATIONS <file>...``
+    Files to read translatable text from beyond the sources.
+
+  ``PRIVATE_COMPILE_OPTIONS <option>...``
+    Options for the compiler while building the plugin.
+
+  ``PUBLIC_COMPILE_OPTIONS <option>...``
+    The same, for whoever links the plugin as well.
+
+  ``PROPERTIES <property> <value>...``
+    Properties to set on the target, after the ones the call sets
+    itself.
+
+  ``SKIP_PCH``
+    Build without the precompiled header.
+
+  How it is installed:
+
+  ``SKIP_INSTALL``
+    Build the plugin but install nothing of it.
+
+  ``SKIP_TRANSLATION``
+    Leave the plugin out of the translations.
+
+  ``EXPORT``
+    Install an export set of the plugin's own, so that a plugin built
+    outside of this build can depend on it.  A build that merges its
+    binary directory with the one of Qt Creator ignores this.
+
+  ``SBOM_ARGS <argument>...``
+    What to tell the software bill of materials about the plugin, where
+    one is generated.
+
+  Adding a plugin to Qt Creator itself:
+
+  .. code-block:: cmake
+
+    add_qtc_plugin(MyPlugin
+      PLUGIN_DEPENDS Core ProjectExplorer
+      DEPENDS Utils
+      SOURCES
+        myplugin.cpp myplugin.h
+    )
+#]=]
 function(add_qtc_plugin target_name)
   set(opt_args
     SKIP_INSTALL
@@ -799,6 +1198,23 @@ function(qtc_finalize_plugin target)
   qtc_finalize_target("${target}")
 endfunction()
 
+#[=[.rst:
+.. command:: extend_qtc_plugin
+
+  Adds to a plugin that ``add_qtc_plugin()`` defined:
+
+  .. code-block:: cmake
+
+    extend_qtc_plugin(<plugin> <argument>...)
+
+  This is how the sources of a plugin are named that only some builds
+  have, and how what a plugin is built with is added to in one place
+  and another.  Where the plugin is not being built, the call does
+  nothing, so that a condition has to be written once only.
+
+  It takes the arguments of ``extend_qtc_target()``, ``CONDITION`` and
+  ``SOURCES`` among them.
+#]=]
 function(extend_qtc_plugin target_name)
   qtc_plugin_enabled(_plugin_enabled ${target_name})
   if (NOT _plugin_enabled)
@@ -811,6 +1227,18 @@ function(extend_qtc_plugin target_name)
   extend_qtc_target(${target_name} ${ARGN})
 endfunction()
 
+#[=[.rst:
+.. command:: extend_qtc_library
+
+  Adds to a library that ``add_qtc_library()`` defined:
+
+  .. code-block:: cmake
+
+    extend_qtc_library(<library> <argument>...)
+
+  Where the library is not being built, the call does nothing.  It
+  takes the arguments of ``extend_qtc_target()``.
+#]=]
 function(extend_qtc_library target_name)
   qtc_library_enabled(_library_enabled ${target_name})
   if (NOT _library_enabled)
@@ -823,6 +1251,19 @@ function(extend_qtc_library target_name)
   extend_qtc_target(${target_name} ${ARGN})
 endfunction()
 
+#[=[.rst:
+.. command:: extend_qtc_test
+
+  Adds to a test that ``add_qtc_test()`` defined:
+
+  .. code-block:: cmake
+
+    extend_qtc_test(<test> <argument>...)
+
+  Where the test is not being built, the call does nothing.  A test
+  that no ``add_qtc_test()`` call defines is an error.  It takes the
+  arguments of ``extend_qtc_target()``.
+#]=]
 function(extend_qtc_test target_name)
   if (NOT (target_name IN_LIST __QTC_TESTS))
     message(FATAL_ERROR "extend_qtc_test: Unknown test target \"${target_name}\"")
@@ -832,6 +1273,110 @@ function(extend_qtc_test target_name)
   endif()
 endfunction()
 
+#[=[.rst:
+.. command:: add_qtc_executable
+
+  Adds an executable of Qt Creator, which is a program the IDE ships
+  beside itself:
+
+  .. code-block:: cmake
+
+    add_qtc_executable(<name>
+                       [DESTINATION <path>]
+                       [COMPONENT <component>]
+                       [CONDITION <condition>...]
+                       [BUILD_DEFAULT <ON|OFF>]
+                       [DEPENDS <library>...]
+                       [SOURCES <file>...]
+                       [DEFINES <define>...]
+                       [INCLUDES <directory>...]
+                       [EXPLICIT_MOC <file>...]
+                       [SKIP_AUTOMOC <file>...]
+                       [EXTRA_TRANSLATIONS <file>...]
+                       [PRIVATE_COMPILE_OPTIONS <option>...]
+                       [PUBLIC_COMPILE_OPTIONS <option>...]
+                       [PROPERTIES <property> <value>...]
+                       [SBOM_ARGS <argument>...]
+                       [QT_APP]
+                       [QTC_RUNNABLE]
+                       [ALLOW_ASCII_CASTS]
+                       [SKIP_INSTALL]
+                       [SKIP_TRANSLATION]
+                       [SKIP_PCH])
+
+  Whether the program is built at all is the cache variable
+  ``BUILD_EXECUTABLE_<NAME>``.
+
+  ``DESTINATION <path>``
+    Where the program is written and installed.  Defaults to the
+    directory the programs that are not to be started by hand go into.
+
+  ``COMPONENT <component>``
+    The component of the installation the program belongs to.
+
+  ``CONDITION <condition>...``
+    The program is built only where the condition holds.
+
+  ``BUILD_DEFAULT <ON|OFF>``
+    What ``BUILD_EXECUTABLE_<NAME>`` defaults to.  Defaults to
+    ``BUILD_EXECUTABLES_BY_DEFAULT``, and the environment variable
+    ``QTC_BUILD_EXECUTABLE_<NAME>`` overrides either.
+
+  ``DEPENDS <library>...``
+    The libraries to link.
+
+  ``SOURCES <file>...``
+    The files to build.
+
+  ``DEFINES <define>...``
+    What to define while building the program.
+
+  ``INCLUDES <directory>...``
+    Where to look for headers.
+
+  ``EXPLICIT_MOC <file>...``
+    The files to run ``moc`` over itself.
+
+  ``SKIP_AUTOMOC <file>...``
+    The files to keep ``moc`` away from.
+
+  ``EXTRA_TRANSLATIONS <file>...``
+    Files to read translatable text from beyond the sources.
+
+  ``PRIVATE_COMPILE_OPTIONS <option>...``,
+  ``PUBLIC_COMPILE_OPTIONS <option>...``
+    Options for the compiler.
+
+  ``PROPERTIES <property> <value>...``
+    Properties to set on the target, after the ones the call sets
+    itself.  ``MACOSX_BUNDLE`` among them makes a bundle of the program
+    on macOS, and ``OUTPUT_NAME`` then names it.
+
+  ``SBOM_ARGS <argument>...``
+    What to tell the software bill of materials about the program,
+    where one is generated.
+
+  ``QT_APP``
+    The program is an application of Qt, which is what it takes to
+    build it for Android and for OpenHarmony.
+
+  ``QTC_RUNNABLE``
+    Mark the program as one to run, which is how Qt Creator picks the
+    target it offers to start.
+
+  ``ALLOW_ASCII_CASTS``
+    Build without the definitions that keep a QString from being built
+    out of a byte array by itself.
+
+  ``SKIP_INSTALL``
+    Build the program but install nothing of it.
+
+  ``SKIP_TRANSLATION``
+    Leave the program out of the translations.
+
+  ``SKIP_PCH``
+    Build without the precompiled header.
+#]=]
 function(add_qtc_executable name)
   set(opt_args
     SKIP_INSTALL
@@ -1103,6 +1648,18 @@ function(qtc_finalize_executable target)
   qtc_finalize_target("${target}")
 endfunction()
 
+#[=[.rst:
+.. command:: extend_qtc_executable
+
+  Adds to an executable that ``add_qtc_executable()`` defined:
+
+  .. code-block:: cmake
+
+    extend_qtc_executable(<executable> <argument>...)
+
+  Where the executable is not being built, the call does nothing.  It
+  takes the arguments of ``extend_qtc_target()``.
+#]=]
 function(extend_qtc_executable name)
   if (NOT (name IN_LIST __QTC_EXECUTABLES))
     message(FATAL_ERROR "extend_qtc_executable: Unknown executable target \"${name}\"")
@@ -1112,11 +1669,37 @@ function(extend_qtc_executable name)
   endif()
 endfunction()
 
-# Adds the version resource Windows shows as "Description" and "Company Name".
-# ICON adds the application icon. Does nothing on other platforms.
-#
-# Only one resource file per target works, so a target with icons of its own
-# passes a RESOURCE_FILE that includes qtcreator_versioninfo.rc.
+#[=[.rst:
+.. command:: qtc_add_version_resource
+
+  Adds the version resource Windows shows as ``Description`` and
+  ``Company Name``:
+
+  .. code-block:: cmake
+
+    qtc_add_version_resource(<target> <description>
+                             [ICON]
+                             [RESOURCE_FILE <file>])
+
+  On other platforms, and where the target is not being built, the call
+  does nothing.  The version, the name of the product, the publisher
+  and the copyright the resource carries are the ones of Qt Creator.
+
+  ``<target>``
+    The target to add the resource to.
+
+  ``<description>``
+    What Windows shows as the description of the binary.
+
+  ``ICON``
+    Add the application icon, which the binary has none of otherwise.
+
+  ``RESOURCE_FILE <file>``
+    The resource file to compile instead of the one Qt Creator carries,
+    named beside the call.  Only one resource file per target works, so
+    a target with icons of its own passes a file that includes
+    ``qtcreator_versioninfo.rc``.
+#]=]
 function(qtc_add_version_resource target description)
   cmake_parse_arguments(_arg "ICON" "RESOURCE_FILE" "" ${ARGN})
   if (_arg_UNPARSED_ARGUMENTS)
@@ -1164,6 +1747,86 @@ function(qtc_add_version_resource target description)
   endif()
 endfunction()
 
+#[=[.rst:
+.. command:: add_qtc_test
+
+  Adds a test of Qt Creator:
+
+  .. code-block:: cmake
+
+    add_qtc_test(<name>
+                 [CONDITION <condition>...]
+                 [DEPENDS <library>...]
+                 [SOURCES <file>...]
+                 [DEFINES <define>...]
+                 [INCLUDES <directory>...]
+                 [EXPLICIT_MOC <file>...]
+                 [SKIP_AUTOMOC <file>...]
+                 [SKIP_PCH <value>]
+                 [PROPERTIES <property> <value>...]
+                 [PRIVATE_COMPILE_OPTIONS <option>...]
+                 [PUBLIC_COMPILE_OPTIONS <option>...]
+                 [TIMEOUT <seconds>]
+                 [GTEST]
+                 [MANUALTEST]
+                 [NEEDS_GUI]
+                 [EXCLUDE_FROM_PRECHECK])
+
+  The test is built with ``WITH_TESTS`` defined and with ``SRCDIR``
+  standing for the directory the call is in.  Whether it is built at
+  all is the cache variable ``BUILD_TEST_<NAME>``, and a test whose
+  dependencies are not all there is quietly left out.
+
+  ``CONDITION <condition>...``
+    The test is built only where the condition holds.
+
+  ``DEPENDS <library>...``
+    The libraries to link.  A dependency that is no target of this
+    build leaves the test out.
+
+  ``SOURCES <file>...``
+    The files to build.
+
+  ``DEFINES <define>...``
+    What to define while building the test.
+
+  ``INCLUDES <directory>...``
+    Where to look for headers.
+
+  ``EXPLICIT_MOC <file>...``
+    The files to run ``moc`` over itself.
+
+  ``SKIP_AUTOMOC <file>...``
+    The files to keep ``moc`` away from.
+
+  ``SKIP_PCH <value>``
+    Build without the precompiled header.  Unlike the other commands,
+    this one reads a value behind the keyword, so it takes one:
+    ``SKIP_PCH ON``.
+
+  ``PROPERTIES <property> <value>...``
+    Properties to set on the target.
+
+  ``PRIVATE_COMPILE_OPTIONS <option>...``,
+  ``PUBLIC_COMPILE_OPTIONS <option>...``
+    Options for the compiler.
+
+  ``TIMEOUT <seconds>``
+    How long the test may run before it counts as hung.
+
+  ``GTEST``
+    The test is written with Google Test, whose cases are registered
+    one by one instead of the test as a whole.
+
+  ``MANUALTEST``
+    The test is one to run by hand, so it is built but not registered.
+
+  ``NEEDS_GUI``
+    The test needs a window system to run.
+
+  ``EXCLUDE_FROM_PRECHECK``
+    Leave the test out of the run that guards a commit.
+#]=]
 function(add_qtc_test name)
   cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK;NEEDS_GUI" "TIMEOUT"
       "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION;PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS" ${ARGN})
@@ -1288,6 +1951,37 @@ function(finalize_qtc_gtest test_name)
   endforeach()
 endfunction()
 
+#[=[.rst:
+.. command:: qtc_copy_to_builddir
+
+  Copies files into the build, so that what the IDE needs at run time
+  stands beside it while it is being developed:
+
+  .. code-block:: cmake
+
+    qtc_copy_to_builddir(<target>
+                         DESTINATION <path>
+                         [FILES <file>...]
+                         [DIRECTORIES <directory>...]
+                         [CREATE_SUBDIRS])
+
+  Defines the custom target ``<target>``, which the build depends on,
+  and copies anew whatever changes.
+
+  ``DESTINATION <path>``
+    Where to copy to, relative to the output directory of the build.
+
+  ``FILES <file>...``
+    The files to copy.  Each of them keeps the directory it is named
+    in.
+
+  ``DIRECTORIES <directory>...``
+    The directories to copy, with everything in them.
+
+  ``CREATE_SUBDIRS``
+    Copy a directory into one of its own name rather than into the
+    destination itself.
+#]=]
 function(qtc_copy_to_builddir custom_target_name)
   cmake_parse_arguments(_arg "CREATE_SUBDIRS" "DESTINATION" "FILES;DIRECTORIES" ${ARGN})
   set(timestampFiles)
@@ -1343,6 +2037,52 @@ function(qtc_copy_to_builddir custom_target_name)
     SOURCES ${allFiles})
 endfunction()
 
+#[=[.rst:
+.. command:: qtc_add_resources
+
+  Adds files to a target as a resource, which reads them out of the
+  binary instead of off the disk:
+
+  .. code-block:: cmake
+
+    qtc_add_resources(<target> <name>
+                      [PREFIX <prefix>]
+                      [LANG <language>]
+                      [BASE <path>]
+                      [FILES_PREFIX <path>]
+                      [FILES <file>...]
+                      [OPTIONS <option>...]
+                      [CONDITION <condition>...])
+
+  Where the target is not being built, the call does nothing.
+
+  ``<name>``
+    The name of the resource, which the build turns into one a C
+    identifier may be made of.
+
+  ``PREFIX <prefix>``
+    The path the files are reached under at run time.
+
+  ``LANG <language>``
+    The language the files are for, where a resource has one of its
+    own for several.
+
+  ``BASE <path>``
+    The directory the files are named relative to, and which is left
+    off the path they are reached under.
+
+  ``FILES_PREFIX <path>``
+    What to put in front of the name of every file.
+
+  ``FILES <file>...``
+    The files to add.
+
+  ``OPTIONS <option>...``
+    Options for the resource compiler.
+
+  ``CONDITION <condition>...``
+    The files are added only where the condition holds.
+#]=]
 function(qtc_add_resources target resourceName)
   cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE;FILES_PREFIX" "FILES;OPTIONS;CONDITION" ${ARGN})
   if (${_arg_UNPARSED_ARGUMENTS})
@@ -1452,6 +2192,23 @@ function(qtc_add_resources target resourceName)
   set_property(SOURCE "${generatedResourceFile}.in" PROPERTY SKIP_AUTOGEN ON)
 endfunction()
 
+#[=[.rst:
+.. command:: qtc_add_public_header
+
+  Installs a header, so that what is built against Qt Creator can
+  include it:
+
+  .. code-block:: cmake
+
+    qtc_add_public_header(<header>)
+
+  The header is installed under the directory it stands in, relative to
+  the sources of Qt Creator, and belongs to the component that carries
+  what one develops against.
+
+  ``<header>``
+    The header to install, named beside the call or absolute.
+#]=]
 function(qtc_add_public_header header)
   if (NOT IS_ABSOLUTE ${header})
     set(header "${CMAKE_CURRENT_SOURCE_DIR}/${header}")
