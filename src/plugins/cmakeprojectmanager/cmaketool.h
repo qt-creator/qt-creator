@@ -11,6 +11,10 @@
 #include <utils/id.h>
 #include <utils/store.h>
 
+#include <QFuture>
+
+#include <optional>
+
 namespace Utils { class Process; }
 
 namespace CMakeProjectManager {
@@ -90,10 +94,15 @@ public:
     QList<Generator> supportedGenerators() const;
     CMakeKeywords keywords();
 
+    // The keywords as far as they have been read: nothing while the reading
+    // is still going on, so that asking for them never waits for it.
+    std::optional<CMakeKeywords> keywordsIfRead();
+
     // Reading them takes a process of CMake and the files of its Help, and
     // whoever asks for them first waits for that.  Reading them before
-    // they are asked for keeps that wait out of an editor.
-    void readKeywords();
+    // they are asked for keeps that wait out of an editor.  The future it
+    // hands out is done once they are there.
+    QFuture<void> readKeywords();
 
     bool hasFileApi() const;
     Version version() const;

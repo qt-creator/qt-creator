@@ -26,6 +26,7 @@
 #include <QSet>
 #include <QXmlStreamReader>
 
+#include <atomic>
 #include <memory>
 
 using namespace Utils;
@@ -82,7 +83,8 @@ class IntrospectionData
 public:
     bool m_didAttemptToRun = false;
     bool m_haveCapabilitites = true;
-    bool m_haveKeywords = false;
+    // Read outside the mutex, by whoever asks whether the keywords are there.
+    std::atomic_bool m_haveKeywords = false;
     bool m_haveModuleCommands = false;
 
     Capabilities m_capabilities;
@@ -343,6 +345,15 @@ CMakeKeywords CMakeTool::keywords()
     return m_introspection->m_keywords;
 }
 
+std::optional<CMakeKeywords> CMakeTool::keywordsIfRead()
+{
+    if (!m_introspection || !m_introspection->m_haveKeywords)
+        return {};
+
+    QMutexLocker locker(&m_introspection->m_keywordsMutex);
+    return m_introspection->m_keywords;
+}
+
 void CMakeTool::readModuleCommands()
 {
     FilePath modules;
@@ -368,15 +379,15 @@ void CMakeTool::readModuleCommands()
     m_introspection->m_haveModuleCommands = true;
 }
 
-void CMakeTool::readKeywords()
+QFuture<void> CMakeTool::readKeywords()
 {
-    if (m_introspection->m_keywordsReader.isRunning())
-        return;
-
-    m_introspection->m_keywordsReader = Utils::asyncRun([this] {
-        keywords();
-        readModuleCommands();
-    });
+    if (!m_introspection->m_keywordsReader.isRunning()) {
+        m_introspection->m_keywordsReader = Utils::asyncRun([this] {
+            keywords();
+            readModuleCommands();
+        });
+    }
+    return m_introspection->m_keywordsReader;
 }
 
 bool CMakeTool::hasFileApi() const

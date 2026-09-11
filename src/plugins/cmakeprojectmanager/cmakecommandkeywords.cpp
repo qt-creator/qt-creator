@@ -14,9 +14,9 @@ namespace CMakeProjectManager::Internal {
 void CommandKeywords::refresh()
 {
     if (m_cmakeKeywords.functionArgs.isEmpty()) {
-        const CMakeKeywords keywords = CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords();
-        if (!keywords.functionArgs.isEmpty()) {
-            m_cmakeKeywords = keywords;
+        const std::optional<CMakeKeywords> keywords = CMakeToolManager::keywordsIfRead();
+        if (keywords && !keywords->functionArgs.isEmpty()) {
+            m_cmakeKeywords = *keywords;
             m_perCommand.clear();
         }
     }

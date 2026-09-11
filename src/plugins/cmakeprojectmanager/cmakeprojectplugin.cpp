@@ -20,6 +20,7 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakequickfixes.h"
+#include "cmakesemantichighlighter.h"
 #include "cmakesettingspage.h"
 #include "cmaketoolmanager.h"
 #include "cmakeusages.h"
@@ -88,6 +89,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createCMakeProjectImporterTest);
         addTestCreator(createCMakeQuickFixesTest);
         addTestCreator(createCMakeFunctionHintTest);
+        addTestCreator(createCMakeSemanticHighlighterTest);
         addTestCreator(createAddDependenciesTest);
         addTestCreator(createBinariesForSourceFileTest);
         addTestCreator(createImportedLibraryDirectoriesTest);

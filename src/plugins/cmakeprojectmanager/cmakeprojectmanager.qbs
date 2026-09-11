@@ -66,6 +66,8 @@ Project {
             "cmakeprojectplugin.cpp",
             "cmakequickfixes.cpp",
             "cmakequickfixes.h",
+            "cmakesemantichighlighter.cpp",
+            "cmakesemantichighlighter.h",
             "cmaketool.cpp",
             "cmaketool.h",
             "cmaketoolmanager.cpp",

@@ -18,6 +18,7 @@
 #include <QObject>
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace ProjectExplorer {
@@ -50,6 +51,11 @@ public:
     // wait for the process and the files of the Help of CMake that reading
     // them takes.
     static void readKeywords();
+
+    // What readKeywords() has read so far: nothing while the reading is
+    // still going on, so that asking for them never waits for it.
+    // keywordsRead() tells when there are some.
+    static std::optional<CMakeKeywords> keywordsIfRead();
 
     static CMakeTool *defaultCMakeTool();
     static void setDefaultCMakeTool(const Utils::Id &id);
@@ -84,6 +90,7 @@ signals:
     void cmakeUpdated(const Utils::Id &id);
     void cmakeToolsLoaded();
     void defaultCMakeChanged();
+    void keywordsRead();
 
 private:
     static void saveCMakeTools();

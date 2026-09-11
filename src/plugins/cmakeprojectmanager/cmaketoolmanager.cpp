@@ -224,21 +224,36 @@ CMakeKeywords CMakeToolManager::defaultProjectOrDefaultCMakeKeyWords()
     return {};
 }
 
-void CMakeToolManager::readKeywords()
+// The CMake whose keywords an editor shows: the one the current project is
+// configured with, or the default one.
+static CMakeTool *keywordTool()
 {
-    // The keywords of the CMake that defaultProjectOrDefaultCMakeKeyWords()
-    // hands out.
     CMakeTool *tool = nullptr;
     if (auto bs = activeBuildSystemForCurrentProject()) {
         const FilePath executable = CMakeKitAspect::cmakeExecutable(bs->kit());
         if (!executable.isEmpty())
-            tool = findByCommand(executable);
+            tool = CMakeToolManager::findByCommand(executable);
     }
     if (!tool)
-        tool = defaultCMakeTool();
+        tool = CMakeToolManager::defaultCMakeTool();
+    return tool;
+}
 
-    if (tool)
-        tool->readKeywords();
+void CMakeToolManager::readKeywords()
+{
+    CMakeTool *tool = keywordTool();
+    if (!tool)
+        return;
+
+    tool->readKeywords().then(m_instance, [] { emit m_instance->keywordsRead(); });
+}
+
+std::optional<CMakeKeywords> CMakeToolManager::keywordsIfRead()
+{
+    if (CMakeTool *tool = keywordTool())
+        return tool->keywordsIfRead();
+
+    return {};
 }
 
 CMakeTool *CMakeToolManager::defaultCMakeTool()
