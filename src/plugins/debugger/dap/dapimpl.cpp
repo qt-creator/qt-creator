@@ -10,10 +10,12 @@
 #include "../debuggertr.h"
 #include "../disassemblerlines.h"
 #include "../genericdebuggerengine.h"
+#include "../watchutils.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QDateTime>
 #include <QJsonArray>
 #include <QJsonDocument>
 
@@ -47,6 +49,33 @@ static GdbMi constMi(const QString &name, const QString &data)
     return mi;
 }
 
+static QString mappedPath(const QList<QPair<QString, QString>> &map, const QString &path,
+                          bool toLocal)
+{
+    if (path.isEmpty() || map.isEmpty())
+        return path;
+    const FilePath given = FilePath::fromUserInput(path);
+    for (const QPair<QString, QString> &entry : map) {
+        const FilePath from = FilePath::fromUserInput(toLocal ? entry.first : entry.second);
+        const FilePath to = FilePath::fromUserInput(toLocal ? entry.second : entry.first);
+        if (given == from)
+            return to.path();
+        if (given.isChildOf(from))
+            return to.pathAppended(given.relativePathFromDir(from)).path();
+    }
+    return path;
+}
+
+QString DapImpl::localSourcePath(const QString &reported) const
+{
+    return mappedPath(m_startData.sourcePathMap, reported, true);
+}
+
+QString DapImpl::reportedSourcePath(const QString &local) const
+{
+    return mappedPath(m_startData.sourcePathMap, local, false);
+}
+
 static DebuggerEngineSetupData dapImplSetupData()
 {
     DebuggerEngineSetupData data;
@@ -57,13 +86,20 @@ static DebuggerEngineSetupData dapImplSetupData()
                       | CreateFullBacktraceCapability | ShowMemoryCapability
                       | DisassemblerCapability | OperateByInstructionCapability
                       | BreakOnThrowAndCatchCapability | TracePointCapability
-                      | ReloadModuleCapability | WatchComplexExpressionsCapability;
-    data.extraCapabilities = DebuggerExtraCapability::Detach
+                      | RegisterCapability | ReloadModuleCapability
+                      | RunToLineCapability | WatchComplexExpressionsCapability;
+    data.extraCapabilities = DebuggerExtraCapability::BreakOnMain
+                           | DebuggerExtraCapability::ContinueAfterAttach
+                           | DebuggerExtraCapability::Detach
                            | DebuggerExtraCapability::LibraryEvent
+                           | DebuggerExtraCapability::PeripheralRegisters
+                           | DebuggerExtraCapability::SkipKnownFrames
                            | DebuggerExtraCapability::SourceFiles
+                           | DebuggerExtraCapability::SpecialBreakpoints
                            | DebuggerExtraCapability::ThreadEvent
                            | DebuggerExtraCapability::Threads;
-    data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess;
+    data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToProcess
+                    | DebuggerStartModeFlag::AttachToRemoteServer;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
@@ -77,7 +113,19 @@ static DebuggerEngineSetupData dapImplSetupData()
 DapImpl::DapImpl(const DapStartData &startData)
     : DebuggerEngineInterface(dapImplSetupData())
     , m_startData(startData)
-{}
+{
+    m_watchdog.setSingleShot(true);
+    m_watchdog.setInterval(m_startData.watchdogTimeout);
+    connect(&m_watchdog, &QTimer::timeout, this, [this] {
+        if (m_pendingRequests.isEmpty())
+            return;
+        m_watchdog.start();
+        QStringList pending;
+        for (const PendingRequest &request : std::as_const(m_pendingRequests))
+            pending.append(request.text);
+        emit notResponding(m_startData.watchdogTimeout, pending);
+    });
+}
 
 DapImpl::~DapImpl()
 {
@@ -195,6 +243,7 @@ void DapImpl::reportEngineSetup(bool success)
 
 void DapImpl::handleFinished()
 {
+    m_watchdog.stop();
     // An adapter that is gone without ever having answered leaves the session
     // unopened, whether it failed to start or quit on its own.
     if (!m_setupReported)
@@ -226,10 +275,22 @@ int DapImpl::postRequest(const QString &command, const QJsonObject &arguments)
 
 void DapImpl::logRequest(int seq, const QString &command, const QJsonObject &arguments)
 {
-    emit message(QString::number(seq) + command + '('
-                     + QString::fromUtf8(QJsonDocument(arguments).toJson(QJsonDocument::Compact))
-                     + ')',
-                 LogInput);
+    const QString text = QString::number(seq) + command + '('
+                         + QString::fromUtf8(QJsonDocument(arguments).toJson(QJsonDocument::Compact))
+                         + ')';
+    m_pendingRequests.insert(seq, {text, command, QDateTime::currentMSecsSinceEpoch()});
+    restartWatchdog();
+    emit message(text, LogInput);
+}
+
+void DapImpl::restartWatchdog()
+{
+    if (m_startData.watchdogTimeout == std::chrono::seconds::zero())
+        return;
+    if (m_pendingRequests.isEmpty())
+        m_watchdog.stop();
+    else
+        m_watchdog.start();
 }
 
 void DapImpl::postLaunchOrAttach()
@@ -238,11 +299,14 @@ void DapImpl::postLaunchOrAttach()
     postRequest(m_startData.attach ? "attach" : "launch", m_startData.configuration);
 }
 
-void DapImpl::reportRunStarted()
+// The end of the setup, which is a running debuggee for a launch and the stop
+// attaching caused for an attach.
+void DapImpl::reportRunStarted(bool running)
 {
     reportRunning(true);
-    emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
-    m_inferiorRunning = true;
+    emit inferiorEvent(running ? InferiorEvent::RunAndInferiorRunOk
+                               : InferiorEvent::RunAndInferiorStopOk);
+    m_inferiorRunning = running;
     m_runReported = true;
     // Whatever became of the debuggee while the launch was in flight is only
     // reportable now that the run itself has been.
@@ -303,6 +367,7 @@ void DapImpl::execute(const ExecutionRequest &request)
             return;
         }
         m_stopRequested = false;
+        m_stepRequested = false;
         reportRunRequested();
         m_client->sendContinue(m_currentThreadId);
         return;
@@ -315,14 +380,17 @@ void DapImpl::execute(const ExecutionRequest &request)
         m_client->sendPause();
         return;
     case ExecutionCommand::StepIn:
+        m_stepRequested = true;
         reportRunRequested();
         postRequest("stepIn", stepArguments(request.flag));
         return;
     case ExecutionCommand::StepOver:
+        m_stepRequested = true;
         reportRunRequested();
         postRequest("next", stepArguments(request.flag));
         return;
     case ExecutionCommand::StepOut:
+        m_stepRequested = true;
         reportRunRequested();
         m_client->sendStepOut(m_currentThreadId);
         return;
@@ -339,14 +407,29 @@ void DapImpl::execute(const ExecutionRequest &request)
         }
         postRequest("gotoTargets",
                     QJsonObject{{"source",
-                                 QJsonObject{{"path", request.context.fileName.path()}}},
+                                 QJsonObject{{"path", reportedSourcePath(
+                                                          request.context.fileName.path())}}},
                                 {"line", request.context.textPosition.line}});
         return;
-    case ExecutionCommand::RunToLine:
-        reportUnsupported(Tr::tr("Run to Line"));
+    case ExecutionCommand::RunToLine: {
+        // The protocol has neither a temporary breakpoint nor a run to a
+        // location, so the target gets a breakpoint of its own, taken back
+        // once it has been hit.
+        Breakpoint breakpoint;
+        breakpoint.params.type = BreakpointByFileAndLine;
+        breakpoint.params.fileName = request.context.fileName;
+        breakpoint.params.textPosition = request.context.textPosition;
+        breakpoint.internal = true;
+        breakpoint.oneShot = true;
+        m_sourceBreakpoints[request.context.fileName].prepend(breakpoint);
+        sendBreakpointsFor(request.context.fileName);
+        resumeForRunTo();
         return;
+    }
     case ExecutionCommand::RunToFunction:
-        reportUnsupported(Tr::tr("Run to Function"));
+        addInternalFunctionBreakpoint(request.functionName, true);
+        sendFunctionBreakpoints();
+        resumeForRunTo();
         return;
     case ExecutionCommand::RepeatLastCommand:
         if (m_lastLocalsRequest)
@@ -392,7 +475,7 @@ void DapImpl::sendBreakpointsFor(const FilePath &file)
     }
     const int seq = m_client->postRequest(
         "setBreakpoints",
-        QJsonObject{{"source", QJsonObject{{"path", file.path()},
+        QJsonObject{{"source", QJsonObject{{"path", reportedSourcePath(file.path())},
                                            {"name", file.fileName()}}},
                     {"breakpoints", breakpoints},
                     {"sourceModified", false}});
@@ -433,6 +516,25 @@ void DapImpl::sendExceptionBreakpoints()
         filters.append(filter);
     }
     m_client->postRequest("setExceptionBreakpoints", QJsonObject{{"filters", filters}});
+}
+
+void DapImpl::resumeForRunTo()
+{
+    QTC_ASSERT(m_client, return);
+    m_stopRequested = false;
+    m_stepRequested = false;
+    reportRunRequested();
+    m_client->sendContinue(m_currentThreadId);
+}
+
+void DapImpl::addInternalFunctionBreakpoint(const QString &function, bool oneShot)
+{
+    Breakpoint breakpoint;
+    breakpoint.params.type = BreakpointByFunction;
+    breakpoint.params.functionName = function;
+    breakpoint.internal = true;
+    breakpoint.oneShot = oneShot;
+    m_functionBreakpoints.prepend(breakpoint);
 }
 
 void DapImpl::sendFunctionBreakpoints()
@@ -587,20 +689,24 @@ void DapImpl::handleBreakpointsSet(const QJsonObject &response)
             continue;
         // What the adapter calls it is how a later change to it will be named.
         const QJsonObject item = reported.at(sent.size()).toObject();
-        if (item.contains("id"))
+        if (item.contains("id")) {
             breakpoint.responseId = QString::number(item.value("id").toInt());
+            m_ownBreakpointIds.insert(breakpoint.responseId);
+        }
         sent.append(breakpoint);
     }
 
     for (int i = 0; i < sent.size(); ++i) {
+        if (sent.at(i).internal)
+            continue;
         const QJsonObject item = reported.at(i).toObject();
         const bool verified = item.value("verified").toBool();
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
         bkpt.addChild(constMi("number", QString::number(item.value("id").toInt())));
         bkpt.addChild(constMi("line", QString::number(item.value("line").toInt())));
-        bkpt.addChild(constMi("file", item.value("source").toObject()
-                                          .value("path").toString()));
+        bkpt.addChild(constMi("file", localSourcePath(item.value("source").toObject()
+                                                          .value("path").toString())));
         bkpt.addChild(constMi("pending", verified ? "0" : "1"));
         GdbMi data;
         data.m_type = GdbMi::List;
@@ -634,22 +740,15 @@ const DapImpl::Breakpoint *DapImpl::breakpointForResponseId(const QString &respo
     return nullptr;
 }
 
-void DapImpl::handleBreakpointChanged(const QJsonObject &event)
+GdbMi DapImpl::breakpointMi(const QJsonObject &item) const
 {
-    const QJsonObject body = event.value("body").toObject();
-    // "new" and "removed" are about breakpoints of the adapter's own making,
-    // which nothing here has a request to answer for.
-    if (body.value("reason").toString() != "changed")
-        return;
-
-    const QJsonObject item = body.value("breakpoint").toObject();
-    const QString responseId = QString::number(item.value("id").toInt());
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
-    bkpt.addChild(constMi("number", responseId));
+    bkpt.addChild(constMi("number", QString::number(item.value("id").toInt())));
     if (item.contains("line"))
         bkpt.addChild(constMi("line", QString::number(item.value("line").toInt())));
-    const QString path = item.value("source").toObject().value("path").toString();
+    const QString path = localSourcePath(item.value("source").toObject()
+                                             .value("path").toString());
     if (!path.isEmpty()) {
         bkpt.addChild(constMi("file", path));
         bkpt.addChild(constMi("fullname", path));
@@ -657,9 +756,46 @@ void DapImpl::handleBreakpointChanged(const QJsonObject &event)
     const QString address = item.value("instructionReference").toString();
     if (address.startsWith("0x"))
         bkpt.addChild(constMi("addr", address));
+    return bkpt;
+}
+
+void DapImpl::handleBreakpointChanged(const QJsonObject &event)
+{
+    const QJsonObject body = event.value("body").toObject();
+    const QString reason = body.value("reason").toString();
+    const QJsonObject item = body.value("breakpoint").toObject();
+    const QString responseId = QString::number(item.value("id").toInt());
+
+    // A breakpoint somebody else made, the user in the console for instance:
+    // nothing else would ever mention it. The adapter announces its own the
+    // same way, so they are told apart by what it called them.
+    if (reason == "new") {
+        if (!m_ownBreakpointIds.contains(responseId))
+            emit breakpointEvent(0, BreakpointOp::Insert, true, breakpointMi(item));
+        return;
+    }
+    if (reason == "removed") {
+        if (m_ownBreakpointIds.remove(responseId))
+            return;
+        GdbMi bkpt;
+        bkpt.m_type = GdbMi::Tuple;
+        bkpt.addChild(constMi("number", responseId));
+        emit breakpointEvent(0, BreakpointOp::Remove, true, bkpt);
+        return;
+    }
+    if (reason != "changed")
+        return;
+
+    const Breakpoint *known = breakpointForResponseId(responseId);
+    // Nothing in the model is waiting to hear about a breakpoint of the
+    // engine's own making.
+    if (known && known->internal)
+        return;
+
+    GdbMi bkpt = breakpointMi(item);
     // A field the update does not carry counts as the default rather than as
     // unchanged, so what the event leaves out is filled in from the request.
-    if (const Breakpoint *known = breakpointForResponseId(responseId)) {
+    if (known) {
         bkpt.addChild(constMi("enabled", known->enabled ? "y" : "n"));
         if (!known->params.condition.isEmpty())
             bkpt.addChild(constMi("cond", known->params.condition));
@@ -745,10 +881,37 @@ void DapImpl::refresh(const RefreshRequest &request)
         // asking it for the values again.
         refresh({request.requestId, RefreshKind::Locals});
         return;
+    case RefreshKind::PeripheralRegisters:
+        // A peripheral register is not a register of the machine but a word at
+        // a known address, so each one is a memory read of its own.
+        if (!m_client->capabilities().supportsReadMemoryRequest) {
+            reportUnsupported(Tr::tr("reading memory"));
+            emit refreshDataReceived(request.requestId, request.kind, {});
+            return;
+        }
+        for (const quint64 address : request.addresses) {
+            const QString reference = "0x" + QString::number(address, 16);
+            const int seq = m_client->postRequest(
+                "readMemory", QJsonObject{{"memoryReference", reference},
+                                          {"count", qint64(sizeof(quint32))}});
+            if (seq >= 0)
+                m_peripheralRequests.insert(seq, {request.requestId, address, sizeof(quint32)});
+        }
+        return;
+    case RefreshKind::Registers:
+        // The registers are a scope of the current frame, so they are fetched
+        // the way the locals are: the scopes first, then the one that turns
+        // out to be them.
+        if (m_currentFrameId < 0) {
+            emit refreshDataReceived(request.requestId, request.kind, {});
+            return;
+        }
+        m_registersRequestId = request.requestId;
+        m_registerScopesSeq = m_client->scopes(m_currentFrameId);
+        return;
     default:
-        // Registers, symbols and snapshots have no counterpart the protocol
-        // defines, so the view is answered with nothing rather than being left
-        // waiting.
+        // Symbols and snapshots have no counterpart the protocol defines, so
+        // the view is answered with nothing rather than being left waiting.
         emit refreshDataReceived(request.requestId, request.kind, {});
         return;
     }
@@ -758,6 +921,13 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
 {
     const QString command = response.value("command").toString();
     const bool success = response.value("success").toBool();
+    const PendingRequest answered = m_pendingRequests.take(response.value("request_seq").toInt());
+    if (m_startData.logTimeStamps && answered.postTime) {
+        const qint64 elapsed = QDateTime::currentMSecsSinceEpoch() - answered.postTime;
+        emit message(QString("Response time: %1: %2 s").arg(answered.command)
+                         .arg(elapsed / 1000.), LogTime);
+    }
+    restartWatchdog();
 
     if (const DapSessionChannel::Answer answer
         = m_customRequests.take(response.value("request_seq").toInt())) {
@@ -890,7 +1060,7 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         for (const QJsonValue &value : response.value("body").toObject()
                                            .value("sources").toArray()) {
             const QJsonObject item = value.toObject();
-            const QString path = item.value("path").toString();
+            const QString path = localSourcePath(item.value("path").toString());
             GdbMi file;
             file.m_type = GdbMi::Tuple;
             file.addChild(constMi("file", item.value("name").toString()));
@@ -968,6 +1138,23 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // The one window in which DAP accepts breakpoints, so whatever was
         // collected while the adapter started goes out now.
         m_configured = true;
+        // The protocol has no temporary breakpoint and no stop at the entry
+        // point either, so the setting becomes a breakpoint on the function,
+        // taken back once it has been hit.
+        if (m_startData.breakOnMain)
+            addInternalFunctionBreakpoint("main", true);
+        // The names a namespaced Qt gives these are out of reach: there is no
+        // request that would tell what the namespace is.
+        if (m_startData.breakOnAbort)
+            addInternalFunctionBreakpoint("abort", false);
+        if (m_startData.breakOnWarning) {
+            addInternalFunctionBreakpoint("qWarning", false);
+            addInternalFunctionBreakpoint("QMessageLogger::warning", false);
+        }
+        if (m_startData.breakOnFatal) {
+            addInternalFunctionBreakpoint("qFatal", false);
+            addInternalFunctionBreakpoint("QMessageLogger::fatal", false);
+        }
         for (auto it = m_sourceBreakpoints.cbegin(); it != m_sourceBreakpoints.cend(); ++it)
             sendBreakpointsFor(it.key());
         if (!m_functionBreakpoints.isEmpty())
@@ -979,7 +1166,13 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // launch handler would otherwise run past them, and one that waits
         // for the configuration still has the request in hand by then.
         postLaunchOrAttach();
-        reportRunStarted();
+        // Attaching stops the debuggee, and the adapter reports that stop: it
+        // ends the setup, so what the engine hears is the stop rather than a
+        // run that never happened.
+        if (m_startData.attach)
+            m_reportsSetupStop = true;
+        else
+            reportRunStarted();
         m_client->sendConfigurationDone();
         return;
     case DapEventType::Stopped:
@@ -1025,6 +1218,12 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // and until that is passed on, the views keep showing the stop it
         // reported before and a Continue goes out to something already
         // running, which the adapter can only refuse.
+        // An adapter that resumes an attached debuggee without reporting the
+        // stop first ends the setup with the run after all.
+        if (std::exchange(m_reportsSetupStop, false)) {
+            reportRunStarted();
+            return;
+        }
         const bool wasRunning = m_inferiorRunning;
         m_inferiorRunning = true;
         if (!wasRunning) {
@@ -1068,13 +1267,34 @@ void DapImpl::handleStopped(const QJsonObject &event)
                             body.value("description").toString());
     }
 
+    const QJsonArray hit = body.value("hitBreakpointIds").toArray();
+    const auto wasHit = [&hit](const Breakpoint &breakpoint) {
+        if (!breakpoint.oneShot)
+            return false;
+        for (const QJsonValue &id : hit) {
+            if (QString::number(id.toInt()) == breakpoint.responseId)
+                return true;
+        }
+        return false;
+    };
+    if (Utils::contains(m_functionBreakpoints, wasHit)) {
+        Utils::erase(m_functionBreakpoints, wasHit);
+        sendFunctionBreakpoints();
+    }
+    for (auto it = m_sourceBreakpoints.begin(); it != m_sourceBreakpoints.end(); ++it) {
+        if (!Utils::contains(it.value(), wasHit))
+            continue;
+        Utils::erase(it.value(), wasHit);
+        sendBreakpointsFor(it.key());
+    }
+
     // Report the stop only once the location is known, as the other backends do.
     const int seq = m_client->stackTrace(m_currentThreadId, 0);
     if (seq < 0) {
         reportStop();
         return;
     }
-    m_stackTraceRequests.insert(seq, {true, 0});
+    m_stackTraceRequests.insert(seq, {true, 0, m_stepRequested && reason == u"step"});
 }
 
 // An adapter can be done before the engine has been told the run started, and
@@ -1100,6 +1320,13 @@ void DapImpl::reportInferiorDone(InferiorResultData result)
 
 void DapImpl::reportStop()
 {
+    if (std::exchange(m_reportsSetupStop, false)) {
+        m_stopRequested = false;
+        reportRunStarted(false);
+        if (m_startData.continueAfterAttach)
+            execute({ExecutionCommand::Continue});
+        return;
+    }
     emit inferiorEvent(m_stopRequested ? InferiorEvent::StopOk
                                        : InferiorEvent::SpontaneousStop);
     m_stopRequested = false;
@@ -1127,7 +1354,22 @@ void DapImpl::handleStackTrace(const QJsonObject &response)
         const QJsonObject top = frames.isEmpty() ? QJsonObject() : frames.first().toObject();
         const int lineNumber = top.value("line").toInt();
         const FilePath fileName
-            = FilePath::fromUserInput(top.value("source").toObject().value("path").toString());
+            = FilePath::fromUserInput(localSourcePath(top.value("source").toObject()
+                                                          .value("path").toString()));
+        // A step that ended in a frame the user did not ask to see is continued
+        // rather than reported: out of a function that only forwards, into one
+        // that only wraps.
+        if (request.fromStep && m_startData.skipKnownFrames) {
+            const QString function = top.value("name").toString();
+            if (isLeavableFunction(function, fileName.path())) {
+                execute({ExecutionCommand::StepOut});
+                return;
+            }
+            if (isSkippableFunction(function, fileName.path())) {
+                execute({ExecutionCommand::StepIn});
+                return;
+            }
+        }
         if (lineNumber != 0 && fileName.exists())
             emit locationChanged(fileName, lineNumber);
         reportStop();
@@ -1144,7 +1386,8 @@ void DapImpl::handleStackTrace(const QJsonObject &response)
         frame.m_type = GdbMi::Tuple;
         frame.addChild(constMi("level", QString::number(level++)));
         frame.addChild(constMi("function", item.value("name").toString()));
-        const QString path = item.value("source").toObject().value("path").toString();
+        const QString path = localSourcePath(item.value("source").toObject()
+                                                 .value("path").toString());
         frame.addChild(constMi("file", path));
         frame.addChild(constMi("fullname", path));
         frame.addChild(constMi("line", QString::number(item.value("line").toInt())));
@@ -1186,7 +1429,8 @@ void DapImpl::handleBacktraceFrames(const QJsonObject &response)
                                        .value("stackFrames").toArray()) {
         const QJsonObject item = value.toObject();
         QString frame = QString("#%1  %2").arg(level++).arg(item.value("name").toString());
-        const QString path = item.value("source").toObject().value("path").toString();
+        const QString path = localSourcePath(item.value("source").toObject()
+                                                 .value("path").toString());
         if (!path.isEmpty())
             frame += QString(" at %1:%2").arg(path).arg(item.value("line").toInt());
         m_backtrace += frame + '\n';
@@ -1236,8 +1480,42 @@ void DapImpl::continueLocalsWalk()
     reportLocals();
 }
 
+// Whether a scope holds the registers rather than something the Locals view
+// shows. Not every adapter sets the hint - cortex-debug names its scopes
+// "Local", "Global", "Static: <file>" and "Registers" and hints none of them -
+// so the name has to say what the hint does not.
+static bool isRegisterScope(const QJsonObject &scope)
+{
+    const QString hint = scope.value("presentationHint").toString();
+    if (!hint.isEmpty())
+        return hint == u"registers";
+    return scope.value("name").toString().startsWith("register", Qt::CaseInsensitive);
+}
+
 void DapImpl::handleScopes(const QJsonObject &response)
 {
+    const QJsonArray scopes = response.value("body").toObject().value("scopes").toArray();
+    // Remembered whichever walk this answers: an assignment to a register
+    // names the scope it belongs to, and there is no request that would ask
+    // for that scope alone.
+    for (const QJsonValue &value : scopes) {
+        if (isRegisterScope(value.toObject())) {
+            m_registerScopeReference = value.toObject().value("variablesReference").toInt();
+            break;
+        }
+    }
+
+    if (response.value("request_seq").toInt() == m_registerScopesSeq) {
+        m_registerScopesSeq = -1;
+        if (m_registerScopeReference == 0) {
+            emit refreshDataReceived(m_registersRequestId, RefreshKind::Registers, {});
+            return;
+        }
+        m_registerVariablesSeq = m_client->postRequest(
+            "variables", QJsonObject{{"variablesReference", m_registerScopeReference}});
+        return;
+    }
+
     // A stop can be reported more than once - cortex-debug reports each of
     // them twice - and each report asks for the locals again. Answers to a
     // walk that has been started over would otherwise be added to the one
@@ -1274,8 +1552,42 @@ void DapImpl::handleScopes(const QJsonObject &response)
     continueLocalsWalk();
 }
 
+// A register as the view reads it, which parses the value as hexadecimal,
+// while an adapter prints what it likes: gdb answers most registers in decimal,
+// the pointers in hex with the symbol they point at appended, and the flag
+// words as a list of the flags that are set.
+static QString registerValue(const QString &reported)
+{
+    const QString text = reported.section(' ', 0, 0);
+    bool ok = false;
+    if (const qulonglong number = text.toULongLong(&ok, 0); ok)
+        return "0x" + QString::number(number, 16);
+    if (const qlonglong number = text.toLongLong(&ok, 0); ok)
+        return "0x" + QString::number(qulonglong(number), 16);
+    return reported;
+}
+
 void DapImpl::handleVariables(const QJsonObject &response)
 {
+    if (response.value("request_seq").toInt() == m_registerVariablesSeq) {
+        m_registerVariablesSeq = -1;
+        GdbMi registers;
+        registers.m_type = GdbMi::List;
+        for (const QJsonValue &value : response.value("body").toObject()
+                                           .value("variables").toArray()) {
+            const QJsonObject item = value.toObject();
+            GdbMi reg;
+            reg.m_type = GdbMi::Tuple;
+            reg.addChild(constMi("name", item.value("name").toString()));
+            // The protocol has no field for a register's width, so the view is
+            // left to lay the value out by itself.
+            reg.addChild(constMi("value", registerValue(item.value("value").toString())));
+            registers.addChild(reg);
+        }
+        emit refreshDataReceived(m_registersRequestId, RefreshKind::Registers, registers);
+        return;
+    }
+
     const QString parent = m_variableRequests.take(response.value("request_seq").toInt());
     const QJsonArray variables = response.value("body").toObject()
                                      .value("variables").toArray();
@@ -1404,7 +1716,21 @@ void DapImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64
 
 void DapImpl::handleReadMemory(const QJsonObject &response)
 {
-    const MemoryRequest request = m_memoryRequests.take(response.value("request_seq").toInt());
+    const int seq = response.value("request_seq").toInt();
+    if (const MemoryRequest peripheral = m_peripheralRequests.take(seq); peripheral.length != 0) {
+        const QByteArray data = QByteArray::fromBase64(
+            response.value("body").toObject().value("data").toString().toUtf8());
+        quint32 value = 0;
+        memcpy(&value, data.constData(), qMin(data.size(), qsizetype(sizeof(value))));
+        GdbMi result;
+        result.m_type = GdbMi::Tuple;
+        result.addChild(constMi("address", QString::number(peripheral.address)));
+        result.addChild(constMi("value", QString::number(value)));
+        emit refreshDataReceived(peripheral.requestId, RefreshKind::PeripheralRegisters, result);
+        return;
+    }
+
+    const MemoryRequest request = m_memoryRequests.take(seq);
     if (request.length == 0)
         return;
     QByteArray data = QByteArray::fromBase64(
@@ -1469,7 +1795,8 @@ void DapImpl::handleDisassemble(const QJsonObject &response)
         if (functionAddress != 0 && line.address >= functionAddress)
             line.offset = uint(line.address - functionAddress);
 
-        const QString file = item.value("location").toObject().value("path").toString();
+        const QString file = localSourcePath(item.value("location").toObject()
+                                                 .value("path").toString());
         const int number = item.value("line").toInt();
         if (!file.isEmpty() && number != 0 && (file != sourceFile || number != sourceLine)) {
             sourceFile = file;
@@ -1507,16 +1834,24 @@ void DapImpl::executeDebuggerCommand(const QString &command, const WatchItemData
 
 void DapImpl::setRegisterValue(const QString &name, const QString &value)
 {
-    Q_UNUSED(name)
-    Q_UNUSED(value)
-    reportUnsupported(Tr::tr("setting a register"));
+    QTC_ASSERT(m_client, return);
+    // The registers are a scope, and a scope can only be named once it has
+    // been asked for: a register the view never fetched has nothing to assign
+    // through.
+    if (!m_client->capabilities().supportsSetVariable || m_registerScopeReference == 0) {
+        reportUnsupported(Tr::tr("setting a register"));
+        return;
+    }
+    postRequest("setVariable", QJsonObject{{"variablesReference", m_registerScopeReference},
+                                           {"name", name},
+                                           {"value", value}});
 }
 
 void DapImpl::setPeripheralRegisterValue(quint64 address, quint64 value)
 {
-    Q_UNUSED(address)
-    Q_UNUSED(value)
-    reportUnsupported(Tr::tr("setting a peripheral register"));
+    const quint32 word = quint32(value);
+    const QByteArray data(reinterpret_cast<const char *>(&word), sizeof(word));
+    accessMemory(MemoryOp::Change, 0, address, sizeof(word), data);
 }
 
 void DapImpl::watchPoint(quint64 requestId, const QPoint &pnt)

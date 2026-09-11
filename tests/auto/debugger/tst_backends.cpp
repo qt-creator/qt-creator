@@ -577,6 +577,10 @@ static InitFileProbe initFileProbe(Backend backend, const QString &marker)
 // them on a plain run.
 static QStringList configuredOptionMarkers(Backend backend, const Utils::FilePath &existingDir)
 {
+    // A stock adapter takes none of these: the protocol has no startup command
+    // of its own, and there are no dumpers behind it to extend.
+    if (backend == Backend::Dap)
+        return {};
     QStringList markers{"QTCSTARTUPMARKER", "QTCEXTRADUMPERCOMMAND"};
     if (backend == Backend::Gdb)
         markers << "QTCPOSTATTACHMARKER";
@@ -639,15 +643,13 @@ static QString debugInfoDaemonQuery(Backend backend)
 // pdbbridge.py's stackListFrames() reports the whole stack and takes no limit,
 // so a depth limit cannot reach it yet.
 // Whether attaching leaves the inferior running: lldb resumes it itself, while
-// gdb and the bridge report the stop that attaching causes. A stock DAP
-// adapter's answer to the attach says neither, so the backend reports a running
-// inferior and passes on whatever the adapter does to the debuggee afterwards.
+// the others report the stop that attaching causes.
 static bool attachResumesInferior(Backend backend)
 {
     switch (backend) {
-    case Backend::Dap:
     case Backend::Lldb:
         return true;
+    case Backend::Dap:
     case Backend::Bridge:
     case Backend::Gdb:
     case Backend::Cdb:
@@ -751,12 +753,12 @@ static QString responseTimeMarker(Backend backend)
     switch (backend) {
     case Backend::Gdb:
     case Backend::Bridge:
+    case Backend::Dap:
         return "Response time";
     case Backend::Lldb:
     case Backend::Cdb:
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Dap:
         break;
     }
     return {};
@@ -894,6 +896,7 @@ static QString watchdogProbeCommand(Backend backend, int seconds)
     switch (backend) {
     case Backend::Gdb:
     case Backend::Bridge:
+    case Backend::Dap:
         // cmd.exe has no sleep, and "timeout /t" refuses to run with redirected input.
         if (HostOsInfo::isWindowsHost())
             return QString("shell ping -n %1 127.0.0.1").arg(seconds + 1);
@@ -908,7 +911,6 @@ static QString watchdogProbeCommand(Backend backend, int seconds)
         // pdb runs a statement typed at its prompt, which blocks it just as well.
         return QString("import time; time.sleep(%1)").arg(seconds);
     case Backend::Qml:
-    case Backend::Dap:
         break;
     }
     return {};
@@ -1414,6 +1416,11 @@ private:
         bool nativeMixed = false,
         std::chrono::seconds watchdogTimeout = {},
         Debugger::Internal::GdbImplFlags gdbFlags = Debugger::Internal::GdbImplFlag::PseudoTracepoints);
+    // What a stock adapter is told to start, which is the launch body rather
+    // than the start data the other backends read.
+    Debugger::Internal::DapStartData dapAdapterStartData(
+        const Utils::ProcessRunData &debuggerRunData,
+        const Utils::ProcessRunData &inferiorRunData);
     std::unique_ptr<DebuggerBackend> createEngineWithBreakEvents(
         Backend backend, const QStringList &breakEvents);
     std::unique_ptr<DebuggerBackend> createEngineWithStartScript(
@@ -1589,6 +1596,33 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt_data()
     }
 }
 
+DapStartData tst_backends::dapAdapterStartData(const ProcessRunData &debuggerRunData,
+                                              const ProcessRunData &inferiorRunData)
+{
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Executable;
+    startData.adapter.command = CommandLine{debuggerRunData.command.executable(), {"-i", "dap"}};
+    startData.adapter.runData = debuggerRunData;
+    startData.adapterId = "gdb";
+    // The launch body follows the adapter's own schema, so what the other
+    // backends take out of inferiorStartData is spelled out here.
+    QJsonObject environment;
+    for (const QString &entry : inferiorRunData.environment.toStringList()) {
+        const qsizetype separator = entry.indexOf('=');
+        if (separator > 0)
+            environment[entry.left(separator)] = entry.mid(separator + 1);
+    }
+    QJsonObject configuration{{"program", inferiorRunData.command.executable().path()},
+                              {"env", environment}};
+    if (!inferiorRunData.workingDirectory.isEmpty())
+        configuration["cwd"] = inferiorRunData.workingDirectory.path();
+    const QStringList arguments = inferiorRunData.command.splitArguments();
+    if (!arguments.isEmpty())
+        configuration["args"] = QJsonArray::fromStringList(arguments);
+    startData.configuration = configuration;
+    return startData;
+}
+
 std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
     const std::optional<ProcessRunData> &debuggerRunDataOverride,
     const std::optional<ProcessRunData> &inferiorRunDataOverride,
@@ -1630,31 +1664,16 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .skipKnownFrames = gdbFlags.testFlag(GdbImplFlag::SkipKnownFrames),
             .watchdogTimeout = watchdogTimeout}));
     case Backend::Dap: {
-        const ProcessRunData debuggerRunData = debuggerRunDataOverride.value_or(
-            ProcessRunData{{m_backendData[backend].path, {}}, {},
-                           Environment::systemEnvironment()});
-        const ProcessRunData inferiorRunData = inferiorRunDataOverride.value_or(
-            ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
-                           Environment::systemEnvironment()});
-        DapStartData startData;
-        startData.adapter.kind = DapAdapterDescriptor::Kind::Executable;
-        startData.adapter.command = CommandLine{debuggerRunData.command.executable(),
-                                                {"-i", "dap"}};
-        startData.adapter.runData = debuggerRunData;
-        startData.adapterId = "gdb";
-        // The launch body follows the adapter's own schema, so what the other
-        // backends take out of inferiorStartData is spelled out here.
-        QJsonObject environment;
-        for (const QString &entry : inferiorRunData.environment.toStringList()) {
-            const qsizetype separator = entry.indexOf('=');
-            if (separator > 0)
-                environment[entry.left(separator)] = entry.mid(separator + 1);
-        }
-        QJsonObject configuration{{"program", inferiorRunData.command.executable().path()},
-                                  {"env", environment}};
-        if (!inferiorRunData.workingDirectory.isEmpty())
-            configuration["cwd"] = inferiorRunData.workingDirectory.path();
-        startData.configuration = configuration;
+        DapStartData startData = dapAdapterStartData(
+            debuggerRunDataOverride.value_or(ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                                            Environment::systemEnvironment()}),
+            inferiorRunDataOverride.value_or(
+                ProcessRunData{{inferiorTestData(backend).executable, {}}, {},
+                               Environment::systemEnvironment()}));
+        startData.breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain);
+        startData.logTimeStamps = gdbFlags.testFlag(GdbImplFlag::LogTimeStamps);
+        startData.skipKnownFrames = gdbFlags.testFlag(GdbImplFlag::SkipKnownFrames);
+        startData.watchdogTimeout = watchdogTimeout;
         return std::make_unique<DebuggerBackend>(std::make_unique<DapImpl>(startData));
     }
     case Backend::Lldb:
@@ -1704,10 +1723,6 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
     Backend backend, const Environment &debuggerEnvironment, const FilePath &existingDir,
     const QString &inferiorArguments, bool stopAtMain)
 {
-    Q_UNUSED(debuggerEnvironment)
-    Q_UNUSED(existingDir)
-    Q_UNUSED(inferiorArguments)
-    Q_UNUSED(stopAtMain)
     switch (backend) {
     case Backend::Gdb:
         return std::make_unique<DebuggerBackend>(std::make_unique<GdbImpl>(GdbImplStartData{
@@ -1785,9 +1800,21 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             // Split, so that the extension's echo of the command cannot pass for
             // its output.
             .extraDumperCommands = "print('QTC' + 'EXTRADUMPERCOMMAND')"}));
+    case Backend::Dap: {
+        // Only what a stock adapter can be told: there are no dumpers behind
+        // it, and no search paths of its own either.
+        DapStartData startData = dapAdapterStartData(
+            ProcessRunData{{m_backendData[backend].path, {}}, {}, debuggerEnvironment},
+            ProcessRunData{{inferiorTestData(backend).executable, inferiorArguments,
+                            CommandLine::Raw}, {}, Environment::systemEnvironment()});
+        startData.breakOnMain = stopAtMain;
+        startData.breakOnAbort = true;
+        startData.breakOnWarning = true;
+        startData.breakOnFatal = true;
+        return std::make_unique<DebuggerBackend>(std::make_unique<DapImpl>(startData));
+    }
     case Backend::Pdb:
     case Backend::Qml:
-    case Backend::Dap:
         break;
     }
     return nullptr;
@@ -1890,7 +1917,18 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngineWithConfiguredPaths(
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .bridgeStartData = dapHostRecipe(false),
             .sourcePathMap = sourcePathMap}));
-    case Backend::Dap:
+    case Backend::Dap: {
+        DapStartData startData;
+        startData.adapter.kind = DapAdapterDescriptor::Kind::Executable;
+        startData.adapter.command = CommandLine{m_backendData[backend].path, {"-i", "dap"}};
+        startData.adapter.runData = ProcessRunData{{m_backendData[backend].path, {}}, {},
+                                                   Environment::systemEnvironment()};
+        startData.adapterId = "gdb";
+        startData.configuration
+            = QJsonObject{{"program", inferiorTestData(backend).executable.path()}};
+        startData.sourcePathMap = sourcePathMap;
+        return std::make_unique<DebuggerBackend>(std::make_unique<DapImpl>(startData));
+    }
     case Backend::Lldb:
     case Backend::Pdb:
     case Backend::Qml:
@@ -2042,19 +2080,30 @@ std::unique_ptr<DebuggerBackend> tst_backends::createAttachEngine(
             .inferiorStartData = inferiorStartData,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR)}));
     case Backend::Dap: {
-        // The stock protocol carries the pid in the adapter's own attach body.
-        const auto *attachData = std::get_if<AttachToProcessData>(&inferiorStartData);
-        if (!attachData)
+        // The stock protocol carries what to attach to in the adapter's own
+        // attach body: a pid for a local process, the channel for a server.
+        QJsonObject configuration{{"program", inferiorTestData(backend).executable.path()}};
+        bool resumeAfterAttach = gdbFlags.testFlag(GdbImplFlag::ContinueAfterAttach);
+        if (const auto *attachData = std::get_if<AttachToProcessData>(&inferiorStartData)) {
+            configuration["pid"] = qint64(attachData->pid.pid());
+        } else if (const auto *serverData
+                       = std::get_if<AttachToRemoteServerData>(&inferiorStartData)) {
+            configuration["target"] = serverData->channel;
+            // A stub that was told which process to debug hands it over
+            // stopped, and whoever asked for that wants it to run.
+            resumeAfterAttach = resumeAfterAttach || serverData->attachPid.isValid()
+                                || !serverData->remoteExecutable.isEmpty();
+        } else {
             break;
+        }
         DapStartData startData;
         startData.adapter.kind = DapAdapterDescriptor::Kind::Executable;
         startData.adapter.command = CommandLine{m_backendData[backend].path, {"-i", "dap"}};
         startData.adapter.runData.environment = Environment::systemEnvironment();
         startData.adapterId = "gdb";
         startData.attach = true;
-        startData.configuration = QJsonObject{
-            {"pid", qint64(attachData->pid.pid())},
-            {"program", inferiorTestData(backend).executable.path()}};
+        startData.configuration = configuration;
+        startData.continueAfterAttach = resumeAfterAttach;
         return std::make_unique<DebuggerBackend>(std::make_unique<DapImpl>(startData));
     }
     case Backend::Pdb:
@@ -2570,11 +2619,15 @@ void tst_backends::initTestCase()
         if (debuggerMajorVersion(gdbVersionLine) >= s_dapInterpreterVersion) {
             m_backendData[Backend::Dap] = m_backendData[Backend::Gdb];
             m_backendData[Backend::Dap].inferiorData = cppInferiorData;
-            // Naming the source a disassembled instruction came from is the
-            // adapter's to offer, and gdb's own does not on every build.
-            m_backendData[Backend::Dap].inferiorData.disassemblySourceMarker.clear();
             m_backendData[Backend::Dap].inferiorData.versionLine = gdbVersionLine;
             m_backendData[Backend::Dap].inferiorData.moduleListMarker = "libc";
+            m_backendData[Backend::Dap].inferiorData.alienBreakpointCommand = "break spin";
+            m_backendData[Backend::Dap].inferiorData.alienBreakpointDeleteCommand = "delete %1";
+            m_backendData[Backend::Dap].inferiorData.enableToggleWireMarker = "setBreakpoints";
+            // The adapter's attach takes a target to connect to, and connects
+            // to it with "target remote": there is no extended-remote, so the
+            // stub cannot be told what to debug after the fact.
+            m_backendData[Backend::Dap].inferiorData.remoteStubHostsProcess = true;
         }
 
         m_backendData[Backend::Bridge] = m_backendData[Backend::Gdb];
@@ -7180,6 +7233,20 @@ void tst_backends::runsToAnAmbiguousLine()
                  qPrintable("spurious breakpointModified() for internal breakpoint #" + number
                             + " - the one-shot breakpoint's sub-locations leaked notifications"));
     }
+
+    // The line is a template body, so the next instantiation runs through it.
+    // A one-shot breakpoint that was not taken back stops there again, which is
+    // ahead of the line the run below asks for.
+    debuggerBackend->clearEvents();
+    ExecutionRequest runOnRequest;
+    runOnRequest.command = ExecutionCommand::RunToLine;
+    runOnRequest.context.type = LocationByFile;
+    runOnRequest.context.fileName = inferiorTestData(backend).source;
+    runOnRequest.context.textPosition.line = inferiorTestData(backend).secondBreakpointLine;
+    debuggerBackend->execute(runOnRequest);
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "the second run to a line never signaled a stop", s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), inferiorTestData(backend).secondBreakpointLine);
 }
 
 // A line inside a template body resolves to one location per instantiation.
@@ -7576,6 +7643,12 @@ void tst_backends::insertsABreakpointBehindABlockedDebugger()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
+    // The command only blocks a debugger that is not already busy with a
+    // running inferior, which is what the stop at main is asked for.
+    if (checkExtraCapability(backend, Debugger::DebuggerExtraCapability::BreakOnMain)) {
+        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                                 s_timeout);
+    }
 
     QHash<quint64, bool> results;
     connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
@@ -7713,6 +7786,14 @@ void tst_backends::reportsAnUnresponsiveDebugger()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
+    // A backend that stops at main only answers the blocks below once it has:
+    // the command runs inside the debugger, which a running inferior keeps
+    // busy. Setting up and stopping are one step for most of them, but not for
+    // a backend whose stop comes out of the debuggee's own start.
+    if (checkExtraCapability(backend, Debugger::DebuggerExtraCapability::BreakOnMain)) {
+        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                                 s_timeout);
+    }
     QVERIFY2(reports.isEmpty(), "the watchdog fired while the engine was answering");
 
     engine->executeDebuggerCommand(blockingCommand, {});
@@ -7761,6 +7842,9 @@ void tst_backends::appliesConfiguredDebuggerOptions()
     const FilePath moduleTrace = existingDir / "qtc_extra_dumper_loaded";
     QVERIFY((existingDir / "qtc_extra_dumper.py").writeFileContents(
         QString("open(r\"%1\", \"w\").close()\n").arg(moduleTrace.path()).toUtf8()));
+    const QStringList markers = configuredOptionMarkers(backend, existingDir);
+    if (markers.isEmpty())
+        QSKIP("This backend takes no configurable debugger options.");
     const QList<ConfiguredOptionProbe> probes = configuredOptionProbes(backend, existingDir);
     std::unique_ptr<DebuggerBackend> debuggerBackend
         = createFullyConfiguredEngine(backend, Environment::systemEnvironment(), existingDir);
@@ -7783,7 +7867,7 @@ void tst_backends::appliesConfiguredDebuggerOptions()
             return text.contains(marker);
         });
     };
-    for (const QString &marker : configuredOptionMarkers(backend, existingDir)) {
+    for (const QString &marker : markers) {
         QTRY_VERIFY2_WITH_TIMEOUT(sawMessage(marker),
                                   qPrintable("a configured option left no " + marker),
                                   s_timeout);
