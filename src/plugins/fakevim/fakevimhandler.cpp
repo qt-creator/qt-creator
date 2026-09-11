@@ -1200,7 +1200,7 @@ static char backslashed(char t)
         case 'e': return 27;
         case 't': return '\t';
         case 'r': return '\r';
-        case 'n': return '\n';
+        case 'n': return 0; // A "\n" in a substitute puts in a NUL, a "\r" the line break.
         case 'b': return 8;
     }
     return t;
@@ -1763,6 +1763,19 @@ public:
         if (m_key == Key_Escape)
             return QChar(27);
         return QChar(m_xkey & 0xffff); // FIXME
+    }
+
+    // What CTRL-V puts in for this key, where the key is what goes in rather
+    // than a digit of a character code.
+    QChar literal() const
+    {
+        if (isControl())
+            return QChar(m_xkey & 0x1f);
+        if (isBackspace())
+            return QChar(8);
+        if (isReturn())
+            return QChar(13);
+        return raw();
     }
 
     QString toString() const
@@ -2368,7 +2381,14 @@ private:
 class LiteralInput
 {
 public:
-    void start() { m_base = 0; m_accumulator = 0; }
+    void start()
+    {
+        m_hex = false;
+        m_octal = false;
+        m_unicode = 0;
+        m_digits = 0;
+        m_accumulator = 0;
+    }
 
     // The text to put in, once the digits are complete. Nothing while more of
     // them are wanted; "again" comes back set where what ended them was not
@@ -2376,53 +2396,79 @@ public:
     std::optional<QString> take(const Input &input, bool *again)
     {
         *again = false;
-        if (m_base == 0) {
-            if (input.is('x') || input.is('X')) {
-                m_length = 2;
-                m_base = 16;
-            } else if (input.is('O') || input.is('o')) {
-                m_length = 3;
-                m_base = 8;
-            } else if (input.is('u')) {
-                m_length = 4;
-                m_base = 16;
-            } else if (input.is('U')) {
-                m_length = 8;
-                m_base = 16;
-            } else if (input.isDigit()) {
-                bool ok;
-                m_accumulator = input.toInt(&ok, 10);
-                m_length = 2;
-                m_base = 10;
-            } else {
-                return QString(input.raw());
+        // A key with a modifier is none of the digits: Vim takes it as itself,
+        // so "^V^M" puts in a CR.
+        if (input.isControl()) {
+            if (m_digits > 0) {
+                *again = true;
+                return text();
             }
-            return std::nullopt;
+            m_accumulator = input.literal().unicode();
+            return text();
         }
-
-        bool ok;
-        const int digit = input.toInt(&ok, m_base);
-        if (ok)
-            m_accumulator = m_accumulator * m_base + digit;
-        --m_length;
-        if (m_length > 0 && ok)
-            return std::nullopt;
-
-        *again = !ok;
-        QString text;
-        if (QChar::requiresSurrogates(m_accumulator)) {
-            text.append(QChar(QChar::highSurrogate(m_accumulator)));
-            text.append(QChar(QChar::lowSurrogate(m_accumulator)));
+        // A base letter may come at any point of the digits and counts as none
+        // of them, so "^V1x41" puts in a 0x14.
+        if (input.is('x') || input.is('X')) {
+            m_hex = true;
+        } else if (input.is('o') || input.is('O')) {
+            m_octal = true;
+        } else if (input.is('u') || input.is('U')) {
+            m_unicode = input.is('u') ? 'u' : 'U';
         } else {
-            text.append(QChar(m_accumulator));
+            bool ok = false;
+            const int digit = input.toInt(&ok, base());
+            if (!ok) {
+                // Where nothing came of the digits, what ended them is what
+                // goes in, base letter or not.
+                if (m_digits == 0) {
+                    m_accumulator = input.literal().unicode();
+                    return text();
+                }
+                *again = true;
+                return text();
+            }
+            m_accumulator = m_accumulator * base() + digit;
+            if (m_accumulator > 255 && m_unicode == 0)
+                m_accumulator = 255;
+            ++m_digits;
+        }
+        if (m_digits < length())
+            return std::nullopt;
+        return text();
+    }
+
+private:
+    int base() const { return m_hex || m_unicode != 0 ? 16 : (m_octal ? 8 : 10); }
+
+    int length() const
+    {
+        if (m_hex)
+            return 2;
+        if (m_unicode != 0)
+            return m_unicode == 'u' ? 4 : 8;
+        return 3;
+    }
+
+    QString text() const
+    {
+        // Vim keeps a NUL in a line as a line break and so puts one in for
+        // either, leaving the line break to "^V^M".
+        const int code = m_accumulator == '\n' ? 0 : m_accumulator;
+        QString text;
+        if (QChar::requiresSurrogates(code)) {
+            text.append(QChar(QChar::highSurrogate(code)));
+            text.append(QChar(QChar::lowSurrogate(code)));
+        } else {
+            text.append(QChar(code));
         }
         return text;
     }
 
-private:
     int m_accumulator = 0;
-    int m_length = 0;
-    int m_base = 0;
+    int m_digits = 0;
+    bool m_hex = false;
+    bool m_octal = false;
+    char m_unicode = 0;
 };
 
 // Mappings for a specific mode (trie structure)
@@ -2954,6 +3000,7 @@ public:
     Input announceKeyInput(const Input &input);
     EventResult handleKeyForMode(const Input &input);
     bool failMotion();
+    bool countGoesPastLastLine() const;
     bool handleCommandBufferPaste(const Input &input);
     // CTRL-R = in a command line: the expression is typed into a prompt of
     // its own, and its value goes into the command line it was opened from.
@@ -3501,6 +3548,10 @@ public:
 
     bool m_anchorPastEnd;
     bool m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
+    // Where an insert that "<C-o>" interrupts stood past the end of its line,
+    // so that it goes back there.
+    bool m_insertPastEnd = false;
+    int m_insertPastEndLine = -1;
     bool m_motionFailed = false; // the last motion had nowhere to go
     int m_lastRemovalPosition = -1; // where text was taken away, to see a replace
     int m_indentLine = 0; // the line an 'indentexpr' is being asked about, for v:lnum
@@ -5216,6 +5267,13 @@ EventResult FakeVimHandler::Private::handleDefaultKey(const Input &input)
 }
 
 // Nowhere to go.
+// A count on a doubled linewise operator that wants a line below the last one leaves everything
+// alone, as in Vim: "2yy" on the last line does not even touch the register.
+bool FakeVimHandler::Private::countGoesPastLastLine() const
+{
+    return count() > 1 && cursorBlockNumber() + 1 >= document()->blockCount();
+}
+
 bool FakeVimHandler::Private::failMotion()
 {
     if (isOperatorPending())
@@ -6266,9 +6324,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommandMovement)
             indent = text.left(i);
         }
         removeText(currentRange());
-        if (g.movetype == MoveLineWise && s.smartIndent()) {
-            insertAutomaticIndentation(true);
-        } else if (!indent.isEmpty()) {
+        if (!indent.isEmpty()) {
             insertText(indent);
             if (block().text().trimmed().isEmpty())
                 m_autoIndentBlock = block().blockNumber();
@@ -8324,8 +8380,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
                 moveLeft();
             setAnchor();
         } else {
-            const QString movementCommand = QString("%1l%1l").arg(count());
-            handleAs("g" + input.toString() + movementCommand);
+            const int by = count();
+            handleAs(QString("g%1%2l").arg(input.toString()).arg(by));
+            // "g~" leaves the cursor where it began, "~" ends behind what it
+            // changed. The step cannot be replayed as another "l": what is
+            // replayed is over only once all of it is, and the single command
+            // of a "<C-o>" must be.
+            moveRight(qMax(0, qMin(by, rightDist() - (isInsertMode() ? 0 : 1))));
             // A "~" among 'whichwrap' carries on into the next line.
             if (rightDist() <= 1 && s.whichWrap().contains('~'))
                 moveToNextLineStart();
@@ -8391,9 +8452,7 @@ bool FakeVimHandler::Private::handleChangeDeleteYankSubModes(const Input &input)
     if (g.submode != changeDeleteYankModeFromInput(input))
         return false;
 
-    // A count that wants a line below the last one leaves everything alone, as in Vim: "2yy" on the
-    // last line does not even touch the register.
-    if (count() > 1 && cursorBlockNumber() + 1 >= document()->blockCount())
+    if (countGoesPastLastLine())
         return failMotion(); // and the keys that came with it are dropped
 
     handleChangeDeleteYankSubModes();
@@ -8603,6 +8662,9 @@ bool FakeVimHandler::Private::handleFilterSubMode(const Input &input)
     if (!input.is('!'))
         return false;
 
+    if (countGoesPastLastLine())
+        return failMotion();
+
     // "!!" filters the current line, and a count the ones below it as well.
     g.movetype = MoveLineWise;
     moveDown(count() - 1);
@@ -8640,6 +8702,9 @@ bool FakeVimHandler::Private::handleShiftSubMode(const Input &input)
     if (g.submode != indentModeFromInput(input))
         return false;
 
+    if (countGoesPastLastLine())
+        return failMotion();
+
     g.movetype = MoveLineWise;
     pushUndoState();
     moveDown(count() - 1);
@@ -8654,6 +8719,9 @@ bool FakeVimHandler::Private::handleChangeCaseSubMode(const Input &input)
 {
     if (g.submode != letterCaseModeFromInput(input))
         return false;
+
+    if (countGoesPastLastLine())
+        return failMotion();
 
     if (!isFirstNonBlankOnLine(position())) {
         moveToStartOfLine();
@@ -8671,17 +8739,21 @@ bool FakeVimHandler::Private::handleChangeCaseSubMode(const Input &input)
 
 bool FakeVimHandler::Private::handleReflowSubMode(const Input &input)
 {
-    // "gqq"/"gqgq" and "gww"/"gwgw" reflow [count] lines from the current one.
-    const QChar op = g.submode == ReflowKeepCursorSubMode ? QLatin1Char('w') : QLatin1Char('q');
-    if (!input.is(op.toLatin1()))
+    // "gqq"/"gqgq" and "gwgw" reflow [count] lines from the current one. There
+    // is no "gww" of its own: the second "w" of that is the word motion.
+    const bool keepCursor = g.submode == ReflowKeepCursorSubMode;
+    if (!input.is(keepCursor ? 'w' : 'q') || (keepCursor && !g.gflag))
         return false;
+
+    if (countGoesPastLastLine())
+        return failMotion();
 
     g.movetype = MoveLineWise;
     const int anc = firstPositionInLine(cursorLine() + 1);
     moveDown(count() - 1);
     const int pos = lastPositionInLine(cursorLine() + 1);
     setAnchorAndPosition(anc, pos);
-    setDotCommand(QString("%1g%2%2").arg(count()).arg(op));
+    setDotCommand(QString("%1%2").arg(count()).arg(keepCursor ? "gwgw" : "gqq"));
     finishMovement();
     g.submode = NoSubMode;
 
@@ -9139,8 +9211,25 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
         return;
     }
 
+    if (g.submode == CtrlVSubMode) {
+        // What ends the digits goes in as itself, an Escape included: that one
+        // does not leave insert mode here.
+        bool again = false;
+        const std::optional<QString> text = m_literalInput.take(input, &again);
+        if (!text) {
+            g.subsubmode = CtrlVUnicodeSubSubMode;
+            return;
+        }
+        g.submode = NoSubMode;
+        g.subsubmode = NoSubSubMode;
+        insertInInsertMode(*text);
+        if (again)
+            handleInsertMode(input);
+        return;
+    }
+
     if (input.isEscape()) {
-        if (g.submode == CtrlRSubMode || g.submode == CtrlVSubMode) {
+        if (g.submode == CtrlRSubMode) {
             g.submode = NoSubMode;
             g.subsubmode = NoSubSubMode;
             updateMiniBuffer();
@@ -9181,19 +9270,6 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             setAnchor();
             m_cursor.insertText(registerContents(input.asChar().unicode()));
             g.submode = NoSubMode;
-        }
-    } else if (g.submode == CtrlVSubMode) {
-        bool again = false;
-        const std::optional<QString> text = m_literalInput.take(input, &again);
-        if (!text) {
-            g.subsubmode = CtrlVUnicodeSubSubMode;
-        } else {
-            g.submode = NoSubMode;
-            g.subsubmode = NoSubSubMode;
-            insertInInsertMode(*text);
-            // Try again without Ctrl-V interpretation.
-            if (again)
-                handleInsertMode(input);
         }
     } else if (input.isControl('o')) {
         enterCommandMode(InsertMode);
@@ -9265,13 +9341,28 @@ void FakeVimHandler::Private::handleInsertMode(const Input &input)
             // Neither reaches over the line break: where nothing of the line
             // is left before the cursor, the break itself is what goes.
             beginPos = qMax(position(), lineStart);
+        } else if (s.autoIndent()) {
+            // With 'autoindent' the indentation of the line is what a "<C-u>"
+            // stops at, as long as the cursor is behind it.
+            const int firstNonBlank = lineStart + indentation(block().text()).physical;
+            if (firstNonBlank < endPos)
+                beginPos = firstNonBlank;
         }
         beginPos = qMax(beginPos, insertStartLimit(endPos));
         setPosition(beginPos);
-        if (beginPos == endPos)
+        const int insertStart = insertStartPosition();
+        if (beginPos == endPos) {
             removeLineBreakBeforeCursor();
-        else
+        } else {
             removeText(Range(beginPos, endPos, RangeCharMode));
+            // Where the insert began is what a further CTRL-U or CTRL-W stops
+            // at. An insert that began behind what went now begins where the
+            // cursor is, and one that began before it keeps its place.
+            if (isInsertStateValid()) {
+                m_buffer->insertState.pos1 = insertStart >= endPos
+                                                 ? beginPos : qMin(insertStart, beginPos);
+            }
+        }
     } else if (input.isKey(Key_Insert)) {
         g.mode = ReplaceMode;
         q->modeChanged(isInsertMode());
@@ -9598,7 +9689,7 @@ bool FakeVimHandler::Private::executeRegister(int reg)
     // TODO: Prompt for an expression to execute if register is '='.
     if (reg == '@' && g.lastExecutedRegister != 0)
         reg = g.lastExecutedRegister;
-    else if (QString("\".*+").contains(regChar) || regChar.isLetterOrNumber())
+    else if (QString("\".*+:").contains(regChar) || regChar.isLetterOrNumber())
         g.lastExecutedRegister = reg;
     else
         return false;
@@ -9607,6 +9698,15 @@ bool FakeVimHandler::Private::executeRegister(int reg)
     //        One solution may be to call QApplication::processEvents() and check if <C-c> was
     //        used when a mapping is active.
     // According to Vim, register is executed like mapping.
+    // The ":" register holds the last command line alone, so the colon that
+    // opens it and the return that sends it have to come back.
+    if (reg == ':') {
+        Inputs inputs(':' + registerContents(reg), false, false);
+        inputs.append(Input(Key_Return, Qt::NoModifier));
+        prependMapping(inputs, false, regChar);
+        return true;
+    }
+
     prependMapping(Inputs(registerContents(reg), false, false), false, QChar(reg));
 
     return true;
@@ -13157,6 +13257,11 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
         QString filtered = result;
         if (toLastLine && filtered.endsWith('\n'))
             filtered.chop(1);
+        // The range of a linewise removal that reaches the last line reaches
+        // back over the break before the range rather than the one behind it,
+        // so that break is what the output has to carry.
+        if (toLastLine && lineForPosition(cmd.range.beginPos) > 1)
+            filtered.prepend('\n');
         setCurrentRange(cmd.range);
         int targetPosition = firstPositionInLine(lineForPosition(cmd.range.beginPos));
         beginEditBlock();
@@ -14612,20 +14717,23 @@ bool FakeVimHandler::Private::handleExSortCommand(const ExCommand &cmd)
     const bool numeric = decimal || hex || octal || binary;
     const Qt::CaseSensitivity sensitivity = ignoreCase ? Qt::CaseInsensitive : Qt::CaseSensitive;
 
-    // Force operation on full lines, and full document if only
-    // one line (the current one...) is specified
+    // Without a range the whole document is sorted.
     int beginLine = lineForPosition(cmd.range.beginPos);
     int endLine = lineForPosition(cmd.range.endPos);
-    if (beginLine == endLine) {
+    if (!cmd.hasRange) {
         beginLine = 1;
-        endLine = lineForPosition(lastPositionInDocument());
+        endLine = lineForPosition(lastPositionInDocument(true));
     }
+    // A single line is sorted already, and Vim does not even move the cursor.
+    if (endLine <= beginLine)
+        return true;
     Range range(firstPositionInLine(beginLine),
                 firstPositionInLine(endLine), RangeLineMode);
 
     // The range a replacement works on reaches back over the break before the
-    // last line of the document, so only lines that leave one behind need one.
-    const bool reachesLastLine = endLine >= lineForPosition(lastPositionInDocument());
+    // last line of the document rather than the one behind it, so which side
+    // of the text carries a break changes with it.
+    const bool reachesLastLine = endLine >= lineForPosition(lastPositionInDocument(true));
 
     QString input = selectText(range);
     if (input.endsWith('\n')) // It should always...
@@ -14703,7 +14811,11 @@ bool FakeVimHandler::Private::handleExSortCommand(const ExCommand &cmd)
         sorted.append(item.text);
     }
 
-    replaceText(range, sorted.join('\n') + (reachesLastLine ? "" : "\n"));
+    const QString text = sorted.join('\n');
+    if (!reachesLastLine)
+        replaceText(range, text + '\n');
+    else
+        replaceText(range, beginLine > 1 ? '\n' + text : text);
 
     setPosition(firstPositionInLine(beginLine));
     moveToFirstNonBlankOnLine();
@@ -30140,6 +30252,15 @@ void FakeVimHandler::Private::enterInsertOrReplaceMode(Mode mode)
         // Returning to insert mode after <C-O>.
         clearCurrentMode();
         moveToTargetColumn();
+        // An insert that stood past the end of its line goes on past the end,
+        // as long as the single command left the cursor on the last character
+        // of that same line.
+        if (m_insertPastEnd && block().blockNumber() == m_insertPastEndLine) {
+            const int endOfLine = block().position() + block().text().size();
+            if (position() == endOfLine - 1)
+                setPosition(endOfLine);
+        }
+        m_insertPastEnd = false;
         invalidateInsertState();
     } else {
         // Entering insert mode from command mode.
@@ -30222,13 +30343,16 @@ void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
         record(Input(Key_Escape, NoModifier));
 
     if (isNoVisualMode()) {
-        if (atEndOfLine()) {
+        const bool pastEnd = atEndOfLine();
+        if (pastEnd) {
             m_cursor.movePosition(Left, KeepAnchor);
             // The column the insert stands in is the column a motion of the
             // single command CTRL-O runs counts from, past the end or not.
             if (m_targetColumn != -1 && returnToMode == CommandMode)
                 setTargetColumn();
         }
+        m_insertPastEnd = pastEnd && returnToMode != CommandMode;
+        m_insertPastEndLine = m_cursor.blockNumber();
         setAnchor();
     }
 
