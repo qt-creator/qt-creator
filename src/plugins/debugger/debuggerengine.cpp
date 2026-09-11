@@ -117,6 +117,66 @@ QDebug operator<<(QDebug d, DebuggerState state)
     return str;
 }
 
+namespace Internal {
+
+// Decode the Qt namespace from a mangled QObject RTTI symbol, e.g.
+// "_ZTIN4MyNs7QObjectE" -> "MyNs", "_ZTIN1A1B7QObjectE" -> "A::B". Returns an
+// empty string if the symbol is not a namespaced QObject type name/info/table.
+QString namespaceFromQObjectRtti(const QByteArray &sym)
+{
+    if (!(sym.startsWith("_ZTSN") || sym.startsWith("_ZTVN") || sym.startsWith("_ZTIN")))
+        return {};
+    QStringList components;
+    qsizetype i = 5; // Past "_ZT?N".
+    while (i < sym.size() && sym.at(i) >= '0' && sym.at(i) <= '9') {
+        qsizetype len = 0;
+        while (i < sym.size() && sym.at(i) >= '0' && sym.at(i) <= '9') {
+            len = len * 10 + (sym.at(i++) - '0');
+            if (len > sym.size())
+                return {};
+        }
+        if (len == 0 || i + len > sym.size())
+            return {};
+        components.append(QString::fromUtf8(sym.constData() + i, len));
+        i += len;
+    }
+    if (components.size() < 2 || components.last() != "QObject")
+        return {};
+    components.removeLast();
+    return components.join("::");
+}
+
+// The Qt namespace a binary was built against (empty if none), read from the
+// mangled QObject RTTI symbols in its symbol string tables.
+static QString qtNamespaceFromBinary(const FilePath &binary)
+{
+    if (binary.isEmpty() || !binary.isLocal())
+        return {};
+
+    // Only the namespaced form carries the trailing "E"; a plain QObject is
+    // "_ZTI7QObject" with no nesting, so scanning for it yields nothing.
+    static const QByteArray marker = "7QObjectE";
+
+    ElfReader reader(binary);
+    for (const char *section : {".dynstr", ".strtab"}) {
+        const std::unique_ptr<ElfMapper> mapper = reader.readSection(section);
+        if (!mapper)
+            continue;
+        const QByteArray blob = QByteArray::fromRawData(mapper->start, qsizetype(mapper->fdlen));
+        for (qsizetype hit = blob.indexOf(marker); hit >= 0;
+             hit = blob.indexOf(marker, hit + 1)) {
+            const qsizetype start = blob.lastIndexOf('\0', hit) + 1;
+            const QString ns = namespaceFromQObjectRtti(
+                blob.mid(start, hit + marker.size() - start));
+            if (!ns.isEmpty())
+                return ns;
+        }
+    }
+    return {};
+}
+
+} // namespace Internal
+
 DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runControl)
 {
     Kit *kit = runControl->kit();
@@ -226,6 +286,10 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
 {
     if (m_symbolFile.isEmpty())
         m_symbolFile = m_inferior.command.executable();
+
+    // A Qt version in the kit would have supplied the namespace already.
+    if (m_qtVersion == 0 && m_qtNamespace.isEmpty())
+        m_qtNamespace = qtNamespaceFromBinary(m_symbolFile);
 
     // Set a Qt Creator-specific environment variable, to able to check for it in debugger
     // scripts.

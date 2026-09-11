@@ -6,6 +6,7 @@
 #include "debuggertest.h"
 
 #include "debuggercore.h"
+#include "debuggerengine.h"
 #include "debuggerengineinterface.h"
 #include "debuggeritem.h"
 #include "debuggerruncontrol.h"
@@ -88,6 +89,8 @@ private slots:
     void testMergePlatformQtPath();
 
     void testScratchEditorAdoptsSavedName();
+    void testNamespaceFromQObjectRtti_data();
+    void testNamespaceFromQObjectRtti();
 
 private:
     CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
@@ -652,6 +655,37 @@ void DebuggerUnitTests::testScratchEditorAdoptsSavedName()
     QVERIFY(DocumentManager::saveDocument(doc, FilePath::fromString(tmp.path()) / "bt.txt"));
     QVERIFY(doc->preferredDisplayName().isEmpty());
     QVERIFY(!doc->isTemporary());
+}
+
+void DebuggerUnitTests::testNamespaceFromQObjectRtti_data()
+{
+    QTest::addColumn<QByteArray>("symbol");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("typeinfo") << QByteArray("_ZTIN4MyNs7QObjectE") << QString("MyNs");
+    QTest::newRow("typename") << QByteArray("_ZTSN4MyNs7QObjectE") << QString("MyNs");
+    QTest::newRow("vtable") << QByteArray("_ZTVN4MyNs7QObjectE") << QString("MyNs");
+    QTest::newRow("nested") << QByteArray("_ZTIN1A1B7QObjectE") << QString("A::B");
+    QTest::newRow("two-digit-length") << QByteArray("_ZTIN10MyLongerNs7QObjectE")
+                                      << QString("MyLongerNs");
+    QTest::newRow("other-class") << QByteArray("_ZTIN4MyNs14QObjectPrivateE") << QString();
+    QTest::newRow("no-components") << QByteArray("_ZTIN0E") << QString();
+    QTest::newRow("empty-nesting") << QByteArray("_ZTINE") << QString();
+    QTest::newRow("not-nested") << QByteArray("_ZTI7QObject") << QString();
+    QTest::newRow("length-past-end") << QByteArray("_ZTIN18MyNS7QObjectE") << QString();
+    QTest::newRow("length-misaligned") << QByteArray("_ZTIN9Short7QObjectE") << QString();
+    QTest::newRow("length-overflow") << QByteArray("_ZTIN99999999999999999997QObjectE")
+                                     << QString();
+    QTest::newRow("length-wrapping") << QByteArray("_ZTIN18446744073709551617A7QObjectE")
+                                     << QString();
+}
+
+void DebuggerUnitTests::testNamespaceFromQObjectRtti()
+{
+    QFETCH(QByteArray, symbol);
+    QFETCH(QString, expected);
+
+    QCOMPARE(namespaceFromQObjectRtti(symbol), expected);
 }
 
 QObject *createDebuggerTest()

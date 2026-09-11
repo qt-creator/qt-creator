@@ -374,6 +374,8 @@ private:
 
 namespace Internal {
 
+QString namespaceFromQObjectRtti(const QByteArray &sym);
+
 class DebuggerEnginePrivate;
 class DebuggerPluginPrivate;
 class DisassemblerAgent;
