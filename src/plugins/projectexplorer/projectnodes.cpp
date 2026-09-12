@@ -887,6 +887,11 @@ std::unique_ptr<Node> FolderNode::takeNode(Node *node)
     return Utils::takeOrDefault(m_nodes, node);
 }
 
+void FolderNode::notifySubtreeChanged()
+{
+    handleSubTreeChanged(this);
+}
+
 bool FolderNode::showInSimpleTree() const
 {
     return false;

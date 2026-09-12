@@ -241,6 +241,10 @@ void WorkspaceProject::handleDirectoryChanged(const FilePath &directory)
         QTC_ASSERT(fn, return);
         const FilePaths entries = directory.dirEntries(workspaceDirFilter);
         const QList<IVersionControl *> &versionControls = VcsManager::versionControls();
+        // One directory can gain or lose any number of entries at once, and a change
+        // reported per entry walks and sorts the whole project each time. Collect them
+        // and report once, the way scan() adds a freshly scanned directory.
+        bool changed = false;
         for (auto entry : entries) {
             if (isFiltered(entry, versionControls))
                 continue;
@@ -248,8 +252,8 @@ void WorkspaceProject::handleDirectoryChanged(const FilePath &directory)
                 if (!fn->folderNode(entry))
                     scan(entry);
             } else if (!fn->fileNode(entry)) {
-                fn->replaceSubtree(
-                    nullptr, std::make_unique<FileNode>(entry, Node::fileTypeForFileName(entry)));
+                fn->addNode(std::make_unique<FileNode>(entry, Node::fileTypeForFileName(entry)));
+                changed = true;
             }
         }
         QList<Node *> toRemove;
@@ -259,8 +263,15 @@ void WorkspaceProject::handleDirectoryChanged(const FilePath &directory)
         };
         fn->forEachFileNode(filter);
         fn->forEachFolderNode(filter);
-        for (auto n : std::as_const(toRemove))
-            fn->replaceSubtree(n, nullptr);
+        // Kept alive until after the notification, as replaceSubtree() does.
+        std::vector<std::unique_ptr<Node>> removed;
+        removed.reserve(toRemove.size());
+        for (auto n : std::as_const(toRemove)) {
+            removed.push_back(fn->takeNode(n));
+            changed = true;
+        }
+        if (changed)
+            fn->notifySubtreeChanged();
     } else {
         scan(directory);
     }
