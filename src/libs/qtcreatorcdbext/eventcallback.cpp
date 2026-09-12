@@ -3,9 +3,12 @@
 
 #include "eventcallback.h"
 #include "extensioncontext.h"
-#include "pytype.h"
 #include "stringutils.h"
 #include "gdbmihelpers.h"
+
+#ifdef WITH_PYTHON
+#include "pytype.h"
+#endif
 
 const char eventContextC[] = "event";
 
@@ -233,7 +236,9 @@ STDMETHODIMP EventCallback::LoadModule(
     __in ULONG TimeDateStamp
     )
 {
+#ifdef WITH_PYTHON
     PyType::clearUnresolvedTypes();
+#endif
     return m_wrapped ? m_wrapped->LoadModule(ImageFileHandle, BaseOffset,
                                              ModuleSize, ModuleName, ImageName,
                                              CheckSum, TimeDateStamp) : S_OK;
