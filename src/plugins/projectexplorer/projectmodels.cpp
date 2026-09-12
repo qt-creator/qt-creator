@@ -114,9 +114,30 @@ static bool sortWrapperNodes(const WrapperNode *w1, const WrapperNode *w2)
     return compareNodes(w1->node(), w1->displayName(), w2->node(), w2->displayName());
 }
 
+/// Sorts the children of `parent` by display name, asking each of them for it once.
+///
+/// The comparison needs the name of both sides, and a node builds that out of its
+/// file path every time it is asked: find the last '/', copy what follows. A sort
+/// asks each node for it as often as it compares it, so the same name is built
+/// over and over. The names cannot change while the sort runs, so gathering them
+/// up front answers every comparison from the same work.
+static void sortChildrenByName(WrapperNode *parent)
+{
+    QHash<const WrapperNode *, QString> displayNames;
+    displayNames.reserve(parent->childCount());
+    parent->forFirstLevelChildren([&displayNames](WrapperNode *child) {
+        displayNames.insert(child, child->displayName());
+    });
+
+    parent->sortChildren([&displayNames](const WrapperNode *w1, const WrapperNode *w2) {
+        return compareNodes(w1->node(), displayNames.value(w1),
+                            w2->node(), displayNames.value(w2));
+    });
+}
+
 static void sortWrapperNodesRecursively(WrapperNode *parent)
 {
-    parent->sortChildren(&sortWrapperNodes);
+    sortChildrenByName(parent);
     parent->forFirstLevelChildren(&sortWrapperNodesRecursively);
 }
 
@@ -720,7 +741,7 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
                 auto node = new WrapperNode(subFolderNode);
                 parent->appendChild(node);
                 addFolderNode(node, subFolderNode, seen);
-                node->sortChildren(&sortWrapperNodes);
+                sortChildrenByName(node);
             } else {
                 addFolderNode(parent, subFolderNode, seen);
             }
@@ -731,7 +752,7 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
     }
 
     if (hasHiddenSourcesOrHeaders) {
-        parent->sortChildren(&sortWrapperNodes);
+        sortChildrenByName(parent);
         mergeDuplicates(parent);
     }
 }
