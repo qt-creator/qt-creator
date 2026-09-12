@@ -32,6 +32,9 @@ DASHES = (('┌', '┐', '└', '┘', '┄', '┆'), ('┏', '┓', '┗', '┛
           ('┌', '┐', '└', '┘', '┈', '┊'), ('┏', '┓', '┗', '┛', '┉', '┋'),
           ('┌', '┐', '└', '┘', '╌', '╎'), ('┏', '┓', '┗', '┛', '╍', '╏'))
 
+LEFT_BLOCKS = '▏▎▍▌▋▊▉█'
+LOWER_BLOCKS = '▁▂▃▄▅▆▇█'
+
 # Private use area, so no glyph to write here. Hard is the filled
 # triangle, soft the line, in the powerline project's names.
 RIGHT_HARD, RIGHT_SOFT = '\ue0b0', '\ue0b1'
@@ -255,15 +258,15 @@ def blocks(decoration=''):
   print()
 
   hint('Eighth wide stripes: same width everywhere, evenly spaced')
-  show([(eighth + '   ') * (WIDTH // 4) for eighth in '▏▎▍▌▕▐'], decoration)
+  show([(eighth + '   ') * (WIDTH // 4) for eighth in LEFT_BLOCKS], decoration)
   print()
 
   hint('Widening left blocks: eight distinct widths, no two the same')
-  show(['▏▎▍▌▋▊▉█' * (WIDTH // 8)], decoration)
+  show([LEFT_BLOCKS * (WIDTH // len(LEFT_BLOCKS))], decoration)
   print()
 
   hint('Rising lower blocks: eight distinct heights, the last one full')
-  show(['▁▂▃▄▅▆▇█' * (WIDTH // 8)], decoration)
+  show([LOWER_BLOCKS * (WIDTH // len(LOWER_BLOCKS))], decoration)
   print()
 
   hint('Quadrants tile: the checkerboards are regular, the pairs solid')
