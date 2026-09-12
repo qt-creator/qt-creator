@@ -4,3 +4,5 @@ add_qtc_executable(buildoutputparser
     main.cpp
     outputprocessor.cpp outputprocessor.h
 )
+
+qtc_add_version_resource(buildoutputparser "${IDE_DISPLAY_NAME} Build Output Parser")

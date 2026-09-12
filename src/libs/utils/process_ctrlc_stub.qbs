@@ -5,6 +5,7 @@ QtcTool {
     consoleApplication: true
     condition: qbs.targetOS.contains("windows")
     useQt: false
+    windowsFileDescription: qtc.ide_display_name + " CTRL-C Stub"
 
     files: [ "process_ctrlc_stub.cpp" ]
 

@@ -1,11 +1,14 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #include <windows.h>
 
 #define STRINGIFY1(x) #x
 #define STRINGIFY(x) STRINGIFY1(x)
 
-#define ICON_PATH STRINGIFY(RC_ICON_PATH/qtcreator.ico)
-
-IDI_ICON1               ICON    DISCARDABLE     ICON_PATH
+#ifdef RC_ICON_PATH
+IDI_ICON1               ICON    DISCARDABLE     STRINGIFY(RC_ICON_PATH/qtcreator.ico)
+#endif
 
 VS_VERSION_INFO VERSIONINFO
     FILEVERSION    RC_VERSION
@@ -17,7 +20,7 @@ VS_VERSION_INFO VERSIONINFO
        BLOCK "040904E4"
        {
           VALUE "CompanyName", STRINGIFY(RC_PUBLISHER)
-          VALUE "FileDescription", STRINGIFY(RC_APPLICATION_NAME)
+          VALUE "FileDescription", STRINGIFY(RC_DESCRIPTION)
           VALUE "FileVersion", STRINGIFY(RC_VERSION_STRING)
           VALUE "ProductName", STRINGIFY(RC_APPLICATION_NAME)
           VALUE "ProductVersion", STRINGIFY(RC_VERSION_STRING)

@@ -2,6 +2,7 @@ import qbs 1.0
 
 QtcTool {
     name: "QtProfiler"
+    windowsFileDescription: "Qt Profiler"
 
     Depends { name: "codesign" }
 

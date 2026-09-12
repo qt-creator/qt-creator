@@ -38,6 +38,7 @@ Module {
     property string ide_compat_version_minor: qtcreator_compat_version.split('.')[1]
     property string ide_compat_version_release: qtcreator_compat_version.split('.')[2]
 
+    property string ide_publisher: "The Qt Company Ltd."
     property string ide_author: "The Qt Company Ltd. and other contributors."
     property string ide_copyright_string: "Copyright (C) The Qt Company Ltd. and other contributors."
 

@@ -10,3 +10,5 @@ if (WIN32)
     DEFINES _UNICODE UNICODE _CRT_SECURE_NO_WARNINGS
   )
 endif()
+
+qtc_add_version_resource(dlwrapper "${IDE_DISPLAY_NAME} Download Wrapper")

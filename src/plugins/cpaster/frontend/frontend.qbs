@@ -2,6 +2,7 @@ import qbs 1.0
 
 QtcTool {
     name: "cpaster"
+    windowsFileDescription: qtc.ide_display_name + " Code Pasting Tool"
 
     Depends {
         name: "Qt"

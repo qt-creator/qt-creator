@@ -344,4 +344,5 @@ if (WIN32)
     SOURCES
       process_ctrlc_stub.cpp
   )
+  qtc_add_version_resource(qtcreator_ctrlc_stub "${IDE_DISPLAY_NAME} CTRL-C Stub")
 endif()

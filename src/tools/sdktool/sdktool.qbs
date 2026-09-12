@@ -1,5 +1,6 @@
 QtcTool {
     name: "sdktool"
+    windowsFileDescription: qtc.ide_display_name + " SDK Tool"
 
     Depends { name: "Qt.core" }
     Depends { name: "app_version_header" }

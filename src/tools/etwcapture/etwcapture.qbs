@@ -7,6 +7,7 @@ Project {
     // Records the NT Kernel Logger, which needs administrator rights.
     QtcTool {
         name: "etwcapture"
+        windowsFileDescription: qtc.ide_display_name + " ETW Capture"
 
         Depends { name: "Profiler" }
         Depends { name: "Utils" }
@@ -21,6 +22,7 @@ Project {
     // requireAdministrator manifest, which is what makes ShellExecuteEx elevate it.
     QtcTool {
         name: "etwcapture-launcher"
+        windowsFileDescription: qtc.ide_display_name + " ETW Capture Launcher"
         useQt: false
         consoleApplication: false
 

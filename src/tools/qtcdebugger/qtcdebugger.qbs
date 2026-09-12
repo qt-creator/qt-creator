@@ -2,6 +2,7 @@ import qbs 1.0
 
 QtcTool {
     name: "qtcdebugger"
+    windowsFileDescription: qtc.ide_display_name + " Debug Dispatcher"
     condition: qbs.targetOS.contains("windows")
 
     property string registryAccessDir: project.sharedSourcesDir + "/registryaccess"

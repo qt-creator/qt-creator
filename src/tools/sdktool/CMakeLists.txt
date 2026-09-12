@@ -110,6 +110,8 @@ add_qtc_executable(sdktool
     main.cpp
 )
 
+qtc_add_version_resource(sdktool "${IDE_DISPLAY_NAME} SDK Tool")
+
 if (MSVC AND TARGET sdktool AND TARGET Qt5::Core)
   # find out if Qt is static and set /MT if so
   get_target_property(_input_type Qt5::Core TYPE)

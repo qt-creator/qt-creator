@@ -33,6 +33,13 @@ Product {
                                   FileInfo.joinPaths('/', qtc.ide_shared_sources_path)))
     property bool sanitizable: true
     property bool enforceInternalLinkage: false
+    // What Windows shows as "Description". Empty adds no version resource.
+    property string windowsFileDescription
+    // Directory holding qtcreator.ico. Empty leaves the binary without an icon.
+    property string windowsIconPath
+    // A resource file of one's own that includes qtcreator_versioninfo.rc.
+    // Only one per product works: the icons of a second one collide.
+    property string windowsResourceFile
 
     Depends { name: "cpp" }
     Depends {
@@ -98,6 +105,30 @@ Product {
         qbs.install: install
         qbs.installDir: installDir
         qbs.installSourceBase: installSourceBase
+    }
+
+    Group {
+        name: "windows version resource"
+        condition: qbs.targetOS.contains("windows") && !!windowsFileDescription
+        files: windowsResourceFile
+               ? windowsResourceFile
+               : pathToSharedSources + "/qtcreator_versioninfo.rc"
+        // We need the version in two separate formats for the .rc file
+        //  RC_VERSION=4,3,82,0 (quadruple)
+        //  RC_VERSION_STRING="4.4.0-beta1" (free text)
+        // Also, we need to replace space with \x20 to be able to work with both rc and windres
+        cpp.defines: {
+            var defines = outer.concat([
+                "RC_VERSION=" + qtc.qtcreator_version.replace(/\./g, ",") + ",0",
+                "RC_VERSION_STRING=" + qtc.qtcreator_display_version,
+                "RC_DESCRIPTION=" + windowsFileDescription.replace(/ /g, "\\x20"),
+                "RC_APPLICATION_NAME=" + qtc.ide_display_name.replace(/ /g, "\\x20"),
+                "RC_PUBLISHER=" + qtc.ide_publisher.replace(/ /g, "\\x20"),
+                "RC_COPYRIGHT=" + qtc.ide_copyright_string.replace(/ /g, "\\x20")]);
+            if (windowsIconPath)
+                defines.push("RC_ICON_PATH=" + windowsIconPath);
+            return defines;
+        }
     }
 
     Group {

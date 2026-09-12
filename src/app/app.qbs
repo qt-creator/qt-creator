@@ -38,6 +38,10 @@ QtcProduct {
     installTags: (isBundle ? ["bundle.content"] : base).concat(["debuginfo_app"])
     property bool qtcRunnable: true
 
+    windowsFileDescription: qtc.ide_display_name
+    windowsIconPath: sourceDirectory
+    windowsResourceFile: sourceDirectory + "/qtcreator.rc"
+
     bundle.identifier: qtc.ide_bundle_identifier
 
     // Some of these are in here only to override the entries added to app-Info.plist with other
@@ -76,18 +80,6 @@ QtcProduct {
         "../tools/qtcreatorcrashhandler/crashhandlersetup.cpp",
         "../tools/qtcreatorcrashhandler/crashhandlersetup.h"
     ]
-
-    Group {
-        // We need the version in two separate formats for the .rc file
-        //  RC_VERSION=4,3,82,0 (quadruple)
-        //  RC_VERSION_STRING="4.4.0-beta1" (free text)
-        // Also, we need to replace space with \x20 to be able to work with both rc and windres
-        cpp.defines: outer.concat(["RC_VERSION=" + qtc.qtcreator_version.replace(/\./g, ",") + ",0",
-                                   "RC_VERSION_STRING=" + qtc.qtcreator_display_version,
-                                   "RC_COPYRIGHT=" + qtc.ide_copyright_string.replace(/ /g, "\\x20"),
-                                   "RC_ICON_PATH=."])
-        files: "qtcreator.rc"
-    }
 
     Group {
         name: "qtcreator.sh"

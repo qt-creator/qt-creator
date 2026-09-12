@@ -2,6 +2,7 @@ import qbs
 
 QtcTool {
     name: "buildoutputparser"
+    windowsFileDescription: qtc.ide_display_name + " Build Output Parser"
     Depends { name: "Qt"; submodules: ["core", "widgets"]; }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }

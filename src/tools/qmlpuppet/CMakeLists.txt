@@ -247,33 +247,14 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.4.0)
 endif()
 
 
-# add application icon
-# IDE_LOGO_PATH in a default QtCreator build is empty, all icons are found by relative paths
-# So we can not use the icon then.
-if (TARGET qmlpuppet AND NOT "${IDE_LOGO_PATH}" STREQUAL "")
-    if (WIN32)
-      set(RC_APPLICATION_NAME "${IDE_DISPLAY_NAME}")
-      set(RC_VERSION "${IDE_VERSION}.0")
-      set(RC_VERSION_STRING "${IDE_VERSION_DISPLAY}")
-      set(RC_COPYRIGHT "${IDE_COPYRIGHT}")
-      set(RC_PUBLISHER "${IDE_PUBLISHER}")
-
-      string(REPLACE " " "\\x20" RC_APPLICATION_NAME "${RC_APPLICATION_NAME}")
-      string(REPLACE " " "\\x20" RC_PUBLISHER "${RC_PUBLISHER}")
-      string(REPLACE " " "\\x20" RC_COPYRIGHT "${RC_COPYRIGHT}")
-      string(REPLACE "." "," RC_VERSION "${RC_VERSION}")
-
-      target_compile_definitions(qmlpuppet PRIVATE
-        RC_PUBLISHER=${RC_PUBLISHER}
-        RC_APPLICATION_NAME=${RC_APPLICATION_NAME}
-        RC_VERSION=${RC_VERSION}
-        RC_VERSION_STRING=${RC_VERSION_STRING}
-        RC_COPYRIGHT=${RC_COPYRIGHT}
-        RC_ICON_PATH=${IDE_ICON_PATH}
-      )
-
-      target_sources(qmlpuppet PRIVATE windows_application_icon/qmlpuppet.rc)
+if (TARGET qmlpuppet)
+    # IDE_LOGO_PATH in a default QtCreator build is empty, all icons are found by
+    # relative paths. So we can not use the icon then.
+    set(qmlpuppet_icon "")
+    if (NOT "${IDE_LOGO_PATH}" STREQUAL "")
+      set(qmlpuppet_icon ICON)
     endif()
+    qtc_add_version_resource(qmlpuppet "${IDE_DISPLAY_NAME}" ${qmlpuppet_icon})
 endif()
 
 if(IS_STAND_ALONE_PUPPET_BUILD)

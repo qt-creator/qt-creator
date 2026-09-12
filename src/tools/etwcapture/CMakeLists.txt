@@ -29,3 +29,6 @@ add_qtc_executable(etwcapture-launcher
 if (MSVC AND TARGET etwcapture-launcher)
   target_link_options(etwcapture-launcher PRIVATE "LINKER:/MANIFEST:NO")
 endif()
+
+qtc_add_version_resource(etwcapture "${IDE_DISPLAY_NAME} ETW Capture")
+qtc_add_version_resource(etwcapture-launcher "${IDE_DISPLAY_NAME} ETW Capture Launcher")

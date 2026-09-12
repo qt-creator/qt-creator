@@ -1112,6 +1112,58 @@ function(extend_qtc_executable name)
   endif()
 endfunction()
 
+# Adds the version resource Windows shows as "Description" and "Company Name".
+# ICON adds the application icon. Does nothing on other platforms.
+#
+# Only one resource file per target works, so a target with icons of its own
+# passes a RESOURCE_FILE that includes qtcreator_versioninfo.rc.
+function(qtc_add_version_resource target description)
+  cmake_parse_arguments(_arg "ICON" "RESOURCE_FILE" "" ${ARGN})
+  if (_arg_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "qtc_add_version_resource had unparsed arguments!")
+  endif()
+
+  if (NOT WIN32 OR NOT TARGET ${target})
+    return()
+  endif()
+
+  set(rc_version "${IDE_VERSION}.0")
+  string(REPLACE "." "," rc_version "${rc_version}")
+
+  # Both rc and windres need the spaces escaped
+  string(REPLACE " " "\\x20" rc_description "${description}")
+  string(REPLACE " " "\\x20" rc_application_name "${IDE_DISPLAY_NAME}")
+  string(REPLACE " " "\\x20" rc_publisher "${IDE_PUBLISHER}")
+  string(REPLACE " " "\\x20" rc_copyright "${IDE_COPYRIGHT}")
+
+  target_compile_definitions(${target} PRIVATE
+    RC_VERSION=${rc_version}
+    RC_VERSION_STRING=${IDE_VERSION_DISPLAY}
+    RC_DESCRIPTION=${rc_description}
+    RC_APPLICATION_NAME=${rc_application_name}
+    RC_PUBLISHER=${rc_publisher}
+    RC_COPYRIGHT=${rc_copyright}
+  )
+
+  # A stand-alone build of a single tool has no QtCreator_SOURCE_DIR
+  set(source_root "${_THIS_MODULE_BASE_DIR}/..")
+
+  if (_arg_ICON)
+    set(rc_icon_path "${IDE_ICON_PATH}")
+    if (NOT IS_ABSOLUTE "${rc_icon_path}")
+      set(rc_icon_path "${source_root}/src/app/${rc_icon_path}")
+    endif()
+    target_compile_definitions(${target} PRIVATE RC_ICON_PATH=${rc_icon_path})
+  endif()
+
+  if (_arg_RESOURCE_FILE)
+    target_sources(${target} PRIVATE "${_arg_RESOURCE_FILE}")
+  else()
+    target_sources(${target} PRIVATE
+      "${source_root}/src/shared/qtcreator_versioninfo.rc")
+  endif()
+endfunction()
+
 function(add_qtc_test name)
   cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK;NEEDS_GUI" "TIMEOUT"
       "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION;PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS" ${ARGN})

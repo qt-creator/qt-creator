@@ -7,3 +7,5 @@ add_qtc_executable(cpaster
     ../pastebindotcomprotocol.cpp ../pastebindotcomprotocol.h
     ../protocol.cpp ../protocol.h
 )
+
+qtc_add_version_resource(cpaster "${IDE_DISPLAY_NAME} Code Pasting Tool")
