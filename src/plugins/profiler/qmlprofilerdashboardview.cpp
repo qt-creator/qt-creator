@@ -656,16 +656,6 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
     });
 
 
-    auto createVr = [] {
-        auto vr = new QFrame;
-        vr->setFrameShadow(QFrame::Plain);
-        vr->setFrameShape(QFrame::VLine);
-        QPalette pal = vr->palette();
-        pal.setColor(QPalette::Text, creatorColor(Theme::Token_Stroke_Subtle));
-        vr->setPalette(pal);
-        return vr;
-    };
-
     const QBrush rectFillBrush = creatorColor(Theme::Token_Background_Muted);
     const QPen rectStrokePen = creatorColor(Theme::Token_Stroke_Subtle);
     using namespace Layouting;
@@ -728,16 +718,18 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                         Column {
                             spacing(SpacingTokens::GapVXl),
                             d->categoriesTitle,
-                            Row {
-                                d->uiResponsiveness,
-                                createVr(),
-                                d->frameConsistency,
-                                createVr(),
-                                d->stutterPrevention,
-                                createVr(),
-                                d->p99Quality,
-                                createVr(),
-                                d->startupSpeed,
+                            QtDesignWidgets::SeparatedItems {
+                                separatorInset(0),
+                                Row {
+                                    noMargin,
+                                    spacing(2 * SpacingTokens::GapHXl
+                                            + QtcSeparatedItemsWidget::separatorLineWidth()),
+                                    d->uiResponsiveness,
+                                    d->frameConsistency,
+                                    d->stutterPrevention,
+                                    d->p99Quality,
+                                    d->startupSpeed,
+                                },
                             },
                         }
                     },

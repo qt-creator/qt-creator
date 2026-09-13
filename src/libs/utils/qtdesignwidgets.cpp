@@ -13,6 +13,7 @@
 #include <QtTaskTree/QTaskTree>
 
 #include <QApplication>
+#include <QBoxLayout>
 #include <QCache>
 #include <QCommonStyle>
 #include <QEvent>
@@ -27,6 +28,8 @@
 #include <QStyleOption>
 #include <QVariantAnimation>
 #include <QWidget>
+
+#include <optional>
 
 using namespace QtTaskTree;
 
@@ -1165,6 +1168,84 @@ QBrush QtcRectangleWidget::fillBrush() const
     return m_fillBrush;
 }
 
+QtcSeparatedItemsWidget::QtcSeparatedItemsWidget(QWidget *parent)
+    : QWidget(parent)
+    , m_separatorColor(Theme::Token_Stroke_Subtle)
+    , m_separatorInset(PaddingHM)
+{
+}
+
+Theme::Color QtcSeparatedItemsWidget::separatorColor() const
+{
+    return m_separatorColor;
+}
+
+void QtcSeparatedItemsWidget::setSeparatorColor(Theme::Color color)
+{
+    if (m_separatorColor == color)
+        return;
+    m_separatorColor = color;
+    update();
+}
+
+int QtcSeparatedItemsWidget::separatorInset() const
+{
+    return m_separatorInset;
+}
+
+void QtcSeparatedItemsWidget::setSeparatorInset(int inset)
+{
+    if (m_separatorInset == inset)
+        return;
+    m_separatorInset = inset;
+    update();
+}
+
+int QtcSeparatedItemsWidget::separatorLineWidth()
+{
+    return 1;
+}
+
+void QtcSeparatedItemsWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event)
+    const QLayout *itemLayout = layout();
+    QTC_ASSERT(itemLayout, return);
+
+    const auto boxLayout = qobject_cast<const QBoxLayout *>(itemLayout);
+    const QBoxLayout::Direction direction = boxLayout ? boxLayout->direction()
+                                                      : QBoxLayout::TopToBottom;
+    const bool verticalSeparators = direction == QBoxLayout::LeftToRight
+                                    || direction == QBoxLayout::RightToLeft;
+
+    using Span = QPair<int, int>; // Leading and trailing edge of an item or of a gap
+
+    QPainter p(this);
+    const QColor color = creatorColor(m_separatorColor);
+    std::optional<Span> previous;
+    for (int i = 0, count = itemLayout->count(); i < count; ++i) {
+        const QWidget *item = itemLayout->itemAt(i)->widget();
+        if (!item || !item->isVisible())
+            continue;
+        const QRect geometry = item->geometry();
+        const Span span = verticalSeparators ? Span(geometry.left(), geometry.right())
+                                             : Span(geometry.top(), geometry.bottom());
+        if (previous) {
+            // A mirrored layout places the items in the opposite order
+            const Span gap(qMin(previous->second, span.second), qMax(previous->first, span.first));
+            // Centered in the gap, which is the leading edge itself for adjacent items
+            const int position = (gap.first - separatorLineWidth() + gap.second) / 2;
+            const QRect separatorR =
+                verticalSeparators ? QRect(position, m_separatorInset, separatorLineWidth(),
+                                           height() - 2 * m_separatorInset)
+                                   : QRect(m_separatorInset, position,
+                                           width() - 2 * m_separatorInset, separatorLineWidth());
+            p.fillRect(separatorR, color);
+        }
+        previous = span;
+    }
+}
+
 class CachedImage : public QObject
 {
     Q_OBJECT
@@ -1869,6 +1950,22 @@ void Rectangle::setStrokePen(const QPen &pen)
 void Rectangle::setRadius(int radius)
 {
     Layouting::Tools::access(this)->setRadius(radius);
+}
+
+SeparatedItems::SeparatedItems(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    Layouting::Tools::apply(this, ps);
+}
+
+void SeparatedItems::setSeparatorColor(Theme::Color color)
+{
+    Layouting::Tools::access(this)->setSeparatorColor(color);
+}
+
+void SeparatedItems::setSeparatorInset(int inset)
+{
+    Layouting::Tools::access(this)->setSeparatorInset(inset);
 }
 
 Image::Image(std::initializer_list<I> ps)

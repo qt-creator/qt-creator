@@ -65,7 +65,7 @@ int ProgressManagerPrivate::infoMaxWidth()
     return 350;
 }
 
-class PopupInfoBarDisplay : public QWidget
+class PopupInfoBarDisplay : public QtcSeparatedItemsWidget
 {
 public:
     PopupInfoBarDisplay();
@@ -87,8 +87,6 @@ class InfoWidget : public QWidget
 public:
     InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar);
 
-    void paintEvent(QPaintEvent *ev) override;
-
 private:
     QPointer<QWidget> m_detailsWidget;
 };
@@ -97,7 +95,7 @@ PopupInfoBarDisplay::PopupInfoBarDisplay()
 {
     m_layout = new QVBoxLayout;
     m_layout->setContentsMargins({});
-    m_layout->setSpacing(0);
+    m_layout->setSpacing(QtcSeparatedItemsWidget::separatorLineWidth());
     setLayout(m_layout);
 }
 
@@ -119,13 +117,15 @@ InfoBar *PopupInfoBarDisplay::infoBar() const
     return m_infoBar;
 }
 
-void PopupInfoBarDisplay::paintEvent(QPaintEvent *)
+void PopupInfoBarDisplay::paintEvent(QPaintEvent *event)
 {
-    QPainter p(this);
-    const QRect r = rect().adjusted(0, layout()->contentsMargins().top(), 0, 0);
-    StyleHelper::drawCardBg(&p, r, creatorColor(Theme::Token_Background_Muted),
-                            creatorColor(Theme::Token_Stroke_Subtle),
-                            StyleHelper::SpacingTokens::RadiusM);
+    {
+        QPainter p(this);
+        StyleHelper::drawCardBg(&p, rect(), creatorColor(Theme::Token_Background_Muted),
+                                creatorColor(Theme::Token_Stroke_Subtle),
+                                StyleHelper::SpacingTokens::RadiusM);
+    }
+    QtcSeparatedItemsWidget::paintEvent(event);
 }
 
 void PopupInfoBarDisplay::update()
@@ -300,14 +300,6 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
             infoWidgetCloseButton->setText(info.cancelButtonText());
         }
     }
-}
-
-void InfoWidget::paintEvent(QPaintEvent *)
-{
-    QPainter p(this);
-    p.setPen(creatorColor(Theme::Token_Stroke_Subtle));
-    p.drawLine(Utils::StyleHelper::SpacingTokens::PaddingHM, 0,
-               width() - Utils::StyleHelper::SpacingTokens::PaddingHM - 1, 0);
 }
 
 class ProgressTimer : public QObject

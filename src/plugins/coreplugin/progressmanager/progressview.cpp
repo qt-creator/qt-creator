@@ -7,7 +7,7 @@
 
 #include <utils/icon.h>
 #include <utils/overlaywidget.h>
-#include <utils/qtcassert.h>
+#include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 
 #include <QApplication>
@@ -22,44 +22,6 @@ const int PIN_SIZE = 12;
 
 namespace Core::Internal {
 
-class ProgressWidgetsContainer : public QWidget
-{
-public:
-    ProgressWidgetsContainer(QWidget *parent = nullptr);
-
-    void paintEvent(QPaintEvent *ev) override;
-};
-
-ProgressWidgetsContainer::ProgressWidgetsContainer(QWidget *parent)
-    : QWidget(parent)
-{
-}
-
-void ProgressWidgetsContainer::paintEvent(QPaintEvent *)
-{
-    QPainter p(this);
-    const int m = StyleHelper::SpacingTokens::PaddingVXxs;
-    StyleHelper::drawCardBg(&p, QRectF(rect()).adjusted(0, m, 0, 0),
-                            creatorColor(Theme::Token_Background_Muted),
-                            creatorColor(Theme::Token_Stroke_Subtle),
-                            StyleHelper::SpacingTokens::RadiusM);
-
-    // Separators between the items
-    const QLayout *itemLayout = layout();
-    QTC_ASSERT(itemLayout, return);
-    p.setPen(creatorColor(Theme::Token_Stroke_Subtle));
-    const int inset = StyleHelper::SpacingTokens::PaddingHM;
-    bool first = true;
-    for (int i = 0, count = itemLayout->count(); i < count; ++i) {
-        const QWidget *item = itemLayout->itemAt(i)->widget();
-        if (!item || item->isHidden())
-            continue;
-        if (!first)
-            p.drawLine(inset, item->y(), width() - inset - 1, item->y());
-        first = false;
-    }
-}
-
 ProgressView::ProgressView(QWidget *parent)
     : QWidget(parent)
 {
@@ -69,11 +31,21 @@ ProgressView::ProgressView(QWidget *parent)
     m_outerlayout->setSpacing(StyleHelper::SpacingTokens::GapHXxs);
     m_outerlayout->setSizeConstraint(QLayout::SetFixedSize);
 
-    auto progressWidgetsContainer = new ProgressWidgetsContainer(this);
-    m_outerlayout->addWidget(progressWidgetsContainer, 0, Qt::AlignRight);
+    auto progressWidgetsCard = new QtcRectangleWidget(this);
+    progressWidgetsCard->setContentsMargins({});
+    progressWidgetsCard->setFillBrush(creatorColor(Theme::Token_Background_Muted));
+    progressWidgetsCard->setStrokePen(creatorColor(Theme::Token_Stroke_Subtle));
+    m_outerlayout->addWidget(progressWidgetsCard, 0, Qt::AlignRight);
+    auto cardLayout = new QVBoxLayout(progressWidgetsCard);
+    cardLayout->setContentsMargins({});
+    cardLayout->setSpacing(0);
+
+    auto progressWidgetsContainer = new QtcSeparatedItemsWidget;
+    cardLayout->addWidget(progressWidgetsContainer);
+    progressWidgetsContainer->setContentsMargins({});
     m_progressWidgetsLayout = new QVBoxLayout(progressWidgetsContainer);
     m_progressWidgetsLayout->setContentsMargins({});
-    m_progressWidgetsLayout->setSpacing(0);
+    m_progressWidgetsLayout->setSpacing(QtcSeparatedItemsWidget::separatorLineWidth());
 
     setWindowTitle(Tr::tr("Processes"));
 

@@ -244,6 +244,27 @@ private:
     QPen m_strokePen{Qt::NoPen};
 };
 
+class QTCREATOR_UTILS_EXPORT QtcSeparatedItemsWidget : public QWidget
+{
+public:
+    QtcSeparatedItemsWidget(QWidget *parent = nullptr);
+
+    Theme::Color separatorColor() const;
+    void setSeparatorColor(Theme::Color color);
+
+    int separatorInset() const;
+    void setSeparatorInset(int inset);
+
+    static int separatorLineWidth();
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    Theme::Color m_separatorColor;
+    int m_separatorInset;
+};
+
 class CachedImage;
 
 class QTCREATOR_UTILS_EXPORT QtcImage : public QWidget
@@ -490,6 +511,18 @@ public:
     void setStrokePen(const QPen &pen);
 };
 
+class QTCREATOR_UTILS_EXPORT SeparatedItems : public Layouting::Widget
+{
+public:
+    using Implementation = QtcSeparatedItemsWidget;
+    using I = Building::BuilderItem<SeparatedItems>;
+
+    SeparatedItems(std::initializer_list<I> ps);
+
+    void setSeparatorColor(Theme::Color color);
+    void setSeparatorInset(int inset);
+};
+
 class QTCREATOR_UTILS_EXPORT Image : public Layouting::Widget
 {
 public:
@@ -534,6 +567,10 @@ inline constexpr auto fillBrush = Building::setter(
 inline constexpr auto strokePen = Building::setter(
     [](auto &x, auto &&...a) { x.setStrokePen(a...); });
 inline constexpr auto radius = Building::setter([](auto &x, auto &&...a) { x.setRadius(a...); });
+inline constexpr auto separatorColor = Building::setter(
+    [](auto &x, auto &&...a) { x.setSeparatorColor(a...); });
+inline constexpr auto separatorInset = Building::setter(
+    [](auto &x, auto &&...a) { x.setSeparatorInset(a...); });
 inline constexpr auto url = Building::setter([](auto &x, auto &&...a) { x.setUrl(a...); });
 inline constexpr auto value = Building::setter([](auto &x, auto &&...a) { x.setValue(a...); });
 inline constexpr auto minimum = Building::setter([](auto &x, auto &&...a) { x.setMinimum(a...); });
