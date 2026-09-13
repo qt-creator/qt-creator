@@ -7,18 +7,19 @@
 #include "qmlprofilerdashboardstats.h"
 #include "qmlprofilerfindingsmodel.h"
 
+#include <utils/elidinglabel.h>
 #include <utils/icon.h>
 #include <utils/infolabel.h>
-#include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <QEnterEvent>
 #include <QFrame>
 #include <QLabel>
+#include <QMouseEvent>
 #include <QPainter>
-#include <QStyledItemDelegate>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -339,31 +340,20 @@ void Gauge::paintEvent(QPaintEvent *event)
 constexpr TextFormat findingTf {
     .themeColor = Theme::Token_Text_Default,
     .uiElement = UiElementBody2,
-    .drawTextFlags = Qt::AlignVCenter | Qt::TextDontClip,
 };
 
 constexpr TextFormat findingDetailTf {
     .themeColor = Theme::Token_Text_Muted,
     .uiElement = UiElementCaption,
-    .drawTextFlags = findingTf.drawTextFlags,
 };
 
 constexpr TextFormat findingMetricsTf {
     .themeColor = findingDetailTf.themeColor,
     .uiElement = findingDetailTf.uiElement,
-    .drawTextFlags = Qt::AlignRight | Qt::AlignVCenter | Qt::TextDontClip,
+    .drawTextFlags = Qt::AlignRight | Qt::TextDontClip,
 };
 
 constexpr int findingIconSize = 24;
-
-static int findingHeight()
-{
-    return SpacingTokens::PaddingVXs
-           + findingTf.lineHeight()
-           + SpacingTokens::GapVXs
-           + findingDetailTf.lineHeight() * 1.25 // Hack: reserve more space
-           + SpacingTokens::PaddingVXs;
-}
 
 static InfoLabelType infoType(Finding::Severity severity)
 {
@@ -393,109 +383,228 @@ static QString findingMetrics(const QModelIndex &index)
     return metrics.join(", ");
 }
 
-class FindingDelegate : public QStyledItemDelegate
+// Selectable text swallows the clicks that activate a finding, so the header opts out.
+static void applyHeaderTf(QLabel *label, const TextFormat &tf)
 {
+    applyTf(label, tf, false);
+    label->setTextInteractionFlags(Qt::NoTextInteraction);
+}
+
+class FindingHeader : public QWidget
+{
+    Q_OBJECT
+
 public:
-    using QStyledItemDelegate::QStyledItemDelegate;
+    FindingHeader(QWidget *parent = nullptr);
+
+signals:
+    void clicked();
 
 protected:
-    void paint(QPainter *p, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
-    QSize sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 };
 
-void FindingDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
-                            const QModelIndex &index) const
+FindingHeader::FindingHeader(QWidget *parent)
+    : QWidget(parent)
 {
-    p->save();
+    setAttribute(Qt::WA_Hover);
+    setCursor(Qt::PointingHandCursor);
+}
 
-    if (option.state & (QStyle::State_Selected | QStyle::State_MouseOver))
-        drawCardBg(p, option.rect, creatorColor(Theme::Token_Foreground_Subtle));
+void FindingHeader::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && rect().contains(event->position().toPoint()))
+        emit clicked();
+    QWidget::mouseReleaseEvent(event);
+}
 
-    const QRect contentR = option.rect.adjusted(SpacingTokens::PaddingHM,
-                                                SpacingTokens::PaddingVXs,
-                                                -SpacingTokens::PaddingHM,
-                                                -SpacingTokens::PaddingVXs);
+void FindingHeader::enterEvent(QEnterEvent *event)
+{
+    QWidget::enterEvent(event);
+    update();
+}
+
+void FindingHeader::leaveEvent(QEvent *event)
+{
+    QWidget::leaveEvent(event);
+    update();
+}
+
+void FindingHeader::paintEvent([[maybe_unused]] QPaintEvent *event)
+{
+    if (!underMouse())
+        return;
+    QPainter painter(this);
+    drawCardBg(&painter, rect(), creatorColor(Theme::Token_Foreground_Subtle));
+}
+
+class FindingItemWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    FindingItemWidget(QWidget *parent = nullptr);
+
+    void setFinding(const QModelIndex &index);
+
+signals:
+    void activated(const QModelIndex &index);
+
+private:
+    QPersistentModelIndex m_index;
+    QLabel *m_icon = nullptr;
+    QLabel *m_finding = nullptr;
+    ElidingLabel *m_location = nullptr;
+    QLabel *m_metrics = nullptr;
+    QLabel *m_suggestion = nullptr;
+};
+
+FindingItemWidget::FindingItemWidget(QWidget *parent)
+    : QWidget(parent)
+{
+    m_icon = new QLabel;
+    m_icon->setFixedSize(findingIconSize, findingIconSize);
+
+    m_finding = new QLabel;
+    applyHeaderTf(m_finding, findingTf);
+    m_finding->setWordWrap(true);
+    m_finding->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+    m_location = new ElidingLabel;
+    m_location->setElideMode(Qt::ElideMiddle);
+    applyHeaderTf(m_location, findingDetailTf);
+
+    m_metrics = new QLabel;
+    applyHeaderTf(m_metrics, findingMetricsTf);
+
+    m_suggestion = new QLabel;
+    applyTf(m_suggestion, findingDetailTf, false);
+    m_suggestion->setWordWrap(true);
+
+    auto header = new FindingHeader;
+    connect(header, &FindingHeader::clicked, this, [this] {
+        if (m_index.isValid())
+            emit activated(m_index);
+    });
+
+    using namespace Layouting;
+    Row {
+        customMargins(SpacingTokens::PaddingHM, SpacingTokens::PaddingVM,
+                      SpacingTokens::PaddingHM, SpacingTokens::PaddingVM),
+        spacing(SpacingTokens::GapVM),
+        Column {
+            customMargins(0, SpacingTokens::PaddingVXxs, 0, 0),
+            m_icon,
+            st,
+        },
+        Column {
+            noMargin,
+            spacing(SpacingTokens::GapVXs),
+            Row {
+                m_location,
+                m_metrics,
+            },
+            m_finding,
+        },
+    }.attachTo(header);
+
+    Column {
+        customMargins(0, SpacingTokens::PaddingVS, 0, SpacingTokens::PaddingVM),
+        spacing(0),
+        header,
+        Row {
+            customMargins(SpacingTokens::GapHM + findingIconSize + SpacingTokens::GapHM, 0,
+                          SpacingTokens::GapHM, 0),
+            m_suggestion,
+        }
+    }.attachTo(this);
+
+    QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    policy.setHeightForWidth(true); // The suggestion wraps.
+    setSizePolicy(policy);
+}
+
+void FindingItemWidget::setFinding(const QModelIndex &index)
+{
+    m_index = index;
 
     const auto severity = Finding::Severity(
         index.siblingAtColumn(QmlProfilerFindingsModel::ColumnSeverity)
             .data(QmlProfilerFindingsModel::SortRole).toInt());
-    const QRect iconR(contentR.left(), contentR.top(), findingIconSize, contentR.height());
     const QIcon icon = Utils::infoTypeIconLarge(infoType(severity)).icon();
-    icon.paint(p, iconR);
+    m_icon->setPixmap(icon.pixmap(QSize(findingIconSize, findingIconSize), devicePixelRatioF()));
 
-    QRect titleR = contentR.adjusted(findingIconSize + SpacingTokens::GapHM, 0, 0, 0);
-    titleR.setHeight(findingTf.lineHeight());
+    m_finding->setText(
+        index.siblingAtColumn(QmlProfilerFindingsModel::ColumnFinding).data().toString());
+    m_location->setText(
+        index.siblingAtColumn(QmlProfilerFindingsModel::ColumnLocation).data().toString());
+    m_metrics->setText(findingMetrics(index));
 
-    const QFontMetrics detailFm(findingDetailTf.font());
-    const QString metrics = findingMetrics(index);
-    const int metricsWidth = metrics.isEmpty()
-        ? 0 : detailFm.horizontalAdvance(metrics) + SpacingTokens::GapHM;
-
-    const QRect whatR = titleR.adjusted(0, 0, -metricsWidth, 0);
-    const QString what =
-        index.siblingAtColumn(QmlProfilerFindingsModel::ColumnFinding).data().toString();
-    p->setFont(findingTf.font());
-    p->setPen(findingTf.color());
-    const QString whatEl = p->fontMetrics().elidedText(what, Qt::ElideRight, whatR.width());
-    p->drawText(whatR, findingTf.drawTextFlags, whatEl);
-
-    if (!metrics.isEmpty()) {
-        p->setFont(findingMetricsTf.font());
-        p->setPen(findingMetricsTf.color());
-        p->drawText(titleR, findingMetricsTf.drawTextFlags, metrics);
-    }
-
-    QRect locationR = titleR.translated(0, titleR.height() + SpacingTokens::GapVXs);
-    locationR.setHeight(findingDetailTf.lineHeight());
-    const QString location =
-        index.siblingAtColumn(QmlProfilerFindingsModel::ColumnLocation).data().toString();
-    const QString locationEl = detailFm.elidedText(location, Qt::ElideMiddle, locationR.width());
-    p->setFont(findingDetailTf.font());
-    p->setPen(findingDetailTf.color());
-    p->drawText(locationR, findingDetailTf.drawTextFlags, locationEl);
-
-    p->restore();
+    const QString suggestion = index.data(QmlProfilerFindingsModel::SuggestionRole).toString();
+    const bool hasSuggestion = !suggestion.isEmpty();
+    if (hasSuggestion)
+        m_suggestion->setText(Tr::tr("Suggestion: %1").arg(suggestion));
+    m_suggestion->setVisible(hasSuggestion);
 }
 
-QSize FindingDelegate::sizeHint(const QStyleOptionViewItem &, const QModelIndex &) const
+class FindingsView : public QtcSeparatedItemsWidget
 {
-    // QListView widens the item to the viewport, so only the height matters here.
-    return {0, findingHeight()};
-}
+    Q_OBJECT
 
-class FindingsView : public ListView
-{
 public:
     FindingsView(QmlProfilerFindingsModel *model, QWidget *parent = nullptr);
 
-    QSize sizeHint() const override;
+signals:
+    void activated(const QModelIndex &index);
 
 private:
-    // Beyond that the list scrolls: the dashboard itself does not.
-    const int m_maxVisibleFindings = 6;
+    void updateFindings();
+
+    const int m_maxVisibleFindings = 10;
+    QmlProfilerFindingsModel *m_model = nullptr;
+    QList<FindingItemWidget *> m_findingsWidgets;
 };
 
 FindingsView::FindingsView(QmlProfilerFindingsModel *model, QWidget *parent)
-    : ListView(parent)
+    : QtcSeparatedItemsWidget(parent)
+    , m_model(model)
 {
-    setModel(model);
-    setActivationMode(Utils::SingleClickActivation);
-    setItemDelegate(new FindingDelegate(this));
-    setFrameStyle(QFrame::NoFrame);
-    setUniformItemSizes(true);
-    setSpacing(SpacingTokens::GapVXs);
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    setAutoFillBackground(false);
-    viewport()->setAutoFillBackground(false);
-    viewport()->setAttribute(Qt::WA_Hover);
+    setSeparatorInset(0);
+
+    using namespace Layouting;
+    Column column {
+        customMargins(0, 0, 0, 0),
+        spacing(QtcSeparatedItemsWidget::separatorLineWidth()),
+    };
+    for (int i = 0; i < m_maxVisibleFindings; ++i) {
+        auto findingsWidget = new FindingItemWidget;
+        connect(findingsWidget, &FindingItemWidget::activated, this, &FindingsView::activated);
+        m_findingsWidgets.append(findingsWidget);
+        column.addItem(findingsWidget);
+    }
+    column.attachTo(this);
+
+    QSizePolicy policy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    policy.setHeightForWidth(true);
+    setSizePolicy(policy);
+
+    connect(m_model, &QAbstractItemModel::modelReset, this, &FindingsView::updateFindings);
+    updateFindings();
 }
 
-QSize FindingsView::sizeHint() const
+void FindingsView::updateFindings()
 {
-    const int rows = qMin(model()->rowCount(), m_maxVisibleFindings);
-    return {ListView::sizeHint().width(), rows * (findingHeight() + 2 * spacing())};
+    const int findings = qMin(m_model->rowCount(), m_maxVisibleFindings);
+    for (int i = 0; i < m_findingsWidgets.count(); ++i) {
+        FindingItemWidget *findingsWidget = m_findingsWidgets.at(i);
+        const bool hasFinding = i < findings;
+        if (hasFinding)
+            findingsWidget->setFinding(m_model->index(i, QmlProfilerFindingsModel::ColumnFinding));
+        findingsWidget->setVisible(hasFinding);
+    }
 }
 
 class QmlProfilerDashboardViewPrivate : public QObject
@@ -642,7 +751,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
         d->findingsView->updateGeometry();
     });
 
-    connect(d->findingsView, &QAbstractItemView::activated,
+    connect(d->findingsView, &FindingsView::activated,
             this, [this](const QModelIndex &index) {
         if (findingIsInSource(index)) {
             emit gotoSourceLocation(index.data(QmlProfilerFindingsModel::FilenameRole).toString(),
@@ -741,7 +850,7 @@ QmlProfilerDashboardView::QmlProfilerDashboardView(QmlProfilerModelManager *mana
                         fillBrush(rectFillBrush),
                         strokePen(rectStrokePen),
                         Column {
-                            spacing(SpacingTokens::GapVL),
+                            spacing(0),
                             d->findingsTitle,
                             d->findingsView,
                         },
@@ -791,3 +900,5 @@ void QmlProfilerDashboardView::updateValues()
 }
 
 } // namespace Profiler::Internal
+
+#include "qmlprofilerdashboardview.moc"
