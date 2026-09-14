@@ -642,7 +642,7 @@ static GroupItem downloadGithubQmlls()
                 if (HostOsInfo::isMacHost())
                     return "qmllanguageserver-macos"_L1;
 
-                if (isAmd64)
+                if (isArm64)
                     return "qmllanguageserver-linux-arm64"_L1;
                 return "qmllanguageserver-linux-x64"_L1;
             }();
