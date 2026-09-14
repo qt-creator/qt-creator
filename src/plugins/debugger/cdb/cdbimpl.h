@@ -18,6 +18,8 @@
 
 namespace Debugger::Internal {
 
+DEBUGGER_EXPORT bool stoppedInArtificialThread(const GdbMi &stopData);
+
 class DEBUGGER_EXPORT CdbImplSearchPaths
 {
 public:

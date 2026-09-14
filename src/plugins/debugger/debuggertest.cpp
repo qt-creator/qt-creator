@@ -83,6 +83,7 @@ private slots:
     void testInferiorStartData();
     void testCdbImplStartData();
     void testCdbImplCommandLine();
+    void testCdbImplArtificialThreadStop();
     void testMapsAnEmptyFileNameToNothing();
 
     void testQtBuildSourceRoots_data();
@@ -640,6 +641,39 @@ void DebuggerUnitTests::testCdbImplCommandLine()
         const QStringList symbolPaths = args.value(args.indexOf("-y") + 1).split(';');
         QVERIFY(symbolPaths.contains(inferiorDir.nativePath()));
     }
+}
+
+void DebuggerUnitTests::testCdbImplArtificialThreadStop()
+{
+    const auto stopData = [](const QString &contents) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString('{' + contents + '}', decoder);
+        return data;
+    };
+
+    // An interrupt request: the break runs in a thread Windows created for it.
+    QVERIFY(stoppedInArtificialThread(stopData(
+        R"(reason="exception",exceptionCode="2147483651",)"
+        R"(exceptionFunction="ntdll!DbgBreakPoint")")));
+
+    // Ctrl-C in the console the program runs in, same mechanism.
+    QVERIFY(stoppedInArtificialThread(stopData(
+        R"(reason="exception",exceptionCode="1073807365",)"
+        R"(exceptionFunction="kernel32!CtrlRoutine")")));
+
+    // A breakpoint the user set is in the user's own thread.
+    QVERIFY(!stoppedInArtificialThread(stopData(R"(reason="breakpoint")")));
+
+    // So is a crash, even though that too arrives as an exception.
+    QVERIFY(!stoppedInArtificialThread(stopData(
+        R"(reason="exception",exceptionCode="3221225477",)"
+        R"(exceptionFunction="tst_inferior!crash")")));
+
+    // A break the program hit by calling DebugBreak() itself is in its thread.
+    QVERIFY(!stoppedInArtificialThread(stopData(
+        R"(reason="exception",exceptionCode="2147483651",)"
+        R"(exceptionFunction="tst_inferior!main")")));
 }
 
 // A session without a build configuration - an attach, or a foreign debug

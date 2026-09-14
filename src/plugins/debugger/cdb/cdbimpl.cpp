@@ -2786,6 +2786,23 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
     }
 }
 
+// Windows serves an interrupt request by running DebugBreakProcess() in a
+// thread it creates for it, and a console Ctrl-C the same way, so the stop cdb
+// reports sits in ntdll and not in the program. Thread 0 is where the program is.
+bool stoppedInArtificialThread(const GdbMi &stopData)
+{
+    if (stopData["reason"].data() != "exception")
+        return false;
+    WinException exception;
+    exception.fromGdbMI(stopData);
+    if (exception.exceptionCode == winExceptionCtrlPressed)
+        return true;
+    // EXCEPTION_BREAKPOINT, spelled out because isDebuggerWinException() is
+    // hardwired to false off Windows and this is exercised in a test there.
+    return exception.exceptionCode == 0x80000003
+           && exception.function == "ntdll!DbgBreakPoint";
+}
+
 // Stepping into a call can land on the jump the linker put in front of the
 // function, which has no source of its own. CdbEngine steps once more from
 // there, so that what gets reported is the function itself.
@@ -2866,6 +2883,10 @@ void CdbImpl::reportStop(const GdbMi &stopData)
     m_inferiorRunning = false;
     m_inInternalStop = false;
     m_stopReported = true;
+    if (stoppedInArtificialThread(stopData)) {
+        emit message(Tr::tr("Switching to main thread..."), LogMisc);
+        runCommand({"~0 s", NoFlags});
+    }
     if (m_interruptRequested) {
         m_interruptRequested = false;
         emit inferiorEvent(InferiorEvent::StopOk);
