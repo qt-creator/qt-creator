@@ -18,6 +18,7 @@
 #include "fileutils.h"
 #include "find/findplugin.h"
 #include "foldernavigationwidget.h"
+#include "navigationwidget.h"
 #include "icore.h"
 #include "idocument.h"
 #include "iwizardfactory.h"
@@ -514,6 +515,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     addTestCreator(createVcsManagerTest);
     addTestCreator(createEditorManagerTest);
     addTestCreator(createTabbedEditorTest);
+    addTestCreator(createNavigationSettingsTest);
     addTestCreator(createOutputFormatterTest);
 #endif
 

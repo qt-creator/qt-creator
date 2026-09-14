@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QMap>
 #include <QMouseEvent>
+#include <QSet>
 #include <QVector>
 
 using namespace Utils;
@@ -619,6 +620,22 @@ void ModeManager::cycleModeStyle()
 {
     auto nextStyle = Style((int(modeStyle()) + 1) % 3);
     setModeStyle(nextStyle);
+}
+
+static QSet<Id> &modesWithOwnLayout()
+{
+    static QSet<Id> theModes;
+    return theModes;
+}
+
+void ModeManager::setModeKeepsOwnLayout(Id mode)
+{
+    modesWithOwnLayout().insert(mode);
+}
+
+bool ModeManager::modeKeepsOwnLayout(Id mode)
+{
+    return modesWithOwnLayout().contains(mode);
 }
 
 /*!

@@ -15,6 +15,8 @@ QT_END_NAMESPACE
 
 namespace Core {
 
+namespace Internal { class OutputPaneManager; }
+
 class OutputPanePlaceHolderPrivate;
 
 class CORE_EXPORT OutputPanePlaceHolder : public QWidget
@@ -43,8 +45,11 @@ protected:
     void showEvent(QShowEvent *) override;
 
 private:
+    friend class Internal::OutputPaneManager;
+
     void setHeight(int height);
     void currentModeChanged(Utils::Id mode);
+    void saveSettings() const;
 
     OutputPanePlaceHolderPrivate *d;
 };

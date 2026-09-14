@@ -130,11 +130,29 @@ public:
 
 OutputPanePlaceHolder *OutputPanePlaceHolderPrivate::m_current = nullptr;
 
+// The mode-less key is what the modes that share the layout use, and the
+// starting point for a mode that has never shown the pane.
+static Key modeSettingsPrefix(Id mode)
+{
+    if (!ModeManager::modeKeepsOwnLayout(mode))
+        return Key("OutputPanePlaceHolder/");
+    return Key("OutputPanePlaceHolder/Modes/") + mode.toKey() + '/';
+}
+
 OutputPanePlaceHolder::OutputPanePlaceHolder(Id mode, QSplitter *parent)
    : QWidget(parent), d(new OutputPanePlaceHolderPrivate(mode, parent))
 {
     sPlaceholders->append(this);
-    setVisible(false);
+    const bool ownLayout = ModeManager::modeKeepsOwnLayout(mode);
+    const Key prefix = modeSettingsPrefix(mode);
+    QtcSettings *settings = ICore::settings();
+    d->m_nonMaximizedSize
+        = settings->value(prefix + "Height",
+                          settings->value("OutputPanePlaceHolder/Height", 0))
+              .toInt();
+    // Without the splitter this would be a top-level window, and no height
+    // could be applied to it either. Only a mode of its own opens the pane.
+    setVisible(parent && ownLayout && settings->value(prefix + "Visible", false).toBool());
     setLayout(new QVBoxLayout);
     QSizePolicy sp;
     sp.setHorizontalPolicy(QSizePolicy::Preferred);
@@ -151,6 +169,7 @@ OutputPanePlaceHolder::OutputPanePlaceHolder(Id mode, QSplitter *parent)
 
 OutputPanePlaceHolder::~OutputPanePlaceHolder()
 {
+    sPlaceholders->removeOne(this);
     if (OutputPanePlaceHolderPrivate::m_current == this) {
         if (Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance()) {
             om->setParent(nullptr);
@@ -165,16 +184,12 @@ void OutputPanePlaceHolder::currentModeChanged(Id mode)
 {
     if (OutputPanePlaceHolderPrivate::m_current == this) {
         OutputPanePlaceHolderPrivate::m_current = nullptr;
-        if (d->m_initialized)
-            Internal::OutputPaneManager::setOutputPaneHeightSetting(d->m_nonMaximizedSize);
         Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
         om->hide();
         om->setParent(nullptr);
         om->updateStatusButtons(false);
     }
     if (d->m_mode == mode) {
-        if (OutputPanePlaceHolderPrivate::m_current && OutputPanePlaceHolderPrivate::m_current->d->m_initialized)
-            Internal::OutputPaneManager::setOutputPaneHeightSetting(OutputPanePlaceHolderPrivate::m_current->d->m_nonMaximizedSize);
         Core::OutputPanePlaceHolderPrivate::m_current = this;
         Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
         layout()->addWidget(om);
@@ -263,9 +278,23 @@ void OutputPanePlaceHolder::ensureSizeHintAsMinimum()
 
 int OutputPanePlaceHolder::nonMaximizedSize() const
 {
-    if (!d->m_initialized)
-        return Internal::OutputPaneManager::outputPaneHeightSetting();
     return d->m_nonMaximizedSize;
+}
+
+void OutputPanePlaceHolder::saveSettings() const
+{
+    // The shared height is written by OutputPaneManager::saveSettings() from
+    // whichever place holder is current. Every mode widget is built at
+    // startup, so this also runs for modes that were never entered, which
+    // have no height of their own to remember.
+    if (!ModeManager::modeKeepsOwnLayout(d->m_mode) || !d->m_initialized)
+        return;
+    const Key prefix = modeSettingsPrefix(d->m_mode);
+    QtcSettings *settings = ICore::settings();
+    // isVisible() is false for every mode but the current one, isHidden() is
+    // what the mode was left in.
+    settings->setValueWithDefault(prefix + "Visible", !isHidden(), false);
+    settings->setValue(prefix + "Height", d->m_nonMaximizedSize);
 }
 
 Id OutputPanePlaceHolder::mode() const
@@ -275,7 +304,9 @@ Id OutputPanePlaceHolder::mode() const
 
 void OutputPanePlaceHolder::resizeEvent(QResizeEvent *event)
 {
-    if (d->m_isMaximized || event->size().height() == 0)
+    // Before the first show the size comes from a layout of a mode that was
+    // never entered, and would overwrite the height read from the settings.
+    if (!d->m_initialized || d->m_isMaximized || event->size().height() == 0)
         return;
     d->m_nonMaximizedSize = event->size().height();
 }
@@ -284,7 +315,7 @@ void OutputPanePlaceHolder::showEvent(QShowEvent *)
 {
     if (!d->m_initialized) {
         d->m_initialized = true;
-        setHeight(Internal::OutputPaneManager::outputPaneHeightSetting());
+        setHeight(d->m_nonMaximizedSize);
     }
     if (OutputPanePlaceHolderPrivate::m_current == this) {
         Internal::OutputPaneManager *om = Internal::OutputPaneManager::instance();
@@ -926,16 +957,6 @@ void OutputPaneManager::shortcutTriggered(int idx)
     }
 }
 
-int OutputPaneManager::outputPaneHeightSetting()
-{
-    return m_instance->m_outputPaneHeightSetting;
-}
-
-void OutputPaneManager::setOutputPaneHeightSetting(int value)
-{
-    m_instance->m_outputPaneHeightSetting = value;
-}
-
 bool OutputPaneManager::initialized()
 {
     return m_instance && m_instance->m_initialized;
@@ -1174,6 +1195,9 @@ void OutputPaneManager::saveSettings() const
         heightSetting = curr->nonMaximizedSize();
     settings->setValue("OutputPanePlaceHolder/Height", heightSetting);
     settings->setValue("OutputPanePlaceHolder/CurrentIndex", currentIndex());
+
+    for (const OutputPanePlaceHolder *placeHolder : *sPlaceholders)
+        placeHolder->saveSettings();
 }
 
 void OutputPaneManager::clearPage()

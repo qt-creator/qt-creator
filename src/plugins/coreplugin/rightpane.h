@@ -7,8 +7,9 @@
 
 #include <utils/id.h>
 
-#include <QWidget>
+#include <QHash>
 #include <QPointer>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -42,6 +43,7 @@ private:
 class CORE_EXPORT RightPaneWidget : public QWidget
 {
     Q_OBJECT
+    friend class Core::RightPanePlaceHolder;
 
 public:
     RightPaneWidget();
@@ -64,7 +66,19 @@ protected:
     void resizeEvent(QResizeEvent *) override;
 
 private:
+    // Kept for this session only.
+    struct ModeState
+    {
+        bool visible = false;
+        int width = 0;
+    };
+
     void clearWidget();
+    void storeState(Utils::Id mode);
+    void applyState(Utils::Id mode);
+
+    QHash<Utils::Id, ModeState> m_modeStates;
+    ModeState m_defaultState;
     bool m_shown = true;
     int m_width = 0;
     QPointer<QWidget> m_widget;

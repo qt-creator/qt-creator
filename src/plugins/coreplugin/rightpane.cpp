@@ -74,11 +74,13 @@ void RightPanePlaceHolder::currentModeChanged(Id mode)
 {
     if (m_current == this) {
         m_current = nullptr;
+        RightPaneWidget::instance()->storeState(m_mode);
         RightPaneWidget::instance()->setParent(nullptr);
         RightPaneWidget::instance()->hide();
     }
     if (m_mode == mode) {
         m_current = this;
+        RightPaneWidget::instance()->applyState(m_mode);
 
         int width = RightPaneWidget::instance()->storedWidth();
 
@@ -151,6 +153,30 @@ void RightPaneWidget::resizeEvent(QResizeEvent *re)
 static const bool kVisibleDefault = false;
 static const int kWidthDefault = 500;
 
+// The invalid Id is the state the modes that did not ask for one share.
+static Id stateKey(Id mode)
+{
+    return ModeManager::modeKeepsOwnLayout(mode) ? mode : Id();
+}
+
+void RightPaneWidget::storeState(Id mode)
+{
+    const ModeState state{m_shown, m_width};
+    if (const Id key = stateKey(mode); key.isValid())
+        m_modeStates.insert(key, state);
+    else
+        m_defaultState = state;
+}
+
+void RightPaneWidget::applyState(Id mode)
+{
+    const Id key = stateKey(mode);
+    const ModeState state = key.isValid() ? m_modeStates.value(key, m_defaultState)
+                                          : m_defaultState;
+    setShown(state.visible);
+    m_width = state.width;
+}
+
 void RightPaneWidget::saveSettings(Utils::QtcSettings *settings)
 {
     settings->setValueWithDefault("RightPane/Visible", isShown(), kVisibleDefault);
@@ -159,8 +185,12 @@ void RightPaneWidget::saveSettings(Utils::QtcSettings *settings)
 
 void RightPaneWidget::readSettings(QtcSettings *settings)
 {
-    setShown(settings->value("RightPane/Visible", kVisibleDefault).toBool());
-    m_width = settings->value("RightPane/Width", kWidthDefault).toInt();
+    m_defaultState.visible = settings->value("RightPane/Visible", kVisibleDefault).toBool();
+    m_defaultState.width = settings->value("RightPane/Width", kWidthDefault).toInt();
+
+    // Only a mode that has a place holder owns the live state.
+    m_modeStates.clear();
+    applyState(RightPanePlaceHolder::m_current ? ModeManager::currentModeId() : Id());
 
     // Apply
     if (RightPanePlaceHolder::m_current)

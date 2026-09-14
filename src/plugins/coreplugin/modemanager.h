@@ -53,6 +53,11 @@ public:
     static void setModeStyle(Style layout);
     static void cycleModeStyle();
 
+    // Set before the mode's widget is built: its side bars, output view and
+    // right pane are then its own rather than shared with every other mode.
+    static void setModeKeepsOwnLayout(Utils::Id mode);
+    static bool modeKeepsOwnLayout(Utils::Id mode);
+
 signals:
     void currentModeAboutToChange(Utils::Id mode, Utils::Id oldMode, bool *okToSwitch);
 

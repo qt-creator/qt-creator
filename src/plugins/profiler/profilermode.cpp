@@ -133,6 +133,7 @@ public:
         setIcon(Icon::sideBarIcon(flat, flat));
         setPriority(P_MODE_PROFILER);
         setId(MODE_PROFILER);
+        ModeManager::setModeKeepsOwnLayout(MODE_PROFILER);
         setWidgetCreator([] { return new ProfilerModeWidget; });
     }
 };

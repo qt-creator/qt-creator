@@ -33,8 +33,6 @@ public:
     void updateStatusButtons(bool visible);
     static void updateMaximizeButton(bool maximized);
 
-    static int outputPaneHeightSetting();
-    static void setOutputPaneHeightSetting(int value);
     static bool initialized();
 
 public slots:

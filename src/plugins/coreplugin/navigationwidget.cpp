@@ -15,6 +15,12 @@
 #include <utils/fancymainwindow.h>
 #include <utils/utilsicons.h>
 
+#ifdef WITH_TESTS
+#include <utils/temporarydirectory.h>
+
+#include <QTest>
+#endif
+
 #include <QAction>
 #include <QCoreApplication>
 #include <QDebug>
@@ -36,6 +42,8 @@ using ActivationsMap = QHash<Id, ActivationInfo>;
 static NavigationWidget *s_instanceLeft = nullptr;
 static NavigationWidget *s_instanceRight = nullptr;
 static ActivationsMap s_activationsMap = {};
+
+const char modesGroup[] = "Modes";
 
 static void addActivationInfo(Id activatedId, const ActivationInfo &activationInfo)
 {
@@ -147,6 +155,14 @@ int NavigationWidgetPlaceHolder::storedWidth() const
     return instance(m_side)->storedWidth();
 }
 
+struct NavigationLayout
+{
+    QStringList viewIds;
+    QByteArray splitterState;
+    bool visible = true;
+    int width = 240;
+};
+
 struct NavigationWidgetPrivate
 {
     explicit NavigationWidgetPrivate(QAction *toggleSideBarAction, Side side);
@@ -157,6 +173,18 @@ struct NavigationWidgetPrivate
     QHash<Id, Command *> m_commandMap;
     QStandardItemModel *m_factoryModel;
     FancyMainWindow *m_mainWindow = nullptr;
+
+    // What a key missing from a layout's group means: a mode's own group is
+    // read against the shared layout, the shared one against the built-in
+    // defaults. The writer leaves out exactly what this supplies, so both
+    // sides have to take it from here.
+    NavigationLayout defaultsFor(Id mode) const;
+
+    QHash<Id, NavigationLayout> m_modeLayouts;
+    NavigationLayout m_defaultLayout;
+    // Invalid until a mode with a place holder has been entered, and for
+    // every mode that shares the layout.
+    Id m_layoutMode;
 
     bool m_shown;
     int m_width;
@@ -188,6 +216,10 @@ NavigationWidget::NavigationWidget(QAction *toggleSideBarAction, Side side) :
             &ModeManager::currentMainWindowChanged,
             this,
             &NavigationWidget::updateMode);
+    connect(ModeManager::instance(),
+            &ModeManager::currentModeChanged,
+            this,
+            &NavigationWidget::switchModeLayout);
 }
 
 NavigationWidget::~NavigationWidget()
@@ -429,17 +461,145 @@ static bool defaultVisible(Side side)
     return side == Side::Left;
 }
 
+static NavigationLayout defaultLayout(Side side)
+{
+    NavigationLayout layout;
+    layout.viewIds = QStringList(defaultFirstView(side));
+    layout.visible = defaultVisible(side);
+    return layout;
+}
+
+static QStringList shownViewIds(const QList<Internal::NavigationSubWidget *> &subWidgets)
+{
+    QStringList result;
+    result.reserve(subWidgets.size());
+    for (Internal::NavigationSubWidget *subWidget : subWidgets)
+        result.append(subWidget->factory()->id().toString());
+    return result;
+}
+
+static NavigationLayout readLayout(QtcSettings *settings, const Key &prefix,
+                                   const NavigationLayout &defaults)
+{
+    NavigationLayout layout;
+    layout.viewIds = settings->value(prefix + "Views", defaults.viewIds).toStringList();
+    if (layout.viewIds.isEmpty())
+        layout.viewIds = defaults.viewIds;
+    layout.splitterState
+        = settings->value(prefix + "VerticalPosition", defaults.splitterState).toByteArray();
+    layout.visible = settings->value(prefix + "Visible", defaults.visible).toBool();
+    layout.width = qMax(40, settings->value(prefix + "Width", defaults.width).toInt());
+    return layout;
+}
+
+// The invalid Id is the layout the modes that did not ask for one share.
+static Id layoutKey(Id mode)
+{
+    return ModeManager::modeKeepsOwnLayout(mode) ? mode : Id();
+}
+
+// The counterpart of readLayout(): a key is left out when the value the reader
+// would fall back to is the same one.
+static void writeLayout(QtcSettings *settings, const Key &prefix, const NavigationLayout &layout,
+                        const NavigationLayout &defaults)
+{
+    settings->setValueWithDefault(prefix + "Views", layout.viewIds, defaults.viewIds);
+    settings->setValueWithDefault(prefix + "Visible", layout.visible, defaults.visible);
+    settings->setValueWithDefault(prefix + "Width", layout.width, defaults.width);
+    settings->setValue(prefix + "VerticalPosition", layout.splitterState);
+}
+
+NavigationLayout NavigationWidgetPrivate::defaultsFor(Id mode) const
+{
+    return mode.isValid() ? m_defaultLayout : defaultLayout(m_side);
+}
+
+void NavigationWidget::switchModeLayout(Id mode)
+{
+    const Id key = layoutKey(mode);
+    if (key == d->m_layoutMode || !d->m_factoryModel->rowCount()
+        || !NavigationWidgetPlaceHolder::current(d->m_side)) {
+        return;
+    }
+    storeLayout();
+    d->m_layoutMode = key;
+    applyLayout();
+}
+
+void NavigationWidget::storeLayout()
+{
+    NavigationLayout layout;
+    layout.viewIds = shownViewIds(d->m_subWidgets);
+    layout.splitterState = saveState();
+    layout.visible = d->m_shown;
+    layout.width = d->m_width;
+    if (d->m_layoutMode.isValid())
+        d->m_modeLayouts.insert(d->m_layoutMode, layout);
+    else
+        d->m_defaultLayout = layout;
+}
+
+void NavigationWidget::applyLayout()
+{
+    const NavigationLayout layout = d->m_modeLayouts.value(d->m_layoutMode, d->m_defaultLayout);
+
+    if (shownViewIds(d->m_subWidgets) != layout.viewIds) {
+        closeSubWidgets();
+        bool allViewsFound = true;
+        for (const QString &id : layout.viewIds) {
+            const int index = factoryIndex(Id::fromString(id));
+            if (index < 0) {
+                allViewsFound = false;
+                continue;
+            }
+            insertSubItem(d->m_subWidgets.size(), index, /*updateActivationsMap=*/false);
+        }
+        if (d->m_subWidgets.isEmpty()) {
+            // Make sure we have at least the projects widget or outline widget
+            insertSubItem(0,
+                          qMax(0, factoryIndex(Id::fromString(defaultFirstView(d->m_side)))),
+                          /*updateActivationsMap=*/false);
+            allViewsFound = false;
+        }
+
+        if (allViewsFound && !layout.splitterState.isEmpty()) {
+            restoreState(layout.splitterState);
+        } else {
+            QList<int> sizes;
+            sizes += 256;
+            for (int i = d->m_subWidgets.size() - 1; i > 0; --i)
+                sizes.prepend(512);
+            setSizes(sizes);
+        }
+    }
+
+    d->m_width = layout.width;
+    setShown(layout.visible);
+
+    if (NavigationWidgetPlaceHolder *placeHolder = NavigationWidgetPlaceHolder::current(d->m_side))
+        placeHolder->applyStoredSize();
+}
+
 void NavigationWidget::saveSettings(QtcSettings *settings)
 {
-    QStringList viewIds;
-    for (int i=0; i<d->m_subWidgets.count(); ++i) {
-        d->m_subWidgets.at(i)->saveSettings();
-        viewIds.append(d->m_subWidgets.at(i)->factory()->id().toString());
+    for (Internal::NavigationSubWidget *subWidget : std::as_const(d->m_subWidgets))
+        subWidget->saveSettings();
+
+    storeLayout();
+
+    writeLayout(settings, layoutSettingsPrefix({}), d->m_defaultLayout, d->defaultsFor({}));
+
+    // The group of a mode that gave its layout up would be read back forever.
+    settings->beginGroup(settingsKey(modesGroup));
+    const QStringList staleModes = settings->childGroups();
+    settings->endGroup();
+    for (const QString &modeId : staleModes) {
+        if (!d->m_modeLayouts.contains(Id::fromString(modeId)))
+            settings->remove(settingsKey(modesGroup) + '/' + keyFromString(modeId));
     }
-    settings->setValueWithDefault(settingsKey("Views"), viewIds, {defaultFirstView(d->m_side)});
-    settings->setValueWithDefault(settingsKey("Visible"), isShown(), defaultVisible(d->m_side));
-    settings->setValue(settingsKey("VerticalPosition"), saveState());
-    settings->setValue(settingsKey("Width"), d->m_width);
+
+    for (auto it = d->m_modeLayouts.cbegin(), end = d->m_modeLayouts.cend(); it != end; ++it)
+        writeLayout(settings, layoutSettingsPrefix(it.key()), *it, d->defaultsFor(it.key()));
 
     const Key activationKey = "ActivationPosition.";
     for (auto it = s_activationsMap.cbegin(); it != s_activationsMap.cend(); ++it) {
@@ -460,59 +620,33 @@ void NavigationWidget::restoreSettings(QtcSettings *settings)
         return;
     }
 
-    const bool isLeftSide = d->m_side == Side::Left;
-    QStringList viewIds = settings
-                              ->value(settingsKey("Views"), QStringList(defaultFirstView(d->m_side)))
-                              .toStringList();
+    d->m_defaultLayout = readLayout(settings, layoutSettingsPrefix({}), d->defaultsFor({}));
 
-    bool restoreSplitterState = true;
-    int version = settings->value(settingsKey("Version"), 1).toInt();
+    const int version = settings->value(settingsKey("Version"), 1).toInt();
     if (version == 1) {
-        QLatin1String defaultSecondView = isLeftSide ? QLatin1String("Open Documents") : QLatin1String("Bookmarks");
-        if (!viewIds.contains(defaultSecondView)) {
-            viewIds += defaultSecondView;
-            restoreSplitterState = false;
+        const QString defaultSecondView = d->m_side == Side::Left ? QString("Open Documents")
+                                                                  : QString("Bookmarks");
+        if (!d->m_defaultLayout.viewIds.contains(defaultSecondView)) {
+            d->m_defaultLayout.viewIds += defaultSecondView;
+            d->m_defaultLayout.splitterState.clear();
         }
         settings->setValue(settingsKey("Version"), 2);
     }
 
-    int position = 0;
-    for (const QString &id : std::as_const(viewIds)) {
-        int index = factoryIndex(Id::fromString(id));
-        if (index >= 0) {
-            // Only add if the id was actually found!
-            insertSubItem(position, index, /*updateActivationsMap=*/false);
-            ++position;
-        } else {
-            restoreSplitterState = false;
-        }
+    settings->beginGroup(settingsKey(modesGroup));
+    const QStringList modeIds = settings->childGroups();
+    settings->endGroup();
+    for (const QString &modeId : modeIds) {
+        const Id mode = Id::fromString(modeId);
+        if (!ModeManager::modeKeepsOwnLayout(mode))
+            continue;
+        d->m_modeLayouts.insert(
+            mode, readLayout(settings, layoutSettingsPrefix(mode), d->defaultsFor(mode)));
     }
 
-    if (d->m_subWidgets.isEmpty())
-        // Make sure we have at least the projects widget or outline widget
-        insertSubItem(0,
-                      qMax(0, factoryIndex(Id::fromString(defaultFirstView(d->m_side)))),
-                      /*updateActivationsMap=*/false);
-
-    setShown(settings->value(settingsKey("Visible"), defaultVisible(d->m_side)).toBool());
-
-    if (restoreSplitterState && settings->contains(settingsKey("VerticalPosition"))) {
-        restoreState(settings->value(settingsKey("VerticalPosition")).toByteArray());
-    } else {
-        QList<int> sizes;
-        sizes += 256;
-        for (int i = viewIds.size()-1; i > 0; --i)
-            sizes.prepend(512);
-        setSizes(sizes);
-    }
-
-    d->m_width = settings->value(settingsKey("Width"), 240).toInt();
-    if (d->m_width < 40)
-        d->m_width = 40;
-
-    // Apply
     if (NavigationWidgetPlaceHolder::current(d->m_side))
-        NavigationWidgetPlaceHolder::current(d->m_side)->applyStoredSize();
+        d->m_layoutMode = layoutKey(ModeManager::currentModeId());
+    applyLayout();
 
     // Restore last activation positions
     settings->beginGroup(settingsGroup());
@@ -577,9 +711,85 @@ Key NavigationWidget::settingsKey(const Key &key) const
     return settingsGroup() + '/' + key;
 }
 
+// An invalid mode addresses the keys that predate the per-mode layouts.
+Key NavigationWidget::layoutSettingsPrefix(Id mode) const
+{
+    if (!mode.isValid())
+        return settingsGroup() + '/';
+    return settingsKey(modesGroup) + '/' + mode.toKey() + '/';
+}
+
 QHash<Id, Command *> NavigationWidget::commandMap() const
 {
     return d->m_commandMap;
 }
 
+#ifdef WITH_TESTS
+
 } // namespace Core
+
+Q_DECLARE_METATYPE(Core::NavigationLayout)
+
+namespace Core {
+
+// writeLayout() leaves a key out when the value matches what the reader would
+// fall back to, and readLayout() supplies that fallback. This pins that the
+// two agree field by field; that both are given the same fallback is what
+// NavigationWidgetPrivate::defaultsFor() is for.
+class NavigationSettingsTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testRoundTripsALayout_data()
+    {
+        QTest::addColumn<NavigationLayout>("layout");
+        QTest::addColumn<NavigationLayout>("defaults");
+
+        const NavigationLayout shown{{"Projects"}, {}, true, 240};
+        const NavigationLayout hidden{{"Projects"}, {}, false, 240};
+        const NavigationLayout other{{"Open Documents", "Projects"}, "state", true, 400};
+
+        QTest::newRow("everything at the default") << shown << shown;
+        QTest::newRow("nothing at the default") << other << hidden;
+        QTest::newRow("shown against a hidden default") << shown << hidden;
+        QTest::newRow("hidden against a shown default") << hidden << shown;
+        QTest::newRow("a width of its own") << other << shown;
+    }
+
+    void testRoundTripsALayout()
+    {
+        QFETCH(NavigationLayout, layout);
+        QFETCH(NavigationLayout, defaults);
+
+        Utils::TemporaryDirectory directory("navigation-settings");
+        QVERIFY(directory.isValid());
+        const QString file = directory.filePath("settings.ini").toUrlishString();
+
+        {
+            QtcSettings settings(file, QSettings::IniFormat);
+            writeLayout(&settings, "Test/", layout, defaults);
+        }
+
+        QtcSettings settings(file, QSettings::IniFormat);
+        const NavigationLayout read = readLayout(&settings, "Test/", defaults);
+
+        QCOMPARE(read.viewIds, layout.viewIds);
+        QCOMPARE(read.visible, layout.visible);
+        QCOMPARE(read.width, layout.width);
+        QCOMPARE(read.splitterState, layout.splitterState);
+    }
+};
+
+QObject *createNavigationSettingsTest()
+{
+    return new NavigationSettingsTest;
+}
+
+#endif // WITH_TESTS
+
+} // namespace Core
+
+#ifdef WITH_TESTS
+#include "navigationwidget.moc"
+#endif

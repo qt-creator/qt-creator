@@ -94,6 +94,9 @@ protected:
     void resizeEvent(QResizeEvent *) override;
 
 private:
+    void switchModeLayout(Utils::Id mode);
+    void storeLayout();
+    void applyLayout();
     void closeSubWidget(Internal::NavigationSubWidget *subWidget);
     bool toggleActionVisible() const;
     bool toggleActionEnabled() const;
@@ -105,8 +108,13 @@ private:
                                                  bool updateActivationsMap = true);
     int factoryIndex(Utils::Id id);
     Utils::Key settingsKey(const Utils::Key &key) const;
+    Utils::Key layoutSettingsPrefix(Utils::Id mode) const;
 
     NavigationWidgetPrivate *d;
 };
+
+#ifdef WITH_TESTS
+CORE_EXPORT QObject *createNavigationSettingsTest();
+#endif
 
 } // namespace Core
