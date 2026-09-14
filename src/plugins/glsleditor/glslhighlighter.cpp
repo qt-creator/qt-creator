@@ -6,6 +6,7 @@
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
 
+#include <texteditor/spellchecksettings.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/textdocument.h>
 
@@ -23,6 +24,7 @@ public:
     GlslHighlighter()
     {
         setDefaultTextFormatCategories();
+        followSpellCheckSettings(this);
     }
 
 private:
@@ -143,6 +145,7 @@ void GlslHighlighter::highlightBlock(const QString &text)
 
         } else if (tk.is(GLSL::Parser::T_COMMENT)) {
             highlightLine(text, tk.begin(), tk.length, formatForCategory(C_COMMENT));
+            addProseRange(tk.begin(), tk.length);
 
             // we need to insert a close comment parenthesis, if
             //  - the line starts in a C Comment (initalState != 0)
@@ -197,6 +200,8 @@ void GlslHighlighter::highlightBlock(const QString &text)
     setFoldingIndent(currentBlock(), foldingIndent);
     TextBlockUserData::setBraceDepth(currentBlock(), braceDepth);
     setCurrentBlockState(lex.state());
+
+    spellCheck(text);
 }
 
 void GlslHighlighter::highlightLine(const QString &text, int position, int length,

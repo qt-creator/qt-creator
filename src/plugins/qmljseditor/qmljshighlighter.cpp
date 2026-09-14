@@ -3,6 +3,8 @@
 
 #include "qmljshighlighter.h"
 
+#include <texteditor/spellchecksettings.h>
+
 #include <QSet>
 
 
@@ -20,6 +22,7 @@ QmlJSHighlighter::QmlJSHighlighter(QTextDocument *parent)
 {
     m_currentBlockParentheses.reserve(20);
     setDefaultTextFormatCategories();
+    followSpellCheckSettings(this);
 }
 
 QmlJSHighlighter::~QmlJSHighlighter() = default;
@@ -49,6 +52,8 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
 
             case Token::String:
                 setFormat(token.offset, token.length, formatForCategory(C_STRING));
+                if (spellCheckStrings())
+                    addProseRange(token.offset, token.length);
                 break;
 
             case Token::Comment:
@@ -63,6 +68,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
                     m_inMultilineComment = true;
                 }
                 setFormat(token.offset, token.length, formatForCategory(C_COMMENT));
+                addProseRange(token.offset, token.length);
                 break;
 
             case Token::RegExp:
@@ -170,6 +176,7 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
 
     setFormat(previousTokenEnd, text.size() - previousTokenEnd, formatForCategory(C_VISUAL_WHITESPACE));
 
+    spellCheck(text);
     onBlockEnd(m_scanner.state());
 }
 

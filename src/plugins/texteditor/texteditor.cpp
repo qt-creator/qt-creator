@@ -27,6 +27,7 @@
 #include "mergeconflict.h"
 #include "refactoroverlay.h"
 #include "snippets/snippetoverlay.h"
+#include "spellcheckmenu.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
@@ -7397,6 +7398,10 @@ void TextEditorWidget::slotCursorPositionChanged()
     d->updateCursorSelections();
     d->updateHighlights();
     d->updateSuggestion();
+
+    // The word being written is not marked as misspelled while it is half-written.
+    if (SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
+        highlighter->setSpellCheckCursorPosition(textCursor().position());
 }
 
 void TextEditorWidgetPrivate::updateHighlights()
@@ -7921,7 +7926,13 @@ void TextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, Id menuConte
     if (menuContextId.isValid())
         appendMenuActionsFromContext(&menu, menuContextId);
     appendStandardContextMenuActions(&menu);
+    appendSpellingActions(&menu, e->pos());
     menu.exec(e->globalPos());
+}
+
+void TextEditorWidget::appendSpellingActions(QMenu *menu, const QPoint &pos)
+{
+    addSpellingActions(menu, textDocument()->syntaxHighlighter(), cursorForPosition(pos));
 }
 
 void TextEditorWidget::addHoverHandler(BaseHoverHandler *handler)

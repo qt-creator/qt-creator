@@ -1081,6 +1081,7 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     if (!menu) {
         menu = new QMenu;
         appendStandardContextMenuActions(menu);
+        appendSpellingActions(menu, e->pos());
     }
     switch (d->m_parameters.type) {
     case LogOutput: // log might have diff

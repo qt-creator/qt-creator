@@ -9,6 +9,7 @@
 #include "cpptoolsreuse.h"
 
 #include <extensionsystem/iplugin.h>
+#include <texteditor/spellchecksettings.h>
 #include <texteditor/textdocumentlayout.h>
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
@@ -23,6 +24,8 @@
 #ifdef WITH_TESTS
 #include "cppeditorwidget.h"
 #include "cpptoolstestcase.h"
+#include <texteditor/fontsettings.h>
+#include <utils/spellchecker.h>
 #include <QTest>
 #include <utility>
 #endif
@@ -46,6 +49,7 @@ CppHighlighter::CppHighlighter(QTextDocument *document) :
     SyntaxHighlighter(document)
 {
     setDefaultTextFormatCategories();
+    followSpellCheckSettings(this);
 }
 
 void CppHighlighter::highlightBlock(const QString &text)
@@ -242,6 +246,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT)) {
                 setFormatWithSpaces(text, startPosition, tk.utf16charsEnd() - startPosition,
                               formatForCategory(C_COMMENT));
+                addProseRange(startPosition, tk.utf16charsEnd() - startPosition);
             }
 
             else // a doxygen comment
@@ -334,6 +339,8 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     TextBlockUserData::setExpectedRawStringSuffix(currentBlock(),
                                                    tokenize.expectedRawStringSuffix());
+
+    spellCheck(text);
 }
 
 void CppHighlighter::setLanguageFeaturesFlags(unsigned int flags)
@@ -512,6 +519,8 @@ bool CppHighlighter::highlightRawStringLiteral(QStringView text, const Token &tk
     if (delimiterOffset != -1)
         setFormat(tk.utf16charsBegin(), stringOffset - tk.utf16charsBegin(), delimiterFormat);
     setFormatWithSpaces(text.toString(), stringOffset, stringLength, formatForCategory(C_STRING));
+    if (spellCheckStrings())
+        addProseRange(stringOffset, stringLength);
     if (endDelimiterOffset != -1)
         setFormat(endDelimiterOffset, expectedSuffix.size(), delimiterFormat);
     if (operatorLength > 0)
@@ -534,6 +543,8 @@ void CppHighlighter::highlightStringLiteral(QStringView text, const CPlusPlus::T
         if (!tk.userDefinedLiteral()) { // Simple case: No prefix, no suffix.
             setFormatWithSpaces(text.toString(), tk.utf16charsBegin(), tk.utf16chars(),
                                 formatForCategory(C_STRING));
+            if (spellCheckStrings())
+                addProseRange(tk.utf16charsBegin(), tk.utf16chars());
             return;
         }
     }
@@ -552,8 +563,10 @@ void CppHighlighter::highlightStringLiteral(QStringView text, const CPlusPlus::T
         QTC_ASSERT(closingQuoteOffset >= tk.utf16charsBegin(), return);
         operatorOffset = closingQuoteOffset + 1;
     }
-    setFormatWithSpaces(text.toString(), stringOffset, operatorOffset - tk.utf16charsBegin(),
-                        formatForCategory(C_STRING));
+    const int stringLength = operatorOffset - stringOffset;
+    setFormatWithSpaces(text.toString(), stringOffset, stringLength, formatForCategory(C_STRING));
+    if (spellCheckStrings())
+        addProseRange(stringOffset, stringLength);
     if (const int operatorLength = tk.utf16charsBegin() + tk.utf16chars() - operatorOffset;
         operatorLength > 0) {
         setFormat(
@@ -563,8 +576,9 @@ void CppHighlighter::highlightStringLiteral(QStringView text, const CPlusPlus::T
     }
 }
 
-void CppHighlighter::highlightDoxygenComment(const QString &text, int position, int)
+void CppHighlighter::highlightDoxygenComment(const QString &text, int position, int length)
 {
+    const int end = position + length;
     int initial = position;
 
     const QChar *uc = text.unicode();
@@ -585,6 +599,7 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
             int k = classifyDoxygenTag(start, it - start);
             if (k != T_DOXY_IDENTIFIER) {
                 setFormatWithSpaces(text, initial, start - uc - initial, format);
+                addProseRange(initial, qMin(int(start - uc), end) - initial);
                 setFormat(start - uc - 1, it - start + 1, kwFormat);
                 initial = it - uc;
             }
@@ -593,6 +608,7 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
     }
 
     setFormatWithSpaces(text, initial, it - uc - initial, format);
+    addProseRange(initial, qMin(int(it - uc), end) - initial);
 }
 
 namespace Internal {
@@ -611,6 +627,10 @@ public:
 
         m_doc.setPlainText(QString::fromUtf8(source.readAll()));
         setDocument(&m_doc);
+
+        // A misspelling in the test case would add a mark of its own to the formats
+        // this compares, so the test checks no spelling whatever the settings say.
+        setSpellCheckLanguage({});
         rehighlight();
     }
 
@@ -841,6 +861,92 @@ private:
     QTextDocument m_doc;
 };
 
+// Each test function guards itself instead of initTestCase() doing it once for all of
+// them: a QSKIP in initTestCase() cancels every suite that qExec() runs after this one.
+// What the highlighter checks is the test's to say, not the settings'.
+#define REQUIRE_SPELL_CHECKING() \
+    do { \
+        if (m_language.isEmpty()) \
+            QSKIP("No English dictionary is installed"); \
+        QVERIFY(spellErrorFormat().underlineStyle() != QTextCharFormat::NoUnderline); \
+        m_highlighter.setSpellCheckLanguage(m_language); \
+        m_highlighter.setSpellCheckStrings(false); \
+    } while (false)
+
+// Exercises which parts of a C++ file the highlighter hands to the dictionary.
+class CppSpellCheckTest : public QObject
+{
+    Q_OBJECT
+
+public:
+    CppSpellCheckTest()
+    {
+        m_highlighter.setFontSettings(globalFontSettings().data());
+        m_highlighter.setDocument(&m_doc);
+        m_language = Utils::findOrDefault(Utils::SpellChecker::instance()->availableLanguages(),
+                                          [](const QString &language) {
+                                              return language.startsWith("en");
+                                          });
+    }
+
+private slots:
+    void testCommentsAreMarked()
+    {
+        REQUIRE_SPELL_CHECKING();
+        QCOMPARE(misspelledWords("// A mispelled comment\nint mispelled = 0;\n"),
+                 QStringList{"mispelled"});
+    }
+
+    void testDoxygenCommentsAreMarked()
+    {
+        REQUIRE_SPELL_CHECKING();
+        // The prose of a doxygen comment ends where the comment does, and its tags are
+        // no prose to begin with.
+        QCOMPARE(misspelledWords("/*! \\brief A mispelled brief */ int mispelled;\n"),
+                 QStringList{"mispelled"});
+    }
+
+    void testStringsAreMarkedOnlyWhenAskedFor()
+    {
+        REQUIRE_SPELL_CHECKING();
+        const QString text = "const char *m = \"a mispelled string\";\n";
+        QCOMPARE(misspelledWords(text), QStringList());
+
+        m_highlighter.setSpellCheckStrings(true);
+        QCOMPARE(misspelledWords(text), QStringList{"mispelled"});
+        m_highlighter.setSpellCheckStrings(false);
+    }
+
+#undef REQUIRE_SPELL_CHECKING
+
+private:
+    static QTextCharFormat spellErrorFormat()
+    {
+        return globalFontSettings().data().toTextCharFormat(C_SPELL_ERROR);
+    }
+
+    // The words the highlighter marked as misspelled in text, in the order they are in.
+    QStringList misspelledWords(const QString &text)
+    {
+        m_doc.setPlainText(text);
+        m_highlighter.rehighlight();
+
+        QStringList words;
+        for (QTextBlock block = m_doc.firstBlock(); block.isValid(); block = block.next()) {
+            const QList<QTextLayout::FormatRange> ranges = block.layout()->formats();
+            for (const QTextLayout::FormatRange &range : ranges) {
+                if (SyntaxHighlighter::isSpellingError(range.format))
+                    words.append(block.text().mid(range.start, range.length));
+            }
+        }
+        return words;
+    }
+
+    QTextDocument m_doc;
+    CppHighlighter m_highlighter;
+    QString m_language;
+};
+
 class CodeFoldingTest : public QObject
 {
     Q_OBJECT
@@ -946,6 +1052,7 @@ void registerHighlighterTests(ExtensionSystem::IPlugin &plugin)
 {
 #ifdef WITH_TESTS
     plugin.addTest<CppHighlighterTest>();
+    plugin.addTest<CppSpellCheckTest>();
     plugin.addTest<CodeFoldingTest>();
 #else
     Q_UNUSED(plugin)

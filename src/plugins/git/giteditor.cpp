@@ -254,10 +254,6 @@ void GitEditorWidget::init()
                 this, applySpellCheckLanguage);
         connect(&TextEditor::spellCheckSettings(), &AspectContainer::changed,
                 this, applySpellCheckLanguage);
-        connect(this, &PlainTextEdit::cursorPositionChanged, this, [this] {
-            if (TextEditor::SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
-                highlighter->setSpellCheckCursorPosition(textCursor().position());
-        });
     } else if (isRebaseEditor) {
         textDocument()->resetSyntaxHighlighter(
             [commentMarker] { return new GitRebaseHighlighter(commentMarker); });

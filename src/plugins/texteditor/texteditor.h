@@ -229,6 +229,9 @@ public:
     void print(QPrinter *);
 
     void appendStandardContextMenuActions(QMenu *menu);
+    // Offers the corrections for the misspelled word at pos, if the editor marks one
+    // there, at the top of menu.
+    void appendSpellingActions(QMenu *menu, const QPoint &pos);
 
     uint optionalActions();
     void setOptionalActions(uint optionalActions);

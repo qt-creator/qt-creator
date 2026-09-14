@@ -4,9 +4,11 @@
 #include "spellcheck_test.h"
 
 #include "fontsettings.h"
+#include "spellcheckmenu.h"
 #include "spellchecksettings.h"
 #include "syntaxhighlighter.h"
 #include "textdocument.h"
+#include "texteditortr.h"
 #include "texteditor.h"
 
 #include <coreplugin/coreconstants.h>
@@ -17,6 +19,8 @@
 #include <utils/mimeutils.h>
 #include <utils/spellchecker.h>
 
+#include <QAction>
+#include <QMenu>
 #include <QScopeGuard>
 #include <QTest>
 #include <QTextBlock>
@@ -239,6 +243,53 @@ private slots:
         QTRY_COMPARE(underlinedTexts(), QStringList());
     }
 
+    // The corrections on offer are those for a word the editor marks, and for no other:
+    // what a menu offers and what the text shows are to be the same thing.
+    void testMenuOffersCorrectionsForMarkedWords()
+    {
+        REQUIRE_SPELL_CHECKING();
+        const QString text = "# A mispelled comment\n";
+        SyntaxHighlighter *highlighter = setUpEditor(Utils::Constants::CMAKE_MIMETYPE, text);
+        QVERIFY(highlighter);
+        highlighter->setSpellCheckLanguage(m_language);
+        QTRY_COMPARE(underlinedTexts(), QStringList{"mispelled"});
+
+        QMenu menu;
+        addSpellingActions(&menu, highlighter, cursorAt(text.indexOf("mispelled") + 3));
+        QVERIFY(Utils::contains(menu.actions(), [](const QAction *action) {
+            return action->text() == Tr::tr("Add \"%1\" to Dictionary").arg("mispelled");
+        }));
+
+        QMenu spelledRight;
+        addSpellingActions(&spelledRight, highlighter, cursorAt(text.indexOf("comment") + 3));
+        QCOMPARE(spelledRight.actions(), QList<QAction *>());
+    }
+
+    // A color scheme may underline another category the way it underlines a spelling
+    // error - the grayscale one is a red away from it - and a word underlined for a
+    // reason of its own is no word the dictionary had anything to say about.
+    void testMenuOffersNoCorrectionsForOtherUnderlines()
+    {
+        REQUIRE_SPELL_CHECKING();
+        const QString text = "# A mispelled comment\n";
+        SyntaxHighlighter *highlighter = setUpEditor(Utils::Constants::CMAKE_MIMETYPE, text);
+        QVERIFY(highlighter);
+        highlighter->setSpellCheckLanguage(m_language);
+        QTRY_COMPARE(underlinedTexts(), QStringList{"mispelled"});
+
+        QTextCharFormat lookalike;
+        lookalike.setUnderlineStyle(spellErrorFormat().underlineStyle());
+        lookalike.setUnderlineColor(spellErrorFormat().underlineColor());
+        const QString spelledRight = "comment";
+        const int word = int(text.indexOf(spelledRight));
+        highlighter->setExtraFormats(m_checkedDocument->firstBlock(),
+                                     {{word, int(spelledRight.size()), lookalike}});
+
+        QMenu menu;
+        addSpellingActions(&menu, highlighter, cursorAt(word + 3));
+        QCOMPARE(menu.actions(), QList<QAction *>());
+    }
+
     void cleanup()
     {
         if (m_editor)
@@ -311,6 +362,13 @@ private:
         if (!m_editor->editorWidget()->configureGenericHighlighter(definitionName))
             return nullptr;
         return m_editor->textDocument()->syntaxHighlighter();
+    }
+
+    QTextCursor cursorAt(int position) const
+    {
+        QTextCursor cursor(m_checkedDocument);
+        cursor.setPosition(position);
+        return cursor;
     }
 
     QStringList underlinedTexts() const

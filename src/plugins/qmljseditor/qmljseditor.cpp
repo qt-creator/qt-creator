@@ -1010,6 +1010,7 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     }
 
     appendStandardContextMenuActions(menu);
+    appendSpellingActions(menu, e->pos());
 
     menu->exec(e->globalPos());
     delete menu;

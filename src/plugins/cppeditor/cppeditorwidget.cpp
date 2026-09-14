@@ -1193,6 +1193,7 @@ void CppEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     appendCustomContextMenuActionsAndMenus(menu, createRefactorMenu(menu));
     appendStandardContextMenuActions(menu);
+    appendSpellingActions(menu, e->pos());
 
     menu->exec(e->globalPos());
     if (menu)

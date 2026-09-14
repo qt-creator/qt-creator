@@ -113,6 +113,8 @@ Project {
             "refactoroverlay.h",
             "semantichighlighter.cpp",
             "semantichighlighter.h",
+            "spellcheckmenu.cpp",
+            "spellcheckmenu.h",
             "spellchecksettings.cpp",
             "spellchecksettings.h",
             "storagesettings.cpp",
