@@ -141,32 +141,6 @@ namespace Debugger::Internal {
 
 static const char localsPrefixC[] = "local.";
 
-// Accessed by debuggerRecipe()
-DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp)
-{
-    if (DebuggerEngine::isUsingGenericDebugger()) {
-        bool cdbIs64Bit = true;
-        bool cdbIsArm = false;
-        const Abis abisOfCdb = Abi::abisOfBinary(rp.debugger().command.executable());
-        if (abisOfCdb.size() == 1) {
-            const Abi abi = abisOfCdb.at(0);
-            cdbIs64Bit = abi.wordWidth() == 64;
-            cdbIsArm = abi.architecture() == Abi::Architecture::ArmArchitecture;
-        }
-        const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
-        return new GenericDebuggerEngine("CDB (CdbImpl)", new CdbImpl({
-            .debuggerRunData = rp.debugger(),
-            .inferiorStartData = rp.inferior(),
-            .extensionDir = FilePath::fromString(extensionFi.absolutePath()),
-            .extensionFileName = extensionFi.fileName(),
-            .dumperScriptsDir = Core::ICore::resourcePath("debugger"),
-            .inferiorWordWidth = rp.toolChainAbi().wordWidth(),
-            .nativeMixed = rp.isNativeMixedDebugging(),
-            .useCtrlCStub = true}));
-    }
-    return new CdbEngine;
-}
-
 void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 {
     if (HostOsInfo::isWindowsHost()) {
@@ -3353,6 +3327,105 @@ void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
     else
         str << QString("%1 breakpoint(s) pending...\n").arg(m_pendingBreakpointMap.size());
     showMessage(message, LogMisc);
+}
+
+//
+// Factory
+//
+
+static InferiorStartData cdbImplInferiorStartData(const DebuggerRunParameters &rp)
+{
+    switch (rp.startMode()) {
+    case AttachToCore:
+        return AttachToCoreData{rp.coreFile(), rp.inferior().command.executable()};
+    case AttachToLocalProcess:
+        return AttachToProcessData{rp.attachPid()};
+    case AttachToCrashedProcess:
+        return AttachToProcessData{rp.attachPid(), rp.crashParameter()};
+    default:
+        break;
+    }
+    return rp.inferior();
+}
+
+static CdbImplSearchPaths cdbImplSearchPaths(const DebuggerRunParameters &rp)
+{
+    CdbImplSearchPaths paths;
+    paths.symbolPaths = settings().cdbSymbolPaths();
+    for (const QString &key : QStringList{"_NT_ALT_SYMBOL_PATH", "_NT_SYMBOL_PATH"}) {
+        const QString path = rp.inferior().environment.expandedValueForKey(key);
+        if (!path.isEmpty())
+            paths.symbolPaths.append(path);
+    }
+    paths.sourcePaths = settings().cdbSourcePaths();
+    const SourcePathMap sourcePathMap
+        = mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+    for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it) {
+        paths.sourcePathMap.append(
+            {QDir::toNativeSeparators(it.key()),
+             QDir::toNativeSeparators(rp.macroExpander()->expand(it.value()))});
+    }
+    return paths;
+}
+
+static QString cdbImplCrtDebugReportModule(const DebuggerRunParameters &rp)
+{
+    if (!settings().cdbBreakOnCrtDbgReport())
+        return {};
+    const Abi::OSFlavor flavor = rp.toolChainAbi().osFlavor();
+    // CrtDebugReport cannot be safely resolved for vc 19.
+    if ((flavor > Abi::WindowsMsvc2005Flavor && flavor <= Abi::WindowsMsvc2013Flavor)
+        || flavor > Abi::WindowsMSysFlavor || flavor <= Abi::WindowsCEFlavor) {
+        return msvcRunTime(flavor);
+    }
+    return {};
+}
+
+static CdbImplStartData cdbImplStartData(const DebuggerRunParameters &rp)
+{
+    bool cdbIs64Bit = true;
+    bool cdbIsArm = false;
+    const Abis abisOfCdb = Abi::abisOfBinary(rp.debugger().command.executable());
+    if (abisOfCdb.size() == 1) {
+        const Abi abi = abisOfCdb.at(0);
+        cdbIs64Bit = abi.wordWidth() == 64;
+        cdbIsArm = abi.architecture() == Abi::Architecture::ArmArchitecture;
+    }
+    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
+    const DebuggerSettings &s = settings();
+    return {
+        .debuggerRunData = rp.debugger(),
+        .inferiorStartData = cdbImplInferiorStartData(rp),
+        .extensionDir = FilePath::fromString(extensionFi.absolutePath()),
+        .extensionFileName = extensionFi.fileName(),
+        .dumperScriptsDir = Core::ICore::resourcePath("debugger"),
+        .searchPaths = cdbImplSearchPaths(rp),
+        .breakEvents = s.cdbBreakEvents(),
+        .additionalArguments = s.cdbAdditionalArguments(),
+        .startupCommands = rp.commandsAfterConnect(),
+        .extraDumperFile = s.extraDumperFile(),
+        .extraDumperCommands = s.extraDumperCommands(),
+        .breakOnMain = rp.breakOnMain(),
+        .enableHeapDebugging = s.enableHeapDebugging(),
+        .ignoreFirstChanceAccessViolation = s.ignoreFirstChanceAccessViolation(),
+        .useTerminal = rp.useTerminal(),
+        .crtDebugReportModule = cdbImplCrtDebugReportModule(rp),
+        .reportFirstChanceExceptions = s.firstChanceExceptionTaskEntry(),
+        .reportSecondChanceExceptions = s.secondChanceExceptionTaskEntry(),
+        .inferiorWordWidth = rp.toolChainAbi().wordWidth(),
+        .nativeMixed = rp.isNativeMixedDebugging(),
+        .qtVersion = rp.qtVersion(),
+        .qtNamespace = rp.configuredQtNamespace(),
+        .useCtrlCStub = true,
+    };
+}
+
+// Accessed by debuggerRecipe()
+DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp)
+{
+    if (DebuggerEngine::isUsingGenericDebugger())
+        return new GenericDebuggerEngine("CDB (CdbImpl)", new CdbImpl(cdbImplStartData(rp)));
+    return new CdbEngine;
 }
 
 } // namespace Debugger::Internal
