@@ -2905,13 +2905,22 @@ bool stoppedInArtificialThread(const GdbMi &stopData)
 // Stepping into a call can land on the jump the linker put in front of the
 // function, which has no source of its own. CdbEngine steps once more from
 // there, so that what gets reported is the function itself.
-static bool landedOnLinkerThunk(const GdbMi &stopData)
+// Where a step into ended up. cdb stops on the linker thunk before it reaches
+// the function, and a function whose sources are not on this machine is nothing
+// to show, so neither is a place to leave the user in.
+StepIntoLanding stepIntoLanding(const GdbMi &stopData,
+                                const std::function<bool(const QString &)> &hasSource)
 {
     const GdbMi stack = stopData["stack"];
     if (stack.childCount() == 0)
-        return false;
+        return StepIntoLanding::Arrived;
     const GdbMi &top = stack.childAt(0);
-    return top["fullname"].data().isEmpty() && top["function"].data().contains("ILT+");
+    const QString file = top["fullname"].data();
+    if (file.isEmpty()) {
+        return top["function"].data().contains("ILT+") ? StepIntoLanding::OnThunk
+                                                       : StepIntoLanding::WithoutSource;
+    }
+    return hasSource(file) ? StepIntoLanding::Arrived : StepIntoLanding::WithoutSource;
 }
 
 // True if the frame the inferior stopped in was called straight from the QML
@@ -2937,11 +2946,24 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         ensureStackBitness([this, stopData] { reportStop(stopData); });
         return;
     }
-    if (m_sourceStepInto && landedOnLinkerThunk(stopData) && m_thunkStepsTaken < 3) {
-        ++m_thunkStepsTaken;
-        m_inferiorRunning = true;
-        runCommand({"t", NoFlags});
-        return;
+    if (m_sourceStepInto) {
+        const StepIntoLanding landing = stepIntoLanding(stopData, [this](const QString &file) {
+            return FilePath::fromUserInput(mappedFromDebugger(file, sourcePathMap()))
+                .isReadableFile();
+        });
+        if (landing == StepIntoLanding::OnThunk && m_thunkStepsTaken < 3) {
+            ++m_thunkStepsTaken;
+            m_inferiorRunning = true;
+            runCommand({"t", NoFlags});
+            return;
+        }
+        m_sourceStepInto = false;
+        if (landing == StepIntoLanding::WithoutSource) {
+            emit message(Tr::tr("Step into: Hit frame with no source, step out..."), LogMisc);
+            m_inferiorRunning = true;
+            runCommand({"gu", NoFlags});
+            return;
+        }
     }
     m_sourceStepInto = false;
     if (m_nativeMethodBodyHopPending) {

@@ -86,6 +86,7 @@ private slots:
     void testCdbImplArtificialThreadStop();
     void testCdbImplResolvedBreakpointUpdates();
     void testCdbImplBreakpointStopMessages();
+    void testCdbImplStepIntoLanding();
     void testMapsAnEmptyFileNameToNothing();
 
     void testQtBuildSourceRoots_data();
@@ -790,6 +791,45 @@ void DebuggerUnitTests::testCdbImplBreakpointStopMessages()
     messages = breakpointStopMessages(inserted, "3");
     QCOMPARE(messages.plainMessage, QString("reached the loop"));
     QVERIFY(messages.tracepointMessages.isEmpty());
+}
+
+void DebuggerUnitTests::testCdbImplStepIntoLanding()
+{
+    const auto stopData = [](const QString &frame) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString("{stack=[{" + frame + "}]}", decoder);
+        return data;
+    };
+    const auto always = [](const QString &) { return true; };
+    const auto never = [](const QString &) { return false; };
+
+    // The step arrived in a function whose sources are here. Show it.
+    QCOMPARE(stepIntoLanding(stopData(R"(fullname="C:\\src\\main.cpp",function="run")"), always),
+             StepIntoLanding::Arrived);
+
+    // cdb stops on the import thunk before the call reaches the function, so
+    // one more step is needed to get there.
+    QCOMPARE(stepIntoLanding(stopData(R"(fullname="",function="tst!_imp_ILT+35_runfoo")"),
+                             always),
+             StepIntoLanding::OnThunk);
+
+    // A function with no source at all, so stepping into it showed disassembly.
+    QCOMPARE(stepIntoLanding(stopData(R"(fullname="",function="ntdll!RtlAllocateHeap")"), always),
+             StepIntoLanding::WithoutSource);
+
+    // A pdb naming a source file that was never shipped to this machine is the
+    // same thing: there is nothing to show.
+    QCOMPARE(stepIntoLanding(stopData(R"(fullname="C:\\qt\\src\\qstring.cpp",function="op")"),
+                             never),
+             StepIntoLanding::WithoutSource);
+
+    // Without a stack there is nothing to decide on, and stepping further would
+    // run the program away from wherever it is.
+    QStringDecoder decoder(QStringDecoder::Utf8);
+    GdbMi empty;
+    empty.fromString(R"({reason="exception"})", decoder);
+    QCOMPARE(stepIntoLanding(empty, never), StepIntoLanding::Arrived);
 }
 
 // A session without a build configuration - an attach, or a foreign debug

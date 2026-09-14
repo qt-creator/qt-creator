@@ -20,6 +20,11 @@ namespace Debugger::Internal {
 
 DEBUGGER_EXPORT bool stoppedInArtificialThread(const GdbMi &stopData);
 
+enum class StepIntoLanding { Arrived, OnThunk, WithoutSource };
+
+DEBUGGER_EXPORT StepIntoLanding stepIntoLanding(
+    const GdbMi &stopData, const std::function<bool(const QString &)> &hasSource);
+
 class DEBUGGER_EXPORT BreakpointStopMessages
 {
 public:
