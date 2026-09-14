@@ -1172,6 +1172,27 @@ static bool isSameLocation(const BreakpointParameters &one, const BreakpointPara
         && one.functionName == other.functionName && one.address == other.address;
 }
 
+// Several breakpoints can share one location, and cdb reports the hit only once.
+// So what the user gets to see is the messages of all of them, and the session
+// resumes unless one of them is a real breakpoint rather than a tracepoint.
+BreakpointStopMessages breakpointStopMessages(
+    const QHash<QString, BreakpointParameters> &inserted, const QString &stoppedId)
+{
+    BreakpointStopMessages result;
+    const BreakpointParameters stopped = inserted.value(stoppedId);
+    for (const BreakpointParameters &params : inserted) {
+        if (!isSameLocation(params, stopped))
+            continue;
+        if (params.tracepoint)
+            result.tracepointMessages.append(params.message);
+        else
+            result.stopAfterwards = true;
+    }
+    if (result.tracepointMessages.isEmpty())
+        result.plainMessage = stopped.message;
+    return result;
+}
+
 void CdbImpl::reportTracepoint(const QStringList &tracepointMessages, const GdbMi &stopData,
                                bool stopAfterwards)
 {
@@ -2848,20 +2869,15 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         }
         if (stopData["reason"].data() == "breakpoint" && !m_expandingTracepoint
                 && m_insertedBreakpoints.contains(stoppedId)) {
-            const BreakpointParameters stopped = m_insertedBreakpoints.value(stoppedId);
-            QStringList tracepointMessages;
-            bool stopAfterwards = false;
-            for (const BreakpointParameters &params : std::as_const(m_insertedBreakpoints)) {
-                if (!isSameLocation(params, stopped))
-                    continue;
-                if (params.tracepoint)
-                    tracepointMessages.append(params.message);
-                else
-                    stopAfterwards = true;
-            }
-            if (!tracepointMessages.isEmpty()) {
-                reportTracepoint(tracepointMessages, stopData, stopAfterwards);
+            const BreakpointStopMessages messages
+                = breakpointStopMessages(m_insertedBreakpoints, stoppedId);
+            if (!messages.tracepointMessages.isEmpty()) {
+                reportTracepoint(messages.tracepointMessages, stopData, messages.stopAfterwards);
                 return;
+            }
+            if (!messages.plainMessage.isEmpty()) {
+                emit message(messages.plainMessage + '\n', AppOutput);
+                emit message(messages.plainMessage, LogMisc);
             }
         }
         reportStop(stopData);

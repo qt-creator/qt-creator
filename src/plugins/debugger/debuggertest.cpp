@@ -85,6 +85,7 @@ private slots:
     void testCdbImplCommandLine();
     void testCdbImplArtificialThreadStop();
     void testCdbImplResolvedBreakpointUpdates();
+    void testCdbImplBreakpointStopMessages();
     void testMapsAnEmptyFileNameToNothing();
 
     void testQtBuildSourceRoots_data();
@@ -741,6 +742,54 @@ void DebuggerUnitTests::testCdbImplResolvedBreakpointUpdates()
         &wanted, {{"/build", "/home/me/work"}}, noConditions);
     QCOMPARE(updates.childCount(), 1);
     QCOMPARE(updates.childAt(0)["file"].data(), QString("/home/me/work/src/main.cpp"));
+}
+
+void DebuggerUnitTests::testCdbImplBreakpointStopMessages()
+{
+    const auto at = [](int line, const QString &message, bool tracepoint) {
+        BreakpointParameters params(BreakpointByFileAndLine);
+        params.fileName = FilePath::fromUserInput("C:/src/main.cpp");
+        params.textPosition.line = line;
+        params.message = message;
+        params.tracepoint = tracepoint;
+        return params;
+    };
+
+    // A plain breakpoint with a message: the message is the user's to see, and
+    // the session stays stopped.
+    QHash<QString, BreakpointParameters> inserted{{"3", at(42, "reached the loop", false)}};
+    BreakpointStopMessages messages = breakpointStopMessages(inserted, "3");
+    QCOMPARE(messages.plainMessage, QString("reached the loop"));
+    QVERIFY(messages.tracepointMessages.isEmpty());
+
+    // One without a message logs nothing.
+    inserted = {{"3", at(42, {}, false)}};
+    messages = breakpointStopMessages(inserted, "3");
+    QVERIFY(messages.plainMessage.isEmpty());
+    QVERIFY(messages.tracepointMessages.isEmpty());
+
+    // A tracepoint's message goes through the tracepoint path instead, which
+    // expands it against the inferior, and the session resumes.
+    inserted = {{"3", at(42, "i is {i}", true)}};
+    messages = breakpointStopMessages(inserted, "3");
+    QCOMPARE(messages.tracepointMessages, QStringList{"i is {i}"});
+    QVERIFY(messages.plainMessage.isEmpty());
+    QVERIFY(!messages.stopAfterwards);
+
+    // A tracepoint and a breakpoint on the same line are one cdb breakpoint, so
+    // the tracepoint is expanded and the session stops afterwards anyway.
+    inserted = {{"3", at(42, "i is {i}", true)}, {"4", at(42, "reached the loop", false)}};
+    messages = breakpointStopMessages(inserted, "3");
+    QCOMPARE(messages.tracepointMessages, QStringList{"i is {i}"});
+    QVERIFY(messages.stopAfterwards);
+    // The plain one's message is not logged twice: the tracepoint path reports.
+    QVERIFY(messages.plainMessage.isEmpty());
+
+    // A breakpoint somewhere else has nothing to do with this stop.
+    inserted = {{"3", at(42, "reached the loop", false)}, {"4", at(99, "i is {i}", true)}};
+    messages = breakpointStopMessages(inserted, "3");
+    QCOMPARE(messages.plainMessage, QString("reached the loop"));
+    QVERIFY(messages.tracepointMessages.isEmpty());
 }
 
 // A session without a build configuration - an attach, or a foreign debug

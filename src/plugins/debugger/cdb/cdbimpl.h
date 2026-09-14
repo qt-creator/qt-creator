@@ -20,6 +20,17 @@ namespace Debugger::Internal {
 
 DEBUGGER_EXPORT bool stoppedInArtificialThread(const GdbMi &stopData);
 
+class DEBUGGER_EXPORT BreakpointStopMessages
+{
+public:
+    QStringList tracepointMessages;
+    QString plainMessage;
+    bool stopAfterwards = false;
+};
+
+DEBUGGER_EXPORT BreakpointStopMessages breakpointStopMessages(
+    const QHash<QString, BreakpointParameters> &inserted, const QString &stoppedId);
+
 DEBUGGER_EXPORT GdbMi resolvedBreakpointUpdates(
     const GdbMi &reported,
     QSet<QString> *wanted,
