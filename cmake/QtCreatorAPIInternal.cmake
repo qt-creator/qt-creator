@@ -335,7 +335,7 @@ endfunction()
 
 function(add_qtc_depends target_name)
   cmake_parse_arguments(_arg "" "" "PRIVATE;PUBLIC" ${ARGN})
-  if (${_arg_UNPARSED_ARGUMENTS})
+  if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_depends had unparsed arguments")
   endif()
 
@@ -593,7 +593,7 @@ function(extend_qtc_target target_name)
 
   cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
 
-  if (${_arg_UNPARSED_ARGUMENTS})
+  if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "extend_qtc_target had unparsed arguments")
   endif()
 

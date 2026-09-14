@@ -365,7 +365,7 @@ function(add_qtc_library name)
 
   get_default_defines(default_defines_copy ${_arg_ALLOW_ASCII_CASTS})
 
-  if (${_arg_UNPARSED_ARGUMENTS})
+  if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_library had unparsed arguments")
   endif()
 
@@ -871,7 +871,7 @@ function(add_qtc_plugin target_name)
   check_library_dependencies(${_arg_DEPENDS})
   check_library_dependencies(${_arg_PUBLIC_DEPENDS})
 
-  if (${_arg_UNPARSED_ARGUMENTS})
+  if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_plugin had unparsed arguments")
   endif()
 
@@ -1412,7 +1412,7 @@ function(add_qtc_executable name)
 
   cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
 
-  if (${_arg_UNPARSED_ARGUMENTS})
+  if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
   endif()
 
@@ -1835,7 +1835,7 @@ function(add_qtc_test name)
   cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK;NEEDS_GUI" "TIMEOUT"
       "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION;PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS" ${ARGN})
 
-  if (${_arg_UNPARSED_ARGUMENTS})
+  if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "add_qtc_test had unparsed arguments!")
   endif()
 
@@ -1932,7 +1932,7 @@ function(finalize_qtc_gtest test_name)
   cmake_parse_arguments(_arg "EXCLUDE_ALL_FROM_PRECHECK" "EXCLUDE_SOURCES_REGEX"
       "EXCLUDE_FROM_PRECHECK" ${ARGN})
 
-  if (${_arg_UNPARSED_ARGUMENTS})
+  if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "finalize_qtc_gtest had unparsed arguments!")
   endif()
 
@@ -2089,7 +2089,7 @@ endfunction()
 #]=]
 function(qtc_add_resources target resourceName)
   cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE;FILES_PREFIX" "FILES;OPTIONS;CONDITION" ${ARGN})
-  if (${_arg_UNPARSED_ARGUMENTS})
+  if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "qtc_add_resources had unparsed arguments!")
   endif()
 
