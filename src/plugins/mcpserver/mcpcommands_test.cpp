@@ -14,9 +14,14 @@
 #include <utils/multitextcursor.h>
 #include <utils/temporarydirectory.h>
 
+#include <QAction>
+#include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QListView>
+#include <QMenu>
 #include <QScopeGuard>
+#include <QStandardItemModel>
 #include <QTest>
 #include <QTextCursor>
 
@@ -62,6 +67,9 @@ private slots:
     void testCursorPositionCutsALongLine();
     void testCursorPositionFollowsTheMainCursor();
     void testCursorPositionWithoutAnEditor();
+    void testClickItemContextMenuKeepsAMultiSelection();
+    void testActivateMenuItemGoesThroughTheMenu();
+    void testActivateMenuItemRefusesADisabledItem();
 };
 
 void McpCommandsTest::testSelectTextSpansWholeLinesByDefault()
@@ -295,6 +303,95 @@ void McpCommandsTest::testCursorPositionWithoutAnEditor()
     QVERIFY2(error.isEmpty(), qPrintable(error));
     QCOMPARE(result.value("reason").toString(), QString("no_text_editor"));
     QVERIFY(!result.contains("line"));
+}
+
+void McpCommandsTest::testClickItemContextMenuKeepsAMultiSelection()
+{
+    QStandardItemModel model;
+    for (const char *label : {"alpha", "beta", "gamma"})
+        model.appendRow(new QStandardItem(QLatin1String(label)));
+
+    QListView view;
+    view.setObjectName("mcpCommandsTestList");
+    view.setModel(&model);
+    view.setSelectionMode(QAbstractItemView::ExtendedSelection);
+    view.resize(200, 200);
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+
+    QItemSelectionModel *selection = view.selectionModel();
+    for (int row = 0; row < model.rowCount(); ++row)
+        selection->select(model.index(row, 0), QItemSelectionModel::Select);
+    QCOMPARE(selection->selectedIndexes().size(), 3);
+
+    QString error;
+    const QJsonObject result = callTool(
+        "ui_click_item",
+        {{"object_name", "mcpCommandsTestList"}, {"item", "beta"}, {"context_menu", true}},
+        &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(result.value("path").toString(), QString("beta"));
+
+    // A real right press on an already selected row leaves the selection alone,
+    // so asking that row for its context menu must not reduce it to the row.
+    QCOMPARE(selection->selectedIndexes().size(), 3);
+    QCOMPARE(view.currentIndex(), model.index(1, 0));
+}
+
+void McpCommandsTest::testActivateMenuItemGoesThroughTheMenu()
+{
+    // QMenu::exec() only holds the popup up on a platform that can grab the
+    // keyboard. Under "offscreen" the menu closes before the posted key
+    // arrives, and exec() then answers nullptr however the item was activated.
+    if (QGuiApplication::platformName() == QLatin1String("offscreen"))
+        QSKIP("The offscreen platform does not keep a popup menu up.");
+
+    QMenu menu;
+    QAction *action = menu.addAction("McpCommandsTestItem");
+    int triggered = 0;
+    connect(action, &QAction::triggered, this, [&triggered] { ++triggered; });
+
+    QString error;
+    QJsonObject result;
+    // The tool has to run while the menu is up, so queue the call into the
+    // event loop exec() starts. Hiding the menu when the call never got that
+    // far keeps exec() from outliving the test.
+    QMetaObject::invokeMethod(
+        &menu,
+        [&] {
+            result = callTool("ui_activate_menu_item", {{"title", "McpCommandsTestItem"}}, &error);
+            if (!error.isEmpty())
+                menu.hide();
+        },
+        Qt::QueuedConnection);
+
+    // Most context menus in the tree read what exec() handed back, so emitting
+    // triggered() is not enough: the menu itself has to do the activating, and
+    // only then does it report the action as the one that was chosen.
+    QAction *chosen = menu.exec(QPoint(0, 0));
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(result.value("triggered").toBool());
+    QCOMPARE(chosen, action);
+    QCOMPARE(triggered, 1);
+}
+
+void McpCommandsTest::testActivateMenuItemRefusesADisabledItem()
+{
+    QMenu menu;
+    QAction *action = menu.addAction("McpCommandsTestDisabledItem");
+    action->setEnabled(false);
+    int triggered = 0;
+    connect(action, &QAction::triggered, this, [&triggered] { ++triggered; });
+    menu.popup(QPoint(0, 0));
+    const QScopeGuard hideMenu([&menu] { menu.hide(); });
+
+    // Activating a disabled item does nothing at all, so answering "triggered"
+    // would send a caller looking for an effect that cannot come. The refusal
+    // is immediate and posts nothing, so there is no later event to wait for.
+    QString error;
+    callTool("ui_activate_menu_item", {{"title", "McpCommandsTestDisabledItem"}}, &error);
+    QVERIFY2(error.contains("disabled"), qPrintable(error));
+    QCOMPARE(triggered, 0);
 }
 
 QObject *createMcpCommandsTest()

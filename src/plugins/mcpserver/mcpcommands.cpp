@@ -3381,7 +3381,15 @@ void McpCommands::registerCommands()
             if (p.value("context_menu").toBool(false)) {
                 // A synthetic right click does not produce one: the context
                 // menu event comes from the platform, so send that instead.
-                (*view)->setCurrentIndex(*index);
+                // setCurrentIndex() would clear a multi-selection, while a real
+                // right click on a selected row leaves the selection alone, so
+                // only make the row current when it is not selected already.
+                if ((*view)->selectionModel()->isSelected(*index)) {
+                    (*view)->selectionModel()->setCurrentIndex(*index,
+                                                               QItemSelectionModel::NoUpdate);
+                } else {
+                    (*view)->setCurrentIndex(*index);
+                }
                 QContextMenuEvent event(QContextMenuEvent::Mouse, rect.center(),
                                         global.toPoint());
                 QApplication::sendEvent((*view)->viewport(), &event);
@@ -4465,6 +4473,11 @@ void McpCommands::registerCommands()
             }
             if (!action)
                 return ResultError(QString("No menu item \"%1\".").arg(title));
+            if (!action->isEnabled()) {
+                // Activating it would do nothing at all, and a caller driving
+                // the menu blind cannot tell that apart from a command that ran.
+                return ResultError(QString("Menu item is disabled: \"%1\".").arg(title));
+            }
 
             if (QMenu *submenu = action->menu()) {
                 // A menu bar entry drops its menu below it; a submenu inside an
@@ -4474,13 +4487,23 @@ void McpCommands::registerCommands()
                 submenu->popup(pos);
                 return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"opened", true}});
             }
-            // Leaf: trigger asynchronously so a modal dialog does not block this
-            // call, and close any open menu so it does not linger on screen.
-            QMetaObject::invokeMethod(action, "trigger", Qt::QueuedConnection);
-            for (QWidget *w : QApplication::allWidgets()) {
-                if (auto menu = qobject_cast<QMenu *>(w); menu && menu->isVisible())
-                    menu->hide();
+            // Leaf in an open menu: let the menu activate it, by making it
+            // current and posting Return. QAction::trigger() would bypass the
+            // menu, and a menu run with QMenu::exec() reports no action at all
+            // then. The event is posted, not sent, so a modal dialog opened by
+            // the item does not block this call.
+            if (auto menu = qobject_cast<QMenu *>(owner)) {
+                menu->setActiveAction(action);
+                QCoreApplication::postEvent(
+                    menu, new QKeyEvent(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier));
+                QCoreApplication::postEvent(
+                    menu, new QKeyEvent(QEvent::KeyRelease, Qt::Key_Return, Qt::NoModifier));
+                return CallToolResult{}.isError(false).structuredContent(
+                    QJsonObject{{"triggered", true}});
             }
+            // A menu bar entry without a menu of its own: nothing to navigate,
+            // so trigger it directly, asynchronously for the same reason.
+            QMetaObject::invokeMethod(action, "trigger", Qt::QueuedConnection);
             return CallToolResult{}.isError(false).structuredContent(QJsonObject{{"triggered", true}});
         });
 }
