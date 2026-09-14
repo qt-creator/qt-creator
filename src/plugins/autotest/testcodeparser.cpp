@@ -57,7 +57,7 @@ TestCodeParser::TestCodeParser()
             this, &TestCodeParser::onTaskStarted);
     connect(progressManager, &ProgressManager::allTasksFinished,
             this, &TestCodeParser::onAllTasksFinished);
-    connect(this, &TestCodeParser::parsingFinished, this, &TestCodeParser::releaseParserInternals);
+    connect(this, &TestCodeParser::parsingFinished, this, &TestCodeParser::clearParserCaches);
     connect(EditorManager::instance(), &EditorManager::documentClosed, this, [this](IDocument *doc){
         QTC_ASSERT(doc, return);
         if (FilePath filePath = doc->filePath(); filePath.endsWith(".qml"))
@@ -273,12 +273,13 @@ bool TestCodeParser::postponed(const QSet<FilePath> &filePaths)
 }
 
 static void parseFileForTests(QPromise<TestParseResultPtr> &promise,
-                              const QList<ITestParser *> &parsers, const FilePath &fileName)
+                              const QList<DocumentProcessor> &processors,
+                              const FilePath &fileName)
 {
-    for (ITestParser *parser : parsers) {
+    for (const DocumentProcessor &processDocument : processors) {
         if (promise.isCanceled())
             return;
-        if (parser->processDocument(promise, fileName))
+        if (processDocument(promise, fileName))
             break;
     }
 }
@@ -466,8 +467,9 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     m_parsingTimer.restart();
     QSet<QString> extensions;
 
+    QList<DocumentProcessor> processors;
     for (ITestParser *parser : codeParsers) {
-        parser->init(files, isFullParse);
+        processors.append(parser->init(files, isFullParse));
         for (const QString &ext : parser->supportedExtensions())
             extensions.insert(ext);
     }
@@ -493,8 +495,8 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     qCDebug(LOG) << "Using" << limit << "threads for scan.";
 
     const Storage<QSet<FilePath>::const_iterator> storage;
-    const auto onSetup = [this, codeParsers, storage](Async<TestParseResultPtr> &async) {
-        async.setConcurrentCallData(parseFileForTests, codeParsers, **storage);
+    const auto onSetup = [this, processors, storage](Async<TestParseResultPtr> &async) {
+        async.setConcurrentCallData(parseFileForTests, processors, **storage);
         async.setPriority(QThread::LowestPriority);
         async.setFutureSynchronizer(&m_futureSynchronizer);
         ++*storage;
@@ -645,10 +647,9 @@ void TestCodeParser::parsePostponedFiles()
     scanForTests(m_postponedFiles);
 }
 
-void TestCodeParser::releaseParserInternals()
+void TestCodeParser::clearParserCaches()
 {
-    for (ITestParser *parser : std::as_const(m_testCodeParsers))
-        parser->release();
+    CppParser::clearCaches();
 }
 
 } // namespace Autotest::Internal

@@ -26,19 +26,28 @@ private:
     bool m_multiTest = false;
 };
 
+class QtTestParseContext : public CppParseContext
+{
+public:
+    QHash<Utils::FilePath, TestCases> cachedTestCases;
+    QMultiHash<Utils::FilePath, Utils::FilePath> alternativeFiles;
+    QSet<Utils::FilePath> prefilteredFiles;
+};
+
 class QtTestParser : public CppParser
 {
 public:
     explicit QtTestParser(ITestFramework *framework) : CppParser(framework) {}
 
-    void init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) override;
-    void release() override;
-    bool processDocument(QPromise<TestParseResultPtr> &promise,
-                         const Utils::FilePath &fileName) override;
+    DocumentProcessor init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) override;
 
 private:
-    TestCases testCases(const Utils::FilePath &fileName) const;
-    QHash<QString, QtTestCodeLocationList> checkForDataTags(const Utils::FilePath &fileName) const;
+    bool processDocument(QPromise<TestParseResultPtr> &promise,
+                         const QtTestParseContext &context,
+                         const Utils::FilePath &fileName);
+    TestCases testCases(const QtTestParseContext &context, const Utils::FilePath &fileName) const;
+    QHash<QString, QtTestCodeLocationList> checkForDataTags(const QtTestParseContext &context,
+                                                            const Utils::FilePath &fileName) const;
     struct TestCaseData {
         Utils::FilePath fileName;
         int line = 0;
@@ -49,16 +58,14 @@ private:
         bool valid = false;
     };
 
-    std::optional<bool> fillTestCaseData(const QString &testCaseName,
-                                           const CPlusPlus::Document::Ptr &doc,
-                                           TestCaseData &data) const;
+    std::optional<bool> fillTestCaseData(const QtTestParseContext &context,
+                                         const QString &testCaseName,
+                                         const CPlusPlus::Document::Ptr &doc,
+                                         TestCaseData &data) const;
     QtTestParseResult *createParseResult(
         const QString &testCaseName,
         const TestCaseData &data,
         const Utils::FilePath &projectFile) const;
-    QHash<Utils::FilePath, TestCases> m_testCases;
-    QMultiHash<Utils::FilePath, Utils::FilePath> m_alternativeFiles;
-    QSet<Utils::FilePath> m_prefilteredFiles;
 };
 
 } // namespace Autotest::Internal

@@ -120,7 +120,8 @@ static QString quickTestSrcDir(const FilePath &fileName)
     return {};
 }
 
-QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) const
+QString QuickTestParser::quickTestName(const QuickTestParseContext &context,
+                                       const CPlusPlus::Document::Ptr &doc) const
 {
     const QList<CPlusPlus::Document::MacroUse> macros = doc->macroUses();
     const FilePath filePath = doc->filePath();
@@ -131,15 +132,16 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
         const QByteArray name = macro.macro().name();
         if (QuickTestUtils::isQuickTestMacro(name)) {
             CPlusPlus::Document::Block arg = macro.arguments().at(0);
-            return QLatin1String(getFileContent(filePath)
+            return QLatin1String(getFileContent(context, filePath)
                                  .mid(int(arg.bytesBegin()), int(arg.bytesEnd() - arg.bytesBegin())));
         }
     }
 
 
-    const QByteArray fileContent = getFileContent(filePath);
+    const QByteArray fileContent = getFileContent(context, filePath);
     // check for using quick_test_main() directly
-    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, filePath);
+    CPlusPlus::Document::Ptr document
+        = context.cppSnapshot.preprocessedDocument(fileContent, filePath);
     if (document.isNull())
         return {};
     document->check();
@@ -155,7 +157,7 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
             : QStringList({"QtQuickTest"});
     bool pchIncludes = false;
     for (const QString &prefix : expectedHeaderPrefixes) {
-        if (CppParser::precompiledHeaderContains(m_cppSnapshot, filePath,
+        if (CppParser::precompiledHeaderContains(context.cppSnapshot, filePath,
                                                  QString("%1/quicktest.h").arg(prefix))) {
             pchIncludes = true;
             break;
@@ -265,10 +267,11 @@ static bool checkQmlDocumentForQuickTestCode(QPromise<TestParseResultPtr> &promi
 }
 
 bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
+                                        const QuickTestParseContext &context,
                                         CPlusPlus::Document::Ptr document,
                                         ITestFramework *framework)
 {
-    if (quickTestName(document).isEmpty())
+    if (quickTestName(context, document).isEmpty())
         return false;
 
     QList<CppEditor::ProjectPart::ConstPtr> ppList =
@@ -293,7 +296,7 @@ bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
         if (promise.isCanceled())
             break;
         result |= checkQmlDocumentForQuickTestCode(promise, qmlJSDoc, framework, proFile,
-                                                   m_checkForDerivedTests);
+                                                   context.checkForDerivedTests);
     }
     return result;
 }
@@ -357,13 +360,15 @@ QuickTestParser::QuickTestParser(ITestFramework *framework)
             this, &QuickTestParser::handleDirectoryChanged);
 }
 
-void QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
+DocumentProcessor QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
-    m_qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
-    QWriteLocker lock(&m_parseLock); // should not be necessary
+    const auto context = std::make_shared<QuickTestParseContext>();
+    context->qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
+    QWriteLocker lock(&m_parseLock);
     if (!fullParse) {
         // in a full parse we get the correct entry points by the respective main
-        m_proFilesForQmlFiles = QuickTestUtils::proFilesForQmlFiles(framework(), filesToParse);
+        context->proFilesForQmlFiles
+            = QuickTestUtils::proFilesForQmlFiles(framework(), filesToParse);
         // get rid of cached main cpp files that are going to get processed anyhow
         for (const FilePath &file : filesToParse) {
             if (m_mainCppFiles.remove(file) == 1) {
@@ -377,47 +382,44 @@ void QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
     }
     lock.unlock();
 
-    m_checkForDerivedTests = theQtTestFramework().quickCheckForDerivedTests();
+    context->checkForDerivedTests = theQtTestFramework().quickCheckForDerivedTests();
 
     if (std::optional<QSet<Utils::FilePath>> prefiltered = filesContainingMacro("QT_QMLTEST_LIB"))
-        m_prefilteredFiles = prefiltered->intersect(filesToParse);
+        context->prefilteredFiles = prefiltered->intersect(filesToParse);
     else
-        m_prefilteredFiles = filesToParse;
+        context->prefilteredFiles = filesToParse;
 
-    CppParser::init(filesToParse, fullParse);
-}
-
-void QuickTestParser::release()
-{
-    m_qmlSnapshot = Snapshot();
-    m_proFilesForQmlFiles.clear();
-    m_prefilteredFiles.clear();
-    CppParser::release();
+    fillContext(*context);
+    return [this, context = std::shared_ptr<const QuickTestParseContext>(context)](
+               QPromise<TestParseResultPtr> &promise, const FilePath &fileName) {
+        return processDocument(promise, *context, fileName);
+    };
 }
 
 bool QuickTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
+                                      const QuickTestParseContext &context,
                                       const FilePath &fileName)
 {
     if (fileName.endsWith(".qml")) {
-        const FilePath &proFile = m_proFilesForQmlFiles.value(fileName);
+        const FilePath &proFile = context.proFilesForQmlFiles.value(fileName);
         if (proFile.isEmpty())
             return false;
-        Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName);
+        Document::Ptr qmlJSDoc = context.qmlSnapshot.document(fileName);
         return checkQmlDocumentForQuickTestCode(promise,
                                                 qmlJSDoc,
                                                 framework(),
                                                 proFile,
-                                                m_checkForDerivedTests);
+                                                context.checkForDerivedTests);
     }
 
-    if (!m_prefilteredFiles.contains(fileName))
+    if (!context.prefilteredFiles.contains(fileName))
         return false;
 
-   CPlusPlus::Document::Ptr cppdoc = document(fileName);
-   if (cppdoc.isNull() || !includesQtQuickTest(cppdoc, m_cppSnapshot))
+   CPlusPlus::Document::Ptr cppdoc = document(context, fileName);
+   if (cppdoc.isNull() || !includesQtQuickTest(cppdoc, context.cppSnapshot))
        return false;
 
-   return handleQtQuickTest(promise, cppdoc, framework());
+   return handleQtQuickTest(promise, context, cppdoc, framework());
 }
 
 FilePath QuickTestParser::projectFileForMainCppFile(const FilePath &fileName)

@@ -91,15 +91,26 @@ static bool hasCatchNames(const CPlusPlus::Document::Ptr &document)
     return false;
 }
 
+DocumentProcessor CatchTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
+{
+    Q_UNUSED(filesToParse)
+    Q_UNUSED(fullParse)
+    return [this, context = createContext()](QPromise<TestParseResultPtr> &promise,
+                                             const FilePath &fileName) {
+        return processDocument(promise, *context, fileName);
+    };
+}
+
 bool CatchTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
+                                      const CppParseContext &context,
                                       const FilePath &fileName)
 {
-    CPlusPlus::Document::Ptr doc = document(fileName);
-    if (doc.isNull() || !includesCatchHeader(doc, m_cppSnapshot))
+    CPlusPlus::Document::Ptr doc = document(context, fileName);
+    if (doc.isNull() || !includesCatchHeader(doc, context.cppSnapshot))
         return false;
 
     const QString &filePath = doc->filePath().toUserOutput();
-    const QByteArray &fileContent = getFileContent(fileName);
+    const QByteArray &fileContent = getFileContent(context, fileName);
 
     if (!hasCatchNames(doc)) {
         static const QRegularExpression regex("\\b(CATCH_)?"

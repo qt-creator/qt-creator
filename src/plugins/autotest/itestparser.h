@@ -8,6 +8,8 @@
 #include <cplusplus/CppDocument.h>
 #include <cppeditor/cppworkingcopy.h>
 
+#include <functional>
+#include <memory>
 #include <optional>
 
 QT_BEGIN_NAMESPACE
@@ -39,18 +41,30 @@ public:
     int column = 0;
 };
 
+// Read-only once created. Scan threads may outlive their scan, so parsers
+// must not keep any of this in members.
+class CppParseContext
+{
+public:
+    CPlusPlus::Snapshot cppSnapshot;
+    CppEditor::WorkingCopy workingCopy;
+};
+
+using CppParseContextPtr = std::shared_ptr<const CppParseContext>;
+
+// Called from the scan threads, once per file. Returns true if the file has been handled.
+using DocumentProcessor
+    = std::function<bool(QPromise<TestParseResultPtr> &promise, const Utils::FilePath &fileName)>;
+
 class ITestParser
 {
 public:
     explicit ITestParser(ITestFramework *framework) : m_framework(framework) {}
-    virtual ~ITestParser() { }
-    virtual void init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) = 0;
-    virtual bool processDocument(QPromise<TestParseResultPtr> &futureInterface,
-                                 const Utils::FilePath &fileName) = 0;
+    virtual ~ITestParser() = default;
+
+    virtual DocumentProcessor init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) = 0;
 
     virtual QStringList supportedExtensions() const { return {}; }
-
-    virtual void release() = 0;
 
     ITestFramework *framework() const { return m_framework; }
 
@@ -62,12 +76,13 @@ class CppParser : public ITestParser
 {
 public:
     explicit CppParser(ITestFramework *framework);
-    void init(const QSet<Utils::FilePath> &filesToParse, bool fullParse) override;
-    static bool selectedForBuilding(const Utils::FilePath &fileName);
-    QByteArray getFileContent(const Utils::FilePath &filePath) const;
-    void release() override;
 
-    CPlusPlus::Document::Ptr document(const Utils::FilePath &fileName);
+    static bool selectedForBuilding(const Utils::FilePath &fileName);
+    static QByteArray getFileContent(const CppParseContext &context,
+                                     const Utils::FilePath &filePath);
+
+    static CPlusPlus::Document::Ptr document(const CppParseContext &context,
+                                             const Utils::FilePath &fileName);
 
     static bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
                                           const Utils::FilePath &filePath,
@@ -79,9 +94,11 @@ public:
     // set as a project define
     static std::optional<QSet<Utils::FilePath>> filesContainingMacro(const QByteArray &macroName);
 
+    static void clearCaches();
+
 protected:
-    CPlusPlus::Snapshot m_cppSnapshot;
-    CppEditor::WorkingCopy m_workingCopy;
+    static CppParseContextPtr createContext();
+    static void fillContext(CppParseContext &context);
 };
 
 } // namespace Autotest
