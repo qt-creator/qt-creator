@@ -4169,7 +4169,11 @@ typename))
         elif code in (TypeCode.Pointer, TypeCode.Reference, TypeCode.RValueReference):
             alignment = self.ptrSize()
         else:
-            alignment = self.nativeStructAlignment(self.type_nativetype(typeid))
+            native_type = self.type_nativetype(typeid)
+            # A layout cheap_typeid_from_name_nons() supplied has no native
+            # type to ask, and neither has one the debugger never saw.
+            alignment = self.ptrSize() if native_type is None \
+                        else self.nativeStructAlignment(native_type)
             #self.warn("GUESSING ALIGNMENT %s FOR TYPEID %s" % (alignment, typeid))
         self.type_alignment_cache[typeid] = alignment
         return alignment
