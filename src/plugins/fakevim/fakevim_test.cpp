@@ -355,6 +355,7 @@ private slots:
     void test_vim_map_nowait();
     void test_vim_substitute_print_flags();
     void test_vim_substitute_count();
+    void test_vim_substitute_remembered();
     void test_vim_normal_bang();
     void test_vim_autocmd_optionset();
     void test_vim_autocmd_encodingchanged();
@@ -8050,6 +8051,383 @@ void FakeVimTester::test_vim_ex_error_messages()
     // The globals above outlive this test function, and another one asks about
     // the same names.
     error("unlet g:sl g:fn g:iv g:l");
+
+    // A block ending that closes nothing names the opener it wanted, and it
+    // names it by the full command, whatever abbreviation was typed.
+    QCOMPARE(error("endif"), QLatin1String("E580: :endif without :if"));
+    QCOMPARE(error("en"), QLatin1String("E580: :endif without :if"));
+    QCOMPARE(error("else"), QLatin1String("E581: :else without :if"));
+    QCOMPARE(error("elseif 1"), QLatin1String("E582: :elseif without :if"));
+    QCOMPARE(error("endwhile"), QLatin1String("E588: :endwhile without :while"));
+    QCOMPARE(error("endfor"), QLatin1String("E588: :endfor without :for"));
+    QCOMPARE(error("endtry"), QLatin1String("E602: :endtry without :try"));
+    QCOMPARE(error("catch /x/"), QLatin1String("E603: :catch without :try"));
+    QCOMPARE(error("finally"), QLatin1String("E606: :finally without :try"));
+    QCOMPARE(error("endfunction"),
+             QLatin1String("E193: :endfunction not inside a function"));
+
+    // ":return", ":break" and ":continue" outside anything that could take
+    // them are errors, not commands that quietly do nothing.
+    QCOMPARE(error("return 1"), QLatin1String("E133: :return not inside a function"));
+    QCOMPARE(error("retu"), QLatin1String("E133: :return not inside a function"));
+    QCOMPARE(error("break"), QLatin1String("E587: :break without :while or :for"));
+    QCOMPARE(error("brea"), QLatin1String("E587: :break without :while or :for"));
+    QCOMPARE(error("continue"), QLatin1String("E586: :continue without :while or :for"));
+    QCOMPARE(error("con"), QLatin1String("E586: :continue without :while or :for"));
+
+    // ":throw" wants a value, and the "Vim" prefix belongs to the errors the
+    // engine itself raises: a script cannot forge one. "VimFoo" is not one.
+    QCOMPARE(error("throw"), QLatin1String("E471: Argument required"));
+    QCOMPARE(error("thr"), QLatin1String("E471: Argument required"));
+    const QLatin1String noVimPrefix("E608: Cannot :throw exceptions with 'Vim' prefix");
+    QCOMPARE(error("throw 'Vim'"), noVimPrefix);
+    QCOMPARE(error("throw 'Vim:x'"), noVimPrefix);
+    QCOMPARE(error("throw 'Vim(abc):x'"), noVimPrefix);
+    QCOMPARE(error("throw 'VimFoo'"), QLatin1String("E605: Exception not caught: VimFoo"));
+    QCOMPARE(error("th 'x'"), QLatin1String("E605: Exception not caught: x"));
+
+    // Removing a mapping, an abbreviation or a user command that is not there
+    // is an error. A mapping the left hand side only passes through is not it.
+    const QLatin1String noMapping("E31: No such mapping");
+    QCOMPARE(error("unmap zz"), noMapping);
+    QCOMPARE(error("nunmap zz"), noMapping);
+    QCOMPARE(error("iunmap zz"), noMapping);
+    data.doCommand("nmap zzz x");
+    QCOMPARE(error("nunmap zz"), noMapping);
+    QCOMPARE(error("nunmap zzz"), QString());
+    QCOMPARE(error("unabbreviate zz"), QLatin1String("E24: No such abbreviation"));
+    QCOMPARE(error("delcommand Nosuch"),
+             QLatin1String("E184: No such user-defined command: Nosuch"));
+    QCOMPARE(error("delcommand"), QLatin1String("E471: Argument required"));
+
+    // The forms that do find something still say nothing.
+    data.doCommand("iabbrev zz yy");
+    QCOMPARE(error("unabbreviate zz"), QString());
+    data.doCommand("command Zz echo 1");
+    QCOMPARE(error("delcommand Zz"), QString());
+
+    // ":set" numbers its complaints, and a width of less than one is none.
+    // 'shiftwidth' takes zero, which means "as much as 'tabstop'".
+    QCOMPARE(error("set ts=-1"), QLatin1String("E487: Argument must be positive: ts=-1"));
+    QCOMPARE(error("set ts=0"), QLatin1String("E487: Argument must be positive: ts=0"));
+    QCOMPARE(error("set sw=-1"), QLatin1String("E487: Argument must be positive: sw=-1"));
+    QCOMPARE(error("set sw=0"), QString());
+
+    // ":set {option}+=" on an option holding a number wants one, as "=" does.
+    QCOMPARE(error("set ts+=x"), QLatin1String("E521: Number required after =: ts+=x"));
+    QCOMPARE(error("set ts-=x"), QLatin1String("E521: Number required after =: ts-=x"));
+    QCOMPARE(error("set ts^=x"), QLatin1String("E521: Number required after =: ts^=x"));
+    QCOMPARE(error("set ts+=1"), QString());
+
+    // A boolean option takes no value at all, and the "no" or "inv" prefix is
+    // off before the value is looked at, so "nonu=1" is that error and not an
+    // unknown option. An option nobody knows is named with its whole argument.
+    QCOMPARE(error("set ic=1"), QLatin1String("E474: Invalid argument: ic=1"));
+    QCOMPARE(error("set nu=1"), QLatin1String("E474: Invalid argument: nu=1"));
+    QCOMPARE(error("set nonu=1"), QLatin1String("E474: Invalid argument: nonu=1"));
+    QCOMPARE(error("set invic=1"), QLatin1String("E474: Invalid argument: invic=1"));
+    QCOMPARE(error("set nosuchopt=1"),
+             QLatin1String("E518: Unknown option: nosuchopt=1"));
+
+    // ":move" wants an address, as ":copy" and ":t" do.
+    QCOMPARE(error("move"), QLatin1String("E16: Invalid range"));
+    QCOMPARE(error("m"), QLatin1String("E16: Invalid range"));
+
+    // A "!" is the command's own only where it stands against the name, so
+    // ":mark !" names a mark and the mark it names is no mark at all.
+    const QLatin1String markName("E191: Argument must be a letter or forward/backward quote");
+    QCOMPARE(error("mark !"), markName);
+    QCOMPARE(error("k !"), markName);
+    QCOMPARE(error("mark!"), QLatin1String("E477: No ! allowed"));
+
+    // A shift takes a count behind its marks and nothing else, and neither
+    // ":nohlsearch" nor the redraw family takes anything at all.
+    data.setText("abc" N "def" N "ghi");
+    QCOMPARE(error("1,2>x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("1,2>2x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("1,2<x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(data.text(), "abc" N "def" N "ghi");
+    QCOMPARE(error("nohlsearch x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("noh x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("redraw x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("redraw! x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("redraws x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("nohlsearch"), QString());
+    QCOMPARE(error("redraw"), QString());
+
+    // A count of zero is no count, and it is refused before what stands
+    // behind it is looked at.
+    QCOMPARE(error("d 0"), QLatin1String("E939: Positive count required"));
+    QCOMPARE(error("y 0"), QLatin1String("E939: Positive count required"));
+    QCOMPARE(error("d 0x"), QLatin1String("E939: Positive count required"));
+    QCOMPARE(data.text(), "abc" N "def" N "ghi");
+
+    // ":global" with an empty pattern reaches for the last search, and where
+    // there is none it says so. The search register is what holds it.
+    data.doCommand("let @/ = \"\"");
+    QCOMPARE(error("g//d"), QLatin1String("E35: No previous regular expression"));
+    QCOMPARE(error("v//d"), QLatin1String("E35: No previous regular expression"));
+    QCOMPARE(data.text(), "abc" N "def" N "ghi");
+
+    // ":call" wants a function name and then its parentheses, and asks for
+    // whichever of the two it does not find, the name first.
+    QCOMPARE(error("call"), QLatin1String("E471: Argument required"));
+    const QLatin1String needName("E129: Function name required");
+    QCOMPARE(error("call 1"), needName);
+    QCOMPARE(error("call \"x\""), needName);
+    QCOMPARE(error("call 1+1"), needName);
+    QCOMPARE(error("call g:"), needName);
+    QCOMPARE(error("call strlen"), QLatin1String("E107: Missing parentheses: strlen"));
+    QCOMPARE(error("call strlen x"), QLatin1String("E107: Missing parentheses: strlen x"));
+    QCOMPARE(error("call g:nosuch"), QLatin1String("E107: Missing parentheses: g:nosuch"));
+    QCOMPARE(error("call strlen('a')"), QString());
+
+    // ":unlet" on a subscript names the type it cannot take one from, and the
+    // "." and the "[" have a number each.
+    data.doCommand("let g:n = 1 | let g:s = \"ab\" | let g:l = [1] | let g:f = 1.5");
+    QCOMPARE(error("unlet g:n[0]"),
+             QLatin1String("E689: Index not allowed after a number: g:n[0]"));
+    QCOMPARE(error("unlet g:s[0]"),
+             QLatin1String("E689: Index not allowed after a string: g:s[0]"));
+    QCOMPARE(error("unlet g:n.x"),
+             QLatin1String("E1203: Dot not allowed after a number: g:n.x"));
+    QCOMPARE(error("unlet g:s.x"),
+             QLatin1String("E1203: Dot not allowed after a string: g:s.x"));
+    QCOMPARE(error("unlet g:l.x"),
+             QLatin1String("E1203: Dot not allowed after a list: g:l.x"));
+    QCOMPARE(error("unlet g:f.x"),
+             QLatin1String("E1203: Dot not allowed after a float: g:f.x"));
+    QCOMPARE(error("unlet g:l[0]"), QString());
+    data.doCommand("unlet g:n | unlet g:s | unlet g:l | unlet g:f");
+
+    // ":source" numbers the file it cannot open, and ":winsize" names no
+    // option where it has nothing to complain about but the missing argument.
+    QCOMPARE(error("source /nosuchdir/nosuchfile.vim"),
+             QLatin1String("E484: Can't open file /nosuchdir/nosuchfile.vim"));
+    QCOMPARE(error("winsize"), QLatin1String("E471: Argument required"));
+    QCOMPARE(error("winsize 1"),
+             QLatin1String("E465: :winsize requires two number arguments"));
+
+    // ":for" walks a string character by character, as its own complaint about
+    // everything else says it does. The ":echo" arrives the same way an error
+    // does, so it is what the loop leaves behind that is read back here.
+    data.doCommand("let g:acc = \"\"");
+    QCOMPARE(error("for x in \"ab\" | let g:acc .= x . \",\" | endfor"), QString());
+    QCOMPARE(error("echo g:acc"), QLatin1String("a,b,"));
+    QCOMPARE(error("for x in 1 | endfor"),
+             QLatin1String("E1523: String, List, Tuple or Blob required"));
+
+    // A list of names takes a list apart, and takes it apart whole: an item
+    // left over is as much an error as an item missing.
+    const QLatin1String needList("E1535: List or Tuple required");
+    QCOMPARE(error("for [a,b] in \"ab\" | endfor"), needList);
+    QCOMPARE(error("for [a] in [1] | endfor"), needList);
+    QCOMPARE(error("for [a,b] in [[1]] | endfor"),
+             QLatin1String("E688: More targets than List items"));
+    QCOMPARE(error("for [a,b] in [[1,2,3]] | endfor"),
+             QLatin1String("E687: Less targets than List items"));
+    QCOMPARE(error("for [a,b] in [[1,2]] | endfor"), QString());
+    data.doCommand("unlet g:acc");
+
+    // Nothing has been followed here, so no tag stack has anything to move on.
+    QCOMPARE(error("tag"), QLatin1String("E73: Tag stack empty"));
+    QCOMPARE(error("pop"), QLatin1String("E73: Tag stack empty"));
+
+    // Where ":autocmd" and ":doautocmd" wanted an event and were given a word
+    // that is none, they name the whole rest of the line.
+    QCOMPARE(error("autocmd nosuchevent * echo 1"),
+             QLatin1String("E216: No such group or event: nosuchevent * echo 1"));
+    QCOMPARE(error("au nosuchevent * echo 1"),
+             QLatin1String("E216: No such group or event: nosuchevent * echo 1"));
+    QCOMPARE(error("doautocmd nosuchevent"),
+             QLatin1String("E216: No such group or event: nosuchevent"));
+    QCOMPARE(error("doautocmd nosuchevent x"),
+             QLatin1String("E216: No such group or event: nosuchevent x"));
+
+    // Having nothing to run is worth saying as well, and is no error. The list
+    // is shared with every other test slot, so the event is cleared first.
+    data.doCommand("autocmd! SwapExists");
+    QCOMPARE(error("doautocmd SwapExists"),
+             QLatin1String("No matching autocommands: SwapExists"));
+
+    // The word in front of the events is a group only where ":augroup" has
+    // declared one, and behind a group that is there it is the rest of the
+    // line that is named.
+    QCOMPARE(error("autocmd FvNoGroup BufRead * echo 1"),
+             QLatin1String("E216: No such group or event: FvNoGroup BufRead * echo 1"));
+    data.doCommand("augroup FvErrGroup");
+    data.doCommand("augroup END");
+    QCOMPARE(error("autocmd FvErrGroup nosuchevent * echo 1"),
+             QLatin1String("E216: No such event: nosuchevent * echo 1"));
+
+    // A group that is declared and empty is a group: nothing fires in it, and
+    // asking for its autocommands answers an empty list rather than E367.
+    QCOMPARE(error("doautocmd FvErrGroup"),
+             QLatin1String("No matching autocommands: FvErrGroup"));
+    QCOMPARE(error("echo autocmd_get({'group': 'FvErrGroup'})"), QLatin1String("[]"));
+    QCOMPARE(error("doautocmd FvErrGroup nosuchevent"),
+             QLatin1String("E216: No such event: nosuchevent"));
+    QCOMPARE(error("doautocmd FvErrGroup nosuchevent x"),
+             QLatin1String("E216: No such event: nosuchevent x"));
+
+    // A command that is about no lines refuses a range rather than ignoring
+    // one. Measured for all of these, in the long spelling and the short.
+    const QLatin1String noRange("E481: No range allowed");
+    QCOMPARE(error("1,2set ruler"), noRange);
+    QCOMPARE(error("1,2se ruler"), noRange);
+    QCOMPARE(error("1,2setlocal ruler"), noRange);
+    QCOMPARE(error("1,2setglobal ruler"), noRange);
+    QCOMPARE(error("1,2let g:x = 1"), noRange);
+    QCOMPARE(error("1,2unlet g:x"), noRange);
+    QCOMPARE(error("1,2echo 1"), noRange);
+    QCOMPARE(error("1,2ec 1"), noRange);
+    QCOMPARE(error("1,2echon 1"), noRange);
+    QCOMPARE(error("1,2echomsg 1"), noRange);
+    QCOMPARE(error("1,2echoerr 1"), noRange);
+    QCOMPARE(error("1,2execute \"echo 1\""), noRange);
+    QCOMPARE(error("1,2nohlsearch"), noRange);
+    QCOMPARE(error("1,2marks"), noRange);
+    QCOMPARE(error("1,2registers"), noRange);
+    QCOMPARE(error("1,2display"), noRange);
+    QCOMPARE(error("1,2jumps"), noRange);
+    QCOMPARE(error("1,2changes"), noRange);
+    QCOMPARE(error("1,2ascii"), noRange);
+    QCOMPARE(error("1,2pwd"), noRange);
+    QCOMPARE(error("1,2cd /tmp"), noRange);
+    QCOMPARE(error("1,2chdir /tmp"), noRange);
+    QCOMPARE(error("1,2redraw"), noRange);
+    QCOMPARE(error("1,2filetype"), noRange);
+    QCOMPARE(error("1,2augroup Foo"), noRange);
+    QCOMPARE(error("1,2autocmd BufRead * echo 1"), noRange);
+    QCOMPARE(error("1,2doautocmd BufRead"), noRange);
+    QCOMPARE(error("1,2source /dev/null"), noRange);
+    QCOMPARE(error("1,2runtime nosuch.vim"), noRange);
+    QCOMPARE(error("1,2history"), noRange);
+    QCOMPARE(error("1,2delmarks a"), noRange);
+    QCOMPARE(error("1,2undolist"), noRange);
+    QCOMPARE(error("1,2undojoin"), noRange);
+    QCOMPARE(error("1,2earlier"), noRange);
+    QCOMPARE(error("1,2later"), noRange);
+    QCOMPARE(error("1,2startinsert"), noRange);
+    QCOMPARE(error("1,2stopinsert"), noRange);
+    QCOMPARE(error("1,2command"), noRange);
+    QCOMPARE(error("1,2delcommand Foo"), noRange);
+    QCOMPARE(error("1,2comclear"), noRange);
+    QCOMPARE(error("1,2tags"), noRange);
+    QCOMPARE(error("1,2behave xterm"), noRange);
+    QCOMPARE(error("1,2language"), noRange);
+    QCOMPARE(error("1,2buffers"), noRange);
+    QCOMPARE(error("1,2ls"), noRange);
+    QCOMPARE(error("1,2files"), noRange);
+    QCOMPARE(error("1,2winsize 80 24"), noRange);
+    QCOMPARE(error("1,2winpos"), noRange);
+
+    // The mappings and the abbreviations refuse one in every mode.
+    QCOMPARE(error("1,2map x y"), noRange);
+    QCOMPARE(error("1,2nmap x y"), noRange);
+    QCOMPARE(error("1,2inoremap x y"), noRange);
+    QCOMPARE(error("1,2nunmap x"), noRange);
+    QCOMPARE(error("1,2mapclear"), noRange);
+    QCOMPARE(error("1,2imapclear"), noRange);
+    QCOMPARE(error("1,2abbreviate x y"), noRange);
+    QCOMPARE(error("1,2iabbrev x y"), noRange);
+    QCOMPARE(error("1,2unabbreviate x"), noRange);
+    QCOMPARE(error("1,2iabclear"), noRange);
+
+    // ":undo" takes a number and ":redo" nothing at all, so anything else
+    // behind either is trailing.
+    QCOMPARE(error("redo x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("redo 2"), QLatin1String("E488: Trailing characters: 2"));
+    QCOMPARE(error("jumps x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("ascii x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("pwd x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(error("pwd foo bar"), QLatin1String("E488: Trailing characters: foo bar"));
+
+    // A builtin takes a fixed number of arguments, and the count is what Vim
+    // complains about before it looks at what was passed at all.
+    const auto tooFew = [](const QString &name) {
+        return "E119: Not enough arguments for function: " + name;
+    };
+    const auto tooMany = [](const QString &name) {
+        return "E118: Too many arguments for function: " + name;
+    };
+    QCOMPARE(error("echo strlen()"), tooFew("strlen"));
+    QCOMPARE(error("echo len()"), tooFew("len"));
+    QCOMPARE(error("echo empty()"), tooFew("empty"));
+    QCOMPARE(error("echo tolower()"), tooFew("tolower"));
+    QCOMPARE(error("echo add([])"), tooFew("add"));
+    QCOMPARE(error("echo strlen('a', 'b')"), tooMany("strlen"));
+    QCOMPARE(error("echo indent(1, 2)"), tooMany("indent"));
+    QCOMPARE(error("echo argidx(1)"), tooMany("argidx"));
+    QCOMPARE(error("echo strlen('a')"), QLatin1String("1"));
+
+    // The bounds are measured and not read off Vim's help, which lists only
+    // the first of the forms a function has: mapset() takes one argument as
+    // well as three, getreg() three as well as two, and setcursorcharpos()
+    // one as well as two. What those forms then answer is another matter, so
+    // only the count is asserted here.
+    QString answer = error("echo mapset({})");
+    QVERIFY2(!answer.startsWith("E11"), qPrintable(answer));
+    QCOMPARE(error("echo mapset()"), tooFew("mapset"));
+    answer = error("echo getreg('a', 1, 1)");
+    QVERIFY2(!answer.startsWith("E11"), qPrintable(answer));
+    QCOMPARE(error("echo getreg('a', 1, 1, 1)"), tooMany("getreg"));
+    answer = error("echo setcursorcharpos(1, 1, 1)");
+    QVERIFY2(!answer.startsWith("E11"), qPrintable(answer));
+    QCOMPARE(error("echo setcursorcharpos(1, 1, 1, 1)"), tooMany("setcursorcharpos"));
+    answer = error("echo execute('echo 1', 'silent')");
+    QVERIFY2(!answer.startsWith("E11"), qPrintable(answer));
+    QCOMPARE(error("echo execute('echo 1', 'silent', 1)"), tooMany("execute"));
+
+    // printf() takes as many as Vim takes at all, nineteen behind the format,
+    // and instanceof() has no upper bound of its own.
+    QCOMPARE(error("echo printf('%d', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,"
+                   " 17, 18, 19)"),
+             tooMany("printf"));
+    answer = error("echo printf('%d', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,"
+                   " 17, 18)");
+    QVERIFY2(!answer.startsWith("E11"), qPrintable(answer));
+    QCOMPARE(error("echo instanceof(0)"), tooFew("instanceof"));
+    answer = error("echo instanceof(0, 0, 0, 0, 0, 0)");
+    QVERIFY2(!answer.startsWith("E11"), qPrintable(answer));
+
+    // Vim's parser takes at most twenty arguments for any function and says
+    // so before it looks up the name or what that one takes. In an expression
+    // it prints the name as it stands in the input, which runs on to the end
+    // of the expression, the way E116 does; ":call" parsed the name out of
+    // its argument beforehand, so there it comes out bare.
+    const auto numbers = [](int count) {
+        QStringList list;
+        for (int i = 1; i <= count; ++i)
+            list.append(QString::number(i));
+        return list.join(", ");
+    };
+    const QString over = numbers(21);
+    const QString full = numbers(20);
+    const auto overLimit = [](const QString &named) {
+        return "E740: Too many arguments for function " + named;
+    };
+    QCOMPARE(error(qPrintable("echo strlen(" + over + ")")),
+             overLimit("strlen(" + over + ")"));
+    QCOMPARE(error(qPrintable("call strlen(" + over + ")")), overLimit("strlen"));
+    QCOMPARE(error(qPrintable("echo strlen(" + full + ")")), tooMany("strlen"));
+    QCOMPARE(error(qPrintable("echo nosuchfunc(" + over + ")")),
+             overLimit("nosuchfunc(" + over + ")"));
+
+    // The value a method call pipes in does not count toward the limit, only
+    // what stands between the parentheses.
+    QCOMPARE(error(qPrintable("echo 'x'->strlen(" + over + ")")),
+             overLimit("strlen(" + over + ")"));
+    QCOMPARE(error(qPrintable("echo 'x'->strlen(" + full + ")")), tooMany("strlen"));
+
+    // E116 names the call the same two ways.
+    QCOMPARE(error("call strlen(1,"),
+             QLatin1String("E116: Invalid arguments for function strlen"));
+    QCOMPARE(error("echo strlen(1,"),
+             QLatin1String("E116: Invalid arguments for function strlen(1,"));
+
+    // A branch that is not taken counts nothing at all.
+    QCOMPARE(error(qPrintable("if 0 | echo strlen(" + over + ") | endif")), QString());
 }
 
 void FakeVimTester::test_vim_ex_normal()
@@ -9673,6 +10051,62 @@ void FakeVimTester::test_vim_tagstack()
     QCOMPARE(distance, -1);
     data.doCommand("tag");
     QCOMPARE(distance, 1);
+
+    // Walking past either end of the stack says so and still goes as far as it
+    // can, and a stack with nothing on it answers E73 for CTRL-T as well.
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    message.clear();
+    data.doKeys("<C-t>");
+    QCOMPARE(message, QString());
+    data.doKeys("3<C-t>");
+    QCOMPARE(message, QLatin1String("E555: At bottom of tag stack"));
+    QCOMPARE(distance, -3);
+    message.clear();
+    data.doCommand("tag");
+    QCOMPARE(message, QLatin1String("E556: At top of tag stack"));
+    QCOMPARE(distance, 1);
+
+    data.handler->tagStackContents.set(
+        [](QList<FakeVimHandler::TagStackEntry> *entries, int *at) {
+            entries->clear();
+            *at = 0;
+        });
+    distance = 0;
+    message.clear();
+    data.doKeys("<C-t>");
+    QCOMPARE(message, QLatin1String("E73: Tag stack empty"));
+    QCOMPARE(distance, 0);
+
+    // A tag jump follows a keyword, and nothing else: where none stands from
+    // the cursor on, Vim reports E349 instead of following the punctuation.
+    jumps = 0;
+    data.setText("+++ ---");
+    message.clear();
+    data.doKeys("<C-]>");
+    QCOMPARE(message, QLatin1String("E349: No identifier under cursor"));
+    message.clear();
+    data.doKeys("gd");
+    QCOMPARE(message, QLatin1String("E349: No identifier under cursor"));
+    data.setText("|   ");
+    message.clear();
+    data.doKeys("<C-]>");
+    QCOMPARE(message, QLatin1String("E349: No identifier under cursor"));
+    QCOMPARE(jumps, 0);
+
+    // Whitespace or punctuation in front of one still finds it.
+    data.setText("|   foo(1)");
+    data.doKeys("<C-]>");
+    QCOMPARE(jumps, 1);
+    QCOMPARE(tags.last(), QLatin1String("foo"));
+    data.setText("|+++ foo");
+    data.doKeys("<C-]>");
+    QCOMPARE(jumps, 2);
+    QCOMPARE(tags.last(), QLatin1String("foo"));
 }
 
 void FakeVimTester::test_vim_source_utf8()
@@ -10185,6 +10619,8 @@ void FakeVimTester::test_vim_plugin_buffer_lifecycle_events()
     // its handler is a plugin-managed one) is switched away from here, and
     // without the name it is not clear which buffer an event belongs to.
     data.doCommand("let g:bl = []");
+    data.doCommand("augroup FvBl");
+    data.doCommand("augroup END");
     for (const QString &event : QStringList{"BufNew", "BufAdd", "BufReadPre", "BufReadPost",
                                  "BufNewFile", "BufWinLeave", "BufUnload", "BufDelete",
                                  "BufHidden"}) {
@@ -10280,6 +10716,8 @@ void FakeVimTester::test_vim_plugin_window_events()
     };
 
     data.doCommand("let g:wl = []");
+    data.doCommand("augroup FvWin");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvWin WinNew * call add(g:wl, 'new:' . expand('<afile>'))");
     data.doCommand("autocmd FvWin WinClosed * call add(g:wl, 'closed:' . expand('<afile>'))");
 
@@ -12526,6 +12964,38 @@ void FakeVimTester::test_vim_script_error_numbers()
     // "v:exception" holds it in the shape a script reports or matches on.
     QCOMPARE(echo("g:ex"), QLatin1String("Vim:E121: Undefined variable: g:nosuchvar"));
     data.doCommand("unlet g:hit | unlet g:ok | unlet g:ex");
+
+    // Arithmetic on something that is not a number names the type it refuses,
+    // and the left hand side is the one named where both are wrong. A Float
+    // counts as a number everywhere but for the remainder.
+    const QLatin1String listAsNumber("E745: Using a List as a Number");
+    QCOMPARE(echo("[1,2] + 'a'"), listAsNumber);
+    QCOMPARE(echo("1 + [1]"), listAsNumber);
+    QCOMPARE(echo("[1] - 1"), listAsNumber);
+    QCOMPARE(echo("[1] * 2"), listAsNumber);
+    QCOMPARE(echo("1.0 + [1]"), listAsNumber);
+    QCOMPARE(echo("{} + 1"), QLatin1String("E728: Using a Dictionary as a Number"));
+    QCOMPARE(echo("{} * 2"), QLatin1String("E728: Using a Dictionary as a Number"));
+    QCOMPARE(echo("function('strlen') + 1"),
+             QLatin1String("E703: Using a Funcref as a Number"));
+    QCOMPARE(echo("function('strlen') / 2"),
+             QLatin1String("E703: Using a Funcref as a Number"));
+    const QLatin1String noFloatRemainder("E804: Cannot use '%' with Float");
+    QCOMPARE(echo("1.0 % 2"), noFloatRemainder);
+    QCOMPARE(echo("2 % 1.0"), noFloatRemainder);
+
+    // Using one as a string is refused the same way, with its own numbers.
+    QCOMPARE(echo("[1] . 'x'"), QLatin1String("E730: Using a List as a String"));
+    QCOMPARE(echo("{} . 'x'"), QLatin1String("E731: Using a Dictionary as a String"));
+    QCOMPARE(echo("function('strlen') . 'x'"),
+             QLatin1String("E729: Using a Funcref as a String"));
+
+    // A quotient by zero is the far end of the range a number can hold, and
+    // "0 / 0" the other end of it. A remainder by zero is zero.
+    QCOMPARE(echo("5 / 0"), QLatin1String("9223372036854775807"));
+    QCOMPARE(echo("-5 / 0"), QLatin1String("-9223372036854775807"));
+    QCOMPARE(echo("0 / 0"), QLatin1String("-9223372036854775808"));
+    QCOMPARE(echo("5 % 0"), QLatin1String("0"));
 }
 
 void FakeVimTester::test_vim_pattern_lookbehind_limit()
@@ -15462,10 +15932,7 @@ void FakeVimTester::test_vim_script_autocmd_get()
     };
     const QString mine = "autocmd_get({'group': 'FvGetTest'})";
 
-    // Defined by ":source", not by separate doCommand() calls: the suite's
-    // other autocommand tests do it that way, and an "augroup" block built up
-    // one command at a time does not register here - the same harness quirk a
-    // mapping whose right-hand side is ":call ...<CR>" runs into.
+    // Defined by ":source", the way the suite's other autocommand tests do it.
     QTemporaryDir dir;
     QVERIFY(dir.isValid());
     QFile f(dir.path() + "/ag.vim");
@@ -15612,9 +16079,9 @@ void FakeVimTester::test_vim_autocmd_bang_clears()
 {
     // ":autocmd!" with an event named CLEARS before it registers. Measured in
     // Vim 9.1. The autocommand list is shared with every other test slot, so
-    // everything here stays inside groups of its own, named per command rather
-    // than through an "augroup" block - one built up a line at a time does not
-    // register in this harness.
+    // everything here stays inside groups of its own, declared before they are
+    // named because Vim reads the word in front of the events as a group only
+    // where ":augroup" has declared one.
     TestData data;
     setup(&data);
     QString message;
@@ -15628,6 +16095,9 @@ void FakeVimTester::test_vim_autocmd_bang_clears()
         data.doCommand("echo " + expr);
         return message;
     };
+    data.doCommand("augroup FvBang");
+    data.doCommand("augroup FvBang2");
+    data.doCommand("augroup END");
     const auto seed = [&] {
         data.doCommand("autocmd! FvBang");
         data.doCommand("autocmd! FvBang2");
@@ -15709,6 +16179,9 @@ void FakeVimTester::test_vim_autocmd_bar()
         return message;
     };
 
+    data.doCommand("augroup FvBarA");
+    data.doCommand("augroup FvBarB");
+    data.doCommand("augroup END");
     data.doCommand("autocmd! FvBarA");
     data.doCommand("autocmd! FvBarB");
     data.doCommand("autocmd FvBarA User FvBar let g:a += 1");
@@ -15790,6 +16263,8 @@ void FakeVimTester::test_vim_autocmd_error_while_handling_key()
                 message = msg;
         });
 
+    data.doCommand("augroup FvErr");
+    data.doCommand("augroup END");
     data.doCommand("autocmd! FvErr");
     data.doCommand("autocmd FvErr User FvErrEvent call add(g:fvErrLog, 'fired')"
                    " | throw 'FvErrBoom'");
@@ -16094,6 +16569,8 @@ void FakeVimTester::test_vim_autocmd_textyankpost()
     // Each firing appends one line, so what fired and what it saw are both
     // readable afterwards - and so is a yank that fires nothing.
     data.doCommand("let g:yanks = []");
+    data.doCommand("augroup FvYank");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvYank TextYankPost * call add(g:yanks, v:event.operator"
                    " . ' ' . v:event.regtype . ' ' . string(v:event.regname)"
                    " . ' ' . string(v:event.visual) . ' ' . string(v:event.inclusive)"
@@ -16184,6 +16661,8 @@ void FakeVimTester::test_vim_autocmd_cmdline()
 
     data.setText("alpha beta" N "second line" N "third line");
     data.doCommand("let g:cl = []");
+    data.doCommand("augroup FvCl");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvCl CmdlineEnter * call add(g:cl, 'E' . expand('<afile>'))");
     data.doCommand("autocmd FvCl CmdlineLeave * call add(g:cl, 'L' . expand('<afile>')"
                    " . char2nr(v:char))");
@@ -16263,6 +16742,8 @@ void FakeVimTester::test_vim_autocmd_insertcharpre()
         data.doCommand("echo " + expr);
         return message;
     };
+    data.doCommand("augroup FvIc");
+    data.doCommand("augroup END");
     const auto clear = [&] { data.doCommand("autocmd! FvIc"); };
 
     // What it is handed: the character, no v:event, and a pattern matched
@@ -16386,6 +16867,8 @@ void FakeVimTester::test_vim_script_one_line_blocks()
     // really leaving insert mode rather than by ":doautocmd User", which drops
     // the name after the event and so could never match a pattern.
     reset();
+    data.doCommand("augroup FvOneLine");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvOneLine InsertLeave *"
                    " if 1 | call add(g:r, 'ac') | endif");
     data.doCommand("autocmd FvOneLine InsertLeave *"
@@ -16427,6 +16910,9 @@ void FakeVimTester::test_vim_doautocmd_arguments()
 
     data.setText("x");
     data.doCommand("let g:r = []");
+    data.doCommand("augroup FvDoA");
+    data.doCommand("augroup FvDoB");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvDoA User Foo call add(g:r, 'Foo:' . expand('<afile>'))");
     data.doCommand("autocmd FvDoA User Bar call add(g:r, 'Bar')");
     data.doCommand("autocmd FvDoA User * call add(g:r, 'star')");
@@ -16952,6 +17438,8 @@ void FakeVimTester::test_vim_command_cd()
     // DirChangedPre carries the new directory in v:event; both it and
     // DirChanged are matched against the SCOPE, not a file name.
     data.doCommand("let g:dc = []");
+    data.doCommand("augroup FvCd");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvCd DirChangedPre * call add(g:dc,"
                     " 'pre:' . expand('<amatch>') . ':' . get(v:event, 'directory', '?'))");
     data.doCommand("autocmd FvCd DirChanged * call add(g:dc, 'post:' . expand('<amatch>'))");
@@ -17805,6 +18293,8 @@ void FakeVimTester::test_vim_autocmd_filewrite()
     };
 
     data.doCommand("let g:w = []");
+    data.doCommand("augroup FvW");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvW BufWritePre * call add(g:w, 'bufpre')");
     data.doCommand("autocmd FvW BufWritePost * call add(g:w, 'bufpost')");
     data.doCommand("autocmd FvW FileWritePre * call add(g:w, 'filepre')");
@@ -17861,6 +18351,8 @@ void FakeVimTester::test_vim_autocmd_cmd_events()
         return value("string(g:w)");
     };
 
+    data.doCommand("augroup FvC");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvC BufWriteCmd * call add(g:w, 'bufwritecmd')");
     data.doCommand("autocmd FvC BufWritePre * call add(g:w, 'bufpre')");
     data.doCommand("autocmd FvC BufWritePost * call add(g:w, 'bufpost')");
@@ -18030,6 +18522,8 @@ void FakeVimTester::test_vim_command_write_append()
     QVERIFY(QFile::remove(target));
     data.setText("one" N "two" N "three");
     data.doCommand("let g:w = []");
+    data.doCommand("augroup FvWA");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvWA FileAppendPre * call add(g:w, 'pre:' . expand('<afile>'))");
     data.doCommand("autocmd FvWA FileAppendPost * call add(g:w, 'post')");
     data.doCommand("w! >> " + target);
@@ -18298,6 +18792,8 @@ void FakeVimTester::test_vim_read_from_command()
 
     // Vim counts reading from a command among the filters.
     data.doCommand("let g:f = []");
+    data.doCommand("augroup FvRd");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvRd ShellFilterPost * call add(g:f, 'filter')");
     three();
     data.doCommand("r !echo X");
@@ -18414,6 +18910,8 @@ void FakeVimTester::test_vim_autocmd_modechanged()
     };
 
     data.doCommand("let g:d = []");
+    data.doCommand("augroup FvMc");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvMc ModeChanged * call add(g:d, expand('<amatch>'))");
 
     // Into insert mode and out again.
@@ -18474,6 +18972,8 @@ void FakeVimTester::test_vim_autocmd_shell()
     };
 
     data.doCommand("let g:h = []");
+    data.doCommand("augroup FvSh");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvSh ShellCmdPost * call add(g:h, 'cmd')");
     data.doCommand("autocmd FvSh ShellFilterPost * call add(g:h, 'filter')");
 
@@ -18518,6 +19018,8 @@ void FakeVimTester::test_vim_autocmd_filter()
 
     data.setText("bbb" N "aaa" N "ccc");
     data.doCommand("let g:h = []");
+    data.doCommand("augroup FvFi");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvFi FilterWritePre * call add(g:h, 'wpre')");
     data.doCommand("autocmd FvFi FilterWritePost * call add(g:h, 'wpost')");
     data.doCommand("autocmd FvFi FilterReadPre * call add(g:h, 'rpre')");
@@ -18559,6 +19061,8 @@ void FakeVimTester::test_vim_autocmd_insertleavepre()
 
     data.setText("alpha beta");
     data.doCommand("let g:i = []");
+    data.doCommand("augroup FvIlp");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvIlp InsertLeavePre * call add(g:i, 'pre:' . v:insertmode)");
     data.doCommand("autocmd FvIlp InsertLeave * call add(g:i, 'leave:' . v:insertmode)");
 
@@ -18600,6 +19104,8 @@ void FakeVimTester::test_vim_autocmd_cmdlineleavepre()
 
     data.setText("alpha beta");
     data.doCommand("let g:p = []");
+    data.doCommand("augroup FvLp");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvLp CmdlineLeavePre * call add(g:p,"
                    " 'pre' . expand('<afile>') . char2nr(v:char))");
     data.doCommand("autocmd FvLp CmdlineLeave * call add(g:p,"
@@ -18656,6 +19162,8 @@ void FakeVimTester::test_vim_autocmd_source()
 
     data.setText("x");
     data.doCommand("let g:s = []");
+    data.doCommand("augroup FvSrc");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvSrc SourcePre * call add(g:s, 'pre')");
     data.doCommand("autocmd FvSrc SourcePost * call add(g:s, 'post')");
 
@@ -18712,6 +19220,8 @@ void FakeVimTester::test_vim_autocmd_cmdlinechanged()
 
     data.setText("alpha beta");
     data.doCommand("let g:c = []");
+    data.doCommand("augroup FvCc");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvCc CmdlineChanged * call add(g:c,"
                    " expand('<afile>') . getcmdline())");
 
@@ -18765,6 +19275,8 @@ void FakeVimTester::test_vim_autocmd_cursormovedc()
 
     data.setText("alpha beta");
     data.doCommand("let g:c = []");
+    data.doCommand("augroup FvMc");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvMc CmdlineChanged * call add(g:c,"
                    " 'changed:' . getcmdpos())");
     data.doCommand("autocmd FvMc CursorMovedC * call add(g:c,"
@@ -18822,6 +19334,8 @@ void FakeVimTester::test_vim_autocmd_keyinputpre()
 
     data.setText("abc");
     data.doCommand("let g:k = []");
+    data.doCommand("augroup FvKi");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvKi KeyInputPre * call add(g:k, keytrans(v:char))");
 
     // One for each key, in the order they are acted on.
@@ -18897,6 +19411,8 @@ void FakeVimTester::test_vim_autocmd_quickfixcmd()
     };
 
     data.doCommand("let g:q = []");
+    data.doCommand("augroup FvQf");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvQf QuickFixCmdPre * call add(g:q,"
                    " 'pre:' . expand('<amatch>'))");
     data.doCommand("autocmd FvQf QuickFixCmdPost * call add(g:q,"
@@ -23590,8 +24106,8 @@ void FakeVimTester::test_vim_command_window_size()
     // ":winsize" wants a width and a height in characters, which an IDE
     // window has no grid for - so only its three complaints are kept, and
     // each of the three is a different one.
-    QCOMPARE(run("winsize"), QLatin1String("E471: Argument required: winsize"));
-    QCOMPARE(run("wi"), QLatin1String("E471: Argument required: winsize"));
+    QCOMPARE(run("winsize"), QLatin1String("E471: Argument required"));
+    QCOMPARE(run("wi"), QLatin1String("E471: Argument required"));
     QCOMPARE(run("winsize x"), QLatin1String("E475: Invalid argument: x"));
     QCOMPARE(run("winsize x y"), QLatin1String("E475: Invalid argument: x y"));
     QCOMPARE(run("winsize 1"),
@@ -24091,6 +24607,8 @@ void FakeVimTester::test_vim_script_getcompletion()
     // Autocommand groups: Vim always has END.
     QCOMPARE(value("index(getcompletion('', 'augroup'), 'END') >= 0"),
              QLatin1String("1"));
+    data.doCommand("augroup FvGroupProbe");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvGroupProbe BufRead * echo 1");
     QCOMPARE(value("index(getcompletion('FvGroup', 'augroup'), 'FvGroupProbe') >= 0"),
              QLatin1String("1"));
@@ -25793,6 +26311,8 @@ void FakeVimTester::test_vim_autocmd_syntax()
     // The pattern is matched against the syntax NAME, not against a file name,
     // and the option already reads back as the new value while the
     // autocommand runs.
+    data.doCommand("augroup FvSy");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvSy Syntax * call add(g:s,"
                    " expand('<amatch>') . '/read=' . &syntax)");
 
@@ -25883,6 +26403,8 @@ void FakeVimTester::test_vim_autocmd_focus()
     };
 
     data.doCommand("let g:fo = []");
+    data.doCommand("augroup FvFo");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvFo FocusLost * call add(g:fo, 'lost')");
     data.doCommand("autocmd FvFo FocusGained * call add(g:fo, 'gained')");
 
@@ -25947,6 +26469,8 @@ void FakeVimTester::test_vim_autocmd_completedone()
     // Read member by member rather than through string(): this engine sorts
     // the keys of a dict where Vim prints them in the order they went in, and
     // that difference is no part of what is being checked here.
+    data.doCommand("augroup FvCd");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvCd CompleteDone * call add(g:cd,"
                    " v:completed_item.word)");
     data.doCommand("autocmd FvCd CompleteDone * call add(g:cd,"
@@ -26002,6 +26526,8 @@ void FakeVimTester::test_vim_autocmd_safestate()
 
     data.doCommand("let g:ss = 0");
     data.doCommand("let g:ssa = 0");
+    data.doCommand("augroup FvSs");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvSs SafeState * let g:ss = g:ss + 1");
     data.doCommand("autocmd FvSs SafeStateAgain * let g:ssa = g:ssa + 1");
 
@@ -26070,6 +26596,8 @@ void FakeVimTester::test_vim_autocmd_resized()
 
     data.doCommand("let g:wr = []");
     data.doCommand("let g:vr = 0");
+    data.doCommand("augroup FvRz");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvRz WinResized * call add(g:wr, v:event.windows)");
     data.doCommand("autocmd FvRz VimResized * let g:vr = g:vr + 1");
 
@@ -26145,6 +26673,8 @@ void FakeVimTester::test_vim_autocmd_menupopup()
 
     data.setText("alpha beta");
     data.doCommand("let g:mp = []");
+    data.doCommand("augroup FvMp");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvMp MenuPopup * call add(g:mp, expand('<amatch>'))");
 
     const auto popupIn = [&](const QString &keys) {
@@ -26198,6 +26728,8 @@ void FakeVimTester::test_vim_autocmd_insertchange()
 
     data.setText("abcdef");
     data.doCommand("let g:m = []");
+    data.doCommand("augroup FvIm");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvIm InsertEnter * call add(g:m, 'enter:' . v:insertmode)");
     data.doCommand("autocmd FvIm InsertChange * call add(g:m, 'change:' . v:insertmode)");
     data.doCommand("autocmd FvIm InsertLeave * call add(g:m, 'leave:' . v:insertmode)");
@@ -26249,6 +26781,8 @@ void FakeVimTester::test_vim_autocmd_funcundefined()
     };
 
     data.doCommand("let g:m = []");
+    data.doCommand("augroup FvFu");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvFu FuncUndefined * call add(g:m,"
                     " expand('<afile>') . ':' . expand('<amatch>'))");
     message.clear();
@@ -26312,6 +26846,8 @@ void FakeVimTester::test_vim_autocmd_cmdundefined()
     };
 
     data.doCommand("let g:m = []");
+    data.doCommand("augroup FvCu");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvCu CmdUndefined * call add(g:m,"
                     " expand('<afile>') . ':' . expand('<amatch>'))");
     message.clear();
@@ -26356,6 +26892,8 @@ void FakeVimTester::test_vim_autocmd_optionset()
 
     data.setText("x");
     data.doCommand("set noignorecase");
+    data.doCommand("augroup FvOs");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvOs OptionSet * call add(g:o, expand('<amatch>')"
                    " . ' ' . v:option_old . '->' . v:option_new"
                    " . ' ' . v:option_type . ' ' . v:option_command)");
@@ -26443,6 +26981,8 @@ void FakeVimTester::test_vim_autocmd_encodingchanged()
     // One firing reaches FileEncoding's registrations too - Vim treats the
     // two event names as one - so no order between those two is asserted.
     data.doCommand("let g:e = []");
+    data.doCommand("augroup FvEnc");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvEnc EncodingChanged * call add(g:e, 'enc')");
     data.doCommand("autocmd FvEnc OptionSet * call add(g:e, 'opt:' . expand('<amatch>'))");
     data.doCommand("set encoding=latin1");
@@ -26586,6 +27126,49 @@ void FakeVimTester::test_vim_substitute_count()
     four();
     data.doCommand("1,3substitute/a/X/ 1");
     QCOMPARE(data.text(), QString("ab" N "ab" N "Xb" N "ab"));
+}
+
+void FakeVimTester::test_vim_substitute_remembered()
+{
+    // What a ":substitute" that is refused leaves behind for the next one to
+    // repeat, measured in Vim 9.1: the pattern of the one before it stands,
+    // while the replacement and the flags of the refused one are taken.
+    TestData data;
+    setup(&data);
+    const auto five = [&] { data.setText("a" N "b" N "c" N "d" N "e"); };
+
+    five();
+    data.doCommand("1substitute/^/>/");
+    data.doCommand("2substitute/x/Q1/Q");   // E488: Trailing characters: Q
+    data.doCommand("2substitute");
+    data.doCommand("3substitute/x/Z1/0");   // E939: Positive count required
+    data.doCommand("3substitute");
+    data.doCommand("let @/ = ''");
+    data.doCommand("4substitute//W1/");     // E35: No previous regular expression
+    data.doCommand("4substitute");
+    QCOMPARE(data.text(), QString(">a" N "Q1b" N "Z1c" N "W1d" N "e"));
+
+    // The search register is not moved by one that is refused either.
+    five();
+    data.doCommand("1substitute/a/1/");
+    data.doCommand("2substitute/b/2/Q");
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    data.doCommand("echo @/");
+    QCOMPARE(message, QLatin1String("a"));
+
+    // A ":&&" behind it keeps the flags it was refused with, so the "g" of a
+    // command that never ran is what the next one substitutes with.
+    five();
+    data.doCommand("%substitute/^/aa/");
+    data.doCommand("1substitute/a/1/");
+    data.doCommand("2substitute/z/9/gQ");
+    data.doCommand("2&&");
+    QCOMPARE(data.text(), QString("1aa" N "99b" N "aac" N "aad" N "aae"));
 }
 
 void FakeVimTester::test_vim_script_flatten()
@@ -29395,15 +29978,25 @@ void FakeVimTester::test_vim_command_file()
     message.clear();
     data.doCommand("file");
     QCOMPARE(message, QLatin1String("\"fi.txt\" [Modified] 1 line --100%--"));
-    // A name of its own can be given.
+    // A name of its own can be given, after which the buffer counts as not
+    // edited until it is written to that name. The flags run together.
     data.doCommand("file other.txt");
-    QCOMPARE(message, QLatin1String("\"other.txt\" [Modified] 1 line --100%--"));
+    QCOMPARE(message, QLatin1String("\"other.txt\" [Modified][Not edited] 1 line --100%--"));
     QCOMPARE(data.handler->currentFileName(), QLatin1String("other.txt"));
+    message.clear();
+    data.doCommand("file");
+    QCOMPARE(message, QLatin1String("\"other.txt\" [Modified][Not edited] 1 line --100%--"));
+
+    // Naming it what it is called already counts all the same.
+    data.doCommand("file other.txt");
+    QCOMPARE(message, QLatin1String("\"other.txt\" [Modified][Not edited] 1 line --100%--"));
 
     // A rename fires BufFilePre with the OLD name and BufFilePost with the
     // NEW one - measured directly, both as <afile> and <amatch>. No argument
     // at all fires neither (measured explicitly, not assumed).
     data.doCommand("let g:bf = []");
+    data.doCommand("augroup FvBf");
+    data.doCommand("augroup END");
     data.doCommand("autocmd FvBf BufFilePre * "
                     "call add(g:bf, 'pre:' . expand('<afile>') . ':' . expand('<amatch>'))");
     data.doCommand("autocmd FvBf BufFilePost * "
@@ -29420,6 +30013,24 @@ void FakeVimTester::test_vim_command_file()
     QCOMPARE(message, QLatin1String("[]"));
     data.doCommand("autocmd! FvBf");
     data.doCommand("unlet! g:bf");
+
+    // Writing over the file it is named for is editing it again. Writing
+    // somewhere else is not, and neither is appending.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString target = dir.path() + "/fi.txt";
+    data.doCommand("file " + target);
+    message.clear();
+    data.doCommand("w! " + dir.path() + "/elsewhere.txt");
+    data.doCommand("file");
+    QVERIFY2(message.contains("[Not edited]"), qPrintable(message));
+    data.doCommand("w! >> " + target);
+    data.doCommand("file");
+    QVERIFY2(message.contains("[Not edited]"), qPrintable(message));
+    data.doCommand("w! " + target);
+    message.clear();
+    data.doCommand("file");
+    QVERIFY2(!message.contains("[Not edited]"), qPrintable(message));
 
     data.doCommand("set noruler");
 }
@@ -34604,6 +35215,9 @@ void FakeVimTester::test_vim_file_info()
     data.doKeys("<c-g>");
     QVERIFY2(message.contains("line 2 of 4"), qPrintable(message));
     QVERIFY2(message.contains("--50%--"), qPrintable(message));
+
+    // A buffer that has no name is named all the same, quotes and all.
+    QVERIFY2(message.startsWith("\"[No Name]\" [Modified]"), qPrintable(message));
 }
 
 void FakeVimTester::test_vim_ex_plugin_command_moves_cursor()

@@ -360,7 +360,7 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
     if (aspect == &tabStop || aspect == &shiftWidth) {
         const int minimum = aspect == &shiftWidth ? 0 : 1;
         if (value.toInt() < minimum)
-            return Tr::tr("Argument must be positive: %1=%2")
+            return Tr::tr("E487: Argument must be positive: %1=%2")
                     .arg(name).arg(value);
     }
     aspect->setVariantValue(value);

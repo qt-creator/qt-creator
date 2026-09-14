@@ -2705,6 +2705,7 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
             handler->triggerAutocmd("BufWritePre");
             saved = EditorManager::saveDocument(editor->document());
             if (saved) {
+                handler->markBufferWritten();
                 handler->triggerAutocmd("BufWritePost");
                 QFile file3(fileName);
                 if (file3.open(QIODevice::ReadOnly)) {
@@ -2955,20 +2956,17 @@ void FakeVimPlugin::tagJump(FakeVimHandler *handler, const QString &tag)
 
 void FakeVimPlugin::tagStackMove(FakeVimHandler *handler, int distance)
 {
+    Q_UNUSED(handler)
     if (distance < 0) {
         // CTRL-T / :pop - go back towards where the tag jumps started.
-        if (m_tagIndex == 0) {
-            handler->showMessage(MessageError, Tr::tr("at bottom of tag stack"));
+        if (m_tagIndex == 0)
             return;
-        }
         m_tagIndex = qMax(0, m_tagIndex + distance);
         EditorManager::openEditorAt(m_tagStack.at(m_tagIndex).from);
     } else if (distance > 0) {
         // bare :tag - re-follow towards the newest tag jump.
-        if (m_tagIndex >= m_tagStack.size()) {
-            handler->showMessage(MessageError, Tr::tr("at top of tag stack"));
+        if (m_tagIndex >= m_tagStack.size())
             return;
-        }
         m_tagIndex = qMin(m_tagStack.size(), m_tagIndex + distance);
         EditorManager::openEditorAt(m_tagStack.at(m_tagIndex - 1).from);
         triggerAction(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
