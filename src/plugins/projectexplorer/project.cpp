@@ -57,8 +57,10 @@
 
 #ifdef WITH_TESTS
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/hostosinfo.h>
 #include <utils/temporarydirectory.h>
 
+#include <QCoreApplication>
 #include <QEventLoop>
 #include <QSignalSpy>
 #include <QTest>
@@ -2172,6 +2174,22 @@ private slots:
     {
         bool requiresQt = QByteArray(QTest::currentDataTag()) == "qmake";
 
+        if (QByteArray(QTest::currentDataTag()) == "qbs") {
+            // How the qbs project manager finds its executable. A test run gets a
+            // throwaway settings directory, so usually only the fallbacks apply.
+            const QString exeName = HostOsInfo::withExecutableSuffix("qbs");
+            FilePath qbsExe = FilePath::fromSettings(
+                ICore::settings()->value("QbsProjectManager/QbsExecutable"));
+            if (!qbsExe.exists()) {
+                qbsExe = FilePath::fromString(QCoreApplication::applicationDirPath())
+                             .pathAppended(exeName);
+            }
+            if (!qbsExe.exists())
+                qbsExe = Environment::systemEnvironment().searchInPath(exeName);
+            if (qbsExe.isEmpty())
+                QSKIP("This test requires a configured qbs executable.");
+        }
+
         // Find suitable kit.
         Kit * const kit = findOr(KitManager::kits(), nullptr, [requiresQt](const Kit *k) {
             if (requiresQt) {
@@ -2237,6 +2255,7 @@ private slots:
             if (BuildManager::isBuilding()) {
                 QSignalSpy buildingFinishedSpy(BuildManager::instance(), &BuildManager::buildQueueFinished);
                 QVERIFY(buildingFinishedSpy.wait(10000));
+                QVERIFY2(buildingFinishedSpy.at(0).at(0).toBool(), "The build failed.");
             }
             QVERIFY(!BuildManager::isBuilding());
             QSignalSpy projectUpdateSpy(theProject.project(), &Project::fileListChanged);
