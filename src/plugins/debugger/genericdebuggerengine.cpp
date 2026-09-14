@@ -72,10 +72,16 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             this, &GenericDebuggerEngine::handleBreakpointEvent);
     connect(m_backend.get(), &DebuggerEngineInterface::locationChanged, this,
             [this](const FilePath &fileName, int lineNumber) {
-        if (!operatesByInstruction()) {
-            const FilePath cleanFileName = cleanupFullName(fileName.path());
-            gotoLocation(Location(cleanFileName.isEmpty() ? fileName : cleanFileName, lineNumber));
-        }
+        if (operatesByInstruction())
+            return;
+        const FilePath cleanFileName = cleanupFullName(fileName.path());
+        const FilePath file = cleanFileName.isEmpty() ? fileName : cleanFileName;
+        // Debug information names the file as the machine the binary was built on
+        // saw it, so a library built elsewhere points nowhere here. Opening that
+        // puts a modal complaint in front of a stop the user did not ask about.
+        if (!file.isReadableFile())
+            return;
+        gotoLocation(Location(file, lineNumber));
     });
     connect(m_backend.get(), &DebuggerEngineInterface::threadEvent, this,
             [this](ThreadEvent event, const GdbMi &data) {
