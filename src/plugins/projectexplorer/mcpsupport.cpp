@@ -127,7 +127,7 @@ struct ResolvedProjects
 };
 
 // Dual-key (projectName, projectPath) lookup.  When projectPath is supplied it
-// is authoritative — paths are always unique so projects.size() ≤ 1.  When
+// is authoritative - paths are always unique so projects.size() <= 1.  When
 // only projectName is supplied, multiple loaded projects may share it (e.g.
 // the same project open in two Git worktrees); callers detect this via
 // projects.size() > 1 and should return an "ambiguous_name" error with the
@@ -143,7 +143,7 @@ static ResolvedProjects resolveProjects(const QString &projectName,
         const bool pathMatches = !projectPath.isEmpty()
                                  && p->projectFilePath().toUserOutput() == projectPath;
         if (!projectPath.isEmpty()) {
-            // Path is authoritative when supplied — never name-match alongside it.
+            // Path is authoritative when supplied - never name-match alongside it.
             if (pathMatches)
                 result.projects.append(p);
         } else if (nameMatches) {
@@ -2353,7 +2353,7 @@ void registerMcpTools()
         QJsonObject issuesField{
             {"type", "object"},
             {"description",
-             "Build issues — present when the build failed; same shape as the Issues "
+             "Build issues - present when the build failed; same shape as the Issues "
              "pane's tasks"}};
         if (issSchema._properties) {
             QJsonObject props;

@@ -444,7 +444,7 @@ void registerMcpTools()
                                 {"description",
                                  "Tests with a Blacklisted{Pass,Fail,XPass,XFail} outcome. "
                                  "Qt Test treats these as 'result does not matter for overall "
-                                 "result' — the project has explicitly opted out. Counted "
+                                 "result' - the project has explicitly opted out. Counted "
                                  "here for completeness but NOT included in passed/failed and "
                                  "NOT listed in the failures[] array."}}},
                            {"total", QJsonObject{{"type", "integer"}}},
@@ -490,7 +490,7 @@ void registerMcpTools()
                       {"type", "array"},
                       {"description",
                        "Build errors/warnings from the pre-test build. Present only when "
-                       "summary.build_failed is true — folded in by test_run so the AI "
+                       "summary.build_failed is true - folded in by test_run so the AI "
                        "can diagnose the build failure without a separate build_get_issues "
                        "call. Objects with type, description, file, line and id. Absent "
                        "when the build succeeded."}})
@@ -560,16 +560,16 @@ void registerMcpTools()
                 "timeout. Equivalent to clicking Run (or Debug, with mode='debug') in "
                 "the Tests pane. Returns once the run finishes. "
                 "To see per-test details (messages, file/line, etc.), follow up with "
-                "test_get_details using ANY test name from the run — failures, "
+                "test_get_details using ANY test name from the run - failures, "
                 "warnings, or just a passing test you want to inspect. test_get_details "
                 "returns the full message log for every named test regardless of its "
                 "outcome; an empty messages[] means the test simply didn't emit anything. "
-                "NOTE: each call replaces the current snapshot — if the user has just "
+                "NOTE: each call replaces the current snapshot - if the user has just "
                 "run something interesting in the UI, call test_get_last_results first "
                 "instead of clobbering it."
                 "\n\n"
                 "Read `finished` first. When it is true the summary is this run's result. "
-                "When it is false nothing failed — the run simply has not ended yet, and "
+                "When it is false nothing failed - the run simply has not ended yet, and "
                 "the response carries a run_id, elapsed_ms and a reason of "
                 "\"still_running\", or \"joined_existing_run\" if the run it is waiting "
                 "for is one that was already going. "
@@ -577,8 +577,8 @@ void registerMcpTools()
                 "finished is true. Do not start a second run and do not sleep between "
                 "calls: each call does the waiting for you."
                 "\n\n"
-                "A run already going — whether this tool started it or the user hit Run in "
-                "the Tests pane — is joined rather than refused, so a repeated call cannot "
+                "A run already going - whether this tool started it or the user hit Run in "
+                "the Tests pane - is joined rather than refused, so a repeated call cannot "
                 "launch a competing run.")
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .inputSchema(
@@ -609,7 +609,7 @@ void registerMcpTools()
                              "CTest entries have none, so only the whole test runs. "
                              "Names typically come from `failures` or `tests_with_warnings` "
                              "in a previous summary, or from test_list. Names must already "
-                             "be present in Autotest's current model — if a name is not "
+                             "be present in Autotest's current model - if a name is not "
                              "found, call cmake_reconfigure first to trigger a re-parse (needed "
                              "after adding or renaming test functions)."}})
                     .addProperty(
@@ -775,7 +775,7 @@ void registerMcpTools()
                             body["run_id"] = qint64(state->generation);
                             body["summary_text"]
                                 = QString("Tests still running after %1 ms. Nothing has "
-                                          "failed — call test_run again with run_id:%2 to "
+                                          "failed - call test_run again with run_id:%2 to "
                                           "keep waiting.")
                                       .arg(elapsedMs)
                                       .arg(state->generation);
@@ -839,7 +839,7 @@ void registerMcpTools()
                         // summary() is whatever ran most recently, not this run.
                         QJsonObject body = noResultBody(
                             "superseded",
-                            QString("The results of run %1 are no longer available — another "
+                            QString("The results of run %1 are no longer available - another "
                                     "run replaced them. Call test_run again to re-run.")
                                 .arg(state->generation));
                         body["run_id"] = qint64(state->generation);
@@ -853,7 +853,7 @@ void registerMcpTools()
                         result["reason"] = "joined_existing_run";
                         result["summary_text"]
                             = QString("%1 (from a run already in progress, not the selection "
-                                      "requested — test_run again once it is done to run "
+                                      "requested - test_run again once it is done to run "
                                       "exactly what you asked for)")
                                   .arg(result.value("summary_text").toString());
                     }
@@ -1095,7 +1095,7 @@ void registerMcpTools()
             } else if (discoveryPending) {
                 deferUntilParsed();
             } else {
-                // Not found, parser idle — final answer.
+                // Not found, parser idle - final answer.
                 state->resolveError = resolved.error();
                 state->errorReason = "not_found";
                 state->finish(Schema::TaskStatus::failed, "Error");
@@ -1111,7 +1111,7 @@ void registerMcpTools()
             .title("Read the most recent test run summary")
             .description(
                 "Read-only summary of the most recent test run. Reflects whatever was "
-                "last executed — by test_run OR by the user clicking Run/Debug in the "
+                "last executed - by test_run OR by the user clicking Run/Debug in the "
                 "Tests pane. Returns counts plus name lists for failures and "
                 "tests-with-warnings. Use test_get_details with specific test names to "
                 "see per-test messages, file/line, and full debug log. Calling test_run "
@@ -1143,10 +1143,10 @@ void registerMcpTools()
         wrap([](const QJsonObject &) { return testRunStatus(); }));
 
     // Per-test item schema. Declared explicitly so consumers know exactly
-    // what fields each `tests[]` entry carries — and, critically, so the
+    // what fields each `tests[]` entry carries - and, critically, so the
     // `messages` field can carry its own absence-vs-filtering note (the
     // most common AI misconception is "empty messages means the tool
-    // filtered them" — it doesn't).
+    // filtered them" - it doesn't).
     const QJsonObject perTestMessageItemSchema{
         {"type", "object"},
         {"properties",
@@ -1177,7 +1177,7 @@ void registerMcpTools()
              {"failure",
               QJsonObject{{"type", "string"},
                           {"description",
-                           "The failure assertion(s) — FAIL!/Actual/Expected/Loc — or the "
+                           "The failure assertion(s) - FAIL!/Actual/Expected/Loc - or the "
                            "skip reason, extracted from the log. Present for failing or "
                            "skipped tests; read this first, it is small and actionable."}}},
              {"warnings",
@@ -1185,11 +1185,11 @@ void registerMcpTools()
                           {"description",
                            "Warning lines (QWARN/QCRITICAL) extracted from the log, plus "
                            "any warn-level messages. Present only when the test emitted "
-                           "warnings. Small — no need to fetch the full log."}}},
+                           "warnings. Small - no need to fetch the full log."}}},
              {"message",
               QJsonObject{{"type", "string"},
                           {"description",
-                           "Full test log (capped to the tail when very large — see "
+                           "Full test log (capped to the tail when very large - see "
                            "'truncated'). Use 'failure' for the assertion; this is the "
                            "surrounding context. Empty for a passing test with no output."}}},
              {"truncated",
@@ -1213,7 +1213,7 @@ void registerMcpTools()
                   {"description",
                    "Full log of qDebug/qInfo/qWarning/qCritical/qFatal messages "
                    "emitted DURING the test function, in arrival order. NOT "
-                   "filtered by pass/fail — an empty array means the test (and "
+                   "filtered by pass/fail - an empty array means the test (and "
                    "the production code paths it exercised) emitted nothing, "
                    "which is normal, not a bug. For passing tests this is the "
                    "place to look for qInfo() preconditions or sanity-check "
@@ -1228,9 +1228,9 @@ void registerMcpTools()
             .title("Get per-test details from the most recent run")
             .description(
                 "Per-test details for the named tests from the most recent run. By "
-                "default returns only the small, actionable fields — status, 'failure' "
+                "default returns only the small, actionable fields - status, 'failure' "
                 "(the extracted assertion for a failing test), 'warnings' (any warning "
-                "lines), file/line, duration — so a build/test/fix loop never has to "
+                "lines), file/line, duration - so a build/test/fix loop never has to "
                 "wade through a huge log. Names typically come from test_run / "
                 "test_get_last_results (`failures` / `tests_with_warnings`); unmatched "
                 "names appear in `not_found`."
@@ -1314,7 +1314,7 @@ void registerMcpTools()
             .description(
                 "Read-only: enumerate every test class Autotest currently knows "
                 "about, with its functions. Useful as a discovery step before "
-                "calling test_run — gives exact class and function names to pass "
+                "calling test_run - gives exact class and function names to pass "
                 "as test_run({scope: \"named\", names: [\"Class::function\"]}) "
                 "without guessing from build artifacts. Each entry carries the "
                 "framework label (e.g. \"Qt Test\", \"Google Test\"). "
@@ -1369,7 +1369,7 @@ void registerMcpTools()
                         // Only include directly-runnable test items.
                         // TestDataFunction (_data providers) and TestSpecialFunction
                         // (initTestCase / cleanupTestCase) are not independently
-                        // addressable — they run implicitly alongside the test.
+                        // addressable - they run implicitly alongside the test.
                         // TestCase children handle frameworks like GTest and Boost
                         // where individual tests are TestCase items under a TestSuite.
                         if (ct == TT::TestFunction || ct == TT::TestCase)

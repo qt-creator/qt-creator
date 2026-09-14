@@ -232,12 +232,12 @@ void registerMcpTools()
             .name("cmake_reconfigure")
             .title("Re-run CMake on a project")
             .description(
-                "Re-runs CMake on a project (equivalent to Build → Run CMake) and "
+                "Re-runs CMake on a project (equivalent to Build > Run CMake) and "
                 "blocks until CMake finishes. Returns a verdict: {succeeded, error_count, "
                 "warning_count, duration_ms, issues, summary_text}. Use after editing "
                 "CMakeLists.txt to add a target or test so the next build_project/test_run sees "
-                "the refreshed target list; the natural pattern is cmake_reconfigure → "
-                "build_project → test_run. Uses the startup project if 'project' is omitted.")
+                "the refreshed target list; the natural pattern is cmake_reconfigure -> "
+                "build_project -> test_run. Uses the startup project if 'project' is omitted.")
             .execution(ToolExecution().taskSupport(ToolExecution::TaskSupport::optional))
             .inputSchema(
                 Tool::InputSchema{}

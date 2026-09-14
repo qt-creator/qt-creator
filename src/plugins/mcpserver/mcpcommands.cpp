@@ -259,7 +259,7 @@ QJsonObject McpCommands::setFilePlainText(const QString &path, const QString &co
     // what to do next (e.g. on "file_open_with_unsaved_changes", ask the
     // user to save and retry; on "not_text_file", give up). Including a
     // human-readable `message` keeps the failure self-describing without
-    // forcing every caller to maintain a reason → message map.
+    // forcing every caller to maintain a reason -> message map.
     auto result = [](bool success, const QString &reason, const QString &message) {
         return QJsonObject{{"success", success}, {"reason", reason}, {"message", message}};
     };
@@ -275,7 +275,7 @@ QJsonObject McpCommands::setFilePlainText(const QString &path, const QString &co
 
     // If the file is open in an editor, route through the editor's
     // document so the user's view updates in-place. CRITICAL: refuse if
-    // the buffer is dirty — overwriting unsaved edits is silent data loss.
+    // the buffer is dirty - overwriting unsaved edits is silent data loss.
     if (auto *doc = Core::DocumentModel::documentForFilePath(filePath)) {
         if (auto *textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
             if (textDoc->isModified()) {
@@ -295,7 +295,7 @@ QJsonObject McpCommands::setFilePlainText(const QString &path, const QString &co
             return result(true, "ok_buffer_updated",
                           QStringLiteral(
                               "Updated the editor buffer in-place. The change "
-                              "is visible to the user but not yet on disk — "
+                              "is visible to the user but not yet on disk - "
                               "call editor_save to persist."));
         }
     }
@@ -396,7 +396,7 @@ bool McpCommands::closeFile(const QString &path)
 
     // Refuse to silently discard unsaved edits. The Core::EditorManager
     // variant we call below has askAboutModifiedEditors=false, so there
-    // is no user prompt — and an MCP caller can't respond to one anyway.
+    // is no user prompt - and an MCP caller can't respond to one anyway.
     // Caller must editor_save (or revert) before closing.
     if (doc->isModified()) {
         qCWarning(mcpCommands) << "Refusing to close modified document without save:" << path
@@ -1803,7 +1803,7 @@ void McpCommands::registerCommands()
                             {"description",
                              "Outcome category. Success values: "
                              "'ok_buffer_updated' (file open, buffer overwritten "
-                             "— call editor_save to persist) or 'ok_disk_write' "
+                             "- call editor_save to persist) or 'ok_disk_write' "
                              "(file not open, written to disk). Failure values "
                              "explain why the write was refused or failed."}})
                     .addProperty(
