@@ -2089,14 +2089,14 @@ endfunction()
 #]=]
 function(qtc_add_resources target resourceName)
   cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE;FILES_PREFIX" "FILES;OPTIONS;CONDITION" ${ARGN})
-  if (_arg_UNPARSED_ARGUMENTS)
+  if (rcc_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "qtc_add_resources had unparsed arguments!")
   endif()
 
-  if (NOT _arg_CONDITION)
-    set(_arg_CONDITION ON)
+  if (NOT rcc_CONDITION)
+    set(rcc_CONDITION ON)
   endif()
-  if (NOT (${_arg_CONDITION}))
+  if (NOT (${rcc_CONDITION}))
     return()
   endif()
 
