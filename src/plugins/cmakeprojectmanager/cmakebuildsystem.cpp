@@ -1633,6 +1633,18 @@ static FilePaths linkingBinaries(const QList<CMakeBuildTarget> &targets,
                 binaries << target.executable;
             continue;
         }
+        if (target.targetType == ObjectLibraryType) {
+            // An object library is not archived and so appears on no link line.
+            // Its objects turn up among the sources of whoever uses it, all of
+            // them, so the first one (resolved in "executable") finds them all.
+            if (target.executable.isEmpty())
+                continue;
+            for (const CMakeBuildTarget &other : targets) {
+                if (other.sourceFiles.contains(target.executable))
+                    pendingTargets << other.title;
+            }
+            continue;
+        }
         // Code from a static library ends up in whatever links it.
         const QString artifact = target.artifact.fileName();
         if (artifact.isEmpty())
@@ -1780,14 +1792,14 @@ private slots:
         shared.targetType = DynamicLibraryType;
         shared.artifact = "Shared.dll";
         shared.executable = "/b/Shared.dll";
-        shared.sourceFiles = {"/s/shared.cpp"};
+        shared.sourceFiles = {"/s/shared.cpp", "/b/Objects.dir/objects.cpp.o"};
         shared.linkedLibraryFileNames = {"Direct.lib"};
 
         CMakeBuildTarget direct;
         direct.title = "Direct";
         direct.targetType = StaticLibraryType;
         direct.artifact = "Direct.lib";
-        direct.sourceFiles = {"/s/direct.cpp"};
+        direct.sourceFiles = {"/s/direct.cpp", "/b/Objects.dir/objects.cpp.o"};
         direct.linkedLibraryFileNames = {"Nested.lib"};
 
         CMakeBuildTarget nested;
@@ -1796,17 +1808,28 @@ private slots:
         nested.artifact = "Nested.lib";
         nested.sourceFiles = {"/s/nested.cpp"};
 
+        // An object library reaching a binary directly through "Shared", and
+        // through the static library "Direct" as well.
+        CMakeBuildTarget objects;
+        objects.title = "Objects";
+        objects.targetType = ObjectLibraryType;
+        objects.artifact = "Objects.dir/objects.cpp.o";
+        objects.executable = "/b/Objects.dir/objects.cpp.o";
+        objects.sourceFiles = {"/s/objects.cpp"};
+
         CMakeBuildTarget utility;
         utility.title = "Utility";
         utility.sourceFiles = {"/s/utility.cpp"};
 
-        const QList<CMakeBuildTarget> targets{app, shared, direct, nested, utility};
+        const QList<CMakeBuildTarget> targets{app, shared, direct, nested, objects, utility};
 
         QCOMPARE(linkingBinaries(targets, "/s/main.cpp"), FilePaths{"/b/App.exe"});
         QCOMPARE(linkingBinaries(targets, "/s/shared.cpp"), FilePaths{"/b/Shared.dll"});
         QCOMPARE(Utils::sorted(linkingBinaries(targets, "/s/direct.cpp")),
                  FilePaths({"/b/App.exe", "/b/Shared.dll"}));
         QCOMPARE(Utils::sorted(linkingBinaries(targets, "/s/nested.cpp")),
+                 FilePaths({"/b/App.exe", "/b/Shared.dll"}));
+        QCOMPARE(Utils::sorted(linkingBinaries(targets, "/s/objects.cpp")),
                  FilePaths({"/b/App.exe", "/b/Shared.dll"}));
         QCOMPARE(linkingBinaries(targets, "/s/utility.cpp"), FilePaths());
         QCOMPARE(linkingBinaries(targets, "/s/unknown.cpp"), FilePaths());
