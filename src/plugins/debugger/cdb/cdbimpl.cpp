@@ -149,21 +149,24 @@ static bool checkCommandToken(const QString &tokenPrefix, const QString &line,
 static DebuggerEngineSetupData cdbImplSetupData()
 {
     DebuggerEngineSetupData data;
-    data.capabilities = AdditionalQmlStackCapability
-                      | AddWatcherCapability
+    // A dump has no thread to run, so only what can be read off it is left.
+    const unsigned coreCaps = AddWatcherCapability
+                            | CreateFullBacktraceCapability
+                            | DisassemblerCapability
+                            | OperateByInstructionCapability
+                            | RegisterCapability
+                            | ShowMemoryCapability;
+    data.attachToCoreCapabilities = coreCaps;
+    data.capabilities = coreCaps
+                      | AdditionalQmlStackCapability
                       | BreakConditionCapability
                       | BreakIndividualLocationsCapability
                       | BreakModuleCapability
                       | BreakOnThrowAndCatchCapability
-                      | CreateFullBacktraceCapability
-                      | DisassemblerCapability
                       | JumpToLineCapability
-                      | OperateByInstructionCapability
-                      | RegisterCapability
                       | ReloadModuleCapability
                       | ResetInferiorCapability
                       | RunToLineCapability
-                      | ShowMemoryCapability
                       | TracePointCapability
                       | WatchpointByAddressCapability;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
@@ -599,6 +602,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
     case ExecutionCommand::RunToFunction: {
         const QString id = nextBreakpointId();
         m_internalBreakpointIds.insert(id);
+        m_runToBreakpointIds.append(id);
         QString cmd = "bu" + id + " /1 ";
         if (request.command == ExecutionCommand::RunToFunction) {
             cmd += request.functionName;
@@ -614,6 +618,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
             for (quint64 address : ambiguousMatchAddresses(response.data.data().split('\n'))) {
                 const QString subId = nextBreakpointId();
                 m_internalBreakpointIds.insert(subId);
+                m_runToBreakpointIds.append(subId);
                 runCommand({"bu" + subId + " /1 " + hexAddress(address), NoFlags});
             }
             m_expectSpontaneousStop = true;
@@ -1752,6 +1757,7 @@ void CdbImpl::restartSession()
     m_parentForSubBreakpointId.clear();
     m_conditionForBreakpointId.clear();
     m_internalBreakpointIds.clear();
+    m_runToBreakpointIds.clear();
     m_breakpointHitCounts.clear();
     m_pythonVersion = 0;
     m_interpreterResolverIds.clear();
@@ -2827,6 +2833,15 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         }});
         return;
     }
+    if (!m_runToBreakpointIds.isEmpty()) {
+        // "/1" removes only the breakpoint that fired, so the other locations of an
+        // ambiguous run-to target would stop a later run.
+        runCommand({"bc " + m_runToBreakpointIds.join(' '), NoFlags});
+        for (const QString &id : std::as_const(m_runToBreakpointIds))
+            m_internalBreakpointIds.remove(id);
+        m_runToBreakpointIds.clear();
+    }
+
     const GdbMi stack = stopData["stack"];
     m_atNativeToQmlBoundary = m_startData.nativeMixed && atNativeToQmlBoundary(stack);
     if (stack.childCount() > 0) {

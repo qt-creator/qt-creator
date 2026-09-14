@@ -935,6 +935,14 @@ static QString printCommand(Backend backend, const QString &expression)
     return {};
 }
 
+static QString decimalLiteral(Backend backend, const QString &digits)
+{
+    // "0n" spells the number out in decimal: cdb reads a bare one as hex, and
+    // echoes a 64-bit value with a backtick between its halves, which would
+    // break the digits apart.
+    return backend == Backend::Cdb ? "0n" + digits : digits;
+}
+
 static GdbMi findItemByIName(const GdbMi &data, const QString &iname)
 {
     if (data["iname"].data() == iname)
@@ -7017,7 +7025,7 @@ void tst_backends::executesRawCommandAndAssignsValue()
         if (channel != Debugger::LogInput)
             messages.append(text);
     });
-    engine->executeDebuggerCommand(printCommand(backend, "123456789"), {});
+    engine->executeDebuggerCommand(printCommand(backend, decimalLiteral(backend, "123456789")), {});
     QTRY_VERIFY_WITH_TIMEOUT(std::any_of(messages.cbegin(), messages.cend(),
                                          [](const QString &text) {
         return text.contains("123456789");

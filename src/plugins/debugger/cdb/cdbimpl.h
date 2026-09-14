@@ -233,6 +233,8 @@ private:
 
     QSet<QString> m_internalBreakpointIds;
 
+    QStringList m_runToBreakpointIds;
+
     QHash<QString, QString> m_parentForSubBreakpointId;
 
     QHash<QString, QString> m_conditionForBreakpointId;
