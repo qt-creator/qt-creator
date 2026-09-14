@@ -89,6 +89,7 @@ private slots:
     void testCdbImplBreakpointStopMessages();
     void testCdbImplStepIntoLanding();
     void testCdbImplScriptMessages();
+    void testCdbImplBreakpointInsertCommand();
     void testMapsAnEmptyFileNameToNothing();
     void testCdbSourcePathMapping();
     void testCdbBreakpointFileName();
@@ -859,6 +860,90 @@ void DebuggerUnitTests::testCdbImplScriptMessages()
 
     // An empty entry is not worth a log line of its own.
     QVERIFY(scriptMessages(reply(R"(msg=[""])")).isEmpty());
+}
+
+void DebuggerUnitTests::testCdbImplBreakpointInsertCommand()
+{
+    const auto atLine = [] {
+        BreakpointParameters params(BreakpointByFileAndLine);
+        params.fileName = FilePath::fromUserInput("C:/src/main.cpp");
+        params.textPosition.line = 42;
+        return params;
+    };
+    // cdb takes a file name the way the device the file lives on spells it, so
+    // the expected commands carry that spelling rather than a fixed one.
+    const QString source = FilePath::fromUserInput("C:/src/main.cpp").nativePath();
+    const QString buildSource = FilePath::fromUserInput("X:/buildsrv/main.cpp").nativePath();
+
+    // The plain cases, as cdb spells them.
+    BreakpointParameters params = atLine();
+    QCOMPARE(breakpointInsertCommand(params, "7", {}),
+             QString("bu7 `" + source + ":42`"));
+
+    params.module = "app.exe";
+    QCOMPARE(breakpointInsertCommand(params, "7", {}),
+             QString("bu7 `app.exe!" + source + ":42`"));
+
+    // Break on a memory address, offered as "Break on Memory Address".
+    params = BreakpointParameters(BreakpointByAddress);
+    params.address = 0x401000;
+    QCOMPARE(breakpointInsertCommand(params, "7", {}), QString("bu7 0x401000"));
+
+    // A watchpoint reads and writes, and a size of its own.
+    params = BreakpointParameters(WatchpointAtAddress);
+    params.address = 0x401000;
+    params.size = 4;
+    QCOMPARE(breakpointInsertCommand(params, "7", {}), QString("ba7 r4 0x401000"));
+
+    // Break when a new process is executed: cdb has no such event, so it is a
+    // breakpoint on what starts one.
+    params = BreakpointParameters(BreakpointAtExec);
+    QCOMPARE(breakpointInsertCommand(params, "7", {}),
+             QString("bu7 kernel32!CreateProcessW"));
+
+    // Break when "main" starts, and only the first time round.
+    params = BreakpointParameters(BreakpointAtMain);
+    params.module = "app.exe";
+    QCOMPARE(breakpointInsertCommand(params, "7", {}), QString("bu7 /1 app.exe!main"));
+
+    // The thread a breakpoint is restricted to comes before the command.
+    params = atLine();
+    params.threadSpec = 2;
+    QCOMPARE(breakpointInsertCommand(params, "7", {}),
+             QString("~2 bu7 `" + source + ":42`"));
+
+    // cdb counts the passes it takes to stop, the view counts the ones to let by.
+    params = atLine();
+    params.ignoreCount = 3;
+    QCOMPARE(breakpointInsertCommand(params, "7", {}),
+             QString("bu7 `" + source + ":42` 0n4"));
+
+    // What to run on a hit.
+    params = atLine();
+    params.command = ".echo here";
+    QCOMPARE(breakpointInsertCommand(params, "7", {}),
+             QString("bu7 `" + source + ":42` \".echo here\""));
+
+    // The file name cdb matches is the one the inferior was built from, so the
+    // source path mapping has to be applied the other way round.
+    params = atLine();
+    const QList<QPair<QString, QString>> map{{"X:/buildsrv", "C:/src"}};
+    QCOMPARE(breakpointInsertCommand(params, "7", map),
+             QString("bu7 `" + buildSource + ":42`"));
+
+    // Unless the user asked for the file name alone.
+    params.pathUsage = BreakpointUseShortPath;
+    QCOMPARE(breakpointInsertCommand(params, "7", map), QString("bu7 `main.cpp:42`"));
+
+    // A function resolved to an address keeps everything but its location.
+    params = BreakpointParameters(BreakpointByFunction);
+    params.functionName = "runFoo";
+    params.ignoreCount = 1;
+    QCOMPARE(breakpointInsertCommand(params, "7", {}, "0x401000"),
+             QString("bu7 0x401000 0n2"));
+
+    // Nothing cdb could break on.
+    QVERIFY(breakpointInsertCommand(BreakpointParameters(BreakpointAtFork), "7", {}).isEmpty());
 }
 
 // A session without a build configuration - an attach, or a foreign debug

@@ -44,6 +44,12 @@ DEBUGGER_EXPORT GdbMi resolvedBreakpointUpdates(
     const QList<QPair<QString, QString>> &sourcePathMap,
     const QHash<QString, QString> &conditions);
 
+DEBUGGER_EXPORT QString breakpointInsertCommand(
+    const BreakpointParameters &params,
+    const QString &id,
+    const QList<QPair<QString, QString>> &sourcePathMap,
+    const QString &location = {});
+
 class DEBUGGER_EXPORT CdbImplSearchPaths
 {
 public:
@@ -197,11 +203,10 @@ private:
         quint64 entryAddress = 0;
     };
     static void parseFunctionDisassembly(const QString &reply, ResolvedFunction *function);
-    void insertFunctionBreakpoint(quint64 requestId, const QString &id, bool enabled,
-                                  const QString &module, const QString &functionName,
-                                  bool report);
-    void setResolvedFunctionBreakpoints(quint64 requestId, const QString &id, bool enabled,
-                                        const QString &functionName,
+    void insertFunctionBreakpoint(quint64 requestId, const QString &id,
+                                  const BreakpointParameters &params, bool report);
+    void setResolvedFunctionBreakpoints(quint64 requestId, const QString &id,
+                                        const BreakpointParameters &params,
                                         const QList<ResolvedFunction> &functions,
                                         bool report);
     void reportBreakpointInserted(quint64 requestId, const QString &id, bool enabled,
