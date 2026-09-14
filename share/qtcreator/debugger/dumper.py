@@ -1221,6 +1221,15 @@ class DumperBase():
     def filterPrefix(self, prefix, items):
         return [i[len(prefix):] for i in items if i.startswith(prefix)]
 
+    # The interpreter service reports a string in 'value' as plain text while
+    # naming its encoding 'utf16', which the reader takes to mean hex-encoded
+    # UTF-16. Encode it here, where the flavour the service uses is known.
+    def encodeInterpreterStrings(self, item):
+        if item.get('valueencoded', '') == 'utf16':
+            item['value'] = hexencode_(str(item.get('value', '')).encode('utf-16-le'))
+        for child in item.get('children', []):
+            self.encodeInterpreterStrings(child)
+
     def tryFetchInterpreterVariables(self, args):
         if not int(args.get('nativemixed', 0)):
             return (False, '')
@@ -1239,6 +1248,7 @@ class DumperBase():
         for item in res.get('variables', {}):
             if 'iname' not in item:
                 item['iname'] = '.' + item.get('name')
+            self.encodeInterpreterStrings(item)
             reslist.append(self.variablesToMi(item, 'local'))
 
         watchers = args.get('watchers', None)
@@ -1266,6 +1276,7 @@ class DumperBase():
                     item['iname'] = iname
                     item['wname'] = self.hexencode(expr)
                     item['exp'] = expr
+                    self.encodeInterpreterStrings(item)
                     reslist.append(self.variablesToMi(item, 'watch'))
 
         return (True, 'data=[%s]' % ','.join(reslist))
