@@ -12,6 +12,7 @@
 #include <utils/filepath.h>
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
+#include <utils/storekey.h>
 
 #include <chrono>
 #include <functional>
@@ -327,6 +328,11 @@ signals:
 
     void notResponding(std::chrono::seconds waited, const QStringList &pendingCommands,
                        NotRespondingCause cause = NotRespondingCause::Unknown);
+
+    // Something the user can act on kept the session from starting. Shown once
+    // per settingsKey, so a key of its own per distinct cause.
+    void startFailed(const QString &title, const QString &message,
+                     const Utils::Key &settingsKey);
 
     void interruptTerminalRequested();
     void kickoffTerminalProcessRequested();

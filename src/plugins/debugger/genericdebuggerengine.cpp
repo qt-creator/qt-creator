@@ -135,6 +135,11 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             this, &GenericDebuggerEngine::handleSignalReceived);
     connect(m_backend.get(), &DebuggerEngineInterface::notResponding,
             this, &GenericDebuggerEngine::handleNotResponding);
+    connect(m_backend.get(), &DebuggerEngineInterface::startFailed,
+            this, [this](const QString &title, const QString &message, const Key &settingsKey) {
+        showMessage(message, LogError);
+        CheckableMessageBox::information(title, message, settingsKey);
+    });
     connect(m_backend.get(), &DebuggerEngineInterface::refreshDataReceived, this,
             [this](quint64, RefreshKind kind, const GdbMi &data) {
         switch (kind) {

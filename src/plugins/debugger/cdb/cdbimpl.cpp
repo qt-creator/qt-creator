@@ -2466,6 +2466,20 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
     while (isCdbPrompt(line))
         line.remove(0, CdbPromptLength);
 
+    static const QString secureDenial = "SECURE: File not allowed to be loaded";
+    if (!m_initialSessionIdleHandled && line.startsWith(secureDenial)
+            && line.endsWith("qtcreatorcdbext.dll")) {
+        const QString blocked = line.mid(secureDenial.size()).trimmed();
+        emit startFailed(Tr::tr("Debugger Start Failed"),
+                         Tr::tr("The system prevents loading of \"%1\", which is required for "
+                                "debugging. Make sure that your antivirus solution is up to date "
+                                "and if that does not work consider adding an exception for "
+                                "\"%1\".").arg(blocked),
+                         Key("SecureInfoCdbextCannotBeLoaded"));
+        emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+        return;
+    }
+
     static const QString extPrefix = "<qtcreatorcdbext>|";
     if (line.size() > extPrefix.size() && line.startsWith(extPrefix)) {
         const char type = char(line.at(extPrefix.size()).unicode());
