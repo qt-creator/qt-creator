@@ -3023,6 +3023,13 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         m_runToBreakpointIds.clear();
     }
 
+    const QString stackError = stopData["stackerror"].data();
+    if (!stackError.isEmpty())
+        emit message(stackError, LogError);
+    const QString threadError = stopData["threaderror"].data();
+    if (!threadError.isEmpty())
+        emit message(threadError, LogError);
+
     const GdbMi stack = stopData["stack"];
     m_atNativeToQmlBoundary = m_startData.nativeMixed && atNativeToQmlBoundary(stack);
     if (stack.childCount() > 0) {
