@@ -53,8 +53,6 @@ public:
 
     bool supportsQtTargetDeviceType(const QSet<Utils::Id> &targetDeviceTypes) const override;
 
-    void toMap(Utils::Store &map) const override;
-
     Utils::Result<> supportsBuildingProject(const Utils::FilePath &projectDir) const override;
 
 public: // FilePath stuff

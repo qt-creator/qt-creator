@@ -210,6 +210,7 @@ public:
     QString displayType;
     Id type;
     IDevice::Origin origin = IDevice::AutoDetected;
+    bool persistent = true;
     Id id;
     IDevice::MachineType machineType = IDevice::Hardware;
     SynchronizedValue<OsType> osType = OsTypeOther;
@@ -937,6 +938,27 @@ bool IDevice::isAutoDetected() const
 bool IDevice::isFromSdk() const
 {
     return d->origin == AddedBySdk;
+}
+
+/*!
+    Returns whether the device is written to the device settings, and is
+    therefore there again the next time Qt Creator is started.
+
+    \sa setPersistent()
+*/
+bool IDevice::isPersistent() const
+{
+    return d->persistent;
+}
+
+/*!
+    Keeps the device out of the device settings if \a persistent is \c false.
+
+    \sa isPersistent()
+*/
+void IDevice::setPersistent(bool persistent)
+{
+    d->persistent = persistent;
 }
 
 /*!

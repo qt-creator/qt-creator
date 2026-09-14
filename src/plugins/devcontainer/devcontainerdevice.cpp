@@ -53,6 +53,7 @@ Device::Device()
     setupId(IDevice::AutoDetected, Id::generate());
     setType(Constants::DEVCONTAINER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
+    setPersistent(false);
     setFileAccessFactory([this] { return m_fileAccess; });
 }
 
@@ -759,11 +760,6 @@ Result<> Device::supportsBuildingProject(const FilePath &projectDir) const
             "The project directory \"%1\" is not inside the development container workspace folder \"%2\".")
             .arg(projectDir.toUserOutput())
             .arg(m_instanceConfig.workspaceFolder.toUserOutput()));
-}
-
-void Device::toMap(Store &map) const
-{
-    Q_UNUSED(map);
 }
 
 } // namespace DevContainer

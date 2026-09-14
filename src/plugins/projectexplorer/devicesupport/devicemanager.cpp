@@ -245,10 +245,11 @@ Store DeviceManager::toMap()
     map.insert(DefaultDevicesKey, variantFromStore(defaultDeviceMap));
     QVariantList deviceList;
     for (const IDevice::Ptr &device : std::as_const(d->devices)) {
+        if (!device->isPersistent())
+            continue;
         Store store;
         device->toMap(store);
-        if (store.isEmpty())
-            continue;
+        QTC_ASSERT(!store.isEmpty(), continue);
         deviceList << variantFromStore(store);
     }
     for (const Store &store : std::as_const(d->unrestoredDevices))
