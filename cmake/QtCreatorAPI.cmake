@@ -1285,6 +1285,7 @@ endfunction()
                        [COMPONENT <component>]
                        [CONDITION <condition>...]
                        [BUILD_DEFAULT <ON|OFF>]
+                       [INTERNAL_ONLY]
                        [DEPENDS <library>...]
                        [SOURCES <file>...]
                        [DEFINES <define>...]
@@ -1320,6 +1321,9 @@ endfunction()
     What ``BUILD_EXECUTABLE_<NAME>`` defaults to.  Defaults to
     ``BUILD_EXECUTABLES_BY_DEFAULT``, and the environment variable
     ``QTC_BUILD_EXECUTABLE_<NAME>`` overrides either.
+
+  ``INTERNAL_ONLY``
+    The program is left out of the report of what is built.
 
   ``DEPENDS <library>...``
     The libraries to link.
@@ -1378,6 +1382,7 @@ endfunction()
 #]=]
 function(add_qtc_executable name)
   set(opt_args
+    INTERNAL_ONLY
     SKIP_INSTALL
     SKIP_TRANSLATION
     ALLOW_ASCII_CASTS
