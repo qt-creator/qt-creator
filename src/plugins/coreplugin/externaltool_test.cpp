@@ -15,6 +15,7 @@
 #include "icore.h"
 
 #include <utils/aggregate.h>
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/macroexpander.h>
 #include <utils/plaintextedit/plaintextedit.h>
@@ -33,7 +34,7 @@ class ExternalToolTest final : public QObject
     Q_OBJECT
 
 public:
-    enum Field { Executable, Arguments, Input, WorkingDirectory };
+    enum Field { Executable, Arguments, Input, WorkingDirectory, Environment };
 
 private slots:
     void testEmptyVariables_data();
@@ -53,6 +54,7 @@ static void addCommandFieldRows()
     QTest::newRow("arguments") << int(ExternalToolTest::Arguments);
     QTest::newRow("input") << int(ExternalToolTest::Input);
     QTest::newRow("workingDirectory") << int(ExternalToolTest::WorkingDirectory);
+    QTest::newRow("environment") << int(ExternalToolTest::Environment);
 }
 
 static void setupTool(ExternalTool *tool, int field, const QString &variable)
@@ -63,6 +65,10 @@ static void setupTool(ExternalTool *tool, int field, const QString &variable)
     tool->setInput(field == ExternalToolTest::Input ? variable : QString());
     tool->setWorkingDirectory(
         FilePath::fromString(field == ExternalToolTest::WorkingDirectory ? variable : QString()));
+    EnvironmentChanges environment;
+    if (field == ExternalToolTest::Environment)
+        environment.setItemsFromUser({{"QTC_EXTERNALTOOL_TEST_VAR", variable}});
+    tool->setEnvironmentUserChanges(environment);
 }
 
 void ExternalToolTest::testEmptyVariables_data()

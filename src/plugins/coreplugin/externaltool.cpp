@@ -118,6 +118,9 @@ static QStringList commandStrings(const ExternalTool &tool)
     for (const FilePath &executable : tool.executables())
         strings << executable.toUrlishString();
     strings << tool.arguments() << tool.input() << tool.workingDirectory().toUrlishString();
+    // Only the items the user typed: reading the environment file would mean
+    // file access, or sourcing a script, on every menu or context change.
+    strings << EnvironmentItem::toStringList(tool.environmentUserChanges().itemsFromUser());
     return strings;
 }
 
