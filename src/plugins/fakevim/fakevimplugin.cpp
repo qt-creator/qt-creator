@@ -2942,21 +2942,37 @@ static Link currentEditorLink()
     return {};
 }
 
+// Follow the symbol under the cursor the way the FOLLOW_SYMBOL_UNDER_CURSOR
+// action does, and answer the handler whether one was found: looking a symbol
+// up is asynchronous, so the answer arrives after the key has been handled.
+static void followSymbolUnderCursor(FakeVimHandler *handler)
+{
+    BaseTextEditor *editor = BaseTextEditor::currentTextEditor();
+    TextEditorWidget *widget = editor ? editor->editorWidget() : nullptr;
+    if (!widget) {
+        handler->tagJumpAnswered(false);
+        return;
+    }
+    widget->openLinkUnderCursor([handler = QPointer<FakeVimHandler>(handler)](bool opened) {
+        if (handler)
+            handler->tagJumpAnswered(opened);
+    });
+}
+
 void FakeVimPlugin::tagJump(FakeVimHandler *handler, const QString &tag)
 {
-    Q_UNUSED(handler)
     // A new tag jump discards any entries we had moved back past, records the
-    // current location and the symbol being followed, and follows it.
+    // current location and the symbol being followed, and follows it. Vim
+    // records the level even where the tag turns out not to be there.
     while (m_tagStack.size() > m_tagIndex)
         m_tagStack.removeLast();
     m_tagStack.append({currentEditorLink(), tag});
     m_tagIndex = m_tagStack.size();
-    triggerAction(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
+    followSymbolUnderCursor(handler);
 }
 
 void FakeVimPlugin::tagStackMove(FakeVimHandler *handler, int distance)
 {
-    Q_UNUSED(handler)
     if (distance < 0) {
         // CTRL-T / :pop - go back towards where the tag jumps started.
         if (m_tagIndex == 0)
@@ -2969,7 +2985,7 @@ void FakeVimPlugin::tagStackMove(FakeVimHandler *handler, int distance)
             return;
         m_tagIndex = qMin(m_tagStack.size(), m_tagIndex + distance);
         EditorManager::openEditorAt(m_tagStack.at(m_tagIndex - 1).from);
-        triggerAction(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
+        followSymbolUnderCursor(handler);
     }
 }
 

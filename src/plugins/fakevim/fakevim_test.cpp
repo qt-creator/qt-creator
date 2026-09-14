@@ -10107,6 +10107,27 @@ void FakeVimTester::test_vim_tagstack()
     data.doKeys("<C-]>");
     QCOMPARE(jumps, 2);
     QCOMPARE(tags.last(), QLatin1String("foo"));
+
+    // Looking the symbol up belongs to the editor and is asynchronous, so the
+    // answer comes back afterwards: a tag that was not found is E426. It is
+    // taken once, and "gd" wants none at all, Vim saying nothing where it
+    // finds no definition (measured).
+    data.setText("one two three");
+    data.doCommand("tag nosuch");
+    message.clear();
+    data.handler->tagJumpAnswered(false);
+    QCOMPARE(message, QLatin1String("E426: Tag not found: nosuch"));
+    message.clear();
+    data.handler->tagJumpAnswered(false);
+    QCOMPARE(message, QString());
+    data.doCommand("tag nosuch");
+    message.clear();
+    data.handler->tagJumpAnswered(true);
+    QCOMPARE(message, QString());
+    data.doKeys("gd");
+    message.clear();
+    data.handler->tagJumpAnswered(false);
+    QCOMPARE(message, QString());
 }
 
 void FakeVimTester::test_vim_source_utf8()

@@ -3592,6 +3592,10 @@ public:
     int m_lastRemovalPosition = -1; // where text was taken away, to see a replace
     int m_indentLine = 0; // the line an 'indentexpr' is being asked about, for v:lnum
 
+    // The tag a jump was asked for, kept until the editor answers whether it
+    // found the symbol. Empty where the answer is not wanted.
+    QString m_pendingTagJump;
+
     QString m_currentFileName;
     // ":file {name}" has named the buffer since it was last written, which is
     // what "[Not edited]" reports until a write to that name clears it again.
@@ -3967,6 +3971,7 @@ public:
     bool sourceAlongRuntimePath(const QString &relative, bool all);
     bool handleExTagsCommand(const ExCommand &cmd);
     bool isTagStackEmpty();
+    void requestTagJump(const QString &tag, bool reportNotFound = true);
     void moveOnTagStack(int distance);
     QString tagUnderCursor() const;
     bool takeTypedAheadLine(QString *line);
@@ -8027,12 +8032,13 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
             setAnchor();
         }
     } else if (g.gflag && input.is('d')) {
-        // gd: go to definition of the symbol under the cursor.
+        // gd: go to definition of the symbol under the cursor. Vim beeps where
+        // it finds none and says nothing (measured), so no answer is wanted.
         const QString tag = tagUnderCursor();
         if (tag.isEmpty())
             showMessage(MessageError, Tr::tr("E349: No identifier under cursor"));
         else
-            q->tagJumpRequested(tag);
+            requestTagJump(tag, false);
     } else if (g.gflag && (input.is('f') || input.is('F'))) {
         // gf: open the file named under the cursor; gF at the line named behind
         // it. What may stand in a name is what 'isfname' says.
@@ -8509,7 +8515,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         if (tag.isEmpty())
             showMessage(MessageError, Tr::tr("E349: No identifier under cursor"));
         else
-            q->tagJumpRequested(tag);
+            requestTagJump(tag);
     } else if (input.is('K')) {
         q->contextHelpRequested();
     } else if (input.key() == Key_AsciiCircum
@@ -11149,6 +11155,14 @@ bool FakeVimHandler::Private::isTagStackEmpty()
     return entries.isEmpty();
 }
 
+// Following a tag, which the editor answers only later: what was followed is
+// kept so that the answer can name it.
+void FakeVimHandler::Private::requestTagJump(const QString &tag, bool reportNotFound)
+{
+    m_pendingTagJump = reportNotFound ? tag : QString();
+    q->tagJumpRequested(tag);
+}
+
 // Walking the tag stack, which reports reaching past either end and still goes
 // as far as it can, so the message is ours and the clamping is the editor's
 // (measured).
@@ -11188,7 +11202,7 @@ bool FakeVimHandler::Private::handleExTagCommand(const ExCommand &cmd)
         if (cmd.args.isEmpty())
             moveOnTagStack(count());
         else
-            q->tagJumpRequested(cmd.args.trimmed());
+            requestTagJump(cmd.args.trimmed());
         return true;
     }
     if (cmd.matches("po", "pop")) {
@@ -11227,7 +11241,7 @@ bool FakeVimHandler::Private::handleExTagCommand(const ExCommand &cmd)
                 showMessage(MessageError, Tr::tr("E73: Tag stack empty"));
             return true;
         }
-        q->tagJumpRequested(tag);
+        requestTagJump(tag);
         return true;
     }
     return false;
@@ -33285,6 +33299,18 @@ void FakeVimHandler::showMessage(MessageLevel level, const QString &msg)
 void FakeVimHandler::markBufferWritten()
 {
     d->m_notEdited = false;
+}
+
+void FakeVimHandler::tagJumpAnswered(bool found)
+{
+    const QString tag = d->m_pendingTagJump;
+    d->m_pendingTagJump.clear();
+    if (found || tag.isEmpty())
+        return;
+    // The answer arrives on its own, outside any key being handled, so the
+    // mini buffer needs telling.
+    d->showMessage(MessageError, Tr::tr("E426: Tag not found: %1").arg(tag));
+    d->updateMiniBuffer();
 }
 
 void FakeVimHandler::triggerCompleteDone(const QString &word)
