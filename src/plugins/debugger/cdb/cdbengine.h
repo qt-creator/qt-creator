@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "cdbimpl.h"
+
 #include <debugger/debuggerengine.h>
 #include <debugger/breakhandler.h>
 
@@ -220,6 +222,7 @@ private:
     mutable QStringDecoder m_cdbOutputDecoder;
 };
 
+CdbImplStartData cdbImplStartData(const DebuggerRunParameters &rp);
 DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp);
 void addCdbOptionPages(QList<Core::IOptionsPage*> *opts);
 

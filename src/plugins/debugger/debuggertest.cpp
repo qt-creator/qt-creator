@@ -5,6 +5,8 @@
 
 #include "debuggertest.h"
 
+#include "cdb/cdbengine.h"
+#include "cdb/cdbimpl.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
@@ -79,6 +81,8 @@ private slots:
     void testRegisterValue();
 
     void testInferiorStartData();
+    void testCdbImplStartData();
+    void testCdbImplCommandLine();
     void testMapsAnEmptyFileNameToNothing();
 
     void testQtBuildSourceRoots_data();
@@ -471,6 +475,100 @@ void DebuggerUnitTests::testInferiorStartData()
         QCOMPARE(remoteData->attachPid.pid(), 4711);
         QVERIFY(remoteData->remoteExecutable.isEmpty());
     }
+}
+
+void DebuggerUnitTests::testCdbImplStartData()
+{
+    // A local cdb takes the extension shipping next to Qt Creator.
+    {
+        DebuggerRunParameters rp;
+        rp.setInferiorExecutable("C:/build/tst_inferior.exe");
+
+        const CdbImplStartData data = cdbImplStartData(rp);
+        QCOMPARE(data.extensionFileName, QString("qtcreatorcdbext.dll"));
+        QVERIFY(data.extensionDir.fileName().startsWith("qtcreatorcdbext"));
+    }
+
+    // A cdb on a device takes the one on the device, from the subdirectory matching
+    // its architecture. Nothing of the cdb binary is readable here, so the default
+    // 64 bit Intel applies.
+    {
+        DebuggerRunParameters rp;
+        rp.setDebugger({CommandLine(FilePath::fromParts(u"ssh", u"somehost", u"C:/dbg/cdb.exe"))});
+        rp.setInferiorExecutable("C:/build/tst_inferior.exe");
+        rp.setCdbExtensionPath(FilePath::fromParts(u"ssh", u"somehost", u"C:/qtc/ext"));
+
+        const CdbImplStartData data = cdbImplStartData(rp);
+        QCOMPARE(data.extensionFileName, QString("qtcreatorcdbext.dll"));
+        QCOMPARE(data.extensionDir,
+                 FilePath::fromParts(u"ssh", u"somehost", u"C:/qtc/ext/qtcreatorcdbext64"));
+    }
+
+    // Without a configured extension path there is nothing to load on the device.
+    {
+        DebuggerRunParameters rp;
+        rp.setDebugger({CommandLine(FilePath::fromParts(u"ssh", u"somehost", u"C:/dbg/cdb.exe"))});
+        rp.setInferiorExecutable("C:/build/tst_inferior.exe");
+
+        QVERIFY(cdbImplStartData(rp).extensionFileName.isEmpty());
+    }
+}
+
+void DebuggerUnitTests::testCdbImplCommandLine()
+{
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath root = FilePath::fromString(tmpDir.path());
+    const FilePath extensionDir = root / "qtcreatorcdbext64";
+    QVERIFY(extensionDir.ensureWritableDir());
+    const FilePath extension = extensionDir / "qtcreatorcdbext.dll";
+    QVERIFY(extension.writeFileContents("MZ"));
+    const FilePath inferiorDir = root / "build";
+    QVERIFY(inferiorDir.ensureWritableDir());
+
+    CdbImplStartData startData;
+    startData.debuggerRunData.command = CommandLine(root / "cdb.exe");
+    startData.extensionDir = extensionDir;
+    startData.extensionFileName = extension.fileName();
+    ProcessRunData inferior;
+    inferior.command = CommandLine(inferiorDir / "tst_inferior.exe");
+    inferior.workingDirectory = inferiorDir;
+    startData.inferiorStartData = inferior;
+
+    const QString idleCommand(".idle_cmd !qtcreatorcdbext.idle");
+
+    // A local cdb finds the extension by name, through _NT_DEBUGGER_EXTENSION_PATH.
+    {
+        CdbImpl cdb(startData);
+        QVERIFY(cdb.setupProcess());
+        const QStringList args = cdb.m_cdbProc.commandLine().splitArguments();
+        QVERIFY(args.contains("-aqtcreatorcdbext.dll"));
+        QVERIFY(!args.contains("-cf"));
+        QCOMPARE(args.value(args.indexOf("-c") + 1), idleCommand);
+        QVERIFY(cdb.m_initScriptFile.isEmpty());
+    }
+
+    // A cdb on a device gets no environment, so the extension is loaded by its
+    // absolute path, from a startup script staged next to the inferior.
+    {
+        CdbImplStartData deviceData = startData;
+        deviceData.debuggerRunData.command
+            = CommandLine(FilePath::fromParts(u"ssh", u"somehost", u"C:/dbg/cdb.exe"));
+
+        CdbImpl cdb(deviceData);
+        QVERIFY(cdb.setupProcess());
+        const QStringList args = cdb.m_cdbProc.commandLine().splitArguments();
+        QVERIFY(!args.contains("-aqtcreatorcdbext.dll"));
+        QVERIFY(!args.contains("-c"));
+        const int scriptIndex = args.indexOf("-cf") + 1;
+        QVERIFY(scriptIndex > 0);
+        QCOMPARE(args.at(scriptIndex), cdb.m_initScriptFile.nativePath());
+        QCOMPARE(cdb.m_initScriptFile.parentDir(), inferiorDir);
+        const QByteArray script = cdb.m_initScriptFile.fileContents().value_or(QByteArray());
+        QCOMPARE(QString::fromLocal8Bit(script),
+                 ".load " + extension.nativePath() + '\n' + idleCommand + '\n');
+    }
+
 }
 
 // A session without a build configuration - an attach, or a foreign debug

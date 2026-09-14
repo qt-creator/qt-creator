@@ -3381,7 +3381,23 @@ static QString cdbImplCrtDebugReportModule(const DebuggerRunParameters &rp)
     return {};
 }
 
-static CdbImplStartData cdbImplStartData(const DebuggerRunParameters &rp)
+// The extension has to match cdb's architecture. For a local cdb it ships next to
+// Qt Creator, for a cdb on a remote Windows device it lives on the device, in the
+// per-architecture subdirectory of the extension path configured for it.
+static FilePath cdbImplExtensionLibrary(const DebuggerRunParameters &rp, bool is64Bit, bool isArm)
+{
+    if (rp.debugger().command.executable().isLocal())
+        return FilePath::fromString(CdbEngine::extensionLibraryName(is64Bit, isArm));
+    if (rp.cdbExtensionPath().isEmpty())
+        return {};
+    const QString archSubDir = QLatin1String(QT_CREATOR_CDB_EXT)
+                               + QLatin1String(isArm ? "arm" : "")
+                               + QLatin1String(is64Bit ? "64" : "32");
+    return rp.cdbExtensionPath().pathAppended(archSubDir)
+        .pathAppended(QLatin1String(QT_CREATOR_CDB_EXT ".dll"));
+}
+
+CdbImplStartData cdbImplStartData(const DebuggerRunParameters &rp)
 {
     bool cdbIs64Bit = true;
     bool cdbIsArm = false;
@@ -3391,13 +3407,13 @@ static CdbImplStartData cdbImplStartData(const DebuggerRunParameters &rp)
         cdbIs64Bit = abi.wordWidth() == 64;
         cdbIsArm = abi.architecture() == Abi::Architecture::ArmArchitecture;
     }
-    const QFileInfo extensionFi(CdbEngine::extensionLibraryName(cdbIs64Bit, cdbIsArm));
+    const FilePath extension = cdbImplExtensionLibrary(rp, cdbIs64Bit, cdbIsArm);
     const DebuggerSettings &s = settings();
     return {
         .debuggerRunData = rp.debugger(),
         .inferiorStartData = cdbImplInferiorStartData(rp),
-        .extensionDir = FilePath::fromString(extensionFi.absolutePath()),
-        .extensionFileName = extensionFi.fileName(),
+        .extensionDir = extension.parentDir(),
+        .extensionFileName = extension.fileName(),
         .dumperScriptsDir = Core::ICore::resourcePath("debugger"),
         .searchPaths = cdbImplSearchPaths(rp),
         .breakEvents = s.cdbBreakEvents(),

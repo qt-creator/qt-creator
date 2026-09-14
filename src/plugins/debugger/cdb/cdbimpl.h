@@ -6,6 +6,7 @@
 #include "../debuggerengineinterface.h"
 
 #include <utils/filepath.h>
+#include <utils/result.h>
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
@@ -71,6 +72,12 @@ public:
     ~CdbImpl() override;
 
 private:
+#ifdef WITH_TESTS
+    friend class DebuggerUnitTests;
+#endif
+
+    Utils::Result<Utils::FilePath> stageInitScript(const QString &commands);
+    Utils::Result<> setupProcess();
     void start() final;
     void shutdownInferior(ShutdownMode mode) final;
     void shutdownEngine() final;
@@ -176,6 +183,7 @@ private:
 
     CdbImplStartData m_startData;
     Utils::Process m_cdbProc;
+    Utils::FilePath m_initScriptFile;
     QTimer m_watchdog;
 
     QString m_extensionCommandPrefix = "!qtcreatorcdbext.";

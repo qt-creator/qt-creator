@@ -8,15 +8,18 @@
 #include "../breakpoint.h"
 #include "../debuggerconstants.h"
 #include "../debuggerinternalconstants.h"
+#include "../debuggertr.h"
 #include "../shared/hostutils.h"
 
 #include <utils/qtcassert.h>
 
 #include <QDir>
+#include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
+#include <QUuid>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -201,9 +204,126 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     m_cdbProc.setProcessMode(ProcessMode::Writer);
     m_cdbProc.setUseCtrlCStub(m_startData.useCtrlCStub);
 
+    m_watchdog.setSingleShot(true);
+    m_watchdog.setInterval(m_startData.watchdogTimeout);
+    connect(&m_watchdog, &QTimer::timeout, this, [this] {
+        QStringList pending;
+        for (const DebuggerCommand &cmd : std::as_const(m_commandForToken))
+            pending << cmd.function;
+        for (const DebuggerCommand &cmd : std::as_const(m_deferredCommands))
+            pending << cmd.function;
+        if (pending.isEmpty())
+            return;
+        m_watchdog.start();
+        emit notResponding(m_startData.watchdogTimeout, pending);
+    });
+
+    m_cdbProc.setStdOutLineCallback([this](const QString &line) {
+        restartWatchdog();
+        handleCdbOutputLine(line);
+    });
+    m_cdbProc.setStdErrLineCallback([this](const QString &line) {
+        emit message(line.endsWith('\n') ? line.chopped(1) : line, LogError);
+    });
+    connect(&m_cdbProc, &Process::done, this, [this] {
+        m_watchdog.stop();
+        if (!m_initScriptFile.isEmpty()) {
+            m_initScriptFile.removeFile();
+            m_initScriptFile.clear();
+        }
+        // A session that ends before it ever opened never came up, whatever the
+        // process made of it: a debugger that cannot be run at all and one that
+        // runs and gives up are the same failure from here.
+        if (m_cdbProc.result() == ProcessResult::StartFailed || !m_initialSessionIdleHandled) {
+            m_isResetRestart = false;
+            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+            emit engineProcessFinished(m_cdbProc.resultData());
+            return;
+        }
+        if (m_isResetRestart) {
+            // Process::start() must not be called from one of its own signal handlers.
+            QMetaObject::invokeMethod(this, [this] { restartSession(); }, Qt::QueuedConnection);
+            return;
+        }
+        emit engineProcessFinished(m_cdbProc.resultData());
+    });
+}
+
+CdbImpl::~CdbImpl()
+{
+    m_shuttingDown = true;
+    if (m_cdbProc.isRunning())
+        m_cdbProc.kill();
+}
+
+// cdb reads its startup script where it runs itself, so the script is staged
+// next to the inferior.
+Result<Utils::FilePath> CdbImpl::stageInitScript(const QString &commands)
+{
+    FilePath dir;
+    if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
+        const auto &runData = std::get<ProcessRunData>(m_startData.inferiorStartData);
+        dir = runData.workingDirectory.isEmpty() ? runData.command.executable().parentDir()
+                                                 : runData.workingDirectory;
+    }
+    if (dir.isEmpty())
+        dir = m_startData.debuggerRunData.command.executable().parentDir();
+    const FilePath scriptFile
+        = dir / ("qtc-cdb-" + QUuid::createUuid().toString(QUuid::Id128) + ".cmd");
+    if (const Result<qint64> res = scriptFile.writeFileContents(commands.toLocal8Bit()); !res) {
+        return ResultError(Tr::tr("Cannot write the debugger startup script \"%1\": %2")
+                               .arg(scriptFile.toUserOutput(), res.error()));
+    }
+    return scriptFile;
+}
+
+Result<> CdbImpl::setupProcess()
+{
+    const FilePath cdbExecutable = m_startData.debuggerRunData.command.executable();
+    if (m_startData.extensionFileName.isEmpty())
+        return ResultError(Tr::tr("No CDB extension directory is configured for the device."));
+    const FilePath extension = m_startData.extensionDir / m_startData.extensionFileName;
+    if (!extension.isFile()) {
+        if (!cdbExecutable.isLocal()) {
+            return ResultError(Tr::tr("The CDB extension \"%1\" cannot be found on the device.")
+                                   .arg(extension.toUserOutput()));
+        }
+        return ResultError(
+            Tr::tr("Internal error: The extension %1 cannot be found.\n"
+                   "If you have updated %2 via Maintenance Tool, you may "
+                   "need to rerun the Tool and select \"Add or remove components\" "
+                   "and then select the "
+                   "Qt > Tools > Qt Creator CDB Debugger Support component.\n"
+                   "If you build %2 from sources and want to use a CDB executable "
+                   "with another bitness than your %2 build, "
+                   "you will need to build a separate CDB extension with the "
+                   "same bitness as the CDB you want to use.")
+                .arg(extension.toUserOutput(), QGuiApplication::applicationDisplayName()));
+    }
+
     CommandLine cdbCommand = m_startData.debuggerRunData.command;
-    cdbCommand.addArg("-a" + m_startData.extensionFileName);
-    cdbCommand.addArgs({"-lines", "-G", "-c", ".idle_cmd " + m_extensionCommandPrefix + "idle"});
+    // "-a<name>" takes a bare DLL name, which cdb resolves through
+    // _NT_DEBUGGER_EXTENSION_PATH. That variable does not reach a cdb on a device: the
+    // process runs in ProcessMode::Writer, for which the device process interface injects
+    // no environment (a shell wrapper would corrupt the command stream). Load the extension
+    // by its absolute device path instead, from a startup script, as ".load" needs the full
+    // path and consumes the rest of the line, so it cannot share the single "-c" string
+    // with ".idle_cmd".
+    const bool loadExtensionByPath = !cdbExecutable.isLocal();
+    if (!loadExtensionByPath)
+        cdbCommand.addArg("-a" + m_startData.extensionFileName);
+    const QString idleCommand = ".idle_cmd " + m_extensionCommandPrefix + "idle";
+    cdbCommand.addArgs({"-lines", "-G"});
+    if (loadExtensionByPath) {
+        const Result<FilePath> scriptFile
+            = stageInitScript(".load " + extension.nativePath() + '\n' + idleCommand + '\n');
+        if (!scriptFile)
+            return ResultError(scriptFile.error());
+        m_initScriptFile = *scriptFile;
+        cdbCommand.addArgs({"-cf", m_initScriptFile.nativePath()});
+    } else {
+        cdbCommand.addArgs({"-c", idleCommand});
+    }
     const CdbImplSearchPaths &paths = m_startData.searchPaths;
     if (!paths.sourcePaths.isEmpty())
         cdbCommand.addArgs({"-srcpath", paths.sourcePaths.join(';')});
@@ -237,7 +357,9 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     ProcessRunData runData = m_startData.debuggerRunData;
     if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
         const auto &inferiorRunData = std::get<ProcessRunData>(m_startData.inferiorStartData);
-        cdbCommand.addArg(inferiorRunData.command.executable().toUserOutput());
+        // nativePath(), not toUserOutput(): for a remote inferior the latter yields the
+        // urlish "ssh://host/C:/..." form, which cdb on the device cannot open.
+        cdbCommand.addArg(inferiorRunData.command.executable().nativePath());
         cdbCommand.addArgs(inferiorRunData.command.arguments(), CommandLine::Raw);
         runData = inferiorRunData;
     } else if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
@@ -266,57 +388,16 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
         }
     }
     m_cdbProc.setEnvironment(env);
-
-    m_watchdog.setSingleShot(true);
-    m_watchdog.setInterval(m_startData.watchdogTimeout);
-    connect(&m_watchdog, &QTimer::timeout, this, [this] {
-        QStringList pending;
-        for (const DebuggerCommand &cmd : std::as_const(m_commandForToken))
-            pending << cmd.function;
-        for (const DebuggerCommand &cmd : std::as_const(m_deferredCommands))
-            pending << cmd.function;
-        if (pending.isEmpty())
-            return;
-        m_watchdog.start();
-        emit notResponding(m_startData.watchdogTimeout, pending);
-    });
-
-    m_cdbProc.setStdOutLineCallback([this](const QString &line) {
-        restartWatchdog();
-        handleCdbOutputLine(line);
-    });
-    m_cdbProc.setStdErrLineCallback([this](const QString &line) {
-        emit message(line.endsWith('\n') ? line.chopped(1) : line, LogError);
-    });
-    connect(&m_cdbProc, &Process::done, this, [this] {
-        m_watchdog.stop();
-        // A session that ends before it ever opened never came up, whatever the
-        // process made of it: a debugger that cannot be run at all and one that
-        // runs and gives up are the same failure from here.
-        if (m_cdbProc.result() == ProcessResult::StartFailed || !m_initialSessionIdleHandled) {
-            m_isResetRestart = false;
-            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
-            emit engineProcessFinished(m_cdbProc.resultData());
-            return;
-        }
-        if (m_isResetRestart) {
-            // Process::start() must not be called from one of its own signal handlers.
-            QMetaObject::invokeMethod(this, [this] { restartSession(); }, Qt::QueuedConnection);
-            return;
-        }
-        emit engineProcessFinished(m_cdbProc.resultData());
-    });
-}
-
-CdbImpl::~CdbImpl()
-{
-    m_shuttingDown = true;
-    if (m_cdbProc.isRunning())
-        m_cdbProc.kill();
+    return ResultOk;
 }
 
 void CdbImpl::start()
 {
+    if (const Result<> res = setupProcess(); !res) {
+        emit message(res.error(), LogError);
+        emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+        return;
+    }
     emit message(QString("Launching %1").arg(m_cdbProc.commandLine().toUserOutput()), LogMisc);
     m_cdbProc.start();
 }

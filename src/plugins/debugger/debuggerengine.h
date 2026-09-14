@@ -207,6 +207,7 @@ public:
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &items) {
         m_debugger.environment.modify(items);
     }
+    void setDebugger(const Utils::ProcessRunData &runnable) { m_debugger = runnable; }
     Utils::ProcessRunData debugger() const { return m_debugger; }
 
     // Directory of the qtcreatorcdbext.dll arch subdirs on a remote Windows device. Empty for
