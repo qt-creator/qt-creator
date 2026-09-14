@@ -7,6 +7,7 @@
 #include "qtparser.h"
 #include "qtsupportconstants.h"
 #include "qtsupporttr.h"
+#include "qtsupportutils.h"
 #include "qttestparser.h"
 #include "qtversionfactory.h"
 #include "qtversionmanager.h"
@@ -480,41 +481,31 @@ std::optional<ExecutableItem> QtKitAspectFactory::autoDetect(
 {
     const auto searchQtse = [searchPaths, detectionSource](Async<QtVersion *> &async) {
         async.setConcurrentCallData(
-            [detectionSource](QPromise<QtVersion *> &promise, FilePaths searchPaths) {
+            [detectionSource](QPromise<QtVersion *> &promise, const FilePaths &searchPaths) {
                 QList<QtVersion *> foundQtVersions;
-                const auto handleQmake =
-                    [&detectionSource, &foundQtVersions, &promise](const FilePath &qmake) {
-                        QString error;
-                        // Owns the version until it is handed to the promise (and from there
-                        // to the QtVersionManager); duplicates and invalid ones are freed here.
-                        std::unique_ptr<QtVersion> qtVersion(
-                            QtVersionFactory::createQtVersionFromQMakePath(
-                                qmake, detectionSource, &error));
+                for (const FilePath &qmake : Internal::findQtsInPaths(searchPaths)) {
+                    if (Internal::isQtChooser(qmake))
+                        continue;
+                    QString error;
+                    // Owns the version until it is handed to the promise (and from there
+                    // to the QtVersionManager); duplicates and invalid ones are freed here.
+                    std::unique_ptr<QtVersion> qtVersion(
+                        QtVersionFactory::createQtVersionFromQMakePath(
+                            qmake, detectionSource, &error));
+                    if (!qtVersion || !qtVersion->isValid())
+                        continue;
 
-                        if (qtVersion && qtVersion->isValid()) {
-                            // Trigger loading the version data
-                            const Utils::FilePath binPath = qtVersion->binPath();
+                    // Trigger loading the version data
+                    const FilePath binPath = qtVersion->binPath();
 
-                            const bool alreadyFound
-                                = Utils::anyOf(foundQtVersions, [&](QtVersion *other) {
-                                      return qtVersion->mkspecPath() == other->mkspecPath();
-                                  });
-                            if (!alreadyFound) {
-                                foundQtVersions.append(qtVersion.get());
-                                promise.addResult(qtVersion.release());
-                            }
-                        }
-                        return IterationPolicy::Continue;
-                    };
+                    const bool alreadyFound = Utils::anyOf(foundQtVersions, [&](QtVersion *other) {
+                        return qtVersion->mkspecPath() == other->mkspecPath();
+                    });
+                    if (alreadyFound)
+                        continue;
 
-                const QStringList candidates
-                    = {"qmake6", "qmake-qt6", "qmake-qt5", "qmake", "qtpaths6", "qtpaths"};
-                for (const FilePath &searchPath : searchPaths) {
-                    searchPath.iterateDirectory(
-                        handleQmake,
-                        {candidates,
-                         DirFilterFlag::Files | DirFilterFlag::Executable,
-                         DirIteratorFlag::Subdirectories});
+                    foundQtVersions.append(qtVersion.get());
+                    promise.addResult(qtVersion.release());
                 }
             },
             searchPaths);
