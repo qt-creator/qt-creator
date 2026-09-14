@@ -17,5 +17,6 @@ QObject *createRevertToSavedTest();
 QObject *createFindReplaceTest();
 QObject *createSnippetTest();
 QObject *createPrintTest();
+QObject *createFollowSymbolTest();
 
 } // TextEditor::Internal

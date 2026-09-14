@@ -515,6 +515,7 @@ public:
     virtual bool isRedoAvailable() const;
 
     void openLinkUnderCursor();
+    void openLinkUnderCursor(const std::function<void(bool opened)> &answer);
     void openLinkUnderCursorInNextSplit();
     void openTypeUnderCursor();
     void openTypeUnderCursorInNextSplit();

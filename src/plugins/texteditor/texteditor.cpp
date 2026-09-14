@@ -92,6 +92,7 @@
 #include <QMap>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMetaMethod>
 #include <QMimeData>
 #include <QPainter>
 #include <QPainterPath>
@@ -908,7 +909,8 @@ public:
     void setupFromDefinition(const KSyntaxHighlighting::Definition &definition);
     KSyntaxHighlighting::Definition currentDefinition();
     void rememberCurrentSyntaxDefinition();
-    void openLinkUnderCursor(bool openInNextSplit);
+    void openLinkUnderCursor(bool openInNextSplit,
+                             const std::function<void(bool opened)> &answer = {});
     void openTypeUnderCursor(bool openInNextSplit);
     qreal charWidth() const;
     qreal tabStopDistance() const;
@@ -2970,6 +2972,17 @@ void TextEditorWidget::openLinkUnderCursor()
     d->openLinkUnderCursor(alwaysOpenLinksInNextSplit());
 }
 
+/*!
+    Follows the link under the cursor and reports to \a answer whether anything
+    was opened, the lookup being asynchronous. A document with no one to look a
+    symbol up answers false. Nothing is reported where the editor is gone by the
+    time the lookup is over.
+*/
+void TextEditorWidget::openLinkUnderCursor(const std::function<void(bool opened)> &answer)
+{
+    d->openLinkUnderCursor(alwaysOpenLinksInNextSplit(), answer);
+}
+
 void TextEditorWidget::openLinkUnderCursorInNextSplit()
 {
     d->openLinkUnderCursor(!alwaysOpenLinksInNextSplit());
@@ -4222,13 +4235,18 @@ void TextEditorWidgetPrivate::rememberCurrentSyntaxDefinition()
         HighlighterHelper::rememberDefinitionForDocument(definition, m_document.data());
 }
 
-void TextEditorWidgetPrivate::openLinkUnderCursor(bool openInNextSplit)
+void TextEditorWidgetPrivate::openLinkUnderCursor(bool openInNextSplit,
+                                                  const std::function<void(bool opened)> &answer)
 {
     q->findLinkAt(
         q->textCursor(),
-        [openInNextSplit, self = QPointer<TextEditorWidget>(q)](const Link &symbolLink) {
-            if (self)
-                self->openLink(symbolLink, openInNextSplit);
+        [openInNextSplit, answer, self = QPointer<TextEditorWidget>(q)](const Link &symbolLink) {
+            if (!self)
+                return;
+            const bool opened = symbolLink.hasValidTarget()
+                                && self->openLink(symbolLink, openInNextSplit);
+            if (answer)
+                answer(opened);
         },
         true,
         openInNextSplit);
@@ -8551,6 +8569,10 @@ void TextEditorWidget::findLinkAt(const QTextCursor &cursor,
                                   bool resolveTarget,
                                   bool inNextSplit)
 {
+    if (!isSignalConnected(QMetaMethod::fromSignal(&TextEditorWidget::requestLinkAt))) {
+        callback({});
+        return;
+    }
     emit requestLinkAt(cursor, callback, resolveTarget, inNextSplit);
 }
 

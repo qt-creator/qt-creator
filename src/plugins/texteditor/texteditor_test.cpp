@@ -29,6 +29,8 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
+#include <optional>
+
 namespace TextEditor::Internal {
 
 static QString tabPolicyToString(TabSettingsData::TabPolicy policy)
@@ -856,6 +858,36 @@ private slots:
 QObject *createPrintTest()
 {
     return new PrintTest;
+}
+
+class FollowSymbolTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testAnswerWithoutLookup()
+    {
+        QString title = "follow_symbol.txt";
+        Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+            Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, "nothing to follow\n");
+        QVERIFY(editor);
+        const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+        auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+        QVERIFY(baseEditor);
+        TextEditorWidget *editorWidget = baseEditor->editorWidget();
+        QVERIFY(editorWidget);
+
+        std::optional<bool> opened;
+        editorWidget->openLinkUnderCursor([&opened](bool wasOpened) { opened = wasOpened; });
+
+        QTRY_VERIFY(opened.has_value());
+        QVERIFY(!*opened);
+    }
+};
+
+QObject *createFollowSymbolTest()
+{
+    return new FollowSymbolTest;
 }
 
 } // TextEditor::Internal

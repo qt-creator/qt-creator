@@ -561,6 +561,8 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                                            callback,
                                            resolveTarget,
                                            LinkTarget::SymbolDef);
+                    } else {
+                        callback({});
                     }
                 });
         connect(widget, &TextEditorWidget::requestTypeAt, this,
