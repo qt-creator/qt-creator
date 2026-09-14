@@ -1612,15 +1612,11 @@ bool CMakeBuildSystem::addDependencies(
     return BuildSystem::addDependencies(context, dependencies);
 }
 
-static FilePaths linkingBinaries(const QList<CMakeBuildTarget> &targets,
-                                 const FilePath &sourceFile)
+static FilePaths binariesLinkingTarget(const QList<CMakeBuildTarget> &targets,
+                                       const QString &startTarget)
 {
-    QStringList pendingTargets;
-    for (const CMakeBuildTarget &target : targets) {
-        if (target.sourceFiles.contains(sourceFile))
-            pendingTargets << target.title;
-    }
     FilePaths binaries;
+    QStringList pendingTargets{startTarget};
     QSet<QString> seenTargets;
     while (!pendingTargets.isEmpty()) {
         const QString title = pendingTargets.takeLast();
@@ -1652,6 +1648,33 @@ static FilePaths linkingBinaries(const QList<CMakeBuildTarget> &targets,
         for (const CMakeBuildTarget &other : targets) {
             if (other.linkedLibraryFileNames.contains(artifact))
                 pendingTargets << other.title;
+        }
+    }
+    return binaries;
+}
+
+static FilePaths linkingBinaries(const QList<CMakeBuildTarget> &targets,
+                                 const FilePath &sourceFile)
+{
+    QList<const CMakeBuildTarget *> startTargets;
+    for (const CMakeBuildTarget &target : targets) {
+        if (target.sourceFiles.contains(sourceFile))
+            startTargets << &target;
+    }
+
+    FilePaths binaries;
+    for (const CMakeBuildTarget * const start : std::as_const(startTargets)) {
+        FilePaths reached = binariesLinkingTarget(targets, start->title);
+        if (reached.isEmpty()) {
+            // Nothing links this archive, so it is the only binary carrying the
+            // code, exactly as the generic fallback would have answered.
+            if (start->targetType != StaticLibraryType || start->executable.isEmpty())
+                continue;
+            reached = {start->executable};
+        }
+        for (const FilePath &binary : std::as_const(reached)) {
+            if (!binaries.contains(binary))
+                binaries << binary;
         }
     }
     return binaries;
@@ -1784,7 +1807,7 @@ private slots:
         app.title = "App";
         app.targetType = ExecutableType;
         app.executable = "/b/App.exe";
-        app.sourceFiles = {"/s/main.cpp"};
+        app.sourceFiles = {"/s/main.cpp", "/s/shared.h"};
         app.linkedLibraryFileNames = {"Shared.lib", "Direct.lib"};
 
         CMakeBuildTarget shared;
@@ -1817,11 +1840,19 @@ private slots:
         objects.executable = "/b/Objects.dir/objects.cpp.o";
         objects.sourceFiles = {"/s/objects.cpp"};
 
+        CMakeBuildTarget orphan;
+        orphan.title = "Orphan";
+        orphan.targetType = StaticLibraryType;
+        orphan.artifact = "Orphan.lib";
+        orphan.executable = "/b/Orphan.lib";
+        orphan.sourceFiles = {"/s/orphan.cpp", "/s/shared.h"};
+
         CMakeBuildTarget utility;
         utility.title = "Utility";
         utility.sourceFiles = {"/s/utility.cpp"};
 
-        const QList<CMakeBuildTarget> targets{app, shared, direct, nested, objects, utility};
+        const QList<CMakeBuildTarget> targets{app, shared, direct, nested, objects, orphan,
+                                              utility};
 
         QCOMPARE(linkingBinaries(targets, "/s/main.cpp"), FilePaths{"/b/App.exe"});
         QCOMPARE(linkingBinaries(targets, "/s/shared.cpp"), FilePaths{"/b/Shared.dll"});
@@ -1831,6 +1862,13 @@ private slots:
                  FilePaths({"/b/App.exe", "/b/Shared.dll"}));
         QCOMPARE(Utils::sorted(linkingBinaries(targets, "/s/objects.cpp")),
                  FilePaths({"/b/App.exe", "/b/Shared.dll"}));
+
+        // A static library nothing links is where its code stops, so it
+        // answers with its own archive rather than with nothing.
+        QCOMPARE(linkingBinaries(targets, "/s/orphan.cpp"), FilePaths{"/b/Orphan.lib"});
+        QCOMPARE(Utils::sorted(linkingBinaries(targets, "/s/shared.h")),
+                 FilePaths({"/b/App.exe", "/b/Orphan.lib"}));
+
         QCOMPARE(linkingBinaries(targets, "/s/utility.cpp"), FilePaths());
         QCOMPARE(linkingBinaries(targets, "/s/unknown.cpp"), FilePaths());
     }
