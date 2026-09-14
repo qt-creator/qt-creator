@@ -125,6 +125,9 @@ private:
     bool m_monitorExitRequested = false;
     bool m_inferiorResumed = false;
     bool m_interruptOnceResumed = false;
+    // Whether a stop still to come is the terminal stub letting the inferior go
+    // rather than a stop of its own.
+    bool m_expectTerminalTrap = false;
     // Whether the next stop ends the setup rather than a run of its own.
     bool m_reportsSetupStop = false;
 

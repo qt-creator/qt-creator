@@ -309,6 +309,9 @@ void LldbEngine::handleLldbStarted()
     DebuggerCommand cmd2("setupInferior");
     cmd2.arg("executable", executable.path());
     cmd2.arg("breakonmain", rp.breakOnMain());
+    cmd2.arg("mainfunction",
+             rp.toolChainAbi().os() == ProjectExplorer::Abi::WindowsOS && !usesTerminal()
+                 ? "qMain" : "main");
     cmd2.arg("useterminal", usesTerminal());
     cmd2.arg("startmode", rp.startMode());
     cmd2.arg("nativemixed", isNativeMixedActive());
@@ -1255,24 +1258,43 @@ static InferiorStartData lldbInferiorStartData(const DebuggerRunParameters &rp)
     return rp.inferior();
 }
 
+static QList<QPair<QString, QString>> lldbImplSourcePathMap(const DebuggerRunParameters &rp)
+{
+    QList<QPair<QString, QString>> mappings;
+    const SourcePathMap sourcePathMap = mergeStartParametersSourcePathMap(
+        rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+    for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it)
+        mappings.append({it.key(), rp.macroExpander()->expand(it.value())});
+    return mappings;
+}
+
 static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
 {
     return {
         .debuggerRunData = rp.debugger(),
         .inferiorStartData = lldbInferiorStartData(rp),
         .dumperScriptsDir = ICore::resourcePath("debugger"),
+        .loadInitFile = settings().loadGdbInit(),
         .nativeMixedDebugging = rp.isNativeMixedDebugging(),
         .breakOnMain = rp.breakOnMain(),
+        .mainFunctionName = QLatin1String(
+            rp.toolChainAbi().os() == ProjectExplorer::Abi::WindowsOS && !rp.useTerminal()
+                ? "qMain" : "main"),
         .continueAfterAttach = rp.continueAfterAttach(),
         .intelDisassembly = settings().intelFlavor(),
+        .logTimeStamps = settings().logTimeStamps(),
         .deviceSymbolsRoot = rp.deviceSymbolsRoot(),
         .deviceUuid = rp.deviceUuid(),
         .platform = rp.lldbPlatform(),
+        .startScript = rp.overrideStartScript(),
         .startupCommands = Utils::filtered(
             QString(settings().gdbStartupCommands() + '\n' + rp.additionalStartupCommands())
                 .split('\n', Qt::SkipEmptyParts),
             [](const QString &line) { return !line.trimmed().startsWith('#'); }),
         .postAttachCommands = settings().gdbPostAttachCommands().split('\n', Qt::SkipEmptyParts),
+        .afterConnectCommands = rp.commandsAfterConnect(),
+        .forResetCommands = rp.commandsForReset(),
+        .sourcePathMap = lldbImplSourcePathMap(rp),
         .solibSearchPath = rp.solibSearchPath(),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),

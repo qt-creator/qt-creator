@@ -226,6 +226,19 @@ class QtcInternalDumper():
         self.formats = {}
         self.output = ''
         self.expandedINames = []
+        self.fancy = True
+        self.stringCutOff = 10000
+        self.displayStringLimit = 100
+        # Real pdb reads ~/.pdbrc into rcLines and runs them at its first
+        # prompt. "--no-pdbrc" among the arguments meant for us is how the
+        # engine says the setting is off.
+        self.rcLines = []
+        if '--no-pdbrc' not in sys.argv:
+            try:
+                with open(os.path.join(os.path.expanduser('~'), '.pdbrc')) as rcFile:
+                    self.rcLines = rcFile.read().splitlines()
+            except OSError:
+                pass
 
     # Hex decoding operating on str, return str.
     @staticmethod
@@ -863,6 +876,15 @@ class QtcInternalDumper():
             self.forget()
             return
 
+        # Ahead of the first location report, so that whoever waits for it can
+        # take the init file's output as having arrived. A line needs a frame to
+        # run in, which is why this is not done before the script starts.
+        if self.rcLines:
+            lines = self.rcLines
+            self.rcLines = []
+            for line in lines:
+                self.onecmd(line)
+
         frame, lineNumber = self.stack[self.curindex]
         fileName = self.canonic(frame.f_code.co_filename)
         self.report('location={file="%s",line="%s"}' % (fileName, lineNumber))
@@ -1463,6 +1485,9 @@ class QtcInternalDumper():
 
     def updateData(self, args):
         self.expandedINames = args.get('expanded', {})
+        self.fancy = args.get('fancy', True)
+        self.stringCutOff = __builtins__.int(args.get('stringcutoff', 10000))
+        self.displayStringLimit = __builtins__.int(args.get('displaystringlimit', 100))
         self.typeformats = args.get('typeformats', {})
         self.formats = args.get('formats', {})
         self.output = ''
@@ -1501,12 +1526,13 @@ class QtcInternalDumper():
             self.putField('iname', iname)
             self.putField('wname', escapedExp)
             try:
-                res = eval(exp, {}, locals_dict)
-                self.putValue(res)
+                # In the frame's own globals, not in an empty namespace: an
+                # expression naming a global would find nothing there.
+                self.dumpValueBody(eval(exp, frame.f_globals, locals_dict), iname)
             except Exception:
                 self.putValue('<unavailable>')
-            self.put('}')
-            # self.dumpValue(eval(value), escapedExp, iname)
+                self.putNumChild(0)
+            self.put('},')
 
         self.output += '}'
         self.output += '{frame="%s"}' % frameNr
@@ -1548,6 +1574,12 @@ class QtcInternalDumper():
     def putName(self, name):
         self.put('name="%s",' % name)
 
+    def clampedString(self, value):
+        # How much of the string is read, against how much of what was read is
+        # shown: whichever of the two is reached first decides.
+        limit = __builtins__.min(self.stringCutOff, self.displayStringLimit)
+        return value[:limit]
+
     def isExpanded(self, iname):
         # DumperBase.warn('IS EXPANDED: %s in %s' % (iname, self.expandedINames))
         if iname.startswith('None'):
@@ -1578,6 +1610,23 @@ class QtcInternalDumper():
         self.put('{')
         self.putField('iname', iname)
         self.putName(name)
+        self.dumpValueBody(value, iname)
+        self.put('},')
+
+    # Everything about an item but its identity, so that a watcher, which is
+    # named by the expression it was typed as, is dumped like a local.
+    def dumpValueBody(self, value, iname):
+        t = __builtins__.type(value)
+        tt = QtcInternalDumper.cleanType(t)
+        valueStr = __builtins__.str(value)
+        if not self.fancy:
+            # With the debugging helpers off, what python itself says about the
+            # object is all there is: no container is taken apart.
+            self.putType(tt)
+            self.putValue(self.hexencode(valueStr))
+            self.putField('valueencoded', 'utf8')
+            self.putNumChild(0)
+            return
         if tt == 'NoneType':
             self.putType(tt)
             self.putValue('None')
@@ -1586,18 +1635,19 @@ class QtcInternalDumper():
             self.putType(tt)
             self.putItemCount(__builtins__.len(value))
             # self.putValue(value)
-            self.put('children=[')
-            for i, val in enumerate(value):
-                self.dumpValue(val, __builtins__.str(i), '%s.%d' % (iname, i))
-            self.put(']')
+            if self.isExpanded(iname):
+                self.put('children=[')
+                for i, val in enumerate(value):
+                    self.dumpValue(val, __builtins__.str(i), '%s.%d' % (iname, i))
+                self.put(']')
         elif tt == 'str':
-            v = value
+            v = self.clampedString(value)
             self.putType(tt)
             self.putValue(self.hexencode(v))
             self.putField('valueencoded', 'utf8')
             self.putNumChild(0)
         elif tt == 'unicode':
-            v = value
+            v = self.clampedString(value)
             self.putType(tt)
             self.putValue(self.hexencode(v))
             self.putField('valueencoded', 'utf8')
@@ -1678,46 +1728,43 @@ class QtcInternalDumper():
             # A user-defined subclass of a PySide type keeps its own Python
             # attributes in __dict__ (the Qt state lives in the C++ object, not
             # here), so show those next to the Qt meta-properties.
-            ownAttrs = []
             if metaProperties:
-                for child in __builtins__.sorted(__builtins__.getattr(value, '__dict__', {})):
-                    if child.startswith('__') or child in metaProperties:
-                        continue
-                    try:
-                        if not __builtins__.callable(__builtins__.getattr(value, child)):
-                            ownAttrs.append(child)
-                    except Exception:
-                        pass
-                self.putNumChild(__builtins__.len(metaProperties) + __builtins__.len(ownAttrs))
+                candidates = __builtins__.sorted(
+                    __builtins__.getattr(value, '__dict__', {}))
+            else:
+                candidates = __builtins__.dir(value)
+            ownAttrs = []
+            for child in candidates:
+                if child in ('__dict__', '__doc__', '__module__'):
+                    continue
+                if child in metaProperties:
+                    continue
+                if metaProperties and child.startswith('__'):
+                    continue
+                try:
+                    if not __builtins__.callable(__builtins__.getattr(value, child)):
+                        ownAttrs.append(child)
+                except Exception:
+                    pass
+            # Without a count the view has no expander to offer, whatever the
+            # children below would be.
+            self.putNumChild(__builtins__.len(metaProperties) + __builtins__.len(ownAttrs))
 
             if self.isExpanded(iname):
                 self.put('children=[')
-                if metaProperties:
-                    for prop in metaProperties:
-                        try:
-                            self.dumpValue(value.property(prop), prop,
-                                           '%s.%s' % (iname, prop))
-                        except Exception:
-                            pass
-                    for child in ownAttrs:
-                        try:
-                            self.dumpValue(__builtins__.getattr(value, child), child,
-                                           '%s.%s' % (iname, child))
-                        except Exception:
-                            pass
-                else:
-                    for child in dir(value):
-                        if child in ('__dict__', '__doc__', '__module__'):
-                            continue
-                        attr = getattr(value, child)
-                        if callable(attr):
-                            continue
-                        try:
-                            self.dumpValue(attr, child, '%s.%s' % (iname, child))
-                        except Exception:
-                            pass
+                for prop in metaProperties:
+                    try:
+                        self.dumpValue(value.property(prop), prop,
+                                       '%s.%s' % (iname, prop))
+                    except Exception:
+                        pass
+                for child in ownAttrs:
+                    try:
+                        self.dumpValue(__builtins__.getattr(value, child), child,
+                                       '%s.%s' % (iname, child))
+                    except Exception:
+                        pass
                 self.put('],')
-        self.put('},')
 
     @staticmethod
     def qtMetaProperties(value):
@@ -1745,6 +1792,24 @@ class QtcInternalDumper():
 
     def watchdogFence(self, args):
         self.report('watchdogfence={token="%s"}' % args.get('token', 0))
+
+    def addDumperModule(self, args):
+        # Executed in a namespace of its own, not in the bridge's: the inferior
+        # script shares the bridge's globals, so anything left there would show
+        # up among the debuggee's own names.
+        path = args.get('path', '')
+        error = ''
+        try:
+            with open(path) as extra:
+                exec(compile(extra.read(), path, 'exec'), {'dumper': self})
+        except Exception as e:
+            error = '%s: %s' % (__builtins__.type(e).__name__, e)
+        self.report('dumpermodule={error="%s"}' % self.hexencode(error))
+
+    def resetFence(self, args):
+        # Answers the commands sent ahead of a reset, so that the caller can kill us
+        # once they are through rather than while they are still on their way.
+        self.report('resetfence={token="%s"}' % args.get('token', 0))
 
     def breakpointFence(self, args):
         # Answers a command issued right after a "break", so that the caller can tell a
@@ -1788,10 +1853,15 @@ class QtcInternalDumper():
         result = 'stack={current-thread="%s"' % 1
 
         result += ',frames=['
+        limit = int(args.get('limit', -1))
+        isLimited = False
         try:
             level = 0
             frames = __builtins__.list(reversed(self.stack))
             frames = frames[:-2]  # Drop "pdbbridge" and "<string>" levels
+            if limit > 0 and len(frames) > limit:
+                frames = frames[:limit]
+                isLimited = True
             for frame_lineno in frames:
                 frame, lineno = frame_lineno
                 filename = self.canonic(frame.f_code.co_filename)
@@ -1805,11 +1875,23 @@ class QtcInternalDumper():
         except KeyboardInterrupt:
             pass
         result += ']'
-
-        # result += ',hasmore="%d"' % isLimited
-        # result += ',limit="%d"' % limit
+        result += ',hasmore="%d"' % isLimited
+        result += ',limit="%d"' % limit
         result += '}'
         self.report(result)
+
+    def fetchFullBacktrace(self, args):
+        # The whole stack as text, in the order python's own traceback has it,
+        # outermost frame first. The two innermost levels are the bridge's own.
+        lines = []
+        frames = __builtins__.list(self.stack)[2:]
+        for frame, lineNumber in frames:
+            lines.append('  File "%s", line %s, in %s' % (self.canonic(frame.f_code.co_filename),
+                                                          lineNumber, frame.f_code.co_name))
+            source = linecache.getline(frame.f_code.co_filename, lineNumber, frame.f_globals)
+            if source:
+                lines.append('    ' + source.strip())
+        self.report('fullbacktrace={output="%s"}' % self.hexencode('\n'.join(lines)))
 
     @staticmethod
     def report(stuff):

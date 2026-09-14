@@ -21,6 +21,20 @@ public:
     Utils::ProcessRunData debuggerRunData;
     InferiorStartData inferiorStartData;
     Utils::FilePath dumperScriptsDir;
+    // Python of the user's own, executed inside the bridge, plus what to type
+    // once it is in.
+    Utils::FilePath extraDumperFile;
+    QString extraDumperCommands;
+    // Whether the bridge reads the user's ~/.pdbrc, as real pdb does.
+    bool loadInitFile = false;
+    // Where the sources are now, against where the script says they are.
+    QList<QPair<QString, QString>> sourcePathMap;
+    // Run at the script's first line, before anything the engine sends. The
+    // script's lines take the place of the commands when there is one.
+    Utils::FilePath startScript;
+    QStringList startupCommands;
+    // Run while the old inferior is still there, ahead of a reset.
+    QStringList forResetCommands;
     // Stay on the script's first line instead of running it.
     bool breakOnMain = false;
     // Zero leaves the commands unwatched.
@@ -58,6 +72,8 @@ private:
     public:
         BreakpointChangeRequest request;
         QString pdbNumber;
+        // Created by a command typed into the log rather than by the model.
+        bool alien = false;
     };
 
     class PendingStackReply
@@ -95,14 +111,22 @@ private:
     void handleOutputLine(const QString &line);
     void handleStackReply(const GdbMi &item);
     void handleBreakpointReply(const QString &line);
+    void handleBreakpointDeleted(const QString &line);
     void handleBreakpointFence(quint64 token);
+    void handleResetFence(quint64 token);
 
     void startPdbProcess();
+    void reportInitialStop();
     void resetTransientState();
+    void runUserStartupCommands();
+    void loadExtraDumpers();
     void requestInterrupt();
     void insertBreakpoint(const BreakpointChangeRequest &request, BreakpointReply kind);
     QString pdbNumberFor(const QString &responseId) const;
     QString responseIdFor(const QString &pdbNumber) const;
+    QString localSourcePath(const QString &reported) const;
+    QString reportedSourcePath(const QString &local) const;
+    GdbMi localizedStack(const GdbMi &stack) const;
 
     void runCommand(const DebuggerCommand &command);
     void postDirectCommand(const QString &command);
@@ -131,6 +155,7 @@ private:
     quint64 m_lastWatchdogToken = 0;
     QList<QPair<quint64, QString>> m_watchedCommands;
     QTimer m_watchdog;
+    quint64 m_pendingBacktraceRequestId = 0;
     quint64 m_pendingModulesRequestId = 0;
     quint64 m_pendingModuleSymbolsRequestId = 0;
 
@@ -140,8 +165,10 @@ private:
     QList<PendingStackReply> m_pendingStackReplies;
     QList<ActiveBreakpoint> m_activeBreakpoints;
     quint64 m_lastFenceToken = 0;
+    quint64 m_resetFenceToken = 0;
 
     bool m_isResetRestart = false;
     bool m_shuttingDown = false;
+    bool m_setupReported = false;
 };
 } // namespace Debugger::Internal

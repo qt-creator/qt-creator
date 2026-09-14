@@ -1331,6 +1331,9 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .sourceDirectories = sourceDirectories,
             .useDebugInfoD = useDebugInfoD,
             .breakOnMain = rp.breakOnMain(),
+            .mainFunctionName = QLatin1String(
+                rp.toolChainAbi().os() == ProjectExplorer::Abi::WindowsOS && !rp.useTerminal()
+                    ? "qMain" : "main"),
             .breakOnAbort = settings().breakOnAbort(),
             .breakOnWarning = settings().breakOnWarning(),
             .breakOnFatal = settings().breakOnFatal(),

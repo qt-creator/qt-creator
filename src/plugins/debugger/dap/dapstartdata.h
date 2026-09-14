@@ -99,6 +99,9 @@ public:
     // Unset leaves whatever the debugger itself defaults to in place.
     std::optional<bool> useDebugInfoD;
     bool breakOnMain = false;
+    // Which symbol main() is: a Windows Qt application without a terminal
+    // enters through qMain(), the C runtime's main() being Qt's own.
+    QString mainFunctionName = "main";
     // Break before abort(), qWarning() and qFatal() rather than in them.
     bool breakOnAbort = false;
     bool breakOnWarning = false;

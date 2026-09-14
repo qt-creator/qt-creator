@@ -14,6 +14,7 @@
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
+#include <QTime>
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
@@ -105,7 +106,7 @@ static void addConst(GdbMi &parent, const QString &name, const QString &data)
     parent.addChild(child);
 }
 
-static GdbMi translateLldbBreakpointReply(const GdbMi &lldbBkpt)
+static GdbMi translateLldbBreakpoint(const GdbMi &lldbBkpt)
 {
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
@@ -116,7 +117,13 @@ static GdbMi translateLldbBreakpointReply(const GdbMi &lldbBkpt)
         addConst(bkpt, "enabled", "n");
     addConst(bkpt, "file", lldbBkpt["file"].data());
     addConst(bkpt, "line", lldbBkpt["line"].data());
-    addConst(bkpt, "type", "breakpoint");
+    const QString catchType = lldbBkpt["catchtype"].data();
+    if (catchType.isEmpty()) {
+        addConst(bkpt, "type", "breakpoint");
+    } else {
+        addConst(bkpt, "type", "catchpoint");
+        addConst(bkpt, "catch-type", catchType);
+    }
     if (lldbBkpt["oneshot"].toInt())
         addConst(bkpt, "disp", "del");
     else
@@ -149,9 +156,14 @@ static GdbMi translateLldbBreakpointReply(const GdbMi &lldbBkpt)
         bkpt.addChild(locations);
     }
 
+    return bkpt;
+}
+
+static GdbMi translateLldbBreakpointReply(const GdbMi &lldbBkpt)
+{
     GdbMi list;
     list.m_type = GdbMi::List;
-    list.addChild(bkpt);
+    list.addChild(translateLldbBreakpoint(lldbBkpt));
     return list;
 }
 
@@ -285,7 +297,10 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         emit notResponding(m_startData.watchdogTimeout, pending);
     });
 
-    m_lldbProc.setCommand(m_startData.debuggerRunData.command);
+    Utils::CommandLine lldbCommand = m_startData.debuggerRunData.command;
+    if (!m_startData.loadInitFile)
+        lldbCommand.addArg("--no-lldbinit");
+    m_lldbProc.setCommand(lldbCommand);
     Environment lldbEnvironment = m_startData.debuggerRunData.environment;
     lldbEnvironment.set("QT_CREATOR_LLDB_PROCESS", "1");
     lldbEnvironment.set("PYTHONUNBUFFERED", "1");
@@ -306,8 +321,25 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
 
         // Through the same path the engine used: it reports what the command
         // printed, which a native command drops on the floor.
-        for (const QString &command : m_startData.startupCommands)
-            executeDebuggerCommand(command, {});
+        if (!m_startData.startScript.isEmpty()) {
+            if (m_startData.startScript.isReadableFile()) {
+                executeDebuggerCommand("command source " + m_startData.startScript.path(), {});
+            } else {
+                emit message("The debugger start script is not accessible: "
+                                 + m_startData.startScript.toUserOutput(), LogWarning);
+            }
+        } else {
+            for (const QString &command : m_startData.startupCommands)
+                executeDebuggerCommand(command, {});
+        }
+
+        // Quoted, since lldb splits the arguments the way a shell does, and
+        // through the reporting path, since it refuses a replacement path that
+        // does not exist.
+        for (const QPair<QString, QString> &mapping : m_startData.sourcePathMap) {
+            executeDebuggerCommand("settings append target.source-map \"" + mapping.first
+                                       + "\" \"" + mapping.second + '"', {});
+        }
 
         for (const Utils::FilePath &path : m_startData.solibSearchPath) {
             runCommand({"settings append target.exec-search-paths " + path.path(),
@@ -329,6 +361,7 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
 
         DebuggerCommand cmd("setupInferior");
         cmd.arg("breakonmain", m_startData.breakOnMain);
+        cmd.arg("mainfunction", m_startData.mainFunctionName);
         cmd.arg("useterminal", false);
         cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
         cmd.arg("deviceUuid", m_startData.deviceUuid);
@@ -402,6 +435,9 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
                     if (!trimmed.isEmpty() && !trimmed.startsWith('#'))
                         runCommand({trimmed, DebuggerCommand::NativeCommand});
                 }
+                // Through the reporting path, so what they print is not lost.
+                for (const QString &command : m_startData.afterConnectCommands)
+                    executeDebuggerCommand(command, {});
             }
             DebuggerCommand runCmd("runEngine", DebuggerCommand::RunRequest);
             if (!coreFile.isEmpty())
@@ -412,7 +448,11 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
     });
     connect(&m_lldbProc, &Process::readyReadStandardOutput, this, [this] {
         restartWatchdog();
-        m_inbuffer += m_lldbProc.readAllStandardOutput();
+        const QString out = m_lldbProc.readAllStandardOutput();
+        // Whatever the debugger itself prints comes this way too, and only the
+        // raw output shows it: the protocol items below are all it parses.
+        emit message(out, LogOutput);
+        m_inbuffer += out;
         while (true) {
             if (int pos = m_inbuffer.indexOf(u"@\n"); pos >= 0) {
                 handleLldbOutput(m_inbuffer.left(pos).trimmed());
@@ -544,6 +584,10 @@ void LldbImpl::execute(const ExecutionRequest &request)
         m_lldbProc.kill();
         break;
     case ExecutionCommand::ResetInferior:
+        // Whatever puts the hardware back, which has to happen while the old
+        // inferior is still there.
+        for (const QString &command : m_startData.forResetCommands)
+            executeDebuggerCommand(command, {});
         emit inferiorEvent(InferiorEvent::RunRequested);
         runCommand({"resetInferior", DebuggerCommand::RunRequest});
         break;
@@ -1151,6 +1195,7 @@ void LldbImpl::handleLldbOutput(const QString &output)
             if (const auto it = m_commandForToken.find(token); it != m_commandForToken.end()) {
                 DebuggerCommand cmd = it.value();
                 m_commandForToken.erase(it);
+                reportResponseTime(cmd);
                 if (cmd.callback) {
                     DebuggerResponse response;
                     response.token = token;
@@ -1173,11 +1218,19 @@ void LldbImpl::handleLldbOutput(const QString &output)
             emit inferiorPidKnown(ProcessHandle(m_inferiorPid));
         } else if (name == "breakpointmodified") {
             emit breakpointModified(translateLldbBreakpointReply(item));
+        } else if (name == "breakpointadded") {
+            emit breakpointEvent(0, BreakpointOp::Insert, true, translateLldbBreakpoint(item));
+        } else if (name == "breakpointremoved") {
+            GdbMi removed;
+            removed.m_type = GdbMi::Tuple;
+            addConst(removed, "number", item["lldbid"].data());
+            emit breakpointEvent(0, BreakpointOp::Remove, true, removed);
         } else if (name == "interpreterresult") {
             const int token = all["token"].toInt();
             if (const auto it = m_commandForToken.find(token); it != m_commandForToken.end()) {
                 DebuggerCommand cmd = it.value();
                 m_commandForToken.erase(it);
+                reportResponseTime(cmd);
                 if (cmd.callback) {
                     DebuggerResponse response;
                     response.token = token;
@@ -1229,6 +1282,8 @@ void LldbImpl::runCommand(const DebuggerCommand &command)
         return;
     }
 
+    cmd.postTime = QTime::currentTime().msecsSinceStartOfDay();
+
     QString line;
     if (cmd.flags & DebuggerCommand::NativeCommand) {
         line = cmd.function;
@@ -1240,6 +1295,16 @@ void LldbImpl::runCommand(const DebuggerCommand &command)
     emit message(line, LogInput);
     m_lldbProc.write(line + "\n\n");
     restartWatchdog();
+}
+
+void LldbImpl::reportResponseTime(const DebuggerCommand &command)
+{
+    if (!m_startData.logTimeStamps)
+        return;
+    const int elapsed = QTime::fromMSecsSinceStartOfDay(command.postTime)
+                            .msecsTo(QTime::currentTime());
+    emit message(QString("Response time: %1: %2 s").arg(command.function).arg(elapsed / 1000.),
+                 LogTime);
 }
 
 void LldbImpl::restartWatchdog()

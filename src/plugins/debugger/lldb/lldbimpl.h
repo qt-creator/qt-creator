@@ -23,16 +23,32 @@ public:
     Utils::ProcessRunData debuggerRunData;
     InferiorStartData inferiorStartData;
     Utils::FilePath dumperScriptsDir;
+    // Whether the debugger reads the init file in the user's home directory.
+    bool loadInitFile = false;
     bool nativeMixedDebugging = false;
     bool breakOnMain = false;
+    // Which symbol main() is: a Windows Qt application without a terminal
+    // enters through qMain(), the C runtime's main() being Qt's own.
+    QString mainFunctionName = "main";
     bool continueAfterAttach = false;
     bool intelDisassembly = false;
+    // Whether every command's turnaround goes into the log.
+    bool logTimeStamps = false;
     // Where an attached device's symbols live, and the platform to select.
     QString deviceSymbolsRoot;
     QString deviceUuid;
     QString platform;
+    // A script to run instead of the startup commands.
+    Utils::FilePath startScript;
     QStringList startupCommands;
     QStringList postAttachCommands;
+    // What to run once the target is there, which is where telling the
+    // debugger about a remotely loaded library first works.
+    QStringList afterConnectCommands;
+    // What to run before the inferior is put back to where it started.
+    QStringList forResetCommands;
+    // Where the sources are now, against what the debug information calls them.
+    QList<QPair<QString, QString>> sourcePathMap;
     // Where to look for the shared libraries the inferior loads.
     Utils::FilePaths solibSearchPath;
     int qtVersion = 0;
@@ -80,6 +96,7 @@ private:
     void fetchLocationAfterStop(InferiorEvent event);
 
     void runCommand(const DebuggerCommand &command);
+    void reportResponseTime(const DebuggerCommand &command);
     void restartWatchdog();
     void reportInferiorExitIfComplete();
     void reportEngineSetupOk();

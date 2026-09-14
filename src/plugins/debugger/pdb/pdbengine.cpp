@@ -7,6 +7,7 @@
 #include <debugger/breakhandler.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggerprotocol.h>
+#include <debugger/debuggersourcepathmappingwidget.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
 #include <debugger/genericdebuggerengine.h>
@@ -19,6 +20,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/widgets.h>
@@ -587,10 +589,31 @@ DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp)
         debuggerRunData.command = CommandLine(rp.interpreter());
         debuggerRunData.environment = rp.debugger().environment;
 
-        return new GenericDebuggerEngine("PDB (PdbImpl)",
-                                         new PdbImpl({debuggerRunData, scriptRunData,
-                                                      ICore::resourcePath("debugger"),
-                                                      rp.breakOnMain()}));
+        QList<QPair<QString, QString>> sourcePathMap;
+        const SourcePathMap mergedMap
+            = mergeStartParametersSourcePathMap(rp, settings().sourcePathMap());
+        for (auto it = mergedMap.cbegin(), end = mergedMap.cend(); it != end; ++it)
+            sourcePathMap.append(qMakePair(it.key(), rp.macroExpander()->expand(it.value())));
+
+        return new GenericDebuggerEngine(
+            "PDB (PdbImpl)",
+            new PdbImpl({.debuggerRunData = debuggerRunData,
+                         .inferiorStartData = scriptRunData,
+                         .dumperScriptsDir = ICore::resourcePath("debugger"),
+                         .extraDumperFile = settings().extraDumperFile(),
+                         .extraDumperCommands = settings().extraDumperCommands(),
+                         .loadInitFile = settings().loadGdbInit(),
+                         .sourcePathMap = sourcePathMap,
+                         .startScript = rp.overrideStartScript(),
+                         .startupCommands = Utils::filtered(
+                             QString(settings().gdbStartupCommands() + '\n'
+                                     + rp.additionalStartupCommands())
+                                 .split('\n', Qt::SkipEmptyParts),
+                             [](const QString &line) {
+                                 return !line.trimmed().startsWith('#');
+                             }),
+                         .forResetCommands = rp.commandsForReset(),
+                         .breakOnMain = rp.breakOnMain()}));
     }
     return new PdbEngine;
 }

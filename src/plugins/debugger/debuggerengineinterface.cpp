@@ -4,6 +4,7 @@
 #include "debuggerengineinterface.h"
 
 #include <utils/environment.h>
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
 using namespace Utils;
@@ -50,5 +51,22 @@ bool DebuggerEngineInterface::hasCapability(unsigned cap, DebuggerStartMode star
 bool DebuggerEngineInterface::hasExtraCapability(DebuggerExtraCapability cap) const
 {
     return m_setupData.extraCapabilities.testFlag(cap);
+}
+
+QString mappedSourcePath(const QList<QPair<QString, QString>> &sourcePathMap,
+                         const QString &path, bool toLocal)
+{
+    if (path.isEmpty() || sourcePathMap.isEmpty())
+        return path;
+    const FilePath given = FilePath::fromUserInput(path);
+    for (const QPair<QString, QString> &entry : sourcePathMap) {
+        const FilePath from = FilePath::fromUserInput(toLocal ? entry.first : entry.second);
+        const FilePath to = FilePath::fromUserInput(toLocal ? entry.second : entry.first);
+        if (given == from)
+            return to.path();
+        if (given.isChildOf(from))
+            return to.pathAppended(given.relativePathFromDir(from)).path();
+    }
+    return path;
 }
 } // namespace Debugger::Internal

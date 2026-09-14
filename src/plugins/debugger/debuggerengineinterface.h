@@ -384,4 +384,11 @@ private:
 
     DebuggerEngineSetupData m_setupData;
 };
+
+// Where a source file the debugger names is now, or the other way round: what
+// the debugger knows is where the sources were when the inferior was built.
+// Backends whose debugger cannot be told about the mapping itself do it here.
+QString mappedSourcePath(const QList<QPair<QString, QString>> &sourcePathMap,
+                         const QString &path, bool toLocal);
+
 } // namespace Debugger::Internal

@@ -174,6 +174,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
                 reg.name = item["name"].data();
                 reg.size = item["size"].toInt();
                 reg.reportedType = item["type"].data();
+                reg.groups = item["groups"].data().split(',', Qt::SkipEmptyParts);
                 reg.value.fromString(item["value"].data(), HexadecimalFormat);
                 handler->updateRegister(reg);
             }
@@ -314,7 +315,12 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             reloadThreads();
             break;
         case InferiorEvent::RunAndInferiorRunOk: notifyEngineRunAndInferiorRunOk(); break;
-        case InferiorEvent::RunOkAndInferiorUnrunnable: notifyEngineRunOkAndInferiorUnrunnable(); break;
+        case InferiorEvent::RunOkAndInferiorUnrunnable:
+            notifyEngineRunOkAndInferiorUnrunnable();
+            reloadFullStack();
+            reloadModules();
+            updateLocals();
+            break;
         }
     });
 }

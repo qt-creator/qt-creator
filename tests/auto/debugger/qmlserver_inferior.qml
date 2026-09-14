@@ -15,6 +15,18 @@ QtObject {
         return doubled // second breakpoint line
     }
 
+    function recurse(depth) {
+        if (depth <= 0)
+            return 0 // deep recursion line
+        return recurse(depth - 1) + 1
+    }
+    property Timer recurseTimer: Timer {
+        interval: 3500
+        running: true
+        repeat: true
+        onTriggered: root.recurse(12)
+    }
+
     function throwsError() {
         throw new Error("boom")
     }

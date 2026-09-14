@@ -950,6 +950,7 @@ class Dumper(DumperBase):
         self.executable_ = args['executable']
         self.startMode_ = args.get('startmode', 1)
         self.breakOnMain_ = args.get('breakonmain', 0)
+        self.mainFunction_ = args.get('mainfunction') or 'main'
         self.useTerminal_ = args.get('useterminal', 0)
         self.firstStop_ = True
         pargs = self.hexdecode(args.get('processargs', ''))
@@ -2033,12 +2034,30 @@ class Dumper(DumperBase):
             except SystemError as e:
                 self.warn('Error during reading of process output: %s' % e)
 
+    # What an exception breakpoint catches, in gdb's spelling. lldb has no API
+    # telling one apart from any other breakpoint, so its own description of it
+    # is all there is.
+    def breakpointCatchType(self, bp):
+        stream = lldb.SBStream()
+        bp.GetDescription(stream, False)
+        description = stream.GetData() or ''
+        if 'Exception breakpoint' not in description:
+            return None
+        if 'throw: on' in description:
+            return 'throw'
+        if 'catch: on' in description:
+            return 'catch'
+        return None
+
     def describeBreakpoint(self, bp):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
         if isWatch:
             result = 'lldbid="%s"' % (qqWatchpointOffset + bp.GetID())
         else:
             result = 'lldbid="%s"' % bp.GetID()
+            catchType = self.breakpointCatchType(bp)
+            if catchType is not None:
+                result += ',catchtype="%s"' % catchType
         result += ',valid="%d"' % (1 if bp.IsValid() else 0)
         result += ',hitcount="%d"' % bp.GetHitCount()
         if bp.IsValid():
@@ -2076,7 +2095,7 @@ class Dumper(DumperBase):
     def createBreakpointAtMain(self):
         # On Android main() lives in a shared object rather than the executable,
         # so do not restrict the breakpoint to the executable's module.
-        bp = self.target.BreakpointCreateByName('main')
+        bp = self.target.BreakpointCreateByName(self.mainFunction_)
         self.internalBreakpointIds.add(bp.GetID())
         return bp
 
@@ -2702,11 +2721,31 @@ class Dumper(DumperBase):
         error = toCString(str(result.GetError()))
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
+    def breakpointIds(self):
+        if self.target is None or not self.target.IsValid():
+            return set()
+        return {self.target.GetBreakpointAtIndex(i).GetID()
+                for i in range(self.target.GetNumBreakpoints())}
+
+    def reportBreakpointsOfCommand(self, before):
+        # A breakpoint a typed command created or deleted is nothing lldb tells
+        # anybody about, so the difference over the command is what tells us.
+        for i in range(self.target.GetNumBreakpoints()):
+            bp = self.target.GetBreakpointAtIndex(i)
+            if bp.GetID() in before or bp.GetID() in self.internalBreakpointIds:
+                continue
+            self.report('breakpointadded={%s}' % self.describeBreakpoint(bp))
+        for bpId in sorted(before - self.breakpointIds()):
+            if bpId not in self.internalBreakpointIds:
+                self.report('breakpointremoved={lldbid="%s"}' % bpId)
+
     def executeDebuggerCommand(self, args):
         self.reportToken(args)
         command = args['command']
         result = lldb.SBCommandReturnObject()
+        before = self.breakpointIds()
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
+        self.reportBreakpointsOfCommand(before)
         if result.Succeeded():
             self.reportResult('output="%s"' % toCString(result.GetOutput()), args)
         else:

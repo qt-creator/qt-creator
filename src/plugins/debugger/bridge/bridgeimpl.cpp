@@ -9,6 +9,7 @@
 #include "../dap/dapclient.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
@@ -392,8 +393,10 @@ void BridgeImpl::postLaunchOrAttach()
                      {"args", inferiorArguments}};
     if (!runData->workingDirectory.isEmpty())
         args.insert("cwd", runData->workingDirectory.path());
-    if (m_startData.breakOnMain)
+    if (m_startData.breakOnMain) {
         args.insert("stopAtMain", true);
+        args.insert("mainFunction", m_startData.mainFunctionName);
+    }
 
     Environment debuggerEnv = m_startData.debuggerRunData.environment;
     debuggerEnv.setupEnglishOutput();
@@ -482,6 +485,9 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         m_stopRequested = false;
         m_resumePending = true;
         m_stepRequested = false;
+        // The engine leaves the stopped state on the request, not on the
+        // answer: a refusal has nowhere to go back to otherwise.
+        emit inferiorEvent(InferiorEvent::RunRequested);
         if (request.reverse)
             postRequest("reverseContinue", QJsonObject{{"threadId", m_currentThreadId}});
         else
@@ -501,6 +507,7 @@ void BridgeImpl::execute(const ExecutionRequest &request)
     case ExecutionCommand::StepIn:
         m_resumePending = true;
         m_stepRequested = true;
+        emit inferiorEvent(InferiorEvent::RunRequested);
         postRequest(request.reverse ? QLatin1String("qtc/reverseStepIn")
                                     : QLatin1String("stepIn"),
                     stepArguments(request.flag));
@@ -508,6 +515,7 @@ void BridgeImpl::execute(const ExecutionRequest &request)
     case ExecutionCommand::StepOver:
         m_resumePending = true;
         m_stepRequested = true;
+        emit inferiorEvent(InferiorEvent::RunRequested);
         // Stepping back over a line is stock DAP, the other two directions are
         // not covered by the protocol.
         postRequest(request.reverse ? QLatin1String("stepBack") : QLatin1String("next"),
@@ -516,6 +524,7 @@ void BridgeImpl::execute(const ExecutionRequest &request)
     case ExecutionCommand::StepOut:
         m_resumePending = true;
         m_stepRequested = true;
+        emit inferiorEvent(InferiorEvent::RunRequested);
         if (request.reverse)
             postRequest("qtc/reverseStepOut", QJsonObject{{"threadId", m_currentThreadId}});
         else
@@ -523,12 +532,16 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         return;
     case ExecutionCommand::RunToLine:
         m_stepRequested = false;
+        m_resumePending = true;
+        emit inferiorEvent(InferiorEvent::RunRequested);
         postRequest("qtc/runToLine",
                     QJsonObject{{"file", request.context.fileName.path()},
                                 {"line", request.context.textPosition.line}});
         return;
     case ExecutionCommand::RunToFunction:
         m_stepRequested = false;
+        m_resumePending = true;
+        emit inferiorEvent(InferiorEvent::RunRequested);
         postRequest("qtc/runToFunction",
                     QJsonObject{{"function", request.functionName}});
         return;
@@ -629,7 +642,8 @@ void BridgeImpl::postBreakpointRequest(const QString &request,
                      {"ignorecount", params.ignoreCount},
                      {"condition", QString::fromUtf8(params.condition.toUtf8().toHex())},
                      {"command", QString::fromUtf8(params.command.toUtf8().toHex())},
-                     {"function", params.functionName},
+                     {"function", params.type == BreakpointAtMain
+                                      ? m_startData.mainFunctionName : params.functionName},
                      {"oneshot", params.oneShot},
                      {"enabled", params.enabled},
                      {"line", params.textPosition.line},
@@ -886,7 +900,8 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
     }
 
     if (command == "stepBack" || command == "reverseContinue"
-        || command == "qtc/reverseStepIn" || command == "qtc/reverseStepOut") {
+        || command == "qtc/reverseStepIn" || command == "qtc/reverseStepOut"
+        || command == "qtc/runToLine" || command == "qtc/runToFunction") {
         handleResumeResponse(success);
     } else if (command == "qtc/attachToCore" || command == "qtc/attachToRemoteServer") {
         if (!success) {
@@ -1267,7 +1282,7 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         if (name == "qtc/inferiorResumed") {
             m_inferiorResumed = true;
             if (std::exchange(m_interruptOnceResumed, false))
-                interruptHost();
+                interruptGdb();
             return;
         }
         if (name == "qtc/interruptIgnored") {
@@ -1350,6 +1365,13 @@ void BridgeImpl::interruptGdb()
         m_interruptOnceResumed = true;
         return;
     }
+    // A stub-owned inferior runs in a console of its own, which is the stub's
+    // to interrupt: signalling the debugger reaches it on a host that has
+    // signals at all, and nowhere else.
+    if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
+        emit interruptTerminalRequested();
+        return;
+    }
     interruptHost();
 }
 
@@ -1402,6 +1424,20 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
         return;
 
     const QString reason = body.value("reason").toString();
+    // The stub holds the inferior until it is told to let go, and letting go is
+    // a stop on the way rather than one anybody asked for.
+    if (m_expectTerminalTrap) {
+        if (Utils::HostOsInfo::isWindowsHost() && reason.isEmpty()) {
+            m_expectTerminalTrap = false;
+            return;
+        }
+        if (!Utils::HostOsInfo::isWindowsHost() && reason == u"exception"
+            && body.value("text").toString() == u"SIGCONT") {
+            m_expectTerminalTrap = false;
+            execute({ExecutionCommand::Continue});
+            return;
+        }
+    }
     if (reason == u"exception") {
         emit signalReceived(body.value("text").toString(),
                             body.value("description").toString());
@@ -1433,6 +1469,7 @@ void BridgeImpl::reportStop()
         if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
             // The stub holds the inferior stopped until it is told to let it
             // go, which is only safe once the debugger has it running.
+            m_expectTerminalTrap = true;
             execute({ExecutionCommand::Continue});
             emit kickoffTerminalProcessRequested();
             return;

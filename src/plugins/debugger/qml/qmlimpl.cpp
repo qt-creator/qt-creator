@@ -1045,7 +1045,13 @@ void QmlImpl::refresh(const RefreshRequest &request)
         return;
 
     const quint64 requestId = request.requestId;
-    runCommand({BACKTRACE}, [this, requestId](const QVariantMap &resp) {
+    const int depthLimit = request.stackDepthLimit;
+    DebuggerCommand cmd(BACKTRACE);
+    if (depthLimit >= 0) {
+        cmd.arg("fromFrame", 0);
+        cmd.arg("toFrame", depthLimit);
+    }
+    runCommand(cmd, [this, requestId](const QVariantMap &resp) {
         const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
         const QVariantList v8Frames = body.value(QLatin1String("frames")).toList();
 

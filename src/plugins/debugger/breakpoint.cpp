@@ -338,7 +338,9 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Debugger
                     type = WatchpointAtExpression;
                     expression = what;
                 }
-            } else if (child.data() == "breakpoint") {
+            } else if (child.data() == "breakpoint" || child.data() == "catchpoint") {
+                // A catchpoint arrives under either spelling, and what it
+                // catches is what names it in both.
                 QString catchType = bkpt["catch-type"].data();
                 if (catchType == "throw")
                     type = BreakpointAtThrow;

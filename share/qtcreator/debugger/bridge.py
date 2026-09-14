@@ -200,8 +200,10 @@ class DapServer():
         self.remoteCommandsAfterConnect = ''
 
         # Whether the launch asked to stop at the main function, remembered
-        # between the launch request and the configurationDone that runs.
+        # between the launch request and the configurationDone that runs, and
+        # which symbol that is: a Windows Qt application enters at qMain().
         self.stopAtMain = False
+        self.mainFunction = 'main'
 
         # A core file the session was pointed at, remembered between the
         # request that names it and the configurationDone that reads it.
@@ -393,10 +395,13 @@ class DapServer():
         self._claimStdio()
         self._takeOverStopEvents()
 
-        # Keep gdb quiet and non-interactive; this loop owns stdio.
+        # Keep gdb quiet and non-interactive, this loop owns stdio, and let a
+        # signal in a call to the inferior be unwound rather than left standing
+        # in a dummy frame, since the dumpers call into the inferior.
         for command in ['set pagination off', 'set confirm off',
                         'set width 0', 'set height 0',
                         'set print elements 10000',
+                        'set unwindonsignal on',
                         'set breakpoint pending on']:
             try:
                 gdb.execute(command, to_string=True)
@@ -678,6 +683,7 @@ class DapServer():
         self.attachMode = False
         arguments = request.get('arguments', {})
         self.stopAtMain = bool(arguments.get('stopAtMain'))
+        self.mainFunction = arguments.get('mainFunction') or 'main'
         program = gdbLineArgument(arguments.get('program') or '', 'the program path')
         if not program:
             # Going on would leave gdb without an executable, and the session
@@ -865,10 +871,17 @@ class DapServer():
         # 'start' rather than 'run': it stops at main, which is where the pid
         # becomes known, and the client has to have it before the run is
         # acknowledged. A binary without a main falls back to a plain run.
+        # 'start' is wired to main() itself, so an entry point of another name
+        # needs the temporary breakpoint made by hand.
         started = False
         try:
-            # 'start' makes a temporary breakpoint at main, which is ours.
-            self._createOwnBreakpoint(lambda: gdb.execute('start', to_string=True))
+            if self.mainFunction == 'main':
+                # 'start' makes a temporary breakpoint at main, which is ours.
+                self._createOwnBreakpoint(lambda: gdb.execute('start', to_string=True))
+            else:
+                self._createOwnBreakpoint(
+                    lambda: gdb.Breakpoint(function=self.mainFunction, temporary=True))
+                gdb.execute('run', to_string=True)
             started = True
         except gdb.error as error:
             warn('start failed, running instead: %s' % error)
@@ -1276,15 +1289,54 @@ class DapServer():
                 enabled=bp.enabled))
         return decoded
 
+    # Of the types gdb maps, the ones that watch data rather than sit at a
+    # code location.
+    WATCHPOINT_TYPES = (gdb.BP_WATCHPOINT, gdb.BP_HARDWARE_WATCHPOINT,
+                        gdb.BP_READ_WATCHPOINT, gdb.BP_ACCESS_WATCHPOINT)
+
+    def _gdbTypeOf(self, bp):
+        try:
+            # gdb refuses to map a type it does not know rather than returning
+            # it, so this can raise.
+            return bp.type
+        except Exception:
+            return None
+
     def _isWatchpoint(self, bp, requested):
         if requested is not None:
             return requested in (self.BP_WATCH_ADDRESS, self.BP_WATCH_EXPRESSION)
-        try:
-            # Not one of ours. gdb refuses to map a type it does not know
-            # rather than returning it, so this can raise.
-            return bp.type != gdb.BP_BREAKPOINT
-        except Exception:
-            return False
+        return self._gdbTypeOf(bp) in self.WATCHPOINT_TYPES
+
+    def _fillCatchpointDict(self, result, bp):
+        # Which event a catchpoint catches is in none of gdb's Python
+        # attributes, so it has to be read off the column gdb prints for it.
+        what = ''
+        for line in gdb.execute('info breakpoints %s' % bp.number,
+                                to_string=True).splitlines():
+            fields = line.split(None, 4)
+            if len(fields) == 5 and fields[0] == str(bp.number):
+                what = fields[4].strip()
+                break
+        result['type'] = 'catchpoint'
+        # The spellings gdb's own MI uses, which is what
+        # BreakpointParameters::updateFromGdbOutput() reads.
+        match = re.match(r'^exception (\w+)$', what)
+        if match:
+            result['catch-type'] = match.group(1)
+            result['what'] = what
+            return
+        match = re.match(r'^(signal|syscall) "(.*)"$', what)
+        if match:
+            result['catch-type'] = match.group(1)
+            result['what'] = match.group(2)
+            return
+        match = re.match(r'^(load|unload) of library$', what)
+        if match:
+            result['catch-type'] = match.group(1)
+            result['what'] = what
+            return
+        # fork, vfork and exec, which gdb's MI reports without a "what".
+        result['catch-type'] = what
 
     def _breakpointToMi(self, bp):
         args = self.breakpointArgsById.get(str(bp.number), {})
@@ -1297,6 +1349,12 @@ class DapServer():
         }
         if bp.condition:
             result['cond'] = bp.condition
+
+        if requested is None and self._gdbTypeOf(bp) == gdb.BP_CATCHPOINT:
+            # A catchpoint has no code location, and must not be asked for
+            # one: gdb.Breakpoint.locations dies on it.
+            self._fillCatchpointDict(result, bp)
+            return self.dumper.resultToMi(result)
 
         if self._isWatchpoint(bp, requested):
             # A watchpoint has no code location, and must not be asked for one:

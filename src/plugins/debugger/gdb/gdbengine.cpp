@@ -1897,7 +1897,7 @@ void GdbEngine::executeStepIn(bool byInstruction)
         cmd.flags = RunRequest|NeedsFlush;
         cmd.function = "-exec-step-instruction";
         if (isReverseDebugging())
-            cmd.function += "--reverse";
+            cmd.function += " --reverse";
         cmd.callback = CB(handleExecuteContinue);
     } else {
         // Crossing from C++ into QML: pause at the next executed JS

@@ -219,6 +219,7 @@ private:
         QString name;
         int size = 0;
         QString reportedType;
+        QStringList groups;
     };
     QHash<int, RegisterInfo> m_registerInfoByNumber;
     bool m_registerNamesListed = false;

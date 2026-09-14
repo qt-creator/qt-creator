@@ -49,31 +49,14 @@ static GdbMi constMi(const QString &name, const QString &data)
     return mi;
 }
 
-static QString mappedPath(const QList<QPair<QString, QString>> &map, const QString &path,
-                          bool toLocal)
-{
-    if (path.isEmpty() || map.isEmpty())
-        return path;
-    const FilePath given = FilePath::fromUserInput(path);
-    for (const QPair<QString, QString> &entry : map) {
-        const FilePath from = FilePath::fromUserInput(toLocal ? entry.first : entry.second);
-        const FilePath to = FilePath::fromUserInput(toLocal ? entry.second : entry.first);
-        if (given == from)
-            return to.path();
-        if (given.isChildOf(from))
-            return to.pathAppended(given.relativePathFromDir(from)).path();
-    }
-    return path;
-}
-
 QString DapImpl::localSourcePath(const QString &reported) const
 {
-    return mappedPath(m_startData.sourcePathMap, reported, true);
+    return mappedSourcePath(m_startData.sourcePathMap, reported, true);
 }
 
 QString DapImpl::reportedSourcePath(const QString &local) const
 {
-    return mappedPath(m_startData.sourcePathMap, local, false);
+    return mappedSourcePath(m_startData.sourcePathMap, local, false);
 }
 
 static DebuggerEngineSetupData dapImplSetupData()
@@ -103,6 +86,10 @@ static DebuggerEngineSetupData dapImplSetupData()
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
+            return false;
+        // A QML file has no adapter of its own here, and the source breakpoint
+        // an adapter for the native side would get is one it cannot resolve.
+        if (!query.isCppBreakpoint())
             return false;
         return query.type == BreakpointByFileAndLine || query.type == BreakpointByFunction
                || query.type == BreakpointAtThrow || query.type == BreakpointAtCatch;
@@ -623,7 +610,7 @@ void DapImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         QList<Breakpoint> &list = byFunction ? m_functionBreakpoints
                                              : m_sourceBreakpoints[file];
         list.append({request.requestId, request.op, request.modelId, {}, params,
-                     params.enabled});
+                     params.enabled, false, params.oneShot});
         inArray = params.enabled;
     } else {
         QList<Breakpoint> *list = nullptr;
@@ -1142,7 +1129,7 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // point either, so the setting becomes a breakpoint on the function,
         // taken back once it has been hit.
         if (m_startData.breakOnMain)
-            addInternalFunctionBreakpoint("main", true);
+            addInternalFunctionBreakpoint(m_startData.mainFunctionName, true);
         // The names a namespaced Qt gives these are out of reach: there is no
         // request that would tell what the namespace is.
         if (m_startData.breakOnAbort)
@@ -1277,13 +1264,25 @@ void DapImpl::handleStopped(const QJsonObject &event)
         }
         return false;
     };
+    const auto reportTakenBack = [this](const QList<Breakpoint> &list) {
+        for (const Breakpoint &breakpoint : list) {
+            if (breakpoint.internal)
+                continue;
+            GdbMi deleted;
+            deleted.m_type = GdbMi::Tuple;
+            deleted.addChild(constMi("number", breakpoint.responseId));
+            emit breakpointEvent(0, BreakpointOp::Remove, true, deleted);
+        }
+    };
     if (Utils::contains(m_functionBreakpoints, wasHit)) {
+        reportTakenBack(Utils::filtered(m_functionBreakpoints, wasHit));
         Utils::erase(m_functionBreakpoints, wasHit);
         sendFunctionBreakpoints();
     }
     for (auto it = m_sourceBreakpoints.begin(); it != m_sourceBreakpoints.end(); ++it) {
         if (!Utils::contains(it.value(), wasHit))
             continue;
+        reportTakenBack(Utils::filtered(it.value(), wasHit));
         Utils::erase(it.value(), wasHit);
         sendBreakpointsFor(it.key());
     }

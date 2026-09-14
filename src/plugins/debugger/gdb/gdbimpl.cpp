@@ -899,6 +899,8 @@ void GdbImpl::refresh(const RefreshRequest &request)
                     info.name = parts.at(0);
                     info.size = parts.at(4).toInt();
                     info.reportedType = parts.at(5);
+                    if (parts.size() > 6)
+                        info.groups = parts.at(6).split(',', Qt::SkipEmptyParts);
                     m_registerInfoByNumber[parts.at(1).toInt()] = info;
                 }
             }
@@ -1028,6 +1030,8 @@ void GdbImpl::fetchRegisterValues(quint64 requestId)
                 reg.addChild(constMi("name", it->name));
                 reg.addChild(constMi("size", QString::number(it->size)));
                 reg.addChild(constMi("type", it->reportedType));
+                reg.addChild(constMi("groups", it->groups.join(',')));
+
                 reg.addChild(constMi("value", item["value"].data()));
                 result.addChild(reg);
             }
