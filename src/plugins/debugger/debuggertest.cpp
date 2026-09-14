@@ -512,6 +512,22 @@ void DebuggerUnitTests::testCdbImplStartData()
 
         QVERIFY(cdbImplStartData(rp).extensionFileName.isEmpty());
     }
+
+    // cdb speaks its own "-remote" syntax, so the channel is passed on unchanged.
+    {
+        DebuggerRunParameters rp;
+        rp.setStartMode(AttachToRemoteServer);
+        rp.setRemoteChannel("tcp:port=1234,server=192.168.1.1");
+        rp.setSymbolFile("C:/build/tst_inferior.exe");
+        rp.setAttachPid(ProcessHandle(4711));
+
+        const CdbImplStartData data = cdbImplStartData(rp);
+        const auto *remoteData = std::get_if<AttachToRemoteServerData>(&data.inferiorStartData);
+        QVERIFY(remoteData);
+        QCOMPARE(remoteData->channel, QString("tcp:port=1234,server=192.168.1.1"));
+        QCOMPARE(remoteData->symbolFile, FilePath("C:/build/tst_inferior.exe"));
+        QCOMPARE(remoteData->attachPid.pid(), 4711);
+    }
 }
 
 void DebuggerUnitTests::testCdbImplCommandLine()
@@ -569,6 +585,24 @@ void DebuggerUnitTests::testCdbImplCommandLine()
                  ".load " + extension.nativePath() + '\n' + idleCommand + '\n');
     }
 
+    // Attaching to a remote server: "-remote" has to come first, the session loads
+    // the extension itself once it stands, and the symbols come from the local copy
+    // of the binary running on the target.
+    {
+        CdbImplStartData remoteData = startData;
+        remoteData.inferiorStartData = AttachToRemoteServerData{
+            "tcp:port=1234,server=192.168.1.1", inferiorDir / "tst_inferior.exe", {}, {}};
+
+        CdbImpl cdb(remoteData);
+        QVERIFY(cdb.setupProcess());
+        const QStringList args = cdb.m_cdbProc.commandLine().splitArguments();
+        QCOMPARE(args.value(0), QString("-remote"));
+        QCOMPARE(args.value(1), QString("tcp:port=1234,server=192.168.1.1"));
+        QVERIFY(!args.contains("-aqtcreatorcdbext.dll"));
+        QVERIFY(!args.contains("-cf"));
+        const QStringList symbolPaths = args.value(args.indexOf("-y") + 1).split(';');
+        QVERIFY(symbolPaths.contains(inferiorDir.nativePath()));
+    }
 }
 
 // A session without a build configuration - an attach, or a foreign debug

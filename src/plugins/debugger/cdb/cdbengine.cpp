@@ -3342,6 +3342,8 @@ static InferiorStartData cdbImplInferiorStartData(const DebuggerRunParameters &r
         return AttachToProcessData{rp.attachPid()};
     case AttachToCrashedProcess:
         return AttachToProcessData{rp.attachPid(), rp.crashParameter()};
+    case AttachToRemoteServer:
+        return AttachToRemoteServerData{rp.remoteChannel(), rp.symbolFile(), rp.attachPid(), {}};
     default:
         break;
     }

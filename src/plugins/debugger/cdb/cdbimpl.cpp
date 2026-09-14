@@ -193,7 +193,8 @@ static DebuggerEngineSetupData cdbImplSetupData()
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToCore
-                    | DebuggerStartModeFlag::AttachToCrashedProcess;
+                    | DebuggerStartModeFlag::AttachToCrashedProcess
+                    | DebuggerStartModeFlag::AttachToRemoteServer;
     return data;
 }
 
@@ -224,6 +225,14 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     });
     m_cdbProc.setStdErrLineCallback([this](const QString &line) {
         emit message(line.endsWith('\n') ? line.chopped(1) : line, LogError);
+    });
+    connect(&m_cdbProc, &Process::started, this, [this] {
+        if (!std::holds_alternative<AttachToRemoteServerData>(m_startData.inferiorStartData))
+            return;
+        // A remote session reports no idle, but takes commands from the start.
+        m_accessible = true;
+        runCommand({".load " + m_startData.extensionFileName, NoFlags});
+        handleInitialSessionIdle();
     });
     connect(&m_cdbProc, &Process::done, this, [this] {
         m_watchdog.stop();
@@ -302,15 +311,22 @@ Result<> CdbImpl::setupProcess()
     }
 
     CommandLine cdbCommand = m_startData.debuggerRunData.command;
+    const bool isRemoteServer
+        = std::holds_alternative<AttachToRemoteServerData>(m_startData.inferiorStartData);
+    if (isRemoteServer) { // Must come first.
+        cdbCommand.addArgs({"-remote",
+                            std::get<AttachToRemoteServerData>(m_startData.inferiorStartData)
+                                .channel});
+    }
     // "-a<name>" takes a bare DLL name, which cdb resolves through
     // _NT_DEBUGGER_EXTENSION_PATH. That variable does not reach a cdb on a device: the
     // process runs in ProcessMode::Writer, for which the device process interface injects
     // no environment (a shell wrapper would corrupt the command stream). Load the extension
     // by its absolute device path instead, from a startup script, as ".load" needs the full
     // path and consumes the rest of the line, so it cannot share the single "-c" string
-    // with ".idle_cmd".
+    // with ".idle_cmd". A remote session loads it once the connection stands.
     const bool loadExtensionByPath = !cdbExecutable.isLocal();
-    if (!loadExtensionByPath)
+    if (!loadExtensionByPath && !isRemoteServer)
         cdbCommand.addArg("-a" + m_startData.extensionFileName);
     const QString idleCommand = ".idle_cmd " + m_extensionCommandPrefix + "idle";
     cdbCommand.addArgs({"-lines", "-G"});
@@ -339,6 +355,9 @@ Result<> CdbImpl::setupProcess()
         // of "srv*" is a walk to the symbol server for every one of them.
         inferiorDir = std::get<AttachToCoreData>(m_startData.inferiorStartData)
                           .executable.parentDir();
+    } else if (isRemoteServer) {
+        inferiorDir = std::get<AttachToRemoteServerData>(m_startData.inferiorStartData)
+                          .symbolFile.parentDir();
     }
     if (!inferiorDir.isEmpty())
         symbolPaths.append(inferiorDir.nativePath());
@@ -389,6 +408,38 @@ Result<> CdbImpl::setupProcess()
     }
     m_cdbProc.setEnvironment(env);
     return ResultOk;
+}
+
+void CdbImpl::handleInitialSessionIdle()
+{
+    m_initialSessionIdleHandled = true;
+    initializeSession([this] {
+        for (const QString &command : m_startData.startupCommands)
+            runCommand({command, NoFlags});
+        if (!isCore())
+            insertCrtDebugReportBreakpoints();
+        if (m_isResetRestart) {
+            m_isResetRestart = false;
+            // insertBreakpoint() writes back into m_insertedBreakpoints.
+            const QHash<QString, BreakpointParameters> restored = m_insertedBreakpoints;
+            for (auto it = restored.cbegin(); it != restored.cend(); ++it)
+                insertBreakpoint(0, it.key(), 0, it.value(), false);
+        } else if (isCore()) {
+            emit inferiorEvent(InferiorEvent::EngineSetupOk);
+            emit inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
+            return;
+        } else if (isAttach()) {
+            emit inferiorEvent(InferiorEvent::EngineSetupOk);
+            emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+            return;
+        } else {
+            if (m_startData.breakOnMain)
+                insertMainBreakpoint();
+            emit inferiorEvent(InferiorEvent::EngineSetupOk);
+            emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
+        }
+        resumeAfterSetup();
+    });
 }
 
 void CdbImpl::start()
@@ -2587,36 +2638,8 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
     }
 
     if (what == "session_idle") {
-        const bool firstTime = !m_initialSessionIdleHandled;
-        m_initialSessionIdleHandled = true;
-        if (firstTime) {
-            initializeSession([this] {
-                for (const QString &command : m_startData.startupCommands)
-                    runCommand({command, NoFlags});
-                if (!isCore())
-                    insertCrtDebugReportBreakpoints();
-                if (m_isResetRestart) {
-                    m_isResetRestart = false;
-                    // insertBreakpoint() writes back into m_insertedBreakpoints.
-                    const QHash<QString, BreakpointParameters> restored = m_insertedBreakpoints;
-                    for (auto it = restored.cbegin(); it != restored.cend(); ++it)
-                        insertBreakpoint(0, it.key(), 0, it.value(), false);
-                } else if (isCore()) {
-                    emit inferiorEvent(InferiorEvent::EngineSetupOk);
-                    emit inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
-                    return;
-                } else if (isAttach()) {
-                    emit inferiorEvent(InferiorEvent::EngineSetupOk);
-                    emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
-                    return;
-                } else {
-                    if (m_startData.breakOnMain)
-                        insertMainBreakpoint();
-                    emit inferiorEvent(InferiorEvent::EngineSetupOk);
-                    emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
-                }
-                resumeAfterSetup();
-            });
+        if (!m_initialSessionIdleHandled) {
+            handleInitialSessionIdle();
             return;
         }
         GdbMi stopData;

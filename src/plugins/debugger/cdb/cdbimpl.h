@@ -103,6 +103,7 @@ private:
     void executeDebuggerCommand(const QString &command,
                                 const WatchItemData &inspectorItem) final;
 
+    void handleInitialSessionIdle();
     void handleCdbOutputLine(const QString &rawLine);
     void handleExtensionMessage(char type, int token, const QString &what,
                                 const QString &payload);
