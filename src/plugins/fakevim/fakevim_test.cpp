@@ -7793,6 +7793,263 @@ void FakeVimTester::test_vim_ex_error_messages()
     data.setText("abc" N "def" N "ghi");
     data.doCommand("3k u");
     KEYS("'urZ", "abc" N "def" N X "Zhi");
+
+    // ":unlet" of a variable that is not set has an error of its own, which
+    // is not the one an expression reading it reports.
+    QCOMPARE(error("unlet nosuch"), QLatin1String("E108: No such variable: \"nosuch\""));
+    QCOMPARE(error("unlet g:nosuch"), QLatin1String("E108: No such variable: \"g:nosuch\""));
+    QCOMPARE(error("unlet"), QLatin1String("E471: Argument required"));
+    QCOMPARE(error("unlet! nosuch"), QLatin1String(""));
+    // The names are taken in order, so the first one missing is the one named.
+    data.doCommand("let g:a = 1");
+    QCOMPARE(error("unlet g:a g:b"), QLatin1String("E108: No such variable: \"g:b\""));
+
+    // A string left open names the piece it is, from its quote to the end.
+    QCOMPARE(error("echo \"abc"), QLatin1String("E114: Missing double quote: \"abc"));
+    QCOMPARE(error("echo \"abc\" . \"de"),
+             QLatin1String("E114: Missing double quote: \"de"));
+    QCOMPARE(error("echo 'abc"), QLatin1String("E115: Missing single quote: 'abc"));
+    QCOMPARE(error("let g:x = 'ab"), QLatin1String("E115: Missing single quote: 'ab"));
+
+    // ":let {name}" with nothing assigned shows what the name holds, and a
+    // name holding nothing is "E121". Values measured in Vim 9.1: the name is
+    // padded to column 22, a number carries a "#" and a funcref a "*", a list
+    // and a dictionary carry nothing at all.
+    QString info;
+    data.handler->extraInformationChanged.set([&](const QString &text) { info = text; });
+    const auto shown = [&](const char *cmd) -> QString {
+        info.clear();
+        data.doCommand(QLatin1String(cmd));
+        return info;
+    };
+    data.doCommand("let g:a = 1");
+    data.doCommand("let g:bb = 'xy'");
+    data.doCommand("let g:l = [1, 2]");
+    data.doCommand("let g:d = {'k': 1}");
+    data.doCommand("let g:f = 1.5");
+    QCOMPARE(shown("let g:a"), QLatin1String("g:a                   #1\n"));
+    QCOMPARE(shown("let g:bb"), QLatin1String("g:bb                   xy\n"));
+    QCOMPARE(shown("let g:l"), QLatin1String("g:l                   [1, 2]\n"));
+    QCOMPARE(shown("let g:d"), QLatin1String("g:d                   {'k': 1}\n"));
+    QCOMPARE(shown("let g:f"), QLatin1String("g:f                    1.5\n"));
+    QCOMPARE(shown("let g:a g:bb"),
+             QLatin1String("g:a                   #1\ng:bb                   xy\n"));
+    QCOMPARE(error("let g:nosuch"), QLatin1String("E121: Undefined variable: g:nosuch"));
+
+    // A left-hand side that can hold nothing is read as a name to show, which
+    // is where Vim's answer to ":let 1x = 2" comes from.
+    QCOMPARE(error("let 1x = 2"), QLatin1String("E121: Undefined variable: 1x"));
+    QCOMPARE(error("let 2 = 3"), QLatin1String("E121: Undefined variable: 2"));
+    QCOMPARE(error("let x+y = 1"), QLatin1String("E121: Undefined variable: x"));
+    data.doCommand("unlet g:a | unlet g:bb | unlet g:l | unlet g:d | unlet g:f");
+
+    // ":undo {N}" goes to the state change number N left behind, and refuses a
+    // number no change has. Measured on a buffer of one line with three more
+    // appended one at a time: ":undo 2" leaves the first of them, ":undo 0"
+    // the buffer as it was.
+    data.setText("abc");
+    data.doKeys("ox<ESC>oy<ESC>oz<ESC>");
+    QCOMPARE(data.text(), QByteArray("abc" N "x" N "y" N "z"));
+    QCOMPARE(error("undo 99"), QLatin1String("E830: Undo number 99 not found"));
+    QCOMPARE(data.text(), QByteArray("abc" N "x" N "y" N "z"));
+    QCOMPARE(error("undo -1"), QLatin1String("E488: Trailing characters: -1"));
+    QCOMPARE(error("undo x"), QLatin1String("E488: Trailing characters: x"));
+    data.doCommand("undo 2");
+    QCOMPARE(data.text(), QByteArray("abc" N "x"));
+    data.doCommand("undo 0");
+    QCOMPARE(data.text(), QByteArray("abc"));
+    data.doCommand("undo 3");
+    QCOMPARE(data.text(), QByteArray("abc" N "x" N "y"));
+
+    // The listing and the line commands take no "!" at all, and a bang on one
+    // of them keeps it from running. The commands that do take one are the
+    // majority, so a few of those are checked here as well.
+    const QLatin1String noBang("E477: No ! allowed");
+    data.setText("abc" N "def");
+    QCOMPARE(error("marks!"), noBang);
+    QCOMPARE(error("marks!!"), noBang);
+    QCOMPARE(error("registers!"), noBang);
+    QCOMPARE(error("undolist!"), noBang);
+    QCOMPARE(error("ascii!"), noBang);
+    QCOMPARE(error("nohl!"), noBang);
+    QCOMPARE(error("jumps!"), noBang);
+    QCOMPARE(error("changes!"), noBang);
+    QCOMPARE(error("messages!"), noBang);
+    QCOMPARE(error("pwd!"), noBang);
+    QCOMPARE(error("mark! a"), noBang);
+    QCOMPARE(error("k! a"), noBang);
+    QCOMPARE(error("1d!"), noBang);
+    QCOMPARE(error("1y!"), noBang);
+    QCOMPARE(error("1t! 2"), noBang);
+    QCOMPARE(error("1m! 2"), noBang);
+    QCOMPARE(error("1nu!"), noBang);
+    QCOMPARE(error("tags!"), noBang);
+    QCOMPARE(error("clearjumps!"), noBang);
+    QCOMPARE(error("undojoin!"), noBang);
+    QCOMPARE(error("earlier!"), noBang);
+    QCOMPARE(error("later!"), noBang);
+    QCOMPARE(data.text(), QByteArray("abc" N "def"));
+    data.doCommand("1,2sort!");
+    QCOMPARE(data.text(), QByteArray("def" N "abc"));
+    data.doCommand("1,2j!");
+    QCOMPARE(data.text(), QByteArray("defabc"));
+
+    // A group left open is numbered in Vim, where QRegularExpression only says
+    // the pattern is bad.
+    data.setText("abc");
+    QCOMPARE(error("%s/\\(/x/"), QLatin1String("E54: Unmatched \\("));
+    QCOMPARE(error("%s/\\)/x/"), QLatin1String("E55: Unmatched \\)"));
+    QCOMPARE(error("%s/\\%(/x/"), QLatin1String("E53: Unmatched \\%("));
+    QCOMPARE(error("%s/\\(a\\|/x/"), QLatin1String("E54: Unmatched \\("));
+    QCOMPARE(data.text(), QByteArray("abc"));
+    message.clear();
+    data.doKeys("/\\(<CR>");
+    QCOMPARE(message, QLatin1String("E54: Unmatched \\("));
+
+    // ":unlet" of a key or an index takes that item out of the dictionary or
+    // the list, and names what is not there. A "!" keeps quiet about it.
+    data.doCommand("let g:d = {'k': 1}");
+    data.doCommand("let g:l = [1, 2, 3]");
+    QCOMPARE(error("unlet g:d.x"),
+             QLatin1String("E716: Key not present in Dictionary: \"x\""));
+    QCOMPARE(error("unlet! g:d.x"), QLatin1String(""));
+    QCOMPARE(error("unlet g:l[5]"), QLatin1String("E684: List index out of range: 5"));
+    QCOMPARE(error("unlet! g:l[5]"), QLatin1String(""));
+    data.doCommand("unlet g:d['k']");
+    QCOMPARE(shown("let g:d"), QLatin1String("g:d                   {}\n"));
+    data.doCommand("unlet g:l[0]");
+    data.doCommand("unlet g:l[-1]");
+    QCOMPARE(shown("let g:l"), QLatin1String("g:l                   [2]\n"));
+    QCOMPARE(error("echo g:d.x"),
+             QLatin1String("E716: Key not present in Dictionary: \"x\""));
+    data.doCommand("unlet g:d | unlet g:l");
+
+    // An error nobody caught is reported as the error it is, where a ":throw"
+    // nobody caught has a number of its own.
+    QCOMPARE(error("throw 'boom'"), QLatin1String("E605: Exception not caught: boom"));
+    QCOMPARE(error("try | throw 'boom' | endtry"),
+             QLatin1String("E605: Exception not caught: boom"));
+    QCOMPARE(error("unlet b:changedtick"),
+             QLatin1String("E795: Cannot delete variable b:changedtick"));
+    QCOMPARE(error("unlet v:count"), QLatin1String("E795: Cannot delete variable v:count"));
+    QCOMPARE(error("unlet! v:count"), QLatin1String("E795: Cannot delete variable v:count"));
+    QCOMPARE(error("unlet v:errmsg"), QLatin1String("E795: Cannot delete variable v:errmsg"));
+    QCOMPARE(error("unlet v:nosuch"), QLatin1String("E108: No such variable: \"v:nosuch\""));
+
+    // The ":let" left-hand sides Vim refuses by their shape.
+    QCOMPARE(error("let $ = 1"), QLatin1String("E475: Invalid argument: $ = 1"));
+    QCOMPARE(error("let $ += 1"), QLatin1String("E475: Invalid argument: $ += 1"));
+    QCOMPARE(error("let & = 1"), QLatin1String("E18: Unexpected characters in :let"));
+    QCOMPARE(error("let @ = 1"), QLatin1String("E354: Invalid register name: ' '"));
+    QCOMPARE(error("let g: = 1"), QLatin1String("E461: Illegal variable name: g:"));
+    QCOMPARE(error("let b: = 1"), QLatin1String("E461: Illegal variable name: b:"));
+    QCOMPARE(error("let $"), QLatin1String("E15: Invalid expression: \"$\""));
+    QCOMPARE(error("let $FOO"), QLatin1String("E15: Invalid expression: \"$FOO\""));
+    QCOMPARE(error("let &sw"), QLatin1String("E15: Invalid expression: \"&sw\""));
+    QCOMPARE(error("let @@"), QLatin1String("E15: Invalid expression: \"@@\""));
+    QCOMPARE(error("let [a] = 1"), QLatin1String("E1535: List or Tuple required"));
+    QCOMPARE(error("let [a, b] = {}"), QLatin1String("E1535: List or Tuple required"));
+    QCOMPARE(error("call add(1, 2)"), QLatin1String("E897: List or Blob required"));
+    QCOMPARE(error("for x in 1 | endfor"),
+             QLatin1String("E1523: String, List, Tuple or Blob required"));
+
+    // The delimiters the expression parser does not find are numbered, and a
+    // tuple says which of the two it wanted.
+    QCOMPARE(error("echo (1 2)"), QLatin1String("E110: Missing ')'"));
+    QCOMPARE(error("echo (1,2 3)"), QLatin1String("E1527: Missing comma in Tuple: 3)"));
+    QCOMPARE(error("echo (1,"), QLatin1String("E1526: Missing end of Tuple ')': "));
+    error("let g:l = [1, 2]");
+    QCOMPARE(error("echo g:l[0"), QLatin1String("E111: Missing ']'"));
+    QCOMPARE(error("echo g:l[0:1"), QLatin1String("E111: Missing ']'"));
+    QCOMPARE(error("echo 1 ? 2"), QLatin1String("E109: Missing ':' after '?'"));
+
+    // A list and a dictionary literal each have a number for the separator and
+    // one for the closing delimiter, told apart by whether an item was read.
+    QCOMPARE(error("echo [1 2]"), QLatin1String("E696: Missing comma in List: 2]"));
+    QCOMPARE(error("echo [1,2"), QLatin1String("E696: Missing comma in List: "));
+    QCOMPARE(error("echo [1,"), QLatin1String("E697: Missing end of List ']': "));
+    QCOMPARE(error("echo ["), QLatin1String("E697: Missing end of List ']': "));
+    QCOMPARE(error("echo {1"), QLatin1String("E720: Missing colon in Dictionary: "));
+    QCOMPARE(error("echo {'a' 1}"), QLatin1String("E720: Missing colon in Dictionary: 1}"));
+    QCOMPARE(error("echo {'a':1"), QLatin1String("E722: Missing comma in Dictionary: "));
+    QCOMPARE(error("echo {'a':1 'b':2}"),
+             QLatin1String("E722: Missing comma in Dictionary: 'b':2}"));
+    QCOMPARE(error("echo {'a':1,"), QLatin1String("E723: Missing end of Dictionary '}': "));
+    QCOMPARE(error("echo {"), QLatin1String("E723: Missing end of Dictionary '}': "));
+
+    // A call whose ")" is missing is reported as an argument list Vim cannot
+    // make sense of, and it prints the name along with what follows it.
+    QCOMPARE(error("echo strlen("),
+             QLatin1String("E116: Invalid arguments for function strlen("));
+    QCOMPARE(error("echo strlen(1"),
+             QLatin1String("E116: Invalid arguments for function strlen(1"));
+    QCOMPARE(error("echo strlen(1,"),
+             QLatin1String("E116: Invalid arguments for function strlen(1,"));
+    QCOMPARE(error("echo 1->strlen("),
+             QLatin1String("E116: Invalid arguments for function strlen("));
+    QCOMPARE(error("echo 1->strlen"), QLatin1String("E107: Missing parentheses: strlen"));
+    QCOMPARE(error("echo 1->"), QLatin1String("E260: Missing name after ->"));
+
+    // What cannot be indexed is reported by its type, and a dictionary takes an
+    // index but no slice.
+    error("let g:sl = {'a': 1}");
+    error("let g:fn = function('strlen')");
+    QCOMPARE(error("echo g:sl[0:1]"), QLatin1String("E719: Cannot slice a Dictionary"));
+    QCOMPARE(error("echo g:fn[0]"), QLatin1String("E695: Cannot index a Funcref"));
+    QCOMPARE(error("echo g:fn[0:1]"), QLatin1String("E695: Cannot index a Funcref"));
+    QCOMPARE(error("echo 1.5[0]"), QLatin1String("E806: Using a Float as a String"));
+    QCOMPARE(error("echo v:true[0]"),
+             QLatin1String("E909: Cannot index a special variable"));
+    QCOMPARE(error("echo v:null[0:1]"),
+             QLatin1String("E909: Cannot index a special variable"));
+
+    // ":let" into an index of something that holds neither list nor dictionary
+    // names the type and prints the whole assignment back.
+    error("let g:iv = 1");
+    QCOMPARE(error("let g:iv[0] = 2"),
+             QLatin1String("E689: Index not allowed after a number: g:iv[0] = 2"));
+    error("let g:iv = 'ab'");
+    QCOMPARE(error("let g:iv[0]='c'"),
+             QLatin1String("E689: Index not allowed after a string: g:iv[0]='c'"));
+    QCOMPARE(error("let g:fn[0]=1"),
+             QLatin1String("E689: Index not allowed after a func: g:fn[0]=1"));
+
+    // A name with "()" behind it that belongs to a variable holding no funcref
+    // is not an unknown function.
+    error("let g:iv = 1");
+    QCOMPARE(error("echo g:iv()"), QLatin1String("E1085: Not a callable type: g:iv"));
+    QCOMPARE(error("call g:iv()"), QLatin1String("E1085: Not a callable type: g:iv"));
+    error("let g:iv = 'strlen'");
+    QCOMPARE(error("echo g:iv()"), QLatin1String("E1085: Not a callable type: g:iv"));
+    QCOMPARE(error("echo g:nosuchfn()"), QLatin1String("E117: Unknown function: g:nosuchfn"));
+
+    // Moving a range into itself, and a writefile() with no list to write.
+    data.setText("a" N "b" N "c" N "d" N "e");
+    QCOMPARE(error("1,2move 1"),
+             QLatin1String("E134: Cannot move a range of lines into itself"));
+    QCOMPARE(error("call writefile(1, '/dev/null')"),
+             QLatin1String("E475: Invalid argument: writefile() first argument must be "
+                           "a List or a Blob"));
+
+    // A ":for" whose names do not parse is reported as a missing "in".
+    const QLatin1String needsIn("E690: Missing \"in\" after :for");
+    QCOMPARE(error("for | endfor"), needsIn);
+    QCOMPARE(error("for x | endfor"), needsIn);
+    QCOMPARE(error("for 1x in [1] | endfor"), needsIn);
+    QCOMPARE(error("for x y in [1] | endfor"), needsIn);
+
+    // A function header with no usable name, and one in a scope no function
+    // can live in.
+    QCOMPARE(error("function! ()"), QLatin1String("E129: Function name required"));
+    QCOMPARE(error("function! 1Foo()"), QLatin1String("E129: Function name required"));
+    QCOMPARE(error("function! b:foo()"),
+             QLatin1String("E884: Function name cannot contain a colon: b:foo()"));
+    QCOMPARE(error("function! w:Foo()"),
+             QLatin1String("E884: Function name cannot contain a colon: w:Foo()"));
+
+    // The globals above outlive this test function, and another one asks about
+    // the same names.
+    error("unlet g:sl g:fn g:iv g:l");
 }
 
 void FakeVimTester::test_vim_ex_normal()
@@ -29973,11 +30230,11 @@ void FakeVimTester::test_vim_command_earlier_later()
                 message = msg;
         });
     COMMAND("later 1", "ne" N "wo" N X "hree");
-    QCOMPARE(message, QLatin1String("Already at newest change."));
+    QCOMPARE(message, QLatin1String("Already at newest change"));
     COMMAND("earlier 100", X "one" N "two" N "three");
     message.clear();
     COMMAND("earlier 1", X "one" N "two" N "three");
-    QCOMPARE(message, QLatin1String("Already at oldest change."));
+    QCOMPARE(message, QLatin1String("Already at oldest change"));
 }
 
 void FakeVimTester::test_vim_script_list_functions()
@@ -32577,14 +32834,14 @@ void FakeVimTester::test_vim_script_const()
     QCOMPARE(echo("g:cc"), QLatin1String("5"));
     message.clear();
     data.doCommand("let g:cc = 6");
-    QCOMPARE(message, QLatin1String("Uncaught exception: E741: Value is locked: g:cc"));
+    QCOMPARE(message, QLatin1String("E741: Value is locked: g:cc"));
     QCOMPARE(echo("g:cc"), QLatin1String("5"));
 
     // Abbreviated, as Vim allows down to "cons".
     data.doCommand("cons g:dd = 7");
     message.clear();
     data.doCommand("let g:dd = 8");
-    QCOMPARE(message, QLatin1String("Uncaught exception: E741: Value is locked: g:dd"));
+    QCOMPARE(message, QLatin1String("E741: Value is locked: g:dd"));
 
     data.doCommand("unlockvar g:cc | unlet g:cc");
     data.doCommand("unlockvar g:dd | unlet g:dd");

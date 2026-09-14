@@ -1046,6 +1046,35 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle,
                                                    : QRegularExpression::NoPatternOption);
 }
 
+// Vim names the group a pattern leaves open, where QRegularExpression only says
+// the pattern is bad. Measured in Vim 9.1: an open "\(" is E54, a "\)" with
+// nothing open E55, and "\%(" carries a number of its own. Nothing is said about
+// a pattern that is invalid for another reason, which the caller still reports
+// the way it did.
+static QString unmatchedGroupError(const QString &needle)
+{
+    QList<bool> open; // for each group still open, whether it was "\%("
+    for (int i = 0; i + 1 < needle.size(); ++i) {
+        if (needle.at(i) != '\\')
+            continue;
+        const QChar c = needle.at(i + 1);
+        if (c == '(') {
+            open.append(false);
+        } else if (c == '%' && i + 2 < needle.size() && needle.at(i + 2) == '(') {
+            open.append(true);
+            ++i;
+        } else if (c == ')') {
+            if (open.isEmpty())
+                return Tr::tr("E55: Unmatched \\)");
+            open.removeLast();
+        }
+        ++i;
+    }
+    if (open.isEmpty())
+        return {};
+    return open.last() ? Tr::tr("E53: Unmatched \\%(") : Tr::tr("E54: Unmatched \\(");
+}
+
 static bool afterEndOfLine(const QTextDocument *doc, int position)
 {
     return doc->characterAt(position) == ParagraphSeparator
@@ -3764,6 +3793,7 @@ public:
     // undo handling
     int revision() const { return document()->availableUndoSteps(); }
     void undoRedo(bool undo);
+    void undoToRevision(int wanted);
     void undo();
     void redo();
     void pushUndoState(bool overwrite = true);
@@ -4046,6 +4076,9 @@ public:
                         VimValue *result, QString *error);
     bool handleExLetCommand(const ExCommand &cmd);
     bool letAssignIndexed(const QString &args);
+    bool unletIndexed(const QString &lhs, bool hasBang);
+    bool letShowVariables(const QString &args);
+    bool letBadName(const QString &args);
     bool handleExUnletCommand(const ExCommand &cmd);
     bool handleExDelFunctionCommand(const ExCommand &cmd);
     bool handleExCallCommand(const ExCommand &cmd);
@@ -10430,6 +10463,14 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
                                                              patternCursorColumn(),
                                                              forcedMagic);
 
+    if (!pattern.isValid()) {
+        const QString named = unmatchedGroupError(needle);
+        if (!named.isEmpty()) {
+            showMessage(MessageError, named);
+            return true;
+        }
+    }
+
     QTextBlock lastBlock;
     QTextBlock firstBlock;
     QTextBlock printBlock;
@@ -12714,7 +12755,7 @@ bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
 
     int targetLine = lineCode == "0" ? -1 : parseLineAddress(&lineCode);
     if (targetLine >= startLine && targetLine < endLine) {
-        showMessage(MessageError, Tr::tr("Move lines into themselves."));
+        showMessage(MessageError, Tr::tr("E134: Cannot move a range of lines into itself"));
         return true;
     }
 
@@ -15230,8 +15271,8 @@ bool FakeVimHandler::Private::handleExEarlierLaterCommand(const ExCommand &cmd)
     --m_messageSilence;
 
     if (done == 0) {
-        showMessage(MessageInfo, earlier ? Tr::tr("Already at oldest change.")
-                                         : Tr::tr("Already at newest change."));
+        showMessage(MessageInfo, earlier ? Tr::tr("Already at oldest change")
+                                         : Tr::tr("Already at newest change"));
     }
 
     return true;
@@ -15386,9 +15427,42 @@ bool FakeVimHandler::Private::handleExUndoRedoCommand(const ExCommand &cmd)
     if (!undo && !cmd.matches("red", "redo"))
         return false;
 
+    const QString arg = cmd.args.trimmed();
+    if (undo && !arg.isEmpty()) {
+        int digits = 0;
+        while (digits < arg.size() && arg.at(digits).isDigit())
+            ++digits;
+        const QString trailing = arg.mid(digits);
+        if (!trailing.isEmpty()) {
+            showMessage(MessageError, Tr::tr("E488: Trailing characters: %1").arg(trailing));
+            return true;
+        }
+        undoToRevision(arg.left(digits).toInt());
+        return true;
+    }
+
     undoRedo(undo);
 
     return true;
+}
+
+// ":undo {N}" goes to the state change N left behind, which is where undoing or
+// redoing one change at a time arrives. The newest state there is the one the
+// redo stack leads back to.
+void FakeVimHandler::Private::undoToRevision(int wanted)
+{
+    int last = revision();
+    for (const State &state : std::as_const(m_buffer->redo))
+        last = qMax(last, state.revision);
+    if (wanted > last) {
+        showMessage(MessageError, Tr::tr("E830: Undo number %1 not found").arg(wanted));
+        return;
+    }
+
+    while (revision() > wanted && document()->isUndoAvailable())
+        undoRedo(true);
+    while (revision() < wanted && document()->isRedoAvailable())
+        undoRedo(false);
 }
 
 // The place a byte stands at, counted from one. A byte past the end of the text
@@ -15992,6 +16066,8 @@ public:
     }
 
     bool atEnd() { skipBlanks(); return m_pos >= m_in.size(); }
+    // What Vim puts behind the number of a delimiter it did not find.
+    QString rest() const { return m_in.mid(m_pos); }
     // A '"' where an expression has already ended begins a comment, which is
     // how a script explains a line it is setting something on.
     bool atEndOrComment()
@@ -16047,7 +16123,7 @@ private:
                 --m_skip;
             skipBlanks();
             if (!eatOp(":")) {
-                setError(Tr::tr("Missing ':' in ternary expression"));
+                setError(Tr::tr("E109: Missing ':' after '?'"));
                 return {};
             }
             if (taken)
@@ -16414,13 +16490,13 @@ private:
                     const VimValue end = haveEnd ? parseExpr() : VimValue();
                     skipBlanks();
                     if (!eatOp("]")) {
-                        setError(Tr::tr("Missing ']' in slice"));
+                        setError(Tr::tr("E111: Missing ']'"));
                         return {};
                     }
                     v = m_skip ? skipped() : slice(v, haveStart, start, haveEnd, end);
                 } else {
                     if (!eatOp("]")) {
-                        setError(Tr::tr("Missing ']' in subscript"));
+                        setError(Tr::tr("E111: Missing ']'"));
                         return {};
                     }
                     v = m_skip ? skipped() : subscript(v, start);
@@ -16451,10 +16527,16 @@ private:
     VimValue parseFuncrefCall(const VimValue &callable)
     {
         ++m_pos; // '('
+        const QString badArgs = Tr::tr("E116: Invalid arguments for function %1")
+            .arg(callable.isFunc() ? callable.funcData()->name : QString());
         QList<VimValue> args;
         skipBlanks();
         if (cur() != ')') {
             while (m_ok) {
+                if (atEnd()) {
+                    setError(badArgs);
+                    return {};
+                }
                 args.append(parseExpr());
                 skipBlanks();
                 if (cur() == ',') {
@@ -16467,7 +16549,7 @@ private:
         if (!m_ok)
             return {};
         if (!eatOp(")")) {
-            setError(Tr::tr("Missing ')' in call"));
+            setError(badArgs);
             return {};
         }
         if (m_skip)
@@ -16485,16 +16567,27 @@ private:
     VimValue parseMethodCall(const VimValue &piped)
     {
         skipBlanks();
+        const int nameStart = m_pos;
         const QString name = parseName();
-        if (!eatOp("(")) {
-            setError(Tr::tr("Missing '(' in method call"));
+        if (name.isEmpty()) {
+            setError(Tr::tr("E260: Missing name after ->"));
             return {};
         }
+        if (!eatOp("(")) {
+            setError(Tr::tr("E107: Missing parentheses: %1").arg(name));
+            return {};
+        }
+        const QString badArgs = Tr::tr("E116: Invalid arguments for function %1")
+            .arg(m_in.mid(nameStart));
         QList<VimValue> args;
         args.append(piped);
         skipBlanks();
         if (cur() != ')') {
             while (m_ok) {
+                if (atEnd()) {
+                    setError(badArgs);
+                    return {};
+                }
                 args.append(parseExpr());
                 skipBlanks();
                 if (cur() == ',') {
@@ -16507,7 +16600,7 @@ private:
         if (!m_ok)
             return {};
         if (!eatOp(")")) {
-            setError(Tr::tr("Missing ')' in method call"));
+            setError(badArgs);
             return {};
         }
         if (m_skip)
@@ -16531,14 +16624,34 @@ private:
         return result;
     }
 
+    // Vim names the type it refuses to index rather than what it takes, and a
+    // dictionary answers an index but no slice. Measured in Vim 9.1.
+    static QString cannotIndexError(const VimValue &v, bool slicing)
+    {
+        if (slicing && v.isDict())
+            return Tr::tr("E719: Cannot slice a Dictionary");
+        switch (v.type()) {
+        case VimValue::Func:
+            return Tr::tr("E695: Cannot index a Funcref");
+        case VimValue::Float:
+            return Tr::tr("E806: Using a Float as a String");
+        case VimValue::Bool:
+        case VimValue::Special:
+            return Tr::tr("E909: Cannot index a special variable");
+        default:
+            return {};
+        }
+    }
+
     // Vim slices are inclusive of both ends; a missing start is 0, a missing
     // end is the last element, and negative indices count from the end.
     VimValue slice(const VimValue &v, bool haveStart, const VimValue &startVal,
                    bool haveEnd, const VimValue &endVal)
     {
         const bool isList = v.isList();
-        if (!isList && v.isDict()) {
-            setError(Tr::tr("Cannot slice a dictionary"));
+        const QString refused = cannotIndexError(v, true);
+        if (!refused.isEmpty()) {
+            setError(refused);
             return {};
         }
         if (v.isTuple()) {
@@ -16632,12 +16745,14 @@ private:
             const QString key = index.toString();
             QMap<QString, VimValue> *d = v.dictData();
             if (!d->contains(key)) {
-                setError(Tr::tr("E716: Key not present in Dictionary: %1").arg(key));
+                setError(Tr::tr("E716: Key not present in Dictionary: \"%1\"").arg(key));
                 return {};
             }
             return d->value(key);
         }
-        setError(Tr::tr("Can only index a list, dictionary or string"));
+        const QString refused = cannotIndexError(v, false);
+        setError(refused.isEmpty() ? Tr::tr("Can only index a list, dictionary or string")
+                                   : refused);
         return {};
     }
 
@@ -16667,15 +16782,19 @@ private:
                     skipBlanks();
                     if (cur() == ')')
                         break;
+                    if (atEnd()) {
+                        setError(Tr::tr("E1526: Missing end of Tuple ')': %1").arg(rest()));
+                        return {};
+                    }
                     items.append(parseExpr());
                     skipBlanks();
                 }
                 if (!eatOp(")"))
-                    setError(Tr::tr("Missing ')' in expression"));
+                    setError(Tr::tr("E1527: Missing comma in Tuple: %1").arg(rest()));
                 return VimValue::tuple(items);
             }
             if (!eatOp(")"))
-                setError(Tr::tr("Missing ')' in expression"));
+                setError(Tr::tr("E110: Missing ')'"));
             return v;
         }
         if (c == '"')
@@ -16801,7 +16920,7 @@ private:
     {
         const QString name = parseName();
         if (cur() == '(') // a function call: name immediately followed by "("
-            return parseCall(name);
+            return parseCall(name, m_pos - name.size());
         if (vim9()) { // Vim9 boolean/null literals
             if (name == "true")
                 return VimValue(qlonglong(1));
@@ -16821,13 +16940,21 @@ private:
         return {};
     }
 
-    VimValue parseCall(const QString &name)
+    // "nameStart" is where the name stands in the input, which is what Vim
+    // prints behind E116. A name pieced together from "{}" parts has none.
+    VimValue parseCall(const QString &name, int nameStart = -1)
     {
         ++m_pos; // '('
+        const QString badArgs = Tr::tr("E116: Invalid arguments for function %1")
+            .arg(nameStart < 0 ? name : m_in.mid(nameStart));
         QList<VimValue> args;
         skipBlanks();
         if (cur() != ')') {
             while (m_ok) {
+                if (atEnd()) {
+                    setError(badArgs);
+                    return {};
+                }
                 args.append(parseExpr());
                 skipBlanks();
                 if (cur() == ',') {
@@ -16840,7 +16967,7 @@ private:
         if (!m_ok)
             return {};
         if (!eatOp(")")) {
-            setError(Tr::tr("Missing ')' in call to %1()").arg(name));
+            setError(badArgs);
             return {};
         }
         if (m_skip)
@@ -16939,6 +17066,7 @@ private:
 
     VimValue parseDoubleQuoted()
     {
+        const int start = m_pos;
         ++m_pos; // opening quote
         QString s;
         while (m_pos < m_in.size() && cur() != '"') {
@@ -16951,13 +17079,15 @@ private:
                 ++m_pos;
             }
         }
+        // Vim names the piece that is left open, from its quote to the end.
         if (!eatOp("\""))
-            setError(Tr::tr("Missing '\"' in string"));
+            setError(Tr::tr("E114: Missing double quote: %1").arg(m_in.mid(start)));
         return VimValue(s);
     }
 
     VimValue parseSingleQuoted()
     {
+        const int start = m_pos;
         ++m_pos; // opening quote
         QString s;
         while (m_pos < m_in.size()) {
@@ -16973,7 +17103,7 @@ private:
             s += cur();
             ++m_pos;
         }
-        setError(Tr::tr("Missing \"'\" in string"));
+        setError(Tr::tr("E115: Missing single quote: %1").arg(m_in.mid(start)));
         return VimValue(s);
     }
 
@@ -17121,6 +17251,10 @@ private:
         QList<VimValue> items;
         skipBlanks();
         while (m_ok && cur() != ']') {
+            if (atEnd()) {
+                setError(Tr::tr("E697: Missing end of List ']': %1").arg(rest()));
+                return {};
+            }
             items.append(parseExpr());
             skipBlanks();
             if (cur() != ',')
@@ -17131,7 +17265,7 @@ private:
         if (!m_ok)
             return {};
         if (!eatOp("]")) {
-            setError(Tr::tr("Missing ']' in list"));
+            setError(Tr::tr("E696: Missing comma in List: %1").arg(rest()));
             return {};
         }
         return VimValue::list(items);
@@ -17408,10 +17542,14 @@ private:
         QMap<QString, VimValue> items;
         skipBlanks();
         while (m_ok && cur() != '}') {
+            if (atEnd()) {
+                setError(Tr::tr("E723: Missing end of Dictionary '}': %1").arg(rest()));
+                return {};
+            }
             const VimValue key = parseDictKey(literalKeys);
             skipBlanks();
             if (!eatOp(":")) {
-                setError(Tr::tr("Missing ':' in dictionary"));
+                setError(Tr::tr("E720: Missing colon in Dictionary: %1").arg(rest()));
                 return {};
             }
             const VimValue value = parseExpr();
@@ -17427,7 +17565,7 @@ private:
         if (!m_ok)
             return {};
         if (!eatOp("}")) {
-            setError(Tr::tr("Missing '}' in dictionary"));
+            setError(Tr::tr("E722: Missing comma in Dictionary: %1").arg(rest()));
             return {};
         }
         return VimValue::dict(items);
@@ -17827,7 +17965,7 @@ void FakeVimHandler::Private::setVariable(const QString &name, const VimValue &v
     if (name == "b:changedtick") {
         // Thrown rather than just reported, as Vim throws it.
         m_throwing = true;
-        m_exception = Tr::tr("E46: Cannot change read-only variable \"%1\"").arg(name);
+        m_exception = "Vim:" + Tr::tr("E46: Cannot change read-only variable \"%1\"").arg(name);
         m_throwpoint = sourceChain(true);
         return;
     }
@@ -17836,7 +17974,7 @@ void FakeVimHandler::Private::setVariable(const QString &name, const VimValue &v
     if (g.lockedVariables.contains(key)) {
         // Thrown rather than just reported, so a script can catch it as in Vim.
         m_throwing = true;
-        m_exception = Tr::tr("E741: Value is locked: %1").arg(name);
+        m_exception = "Vim:" + Tr::tr("E741: Value is locked: %1").arg(name);
         m_throwpoint = sourceChain(true);
         return;
     }
@@ -17847,7 +17985,7 @@ bool FakeVimHandler::Private::unsetVariable(const QString &name)
 {
     if (name == "b:changedtick") {
         m_throwing = true;
-        m_exception = Tr::tr("E795: Cannot delete variable %1").arg(name);
+        m_exception = "Vim:" + Tr::tr("E795: Cannot delete variable %1").arg(name);
         m_throwpoint = sourceChain(true);
         return true;
     }
@@ -17892,6 +18030,38 @@ static QString optionNameFromLet(const QString &lhs)
     return name;
 }
 
+// The left-hand sides Vim refuses by their shape, measured in Vim 9.1: a bare
+// "$" is E475 with the whole argument behind it, a bare "&" is E18, and a
+// register name that names no register is E354. With nothing assigned there is
+// no name to print either, which the option, register and environment forms
+// answer with E15.
+bool FakeVimHandler::Private::letBadName(const QString &args)
+{
+    const QString lhs = args.trimmed();
+    if (lhs.isEmpty())
+        return false;
+
+    const int eq = lhs.indexOf('=');
+    const bool assigns = eq >= 0
+        && (eq + 1 >= lhs.size() || (lhs.at(eq + 1) != '=' && lhs.at(eq + 1) != '~'));
+    const QChar first = lhs.at(0);
+    if (first == '$' || first == '&' || first == '@') {
+        if (!assigns) {
+            showMessage(MessageError, Tr::tr("E15: Invalid expression: \"%1\"").arg(lhs));
+        } else if (first == '$') {
+            showMessage(MessageError, Tr::tr("E475: Invalid argument: %1").arg(lhs));
+        } else if (first == '&') {
+            showMessage(MessageError, Tr::tr("E18: Unexpected characters in :let"));
+        } else {
+            showMessage(MessageError, Tr::tr("E354: Invalid register name: '%1'")
+                        .arg(lhs.size() > 1 ? lhs.at(1) : QChar(' ')));
+        }
+        return true;
+    }
+
+    return false;
+}
+
 bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
 {
     // :let {lhs} = {expr} with compound forms (+= -= *= /= %= .=). {lhs} is a
@@ -17916,7 +18086,7 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
         } else if (!evaluateExpression(um.captured(2), &list, &error)) {
             showMessage(MessageError, error);
         } else if (!list.isList() && !list.isTuple()) {
-            showMessage(MessageError, Tr::tr(":let with [...] requires a list"));
+            showMessage(MessageError, Tr::tr("E1535: List or Tuple required"));
         } else {
             // The last name may be preceded by ";", and takes the rest of the
             // list: "[a, b; rest]". Without one the counts have to match.
@@ -17951,13 +18121,25 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
         "\\s*([-+*/%.]?=)\\s*(.*)$");
     const QRegularExpressionMatch m = re.match(cmd.args);
     if (!m.hasMatch()) {
-        if (!letAssignIndexed(cmd.args))
-            showMessage(MessageError, Tr::tr("Invalid :let expression: %1").arg(cmd.args));
+        if (letAssignIndexed(cmd.args))
+            return true;
+        if (letBadName(cmd.args))
+            return true;
+        if (!cmd.args.trimmed().isEmpty())
+            return letShowVariables(cmd.args);
+        showMessage(MessageError, Tr::tr("Invalid :let expression: %1").arg(cmd.args));
         return true;
     }
 
     const QString name = m.captured(1);
     const QString op = m.captured(2);
+
+    // A scope with nothing behind the colon names no variable.
+    static const QString scopes = "gbwtslav";
+    if (name.size() == 2 && name.at(1) == ':' && scopes.contains(name.at(0))) {
+        showMessage(MessageError, Tr::tr("E461: Illegal variable name: %1").arg(name));
+        return true;
+    }
 
     VimValue value;
     QString error;
@@ -18013,6 +18195,52 @@ bool FakeVimHandler::Private::handleExLetCommand(const ExCommand &cmd)
         }
     }
     return true;
+}
+
+// ":let {name} ..." with nothing assigned shows what the names hold, in the
+// two columns Vim lists them in: the name padded to column 22, then a mark for
+// the type ("#" a number, "*" a funcref, none a list or a dictionary) and the
+// value. The first name holding nothing ends the command.
+bool FakeVimHandler::Private::letShowVariables(const QString &args)
+{
+    static const QRegularExpression nameRe("^[A-Za-z0-9_:#]+");
+    QString rows;
+    const QStringList words = args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    for (const QString &word : words) {
+        const QRegularExpressionMatch m = nameRe.match(word);
+        const QString name = m.hasMatch() ? m.captured() : word;
+        VimValue value;
+        if (!variableValue(name, &value)) {
+            showMessage(MessageError, Tr::tr("E121: Undefined variable: %1").arg(name));
+            return true;
+        }
+        QString row = name + ' ';
+        while (row.size() < 22)
+            row += ' ';
+        if (value.type() == VimValue::Number)
+            row += '#';
+        else if (value.type() == VimValue::Func)
+            row += '*';
+        else if (value.type() != VimValue::List && value.type() != VimValue::Dict)
+            row += ' ';
+        rows += row + value.toString() + '\n';
+    }
+    showExtraInformation(rows);
+    return true;
+}
+
+// The type words Vim uses in "E689", which are not the ones typename() prints:
+// a funcref is plainly a "func" there.
+static QString indexedTypeName(const VimValue &v)
+{
+    switch (v.type()) {
+    case VimValue::Float: return "float";
+    case VimValue::String: return "string";
+    case VimValue::Bool: return "bool";
+    case VimValue::Special: return "special";
+    case VimValue::Func: return "func";
+    default: return "number";
+    }
 }
 
 bool FakeVimHandler::Private::letAssignIndexed(const QString &args)
@@ -18110,7 +18338,8 @@ bool FakeVimHandler::Private::letAssignIndexed(const QString &args)
         const QString key = index.toString();
         d->insert(key, op == "=" ? value : applyCompound(d->value(key), op.at(0), value));
     } else {
-        showMessage(MessageError, Tr::tr("Can only index a list or dictionary"));
+        showMessage(MessageError, Tr::tr("E689: Index not allowed after a %1: %2")
+                    .arg(indexedTypeName(container), args.trimmed()));
     }
     return true;
 }
@@ -19356,7 +19585,7 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             return true;
         }
         if (!arg(0).isList()) {
-            *error = Tr::tr("add() requires a list");
+            *error = Tr::tr("E897: List or Blob required");
             return false;
         }
         arg(0).listData()->append(arg(1));
@@ -24029,7 +24258,8 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
             return true;
         }
         if (!arg(0).isList()) {
-            *error = Tr::tr("writefile() expects a list");
+            *error = Tr::tr("E475: Invalid argument: writefile() first argument must be "
+                            "a List or a Blob");
             return false;
         }
         const QString fileName = replaceTildeWithHome(arg(1).toString());
@@ -24864,10 +25094,15 @@ bool FakeVimHandler::Private::callFunction(const QString &name,
         *result = callUserFunction(key, g.userFunctions.value(key), args);
         return true;
     }
-    // A variable may hold a funcref or lambda; call it.
+    // A variable may hold a funcref or lambda; call it. One that holds anything
+    // else is not an unknown function, it is a value nothing can call.
     VimValue v;
-    if (variableValue(name, &v) && v.isFunc())
-        return invokeCallable(v, args, result, error);
+    if (variableValue(name, &v)) {
+        if (v.isFunc())
+            return invokeCallable(v, args, result, error);
+        *error = Tr::tr("E1085: Not a callable type: %1").arg(name);
+        return false;
+    }
     // "a#b()" lives in "autoload/a.vim" along the runtimepath, loaded when
     // it is first needed. Look there once and try again.
     if (name.contains('#') && loadAutoloadScript(name)
@@ -24919,6 +25154,80 @@ bool FakeVimHandler::Private::invokeCallable(const VimValue &callable,
     return ok;
 }
 
+// ":unlet {var}[index]" and ":unlet {var}.key" take the item out of the list or
+// the dictionary it stands in, which is not the same as dropping a variable of
+// that name. Anything else is left to the caller, whose error for a name that
+// holds nothing is the one Vim gives there too.
+bool FakeVimHandler::Private::unletIndexed(const QString &lhs, bool hasBang)
+{
+    static const QRegularExpression re(
+        "^[A-Za-z_][A-Za-z0-9_:]*"
+        "(?:\\[[^\\]]*\\]|\\.[A-Za-z_][A-Za-z0-9_]*)+$");
+    if (!re.match(lhs).hasMatch())
+        return false;
+
+    // Where the last subscript or key starts, the part in front of it being the
+    // container it is taken out of.
+    int segStart = -1;
+    bool bracket = false;
+    int depth = 0;
+    for (int i = 0; i < lhs.size(); ++i) {
+        const QChar ch = lhs.at(i);
+        if (ch == '[') {
+            if (depth == 0) {
+                segStart = i;
+                bracket = true;
+            }
+            ++depth;
+        } else if (ch == ']') {
+            --depth;
+        } else if (ch == '.' && depth == 0) {
+            segStart = i;
+            bracket = false;
+        }
+    }
+
+    VimValue container, index;
+    QString error;
+    if (!evaluateExpression(lhs.left(segStart), &container, &error))
+        return false;
+    if (bracket) {
+        if (!evaluateExpression(lhs.mid(segStart + 1, lhs.size() - segStart - 2),
+                                &index, &error)) {
+            showMessage(MessageError, error);
+            return true;
+        }
+    } else {
+        index = VimValue(lhs.mid(segStart + 1));
+    }
+
+    if (container.isList()) {
+        QList<VimValue> *l = container.listData();
+        int i = int(index.toNumber());
+        if (i < 0)
+            i += l->size();
+        if (i < 0 || i >= l->size()) {
+            if (!hasBang) {
+                showMessage(MessageError,
+                            Tr::tr("E684: List index out of range: %1").arg(index.toNumber()));
+            }
+            return true;
+        }
+        l->removeAt(i);
+        return true;
+    }
+    if (container.isDict()) {
+        QMap<QString, VimValue> *d = container.dictData();
+        const QString key = index.toString();
+        if (d->remove(key) == 0 && !hasBang) {
+            showMessage(MessageError,
+                        Tr::tr("E716: Key not present in Dictionary: \"%1\"").arg(key));
+        }
+        return true;
+    }
+    return false;
+}
+
 bool FakeVimHandler::Private::handleExUnletCommand(const ExCommand &cmd)
 {
     // :unlet[!] {var} ...
@@ -24926,9 +25235,28 @@ bool FakeVimHandler::Private::handleExUnletCommand(const ExCommand &cmd)
         return false;
 
     const QStringList names = cmd.args.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+    if (names.isEmpty()) {
+        showMessage(MessageError, Tr::tr("E471: Argument required"));
+        return true;
+    }
     for (const QString &name : names) {
+        // None of the v: variables goes, and a "!" does not help there. A v:
+        // name that is none of them is missing the way any other variable is.
+        // The engine sets and drops some of them itself, so this is no rule
+        // for unsetVariable().
+        VimValue held;
+        if (name.startsWith("v:") && variableValue(name, &held)) {
+            m_throwing = true;
+            m_exception = "Vim:" + Tr::tr("E795: Cannot delete variable %1").arg(name);
+            m_throwpoint = sourceChain(true);
+            return true;
+        }
+        if (unletIndexed(name, cmd.hasBang))
+            continue;
+        // A variable that is not there has an error of its own, which is not
+        // the one an expression reading it gives.
         if (!unsetVariable(name) && !cmd.hasBang) {
-            showMessage(MessageError, Tr::tr("E121: Undefined variable: %1").arg(name));
+            showMessage(MessageError, Tr::tr("E108: No such variable: \"%1\"").arg(name));
             return true;
         }
     }
@@ -26155,11 +26483,17 @@ void FakeVimHandler::Private::execFor(const QList<ExCommand> &cmds,
         VimValue listValue;
         QString error;
         if (!m.hasMatch()) {
-            showMessage(MessageError, Tr::tr("Invalid :for: %1").arg(spec));
+            // Vim asks for the "in", whatever else is wrong with the names in
+            // front of it. A "[" list of names left open is the one exception,
+            // and it is reported by the text behind that list.
+            if (spec.trimmed().startsWith('['))
+                showMessage(MessageError, Tr::tr("Invalid :for: %1").arg(spec));
+            else
+                showMessage(MessageError, Tr::tr("E690: Missing \"in\" after :for"));
         } else if (!evaluateExpression(m.captured(2), &listValue, &error)) {
             showMessage(MessageError, error);
         } else if (!listValue.isList() && !listValue.isBlob() && !listValue.isTuple()) {
-            showMessage(MessageError, Tr::tr(":for requires a list"));
+            showMessage(MessageError, Tr::tr("E1523: String, List, Tuple or Blob required"));
         } else {
             const QString var = m.captured(1);
             QStringList unpackNames;
@@ -26300,6 +26634,16 @@ void FakeVimHandler::Private::execTry(const QList<ExCommand> &cmds,
     }
 }
 
+// What is left of an exception nobody caught. An error the engine raised is
+// reported as the error it is, and Vim marks one with the "Vim:" put in front of
+// it; a value ":throw" raised has a number of its own.
+static QString uncaughtExceptionMessage(const QString &exception)
+{
+    if (exception.startsWith("Vim:"))
+        return exception.mid(4);
+    return Tr::tr("E605: Exception not caught: %1").arg(exception);
+}
+
 void FakeVimHandler::Private::runExCommands(const QList<ExCommand> &cmds)
 {
     m_loopSignal = NoSignal;
@@ -26310,7 +26654,7 @@ void FakeVimHandler::Private::runExCommands(const QList<ExCommand> &cmds)
     while (index < cmds.size()) {
         execSequence(cmds, index, true);
         if (m_throwing)
-            showMessage(MessageError, Tr::tr("Uncaught exception: %1").arg(m_exception));
+            showMessage(MessageError, uncaughtExceptionMessage(m_exception));
         const bool finish = m_finishing;
         m_loopSignal = NoSignal; // a :break/:continue/:return/:throw outside a
         m_returning = false;     // loop, function or :try is ignored here
@@ -26462,10 +26806,18 @@ void FakeVimHandler::Private::collectFunction(const QList<ExCommand> &cmds,
         ++index; // consume :endfunction
 
     if (active && !name.isEmpty()) {
+        // Only "s:" and "g:" name a place a function can live. Vim reads any
+        // other scope as a colon that has no business in a function name.
+        const bool scoped = name.size() > 1 && name.at(1) == ':';
+        if (scoped && name.at(0) != 's' && name.at(0) != 'g') {
+            showMessage(MessageError, Tr::tr("E884: Function name cannot contain a colon: %1")
+                        .arg(header.args));
+            return;
+        }
         fn.scriptId = currentScriptId();
         g.userFunctions.insert(functionKey(name), fn);
     } else if (active)
-        showMessage(MessageError, Tr::tr("Invalid function definition: %1").arg(header.args));
+        showMessage(MessageError, Tr::tr("E129: Function name required"));
 }
 
 void FakeVimHandler::Private::execDefer(const ExCommand &cmd)
@@ -26695,6 +27047,27 @@ void FakeVimHandler::Private::runExCommandLine(const QString &line0)
     endEditBlock();
 }
 
+// The commands Vim takes no "!" for at all, measured in Vim 9.1. Most commands
+// do take one, so the ones that refuse it are what has to be spelled out.
+static bool refusesBang(const ExCommand &cmd)
+{
+    static const char *const names[][2] = {
+        {"as", "ascii"}, {"changes", "changes"}, {"cle", "clearjumps"},
+        {"co", "copy"}, {"d", "delete"}, {"di", "display"}, {"ea", "earlier"},
+        {"filet", "filetype"}, {"his", "history"}, {"ju", "jumps"}, {"k", "k"},
+        {"l", "list"}, {"lat", "later"}, {"m", "move"}, {"ma", "mark"},
+        {"marks", "marks"}, {"mes", "messages"}, {"noh", "nohlsearch"},
+        {"nu", "number"}, {"p", "print"}, {"pw", "pwd"}, {"reg", "registers"},
+        {"t", "t"}, {"tags", "tags"}, {"undoj", "undojoin"},
+        {"undol", "undolist"}, {"y", "yank"}
+    };
+    for (const char *const *name : names) {
+        if (cmd.matches(QLatin1String(name[0]), QLatin1String(name[1])))
+            return true;
+    }
+    return false;
+}
+
 bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
 {
     // ":vi[sual]" is how the Ex mode "Q" enters is left again, whatever else
@@ -26722,6 +27095,11 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
     // there is nothing to do but refuse the command.
     if (cmd.backwardsRange) {
         showMessage(MessageError, Tr::tr("E493: Backwards range given"));
+        return true;
+    }
+
+    if (cmd.hasBang && refusesBang(cmd)) {
+        showMessage(MessageError, Tr::tr("E477: No ! allowed"));
         return true;
     }
 
@@ -27012,8 +27390,10 @@ QTextCursor FakeVimHandler::Private::search(const SearchData &sd, int startPos, 
 
     if (!needleExp.isValid()) {
         if (showMessages) {
-            QString error = needleExp.errorString();
-            showMessage(MessageError, Tr::tr("Invalid regular expression: %1").arg(error));
+            const QString named = unmatchedGroupError(sd.needle);
+            showMessage(MessageError, named.isEmpty()
+                        ? Tr::tr("Invalid regular expression: %1").arg(needleExp.errorString())
+                        : named);
         }
         if (sd.highlightMatches)
             highlightMatches(QString());
@@ -30343,8 +30723,8 @@ void FakeVimHandler::Private::undoRedo(bool undo)
 
     CursorPosition lastPos(m_cursor);
     if (undo ? !document()->isUndoAvailable() : !document()->isRedoAvailable()) {
-        const QString msg = undo ? Tr::tr("Already at oldest change.")
-            : Tr::tr("Already at newest change.");
+        const QString msg = undo ? Tr::tr("Already at oldest change")
+            : Tr::tr("Already at newest change");
         showMessage(MessageInfo, msg);
         UNDO_DEBUG(msg);
         return;
