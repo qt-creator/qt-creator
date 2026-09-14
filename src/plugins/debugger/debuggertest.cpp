@@ -513,6 +513,23 @@ void DebuggerUnitTests::testCdbImplStartData()
         QVERIFY(cdbImplStartData(rp).extensionFileName.isEmpty());
     }
 
+    // Running in a terminal, the stub has already created the program, suspended,
+    // so there is only something to attach to.
+    {
+        DebuggerRunParameters rp;
+        rp.setInferiorExecutable("C:/build/tst_inferior.exe");
+        rp.setUseTerminal(true);
+        rp.setApplicationPid(4711);
+        rp.setApplicationMainThreadId(4712);
+
+        const CdbImplStartData data = cdbImplStartData(rp);
+        const auto *stubData = std::get_if<AttachToTerminalStubData>(&data.inferiorStartData);
+        QVERIFY(stubData);
+        QCOMPARE(stubData->pid.pid(), 4711);
+        QCOMPARE(stubData->mainThreadId, 4712);
+        QCOMPARE(stubData->executable, FilePath("C:/build/tst_inferior.exe"));
+    }
+
     // cdb speaks its own "-remote" syntax, so the channel is passed on unchanged.
     {
         DebuggerRunParameters rp;
@@ -600,6 +617,26 @@ void DebuggerUnitTests::testCdbImplCommandLine()
         QCOMPARE(args.value(1), QString("tcp:port=1234,server=192.168.1.1"));
         QVERIFY(!args.contains("-aqtcreatorcdbext.dll"));
         QVERIFY(!args.contains("-cf"));
+        const QStringList symbolPaths = args.value(args.indexOf("-y") + 1).split(';');
+        QVERIFY(symbolPaths.contains(inferiorDir.nativePath()));
+    }
+
+    // Attaching to what the stub suspended: "-pr" lets it run, "-pb" keeps cdb from
+    // breaking into it, and the console the stub opened is the one it keeps.
+    {
+        CdbImplStartData stubData = startData;
+        stubData.useTerminal = true;
+        stubData.inferiorStartData
+            = AttachToTerminalStubData{ProcessHandle(4711), 4712, inferiorDir / "tst_inferior.exe"};
+
+        CdbImpl cdb(stubData);
+        QVERIFY(cdb.setupData().startModes.testFlag(DebuggerStartModeFlag::AttachToTerminalStub));
+        QVERIFY(cdb.setupProcess());
+        const QStringList args = cdb.m_cdbProc.commandLine().splitArguments();
+        QCOMPARE(args.value(args.indexOf("-p") + 1), QString("4711"));
+        QVERIFY(args.contains("-pr"));
+        QVERIFY(args.contains("-pb"));
+        QVERIFY(!args.contains("-2"));
         const QStringList symbolPaths = args.value(args.indexOf("-y") + 1).split(';');
         QVERIFY(symbolPaths.contains(inferiorDir.nativePath()));
     }

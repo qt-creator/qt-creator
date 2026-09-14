@@ -197,6 +197,7 @@ static DebuggerEngineSetupData cdbImplSetupData()
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToCore
                     | DebuggerStartModeFlag::AttachToCrashedProcess
+                    | DebuggerStartModeFlag::AttachToTerminalStub
                     | DebuggerStartModeFlag::AttachToRemoteServer;
     return data;
 }
@@ -361,6 +362,9 @@ Result<> CdbImpl::setupProcess()
     } else if (isRemoteServer) {
         inferiorDir = std::get<AttachToRemoteServerData>(m_startData.inferiorStartData)
                           .symbolFile.parentDir();
+    } else if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
+        inferiorDir = std::get<AttachToTerminalStubData>(m_startData.inferiorStartData)
+                          .executable.parentDir();
     }
     if (!inferiorDir.isEmpty())
         symbolPaths.append(inferiorDir.nativePath());
@@ -368,8 +372,11 @@ Result<> CdbImpl::setupProcess()
     // it without any symbol path at all.
     if (!symbolPaths.isEmpty())
         cdbCommand.addArgs({"-y", symbolPaths.join(';')});
-    if (m_startData.useTerminal)
+    // A console of cdb's own, unless the stub already gave the program one.
+    if (m_startData.useTerminal
+        && !std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
         cdbCommand.addArg("-2");
+    }
     if (m_startData.ignoreFirstChanceAccessViolation)
         cdbCommand.addArg("-x");
     if (!m_startData.additionalArguments.isEmpty())
@@ -389,6 +396,11 @@ Result<> CdbImpl::setupProcess()
         cdbCommand.addArgs({"-p", QString::number(attachData.pid.pid())});
         if (!attachData.crashParameter.isEmpty())
             cdbCommand.addArgs({"-e", attachData.crashParameter, "-g"});
+    } else if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
+        const auto &stubData = std::get<AttachToTerminalStubData>(m_startData.inferiorStartData);
+        // "-pr" lets the program the stub suspended run once cdb is attached to it,
+        // "-pb" keeps cdb from breaking into it on the way.
+        cdbCommand.addArgs({"-p", QString::number(stubData.pid.pid()), "-pr", "-pb"});
     } else if (std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData)) {
         const auto &coreData = std::get<AttachToCoreData>(m_startData.inferiorStartData);
         cdbCommand.addArgs({"-z", coreData.coreFile.nativePath()});

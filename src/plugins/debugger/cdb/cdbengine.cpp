@@ -3347,6 +3347,13 @@ static InferiorStartData cdbImplInferiorStartData(const DebuggerRunParameters &r
     default:
         break;
     }
+    if (rp.useTerminal()) {
+        // The stub started the program suspended in the terminal it opened for it,
+        // so there is nothing left to launch, only something to attach to.
+        return AttachToTerminalStubData{ProcessHandle(rp.applicationPid()),
+                                        rp.applicationMainThreadId(),
+                                        rp.inferior().command.executable()};
+    }
     return rp.inferior();
 }
 
