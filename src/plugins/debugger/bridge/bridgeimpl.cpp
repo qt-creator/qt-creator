@@ -724,6 +724,7 @@ void BridgeImpl::refresh(const RefreshRequest &request)
         cmd.arg("displaystringlimit", options.displayStringLimit);
         cmd.arg("allowinferiorcalls", request.allowInferiorCalls);
         cmd.arg("partialvar", request.partialVariable);
+        cmd.arg("uninitialized", request.uninitializedVariables);
         cmd.arg("context", request.context);
         cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
         // A map of iname to array limit, not a list: the dumpers index it by
@@ -969,6 +970,7 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             item.addChild(constMi("name", reg.value("name").toString()));
             item.addChild(constMi("value", reg.value("value").toString()));
             item.addChild(constMi("size", QString::number(reg.value("size").toInt())));
+            item.addChild(constMi("groups", reg.value("groups").toString()));
             registers.addChild(item);
         }
         emit refreshDataReceived(m_pendingRegistersRequestId, RefreshKind::Registers, registers);

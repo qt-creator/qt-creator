@@ -613,7 +613,8 @@ DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp)
                                  return !line.trimmed().startsWith('#');
                              }),
                          .forResetCommands = rp.commandsForReset(),
-                         .breakOnMain = rp.breakOnMain()}));
+                         .breakOnMain = rp.breakOnMain(),
+                         .logTimeStamps = settings().logTimeStamps()}));
     }
     return new PdbEngine;
 }

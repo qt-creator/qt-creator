@@ -1741,6 +1741,10 @@ class Dumper(DumperBase):
                 # default values:  void foo(int = 0)
                 continue
             value = self.fromNativeValue(val)
+            # A name the request reports as not initialized at this line is out
+            # of scope however readable the debugger finds it.
+            if name in self.uninitialized:
+                value.lIsInScope = False
             variables.append(value)
 
         self.handleLocals(variables)
@@ -1751,6 +1755,16 @@ class Dumper(DumperBase):
         self.put('],partial="%d",runtime="%s"' % (isPartial, run_time))
         self.reportResult(self.takeOutput(), args)
 
+
+    @staticmethod
+    def registerGroupName(setName):
+        # The view groups registers by name, so the sets lldb sorts them into
+        # are spelled the way the other backends spell their groups.
+        name = setName.lower()
+        for known in ['general', 'float', 'vector', 'system']:
+            if known in name:
+                return known
+        return name
 
     def fetchRegisters(self, args=None):
         if not self.process:
@@ -1764,6 +1778,7 @@ class Dumper(DumperBase):
 
         result = 'registers=['
         for group in frame.GetRegisters():
+            groups = 'all,' + self.registerGroupName(group.GetName())
             for reg in group:
                 data = reg.GetData()
                 if data.GetByteOrder() == lldb.eByteOrderLittle:
@@ -1773,6 +1788,7 @@ class Dumper(DumperBase):
                 result += '{name="%s"' % reg.GetName()
                 result += ',value="0x%s"' % value
                 result += ',size="%s"' % reg.GetByteSize()
+                result += ',groups="%s"' % groups
                 result += ',type="%s"},' % reg.GetType()
         result += ']'
         self.reportResult(result, args)

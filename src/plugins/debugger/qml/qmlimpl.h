@@ -142,7 +142,10 @@ private:
 
     bool m_supportChangeBreakpoint = false;
     int m_currentFrameIndex = 0;
+    int m_stringLimit = 0;
     std::optional<RefreshRequest> m_deferredWatchers;
+    // The locals fetch, kept for RepeatLastCommand.
+    std::optional<RefreshRequest> m_lastLocalsRequest;
     bool m_inferiorRunning = false;
     bool m_interruptRequested = false;
     bool m_shuttingDown = false;

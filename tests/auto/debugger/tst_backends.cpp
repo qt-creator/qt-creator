@@ -210,6 +210,9 @@ struct InferiorTestData
     QString recursionDepthVariable;
     int multiLocationBreakpointLine = 0;
     int spinBodyLine = 0;
+    // A line the inferior reaches again on its own once it is let go, so a stop
+    // there is the later event that proves an earlier breakpoint did not fire.
+    int revisitedLine = 0;
     // A line whose step lands in a standard header the debugger may skip.
     int knownFrameStepLine = 0;
     // A line whose step-into first lands where the linker jumps from, which has
@@ -819,9 +822,9 @@ static QString responseTimeMarker(Backend backend)
     case Backend::Bridge:
     case Backend::Dap:
     case Backend::Lldb:
+    case Backend::Pdb:
         return "Response time";
     case Backend::Cdb:
-    case Backend::Pdb:
     case Backend::Qml:
         break;
     }
@@ -834,6 +837,10 @@ static QString versionCommand(Backend backend)
 {
     if (backend == Backend::Lldb)
         return "version";
+    // pdb takes Python rather than commands of its own, and the answer has to
+    // be spelled the way the interpreter spells it on its own command line.
+    if (backend == Backend::Pdb)
+        return "print('Python', __import__('platform').python_version())";
     return "show version";
 }
 
@@ -980,9 +987,9 @@ static bool honorsStringLengthLimits(Backend backend)
     case Backend::Lldb:
     case Backend::Pdb:
     case Backend::Cdb:
+    case Backend::Qml:
         return true;
     case Backend::Dap:
-    case Backend::Qml:
         break;
     }
     return false;
@@ -1186,7 +1193,15 @@ static QString qmlResolutionDiagnosis(const QList<GdbMi> &reports, const QString
 // carries the column, so everybody else lands in a single "all" group.
 static bool reportsRegisterGroups(Backend backend)
 {
-    return backend == Backend::Gdb;
+    return backend == Backend::Gdb || backend == Backend::Lldb || backend == Backend::Bridge;
+}
+
+// Whether a process of its own carries the debugging session. The qml session
+// is a connection to the debug service of the running application, so there is
+// no debugger process that could report finishing.
+static bool runsADebuggerProcess(Backend backend)
+{
+    return backend != Backend::Qml;
 }
 
 static bool canInterruptRunningInferior(Backend backend)
@@ -1383,6 +1398,8 @@ private slots:
     void sortsTheRegistersIntoGroups();
     void updatesEnablesAndRemovesBreakpoint_data() { addBackendRows(); }
     void updatesEnablesAndRemovesBreakpoint();
+    void refusesABreakpointChangeItCannotAddress_data() { addBackendRows(); }
+    void refusesABreakpointChangeItCannotAddress();
     void writesMemoryAndPeripheralRegister_data() { addBackendRows(); }
     void writesMemoryAndPeripheralRegister();
     void selectsThreadAndActivatesFrame_data() { addBackendRows(); }
@@ -1834,7 +1851,8 @@ std::unique_ptr<DebuggerBackend> tst_backends::createEngine(Backend backend,
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .forResetCommands = {userCommandProbe(backend, UserCommandHook::Reset).command},
             .breakOnMain = gdbFlags.testFlag(GdbImplFlag::BreakOnMain),
-            .watchdogTimeout = watchdogTimeout}));
+            .watchdogTimeout = watchdogTimeout,
+            .logTimeStamps = gdbFlags.testFlag(GdbImplFlag::LogTimeStamps)}));
     }
     case Backend::Qml:
         return std::make_unique<DebuggerBackend>(std::make_unique<QmlImpl>(QmlImplStartData{
@@ -2481,7 +2499,9 @@ void tst_backends::initTestCase()
         qmlInferiorData.deepRecursionBreakpointLine
             = qmlMarkerLine("qmlserver_inferior.qml", "deep recursion line");
         QVERIFY(qmlInferiorData.deepRecursionBreakpointLine > 0);
+        qmlInferiorData.revisitedLine = qmlInferiorData.deepRecursionBreakpointLine;
         qmlInferiorData.recursionDepthVariable = "depth";
+        qmlInferiorData.longStringLocal = "longLocal";
         qmlInferiorData.localMarker = "value";
         qmlInferiorData.localMarkerType = "number";
         qmlInferiorData.functionMarker = "compute";
@@ -2491,6 +2511,7 @@ void tst_backends::initTestCase()
         qmlInferiorData.inspectorProperty = "globalValue";
         qmlInferiorData.inspectorPropertyExpression = "globalValue";
         qmlInferiorData.enableToggleWireMarker = "changebreakpoint";
+        qmlInferiorData.answersRedundantContinue = true;
         qmlInferiorData.inspectorOrphanObject = "orphanObject";
         m_backendData[Backend::Qml].inferiorData = qmlInferiorData;
     }
@@ -2780,6 +2801,7 @@ void tst_backends::initTestCase()
     QVERIFY(cppInferiorData.deepRecursionBreakpointLine > 0);
     QVERIFY(cppInferiorData.multiLocationBreakpointLine > 0);
     QVERIFY(cppInferiorData.spinBodyLine > 0);
+    cppInferiorData.revisitedLine = cppInferiorData.spinBodyLine;
     QVERIFY(cppInferiorData.knownFrameStepLine > 0);
     QVERIFY(thunkStepLine > 0);
     QVERIFY(cppInferiorData.libraryLoadedLine > 0);
@@ -2879,6 +2901,7 @@ void tst_backends::initTestCase()
         m_backendData[Backend::Bridge].inferiorData.moduleListMarker = "libc";
         m_backendData[Backend::Bridge].inferiorData.moduleSymbolsPath = cppInferiorData.executable;
         m_backendData[Backend::Bridge].inferiorData.longTextSymbol = "longText";
+        m_backendData[Backend::Bridge].inferiorData.marksUninitializedVariables = true;
         m_backendData[Backend::Bridge].inferiorData.answersRedundantContinue = true;
         m_backendData[Backend::Bridge].inferiorData.alienBreakpointCommand = "break spin";
         m_backendData[Backend::Bridge].inferiorData.alienBreakpointDeleteCommand = "delete %1";
@@ -2889,6 +2912,7 @@ void tst_backends::initTestCase()
         m_backendData[Backend::Gdb].inferiorData = cppInferiorData;
         m_backendData[Backend::Gdb].inferiorData.qmlBreakpointsUseServiceCasts = true;
         m_backendData[Backend::Gdb].inferiorData.longTextSymbol = "longText";
+        m_backendData[Backend::Gdb].inferiorData.marksUninitializedVariables = true;
         m_backendData[Backend::Gdb].inferiorData.versionLine = gdbVersionLine;
         m_backendData[Backend::Gdb].inferiorData.moduleListMarker = "libc";
         m_backendData[Backend::Gdb].inferiorData.moduleSymbolsPath = cppInferiorData.executable;
@@ -2906,6 +2930,7 @@ void tst_backends::initTestCase()
             = "breakpoint delete %1";
         m_backendData[Backend::Lldb].inferiorData.alienCatchpointCommand = "breakpoint set -E c++";
         m_backendData[Backend::Lldb].inferiorData.longTextSymbol = "longText";
+        m_backendData[Backend::Lldb].inferiorData.marksUninitializedVariables = true;
         m_backendData[Backend::Lldb].inferiorData.answersRedundantContinue = true;
         m_backendData[Backend::Lldb].inferiorData.remoteAttachMinMajorVersion = 21;
         m_backendData[Backend::Lldb].inferiorData.remoteStubHostsProcess = true;
@@ -3114,6 +3139,7 @@ void tst_backends::initTestCase()
     QVERIFY(pdbInferiorData.deepRecursionBreakpointLine > 0);
     QVERIFY(pdbInferiorData.recursiveCallLine > 0);
     QVERIFY(pdbInferiorData.spinBodyLine > 0);
+    pdbInferiorData.revisitedLine = pdbInferiorData.spinBodyLine;
     QVERIFY(pdbInferiorData.unbreakableLine > 0);
 
     QFile pdbFile(pdbInferiorData.source.toFSPathString());
@@ -3633,7 +3659,8 @@ void tst_backends::testBreakConditionCapability()
     if (auto result = checkCapability(backend, Debugger::BreakConditionCapability); !result)
         QSKIP(qPrintable(result.error()));
 
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -4035,7 +4062,8 @@ void tst_backends::testCreateFullBacktraceCapability()
     if (auto result = checkCapability(backend, Debugger::CreateFullBacktraceCapability); !result)
         QSKIP(qPrintable(result.error()));
 
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -5534,10 +5562,8 @@ void tst_backends::interruptWhileStoppedReportsStopOkImmediately()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
-        QSKIP(qPrintable(result.error()));
-
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
 
     debuggerBackend->clearEvents();
@@ -5619,11 +5645,9 @@ void tst_backends::continueWhileRunningReportsRunFailed()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
-        QSKIP(qPrintable(result.error()));
-
     const InferiorTestData testData = inferiorTestData(backend);
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     const bool canEndSpinLoop = debuggerBackend->engine()->hasExtraCapability(
         Debugger::DebuggerExtraCapability::RunCommandDeferral);
@@ -6040,12 +6064,10 @@ void tst_backends::reportsSourcePathsInStackFrames()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
-        QSKIP(qPrintable(result.error()));
-
     const FilePath source = inferiorTestData(backend).source;
 
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -6419,7 +6441,8 @@ void tst_backends::honorsTheStringLengthLimitFromTheRequest()
         QSKIP("inferior declares no local long enough to be cut short");
     const QString iname = "local." + local;
 
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -7198,6 +7221,54 @@ void tst_backends::refreshesRegistersAfterResume()
     QVERIFY(responses.value(int(RefreshKind::Registers)).childCount() > 0);
 }
 
+void tst_backends::refusesABreakpointChangeItCannotAddress()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, QPair<BreakpointOp, bool>> results;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results](quint64 requestId, BreakpointOp op, bool ok, const GdbMi &) {
+        if (requestId != 0)
+            results[requestId] = {op, ok};
+    });
+
+    // The model asks about a breakpoint the backend cannot address: it has no
+    // number for it, and no record of the model item either. The change cannot
+    // go out, and leaving it unanswered would keep the model waiting forever.
+    BreakpointChangeRequest updateRequest;
+    updateRequest.op = BreakpointOp::Update;
+    updateRequest.requestId = 320;
+    updateRequest.modelId = 987654;
+    updateRequest.params.type = BreakpointByFileAndLine;
+    updateRequest.params.fileName = testData.source;
+    updateRequest.params.textPosition.line = testData.breakpointLine;
+    updateRequest.params.textPosition.column = 0;
+    updateRequest.params.enabled = false;
+    engine->changeBreakpoint(updateRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(320), s_timeout);
+    QVERIFY2(results.value(320).first == BreakpointOp::Update,
+             "the answer to an update named another operation");
+    QVERIFY2(!results.value(320).second, "an update with no responseId was reported as done");
+
+    // The same for a removal, which is where taking the request at face value
+    // is worst: the command that removes a breakpoint by number removes all of
+    // them when the number is left out.
+    BreakpointChangeRequest removeRequest = updateRequest;
+    removeRequest.op = BreakpointOp::Remove;
+    removeRequest.requestId = 321;
+    engine->changeBreakpoint(removeRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(321), s_timeout);
+    QVERIFY2(results.value(321).first == BreakpointOp::Remove,
+             "the answer to a removal named another operation");
+    QVERIFY2(!results.value(321).second, "a removal with no responseId was reported as done");
+}
+
 void tst_backends::updatesEnablesAndRemovesBreakpoint()
 {
     QFETCH(Backend, backend);
@@ -7212,15 +7283,22 @@ void tst_backends::updatesEnablesAndRemovesBreakpoint()
              "launchAndStopAtBreakpoint() never captured a breakpoint number");
 
     QHash<quint64, bool> results;
+    // An update can hand the breakpoint back under a new number, and what the
+    // model keeps is the one the last answer named.
+    QString responseId = debuggerBackend->breakpointResponseId();
     connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
-            [&results](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+            [&results, &responseId](quint64 requestId, BreakpointOp, bool ok, const GdbMi &data) {
         results[requestId] = ok;
+        for (const GdbMi &bkpt : data) {
+            if (const QString number = bkpt["number"].data(); !number.isEmpty())
+                responseId = number;
+        }
     });
 
     BreakpointChangeRequest updateRequest;
     updateRequest.op = BreakpointOp::Update;
     updateRequest.requestId = 20;
-    updateRequest.responseId = debuggerBackend->breakpointResponseId();
+    updateRequest.responseId = responseId;
     updateRequest.params.enabled = true;
     engine->changeBreakpoint(updateRequest);
     QTRY_VERIFY_WITH_TIMEOUT(results.contains(20), s_timeout);
@@ -7229,7 +7307,7 @@ void tst_backends::updatesEnablesAndRemovesBreakpoint()
     BreakpointChangeRequest enableSubRequest;
     enableSubRequest.op = BreakpointOp::EnableSub;
     enableSubRequest.requestId = 21;
-    enableSubRequest.subResponseId = debuggerBackend->breakpointResponseId();
+    enableSubRequest.subResponseId = responseId;
     enableSubRequest.enabled = false;
     engine->changeBreakpoint(enableSubRequest);
     QTRY_VERIFY_WITH_TIMEOUT(results.contains(21), s_timeout);
@@ -7242,7 +7320,7 @@ void tst_backends::updatesEnablesAndRemovesBreakpoint()
     BreakpointChangeRequest removeRequest;
     removeRequest.op = BreakpointOp::Remove;
     removeRequest.requestId = 22;
-    removeRequest.responseId = debuggerBackend->breakpointResponseId();
+    removeRequest.responseId = responseId;
     engine->changeBreakpoint(removeRequest);
     QTRY_VERIFY_WITH_TIMEOUT(results.contains(22), s_timeout);
     QVERIFY(results.value(22));
@@ -7310,10 +7388,9 @@ void tst_backends::selectsThreadAndActivatesFrame()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
-        QSKIP(qPrintable(result.error()));
-
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    const InferiorTestData testData = inferiorTestData(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -7352,7 +7429,9 @@ void tst_backends::selectsThreadAndActivatesFrame()
     stackRequest.requestId = 30;
     engine->refresh(stackRequest);
     QTRY_VERIFY_WITH_TIMEOUT(stackReceived, s_timeout);
-    QVERIFY(stackData.toString().contains("bump"));
+    QVERIFY2(stackData.toString().contains(testData.functionMarker),
+             qPrintable("the stack named no " + testData.functionMarker + " frame: "
+                        + stackData.toString()));
 }
 
 void tst_backends::printsALongValueWithoutTruncating()
@@ -7478,10 +7557,8 @@ void tst_backends::shutsDownCleanly()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
-        QSKIP(qPrintable(result.error()));
-
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -7495,12 +7572,14 @@ void tst_backends::shutsDownCleanly()
                               "shutdownInferior(Kill) never reported ShutdownFinished", s_timeout);
 
     engine->shutdownEngine();
-    QTRY_VERIFY2_WITH_TIMEOUT(processFinished,
-                              "engine process never reported finishing after "
-                              "shutdownInferior()+shutdownEngine()", s_timeout);
+    if (runsADebuggerProcess(backend)) {
+        QTRY_VERIFY2_WITH_TIMEOUT(processFinished,
+                                  "engine process never reported finishing after "
+                                  "shutdownInferior()+shutdownEngine()", s_timeout);
 
-    QVERIFY2(debuggerBackend->inferiorResults().isEmpty(),
-             "engine process finishing after a normal shutdown wrongly reported inferiorDone");
+        QVERIFY2(debuggerBackend->inferiorResults().isEmpty(),
+                 "engine process finishing after a normal shutdown wrongly reported inferiorDone");
+    }
 
     debuggerBackend->clearEvents();
     engine->shutdownEngine();
@@ -8031,12 +8110,11 @@ void tst_backends::clearedBreakpointConditionStopsAgain()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
-        QSKIP(qPrintable(result.error()));
     if (auto result = checkCapability(backend, Debugger::BreakConditionCapability); !result)
         QSKIP(qPrintable(result.error()));
 
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -8686,10 +8764,9 @@ void tst_backends::reloadsDebuggingHelpersAndSymbols()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
-        QSKIP(qPrintable(result.error()));
-
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    const InferiorTestData testData = inferiorTestData(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -8705,7 +8782,7 @@ void tst_backends::reloadsDebuggingHelpersAndSymbols()
     debuggingHelpersRequest.requestId = 105;
     engine->refresh(debuggingHelpersRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
-    QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains("localValue"));
+    QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains(testData.localMarker));
     if (reportsDumperTypes(backend)) {
         QTRY_VERIFY2_WITH_TIMEOUT(responses.contains(int(RefreshKind::DebuggingHelpers)),
                                   "reloading the helpers reported no types", s_timeout);
@@ -8722,20 +8799,20 @@ void tst_backends::reloadsDebuggingHelpersAndSymbols()
     allSymbolsRequest.requestId = 106;
     engine->refresh(allSymbolsRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
-    QVERIFY(responses.value(int(RefreshKind::FullStack)).toString().contains("bump"));
+    QVERIFY(responses.value(int(RefreshKind::FullStack)).toString().contains(testData.functionMarker));
 
     responses.remove(int(RefreshKind::Locals));
     RefreshRequest stackSymbolsRequest;
     stackSymbolsRequest.kind = RefreshKind::StackSymbols;
     stackSymbolsRequest.requestId = 107;
-    stackSymbolsRequest.path = inferiorTestData(backend).executable;
+    stackSymbolsRequest.path = testData.executable;
     engine->refresh(stackSymbolsRequest);
     RefreshRequest locals2Request;
     locals2Request.kind = RefreshKind::Locals;
     locals2Request.requestId = 108;
     engine->refresh(locals2Request);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
-    QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains("localValue"));
+    QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains(testData.localMarker));
 }
 
 void tst_backends::acceptsBreakpointFollowsRules()
@@ -8792,10 +8869,8 @@ void tst_backends::executesStepIn()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
-        QSKIP(qPrintable(result.error()));
-
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
 
     debuggerBackend->clearEvents();
@@ -8809,10 +8884,12 @@ void tst_backends::breakpointConditionPreventsStop()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+    if (auto result = checkCapability(backend, Debugger::BreakConditionCapability); !result)
         QSKIP(qPrintable(result.error()));
 
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    const InferiorTestData testData = inferiorTestData(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -8825,8 +8902,8 @@ void tst_backends::breakpointConditionPreventsStop()
     falseConditionRequest.op = BreakpointOp::Insert;
     falseConditionRequest.requestId = 245;
     falseConditionRequest.params.type = BreakpointByFileAndLine;
-    falseConditionRequest.params.fileName = inferiorTestData(backend).source;
-    falseConditionRequest.params.textPosition.line = inferiorTestData(backend).secondBreakpointLine;
+    falseConditionRequest.params.fileName = testData.source;
+    falseConditionRequest.params.textPosition.line = testData.secondBreakpointLine;
     falseConditionRequest.params.textPosition.column = 0;
     falseConditionRequest.params.enabled = true;
     falseConditionRequest.params.condition = "globalValue == 999";
@@ -8834,35 +8911,34 @@ void tst_backends::breakpointConditionPreventsStop()
     QTRY_VERIFY_WITH_TIMEOUT(results.contains(245), s_timeout);
     QVERIFY2(results.value(245), "conditional breakpoint insert failed");
 
-    BreakpointChangeRequest spinBodyRequest;
-    spinBodyRequest.op = BreakpointOp::Insert;
-    spinBodyRequest.requestId = 246;
-    spinBodyRequest.params.type = BreakpointByFileAndLine;
-    spinBodyRequest.params.fileName = inferiorTestData(backend).source;
-    spinBodyRequest.params.textPosition.line = inferiorTestData(backend).spinBodyLine;
-    spinBodyRequest.params.textPosition.column = 0;
-    spinBodyRequest.params.enabled = true;
-    engine->changeBreakpoint(spinBodyRequest);
+    BreakpointChangeRequest revisitedLineRequest;
+    revisitedLineRequest.op = BreakpointOp::Insert;
+    revisitedLineRequest.requestId = 246;
+    revisitedLineRequest.params.type = BreakpointByFileAndLine;
+    revisitedLineRequest.params.fileName = testData.source;
+    revisitedLineRequest.params.textPosition.line = testData.revisitedLine;
+    revisitedLineRequest.params.textPosition.column = 0;
+    revisitedLineRequest.params.enabled = true;
+    engine->changeBreakpoint(revisitedLineRequest);
     QTRY_VERIFY_WITH_TIMEOUT(results.contains(246), s_timeout);
-    QVERIFY2(results.value(246), "spin() body breakpoint insert failed");
+    QVERIFY2(results.value(246), "the revisited line's breakpoint insert failed");
 
     debuggerBackend->clearEvents();
     debuggerBackend->execute({ExecutionCommand::Continue});
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk), s_timeout);
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
-                              "neither breakpoint was ever reported - the debuggee never got as "
-                              "far as spin()", s_timeout);
-    QCOMPARE(debuggerBackend->stoppedLine(), inferiorTestData(backend).spinBodyLine);
+                              "neither breakpoint was ever reported - the debuggee never got "
+                              "back to the line it revisits", s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), testData.revisitedLine);
 }
 
 void tst_backends::executesRepeatLastCommand()
 {
     QFETCH(Backend, backend);
 
-    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
-        QSKIP(qPrintable(result.error()));
-
-    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    const InferiorTestData testData = inferiorTestData(backend);
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
     QVERIFY(debuggerBackend);
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
@@ -8886,15 +8962,19 @@ void tst_backends::executesRepeatLastCommand()
     const int sentBeforeFetch = commandsSent.size();
     engine->refresh(localsRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
-    QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains("localValue"));
+    QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains(testData.localMarker));
     const QStringList commandsSentByFetch = commandsSent.mid(sentBeforeFetch);
 
     const auto callee = [](const QString &command) {
         static const QRegularExpression leadingToken("^[0-9]+");
         static const QRegularExpression argumentToken(R"( -t [0-9]+\.[0-9]+)");
+        // What a command is called by does not include the sequence number it
+        // carries, which is different every time by construction.
+        static const QRegularExpression sequenceToken(R"("seq":[0-9]+,?)");
         QString bare = command;
         bare.remove(leadingToken);
         bare.remove(argumentToken);
+        bare.remove(sequenceToken);
         const int argStart = bare.indexOf('(');
         return argStart < 0 ? bare.trimmed() : bare.left(argStart).trimmed();
     };
@@ -8919,7 +8999,7 @@ void tst_backends::executesRepeatLastCommand()
     secondLocalsRequest.requestId = 251;
     engine->refresh(secondLocalsRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
-    QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains("localValue"));
+    QVERIFY(responses.value(int(RefreshKind::Locals)).toString().contains(testData.localMarker));
 }
 
 void tst_backends::passesInferiorEnvironmentDiffToDebugger()

@@ -681,6 +681,10 @@ void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         break;
     }
     case BreakpointOp::Remove: {
+        if (request.responseId.isEmpty()) {
+            emit breakpointEvent(requestId, BreakpointOp::Remove, false);
+            break;
+        }
         DebuggerCommand cmd("removeBreakpoint");
         cmd.arg("lldbid", request.responseId);
         runCommand(cmd);
@@ -760,6 +764,7 @@ void LldbImpl::refresh(const RefreshRequest &request)
         cmd.arg("qtnamespace", m_startData.qtNamespace);
         cmd.arg("passexceptions", qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE"));
         cmd.arg("partialvar", request.partialVariable);
+        cmd.arg("uninitialized", request.uninitializedVariables);
         cmd.arg("context", request.context);
         cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
         cmd.arg("expanded", request.expandedForDumpers());

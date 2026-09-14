@@ -836,6 +836,7 @@ void GdbImpl::refresh(const RefreshRequest &request)
         cmd.arg("passexceptions", qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE"));
         cmd.arg("resultvarname", m_resultVarName);
         cmd.arg("partialvar", request.partialVariable);
+        cmd.arg("uninitialized", request.uninitializedVariables);
         cmd.arg("context", request.context);
         cmd.arg("nativemixed", m_startData.isSet(GdbImplFlag::NativeMixedDebugging));
         cmd.arg("allowinferiorcalls", request.allowInferiorCalls);
@@ -1237,6 +1238,12 @@ void GdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         insertBreakpointCommand(request);
         break;
     case BreakpointOp::Remove:
+        // A breakpoint without a number of its own is one gdb never got to see,
+        // and a delete without one takes every breakpoint there is.
+        if (request.responseId.isEmpty()) {
+            emit breakpointEvent(requestId, BreakpointOp::Remove, false);
+            break;
+        }
         if (!request.params.isCppBreakpoint()) {
             DebuggerCommand cmd("removeInterpreterBreakpoint");
             cmd.arg("id", request.responseId);

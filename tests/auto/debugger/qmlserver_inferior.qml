@@ -9,6 +9,7 @@ QtObject {
     property int globalValue: 41
 
     function compute(value) {
+        var longLocal = "0123456789".repeat(200) + "LONGTEXTEND"
         var nested = ({ alpha: 1, beta: "two", inner: ({ deep: 7 }) })
         var doubled = value * 2 // breakpoint line
         globalValue = value
@@ -24,7 +25,7 @@ QtObject {
         interval: 3500
         running: true
         repeat: true
-        onTriggered: root.recurse(12)
+        onTriggered: root.recurse(45)
     }
 
     function throwsError() {

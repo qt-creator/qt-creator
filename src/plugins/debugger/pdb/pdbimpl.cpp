@@ -101,7 +101,8 @@ static DebuggerEngineSetupData pdbImplSetupData()
                       | RunToLineCapability
                       | ShowModuleSymbolsCapability
                       | WatchComplexExpressionsCapability;
-    data.extraCapabilities = DebuggerExtraCapability::StopBeforeRun;
+    data.extraCapabilities = DebuggerExtraCapability::SourceFiles
+                           | DebuggerExtraCapability::StopBeforeRun;
     data.startModes = DebuggerStartModeFlag::Launch;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
@@ -515,6 +516,11 @@ void PdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         insertBreakpoint(request, BreakpointReply::Insert);
         break;
     case BreakpointOp::Remove: {
+        // A "clear" without a number clears every breakpoint pdb has.
+        if (request.responseId.isEmpty()) {
+            emit breakpointEvent(requestId, BreakpointOp::Remove, false);
+            break;
+        }
         const QString pdbNumber = pdbNumberFor(request.responseId);
         for (int i = m_activeBreakpoints.size() - 1; i >= 0; --i) {
             if (m_activeBreakpoints.at(i).request.responseId == request.responseId)
@@ -578,6 +584,10 @@ void PdbImpl::refresh(const RefreshRequest &request)
     case RefreshKind::Modules:
         m_pendingModulesRequestId = requestId;
         runCommand({"listModules"});
+        return;
+    case RefreshKind::SourceFiles:
+        m_pendingSourceFilesRequestId = requestId;
+        runCommand({"listSourceFiles"});
         return;
     case RefreshKind::ModuleSymbols: {
         m_pendingModuleSymbolsRequestId = requestId;
@@ -650,6 +660,7 @@ void PdbImpl::executeDebuggerCommand(const QString &command, const WatchItemData
 {
     postDirectCommand(command);
     watchCommand(command);
+    timeCommand(command);
 }
 
 void PdbImpl::requestInterrupt()
@@ -694,6 +705,29 @@ void PdbImpl::handleWatchdogFence(quint64 token)
     restartWatchdog();
 }
 
+void PdbImpl::timeCommand(const QString &description)
+{
+    if (!m_startData.logTimeStamps)
+        return;
+    const quint64 token = ++m_lastTimeToken;
+    m_timedCommands.append({token, description, QTime::currentTime()});
+    DebuggerCommand fence("timeFence");
+    fence.arg("token", QString::number(token));
+    m_pdbProc.write("qdebug('" + fence.function + "'," + fence.argsToPython() + ")\n");
+}
+
+void PdbImpl::handleTimeFence(quint64 token)
+{
+    const QTime now = QTime::currentTime();
+    while (!m_timedCommands.isEmpty() && m_timedCommands.first().token <= token) {
+        const TimedCommand timed = m_timedCommands.takeFirst();
+        emit message(QString("Response time: %1: %2 s")
+                         .arg(timed.description)
+                         .arg(timed.postTime.msecsTo(now) / 1000.),
+                     LogTime);
+    }
+}
+
 void PdbImpl::restartWatchdog()
 {
     if (m_startData.watchdogTimeout == std::chrono::seconds::zero())
@@ -710,6 +744,9 @@ void PdbImpl::runCommand(const DebuggerCommand &cmd)
     const QString command = "qdebug('" + cmd.function + "'," + cmd.argsToPython() + ")";
     emit message(command, LogInput);
     m_pdbProc.write(command + '\n');
+    // The fences are the engine's own bookkeeping, nobody waits for their answer.
+    if (!cmd.function.endsWith("Fence"))
+        timeCommand(cmd.function);
 }
 
 void PdbImpl::handlePdbOutput(const QString &output)
@@ -742,6 +779,8 @@ void PdbImpl::handleOutputLine(const QString &line)
         emit refreshDataReceived(m_pendingLocalsRequestId, RefreshKind::Locals, wrapped(item));
     } else if (line.startsWith("modules=[")) {
         emit refreshDataReceived(m_pendingModulesRequestId, RefreshKind::Modules, item);
+    } else if (line.startsWith("sourcefiles=[")) {
+        emit refreshDataReceived(m_pendingSourceFilesRequestId, RefreshKind::SourceFiles, item);
     } else if (line.startsWith("symbols={")) {
         GdbMi moduleSymbols;
         moduleSymbols.m_type = GdbMi::Tuple;
@@ -807,6 +846,8 @@ void PdbImpl::handleOutputLine(const QString &line)
         handleResetFence(item["token"].data().toULongLong());
     } else if (line.startsWith("watchdogfence={")) {
         handleWatchdogFence(item["token"].data().toULongLong());
+    } else if (line.startsWith("timefence={")) {
+        handleTimeFence(item["token"].data().toULongLong());
     } else if (line.startsWith("breakpointmodified=")) {
         const QString responseId = responseIdFor(item["number"].data());
         const auto it = std::find_if(m_activeBreakpoints.cbegin(), m_activeBreakpoints.cend(),

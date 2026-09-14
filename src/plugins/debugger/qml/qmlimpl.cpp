@@ -40,6 +40,8 @@ static DebuggerEngineSetupData qmlImplSetupData()
     DebuggerEngineSetupData data;
     data.capabilities = AddWatcherCapability
                       | AddWatcherWhileRunningCapability
+                      | BreakConditionCapability
+                      | CreateFullBacktraceCapability
                       | RunToLineCapability
                       | WatchComplexExpressionsCapability;
     data.extraCapabilities = DebuggerExtraCapability::Detach
@@ -363,6 +365,9 @@ void QmlImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             QmlDebug::QPacket rs(m_v8Client->dataStreamVersion());
             rs << params.functionName.toUtf8() << false;
             runDirectCommand(BREAKONSIGNAL, rs.data());
+        } else if (request.responseId.isEmpty()) {
+            emit breakpointEvent(request.requestId, BreakpointOp::Remove, false, {});
+            break;
         } else {
             DebuggerCommand cmd(CLEARBREAKPOINT);
             cmd.arg(BREAKPOINT, request.responseId.toInt());
@@ -395,6 +400,8 @@ void QmlImpl::changeBreakpoint(const BreakpointChangeRequest &request)
                     m_activeBreakpointsByResponseId.insert(request.responseId, request);
                 emit breakpointEvent(requestId, BreakpointOp::Update, ok, {});
             });
+        } else if (request.responseId.isEmpty()) {
+            emit breakpointEvent(request.requestId, BreakpointOp::Update, false, {});
         } else {
             DebuggerCommand clearCmd(CLEARBREAKPOINT);
             clearCmd.arg(BREAKPOINT, request.responseId.toInt());
@@ -412,6 +419,12 @@ void QmlImpl::execute(const ExecutionRequest &request)
 {
     switch (request.command) {
     case ExecutionCommand::Continue:
+        // Symmetric to the interrupt below: a request that cannot go out is
+        // answered right away, rather than left for a reply that never comes.
+        if (m_inferiorRunning) {
+            emit inferiorEvent(InferiorEvent::RunFailed);
+            break;
+        }
         emit inferiorEvent(InferiorEvent::RunRequested);
         m_inferiorRunning = true;
         runCommand({CONTINEDEBUGGING}, [this](const QVariantMap &) {
@@ -458,12 +471,16 @@ void QmlImpl::execute(const ExecutionRequest &request)
         sendDisconnect();
         emit inferiorDone({0, InferiorExitStatus::Detached});
         break;
+    case ExecutionCommand::RepeatLastCommand:
+        if (m_lastLocalsRequest)
+            refreshLocals(*m_lastLocalsRequest);
+        break;
     default:
         break;
     }
 }
 
-static std::pair<QString, QString> v8TypeAndValue(const QVariantMap &data)
+static std::pair<QString, QString> v8TypeAndValue(const QVariantMap &data, int stringLimit)
 {
     const QString type = data.value(QLatin1String(TYPE)).toString();
     const QVariant value = data.value(QLatin1String(VALUE));
@@ -471,8 +488,12 @@ static std::pair<QString, QString> v8TypeAndValue(const QVariantMap &data)
         return {"undefined", "undefined"};
     if (type == "null")
         return {"object", "null"};
-    if (type == "string")
-        return {type, '"' + value.toString() + '"'};
+    if (type == "string") {
+        QString text = value.toString();
+        if (stringLimit > 0 && text.size() > stringLimit)
+            text = text.left(stringLimit) + "...";
+        return {type, '"' + text + '"'};
+    }
     if (type == "boolean" || type == "number")
         return {type, value.toString()};
     if (type == "function")
@@ -525,6 +546,11 @@ static int v8ChildCount(const QVariantMap &data)
 void QmlImpl::refreshLocals(const RefreshRequest &request)
 {
     const QJsonArray watchers = request.watchers;
+    m_lastLocalsRequest = request;
+    // Nothing here reads a string in pieces, so the smaller of the two limits is
+    // what decides how much of one reaches the view.
+    m_stringLimit = qMin(request.dumperOptions.maximalStringLength,
+                         request.dumperOptions.displayStringLimit);
 
     if (m_inferiorRunning) {
         m_deferredWatchers = request;
@@ -552,7 +578,7 @@ void QmlImpl::refreshLocals(const RefreshRequest &request)
             item.addChild(constMi(QStringLiteral("wname"), hexExp));
             int numchild = 0;
             if (resp.value(QLatin1String(SUCCESS)).toBool()) {
-                const auto [type, value] = v8TypeAndValue(body);
+                const auto [type, value] = v8TypeAndValue(body, m_stringLimit);
                 numchild = v8ChildCount(body);
                 item.addChild(constMi(QStringLiteral("type"), type));
                 item.addChild(constMi(QStringLiteral("value"), value));
@@ -582,7 +608,7 @@ void QmlImpl::refreshLocals(const RefreshRequest &request)
         const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
 
         const QVariantMap receiver = body.value(QLatin1String("receiver")).toMap();
-        const auto [thisType, thisValue] = v8TypeAndValue(receiver);
+        const auto [thisType, thisValue] = v8TypeAndValue(receiver, m_stringLimit);
         GdbMi thisItem;
         thisItem.m_type = GdbMi::Tuple;
         thisItem.addChild(constMi(QStringLiteral("iname"), QStringLiteral("local.this")));
@@ -645,7 +671,7 @@ void QmlImpl::handleScopeReply(const QVariantMap &response,
 
         const QString iname = "local." + name;
         const int numchild = v8ChildCount(property);
-        const auto [type, value] = v8TypeAndValue(property);
+        const auto [type, value] = v8TypeAndValue(property, m_stringLimit);
         const int handle = property.value(QLatin1String(REF),
                                          property.value(QLatin1String(HANDLE))).toInt();
 
@@ -670,7 +696,7 @@ QList<QmlImpl::LookupRequest> QmlImpl::appendV8Children(
     const std::shared_ptr<RefreshCollector> &pending)
 {
     QList<LookupRequest> nextRound;
-    const auto [parentType, parentValue] = v8TypeAndValue(resolved);
+    const auto [parentType, parentValue] = v8TypeAndValue(resolved, m_stringLimit);
     for (const QVariant &childValue : resolved.value(QLatin1String("properties")).toList()) {
         const QVariantMap child = childValue.toMap();
         const QString childName = child.value(QLatin1String(NAME)).toString();
@@ -679,7 +705,7 @@ QList<QmlImpl::LookupRequest> QmlImpl::appendV8Children(
         const QString childExp = parentValue == "Array" ? QString(exp + '[' + childName + ']')
                                                         : QString(exp + '.' + childName);
         const QString childIName = iname + '.' + childName;
-        const auto [childType, childText] = v8TypeAndValue(child);
+        const auto [childType, childText] = v8TypeAndValue(child, m_stringLimit);
         const int childNumChild = v8ChildCount(child);
         pending->items.addChild(watchItem(childIName, childName, childExp, childType, childText,
                                           childNumChild));
@@ -722,7 +748,7 @@ void QmlImpl::lookupHandles(const QList<LookupRequest> &requests,
                 continue;
             const QString iname = requestIt->iname;
             const QVariantMap resolved = it.value().toMap();
-            const auto [type, value] = v8TypeAndValue(resolved);
+            const auto [type, value] = v8TypeAndValue(resolved, m_stringLimit);
             const QVariantList properties = resolved.value(QLatin1String("properties")).toList();
 
             const int numchild = properties.isEmpty() ? v8ChildCount(resolved)
@@ -1041,17 +1067,32 @@ void QmlImpl::refresh(const RefreshRequest &request)
         refreshSourceFiles(request);
         return;
     }
-    if (request.kind != RefreshKind::FullStack)
+    // Nothing behind the debug service has dumpers or symbols to load, so what
+    // the caller is after is the values, and the frames they belong to, again.
+    if (request.kind == RefreshKind::DebuggingHelpers) {
+        refreshLocals({request.requestId, RefreshKind::Locals});
+        return;
+    }
+    if (request.kind == RefreshKind::AllSymbols) {
+        refresh({request.requestId, RefreshKind::FullStack});
+        refresh({request.requestId, RefreshKind::Locals});
+        return;
+    }
+    if (request.kind != RefreshKind::FullStack && request.kind != RefreshKind::FullBacktrace)
         return;
 
     const quint64 requestId = request.requestId;
-    const int depthLimit = request.stackDepthLimit;
+    const RefreshKind kind = request.kind;
+    // A full backtrace is about everything there is, so a depth limit meant for
+    // the stack view does not apply to it.
+    const int depthLimit = kind == RefreshKind::FullBacktrace ? -1 : request.stackDepthLimit;
+    // The debug service answers with the first ten frames only unless the range
+    // is spelled out, which is not what either the stack view or a backtrace is
+    // after when nothing limits them.
     DebuggerCommand cmd(BACKTRACE);
-    if (depthLimit >= 0) {
-        cmd.arg("fromFrame", 0);
-        cmd.arg("toFrame", depthLimit);
-    }
-    runCommand(cmd, [this, requestId](const QVariantMap &resp) {
+    cmd.arg("fromFrame", 0);
+    cmd.arg("toFrame", depthLimit >= 0 ? depthLimit : 10000);
+    runCommand(cmd, [this, requestId, kind](const QVariantMap &resp) {
         const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
         const QVariantList v8Frames = body.value(QLatin1String("frames")).toList();
 
@@ -1059,7 +1100,6 @@ void QmlImpl::refresh(const RefreshRequest &request)
         frames.m_type = GdbMi::List;
         for (const QVariant &v8FrameVal : v8Frames) {
             const QVariantMap v8Frame = v8FrameVal.toMap();
-            const QVariantMap script = v8Frame.value(QLatin1String("script")).toMap();
             QString function = v8Frame.value(QLatin1String(FUNCTION)).toString();
             if (function.isEmpty())
                 function = v8Frame.value(QLatin1String("func")).toString();
@@ -1069,11 +1109,29 @@ void QmlImpl::refresh(const RefreshRequest &request)
             frame.addChild(constMi(QLatin1String("level"),
                                    QString::number(v8Frame.value(QLatin1String("index")).toInt())));
             frame.addChild(constMi(QLatin1String(FUNCTION), function));
-            frame.addChild(constMi(QLatin1String("file"), script.value(QLatin1String(NAME)).toString()));
+            // A frame names its script as a URL, which is what a stop reports too,
+            // and what the editor has to be handed to open the source.
+            const QVariant script = v8Frame.value(QLatin1String("script"));
+            const QString scriptName = script.typeId() == QMetaType::QVariantMap
+                                           ? script.toMap().value(QLatin1String(NAME)).toString()
+                                           : script.toString();
+            frame.addChild(constMi(QLatin1String("file"),
+                                   FilePath::fromUrl(QUrl(scriptName)).toUrlishString()));
             frame.addChild(constMi(QLatin1String(LINE),
                                    QString::number(v8Frame.value(QLatin1String(LINE)).toInt() + 1)));
             frame.addChild(constMi(QLatin1String("language"), QStringLiteral("js")));
             frames.addChild(frame);
+        }
+
+        if (kind == RefreshKind::FullBacktrace) {
+            QString text;
+            for (const GdbMi &frame : frames) {
+                text += QString("#%1  %2 at %3:%4\n")
+                            .arg(frame["level"].data(), frame[FUNCTION].data(),
+                                 frame["file"].data(), frame[LINE].data());
+            }
+            emit refreshDataReceived(requestId, RefreshKind::FullBacktrace, constMi({}, text));
+            return;
         }
 
         frames.m_name = QStringLiteral("frames");

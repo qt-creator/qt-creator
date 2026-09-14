@@ -1468,7 +1468,12 @@ class DapServer():
 
     def cmd_qtc_removeBreakpoint(self, request):
         args = request.get('arguments', {})
-        self._forgetBreakpoint(str(args.get('id')))
+        key = str(args.get('id'))
+        if key not in self.breakpointById and key not in self.breakpointArgsById:
+            self.sendResponse(request, success=False,
+                              message='no breakpoint %s' % key)
+            return
+        self._forgetBreakpoint(key)
         self.sendResponse(request, body={'modelid': args.get('modelid')})
 
     #######################################################################
@@ -1832,6 +1837,15 @@ class DapServer():
         except Exception:
             descriptors = []
 
+        # Which groups a register belongs to is what the view sorts it under.
+        groupsByName = {}
+        try:
+            for group in frame.architecture().register_groups():
+                for desc in frame.architecture().registers(group.name):
+                    groupsByName.setdefault(desc.name, []).append(group.name)
+        except Exception:
+            pass
+
         for desc in descriptors:
             try:
                 value = frame.read_register(desc)
@@ -1849,7 +1863,8 @@ class DapServer():
                     text = str(value)
                 except Exception:
                     text = ''
-            registers.append({'name': desc.name, 'value': text, 'size': size})
+            registers.append({'name': desc.name, 'value': text, 'size': size,
+                              'groups': ','.join(groupsByName.get(desc.name, []))})
 
         self.sendResponse(request, body={'registers': registers})
 

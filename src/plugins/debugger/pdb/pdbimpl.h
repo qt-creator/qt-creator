@@ -9,6 +9,7 @@
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 
+#include <QTime>
 #include <QTimer>
 
 #include <chrono>
@@ -39,6 +40,7 @@ public:
     bool breakOnMain = false;
     // Zero leaves the commands unwatched.
     std::chrono::seconds watchdogTimeout{0};
+    bool logTimeStamps = false;
 };
 
 class DEBUGGER_EXPORT PdbImpl final : public DebuggerEngineInterface
@@ -74,6 +76,14 @@ private:
         QString pdbNumber;
         // Created by a command typed into the log rather than by the model.
         bool alien = false;
+    };
+
+    class TimedCommand
+    {
+    public:
+        quint64 token = 0;
+        QString description;
+        QTime postTime;
     };
 
     class PendingStackReply
@@ -136,6 +146,10 @@ private:
     void watchCommand(const QString &description);
     void handleWatchdogFence(quint64 token);
     void restartWatchdog();
+    // The same round trip, for the time a command took rather than for whether
+    // it is still outstanding.
+    void timeCommand(const QString &description);
+    void handleTimeFence(quint64 token);
 
     PdbImplStartData m_startData;
     Utils::Process m_pdbProc;
@@ -155,8 +169,11 @@ private:
     quint64 m_lastWatchdogToken = 0;
     QList<QPair<quint64, QString>> m_watchedCommands;
     QTimer m_watchdog;
+    quint64 m_lastTimeToken = 0;
+    QList<TimedCommand> m_timedCommands;
     quint64 m_pendingBacktraceRequestId = 0;
     quint64 m_pendingModulesRequestId = 0;
+    quint64 m_pendingSourceFilesRequestId = 0;
     quint64 m_pendingModuleSymbolsRequestId = 0;
 
     DebuggerCommand m_lastDebuggableCommand;

@@ -70,6 +70,7 @@ protected:
     virtual void handleResponse(DapResponseType type, const QJsonObject &response);
     virtual void handleEvent(DapEventType type, const QJsonObject &event);
 
+    void askForTheStoppingSignal(const QString &description);
     void handleStopped(const QJsonObject &event);
     void handleStackTrace(const QJsonObject &response);
     void handleScopes(const QJsonObject &response);

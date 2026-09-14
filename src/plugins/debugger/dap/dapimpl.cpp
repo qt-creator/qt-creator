@@ -76,6 +76,7 @@ static DebuggerEngineSetupData dapImplSetupData()
                            | DebuggerExtraCapability::Detach
                            | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::PeripheralRegisters
+                           | DebuggerExtraCapability::SignalReceived
                            | DebuggerExtraCapability::SkipKnownFrames
                            | DebuggerExtraCapability::SourceFiles
                            | DebuggerExtraCapability::SpecialBreakpoints
@@ -1240,6 +1241,34 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
     }
 }
 
+// An adapter that leaves the signal out of the stop event still knows it, and
+// gdb's own wording for it ("It stopped with signal SIGSEGV, Segmentation
+// fault.") carries both the name and the meaning the views want.
+void DapImpl::askForTheStoppingSignal(const QString &description)
+{
+    sendCustomRequest("evaluate",
+                      QJsonObject{{"expression", "info program"}, {"context", "repl"}},
+                      [this, description](const Utils::Result<QJsonObject> &answer) {
+        QString name;
+        QString meaning = description;
+        if (answer) {
+            static const QString marker = "with signal ";
+            const QString reply = answer->value("result").toString();
+            const int start = reply.indexOf(marker);
+            const QString rest = start < 0 ? QString() : reply.mid(start + marker.size());
+            const int comma = rest.indexOf(", ");
+            const int end = rest.indexOf('\n');
+            if (comma > 0 && end > comma) {
+                name = rest.left(comma);
+                meaning = rest.mid(comma + 2, end - comma - 2);
+                if (meaning.endsWith('.'))
+                    meaning.chop(1);
+            }
+        }
+        emit signalReceived(name, meaning);
+    });
+}
+
 void DapImpl::handleStopped(const QJsonObject &event)
 {
     const QJsonObject body = event.value("body").toObject();
@@ -1250,8 +1279,12 @@ void DapImpl::handleStopped(const QJsonObject &event)
     if (reason == "exception" || reason == "signal") {
         // The protocol names no signals. "text" is where an adapter says what
         // it was, if it says anything at all.
-        emit signalReceived(body.value("text").toString(),
-                            body.value("description").toString());
+        const QString text = body.value("text").toString();
+        const QString description = body.value("description").toString();
+        if (reason == "signal" && text.isEmpty())
+            askForTheStoppingSignal(description);
+        else
+            emit signalReceived(text, description);
     }
 
     const QJsonArray hit = body.value("hitBreakpointIds").toArray();

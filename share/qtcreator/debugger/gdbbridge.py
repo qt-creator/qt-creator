@@ -787,6 +787,12 @@ class Dumper(DumperBase):
         variables = self.listLocals(partialName)
         #self.warn('VARIABLES: %s' % variables)
 
+        # A name the request reports as not initialized at this line is out of
+        # scope however readable the debugger finds it.
+        for value in variables:
+            if value.name in self.uninitialized:
+                value.lIsInScope = False
+
         # Take care of the return value of the last function call.
         if self.resultVarName:
             try:

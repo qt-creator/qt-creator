@@ -1793,6 +1793,9 @@ class QtcInternalDumper():
     def watchdogFence(self, args):
         self.report('watchdogfence={token="%s"}' % args.get('token', 0))
 
+    def timeFence(self, args):
+        self.report('timefence={token="%s"}' % args.get('token', 0))
+
     def addDumperModule(self, args):
         # Executed in a namespace of its own, not in the bridge's: the inferior
         # script shares the bridge's globals, so anything left there would show
@@ -1822,6 +1825,19 @@ class QtcInternalDumper():
             self.put('{')
             self.putName(name)
             self.putValue(sys.modules[name])
+            self.put('},')
+        self.put(']')
+        self.flushOutput()
+
+    def listSourceFiles(self, args):
+        self.put('sourcefiles=[')
+        for name in __builtins__.list(sys.modules):
+            path = getattr(sys.modules[name], '__file__', None)
+            if not path:
+                continue
+            self.put('{')
+            self.putField('file', os.path.basename(path))
+            self.putField('fullname', path)
             self.put('},')
         self.put(']')
         self.flushOutput()
