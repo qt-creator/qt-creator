@@ -102,14 +102,6 @@ static void showExecutionError(const QString &message)
                                      Tr::tr("Cannot continue debugged process:") + '\n' + message);
 }
 
-struct TracepointCaptureData
-{
-    TracepointCaptureType type;
-    QVariant expression;
-    int start;
-    int end;
-};
-
 const char tracepointCapturePropertyName[] = "GDB.TracepointCapture";
 const char notCompatibleMessage[] = "is not compatible with target architecture";
 
@@ -2436,58 +2428,10 @@ void GdbEngine::handleBreakCondition(const DebuggerResponse &, const Breakpoint 
 
 void GdbEngine::updateTracepointCaptures(const Breakpoint &bp)
 {
-    static const QRegularExpression capsRegExp(
-        "(^|[^\\\\])(\\$(ADDRESS|CALLER|CALLSTACK|FILEPOS|FUNCTION|PID|PNAME|TICK|TID|TNAME)"
-        "|{[^}]+})");
-    QString message = bp->globalBreakpoint()->requestedParameters().message;
-    if (message.isEmpty()) {
-        bp->setProperty(tracepointCapturePropertyName, {});
-        return;
-    }
-    QVariantList caps;
-    QRegularExpressionMatch match = capsRegExp.match(message, 0);
-    while (match.hasMatch()) {
-        QString t = match.captured(2);
-        if (t[0] == '$') {
-            TracepointCaptureType type;
-            if (t == "$ADDRESS")
-                type = TracepointCaptureType::Address;
-            else if (t == "$CALLER")
-                type = TracepointCaptureType::Caller;
-            else if (t == "$CALLSTACK")
-                type = TracepointCaptureType::Callstack;
-            else if (t == "$FILEPOS")
-                type = TracepointCaptureType::FilePos;
-            else if (t == "$FUNCTION")
-                type = TracepointCaptureType::Function;
-            else if (t == "$PID")
-                type = TracepointCaptureType::Pid;
-            else if (t == "$PNAME")
-                type = TracepointCaptureType::ProcessName;
-            else if (t == "$TICK")
-                type = TracepointCaptureType::Tick;
-            else if (t == "$TID")
-                type = TracepointCaptureType::Tid;
-            else if (t == "$TNAME")
-                type = TracepointCaptureType::ThreadName;
-            else
-                QTC_ASSERT(false, continue);
-            caps << QVariant::fromValue<TracepointCaptureData>(
-                {type,
-                 {},
-                 static_cast<int>(match.capturedStart(2)),
-                 static_cast<int>(match.capturedEnd(2))});
-        } else {
-            QString expression = t.mid(1, t.size() - 2);
-            caps << QVariant::fromValue<TracepointCaptureData>(
-                {TracepointCaptureType::Expression,
-                 expression,
-                 static_cast<int>(match.capturedStart(2)),
-                 static_cast<int>(match.capturedEnd(2))});
-        }
-        match = capsRegExp.match(message, match.capturedEnd());
-    }
-    bp->setProperty(tracepointCapturePropertyName, caps);
+    const QString message = bp->globalBreakpoint()->requestedParameters().message;
+    const QList<TracepointCapture> captures = parseTracepointCaptures(message);
+    bp->setProperty(tracepointCapturePropertyName,
+                    captures.isEmpty() ? QVariant() : QVariant::fromValue(captures));
 }
 
 void GdbEngine::handleTracepointInsert(const DebuggerResponse &response, const Breakpoint &bp)
@@ -2527,45 +2471,10 @@ void GdbEngine::handleTracepointHit(const GdbMi &data)
             emit postMessageRequested(warning.toString(), ErrorMessageFormat, true);
         }
     }
-    QString message = bp->message();
-    QVariant caps = bp->property(tracepointCapturePropertyName);
-    if (caps.isValid()) {
-        QList<QVariant> capsList = caps.toList();
-        const GdbMi &miCaps = result["caps"];
-        if (capsList.length() == miCaps.childCount()) {
-            // reverse iterate to make start/end correct
-            for (int i = capsList.length() - 1; i >= 0; --i) {
-               TracepointCaptureData cap = capsList.at(i).value<TracepointCaptureData>();
-               const GdbMi &miCap = miCaps.childAt(i);
-               switch (cap.type) {
-               case TracepointCaptureType::Callstack: {
-                   QStringList frames;
-                   for (const GdbMi &frame: miCap) {
-                       frames.append(frame.data());
-                   }
-                   message.replace(cap.start, cap.end - cap.start, frames.join(" <- "));
-                   break;
-               }
-               case TracepointCaptureType::Expression: {
-                   QString key = miCap.data();
-                   const GdbMi &expression = data["expressions"][key.toLatin1().data()];
-                   if (expression.isValid()) {
-                       const QString value = decodeData(expression["value"].data(),
-                                                        expression["valueencoded"].data());
-                       message.replace(cap.start, cap.end - cap.start, value);
-                   } else {
-                       QTC_CHECK(false);
-                   }
-                   break;
-               }
-               default:
-                   message.replace(cap.start, cap.end - cap.start, miCap.data());
-               }
-            }
-        } else {
-            QTC_CHECK(false);
-        }
-    }
+    const QList<TracepointCapture> captures
+        = bp->property(tracepointCapturePropertyName).value<QList<TracepointCapture>>();
+    const QString message = formatTracepointMessage(bp->message(), captures, result["caps"],
+                                                    data["expressions"]);
     showMessage(message);
     emit postMessageRequested(message, NormalMessageFormat, true);
 }
@@ -2680,17 +2589,18 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
                    cmd.arg("thread", spec);
 
                 updateTracepointCaptures(bp);
-                QVariant tpCaps = bp->property(tracepointCapturePropertyName);
-                if (tpCaps.isValid()) {
+                const QList<TracepointCapture> captures
+                    = bp->property(tracepointCapturePropertyName)
+                          .value<QList<TracepointCapture>>();
+                if (!captures.isEmpty()) {
                     QJsonArray caps;
-                    for (const QVariant &tpCap : tpCaps.toList()) {
-                        TracepointCaptureData data = tpCap.value<TracepointCaptureData>();
+                    for (const TracepointCapture &capture : captures) {
                         QJsonArray cap;
-                        cap.append(static_cast<int>(data.type));
-                        if (data.expression.isValid())
-                            cap.append(data.expression.toString());
-                        else
+                        cap.append(static_cast<int>(capture.type));
+                        if (capture.expression.isEmpty())
                             cap.append(QJsonValue::Null);
+                        else
+                            cap.append(capture.expression);
                         caps.append(cap);
                     }
                     cmd.arg("caps", caps);
@@ -5356,4 +5266,3 @@ DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp)
 } // Debugger::Internal
 
 Q_DECLARE_METATYPE(Debugger::Internal::GdbMi)
-Q_DECLARE_METATYPE(Debugger::Internal::TracepointCaptureData)

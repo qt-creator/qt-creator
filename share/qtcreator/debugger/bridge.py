@@ -236,6 +236,7 @@ class DapServer():
         self.lastExitCode = None
         self.inferiorExited = False
         self.announcedThreads = set()
+        self.answeredSeq = None
 
         gdb.events.stop.connect(self._onStop)
         gdb.events.cont.connect(self._onContinue)
@@ -300,6 +301,7 @@ class DapServer():
                 written += os.write(self.protocolFd, message[written:])
 
     def sendResponse(self, request, body=None, success=True, message=None):
+        self.answeredSeq = request.get('seq')
         response = {
             'type': 'response',
             'request_seq': request.get('seq', 0),
@@ -433,6 +435,8 @@ class DapServer():
             # command that was about to resume it rather than inside it. It is
             # not an Exception, so letting it through would end the read loop.
             self.sendEvent('qtc/interruptIgnored')
+            if self.answeredSeq != request.get('seq'):
+                self.sendResponse(request, success=False, message='Interrupted')
         except Exception as error:
             warn('DAP handler %s failed: %s' % (command, error))
             self.sendResponse(request, success=False, message=str(error))

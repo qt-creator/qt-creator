@@ -236,6 +236,8 @@ void DapImpl::handleStarted()
 // process is up: only then is there a session to launch anything in.
 void DapImpl::reportEngineSetup(bool success)
 {
+    if (m_setupReported)
+        return;
     m_setupReported = true;
     emit inferiorEvent(success ? InferiorEvent::EngineSetupOk
                                : InferiorEvent::EngineSetupFailed);
@@ -946,7 +948,6 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
     switch (type) {
     case DapResponseType::Initialize:
         if (!success) {
-            emit message(response.value("message").toString(), LogError);
             reportEngineSetup(false);
             return;
         }
@@ -983,7 +984,6 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
     case DapResponseType::Launch:
     case DapResponseType::Attach:
         if (!success) {
-            emit message(response.value("message").toString(), LogError);
             // The run is claimed when the request goes out, so a refusal that
             // comes back after that is the session ending rather than a run
             // that never started.

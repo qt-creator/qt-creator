@@ -1338,7 +1338,7 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .continueInsteadOfRun = rp.useContinueInsteadOfRun(),
             .exitMonitorAtClose = rp.closeMode() == KillAndExitMonitorAtClose,
             .intelDisassembly = settings().intelFlavor(),
-        .logTimeStamps = settings().logTimeStamps(),
+            .logTimeStamps = settings().logTimeStamps(),
             .nativeMixedDebugging = rp.isNativeMixedDebugging(),
             .pseudoTracepoints = settings().usePseudoTracepoints(),
             .skipKnownFrames = settings().skipKnownFrames(),

@@ -541,6 +541,8 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         // Not DapClient::sendDisconnect(), which takes the debuggee with it.
         m_detaching = true;
         postRequest("disconnect", QJsonObject{{"restart", false}, {"terminateDebuggee", false}});
+        if (m_inferiorRunning)
+            interruptGdb();
         return;
     case ExecutionCommand::Abort:
         m_client->sendTerminate();
@@ -1066,6 +1068,7 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         shutdownEngine();
     } else if (command == "terminate" || command == "disconnect"
                || command == "qtc/shutdownInferior") {
+        m_shuttingDown = false;
         // A detach ends the session too, but the engine did not ask for it and
         // hears about the debuggee the way it hears an exit.
         if (m_detaching) {
@@ -1578,6 +1581,8 @@ void BridgeImpl::createSnapshot(quint64 requestId)
         return;
     }
     m_snapshotRequests.insert(seq, {requestId, filePath});
+    if (m_inferiorRunning)
+        interruptGdb();
 }
 
 } // namespace Debugger::Internal
