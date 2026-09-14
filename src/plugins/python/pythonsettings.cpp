@@ -727,14 +727,18 @@ static QString idForPythonFromPath(const QList<Interpreter> &pythons)
 
 static PythonSettings *settingsInstance = nullptr;
 
+static bool alreadyRegistered(const QList<Interpreter> &interpreters, const FilePath &candidate)
+{
+    const FilePath resolvedCandidate = candidate.resolveSymlinks();
+    return Utils::anyOf(interpreters, [&candidate, &resolvedCandidate](const Interpreter &interpreter) {
+        return interpreter.command.isSameDevice(candidate)
+               && interpreter.command.resolveSymlinks() == resolvedCandidate;
+    });
+}
+
 static bool alreadyRegistered(const Interpreter &candidate)
 {
-    return Utils::anyOf(settingsInstance->interpreters(),
-                        [candidate = candidate.command](const Interpreter &interpreter) {
-                            return interpreter.command.isSameDevice(candidate)
-                                   && interpreter.command.resolveSymlinks()
-                                          == candidate.resolveSymlinks();
-                        });
+    return alreadyRegistered(settingsInstance->interpreters(), candidate.command);
 }
 
 std::optional<QStringList> activePythonVersions(const QList<Interpreter> &interpreters)
@@ -1260,7 +1264,7 @@ ExecutableItem PythonSettings::autoDetect(
     Q_UNUSED(kit);
 
     const auto setupSearch = [searchPaths, detectionSource](Async<Interpreter> &task) {
-        const QList<Interpreter> alreadyConfigured = PythonSettings::interpreters();
+        const QList<Interpreter> alreadyConfigured = interpreterModel().interpreters();
 
         task.setConcurrentCallData(
             [](QPromise<Interpreter> &promise,
@@ -1271,8 +1275,7 @@ ExecutableItem PythonSettings::autoDetect(
                     const FilePath python = path.pathAppended("python3").withExecutableSuffix();
                     if (!python.isExecutableFile())
                         continue;
-                    if (Utils::contains(
-                            alreadyConfigured, Utils::equal(&Interpreter::command, python)))
+                    if (alreadyRegistered(alreadyConfigured, python))
                         continue;
 
                     Interpreter interpreter = PythonSettings::createInterpreter(
