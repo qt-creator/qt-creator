@@ -1717,6 +1717,12 @@ void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
     showMessage("NOTE: ENGINE RUN AND INFERIOR RUN OK");
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
+    if (isDying()) {
+        showMessage("NOTE: ... WHILE DYING. STOPPING IT AGAIN");
+        setState(InferiorRunOk);
+        quitDebugger();
+        return;
+    }
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
     showStatusMessage(Tr::tr("Running."));
     setState(InferiorRunOk);
@@ -1727,6 +1733,12 @@ void DebuggerEngine::notifyEngineRunAndInferiorStopOk()
     showMessage("NOTE: ENGINE RUN AND INFERIOR STOP OK");
     d->m_progress.setProgressValue(1000);
     d->m_progress.reportFinished();
+    if (isDying()) {
+        showMessage("NOTE: ... WHILE DYING. SHUTTING IT DOWN AGAIN");
+        setState(InferiorStopOk);
+        quitDebugger();
+        return;
+    }
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
     showStatusMessage(Tr::tr("Stopped."));
     setState(InferiorStopOk);
@@ -2467,7 +2479,10 @@ void DebuggerEngine::quitDebugger()
         notifyEngineSetupFailed();
         break;
     case EngineRunRequested:
-        notifyEngineRunFailed();
+        // The run is still in flight, so there is no inferior to shut down
+        // yet. Treating that as a failed run takes the engine down while the
+        // inferior is still on its way up, and it then outlives the session.
+        // Dying is recorded above, notifyEngineRunAndInferior*Ok() acts on it.
         break;
     case EngineShutdownRequested:
     case InferiorShutdownRequested:
