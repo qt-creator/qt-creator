@@ -37,6 +37,16 @@ enum CommandFlags {
     ScriptCommand = DebuggerCommand::Silent << 3
 };
 
+// What a pdb records is where the sources were when the inferior was built; the
+// mapping says where they are now.
+static QString mappedFromDebugger(const QString &file,
+                                  const QList<QPair<QString, QString>> &sourcePathMap)
+{
+    if (file.isEmpty() || sourcePathMap.isEmpty())
+        return file;
+    return cdbSourcePathMapping(QDir::toNativeSeparators(file), sourcePathMap, DebuggerToSource);
+}
+
 static GdbMi constMi(const QString &name, const QString &data)
 {
     GdbMi mi;
@@ -850,6 +860,7 @@ void CdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         m_insertedBreakpoints.remove(request.responseId);
         m_conditionForBreakpointId.remove(request.responseId);
         m_breakpointHitCounts.remove(request.responseId);
+        m_unresolvedBreakpointIds.remove(request.responseId);
         for (const QString &subId : m_parentForSubBreakpointId.keys(request.responseId))
             m_parentForSubBreakpointId.remove(subId);
         emit breakpointEvent(request.requestId, request.op, true, {});
@@ -1079,6 +1090,73 @@ void CdbImpl::reportBreakpointInserted(quint64 requestId, const QString &id, boo
     list.m_type = GdbMi::List;
     list.addChild(bkpt);
     emit breakpointEvent(requestId, BreakpointOp::Insert, true, list);
+    // Where cdb put the breakpoint is not part of what it answers an insert with, and
+    // for one in a module that is not loaded yet there is nothing to answer at all.
+    // Ask again at the next stop, until it has an address.
+    if (locations.childCount() == 0 && !(file.isEmpty() && function.isEmpty()))
+        m_unresolvedBreakpointIds.insert(id);
+}
+
+// Turns what "breakpoints -v" answers into the update the breakpoint view takes,
+// for those of the wanted ids cdb has a location for by now. Their ids are taken
+// off the wanted list, a still deferred one stays on it.
+GdbMi resolvedBreakpointUpdates(const GdbMi &reported, QSet<QString> *wanted,
+                                const QList<QPair<QString, QString>> &sourcePathMap,
+                                const QHash<QString, QString> &conditions)
+{
+    GdbMi list;
+    list.m_type = GdbMi::List;
+    for (const GdbMi &one : reported) {
+        const QString id = one["id"].data();
+        if (!wanted->contains(id))
+            continue;
+        // Only a breakpoint that is no longer deferred is reported with a location.
+        const QString address = one["address"].data();
+        if (address.isEmpty())
+            continue;
+        wanted->remove(id);
+        GdbMi bkpt;
+        bkpt.m_type = GdbMi::Tuple;
+        bkpt.addChild(constMi("number", id));
+        bkpt.addChild(constMi("enabled",
+                              QLatin1String(one["enabled"].data() == "true" ? "y" : "n")));
+        bkpt.addChild(constMi("addr", address));
+        const QString module = one["module"].data();
+        if (!module.isEmpty())
+            bkpt.addChild(constMi("module", module));
+        const QString file = one["srcfile"].data();
+        if (!file.isEmpty()) {
+            bkpt.addChild(constMi("file", mappedFromDebugger(file, sourcePathMap)));
+            bkpt.addChild(constMi("line", one["srcline"].data()));
+        }
+        // An update stands for the whole state of the breakpoint, so a condition
+        // left out of it counts as none rather than as unchanged.
+        const QString condition = conditions.value(id);
+        if (!condition.isEmpty())
+            bkpt.addChild(constMi("cond", condition));
+        list.addChild(bkpt);
+    }
+    return list;
+}
+
+// Completes the breakpoints whose location cdb only knows once the module holding
+// them is loaded. A deferred one shows in the view without address or module until
+// then, and a breakpoint by file and line never learns its address otherwise.
+void CdbImpl::listBreakpoints()
+{
+    if (m_unresolvedBreakpointIds.isEmpty())
+        return;
+    DebuggerCommand cmd("breakpoints", ExtensionCommand);
+    cmd.args = "-v";
+    cmd.callback = [this](const DebuggerResponse &response) {
+        if (response.resultClass != ResultDone)
+            return;
+        const GdbMi list = resolvedBreakpointUpdates(response.data, &m_unresolvedBreakpointIds,
+                                                     sourcePathMap(), m_conditionForBreakpointId);
+        if (list.childCount() > 0)
+            emit breakpointModified(list);
+    };
+    runCommand(cmd);
 }
 
 QString CdbImpl::nextBreakpointId()
@@ -1767,6 +1845,7 @@ void CdbImpl::restartSession()
     m_expandingTracepoint = false;
     m_lastOperateByInstruction.reset();
     m_parentForSubBreakpointId.clear();
+    m_unresolvedBreakpointIds.clear();
     m_conditionForBreakpointId.clear();
     m_internalBreakpointIds.clear();
     m_runToBreakpointIds.clear();
@@ -2002,16 +2081,6 @@ static GdbMi interpreterStackFrames(const GdbMi &msg)
         break;
     }
     return frames;
-}
-
-// What a pdb records is where the sources were when the inferior was built; the
-// mapping says where they are now.
-static QString mappedFromDebugger(const QString &file,
-                                  const QList<QPair<QString, QString>> &sourcePathMap)
-{
-    if (file.isEmpty() || sourcePathMap.isEmpty())
-        return file;
-    return cdbSourcePathMapping(QDir::toNativeSeparators(file), sourcePathMap, DebuggerToSource);
 }
 
 // The extension reports the full path as "fullname" and the plain base name as "file", and
@@ -2901,6 +2970,7 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         emit message(Tr::tr("Switching to main thread..."), LogMisc);
         runCommand({"~0 s", NoFlags});
     }
+    listBreakpoints();
     if (m_interruptRequested) {
         m_interruptRequested = false;
         emit inferiorEvent(InferiorEvent::StopOk);

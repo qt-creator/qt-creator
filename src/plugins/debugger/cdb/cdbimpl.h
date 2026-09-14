@@ -20,6 +20,12 @@ namespace Debugger::Internal {
 
 DEBUGGER_EXPORT bool stoppedInArtificialThread(const GdbMi &stopData);
 
+DEBUGGER_EXPORT GdbMi resolvedBreakpointUpdates(
+    const GdbMi &reported,
+    QSet<QString> *wanted,
+    const QList<QPair<QString, QString>> &sourcePathMap,
+    const QHash<QString, QString> &conditions);
+
 class DEBUGGER_EXPORT CdbImplSearchPaths
 {
 public:
@@ -183,6 +189,7 @@ private:
     void reportBreakpointInserted(quint64 requestId, const QString &id, bool enabled,
                                   const QString &file, int line, const QString &function,
                                   const GdbMi &locations, bool report);
+    void listBreakpoints();
 
     CdbImplStartData m_startData;
     Utils::Process m_cdbProc;
@@ -241,6 +248,7 @@ private:
 
     QHash<QString, QString> m_conditionForBreakpointId;
     QHash<QString, BreakpointParameters> m_insertedBreakpoints;
+    QSet<QString> m_unresolvedBreakpointIds;
     bool m_resumeWhenRepliesDrain = false;
     bool m_isResetRestart = false;
     DebuggerCommand m_lastDebuggableCommand;

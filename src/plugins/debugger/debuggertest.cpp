@@ -84,6 +84,7 @@ private slots:
     void testCdbImplStartData();
     void testCdbImplCommandLine();
     void testCdbImplArtificialThreadStop();
+    void testCdbImplResolvedBreakpointUpdates();
     void testMapsAnEmptyFileNameToNothing();
 
     void testQtBuildSourceRoots_data();
@@ -674,6 +675,72 @@ void DebuggerUnitTests::testCdbImplArtificialThreadStop()
     QVERIFY(!stoppedInArtificialThread(stopData(
         R"(reason="exception",exceptionCode="2147483651",)"
         R"(exceptionFunction="tst_inferior!main")")));
+}
+
+void DebuggerUnitTests::testCdbImplResolvedBreakpointUpdates()
+{
+    const auto reply = [](const QString &contents) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString('[' + contents + ']', decoder);
+        return data;
+    };
+    const QList<QPair<QString, QString>> noMapping;
+    const QHash<QString, QString> noConditions;
+
+    // The module holding the breakpoint has been loaded, so cdb now knows where
+    // it sits. That is what the view is missing.
+    QSet<QString> wanted{"3"};
+    GdbMi updates = resolvedBreakpointUpdates(
+        reply(R"({number="0",id="3",deferred="false",enabled="true",)"
+              R"(address="0x7ff61f3a1020",module="tst_inferior",)"
+              R"(srcfile="C:\\src\\main.cpp",srcline="42"})"),
+        &wanted, noMapping, noConditions);
+    QCOMPARE(updates.childCount(), 1);
+    QCOMPARE(updates.childAt(0)["number"].data(), QString("3"));
+    QCOMPARE(updates.childAt(0)["addr"].data(), QString("0x7ff61f3a1020"));
+    QCOMPARE(updates.childAt(0)["module"].data(), QString("tst_inferior"));
+    QCOMPARE(updates.childAt(0)["line"].data(), QString("42"));
+    QCOMPARE(updates.childAt(0)["enabled"].data(), QString("y"));
+    // Answered, so there is nothing left to ask about at the next stop.
+    QVERIFY(wanted.isEmpty());
+
+    // Still deferred: the module is not loaded yet, ask again later.
+    wanted = {"3"};
+    updates = resolvedBreakpointUpdates(
+        reply(R"({number="0",id="3",deferred="true",enabled="true"})"),
+        &wanted, noMapping, noConditions);
+    QCOMPARE(updates.childCount(), 0);
+    QVERIFY(wanted.contains("3"));
+
+    // A breakpoint that already has its location is not one we asked about.
+    wanted = {"3"};
+    updates = resolvedBreakpointUpdates(
+        reply(R"({number="0",id="7",deferred="false",enabled="true",)"
+              R"(address="0x7ff61f3a1020"})"),
+        &wanted, noMapping, noConditions);
+    QCOMPARE(updates.childCount(), 0);
+    QVERIFY(wanted.contains("3"));
+
+    // updateFromGdbOutput() takes the update for the whole state, so a condition
+    // has to be repeated or it is lost.
+    wanted = {"3"};
+    updates = resolvedBreakpointUpdates(
+        reply(R"({number="0",id="3",deferred="false",enabled="false",)"
+              R"(address="0x7ff61f3a1020"})"),
+        &wanted, noMapping, {{"3", "i == 5"}});
+    QCOMPARE(updates.childCount(), 1);
+    QCOMPARE(updates.childAt(0)["cond"].data(), QString("i == 5"));
+    QCOMPARE(updates.childAt(0)["enabled"].data(), QString("n"));
+
+    // What the pdb records is where the sources were when the inferior was built.
+    wanted = {"3"};
+    updates = resolvedBreakpointUpdates(
+        reply(R"({number="0",id="3",deferred="false",enabled="true",)"
+              R"(address="0x7ff61f3a1020",srcfile="/build/src/main.cpp",srcline="42"})"),
+        &wanted, {{"/build", "/home/me/work"}}, noConditions);
+    QCOMPARE(updates.childCount(), 1);
+    QCOMPARE(updates.childAt(0)["file"].data(), QString("/home/me/work/src/main.cpp"));
 }
 
 // A session without a build configuration - an attach, or a foreign debug
