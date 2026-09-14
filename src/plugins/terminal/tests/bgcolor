@@ -1,0 +1,84 @@
+#!/usr/bin/python3
+
+"""Asks the terminal for its background color and shows what comes back."""
+
+import sys
+import time
+
+# Python picks the locale encoding when stdout is not a console, which on
+# Windows cannot encode the character below.
+sys.stdout.reconfigure(encoding='utf-8')
+
+QUERY = '\x1b]11;?\x1b\\'
+TIMEOUT = 1.0
+
+
+def collected(reply):
+    """Whether the reply is complete: OSC replies end in ST or BEL."""
+    return reply.endswith('\x1b\\') or reply.endswith('\x07')
+
+
+def ask_posix():
+    import os
+    import select
+    import termios
+    import tty
+
+    fd = sys.stdin.fileno()
+    saved = termios.tcgetattr(fd)
+    tty.setraw(fd)
+    try:
+        sys.stdout.write(QUERY)
+        sys.stdout.flush()
+
+        reply = ''
+        deadline = time.monotonic() + TIMEOUT
+        while not collected(reply):
+            left = deadline - time.monotonic()
+            if left <= 0 or not select.select([fd], [], [], left)[0]:
+                break
+            reply += os.read(fd, 64).decode('latin-1')
+        return reply
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, saved)
+
+
+def ask_windows():
+    import msvcrt
+
+    sys.stdout.write(QUERY)
+    sys.stdout.flush()
+
+    reply = ''
+    deadline = time.monotonic() + TIMEOUT
+    while not collected(reply):
+        if time.monotonic() >= deadline:
+            break
+        if not msvcrt.kbhit():
+            time.sleep(0.01)
+            continue
+        reply += msvcrt.getwch()
+    return reply
+
+
+def visible(reply):
+    """The reply the way cat -v writes it, so the escapes can be read."""
+    out = []
+    for c in reply:
+        if c == '\x1b':
+            out.append('^[')
+        elif ord(c) < 0x20:
+            out.append('^' + chr(ord(c) + 0x40))
+        else:
+            out.append(c)
+    return ''.join(out)
+
+
+print('\x1b[1m ⎆ The reply should name the terminal background color\x1b[0m')
+
+answer = ask_windows() if sys.platform == 'win32' else ask_posix()
+
+if answer:
+    print('OSC 11: ' + visible(answer))
+else:
+    print('OSC 11: no reply')

@@ -1323,6 +1323,40 @@ private slots:
         QCOMPARE(m_surface->fetchCell(0, 0).image, 0u);
     }
 
+    void answersABackgroundColorQuery()
+    {
+        m_surface->setColorProvider([](ColorIndex index) {
+            return index == ColorIndex::Background ? QColor(0x12, 0x34, 0x56) : QColor();
+        });
+
+        m_surface->dataFromPty("\x1b]11;?\x1b\\");
+
+        QTRY_COMPARE(m_written, QByteArray("\x1b]11;rgb:1212/3434/5656\x1b\\"));
+    }
+
+    // The query may be split over several reads of the pty.
+    void answersAQueryThatArrivesInPieces()
+    {
+        m_surface->setColorProvider([](ColorIndex) { return QColor(0xff, 0x00, 0x80); });
+
+        m_surface->dataFromPty("\x1b]11;");
+        m_surface->dataFromPty("?");
+        m_surface->dataFromPty("\x1b\\");
+
+        QTRY_COMPARE(m_written, QByteArray("\x1b]11;rgb:ffff/0000/8080\x1b\\"));
+    }
+
+    void aQueryAfterAnOverlongOneIsStillAnswered()
+    {
+        m_surface->setColorProvider([](ColorIndex) { return QColor(0x00, 0x11, 0x22); });
+
+        m_surface->dataFromPty(QByteArray("\x1b]11;?") + QByteArray(8192, 'x')
+                               + QByteArray("\x1b\\"));
+        m_surface->dataFromPty("\x1b]11;?\x1b\\");
+
+        QTRY_COMPARE(m_written, QByteArray("\x1b]11;rgb:0000/1111/2222\x1b\\"));
+    }
+
     void theDeviceAttributesReportSixelSupport()
     {
         m_surface->dataFromPty("\x1b[c");

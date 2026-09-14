@@ -255,6 +255,8 @@ void TerminalView::setupSurface()
         d->m_surface->setSurfaceIntegration(d->m_surfaceIntegration);
 
     d->m_surface->setWriteToPty([this](const QByteArray &data) { return writeToPty(data); });
+    d->m_surface->setColorProvider(
+        [this](ColorIndex colorIndex) { return toQColor(int(colorIndex)); });
 
     connect(d->m_surface.get(), &TerminalSurface::fullSizeChanged, this, [this] {
         updateScrollBars();

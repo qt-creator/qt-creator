@@ -71,6 +71,32 @@ struct TerminalSurfacePrivate
             m_delayWriteTimer.start();
     }
 
+    void sendToPty(const QByteArray &data)
+    {
+        // If its just a couple of chars, or we already have data in the writeBuffer,
+        // add the new data to the write buffer and start the delay timer
+        if (data.size() < batchFlushSize || !m_writeBuffer.isEmpty()) {
+            m_writeBuffer.append(data);
+            m_delayWriteTimer.start();
+            return;
+        }
+
+        // Try to write the data ...
+        qint64 result = m_writeToPty(data);
+
+        if (result != data.size()) {
+            // if writing failed, append the data to the writeBuffer and start the delay timer
+
+            // Check if partial data may have already been written ...
+            if (result <= 0)
+                m_writeBuffer.append(data);
+            else
+                m_writeBuffer.append(data.mid(result));
+
+            m_delayWriteTimer.start();
+        }
+    }
+
     void init()
     {
         m_delayWriteTimer.setInterval(1);
@@ -84,30 +110,7 @@ struct TerminalSurfacePrivate
 
         static auto writeToPty = [](const char *s, size_t len, void *user) {
             auto p = static_cast<TerminalSurfacePrivate *>(user);
-            QByteArray d(s, len);
-
-            // If its just a couple of chars, or we already have data in the writeBuffer,
-            // add the new data to the write buffer and start the delay timer
-            if (d.size() < batchFlushSize || !p->m_writeBuffer.isEmpty()) {
-                p->m_writeBuffer.append(d);
-                p->m_delayWriteTimer.start();
-                return;
-            }
-
-            // Try to write the data ...
-            qint64 result = p->m_writeToPty(d);
-
-            if (result != d.size()) {
-                // if writing failed, append the data to the writeBuffer and start the delay timer
-
-                // Check if partial data may have already been written ...
-                if (result <= 0)
-                    p->m_writeBuffer.append(d);
-                else
-                    p->m_writeBuffer.append(d.mid(result));
-
-                p->m_delayWriteTimer.start();
-            }
+            p->sendToPty(QByteArray(s, len));
         };
 
         vterm_output_set_callback(m_vterm.get(), writeToPty, this);
@@ -651,10 +654,51 @@ struct TerminalSurfacePrivate
         return cell ? cell->uri : 0;
     }
 
+    void reportBackgroundColor(const VTermStringFragment &fragment)
+    {
+        // Only "?" is answered, and a color spec is the longest thing that may
+        // legitimately arrive instead.
+        static constexpr qsizetype maxColorQueryLength = 64;
+
+        if (fragment.initial) {
+            m_colorQueryBuffer.clear();
+            m_colorQueryTooLong = false;
+        }
+
+        if (m_colorQueryBuffer.size() + qsizetype(fragment.len) > maxColorQueryLength) {
+            m_colorQueryTooLong = true;
+            m_colorQueryBuffer.clear();
+        }
+
+        if (!m_colorQueryTooLong)
+            m_colorQueryBuffer.append(fragment.str, fragment.len);
+
+        if (!fragment.final || m_colorQueryTooLong || m_colorQueryBuffer != "?" || !m_colorProvider)
+            return;
+
+        const QColor color = m_colorProvider(ColorIndex::Background);
+        if (!color.isValid())
+            return;
+
+        // 8 bits per channel widened to the 16 the report is written in.
+        sendToPty(QByteArray("\x1b]11;")
+                  + QString::asprintf("rgb:%04x/%04x/%04x",
+                                      color.red() * 257,
+                                      color.green() * 257,
+                                      color.blue() * 257)
+                        .toLatin1()
+                  + "\x1b\\");
+    }
+
     int osc(int cmd, const VTermStringFragment &fragment)
     {
         if (cmd == 8) {
             setHyperlink(fragment);
+            return 1;
+        }
+
+        if (cmd == 11) {
+            reportBackgroundColor(fragment);
             return 1;
         }
 
@@ -986,6 +1030,9 @@ struct TerminalSurfacePrivate
     bool m_selectionTooLong{false};
 
     TerminalSurface::WriteToPty m_writeToPty;
+    TerminalSurface::ColorProvider m_colorProvider;
+    QByteArray m_colorQueryBuffer;
+    bool m_colorQueryTooLong{false};
 
     bool m_refillFromScrollback{true};
     bool m_reflowing{false};
@@ -1356,6 +1403,11 @@ bool TerminalSurface::isBracketedPasteEnabled() const
 void TerminalSurface::setWriteToPty(WriteToPty writeToPty)
 {
     d->m_writeToPty = writeToPty;
+}
+
+void TerminalSurface::setColorProvider(ColorProvider colorProvider)
+{
+    d->m_colorProvider = colorProvider;
 }
 
 CellIterator TerminalSurface::begin() const

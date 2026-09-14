@@ -156,6 +156,10 @@ public:
     using WriteToPty = std::function<qint64(const QByteArray &)>;
     void setWriteToPty(WriteToPty writeToPty);
 
+    // Answers a background color query (OSC 11) with what the view paints.
+    using ColorProvider = std::function<QColor(ColorIndex colorIndex)>;
+    void setColorProvider(ColorProvider colorProvider);
+
     void mouseMove(QPoint pos, Qt::KeyboardModifiers modifiers);
     void mouseButton(Qt::MouseButton button, bool pressed, Qt::KeyboardModifiers modifiers);
 
