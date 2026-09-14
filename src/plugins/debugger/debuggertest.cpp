@@ -87,6 +87,7 @@ private slots:
     void testCdbImplResolvedBreakpointUpdates();
     void testCdbImplBreakpointStopMessages();
     void testCdbImplStepIntoLanding();
+    void testCdbImplScriptMessages();
     void testMapsAnEmptyFileNameToNothing();
 
     void testQtBuildSourceRoots_data();
@@ -830,6 +831,30 @@ void DebuggerUnitTests::testCdbImplStepIntoLanding()
     GdbMi empty;
     empty.fromString(R"({reason="exception"})", decoder);
     QCOMPARE(stepIntoLanding(empty, never), StepIntoLanding::Arrived);
+}
+
+void DebuggerUnitTests::testCdbImplScriptMessages()
+{
+    const auto reply = [](const QString &contents) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString('{' + contents + '}', decoder);
+        return data;
+    };
+
+    // What the dumper printed on its way to an answer, alongside the answer.
+    QCOMPARE(scriptMessages(reply(R"(result="...",msg=["no such type","2 items shown"])")),
+             QStringList({"no such type", "2 items shown"}));
+
+    // The bridge wraps its own in a named tuple.
+    QCOMPARE(scriptMessages(reply(R"(msg=[bridgemessage={msg="dumper is loaded"}])")),
+             QStringList{"dumper is loaded"});
+
+    // A quiet reply says nothing, and neither do we.
+    QVERIFY(scriptMessages(reply(R"(result="...")")).isEmpty());
+
+    // An empty entry is not worth a log line of its own.
+    QVERIFY(scriptMessages(reply(R"(msg=[""])")).isEmpty());
 }
 
 // A session without a build configuration - an attach, or a foreign debug

@@ -20,6 +20,8 @@ namespace Debugger::Internal {
 
 DEBUGGER_EXPORT bool stoppedInArtificialThread(const GdbMi &stopData);
 
+DEBUGGER_EXPORT QStringList scriptMessages(const GdbMi &data);
+
 enum class StepIntoLanding { Arrived, OnThunk, WithoutSource };
 
 DEBUGGER_EXPORT StepIntoLanding stepIntoLanding(

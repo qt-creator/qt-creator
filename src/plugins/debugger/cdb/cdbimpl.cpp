@@ -1776,16 +1776,10 @@ void CdbImpl::loadConfiguredDumpers()
     }
     const QStringList commands
         = m_startData.extraDumperCommands.split('\n', Qt::SkipEmptyParts);
-    for (const QString &command : commands) {
-        // What a configured command printed is worth seeing, as it is for one
-        // typed into the console.
-        runCommand({command, ScriptCommand, [this](const DebuggerResponse &response) {
-            // The extension reports what a script printed line by line.
-            const GdbMi output = response.data["msg"];
-            for (int i = 0; i < output.childCount(); ++i)
-                emit message(output.childAt(i).data(), LogMisc);
-        }});
-    }
+    // What a configured command printed reaches the log the way any other
+    // script output does, so these need no callback of their own.
+    for (const QString &command : commands)
+        runCommand({command, ScriptCommand});
     runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
                [this](const DebuggerResponse &response) {
         emit refreshDataReceived(0, RefreshKind::DebuggingHelpers, response.data["result"]);
@@ -2412,6 +2406,10 @@ void CdbImpl::refresh(const RefreshRequest &request)
     m_lastDebuggableCommand = cmd;
     m_lastDebuggableCommand.arg("passexceptions", true);
     cmd.callback = [this, requestId](const DebuggerResponse &response) {
+        if (response.resultClass != ResultDone) {
+            emit message(QString("CdbImpl: could not update the locals: %1")
+                             .arg(response.data["msg"].data()), LogWarning);
+        }
         emit refreshDataReceived(requestId, RefreshKind::Locals, response.data["result"]);
     };
     runCommand(cmd);
@@ -2667,15 +2665,46 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
     emit message(line, m_inferiorRunning ? AppOutput : LogMisc);
 }
 
+// Whatever the Python bridge printed on its way to an answer. That is where a
+// dumper reports what went wrong with it, so it has to reach the log even when
+// the reply itself counts as a success.
+QStringList scriptMessages(const GdbMi &data)
+{
+    QStringList result;
+    for (const GdbMi &entry : data["msg"])
+        result.append(entry.name() == "bridgemessage" ? entry["msg"].data() : entry.data());
+    result.removeAll({});
+    return result;
+}
+
 void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
                                      const QString &payload)
 {
+    const auto logScriptMessages = [this](const GdbMi &data) {
+        for (const QString &line : scriptMessages(data))
+            emit message(line, LogMisc);
+    };
     if (type == 'R' || type == 'N') {
-        if (token == -1)
+        const auto logRawScriptMessages = [&] {
+            QStringDecoder decoder(QStringEncoder::System);
+            GdbMi data;
+            data.fromString(payload, decoder);
+            if (data.isValid())
+                logScriptMessages(data);
+            else if (!payload.isEmpty())
+                emit message(payload, LogMisc);
+        };
+        // No token means output nobody asked for, typically a command the user
+        // typed into the debugger console.
+        if (token == -1) {
+            logRawScriptMessages();
             return;
+        }
         const DebuggerCommand command = m_commandForToken.take(token);
-        if (!command.callback)
+        if (!command.callback) {
+            logRawScriptMessages();
             return;
+        }
         DebuggerResponse response;
         response.token = token;
         response.data.m_name = "data";
@@ -2683,7 +2712,9 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
             response.resultClass = ResultDone;
             QStringDecoder decoder(QStringEncoder::System);
             response.data.fromString(payload, decoder);
-            if (!response.data.isValid()) {
+            if (response.data.isValid()) {
+                logScriptMessages(response.data);
+            } else {
                 response.data.m_data = payload;
                 response.data.m_type = GdbMi::Tuple;
             }
