@@ -165,7 +165,7 @@ class LineColumnButtonPrivate
 {
 public:
     TextEditorWidget * const m_editor;
-    QSize m_maxSize;
+    QSize m_maxSize = {};
 };
 
 } // namespace Internal
