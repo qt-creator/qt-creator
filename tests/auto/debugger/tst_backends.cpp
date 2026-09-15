@@ -435,6 +435,15 @@ static Result<FilePath> strippedQmlDebugPluginDir(const FilePath &parentDir)
     if (original.isEmpty())
         return ResultError("No qmldbg_native plugin in " + pluginDir.toUserOutput());
 
+    // Mach-O keeps the debug info in a .dSYM bundle beside the plugin, and lldb
+    // re-finds that bundle by UUID wherever the plugin is copied to, so copying
+    // one out of the way does not reproduce the shape - it only looks like it.
+    if (HostOsInfo::isMacHost()) {
+        return ResultError("The debug info of " + original.toUserOutput() + " lives in a "
+                           ".dSYM bundle that lldb locates by UUID, so a copy of the "
+                           "plugin still carries it.");
+    }
+
     if (Utils::ElfReader(original).readHeaders().indexOf(".debug_info") == -1) {
         return ResultError(original.toUserOutput()
                            + " has no .debug_info section to strip - not an ELF build?");
@@ -462,27 +471,43 @@ static Result<FilePath> strippedQmlDebugPluginDir(const FilePath &parentDir)
     return strippedDir;
 }
 
-static bool hasQtDeclarativeDebugInfo()
+// The Qml library, whose debug info the interpreter frame recognition needs and
+// whose symbols say whether the Qt carries the native call hook. Mach-O keeps
+// the debug info in a bundle beside the library rather than in a section.
+static FilePath qtDeclarativeLibrary()
 {
     const QDir libDir(QLibraryInfo::path(QLibraryInfo::LibrariesPath));
+    if (HostOsInfo::isMacHost()) {
+        const FilePath framework = FilePath::fromString(
+            libDir.absoluteFilePath("QtQml.framework/Versions/A/QtQml"));
+        return framework.isFile() ? framework : FilePath();
+    }
     const QFileInfoList candidates = libDir.entryInfoList({"libQt6Qml.so*"}, QDir::Files);
     if (candidates.isEmpty())
+        return {};
+    return FilePath::fromString(candidates.constFirst().absoluteFilePath());
+}
+
+static bool hasQtDeclarativeDebugInfo()
+{
+    const FilePath library = qtDeclarativeLibrary();
+    if (library.isEmpty())
         return false;
-    Utils::ElfReader reader(FilePath::fromString(candidates.constFirst().absoluteFilePath()));
-    return reader.readHeaders().indexOf(".debug_info") != -1;
+    if (HostOsInfo::isMacHost())
+        return library.parentDir().parentDir().parentDir().stringAppended(".dSYM").exists();
+    return Utils::ElfReader(library).readHeaders().indexOf(".debug_info") != -1;
 }
 
 static bool hasNativeCallHook()
 {
-    const QDir libDir(QLibraryInfo::path(QLibraryInfo::LibrariesPath));
-    const QFileInfoList candidates = libDir.entryInfoList({"libQt6Qml.so*"}, QDir::Files);
-    if (candidates.isEmpty())
+    const FilePath library = qtDeclarativeLibrary();
+    if (library.isEmpty())
         return false;
     const FilePath nmPath = FilePath::fromString("nm").searchInPath();
     if (!nmPath.isExecutableFile())
         return false;
     Process nm;
-    nm.setCommand({nmPath, {candidates.constFirst().absoluteFilePath()}});
+    nm.setCommand({nmPath, {library.nativePath()}});
     nm.runBlocking();
     if (nm.result() != ProcessResult::FinishedWithSuccess)
         return false;

@@ -17,8 +17,9 @@ public:
 };
 
 // Out of line and with a local of its own: the tests step into this from QML
-// and read the local in the C++ frame.
-int QmlEntryPoint::process(int value)
+// and read the local in the C++ frame. Never inlined, or an optimized build
+// folds it into the metacall moc generates and leaves nothing to break on.
+Q_NEVER_INLINE int QmlEntryPoint::process(int value)
 {
     int doubled = value * 2;
     return doubled + 1;

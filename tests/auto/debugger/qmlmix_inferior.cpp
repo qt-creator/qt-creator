@@ -7,14 +7,15 @@
 #include <QQmlApplicationEngine>
 
 // Out of line, and calling a second function of its own: the native mixed
-// tests step through both from QML.
-int QmlEntryPoint::process(int value)
+// tests step through both from QML. Never inlined, or an optimized build
+// folds them into the metacall moc generates and leaves nothing to break on.
+Q_NEVER_INLINE int QmlEntryPoint::process(int value)
 {
     int doubled = value * 2;
     return doubled + offset(value);
 }
 
-int QmlEntryPoint::offset(int value) const
+Q_NEVER_INLINE int QmlEntryPoint::offset(int value) const
 {
     return value % 3;
 }
