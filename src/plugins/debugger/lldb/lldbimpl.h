@@ -96,6 +96,8 @@ private:
     void fetchLocationAfterStop(InferiorEvent event);
 
     void runCommand(const DebuggerCommand &command);
+    bool serveTemporaryStop();
+    void failTemporaryStopQueue();
     void reportResponseTime(const DebuggerCommand &command);
     void restartWatchdog();
     void reportInferiorExitIfComplete();
@@ -119,6 +121,13 @@ private:
     bool m_inferiorRunning = false;
     bool m_interruptOnceRunning = false;
     bool m_resumeAfterAttachPending = false;
+
+    // Commands that only run with the inferior stopped, and whether it was
+    // running when they were asked for and so has to be resumed afterwards.
+    QList<DebuggerCommand> m_onStopCommands;
+    bool m_onStopWantContinue = false;
+    bool m_temporaryStopRequested = false;
+    bool m_resumingFromTemporaryStop = false;
 
     bool m_detached = false;
     qint64 m_inferiorPid = -1;

@@ -1549,6 +1549,8 @@ private slots:
     void insertsQmlBreakpointAndStopsAtIt();
     void insertsQmlBreakpointBeforeDumpersLoad_data() { addBackendRows(); }
     void insertsQmlBreakpointBeforeDumpersLoad();
+    void insertsAQmlBreakpointWhileTheInferiorRuns_data() { addBackendRows(); }
+    void insertsAQmlBreakpointWhileTheInferiorRuns();
     void resolvesQmlBreakpointWithoutServiceDebugInfo_data() { addBackendRows(); }
     void resolvesQmlBreakpointWithoutServiceDebugInfo();
     void splicesQmlFramesIntoPlainFullStackWhenNativeMixed_data() { addBackendRows(); }
@@ -9532,6 +9534,117 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
              qPrintable("stepping over never left " + atMarker + " - visited: "
                         + visited.join(", ")));
 
+#endif
+}
+
+// Reaching the QML service means calling into the inferior, which only works
+// while it is stopped. With the inferior running, the backend has to interrupt,
+// run the command and resume by itself.
+void tst_backends::insertsAQmlBreakpointWhileTheInferiorRuns()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+#ifndef QMLSTACK_INFERIOR_EXECUTABLE
+    QSKIP("Qt::Quick not available when this test binary was configured.");
+#else
+    const FilePath inferior = (FilePath::fromUserInput(QMLSTACK_INFERIOR_EXECUTABLE)
+                              / "qmlstack_inferior").withExecutableSuffix();
+    if (!inferior.isExecutableFile())
+        QSKIP(qPrintable("QML stack inferior not found at " + inferior.toUserOutput()));
+
+    Environment env = Environment::systemEnvironment();
+    env.set("QV4_FORCE_INTERPRETER", "1");
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
+                        {}, env}, true);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const int markerLine = qmlMarkerLine("qmlstack_inferior.qml", "MARKER: qml breakpoint line");
+    QVERIFY(markerLine > 0);
+
+    QHash<quint64, bool> insertResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&insertResults](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        insertResults[requestId] = ok;
+    });
+    QStringList wire;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&wire](const QString &text, int, int) { wire.append(text); });
+
+    // Run up to a QML stop first: that is what says the service is up, which
+    // takes the QML plugin being loaded and its connector open. Interrupting
+    // before that lands in the loader, where there is nothing to talk to yet.
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, this,
+            [engine, markerLine](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 30;
+        request.modelId = 42;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = FilePath::fromUserInput("qmlstack_inferior.qml");
+        request.params.textPosition.line = markerLine;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
+
+    // Take it away again so continuing does not run straight back into it.
+    BreakpointChangeRequest removal;
+    removal.op = BreakpointOp::Remove;
+    removal.requestId = 31;
+    removal.modelId = 42;
+    removal.responseId = "1";
+    removal.params.type = BreakpointByFileAndLine;
+    removal.params.fileName = FilePath::fromUserInput("qmlstack_inferior.qml");
+    removal.params.textPosition.line = markerLine;
+    engine->changeBreakpoint(removal);
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(31), s_timeout);
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk), s_timeout);
+
+    const int wireBefore = wire.size();
+    debuggerBackend->clearEvents();
+    BreakpointChangeRequest request;
+    request.op = BreakpointOp::Insert;
+    request.requestId = 70;
+    request.modelId = 43;
+    request.params.type = BreakpointByFileAndLine;
+    request.params.fileName = FilePath::fromUserInput("qmlstack_inferior.qml");
+    request.params.textPosition.line = markerLine;
+    request.params.enabled = true;
+    engine->changeBreakpoint(request);
+
+    // The reply only comes once the queued command has run, so by the time it
+    // is here the traffic it produced is complete.
+    QTRY_VERIFY2_WITH_TIMEOUT(insertResults.contains(70),
+                              "inserting a QML breakpoint while running never replied",
+                              s_qmlStartupTimeout);
+    const QStringList traffic = wire.mid(wireBefore);
+    QVERIFY2(!Utils::anyOf(traffic, [](const QString &line) {
+                 return line.contains("Interpreter command failed");
+             }),
+             qPrintable("the interpreter was addressed with the inferior running - "
+                        + traffic.join(" | ").left(700)));
+
+    // The stop the backend took to get there is its own. Reported, the engine
+    // reloads a stack from an inferior that is running again by the time the
+    // answer comes, and re-syncs breakpoints - which queues the next command of
+    // the same kind, so the interrupt repeats for as long as the engine answers.
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::StopOk)
+                 && !debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+             "the backend reported its own interrupt as a stop to the engine");
 #endif
 }
 

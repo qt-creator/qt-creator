@@ -668,6 +668,8 @@ void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         cmd.arg("message", toHex(request.params.message));
         cmd.arg("modelid", request.modelId);
         const bool isCppBreakpoint = request.params.isCppBreakpoint();
+        if (!isCppBreakpoint)
+            cmd.flags |= DebuggerCommand::NeedsTemporaryStop;
         cmd.callback = [this, requestId, isCppBreakpoint](const DebuggerResponse &response) {
             const bool ok = response.resultClass == ResultDone;
             if (!ok) {
@@ -702,7 +704,8 @@ void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         // The interpreter hands out numbers of its own, which mean nothing to
         // lldb - and both count from 1, so the wrong one is a live id there.
         if (!request.params.isCppBreakpoint()) {
-            DebuggerCommand cmd("removeInterpreterBreakpoint");
+            DebuggerCommand cmd("removeInterpreterBreakpoint",
+                                DebuggerCommand::NeedsTemporaryStop);
             cmd.arg("id", request.responseId);
             runCommand(cmd);
         } else {
@@ -1130,8 +1133,64 @@ void LldbImpl::interruptInferior()
         // A refusal has to be heard: nothing else reports this stop as failed.
         emit message("LldbImpl: cannot interrupt the inferior: "
                      + response.data["error"]["status"].data(), LogError);
+        failTemporaryStopQueue();
         emit inferiorEvent(InferiorEvent::StopFailed);
     }});
+}
+
+// Nothing is going to serve the queue any more. Left standing it would swallow
+// the next stop, including one the user asked for, and the callers would wait
+// for an answer that is not coming.
+void LldbImpl::failTemporaryStopQueue()
+{
+    if (m_onStopCommands.isEmpty())
+        return;
+    m_temporaryStopRequested = false;
+    m_onStopWantContinue = false;
+    const QList<DebuggerCommand> commands = std::exchange(m_onStopCommands, {});
+    for (const DebuggerCommand &queued : commands) {
+        if (queued.callback) {
+            DebuggerResponse response;
+            response.resultClass = ResultFail;
+            queued.callback(response);
+        }
+    }
+}
+
+// Whether this stop is one the queue asked for rather than one the user did.
+bool LldbImpl::serveTemporaryStop()
+{
+    // Only the interrupt this queue asked for may serve it. A stop the loader
+    // or the user produced leaves the inferior somewhere an inferior call
+    // cannot run from - lldb's own image notifier, say.
+    if (m_onStopCommands.isEmpty() || !m_temporaryStopRequested)
+        return false;
+    m_temporaryStopRequested = false;
+    m_inferiorRunning = false;
+    const QList<DebuggerCommand> commands = m_onStopCommands;
+    const bool wantContinue = m_onStopWantContinue;
+    m_onStopCommands.clear();
+    m_onStopWantContinue = false;
+    // The engine did not ask for this stop and must not hear about it. Telling
+    // it would have it reload a stack from an inferior that is about to run
+    // again, and re-sync the breakpoints - which queues another command of the
+    // same kind, so the interrupt repeats for as long as the engine answers.
+    for (const DebuggerCommand &queued : commands)
+        runCommand(queued);
+    if (wantContinue) {
+        m_resumingFromTemporaryStop = true;
+        runCommand({"continueInferior", DebuggerCommand::RunRequest,
+                    [this](const DebuggerResponse &response) {
+            if (response.data["success"].toInt())
+                return;
+            // The inferior stays where the interrupt left it, so the stop that
+            // was kept from the engine is now the truth and has to be reported.
+            m_resumingFromTemporaryStop = false;
+            fetchLocationAfterStop(InferiorEvent::SpontaneousStop);
+            runCommand({"reportBreakpointHit"});
+        }});
+    }
+    return true;
 }
 
 void LldbImpl::handleStateReport(const GdbMi &item)
@@ -1140,6 +1199,8 @@ void LldbImpl::handleStateReport(const GdbMi &item)
     if (state == "running") {
         m_resumeAfterAttachPending = false;
         m_inferiorRunning = true;
+        if (std::exchange(m_resumingFromTemporaryStop, false))
+            return;
         emit inferiorEvent(InferiorEvent::RunOk);
         if (std::exchange(m_interruptOnceRunning, false))
             interruptInferior();
@@ -1161,12 +1222,15 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         fetchLocationAfterStop(InferiorEvent::SpontaneousStop);
         runCommand({"reportBreakpointHit"});
     } else if (state == "inferiorstopok") {
+        if (serveTemporaryStop())
+            return;
         m_inferiorRunning = false;
         fetchLocationAfterStop(InferiorEvent::StopOk);
         runCommand({"reportBreakpointHit"});
-    } else if (state == "inferiorstopfailed")
+    } else if (state == "inferiorstopfailed") {
+        failTemporaryStopQueue();
         emit inferiorEvent(InferiorEvent::StopFailed);
-    else if (state == "inferiorill")
+    } else if (state == "inferiorill")
         emit inferiorEvent(InferiorEvent::InferiorIll);
     else if (state == "enginesetupfailed")
         reportEngineSetupFailed();
@@ -1197,6 +1261,7 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
     else if (state == "inferiorexited") {
         m_inferiorExited = true;
+        failTemporaryStopQueue();
         reportInferiorExitIfComplete();
     }
 }
@@ -1292,8 +1357,31 @@ void LldbImpl::handleLldbOutput(const QString &output)
     }
 }
 
+// Talking to the QML service, and anything else that calls into the inferior,
+// only works while it is stopped. Hold the command back, interrupt, and resume
+// once it has run - the way GdbImpl serves the same flag.
 void LldbImpl::runCommand(const DebuggerCommand &command)
 {
+    if (command.flags & DebuggerCommand::NeedsTemporaryStop) {
+        DebuggerCommand cmd = command;
+        cmd.flags &= ~DebuggerCommand::NeedsTemporaryStop;
+        if (!m_inferiorRunning && !m_resumeAfterAttachPending) {
+            runCommand(cmd);
+            return;
+        }
+        m_onStopCommands.append(cmd);
+        m_onStopWantContinue = true;
+        if (!std::exchange(m_temporaryStopRequested, true)) {
+            // With a resume in flight lldb refuses the interrupt. Ask once the
+            // inferior really runs, the way execute() does for the user's own.
+            if (m_inferiorRunning)
+                interruptInferior();
+            else
+                m_interruptOnceRunning = true;
+        }
+        return;
+    }
+
     const int token = ++m_lastToken;
     DebuggerCommand cmd = command;
 
