@@ -426,7 +426,8 @@ std::optional<QtTaskTree::ExecutableItem> CMakeKitAspectFactory::autoDetect(
                const FilePaths &searchPaths,
                const DetectionSource &detectionSource) {
                 const FilePath cmake = "cmake";
-                const FilePaths candidates = cmake.searchAllInDirectories(searchPaths);
+                const FilePaths candidates
+                    = cmake.searchAllInDirectories(searchPaths).uniqueExecutables();
 
                 ResultType result;
 

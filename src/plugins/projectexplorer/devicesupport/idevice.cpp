@@ -456,8 +456,9 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
         const FilePath deviceRootPath = device->rootPath();
         const auto searchForTools = [deviceRootPath,
                                      detectionPaths](Data data, IDeviceConstPtr device) -> Data {
+            FilePaths candidates;
             for (const FilePath &pattern : std::as_const(data.patterns)) {
-                FilePaths candidates = Utils::filtered(
+                candidates += Utils::filtered(
                     pattern.searchAllInDirectories(detectionPaths), [&](const FilePath &toolPath) {
                         // We assume that check() is thread safe to call. check() is a
                         // predicate here: a failed result just means the candidate does
@@ -465,13 +466,14 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
                         // the OS), so filter it out silently rather than asserting.
                         return bool(data.factory->check(device, toolPath));
                     });
-                candidates = Utils::transform(candidates, [deviceRootPath](const FilePath &path) {
+            }
+            // Before the scheme goes, isSameExecutable() still asks the device.
+            data.candidates = Utils::transform(
+                candidates.uniqueExecutables(), [deviceRootPath](const FilePath &path) {
                     if (path.isChildOf(deviceRootPath))
                         return FilePath::fromPathPart(path.path());
                     return path;
                 });
-                data.candidates.append(candidates);
-            }
             if (!data.currentValue.isEmpty()) {
                 if (!data.currentValue.isExecutableFile())
                     data.currentValue.clear();

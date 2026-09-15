@@ -193,7 +193,8 @@ std::vector<std::unique_ptr<CMakeTool>> CMakeToolManager::autoDetectCMakeTools(
 
     const FilePaths suspects = rootPath.withNewMappedPath(FilePath("cmake"))
                                    .searchAllInDirectories(
-                                       searchPaths + FilePaths::resolvePaths(rootPath, extraDirs));
+                                       searchPaths + FilePaths::resolvePaths(rootPath, extraDirs))
+                                   .uniqueExecutables();
 
     std::vector<std::unique_ptr<CMakeTool>> found;
     for (const FilePath &command : std::as_const(suspects)) {

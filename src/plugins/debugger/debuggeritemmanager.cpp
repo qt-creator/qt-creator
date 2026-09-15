@@ -366,12 +366,14 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
     for (const FilePath &path : std::as_const(paths))
         suspects.append(path.dirEntries(Utils::FileFilter{filters, Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Executable}));
 
+    suspects = suspects.uniqueExecutables();
+
     if (logger)
         logger.logTopLevel(Tr::tr("Searching for GDB and LLDB..."));
     for (const FilePath &command : std::as_const(suspects)) {
         int existingRow = -1;
         for (int i = 0; i < itemCount(); ++i) {
-            if (item(i).command() == command) {
+            if (item(i).command().isSameExecutable(command)) {
                 existingRow = i;
                 break;
             }
@@ -396,7 +398,8 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
                 // This is the "update" path: there's already a capable GDB in the settings,
                 // we only need to add a corresponding DAP entry if it's missing.
                 const bool hasDap = Utils::anyOf(volatileItems(), [&command](const DebuggerItem &item) {
-                    return item.command() == command && item.engineType() == GdbDapEngineType;
+                    return item.command().isSameExecutable(command)
+                           && item.engineType() == GdbDapEngineType;
                 });
                 if (hasDap)
                     continue;
@@ -512,7 +515,7 @@ QVariant DebuggerModel::registerDebugger(const DebuggerItem &item)
 {
     // Try re-using existing item first.
     for (const DebuggerItem &d : volatileItems()) {
-        if (d.command() == item.command()
+        if (d.command().isSameExecutable(item.command())
             && d.detectionSource().isAutoDetected() == item.detectionSource().isAutoDetected()
             && d.engineType() == item.engineType()
             && d.unexpandedDisplayName() == item.unexpandedDisplayName()
@@ -654,6 +657,8 @@ ExecutableItem autoDetectDebuggerRecipe(
 
         for (const FilePath &path : searchPaths)
             suspects.append(path.dirEntries(Utils::FileFilter{searchFilters, Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Executable}));
+
+        suspects = suspects.uniqueExecutables();
 
         for (const FilePath &command : std::as_const(suspects)) {
             const Result<DebuggerItem> item = makeAutoDetectedDebuggerItem(command, detectionSource);
