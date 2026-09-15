@@ -94,7 +94,8 @@ static QMessageBox::StandardButton exec(
     QMessageBox::StandardButton clickedBtn = msgBox.standardButton(msgBox.clickedButton());
 
     if (decider.doNotAskAgain && msgBox.checkBox()->isChecked()
-        && (acceptButton == QMessageBox::NoButton || clickedBtn == acceptButton))
+        && (decider.askAgainScope == CheckableDecider::OnAnyButton
+            || acceptButton == QMessageBox::NoButton || clickedBtn == acceptButton))
         decider.doNotAskAgain();
     return clickedBtn;
 }
@@ -136,7 +137,8 @@ static void show(QMessageBox::Icon icon,
                              msgBox->clickedButton());
 
                          if (decider.doNotAskAgain && msgBox->checkBox()->isChecked()
-                             && (acceptButton == QMessageBox::NoButton
+                             && (decider.askAgainScope == CheckableDecider::OnAnyButton
+                                 || acceptButton == QMessageBox::NoButton
                                  || clickedBtn == acceptButton)) {
                              decider.doNotAskAgain();
                          }

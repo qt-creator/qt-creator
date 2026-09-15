@@ -19,12 +19,17 @@ public:
     CheckableDecider() = default;
     CheckableDecider(const Key &settingsSubKey);
     CheckableDecider(bool *doNotAskAgain);
-    CheckableDecider(const std::function<bool()> &should, const std::function<void()> &doNot)
-        : shouldAskAgain(should), doNotAskAgain(doNot)
+    enum AskAgainScope { OnAcceptButton, OnAnyButton };
+    CheckableDecider(const std::function<bool()> &should, const std::function<void()> &doNot,
+                     AskAgainScope scope = OnAcceptButton)
+        : shouldAskAgain(should)
+        , doNotAskAgain(doNot)
+        , askAgainScope(scope)
     {}
 
     std::function<bool()> shouldAskAgain;
     std::function<void()> doNotAskAgain;
+    AskAgainScope askAgainScope = OnAcceptButton;
 };
 
 class QTCREATOR_UTILS_EXPORT CheckableMessageBox
