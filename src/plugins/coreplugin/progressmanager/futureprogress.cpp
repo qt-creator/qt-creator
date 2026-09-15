@@ -14,7 +14,6 @@
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 #include <QProgressBar>
-#include <QSequentialAnimationGroup>
 #include <QTimer>
 
 #include <QVBoxLayout>
@@ -393,20 +392,12 @@ void FutureProgressPrivate::fadeAway()
     opacityEffect->setOpacity(1.0);
     m_q->setGraphicsEffect(opacityEffect);
 
-    auto group = new QSequentialAnimationGroup(this);
     QPropertyAnimation *animation = new QPropertyAnimation(opacityEffect, "opacity");
     animation->setDuration(StyleHelper::progressFadeAnimationDuration);
     animation->setEndValue(0.);
-    group->addAnimation(animation);
-    animation = new QPropertyAnimation(m_q, "maximumHeight");
-    animation->setDuration(120);
-    animation->setEasingCurve(QEasingCurve::InCurve);
-    animation->setStartValue(m_q->sizeHint().height());
-    animation->setEndValue(0.0);
-    group->addAnimation(animation);
 
-    connect(group, &QAbstractAnimation::finished, m_q, &FutureProgress::removeMe);
-    group->start(QAbstractAnimation::DeleteWhenStopped);
+    connect(animation, &QAbstractAnimation::finished, m_q, &FutureProgress::removeMe);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
     emit m_q->fadeStarted();
 }
 
