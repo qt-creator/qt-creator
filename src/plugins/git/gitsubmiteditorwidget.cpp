@@ -12,6 +12,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <texteditor/fontsettings.h>
+#include <texteditor/spellchecksettings.h>
 
 #include <utils/completingtextedit.h>
 #include <utils/filepath.h>
@@ -114,10 +115,14 @@ GitSubmitEditorWidget::GitSubmitEditorWidget() :
     applyFontSettings();
     connect(&TextEditor::globalFontSettings(), &TextEditor::FontSettings::changed,
             this, applyFontSettings);
-    m_highlighter->setSpellCheckLanguage(VcsBase::Internal::submitMessageSpellCheckLanguage());
-    connect(&VcsBase::Internal::commonSettings(), &AspectContainer::applied, this, [this] {
+    const auto applySpellCheckLanguage = [this] {
         m_highlighter->setSpellCheckLanguage(VcsBase::Internal::submitMessageSpellCheckLanguage());
-    });
+    };
+    applySpellCheckLanguage();
+    connect(&VcsBase::Internal::commonSettings(), &AspectContainer::applied,
+            this, applySpellCheckLanguage);
+    connect(&TextEditor::spellCheckSettings(), &AspectContainer::changed,
+            this, applySpellCheckLanguage);
     connect(descriptionEdit(), &QTextEdit::cursorPositionChanged, this, [this] {
         m_highlighter->setSpellCheckCursorPosition(descriptionEdit()->textCursor().position());
     });

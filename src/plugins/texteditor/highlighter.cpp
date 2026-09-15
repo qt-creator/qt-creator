@@ -3,6 +3,7 @@
 
 #include "highlighter.h"
 
+#include "spellchecksettings.h"
 #include "tabsettings.h"
 #include "textdocumentlayout.h"
 
@@ -20,6 +21,8 @@
 
 #include <QLoggingCategory>
 #include <QMetaEnum>
+
+#include <algorithm>
 
 using namespace Utils;
 
@@ -69,6 +72,7 @@ Highlighter::Highlighter()
 {
     setTextFormatCategories(QMetaEnum::fromType<KSyntaxHighlighting::Theme::TextStyle>().keyCount(),
                             &categoryForTextStyle);
+    followSpellCheckSettings(this);
 }
 
 Highlighter::~Highlighter() = default;
@@ -86,7 +90,10 @@ static bool isClosingParenthesis(QChar c)
 void Highlighter::highlightBlock(const QString &text)
 {
     if (!definition().isValid()) {
+        // A file no syntax definition matches holds nothing but prose.
+        addProseRange(0, text.size());
         formatSpaces(text);
+        spellCheck(text);
         return;
     }
     QTextBlock block = currentBlock();
@@ -119,10 +126,79 @@ void Highlighter::highlightBlock(const QString &text)
         setFoldingIndent(nextBlock, TextBlockUserData::braceDepth(block));
 
     formatSpaces(text);
+    spellCheck(text);
+}
+
+void Highlighter::setDefinition(const KSyntaxHighlighting::Definition &definition)
+{
+    m_proseMarkingFormats.reset();
+    KSyntaxHighlighting::AbstractHighlighter::setDefinition(definition);
+}
+
+// The categories that hold prose whichever language a file is written in. The normal
+// text of a file is not among them: it is the code of every language that styles
+// nothing else, and a file that no syntax definition matches is prose on other grounds.
+static bool holdsProseInAnyLanguage(TextStyle category)
+{
+    return category == C_COMMENT || category == C_DOXYGEN_COMMENT;
+}
+
+// A syntax definition says of every format whether it holds prose, and the ones that
+// come with Qt Creator turn it off for what is code: the commands of a CMake file, the
+// link target of a Markdown one. The flag stays on where nothing sets it, so a
+// definition that turns it off for no format of code - a Ruby one turns it off for the
+// escape sequences of a string and for nothing else - was written without spell
+// checking in mind, and only the styles that hold prose in any language are read from
+// it.
+static bool namesProse(const QList<KSyntaxHighlighting::Format> &formats)
+{
+    return std::any_of(
+        formats.cbegin(), formats.cend(), [](const KSyntaxHighlighting::Format &format) {
+            const TextStyle category = categoryForTextStyle(format.textStyle());
+            return !format.spellCheck() && category != C_STRING
+                   && !holdsProseInAnyLanguage(category);
+        });
+}
+
+// The formats of a file come from the definition of its language and from the ones that
+// definition embeds, and each of them answers for its own: the block a Markdown file
+// fences off as YAML is as much YAML as a file of it is, down to the definition behind
+// it having been written without spell checking in mind.
+bool Highlighter::definitionMarksProse(const KSyntaxHighlighting::Format &format)
+{
+    if (!m_proseMarkingFormats) {
+        m_proseMarkingFormats.emplace();
+        // includedDefinitions() leaves out the definition it is asked of.
+        QList<KSyntaxHighlighting::Definition> definitions = definition().includedDefinitions();
+        definitions.prepend(definition());
+        for (const KSyntaxHighlighting::Definition &language : definitions) {
+            const QList<KSyntaxHighlighting::Format> formats = language.formats();
+            if (!namesProse(formats))
+                continue;
+            for (const KSyntaxHighlighting::Format &marking : formats)
+                m_proseMarkingFormats->insert(marking.id());
+        }
+    }
+    return m_proseMarkingFormats->contains(format.id());
+}
+
+static bool isProse(const KSyntaxHighlighting::Format &format, bool checkStrings, bool marksProse)
+{
+    if (!format.spellCheck())
+        return false;
+    const TextStyle category = categoryForTextStyle(format.textStyle());
+    if (category == C_STRING)
+        return checkStrings;
+    return marksProse || holdsProseInAnyLanguage(category);
 }
 
 void Highlighter::applyFormat(int offset, int length, const KSyntaxHighlighting::Format &format)
 {
+    if (!spellCheckLanguage().isEmpty()
+        && isProse(format, spellCheckStrings(), definitionMarksProse(format))) {
+        addProseRange(offset, length);
+    }
+
     const KSyntaxHighlighting::Theme defaultTheme;
     QTextCharFormat qformat = formatForCategory(format.textStyle());
 

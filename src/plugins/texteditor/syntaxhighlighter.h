@@ -61,9 +61,14 @@ public:
     // An empty language turns spell checking off, which is the default.
     void setSpellCheckLanguage(const QString &language);
     QString spellCheckLanguage() const;
+    // Whether the strings of a text are prose too, which they are not by default.
+    void setSpellCheckStrings(bool check);
+    bool spellCheckStrings() const;
     // A word that the text cursor is on is being written and is not marked as
     // misspelled. Pass -1 for no such word.
     void setSpellCheckCursorPosition(int position);
+    // Whether a format is the one a misspelled word is marked with.
+    static bool isSpellingError(const QTextCharFormat &format);
 
 public slots:
     virtual void rehighlight();
@@ -90,7 +95,11 @@ protected:
     QTextCharFormat format(int pos) const;
 
     void formatSpaces(const QString &text, int start = 0, int count = INT_MAX);
-    void spellCheck(const QString &text, int start = 0, int count = INT_MAX);
+    // Marks the count characters at start of the current text block as prose, the part
+    // of a text a dictionary has something to say about: the comments of a source file,
+    // or the whole of a text that is prose to begin with.
+    void addProseRange(int start, int count);
+    void spellCheck(const QString &text);
     void setFormatWithSpaces(const QString &text, int start, int count,
                              const QTextCharFormat &format);
 

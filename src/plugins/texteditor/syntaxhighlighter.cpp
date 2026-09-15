@@ -23,7 +23,8 @@ namespace TextEditor {
 enum HighlighterTypeProperty
 {
     SyntaxHighlight = QTextFormat::UserProperty + 1,
-    SemanticHighlight = QTextFormat::UserProperty + 2
+    SemanticHighlight = QTextFormat::UserProperty + 2,
+    SpellingError = QTextFormat::UserProperty + 3
 };
 
 class SyntaxHighlighterPrivate
@@ -65,7 +66,12 @@ public:
     QTextCharFormat whitespaceFormat;
     QString mimeType;
     QString spellCheckLanguage;
+    bool spellCheckStrings = false;
+    QList<Utils::SpellChecker::Range> proseRanges;
     int spellCheckCursorPosition = -1;
+    // The block that holds a mark back for the word the text cursor is on. A block
+    // rather than its number, which shifts when a line above it goes in or out.
+    QTextBlock spellCheckHeldBackBlock;
     bool syntaxInfoUpToDate = false;
     bool continueRehighlightScheduled = false;
     bool ignoreFolding = false;
@@ -286,6 +292,7 @@ void SyntaxHighlighterPrivate::reformatBlock(const QTextBlock &block)
     currentBlock = block;
 
     formatChanges.fill(QTextCharFormat(), block.length() - 1);
+    proseRanges.clear();
     q->highlightBlock(block.text());
     applyFormatChanges();
 
@@ -384,6 +391,7 @@ void SyntaxHighlighter::setDocument(QTextDocument *doc)
     }
     QTextDocument *oldDoc = d->doc;
     d->doc = doc;
+    d->spellCheckHeldBackBlock = QTextBlock();
     documentChanged(oldDoc, d->doc);
     if (d->doc) {
         connect(d->doc, &QTextDocument::contentsChange, this, &SyntaxHighlighter::reformatBlocks);
@@ -580,38 +588,95 @@ void SyntaxHighlighter::formatSpaces(const QString &text, int start, int count)
     }
 }
 
-/*!
-    Marks the misspelled words in the current text block with \a text with the spelling error
-    format, looking at the words that are completely inside the \a count characters starting at
-    the \a start position.
-
-    \sa setSpellCheckLanguage()
-*/
-void SyntaxHighlighter::spellCheck(const QString &text, int start, int count)
+static bool isInside(const Utils::SpellChecker::Range &word,
+                     const QList<Utils::SpellChecker::Range> &ranges)
 {
-    if (d->spellCheckLanguage.isEmpty())
+    const int wordEnd = word.start + word.length;
+    return Utils::anyOf(ranges, [&word, wordEnd](const Utils::SpellChecker::Range &range) {
+        return word.start >= range.start && wordEnd <= range.start + range.length;
+    });
+}
+
+/*!
+    Marks the \a count characters at \a start of the current text block as prose, for
+    spellCheck() to look at. A highlighter may call this unconditionally: without a
+    language to check the prose in there is nothing to mark it for.
+
+    \sa spellCheck()
+*/
+void SyntaxHighlighter::addProseRange(int start, int count)
+{
+    if (count <= 0 || d->spellCheckLanguage.isEmpty())
         return;
 
-    const int end = std::min<qint64>(qint64(start) + count, text.size());
+    // A word split over two ranges, as an escape sequence splits a string, is still
+    // one word to the dictionary.
+    if (!d->proseRanges.isEmpty()) {
+        Utils::SpellChecker::Range &last = d->proseRanges.last();
+        if (last.start + last.length == start) {
+            last.length += count;
+            return;
+        }
+    }
+    d->proseRanges.append({start, count});
+}
+
+/*!
+    Marks the misspelled words in the prose of the current text block with \a text with
+    the spelling error format. The prose is what addProseRange() was called for, which is
+    nothing at all unless a highlighter says otherwise.
+
+    The dictionary sees the whole \a text either way: whether a word is prose or a token of
+    code depends on the characters next to it, which the range a word sits in does not tell.
+
+    \sa addProseRange(), setSpellCheckLanguage()
+*/
+void SyntaxHighlighter::spellCheck(const QString &text)
+{
+    if (d->spellCheckHeldBackBlock == d->currentBlock)
+        d->spellCheckHeldBackBlock = QTextBlock();
+
+    if (d->spellCheckLanguage.isEmpty() || d->proseRanges.isEmpty())
+        return;
+
+    // A mark the color scheme draws nothing for is no mark, and asking the dictionary
+    // for one is work for nothing.
     const QTextCharFormat spellErrorFormat = d->fontSettings.toTextCharFormat(C_SPELL_ERROR);
+    if (spellErrorFormat.underlineStyle() == QTextCharFormat::NoUnderline)
+        return;
+
     const int blockPosition = d->currentBlock.position();
     const QList<Utils::SpellChecker::Range> ranges
         = Utils::SpellChecker::instance()->misspelledRanges(text, d->spellCheckLanguage);
 
     for (const Utils::SpellChecker::Range &range : ranges) {
         const int wordEnd = range.start + range.length;
-        if (range.start < start || wordEnd > end)
+        if (!isInside(range, d->proseRanges))
             continue;
         if (d->spellCheckCursorPosition >= blockPosition + range.start
             && d->spellCheckCursorPosition <= blockPosition + wordEnd) {
+            // setSpellCheckCursorPosition() reads this back to tell whether moving the
+            // cursor off this block brings a mark out.
+            d->spellCheckHeldBackBlock = d->currentBlock;
             continue;
         }
         for (int i = range.start; i < wordEnd && i < d->formatChanges.size(); ++i) {
             QTextCharFormat &format = d->formatChanges[i];
             format.setUnderlineColor(spellErrorFormat.underlineColor());
             format.setUnderlineStyle(spellErrorFormat.underlineStyle());
+            format.setProperty(SpellingError, true);
         }
     }
+}
+
+/*!
+    Whether \a format is the one spellCheck() marks a misspelled word with. The
+    underline style and color of the spelling error format are no answer on their own:
+    a color scheme may give another category the same ones.
+*/
+bool SyntaxHighlighter::isSpellingError(const QTextCharFormat &format)
+{
+    return format.property(SpellingError).toBool();
 }
 
 /*!
@@ -884,6 +949,34 @@ QString SyntaxHighlighter::spellCheckLanguage() const
     return d->spellCheckLanguage;
 }
 
+void SyntaxHighlighter::setSpellCheckStrings(bool check)
+{
+    if (d->spellCheckStrings == check)
+        return;
+    d->spellCheckStrings = check;
+    rehighlight();
+}
+
+bool SyntaxHighlighter::spellCheckStrings() const
+{
+    return d->spellCheckStrings;
+}
+
+// Whether block shows a misspelled word at position, the word whose mark the text
+// cursor is to hold back.
+static bool holdsSpellingErrorAt(const QTextBlock &block, int position)
+{
+    const QTextLayout *layout = block.layout();
+    if (!layout)
+        return false;
+
+    const int offset = position - block.position();
+    return Utils::anyOf(layout->formats(), [offset](const QTextLayout::FormatRange &range) {
+        return SyntaxHighlighter::isSpellingError(range.format) && offset >= range.start
+               && offset <= range.start + range.length;
+    });
+}
+
 void SyntaxHighlighter::setSpellCheckCursorPosition(int position)
 {
     if (d->spellCheckCursorPosition == position)
@@ -894,12 +987,20 @@ void SyntaxHighlighter::setSpellCheckCursorPosition(int position)
     if (d->spellCheckLanguage.isEmpty() || !d->doc)
         return;
 
+    // Rehighlighting a block runs the dictionary over it again, a call into the spell
+    // checking service of the platform, and a text cursor moves on every key press.
+    // Only a block whose marks the move changes needs it: the one that held a mark
+    // back, and the one that is to hold one back now.
     const QTextBlock previousBlock = d->doc->findBlock(previousPosition);
     const QTextBlock currentBlock = d->doc->findBlock(position);
-    if (previousBlock.isValid())
+    const bool previousHeldBack = previousBlock.isValid()
+                                  && previousBlock == d->spellCheckHeldBackBlock;
+    if (previousHeldBack)
         rehighlightBlock(previousBlock);
-    if (currentBlock.isValid() && currentBlock != previousBlock)
+    if (currentBlock.isValid() && !(previousHeldBack && currentBlock == previousBlock)
+        && holdsSpellingErrorAt(currentBlock, position)) {
         rehighlightBlock(currentBlock);
+    }
 }
 
 void SyntaxHighlighter::clearExtraFormats(const QTextBlock &block)

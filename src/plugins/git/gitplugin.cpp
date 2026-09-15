@@ -2998,16 +2998,12 @@ void GitTest::testGraphModelRepositorySwitch()
 
 static QStringList underlinedTexts(const QTextDocument *document)
 {
-    const QTextCharFormat spellErrorFormat
-        = TextEditor::globalFontSettings().data().toTextCharFormat(TextEditor::C_SPELL_ERROR);
     QStringList texts;
     for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next()) {
         const QList<QTextLayout::FormatRange> ranges = block.layout()->formats();
         for (const QTextLayout::FormatRange &range : ranges) {
-            if (range.format.underlineStyle() == spellErrorFormat.underlineStyle()
-                && range.format.underlineColor() == spellErrorFormat.underlineColor()) {
+            if (TextEditor::SyntaxHighlighter::isSpellingError(range.format))
                 texts.append(block.text().mid(range.start, range.length));
-            }
         }
     }
     return texts;

@@ -59,6 +59,10 @@ void GenerigHighlighterTests::initTestCase()
     m_editor->editorWidget()->configureGenericHighlighter(
         Utils::mimeTypeForName(Utils::Constants::JSON_MIMETYPE));
     QVERIFY(m_editor);
+
+    // A misspelling in the test data would add a mark of its own to the formats this
+    // compares, so the test checks no spelling whatever the settings say.
+    m_editor->textDocument()->syntaxHighlighter()->setSpellCheckLanguage({});
     m_editor->textDocument()->syntaxHighlighter()->rehighlight();
 }
 

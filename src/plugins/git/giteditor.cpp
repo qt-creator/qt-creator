@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <texteditor/spellchecksettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 
@@ -243,12 +244,16 @@ void GitEditorWidget::init()
             highlighter->setSpellCheckLanguage(VcsBase::Internal::submitMessageSpellCheckLanguage());
             return highlighter;
         });
-        connect(&VcsBase::Internal::commonSettings(), &AspectContainer::applied, this, [this] {
+        const auto applySpellCheckLanguage = [this] {
             if (TextEditor::SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter()) {
                 highlighter->setSpellCheckLanguage(
                     VcsBase::Internal::submitMessageSpellCheckLanguage());
             }
-        });
+        };
+        connect(&VcsBase::Internal::commonSettings(), &AspectContainer::applied,
+                this, applySpellCheckLanguage);
+        connect(&TextEditor::spellCheckSettings(), &AspectContainer::changed,
+                this, applySpellCheckLanguage);
         connect(this, &PlainTextEdit::cursorPositionChanged, this, [this] {
             if (TextEditor::SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
                 highlighter->setSpellCheckCursorPosition(textCursor().position());

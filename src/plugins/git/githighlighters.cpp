@@ -61,6 +61,8 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
         break;
     }
 
+    // The whole of a submit message is prose, bar the comments the editor strips.
+    addProseRange(0, text.size());
     spellCheck(text);
 }
 

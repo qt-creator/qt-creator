@@ -247,6 +247,7 @@ inline constexpr char TEXT_EDITOR_DISPLAY_SETTINGS[] = "D.DisplaySettings";
 inline constexpr char TEXT_EDITOR_HIGHLIGHTER_SETTINGS[] = "E.HighlighterSettings";
 inline constexpr char TEXT_EDITOR_SNIPPETS_SETTINGS[] = "F.SnippetsSettings";
 inline constexpr char TEXT_EDITOR_COMMENTS_SETTINGS[] = "Q.CommentsSettings";
+inline constexpr char TEXT_EDITOR_SPELL_CHECK_SETTINGS[] = "R.SpellCheckSettings";
 
 inline constexpr char HIGHLIGHTER_SETTINGS_CATEGORY[] = "HighlighterSettings";
 

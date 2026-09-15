@@ -9,14 +9,6 @@
 
 namespace VcsBase::Internal {
 
-class VCSBASE_EXPORT SpellCheckLanguageAspect final : public Utils::StringSelectionAspect
-{
-public:
-    using StringSelectionAspect::StringSelectionAspect;
-
-    void fixupComboBox(QComboBox *comboBox) override;
-};
-
 class VCSBASE_EXPORT CommonVcsSettings final : public Utils::AspectContainer
 {
 public:
@@ -35,12 +27,12 @@ public:
     Utils::BoolAspect vcsShowStatus{this};
     Utils::IntegerAspect vcsShowStatusInterval{this};
     Utils::BoolAspect spellCheck{this};
-    SpellCheckLanguageAspect spellCheckLanguage{this};
 };
 
 VCSBASE_EXPORT CommonVcsSettings &commonSettings();
 
 // The language to spell check submit messages in, empty if they are not to be checked.
+// Which language that is belongs to the text editor settings.
 VCSBASE_EXPORT QString submitMessageSpellCheckLanguage();
 
 } // VcsBase::Internal
