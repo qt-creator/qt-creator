@@ -5,6 +5,7 @@ Project {
     QtcAutotest {
         name: "backends autotest"
         Depends { name: "Debugger" }
+        Depends { name: "ProjectExplorer" }
         Depends { name: "Utils" }
         Depends { name: "Qt.network" }
         Depends { name: "qmlstack_inferior"; required: false }
