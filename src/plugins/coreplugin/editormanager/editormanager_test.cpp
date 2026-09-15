@@ -2,16 +2,30 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../coreconstants.h"
+#include "../find/findplugin.h"
+#include "../findplaceholder.h"
 #include "../generalsettings.h"
+#include "../icontext.h"
+#include "../icore.h"
 #include "../idocument.h"
+#include "../imode.h"
+#include "../messagemanager.h"
+#include "../minisplitter.h"
+#include "../modemanager.h"
+#include "../outputpane.h"
+#include "../outputpanemanager.h"
 #include "documentmodel_p.h"
 #include "editormanager_p.h"
 
 #include <utils/temporaryfile.h>
 
+#include <QApplication>
+#include <QLineEdit>
+#include <QMainWindow>
 #include <QSet>
 #include <QSignalSpy>
 #include <QTest>
+#include <QVBoxLayout>
 
 using namespace Utils;
 
@@ -74,6 +88,41 @@ private slots:
 QObject *createEditorManagerTest()
 {
     return new EditorManagerTest;
+}
+
+// The escape key logic is about what is on screen and where the keyboard focus
+// is, so these tests set up two modes to have something to switch between: one
+// without any editor area, like Projects mode, and one that owns an area, like
+// Profile mode, whose documents are only on screen while the mode is.
+// The cases with an editor view in an external window are not covered: whether
+// a window comes to the front is up to the window manager.
+class EscapeKeyTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void init();
+    void cleanup();
+
+    void testHidesFindToolBar();
+    void testHidesOutputPane();
+    void testMovesFocusToEditorViewInMode();
+    void testActivatesEditModeFromModeWithoutEditorView();
+    void testActivatesModeOfCurrentEditorArea();
+    void testLeavesModeWithOwnEditorArea();
+    void testStaysInEditMode();
+
+private:
+    IMode *m_plainMode = nullptr;
+    IMode *m_areaMode = nullptr;
+};
+
+QObject *createEscapeKeyTest()
+{
+    return new EscapeKeyTest;
 }
 
 // Records what qDebug()/qWarning() emit while it is alive, so that a test can
@@ -816,6 +865,285 @@ void EditorManagerTest::testClosedViewIsReported()
     QCOMPARE(mainAreaViews().size(), 1);
     QCOMPARE(closed.size(), 1);
     QCOMPARE(closed.at(0).at(0).toInt(), otherId);
+}
+
+
+const char MODE_PLAIN[] = "Core.Test.ModeWithoutEditorArea";
+const char MODE_WITH_AREA[] = "Core.Test.ModeWithEditorArea";
+
+// A mode without an editor area, like Projects mode, with something to focus.
+class PlainModeWidget final : public MiniSplitter
+{
+public:
+    PlainModeWidget()
+    {
+        setOrientation(Qt::Vertical);
+        addWidget(m_focusable);
+        addWidget(new OutputPanePlaceHolder(MODE_PLAIN, this));
+    }
+
+    QLineEdit *m_focusable = new QLineEdit;
+};
+
+// A mode that owns an editor area, like Profile mode, with something next to
+// the editors to focus.
+class AreaModeWidget final : public MiniSplitter
+{
+public:
+    AreaModeWidget()
+    {
+        auto editorAndFocusable = new QWidget;
+        auto layout = new QVBoxLayout(editorAndFocusable);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(m_focusable);
+        layout->addWidget(m_area);
+
+        setOrientation(Qt::Vertical);
+        addWidget(editorAndFocusable);
+        addWidget(new OutputPanePlaceHolder(MODE_WITH_AREA, this));
+        IContext::attach(this, Context(Constants::C_EDITORMANAGER));
+    }
+
+    EditorView *view() const
+    {
+        EditorArea *area = qobject_cast<EditorArea *>(m_area);
+        return area ? area->findFirstView() : nullptr;
+    }
+
+    QLineEdit *m_focusable = new QLineEdit;
+    QWidget *m_area = EditorManager::createEditorArea(MODE_WITH_AREA);
+};
+
+class TestMode final : public IMode
+{
+public:
+    TestMode(Id id, const Context &context, const std::function<QWidget *()> &widgetCreator)
+    {
+        setId(id);
+        setDisplayName(id.toString());
+        setContext(context);
+        setWidgetCreator(widgetCreator);
+    }
+};
+
+static bool viewHasFocus(EditorView *view)
+{
+    QWidget *focus = QApplication::focusWidget();
+    return view && focus && focus == view->focusWidget();
+}
+
+static PlainModeWidget *plainModeWidget(IMode *mode)
+{
+    return static_cast<PlainModeWidget *>(mode->widget());
+}
+
+static AreaModeWidget *areaModeWidget(IMode *mode)
+{
+    return static_cast<AreaModeWidget *>(mode->widget());
+}
+
+void EscapeKeyTest::initTestCase()
+{
+    m_plainMode = new TestMode(MODE_PLAIN, Context(), [] { return new PlainModeWidget; });
+    m_areaMode = new TestMode(MODE_WITH_AREA,
+                              Context(Constants::C_EDITORMANAGER),
+                              [] { return new AreaModeWidget; });
+    // QTRY_VERIFY because a mode added at run time gets its tab in the next event loop turn, and
+    // only then is its widget in the mode stack.
+    QTRY_VERIFY(m_plainMode->widget()->parentWidget());
+    QTRY_VERIFY(m_areaMode->widget()->parentWidget());
+}
+
+void EscapeKeyTest::cleanupTestCase()
+{
+    ModeManager::activateMode(Id(Constants::MODE_EDIT));
+    // in reverse order of registration, so that the mode indexes stay valid
+    ModeManager::removeMode(m_areaMode);
+    ModeManager::removeMode(m_plainMode);
+    delete m_areaMode;
+    delete m_plainMode;
+}
+
+void EscapeKeyTest::init()
+{
+    closeAll();
+    ModeManager::activateMode(Id(Constants::MODE_EDIT));
+    // The escape key logic asks for the active window and the focus widget, so
+    // these tests only say anything while the application has the focus.
+    ICore::raiseWindow(ICore::mainWindow());
+    if (!QTest::qWaitFor([] { return QApplication::activeWindow() == ICore::mainWindow(); }))
+        QSKIP("the main window is not activated in this environment");
+}
+
+void EscapeKeyTest::cleanup()
+{
+    Find::hideFindToolBar();
+    OutputPaneManager::instance()->slotHide();
+    ModeManager::activateMode(Id(Constants::MODE_EDIT));
+    closeAll();
+}
+
+/*
+    The focus is in the find tool bar: escape closes it and nothing else.
+*/
+void EscapeKeyTest::testHidesFindToolBar()
+{
+    TestFile a;
+    EditorView *view = mainAreaViews().at(0);
+    QVERIFY(EMP::openEditor(view, a.filePath()));
+    Find::openFindToolBar(Find::FindForwardDirection);
+    FindToolBarPlaceHolder *findPane = FindToolBarPlaceHolder::getCurrent();
+    QVERIFY(findPane);
+    QTRY_VERIFY(findPane->isVisible());
+    QTRY_VERIFY(findPane->isUsedByWidget(QApplication::focusWidget()));
+
+    EMP::doEscapeKeyFocusMoveMagic();
+
+    QVERIFY(!findPane->isVisible());
+    QCOMPARE(ModeManager::currentModeId(), Id(Constants::MODE_EDIT));
+}
+
+/*
+    The focus is in an editor view in Edit mode and the output pane is up:
+    escape hides the output pane and leaves the focus where it is.
+*/
+void EscapeKeyTest::testHidesOutputPane()
+{
+    TestFile a;
+    EditorView *view = mainAreaViews().at(0);
+    QVERIFY(EMP::openEditor(view, a.filePath()));
+    QTRY_VERIFY(viewHasFocus(view));
+    MessageManager::popup();
+    OutputPanePlaceHolder *outputPane = OutputPanePlaceHolder::getCurrent();
+    QVERIFY(outputPane);
+    QTRY_VERIFY(outputPane->isVisible());
+
+    EMP::doEscapeKeyFocusMoveMagic();
+
+    QVERIFY(!outputPane->isVisible());
+    QVERIFY(viewHasFocus(view));
+    QCOMPARE(ModeManager::currentModeId(), Id(Constants::MODE_EDIT));
+}
+
+/*
+    The focus is in a mode that shows an editor view, but not in that view:
+    escape moves the focus there and hides nothing, so that the way back to the
+    editor does not cost the panes.
+*/
+void EscapeKeyTest::testMovesFocusToEditorViewInMode()
+{
+    TestFile a;
+    ModeManager::activateMode(MODE_WITH_AREA);
+    EditorView *view = areaModeWidget(m_areaMode)->view();
+    QVERIFY(view);
+    QVERIFY(EMP::openEditor(view, a.filePath()));
+    MessageManager::popup();
+    OutputPanePlaceHolder *outputPane = OutputPanePlaceHolder::getCurrent();
+    QVERIFY(outputPane);
+    QTRY_VERIFY(outputPane->isVisible());
+    QLineEdit *focusable = areaModeWidget(m_areaMode)->m_focusable;
+    focusable->setFocus();
+    QTRY_COMPARE(QApplication::focusWidget(), focusable);
+
+    EMP::doEscapeKeyFocusMoveMagic();
+
+    QVERIFY(viewHasFocus(view));
+    QVERIFY(outputPane->isVisible());
+    QCOMPARE(ModeManager::currentModeId(), Id(MODE_WITH_AREA));
+}
+
+/*
+    The focus is in a mode without an editor view and nothing is there to hide:
+    escape goes to the mode that shows the current editor view, Edit mode for
+    the area that the modes share. (Edit mode case)
+*/
+void EscapeKeyTest::testActivatesEditModeFromModeWithoutEditorView()
+{
+    TestFile a;
+    EditorView *view = mainAreaViews().at(0);
+    QVERIFY(EMP::openEditor(view, a.filePath()));
+    ModeManager::activateMode(MODE_PLAIN);
+    QLineEdit *focusable = plainModeWidget(m_plainMode)->m_focusable;
+    focusable->setFocus();
+    QTRY_COMPARE(QApplication::focusWidget(), focusable);
+    QCOMPARE(EMP::currentEditorView(), view);
+    QVERIFY(!view->isVisible());
+
+    EMP::doEscapeKeyFocusMoveMagic();
+
+    QCOMPARE(ModeManager::currentModeId(), Id(Constants::MODE_EDIT));
+    QVERIFY(viewHasFocus(view));
+}
+
+/*
+    The focus is in a mode without an editor view and nothing is there to hide:
+    escape goes to the mode that shows the current editor view, Edit mode for
+    the area that the modes share. (non-Edit mode case)
+*/
+void EscapeKeyTest::testActivatesModeOfCurrentEditorArea()
+{
+    TestFile a;
+    ModeManager::activateMode(MODE_WITH_AREA);
+    EditorView *view = areaModeWidget(m_areaMode)->view();
+    QVERIFY(view);
+    QVERIFY(EMP::openEditor(view, a.filePath()));
+    ModeManager::activateMode(MODE_PLAIN);
+    QLineEdit *focusable = plainModeWidget(m_plainMode)->m_focusable;
+    focusable->setFocus();
+    QTRY_COMPARE(QApplication::focusWidget(), focusable);
+    QCOMPARE(EMP::currentEditorView(), view);
+    QVERIFY(!view->isVisible());
+
+    MessageLog log;
+    EMP::doEscapeKeyFocusMoveMagic();
+
+    QCOMPARE(ModeManager::currentModeId(), Id(MODE_WITH_AREA));
+    QVERIFY(viewHasFocus(view));
+    QVERIFY2(log.messages().isEmpty(), qPrintable(log.messages().join(", ")));
+}
+
+/*
+    The focus is in the editor view of a mode that owns its area and nothing is
+    there to hide: escape goes to Edit mode, and the focus lands in the view
+    that Edit mode shows, not in the one that went off screen with the mode.
+*/
+void EscapeKeyTest::testLeavesModeWithOwnEditorArea()
+{
+    TestFile a;
+    TestFile b;
+    EditorView *mainView = mainAreaViews().at(0);
+    QVERIFY(EMP::openEditor(mainView, a.filePath()));
+    ModeManager::activateMode(MODE_WITH_AREA);
+    EditorView *view = areaModeWidget(m_areaMode)->view();
+    QVERIFY(view);
+    QVERIFY(EMP::openEditor(view, b.filePath()));
+    QTRY_VERIFY(viewHasFocus(view));
+
+    MessageLog log;
+    EMP::doEscapeKeyFocusMoveMagic();
+
+    QCOMPARE(ModeManager::currentModeId(), Id(Constants::MODE_EDIT));
+    QVERIFY(viewHasFocus(mainView));
+    QVERIFY2(log.messages().isEmpty(), qPrintable(log.messages().join(", ")));
+}
+
+/*
+    The focus is in an editor view in Edit mode and nothing is there to hide:
+    escape leaves everything as it is.
+*/
+void EscapeKeyTest::testStaysInEditMode()
+{
+    TestFile a;
+    EditorView *view = mainAreaViews().at(0);
+    QVERIFY(EMP::openEditor(view, a.filePath()));
+    QTRY_VERIFY(viewHasFocus(view));
+
+    MessageLog log;
+    EMP::doEscapeKeyFocusMoveMagic();
+
+    QCOMPARE(ModeManager::currentModeId(), Id(Constants::MODE_EDIT));
+    QVERIFY(viewHasFocus(view));
+    QVERIFY2(log.messages().isEmpty(), qPrintable(log.messages().join(", ")));
 }
 
 } // namespace Core::Internal
