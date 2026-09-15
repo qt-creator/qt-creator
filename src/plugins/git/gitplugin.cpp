@@ -93,6 +93,7 @@
 
 #ifdef WITH_TESTS
 #include <QSignalSpy>
+#include <QTemporaryDir>
 #include <QTest>
 #endif
 
@@ -2463,6 +2464,7 @@ private slots:
     void testInlineDiffConflictedFile();
     void testConflictedFileInTextEditor();
     void testGraphModelRepositorySwitch();
+    void testWorkingDirectoryForShow();
     void testSubmitMessageSpellCheck();
     void testDiffDescriptionEditor();
 };
@@ -2994,6 +2996,88 @@ void GitTest::testGraphModelRepositorySwitch()
     model.refresh(second);
     QCOMPARE(resetSpy.count(), 1);
     QCOMPARE(model.rowCount(), 2);
+}
+
+void GitTest::testWorkingDirectoryForShow()
+{
+    const auto runGit = [](const FilePath &directory, const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(directory, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+
+    QTemporaryDir temporaryDir;
+    QTemporaryDir submoduleSourceDir;
+    QTemporaryDir unrelatedDir;
+    QTemporaryDir repoToolDir;
+    QVERIFY(temporaryDir.isValid());
+    QVERIFY(submoduleSourceDir.isValid());
+    QVERIFY(unrelatedDir.isValid());
+    QVERIFY(repoToolDir.isValid());
+
+    const FilePath repository = FilePath::fromString(temporaryDir.path()).canonicalPath();
+    const FilePath submoduleSource = FilePath::fromString(submoduleSourceDir.path()).canonicalPath();
+    QVERIFY(runGit(submoduleSource, {"init", "."}));
+    QVERIFY(runGit(submoduleSource, {"config", "user.email", "test@test"}));
+    QVERIFY(runGit(submoduleSource, {"config", "user.name", "test"}));
+    QVERIFY(runGit(submoduleSource, {"config", "commit.gpgsign", "false"}));
+    QVERIFY((submoduleSource / "file.txt").writeFileContents("submodule\n"));
+    QVERIFY(runGit(submoduleSource, {"add", "file.txt"}));
+    QVERIFY(runGit(submoduleSource, {"commit", "-m", "initial"}));
+
+    QVERIFY(runGit(repository, {"init", "."}));
+    QVERIFY(runGit(repository, {"-c", "protocol.file.allow=always", "submodule", "add",
+                                submoduleSource.toUrlishString(), "submodule"}));
+
+    const FilePath sourceDirectory = repository / "src";
+    QVERIFY(sourceDirectory.ensureWritableDir());
+    const FilePath unrelatedRebaseApply = FilePath::fromString(unrelatedDir.path())
+                                          / "rebase-apply";
+    const FilePath unrelatedRebaseMerge = FilePath::fromString(unrelatedDir.path())
+                                          / "rebase-merge";
+    const FilePath rebaseDirectory = repository / ".git/rebase-merge";
+    const FilePath submoduleRebaseDirectory = repository / ".git/modules/submodule/rebase-merge";
+    QVERIFY(unrelatedRebaseApply.ensureWritableDir());
+    QVERIFY(unrelatedRebaseMerge.ensureWritableDir());
+    QVERIFY(rebaseDirectory.ensureWritableDir());
+    QVERIFY(submoduleRebaseDirectory.ensureWritableDir());
+
+    const FilePath unrelatedPath = FilePath::fromString(unrelatedDir.path()).canonicalPath();
+    const FilePath repoToolRoot = FilePath::fromString(repoToolDir.path()).canonicalPath();
+    const FilePath repoToolMetadata = repoToolRoot
+                                      / ".repo/projects/sources/meta-qt5.git";
+    const FilePath repoToolRebaseApply = repoToolMetadata / "rebase-apply";
+    const FilePath repoToolRebaseMerge = repoToolMetadata / "rebase-merge";
+    const FilePath repoToolWorktree = repoToolRoot / "sources/meta-qt5";
+    QVERIFY(repoToolMetadata.parentDir().ensureWritableDir());
+    QVERIFY(repoToolWorktree.ensureWritableDir());
+    QVERIFY(runGit(repoToolWorktree, {"init", "--separate-git-dir",
+                                      repoToolMetadata.toUserOutput(), "."}));
+    QVERIFY(repoToolRebaseApply.ensureWritableDir());
+    QVERIFY(repoToolRebaseMerge.ensureWritableDir());
+    QVERIFY(!runGit(repoToolRebaseApply, {"rev-parse", "--show-toplevel"}));
+    QVERIFY(!runGit(repoToolRebaseMerge, {"rev-parse", "--show-toplevel"}));
+    QVERIFY(runGit(repoToolWorktree, {"rev-parse", "--show-toplevel"}));
+
+    const auto verifyWorkingDirectory = [](const FilePath &source, const FilePath &expected) {
+        QCOMPARE(gitClient().workingDirectoryForShow(source), expected);
+    };
+
+    // A normal repository resolves to its worktree.
+    verifyWorkingDirectory(sourceDirectory,          repository);
+    verifyWorkingDirectory(rebaseDirectory,          repository);
+    verifyWorkingDirectory(submoduleRebaseDirectory, repository / "submodule");
+
+    // Non-Git directories, including rebase directories, remain unchanged.
+    verifyWorkingDirectory(unrelatedPath,             unrelatedPath);
+    verifyWorkingDirectory(unrelatedRebaseApply,      unrelatedRebaseApply);
+    verifyWorkingDirectory(unrelatedRebaseMerge,      unrelatedRebaseMerge);
+
+    // Android's repo-tool metadata maps back to the corresponding worktree.
+    verifyWorkingDirectory(repoToolRebaseApply,       repoToolWorktree);
+    verifyWorkingDirectory(repoToolRebaseMerge,       repoToolWorktree);
+
+    // The repo-tool mapping is restricted to rebase directories.
+    verifyWorkingDirectory(repoToolMetadata,          repoToolMetadata);
 }
 
 static QStringList underlinedTexts(const QTextDocument *document)

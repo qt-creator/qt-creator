@@ -983,6 +983,36 @@ FilePath GitClient::findGitDirForRepository(const FilePath &repositoryDir) const
     return res;
 }
 
+FilePath GitClient::workingDirectoryForShow(const FilePath &workingDirectory) const
+{
+    // A rebase todo may be outside the work tree, for example in a submodule.
+    // Do not let VcsManager resolve it to an enclosing superproject.
+    const bool isRebaseDirectory = workingDirectory.fileName() == "rebase-apply"
+                                   || workingDirectory.fileName() == "rebase-merge";
+    if (isRebaseDirectory) {
+        QString toplevel;
+        QString ignored;
+        if (synchronousRevParseCmd(workingDirectory, "--show-toplevel", &toplevel, &ignored))
+            return workingDirectory.withNewPath(toplevel);
+
+        // Android's repo tool stores Git metadata in <super>/.repo/projects/foo/bar.git
+        // while the corresponding work tree is in <super>/foo/bar
+        const QString repoProjects = "/.repo/projects/";
+        const FilePath gitDirectory = workingDirectory.parentDir();
+        QString path = gitDirectory.path();
+        const qsizetype repoProjectsIndex = path.indexOf(repoProjects);
+        if (repoProjectsIndex >= 0 && path.endsWith(".git")) {
+            path.replace(repoProjectsIndex, repoProjects.size(), '/');
+            path.chop(4);
+
+            return gitDirectory.withNewPath(path);
+        }
+    }
+
+    const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
+    return repoDirectory.isEmpty() ? workingDirectory : repoDirectory;
+}
+
 bool GitClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory,
@@ -1945,9 +1975,7 @@ void GitClient::show(const FilePath &source, const QString &id, const QString &n
     }
 
     const QString title = Tr::tr("Git Show \"%1\"").arg(name.isEmpty() ? id : name);
-    const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
-    if (!repoDirectory.isEmpty())
-        workingDirectory = repoDirectory;
+    workingDirectory = workingDirectoryForShow(workingDirectory);
     const QString documentId = gitDocumentId(".Show.") + id;
     requestReload(documentId, source, title, workingDirectory,
                   [id](IDocument *doc) { return new ShowController(doc, id); });

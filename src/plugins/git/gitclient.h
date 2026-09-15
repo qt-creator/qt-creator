@@ -161,6 +161,7 @@ public:
 
     Utils::FilePath findRepositoryForDirectory(const Utils::FilePath &directory) const;
     Utils::FilePath findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
+    Utils::FilePath workingDirectoryForShow(const Utils::FilePath &workingDirectory) const;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
     Utils::FilePaths monitorDirectory(const Utils::FilePath &path, bool monitor);
