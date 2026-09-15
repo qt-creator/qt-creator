@@ -23,8 +23,6 @@ namespace QtSupport::Internal {
 
 static QLoggingCategory log("qtc.qscxmlcgenerator", QtWarningMsg);
 
-const char TaskCategory[] = "Task.Category.ExtraCompiler.QScxmlc";
-
 class QScxmlcGenerator final : public ProcessExtraCompiler
 {
 public:
