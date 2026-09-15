@@ -220,8 +220,7 @@ void CdbEngine::init()
         = mergePlatformQtPath(runParameters(), settings().sourcePathMap());
     if (!sourcePathMap.isEmpty()) {
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
-            m_sourcePathMappings.push_back({QDir::toNativeSeparators(it.key()),
-                                            QDir::toNativeSeparators(expand(it.value()))});
+            m_sourcePathMappings.push_back({it.key(), expand(it.value())});
         }
     }
     // update source path maps from debugger start params
@@ -2794,8 +2793,7 @@ CdbEngine::NormalizedSourceFileName CdbEngine::sourceMapNormalizeFileNameFromDeb
     if (debugSourceMapping)
         qDebug(">sourceMapNormalizeFileNameFromDebugger %s", qPrintable(f));
     // Do we have source path mappings? ->Apply.
-    const QString fileName = cdbSourcePathMapping(QDir::toNativeSeparators(f), m_sourcePathMappings,
-                                                  DebuggerToSource);
+    const QString fileName = cdbSourcePathMapping(f, m_sourcePathMappings, DebuggerToSource);
     // Up/lower case normalization according to Windows.
     const QString normalized = FileUtils::normalizedPathName(fileName);
     if (debugSourceMapping)
@@ -3070,7 +3068,7 @@ void CdbEngine::mergeStartParametersSourcePathMap()
 {
     const QMap<QString, QString> sourcePathMap = runParameters().sourcePathMap();
     for (auto it = sourcePathMap.begin(); it != sourcePathMap.end(); ++it) {
-        SourcePathMapping spm(QDir::toNativeSeparators(it.key()), QDir::toNativeSeparators(it.value()));
+        SourcePathMapping spm(it.key(), it.value());
         if (!m_sourcePathMappings.contains(spm))
             m_sourcePathMappings.push_back(spm);
     }

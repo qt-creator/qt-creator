@@ -7,6 +7,7 @@
 
 #include "cdb/cdbengine.h"
 #include "cdb/cdbimpl.h"
+#include "cdb/cdbparsehelpers.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
@@ -89,6 +90,8 @@ private slots:
     void testCdbImplStepIntoLanding();
     void testCdbImplScriptMessages();
     void testMapsAnEmptyFileNameToNothing();
+    void testCdbSourcePathMapping();
+    void testCdbBreakpointFileName();
 
     void testQtBuildSourceRoots_data();
     void testQtBuildSourceRoots();
@@ -874,6 +877,53 @@ void DebuggerUnitTests::testMapsAnEmptyFileNameToNothing()
 
     // What a stack frame that names no file would otherwise be opened from.
     QVERIFY(rp.mapToProjectPath({}).isEmpty());
+}
+
+void DebuggerUnitTests::testCdbSourcePathMapping()
+{
+    const QList<QPair<QString, QString>> native{{"X:\\buildsrv", "C:\\src"}};
+    QCOMPARE(cdbSourcePathMapping("C:/src/foo.cpp", native, SourceToDebugger),
+             QString("X:\\buildsrv/foo.cpp"));
+    QCOMPARE(cdbSourcePathMapping("X:/buildsrv/foo.cpp", native, DebuggerToSource),
+             QString("C:\\src/foo.cpp"));
+
+    const QList<QPair<QString, QString>> portable{{"X:/buildsrv", "C:/src"}};
+    QCOMPARE(cdbSourcePathMapping("C:\\src\\foo.cpp", portable, SourceToDebugger),
+             QString("X:/buildsrv\\foo.cpp"));
+
+    QCOMPARE(cdbSourcePathMapping("c:/SRC/foo.cpp", native, SourceToDebugger),
+             QString("X:\\buildsrv/foo.cpp"));
+
+    QCOMPARE(cdbSourcePathMapping("C:/srcery/foo.cpp", native, SourceToDebugger),
+             QString("C:/srcery/foo.cpp"));
+
+    QCOMPARE(cdbSourcePathMapping("C:/src/foo.cpp", {}, SourceToDebugger),
+             QString("C:/src/foo.cpp"));
+}
+
+void DebuggerUnitTests::testCdbBreakpointFileName()
+{
+    BreakpointParameters params(BreakpointByFileAndLine);
+    params.fileName = FilePath::fromUserInput("C:/src/foo.cpp");
+    params.textPosition.line = 42;
+
+    const QList<QPair<QString, QString>> mapping{{"X:/buildsrv", "C:/src"}};
+    const QString mapped = HostOsInfo::isWindowsHost() ? QString("X:\\buildsrv\\foo.cpp")
+                                                       : QString("X:/buildsrv/foo.cpp");
+    QCOMPARE(cdbAddBreakpointCommand(params, mapping, "100000"),
+             QString("bu100000 `%1:42`").arg(mapped));
+
+    // What reaches cdb is spelled the way the file's own device spells it,
+    // which is not necessarily the way the host does.
+    const QString unmapped = HostOsInfo::isWindowsHost() ? QString("C:\\src\\foo.cpp")
+                                                         : QString("C:/src/foo.cpp");
+    QCOMPARE(cdbAddBreakpointCommand(params, {}, "100000"),
+             QString("bu100000 `%1:42`").arg(unmapped));
+
+    // A short path takes part in no mapping at all.
+    params.pathUsage = BreakpointUseShortPath;
+    QCOMPARE(cdbAddBreakpointCommand(params, mapping, "100000"),
+             QString("bu100000 `foo.cpp:42`"));
 }
 
 static QByteArray debugStrings(const QStringList &strings)

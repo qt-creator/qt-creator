@@ -13,13 +13,17 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
 #include <QTextStream>
 #include <QDebug>
 
 enum { debugDisAsm = 0 };
 
 namespace Debugger::Internal {
+
+static QString withSlashes(QString path)
+{
+    return path.replace('\\', '/');
+}
 
 // Perform mapping on parts of the source tree as reported by/passed to debugger
 // in case the user has specified such mappings in the global settings.
@@ -34,13 +38,14 @@ QString cdbSourcePathMapping(QString fileName,
 
     if (fileName.isEmpty() || sourcePathMapping.isEmpty())
         return fileName;
+    const QString comparedFileName = withSlashes(fileName);
     for (const SourcePathMapping &m : sourcePathMapping) {
-        const QString &source = mode == DebuggerToSource ? m.first : m.second;
+        const QString source = withSlashes(mode == DebuggerToSource ? m.first : m.second);
         const int sourceSize = source.size();
         // Map parts of the path and ensure a slash follows.
-        if (fileName.size() > sourceSize && fileName.startsWith(source, Qt::CaseInsensitive)) {
-            const QChar next = fileName.at(sourceSize);
-            if (next == '\\' || next == '/') {
+        if (comparedFileName.size() > sourceSize
+            && comparedFileName.startsWith(source, Qt::CaseInsensitive)) {
+            if (comparedFileName.at(sourceSize) == '/') {
                 const QString &target = mode == DebuggerToSource ? m.second: m.first;
                 fileName.replace(0, sourceSize, target);
                 return fileName;
@@ -50,8 +55,8 @@ QString cdbSourcePathMapping(QString fileName,
     return fileName;
 }
 
-// Determine file name to be used for breakpoints. Convert to native and, unless short path
-// is set, perform reverse lookup in the source path mappings.
+// Determine file name to be used for breakpoints. Unless short path is set, perform reverse
+// lookup in the source path mappings and convert to the native form of the file's own device.
 static inline QString cdbBreakPointFileName(const BreakpointParameters &params,
                                             const QList<QPair<QString, QString> > &sourcePathMapping)
 {
@@ -59,7 +64,9 @@ static inline QString cdbBreakPointFileName(const BreakpointParameters &params,
         return {};
     if (params.pathUsage == BreakpointUseShortPath)
         return params.fileName.fileName();
-    return cdbSourcePathMapping(params.fileName.toUserOutput(), sourcePathMapping, SourceToDebugger);
+    const QString mapped = cdbSourcePathMapping(params.fileName.path(), sourcePathMapping,
+                                                SourceToDebugger);
+    return params.fileName.withNewPath(mapped).nativePath();
 }
 
 static BreakpointParameters fixWinMSVCBreakpoint(const BreakpointParameters &p)
