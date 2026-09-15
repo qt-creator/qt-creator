@@ -295,7 +295,7 @@ std::string gdbmiModules(CIDebugSymbols *syms, bool humanReadable, std::string *
             << "\",start=\"" << module.base << "\",end=\""
             << (module.base + module.size - 1) << '"';
         if (module.deferred)
-            str << "{deferred=\"true\"";
+            str << ",deferred=\"true\"";
         str << '}';
         if (humanReadable)
             str << '\n';
