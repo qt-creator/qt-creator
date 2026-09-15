@@ -684,7 +684,8 @@ bool BaseSettings::isEnabledOnProject(Project *project) const
 
 const LanguageFilter BaseSettings::languageFilter() const
 {
-    return LanguageFilter{mimeTypes(), filePattern().split(filterSeparator), excludeMimeTypes()};
+    return LanguageFilter{mimeTypes(), filePattern().split(filterSeparator, Qt::SkipEmptyParts),
+                          excludeMimeTypes()};
 }
 
 Client *BaseSettings::createClient(BuildConfiguration *bc) const
