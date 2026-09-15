@@ -697,7 +697,7 @@ void DebuggerUnitTests::testCdbImplResolvedBreakpointUpdates()
     GdbMi updates = resolvedBreakpointUpdates(
         reply(R"({number="0",id="3",deferred="false",enabled="true",)"
               R"(address="0x7ff61f3a1020",module="tst_inferior",)"
-              R"(srcfile="C:\\src\\main.cpp",srcline="42"})"),
+              R"(srcfile="C:/src/main.cpp",srcline="42"})"),
         &wanted, noMapping, noConditions);
     QCOMPARE(updates.childCount(), 1);
     QCOMPARE(updates.childAt(0)["number"].data(), QString("3"));
@@ -740,10 +740,10 @@ void DebuggerUnitTests::testCdbImplResolvedBreakpointUpdates()
     wanted = {"3"};
     updates = resolvedBreakpointUpdates(
         reply(R"({number="0",id="3",deferred="false",enabled="true",)"
-              R"(address="0x7ff61f3a1020",srcfile="/build/src/main.cpp",srcline="42"})"),
-        &wanted, {{"/build", "/home/me/work"}}, noConditions);
+              R"(address="0x7ff61f3a1020",srcfile="C:/build/src/main.cpp",srcline="42"})"),
+        &wanted, {{"C:/build", "C:/work"}}, noConditions);
     QCOMPARE(updates.childCount(), 1);
-    QCOMPARE(updates.childAt(0)["file"].data(), QString("/home/me/work/src/main.cpp"));
+    QCOMPARE(updates.childAt(0)["file"].data(), QString("C:/work/src/main.cpp"));
 }
 
 void DebuggerUnitTests::testCdbImplBreakpointStopMessages()
@@ -806,7 +806,7 @@ void DebuggerUnitTests::testCdbImplStepIntoLanding()
     const auto never = [](const QString &) { return false; };
 
     // The step arrived in a function whose sources are here. Show it.
-    QCOMPARE(stepIntoLanding(stopData(R"(fullname="C:\\src\\main.cpp",function="run")"), always),
+    QCOMPARE(stepIntoLanding(stopData(R"(fullname="C:/src/main.cpp",function="run")"), always),
              StepIntoLanding::Arrived);
 
     // cdb stops on the import thunk before the call reaches the function, so
@@ -821,7 +821,7 @@ void DebuggerUnitTests::testCdbImplStepIntoLanding()
 
     // A pdb naming a source file that was never shipped to this machine is the
     // same thing: there is nothing to show.
-    QCOMPARE(stepIntoLanding(stopData(R"(fullname="C:\\qt\\src\\qstring.cpp",function="op")"),
+    QCOMPARE(stepIntoLanding(stopData(R"(fullname="C:/qt/src/qstring.cpp",function="op")"),
                              never),
              StepIntoLanding::WithoutSource);
 

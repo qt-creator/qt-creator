@@ -13,7 +13,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDir>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -44,7 +43,7 @@ static QString mappedFromDebugger(const QString &file,
 {
     if (file.isEmpty() || sourcePathMap.isEmpty())
         return file;
-    return cdbSourcePathMapping(QDir::toNativeSeparators(file), sourcePathMap, DebuggerToSource);
+    return cdbSourcePathMapping(file, sourcePathMap, DebuggerToSource);
 }
 
 static GdbMi constMi(const QString &name, const QString &data)
@@ -631,7 +630,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
         } else if (request.context.address) {
             cmd += hexAddress(request.context.address);
         } else {
-            cmd += '`' + request.context.fileName.toUserOutput() + ':'
+            cmd += '`' + request.context.fileName.nativePath() + ':'
                  + QString::number(request.context.textPosition.line) + '`';
         }
         runCommand({cmd, BuiltinCommand, [this](const DebuggerResponse &response) {
@@ -658,7 +657,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
             jumpToAddress(request.context.address, file, line);
             break;
         }
-        const QString expr = "? `" + file.toUserOutput() + ':' + QString::number(line) + '`';
+        const QString expr = "? `" + file.nativePath() + ':' + QString::number(line) + '`';
         runCommand({expr, BuiltinCommand,
                    [this, file, line](const DebuggerResponse &response) {
             const QString reply = response.data.data();
@@ -760,7 +759,7 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
         cmd += '`';
         if (!module.isEmpty())
             cmd += module + '!';
-        cmd += params.fileName.toUserOutput() + ':'
+        cmd += params.fileName.nativePath() + ':'
              + QString::number(params.textPosition.line) + '`';
         break;
     case WatchpointAtAddress: {

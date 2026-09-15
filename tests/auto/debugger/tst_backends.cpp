@@ -10413,7 +10413,7 @@ void tst_backends::mapsTheReportedSourcePath()
         QVERIFY(testData.source.copyFile(mappedSource));
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = createEngineWithConfiguredPaths(backend,
-        {{testData.source.parentDir().nativePath(), mappedDir.nativePath()}});
+        {{testData.source.parentDir().path(), mappedDir.path()}});
     if (!debuggerBackend)
         QSKIP("This backend's start data carries no source path map yet.");
     DebuggerEngineInterface *engine = debuggerBackend->engine();

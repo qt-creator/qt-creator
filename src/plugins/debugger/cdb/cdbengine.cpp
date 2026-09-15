@@ -3371,8 +3371,8 @@ static CdbImplSearchPaths cdbImplSearchPaths(const DebuggerRunParameters &rp)
         = mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
     for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it) {
         paths.sourcePathMap.append(
-            {QDir::toNativeSeparators(it.key()),
-             QDir::toNativeSeparators(rp.macroExpander()->expand(it.value()))});
+            {FilePath::fromUserInput(it.key()).path(),
+             FilePath::fromUserInput(rp.macroExpander()->expand(it.value())).path()});
     }
     return paths;
 }

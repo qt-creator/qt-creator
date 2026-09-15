@@ -38,7 +38,7 @@ void StackFrame::formatGDBMI(std::ostream &str, unsigned level) const
     if (!fullPathName.empty()) { // Creator/gdbmi expects 'clean paths'
         std::wstring cleanPath = fullPathName;
         replace(cleanPath, L'\\', L'/');
-        str << ",fullname=\"" << gdbmiWStringFormat(fullPathName)
+        str << ",fullname=\"" << gdbmiWStringFormat(cleanPath)
             << "\",file=\"" << gdbmiWStringFormat(fileName()) << "\",line=\"" << line << '"';
     }
     str << '}';
