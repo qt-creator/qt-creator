@@ -23,8 +23,15 @@ void CommandKeywords::refresh()
 
     auto buildSystem = qobject_cast<CMakeBuildSystem *>(
         ProjectExplorer::activeBuildSystemForCurrentProject());
-    if (!buildSystem)
+    if (!buildSystem) {
+        // The signatures hold the CMake files of the project they came from
+        // alive, and there is no project left to ask about them.
+        m_buildSystem = nullptr;
+        m_generation = -1;
+        m_signatures = {};
+        m_perCommand.clear();
         return;
+    }
 
     const int generation = buildSystem->commandSignaturesGeneration();
     if (buildSystem == m_buildSystem && generation == m_generation)

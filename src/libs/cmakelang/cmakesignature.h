@@ -53,6 +53,29 @@ public:
 CMAKELANG_EXPORT QList<KeywordArguments> groupArguments(CommandAST *command,
                                                         const Signature &signature);
 
+// What a command writes in the scope of its caller. Nothing where the values
+// did not come out of the source: whoever reads them then knows only that
+// whatever the variable held before is gone.
+class CMAKELANG_EXPORT HandedBack
+{
+public:
+    bool isEmpty() const;
+    bool operator==(const HandedBack &other) const;
+    bool operator!=(const HandedBack &other) const { return !(*this == other); }
+
+    // The values by the position the call gives the parameter that names the
+    // variable they go to.
+    QHash<int, std::optional<QStringList>> positions;
+
+    // The values by the name the body spells out itself, which is a variable
+    // of the caller of that very name.
+    QHash<QString, std::optional<QStringList>> names;
+
+    // Whether the body writes a variable of its caller it cannot tell the name
+    // of, which any variable the call names may be.
+    bool anyVariable = false;
+};
+
 // The signatures of the functions and macros that CMake files define. A
 // command that hands its arguments on with ${ARGV} or ${ARGN} also takes the
 // keywords of the command it hands them to.
@@ -78,11 +101,54 @@ private:
         QStringList forwardsTo;
     };
 
+    // The body of one function or macro definition.  The document holds the
+    // AST alive, and the body is kept for as long as the table is: a document
+    // that comes later may say what a command it calls hands back, and it is
+    // read anew then.
+    class Body
+    {
+    public:
+        DocumentPtr document;
+        NestedCommandAST *node = nullptr;
+        QList<CommandAST *> commands;
+    };
+
+    void forgetUnread(const DocumentPtr &document);
+    void readDocument(const DocumentPtr &document);
+    QStringList readingOrder(const QSet<QString> &added) const;
+    void addToOrder(const QString &name, const QSet<QString> &names, QSet<QString> &visited,
+                    QStringList *order) const;
+    bool read(const QString &name);
+
     Signature resolve(const QString &name, QSet<QString> &visited) const;
     void collectForwarded(const QString &name, QSet<QString> &visited,
                           QStringList *result) const;
 
     QHash<QString, Definition> _definitions;
+
+    // The bodies that define a command, by its name: more than one document
+    // may define the same one.  The names of them all, which is what tells a
+    // call to a command of the documents from one to a command of somewhere
+    // else: that one may write any variable the call names.
+    QHash<QString, QList<Body>> _bodies;
+    QSet<QString> _defined;
+
+    // The documents that were looked at but not read, by the name of each
+    // command they define, and the ones that were read, by their address.  A
+    // document that was read is held on to whether it says anything or not:
+    // another one would otherwise be given its address and pass for read.
+    QHash<QString, QList<DocumentPtr>> _unread;
+    QHash<const Document *, DocumentPtr> _documentsRead;
+
+    // The commands the body of a definition calls, and the definitions whose
+    // body calls a command, by the name of each.
+    QHash<QString, QSet<QString>> _calls;
+    QHash<QString, QSet<QString>> _callers;
+
+    // What a command writes in the scope of its caller, by its name.  A
+    // command whose keyword lists come out of such a call knows them only once
+    // the command it got them from has been read.
+    QHash<QString, HandedBack> _handedBack;
 };
 
 } // namespace CMakeLang

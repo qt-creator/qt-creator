@@ -209,6 +209,9 @@ private slots:
     void signatureKeywords();
     void signaturesNeedTheSource();
     void signaturesForwarded();
+    void signaturesHandedBack();
+    void signaturesHandedBackByName();
+    void signaturesHandedBackInAnyOrder();
     void argumentGroups_data();
     void argumentGroups();
     void rewriterReplacesValues();
@@ -713,6 +716,93 @@ void tst_CMakeLang::signatures_data()
         << QString::fromLatin1(standardProjectSetupDefinition) << "qt_standard_project_setup"
         << "REQUIRES I18N_SOURCE_LANGUAGE I18N_TRANSLATED_LANGUAGES" << "one one multi";
 
+    // The lists may come out of a command of their own, which hands them back
+    // through the variables its caller names, the way Qt keeps the keywords of
+    // its resource commands in one place.
+    QTest::newRow("keywords from another command")
+        << "function(f)\n"
+           "  keywords_of_f(option_args single_args multi_args)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"${option_args}\" \"${single_args}\""
+           " \"${multi_args}\")\n"
+           "endfunction()\n"
+           "function(keywords_of_f option_args single_args multi_args)\n"
+           "  set(${option_args} STATIC PARENT_SCOPE)\n"
+           "  set(${single_args} \"URI;VERSION\" PARENT_SCOPE)\n"
+           "  set(${multi_args} FILES PARENT_SCOPE)\n"
+           "endfunction()\n"
+        << "f" << "STATIC URI VERSION FILES NOPE" << "option one one multi none";
+
+    // What tells set() where the value goes is no value of the variable.
+    QTest::newRow("keywords of a cached variable")
+        << "function(f)\n"
+           "  set(args_multi FILES CACHE STRING \"the keywords\")\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+           "endfunction()\n"
+        << "f" << "FILES CACHE STRING" << "multi none none";
+
+    QTest::newRow("keywords of a cached variable forced")
+        << "function(f)\n"
+           "  set(args_multi FILES CACHE STRING \"the keywords\" FORCE)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+           "endfunction()\n"
+        << "f" << "FILES CACHE STRING FORCE" << "multi none none none";
+
+    // CACHE is a keyword of commands of its own, and a keyword list is where
+    // one is spelled out: what follows it there is no type and no
+    // documentation, so set() writes no cache entry.
+    QTest::newRow("CACHE among the keywords")
+        << "function(f)\n"
+           "  set(args_option CACHE FORCE REQUIRED)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"${args_option}\" \"\" \"\")\n"
+           "endfunction()\n"
+        << "f" << "CACHE FORCE REQUIRED" << "option option option";
+
+    // The operations that only read a list leave it as it was.
+    QTest::newRow("length of a list")
+        << "function(f)\n"
+           "  set(args_multi FILES)\n"
+           "  list(LENGTH args_multi count)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+           "endfunction()\n"
+        << "f" << "FILES" << "multi";
+
+    // What any other operation makes of the list the walk does not follow, so
+    // the keywords are not spelled out after all: the list without SOURCES
+    // would group the arguments of a call wrongly.
+    QTest::newRow("list without an item")
+        << "function(f)\n"
+           "  set(args_multi FILES SOURCES)\n"
+           "  list(REMOVE_ITEM args_multi SOURCES)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+           "endfunction()\n"
+        << "f" << "FILES SOURCES" << "none none";
+
+    // TRANSFORM hands what it made of the list to the variable named after
+    // OUTPUT_VARIABLE, and leaves the list itself alone.
+    QTest::newRow("list transformed into another one")
+        << "function(f)\n"
+           "  set(args_multi FILES)\n"
+           "  list(TRANSFORM args_multi TOUPPER OUTPUT_VARIABLE upper)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+           "endfunction()\n"
+        << "f" << "FILES" << "multi";
+
+    QTest::newRow("list transformed into the keywords")
+        << "function(f)\n"
+           "  set(args_multi FILES)\n"
+           "  list(TRANSFORM other TOUPPER OUTPUT_VARIABLE args_multi)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+           "endfunction()\n"
+        << "f" << "FILES" << "none";
+
+    QTest::newRow("list transformed into itself")
+        << "function(f)\n"
+           "  set(args_multi files)\n"
+           "  list(TRANSFORM args_multi TOUPPER)\n"
+           "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+           "endfunction()\n"
+        << "f" << "FILES files" << "none none";
+
     QTest::newRow("command names are case insensitive")
         << "FUNCTION(F)\n"
            "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"FILES\")\n"
@@ -855,6 +945,479 @@ endfunction()
 
     // A name is read the way CMake reads it.
     QCOMPARE(signatures.forwardsTo("OUTER"), QStringList({"middle", "inner"}));
+}
+
+// qt_add_resources() takes PREFIX and FILES, but says so nowhere: the command
+// it hands its arguments to asks a third one for the keyword lists, which
+// hands them back through the variables the call names.
+static const char resourceDefinitions[] = R"(function(_qt_internal_get_resource_args
+        option_args single_args multi_args)
+    set(${option_args} "BIG_RESOURCES" PARENT_SCOPE)
+    set(${single_args} "PREFIX;LANG" PARENT_SCOPE)
+    set(${multi_args} "FILES;OPTIONS" PARENT_SCOPE)
+endfunction()
+
+function(_qt_internal_process_resource target resourceName)
+    _qt_internal_get_resource_args(options oneValueArgs multiValueArgs)
+    cmake_parse_arguments(rcc "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+endfunction()
+
+function(qt6_add_resources outfiles)
+    cmake_parse_arguments(arg "" "OUTPUT_TARGETS" "" ${ARGN})
+    _qt_internal_process_resource(${ARGV})
+endfunction()
+
+function(qt_add_resources outfiles)
+    qt6_add_resources("${outfiles}" ${ARGN})
+endfunction()
+)";
+
+void tst_CMakeLang::signaturesHandedBack()
+{
+    auto signatureOf = [](const QString &source, const QString &command) {
+        SignatureTable table;
+        table.addDocument(Document::fromSource(source));
+        return table.signature(command);
+    };
+
+    const Signature resources
+        = signatureOf(QString::fromLatin1(resourceDefinitions), "qt_add_resources");
+    QCOMPARE(resources.keywords(),
+             QStringList({"BIG_RESOURCES", "FILES", "LANG", "OPTIONS", "OUTPUT_TARGETS",
+                          "PREFIX"}));
+    QCOMPARE(arityOf(resources, "PREFIX"), "one");
+    QCOMPARE(arityOf(resources, "FILES"), "multi");
+    QCOMPARE(arityOf(resources, "BIG_RESOURCES"), "option");
+
+    // A macro runs in the scope of its caller: what it sets is handed back
+    // without PARENT_SCOPE.
+    QCOMPARE(signatureOf("macro(keywords_of_f multi_args)\n"
+                         "  set(${multi_args} FILES)\n"
+                         "endmacro()\n"
+                         "function(f)\n"
+                         "  keywords_of_f(args_multi)\n"
+                         "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                         "endfunction()\n",
+                         "f")
+                 .keywords(),
+             QStringList({"FILES"}));
+
+    // What a function sets without PARENT_SCOPE stays with the function, so
+    // the lists of the caller are not spelled out after all.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} FILES)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // Which variable the call names has to come out of the source as well.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} FILES PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  keywords_of_f(${elsewhere})\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${elsewhere}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // What a command hands back last is what the caller gets: a list that
+    // did not come out of the source leaves nothing of the one before it.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} FILES PARENT_SCOPE)\n"
+                        "  set(${multi_args} \"${elsewhere}\" PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // A variable the caller set itself is gone once it hands it to a command
+    // that writes it: what the command hands back is all it holds.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} \"${elsewhere}\" PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  set(args_multi FILES)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // A set() the body may not reach hands nothing back but the news that
+    // whatever the variable held is gone: one branch of the keywords would
+    // group the arguments of a call wrongly.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  if(SOMETHING)\n"
+                        "    set(${multi_args} FILES PARENT_SCOPE)\n"
+                        "  else()\n"
+                        "    set(${multi_args} SOURCES PARENT_SCOPE)\n"
+                        "  endif()\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // Where the set() that hands the list back stands says nothing about where
+    // its values came from: ones a branch of the body may not have set are
+    // none of what the caller gets for certain either.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  if(SOMETHING)\n"
+                        "    set(opts FILES)\n"
+                        "  else()\n"
+                        "    set(opts SOURCES)\n"
+                        "  endif()\n"
+                        "  set(${multi_args} \"${opts}\" PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // A list one branch appends to is as little what the caller gets: half of
+    // the keywords would group the arguments of a call wrongly.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(opts FILES)\n"
+                        "  if(SOMETHING)\n"
+                        "    list(APPEND opts SOURCES)\n"
+                        "  endif()\n"
+                        "  set(${multi_args} \"${opts}\" PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // A call the body may not reach hands its values on no better: what it
+    // wrote stands only where the body reached it.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} SOURCES PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(lists_of_f multi_args)\n"
+                        "  if(SOMETHING)\n"
+                        "    keywords_of_f(opts)\n"
+                        "  endif()\n"
+                        "  set(${multi_args} \"${opts}\" PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  lists_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // A command that writes the cache has its say about what the caller reads
+    // next, since the caller may have no variable of that name itself, but
+    // not about what it reads: its own list is gone, and none took its place.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} SOURCES CACHE INTERNAL \"\")\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  set(args_multi FILES)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // The scope a macro runs in is the one of its caller, but a cache entry
+    // is no more what the caller reads for having been written by a macro.
+    QVERIFY(signatureOf("macro(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} SOURCES CACHE INTERNAL \"\")\n"
+                        "endmacro()\n"
+                        "function(f)\n"
+                        "  set(args_multi FILES)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // The scope a macro runs in is the one of its caller, which PARENT_SCOPE
+    // reaches past: what a macro sets that way is none of what the caller
+    // gets, and the list the caller has stands.
+    QCOMPARE(signatureOf("macro(keywords_of_f multi_args)\n"
+                         "  set(${multi_args} SOURCES PARENT_SCOPE)\n"
+                         "endmacro()\n"
+                         "function(f)\n"
+                         "  set(args_multi FILES)\n"
+                         "  keywords_of_f(args_multi)\n"
+                         "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                         "endfunction()\n",
+                         "f")
+                 .keywords(),
+             QStringList({"FILES"}));
+
+    // PARENT_SCOPE is what CMake takes for the opposite of CACHE, so what
+    // stands before it are values however they are spelled.
+    QCOMPARE(signatureOf("function(keywords_of_f option_args)\n"
+                         "  set(${option_args} CACHE FORCE REQUIRED PARENT_SCOPE)\n"
+                         "endfunction()\n"
+                         "function(f)\n"
+                         "  keywords_of_f(args_option)\n"
+                         "  cmake_parse_arguments(PARSE_ARGV 0 arg \"${args_option}\" \"\" \"\")\n"
+                         "endfunction()\n",
+                         "f")
+                 .keywords(),
+             QStringList({"CACHE", "FORCE", "REQUIRED"}));
+
+    // A block() is a scope of its own, which neither PARENT_SCOPE nor the
+    // scope a macro runs in reaches past.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  block()\n"
+                        "    set(${multi_args} FILES PARENT_SCOPE)\n"
+                        "  endblock()\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // A return() may have left the body before the set() that follows it, so
+    // what the caller gets is the list of neither one.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} FILES PARENT_SCOPE)\n"
+                        "  if(SOMETHING)\n"
+                        "    return()\n"
+                        "  endif()\n"
+                        "  set(${multi_args} SOURCES PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // A command none of the documents defines may be the one that hands the
+    // lists back, so whatever the caller knew about the variable it named is
+    // gone.
+    QVERIFY(signatureOf("function(f)\n"
+                        "  set(args_multi FILES)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // One whose body has been read writes what the body says it writes, and
+    // nothing of a variable it names to read it.
+    QCOMPARE(signatureOf("function(keywords_of_f multi_args)\n"
+                         "  message(STATUS \"${multi_args}\")\n"
+                         "endfunction()\n"
+                         "function(f)\n"
+                         "  set(args_multi FILES)\n"
+                         "  keywords_of_f(args_multi)\n"
+                         "  if(args_multi)\n"
+                         "  endif()\n"
+                         "  foreach(keyword IN LISTS args_multi)\n"
+                         "  endforeach()\n"
+                         "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                         "endfunction()\n",
+                         "f")
+                 .keywords(),
+             QStringList({"FILES"}));
+
+    // A definition of no commands writes nothing either, however its caller
+    // names it.
+    QCOMPARE(signatureOf("function(keywords_of_f multi_args)\n"
+                         "endfunction()\n"
+                         "function(f)\n"
+                         "  set(args_multi FILES)\n"
+                         "  keywords_of_f(args_multi)\n"
+                         "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                         "endfunction()\n",
+                         "f")
+                 .keywords(),
+             QStringList({"FILES"}));
+
+    // One of two definitions of the same command hands a list back and the
+    // other says nothing about it, so there is no telling what the caller
+    // gets: whichever definition ran is the one that counts.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} FILES PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(keywords_of_f multi_args)\n"
+                        "  message(STATUS \"nothing for you\")\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+}
+
+// A command writes the variables of its caller its parameters name, and the
+// ones it spells out itself, which are variables of the caller of that very
+// name.
+void tst_CMakeLang::signaturesHandedBackByName()
+{
+    auto signatureOf = [](const QString &source, const QString &command) {
+        SignatureTable table;
+        table.addDocument(Document::fromSource(source));
+        return table.signature(command);
+    };
+
+    // A variable the body spells out is one of the caller like any other: the
+    // list of the caller is gone, and the one it wrote takes its place.
+    QCOMPARE(signatureOf("function(keywords_of_f)\n"
+                         "  set(args_multi SOURCES PARENT_SCOPE)\n"
+                         "endfunction()\n"
+                         "function(f)\n"
+                         "  set(args_multi FILES)\n"
+                         "  keywords_of_f()\n"
+                         "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                         "endfunction()\n",
+                         "f")
+                 .keywords(),
+             QStringList({"SOURCES"}));
+
+    // ${ARGV0} names the variable the call gives first, whether the definition
+    // gives the parameter a name of its own or not.
+    QCOMPARE(signatureOf("function(keywords_of_f)\n"
+                         "  set(${ARGV0} FILES PARENT_SCOPE)\n"
+                         "endfunction()\n"
+                         "function(f)\n"
+                         "  keywords_of_f(args_multi)\n"
+                         "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                         "endfunction()\n",
+                         "f")
+                 .keywords(),
+             QStringList({"FILES"}));
+
+    // A body that writes a variable of its caller it cannot tell the name of
+    // may write any variable the call names.
+    QVERIFY(signatureOf("function(keywords_of_f)\n"
+                        "  set(${elsewhere} SOURCES PARENT_SCOPE)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  set(args_multi FILES)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    // What return(PROPAGATE) hands back is not read, which leaves whoever
+    // reads the variable with the news that what it held before is gone.
+    QVERIFY(signatureOf("function(keywords_of_f multi_args)\n"
+                        "  set(${multi_args} SOURCES)\n"
+                        "  return(PROPAGATE ${multi_args})\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  set(args_multi FILES)\n"
+                        "  keywords_of_f(args_multi)\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+
+    QVERIFY(signatureOf("function(keywords_of_f)\n"
+                        "  set(args_multi SOURCES)\n"
+                        "  return(PROPAGATE args_multi)\n"
+                        "endfunction()\n"
+                        "function(f)\n"
+                        "  set(args_multi FILES)\n"
+                        "  keywords_of_f()\n"
+                        "  cmake_parse_arguments(PARSE_ARGV 0 arg \"\" \"\" \"${args_multi}\")\n"
+                        "endfunction()\n",
+                        "f")
+                .isEmpty());
+}
+
+// Where the command that hands the keyword lists back stands says nothing
+// about them: neither the order the definitions come in nor how many commands
+// hand them on to one another.
+void tst_CMakeLang::signaturesHandedBackInAnyOrder()
+{
+    auto keywordsOf = [](const QStringList &sources, const QString &command) {
+        SignatureTable table;
+        for (const QString &source : sources)
+            table.addDocument(Document::fromSource(source));
+        return table.signature(command).keywords();
+    };
+
+    // The document that hands the lists back parses no arguments of its own,
+    // so it says nothing about any command until another one calls it.
+    const QString provider = R"(function(keywords_of_f option_args single_args multi_args)
+    set(${option_args} "STATIC" PARENT_SCOPE)
+    set(${single_args} "URI" PARENT_SCOPE)
+    set(${multi_args} "FILES" PARENT_SCOPE)
+endfunction()
+)";
+    const QString consumer = R"(function(f)
+    keywords_of_f(options oneValueArgs multiValueArgs)
+    cmake_parse_arguments(PARSE_ARGV 0 arg "${options}" "${oneValueArgs}" "${multiValueArgs}")
+endfunction()
+)";
+
+    const QStringList expected{"FILES", "STATIC", "URI"};
+    QCOMPARE(keywordsOf({provider, consumer}, "f"), expected);
+    QCOMPARE(keywordsOf({consumer, provider}, "f"), expected);
+
+    // A command that hands nothing back is news to its callers all the same:
+    // one of the documents writes only what its body says it writes, so
+    // whoever calls it keeps the list it named.
+    const QString reader = R"(function(keywords_of_f listvar)
+    message(STATUS "${listvar}")
+endfunction()
+)";
+    const QString readsTheList = R"(function(f)
+    set(args_multi FILES)
+    keywords_of_f(args_multi)
+    cmake_parse_arguments(PARSE_ARGV 0 arg "" "" "${args_multi}")
+endfunction()
+)";
+    QCOMPARE(keywordsOf({reader, readsTheList}, "f"), QStringList("FILES"));
+    QCOMPARE(keywordsOf({readsTheList, reader}, "f"), QStringList("FILES"));
+
+    // However many commands stand between the one that reads the list and the
+    // one at the end of the chain, and whichever order the documents come in.
+    const QString middle = R"(function(keywords_of_f listvar)
+    inner_of_f(${listvar})
+endfunction()
+)";
+    const QString inner = R"(function(inner_of_f listvar)
+    message(STATUS "${listvar}")
+endfunction()
+)";
+    QCOMPARE(keywordsOf({inner, middle, readsTheList}, "f"), QStringList("FILES"));
+    QCOMPARE(keywordsOf({readsTheList, middle, inner}, "f"), QStringList("FILES"));
+
+    // The lists are handed on from one command to the next, and the
+    // definitions stand in the file after the one that reads them.
+    const QString chain = R"(function(f)
+    lists_of_f(args_multi)
+    cmake_parse_arguments(PARSE_ARGV 0 arg "" "" "${args_multi}")
+endfunction()
+
+function(lists_of_f multi_args)
+    keywords_of_f(multi)
+    set(${multi_args} "${multi}" PARENT_SCOPE)
+endfunction()
+
+function(keywords_of_f multi_args)
+    set(${multi_args} "FILES" PARENT_SCOPE)
+endfunction()
+)";
+    QCOMPARE(keywordsOf({chain}, "f"), QStringList("FILES"));
 }
 
 void tst_CMakeLang::argumentGroups_data()
