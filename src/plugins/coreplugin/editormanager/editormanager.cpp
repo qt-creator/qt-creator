@@ -1205,7 +1205,9 @@ void EditorManagerPrivate::doEscapeKeyFocusMoveMagic()
 
     if (!editorViewActive && !editorViewVisible) {
         // assumption is that editorView is in main window then
-        ModeManager::activateMode(Id(Constants::MODE_EDIT));
+        EditorArea *area = findEditorArea(editorView);
+        ModeManager::activateMode(
+            area && area->id().isValid() ? area->id() : Id(Constants::MODE_EDIT));
         QTC_CHECK(editorView->isVisible());
         setFocusToEditorViewAndUnmaximizePanes(editorView);
         return;
@@ -1213,9 +1215,10 @@ void EditorManagerPrivate::doEscapeKeyFocusMoveMagic()
 
     if (editorView->window() == ICore::mainWindow()) {
         // we are in a editor view and there's nothing to hide, switch to edit
+        editorView = mainEditorArea()->currentView();
         ModeManager::activateMode(Id(Constants::MODE_EDIT));
+        QTC_ASSERT(editorView, return);
         QTC_CHECK(editorView->isVisible());
-        // next call works only because editor views in main window are shared between modes
         setFocusToEditorViewAndUnmaximizePanes(editorView);
     }
 }
