@@ -13,6 +13,16 @@ class InterpreterDetectionTest final : public QObject
 
 private slots:
     void testReportsAnEmptySearch();
+    void testRegistersDetectedInterpreters();
+    void testAssignsAKnownInterpreterToAKit();
+    void testAssignsAnInterpreterRegisteredUnderASymlinkTarget();
+    void testRegistersOnceWhenSearchPathsResolveToTheSameBinary();
+    void testDetectionIgnoresUnappliedRowsOfThePage();
+    void testDetectsForAKitWithoutAKitOfItsOwn();
+    void testKeepsUnappliedEditsOnASettingsWrite();
+    void testFollowsADefaultChangedElsewhere();
+    void testRegistersOnceWhenDetectionsOverlap();
+    void testKeepsTheDefaultWhenRemovingDetectedInterpreters();
 };
 
 QObject *createInterpreterDetectionTest();

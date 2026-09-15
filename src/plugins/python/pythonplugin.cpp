@@ -83,6 +83,7 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
     {
 #ifdef WITH_TESTS
         addTestCreator(createInterpreterDetectionTest);
+        addTestCreator(createInterpreterOptionsTest);
         addTestCreator(createPylspPruneTest);
         addTestCreator(createPyProjectTomlTest);
         addTestCreator(createPythonSettingsTest);

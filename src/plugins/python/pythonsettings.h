@@ -101,11 +101,18 @@ class InterpreterModel final : public Utils::ListModel<PythonSettings::Interpret
 public:
     explicit InterpreterModel(const std::function<bool(QString)> &isDefaultId);
 
-    void addInterpreter(const PythonSettings::Interpreter &interpreter);
-    void removeInterpreterFrom(const QString &detectionSource);
     void setInterpreters(const QList<PythonSettings::Interpreter> &interpreters);
+    void mergeInterpreters(const QList<PythonSettings::Interpreter> &interpreters);
     QList<PythonSettings::Interpreter> interpreters() const;
-    QList<PythonSettings::Interpreter> interpreterFrom(const QString &detectionSource) const;
+
+private:
+    QList<PythonSettings::Interpreter> m_lastFromSettings;
 };
+
+InterpreterModel &interpreterModel();
+
+#ifdef WITH_TESTS
+QObject *createInterpreterOptionsTest();
+#endif
 
 } // Python::Internal
