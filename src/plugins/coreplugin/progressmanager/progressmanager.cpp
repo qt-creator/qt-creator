@@ -525,7 +525,7 @@ ProgressManagerPrivate::ProgressManagerPrivate()
     : m_opacityEffect(new QGraphicsOpacityEffect(this))
     , m_appLabelUpdateTimer(new QTimer(this))
 {
-    m_opacityEffect->setOpacity(.999);
+    m_opacityEffect->setOpacity(1.0);
     m_instance = this;
 
     m_progressView = new ProgressView;
@@ -823,7 +823,7 @@ void ProgressManagerPrivate::stopFadeOfSummaryProgress()
 {
     if (m_opacityAnimation) {
         m_opacityAnimation->stop();
-        m_opacityEffect->setOpacity(.999);
+        m_opacityEffect->setOpacity(1.0);
         delete m_opacityAnimation;
     }
 }
@@ -978,7 +978,7 @@ void ProgressManagerPrivate::updateNotificationSummaryIcon()
 void ProgressManagerPrivate::summaryProgressFinishedFading()
 {
     m_summaryProgressWidget->setVisible(false);
-    m_opacityEffect->setOpacity(.999);
+    m_opacityEffect->setOpacity(1.0);
 }
 
 void ProgressManagerPrivate::progressDetailsToggled(bool checked)

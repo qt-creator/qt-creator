@@ -28,7 +28,7 @@ public:
         setAttribute(Qt::WA_TransparentForMouseEvents, true);
         m_effect = new QGraphicsOpacityEffect(this);
         setGraphicsEffect(m_effect);
-        m_effect->setOpacity(.999);
+        m_effect->setOpacity(1.0);
 
         m_label = new QLabel;
         QFont font = m_label->font();

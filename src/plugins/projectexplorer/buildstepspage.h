@@ -49,7 +49,7 @@ private:
     bool m_buildStepEnabled = true;
     Utils::FadingWidget *m_firstWidget;
     Utils::FadingWidget *m_secondWidget;
-    qreal m_targetOpacity = .999;
+    qreal m_targetOpacity = 1.0;
 };
 
 class BuildStepsWidgetData
