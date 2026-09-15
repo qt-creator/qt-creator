@@ -11,6 +11,8 @@
 #include "../debuggertr.h"
 #include "../shared/hostutils.h"
 
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QGuiApplication>
@@ -46,6 +48,29 @@ static QString mappedFromDebugger(const QString &file,
     return cdbSourcePathMapping(file, sourcePathMap, DebuggerToSource);
 }
 
+// The name the editor gets for a source file: the spelling the file system has
+// for it, and at least an upper case drive letter where there is no file to ask.
+// Normalizing goes to the file system, so the answers are kept.
+QString normalizedSourceFileName(const QString &file, QHash<QString, QString> *cache,
+                                 const std::function<bool(const QString &)> &isFile)
+{
+    if (file.isEmpty())
+        return file;
+    if (cache) {
+        const auto it = cache->constFind(file);
+        if (it != cache->constEnd())
+            return it.value();
+    }
+    QString normalized = QDir::cleanPath(FileUtils::normalizedPathName(file));
+    const bool exists = isFile ? isFile(normalized)
+                               : FilePath::fromUserInput(normalized).isReadableFile();
+    if (!exists && normalized.size() > 2 && normalized.at(1) == ':')
+        normalized[0] = normalized.at(0).toUpper();
+    if (cache)
+        cache->insert(file, normalized);
+    return normalized;
+}
+
 static GdbMi constMi(const QString &name, const QString &data)
 {
     GdbMi mi;
@@ -56,6 +81,71 @@ static GdbMi constMi(const QString &name, const QString &data)
 }
 
 enum { CdbPromptLength = 7 };
+
+// The frames the extension serializes into every stop event. The QML boundary
+// scan is the only thing that looks past the top one, so it says how deep that
+// has to be, and the extension's own default of 1000 is paid for at every step.
+enum { StopStackDepth = 25 };
+
+
+// Same for a register: cdb names the type by its width, and what the register
+// view needs is the kind Register::guessMissingData() can read off the name.
+QString registerTypeName(const QString &reportedType)
+{
+    if (reportedType.startsWith('I'))
+        return "int";
+    if (reportedType.startsWith('F'))
+        return "float";
+    if (reportedType.startsWith('V'))
+        return "vec";
+    return reportedType;
+}
+
+GdbMi registersTree(const GdbMi &reply)
+{
+    GdbMi registers;
+    registers.m_type = GdbMi::List;
+    for (const GdbMi &reported : reply) {
+        GdbMi reg;
+        reg.m_type = GdbMi::Tuple;
+        for (const GdbMi &child : reported) {
+            if (child.m_name == "type")
+                reg.addChild(constMi("type", registerTypeName(child.data())));
+            else
+                reg.addChild(child);
+        }
+        registers.addChild(reg);
+    }
+    return registers;
+}
+
+
+static QString decimalNumber(const GdbMi &number)
+{
+    bool ok = false;
+    const quint64 value = number.data().toULongLong(&ok, 0);
+    return ok ? QString::number(value) : QString();
+}
+
+// The extension reports a module the way cdb spells one, the modules view reads
+// the way gdb does.
+GdbMi modulesTree(const GdbMi &reply)
+{
+    GdbMi modules;
+    modules.m_type = GdbMi::List;
+    for (const GdbMi &reported : reply) {
+        GdbMi module;
+        module.m_type = GdbMi::Tuple;
+        module.addChild(constMi("modulepath", reported["image"].data()));
+        module.addChild(constMi("startaddress", decimalNumber(reported["start"])));
+        module.addChild(constMi("endaddress", decimalNumber(reported["end"])));
+        module.addChild(constMi("symbolsread", reported["deferred"].isValid()
+                                                  ? QString("No") : QString("Yes")));
+        modules.addChild(module);
+    }
+    return modules;
+}
+
 
 static QList<quint64> ambiguousMatchAddresses(const QStringList &reply)
 {
@@ -120,6 +210,14 @@ static GdbMi libraryEventData(const QString &module)
     data.addChild(constMi("target-name", module));
     data.addChild(constMi("host-name", module));
     return data;
+}
+
+QString setParameterArguments(bool reportFirstChance, bool reportSecondChance)
+{
+    return QString("setparameter firstChance=%1 secondChance=%2 maxStackDepth=%3")
+        .arg(reportFirstChance ? 1 : 0)
+        .arg(reportSecondChance ? 1 : 0)
+        .arg(int(StopStackDepth));
 }
 
 static QString hexAddress(quint64 address)
@@ -484,7 +582,12 @@ void CdbImpl::shutdownInferior(ShutdownMode mode)
         if (mode == ShutdownMode::Detach)
             runCommand({".detach", NoFlags});
         m_shuttingDown = true;
-        m_cdbProc.write("q\n");
+        // A remote session needs more force to quit, and the extension has to let go
+        // of its callbacks before the session goes away under them.
+        if (isRemoteServer())
+            m_cdbProc.write(m_extensionCommandPrefix + "shutdownex\nqq\n");
+        else
+            m_cdbProc.write("q\n");
     }
     emit inferiorEvent(InferiorEvent::ShutdownFinished);
 }
@@ -624,14 +727,19 @@ void CdbImpl::execute(const ExecutionRequest &request)
         const QString id = nextBreakpointId();
         m_internalBreakpointIds.insert(id);
         m_runToBreakpointIds.append(id);
-        QString cmd = "bu" + id + " /1 ";
+        QString cmd;
         if (request.command == ExecutionCommand::RunToFunction) {
-            cmd += request.functionName;
+            cmd = "bu" + id + " /1 " + request.functionName;
         } else if (request.context.address) {
-            cmd += hexAddress(request.context.address);
+            cmd = "bu" + id + " /1 " + hexAddress(request.context.address);
         } else {
-            cmd += '`' + request.context.fileName.nativePath() + ':'
-                 + QString::number(request.context.textPosition.line) + '`';
+            BreakpointParameters params(BreakpointByFileAndLine);
+            params.fileName = request.context.fileName;
+            params.textPosition = request.context.textPosition;
+            params.oneShot = true;
+            cmd = breakpointInsertCommand(scopedToModule(params,
+                                                         m_startData.moduleForSourceFile),
+                                          id, sourcePathMap());
         }
         runCommand({cmd, BuiltinCommand, [this](const DebuggerResponse &response) {
             // cdb refuses a breakpoint whose location is ambiguous, so a line with
@@ -702,6 +810,44 @@ void CdbImpl::execute(const ExecutionRequest &request)
         emit message("CdbImpl: execution command not implemented.", LogWarning);
         break;
     }
+}
+
+// The module cdb knows the given binaries as, empty unless there is exactly
+// one that gets loaded. cdb spells a module after its file name with
+// everything that is not a letter, a digit or an underscore replaced.
+QString cdbModuleName(const FilePaths &binaries)
+{
+    // An import library is not a module that gets loaded.
+    const FilePaths loadable = Utils::filtered(binaries, [](const FilePath &binary) {
+        const QStringView suffix = binary.suffixView();
+        return suffix.compare(u"dll", Qt::CaseInsensitive) == 0
+            || suffix.compare(u"exe", Qt::CaseInsensitive) == 0;
+    });
+    if (loadable.size() != 1)
+        return {};
+    QString module = loadable.first().completeBaseName();
+    for (QChar &c : module) {
+        if (!c.isLetterOrNumber() && c != '_')
+            c = '_';
+    }
+    return module;
+}
+
+// Names the module a breakpoint by file and line belongs to. Without one cdb
+// takes the location for a symbol it has to resolve right away, so a
+// breakpoint in a library that is not loaded yet is refused instead of
+// deferred.
+BreakpointParameters scopedToModule(
+    const BreakpointParameters &params,
+    const std::function<QString(const FilePath &)> &moduleForSourceFile)
+{
+    if (params.type != BreakpointByFileAndLine || !params.module.isEmpty()
+            || !moduleForSourceFile) {
+        return params;
+    }
+    BreakpointParameters result = params;
+    result.module = moduleForSourceFile(params.fileName);
+    return result;
 }
 
 // cdb knows no such breakpoint, so it becomes one on the function that
@@ -817,7 +963,8 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
         reportBreakpointInserted(requestId, id, params.enabled, {}, 0, {}, {}, report);
         return;
     }
-    const BreakpointParameters fixed = fixedBreakpointParameters(params);
+    const BreakpointParameters fixed
+        = scopedToModule(fixedBreakpointParameters(params), m_startData.moduleForSourceFile);
     if (fixed.type == BreakpointByFunction && !fixed.oneShot) {
         insertFunctionBreakpoint(requestId, id, fixed, report);
         return;
@@ -1923,6 +2070,8 @@ void CdbImpl::restartSession()
     m_parentForSubBreakpointId.clear();
     m_unresolvedBreakpointIds.clear();
     m_conditionForBreakpointId.clear();
+    m_normalizedFileCache.clear();
+    m_symbolAddressCache.clear();
     m_internalBreakpointIds.clear();
     m_runToBreakpointIds.clear();
     m_breakpointHitCounts.clear();
@@ -1956,6 +2105,11 @@ QList<QPair<QString, QString>> CdbImpl::sourcePathMap() const
 bool CdbImpl::isCore() const
 {
     return std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData);
+}
+
+bool CdbImpl::isRemoteServer() const
+{
+    return std::holds_alternative<AttachToRemoteServerData>(m_startData.inferiorStartData);
 }
 
 // A 32-bit inferior on a 64-bit host runs behind the wow64 layer, and until cdb
@@ -2100,9 +2254,8 @@ void CdbImpl::initializeSession(const std::function<void()> &whenReady)
 {
     runCommand({".symopt+0x8000", NoFlags});
     runCommand({m_extensionCommandPrefix
-                    + QString("setparameter firstChance=%1 secondChance=%2")
-                          .arg(m_startData.reportFirstChanceExceptions ? 1 : 0)
-                          .arg(m_startData.reportSecondChanceExceptions ? 1 : 0),
+                    + setParameterArguments(m_startData.reportFirstChanceExceptions,
+                                            m_startData.reportSecondChanceExceptions),
                 NoFlags});
     runCommand({"sxn ibp", NoFlags});
     runCommand({"sxn ud", NoFlags});
@@ -2163,7 +2316,8 @@ static GdbMi interpreterStackFrames(const GdbMi &msg)
 // the module as "from". StackFrame::parseFrame() expects the path in "file" and the module
 // in "module" - a base name there would be resolved against the build directory.
 static GdbMi normalizedFrame(const GdbMi &frameMi,
-                             const QList<QPair<QString, QString>> &sourcePathMap)
+                             const QList<QPair<QString, QString>> &sourcePathMap,
+                             QHash<QString, QString> *nameCache)
 {
     const QString fullName = mappedFromDebugger(frameMi["fullname"].data(), sourcePathMap);
     const QString module = frameMi["from"].data();
@@ -2179,8 +2333,7 @@ static GdbMi normalizedFrame(const GdbMi &frameMi,
     }
     if (!fullName.isEmpty()) {
         frame.addChild(constMi("fullname", fullName));
-        frame.addChild(constMi("file", FilePath::fromUserInput(fullName)
-                                           .normalizedPathName().toUrlishString()));
+        frame.addChild(constMi("file", normalizedSourceFileName(fullName, nameCache)));
     }
     if (!module.isEmpty())
         frame.addChild(constMi("module", module));
@@ -2188,12 +2341,13 @@ static GdbMi normalizedFrame(const GdbMi &frameMi,
 }
 
 static GdbMi stackTreeFromFrames(const GdbMi &reply,
-                                 const QList<QPair<QString, QString>> &sourcePathMap)
+                                 const QList<QPair<QString, QString>> &sourcePathMap,
+                                 QHash<QString, QString> *nameCache)
 {
     GdbMi frames;
     frames.m_type = GdbMi::List;
     for (const GdbMi &frameMi : reply)
-        frames.addChild(normalizedFrame(frameMi, sourcePathMap));
+        frames.addChild(normalizedFrame(frameMi, sourcePathMap, nameCache));
     frames.m_name = "frames";
     GdbMi stack;
     stack.m_type = GdbMi::Tuple;
@@ -2312,7 +2466,8 @@ void CdbImpl::reportSplicedStack(quint64 requestId, const GdbMi &nativeFrames)
         const GdbMi frames = splicedFrames(nativeFrames, qmlFrames,
                                            qmlSpliceIndex(nativeFrames));
         emit refreshDataReceived(requestId, RefreshKind::FullStack,
-                                 stackTreeFromFrames(frames, sourcePathMap()));
+                                 stackTreeFromFrames(frames, sourcePathMap(),
+                                                     &m_normalizedFileCache));
     };
     runCommand(cmd);
 }
@@ -2336,7 +2491,8 @@ void CdbImpl::refresh(const RefreshRequest &request)
         const quint64 requestId = request.requestId;
         runCommand({"modules", ExtensionCommand,
                    [this, requestId](const DebuggerResponse &response) {
-            emit refreshDataReceived(requestId, RefreshKind::Modules, response.data);
+            emit refreshDataReceived(requestId, RefreshKind::Modules,
+                                     modulesTree(response.data));
         }});
         return;
     }
@@ -2352,7 +2508,8 @@ void CdbImpl::refresh(const RefreshRequest &request)
                 emit refreshDataReceived(requestId, RefreshKind::Registers, empty);
                 return;
             }
-            emit refreshDataReceived(requestId, RefreshKind::Registers, response.data);
+            emit refreshDataReceived(requestId, RefreshKind::Registers,
+                                     registersTree(response.data));
         }});
         return;
     }
@@ -2365,7 +2522,8 @@ void CdbImpl::refresh(const RefreshRequest &request)
                 return;
             }
             emit refreshDataReceived(requestId, RefreshKind::FullStack,
-                                     stackTreeFromFrames(response.data, sourcePathMap()));
+                                     stackTreeFromFrames(response.data, sourcePathMap(),
+                                                         &m_normalizedFileCache));
         });
         cmd.args = request.stackDepthLimit < 0 ? QString("unlimited")
                                                : QString::number(request.stackDepthLimit);
@@ -2382,7 +2540,8 @@ void CdbImpl::refresh(const RefreshRequest &request)
                                      : GdbMi();
             if (frames.childCount() != 0) {
                 emit refreshDataReceived(requestId, RefreshKind::FullStack,
-                                         stackTreeFromFrames(frames, sourcePathMap()));
+                                         stackTreeFromFrames(frames, sourcePathMap(),
+                                                             &m_normalizedFileCache));
                 return;
             }
             runCommand({"qmlstack", ExtensionCommand,
@@ -2394,7 +2553,8 @@ void CdbImpl::refresh(const RefreshRequest &request)
                     return;
                 }
                 emit refreshDataReceived(requestId, RefreshKind::FullStack,
-                                         stackTreeFromFrames(fallback.data, sourcePathMap()));
+                                         stackTreeFromFrames(fallback.data, sourcePathMap(),
+                                                             &m_normalizedFileCache));
             }});
         };
         runCommand(cmd);
@@ -2520,8 +2680,10 @@ void CdbImpl::accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64
     runCommand(cmd);
 }
 
-static quint64 firstSymbolAddress(const QString &reply)
+// One per symbol the 'x' command matched.
+QList<quint64> symbolAddresses(const QString &reply)
 {
+    QList<quint64> addresses;
     const QStringList lines = reply.split(QChar::LineFeed);
     for (const QString &line : lines) {
         QString token = line.trimmed().section(' ', 0, 0);
@@ -2529,37 +2691,87 @@ static quint64 firstSymbolAddress(const QString &reply)
         bool ok = false;
         const quint64 address = token.toULongLong(&ok, 16);
         if (ok && address)
-            return address;
+            addresses.append(address);
     }
-    return 0;
+    return addresses;
+}
+
+// The one a disassembly around the given address has to start from: the closest
+// below it, as 'x' lists the overloads of a name in no useful order.
+static quint64 enclosingFunctionAddress(const QList<quint64> &functionAddresses, quint64 address)
+{
+    quint64 closest = 0;
+    for (const quint64 candidate : functionAddresses) {
+        if (candidate <= address && candidate > closest)
+            closest = candidate;
+    }
+    return closest;
+}
+
+DisassemblyRange disassemblyRange(quint64 address, const QList<quint64> &functionAddresses)
+{
+    enum { Window = 512 };
+    if (!address) {
+        if (functionAddresses.isEmpty())
+            return {};
+        const quint64 start = functionAddresses.constFirst();
+        return {start, start + Window / 2};
+    }
+    const quint64 window = address > Window / 2 ? address - Window / 2 : 0;
+    return {qMax(window, enclosingFunctionAddress(functionAddresses, address)),
+            address + Window / 2};
 }
 
 void CdbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName)
 {
-    if (!address) {
-        if (functionName.isEmpty()) {
+    if (functionName.isEmpty()) {
+        if (!address) {
             emit message("CdbImpl: cannot disassemble without an address or a name.",
                          LogWarning);
             emit disassemblyReceived(requestId, {});
             return;
         }
-        runCommand({"x *!" + functionName, BuiltinCommand,
-                   [this, requestId, functionName](const DebuggerResponse &response) {
-            const quint64 resolved = firstSymbolAddress(response.data.data());
-            if (!resolved) {
-                emit message(QString("CdbImpl: cannot resolve \"%1\" to disassemble it.")
-                                 .arg(functionName), LogWarning);
-                emit disassemblyReceived(requestId, {});
-                return;
-            }
-            fetchDisassembly(requestId, resolved, functionName);
-        }});
+        disassemble(requestId, disassemblyRange(address, {}));
         return;
     }
-    enum { DisassemblerRange = 512 };
-    const quint64 start = address - DisassemblerRange / 2;
-    const quint64 end = address + DisassemblerRange / 2;
-    const QString cmd = QString("u 0x%1 0x%2").arg(start, 0, 16).arg(end, 0, 16);
+    // The name is what says where the function the address is in begins, so it is
+    // resolved even when there is an address: x86 instructions have no length a
+    // disassembly could find its way to a boundary by.
+    const auto cached = m_symbolAddressCache.constFind(functionName);
+    if (cached != m_symbolAddressCache.constEnd()) {
+        disassembleFunction(requestId, address, functionName, cached.value());
+        return;
+    }
+    runCommand({"x *!" + functionName, BuiltinCommand,
+               [this, requestId, address, functionName](const DebuggerResponse &response) {
+        const QList<quint64> addresses = symbolAddresses(response.data.data());
+        if (!addresses.isEmpty())
+            m_symbolAddressCache.insert(functionName, addresses);
+        disassembleFunction(requestId, address, functionName, addresses);
+    }});
+}
+
+void CdbImpl::disassembleFunction(quint64 requestId, quint64 address, const QString &functionName,
+                                  const QList<quint64> &functionAddresses)
+{
+    if (!address && functionAddresses.size() > 1) {
+        emit message(QString("CdbImpl: several overloads of \"%1\" were found, taking 0x%2.")
+                         .arg(functionName)
+                         .arg(functionAddresses.constFirst(), 0, 16), LogMisc);
+    }
+    const DisassemblyRange range = disassemblyRange(address, functionAddresses);
+    if (range.isEmpty()) {
+        emit message(QString("CdbImpl: cannot resolve \"%1\" to disassemble it.")
+                         .arg(functionName), LogWarning);
+        emit disassemblyReceived(requestId, {});
+        return;
+    }
+    disassemble(requestId, range);
+}
+
+void CdbImpl::disassemble(quint64 requestId, const DisassemblyRange &range)
+{
+    const QString cmd = QString("u 0x%1 0x%2").arg(range.start, 0, 16).arg(range.end, 0, 16);
     runCommand({cmd, BuiltinCommand, [this, requestId](const DebuggerResponse &response) {
         emit disassemblyReceived(requestId, parseCdbDisassembler(response.data.data()));
     }});
@@ -3020,7 +3232,7 @@ StepIntoLanding stepIntoLanding(const GdbMi &stopData,
 // Stepping out of it returns to the QML caller.
 static bool atNativeToQmlBoundary(const GdbMi &frames)
 {
-    const int total = qMin(frames.childCount(), 25);
+    const int total = qMin(frames.childCount(), int(StopStackDepth));
     for (int index = 1; index < total; ++index) {
         const GdbMi &frame = frames.childAt(index);
         const QString function = frame["function"].data();

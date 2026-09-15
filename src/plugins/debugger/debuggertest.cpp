@@ -90,6 +90,12 @@ private slots:
     void testCdbImplStepIntoLanding();
     void testCdbImplScriptMessages();
     void testCdbImplBreakpointInsertCommand();
+    void testCdbImplBreakpointModuleScope();
+    void testCdbImplDisassemblyRange();
+    void testCdbImplNormalizedSourceFileName();
+    void testCdbImplModulesTree();
+    void testCdbImplRegistersTree();
+    void testCdbImplSetParameterArguments();
     void testMapsAnEmptyFileNameToNothing();
     void testCdbSourcePathMapping();
     void testCdbBreakpointFileName();
@@ -944,6 +950,200 @@ void DebuggerUnitTests::testCdbImplBreakpointInsertCommand()
 
     // Nothing cdb could break on.
     QVERIFY(breakpointInsertCommand(BreakpointParameters(BreakpointAtFork), "7", {}).isEmpty());
+}
+
+void DebuggerUnitTests::testCdbImplBreakpointModuleScope()
+{
+    // What gets loaded, spelled the way cdb names a module.
+    QCOMPARE(cdbModuleName({FilePath::fromUserInput("C:/build/my-app.exe")}),
+             QString("my_app"));
+    QCOMPARE(cdbModuleName({FilePath::fromUserInput("C:/build/core.dll")}), QString("core"));
+
+    // An import library is not a module, so the one DLL beside it still counts.
+    QCOMPARE(cdbModuleName({FilePath::fromUserInput("C:/build/core.lib"),
+                            FilePath::fromUserInput("C:/build/core.dll")}),
+             QString("core"));
+
+    // A file built into more than one binary names no single module, and one
+    // built into none names nothing either.
+    QVERIFY(cdbModuleName({FilePath::fromUserInput("C:/build/a.dll"),
+                           FilePath::fromUserInput("C:/build/b.dll")}).isEmpty());
+    QVERIFY(cdbModuleName({}).isEmpty());
+    QVERIFY(cdbModuleName({FilePath::fromUserInput("C:/build/core.lib")}).isEmpty());
+
+    const auto always = [](const FilePath &) { return QString("core"); };
+    BreakpointParameters params(BreakpointByFileAndLine);
+    params.fileName = FilePath::fromUserInput("C:/src/main.cpp");
+    params.textPosition.line = 42;
+
+    // Without a module cdb resolves the location right away and refuses a
+    // breakpoint in a library that has not been loaded yet.
+    QCOMPARE(scopedToModule(params, always).module, QString("core"));
+    QCOMPARE(breakpointInsertCommand(scopedToModule(params, always), "7", {}),
+             QString("bu7 `core!" + params.fileName.nativePath() + ":42`"));
+
+    // What the user asked for wins over what the project says.
+    params.module = "other";
+    QCOMPARE(scopedToModule(params, always).module, QString("other"));
+
+    // Only a breakpoint by file and line is placed this way.
+    BreakpointParameters byFunction(BreakpointByFunction);
+    byFunction.functionName = "runFoo";
+    QVERIFY(scopedToModule(byFunction, always).module.isEmpty());
+
+    // A session that cannot say, an attach without a project, leaves it alone.
+    params.module.clear();
+    QVERIFY(scopedToModule(params, {}).module.isEmpty());
+}
+
+void DebuggerUnitTests::testCdbImplDisassemblyRange()
+{
+    // The addresses of what a name matched, taken from cdb's own spelling.
+    const QString reply = "00007ffb`842b1000 core!runFoo (void)\n"
+                          "00007ffb`842b2000 core!runFoo (int)\n";
+    QCOMPARE(symbolAddresses(reply), QList<quint64>({0x7ffb842b1000, 0x7ffb842b2000}));
+    QVERIFY(symbolAddresses("Couldn't resolve error at 'core!runFoo'").isEmpty());
+
+    // A name with no address to go by starts the disassembly at the function.
+    QCOMPARE(disassemblyRange(0, {0x1000}).start, quint64(0x1000));
+    QCOMPARE(disassemblyRange(0, {0x1000}).end, quint64(0x1100));
+    QVERIFY(disassemblyRange(0, {}).isEmpty());
+
+    // An address within a function starts at the function: an x86 instruction
+    // has no length to find a boundary by, so a window that begins in the
+    // middle of one decodes to something that is not the program.
+    QCOMPARE(disassemblyRange(0x1040, {0x1000}).start, quint64(0x1000));
+    QCOMPARE(disassemblyRange(0x1040, {0x1000}).end, quint64(0x1140));
+
+    // The closest of the overloads below the address is the one it is in.
+    QCOMPARE(disassemblyRange(0x2040, {0x1000, 0x2000, 0x3000}).start, quint64(0x2000));
+
+    // Past what fits, the window wins over the start of a long function.
+    QCOMPARE(disassemblyRange(0x2000, {0x1000}).start, quint64(0x1f00));
+
+    // A function that begins above the address is not the one it is in, and
+    // neither is anything at all when the name could not be resolved.
+    QCOMPARE(disassemblyRange(0x1000, {0x2000}).start, quint64(0xf00));
+    QCOMPARE(disassemblyRange(0x1000, {}).start, quint64(0xf00));
+    QCOMPARE(disassemblyRange(0x1000, {}).end, quint64(0x1100));
+
+    // An address the window reaches below zero from.
+    QCOMPARE(disassemblyRange(0x40, {}).start, quint64(0));
+}
+
+void DebuggerUnitTests::testCdbImplNormalizedSourceFileName()
+{
+    const auto missing = [](const QString &) { return false; };
+    const auto present = [](const QString &) { return true; };
+
+    // A file that is there is spelled the way it is spelled on disk, which is
+    // what normalizedPathName() answers with.
+    QCOMPARE(normalizedSourceFileName("c:/src/main.cpp", nullptr, present),
+             QString("c:/src/main.cpp"));
+
+    // Without a file to ask, at least the drive letter is the one the editor
+    // uses, so that a frame in a source that is not around does not open a
+    // second editor for a file another frame named upper case.
+    QCOMPARE(normalizedSourceFileName("c:/src/main.cpp", nullptr, missing),
+             QString("C:/src/main.cpp"));
+    QCOMPARE(normalizedSourceFileName("c:/src/./sub/../main.cpp", nullptr, missing),
+             QString("C:/src/main.cpp"));
+    QCOMPARE(normalizedSourceFileName("", nullptr, missing), QString());
+    QCOMPARE(normalizedSourceFileName("/src/main.cpp", nullptr, missing),
+             QString("/src/main.cpp"));
+
+    // Normalizing goes to the file system, so an answer is given once.
+    QHash<QString, QString> cache;
+    QCOMPARE(normalizedSourceFileName("c:/src/main.cpp", &cache, missing),
+             QString("C:/src/main.cpp"));
+    QCOMPARE(cache.size(), 1);
+    QCOMPARE(normalizedSourceFileName("c:/src/main.cpp", &cache, present),
+             QString("C:/src/main.cpp"));
+    QCOMPARE(cache.size(), 1);
+}
+
+void DebuggerUnitTests::testCdbImplModulesTree()
+{
+    const auto reply = [](const QString &contents) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString('[' + contents + ']', decoder);
+        return data;
+    };
+
+    // The extension names a module by its cdb name and its addresses in hex, the
+    // modules view reads gdb's names and decimal.
+    const GdbMi modules = modulesTree(
+        reply(R"({name="tst_inferior",image="C:\\build\\tst_inferior.exe",)"
+              R"(start="0x7ff61f3a0000",end="0x7ff61f3affff"},)"
+              R"({name="KERNEL32",image="C:\\Windows\\system32\\KERNEL32.DLL",)"
+              R"(start="0x7ffb842b0000",end="0x7ffb843edfff",deferred="true"})"));
+    QCOMPARE(modules.childCount(), 2);
+    QCOMPARE(modules.childAt(0)["modulepath"].data(),
+             QString("C:\\build\\tst_inferior.exe"));
+    QCOMPARE(modules.childAt(0)["startaddress"].data().toULongLong(),
+             quint64(0x7ff61f3a0000));
+    QCOMPARE(modules.childAt(0)["endaddress"].data().toULongLong(),
+             quint64(0x7ff61f3affff));
+    QCOMPARE(modules.childAt(0)["symbolsread"].data(), QString("Yes"));
+
+    // A module whose symbols cdb has not read yet says so.
+    QCOMPARE(modules.childAt(1)["symbolsread"].data(), QString("No"));
+
+    // A reply that is not a list of modules is no modules.
+    QCOMPARE(modulesTree(reply({})).childCount(), 0);
+}
+
+void DebuggerUnitTests::testCdbImplRegistersTree()
+{
+    // cdb names a register's type by its width, and Register::guessMissingData()
+    // reads the kind off the names gdb uses.
+    QCOMPARE(registerTypeName("I64"), QString("int"));
+    QCOMPARE(registerTypeName("I8"), QString("int"));
+    QCOMPARE(registerTypeName("F80"), QString("float"));
+    QCOMPARE(registerTypeName("V128"), QString("vec"));
+    QCOMPARE(registerTypeName(""), QString());
+
+    QStringDecoder decoder(QStringDecoder::Utf8);
+    GdbMi reply;
+    reply.fromString(R"([{number="0",name="rax",size="8",type="I64",value="0x0"},)"
+                     R"({number="1",name="xmm0",size="16",type="V128",value="0x0"}])",
+                     decoder);
+    const GdbMi registers = registersTree(reply);
+    QCOMPARE(registers.childCount(), 2);
+    QCOMPARE(registers.childAt(0)["type"].data(), QString("int"));
+    QCOMPARE(registers.childAt(1)["type"].data(), QString("vec"));
+
+    // Everything else the view needs is passed on as it was reported.
+    QCOMPARE(registers.childAt(0)["name"].data(), QString("rax"));
+    QCOMPARE(registers.childAt(0)["size"].data(), QString("8"));
+    QCOMPARE(registers.childAt(1)["value"].data(), QString("0x0"));
+
+    // What the kind is read from, with what the register view then makes of it.
+    Register reg;
+    reg.name = "rax";
+    reg.reportedType = registers.childAt(0)["type"].data();
+    reg.guessMissingData();
+    QCOMPARE(reg.kind, IntegerRegister);
+    reg.reportedType = registers.childAt(1)["type"].data();
+    reg.kind = UnknownRegister;
+    reg.guessMissingData();
+    QCOMPARE(reg.kind, VectorRegister);
+}
+
+void DebuggerUnitTests::testCdbImplSetParameterArguments()
+{
+    QCOMPARE(setParameterArguments(true, false),
+             QString("setparameter firstChance=1 secondChance=0 maxStackDepth=25"));
+    QCOMPARE(setParameterArguments(false, true),
+             QString("setparameter firstChance=0 secondChance=1 maxStackDepth=25"));
+
+    // The stack a stop reports is only read as deep as the scan for a native to
+    // QML boundary goes, and that one needs 25 frames.
+    const QString depth = setParameterArguments(true, true).section("maxStackDepth=", 1, 1);
+    bool ok = false;
+    QCOMPARE(depth.toInt(&ok), 25);
+    QVERIFY(ok);
 }
 
 // A session without a build configuration - an attach, or a foreign debug

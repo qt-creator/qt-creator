@@ -44,6 +44,40 @@ DEBUGGER_EXPORT GdbMi resolvedBreakpointUpdates(
     const QList<QPair<QString, QString>> &sourcePathMap,
     const QHash<QString, QString> &conditions);
 
+DEBUGGER_EXPORT GdbMi modulesTree(const GdbMi &reply);
+
+DEBUGGER_EXPORT QString registerTypeName(const QString &reportedType);
+
+DEBUGGER_EXPORT GdbMi registersTree(const GdbMi &reply);
+
+DEBUGGER_EXPORT QString setParameterArguments(bool reportFirstChance, bool reportSecondChance);
+
+DEBUGGER_EXPORT QList<quint64> symbolAddresses(const QString &reply);
+
+// What to disassemble, empty when there is nothing to go by.
+class DEBUGGER_EXPORT DisassemblyRange
+{
+public:
+    quint64 start = 0;
+    quint64 end = 0;
+
+    bool isEmpty() const { return start == end; }
+};
+
+DEBUGGER_EXPORT DisassemblyRange disassemblyRange(quint64 address,
+                                                  const QList<quint64> &functionAddresses);
+
+DEBUGGER_EXPORT QString normalizedSourceFileName(
+    const QString &file,
+    QHash<QString, QString> *cache = nullptr,
+    const std::function<bool(const QString &)> &isFile = {});
+
+DEBUGGER_EXPORT QString cdbModuleName(const Utils::FilePaths &binaries);
+
+DEBUGGER_EXPORT BreakpointParameters scopedToModule(
+    const BreakpointParameters &params,
+    const std::function<QString(const Utils::FilePath &)> &moduleForSourceFile);
+
 DEBUGGER_EXPORT QString breakpointInsertCommand(
     const BreakpointParameters &params,
     const QString &id,
@@ -93,6 +127,9 @@ public:
     // Process::interrupt() reach a console cdb.exe.
     bool useCtrlCStub = false;
     std::chrono::seconds watchdogTimeout{0};
+    // What the sources of a file end up in, for scoping a breakpoint to a
+    // module that is not loaded yet.
+    std::function<QString(const Utils::FilePath &)> moduleForSourceFile;
 };
 
 class DEBUGGER_EXPORT CdbImpl final : public DebuggerEngineInterface
@@ -128,6 +165,9 @@ private:
     void accessMemory(MemoryOp op, quint64 requestId, quint64 addr, quint64 lengthOrSize,
                       const QByteArray &data) final;
     void fetchDisassembly(quint64 requestId, quint64 address, const QString &functionName) final;
+    void disassembleFunction(quint64 requestId, quint64 address, const QString &functionName,
+                             const QList<quint64> &functionAddresses);
+    void disassemble(quint64 requestId, const DisassemblyRange &range);
     void setPeripheralRegisterValue(quint64 address, quint64 value) final;
     void watchPoint(quint64 requestId, const QPoint &pnt) final;
     void createSnapshot(quint64 requestId) final;
@@ -151,6 +191,7 @@ private:
     void restartSession();
     bool isAttach() const;
     bool isCore() const;
+    bool isRemoteServer() const;
     QList<QPair<QString, QString>> sourcePathMap() const;
     enum class Wow64State { Unknown, None, Stack32Bit };
     void ensureStackBitness(const std::function<void()> &whenReady);
@@ -269,6 +310,8 @@ private:
 
     QHash<QString, QString> m_parentForSubBreakpointId;
 
+    QHash<QString, QList<quint64>> m_symbolAddressCache;
+    QHash<QString, QString> m_normalizedFileCache;
     QHash<QString, QString> m_conditionForBreakpointId;
     QHash<QString, BreakpointParameters> m_insertedBreakpoints;
     QSet<QString> m_unresolvedBreakpointIds;

@@ -620,21 +620,7 @@ static QString moduleForSourceFile(const FilePath &sourceFile)
     const Project *project = ProjectManager::projectForFile(sourceFile);
     if (!project)
         return {};
-    // An import library is not a module that gets loaded.
-    const FilePaths binaries = Utils::filtered(project->binariesForSourceFile(sourceFile),
-                                               [](const FilePath &binary) {
-        const QStringView suffix = binary.suffixView();
-        return suffix.compare(u"dll", Qt::CaseInsensitive) == 0
-                || suffix.compare(u"exe", Qt::CaseInsensitive) == 0;
-    });
-    if (binaries.size() != 1)
-        return {};
-    QString module = binaries.first().completeBaseName();
-    for (QChar &c : module) {
-        if (!c.isLetterOrNumber() && c != '_')
-            c = '_';
-    }
-    return module;
+    return cdbModuleName(project->binariesForSourceFile(sourceFile));
 }
 
 static BreakpointParameters scopedToModule(const BreakpointParameters &params)
@@ -3440,6 +3426,7 @@ CdbImplStartData cdbImplStartData(const DebuggerRunParameters &rp)
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
         .useCtrlCStub = true,
+        .moduleForSourceFile = &moduleForSourceFile,
     };
 }
 
