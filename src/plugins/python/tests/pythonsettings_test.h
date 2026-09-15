@@ -13,6 +13,7 @@ class PythonSettingsTest final : public QObject
 
 private slots:
     void testDropsADefaultThatIsGone();
+    void testDetectionReachesKitsAndSettings();
 };
 
 QObject *createPythonSettingsTest();

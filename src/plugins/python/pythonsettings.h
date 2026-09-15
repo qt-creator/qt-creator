@@ -108,4 +108,6 @@ public:
     QList<PythonSettings::Interpreter> interpreterFrom(const QString &detectionSource) const;
 };
 
+InterpreterModel &interpreterModel();
+
 } // Python::Internal

@@ -727,14 +727,49 @@ static QString idForPythonFromPath(const QList<Interpreter> &pythons)
 
 static PythonSettings *settingsInstance = nullptr;
 
+// Resolving is a round trip per path component on a remote device.
+using ResolvedPaths = QHash<FilePath, FilePath>;
+
+static FilePath resolvedPath(ResolvedPaths &cache, const FilePath &path)
+{
+    auto it = cache.find(path);
+    if (it == cache.end())
+        it = cache.insert(path, path.resolveSymlinks());
+    return *it;
+}
+
+// A venv links to the interpreter it was made from, but is not that interpreter.
+// Within one venv, bin/python and bin/python3 are the same interpreter.
+static std::optional<Interpreter> registeredInterpreter(
+    const QList<Interpreter> &interpreters, const FilePath &candidate, ResolvedPaths &cache)
+{
+    if (interpreters.isEmpty())
+        return std::nullopt;
+
+    const bool candidateIsVenv = isVenvPython(candidate);
+    const FilePath resolvedCandidate = resolvedPath(cache, candidate);
+    const auto resolvesToCandidate = [&](const FilePath &command) {
+        return command == candidate
+               || (command.isSameDevice(candidate)
+                   && resolvedPath(cache, command) == resolvedCandidate);
+    };
+    for (const Interpreter &interpreter : interpreters) {
+        const bool match = candidateIsVenv
+                               ? interpreter.command.parentDir() == candidate.parentDir()
+                                     && resolvesToCandidate(interpreter.command)
+                               : resolvesToCandidate(interpreter.command)
+                                     && !isVenvPython(interpreter.command);
+        if (match)
+            return interpreter;
+    }
+    return std::nullopt;
+}
+
 static bool alreadyRegistered(const Interpreter &candidate)
 {
-    return Utils::anyOf(settingsInstance->interpreters(),
-                        [candidate = candidate.command](const Interpreter &interpreter) {
-                            return interpreter.command.isSameDevice(candidate)
-                                   && interpreter.command.resolveSymlinks()
-                                          == candidate.resolveSymlinks();
-                        });
+    ResolvedPaths cache;
+    return registeredInterpreter(settingsInstance->interpreters(), candidate.command, cache)
+        .has_value();
 }
 
 std::optional<QStringList> activePythonVersions(const QList<Interpreter> &interpreters)
@@ -839,15 +874,25 @@ PythonSettings::PythonSettings()
             if (logger)
                 logger.logItem(message);
         };
-        const QList<Interpreter> known = interpreterModel().interpreters();
+        const QList<Interpreter> known = PythonSettings::interpreters();
         const ExecutableItem detector
             = PythonSettings::autoDetect(nullptr, searchPaths, detectionSource, logCallback);
         GlobalTaskTree::start(Group{detector}, {}, [devId, token, known, logger] {
-            if (logger && interpreterModel().interpreters() == known)
+            if (logger && PythonSettings::interpreters() == known)
                 logger.logItem(Tr::tr("No new Python interpreters found."));
             if (const IDevicePtr device = DeviceManager::find(devId))
                 device->deregisterToolDetectionTask(token);
         });
+    });
+
+    // Not in removeDetectedPython(): that also runs when the device is only re-detected, and
+    // the interpreters and their kits must keep their ids then.
+    connect(DeviceManager::instance(), &DeviceManager::deviceRemoved, this, [](Id devId) {
+        const QList<Interpreter> kept = Utils::filtered(
+            PythonSettings::interpreters(), [devId](const Interpreter &interpreter) {
+                return interpreter.detectionSource.id != devId.toString();
+            });
+        setInterpreter(kept, defaultInterpreterId());
     });
 
     pylspOptionsPage();
@@ -1251,51 +1296,162 @@ QString PythonSettings::defaultInterpreterId()
     return settingsInstance->m_defaultInterpreterId;
 }
 
+struct PythonSearch
+{
+    QList<Interpreter> found;
+    QList<Interpreter> gone;
+};
+
 ExecutableItem PythonSettings::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
     const DetectionSource &detectionSource,
     const LogCallback &logCallback)
 {
-    Q_UNUSED(kit);
+    const bool searchesDevice
+        = !detectionSource.id.isEmpty() && DeviceManager::find(Id::fromString(detectionSource.id));
 
-    const auto setupSearch = [searchPaths, detectionSource](Async<Interpreter> &task) {
+    const auto setupSearch = [searchPaths, detectionSource](Async<PythonSearch> &task) {
         const QList<Interpreter> alreadyConfigured = PythonSettings::interpreters();
 
         task.setConcurrentCallData(
-            [](QPromise<Interpreter> &promise,
+            [](QPromise<PythonSearch> &promise,
                const FilePaths &searchPaths,
                const QList<Interpreter> &alreadyConfigured,
                const DetectionSource &detectionSource) {
+                PythonSearch search;
+                QList<Interpreter> &found = search.found;
+                ResolvedPaths resolved;
                 for (const FilePath &path : searchPaths) {
                     const FilePath python = path.pathAppended("python3").withExecutableSuffix();
                     if (!python.isExecutableFile())
                         continue;
-                    if (Utils::contains(
-                            alreadyConfigured, Utils::equal(&Interpreter::command, python)))
+                    if (registeredInterpreter(found, python, resolved))
                         continue;
 
-                    Interpreter interpreter = PythonSettings::createInterpreter(
-                        python, {}, "(" + python.toUserOutput() + ")", detectionSource);
+                    // A known interpreter is still reported, the kit needs it.
+                    const std::optional<Interpreter> registered
+                        = registeredInterpreter(alreadyConfigured, python, resolved);
+                    const Interpreter interpreter = registered
+                        ? *registered
+                        : PythonSettings::createInterpreter(
+                              python, {}, "(" + python.toUserOutput() + ")", detectionSource);
 
-                    promise.addResult(interpreter);
+                    found.append(interpreter);
                 }
+
+                // An unreachable device finds nothing, but that does not make its
+                // interpreters gone.
+                const bool deviceAnswers = !detectionSource.id.isEmpty() && !searchPaths.isEmpty()
+                                           && searchPaths.first().withNewPath("/").isDir();
+                for (const Interpreter &interpreter : alreadyConfigured) {
+                    if (deviceAnswers && interpreter.detectionSource.id == detectionSource.id
+                        && !Utils::contains(found, Utils::equal(&Interpreter::id, interpreter.id))
+                        && !interpreter.command.isExecutableFile()) {
+                        search.gone.append(interpreter);
+                    }
+                }
+                promise.addResult(search);
             },
             searchPaths,
             alreadyConfigured,
             detectionSource);
     };
 
-    const auto searchDone = [detectionSource, logCallback](const Async<Interpreter> &task) {
-        for (const auto &interpreter : task.results()) {
-            interpreterModel().addInterpreter(interpreter);
+    const Id kitId = kit ? kit->id() : Id();
+    const bool kitIsRegistered = kit && KitManager::kit(kitId) == kit;
+
+    const auto searchDone = [kit, kitId, kitIsRegistered, detectionSource, searchesDevice,
+                             logCallback](const Async<PythonSearch> &task) {
+        if (!task.isResultAvailable())
+            return;
+
+        // Removing the device deletes its kit before the device leaves the list.
+        if (kitIsRegistered && !KitManager::kit(kitId))
+            return;
+
+        // The device went away while its interpreters were searched for.
+        if (searchesDevice && !DeviceManager::find(Id::fromString(detectionSource.id)))
+            return;
+
+        const PythonSearch search = task.result();
+        const QList<Interpreter> &interpreters = search.found;
+
+        // The kit generated for an interpreter can be the one this detection fills.
+        const QList<Interpreter> gone = Utils::filtered(
+            search.gone, [kitId, &detectionSource](const Interpreter &interpreter) {
+                if (kitId == Id::fromString(interpreter.id))
+                    return false;
+                const Kit *generated = KitManager::kit(Id::fromString(interpreter.id));
+                return !generated || generated->detectionSource() != detectionSource;
+            });
+        if (!gone.isEmpty()) {
+            for (const Interpreter &interpreter : gone)
+                logCallback(Tr::tr("Removing Python: %1.").arg(interpreter.name));
+            const auto isGone = [&gone](const Interpreter &interpreter) {
+                return Utils::contains(gone, Utils::equal(&Interpreter::id, interpreter.id));
+            };
+            interpreterModel().destroyItems(isGone);
+            setInterpreter(
+                Utils::filtered(
+                    PythonSettings::interpreters(),
+                    [&isGone](const Interpreter &interpreter) { return !isGone(interpreter); }),
+                defaultInterpreterId());
+        }
+
+        // A re-detection removed them from the model, but not from the settings.
+        if (!detectionSource.id.isEmpty()) {
+            for (const Interpreter &interpreter : PythonSettings::interpreters()) {
+                if (interpreter.detectionSource.id == detectionSource.id
+                    && !Utils::contains(
+                        interpreterModel().interpreters(),
+                        Utils::equal(&Interpreter::id, interpreter.id))) {
+                    interpreterModel().addInterpreter(interpreter);
+                }
+            }
+        }
+
+        if (interpreters.isEmpty())
+            return;
+
+        QString kitPythonId;
+        for (const Interpreter &found : interpreters) {
+            // A search that ran meanwhile may have added the same command with another id.
+            const QList<Interpreter> current = PythonSettings::interpreters();
+            const auto existing = std::find_if(
+                current.cbegin(), current.cend(), [&found](const Interpreter &interpreter) {
+                    return interpreter.id == found.id || interpreter.command == found.command;
+                });
+            const bool isKnown = existing != current.cend();
+            const Interpreter &interpreter = isKnown ? *existing : found;
+            if (kitPythonId.isEmpty())
+                kitPythonId = interpreter.id;
+
+            // A re-detection removed it from the model, but not from the settings.
+            if (!Utils::contains(
+                    interpreterModel().interpreters(),
+                    Utils::equal(&Interpreter::id, interpreter.id))) {
+                interpreterModel().addInterpreter(interpreter);
+            }
+            if (isKnown)
+                continue;
+            if (detectionSource.id.isEmpty()) {
+                PythonSettings::addInterpreter(interpreter);
+            } else {
+                // No kit of its own: it would have the device kit's detection source, and
+                // kitDetectionRecipe() would take it for the device kit.
+                settingsInstance->m_interpreters.append(interpreter);
+                saveSettings();
+            }
             logCallback(
                 Tr::tr("Found \"%1\" (%2).")
                     .arg(interpreter.name, interpreter.command.toUserOutput()));
         }
+        if (kit)
+            PythonKitAspect::setPython(kit, kitPythonId);
     };
 
-    return AsyncTask<Interpreter>(setupSearch, searchDone);
+    return AsyncTask<PythonSearch>(setupSearch, searchDone);
 }
 
 void PythonSettings::removeDetectedPython(
