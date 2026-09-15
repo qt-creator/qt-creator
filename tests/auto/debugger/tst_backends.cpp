@@ -9469,6 +9469,26 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
              qPrintable("native frames above the spliced QML frame are not marked as "
                         "debugger machinery: " + aboveQml.join(", ")));
 
+    // The number is the interpreter's, not lldb's, and both count from 1, so
+    // removing through the native id would take an unrelated breakpoint.
+    const int wireBefore = wire.size();
+    BreakpointChangeRequest removeRequest;
+    removeRequest.op = BreakpointOp::Remove;
+    removeRequest.requestId = 40;
+    removeRequest.modelId = 42;
+    removeRequest.responseId = "1";
+    removeRequest.params.type = BreakpointByFileAndLine;
+    removeRequest.params.fileName = FilePath::fromUserInput("qmlstack_inferior.qml");
+    removeRequest.params.textPosition.line = markerLine;
+    engine->changeBreakpoint(removeRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(40), s_timeout);
+    const QStringList removalTraffic = wire.mid(wireBefore);
+    QVERIFY2(Utils::anyOf(removalTraffic, [](const QString &line) {
+                 return line.contains("removeInterpreterBreakpoint");
+             }),
+             qPrintable("a QML breakpoint was not removed through the interpreter - "
+                        + removalTraffic.join(" | ")));
+
     // Stepping from a QML stop has to reach the interpreter. Stepping the
     // native frame the notification arrives on instead leaves the QML line
     // where it was, however often it is repeated.

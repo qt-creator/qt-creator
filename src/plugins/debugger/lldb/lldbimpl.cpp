@@ -670,8 +670,22 @@ void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         const bool isCppBreakpoint = request.params.isCppBreakpoint();
         cmd.callback = [this, requestId, isCppBreakpoint](const DebuggerResponse &response) {
             const bool ok = response.resultClass == ResultDone;
-            if (!ok || !isCppBreakpoint) {
-                emit breakpointEvent(requestId, BreakpointOp::Insert, ok);
+            if (!ok) {
+                emit breakpointEvent(requestId, BreakpointOp::Insert, false);
+                return;
+            }
+            if (!isCppBreakpoint) {
+                // An interpreter breakpoint the service has not taken yet has no
+                // number to report; the availability hook retries it, and the
+                // reply to that carries one.
+                if (response.data["pending"].toInt()) {
+                    emit breakpointEvent(requestId, BreakpointOp::Insert, true);
+                    return;
+                }
+                GdbMi reply;
+                reply.m_type = GdbMi::List;
+                reply.addChild(response.data);
+                emit breakpointEvent(requestId, BreakpointOp::Insert, true, reply);
                 return;
             }
             emit breakpointEvent(requestId, BreakpointOp::Insert, true,
@@ -685,9 +699,17 @@ void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             emit breakpointEvent(requestId, BreakpointOp::Remove, false);
             break;
         }
-        DebuggerCommand cmd("removeBreakpoint");
-        cmd.arg("lldbid", request.responseId);
-        runCommand(cmd);
+        // The interpreter hands out numbers of its own, which mean nothing to
+        // lldb - and both count from 1, so the wrong one is a live id there.
+        if (!request.params.isCppBreakpoint()) {
+            DebuggerCommand cmd("removeInterpreterBreakpoint");
+            cmd.arg("id", request.responseId);
+            runCommand(cmd);
+        } else {
+            DebuggerCommand cmd("removeBreakpoint");
+            cmd.arg("lldbid", request.responseId);
+            runCommand(cmd);
+        }
         emit breakpointEvent(requestId, BreakpointOp::Remove, true);
         break;
     }

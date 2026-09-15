@@ -386,6 +386,7 @@ void GenericDebuggerEngine::removeBreakpoint(const Breakpoint &bp)
     if (bp->responseId().isEmpty()) {
         return;
     }
+    notifyBreakpointRemoveProceeding(bp);
     BreakpointChangeRequest request;
     request.op = BreakpointOp::Remove;
     request.requestId = m_nextBreakpointRequestId++;
@@ -549,6 +550,9 @@ void GenericDebuggerEngine::handleBreakpointModified(const GdbMi &data)
                 if (modelId) {
                     bp = handler->findBreakpointByModelId(modelId);
                     if (bp) {
+                        // The number the interpreter assigned is the only handle
+                        // the backend takes for removing or changing it later.
+                        bp->setResponseId(nr);
                         bp->setEnabled(bkpt["enabled"].toInt());
                         bp->setCondition(bkpt["condition"].data());
                         bp->setIgnoreCount(bkpt["ignorecount"].toInt());
