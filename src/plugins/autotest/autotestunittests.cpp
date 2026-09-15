@@ -3,7 +3,9 @@
 
 #include "autotestunittests.h"
 
+#include "externaltestrun.h"
 #include "testcodeparser.h"
+#include "testrunner.h"
 #include "testtreemodel.h"
 
 #include "qtest/qttestframework.h"
@@ -326,9 +328,48 @@ void AutotestUnitTests::testCodeParserBoostTest_data()
         << m_tmpDir->filePath() / "simple_boost/simple_boost.qbs" << QString(".qbs");
 }
 
+class ExternalTestRunTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testResultNesting();
+};
+
+void ExternalTestRunTest::testResultNesting()
+{
+    QList<TestResult> results;
+    const QMetaObject::Connection connection
+        = connect(TestRunner::instance(), &TestRunner::testResultReady,
+                  this, [&results](const TestResult &result) { results.append(result); });
+
+    {
+        ExternalTestRun run("suite");
+        if (!run.isRunning()) {
+            disconnect(connection);
+            QSKIP("Another test run is going on");
+        }
+        run.reportResult("aTest", ResultType::TestStart);
+        run.reportResult("aTest", ResultType::Pass);
+    }
+    disconnect(connection);
+
+    QCOMPARE(results.size(), 2);
+    bool needsIntermediate = false;
+    // The start of a test takes what the test says about itself...
+    QVERIFY(results.at(0).isDirectParentOf(results.at(1), &needsIntermediate));
+    // ...but an outcome takes nothing, or the tree would nest ever deeper.
+    QVERIFY(!results.at(1).isDirectParentOf(results.at(0), &needsIntermediate));
+}
+
 QObject *createAutotestUnitTests()
 {
     return new AutotestUnitTests;
+}
+
+QObject *createExternalTestRunTest()
+{
+    return new ExternalTestRunTest;
 }
 
 } // namespace Autotest::Internal

@@ -567,6 +567,7 @@ public:
         dd = new AutotestPluginPrivate;
 #ifdef WITH_TESTS
         addTestCreator(createAutotestUnitTests);
+        addTestCreator(createExternalTestRunTest);
 #endif
     }
 

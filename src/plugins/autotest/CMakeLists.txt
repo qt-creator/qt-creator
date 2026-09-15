@@ -28,6 +28,7 @@ add_qtc_plugin(AutoTest
     ctest/ctestoutputreader.cpp ctest/ctestoutputreader.h
     ctest/ctesttool.cpp ctest/ctesttool.h
     ctest/ctesttreeitem.cpp ctest/ctesttreeitem.h
+    externaltestrun.cpp externaltestrun.h
     gtest/gtest_utils.cpp gtest/gtest_utils.h
     gtest/gtestconfiguration.cpp gtest/gtestconfiguration.h
     gtest/gtestconstants.h

@@ -593,7 +593,7 @@ bool TestResultsPane::eventFilter(QObject *object, QEvent *event)
 void TestResultsPane::onTestRunStarted()
 {
     m_testRunning = true;
-    m_stopTestRun->setEnabled(true);
+    m_stopTestRun->setEnabled(TestRunner::instance()->isCancelable());
     updateMenuItemsEnabledState();
     m_summaryWidget->setVisible(false);
 }

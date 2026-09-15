@@ -25,6 +25,7 @@ class Id;
 
 namespace Autotest {
 
+class ExternalTestRun;
 class ITestConfiguration;
 class ITestTreeItem;
 class TestConfiguration;
@@ -52,8 +53,11 @@ public:
     bool isTestRunning() const
     {
         return m_buildConnect || m_taskTreeRunner.isRunning()
-               || !m_currentRunControl.isNull();
+               || !m_currentRunControl.isNull() || m_externalRunning;
     }
+
+    // False only while a run another plugin performs offers no way to stop it.
+    bool isCancelable() const { return !m_externalRunning || m_externalCancelable; }
 
     bool suppressPopups() const { return m_suppressPopups; }
 
@@ -67,6 +71,9 @@ signals:
     void reportDuration(int duration);
 
 private:
+    // Reports a run it performs itself through the signals here.
+    friend class Autotest::ExternalTestRun;
+
     void buildProject(ProjectExplorer::Project *project);
     void buildFinished(bool success);
     void onBuildQueueFinished(bool success);
@@ -116,6 +123,8 @@ private:
     bool m_stopRequested = false;
 
     bool m_suppressPopups = false;
+    bool m_externalRunning = false;
+    bool m_externalCancelable = false;
 };
 
 } // namespace Internal
