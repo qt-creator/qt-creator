@@ -1,0 +1,63 @@
+From 9e7a8cdde810e740227c002074d596c913a54a26 Mon Sep 17 00:00:00 2001
+From: Cristian Adam <cristian.adam@qt.io>
+Date: Tue, 15 Sep 2026 11:49:01 +0200
+Subject: [PATCH] QFace: Fix the inverted spell checking flags
+
+The definition turns spell checking off for its comments and on for the
+name of a module, a property, a function, an object and an element,
+which is the wrong way round: a name is no prose and a comment is. An
+editor that checks the prose of a file underlines every lower-case name
+of a .qface file and reads none of its comments.
+
+Turn both round and raise the version of the definition.
+
+Drop this patch once the definition at
+https://invent.kde.org/frameworks/syntax-highlighting carries the
+change.
+---
+ .../syntax-highlighting/data/syntax/qface.xml      | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/src/libs/3rdparty/syntax-highlighting/data/syntax/qface.xml b/src/libs/3rdparty/syntax-highlighting/data/syntax/qface.xml
+index b669a44db87..a1b1f8c33c0 100644
+--- a/src/libs/3rdparty/syntax-highlighting/data/syntax/qface.xml
++++ b/src/libs/3rdparty/syntax-highlighting/data/syntax/qface.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE language>
+ <!-- Author: Dominik Holland <dominik.holland@qt.io> -->
+-<language name="QFace" version="5" kateversion="5.62" section="Scripts" extensions="*.qface"
++<language name="QFace" version="6" kateversion="5.62" section="Scripts" extensions="*.qface"
+           mimetype="text/x-qface;application/x-qface" indenter="cstyle"
+           author="Dominik Holland (dominik.holland@qt.io), Zoltan Gera (zoltan.gera@qt.io)"
+           license="MIT">
+@@ -206,10 +206,10 @@
+     </contexts>
+     <itemDatas>
+       <itemData name="Normal Text" defStyleNum="dsNormal" spellChecking="false" />
+-      <itemData name="Comment" defStyleNum="dsComment" spellChecking="false" />
++      <itemData name="Comment" defStyleNum="dsComment" spellChecking="true" />
+       <itemData name="Documentation" defStyleNum="dsDocumentation" spellChecking="true" />
+       <itemData name="Module" defStyleNum="dsKeyword" spellChecking="false" />
+-      <itemData name="Module Name" defStyleNum="dsImport" spellChecking="true" />
++      <itemData name="Module Name" defStyleNum="dsImport" spellChecking="false" />
+       <itemData name="Module Version" defStyleNum="dsDecVal" spellChecking="false" />
+       <itemData name="Elements" defStyleNum="dsKeyword" spellChecking="false"/>
+       <itemData name="Element Constant" defStyleNum="dsConstant" spellChecking="false"/>
+@@ -218,10 +218,10 @@
+       <itemData name="YAML Key" defStyleNum="dsFunction" spellChecking="false"/>
+       <itemData name="YAML Constant" defStyleNum="dsChar" spellChecking="false"/>
+       <itemData name="Property Type" defStyleNum="dsDataType" spellChecking="false" />
+-      <itemData name="Property Name" defStyleNum="dsVariable" spellChecking="true" />
+-      <itemData name="Function Name" defStyleNum="dsFunction" spellChecking="true" />
+-      <itemData name="Object Name" defStyleNum="dsDataType" spellChecking="true" />
+-      <itemData name="Element Name" defStyleNum="dsDataType" spellChecking="true" />
++      <itemData name="Property Name" defStyleNum="dsVariable" spellChecking="false" />
++      <itemData name="Function Name" defStyleNum="dsFunction" spellChecking="false" />
++      <itemData name="Object Name" defStyleNum="dsDataType" spellChecking="false" />
++      <itemData name="Element Name" defStyleNum="dsDataType" spellChecking="false" />
+       <itemData name="Signal" defStyleNum="dsExtension" spellChecking="false"/>
+       <itemData name="Primitive" defStyleNum="dsDataType" spellChecking="false"/>
+       <itemData name="Aggregate" defStyleNum="dsBuiltIn" spellChecking="false"/>
+--
+2.55.0.windows.3
