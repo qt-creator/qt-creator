@@ -10485,7 +10485,7 @@ bool FakeVimHandler::Private::handleExTagCommand(const ExCommand &cmd)
 // standing for a backslash.
 QString FakeVimHandler::Private::withLeadersExpanded(const QString &keys) const
 {
-    const auto value = [this](const QString &name) -> QString {
+    const auto value = [](const QString &name) -> QString {
         const QString text = g.variables.contains(name) ? g.variables.value(name).toString()
                                                         : QString();
         return text.isEmpty() ? QString(QLatin1Char('\\')) : text;
@@ -15609,7 +15609,7 @@ private:
         // What follows an atom is read past as well when the expression is only
         // being skipped: the atom is 0 then, so subscripting or calling it would
         // be an error where Vim never looks at it at all.
-        const auto skipped = [this] { return VimValue(qlonglong(0)); };
+        const auto skipped = [] { return VimValue(qlonglong(0)); };
         VimValue v = exprAtom();
         while (m_ok) {
             // Vim lets white space stand before "->", and a continuation line of a Vim9 script may
@@ -26330,7 +26330,7 @@ void FakeVimHandler::Private::search(const SearchData &sd, bool showMessages)
         tc.setPosition(m_searchStartPosition);
     }
 
-    const auto takeMatch = [this, &sd](const QTextCursor &match) {
+    const auto takeMatch = [this](const QTextCursor &match) {
         if (isVisualMode()) {
             int d = match.anchor() - match.position();
             setPosition(match.position() + d);
@@ -27598,7 +27598,9 @@ void FakeVimHandler::Private::yankText(const Range &range, int reg)
     const bool visual = isVisualMode();
     event.insert("visual", VimValue::boolean(visual));
     event.insert("inclusive", VimValue::boolean(visual || g.movetype == MoveInclusive));
-    triggerAutocmd("TextYankPost", {event});
+    EventContext context;
+    context.data = event;
+    triggerAutocmd("TextYankPost", context);
 }
 
 void FakeVimHandler::Private::transformText(
