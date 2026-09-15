@@ -3,6 +3,7 @@
 
 #include "fileapidataextractor.h"
 
+#include "cmakeinstallrules.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
@@ -141,6 +142,7 @@ public:
     ConfigurationInfo codemodel;
     std::vector<TargetDetails> targetDetails;
     std::vector<TargetDetails> importedTargetDetails;
+    std::vector<DirectoryDetails> directoryDetails;
 };
 
 static PreprocessedData preprocess(const QFuture<void> &cancelFuture, FileApiData &data,
@@ -163,6 +165,7 @@ static PreprocessedData preprocess(const QFuture<void> &cancelFuture, FileApiDat
 
     result.targetDetails = std::move(data.targetDetails);
     result.importedTargetDetails = std::move(data.importedTargetDetails);
+    result.directoryDetails = std::move(data.directoryDetails);
 
     return result;
 }
@@ -1399,6 +1402,15 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
         return {};
     result.cmakeFiles = std::move(data.cmakeFiles);
     result.projectParts = generateRawProjectParts(cancelFuture, data, sourceDir, buildDir);
+    if (cancelFuture.isCanceled())
+        return {};
+    result.deployment = deploymentFromInstallRules(
+        cancelFuture,
+        data.directoryDetails,
+        data.targetDetails,
+        sourceDir,
+        buildDir,
+        result.cache.stringValueOf("CMAKE_INSTALL_PREFIX"));
     if (cancelFuture.isCanceled())
         return {};
 

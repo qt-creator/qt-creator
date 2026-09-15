@@ -3172,10 +3172,8 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
     setApplicationTargets(appTargets());
     updateExtraData();
 
-    // Note: This is practically always wrong and resulting in an empty view.
-    // Setting the real data is triggered from a successful run of a
-    // MakeInstallStep.
-    setDeploymentData(deploymentDataFromFile());
+    m_deploymentFromInstallRules = m_reader.takeDeployment();
+    updateDeploymentData();
 
     QTC_ASSERT(m_waitingForParse, return );
     m_waitingForParse = false;
@@ -3886,7 +3884,7 @@ FilePath CMakeBuildSystem::activeBuildTool() const
              : FilePath::fromString("cmake");
 }
 
-DeploymentData CMakeBuildSystem::deploymentDataFromFile() const
+std::optional<DeploymentData> CMakeBuildSystem::deploymentDataFromFile() const
 {
     DeploymentData result;
 
@@ -3902,7 +3900,7 @@ DeploymentData CMakeBuildSystem::deploymentDataFromFile() const
         hasDeploymentFile = deploymentFilePath.exists();
     }
     if (!hasDeploymentFile)
-        return result;
+        return {};
 
     deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath, sourceDir);
     for (const CMakeBuildTarget &ct : m_buildTargets) {
@@ -4126,14 +4124,21 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
         emit configurationChanged(config);
 }
 
+// What the install rules of the project name is what an install would put on the target. A
+// QtCreatorDeployment.txt file stays ahead of them: it is written for the very case its
+// author found the rules not to cover, which an empty one says too. Which of the two the
+// data came from decides how good it is, so both are settled here.
+void CMakeBuildSystem::updateDeploymentData()
+{
+    const std::optional<DeploymentData> fromFile = deploymentDataFromFile();
+    m_deploymentKnowledge = fromFile ? DeploymentKnowledge::Approximative
+                                     : m_deploymentFromInstallRules.knowledge;
+    setDeploymentData(fromFile ? *fromFile : m_deploymentFromInstallRules.data);
+}
+
 DeploymentKnowledge CMakeBuildSystem::deploymentKnowledge() const
 {
-    return !project()->files([](const Node *n) {
-                return n->filePath().fileName() == "QtCreatorDeployment.txt";
-            })
-                   .isEmpty()
-               ? DeploymentKnowledge::Approximative
-               : DeploymentKnowledge::Bad;
+    return m_deploymentKnowledge;
 }
 
 MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installRoot) const

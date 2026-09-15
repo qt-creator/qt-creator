@@ -409,6 +409,11 @@ CMakeConfig FileApiReader::takeParsedConfiguration()
     return std::exchange(m_data.cache, {});
 }
 
+InstallRuleDeployment FileApiReader::takeDeployment()
+{
+    return std::exchange(m_data.deployment, {});
+}
+
 QString FileApiReader::ctestPath() const
 {
     // if we failed to run cmake we should not offer ctest information either

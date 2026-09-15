@@ -42,6 +42,8 @@ Project {
             "cmakefilecompletionassist.h",
             "cmakeformatter.cpp",
             "cmakeformatter.h",
+            "cmakeinstallrules.cpp",
+            "cmakeinstallrules.h",
             "cmakeinstallstep.cpp",
             "cmakeinstallstep.h",
             "cmakekitaspect.h",
@@ -121,6 +123,17 @@ Project {
         ]
 
         QtcTestResources { files: "testcases/**/*" }
+    }
+
+    QtcAutotest {
+        name: "CMake install rules test"
+        Depends { name: "CMakeProjectManager" }
+        Depends { name: "ProjectExplorer" }
+        Depends { name: "Utils" }
+        files: [
+            "cmakeinstallrules.cpp",
+            "tests/tst_cmake_install_rules.cpp",
+        ]
     }
 
     QtcAutotest {

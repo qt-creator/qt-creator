@@ -38,6 +38,7 @@ public:
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage);
     QSet<CMakeFileInfo> takeCMakeFileInfos(QString &errorMessage);
     CMakeConfig takeParsedConfiguration();
+    InstallRuleDeployment takeDeployment();
     QString ctestPath() const;
     ProjectExplorer::RawProjectParts createRawProjectParts(QString &errorMessage);
 

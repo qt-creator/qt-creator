@@ -4,6 +4,7 @@
 #pragma once
 
 #include "cmakebuildtarget.h"
+#include "cmakeinstallrules.h"
 #include "cmakeprojectnodes.h"
 
 #include <cmakelang/cmakedocument.h>
@@ -43,6 +44,7 @@ public:
     QSet<CMakeFileInfo> cmakeFiles;
     QList<CMakeBuildTarget> buildTargets;
     ProjectExplorer::RawProjectParts projectParts;
+    InstallRuleDeployment deployment;
     std::unique_ptr<CMakeProjectNode> rootProjectNode;
     QString ctestPath;
     QString cmakeGenerator;

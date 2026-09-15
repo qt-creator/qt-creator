@@ -19,6 +19,8 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <optional>
+
 namespace ProjectExplorer {
     class ExtraCompiler;
     class FolderNode;
@@ -137,7 +139,8 @@ public:
     const QList<ProjectExplorer::BuildTargetInfo> appTargets() const;
     QStringList buildTargetTitles() const;
     const QList<CMakeBuildTarget> &buildTargets() const;
-    ProjectExplorer::DeploymentData deploymentDataFromFile() const;
+    std::optional<ProjectExplorer::DeploymentData> deploymentDataFromFile() const;
+    void updateDeploymentData();
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
@@ -288,6 +291,9 @@ private:
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;
+    InstallRuleDeployment m_deploymentFromInstallRules;
+    ProjectExplorer::DeploymentKnowledge m_deploymentKnowledge
+        = ProjectExplorer::DeploymentKnowledge::Bad;
     CMakeLang::SignatureTable m_commandSignatures;
     int m_commandSignaturesGeneration = 0;
     QHash<QString, Utils::Link> m_cmakeSymbolsHash;

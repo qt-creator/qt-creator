@@ -901,7 +901,14 @@ FilePath CMakeBuildStep::cmakeExecutable() const
 void CMakeBuildStep::updateDeploymentData()
 {
     if (!useStaging()) {
-        buildSystem()->setDeploymentData({});
+        // Nothing has been staged to list, so what the parse read off the install rules
+        // stands. Emptying the deployment instead would leave a deploy configuration with
+        // nothing to upload: the step that installs the project to get a complete list is
+        // added only while deployment knowledge is Bad, which the rules may well have
+        // lifted.
+        auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
+        QTC_ASSERT(bs, return);
+        bs->updateDeploymentData();
         return;
     }
 

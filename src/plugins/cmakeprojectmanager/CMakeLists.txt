@@ -19,6 +19,7 @@ add_qtc_plugin(CMakeProjectManager
     cmakefilecompletionassist.cpp cmakefilecompletionassist.h
     cmakeformatter.cpp cmakeformatter.h
     cmakeindenter.cpp cmakeindenter.h
+    cmakeinstallrules.cpp cmakeinstallrules.h
     cmakeinstallstep.cpp cmakeinstallstep.h
     cmakekitaspect.cpp cmakekitaspect.h
     cmakelocatorfilter.cpp cmakelocatorfilter.h
@@ -57,6 +58,14 @@ add_qtc_plugin(CMakeProjectManager
     qtinstallerpackages.cpp qtinstallerpackages.h
     targethelper.cpp targethelper.h
     testpresetshelper.cpp testpresetshelper.h
+)
+
+add_qtc_test(tst_cmake_install_rules
+  CONDITION WITH_TESTS
+  DEPENDS Utils ProjectExplorer CMakeProjectManager
+  SOURCES
+    tests/tst_cmake_install_rules.cpp
+    cmakeinstallrules.cpp
 )
 
 add_qtc_test(tst_cmake_test_presets
