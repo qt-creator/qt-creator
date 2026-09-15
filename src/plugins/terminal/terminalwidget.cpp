@@ -250,7 +250,7 @@ void TerminalWidget::setupPty()
     // scrollback. A screen that does take them back puts the lines the shell
     // repaints after a resize over the ones above them.
     surface()->setRefillFromScrollback(
-        !HostOsInfo::isWindowsHost() || shellCommand.executable().needsDevice());
+        !HostOsInfo::isWindowsHost() || !shellCommand.executable().isLocal());
 
     m_process->setProcessMode(ProcessMode::Writer);
     Utils::Pty::Data data;
