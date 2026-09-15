@@ -42,8 +42,6 @@ using namespace std::chrono_literals;
 
 namespace HarmonyOs::Internal {
 
-static Q_LOGGING_CATEGORY(buildDeviceLog, "qtc.harmonyos.builddevice", QtWarningMsg)
-
 HarmonyOsBuildDevice::HarmonyOsBuildDevice()
 {
     setType(Constants::HARMONYOS_BUILD_DEVICE_TYPE);
@@ -125,6 +123,8 @@ Result<QByteArray> HarmonyOsBuildDevice::prepareExecutableForUpload(const QByteA
 }
 
 #ifdef Q_OS_OHOS
+
+static Q_LOGGING_CATEGORY(buildDeviceLog, "qtc.harmonyos.builddevice", QtWarningMsg)
 
 // What the platform installs from an application's native package is the only thing it may
 // execute, and nothing searches there. Appended rather than prepended: it is where a tool
