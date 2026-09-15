@@ -1367,6 +1367,15 @@ void BridgeImpl::handleTracepointHit(const QJsonObject &body)
                  LogMisc);
 }
 
+// The interpreter announces a QML event by calling a hook in Qt, so the frame a
+// QML breakpoint stops in is Qt's own, and the QML frame the user asked about
+// only arrives with the stack the dumpers splice. The prefixes are the ones
+// DumperBase.isInterpreterMachineryFrame() marks the same frames by.
+static bool isInterpreterHookFrame(const QString &function)
+{
+    return function.startsWith("qt_qmlDebug") || function.startsWith("qt_v4");
+}
+
 void BridgeImpl::handleStackTrace(const QJsonObject &response)
 {
     const StackTraceRequest request
@@ -1388,11 +1397,11 @@ void BridgeImpl::handleStackTrace(const QJsonObject &response)
         const int lineNumber = top.value("line").toInt();
         const FilePath fileName
             = FilePath::fromUserInput(top.value("source").toObject().value("path").toString());
+        const QString function = top.value("name").toString();
         // A step that ended in a frame the user did not ask to see is continued
         // rather than reported: out of a function that only forwards, into one
         // that only wraps.
         if (request.fromStep && m_startData.skipKnownFrames) {
-            const QString function = top.value("name").toString();
             if (isLeavableFunction(function, fileName.path())) {
                 execute({ExecutionCommand::StepOut});
                 return;
@@ -1402,7 +1411,7 @@ void BridgeImpl::handleStackTrace(const QJsonObject &response)
                 return;
             }
         }
-        if (lineNumber != 0 && fileName.exists())
+        if (lineNumber != 0 && fileName.exists() && !isInterpreterHookFrame(function))
             emit locationChanged(fileName, lineNumber);
         reportStop();
         return;

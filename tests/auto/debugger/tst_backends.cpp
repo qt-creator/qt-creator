@@ -14249,6 +14249,11 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
     QStringList wire;
     connect(engine, &DebuggerEngineInterface::message, this,
             [&wire](const QString &text, int, int) { wire.append(text); });
+    QStringList locations;
+    connect(engine, &DebuggerEngineInterface::locationChanged, this,
+            [&locations](const FilePath &fileName, int line) {
+        locations.append(QString("%1:%2").arg(fileName.toUserOutput()).arg(line));
+    });
 
     connect(engine, &DebuggerEngineInterface::inferiorEvent, this,
             [engine, markerLine](InferiorEvent event) {
@@ -14294,6 +14299,16 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
     // stopped to running with no run of its own in between.
     QVERIFY2(!debuggerBackend->contains(InferiorEvent::StopOk),
              "an internal stop on the way to the breakpoint was reported to the engine");
+
+    // The stop itself is in Qt's interpreter hook, so nothing here may send the
+    // editor into Qt's own sources. The QML frame is the only place the user
+    // asked about, so a backend resolving the stop to it may say so.
+    const QStringList outsideQml = Utils::filtered(locations, [](const QString &location) {
+        return !location.contains(".qml:");
+    });
+    QVERIFY2(outsideQml.isEmpty(),
+             qPrintable("the QML breakpoint stop jumped the editor to "
+                        + outsideQml.join(", ")));
 
     QHash<int, GdbMi> responses;
     connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
@@ -15962,6 +15977,12 @@ void tst_backends::stepsFromQmlIntoNativeMixedCppFrame()
     const int qmlLine = qmlMarkerLine("Main.qml", "MARKER: qml-to-cpp");
     QVERIFY(qmlLine > 0);
 
+    QStringList locations;
+    connect(engine, &DebuggerEngineInterface::locationChanged, this,
+            [&locations](const FilePath &fileName, int line) {
+        locations.append(QString("%1:%2").arg(fileName.toUserOutput()).arg(line));
+    });
+
     connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
             [engine, qmlLine](InferiorEvent event) {
         if (event == InferiorEvent::EngineSetupOk) {
@@ -16014,6 +16035,18 @@ void tst_backends::stepsFromQmlIntoNativeMixedCppFrame()
     QVERIFY2(stack.contains("function=\"compute\"") && stack.contains("language=\"js\""),
              qPrintable("the spliced stack should still show the QML caller "
                         "after stepping in - stack: " + stack));
+
+    // Getting into the method takes a detour through the hook the interpreter
+    // announces the native call by, which is in Qt's own sources. The stack
+    // round trip above is ordered after the stop, so a jump sent on the way
+    // would be recorded by now.
+    const QStringList outsideInferior = Utils::filtered(locations,
+                                                        [](const QString &location) {
+        return !location.contains("qmlmix_inferior.cpp:") && !location.contains(".qml:");
+    });
+    QVERIFY2(outsideInferior.isEmpty(),
+             qPrintable("the QML-to-C++ step jumped the editor to "
+                        + outsideInferior.join(", ")));
 #endif
 }
 

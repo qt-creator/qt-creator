@@ -2110,6 +2110,22 @@ void GdbImpl::reportEngineSetupFailed()
     emit inferiorEvent(InferiorEvent::EngineSetupFailed);
 }
 
+// The interpreter announces a QML event by calling a hook in Qt, so the frame
+// a QML breakpoint stops in is Qt's own. The place to go is the QML frame the
+// dumpers splice in, which arrives with the stack refresh, not this record.
+// The prefixes are the ones DumperBase.isInterpreterMachineryFrame() marks the
+// same frames by, so a hook the bridge breaks at needs no entry of its own.
+// QV4::CallMethod is not one of those hooks: it is where gdbbridge.py's
+// QmlToCppStepInBreakpoint breaks to catch a QML-to-C++ step-in when the
+// running Qt lacks qt_v4AboutToCallNativeMethodHook, so this record is that
+// breakpoint's own hit rather than the method it steps into afterwards.
+static bool isInterpreterHookFrame(const GdbMi &frame)
+{
+    const QString function = frame["func"].data();
+    return function.startsWith("qt_qmlDebug") || function.startsWith("qt_v4")
+            || function == "QV4::CallMethod";
+}
+
 void GdbImpl::handleOutputLine(const QString &line)
 {
     if (line.isEmpty() || line == "(gdb) ")
@@ -2369,7 +2385,7 @@ void GdbImpl::handleOutputLine(const QString &line)
 
             const GdbMi frame = result["frame"];
             const int lineNumber = frame["line"].toInt();
-            if (lineNumber != 0) {
+            if (lineNumber != 0 && !isInterpreterHookFrame(frame)) {
                 FilePath fileName = FilePath::fromUserInput(frame["fullname"].data());
                 if (fileName.isEmpty())
                     fileName = FilePath::fromUserInput(frame["file"].data());
