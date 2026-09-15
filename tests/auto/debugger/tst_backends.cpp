@@ -8691,7 +8691,7 @@ void tst_backends::readsTheDebuggerInitFileWhenConfigured()
 
     // The init file is read before anything the engine sends, so by the time the
     // engine is set up its output has either arrived or never will.
-    const auto markerSeen = [this, &marker](DebuggerBackend *debuggerBackend) {
+    const auto markerSeen = [&marker](DebuggerBackend *debuggerBackend) {
         DebuggerEngineInterface *engine = debuggerBackend->engine();
         QStringList messages;
         // The engine outlives this call, so the connection must not: the list it

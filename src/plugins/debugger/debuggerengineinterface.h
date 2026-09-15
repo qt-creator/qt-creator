@@ -159,7 +159,7 @@ class DEBUGGER_EXPORT AttachToProcessData
 {
 public:
     Utils::ProcessHandle pid;
-    QString crashParameter;
+    QString crashParameter = {};
 };
 
 class DEBUGGER_EXPORT AttachToTerminalStubData
@@ -175,8 +175,8 @@ class DEBUGGER_EXPORT AttachToRemoteServerData
 public:
     QString channel;
     Utils::FilePath symbolFile;
-    Utils::ProcessHandle attachPid;
-    Utils::FilePath remoteExecutable;
+    Utils::ProcessHandle attachPid = {};
+    Utils::FilePath remoteExecutable = {};
 };
 
 class DEBUGGER_EXPORT AttachToCoreData
