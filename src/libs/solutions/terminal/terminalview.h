@@ -101,7 +101,7 @@ public:
         // The link was marked as such by the application (OSC 8), text is a uri.
         bool isUri = false;
         // What the reader is told the link leads to, the text itself when empty.
-        QString tooltip;
+        QString tooltip = {};
     };
 
     // A link somewhere in a line, the offsets being into that line.
