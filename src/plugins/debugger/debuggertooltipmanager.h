@@ -3,9 +3,13 @@
 
 #pragma once
 
+#include "debugger_global.h"
+
 #include <utils/filepath.h>
 
 #include <QPoint>
+
+#include <functional>
 
 namespace Debugger::Internal {
 
@@ -36,6 +40,15 @@ public:
 };
 
 using DebuggerToolTipContexts = QList<DebuggerToolTipContext>;
+
+// What to evaluate at a position, for a language Qt Creator has no expression
+// parser of its own for. Line and column are one based. False leaves the file
+// to the built-in heuristic, an empty answer the one position. The answer is
+// only looked at when true was returned, and may come long after.
+using DebuggerToolTipExpressionProvider
+    = std::function<bool(const Utils::FilePath &file, int line, int column,
+                         const std::function<void(const QString &)> &answer)>;
+DEBUGGER_EXPORT DebuggerToolTipExpressionProvider &debuggerToolTipExpressionProvider();
 
 class DebuggerToolTipManager
 {

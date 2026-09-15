@@ -118,6 +118,7 @@ DapImpl::DapImpl(const DapStartData &startData)
 DapImpl::~DapImpl()
 {
     reportRunning(false);
+    reportResumed();
     if (m_startData.channel)
         m_startData.channel->send = {};
 }
@@ -150,6 +151,27 @@ void DapImpl::reportRunResult(bool ok)
         return;
     m_runRequestPending = false;
     emit inferiorEvent(ok ? InferiorEvent::RunOk : InferiorEvent::RunFailed);
+}
+
+void DapImpl::reportStoppedLocation(const FilePath &file, int line)
+{
+    // A stop the adapter names no frame for is nothing a follower could ask
+    // about, and passing the -1 on would tell it the program runs again.
+    if (m_currentFrameId < 0)
+        return;
+    if (!m_startData.channel || !m_startData.channel->reportStopped)
+        return;
+    m_stopReported = true;
+    m_startData.channel->reportStopped(m_currentFrameId, file, line);
+}
+
+void DapImpl::reportResumed()
+{
+    if (!std::exchange(m_stopReported, false) || !m_startData.channel
+        || !m_startData.channel->reportStopped) {
+        return;
+    }
+    m_startData.channel->reportStopped(-1, {}, 0);
 }
 
 void DapImpl::sendCustomRequest(const QString &command, const QJsonObject &arguments,
@@ -946,6 +968,8 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
     case DapResponseType::Continue:
         reportRunResult(success);
         m_inferiorRunning = success;
+        if (success)
+            reportResumed();
         return;
     case DapResponseType::StepIn:
     case DapResponseType::StepOut:
@@ -1214,6 +1238,7 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         }
         const bool wasRunning = m_inferiorRunning;
         m_inferiorRunning = true;
+        reportResumed();
         if (!wasRunning) {
             reportRunRequested();
             reportRunResult(true);
@@ -1404,6 +1429,7 @@ void DapImpl::handleStackTrace(const QJsonObject &response)
         }
         if (lineNumber != 0 && fileName.exists())
             emit locationChanged(fileName, lineNumber);
+        reportStoppedLocation(fileName, lineNumber);
         reportStop();
         return;
     }

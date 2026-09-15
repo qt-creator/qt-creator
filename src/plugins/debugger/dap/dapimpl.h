@@ -102,6 +102,8 @@ protected:
     void reportRunning(bool running);
     void reportRunRequested();
     void reportRunResult(bool ok);
+    void reportStoppedLocation(const Utils::FilePath &file, int line);
+    void reportResumed();
 
     const DapStartData m_startData;
     DapClient *m_client = nullptr;
@@ -119,6 +121,7 @@ protected:
     QHash<int, PendingRequest> m_pendingRequests;
     QTimer m_watchdog;
     bool m_runningReported = false;
+    bool m_stopReported = false;
     // The scopes request the locals walk running now belongs to.
     int m_scopesSeq = -1;
     // The register view's own walk: the scopes request that finds the register

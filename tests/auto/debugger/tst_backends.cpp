@@ -1319,6 +1319,7 @@ private slots:
     void reportsTheRunBeforeItsOutcomeThroughDapAdapter();
     void reportsARefusedDapLaunchAsTheSessionEnding();
     void followsAResumeTheDapAdapterMakesOnItsOwn();
+    void namesNoFrameForAStopADapAdapterGivesNoneFor();
     void readsOnlyTheLocalScopeFromADapAdapter();
     void reportsASocketThatCannotConnect();
     void dropsALocalsWalkThatWasStartedOver();
@@ -12749,6 +12750,39 @@ class ResumingDapAdapter : public FakeDapAdapter
     }
 };
 
+// An adapter that names a frame for its first stop and none for its second,
+// which is what one does where the stack cannot be walked at the point it
+// stopped at.
+class FramelessDapAdapter : public FakeDapAdapter
+{
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        if (command == "initialize") {
+            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true}});
+            sendEvent("initialized");
+            return;
+        }
+        if (command == "stackTrace") {
+            QJsonArray frames;
+            if (m_stops == 1) {
+                frames.append(QJsonObject{{"id", 1000}, {"name", "main"},
+                                          {"line", 11}, {"column", 1}});
+            }
+            respond(request, QJsonObject{{"stackFrames", frames},
+                                         {"totalFrames", frames.size()}});
+            return;
+        }
+        respond(request, QJsonObject{});
+        if (command == "configurationDone" || command == "continue") {
+            ++m_stops;
+            sendEvent("stopped", QJsonObject{{"reason", "breakpoint"}, {"threadId", 1}});
+        }
+    }
+
+    int m_stops = 0;
+};
+
 // An adapter that speaks only what this is about: it ends the session while
 // answering the launch, which is before the configuration it was also asked
 // about has been answered. Nothing real is debugged, and nothing needs to be.
@@ -12964,6 +12998,52 @@ void tst_backends::followsAResumeTheDapAdapterMakesOnItsOwn()
     const QList<InferiorEvent> &events = debuggerBackend.events();
     QCOMPARE(events.indexOf(InferiorEvent::RunRequested),
              events.indexOf(InferiorEvent::RunOk) - 1);
+
+    engine->shutdownEngine();
+}
+
+// A follower is told the frame the program stopped in so it can ask the
+// adapter about it, and a frame below zero is what says the program runs
+// again. A stop the adapter names no frame for is nothing to tell it about.
+void tst_backends::namesNoFrameForAStopADapAdapterGivesNoneFor()
+{
+    FramelessDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    QList<int> frameIds;
+    const auto channel = std::make_shared<DapSessionChannel>();
+    channel->reportStopped = [&frameIds](int frameId, const FilePath &, int) {
+        frameIds.append(frameId);
+    };
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "frameless";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+    startData.channel = channel;
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend.contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QVERIFY(debuggerBackend.contains(InferiorEvent::SpontaneousStop));
+    QTRY_COMPARE_WITH_TIMEOUT(frameIds, QList<int>({1000}), s_timeout);
+
+    debuggerBackend.clearEvents();
+    debuggerBackend.execute({ExecutionCommand::Continue});
+    // The frameless stack trace belongs to the second stop and is answered
+    // before it is reported, so whatever the follower was told about that stop
+    // has arrived by the time the stop has.
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop),
+                             s_timeout);
+
+    // The resume says -1 once. The stop that named no frame says nothing.
+    QCOMPARE(frameIds, QList<int>({1000, -1}));
 
     engine->shutdownEngine();
 }

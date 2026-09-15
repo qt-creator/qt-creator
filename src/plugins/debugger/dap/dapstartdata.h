@@ -67,6 +67,10 @@ public:
     // then is there a session to announce; an adapter told about it earlier
     // answers out of an empty state.
     std::function<void(bool running)> reportRunning;
+
+    // Where the program stopped, and in which frame, so a follower can ask
+    // the adapter about that frame. A frame below zero says it runs again.
+    std::function<void(int frameId, const Utils::FilePath &file, int line)> reportStopped;
 };
 
 class DEBUGGER_EXPORT DapStartData

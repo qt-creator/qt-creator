@@ -84,6 +84,8 @@ public:
 
     void slotTooltipOverrideRequested(TextEditor::TextEditorWidget *editorWidget,
                                       const QPoint &point, int pos, bool *handled);
+    void showToolTip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point,
+                     DebuggerToolTipContext context);
     void slotEditorOpened(Core::IEditor *e);
     void hideAllToolTips();
     void purgeClosedToolTips();
@@ -846,6 +848,12 @@ void DebuggerToolTipManager::resetLocation()
     }
 }
 
+DebuggerToolTipExpressionProvider &debuggerToolTipExpressionProvider()
+{
+    static DebuggerToolTipExpressionProvider provider;
+    return provider;
+}
+
 void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
     (TextEditorWidget *editorWidget, const QPoint &point, int pos, bool *handled)
 {
@@ -865,15 +873,49 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
     context.position = pos;
     editorWidget->convertPosition(pos, &context.line, &context.column);
     ++context.column;
+    // cppExpressionAt() moves line and column to the end of the word it found,
+    // which says nothing in a language it does not parse. A provider is asked
+    // about the position the user actually pointed at.
+    const int pointedAtLine = context.line;
+    const int pointedAtColumn = context.column;
     QString raw = cppExpressionAt(editorWidget, context.position, &context.line, &context.column,
                                   &context.function, &context.scopeFromLine, &context.scopeToLine);
     context.expression = fixCppExpression(raw);
     context.isCppEditor = CppEditor::ProjectFile::classify(document->filePath())
                             != CppEditor::ProjectFile::Unsupported;
 
+    *handled = true;
+
+    // A provider may know what the user pointed at where the C++ heuristic
+    // cannot, and takes a round trip to say so. Nothing is shown until it
+    // answers.
+    if (const DebuggerToolTipExpressionProvider &provider = debuggerToolTipExpressionProvider()) {
+        const QPointer<DebuggerToolTipManagerPrivate> alive(this);
+        const QPointer<TextEditorWidget> widget(editorWidget);
+        const auto answered = [alive, widget, point, context](const QString &expression) {
+            if (!alive || !widget)
+                return;
+            DebuggerToolTipContext answer = context;
+            if (!expression.isEmpty())
+                answer.expression = expression;
+            alive->showToolTip(widget, point, answer);
+        };
+        if (provider(context.fileName, pointedAtLine, pointedAtColumn, answered))
+            return;
+    }
+
+    showToolTip(editorWidget, point, context);
+}
+
+void DebuggerToolTipManagerPrivate::showToolTip(TextEditorWidget *editorWidget,
+                                                const QPoint &point,
+                                                DebuggerToolTipContext context)
+{
+    if (!m_engine || !m_engine->canDisplayTooltip())
+        return;
+
     if (context.expression.isEmpty()) {
         ToolTip::show(point, Tr::tr("No valid expression"), editorWidget);
-        *handled = true;
         return;
     }
 
@@ -927,8 +969,6 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
             }
         }
     }
-
-    *handled = true;
 }
 
 void DebuggerToolTipManagerPrivate::slotEditorOpened(IEditor *e)
