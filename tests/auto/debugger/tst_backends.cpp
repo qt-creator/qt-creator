@@ -149,8 +149,9 @@ static const char s_qmlNativeDebuggerPluginMissing[] =
     "QML debug connection.";
 
 static const char s_qtDeclarativeDebugInfoMissing[] =
-    "libQt6Qml has no DWARF debug info - gdbbridge.py can't recognize its "
-    "own interpreter-internal frames, so no QML frames get spliced in.";
+    "Qt's Qml library carries no debug info the debugger can read - the bridge "
+    "can't recognize its own interpreter-internal frames, so no QML frames get "
+    "spliced in.";
 
 enum class Backend {
     Gdb,
@@ -471,21 +472,54 @@ static Result<FilePath> strippedQmlDebugPluginDir(const FilePath &parentDir)
     return strippedDir;
 }
 
+// The QtQml framework of a macOS Qt, empty for a -no-framework build.
+static FilePath qtDeclarativeFramework()
+{
+    const FilePath framework =
+        FilePath::fromUserInput(QLibraryInfo::path(QLibraryInfo::LibrariesPath))
+        / "QtQml.framework";
+    return framework.isDir() ? framework : FilePath();
+}
+
 // The Qml library, whose debug info the interpreter frame recognition needs and
-// whose symbols say whether the Qt carries the native call hook. Mach-O keeps
-// the debug info in a bundle beside the library rather than in a section.
+// whose symbols say whether the Qt carries the native call hook.
 static FilePath qtDeclarativeLibrary()
 {
-    const QDir libDir(QLibraryInfo::path(QLibraryInfo::LibrariesPath));
     if (HostOsInfo::isMacHost()) {
-        const FilePath framework = FilePath::fromString(
-            libDir.absoluteFilePath("QtQml.framework/Versions/A/QtQml"));
-        return framework.isFile() ? framework : FilePath();
+        const FilePath framework = qtDeclarativeFramework();
+        const FilePath binary = framework.isEmpty() ? FilePath()
+                                                    : framework / "Versions/A/QtQml";
+        if (binary.isFile())
+            return binary;
     }
-    const QFileInfoList candidates = libDir.entryInfoList({"libQt6Qml.so*"}, QDir::Files);
+    const QDir libDir(QLibraryInfo::path(QLibraryInfo::LibrariesPath));
+    const QString pattern = QLatin1String(HostOsInfo::isMacHost() ? "libQt6Qml*.dylib"
+                                                                  : "libQt6Qml.so*");
+    const QFileInfoList candidates = libDir.entryInfoList({pattern}, QDir::Files);
     if (candidates.isEmpty())
         return {};
     return FilePath::fromString(candidates.constFirst().absoluteFilePath());
+}
+
+// Object files a Mach-O debug map still points at, which is the shape the DWARF
+// has whenever dsymutil has not run over the library.
+static bool hasMachODebugMap(const FilePath &library)
+{
+    const FilePath nmPath = FilePath::fromString("nm").searchInPath();
+    if (!nmPath.isExecutableFile())
+        return false;
+    Process nm;
+    nm.setCommand({nmPath, {"-pa", library.nativePath()}});
+    nm.runBlocking(s_timeout);
+    if (nm.result() != ProcessResult::FinishedWithSuccess)
+        return false;
+    const QStringList lines = nm.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        const int oso = line.indexOf(" OSO ");
+        if (oso != -1 && FilePath::fromUserInput(line.mid(oso + 5).trimmed()).exists())
+            return true;
+    }
+    return false;
 }
 
 static bool hasQtDeclarativeDebugInfo()
@@ -493,9 +527,15 @@ static bool hasQtDeclarativeDebugInfo()
     const FilePath library = qtDeclarativeLibrary();
     if (library.isEmpty())
         return false;
-    if (HostOsInfo::isMacHost())
-        return library.parentDir().parentDir().parentDir().stringAppended(".dSYM").exists();
-    return Utils::ElfReader(library).readHeaders().indexOf(".debug_info") != -1;
+    if (!HostOsInfo::isMacHost())
+        return Utils::ElfReader(library).readHeaders().indexOf(".debug_info") != -1;
+    // dsymutil writes the debug info beside the framework, or beside the library
+    // itself for a -no-framework build. Where it has not run, the DWARF is still
+    // in the object files and lldb reaches it through the library's debug map -
+    // which is what a locally built Qt looks like.
+    const FilePath framework = qtDeclarativeFramework();
+    const FilePath dsym = (framework.isEmpty() ? library : framework).stringAppended(".dSYM");
+    return dsym.exists() || hasMachODebugMap(library);
 }
 
 static bool hasNativeCallHook()
@@ -2500,9 +2540,11 @@ void tst_backends::initTestCase()
              qPrintable(QLibraryInfo::path(QLibraryInfo::PluginsPath) + "/qmltooling"));
 
     m_hasQtDeclarativeDebugInfo = hasQtDeclarativeDebugInfo();
-    qWarning("libQt6Qml debug info: %s (looked in %s)",
+    const FilePath qmlLibrary = qtDeclarativeLibrary();
+    qWarning("Qml library debug info: %s (looked at %s)",
              m_hasQtDeclarativeDebugInfo ? "found" : "NOT found",
-             qPrintable(QLibraryInfo::path(QLibraryInfo::LibrariesPath)));
+             qPrintable(qmlLibrary.isEmpty() ? QLibraryInfo::path(QLibraryInfo::LibrariesPath)
+                                             : qmlLibrary.toUserOutput()));
 
     m_hasNativeCallHook = hasNativeCallHook();
     qWarning("qt_v4AboutToCallNativeMethodHook: %s",
