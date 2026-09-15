@@ -115,6 +115,8 @@ private:
         BaseSettings *setting,
         const QList<Client *> &clients);
 
+    static void applySettingsForRequiresProject(BaseSettings *setting);
+
     QList<Client *> reachableClients();
 
     QList<Client *> m_clients;
