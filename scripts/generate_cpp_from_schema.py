@@ -998,6 +998,8 @@ def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_typ
     lines.append(f"")
     lines.append(f"    template<typename T> const T* get() const {{ return std::get_if<T>(&_value); }}")
     lines.append(f"    const QString& kind() const {{ return _kind; }}")
+    lines.append(f"")
+    lines.append(f"    bool operator==(const {name} &other) const = default;")
     lines.append(f"}};")
     lines.append(f"")
 
@@ -3968,6 +3970,8 @@ def _emit_type_alias(name, spec, code, emitted, variant_signatures, alias_fromjs
         # Const reference getters
         for field, orig in pairs:
             lines.append(f"    const std::optional<{val_type}>& {field}() const {{ return _{field}; }}")
+        lines.append(f"")
+        lines.append(f"    bool operator==(const {name} &other) const = default;")
         lines.append(f"}};")
         lines.append(f"")
 

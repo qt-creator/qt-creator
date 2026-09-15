@@ -95,6 +95,8 @@ struct binaryDistribution {
     const std::optional<binaryTarget>& linuxminusx86_64() const { return _linuxminusx86_64; }
     const std::optional<binaryTarget>& windowsminusaarch64() const { return _windowsminusaarch64; }
     const std::optional<binaryTarget>& windowsminusx86_64() const { return _windowsminusx86_64; }
+
+    bool operator==(const binaryDistribution &other) const = default;
 };
 
 template<>

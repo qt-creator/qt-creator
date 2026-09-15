@@ -3574,6 +3574,8 @@ struct SessionUpdate {
 
     template<typename T> const T* get() const { return std::get_if<T>(&_value); }
     const QString& kind() const { return _kind; }
+
+    bool operator==(const SessionUpdate &other) const = default;
 };
 
 template<>
@@ -4794,6 +4796,8 @@ struct RequestPermissionOutcome {
 
     template<typename T> const T* get() const { return std::get_if<T>(&_value); }
     const QString& kind() const { return _kind; }
+
+    bool operator==(const RequestPermissionOutcome &other) const = default;
 };
 
 template<>
