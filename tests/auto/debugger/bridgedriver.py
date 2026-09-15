@@ -22,6 +22,10 @@ import types
 check = sys.argv[1] if len(sys.argv) > 1 else ""
 dumperDir = os.environ.get("DUMPERDIR") or (sys.argv[2] if len(sys.argv) > 2 else "")
 
+# bridge.py imports its siblings (gdbtracepoint) by plain name, the way gdb's
+# own Python does after adding the dumper directory to the path.
+sys.path.insert(0, dumperDir)
+
 
 #######################################################################
 # A fake gdb module, recording what the bridge asks of it
@@ -134,8 +138,16 @@ def makeFakeGdb():
     module = types.ModuleType("gdb")
     module.error = GdbError
     module.Breakpoint = FakeBreakpoint
+    # The values gdb itself uses, not a numbering of our own: the bridge maps
+    # them to its own breakpoint types, so a collision here would pass for free.
+    module.BP_NONE = 0
     module.BP_BREAKPOINT = 1
-    module.BP_WATCHPOINT = 2
+    module.BP_HARDWARE_BREAKPOINT = 2
+    module.BP_WATCHPOINT = 6
+    module.BP_HARDWARE_WATCHPOINT = 7
+    module.BP_READ_WATCHPOINT = 8
+    module.BP_ACCESS_WATCHPOINT = 9
+    module.BP_CATCHPOINT = 26
     module.commands = []
     module.objfileList = []
     module.sharedLibraryListing = ""
@@ -167,16 +179,30 @@ def makeFakeGdb():
 
     module.execute = execute
     module.events = types.SimpleNamespace(stop=FakeEventRegistry(),
+                                          cont=FakeEventRegistry(),
                                           exited=FakeEventRegistry(),
+                                          breakpoint_created=FakeEventRegistry(),
+                                          breakpoint_deleted=FakeEventRegistry(),
                                           breakpoint_modified=FakeEventRegistry(),
                                           new_objfile=FakeEventRegistry(),
                                           free_objfile=FakeEventRegistry(),
                                           new_thread=FakeEventRegistry(),
                                           thread_exited=FakeEventRegistry())
-    module.breakpoints = lambda: tuple(module.breakpointObjects)
+    # gdb drops a deleted breakpoint from this list, and reading the number
+    # of one that is gone raises; the record of it stays in breakpointObjects
+    # for the checks to look at.
+    module.breakpoints = lambda: tuple(bp for bp in module.breakpointObjects
+                                       if not bp.deleted)
     module.objfiles = lambda: list(module.objfileList)
     module.selected_inferior = lambda: FakeInferior()
     module.decode_line = lambda spec: (None, [])
+
+    def blockForPc(pc):
+        # Nothing backs the fake addresses with debug information, which is
+        # what gdb answers then; the bridge falls back to the location's name.
+        raise GdbError("No function contains specified address.")
+
+    module.block_for_pc = blockForPc
     module.selected_thread = lambda: FakeThread(1)
     module.newest_frame = lambda: None
     module.parse_and_eval = lambda expression: 0
@@ -206,7 +232,6 @@ gdb.events.stop.connect(interpreterStopHandler)
 def realDumperBase():
     # dumper.py is backend-agnostic and imports cleanly, so the checks can use
     # the real serializer instead of a stand-in that could drift from it.
-    sys.path.insert(0, dumperDir)
     spec = importlib.util.spec_from_file_location("dumper_under_test",
                                                   os.path.join(dumperDir, "dumper.py"))
     module = importlib.util.module_from_spec(spec)
@@ -663,7 +688,7 @@ def check_extra_dumpers_are_loaded(bridge):
     # The user's own dumper module has to be added before the dumpers are set
     # up, so it travels with initialize - a later request would be too late.
     peer = Peer(bridge)
-    peer.request("initialize", {"qtcDumperFile": "/home/me/mydumpers.py",
+    peer.request("initialize", {"qtcDumperFiles": ["/home/me/mydumpers.py"],
                                 "qtcDumperCommands": "python print(1)\nset confirm off"})
     assert peer.server.dumper.addedModules == ["/home/me/mydumpers.py"], \
         peer.server.dumper.addedModules
@@ -995,17 +1020,17 @@ def check_startup_commands_reach_gdb(bridge):
     # The user's "Additional Startup Commands" and the script that can replace
     # them: without these the setting is silently ignored.
     peer = Peer(bridge)
-    peer.request("qtc/runStartupCommands",
+    peer.request("qtc/runUserCommands",
                  {"commands": "set print pretty on\n\nset listsize 20"})
     sent = [c for c in gdb.commands if c.startswith("set ")]
     assert sent == ["set print pretty on", "set listsize 20"], sent
 
     del gdb.commands[:]
-    peer.request("qtc/runStartupCommands", {"script": "/tmp/a dir/init.gdb"})
+    peer.request("qtc/runUserCommands", {"script": "/tmp/a dir/init.gdb"})
     assert "source /tmp/a dir/init.gdb" in gdb.commands, gdb.commands
 
     del gdb.commands[:]
-    peer.request("qtc/runStartupCommands", {"script": "/tmp/init.gdb\nkill"})
+    peer.request("qtc/runUserCommands", {"script": "/tmp/init.gdb\nkill"})
     assert not any(c.startswith("source") for c in gdb.commands), \
         "a script path with a newline was sourced anyway: %s" % gdb.commands
 
