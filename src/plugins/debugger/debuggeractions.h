@@ -28,6 +28,7 @@ public:
     Utils::BoolAspect &warnOnReleaseBuilds;
     Utils::BoolAspect &nativeMixedMode;
     Utils::BoolAspect &collapseMachineryFrames;
+    Utils::BoolAspect &useGenericDebugger;
     Utils::IntegerAspect &maximalStackDepth;
 
     Utils::BoolAspect &fontSizeFollowsEditor;

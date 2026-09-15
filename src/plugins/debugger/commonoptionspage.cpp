@@ -13,10 +13,13 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 
 #include <QGuiApplication>
 #include <QLabel>
+
+#include <optional>
 
 using namespace Core;
 using namespace Debugger::Constants;
@@ -30,6 +33,30 @@ CommonSettings &commonSettings()
 {
     static CommonSettings settings;
     return settings;
+}
+
+static std::optional<bool> useGenericDebuggerOverride()
+{
+    static const std::optional<bool> forced = []() -> std::optional<bool> {
+        bool ok = false;
+        const int value = Utils::qtcEnvironmentVariableIntValue("QTC_USE_GENERIC_DEBUGGER", &ok);
+        if (!ok)
+            return {};
+        qWarning("QTC_USE_GENERIC_DEBUGGER is set: the new debugger backends are %s.",
+                 value ? "enabled" : "disabled");
+        return value != 0;
+    }();
+    return forced;
+}
+
+bool isUseGenericDebuggerOverride()
+{
+    return useGenericDebuggerOverride().has_value();
+}
+
+bool useGenericDebuggerEnabled()
+{
+    return useGenericDebuggerOverride().value_or(commonSettings().useGenericDebugger());
 }
 
 CommonSettings::CommonSettings()
@@ -162,6 +189,22 @@ CommonSettings::CommonSettings()
                  "stack view."));
     collapseMachineryFrames.setEnabler(&nativeMixedMode);
 
+    useGenericDebugger.setSettingsKey(debugModeGroup, "UseGenericDebugger");
+    useGenericDebugger.setLabelText(Tr::tr("Use the new debugger backends (experimental)"));
+    QString useGenericDebuggerTooltip
+        = Tr::tr("Runs the debugger through the new engine-independent front end "
+                 "instead of the engine's own implementation. The new backends are "
+                 "incomplete, so expect missing views and unhandled situations. "
+                 "The QTC_USE_GENERIC_DEBUGGER environment variable overrides "
+                 "this setting.");
+    if (isUseGenericDebuggerOverride()) {
+        useGenericDebuggerTooltip += QLatin1Char(' ');
+        useGenericDebuggerTooltip
+            += Tr::tr("Unset QTC_USE_GENERIC_DEBUGGER to enable this setting.");
+    }
+    useGenericDebugger.setToolTip("<p>" + useGenericDebuggerTooltip);
+    useGenericDebugger.setEnabled(!isUseGenericDebuggerOverride());
+
     useToolTipsInMainEditor.setSettingsKey(debugModeGroup, "UseToolTips");
     useToolTipsInMainEditor.setLabelText(Tr::tr("Use tooltips in main editor when debugging"));
     useToolTipsInMainEditor.setToolTip(
@@ -185,6 +228,7 @@ CommonSettings::CommonSettings()
                 forceLoggingToConsole,
                 nativeMixedMode,
                 collapseMachineryFrames,
+                useGenericDebugger,
                 Row { maximalStackDepth, st },
                 st
             }

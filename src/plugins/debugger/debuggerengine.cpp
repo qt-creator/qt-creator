@@ -15,6 +15,7 @@
 #include "debuggertr.h"
 
 #include "breakhandler.h"
+#include "commonoptionspage.h"
 #include "disassembleragent.h"
 #include "enginemanager.h"
 #include "localsandexpressionswindow.h"
@@ -1481,13 +1482,7 @@ void DebuggerEngine::start()
 
 bool DebuggerEngine::isUsingGenericDebugger()
 {
-    static const bool result = [] {
-        const bool isSet = Utils::qtcEnvironmentVariableIsSet("QTC_USE_GENERIC_DEBUGGER");
-        if (isSet)
-            qWarning("QTC_USE_GENERIC_DEBUGGER is set: using GenericDebuggerEngine + GdbImpl instead of GdbEngine.");
-        return isSet;
-    }();
-    return result;
+    return useGenericDebuggerEnabled();
 }
 
 void DebuggerEngine::resetLocation()

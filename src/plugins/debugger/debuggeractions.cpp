@@ -37,6 +37,7 @@ DebuggerSettings::DebuggerSettings() :
     warnOnReleaseBuilds{commonSettings().warnOnReleaseBuilds},
     nativeMixedMode{commonSettings().nativeMixedMode},
     collapseMachineryFrames{commonSettings().collapseMachineryFrames},
+    useGenericDebugger{commonSettings().useGenericDebugger},
     maximalStackDepth{commonSettings().maximalStackDepth},
 
     fontSizeFollowsEditor{commonSettings().fontSizeFollowsEditor},

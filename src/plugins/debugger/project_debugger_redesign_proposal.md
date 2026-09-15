@@ -60,8 +60,9 @@ cut, not a target.
 | Cdb | `CdbImpl` | Drafted against real `cdbengine.cpp`; disassembly and the initial-session setup verified live, the rest still being worked through against a real `cdb.exe` off-tree. |
 | Uvsc | — | Not started. |
 
-Still opt-in and gdb-only in production: `QTC_USE_GENERIC_DEBUGGER` swaps
-only `GdbEngine`. The other Impls exist for the test harness so far.
+Still opt-in in production: the "Use the new debugger backends
+(experimental)" option in Debugger > General, off by default, is what swaps an
+engine for its `Impl`.
 
 ## Progress estimate
 
@@ -91,8 +92,8 @@ unchanged.
 
 **≈77% of the per-engine porting; ≈61-65% of the whole migration** - or ≈81% and
 ≈64-68% if `Cdb`'s off-tree figure is used instead. The gap between per-engine and
-whole-migration is the work no per-engine number captures: flipping
-`QTC_USE_GENERIC_DEBUGGER` on by default, then making `DebuggerEngine` `final`
+whole-migration is the work no per-engine number captures: turning the
+opt-in setting on by default, then making `DebuggerEngine` `final`
 and deleting the old virtual surface.
 
 `Gdb`'s figure is the only one backed by a full enumeration: the parity
@@ -392,7 +393,7 @@ How to re-derive the counts:
 3. Port each backend against the real engine's logic rather than reusing it
    (can't subclass: both are `QObject`s).
 4. Flip the default per engine once its path is a real alternative.
-   **Milestone reached for Gdb:** the real IDE with `QTC_USE_GENERIC_DEBUGGER=1`
+   **Milestone reached for Gdb:** the real IDE with the opt-in setting on
    launches, breaks and stops end-to-end. That took three bugs invisible to the
    direct-driving harness: missing `"-i mi"`, missing `claimInitialBreakpoints()`,
    missing environment/working-directory propagation. Locals/stack/watch views,

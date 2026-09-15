@@ -56,6 +56,7 @@ public:
     Utils::BoolAspect warnOnReleaseBuilds{this};
     Utils::BoolAspect nativeMixedMode{this};
     Utils::BoolAspect collapseMachineryFrames{this};
+    Utils::BoolAspect useGenericDebugger{this};
     Utils::IntegerAspect maximalStackDepth{this};
 
     Utils::BoolAspect fontSizeFollowsEditor{this};
@@ -71,6 +72,9 @@ public:
 };
 
 CommonSettings &commonSettings();
+
+bool isUseGenericDebuggerOverride();
+bool useGenericDebuggerEnabled();
 
 
 class LocalsAndExpressionsSettings final : public Utils::AspectContainer
