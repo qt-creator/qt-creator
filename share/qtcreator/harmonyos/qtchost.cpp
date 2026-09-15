@@ -27,6 +27,11 @@
 
 using Main = int (*)(int, char **);
 
+// Written by the debugger, read here: the IDE's byte says the IDE is there, this says the
+// debugger has the mapping and its breakpoints. Read while running, which a traced process
+// only does once the debugger let it go, so every breakpoint it holds is in place by then.
+volatile int qtcHostRelease = 0;
+
 static int connectToGate(int port)
 {
     const int fd = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -55,7 +60,7 @@ int main(int argc, char **argv)
 
     QtcLoad::Image image;
     std::string error;
-    if (!QtcLoad::load(path, &image, &error)) {
+    if (!QtcLoad::load(path, &image, &error, nullptr, true)) {
         std::fprintf(stderr, "qtchost: cannot load %s: %s\n", path, error.c_str());
         return 1;
     }
@@ -75,11 +80,19 @@ int main(int argc, char **argv)
                     port, path, slide);
     } else {
         ::dprintf(gate, "pid %d slide 0x%" PRIxPTR "\n", int(::getpid()), slide);
-        // Read, not sleep: the byte the IDE sends once the debugger holds the process is
-        // the only thing that says breakpoints can be hit.
         char released = 0;
         ::read(gate, &released, 1);
         ::close(gate);
+        // The IDE writes that byte when its run control starts, which is before the
+        // debugger has this process, so it cannot be what protection waits for.
+        for (int waited = 0; !qtcHostRelease && waited < 30000; waited += 20)
+            ::usleep(20 * 1000);
+    }
+    // Only now, with the breakpoints in place: the platform lets nobody write text that
+    // the jit prctl has made executable.
+    if (!QtcLoad::protect(&image)) {
+        std::fprintf(stderr, "qtchost: cannot start %s: %s\n", path, error.c_str());
+        return 1;
     }
     std::fflush(stdout);
 

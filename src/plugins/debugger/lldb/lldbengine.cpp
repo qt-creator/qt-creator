@@ -408,8 +408,10 @@ void LldbEngine::handleLldbStarted()
                 return !trimmed.isEmpty() && !trimmed.startsWith('#');
             });
             // Anything that needs the attached target, such as telling the debugger
-            // where the target loaded a library, only works from here on.
-            commands += runParameters().commandsAfterConnect();
+            // where the target loaded a library, only works from here on. A platform
+            // that attaches in runEngine() runs them there, where the target is.
+            if (runParameters().lldbPlatform() != "remote-ohos")
+                commands += runParameters().commandsAfterConnect();
             for (const QString &cmd : std::as_const(commands)) {
                 executeDebuggerCommand(cmd);
             }
@@ -430,6 +432,7 @@ void LldbEngine::runEngine()
     DebuggerCommand cmd("runEngine");
     if (rp.startMode() == AttachToCore)
         cmd.arg("coreFile", rp.coreFile().path());
+    cmd.arg("commandsafterconnect", rp.commandsAfterConnect());
     runCommand(cmd);
 }
 

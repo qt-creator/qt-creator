@@ -81,7 +81,8 @@ public:
         : m_image(image), m_error(error), m_world(world)
     {}
 
-    bool load(const char *path);
+    bool load(const char *path, bool deferProtection);
+    bool protect();
 
 private:
     bool fail(const char *format, ...);
@@ -741,34 +742,48 @@ void Loader::runInitializers()
     }
 }
 
-bool Loader::load(const char *path)
+bool Loader::load(const char *path, bool deferProtection)
 {
     if (!readFile(path) || !mapSegments() || !readDynamic())
         return false;
     // Before the dependencies, so that a cycle among privately mapped images resolves.
     buildExports();
-    if (!loadDependencies() || !applyRelocations() || !protectSegments())
+    if (!loadDependencies() || !applyRelocations())
         return false;
-    registerFrames();
     readStaticSymbols();
     m_image->lowest = m_lowest;
     m_image->symbols = m_symbols;
     m_image->symbolCount = m_symbolCount;
     m_image->strings = m_strings;
+    return deferProtection || protect();
+}
+
+bool Loader::protect()
+{
+    if (!protectSegments())
+        return false;
+    registerFrames();
     runInitializers();
     return true;
 }
 
-bool load(const char *path, Image *image, std::string *error, World *world)
+bool load(const char *path, Image *image, std::string *error, World *world,
+          bool deferProtection)
 {
     if (image->name.empty())
         image->name = fileName(path);
     image->path = path;
     // Before the initializers run, which may ask already.
     mappedImages().push_back(image);
-    Loader loader(image, error, world);
-    if (loader.load(path))
+    Loader *loader = new Loader(image, error, world);
+    if (loader->load(path, deferProtection)) {
+        if (deferProtection)
+            image->pending = loader;
+        else
+            delete loader;
         return true;
+    }
+    delete loader;
     mappedImages().erase(std::find(mappedImages().begin(), mappedImages().end(), image));
     if (image->base) {
         ::munmap(image->base, image->size);
@@ -848,6 +863,17 @@ bool registerPlugin(const char *path, World *world, std::string *error)
                                  ptrdiff_t(described.size), described.data};
     add(plugin);
     return true;
+}
+
+bool protect(Image *image)
+{
+    Loader *loader = static_cast<Loader *>(image->pending);
+    if (!loader)
+        return true;
+    image->pending = nullptr;
+    const bool done = loader->protect();
+    delete loader;
+    return done;
 }
 
 void *lookup(const Image &image, const char *name)

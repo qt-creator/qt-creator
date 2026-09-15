@@ -32,6 +32,7 @@ public:
     std::vector<std::string> missing;    // DT_NEEDED entries the platform would not load
     bool framesRegistered = false;
     size_t frameCount = 0;
+    void *pending = nullptr;             // the loader itself, while protection is deferred
 };
 
 // The images the loader mapped itself, and the directories that make it do so. A library
@@ -53,7 +54,14 @@ public:
     void *symbol(const char *name) const;
 };
 
-bool load(const char *path, Image *image, std::string *error, World *world = nullptr);
+// With deferProtection the image is mapped, relocated and searchable, but its text is
+// still writable and its initializers have not run: protect() does that part. A debugger
+// has to get its breakpoints in between, because the platform refuses a write to text the
+// jit prctl has made executable, a tracer's write included. protect() reports through the
+// string load() was given.
+bool load(const char *path, Image *image, std::string *error, World *world = nullptr,
+          bool deferProtection = false);
+bool protect(Image *image);
 void *lookup(const Image &image, const char *name);
 
 // Whether the platform has this very library to offer: one of that name that is loaded

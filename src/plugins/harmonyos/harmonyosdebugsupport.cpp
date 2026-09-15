@@ -360,8 +360,10 @@ static Group hostRecipe(const QStoredBarrier &barrier, RunControl *runControl,
     };
 
     const auto onServerSetup = [](Process &process) {
+        // Without "--server" the server serves a single connection and exits, and the
+        // probe below that waits for it to listen is that connection.
         process.setCommand({FilePath::fromString(Constants::HARMONYOS_DEBUG_SERVER_PATH),
-                            {"platform", "--listen",
+                            {"platform", "--server", "--listen",
                              QString("*:%1").arg(Constants::HARMONYOS_DEBUG_PORT)}});
     };
     const auto onServerDone = [runControl](const Process &process) {

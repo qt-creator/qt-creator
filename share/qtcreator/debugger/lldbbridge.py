@@ -130,6 +130,10 @@ class Dumper(DumperBase):
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
         self.releasedApplication_ = False
+        self.releasedHost_ = False
+        self.hostReleaseTimer_ = None
+        self.placedModules_ = set()
+        self.placingModules_ = False
         self.interpreterBreakpointResolvers = []
         self.interpreterResolverHookBreakpoint = None
         self.objectAvailableBreakpoint = None
@@ -1233,8 +1237,13 @@ class Dumper(DumperBase):
                                     % (self.attachPid_, error.GetCString()))
                         self.reportState('enginerunfailed')
                         return
+                    for command in args.get('commandsafterconnect', []):
+                        command = self.hexdecode(command)
+                        if command.strip():
+                            self.runDebuggerCommand(command)
                     self.placeMappedModules()
                     self.watchLoaderForMappedModules()
+                    self.armMappedHostRelease()
                     # Attaching stops the process, and saying so is what keeps the
                     # engine's idea of the state and LLDB's the same.
                     self.report('pid="%s"' % self.process.GetProcessID())
@@ -1354,15 +1363,46 @@ class Dumper(DumperBase):
         entries = re.split(r'\[\d+\]:\s*', result.GetOutput() or '')[1:]
         return [entry.strip() for entry in entries if entry.strip()]
 
+    # The program that mapped the binary holds main() back until this is written, because
+    # the platform lets nobody write text it has made executable, a breakpoint included.
+    # The loader reads its own list on the first resume and keeps only what it mapped
+    # itself, which drops the placed module and any breakpoint bound in it, so the
+    # release waits for the module to be back. A loader that never drops it leaves no
+    # event to wait for, which is what the timer covers.
+    def armMappedHostRelease(self):
+        self.hostReleaseTimer_ = threading.Timer(2.0, self.releaseMappedHost)
+        self.hostReleaseTimer_.start()
+
+    def releaseMappedHost(self):
+        if self.releasedHost_:
+            return
+        self.releasedHost_ = True
+        if self.hostReleaseTimer_:
+            self.hostReleaseTimer_.cancel()
+        symbols = self.target.FindSymbols('qtcHostRelease')
+        if not symbols.GetSize():
+            return
+        address = symbols.GetContextAtIndex(0).GetSymbol().GetStartAddress()
+        error = lldb.SBError()
+        self.process.WriteMemory(address.GetLoadAddress(self.target), bytes([1, 0, 0, 0]), error)
+        if not error.Success():
+            self.report('Cannot release the hosted binary: %s' % error.GetCString())
+
     # A platform that did not launch the process reports no module list for it, so
     # nothing is loaded: no frame can be named and no breakpoint can be placed. The
     # memory regions do say which file is mapped where, so the libraries that are
     # available on this side are placed at the address the process has them at.
     def placeMappedModules(self):
         paths = self.execSearchPaths()
-        if not paths:
+        if not paths or self.placingModules_:
             return
+        self.placingModules_ = True
+        try:
+            self.placeMappedModulesNow(paths)
+        finally:
+            self.placingModules_ = False
 
+    def placeMappedModulesNow(self, paths):
         # A library is mapped in several parts; the lowest one is where it was loaded.
         mapped = {}
         regions = self.process.GetMemoryRegions()
@@ -1393,6 +1433,7 @@ class Dumper(DumperBase):
                 continue
             module = self.target.AddModule(local, None, None)
             if module and self.target.SetModuleLoadAddress(module, base).Success():
+                self.placedModules_.add(key)
                 placed += 1
         if placed:
             self.report('Placed %s module(s) from the memory map of the process.' % placed)
@@ -2228,10 +2269,19 @@ class Dumper(DumperBase):
             action = 'library-unloaded'
         else:
             return
+        lost = False
         for i in range(lldb.SBTarget.GetNumModulesFromEvent(event)):
             module = lldb.SBTarget.GetModuleAtIndexFromEvent(i, event)
             name = toCString(str(module.GetFileSpec()))
+            if action == 'library-unloaded' \
+                    and os.path.basename(name) in self.placedModules_:
+                lost = True
             self.report('%s={target-name="%s",host-name="%s"}' % (action, name, name))
+        # The loader keeps only what it mapped itself, so a module the process mapped
+        # without it is gone from the target once the loader's list is read.
+        if lost:
+            self.placeMappedModules()
+            self.releaseMappedHost()
 
     def reportThreadChanges(self, state):
         # lldb broadcasts no per-thread create or exit event, so the process'

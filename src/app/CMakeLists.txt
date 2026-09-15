@@ -83,6 +83,11 @@ for example an ssh client and its libraries")
   # In the application's context only what the application itself brought is on the
   # library path, so this depends on the C library alone.
   target_link_options(qtchost PRIVATE -static-libstdc++)
+  # What the project on the device built links against is the Qt of the native package,
+  # and without a run path of its own the loader offers the bundle's Qt instead, where a
+  # module built against another version does not resolve.
+  target_link_options(qtchost PRIVATE
+    "-Wl,-rpath,/data/app/qtctools.org/qtctools_1.0/lib")
   set_target_properties(qtchost PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${_harmonyos_host_dir}")
 
   set(_harmonyos_native_files "\"${_harmonyos_host_dir}/qtchost\"")
