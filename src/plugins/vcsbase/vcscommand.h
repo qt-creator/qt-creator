@@ -66,7 +66,7 @@ public:
     Utils::TextEncoding encoding = {};
     Utils::TextChannelCallback stdOutHandler = {};
     Utils::TextChannelCallback stdErrHandler = {};
-    QByteArray writeData;
+    QByteArray writeData = {};
 };
 
 VCSBASE_EXPORT QtTaskTree::ExecutableItem errorTask(const Utils::FilePath &workingDir,
