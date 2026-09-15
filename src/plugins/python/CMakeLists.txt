@@ -32,6 +32,8 @@ extend_qtc_plugin(Python
     tests/pylspprune_test.h
     tests/pyprojecttoml_test.cpp
     tests/pyprojecttoml_test.h
+    tests/pythonsettings_test.cpp
+    tests/pythonsettings_test.h
 )
 
 qtc_add_resources(Python "images"
