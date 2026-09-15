@@ -321,6 +321,7 @@ QObject *createBinariesForSourceFileTest();
 QObject *createLibrarySearchPathsTest();
 QObject *createQmlModuleFilesTest();
 QObject *createSourceFilesTest();
+QObject *createTargetSymbolsTest();
 #endif
 
 QString quoteString(const QString &fileName);

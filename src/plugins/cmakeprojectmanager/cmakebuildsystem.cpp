@@ -1717,6 +1717,74 @@ static FilePaths librarySearchPaths(const QList<CMakeBuildTarget> &targets,
     return Utils::filteredUnique(paths);
 }
 
+static Link linkTo(const CMakeFileInfo &cmakeFile, const ArgumentAST *argument)
+{
+    Link link;
+    link.targetFilePath = cmakeFile.path;
+    link.target.line = argument->token.line;
+    link.target.column = argument->token.column - 1;
+    return link;
+}
+
+// The symbol a target's name makes: the place in the project that spells the
+// name out, so that following the name arrives there and Find Usages takes the
+// name for the project's own.
+//
+// The file-api gives the chain of commands that created the target, innermost
+// first, and no column. Neither end of that chain names the target. The
+// innermost frame belongs to whichever helper of Qt or CMake ran last, and the
+// outermost one is the call the file made, which a macro shares with every
+// target it creates. The innermost frame the project itself owns is the one
+// that names it - and one such frame can still stand for several targets, as
+// a command that creates a target plus its companions does.
+static QHash<QString, Link> targetSymbols(const QList<CMakeBuildTarget> &targets,
+                                          const QSet<CMakeFileInfo> &cmakeFiles)
+{
+    QSet<FilePath> ownFiles;
+    for (const CMakeFileInfo &cmakeFile : cmakeFiles) {
+        if (!cmakeFile.isExternal && !cmakeFile.isGenerated)
+            ownFiles.insert(cmakeFile.path);
+    }
+
+    QHash<FilePath, QMultiHash<int, QString>> titlesByFileAndLine;
+    for (const CMakeBuildTarget &target : targets) {
+        if (target.targetType == UtilityType)
+            continue;
+        if (target.backtrace.isEmpty())
+            continue;
+
+        const FolderNode::LocationInfo *definition = &target.backtrace.first();
+        for (const FolderNode::LocationInfo &frame : target.backtrace) {
+            if (ownFiles.contains(frame.path)) {
+                definition = &frame;
+                break;
+            }
+        }
+        titlesByFileAndLine[definition->path].insert(definition->line, target.title);
+    }
+
+    QHash<QString, Link> symbols;
+    for (const CMakeFileInfo &cmakeFile : cmakeFiles) {
+        const auto titles = titlesByFileAndLine.constFind(cmakeFile.path);
+        if (titles == titlesByFileAndLine.constEnd() || !cmakeFile.document)
+            continue;
+
+        for (CommandAST *command : cmakeFile.document->commands()) {
+            const QStringList lineTitles = titles->values(command->name.line);
+            if (lineTitles.isEmpty())
+                continue;
+            ArgumentAST *argument = command->arguments().first();
+            if (!argument)
+                continue;
+
+            const Link link = linkTo(cmakeFile, argument);
+            for (const QString &title : lineTitles)
+                symbols.insert(title, link);
+        }
+    }
+    return symbols;
+}
+
 #ifdef WITH_TESTS
 // Compares every file of the directory against its _expected.cmake sibling.
 static void compareWithExpected(const FilePath &directory)
@@ -1951,6 +2019,124 @@ private slots:
 QObject *createLibrarySearchPathsTest()
 {
     return new LibrarySearchPathsTest;
+}
+
+class TargetSymbolsTest final : public QObject
+{
+    Q_OBJECT
+
+    // A frame of what the file-api calls the backtrace of a target.
+    static FolderNode::LocationInfo frame(const QString &command, const QString &file, int line)
+    {
+        return FolderNode::LocationInfo(command, FilePath::fromString(file), line);
+    }
+
+    static CMakeBuildTarget target(const QString &title, const Backtrace &backtrace)
+    {
+        CMakeBuildTarget result;
+        result.title = title;
+        result.targetType = StaticLibraryType;
+        result.backtrace = backtrace;
+        return result;
+    }
+
+    static CMakeFileInfo cmakeFile(const QString &file, const QString &source, bool isExternal)
+    {
+        CMakeFileInfo info;
+        info.path = FilePath::fromString(file);
+        info.isExternal = isExternal;
+        info.document = Document::fromSource(source);
+        return info;
+    }
+
+    // "line:column" of where the name of the target is written, the way a Link
+    // carries it.
+    static QString dumped(const QHash<QString, Link> &symbols, const QString &title)
+    {
+        const auto it = symbols.constFind(title);
+        if (it == symbols.constEnd())
+            return "<none>";
+        return QString("%1:%2:%3")
+            .arg(it->targetFilePath.fileName())
+            .arg(it->target.line)
+            .arg(it->target.column);
+    }
+
+private slots:
+    void test()
+    {
+        const QString listsTxt = "macro(add_two a b)\n"  // 1
+                                 "  add_library(${a})\n" // 2
+                                 "  add_library(${b})\n" // 3
+                                 "endmacro()\n"          // 4
+                                 "include(inc.cmake)\n"  // 5
+                                 "add_two(m1 m2)\n"      // 6
+                                 "add_library(direct)\n" // 7
+                                 "add_library(other)\n"  // 8
+                                 "qt_add_qml_module(mod)\n"; // 9
+
+        const QSet<CMakeFileInfo> cmakeFiles{
+            cmakeFile("/src/CMakeLists.txt", listsTxt, false),
+            cmakeFile("/src/inc.cmake", "add_library(included)\n", false),
+            cmakeFile("/qt/Qt6QmlMacros.cmake", "add_library(${target})\n", true)};
+
+        // Two targets the file itself adds, one per line.
+        const QList<CMakeBuildTarget> targets{
+            target("direct", {frame("add_library", "/src/CMakeLists.txt", 7)}),
+            target("other", {frame("add_library", "/src/CMakeLists.txt", 8)}),
+
+            // Two targets one macro of the file adds, which share the call
+            // that reached the macro but not the line that names them.
+            target("m1",
+                   {frame("add_library", "/src/CMakeLists.txt", 2),
+                    frame("add_two", "/src/CMakeLists.txt", 6)}),
+            target("m2",
+                   {frame("add_library", "/src/CMakeLists.txt", 3),
+                    frame("add_two", "/src/CMakeLists.txt", 6)}),
+
+            // A target an included file of the project adds.
+            target("included",
+                   {frame("add_library", "/src/inc.cmake", 1),
+                    frame("include", "/src/CMakeLists.txt", 5)}),
+
+            // Two targets a command of Qt adds off one call of the project.
+            target("mod",
+                   {frame("add_library", "/qt/Qt6QmlMacros.cmake", 1),
+                    frame("qt_add_qml_module", "/src/CMakeLists.txt", 9)}),
+            target("modplugin",
+                   {frame("add_library", "/qt/Qt6QmlMacros.cmake", 1),
+                    frame("qt_add_qml_module", "/src/CMakeLists.txt", 9)})};
+
+        const QHash<QString, Link> symbols = targetSymbols(targets, cmakeFiles);
+
+        QCOMPARE(dumped(symbols, "direct"), "CMakeLists.txt:7:12");
+        QCOMPARE(dumped(symbols, "other"), "CMakeLists.txt:8:12");
+        QCOMPARE(dumped(symbols, "m1"), "CMakeLists.txt:2:14");
+        QCOMPARE(dumped(symbols, "m2"), "CMakeLists.txt:3:14");
+        QCOMPARE(dumped(symbols, "included"), "inc.cmake:1:12");
+        QCOMPARE(dumped(symbols, "mod"), "CMakeLists.txt:9:18");
+        QCOMPARE(dumped(symbols, "modplugin"), "CMakeLists.txt:9:18");
+        QCOMPARE(symbols.size(), targets.size());
+    }
+
+    void testUtilityTargetsAndEmptyBacktraces()
+    {
+        const QSet<CMakeFileInfo> cmakeFiles{
+            cmakeFile("/src/CMakeLists.txt", "add_custom_target(run)\nadd_library(lib)\n", false)};
+
+        CMakeBuildTarget utility
+            = target("run", {frame("add_custom_target", "/src/CMakeLists.txt", 1)});
+        utility.targetType = UtilityType;
+
+        const QList<CMakeBuildTarget> targets{utility, target("lib", {})};
+
+        QVERIFY(targetSymbols(targets, cmakeFiles).isEmpty());
+    }
+};
+
+QObject *createTargetSymbolsTest()
+{
+    return new TargetSymbolsTest;
 }
 
 // Stands in for what Qt6QmlMacros.cmake declares: the keywords of the command
@@ -3030,14 +3216,6 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
     m_projectKeywords.functions.clear();
     m_projectKeywords.variables.clear();
 
-    auto linkTo = [](const CMakeFileInfo &cmakeFile, ArgumentAST *argument) {
-        Utils::Link link;
-        link.targetFilePath = cmakeFile.path;
-        link.target.line = argument->token.line;
-        link.target.column = argument->token.column - 1;
-        return link;
-    };
-
     auto handleFunctionMacroOption = [&](const CMakeFileInfo &cmakeFile, CommandAST *command) {
         if (!command->isNamed("function") && !command->isNamed("macro")
             && !command->isNamed("option"))
@@ -3079,30 +3257,6 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
             // Allow navigation to the imported target
             m_cmakeSymbolsHash.insert(targetName, linkTo(cmakeFile, argument));
         }
-    };
-
-    // Handle project targets, unfortunately the CMake file-api doesn't deliver the
-    // column of the target, just the line. Make sure to find it out
-    QHash<FilePath, QPair<int, QString>> projectTargetsSourceAndLine;
-    for (const auto &target : std::as_const(buildTargets())) {
-        if (target.targetType == TargetType::UtilityType)
-            continue;
-        if (target.backtrace.isEmpty())
-            continue;
-
-        projectTargetsSourceAndLine.insert(target.backtrace.last().path,
-                                           {target.backtrace.last().line, target.title});
-    }
-    auto handleProjectTargets = [&](const CMakeFileInfo &cmakeFile, CommandAST *command) {
-        const auto it = projectTargetsSourceAndLine.find(cmakeFile.path);
-        if (it == projectTargetsSourceAndLine.end() || it->first != command->name.line)
-            return;
-
-        ArgumentAST *argument = command->arguments().first();
-        if (!argument)
-            return;
-
-        m_cmakeSymbolsHash.insert(it->second, linkTo(cmakeFile, argument));
     };
 
     // Gather the exported variables for the Find<Package> CMake packages
@@ -3184,13 +3338,14 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
             for (CommandAST *command : cmakeFile.document->commands()) {
                 handleFunctionMacroOption(cmakeFile, command);
                 handleImportedTargets(cmakeFile, command);
-                handleProjectTargets(cmakeFile, command);
                 handleFindPackageVariables(cmakeFile, command);
             }
         }
         handleDotCMakeFiles(cmakeFile);
         handleFindPackageCMakeFiles(cmakeFile);
     }
+
+    m_cmakeSymbolsHash.insert(targetSymbols(buildTargets(), m_cmakeFiles));
 
     m_projectFindPackageVariables.removeDuplicates();
 }
