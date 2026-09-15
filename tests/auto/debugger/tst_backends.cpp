@@ -9278,13 +9278,6 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
 
     if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
         QSKIP(qPrintable(result.error()));
-    // Known red on macOS, cause unknown: the qt_qmlDebugConnectorOpen hook
-    // never fires there, so a pending QML breakpoint is never retried - 0
-    // resolutions in 6 macOS CI runs against 6 of 6 on Linux, which passes
-    // every run. Needs someone debugging it on a Mac.
-
-    if (backend == Backend::Lldb && HostOsInfo::isMacHost())
-        QSKIP("QML breakpoint resolution does not work on macOS - see the comment above.");
 
 #ifndef QMLSTACK_INFERIOR_EXECUTABLE
     QSKIP("Qt::Quick not available when this test binary was configured.");
@@ -9380,6 +9373,65 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
     QVERIFY2(stoppedAtMarker, qPrintable(QString("no js frame at line %1 - stack: %2")
                                              .arg(markerLine).arg(stack.toString())));
 
+    // The same stop as a plain stack refresh, where the QML frames are spliced
+    // in rather than prepended. The stop lands in the service's notification
+    // plumbing, and unless those frames are marked, the frontend picks the
+    // topmost one with source and shows a Qt .cpp file rather than the QML
+    // line that was broken on.
+    responses.remove(int(RefreshKind::FullStack));
+    RefreshRequest fullStackRequest;
+    fullStackRequest.kind = RefreshKind::FullStack;
+    fullStackRequest.requestId = 21;
+    engine->refresh(fullStackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+
+    const GdbMi fullStack = responses.value(int(RefreshKind::FullStack));
+    QStringList aboveQml;
+    bool sawQmlFrame = false;
+    for (const GdbMi &frame : fullStack["stack"]["frames"]) {
+        if (frame["language"].data() == "js") {
+            sawQmlFrame = true;
+            break;
+        }
+        if (frame["machinery"].data() != "1")
+            aboveQml.append(frame["function"].data());
+    }
+    QVERIFY2(sawQmlFrame, qPrintable("no QML frame spliced into the plain stack: "
+                                     + fullStack.toString()));
+    QVERIFY2(aboveQml.isEmpty(),
+             qPrintable("native frames above the spliced QML frame are not marked as "
+                        "debugger machinery: " + aboveQml.join(", ")));
+
+    // Stepping from a QML stop has to reach the interpreter. Stepping the
+    // native frame the notification arrives on instead leaves the QML line
+    // where it was, however often it is repeated.
+    const QString atMarker = QString("compute:%1").arg(markerLine);
+    QStringList visited;
+    for (int step = 0; step < 4 && (visited.isEmpty() || visited.last() == atMarker); ++step) {
+        debuggerBackend->clearEvents();
+        ExecutionRequest stepRequest;
+        stepRequest.command = ExecutionCommand::StepOver;
+        stepRequest.currentFrameIsQml = true;
+        debuggerBackend->execute(stepRequest);
+        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                                 || debuggerBackend->contains(InferiorEvent::StopOk), s_timeout);
+        responses.remove(int(RefreshKind::FullStack));
+        RefreshRequest afterStep;
+        afterStep.kind = RefreshKind::FullStack;
+        afterStep.requestId = 30 + step;
+        engine->refresh(afterStep);
+        QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+        for (const GdbMi &frame : responses.value(int(RefreshKind::FullStack))["stack"]["frames"]) {
+            if (frame["language"].data() == "js") {
+                visited << (frame["function"].data() + ':' + frame["line"].data());
+                break;
+            }
+        }
+    }
+    QVERIFY2(!visited.isEmpty() && visited.last() != atMarker,
+             qPrintable("stepping over never left " + atMarker + " - visited: "
+                        + visited.join(", ")));
+
 #endif
 }
 
@@ -9393,9 +9445,6 @@ void tst_backends::resolvesQmlBreakpointWithoutServiceDebugInfo()
         QSKIP("This backend's bridge marshals the arguments and calls by address, so it "
               "never goes through the casts this exercises.");
     }
-    // Same macOS gap as insertsQmlBreakpointAndStopsAtIt() - see its comment.
-    if (backend == Backend::Lldb && HostOsInfo::isMacHost())
-        QSKIP("QML breakpoint resolution does not work on macOS.");
 
 #ifndef QMLSTACK_INFERIOR_EXECUTABLE
     QSKIP("Qt::Quick not available when this test binary was configured.");
@@ -9472,10 +9521,6 @@ void tst_backends::insertsQmlBreakpointBeforeDumpersLoad()
 
     if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
         QSKIP(qPrintable(result.error()));
-    // Same macOS gap as insertsQmlBreakpointAndStopsAtIt() - see its comment.
-
-    if (backend == Backend::Lldb && HostOsInfo::isMacHost())
-        QSKIP("QML breakpoint resolution does not work on macOS - see the comment there.");
 
 #ifndef QMLSTACK_INFERIOR_EXECUTABLE
     QSKIP("Qt::Quick not available when this test binary was configured.");

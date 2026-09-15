@@ -112,6 +112,7 @@ class Dumper(DumperBase):
         self.interpreterBreakpointResolvers = []
         self.interpreterResolverHookBreakpoint = None
         self.objectAvailableBreakpoint = None
+        self.interpreterMessageWatchpoint = None
         # Internal (not user-visible) breakpoint ids - see handleBreakpointEvent().
         self.internalBreakpointIds = set()
 
@@ -1549,7 +1550,14 @@ class Dumper(DumperBase):
                 else:
                     pending = []  # only the run immediately above the splice
 
-        inMachineryBlock = False
+        # A stop on the interpreter message watch lands inside the service's
+        # own notification plumbing rather than on the hook the splice keys on,
+        # so the run at the top of the stack is machinery as well. Recognized
+        # by name, since the pre-pass below goes by source path and a moc file
+        # in the middle of the run breaks it.
+        top = thread.GetFrameAtIndex(0)
+        inMachineryBlock = isNativeMixed and top.IsValid() \
+            and self.isInterpreterMachineryFrame(top.GetFunctionName())
         splicedQml = False
         for i in range(n - ii):
             frame = thread.GetFrameAtIndex(i)
@@ -1974,6 +1982,7 @@ class Dumper(DumperBase):
                         self.interpreterResolverHookBreakpoint = None
                         for resolver in self.interpreterBreakpointResolvers:
                             resolver()
+                        self.armInterpreterMessageWatch()
                         self.report("AUTO-CONTINUE AFTER RESOLVING")
                         # With nothing pending the hook stopped the inferior for
                         # no one: reporting a stop would have the engine run a
@@ -1990,7 +1999,8 @@ class Dumper(DumperBase):
                             self.dropInterpreterAvailabilityHook()
                         self.process.Continue()
                         return
-                    if "qt_qmlDebugMessageAvailable" in (functionName or ''):
+                    if (self.atInterpreterMessageWatch(stoppedThread)
+                            or "qt_qmlDebugMessageAvailable" in (functionName or '')):
                         self.report("ASYNC MESSAGE FROM SERVICE")
                         # The interpreter step won the race (possibly a
                         # C++-to-QML crossing); the armed interpreter step
@@ -2400,12 +2410,21 @@ class Dumper(DumperBase):
         self.reportResult('', args)
 
     def atQmlStop(self):
-        # True if the inferior is stopped at the interpreter's stop hook,
-        # i.e. the current frame is a QML frame.
+        # True if the inferior is stopped at the interpreter's pause, i.e.
+        # the current frame is a QML frame. The stop lands wherever the
+        # service reports the event from, which is the hook only as long as
+        # a call to it survives, so take the whole machinery run leading
+        # down into the interpreter.
         if not self.nativeMixed or self.process is None:
             return False
-        frame = self.currentThread().GetFrameAtIndex(0)
-        return 'qt_qmlDebugMessageAvailable' in (frame.GetFunctionName() or '')
+        thread = self.currentThread()
+        for i in range(thread.GetNumFrames()):
+            name = thread.GetFrameAtIndex(i).GetFunctionName() or ''
+            if 'QV4::Moth::VME::' in name or 'NativeDebugger::pauseAndWait' in name:
+                return True
+            if not self.isInterpreterMachineryFrame(name):
+                return False
+        return False
 
     def executeStep(self, args):
         if self.atQmlStop():
@@ -2957,6 +2976,56 @@ class Dumper(DumperBase):
         self.internalBreakpointIds.discard(bp.GetID())
         self.target.BreakpointDelete(bp.GetID())
         self.objectAvailableBreakpoint = None
+
+    def insertInterpreterBreakpoint(self, args):
+        DumperBase.insertInterpreterBreakpoint(self, args)
+        self.armInterpreterMessageWatch()
+
+    def setupMachinerySkips(self):
+        self.armInterpreterMessageWatch()
+
+    def sendInterpreterRequest(self, command, args={}):
+        watch = self.interpreterMessageWatchpoint
+        if watch is not None:
+            watch.SetEnabled(False)
+        try:
+            return DumperBase.sendInterpreterRequest(self, command, args)
+        finally:
+            if watch is not None:
+                watch.SetEnabled(True)
+
+    def armInterpreterMessageWatch(self):
+        # qt_qmlDebugMessageAvailable() has an empty body, and outside ELF's
+        # interposition rules the optimizer drops every call to it, so the
+        # breakpoint on the name sits on a copy that never runs. Watch the
+        # service's own message length instead.
+        if self.interpreterMessageWatchpoint is not None:
+            return
+        if self.process is None or not self.process.IsValid():
+            return
+        symbols = self.target.FindSymbols('qt_qmlDebugMessageLength')
+        if not symbols.GetSize():
+            return
+        address = symbols.GetContextAtIndex(0).symbol.GetStartAddress() \
+            .GetLoadAddress(self.target)
+        if address == lldb.LLDB_INVALID_ADDRESS:
+            return
+        error = lldb.SBError()
+        watch = self.target.WatchAddress(address, 4, False, True, error)
+        if not error.Success():
+            self.warn('Cannot watch the interpreter message length: %s' % error)
+            return
+        self.interpreterMessageWatchpoint = watch
+
+    def atInterpreterMessageWatch(self, thread):
+        if self.interpreterMessageWatchpoint is None or thread is None:
+            return False
+        if thread.GetStopReason() != lldb.eStopReasonWatchpoint:
+            return False
+        if thread.GetStopReasonDataCount() == 0:
+            return False
+        return thread.GetStopReasonDataAtIndex(0) == \
+            self.interpreterMessageWatchpoint.GetID()
 
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         self.createInterpreterResolverHookBreakpoint()
