@@ -48,7 +48,7 @@ struct RawEntry
     __LA_MODE_T type = AE_IFREG;
     __LA_MODE_T perm = 0644;
     QByteArray symlinkTarget;
-    QByteArray hardlinkTarget;
+    QByteArray hardlinkTarget = {};
 };
 
 void write_raw_archive(struct archive *a, const FilePath &archive, const QList<RawEntry> &entries)

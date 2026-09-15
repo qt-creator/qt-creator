@@ -62,7 +62,7 @@ public:
         return UnixDeviceFileAccess::createTempDir(filePath);
     }
 
-    Result<QString> homeDirectory(const QString &user) const
+    Result<QString> homeDirectory(const QString &user) const override
     {
         return UnixDeviceFileAccess::homeDirectory(user);
     }
