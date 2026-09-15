@@ -100,6 +100,16 @@ public:
         int targetColumn = 0;
         // The link was marked as such by the application (OSC 8), text is a uri.
         bool isUri = false;
+        // What the reader is told the link leads to, the text itself when empty.
+        QString tooltip;
+    };
+
+    // A link somewhere in a line, the offsets being into that line.
+    struct LineLink
+    {
+        int startIndex = 0;
+        int length = 0;
+        Link link;
     };
 
     struct LinkSelection : public Selection
@@ -110,7 +120,7 @@ public:
         {
             return link.text != other.link.text || link.targetLine != other.link.targetLine
                    || link.targetColumn != other.link.targetColumn || link.isUri != other.link.isUri
-                   || Selection::operator!=(other);
+                   || link.tooltip != other.link.tooltip || Selection::operator!=(other);
         }
     };
 
@@ -150,6 +160,18 @@ public:
     {
         Q_UNUSED(text)
         return std::nullopt;
+    }
+
+    // Asked for the whole line, and answered later: what a link is can depend
+    // on something that is not here, and the pointer keeps moving meanwhile.
+    // Only asked when the word under the pointer is no link by itself.
+    virtual void toLineLinks(const QString &line,
+                             QObject *guard,
+                             const std::function<void(const QList<LineLink> &)> &onFound)
+    {
+        Q_UNUSED(line)
+        Q_UNUSED(guard)
+        onFound({});
     }
 
     virtual void selectionChanged(const std::optional<Selection> &newSelection)
@@ -232,6 +254,11 @@ protected:
                                                                    int rowOffset) const;
 
     bool checkLinkAt(const QPoint &pos);
+    void askForLineLinks(const QPoint &pos);
+    bool applyLineLinks(const QList<LineLink> &links,
+                        int lineStart,
+                        const QString &line,
+                        int hovered);
     void clearLinkSelection();
     void showLinkToolTip(const Link &link);
 

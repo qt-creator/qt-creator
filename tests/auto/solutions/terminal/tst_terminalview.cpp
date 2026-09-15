@@ -60,6 +60,26 @@ public:
 
     void linkActivated(const Link &link) override { activated = link; }
 
+    void setClipboard(const QString &text) override { clipboard = text; }
+
+    // What a provider that has to ask someone else does: take the question and
+    // answer it when the test says so.
+    struct LineLinkQuery
+    {
+        QString line;
+        std::function<void(const QList<LineLink> &)> answer;
+    };
+    QList<LineLinkQuery> lineLinkQueries;
+    QString clipboard;
+
+    void toLineLinks(const QString &line,
+                     QObject *guard,
+                     const std::function<void(const QList<LineLink> &)> &onFound) override
+    {
+        Q_UNUSED(guard)
+        lineLinkQueries.append({line, onFound});
+    }
+
     // What a triple click builds: the whole row, ending one past its last cell.
     void selectRow(int row)
     {
@@ -92,6 +112,12 @@ public:
                          Qt::NoButton,
                          Qt::ControlModifier);
         QCoreApplication::sendEvent(viewport(), &move);
+    }
+
+    void releaseControl()
+    {
+        QKeyEvent release(QEvent::KeyRelease, Qt::Key_Control, Qt::NoModifier);
+        QCoreApplication::sendEvent(this, &release);
     }
 
     void ctrlClick(QPoint gridPos)
@@ -205,6 +231,158 @@ private slots:
 
         QTRY_VERIFY(QToolTip::isVisible());
         QCOMPARE(QToolTip::text(), asToolTip("sniffed-target"));
+    }
+
+    void aProvidedLineLinkIsActivated()
+    {
+        m_view->writeToTerminal("at Foo.java:12 in main", true);
+
+        // The word under the pointer is no link by itself, so the line is
+        // handed over whole: a provider matches across the spaces in it.
+        m_view->ctrlHover({5, 0});
+        QCOMPARE(m_view->lineLinkQueries.size(), 1);
+        QVERIFY(m_view->lineLinkQueries.first().line.startsWith("at Foo.java:12 in main"));
+
+        m_view->lineLinkQueries.first().answer(
+            {TerminalView::LineLink{3,
+                                    11,
+                                    TerminalView::Link{"stack-target", 0, 0, false,
+                                                       "Open Foo.java"}}});
+
+        // What the provider says the link leads to is what the reader is told,
+        // not the target it hands back.
+        QTRY_VERIFY(QToolTip::isVisible());
+        QCOMPARE(QToolTip::text(), asToolTip("Open Foo.java"));
+        m_view->copyLinkToClipboard();
+        QCOMPARE(m_view->clipboard, QString("stack-target"));
+
+        m_view->ctrlClick({5, 0});
+        QVERIFY(m_view->activated);
+        QCOMPARE(m_view->activated->text, QString("stack-target"));
+
+        // The line is asked about once, whatever the pointer does on it.
+        QCOMPARE(m_view->lineLinkQueries.size(), 1);
+    }
+
+    void aUriKeepsItsEncodedFormUnderALabel()
+    {
+        m_view->writeToTerminal("at Foo.java:12 in main", true);
+
+        // A cyrillic "a" in the host name: what the encoded form is there to
+        // show, and what a label offered next to it would hide again.
+        const QString target = "http://ex\xd0\xb0mple.com";
+        m_view->ctrlHover({5, 0});
+        m_view->lineLinkQueries.first().answer(
+            {TerminalView::LineLink{3,
+                                    11,
+                                    TerminalView::Link{target, 0, 0, true, "Open Foo.java"}}});
+
+        QTRY_VERIFY(QToolTip::isVisible());
+        QCOMPARE(QToolTip::text(),
+                 asToolTip(QString::fromUtf8(QUrl(target).toEncoded())));
+    }
+
+    void aLineLinkIsOnlyAskedForWhereNothingIsSniffed()
+    {
+        m_view->writeToTerminal("sniffed", true);
+
+        m_view->ctrlHover({0, 0});
+
+        // The sniffed link is the answer, so nobody else is asked. Waiting for
+        // the tooltip proves the hover was processed, which is the moment a
+        // question would have been asked in.
+        QTRY_VERIFY(QToolTip::isVisible());
+        QCOMPARE(m_view->lineLinkQueries.size(), 0);
+    }
+
+    void aLineLinkOutsideThePointerIsNotTaken()
+    {
+        m_view->writeToTerminal("here and there", true);
+
+        m_view->ctrlHover({0, 0});
+        QCOMPARE(m_view->lineLinkQueries.size(), 1);
+        m_view->lineLinkQueries.first().answer(
+            {TerminalView::LineLink{9, 5, TerminalView::Link{"elsewhere"}}});
+
+        m_view->copyLinkToClipboard();
+        QCOMPARE(m_view->clipboard, QString());
+
+        // The control: the same answer for the cell it does cover is taken.
+        m_view->ctrlHover({10, 0});
+        m_view->copyLinkToClipboard();
+        QCOMPARE(m_view->clipboard, QString("elsewhere"));
+    }
+
+    void aLateLineLinkAnswerIsDropped()
+    {
+        m_view->writeToTerminal("one two\r\nthree four", true);
+
+        m_view->ctrlHover({0, 0});
+        m_view->ctrlHover({0, 1});
+        QCOMPARE(m_view->lineLinkQueries.size(), 2);
+
+        // The answer for the row the pointer has left underlines nothing: the
+        // cell it names is not where the reader is looking any more.
+        m_view->lineLinkQueries.first().answer(
+            {TerminalView::LineLink{0, 3, TerminalView::Link{"stale"}}});
+        m_view->copyLinkToClipboard();
+        QCOMPARE(m_view->clipboard, QString());
+
+        m_view->lineLinkQueries.last().answer(
+            {TerminalView::LineLink{0, 5, TerminalView::Link{"current"}}});
+        m_view->copyLinkToClipboard();
+        QCOMPARE(m_view->clipboard, QString("current"));
+    }
+
+    void aLineLinkAnswerSurvivesAPointerWobble()
+    {
+        m_view->writeToTerminal("at Foo.java:12 in main", true);
+
+        // Two moves on the same cell are one question: the answer is for the
+        // cell the reader is on, and a hand is never perfectly still.
+        m_view->ctrlHover({5, 0});
+        m_view->ctrlHover({5, 0});
+        QCOMPARE(m_view->lineLinkQueries.size(), 1);
+
+        m_view->lineLinkQueries.first().answer(
+            {TerminalView::LineLink{3, 11, TerminalView::Link{"stack-target"}}});
+        m_view->copyLinkToClipboard();
+        QCOMPARE(m_view->clipboard, QString("stack-target"));
+    }
+
+    void aLineLinkAnswerIsDroppedWhenControlIsReleased()
+    {
+        m_view->writeToTerminal("at Foo.java:12 in main", true);
+
+        m_view->ctrlHover({5, 0});
+        QCOMPARE(m_view->lineLinkQueries.size(), 1);
+        m_view->releaseControl();
+
+        // A reader who has let go cannot click, so nothing is underlined for
+        // an answer that arrives afterwards.
+        m_view->lineLinkQueries.first().answer(
+            {TerminalView::LineLink{3, 11, TerminalView::Link{"stack-target"}}});
+        m_view->copyLinkToClipboard();
+        QCOMPARE(m_view->clipboard, QString());
+    }
+
+    void aLineLinkOffsetNamesCellsNotCharacters()
+    {
+        m_view->writeToTerminal("x \xf0\x9f\x9a\x80 one two", true);
+
+        // The rocket is two cells wide on screen and two QChars long in the
+        // line handed over, so "one" sits at cell 5 but at index 6.
+        m_view->ctrlHover({5, 0});
+        QCOMPARE(m_view->lineLinkQueries.size(), 1);
+
+        const QString line = m_view->lineLinkQueries.first().line;
+        const int index = line.indexOf(QLatin1String("one"));
+        QVERIFY(index > 0);
+        m_view->lineLinkQueries.first().answer(
+            {TerminalView::LineLink{index, 3, TerminalView::Link{"target"}}});
+
+        m_view->copyLinkToClipboard();
+        QCOMPARE(m_view->clipboard, QString("target"));
     }
 
     void aSelectionSurvivesOutputBelowIt()

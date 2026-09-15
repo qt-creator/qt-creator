@@ -88,6 +88,24 @@ public:
     QString m_preEditString;
 
     std::optional<TerminalView::LinkSelection> m_linkSelection;
+    // The cell a question still out with a provider was about, and the line it
+    // was asked with. The pointer moves on while a provider is looking, and a
+    // late answer belongs to the cell the reader was on when it was asked.
+    struct
+    {
+        int pos = -1;
+        QString line;
+    } m_linkQuestion;
+    // The answer for the line the pointer was last over. The pointer crosses
+    // the same line many times, and asking once per move would ask a provider
+    // per pixel. Keyed by the text, so a line the application has rewritten
+    // does not answer for what it says now.
+    struct
+    {
+        int lineStart = -1;
+        QString line;
+        QList<TerminalView::LineLink> links;
+    } m_lineLinks;
 
     struct
     {
@@ -1197,7 +1215,14 @@ void TerminalView::keyPressEvent(QKeyEvent *event)
 
 void TerminalView::keyReleaseEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Control && d->m_linkSelection.has_value()) {
+    if (event->key() != Qt::Key_Control)
+        return;
+
+    // An answer arriving after Ctrl was released would underline a word the
+    // reader can no longer click.
+    d->m_linkQuestion = {};
+
+    if (d->m_linkSelection) {
         clearLinkSelection();
         setCursor(Qt::IBeamCursor);
     }
@@ -1521,6 +1546,7 @@ void TerminalView::wheelEvent(QWheelEvent *event)
 
 void TerminalView::clearLinkSelection()
 {
+    d->m_linkQuestion = {};
     if (!d->m_linkSelection)
         return;
 
@@ -1532,6 +1558,7 @@ void TerminalView::clearLinkSelection()
 bool TerminalView::checkLinkAt(const QPoint &pos)
 {
     const auto setLinkSelection = [this](const LinkSelection &newSelection) {
+        d->m_linkQuestion = {};
         if (!d->m_linkSelection || *d->m_linkSelection != newSelection) {
             d->m_linkSelection = newSelection;
             showLinkToolTip(newSelection.link);
@@ -1563,7 +1590,89 @@ bool TerminalView::checkLinkAt(const QPoint &pos)
             return setLinkSelection(LinkSelection{{hit.start, hit.end}, *newLink});
     }
 
+    askForLineLinks(pos);
+    return false;
+}
+
+void TerminalView::askForLineLinks(const QPoint &pos)
+{
+    const QPoint gridPos = globalToGrid(viewportToGlobal(pos));
+    const int hovered = d->m_surface->gridToPos(gridPos);
+    const int lineStart = d->m_surface->gridToPos({0, gridPos.y()});
+    const int lineEnd = d->m_surface->gridToPos(
+        {d->m_surface->liveSize().width(), gridPos.y()});
+
+    std::u32string text;
+    for (CellIterator it = d->m_surface->iteratorAt(lineStart);
+         it != d->m_surface->iteratorAt(lineEnd);
+         ++it) {
+        text.push_back(*it == 0 ? U' ' : *it);
+    }
+    const QString line = QString::fromUcs4(text.c_str(), text.size());
+    if (line.trimmed().isEmpty()) {
+        clearLinkSelection();
+        return;
+    }
+
+    // The pointer moving inside the cell a question is out for asks nothing
+    // new: that question is the one this cell is waiting for. A hand is never
+    // perfectly still, and asking again would drop the answer to it.
+    if (d->m_linkQuestion.pos == hovered && d->m_linkQuestion.line == line)
+        return;
+
+    // Anything else still being looked at is about a cell the pointer has left.
+    d->m_linkQuestion = {};
+
+    if (d->m_lineLinks.lineStart == lineStart && d->m_lineLinks.line == line) {
+        if (!applyLineLinks(d->m_lineLinks.links, lineStart, line, hovered))
+            clearLinkSelection();
+        return;
+    }
+
     clearLinkSelection();
+    d->m_linkQuestion = {hovered, line};
+    toLineLinks(line, this, [this, line, lineStart, hovered](const QList<LineLink> &links) {
+        if (d->m_linkQuestion.pos != hovered || d->m_linkQuestion.line != line)
+            return;
+        d->m_linkQuestion = {};
+        d->m_lineLinks = {lineStart, line, links};
+        applyLineLinks(links, lineStart, line, hovered);
+    });
+}
+
+// A codepoint outside the BMP is one cell but two QChars, so an index into the
+// line is not an offset into the row of cells the line was read from.
+static int cellsBefore(const QString &line, int index)
+{
+    int cells = 0;
+    for (int i = 0; i < index && i < line.size(); ++i, ++cells) {
+        if (line.at(i).isHighSurrogate())
+            ++i;
+    }
+    return cells;
+}
+
+bool TerminalView::applyLineLinks(const QList<LineLink> &links,
+                                  int lineStart,
+                                  const QString &line,
+                                  int hovered)
+{
+    for (const LineLink &found : links) {
+        if (found.length <= 0)
+            continue;
+        const int start = lineStart + cellsBefore(line, found.startIndex);
+        const int end = lineStart + cellsBefore(line, found.startIndex + found.length);
+        if (hovered < start || hovered >= end)
+            continue;
+        const LinkSelection selection{{start, end}, found.link};
+        if (!d->m_linkSelection || *d->m_linkSelection != selection) {
+            d->m_linkSelection = selection;
+            showLinkToolTip(found.link);
+            updateViewport();
+        }
+        setCursor(Qt::PointingHandCursor);
+        return true;
+    }
     return false;
 }
 
@@ -1571,9 +1680,12 @@ void TerminalView::showLinkToolTip(const Link &link)
 {
     // A uri the application supplied names something other than the text it is
     // shown on, so it is shown encoded and a character cannot pass for one it
-    // only resembles. A sniffed target is read off the screen already.
-    const QString shown = link.isUri ? QString::fromUtf8(QUrl(link.text).toEncoded())
-                                     : link.text;
+    // only resembles. A sniffed target is read off the screen already, and a
+    // tooltip stands in for such a target: neither is a uri the reader has to
+    // judge, so a uri keeps its encoded form whatever else is offered for it.
+    const QString shown = link.isUri
+                              ? QString::fromUtf8(QUrl(link.text).toEncoded())
+                              : (link.tooltip.isEmpty() ? link.text : link.tooltip);
 
     const int maxWidth = screen()->availableGeometry().width() / 2;
     const QString text = QFontMetrics(QToolTip::font())
