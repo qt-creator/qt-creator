@@ -1577,9 +1577,9 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
         }
 
         if (settings().useIndexCache()) {
-            // gdb 13 made "index-cache" a prefix command, and the plain form an
+            // gdb 12 made "index-cache" a prefix command, and the plain form an
             // alias that warns.
-            runCommand({m_gdbVersion >= 130000 ? QString("set index-cache enabled on")
+            runCommand({m_gdbVersion >= 120000 ? QString("set index-cache enabled on")
                                                : QString("set index-cache on")});
         }
     }
