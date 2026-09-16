@@ -83,6 +83,42 @@ QmlProfilerSettings::QmlProfilerSettings()
     findingsPerFrameBudgetUs.setDefaultValue(500);
     findingsPerFrameBudgetUs.setLabelText(Tr::tr("Report per-frame cost above (us):"));
 
+    findingsBlockingCallThresholdMs.setSettingsKey(
+        "Analyzer.QmlProfiler.Findings.BlockingCallThresholdMs");
+    findingsBlockingCallThresholdMs.setRange(1, 100000);
+    findingsBlockingCallThresholdMs.setDefaultValue(100);
+    findingsBlockingCallThresholdMs.setLabelText(Tr::tr("Report a single call above (ms):"));
+
+    findingsJankFrameThresholdMs.setSettingsKey(
+        "Analyzer.QmlProfiler.Findings.JankFrameThresholdMs");
+    findingsJankFrameThresholdMs.setRange(1, 10000);
+    findingsJankFrameThresholdMs.setDefaultValue(32);
+    findingsJankFrameThresholdMs.setLabelText(Tr::tr("A frame stutters above (ms):"));
+    findingsJankFrameThresholdMs.setToolTip(Tr::tr(
+        "How long a frame has to take before the work done in it is reported. At 60 frames\n"
+        "per second a frame lasts about 17 ms, so twice that is a frame the user sees twice."));
+
+    findingsMemoryChurnKb.setSettingsKey("Analyzer.QmlProfiler.Findings.MemoryChurnKb");
+    findingsMemoryChurnKb.setRange(1, 10000000);
+    findingsMemoryChurnKb.setDefaultValue(1024);
+    findingsMemoryChurnKb.setLabelText(Tr::tr("Report memory taken per location above (KB):"));
+
+    findingsCreationMinCount.setSettingsKey("Analyzer.QmlProfiler.Findings.CreationMinCount");
+    findingsCreationMinCount.setRange(2, 1000000);
+    findingsCreationMinCount.setDefaultValue(200);
+    findingsCreationMinCount.setLabelText(Tr::tr("Report components built at least:"));
+
+    findingsBindingMinCount.setSettingsKey("Analyzer.QmlProfiler.Findings.BindingMinCount");
+    findingsBindingMinCount.setRange(2, 10000000);
+    findingsBindingMinCount.setDefaultValue(1000);
+    findingsBindingMinCount.setLabelText(Tr::tr("Report bindings evaluated at least:"));
+
+    findingsPixmapReloadMinCount.setSettingsKey(
+        "Analyzer.QmlProfiler.Findings.PixmapReloadMinCount");
+    findingsPixmapReloadMinCount.setRange(2, 100000);
+    findingsPixmapReloadMinCount.setDefaultValue(3);
+    findingsPixmapReloadMinCount.setLabelText(Tr::tr("Report images loaded at least:"));
+
     setLayouter([this] {
         using namespace Layouting;
         // The findings thresholds sit in the same form as the rest: an aspect placed in a
@@ -97,6 +133,12 @@ QmlProfilerSettings::QmlProfilerSettings()
             findingsPeriodicDeviationPercent, br,
             findingsPixmapMegapixels, br,
             findingsPerFrameBudgetUs, br,
+            findingsBlockingCallThresholdMs, br,
+            findingsJankFrameThresholdMs, br,
+            findingsMemoryChurnKb, br,
+            findingsCreationMinCount, br,
+            findingsBindingMinCount, br,
+            findingsPixmapReloadMinCount, br,
         };
     });
 

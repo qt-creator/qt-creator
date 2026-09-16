@@ -34,6 +34,11 @@ void QmlProfilerFindingsModelTest::initTestCase()
     manager.appendEventType(QmlEventType(PixmapCacheEvent, UndefinedRangeType, PixmapLoadingError,
                                          QmlEventLocation(QString("image://provider/missing.svg"),
                                                           0, 0)));
+    pixmapErrorStartTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(PixmapCacheEvent, UndefinedRangeType,
+                                         PixmapLoadingStarted,
+                                         QmlEventLocation(QString("image://provider/missing.svg"),
+                                                          0, 0)));
     pixmapSizeTypeId = manager.numEventTypes();
     manager.appendEventType(QmlEventType(PixmapCacheEvent, UndefinedRangeType, PixmapSizeKnown,
                                          QmlEventLocation(QString("qrc:/huge.png"), 0, 0)));
@@ -51,6 +56,31 @@ void QmlProfilerFindingsModelTest::initTestCase()
                                          QmlEventLocation(QString("Gauge.qml"), 12, 9)));
     animationTypeId = manager.numEventTypes();
     manager.appendEventType(QmlEventType(Event, UndefinedRangeType, AnimationFrame));
+    jankHandlerTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(UndefinedMessage, HandlingSignal, -1,
+                                         QmlEventLocation(QString("Chart.qml"), 88, 5)));
+    blockingHandlerTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(UndefinedMessage, HandlingSignal, -1,
+                                         QmlEventLocation(QString("Import.qml"), 15, 5)));
+    delegateTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(UndefinedMessage, Creating, -1,
+                                         QmlEventLocation(QString("Row.qml"), 3, 1)));
+    churnBindingTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(UndefinedMessage, Binding, -1,
+                                         QmlEventLocation(QString("Ticker.qml"), 7, 13)));
+    allocatingJsTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(UndefinedMessage, Javascript, -1,
+                                         QmlEventLocation(QString("Report.qml"), 55, 9)));
+    memoryTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(MemoryAllocation, UndefinedRangeType, SmallItem));
+    reloadStartTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(PixmapCacheEvent, UndefinedRangeType,
+                                         PixmapLoadingStarted,
+                                         QmlEventLocation(QString("qrc:/tile.png"), 0, 0)));
+    reloadFinishTypeId = manager.numEventTypes();
+    manager.appendEventType(QmlEventType(PixmapCacheEvent, UndefinedRangeType,
+                                         PixmapLoadingFinished,
+                                         QmlEventLocation(QString("qrc:/tile.png"), 0, 0)));
 
     const auto addCompileRange = [&](int typeId, qint64 durationNs) {
         QmlEvent event;
@@ -70,11 +100,18 @@ void QmlProfilerFindingsModelTest::initTestCase()
     addCompileRange(fastCompileTypeId, fastCompileNs);
 
     // The same image fails three times: the engine retries rather than caching the failure.
+    // Each attempt starts a load, so the retries look exactly like reloads until the error
+    // is taken into account.
     for (int i = 0; i < 3; ++i) {
-        QmlEvent event;
-        event.setTypeIndex(pixmapErrorTypeId);
-        event.setTimestamp(++timestamp);
-        manager.appendEvent(std::move(event));
+        QmlEvent started;
+        started.setTypeIndex(pixmapErrorStartTypeId);
+        started.setTimestamp(++timestamp);
+        manager.appendEvent(std::move(started));
+
+        QmlEvent failed;
+        failed.setTypeIndex(pixmapErrorTypeId);
+        failed.setTimestamp(++timestamp);
+        manager.appendEvent(std::move(failed));
     }
 
     // A handler that builds a view while it runs: the Creating range nests inside it.
@@ -149,6 +186,104 @@ void QmlProfilerFindingsModelTest::initTestCase()
         binding.setRangeStage(RangeEnd);
         binding.setTimestamp(timestamp);
         manager.appendEvent(std::move(binding));
+    }
+
+    // Five frames that take about 50 ms, each held up by a handler running 40 ms in it.
+    // Averaged over the whole trace this work disappears; it is what ruins these frames.
+    for (int i = 0; i < 5; ++i) {
+        QmlEvent handler;
+        handler.setTypeIndex(jankHandlerTypeId);
+        handler.setRangeStage(RangeStart);
+        handler.setTimestamp(++timestamp);
+        manager.appendEvent(QmlEvent(handler));
+
+        timestamp += 40000000;
+        handler.setRangeStage(RangeEnd);
+        handler.setTimestamp(timestamp);
+        manager.appendEvent(std::move(handler));
+
+        QmlEvent frame;
+        frame.setTypeIndex(animationTypeId);
+        frame.setTimestamp(timestamp += 10000000);
+        frame.setNumbers({20, 1, 0});
+        manager.appendEvent(std::move(frame));
+    }
+
+    // Everything below happens after the last frame, so it is no part of any frame.
+
+    // One call that holds the thread for a fifth of a second.
+    {
+        QmlEvent event;
+        event.setTypeIndex(blockingHandlerTypeId);
+        event.setRangeStage(RangeStart);
+        event.setTimestamp(++timestamp);
+        manager.appendEvent(QmlEvent(event));
+
+        timestamp += 200000000;
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(timestamp);
+        manager.appendEvent(std::move(event));
+    }
+
+    // A delegate built once per item of a long list.
+    for (int i = 0; i < 300; ++i) {
+        QmlEvent event;
+        event.setTypeIndex(delegateTypeId);
+        event.setRangeStage(RangeStart);
+        event.setTimestamp(++timestamp);
+        manager.appendEvent(QmlEvent(event));
+
+        timestamp += 100000;
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(timestamp);
+        manager.appendEvent(std::move(event));
+    }
+
+    // A binding too cheap to show up in any cost, re-evaluated without end.
+    for (int i = 0; i < 1200; ++i) {
+        QmlEvent event;
+        event.setTypeIndex(churnBindingTypeId);
+        event.setRangeStage(RangeStart);
+        event.setTimestamp(++timestamp);
+        manager.appendEvent(QmlEvent(event));
+
+        event.setRangeStage(RangeEnd);
+        event.setTimestamp(++timestamp);
+        manager.appendEvent(std::move(event));
+    }
+
+    // A function taking two megabytes from the JavaScript heap while it runs.
+    {
+        QmlEvent js;
+        js.setTypeIndex(allocatingJsTypeId);
+        js.setRangeStage(RangeStart);
+        js.setTimestamp(++timestamp);
+        manager.appendEvent(QmlEvent(js));
+
+        for (int i = 0; i < 4; ++i) {
+            QmlEvent allocation;
+            allocation.setTypeIndex(memoryTypeId);
+            allocation.setTimestamp(++timestamp);
+            allocation.setNumbers({qint64(512 * 1024)});
+            manager.appendEvent(std::move(allocation));
+        }
+
+        js.setRangeStage(RangeEnd);
+        js.setTimestamp(++timestamp);
+        manager.appendEvent(std::move(js));
+    }
+
+    // The same image loaded four times: nothing holds it between uses.
+    for (int i = 0; i < 4; ++i) {
+        QmlEvent started;
+        started.setTypeIndex(reloadStartTypeId);
+        started.setTimestamp(++timestamp);
+        manager.appendEvent(std::move(started));
+
+        QmlEvent finished;
+        finished.setTypeIndex(reloadFinishTypeId);
+        finished.setTimestamp(timestamp += 2000000);
+        manager.appendEvent(std::move(finished));
     }
 
     manager.finalize();
@@ -241,9 +376,73 @@ void QmlProfilerFindingsModelTest::testPerFrameCostReported()
     const Finding *finding = findingFor(model.findings(), "per-frame-cost");
     QVERIFY(finding);
     QCOMPARE(finding->location.filename(), QString("Gauge.qml"));
-    // The frames of one thread, although both of them reported every one of them.
-    QCOMPARE(finding->occurrences, 100); // frames the cost was spread over
+    // The frames of one thread, although both of them reported every one of the first 100.
+    QCOMPARE(finding->occurrences, 105); // frames the cost was spread over
     QCOMPARE(finding->costNs, 100000000);
+}
+
+void QmlProfilerFindingsModelTest::testBlockingCallReported()
+{
+    const Finding *finding = findingFor(model.findings(), "blocking-call");
+    QVERIFY(finding);
+    QCOMPARE(finding->location.filename(), QString("Import.qml"));
+    QCOMPARE(finding->costNs, 200000000);
+    QCOMPARE(finding->occurrences, 1);
+}
+
+void QmlProfilerFindingsModelTest::testFrameJankAttributedToHandler()
+{
+    const Finding *finding = findingFor(model.findings(), "frame-jank");
+    QVERIFY(finding);
+    // The handler that ran in the late frames, not the binding that runs in every frame.
+    QCOMPARE(finding->location.filename(), QString("Chart.qml"));
+    QCOMPARE(finding->occurrences, 5);
+    QCOMPARE(finding->costNs, 200000000);
+}
+
+void QmlProfilerFindingsModelTest::testMemoryChurnAttributedToCaller()
+{
+    const Finding *finding = findingFor(model.findings(), "memory-churn");
+    QVERIFY(finding);
+    // Reported where the memory was taken, not at the allocation event, which has no
+    // location of its own.
+    QCOMPARE(finding->location.filename(), QString("Report.qml"));
+    QCOMPARE(finding->location.line(), 55);
+    QCOMPARE(finding->occurrences, 4);
+}
+
+void QmlProfilerFindingsModelTest::testRepeatedCreationReported()
+{
+    const Finding *finding = findingFor(model.findings(), "repeated-creation");
+    QVERIFY(finding);
+    QCOMPARE(finding->location.filename(), QString("Row.qml"));
+    QCOMPARE(finding->occurrences, 300);
+    QCOMPARE(finding->costNs, 30000000);
+}
+
+void QmlProfilerFindingsModelTest::testBindingChurnReported()
+{
+    const Finding *finding = findingFor(model.findings(), "binding-churn");
+    QVERIFY(finding);
+    // The binding is reported for how often it runs, although it costs next to nothing.
+    QCOMPARE(finding->location.filename(), QString("Ticker.qml"));
+    QCOMPARE(finding->occurrences, 1200);
+}
+
+void QmlProfilerFindingsModelTest::testPixmapReloadReported()
+{
+    const Finding *finding = findingFor(model.findings(), "pixmap-reload");
+    QVERIFY(finding);
+    QCOMPARE(finding->location.filename(), QString("qrc:/tile.png"));
+    QCOMPARE(finding->occurrences, 4);
+    QCOMPARE(finding->costNs, 8000000);
+
+    // The image that never loads started as many loads as the threshold asks for, but it
+    // is reported as an error, not as a reload.
+    for (const Finding &other : model.findings()) {
+        if (other.ruleId == QLatin1String("pixmap-reload"))
+            QVERIFY(other.location.filename() != QString("image://provider/missing.svg"));
+    }
 }
 
 void QmlProfilerFindingsModelTest::testSeverityOrdering()

@@ -25,6 +25,12 @@ public:
     Utils::IntegerAspect findingsPeriodicDeviationPercent{this};
     Utils::DoubleAspect findingsPixmapMegapixels{this};
     Utils::IntegerAspect findingsPerFrameBudgetUs{this};
+    Utils::IntegerAspect findingsBlockingCallThresholdMs{this};
+    Utils::IntegerAspect findingsJankFrameThresholdMs{this};
+    Utils::IntegerAspect findingsMemoryChurnKb{this};
+    Utils::IntegerAspect findingsCreationMinCount{this};
+    Utils::IntegerAspect findingsBindingMinCount{this};
+    Utils::IntegerAspect findingsPixmapReloadMinCount{this};
 };
 
 QmlProfilerSettings &globalSettings();
