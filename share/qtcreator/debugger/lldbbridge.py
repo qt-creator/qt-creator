@@ -1984,12 +1984,10 @@ class Dumper(DumperBase):
                             resolver()
                         self.armInterpreterMessageWatch()
                         self.report("AUTO-CONTINUE AFTER RESOLVING")
-                        # With nothing pending the hook stopped the inferior for
-                        # no one: reporting a stop would have the engine run a
-                        # full update before the resume, for every native-mixed
-                        # session rather than only those with a QML breakpoint.
-                        if self.interpreterBreakpointResolvers:
-                            self.reportState("inferiorstopok")
+                        # The engine hears nothing of this stop: it asked for
+                        # none, and the resume that follows immediately would
+                        # leave it going from stopped to running without ever
+                        # having requested a run.
                         self.process.Continue()
                         return
                     if "qt_qmlDebugObjectAvailable" in (functionName or ''):
@@ -2009,8 +2007,10 @@ class Dumper(DumperBase):
                         self.disarmNativeCallStepIn()
                         res = self.handleInterpreterMessage()
                         if not res:
+                            # Likewise: an event the interpreter does not stop
+                            # for is resumed from here, so the engine is not
+                            # told the inferior ever stopped.
                             self.report("EVENT NEEDS NO STOP")
-                            self.reportState("stopped")
                             self.process.Continue()
                             return
                 # A native step (possibly a C++-to-QML crossing attempt)

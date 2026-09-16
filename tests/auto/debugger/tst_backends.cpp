@@ -9423,6 +9423,13 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
                                          " - last wire traffic:\n  " + wireTail(wire)),
                               s_timeout);
 
+    // Getting there takes internal stops - the hook that resolves a pending
+    // breakpoint, and the events the interpreter does not stop for. Each is
+    // resumed from the backend, so reporting one leaves the engine going from
+    // stopped to running with no run of its own in between.
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::StopOk),
+             "an internal stop on the way to the breakpoint was reported to the engine");
+
     QHash<int, GdbMi> responses;
     connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
             [&responses](quint64, RefreshKind kind, const GdbMi &data) {
