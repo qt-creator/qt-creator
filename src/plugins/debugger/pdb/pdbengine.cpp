@@ -26,6 +26,7 @@
 #include <utils/widgets.h>
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -588,6 +589,8 @@ DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp)
         ProcessRunData debuggerRunData;
         debuggerRunData.command = CommandLine(rp.interpreter());
         debuggerRunData.environment = rp.debugger().environment;
+        if (!rp.runAsUser().isEmpty())
+            ProjectExplorer::RunControl::provideAskPassEntry(debuggerRunData.environment);
 
         QList<QPair<QString, QString>> sourcePathMap;
         const SourcePathMap mergedMap
@@ -604,6 +607,7 @@ DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp)
                          .extraDumperCommands = settings().extraDumperCommands(),
                          .loadInitFile = settings().loadGdbInit(),
                          .sourcePathMap = sourcePathMap,
+                         .runAsUser = rp.runAsUser(),
                          .startScript = rp.overrideStartScript(),
                          .startupCommands = Utils::filtered(
                              QString(settings().gdbStartupCommands() + '\n'
@@ -614,6 +618,8 @@ DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp)
                              }),
                          .forResetCommands = rp.commandsForReset(),
                          .breakOnMain = rp.breakOnMain(),
+                         .watchdogTimeout = std::chrono::seconds(
+                             settings().gdbWatchdogTimeout()),
                          .logTimeStamps = settings().logTimeStamps()}));
     }
     return new PdbEngine;

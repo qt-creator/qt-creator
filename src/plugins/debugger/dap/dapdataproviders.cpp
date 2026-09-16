@@ -44,6 +44,7 @@ void ProcessDataProvider::start()
         m_process.setWorkingDirectory(m_runData.workingDirectory);
     m_process.setEnvironment(m_runData.environment);
     m_process.setCommand(m_cmd);
+    m_process.setRunAsUser(m_runAsUser);
     m_process.start();
 }
 

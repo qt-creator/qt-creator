@@ -5204,6 +5204,13 @@ InferiorStartData inferiorStartData(const DebuggerRunParameters &rp)
     default:
         break;
     }
+    if (rp.useTerminal()) {
+        // The stub started the program suspended in the terminal it opened for it,
+        // so there is nothing left to launch, only something to attach to.
+        return AttachToTerminalStubData{ProcessHandle(rp.applicationPid()),
+                                        rp.applicationMainThreadId(),
+                                        rp.inferior().command.executable()};
+    }
     return rp.inferior();
 }
 
@@ -5264,6 +5271,13 @@ static DebuggerUserCommands gdbImplUserCommands(const DebuggerRunParameters &rp)
     };
 }
 
+static TriState gdbHeapDebugging(const DebuggerRunParameters &rp)
+{
+    if (rp.inferior().command.executable().osType() != OsTypeWindows)
+        return TriState::Default;
+    return settings().enableHeapDebugging() ? TriState::Enabled : TriState::Disabled;
+}
+
 static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
 {
     const bool windowsMain = rp.toolChainAbi().os() == Abi::WindowsOS && !rp.useTerminal();
@@ -5277,6 +5291,7 @@ static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
         .mainFunctionName = QLatin1String(windowsMain ? "qMain" : "main"),
         .flags = gdbImplFlags(rp),
         .useDebugInfoD = settings().useDebugInfoD(),
+        .enableHeapDebugging = gdbHeapDebugging(rp),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
         .runAsUser = rp.runAsUser(),

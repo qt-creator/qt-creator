@@ -12,6 +12,7 @@
 
 #include <QHash>
 #include <QJsonObject>
+#include <QSet>
 #include <QTimer>
 
 #include <memory>
@@ -62,6 +63,7 @@ private:
     void configureTarget();
     void createSpecialBreakpoints();
     void runUserStartupCommands();
+    void runPostAttachCommands();
     void handleResponse(DapResponseType type, const QJsonObject &response);
     void handleEvent(DapEventType type, const QJsonObject &event);
     void interruptInferior();
@@ -75,6 +77,7 @@ private:
     void handleTracepointHit(const QJsonObject &body);
 
     int postRequest(const QString &command, const QJsonObject &arguments = {});
+    void logRequest(int seq, const QString &command, const QJsonObject &arguments);
     void restartWatchdog();
     void postWhenStopped(const QString &command, const QJsonObject &arguments,
                          const BreakpointChangeRequest &request);
@@ -82,7 +85,10 @@ private:
     QJsonObject stepArguments(bool byInstruction) const;
     void fetchDisassemblyForTarget(quint64 requestId, quint64 address, const QString &target);
     void postLaunchOrAttach();
+    void postDumperStack(const RefreshRequest &request, bool extraQml);
     void postBreakpointRequest(const QString &request, const BreakpointChangeRequest &change);
+    void postInterpreterBreakpointRequest(const BreakpointChangeRequest &change);
+    void postInterpreterStep(const QString &function);
 
     const DapStartData m_startData;
     DapClient *m_client = nullptr;
@@ -130,6 +136,13 @@ private:
     bool m_expectTerminalTrap = false;
     // Whether the next stop ends the setup rather than a run of its own.
     bool m_reportsSetupStop = false;
+    // Whether the stop still to come, and the resume out of it, belong to the
+    // deferred queue rather than to the engine.
+    bool m_deferredStopRequested = false;
+    bool m_resumingFromDeferredStop = false;
+    // Whether the last thing heard from the debugger was the announcement of a
+    // debug info download, which is what the silence after it stands for.
+    bool m_debuginfodDownloadInProgress = false;
 
     // A request that arrived while the inferior was running: the bridge is
     // blocked in the resume then, so the request goes out on a stop forced for
@@ -164,6 +177,7 @@ private:
     quint64 m_pendingSectionsRequestId = 0;
     quint64 m_pendingRegistersRequestId = 0;
     quint64 m_pendingBacktraceRequestId = 0;
+    quint64 m_pendingDumperStackRequestId = 0;
     quint64 m_pendingThreadsRequestId = 0;
     quint64 m_pendingSourceFilesRequestId = 0;
     // One memory request can end up as several reads: an unreadable range is
@@ -205,6 +219,7 @@ private:
     QHash<int, SnapshotRequest> m_snapshotRequests;
 
     QHash<int, quint64> m_breakpointRequestIds;
+    QSet<int> m_interpreterBreakpointChanges;
 
     struct Tracepoint
     {

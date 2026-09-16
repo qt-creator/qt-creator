@@ -3,6 +3,9 @@
 
 #include "bridgeimpl.h"
 
+#include "../debuggertr.h"
+
+#include "../debuggerinternalconstants.h"
 #include "../disassemblerlines.h"
 #include "../watchutils.h"
 
@@ -120,7 +123,8 @@ private:
 static DebuggerEngineSetupData bridgeImplSetupData()
 {
     DebuggerEngineSetupData data;
-    const unsigned coreCaps = AddWatcherCapability
+    const unsigned coreCaps = AdditionalQmlStackCapability
+                            | AddWatcherCapability
                             | AutoDerefPointersCapability
                             | CreateFullBacktraceCapability
                             | DisassemblerCapability
@@ -163,13 +167,13 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                       | DebuggerStartModeFlag::AttachToTerminalStub
                       | DebuggerStartModeFlag::AttachToRemoteServer
                       | DebuggerStartModeFlag::AttachToCore;
-    data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
+    data.toolTipHandling = ToolTipHandling::IfStoppedInferiorAndCppEditor;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
             return false;
-        // Native mixed debugging is not wired up here, so a QML breakpoint has
-        // nowhere to go.
-        return query.isCppBreakpoint();
+        if (query.isCppBreakpoint())
+            return true;
+        return query.isNativeMixedEnabled;
     };
     return data;
 }
@@ -187,7 +191,10 @@ BridgeImpl::BridgeImpl(const DapStartData &startData)
         QStringList pending;
         for (const PendingRequest &request : std::as_const(m_pendingRequests))
             pending.append(request.text);
-        emit notResponding(m_startData.watchdogTimeout, pending);
+        emit notResponding(m_startData.watchdogTimeout, pending,
+                           m_debuginfodDownloadInProgress
+                               ? NotRespondingCause::FetchingDebugInfo
+                               : NotRespondingCause::Unknown);
     });
 }
 
@@ -197,6 +204,12 @@ void BridgeImpl::start()
 {
     CommandLine cmd{m_startData.debuggerRunData.command.executable(),
                     m_startData.bridgeStartData.startupArguments};
+    // A gdb that was built but never installed carries its own python
+    // modules beside the binary and does not find them by itself.
+    const FilePath uninstalledData
+        = m_startData.debuggerRunData.command.executable().parentDir() / "data-directory/python";
+    if (uninstalledData.exists())
+        cmd.addArgs({"-iex", "python sys.path.append('" + uninstalledData.path() + "')"});
     cmd.addArgs({"-iex", "python sys.path.insert(1, '" + m_startData.dumperScriptsDir.path() + "')"});
     cmd.addArgs({"-iex", "python from " + m_startData.bridgeStartData.bridgeModule + " import *"});
     cmd.addArgs({"-ex", "python " + m_startData.bridgeStartData.serverCall});
@@ -205,6 +218,7 @@ void BridgeImpl::start()
                                                m_startData.runAsUser, this);
     m_client = new BridgeImplClient(provider, this);
 
+    connect(m_client, &DapClient::requestSent, this, &BridgeImpl::logRequest);
     connect(m_client, &DapClient::started, this, &BridgeImpl::handleStarted);
     connect(m_client, &DapClient::done, this, &BridgeImpl::handleFinished);
     connect(m_client, &DapClient::readyReadStandardError, this, &BridgeImpl::handleStandardError);
@@ -255,6 +269,20 @@ void BridgeImpl::configureTarget()
         args.insert("sysroot", m_startData.sysroot.path());
     if (m_startData.useDebugInfoD)
         args.insert("debuginfod", *m_startData.useDebugInfoD);
+    if (!m_startData.debugInfoLocation.isEmpty() && m_startData.debugInfoLocation.exists())
+        args.insert("debugInfoLocation", m_startData.debugInfoLocation.path());
+    if (!m_startData.solibSearchPath.isEmpty()) {
+        QJsonArray solibSearchPath;
+        for (const FilePath &path : m_startData.solibSearchPath)
+            solibSearchPath.append(path.path());
+        args.insert("solibSearchPath", solibSearchPath);
+    }
+    if (m_startData.loadSystemDumpers)
+        args.insert("systemDumpers", true);
+    if (m_startData.useIndexCache)
+        args.insert("indexCache", true);
+    if (m_startData.multiInferior)
+        args.insert("multiInferior", true);
     if (!args.isEmpty())
         postRequest("qtc/configureTarget", args);
 }
@@ -270,6 +298,14 @@ void BridgeImpl::createSpecialBreakpoints()
                 QJsonObject{{"breakonabort", m_startData.breakOnAbort},
                             {"breakonwarning", m_startData.breakOnWarning},
                             {"breakonfatal", m_startData.breakOnFatal}});
+}
+
+void BridgeImpl::runPostAttachCommands()
+{
+    if (m_startData.userCommands.afterAttach.isEmpty())
+        return;
+    postRequest("qtc/runUserCommands",
+                QJsonObject{{"commands", m_startData.userCommands.afterAttach}});
 }
 
 void BridgeImpl::runUserStartupCommands()
@@ -344,8 +380,15 @@ static GdbMi dumperTypesOf(const QJsonObject &response)
 void BridgeImpl::handleStandardError()
 {
     const QString error = m_client->dataProvider()->readAllStandardError();
-    if (!error.isEmpty())
-        emit message(error, LogError);
+    if (error.isEmpty())
+        return;
+    // gdb announces a debug info download with one line and then fetches
+    // silently, which looks exactly like a debugger that stopped answering.
+    // Its console is pointed at the error channel here, so this is where the
+    // announcement arrives.
+    if (error.contains("Downloading") && error.contains("separate debug info"))
+        m_debuginfodDownloadInProgress = true;
+    emit message(error, LogError);
 }
 
 void BridgeImpl::postLaunchOrAttach()
@@ -398,10 +441,16 @@ void BridgeImpl::postLaunchOrAttach()
         args.insert("mainFunction", m_startData.mainFunctionName);
     }
 
+    Environment inferiorEnv = runData->environment;
+    if (m_startData.enableHeapDebugging != TriState::Default
+        && !inferiorEnv.hasKey(Constants::NO_DEBUG_HEAP)) {
+        inferiorEnv.set(Constants::NO_DEBUG_HEAP,
+                        m_startData.enableHeapDebugging == TriState::Enabled ? "0" : "1");
+    }
     Environment debuggerEnv = m_startData.debuggerRunData.environment;
     debuggerEnv.setupEnglishOutput();
     QJsonArray env;
-    for (const EnvironmentItem &item : debuggerEnv.diff(runData->environment)) {
+    for (const EnvironmentItem &item : debuggerEnv.diff(inferiorEnv)) {
         const bool unset = item.operation == EnvironmentItem::Unset
                            || item.operation == EnvironmentItem::SetDisabled;
         const bool isWindowsPath = HostOsInfo::isWindowsHost()
@@ -488,6 +537,10 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         // The engine leaves the stopped state on the request, not on the
         // answer: a refusal has nowhere to go back to otherwise.
         emit inferiorEvent(InferiorEvent::RunRequested);
+        if (m_startData.nativeMixedDebugging && request.currentFrameIsQml) {
+            postInterpreterStep("executeContinue");
+            return;
+        }
         if (request.reverse)
             postRequest("reverseContinue", QJsonObject{{"threadId", m_currentThreadId}});
         else
@@ -508,6 +561,18 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         m_resumePending = true;
         m_stepRequested = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
+        if (m_startData.nativeMixedDebugging && !request.flag) {
+            if (request.currentFrameIsQml) {
+                postInterpreterStep("executeStep");
+                return;
+            }
+            // Leaving C++ for QML: the interpreter has to be told to pause at
+            // the next JS statement while the native step runs.
+            QJsonObject arguments = stepArguments(false);
+            arguments["arminterpreter"] = true;
+            postRequest("stepIn", arguments);
+            return;
+        }
         postRequest(request.reverse ? QLatin1String("qtc/reverseStepIn")
                                     : QLatin1String("stepIn"),
                     stepArguments(request.flag));
@@ -516,6 +581,19 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         m_resumePending = true;
         m_stepRequested = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
+        if (m_startData.nativeMixedDebugging && !request.flag) {
+            if (request.currentFrameIsQml) {
+                postInterpreterStep("executeNext");
+                return;
+            }
+            // A step over in C++ goes through the dumpers: standing in the
+            // metacall trampolines a C++ method was called from QML through,
+            // the next line of the program is back in QML.
+            if (!request.reverse) {
+                postInterpreterStep("executeNativeMixedNext");
+                return;
+            }
+        }
         // Stepping back over a line is stock DAP, the other two directions are
         // not covered by the protocol.
         postRequest(request.reverse ? QLatin1String("stepBack") : QLatin1String("next"),
@@ -525,6 +603,14 @@ void BridgeImpl::execute(const ExecutionRequest &request)
         m_resumePending = true;
         m_stepRequested = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
+        if (m_startData.nativeMixedDebugging && !request.reverse) {
+            // Out of a QML frame, or out of a C++ frame the interpreter
+            // called: either way the QML caller is where this ends.
+            postInterpreterStep(request.currentFrameIsQml
+                                    ? QLatin1String("executeStepOut")
+                                    : QLatin1String("executeNativeMixedStepOut"));
+            return;
+        }
         if (request.reverse)
             postRequest("qtc/reverseStepOut", QJsonObject{{"threadId", m_currentThreadId}});
         else
@@ -558,7 +644,10 @@ void BridgeImpl::execute(const ExecutionRequest &request)
             interruptGdb();
         return;
     case ExecutionCommand::Abort:
-        m_client->sendTerminate();
+        // The abort is what a debugger that stopped answering is left with, so
+        // asking it to terminate itself would wait for the reply that is not
+        // coming.
+        m_client->dataProvider()->kill();
         return;
     case ExecutionCommand::RepeatLastCommand:
         if (!m_lastDebuggableCommand.isEmpty())
@@ -589,15 +678,18 @@ void BridgeImpl::execute(const ExecutionRequest &request)
 int BridgeImpl::postRequest(const QString &command, const QJsonObject &arguments)
 {
     QTC_ASSERT(m_client, return -1);
-    const int seq = m_client->postRequest(command, arguments);
+    return m_client->postRequest(command, arguments);
+}
+
+void BridgeImpl::logRequest(int seq, const QString &command, const QJsonObject &arguments)
+{
     const QString text = QString::number(seq) + command + '('
                          + QString::fromUtf8(
                              QJsonDocument(arguments).toJson(QJsonDocument::Compact))
                          + ')';
-    emit message(text, LogInput);
     m_pendingRequests.insert(seq, {text, command, QDateTime::currentMSecsSinceEpoch()});
     restartWatchdog();
-    return seq;
+    emit message(text, LogInput);
 }
 
 void BridgeImpl::restartWatchdog()
@@ -619,12 +711,15 @@ void BridgeImpl::postWhenStopped(const QString &command, const QJsonObject &argu
     }
     const bool needsStop = m_deferredRequests.isEmpty();
     m_deferredRequests.append({command, arguments, request.requestId, request.op});
-    if (needsStop)
+    if (needsStop) {
+        m_deferredStopRequested = true;
         execute({ExecutionCommand::Interrupt});
+    }
 }
 
 void BridgeImpl::failDeferredRequests()
 {
+    m_deferredStopRequested = false;
     const QList<DeferredRequest> requests = std::exchange(m_deferredRequests, {});
     for (const DeferredRequest &request : requests)
         emit breakpointEvent(request.requestId, request.op, false);
@@ -640,6 +735,7 @@ void BridgeImpl::postBreakpointRequest(const QString &request,
                      {"id", change.responseId},
                      {"type", int(params.type)},
                      {"ignorecount", params.ignoreCount},
+                     {"threadspec", params.threadSpec},
                      {"condition", QString::fromUtf8(params.condition.toUtf8().toHex())},
                      {"command", QString::fromUtf8(params.command.toUtf8().toHex())},
                      {"function", params.type == BreakpointAtMain
@@ -651,7 +747,7 @@ void BridgeImpl::postBreakpointRequest(const QString &request,
                      {"expression", params.expression},
                      {"tracepoint", params.tracepoint},
                      {"message", QString::fromUtf8(params.message.toUtf8().toHex())},
-                     {"file", params.fileName.path()}};
+                     {"file", params.fileNameForDebugger().path()}};
 
     if (params.isTracepoint() && params.type == BreakpointByFileAndLine) {
         args["pseudotracepoint"] = m_startData.pseudoTracepoints;
@@ -672,12 +768,36 @@ void BridgeImpl::postBreakpointRequest(const QString &request,
     postWhenStopped(request, args, change);
 }
 
+void BridgeImpl::postInterpreterStep(const QString &function)
+{
+    postRequest("qtc/interpreterStep", QJsonObject{{"function", function}});
+}
+
+void BridgeImpl::postInterpreterBreakpointRequest(const BreakpointChangeRequest &change)
+{
+    const BreakpointParameters &params = change.params;
+    m_breakpointRequestIds.insert(change.modelId, change.requestId);
+    postWhenStopped("qtc/insertInterpreterBreakpoint",
+                    QJsonObject{{"modelid", change.modelId},
+                                {"file", params.fileName.path()},
+                                {"line", params.textPosition.line},
+                                {"enabled", params.enabled},
+                                {"condition",
+                                 QString::fromUtf8(params.condition.toUtf8().toHex())},
+                                {"ignorecount", params.ignoreCount}},
+                    change);
+}
+
 void BridgeImpl::changeBreakpoint(const BreakpointChangeRequest &request)
 {
     QTC_ASSERT(m_client, return);
 
     switch (request.op) {
     case BreakpointOp::Insert:
+        if (!request.params.isCppBreakpoint()) {
+            postInterpreterBreakpointRequest(request);
+            return;
+        }
         postBreakpointRequest("qtc/insertBreakpoint", request);
         return;
     case BreakpointOp::Update:
@@ -685,11 +805,32 @@ void BridgeImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             emit breakpointEvent(request.requestId, BreakpointOp::Update, false);
             return;
         }
+        // The service knows no change command, and the numbers it hands out
+        // are not the debugger's: taking the breakpoint away and setting it
+        // anew is what a change is there. Handing the debugger the
+        // interpreter's number instead rewrites whatever breakpoint of its
+        // own carries it, the hook into the service included.
+        if (!request.params.isCppBreakpoint()) {
+            m_interpreterBreakpointChanges.insert(request.modelId);
+            postWhenStopped("qtc/removeInterpreterBreakpoint",
+                            QJsonObject{{"modelid", request.modelId},
+                                        {"id", request.responseId}},
+                            request);
+            postInterpreterBreakpointRequest(request);
+            return;
+        }
         postBreakpointRequest("qtc/updateBreakpoint", request);
         return;
     case BreakpointOp::Remove:
         m_breakpointRequestIds.insert(request.modelId, request.requestId);
         m_tracepoints.remove(request.modelId);
+        if (!request.params.isCppBreakpoint()) {
+            postWhenStopped("qtc/removeInterpreterBreakpoint",
+                            QJsonObject{{"modelid", request.modelId},
+                                        {"id", request.responseId}},
+                            request);
+            return;
+        }
         postWhenStopped("qtc/removeBreakpoint",
                         QJsonObject{{"modelid", request.modelId},
                                     {"id", request.responseId}},
@@ -745,6 +886,12 @@ void BridgeImpl::refresh(const RefreshRequest &request)
         return;
     }
     case RefreshKind::FullStack:
+        // Native mixed puts the QML frames of the engine into the stack, and
+        // only the stack the dumpers walk knows about those.
+        if (m_startData.nativeMixedDebugging) {
+            postDumperStack(request, false);
+            return;
+        }
         if (const int seq = m_client->stackTrace(m_currentThreadId,
                                                  qMax(request.stackDepthLimit, 0));
             seq >= 0) {
@@ -766,6 +913,12 @@ void BridgeImpl::refresh(const RefreshRequest &request)
     case RefreshKind::FullBacktrace:
         m_pendingBacktraceRequestId = request.requestId;
         postRequest("qtc/fetchFullBacktrace", {});
+        return;
+    case RefreshKind::QmlStack:
+        // The adapter's own stack trace knows the native frames only, so the
+        // one the dumpers walk is asked for instead: it reads the QML stack out
+        // of the engine and puts those frames in front of the native ones.
+        postDumperStack(request, true);
         return;
     case RefreshKind::PeripheralRegisters:
         for (const quint64 address : request.addresses) {
@@ -810,6 +963,22 @@ void BridgeImpl::refresh(const RefreshRequest &request)
     }
 }
 
+void BridgeImpl::postDumperStack(const RefreshRequest &request, bool extraQml)
+{
+    m_pendingDumperStackRequestId = request.requestId;
+    DebuggerCommand cmd;
+    cmd.arg("limit", request.stackDepthLimit);
+    cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
+    if (extraQml)
+        cmd.arg("extraqml", true);
+    postRequest("qtc/fetchStack", cmd.args.toObject());
+}
+
+static int modelIdOf(const QJsonObject &response)
+{
+    return response.value("body").toObject().value("modelid").toInt(-1);
+}
+
 void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &response)
 {
     const QString command = response.value("command").toString();
@@ -820,6 +989,7 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         emit message(QString("Response time: %1: %2 s").arg(answered.command)
                          .arg(elapsed / 1000.), LogTime);
     }
+    m_debuginfodDownloadInProgress = false;
     restartWatchdog();
 
     switch (type) {
@@ -836,6 +1006,8 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         runUserStartupCommands();
         createSpecialBreakpoints();
         configureTarget();
+        if (m_startData.nativeMixedDebugging)
+            postRequest("qtc/setupNativeMixed", {});
         postLaunchOrAttach();
         return;
     }
@@ -886,11 +1058,16 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         handleStackTrace(response);
         return;
     case DapResponseType::Pause:
-        if (!success)
+        if (!success) {
+            failDeferredRequests();
             emit inferiorEvent(InferiorEvent::StopFailed);
+        }
         return;
-    case DapResponseType::Launch:
     case DapResponseType::Attach:
+        if (success)
+            runPostAttachCommands();
+        Q_FALLTHROUGH();
+    case DapResponseType::Launch:
         if (!success) {
             emit message(response.value("message").toString(), LogError);
             emit inferiorEvent(InferiorEvent::EngineRunFailed);
@@ -900,12 +1077,21 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         break;
     }
 
+    // A fetch that failed carries the reason and no body, so the view it feeds
+    // shows nothing at all: the reason reaches the log here or nowhere.
+    if (!success && command.startsWith("qtc/fetch")) {
+        emit message("BridgeImpl: " + command + " failed: "
+                         + response.value("message").toString(), LogError);
+    }
+
     if (command == "stepBack" || command == "reverseContinue"
         || command == "qtc/reverseStepIn" || command == "qtc/reverseStepOut"
         || command == "qtc/runToLine" || command == "qtc/runToFunction") {
         handleResumeResponse(success);
     } else if (command == "qtc/attachToCore" || command == "qtc/attachToRemoteServer") {
-        if (!success) {
+        if (success) {
+            runPostAttachCommands();
+        } else {
             emit message(response.value("message").toString(), LogError);
             emit inferiorEvent(InferiorEvent::EngineRunFailed);
         }
@@ -971,6 +1157,7 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             item.addChild(constMi("value", reg.value("value").toString()));
             item.addChild(constMi("size", QString::number(reg.value("size").toInt())));
             item.addChild(constMi("groups", reg.value("groups").toString()));
+            item.addChild(constMi("type", gdbRegisterTypeName(reg.value("type").toString())));
             registers.addChild(item);
         }
         emit refreshDataReceived(m_pendingRegistersRequestId, RefreshKind::Registers, registers);
@@ -1050,10 +1237,8 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         result.addChild(symbolList);
         emit refreshDataReceived(m_pendingSymbolsRequestId, RefreshKind::ModuleSymbols, result);
     } else if (command == "qtc/fetchSections") {
-        if (!success) {
-            emit message(response.value("message").toString(), LogError);
+        if (!success)
             return;
-        }
         const QJsonObject body = response.value("body").toObject();
         GdbMi sectionList;
         sectionList.m_type = GdbMi::List;
@@ -1111,6 +1296,9 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             files.addChild(entry);
         }
         emit refreshDataReceived(m_pendingSourceFilesRequestId, RefreshKind::SourceFiles, files);
+    } else if (command == "qtc/fetchStack") {
+        emit refreshDataReceived(m_pendingDumperStackRequestId, RefreshKind::FullStack,
+                                 dumperResultOf(response));
     } else if (command == "qtc/fetchThreads") {
         emit refreshDataReceived(m_pendingThreadsRequestId, RefreshKind::Threads,
                                  dumperResultOf(response));
@@ -1126,12 +1314,21 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             emit message(error, LogError);
     } else if (command == "qtc/enableSubBreakpoint") {
         handleBreakpointResponse(BreakpointOp::EnableSub, response);
-    } else if (command == "qtc/insertBreakpoint") {
-        handleBreakpointResponse(BreakpointOp::Insert, response);
+    } else if (command == "qtc/insertBreakpoint"
+               || command == "qtc/insertInterpreterBreakpoint") {
+        // An insertion that puts a changed interpreter breakpoint back is
+        // what answers the change.
+        const bool isChange = m_interpreterBreakpointChanges.remove(modelIdOf(response));
+        handleBreakpointResponse(isChange ? BreakpointOp::Update : BreakpointOp::Insert,
+                                 response);
     } else if (command == "qtc/updateBreakpoint") {
         handleBreakpointResponse(BreakpointOp::Update, response);
-    } else if (command == "qtc/removeBreakpoint") {
-        handleBreakpointResponse(BreakpointOp::Remove, response);
+    } else if (command == "qtc/removeBreakpoint"
+               || command == "qtc/removeInterpreterBreakpoint") {
+        // The removal half of an interpreter breakpoint's change answers
+        // nothing, the insertion that follows it does.
+        if (!m_interpreterBreakpointChanges.contains(modelIdOf(response)))
+            handleBreakpointResponse(BreakpointOp::Remove, response);
     }
 }
 
@@ -1175,6 +1372,16 @@ void BridgeImpl::handleStackTrace(const QJsonObject &response)
     const StackTraceRequest request
         = m_stackTraceRequests.take(response.value("request_seq").toInt());
     const QJsonArray frames = response.value("body").toObject().value("stackFrames").toArray();
+
+    // A stack the bridge refused is not an empty stack: reported, it would
+    // empty the stack view and leave the engine on a frame that is not there.
+    if (!response.value("success").toBool()) {
+        emit message("BridgeImpl: stackTrace failed: " + response.value("message").toString(),
+                     LogError);
+        if (request.reportsStop)
+            reportStop();
+        return;
+    }
 
     if (request.reportsStop) {
         const QJsonObject top = frames.isEmpty() ? QJsonObject() : frames.first().toObject();
@@ -1223,6 +1430,7 @@ void BridgeImpl::handleStackTrace(const QJsonObject &response)
         add("fullname", path);
         add("line", QString::number(item.value("line").toInt()));
         add("address", QString::number(item.value("instructionPointerReference").toInteger()));
+        add("module", dapModuleName(item.value("moduleId")));
         frameList.addChild(frame);
     }
     GdbMi stack;
@@ -1246,8 +1454,13 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         handleStopped(event);
         return;
     case DapEventType::Exited: {
+        const QJsonObject body = event.value("body").toObject();
         InferiorResultData result;
-        result.exitCode = event.value("body").toObject().value("exitCode").toInt();
+        result.exitCode = body.value("exitCode").toInt();
+        if (body.value("exitSignal").toInt() != 0) {
+            result.exitStatus = InferiorExitStatus::Crash;
+            result.signalName = body.value("exitSignalName").toString();
+        }
         m_inferiorRunning = false;
         failDeferredRequests();
         emit inferiorDone(result);
@@ -1257,8 +1470,6 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         const QJsonObject body = event.value("body").toObject();
         const QString id = QString::number(body.value("threadId").toInteger());
         const bool started = body.value("reason").toString() == "started";
-        emit message(started ? QString("Thread %1 created.").arg(id)
-                             : QString("Thread %1 exited.").arg(id), StatusBar, 1000);
         GdbMi data;
         data.m_type = GdbMi::Tuple;
         data.addChild(constMi("id", id));
@@ -1270,7 +1481,18 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         const QString category = body.value("category").toString();
         if (category == "console") {
             // The host debugger talking, not the debuggee.
-            emit message(body.value("output").toString(), LogOutput);
+            const QString text = body.value("output").toString();
+            emit message(text, LogOutput);
+            // Reading symbols, downloading them, and attaching to the threads
+            // are the slow parts of a start, and gdb says so as it goes.
+            const QStringList lines = text.split('\n', Qt::SkipEmptyParts);
+            for (const QString &line : lines) {
+                const QString trimmed = line.trimmed();
+                if (trimmed.startsWith("Reading symbols from ")
+                    || trimmed.startsWith("Downloading")
+                    || trimmed.startsWith("[New ") || trimmed.startsWith("[Thread "))
+                    emit progressMessage(trimmed);
+            }
             return;
         }
         emit message(body.value("output").toString(),
@@ -1281,6 +1503,26 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // An unmapped DAP event still arrives whole: the bridge announces the
         // debuggee's pid this way, which several views and the interrupt path need.
         const QString name = event.value("event").toString();
+        if (name == "continued") {
+            const QJsonObject body = event.value("body").toObject();
+            GdbMi runningThread;
+            runningThread.m_type = GdbMi::Tuple;
+            runningThread.addChild(
+                constMi("thread-id",
+                        body.value("allThreadsContinued").toBool()
+                            ? QString("all")
+                            : QString::number(body.value("threadId").toInteger())));
+            emit threadEvent(ThreadEvent::Running, runningThread);
+            // A console command can resume the inferior behind the engine's
+            // back, and the stop that follows can only be reported from a
+            // running state.
+            if (!m_inferiorRunning) {
+                m_inferiorRunning = true;
+                emit inferiorEvent(InferiorEvent::RunRequested);
+                emit inferiorEvent(InferiorEvent::RunOk);
+            }
+            return;
+        }
         if (name == "qtc/inferiorResumed") {
             m_inferiorResumed = true;
             if (std::exchange(m_interruptOnceResumed, false))
@@ -1288,6 +1530,7 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             return;
         }
         if (name == "qtc/interruptIgnored") {
+            failDeferredRequests();
             if (m_stopRequested) {
                 m_stopRequested = false;
                 emit inferiorEvent(InferiorEvent::StopFailed);
@@ -1338,6 +1581,25 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             emit libraryEvent(body.value("reason").toString() == "unloaded"
                                   ? LibraryEvent::Unloaded : LibraryEvent::Loaded,
                               library);
+            return;
+        }
+        if (name == "qtc/threadSelected") {
+            GdbMi selected;
+            selected.m_type = GdbMi::Tuple;
+            selected.addChild(constMi("id", event.value("body").toObject()
+                                                .value("id").toString()));
+            emit threadEvent(ThreadEvent::Selected, selected);
+            return;
+        }
+        if (name == "qtc/threadGroup") {
+            const QJsonObject body = event.value("body").toObject();
+            GdbMi group;
+            group.m_type = GdbMi::Tuple;
+            group.addChild(constMi("id", body.value("id").toString()));
+            group.addChild(constMi("pid", body.value("pid").toString()));
+            emit threadEvent(body.value("reason").toString() == "exited"
+                                 ? ThreadEvent::GroupExited : ThreadEvent::GroupCreated,
+                             group);
             return;
         }
         if (name == "process") {
@@ -1392,14 +1654,21 @@ void BridgeImpl::interruptHost()
     interrupter.setEnvironment(m_startData.debuggerRunData.environment);
     interrupter.runBlocking();
     if (interrupter.result() != ProcessResult::FinishedWithSuccess) {
+        m_stopRequested = false;
         emit message(QString("Interrupting the debugger as %1 failed: %2")
                          .arg(m_startData.runAsUser, interrupter.cleanedStdErr().trimmed()),
                      LogError);
+        emit inferiorEvent(InferiorEvent::StopFailed);
     }
 }
 
 void BridgeImpl::handleResumeResponse(bool success)
 {
+    if (std::exchange(m_resumingFromDeferredStop, false) && success) {
+        m_resumePending = false;
+        m_inferiorRunning = true;
+        return;
+    }
     emit inferiorEvent(success ? InferiorEvent::RunOk : InferiorEvent::RunFailed);
     m_resumePending = false;
     m_inferiorRunning = success;
@@ -1417,6 +1686,12 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
     m_currentThreadId = body.value("threadId").toInt();
     m_currentFrameId = 1;
     m_inferiorRunning = false;
+    GdbMi stoppedThread;
+    stoppedThread.m_type = GdbMi::Tuple;
+    stoppedThread.addChild(constMi("id", body.value("allThreadsStopped").toBool()
+                                             ? QString("all")
+                                             : QString::number(m_currentThreadId)));
+    emit threadEvent(ThreadEvent::Stopped, stoppedThread);
     m_inferiorResumed = false;
     m_interruptOnceResumed = false;
 
@@ -1444,6 +1719,27 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
         emit signalReceived(body.value("text").toString(),
                             body.value("description").toString());
     }
+
+    // Which breakpoint a stop belongs to is in this event only, and a stop the
+    // user cannot place is one they have to go looking for.
+    const QJsonArray hitBreakpointIds = body.value("hitBreakpointIds").toArray();
+    if (!hitBreakpointIds.isEmpty()) {
+        emit breakpointTriggered(QString::number(hitBreakpointIds.first().toInteger()),
+                                 QString::number(m_currentThreadId));
+    }
+    // A watchpoint sits at no line, so nothing but the watchpoint places the
+    // stop, and what it saw change is the only thing it was set for.
+    const QJsonArray hitWatchpoints = body.value("hitWatchpoints").toArray();
+    if (!hitWatchpoints.isEmpty()) {
+        const QJsonObject watchpoint = hitWatchpoints.first().toObject();
+        emit watchpointTriggered(QString::number(watchpoint.value("id").toInteger()),
+                                 watchpoint.value("expression").toString(),
+                                 watchpoint.value("old").toString(),
+                                 watchpoint.value("new").toString());
+    }
+
+    if (reason != u"exception" && hitBreakpointIds.isEmpty() && hitWatchpoints.isEmpty())
+        emit stopReasonReported(reason);
 
     // Report the stop only once the location is known, as the other backends do.
     const int seq = m_client->stackTrace(m_currentThreadId, 0);
@@ -1484,12 +1780,19 @@ void BridgeImpl::reportStop()
             execute({ExecutionCommand::Continue});
         return;
     }
-    if (!m_deferredRequests.isEmpty()) {
+    // Only the interrupt the queue asked for may serve it: a stop of anybody
+    // else's leaves the inferior where a call into it can fail, and resuming
+    // from it would take the inferior away from whoever stopped it.
+    if (!m_deferredRequests.isEmpty() && std::exchange(m_deferredStopRequested, false)) {
         const QList<DeferredRequest> requests = std::exchange(m_deferredRequests, {});
         m_stopRequested = false;
-        emit inferiorEvent(InferiorEvent::StopOk);
+        // The engine did not ask for this stop and must not hear about it.
+        // Reporting it has the engine reload a stack from an inferior that runs
+        // again before the answer arrives, and re-sync its breakpoints, which
+        // queues the next command of the same kind.
         for (const DeferredRequest &request : requests)
             postRequest(request.command, request.arguments);
+        m_resumingFromDeferredStop = true;
         execute({ExecutionCommand::Continue});
         return;
     }
@@ -1552,16 +1855,28 @@ void BridgeImpl::fetchDisassemblyForTarget(quint64 requestId, quint64 address,
 void BridgeImpl::executeDebuggerCommand(const QString &command, const WatchItemData &)
 {
     QTC_ASSERT(m_client, return);
-    postRequest("qtc/executeCommand", QJsonObject{{"command", command}});
+    if (m_inferiorRunning || m_resumePending) {
+        // The debugger sits in the loop that runs the inferior, so the request
+        // would be read at the next stop and run long after it was typed.
+        emit message(Tr::tr("The debugger console needs the program to be stopped."), LogError);
+        return;
+    }
+    postRequest("qtc/executeCommand",
+                QJsonObject{{"command", command}, {"frameid", m_currentFrameId}});
 }
 
-void BridgeImpl::assignValueInDebugger(const WatchItemData &, const QString &expr,
+void BridgeImpl::assignValueInDebugger(const WatchItemData &item, const QString &expr,
                                        const QString &value)
 {
     QTC_ASSERT(m_client, return);
-    postRequest("evaluate",
-                QJsonObject{{"expression", QString(expr + '=' + value)},
-                            {"frameId", m_currentFrameId}});
+    // The dumpers know how to put a value into a type the debugger cannot
+    // assign to by itself, a std::string among them.
+    postRequest("qtc/assignValue",
+                QJsonObject{{"type", QString::fromUtf8(item.type.toUtf8().toHex())},
+                            {"expr", QString::fromUtf8(expr.toUtf8().toHex())},
+                            {"value", QString::fromUtf8(value.toUtf8().toHex())},
+                            {"simpleType", isIntOrFloatType(item.type)},
+                            {"frameid", m_currentFrameId}});
 }
 
 void BridgeImpl::setRegisterValue(const QString &name, const QString &value)

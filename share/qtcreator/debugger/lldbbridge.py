@@ -47,6 +47,17 @@ def check(exp):
         raise RuntimeError('Check failed')
 
 
+def symbolStateLetter(symbol):
+    # The Symbols view shows what nm and gdb write there.
+    if symbol.GetType() == lldb.eSymbolTypeCode:
+        return 'T' if symbol.IsExternal() else 't'
+    if symbol.GetType() == lldb.eSymbolTypeData:
+        return 'D' if symbol.IsExternal() else 'd'
+    if symbol.GetType() == lldb.eSymbolTypeAbsolute:
+        return 'A'
+    return ''
+
+
 class Dumper(DumperBase):
     def __init__(self, debugger=None):
         DumperBase.__init__(self)
@@ -87,6 +98,14 @@ class Dumper(DumperBase):
             self.debugger.DeleteCategory('libcxx')
             self.debugger.DeleteCategory('default')
             self.debugger.DeleteCategory('cplusplus')
+
+            # Reading the symbols is the slow part of a start, and lldb says
+            # what it is busy with only through its progress events.
+            if hasattr(lldb.SBDebugger, 'eBroadcastBitProgress'):
+                self.progressListener = lldb.SBListener('qtcprogress')
+                self.debugger.GetBroadcaster().AddListener(
+                    self.progressListener, lldb.SBDebugger.eBroadcastBitProgress)
+                threading.Thread(target=self.reportProgress, daemon=True).start()
             #for i in range(self.debugger.GetNumCategories()):
             #    self.debugger.GetCategoryAtIndex(i).SetEnabled(False)
 
@@ -95,6 +114,8 @@ class Dumper(DumperBase):
         self.fakeAddress_ = None
         self.fakeLAddress_ = None
         self.eventState = lldb.eStateInvalid
+        self.reportedThreads = {}
+        self.reportedThreadGroup = None
 
         self.executable_ = None
         self.symbolFile_ = None
@@ -118,6 +139,17 @@ class Dumper(DumperBase):
         self.qmlToCppStepInBreakpoint = None
         # Internal (not user-visible) breakpoint ids - see handleBreakpointEvent().
         self.internalBreakpointIds = set()
+        # The breakpoints the engine asked for, to notice the ones lldb takes
+        # back by itself - see reportGoneBreakpoints().
+        self.engineBreakpointIds = set()
+        self.emulatedCatchKinds = {}
+        # The signal the inferior last stopped for, to tell the exit it makes
+        # when it is resumed into it from an exit of the inferior's own.
+        self.lastSignalNumber = None
+        self.lastSignalName = ''
+        # What each watchpoint watches and what it last saw, by lldb's id.
+        self.watchedValues = {}
+        self.specialBreakpoints = []
 
         self.report('lldbversion=\"%s\"' % lldb.SBDebugger.GetVersionString())
 
@@ -616,9 +648,9 @@ class Dumper(DumperBase):
             #self.warn("NO DYN TYPE: %s" % value)
             return base_typeid
 
-        dvalue = value.Dereference()
-        #self.warn("DVALUE: %s" % value)
-        sbtype = dvalue.GetType()
+        # Dereference() yields no type where lldb sizes the class as 0, which it
+        # does for some DWARF, while the pointee type is still there.
+        sbtype = value.GetType().GetPointeeType()
         #self.warn("TYPE: %s" % sbtype)
 
         #self.warn("OUTPUT: %s" % output)
@@ -724,6 +756,8 @@ class Dumper(DumperBase):
         typename = value.type.name
         exp = '((%s*)0x%x)->%s(%s)' % (typename, value.address(), func, arg)
         #DumperBase.warn('CALL: %s' % exp)
+        if not self.allowInferiorCalls:
+            return None
         result = self.currentContextValue.CreateValueFromExpression('', exp)
         #DumperBase.warn('  -> %s' % result)
         return self.fromNativeValue(result)
@@ -739,6 +773,8 @@ class Dumper(DumperBase):
         return value
 
     def nativeParseAndEvaluate(self, exp):
+        if not self.allowInferiorCalls:
+            return None
         thread = self.currentThread()
         frame = thread.GetFrameAtIndex(0)
         val = frame.EvaluateExpression(exp)
@@ -1023,10 +1059,59 @@ class Dumper(DumperBase):
                 self.target.BreakpointCreateByName('qt_qmlDebugMessageAvailable')
             self.internalBreakpointIds.add(self.interpreterEventBreakpoint.GetID())
             self.createInterpreterResolverHookBreakpoint()
+            # The service the interpreter needs is enabled from this hook, and
+            # that has to happen before the inferior compiles its QML, which is
+            # well before a QML breakpoint could ask for the hook.
+            self.ensureInterpreterAvailabilityHook()
+
+        self.createSpecialBreakpoints(args)
 
         state = 1 if self.target.IsValid() else 0
         self.reportResult('success="%s",msg="%s",exe="%s"'
                           % (state, toCString(error), toCString(self.executable_)), args)
+
+    # Breakpoints on abort(), qWarning() and qFatal() the user asked for through
+    # the settings rather than the breakpoint view, so they stay ours: the names
+    # depend on the Qt namespace, and nobody is to see them as breakpoints of
+    # their own.
+    def createSpecialBreakpoints(self, args):
+        specs = []
+        if args.get('breakonabort', 0):
+            specs.append('abort')
+        if args.get('breakonwarning', 0) or args.get('breakonfatal', 0):
+            try:
+                ns = self.qtNamespace()
+            except Exception:
+                ns = ''
+            if args.get('breakonwarning', 0):
+                specs.append(ns + 'qWarning')
+                specs.append(ns + 'QMessageLogger::warning')
+            if args.get('breakonfatal', 0):
+                specs.append(ns + 'qFatal')
+                specs.append(ns + 'QMessageLogger::fatal')
+        if not specs:
+            return
+        # Prologue skipping lands behind the raise() inside abort(), so the
+        # breakpoint would only be reached once the signal is already out.
+        skipPrologue = self.settingValue('target.skip-prologue')
+        self.commandOutput('settings set target.skip-prologue false')
+        for spec in specs:
+            bp = self.target.BreakpointCreateByName(spec)
+            if bp.IsValid():
+                self.internalBreakpointIds.add(bp.GetID())
+                self.specialBreakpoints.append(bp)
+        if skipPrologue:
+            self.commandOutput('settings set target.skip-prologue %s' % skipPrologue)
+
+    def commandOutput(self, command):
+        result = lldb.SBCommandReturnObject()
+        self.debugger.GetCommandInterpreter().HandleCommand(command, result)
+        return result.GetOutput() or ''
+
+    def settingValue(self, name):
+        # Printed as 'name (boolean) = true', so the value is behind the '= '.
+        output = self.commandOutput('settings show %s' % name)
+        return output.split('= ')[-1].strip() if '= ' in output else ''
 
     def runEngine(self, args):
         """ Set up SBProcess instance """
@@ -1387,6 +1472,13 @@ class Dumper(DumperBase):
         thread = self.currentThread()
         return None if thread is None else thread.GetSelectedFrame()
 
+    def watchedValue(self, expression):
+        frame = self.currentFrame()
+        if frame is None:
+            return None
+        value = frame.EvaluateExpression(expression)
+        return value.GetValue() if value.IsValid() else None
+
     def firstStoppedThread(self):
         for i in range(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
@@ -1399,6 +1491,16 @@ class Dumper(DumperBase):
                 return thread
         return None
 
+    def reportStopReason(self, thread):
+        # A stop nothing else reports is a bare "Stopped" to the engine: the
+        # plan lldb completed is all there is to name it by.
+        reason = thread.GetStopReason()
+        if reason in (lldb.eStopReasonInvalid, lldb.eStopReasonNone,
+                      lldb.eStopReasonBreakpoint, lldb.eStopReasonWatchpoint,
+                      lldb.eStopReasonSignal, lldb.eStopReasonException):
+            return
+        self.report('stopreason="%s"' % self.stopReason(reason))
+
     def reportSignalStop(self, thread):
         # A spontaneous stop caused by a signal or exception (e.g. SIGSEGV on a
         # bad pointer access) is otherwise only visible as a bare "Stopped".
@@ -1408,6 +1510,7 @@ class Dumper(DumperBase):
         if reason != lldb.eStopReasonSignal and reason != lldb.eStopReasonException:
             return
         name = ''
+        signo = None
         if reason == lldb.eStopReasonSignal and thread.GetStopReasonDataCount() > 0:
             signo = thread.GetStopReasonDataAtIndex(0)
             try:
@@ -1418,6 +1521,8 @@ class Dumper(DumperBase):
         # expected and must not be reported as a crash.
         if name in ('SIGINT', 'SIGSTOP', 'SIGCONT', 'SIGTRAP'):
             return
+        self.lastSignalNumber = signo
+        self.lastSignalName = name
         meaning = thread.GetStopDescription(1024) or ''
         # LLDB prefixes the description with "signal <NAME>: "; drop it so the
         # signal name is not repeated in the assembled status message.
@@ -1431,19 +1536,21 @@ class Dumper(DumperBase):
         result = 'threads=['
         for i in range(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
-            if thread.is_stopped:
-                state = 'stopped'
-            elif thread.is_suspended:
+            if thread.is_suspended:
                 state = 'suspended'
+            elif thread.is_stopped or self.process.GetState() == lldb.eStateStopped:
+                # A thread of a stopped process is stopped, whatever it answers
+                # for itself: lldb keeps the state on the process.
+                state = 'stopped'
             else:
-                state = 'unknown'
+                state = 'running'
             reason = thread.GetStopReason()
             # The index id is a 1-based ordinal with the main thread at 1,
             # unlike the raw OS thread id, which stays in the target id.
             result += '{id="%d"' % thread.GetIndexID()
             result += ',target-id="Thread 0x%x"' % thread.GetThreadID()
             result += ',index="%s"' % i
-            result += ',details="%s"' % toCString(thread.GetQueueName())
+            result += ',details="%s"' % toCString(thread.GetQueueName() or '')
             result += ',stop-reason="%s"' % self.stopReason(thread.GetStopReason())
             result += ',state="%s"' % state
             result += ',name="%s"' % toCString(thread.GetName())
@@ -1652,7 +1759,38 @@ class Dumper(DumperBase):
         if thread is not None and thread.GetStopReason() == lldb.eStopReasonBreakpoint:
             bp = self.target.FindBreakpointByID(thread.GetStopReasonDataAtIndex(0))
             if bp.IsValid():
+                # Which breakpoint the stop belongs to. The hit count alone does
+                # not say it: several of them can be at the same line.
+                self.report('breakpointhit={lldbid="%s",thread="%d"}'
+                            % (bp.GetID(), thread.GetIndexID()))
                 self.reportBreakpointUpdate(bp)
+        elif thread is not None and thread.GetStopReason() == lldb.eStopReasonWatchpoint:
+            wp = self.target.FindWatchpointByID(thread.GetStopReasonDataAtIndex(0))
+            if wp.IsValid():
+                # A watchpoint sits at no line, so the stop is placed by the
+                # watchpoint alone, and what it watches is only known here.
+                watched = self.watchedValues.get(wp.GetID())
+                if watched:
+                    expression = watched[0]
+                else:
+                    # A watchpoint the user set on the console is named by what
+                    # it was asked for, which lldb keeps for it.
+                    expression = wp.GetWatchSpec() or '*0x%x' % wp.GetWatchAddress()
+                hit = 'lldbid="%s",expression="%s"' % (qqWatchpointOffset + wp.GetID(),
+                                                       expression)
+                # lldb writes what the watchpoint saw straight to its own
+                # console and the API carries neither value, so the one a write
+                # replaces is the one the previous stop found.
+                if watched is not None:
+                    old = watched[1]
+                    new = self.watchedValue(expression)
+                    watched[1] = new
+                    if old is not None:
+                        hit += ',old="%s"' % old
+                    if new is not None:
+                        hit += ',new="%s"' % new
+                self.report('watchpointhit={%s}' % hit)
+                self.reportBreakpointUpdate(wp)
         self.reportResult('', args)
 
     def readRawMemory(self, address, size):
@@ -1683,6 +1821,14 @@ class Dumper(DumperBase):
 
         self.setVariableFetchingOptions(args)
 
+        # lldb works out the dynamic type of a value itself, and hands out the
+        # result before a dumper sees the value, so the setting has to reach
+        # lldb to have any effect at all.
+        self.debugger.SetInternalVariable('target.prefer-dynamic-value',
+                                          'no-run-target' if self.useDynamicType
+                                              else 'no-dynamic-values',
+                                          self.debugger.GetInstanceName())
+
         self.qtLoaded = True # FIXME: Do that elsewhere
 
 
@@ -1708,35 +1854,35 @@ class Dumper(DumperBase):
 
         self.output = []
         isPartial = bool(self.partialVariable)
+        partialName = self.partialVariable.split('.')[1].split('@')[0] if isPartial else None
 
         self.currentIName = 'local'
         self.put('data=[')
 
-        with SubItem(self, '[statics]'):
-            self.put('iname="%s",' % self.currentIName)
-            self.putEmptyValue()
-            self.putExpandable()
-            if self.isExpanded():
-                with Children(self):
-                    statics = frame.GetVariables(False, False, True, False)
-                    if len(statics):
-                        for i, staticVar in enumerate(statics):
-                            staticVar.SetPreferSyntheticValue(False)
-                            typename = staticVar.GetType().GetName()
-                            name = staticVar.GetName()
-                            with SubItem(self, i):
-                                self.put('name="%s",' % name)
-                                self.put('iname="%s",' % self.currentIName)
-                                self.putItem(self.fromNativeValue(staticVar))
-                    else:
-                        with SubItem(self, "None"):
-                            self.putEmptyValue()
+        if not isPartial or partialName == '[statics]':
+            with SubItem(self, '[statics]'):
+                self.put('iname="%s",' % self.currentIName)
+                self.putEmptyValue()
+                self.putExpandable()
+                if self.isExpanded():
+                    with Children(self):
+                        statics = frame.GetVariables(False, False, True, False)
+                        if len(statics):
+                            for i, staticVar in enumerate(statics):
+                                staticVar.SetPreferSyntheticValue(False)
+                                typename = staticVar.GetType().GetName()
+                                name = staticVar.GetName()
+                                with SubItem(self, i):
+                                    self.put('name="%s",' % name)
+                                    self.put('iname="%s",' % self.currentIName)
+                                    self.putItem(self.fromNativeValue(staticVar))
+                        else:
+                            with SubItem(self, "None"):
+                                self.putEmptyValue()
 
-        # FIXME: Implement shortcut for partial updates.
-        #if isPartial:
-        #    values = [frame.FindVariable(partialVariable)]
-        #else:
-        if True:
+        if isPartial:
+            values = [frame.FindVariable(partialName)]
+        else:
             values = list(frame.GetVariables(True, True, False, True))
             values.reverse()  # To get shadowed vars numbered backwards.
 
@@ -1822,6 +1968,22 @@ class Dumper(DumperBase):
             self.reportResult('output="%s"' % toCString(result.GetOutput()), args)
         else:
             self.reportResult('error="%s"' % toCString(result.GetError()), args)
+
+    # Each step is announced twice, once as it starts and once as it ends, and
+    # only the start is worth a line of its own.
+    def reportProgress(self):
+        event = lldb.SBEvent()
+        last = None
+        while True:
+            if not self.progressListener.WaitForEvent(1, event):
+                continue
+            data = lldb.SBDebugger.GetProgressDataFromEvent(event)
+            if data.GetValueForKey('completed').GetIntegerValue(0) != 0:
+                continue
+            message = data.GetValueForKey('message').GetStringValue(200)
+            if message and message != last:
+                last = message
+                self.report('progress={message="%s"}' % toCString(message))
 
     def report(self, stuff):
         with self.outputLock:
@@ -2056,6 +2218,36 @@ class Dumper(DumperBase):
             name = toCString(str(module.GetFileSpec()))
             self.report('%s={target-name="%s",host-name="%s"}' % (action, name, name))
 
+    def reportThreadChanges(self, state):
+        # lldb broadcasts no per-thread create or exit event, so the process'
+        # thread list is diffed against the one the engine was told about. A
+        # process that is gone has no threads left, whatever lldb still lists
+        # for it.
+        current = {}
+        if state not in (lldb.eStateExited, lldb.eStateDetached, lldb.eStateUnloaded):
+            for i in range(0, self.process.GetNumThreads()):
+                thread = self.process.GetThreadAtIndex(i)
+                current[thread.GetIndexID()] = thread.GetThreadID()
+        # lldb has no thread group of its own, and the process the threads run
+        # in is what the threads view groups them by. The group has to be there
+        # before the threads that name it, and it is what takes them away again.
+        if current and self.reportedThreadGroup is None:
+            self.reportedThreadGroup = '%d' % self.process.GetProcessID()
+            self.report('thread-group-created={id="%s",pid="%s"}'
+                        % (self.reportedThreadGroup, self.reportedThreadGroup))
+        for threadId in sorted(current):
+            if threadId not in self.reportedThreads:
+                self.report('thread-created={id="%d",target-id="Thread 0x%x",group-id="%s"}'
+                            % (threadId, current[threadId], self.reportedThreadGroup))
+        for threadId in sorted(self.reportedThreads):
+            if threadId not in current:
+                self.report('thread-exited={id="%d",target-id="Thread 0x%x"}'
+                            % (threadId, self.reportedThreads[threadId]))
+        self.reportedThreads = current
+        if not current and self.reportedThreadGroup is not None:
+            self.report('thread-group-exited={id="%s"}' % self.reportedThreadGroup)
+            self.reportedThreadGroup = None
+
     def handleEvent(self, event):
         if lldb.SBBreakpoint.EventIsBreakpointEvent(event):
             self.handleBreakpointEvent(event)
@@ -2081,13 +2273,22 @@ class Dumper(DumperBase):
                     % (eventType, toCString(out.GetData()),
                        toCString(msg), flavor, self.stateName(state), bp))
 
+        if eventType == lldb.SBProcess.eBroadcastBitStateChanged:
+            self.reportThreadChanges(state)
+
         if state == lldb.eStateExited:
             self.eventState = state
             if not self.isShuttingDown_:
                 self.reportState("inferiorexited")
-            self.report('exited={status="%d",desc="%s"}'
-                        % (self.process.GetExitStatus(),
-                           toCString(self.process.GetExitDescription())))
+            # lldb reports the number the inferior died of as its exit status,
+            # and neither the status nor the description says that a signal is
+            # what it is: the signal the inferior was resumed into is.
+            status = self.process.GetExitStatus()
+            signalled = self.lastSignalNumber is not None and status == self.lastSignalNumber
+            self.report('exited={status="%d",desc="%s",signalled="%d",signame="%s"}'
+                        % (status, toCString(self.process.GetExitDescription()),
+                           int(signalled),
+                           toCString(self.lastSignalName if signalled else '')))
         elif state != self.eventState and not skipEventReporting:
             # A breakpoint whose condition evaluated to false (and other cases
             # where the target is auto-continued) still broadcasts a 'stopped'
@@ -2185,12 +2386,14 @@ class Dumper(DumperBase):
                 # armed interpreter step so it does not fire on a later run.
                 if self.interpreterStepArmed:
                     self.disarmInterpreterStep()
+                self.reportGoneBreakpoints()
                 if self.isInterrupting_:
                     self.isInterrupting_ = False
                     self.reportState("inferiorstopok")
                 else:
                     if stoppedThread is not None:
                         self.reportSignalStop(stoppedThread)
+                        self.reportStopReason(stoppedThread)
                     self.reportState("stopped")
                     if self.firstStop_:
                         self.firstStop_ = False
@@ -2234,6 +2437,9 @@ class Dumper(DumperBase):
         stream = lldb.SBStream()
         bp.GetDescription(stream, False)
         description = stream.GetData() or ''
+        kind = self.emulatedCatchKinds.get(bp.GetID())
+        if kind is not None:
+            return kind
         if 'Exception breakpoint' not in description:
             return None
         if 'throw: on' in description:
@@ -2242,10 +2448,20 @@ class Dumper(DumperBase):
             return 'catch'
         return None
 
+    # What a watchpoint watches. One the engine asked for is known from the
+    # request, one a typed command created is only known to lldb.
+    def watchedExpression(self, wp):
+        watched = self.watchedValues.get(wp.GetID())
+        if watched is not None:
+            return watched[0]
+        getSpec = getattr(wp, 'GetWatchSpec', None)
+        return (getSpec() if getSpec is not None else None) or ''
+
     def describeBreakpoint(self, bp):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
         if isWatch:
             result = 'lldbid="%s"' % (qqWatchpointOffset + bp.GetID())
+            result += ',expression="%s"' % toCString(self.watchedExpression(bp))
         else:
             result = 'lldbid="%s"' % bp.GetID()
             catchType = self.breakpointCatchType(bp)
@@ -2256,6 +2472,8 @@ class Dumper(DumperBase):
         if bp.IsValid():
             if isinstance(bp, lldb.SBBreakpoint):
                 result += ',oneshot="%d"' % (1 if bp.IsOneShot() else 0)
+                if bp.GetThreadIndex() != lldb.LLDB_INVALID_INDEX32:
+                    result += ',thread="%d"' % bp.GetThreadIndex()
         cond = bp.GetCondition()
         result += ',condition="%s"' % self.hexencode("" if cond is None else cond)
         result += ',enabled="%d"' % (1 if bp.IsEnabled() else 0)
@@ -2366,6 +2584,7 @@ class Dumper(DumperBase):
 
     def insertBreakpoint(self, args):
         bpType = args['type']
+        catchKind = None
         if bpType == BreakpointType.BreakpointByFileAndLine:
             fileName = args['file']
             if fileName.endswith('.js') or fileName.endswith('.qml'):
@@ -2388,11 +2607,17 @@ class Dumper(DumperBase):
                 fileName = lldb.SBFileSpec(str(args['file'])).GetFilename()
                 bp = self.target.BreakpointCreateByLocation(fileName, int(args['line']))
         elif bpType == BreakpointType.BreakpointByFunction:
-            bp = self.target.BreakpointCreateByName(args['function'])
+            module = args.get('module', '')
+            if module:
+                bp = self.target.BreakpointCreateByName(args['function'], module)
+            else:
+                bp = self.target.BreakpointCreateByName(args['function'])
         elif bpType == BreakpointType.BreakpointByAddress:
             bp = self.target.BreakpointCreateByAddress(args['address'])
         elif bpType == BreakpointType.BreakpointAtMain:
-            bp = self.createBreakpointAtMain()
+            # Not createBreakpointAtMain(): the one the user asked for is the
+            # model's, and an internal one is reported to nobody.
+            bp = self.target.BreakpointCreateByName(self.mainFunction_)
         elif bpType == BreakpointType.BreakpointAtThrow:
             bp = self.target.BreakpointCreateForException(
                 lldb.eLanguageTypeC_plus_plus, False, True)
@@ -2406,8 +2631,17 @@ class Dumper(DumperBase):
             bp = self.target.WatchAddress(args['address'], 4, False, True, error)
             extra = self.describeError(error)
         elif bpType == BreakpointType.BreakpointAtFork:
-            # No native "catch fork" in lldb - break on the libc entry point.
-            bp = self.target.BreakpointCreateByName('fork')
+            # No native "catch fork" in lldb - break on the libc entry points.
+            # vfork is a call of its own, and a fork catchpoint takes both.
+            bp = self.target.BreakpointCreateByNames(['fork', 'vfork'],
+                                                     lldb.eFunctionNameTypeAuto,
+                                                     lldb.SBFileSpecList(),
+                                                     lldb.SBFileSpecList())
+            catchKind = 'fork'
+        elif bpType == BreakpointType.BreakpointAtExec:
+            # Same for exec: the whole family goes through this one.
+            bp = self.target.BreakpointCreateByName('execve')
+            catchKind = 'exec'
         elif bpType == BreakpointType.WatchpointAtExpression:
             # FindVariable() misses globals/statics - use EvaluateExpression().
             try:
@@ -2416,6 +2650,8 @@ class Dumper(DumperBase):
                 error = lldb.SBError()
                 bp = self.target.WatchAddress(value.GetLoadAddress(),
                                               value.GetByteSize(), False, True, error)
+                if bp.IsValid():
+                    self.watchedValues[bp.GetID()] = [args['expression'], value.GetValue()]
             except Exception:
                 bp = self.target.BreakpointCreateByName(None)
         else:
@@ -2439,6 +2675,17 @@ class Dumper(DumperBase):
                 extra_args.SetFromJSON(json.dumps(extra_args_dict))
                 bp.SetScriptCallbackFunction('lldb.theDumper.breakpointCallback', extra_args)
                 bp.SetOneShot(bool(args['oneshot']))
+                threadSpec = int(args.get('threadspec', -1))
+                if threadSpec >= 0:
+                    # The index id is the 1-based ordinal fetchThreads() reports,
+                    # not the raw OS thread id.
+                    bp.SetThreadIndex(threadSpec)
+        if isinstance(bp, lldb.SBBreakpoint) and bp.IsValid():
+            self.engineBreakpointIds.add(bp.GetID())
+            if catchKind is not None:
+                # An emulated catchpoint looks like a plain function breakpoint
+                # to lldb, so what it catches is only known here.
+                self.emulatedCatchKinds[bp.GetID()] = catchKind
         # extra needs its own separating comma before it.
         self.reportResult(self.describeBreakpoint(bp) + (',' + extra if extra else ''), args)
 
@@ -2477,6 +2724,8 @@ class Dumper(DumperBase):
             res = self.target.DeleteWatchpoint(lldbId - qqWatchpointOffset)
         else:
             res = self.target.BreakpointDelete(lldbId)
+            self.engineBreakpointIds.discard(lldbId)
+            self.emulatedCatchKinds.pop(lldbId, None)
         self.reportResult('success="%d"' % int(res), args)
 
     def fetchModules(self, args):
@@ -2487,6 +2736,18 @@ class Dumper(DumperBase):
             result += ',name="%s"' % toCString(module.file.basename)
             result += ',addrsize="%d"' % module.addr_size
             result += ',triple="%s"' % module.triple
+            loadStart = lldb.LLDB_INVALID_ADDRESS
+            loadEnd = 0
+            for section in module.sections:
+                addr = section.GetLoadAddress(self.target)
+                if addr == lldb.LLDB_INVALID_ADDRESS:
+                    continue
+                loadStart = min(loadStart, addr)
+                loadEnd = max(loadEnd, addr + section.size)
+            if loadEnd == 0:
+                loadStart = 0
+            result += ',loadstart="%d"' % loadStart
+            result += ',loadend="%d"' % loadEnd
             #result += ',sections={'
             #for section in module.sections:
             #    result += '[name="%s"' % section.name
@@ -2511,10 +2772,14 @@ class Dumper(DumperBase):
         for symbol in module.symbols:
             startAddress = symbol.GetStartAddress().GetLoadAddress(self.target)
             endAddress = symbol.GetEndAddress().GetLoadAddress(self.target)
+            mangled = symbol.GetMangledName()
+            section = symbol.GetStartAddress().GetSection()
             result += '{type="%s"' % symbol.GetType()
-            result += ',name="%s"' % symbol.GetName()
+            result += ',name="%s"' % (mangled if mangled else symbol.GetName())
             result += ',address="0x%x"' % startAddress
-            result += ',demangled="%s"' % symbol.GetMangledName()
+            result += ',demangled="%s"' % (symbol.GetName() if mangled else '')
+            result += ',state="%s"' % symbolStateLetter(symbol)
+            result += ',section="%s"' % (section.GetName() if section.IsValid() else '')
             result += ',size="%d"' % (endAddress - startAddress)
             result += '},'
         result += ']}'
@@ -2557,8 +2822,12 @@ class Dumper(DumperBase):
                 return
             addr = section.GetLoadAddress(self.target)
             size = section.GetByteSize()
-            entries.append('{from="0x%x",to="0x%x",address="0x%x",name="%s",flags=""}'
-                           % (addr, addr + size, addr, toCString(section.name)))
+            perms = section.GetPermissions()
+            flags = ''.join(['r' if perms & lldb.ePermissionsReadable else '-',
+                             'w' if perms & lldb.ePermissionsWritable else '-',
+                             'x' if perms & lldb.ePermissionsExecutable else '-'])
+            entries.append('{from="0x%x",to="0x%x",address="0x%x",name="%s",flags="%s"}'
+                           % (addr, addr + size, addr, toCString(section.name), flags))
 
         for i in range(module.GetNumSections()):
             collect(module.GetSectionAtIndex(i))
@@ -2631,11 +2900,11 @@ class Dumper(DumperBase):
             self.nativeCallHookBreakpoint = \
                 self.target.BreakpointCreateByName('qt_v4AboutToCallNativeMethodHook')
             self.internalBreakpointIds.add(self.nativeCallHookBreakpoint.GetID())
-        self.parseAndEvaluate('qt_v4NativeCallHookEnabled = 1')
+        self.parseAndEvaluateAllowingCalls('qt_v4NativeCallHookEnabled = 1')
 
     def disarmNativeCallStepIn(self):
         if self.nativeCallHookAvailable():
-            self.parseAndEvaluate('qt_v4NativeCallHookEnabled = 0')
+            self.parseAndEvaluateAllowingCalls('qt_v4NativeCallHookEnabled = 0')
 
     def setupMachinerySkips(self):
         # Stepping from C++ should pass through the V4 dispatch and the
@@ -2949,8 +3218,12 @@ class Dumper(DumperBase):
     def breakpointIds(self):
         if self.target is None or not self.target.IsValid():
             return set()
-        return {self.target.GetBreakpointAtIndex(i).GetID()
-                for i in range(self.target.GetNumBreakpoints())}
+        ids = {self.target.GetBreakpointAtIndex(i).GetID()
+               for i in range(self.target.GetNumBreakpoints())}
+        # lldb numbers watchpoints in a series of their own, and the model has
+        # one series for both, so the offset is what keeps them apart.
+        return ids | {qqWatchpointOffset + self.target.GetWatchpointAtIndex(i).GetID()
+                      for i in range(self.target.GetNumWatchpoints())}
 
     def reportBreakpointsOfCommand(self, before):
         # A breakpoint a typed command created or deleted is nothing lldb tells
@@ -2960,17 +3233,56 @@ class Dumper(DumperBase):
             if bp.GetID() in before or bp.GetID() in self.internalBreakpointIds:
                 continue
             self.report('breakpointadded={%s}' % self.describeBreakpoint(bp))
+        internal = self.interpreterMessageWatchpoint
+        for i in range(self.target.GetNumWatchpoints()):
+            wp = self.target.GetWatchpointAtIndex(i)
+            if qqWatchpointOffset + wp.GetID() in before:
+                continue
+            if internal is not None and internal.GetID() == wp.GetID():
+                continue
+            self.report('breakpointadded={%s}' % self.describeBreakpoint(wp))
         for bpId in sorted(before - self.breakpointIds()):
             if bpId not in self.internalBreakpointIds:
+                self.engineBreakpointIds.discard(bpId)
                 self.report('breakpointremoved={lldbid="%s"}' % bpId)
+
+    def reportGoneBreakpoints(self):
+        # A one-shot breakpoint is deleted as it is hit, and lldb tells nobody.
+        # Unreported, the model keeps a breakpoint the debugger does not have.
+        live = self.breakpointIds()
+        for bpId in sorted(self.engineBreakpointIds - live):
+            self.engineBreakpointIds.discard(bpId)
+            self.report('breakpointremoved={lldbid="%s"}' % bpId)
+
+    def selection(self):
+        # What lldb calls its selection: the thread, and the frame in it.
+        try:
+            if self.process is None or not self.process.IsValid():
+                return (0, -1)
+            if self.process.GetState() != lldb.eStateStopped:
+                return (0, -1)
+            thread = self.process.GetSelectedThread()
+            if not thread.IsValid():
+                return (0, -1)
+            return (thread.GetIndexID(), thread.GetSelectedFrame().GetFrameID())
+        except Exception:
+            return (0, -1)
 
     def executeDebuggerCommand(self, args):
         self.reportToken(args)
         command = args['command']
         result = lldb.SBCommandReturnObject()
         before = self.breakpointIds()
+        selection = self.selection()
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
         self.reportBreakpointsOfCommand(before)
+        # A command of the user's can move the selection without resuming
+        # anything - up, down, frame, thread - and the views follow the
+        # selection wherever it goes. A resume moves it by itself, and the stop
+        # that ends it says where to.
+        moved = self.selection()
+        if moved != selection and moved[0]:
+            self.report('thread-selected={id="%d"}' % moved[0])
         if result.Succeeded():
             self.reportResult('output="%s"' % toCString(result.GetOutput()), args)
         else:
@@ -3001,6 +3313,12 @@ class Dumper(DumperBase):
     def fetchDisassembler(self, args):
         functionName = args.get('function', '')
         flavor = args.get('flavor', '')
+        if flavor:
+            # The flavor is a target setting, the instructions are rendered with
+            # whatever it says at the time they are asked for.
+            result = lldb.SBCommandReturnObject()
+            self.debugger.GetCommandInterpreter().HandleCommand(
+                'settings set target.x86-disassembly-flavor %s' % flavor, result)
         function = None
         if len(functionName):
             functions = self.target.FindFunctions(functionName).functions
@@ -3118,11 +3436,16 @@ class Dumper(DumperBase):
         if pos != -1:
             type_name = type_name[0:pos]
         if type_name in self.qqEditable and not simpleType:
-            expr = self.parseAndEvaluate(expr)
+            expr = self.parseAndEvaluateAllowingCalls(expr)
             self.qqEditable[type_name](self, expr, value)
         else:
-            self.parseAndEvaluate(expr + '=' + value)
+            self.parseAndEvaluateAllowingCalls(expr + '=' + value)
         self.reportResult(self.describeError(error), args)
+
+    def createSnapshot(self, args):
+        self.reportToken(args)
+        error = self.process.SaveCore(args['path'])
+        self.reportResult('ok="%d"' % (0 if error.Fail() else 1), args)
 
     def watchPoint(self, args):
         self.reportToken(args)
@@ -3135,7 +3458,7 @@ class Dumper(DumperBase):
             func = funcs[1]
             addr = func.GetFunction().GetStartAddress().GetLoadAddress(self.target)
             expr = '((void*(*)(int,int))0x%x)' % addr
-            res = self.parseAndEvaluate(expr)
+            res = self.parseAndEvaluateAllowingCalls(expr)
             p = 0 if res is None else res.pointer()
         n = ns + 'QWidget'
         self.reportResult('selected="0x%x",expr="(%s*)0x%x"' % (p, n, p), args)

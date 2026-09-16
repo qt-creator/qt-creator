@@ -13,9 +13,11 @@
 
 #include <utils/qtcassert.h>
 
+#include <QDateTime>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QTcpServer>
 #include <QTimer>
 #include <QUrl>
 
@@ -35,23 +37,37 @@ static GdbMi constMi(const QString &name, const QString &data)
     return mi;
 }
 
+// The debug service knows one exception break, which covers the caught ones as
+// well, so all three spellings of the request end up as the same one.
+static bool isExceptionBreakpoint(BreakpointType type)
+{
+    return type == BreakpointAtJavaScriptThrow || type == BreakpointAtThrow
+           || type == BreakpointAtCatch;
+}
+
 static DebuggerEngineSetupData qmlImplSetupData()
 {
     DebuggerEngineSetupData data;
     data.capabilities = AddWatcherCapability
                       | AddWatcherWhileRunningCapability
                       | BreakConditionCapability
+                      | BreakOnThrowAndCatchCapability
                       | CreateFullBacktraceCapability
+                      | ResetInferiorCapability
                       | RunToLineCapability
+                      | TracePointCapability
                       | WatchComplexExpressionsCapability;
     data.extraCapabilities = DebuggerExtraCapability::Detach
+                           | DebuggerExtraCapability::RunAsUser
+                           | DebuggerExtraCapability::RunCommandDeferral
                            | DebuggerExtraCapability::SourceFiles;
-    data.startModes = DebuggerStartModeFlag::AttachToQmlServer;
+    data.startModes = DebuggerStartModeFlag::AttachToQmlServer
+                    | DebuggerStartModeFlag::Launch;
     data.toolTipHandling = ToolTipHandling::Always;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
             return false;
-        if (query.type == BreakpointOnQmlSignalEmit || query.type == BreakpointAtJavaScriptThrow)
+        if (query.type == BreakpointOnQmlSignalEmit || isExceptionBreakpoint(query.type))
             return true;
         return query.isQmlFileAndLineBreakpoint();
     };
@@ -94,6 +110,56 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
     m_objectCreatedTimer->setSingleShot(true);
     connect(m_objectCreatedTimer, &QTimer::timeout, this, &QmlImpl::rebuildInspectorTree);
 
+    m_watchdog.setSingleShot(true);
+    m_watchdog.setInterval(m_startData.watchdogTimeout);
+    connect(&m_watchdog, &QTimer::timeout, this, [this] {
+        if (m_pendingCommands.isEmpty())
+            return;
+        QStringList pending;
+        for (const PendingCommand &command : std::as_const(m_pendingCommands))
+            pending << command.command;
+        m_watchdog.start();
+        emit notResponding(m_startData.watchdogTimeout, pending);
+    });
+
+    m_inferiorProcess.setProcessMode(ProcessMode::Reader);
+    connect(&m_inferiorProcess, &Process::readyReadStandardOutput, this, [this] {
+        emit message(m_inferiorProcess.readAllStandardOutput(), AppOutput);
+    });
+    connect(&m_inferiorProcess, &Process::readyReadStandardError, this, [this] {
+        emit message(m_inferiorProcess.readAllStandardError(), AppError);
+    });
+    connect(&m_inferiorProcess, &Process::done, this, [this] {
+        if (m_inferiorProcess.error() == ProcessError::FailedToStart) {
+            emit message(m_inferiorProcess.errorString(), LogError);
+            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+            return;
+        }
+        if (m_aborting) {
+            emit engineProcessFinished(m_inferiorProcess.resultData());
+            return;
+        }
+        if (m_isResetRestart) {
+            // Our own kill behind a ResetInferior. An exit reported here would take
+            // the engine down instead of putting a fresh runtime in its place.
+            resetTransientState();
+            m_connection.close();
+            QMetaObject::invokeMethod(this, [this] { launchInferior(); }, Qt::QueuedConnection);
+            return;
+        }
+        if (m_shuttingDown)
+            return;
+        m_inferiorRunning = false;
+        m_inferiorExited = true;
+        emit inferiorDone(InferiorResultData{
+            m_inferiorProcess.exitCode(),
+            m_inferiorProcess.exitStatus() == ProcessExitStatus::CrashExit
+                ? InferiorExitStatus::Crash : InferiorExitStatus::Normal});
+    });
+    connect(&m_inferiorProcess, &Process::started, this, [this] {
+        emit inferiorPidKnown(ProcessHandle(m_inferiorProcess.processId()));
+    });
+
     connect(&m_connection, &QmlDebug::QmlDebugConnection::connectionFailed, this, [this] {
         if (m_connectRetriesLeft > 0) {
             --m_connectRetriesLeft;
@@ -103,7 +169,7 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
         emit inferiorEvent(InferiorEvent::EngineSetupFailed);
     });
     connect(&m_connection, &QmlDebug::QmlDebugConnection::disconnected, this, [this] {
-        if (m_shuttingDown)
+        if (m_shuttingDown || m_isResetRestart || m_aborting)
             return;
         emit inferiorEvent(InferiorEvent::EngineIll);
     });
@@ -116,13 +182,69 @@ QmlImpl::~QmlImpl()
 
 void QmlImpl::start()
 {
+    if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
+        launchInferior();
+        return;
+    }
+    beginConnection();
+}
+
+void QmlImpl::launchInferior()
+{
+    {
+        // The runtime takes the port as a number, so a free one has to be
+        // picked before it is started. It is handed over rather than kept, and
+        // "block" makes the runtime wait for this end to arrive on it.
+        QTcpServer probe;
+        if (!probe.listen(QHostAddress::LocalHost)) {
+            emit message("No port available for the Qml debug connection.", LogError);
+            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+            return;
+        }
+        m_port = probe.serverPort();
+    }
+
+    ProcessRunData runData = std::get<ProcessRunData>(m_startData.inferiorStartData);
+    runData.command.addArg(QString("-qmljsdebugger=port:%1,block,services:V8Debugger,QmlDebugger")
+                               .arg(m_port));
+    m_inferiorProcess.setRunData(runData);
+    m_inferiorProcess.setRunAsUser(m_startData.runAsUser);
+    m_inferiorProcess.start();
+
     beginConnection();
 }
 
 void QmlImpl::beginConnection()
 {
+    if (m_port != 0) {
+        m_connection.connectToHost("127.0.0.1", m_port);
+        return;
+    }
     const auto &qmlData = std::get<AttachToQmlServerData>(m_startData.inferiorStartData);
     m_connection.connectToHost(qmlData.server.host(), quint16(qmlData.server.port()));
+}
+
+// What the runtime that has just been replaced left behind: none of it says
+// anything about the one taking its place.
+void QmlImpl::resetTransientState()
+{
+    m_inferiorRunning = false;
+    m_inferiorExited = false;
+    m_interruptRequested = false;
+    m_disconnected = false;
+    m_currentFrameIndex = 0;
+    m_connectRetriesLeft = 50;
+    m_engineQueryRetriesLeft = 50;
+    m_callbackForToken.clear();
+    m_pendingCommands.clear();
+    m_hitCountsByResponseId.clear();
+    m_serviceNumberByResponseId.clear();
+    m_qmlEngines.clear();
+    m_inameForDebugId.clear();
+    m_engineIdForDebugId.clear();
+    m_objectWatches.clear();
+    m_knownDelegateIds.clear();
+    m_deferredWatchers.reset();
 }
 
 void QmlImpl::sendDisconnect()
@@ -135,8 +257,12 @@ void QmlImpl::sendDisconnect()
     runCommand({DISCONNECT});
 }
 
-void QmlImpl::shutdownInferior(ShutdownMode)
+void QmlImpl::shutdownInferior(ShutdownMode mode)
 {
+    if (mode == ShutdownMode::Kill && m_inferiorProcess.isRunning()) {
+        m_shuttingDown = true;
+        m_inferiorProcess.close();
+    }
     sendDisconnect();
     emit inferiorEvent(InferiorEvent::ShutdownFinished);
 }
@@ -175,6 +301,17 @@ void QmlImpl::handleConnectHandshakeDone()
         m_supportChangeBreakpoint = body.value("ChangeBreakpoint", false).toBool();
     });
 
+    if (std::exchange(m_isResetRestart, false)) {
+        // The fresh runtime knows none of the breakpoints, while the model knows
+        // them all: they go in again under the ids it has, and it hears nothing.
+        const QList<BreakpointChangeRequest> breakpoints
+            = m_activeBreakpointsByResponseId.values();
+        for (const BreakpointChangeRequest &breakpoint : breakpoints)
+            setScriptBreakpoint(breakpoint.requestId, breakpoint, breakpoint.responseId);
+        m_inferiorRunning = true;
+        return;
+    }
+
     emit inferiorEvent(InferiorEvent::EngineSetupOk);
     m_inferiorRunning = true;
     emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
@@ -198,8 +335,27 @@ int QmlImpl::runCommand(const DebuggerCommand &command, const QmlCallback &cb)
     object.insert(QLatin1String(ARGUMENTS), command.args);
     if (cb)
         m_callbackForToken[m_sequence] = cb;
+    if (m_startData.logTimeStamps
+        || m_startData.watchdogTimeout != std::chrono::seconds::zero()) {
+        // The arguments belong to the description: what a command was asked
+        // about is what tells two of the same name apart.
+        const QString description = command.function + ' '
+            + QString::fromUtf8(QJsonDocument(command.args.toObject()).toJson(QJsonDocument::Compact));
+        m_pendingCommands[m_sequence] = {description, QDateTime::currentMSecsSinceEpoch()};
+        restartWatchdog();
+    }
     runDirectCommand(V8REQUEST, QJsonDocument(object).toJson(QJsonDocument::Compact));
     return m_sequence;
+}
+
+void QmlImpl::restartWatchdog()
+{
+    if (m_startData.watchdogTimeout == std::chrono::seconds::zero())
+        return;
+    if (m_pendingCommands.isEmpty())
+        m_watchdog.stop();
+    else
+        m_watchdog.start();
 }
 
 void QmlImpl::handleMessageReceived(const QByteArray &data)
@@ -224,6 +380,14 @@ void QmlImpl::handleV8Message(const QByteArray &payload)
     const QString type = resp.value(QLatin1String(TYPE)).toString();
     if (type == QLatin1String("response")) {
         const int requestSeq = resp.value(QLatin1String("request_seq")).toInt();
+        if (const PendingCommand answered = m_pendingCommands.take(requestSeq); answered.postTime) {
+            if (m_startData.logTimeStamps) {
+                const qint64 elapsed = QDateTime::currentMSecsSinceEpoch() - answered.postTime;
+                emit message(QString("Response time: %1: %2 s").arg(answered.command)
+                                 .arg(elapsed / 1000.), LogTime);
+            }
+            restartWatchdog();
+        }
         const QmlCallback cb = m_callbackForToken.take(requestSeq);
         if (cb)
             cb(resp);
@@ -236,6 +400,97 @@ void QmlImpl::handleV8Message(const QByteArray &payload)
     }
 }
 
+int QmlImpl::serviceNumberFor(const QString &responseId) const
+{
+    const QString number = m_serviceNumberByResponseId.value(responseId);
+    return number.isEmpty() ? responseId.toInt() : number.toInt();
+}
+
+void QmlImpl::clearBreakpointNumber(const QString &responseId)
+{
+    DebuggerCommand cmd(CLEARBREAKPOINT);
+    cmd.arg(BREAKPOINT, serviceNumberFor(responseId));
+    runCommand(cmd);
+}
+
+// The service keeps no count of its own, and says nothing about the breakpoint
+// it stopped for, so the hit the view shows is the one counted here.
+void QmlImpl::reportBreakpointHit(const QString &responseId, int hits)
+{
+    const BreakpointParameters params
+        = m_activeBreakpointsByResponseId.value(responseId).params;
+    GdbMi bkpt;
+    bkpt.m_type = GdbMi::Tuple;
+    bkpt.addChild(constMi(QStringLiteral("number"), responseId));
+    bkpt.addChild(constMi(QStringLiteral("file"), params.fileName.path()));
+    bkpt.addChild(constMi(QStringLiteral("fullname"), params.fileName.path()));
+    bkpt.addChild(constMi(QStringLiteral("line"), QString::number(params.textPosition.line)));
+    bkpt.addChild(constMi(QStringLiteral("enabled"), params.enabled ? "y" : "n"));
+    bkpt.addChild(constMi(QStringLiteral("times"), QString::number(hits)));
+    // The model reads a modification as the whole state of the breakpoint, so a
+    // condition left out of it counts as none rather than as unchanged.
+    if (!params.condition.isEmpty())
+        bkpt.addChild(constMi(QStringLiteral("cond"), params.condition));
+    GdbMi list;
+    list.m_type = GdbMi::List;
+    list.addChild(bkpt);
+    emit breakpointModified(list);
+}
+
+static std::pair<QString, QString> v8TypeAndValue(const QVariantMap &data, int stringLimit);
+
+// The service has no tracepoint of its own, so the captures are evaluated at
+// the stop the ordinary breakpoint behind it produced, and the message put
+// together once the last answer is in.
+void QmlImpl::reportTracepointHit(const QString &responseId,
+                                  const std::function<void()> &finished)
+{
+    const auto hit = std::make_shared<TracepointHit>();
+    hit->pattern = m_activeBreakpointsByResponseId.value(responseId).params.message;
+    hit->captures = parseTracepointCaptures(hit->pattern);
+    hit->values.m_type = GdbMi::List;
+    hit->expressions.m_type = GdbMi::Tuple;
+    hit->finished = finished;
+
+    for (const TracepointCapture &capture : std::as_const(hit->captures)) {
+        if (capture.type != TracepointCaptureType::Expression) {
+            // Nothing the service can be asked for, so the capture stays as written.
+            hit->values.addChild(constMi(QStringLiteral("value"),
+                                         hit->pattern.mid(capture.start,
+                                                          capture.end - capture.start)));
+            continue;
+        }
+        const QString expression = capture.expression;
+        hit->values.addChild(constMi(QStringLiteral("value"), expression));
+        ++hit->outstanding;
+        DebuggerCommand cmd(EVALUATE);
+        cmd.arg(EXPRESSION, expression);
+        cmd.arg(FRAME, 0);
+        runCommand(cmd, [this, hit, expression](const QVariantMap &resp) {
+            const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
+            QString value = resp.value(QLatin1String(MESSAGE)).toString();
+            if (resp.value(QLatin1String(SUCCESS)).toBool())
+                value = v8TypeAndValue(body, m_stringLimit).second;
+            GdbMi entry;
+            entry.m_type = GdbMi::Tuple;
+            entry.m_name = expression;
+            entry.addChild(constMi(QStringLiteral("value"), value));
+            hit->expressions.addChild(entry);
+            finishTracepointHit(hit);
+        });
+    }
+    finishTracepointHit(hit);
+}
+
+void QmlImpl::finishTracepointHit(const std::shared_ptr<TracepointHit> &hit)
+{
+    if (--hit->outstanding > 0)
+        return;
+    emit message(formatTracepointMessage(hit->pattern, hit->captures, hit->values,
+                                         hit->expressions), LogMisc);
+    hit->finished();
+}
+
 void QmlImpl::handleBreakEvent(const QVariantMap &response)
 {
     m_inferiorRunning = false;
@@ -243,10 +498,82 @@ void QmlImpl::handleBreakEvent(const QVariantMap &response)
     const QVariantMap script = body.value(QLatin1String("script")).toMap();
     const QString scriptName = script.value(QLatin1String(NAME)).toString();
     const int lineNumber = body.value(QLatin1String("sourceLine")).toInt() + 1;
+
+    // The break event names no breakpoint at all, so what this stop belongs to
+    // is whatever was put at the location it stopped at.
+    const QString stoppedFile = FilePath::fromUrl(QUrl(scriptName)).fileName();
+    QStringList hitHere;
+    for (auto it = m_activeBreakpointsByResponseId.cbegin();
+         it != m_activeBreakpointsByResponseId.cend(); ++it) {
+        const BreakpointParameters &params = it->params;
+        if (params.textPosition.line == lineNumber
+            && params.fileName.fileName() == stoppedFile) {
+            hitHere.append(it.key());
+        }
+    }
+
+    // The debug service has no ignore count of its own, so the hits it is
+    // asked to skip are counted here, and the inferior sent on unnoticed.
+    if (!hitHere.isEmpty() && !m_interruptRequested) {
+        bool skip = true;
+        QStringList tracepoints;
+        for (const QString &responseId : std::as_const(hitHere)) {
+            const BreakpointParameters params
+                = m_activeBreakpointsByResponseId.value(responseId).params;
+            const int hits = ++m_hitCountsByResponseId[responseId];
+            reportBreakpointHit(responseId, hits);
+            if (params.isTracepoint()) {
+                tracepoints.append(responseId);
+                continue;
+            }
+            if (params.ignoreCount <= 0 || hits > params.ignoreCount)
+                skip = false;
+        }
+        if (skip && tracepoints.isEmpty()) {
+            m_inferiorRunning = true;
+            runCommand({CONTINEDEBUGGING});
+            return;
+        }
+        if (skip) {
+            // The captures can only be evaluated while the inferior is stopped, so
+            // it goes on once the last tracepoint has had its say.
+            const auto outstanding = std::make_shared<int>(tracepoints.size());
+            for (const QString &responseId : std::as_const(tracepoints)) {
+                reportTracepointHit(responseId, [this, outstanding] {
+                    if (--*outstanding > 0)
+                        return;
+                    m_inferiorRunning = true;
+                    runCommand({CONTINEDEBUGGING});
+                });
+            }
+            return;
+        }
+    }
+
+    // The service has no breakpoint that stops only once either, so a one-shot
+    // is an ordinary one taken back here, before the inferior runs again.
+    QStringList takenBack;
+    for (const QString &responseId : std::as_const(hitHere)) {
+        if (!m_activeBreakpointsByResponseId.value(responseId).params.oneShot)
+            continue;
+        clearBreakpointNumber(responseId);
+        m_activeBreakpointsByResponseId.remove(responseId);
+        m_hitCountsByResponseId.remove(responseId);
+        m_serviceNumberByResponseId.remove(responseId);
+        takenBack.append(responseId);
+    }
+
     if (!scriptName.isEmpty())
         emit locationChanged(FilePath::fromUrl(QUrl(scriptName)), lineNumber);
     emit inferiorEvent(std::exchange(m_interruptRequested, false)
                        ? InferiorEvent::StopOk : InferiorEvent::SpontaneousStop);
+
+    for (const QString &responseId : takenBack) {
+        GdbMi deleted;
+        deleted.m_type = GdbMi::Tuple;
+        deleted.addChild(constMi(QStringLiteral("number"), responseId));
+        emit breakpointEvent(0, BreakpointOp::Remove, true, deleted);
+    }
 
     if (m_deferredWatchers) {
         const RefreshRequest deferred = *std::exchange(m_deferredWatchers, std::nullopt);
@@ -274,7 +601,8 @@ void QmlImpl::handleExceptionEvent(const QVariantMap &response)
                        ? InferiorEvent::StopOk : InferiorEvent::SpontaneousStop);
 }
 
-void QmlImpl::setScriptBreakpoint(quint64 requestId, const BreakpointChangeRequest &request)
+void QmlImpl::setScriptBreakpoint(quint64 requestId, const BreakpointChangeRequest &request,
+                                  const QString &knownResponseId)
 {
     const BreakpointParameters &params = request.params;
     DebuggerCommand cmd(SETBREAKPOINT);
@@ -289,17 +617,28 @@ void QmlImpl::setScriptBreakpoint(quint64 requestId, const BreakpointChangeReque
     if (params.ignoreCount > 0)
         cmd.arg(IGNORECOUNT, params.ignoreCount);
 
-    runCommand(cmd, [this, requestId, params, request](const QVariantMap &resp) {
+    // A change the service cannot express is carried out by putting a new
+    // breakpoint in place of the old one, and the model waits for an answer to
+    // the request it made, not to the one that replaced it.
+    const BreakpointOp op = request.op;
+    runCommand(cmd, [this, requestId, op, params, request, knownResponseId]
+                    (const QVariantMap &resp) {
         const bool success = resp.value(QLatin1String(SUCCESS)).toBool();
         if (!success) {
-            emit breakpointEvent(requestId, BreakpointOp::Insert, false, {});
+            if (knownResponseId.isEmpty())
+                emit breakpointEvent(requestId, op, false, {});
             return;
         }
         const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
-        const QString responseId = QString::number(body.value(QLatin1String(BREAKPOINT)).toInt());
+        const QString serviceNumber
+            = QString::number(body.value(QLatin1String(BREAKPOINT)).toInt());
+        const QString responseId = knownResponseId.isEmpty() ? serviceNumber : knownResponseId;
+        m_serviceNumberByResponseId[responseId] = serviceNumber;
         BreakpointChangeRequest active = request;
         active.responseId = responseId;
         m_activeBreakpointsByResponseId[responseId] = active;
+        if (!knownResponseId.isEmpty())
+            return;
 
         int line = params.textPosition.line;
         const QVariantList actualLocations = body.value(QLatin1String("actual_locations")).toList();
@@ -316,8 +655,28 @@ void QmlImpl::setScriptBreakpoint(quint64 requestId, const BreakpointChangeReque
         GdbMi data;
         data.m_type = GdbMi::List;
         data.addChild(bkpt);
-        emit breakpointEvent(requestId, BreakpointOp::Insert, true, data);
+        emit breakpointEvent(requestId, op, true, data);
     });
+}
+
+// Two locations the debug service cannot tell apart: a column is only passed
+// on when there is one, so anything below the first column is the same request.
+static bool isSameLocation(const Utils::Text::Position &was, const Utils::Text::Position &now)
+{
+    return was.line == now.line && qMax(0, was.column) == qMax(0, now.column);
+}
+
+// A change of an attribute comes with the location the model has, which can be
+// none at all: what the request leaves out is what the breakpoint already has.
+BreakpointChangeRequest QmlImpl::withKnownLocation(const BreakpointChangeRequest &request) const
+{
+    const auto it = m_activeBreakpointsByResponseId.constFind(request.responseId);
+    if (it == m_activeBreakpointsByResponseId.constEnd() || !request.params.fileName.isEmpty())
+        return request;
+    BreakpointChangeRequest filled = request;
+    filled.params.fileName = it->params.fileName;
+    filled.params.textPosition = it->params.textPosition;
+    return filled;
 }
 
 bool QmlImpl::isEnabledOnlyChange(const BreakpointChangeRequest &request) const
@@ -329,7 +688,7 @@ bool QmlImpl::isEnabledOnlyChange(const BreakpointChangeRequest &request) const
     const BreakpointParameters &now = request.params;
     return was.enabled != now.enabled
            && was.fileName == now.fileName
-           && was.textPosition == now.textPosition
+           && isSameLocation(was.textPosition, now.textPosition)
            && was.condition == now.condition
            && was.ignoreCount == now.ignoreCount
            && was.command == now.command;
@@ -340,7 +699,7 @@ void QmlImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     const BreakpointParameters &params = request.params;
     switch (request.op) {
     case BreakpointOp::Insert:
-        if (params.type == BreakpointAtJavaScriptThrow) {
+        if (isExceptionBreakpoint(params.type)) {
             DebuggerCommand cmd(SETEXCEPTIONBREAK);
             cmd.arg(TYPE, ALL);
             if (params.enabled)
@@ -357,7 +716,7 @@ void QmlImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         }
         break;
     case BreakpointOp::Remove:
-        if (params.type == BreakpointAtJavaScriptThrow) {
+        if (isExceptionBreakpoint(params.type)) {
             DebuggerCommand cmd(SETEXCEPTIONBREAK);
             cmd.arg(TYPE, ALL);
             runCommand(cmd);
@@ -370,14 +729,17 @@ void QmlImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             break;
         } else {
             DebuggerCommand cmd(CLEARBREAKPOINT);
-            cmd.arg(BREAKPOINT, request.responseId.toInt());
+            cmd.arg(BREAKPOINT, serviceNumberFor(request.responseId));
             runCommand(cmd);
             m_activeBreakpointsByResponseId.remove(request.responseId);
+            m_hitCountsByResponseId.remove(request.responseId);
+            m_serviceNumberByResponseId.remove(request.responseId);
         }
         emit breakpointEvent(request.requestId, BreakpointOp::Remove, true, {});
         break;
-    case BreakpointOp::Update:
-        if (params.type == BreakpointAtJavaScriptThrow) {
+    case BreakpointOp::Update: {
+        const BreakpointChangeRequest update = withKnownLocation(request);
+        if (isExceptionBreakpoint(params.type)) {
             DebuggerCommand cmd(SETEXCEPTIONBREAK);
             cmd.arg(TYPE, ALL);
             if (params.enabled)
@@ -389,34 +751,57 @@ void QmlImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             rs << params.functionName.toUtf8() << params.enabled;
             runDirectCommand(BREAKONSIGNAL, rs.data());
             emit breakpointEvent(request.requestId, BreakpointOp::Update, true, {});
-        } else if (m_supportChangeBreakpoint && isEnabledOnlyChange(request)) {
+        } else if (m_supportChangeBreakpoint && isEnabledOnlyChange(update)) {
             DebuggerCommand cmd(CHANGEBREAKPOINT);
-            cmd.arg(BREAKPOINT, request.responseId.toInt());
+            cmd.arg(BREAKPOINT, serviceNumberFor(request.responseId));
             cmd.arg(ENABLED, params.enabled);
             const quint64 requestId = request.requestId;
-            runCommand(cmd, [this, requestId, request](const QVariantMap &resp) {
+            runCommand(cmd, [this, requestId, update](const QVariantMap &resp) {
                 const bool ok = resp.value(QLatin1String(SUCCESS)).toBool();
                 if (ok)
-                    m_activeBreakpointsByResponseId.insert(request.responseId, request);
+                    m_activeBreakpointsByResponseId.insert(update.responseId, update);
                 emit breakpointEvent(requestId, BreakpointOp::Update, ok, {});
             });
         } else if (request.responseId.isEmpty()) {
             emit breakpointEvent(request.requestId, BreakpointOp::Update, false, {});
         } else {
             DebuggerCommand clearCmd(CLEARBREAKPOINT);
-            clearCmd.arg(BREAKPOINT, request.responseId.toInt());
+            clearCmd.arg(BREAKPOINT, serviceNumberFor(request.responseId));
             runCommand(clearCmd);
             m_activeBreakpointsByResponseId.remove(request.responseId);
-            setScriptBreakpoint(request.requestId, request);
+            m_hitCountsByResponseId.remove(request.responseId);
+            m_serviceNumberByResponseId.remove(request.responseId);
+            setScriptBreakpoint(request.requestId, update);
         }
         break;
+    }
     case BreakpointOp::EnableSub:
+        // The debug service addresses a breakpoint as a whole, so there is no
+        // single location to enable, and saying so is better than saying nothing.
+        emit breakpointEvent(request.requestId, BreakpointOp::EnableSub, false, {});
         break;
     }
 }
 
 void QmlImpl::execute(const ExecutionRequest &request)
 {
+    switch (request.command) {
+    case ExecutionCommand::Continue:
+    case ExecutionCommand::StepIn:
+    case ExecutionCommand::StepOver:
+    case ExecutionCommand::StepOut:
+    case ExecutionCommand::RunToLine:
+        // There is nothing left to resume once the runtime is gone, and the
+        // request would wait for a reply that cannot come.
+        if (m_inferiorExited) {
+            emit inferiorEvent(InferiorEvent::InferiorIll);
+            return;
+        }
+        break;
+    default:
+        break;
+    }
+
     switch (request.command) {
     case ExecutionCommand::Continue:
         // Symmetric to the interrupt below: a request that cannot go out is
@@ -471,6 +856,38 @@ void QmlImpl::execute(const ExecutionRequest &request)
         sendDisconnect();
         emit inferiorDone({0, InferiorExitStatus::Detached});
         break;
+    case ExecutionCommand::ResetInferior:
+        if (!std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
+            emit message("The runtime this session attached to is not ours to restart.",
+                         LogWarning);
+            emit inferiorEvent(InferiorEvent::RunFailed);
+            break;
+        }
+        emit inferiorEvent(InferiorEvent::RunRequested);
+        emit inferiorEvent(InferiorEvent::RunOk);
+        // The done handler puts the fresh runtime in place, a kill of our own
+        // reported as an exit would end the session instead.
+        m_isResetRestart = true;
+        m_inferiorProcess.kill();
+        break;
+    case ExecutionCommand::RunToFunction:
+        // The action offering this is there whatever the backend is, and the
+        // debug service places a breakpoint by file and line only, so there is
+        // no function for it to run to.
+        emit message(Tr::tr("The QML debug service places breakpoints by file and line only, "
+                            "so it cannot be asked to run to a function."), LogWarning);
+        break;
+    case ExecutionCommand::Abort:
+        // The user gave up, so nothing is asked of the runtime any more: the
+        // connection goes, and the runtime with it where it is ours to end.
+        m_aborting = true;
+        m_connection.close();
+        if (m_inferiorProcess.isRunning()) {
+            m_inferiorProcess.kill();
+            break;
+        }
+        emit engineProcessFinished({});
+        break;
     case ExecutionCommand::RepeatLastCommand:
         if (m_lastLocalsRequest)
             refreshLocals(*m_lastLocalsRequest);
@@ -517,6 +934,21 @@ std::shared_ptr<QmlImpl::RefreshCollector> QmlImpl::makeCollector(const RefreshR
     return pending;
 }
 
+// The view merges a partial answer into the tree it already has, so what such
+// an answer must not carry is the locals the request did not name.
+static GdbMi keptForPartialRefresh(const GdbMi &items, const QString &iname)
+{
+    GdbMi kept;
+    kept.m_type = items.m_type;
+    kept.m_name = items.m_name;
+    for (const GdbMi &item : items) {
+        const QString itemIName = item["iname"].data();
+        if (itemIName == iname || itemIName.startsWith(iname + '.'))
+            kept.addChild(item);
+    }
+    return kept;
+}
+
 std::function<void()> QmlImpl::legFinisher(const std::shared_ptr<RefreshCollector> &pending)
 {
     return [this, pending] {
@@ -524,7 +956,12 @@ std::function<void()> QmlImpl::legFinisher(const std::shared_ptr<RefreshCollecto
             return;
         GdbMi all;
         all.m_type = GdbMi::Tuple;
-        all.addChild(pending->items);
+        if (pending->partialVariable.isEmpty()) {
+            all.addChild(pending->items);
+        } else {
+            all.addChild(keptForPartialRefresh(pending->items, pending->partialVariable));
+            all.addChild(constMi(QStringLiteral("partial"), QStringLiteral("1")));
+        }
         emit refreshDataReceived(pending->requestId, pending->kind, all);
     };
 }
@@ -558,6 +995,7 @@ void QmlImpl::refreshLocals(const RefreshRequest &request)
     }
 
     const auto pending = makeCollector(request);
+    pending->partialVariable = request.partialVariable;
     pending->remaining = 1 + int(watchers.size());
     const auto finishLeg = legFinisher(pending);
 
@@ -787,9 +1225,14 @@ void QmlImpl::refreshSourceFiles(const RefreshRequest &request)
             const QString name = scriptValue.toMap().value(QLatin1String(NAME)).toString();
             if (name.isEmpty())
                 continue;
+            // The view opens a source file by its full name, and a script names
+            // itself by a url.
+            const QUrl url(name);
             GdbMi entry;
             entry.m_type = GdbMi::Tuple;
             entry.addChild(constMi(QStringLiteral("file"), name));
+            entry.addChild(constMi(QStringLiteral("fullname"),
+                                   url.isLocalFile() ? url.toLocalFile() : name));
             files.addChild(entry);
         }
         emit refreshDataReceived(requestId, RefreshKind::SourceFiles, files);

@@ -1,6 +1,7 @@
 # Copyright (C) 2016 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+import ast
 import os
 import re
 import sys
@@ -13,6 +14,8 @@ import inspect
 import traceback
 import fnmatch
 import platform
+import threading
+import time
 
 
 class QuitException(Exception):
@@ -164,6 +167,25 @@ def find_function(funcname, filename):
     return None
 
 
+def functionAtLine(fileName, lineNumber):
+    """Innermost function or method the line belongs to, or None."""
+    try:
+        with open(fileName, 'rb') as source:
+            tree = ast.parse(source.read(), fileName)
+    except Exception:
+        return None
+    name = None
+    outermost = 0
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        last = getattr(node, 'end_lineno', None) or node.lineno
+        if node.lineno <= lineNumber <= last and node.lineno >= outermost:
+            name = node.name
+            outermost = node.lineno
+    return name
+
+
 class _rstr(str):
     """String that doesn't quote its repr."""
 
@@ -180,6 +202,7 @@ class QtcInternalDumper():
         self.skip = []
         self.breaks = {}
         self.fncache = {}
+        self.dumpermodulepaths = []
         self.frame_returning = None
 
         nosigint = False
@@ -210,6 +233,18 @@ class QtcInternalDumper():
         self.nosigint = nosigint
 
         self.commands = {}  # associates a command list to breakpoint numbers
+        self.tracepoints = {}  # associates captures to breakpoint numbers
+        self.pendingTracepoint = None  # captures for the next breakpoint set
+        self.pendingBreakpointCommands = None  # commands for the next breakpoint set
+        self.breakOnThrowRequested = False  # stop wherever an exception is raised
+        self.skipKnownFramesRequested = False  # step through code outside the script
+        # Both are read while the script runs, and running it replaces this
+        # module's globals, __file__ among them, with the script's own.
+        self.bridgeFile = self.canonic(__file__)
+        self.standardLibraryDir = self.canonic(os.path.dirname(os.__file__))
+        self.breakOnCatchRequested = False  # stop wherever one is caught
+        self.catchToolId = None  # sys.monitoring tool id, claimed on demand
+        self.knownThreads = {}  # ident -> name, as of the last stop
         self.botframe = None
         self.currentbp = -1
         self.stopframe = None
@@ -342,7 +377,7 @@ class QtcInternalDumper():
         return self.trace_dispatch
 
     def dispatch_exception(self, frame, arg):
-        if self.stop_here(frame):
+        if self.breakOnThrowRequested or self.stop_here(frame):
             # When stepping with next/until/return in a generator frame, skip
             # the internal StopIteration exception (with no traceback)
             # triggered by a subiterator run with the 'yield from' statement.
@@ -379,6 +414,8 @@ class QtcInternalDumper():
         # (CT) the former test for None is therefore removed from here.
         if self.skip and \
                 self.is_skipped_module(frame.f_globals.get('__name__')):
+            return False
+        if self.skipKnownFramesRequested and not self.isDebuggeeCode(frame.f_code):
             return False
         if frame is self.stopframe:
             if self.stoplineno == -1:
@@ -665,7 +702,6 @@ class QtcInternalDumper():
                             line = 'EOF'
                         else:
                             line = line.rstrip('\r\n')
-                print('LINE: %s' % line)
                 stop = self.onecmd(line)
         finally:
             pass
@@ -699,9 +735,7 @@ class QtcInternalDumper():
         commands by the interpreter should stop.
         """
         line = __builtins__.str(line)
-        print('LINE 0: %s' % line)
         cmd, arg, line = self.parseline(line)
-        print('LINE 1: %s' % line)
         if cmd is None:
             return self.default(line)
         self.lastcmd = line
@@ -716,8 +750,6 @@ class QtcInternalDumper():
             return self.default(line)
 
     def runit(self):
-        print('DIR: %s' % dir())
-        print('ARGV: %s' % sys.argv)
         if sys.argv[0] == '-c':
             sys.argv = sys.argv[2:]
         else:
@@ -730,8 +762,6 @@ class QtcInternalDumper():
             sys.argv = [sys.argv[0]] + sys.argv[args_pos + 1:]
         except ValueError:
             pass
-        print('INFERIOR ARGV: %s' % sys.argv)
-        print('MAIN: %s' % mainpyfile)
 
         while True:
             try:
@@ -811,7 +841,7 @@ class QtcInternalDumper():
             return
         if self.stop_here(frame):
             self.message('--Call--')
-            self.interaction(frame, None)
+            self.interaction(frame, None, 'call')
 
     def user_line(self, frame):
         """This function is called when we stop or break at this line."""
@@ -820,27 +850,28 @@ class QtcInternalDumper():
                     or frame.f_lineno <= 0):
                 return
             self._wait_for_mainpyfile = False
-        if self.bp_commands(frame):
-            self.interaction(frame, None)
+        number = self.currentbp
+        if number in self.tracepoints:
+            self.currentbp = 0
+            self.reportTracepointHit(number, frame)
+            return
+        self.bp_commands(frame)
+        self.interaction(frame, None, 'line')
 
     def bp_commands(self, frame):
         """Call every command that was set for the current active breakpoint
-        (if there is one).
-
-        Returns True if the normal interaction function must be called,
-        False otherwise."""
-        # self.currentbp is set in break_here if a breakpoint was hit
-        if getattr(self, 'currentbp', False) and self.currentbp in self.commands:
-            currentbp = self.currentbp
-            self.currentbp = 0
-            lastcmd_back = self.lastcmd
-            self.setup(frame, None)
-            for line in self.commands[currentbp]:
-                self.onecmd(line)
-            self.lastcmd = lastcmd_back
-            self.forget()
-            return False
-        return True
+        (if there is one)."""
+        # self.currentbp is set in break_here if a breakpoint was hit, and the
+        # stop that follows is what reports and resets it.
+        number = getattr(self, 'currentbp', 0)
+        if number not in self.commands:
+            return
+        lastcmd_back = self.lastcmd
+        self.setup(frame, None)
+        for line in self.commands[number]:
+            self.onecmd(line)
+        self.lastcmd = lastcmd_back
+        self.forget()
 
     def user_return(self, frame, return_value):
         """This function is called when a return trap is set here."""
@@ -848,7 +879,7 @@ class QtcInternalDumper():
             return
         frame.f_locals['__return__'] = return_value
         self.message('--Return--')
-        self.interaction(frame, None)
+        self.interaction(frame, None, 'return')
 
     def user_exception(self, frame, exc_info):
         """This function is called if an exception occurs,
@@ -867,9 +898,23 @@ class QtcInternalDumper():
                                  and exc_type is StopIteration) else ''
         self.message('%s%s' % (prefix,
                                traceback.format_exception_only(exc_type, exc_value)[-1].strip()))
-        self.interaction(frame, exc_traceback)
+        self.interaction(frame, exc_traceback, 'exception')
 
-    def interaction(self, frame, tb):
+    def reportThreadEvents(self):
+        # pdb has no thread events of its own, so what a stop can say about
+        # threads is what it finds changed since the previous one.
+        alive = {}
+        for thread in threading.enumerate():
+            alive[thread.ident] = thread.name
+        for ident, name in alive.items():
+            if ident not in self.knownThreads:
+                self.report('threadevent={reason="created",id="%s",name="%s"}' % (ident, name))
+        for ident, name in __builtins__.list(self.knownThreads.items()):
+            if ident not in alive:
+                self.report('threadevent={reason="exited",id="%s",name="%s"}' % (ident, name))
+        self.knownThreads = alive
+
+    def interaction(self, frame, tb, reason=None):
         if self.setup(frame, tb):
             # no interaction desired at this time (happens if .pdbrc contains
             # a command like 'continue')
@@ -885,6 +930,8 @@ class QtcInternalDumper():
             for line in lines:
                 self.onecmd(line)
 
+        self.reportThreadEvents()
+
         frame, lineNumber = self.stack[self.curindex]
         fileName = self.canonic(frame.f_code.co_filename)
         self.report('location={file="%s",line="%s"}' % (fileName, lineNumber))
@@ -893,10 +940,18 @@ class QtcInternalDumper():
         currentbp = getattr(self, 'currentbp', -1)
         if currentbp > 0:
             self.currentbp = -1
+            # Which breakpoint the stop belongs to. The hit count alone does not
+            # say it: several of them can be at the same line.
+            self.report('breakpointhit={number="%d",thread="%s"}'
+                        % (currentbp, threading.current_thread().ident))
             bp = QtcInternalBreakpoint.bpbynumber[currentbp]
             if bp:  # None once a one-shot tbreak deletes itself on hit
                 self.report('breakpointmodified={number="%d",times="%d"}'
                             % (currentbp, bp.hits))
+        elif reason is not None:
+            # What the stop is, for a stop nothing else reports: pdb stops for
+            # a line, a call, a return and an exception alike.
+            self.report('stopreason="%s"' % reason)
 
         while True:
             try:
@@ -941,14 +996,23 @@ class QtcInternalDumper():
             exc_info = sys.exc_info()[:2]
             self.error(traceback.format_exception_only(*exc_info)[-1].strip())
 
+    def do_qdebug(self, arg):
+        # Not left to default(): that evaluates in the frame the inferior
+        # stopped in, and a frame belonging to some other module does not see
+        # the bridge's own namespace.
+        try:
+            cmd, args = __builtins__.eval(arg, globals())
+            getattr(self, cmd)(args)
+        except Exception:
+            exc_info = sys.exc_info()[:2]
+            self.error(traceback.format_exception_only(*exc_info)[-1].strip())
+
     @staticmethod
     def message(msg):
         print(msg)
 
-    @staticmethod
-    def error(msg):
-        # print('***'+ msg)
-        pass
+    def error(self, msg):
+        self.report('commanderror={msg="%s"}' % self.hexencode(msg))
 
     def do_break(self, arg, temporary=0):
         """b(reak) [ ([filename:]lineno | function) [, condition] ]
@@ -1039,6 +1103,18 @@ class QtcInternalDumper():
                 self.error(err)
             else:
                 bp = self.get_breaks(filename, line)[-1]
+                if self.pendingTracepoint is not None:
+                    self.tracepoints[bp.number] = self.pendingTracepoint
+                    self.pendingTracepoint = None
+                if self.pendingBreakpointCommands is not None:
+                    self.commands[bp.number] = self.pendingBreakpointCommands
+                    self.pendingBreakpointCommands = None
+                # The breakpoints view has a column for the function a
+                # breakpoint sits in, which a file and a line do not spell out.
+                function = funcname or functionAtLine(bp.file, bp.line)
+                if function:
+                    self.report('breakpointfunction={number="%d",func="%s"}'
+                                % (bp.number, function))
                 self.message('Breakpoint %d at %s:%d' %
                              (bp.number, bp.file, bp.line))
 
@@ -1249,6 +1325,47 @@ class QtcInternalDumper():
             else:
                 self.clear_bpbynumber(i)
                 self.message('Deleted %s' % bp)
+
+    def _selectFrame(self, index):
+        self.curindex = index
+        frame, lineNumber = self.stack[self.curindex]
+        self.curframe = frame
+        # Cached for the same reason as in setup(): f_locals is rebuilt on
+        # every access, which would drop what was assigned through it.
+        self.curframe_locals = frame.f_locals
+        self.message('> %s(%s)%s()' % (self.canonic(frame.f_code.co_filename),
+                                       lineNumber, frame.f_code.co_name))
+
+    def do_up(self, arg):
+        """u(p) [count]
+        Move the current frame count (default one) levels up in the
+        stack trace (to an older frame).
+        """
+        if self.curindex == 0:
+            self.error('Oldest frame')
+            return
+        try:
+            count = __builtins__.int(arg or 1)
+        except ValueError:
+            self.error('Invalid frame count (%s)' % arg)
+            return
+        self._selectFrame(0 if count < 0 else max(0, self.curindex - count))
+
+    def do_down(self, arg):
+        """d(own) [count]
+        Move the current frame count (default one) levels down in the
+        stack trace (to a newer frame).
+        """
+        last = __builtins__.len(self.stack) - 1
+        if self.curindex == last:
+            self.error('Newest frame')
+            return
+        try:
+            count = __builtins__.int(arg or 1)
+        except ValueError:
+            self.error('Invalid frame count (%s)' % arg)
+            return
+        self._selectFrame(last if count < 0 else min(last, self.curindex + count))
 
     def do_until(self, arg):
         """until [lineno]
@@ -1490,6 +1607,9 @@ class QtcInternalDumper():
         self.displayStringLimit = __builtins__.int(args.get('displaystringlimit', 100))
         self.typeformats = args.get('typeformats', {})
         self.formats = args.get('formats', {})
+        self.uninitialized = [self.hexdecode(x) for x in args.get('uninitialized', [])]
+        partialVar = args.get('partialvar', '')
+        partialName = partialVar.split('.')[1].split('@')[0] if partialVar else None
         self.output = ''
 
         frameNr = args.get('frame', 0)
@@ -1501,7 +1621,8 @@ class QtcInternalDumper():
 
         # frame.f_locals is rebuilt fresh on every access, so it never
         # sees assignValueInDebugger()'s writes into self.curframe_locals.
-        locals_dict = self.curframe_locals if frameNr == 0 else frame.f_locals
+        selectedNr = __builtins__.len(self.stack) - 1 - self.curindex
+        locals_dict = self.curframe_locals if frameNr == selectedNr else frame.f_locals
 
         self.output += 'data={'
         for var in locals_dict.keys():
@@ -1509,12 +1630,25 @@ class QtcInternalDumper():
                        '__doc__', '__loader__', '__cached__', '__the_dumper__',
                        '__annotations__', 'QtcInternalBreakpoint', 'QtcInternalDumper'):
                 continue
+            if partialName is not None and var != partialName:
+                continue
             value = locals_dict[var]
             # this applies only for anonymous arguments
             # e.g. def dummy(var, (width, height), var2) would create an anonymous local var
             # named '.1' for (width, height) as this is the second argument
             if var.startswith('.'):
                 var = '@arg' + var[1:]
+            # A name the request reports as not initialized at this line is out
+            # of scope, whatever python still has bound to it.
+            if var in self.uninitialized:
+                self.put('{')
+                self.putField('iname', 'local.%s' % var)
+                self.putName(var)
+                self.putField('value', '')
+                self.putField('valueencoded', 'optimizedout')
+                self.putNumChild(0)
+                self.put('},')
+                continue
             self.dumpValue(value, var, 'local.%s' % var)
 
         for watcher in args.get('watchers', []):
@@ -1797,10 +1931,14 @@ class QtcInternalDumper():
         self.report('timefence={token="%s"}' % args.get('token', 0))
 
     def addDumperModule(self, args):
+        path = args.get('path', '')
+        self.dumpermodulepaths.append(path)
+        self.runDumperModule(path)
+
+    def runDumperModule(self, path):
         # Executed in a namespace of its own, not in the bridge's: the inferior
         # script shares the bridge's globals, so anything left there would show
         # up among the debuggee's own names.
-        path = args.get('path', '')
         error = ''
         try:
             with open(path) as extra:
@@ -1809,10 +1947,87 @@ class QtcInternalDumper():
             error = '%s: %s' % (__builtins__.type(e).__name__, e)
         self.report('dumpermodule={error="%s"}' % self.hexencode(error))
 
+    def reloadDumpers(self, args):
+        # There are no shipped dumper modules to reload, python values are
+        # formatted directly here. What a reload can still do is run the
+        # user's own file again.
+        for path in self.dumpermodulepaths:
+            self.runDumperModule(path)
+
     def resetFence(self, args):
         # Answers the commands sent ahead of a reset, so that the caller can kill us
         # once they are through rather than while they are still on their way.
         self.report('resetfence={token="%s"}' % args.get('token', 0))
+
+    def isDebuggeeCode(self, code):
+        # The interpreter reports a handler wherever it is, while only the code
+        # under debug is of interest: the standard library and this bridge
+        # handle exceptions of their own all the time.
+        fileName = self.canonic(code.co_filename)
+        if fileName == self.bridgeFile:
+            return False
+        return not fileName.startswith(self.standardLibraryDir)
+
+    def onExceptionHandled(self, code, instructionOffset, exception):
+        # The handling frame is the one the interpreter calls this from.
+        if not self.breakOnCatchRequested or self.curframe is not None:
+            return
+        if not self.isDebuggeeCode(code):
+            return
+        self.message(traceback.format_exception_only(exception)[-1].strip())
+        self.interaction(sys._getframe(1), None)
+
+    def setCatchMonitoring(self, enabled):
+        monitoring = getattr(sys, 'monitoring', None)
+        if monitoring is None:
+            return False
+        if not enabled:
+            if self.catchToolId is not None:
+                monitoring.set_events(self.catchToolId, monitoring.events.NO_EVENTS)
+            return True
+        if self.catchToolId is None:
+            for toolId in (2, 3, 4):
+                try:
+                    monitoring.use_tool_id(toolId, 'pdbbridge')
+                except ValueError:  # somebody else's, the ids are not ours to pick
+                    continue
+                self.catchToolId = toolId
+                break
+            if self.catchToolId is None:
+                return False
+            monitoring.register_callback(self.catchToolId,
+                                        monitoring.events.EXCEPTION_HANDLED,
+                                        self.onExceptionHandled)
+        monitoring.set_events(self.catchToolId, monitoring.events.EXCEPTION_HANDLED)
+        return True
+
+    def breakOnCatch(self, args):
+        # A catch is nothing the trace function is told about: python enters the
+        # handler without an event of its own, so the interpreter's monitoring
+        # is what sees it.
+        enabled = __builtins__.str(args['enabled']) != '0'
+        if enabled and not self.setCatchMonitoring(True):
+            self.report('breakoncatch={token="%s",enabled="0"}' % args.get('token', 0))
+            return
+        self.breakOnCatchRequested = enabled
+        if not enabled:
+            self.setCatchMonitoring(False)
+        self.report('breakoncatch={token="%s",enabled="%d"}'
+                    % (args.get('token', 0), self.breakOnCatchRequested))
+
+    def skipKnownFrames(self, args):
+        # A module name pattern, which is all self.skip can express, does not
+        # say where a module lives, so the standard library is recognised by
+        # the directory its files are in.
+        self.skipKnownFramesRequested = __builtins__.str(args['enabled']) != '0'
+
+    def breakOnThrow(self, args):
+        # There is no breakpoint to set: what stops the inferior at a raise is
+        # the trace function's own exception event, which is otherwise only
+        # acted on while stepping.
+        self.breakOnThrowRequested = __builtins__.str(args['enabled']) != '0'
+        self.report('breakonthrow={token="%s",enabled="%d"}'
+                    % (args.get('token', 0), self.breakOnThrowRequested))
 
     def breakpointFence(self, args):
         # Answers a command issued right after a "break", so that the caller can tell a
@@ -1841,6 +2056,126 @@ class QtcInternalDumper():
             self.put('},')
         self.put(']')
         self.flushOutput()
+
+    def listThreads(self, args):
+        # pdb traces one thread, the others keep running while it is stopped.
+        # The id is a small ordinal of our own, the raw python thread
+        # identifier stays in the target id. A python frame has no code
+        # address, so none is reported.
+        current = threading.current_thread()
+        running = sys._current_frames()
+        currentId = 0
+        self.put('threads={threads=[')
+        for index, thread in enumerate(threading.enumerate(), 1):
+            isCurrent = thread is current
+            if isCurrent:
+                currentId = index
+            self.put('{')
+            self.putField('id', index)
+            self.putField('target-id', 'Thread %s' % thread.ident)
+            self.putField('name', thread.name)
+            self.putField('state', 'stopped' if isCurrent else 'running')
+            if isCurrent:
+                frame, lineNumber = self.stack[-1]
+            else:
+                frame = running.get(thread.ident)
+                lineNumber = frame.f_lineno if frame else 0
+            if frame is not None:
+                self.put('frame={')
+                self.putField('level', 0)
+                self.putField('func', frame.f_code.co_name)
+                self.putField('file', os.path.basename(frame.f_code.co_filename))
+                self.putField('fullname', self.canonic(frame.f_code.co_filename))
+                self.putField('line', lineNumber)
+                self.put('},')
+            self.put('},')
+        self.put(']')
+        self.putField('current-thread-id', currentId)
+        self.put('}')
+        self.flushOutput()
+
+    def tracepoint(self, args):
+        # A tracepoint is a breakpoint the inferior does not stop at: what the
+        # message asks for is captured and reported, and the line runs on. The
+        # captures come ahead of the "break" they belong to, as the number to
+        # key them by does not exist before it, and the caller does not wait
+        # for the answer either.
+        self.pendingTracepoint = args['caps']
+
+    def breakpointcommands(self, args):
+        # The commands a breakpoint runs on every hit. pdb's own "commands"
+        # reads its block from the prompt, which there is nobody to type at
+        # here. A number of 0 means the "break" that follows, as the number to
+        # key them by does not exist before it.
+        number = int(args['number'])
+        lines = args['lines']
+        if number == 0:
+            self.pendingBreakpointCommands = lines
+        elif lines:
+            self.commands[number] = lines
+        else:
+            self.commands.pop(number, None)
+
+    def reportTracepointHit(self, number, frame):
+        bp = QtcInternalBreakpoint.bpbynumber[number]
+        self.report('breakpointmodified={number="%d",times="%d"}'
+                    % (number, bp.hits if bp else 0))
+        caps = []
+        expressions = []
+        for kind, expression in self.tracepoints[number]:
+            if kind != 'expression':
+                caps.append(self.tracepointCapture(kind, frame))
+                continue
+            key = 'x%d' % __builtins__.len(expressions)
+            caps.append('"%s"' % key)
+            expressions.append('%s={%s}' % (key, self.tracepointExpression(expression, frame)))
+        self.report('tracepointhit={result={number="%d",caps=[%s]},expressions={%s}}'
+                    % (number, ','.join(caps), ','.join(expressions)))
+
+    def tracepointExpression(self, expression, frame):
+        # The two shapes the locals view uses as well: a string goes as encoded
+        # utf8, anything else as what python prints it as.
+        try:
+            value = eval(expression, frame.f_globals, frame.f_locals)
+        except Exception as error:
+            return 'value="%s",valueencoded="utf8"' % self.hexencode('<%s>' % error)
+        if isinstance(value, __builtins__.str):
+            return 'value="%s",valueencoded="utf8"' % self.hexencode(self.clampedString(value))
+        return 'value=%s' % self.quoted(__builtins__.str(value))
+
+    def tracepointCapture(self, kind, frame):
+        # Only what python can say about itself: a python frame has no code
+        # address, and the script's own name stands in for the process name.
+        if kind == 'caller':
+            caller = frame.f_back
+            return self.quoted(caller.f_code.co_name if caller else '<unknown caller>')
+        if kind == 'callstack':
+            frames = []
+            while frame is not None:
+                frames.append(self.quoted('%s:%d' % (self.canonic(frame.f_code.co_filename),
+                                                     frame.f_lineno)))
+                frame = frame.f_back
+            return '[%s]' % ','.join(frames)
+        if kind == 'filepos':
+            return self.quoted('%s:%d' % (self.canonic(frame.f_code.co_filename),
+                                          frame.f_lineno))
+        if kind == 'function':
+            return self.quoted(frame.f_code.co_name)
+        if kind == 'pid':
+            return self.quoted('%d' % os.getpid())
+        if kind == 'processname':
+            return self.quoted(self.mainpyfile)
+        if kind == 'tick':
+            return self.quoted('%d' % __builtins__.int(time.monotonic() * 1000))
+        if kind == 'tid':
+            return self.quoted('%d' % threading.get_ident())
+        if kind == 'threadname':
+            return self.quoted(threading.current_thread().name)
+        return self.quoted('<no address>')
+
+    @staticmethod
+    def quoted(value):
+        return '"%s"' % value.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
 
     def listSymbols(self, args):
         moduleName = args['module']
@@ -1881,13 +2216,13 @@ class QtcInternalDumper():
             for frame_lineno in frames:
                 frame, lineno = frame_lineno
                 filename = self.canonic(frame.f_code.co_filename)
-                level += 1
                 result += '{'
                 result += 'file="%s",' % filename
                 result += 'line="%s",' % lineno
                 result += 'level="%s",' % level
                 result += 'function="%s",' % frame.f_code.co_name
                 result += '}'
+                level += 1
         except KeyboardInterrupt:
             pass
         result += ']'

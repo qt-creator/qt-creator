@@ -14,6 +14,13 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
+QString dapModuleName(const QJsonValue &moduleId)
+{
+    if (moduleId.isDouble())
+        return QString::number(moduleId.toInteger());
+    return moduleId.toString();
+}
+
 DapClient::DapClient(IDataProvider *dataProvider, QObject *parent)
     : QObject(parent)
     , m_dataProvider(dataProvider)
@@ -179,8 +186,9 @@ void DapClient::readOutput()
     while (true) {
         // Something like
         //   Content-Length: 128\r\n
-        //   {"type": "event", "event": "output", "body": {"category": "stdout", "output": "...\n"}, "seq": 1}\r\n
-        // FIXME: There coud be more than one header line.
+        //   Content-Type: application/vscode-jsonrpc; charset=utf-8\r\n
+        //   \r\n
+        //   {"type": "event", "event": "output", "body": {...}, "seq": 1}
         int pos1 = m_inbuffer.indexOf("Content-Length:");
         if (pos1 == -1)
             break;
@@ -209,7 +217,12 @@ void DapClient::readOutput()
         if (len < 4)
             break;
 
-        pos2 += 3; // Skip \r\n\r
+        // The length is only one of the header lines the protocol allows, and
+        // the message itself starts after the empty line that ends them all.
+        const int headerEnd = m_inbuffer.indexOf("\r\n\r\n", pos1);
+        if (headerEnd == -1)
+            break;
+        pos2 = headerEnd + 4;
 
         if (pos2 + len > m_inbuffer.size())
             break;
@@ -253,6 +266,10 @@ void DapClient::emitSignals(const QJsonDocument &doc)
             type = DapResponseType::StepOut;
         } else if (command == "next") {
             type = DapResponseType::StepOver;
+        } else if (command == "stepBack") {
+            type = DapResponseType::StepBack;
+        } else if (command == "reverseContinue") {
+            type = DapResponseType::ReverseContinue;
         } else if (command == "threads") {
             type = DapResponseType::DapThreads;
         } else if (command == "pause") {
@@ -263,6 +280,10 @@ void DapClient::emitSignals(const QJsonDocument &doc)
             type = DapResponseType::SetBreakpoints;
         } else if (command == "setFunctionBreakpoints") {
             type = DapResponseType::SetFunctionBreakpoints;
+        } else if (command == "setInstructionBreakpoints") {
+            type = DapResponseType::SetInstructionBreakpoints;
+        } else if (command == "setDataBreakpoints") {
+            type = DapResponseType::SetDataBreakpoints;
         } else if (command == "attach") {
             type = DapResponseType::Attach;
         } else if (command == "launch") {
@@ -288,14 +309,28 @@ void DapClient::emitSignals(const QJsonDocument &doc)
             type = DapEventType::DapBreakpoint;
         } else if (event == "exited") {
             type = DapEventType::Exited;
+        } else if (event == "capabilities") {
+            // What an adapter learned after the initialize answer: cortex-debug
+            // knows what its probe can do only once the probe is there.
+            updateCapabilities(ob.value("body").toObject().value("capabilities").toObject());
         }
         emit eventReady(type, ob);
     }
 }
 
+// Only what the event names changes, so it is merged into what the initialize
+// answer said rather than put in its place.
+void DapClient::updateCapabilities(const QJsonObject &capabilities)
+{
+    for (auto it = capabilities.begin(); it != capabilities.end(); ++it)
+        m_announcedCapabilities.insert(it.key(), it.value());
+    fillCapabilities(QJsonObject{{"body", m_announcedCapabilities}});
+}
+
 void DapClient::fillCapabilities(const QJsonObject &response)
 {
     QJsonObject body = response.value("body").toObject();
+    m_announcedCapabilities = body;
 
     m_capabilities.supportsConfigurationDoneRequest
         = body.value("supportsConfigurationDoneRequest").toBool();

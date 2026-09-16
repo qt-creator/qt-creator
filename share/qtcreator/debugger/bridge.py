@@ -20,6 +20,7 @@ import base64
 import json
 import os
 import re
+import signal
 import sys
 import tempfile
 import threading
@@ -70,16 +71,18 @@ def parseSymbolLine(line):
     if len(parts) < 3 or not parts[1].startswith('0x'):
         return None
     state, address, tail = parts
+    # After the section name come the demangled name and the source file, each
+    # preceded by two spaces. Only a mangled symbol has a demangled name, so that
+    # is what tells a lone trailing piece from a file name.
+    section = ''
     if ' section ' in tail:
-        name, _, after = tail.partition(' section ')
-        pieces = after.split(None, 1)
+        name, _, tail = tail.partition(' section ')
+        pieces = tail.split('  ')
         section = pieces[0]
-        demangled = pieces[1] if len(pieces) > 1 else ''
     else:
-        pieces = tail.split(None, 1)
+        pieces = tail.split('  ')
         name = pieces[0]
-        section = ''
-        demangled = pieces[1] if len(pieces) > 1 else ''
+    demangled = pieces[1] if len(pieces) > 1 and name.startswith('_Z') else ''
     return {'state': state, 'address': address, 'name': name.strip(),
             'section': section, 'demangled': demangled.strip()}
 
@@ -219,6 +222,8 @@ class DapServer():
         # and the arguments each was created for.
         self.breakpointById = {}
         self.breakpointArgsById = {}
+        # What each watchpoint last saw, by its (stringified) number.
+        self.watchedValues = {}
         # Extra gdb breakpoints belonging to one of ours (catch fork/vfork).
         self.companionBreakpoints = {}
         # The numbers of the breakpoints gdb made because we asked it to. gdb
@@ -237,10 +242,15 @@ class DapServer():
         # command, consumed right after it returns.
         self.lastStopEvent = None
         self.lastExitCode = None
+        self.lastExitSignal = 0
         self.inferiorExited = False
         self.announcedThreads = set()
         self.answeredSeq = None
         self.loadedObjfiles = None
+
+        # The dumper's answer to the interpreter request that is running,
+        # picked up by the command that sent it.
+        self.lastInterpreterResult = None
 
         gdb.events.stop.connect(self._onStop)
         gdb.events.cont.connect(self._onContinue)
@@ -352,13 +362,27 @@ class DapServer():
         # interpreter (native mixed) handler when it is imported, which runs
         # before ours and, for a breakpoint carrying an interpreter handler,
         # resumes the inferior on its own - we would then report a stop that no
-        # longer holds. The bridge does not do native mixed debugging, so take
-        # that handler out for as long as we own the process. Reviving it is
-        # part of the native mixed work, which needs its own requests anyway.
+        # longer holds. Take it out and ask the dumpers about an interpreter
+        # stop from _reportInferiorState() instead, where the resume is ours.
         try:
             self.dumper.disableInterpreterStopHandler()
         except Exception as error:
             warn('cannot take over the stop events: %s' % error)
+
+        # The dumpers report an interpreter answer as MI on gdb's console
+        # stream, which is what an engine reading that stream expects. Here it
+        # has to go through the protocol: a result belongs to the request that
+        # caused it, an asynchronous resolution is an event of its own.
+        def reportResult(resdict, args):
+            self.lastInterpreterResult = resdict
+
+        def reportAsync(resdict, asyncclass):
+            if asyncclass == 'breakpointmodified':
+                self.sendEvent('qtc/breakpointModified',
+                               {'bkpt': self.dumper.resultToMi(resdict)})
+
+        self.dumper.reportInterpreterResult = reportResult
+        self.dumper.reportInterpreterAsync = reportAsync
 
     def _setupInferiorTty(self):
         # The inferior must not share our stdout either. Give it a pty and
@@ -401,11 +425,14 @@ class DapServer():
 
         # Keep gdb quiet and non-interactive, this loop owns stdio, and let a
         # signal in a call to the inferior be unwound rather than left standing
-        # in a dummy frame, since the dumpers call into the inferior.
+        # in a dummy frame, since the dumpers call into the inferior. The
+        # console asks for completions, and the default of 200 is short of
+        # what a gdb-multiarch answers to 'complete set arch'.
         for command in ['set pagination off', 'set confirm off',
                         'set width 0', 'set height 0',
                         'set print elements 10000',
                         'set unwindonsignal on',
+                        'set max-completions 1000',
                         'set breakpoint pending on']:
             try:
                 gdb.execute(command, to_string=True)
@@ -510,13 +537,28 @@ class DapServer():
         self.sendEvent('qtc/breakpointCreated', {'bkpt': self._breakpointToMi(bp)})
 
     def _onBreakpointDeleted(self, bp):
-        number = str(bp.number)
-        if number in self.ownBreakpoints:
-            self.ownBreakpoints.discard(number)
-            return
-        if self.creatingOwnBreakpoints:
-            return
-        self.sendEvent('qtc/breakpointDeleted', {'number': number})
+        for number in self._deletedNumbers(bp):
+            # One the engine asked for is news even though the bridge made it:
+            # gdb takes a temporary breakpoint back as it is hit, and
+            # unreported the model keeps one the debugger no longer has.
+            asked = number in self.breakpointById
+            if number in self.ownBreakpoints:
+                self.ownBreakpoints.discard(number)
+                if not asked:
+                    continue
+            elif self.creatingOwnBreakpoints:
+                continue
+            self.sendEvent('qtc/breakpointDeleted', {'number': number})
+
+    def _deletedNumbers(self, bp):
+        try:
+            return [str(bp.number)]
+        except RuntimeError:
+            # A temporary breakpoint is gone by the time its deletion is
+            # announced, and reading it then raises. What went is then whatever
+            # gdb no longer has.
+            live = {str(b.number) for b in (gdb.breakpoints() or ())}
+            return [n for n in self.breakpointById if n not in live]
 
     def _createOwnBreakpoint(self, create):
         # Which breakpoints gdb made here is taken from what appeared, not from
@@ -538,7 +580,29 @@ class DapServer():
     def _onExited(self, event):
         self.inferiorExited = True
         self.lastExitCode = getattr(event, 'exit_code', None)
+        self.lastExitSignal = self._exitSignal()
         self._syncThreads()
+        inferior = getattr(event, 'inferior', None)
+        if inferior is not None:
+            self.sendEvent('qtc/threadGroup', {'reason': 'exited',
+                                               'id': 'i%d' % inferior.num})
+
+    def _exitSignalName(self, number):
+        try:
+            return signal.Signals(number).name
+        except ValueError:
+            return ''
+
+    def _exitSignal(self):
+        # An inferior a signal took down has no exit code at all: gdb sets
+        # $_exitsignal instead and leaves the other one void.
+        try:
+            value = gdb.parse_and_eval('$_exitsignal')
+            if value.type.code == gdb.TYPE_CODE_VOID:
+                return 0
+            return int(value)
+        except Exception:
+            return 0
 
     def _onNewObjfile(self, event):
         self._reportLibrary('loaded', getattr(event, 'new_objfile', None))
@@ -588,13 +652,17 @@ class DapServer():
     def _execute(self, command):
         # Run a command that resumes the inferior and blocks until it stops or
         # exits, then report the resulting state as a DAP event.
+        self._resumeAndReport(command, lambda: gdb.execute(command, to_string=True))
+
+    def _resumeAndReport(self, what, resume):
         self.lastStopEvent = None
         self.inferiorExited = False
         self.lastExitCode = None
+        self.lastExitSignal = 0
         try:
-            gdb.execute(command, to_string=True)
-        except gdb.error as error:
-            warn('DAP execute %r failed: %s' % (command, error))
+            resume()
+        except Exception as error:
+            warn('DAP execute %r failed: %s' % (what, error))
         except KeyboardInterrupt:
             # How an interrupt arrives while the inferior runs: it is not a
             # gdb.error, and not even an Exception, so letting it through would
@@ -613,24 +681,75 @@ class DapServer():
             code = self.lastExitCode if self.lastExitCode is not None else 0
             # No 'terminated': the C++ side has no mapping for it, so it would
             # only show up as an unknown event. 'exited' drives the shutdown.
-            self.sendEvent('exited', {'exitCode': code})
+            body = {'exitCode': code}
+            if self.lastExitSignal:
+                body['exitSignal'] = self.lastExitSignal
+                name = self._exitSignalName(self.lastExitSignal)
+                if name:
+                    body['exitSignalName'] = name
+            self.sendEvent('exited', body)
+            return
+
+        if self._resumedForInterpreter():
             return
 
         self._reportStopped()
 
+    def _resumedForInterpreter(self):
+        # A stop the native mixed machinery owns: the dumpers run the handlers
+        # for it and say whether it is one the user gets to see. A stop at the
+        # object availability hook is where a QML breakpoint the service
+        # refused earlier gets its second chance, and the resolving is ours
+        # because the resuming is.
+        event = self.lastStopEvent
+        atHook = self.dumper.stoppedAtInterpreterAvailabilityHook(event)
+        answer = self.dumper.handleStopForInterpreter(event)
+        if atHook:
+            self.dumper.resolveInterpreterBreakpointsAtStop()
+        elif answer != 'continue':
+            return False
+        self._execute('continue')
+        return True
+
     def _reportStopped(self):
         reason = 'step'
         hitBreakpointIds = []
+        hitWatchpoints = []
         event = self.lastStopEvent
         if event is not None and hasattr(event, 'breakpoints'):
             for bp in event.breakpoints:
                 # A temporary breakpoint is deleted the moment it is hit, and
                 # reading it then raises, so there is no id to report for it.
                 try:
-                    hitBreakpointIds.append(bp.number)
+                    number = bp.number
                 except RuntimeError:
-                    pass
-            if hitBreakpointIds:
+                    continue
+                args = self.breakpointArgsById.get(str(number), {})
+                if self._isWatchpoint(bp, args.get('type')):
+                    # A watchpoint is a breakpoint to the Python API, while it
+                    # sits at no line: what it watches is all that places the
+                    # stop, and it is only known here.
+                    # A watchpoint the user set in the console is in no args
+                    # of ours, and what it watches is on the breakpoint itself.
+                    expr = (args.get('expression')
+                            or getattr(bp, 'expression', None)
+                            or ('*0x%x' % args.get('address', 0)))
+                    hit = {'id': number, 'expression': expr}
+                    # gdb prints what the watchpoint saw on its console, which
+                    # is pointed at the log here, and the Python API does not
+                    # carry it at all: the value before the write is the one
+                    # this stop found last time.
+                    old = self.watchedValues.get(str(number))
+                    new = self._watchedValue(expr)
+                    self.watchedValues[str(number)] = new
+                    if old is not None:
+                        hit['old'] = old
+                    if new is not None:
+                        hit['new'] = new
+                    hitWatchpoints.append(hit)
+                else:
+                    hitBreakpointIds.append(self._breakpointOwner(number))
+            if hitBreakpointIds or hitWatchpoints:
                 reason = 'breakpoint'
         elif event is not None and hasattr(event, 'stop_signal'):
             reason = 'exception'
@@ -650,6 +769,8 @@ class DapServer():
             'hitBreakpointIds': hitBreakpointIds,
             'pid': pid,
         }
+        if hitWatchpoints:
+            body['hitWatchpoints'] = hitWatchpoints
         # Where we stopped, so a client does not have to fetch a stack to find
         # out; DAP leaves this to a stackTrace round trip.
         try:
@@ -666,6 +787,18 @@ class DapServer():
             body['text'] = signal
             body['description'] = self._signalMeaning(signal)
         self.sendEvent('stopped', body)
+
+    def _breakpointOwner(self, number):
+        # A companion stops in its own right, and the stop belongs to the
+        # breakpoint it was created for.
+        for owner, companions in self.companionBreakpoints.items():
+            for companion in companions:
+                try:
+                    if companion.number == number:
+                        return int(owner)
+                except RuntimeError:
+                    pass
+        return number
 
     def _signalMeaning(self, signal):
         # gdb's own wording for the signal. Nothing but this command prints it,
@@ -724,7 +857,8 @@ class DapServer():
                               message='No usable program path for the launch: %r'
                                       % arguments.get('program'))
             return
-        gdb.execute('file %s' % quoteArgument(program), to_string=True)
+        self._sendConsoleOutput(gdb.execute('file %s' % quoteArgument(program),
+                                            to_string=True))
         quoted = []
         for argument in arguments.get('args') or []:
             text = gdbLineArgument(argument, 'an inferior argument')
@@ -878,11 +1012,7 @@ class DapServer():
 
         started = self._startInferior()
         self.sendResponse(request)
-        if started and self.stopAtMain:
-            # Starting stops at main, which is all that was asked for.
-            self._reportStopped()
-            return
-        self._execute('continue' if started else 'run')
+        self._afterStart(started)
 
     def cmd_restart(self, request):
         if self.attachMode:
@@ -897,7 +1027,27 @@ class DapServer():
         # clears that again before the replacement runs, so nothing is sent.
         started = self._startInferior()
         self.sendResponse(request)
+        self._afterStart(started)
+
+    def _afterStart(self, started):
+        if started and (self.stopAtMain or self._stoppedAtEngineBreakpoint()):
+            # Starting stops at main, which is all that was asked for.
+            self._reportStopped()
+            return
         self._execute('continue' if started else 'run')
+
+    def _stoppedAtEngineBreakpoint(self):
+        # Getting the inferior going stops at main on the bridge's own
+        # breakpoint, which is nobody else's business. A breakpoint the engine
+        # asked for sitting there too makes the stop the user's, and resuming
+        # would hide it.
+        for bp in getattr(self.lastStopEvent, 'breakpoints', ()) or ():
+            try:
+                if str(bp.number) in self.breakpointById:
+                    return True
+            except RuntimeError:
+                pass
+        return False
 
     def _startInferior(self):
         # 'start' rather than 'run': it stops at main, which is where the pid
@@ -909,11 +1059,12 @@ class DapServer():
         try:
             if self.mainFunction == 'main':
                 # 'start' makes a temporary breakpoint at main, which is ours.
-                self._createOwnBreakpoint(lambda: gdb.execute('start', to_string=True))
+                self._sendConsoleOutput(self._createOwnBreakpoint(
+                    lambda: gdb.execute('start', to_string=True)))
             else:
                 self._createOwnBreakpoint(
                     lambda: gdb.Breakpoint(function=self.mainFunction, temporary=True))
-                gdb.execute('run', to_string=True)
+                self._sendConsoleOutput(gdb.execute('run', to_string=True))
             started = True
         except gdb.error as error:
             warn('start failed, running instead: %s' % error)
@@ -922,11 +1073,18 @@ class DapServer():
 
     def _reportProcess(self):
         try:
-            pid = gdb.selected_inferior().pid
+            inferior = gdb.selected_inferior()
+            pid = inferior.pid
         except Exception:
             return
         if pid:
             self.sendEvent('process', {'systemProcessId': pid})
+            # The threads view groups the threads by the process they run in,
+            # and gdb's own spelling of that group is what the other backend
+            # reporting one uses.
+            self.sendEvent('qtc/threadGroup', {'reason': 'created',
+                                               'id': 'i%d' % inferior.num,
+                                               'pid': str(pid)})
 
     def _shutdown(self, request, terminateDebuggee=True):
         try:
@@ -990,8 +1148,39 @@ class DapServer():
         self._execute('nexti' if self._byInstruction(request) else 'next')
 
     def cmd_stepIn(self, request):
+        if request.get('arguments', {}).get('arminterpreter'):
+            # Crossing from C++ into QML: whichever comes first, the native
+            # step finishing or the interpreter reaching the next JS
+            # statement, ends this step.
+            self._armInterpreterStep()
         self.sendResponse(request)
         self._execute('stepi' if self._byInstruction(request) else 'step')
+
+    def _armInterpreterStep(self):
+        try:
+            self.dumper.nativeMixed = 1
+            self.dumper.armInterpreterStepIn({})
+        except Exception as error:
+            warn('cannot arm the interpreter step: %s' % error)
+
+    def cmd_qtc_interpreterStep(self, request):
+        # A step of a native mixed session that the dumpers have to drive:
+        # they tell the QML debug service what to do and resume the inferior
+        # themselves, so the stop it ends at is reported from here.
+        args = dict(request.get('arguments', {}))
+        if not self._isRunnable():
+            self.sendResponse(request, success=False,
+                              message='The program is not being run.')
+            return
+        function = args.get('function', '')
+        step = getattr(self.dumper, function, None)
+        if step is None:
+            self.sendResponse(request, success=False,
+                              message='no interpreter step %s' % function)
+            return
+        self.dumper.nativeMixed = 1
+        self.sendResponse(request)
+        self._resumeAndReport(function, lambda: step(args))
 
     def cmd_stepOut(self, request):
         self.sendResponse(request)
@@ -1147,7 +1336,19 @@ class DapServer():
         condition = args.get('condition', '')
         bp.condition = self.dumper.hexdecode(condition) if condition else ''
         bp.ignore_count = int(args.get('ignorecount', 0) or 0)
+        threadSpec = int(args.get('threadspec', -1))
+        if threadSpec >= 0 and isinstance(bp, gdb.Breakpoint):
+            # The number gdb wants is the global one, which is what the threads
+            # request reports.
+            bp.thread = threadSpec
         bp.enabled = bool(args.get('enabled', True))
+        command = args.get('command', '')
+        if command:
+            # gdb wants the list newline-terminated, and prints what it runs to
+            # stdout, which _claimStdio() points at the debugger log.
+            bp.commands = self.dumper.hexdecode(command).rstrip('\n') + '\n'
+        elif getattr(bp, 'commands', None):
+            bp.commands = None
 
     def _applyBreakpointArgsToAll(self, bp, args):
         # A companion carries the same settings: a disabled fork breakpoint
@@ -1225,6 +1426,7 @@ class DapServer():
         elif bptype in (self.BP_WATCH_ADDRESS, self.BP_WATCH_EXPRESSION):
             expr = args.get('expression') or ('*0x%x' % args.get('address', 0))
             bp = gdb.Breakpoint(expr, gdb.BP_WATCHPOINT)
+            self.watchedValues[str(bp.number)] = self._watchedValue(expr)
         else:
             # Keyword form, so a source path containing spaces still resolves.
             bp = gdb.Breakpoint(source=args.get('file', ''),
@@ -1424,6 +1626,12 @@ class DapServer():
             return requested in (self.BP_WATCH_ADDRESS, self.BP_WATCH_EXPRESSION)
         return self._gdbTypeOf(bp) in self.WATCHPOINT_TYPES
 
+    def _watchedValue(self, expression):
+        try:
+            return str(gdb.parse_and_eval(expression))
+        except Exception:
+            return None
+
     def _fillCatchpointDict(self, result, bp):
         # Which event a catchpoint catches is in none of gdb's Python
         # attributes, so it has to be read off the column gdb prints for it.
@@ -1466,6 +1674,8 @@ class DapServer():
         }
         if bp.condition:
             result['cond'] = bp.condition
+        if getattr(bp, 'thread', None) is not None:
+            result['thread'] = bp.thread
 
         if requested is None and self._isCatchpoint(bp):
             # A catchpoint has no code location, and must not be asked for
@@ -1479,7 +1689,12 @@ class DapServer():
             # gdbarch_addr_bit assertion). Report what it watches instead, which
             # is also what keeps it from being displayed as forever pending.
             result['type'] = 'hw watchpoint'
-            result['what'] = args.get('expression') or bp.location or ''
+            # A watchpoint the user set in the console is in no args of ours,
+            # and it sits at no location either: what it watches is on the
+            # breakpoint itself.
+            result['what'] = (args.get('expression')
+                              or getattr(bp, 'expression', None)
+                              or bp.location or '')
             return self.dumper.resultToMi(result)
 
         if requested in self.CATCH_KINDS:
@@ -1531,8 +1746,39 @@ class DapServer():
             if bp is not None:
                 self._forgetBreakpoint(str(bp.number))
             body['bkpt'] = ''
-            body['error'] = str(error)
+            self.sendResponse(request, body=body, success=False, message=str(error))
+            return
         self.sendResponse(request, body=body)
+
+    def cmd_qtc_insertInterpreterBreakpoint(self, request):
+        args = dict(request.get('arguments', {}))
+        self.lastInterpreterResult = None
+        try:
+            # The dumpers set their own breakpoints on the machinery hooks
+            # here, which are none of the C++ side's business.
+            self._createOwnBreakpoint(
+                lambda: self.dumper.insertInterpreterBreakpoint(args))
+        except Exception as error:
+            warn('insertInterpreterBreakpoint failed: %s' % error)
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        resdict = self.lastInterpreterResult or {}
+        body = {'modelid': args.get('modelid')}
+        # A breakpoint the service refused is queued, and is reported once the
+        # retry has a number for it. Until then there is nothing to report.
+        if not resdict.get('pending'):
+            body['bkpt'] = self.dumper.resultToMi(resdict)
+        self.sendResponse(request, body=body)
+
+    def cmd_qtc_removeInterpreterBreakpoint(self, request):
+        args = dict(request.get('arguments', {}))
+        try:
+            self.dumper.removeInterpreterBreakpoint(args)
+        except Exception as error:
+            warn('removeInterpreterBreakpoint failed: %s' % error)
+            self.sendResponse(request, success=False, message=str(error))
+            return
+        self.sendResponse(request, body={'modelid': args.get('modelid')})
 
     def cmd_qtc_enableSubBreakpoint(self, request):
         # A location of a multi-location breakpoint, addressed as 'N.M'.
@@ -1629,6 +1875,13 @@ class DapServer():
                 entry['line'] = sal.line
                 entry['source'] = {'path': sal.symtab.fullname()}
             entry['instructionPointerReference'] = int(frame.pc())
+            # Where a frame has no source, the module is all the stack view can
+            # put into its File column.
+            progspace = gdb.current_progspace()
+            forAddress = getattr(progspace, 'objfile_for_address', None)
+            objfile = forAddress(frame.pc()) if forAddress else None
+            if objfile is not None and objfile.filename:
+                entry['moduleId'] = objfile.filename
             frames.append(entry)
             frameId += 1
             frame = frame.older()
@@ -1683,6 +1936,14 @@ class DapServer():
         # dumpers create because the names they need depend on the namespace.
         self._createOwnBreakpoint(
             lambda: self.dumper.createSpecialBreakpoints(request.get('arguments', {})))
+        self.sendResponse(request)
+
+    def cmd_qtc_setupNativeMixed(self, request):
+        # See enableInterpreterService(): the hook the debug service is enabled
+        # from has to be armed before the inferior compiles its QML, well
+        # before a QML breakpoint could be the one asking for it.
+        self.dumper.nativeMixed = 1
+        self._createOwnBreakpoint(lambda: self.dumper.ensureInterpreterAvailabilityHook())
         self.sendResponse(request)
 
     def cmd_qtc_watchPoint(self, request):
@@ -1836,6 +2097,32 @@ class DapServer():
             # likely place for them too, as GdbEngine does.
             self._executeQuietly('set substitute-path /usr/src %s'
                                  % quoteArgument(sysroot + '/usr/src'))
+        # 'set solib-search-path' and 'set debug-file-directory' take the rest
+        # of the line as a path list, so the quotes would end up in the paths.
+        solibSearchPath = args.get('solibSearchPath', [])
+        if solibSearchPath:
+            known = [gdb.parameter('solib-search-path') or '']
+            joined = os.pathsep.join([item for item in known + solibSearchPath if item])
+            self._executeQuietly('set solib-search-path %s' % joined)
+        debugInfoLocation = gdbLineArgument(args.get('debugInfoLocation', ''),
+                                           'debug info location')
+        if debugInfoLocation:
+            known = gdb.parameter('debug-file-directory') or ''
+            joined = os.pathsep.join([item for item in [debugInfoLocation, known] if item])
+            self._executeQuietly('set debug-file-directory %s' % joined)
+        if args.get('multiInferior'):
+            self._executeQuietly('set detach-on-fork off')
+        if args.get('indexCache'):
+            # gdb 13 made 'index-cache' a prefix command, and the plain form an
+            # alias that warns.
+            major = int(gdb.VERSION.split('.')[0]) if gdb.VERSION[:1].isdigit() else 0
+            self._executeQuietly('set index-cache enabled on' if major >= 13
+                                 else 'set index-cache on')
+        if args.get('systemDumpers'):
+            # The dumper picks the debugger's own pretty printers up per object
+            # file as the inferior loads them, so the flag is what matters here.
+            self.dumper.usePlainDumpers = True
+            self.dumper.importPlainDumpers()
         debuginfod = args.get('debuginfod')
         if debuginfod is not None:
             # The commands exist from gdb 10.1 on, and only in a build with
@@ -1846,6 +2133,13 @@ class DapServer():
             self._executeQuietly('set debuginfod enabled %s'
                                  % ('on' if debuginfod else 'off'))
         self.sendResponse(request)
+
+    def _sendConsoleOutput(self, text):
+        # gdb's console output is captured rather than printed while a command
+        # runs here, and what it says about a slow start is the only account of
+        # what the start was busy with.
+        if text:
+            self.sendEvent('output', {'category': 'console', 'output': text})
 
     def _executeQuietly(self, command):
         try:
@@ -1909,13 +2203,33 @@ class DapServer():
             entry['symbolsRead'] = fields[2] == 'Yes'
         self.sendResponse(request, body={'modules': list(modules.values())})
 
+    def _selection(self):
+        # What gdb calls its selection: the thread, and the frame in it.
+        threadId = 0
+        try:
+            thread = gdb.selected_thread()
+            if thread is not None:
+                threadId = thread.global_num
+        except Exception:
+            pass
+        level = -1
+        try:
+            level = gdb.selected_frame().level()
+        except Exception:
+            pass
+        return (threadId, level)
+
     def cmd_qtc_executeCommand(self, request):
         # The debugger console. Capture what gdb prints: its stdout is the
         # protocol stream.
-        command = request.get('arguments', {}).get('command', '')
+        args = request.get('arguments', {})
+        command = args.get('command', '')
+        self._selectFrame(args.get('frameid'))
+        selection = self._selection()
         self.lastStopEvent = None
         self.inferiorExited = False
         self.lastExitCode = None
+        self.lastExitSignal = 0
         try:
             body = {'output': gdb.execute(command, to_string=True) or ''}
         except KeyboardInterrupt:
@@ -1940,6 +2254,13 @@ class DapServer():
             self.sendEvent('continued',
                            {'threadId': thread.global_num if thread is not None else 0,
                             'allThreadsContinued': True})
+        # A console command of the user's can also move the selection without
+        # resuming anything - up, down, frame, thread - and the views follow the
+        # selection wherever it goes. A resume moves it by itself, and the stop
+        # that ends it says where to.
+        moved = self._selection()
+        if not resumed and moved != selection and moved[0]:
+            self.sendEvent('qtc/threadSelected', {'id': str(moved[0])})
         self.sendResponse(request, body=body)
         if resumed:
             self._reportInferiorState()
@@ -1986,7 +2307,13 @@ class DapServer():
                     text = str(value)
                 except Exception:
                     text = ''
+            regType = ''
+            try:
+                regType = str(value.type)
+            except Exception:
+                pass
             registers.append({'name': desc.name, 'value': text, 'size': size,
+                              'type': regType,
                               'groups': ','.join(groupsByName.get(desc.name, []))})
 
         self.sendResponse(request, body={'registers': registers})

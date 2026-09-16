@@ -128,6 +128,16 @@ void BreakpointParameters::updateLocation(const DebuggerRunParameters &rp, const
     }
 }
 
+// The file the debugger is told about: a breakpoint asking for the short path
+// is spelled with the file name alone, which is what matches debug information
+// carrying a build directory that does not exist here.
+Utils::FilePath BreakpointParameters::fileNameForDebugger() const
+{
+    if (pathUsage == BreakpointUseShortPath)
+        return Utils::FilePath::fromString(fileName.fileName());
+    return fileName;
+}
+
 bool BreakpointParameters::isQmlFileAndLineBreakpoint() const
 {
     if (type != BreakpointByFileAndLine)
@@ -329,7 +339,10 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Debugger
             //  what="*0xbfffed48",times="0",original-location="*0xbfffed48"}}
             if (child.data().contains("tracepoint")) {
                 tracepoint = true;
-            } else if (child.data() == "hw watchpoint" || child.data() == "watchpoint") {
+            } else if (child.data().endsWith("watchpoint")) {
+                // What a watchpoint watches for, reading or writing, is spelled
+                // out in its type ("read watchpoint", "acc watchpoint"), and
+                // what it watches is the same in all of them.
                 QString what = bkpt["what"].data();
                 if (what.startsWith("*0x")) {
                     type = WatchpointAtAddress;

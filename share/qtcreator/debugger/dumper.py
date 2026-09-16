@@ -181,6 +181,7 @@ class DumperBase():
         self.allowInferiorCalls = False
         self.interpreterStepArmed = False
         self.pendingInterpreterBreakpoints = []
+        self.interpreterServiceEnabled = False
         self.refusedInterpreterRequests = {}
         self.interpreterRequestAttempts = {}
         self.qtLoaded = False
@@ -2928,7 +2929,17 @@ typename))
         # Only a backend that can retry a queued breakpoint may keep one.
         return False
 
+    def enableInterpreterService(self):
+        # The interpreter offers pause points only in code it compiled while the
+        # debug service was on, so this has to happen before the inferior gets
+        # to its QML, whether or not a breakpoint is waiting for the service.
+        if self.interpreterServiceEnabled:
+            return
+        self.interpreterServiceEnabled = True
+        self.callServiceFunction('qt_qmlDebugEnableService', ['NativeQmlDebugger'])
+
     def resolvePendingInterpreterBreakpoints(self):
+        self.enableInterpreterService()
         pending = self.pendingInterpreterBreakpoints
         self.pendingInterpreterBreakpoints = []
         for args in pending:
@@ -2971,7 +2982,7 @@ typename))
         self.reportInterpreterResult(resdict, args)
 
     def resolvePendingInterpreterBreakpoint(self, args):
-        self.callServiceFunction('qt_qmlDebugEnableService', ['NativeQmlDebugger'])
+        self.enableInterpreterService()
         response = self.sendInterpreterRequest('setbreakpoint', args)
         bp = None if response is None else response.get('breakpoint', None)
         resdict = args.copy()
@@ -3128,18 +3139,42 @@ typename))
         # the QML caller by pausing at the next JS statement; otherwise
         # step out normally in C++.
         if self.atNativeToQmlBoundary():
-            self.sendInterpreterRequest('stepin', args)
-            self.interpreterStepArmed = True
-            self.setupMachinerySkips()
-            self.doContinue()
+            self.stepBackIntoQml(args)
         else:
             self.doFinish()
+
+    def executeNativeMixedNext(self, args):
+        # Stepping over in a C++ frame of a native mixed session. Standing in
+        # the trampolines a C++ method was called from QML through, the method
+        # itself having returned, there is no C++ left to step over and the
+        # next line of the program is the QML one after the call.
+        if self.inQmlCallMachinery():
+            self.stepBackIntoQml(args)
+        else:
+            self.doNext()
+
+    def stepBackIntoQml(self, args):
+        self.sendInterpreterRequest('stepin', args)
+        self.interpreterStepArmed = True
+        self.setupMachinerySkips()
+        self.doContinue()
+
+    def inQmlCallMachinery(self):
+        return self.atQmlCallMachineryFrame() and self.atNativeToQmlBoundary()
+
+    def atQmlCallMachineryFrame(self):
+        # Overridden in the GDB bridge.
+        return False
 
     def atNativeToQmlBoundary(self):
         # Overridden in the GDB bridge.
         return False
 
     def doFinish(self):
+        # Overridden in the GDB bridge.
+        self.doContinue()
+
+    def doNext(self):
         # Overridden in the GDB bridge.
         self.doContinue()
 

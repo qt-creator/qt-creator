@@ -27,6 +27,8 @@ public:
 
     Utils::ProcessResultData resultData() const;
 
+    void setRunAsUser(const QString &user) { m_runAsUser = user; }
+
 private:
     void start() final;
     bool isRunning() const final;
@@ -45,6 +47,7 @@ private:
     Utils::Process m_process;
     const Utils::ProcessRunData m_runData;
     const Utils::CommandLine m_cmd;
+    QString m_runAsUser;
 };
 
 // An adapter already listening on a local socket or a named pipe.

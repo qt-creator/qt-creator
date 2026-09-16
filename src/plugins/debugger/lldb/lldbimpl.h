@@ -5,6 +5,7 @@
 
 #include "../debuggerengineinterface.h"
 
+#include <utils/aspects.h>
 #include <utils/filepath.h>
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
@@ -31,13 +32,33 @@ public:
     // enters through qMain(), the C runtime's main() being Qt's own.
     QString mainFunctionName = "main";
     bool continueAfterAttach = false;
+    // Whether a target that is loaded and stopped already is resumed rather
+    // than run, which is the only thing a hardware probe can be asked for.
+    bool continueInsteadOfRun = false;
+    // Whether the debugger breaks before the inferior aborts or logs.
+    bool breakOnAbort = false;
+    bool breakOnWarning = false;
+    bool breakOnFatal = false;
+    // Whether the inferior keeps the Windows debug heap. Unset where there is
+    // no such heap to keep, which is anywhere but Windows.
+    Utils::TriState enableHeapDebugging;
     bool intelDisassembly = false;
+    // Whether a step ending in a frame the user did not ask to see is continued.
+    bool skipKnownFrames = false;
     // Whether every command's turnaround goes into the log.
     bool logTimeStamps = false;
     // Where an attached device's symbols live, and the platform to select.
     QString deviceSymbolsRoot;
     QString deviceUuid;
     QString platform;
+    // Whether the debugger looks for code the inferior generates while it
+    // runs. An Android inferior has none to find.
+    bool useJitLoader = true;
+    // Where the target's own libraries are, for an inferior built for another
+    // system. A device's symbols take precedence where there are any.
+    Utils::FilePath sysroot;
+    // Whom the debugger itself runs as, empty for the current user.
+    QString runAsUser;
     // A script to run instead of the startup commands.
     Utils::FilePath startScript;
     QStringList startupCommands;
@@ -51,6 +72,13 @@ public:
     QList<QPair<QString, QString>> sourcePathMap;
     // Where to look for the shared libraries the inferior loads.
     Utils::FilePaths solibSearchPath;
+    // Where the debug information separated out of the binaries is.
+    Utils::FilePath debugInfoLocation;
+    // Whether the debugger keeps the symbol index it built for the next run.
+    bool useIndexCache = false;
+    // Whether the debug information daemon is asked for what is missing.
+    // Unset leaves what the debugger makes of its own environment in place.
+    Utils::TriState useDebugInfoD;
     int qtVersion = 0;
     QString qtNamespace;
     Utils::FilePath extraDumperFile;
@@ -115,9 +143,17 @@ private:
     bool m_inferiorExited = false;
     std::optional<int> m_inferiorExitCode;
     bool m_inferiorExitReported = false;
+    // Whether the inferior died of the signal it was resumed into, which is
+    // all that tells such an exit from one the inferior made of its own.
+    bool m_inferiorExitSignalled = false;
+    QString m_inferiorExitSignalName;
     void interruptInferior();
 
     bool m_engineSetupReported = false;
+    bool m_debuginfodDownloadInProgress = false;
+    // Whether the debugger process going away is the shutdown this was asked
+    // for rather than one of its own.
+    bool m_shuttingDown = false;
     bool m_inferiorRunning = false;
     bool m_interruptOnceRunning = false;
     bool m_resumeAfterAttachPending = false;
@@ -128,6 +164,7 @@ private:
     bool m_onStopWantContinue = false;
     bool m_temporaryStopRequested = false;
     bool m_resumingFromTemporaryStop = false;
+    bool m_resumeRequested = false;
 
     bool m_detached = false;
     qint64 m_inferiorPid = -1;

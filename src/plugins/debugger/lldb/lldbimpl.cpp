@@ -5,6 +5,7 @@
 
 #include "../breakpoint.h"
 #include "../debuggerconstants.h"
+#include "../debuggerinternalconstants.h"
 #include "../watchutils.h"
 
 #include <utils/commandline.h>
@@ -12,6 +13,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 
 #include <QRegularExpression>
 #include <QTime>
@@ -59,8 +61,10 @@ static DebuggerEngineSetupData lldbImplSetupData()
                             | WatchComplexExpressionsCapability;
     data.attachToCoreCapabilities = coreCaps;
     data.capabilities = coreCaps
+                      | AddWatcherWhileRunningCapability
                       | BreakConditionCapability
                       | BreakIndividualLocationsCapability
+                      | BreakModuleCapability
                       | BreakOnThrowAndCatchCapability
                       | JumpToLineCapability
                       | ReloadModuleCapability
@@ -68,19 +72,26 @@ static DebuggerEngineSetupData lldbImplSetupData()
                       | ResetInferiorCapability
                       | ReturnFromFunctionCapability
                       | RunToLineCapability
+                      | SnapshotCapability
                       | TracePointCapability
                       | WatchWidgetsCapability
                       | WatchpointByAddressCapability
                       | WatchpointByExpressionCapability;
-    data.extraCapabilities = DebuggerExtraCapability::Detach
+    data.extraCapabilities = DebuggerExtraCapability::ContinueAfterAttach
+                           | DebuggerExtraCapability::ContinueInsteadOfRun
+                           | DebuggerExtraCapability::Detach
                            | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::RunCommandDeferral
                            | DebuggerExtraCapability::SignalReceived
+                           | DebuggerExtraCapability::SkipKnownFrames
                            | DebuggerExtraCapability::SourceFiles
                            | DebuggerExtraCapability::Threads
                            | DebuggerExtraCapability::BreakOnMain
                            | DebuggerExtraCapability::JumpTargetCheck
-                           | DebuggerExtraCapability::PeripheralRegisters;
+                           | DebuggerExtraCapability::PeripheralRegisters
+                           | DebuggerExtraCapability::RunAsUser
+                           | DebuggerExtraCapability::SpecialBreakpoints
+                           | DebuggerExtraCapability::ThreadEvent;
     data.startModes = DebuggerStartModeFlag::Launch
                     | DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToTerminalStub
@@ -89,6 +100,10 @@ static DebuggerEngineSetupData lldbImplSetupData()
     data.toolTipHandling = ToolTipHandling::IfStoppedInferiorAndCppEditor;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
+            return false;
+        // lldb stops on a fork or an exec by the libc entry point they go
+        // through, and a system call has none.
+        if (query.type == BreakpointAtSysCall)
             return false;
         if (query.isCppBreakpoint())
             return true;
@@ -106,6 +121,17 @@ static void addConst(GdbMi &parent, const QString &name, const QString &data)
     parent.addChild(child);
 }
 
+// lldb reports a location's address as a plain number, and as -1 for one that
+// is not resolved yet.
+static QString locationAddress(const GdbMi &lldbLocation)
+{
+    bool ok = false;
+    const quint64 address = lldbLocation["addr"].data().toULongLong(&ok);
+    if (!ok || address == quint64(-1))
+        return {};
+    return "0x" + QString::number(address, 16);
+}
+
 static GdbMi translateLldbBreakpoint(const GdbMi &lldbBkpt)
 {
     GdbMi bkpt;
@@ -117,8 +143,14 @@ static GdbMi translateLldbBreakpoint(const GdbMi &lldbBkpt)
         addConst(bkpt, "enabled", "n");
     addConst(bkpt, "file", lldbBkpt["file"].data());
     addConst(bkpt, "line", lldbBkpt["line"].data());
+    const QString expression = lldbBkpt["expression"].data();
     const QString catchType = lldbBkpt["catchtype"].data();
-    if (catchType.isEmpty()) {
+    if (!expression.isEmpty()) {
+        // A watchpoint sits at no line, so what it watches is the only thing
+        // telling it apart from a breakpoint that is forever pending.
+        addConst(bkpt, "type", "hw watchpoint");
+        addConst(bkpt, "what", expression);
+    } else if (catchType.isEmpty()) {
         addConst(bkpt, "type", "breakpoint");
     } else {
         addConst(bkpt, "type", "catchpoint");
@@ -132,8 +164,17 @@ static GdbMi translateLldbBreakpoint(const GdbMi &lldbBkpt)
     if (!condition.isEmpty())
         addConst(bkpt, "cond", condition);
     addConst(bkpt, "times", lldbBkpt["hitcount"].data());
+    if (const GdbMi thread = lldbBkpt["thread"]; thread.isValid())
+        addConst(bkpt, "thread", thread.data());
 
     const GdbMi lldbLocations = lldbBkpt["locations"];
+    if (lldbLocations.childCount() > 0) {
+        // The view names a breakpoint after its first location.
+        const GdbMi first = lldbLocations.childAt(0);
+        addConst(bkpt, "func", first["function"].data());
+        if (const QString address = locationAddress(first); !address.isEmpty())
+            addConst(bkpt, "addr", address);
+    }
     if (lldbLocations.childCount() > 1) {
         GdbMi locations;
         locations.m_type = GdbMi::List;
@@ -144,6 +185,8 @@ static GdbMi translateLldbBreakpoint(const GdbMi &lldbBkpt)
             addConst(location, "number",
                      lldbBkpt["lldbid"].data() + '.' + lldbLocation["locid"].data());
             addConst(location, "func", lldbLocation["function"].data());
+            if (const QString address = locationAddress(lldbLocation); !address.isEmpty())
+                addConst(location, "addr", address);
             addConst(location, "file", lldbLocation["file"].data());
             addConst(location, "line", lldbLocation["line"].data());
             addConst(location, "type", "breakpoint");
@@ -167,6 +210,23 @@ static GdbMi translateLldbBreakpointReply(const GdbMi &lldbBkpt)
     return list;
 }
 
+static GdbMi translateLldbRegistersReply(const GdbMi &lldbRegisters)
+{
+    GdbMi result;
+    result.m_type = GdbMi::List;
+    for (const GdbMi &lldbRegister : lldbRegisters) {
+        GdbMi reg;
+        reg.m_type = GdbMi::Tuple;
+        addConst(reg, "name", lldbRegister["name"].data());
+        addConst(reg, "value", lldbRegister["value"].data());
+        addConst(reg, "size", lldbRegister["size"].data());
+        addConst(reg, "groups", lldbRegister["groups"].data());
+        addConst(reg, "type", gdbRegisterTypeName(lldbRegister["type"].data()));
+        result.addChild(reg);
+    }
+    return result;
+}
+
 static GdbMi translateLldbModulesReply(const GdbMi &lldbModules)
 {
     GdbMi result;
@@ -182,8 +242,8 @@ static GdbMi translateLldbModulesReply(const GdbMi &lldbModules)
             module.addChild(child);
         };
         addConst("modulepath", lldbModule["file"].data());
-        addConst("startaddress", "0");
-        addConst("endaddress", "0");
+        addConst("startaddress", lldbModule["loadstart"].data());
+        addConst("endaddress", lldbModule["loadend"].data());
         addConst("symbolsread", "Yes");
         result.addChild(module);
     }
@@ -216,6 +276,8 @@ static GdbMi translateLldbSymbolsReply(const FilePath &modulePath, const GdbMi &
         addConst("address", lldbSymbol["address"].data());
         addConst("name", lldbSymbol["name"].data());
         addConst("demangled", lldbSymbol["demangled"].data());
+        addConst("state", lldbSymbol["state"].data());
+        addConst("section", lldbSymbol["section"].data());
         symbols.addChild(symbol);
     }
     result.addChild(symbols);
@@ -294,17 +356,25 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         if (pending.isEmpty())
             return;
         m_watchdog.start();
-        emit notResponding(m_startData.watchdogTimeout, pending);
+        emit notResponding(m_startData.watchdogTimeout, pending,
+                           m_debuginfodDownloadInProgress
+                               ? NotRespondingCause::FetchingDebugInfo
+                               : NotRespondingCause::Unknown);
     });
 
     Utils::CommandLine lldbCommand = m_startData.debuggerRunData.command;
     if (!m_startData.loadInitFile)
         lldbCommand.addArg("--no-lldbinit");
+    m_lldbProc.setRunAsUser(m_startData.runAsUser);
     m_lldbProc.setCommand(lldbCommand);
     Environment lldbEnvironment = m_startData.debuggerRunData.environment;
     lldbEnvironment.set("QT_CREATOR_LLDB_PROCESS", "1");
     lldbEnvironment.set("PYTHONUNBUFFERED", "1");
-    lldbEnvironment.unset("DEBUGINFOD_URLS");
+    // lldb has no switch for the daemon, only the servers its environment
+    // names, and a fetch from one that does not answer takes the session with
+    // it, so they are taken away unless the daemon was asked for.
+    if (m_startData.useDebugInfoD.toInt() != Utils::TriState::EnabledValue)
+        lldbEnvironment.unset("DEBUGINFOD_URLS");
     m_lldbProc.setEnvironment(lldbEnvironment);
     if (m_startData.debuggerRunData.workingDirectory.isDir())
         m_lldbProc.setWorkingDirectory(m_startData.debuggerRunData.workingDirectory);
@@ -318,6 +388,29 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         // printed by a console command stops after 1024 characters.
         runCommand({"settings set target.max-string-summary-length 10000",
                     DebuggerCommand::NativeCommand});
+
+        // The loader probes the inferior for a descriptor of its own, which
+        // has nothing to answer where no code is generated at run time.
+        if (!m_startData.useJitLoader) {
+            runCommand({"settings set plugin.jit-loader.gdb.enable off",
+                        DebuggerCommand::NativeCommand});
+        }
+
+        // lldb builds its symbol index on every run and keeps it only when asked,
+        // while the setting is about the cache rather than about who fills it.
+        if (m_startData.useIndexCache) {
+            runCommand({"settings set symbols.enable-lldb-index-cache true",
+                        DebuggerCommand::NativeCommand});
+        }
+
+        // lldb avoids the standard library on its own account, which is a part of
+        // what the setting asks for, so switching it off has to reach lldb too.
+        // A regex setting cannot be unset, only overwritten with a value no
+        // symbol name carries.
+        if (!m_startData.skipKnownFrames) {
+            runCommand({"settings set -- target.process.thread.step-avoid-regexp \"\"",
+                        DebuggerCommand::NativeCommand});
+        }
 
         // Through the same path the engine used: it reports what the command
         // printed, which a native command drops on the floor.
@@ -346,6 +439,12 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
                         DebuggerCommand::NativeCommand});
         }
 
+        if (!m_startData.debugInfoLocation.isEmpty()) {
+            runCommand({"settings append target.debug-file-search-paths "
+                            + m_startData.debugInfoLocation.path(),
+                        DebuggerCommand::NativeCommand});
+        }
+
         if (m_startData.extraDumperFile.isReadableFile()) {
             DebuggerCommand dumperModule("addDumperModule");
             dumperModule.arg("path", m_startData.extraDumperFile.path());
@@ -363,11 +462,16 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         cmd.arg("breakonmain", m_startData.breakOnMain);
         cmd.arg("mainfunction", m_startData.mainFunctionName);
         cmd.arg("useterminal", false);
+        cmd.arg("breakonabort", m_startData.breakOnAbort);
+        cmd.arg("breakonwarning", m_startData.breakOnWarning);
+        cmd.arg("breakonfatal", m_startData.breakOnFatal);
         cmd.arg("nativemixed", m_startData.nativeMixedDebugging);
         cmd.arg("deviceUuid", m_startData.deviceUuid);
         cmd.arg("platform", m_startData.platform);
         if (!m_startData.deviceSymbolsRoot.isEmpty())
             cmd.arg("sysroot", m_startData.deviceSymbolsRoot);
+        else if (!m_startData.sysroot.isEmpty())
+            cmd.arg("sysroot", m_startData.sysroot.path());
         FilePath coreFileForRunEngine;
 
         if (const auto *inferiorRunData
@@ -376,7 +480,18 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
             cmd.arg("executable", executable.path());
             cmd.arg("startmode", int(StartInternal));
             cmd.arg("workingdirectory", inferiorRunData->workingDirectory.path());
-            cmd.arg("environment", inferiorRunData->environment.toStringList());
+            Environment inferiorEnvironment = inferiorRunData->environment;
+            // Left alone, lldb sets OS_ACTIVITY_DT_MODE to mirror NSLog to
+            // stderr, which takes os_log along with it and turns Qt's own
+            // stderr logger off.
+            inferiorEnvironment.set("IDE_DISABLED_OS_ACTIVITY_DT_MODE", "1");
+            if (m_startData.enableHeapDebugging != TriState::Default
+                && !inferiorEnvironment.hasKey(Constants::NO_DEBUG_HEAP)) {
+                inferiorEnvironment.set(
+                    Constants::NO_DEBUG_HEAP,
+                    m_startData.enableHeapDebugging == TriState::Enabled ? "0" : "1");
+            }
+            cmd.arg("environment", inferiorEnvironment.toStringList());
             cmd.arg("processargs",
                     toHex(ProcessArgs::splitArgs(inferiorRunData->command.arguments(),
                                                  HostOsInfo::hostOs())
@@ -448,6 +563,7 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
     });
     connect(&m_lldbProc, &Process::readyReadStandardOutput, this, [this] {
         restartWatchdog();
+        m_debuginfodDownloadInProgress = false;
         const QString out = m_lldbProc.readAllStandardOutput();
         // Whatever the debugger itself prints comes this way too, and only the
         // raw output shows it: the protocol items below are all it parses.
@@ -474,6 +590,10 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
         m_watchdog.stop();
         if (!m_engineSetupReported)
             reportEngineSetupFailed();
+        // Before the process result: that one is what a caller deriving the
+        // shutdown itself acts on, and it must not arrive first.
+        if (m_shuttingDown)
+            emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
         emit engineProcessFinished(m_lldbProc.resultData());
     });
 }
@@ -514,8 +634,10 @@ void LldbImpl::shutdownEngine()
         emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
         return;
     }
-    // The process' own done handler reports the exit, which is what finishes
-    // the shutdown. Reporting it here as well would do it twice.
+    // The lldb command interpreter's own quit, which the process' done handler
+    // then reports: the debugger is gone by the time it is answered, so an
+    // answer to wait for is not what ends the shutdown.
+    m_shuttingDown = true;
     m_lldbProc.write("quit\n\n");
 }
 
@@ -640,16 +762,18 @@ void LldbImpl::execute(const ExecutionRequest &request)
 static void addBreakpointArgs(DebuggerCommand &cmd, const BreakpointChangeRequest &request)
 {
     cmd.arg("type", int(request.params.type));
-    cmd.arg("file", request.params.fileName.path());
+    cmd.arg("file", request.params.fileNameForDebugger().path());
     cmd.arg("line", request.params.textPosition.line);
     cmd.arg("ignorecount", request.params.ignoreCount);
     cmd.arg("condition", toHex(request.params.condition));
     cmd.arg("command", toHex(request.params.command));
     cmd.arg("function", request.params.functionName);
+    cmd.arg("module", request.params.module);
     cmd.arg("address", request.params.address);
     cmd.arg("expression", request.params.expression);
     cmd.arg("oneshot", request.params.oneShot);
     cmd.arg("enabled", request.params.enabled);
+    cmd.arg("threadspec", request.params.threadSpec);
     cmd.arg("tracepoint", request.params.tracepoint);
     cmd.arg("message", toHex(request.params.message));
     cmd.arg("modelid", request.modelId);
@@ -662,9 +786,12 @@ void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     case BreakpointOp::Insert: {
         if (request.params.type != BreakpointByFileAndLine
                 && request.params.type != BreakpointByFunction
+                && request.params.type != BreakpointByAddress
                 && request.params.type != WatchpointAtAddress
                 && request.params.type != WatchpointAtExpression
+                && request.params.type != BreakpointAtMain
                 && request.params.type != BreakpointAtFork
+                && request.params.type != BreakpointAtExec
                 && request.params.type != BreakpointAtThrow
                 && request.params.type != BreakpointAtCatch) {
             emit breakpointEvent(requestId, BreakpointOp::Insert, false);
@@ -678,6 +805,12 @@ void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         cmd.callback = [this, requestId, isCppBreakpoint](const DebuggerResponse &response) {
             const bool ok = response.resultClass == ResultDone;
             if (!ok) {
+                emit breakpointEvent(requestId, BreakpointOp::Insert, false);
+                return;
+            }
+            // The bridge answers a breakpoint it could not make with an invalid
+            // one, which is a failed insert and not a breakpoint to show.
+            if (isCppBreakpoint && response.data["valid"].toInt() == 0) {
                 emit breakpointEvent(requestId, BreakpointOp::Insert, false);
                 return;
             }
@@ -812,6 +945,7 @@ void LldbImpl::refresh(const RefreshRequest &request)
         const DumperOptions &options = request.dumperOptions;
         cmd.arg("fancy", options.useDebuggingHelpers);
         cmd.arg("autoderef", request.autoDerefPointers);
+        cmd.arg("allowinferiorcalls", request.allowInferiorCalls);
         cmd.arg("dyntype", options.useDynamicType);
         cmd.arg("qobjectnames", options.showQObjectNames);
         cmd.arg("timestamps", options.logTimeStamps);
@@ -871,7 +1005,8 @@ void LldbImpl::refresh(const RefreshRequest &request)
     case RefreshKind::Registers: {
         DebuggerCommand cmd("fetchRegisters");
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
-            emit refreshDataReceived(requestId, RefreshKind::Registers, response.data["registers"]);
+            emit refreshDataReceived(requestId, RefreshKind::Registers,
+                                     translateLldbRegistersReply(response.data["registers"]));
         };
         runCommand(cmd);
         return;
@@ -895,6 +1030,12 @@ void LldbImpl::refresh(const RefreshRequest &request)
     }
     case RefreshKind::ModuleSymbols: {
         const FilePath modulePath = request.path;
+        if (modulePath.isEmpty()) {
+            // The dumpers answer a fetch without a module about whichever
+            // one they looked at last, which is not the module asked about.
+            emit message("LldbImpl: cannot fetch the symbols of no module", LogError);
+            return;
+        }
         DebuggerCommand cmd("fetchSymbols");
         cmd.arg("module", modulePath.path());
         cmd.callback = [this, requestId, modulePath](const DebuggerResponse &response) {
@@ -906,6 +1047,10 @@ void LldbImpl::refresh(const RefreshRequest &request)
     }
     case RefreshKind::ModuleSections: {
         const FilePath modulePath = request.path;
+        if (modulePath.isEmpty()) {
+            emit message("LldbImpl: cannot fetch the sections of no module", LogError);
+            return;
+        }
         DebuggerCommand cmd("fetchSections");
         cmd.arg("module", modulePath.path());
         cmd.callback = [this, requestId, modulePath](const DebuggerResponse &response) {
@@ -999,9 +1144,14 @@ void LldbImpl::fetchLocationAfterStop(InferiorEvent event)
             const GdbMi frame = frames.childAt(0);
             const FilePath fileName = FilePath::fromUserInput(frame["file"].data());
             const int lineNumber = frame["line"].toInt();
-            if (lineNumber != 0)
+            if (lineNumber != 0 && fileName.exists())
                 emit locationChanged(fileName, lineNumber);
         }
+        // lldb stops the whole process, so every thread it knows is stopped.
+        GdbMi stoppedThread;
+        stoppedThread.m_type = GdbMi::Tuple;
+        addConst(stoppedThread, "id", "all");
+        emit threadEvent(ThreadEvent::Stopped, stoppedThread);
         emit inferiorEvent(event);
     };
     runCommand(cmd);
@@ -1062,13 +1212,13 @@ void LldbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QStrin
     cmd.arg("flavor", m_startData.intelDisassembly ? "intel" : "att");
     cmd.callback = [this, requestId](const DebuggerResponse &response) {
         DisassemblerLines result;
+        int bytesLength = 0;
         for (const GdbMi &line : response.data["lines"]) {
             DisassemblerLine dl;
             dl.address = line["address"].toAddress();
-            dl.data = line["rawdata"].data();
-            if (!dl.data.isEmpty())
-                dl.data += QString(30 - dl.data.size(), ' ');
-            dl.data += fromHex(line["hexdata"].data());
+            dl.bytes = line["rawdata"].data();
+            bytesLength = qMax(bytesLength, int(dl.bytes.size()));
+            dl.data = fromHex(line["hexdata"].data());
             dl.data += line["data"].data();
             dl.offset = line["offset"].toInt();
             dl.lineNumber = line["line"].toInt();
@@ -1080,6 +1230,7 @@ void LldbImpl::fetchDisassembly(quint64 requestId, quint64 address, const QStrin
                 dl.data += " # " + comment;
             result.appendLine(dl);
         }
+        result.setBytesLength(bytesLength);
         emit disassemblyReceived(requestId, result);
     };
     runCommand(cmd);
@@ -1118,8 +1269,25 @@ void LldbImpl::watchPoint(quint64 requestId, const QPoint &pnt)
     runCommand(cmd);
 }
 
-void LldbImpl::createSnapshot(quint64)
+void LldbImpl::createSnapshot(quint64 requestId)
 {
+    // The temporary file is only there to pick a free name, lldb writes the
+    // snapshot itself.
+    FilePath filePath;
+    {
+        TemporaryFile tf("lldbsnapshot");
+        if (!tf.open()) {
+            emit snapshotCreated(requestId, false, {});
+            return;
+        }
+        filePath = tf.filePath();
+    }
+    DebuggerCommand cmd("createSnapshot");
+    cmd.arg("path", filePath.path());
+    cmd.callback = [this, requestId, filePath](const DebuggerResponse &response) {
+        emit snapshotCreated(requestId, response.data["ok"].data() == "1", filePath);
+    };
+    runCommand(cmd);
 }
 
 void LldbImpl::executeDebuggerCommand(const QString &command,
@@ -1238,14 +1406,27 @@ void LldbImpl::handleStateReport(const GdbMi &item)
     if (state == "running") {
         m_resumeAfterAttachPending = false;
         m_inferiorRunning = true;
+        // lldb resumes the whole process, so every thread it knows runs again.
+        GdbMi runningThread;
+        runningThread.m_type = GdbMi::Tuple;
+        addConst(runningThread, "thread-id", "all");
+        emit threadEvent(ThreadEvent::Running, runningThread);
         if (std::exchange(m_resumingFromTemporaryStop, false))
             return;
+        // A console command of the user's resumes the inferior without the engine
+        // asking, and the run itself can only be reported after a request.
+        if (!std::exchange(m_resumeRequested, false))
+            emit inferiorEvent(InferiorEvent::RunRequested);
         emit inferiorEvent(InferiorEvent::RunOk);
         if (std::exchange(m_interruptOnceRunning, false))
             interruptInferior();
     } else if (state == "inferiorrunfailed")
         emit inferiorEvent(InferiorEvent::RunFailed);
-    else if (state == "stopped") {
+    else if (state == "continueafternextstop") {
+        // A tracepoint, and a breakpoint command that declines its stop, say so
+        // before the stop they belong to arrives.
+        m_continueAtNextSpontaneousStop = true;
+    } else if (state == "stopped") {
         m_resumeAfterAttachPending = false;
         if (std::exchange(m_interruptOnceRunning, false)) {
             m_inferiorRunning = false;
@@ -1285,10 +1466,23 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         m_inferiorRunning = false;
         emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
         // Only the attaching paths report this state, and they all leave the inferior
-        // stopped. Resume it, as LldbEngine does - and note that it is on its way to
-        // running, or an interrupt arriving in between is refused and then lost.
-        m_resumeAfterAttachPending = true;
-        runCommand({"continueInferior", DebuggerCommand::RunRequest});
+        // stopped. Whether it stays there is for whoever asked for the attach to say:
+        // a process and a bare server are held, while a server that was handed a
+        // process or an executable of its own has an inferior to run. The other paths
+        // have nobody to hold it for. Note the resume before sending it, or an
+        // interrupt arriving in between is refused and then lost.
+        bool resume = m_startData.continueAfterAttach;
+        if (const auto *remote
+                = std::get_if<AttachToRemoteServerData>(&m_startData.inferiorStartData)) {
+            resume = resume || m_startData.continueInsteadOfRun || remote->attachPid.isValid()
+                     || !remote->remoteExecutable.isEmpty();
+        } else if (!std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
+            resume = true;
+        }
+        if (resume) {
+            m_resumeAfterAttachPending = true;
+            runCommand({"continueInferior", DebuggerCommand::RunRequest});
+        }
         if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData))
             emit kickoffTerminalProcessRequested();
     }
@@ -1310,7 +1504,10 @@ void LldbImpl::reportInferiorExitIfComplete()
     if (!m_inferiorExited || !m_inferiorExitCode || m_inferiorExitReported)
         return;
     m_inferiorExitReported = true;
-    emit inferiorDone({*m_inferiorExitCode, InferiorExitStatus::Normal});
+    emit inferiorDone({*m_inferiorExitCode,
+                       m_inferiorExitSignalled ? InferiorExitStatus::Crash
+                                               : InferiorExitStatus::Normal,
+                       m_inferiorExitSignalName});
 }
 
 void LldbImpl::handleLldbOutput(const QString &output)
@@ -1347,8 +1544,22 @@ void LldbImpl::handleLldbOutput(const QString &output)
         } else if (name == "pid") {
             m_inferiorPid = item.data().toLongLong();
             emit inferiorPidKnown(ProcessHandle(m_inferiorPid));
+        } else if (name == "progress") {
+            const QString text = item["message"].data();
+            // The fetch lldb announces here happens without another word, which
+            // is exactly what a debugger that stopped answering looks like.
+            if (text.startsWith("Downloading"))
+                m_debuginfodDownloadInProgress = true;
+            emit progressMessage(text);
+        } else if (name == "stopreason") {
+            emit stopReasonReported(item.data());
         } else if (name == "breakpointmodified") {
             emit breakpointModified(translateLldbBreakpointReply(item));
+        } else if (name == "breakpointhit") {
+            emit breakpointTriggered(item["lldbid"].data(), item["thread"].data());
+        } else if (name == "watchpointhit") {
+            emit watchpointTriggered(item["lldbid"].data(), item["expression"].data(),
+                                     item["old"].data(), item["new"].data());
         } else if (name == "breakpointadded") {
             emit breakpointEvent(0, BreakpointOp::Insert, true, translateLldbBreakpoint(item));
         } else if (name == "breakpointremoved") {
@@ -1379,7 +1590,19 @@ void LldbImpl::handleLldbOutput(const QString &output)
             }
         } else if (name == "exited") {
             m_inferiorExitCode = item["status"].toInt();
+            m_inferiorExitSignalled = item["signalled"].data() == u"1";
+            m_inferiorExitSignalName = item["signame"].data();
             reportInferiorExitIfComplete();
+        } else if (name == "thread-created") {
+            emit threadEvent(ThreadEvent::Created, item);
+        } else if (name == "thread-exited") {
+            emit threadEvent(ThreadEvent::Exited, item);
+        } else if (name == "thread-selected") {
+            emit threadEvent(ThreadEvent::Selected, item);
+        } else if (name == "thread-group-created") {
+            emit threadEvent(ThreadEvent::GroupCreated, item);
+        } else if (name == "thread-group-exited") {
+            emit threadEvent(ThreadEvent::GroupExited, item);
         } else if (name == "library-loaded") {
             emit libraryEvent(LibraryEvent::Loaded, item);
         } else if (name == "library-unloaded") {
@@ -1420,6 +1643,9 @@ void LldbImpl::runCommand(const DebuggerCommand &command)
         }
         return;
     }
+
+    if (command.flags & DebuggerCommand::RunRequest)
+        m_resumeRequested = true;
 
     const int token = ++m_lastToken;
     DebuggerCommand cmd = command;

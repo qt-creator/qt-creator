@@ -43,6 +43,7 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <QDir>
 #include <QJsonArray>
@@ -1283,6 +1284,13 @@ void BridgeEngine::claimInitialBreakpoints()
 }
 
 // Blank lines and comments are not commands.
+static TriState bridgeHeapDebugging(const DebuggerRunParameters &rp)
+{
+    if (rp.inferior().command.executable().osType() != OsTypeWindows)
+        return TriState::Default;
+    return settings().enableHeapDebugging() ? TriState::Enabled : TriState::Disabled;
+}
+
 static QStringList commandLines(const QString &text)
 {
     return Utils::filtered(text.split('\n'), [](const QString &line) {
@@ -1316,9 +1324,14 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .startScript = rp.overrideStartScript(),
             .atStartup = commandLines(settings().gdbStartupCommands() + '\n'
                                       + rp.additionalStartupCommands()).join('\n'),
+            .afterAttach = commandLines(settings().gdbPostAttachCommands()).join('\n'),
+            .afterConnect = rp.commandsAfterConnect(),
             .forReset = rp.commandsForReset()};
+        ProcessRunData debuggerRunData = rp.debugger();
+        if (!rp.runAsUser().isEmpty())
+            ProjectExplorer::RunControl::provideAskPassEntry(debuggerRunData.environment);
         return new GenericDebuggerEngine("Bridge (BridgeImpl)", new BridgeImpl({
-            .debuggerRunData = rp.debugger(),
+            .debuggerRunData = debuggerRunData,
             .inferiorStartData = inferiorStartData(rp),
             .dumperScriptsDir = ICore::resourcePath("debugger"),
             .bridgeStartData = dapHostRecipe(settings().loadGdbInit()),
@@ -1329,7 +1342,10 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .runAsUser = rp.runAsUser(),
             .sourcePathMap = sourcePathMap,
             .sourceDirectories = sourceDirectories,
+            .debugInfoLocation = rp.debugInfoLocation(),
+            .solibSearchPath = rp.solibSearchPath(),
             .useDebugInfoD = useDebugInfoD,
+            .enableHeapDebugging = bridgeHeapDebugging(rp),
             .breakOnMain = rp.breakOnMain(),
             .mainFunctionName = QLatin1String(
                 rp.toolChainAbi().os() == ProjectExplorer::Abi::WindowsOS && !rp.useTerminal()
@@ -1341,6 +1357,9 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .continueInsteadOfRun = rp.useContinueInsteadOfRun(),
             .exitMonitorAtClose = rp.closeMode() == KillAndExitMonitorAtClose,
             .intelDisassembly = settings().intelFlavor(),
+            .loadSystemDumpers = settings().loadGdbDumpers(),
+            .useIndexCache = settings().useIndexCache(),
+            .multiInferior = settings().multiInferior() || rp.multiProcess(),
             .logTimeStamps = settings().logTimeStamps(),
             .nativeMixedDebugging = rp.isNativeMixedDebugging(),
             .pseudoTracepoints = settings().usePseudoTracepoints(),

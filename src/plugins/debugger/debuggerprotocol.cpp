@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QHostAddress>
 #include <QJsonDocument>
+#include <QRegularExpression>
 #include <QTimeZone>
 
 #include <utils/processhandle.h>
@@ -548,6 +549,178 @@ void extractGdbVersion(const QString &msg,
         *gdbBuildVersion = build.section(dot, 1, 1).toInt();
 }
 
+static GdbMi constMi(const QString &name, const QString &data)
+{
+    GdbMi mi;
+    mi.m_name = name;
+    mi.m_data = data;
+    mi.m_type = GdbMi::Const;
+    return mi;
+}
+
+// A "maint info sections" listing names a module, then lists the sections it is
+// made of. What follows the name can sit on a line of its own.
+static QString moduleOfASectionHeader(const QStringList &lines, int *index)
+{
+    static const QRegularExpression headerRe(
+        "^(?:Exec file|Object file): `(.*)', file type .*\\.$");
+    static const QRegularExpression bareHeaderRe("^(?:Exec file|Object file):$");
+    static const QRegularExpression headerContinuationRe("^\\s*`(.*)', file type .*\\.$");
+
+    const QString &line = lines.at(*index);
+    if (const QRegularExpressionMatch match = headerRe.match(line); match.hasMatch())
+        return match.captured(1);
+    if (!bareHeaderRe.match(line).hasMatch() || *index + 1 >= lines.size())
+        return {};
+    const QRegularExpressionMatch match = headerContinuationRe.match(lines.at(*index + 1));
+    if (!match.hasMatch())
+        return {};
+    ++*index;
+    return match.captured(1);
+}
+
+static QRegularExpressionMatch sectionOfALine(const QString &line)
+{
+    static const QRegularExpression sectionRe(
+        "^\\s*(?:\\[\\d+\\]\\s+)?(0x[0-9A-Fa-f]+)->(0x[0-9A-Fa-f]+) at (0x[0-9A-Fa-f]+):\\s+(\\S+)(.*)$");
+    return sectionRe.match(line);
+}
+
+GdbMi parseGdbModuleSections(const QString &listing, const Utils::FilePath &modulePath,
+                             bool *moduleFound)
+{
+    const QStringList lines = listing.split('\n');
+    GdbMi sectionList;
+    sectionList.m_type = GdbMi::List;
+    sectionList.m_name = "sections";
+    bool active = false;
+    bool found = false;
+    for (int i = 0; i < lines.size(); ++i) {
+        const QString header = moduleOfASectionHeader(lines, &i);
+        if (!header.isEmpty()) {
+            if (active)
+                break;
+            active = header == modulePath.path();
+            found = found || active;
+            continue;
+        }
+        if (!active)
+            continue;
+        const QRegularExpressionMatch sectionMatch = sectionOfALine(lines.at(i));
+        if (!sectionMatch.hasMatch())
+            continue;
+        GdbMi section;
+        section.m_type = GdbMi::Tuple;
+        section.addChild(constMi("from", sectionMatch.captured(1)));
+        section.addChild(constMi("to", sectionMatch.captured(2)));
+        section.addChild(constMi("address", sectionMatch.captured(3)));
+        section.addChild(constMi("name", sectionMatch.captured(4)));
+        section.addChild(constMi("flags", sectionMatch.captured(5).trimmed()));
+        sectionList.addChild(section);
+    }
+    if (moduleFound)
+        *moduleFound = found;
+
+    GdbMi result;
+    result.m_type = GdbMi::Tuple;
+    result.addChild(constMi("modulepath", modulePath.toUrlishString()));
+    result.addChild(sectionList);
+    return result;
+}
+
+GdbMi parseGdbModuleRanges(const QString &listing)
+{
+    struct Span
+    {
+        QString modulePath;
+        quint64 lowest = 0;
+        quint64 highest = 0;
+    };
+    QList<Span> spans;
+
+    const QStringList lines = listing.split('\n');
+    for (int i = 0; i < lines.size(); ++i) {
+        const QString header = moduleOfASectionHeader(lines, &i);
+        if (!header.isEmpty()) {
+            spans.append({header, 0, 0});
+            continue;
+        }
+        if (spans.isEmpty())
+            continue;
+        const QRegularExpressionMatch match = sectionOfALine(lines.at(i));
+        // A section the loader does not allocate is nowhere in the process.
+        if (!match.hasMatch() || !match.captured(5).contains("ALLOC"))
+            continue;
+        Span &span = spans.last();
+        const quint64 from = match.captured(1).toULongLong(nullptr, 0);
+        span.lowest = span.lowest == 0 ? from : qMin(span.lowest, from);
+        span.highest = qMax(span.highest, match.captured(2).toULongLong(nullptr, 0));
+    }
+
+    GdbMi result;
+    result.m_type = GdbMi::List;
+    for (const Span &span : spans) {
+        if (span.lowest == 0)
+            continue;
+        GdbMi module;
+        module.m_type = GdbMi::Tuple;
+        module.addChild(constMi("modulepath", span.modulePath));
+        module.addChild(constMi("startaddress", QString::number(span.lowest)));
+        module.addChild(constMi("endaddress", QString::number(span.highest)));
+        result.addChild(module);
+    }
+    return result;
+}
+
+GdbMi parseGdbModuleSymbols(const QString &listing, const Utils::FilePath &modulePath)
+{
+    GdbMi symbolList;
+    symbolList.m_type = GdbMi::List;
+    symbolList.m_name = "symbols";
+    const QStringList lines = listing.split('\n');
+    for (const QString &line : lines) {
+        if (line.isEmpty() || line.at(0) != '[')
+            continue;
+        const int posCode = line.indexOf(']') + 2;
+        const int posAddress = line.indexOf("0x", posCode);
+        if (posAddress == -1)
+            continue;
+        const int posName = line.indexOf(' ', posAddress) + 1;
+        if (posName == 0)
+            continue;
+        // After the address gdb writes the linkage name, then optionally
+        // " section <section>", then the demangled name and the source file, each
+        // preceded by two spaces. Only a mangled symbol has a demangled name, so
+        // that is what tells a lone trailing piece from a file name.
+        QString rest = line.mid(posName);
+        QString name = rest;
+        QString section;
+        const int posSection = rest.indexOf(" section ");
+        if (posSection == -1) {
+            name = rest.section("  ", 0, 0);
+        } else {
+            name = rest.left(posSection);
+            rest = rest.mid(posSection + 9);
+            section = rest.section("  ", 0, 0);
+        }
+        const QString demangled = name.startsWith("_Z") ? rest.section("  ", 1, 1) : QString();
+        GdbMi symbol;
+        symbol.m_type = GdbMi::Tuple;
+        symbol.addChild(constMi("state", line.mid(posCode, 1)));
+        symbol.addChild(constMi("address", line.mid(posAddress, posName - 1 - posAddress)));
+        symbol.addChild(constMi("name", name));
+        symbol.addChild(constMi("section", section));
+        symbol.addChild(constMi("demangled", demangled));
+        symbolList.addChild(symbol);
+    }
+
+    GdbMi result;
+    result.m_type = GdbMi::Tuple;
+    result.addChild(constMi("modulepath", modulePath.toUrlishString()));
+    result.addChild(symbolList);
+    return result;
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 //
 // Decoding
@@ -903,6 +1076,24 @@ QString fromHex(const QString &str)
 QString toHex(const QString &str)
 {
     return QString::fromUtf8(str.toUtf8().toHex());
+}
+
+// The register view classifies a register by the type gdb reports for it, so a
+// backend answering with a plain C type name has to be translated into that
+// vocabulary first. The width is not part of it, the size field carries that.
+QString gdbRegisterTypeName(const QString &typeName)
+{
+    if (typeName.endsWith(']') || typeName.startsWith("union ") || typeName.startsWith("struct "))
+        return "vec";
+    if (typeName.contains('*'))
+        return "*1";
+    if (typeName.contains("i387") || typeName == "float" || typeName == "double"
+            || typeName == "long double")
+        return "float";
+    if (typeName.contains("int") || typeName.contains("long") || typeName.contains("short")
+            || typeName.contains("char"))
+        return "int";
+    return typeName;
 }
 
 int formatToIntegerBase(int format)

@@ -5,6 +5,8 @@
 
 #include "../debuggerengineinterface.h"
 
+#include <utils/qtcprocess.h>
+
 #include <qmldebug/qmldebugclient.h>
 #include <qmldebug/qmldebugconnection.h>
 #include <qmldebug/qmlenginedebugclient.h>
@@ -15,6 +17,7 @@
 #include <QTimer>
 #include <QVariantMap>
 
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -25,6 +28,13 @@ class DEBUGGER_EXPORT QmlImplStartData
 {
 public:
     InferiorStartData inferiorStartData;
+    // Whom the runtime this session starts itself runs as, empty for the
+    // current user. There is no debugger process of its own to run instead.
+    QString runAsUser;
+    // Zero leaves the commands unwatched.
+    std::chrono::seconds watchdogTimeout{0};
+    // Whether every command's turnaround goes into the log.
+    bool logTimeStamps = false;
 };
 
 class DEBUGGER_EXPORT QmlImpl final : public DebuggerEngineInterface
@@ -42,6 +52,8 @@ private:
 
     void execute(const ExecutionRequest &request) final;
     void changeBreakpoint(const BreakpointChangeRequest &request) final;
+    void clearBreakpointNumber(const QString &responseId);
+    BreakpointChangeRequest withKnownLocation(const BreakpointChangeRequest &request) const;
     bool isEnabledOnlyChange(const BreakpointChangeRequest &request) const;
     void refresh(const RefreshRequest &request) final;
 
@@ -54,6 +66,7 @@ private:
         GdbMi items;
         QSet<QString> expandedINames;
         QSet<int> seenDebugIds;
+        QString partialVariable;
     };
     std::shared_ptr<RefreshCollector> makeCollector(const RefreshRequest &request);
     std::function<void()> legFinisher(const std::shared_ptr<RefreshCollector> &pending);
@@ -119,17 +132,45 @@ private:
 
     using QmlCallback = std::function<void(const QVariantMap &)>;
     int runCommand(const DebuggerCommand &command, const QmlCallback &cb = {});
+    // The service answers in order, so whatever is still outstanding is what a
+    // debugger that stopped answering is busy with.
+    void restartWatchdog();
 
     void handleV8Message(const QByteArray &payload);
     void handleConnectHandshakeDone();
-    void setScriptBreakpoint(quint64 requestId, const BreakpointChangeRequest &request);
+    // A breakpoint the runtime has not seen before, or, when the response id
+    // the model knows is passed in, the same one again in a restarted runtime.
+    void setScriptBreakpoint(quint64 requestId, const BreakpointChangeRequest &request,
+                             const QString &knownResponseId = {});
+    // The number the runtime addresses a breakpoint by, which a restart changes
+    // while the id the model knows stays what it was.
+    int serviceNumberFor(const QString &responseId) const;
     void handleBreakEvent(const QVariantMap &response);
+    void reportBreakpointHit(const QString &responseId, int hits);
+    class TracepointHit
+    {
+    public:
+        QString pattern;
+        QList<TracepointCapture> captures;
+        GdbMi values;
+        GdbMi expressions;
+        int outstanding = 1;
+        std::function<void()> finished;
+    };
+    void reportTracepointHit(const QString &responseId, const std::function<void()> &finished);
+    void finishTracepointHit(const std::shared_ptr<TracepointHit> &hit);
     void handleExceptionEvent(const QVariantMap &response);
 
     void sendDisconnect();
     void beginConnection();
+    void resetTransientState();
+    // Starting the runtime here rather than attaching to one somebody else
+    // started: the port it is told to listen on is the one to connect to.
+    void launchInferior();
 
     QmlImplStartData m_startData;
+    Utils::Process m_inferiorProcess;
+    quint16 m_port = 0;
     QmlDebug::QmlDebugConnection m_connection;
     V8Client *m_v8Client = nullptr;
     QmlDebug::QmlEngineDebugClient *m_engineClient = nullptr;
@@ -137,8 +178,18 @@ private:
 
     int m_sequence = 0;
     QHash<int, QmlCallback> m_callbackForToken;
+    class PendingCommand
+    {
+    public:
+        QString command;
+        qint64 postTime = 0;
+    };
+    QHash<int, PendingCommand> m_pendingCommands;
+    QTimer m_watchdog;
 
     QHash<QString, BreakpointChangeRequest> m_activeBreakpointsByResponseId;
+    QHash<QString, QString> m_serviceNumberByResponseId;
+    QHash<QString, int> m_hitCountsByResponseId;
 
     bool m_supportChangeBreakpoint = false;
     int m_currentFrameIndex = 0;
@@ -147,8 +198,13 @@ private:
     // The locals fetch, kept for RepeatLastCommand.
     std::optional<RefreshRequest> m_lastLocalsRequest;
     bool m_inferiorRunning = false;
+    bool m_inferiorExited = false;
     bool m_interruptRequested = false;
     bool m_shuttingDown = false;
+    bool m_isResetRestart = false;
+    // Whether the user gave up on the session: the runtime's exit then reports
+    // the session gone rather than an inferior that ended on its own.
+    bool m_aborting = false;
     bool m_disconnected = false;
 
     QHash<quint32, InspectorCallback> m_inspectorCallbackForQueryId;

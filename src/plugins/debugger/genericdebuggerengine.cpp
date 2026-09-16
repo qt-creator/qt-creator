@@ -54,10 +54,27 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             [this](const QString &text, int channel, int timeout) {
         showMessage(text, channel, timeout);
     });
+    connect(m_backend.get(), &DebuggerEngineInterface::progressMessage, this,
+            [this](const QString &text) {
+        showStatusMessage(text, 1000);
+        progressPing();
+    });
     connect(m_backend.get(), &DebuggerEngineInterface::inferiorDone, this,
             [this](const InferiorResultData &resultData) {
-        if (resultData.exitStatus != InferiorExitStatus::Detached)
+        if (resultData.exitStatus != InferiorExitStatus::Detached) {
             notifyExitCode(resultData.exitCode);
+            if (resultData.exitStatus == InferiorExitStatus::Crash) {
+                showStatusMessage(resultData.signalName.isEmpty()
+                                      ? Tr::tr("Application exited after receiving a signal.")
+                                      : Tr::tr("Application exited after receiving signal %1")
+                                            .arg(resultData.signalName));
+            } else if (resultData.exitCode != 0) {
+                showStatusMessage(
+                    Tr::tr("Application exited with exit code %1").arg(resultData.exitCode));
+            } else {
+                showStatusMessage(Tr::tr("Application exited normally."));
+            }
+        }
         notifyInferiorExited();
     });
     connect(m_backend.get(), &DebuggerEngineInterface::inferiorPidKnown,
@@ -86,10 +103,38 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
     connect(m_backend.get(), &DebuggerEngineInterface::threadEvent, this,
             [this](ThreadEvent event, const GdbMi &data) {
         const QString id = data["id"].data();
+        if (event == ThreadEvent::Running) {
+            threadsHandler()->notifyRunning(data["thread-id"].data());
+            return;
+        }
+        if (event == ThreadEvent::Stopped) {
+            threadsHandler()->notifyStopped(id);
+            return;
+        }
+        if (event == ThreadEvent::Selected) {
+            showStatusMessage(Tr::tr("Thread %1 selected.").arg(id), 1000);
+            return;
+        }
+        if (event == ThreadEvent::GroupCreated) {
+            showStatusMessage(Tr::tr("Thread group %1 created.").arg(id), 1000);
+            threadsHandler()->notifyGroupCreated(id, data["pid"].data());
+            return;
+        }
+        if (event == ThreadEvent::GroupExited) {
+            showStatusMessage(Tr::tr("Thread group %1 exited.").arg(id), 1000);
+            threadsHandler()->notifyGroupExited(id);
+            return;
+        }
         if (event == ThreadEvent::Exited) {
+            const QString groupId = data["group-id"].data();
+            showStatusMessage(groupId.isEmpty()
+                                  ? Tr::tr("Thread %1 exited.").arg(id)
+                                  : Tr::tr("Thread %1 in group %2 exited.").arg(id, groupId),
+                              1000);
             threadsHandler()->removeThread(id);
             return;
         }
+        showStatusMessage(Tr::tr("Thread %1 created.").arg(id), 1000);
         ThreadData thread;
         thread.id = id;
         thread.groupId = data["group-id"].data();
@@ -133,6 +178,8 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             this, &GenericDebuggerEngine::handleBreakpointModified);
     connect(m_backend.get(), &DebuggerEngineInterface::signalReceived,
             this, &GenericDebuggerEngine::handleSignalReceived);
+    connect(m_backend.get(), &DebuggerEngineInterface::stopReasonReported,
+            this, &GenericDebuggerEngine::handleStopReasonReported);
     connect(m_backend.get(), &DebuggerEngineInterface::notResponding,
             this, &GenericDebuggerEngine::handleNotResponding);
     connect(m_backend.get(), &DebuggerEngineInterface::startFailed,
@@ -141,7 +188,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         CheckableMessageBox::information(title, message, settingsKey);
     });
     connect(m_backend.get(), &DebuggerEngineInterface::refreshDataReceived, this,
-            [this](quint64, RefreshKind kind, const GdbMi &data) {
+            [this](quint64 requestId, RefreshKind kind, const GdbMi &data) {
         switch (kind) {
         case RefreshKind::Locals:
             updateLocalsView(data);
@@ -163,7 +210,10 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             break;
         case RefreshKind::FullStack: {
             const GdbMi frames = data["stack"]["frames"];
-            stackHandler()->setFramesAndCurrentIndex(frames, true);
+            // Only a stack fetched with a limit can be truncated, and only a
+            // truncated one offers the user the rest of it.
+            const bool isFull = requestId == m_fullStackRequestId || !frames.isValid();
+            stackHandler()->setFramesAndCurrentIndex(frames, isFull);
             const int index = stackHandler()->currentIndex();
             if (index >= 0)
                 activateFrame(index);
@@ -265,6 +315,30 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         if (DisassemblerAgent *agent = m_pendingDisassemblyRequests.take(requestId))
             agent->setContents(lines);
     });
+    connect(m_backend.get(), &DebuggerEngineInterface::watchpointTriggered, this,
+            [this](const QString &responseId, const QString &expression,
+                   const QString &oldValue, const QString &newValue) {
+        QString message;
+        if (const Breakpoint bp = breakHandler()->findBreakpointByResponseId(responseId)) {
+            if (bp->type() == WatchpointAtExpression)
+                message = bp->msgWatchpointByExpressionTriggered(bp->expression());
+            else if (bp->type() == WatchpointAtAddress)
+                message = bp->msgWatchpointByAddressTriggered(expression.mid(1)
+                                                                  .toULongLong(nullptr, 0));
+        }
+        if (!oldValue.isEmpty() && !newValue.isEmpty()) {
+            if (!message.isEmpty())
+                message += ' ';
+            message += Tr::tr("Value changed from %1 to %2.").arg(oldValue, newValue);
+        }
+        if (!message.isEmpty())
+            showStatusMessage(message);
+    });
+    connect(m_backend.get(), &DebuggerEngineInterface::breakpointTriggered, this,
+            [this](const QString &responseId, const QString &threadId) {
+        if (const Breakpoint bp = breakHandler()->findBreakpointByResponseId(responseId))
+            showStatusMessage(bp->msgBreakpointTriggered(threadId));
+    });
     connect(m_backend.get(), &DebuggerEngineInterface::watchPointResolved, this,
             [this](quint64, quint64 address, const QString &expr) {
         if (address == 0)
@@ -303,6 +377,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         case InferiorEvent::ShutdownFinished: notifyInferiorShutdownFinished(); break;
         case InferiorEvent::EngineSetupOk:
             notifyEngineSetupOk();
+            peripheralRegisterHandler()->updateRegisterGroups();
             if (runParameters().startMode() != AttachToCore)
                 BreakpointManager::claimBreakpointsForEngine(this);
             break;
@@ -369,6 +444,21 @@ bool GenericDebuggerEngine::acceptsBreakpoint(const BreakpointParameters &bp) co
     return accepts(query);
 }
 
+// The file a breakpoint names is spelled the way the debug information has it,
+// which is what BreakpointItem::addToCommand() does for the old engines.
+BreakpointParameters GenericDebuggerEngine::parametersForDebugger(const Breakpoint &bp) const
+{
+    BreakpointParameters params = bp->requestedParameters();
+    if (params.pathUsage != BreakpointUseShortPath && params.fileName.isLocal()
+            && settings().resolveBreakpointSymlinks()) {
+        // lldb, unlike gdb, does not resolve a symbolic link in a breakpoint
+        // path itself (QTCREATORBUG-17554).
+        params.fileName = params.fileName.resolveSymlinks();
+    }
+    params.fileName = runParameters().buildDirectory().withNewMappedPath(params.fileName);
+    return params;
+}
+
 void GenericDebuggerEngine::insertBreakpoint(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
@@ -376,7 +466,7 @@ void GenericDebuggerEngine::insertBreakpoint(const Breakpoint &bp)
     BreakpointChangeRequest request;
     request.op = BreakpointOp::Insert;
     request.requestId = m_nextBreakpointRequestId++;
-    request.params = bp->requestedParameters();
+    request.params = parametersForDebugger(bp);
     request.modelId = bp->modelId();
     m_pendingBreakpoints[request.requestId] = bp;
     m_backend->changeBreakpoint(request);
@@ -386,6 +476,8 @@ void GenericDebuggerEngine::removeBreakpoint(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
     if (bp->responseId().isEmpty()) {
+        // The insertion is still in flight, and what answers it takes the
+        // removal over from there.
         return;
     }
     notifyBreakpointRemoveProceeding(bp);
@@ -393,7 +485,7 @@ void GenericDebuggerEngine::removeBreakpoint(const Breakpoint &bp)
     request.op = BreakpointOp::Remove;
     request.requestId = m_nextBreakpointRequestId++;
     request.responseId = bp->responseId();
-    request.params = bp->requestedParameters();
+    request.params = parametersForDebugger(bp);
     request.modelId = bp->modelId();
     m_pendingBreakpoints[request.requestId] = bp;
     m_backend->changeBreakpoint(request);
@@ -407,7 +499,7 @@ void GenericDebuggerEngine::updateBreakpoint(const Breakpoint &bp)
     request.op = BreakpointOp::Update;
     request.requestId = m_nextBreakpointRequestId++;
     request.responseId = bp->responseId();
-    request.params = bp->requestedParameters();
+    request.params = parametersForDebugger(bp);
     request.modelId = bp->modelId();
     m_pendingBreakpoints[request.requestId] = bp;
     m_backend->changeBreakpoint(request);
@@ -465,7 +557,7 @@ void GenericDebuggerEngine::handleBreakpointEvent(quint64 requestId, BreakpointO
                 // The backend tells an interpreter breakpoint from a C++ one
                 // by the parameters, and without them sends the number the
                 // interpreter handed out to lldb's own numbering.
-                removeRequest.params = bp->requestedParameters();
+                removeRequest.params = parametersForDebugger(bp);
                 removeRequest.modelId = bp->modelId();
                 m_pendingBreakpoints[removeRequest.requestId] = bp;
                 m_backend->changeBreakpoint(removeRequest);
@@ -487,10 +579,15 @@ void GenericDebuggerEngine::handleBreakpointEvent(quint64 requestId, BreakpointO
             notifyBreakpointRemoveFailed(bp);
         break;
     case BreakpointOp::Update:
-        if (ok)
+        if (ok) {
+            // A backend that cannot change a breakpoint puts a new one in its
+            // place, and the model addresses it by number from here on.
+            for (const GdbMi &bkpt : data)
+                applyBkptData(bkpt, bp);
             notifyBreakpointChangeOk(bp);
-        else
+        } else {
             notifyBreakpointChangeFailed(bp);
+        }
         break;
     case BreakpointOp::EnableSub:
         break;
@@ -673,6 +770,11 @@ void GenericDebuggerEngine::reportMissingQtSymbols(const QString &module)
         Key("CdbQtSdkPdbHint"));
 }
 
+void GenericDebuggerEngine::handleStopReasonReported(const QString &reason)
+{
+    showStatusMessage(msgStopped(reason));
+}
+
 void GenericDebuggerEngine::handleSignalReceived(const QString &name, const QString &meaning)
 {
     if (name == stopSignal(runParameters().toolChainAbi()) || runParameters().expectedSignals().contains(name)) {
@@ -770,6 +872,8 @@ void GenericDebuggerEngine::reloadStack(int depthLimit)
     request.kind = RefreshKind::FullStack;
     request.requestId = m_nextRefreshRequestId++;
     request.stackDepthLimit = depthLimit;
+    if (depthLimit <= 0)
+        m_fullStackRequestId = request.requestId;
     m_backend->refresh(request);
 }
 

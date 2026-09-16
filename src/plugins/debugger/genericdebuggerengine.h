@@ -78,8 +78,10 @@ private:
     void handleBreakpointEvent(quint64 requestId, BreakpointOp op, bool ok, const GdbMi &data);
     void applyBkptData(const GdbMi &bkpt, const Breakpoint &bp);
     void applyInterpreterBkptData(const GdbMi &bkpt, const Breakpoint &bp);
+    BreakpointParameters parametersForDebugger(const Breakpoint &bp) const;
     void handleBreakpointModified(const GdbMi &data);
     void handleSignalReceived(const QString &name, const QString &meaning);
+    void handleStopReasonReported(const QString &reason);
     void askAboutQtSymbols(const Utils::FilePath &module);
     void reportMissingQtSymbols(const QString &module);
     void handleNotResponding(std::chrono::seconds waited, const QStringList &pendingCommands,
@@ -93,6 +95,7 @@ private:
     QMultiMap<QString, Utils::FilePath> m_baseNameToFullName;
     quint64 m_nextBreakpointRequestId = 1;
     quint64 m_nextRefreshRequestId = 1;
+    quint64 m_fullStackRequestId = 0;
     quint64 m_nextMemoryRequestId = 1;
     quint64 m_nextDisassemblyRequestId = 1;
     quint64 m_nextSnapshotRequestId = 1;

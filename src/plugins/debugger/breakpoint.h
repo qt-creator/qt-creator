@@ -128,6 +128,7 @@ public:
     bool isBreakpoint() const { return !isWatchpoint() && !isTracepoint(); }
     bool isTracepoint() const { return tracepoint; }
     bool isCppBreakpoint() const;
+    Utils::FilePath fileNameForDebugger() const;
     bool isQmlFileAndLineBreakpoint() const;
     QString toString() const;
     void updateLocation(const DebuggerRunParameters &rp, const QString &location); // file.cpp:42

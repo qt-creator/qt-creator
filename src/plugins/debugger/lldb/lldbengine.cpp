@@ -1255,6 +1255,13 @@ static InferiorStartData lldbInferiorStartData(const DebuggerRunParameters &rp)
     default:
         break;
     }
+    if (rp.useTerminal()) {
+        // The stub started the program suspended in the terminal it opened for it,
+        // so there is nothing left to launch, only something to attach to.
+        return AttachToTerminalStubData{ProcessHandle(rp.applicationPid()),
+                                        rp.applicationMainThreadId(),
+                                        rp.inferior().command.executable()};
+    }
     return rp.inferior();
 }
 
@@ -1268,10 +1275,20 @@ static QList<QPair<QString, QString>> lldbImplSourcePathMap(const DebuggerRunPar
     return mappings;
 }
 
+static TriState lldbHeapDebugging(const DebuggerRunParameters &rp)
+{
+    if (rp.inferior().command.executable().osType() != OsTypeWindows)
+        return TriState::Default;
+    return settings().enableHeapDebugging() ? TriState::Enabled : TriState::Disabled;
+}
+
 static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
 {
+    ProcessRunData debuggerRunData = rp.debugger();
+    if (!rp.runAsUser().isEmpty())
+        ProjectExplorer::RunControl::provideAskPassEntry(debuggerRunData.environment);
     return {
-        .debuggerRunData = rp.debugger(),
+        .debuggerRunData = debuggerRunData,
         .inferiorStartData = lldbInferiorStartData(rp),
         .dumperScriptsDir = ICore::resourcePath("debugger"),
         .loadInitFile = settings().loadGdbInit(),
@@ -1281,11 +1298,20 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
             rp.toolChainAbi().os() == ProjectExplorer::Abi::WindowsOS && !rp.useTerminal()
                 ? "qMain" : "main"),
         .continueAfterAttach = rp.continueAfterAttach(),
+        .continueInsteadOfRun = rp.useContinueInsteadOfRun(),
+        .breakOnAbort = settings().breakOnAbort(),
+        .breakOnWarning = settings().breakOnWarning(),
+        .breakOnFatal = settings().breakOnFatal(),
+        .enableHeapDebugging = lldbHeapDebugging(rp),
         .intelDisassembly = settings().intelFlavor(),
+        .skipKnownFrames = settings().skipKnownFrames(),
         .logTimeStamps = settings().logTimeStamps(),
         .deviceSymbolsRoot = rp.deviceSymbolsRoot(),
         .deviceUuid = rp.deviceUuid(),
         .platform = rp.lldbPlatform(),
+        .useJitLoader = rp.toolChainAbi().osFlavor() != ProjectExplorer::Abi::AndroidLinuxFlavor,
+        .sysroot = rp.sysRoot(),
+        .runAsUser = rp.runAsUser(),
         .startScript = rp.overrideStartScript(),
         .startupCommands = Utils::filtered(
             QString(settings().gdbStartupCommands() + '\n' + rp.additionalStartupCommands())
@@ -1296,10 +1322,14 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
         .forResetCommands = rp.commandsForReset(),
         .sourcePathMap = lldbImplSourcePathMap(rp),
         .solibSearchPath = rp.solibSearchPath(),
+        .debugInfoLocation = rp.debugInfoLocation(),
+        .useIndexCache = settings().useIndexCache(),
+        .useDebugInfoD = settings().useDebugInfoD(),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
         .extraDumperFile = settings().extraDumperFile(),
         .extraDumperCommands = settings().extraDumperCommands(),
+        .watchdogTimeout = std::chrono::seconds(settings().gdbWatchdogTimeout()),
     };
 }
 

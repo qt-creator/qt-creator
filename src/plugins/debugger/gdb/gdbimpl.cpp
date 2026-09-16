@@ -5,6 +5,7 @@
 
 #include "../breakpoint.h"
 #include "../debuggerconstants.h"
+#include "../debuggerinternalconstants.h"
 #include "../procinterrupt.h"
 #include "../shared/hostutils.h"
 #include "../watchutils.h"
@@ -59,6 +60,14 @@ static QString dotEscape(QString str)
     str.replace('\\', '.');
     str.replace('/', '.');
     return str;
+}
+
+static QString quotedPath(const QString &path)
+{
+    QString quoted = path;
+    quoted.replace('\\', "\\\\");
+    quoted.replace('"', "\\\"");
+    return '"' + quoted + '"';
 }
 
 static DebuggerEngineSetupData gdbImplSetupData()
@@ -193,6 +202,13 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
             runCommand({"set detach-on-fork off"});
         applySearchPaths();
 
+        // A gdb that was built but never installed carries its own python
+        // modules beside the binary and does not find them by itself.
+        const FilePath uninstalledData
+            = m_startData.debuggerRunData.command.executable().parentDir()
+              / "data-directory/python";
+        if (uninstalledData.exists())
+            runCommand({"python sys.path.append('" + uninstalledData.path() + "')"});
         runCommand({"python sys.path.insert(1, '" + m_startData.dumperScriptsDir.path() + "')"});
         runCommand({"python from gdbbridge import *"});
         loadExtraDumpers();
@@ -204,6 +220,8 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
                             : QLatin1String("importPlainDumpers off")});
             runUserStartupCommands();
             createSpecialBreakpoints();
+            if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging))
+                runCommand({"setupNativeMixed"});
             const QList<DebuggerCommand> buffered = m_bufferedDumperCommands;
             m_bufferedDumperCommands.clear();
             for (const DebuggerCommand &cmd : buffered)
@@ -213,8 +231,15 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
                 return;
 
             const auto &inferiorRunData = std::get<ProcessRunData>(m_startData.inferiorStartData);
+            Environment inferiorEnvironment = inferiorRunData.environment;
+            if (m_startData.enableHeapDebugging != TriState::Default
+                && !inferiorEnvironment.hasKey(Constants::NO_DEBUG_HEAP)) {
+                inferiorEnvironment.set(
+                    Constants::NO_DEBUG_HEAP,
+                    m_startData.enableHeapDebugging == TriState::Enabled ? "0" : "1");
+            }
             for (const EnvironmentItem &item
-                 : m_startData.debuggerRunData.environment.diff(inferiorRunData.environment)) {
+                 : m_startData.debuggerRunData.environment.diff(inferiorEnvironment)) {
                 const bool isWindowsPath = HostOsInfo::isWindowsHost()
                     && item.name.compare("path", Qt::CaseInsensitive) == 0;
                 const QString name = isWindowsPath ? "PATH" : item.name;
@@ -233,7 +258,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
                 runCommand({"-exec-arguments " + inferiorRunData.command.arguments()});
 
             runCommand({"-file-exec-and-symbols "
-                        + inferiorRunData.command.executable().nativePath(),
+                        + quotedPath(inferiorRunData.command.executable().nativePath()),
                        [this](const DebuggerResponse &response) {
                 if (response.resultClass != ResultDone) {
                     reportEngineSetupFailed();
@@ -309,7 +334,7 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
                         sendAttach();
                         return;
                     }
-                    runCommand({"-file-exec-and-symbols " + executable.nativePath(),
+                    runCommand({"-file-exec-and-symbols " + quotedPath(executable.nativePath()),
                                [this, sendAttach](const DebuggerResponse &response) {
                         if (response.resultClass == ResultDone)
                             sendAttach();
@@ -344,7 +369,8 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
             if (remoteData->symbolFile.isEmpty()) {
                 connectToTarget();
             } else {
-                runCommand({"-file-exec-and-symbols " + remoteData->symbolFile.nativePath(),
+                runCommand({"-file-exec-and-symbols "
+                            + quotedPath(remoteData->symbolFile.nativePath()),
                            [this, connectToTarget](const DebuggerResponse &response) {
                     if (response.resultClass == ResultDone)
                         connectToTarget();
@@ -358,14 +384,17 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         if (const auto *coreData = std::get_if<AttachToCoreData>(&m_startData.inferiorStartData)) {
             if (HostOsInfo::isWindowsHost() && m_startData.isSet(GdbImplFlag::ElfTarget))
                 runCommand({"set osabi GNU/Linux"});
-            runCommand({"-file-exec-file " + coreData->executable.nativePath()});
-            runCommand({"-file-symbol-file " + coreData->executable.nativePath(),
+            runCommand({"-file-exec-file " + quotedPath(coreData->executable.nativePath())});
+            runCommand({"-file-symbol-file " + quotedPath(coreData->executable.nativePath()),
                        [this, coreFile = coreData->coreFile](const DebuggerResponse &response) {
                 if (response.resultClass != ResultDone) {
                     reportEngineSetupFailed();
                     return;
                 }
-                runCommand({"target core " + coreFile.nativePath(),
+                // Before gdb 16, the quotes become part of the file name.
+                runCommand({"target core " + (m_gdbVersion >= 160000
+                                                  ? quotedPath(coreFile.nativePath())
+                                                  : coreFile.nativePath()),
                            [this](const DebuggerResponse &) {
                     emit inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
                 }});
@@ -394,6 +423,10 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         m_outputCollector.shutdown();
         if (!m_engineSetupReported)
             reportEngineSetupFailed();
+        // Before the process result: that one is what a caller deriving the
+        // shutdown itself acts on, and it must not arrive first.
+        if (m_shuttingDown)
+            emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
         emit engineProcessFinished(m_gdbProc.resultData());
     });
     connect(&m_outputCollector, &OutputCollector::byteDelivery, this, [this](const QByteArray &ba) {
@@ -593,11 +626,10 @@ void GdbImpl::shutdownEngine()
     }
     if (m_startData.isSet(GdbImplFlag::ExitMonitorAtClose))
         runCommand({"monitor exit", DebuggerCommand::NativeCommand});
+    m_shuttingDown = true;
     runCommand({"-gdb-exit", [this](const DebuggerResponse &response) {
-        if (response.resultClass == ResultExit)
-            return;
-        m_gdbProc.kill();
-        emit inferiorEvent(InferiorEvent::EngineShutdownFinished);
+        if (response.resultClass != ResultExit)
+            m_gdbProc.kill();
     }});
 }
 
@@ -670,12 +702,22 @@ void GdbImpl::execute(const ExecutionRequest &request)
         requestInferiorInterrupt();
         break;
     case ExecutionCommand::StepOver:
-        if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml && !request.flag)
-            runRunRequestCommand("executeNext");
-        else
-            runRunRequestCommand(withDirection(request.reverse,
-                                               request.flag ? "-exec-next-instruction"
-                                                            : "-exec-next"));
+        if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && !request.flag) {
+            if (request.currentFrameIsQml) {
+                runRunRequestCommand("executeNext");
+                break;
+            }
+            // A step over in C++ goes through the dumpers: standing in the
+            // metacall trampolines a C++ method was called from QML through,
+            // the next line of the program is back in QML.
+            if (!request.reverse) {
+                runRunRequestCommand("executeNativeMixedNext");
+                break;
+            }
+        }
+        runRunRequestCommand(withDirection(request.reverse,
+                                           request.flag ? "-exec-next-instruction"
+                                                        : "-exec-next"));
         break;
     case ExecutionCommand::StepIn:
         if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml && !request.flag) {
@@ -728,18 +770,18 @@ void GdbImpl::execute(const ExecutionRequest &request)
         m_gdbProc.kill();
         break;
     case ExecutionCommand::RunToLine:
-        runCommand({"tbreak " + breakLocation(request.context),
-                   [this](const DebuggerResponse &response) {
+        runOwnBreakpointCommand("tbreak " + breakLocation(request.context),
+                                [this](const DebuggerResponse &response) {
             registerInternalBreakpointNumber(
                 parseTemporaryBreakpointNumber(response.consoleStreamOutput));
-        }});
+        });
         runRunRequestCommand("continue", DebuggerCommand::NativeCommand);
         break;
     case ExecutionCommand::RunToFunction:
-        runCommand({"-break-insert -t " + request.functionName,
-                   [this](const DebuggerResponse &response) {
+        runOwnBreakpointCommand("-break-insert -t " + request.functionName,
+                                [this](const DebuggerResponse &response) {
             registerInternalBreakpointNumber(response.data["bkpt"]["number"].data());
-        }});
+        });
         runRunRequestCommand("-exec-continue");
         break;
     case ExecutionCommand::JumpToLine: {
@@ -751,8 +793,8 @@ void GdbImpl::execute(const ExecutionRequest &request)
         // reply decide: "<MULTIPLE>" is how every gdb that can be met here
         // spells more than one location.
         const QString location = breakLocation(request.context);
-        runCommand({"-break-insert -t -d " + miBreakLocation(request.context),
-                   [this, location](const DebuggerResponse &response) {
+        runOwnBreakpointCommand("-break-insert -t -d " + miBreakLocation(request.context),
+                                [this, location](const DebuggerResponse &response) {
             const GdbMi bkpt = response.data["bkpt"];
             const QString number = bkpt["number"].data();
             if (bkpt["addr"].data() == "<MULTIPLE>") {
@@ -764,7 +806,7 @@ void GdbImpl::execute(const ExecutionRequest &request)
             runCommand({"-break-enable " + number});
             registerInternalBreakpointNumber(number);
             runRunRequestCommand("jump " + location);
-        }});
+        });
         break;
     }
     case ExecutionCommand::RecordReverse:
@@ -989,6 +1031,12 @@ void GdbImpl::refresh(const RefreshRequest &request)
         refresh({requestId, RefreshKind::Locals});
         return;
     case RefreshKind::ModuleSymbols: {
+        if (request.path.isEmpty()) {
+            // gdb answers a fetch without an object file with every symbol it
+            // has, which is not what the view asking would be showing.
+            emit message("GdbImpl: cannot fetch the symbols of no module", LogError);
+            return;
+        }
         auto tempFile = std::make_shared<TemporaryFile>("gdbsymbols");
         if (!tempFile->open()) {
             emit message("GdbImpl: cannot create a temp file for module symbols", LogWarning);
@@ -997,8 +1045,8 @@ void GdbImpl::refresh(const RefreshRequest &request)
         const FilePath tempFilePath = tempFile->filePath();
         tempFile->close();
         const FilePath modulePath = request.path;
-        DebuggerCommand cmd("maint print msymbols -objfile " + modulePath.path()
-                            + " -- \"" + tempFilePath.path() + "\"",
+        DebuggerCommand cmd("maint print msymbols -objfile " + quotedPath(modulePath.path())
+                            + " -- " + quotedPath(tempFilePath.path()),
                             DebuggerCommand::NeedsTemporaryStop);
         cmd.callback = [this, requestId, modulePath, tempFilePath, tempFile]
                        (const DebuggerResponse &response) {
@@ -1009,6 +1057,12 @@ void GdbImpl::refresh(const RefreshRequest &request)
     }
     case RefreshKind::ModuleSections: {
         const FilePath modulePath = request.path;
+        if (modulePath.isEmpty()) {
+            // The listing gdb answers with is of every module it knows of,
+            // and picking the one asked about out of it needs a name.
+            emit message("GdbImpl: cannot fetch the sections of no module", LogError);
+            return;
+        }
         requestModuleSections(requestId, modulePath, false);
         return;
     }
@@ -1095,57 +1149,12 @@ void GdbImpl::handleModuleSymbols(quint64 requestId, const FilePath &modulePath,
         emit message("GdbImpl: cannot open module symbols temp file", LogWarning);
         return;
     }
-    GdbMi symbolList;
-    symbolList.m_type = GdbMi::List;
-    symbolList.m_name = "symbols";
-    const QStringList lines = QString::fromLocal8Bit(file.readAll()).split('\n');
-    for (const QString &line : lines) {
-        if (line.isEmpty() || line.at(0) != '[')
-            continue;
-        int posCode = line.indexOf(']') + 2;
-        int posAddress = line.indexOf("0x", posCode);
-        if (posAddress == -1)
-            continue;
-        int posName = line.indexOf(' ', posAddress);
-        int lenAddress = posName - posAddress;
-        int posSection = line.indexOf(" section ");
-        int lenName = 0;
-        int lenSection = 0;
-        int posDemangled = 0;
-        if (posSection == -1) {
-            lenName = line.size() - posName;
-            posDemangled = posName;
-        } else {
-            lenName = posSection - posName;
-            posSection += 10;
-            posDemangled = line.indexOf(' ', posSection + 1);
-            if (posDemangled == -1) {
-                lenSection = line.size() - posSection;
-            } else {
-                lenSection = posDemangled - posSection;
-                posDemangled += 1;
-            }
-        }
-        int lenDemangled = 0;
-        if (posDemangled != -1)
-            lenDemangled = line.size() - posDemangled;
-        GdbMi symbol;
-        symbol.m_type = GdbMi::Tuple;
-        symbol.addChild(constMi("state", line.mid(posCode, 1)));
-        symbol.addChild(constMi("address", line.mid(posAddress, lenAddress)));
-        symbol.addChild(constMi("name", line.mid(posName, lenName)));
-        symbol.addChild(constMi("section", line.mid(posSection, lenSection)));
-        symbol.addChild(constMi("demangled", line.mid(posDemangled, lenDemangled)));
-        symbolList.addChild(symbol);
-    }
+    const QString listing = QString::fromLocal8Bit(file.readAll());
     file.close();
     file.remove();
 
-    GdbMi result;
-    result.m_type = GdbMi::Tuple;
-    result.addChild(constMi("modulepath", modulePath.toUrlishString()));
-    result.addChild(symbolList);
-    emit refreshDataReceived(requestId, RefreshKind::ModuleSymbols, result);
+    emit refreshDataReceived(requestId, RefreshKind::ModuleSymbols,
+                             parseGdbModuleSymbols(listing, modulePath));
 }
 
 void GdbImpl::requestModuleSections(quint64 requestId, const FilePath &modulePath,
@@ -1171,65 +1180,14 @@ void GdbImpl::handleModuleSections(quint64 requestId, const FilePath &modulePath
     if (response.resultClass != ResultDone)
         return;
 
-    static const QRegularExpression headerRe(
-        "^(?:Exec file|Object file): `(.*)', file type .*\\.$");
-    static const QRegularExpression bareHeaderRe("^(?:Exec file|Object file):$");
-    static const QRegularExpression headerContinuationRe("^\\s*`(.*)', file type .*\\.$");
-    static const QRegularExpression sectionRe(
-        "^\\s*(?:\\[\\d+\\]\\s+)?(0x[0-9A-Fa-f]+)->(0x[0-9A-Fa-f]+) at (0x[0-9A-Fa-f]+):\\s+(\\S+)(.*)$");
-
-    const QStringList lines = response.consoleStreamOutput.split('\n');
-    GdbMi sectionList;
-    sectionList.m_type = GdbMi::List;
-    sectionList.m_name = "sections";
-    bool active = false;
     bool moduleFound = false;
-    for (int i = 0; i < lines.size(); ++i) {
-        const QString &line = lines.at(i);
-        QString headerPath;
-        bool isHeader = false;
-        if (const QRegularExpressionMatch headerMatch = headerRe.match(line); headerMatch.hasMatch()) {
-            headerPath = headerMatch.captured(1);
-            isHeader = true;
-        } else if (bareHeaderRe.match(line).hasMatch() && i + 1 < lines.size()) {
-            if (const QRegularExpressionMatch continuationMatch
-                    = headerContinuationRe.match(lines.at(i + 1)); continuationMatch.hasMatch()) {
-                headerPath = continuationMatch.captured(1);
-                isHeader = true;
-                ++i;
-            }
-        }
-        if (isHeader) {
-            if (active)
-                break;
-            active = headerPath == modulePath.path();
-            moduleFound = moduleFound || active;
-            continue;
-        }
-        if (!active)
-            continue;
-        const QRegularExpressionMatch sectionMatch = sectionRe.match(line);
-        if (!sectionMatch.hasMatch())
-            continue;
-        GdbMi section;
-        section.m_type = GdbMi::Tuple;
-        section.addChild(constMi("from", sectionMatch.captured(1)));
-        section.addChild(constMi("to", sectionMatch.captured(2)));
-        section.addChild(constMi("address", sectionMatch.captured(3)));
-        section.addChild(constMi("name", sectionMatch.captured(4)));
-        section.addChild(constMi("flags", sectionMatch.captured(5).trimmed()));
-        sectionList.addChild(section);
-    }
-
-    if (moduleFound && sectionList.childCount() == 0 && !isRetryWithLegacyKeyword) {
+    const GdbMi result = parseGdbModuleSections(response.consoleStreamOutput, modulePath,
+                                                &moduleFound);
+    if (moduleFound && result["sections"].childCount() == 0 && !isRetryWithLegacyKeyword) {
         requestModuleSections(requestId, modulePath, true);
         return;
     }
 
-    GdbMi result;
-    result.m_type = GdbMi::Tuple;
-    result.addChild(constMi("modulepath", modulePath.toUrlishString()));
-    result.addChild(sectionList);
     emit refreshDataReceived(requestId, RefreshKind::ModuleSections, result);
 }
 
@@ -1252,8 +1210,10 @@ void GdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             cmd.arg("id", request.responseId);
             runCommand(cmd);
         } else {
-            runCommand({"-break-delete " + request.responseId,
-                        DebuggerCommand::NeedsTemporaryStop});
+            for (const QString &number : catchpointNumbers(request.responseId))
+                runCommand({"-break-delete " + number, DebuggerCommand::NeedsTemporaryStop});
+            for (const QString &companion : m_catchpointCompanions.keys(request.responseId))
+                m_catchpointCompanions.remove(companion);
         }
         m_tracepointsByNumber.remove(request.responseId);
         emit breakpointEvent(requestId, BreakpointOp::Remove, true);
@@ -1285,9 +1245,22 @@ static QString gdbBreakpointLocation(const BreakpointParameters &params, const Q
     case BreakpointByAddress:
         return "*0x" + QString::number(params.address, 16);
     default:
-        return "\"\\\"" + GdbMi::escapeCString(params.fileName.path()) + "\\\":"
+        return "\"\\\"" + GdbMi::escapeCString(params.fileNameForDebugger().path()) + "\\\":"
                + QString::number(params.textPosition.line) + '"';
     }
+}
+
+static DebuggerCommand interpreterBreakpointInsertion(const BreakpointChangeRequest &request)
+{
+    const BreakpointParameters &params = request.params;
+    DebuggerCommand cmd("insertInterpreterBreakpoint", DebuggerCommand::NeedsTemporaryStop);
+    cmd.arg("modelid", request.modelId);
+    cmd.arg("file", params.fileName.path());
+    cmd.arg("line", params.textPosition.line);
+    cmd.arg("enabled", params.enabled);
+    cmd.arg("condition", toHex(params.condition));
+    cmd.arg("ignorecount", params.ignoreCount);
+    return cmd;
 }
 
 void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
@@ -1314,24 +1287,33 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
             catchpoint = "exec";
         else
             catchpoint = "syscall";
-        runCommand({"catch " + catchpoint, [this, requestId](const DebuggerResponse &response) {
-            emit breakpointEvent(requestId, BreakpointOp::Insert, response.resultClass == ResultDone);
-        }});
-        if (params.type == BreakpointAtFork)
-            runCommand({"catch vfork"});
+        const bool isFork = params.type == BreakpointAtFork;
+        runCatchCommand(catchpoint, [this, requestId, isFork](const GdbMi &bkpt) {
+            if (!bkpt.isValid()) {
+                emit breakpointEvent(requestId, BreakpointOp::Insert, false);
+                return;
+            }
+            GdbMi all;
+            all.m_type = GdbMi::List;
+            all.addChild(bkpt);
+            emit breakpointEvent(requestId, BreakpointOp::Insert, true, all);
+            // vfork is an event of its own for gdb, and a fork catchpoint is
+            // asked for once and expected to take both flavours of the call.
+            if (!isFork)
+                return;
+            const QString number = bkpt["number"].data();
+            runCatchCommand("vfork", [this, number](const GdbMi &companion) {
+                if (companion.isValid())
+                    m_catchpointCompanions.insert(companion["number"].data(), number);
+            });
+        });
         return;
     }
 
     if (!params.isCppBreakpoint()) {
-        DebuggerCommand cmd("insertInterpreterBreakpoint", DebuggerCommand::NeedsTemporaryStop);
-        cmd.arg("modelid", request.modelId);
-        cmd.arg("file", params.fileName.path());
-        cmd.arg("line", params.textPosition.line);
-        cmd.arg("enabled", params.enabled);
-        cmd.arg("condition", toHex(params.condition));
-        cmd.arg("ignorecount", params.ignoreCount);
+        DebuggerCommand cmd = interpreterBreakpointInsertion(request);
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
-            handleInterpreterBreakpointInsert(requestId, response);
+            handleInterpreterBreakpointChange(requestId, BreakpointOp::Insert, response);
         };
         runCommand(cmd);
         return;
@@ -1376,7 +1358,7 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
         cmd.arg("stringcutoff", 10000);
         cmd.arg("displaystringlimit", 100);
 
-        cmd.arg("spec", QString(GdbMi::escapeCString(params.fileName.path()) + ':'
+        cmd.arg("spec", QString(GdbMi::escapeCString(params.fileNameForDebugger().path()) + ':'
                                 + QString::number(params.textPosition.line)));
         cmd.flags = DebuggerCommand::NeedsTemporaryStop;
         const QString message = params.message;
@@ -1405,29 +1387,47 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
     }
     function += gdbBreakpointLocation(params, m_startData.mainFunctionName);
 
+    const QString command = params.command;
     runCommand({function, DebuggerCommand::NeedsTemporaryStop,
-               [this, requestId](const DebuggerResponse &response) {
-        emit breakpointEvent(requestId, BreakpointOp::Insert,
-                             response.resultClass == ResultDone, response.data);
+               [this, requestId, command](const DebuggerResponse &response) {
+        const bool ok = response.resultClass == ResultDone;
+        if (ok && !command.isEmpty())
+            setBreakpointCommands(response.data["bkpt"]["number"].data(), command);
+        emit breakpointEvent(requestId, BreakpointOp::Insert, ok, response.data);
     }});
 }
 
-void GdbImpl::handleInterpreterBreakpointInsert(quint64 requestId, const DebuggerResponse &response)
+void GdbImpl::setBreakpointCommands(const QString &bpnr, const QString &command)
+{
+    QString function = "-break-commands " + bpnr;
+    const QStringList lines = command.split('\n');
+    for (QString line : lines) {
+        if (line.isEmpty())
+            continue;
+        line.replace('\\', "\\\\");
+        line.replace('"', "\\\"");
+        function += " \"" + line + '"';
+    }
+    runCommand({function, DebuggerCommand::NeedsTemporaryStop});
+}
+
+void GdbImpl::handleInterpreterBreakpointChange(quint64 requestId, BreakpointOp op,
+                                                const DebuggerResponse &response)
 {
     if (response.resultClass != ResultDone) {
-        emit breakpointEvent(requestId, BreakpointOp::Insert, false);
+        emit breakpointEvent(requestId, op, false);
         return;
     }
     if (response.data["pending"].toInt()) {
         // Retried from the object-availability hook, which the dumpers armed.
         m_interpreterBreakpointsPending = true;
-        emit breakpointEvent(requestId, BreakpointOp::Insert, true);
+        emit breakpointEvent(requestId, op, true);
         return;
     }
     GdbMi data;
     data.m_type = GdbMi::List;
     data.addChild(response.data);
-    emit breakpointEvent(requestId, BreakpointOp::Insert, true, data);
+    emit breakpointEvent(requestId, op, true, data);
 }
 
 void GdbImpl::handleTracepointInsert(quint64 requestId, const DebuggerResponse &response,
@@ -1496,6 +1496,41 @@ void GdbImpl::registerInternalBreakpointNumber(const QString &number)
         m_internalBreakpointNumbers.insert(number);
 }
 
+// A breakpoint behind a run to a location is ours, and gdb announces it before
+// the reply that carries its number: what the announcement is about is told by
+// the count of the ones in flight.
+void GdbImpl::runOwnBreakpointCommand(const QString &function,
+                                      const DebuggerCommand::Callback &handler)
+{
+    ++m_ownBreakpointsInFlight;
+    runCommand({function, [this, handler](const DebuggerResponse &response) {
+        --m_ownBreakpointsInFlight;
+        handler(response);
+    }});
+}
+
+// What a breakpoint number stands for: a fork catchpoint also owns the
+// companion gdb needs for vfork, and the two are set, taken away and switched
+// together.
+QStringList GdbImpl::catchpointNumbers(const QString &number) const
+{
+    return QStringList(number) + m_catchpointCompanions.keys(number);
+}
+
+// A catchpoint is announced before the reply that confirms the catch command,
+// and the reply carries no number of its own: what the announcement is about is
+// told by the count of the ones in flight.
+void GdbImpl::runCatchCommand(const QString &kind,
+                              const std::function<void(const GdbMi &)> &handler)
+{
+    ++m_catchpointsInFlight;
+    runCommand({"catch " + kind, [this, handler](const DebuggerResponse &response) {
+        --m_catchpointsInFlight;
+        const GdbMi announced = std::exchange(m_lastAnnouncedCatchpoint, {});
+        handler(response.resultClass == ResultDone ? announced : GdbMi());
+    }});
+}
+
 void GdbImpl::handleTracepointHit(const GdbMi &data)
 {
     const GdbMi result = data["result"];
@@ -1519,13 +1554,36 @@ void GdbImpl::updateBreakpointCommand(const BreakpointChangeRequest &request)
 
     const BreakpointParameters &params = request.params;
     const QString bpnr = request.responseId;
-    runCommand({(params.enabled ? "-break-enable " : "-break-disable ") + bpnr,
-                DebuggerCommand::NeedsTemporaryStop});
-    // An empty condition clears a previously set one.
-    runCommand({"condition " + bpnr + ' ' + params.condition,
-                DebuggerCommand::NeedsTemporaryStop});
-    runCommand({"ignore " + bpnr + ' ' + QString::number(params.ignoreCount),
-                DebuggerCommand::NeedsTemporaryStop});
+    // The service knows no change command, and the numbers it hands out are
+    // not gdb's: taking the breakpoint away and setting it anew is what a
+    // change is there. Handing gdb the interpreter's number instead rewrites
+    // whatever breakpoint of its own carries it, the hook into the service
+    // included.
+    if (!params.isCppBreakpoint()) {
+        DebuggerCommand removal("removeInterpreterBreakpoint",
+                                DebuggerCommand::NeedsTemporaryStop);
+        removal.arg("id", bpnr);
+        runCommand(removal);
+
+        DebuggerCommand cmd = interpreterBreakpointInsertion(request);
+        cmd.callback = [this, requestId](const DebuggerResponse &response) {
+            handleInterpreterBreakpointChange(requestId, BreakpointOp::Update, response);
+        };
+        runCommand(cmd);
+        return;
+    }
+    for (const QString &number : catchpointNumbers(bpnr)) {
+        runCommand({(params.enabled ? "-break-enable " : "-break-disable ") + number,
+                    DebuggerCommand::NeedsTemporaryStop});
+        // An empty condition clears a previously set one.
+        runCommand({"condition " + number + ' ' + params.condition,
+                    DebuggerCommand::NeedsTemporaryStop});
+        runCommand({"ignore " + number + ' ' + QString::number(params.ignoreCount),
+                    DebuggerCommand::NeedsTemporaryStop});
+    }
+    // Without arguments the command list is cleared, which is what an update
+    // that took the command away asks for.
+    setBreakpointCommands(bpnr, params.command);
 
     emit breakpointEvent(requestId, BreakpointOp::Update, true);
 }
@@ -1827,9 +1885,16 @@ void GdbImpl::interruptProcessAsUser(qint64 pid)
     process.setEnvironment(m_startData.debuggerRunData.environment);
     process.runBlocking();
     if (process.result() != ProcessResult::FinishedWithSuccess) {
-        emit message(QString("Interrupting the inferior as %1 failed: %2")
-                         .arg(m_startData.runAsUser, process.cleanedStdErr().trimmed()), LogError);
+        reportInterruptFailed(QString("Interrupting the inferior as %1 failed: %2")
+                                  .arg(m_startData.runAsUser, process.cleanedStdErr().trimmed()));
     }
+}
+
+void GdbImpl::reportInterruptFailed(const QString &errorMessage)
+{
+    m_interruptRequested = false;
+    emit message(errorMessage, LogError);
+    emit inferiorEvent(InferiorEvent::StopFailed);
 }
 
 void GdbImpl::requestInferiorInterrupt()
@@ -1841,7 +1906,7 @@ void GdbImpl::requestInferiorInterrupt()
         }
         QString errorMessage;
         if (!interruptProcess(pid, &errorMessage))
-            emit message(errorMessage, LogError);
+            reportInterruptFailed(errorMessage);
     };
     if (const auto *attachData = std::get_if<AttachToProcessData>(&m_startData.inferiorStartData)) {
         interrupt(attachData->pid.pid());
@@ -1956,14 +2021,6 @@ void GdbImpl::loadExtraDumpers()
 // 'set substitute-path' and 'directory' split their arguments the way a shell
 // would, so a path with spaces has to arrive quoted, with the backslashes of a
 // Windows path escaped for the same reason.
-static QString quotedPath(const QString &path)
-{
-    QString quoted = path;
-    quoted.replace('\\', "\\\\");
-    quoted.replace('"', "\\\"");
-    return '"' + quoted + '"';
-}
-
 void GdbImpl::applySearchPaths()
 {
     const GdbImplSearchPaths &paths = m_startData.searchPaths;
@@ -2126,6 +2183,12 @@ void GdbImpl::handleOutputLine(const QString &line)
             }
 
             m_inferiorRunning = false;
+            GdbMi stoppedThread;
+            stoppedThread.m_type = GdbMi::Tuple;
+            stoppedThread.addChild(constMi("id", result["stopped-threads"].data() == u"all"
+                                                     ? QString("all")
+                                                     : result["thread-id"].data()));
+            emit threadEvent(ThreadEvent::Stopped, stoppedThread);
             m_pendingConsoleStreamOutput.clear();
             m_pendingLogStreamOutput.clear();
 
@@ -2136,15 +2199,49 @@ void GdbImpl::handleOutputLine(const QString &line)
 
             const QString reason = result["reason"].data();
 
-            // The interpreter is reachable from here on, so a breakpoint it refused
-            // earlier can be inserted now. The dumpers stay out of it: an inferior
+            // A watchpoint stop looks like any other one in the views, so the
+            // value the debugger saw change is only in this record. gdb keeps
+            // one record per watchpoint kind, and a read watchpoint has no
+            // change to report: its record carries the value that was read.
+            if (reason == u"watchpoint-trigger" || reason == u"read-watchpoint-trigger"
+                    || reason == u"access-watchpoint-trigger") {
+                const char *record = "wpt";
+                if (reason == u"read-watchpoint-trigger")
+                    record = "hw-rwpt";
+                else if (reason == u"access-watchpoint-trigger")
+                    record = "hw-awpt";
+                const GdbMi wpt = result[record];
+                const GdbMi value = result["value"];
+                emit watchpointTriggered(wpt["number"].data(), wpt["exp"].data(),
+                                         value["old"].data(), value["new"].data());
+            }
+
+            // Which breakpoint a stop belongs to is in this record only, and a
+            // stop the user cannot place is one they have to go looking for. A
+            // catchpoint stop comes under the name of the event it caught
+            // rather than as a breakpoint hit, while it names its own number
+            // the same way.
+            if (reason == u"breakpoint-hit" || reason == u"fork" || reason == u"vfork"
+                    || reason == u"exec" || reason == u"syscall-entry"
+                    || reason == u"syscall-return") {
+                const GdbMi number = result["bkptno"].isValid() ? result["bkptno"]
+                                                                : result["number"];
+                // A stop on the companion of a fork catchpoint belongs to the
+                // catchpoint that was asked for.
+                emit breakpointTriggered(m_catchpointCompanions.value(number.data(),
+                                                                      number.data()),
+                                         result["thread-id"].data());
+            }
+
+            // The interpreter is reachable from here on, so the debug service it
+            // needs is enabled and a breakpoint it refused earlier inserted now. The dumpers stay out of it: an inferior
             // call from inside this frame suspends the inferior's other threads.
             // Only the hook's own stop is swallowed - the dumpers announce it,
             // since an internal breakpoint carries no number to recognize - and a
             // queued command or a requested interrupt is served first: the hook
             // stays until the queue is empty, so it comes back.
             const bool fromInterpreterHook = std::exchange(m_interpreterHookStop, false);
-            if (fromInterpreterHook && m_interpreterBreakpointsPending
+            if (fromInterpreterHook
                     && m_onStopCommands.isEmpty() && !m_interruptRequested
                     && result["frame"]["func"].data() == u"qt_qmlDebugObjectAvailable") {
                 runCommand({"resolveInterpreterBreakpoints",
@@ -2212,7 +2309,8 @@ void GdbImpl::handleOutputLine(const QString &line)
                 else if (reason == u"exited-normally")
                     emit inferiorDone({0, InferiorExitStatus::Normal});
                 else
-                    emit inferiorDone({0, InferiorExitStatus::Crash});
+                    emit inferiorDone({0, InferiorExitStatus::Crash,
+                                       result["signal-name"].data()});
                 break;
             }
 
@@ -2261,8 +2359,12 @@ void GdbImpl::handleOutputLine(const QString &line)
                 m_interruptRequested = false;
                 emit inferiorEvent(wasInterruptRequested ? InferiorEvent::StopOk
                                                          : InferiorEvent::SpontaneousStop);
-                if (reason == u"signal-received")
-                    emit signalReceived(result["signal-name"].data(), result["signal-meaning"].data());
+                if (reason == u"signal-received") {
+                    emit signalReceived(result["signal-name"].data(),
+                                        result["signal-meaning"].data());
+                } else {
+                    emit stopReasonReported(reason);
+                }
             }
 
             const GdbMi frame = result["frame"];
@@ -2273,6 +2375,18 @@ void GdbImpl::handleOutputLine(const QString &line)
                     fileName = FilePath::fromUserInput(frame["file"].data());
                 if (fileName.exists())
                     emit locationChanged(fileName, lineNumber);
+            }
+        } else if (asyncClass == u"running") {
+            // A console command of the user's resumes the inferior without the
+            // engine asking, and this record is the only word of it. The stop that
+            // ends the command can only be reported from a running state. A resume
+            // the engine did ask for has set the flag from the result record
+            // already, which is what keeps an internal one silent.
+            if (!m_inNativeMixedStep && !m_inferiorRunning) {
+                m_inferiorRunning = true;
+                emit threadEvent(ThreadEvent::Running, result);
+                emit inferiorEvent(InferiorEvent::RunRequested);
+                emit inferiorEvent(InferiorEvent::RunOk);
             }
         }
         break;
@@ -2296,22 +2410,24 @@ void GdbImpl::handleOutputLine(const QString &line)
         else if (asyncClass == u"thread-group-started") {
             m_inferiorPid = result["pid"].data().toLongLong();
             emit inferiorPidKnown(ProcessHandle(m_inferiorPid));
+            emit threadEvent(ThreadEvent::GroupCreated, result);
         }
-        else if (asyncClass == u"thread-created") {
-            emit message(QString("Thread %1 created.").arg(result["id"].data()), StatusBar, 1000);
+        else if (asyncClass == u"thread-group-exited")
+            emit threadEvent(ThreadEvent::GroupExited, result);
+        else if (asyncClass == u"thread-created")
             emit threadEvent(ThreadEvent::Created, result);
-        }
-        else if (asyncClass == u"thread-exited") {
-            emit message(QString("Thread %1 in group %2 exited.")
-                             .arg(result["id"].data(), result["group-id"].data()), StatusBar, 1000);
+        else if (asyncClass == u"thread-exited")
             emit threadEvent(ThreadEvent::Exited, result);
-        }
-        else if (asyncClass == u"thread-selected") {
-            emit message(QString("Thread %1 selected.").arg(result["id"].data()), StatusBar, 1000);
-        }
+        else if (asyncClass == u"thread-selected")
+            emit threadEvent(ThreadEvent::Selected, result);
         else if (asyncClass == u"breakpoint-created") {
             const GdbMi bkpt = result["bkpt"];
-            if (!m_internalBreakpointNumbers.contains(bkpt["number"].data()))
+            const QString number = bkpt["number"].data();
+            if (m_catchpointsInFlight > 0)
+                m_lastAnnouncedCatchpoint = bkpt;
+            else if (m_ownBreakpointsInFlight > 0)
+                registerInternalBreakpointNumber(number);
+            else if (!m_internalBreakpointNumbers.contains(number))
                 emit breakpointEvent(0, BreakpointOp::Insert, true, bkpt);
         }
         else if (asyncClass == u"breakpoint-deleted") {
@@ -2384,6 +2500,12 @@ void GdbImpl::handleOutputLine(const QString &line)
         // silently, which looks exactly like a debugger that stopped answering.
         if (data.startsWith("Downloading") && data.contains("separate debug info"))
             m_debuginfodDownloadInProgress = true;
+        // Reading symbols, downloading them, and attaching to the threads are
+        // the slow parts of a start, and gdb says so as it goes.
+        if (data.startsWith("Reading symbols from ") || data.startsWith("Downloading")
+            || data.startsWith("[New ") || data.startsWith("[Thread ")) {
+            emit progressMessage(data.trimmed());
+        }
         m_pendingConsoleStreamOutput += data;
         break;
     }

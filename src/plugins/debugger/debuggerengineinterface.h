@@ -122,7 +122,12 @@ enum class BreakpointOp { Insert, Remove, Update, EnableSub };
 
 enum class LibraryEvent { Loaded, Unloaded };
 
-enum class ThreadEvent { Created, Exited };
+// Selected is somebody else choosing a thread behind our back, a console
+// command of the debugger's own for instance.
+// GroupCreated and GroupExited are about the process a thread belongs to,
+// which a backend may or may not report separately from the threads.
+enum class ThreadEvent { Created, Exited, Running, Stopped, Selected, GroupCreated,
+                         GroupExited };
 
 // Why a backend stopped answering, as far as it can tell. Fetching debug info
 // can take minutes on a slow server, and blaming the debugger misleads the user.
@@ -257,6 +262,9 @@ class DEBUGGER_EXPORT InferiorResultData
 public:
     int exitCode = 0;
     InferiorExitStatus exitStatus = InferiorExitStatus::Normal;
+    // What the signal that took the inferior down is called, for a backend that
+    // has a name for it rather than just a number.
+    QString signalName;
 };
 
 class DEBUGGER_EXPORT AcceptsBreakpointQuery
@@ -294,6 +302,10 @@ public:
 signals:
     void message(const QString &text, int channel, int timeout = -1);
 
+    // Something slow the debugger says it is doing, in its own words, so the
+    // status bar and the progress bar have something to show while it lasts.
+    void progressMessage(const QString &text);
+
     void inferiorEvent(InferiorEvent event);
 
     void breakpointEvent(quint64 requestId, BreakpointOp op, bool ok, const GdbMi &data = {});
@@ -325,6 +337,15 @@ signals:
     void breakpointModified(const GdbMi &data);
 
     void signalReceived(const QString &name, const QString &meaning);
+
+    // The bare reason a stop came with, for a stop none of the reports above
+    // covers. Empty where the backend named none.
+    void stopReasonReported(const QString &reason);
+
+    void watchpointTriggered(const QString &responseId, const QString &expression,
+                             const QString &oldValue, const QString &newValue);
+
+    void breakpointTriggered(const QString &responseId, const QString &threadId);
 
     void notResponding(std::chrono::seconds waited, const QStringList &pendingCommands,
                        NotRespondingCause cause = NotRespondingCause::Unknown);

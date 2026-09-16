@@ -10,7 +10,11 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
+#include <QJsonArray>
+#include <QSet>
 #include <QStringDecoder>
+
+#include <utility>
 
 using namespace Utils;
 
@@ -25,24 +29,55 @@ static GdbMi constMi(const QString &name, const QString &data)
     return mi;
 }
 
-static GdbMi wrapped(const GdbMi &node)
+static GdbMi wrapped(const GdbMi &node, bool partial = false)
 {
     GdbMi wrapper;
     wrapper.m_type = GdbMi::Tuple;
     wrapper.addChild(node);
+    // The view keeps the part of the tree the reply does not talk about, and
+    // only a reply saying so is read that way.
+    wrapper.addChild(constMi("partial", partial ? "1" : "0"));
     return wrapper;
+}
+
+static QString captureName(TracepointCaptureType type)
+{
+    switch (type) {
+    case TracepointCaptureType::Address: return "address";
+    case TracepointCaptureType::Caller: return "caller";
+    case TracepointCaptureType::Callstack: return "callstack";
+    case TracepointCaptureType::FilePos: return "filepos";
+    case TracepointCaptureType::Function: return "function";
+    case TracepointCaptureType::Pid: return "pid";
+    case TracepointCaptureType::ProcessName: return "processname";
+    case TracepointCaptureType::Tick: return "tick";
+    case TracepointCaptureType::Tid: return "tid";
+    case TracepointCaptureType::ThreadName: return "threadname";
+    case TracepointCaptureType::Expression: break;
+    }
+    return "expression";
 }
 
 static QString breakpointLocation(const BreakpointParameters &params, const QString &fileName)
 {
     QString loc;
-    if (params.type == BreakpointByFunction)
+    if (params.type == BreakpointAtMain) {
+        // The entry of a script is the function its "__main__" guard calls, and
+        // "main" is what that function is called by convention.
+        loc = "main";
+    } else if (params.type == BreakpointByFunction) {
         loc = params.functionName;
+    }
     else
         loc = fileName + ':' + QString::number(params.textPosition.line);
     if (!params.condition.isEmpty())
         loc += ", " + params.condition;
     return loc;
+}
+
+static QString ignoreCommand(const QString &pdbNumber, const BreakpointParameters &params)
+{
+    return "ignore " + pdbNumber + ' ' + QString::number(params.ignoreCount);
 }
 
 static QString conditionCommand(const QString &pdbNumber, const BreakpointParameters &params)
@@ -57,7 +92,7 @@ static QString conditionCommand(const QString &pdbNumber, const BreakpointParame
 // word, so the line is what identifies the insertion a reply belongs to. A function
 // breakpoint resolves to a line we cannot predict, hence it matches anything.
 static GdbMi breakpointTuple(const QString &number, const QString &fileName,
-                             const QString &lineNumber)
+                             const QString &lineNumber, const QString &function)
 {
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
@@ -66,23 +101,31 @@ static GdbMi breakpointTuple(const QString &number, const QString &fileName,
     bkpt.addChild(constMi("fullname", fileName));
     bkpt.addChild(constMi("line", lineNumber));
     bkpt.addChild(constMi("enabled", "y"));
+    if (!function.isEmpty())
+        bkpt.addChild(constMi("func", function));
     return bkpt;
 }
 
 // An answer to an insertion the model asked for comes as the whole list of
 // breakpoints it now has, where one it never asked for is just itself.
 static GdbMi breakpointList(const QString &number, const QString &fileName,
-                            const QString &lineNumber)
+                            const QString &lineNumber, const QString &function)
 {
     GdbMi data;
     data.m_type = GdbMi::List;
-    data.addChild(breakpointTuple(number, fileName, lineNumber));
+    data.addChild(breakpointTuple(number, fileName, lineNumber, function));
     return data;
 }
 
+// Stands in for the number pdb would have given a breakpoint of its own.
+const QLatin1String throwResponseId("throw");
+const QLatin1String catchResponseId("catch");
+
 static bool mayAnswer(const BreakpointParameters &params, const QString &file, int line)
 {
-    if (params.type == BreakpointByFunction)
+    // Neither a function nor the script's entry names a line the answer could
+    // be recognised by.
+    if (params.type == BreakpointByFunction || params.type == BreakpointAtMain)
         return true;
     return line == params.textPosition.line
         && params.fileName.fileName() == FilePath::fromString(file).fileName();
@@ -92,7 +135,9 @@ static DebuggerEngineSetupData pdbImplSetupData()
 {
     DebuggerEngineSetupData data;
     data.capabilities = AddWatcherCapability
+                      | AddWatcherWhileRunningCapability
                       | BreakConditionCapability
+                      | BreakOnThrowAndCatchCapability
                       | CreateFullBacktraceCapability
                       | JumpToLineCapability
                       | ReloadModuleCapability
@@ -100,14 +145,31 @@ static DebuggerEngineSetupData pdbImplSetupData()
                       | ResetInferiorCapability
                       | RunToLineCapability
                       | ShowModuleSymbolsCapability
+                      | TracePointCapability
                       | WatchComplexExpressionsCapability;
-    data.extraCapabilities = DebuggerExtraCapability::SourceFiles
-                           | DebuggerExtraCapability::StopBeforeRun;
+    data.extraCapabilities = DebuggerExtraCapability::BreakOnMain
+                           | DebuggerExtraCapability::RunAsUser
+                           | DebuggerExtraCapability::RunCommandDeferral
+                           | DebuggerExtraCapability::SkipKnownFrames
+                           | DebuggerExtraCapability::SourceFiles
+                           | DebuggerExtraCapability::StopBeforeRun
+                           | DebuggerExtraCapability::ThreadEvent
+                           | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
             return false;
+        // "break" takes a function name as well, which carries no file to go by.
+        if (query.type == BreakpointByFunction)
+            return true;
+        // A raise is an event the bridge's trace function sees. A catch is not:
+        // python enters the handler without telling it anything, which is what
+        // the bridge watches the interpreter itself for.
+        if (query.type == BreakpointAtThrow || query.type == BreakpointAtCatch)
+            return true;
+        if (query.type == BreakpointAtMain)
+            return true;
         return query.fileName.endsWith(".py");
     };
     return data;
@@ -133,6 +195,7 @@ PdbImpl::PdbImpl(const PdbImplStartData &startData)
 
     connect(&m_pdbProc, &Process::started, this, [this] {
         emit inferiorPidKnown(ProcessHandle(m_pdbProc.processId()));
+        reportThreadGroupCreated();
         if (m_isResetRestart) {
             m_isResetRestart = false;
             const QList<ActiveBreakpoint> breakpoints = m_activeBreakpoints;
@@ -160,6 +223,8 @@ PdbImpl::PdbImpl(const PdbImplStartData &startData)
         }
         m_isResetRestart = false;
         m_inferiorExited = true;
+        reportThreadGroupGone();
+        failDeferredRequests();
         if (startFailed || !m_setupReported) {
             emit inferiorEvent(InferiorEvent::EngineSetupFailed);
         } else if (!m_shuttingDown) {
@@ -195,8 +260,11 @@ void PdbImpl::start()
 void PdbImpl::startPdbProcess()
 {
     const auto &inferiorRunData = std::get<ProcessRunData>(m_startData.inferiorStartData);
+    // Unbuffered, or a script's own output only shows up once it has exited:
+    // python buffers a pipe, and the debuggee shares the bridge's streams.
     CommandLine cmd{m_startData.debuggerRunData.command.executable(),
-                    {m_startData.dumperScriptsDir.pathAppended("pdbbridge.py").path(),
+                    {"-u",
+                     m_startData.dumperScriptsDir.pathAppended("pdbbridge.py").path(),
                      inferiorRunData.command.executable().path()}};
     cmd.addArg(inferiorRunData.workingDirectory.path());
     // Everything between the script and the separator is the bridge's own.
@@ -210,6 +278,7 @@ void PdbImpl::startPdbProcess()
         m_startData.debuggerRunData.environment));
     if (inferiorRunData.workingDirectory.isDir())
         m_pdbProc.setWorkingDirectory(inferiorRunData.workingDirectory);
+    m_pdbProc.setRunAsUser(m_startData.runAsUser);
     m_pdbProc.start();
 }
 
@@ -217,17 +286,39 @@ void PdbImpl::startPdbProcess()
 // not when its host process is up: a host that starts and dies without ever
 // answering would otherwise look like a debuggee that ran and exited.
 // A restarted session has answered once already and reports nothing again.
-void PdbImpl::reportInitialStop()
+void PdbImpl::reportInitialStop(const FilePath &file, int lineNumber)
 {
     if (m_setupReported)
         return;
     m_setupReported = true;
+    if (m_startData.skipKnownFrames) {
+        DebuggerCommand cmd("skipKnownFrames");
+        cmd.arg("enabled", "1");
+        runCommand(cmd);
+    }
     runUserStartupCommands();
     loadExtraDumpers();
     emit inferiorEvent(InferiorEvent::EngineSetupOk);
     emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
-    if (m_startData.breakOnMain)
-        return; // pdb stops on the script's first line by itself.
+    if (m_startData.breakOnMain && m_startData.mainFunctionName.isEmpty()) {
+        // pdb stops on the script's first line by itself, and that is the stop
+        // the setting asks for, so it is reported as one.
+        reportThreadsStopped();
+        if (file.exists())
+            emit locationChanged(file, lineNumber);
+        emit inferiorEvent(InferiorEvent::SpontaneousStop);
+        return;
+    }
+    if (m_startData.breakOnMain) {
+        // The entry point is named, so the first line is on the way rather than
+        // the destination: run to a breakpoint of our own instead.
+        BreakpointChangeRequest toEntryPoint;
+        toEntryPoint.op = BreakpointOp::Insert;
+        toEntryPoint.params.type = BreakpointByFunction;
+        toEntryPoint.params.functionName = m_startData.mainFunctionName;
+        toEntryPoint.params.enabled = true;
+        insertBreakpoint(toEntryPoint, BreakpointReply::Temporary);
+    }
     m_inferiorRunning = true;
     emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
     postDirectCommand("continue");
@@ -281,9 +372,13 @@ void PdbImpl::resetTransientState()
     m_interruptPending = false;
     m_inferiorExited = false;
     m_expectLocationOnly = false;
+    m_deferredStopRequested = false;
+    m_deferredBreakpointChanges.clear();
+    m_deferredCommands.clear();
     m_currentFrame = 0;
     m_pendingBreakpointReplies.clear();
     m_pendingStackReplies.clear();
+    m_functionByBreakpointNumber.clear();
 }
 
 QString PdbImpl::pdbNumberFor(const QString &responseId) const
@@ -347,16 +442,38 @@ GdbMi PdbImpl::localizedStack(const GdbMi &stack) const
 
 void PdbImpl::insertBreakpoint(const BreakpointChangeRequest &request, BreakpointReply kind)
 {
+    if (request.params.type == BreakpointAtThrow) {
+        setBreakOnException(request, true, throwResponseId);
+        return;
+    }
+    if (request.params.type == BreakpointAtCatch) {
+        setBreakOnException(request, true, catchResponseId);
+        return;
+    }
+
     PendingBreakpointReply pending;
     pending.kind = kind;
     pending.request = request;
     pending.fenceToken = ++m_lastFenceToken;
     m_pendingBreakpointReplies.append(pending);
 
+    if (request.params.isTracepoint()) {
+        QJsonArray caps;
+        for (const TracepointCapture &capture : parseTracepointCaptures(request.params.message))
+            caps.append(QJsonArray({captureName(capture.type), capture.expression}));
+        DebuggerCommand cmd("tracepoint");
+        cmd.arg("caps", caps);
+        runCommand(cmd);
+    }
+
+    if (!request.params.command.isEmpty())
+        setBreakpointCommands({}, request.params.command);
+
     const bool temporary = kind == BreakpointReply::Temporary || request.params.oneShot;
     postDirectCommand((temporary ? QLatin1String("tbreak ") : QLatin1String("break "))
                       + breakpointLocation(request.params,
-                                           reportedSourcePath(request.params.fileName.path())));
+                                           reportedSourcePath(
+                                               request.params.fileNameForDebugger().path())));
     // pdb stays silent about a location it refuses, so bracket the insertion with a round
     // trip: once the fence comes back, a reply that has not arrived is never going to.
     DebuggerCommand fence("breakpointFence");
@@ -364,8 +481,19 @@ void PdbImpl::insertBreakpoint(const BreakpointChangeRequest &request, Breakpoin
     runCommand(fence);
 }
 
-void PdbImpl::shutdownInferior(ShutdownMode)
+void PdbImpl::shutdownInferior(ShutdownMode mode)
 {
+    if (mode == ShutdownMode::Kill) {
+        // Nothing runs in the inferior after this, so the bridge gets no stop of
+        // its own at which it could notice that its threads are gone.
+        for (const QString &id : std::as_const(m_knownThreadIds)) {
+            GdbMi data;
+            data.m_type = GdbMi::Tuple;
+            data.addChild(constMi("id", id));
+            emit threadEvent(ThreadEvent::Exited, data);
+        }
+        m_knownThreadIds.clear();
+    }
     emit inferiorEvent(InferiorEvent::ShutdownFinished);
 }
 
@@ -510,6 +638,12 @@ void PdbImpl::execute(const ExecutionRequest &request)
 
 void PdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
 {
+    if (m_inferiorRunning) {
+        m_deferredBreakpointChanges.append(request);
+        requestDeferredStop();
+        return;
+    }
+
     const quint64 requestId = request.requestId;
     switch (request.op) {
     case BreakpointOp::Insert:
@@ -522,10 +656,15 @@ void PdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             break;
         }
         const QString pdbNumber = pdbNumberFor(request.responseId);
+        if (pdbNumber == throwResponseId || pdbNumber == catchResponseId) {
+            setBreakOnException(request, false, pdbNumber);
+            break;
+        }
         for (int i = m_activeBreakpoints.size() - 1; i >= 0; --i) {
             if (m_activeBreakpoints.at(i).request.responseId == request.responseId)
                 m_activeBreakpoints.removeAt(i);
         }
+        m_tracepointsByNumber.remove(pdbNumber);
         postDirectCommand("clear " + pdbNumber);
         emit breakpointEvent(requestId, BreakpointOp::Remove, true);
         break;
@@ -536,7 +675,9 @@ void PdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             break;
         }
         const QString pdbNumber = pdbNumberFor(request.responseId);
+        setBreakpointCommands(pdbNumber, request.params.command);
         postDirectCommand(conditionCommand(pdbNumber, request.params));
+        postDirectCommand(ignoreCommand(pdbNumber, request.params));
         postDirectCommand((request.params.enabled ? QLatin1String("enable ")
                                                   : QLatin1String("disable "))
                           + pdbNumber);
@@ -551,12 +692,24 @@ void PdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     }
 }
 
+void PdbImpl::setBreakpointCommands(const QString &pdbNumber, const QString &command)
+{
+    QJsonArray lines;
+    for (const QString &line : command.split('\n', Qt::SkipEmptyParts))
+        lines.append(line);
+    DebuggerCommand cmd("breakpointcommands");
+    cmd.arg("number", pdbNumber.isEmpty() ? QString("0") : pdbNumber);
+    cmd.arg("lines", lines);
+    runCommand(cmd);
+}
+
 void PdbImpl::refresh(const RefreshRequest &request)
 {
     const quint64 requestId = request.requestId;
     switch (request.kind) {
     case RefreshKind::Locals: {
         m_pendingLocalsRequestId = requestId;
+        m_pendingLocalsArePartial = !request.partialVariable.isEmpty();
         DebuggerCommand cmd("updateData");
         const DumperOptions &options = request.dumperOptions;
         cmd.arg("nativeMixed", false);
@@ -564,6 +717,8 @@ void PdbImpl::refresh(const RefreshRequest &request)
         cmd.arg("stringcutoff", options.maximalStringLength);
         cmd.arg("displaystringlimit", options.displayStringLimit);
         cmd.arg("frame", m_currentFrame);
+        cmd.arg("uninitialized", request.uninitializedVariables);
+        cmd.arg("partialvar", request.partialVariable);
         cmd.arg("watchers", request.watchers);
         cmd.arg("expanded", request.expandedForDumpers());
         m_lastDebuggableCommand = cmd;
@@ -590,6 +745,10 @@ void PdbImpl::refresh(const RefreshRequest &request)
         runCommand({"listSourceFiles"});
         return;
     case RefreshKind::ModuleSymbols: {
+        if (request.path.isEmpty()) {
+            emit message("PdbImpl: cannot fetch the symbols of no module", LogError);
+            return;
+        }
         m_pendingModuleSymbolsRequestId = requestId;
         DebuggerCommand cmd("listSymbols");
         cmd.arg("module", request.path.path());
@@ -605,8 +764,11 @@ void PdbImpl::refresh(const RefreshRequest &request)
         refresh({requestId, RefreshKind::FullStack});
         refresh({requestId, RefreshKind::Locals});
         return;
+    case RefreshKind::Threads:
+        m_pendingThreadsRequestId = requestId;
+        runCommand({"listThreads"});
+        return;
     case RefreshKind::StackSymbols:
-    case RefreshKind::Threads: // asked on every stop, and pdb debugs one thread
         return;
     default:
         emit message("PdbImpl::refresh() does not support this kind yet", LogWarning);
@@ -620,6 +782,15 @@ void PdbImpl::selectThread(const QString &)
 
 void PdbImpl::activateFrame(int index)
 {
+    // A console command runs in the frame pdb selected for itself, and there is
+    // no way to name one per command, so pdb's own frame has to be moved along.
+    // It starts out innermost after every stop, which is where m_currentFrame
+    // is put back, so the old value is where pdb stands now.
+    const int delta = index - m_currentFrame;
+    if (delta != 0 && !m_inferiorRunning && m_pdbProc.isRunning()) {
+        postDirectCommand((delta > 0 ? QLatin1String("up ") : QLatin1String("down "))
+                          + QString::number(qAbs(delta)));
+    }
     m_currentFrame = index;
 }
 
@@ -635,13 +806,30 @@ void PdbImpl::fetchDisassembly(quint64, quint64, const QString &)
 {
 }
 
+// The assignment is typed at pdb's prompt, which reads it as python, where a
+// bare word is a name rather than the text it is spelled with.
+static QString pdbAssignmentValue(const QString &type, const QString &value)
+{
+    if (type != "str" || value.startsWith('\'') || value.startsWith('"'))
+        return value;
+    QString literal = value;
+    literal.replace('\\', "\\\\");
+    literal.replace('\'', "\\'");
+    return '\'' + literal + '\'';
+}
+
 void PdbImpl::assignValueInDebugger(const WatchItemData &item, const QString &expr,
                                     const QString &value)
 {
-    if (item.isLocal)
-        postDirectCommand(expr + '=' + value);
-    else
-        postDirectCommand("global " + expr + ';' + expr + '=' + value);
+    QString command = expr + '=' + pdbAssignmentValue(item.type, value);
+    if (!item.isLocal)
+        command.prepend("global " + expr + ';');
+    if (m_inferiorRunning) {
+        m_deferredCommands.append(command);
+        requestDeferredStop();
+        return;
+    }
+    postDirectCommand(command);
 }
 
 void PdbImpl::setPeripheralRegisterValue(quint64, quint64)
@@ -656,16 +844,90 @@ void PdbImpl::createSnapshot(quint64)
 {
 }
 
+// The pdb commands that let the script run, with the abbreviations pdb accepts
+// for them. A jump is not one of them: it moves the line pointer and stops
+// where it lands.
+static bool resumesTheScript(const QString &command)
+{
+    static const QSet<QString> resuming = {"c", "cont", "continue", "n", "next",
+                                           "s", "step", "r", "return", "unt", "until"};
+    return resuming.contains(command.trimmed().section(' ', 0, 0));
+}
+
 void PdbImpl::executeDebuggerCommand(const QString &command, const WatchItemData &)
 {
+    // A console command of the user's runs the script just as the toolbar does,
+    // and the stop that ends it is only reported from a running state, so
+    // without this the script runs on with the views showing the old stop.
+    if (m_sawInitialLocation && !m_inferiorRunning && resumesTheScript(command)) {
+        m_inferiorRunning = true;
+        m_currentFrame = 0;
+        m_continueConfirmedRunning = false;
+        emit inferiorEvent(InferiorEvent::RunRequested);
+        emit inferiorEvent(InferiorEvent::RunOk);
+    }
     postDirectCommand(command);
     watchCommand(command);
     timeCommand(command);
 }
 
+// A debugger running as another user cannot be signalled from here: the signal
+// has to be sent with the same rights the process was started with.
+void PdbImpl::interruptProcessAsUser(qint64 pid)
+{
+    Process interrupter;
+    interrupter.setCommand({"kill", {"-s", "SIGINT", QString::number(pid)}});
+    interrupter.setRunAsUser(m_startData.runAsUser);
+    interrupter.setEnvironment(m_startData.debuggerRunData.environment);
+    interrupter.runBlocking();
+    if (interrupter.result() != ProcessResult::FinishedWithSuccess) {
+        m_interruptRequested = false;
+        emit message(QString("Interrupting the debugger as %1 failed: %2")
+                         .arg(m_startData.runAsUser, interrupter.cleanedStdErr().trimmed()),
+                     LogError);
+        emit inferiorEvent(InferiorEvent::StopFailed);
+    }
+}
+
+// pdb reads its standard input only while the inferior is stopped, so a request
+// that arrives while it runs is applied at a stop of our own making, after which
+// the inferior goes on as if it had never been away.
+void PdbImpl::requestDeferredStop()
+{
+    if (m_deferredStopRequested)
+        return;
+    m_deferredStopRequested = true;
+    execute({ExecutionCommand::Interrupt});
+}
+
+void PdbImpl::runDeferredRequests()
+{
+    m_deferredStopRequested = false;
+    const QList<BreakpointChangeRequest> changes = std::exchange(m_deferredBreakpointChanges, {});
+    for (const BreakpointChangeRequest &change : changes)
+        changeBreakpoint(change);
+    const QStringList commands = std::exchange(m_deferredCommands, {});
+    for (const QString &command : commands)
+        postDirectCommand(command);
+    execute({ExecutionCommand::Continue});
+}
+
+void PdbImpl::failDeferredRequests()
+{
+    m_deferredStopRequested = false;
+    m_deferredCommands.clear();
+    const QList<BreakpointChangeRequest> changes = std::exchange(m_deferredBreakpointChanges, {});
+    for (const BreakpointChangeRequest &change : changes)
+        emit breakpointEvent(change.requestId, change.op, false);
+}
+
 void PdbImpl::requestInterrupt()
 {
     m_interruptRequested = true;
+    if (!m_startData.runAsUser.isEmpty()) {
+        interruptProcessAsUser(m_pdbProc.processId());
+        return;
+    }
     QString error;
     if (!interruptProcess(m_pdbProc.processId(), &error)) {
         m_interruptRequested = false;
@@ -776,9 +1038,12 @@ void PdbImpl::handleOutputLine(const QString &line)
     if (line.startsWith("stack={")) {
         handleStackReply(item);
     } else if (line.startsWith("data={")) {
-        emit refreshDataReceived(m_pendingLocalsRequestId, RefreshKind::Locals, wrapped(item));
+        emit refreshDataReceived(m_pendingLocalsRequestId, RefreshKind::Locals,
+                                 wrapped(item, m_pendingLocalsArePartial));
     } else if (line.startsWith("modules=[")) {
         emit refreshDataReceived(m_pendingModulesRequestId, RefreshKind::Modules, item);
+    } else if (line.startsWith("threads={")) {
+        emit refreshDataReceived(m_pendingThreadsRequestId, RefreshKind::Threads, item);
     } else if (line.startsWith("sourcefiles=[")) {
         emit refreshDataReceived(m_pendingSourceFilesRequestId, RefreshKind::SourceFiles, item);
     } else if (line.startsWith("symbols={")) {
@@ -791,28 +1056,34 @@ void PdbImpl::handleOutputLine(const QString &line)
         emit refreshDataReceived(m_pendingModuleSymbolsRequestId, RefreshKind::ModuleSymbols,
                                  moduleSymbols);
     } else if (line.startsWith("location={")) {
-        if (!m_sawInitialLocation) {
-            m_sawInitialLocation = true;
-            reportInitialStop();
-            return;
-        }
         const FilePath file = FilePath::fromString(localSourcePath(item["file"].data()));
         const int lineNumber = item["line"].toInt();
+        if (!m_sawInitialLocation) {
+            m_sawInitialLocation = true;
+            reportInitialStop(file, lineNumber);
+            return;
+        }
         if (m_expectLocationOnly) {
             // An interrupt was already reported from the state report below; pdb only tells
             // us where it landed once it has single-stepped out of the signal handler.
             m_expectLocationOnly = false;
-            emit locationChanged(file, lineNumber);
+            if (file.exists())
+                emit locationChanged(file, lineNumber);
+            if (m_deferredStopRequested)
+                runDeferredRequests();
             return;
         }
         if (!m_inferiorRunning)
             return;
         m_inferiorRunning = false;
-        emit locationChanged(file, lineNumber);
+        reportThreadsStopped();
+        if (file.exists())
+            emit locationChanged(file, lineNumber);
         emit inferiorEvent(InferiorEvent::SpontaneousStop);
     } else if (line.startsWith("state=")) {
         if (item.data() == "stopped") {
             m_inferiorRunning = false;
+            reportThreadsStopped();
             m_expectLocationOnly = true;
             if (m_interruptRequested) {
                 m_interruptRequested = false;
@@ -821,22 +1092,36 @@ void PdbImpl::handleOutputLine(const QString &line)
                 emit inferiorEvent(InferiorEvent::SpontaneousStop);
             }
         } else if (item.data() == "running") {
+            reportThreadsRunning();
             m_continueConfirmedRunning = true;
             if (m_interruptPending) {
                 m_interruptPending = false;
                 requestInterrupt();
             }
         }
+    } else if (line.startsWith("stopreason=")) {
+        emit stopReasonReported(item.data());
+    } else if (line.startsWith("breakpointfunction={")) {
+        m_functionByBreakpointNumber.insert(item["number"].data(), item["func"].data());
     } else if (line.startsWith("Breakpoint")) {
         handleBreakpointReply(line);
     } else if (line.startsWith("Deleted breakpoint ")) {
         handleBreakpointDeleted(line);
+    } else if (line.startsWith("threadevent={")) {
+        handleThreadEvent(item);
+    } else if (line.startsWith("breakonthrow={")) {
+        handleBreakOnException(item, throwResponseId);
+    } else if (line.startsWith("breakoncatch={")) {
+        handleBreakOnException(item, catchResponseId);
     } else if (line.startsWith("breakpointfence={")) {
         handleBreakpointFence(item["token"].data().toULongLong());
     } else if (line.startsWith("fullbacktrace={")) {
         emit refreshDataReceived(m_pendingBacktraceRequestId, RefreshKind::FullBacktrace,
                                  constMi({}, QString::fromUtf8(QByteArray::fromHex(
                                                  item["output"].data().toLatin1()))));
+    } else if (line.startsWith("commanderror={")) {
+        emit message(QString::fromUtf8(QByteArray::fromHex(item["msg"].data().toLatin1())),
+                     LogError);
     } else if (line.startsWith("dumpermodule={")) {
         const QString error = QString::fromUtf8(
             QByteArray::fromHex(item["error"].data().toLatin1()));
@@ -848,6 +1133,10 @@ void PdbImpl::handleOutputLine(const QString &line)
         handleWatchdogFence(item["token"].data().toULongLong());
     } else if (line.startsWith("timefence={")) {
         handleTimeFence(item["token"].data().toULongLong());
+    } else if (line.startsWith("tracepointhit={")) {
+        handleTracepointHit(item);
+    } else if (line.startsWith("breakpointhit=")) {
+        emit breakpointTriggered(responseIdFor(item["number"].data()), item["thread"].data());
     } else if (line.startsWith("breakpointmodified=")) {
         const QString responseId = responseIdFor(item["number"].data());
         const auto it = std::find_if(m_activeBreakpoints.cbegin(), m_activeBreakpoints.cend(),
@@ -873,9 +1162,23 @@ void PdbImpl::handleOutputLine(const QString &line)
         list.m_type = GdbMi::List;
         list.addChild(bkpt);
         emit breakpointModified(list);
+    } else if (line == "@") {
+        // The marker the bridge frames a reply with, not something the script printed.
     } else {
         emit message(line, AppOutput);
     }
+}
+
+void PdbImpl::handleTracepointHit(const GdbMi &item)
+{
+    const GdbMi result = item["result"];
+    const auto it = m_tracepointsByNumber.constFind(result["number"].data());
+    if (it == m_tracepointsByNumber.constEnd())
+        return;
+
+    emit message(formatTracepointMessage(it->message, it->captures, result["caps"],
+                                         item["expressions"]),
+                 LogMisc);
 }
 
 void PdbImpl::handleStackReply(const GdbMi &item)
@@ -887,8 +1190,9 @@ void PdbImpl::handleStackReply(const GdbMi &item)
         const GdbMi frames = item["frames"];
         if (frames.childCount() > 0) {
             const GdbMi &topFrame = frames.childAt(0);
-            emit locationChanged(FilePath::fromString(localSourcePath(topFrame["file"].data())),
-                                 topFrame["line"].toInt());
+            const FilePath file = FilePath::fromString(localSourcePath(topFrame["file"].data()));
+            if (file.exists())
+                emit locationChanged(file, topFrame["line"].toInt());
         }
         emit inferiorEvent(InferiorEvent::SpontaneousStop);
         return;
@@ -910,6 +1214,7 @@ void PdbImpl::handleBreakpointReply(const QString &line)
     const QString fileName = localSourcePath(line.mid(pos1 + 4, pos2 - pos1 - 4));
     const QString lineNumber = line.mid(pos2 + 1);
     const QString bpnr = line.mid(11, pos1 - 11);
+    const QString function = m_functionByBreakpointNumber.take(bpnr);
 
     // pdb answers in command order, but a location it refuses is not answered at all, so
     // the first pending insertion is not necessarily the one this line belongs to.
@@ -928,10 +1233,22 @@ void PdbImpl::handleBreakpointReply(const QString &line)
         alien.alien = true;
         m_activeBreakpoints.append(alien);
         emit breakpointEvent(0, BreakpointOp::Insert, true,
-                             breakpointTuple(bpnr, fileName, lineNumber));
+                             breakpointTuple(bpnr, fileName, lineNumber, function));
         return;
     }
     const PendingBreakpointReply pending = m_pendingBreakpointReplies.takeAt(index);
+
+    // pdb takes an ignore count only by breakpoint number, and the reply is the
+    // first place that number shows up.
+    if (pending.request.params.ignoreCount > 0)
+        postDirectCommand(ignoreCommand(bpnr, pending.request.params));
+
+    // The captures went in ahead of the insertion, the number to read a hit
+    // back by is this reply.
+    if (pending.request.params.isTracepoint()) {
+        m_tracepointsByNumber[bpnr] = {pending.request.params.message,
+                                       parseTracepointCaptures(pending.request.params.message)};
+    }
 
     if (pending.kind == BreakpointReply::Temporary)
         return;
@@ -951,7 +1268,7 @@ void PdbImpl::handleBreakpointReply(const QString &line)
     m_activeBreakpoints.append(active);
 
     emit breakpointEvent(pending.request.requestId, BreakpointOp::Insert, true,
-                         breakpointList(bpnr, fileName, lineNumber));
+                         breakpointList(bpnr, fileName, lineNumber, function));
 }
 
 // pdb takes a tbreak back once it has been hit and says so, and a typed command
@@ -983,6 +1300,106 @@ void PdbImpl::handleResetFence(quint64 token)
         return;
     m_resetFenceToken = 0;
     m_pdbProc.kill();
+}
+
+void PdbImpl::setBreakOnException(const BreakpointChangeRequest &request, bool enabled,
+                                  const QString &responseId)
+{
+    const quint64 token = ++m_lastExceptionToken;
+    m_pendingExceptionChanges[token] = request;
+    DebuggerCommand cmd(responseId == catchResponseId ? "breakOnCatch" : "breakOnThrow");
+    cmd.arg("enabled", enabled ? "1" : "0");
+    cmd.arg("token", QString::number(token));
+    runCommand(cmd);
+}
+
+void PdbImpl::handleBreakOnException(const GdbMi &item, const QString &responseId)
+{
+    const quint64 token = item["token"].data().toULongLong();
+    const auto it = m_pendingExceptionChanges.find(token);
+    QTC_ASSERT(it != m_pendingExceptionChanges.end(), return);
+    const BreakpointChangeRequest request = *it;
+    m_pendingExceptionChanges.erase(it);
+
+    const bool armed = item["enabled"].data() != "0";
+    if (!armed) {
+        for (int i = m_activeBreakpoints.size() - 1; i >= 0; --i) {
+            if (m_activeBreakpoints.at(i).pdbNumber == responseId)
+                m_activeBreakpoints.removeAt(i);
+        }
+        // Disarmed although arming was asked for: the bridge found no way to
+        // watch for it, which is a refused insertion and not a removal.
+        emit breakpointEvent(request.requestId,
+                             request.op == BreakpointOp::Remove ? BreakpointOp::Remove
+                                                                : BreakpointOp::Insert,
+                             request.op == BreakpointOp::Remove);
+        return;
+    }
+
+    ActiveBreakpoint active;
+    active.request = request;
+    active.request.responseId = responseId;
+    active.pdbNumber = responseId;
+    m_activeBreakpoints.append(active);
+    // There is no location to report: what the model learns is that it is armed.
+    emit breakpointEvent(request.requestId, BreakpointOp::Insert, true,
+                         breakpointList(responseId, {}, "0", {}));
+}
+
+void PdbImpl::handleThreadEvent(const GdbMi &item)
+{
+    const QString id = item["id"].data();
+    if (item["reason"].data() == "exited") {
+        m_knownThreadIds.removeAll(id);
+        emit threadEvent(ThreadEvent::Exited, item);
+        return;
+    }
+    m_knownThreadIds.append(id);
+    GdbMi created = item;
+    created.addChild(constMi("group-id", m_threadGroupId));
+    emit threadEvent(ThreadEvent::Created, created);
+}
+
+// The threads the bridge knows are the interpreter's own, so the process it
+// runs in is what the threads view groups them by, and what takes them away
+// again once it is gone.
+void PdbImpl::reportThreadGroupCreated()
+{
+    m_threadGroupId = QString::number(m_pdbProc.processId());
+    GdbMi group;
+    group.m_type = GdbMi::Tuple;
+    group.addChild(constMi("id", m_threadGroupId));
+    group.addChild(constMi("pid", m_threadGroupId));
+    emit threadEvent(ThreadEvent::GroupCreated, group);
+}
+
+void PdbImpl::reportThreadGroupGone()
+{
+    if (m_threadGroupId.isEmpty())
+        return;
+    GdbMi group;
+    group.m_type = GdbMi::Tuple;
+    group.addChild(constMi("id", m_threadGroupId));
+    m_threadGroupId.clear();
+    emit threadEvent(ThreadEvent::GroupExited, group);
+}
+
+// The bridge holds the whole interpreter at a stop, so no thread it knows runs
+// on past one.
+void PdbImpl::reportThreadsStopped()
+{
+    GdbMi data;
+    data.m_type = GdbMi::Tuple;
+    data.addChild(constMi("id", "all"));
+    emit threadEvent(ThreadEvent::Stopped, data);
+}
+
+void PdbImpl::reportThreadsRunning()
+{
+    GdbMi data;
+    data.m_type = GdbMi::Tuple;
+    data.addChild(constMi("thread-id", "all"));
+    emit threadEvent(ThreadEvent::Running, data);
 }
 
 void PdbImpl::handleBreakpointFence(quint64 token)
