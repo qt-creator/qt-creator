@@ -459,6 +459,11 @@ void GenericDebuggerEngine::handleBreakpointEvent(quint64 requestId, BreakpointO
                 removeRequest.op = BreakpointOp::Remove;
                 removeRequest.requestId = m_nextBreakpointRequestId++;
                 removeRequest.responseId = nr;
+                // The backend tells an interpreter breakpoint from a C++ one
+                // by the parameters, and without them sends the number the
+                // interpreter handed out to lldb's own numbering.
+                removeRequest.params = bp->requestedParameters();
+                removeRequest.modelId = bp->modelId();
                 m_pendingBreakpoints[removeRequest.requestId] = bp;
                 m_backend->changeBreakpoint(removeRequest);
                 break;

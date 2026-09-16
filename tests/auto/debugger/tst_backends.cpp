@@ -9471,23 +9471,35 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
 
     // The number is the interpreter's, not lldb's, and both count from 1, so
     // removing through the native id would take an unrelated breakpoint.
+    QString interpreterNumber;
+    for (const GdbMi &report : std::as_const(modifiedReports)) {
+        const GdbMi entry = report.childAt(0);
+        if (entry["modelid"].toInt() == 42 && entry["number"].toInt() > 0)
+            interpreterNumber = entry["number"].data();
+    }
+    QVERIFY2(!interpreterNumber.isEmpty(), "the resolved QML breakpoint reported no number");
+
     const int wireBefore = wire.size();
     BreakpointChangeRequest removeRequest;
     removeRequest.op = BreakpointOp::Remove;
     removeRequest.requestId = 40;
     removeRequest.modelId = 42;
-    removeRequest.responseId = "1";
+    removeRequest.responseId = interpreterNumber;
     removeRequest.params.type = BreakpointByFileAndLine;
     removeRequest.params.fileName = FilePath::fromUserInput("qmlstack_inferior.qml");
     removeRequest.params.textPosition.line = markerLine;
     engine->changeBreakpoint(removeRequest);
     QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(40), s_timeout);
+    QVERIFY2(insertResults.value(40), "removing the QML breakpoint was refused");
+    // Spelled out as the argument: a bare number matches the command's token
+    // as readily as its id.
+    const QString removalArg = "\"id\":\"" + interpreterNumber + "\"";
     const QStringList removalTraffic = wire.mid(wireBefore);
-    QVERIFY2(Utils::anyOf(removalTraffic, [](const QString &line) {
-                 return line.contains("removeInterpreterBreakpoint");
+    QVERIFY2(Utils::anyOf(removalTraffic, [&removalArg](const QString &line) {
+                 return line.contains("removeInterpreterBreakpoint") && line.contains(removalArg);
              }),
-             qPrintable("a QML breakpoint was not removed through the interpreter - "
-                        + removalTraffic.join(" | ")));
+             qPrintable("the QML breakpoint was not removed through the interpreter with "
+                        + removalArg + " - " + removalTraffic.join(" | ")));
 
     // Stepping from a QML stop has to reach the interpreter. Stepping the
     // native frame the notification arrives on instead leaves the QML line
