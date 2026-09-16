@@ -189,16 +189,23 @@ void StackHandler::setCurrentIndex(int level)
     if (level == -1 || level == m_currentIndex)
         return;
 
-    // Emit changed for previous frame
-    QModelIndex i = index(m_currentIndex, 0);
-    emit dataChanged(i, i);
+    // The frames are children of the thread item, so their row is not a row of
+    // the model itself: index(row, 0) names a top-level item, which for any row
+    // past the first there is none of. Go through the item instead.
+    const auto announceRow = [this](int row) {
+        TreeItem *threadItem = dummyThreadItem();
+        if (!threadItem || row < 0 || row >= threadItem->childCount())
+            return;
+        const QModelIndex changed = indexForItem(threadItem->childAt(row));
+        emit dataChanged(changed, changed);
+    };
+
+    announceRow(m_currentIndex);
 
     m_currentIndex = level;
     emit currentIndexChanged();
 
-    // Emit changed for new frame
-    i = index(m_currentIndex, 0);
-    emit dataChanged(i, i);
+    announceRow(m_currentIndex);
 }
 
 void StackHandler::removeAll()
