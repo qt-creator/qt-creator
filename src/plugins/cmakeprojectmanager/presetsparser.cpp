@@ -4,6 +4,7 @@
 #include "presetsparser.h"
 
 #include "cmakeprojectmanagertr.h"
+#include "presetsmacros.h"
 
 #include <utils/algorithm.h>
 
@@ -150,6 +151,149 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
     return condition;
 }
 
+const QMap<QString, QString> &diagnosticOptionNames()
+{
+    static const QMap<QString, QString> names{
+        {"author", "author"},
+        {"deprecated", "deprecated"},
+        {"experimental", "experimental"},
+        {"installAbsoluteDestination", "install-absolute-destination"},
+        {"policy", "policy"},
+        {"uninitialized", "uninitialized"},
+        {"unusedCli", "unused-cli"},
+    };
+    return names;
+}
+
+static void parseEnvironment(const QJsonValue &jsonValue,
+                             std::optional<Utils::Environment> &environment)
+{
+    const QJsonObject environmentObj = jsonValue.toObject();
+    for (const QString &envKey : environmentObj.keys()) {
+        if (!environment)
+            environment = Utils::Environment();
+
+        const QJsonValue envValue = environmentObj.value(envKey);
+        if (envValue.isNull())
+            environment->unset(envKey);
+        else
+            environment->set(envKey, envValue.toString());
+    }
+}
+
+static void parseCacheVariables(const QJsonValue &jsonValue, std::optional<CMakeConfig> &cacheVariables)
+{
+    const QJsonObject cacheVariablesObj = jsonValue.toObject();
+    for (const QString &cacheKey : cacheVariablesObj.keys()) {
+        if (!cacheVariables)
+            cacheVariables = CMakeConfig();
+
+        const QJsonValue cacheValue = cacheVariablesObj.value(cacheKey);
+        if (cacheValue.isNull()) {
+            CMakeConfigItem item;
+            item.key = cacheKey.toUtf8();
+            item.isUnset = true;
+            cacheVariables->insert(item);
+        } else if (cacheValue.isObject()) {
+            const QJsonObject cacheVariableObj = cacheValue.toObject();
+            CMakeConfigItem item;
+            item.key = cacheKey.toUtf8();
+            item.type = CMakeConfigItem::typeStringToType(
+                cacheVariableObj.value("type").toString().toUtf8());
+            item.value = cacheVariableObj.value("value").toString().toUtf8();
+            cacheVariables->insert(item);
+        } else if (cacheValue.isBool()) {
+            cacheVariables->insert(CMakeConfigItem(cacheKey.toUtf8(),
+                                                   CMakeConfigItem::BOOL,
+                                                   cacheValue.toBool() ? "ON" : "OFF"));
+        } else if (CMakeConfigItem::toBool(cacheValue.toString()).has_value()) {
+            cacheVariables->insert(CMakeConfigItem(
+                cacheKey.toUtf8(), CMakeConfigItem::BOOL, cacheValue.toString().toUtf8()));
+        } else {
+            cacheVariables->insert(
+                CMakeConfigItem(cacheKey.toUtf8(), cacheValue.toString().toUtf8()));
+        }
+    }
+}
+
+static void parseWarnings(const QJsonValue &jsonValue, std::optional<PresetsDetails::Warnings> &warnings)
+{
+    const QJsonObject warningsObj = jsonValue.toObject();
+    if (warningsObj.isEmpty())
+        return;
+
+    warnings = PresetsDetails::Warnings();
+    for (const QString &key : warningsObj.keys()) {
+        const QJsonValue value = warningsObj.value(key);
+        if (!value.isBool())
+            continue;
+
+        if (key == "dev")
+            warnings->dev = value.toBool();
+        else if (key == "deprecated")
+            warnings->deprecated = value.toBool();
+        else if (key == "uninitialized")
+            warnings->uninitialized = value.toBool();
+        else if (key == "unusedCli")
+            warnings->unusedCli = value.toBool();
+        else if (key == "systemVars")
+            warnings->systemVars = value.toBool();
+        else if (diagnosticOptionNames().contains(key))
+            warnings->categories.insert(key, value.toBool());
+    }
+}
+
+static void parseErrors(const QJsonValue &jsonValue, std::optional<PresetsDetails::Errors> &errors)
+{
+    const QJsonObject errorsObj = jsonValue.toObject();
+    if (errorsObj.isEmpty())
+        return;
+
+    errors = PresetsDetails::Errors();
+    for (const QString &key : errorsObj.keys()) {
+        const QJsonValue value = errorsObj.value(key);
+        if (!value.isBool())
+            continue;
+
+        if (key == "dev")
+            errors->dev = value.toBool();
+        else if (key == "deprecated")
+            errors->deprecated = value.toBool();
+        else if (diagnosticOptionNames().contains(key))
+            errors->categories.insert(key, value.toBool());
+    }
+}
+
+static std::optional<PresetsDetails::ValueStrategyPair> parseValueStrategyPair(
+    const QJsonValue &jsonValue)
+{
+    if (jsonValue.isString()) {
+        const QString value = jsonValue.toString();
+        if (value.isEmpty())
+            return std::nullopt;
+
+        PresetsDetails::ValueStrategyPair pair;
+        pair.value = value;
+        return pair;
+    }
+
+    const QJsonObject object = jsonValue.toObject();
+    if (object.isEmpty())
+        return std::nullopt;
+
+    PresetsDetails::ValueStrategyPair pair;
+    if (object.contains("value"))
+        pair.value = object.value("value").toString();
+
+    const QString strategy = object.value("strategy").toString();
+    if (strategy == "set")
+        pair.strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
+    else if (strategy == "external")
+        pair.strategy = PresetsDetails::ValueStrategyPair::Strategy::external;
+
+    return pair;
+}
+
 static bool parseVendor(const QJsonValue &jsonValue, std::optional<QVariantMap> &vendorSettings)
 {
     // The whole section is optional
@@ -272,7 +416,7 @@ static std::optional<PresetsDetails::Trace> parseTrace(const QJsonValue &jsonVal
 
 static bool parseConfigurePresets(const QJsonValue &jsonValue,
                            QList<PresetsDetails::ConfigurePreset> &configurePresets,
-                           const Utils::FilePath &fileDir)
+                           const Utils::FilePath &filePath)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -290,7 +434,8 @@ static bool parseConfigurePresets(const QJsonValue &jsonValue,
         PresetsDetails::ConfigurePreset preset;
 
         preset.name = object.value("name").toString();
-        preset.fileDir = fileDir;
+        preset.fileDir = filePath.parentDir();
+        preset.filePath = filePath;
         preset.hidden = object.value("hidden").toBool();
 
         QJsonValue inherits = object.value("inherits");
@@ -336,71 +481,10 @@ static bool parseConfigurePresets(const QJsonValue &jsonValue,
         if (object.contains("trace"))
             preset.trace = parseTrace(object.value("trace"));
 
-        const QJsonObject cacheVariablesObj = object.value("cacheVariables").toObject();
-        for (const QString &cacheKey : cacheVariablesObj.keys()) {
-            if (!preset.cacheVariables)
-                preset.cacheVariables = CMakeConfig();
-
-            QJsonValue cacheValue = cacheVariablesObj.value(cacheKey);
-            if (cacheValue.isObject()) {
-                QJsonObject cacheVariableObj = cacheValue.toObject();
-                CMakeConfigItem item;
-                item.key = cacheKey.toUtf8();
-                item.type = CMakeConfigItem::typeStringToType(
-                    cacheVariableObj.value("type").toString().toUtf8());
-                item.value = cacheVariableObj.value("value").toString().toUtf8();
-                preset.cacheVariables->insert(item);
-
-            } else {
-                if (cacheValue.isBool()) {
-                    preset.cacheVariables->insert(CMakeConfigItem(
-                        cacheKey.toUtf8(),
-                        CMakeConfigItem::BOOL,
-                        cacheValue.toBool() ? "ON" : "OFF"));
-                } else if (CMakeConfigItem::toBool(cacheValue.toString()).has_value()) {
-                    preset.cacheVariables->insert(CMakeConfigItem(
-                        cacheKey.toUtf8(), CMakeConfigItem::BOOL, cacheValue.toString().toUtf8()));
-                } else {
-                    preset.cacheVariables->insert(
-                        CMakeConfigItem(cacheKey.toUtf8(), cacheValue.toString().toUtf8()));
-                }
-            }
-        }
-
-        const QJsonObject environmentObj = object.value("environment").toObject();
-        for (const QString &envKey : environmentObj.keys()) {
-            if (!preset.environment)
-                preset.environment = Utils::Environment();
-
-            QJsonValue envValue = environmentObj.value(envKey);
-            preset.environment->set(envKey, envValue.toString());
-        }
-
-        const QJsonObject warningsObj = object.value("warnings").toObject();
-        if (!warningsObj.isEmpty()) {
-            preset.warnings = PresetsDetails::Warnings();
-
-            if (warningsObj.contains("dev"))
-                preset.warnings->dev = warningsObj.value("dev").toBool();
-            if (warningsObj.contains("deprecated"))
-                preset.warnings->deprecated = warningsObj.value("deprecated").toBool();
-            if (warningsObj.contains("uninitialized"))
-                preset.warnings->uninitialized = warningsObj.value("uninitialized").toBool();
-            if (warningsObj.contains("unusedCli"))
-                preset.warnings->unusedCli = warningsObj.value("unusedCli").toBool();
-            if (warningsObj.contains("systemVars"))
-                preset.warnings->systemVars = warningsObj.value("systemVars").toBool();
-        }
-
-        const QJsonObject errorsObj = object.value("errors").toObject();
-        if (!errorsObj.isEmpty()) {
-            preset.errors = PresetsDetails::Errors();
-
-            if (errorsObj.contains("dev"))
-                preset.errors->dev = errorsObj.value("dev").toBool();
-            if (errorsObj.contains("deprecated"))
-                preset.errors->deprecated = errorsObj.value("deprecated").toBool();
-        }
+        parseCacheVariables(object.value("cacheVariables"), preset.cacheVariables);
+        parseEnvironment(object.value("environment"), preset.environment);
+        parseWarnings(object.value("warnings"), preset.warnings);
+        parseErrors(object.value("errors"), preset.errors);
 
         const QJsonObject debugObj = object.value("debug").toObject();
         if (!debugObj.isEmpty()) {
@@ -414,54 +498,10 @@ static bool parseConfigurePresets(const QJsonValue &jsonValue,
                 preset.debug->find = debugObj.value("find").toBool();
         }
 
-        const QJsonObject architectureObj = object.value("architecture").toObject();
-        if (!architectureObj.isEmpty()) {
-            preset.architecture = PresetsDetails::ValueStrategyPair();
-
-            if (architectureObj.contains("value"))
-                preset.architecture->value = architectureObj.value("value").toString();
-            if (architectureObj.contains("strategy")) {
-                const QString strategy = architectureObj.value("strategy").toString();
-                if (strategy == "set")
-                    preset.architecture->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
-                if (strategy == "external")
-                    preset.architecture->strategy
-                        = PresetsDetails::ValueStrategyPair::Strategy::external;
-            } else {
-                preset.architecture->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
-            }
-        } else {
-            const QString value = object.value("architecture").toString();
-            if (!value.isEmpty()) {
-                preset.architecture = PresetsDetails::ValueStrategyPair();
-                preset.architecture->value = value;
-                preset.architecture->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
-            }
-        }
-
-        const QJsonObject toolsetObj = object.value("toolset").toObject();
-        if (!toolsetObj.isEmpty()) {
-            preset.toolset = PresetsDetails::ValueStrategyPair();
-
-            if (toolsetObj.contains("value"))
-                preset.toolset->value = toolsetObj.value("value").toString();
-            if (toolsetObj.contains("strategy")) {
-                const QString strategy = toolsetObj.value("strategy").toString();
-                if (strategy == "set")
-                    preset.toolset->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
-                if (strategy == "external")
-                    preset.toolset->strategy = PresetsDetails::ValueStrategyPair::Strategy::external;
-            } else {
-                preset.toolset->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
-            }
-        } else {
-            const QString value = object.value("toolset").toString();
-            if (!value.isEmpty()) {
-                preset.toolset = PresetsDetails::ValueStrategyPair();
-                preset.toolset->value = value;
-                preset.toolset->strategy = PresetsDetails::ValueStrategyPair::Strategy::set;
-            }
-        }
+        if (object.contains("architecture"))
+            preset.architecture = parseValueStrategyPair(object.value("architecture"));
+        if (object.contains("toolset"))
+            preset.toolset = parseValueStrategyPair(object.value("toolset"));
 
         configurePresets.emplace_back(preset);
     }
@@ -471,7 +511,7 @@ static bool parseConfigurePresets(const QJsonValue &jsonValue,
 
 static bool parseBuildPresets(const QJsonValue &jsonValue,
                               QList<PresetsDetails::BuildPreset> &buildPresets,
-                              const FilePath &fileDir)
+                              const FilePath &filePath)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -489,7 +529,8 @@ static bool parseBuildPresets(const QJsonValue &jsonValue,
         PresetsDetails::BuildPreset preset;
 
         preset.name = object.value("name").toString();
-        preset.fileDir = fileDir;
+        preset.fileDir = filePath.parentDir();
+        preset.filePath = filePath;
         preset.hidden = object.value("hidden").toBool();
 
         QJsonValue inherits = object.value("inherits");
@@ -517,14 +558,7 @@ static bool parseBuildPresets(const QJsonValue &jsonValue,
         if (object.contains("description"))
             preset.description = object.value("description").toString();
 
-        const QJsonObject environmentObj = object.value("environment").toObject();
-        for (const QString &envKey : environmentObj.keys()) {
-            if (!preset.environment)
-                preset.environment = Utils::Environment();
-
-            QJsonValue envValue = environmentObj.value(envKey);
-            preset.environment->set(envKey, envValue.toString());
-        }
+        parseEnvironment(object.value("environment"), preset.environment);
 
         if (object.contains("configurePreset"))
             preset.configurePreset = object.value("configurePreset").toString();
@@ -587,9 +621,9 @@ static std::optional<PresetsDetails::Output> parseOutput(const QJsonValue &jsonV
         output.outputOnFailure = object.value("outputOnFailure").toBool();
     if (object.contains("quiet"))
         output.quiet = object.value("quiet").toBool();
-    if (object.contains("oputputLogFile"))
+    if (object.contains("outputLogFile"))
         output.outputLogFile = Utils::FilePath::fromUserInput(
-            object.value("oputputLogFile").toString());
+            object.value("outputLogFile").toString());
     if (object.contains("outputJUnitFile"))
         output.outputJUnitFile = Utils::FilePath::fromUserInput(
             object.value("outputJUnitFile").toString());
@@ -628,8 +662,12 @@ static std::optional<PresetsDetails::Filter> parseFilter(const QJsonValue &jsonV
             if (includeObj.contains("useUnion"))
                 filter.include->useUnion = includeObj.value("useUnion").toBool();
 
-            if (includeObj.contains("index")) {
-                QJsonObject indexObj = includeObj.value("index").toObject();
+            const QJsonValue indexValue = includeObj.value("index");
+            if (indexValue.isString() && !indexValue.toString().isEmpty()) {
+                filter.include->index = PresetsDetails::Filter::Include::Index();
+                filter.include->index->indexFile = indexValue.toString();
+            } else {
+                QJsonObject indexObj = indexValue.toObject();
                 if (!indexObj.isEmpty()) {
                     filter.include->index = PresetsDetails::Filter::Include::Index();
                     if (indexObj.contains("start"))
@@ -690,8 +728,13 @@ static std::optional<PresetsDetails::Execution> parseExecution(const QJsonValue 
         execution.stopOnFailure = object.value("stopOnFailure").toBool();
     if (object.contains("enableFailover"))
         execution.enableFailover = object.value("enableFailover").toBool();
-    if (object.contains("jobs"))
-        execution.jobs = object.value("jobs").toInt();
+    if (object.contains("jobs")) {
+        const QJsonValue jobsValue = object.value("jobs");
+        if (jobsValue.isString() && jobsValue.toString().isEmpty())
+            execution.jobs = std::optional<int>();
+        else if (jobsValue.isDouble() && jobsValue.toInt() > 0)
+            execution.jobs = jobsValue.toInt();
+    }
     if (object.contains("resourceSpecFile"))
         execution.resourceSpecFile = Utils::FilePath::fromUserInput(
             object.value("resourceSpecFile").toString());
@@ -715,13 +758,19 @@ static std::optional<PresetsDetails::Execution> parseExecution(const QJsonValue 
         execution.timeout = object.value("timeout").toInt();
     if (object.contains("noTestsAction"))
         execution.noTestsAction = object.value("noTestsAction").toString();
+    if (object.value("testPassthroughArguments").isArray()) {
+        execution.testPassthroughArguments = QStringList();
+        const QJsonArray argumentsArray = object.value("testPassthroughArguments").toArray();
+        for (const auto &argumentValue : argumentsArray)
+            *execution.testPassthroughArguments << argumentValue.toString();
+    }
 
     return execution;
 }
 
 static bool parseTestPresets(const QJsonValue &jsonValue,
                              QList<PresetsDetails::TestPreset> &testPresets,
-                             const FilePath &fileDir)
+                             const FilePath &filePath)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -740,7 +789,8 @@ static bool parseTestPresets(const QJsonValue &jsonValue,
 
         preset.name = object.value("name").toString();
         preset.hidden = object.value("hidden").toBool();
-        preset.fileDir = fileDir;
+        preset.fileDir = filePath.parentDir();
+        preset.filePath = filePath;
 
         QJsonValue inherits = object.value("inherits");
         if (!inherits.isUndefined()) {
@@ -763,13 +813,7 @@ static bool parseTestPresets(const QJsonValue &jsonValue,
             preset.displayName = object.value("displayName").toString();
         if (object.contains("description"))
             preset.description = object.value("description").toString();
-        const QJsonObject environmentObj = object.value("environment").toObject();
-        for (const QString &envKey : environmentObj.keys()) {
-            if (!preset.environment)
-                preset.environment = Utils::Environment();
-            QJsonValue envValue = environmentObj.value(envKey);
-            preset.environment->set(envKey, envValue.toString());
-        }
+        parseEnvironment(object.value("environment"), preset.environment);
         if (object.contains("configurePreset"))
             preset.configurePreset = object.value("configurePreset").toString();
         if (object.contains("inheritConfigureEnvironment"))
@@ -847,7 +891,7 @@ bool PresetsParser::parse(const FilePath &jsonFile, QString &errorMessage, int &
     // optional
     if (!parseConfigurePresets(root.value("configurePresets"),
                                m_presetsData.configurePresets,
-                               jsonFile.parentDir())) {
+                               jsonFile)) {
         errorMessage = ::CMakeProjectManager::Tr::tr(
                            "Invalid \"configurePresets\" section in file \"%1\".")
                            .arg(jsonFile.fileName());
@@ -857,7 +901,7 @@ bool PresetsParser::parse(const FilePath &jsonFile, QString &errorMessage, int &
     // optional
     if (!parseBuildPresets(root.value("buildPresets"),
                            m_presetsData.buildPresets,
-                           jsonFile.parentDir())) {
+                           jsonFile)) {
         errorMessage = ::CMakeProjectManager::Tr::tr(
                            "Invalid \"buildPresets\" section in file \"%1\".")
                            .arg(jsonFile.fileName());
@@ -867,7 +911,7 @@ bool PresetsParser::parse(const FilePath &jsonFile, QString &errorMessage, int &
     // optional
     if (!parseTestPresets(root.value("testPresets"),
                           m_presetsData.testPresets,
-                          jsonFile.parentDir())) {
+                          jsonFile)) {
         errorMessage = ::CMakeProjectManager::Tr::tr(
                            "Invalid \"testPresets\" section in file \"%1\".")
                            .arg(jsonFile.fileName());
@@ -906,6 +950,149 @@ static QStringList merge(const QStringList &first, const QStringList &second)
         [](const auto & /*left*/, const auto &right) { return right; });
 }
 
+template<typename T>
+static void inheritValue(std::optional<T> &value, const std::optional<T> &other)
+{
+    if (!value)
+        value = other;
+}
+
+static void inheritCategories(QMap<QString, bool> &categories,
+                              const QMap<QString, bool> &other)
+{
+    for (auto it = other.constKeyValueBegin(); it != other.constKeyValueEnd(); ++it) {
+        if (!categories.contains(it->first))
+            categories.insert(it->first, it->second);
+    }
+}
+
+// Inherits the fields of an optional sub-object one by one, the way CMake does:
+// a preset that overrides a single field of, say, "warnings" keeps the other
+// fields of the preset it inherits from.
+template<typename T, typename InheritFields>
+static void inheritFields(std::optional<T> &value,
+                          const std::optional<T> &other,
+                          const InheritFields &inheritFields)
+{
+    if (!other)
+        return;
+    if (!value) {
+        value = other;
+        return;
+    }
+    inheritFields(*value, *other);
+}
+
+static void inheritWarnings(std::optional<PresetsDetails::Warnings> &warnings,
+                            const std::optional<PresetsDetails::Warnings> &other)
+{
+    inheritFields(warnings, other, [](auto &value, const auto &parent) {
+        inheritValue(value.dev, parent.dev);
+        inheritValue(value.deprecated, parent.deprecated);
+        inheritValue(value.uninitialized, parent.uninitialized);
+        inheritValue(value.unusedCli, parent.unusedCli);
+        inheritValue(value.systemVars, parent.systemVars);
+        inheritCategories(value.categories, parent.categories);
+    });
+}
+
+static void inheritErrors(std::optional<PresetsDetails::Errors> &errors,
+                          const std::optional<PresetsDetails::Errors> &other)
+{
+    inheritFields(errors, other, [](auto &value, const auto &parent) {
+        inheritValue(value.dev, parent.dev);
+        inheritValue(value.deprecated, parent.deprecated);
+        inheritCategories(value.categories, parent.categories);
+    });
+}
+
+static void inheritDebug(std::optional<PresetsDetails::Debug> &debug,
+                         const std::optional<PresetsDetails::Debug> &other)
+{
+    inheritFields(debug, other, [](auto &value, const auto &parent) {
+        inheritValue(value.output, parent.output);
+        inheritValue(value.tryCompile, parent.tryCompile);
+        inheritValue(value.find, parent.find);
+    });
+}
+
+static void inheritValueStrategyPair(std::optional<PresetsDetails::ValueStrategyPair> &pair,
+                                     const std::optional<PresetsDetails::ValueStrategyPair> &other)
+{
+    inheritFields(pair, other, [](auto &value, const auto &parent) {
+        inheritValue(value.value, parent.value);
+        inheritValue(value.strategy, parent.strategy);
+    });
+}
+
+static void inheritTrace(std::optional<PresetsDetails::Trace> &trace,
+                         const std::optional<PresetsDetails::Trace> &other)
+{
+    inheritFields(trace, other, [](auto &value, const auto &parent) {
+        inheritValue(value.mode, parent.mode);
+        inheritValue(value.format, parent.format);
+        inheritValue(value.source, parent.source);
+        inheritValue(value.redirect, parent.redirect);
+    });
+}
+
+static void inheritOutput(std::optional<PresetsDetails::Output> &output,
+                          const std::optional<PresetsDetails::Output> &other)
+{
+    inheritFields(output, other, [](auto &value, const auto &parent) {
+        inheritValue(value.shortProgress, parent.shortProgress);
+        inheritValue(value.verbosity, parent.verbosity);
+        inheritValue(value.debug, parent.debug);
+        inheritValue(value.outputOnFailure, parent.outputOnFailure);
+        inheritValue(value.quiet, parent.quiet);
+        inheritValue(value.outputLogFile, parent.outputLogFile);
+        inheritValue(value.outputJUnitFile, parent.outputJUnitFile);
+        inheritValue(value.labelSummary, parent.labelSummary);
+        inheritValue(value.subprojectSummary, parent.subprojectSummary);
+        inheritValue(value.maxPassedTestOutputSize, parent.maxPassedTestOutputSize);
+        inheritValue(value.maxFailedTestOutputSize, parent.maxFailedTestOutputSize);
+        inheritValue(value.testOutputTruncation, parent.testOutputTruncation);
+        inheritValue(value.maxTestNameWidth, parent.maxTestNameWidth);
+    });
+}
+
+static void inheritFilter(std::optional<PresetsDetails::Filter> &filter,
+                          const std::optional<PresetsDetails::Filter> &other)
+{
+    inheritFields(filter, other, [](auto &value, const auto &parent) {
+        inheritFields(value.include, parent.include, [](auto &include, const auto &parentInclude) {
+            inheritValue(include.name, parentInclude.name);
+            inheritValue(include.label, parentInclude.label);
+            inheritValue(include.useUnion, parentInclude.useUnion);
+            inheritValue(include.index, parentInclude.index);
+        });
+        inheritFields(value.exclude, parent.exclude, [](auto &exclude, const auto &parentExclude) {
+            inheritValue(exclude.name, parentExclude.name);
+            inheritValue(exclude.label, parentExclude.label);
+            inheritValue(exclude.fixtures, parentExclude.fixtures);
+        });
+    });
+}
+
+static void inheritExecution(std::optional<PresetsDetails::Execution> &execution,
+                             const std::optional<PresetsDetails::Execution> &other)
+{
+    inheritFields(execution, other, [](auto &value, const auto &parent) {
+        inheritValue(value.stopOnFailure, parent.stopOnFailure);
+        inheritValue(value.enableFailover, parent.enableFailover);
+        inheritValue(value.jobs, parent.jobs);
+        inheritValue(value.resourceSpecFile, parent.resourceSpecFile);
+        inheritValue(value.testLoad, parent.testLoad);
+        inheritValue(value.showOnly, parent.showOnly);
+        inheritValue(value.repeat, parent.repeat);
+        inheritValue(value.interactiveDebugging, parent.interactiveDebugging);
+        inheritValue(value.scheduleRandom, parent.scheduleRandom);
+        inheritValue(value.timeout, parent.timeout);
+        inheritValue(value.noTestsAction, parent.noTestsAction);
+        inheritValue(value.testPassthroughArguments, parent.testPassthroughArguments);
+    });
+}
+
 void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 {
     if (!condition && other.condition && !other.condition->isNull())
@@ -920,11 +1107,8 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
     if (!generator && other.generator)
         generator = other.generator;
 
-    if (!architecture && other.architecture)
-        architecture = other.architecture;
-
-    if (!toolset && other.toolset)
-        toolset = other.toolset;
+    inheritValueStrategyPair(architecture, other.architecture);
+    inheritValueStrategyPair(toolset, other.toolset);
 
     if (!toolchainFile && other.toolchainFile)
         toolchainFile = other.toolchainFile;
@@ -948,20 +1132,14 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
     else if (environment && other.environment)
         environment = environment->appliedToEnvironment(*other.environment);
 
-    if (!warnings && other.warnings)
-        warnings = other.warnings;
-
-    if (!errors && other.errors)
-        errors = other.errors;
-
-    if (!debug && other.debug)
-        debug = other.debug;
+    inheritWarnings(warnings, other.warnings);
+    inheritErrors(errors, other.errors);
+    inheritDebug(debug, other.debug);
 
     if (!graphviz && other.graphviz)
         graphviz = other.graphviz;
 
-    if (!trace && other.trace)
-        trace = other.trace;
+    inheritTrace(trace, other.trace);
 
     if (runSettings.isEmpty())
         runSettings = other.runSettings;
@@ -986,8 +1164,7 @@ void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
     if (!configurePreset && other.configurePreset)
         configurePreset = other.configurePreset;
 
-    if (!inheritConfigureEnvironment && other.inheritConfigureEnvironment)
-        inheritConfigureEnvironment = other.inheritConfigureEnvironment;
+    inheritValue(inheritConfigureEnvironment, other.inheritConfigureEnvironment);
 
     if (!jobs && other.jobs)
         jobs = other.jobs;
@@ -1071,19 +1248,262 @@ void PresetsDetails::TestPreset::inheritFrom(const TestPreset &other)
 
     if (!configurePreset && other.configurePreset)
         configurePreset = other.configurePreset;
-    if (!inheritConfigureEnvironment && other.inheritConfigureEnvironment)
-        inheritConfigureEnvironment = other.inheritConfigureEnvironment;
+    inheritValue(inheritConfigureEnvironment, other.inheritConfigureEnvironment);
 
     if (!configuration && other.configuration)
         configuration = other.configuration;
     if (!overwriteConfigurationFile && other.overwriteConfigurationFile)
         overwriteConfigurationFile = other.overwriteConfigurationFile;
-    if (!output && other.output)
-        output = other.output;
-    if (!filter && other.filter)
-        filter = other.filter;
-    if (!execution && other.execution)
-        execution = other.execution;
+
+    inheritOutput(output, other.output);
+    inheritFilter(filter, other.filter);
+    inheritExecution(execution, other.execution);
+}
+
+template<typename T>
+static QStringList recursiveInheritsList(const T &presetsHash,
+                                         const QStringList &inheritsList,
+                                         QStringList &path,
+                                         QStringList &seen,
+                                         bool &cyclic)
+{
+    QStringList result;
+    for (const QString &inheritFrom : inheritsList) {
+        // Only a preset that inherits itself through the chain currently being walked is a
+        // cycle. Reaching the same preset again through a second chain is a diamond, which
+        // CMake allows, and which only needs to be collected once.
+        if (path.contains(inheritFrom)) {
+            cyclic = true;
+            continue;
+        }
+        if (seen.contains(inheritFrom))
+            continue;
+        seen << inheritFrom;
+        result << inheritFrom;
+        if (presetsHash.contains(inheritFrom)) {
+            auto item = presetsHash[inheritFrom];
+            if (item.inherits) {
+                path << inheritFrom;
+                result << recursiveInheritsList(presetsHash, *item.inherits, path, seen, cyclic);
+                path.removeLast();
+            }
+        }
+    }
+    return result;
+}
+
+template<typename T>
+static QStringList recursiveInheritsList(const T &presetsHash,
+                                         const QString &presetName,
+                                         const QStringList &inheritsList,
+                                         bool &cyclic)
+{
+    QStringList path{presetName};
+    QStringList seen{presetName};
+    return recursiveInheritsList(presetsHash, inheritsList, path, seen, cyclic);
+}
+
+PresetsData combinePresets(PresetsData &cmakePresetsData, PresetsData &cmakeUserPresetsData)
+{
+    PresetsData result;
+    result.version = cmakePresetsData.version;
+    result.cmakeMinimimRequired = cmakePresetsData.cmakeMinimimRequired;
+
+    result.include = cmakePresetsData.include;
+    if (result.include) {
+        if (cmakeUserPresetsData.include)
+            result.include->append(*cmakeUserPresetsData.include);
+    } else {
+        result.include = cmakeUserPresetsData.include;
+    }
+
+    result.vendor = cmakePresetsData.vendor;
+    if (result.vendor) {
+        if (cmakeUserPresetsData.vendor)
+            result.vendor->insert(*cmakeUserPresetsData.vendor);
+    } else {
+        result.vendor = cmakeUserPresetsData.vendor;
+    }
+
+    result.hasValidPresets = cmakePresetsData.hasValidPresets && cmakeUserPresetsData.hasValidPresets;
+    result.errors = cmakePresetsData.errors + cmakeUserPresetsData.errors;
+
+    auto addError = [&result](const QString &message, const Utils::FilePath &filePath) {
+        result.errors.append({message, filePath});
+        result.hasValidPresets = false;
+    };
+
+    auto combinePresetsInternal = [&addError](auto &presetsHash,
+                                              auto &presets,
+                                              auto &userPresets,
+                                              const QString &presetType) {
+        auto removeDuplicates = [&addError, &presetType](auto &presetsList) {
+            QStringList names;
+            for (auto it = presetsList.begin(); it != presetsList.end();) {
+                if (names.contains(it->name)) {
+                    addError(Tr::tr("%1 cannot define the %2 preset twice: %3")
+                                 .arg(it->filePath.fileName(), presetType, it->name),
+                             it->filePath);
+                    it = presetsList.erase(it);
+                } else {
+                    names << it->name;
+                    ++it;
+                }
+            }
+        };
+        removeDuplicates(presets);
+        removeDuplicates(userPresets);
+
+        // Populate the hash map with the CMakePresets
+        for (const auto &p : presets)
+            presetsHash.insert(p.name, p);
+
+        auto resolveInherits = [&addError, &presetType](auto &presetsHash, auto &presetsList) {
+            Utils::sort(presetsList, [](const auto &left, const auto &right) {
+                const bool sameInheritance = left.inherits && right.inherits
+                                             && *left.inherits == *right.inherits;
+                const bool leftInheritsRight = left.inherits
+                                               && left.inherits->contains(right.name);
+
+                const bool inheritsGreater = left.inherits && right.inherits
+                                             && !left.inherits->isEmpty()
+                                             && !right.inherits->isEmpty()
+                                             && left.inherits->first()
+                                                    > right.inherits->first();
+
+                const bool noInheritsGreaterEqual = !left.inherits &&
+                                                    !right.inherits &&
+                                                    left.name >= right.name;
+
+                if ((left.inherits && !right.inherits) || leftInheritsRight || sameInheritance
+                    || inheritsGreater || noInheritsGreaterEqual)
+                    return false;
+                return true;
+            });
+            for (auto &p : presetsList) {
+                if (!p.inherits)
+                    continue;
+
+                bool cyclic = false;
+                const QStringList inheritsList
+                    = recursiveInheritsList(presetsHash, p.name, *p.inherits, cyclic);
+                if (cyclic) {
+                    addError(Tr::tr("Cyclic inheritance in the %1 preset: %2")
+                                 .arg(presetType, p.name),
+                             p.filePath);
+                }
+                for (const QString &inheritFrom : inheritsList) {
+                    if (presetsHash.contains(inheritFrom)) {
+                        p.inheritFrom(presetsHash[inheritFrom]);
+                        presetsHash[p.name] = p;
+                    }
+                }
+            }
+        };
+
+        // First resolve the CMakePresets
+        resolveInherits(presetsHash, presets);
+
+        // Add the CMakeUserPresets to the resolve hash map
+        for (auto it = userPresets.begin(); it != userPresets.end();) {
+            if (presetsHash.contains(it->name)) {
+                addError(Tr::tr("%1 cannot re-define the %2 preset: %3")
+                             .arg(it->filePath.fileName(), presetType, it->name),
+                         it->filePath);
+                it = userPresets.erase(it);
+            } else {
+                presetsHash.insert(it->name, *it);
+                ++it;
+            }
+        }
+
+        // Then resolve the CMakeUserPresets
+        resolveInherits(presetsHash, userPresets);
+
+        // Get both CMakePresets and CMakeUserPresets into the result
+        auto combined = presets;
+
+        // std::vector doesn't have append
+        std::copy(userPresets.begin(), userPresets.end(), std::back_inserter(combined));
+        return combined;
+    };
+
+    QHash<QString, PresetsDetails::ConfigurePreset> configurePresetsHash;
+    QHash<QString, PresetsDetails::BuildPreset> buildPresetsHash;
+    QHash<QString, PresetsDetails::TestPreset> testPresetsHash;
+
+    result.configurePresets = combinePresetsInternal(configurePresetsHash,
+                                                     cmakePresetsData.configurePresets,
+                                                     cmakeUserPresetsData.configurePresets,
+                                                     "configure");
+    result.buildPresets = combinePresetsInternal(buildPresetsHash,
+                                                 cmakePresetsData.buildPresets,
+                                                 cmakeUserPresetsData.buildPresets,
+                                                 "build");
+    result.testPresets = combinePresetsInternal(
+        testPresetsHash, cmakePresetsData.testPresets, cmakeUserPresetsData.testPresets, "test");
+
+    return result;
+}
+
+// Takes over from the associated configure preset what a build or test preset needs from it:
+// its environment, unless the preset opted out of it, and its generator for the ${generator}
+// macro.
+template<typename PresetType, typename MissingPresetMessage>
+static void setupDependentPresets(PresetsData &presetsData,
+                                  QList<PresetType> &presets,
+                                  const MissingPresetMessage &missingPresetMessage)
+{
+    for (PresetType &preset : presets) {
+        // A hidden preset is only inherited from, it is never used on its own
+        if (preset.hidden)
+            continue;
+
+        std::optional<PresetsDetails::ConfigurePreset> configurePreset;
+        if (preset.configurePreset) {
+            const QString &configurePresetName = *preset.configurePreset;
+            configurePreset = Utils::findOr(presetsData.configurePresets,
+                                            std::nullopt,
+                                            [&configurePresetName](
+                                                const PresetsDetails::ConfigurePreset &candidate) {
+                                                return configurePresetName == candidate.name;
+                                            });
+        }
+
+        // A name that matches no configure preset is as good as no name at all
+        if (!configurePreset) {
+            presetsData.errors.append({missingPresetMessage(preset.name), preset.filePath});
+            presetsData.hasValidPresets = false;
+            continue;
+        }
+
+        preset.generator = configurePreset->generator;
+
+        if (preset.inheritConfigureEnvironment.value_or(true) && configurePreset->environment) {
+            // The preset's own environment takes precedence over the inherited one.
+            preset.environment = preset.environment
+                                     ? preset.environment->appliedToEnvironment(
+                                           *configurePreset->environment)
+                                     : configurePreset->environment;
+        }
+
+        if (preset.environment)
+            preset.environment = CMakePresets::Macros::withoutUnsetVariables(*preset.environment);
+    }
+}
+
+void setupBuildPresets(PresetsData &presetsData)
+{
+    setupDependentPresets(presetsData, presetsData.buildPresets, [](const QString &name) {
+        return Tr::tr("Build preset %1 is missing a corresponding configure preset.").arg(name);
+    });
+}
+
+void setupTestPresets(PresetsData &presetsData)
+{
+    setupDependentPresets(presetsData, presetsData.testPresets, [](const QString &name) {
+        return Tr::tr("Test preset %1 is missing a corresponding configure preset.").arg(name);
+    });
 }
 
 } // CMakeProjectManager::Internal

@@ -7,8 +7,18 @@
 
 namespace CMakeProjectManager::Internal {
 
-// Helper that converts a CMake test preset into a list of command‑line args.
-QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset)
+// The "--" separator that forwards arguments to the test executables, and the
+// "testPassthroughArguments" field that fills it, both arrived with CMake 4.4. An older
+// ctest answers the separator with "Unknown argument: --" and runs no test at all.
+const QVersionNumber &ctestPassthroughArgumentsVersion()
+{
+    static const QVersionNumber version(4, 4);
+    return version;
+}
+
+// Helper that converts a CMake test preset into a list of command-line args.
+QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset,
+                              const QVersionNumber &ctestVersion)
 {
     QStringList args;
 
@@ -23,11 +33,12 @@ QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset)
             args << "--verbose";
         else if (verb == "extra")
             args << "--extra-verbose";
-        else if (verb == "debug")
-            args << "--debug";
 
         if (out.outputOnFailure.value_or(false))
             args << "--output-on-failure";
+
+        if (verb == "debug" || out.debug.value_or(false))
+            args << "--debug";
 
         if (out.quiet.value_or(false))
             args << "--quiet";
@@ -71,15 +82,20 @@ QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset)
 
             if (inc.index) {
                 const PresetsDetails::Filter::Include::Index &idx = *inc.index;
-                if (idx.start)
-                    args << "--start" << QString::number(*idx.start);
-                if (idx.end)
-                    args << "--end" << QString::number(*idx.end);
-                if (idx.stride)
-                    args << "--stride" << QString::number(*idx.stride);
-                if (idx.specificTests)
-                    for (int t : *idx.specificTests)
-                        args << "--specific-test" << QString::number(t);
+                if (idx.indexFile) {
+                    args << "--tests-information" << *idx.indexFile;
+                } else {
+                    // An empty start, end or stride field makes ctest ignore the whole
+                    // filter, a zero one is the default that it stands for.
+                    QStringList information{QString::number(idx.start.value_or(0)),
+                                            QString::number(idx.end.value_or(0)),
+                                            QString::number(idx.stride.value_or(0))};
+                    if (idx.specificTests) {
+                        for (int test : *idx.specificTests)
+                            information << QString::number(test);
+                    }
+                    args << "--tests-information" << information.join(",");
+                }
             }
         }
 
@@ -111,8 +127,11 @@ QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset)
         if (exe.enableFailover.value_or(false))
             args << "-F";
 
-        if (exe.jobs)
-            args << "--parallel" << QString::number(*exe.jobs);
+        if (exe.jobs) {
+            args << "--parallel";
+            if (*exe.jobs)
+                args << QString::number(**exe.jobs);
+        }
 
         if (exe.resourceSpecFile)
             args << "--resource-spec-file" << exe.resourceSpecFile->toFSPathString();
@@ -149,6 +168,17 @@ QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset)
 
     if (preset.configuration)
         args << "--build-config" << *preset.configuration;
+
+    if (preset.overwriteConfigurationFile) {
+        for (const QString &option : *preset.overwriteConfigurationFile)
+            args << "--overwrite" << option;
+    }
+
+    // Has to stay last, everything after it is passed on to the tests
+    if (preset.execution && preset.execution->testPassthroughArguments
+        && ctestVersion >= ctestPassthroughArgumentsVersion()) {
+        args << "--" << *preset.execution->testPassthroughArguments;
+    }
 
     return args;
 }

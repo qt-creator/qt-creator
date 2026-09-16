@@ -37,58 +37,76 @@ static QString getHostSystemName(Utils::OsType osType)
     return "Other";
 }
 
-static void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
-                            const Utils::FilePath &sourceDirectory,
-                            QString &value)
+static void expandDirectoryMacros(const Utils::FilePath &sourceDirectory,
+                                  const Utils::FilePath &fileDir,
+                                  QString &value)
 {
-    value.replace("${dollar}", "$");
-
     value.replace("${sourceDir}", sourceDirectory.path());
     value.replace("${sourceParentDir}", sourceDirectory.parentDir().path());
     value.replace("${sourceDirName}", sourceDirectory.fileName());
-
-    value.replace("${presetName}", preset.name);
-    value.replace("${fileDir}", preset.fileDir.path());
-    if (preset.generator)
-        value.replace("${generator}", *preset.generator);
+    value.replace("${fileDir}", fileDir.path());
 
     value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
     value.replace("${pathListSep}",
                   Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
+}
+
+// Has to be called exactly once, after all other macros have been expanded, so that the
+// dollar sign it expands to cannot start another macro.
+static void expandDollar(QString &value)
+{
+    value.replace("${dollar}", "$");
+}
+
+static void expandCommonMacros(const Utils::FilePath &sourceDirectory,
+                               const Utils::FilePath &fileDir,
+                               const QString &presetName,
+                               const QString &configurePresetName,
+                               const std::optional<QString> &generator,
+                               QString &value)
+{
+    value.replace("${presetName}", presetName);
+    value.replace("${configurePresetName}", configurePresetName);
+    if (generator)
+        value.replace("${generator}", *generator);
+
+    expandDirectoryMacros(sourceDirectory, fileDir, value);
+}
+
+static void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
+                            const Utils::FilePath &sourceDirectory,
+                            QString &value)
+{
+    expandCommonMacros(sourceDirectory,
+                       preset.fileDir,
+                       preset.name,
+                       preset.name,
+                       preset.generator,
+                       value);
 }
 
 static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
                             const Utils::FilePath &sourceDirectory,
                             QString &value)
 {
-    value.replace("${dollar}", "$");
-
-    value.replace("${sourceDir}", sourceDirectory.path());
-    value.replace("${fileDir}", preset.fileDir.path());
-    value.replace("${sourceParentDir}", sourceDirectory.parentDir().path());
-    value.replace("${sourceDirName}", sourceDirectory.fileName());
-
-    value.replace("${presetName}", preset.name);
-    value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
-    value.replace("${pathListSep}",
-                  Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
+    expandCommonMacros(sourceDirectory,
+                       preset.fileDir,
+                       preset.name,
+                       preset.configurePreset.value_or(QString()),
+                       preset.generator,
+                       value);
 }
 
 static void expandAllButEnv(const PresetsDetails::TestPreset &preset,
                             const Utils::FilePath &sourceDirectory,
                             QString &value)
 {
-    value.replace("${dollar}", "$");
-
-    value.replace("${sourceDir}", sourceDirectory.path());
-    value.replace("${fileDir}", preset.fileDir.path());
-    value.replace("${sourceParentDir}", sourceDirectory.parentDir().path());
-    value.replace("${sourceDirName}", sourceDirectory.fileName());
-
-    value.replace("${presetName}", preset.name);
-    value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
-    value.replace("${pathListSep}",
-                  Utils::OsSpecificAspects::pathListSeparator(sourceDirectory.osType()));
+    expandCommonMacros(sourceDirectory,
+                       preset.fileDir,
+                       preset.name,
+                       preset.configurePreset.value_or(QString()),
+                       preset.generator,
+                       value);
 }
 
 
@@ -136,6 +154,20 @@ static QString expandMacroEnv(const QString &macroPrefix,
     return result;
 }
 
+void expandFileMacros(const Utils::FilePath &sourceDirectory,
+                      const Utils::FilePath &fileDir,
+                      QString &value)
+{
+    expandDirectoryMacros(sourceDirectory, fileDir, value);
+
+    const Environment env = sourceDirectory.deviceEnvironment();
+    value = expandMacroEnv("penv", value, [&env](const QString &macroName) {
+        return env.value(macroName);
+    });
+
+    expandDollar(value);
+}
+
 static Environment getEnvCombined(const std::optional<Environment> &optPresetEnv,
                                   const Environment &env)
 {
@@ -152,6 +184,15 @@ static Environment getEnvCombined(const std::optional<Environment> &optPresetEnv
     return result;
 }
 
+Environment withoutUnsetVariables(const Environment &environment)
+{
+    Environment result(environment.osType());
+    environment.forEachEntry([&result](const QString &key, const QString &value, bool enabled) {
+        result.set(key, value, enabled);
+    });
+    return result;
+}
+
 template<class PresetType>
 void expand(const PresetType &preset, Environment &env, const FilePath &sourceDirectory)
 {
@@ -160,9 +201,10 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
 
     const Environment combinedEnv = getEnvCombined(preset.environment, env);
     const Environment parentEnv = env;
+
     for (auto [key, value, enabled] : preset.environment->resolved()) {
         if (!enabled)
-            return;
+            continue;
         expandAllButEnv(preset, sourceDirectory, value);
         value = expandMacroEnv("env", value, [&combinedEnv](const QString &macroName) {
             return combinedEnv.value(macroName);
@@ -174,6 +216,7 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
 
         // Make sure to expand the CMake macros also for environment variables
         expandAllButEnv(preset, sourceDirectory, value);
+        expandDollar(value);
 
         env.set(key, value);
     }
@@ -187,7 +230,7 @@ void expand(const PresetType &preset, EnvironmentItems &envItems, const FilePath
 
     for (auto [key, value, enabled] : preset.environment->resolved()) {
         if (!enabled)
-            return;
+            continue;
         expandAllButEnv(preset, sourceDirectory, value);
         value = expandMacroEnv("env", value, [&preset](const QString &macroName) {
             if (preset.environment->hasKey(macroName))
@@ -201,6 +244,7 @@ void expand(const PresetType &preset, EnvironmentItems &envItems, const FilePath
 
         // Make sure to expand the CMake macros also for environment variables
         expandAllButEnv(preset, sourceDirectory, value);
+        expandDollar(value);
 
         envItems.emplace_back(Utils::EnvironmentItem(key, value));
     }
@@ -225,6 +269,13 @@ void expand(const PresetType &preset,
 
     // Make sure to expand the CMake macros also for environment variables
     expandAllButEnv(preset, sourceDirectory, value);
+    expandDollar(value);
+}
+
+bool isExpandedCacheVariable(const PresetsDetails::ConfigurePreset &configurePreset,
+                             const QByteArray &key)
+{
+    return configurePreset.expandedCacheVariables.contains(key);
 }
 
 void updateToolchainFile(
@@ -239,10 +290,12 @@ void updateToolchainFile(
     QString toolchainFileName = *configurePreset.toolchainFile;
     CMakePresets::Macros::expand(configurePreset, env, sourceDirectory, toolchainFileName);
 
-    // Resolve the relative path first to source and afterwards to build directory
+    // Resolve the relative path first to build and afterwards to source directory
     Utils::FilePath toolchainFile = Utils::FilePath::fromString(toolchainFileName);
     if (toolchainFile.isRelativePath()) {
-        for (const auto &path : {sourceDirectory, buildDirectory}) {
+        for (const auto &path : {buildDirectory, sourceDirectory}) {
+            if (path.isEmpty())
+                continue;
             Utils::FilePath probePath = path.resolvePath(toolchainFile);
             if (probePath.exists() && probePath != path) {
                 toolchainFile = probePath;
@@ -260,6 +313,7 @@ void updateToolchainFile(
         "CMAKE_TOOLCHAIN_FILE", CMakeConfigItem::FILEPATH, toolchainFileString.toUtf8()));
 
     configurePreset.cacheVariables = cache;
+    configurePreset.expandedCacheVariables.insert("CMAKE_TOOLCHAIN_FILE");
 }
 
 void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
@@ -289,6 +343,7 @@ void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
         CMakeConfigItem("CMAKE_INSTALL_PREFIX", CMakeConfigItem::PATH, installDirString.toUtf8()));
 
     configurePreset.cacheVariables = cache;
+    configurePreset.expandedCacheVariables.insert("CMAKE_INSTALL_PREFIX");
 }
 
 
@@ -326,12 +381,86 @@ void updateCacheVariables(PresetsDetails::ConfigurePreset &configurePreset,
         return result.toUtf8();
     };
 
-    for (auto &item : cache)
-        item.value = expandCacheValue(item.key);
+    for (auto &item : cache) {
+        if (!isExpandedCacheVariable(configurePreset, item.key))
+            item.value = expandCacheValue(item.key);
+    }
 
     configurePreset.cacheVariables = cache;
 }
 
+
+void expandTestPreset(PresetsDetails::TestPreset &testPreset,
+                      const Utils::Environment &env,
+                      const Utils::FilePath &sourceDirectory)
+{
+    const PresetsDetails::TestPreset preset = testPreset;
+
+    const auto expandString = [&preset, &env, &sourceDirectory](std::optional<QString> &value) {
+        if (value)
+            expand(preset, env, sourceDirectory, *value);
+    };
+    const auto expandStringList =
+        [&preset, &env, &sourceDirectory](std::optional<QStringList> &values) {
+            if (!values)
+                return;
+            for (QString &value : *values)
+                expand(preset, env, sourceDirectory, value);
+        };
+    const auto expandPath = [&preset, &env, &sourceDirectory](std::optional<FilePath> &value) {
+        if (!value)
+            return;
+        QString path = value->toFSPathString();
+        expand(preset, env, sourceDirectory, path);
+        value = FilePath::fromUserInput(path);
+    };
+
+    if (testPreset.environment) {
+        Environment expanded(testPreset.environment->osType());
+        testPreset.environment->forEachEntry(
+            [&preset, &env, &sourceDirectory, &expanded](const QString &key,
+                                                         const QString &value,
+                                                         bool enabled) {
+                QString expandedValue = value;
+                expand(preset, env, sourceDirectory, expandedValue);
+                expanded.set(key, expandedValue, enabled);
+            });
+        testPreset.environment = expanded;
+    }
+
+    expandString(testPreset.configuration);
+    expandStringList(testPreset.overwriteConfigurationFile);
+
+    if (testPreset.output) {
+        expandPath(testPreset.output->outputLogFile);
+        expandPath(testPreset.output->outputJUnitFile);
+    }
+
+    if (testPreset.filter) {
+        if (testPreset.filter->include) {
+            PresetsDetails::Filter::Include &include = *testPreset.filter->include;
+            expandString(include.name);
+            expandString(include.label);
+            if (include.index)
+                expandString(include.index->indexFile);
+        }
+        if (testPreset.filter->exclude) {
+            PresetsDetails::Filter::Exclude &exclude = *testPreset.filter->exclude;
+            expandString(exclude.name);
+            expandString(exclude.label);
+            if (exclude.fixtures) {
+                expandString(exclude.fixtures->any);
+                expandString(exclude.fixtures->setup);
+                expandString(exclude.fixtures->cleanup);
+            }
+        }
+    }
+
+    if (testPreset.execution) {
+        expandPath(testPreset.execution->resourceSpecFile);
+        expandStringList(testPreset.execution->testPassthroughArguments);
+    }
+}
 
 template<class PresetType>
 void expandConditionValues(const PresetType &preset,

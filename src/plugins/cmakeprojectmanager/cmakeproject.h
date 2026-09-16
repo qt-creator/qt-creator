@@ -43,11 +43,6 @@ public:
 
 private:
 
-    Internal::PresetsData combinePresets(Internal::PresetsData &cmakePresetsData,
-                                         Internal::PresetsData &cmakeUserPresetsData);
-    void setupBuildPresets(Internal::PresetsData &presetsData);
-    void setupTestPresets(Internal::PresetsData &presetsData);
-
     ProjectExplorer::Tasks m_issues;
     Internal::PresetsData m_presetsData;
     Internal::CMakeSpecificSettings m_settings;

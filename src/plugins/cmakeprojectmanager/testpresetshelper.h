@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QString>
+#include <QVersionNumber>
 
 namespace CMakeProjectManager::Internal {
 
@@ -11,6 +12,11 @@ namespace PresetsDetails {
 class TestPreset;
 }
 
-QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset);
+// The lowest ctest version that understands the "--" separator which
+// "testPassthroughArguments" is passed after.
+const QVersionNumber &ctestPassthroughArgumentsVersion();
+
+QStringList presetToCTestArgs(const PresetsDetails::TestPreset &preset,
+                              const QVersionNumber &ctestVersion);
 
 } // namespace CMakeProjectManager::Internal

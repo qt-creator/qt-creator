@@ -1354,10 +1354,17 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
             initialArguments.append("--warn-uninitialized");
         if (configurePreset.warnings->unusedCli
             && !*configurePreset.warnings->unusedCli)
-            initialArguments.append(" --no-warn-unused-cli");
+            initialArguments.append("--no-warn-unused-cli");
         if (configurePreset.warnings->systemVars
             && *configurePreset.warnings->systemVars)
             initialArguments.append("--check-system-vars");
+
+        const QMap<QString, bool> &categories = configurePreset.warnings->categories;
+        for (auto it = categories.constKeyValueBegin(); it != categories.constKeyValueEnd(); ++it) {
+            initialArguments.append(QString("-W%1%2")
+                                        .arg(it->second ? QString() : QString("no-"),
+                                             diagnosticOptionNames().value(it->first)));
+        }
     }
 
     if (configurePreset.errors) {
@@ -1369,6 +1376,13 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
             bool value = *configurePreset.errors->deprecated;
             initialArguments.append(value ? QString("-Werror=deprecated")
                                           : QString("-Wno-error=deprecated"));
+        }
+
+        const QMap<QString, bool> &categories = configurePreset.errors->categories;
+        for (auto it = categories.constKeyValueBegin(); it != categories.constKeyValueEnd(); ++it) {
+            initialArguments.append(QString("-W%1error=%2")
+                                        .arg(it->second ? QString() : QString("no-"),
+                                             diagnosticOptionNames().value(it->first)));
         }
     }
 
@@ -1419,13 +1433,21 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
         cache = *configurePreset.cacheVariables;
 
     for (const CMakeConfigItem &presetItemRaw : std::as_const(cache)) {
+        // A "null" cache variable only shadows the one of the preset it inherits from
+        if (presetItemRaw.isUnset)
+            continue;
 
         // Expand the CMakePresets Macros
         CMakeConfigItem presetItem(presetItemRaw);
 
-        QString presetItemValue = QString::fromUtf8(presetItem.value);
-        CMakePresets::Macros::expand(configurePreset, env, project->projectDirectory(), presetItemValue);
-        presetItem.value = presetItemValue.toUtf8();
+        if (!CMakePresets::Macros::isExpandedCacheVariable(configurePreset, presetItem.key)) {
+            QString presetItemValue = QString::fromUtf8(presetItem.value);
+            CMakePresets::Macros::expand(configurePreset,
+                                         env,
+                                         project->projectDirectory(),
+                                         presetItemValue);
+            presetItem.value = presetItemValue.toUtf8();
+        }
 
         const QString presetItemArg = presetItem.toArgument();
         const QString presetItemArgNoType = presetItemArg.left(presetItemArg.indexOf(":"));

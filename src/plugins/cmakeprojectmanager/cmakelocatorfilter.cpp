@@ -13,6 +13,7 @@
 #include "cmakeprojectmanagertr.h"
 #include "cmaketoolmanager.h"
 #include "cmakeutils.h"
+#include "presetsmacros.h"
 #include "targethelper.h"
 #include "testpresetshelper.h"
 
@@ -605,7 +606,17 @@ private:
             auto preset = Utils::findOrDefault(
                 cbs->project()->presetsData().testPresets,
                 [testInfo](const auto &preset) { return preset.name == testInfo.name; });
-            additionalOptions = presetToCTestArgs(preset);
+            CMakePresets::Macros::expandTestPreset(preset,
+                                                   buildSystem->buildConfiguration()->environment(),
+                                                   cbs->project()->projectDirectory());
+
+            QVersionNumber ctestVersion;
+            if (const CMakeTool *tool = CMakeToolManager::findByCommand(
+                    CMakeKitAspect::cmakeExecutable(buildSystem->kit()))) {
+                const CMakeTool::Version version = tool->version();
+                ctestVersion = QVersionNumber(version.major, version.minor, version.patch);
+            }
+            additionalOptions = presetToCTestArgs(preset, ctestVersion);
 
             if (preset.environment)
                 testEnv.environment = *preset.environment;

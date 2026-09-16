@@ -459,7 +459,7 @@ FilePaths CMakeProjectImporter::presetCandidates()
             continue;
 
         if (configPreset.condition) {
-            if (!CMakePresets::Macros::evaluatePresetCondition(configPreset, projectFilePath()))
+            if (!CMakePresets::Macros::evaluatePresetCondition(configPreset, projectDirectory()))
                 continue;
         }
 
@@ -1048,9 +1048,13 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
         data.toolset = *configurePreset.toolset->value;
 
     if (architectureExternalStrategy || toolsetExternalStrategy) {
-        const Toolchain *tc
-            = findExternalToolchain(configurePreset.architecture->value.value_or(QString()),
-                                    configurePreset.toolset->value.value_or(QString()));
+        const QString architecture = configurePreset.architecture
+                                         ? configurePreset.architecture->value.value_or(QString())
+                                         : QString();
+        const QString toolset = configurePreset.toolset
+                                    ? configurePreset.toolset->value.value_or(QString())
+                                    : QString();
+        const Toolchain *tc = findExternalToolchain(architecture, toolset);
         if (tc)
             tc->addToEnvironment(env);
     }
@@ -1115,7 +1119,10 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
             // For the compiler probe we don't need VCPKG_MANIFEST_MODE
             cacheVariables.remove("VCPKG_MANIFEST_MODE");
 
-            args.append(cacheVariables.toArguments());
+            for (const CMakeConfigItem &item : std::as_const(cacheVariables)) {
+                if (!item.isUnset)
+                    args.append(item.toArgument());
+            }
         }
 
         qCDebug(cmInputLog) << "CMake probing for compilers: " << cmakeExecutable.toUserOutput()

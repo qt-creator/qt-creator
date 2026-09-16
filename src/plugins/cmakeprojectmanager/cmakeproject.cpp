@@ -137,186 +137,6 @@ PresetsData CMakeProject::presetsData() const
     return m_presetsData;
 }
 
-template<typename T>
-static QStringList recursiveInheritsList(const T &presetsHash, const QStringList &inheritsList)
-{
-    QStringList result;
-    for (const QString &inheritFrom : inheritsList) {
-        result << inheritFrom;
-        if (presetsHash.contains(inheritFrom)) {
-            auto item = presetsHash[inheritFrom];
-            if (item.inherits)
-                result << recursiveInheritsList(presetsHash, *item.inherits);
-        }
-    }
-    return result;
-}
-
-Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakePresetsData,
-                                                   Internal::PresetsData &cmakeUserPresetsData)
-{
-    Internal::PresetsData result;
-    result.version = cmakePresetsData.version;
-    result.cmakeMinimimRequired = cmakePresetsData.cmakeMinimimRequired;
-
-    result.include = cmakePresetsData.include;
-    if (result.include) {
-        if (cmakeUserPresetsData.include)
-            result.include->append(*cmakeUserPresetsData.include);
-    } else {
-        result.include = cmakeUserPresetsData.include;
-    }
-
-    result.vendor = cmakePresetsData.vendor;
-    if (result.vendor) {
-        if (cmakeUserPresetsData.vendor)
-            result.vendor->insert(*cmakeUserPresetsData.vendor);
-    } else {
-        result.vendor = cmakeUserPresetsData.vendor;
-    }
-
-    result.hasValidPresets = cmakePresetsData.hasValidPresets && cmakeUserPresetsData.hasValidPresets;
-
-    auto combinePresetsInternal = [](auto &presetsHash,
-                                     auto &presets,
-                                     auto &userPresets,
-                                     const QString &presetType) {
-        // Populate the hash map with the CMakePresets
-        for (const auto &p : presets)
-            presetsHash.insert(p.name, p);
-
-        auto resolveInherits = [](auto &presetsHash, auto &presetsList) {
-            Utils::sort(presetsList, [](const auto &left, const auto &right) {
-                const bool sameInheritance = left.inherits && right.inherits
-                                             && *left.inherits == *right.inherits;
-                const bool leftInheritsRight = left.inherits
-                                               && left.inherits->contains(right.name);
-
-                const bool inheritsGreater = left.inherits && right.inherits
-                                             && !left.inherits->isEmpty()
-                                             && !right.inherits->isEmpty()
-                                             && left.inherits->first()
-                                                    > right.inherits->first();
-
-                const bool noInheritsGreaterEqual = !left.inherits &&
-                                                    !right.inherits &&
-                                                    left.name >= right.name;
-
-                if ((left.inherits && !right.inherits) || leftInheritsRight || sameInheritance
-                    || inheritsGreater || noInheritsGreaterEqual)
-                    return false;
-                return true;
-            });
-            for (auto &p : presetsList) {
-                if (!p.inherits)
-                    continue;
-
-                const QStringList inheritsList = recursiveInheritsList(presetsHash,
-                                                                       *p.inherits);
-                for (const QString &inheritFrom : inheritsList) {
-                    if (presetsHash.contains(inheritFrom)) {
-                        p.inheritFrom(presetsHash[inheritFrom]);
-                        presetsHash[p.name] = p;
-                    }
-                }
-            }
-        };
-
-        // First resolve the CMakePresets
-        resolveInherits(presetsHash, presets);
-
-        // Add the CMakeUserPresets to the resolve hash map
-        for (const auto &p : userPresets) {
-            if (presetsHash.contains(p.name)) {
-                TaskHub::addTask<BuildSystemTask>(
-                    Task::TaskType::DisruptingError,
-                    Tr::tr("CMakeUserPresets.json cannot re-define the %1 preset: %2")
-                        .arg(presetType)
-                        .arg(p.name),
-                    FilePath::fromString("CMakeUserPresets.json"));
-            } else {
-                presetsHash.insert(p.name, p);
-            }
-        }
-
-        // Then resolve the CMakeUserPresets
-        resolveInherits(presetsHash, userPresets);
-
-        // Get both CMakePresets and CMakeUserPresets into the result
-        auto result = presets;
-
-        // std::vector doesn't have append
-        std::copy(userPresets.begin(), userPresets.end(), std::back_inserter(result));
-        return result;
-    };
-
-    QHash<QString, PresetsDetails::ConfigurePreset> configurePresetsHash;
-    QHash<QString, PresetsDetails::BuildPreset> buildPresetsHash;
-    QHash<QString, PresetsDetails::TestPreset> testPresetsHash;
-
-    result.configurePresets = combinePresetsInternal(configurePresetsHash,
-                                                     cmakePresetsData.configurePresets,
-                                                     cmakeUserPresetsData.configurePresets,
-                                                     "configure");
-    result.buildPresets = combinePresetsInternal(buildPresetsHash,
-                                                 cmakePresetsData.buildPresets,
-                                                 cmakeUserPresetsData.buildPresets,
-                                                 "build");
-    result.testPresets = combinePresetsInternal(
-        testPresetsHash, cmakePresetsData.testPresets, cmakeUserPresetsData.testPresets, "test");
-
-    return result;
-}
-
-void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
-{
-    for (auto &buildPreset : presetsData.buildPresets) {
-        if (buildPreset.inheritConfigureEnvironment) {
-            if (!buildPreset.configurePreset && !buildPreset.hidden) {
-                TaskHub::addTask<BuildSystemTask>(
-                    Task::TaskType::DisruptingError,
-                    Tr::tr("Build preset %1 is missing a corresponding configure preset.")
-                        .arg(buildPreset.name));
-                presetsData.hasValidPresets = false;
-            }
-
-            const QString &configurePresetName = buildPreset.configurePreset.value_or(QString());
-            buildPreset.environment
-                = Utils::findOrDefault(presetsData.configurePresets,
-                                       [configurePresetName](
-                                           const PresetsDetails::ConfigurePreset &configurePreset) {
-                                           return configurePresetName == configurePreset.name;
-                                       })
-                      .environment;
-        }
-    }
-}
-
-void CMakeProject::setupTestPresets(Internal::PresetsData &presetsData)
-{
-    for (auto &testPreset : presetsData.testPresets) {
-        if (testPreset.inheritConfigureEnvironment) {
-            if (!testPreset.configurePreset && !testPreset.hidden) {
-                TaskHub::addTask<BuildSystemTask>(
-                    Task::TaskType::DisruptingError,
-                    Tr::tr("Test preset %1 is missing a corresponding configure preset.")
-                        .arg(testPreset.name));
-                presetsData.hasValidPresets = false;
-            }
-
-            const QString &configurePresetName = testPreset.configurePreset.value_or(QString());
-            testPreset.environment
-                = Utils::findOrDefault(presetsData.configurePresets,
-                                       [configurePresetName](
-                                           const PresetsDetails::ConfigurePreset &configurePreset) {
-                                           return configurePresetName == configurePreset.name;
-                                       })
-                      .environment;
-        }
-    }
-}
-
-
 QString CMakeProject::projectDisplayName(const Utils::FilePath &projectFilePath)
 {
     const QString fallbackDisplayName = projectFilePath.absolutePath().fileName();
@@ -371,37 +191,49 @@ void CMakeProject::readPresets()
         return data;
     };
 
-    std::function<void(Internal::PresetsData & presetData, Utils::FilePaths & inclueStack)>
-        resolveIncludes = [&](Internal::PresetsData &presetData, Utils::FilePaths &includeStack) {
-            if (presetData.include) {
-                for (const QString &path : *presetData.include) {
-                    Utils::FilePath includePath = Utils::FilePath::fromUserInput(path);
-                    if (!includePath.isAbsolutePath())
-                        includePath = presetData.fileDir.resolvePath(path);
+    // A file that several files include is read only once, like CMake does. Only a file that
+    // includes itself through its own include chain is an error.
+    Utils::FilePaths readFiles;
+    std::function<void(Internal::PresetsData & presetData, Utils::FilePaths & includeChain)>
+        resolveIncludes = [&](Internal::PresetsData &presetData, Utils::FilePaths &includeChain) {
+            if (!presetData.include)
+                return;
 
-                    Internal::PresetsData includeData = parsePreset(includePath);
-                    if (includeData.include) {
-                        if (includeStack.contains(includePath)) {
-                            TaskHub::addTask<BuildSystemTask>(
-                                Task::TaskType::Warning,
-                                Tr::tr("Attempt to include \"%1\" which was already parsed.")
-                                    .arg(includePath.path()),
-                                Utils::FilePath(),
-                                -1);
-                            TaskHub::requestPopup();
-                        } else {
-                            resolveIncludes(includeData, includeStack);
-                        }
-                    }
+            for (const QString &path : *presetData.include) {
+                QString expandedPath = path;
+                CMakePresets::Macros::expandFileMacros(projectDirectory(),
+                                                       presetData.fileDir,
+                                                       expandedPath);
 
-                    presetData.configurePresets = includeData.configurePresets
-                                                  + presetData.configurePresets;
-                    presetData.buildPresets = includeData.buildPresets + presetData.buildPresets;
-                    presetData.testPresets = includeData.testPresets + presetData.testPresets;
-                    presetData.hasValidPresets = includeData.hasValidPresets && presetData.hasValidPresets;
+                Utils::FilePath includePath = Utils::FilePath::fromUserInput(expandedPath);
+                if (!includePath.isAbsolutePath())
+                    includePath = presetData.fileDir.resolvePath(expandedPath);
+                includePath = includePath.cleanPath();
 
-                    includeStack << includePath;
+                if (includeChain.contains(includePath)) {
+                    TaskHub::addTask<BuildSystemTask>(
+                        Task::TaskType::DisruptingError,
+                        Tr::tr("Attempt to include \"%1\" which was already parsed.")
+                            .arg(includePath.path()));
+                    presetData.hasValidPresets = false;
+                    continue;
                 }
+                if (readFiles.contains(includePath))
+                    continue;
+                readFiles << includePath;
+
+                Internal::PresetsData includeData = parsePreset(includePath);
+
+                includeChain << includePath;
+                resolveIncludes(includeData, includeChain);
+                includeChain.removeLast();
+
+                presetData.configurePresets = includeData.configurePresets
+                                              + presetData.configurePresets;
+                presetData.buildPresets = includeData.buildPresets + presetData.buildPresets;
+                presetData.testPresets = includeData.testPresets + presetData.testPresets;
+                presetData.hasValidPresets = includeData.hasValidPresets
+                                             && presetData.hasValidPresets;
             }
         };
 
@@ -420,15 +252,37 @@ void CMakeProject::readPresets()
         return;
 
     // resolve the include
-    Utils::FilePaths includeStack = {cmakePresetsJson};
-    resolveIncludes(cmakePresetsData, includeStack);
+    readFiles = {cmakePresetsJson, cmakeUserPresetsJson};
 
-    includeStack = {cmakeUserPresetsJson};
-    resolveIncludes(cmakeUserPresetsData, includeStack);
+    Utils::FilePaths includeChain = {cmakePresetsJson};
+    resolveIncludes(cmakePresetsData, includeChain);
 
-    m_presetsData = combinePresets(cmakePresetsData, cmakeUserPresetsData);
-    setupBuildPresets(m_presetsData);
-    setupTestPresets(m_presetsData);
+    includeChain = {cmakeUserPresetsJson};
+    resolveIncludes(cmakeUserPresetsData, includeChain);
+
+    // Watch before the presets are validated, so that correcting a rejected file reloads it.
+    m_includeFilesWatcher = FilePath::watch(readFiles);
+    for (Result<std::unique_ptr<FilePathWatcher>> &watcher : m_includeFilesWatcher) {
+        if (watcher) {
+            connect(watcher->get(), &FilePathWatcher::pathChanged, this, [] {
+                Command *reloadCMakePresets = ActionManager::command(
+                    Constants::RELOAD_CMAKE_PRESETS);
+
+                if (reloadCMakePresets)
+                    emit reloadCMakePresets->action()->triggered();
+            });
+        }
+    }
+
+    m_presetsData = Internal::combinePresets(cmakePresetsData, cmakeUserPresetsData);
+    Internal::setupBuildPresets(m_presetsData);
+    Internal::setupTestPresets(m_presetsData);
+
+    for (const Internal::PresetsError &error : std::as_const(m_presetsData.errors)) {
+        TaskHub::addTask<BuildSystemTask>(Task::TaskType::DisruptingError,
+                                          error.message,
+                                          error.filePath);
+    }
 
     if (!m_presetsData.hasValidPresets) {
         m_presetsData = {};
@@ -440,24 +294,11 @@ void CMakeProject::readPresets()
             continue;
 
         if (configPreset.condition) {
-            if (!CMakePresets::Macros::evaluatePresetCondition(configPreset, projectFilePath()))
+            if (!CMakePresets::Macros::evaluatePresetCondition(configPreset, projectDirectory()))
                 continue;
         }
         m_presetsData.havePresets = true;
         break;
-    }
-
-    m_includeFilesWatcher = FilePath::watch(includeStack);
-    for (Result<std::unique_ptr<FilePathWatcher>> &watcher : m_includeFilesWatcher) {
-        if (watcher) {
-            connect(watcher->get(), &FilePathWatcher::pathChanged, this, [] {
-                Command *reloadCMakePresets = ActionManager::command(
-                    Constants::RELOAD_CMAKE_PRESETS);
-
-                if (reloadCMakePresets)
-                    emit reloadCMakePresets->action()->triggered();
-            });
-        }
     }
 }
 
@@ -534,6 +375,143 @@ private slots:
             }
         }
         QVERIFY(found);
+    }
+
+    void testCyclicInheritance()
+    {
+        const QByteArray content = R"(
+            {
+                "version": 3,
+                "configurePresets": [
+                    {
+                        "name": "a",
+                        "inherits": "b",
+                        "binaryDir": "${sourceDir}/build"
+                    },
+                    {
+                        "name": "b",
+                        "inherits": "a",
+                        "binaryDir": "${sourceDir}/build"
+                    }
+                ]
+            }
+        )";
+        const FilePath presetFiles = FilePath::fromUserInput(QDir::tempPath()
+                                                             + "/CMakePresets.json");
+        QVERIFY(presetFiles.writeFileContents(content));
+
+        // Reading the presets reports the cycle instead of recursing until the stack is gone
+        CMakeProject project(presetFiles);
+        QVERIFY(!project.presetsData().havePresets);
+    }
+
+    void testDiamondInheritanceIsNotCyclic()
+    {
+        const QByteArray content = R"(
+            {
+                "version": 3,
+                "configurePresets": [
+                    {
+                        "name": "base",
+                        "hidden": true,
+                        "binaryDir": "${sourceDir}/build",
+                        "cacheVariables": {
+                            "FROM_BASE": "yes"
+                        }
+                    },
+                    {
+                        "name": "ninja",
+                        "hidden": true,
+                        "inherits": "base",
+                        "generator": "Ninja"
+                    },
+                    {
+                        "name": "vcpkg",
+                        "hidden": true,
+                        "inherits": "base"
+                    },
+                    {
+                        "name": "dev",
+                        "inherits": [
+                            "ninja",
+                            "vcpkg"
+                        ]
+                    }
+                ]
+            }
+        )";
+        const FilePath presetFiles = FilePath::fromUserInput(QDir::tempPath()
+                                                             + "/CMakePresets.json");
+        QVERIFY(presetFiles.writeFileContents(content));
+
+        // "base" is reached both through "ninja" and through "vcpkg". That is a diamond, which
+        // CMake allows, and not a cycle, so the presets survive and "dev" inherits from "base".
+        CMakeProject project(presetFiles);
+        const PresetsData &pd = project.presetsData();
+        QVERIFY(pd.havePresets);
+
+        auto it = std::find_if(pd.configurePresets.begin(),
+                               pd.configurePresets.end(),
+                               [](const PresetsDetails::ConfigurePreset &p) {
+                                   return p.name == "dev";
+                               });
+        QVERIFY(it != pd.configurePresets.end());
+        QVERIFY(it->cacheVariables);
+        QCOMPARE(it->cacheVariables->valueOf("FROM_BASE"), QByteArray("yes"));
+    }
+
+    void testFileIncludedTwiceIsReadOnce()
+    {
+        const QByteArray root = R"(
+            {
+                "version": 4,
+                "include": [
+                    "${sourceDir}/include/first.json",
+                    "include/second.json"
+                ]
+            }
+        )";
+        const QByteArray includer = R"(
+            {
+                "version": 4,
+                "include": [ "common.json" ]
+            }
+        )";
+        const QByteArray common = R"(
+            {
+                "version": 4,
+                "configurePresets": [
+                    {
+                        "name": "common",
+                        "binaryDir": "${sourceDir}/build",
+                        "generator": "Ninja"
+                    }
+                ]
+            }
+        )";
+
+        const QString tempPath = QDir::tempPath();
+        const FilePath presetFiles = FilePath::fromUserInput(tempPath + "/CMakePresets.json");
+        QVERIFY(presetFiles.writeFileContents(root));
+        for (const QString &name : {QString("first"), QString("second")}) {
+            const FilePath file = FilePath::fromUserInput(
+                tempPath + "/include/" + name + ".json");
+            QVERIFY(file.parentDir().ensureWritableDir());
+            QVERIFY(file.writeFileContents(includer));
+        }
+        const FilePath commonFile = FilePath::fromUserInput(tempPath + "/include/common.json");
+        QVERIFY(commonFile.writeFileContents(common));
+
+        CMakeProject project(presetFiles);
+        const PresetsData &pd = project.presetsData();
+
+        // Both included files include the same file, whose presets appear only once
+        const int commonPresets = Utils::count(pd.configurePresets,
+                                               [](const PresetsDetails::ConfigurePreset &p) {
+                                                   return p.name == "common";
+                                               });
+        QCOMPARE(commonPresets, 1);
+        QVERIFY(pd.havePresets);
     }
 
     // QTCREATORBUG-30288

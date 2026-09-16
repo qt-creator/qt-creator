@@ -9,6 +9,8 @@
 #include <utils/filepath.h>
 
 #include <QHash>
+#include <QMap>
+#include <QSet>
 #include <QVersionNumber>
 
 namespace CMakeProjectManager::Internal {
@@ -26,22 +28,24 @@ class Warnings {
 public:
     std::optional<bool> dev;
     std::optional<bool> deprecated;
-    std::optional<bool> uninitialized = false;
-    std::optional<bool> unusedCli = true;
-    std::optional<bool> systemVars = false;
+    std::optional<bool> uninitialized;
+    std::optional<bool> unusedCli;
+    std::optional<bool> systemVars;
+    QMap<QString, bool> categories;
 };
 
 class Errors {
 public:
     std::optional<bool> dev;
     std::optional<bool> deprecated;
+    QMap<QString, bool> categories;
 };
 
 class Debug {
 public:
-    std::optional<bool> output = false;
-    std::optional<bool> tryCompile = false;
-    std::optional<bool> find = false;
+    std::optional<bool> output;
+    std::optional<bool> tryCompile;
+    std::optional<bool> find;
 };
 
 struct Trace {
@@ -121,6 +125,7 @@ struct Filter
             std::optional<int> end;
             std::optional<int> stride;
             std::optional<QList<int>> specificTests;
+            std::optional<QString> indexFile;
         };
         std::optional<Index> index;
     };
@@ -144,7 +149,9 @@ struct Filter
 struct Execution {
     std::optional<bool> stopOnFailure;
     std::optional<bool> enableFailover;
-    std::optional<int> jobs;
+    // An unset inner value, written as an empty string, means "as many jobs
+    // as there are processors".
+    std::optional<std::optional<int>> jobs;
     std::optional<Utils::FilePath> resourceSpecFile;
     std::optional<int> testLoad;
     std::optional<QString> showOnly;
@@ -158,6 +165,7 @@ struct Execution {
     std::optional<bool> scheduleRandom;
     std::optional<int> timeout;
     std::optional<QString> noTestsAction;
+    std::optional<QStringList> testPassthroughArguments;
 };
 
 class RunSettings {
@@ -184,6 +192,7 @@ public:
 
     QString name;
     Utils::FilePath fileDir;
+    Utils::FilePath filePath;
     bool hidden = false;
     std::optional<QStringList> inherits;
     std::optional<Condition> condition;
@@ -205,6 +214,8 @@ public:
     std::optional<QString> graphviz;
     std::optional<Trace> trace;
     QList<RunSettings> runSettings;
+    // Cache variables that updateToolchainFile() and updateInstallDir() already expanded.
+    QSet<QByteArray> expandedCacheVariables;
 };
 
 class BuildPreset {
@@ -213,6 +224,7 @@ public:
 
     QString name;
     Utils::FilePath fileDir;
+    Utils::FilePath filePath;
     bool hidden = false;
     std::optional<QStringList> inherits;
     std::optional<Condition> condition;
@@ -221,7 +233,9 @@ public:
     std::optional<QString> description;
     std::optional<Utils::Environment> environment;
     std::optional<QString> configurePreset;
-    bool inheritConfigureEnvironment = true;
+    std::optional<bool> inheritConfigureEnvironment;
+    // Taken from the configure preset, for the ${generator} macro.
+    std::optional<QString> generator;
     std::optional<int> jobs;
     std::optional<QStringList> targets;
     std::optional<QString> configuration;
@@ -237,6 +251,7 @@ public:
     QString name;
     bool hidden = false;
     Utils::FilePath fileDir;
+    Utils::FilePath filePath;
     std::optional<QStringList> inherits;
     std::optional<Condition> condition;
     std::optional<QVariantMap> vendor;
@@ -244,7 +259,9 @@ public:
     std::optional<QString> description;
     std::optional<Utils::Environment> environment;
     std::optional<QString> configurePreset;
-    bool inheritConfigureEnvironment = true;
+    std::optional<bool> inheritConfigureEnvironment;
+    // Taken from the configure preset, for the ${generator} macro.
+    std::optional<QString> generator;
     std::optional<QString> configuration;
     std::optional<QStringList> overwriteConfigurationFile;
     std::optional<Output> output;
@@ -253,6 +270,14 @@ public:
 };
 
 } // namespace PresetsDetails
+
+// A presets file that CMake would refuse, described for the issues pane.
+class PresetsError
+{
+public:
+    QString message;
+    Utils::FilePath filePath;
+};
 
 class PresetsData
 {
@@ -267,6 +292,7 @@ public:
     QList<PresetsDetails::ConfigurePreset> configurePresets;
     QList<PresetsDetails::BuildPreset> buildPresets;
     QList<PresetsDetails::TestPreset> testPresets;
+    QList<PresetsError> errors;
 };
 
 class PresetsParser
@@ -279,5 +305,17 @@ public:
 };
 
 std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonValue);
+
+// Resolves the "inherits" chains of both files and merges the CMakeUserPresets.json presets
+// into the CMakePresets.json ones.
+PresetsData combinePresets(PresetsData &cmakePresetsData, PresetsData &cmakeUserPresetsData);
+
+// Take over from the associated configure preset what a build or test preset needs from it.
+void setupBuildPresets(PresetsData &presetsData);
+void setupTestPresets(PresetsData &presetsData);
+
+// Maps a "warnings"/"errors" diagnostic category to the name that the cmake
+// -W command line options use for it.
+const QMap<QString, QString> &diagnosticOptionNames();
 
 } // CMakeProjectManager::Internal
