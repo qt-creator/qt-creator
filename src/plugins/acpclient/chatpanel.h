@@ -20,7 +20,6 @@
 namespace Utils {
 class InfoLabel;
 class QtcButton;
-class QtcComboBox;
 class QtcIconButton;
 class QtcProgressBar;
 } // namespace Utils
@@ -56,6 +55,7 @@ struct ImageContext
 
 class AcpMessageView;
 class ChatInputEdit;
+class ConfigSelectPopup;
 class SendButton;
 class SessionPickerWidget;
 class TextContextEditor;
@@ -130,12 +130,32 @@ signals:
     void inspectRequested();
     void closeSessionRequested();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
     QList<Acp::V2::SessionConfigOption> m_configOptions;
     void showConfigMenu();
+    void showSelectPopup(const Acp::V2::SessionConfigOption &option, QWidget *anchor);
+    void updateSelectPopup();
+    QStringList configFavorites(const QString &configId) const;
+    void setConfigFavorites(const QString &configId, const QStringList &favoriteValues);
+
+    QString updateSelectButton(Utils::QtcButton *button,
+                               Acp::V2::SessionConfigOptionCategory category,
+                               const QString &tooltipTemplate,
+                               QString *name);
+    // Width the mode and model names may take together before they are elided.
+    int selectButtonNamesWidth() const;
+    void updateSelectButtonTexts();
 
     QString m_modeConfigId;
+    QString m_modeName;
     void updateModeButton();
+
+    QString m_modelConfigId;
+    QString m_modelName;
+    void updateModelButton();
 
     std::optional<Acp::V2::UsageUpdate> m_usage;
     std::optional<Acp::V2::UsageUpdate> m_usageAtPromptStart;
@@ -159,12 +179,16 @@ private:
     Utils::QtcButton *m_sendButton;
     Utils::QtcIconButton *m_commandsButton;
     Utils::QtcIconButton *m_configButton = nullptr;
-    Utils::QtcComboBox *m_modeCombo = nullptr;
+    Utils::QtcButton *m_modeButton = nullptr;
+    Utils::QtcButton *m_modelButton = nullptr;
+    QPointer<ConfigSelectPopup> m_selectPopup;
+    QString m_selectPopupConfigId;
     Utils::QtcProgressBar *m_usageBar = nullptr;
     QLabel *m_usageLabel = nullptr;
     QMenu *m_commandsMenu = nullptr;
     QWidget *m_contextBar = nullptr;
     QLayout *m_contextBarLayout = nullptr;
+    QHBoxLayout *m_bottomRowLayout = nullptr;
     bool m_includeCurrentEditorContext = true;
     QList<Utils::FilePath> m_manualContextFiles;
     QList<TextContext> m_textContexts;

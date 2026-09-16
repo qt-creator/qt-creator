@@ -7,6 +7,7 @@
 #include "acpmessageview.h"
 #include "chatfontscale.h"
 #include "chatinputedit.h"
+#include "configselectpopup.h"
 #include "sessionpickerwidget.h"
 
 #include <coreplugin/coreicons.h>
@@ -63,6 +64,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidgetAction>
+
+#include <algorithm>
 
 using namespace Acp::V2;
 using namespace Utils;
@@ -492,6 +495,52 @@ private:
     QtcComboBox *m_rememberCombo = nullptr;
 };
 
+// A select option with more values than this is offered as a filterable popup
+// instead of a submenu listing all of them.
+enum { maxSubmenuOptions = 12 };
+
+// Room a mode or model name keeps even in an input row that has none left, so
+// that a narrow panel leaves the name recognizable instead of a bare ellipsis.
+enum { selectButtonMinimumTextChars = 8 };
+
+static std::optional<SessionConfigOption> optionForCategory(
+    const QList<SessionConfigOption> &options, SessionConfigOptionCategory category)
+{
+    const auto it = std::find_if(options.cbegin(), options.cend(),
+                                 [category](const SessionConfigOption &option) {
+        return option.category().has_value() && *option.category() == category;
+    });
+    if (it == options.cend())
+        return std::nullopt;
+    return *it;
+}
+
+static std::optional<SessionConfigSelect> selectFor(const SessionConfigOption &option)
+{
+    if (const auto select = fromJson<SessionConfigSelect>(QJsonValue(toJson(option))))
+        return *select;
+    return std::nullopt;
+}
+
+static QList<ConfigSelectEntry> selectEntries(const SessionConfigSelect &select)
+{
+    QList<ConfigSelectEntry> result;
+    const auto addOption = [&result](const SessionConfigSelectOption &opt, const QString &group) {
+        const QString description = opt.description().has_value() ? *opt.description() : QString();
+        result.append({opt.value(), opt.name(), description, group});
+    };
+    if (auto *flatOptions = std::get_if<QList<SessionConfigSelectOption>>(&select.options())) {
+        for (const SessionConfigSelectOption &opt : *flatOptions)
+            addOption(opt, {});
+    } else if (auto *groups = std::get_if<QList<SessionConfigSelectGroup>>(&select.options())) {
+        for (const SessionConfigSelectGroup &group : *groups) {
+            for (const SessionConfigSelectOption &opt : group.options())
+                addOption(opt, group.name());
+        }
+    }
+    return result;
+}
+
 ChatPanel::ChatPanel(QWidget *parent)
     : QWidget(parent)
 {
@@ -566,6 +615,7 @@ ChatPanel::ChatPanel(QWidget *parent)
     auto *bottomRowLayout = new QHBoxLayout(bottomRow);
     bottomRowLayout->setContentsMargins(0, 0, 0, 0);
     bottomRowLayout->setSpacing(GapHS);
+    m_bottomRowLayout = bottomRowLayout;
 
     auto addContextButton = new QtcIconButton;
     addContextButton->setIcon(Utils::Icons::PAPERCLIP.icon());
@@ -616,14 +666,29 @@ ChatPanel::ChatPanel(QWidget *parent)
         menu->popup(QCursor::pos());
     });
 
-    m_modeCombo = new QtcComboBox(QtcComboBox::SmallPrimary);
-    m_modeCombo->setToolTip(Tr::tr("Switch Mode"));
-    m_modeCombo->hide();
-    connect(m_modeCombo, &QComboBox::activated, this, [this](int index) {
-        if (!m_modeConfigId.isEmpty())
-            emit configOptionChanged(m_modeConfigId, m_modeCombo->itemData(index).toString());
-    });
-    bottomRowLayout->addWidget(m_modeCombo, 0, Qt::AlignBottom);
+    const auto addSelectButton = [this, bottomRowLayout](const QString &objectName,
+                                                         SessionConfigOptionCategory category) {
+        auto *button = new QtcButton({}, QtcButton::SmallTertiary);
+        button->setObjectName(objectName);
+        // The name is elided to the room the row has, so its full width must not
+        // widen the row while a control that just appeared lays it out.
+        const QFontMetrics fm(StyleHelper::uiFont(StyleHelper::UiElementButtonSmall));
+        const QMargins margins = button->contentsMargins();
+        button->setMinimumWidth(margins.left() + margins.right()
+                                + fm.averageCharWidth() * selectButtonMinimumTextChars);
+        button->hide();
+        connect(button, &QAbstractButton::clicked, this, [this, button, category] {
+            const std::optional<SessionConfigOption> option
+                = optionForCategory(m_configOptions, category);
+            if (option)
+                showSelectPopup(*option, button);
+        });
+        bottomRowLayout->addWidget(button, 0, Qt::AlignBottom);
+        return button;
+    };
+
+    m_modeButton = addSelectButton("modeSelector", SessionConfigOptionCategory::mode);
+    m_modelButton = addSelectButton("modelSelector", SessionConfigOptionCategory::model);
 
     bottomRowLayout->addStretch(1);
 
@@ -791,8 +856,10 @@ void ChatPanel::showConfigMenu()
     menu->setAttribute(Qt::WA_DeleteOnClose);
     menu->setToolTipsVisible(true);
     for (const SessionConfigOption &option : std::as_const(m_configOptions)) {
-        // The mode selector is rendered as a dedicated combo box.
-        if (option.category().has_value() && *option.category() == SessionConfigOptionCategory::mode)
+        // The mode and model selectors are rendered next to the chat input.
+        if (!m_modeConfigId.isEmpty() && option.configId() == m_modeConfigId)
+            continue;
+        if (!m_modelConfigId.isEmpty() && option.configId() == m_modelConfigId)
             continue;
 
         const QString id = option.configId();
@@ -819,6 +886,19 @@ void ChatPanel::showConfigMenu()
             continue;
 
         const QString currentValue = select->currentValue();
+        const QList<ConfigSelectEntry> entries = selectEntries(*select);
+
+        // Long lists - a model list of a router agent holds hundreds of entries -
+        // are unusable as a menu, so offer them in a filterable popup.
+        if (entries.size() > maxSubmenuOptions) {
+            QAction *a = menu->addAction(Tr::tr("%1...").arg(option.name()));
+            if (const auto &description = option.description(); description.has_value())
+                a->setToolTip(*description);
+            connect(a, &QAction::triggered, this, [this, option] {
+                showSelectPopup(option, m_configButton);
+            });
+            continue;
+        }
 
         QMenu *sub = menu->addMenu(option.name());
 
@@ -871,10 +951,91 @@ void ChatPanel::showConfigMenu()
     menu->popup(QCursor::pos());
 }
 
+void ChatPanel::showSelectPopup(const SessionConfigOption &option, QWidget *anchor)
+{
+    const std::optional<SessionConfigSelect> select = selectFor(option);
+    if (!select)
+        return;
+
+    delete m_selectPopup;
+    m_selectPopup = new ConfigSelectPopup(this);
+    const QString id = option.configId();
+    m_selectPopupConfigId = id;
+    m_selectPopup->setFavorites(configFavorites(id));
+    m_selectPopup->setEntries(selectEntries(*select), select->currentValue());
+    connect(m_selectPopup, &ConfigSelectPopup::valueSelected, this,
+            [this, id](const QString &value) {
+        emit configOptionChanged(id, QJsonValue(value));
+    });
+    connect(m_selectPopup, &ConfigSelectPopup::favoritesChanged, this,
+            [this, id](const QStringList &favorites) {
+        setConfigFavorites(id, favorites);
+    });
+    m_selectPopup->showRelativeTo(anchor);
+}
+
+// An open popup lists the values its option had when it opened. It follows the
+// agent's updates of that option, and closes when the option is gone, so that it
+// cannot submit a value the agent no longer offers.
+void ChatPanel::updateSelectPopup()
+{
+    if (!m_selectPopup || m_selectPopup->isHidden())
+        return;
+
+    std::optional<SessionConfigSelect> select;
+    for (const SessionConfigOption &option : std::as_const(m_configOptions)) {
+        if (option.configId() == m_selectPopupConfigId) {
+            select = selectFor(option);
+            break;
+        }
+    }
+    if (select) {
+        m_selectPopup->setEntries(selectEntries(*select), select->currentValue());
+        return;
+    }
+    m_selectPopup->close();
+    m_selectPopup->deleteLater();
+    m_selectPopup.clear();
+}
+
+// Favorites are remembered per agent and configuration option, since the values
+// of one agent's model list mean nothing for another one.
+static QString configFavoritesKey(const QString &agentId, const QString &configId)
+{
+    return "AcpClient/ConfigFavorites/" + agentId + '/' + configId;
+}
+
+QStringList ChatPanel::configFavorites(const QString &configId) const
+{
+    const QByteArray json
+        = SettingsDatabase::value(configFavoritesKey(m_agentId, configId)).toString().toUtf8();
+    const QJsonDocument document = QJsonDocument::fromJson(json);
+    if (!document.isArray())
+        return {};
+    QStringList result;
+    const QJsonArray array = document.array();
+    for (const QJsonValue &value : array)
+        result.append(value.toString());
+    return result;
+}
+
+void ChatPanel::setConfigFavorites(const QString &configId, const QStringList &favoriteValues)
+{
+    QJsonArray array;
+    for (const QString &value : favoriteValues)
+        array.append(value);
+    SettingsDatabase::setValue(
+        configFavoritesKey(m_agentId, configId),
+        QString::fromUtf8(QJsonDocument(array).toJson(QJsonDocument::Compact)),
+        std::chrono::seconds::max());
+}
+
 void ChatPanel::setConfigOptions(const QList<SessionConfigOption> &configOptions)
 {
     m_configOptions = configOptions;
     updateModeButton();
+    updateModelButton();
+    updateSelectPopup();
 }
 
 void ChatPanel::setUsage(const Acp::V2::UsageUpdate &usage)
@@ -903,6 +1064,8 @@ void ChatPanel::updateUsageDisplay()
         m_usageBar->hide();
         m_usageLabel->hide();
         m_messageView->setLiveUsage(std::nullopt);
+        // The room the usage display gave up is room for the names next to it.
+        updateSelectButtonTexts();
         return;
     }
     m_usageBar->setRange(0, size);
@@ -926,6 +1089,7 @@ void ChatPanel::updateUsageDisplay()
     if (m_prompting && m_usageReportedThisTurn)
         turnDelta = used - usedAtPromptStart();
     m_messageView->setLiveUsage(turnDelta);
+    updateSelectButtonTexts();
 }
 
 int ChatPanel::usedAtPromptStart() const
@@ -933,45 +1097,123 @@ int ChatPanel::usedAtPromptStart() const
     return m_usageAtPromptStart ? m_usageAtPromptStart->used() : 0;
 }
 
+// Names the selected value of the option of the given category on the button,
+// or hides it when the agent offers no such option. Reports the un-elided name
+// through name, and returns the option's id.
+QString ChatPanel::updateSelectButton(QtcButton *button, SessionConfigOptionCategory category,
+                                      const QString &tooltipTemplate, QString *selectedName)
+{
+    selectedName->clear();
+    const std::optional<SessionConfigOption> option
+        = optionForCategory(m_configOptions, category);
+    const std::optional<SessionConfigSelect> select = option ? selectFor(*option) : std::nullopt;
+    if (!select) {
+        button->hide();
+        return {};
+    }
+
+    const QList<ConfigSelectEntry> entries = selectEntries(*select);
+    const auto it = std::find_if(entries.cbegin(), entries.cend(),
+                                 [&select](const ConfigSelectEntry &entry) {
+        return entry.value == select->currentValue();
+    });
+    QString name = it != entries.cend() && !it->name.isEmpty() ? it->name : select->currentValue();
+    if (name.isEmpty())
+        name = option->name();
+
+    *selectedName = name;
+    QStringList tooltip{tooltipTemplate.arg(name)};
+    if (it != entries.cend() && !it->description.isEmpty())
+        tooltip.append(it->description);
+    tooltip.append(Tr::tr("Click to choose a different one."));
+    button->setToolTip(tooltip.join('\n'));
+    button->show();
+    return option->configId();
+}
+
+// What the input row has left for the mode and model names together once the
+// controls that share it had their say, so that a long name elides instead of
+// pushing them out. Measured off their size hints rather than off the two
+// buttons, whose own hint follows the text set here.
+int ChatPanel::selectButtonNamesWidth() const
+{
+    QTC_ASSERT(m_bottomRowLayout, return 0);
+
+    int taken = 0;
+    for (int i = 0; i < m_bottomRowLayout->count(); ++i) {
+        QLayoutItem *item = m_bottomRowLayout->itemAt(i);
+        QWidget *widget = item->widget();
+        if (!widget || widget->isHidden())
+            continue;
+        if (widget == m_modeButton || widget == m_modelButton) {
+            const QMargins margins = widget->contentsMargins();
+            taken += margins.left() + margins.right() + m_bottomRowLayout->spacing();
+            continue;
+        }
+        taken += item->sizeHint().width() + m_bottomRowLayout->spacing();
+    }
+    // Not the layout's own geometry: a text changed in the row invalidates the
+    // layout, and that clears its geometry until the next layout pass.
+    const int rowWidth = m_bottomRowLayout->parentWidget()->contentsRect().width();
+    return rowWidth - taken;
+}
+
+void ChatPanel::updateSelectButtonTexts()
+{
+    if (!m_modeButton || !m_modelButton)
+        return;
+
+    const QFontMetrics fm(StyleHelper::uiFont(StyleHelper::UiElementButtonSmall));
+    const int minimum = fm.averageCharWidth() * selectButtonMinimumTextChars;
+    const int room = selectButtonNamesWidth();
+
+    const auto setElided = [&fm, minimum](QtcButton *button, const QString &name, int width) {
+        button->setText(fm.elidedText(name, Qt::ElideMiddle, std::max(minimum, width)));
+    };
+    // What the button's text takes, which the button measures in the widest
+    // of the fonts its states use rather than in fm, and never less than the
+    // minimum the button is kept at.
+    const auto takenBy = [minimum](const QtcButton *button) {
+        if (button->isHidden())
+            return 0;
+        const QMargins margins = button->contentsMargins();
+        return std::max(minimum,
+                    button->minimumSizeHint().width() - margins.left() - margins.right());
+    };
+
+    // Each name gets half the room, and one that needs less leaves the rest
+    // to the other. A hidden button has no name, so the other gets it all.
+    const int half = room / 2;
+    if (fm.horizontalAdvance(m_modeName) <= half) {
+        m_modeButton->setText(m_modeName);
+        setElided(m_modelButton, m_modelName, room - takenBy(m_modeButton));
+    } else if (fm.horizontalAdvance(m_modelName) <= room - half) {
+        m_modelButton->setText(m_modelName);
+        setElided(m_modeButton, m_modeName, room - takenBy(m_modelButton));
+    } else {
+        setElided(m_modeButton, m_modeName, half);
+        setElided(m_modelButton, m_modelName, room - half);
+    }
+}
+
 void ChatPanel::updateModeButton()
 {
-    m_modeConfigId.clear();
+    m_modeConfigId = updateSelectButton(m_modeButton, SessionConfigOptionCategory::mode,
+                                        Tr::tr("Mode: %1"), &m_modeName);
+    updateSelectButtonTexts();
+}
 
-    const auto it = std::find_if(m_configOptions.cbegin(), m_configOptions.cend(),
-                                 [](const SessionConfigOption &option) {
-        return option.category().has_value()
-               && *option.category() == SessionConfigOptionCategory::mode;
-    });
-    std::optional<SessionConfigSelect> select;
-    if (it != m_configOptions.cend()) {
-        if (auto parsed = fromJson<SessionConfigSelect>(QJsonValue(toJson(*it))))
-            select = *parsed;
-    }
-    if (!select) {
-        m_modeCombo->hide();
-        return;
-    }
+void ChatPanel::updateModelButton()
+{
+    m_modelConfigId = updateSelectButton(m_modelButton, SessionConfigOptionCategory::model,
+                                         Tr::tr("Model: %1"), &m_modelName);
+    updateSelectButtonTexts();
+}
 
-    m_modeConfigId = it->configId();
-
-    QSignalBlocker blocker(m_modeCombo);
-    m_modeCombo->clear();
-    const auto addOption = [this](const SessionConfigSelectOption &opt) {
-        m_modeCombo->addItem(opt.name(), opt.value());
-    };
-    if (auto *flatOptions = std::get_if<QList<SessionConfigSelectOption>>(&select->options())) {
-        for (const SessionConfigSelectOption &opt : *flatOptions)
-            addOption(opt);
-    } else if (auto *groups = std::get_if<QList<SessionConfigSelectGroup>>(&select->options())) {
-        for (const SessionConfigSelectGroup &group : *groups) {
-            for (const SessionConfigSelectOption &opt : group.options())
-                addOption(opt);
-        }
-    }
-
-    const int idx = m_modeCombo->findData(select->currentValue());
-    m_modeCombo->setCurrentIndex(idx >= 0 ? idx : 0);
-    m_modeCombo->show();
+void ChatPanel::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    updateSelectButtonTexts();
 }
 
 void ChatPanel::clear()
@@ -991,6 +1233,8 @@ void ChatPanel::clearConfigOptions()
 {
     m_configOptions.clear();
     updateModeButton();
+    updateModelButton();
+    updateSelectPopup();
 }
 
 void ChatPanel::addUserMessage(const QString &text)
@@ -1117,6 +1361,7 @@ void ChatPanel::updateAvailableCommands(const QList<AvailableCommand> &commands)
     delete m_commandsMenu;
     m_commandsMenu = nullptr;
     m_commandsButton->setVisible(!commands.isEmpty());
+    updateSelectButtonTexts();
 
     if (commands.isEmpty())
         return;
