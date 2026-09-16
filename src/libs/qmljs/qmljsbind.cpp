@@ -148,7 +148,8 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
                 nextRoot = _inlineComponents.value(QString());
             }
             // we add the inline component inside its parent
-            nextRoot->setMember(_currentComponentName.mid(_currentComponentName.lastIndexOf('.') + 1), objectValue);
+            if (nextRoot)
+                nextRoot->setMember(_currentComponentName.mid(_currentComponentName.lastIndexOf('.') + 1), objectValue);
             _rootObjectValue->setClassName(_doc->componentName() + "." + _currentComponentName); // use :: instead of .?
         } else {
             nextRoot = _rootObjectValue;
