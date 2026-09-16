@@ -2930,7 +2930,8 @@ typename))
               % (self.resultToMi(resdict), asyncclass))
 
     def removeInterpreterBreakpoint(self, args):
-        res = self.sendInterpreterRequest('removebreakpoint', {'id': args['id']})
+        # The service reads the id as a number, and takes a string for a 0.
+        res = self.sendInterpreterRequest('removebreakpoint', {'id': int(args['id'])})
         return res
 
     def insertInterpreterBreakpoint(self, args):
