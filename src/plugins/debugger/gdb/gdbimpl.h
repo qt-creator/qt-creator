@@ -207,6 +207,7 @@ private:
     bool m_resumingFromTemporaryStop = false;
     QList<DebuggerCommand> m_onStopCommands;
     bool m_onStopWantContinue = false;
+    bool m_temporaryStopRequested = false;
     int m_lastToken = 0;
     int m_oldestAcceptableToken = -1;
 

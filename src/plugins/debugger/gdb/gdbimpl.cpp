@@ -659,6 +659,9 @@ void GdbImpl::execute(const ExecutionRequest &request)
             emit inferiorEvent(InferiorEvent::StopOk);
             break;
         }
+        // Whoever asked for a pending interrupt first, this stop is the
+        // engine's and must not be undone behind its back.
+        m_temporaryStopRequested = false;
         if (!m_inferiorRunning) {
             m_interruptOnceRunning = true;
             break;
@@ -1740,7 +1743,7 @@ void GdbImpl::executeDebuggerCommand(const QString &command,
 
 void GdbImpl::runRunRequestCommand(const QString &function, int flags)
 {
-    const bool silent = m_resumingFromTemporaryStop;
+    const bool silent = std::exchange(m_resumingFromTemporaryStop, false);
     if (!silent)
         emit inferiorEvent(InferiorEvent::RunRequested);
     m_runCommandPending = true;
@@ -1748,7 +1751,6 @@ void GdbImpl::runRunRequestCommand(const QString &function, int flags)
         m_runCommandPending = false;
         if (response.resultClass == ResultRunning) {
             m_inferiorRunning = true;
-            m_resumingFromTemporaryStop = false;
             if (!silent)
                 emit inferiorEvent(InferiorEvent::RunOk);
             if (m_interruptOnceRunning) {
@@ -1760,12 +1762,12 @@ void GdbImpl::runRunRequestCommand(const QString &function, int flags)
             }
             return;
         }
-        m_resumingFromTemporaryStop = false;
         if (m_interruptOnceRunning) {
             m_interruptOnceRunning = false;
             const QList<DebuggerCommand> commands = m_onStopCommands;
             m_onStopCommands.clear();
             m_onStopWantContinue = false;
+            m_temporaryStopRequested = false;
             for (const DebuggerCommand &queuedCommand : commands) {
                 if (queuedCommand.callback) {
                     DebuggerResponse failResponse;
@@ -1774,8 +1776,14 @@ void GdbImpl::runRunRequestCommand(const QString &function, int flags)
                 }
             }
         }
-        emit inferiorEvent(response.data["msg"].data() == "The program is not being run."
-                           ? InferiorEvent::InferiorIll : InferiorEvent::RunFailed);
+        const bool inferiorGone = response.data["msg"].data() == "The program is not being run.";
+        if (silent && !inferiorGone) {
+            // The inferior stays where the interrupt left it, so the stop that
+            // was kept from the engine is now the truth and has to be reported.
+            emit inferiorEvent(InferiorEvent::SpontaneousStop);
+            return;
+        }
+        emit inferiorEvent(inferiorGone ? InferiorEvent::InferiorIll : InferiorEvent::RunFailed);
     }});
 }
 
@@ -1790,6 +1798,7 @@ void GdbImpl::runCommand(const DebuggerCommand &command)
             m_onStopWantContinue = wantContinue;
             if (!m_interruptRequested) {
                 m_interruptRequested = true;
+                m_temporaryStopRequested = true;
                 requestInferiorInterrupt();
             }
             return;
@@ -1797,6 +1806,8 @@ void GdbImpl::runCommand(const DebuggerCommand &command)
         if (m_runCommandPending) {
             m_onStopCommands.append(cmd);
             m_onStopWantContinue = wantContinue;
+            if (!m_interruptRequested && !m_interruptOnceRunning)
+                m_temporaryStopRequested = true;
             m_interruptOnceRunning = true;
             return;
         }
@@ -2187,6 +2198,7 @@ void GdbImpl::handleOutputLine(const QString &line)
                     m_onStopCommands.clear();
                     m_onStopWantContinue = false;
                     m_interruptRequested = false;
+                    m_temporaryStopRequested = false;
                     for (const DebuggerCommand &queuedCommand : commands) {
                         if (queuedCommand.callback) {
                             DebuggerResponse response;
@@ -2218,20 +2230,28 @@ void GdbImpl::handleOutputLine(const QString &line)
                     emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
             } else if (m_attachPhase == AttachPhase::Continuing) {
             } else if (!m_onStopCommands.isEmpty()) {
+                const bool wasInterruptRequested = m_interruptRequested;
+                // Only the interrupt this queue asked for, and only while it
+                // means to undo it again, is a stop the engine did not do.
+                // Telling it would have it reload a stack from an inferior that
+                // is about to run again, and re-sync the breakpoints - which
+                // queues another command of the same kind, so the interrupt
+                // repeats for as long as the engine answers. A breakpoint, a
+                // signal or the engine's own interrupt is a stop it has to see,
+                // whatever the queue wanted.
+                const bool ours = std::exchange(m_temporaryStopRequested, false)
+                                  && m_onStopWantContinue;
                 m_interruptRequested = false;
                 const QList<DebuggerCommand> commands = m_onStopCommands;
-                const bool wantContinue = m_onStopWantContinue;
                 m_onStopCommands.clear();
-                // A stop the queue asked for and undoes again is none the
-                // engine did. Telling it would have it reload a stack from an
-                // inferior that is about to run again, and re-sync the
-                // breakpoints - which queues another command of the same kind,
-                // so the interrupt repeats for as long as the engine answers.
-                if (!wantContinue)
-                    emit inferiorEvent(InferiorEvent::StopOk);
+                m_onStopWantContinue = false;
+                if (!ours) {
+                    emit inferiorEvent(wasInterruptRequested ? InferiorEvent::StopOk
+                                                             : InferiorEvent::SpontaneousStop);
+                }
                 for (const DebuggerCommand &queuedCommand : commands)
                     runCommandNow(queuedCommand);
-                if (wantContinue) {
+                if (ours) {
                     m_resumingFromTemporaryStop = true;
                     runRunRequestCommand("-exec-continue");
                 }

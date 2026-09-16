@@ -1434,6 +1434,8 @@ private slots:
     void stepsContinuesAndInterrupts();
     void interruptWhileStoppedReportsStopOkImmediately_data() { addBackendRows(); }
     void interruptWhileStoppedReportsStopOkImmediately();
+    void reportsAnInterruptThatCollidesWithATemporaryStop_data() { addBackendRows(); }
+    void reportsAnInterruptThatCollidesWithATemporaryStop();
     void continueAfterExitReportsInferiorIll_data() { addBackendRows(); }
     void continueAfterExitReportsInferiorIll();
     void continueWhileRunningReportsRunFailed_data() { addBackendRows(); }
@@ -5663,6 +5665,61 @@ void tst_backends::interruptWhileStoppedReportsStopOkImmediately()
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk),
                               "Interrupt while already stopped never signaled completion",
                               s_timeout);
+}
+
+void tst_backends::reportsAnInterruptThatCollidesWithATemporaryStop()
+{
+    QFETCH(Backend, backend);
+
+    // The inferior's own spin loop is what the interrupt lands in.
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    // A module list is one of the requests that needs the inferior held still,
+    // so asking for one while it runs is what produces the collision.
+    if (auto result = checkCapability(backend, Debugger::ReloadModuleCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    if (backend == Backend::Pdb)
+        QSKIP("pdb never answers a request that was queued while the inferior ran.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QSet<quint64> answered;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&answered](quint64 requestId, RefreshKind, const GdbMi &) {
+        answered.insert(requestId);
+    });
+
+    RefreshRequest request;
+    request.kind = RefreshKind::Modules;
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk), s_timeout);
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Interrupt});
+    // Still the same turn, so the request's temporary stop attaches itself to
+    // the interrupt the engine just asked for, and one stop serves both.
+    request.requestId = 99;
+    engine->refresh(request);
+
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk),
+                              "the interrupt was undone along with the temporary stop",
+                              s_timeout);
+    // The queued command is served at that stop, so its answer proves the stop
+    // was acted on and not merely reported.
+    QTRY_VERIFY_WITH_TIMEOUT(answered.contains(99), s_timeout);
+
+    // A resume undoing that stop would have been sent before this second
+    // request, and the debugger answers in order, so once this one is answered
+    // a resume would already have been reported if there was one.
+    request.requestId = 100;
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(answered.contains(100), s_timeout);
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::RunOk),
+             "the inferior was resumed from the stop the engine asked for");
 }
 
 void tst_backends::continueAfterExitReportsInferiorIll()
