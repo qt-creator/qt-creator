@@ -344,10 +344,13 @@ BranchModel::~BranchModel()
 QModelIndex BranchModel::index(int row, int column, const QModelIndex &parentIdx) const
 {
     qCDebug(modelLog) << "index() called: row=" << row << "column=" << column << "parentIdx=" << parentIdx;
-    if (column > 1)
+    if (row < 0 || column < 0 || column > 1
+        || (parentIdx.isValid() && parentIdx.column() != ColumnBranch)) {
         return {};
-    BranchNode *parentNode = indexToNode(parentIdx);
-    QTC_ASSERT(parentNode, return {});
+    }
+    BranchNode *parentNode = parentIdx.isValid() ? indexToNode(parentIdx) : d->rootNode;
+    if (!parentNode)
+        return {};
 
     if (row >= parentNode->count()) {
         qCWarning(modelLog) << "index: row out of range:" << row << "parent node:" << parentNode->name;
@@ -368,7 +371,8 @@ QModelIndex BranchModel::parent(const QModelIndex &index) const
         return {};
 
     BranchNode *node = indexToNode(index);
-    QTC_ASSERT(node, return {});
+    if (!node)
+        return {};
     BranchNode *parentNode = node->parent;
     QTC_ASSERT(parentNode, return {});
     if (parentNode == d->rootNode) {
@@ -386,8 +390,9 @@ int BranchModel::rowCount(const QModelIndex &parentIdx) const
     if (parentIdx.column() > 0)
         return 0;
 
-    const BranchNode *node = indexToNode(parentIdx);
-    QTC_ASSERT(node, return 0);
+    const BranchNode *node = parentIdx.isValid() ? indexToNode(parentIdx) : d->rootNode;
+    if (!node)
+        return 0;
 
     const int result = node->count();
     qCDebug(modelLog) << "rowCount: node:" << node->name << "count:" << result;
@@ -404,6 +409,8 @@ int BranchModel::columnCount(const QModelIndex &parent) const
 QVariant BranchModel::data(const QModelIndex &index, int role) const
 {
     qCDebug(modelLog) << "data() called: index=" << index << "role=" << role;
+    if (!index.isValid())
+        return {};
     const QChar arrowUp(0x2191);
     const QChar arrowDown(0x2193);
     const QChar plusMinus(0x00B1);
@@ -501,6 +508,8 @@ bool BranchModel::setData(const QModelIndex &index, const QVariant &value, int r
 Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 {
     qCDebug(modelLog) << "flags() called: index=" << index;
+    if (!index.isValid())
+        return Qt::NoItemFlags;
     BranchNode *node = indexToNode(index);
     if (!node) {
         qCWarning(modelLog) << "flags: invalid node for index:" << index;
@@ -1168,10 +1177,12 @@ void BranchModel::Private::flushOldEntries()
 BranchNode *BranchModel::indexToNode(const QModelIndex &index) const
 {
     qCDebug(modelLog) << "indexToNode() called: index=" << index;
-    if (index.column() > 1)
-        return nullptr;
     if (!index.isValid())
-        return d->rootNode;
+        return nullptr;
+    if (index.model() != this)
+        return nullptr;
+    if (index.column() < 0 || index.column() > 1)
+        return nullptr;
     return static_cast<BranchNode *>(index.internalPointer());
 }
 
@@ -1182,7 +1193,10 @@ QModelIndex BranchModel::nodeToIndex(BranchNode *node, int column) const
     qCDebug(modelLog) << "nodeToIndex() called: node=" << node->name << "column=" << column;
     if (node == d->rootNode)
         return {};
-    const QModelIndex idx = createIndex(node->parent->rowOf(node), column, static_cast<void *>(node));
+    const int row = node->parent->rowOf(node);
+    if (row < 0)
+        return {};
+    const QModelIndex idx = createIndex(row, column, static_cast<void *>(node));
     qCDebug(modelLog) << "nodeToIndex: returning index" << idx;
     return idx;
 }
@@ -1194,9 +1208,9 @@ void BranchModel::removeNode(const QModelIndex &idx)
     BranchNode *node = indexToNode(nodeIndex);
     QTC_ASSERT(node, return);
 
-    while (node->count() == 0 && node->parent != d->rootNode) {
+    while (node && node->count() == 0 && node->parent != d->rootNode) {
         BranchNode *parentNode = node->parent;
-        QTC_ASSERT(node, return);
+        QTC_ASSERT(parentNode, return);
         const QModelIndex parentIndex = nodeToIndex(parentNode, ColumnBranch);
         const int nodeRow = nodeIndex.row();
         qCDebug(modelLog) << "removeNode: removing node" << node->name << "from parent"
