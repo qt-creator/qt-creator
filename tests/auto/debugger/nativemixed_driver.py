@@ -61,6 +61,15 @@ def run_gdb():
                                    'type': 'breakpoint', 'token': 1})
     gdb.execute('run')
 
+    # The service object the request goes to is created after the connector
+    # opens, so the breakpoint above is still pending when the announcement
+    # stops the inferior. Insert it there, then run on to the QML statement.
+    # A Qt whose service is up earlier resolves it directly and never
+    # announces: the stop is then the QML one already.
+    while gdb.newest_frame().name() == 'qt_qmlDebugObjectAvailable':
+        d.resolveInterpreterBreakpoints({'token': 2})
+        gdb.execute('continue')
+
     frames = d.extractInterpreterStack().get('frames', [{}])
     emit('stopped at the QML statement calling C++',
          frames and frames[0].get('function') == 'compute'
@@ -153,7 +162,12 @@ def run_lldb():
             continue
         thread = d.firstStoppedThread() or d.process.GetSelectedThread()
         fn = thread.GetFrameAtIndex(0).GetFunctionName() or ''
-        if phase == 'run-to-qml' and 'qt_qmlDebugMessageAvailable' in fn:
+        # Outside ELF the optimizer drops the calls to the message hook, so
+        # the bridge watches the service's message length instead and the
+        # stop carries a watchpoint rather than the hook's name.
+        atMessage = (d.atInterpreterMessageWatch(thread)
+                     or 'qt_qmlDebugMessageAvailable' in fn)
+        if phase == 'run-to-qml' and atMessage:
             frames = d.extractInterpreterStack().get('frames', [{}])
             emit('stopped at the QML statement calling C++',
                  frames and frames[0].get('function') == 'compute'
@@ -183,7 +197,7 @@ def run_lldb():
                  d.atNativeToQmlBoundary(), hook=True)
             phase = 'stepping-out'
             d.executeStepOut({'token': 51})
-        elif phase == 'stepping-out' and 'qt_qmlDebugMessageAvailable' in fn:
+        elif phase == 'stepping-out' and atMessage:
             frames = d.extractInterpreterStack().get('frames', [{}])
             emit('step out from C++ returns to the QML caller',
                  frames and frames[0].get('function') == 'compute', hook=True)
