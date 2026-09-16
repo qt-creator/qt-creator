@@ -371,6 +371,12 @@ void tst_TimelineModel::colorByHue()
                                                    defaultColorLightness()).rgb());
     QCOMPARE(dummy.colorByHue(500), QColor::fromHsl(140, kDefaultSaturation,
                                                     defaultColorLightness()).rgb());
+    // A caller deriving a hue from something that is not one -- a hash of the
+    // process a lane belongs to, say -- can arrive at a negative number. It
+    // wraps the same way the one above does, rather than reading a colour from
+    // outside the table.
+    QCOMPARE(dummy.colorByHue(-220), QColor::fromHsl(140, kDefaultSaturation,
+                                                     defaultColorLightness()).rgb());
 }
 
 void tst_TimelineModel::colorBySelectionId()

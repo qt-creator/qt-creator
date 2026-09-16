@@ -12,7 +12,10 @@ struct HueLookupTable {
     QRgb table[kHueRange];
     HueLookupTable();
 
-    QRgb operator[](int hue) const { return table[hue % kHueRange]; }
+    // A hue is whatever a caller derived a colour from, so it may be negative,
+    // and so is the remainder of one: brought back into the range rather than
+    // used to index the table as it is.
+    QRgb operator[](int hue) const { return table[((hue % kHueRange) + kHueRange) % kHueRange]; }
 };
 
 class TRACING_EXPORT TimelineModel::TimelineModelPrivate {
