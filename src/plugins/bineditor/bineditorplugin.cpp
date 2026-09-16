@@ -1286,6 +1286,10 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
         const bool hasOldData = m_doc->requestOldDataAt(line * m_bytesPerLine);
         const bool isOld = hasOldData && !hasData;
 
+        // itemString outlives the line it is filled for.
+        for (int c = 0; c < m_bytesPerLine; ++c)
+            itemStringData[c*3] = itemStringData[c*3+1] = QLatin1Char(' ');
+
         QString printable;
         QString printableDisp;
 
@@ -1315,13 +1319,8 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
         if (hasData || hasOldData) {
             for (int c = 0; c < m_bytesPerLine; ++c) {
                 qint64 pos = line * m_bytesPerLine + c;
-                if (pos >= m_doc->m_size) {
-                    while (c < m_bytesPerLine) {
-                        itemStringData[c*3] = itemStringData[c*3+1] = QLatin1Char(' ');
-                        ++c;
-                    }
+                if (pos >= m_doc->m_size)
                     break;
-                }
                 if (foundPatternAt >= 0 && pos >= foundPatternAt + matchLength)
                     foundPatternAt = findPattern(patternData, patternDataHex, foundPatternAt + matchLength, patternOffset, &matchLength);
 
@@ -2374,6 +2373,18 @@ static QByteArray makeHaystack(const QByteArray &needle, int count, QList<qint64
     return data;
 }
 
+// The left padding of a cell, which no hex digit is drawn over, so that a
+// glyph cannot stand in for the background the cell is drawn on.
+static QColor cellColor(BinEditorWidget &widget, int line, int column)
+{
+    QImage image(widget.viewport()->size(), QImage::Format_ARGB32);
+    image.fill(Qt::transparent);
+    widget.viewport()->render(&image);
+    return image.pixelColor(widget.m_margin + widget.m_labelWidth
+                                + widget.hexColumnOffset(column) - widget.m_charWidth / 2 + 1,
+                            line * widget.m_lineHeight + widget.m_lineHeight / 2);
+}
+
 class BinEditorTest final : public QObject
 {
     Q_OBJECT
@@ -2766,17 +2777,6 @@ private slots:
         widget.resize(600, 200);
         widget.init();
 
-        // The left padding of a cell, which no hex digit is drawn over.
-        const auto cellColor = [&widget](int line, int column) {
-            QImage image(widget.viewport()->size(), QImage::Format_ARGB32);
-            image.fill(Qt::transparent);
-            widget.viewport()->render(&image);
-            return image.pixelColor(widget.m_margin + widget.m_labelWidth
-                                        + widget.hexColumnOffset(column)
-                                        - widget.m_charWidth / 2 + 1,
-                                    line * widget.m_lineHeight + widget.m_lineHeight / 2);
-        };
-
         const QColor changedColor(250, 150, 150);
         QByteArray modified = original;
         modified[5] = 1; // Line 0, column 5.
@@ -2784,9 +2784,77 @@ private slots:
         document->m_oldData.insert(0, original);
         document->m_data.insert(0, modified);
 
-        QCOMPARE(cellColor(0, 5), changedColor);
-        QCOMPARE(cellColor(1, 0), changedColor);
-        QVERIFY(cellColor(1, 5) != changedColor);
+        QCOMPARE(cellColor(widget, 0, 5), changedColor);
+        QCOMPARE(cellColor(widget, 1, 0), changedColor);
+        QVERIFY(cellColor(widget, 1, 5) != changedColor);
+    }
+
+    // The last line of a document fills only as many columns as it has bytes,
+    // so a marker must not survive into the columns it leaves alone either.
+    void testChangedByteDoesNotLeakPastTheEndOfTheFile()
+    {
+        const int bytesPerLine = 16;
+        const int lastLine = 4;
+        const int column = 9; // Past the end of the last, shorter line.
+
+        auto document = std::make_shared<BinEditorDocument>();
+        const QByteArray original(lastLine * bytesPerLine + 4, '\0');
+        QVERIFY(document->setContents(original).has_value());
+        BinEditorWidget widget(document);
+        widget.resize(600, 200);
+        widget.init();
+        QCOMPARE(widget.m_bytesPerLine, bytesPerLine);
+        QCOMPARE(widget.m_numLines, qint64(lastLine + 1));
+
+        QByteArray modified = original;
+        modified[(lastLine - 1) * bytesPerLine + column] = 1;
+        modified[lastLine * bytesPerLine + 1] = 1; // So the last line has one.
+        document->m_oldData.insert(0, original);
+        document->m_data.insert(0, modified);
+
+        const QColor changedColor(250, 150, 150);
+        QCOMPARE(cellColor(widget, lastLine - 1, column), changedColor);
+        QCOMPARE(cellColor(widget, lastLine, 1), changedColor);
+        QVERIFY(cellColor(widget, lastLine, column) != changedColor);
+    }
+
+    // The memory view fetches a block at a time, so a line can be drawn before
+    // its data is there. It must come out blank, not carry the digits of the
+    // line drawn before it.
+    void testLineWithoutDataIsBlank()
+    {
+        auto document = std::make_shared<BinEditorDocument>();
+        document->setSizes(0, 2 * 16, 16); // One block, and one line, per row.
+        document->addData(0, QByteArray(16, '\xff'));
+        BinEditorWidget widget(document);
+        widget.resize(600, 200);
+        widget.init();
+        QCOMPARE(widget.m_bytesPerLine, 16);
+
+        // A cell a digit is drawn into is no longer of one color.
+        const auto cellIsBlank = [&widget](int line, int column) {
+            QImage image(widget.viewport()->size(), QImage::Format_ARGB32);
+            image.fill(Qt::transparent);
+            widget.viewport()->render(&image);
+            const QImage cell = image.copy(widget.m_margin + widget.m_labelWidth
+                                               + widget.hexColumnOffset(column)
+                                               - widget.m_charWidth / 2,
+                                           line * widget.m_lineHeight,
+                                           widget.m_columnWidth, widget.m_lineHeight);
+            for (int y = 0; y < cell.height(); ++y) {
+                for (int x = 0; x < cell.width(); ++x) {
+                    if (cell.pixel(x, y) != cell.pixel(0, 0))
+                        return false;
+                }
+            }
+            return true;
+        };
+
+        // The rendering below is the second one: the first requests the block
+        // that is missing and draws the empty one it is handed meanwhile, and
+        // only from then on is line 1 left unfilled.
+        QVERIFY(!cellIsBlank(0, 5));
+        QVERIFY(cellIsBlank(1, 5));
     }
 
     // The grouping is global, so choosing one in a context menu has to reach
