@@ -107,7 +107,7 @@ public:
     void resetLayout(Format format);
     void resetActiveLayout();
     void setActiveFormat(Format format);
-    void clearTrace();
+    void closeCurrentTrace();
     void doLoad(const Utils::FilePath &filePath);
     void setTraceDuration(milliseconds ms);
     milliseconds traceDuration(Format format) const;
@@ -569,7 +569,7 @@ void WindowPrivate::resetActiveLayout()
         resetLayout(activeFormat);
 }
 
-void WindowPrivate::clearTrace()
+void WindowPrivate::closeCurrentTrace()
 {
     // Removing the current trace selects a neighbour, which reloads it via
     // traceActivated(). Only when nothing remains do we clear and show the
@@ -577,7 +577,6 @@ void WindowPrivate::clearTrace()
     if (sidebar->removeCurrentTrace())
         return;
 
-    setTraceDuration(milliseconds{0});
     combinedLoader->cancel();
     qmlManager->clear();
     ctfManager->clear();
@@ -688,9 +687,17 @@ Window::Window(QWidget *parent)
     connect(loadCtfDirAction, &QAction::triggered, d, &WindowPrivate::showOpenCtfDirDialog);
 #endif
 
-    auto clearAction = new QAction(Icons::CLEAN_TOOLBAR.icon(), Tr::tr("Discard Data"), this);
-    clearAction->setShortcut(QKeySequence::Delete);
-    connect(clearAction, &QAction::triggered, d, &WindowPrivate::clearTrace);
+    auto closeTraceAction = new QAction(Icons::CLOSE_TOOLBAR.icon(), Tr::tr("Close Trace"), this);
+#if defined(Q_OS_WASM) || defined(Q_OS_MACOS)
+    // On WebAssembly the browser keeps Ctrl+W for closing its own tab, so that key
+    // never reaches us. On macOS Cmd+W closes the window, which is not ours to take.
+    closeTraceAction->setShortcut(QKeySequence::Delete);
+#else
+    closeTraceAction->setShortcut(QKeySequence::Close);
+#endif
+    closeTraceAction->setEnabled(d->sidebar->hasTrace());
+    connect(closeTraceAction, &QAction::triggered, d, &WindowPrivate::closeCurrentTrace);
+    connect(d->sidebar, &MainSidebar::hasTraceChanged, closeTraceAction, &QAction::setEnabled);
 
     auto helpAction = new QAction("?", this);
     helpAction->setToolTip(Tr::tr("Open Help in Web Browser"));
@@ -702,6 +709,14 @@ Window::Window(QWidget *parent)
                                               SpacingTokens::PaddingHM, 0);
     d->traceDurationLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
+    // Emptied rather than hidden: the label is what pushes the help action to
+    // the toolbar's right edge.
+    connect(d->sidebar, &MainSidebar::hasTraceChanged, d->traceDurationLabel,
+            [label = d->traceDurationLabel](bool hasTrace) {
+        if (!hasTrace)
+            label->clear();
+    });
+
     auto toolBar = new QToolBar;
     toolBar->setObjectName("QmlProfileTraceViewer");
     QList<QAction *> toolBarActions{loadAction};
@@ -709,7 +724,7 @@ Window::Window(QWidget *parent)
         toolBarActions << recordAction;
     if (loadCtfDirAction)
         toolBarActions << loadCtfDirAction;
-    toolBarActions << clearAction;
+    toolBarActions << closeTraceAction;
     toolBar->addActions(toolBarActions);
     toolBar->addSeparator();
     toolBar->addWidget(d->traceDurationLabel);

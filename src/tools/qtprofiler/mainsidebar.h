@@ -27,6 +27,7 @@ public:
     explicit MainSidebar(QWidget *parent = nullptr);
 
     // Adds the trace if not present yet and selects it without emitting traceActivated().
+    // Emits hasTraceChanged() when the first trace arrives.
     void addTrace(const Utils::FilePath &filePath);
 
     void setTraceFormat(const Utils::FilePath &filePath,
@@ -34,14 +35,17 @@ public:
     void setTraceDuration(const Utils::FilePath &filePath, std::chrono::milliseconds ms);
 
     // Removes the currently selected trace. Removing it selects a neighbour (which
-    // emits traceActivated()); returns true if a trace remains selected afterwards.
+    // emits traceActivated()); returns true if a trace remains afterwards, and
+    // emits hasTraceChanged() when none does.
     bool removeCurrentTrace();
 
     Utils::FilePath currentTrace() const;
+    bool hasTrace() const;
 
 signals:
     void traceActivated(const Utils::FilePath &filePath);
     void newRecordingRequested();
+    void hasTraceChanged(bool hasTrace);
 
 private:
     QListWidgetItem *traceItem(const Utils::FilePath &filePath) const;

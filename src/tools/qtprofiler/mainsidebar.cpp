@@ -183,6 +183,9 @@ MainSidebar::MainSidebar(QWidget *parent)
     }.attachTo(this);
     // clang-format on
 
+    prevRecordingsLabel->hide(); // Shown once the first trace arrives.
+
+    connect(this, &MainSidebar::hasTraceChanged, prevRecordingsLabel, &QLabel::setVisible);
     connect(newRecording, &QAbstractButton::clicked,
             this, &MainSidebar::newRecordingRequested);
     connect(m_list, &QListWidget::currentItemChanged, this, [this](QListWidgetItem *current) {
@@ -203,11 +206,15 @@ void MainSidebar::addTrace(const FilePath &filePath)
         return;
     }
 
+    const bool hadTrace = hasTrace();
+
     auto item = new QListWidgetItem(filePath.fileName());
     item->setToolTip(filePath.toUserOutput());
     item->setData(FilePathRole, filePathV);
     m_list->addItem(item);
     m_list->setCurrentItem(item);
+    if (!hadTrace)
+        emit hasTraceChanged(true);
 }
 
 void MainSidebar::setTraceFormat(const FilePath &filePath, TraceFormat format)
@@ -233,7 +240,11 @@ bool MainSidebar::removeCurrentTrace()
     // takeItem() drops the row and selects a neighbour, emitting currentItemChanged
     // (and thus traceActivated) for the new selection, or nullptr if none remain.
     delete m_list->takeItem(m_list->row(current));
-    return m_list->currentItem() != nullptr;
+
+    const bool traceRemains = hasTrace();
+    if (!traceRemains)
+        emit hasTraceChanged(false);
+    return traceRemains;
 }
 
 QListWidgetItem *MainSidebar::traceItem(const Utils::FilePath &filePath) const
@@ -254,6 +265,11 @@ FilePath MainSidebar::currentTrace() const
     if (QListWidgetItem *item = m_list->currentItem())
         return FilePath::fromVariant(item->data(FilePathRole));
     return {};
+}
+
+bool MainSidebar::hasTrace() const
+{
+    return m_list->count() > 0;
 }
 
 } // namespace QtProfiler
