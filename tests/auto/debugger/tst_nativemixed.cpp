@@ -160,14 +160,20 @@ void tst_NativeMixed::nativeMixed()
     }
 
     QVERIFY(dbg.waitForStarted());
-    QVERIFY2(dbg.waitForFinished(240000), "Debugger session timed out.");
+    const bool finished = dbg.waitForFinished(240000);
+    if (!finished) {
+        dbg.kill();
+        dbg.waitForFinished(5000);
+    }
     const QString output = QString::fromLocal8Bit(dbg.readAll());
     qCDebug(lcNativeMixed).noquote() << output;
 
     // On a session-level failure the captured output is the only clue, so
-    // surface it regardless of the logging category.
-    if (!output.contains("nmdone={"))
+    // surface it regardless of the logging category. A timeout is such a
+    // failure, so read what the session produced before verifying.
+    if (!finished || !output.contains("nmdone={"))
         qWarning().noquote() << "Debugger session output:\n" << output;
+    QVERIFY2(finished, "Debugger session timed out.");
     QVERIFY2(output.contains("nmdone={"), "Driver did not finish the session.");
 
     const bool requireHook = m_qtVersion >= HookQtVersion;
