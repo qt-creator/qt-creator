@@ -409,13 +409,19 @@ private slots:
     void aClearedScrollbackDropsTheSelection()
     {
         // Fill the scrollback, so that the rows the selection names are
-        // measured from a top that clearing is about to move.
-        for (int i = 0; i < 40; ++i)
+        // measured from a top that clearing is about to move. How many rows
+        // fit depends on the font, so write past what the view reports.
+        const int visibleRows = m_view->surface()->liveSize().height();
+        const int writtenRows = visibleRows + 8;
+        for (int i = 0; i < writtenRows; ++i)
             m_view->writeToTerminal("line\r\n", true);
 
         const int scrollbackRows = m_view->surface()->fullSize().height()
                                    - m_view->surface()->liveSize().height();
-        QVERIFY(scrollbackRows > 0);
+        QVERIFY2(scrollbackRows > 0,
+                 qPrintable(QString("wrote %1 rows into a %2-row screen, none scrolled off")
+                                .arg(writtenRows)
+                                .arg(visibleRows)));
 
         m_view->selectRow(scrollbackRows - 1);
         QVERIFY(m_view->selection().has_value());
