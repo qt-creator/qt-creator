@@ -2982,15 +2982,27 @@ class Dumper(DumperBase):
         DumperBase.insertInterpreterBreakpoint(self, args)
         self.armInterpreterMessageWatch()
 
-    def sendInterpreterRequest(self, command, args={}):
+    # Everything the debugger itself says to the service writes the variable the
+    # watch is on - the request through the service, and the buffer read that
+    # ends in qt_qmlDebugClearBuffer(). Left armed, each message the debugger
+    # handles trips the watch again and the inferior stops for its own traffic.
+    def withInterpreterMessageWatchMuted(self, call):
         watch = self.interpreterMessageWatchpoint
         if watch is not None:
             watch.SetEnabled(False)
         try:
-            return DumperBase.sendInterpreterRequest(self, command, args)
+            return call()
         finally:
             if watch is not None:
                 watch.SetEnabled(True)
+
+    def sendInterpreterRequest(self, command, args={}):
+        return self.withInterpreterMessageWatchMuted(
+            lambda: DumperBase.sendInterpreterRequest(self, command, args))
+
+    def fetchInterpreterResult(self):
+        return self.withInterpreterMessageWatchMuted(
+            lambda: DumperBase.fetchInterpreterResult(self))
 
     def armInterpreterMessageWatch(self):
         # qt_qmlDebugMessageAvailable() has an empty body, and outside ELF's
