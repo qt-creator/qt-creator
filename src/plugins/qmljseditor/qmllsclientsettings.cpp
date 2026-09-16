@@ -170,7 +170,7 @@ QmllsClientSettings::QmllsClientSettings()
 
     settingsTypeId.setValue(Constants::QMLLS_CLIENT_SETTINGS_ID);
     startBehavior.setValue(RequiresProject);
-    enabled.setValue(false); // disabled by default
+    enabled.setValue(true);
     initializationOptions.setValue("{\"qtCreatorHighlighting\": true}");
 
     auto latestQmllsDisplay = []() {
