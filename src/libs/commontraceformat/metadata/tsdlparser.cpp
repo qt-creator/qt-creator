@@ -821,6 +821,7 @@ private:
     QHash<quint64, StreamDef> m_streamDefs;
     QList<EventDef> m_eventDefs;
     QList<ClockClass> m_clockClasses;
+    QHash<QString, QString> m_environment;
     FieldClassPtr m_packetHeaderFC;
 
     // Most recent clock name seen via `map = clock.X.value` while parsing the
@@ -1044,12 +1045,41 @@ private:
 
     // ── env ────────────────────────────────────────────────────────────────
 
+    // The entries are free-form (spec 5.6): a tracer states here what it knows
+    // about the traced system, e.g. its own name or the traced session's.
     void parseEnvBlock()
     {
         lex.next();
         expect(TT::LBrace, "{");
-        while (!lex.at(TT::RBrace) && !lex.at(TT::Eof) && !m_error)
-            skipToSemi();
+        while (!lex.at(TT::RBrace) && !lex.at(TT::Eof) && !m_error) {
+            if (!lex.at(TT::Ident)) {
+                skipToSemi();
+                continue;
+            }
+            const QString key = consumeIdent();
+            if (!lex.at(TT::Equals)) {
+                skipToSemi();
+                continue;
+            }
+            lex.next();
+            // An entry that is not one identifier, one value and a semicolon is
+            // skipped rather than rejected: the block is non-semantic, and it
+            // parsed before this read it. A tracer writing, say, an unquoted
+            // "1.5" -- three tokens, as there is no float literal -- must not
+            // cost the caller the whole metadata. Hence no expect() here: it
+            // records an error, which ends the parse.
+            if (!lex.at(TT::StrLit) && !lex.at(TT::IntLit) && !lex.at(TT::Ident)) {
+                skipToSemi();
+                continue;
+            }
+            const QString value = consumeAttrVal();
+            if (!lex.at(TT::Semi)) {
+                skipToSemi();
+                continue;
+            }
+            lex.next();
+            m_environment.insert(key, value);
+        }
         expect(TT::RBrace, "}");
     }
 
@@ -1760,9 +1790,10 @@ private:
         Schema schema;
         schema.clockClasses = m_clockClasses;
 
-        if (m_packetHeaderFC) {
+        if (m_packetHeaderFC || !m_environment.isEmpty()) {
             schema.traceClass.emplace();
             schema.traceClass->packetHeaderFieldClass = m_packetHeaderFC;
+            schema.traceClass->environment = m_environment;
         }
 
         // Build DataStreamClasses from stream definitions

@@ -356,6 +356,33 @@ private slots:
         QVERIFY2(!r.has_value(), "expected a NUL-in-string error");
         QVERIFY(r.error().contains(u"NUL"_s));
     }
+
+    // The `env` block is non-semantic (spec 5.6) and free-form, so an entry the
+    // parser cannot make sense of is skipped rather than failing the metadata:
+    // the trace still opens. An unquoted "1.5" is three tokens, as TSDL has no
+    // float literal, and is the shape a real tracer produces.
+    void environmentEntries()
+    {
+        const QByteArray tsdl =
+            "trace { major = 1; minor = 8; byte_order = le; };\n"
+            "env {\n"
+            "  tracer_name = \"qtctf\";\n"
+            "  tracer_precision = 1.5;\n"
+            "  domain = ust;\n"
+            "  pid = 4711;\n"
+            "};\n"
+            "event { name = \"ev\"; fields := struct { integer { size = 8; } x; }; };\n";
+
+        auto r = TsdlParser::parse(tsdl);
+        QVERIFY2(r.has_value(), qPrintable(r ? QString() : r.error()));
+        QVERIFY(r->traceClass.has_value());
+
+        const QHash<QString, QString> &env = r->traceClass->environment;
+        QCOMPARE(env.value(u"tracer_name"_s), u"qtctf"_s);
+        QCOMPARE(env.value(u"domain"_s), u"ust"_s);
+        QCOMPARE(env.value(u"pid"_s), u"4711"_s);
+        QVERIFY(!env.contains(u"tracer_precision"_s));
+    }
 };
 
 QTEST_APPLESS_MAIN(tst_TsdlParser)
