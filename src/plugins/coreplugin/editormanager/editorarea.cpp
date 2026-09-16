@@ -102,12 +102,19 @@ EditorView *EditorArea::unsplit(EditorView *view)
     splitter->unsplit();
 
     // candidate for new current view
-    return splitter->findFirstView();
+    EditorView *newCurrent = splitter->findFirstView();
+    // The current view is gone if it was the one that was removed.
+    if (!m_currentView)
+        setCurrentView(newCurrent);
+    return newCurrent;
 }
 
 void EditorArea::unsplitAll(EditorView *viewToKeep)
 {
     m_splitterOrView->unsplitAll(viewToKeep);
+    // The current view is gone if it was not the one that was kept.
+    if (!m_currentView)
+        setCurrentView(findFirstView());
 }
 
 QByteArray EditorArea::saveState() const

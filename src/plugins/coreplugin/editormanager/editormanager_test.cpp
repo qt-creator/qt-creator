@@ -86,6 +86,8 @@ private slots:
     void testOpenEditorInClosedView();
     void testClosedViewIsReported();
     void testMultiFileContextMenu();
+    void testClosingCurrentViewKeepsCurrentView();
+    void testRemovingAllSplitsKeepsCurrentView();
 };
 
 QObject *createEditorManagerTest()
@@ -192,6 +194,15 @@ static void closeAll()
     EditorArea *mainArea = EMP::mainEditorArea();
     if (mainArea->hasSplits())
         mainArea->unsplit(mainArea->findFirstView());
+}
+
+// An area picks up its current view from the application focus, so a test that
+// needs a particular one only says something while the application has the
+// focus.
+static bool activateMainWindow()
+{
+    ICore::raiseWindow(ICore::mainWindow());
+    return QTest::qWaitFor([] { return QApplication::activeWindow() == ICore::mainWindow(); });
 }
 
 void TabbedEditorTest::initTestCase()
@@ -913,6 +924,52 @@ void EditorManagerTest::testMultiFileContextMenu()
     openAll->trigger();
     QVERIFY(DocumentModel::entryForFilePath(a.filePath()));
     QVERIFY(DocumentModel::entryForFilePath(b.filePath()));
+}
+
+// Closing the view that the area tracks leaves the area with the view that
+// took its place, so that whoever asks next has something to work with.
+void EditorManagerTest::testClosingCurrentViewKeepsCurrentView()
+{
+    if (!activateMainWindow())
+        QSKIP("the main window is not activated in this environment");
+    TestFile a;
+    EditorArea *area = EMP::mainEditorArea();
+    EditorView *first = area->findFirstView();
+    QVERIFY(EMP::openEditor(first, a.filePath()));
+    QTRY_COMPARE(area->currentView(), first);
+    QVERIFY(first->split(Qt::Vertical));
+    QCOMPARE(area->currentView(), first);
+
+    EMP::closeView(first);
+
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 1);
+    QCOMPARE(area->currentView(), views.at(0));
+}
+
+// Removing all splits keeps the view that the editor manager considers
+// current, which is not necessarily the one the area tracks.
+void EditorManagerTest::testRemovingAllSplitsKeepsCurrentView()
+{
+    if (!activateMainWindow())
+        QSKIP("the main window is not activated in this environment");
+    TestFile a;
+    EditorArea *area = EMP::mainEditorArea();
+    EditorView *first = area->findFirstView();
+    QVERIFY(EMP::openEditor(first, a.filePath()));
+    QTRY_COMPARE(area->currentView(), first);
+    EditorView *second = first->split(Qt::Vertical);
+    QVERIFY(second);
+    EMP::setCurrentView(second); // does not touch the focus, so the area keeps the first view
+    QCOMPARE(area->currentView(), first);
+    QCOMPARE(EMP::currentEditorView(), second);
+
+    EMP::removeAllSplits();
+
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 1);
+    QCOMPARE(views.at(0), second);
+    QCOMPARE(area->currentView(), second);
 }
 
 
