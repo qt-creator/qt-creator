@@ -344,12 +344,12 @@ constexpr TextFormat findingTf {
 
 constexpr TextFormat findingDetailTf {
     .themeColor = Theme::Token_Text_Muted,
-    .uiElement = UiElementCaption,
+    .uiElement = findingTf.uiElement,
 };
 
 constexpr TextFormat findingMetricsTf {
     .themeColor = findingDetailTf.themeColor,
-    .uiElement = findingDetailTf.uiElement,
+    .uiElement = UiElementCaption,
     .drawTextFlags = Qt::AlignRight | Qt::TextDontClip,
 };
 
@@ -459,7 +459,7 @@ private:
     QLabel *m_finding = nullptr;
     ElidingLabel *m_location = nullptr;
     QLabel *m_metrics = nullptr;
-    QLabel *m_suggestion = nullptr;
+    QLabel *m_details = nullptr;
 };
 
 FindingItemWidget::FindingItemWidget(QWidget *parent)
@@ -480,9 +480,9 @@ FindingItemWidget::FindingItemWidget(QWidget *parent)
     m_metrics = new QLabel;
     applyHeaderTf(m_metrics, findingMetricsTf);
 
-    m_suggestion = new QLabel;
-    applyTf(m_suggestion, findingDetailTf, false);
-    m_suggestion->setWordWrap(true);
+    m_details = new QLabel;
+    applyTf(m_details, findingDetailTf, false);
+    m_details->setWordWrap(true);
 
     auto header = new FindingHeader;
     connect(header, &FindingHeader::clicked, this, [this] {
@@ -518,12 +518,12 @@ FindingItemWidget::FindingItemWidget(QWidget *parent)
         Row {
             customMargins(SpacingTokens::GapHM + findingIconSize + SpacingTokens::GapHM, 0,
                           SpacingTokens::GapHM, 0),
-            m_suggestion,
+            m_details,
         }
     }.attachTo(this);
 
     QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    policy.setHeightForWidth(true); // The suggestion wraps.
+    policy.setHeightForWidth(true); // The details wraps.
     setSizePolicy(policy);
 }
 
@@ -543,11 +543,17 @@ void FindingItemWidget::setFinding(const QModelIndex &index)
         index.siblingAtColumn(QmlProfilerFindingsModel::ColumnLocation).data().toString());
     m_metrics->setText(findingMetrics(index));
 
+    QStringList details;
+    const QString why = index.data(QmlProfilerFindingsModel::WhyRole).toString();
+    if (!why.isEmpty())
+        details.append(Tr::tr("Why: %1").arg(why));
     const QString suggestion = index.data(QmlProfilerFindingsModel::SuggestionRole).toString();
-    const bool hasSuggestion = !suggestion.isEmpty();
-    if (hasSuggestion)
-        m_suggestion->setText(Tr::tr("Suggestion: %1").arg(suggestion));
-    m_suggestion->setVisible(hasSuggestion);
+    if (!suggestion.isEmpty())
+        details.append(Tr::tr("Suggestion: %1").arg(suggestion));
+    const bool hasDetails = !details.isEmpty();
+    if (hasDetails)
+        m_details->setText("<p>" + details.join("</p><p>") + "</p>");
+    m_details->setVisible(hasDetails);
 }
 
 class FindingsView : public QtcSeparatedItemsWidget
