@@ -2471,6 +2471,7 @@ class Dumper(DumperBase):
         # passing through, an armed interpreter step pauses at the next JS
         # statement. LLDB takes a single step-avoid regexp, so combine the
         # machinery patterns (and keep the std default).
+        self.armInterpreterMessageWatch()
         if getattr(self, 'machinerySkipsDone', False):
             return
         self.machinerySkipsDone = True
@@ -2981,9 +2982,6 @@ class Dumper(DumperBase):
         DumperBase.insertInterpreterBreakpoint(self, args)
         self.armInterpreterMessageWatch()
 
-    def setupMachinerySkips(self):
-        self.armInterpreterMessageWatch()
-
     def sendInterpreterRequest(self, command, args={}):
         watch = self.interpreterMessageWatchpoint
         if watch is not None:
@@ -2998,10 +2996,14 @@ class Dumper(DumperBase):
         # qt_qmlDebugMessageAvailable() has an empty body, and outside ELF's
         # interposition rules the optimizer drops every call to it, so the
         # breakpoint on the name sits on a copy that never runs. Watch the
-        # service's own message length instead.
+        # service's own message length instead. Only where that is the case:
+        # on ELF the calls do survive, and the watchpoint then stops on writes
+        # the hook does not see, which breaks the native mixed stepping.
         if self.interpreterMessageWatchpoint is not None:
             return
         if self.process is None or not self.process.IsValid():
+            return
+        if 'apple' not in (self.target.GetTriple() or ''):
             return
         symbols = self.target.FindSymbols('qt_qmlDebugMessageLength')
         if not symbols.GetSize():

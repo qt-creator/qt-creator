@@ -9488,7 +9488,8 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
         afterStep.requestId = 30 + step;
         engine->refresh(afterStep);
         QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
-        for (const GdbMi &frame : responses.value(int(RefreshKind::FullStack))["stack"]["frames"]) {
+        const GdbMi afterStepStack = responses.value(int(RefreshKind::FullStack));
+        for (const GdbMi &frame : afterStepStack["stack"]["frames"]) {
             if (frame["language"].data() == "js") {
                 visited << (frame["function"].data() + ':' + frame["line"].data());
                 break;
