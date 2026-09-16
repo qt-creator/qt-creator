@@ -41,6 +41,12 @@ private:
 
     void applyDirectoryDataToKit(const DirectoryData &data, ProjectExplorer::Kit *k) const;
 
+    QtVersionData findQtVersionFromPrefixPath(const QString &prefixPath) const;
+    QtVersionData findQtVersion(const Utils::FilePath &qmakePath,
+                                const QString &prefixPath) const;
+
+    friend class CMakeProjectImporterTest;
+
     const CMakeProject *m_project;
     Utils::FilePath m_presetsProbeDir;
 };

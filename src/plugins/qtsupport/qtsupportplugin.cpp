@@ -14,6 +14,7 @@
 #include "qtprojectimporter.h"
 #include "qtsupporttr.h"
 #include "qttestparser.h"
+#include "qtversionfromfiles.h"
 #include "qtversionmanager.h"
 #include "qtversions.h"
 #include "translationwizardpage.h"
@@ -95,6 +96,7 @@ void QtSupportPlugin::initialize()
     addTestCreator(createQtOutputParserTest);
     addTestCreator(createQtTestParserTest);
     addTestCreator(createQtProjectImporterTest);
+    addTestCreator(createQtVersionFromFilesTest);
 #endif
 
     setupQtVersionManager(this);

@@ -271,13 +271,17 @@ public:
     int cloneRow(int row) override
     {
         const QtVersionItem &it = item(row);
-        if (!it.version())
+        const QtVersion *version = it.version();
+        if (!version)
             return -1;
-        QtVersion *clone = QtVersionFactory::createQtVersionFromQMakePath(
-            it.version()->qtFilePath(), DetectionSource::Manual);
+        QtVersion *clone = version->hasDataFromFiles()
+            ? QtVersionFactory::createQtVersionFromPrefix(version->qtFilePath(),
+                                                          DetectionSource::Manual)
+            : QtVersionFactory::createQtVersionFromQMakePath(version->qtFilePath(),
+                                                             DetectionSource::Manual);
         if (!clone)
             return -1;
-        clone->setUnexpandedDisplayName(Tr::tr("Clone of %1").arg(it.version()->displayName()));
+        clone->setUnexpandedDisplayName(Tr::tr("Clone of %1").arg(version->displayName()));
         return appendVolatileItem(QtVersionItem(clone));
     }
 
@@ -840,15 +844,22 @@ void QtSettingsPageWidget::editPath()
     QTC_ASSERT(row >= 0, return);
     QtVersion *current = m_model.item(row).version();
     QTC_ASSERT(current, return);
-    FilePath qtVersion = FileUtils::getOpenFilePath(
-        Tr::tr("Select a qtpaths or qmake Executable"),
-        current->qtFilePath().absolutePath(),
-        filterForQmakeFileDialog(current->qtFilePath().osType()),
-        nullptr,
-        QFileDialog::DontResolveSymlinks);
+    const bool fromFiles = current->hasDataFromFiles();
+    FilePath qtVersion = fromFiles
+        ? FileUtils::getExistingDirectory(Tr::tr("Select the Prefix of a Qt Installation"),
+                                          current->qtFilePath())
+        : FileUtils::getOpenFilePath(
+            Tr::tr("Select a qtpaths or qmake Executable"),
+            current->qtFilePath().absolutePath(),
+            filterForQmakeFileDialog(current->qtFilePath().osType()),
+            nullptr,
+            QFileDialog::DontResolveSymlinks);
     if (qtVersion.isEmpty())
         return;
-    QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, DetectionSource::Manual, nullptr);
+    QtVersion *version = fromFiles
+        ? QtVersionFactory::createQtVersionFromPrefix(qtVersion, DetectionSource::Manual)
+        : QtVersionFactory::createQtVersionFromQMakePath(qtVersion, DetectionSource::Manual,
+                                                         nullptr);
     if (!version)
         return;
     // Same type? then replace!

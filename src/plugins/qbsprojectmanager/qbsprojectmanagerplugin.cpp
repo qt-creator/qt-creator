@@ -33,6 +33,9 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitaspect.h>
+
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
@@ -125,7 +128,17 @@ void QbsProjectManagerPlugin::initialize()
     Utils::FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QT, "qbs");
     Core::HelpManager::registerDocumentation({Core::HelpManager::documentationPath() / "qbs.qch"});
 
-    ProjectManager::registerProjectType<QbsProject>(Utils::Constants::QBS_MIMETYPE);
+    const auto issuesGenerator = [](const Kit *k) {
+        Tasks result;
+        const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(k);
+        if (qt && qt->hasDataFromFiles()) {
+            result.append(Project::createTask(Task::TaskType::Error,
+                                              Tr::tr("qmake not found for Qt version.")));
+        }
+        return result;
+    };
+    ProjectManager::registerProjectType<QbsProject>(Utils::Constants::QBS_MIMETYPE,
+                                                    issuesGenerator);
 
     //menus
     // Build Menu:

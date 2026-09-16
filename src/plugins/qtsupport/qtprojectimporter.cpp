@@ -69,6 +69,10 @@ QtProjectImporter::QtProjectImporter(const FilePath &path)
 QtProjectImporter::QtVersionData
 QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
 {
+    // A version registered from its files has no qmake either.
+    if (qmakePath.isEmpty())
+        return {};
+
     QtVersionData result;
     result.qt = QtVersionManager::version(
         Utils::equal(
@@ -90,6 +94,23 @@ QtProjectImporter::findOrCreateQtVersion(const Utils::FilePath &qmakePath) const
         QtVersionManager::addVersion(result.qt);
     }
 
+    return result;
+}
+
+// A Qt version registered from its files is identified by its prefix, not by a qmake.
+QtProjectImporter::QtVersionData
+QtProjectImporter::findQtVersionFromFiles(const Utils::FilePath &prefix) const
+{
+    QtVersionData result;
+    if (prefix.isEmpty())
+        return result;
+
+    const FilePath canonicalPrefix = prefix.canonicalPath();
+    result.qt = QtVersionManager::version([&canonicalPrefix](const QtVersion *v) {
+        return v->hasDataFromFiles() && v->qtFilePath().canonicalPath() == canonicalPrefix;
+    });
+    if (result.qt)
+        result.isTemporary = hasKitWithTemporaryData(QtKitAspect::id(), result.qt->uniqueId());
     return result;
 }
 
@@ -121,6 +142,8 @@ Kit *QtProjectImporter::createTemporaryKit(const QtVersionData &versionData,
 
 #include <cassert>
 
+#include <QScopeGuard>
+#include <QTemporaryDir>
 #include <QTest>
 
 namespace QtSupport::Internal {
@@ -174,6 +197,8 @@ public:
     FilePaths importCandidates() override { return {}; }
 
     bool allDeleted() const { return m_deletedTestData.count() == m_testData.count();}
+
+    using QtProjectImporter::findOrCreateQtVersion;
 
 protected:
     QList<void *> examineDirectory(const Utils::FilePath &importPath,
@@ -332,6 +357,7 @@ class QtProjectImporterTest final : public QObject
 private slots:
     void testQtProjectImporter_oneProject_data();
     void testQtProjectImporter_oneProject();
+    void testQtProjectImporter_qtFromFiles();
 };
 
 void QtProjectImporterTest::testQtProjectImporter_oneProject_data()
@@ -659,6 +685,63 @@ void QtProjectImporterTest::testQtProjectImporter_oneProject()
     // Delete kit templates:
     QVERIFY(kitTemplates.removeOne(defaultKit));
     qDeleteAll(kitTemplates);
+}
+
+void QtProjectImporterTest::testQtProjectImporter_qtFromFiles()
+{
+    QTemporaryDir temp;
+    QVERIFY(temp.isValid());
+    const FilePath prefix = FilePath::fromString(temp.path());
+    QVERIFY((prefix / "modules").ensureWritableDir());
+    QVERIFY((prefix / "modules/Core.json")
+                .writeFileContents("{ \"module_name\": \"Core\", \"version\": \"6.13.0\" }"));
+
+    QString error;
+    QtVersion *fromFiles = QtVersionFactory::createQtVersionFromPrefix(prefix,
+                                                                      DetectionSource::Manual,
+                                                                      &error);
+    QVERIFY2(fromFiles, qPrintable(error));
+    QtVersionManager::addVersion(fromFiles);
+    const auto removeFromFiles = qScopeGuard([fromFiles] {
+        QtVersionManager::removeVersion(fromFiles);
+    });
+
+    const TestQtProjectImporter importer(FilePath::fromString("/testproject/test.pro"), {});
+    const auto find = [&importer](const FilePath &qmake) {
+        return importer.findOrCreateQtVersion(qmake).qt;
+    };
+
+    // The qmake and qbs importers need a qmake, so one inside the prefix that is missing
+    // or cannot run does not map back to the version.
+    const QtVersion *forMissing = find(prefix / "bin/no-such-qmake");
+    const QtVersion *forEmpty = find({});
+
+    const FilePath qmake = prefix / "bin/qmake";
+    QVERIFY(qmake.parentDir().ensureWritableDir());
+    const auto writeQmake = [&qmake](const QByteArray &script) {
+        return qmake.writeFileContents("#!/bin/sh\n" + script)
+               && qmake.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+    };
+    const bool canRunScripts = !HostOsInfo::isWindowsHost();
+    QVERIFY(writeQmake("exit 1\n"));
+    const QtVersion *forFailing = canRunScripts ? find(qmake) : nullptr;
+
+    // A qmake that works gets a version of its own, which the qmake and qbs importers need.
+    QVERIFY(writeQmake("echo QT_VERSION:6.13.0\n"
+                       "echo QT_INSTALL_PREFIX:" + prefix.path().toUtf8() + "\n"
+                       "echo QMAKE_VERSION:3.1\n"));
+    QtVersion *forWorking = canRunScripts ? find(qmake) : nullptr;
+    const FilePath workingQmake = forWorking ? forWorking->qmakeFilePath() : FilePath();
+    if (forWorking && forWorking != fromFiles)
+        QtVersionManager::removeVersion(forWorking);
+
+    QVERIFY(!forMissing);
+    QVERIFY(!forEmpty);
+    QVERIFY(!forFailing);
+    if (canRunScripts) {
+        QVERIFY(forWorking != fromFiles);
+        QCOMPARE(workingQmake, qmake);
+    }
 }
 
 QObject *createQtProjectImporterTest()

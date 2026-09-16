@@ -169,7 +169,9 @@ Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const BuildConfigura
 AndroidQtVersion::BuiltWith AndroidQtVersion::builtWith(bool *ok) const
 {
     // version.prefix() not yet set when this is called
-    const FilePath coreModuleJson = qtFilePath().parentDir().parentDir() / "modules/Core.json";
+    const FilePath archData = hasDataFromFiles() ? archDataPath()
+                                                 : qtFilePath().parentDir().parentDir();
+    const FilePath coreModuleJson = archData / "modules/Core.json";
     if (coreModuleJson.exists()) {
         if (const Result<QByteArray> contents = coreModuleJson.fileContents())
             return parseModulesCoreJson(*contents, ok);

@@ -9,6 +9,11 @@
 
 #include <utils/store.h>
 
+#include <QHash>
+
+QT_FORWARD_DECLARE_CLASS(ProKey)
+QT_FORWARD_DECLARE_CLASS(ProString)
+
 namespace Utils { class FilePath; }
 
 namespace QtSupport {
@@ -36,6 +41,17 @@ public:
         const ProjectExplorer::DetectionSource &detectionSource,
         QString *error = nullptr);
 
+    // For a Qt installation that describes itself in files only, without a runnable
+    // qmake or qtpaths, e.g. a cross build unpacked on the target device.
+    static QtVersion *createQtVersionFromPrefix(
+        const Utils::FilePath &prefix,
+        const ProjectExplorer::DetectionSource &detectionSource,
+        QString *error = nullptr);
+
+    // Where the description of a Qt version comes from: running a qmake or qtpaths
+    // command, or reading the installation's own files.
+    enum class QtSource { Command, Files };
+
 protected:
     struct SetupData
     {
@@ -53,6 +69,14 @@ protected:
 private:
     friend class QtVersion;
     QtVersion *create() const;
+
+    // "qtPath" is what identifies the Qt version, a qmake or qtpaths command, or a
+    // prefix when the data was read from the installation's own files.
+    static QtVersion *createQtVersion(const Utils::FilePath &qtPath,
+                                      const QHash<ProKey, ProString> &versionInfo,
+                                      QtSource source,
+                                      const ProjectExplorer::DetectionSource &detectionSource,
+                                      QString *error);
 
     std::function<QtVersion *()> m_creator;
     std::function<bool(const SetupData &)> m_restrictionChecker;

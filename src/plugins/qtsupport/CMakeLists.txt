@@ -30,6 +30,7 @@ add_qtc_plugin(QtSupport
     qtsupportutils.cpp qtsupportutils.h
     qttestparser.cpp qttestparser.h
     qtversionfactory.h
+    qtversionfromfiles.cpp qtversionfromfiles.h
     qtversionmanager.cpp qtversionmanager.h
     qtversions.cpp qtversions.h
     translationwizardpage.cpp translationwizardpage.h

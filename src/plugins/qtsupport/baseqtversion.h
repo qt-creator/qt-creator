@@ -117,8 +117,10 @@ public:
     bool hasDocs() const;
     bool hasDemos() const;
 
-    /// @returns the tool that identified qt: qmake or qtpaths
+    /// @returns the tool that identified qt: qmake or qtpaths, or the prefix
+    /// if hasDataFromFiles()
     Utils::FilePath qtFilePath() const;
+    bool hasDataFromFiles() const;
 
     /// @returns path to the qmake executable associated with the qt version
     ///
@@ -170,6 +172,7 @@ public:
 
     Utils::FilePath binPath() const;
     Utils::FilePath libExecPath() const;
+    Utils::FilePath archDataPath() const;
     Utils::FilePath configurationPath() const;
     Utils::FilePath dataPath() const;
     Utils::FilePath demosPath() const;

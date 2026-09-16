@@ -26,6 +26,7 @@ public:
 
 protected:
     QtVersionData findOrCreateQtVersion(const Utils::FilePath &qmakePath) const;
+    QtVersionData findQtVersionFromFiles(const Utils::FilePath &prefix) const;
     ProjectExplorer::Kit *createTemporaryKit(const QtVersionData &versionData,
                                              const KitSetupFunction &setup) const;
 };

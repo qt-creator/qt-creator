@@ -643,8 +643,11 @@ static QtProjectImporter::QtVersionData findOrRegisterQtVersion(
         if (qmakePath.isEmpty())
             return {};
 
-        if (qmakePath.isRelativePath())
+        if (qmakePath.isRelativePath()) {
             qmakePath = env.searchInPath(qmakePath.fileName());
+            if (qmakePath.isEmpty())
+                return {};
+        }
 
         // Check if this Qt version is already known to the manager
         for (QtVersion *v : QtVersionManager::versions()) {
@@ -956,7 +959,7 @@ static void updateConfigWithDirectoryData(CMakeConfig &config, const DirectoryDa
     updateCompilerValue("CMAKE_C_COMPILER", ProjectExplorer::Constants::C_LANGUAGE_ID);
     updateCompilerValue("CMAKE_CXX_COMPILER", ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
-    if (data.qt.qt)
+    if (data.qt.qt && !data.qt.qt->qmakeFilePath().isEmpty())
         config.insert(CMakeConfigItem(
             "QT_QMAKE_EXECUTABLE",
             CMakeConfigItem::FILEPATH,
@@ -1652,8 +1655,8 @@ void CMakeProjectImporter::createKitsFromPresets()
         PresetsDetails::ConfigurePreset &configurePreset = storage->configurePreset;
         Environment &env = storage->env;
 
-        if (!qmake.isEmpty())
-            data.qt = findOrCreateQtVersion(qmake);
+        if (!qmake.isEmpty() || !data.qt.qt)
+            data.qt = findQtVersion(qmake, cmakePrefixPath);
 
         if (!cmakePrefixPath.isEmpty() && config.valueOf("CMAKE_PREFIX_PATH").isEmpty())
             config.insert(
@@ -1890,6 +1893,37 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
 }
 
 
+// Without a qmake, the Qt can still be one that was registered from its files.
+CMakeProjectImporter::QtVersionData CMakeProjectImporter::findQtVersionFromPrefixPath(
+    const QString &prefixPath) const
+{
+    for (const QString &prefix : prefixPath.split(';', Qt::SkipEmptyParts)) {
+        const QtVersionData data = findQtVersionFromFiles(projectDirectory().withNewPath(prefix));
+        if (data.qt)
+            return data;
+    }
+    return {};
+}
+
+// The qmake of a cross build can be missing, e.g. "qmake_binary-NOTFOUND" from the probe,
+// or be a wrapper script that cannot run without its host Qt. Unlike the qmake and qbs
+// importers, CMake can build with a Qt that has no qmake, i.e. one registered from its files.
+CMakeProjectImporter::QtVersionData CMakeProjectImporter::findQtVersion(
+    const FilePath &qmakePath, const QString &prefixPath) const
+{
+    if (!qmakePath.isEmpty()) {
+        const QtVersionData data = findOrCreateQtVersion(qmakePath);
+        if (data.qt)
+            return data;
+    }
+    if (qmakePath.isAbsolutePath()) {
+        const QtVersionData data = findQtVersionFromFiles(qmakePath.parentDir().parentDir());
+        if (data.qt)
+            return data;
+    }
+    return findQtVersionFromPrefixPath(prefixPath);
+}
+
 QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                                      QString *warningMessage) const
 {
@@ -1951,8 +1985,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         // Qt:
         const auto info = qtInfoFromCMakeCache(config, env);
-        if (!info.qmakePath.isEmpty())
-            data->qt = findOrCreateQtVersion(info.qmakePath);
+        data->qt = findQtVersion(info.qmakePath, info.cmakePrefixPath);
 
         // Toolchains:
         data->toolchains = extractToolchainsFromCache(config);
@@ -2228,6 +2261,8 @@ void CMakeProjectImporter::deleteDirectoryData(void *directoryData) const
 
 #ifdef WITH_TESTS
 
+#include <QScopeGuard>
+#include <QTemporaryDir>
 #include <QTest>
 
 namespace CMakeProjectManager::Internal {
@@ -2247,6 +2282,8 @@ private slots:
     void testPresetProbeIsReusedUntilThePresetChanges();
     void testPresetProbeIsRedoneWhenTheEnvironmentChanges();
     void testBrokenPresetKeepsTheKitsOfTheOthers();
+    void testQtFromFilesIsFoundByPrefixPath();
+    void testPresetQmakeNotInPathFindsNoQt();
 };
 
 void CMakeProjectImporterTest::testCMakeProjectImporterQt_data()
@@ -2606,6 +2643,77 @@ void CMakeProjectImporterTest::testBrokenPresetKeepsTheKitsOfTheOthers()
     QVERIFY2(KitManager::kit(kitIds.last()), "A preset that can be probed keeps its kit.");
 
     deregisterPresetKits(project);
+}
+
+void CMakeProjectImporterTest::testQtFromFilesIsFoundByPrefixPath()
+{
+    QTemporaryDir temp;
+    QVERIFY(temp.isValid());
+    const FilePath root = FilePath::fromString(temp.path());
+    const FilePath qtPrefix = root / "qt";
+    QVERIFY((qtPrefix / "modules").ensureWritableDir());
+    QVERIFY((qtPrefix / "modules/Core.json")
+                .writeFileContents("{ \"module_name\": \"Core\", \"version\": \"6.13.0\" }"));
+
+    QString error;
+    QtVersion *fromFiles = QtVersionFactory::createQtVersionFromPrefix(qtPrefix,
+                                                                      DetectionSource::Manual,
+                                                                      &error);
+    QVERIFY2(fromFiles, qPrintable(error));
+    QtVersionManager::addVersion(fromFiles);
+    const auto removeFromFiles = qScopeGuard([fromFiles] {
+        QtVersionManager::removeVersion(fromFiles);
+    });
+
+    const FilePath projectFile = root / "project/CMakeLists.txt";
+    QVERIFY(projectFile.parentDir().ensureWritableDir());
+    QVERIFY(projectFile.writeFileContents("project(qtfromfiles)"));
+    CMakeProject project(projectFile);
+    const CMakeProjectImporter importer(projectFile, &project);
+
+    DirectoryData data;
+    data.qt = importer.findQtVersion(
+        FilePath::fromString("qmake_binary-NOTFOUND"),
+        (root / "other").path() + ';' + qtPrefix.path() + ";/opt/elsewhere");
+    CMakeConfig config;
+    updateConfigWithDirectoryData(config, data);
+
+    const QtVersion *forQmakeInPrefix
+        = importer.findQtVersion(qtPrefix / "bin/no-such-qmake", {}).qt;
+
+    QCOMPARE(data.qt.qt, fromFiles);
+    QVERIFY(!config.contains("QT_QMAKE_EXECUTABLE"));
+    QCOMPARE(forQmakeInPrefix, fromFiles);
+}
+
+void CMakeProjectImporterTest::testPresetQmakeNotInPathFindsNoQt()
+{
+    QTemporaryDir temp;
+    QVERIFY(temp.isValid());
+    const FilePath root = FilePath::fromString(temp.path());
+    QVERIFY((root / "modules").ensureWritableDir());
+    QVERIFY((root / "modules/Core.json")
+                .writeFileContents("{ \"module_name\": \"Core\", \"version\": \"6.13.0\" }"));
+
+    QString error;
+    QtVersion *fromFiles = QtVersionFactory::createQtVersionFromPrefix(root,
+                                                                      DetectionSource::Manual,
+                                                                      &error);
+    QVERIFY2(fromFiles, qPrintable(error));
+    QtVersionManager::addVersion(fromFiles);
+    const auto removeFromFiles = qScopeGuard([fromFiles] {
+        QtVersionManager::removeVersion(fromFiles);
+    });
+
+    PresetsDetails::ConfigurePreset preset;
+    preset.name = "qmake-not-in-path";
+    preset.vendor = QVariantMap{{"qt", "no-such-qmake"}};
+    Environment env;
+    env.set("PATH", root.path());
+    const QtProjectImporter::QtVersionData data
+        = findOrRegisterQtVersion(PresetMacroExpander(preset, env, root), "project");
+
+    QVERIFY(!data.qt);
 }
 
 QObject *createCMakeProjectImporterTest()
