@@ -1119,7 +1119,15 @@ private:
             } else if (lex.atIdent("offset")) {
                 lex.next();
                 expect(TT::Equals, "=");
-                cc.offsetCycles = static_cast<quint64>(consumeInt());
+                // Cycles from the clock's origin, and a count of them cannot be
+                // negative. Rejected rather than taken as the huge unsigned
+                // value it would convert to: a consumer computes a timestamp
+                // from this, and one that far out overflows its arithmetic.
+                const qint64 ov = consumeInt();
+                if (ov < 0)
+                    error(u"clock offset must not be negative"_s);
+                else
+                    cc.offsetCycles = static_cast<quint64>(ov);
                 expect(TT::Semi, ";");
             } else if (lex.atIdent("offset_s")) {
                 lex.next();
@@ -1136,7 +1144,11 @@ private:
             } else if (lex.atIdent("precision")) {
                 lex.next();
                 expect(TT::Equals, "=");
-                cc.precision = static_cast<quint64>(consumeInt());
+                const qint64 pv = consumeInt();
+                if (pv < 0)
+                    error(u"clock precision must not be negative"_s);
+                else
+                    cc.precision = static_cast<quint64>(pv);
                 expect(TT::Semi, ";");
             } else
                 skipToSemi();

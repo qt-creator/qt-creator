@@ -383,6 +383,37 @@ private slots:
         QCOMPARE(env.value(u"pid"_s), u"4711"_s);
         QVERIFY(!env.contains(u"tracer_precision"_s));
     }
+
+    // A clock's `offset` counts cycles from its origin, so it cannot be
+    // negative. Taken as the unsigned value it converts to, it would be a clock
+    // whose origin is some 585 years of nanoseconds ahead of every timestamp of
+    // the trace, and overflow the arithmetic a consumer times events with.
+    void negativeClockOffset()
+    {
+        const QByteArray tsdl =
+            "trace { major = 1; minor = 8; byte_order = le; };\n"
+            "clock { name = \"monotonic\"; freq = 1000000000; offset = -1; };\n"
+            "event { name = \"ev\"; fields := struct { integer { size = 8; } x; }; };\n";
+
+        auto r = TsdlParser::parse(tsdl);
+        QVERIFY2(!r.has_value(), "expected a negative clock offset error");
+        QVERIFY2(r.error().contains(u"offset"_s), qPrintable(r.error()));
+    }
+
+    // `precision` counts cycles too, and the CTF2 reader already rejects a
+    // negative one (spec 5.7), so the same field of the same clock class must
+    // not pass just because it arrived as TSDL.
+    void negativeClockPrecision()
+    {
+        const QByteArray tsdl =
+            "trace { major = 1; minor = 8; byte_order = le; };\n"
+            "clock { name = \"monotonic\"; freq = 1000000000; precision = -1; };\n"
+            "event { name = \"ev\"; fields := struct { integer { size = 8; } x; }; };\n";
+
+        auto r = TsdlParser::parse(tsdl);
+        QVERIFY2(!r.has_value(), "expected a negative clock precision error");
+        QVERIFY2(r.error().contains(u"precision"_s), qPrintable(r.error()));
+    }
 };
 
 QTEST_APPLESS_MAIN(tst_TsdlParser)
