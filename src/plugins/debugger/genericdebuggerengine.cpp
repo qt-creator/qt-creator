@@ -496,8 +496,34 @@ void GenericDebuggerEngine::handleBreakpointEvent(quint64 requestId, BreakpointO
     }
 }
 
+// A report the interpreter made spells its fields the service's way - "1"
+// where gdb writes "y" - so reading it as gdb output turns an enabled
+// breakpoint into a disabled one. Only such a report carries the model id its
+// request went out with, which is what tells the two apart.
+static bool isInterpreterBkptData(const GdbMi &bkpt)
+{
+    return bkpt["modelid"].toInt() != 0;
+}
+
+void GenericDebuggerEngine::applyInterpreterBkptData(const GdbMi &bkpt, const Breakpoint &bp)
+{
+    // The number the interpreter assigned is the only handle the backend takes
+    // for removing or changing it later.
+    bp->setResponseId(bkpt["number"].data());
+    bp->setEnabled(bkpt["enabled"].toInt());
+    bp->setCondition(bkpt["condition"].data());
+    bp->setIgnoreCount(bkpt["ignorecount"].toInt());
+    bp->setTextPosition({bkpt["line"].toInt(), -1});
+    bp->setPending(false);
+}
+
 void GenericDebuggerEngine::applyBkptData(const GdbMi &bkpt, const Breakpoint &bp)
 {
+    if (isInterpreterBkptData(bkpt)) {
+        applyInterpreterBkptData(bkpt, bp);
+        return;
+    }
+
     // A pseudo tracepoint prints a message rather than stopping, and each of
     // its locations does, so the message travels to them as well.
     const bool isPseudoTracepoint = bp->isTracepoint() && settings().usePseudoTracepoints();
@@ -551,24 +577,14 @@ void GenericDebuggerEngine::handleBreakpointModified(const GdbMi &data)
                 sub->params.message = bp->message();
             }
         } else {
-            bp = handler->findBreakpointByResponseId(nr);
-            if (!bp) {
-                const int modelId = bkpt["modelid"].toInt();
-                if (modelId) {
-                    bp = handler->findBreakpointByModelId(modelId);
-                    if (bp) {
-                        // The number the interpreter assigned is the only handle
-                        // the backend takes for removing or changing it later.
-                        bp->setResponseId(nr);
-                        bp->setEnabled(bkpt["enabled"].toInt());
-                        bp->setCondition(bkpt["condition"].data());
-                        bp->setIgnoreCount(bkpt["ignorecount"].toInt());
-                        bp->setTextPosition({bkpt["line"].toInt(), -1});
-                        bp->setPending(false);
-                        continue;
-                    }
+            if (isInterpreterBkptData(bkpt)) {
+                bp = handler->findBreakpointByModelId(bkpt["modelid"].toInt());
+                if (bp) {
+                    applyInterpreterBkptData(bkpt, bp);
+                    continue;
                 }
             }
+            bp = handler->findBreakpointByResponseId(nr);
             if (bp)
                 bp->updateFromGdbOutput(bkpt, runParameters());
         }

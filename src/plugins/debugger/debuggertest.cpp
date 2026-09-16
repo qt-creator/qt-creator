@@ -11,6 +11,8 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
+#include "breakhandler.h"
+#include "genericdebuggerengine.h"
 #include "debuggeritem.h"
 #include "debuggerruncontrol.h"
 #include "debuggersourcepathmappingwidget.h"
@@ -109,6 +111,7 @@ private slots:
     void testNormalizedSourcePathPrefix();
 
     void testScratchEditorAdoptsSavedName();
+    void testInterpreterBreakpointStaysEnabled();
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
 
@@ -1368,6 +1371,108 @@ void DebuggerUnitTests::testNormalizedSourcePathPrefix()
     // debugging a Windows target from a Linux host.
     QCOMPARE(normalizedSourcePathPrefix("C:\\work\\qt"), QString("C:/work/qt"));
     QCOMPARE(normalizedSourcePathPrefix("(C:\\work\\.*)\\src"), QString("(C:/work/.*)/src"));
+}
+
+// A backend that records what it is asked to do and answers only when told to,
+// so the engine's side of a breakpoint's life can be driven a step at a time.
+class RecordingBackend : public DebuggerEngineInterface
+{
+public:
+    RecordingBackend() : DebuggerEngineInterface(setupData()) {}
+
+    static DebuggerEngineSetupData setupData()
+    {
+        DebuggerEngineSetupData data;
+        data.startModes = DebuggerStartModeFlag::Launch;
+        data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &) { return true; };
+        return data;
+    }
+
+    void changeBreakpoint(const BreakpointChangeRequest &request) override
+    {
+        requests.append(request);
+    }
+
+    void answerLastAsInterpreter(BreakpointOp op, const QString &number)
+    {
+        QVERIFY(!requests.isEmpty());
+        const BreakpointChangeRequest request = requests.last();
+        // What the QML debug service reports: its own spelling, and the model
+        // id the request went out with.
+        GdbMi bkpt;
+        bkpt.m_type = GdbMi::Tuple;
+        const auto add = [&bkpt](const QString &name, const QString &data) {
+            GdbMi child;
+            child.m_type = GdbMi::Const;
+            child.m_name = name;
+            child.m_data = data;
+            bkpt.addChild(child);
+        };
+        add("number", number);
+        add("enabled", "1");
+        add("condition", QString());
+        add("ignorecount", "0");
+        add("line", "10");
+        add("modelid", QString::number(request.modelId));
+        add("pending", "0");
+        GdbMi list;
+        list.m_type = GdbMi::List;
+        list.addChild(bkpt);
+        emit breakpointEvent(request.requestId, op, true, list);
+    }
+
+    QList<BreakpointChangeRequest> requests;
+
+    void start() override {}
+    void shutdownInferior(ShutdownMode) override {}
+    void shutdownEngine() override {}
+    void execute(const ExecutionRequest &) override {}
+    void refresh(const RefreshRequest &) override {}
+    void accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArray &) override {}
+    void executeDebuggerCommand(const QString &, const WatchItemData &) override {}
+    void selectThread(const QString &) override {}
+    void activateFrame(int) override {}
+    void fetchDisassembly(quint64, quint64, const QString &) override {}
+    void assignValueInDebugger(const WatchItemData &, const QString &, const QString &) override {}
+    void setRegisterValue(const QString &, const QString &) override {}
+    void setPeripheralRegisterValue(quint64, quint64) override {}
+    void watchPoint(quint64, const QPoint &) override {}
+    void createSnapshot(quint64) override {}
+};
+
+// Claims one breakpoint for a fresh engine and answers the insert the way the
+// QML debug service does. Returns the engine's own item for it.
+static Breakpoint claimedInterpreterBreakpoint(GenericDebuggerEngine *engine,
+                                               RecordingBackend *backend)
+{
+    BreakpointParameters params;
+    params.type = BreakpointByFileAndLine;
+    params.fileName = FilePath::fromUserInput("Main.qml");
+    params.textPosition = {10, -1};
+    params.enabled = true;
+    BreakpointManager::createBreakpoint(params);
+    BreakpointManager::claimBreakpointsForEngine(engine);
+
+    if (backend->requests.isEmpty())
+        return {};
+    backend->answerLastAsInterpreter(BreakpointOp::Insert, "1");
+    return engine->breakHandler()->findBreakpointByModelId(backend->requests.last().modelId);
+}
+
+// The service spells an enabled breakpoint "1", gdb spells it "y". Read as gdb
+// output, the reply to the insert turns the breakpoint off the moment it is
+// made, and nothing the user does in the view can turn it back on.
+void DebuggerUnitTests::testInterpreterBreakpointStaysEnabled()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const Breakpoint bp = claimedInterpreterBreakpoint(engine, backend);
+    QVERIFY(bp);
+    QVERIFY2(bp->isEnabled(), "the interpreter's reply turned the breakpoint off");
+    QCOMPARE(bp->responseId(), QString("1"));
 }
 
 void DebuggerUnitTests::testScratchEditorAdoptsSavedName()

@@ -77,6 +77,7 @@ private:
 
     void handleBreakpointEvent(quint64 requestId, BreakpointOp op, bool ok, const GdbMi &data);
     void applyBkptData(const GdbMi &bkpt, const Breakpoint &bp);
+    void applyInterpreterBkptData(const GdbMi &bkpt, const Breakpoint &bp);
     void handleBreakpointModified(const GdbMi &data);
     void handleSignalReceived(const QString &name, const QString &meaning);
     void askAboutQtSymbols(const Utils::FilePath &module);
