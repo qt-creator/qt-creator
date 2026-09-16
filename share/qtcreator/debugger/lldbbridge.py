@@ -1997,7 +1997,18 @@ class Dumper(DumperBase):
                             self.dropInterpreterAvailabilityHook()
                         self.process.Continue()
                         return
-                    if (self.atInterpreterMessageWatch(stoppedThread)
+                    atMessageWatch = self.atInterpreterMessageWatch(stoppedThread)
+                    if atMessageWatch and not self.hasInterpreterMessageFraming():
+                        # An object announcement, whose write the watch cannot
+                        # tell from a service message's: it trips before the
+                        # announcement reaches qt_qmlDebugObjectAvailable.
+                        # Reading it here would misparse the announcement and
+                        # clear a response the service still owes, so leave it
+                        # to that hook.
+                        self.report("NOT A SERVICE MESSAGE")
+                        self.process.Continue()
+                        return
+                    if (atMessageWatch
                             or "qt_qmlDebugMessageAvailable" in (functionName or '')):
                         self.report("ASYNC MESSAGE FROM SERVICE")
                         # The interpreter step won the race (possibly a

@@ -3010,13 +3010,37 @@ typename))
         exp = ('*(%s*)&%s' % (cast, name)) if cast else name
         return self.parseAndEvaluateAllowingCalls(exp)
 
-    def fetchInterpreterResult(self):
+    def readInterpreterMessageBuffer(self):
         buf = self.readServiceVariable('qt_qmlDebugMessageBuffer')
         size = self.readServiceVariable('qt_qmlDebugMessageLength')
-        msg = self.hexdecode(self.readMemory(buf.pointer(), size.integer()))
+        return self.hexdecode(self.readMemory(buf.pointer(), size.integer()))
+
+    @staticmethod
+    def isInterpreterMessageFraming(msg):
+        # A message addressed to a service is framed as
+        # 'servicename<space>msglen<space>msg'. The connector writes the message
+        # variables for its own object announcements too, and those carry a bare
+        # JSON object instead. Only the framing tells the two apart.
+        pos0 = msg.find(' ')
+        if pos0 < 0:
+            return False
+        pos1 = msg.find(' ', pos0 + 1)
+        return pos1 > 0 and msg[pos0 + 1:pos1].isdigit()
+
+    def hasInterpreterMessageFraming(self):
+        return self.isInterpreterMessageFraming(self.readInterpreterMessageBuffer())
+
+    def fetchInterpreterResult(self):
+        msg = self.readInterpreterMessageBuffer()
         # msg is a sequence of 'servicename<space>msglen<space>msg' items.
         resdict = {}  # Native payload.
         while len(msg):
+            if not self.isInterpreterMessageFraming(msg):
+                # Reading on would throw out of the stop handler this runs in,
+                # and clearing the buffer would drop a message whose real reader
+                # still owes an answer for it.
+                self.warn('Not a message addressed to a service: %s' % msg)
+                return resdict
             pos0 = msg.index(' ')  # End of service name
             pos1 = msg.index(' ', pos0 + 1)  # End of message length
             service = msg[0:pos0]
