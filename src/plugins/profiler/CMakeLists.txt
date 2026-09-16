@@ -26,6 +26,7 @@ if(WITH_TESTS)
     tests/qmlprofilerfindingsmodel_test.cpp tests/qmlprofilerfindingsmodel_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
+    tests/qttracesampler_test.cpp tests/qttracesampler_test.h
     tests/tests.qrc
     tests/perfprofilertracefile_test.cpp tests/perfprofilertracefile_test.h
     tests/perfresourcecounter_test.cpp tests/perfresourcecounter_test.h
@@ -47,6 +48,7 @@ set(QMLPROFILER_CPP_SOURCES
   macsampler.cpp macsampler.h
   processpickerdialog.cpp processpickerdialog.h
   qmlprofilersampler.cpp qmlprofilersampler.h
+  qttracesampler.cpp qttracesampler.h
   samplemerge.cpp samplemerge.h
   sampler.cpp sampler.h
   samplerrecipe.cpp samplerrecipe.h

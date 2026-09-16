@@ -8,6 +8,7 @@
 #include "perfsampler.h"
 #include "profilertr.h"
 #include "qmlprofilersampler.h"
+#include "qttracesampler.h"
 #include "sampler.h"
 
 #include <utils/commandline.h>
@@ -95,11 +96,13 @@ ProfilerRecorderPrivate::ProfilerRecorderPrivate(ProfilerRecorder *recorder)
     // The native call-stack samplers first (macOS mach-based, Linux perf-based),
     // then the QML-protocol profiler, then the composite that records a native
     // sampler and the QML profiler against one target at once (see
-    // design-docs/native-mixed-profiler-design.md).
+    // design-docs/native-mixed-profiler-design.md), and last the trace the
+    // target writes for itself.
     backends.push_back(std::make_unique<CallStackSampler>());
     backends.push_back(std::make_unique<PerfSampler>());
     backends.push_back(std::make_unique<QmlProfilerSampler>());
     backends.push_back(std::make_unique<CombinedSampler>());
+    backends.push_back(std::make_unique<QtTraceSampler>());
 
     for (const std::unique_ptr<Sampler> &backend : backends) {
         if (SamplerSettings *settings = backend->settings())

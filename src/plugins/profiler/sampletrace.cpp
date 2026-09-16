@@ -334,24 +334,36 @@ bool isSamplerTrace(const FilePath &dir)
                        [](const DataStreamClass &cls) { return cls.name == samplerStreamName; });
 }
 
+static FilePath uniqueTracePathUnder(const FilePath &parent, const QDateTime &now,
+                                     QLatin1StringView prefix, QLatin1StringView suffix)
+{
+    // No colons or spaces: the name has to survive as a path component on every
+    // host, and it ends up on command lines and in log messages.
+    const QString stamp = now.toString(u"yyyy-MM-dd-hh-mm-ss"_s);
+
+    FilePath path = parent / u"%1-%2%3"_s.arg(prefix, stamp, suffix);
+    for (int counter = 2; path.exists(); ++counter)
+        path = parent / u"%1-%2-%3%4"_s.arg(prefix, stamp).arg(counter).arg(suffix);
+    return path;
+}
+
 FilePath uniqueTracePathAt(const QDateTime &now, QLatin1StringView prefix,
                            QLatin1StringView suffix)
 {
     const FilePath tempDir = FilePath::fromString(
         QStandardPaths::writableLocation(QStandardPaths::TempLocation));
-    // No colons or spaces: the name has to survive as a path component on every
-    // host, and it ends up on command lines and in log messages.
-    const QString stamp = now.toString(u"yyyy-MM-dd-hh-mm-ss"_s);
-
-    FilePath path = tempDir / u"%1-%2%3"_s.arg(prefix, stamp, suffix);
-    for (int counter = 2; path.exists(); ++counter)
-        path = tempDir / u"%1-%2-%3%4"_s.arg(prefix, stamp).arg(counter).arg(suffix);
-    return path;
+    return uniqueTracePathUnder(tempDir, now, prefix, suffix);
 }
 
 FilePath uniqueTracePath(QLatin1StringView prefix, QLatin1StringView suffix)
 {
     return uniqueTracePathAt(QDateTime::currentDateTime(), prefix, suffix);
+}
+
+FilePath uniqueTracePathIn(const FilePath &parent, QLatin1StringView prefix,
+                           QLatin1StringView suffix)
+{
+    return uniqueTracePathUnder(parent, QDateTime::currentDateTime(), prefix, suffix);
 }
 
 } // namespace Profiler::Internal

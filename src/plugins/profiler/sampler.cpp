@@ -20,10 +20,29 @@ void Sampler::prepareLaunch(const std::shared_ptr<RecordingSession> &) const
     // override this; most attach after start and need nothing here.
 }
 
+void Sampler::completeRecording(const std::shared_ptr<RecordingSession> &) const
+{
+    // Backends whose capture produces the trace itself have nothing left to do
+    // once the target is gone; one whose target writes the trace overrides this.
+}
+
 ExecutableItem Sampler::recordRecipe(const std::shared_ptr<RecordingSession> &session) const
 {
     prepareLaunch(session);
-    return launchThenCapture(session, captureRecipe(session));
+    // The completion runs in the enclosing group's done handler, so it is
+    // reached after the launch group has torn the target down, and whether or
+    // not the recording succeeded.
+    return Group {
+        launchThenCapture(session, captureRecipe(session)),
+        onGroupDone([this, session] {
+            completeRecording(session);
+            // A target that failed explains an empty recording better than the
+            // backend can, so it is reported instead of the backend's account
+            // of one -- but never instead of a trace that was recorded.
+            if (session->targetError && (!session->result || !*session->result))
+                session->result.emplace(ResultError(*session->targetError));
+        }),
+    };
 }
 
 SamplerSettings::SamplerSettings()

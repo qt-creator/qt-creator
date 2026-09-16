@@ -73,6 +73,18 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
     Utils::FilePath launchWorkingDir;
     // The environment to launch in; empty means the one this process inherited.
     Utils::Environment launchEnvironment;
+    // Variables the target has to be launched with, set by prepareLaunch() for
+    // a backend that is driven through the environment rather than the command
+    // line. Kept apart from launchEnvironment because whoever launches may
+    // bring an environment of its own -- a run configuration's -- that these
+    // are merged into rather than replacing.
+    Utils::EnvironmentItems launchEnvironmentChanges;
+    // The executable a launch this backend does not own will start, set for a
+    // recording of a run control: `launchCommand` stays empty there, and
+    // `processName` cannot stand in for it -- that one selects a process to
+    // attach to, and a backend attaching by name would take any process of
+    // that name.
+    Utils::FilePath launchExecutable;
 
     // QML debug channel for protocol-based backends; empty for native ones.
     QUrl serverUrl;
@@ -83,6 +95,14 @@ struct RecordingSession : std::enable_shared_from_this<RecordingSession>
     // Runtime control and output.
     std::atomic<int> progress = 0;   // 0..100 post-processing percent.
     std::optional<Utils::Result<Utils::FilePath>> result; // Set on the GUI thread when done.
+
+    // Why the profiled target failed, if it did while the recording was still
+    // running (see launchThenCapture()). A target that died before it recorded
+    // anything is what explains an empty recording, and explains it better than
+    // the backend can, so this is reported in place of the backend's account of
+    // it -- but only of that: a trace that was recorded stands, whatever the
+    // target went on to exit with (see Sampler::recordRecipe()).
+    std::optional<QString> targetError;
 
     // The debug-information download a backend is waiting on, if any. Post-
     // processing can sit on one for minutes, and the plain progress bar cannot
@@ -362,6 +382,7 @@ namespace SamplerIds {
 inline constexpr char CallStack[] = "Profiler.Sampler.CallStack";
 inline constexpr char Perf[]      = "Profiler.Sampler.Perf";
 inline constexpr char Qml[]       = "Profiler.Sampler.Qml";
+inline constexpr char QtTrace[]   = "Profiler.Sampler.QtTrace";
 inline constexpr char Combined[]  = "Profiler.Sampler.Combined";
 } // namespace SamplerIds
 
@@ -400,6 +421,16 @@ public:
     // backend it wraps.
     virtual QtTaskTree::ExecutableItem captureRecipe(
         const std::shared_ptr<RecordingSession> &session) const = 0;
+
+    // Completes the recording once the capture is done and the target it was
+    // launched for, if any, has ended. A backend whose trace the target writes
+    // itself finishes here rather than in captureRecipe(): the process is
+    // stopped only after the capture is done with it, and what it writes on the
+    // way out -- the events Qt's CTF backend flushes as it exits -- belongs to
+    // the recording (see QtTraceSampler). Called by whoever composed launch and
+    // capture, and before session->result is read (see recordRecipe() and
+    // profilersamplerruncontrol.cpp). The default does nothing.
+    virtual void completeRecording(const std::shared_ptr<RecordingSession> &session) const;
 
     // Whether the target has to be started with a QML debug server for this
     // backend to capture it. prepareLaunch() arranges that for a launch the

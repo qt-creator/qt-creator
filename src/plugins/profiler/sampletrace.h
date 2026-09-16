@@ -101,4 +101,10 @@ Utils::FilePath uniqueTracePathAt(const QDateTime &now, QLatin1StringView prefix
 // uniqueTracePathAt() for the current local time.
 Utils::FilePath uniqueTracePath(QLatin1StringView prefix, QLatin1StringView suffix = {});
 
+// As uniqueTracePath(), but under `parent` instead of the temporary location:
+// a recording into a directory the user chose gets one of these for every
+// start, so it neither writes over nor clears whatever else is kept there.
+Utils::FilePath uniqueTracePathIn(const Utils::FilePath &parent, QLatin1StringView prefix,
+                                  QLatin1StringView suffix = {});
+
 } // namespace Profiler::Internal

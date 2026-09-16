@@ -63,8 +63,22 @@ static Group samplerRecipe(RunControl *runControl, Id backendId)
     // something to stop.
     const auto launched = std::make_shared<QPointer<Process>>();
 
-    const auto modifier = [runControl, session = *session, qmlChannel, launched](Process &process) {
+    const auto modifier = [runControl, sampler, session = *session, qmlChannel,
+                           launched](Process &process) {
         *launched = &process;
+
+        // The backend shapes the target the same way it would one it launched
+        // itself. What it puts into the environment is merged into the run
+        // configuration's rather than replacing it, since that is where the
+        // target's own settings come from.
+        session->launchExecutable = process.commandLine().executable();
+        sampler->prepareLaunch(session);
+        if (!session->launchEnvironmentChanges.isEmpty()) {
+            Environment environment = process.environment();
+            environment.modify(session->launchEnvironmentChanges);
+            process.setEnvironment(environment);
+        }
+
         if (qmlChannel) {
             // The target has to come up as a QML debug server, blocking until the
             // capture has connected, or the first events are lost.
@@ -126,7 +140,11 @@ static Group samplerRecipe(RunControl *runControl, Id backendId)
             sampler->captureRecipe(*session),
             onGroupDone(onCaptureDone),
         },
-        onGroupDone([session = *session] {
+        onGroupDone([sampler, session = *session] {
+            // The target has been torn down by now, so a backend whose trace it
+            // wrote itself can collect it -- before the recording is handed on,
+            // which is what reads the result.
+            sampler->completeRecording(session);
             if (ProfilerRecorder *recorder = profilerRecorder())
                 recorder->endRunControlRecording(session);
         }),
@@ -162,6 +180,7 @@ void setupProfilerSamplerRunning()
     static ProfilerSamplerRunWorkerFactory thePerf(SamplerIds::Perf);
     static ProfilerSamplerRunWorkerFactory theQml(SamplerIds::Qml);
     static ProfilerSamplerRunWorkerFactory theCombined(SamplerIds::Combined);
+    static ProfilerSamplerRunWorkerFactory theQtTrace(SamplerIds::QtTrace);
 }
 
 } // namespace Profiler::Internal

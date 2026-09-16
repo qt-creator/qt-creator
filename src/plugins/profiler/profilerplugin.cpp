@@ -37,6 +37,7 @@
 #include "tests/qmlprofilerfindingsmodel_test.h"
 #include "tests/qmlprofilertool_test.h"
 #include "tests/qmlprofilertraceview_test.h"
+#include "tests/qttracesampler_test.h"
 
 #endif // WITH_TESTS
 
@@ -87,6 +88,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerFindingsModelTest>();
         addTest<QmlProfilerToolTest>();
         addTest<QmlProfilerTraceViewTest>();
+        addTest<QtTraceSamplerTest>();
 
         addTestCreator(createPerfNativeMixedTest);
         addTestCreator(createPerfResourceCounterTest);

@@ -64,6 +64,7 @@ QtcPlugin {
             "mcpsupport.cpp", "mcpsupport.h",
             "processpickerdialog.cpp", "processpickerdialog.h",
             "qmlprofilersampler.cpp", "qmlprofilersampler.h",
+            "qttracesampler.cpp", "qttracesampler.h",
             "samplemerge.cpp", "samplemerge.h",
             "sampler.cpp", "sampler.h",
             "samplerrecipe.cpp", "samplerrecipe.h",
@@ -193,6 +194,7 @@ QtcPlugin {
             "qmlprofilerfindingsmodel_test.cpp", "qmlprofilerfindingsmodel_test.h",
             "qmlprofilertool_test.cpp", "qmlprofilertool_test.h",
             "qmlprofilertraceview_test.cpp", "qmlprofilertraceview_test.h",
+            "qttracesampler_test.cpp", "qttracesampler_test.h",
 
             "tests.qrc"
         ]
