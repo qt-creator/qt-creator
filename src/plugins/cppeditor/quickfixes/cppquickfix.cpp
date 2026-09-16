@@ -37,6 +37,7 @@
 #include "rewritecontrolstatements.h"
 #include "splitsimpledeclaration.h"
 #include "synchronizememberfunctionorder.h"
+#include "tracefunction.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -141,6 +142,7 @@ void createCppQuickFixFactories()
     registerRewriteControlStatementQuickfixes();
     registerSplitSimpleDeclarationQuickfix();
     registerSynchronizeMemberFunctionOrderQuickfix();
+    registerTraceFunctionQuickfix();
 }
 
 static QList<CppQuickFixFactory *> g_cppQuickFixFactories;

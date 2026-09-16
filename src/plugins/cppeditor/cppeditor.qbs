@@ -283,6 +283,8 @@ QtcPlugin {
             "splitsimpledeclaration.h",
             "synchronizememberfunctionorder.cpp",
             "synchronizememberfunctionorder.h",
+            "tracefunction.cpp",
+            "tracefunction.h",
         ]
     }
 

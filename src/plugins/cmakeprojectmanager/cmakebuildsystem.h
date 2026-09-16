@@ -221,6 +221,8 @@ private:
                      Utils::FilePaths *);
     bool addTsFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
                     Utils::FilePaths *);
+    bool addTracepointFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
+                            Utils::FilePaths *);
     bool renameFile(CMakeTargetNode *context,
                     const Utils::FilePath &oldFilePath,
                     const Utils::FilePath &newFilePath, bool &shouldRunCMake);
@@ -334,6 +336,7 @@ QObject *createLibrarySearchPathsTest();
 QObject *createQmlModuleFilesTest();
 QObject *createSourceFilesTest();
 QObject *createTargetSymbolsTest();
+QObject *createTracepointFilesTest();
 #endif
 
 QString quoteString(const QString &fileName);

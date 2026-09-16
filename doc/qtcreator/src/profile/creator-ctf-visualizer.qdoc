@@ -103,6 +103,87 @@
     to optimize. A high number of occurrences might indicate that a function is
     triggered unnecessarily or takes very long to execute.
 
+    \section1 Adding trace points to an application
+
+    An application records trace points of its own through the Qt tracing
+    subsystem. It declares them in a \e {trace point provider}, a \c
+    {.tracepoints} file, and \c tracegen turns the declarations into the
+    \c Q_TRACE macros that record them.
+
+    To add a provider to a CMake target:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File} > \uicontrol {Qt} >
+            \uicontrol {Qt Tracing} > \uicontrol Choose.
+        \li Enter a name for the provider and select the target to add it to.
+    \endlist
+
+    The wizard creates the provider and a header that carries the macro that
+    records where a trace point was reached. It adds the call to the \c
+    CMakeLists.txt of the target, together with the \c QtTracing.cmake module
+    that the call comes from:
+
+    \badcode
+    include(QtTracing.cmake)
+    qt_add_tracepoints(myapp myapp.tracepoints)
+    \endcode
+
+    \section2 Tracing a function
+
+    To trace how long a function takes, place the cursor on its signature and
+    select \uicontrol {Trace This Function} from the
+    \inlineimage {icons/refactormarker.png} {Refactoring marker} menu, or press
+    \key {Alt+Enter}. \QC records the function as a range on the timeline: it
+    declares the trace point in the provider, records it in the function, and
+    includes the header that goes with the provider.
+
+    \code
+    int renderFrame(int width, const QString &name)
+    {
+        Q_TRACE_SCOPE(renderFrame, width, name, MYAPP_TRACE_LOCATION);
+        ...
+    }
+    \endcode
+
+    The parameters of the function are carried as arguments of the trace point,
+    which the timeline shows for the event. Only those of a type that \c
+    tracegen can write are: \c bool, \c char, the integer types spelled the way
+    C++ spells them (\c {short int}, \c int, \c {long int}, \c {long long} and
+    \c qint64, each also \c signed or \c unsigned), \c float, \c double,
+    pointers, and \c QString, \c QUrl, \c QRect, \c QRectF, \c QSize and \c
+    QSizeF. What \c tracegen matches is the spelling, so \c short on its own and
+    a typedef such as \c quint64 are not among them. A trace point that carries
+    an argument of a type it does not know loses its whole payload, and one that
+    carries a \c QByteArray stops \c tracegen and the configuration of the
+    project with it, so parameters of other types are left out.
+
+    \section2 Tracing by hand
+
+    Declare a trace point in the provider with the arguments it carries. A name
+    ending in \c _entry, paired with the same name ending in \c _exit, is shown
+    as a range in the timeline. Any other name is a point in time:
+
+    \badcode
+    render_entry(int width, int height, const QString &location)
+    render_exit()
+    message(const char *text, const QString &location)
+    \endcode
+
+    Record them from the code that the provider belongs to:
+
+    \code
+    Q_TRACE_SCOPE(render, width, height, MYAPP_TRACE_LOCATION);
+    Q_TRACE(message, "frame started", MYAPP_TRACE_LOCATION);
+    \endcode
+
+    An argument named \c location, carrying \c {<file>:<line>}, becomes a link
+    from the event back to the source.
+
+    Recording the trace needs a Qt that was built with the \c {configure -trace
+    ctf} option. Set the back end that the generated code targets in the \c
+    QT_TRACEPOINT_FORMAT CMake variable where the Qt you use was built with
+    another one.
+
     \section1 Collecting LTTng data
 
     LTTng is a tracing toolkit for Linux that you can apply on embedded Linux

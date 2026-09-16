@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(HelloQt VERSION 0.1 LANGUAGES CXX)
+
+add_executable(HelloQt
+    main.cpp
+)
+
+include(QtTracing.cmake)
+qt_add_tracepoints(HelloQt hello.tracepoints)
+
+target_link_libraries(HelloQt PRIVATE Qt6::Core)

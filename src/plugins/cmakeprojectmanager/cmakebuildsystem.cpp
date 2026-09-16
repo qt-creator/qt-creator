@@ -73,6 +73,7 @@
 
 #include <QClipboard>
 #include <QDialogButtonBox>
+#include <QFile>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -81,7 +82,10 @@
 #include <QPushButton>
 
 #ifdef WITH_TESTS
+#include <coreplugin/iwizardfactory.h>
 #include <cppeditor/cpptoolstestcase.h>
+#include <projectexplorer/jsonwizard/jsonwizard.h>
+#include <QTemporaryDir>
 #include <QTest>
 #endif
 
@@ -907,6 +911,121 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
     return false;
 }
 
+// Qt generates the code of a tracepoint provider for its own modules only, so
+// a project that adds tracepoints of its own carries the rule that runs
+// tracegen over the provider. It comes as a module of its own, next to the
+// CMakeLists.txt that includes it, so that the file keeps naming what the
+// target is rather than how a provider is built.
+static const char QT_TRACING_MODULE[] = "QtTracing.cmake";
+
+static Result<bool> writeQtTracingModule(const FilePath &directory)
+{
+    const FilePath module = directory.pathAppended(QT_TRACING_MODULE);
+    if (module.exists())
+        return true;
+
+    QFile contents(":/cmakeproject/cmake/QtTracing.cmake");
+    if (!contents.open(QIODevice::ReadOnly))
+        return ResultError(QString("%1 could not be read.").arg(QT_TRACING_MODULE));
+
+    const Result<qint64> written = module.writeFileContents(contents.readAll());
+    if (!written)
+        return ResultError(written.error());
+    return true;
+}
+
+static bool includesQtTracing(CommandAST *command)
+{
+    ArgumentAST *argument = command->arguments().first();
+    return command->isNamed("include") && argument
+           && argument->value().endsWith(QLatin1String(QT_TRACING_MODULE));
+}
+
+static CommandPredicate addsTracepoints(const QString &targetName, const QString &provider)
+{
+    return [targetName, provider](CommandAST *command) {
+        const ListView<ArgumentAST *> arguments = command->arguments();
+        return command->isNamed("qt_add_tracepoints") && arguments.size() > 1
+               && arguments.at(0)->value() == targetName && arguments.at(1)->value() == provider;
+    };
+}
+
+// A call per provider, after the one that defined the target, and the include()
+// that brings qt_add_tracepoints() in where the file does not have it yet. A
+// provider the file already names is left alone, so that adding it a second
+// time changes nothing.
+static Result<bool> insertQtAddTracepoints(const DocumentPtr &document,
+                                           const FilePath &targetCMakeFile,
+                                           const QString &targetName,
+                                           int targetDefinitionLine,
+                                           const FilePaths &filePaths)
+{
+    CommandAST *command = findCommand(document, startsOnLine(targetDefinitionLine));
+    if (!command) {
+        return ResultError(
+            QString("Failed to locate the target defining command at %1").arg(targetDefinitionLine));
+    }
+
+    // Both sides of the relative path have to be canonical, or a project
+    // reached through a symbolic link gets a path that leads back out of it.
+    const FilePath directory = targetCMakeFile.parentDir().canonicalPath();
+    QString snippet;
+    for (const FilePath &filePath : filePaths) {
+        const QString provider = filePath.canonicalPath().relativePathFromDir(directory);
+        if (!findCommandNear(document, command, addsTracepoints(targetName, provider)))
+            snippet += QString("qt_add_tracepoints(%1 %2)\n").arg(targetName, quoteString(provider));
+    }
+    if (snippet.isEmpty())
+        return true;
+
+    // The module is written only where the include() of it is: a file that
+    // includes one of its own, which may well be a copy elsewhere in the
+    // project, is not given a second one that nothing reads.
+    if (!findCommandNear(document, command, includesQtTracing)) {
+        const Result<bool> written = writeQtTracingModule(directory);
+        if (!written)
+            return written;
+        snippet.prepend(QString("include(%1)\n").arg(QT_TRACING_MODULE));
+    }
+
+    return insertSnippetSilently(targetCMakeFile,
+                                 {QString("\n%1").arg(snippet), command->lineEnd() + 1, 0});
+}
+
+bool CMakeBuildSystem::addTracepointFiles(Node *context, const FilePaths &filePaths,
+                                          FilePaths *notAdded)
+{
+    if (notAdded)
+        notAdded->append(filePaths);
+
+    auto n = dynamic_cast<CMakeTargetNode *>(context);
+    if (!n)
+        return false;
+
+    const QString targetName = n->buildKey();
+    const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
+    if (!cmakeFile)
+        return false;
+
+    const DocumentPtr document = getUncachedCMakeFile(cmakeFile->targetFilePath);
+    if (!document)
+        return false;
+
+    const Result<bool> inserted = insertQtAddTracepoints(document,
+                                                         cmakeFile->targetFilePath,
+                                                         targetName,
+                                                         cmakeFile->target.line,
+                                                         filePaths);
+    if (!inserted) {
+        qCCritical(cmakeBuildSystemLog) << inserted.error();
+        return false;
+    }
+
+    if (notAdded)
+        notAdded->removeIf([filePaths](const FilePath &p) { return filePaths.contains(p); });
+    return true;
+}
+
 // The call that takes files the keywords of the command do not cover: the
 // command itself where it takes sources, or a target_sources() next to it.
 static CommandAST *commandTakingSources(const DocumentPtr &document,
@@ -1164,12 +1283,19 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
     std::tie(tsFiles, srcFiles) = Utils::partition(filePaths, [](const FilePath &fp) {
         return Utils::mimeTypeForFile(fp).name() == Utils::Constants::LINGUIST_MIMETYPE;
     });
+    FilePaths tracepointFiles;
+    std::tie(tracepointFiles, srcFiles) = Utils::partition(srcFiles, [](const FilePath &fp) {
+        return fp.suffix() == "tracepoints";
+    });
     bool success = true;
     if (!srcFiles.isEmpty())
         success = addSrcFiles(context, srcFiles, notAdded);
 
     if (!tsFiles.isEmpty())
         success = addTsFiles(context, tsFiles, notAdded) || success;
+
+    if (!tracepointFiles.isEmpty() && !addTracepointFiles(context, tracepointFiles, notAdded))
+        success = false;
 
     if (success)
         return true;
@@ -2348,6 +2474,7 @@ private slots:
 
         QTest::newRow("wizard variable") << "wizard_variable.cmake" << 16 << "HelloQt";
         QTest::newRow("spelled out") << "spelled_out.cmake" << 5 << "HelloQt";
+        QTest::newRow("two on a line") << "two_on_a_line.cmake" << 5 << "HelloQt";
         QTest::newRow("variable target") << "variable_target.cmake" << 7 << "HelloQt";
         QTest::newRow("target_sources variable")
             << "target_sources_variable.cmake" << 9 << "HelloQt";
@@ -2404,6 +2531,234 @@ private:
 QObject *createSourceFilesTest()
 {
     return new SourceFilesTest;
+}
+
+class TracepointFilesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase()
+    {
+        m_projectDir = std::make_unique<CppEditor::Tests::TemporaryCopiedDir>(
+            ":/cmakeprojectmanager/testcases/tracepointfiles");
+        m_directory = m_projectDir->filePath().canonicalPath();
+
+        // The provider goes in relative to the project, so it has to be there.
+        QVERIFY(m_directory.pathAppended("hello.tracepoints").writeFileContents({}));
+    }
+
+    void cleanupTestCase()
+    {
+        Core::EditorManager::closeAllEditors(/*askAboutModifiedEditors=*/false);
+        m_projectDir.reset();
+    }
+
+    void testAddTracepointFiles_data()
+    {
+        QTest::addColumn<QString>("cmakeFileName");
+        QTest::addColumn<int>("targetDefinitionLine");
+
+        QTest::newRow("plain") << "plain.cmake" << 5;
+
+        // The include() is written once, however many providers the file names.
+        QTest::newRow("include in place") << "has_include.cmake" << 7;
+
+        // A provider the file already names is not named a second time.
+        QTest::newRow("already added") << "already_added.cmake" << 7;
+    }
+
+    void testAddTracepointFiles()
+    {
+        QFETCH(QString, cmakeFileName);
+        QFETCH(int, targetDefinitionLine);
+
+        const FilePath cmakeFile = m_directory.pathAppended(cmakeFileName);
+        const DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+
+        const Result<bool> inserted
+            = insertQtAddTracepoints(document,
+                                     cmakeFile,
+                                     "HelloQt",
+                                     targetDefinitionLine,
+                                     {m_directory.pathAppended("hello.tracepoints")});
+        if (!inserted)
+            QFAIL(qPrintable(inserted.error()));
+    }
+
+    // What the "Qt Tracing" wizard writes. Its pages name no target path of
+    // their own, so the wizard has to, and the files it generates are named
+    // after what the provider is called.
+    void testWizardGeneratesFiles()
+    {
+        Core::IWizardFactory *factory
+            = findOrDefault(Core::IWizardFactory::allWizardFactories(),
+                            [](Core::IWizardFactory *f) { return f->id() == "R.QtTracing"; });
+        QVERIFY(factory);
+
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const FilePath path = FilePath::fromString(directory.path());
+        const auto wizard = qobject_cast<JsonWizard *>(
+            factory->runWizard(path, Utils::Id(), {}, /*showWizard=*/false));
+        QVERIFY(wizard);
+        const QScopeGuard cleanup([wizard] { delete wizard; });
+
+        wizard->setValue("Path", path.toUrlishString());
+        wizard->setValue("ProviderName", "myapp");
+
+        // Without it the generators have nothing to resolve what they write
+        // against, and generating the files fails.
+        QCOMPARE(wizard->stringValue("TargetPath"), path.toUrlishString());
+
+        const JsonWizard::GeneratorFiles files = wizard->generateFileList();
+        const QStringList names = transform(files, [](const JsonWizard::GeneratorFile &file) {
+            return file.file.filePath().fileName();
+        });
+        QCOMPARE(names, QStringList({"myapp.tracepoints", "myapp_tracing.h"}));
+
+        // The header reaches the generated one and spells the macro that the
+        // quick fix reads the source location out of.
+        const QString header = files.at(1).file.contents();
+        QVERIFY2(header.contains("#include \"myapp_tracepoints_p.h\""), qPrintable(header));
+        QVERIFY2(header.contains("#define MYAPP_TRACE_LOCATION"), qPrintable(header));
+        // The provider carries the calls that record what it declares, to be
+        // copied from, so the macro has to be spelled out there as well.
+        const QString provider = files.at(0).file.contents();
+        QVERIFY2(provider.contains("render_entry("), qPrintable(provider));
+        QVERIFY2(provider.contains(
+                     "Q_TRACE_SCOPE(render, width, height, MYAPP_TRACE_LOCATION);"),
+                 qPrintable(provider));
+        QVERIFY2(provider.contains("Q_TRACE(message, \"frame started\", MYAPP_TRACE_LOCATION);"),
+                 qPrintable(provider));
+    }
+
+    // What adding the files of the wizard to a target comes down to: the
+    // header goes in as a source, the provider brings the call with it, and
+    // both happen to the one file, one after the other.
+    void testAddedNextToSources()
+    {
+        const FilePath cmakeFile = m_directory.pathAppended("with_sources.cmake");
+        const FilePath header = m_directory.pathAppended("hello_tracing.h");
+        QVERIFY(header.writeFileContents({}));
+
+        DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+        CommandAST *command = findCommand(document, startsOnLine(5));
+        QVERIFY(command);
+        const Result<bool> added = insertFilesSilently(cmakeFile, document, m_signatures, command,
+                                                       "HelloQt", {header}, m_directory);
+        if (!added)
+            QFAIL(qPrintable(added.error()));
+
+        document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+        const Result<bool> inserted
+            = insertQtAddTracepoints(document, cmakeFile, "HelloQt", 5,
+                                     {m_directory.pathAppended("hello.tracepoints")});
+        if (!inserted)
+            QFAIL(qPrintable(inserted.error()));
+    }
+
+    // A project reached through a symbolic link, which is what one under the
+    // temporary directory of macOS is. Only the canonical path of the provider
+    // is known, so the directory it is made relative to has to be canonical
+    // too, or the call names a path that leads back out of the project.
+    void testProviderOfAProjectBehindASymlink()
+    {
+        QTemporaryDir linkDirectory;
+        FilePath project = m_projectDir->filePath();
+        if (project.canonicalPath() == project) {
+            QVERIFY(linkDirectory.isValid());
+            project = FilePath::fromString(linkDirectory.path()).pathAppended("project");
+            if (!m_directory.createSymLink(project))
+                QSKIP("A symbolic link to a directory cannot be created here");
+        }
+
+        const FilePath cmakeFile = project.pathAppended("behind_a_symlink.cmake");
+        QVERIFY(cmakeFile.writeFileContents("cmake_minimum_required(VERSION 3.16)\n"
+                                            "\n"
+                                            "project(HelloQt VERSION 0.1 LANGUAGES CXX)\n"
+                                            "\n"
+                                            "add_executable(HelloQt\n"
+                                            "    main.cpp\n"
+                                            ")\n"));
+
+        const DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+        const Result<bool> inserted
+            = insertQtAddTracepoints(document,
+                                     cmakeFile,
+                                     "HelloQt",
+                                     5,
+                                     {project.pathAppended("hello.tracepoints")});
+        if (!inserted)
+            QFAIL(qPrintable(inserted.error()));
+
+        const Result<QByteArray> contents = cmakeFile.fileContents();
+        QVERIFY(contents);
+        QVERIFY2(contents->contains("qt_add_tracepoints(HelloQt hello.tracepoints)"),
+                 contents->constData());
+    }
+
+    void testExpectedContents() { compareWithExpected(m_directory); }
+
+    void testModuleIsWritten()
+    {
+        const FilePath module = m_directory.pathAppended(QT_TRACING_MODULE);
+        QVERIFY(module.exists());
+        const DocumentPtr document = getUncachedCMakeFile(module);
+        QVERIFY(document);
+        QVERIFY(findCommand(document, namedWithFirstArgument("function", "qt_add_tracepoints")));
+    }
+
+    // A file that includes a module of its own, which may well be a copy
+    // elsewhere in the project, is left with the one it names rather than
+    // given a second one beside it that nothing reads.
+    void testModuleIsNotWrittenWhereItIsIncluded()
+    {
+        QTemporaryDir directory;
+        QVERIFY(directory.isValid());
+        const FilePath project = FilePath::fromString(directory.path()).canonicalPath();
+        const FilePath provider = project.pathAppended("hello.tracepoints");
+        QVERIFY(provider.writeFileContents({}));
+
+        const FilePath cmakeFile = project.pathAppended("includes_a_module.cmake");
+        QVERIFY(cmakeFile.writeFileContents("cmake_minimum_required(VERSION 3.16)\n"
+                                            "\n"
+                                            "project(HelloQt VERSION 0.1 LANGUAGES CXX)\n"
+                                            "\n"
+                                            "include(cmake/QtTracing.cmake)\n"
+                                            "\n"
+                                            "add_executable(HelloQt\n"
+                                            "    main.cpp\n"
+                                            ")\n"));
+
+        const DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+        const Result<bool> inserted
+            = insertQtAddTracepoints(document, cmakeFile, "HelloQt", 7, {provider});
+        if (!inserted)
+            QFAIL(qPrintable(inserted.error()));
+
+        QVERIFY(!project.pathAppended(QT_TRACING_MODULE).exists());
+        const Result<QByteArray> contents = cmakeFile.fileContents();
+        QVERIFY(contents);
+        QVERIFY2(contents->contains("qt_add_tracepoints(HelloQt hello.tracepoints)"),
+                 contents->constData());
+        QVERIFY2(!contents->contains("include(QtTracing.cmake)"), contents->constData());
+    }
+
+private:
+    std::unique_ptr<CppEditor::Tests::TemporaryCopiedDir> m_projectDir;
+    FilePath m_directory;
+    SignatureTable m_signatures;
+};
+
+QObject *createTracepointFilesTest()
+{
+    return new TracepointFilesTest;
 }
 #endif
 

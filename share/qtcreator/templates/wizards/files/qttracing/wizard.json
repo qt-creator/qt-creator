@@ -1,0 +1,81 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "R.QtTracing",
+    "category": "R.Qt",
+    "trDescription": "Creates a tracepoint provider that you can add to a CMake target, together with the rule that generates its Q_TRACE macros. Recording the trace needs a Qt that was configured with \"-trace ctf\".",
+    "trDisplayName": "Qt Tracing",
+    "trDisplayCategory": "Qt",
+    "iconText": "trace",
+    "enabled": "%{JS: isPluginRunning('cmakeprojectmanager')}",
+    "platformIndependent": true,
+
+    "options":
+    [
+        { "key": "TargetPath", "value": "%{Path}" },
+        { "key": "ProviderFile", "value": "%{Path}/%{ProviderName}.tracepoints" },
+        { "key": "HeaderFile", "value": "%{Path}/%{ProviderName}_tracing.h" },
+        { "key": "MacroPrefix", "value": "%{JS: value('ProviderName').toUpperCase().replace(/[^A-Z0-9]/g, '_')}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Tracepoint Provider Name and Location",
+            "trShortTitle": "Location",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "ProviderName",
+                    "trDisplayName": "Provider name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "trToolTip": "Names the .tracepoints file and the header that goes with it. Name it after what it traces, such as the application or the library.",
+                    "data":
+                    {
+                        "trPlaceholder": "myapp",
+                        "validator": "[A-Za-z_][A-Za-z0-9_]*"
+                    }
+                },
+                {
+                    "name": "Path",
+                    "trDisplayName": "Location:",
+                    "type": "PathChooser",
+                    "isComplete": "%{JS: !Util.exists(value('ProviderFile'))}",
+                    "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators(value('ProviderFile'))}\" exists in the filesystem.",
+                    "data":
+                    {
+                        "kind": "directory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "provider.tracepoints",
+                    "target": "%{ProviderFile}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "tracing.h",
+                    "target": "%{HeaderFile}"
+                }
+            ]
+        }
+    ]
+}

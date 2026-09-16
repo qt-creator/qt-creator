@@ -1,0 +1,53 @@
+# Tracepoints of %{ProviderName}.
+#
+# Every tracepoint is declared here with the arguments it carries, and tracegen
+# turns the file into the Q_TRACE macros that record it. Include
+# "%{ProviderName}_tracing.h" in the sources that record one.
+#
+# A name ending in _entry, paired with the same name ending in _exit, is shown
+# as a range on the timeline: Q_TRACE_SCOPE() opens it where it stands and
+# closes it where the scope ends. Any other name is a point in time, recorded
+# with Q_TRACE().
+#
+# An argument named "location", carrying "<file>:<line>", is what the trace
+# viewer turns into a link back to the source, and
+# %{MacroPrefix}_TRACE_LOCATION spells the place it is written at.
+#
+# An argument of a type tracegen cannot write costs the tracepoint its whole
+# payload, the location with it. It knows bool, char, the integer types spelled
+# the way C++ spells them ("short int", "int", "long int", "long long" and
+# qint64, each also signed or unsigned), float, double, pointers, and QString,
+# QUrl, QRect, QRectF, QSize and QSizeF. A QByteArray is worse than unknown:
+# tracegen stops over one, and takes the configuration of the project with it.
+#
+# A type of your own is carried as the address of it, so pass a pointer, and
+# declare the type in a block of its own before the tracepoints, which is what
+# the generated header needs to name it:
+#
+#     {
+#     QT_BEGIN_NAMESPACE
+#     class MyType;
+#     QT_END_NAMESPACE
+#     }
+
+# How long the scope it stands in took:
+#
+#     Q_TRACE_SCOPE(render, width, height, %{MacroPrefix}_TRACE_LOCATION);
+render_entry(int width, int height, const QString &location)
+render_exit()
+
+# A number, against the time it was taken at:
+#
+#     Q_TRACE(value, QStringLiteral("tiles"), count, %{MacroPrefix}_TRACE_LOCATION);
+value(const QString &name, double amount, const QString &location)
+
+# Something that happened, at the moment it did:
+#
+#     Q_TRACE(message, "frame started", %{MacroPrefix}_TRACE_LOCATION);
+#
+# Where working an argument out costs something, ask whether anyone is
+# listening before paying for it:
+#
+#     if (Q_TRACE_ENABLED(message))
+#         Q_TRACE(message, qPrintable(describe()), %{MacroPrefix}_TRACE_LOCATION);
+message(const char *text, const QString &location)

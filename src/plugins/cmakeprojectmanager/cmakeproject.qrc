@@ -4,5 +4,6 @@
         <file>images/fileoverlay_cmake@2x.png</file>
         <file>images/settingscategory_cmakeprojectmanager.png</file>
         <file>images/settingscategory_cmakeprojectmanager@2x.png</file>
+        <file>cmake/QtTracing.cmake</file>
     </qresource>
 </RCC>
