@@ -6,6 +6,8 @@
 
 #include "inavigationwidgetfactory.h"
 
+#include "navigationwidget.h"
+
 #include <QIcon>
 #include <QKeySequence>
 
@@ -71,11 +73,16 @@ static QList<INavigationWidgetFactory *> g_navigationWidgetFactories;
 INavigationWidgetFactory::INavigationWidgetFactory()
 {
     g_navigationWidgetFactories.append(this);
+    // The subclass constructor sets id, display name and priority. A factory
+    // from before the sidebars took their list is found there already.
+    QMetaObject::invokeMethod(this, [this] { NavigationWidget::addFactory(this); },
+                              Qt::QueuedConnection);
 }
 
 INavigationWidgetFactory::~INavigationWidgetFactory()
 {
     g_navigationWidgetFactories.removeOne(this);
+    NavigationWidget::removeFactory(this);
 }
 
 const QList<INavigationWidgetFactory *> INavigationWidgetFactory::allNavigationFactories()

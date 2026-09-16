@@ -12,12 +12,15 @@
 #include "modemanager.h"
 #include "navigationsubwidget.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/fancymainwindow.h>
 #include <utils/utilsicons.h>
 
 #ifdef WITH_TESTS
 #include <utils/temporarydirectory.h>
 
+#include <QPointer>
 #include <QTest>
 #endif
 
@@ -53,6 +56,13 @@ static void addActivationInfo(Id activatedId, const ActivationInfo &activationIn
 static NavigationWidget *instance(Side side)
 {
     return side == Side::Left ? s_instanceLeft : s_instanceRight;
+}
+
+static bool s_factoriesTaken = false;
+
+static Id sidebarActionId(Id factoryId)
+{
+    return factoryId.withPrefix("QtCreator.Sidebar.");
 }
 
 NavigationWidgetPlaceHolder *NavigationWidgetPlaceHolder::s_currentLeft = nullptr;
@@ -249,7 +259,7 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
     Context navicontext(Constants::C_NAVIGATION_PANE);
     for (INavigationWidgetFactory *factory : std::as_const(factories)) {
         const Id id = factory->id();
-        const Id actionId = id.withPrefix("QtCreator.Sidebar.");
+        const Id actionId = sidebarActionId(id);
 
         if (!ActionManager::command(actionId)) {
             QAction *action = new QAction(Tr::tr("Activate %1 View").arg(factory->displayName()), this);
@@ -271,6 +281,59 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
     }
     d->m_factoryModel->sort(0);
     updateToggleAction();
+    s_factoriesTaken = true;
+}
+
+void NavigationWidget::addFactory(INavigationWidgetFactory *factory)
+{
+    if (!s_factoriesTaken)
+        return;
+    for (const Side side : {Side::Left, Side::Right}) {
+        NavigationWidget *navigationWidget = instance(side);
+        if (navigationWidget && navigationWidget->factoryRow(factory) < 0)
+            navigationWidget->setFactories({factory});
+    }
+}
+
+void NavigationWidget::removeFactory(INavigationWidgetFactory *factory)
+{
+    if (!s_factoriesTaken || ExtensionSystem::PluginManager::isShuttingDown())
+        return;
+    const Id id = factory->id();
+    for (const Side side : {Side::Left, Side::Right}) {
+        NavigationWidget *navigationWidget = instance(side);
+        if (!navigationWidget)
+            continue;
+        NavigationWidgetPrivate *nd = navigationWidget->d;
+        if (QAction *action = nd->m_actionMap.key(id)) {
+            ActionManager::unregisterAction(action, sidebarActionId(id));
+            nd->m_actionMap.remove(action);
+            delete action;
+        }
+        nd->m_commandMap.remove(id);
+        const int row = navigationWidget->factoryRow(factory);
+        if (row < 0)
+            continue;
+        // An open view of it falls back to its neighbour.
+        for (Internal::NavigationSubWidget *subWidget : std::as_const(nd->m_subWidgets)) {
+            if (subWidget->factory() == factory)
+                subWidget->dropView();
+        }
+        nd->m_factoryModel->removeRow(row);
+        navigationWidget->updateToggleAction();
+    }
+}
+
+int NavigationWidget::factoryRow(INavigationWidgetFactory *factory) const
+{
+    for (int row = 0; row < d->m_factoryModel->rowCount(); ++row) {
+        const QModelIndex index = d->m_factoryModel->index(row, 0);
+        if (d->m_factoryModel->data(index, FactoryObjectRole).value<INavigationWidgetFactory *>()
+            == factory) {
+            return row;
+        }
+    }
+    return -1;
 }
 
 Key NavigationWidget::settingsGroup() const
@@ -347,7 +410,8 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,
     for (int pos = position + 1; pos < d->m_subWidgets.size(); ++pos) {
         Internal::NavigationSubWidget *nsw = d->m_subWidgets.at(pos);
         nsw->setPosition(pos + 1);
-        addActivationInfo(nsw->factory()->id(), {d->m_side, pos + 1});
+        if (nsw->factory())
+            addActivationInfo(nsw->factory()->id(), {d->m_side, pos + 1});
     }
 
     if (!d->m_subWidgets.isEmpty()) // Make all icons the bottom icon
@@ -361,14 +425,14 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,
         closeSubWidget(nsw);
     });
     connect(nsw, &Internal::NavigationSubWidget::factoryIndexChanged, this, [this, nsw] {
-        const Id factoryId = nsw->factory()->id();
-        addActivationInfo(factoryId, {d->m_side, nsw->position()});
+        if (nsw->factory())
+            addActivationInfo(nsw->factory()->id(), {d->m_side, nsw->position()});
     });
     insertWidget(position, nsw);
 
     d->m_subWidgets.insert(position, nsw);
     d->m_subWidgets.at(0)->setCloseIcon(closeIconForSide(d->m_side, d->m_subWidgets.size()));
-    if (updateActivationsMap)
+    if (updateActivationsMap && nsw->factory())
         addActivationInfo(nsw->factory()->id(), {d->m_side, position});
     return nsw;
 }
@@ -377,7 +441,7 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId, int preferredPosition
 {
     setShown(true);
     for (Internal::NavigationSubWidget *subWidget : std::as_const(d->m_subWidgets)) {
-        if (subWidget->factory()->id() == factoryId) {
+        if (subWidget->factory() && subWidget->factory()->id() == factoryId) {
             subWidget->setFocusWidget();
             ICore::raiseWindow(this);
             return subWidget->widget();
@@ -406,7 +470,8 @@ void NavigationWidget::closeSubWidget(Internal::NavigationSubWidget *subWidget)
         for (int pos = position + 1; pos < d->m_subWidgets.size(); ++pos) {
             Internal::NavigationSubWidget *nsw = d->m_subWidgets.at(pos);
             nsw->setPosition(pos - 1);
-            addActivationInfo(nsw->factory()->id(), {d->m_side, pos - 1});
+            if (nsw->factory())
+                addActivationInfo(nsw->factory()->id(), {d->m_side, pos - 1});
         }
 
         d->m_subWidgets.removeOne(subWidget);
@@ -473,8 +538,10 @@ static QStringList shownViewIds(const QList<Internal::NavigationSubWidget *> &su
 {
     QStringList result;
     result.reserve(subWidgets.size());
-    for (Internal::NavigationSubWidget *subWidget : subWidgets)
-        result.append(subWidget->factory()->id().toString());
+    for (Internal::NavigationSubWidget *subWidget : subWidgets) {
+        if (subWidget->factory())
+            result.append(subWidget->factory()->id().toString());
+    }
     return result;
 }
 
@@ -784,6 +851,94 @@ private slots:
 QObject *createNavigationSettingsTest()
 {
     return new NavigationSettingsTest;
+}
+
+class TestNavigationWidgetFactory final : public INavigationWidgetFactory
+{
+public:
+    explicit TestNavigationWidgetFactory(Id id)
+    {
+        setId(id);
+        setDisplayName("Late View");
+        setPriority(0);
+    }
+
+    NavigationView createWidget() final { return {new QWidget, {}}; }
+};
+
+class NavigationFactoriesTest final : public QObject
+{
+    Q_OBJECT
+
+private:
+    static int rowOf(Id id)
+    {
+        QAbstractItemModel *model = instance(Side::Left)->factoryModel();
+        for (int row = 0; row < model->rowCount(); ++row) {
+            const QModelIndex index = model->index(row, 0);
+            if (model->data(index, NavigationWidget::FactoryIdRole).value<Id>() == id)
+                return row;
+        }
+        return -1;
+    }
+
+private slots:
+    void testALateFactoryIsOffered()
+    {
+        QVERIFY(instance(Side::Left));
+        QAbstractItemModel *model = instance(Side::Left)->factoryModel();
+        QVERIFY(model->rowCount() > 0);
+        // Its row moves when the late factory comes and goes.
+        const Id shownId = model->index(model->rowCount() - 1, 0)
+                               .data(NavigationWidget::FactoryIdRole).value<Id>();
+        const QPointer<QWidget> shown = NavigationWidget::activateSubWidget(shownId, Side::Left);
+        QVERIFY(shown);
+
+        const Id id("Test.LateNavigationView");
+        const Id actionId = sidebarActionId(id);
+        QCOMPARE(rowOf(id), -1);
+        {
+            const TestNavigationWidgetFactory factory(id);
+            QTRY_COMPARE(rowOf(id), 0);
+            QCOMPARE(model->index(0, 0).data().toString(), QString("Late View"));
+            QVERIFY(ActionManager::command(actionId));
+            QVERIFY(shown);
+        }
+        QCOMPARE(rowOf(id), -1);
+        QVERIFY(!ActionManager::command(actionId));
+        QVERIFY(shown);
+        QCOMPARE(NavigationWidget::activateSubWidget(shownId, Side::Left), shown.data());
+    }
+
+    void testRemovingTheShownFactory()
+    {
+        QVERIFY(instance(Side::Left));
+        const Id id("Test.LateNavigationView");
+        QPointer<QWidget> late;
+        QPointer<Internal::NavigationSubWidget> sub;
+        {
+            const TestNavigationWidgetFactory factory(id);
+            QTRY_VERIFY(rowOf(id) >= 0);
+            late = NavigationWidget::activateSubWidget(id, Side::Left);
+            QVERIFY(late);
+            sub = qobject_cast<Internal::NavigationSubWidget *>(late->parentWidget());
+            QVERIFY(sub);
+        }
+        QVERIFY(!late);
+        QCOMPARE(rowOf(id), -1);
+        // The sub widget that showed it moved on to its neighbour.
+        QVERIFY(sub);
+        QVERIFY(sub->factory());
+        QCOMPARE(sub->factory()->id(),
+                 instance(Side::Left)->factoryModel()->index(0, 0)
+                     .data(NavigationWidget::FactoryIdRole).value<Id>());
+        QVERIFY(sub->widget());
+    }
+};
+
+QObject *createNavigationFactoriesTest()
+{
+    return new NavigationFactoriesTest;
 }
 
 #endif // WITH_TESTS

@@ -40,6 +40,7 @@ public:
 
     void saveSettings();
     void restoreSettings();
+    void dropView();
 
     Command *command(const QString &title) const;
     void setCloseIcon(const QIcon &icon);

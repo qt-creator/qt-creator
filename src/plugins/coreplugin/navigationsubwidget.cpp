@@ -98,17 +98,15 @@ NavigationSubWidget::~NavigationSubWidget() = default;
 
 void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
 {
+    // The row of the shown view also moves when a factory before it comes or goes.
+    if (m_navigationWidgetFactory
+        && m_navigationComboBox->itemData(factoryIndex, NavigationWidget::FactoryObjectRole)
+                   .value<INavigationWidgetFactory *>() == m_navigationWidgetFactory) {
+        return;
+    }
+
     saveSettings();
-
-    // Remove toolbutton
-    for (QWidget *w : std::as_const(m_additionalToolBarWidgets))
-        delete w;
-    m_additionalToolBarWidgets.clear();
-
-    // Remove old Widget
-    delete m_navigationWidget;
-    m_navigationWidget = nullptr;
-    m_navigationWidgetFactory = nullptr;
+    dropView();
     if (factoryIndex == -1)
         return;
 
@@ -127,6 +125,19 @@ void NavigationSubWidget::comboBoxIndexChanged(int factoryIndex)
 
     restoreSettings();
     emit factoryIndexChanged(factoryIndex);
+}
+
+// Does not save the view's settings: for a factory that is being destroyed
+// the call would no longer reach its override.
+void NavigationSubWidget::dropView()
+{
+    for (QWidget *w : std::as_const(m_additionalToolBarWidgets))
+        delete w;
+    m_additionalToolBarWidgets.clear();
+
+    delete m_navigationWidget;
+    m_navigationWidget = nullptr;
+    m_navigationWidgetFactory = nullptr;
 }
 
 void NavigationSubWidget::populateSplitMenu()
