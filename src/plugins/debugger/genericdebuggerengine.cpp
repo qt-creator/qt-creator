@@ -164,7 +164,9 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         case RefreshKind::FullStack: {
             const GdbMi frames = data["stack"]["frames"];
             stackHandler()->setFramesAndCurrentIndex(frames, true);
-            activateFrame(stackHandler()->currentIndex());
+            const int index = stackHandler()->currentIndex();
+            if (index >= 0)
+                activateFrame(index);
             break;
         }
         case RefreshKind::Registers: {
@@ -690,7 +692,7 @@ void GenericDebuggerEngine::activateFrame(int index)
         return;
     }
 
-    QTC_ASSERT(index < handler->stackSize(), return);
+    QTC_ASSERT(index >= 0 && index < handler->stackSize(), return);
     handler->setCurrentIndex(index);
     gotoCurrentLocation();
 

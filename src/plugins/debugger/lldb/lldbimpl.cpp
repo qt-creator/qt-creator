@@ -812,6 +812,11 @@ void LldbImpl::refresh(const RefreshRequest &request)
         cmd.arg("context", request.context);
         cmd.arg("extraqml", 0);
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
+            // A fetch the inferior outran answers "No thread" and carries no
+            // stack at all. Reporting that empties the view and leaves the
+            // engine activating a frame that is not there.
+            if (!response.data["stack"].isValid())
+                return;
             emit refreshDataReceived(requestId, RefreshKind::FullStack, response.data);
         };
         runCommand(cmd);
@@ -824,6 +829,8 @@ void LldbImpl::refresh(const RefreshRequest &request)
         cmd.arg("context", request.context);
         cmd.arg("extraqml", 1);
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
+            if (!response.data["stack"].isValid())
+                return;
             emit refreshDataReceived(requestId, RefreshKind::FullStack, response.data);
         };
         runCommand(cmd);

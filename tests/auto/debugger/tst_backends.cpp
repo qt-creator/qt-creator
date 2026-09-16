@@ -1277,6 +1277,27 @@ static bool canInterruptRunningInferior(Backend backend)
     return !uninterruptibleOnWindows.contains(backend);
 }
 
+// Whether the backend keeps a stack fetch that came back without one to itself.
+// Only LldbImpl does: its Python bridge is reachable while the inferior runs,
+// and answers "No thread" with no stack at all. GdbImpl holds the command back
+// until the inferior stops, so its answer carries a real stack, and the QML
+// debug service answers a backtrace either way.
+static bool withholdsAStackItDidNotGet(Backend backend)
+{
+    switch (backend) {
+    case Backend::Lldb:
+        return true;
+    case Backend::Gdb:
+    case Backend::Cdb:
+    case Backend::Bridge:
+    case Backend::Dap:
+    case Backend::Pdb:
+    case Backend::Qml:
+        break;
+    }
+    return false;
+}
+
 class tst_backends : public QObject
 {
     Q_OBJECT
@@ -1551,6 +1572,8 @@ private slots:
     void insertsQmlBreakpointBeforeDumpersLoad();
     void insertsAQmlBreakpointWhileTheInferiorRuns_data() { addBackendRows(); }
     void insertsAQmlBreakpointWhileTheInferiorRuns();
+    void reportsNoStackForAFetchTheInferiorOutran_data() { addBackendRows(); }
+    void reportsNoStackForAFetchTheInferiorOutran();
     void resolvesQmlBreakpointWithoutServiceDebugInfo_data() { addBackendRows(); }
     void resolvesQmlBreakpointWithoutServiceDebugInfo();
     void splicesQmlFramesIntoPlainFullStackWhenNativeMixed_data() { addBackendRows(); }
@@ -9653,6 +9676,64 @@ void tst_backends::insertsAQmlBreakpointWhileTheInferiorRuns()
                  && !debuggerBackend->contains(InferiorEvent::SpontaneousStop),
              "the backend reported its own interrupt as a stop to the engine");
 #endif
+}
+
+// A stack fetch that reaches the debugger after the inferior is running again
+// answers with no stack. Reported, it empties the stack view and leaves the
+// engine activating a frame that is not there.
+void tst_backends::reportsNoStackForAFetchTheInferiorOutran()
+{
+    QFETCH(Backend, backend);
+
+    if (!withholdsAStackItDidNotGet(backend))
+        QSKIP("This backend does not answer a stack fetch without a stack.");
+
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QList<RefreshKind> refreshes;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&refreshes](quint64, RefreshKind kind, const GdbMi &) { refreshes.append(kind); });
+    QHash<quint64, bool> breakpointResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&breakpointResults](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        breakpointResults[requestId] = ok;
+    });
+    QStringList wire;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&wire](const QString &text, int, int) { wire.append(text); });
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk), s_timeout);
+
+    refreshes.clear();
+    const int wireBefore = wire.size();
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 80;
+    stackRequest.stackDepthLimit = 20;
+    engine->refresh(stackRequest);
+
+    // Commands are answered in order, so a later one coming back is what says
+    // the fetch above has been dealt with, one way or the other.
+    BreakpointChangeRequest request;
+    request.op = BreakpointOp::Insert;
+    request.requestId = 81;
+    request.params.type = BreakpointByFileAndLine;
+    request.params.fileName = inferiorTestData(backend).source;
+    request.params.textPosition.line = inferiorTestData(backend).breakpointLine;
+    request.params.enabled = true;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(breakpointResults.contains(81), s_timeout);
+
+    const QStringList traffic = wire.mid(wireBefore);
+    QVERIFY2(Utils::anyOf(traffic, [](const QString &line) { return line.contains("fetchStack"); }),
+             "the stack was never fetched, so the reply proves nothing");
+    QVERIFY2(!refreshes.contains(RefreshKind::FullStack),
+             "a stack fetch that found no thread was reported as a stack");
 }
 
 void tst_backends::resolvesQmlBreakpointWithoutServiceDebugInfo()
