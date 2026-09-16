@@ -5,8 +5,6 @@
 
 #include <utils/pathchooser.h>
 
-#include <QDir>
-
 namespace QtProfiler {
 
 QtProfilerSettings::QtProfilerSettings()
@@ -15,7 +13,6 @@ QtProfilerSettings::QtProfilerSettings()
 
     lastTraceFile.setSettingsKey("LastTraceFile");
     lastTraceFile.setExpectedKind(Utils::PathChooserKind::File);
-    lastTraceFile.setDefaultValue(QDir::homePath());
 
     windowGeometry.setSettingsKey("WindowGeometry");
 
