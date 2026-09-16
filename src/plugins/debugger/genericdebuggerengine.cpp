@@ -402,6 +402,7 @@ void GenericDebuggerEngine::removeBreakpoint(const Breakpoint &bp)
 void GenericDebuggerEngine::updateBreakpoint(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
+    notifyBreakpointChangeProceeding(bp);
     BreakpointChangeRequest request;
     request.op = BreakpointOp::Update;
     request.requestId = m_nextBreakpointRequestId++;

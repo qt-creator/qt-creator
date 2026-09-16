@@ -111,6 +111,7 @@ private slots:
     void testNormalizedSourcePathPrefix();
 
     void testScratchEditorAdoptsSavedName();
+    void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
@@ -1473,6 +1474,24 @@ void DebuggerUnitTests::testInterpreterBreakpointStaysEnabled()
     QVERIFY(bp);
     QVERIFY2(bp->isEnabled(), "the interpreter's reply turned the breakpoint off");
     QCOMPARE(bp->responseId(), QString("1"));
+}
+
+// Insertion and removal both say they are proceeding, and the state machine
+// takes the answer only from there. An update that skips it leaves the
+// breakpoint stuck, so the view never shows what the user asked for.
+void DebuggerUnitTests::testBreakpointUpdateAnnouncesItIsProceeding()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const Breakpoint bp = claimedInterpreterBreakpoint(engine, backend);
+    QVERIFY(bp);
+    QCOMPARE(bp->state(), BreakpointInserted);
+
+    engine->breakHandler()->requestBreakpointUpdate(bp);
+    QCOMPARE(bp->state(), BreakpointUpdateProceeding);
 }
 
 void DebuggerUnitTests::testScratchEditorAdoptsSavedName()
