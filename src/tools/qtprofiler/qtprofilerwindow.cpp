@@ -581,6 +581,7 @@ void WindowPrivate::closeCurrentTrace()
     qmlManager->clear();
     ctfManager->clear();
     samplerManager->clear();
+    progressIndicator->hide();
     // Whichever view last filled the shared panel, its trace is gone now.
     rangeDetails->reset();
     rightPane->setCurrentWidget(welcomePage);
