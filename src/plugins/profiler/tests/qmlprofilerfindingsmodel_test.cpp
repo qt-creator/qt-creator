@@ -131,6 +131,14 @@ void QmlProfilerFindingsModelTest::initTestCase()
         frame.setNumbers({60, 1, 0});
         manager.appendEvent(std::move(frame));
 
+        // The render thread reports the same rendering as a frame of its own. The two
+        // together are one frame, not two.
+        QmlEvent renderFrame;
+        renderFrame.setTypeIndex(animationTypeId);
+        renderFrame.setTimestamp(++timestamp);
+        renderFrame.setNumbers({60, 1, 1});
+        manager.appendEvent(std::move(renderFrame));
+
         QmlEvent binding;
         binding.setTypeIndex(bindingTypeId);
         binding.setRangeStage(RangeStart);
@@ -233,6 +241,7 @@ void QmlProfilerFindingsModelTest::testPerFrameCostReported()
     const Finding *finding = findingFor(model.findings(), "per-frame-cost");
     QVERIFY(finding);
     QCOMPARE(finding->location.filename(), QString("Gauge.qml"));
+    // The frames of one thread, although both of them reported every one of them.
     QCOMPARE(finding->occurrences, 100); // frames the cost was spread over
     QCOMPARE(finding->costNs, 100000000);
 }

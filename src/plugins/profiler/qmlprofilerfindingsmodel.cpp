@@ -18,6 +18,26 @@ using namespace QmlDebug;
 
 namespace Profiler::Internal {
 
+// Picks one of the threads that report frames. The GUI and the render thread both report
+// a frame event for the same rendering, so only the one that reported first is followed:
+// counting both would make one frame look like two.
+class FrameThread
+{
+public:
+    bool accepts(const QmlEvent &event)
+    {
+        const int thread = event.number<qint32>(2);
+        if (m_thread == -1)
+            m_thread = thread;
+        return thread == m_thread;
+    }
+
+    void clear() { m_thread = -1; }
+
+private:
+    int m_thread = -1;
+};
+
 // Reports QML files whose first-use compilation dominates startup. Ahead-of-time caching
 // does not remove this: what is left in a Compiling range is loading the compilation unit
 // and resolving types and imports, which scales with file size and import surface.
@@ -433,7 +453,8 @@ public:
     void loadEvent(const QmlEvent &event, const QmlEventType &type) override
     {
         if (type.message() == Event && type.detailType() == AnimationFrame) {
-            ++m_frames;
+            if (m_frameThread.accepts(event))
+                ++m_frames;
             return;
         }
 
@@ -496,12 +517,14 @@ public:
     {
         m_data.clear();
         m_starts.clear();
+        m_frameThread.clear();
         m_frames = 0;
     }
 
 private:
     QHash<int, qint64> m_data;
     QHash<int, QStack<qint64>> m_starts;
+    FrameThread m_frameThread;
     int m_frames = 0;
     const qint64 m_budgetNs;
 };
