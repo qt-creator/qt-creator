@@ -22,6 +22,10 @@ inline constexpr char CtfThreadIdKey[] = "tid";
 inline constexpr char CtfDurationKey[] = "dur";
 // CMake writes the line a command was called from here, as "<path>:<line>".
 inline constexpr char CtfArgumentsLocationKey[] = "location";
+// A thread_name/process_name event names the id its subject really has here,
+// where the pid/tid it is keyed by is not one: a lane of a CTF trace is keyed
+// by an id qualified to stay unique across a whole load (see ctfloader.cpp).
+inline constexpr char CtfMetadataDisplayIdKey[] = "displayId";
 
 inline constexpr char CtfEventTypeBegin[] = "B";
 inline constexpr char CtfEventTypeEnd[] = "E";

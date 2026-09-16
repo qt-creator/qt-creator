@@ -20,6 +20,7 @@
 #include "tests/perfnativemixed_test.h"
 #include "tests/perfresourcecounter_test.h"
 
+#include "tests/ctfloader_test.h"
 #include "tests/ctftimelinemodel_test.h"
 #include "tests/debugmessagesmodel_test.h"
 #include "tests/flamegraphmodel_test.h"
@@ -71,6 +72,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         setupPerfProfilerRunWorker();
 
 #ifdef WITH_TESTS
+        addTest<CtfLoaderTest>();
         addTest<CtfTimelineModelTest>();
         addTest<DebugMessagesModelTest>();
         addTest<FlameGraphModelTest>();

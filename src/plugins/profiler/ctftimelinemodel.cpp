@@ -40,6 +40,20 @@ static Timeline::ItemLocation locationFromArguments(const json &args)
     return {location.left(colon), line, 0};
 }
 
+// The id a thread_name/process_name event says its subject really has, or
+// `keyed` when it says nothing: a producer whose ids are not unique on their own
+// keys a lane by a qualified one, which is no id to show (see ctfloader.cpp).
+static QString statedId(const json &event, const QString &keyed)
+{
+    const auto args = event.find("args");
+    if (args == event.end())
+        return keyed;
+    const auto it = args->find(CtfMetadataDisplayIdKey);
+    if (it == args->end() || !it->is_string())
+        return keyed;
+    return QString::fromStdString(it->get<std::string>());
+}
+
 CtfTimelineModel::CtfTimelineModel(Timeline::TimelineModelAggregator *parent,
                                    CtfTraceManager *traceManager,
                                    const QString &tid,
@@ -48,6 +62,8 @@ CtfTimelineModel::CtfTimelineModel(Timeline::TimelineModelAggregator *parent,
     , m_traceManager(traceManager)
     , m_threadId(tid)
     , m_processId(pid)
+    , m_threadDisplayId(tid)
+    , m_processDisplayId(pid)
 {
     updateName();
     setCollapsedRowCount(1);
@@ -176,19 +192,23 @@ QPair<bool, qint64> CtfTimelineModel::addEvent(const json &event, double timeOff
         const std::string name = event[CtfEventNameKey];
         if (name == "thread_name") {
             m_threadName = QString::fromStdString(event["args"]["name"]);
+            m_threadDisplayId = statedId(event, m_threadId);
             updateName();
         } else if (name == "process_name") {
             m_processName = QString::fromStdString(event["args"]["name"]);
+            m_processDisplayId = statedId(event, m_processId);
             updateName();
         }
     }
     return {visibleOnTimeline, duration};
 }
 
-void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QString &processName, const QString &threadName)
+void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QString &processName,
+                                const QString &threadName, bool manyProcesses)
 {
     m_processName = processName;
     m_threadName = threadName;
+    m_manyProcesses = manyProcesses;
     updateName();
 
     qint64 normalizedEnd = qint64((traceEnd - traceBegin) * 1000);
@@ -232,17 +252,32 @@ QString CtfTimelineModel::eventTitle(int index) const
 
 void CtfTimelineModel::updateName()
 {
-    const QString process = m_processName.isEmpty() ? Tr::tr("Process %1").arg(m_processId)
-                                                    : QString("%1 (%2)").arg(m_processName, m_processId);
-    const QString thread = m_threadName.isEmpty() ? m_threadId
-                                                  : QString("%1 (%2)").arg(m_threadName, m_threadId);
+    // The id goes with the name where it adds to it: a pid or tid the reader can
+    // find the process or thread by. A producer that has no such id -- Qt's CTF
+    // backend names the recorded session where a pid would be -- states the name
+    // as the id, and then it is said once.
+    const auto titled = [](const QString &name, const QString &id) {
+        return name == id ? name : QString("%1 (%2)").arg(name, id);
+    };
+    const QString process = m_processName.isEmpty()
+                                ? Tr::tr("Process %1").arg(m_processDisplayId)
+                                : titled(m_processName, m_processDisplayId);
+    const QString thread = m_threadName.isEmpty() ? m_threadDisplayId
+                                                  : titled(m_threadName, m_threadDisplayId);
     // Lanes are per thread, so a multi-threaded process would otherwise show the
     // same title several times. Lead with the process, but disambiguate the
     // non-main threads (tid != pid) by their thread identity.
+    //
+    // A trace of one process leads with nothing: the same process stands in
+    // front of every lane, so it tells them apart from nothing -- and a trace
+    // that names no process at all, as a Qt CTF one does not, would lead with
+    // the session it was recorded under. The tooltip still says it.
     if (m_threadId == m_processId)
         setDisplayName(process);
-    else
+    else if (m_manyProcesses)
         setDisplayName(QString("%1 / %2").arg(process, thread));
+    else
+        setDisplayName(thread);
 
     setTooltip(QString("Process: %1\nThread: %2").arg(process, thread));
 }

@@ -12,6 +12,7 @@
 #include <tracing/timelinemodelaggregator.h>
 
 #include <QMessageBox>
+#include <QSet>
 
 namespace Profiler::Internal {
 
@@ -123,9 +124,13 @@ void CtfTraceManager::finalize()
             ++it;
         }
     }
+    QSet<QString> processIds;
+    for (const CtfTimelineModel *model : std::as_const(m_threadModels))
+        processIds.insert(model->m_processId);
     for (CtfTimelineModel *model: std::as_const(m_threadModels)) {
         model->finalize(m_traceBegin, m_traceEnd,
-                        m_processNames[model->m_processId], m_threadNames[model->m_threadId]);
+                        m_processNames[model->m_processId], m_threadNames[model->m_threadId],
+                        processIds.size() > 1);
     }
     // TimelineModelAggregator::addModel() is called here because it
     // needs to be run in the main thread

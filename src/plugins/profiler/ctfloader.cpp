@@ -10,11 +10,17 @@
 #include <commontraceformat/stream/tracedirectory.h>
 #include <commontraceformat/stream/tracereader.h>
 
+#include <utils/filepath.h>
+
 #include <QByteArrayView>
 #include <QFuture>
+#include <QHash>
 #include <QString>
+#include <QStringList>
 
+#include <algorithm>
 #include <fstream>
+#include <limits>
 #include <set>
 #include <string_view>
 #include <tuple>
@@ -129,6 +135,50 @@ json fieldValueToJson(const CommonTraceFormat::FieldValue &fv)
         fv);
 }
 
+// The thread that wrote a packet, as Qt's CTF backend identifies it: that
+// backend writes one stream per thread and puts the thread's id and name in
+// the packet context, where no event field carries them.
+struct PacketIdentity
+{
+    std::optional<std::string> threadId;
+    std::optional<std::string> threadName;
+};
+
+PacketIdentity packetIdentity(const CommonTraceFormat::DataStreamReader &stream)
+{
+    static const QString threadIdKey = QStringLiteral("thread_id");
+    static const QString threadNameKey = QStringLiteral("thread_name");
+
+    PacketIdentity identity;
+    const CommonTraceFormat::StructureValue &context = stream.packetContext();
+    if (const CommonTraceFormat::FieldValue *fv = context.get(threadIdKey))
+        identity.threadId = fieldValueToString(*fv);
+    if (const CommonTraceFormat::FieldValue *fv = context.get(threadNameKey))
+        identity.threadName = fieldValueToString(*fv);
+    return identity;
+}
+
+// What to call the trace stored in `directory` when its metadata does not name
+// the session. An LTTng recording keeps the streams of a domain in a
+// subdirectory of that domain's name, and Qt's CTF backend writes into a "ust"
+// of its own, so the name of such a directory says nothing about the recording
+// while the one above it does.
+QString traceDirectoryName(const QString &directory)
+{
+    const Utils::FilePath dir = Utils::FilePath::fromString(directory);
+    const QString name = dir.fileName();
+    if (name != QLatin1StringView("ust") && name != QLatin1StringView("kernel"))
+        return name;
+    const QString parent = dir.parentDir().fileName();
+    return parent.isEmpty() ? name : parent;
+}
+
+// Beyond this many seconds a timestamp says nothing a timeline holding
+// microseconds in a double could tell apart, while the integer arithmetic that
+// rebases one would overflow. A trace states its clock's origin and its events'
+// cycle counts itself, and is not trusted to keep either below it.
+constexpr qint64 maxClockSeconds = Q_INT64_C(1) << 40;
+
 } // namespace
 
 void loadChromeJson(QPromise<json> &promise, const QString &fileName)
@@ -191,32 +241,182 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
     std::unordered_map<std::string, std::string> nameByTid; // thread -> command name
     std::unordered_map<std::string, std::string> nameByPid; // process -> command name
 
+    // Qt's CTF backend writes one stream per thread and puts that thread's
+    // identity in the *packet* context (thread_id/thread_name), where neither of
+    // the two schemes above finds it. Such a lane knows its process from the
+    // start; only its name has to be emitted by the post-pass.
+    //
+    // What the trace called the thread and the process goes with it: the ids a
+    // lane is filed under are qualified to stay unique across the load (see
+    // below), which is an internal key and no name for either.
+    struct PacketLane
+    {
+        std::string processId;   // Owning process, as the lane's events carry it.
+        std::string processName; // What to call that process.
+        std::string threadName;
+        std::string threadId; // Thread id as the trace stated it.
+    };
+    std::unordered_map<std::string, PacketLane> packetLanes; // lane -> identity
+
+    // Thread ids are unique within a trace, not across traces, so a lane built
+    // from them needs the trace to stay distinct when several were loaded.
+    const bool manyTraces = traceDir.traces().size() > 1;
+
+    // What a trace is called: the session it was recorded under, which CTF
+    // states in its environment (spec 5.6), or the directory it was found in
+    // when the metadata names none. Two recordings of one application name the
+    // same session, so a name that several traces of the load share is numbered
+    // -- the reader has nothing else to tell them apart by.
+    QStringList traceNames;
+    for (const TraceDirectory::Trace &trace : traceDir.traces()) {
+        const QString directoryName = traceDirectoryName(trace.directory);
+        traceNames.append(trace.schema && trace.schema->traceClass
+                              ? trace.schema->traceClass->environment.value(u"trace_name"_s,
+                                                                            directoryName)
+                              : directoryName);
+    }
+    QHash<QString, int> traceNameCount;
+    for (const QString &name : traceNames)
+        ++traceNameCount[name];
+    QHash<QString, int> traceNameOrdinal;
+    QStringList traceDisplayNames;
+    for (const QString &name : traceNames) {
+        traceDisplayNames.append(traceNameCount.value(name) > 1
+                                     ? u"%1 #%2"_s.arg(name).arg(++traceNameOrdinal[name])
+                                     : name);
+    }
+
+    // Clock parameters of one stream: an event's cycle count is
+    // offsetSeconds + (cycles + offsetCycles) / frequency seconds from the
+    // clock's origin (spec 5.7).
+    struct StreamClock
+    {
+        quint64 frequency = 1000000000ULL;
+        qint64 offsetSeconds = 0; // Within +-maxClockSeconds.
+        quint64 offsetCycles = 0;
+        // Whether the stream's class names a clock the metadata declares.
+        // Without one every event of the stream carries the timestamp 0
+        // (spec 4.2.2), so the stream has no origin -- not an origin of zero.
+        bool hasClock = false;
+
+        // Cycles from the clock's origin of an event timestamped `timestamp`,
+        // which counts from the clock's offset. The trace states both halves of
+        // that sum, so it saturates rather than wraps: a wrapped sum is small,
+        // and neither the clamp below nor anything after it can tell it from a
+        // timestamp the trace really holds -- the event would land at a
+        // plausible-looking wrong point in time.
+        quint64 cyclesFromOrigin(quint64 timestamp) const
+        {
+            constexpr quint64 maxCycles = std::numeric_limits<quint64>::max();
+            return timestamp > maxCycles - offsetCycles ? maxCycles : timestamp + offsetCycles;
+        }
+
+        // Whole seconds of `cycles`, which count from the clock's origin and
+        // include offsetCycles, as wall-clock time.
+        qint64 seconds(quint64 cycles) const
+        {
+            const quint64 whole = cycles / frequency;
+            if (whole > quint64(maxClockSeconds))
+                return maxClockSeconds;
+            return std::min(offsetSeconds + qint64(whole), maxClockSeconds);
+        }
+
+        // Whole seconds at or below every timestamp of the stream, which is the
+        // offset alone: an event's own cycle count is counted from the origin,
+        // so it cannot be negative.
+        qint64 originSeconds() const { return seconds(cyclesFromOrigin(0)); }
+    };
+
+    const auto streamClock = [](const Schema &schema, const DataStreamClass *dsc) {
+        StreamClock clock;
+        if (dsc->defaultClockClassName.isEmpty())
+            return clock;
+        for (const ClockClass &cc : schema.clockClasses) {
+            // CTF2 links by clock class id; legacy/TSDL schemas link by name.
+            const bool matches = cc.id == dsc->defaultClockClassName
+                                 || cc.name == dsc->defaultClockClassName;
+            if (matches && cc.frequency > 0) {
+                clock.frequency = cc.frequency;
+                clock.offsetSeconds = std::clamp(cc.offsetSeconds, -maxClockSeconds,
+                                                 maxClockSeconds);
+                clock.offsetCycles = cc.offsetCycles;
+                // Told by the clock that was found, not by the name that was
+                // looked up: a stream may name a clock the metadata never
+                // declares, and then nothing at all is known about its origin.
+                clock.hasClock = true;
+                break;
+            }
+        }
+        return clock;
+    };
+
+    // Timestamps are emitted relative to the earliest clock origin of the whole
+    // load rather than to the origin itself. A tracer states that origin as a
+    // wall-clock offset -- Qt's is the epoch, in nanoseconds -- and a double
+    // holding that many microseconds resolves to no better than a quarter of a
+    // microsecond, which is coarser than the tracepoints being timed. Subtracting
+    // whole seconds in integers first keeps the double down to the length of the
+    // trace, where it resolves far below a nanosecond. Nothing shows an absolute
+    // time (the timeline is relative to its first event, see CtfTraceManager),
+    // and every clocked stream subtracts the same base, so traces recorded at
+    // different times still line up against each other.
+    //
+    // A stream with no clock is left out: its events are all timestamped 0, so
+    // counting it in would pull the base down to 0 and leave every clocked
+    // stream of the load with the precision loss above. Its own events are
+    // emitted against a base of 0, which puts them where they were before --
+    // at the very start of the timeline -- rather than a wall-clock era before
+    // it.
+    qint64 baseSeconds = 0;
+    bool haveBase = false;
+    for (const TraceDirectory::Trace &trace : traceDir.traces()) {
+        for (const TraceDirectory::Stream &sf : trace.streams) {
+            if (!sf.dsc)
+                continue;
+            const StreamClock clock = streamClock(*trace.schema, sf.dsc);
+            if (!clock.hasClock)
+                continue;
+            const qint64 origin = clock.originSeconds();
+            if (!haveBase || origin < baseSeconds) {
+                baseSeconds = origin;
+                haveBase = true;
+            }
+        }
+    }
+
     quint64 fallbackStreamId = 0;
+    int traceIndex = -1;
     for (const TraceDirectory::Trace &trace : traceDir.traces()) {
         const Schema &schema = *trace.schema;
+        ++traceIndex;
+
+        // Thread ids are unique within a trace, not across traces, so a lane
+        // built from them is qualified by the trace it came from. That has to be
+        // the position in the load rather than any name: sibling traces of one
+        // recording session can share their directory name, and two recordings
+        // of one application share their session name. A lane shared by two
+        // traces would interleave two threads' events -- and pair one thread's
+        // entry with the other's exit.
+        const std::string laneQualifier = manyTraces ? std::to_string(traceIndex) + '/'
+                                                     : std::string();
+
+        // Every stream of one trace comes from one traced process. CTF has no
+        // field for its pid, so the trace's name stands in for it. It is
+        // qualified like the lanes, and for the same reason: two recordings of
+        // one application name the same session, and would otherwise be shown
+        // as one process -- in one colour.
+        const std::string tracePid = laneQualifier + traceNames.at(traceIndex).toStdString();
+        const std::string traceDisplayName = traceDisplayNames.at(traceIndex).toStdString();
+
         for (const TraceDirectory::Stream &sf : trace.streams) {
             const DataStreamClass *dsc = sf.dsc;
             if (!dsc)
                 continue;
 
-            // Resolve clock frequency and offset-from-origin for µs timestamp
-            // conversion (spec 5.7).
-            quint64 frequency = 1000000000ULL;
-            qint64 offsetSeconds = 0;
-            quint64 offsetCycles = 0;
-            if (!dsc->defaultClockClassName.isEmpty()) {
-                for (const ClockClass &cc : schema.clockClasses) {
-                    // CTF2 links by clock class id; legacy/TSDL schemas link by name.
-                    const bool matches = cc.id == dsc->defaultClockClassName
-                                         || cc.name == dsc->defaultClockClassName;
-                    if (matches && cc.frequency > 0) {
-                        frequency = cc.frequency;
-                        offsetSeconds = cc.offsetSeconds;
-                        offsetCycles = cc.offsetCycles;
-                        break;
-                    }
-                }
-            }
+            const StreamClock clock = streamClock(schema, dsc);
+            // See the base computation above: a stream left out of it counts
+            // from its own origin instead.
+            const qint64 streamBase = clock.hasClock ? baseSeconds : 0;
 
             // Stream instance id, used as a pid/tid lane fallback.
             const quint64 streamId = sf.streamId ? *sf.streamId : fallbackStreamId++;
@@ -226,6 +426,15 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
             // sched_switch. Empty until the first switch is seen.
             std::string currentTid;
 
+            // What the packet context of the packet being read says about the
+            // thread that wrote it, and whether its lane has been named. A
+            // packet holds many events and the reader keeps it open until the
+            // event after its last, so this is refreshed per packet rather than
+            // read per event.
+            PacketIdentity packet;
+            quint64 packetsRead = 0;
+            bool laneNamed = false;
+
             while (!stream->atEnd()) {
                 if (promise.isCanceled())
                     return;
@@ -234,13 +443,19 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
                 if (!eventResult)
                     break;
 
+                if (const quint64 packets = stream->packetCount(); packets != packetsRead) {
+                    packetsRead = packets;
+                    packet = packetIdentity(*stream);
+                    laneNamed = false;
+                }
+
                 const EventRecord &rec = *eventResult;
-                // Cycles → seconds from the clock origin, then µs (spec 5.7):
-                // offsetSeconds + (cycles + offsetCycles) / frequency.
-                const double ts = (double(offsetSeconds)
-                                   + (double(rec.timestamp) + double(offsetCycles))
-                                         / double(frequency))
-                                  * 1.0e6;
+                // Cycles to microseconds from `streamBase`: the whole seconds
+                // are counted in integers, only the remainder is divided.
+                const quint64 cycles = clock.cyclesFromOrigin(rec.timestamp);
+                const double ts = double(clock.seconds(cycles) - streamBase) * 1.0e6
+                                  + double(cycles % clock.frequency) * 1.0e6
+                                        / double(clock.frequency);
 
                 json event;
                 std::string evName = rec.eventClass ? rec.eventClass->name.toStdString()
@@ -273,10 +488,24 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
                 auto ctxPid = findCtxField("pid");
                 auto ctxTid = findCtxField("tid");
                 if (ctxTid || ctxPid) {
-                    // Traces with per-event context (e.g. Qt tracegen): trust it.
+                    // Traces with per-event context: trust it.
                     const std::string lanePid = ctxPid ? *ctxPid : std::to_string(streamId);
                     event[CtfProcessIdKey] = lanePid;
                     event[CtfThreadIdKey] = ctxTid ? *ctxTid : lanePid;
+                } else if (packet.threadId) {
+                    // Qt's CTF backend: one stream per thread, named in the
+                    // packet context.
+                    const std::string lane = laneQualifier + *packet.threadId;
+                    event[CtfProcessIdKey] = tracePid;
+                    event[CtfThreadIdKey] = lane;
+                    // Named once per packet, and only for a lane an event of it
+                    // actually lands on: a name for a lane that stays empty
+                    // would show up as a thread of its own.
+                    if (!laneNamed && packet.threadName && !packet.threadName->empty()) {
+                        packetLanes[lane] = {tracePid, traceDisplayName, *packet.threadName,
+                                             *packet.threadId};
+                        laneNamed = true;
+                    }
                 } else {
                     // Kernel-style trace: harvest names and reconstruct the
                     // running thread per CPU. The owning process id is resolved
@@ -369,7 +598,11 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
         }
     }
 
-    std::sort(events.begin(), events.end(), [&](const json &a, const json &b) {
+    // Stable: events of one stream were read in the order the tracer wrote them,
+    // and at nanosecond resolution two of them can share a timestamp. Reordering
+    // those would let an exit precede its own entry, which the pairing below
+    // then cannot match.
+    std::stable_sort(events.begin(), events.end(), [&](const json &a, const json &b) {
         return a.value(CtfTracingClockTimestampKey, 0.0)
                < b.value(CtfTracingClockTimestampKey, 0.0);
     });
@@ -444,7 +677,8 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
                               ? 0.0
                               : events.front().value(CtfTracingClockTimestampKey, 0.0);
         const auto metadataEvent = [&](const char *name, const std::string &pid,
-                                       const std::string &tid, const std::string &value) {
+                                       const std::string &tid, const std::string &value,
+                                       const std::string &displayId = {}) {
             json ev;
             ev[CtfTracingClockTimestampKey] = t0;
             ev[CtfEventPhaseKey] = std::string(CtfEventTypeMetadata);
@@ -452,6 +686,11 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
             ev[CtfProcessIdKey] = pid;
             ev[CtfThreadIdKey] = tid;
             ev["args"]["name"] = value;
+            // The id the trace itself stated, where the one the lane is filed
+            // under is not it -- a thread id qualified by its trace, a process
+            // id that is a session name.
+            if (!displayId.empty())
+                ev["args"][CtfMetadataDisplayIdKey] = displayId;
             metadata.push_back(std::move(ev));
         };
         for (const std::string &tid : laneTids) {
@@ -462,6 +701,13 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
                 metadataEvent("thread_name", pid, tid, nit->second);
             if (auto pnit = nameByPid.find(pid); pnit != nameByPid.end())
                 metadataEvent("process_name", pid, tid, pnit->second);
+        }
+        for (const auto &[tid, lane] : packetLanes) {
+            metadataEvent("thread_name", lane.processId, tid, lane.threadName, lane.threadId);
+            // The process is named too, although a Qt trace has no pid to name
+            // it by: unnamed, the lane falls back to the id it is filed under
+            // -- the session name, qualified by the trace it came from.
+            metadataEvent("process_name", lane.processId, tid, lane.processName, lane.processName);
         }
     }
 

@@ -42,7 +42,10 @@ public:
 
     QPair<bool, qint64> addEvent(const nlohmann::json &event, double traceBegin);
 
-    void finalize(double traceBegin, double traceEnd, const QString &processName, const QString &threadName);
+    // `manyProcesses` says whether the trace holds more than one, which is when
+    // naming this lane's process tells the reader which lane it is looking at.
+    void finalize(double traceBegin, double traceEnd, const QString &processName,
+                  const QString &threadName, bool manyProcesses);
 
     QString tid() const;
     QString eventTitle(int index) const;
@@ -69,6 +72,13 @@ protected:
     QString m_threadName;
     QString m_processId;
     QString m_processName;
+    // The ids the trace stated, which is what a reader is shown: the ones above
+    // identify a lane across a whole load, and are qualified for that where the
+    // trace's own are not unique (see ctfloader.cpp). Equal to them unless a
+    // thread_name/process_name event said otherwise.
+    QString m_threadDisplayId;
+    QString m_processDisplayId;
+    bool m_manyProcesses = true;
 
     int m_maxStackSize = 0;
     QList<int> m_rows;

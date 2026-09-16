@@ -23,6 +23,8 @@ private slots:
     void testCommandLocation();
     void testOneTypeInSeveralPlaces();
     void testEventsWithoutLocation();
+    void testLanesOfOneProcessAreNamedByTheirThread();
+    void testLanesOfSeveralProcessesNameTheirProcess();
 
 private:
     Timeline::TimelineModelAggregator m_aggregator;

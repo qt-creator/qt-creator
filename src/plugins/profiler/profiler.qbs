@@ -176,6 +176,7 @@ QtcPlugin {
             "perfresourcecounter_test.cpp", "perfresourcecounter_test.h",
             "perfprofilertests.qrc",
 
+            "ctfloader_test.cpp", "ctfloader_test.h",
             "ctftimelinemodel_test.cpp", "ctftimelinemodel_test.h",
             "debugmessagesmodel_test.cpp", "debugmessagesmodel_test.h",
             "fakedebugserver.cpp", "fakedebugserver.h",
