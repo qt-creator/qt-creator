@@ -225,6 +225,7 @@ class DapServer():
         # announces the ones the user makes in the console just the same, and
         # only the number tells the two apart.
         self.ownBreakpoints = set()
+        self.reportedCatchpoints = set()
         self.creatingOwnBreakpoints = 0
 
         # Rebuilt on every stop: maps a DAP frame id to a gdb.Frame, and a
@@ -239,6 +240,7 @@ class DapServer():
         self.inferiorExited = False
         self.announcedThreads = set()
         self.answeredSeq = None
+        self.loadedObjfiles = None
 
         gdb.events.stop.connect(self._onStop)
         gdb.events.cont.connect(self._onContinue)
@@ -252,6 +254,8 @@ class DapServer():
         freed = getattr(gdb.events, 'free_objfile', None)  # gdb 11+
         if freed is not None:
             freed.connect(self._onFreeObjfile)
+        else:
+            self.loadedObjfiles = set()
         gdb.events.new_thread.connect(self._onNewThread)
         gone = getattr(gdb.events, 'thread_exited', None)  # gdb 13+
         if gone is not None:
@@ -548,7 +552,34 @@ class DapServer():
         path = getattr(objfile, 'filename', None)
         if not path:
             return
+        if self.loadedObjfiles is not None:
+            if reason == 'loaded':
+                self.loadedObjfiles.add(path)
+            else:
+                self.loadedObjfiles.discard(path)
         self.sendEvent('qtc/library', {'reason': reason, 'path': path})
+
+    def _objfilePaths(self):
+        paths = set()
+        try:
+            objfiles = gdb.objfiles()
+        except gdb.error:
+            return paths
+        for objfile in objfiles:
+            if getattr(objfile, 'owner', None) is not None:
+                continue
+            path = getattr(objfile, 'filename', None)
+            if path:
+                paths.add(path)
+        return paths
+
+    def _syncObjfiles(self):
+        if self.loadedObjfiles is None:
+            return
+        current = self._objfilePaths()
+        for path in sorted(self.loadedObjfiles - current):
+            self.sendEvent('qtc/library', {'reason': 'unloaded', 'path': path})
+        self.loadedObjfiles &= current
 
     #######################################################################
     # Execution helper
@@ -576,6 +607,7 @@ class DapServer():
     def _reportInferiorState(self):
         # Whatever the inferior did while a command was running: gone, or
         # stopped somewhere.
+        self._syncObjfiles()
         inferior = gdb.selected_inferior()
         if self.inferiorExited or not inferior.threads():
             code = self.lastExitCode if self.lastExitCode is not None else 0
@@ -1264,9 +1296,48 @@ class DapServer():
             return match.group(1)
         return location
 
+    # How gdb lists a location of a multi-location breakpoint: 'N.M', its
+    # enabled flag, its address, and what sits there.
+    LISTED_LOCATION = re.compile(
+        r'^\s*(\d+)\.(\d+)\s+(y|n)\s+(0x[0-9a-fA-F]+)'
+        r'(?:\s+in\s+(.*?))?(?:\s+at\s+(.+):(\d+))?\s*$')
+
+    def _listedLocations(self, bp):
+        # The numbering 'enable N.M' takes is gdb's own, so on gdb < 13, where
+        # gdb.Breakpoint.locations is missing, read it off gdb's own listing
+        # rather than reindexing a fresh resolution of the linespec.
+        try:
+            listing = gdb.execute('info breakpoints %d' % bp.number, to_string=True)
+        except gdb.error:
+            return []
+        listed = []
+        for line in listing.splitlines():
+            match = self.LISTED_LOCATION.match(line)
+            if match is None or int(match.group(1)) != bp.number:
+                continue
+            address = int(match.group(4), 16)
+            source = None
+            fullname = None
+            try:
+                sal = gdb.find_pc_line(address)
+            except gdb.error:
+                sal = None
+            if sal is not None and sal.symtab is not None:
+                source = (sal.symtab.filename, sal.line)
+                fullname = sal.symtab.fullname()
+            elif match.group(6):
+                source = (match.group(6), int(match.group(7)))
+            listed.append(types.SimpleNamespace(
+                address=address, function=match.group(5), source=source,
+                fullname=fullname, enabled=match.group(3) == 'y'))
+        return listed
+
     def _decodedLocations(self, bp):
         # A stand-in for gdb.Breakpoint.locations on gdb < 13: ask gdb to
         # resolve the breakpoint's own location.
+        listed = self._listedLocations(bp)
+        if listed:
+            return listed
         spec = self._linespecOf(bp)
         if not spec:
             return []
@@ -1294,6 +1365,8 @@ class DapServer():
     WATCHPOINT_TYPES = (gdb.BP_WATCHPOINT, gdb.BP_HARDWARE_WATCHPOINT,
                         gdb.BP_READ_WATCHPOINT, gdb.BP_ACCESS_WATCHPOINT)
 
+    CATCHPOINT_TYPE = getattr(gdb, 'BP_CATCHPOINT', None)
+
     def _gdbTypeOf(self, bp):
         try:
             # gdb refuses to map a type it does not know rather than returning
@@ -1301,6 +1374,50 @@ class DapServer():
             return bp.type
         except Exception:
             return None
+
+    def _listedType(self, bp):
+        try:
+            listing = gdb.execute('info breakpoints %s' % bp.number, to_string=True)
+        except gdb.error:
+            return None
+        for line in listing.splitlines():
+            fields = line.split(None, 2)
+            if len(fields) >= 2 and fields[0] == str(bp.number):
+                return fields[1]
+        return None
+
+    def _listedCatchpoints(self):
+        if self.CATCHPOINT_TYPE is not None:
+            return {}
+        try:
+            listing = gdb.execute('info breakpoints', to_string=True)
+        except gdb.error:
+            return {}
+        listed = {}
+        for line in listing.splitlines():
+            fields = line.split(None, 4)
+            if len(fields) == 5 and fields[0].isdigit() and fields[1] == 'catchpoint':
+                listed[fields[0]] = fields
+        return listed
+
+    def _reportUnseenCatchpoints(self):
+        listed = self._listedCatchpoints()
+        self.reportedCatchpoints &= set(listed)
+        for number in sorted(listed):
+            if number in self.reportedCatchpoints or number in self.ownBreakpoints:
+                continue
+            self.reportedCatchpoints.add(number)
+            fields = listed[number]
+            result = {'number': number, 'enabled': fields[3], 'disp': fields[2], 'times': 0}
+            self._fillCatchpointDict(result, types.SimpleNamespace(number=number))
+            self.sendEvent('qtc/breakpointCreated',
+                           {'bkpt': self.dumper.resultToMi(result)})
+
+    def _isCatchpoint(self, bp):
+        kind = self._gdbTypeOf(bp)
+        if self.CATCHPOINT_TYPE is not None:
+            return kind == self.CATCHPOINT_TYPE
+        return kind is None and self._listedType(bp) == 'catchpoint'
 
     def _isWatchpoint(self, bp, requested):
         if requested is not None:
@@ -1350,7 +1467,7 @@ class DapServer():
         if bp.condition:
             result['cond'] = bp.condition
 
-        if requested is None and self._gdbTypeOf(bp) == gdb.BP_CATCHPOINT:
+        if requested is None and self._isCatchpoint(bp):
             # A catchpoint has no code location, and must not be asked for
             # one: gdb.Breakpoint.locations dies on it.
             self._fillCatchpointDict(result, bp)
@@ -1806,6 +1923,8 @@ class DapServer():
             # out would answer with a bare protocol failure that the console
             # cannot show.
             body = {'error': str(error)}
+
+        self._reportUnseenCatchpoints()
 
         # The console can resume the inferior - continue, next, finish, run -
         # and gdb returns only once it stopped again. Nobody else reports that,

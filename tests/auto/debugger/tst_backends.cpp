@@ -2005,10 +2005,11 @@ std::unique_ptr<DebuggerBackend> tst_backends::createFullyConfiguredEngine(
             .dumperScriptsDir = FilePath::fromUserInput(DUMPERDIR),
             .bridgeStartData = dapHostRecipe(true),
             .extraDumperFiles = {existingDir / "qtc_extra_dumper.py"},
-            // Split, so that the bridge's echo of the command cannot pass for
-            // its output.
-            .extraDumperCommands = {"printf \"QTC%s\\n\", \"EXTRADUMPERCOMMAND\""},
-            .userCommands = {.atStartup = "printf \"QTC%s\\n\", \"STARTUPMARKER\""},
+            // Escaped, so that the bridge's echo of the command cannot pass
+            // for its output. A printf of a string literal would need a live
+            // inferior on gdb before 14.
+            .extraDumperCommands = {"echo QTC\\105XTRADUMPERCOMMAND\\n"},
+            .userCommands = {.atStartup = "echo QTC\\123TARTUPMARKER\\n"},
             .sysroot = FilePath::fromUserInput("/qtc-test-sysroot"),
             .sourcePathMap = {{"/qtc-test-from", "/qtc-test-to"}},
             .sourceDirectories = {existingDir},
@@ -3848,34 +3849,31 @@ void tst_backends::testBreakIndividualLocationsCapability()
     disconnect(messageConnection);
     if (locations.childCount() == 0) {
         const QString &versionLine = inferiorTestData(backend).versionLine;
-        if (backend == Backend::Gdb) {
-            int gdbVersion = 0;
-            int gdbBuildVersion = -1;
-            bool isMacGdb = false;
-            bool isQnxGdb = false;
-            extractGdbVersion(versionLine, &gdbVersion, &gdbBuildVersion,
-                               &isMacGdb, &isQnxGdb);
-            if (gdbVersion < 120000) {
-                QSKIP(qPrintable(QString("%1 predates GDB 12's bare template-name breakpoint "
-                                          "support (needs >= 12.0.0)\n--- raw wire traffic ---\n%2")
-                                      .arg(versionLine, rawTranscript)));
-            }
+        int gdbVersion = 0;
+        int gdbBuildVersion = -1;
+        bool isMacGdb = false;
+        bool isQnxGdb = false;
+        extractGdbVersion(versionLine, &gdbVersion, &gdbBuildVersion, &isMacGdb, &isQnxGdb);
+        if (versionLine.startsWith("GNU gdb") && gdbVersion < 120000) {
+            QSKIP(qPrintable(QString("%1 predates GDB 12's bare template-name breakpoint "
+                                      "support (needs >= 12.0.0)\n--- raw wire traffic ---\n%2")
+                                  .arg(versionLine, rawTranscript)));
         }
         QVERIFY2(false, qPrintable(QString(
             "%1 never resolved \"multi\" into per-instantiation locations\n"
             "--- raw wire traffic ---\n%2").arg(versionLine, rawTranscript)));
     }
 
-    QString intLocationId;
+    QStringList intLocationIds;
     QString doubleLocationId;
     for (const GdbMi &location : locations) {
         const QString func = location["func"].data();
         if (func.contains("int"))
-            intLocationId = location["number"].data();
+            intLocationIds.append(location["number"].data());
         else if (func.contains("double"))
             doubleLocationId = location["number"].data();
     }
-    QVERIFY2(!intLocationId.isEmpty() && !doubleLocationId.isEmpty(), qPrintable(
+    QVERIFY2(!intLocationIds.isEmpty() && !doubleLocationId.isEmpty(), qPrintable(
         "expected multi<int>/multi<double> locations, got: " + bkpt.toString()));
 
     QHash<quint64, bool> enableSubResults;
@@ -3885,14 +3883,21 @@ void tst_backends::testBreakIndividualLocationsCapability()
             enableSubResults[requestId] = ok;
     });
 
-    BreakpointChangeRequest disableRequest;
-    disableRequest.op = BreakpointOp::EnableSub;
-    disableRequest.requestId = 96;
-    disableRequest.subResponseId = intLocationId;
-    disableRequest.enabled = false;
-    engine->changeBreakpoint(disableRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(enableSubResults.contains(96), s_timeout);
-    QVERIFY2(enableSubResults.value(96), "disabling the int location failed");
+    // Every one of them: an int instantiation left armed would stop here
+    // again and hide whether disabling a single location works at all.
+    quint64 disableRequestId = 960;
+    for (const QString &intLocationId : intLocationIds) {
+        BreakpointChangeRequest disableRequest;
+        disableRequest.op = BreakpointOp::EnableSub;
+        disableRequest.requestId = disableRequestId;
+        disableRequest.subResponseId = intLocationId;
+        disableRequest.enabled = false;
+        engine->changeBreakpoint(disableRequest);
+        QTRY_VERIFY_WITH_TIMEOUT(enableSubResults.contains(disableRequestId), s_timeout);
+        QVERIFY2(enableSubResults.value(disableRequestId),
+                 qPrintable("disabling the int location " + intLocationId + " failed"));
+        ++disableRequestId;
+    }
 
     QHash<int, GdbMi> responses;
     connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
@@ -3911,7 +3916,9 @@ void tst_backends::testBreakIndividualLocationsCapability()
     engine->refresh(localsRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
     const QString locals = responses.value(int(RefreshKind::Locals)).toString();
-    QVERIFY2(locals.contains("double"), qPrintable("locals: " + locals));
+    QVERIFY2(locals.contains("double"), qPrintable(
+        "locals: " + locals + "\ndisabled " + intLocationIds.join(", ")
+        + " of: " + bkpt.toString()));
 }
 
 void tst_backends::testBreakModuleCapability()
@@ -4454,14 +4461,39 @@ void tst_backends::testLibraryEventCapability()
         (event == LibraryEvent::Loaded ? loaded : unloaded).append(data);
     });
 
+    // A debugger with no unload event of its own has nothing to report from
+    // until the inferior comes back to it, so stop once the library is closed
+    // again rather than expecting the unload while the inferior runs on.
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [this, engine, backend](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 1;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = inferiorTestData(backend).source;
+        request.params.textPosition.line = inferiorTestData(backend).multiLocationBreakpointLine;
+        request.params.textPosition.column = 0;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
     const QString marker = inferiorTestData(backend).moduleListMarker;
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(std::any_of(loaded.cbegin(), loaded.cend(), [&marker](const GdbMi &data) {
         return data["target-name"].data().contains(marker, Qt::CaseInsensitive);
     }), s_timeout);
-    QTRY_VERIFY_WITH_TIMEOUT(std::any_of(unloaded.cbegin(), unloaded.cend(), [](const GdbMi &data) {
-        return data["target-name"].data().contains("inferiorlib", Qt::CaseInsensitive);
-    }), s_timeout);
+    const auto sawUnload = [&unloaded] {
+        return std::any_of(unloaded.cbegin(), unloaded.cend(), [](const GdbMi &data) {
+            return data["target-name"].data().contains("inferiorlib", Qt::CaseInsensitive);
+        });
+    };
+    QTRY_VERIFY2_WITH_TIMEOUT(sawUnload()
+                                  || debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "the library was neither reported unloaded nor did the inferior "
+                              "stop after closing it", s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(sawUnload(), s_timeout);
 }
 
 void tst_backends::testThreadEventCapability()
@@ -8638,10 +8670,16 @@ void tst_backends::appliesConfiguredDebuggerOptions()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk), s_timeout);
-    const auto sawMessage = [&messages](const QString &marker) {
-        return std::any_of(messages.cbegin(), messages.cend(), [&marker](const QString &text) {
-            return text.contains(marker);
-        });
+    const auto matchingMessages = [&messages](const QString &marker) {
+        QStringList matching;
+        for (const QString &text : std::as_const(messages)) {
+            if (text.contains(marker))
+                matching.append(text.trimmed());
+        }
+        return matching;
+    };
+    const auto sawMessage = [&matchingMessages](const QString &marker) {
+        return !matchingMessages(marker).isEmpty();
     };
     for (const QString &marker : markers) {
         QTRY_VERIFY2_WITH_TIMEOUT(sawMessage(marker),
@@ -8652,7 +8690,9 @@ void tst_backends::appliesConfiguredDebuggerOptions()
                               "the extra dumper module was never imported", s_timeout);
     // Everything the startup sends is sent before the module import that just
     // arrived, so a complaint about any of it would be here by now.
-    QVERIFY2(!sawMessage("is deprecated"), "a startup command used a deprecated spelling");
+    const QStringList deprecations = matchingMessages("is deprecated");
+    QVERIFY2(deprecations.isEmpty(), qPrintable("a startup command used a deprecated spelling: "
+                                                + deprecations.join(" | ")));
 
     for (const ConfiguredOptionProbe &probe : probes) {
         messages.clear();
