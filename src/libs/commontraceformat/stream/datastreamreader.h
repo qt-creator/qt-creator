@@ -39,6 +39,17 @@ public:
 
     bool atEnd() const;
 
+    // Packet context of the packet the last event read came from, for fields
+    // that carry no role (see PacketReader::packetContext()). Empty before the
+    // first event is read.
+    const StructureValue &packetContext() const;
+
+    // Number of packets opened so far, 0 before the first event is read. A
+    // caller reading packetContext() compares it across events to tell when
+    // that context has moved on: a packet holds many events, so anything
+    // derived from it need not be read again for each of them.
+    quint64 packetCount() const { return m_packetCount; }
+
     // Bytes of the stream decoded so far, for progress reporting: the device
     // position, less what has been pulled into memory but not yet decoded.
     //
@@ -81,6 +92,8 @@ private:
     // Packet-sequence-number tracking for missing-packet detection (spec 4.2.1).
     std::optional<quint64> m_lastPktSeqNum;
     quint64 m_lostPacketCount = 0;
+    // Packets opened, counting the one currently open. See packetCount().
+    quint64 m_packetCount = 0;
 };
 
 } // namespace CommonTraceFormat

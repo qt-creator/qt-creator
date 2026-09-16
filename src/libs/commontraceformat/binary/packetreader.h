@@ -84,6 +84,10 @@ public:
     // ID of the current data stream within its class (spec 6.1 DS_ID), set from
     // the packet header's data-stream-id role. std::nullopt when absent.
     std::optional<quint64> dataStreamId() const { return m_dsId; }
+    // The decoded packet context of the current packet, for the fields that
+    // carry no role and so are readable only by name. Empty before the first
+    // packet is opened, and for a stream whose class declares no packet context.
+    const StructureValue &packetContext() const { return m_pktContext; }
 
 private:
     // Resolver for cross-root field locations (variant/optional selectors,

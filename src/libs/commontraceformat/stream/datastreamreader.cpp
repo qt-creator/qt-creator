@@ -40,6 +40,7 @@ Utils::Result<> DataStreamReader::openNextPacket()
     // Pick up any bytes the reader over-read into the next packet (sequential
     // devices only) so they aren't lost when the reader is replaced.
     m_pendingBytes = m_reader->takeLeftover();
+    ++m_packetCount;
 
     // Spec 4.2.1: consecutive packets of a stream carry consecutive sequence
     // numbers, so a gap reveals missing (e.g. overwritten) packets. This is not
@@ -50,6 +51,12 @@ Utils::Result<> DataStreamReader::openNextPacket()
         m_lastPktSeqNum = seq;
     }
     return Utils::ResultOk;
+}
+
+const StructureValue &DataStreamReader::packetContext() const
+{
+    static const StructureValue empty;
+    return m_reader ? m_reader->packetContext() : empty;
 }
 
 Utils::Result<EventRecord> DataStreamReader::nextEvent()
