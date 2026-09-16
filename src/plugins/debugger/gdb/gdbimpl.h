@@ -204,6 +204,7 @@ private:
     bool m_inferiorRunning = false;
     bool m_runCommandPending = false;
     bool m_interruptOnceRunning = false;
+    bool m_resumingFromTemporaryStop = false;
     QList<DebuggerCommand> m_onStopCommands;
     bool m_onStopWantContinue = false;
     int m_lastToken = 0;
