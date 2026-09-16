@@ -1254,8 +1254,8 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
 
     QString itemString(m_bytesPerLine*3, QLatin1Char(' '));
     QChar *itemStringData = itemString.data();
-    char changedString[160] = {false};
-    QTC_ASSERT((size_t)m_bytesPerLine < sizeof(changedString), return);
+    const int maxBytesPerLine = 160;
+    QTC_ASSERT(m_bytesPerLine < maxBytesPerLine, return);
     const char *hex = "0123456789abcdef";
 
     painter.setPen(palette().text().color());
@@ -1306,7 +1306,8 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
 
         QRegion selectionRegion;
         QRect printableSelectionRect;
-        QColor columnColors[sizeof(changedString)];
+        char changedString[maxBytesPerLine] = {false};
+        QColor columnColors[maxBytesPerLine];
 
         bool isFullySelected = (selStart < selEnd && selStart <= line*m_bytesPerLine && (line+1)*m_bytesPerLine <= selEnd);
         bool somethingChanged = false;
@@ -2722,6 +2723,38 @@ private slots:
         modified[4] = 1;
         document->m_data.insert(0, modified);
         QCOMPARE(gapColor(), changedColor); // Both sides of it.
+    }
+
+    void testChangedBytesDoNotLeakIntoLaterLines()
+    {
+        auto document = std::make_shared<BinEditorDocument>();
+        const QByteArray original(64, '\0');
+        QVERIFY(document->setContents(original).has_value());
+        BinEditorWidget widget(document);
+        widget.resize(600, 200);
+        widget.init();
+
+        // The left padding of a cell, which no hex digit is drawn over.
+        const auto cellColor = [&widget](int line, int column) {
+            QImage image(widget.viewport()->size(), QImage::Format_ARGB32);
+            image.fill(Qt::transparent);
+            widget.viewport()->render(&image);
+            return image.pixelColor(widget.m_margin + widget.m_labelWidth
+                                        + widget.hexColumnOffset(column)
+                                        - widget.m_charWidth / 2 + 1,
+                                    line * widget.m_lineHeight + widget.m_lineHeight / 2);
+        };
+
+        const QColor changedColor(250, 150, 150);
+        QByteArray modified = original;
+        modified[5] = 1; // Line 0, column 5.
+        modified[widget.m_bytesPerLine] = 1; // Line 1, column 0.
+        document->m_oldData.insert(0, original);
+        document->m_data.insert(0, modified);
+
+        QCOMPARE(cellColor(0, 5), changedColor);
+        QCOMPARE(cellColor(1, 0), changedColor);
+        QVERIFY(cellColor(1, 5) != changedColor);
     }
 
     // The grouping is global, so choosing one in a context menu has to reach
