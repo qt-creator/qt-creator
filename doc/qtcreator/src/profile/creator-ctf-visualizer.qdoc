@@ -123,7 +123,7 @@
     CMakeLists.txt of the target, together with the \c QtTracing.cmake module
     that the call comes from:
 
-    \badcode
+    \code [cmake]
     include(QtTracing.cmake)
     qt_add_tracepoints(myapp myapp.tracepoints)
     \endcode
@@ -146,16 +146,23 @@
     \endcode
 
     The parameters of the function are carried as arguments of the trace point,
-    which the timeline shows for the event. Only those of a type that \c
-    tracegen can write are: \c bool, \c char, the integer types spelled the way
-    C++ spells them (\c {short int}, \c int, \c {long int}, \c {long long} and
-    \c qint64, each also \c signed or \c unsigned), \c float, \c double,
-    pointers, and \c QString, \c QUrl, \c QRect, \c QRectF, \c QSize and \c
-    QSizeF. What \c tracegen matches is the spelling, so \c short on its own and
-    a typedef such as \c quint64 are not among them. A trace point that carries
-    an argument of a type it does not know loses its whole payload, and one that
-    carries a \c QByteArray stops \c tracegen and the configuration of the
-    project with it, so parameters of other types are left out.
+    which the timeline shows for the event. Only parameters of a type that
+    \c tracegen can write are carried:
+
+    \list
+        \li \c bool and \c char.
+        \li Integer types spelled the way C++ spells them: \c {short int},
+            \c int, \c {long int}, \c {long long} and \c qint64, each also
+            \c signed or \c unsigned.
+        \li \c float, \c double, pointers, and \c QString, \c QUrl, \c QRect,
+            \c QRectF, \c QSize and \c QSizeF.
+    \endlist
+
+    Because \c tracegen matches the spelling, \c short on its own and a typedef
+    such as \c quint64 are not shown. A trace point that carries an argument of
+    a type it does not know loses its whole payload, and one that carries a
+    \c QByteArray stops \c tracegen and the configuration of the project with
+    it, so parameters of other types are left out.
 
     \section2 Tracing by hand
 
@@ -163,7 +170,7 @@
     ending in \c _entry, paired with the same name ending in \c _exit, is shown
     as a range in the timeline. Any other name is a point in time:
 
-    \badcode
+    \code [text]
     render_entry(int width, int height, const QString &location)
     render_exit()
     message(const char *text, const QString &location)
