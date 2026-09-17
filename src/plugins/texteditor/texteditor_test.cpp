@@ -722,6 +722,34 @@ void RewrapParagraphTest::testRewrapParagraph_data()
            "aaaaaaaaa aaaaaaaaa\n" << 0
         << "// aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa aaaaaaaaa "
            "aaaaaaaaa\n// aaaaaaaaa\n";
+
+    // In a "/** */" block the line following the paragraph is a bare "*" or
+    // the closing "*/", neither of which shares the space that separates the
+    // leader from the text. That space belongs to the leader nonetheless: a
+    // paragraph that needs no wrapping comes back unchanged.
+    QTest::newRow("doxygenBlockKeepsLeaderSpace")
+        << "/**\n * @brief alpha beta\n */\n" << 1
+        << "/**\n * @brief alpha beta\n */\n";
+
+    // The separator is taken from the line as it is, so a tab survives as one.
+    QTest::newRow("doxygenBlockKeepsLeaderTab")
+        << "/**\n *\t@brief alpha beta\n */\n" << 1
+        << "/**\n *\t@brief alpha beta\n */\n";
+
+    // And one that does need wrapping keeps the leader on the new line.
+    QTest::newRow("doxygenBlockWraps")
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in calculation.\n  */\n" << 1
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the\n  * parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in calculation.\n  */\n";
+
+    // The recovered space is written out, but not required of the other lines:
+    // a continuation line without it must not leave its leader behind as text.
+    QTest::newRow("doxygenBlockMixedLeaderSpacing")
+        << "  * alpha beta\n  *gamma delta\n" << 0
+        << "  * alpha beta gamma delta\n";
 }
 
 void RewrapParagraphTest::testRewrapParagraph()

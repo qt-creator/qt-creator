@@ -9803,6 +9803,15 @@ void TextEditorWidget::rewrapParagraph()
         spacing = ts.indentationString(0, indentLevel, 0);
     } else {
         spacing = commonPrefix;
+        // The prefix reaches only as far as the line it was compared against,
+        // and in a "/** */" block that is a bare "*" or the closing "*/". It
+        // can therefore stop right before the space that separates the leader
+        // from the text. That space is part of the leader, so write it out
+        // again - but leave it out of the prefix that gets stripped, which the
+        // remaining lines need not carry.
+        const QChar separator = text.size() > spacing.size() ? text.at(spacing.size()) : QChar();
+        if (!spacing.back().isSpace() && (separator == ' ' || separator == '\t'))
+            spacing.append(separator);
         indentLevel = ts.columnCountForText(spacing);
     }
 
