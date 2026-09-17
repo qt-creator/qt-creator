@@ -637,6 +637,24 @@ void LldbImpl::execute(const ExecutionRequest &request)
     }
 }
 
+static void addBreakpointArgs(DebuggerCommand &cmd, const BreakpointChangeRequest &request)
+{
+    cmd.arg("type", int(request.params.type));
+    cmd.arg("file", request.params.fileName.path());
+    cmd.arg("line", request.params.textPosition.line);
+    cmd.arg("ignorecount", request.params.ignoreCount);
+    cmd.arg("condition", toHex(request.params.condition));
+    cmd.arg("command", toHex(request.params.command));
+    cmd.arg("function", request.params.functionName);
+    cmd.arg("address", request.params.address);
+    cmd.arg("expression", request.params.expression);
+    cmd.arg("oneshot", request.params.oneShot);
+    cmd.arg("enabled", request.params.enabled);
+    cmd.arg("tracepoint", request.params.tracepoint);
+    cmd.arg("message", toHex(request.params.message));
+    cmd.arg("modelid", request.modelId);
+}
+
 void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
 {
     const quint64 requestId = request.requestId;
@@ -653,20 +671,7 @@ void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             return;
         }
         DebuggerCommand cmd("insertBreakpoint");
-        cmd.arg("type", int(request.params.type));
-        cmd.arg("file", request.params.fileName.path());
-        cmd.arg("line", request.params.textPosition.line);
-        cmd.arg("ignorecount", request.params.ignoreCount);
-        cmd.arg("condition", toHex(request.params.condition));
-        cmd.arg("command", toHex(request.params.command));
-        cmd.arg("function", request.params.functionName);
-        cmd.arg("address", request.params.address);
-        cmd.arg("expression", request.params.expression);
-        cmd.arg("oneshot", request.params.oneShot);
-        cmd.arg("enabled", request.params.enabled);
-        cmd.arg("tracepoint", request.params.tracepoint);
-        cmd.arg("message", toHex(request.params.message));
-        cmd.arg("modelid", request.modelId);
+        addBreakpointArgs(cmd, request);
         const bool isCppBreakpoint = request.params.isCppBreakpoint();
         if (!isCppBreakpoint)
             cmd.flags |= DebuggerCommand::NeedsTemporaryStop;
@@ -719,6 +724,33 @@ void LldbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     case BreakpointOp::Update: {
         if (request.responseId.isEmpty()) {
             emit breakpointEvent(requestId, BreakpointOp::Update, false);
+            break;
+        }
+        // The service knows no change command, and its numbers are not lldb's:
+        // taking the breakpoint away and setting it anew is what a change is
+        // there. Handing lldb the interpreter's number instead rewrites
+        // whatever native breakpoint carries it - in a native mixed session
+        // that is the debugger's own hook into the service.
+        if (!request.params.isCppBreakpoint()) {
+            DebuggerCommand removal("removeInterpreterBreakpoint",
+                                    DebuggerCommand::NeedsTemporaryStop);
+            removal.arg("id", request.responseId);
+            runCommand(removal);
+
+            DebuggerCommand cmd("insertBreakpoint", DebuggerCommand::NeedsTemporaryStop);
+            addBreakpointArgs(cmd, request);
+            cmd.callback = [this, requestId](const DebuggerResponse &response) {
+                const bool ok = response.resultClass == ResultDone;
+                if (!ok || response.data["pending"].toInt()) {
+                    emit breakpointEvent(requestId, BreakpointOp::Update, ok);
+                    return;
+                }
+                GdbMi reply;
+                reply.m_type = GdbMi::List;
+                reply.addChild(response.data);
+                emit breakpointEvent(requestId, BreakpointOp::Update, true, reply);
+            };
+            runCommand(cmd);
             break;
         }
         DebuggerCommand cmd("changeBreakpoint");

@@ -1578,6 +1578,8 @@ private slots:
     void watchesEachInterpreterMessageLength();
     void hitsAQmlBreakpointOnEveryPass_data() { addBackendRows(); }
     void hitsAQmlBreakpointOnEveryPass();
+    void updatesAQmlBreakpointThroughTheService_data() { addBackendRows(); }
+    void updatesAQmlBreakpointThroughTheService();
     void reportsNoStackForAFetchTheInferiorOutran_data() { addBackendRows(); }
     void reportsNoStackForAFetchTheInferiorOutran();
     void resolvesQmlBreakpointWithoutServiceDebugInfo_data() { addBackendRows(); }
@@ -9665,6 +9667,111 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
              qPrintable("stepping over never left " + atMarker + " - visited: "
                         + visited.join(", ")));
 
+#endif
+}
+
+void tst_backends::updatesAQmlBreakpointThroughTheService()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+#ifndef QMLMIX_INFERIOR_EXECUTABLE
+    QSKIP("Qt::Quick not available when this test binary was configured.");
+#else
+    const FilePath inferior = (FilePath::fromUserInput(QMLMIX_INFERIOR_EXECUTABLE)
+                              / "qmlmix_inferior").withExecutableSuffix();
+    if (!inferior.isExecutableFile())
+        QSKIP(qPrintable("qmlmix inferior not found at " + inferior.toUserOutput()));
+    if (!m_hasQmlNativeDebuggerPlugin)
+        QSKIP(s_qmlNativeDebuggerPluginMissing);
+    if (!m_hasQtDeclarativeDebugInfo)
+        QSKIP(s_qtDeclarativeDebugInfoMissing);
+
+    Environment env = Environment::systemEnvironment();
+    env.set("QV4_FORCE_INTERPRETER", "1");
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
+                        {}, env}, true);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const int qmlLine = qmlMarkerLine("Main.qml", "MARKER: qml-repeat");
+    QVERIFY(qmlLine > 0);
+
+    QString responseId;
+    const auto takeResponseId = [&responseId](const GdbMi &data) {
+        for (const GdbMi &bkpt : data) {
+            if (!bkpt["number"].data().isEmpty())
+                responseId = bkpt["number"].data();
+        }
+        if (!data["number"].data().isEmpty())
+            responseId = data["number"].data();
+    };
+    QHash<quint64, bool> updateResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [takeResponseId, &updateResults](quint64 requestId, BreakpointOp op, bool ok,
+                                             const GdbMi &data) {
+        if (op == BreakpointOp::Insert && ok)
+            takeResponseId(data);
+        else if (op == BreakpointOp::Update)
+            updateResults[requestId] = ok;
+    });
+    connect(engine, &DebuggerEngineInterface::breakpointModified, this, takeResponseId);
+    QStringList wire;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&wire](const QString &text, int, int) { wire.append(text); });
+
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, qmlLine](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 1;
+        request.modelId = 99;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = FilePath::fromUserInput("Main.qml");
+        request.params.textPosition.line = qmlLine;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
+    QTRY_VERIFY_WITH_TIMEOUT(!responseId.isEmpty(), s_timeout);
+
+    const int wireBefore = wire.size();
+    BreakpointChangeRequest update;
+    update.op = BreakpointOp::Update;
+    update.requestId = 50;
+    update.responseId = responseId;
+    update.modelId = 99;
+    update.params.type = BreakpointByFileAndLine;
+    update.params.fileName = FilePath::fromUserInput("Main.qml");
+    update.params.textPosition.line = qmlLine;
+    update.params.enabled = true;
+    update.params.ignoreCount = 7;
+    engine->changeBreakpoint(update);
+    QTRY_VERIFY_WITH_TIMEOUT(updateResults.contains(50), s_qmlStartupTimeout);
+
+    // The service's numbers are its own and lldb's are lldb's, both counting
+    // from 1: addressing lldb with the service's one rewrites whatever native
+    // breakpoint carries it, the debugger's hook into the service included.
+    const QStringList traffic = wire.mid(wireBefore);
+    QVERIFY2(!Utils::anyOf(traffic, [](const QString &line) {
+                 return line.contains("changeBreakpoint");
+             }),
+             qPrintable("updating a QML breakpoint addressed lldb by the service's "
+                        "number - " + traffic.join(" | ").left(700)));
+    QVERIFY2(Utils::anyOf(traffic, [](const QString &line) {
+                 return line.contains("removeInterpreterBreakpoint");
+             }),
+             qPrintable("the update never reached the service - "
+                        + traffic.join(" | ").left(700)));
 #endif
 }
 
