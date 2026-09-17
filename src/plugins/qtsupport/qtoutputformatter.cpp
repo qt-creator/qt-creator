@@ -41,6 +41,7 @@ public:
         , qtError("Object::.*in (.*:\\d+)")
         , qtAssert(QT_ASSERT_REGEXP)
         , qtAssertX(QT_ASSERT_X_REGEXP)
+        , qtcSoftAssert(QTC_SOFT_ASSERT_REGEXP)
         , qtTestFailUnix(QT_TEST_FAIL_UNIX_REGEXP)
         , qtTestFailWin(QT_TEST_FAIL_WIN_REGEXP)
     {
@@ -50,6 +51,7 @@ public:
     const QRegularExpression qtError;
     const QRegularExpression qtAssert;
     const QRegularExpression qtAssertX;
+    const QRegularExpression qtcSoftAssert;
     const QRegularExpression qtTestFailUnix;
     const QRegularExpression qtTestFailWin;
     QPointer<Project> project;
@@ -119,6 +121,8 @@ OutputLineParser::LinkSpec QtOutputLineParser::matchLine(const QString &line) co
     if (hasMatch(d->qtAssert))
         return lr;
     if (hasMatch(d->qtAssertX))
+        return lr;
+    if (hasMatch(d->qtcSoftAssert))
         return lr;
     if (hasMatch(d->qtTestFailUnix))
         return lr;
@@ -359,6 +363,26 @@ void QtOutputFormatterTest::testQtOutputFormatter_data()
             << "   Loc: [/Projects/TestProject/test.cpp:123]"
             << 9 << 43 << "/Projects/TestProject/test.cpp:123"
             << "/Projects/TestProject/test.cpp" << 123 << -1;
+
+    const QString assertPath = "/home/user/qt-creator/src/plugins/coreplugin/foldernavigationwidget.cpp";
+    const QString assertLocation = assertPath + ":150";
+    const QString softAssert =
+        "SOFT ASSERT [08:06:44.088]: \"idx.isValid()\" in " + assertLocation;
+    QTest::newRow("Qt Creator soft assert")
+            << softAssert
+            << int(softAssert.indexOf(assertLocation))
+            << int(softAssert.indexOf(assertLocation) + assertLocation.size())
+            << assertLocation
+            << assertPath << 150 << -1;
+
+    const QString fatalSoftAssert =
+        "SOFT ASSERT [08:06:44.088] made fatal: \"idx.isValid()\" in " + assertLocation;
+    QTest::newRow("Qt Creator fatal soft assert")
+            << fatalSoftAssert
+            << int(fatalSoftAssert.indexOf(assertLocation))
+            << int(fatalSoftAssert.indexOf(assertLocation) + assertLocation.size())
+            << assertLocation
+            << assertPath << 150 << -1;
 
     QTest::newRow("Unix relative file link")
             << "file://../main.cpp:157"
