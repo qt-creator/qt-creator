@@ -5,6 +5,7 @@
 
 #include "debuggertest.h"
 
+#include "breakhandler.h"
 #include "cdb/cdbengine.h"
 #include "cdb/cdbimpl.h"
 #include "cdb/cdbparsehelpers.h"
@@ -14,8 +15,6 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
-#include "breakhandler.h"
-#include "genericdebuggerengine.h"
 #include "debuggeritem.h"
 #include "debuggerkitaspect.h"
 #include "debuggerrunconfigurationaspect.h"
@@ -24,6 +23,7 @@
 #include "enginemanager.h"
 #include "logwindow.h"
 #include "gdb/gdbengine.h"
+#include "genericdebuggerengine.h"
 #include "registerhandler.h"
 #include "shared/hostutils.h"
 #include "stackframe.h"
@@ -60,6 +60,7 @@
 
 #include <QTest>
 #include <QVersionNumber>
+#include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTestEventLoop>
@@ -1501,12 +1502,10 @@ public:
         requests.append(request);
     }
 
-    void answerLastAsInterpreter(BreakpointOp op, const QString &number)
+    // What the QML debug service reports: its own spelling, and the model id
+    // the request went out with.
+    static GdbMi interpreterReport(int modelId, const QString &number)
     {
-        QVERIFY(!requests.isEmpty());
-        const BreakpointChangeRequest request = requests.last();
-        // What the QML debug service reports: its own spelling, and the model
-        // id the request went out with.
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
         const auto add = [&bkpt](const QString &name, const QString &data) {
@@ -1521,12 +1520,32 @@ public:
         add("condition", QString());
         add("ignorecount", "0");
         add("line", "10");
-        add("modelid", QString::number(request.modelId));
+        add("modelid", QString::number(modelId));
         add("pending", "0");
         GdbMi list;
         list.m_type = GdbMi::List;
         list.addChild(bkpt);
-        emit breakpointEvent(request.requestId, op, true, list);
+        return list;
+    }
+
+    // Answer the request this breakpoint's op went out as. Picking the request
+    // by model id rather than by recency keeps whatever else the session had
+    // claimed out of it.
+    bool answerAsInterpreter(int modelId, BreakpointOp op, const QString &number)
+    {
+        for (const BreakpointChangeRequest &request : std::as_const(requests)) {
+            if (request.modelId == modelId && request.op == op) {
+                emit breakpointEvent(request.requestId, op, true,
+                                     interpreterReport(modelId, number));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void reportAsInterpreter(int modelId, const QString &number)
+    {
+        emit breakpointModified(interpreterReport(modelId, number));
     }
 
     QList<BreakpointChangeRequest> requests;
@@ -1548,39 +1567,55 @@ public:
     void createSnapshot(quint64) override {}
 };
 
-// Claims one breakpoint for a fresh engine and answers the insert the way the
-// QML debug service does. Returns the engine's own item for it.
-static Breakpoint claimedInterpreterBreakpoint(GenericDebuggerEngine *engine,
-                                               RecordingBackend *backend)
+// The model is the session's own, so the breakpoint has to go again.
+static GlobalBreakpoint createInterpreterBreakpoint()
 {
     BreakpointParameters params;
     params.type = BreakpointByFileAndLine;
     params.fileName = FilePath::fromUserInput("Main.qml");
     params.textPosition = {10, -1};
     params.enabled = true;
-    BreakpointManager::createBreakpoint(params);
-    BreakpointManager::claimBreakpointsForEngine(engine);
-
-    if (backend->requests.isEmpty())
-        return {};
-    backend->answerLastAsInterpreter(BreakpointOp::Insert, "1");
-    return engine->breakHandler()->findBreakpointByModelId(backend->requests.last().modelId);
+    return BreakpointManager::createBreakpoint(params);
 }
 
 // The service spells an enabled breakpoint "1", gdb spells it "y". Read as gdb
 // output, the reply to the insert turns the breakpoint off the moment it is
-// made, and nothing the user does in the view can turn it back on.
+// made, and nothing the user does in the view can turn it back on, since the
+// report answering the update is read the same way.
 void DebuggerUnitTests::testInterpreterBreakpointStaysEnabled()
 {
     auto backend = new RecordingBackend;
     auto engine = new GenericDebuggerEngine("test", backend);
-    const QScopeGuard cleanup([engine] { delete engine; });
+    const QScopeGuard deleteEngine([engine] { delete engine; });
     engine->setRunParameters({});
 
-    const Breakpoint bp = claimedInterpreterBreakpoint(engine, backend);
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const QScopeGuard removeBreakpoint([gbp] { gbp->removeBreakpointFromModel(); });
+    const int modelId = gbp->modelId();
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    const Breakpoint bp = engine->breakHandler()->findBreakpointByModelId(modelId);
     QVERIFY(bp);
-    QVERIFY2(bp->isEnabled(), "the interpreter's reply turned the breakpoint off");
+
+    QVERIFY(backend->answerAsInterpreter(modelId, BreakpointOp::Insert, "1"));
+    QVERIFY2(bp->isEnabled(), "the reply to the insert turned the breakpoint off");
     QCOMPARE(bp->responseId(), QString("1"));
+
+    // What enabling a breakpoint in the view comes down to: the service
+    // reports the change, and reading that as gdb output turns it off again.
+    bp->setEnabled(false);
+    backend->reportAsInterpreter(modelId, "1");
+    QVERIFY2(bp->isEnabled(), "the report of the change turned the breakpoint off");
+
+    // A report left over from a breakpoint that is gone names a model id no
+    // longer in the model. Its number is the interpreter's own counting and
+    // says nothing about whose breakpoint it is, so nothing may be looked up
+    // by it.
+    bp->setCondition("x > 1");
+    backend->reportAsInterpreter(modelId + 1000, "1");
+    QVERIFY2(bp->isEnabled(), "a report for another breakpoint was applied by number");
+    QCOMPARE(bp->condition(), QString("x > 1"));
 }
 
 // Insertion and removal both say they are proceeding, and the state machine
@@ -1590,11 +1625,18 @@ void DebuggerUnitTests::testBreakpointUpdateAnnouncesItIsProceeding()
 {
     auto backend = new RecordingBackend;
     auto engine = new GenericDebuggerEngine("test", backend);
-    const QScopeGuard cleanup([engine] { delete engine; });
+    const QScopeGuard deleteEngine([engine] { delete engine; });
     engine->setRunParameters({});
 
-    const Breakpoint bp = claimedInterpreterBreakpoint(engine, backend);
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const QScopeGuard removeBreakpoint([gbp] { gbp->removeBreakpointFromModel(); });
+    const int modelId = gbp->modelId();
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    const Breakpoint bp = engine->breakHandler()->findBreakpointByModelId(modelId);
     QVERIFY(bp);
+    QVERIFY(backend->answerAsInterpreter(modelId, BreakpointOp::Insert, "1"));
     QCOMPARE(bp->state(), BreakpointInserted);
 
     engine->breakHandler()->requestBreakpointUpdate(bp);

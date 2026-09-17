@@ -701,14 +701,14 @@ void GenericDebuggerEngine::handleBreakpointModified(const GdbMi &data)
                 sub->params.tracepoint = true;
                 sub->params.message = bp->message();
             }
+        } else if (isInterpreterBkptData(bkpt)) {
+            // The interpreter counts its breakpoints itself, so its number can
+            // be one a C++ breakpoint already carries. Only the model id may
+            // look one up, and a report that matches none is dropped.
+            bp = handler->findBreakpointByModelId(bkpt["modelid"].toInt());
+            if (bp)
+                applyInterpreterBkptData(bkpt, bp);
         } else {
-            if (isInterpreterBkptData(bkpt)) {
-                bp = handler->findBreakpointByModelId(bkpt["modelid"].toInt());
-                if (bp) {
-                    applyInterpreterBkptData(bkpt, bp);
-                    continue;
-                }
-            }
             bp = handler->findBreakpointByResponseId(nr);
             if (bp)
                 bp->updateFromGdbOutput(bkpt, runParameters());
