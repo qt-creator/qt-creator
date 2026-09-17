@@ -10874,22 +10874,12 @@ void tst_backends::stepsFromQmlIntoNativeMixedCppFrame()
     engine->refresh(stackRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
     const QString stack = responses.value(int(RefreshKind::FullStack)).toString();
-    if (m_hasNativeCallHook) {
-        QVERIFY2(stackHasFunction(stack, "QmlEntryPoint::process"),
-                 qPrintable("stepping in from the QML call site should land in "
-                            "QmlEntryPoint::process - stack: " + stack));
-        QVERIFY2(stack.contains("function=\"compute\"") && stack.contains("language=\"js\""),
-                 qPrintable("the spliced stack should still show the QML caller "
-                            "after stepping in - stack: " + stack));
-    } else {
-        QVERIFY2(!stackHasFunction(stack, "QmlEntryPoint::process"),
-                 qPrintable("did not expect to land in QmlEntryPoint::process "
-                            "without qt_v4AboutToCallNativeMethodHook - stack: "
-                            + stack));
-        QVERIFY2(stack.contains("function=\"compute\"") && stack.contains("language=\"js\""),
-                 qPrintable("without the hook, step-in should still land "
-                            "somewhere in compute() - stack: " + stack));
-    }
+    QVERIFY2(stackHasFunction(stack, "QmlEntryPoint::process"),
+             qPrintable("stepping in from the QML call site should land in "
+                        "QmlEntryPoint::process - stack: " + stack));
+    QVERIFY2(stack.contains("function=\"compute\"") && stack.contains("language=\"js\""),
+             qPrintable("the spliced stack should still show the QML caller "
+                        "after stepping in - stack: " + stack));
 #endif
 }
 

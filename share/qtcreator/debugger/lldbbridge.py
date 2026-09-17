@@ -115,6 +115,7 @@ class Dumper(DumperBase):
         self.interpreterMessageWatchpoint = None
         self.interpreterStepping = False
         self.qmlStepEscapeBreakpoint = None
+        self.qmlToCppStepInBreakpoint = None
         # Internal (not user-visible) breakpoint ids - see handleBreakpointEvent().
         self.internalBreakpointIds = set()
 
@@ -1884,6 +1885,76 @@ class Dumper(DumperBase):
         self.internalBreakpointIds.add(bp.GetID())
         self.qmlStepEscapeBreakpoint = bp
 
+    def armQmlToCppStepIn(self):
+        # A C++ method called from QML is reached through QV4::CallMethod,
+        # where the interpreter hands over to the metacall trampolines. The
+        # interpreter itself only ever offers the next JS statement, which is
+        # the one after the call, so stepping in has to be caught there.
+        self.disarmQmlToCppStepIn()
+        bp = self.target.BreakpointCreateByName('QV4::CallMethod')
+        if not bp.IsValid() or bp.GetNumLocations() == 0:
+            self.target.BreakpointDelete(bp.GetID())
+            return
+        thread = self.currentThread()
+        if thread is not None:
+            bp.SetThreadIndex(thread.GetIndexID())
+        self.internalBreakpointIds.add(bp.GetID())
+        self.qmlToCppStepInBreakpoint = bp
+
+    def disarmQmlToCppStepIn(self):
+        bp = self.qmlToCppStepInBreakpoint
+        if bp is None:
+            return
+        self.qmlToCppStepInBreakpoint = None
+        self.internalBreakpointIds.discard(bp.GetID())
+        self.target.BreakpointDelete(bp.GetID())
+
+    def atQmlToCppStepIn(self, thread):
+        if self.qmlToCppStepInBreakpoint is None or thread is None:
+            return False
+        if thread.GetStopReason() != lldb.eStopReasonBreakpoint:
+            return False
+        if thread.GetStopReasonDataCount() == 0:
+            return False
+        return thread.GetStopReasonDataAtIndex(0) == \
+            self.qmlToCppStepInBreakpoint.GetID()
+
+    def stepIntoCppMethodFromQml(self, thread):
+        # The hand-over carries the receiver's meta object, whose generated
+        # static_metacall is the way into the method. Qt's own QML types are
+        # called through here as well, and a step was not asked for those.
+        frame = thread.GetFrameAtIndex(0)
+        value = frame.EvaluateExpression('(void*)object._m->d.static_metacall')
+        address = value.GetValueAsUnsigned(0)
+        if address == 0:
+            return False
+        module = self.target.ResolveLoadAddress(address).GetModule()
+        name = (module.GetFileSpec().GetFilename() or '') if module.IsValid() else ''
+        if name.startswith('Qt') or name.startswith('libQt'):
+            return False
+        bp = self.target.BreakpointCreateByAddress(address)
+        if not bp.IsValid():
+            return False
+        bp.SetThreadIndex(thread.GetIndexID())
+        self.internalBreakpointIds.add(bp.GetID())
+        self.process.Continue()
+        landed = self.waitForNativeStop()
+        self.internalBreakpointIds.discard(bp.GetID())
+        self.target.BreakpointDelete(bp.GetID())
+        if landed != lldb.eStateStopped:
+            return False
+        # Step out of the generated trampoline into the method itself.
+        thread = self.firstStoppedThread() or self.process.GetSelectedThread()
+        for _ in range(32):
+            fn = thread.GetFrameAtIndex(0).GetFunctionName() or ''
+            if 'qt_static_metacall' not in fn:
+                break
+            thread.StepInto()
+            if self.waitForNativeStop() != lldb.eStateStopped:
+                break
+            thread = self.firstStoppedThread() or self.process.GetSelectedThread()
+        return True
+
     def disarmQmlStepEscape(self):
         bp = self.qmlStepEscapeBreakpoint
         if bp is None:
@@ -1904,6 +1975,7 @@ class Dumper(DumperBase):
 
     def takeBackInterpreterStep(self):
         self.disarmQmlStepEscape()
+        self.disarmQmlToCppStepIn()
         if not self.interpreterStepping:
             return
         self.interpreterStepping = False
@@ -2040,7 +2112,19 @@ class Dumper(DumperBase):
                     functionName = frame.GetFunctionName()
                     if self.handleNativeMethodStepInto(stoppedThread, functionName):
                         return
-                    if self.atQmlStepEscape(stoppedThread):
+                    if self.atQmlToCppStepIn(stoppedThread):
+                        if not self.stepIntoCppMethodFromQml(stoppedThread):
+                            # Not a call into anything the step was aimed at:
+                            # carry on watching for the one that is.
+                            self.process.Continue()
+                            return
+                        self.report("STEPPED FROM QML INTO C++")
+                        # The interpreter is still holding the step it was
+                        # asked for, and the statement it would stop at is
+                        # the one after the call just stepped into.
+                        self.takeBackInterpreterStep()
+                        stoppedThread = self.firstStoppedThread()
+                    elif self.atQmlStepEscape(stoppedThread):
                         self.report("QML STEP LEFT THE INTERPRETER")
                         self.takeBackInterpreterStep()
                         # The engine asked for a step, not for this stop, and
@@ -2088,6 +2172,7 @@ class Dumper(DumperBase):
                         self.interpreterStepArmed = False
                         self.disarmNativeCallStepIn()
                         res = self.handleInterpreterMessage()
+                        self.disarmQmlToCppStepIn()
                         if not res:
                             # Likewise: an event the interpreter does not stop
                             # for is resumed from here, so the engine is not
@@ -2514,6 +2599,7 @@ class Dumper(DumperBase):
             # the native call hook so a C++ method call is stepped into.
             self.stepInterpreter('stepin', args)
             self.armNativeCallStepIn()
+            self.armQmlToCppStepIn()
             self.process.Continue()
         else:
             # Stepping from C++: if the step reaches the QML interpreter,
