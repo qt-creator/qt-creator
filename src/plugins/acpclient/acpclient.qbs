@@ -47,6 +47,8 @@ Project {
             "acpsettings.h",
             "acpstdiotransport.cpp",
             "acpstdiotransport.h",
+            "acptermswidget.cpp",
+            "acptermswidget.h",
             "acpterminalhandler.cpp",
             "acpterminalhandler.h",
             "acptransport.cpp",
@@ -87,6 +89,15 @@ Project {
             files: [
                 "sparklebubble.png",
                 "sparklebubble@2x.png",
+            ]
+            fileTags: "qt.core.resource_data"
+        }
+
+        Group {
+            name: "terms"
+            prefix: "terms/"
+            files: [
+                "terms-and-conditions.md",
             ]
             fileTags: "qt.core.resource_data"
         }

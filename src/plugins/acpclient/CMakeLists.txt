@@ -29,6 +29,7 @@ add_qtc_plugin(AcpClient
     acpprotocolv1adapter.cpp acpprotocolv1adapter.h
     acpprotocolv2adapter.cpp acpprotocolv2adapter.h
     acpstdiotransport.cpp acpstdiotransport.h
+    acptermswidget.cpp acptermswidget.h
     acpterminalhandler.cpp acpterminalhandler.h
     acptransport.cpp acptransport.h
     chatfontscale.cpp chatfontscale.h
@@ -46,6 +47,13 @@ qtc_add_resources(AcpClient "images"
   FILES
     images/sparklebubble.png
     images/sparklebubble@2x.png
+)
+
+qtc_add_resources(AcpClient "terms"
+  PREFIX "/acpclient"
+  BASE "."
+  FILES
+    terms/terms-and-conditions.md
 )
 
 extend_qtc_plugin(AcpClient

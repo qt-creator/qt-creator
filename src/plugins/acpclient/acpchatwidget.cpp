@@ -4,7 +4,12 @@
 #include "acpchatwidget.h"
 #include "acpchattab.h"
 #include "acpclienttr.h"
+#include "acpsettings.h"
+#include "acptermswidget.h"
 
+#include <coreplugin/generalsettings.h>
+#include <coreplugin/rightpane.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
@@ -15,24 +20,20 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include <coreplugin/generalsettings.h>
-#include <coreplugin/rightpane.h>
-#include <utils/stylehelper.h>
-
 namespace AcpClient::Internal {
 
 AcpChatWidget::AcpChatWidget(QWidget *parent)
     : QWidget(parent)
 {
-    auto layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
+    m_layout = new QVBoxLayout(this);
+    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setSpacing(0);
 
     auto toolBar = new Utils::StyledBar(this);
     auto *toolBarLayout = new QHBoxLayout(toolBar);
     toolBarLayout->setContentsMargins(0, 0, 0, 0);
     toolBarLayout->setSpacing(0);
-    layout->addWidget(toolBar);
+    m_layout->addWidget(toolBar);
 
     m_addButton = new QToolButton(toolBar);
     m_addButton->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
@@ -84,29 +85,52 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
     m_tabBar->setExpanding(false);
     connect(m_tabBar, &QTabBar::currentChanged, this, &AcpChatWidget::setCurrentIndex);
     connect(m_tabBar, &QTabBar::tabCloseRequested, this, &AcpChatWidget::closeTab);
-    layout->addWidget(m_tabBar);
+    m_layout->addWidget(m_tabBar);
 
     m_stack = new QStackedWidget(this);
-    layout->addWidget(m_stack);
+    m_layout->addWidget(m_stack);
     connect(m_stack, &QStackedWidget::currentChanged, this, &AcpChatWidget::setCurrentIndex);
 
-    setUseTabs(Core::generalSettings().useTabsInEditorViews());
     Core::generalSettings().useTabsInEditorViews.addOnChanged(this, [this] {
         setUseTabs(Core::generalSettings().useTabsInEditorViews());
     });
 
-    // Auto-create first tab
-    addNewTab();
+    updateTermsState();
 }
 
 AcpChatWidget::~AcpChatWidget() = default;
 
 void AcpChatWidget::setUseTabs(bool useTabs)
 {
-    m_tabBar->setVisible(useTabs);
+    const bool gated = acpTermsPending();
+    m_tabBar->setVisible(useTabs && !gated);
     m_addButton->setProperty(Utils::StyleHelper::C_SHOW_BORDER, !useTabs);
-    m_switcher->setVisible(!useTabs);
-    m_closeChatButton->setVisible(!useTabs);
+    m_switcher->setVisible(!useTabs && !gated);
+    m_closeChatButton->setVisible(!useTabs && !gated);
+}
+
+void AcpChatWidget::updateTermsState()
+{
+    const bool gated = acpTermsPending();
+    if (gated && !m_termsWidget)
+        createTermsWidget();
+    if (m_termsWidget)
+        m_termsWidget->setVisible(gated);
+    m_stack->setVisible(!gated);
+    m_addButton->setEnabled(!gated);
+    setUseTabs(Core::generalSettings().useTabsInEditorViews());
+    if (!gated && m_stack->count() == 0)
+        addNewTab();
+}
+
+void AcpChatWidget::createTermsWidget()
+{
+    m_termsWidget = new AcpTermsWidget(this);
+    connect(m_termsWidget, &AcpTermsWidget::accepted, this, &AcpChatWidget::updateTermsState);
+    connect(m_termsWidget, &AcpTermsWidget::declined, this, [] {
+        Core::RightPaneWidget::instance()->setShown(false);
+    });
+    m_layout->addWidget(m_termsWidget);
 }
 
 void AcpChatWidget::setCurrentIndex(int index)
@@ -151,7 +175,7 @@ void AcpChatWidget::closeTab(int index)
     emit navigateStateUpdate();
 
     if (m_stack->count() == 0) {
-        addNewTab();
+        updateTermsState();
         Core::RightPaneWidget::instance()->setShown(false);
     }
 }

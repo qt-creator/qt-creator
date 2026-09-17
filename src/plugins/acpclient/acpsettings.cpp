@@ -10,6 +10,9 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <utils/fileutils.h>
 #include <utils/appinfo.h>
 #include <utils/aspectlist.h>
@@ -542,6 +545,75 @@ QFuture<QIcon> AcpSettings::iconForUrl(const QString &url)
     promise->start();
     fetchIconToPersistentCache(url, promise);
     return promise->future();
+}
+
+const int AcpTermsVersion = 1;
+
+// The terms and conditions only apply to commercial users. The licensechecker plugin is
+// only shipped to them, so its presence is what decides whether they are asked at all.
+const char LicenseCheckerId[] = "licensechecker";
+
+class AcpTermsSettings : public AspectContainer
+{
+public:
+    AcpTermsSettings()
+    {
+        setSettingsGroup("AcpClient");
+
+        acceptedTermsVersion.setSettingsKey("AcceptedTermsVersion");
+        acceptedTermsVersion.setDefaultValue(0);
+
+        readSettings();
+        migrateAcceptanceFromPluginSettings();
+    }
+
+    static AcpTermsSettings &instance()
+    {
+        static AcpTermsSettings settings;
+        return settings;
+    }
+
+    IntegerAspect acceptedTermsVersion{this};
+
+private:
+    // The extension system used to ask for the terms while the plugin was loaded, and
+    // recorded the acceptance under the plugin id. Carry that over once, so that a user who
+    // accepted them already is not asked again.
+    void migrateAcceptanceFromPluginSettings()
+    {
+        if (Utils::userSettings().contains("AcpClient/AcceptedTermsVersion"))
+            return;
+
+        const QStringList acceptedPlugins
+            = Utils::userSettings().value("Plugins/TermsAndConditionsAccepted").toStringList();
+        if (!acceptedPlugins.contains("acpclient"))
+            return;
+
+        acceptedTermsVersion.setValue(AcpTermsVersion);
+        writeSettings();
+    }
+};
+
+bool acpTermsPending()
+{
+    const ExtensionSystem::PluginSpec *licenseChecker
+        = ExtensionSystem::PluginManager::specById(LicenseCheckerId);
+    if (!licenseChecker || !licenseChecker->isEffectivelyEnabled())
+        return false;
+
+    return !acpTermsAccepted();
+}
+
+bool acpTermsAccepted()
+{
+    return AcpTermsSettings::instance().acceptedTermsVersion() >= AcpTermsVersion;
+}
+
+void setAcpTermsAccepted(bool accepted)
+{
+    AcpTermsSettings &settings = AcpTermsSettings::instance();
+    settings.acceptedTermsVersion.setValue(accepted ? AcpTermsVersion : 0);
+    settings.writeSettings();
 }
 
 void setupAcpSettings()

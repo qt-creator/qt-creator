@@ -15,6 +15,7 @@ namespace AcpClient::Internal {
 
 class AcpChatTab;
 class AcpInspector;
+class AcpTermsWidget;
 
 class AcpChatWidget : public QWidget
 {
@@ -37,6 +38,10 @@ private:
     void closeTab(int index);
     void setCurrentIndex(int index);
 
+    void updateTermsState();
+    void createTermsWidget();
+
+    QVBoxLayout *m_layout = nullptr;
     QToolButton *m_addButton = nullptr;
     QToolButton *m_closeChatButton = nullptr;
 
@@ -46,6 +51,10 @@ private:
     QComboBox *m_switcher = nullptr;
     QStackedWidget *m_stack = nullptr;
     QStackedWidget *m_toolBarWidgetStack = nullptr; // kept in sync with m_stack
+
+    // Sibling of m_stack in m_layout, never a page of m_stack: the selectors and
+    // m_toolBarWidgetStack are index-parallel with m_stack.
+    AcpTermsWidget *m_termsWidget = nullptr;
 
     AcpInspector *m_inspector = nullptr;
     bool m_blockIndexChanges = false;

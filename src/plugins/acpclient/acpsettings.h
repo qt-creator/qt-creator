@@ -40,6 +40,13 @@ private:
     AcpSettings();
 };
 
+// Terms and conditions covering the use of the ACP chat. They only apply to commercial
+// users, which is what an installed and enabled licensechecker plugin marks. The accepted
+// version is stored, so raising the shipped version asks again.
+bool acpTermsPending();
+bool acpTermsAccepted();
+void setAcpTermsAccepted(bool accepted);
+
 void setupAcpSettings();
 void prefetchAcpRegistry();
 

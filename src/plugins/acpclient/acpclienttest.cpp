@@ -4,12 +4,16 @@
 #include "acpclienttest.h"
 
 #include "acpchatcontroller.h"
+#include "acpchattab.h"
+#include "acpchatwidget.h"
 #include "acpclientconstants.h"
+#include "acpclienttr.h"
 #include "acpclientobject.h"
 #include "acpmessageview.h"
 #include "acppermissionhandler.h"
 #include "acpsettings.h"
 #include "acpstdiotransport.h"
+#include "acptermswidget.h"
 #include "acptransport.h"
 #include "chatfontscale.h"
 #include "chatinputedit.h"
@@ -23,6 +27,9 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
@@ -46,8 +53,12 @@
 #include <QLineEdit>
 #include <QLibraryInfo>
 #include <QLocale>
+#include <QMouseEvent>
+#include <QAbstractButton>
+#include <QCheckBox>
 #include <QScopeGuard>
 #include <QTest>
+#include <QTextBrowser>
 #include <QVBoxLayout>
 #include <QWheelEvent>
 
@@ -538,6 +549,11 @@ private slots:
     void testChatPanelCornerRadiusScale();
     void testChatPanelWheelZoom();
     void testChatPanelZoomCommands();
+
+    // Tier 5: terms and conditions, chat widget
+    void testTermsWidget();
+    void testChatWidgetTermsGate();
+    void testChatWidgetTermsAccepted();
 };
 
 // --- Tier 1a -----------------------------------------------------------------
@@ -3250,6 +3266,129 @@ void AcpClientTest::testChatPanelWheelZoom()
                         Qt::NoScrollPhase, false);
     QVERIFY(QCoreApplication::sendEvent(viewport, &zoomOut));
     QCOMPARE(ChatFontScale::scale(), 1.0);
+}
+
+// --- Tier 5 ------------------------------------------------------------------
+
+static QAbstractButton *buttonWithText(const QWidget *parent, const QString &text)
+{
+    const QList<QAbstractButton *> buttons = parent->findChildren<QAbstractButton *>();
+    return Utils::findOrDefault(buttons, [&text](const QAbstractButton *button) {
+        return button->text() == text;
+    });
+}
+
+
+static bool licenseCheckerEnabled()
+{
+    const ExtensionSystem::PluginSpec *spec
+        = ExtensionSystem::PluginManager::specById("licensechecker");
+    return spec && spec->isEffectivelyEnabled();
+}
+
+// The terms show the shipped text, and cannot be accepted before the confirmation is
+// checked. Accepting stores the acceptance and reports it.
+void AcpClientTest::testTermsWidget()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(false);
+
+    AcpTermsWidget termsWidget;
+    termsWidget.resize(600, 800);
+    termsWidget.layout()->activate();
+    bool accepted = false;
+    connect(&termsWidget, &AcpTermsWidget::accepted, this, [&accepted] { accepted = true; });
+
+    auto *terms = termsWidget.findChild<QTextBrowser *>();
+    QVERIFY(terms);
+    QVERIFY(terms->toPlainText().contains("Appendix for Qt AI Services"));
+
+    QAbstractButton *acceptButton = buttonWithText(&termsWidget, Tr::tr("Accept"));
+    QVERIFY(acceptButton);
+    QVERIFY(!acceptButton->isEnabled());
+
+    acceptButton->click();
+    QVERIFY(!accepted);
+    QVERIFY(!acpTermsAccepted());
+
+    auto *confirmation = termsWidget.findChild<QCheckBox *>("acpConfirmTermsCheckBox");
+    QVERIFY(confirmation);
+    QVERIFY(!confirmation->accessibleName().isEmpty());
+    QVERIFY(confirmation->accessibleDescription().contains("I confirm that I have reviewed"));
+
+    // Clicking the confirmation text must toggle the box, not just the box itself.
+    auto *confirmationLabel = termsWidget.findChild<QLabel *>("acpConfirmTermsLabel");
+    QVERIFY(confirmationLabel);
+    QVERIFY(!confirmationLabel->rect().isEmpty());
+    const QPointF center = confirmationLabel->rect().center();
+    QMouseEvent press(QEvent::MouseButtonPress, center, center,
+                      Qt::LeftButton, Qt::LeftButton, {});
+    QMouseEvent release(QEvent::MouseButtonRelease, center, center,
+                        Qt::LeftButton, Qt::LeftButton, {});
+    QVERIFY(QCoreApplication::sendEvent(confirmationLabel, &press));
+    QVERIFY(QCoreApplication::sendEvent(confirmationLabel, &release));
+    QVERIFY(confirmation->isChecked());
+    QVERIFY(acceptButton->isEnabled());
+
+    acceptButton->click();
+    QVERIFY(accepted);
+    QVERIFY(acpTermsAccepted());
+}
+
+// While the terms and conditions are not accepted, the chat widget shows them instead of a
+// chat and creates no chat tab. Accepting them swaps in exactly one chat.
+void AcpClientTest::testChatWidgetTermsGate()
+{
+    if (!licenseCheckerEnabled())
+        QSKIP("The terms only apply with the licensechecker plugin installed and enabled.");
+
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(false);
+    QVERIFY(acpTermsPending());
+
+    AcpChatWidget widget;
+    QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 0);
+
+    const QList<AcpTermsWidget *> termsWidgets = widget.findChildren<AcpTermsWidget *>();
+    QCOMPARE(termsWidgets.size(), 1);
+    AcpTermsWidget *termsWidget = termsWidgets.first();
+    QVERIFY(termsWidget->isVisibleTo(&widget));
+
+    QAbstractButton *addButton = buttonWithText(&widget, Tr::tr("Add Chat"));
+    QVERIFY(addButton);
+    QVERIFY(!addButton->isEnabled());
+
+    auto *confirmation = termsWidget->findChild<QCheckBox *>("acpConfirmTermsCheckBox");
+    QVERIFY(confirmation);
+    confirmation->setChecked(true);
+
+    QAbstractButton *acceptButton = buttonWithText(termsWidget, Tr::tr("Accept"));
+    QVERIFY(acceptButton);
+    acceptButton->click();
+
+    QVERIFY(!acpTermsPending());
+    QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 1);
+    QVERIFY(!termsWidget->isVisibleTo(&widget));
+    QVERIFY(addButton->isEnabled());
+}
+
+// Without a licensechecker plugin, and with the terms accepted, the chat comes up directly.
+void AcpClientTest::testChatWidgetTermsAccepted()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+    QVERIFY(!acpTermsPending());
+
+    AcpChatWidget widget;
+    QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 1);
+    QCOMPARE(widget.findChildren<AcpTermsWidget *>().size(), 0);
+
+    QAbstractButton *addButton = buttonWithText(&widget, Tr::tr("Add Chat"));
+    QVERIFY(addButton);
+    QVERIFY(addButton->isEnabled());
 }
 
 QObject *createAcpClientTest()
