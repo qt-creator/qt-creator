@@ -227,7 +227,8 @@ void OutputWindowPlainTextEdit::updateFileLink(const QPoint &pos)
     FilePath repository;
     QTextCursor tokenCursor;
     const QString token = identifierUnderCursor(pos, &repository, &tokenCursor);
-    if (token.isEmpty() || repository.isEmpty()) {
+    if (token.isEmpty() || repository.isEmpty()
+        || !VcsOutputLineParser::shouldOfferFileLink(token)) {
         clearFileLink();
         m_fileLinkCandidateCursor = {};
         viewport()->setCursor(Qt::IBeamCursor);

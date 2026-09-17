@@ -3114,6 +3114,8 @@ void GitTest::testRevisionFilenameCollision()
     QVERIFY(runGit(repository, {"commit", "-m", "add colliding file"}));
 
     VcsOutputLineParser parser;
+    QVERIFY(!parser.handleFileLink(repository, filename));
+    QVERIFY(!Core::DocumentModel::documentForFilePath(collidingFile));
     QVERIFY(parser.handleVcsLink(repository, filename));
     QVERIFY(!Core::DocumentModel::documentForFilePath(collidingFile));
 }

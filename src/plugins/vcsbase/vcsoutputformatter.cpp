@@ -135,6 +135,9 @@ FilePath VcsOutputLineParser::filePathForLink(const FilePath &workingDirectory,
 bool VcsOutputLineParser::handleFileLink(const FilePath &workingDirectory,
                                          const QString &href) const
 {
+    if (!shouldOfferFileLink(href))
+        return false;
+
     const FilePath file = filePathForLink(workingDirectory, href);
     if (!file.isFile())
         return false;
