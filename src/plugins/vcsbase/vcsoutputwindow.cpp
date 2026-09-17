@@ -6,7 +6,6 @@
 #include "vcsbasetr.h"
 #include "vcsoutputformatter.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/outputwindow.h>
 
 #include <texteditor/behaviorsettings.h>
@@ -14,9 +13,9 @@
 
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
+#include <utils/textcodec.h>
 #include <utils/theme/theme.h>
 
-#include <QAction>
 #include <QContextMenuEvent>
 #include <QEvent>
 #include <QMenu>
@@ -182,17 +181,9 @@ void OutputWindowPlainTextEdit::adaptContextMenu(QMenu *menu, const QPoint &pos)
     const QString token = identifierUnderCursor(pos, &repo);
     if (!repo.isEmpty() && !href.isEmpty())
         m_parser->fillLinkContextMenu(menu, repo, href);
-    QAction *openAction = nullptr;
-    if (!token.isEmpty()) {
-        const FilePath file = m_parser->filePathForLink(repo, token);
-        if (VcsOutputLineParser::shouldOfferFileLink(token) && file.isFile()) {
-            menu->addSeparator();
-            openAction = menu->addAction(Tr::tr("Open \"%1\"").arg(file.nativePath()));
-            connect(openAction, &QAction::triggered, this, [fp = file.absoluteFilePath()] {
-                EditorManager::openEditor(fp);
-            });
-        }
-    }
+    if (token.isEmpty())
+        return;
+    m_parser->fillFileLinkContextMenu(menu, repo, token);
 }
 
 void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
@@ -249,7 +240,7 @@ void OutputWindowPlainTextEdit::updateFileLink(const QPoint &pos)
     }
 
     m_fileLinkCandidateCursor = tokenCursor;
-    m_fileLinkCandidateIsFile = m_parser->filePathForLink(repository, token).isFile();
+    m_fileLinkCandidateIsFile = m_parser->filePathForLink(repository, token).filePath.isFile();
     if (!m_fileLinkCandidateIsFile) {
         clearFileLinkSelection();
         viewport()->setCursor(Qt::IBeamCursor);
