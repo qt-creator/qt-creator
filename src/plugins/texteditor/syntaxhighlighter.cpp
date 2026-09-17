@@ -41,6 +41,7 @@ public:
 
     void updateFormats(int from, int charsRemoved, int charsAdded);
     void reformatBlocks(int from, int charsRemoved, int charsAdded);
+    void rehighlightBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlocks();
     void reformatBlock(const QTextBlock &block);
 
@@ -48,7 +49,8 @@ public:
         inReformatBlocks = true;
         int from = cursor.position();
         cursor.movePosition(operation);
-        reformatBlocks(from, 0, cursor.position() - from);
+        // The text itself did not change, so the formats of a block stay where they are.
+        rehighlightBlocks(from, 0, cursor.position() - from);
         inReformatBlocks = false;
     }
 
@@ -210,7 +212,11 @@ void SyntaxHighlighterPrivate::updateFormats(int from, int charsRemoved, int cha
 void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int charsAdded)
 {
     updateFormats(from, charsRemoved, charsAdded);
+    rehighlightBlocks(from, charsRemoved, charsAdded);
+}
 
+void SyntaxHighlighterPrivate::rehighlightBlocks(int from, int charsRemoved, int charsAdded)
+{
     QTextBlock block = doc->findBlock(from);
     if (block.isValid() && block.blockNumber() < highlightStartBlock)
         highlightStartBlock = block.blockNumber();
