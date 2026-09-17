@@ -17,6 +17,7 @@
 #include "breakhandler.h"
 #include "genericdebuggerengine.h"
 #include "debuggeritem.h"
+#include "debuggerkitaspect.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
 #include "debuggersourcepathmappingwidget.h"
@@ -46,6 +47,8 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
+
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -173,12 +176,22 @@ void DebuggerUnitTests::cleanupTestCase()
     delete m_tmpDir;
 }
 
+static Kit *kitWithAQt()
+{
+    return Utils::findOr(KitManager::kits(), nullptr, [](Kit *kit) {
+        return kit->isValid() && QtSupport::QtKitAspect::qtVersion(kit);
+    });
+}
+
 void DebuggerUnitTests::testStateMachine()
 {
     FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
 
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to build its project with.");
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
-    QVERIFY(projectManager.open(proFile));
+    QVERIFY(projectManager.open(proFile, kit));
 
     QEventLoop loop;
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
@@ -219,8 +232,11 @@ void DebuggerUnitTests::testGdbDapEngineRunsASession()
 {
     FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
 
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to build its project with.");
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
-    QVERIFY(projectManager.open(proFile));
+    QVERIFY(projectManager.open(proFile, kit));
 
     QEventLoop loop;
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
@@ -238,6 +254,10 @@ void DebuggerUnitTests::testGdbDapEngineRunsASession()
 
     DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferior(rc->runnable());
+    // The DAP mode under test is gdb's, and the kit's debugger is whatever the
+    // machine has: on a macOS kit that is lldb, which answers none of it.
+    if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+        QSKIP("The debugger of this kit is not gdb.");
     // gdb only grew its DAP mode along the way, and the engine refuses an older
     // one rather than talking to something that will not answer.
     if (QVersionNumber::fromString(rp.version()) < QVersionNumber(14, 0, 50))
