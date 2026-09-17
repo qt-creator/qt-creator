@@ -1574,6 +1574,8 @@ private slots:
     void insertsQmlBreakpointBeforeDumpersLoad();
     void insertsAQmlBreakpointWhileTheInferiorRuns_data() { addBackendRows(); }
     void insertsAQmlBreakpointWhileTheInferiorRuns();
+    void stepsOverOutOfACppMethodBackIntoQml_data() { addBackendRows(); }
+    void stepsOverOutOfACppMethodBackIntoQml();
     void takesBackAQmlStepWhenRunning_data() { addBackendRows(); }
     void takesBackAQmlStepWhenRunning();
     void keepsStoppingWhenAQmlStepRunsOut_data() { addBackendRows(); }
@@ -9840,6 +9842,108 @@ void tst_backends::keepsStoppingWhenAQmlStepRunsOut()
                                   || debuggerBackend->contains(InferiorEvent::StopOk),
                                   lost.constData(), s_timeout);
     }
+#endif
+}
+
+void tst_backends::stepsOverOutOfACppMethodBackIntoQml()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+#ifndef QMLMIX_INFERIOR_EXECUTABLE
+    QSKIP("Qt::Quick not available when this test binary was configured.");
+#else
+    const FilePath inferior = (FilePath::fromUserInput(QMLMIX_INFERIOR_EXECUTABLE)
+                              / "qmlmix_inferior").withExecutableSuffix();
+    if (!inferior.isExecutableFile())
+        QSKIP(qPrintable("qmlmix inferior not found at " + inferior.toUserOutput()));
+    if (!m_hasQmlNativeDebuggerPlugin)
+        QSKIP(s_qmlNativeDebuggerPluginMissing);
+    if (!m_hasQtDeclarativeDebugInfo)
+        QSKIP(s_qtDeclarativeDebugInfoMissing);
+
+    Environment env = Environment::systemEnvironment();
+    env.set("QV4_FORCE_INTERPRETER", "1");
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
+                        {}, env}, true);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const int qmlLine = qmlMarkerLine("Main.qml", "MARKER: qml-to-cpp");
+    QVERIFY(qmlLine > 0);
+
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, qmlLine](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 1;
+        request.modelId = 99;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = FilePath::fromUserInput("Main.qml");
+        request.params.textPosition.line = qmlLine;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+    const auto qmlLineNow = [engine, &responses] {
+        responses.remove(int(RefreshKind::FullStack));
+        RefreshRequest stackRequest;
+        stackRequest.kind = RefreshKind::QmlStack;
+        stackRequest.requestId = 20;
+        engine->refresh(stackRequest);
+        QTest::qWaitFor([&responses] {
+            return responses.contains(int(RefreshKind::FullStack));
+        }, 8000);
+        static const QRegularExpression block(R"RX(\{[^{}]*language="js"[^{}]*\})RX");
+        static const QRegularExpression lineOf(R"RX(line="(\d+)")RX");
+        const QRegularExpressionMatch b =
+            block.match(responses.value(int(RefreshKind::FullStack)).toString());
+        if (!b.hasMatch())
+            return -1;
+        const QRegularExpressionMatch l = lineOf.match(b.captured());
+        return l.hasMatch() ? l.captured(1).toInt() : -1;
+    };
+
+    const auto step = [&debuggerBackend](ExecutionCommand command, bool fromQml) {
+        debuggerBackend->clearEvents();
+        ExecutionRequest request;
+        request.command = command;
+        request.currentFrameIsQml = fromQml;
+        debuggerBackend->execute(request);
+        return QTest::qWaitFor([&debuggerBackend] {
+            return debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                   || debuggerBackend->contains(InferiorEvent::StopOk);
+        }, 15000);
+    };
+
+    QVERIFY(step(ExecutionCommand::StepIn, true));
+
+    // Stepping over the end of the C++ method leaves the metacall trampolines
+    // on top, where there is no C++ left to step and the next line of the
+    // program is the QML one after the call.
+    int reached = -1;
+    for (int i = 0; i < 8 && reached <= qmlLine; ++i) {
+        QVERIFY2(step(ExecutionCommand::StepOver, false), "stepping over never stopped");
+        reached = qmlLineNow();
+    }
+    QVERIFY2(reached > qmlLine,
+             qPrintable(QString("stepping over out of the C++ method never came back to "
+                                "QML past line %1 - reached %2").arg(qmlLine).arg(reached)));
 #endif
 }
 

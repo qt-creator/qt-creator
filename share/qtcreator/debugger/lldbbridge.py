@@ -2568,6 +2568,8 @@ class Dumper(DumperBase):
         if self.atQmlStop():
             self.stepInterpreter('stepover', args)
             self.process.Continue()
+        elif self.nativeMixed and self.inQmlCallMachinery():
+            self.stepBackIntoQml(args)
         else:
             self.currentThread().StepOver()
         self.reportResult('', args)
@@ -2601,6 +2603,8 @@ class Dumper(DumperBase):
             self.armNativeCallStepIn()
             self.armQmlToCppStepIn()
             self.process.Continue()
+        elif self.nativeMixed and self.inQmlCallMachinery():
+            self.stepBackIntoQml(args)
         else:
             # Stepping from C++: if the step reaches the QML interpreter,
             # pause at the next JS statement. The native step and the
@@ -2667,6 +2671,23 @@ class Dumper(DumperBase):
         if not fileName:
             return True
         return '/qtbase/' in fileName or '/qtdeclarative/' in fileName
+
+    def inQmlCallMachinery(self):
+        # Standing in the trampolines a C++ method was called from QML
+        # through, the method itself having returned. There is no C++ left to
+        # step over here, and the next line of the program is back in QML.
+        thread = self.currentThread()
+        if thread is None:
+            return False
+        frame = thread.GetFrameAtIndex(0)
+        return frame.IsValid() and self.isQmlCallMachineryFrame(frame) \
+            and self.atNativeToQmlBoundary()
+
+    def stepBackIntoQml(self, args):
+        self.setupMachinerySkips()
+        self.stepInterpreter('stepin', args)
+        self.interpreterStepArmed = True
+        self.process.Continue()
 
     def atNativeToQmlBoundary(self):
         # True if the current C++ frame was called straight from the QML
