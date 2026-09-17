@@ -66,6 +66,7 @@ public:
     bool supportsImagePrompt() const;
     const QString &sessionId() const { return m_sessionId; }
     QString displayName() const;
+    const Utils::FilePath &workingDirectory() const { return m_workingDirectory; }
     const QString &agentName() const { return m_agentName; }
     const QString &agentVersion() const { return m_agentVersion; }
 

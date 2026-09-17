@@ -621,6 +621,11 @@ QString AcpChatTab::title() const
     return m_controller->displayName();
 }
 
+QString AcpChatTab::toolTip() const
+{
+    return m_controller->workingDirectory().toUserOutput();
+}
+
 QWidget *AcpChatTab::toolBarWidget() const
 {
     return m_chatPanel->toolBarWidget();

@@ -38,6 +38,7 @@ public:
     void setFocus();
 
     QString title() const;
+    QString toolTip() const;
     QWidget *toolBarWidget() const;
 
 signals:

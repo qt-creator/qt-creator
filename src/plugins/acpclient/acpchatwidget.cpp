@@ -49,7 +49,6 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
     // Combobox selector (shown when "Use tabbed editors" is disabled).
     m_switcher = new QComboBox(toolBar);
     m_switcher->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    m_switcher->setToolTip(Tr::tr("Switch Chat"));
     connect(m_switcher, &QComboBox::currentIndexChanged,
             this, &AcpChatWidget::setCurrentIndex);
     toolBarLayout->addWidget(m_switcher);
@@ -145,6 +144,8 @@ void AcpChatWidget::setCurrentIndex(int index)
         m_switcher->setCurrentIndex(index);
     if (index != m_toolBarWidgetStack->currentIndex())
         m_toolBarWidgetStack->setCurrentIndex(index);
+    if (auto *tab = qobject_cast<AcpChatTab *>(m_stack->widget(index)))
+        m_switcher->setToolTip(tab->toolTip());
 }
 
 void AcpChatWidget::setInspector(AcpInspector *inspector)
@@ -195,6 +196,7 @@ AcpChatTab *AcpChatWidget::addNewTab()
     m_blockIndexChanges = true;
     const int index = m_stack->addWidget(tab);
     m_tabBar->insertTab(index, tab->title());
+    m_tabBar->setTabToolTip(index, tab->toolTip());
     m_switcher->insertItem(index, tab->title());
     m_toolBarWidgetStack->insertWidget(index, tab->toolBarWidget());
     m_blockIndexChanges = false;
@@ -205,7 +207,10 @@ AcpChatTab *AcpChatWidget::addNewTab()
         if (i < 0)
             return;
         m_tabBar->setTabText(i, tab->title());
+        m_tabBar->setTabToolTip(i, tab->toolTip());
         m_switcher->setItemText(i, tab->title());
+        if (i == m_stack->currentIndex())
+            m_switcher->setToolTip(tab->toolTip());
     });
 
     emit navigateStateUpdate();
