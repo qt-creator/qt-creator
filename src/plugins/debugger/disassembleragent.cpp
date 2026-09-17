@@ -356,19 +356,24 @@ void DisassemblerAgent::updateLocationMarker()
     if (!d->document)
         return;
 
-    int lineNumber = d->lineForAddress(d->location.address());
+    const int lineNumber = d->lineForAddress(d->location.address());
     if (d->location.needsMarker()) {
         d->document->removeMark(&d->locationMark);
-        d->locationMark.updateLineNumber(lineNumber);
-        d->document->addMark(&d->locationMark);
+        // A disassembly that does not cover the address has no line standing
+        // for it, and the line before the first is not a line.
+        if (lineNumber >= 1) {
+            d->locationMark.updateLineNumber(lineNumber);
+            d->document->addMark(&d->locationMark);
+        }
     }
 
     d->locationMark.updateIcon();
 
     // Center cursor.
-    if (EditorManager::currentDocument() == d->document)
+    if (lineNumber >= 1 && EditorManager::currentDocument() == d->document) {
         if (auto textEditor = BaseTextEditor::currentTextEditor())
             textEditor->gotoLine(lineNumber);
+    }
 }
 
 void DisassemblerAgent::removeBreakpointMarker(const Breakpoint &bp)

@@ -9,6 +9,8 @@
 #include "cdb/cdbimpl.h"
 #include "cdb/cdbparsehelpers.h"
 #include "debuggeractions.h"
+#include "disassembleragent.h"
+#include "disassemblerlines.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
@@ -121,6 +123,7 @@ private slots:
     void testStepsIntoACalledFunction();
     void testStepsOverACallWithoutEnteringIt();
     void testStepsOutOfACalledFunction();
+    void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
@@ -1738,6 +1741,50 @@ void DebuggerUnitTests::testStepsOutOfACalledFunction()
     QVERIFY2(frame.function.startsWith("main"),
              qPrintable(QString("stepping out of addOne landed in %1:%2")
                             .arg(frame.function).arg(frame.line)));
+}
+
+static QStringList s_capturedMessages;
+
+static void captureMessages(QtMsgType, const QMessageLogContext &, const QString &message)
+{
+    s_capturedMessages.append(message);
+}
+
+// The address a disassembly was asked for is not always in the answer: the
+// location can have moved on, and a block does not cover every address it was
+// reached from. There is no line to mark then, and line zero is not one.
+void DebuggerUnitTests::testDisassemblyThatMissesTheAddressMarksNoLine()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] {
+        delete engine;
+        EditorManager::closeAllEditors(false);
+    });
+    engine->setRunParameters({});
+
+    Location location(quint64(0x1000));
+    location.setNeedsMarker(true);
+
+    DisassemblerLines lines;
+    DisassemblerLine line;
+    line.address = 0x2000;
+    line.data = "nop";
+    lines.appendLine(line);
+
+    s_capturedMessages.clear();
+    QtMessageHandler previous = qInstallMessageHandler(captureMessages);
+    const QScopeGuard restoreHandler([previous] { qInstallMessageHandler(previous); });
+
+    DisassemblerAgent agent(engine);
+    agent.setLocation(location);
+    agent.setContents(lines);
+
+    const QString complaint = Utils::findOrDefault(s_capturedMessages, [](const QString &m) {
+        return m.contains("SOFT ASSERT");
+    });
+    QVERIFY2(complaint.isEmpty(), qPrintable("marking a line the disassembly has "
+                                             "not got - " + complaint));
 }
 
 void DebuggerUnitTests::testScratchEditorAdoptsSavedName()
