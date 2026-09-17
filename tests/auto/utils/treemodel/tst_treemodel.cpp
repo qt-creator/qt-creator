@@ -21,6 +21,7 @@ private slots:
     void testIteration();
     void testMixed();
     void testRemoveRows();
+    void testUpdateAllAnnouncesRealRows();
 };
 
 static int countLevelItems(TreeItem *base, int level)
@@ -37,6 +38,33 @@ static int countLevelItems(TreeItem *base, int level)
 static TreeItem *createItem(const QString &name)
 {
     return new StaticTreeItem(name);
+}
+
+void tst_TreeModel::testUpdateAllAnnouncesRealRows()
+{
+    TreeModel<> m;
+    TreeItem *r = m.rootItem();
+    TreeItem *group = createItem("group");
+    group->appendChild(createItem("item0"));
+    group->appendChild(createItem("item1"));
+    r->appendChild(group);
+
+    QList<std::pair<QModelIndex, QModelIndex>> ranges;
+    QObject::connect(&m, &QAbstractItemModel::dataChanged, &m,
+                     [&ranges](const QModelIndex &topLeft, const QModelIndex &bottomRight) {
+        ranges.append({topLeft, bottomRight});
+    });
+
+    r->updateAll();
+
+    QVERIFY(!ranges.isEmpty());
+    for (const auto &[topLeft, bottomRight] : std::as_const(ranges)) {
+        QVERIFY2(topLeft.isValid(), "a row that is no row was announced as changed");
+        QVERIFY(bottomRight.isValid());
+        QCOMPARE(topLeft.parent(), bottomRight.parent());
+        QVERIFY(topLeft.row() <= bottomRight.row());
+        QVERIFY(topLeft.column() <= bottomRight.column());
+    }
 }
 
 void tst_TreeModel::testIteration()
