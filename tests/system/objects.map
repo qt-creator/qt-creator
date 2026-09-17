@@ -16,6 +16,7 @@
 :*Qt Creator_Utils::IconButton	{toolTip='Clear text' type='Utils::FancyIconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :About Qt Creator_Core::Internal::VersionDialog	{type='QDialog' unnamed='1' visible='1' windowTitle='About Qt Creator'}
 :Activate completion:_QComboBox	{buddy=':Behavior.Activate completion:_QLabel' type='QComboBox' unnamed='1' visible='1'}
+:ActiveDebugger_Label	{container=':qt_tabwidget_stackedwidget.Run Settings_QScrollArea' text='Debug:' type='QLabel' unnamed='1' visible='1'}
 :Add Bookmark.ExpandBookmarksList_QToolButton	{text='+' type='QToolButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
 :Add Bookmark.New Folder_QPushButton	{text='New Folder' type='QPushButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
 :Add Bookmark.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Add Bookmark_BookmarkDialog'}
@@ -58,13 +59,12 @@
 :Debugger.Docks.BreakDockWidget.Debugger.Docks.Break_QFrame	{container=':DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget' name='Debugger.Docks.BreakpointManager' type='QFrame' visible='1'}
 :Debugger.Docks.LocalsAndWatchersDockWidget.Inspector_QFrame	{container=':DebugModeWidget.Debugger.Docks.LocalsAndInspectorDockWidget_QDockWidget' name~='Debugger\\\\.Dock\\\\.Inspector\\\\.\\\\d+' type='QFrame' visible='1'}
 :Debugger::Internal::ConsoleEdit	{columnIndex='0' container=':DebugModeWidget_Debugger::Internal::ConsoleView' rowIndex='0' type='Debugger::Internal::ConsoleEdit' unnamed='1' visible='1'}
+:Debugger_ComboBox	{buddy=':ActiveDebugger_Label' type='QComboBox' unnamed='1' visible='1'}
 :Description.description_Utils::CompletingTextEdit	{container=':splitter.Description_QGroupBox' name='description' type='Utils::CompletingTextEdit' visible='1'}
 :Dialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
 :Dialog.componentNameEdit_QLineEdit	{name='componentNameEdit' type='Utils::ClassNameValidatingLineEdit' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
 :Dialog_Debugger::Internal::SymbolPathsDialog	{name='Debugger__Internal__SymbolPathsDialog' type='Debugger::Internal::SymbolPathsDialog' visible='1' windowTitle='Dialog'}
 :Dialog_QmlJSEditor::Internal::ComponentNameDialog	{type='QmlJSEditor::Internal::ComponentNameDialog' unnamed='1' visible='1' windowTitle='Move Component into Separate File'}
-:EnableQMLDebugger_ComboBox	{buddy=':EnableQMLDebugger_Label' type='QComboBox' unnamed='1' visible='1'}
-:EnableQMLDebugger_Label	{container=':qt_tabwidget_stackedwidget.Run Settings_QScrollArea' text='QML debugger:' type='QLabel' unnamed='1' visible='1'}
 :Events.QmlProfilerEventsTable_QmlProfiler::Internal::QmlProfilerStatisticsMainView	{container=':Qt Creator.Events_QDockWidget' name='QmlProfilerEventsTable' type='Profiler::Internal::QmlProfilerStatisticsMainView' visible='1'}
 :Failed to start application_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Failed to start application'}
 :File has been removed.Close_QToolButton	{leftWidget=':File has been removed.Save_QToolButton' text='Close' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
