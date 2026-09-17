@@ -1486,9 +1486,11 @@ void CdbImpl::changeInterpreterBreakpoint(const BreakpointChangeRequest &request
     const BreakpointOp op = request.op;
     const int modelId = request.modelId;
     const BreakpointParameters params = request.params;
+    const int number = m_interpreterBreakpointNumbers.value(modelId,
+                                                            request.responseId.toInt());
     DebuggerCommand cmd("theDumper.removeInterpreterBreakpoint", ScriptCommand);
-    cmd.arg("id", m_interpreterBreakpointNumbers.value(modelId,
-                                                       request.responseId.toInt()));
+    // The other backends hand the number over the way they got it, as a string.
+    cmd.arg("id", QString::number(number));
     cmd.callback = [this, requestId, op, modelId, params](const DebuggerResponse &response) {
         const bool removed = response.resultClass == ResultDone;
         m_interpreterBreakpointNumbers.remove(modelId);
@@ -2371,10 +2373,12 @@ static GdbMi stackTreeFromFrames(const GdbMi &reply,
 
 // Where the QML frames belong in a native mixed stack: the frame that reports a QML
 // debug event, or the interpreter itself when a C++ method called from QML is where
-// the inferior stopped.
+// the inferior stopped. Against a Qt without private symbols cdb names a frame after
+// the nearest exported one, so the reporting frame turns up under whichever of the
+// native debug plugin's "qt_qmlDebug" exports precedes it.
 static bool isQmlSplicePoint(const QString &function)
 {
-    return function.startsWith("qt_qmlDebugMessageAvailable")
+    return function.startsWith("qt_qmlDebug")
            || function.contains("QV4::Moth::VME::");
 }
 
@@ -3087,15 +3091,20 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         // Qt does not ship; that the engine itself is driving the inferior is
         // known either way.
         const QString stopFunction = stoppedFunction(stopData);
+        // An interrupt of the engine's own is served asynchronously, so the program
+        // can reach a stop of its own first. Only the break-in itself is the engine's
+        // to swallow; taking the next stop for it whatever it is loses that one and
+        // leaves the break-in to be taken for something else later.
+        const bool ownBreakIn = m_callbackStop && stoppedInArtificialThread(stopData);
         // cdb cannot stop where it is already stopped, so while the client sits on
         // a stop of ours anything announced here is that same stop coming back from
         // an inferior call, and acting on it a second time would take the inferior
         // away from under the client.
-        if (m_stopReported && !m_inferiorRunning && !m_callbackStop && !m_interruptRequested)
+        if (m_stopReported && !m_inferiorRunning && !ownBreakIn && !m_interruptRequested)
             return;
         // Same while a stop of the engine's own is still being worked on: nothing was
         // resumed since, so cdb sits where it was and the announcement is that stop.
-        if (m_inInternalStop && !m_inferiorRunning && !m_callbackStop
+        if (m_inInternalStop && !m_inferiorRunning && !ownBreakIn
                 && !m_interruptRequested) {
             return;
         }
@@ -3103,7 +3112,7 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         // those calls were made from announced once more, without a reason or a
         // breakpoint id. Taking it for the stop that ends the resume would leave the
         // client's commands going into a live session, where they never execute.
-        if (m_expectStaleStop && !m_interruptRequested && !m_callbackStop
+        if (m_expectStaleStop && !m_interruptRequested && !ownBreakIn
                 && stopData["reason"].data() != "breakpoint"
                 && stopData["breakpointId"].data().isEmpty()) {
             m_expectStaleStop = false;
@@ -3123,8 +3132,10 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
             handleServiceSafePoint(stopData);
             return;
         }
-        if (m_callbackStop) {
-            // Ours, to get a command in: the client never learns about it.
+        if (ownBreakIn) {
+            // Ours, to get a command in: the client never learns about it. What the
+            // interrupt was for has just been written above, so there is nothing
+            // left to do here but hand the program back.
             m_callbackStop = false;
             resumeFromInternalStop();
             return;

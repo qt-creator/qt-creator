@@ -1804,6 +1804,10 @@ void DapImpl::handleDisassemble(const QJsonObject &response)
     QString sourceFile;
     int sourceLine = 0;
     int bytesLength = 0;
+    int locatedInstructions = 0;
+    QString unreadableFile;
+    int unreadableLine = 0;
+    bool unreadableIsUnknownToTheAdapter = false;
     for (const QJsonValue &value : response.value("body").toObject()
                                        .value("instructions").toArray()) {
         const QJsonObject item = value.toObject();
@@ -1827,15 +1831,40 @@ void DapImpl::handleDisassemble(const QJsonObject &response)
         if (functionAddress != 0 && line.address >= functionAddress)
             line.offset = uint(line.address - functionAddress);
 
-        const QString file = localSourcePath(item.value("location").toObject()
-                                                 .value("path").toString());
+        const QJsonObject location = item.value("location").toObject();
+        const QString file = localSourcePath(location.value("path").toString());
         const int number = item.value("line").toInt();
-        if (!file.isEmpty() && number != 0 && (file != sourceFile || number != sourceLine)) {
-            sourceFile = file;
-            sourceLine = number;
-            lines.appendSourceLine(file, number);
+        if (!file.isEmpty() && number != 0) {
+            ++locatedInstructions;
+            if (file != sourceFile || number != sourceLine) {
+                sourceFile = file;
+                sourceLine = number;
+                const int before = lines.size();
+                lines.appendSourceLine(file, number);
+                if (lines.size() == before && unreadableFile.isEmpty()) {
+                    unreadableFile = file;
+                    unreadableLine = number;
+                    unreadableIsUnknownToTheAdapter = location.contains("sourceReference");
+                }
+            }
         }
         lines.appendLine(line);
+    }
+    // Source lines are what makes a disassembly readable, and both ways of
+    // losing them are silent: an answer that names no source at all, and a
+    // path that names one this side cannot read.
+    if (lines.size() > 0 && locatedInstructions == 0) {
+        emit message(Tr::tr("The disassembly the adapter sent names no source line."),
+                     LogOutput);
+    } else if (!unreadableFile.isEmpty()) {
+        if (unreadableIsUnknownToTheAdapter) {
+            emit message(Tr::tr("The disassembly names line %1 of \"%2\", which neither the "
+                                "adapter nor this side can find.")
+                             .arg(unreadableLine).arg(unreadableFile), LogOutput);
+        } else {
+            emit message(Tr::tr("The disassembly names line %1 of \"%2\", which cannot be "
+                                "read here.").arg(unreadableLine).arg(unreadableFile), LogOutput);
+        }
     }
     lines.setBytesLength(bytesLength);
     emit disassemblyReceived(request.requestId, lines);
