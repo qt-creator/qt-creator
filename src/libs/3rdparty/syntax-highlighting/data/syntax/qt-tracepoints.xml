@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language>
+<!-- Author: Cristian Adam <cristian.adam@qt.io> -->
+<language name="Qt Tracepoints" version="1" kateversion="5.0" section="Sources"
+          extensions="*.tracepoints"
+          author="Cristian Adam (cristian.adam@qt.io)"
+          license="MIT">
+  <highlighting>
+    <list name="modifiers">
+      <item>const</item>
+    </list>
+    <list name="types">
+      <item>bool</item>
+      <item>char</item>
+      <item>double</item>
+      <item>float</item>
+      <item>int</item>
+      <item>long</item>
+      <item>short</item>
+      <item>signed</item>
+      <item>unsigned</item>
+      <item>intptr_t</item>
+      <item>uintptr_t</item>
+      <item>qint64</item>
+      <item>QByteArray</item>
+      <item>QRect</item>
+      <item>QRectF</item>
+      <item>QSize</item>
+      <item>QSizeF</item>
+      <item>QString</item>
+      <item>QUrl</item>
+    </list>
+    <list name="prefix-text-keywords">
+      <item>class</item>
+      <item>enum</item>
+      <item>extern</item>
+      <item>inline</item>
+      <item>namespace</item>
+      <item>private</item>
+      <item>protected</item>
+      <item>public</item>
+      <item>static</item>
+      <item>struct</item>
+      <item>template</item>
+      <item>typedef</item>
+      <item>typename</item>
+      <item>union</item>
+      <item>using</item>
+    </list>
+
+    <contexts>
+      <context name="Provider" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces/>
+        <DetectChar char="#" attribute="Comment" context="Comment" firstNonSpace="true"/>
+        <RegExpr String="ENUM \{\s*$" attribute="Keyword" context="Enum" firstNonSpace="true" beginRegion="Block"/>
+        <RegExpr String="FLAGS \{\s*$" attribute="Keyword" context="Flags" firstNonSpace="true" beginRegion="Block"/>
+        <RegExpr String="\{\s*$" attribute="Operator" context="Prefix Text" firstNonSpace="true" beginRegion="Block"/>
+        <RegExpr String="[A-Za-z][A-Za-z0-9_]*(?=\()" attribute="Tracepoint" context="Arguments" firstNonSpace="true"/>
+        <DetectIdentifier/>
+      </context>
+
+      <context name="Arguments" attribute="Normal Text" lineEndContext="#pop">
+        <DetectSpaces/>
+        <DetectChar char=")" attribute="Operator" context="#pop"/>
+        <AnyChar String="(,*&amp;:" attribute="Operator"/>
+        <DetectChar char="[" attribute="Operator" context="Array"/>
+        <RegExpr String="[A-Za-z_][A-Za-z0-9_]*(?=\s*[,)])" attribute="Argument"/>
+        <keyword String="modifiers" attribute="Keyword"/>
+        <WordDetect String="std::intptr_t" attribute="Data Type"/>
+        <WordDetect String="std::uintptr_t" attribute="Data Type"/>
+        <keyword String="types" attribute="Data Type"/>
+        <DetectIdentifier attribute="Data Type"/>
+      </context>
+
+      <context name="Array" attribute="Normal Text" lineEndContext="#pop">
+        <DetectChar char="]" attribute="Operator" context="#pop"/>
+        <Int attribute="Number"/>
+        <DetectIdentifier attribute="Argument"/>
+      </context>
+
+      <context name="Enum" attribute="Normal Text" lineEndContext="#stay">
+        <WordDetect String="RANGE" attribute="Keyword" context="Range" firstNonSpace="true"/>
+        <IncludeRules context="Values"/>
+      </context>
+
+      <context name="Flags" attribute="Normal Text" lineEndContext="#stay">
+        <IncludeRules context="Values"/>
+      </context>
+
+      <context name="Values" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces/>
+        <DetectChar char="#" attribute="Comment" context="Comment" firstNonSpace="true"/>
+        <DetectChar char="}" attribute="Operator" context="Value Type" firstNonSpace="true" endRegion="Block"/>
+        <AnyChar String="=," attribute="Operator"/>
+        <HlCHex attribute="Number Hex"/>
+        <Int attribute="Number"/>
+        <DetectIdentifier attribute="Constant"/>
+      </context>
+
+      <context name="Value Type" attribute="Normal Text" lineEndContext="#pop#pop">
+        <DetectChar char=";" attribute="Operator" context="#pop#pop"/>
+        <AnyChar String=":" attribute="Operator"/>
+        <DetectIdentifier attribute="Data Type"/>
+      </context>
+
+      <context name="Range" attribute="Normal Text" lineEndContext="#pop">
+        <DetectSpaces/>
+        <DetectChar char=")" attribute="Operator" context="#pop"/>
+        <AnyChar String="(," attribute="Operator"/>
+        <StringDetect String="..." attribute="Operator"/>
+        <Int attribute="Number"/>
+        <DetectIdentifier attribute="Constant"/>
+      </context>
+
+      <context name="Prefix Text" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces/>
+        <RegExpr String="\}\s*$" attribute="Operator" context="#pop" firstNonSpace="true" endRegion="Block"/>
+        <DetectChar char="#" attribute="Preprocessor" context="Preprocessor" firstNonSpace="true"/>
+        <Detect2Chars char="/" char1="/" attribute="Comment" context="Line Comment"/>
+        <Detect2Chars char="/" char1="*" attribute="Comment" context="Block Comment" beginRegion="Comment"/>
+        <DetectChar char="&quot;" attribute="String" context="String"/>
+        <keyword String="modifiers" attribute="Keyword"/>
+        <keyword String="prefix-text-keywords" attribute="Keyword"/>
+        <WordDetect String="std::intptr_t" attribute="Data Type"/>
+        <WordDetect String="std::uintptr_t" attribute="Data Type"/>
+        <keyword String="types" attribute="Data Type"/>
+        <DetectIdentifier/>
+      </context>
+
+      <context name="Preprocessor" attribute="Preprocessor" lineEndContext="#pop">
+        <LineContinue attribute="Preprocessor"/>
+        <RangeDetect char="&lt;" char1="&gt;" attribute="String"/>
+        <DetectChar char="&quot;" attribute="String" context="String"/>
+      </context>
+
+      <context name="String" attribute="String" lineEndContext="#pop">
+        <LineContinue attribute="String"/>
+        <HlCStringChar attribute="Special Character"/>
+        <DetectChar char="&quot;" attribute="String" context="#pop"/>
+      </context>
+
+      <context name="Line Comment" attribute="Comment" lineEndContext="#pop">
+        <DetectSpaces/>
+        <LineContinue attribute="Comment"/>
+        <IncludeRules context="##Comments"/>
+        <DetectIdentifier/>
+      </context>
+
+      <context name="Block Comment" attribute="Comment" lineEndContext="#stay">
+        <DetectSpaces/>
+        <Detect2Chars char="*" char1="/" attribute="Comment" context="#pop" endRegion="Comment"/>
+        <IncludeRules context="##Comments"/>
+        <DetectIdentifier/>
+      </context>
+
+      <context name="Comment" attribute="Comment" lineEndContext="#pop">
+        <DetectSpaces/>
+        <IncludeRules context="##Comments"/>
+        <DetectIdentifier/>
+      </context>
+    </contexts>
+
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal" spellChecking="false"/>
+      <itemData name="Keyword" defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Tracepoint" defStyleNum="dsFunction" spellChecking="false"/>
+      <itemData name="Data Type" defStyleNum="dsDataType" spellChecking="false"/>
+      <itemData name="Argument" defStyleNum="dsVariable" spellChecking="false"/>
+      <itemData name="Constant" defStyleNum="dsConstant" spellChecking="false"/>
+      <itemData name="Number" defStyleNum="dsDecVal" spellChecking="false"/>
+      <itemData name="Number Hex" defStyleNum="dsBaseN" spellChecking="false"/>
+      <itemData name="Operator" defStyleNum="dsOperator" spellChecking="false"/>
+      <itemData name="Preprocessor" defStyleNum="dsPreprocessor" spellChecking="false"/>
+      <itemData name="String" defStyleNum="dsString" spellChecking="true"/>
+      <itemData name="Special Character" defStyleNum="dsSpecialChar" spellChecking="false"/>
+      <itemData name="Comment" defStyleNum="dsComment" spellChecking="true"/>
+    </itemDatas>
+  </highlighting>
+  <general>
+    <comments>
+      <comment name="singleLine" start="#"/>
+    </comments>
+    <keywords casesensitive="1"/>
+  </general>
+</language>
+<!-- kate: replace-tabs on; tab-width 2; indent-width 2; -->
