@@ -375,17 +375,13 @@ void LanguageClientManager::applySettingsForRequiresProject(BaseSettings *settin
             continue;
         const Utils::FilePath filePath = textDocument->filePath();
         for (Project *project : ProjectManager::projects()) {
+            if (!setting->isEnabledOnProject(project))
+                continue;
+
             for (Target *target : project->targets()) {
                 const bool targetIsActive = project->activeTarget() == target;
                 for (BuildConfiguration *bc : target->buildConfigurations()) {
                     if (!setting->isValidOnBuildConfiguration(bc))
-                        continue;
-                    const bool settingIsEnabled
-                        = ProjectSettings(project).enabledSettings().contains(setting->id())
-                          || (setting->enabled()
-                              && !ProjectSettings(project).disabledSettings().contains(
-                                  setting->id()));
-                    if (!settingIsEnabled)
                         continue;
                     if (!project->isKnownFile(filePath))
                         continue;
@@ -740,7 +736,7 @@ void LanguageClientManager::updateProject(BuildConfiguration *bc)
 {
     for (BaseSettings *setting : std::as_const(m_currentSettings)) {
         if (setting->isValid()
-            && setting->enabled()
+            && setting->isEnabledOnProject(bc->project())
             && setting->startBehavior() == BaseSettings::RequiresProject) {
             if (Utils::findOrDefault(clientsForSetting(setting),
                                      [bc](const QPointer<Client> &client) {
