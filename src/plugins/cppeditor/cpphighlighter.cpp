@@ -26,6 +26,7 @@
 #include "cpptoolstestcase.h"
 #include <texteditor/fontsettings.h>
 #include <utils/spellchecker.h>
+#include <QSignalSpy>
 #include <QTest>
 #include <utility>
 #endif
@@ -928,8 +929,13 @@ private:
     // The words the highlighter marked as misspelled in text, in the order they are in.
     QStringList misspelledWords(const QString &text)
     {
+        // The highlighter gives itself 20 ms and queues the blocks it did not get to,
+        // which the first call into the dictionary is enough to make it do.
+        QSignalSpy finished(&m_highlighter, &SyntaxHighlighter::finished);
         m_doc.setPlainText(text);
-        m_highlighter.rehighlight();
+        QTC_CHECK(QTest::qWaitFor(
+            [&] { return !finished.isEmpty() && m_highlighter.syntaxHighlighterUpToDate(); },
+            500));
 
         QStringList words;
         for (QTextBlock block = m_doc.firstBlock(); block.isValid(); block = block.next()) {
