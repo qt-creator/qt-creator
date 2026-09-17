@@ -44,6 +44,4 @@ TEXTEDITOR_EXPORT QString editorSpellCheckLanguage();
 // highlighter that marks what it considers prose with spellCheck().
 TEXTEDITOR_EXPORT void followSpellCheckSettings(SyntaxHighlighter *highlighter);
 
-namespace Internal { void setupSpellCheckSettings(); }
-
 } // namespace TextEditor

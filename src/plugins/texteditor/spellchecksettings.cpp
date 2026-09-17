@@ -4,13 +4,9 @@
 #include "spellchecksettings.h"
 
 #include "syntaxhighlighter.h"
-#include "texteditorconstants.h"
 #include "texteditortr.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <utils/algorithm.h>
-#include <utils/layoutbuilder.h>
 #include <utils/spellchecker.h>
 
 #include <QComboBox>
@@ -104,12 +100,12 @@ SpellCheckSettings::SpellCheckSettings()
     setSettingsGroup("textSpellCheckSettings");
 
     checkText.setSettingsKey("CheckText");
-    checkText.setLabelText(Tr::tr("Comments and text files"));
+    checkText.setLabelText(Tr::tr("Check comments and text files"));
     checkText.setToolTip(Tr::tr("Marks misspelled words in the comments of source files and "
                                 "in the text of files that are prose, such as Markdown."));
 
     checkStrings.setSettingsKey("CheckStrings");
-    checkStrings.setLabelText(Tr::tr("String literals"));
+    checkStrings.setLabelText(Tr::tr("Check string literals"));
     checkStrings.setToolTip(Tr::tr("Marks misspelled words in string literals as well."));
     checkStrings.setEnabler(&checkText);
 
@@ -120,44 +116,7 @@ SpellCheckSettings::SpellCheckSettings()
     language.setFillCallback(fillLanguageItems);
     language.setComboBoxEditable(false);
 
-    setLayouter([this] {
-        using namespace Layouting;
-        return Column {
-            Row { language, st },
-            Group {
-                title(Tr::tr("Check Spelling In")),
-                Column { checkText, checkStrings }
-            },
-            st
-        };
-    });
-
     readSettings();
 }
 
-namespace Internal {
-
-class SpellCheckSettingsPage final : public Core::IOptionsPage
-{
-public:
-    SpellCheckSettingsPage()
-    {
-        setId(Constants::TEXT_EDITOR_SPELL_CHECK_SETTINGS);
-        setDisplayName(Tr::tr("Spelling"));
-        setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-        setSettingsProvider([] { return &spellCheckSettings(); });
-    }
-};
-
-void setupSpellCheckSettings()
-{
-    // Nothing on the page has an effect on a platform that provides no spell checking
-    // service, and the language combo box would have no language to offer.
-    if (!SpellChecker::instance()->isAvailable())
-        return;
-
-    static SpellCheckSettingsPage theSpellCheckSettingsPage;
-}
-
-} // namespace Internal
 } // namespace TextEditor

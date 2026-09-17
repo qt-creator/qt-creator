@@ -18,7 +18,6 @@
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
 #include "snippets/snippetssettingspage.h"
-#include "spellchecksettings.h"
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "textdocument.h"
@@ -134,7 +133,6 @@ void TextEditorPlugin::initialize()
     setupCompletionSettings();
     setupDisplaySettings();
     setupCommentsSettings();
-    setupSpellCheckSettings();
     setupGlobalCodeStyle();
 
     TabSettingsData::setRetriever(

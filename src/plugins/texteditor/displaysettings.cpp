@@ -5,6 +5,7 @@
 
 #include "fontsettings.h"
 #include "marginsettings.h"
+#include "spellchecksettings.h"
 #include "texteditorconstants.h"
 #include "texteditortr.h"
 
@@ -12,6 +13,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/spellchecker.h>
 
 #include <QLabel>
 
@@ -198,9 +200,11 @@ public:
         setAutoApply(false);
         registerAspect(&displaySettings());
         registerAspect(&marginSettings());
+        registerAspect(&spellCheckSettings());
         setLayouter([] {
             DisplaySettings &s = displaySettings();
             MarginSettings &m = marginSettings();
+            SpellCheckSettings &c = spellCheckSettings();
             auto *label =
                 new QLabel(Tr::tr("<i>Set <a href=\"font zoom\">font line spacing</a> "
                                   "to 100% to enable text wrapping option.</i>"));
@@ -224,7 +228,7 @@ public:
             connect(label, &QLabel::linkActivated, [] {
                 Core::ICore::showSettings(Constants::TEXT_EDITOR_FONT_SETTINGS); });
             using namespace Layouting;
-            return Column {
+            Column column {
                 Group {
                     title(Tr::tr("Margin")),
                     Column {
@@ -278,9 +282,25 @@ public:
                     Column {
                         s.annotationAlignment
                     }
-                },
-                st
+                }
             };
+
+            // Nothing in the group has an effect on a platform that provides no spell
+            // checking service, and the language combo box would have no language to
+            // offer.
+            if (SpellChecker::instance()->isAvailable()) {
+                column.addItem(Group {
+                    title(Tr::tr("Check Spelling")),
+                    Column {
+                        c.checkText,
+                        c.checkStrings,
+                        Row { c.language, st }
+                    }
+                });
+            }
+            column.addItem(st);
+
+            return column;
         });
     }
 };

@@ -102,7 +102,7 @@ CommonVcsSettings::CommonVcsSettings()
     spellCheck.setDefaultValue(true);
     spellCheck.setLabelText(Tr::tr("Check spelling of submit messages"));
     spellCheck.setToolTip(Tr::tr("Marks misspelled words in a submit message. The language "
-                                 "to check in is the one in Text Editor > Spelling."));
+                                 "to check in is the one in Text Editor > Display."));
     spellCheck.setVisible(SpellChecker::instance()->isAvailable());
 
     setLayouter([this] {
