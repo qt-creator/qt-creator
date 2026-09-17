@@ -550,6 +550,7 @@ Location::Location(const StackFrame &frame, bool marker)
     m_hasDebugInfo = frame.isUsable();
     m_address = frame.address;
     m_from = frame.module;
+    m_isMachineCode = frame.language != QmlLanguage;
 }
 
 LocationMark::LocationMark(DebuggerEngine *engine, const FilePath &file, int line)

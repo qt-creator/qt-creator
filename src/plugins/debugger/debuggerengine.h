@@ -446,14 +446,18 @@ public:
     bool needsRaise() const { return m_needsRaise; }
     bool needsMarker() const { return m_needsMarker; }
     bool hasDebugInfo() const { return m_hasDebugInfo; }
+    // Only machine code can be, and only where there is some: a frame of the
+    // QML interpreter runs none of its own, and a location carrying neither
+    // an address nor a function names none.
     bool canBeDisassembled() const
-        { return m_address != quint64(-1) || !m_functionName.isEmpty(); }
+        { return m_isMachineCode && (m_address != 0 || !m_functionName.isEmpty()); }
     quint64 address() const { return m_address; }
 
 private:
     bool m_needsMarker = false;
     bool m_needsRaise = true;
     bool m_hasDebugInfo = true;
+    bool m_isMachineCode = true;
     Utils::Text::Position m_textPosition;
     Utils::FilePath m_fileName;
     QString m_functionName;

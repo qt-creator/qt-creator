@@ -23,10 +23,12 @@
 #include "enginemanager.h"
 #include "gdb/gdbengine.h"
 #include "registerhandler.h"
+#include "stackframe.h"
 #include "commonoptionspage.h"
 #include "stackhandler.h"
 
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
@@ -129,6 +131,8 @@ private slots:
     void testStepsOverACallWithoutEnteringIt();
     void testStepsOutOfACalledFunction();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
+    void testOnlyMachineCodeIsOfferedADisassembly();
+    void testAnEmptyDisassemblyLeavesTheViewAlone();
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
@@ -1794,6 +1798,49 @@ void DebuggerUnitTests::testDisassemblyThatMissesTheAddressMarksNoLine()
     });
     QVERIFY2(complaint.isEmpty(), qPrintable("marking a line the disassembly has "
                                              "not got - " + complaint));
+}
+
+// Operating by instruction sends every location to the disassembler, so the
+// question of whether one has machine code behind it is the only thing
+// standing between a QML frame and a disassembly of nothing.
+void DebuggerUnitTests::testOnlyMachineCodeIsOfferedADisassembly()
+{
+    QVERIFY2(!Location().canBeDisassembled(),
+             "a location naming neither an address nor a function offered one");
+
+    StackFrame native;
+    native.function = "main";
+    native.address = 0x1000;
+    QVERIFY(Location(native).canBeDisassembled());
+
+    StackFrame interpreted;
+    interpreted.language = QmlLanguage;
+    interpreted.function = "expression for onClicked";
+    interpreted.file = FilePath::fromUserInput("Main.qml");
+    interpreted.line = 26;
+    QVERIFY2(!Location(interpreted).canBeDisassembled(),
+             "a QML frame offered a disassembly of code it does not have");
+}
+
+void DebuggerUnitTests::testAnEmptyDisassemblyLeavesTheViewAlone()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] {
+        delete engine;
+        EditorManager::closeAllEditors(false);
+    });
+    engine->setRunParameters({});
+
+    Location location(quint64(0x1000));
+    location.setNeedsMarker(true);
+
+    DisassemblerAgent agent(engine);
+    agent.setLocation(location);
+
+    const int before = DocumentModel::entryCount();
+    agent.setContents({});
+    QCOMPARE(DocumentModel::entryCount(), before);
 }
 
 void DebuggerUnitTests::testScratchEditorAdoptsSavedName()
