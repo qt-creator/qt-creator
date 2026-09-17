@@ -583,16 +583,11 @@ void tst_McpProtocol::deliversResourceUpdatesToBothRevisions()
         Schema::ResourceUpdatedNotification().params(
             Schema::ResourceUpdatedNotificationParams().uri("file:///watched")));
 
-    // One copy on the bound stream, as before this revision existed, and one
-    // tagged copy for the listener that named the URI.
-    QCOMPARE(h.out.size(), 2);
-    for (const QJsonObject &notification : std::as_const(h.out)) {
-        QCOMPARE(notification.value("method").toString(), QString("notifications/resources/updated"));
-    }
-    const QJsonObject broadcast = h.out.at(0);
-    const QJsonObject tagged = h.out.at(1);
-    QVERIFY(!broadcast.value("params").toObject().value("_meta").toObject().contains(
-        kMetaSubscriptionId));
+    // The tagged copy for the listener that named the URI, and no untagged one
+    // beside it: here the bound stream is that listener's own sink.
+    QCOMPARE(h.out.size(), 1);
+    const QJsonObject tagged = h.out.at(0);
+    QCOMPARE(tagged.value("method").toString(), QString("notifications/resources/updated"));
     QCOMPARE(
         tagged.value("params").toObject().value("_meta").toObject().value(kMetaSubscriptionId).toInt(),
         1);
