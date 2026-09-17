@@ -71,7 +71,7 @@ private slots:
     void touchedHeaderInvalidatesOnlyItsIncluders()
     {
         FakeFileSystem files;
-        for (const QString &name : {"a.cpp", "b.cpp", "shared.h", "a.h", "b.h"})
+        for (const char *name : {"a.cpp", "b.cpp", "shared.h", "a.h", "b.h"})
             files.setTime(source(name), 100);
 
         HeaderDependencyStore store(files.statFunction());
