@@ -685,6 +685,8 @@ class RewrapParagraphTest final : public QObject
 private slots:
     void testRewrapParagraph_data();
     void testRewrapParagraph();
+    void testRewrapSelection_data();
+    void testRewrapSelection();
 };
 
 void RewrapParagraphTest::testRewrapParagraph_data()
@@ -775,6 +777,87 @@ void RewrapParagraphTest::testRewrapParagraph()
     cursor.movePosition(QTextCursor::Start);
     for (int i = 0; i < cursorBlock; ++i)
         cursor.movePosition(QTextCursor::NextBlock);
+    editorWidget->setTextCursor(cursor);
+
+    editorWidget->rewrapParagraph();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), expected);
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void RewrapParagraphTest::testRewrapSelection_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<int>("anchorBlock");
+    QTest::addColumn<int>("cursorBlock");
+    QTest::addColumn<QString>("expected");
+
+    // Selecting a whole comment reflows all of its paragraphs, whichever end
+    // of the selection the cursor is at, and leaves the blank comment line
+    // that separates them alone.
+    QTest::newRow("wholeCommentWithCursorAtTheEnd")
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in the calculation of "
+           "the result that is returned\n  */\n" << 0 << 4
+        << "/**\n  * @brief function is a function that calculates some result "
+           "from the\n  * parameter d, but does not return the result\n  *\n"
+           "  * @param d is the parameter that is used in the calculation of "
+           "the result\n  * that is returned\n  */\n";
+
+    // Plain-text paragraphs delimited by a blank line are reflowed one by one,
+    // and each of them as a whole even where the selection covers only part of
+    // it: the paragraph, not the selection, is the unit.
+    QTest::newRow("selectionOverSeveralPlainTextParagraphs")
+        << "one two\nthree four\n\nfive six\nseven eight\n" << 1 << 4
+        << "one two three four\n\nfive six seven eight\n";
+
+    // Code and a run of "//" comment lines are never one paragraph, so a
+    // selection covering both reflows the comment without absorbing the code.
+    QTest::newRow("selectionOverCodeAndComment")
+        << "int a = 1;\n// alpha beta\n// gamma delta\nint b = 2;\n" << 0 << 4
+        << "int a = 1;\n// alpha beta gamma delta\nint b = 2;\n";
+
+    // A run of plain statements carries no signal - no blank line, no comment
+    // leader - that tells it apart from a run of prose lines, so a selection
+    // over it reflows the same way a plain-text paragraph does: this is not a
+    // new consequence of acting on a selection, it already happened with a
+    // single cursor placed in the middle of such a run.
+    QTest::newRow("selectionOverPlainCodeStatements")
+        << "int a = 1;\nint b = 2;\n" << 0 << 2
+        << "int a = 1; int b = 2;\n";
+}
+
+void RewrapParagraphTest::testRewrapSelection()
+{
+    QFETCH(QString, input);
+    QFETCH(int, anchorBlock);
+    QFETCH(int, cursorBlock);
+    QFETCH(QString, expected);
+
+    QString title = "rewrap.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, input.toUtf8());
+    QVERIFY(editor);
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *editorWidget = baseEditor->editorWidget();
+    QVERIFY(editorWidget);
+
+    MarginSettingsData margin = editorWidget->marginSettings();
+    margin.m_marginColumn = 80;
+    editorWidget->setMarginSettings(margin);
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.movePosition(QTextCursor::Start);
+    for (int i = 0; i < anchorBlock; ++i)
+        cursor.movePosition(QTextCursor::NextBlock);
+    for (int i = anchorBlock; i < cursorBlock; ++i)
+        cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+    if (anchorBlock == cursorBlock)
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    QVERIFY(cursor.hasSelection());
     editorWidget->setTextCursor(cursor);
 
     editorWidget->rewrapParagraph();

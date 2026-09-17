@@ -9703,14 +9703,22 @@ void TextEditorWidget::autoIndent()
     setMultiTextCursor(cursor);
 }
 
-void TextEditorWidget::rewrapParagraph()
+// A line with no word character at all - a blank line, but also the "/**", the
+// bare "*" and the "*/" of a comment block - separates paragraphs and is part
+// of none of them.
+static bool carriesText(const QString &text)
 {
-    const int paragraphWidth = marginSettings().m_marginColumn;
     static const QRegularExpression anyLettersOrNumbers("\\w");
-    const TabSettingsData ts = d->m_document->tabSettings();
+    return text.contains(anyLettersOrNumbers);
+}
 
-    QTextCursor cursor = textCursor();
-    cursor.beginEditBlock();
+// Reflows the paragraph that holds the cursor's block and returns the number of
+// the block that paragraph starts at.
+static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSettingsData &ts)
+{
+    // The leader of a "///", "/**", or "/*!" comment, or of a "*"-led
+    // continuation line inside one.
+    static const QString doxygenPrefix("^\\s*(?:///|/\\*\\*|/\\*\\!|\\*)?[ *]+");
 
     // A single-line ("//") comment forms a paragraph on its own: it must not
     // be merged with adjacent code lines, which are not part of the comment
@@ -9722,27 +9730,40 @@ void TextEditorWidget::rewrapParagraph()
     const bool inLineComment = !commentLeader(cursor.block().text()).isEmpty();
 
     // Blank lines end a plain-text paragraph; a comment paragraph also ends
-    // where the run of "//" comment lines does.
+    // where the run of "//" comment lines does, and a paragraph of code ends
+    // where such a run begins - the two are never one paragraph, whichever of
+    // them the reflow started in.
     const auto isParagraphBoundary = [&](const QString &text) {
         if (inLineComment)
             return commentLeader(text).isEmpty();
-        return !text.contains(anyLettersOrNumbers);
+        return !carriesText(text) || !commentLeader(text).isEmpty();
     };
 
-    // Find start of paragraph.
+    static const QRegularExpression immovableDoxygenCommand = [] {
+        QRegularExpression re(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
+        QTC_CHECK(re.isValid());
+        return re;
+    }();
+    const auto startsParagraph = [](const QString &text) {
+        return immovableDoxygenCommand.match(text).hasMatch();
+    };
 
-    while (cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor)) {
-        QTextBlock block = cursor.block();
-        QString text = block.text();
+    // Find start of paragraph. A doxygen command begins one of its own, so it
+    // bounds this search as well: the paragraph of a "@param" line is that
+    // line, not the "@brief" one above it.
+    while (!startsParagraph(cursor.block().text())) {
+        if (!cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor))
+            break;
 
         // If this block ends the paragraph, move marker back and terminate.
-        if (isParagraphBoundary(text)) {
+        if (isParagraphBoundary(cursor.block().text())) {
             cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);
             break;
         }
     }
 
     cursor.movePosition(QTextCursor::StartOfBlock, QTextCursor::MoveAnchor);
+    const int firstBlockNumber = cursor.blockNumber();
 
     // Find indent level of current block.
     const QString text = cursor.block().text();
@@ -9753,7 +9774,6 @@ void TextEditorWidget::rewrapParagraph()
     QTextCursor nextBlock = cursor;
     QString commonPrefix;
 
-    const QString doxygenPrefix("^\\s*(?:///|/\\*\\*|/\\*\\!|\\*)?[ *]+");
     if (nextBlock.movePosition(QTextCursor::NextBlock))
     {
          QString nText = nextBlock.block().text();
@@ -9784,12 +9804,10 @@ void TextEditorWidget::rewrapParagraph()
     }
 
     // Find end of paragraph.
-    static const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
-    QTC_CHECK(immovableDoxygenCommand.isValid());
     while (cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)) {
         QString text = cursor.block().text();
 
-        if (isParagraphBoundary(text) || immovableDoxygenCommand.match(text).hasMatch())
+        if (isParagraphBoundary(text) || startsParagraph(text))
             break;
     }
 
@@ -9855,7 +9873,39 @@ void TextEditorWidget::rewrapParagraph()
     result.append(QChar::ParagraphSeparator);
 
     cursor.insertText(result);
-    cursor.endEditBlock();
+    return firstBlockNumber;
+}
+
+void TextEditorWidget::rewrapParagraph()
+{
+    const int paragraphWidth = marginSettings().m_marginColumn;
+    const TabSettingsData ts = d->m_document->tabSettings();
+    const QTextCursor selection = textCursor();
+
+    QTextCursor editBlock = selection;
+    editBlock.beginEditBlock();
+
+    if (selection.hasSelection()) {
+        // Reflow every paragraph the selection touches, starting with the last
+        // one, so that reflowing a paragraph does not move those still to come.
+        QTextDocument * const doc = document();
+        const int firstBlock = doc->findBlock(selection.selectionStart()).blockNumber();
+        QTextBlock last = doc->findBlock(selection.selectionEnd());
+
+        // A selection that ends where a line begins does not reach into it.
+        if (last.blockNumber() > firstBlock && last.position() == selection.selectionEnd())
+            last = last.previous();
+
+        for (int number = last.blockNumber(); number >= firstBlock; --number) {
+            const QTextBlock block = doc->findBlockByNumber(number);
+            if (block.isValid() && carriesText(block.text()))
+                number = rewrapParagraphAt(QTextCursor(block), paragraphWidth, ts);
+        }
+    } else {
+        rewrapParagraphAt(selection, paragraphWidth, ts);
+    }
+
+    editBlock.endEditBlock();
 }
 
 void TextEditorWidget::unCommentSelection()
