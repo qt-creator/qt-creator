@@ -126,6 +126,20 @@ void VcsOutputFormatterTest::testLinkDetection_data()
                                      << QStringList{"0123456789abcdef"} << true;
     QTest::newRow("multiple hashes") << QString("git diff 012345 6789ab ")
                                      << QStringList{"012345", "6789ab"} << true;
+    QTest::newRow("hash at line end")
+        << QString("git show e6383b477dbee9db71f45d2a02fa02db64a69795")
+        << QStringList{"e6383b477dbee9db71f45d2a02fa02db64a69795"} << true;
+    QTest::newRow("hash range at line end") << QString("git diff 012345..abcdef")
+                                            << QStringList{"012345..abcdef"} << true;
+    QTest::newRow("hash three-dot range at line end")
+        << QString("git diff 012345...abcdef") << QStringList{"012345...abcdef"} << true;
+    QTest::newRow("hash parent at line end") << QString("git show 012345^")
+                                             << QStringList{"012345^"} << true;
+    QTest::newRow("hash ancestor at line end") << QString("git show 012345~2")
+                                               << QStringList{"012345~2"} << true;
+    QTest::newRow("hash as complete line")
+        << QString("e6383b477dbee9db71f45d2a02fa02db64a69795")
+        << QStringList{"e6383b477dbee9db71f45d2a02fa02db64a69795"} << true;
     QTest::newRow("mixed links")
         << QString("git v1.2.3 0123456789abcdef a/src/file.cpp https://example.org/change/123")
         << QStringList{"v1.2.3", "0123456789abcdef", "src/file.cpp",

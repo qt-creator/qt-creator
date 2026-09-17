@@ -26,8 +26,8 @@ VcsOutputLineParser::VcsOutputLineParser() :
     m_regexp(
         R"((https?://\S*))"                                           // https://codereview.org/c/1234
         R"(|(?<=[\s"])(v[0-9]+\.[0-9]+\.[0-9]+[\-A-Za-z0-9]*))"       // v0.1.2-beta3
-        R"(|(?<=[\s"])(?<!mode )([0-9a-f]{6,}(?:\.{2,3}[0-9a-f]{6,})" // 789acf or 123abc..456cde
-        R"(|\^+|~\d+)?)(?=[\s"]))"                                    // or 789acf^ or 123abc~99
+        R"(|(?:(?<=^)|(?<=[\s"])(?<!mode ))([0-9a-f]{6,}(?:\.{2,3}[0-9a-f]{6,})" // 789acf or 123abc..456cde
+        R"(|\^+|~\d+)?)(?=[\s"]|$))"                                  // or 789acf^ or 123abc~99
         R"(|(?<=\b[ab]/)\S+)")                                        // a/path/to/file.cpp
 {
 }
