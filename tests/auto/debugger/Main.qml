@@ -33,7 +33,7 @@ Window {
     }
 
     function describe(text, count) {
-        var suffix = " #" + count
+        var suffix = " #" + count            // MARKER: qml-repeat
         return text + suffix
     }
 

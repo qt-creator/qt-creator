@@ -3036,7 +3036,13 @@ class Dumper(DumperBase):
         if address == lldb.LLDB_INVALID_ADDRESS:
             return
         error = lldb.SBError()
-        watch = self.target.WatchAddress(address, 4, False, True, error)
+        # The service appends to its buffer and reports the accumulated size,
+        # so the same length is written again whenever a message follows a
+        # buffer read. A watch that only reports a changed value says nothing
+        # then, and that message is never heard of.
+        options = lldb.SBWatchpointOptions()
+        options.SetWatchpointTypeWrite(lldb.eWatchpointWriteTypeAlways)
+        watch = self.target.WatchpointCreateByAddress(address, 4, options, error)
         if not error.Success():
             self.warn('Cannot watch the interpreter message length: %s' % error)
             return

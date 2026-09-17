@@ -1574,6 +1574,10 @@ private slots:
     void insertsQmlBreakpointBeforeDumpersLoad();
     void insertsAQmlBreakpointWhileTheInferiorRuns_data() { addBackendRows(); }
     void insertsAQmlBreakpointWhileTheInferiorRuns();
+    void watchesEachInterpreterMessageLength_data() { addBackendRows(); }
+    void watchesEachInterpreterMessageLength();
+    void hitsAQmlBreakpointOnEveryPass_data() { addBackendRows(); }
+    void hitsAQmlBreakpointOnEveryPass();
     void reportsNoStackForAFetchTheInferiorOutran_data() { addBackendRows(); }
     void reportsNoStackForAFetchTheInferiorOutran();
     void resolvesQmlBreakpointWithoutServiceDebugInfo_data() { addBackendRows(); }
@@ -9664,9 +9668,143 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
 #endif
 }
 
-// Reaching the QML service means calling into the inferior, which only works
-// while it is stopped. With the inferior running, the backend has to interrupt,
-// run the command and resume by itself.
+void tst_backends::watchesEachInterpreterMessageLength()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    if (!Utils::HostOsInfo::isMacHost())
+        QSKIP("The message length is only watched where the hook calls are dropped.");
+
+#ifndef QMLMIX_INFERIOR_EXECUTABLE
+    QSKIP("Qt::Quick not available when this test binary was configured.");
+#else
+    const FilePath inferior = (FilePath::fromUserInput(QMLMIX_INFERIOR_EXECUTABLE)
+                              / "qmlmix_inferior").withExecutableSuffix();
+    if (!inferior.isExecutableFile())
+        QSKIP(qPrintable("qmlmix inferior not found at " + inferior.toUserOutput()));
+    if (!m_hasQmlNativeDebuggerPlugin)
+        QSKIP(s_qmlNativeDebuggerPluginMissing);
+    if (!m_hasQtDeclarativeDebugInfo)
+        QSKIP(s_qtDeclarativeDebugInfoMissing);
+
+    Environment env = Environment::systemEnvironment();
+    env.set("QV4_FORCE_INTERPRETER", "1");
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
+                        {}, env}, true);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const int qmlLine = qmlMarkerLine("Main.qml", "MARKER: qml-repeat");
+    QVERIFY(qmlLine > 0);
+
+    QStringList wire;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&wire](const QString &text, int, int) { wire.append(text); });
+
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, qmlLine](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 1;
+        request.modelId = 99;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = FilePath::fromUserInput("Main.qml");
+        request.params.textPosition.line = qmlLine;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
+
+    const int wireBefore = wire.size();
+    engine->executeDebuggerCommand("watchpoint list", {});
+    const auto listed = [&wire, wireBefore] {
+        return Utils::findOr(wire.mid(wireBefore), QString(), [](const QString &line) {
+            return line.contains("Watchpoint 1:");
+        });
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(!listed().isEmpty(), s_timeout);
+
+    // The service appends to its buffer and reports the accumulated size, so a
+    // message following a buffer read writes the length the one before it did.
+    // A watch that only reports a changed value is silent for that message.
+    QVERIFY2(!listed().contains("type = m"),
+             qPrintable("the interpreter message length is watched for a changed "
+                        "value only - " + listed().left(400)));
+#endif
+}
+
+void tst_backends::hitsAQmlBreakpointOnEveryPass()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+#ifndef QMLMIX_INFERIOR_EXECUTABLE
+    QSKIP("Qt::Quick not available when this test binary was configured.");
+#else
+    const FilePath inferior = (FilePath::fromUserInput(QMLMIX_INFERIOR_EXECUTABLE)
+                              / "qmlmix_inferior").withExecutableSuffix();
+    if (!inferior.isExecutableFile())
+        QSKIP(qPrintable("qmlmix inferior not found at " + inferior.toUserOutput()));
+    if (!m_hasQmlNativeDebuggerPlugin)
+        QSKIP(s_qmlNativeDebuggerPluginMissing);
+    if (!m_hasQtDeclarativeDebugInfo)
+        QSKIP(s_qtDeclarativeDebugInfoMissing);
+
+    Environment env = Environment::systemEnvironment();
+    env.set("QV4_FORCE_INTERPRETER", "1");
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
+                        {}, env}, true);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const int qmlLine = qmlMarkerLine("Main.qml", "MARKER: qml-repeat");
+    QVERIFY(qmlLine > 0);
+
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, qmlLine](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 1;
+        request.modelId = 99;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = FilePath::fromUserInput("Main.qml");
+        request.params.textPosition.line = qmlLine;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
+
+    // The line sits in a function a repeating timer drives, so each resume runs
+    // into it again. Whatever the backend arms to hear the interpreter out has
+    // to survive its own first report.
+    const QByteArray missed = "a resume from the QML breakpoint never ran into it again";
+    for (int pass = 0; pass < 3; ++pass) {
+        debuggerBackend->clearEvents();
+        debuggerBackend->execute({ExecutionCommand::Continue});
+        QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                                  missed.constData(), s_timeout);
+    }
+#endif
+}
+
 void tst_backends::insertsAQmlBreakpointWhileTheInferiorRuns()
 {
     QFETCH(Backend, backend);
