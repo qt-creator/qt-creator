@@ -82,6 +82,7 @@ CallStackSamplerSettings::CallStackSamplerSettings()
             workingDirectory,
             Row { intervalUs, st },
             Row { attach, pick, picked, st },
+            noMargin,
         };
     });
 }

@@ -120,7 +120,9 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
             m_settings->extraArguments,
         },
 
-        st
+        st,
+
+        noMargin,
     }.attachTo(this);
 
     IDevice::ConstPtr device;

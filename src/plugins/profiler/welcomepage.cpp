@@ -8,6 +8,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>
 
+#include <QScrollArea>
 #include <QVBoxLayout>
 
 using namespace Layouting;
@@ -30,12 +31,30 @@ WelcomePage::WelcomePage(QWidget *parent)
     connect(m_targetCombo, &QComboBox::currentIndexChanged, this, [this](int index) {
         emit targetChanged(index);
     });
-    m_targetRow = Row { Tr::tr("Profile:"), m_targetCombo, st }.emerge();
+    m_targetRow = Row {
+        Tr::tr("Profile:"),
+        m_targetCombo,
+        spacing(SpacingTokens::GapHM),
+        noMargin,
+    }.emerge();
     m_targetRow->hide(); // Until a frontend offers something to choose between.
 
+    const int bigSpacing = SpacingTokens::PrimitiveXxl;
+    const int rectRadius = SpacingTokens::RadiusL;
+    const int innerMargin = qMax(0, rectRadius - SpacingTokens::PrimitiveM);
+
     auto configHost = new QWidget;
+    configHost->setContentsMargins({});
+    StyleHelper::setBackgroundColor(configHost, Theme::Token_Background_Muted);
     m_configLayout = new QVBoxLayout(configHost);
-    m_configLayout->setContentsMargins(0, 0, 0, 0);
+    m_configLayout->setContentsMargins(innerMargin, innerMargin, innerMargin, innerMargin);
+    m_configLayout->addStretch();
+
+    auto configScrollArea = new QScrollArea;
+    configScrollArea->setFrameShape(QFrame::NoFrame);
+    configScrollArea->setFixedWidth(740);
+    configScrollArea->setWidget(configHost);
+    configScrollArea->setWidgetResizable(true);
 
     m_startButton = new QtcButton(Tr::tr("Start Recording"), QtcButton::LargePrimary);
     m_startButton->setToolTip(Tr::tr("Start recording with the selected backend."));
@@ -44,18 +63,34 @@ WelcomePage::WelcomePage(QWidget *parent)
 
     // clang-format off
     Row {
+        customMargins(bigSpacing, bigSpacing, bigSpacing, bigSpacing),
         st,
         Column {
-            st,
-            Row { Tr::tr("Backend:"), m_backendCombo, st },
-            Space(SpacingTokens::PrimitiveM),
-            m_targetRow,
-            Space(SpacingTokens::PrimitiveM),
-            // The active backend's own controls, including how it starts.
-            configHost,
-            Space(SpacingTokens::PrimitiveM),
-            m_startButton,
-            st,
+            Row {
+                Row {
+                    Tr::tr("Backend:"),
+                    m_backendCombo,
+                    spacing(SpacingTokens::GapHM),
+                },
+                m_targetRow,
+                st,
+                spacing(bigSpacing),
+            },
+            QtDesignWidgets::Rectangle {
+                fillBrush(creatorColor(Theme::Token_Background_Muted)),
+                strokePen(creatorColor(Theme::Token_Stroke_Subtle)),
+                radius(rectRadius),
+                Row {
+                    configScrollArea,
+                    noMargin,
+                },
+            },
+            Row {
+                st,
+                m_startButton,
+            },
+            spacing(bigSpacing),
+            noMargin,
         },
         st,
     }.attachTo(this);
@@ -99,7 +134,7 @@ void WelcomePage::setActiveBackend(QWidget *configWidget)
     delete m_configWidget;
     m_configWidget = configWidget;
     if (m_configWidget)
-        m_configLayout->addWidget(m_configWidget);
+        m_configLayout->insertWidget(0, m_configWidget);
 }
 
 } // namespace Profiler::Internal

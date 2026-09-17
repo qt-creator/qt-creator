@@ -23,7 +23,9 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
 
+#include <utils/infolabel.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -154,20 +156,25 @@ private:
         const Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(currentRunMode());
         RunConfiguration *runConfig = activeRunConfigForActiveProject();
 
-        auto description = new QLabel;
+        auto description = new InfoLabel;
+        description->setElideMode(Qt::ElideNone);
+        description->setType(InfoLabelType::Warning);
         description->setWordWrap(true);
-        if (!canRun)
+        if (!canRun) {
             description->setText(canRun.error());
-        else if (runConfig)
+        } else if (runConfig) {
             description->setText(Tr::tr("Profiles \"%1\".").arg(runConfig->displayName()));
-        else
+            description->setType(InfoLabelType::None);
+        } else {
             description->setText(Tr::tr("No active project."));
+        }
 
         QWidget *page = description;
         if (config) {
             page = new QWidget;
             auto layout = new QVBoxLayout(page);
             layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(StyleHelper::SpacingTokens::GapVL);
             layout->addWidget(description);
             layout->addWidget(config);
         }

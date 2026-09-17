@@ -59,6 +59,7 @@ CombinedSamplerSettings::CombinedSamplerSettings()
             workingDirectory,
             Layouting::Group { title(Tr::tr("CPU Sampler")), Column { Row { intervalUs, st } } },
             Layouting::Group { title(Tr::tr("QML Profiler")), Column { features } },
+            noMargin,
         };
     });
 }

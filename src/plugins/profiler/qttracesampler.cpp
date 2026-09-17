@@ -66,6 +66,7 @@ QtTraceSamplerSettings::QtTraceSamplerSettings()
             workingDirectory,
             providers,
             traceDirectory,
+            noMargin,
         };
     });
 }

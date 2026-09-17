@@ -80,6 +80,7 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
             arguments,
             workingDirectory,
             Layouting::Group { title(Tr::tr("Record")), Column { features } },
+            noMargin,
         };
     });
 }

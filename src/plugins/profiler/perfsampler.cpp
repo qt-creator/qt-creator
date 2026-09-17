@@ -428,6 +428,7 @@ PerfSamplerSettings::PerfSamplerSettings()
             Row { attach, pick, picked, st },
             downloadDebugInfo,
             perfSettings.createPerfConfigWidget(nullptr),
+            noMargin,
         };
     });
 }
