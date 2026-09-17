@@ -46,6 +46,8 @@ class VcsOutputFormatterTest final : public QObject
 private slots:
     void testLinkHelpers_data();
     void testLinkHelpers();
+    void testLinkDetection_data();
+    void testLinkDetection();
 };
 
 void VcsOutputFormatterTest::testLinkHelpers_data()
@@ -84,6 +86,79 @@ void VcsOutputFormatterTest::testLinkHelpers()
     QCOMPARE(VcsOutputLineParser::unquoteGitPath(input), expected);
     QCOMPARE(VcsOutputLineParser::isRevisionLink(input), isRevision);
     QCOMPARE(VcsOutputLineParser::shouldOfferFileLink(input), shouldOfferFileLink);
+}
+
+void VcsOutputFormatterTest::testLinkDetection_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QStringList>("targets");
+    QTest::addColumn<bool>("hasLinks");
+
+    QTest::newRow("tag") << QString("git checkout v1.2.3") << QStringList{"v1.2.3"} << true;
+    QTest::newRow("tag with suffix") << QString("git checkout v1.2.3-rc1")
+                                     << QStringList{"v1.2.3-rc1"} << true;
+    QTest::newRow("hash") << QString("git show 0123456789abcdef ")
+                           << QStringList{"0123456789abcdef"} << true;
+    QTest::newRow("six-character hash") << QString("git show 012345 ")
+                                        << QStringList{"012345"} << true;
+    QTest::newRow("short hash") << QString("git show 01234 ") << QStringList{} << false;
+    QTest::newRow("hash range") << QString("git diff 012345..abcdef ")
+                                 << QStringList{"012345..abcdef"} << true;
+    QTest::newRow("hash three-dot range") << QString("git diff 012345...abcdef ")
+                                          << QStringList{"012345...abcdef"} << true;
+    QTest::newRow("hash parent") << QString("git show 012345^ ") << QStringList{"012345^"}
+                                  << true;
+    QTest::newRow("hash ancestor") << QString("git show 012345~2 ") << QStringList{"012345~2"}
+                                    << true;
+    QTest::newRow("quoted hash") << QString("git show \"0123456789abcdef\"")
+                                 << QStringList{"0123456789abcdef"} << true;
+    QTest::newRow("git paths") << QString("a/src/file.cpp b/include/file.h")
+                               << QStringList{"src/file.cpp", "include/file.h"} << true;
+    QTest::newRow("url") << QString("See https://example.org/change/123")
+                          << QStringList{"https://example.org/change/123"} << true;
+    QTest::newRow("http url") << QString("See http://example.org/change/123")
+                              << QStringList{"http://example.org/change/123"} << true;
+    QTest::newRow("url with punctuation") << QString("See https://example.org/change/123,")
+                                          << QStringList{"https://example.org/change/123"} << true;
+    QTest::newRow("tab delimiters") << QString("git\tshow\t0123456789abcdef\t")
+                                    << QStringList{"0123456789abcdef"} << true;
+    QTest::newRow("multiple spaces") << QString("git  show  0123456789abcdef  ")
+                                     << QStringList{"0123456789abcdef"} << true;
+    QTest::newRow("multiple hashes") << QString("git diff 012345 6789ab ")
+                                     << QStringList{"012345", "6789ab"} << true;
+    QTest::newRow("mixed links")
+        << QString("git v1.2.3 0123456789abcdef a/src/file.cpp https://example.org/change/123")
+        << QStringList{"v1.2.3", "0123456789abcdef", "src/file.cpp",
+                       "https://example.org/change/123"}
+        << true;
+    QTest::newRow("mode") << QString("mode 100644") << QStringList{} << false;
+    QTest::newRow("hash with prefix") << QString("prefix0123456789abcdef") << QStringList{}
+                                      << false;
+    QTest::newRow("hash with suffix") << QString("0123456789abcdefsuffix") << QStringList{}
+                                      << false;
+    QTest::newRow("hash with punctuation") << QString("git show 0123456789abcdef)")
+                                           << QStringList{} << false;
+}
+
+void VcsOutputFormatterTest::testLinkDetection()
+{
+    QFETCH(QString, text);
+    QFETCH(QStringList, targets);
+    QFETCH(bool, hasLinks);
+
+    VcsOutputLineParser parser;
+    OutputLineParser &lineParser = parser;
+    const auto result = lineParser.handleLine(text, OutputFormat::StdOutFormat);
+
+    QCOMPARE(result.status, hasLinks ? OutputLineParser::Status::Done
+                                     : OutputLineParser::Status::NotHandled);
+    QCOMPARE(result.linkSpecs.size(), targets.size());
+    for (int i = 0; i < targets.size(); ++i) {
+        const auto &link = result.linkSpecs.at(i);
+        QCOMPARE(link.target, targets.at(i));
+        QCOMPARE(link.startPos, text.indexOf(link.target));
+        QCOMPARE(link.length, link.target.size());
+    }
 }
 
 #endif
