@@ -8,6 +8,7 @@
 #include "cdb/cdbengine.h"
 #include "cdb/cdbimpl.h"
 #include "cdb/cdbparsehelpers.h"
+#include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
@@ -19,6 +20,8 @@
 #include "enginemanager.h"
 #include "gdb/gdbengine.h"
 #include "registerhandler.h"
+#include "commonoptionspage.h"
+#include "stackhandler.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -28,13 +31,18 @@
 #include <cppeditor/cpptoolstestcase.h>
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/abi.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 
 #include <QTest>
 #include <QVersionNumber>
@@ -110,6 +118,9 @@ private slots:
     void testMergePlatformQtPath();
     void testNormalizedSourcePathPrefix();
 
+    void testStepsIntoACalledFunction();
+    void testStepsOverACallWithoutEnteringIt();
+    void testStepsOutOfACalledFunction();
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
@@ -1492,6 +1503,241 @@ void DebuggerUnitTests::testBreakpointUpdateAnnouncesItIsProceeding()
 
     engine->breakHandler()->requestBreakpointUpdate(bp);
     QCOMPARE(bp->state(), BreakpointUpdateProceeding);
+}
+
+// A program small enough to say exactly where a step should land in it.
+static const char s_steppingSource[] = R"CPP(
+int addOne(int value)
+{
+    int raised = value + 1; // MARKER: in-callee
+    return raised;
+}
+
+int main()
+{
+    int first = 1;
+    int second = addOne(first); // MARKER: at-call
+    int third = second + first; // MARKER: after-call
+    return third - third;
+}
+)CPP";
+
+// Builds that program and runs it up to a marked line, holding it there so a
+// test can ask for a step and see where it ends up. It needs no project: a
+// compiler and a kit to name the debugger are the whole of it.
+class SteppingSession
+{
+public:
+    SteppingSession()
+    {
+        // Nothing here can answer a dialog, and the engine puts one up for a
+        // breakpoint it cannot place. A breakpoint that does not take shows
+        // up as a session that never stops where it was told to.
+        m_warnedAboutBreakpoints = settings().showUnsupportedBreakpointWarning();
+        settings().showUnsupportedBreakpointWarning.setValue(false);
+    }
+
+    ~SteppingSession()
+    {
+        settings().showUnsupportedBreakpointWarning.setValue(m_warnedAboutBreakpoints);
+        if (m_runControl) {
+            m_runControl->initiateStop();
+            QTestEventLoop::instance().enterLoop(30);
+        }
+        if (m_breakpoint)
+            m_breakpoint->deleteBreakpoint();
+    }
+
+    // Empty when the session is up, otherwise why it is not.
+    QString start(const QString &marker)
+    {
+        if (!m_dir.isValid())
+            return "no temporary directory to build in";
+
+        const auto buildsForThisMachine = [](Kit *candidate) {
+            if (!candidate->isValid())
+                return false;
+            Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(candidate);
+            return toolchain && toolchain->targetAbi() == Abi::hostAbi();
+        };
+        Kit *kit = Utils::findOr(KitManager::kits(), nullptr, buildsForThisMachine);
+        if (!kit)
+            return "no kit of this machine's own architecture to build with";
+        Toolchain *toolchain = ToolchainKitAspect::cxxToolchain(kit);
+        if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
+            return "building the inferior is only wired up for gcc-style compilers";
+
+        const FilePath dir = FilePath::fromString(m_dir.path());
+        m_source = dir / "stepping.cpp";
+        m_executable = (dir / "stepping").withExecutableSuffix();
+        if (!m_source.writeFileContents(QByteArray(s_steppingSource)))
+            return "could not write " + m_source.toUserOutput();
+
+        m_line = markerLine(marker);
+        if (m_line <= 0)
+            return "no line marked " + marker;
+
+        Process compiler;
+        compiler.setCommand({toolchain->compilerCommand(),
+                             {"-g", "-O0", m_source.nativePath(),
+                              "-o", m_executable.nativePath()}});
+        compiler.runBlocking(std::chrono::seconds(60));
+        if (compiler.exitCode() != 0 || !m_executable.isExecutableFile())
+            return "the inferior would not build: " + compiler.allOutput().left(300);
+
+        BreakpointParameters params;
+        params.type = BreakpointByFileAndLine;
+        params.fileName = m_source;
+        params.textPosition = {m_line, -1};
+        params.enabled = true;
+        m_breakpoint = BreakpointManager::createBreakpoint(params);
+
+        const QList<QPointer<DebuggerEngine>> before = EngineManager::engines();
+        m_runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        m_runControl->setKit(kit);
+        DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(m_runControl);
+        rp.setInferior(ProcessRunData{CommandLine{m_executable}, dir});
+        QObject::connect(m_runControl, &RunControl::stopped,
+                         &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+        m_runControl->setRunRecipe(debuggerRecipe(m_runControl, rp));
+        m_runControl->start();
+
+        // EngineManager holds every engine the application ever made, and other
+        // tests leave theirs behind, so take the one that was not there before.
+        const bool arrived = QTest::qWaitFor([this, &before] {
+            for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
+                if (candidate && !before.contains(candidate))
+                    m_engine = candidate;
+            }
+            // Stopped is not yet arrived: the stack the test reads about comes
+            // in after the state does.
+            return m_engine && m_engine->state() == InferiorStopOk
+                   && m_engine->stackHandler()->currentFrame().line == m_line;
+        }, 90000);
+        if (!arrived)
+            return "the session never stopped at " + marker;
+        return {};
+    }
+
+    DebuggerEngine *engine() const { return m_engine; }
+    int line() const { return m_line; }
+
+    int markerLine(const QString &marker) const
+    {
+        const QStringList lines = QString::fromUtf8(s_steppingSource).split('\n');
+        for (int i = 0; i < lines.size(); ++i) {
+            if (lines.at(i).contains(marker))
+                return i + 1;
+        }
+        return 0;
+    }
+
+private:
+    QTemporaryDir m_dir;
+    FilePath m_source;
+    FilePath m_executable;
+    RunControl *m_runControl = nullptr;
+    QPointer<DebuggerEngine> m_engine;
+    GlobalBreakpoint m_breakpoint;
+    bool m_warnedAboutBreakpoints = false;
+    int m_line = 0;
+};
+
+// Asks for a step and waits for the engine to settle somewhere else. Reports
+// where it ended up, which is what the test has to say something about.
+static StackFrame stepAndSettle(DebuggerEngine *engine, void (DebuggerEngine::*ask)(),
+                                QString *complaint)
+{
+    const StackFrame before = engine->stackHandler()->currentFrame();
+    (engine->*ask)();
+    const bool moved = QTest::qWaitFor([engine, before] {
+        const StackFrame now = engine->stackHandler()->currentFrame();
+        return engine->state() == InferiorStopOk
+               && (now.function != before.function || now.line != before.line);
+    }, 30000);
+    const StackFrame after = engine->stackHandler()->currentFrame();
+    if (!moved) {
+        *complaint = QString("the step never arrived - state %1, still at %2:%3")
+                         .arg(engine->state()).arg(after.function).arg(after.line);
+    }
+    return after;
+}
+
+// The generic backends are what these exercise. Nothing here can say anything
+// about them when the environment has turned them off.
+static QString reasonTheGenericBackendsAreNotUnderTest()
+{
+    if (isUseGenericDebuggerOverride() && !useGenericDebuggerEnabled())
+        return "QTC_USE_GENERIC_DEBUGGER turns the backends under test off.";
+    return {};
+}
+
+void DebuggerUnitTests::testStepsIntoACalledFunction()
+{
+    if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const bool wasOn = commonSettings().useGenericDebugger();
+    commonSettings().useGenericDebugger.setValue(true);
+    const QScopeGuard restore([wasOn] { commonSettings().useGenericDebugger.setValue(wasOn); });
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    QString complaint;
+    const StackFrame frame = stepAndSettle(session.engine(),
+                                           &DebuggerEngine::handleExecStepIn, &complaint);
+    QVERIFY2(complaint.isEmpty(), qPrintable(complaint));
+    // Backends spell a function with its signature or without it.
+    QVERIFY2(frame.function.startsWith("addOne"),
+             qPrintable(QString("stepping in at the call landed in %1:%2")
+                            .arg(frame.function).arg(frame.line)));
+    QCOMPARE(frame.line, session.markerLine("MARKER: in-callee"));
+}
+
+void DebuggerUnitTests::testStepsOverACallWithoutEnteringIt()
+{
+    if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const bool wasOn = commonSettings().useGenericDebugger();
+    commonSettings().useGenericDebugger.setValue(true);
+    const QScopeGuard restore([wasOn] { commonSettings().useGenericDebugger.setValue(wasOn); });
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    QString complaint;
+    const StackFrame frame = stepAndSettle(session.engine(),
+                                           &DebuggerEngine::handleExecStepOver, &complaint);
+    QVERIFY2(complaint.isEmpty(), qPrintable(complaint));
+    QVERIFY2(frame.function.startsWith("main"),
+             qPrintable(QString("stepping over the call left main for %1:%2")
+                            .arg(frame.function).arg(frame.line)));
+    QCOMPARE(frame.line, session.markerLine("MARKER: after-call"));
+}
+
+void DebuggerUnitTests::testStepsOutOfACalledFunction()
+{
+    if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    const bool wasOn = commonSettings().useGenericDebugger();
+    commonSettings().useGenericDebugger.setValue(true);
+    const QScopeGuard restore([wasOn] { commonSettings().useGenericDebugger.setValue(wasOn); });
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    QVERIFY(session.engine()->stackHandler()->currentFrame().function.startsWith("addOne"));
+
+    QString complaint;
+    const StackFrame frame = stepAndSettle(session.engine(),
+                                           &DebuggerEngine::handleExecStepOut, &complaint);
+    QVERIFY2(complaint.isEmpty(), qPrintable(complaint));
+    QVERIFY2(frame.function.startsWith("main"),
+             qPrintable(QString("stepping out of addOne landed in %1:%2")
+                            .arg(frame.function).arg(frame.line)));
 }
 
 void DebuggerUnitTests::testScratchEditorAdoptsSavedName()
