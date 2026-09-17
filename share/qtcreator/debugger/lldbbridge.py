@@ -113,6 +113,8 @@ class Dumper(DumperBase):
         self.interpreterResolverHookBreakpoint = None
         self.objectAvailableBreakpoint = None
         self.interpreterMessageWatchpoint = None
+        self.interpreterStepping = False
+        self.qmlStepEscapeBreakpoint = None
         # Internal (not user-visible) breakpoint ids - see handleBreakpointEvent().
         self.internalBreakpointIds = set()
 
@@ -1847,10 +1849,72 @@ class Dumper(DumperBase):
             error = self.process.Detach()
             self.reportResult(self.describeError(error), args)
 
+    def stepInterpreter(self, command, args):
+        # A step the interpreter is asked for outlives the stop it produces:
+        # it only stops stepping when told to continue.
+        self.sendInterpreterRequest(command, args)
+        self.interpreterStepping = True
+        self.armQmlStepEscape()
+
+    def armQmlStepEscape(self):
+        # Left stepping, the interpreter compares every statement against the
+        # frame the step was asked in. A step past the last statement of the
+        # outermost JS frame has nowhere to land, and once that frame is
+        # returned from nothing matches it again: no statement is offered to
+        # any breakpoint from there on. The interpreter reports none of this,
+        # so stop where that frame returns to and take the step back there.
+        self.disarmQmlStepEscape()
+        thread = self.currentThread()
+        if thread is None:
+            return
+        outermost = -1
+        for i in range(thread.GetNumFrames()):
+            name = thread.GetFrameAtIndex(i).GetFunctionName() or ''
+            if 'QV4::Moth::VME::exec' in name:
+                outermost = i
+        if outermost < 0:
+            return
+        caller = thread.GetFrameAtIndex(outermost + 1)
+        if not caller.IsValid():
+            return
+        bp = self.target.BreakpointCreateByAddress(caller.GetPC())
+        if not bp.IsValid():
+            return
+        bp.SetThreadIndex(thread.GetIndexID())
+        self.internalBreakpointIds.add(bp.GetID())
+        self.qmlStepEscapeBreakpoint = bp
+
+    def disarmQmlStepEscape(self):
+        bp = self.qmlStepEscapeBreakpoint
+        if bp is None:
+            return
+        self.qmlStepEscapeBreakpoint = None
+        self.internalBreakpointIds.discard(bp.GetID())
+        self.target.BreakpointDelete(bp.GetID())
+
+    def atQmlStepEscape(self, thread):
+        if self.qmlStepEscapeBreakpoint is None or thread is None:
+            return False
+        if thread.GetStopReason() != lldb.eStopReasonBreakpoint:
+            return False
+        if thread.GetStopReasonDataCount() == 0:
+            return False
+        return thread.GetStopReasonDataAtIndex(0) == \
+            self.qmlStepEscapeBreakpoint.GetID()
+
+    def takeBackInterpreterStep(self):
+        self.disarmQmlStepEscape()
+        if not self.interpreterStepping:
+            return
+        self.interpreterStepping = False
+        self.sendInterpreterRequest('continue', {})
+        self.disarmNativeCallStepIn()
+
     def continueInferior(self, args):
         if self.process is None:
             self.reportResult('status="No process to continue."', args)
         else:
+            self.takeBackInterpreterStep()
             # Can fail when attaching to GDBserver.
             error = self.process.Continue()
             self.reportResult(self.describeError(error), args)
@@ -1975,6 +2039,13 @@ class Dumper(DumperBase):
                     #self.report("FRAME: %s" % frame)
                     functionName = frame.GetFunctionName()
                     if self.handleNativeMethodStepInto(stoppedThread, functionName):
+                        return
+                    if self.atQmlStepEscape(stoppedThread):
+                        self.report("QML STEP LEFT THE INTERPRETER")
+                        self.takeBackInterpreterStep()
+                        # The engine asked for a step, not for this stop, and
+                        # the step it asked for has nowhere left to land.
+                        self.process.Continue()
                         return
                     # Substring, not "==": demangled formatting can vary.
                     if "qt_qmlDebugConnectorOpen" in (functionName or ''):
@@ -2410,7 +2481,7 @@ class Dumper(DumperBase):
 
     def executeNext(self, args):
         if self.atQmlStop():
-            self.sendInterpreterRequest('stepover', args)
+            self.stepInterpreter('stepover', args)
             self.process.Continue()
         else:
             self.currentThread().StepOver()
@@ -2441,7 +2512,7 @@ class Dumper(DumperBase):
         if self.atQmlStop():
             # Stepping from QML: pause at the next JS statement, and arm
             # the native call hook so a C++ method call is stepped into.
-            self.sendInterpreterRequest('stepin', args)
+            self.stepInterpreter('stepin', args)
             self.armNativeCallStepIn()
             self.process.Continue()
         else:
@@ -2632,7 +2703,7 @@ class Dumper(DumperBase):
 
     def executeStepOut(self, args={}):
         if self.atQmlStop():
-            self.sendInterpreterRequest('stepout', args)
+            self.stepInterpreter('stepout', args)
             self.process.Continue()
         elif self.nativeMixed and self.atNativeToQmlBoundary():
             # The C++ frame was called straight from the QML interpreter;

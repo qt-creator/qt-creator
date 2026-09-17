@@ -1574,6 +1574,10 @@ private slots:
     void insertsQmlBreakpointBeforeDumpersLoad();
     void insertsAQmlBreakpointWhileTheInferiorRuns_data() { addBackendRows(); }
     void insertsAQmlBreakpointWhileTheInferiorRuns();
+    void takesBackAQmlStepWhenRunning_data() { addBackendRows(); }
+    void takesBackAQmlStepWhenRunning();
+    void keepsStoppingWhenAQmlStepRunsOut_data() { addBackendRows(); }
+    void keepsStoppingWhenAQmlStepRunsOut();
     void watchesEachInterpreterMessageLength_data() { addBackendRows(); }
     void watchesEachInterpreterMessageLength();
     void hitsAQmlBreakpointOnEveryPass_data() { addBackendRows(); }
@@ -9772,6 +9776,156 @@ void tst_backends::updatesAQmlBreakpointThroughTheService()
              }),
              qPrintable("the update never reached the service - "
                         + traffic.join(" | ").left(700)));
+#endif
+}
+
+void tst_backends::keepsStoppingWhenAQmlStepRunsOut()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+#ifndef QMLMIX_INFERIOR_EXECUTABLE
+    QSKIP("Qt::Quick not available when this test binary was configured.");
+#else
+    const FilePath inferior = (FilePath::fromUserInput(QMLMIX_INFERIOR_EXECUTABLE)
+                              / "qmlmix_inferior").withExecutableSuffix();
+    if (!inferior.isExecutableFile())
+        QSKIP(qPrintable("qmlmix inferior not found at " + inferior.toUserOutput()));
+    if (!m_hasQmlNativeDebuggerPlugin)
+        QSKIP(s_qmlNativeDebuggerPluginMissing);
+    if (!m_hasQtDeclarativeDebugInfo)
+        QSKIP(s_qtDeclarativeDebugInfoMissing);
+
+    Environment env = Environment::systemEnvironment();
+    env.set("QV4_FORCE_INTERPRETER", "1");
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
+                        {}, env}, true);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const int qmlLine = qmlMarkerLine("Main.qml", "MARKER: qml-repeat");
+    QVERIFY(qmlLine > 0);
+
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, qmlLine](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 1;
+        request.modelId = 99;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = FilePath::fromUserInput("Main.qml");
+        request.params.textPosition.line = qmlLine;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
+
+    // Stepping walks out of the handler the breakpoint sits under, and a step
+    // past its last statement has nowhere in QML to land. The inferior still
+    // has to come back - by the breakpoint if by nothing else.
+    const QByteArray lost = "a QML step left the inferior running with nothing to stop it";
+    for (int step = 0; step < 8; ++step) {
+        debuggerBackend->clearEvents();
+        debuggerBackend->execute({ExecutionCommand::StepIn});
+        QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                                  || debuggerBackend->contains(InferiorEvent::StopOk),
+                                  lost.constData(), s_timeout);
+    }
+#endif
+}
+
+void tst_backends::takesBackAQmlStepWhenRunning()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+#ifndef QMLMIX_INFERIOR_EXECUTABLE
+    QSKIP("Qt::Quick not available when this test binary was configured.");
+#else
+    const FilePath inferior = (FilePath::fromUserInput(QMLMIX_INFERIOR_EXECUTABLE)
+                              / "qmlmix_inferior").withExecutableSuffix();
+    if (!inferior.isExecutableFile())
+        QSKIP(qPrintable("qmlmix inferior not found at " + inferior.toUserOutput()));
+    if (!m_hasQmlNativeDebuggerPlugin)
+        QSKIP(s_qmlNativeDebuggerPluginMissing);
+    if (!m_hasQtDeclarativeDebugInfo)
+        QSKIP(s_qtDeclarativeDebugInfoMissing);
+
+    Environment env = Environment::systemEnvironment();
+    env.set("QV4_FORCE_INTERPRETER", "1");
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{inferior, {"-qmljsdebugger=native,services:NativeQmlDebugger"}},
+                        {}, env}, true);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const int qmlLine = qmlMarkerLine("Main.qml", "MARKER: qml-repeat");
+    QVERIFY(qmlLine > 0);
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, qmlLine](InferiorEvent event) {
+        if (event != InferiorEvent::EngineSetupOk)
+            return;
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 1;
+        request.modelId = 99;
+        request.params.type = BreakpointByFileAndLine;
+        request.params.fileName = FilePath::fromUserInput("Main.qml");
+        request.params.textPosition.line = qmlLine;
+        request.params.enabled = true;
+        engine->changeBreakpoint(request);
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::StepIn});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::StopOk), s_timeout);
+
+    // The step the interpreter was asked for outlives the stop it produced.
+    // Run again and the line the breakpoint is on is what has to come back,
+    // not wherever the step left off.
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                             || debuggerBackend->contains(InferiorEvent::StopOk), s_timeout);
+
+    responses.remove(int(RefreshKind::FullStack));
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::QmlStack;
+    stackRequest.requestId = 20;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+
+    const QString stack = responses.value(int(RefreshKind::FullStack)).toString();
+    static const QRegularExpression jsFrame(R"(frame=\{[^}]*language="js"[^}]*\})");
+    const QRegularExpressionMatch match = jsFrame.match(stack);
+    QVERIFY2(match.hasMatch(), qPrintable("no QML frame in stack: " + stack.left(700)));
+    QVERIFY2(match.captured().contains(QString("line=\"%1\"").arg(qmlLine)),
+             qPrintable("running after a QML step stopped where the step left off, "
+                        "not at the breakpoint - " + match.captured()));
 #endif
 }
 
