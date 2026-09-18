@@ -32,6 +32,7 @@
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/stylehelper.h>
 #include <utils/temporaryfile.h>
 
 #include <QAbstractScrollArea>
@@ -58,11 +59,15 @@
 #include <QString>
 #include <QTextDocument>
 #include <QTextFormat>
+#include <QtMath>
 #include <QToolBar>
 #include <QToolTip>
 #include <QVariant>
 #include <QWheelEvent>
 
+#include <algorithm>
+#include <array>
+#include <cmath>
 #include <optional>
 
 #ifdef WITH_TESTS
@@ -81,29 +86,32 @@ const int SearchStride = 1024 * 1024;
 const char C_ENCODING_SETTING[] = "BinEditor/TextEncoding";
 const char C_BYTES_PER_GROUP[] = "BinEditor/BytesPerGroup";
 const char C_REVERSE_GROUP_BYTES[] = "BinEditor/ReverseGroupBytes";
+const char C_COLOR_BYTES[] = "BinEditor/ColorBytes";
 
-// The hex display grouping is global, so a change in one editor's context menu
-// has to reach the others.
-class GroupingSettings final : public QObject
+// How the bytes are displayed is global, so a change in one editor's context
+// menu has to reach the others.
+class DisplaySettings final : public QObject
 {
     Q_OBJECT
 
 public:
-    GroupingSettings()
+    DisplaySettings()
     {
         // Clamp to a valid word size so a stale or hand-edited setting cannot
         // break the column geometry.
         const int saved = ICore::settings()->value(C_BYTES_PER_GROUP, 1).toInt();
         m_bytesPerGroup = (saved == 2 || saved == 4 || saved == 8) ? saved : 1;
         m_reverseGroupBytes = ICore::settings()->value(C_REVERSE_GROUP_BYTES, false).toBool();
+        m_colorBytes = ICore::settings()->value(C_COLOR_BYTES, true).toBool();
     }
 
     int bytesPerGroup() const { return m_bytesPerGroup; }
     // Kept even while single bytes leave no order to reverse, so that picking a
     // group size again brings the choice back.
     bool reverseGroupBytes() const { return m_reverseGroupBytes; }
+    bool colorBytes() const { return m_colorBytes; }
 
-    void set(int bytesPerGroup, bool reverseGroupBytes)
+    void setGrouping(int bytesPerGroup, bool reverseGroupBytes)
     {
         QTC_ASSERT(bytesPerGroup == 1 || bytesPerGroup == 2 || bytesPerGroup == 4
                    || bytesPerGroup == 8, return);
@@ -114,18 +122,26 @@ public:
         emit changed();
     }
 
+    void setColorBytes(bool colorBytes)
+    {
+        m_colorBytes = colorBytes;
+        ICore::settings()->setValueWithDefault(C_COLOR_BYTES, m_colorBytes, true);
+        emit changed();
+    }
+
 signals:
     void changed();
 
 private:
     int m_bytesPerGroup = 1;
     bool m_reverseGroupBytes = false;
+    bool m_colorBytes = true;
 };
 
-static GroupingSettings &groupingSettings()
+static DisplaySettings &displaySettings()
 {
-    static GroupingSettings theGroupingSettings;
-    return theGroupingSettings;
+    static DisplaySettings theDisplaySettings;
+    return theDisplaySettings;
 }
 
 class BinEditorDocument final : public IDocument
@@ -317,9 +333,10 @@ public:
     void onSizesChanged() { init(); viewport()->update(); }
     void onCursorWanted(qint64 pos) { setCursorPosition(pos);  }
 
-    void updateGrouping() {
-        m_bytesPerGroup = groupingSettings().bytesPerGroup();
-        m_reverseGroupBytes = m_bytesPerGroup > 1 && groupingSettings().reverseGroupBytes();
+    void updateDisplaySettings() {
+        m_bytesPerGroup = displaySettings().bytesPerGroup();
+        m_reverseGroupBytes = m_bytesPerGroup > 1 && displaySettings().reverseGroupBytes();
+        m_colorBytes = displaySettings().colorBytes();
     }
 
     void aboutToReload() { m_savedCursorPosition = m_cursorPosition; }
@@ -363,6 +380,10 @@ public:
     int m_bytesPerLine = 16;
     int m_bytesPerGroup = 1;          // hex display grouping (word size in bytes)
     bool m_reverseGroupBytes = false; // little-endian display order within a group
+    bool m_colorBytes = true;         // give every byte a color of its own
+    std::array<QColor, 16> m_leadingNibbleColors;
+    QColor m_zeroByteColor;
+    QColor m_fullByteColor;
     int m_readOnly = false;
     int m_margin = 0;
     int m_descent = 0;
@@ -399,8 +420,11 @@ public:
 
     qint64 findPattern(const QByteArray &data, const QByteArray &dataHex,
                        qint64 from, qint64 offset, qint64 *match);
-    void drawItems(QPainter *painter, int x, int y, const QString &itemString);
+    void drawItems(QPainter *painter, int x, int y, const QString &itemString,
+                   const QColor *byteColors = nullptr, const char *changes = nullptr);
     void drawChanges(QPainter *painter, int x, int y, const char *changes);
+    void updateByteColors();
+    QColor byteColor(uchar value) const;
 
     void setupJumpToMenuAction(QMenu *menu, QAction *actionHere, QAction *actionNew,
                                quint64 addr);
@@ -481,9 +505,9 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
     if (!encodingSetting.isNull())
         codecChooser->setAssignedEncoding(encodingSetting.toByteArray());
 
-    updateGrouping();
-    connect(&groupingSettings(), &GroupingSettings::changed, this, [this] {
-        updateGrouping();
+    updateDisplaySettings();
+    connect(&displaySettings(), &DisplaySettings::changed, this, [this] {
+        updateDisplaySettings();
         onSizesChanged();
     });
 
@@ -539,6 +563,8 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
 
 void BinEditorWidget::init()
 {
+    updateByteColors();
+
     const int addressLen = addressLength();
     const int addressStringWidth = 2 * addressLen + (addressLen - 1) / 2;
     m_addressString = QString(addressStringWidth, QLatin1Char(':'));
@@ -1154,14 +1180,103 @@ qint64 BinEditorWidget::findPattern(const QByteArray &data, const QByteArray &da
     return -1;
 }
 
-void BinEditorWidget::drawItems(QPainter *painter, int x, int y, const QString &itemString)
+void BinEditorWidget::updateByteColors()
 {
-    if (m_isMonospacedFont && m_bytesPerGroup == 1) {
+    // One hue per leading nibble, so that a run of bytes shows its shape as a
+    // gradient. The hues are spaced by how far apart the eye holds them, not
+    // evenly around the circle.
+    static const double hues[16] = {360, 23, 50, 65, 77, 103, 130, 142,
+                                    150, 163, 184, 209, 232, 254, 294, 328};
+    // Every hue has the most chroma at a lightness of its own, and holding all
+    // of them at one lightness leaves most far below it, which is what makes a
+    // palette look washed out. Each hue is placed where it is most chromatic
+    // instead, and pulled back from there only as far as it takes to clear the
+    // background the theme brings: a color too near the background in
+    // lightness reads as dull however much chroma it carries.
+    const double MinimumDistance = 0.40;
+
+    static const std::array<double, 16> peakLightness = [] {
+        std::array<double, 16> result = {};
+        for (int nibble = 0; nibble < 16; ++nibble)
+            result[nibble] = StyleHelper::oklchMostChromaticLightness(hues[nibble]);
+        return result;
+    }();
+
+    const double backgroundLightness = StyleHelper::oklab(palette().base().color()).lightness;
+    const bool darkBackground = backgroundLightness <= 0.5;
+    const double nearestAllowed = darkBackground ? backgroundLightness + MinimumDistance
+                                                 : backgroundLightness - MinimumDistance;
+    for (int nibble = 0; nibble < 16; ++nibble) {
+        const double lightness = darkBackground
+                                     ? std::max(peakLightness[nibble], nearestAllowed)
+                                     : std::min(peakLightness[nibble], nearestAllowed);
+        m_leadingNibbleColors[nibble] = StyleHelper::oklchColor(
+            {lightness, StyleHelper::oklchFullChroma, hues[nibble]});
+    }
+
+    // 00 and ff are the two most common bytes in about any file, and worth
+    // telling apart from their neighbours: the filler recedes towards the
+    // background, the full byte stands out from everything else in the view.
+    // Standing out is why the text color will not do for it: that is what an
+    // uncolored byte is already drawn in, and a theme is free to make it a
+    // grey that no longer reaches past the hues.
+    m_zeroByteColor = StyleHelper::mergedColors(palette().text().color(),
+                                                palette().base().color());
+    m_fullByteColor = StyleHelper::oklchColor({darkBackground ? 1.0 : 0.0, 0, 0});
+}
+
+QColor BinEditorWidget::byteColor(uchar value) const
+{
+    if (value == 0x00)
+        return m_zeroByteColor;
+    if (value == 0xff)
+        return m_fullByteColor;
+    return m_leadingNibbleColors[value >> 4];
+}
+
+void BinEditorWidget::drawItems(QPainter *painter, int x, int y, const QString &itemString,
+                                const QColor *byteColors, const char *changes)
+{
+    if (byteColors) {
+        const QPen plainPen = painter->pen();
+        for (int i = 0; i < m_bytesPerLine; ++i) {
+            // The changed-byte background belongs to this column alone, so it
+            // is here that a colored glyph on top of it becomes hard to read.
+            const bool colored = byteColors[i].isValid() && !(changes && changes[i]);
+            painter->setPen(colored ? QPen(byteColors[i]) : plainPen);
+            painter->drawText(x + hexColumnOffset(i), y, itemString.mid(i*3, 2));
+        }
+        painter->setPen(plainPen);
+    } else if (m_isMonospacedFont && m_bytesPerGroup == 1) {
         painter->drawText(x, y, itemString);
     } else {
         for (int i = 0; i < m_bytesPerLine; ++i)
             painter->drawText(x + hexColumnOffset(i), y, itemString.mid(i*3, 2));
     }
+}
+
+// Drawn character by character, which also means that a right-to-left one
+// cannot reorder its neighbours, so the display string is not needed here.
+static void drawPrintableChars(QPainter *painter, int x, int y, const QString &printable,
+                               const QColor *byteColors)
+{
+    const QFontMetrics &fm = painter->fontMetrics();
+    const QPen plainPen = painter->pen();
+    for (int i = 0; i < printable.size(); ++i) {
+        if (byteColors)
+            painter->setPen(byteColors[i].isValid() ? QPen(byteColors[i]) : plainPen);
+        painter->drawText(x, y, printable.mid(i, 1));
+        x += fm.horizontalAdvance(printable.at(i));
+    }
+    painter->setPen(plainPen);
+}
+
+static int printableOffset(const QFontMetrics &fm, const QString &printable, int index)
+{
+    int x = 0;
+    for (int i = 0; i < index; ++i)
+        x += fm.horizontalAdvance(printable.at(i));
+    return x;
 }
 
 void BinEditorWidget::drawChanges(QPainter *painter, int x, int y, const char *changes)
@@ -1308,15 +1423,20 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
             printableDisp = printable = QString(m_bytesPerLine, QLatin1Char(' '));
         }
 
+        const int text_x = -xoffset + m_margin + m_labelWidth + hexAreaWidth() + m_charWidth;
+
         QRegion selectionRegion;
         QRect printableSelectionRect;
         char changedString[maxBytesPerLine] = {false};
         QColor columnColors[maxBytesPerLine];
+        QColor byteColors[maxBytesPerLine];
 
         bool isFullySelected = (selStart < selEnd && selStart <= line*m_bytesPerLine && (line+1)*m_bytesPerLine <= selEnd);
         bool somethingChanged = false;
+        bool anyByteColored = false;
 
         if (hasData || hasOldData) {
+            int printable_item_x = text_x;
             for (int c = 0; c < m_bytesPerLine; ++c) {
                 qint64 pos = line * m_bytesPerLine + c;
                 if (pos >= m_doc->m_size)
@@ -1334,6 +1454,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                 }
 
                 int item_x = -xoffset +  m_margin + m_labelWidth + hexColumnOffset(c);
+                const int printable_item_width = fm.horizontalAdvance(printable.at(c));
 
                 QColor color;
                 for (const Markup &m : std::as_const(m_markup)) {
@@ -1346,23 +1467,26 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                     color = QColor(0xffef0b);
 
                 columnColors[c] = color;
+                // A byte that has a background of its own is set apart by that
+                // background already, and a colored glyph on top of it is what
+                // becomes hard to read.
+                if (m_colorBytes && !color.isValid()) {
+                    byteColors[c] = byteColor(value);
+                    anyByteColored = true;
+                }
                 if (color.isValid()) {
                     painter.fillRect(item_x - m_charWidth/2, y-m_ascent, m_columnWidth, m_lineHeight, color);
-                    int printable_item_x = -xoffset + m_margin + m_labelWidth + hexAreaWidth() + m_charWidth
-                                           + fm.horizontalAdvance(printable.left(c));
-                    painter.fillRect(printable_item_x, y-m_ascent,
-                                     fm.horizontalAdvance(printable.at(c)),
+                    painter.fillRect(printable_item_x, y-m_ascent, printable_item_width,
                                      m_lineHeight, color);
                 }
 
                 if (!isFullySelected && pos >= selStart && pos <= selEnd) {
                     selectionRegion |= QRect(item_x - m_charWidth/2, y-m_ascent, m_columnWidth, m_lineHeight);
-                    int printable_item_x = -xoffset + m_margin + m_labelWidth + hexAreaWidth() + m_charWidth
-                                           + fm.horizontalAdvance(printable.left(c));
                     printableSelectionRect |= QRect(printable_item_x, y-m_ascent,
-                                                    fm.horizontalAdvance(printable.at(c)),
-                                                    m_lineHeight);
+                                                    printable_item_width, m_lineHeight);
                 }
+
+                printable_item_x += printable_item_width;
             }
 
             // A markup, a search hit or a selection that spans a group
@@ -1397,7 +1521,8 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
         } else {
             if (somethingChanged)
                 drawChanges(&painter, x, y, changedString);
-            drawItems(&painter, x, y, itemString);
+            drawItems(&painter, x, y, itemString, anyByteColored ? byteColors : nullptr,
+                      changedString);
             if (!selectionRegion.isEmpty()) {
                 painter.save();
                 painter.setClipRegion(selectionRegion);
@@ -1424,29 +1549,36 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
             }
         }
 
-        int text_x = -xoffset + m_margin + m_labelWidth + hexAreaWidth() + m_charWidth;
+        // What is drawn over the printable text - a selection, the cursor -
+        // has to be laid out the way that text was, or it will not line up.
+        const auto drawPrintable = [&](const QColor *colors) {
+            if (anyByteColored)
+                drawPrintableChars(&painter, text_x, y, printable, colors);
+            else
+                painter.drawText(text_x, y, printableDisp);
+        };
 
         if (isFullySelected) {
                 painter.save();
                 painter.fillRect(text_x, y-m_ascent, fm.horizontalAdvance(printable), m_lineHeight,
                                  palette().highlight());
                 painter.setPen(palette().highlightedText().color());
-                painter.drawText(text_x, y, printableDisp);
+                drawPrintable(nullptr);
                 painter.restore();
         } else {
-            painter.drawText(text_x, y, printableDisp);
+            drawPrintable(byteColors);
             if (!printableSelectionRect.isEmpty()) {
                 painter.save();
                 painter.fillRect(printableSelectionRect, palette().highlight());
                 painter.setPen(palette().highlightedText().color());
                 painter.setClipRect(printableSelectionRect);
-                painter.drawText(text_x, y, printableDisp);
+                drawPrintable(nullptr);
                 painter.restore();
             }
         }
 
         if (cursor >= 0 && !printable.isEmpty()) {
-            QRect cursorRect(text_x + fm.horizontalAdvance(printable.left(cursor)),
+            QRect cursorRect(text_x + printableOffset(fm, printable, cursor),
                              y-m_ascent,
                              fm.horizontalAdvance(printable.at(cursor)),
                              m_lineHeight);
@@ -1457,7 +1589,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                 painter.setClipRect(cursorRect);
                 painter.fillRect(cursorRect, Qt::red);
                 painter.setPen(Qt::white);
-                painter.drawText(text_x, y, printableDisp);
+                drawPrintable(nullptr);
                 painter.restore();
             }
         }
@@ -2090,9 +2222,14 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     }
     auto reverseAction = new QAction(Tr::tr("Little-Endian Byte Order"), contextMenu);
     reverseAction->setCheckable(true);
-    reverseAction->setChecked(groupingSettings().reverseGroupBytes());
+    reverseAction->setChecked(displaySettings().reverseGroupBytes());
     reverseAction->setEnabled(m_bytesPerGroup > 1);
     contextMenu->addAction(reverseAction);
+
+    auto colorAction = new QAction(Tr::tr("Color Bytes by Value"), contextMenu);
+    colorAction->setCheckable(true);
+    colorAction->setChecked(m_colorBytes);
+    contextMenu->addAction(colorAction);
 
     QAction *action = contextMenu->exec(event->globalPos());
     if (!contextMenu)
@@ -2117,9 +2254,11 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     else if (action == addWatchpointAction)
         m_doc->requestWatchPoint(baseAddress() + selStart, byteCount);
     else if (action == reverseAction)
-        groupingSettings().set(m_bytesPerGroup, reverseAction->isChecked());
+        displaySettings().setGrouping(m_bytesPerGroup, reverseAction->isChecked());
+    else if (action == colorAction)
+        displaySettings().setColorBytes(colorAction->isChecked());
     else if (action && action->actionGroup() == groupActions)
-        groupingSettings().set(action->data().toInt(), groupingSettings().reverseGroupBytes());
+        displaySettings().setGrouping(action->data().toInt(), displaySettings().reverseGroupBytes());
     delete contextMenu;
 }
 
@@ -2861,10 +3000,10 @@ private slots:
     // the editors that are already open.
     void testGroupingIsShared()
     {
-        const int savedGroup = groupingSettings().bytesPerGroup();
-        const bool savedReverse = groupingSettings().reverseGroupBytes();
+        const int savedGroup = displaySettings().bytesPerGroup();
+        const bool savedReverse = displaySettings().reverseGroupBytes();
         const QScopeGuard restoreGrouping([savedGroup, savedReverse] {
-            groupingSettings().set(savedGroup, savedReverse);
+            displaySettings().setGrouping(savedGroup, savedReverse);
         });
 
         auto firstDocument = std::make_shared<BinEditorDocument>();
@@ -2874,20 +3013,136 @@ private slots:
         BinEditorWidget first(firstDocument);
         BinEditorWidget second(secondDocument);
 
-        groupingSettings().set(4, true);
+        displaySettings().setGrouping(4, true);
         QCOMPARE(first.m_bytesPerGroup, 4);
         QCOMPARE(second.m_bytesPerGroup, 4);
         QVERIFY(second.m_reverseGroupBytes);
 
         // Single bytes have no order to reverse, but the choice is remembered,
         // so that picking a group size again brings it back.
-        groupingSettings().set(1, true);
+        displaySettings().setGrouping(1, true);
         QCOMPARE(second.m_bytesPerGroup, 1);
         QVERIFY(!second.m_reverseGroupBytes);
-        QVERIFY(groupingSettings().reverseGroupBytes());
+        QVERIFY(displaySettings().reverseGroupBytes());
 
-        groupingSettings().set(4, groupingSettings().reverseGroupBytes());
+        displaySettings().setGrouping(4, displaySettings().reverseGroupBytes());
         QVERIFY(second.m_reverseGroupBytes);
+    }
+
+    // Bytes are told apart by their leading nibble, with 00 and ff set apart
+    // from the nibble they belong to.
+    void testEveryByteGroupHasItsOwnColor()
+    {
+        auto document = std::make_shared<BinEditorDocument>();
+        QVERIFY(document->setContents(QByteArray(64, '\0')).has_value());
+        BinEditorWidget widget(document);
+
+        QSet<QRgb> colors;
+        for (int value = 0; value < 256; ++value) {
+            const QColor color = widget.byteColor(uchar(value));
+            QVERIFY(color.isValid());
+            colors.insert(color.rgb());
+        }
+        QCOMPARE(colors.size(), qsizetype(18));
+
+        QVERIFY(widget.byteColor(0x00) != widget.byteColor(0x01));
+        QVERIFY(widget.byteColor(0xff) != widget.byteColor(0xfe));
+        QCOMPARE(widget.byteColor(0x01), widget.byteColor(0x0f));
+    }
+
+    // Every hue keeps its distance from the background the theme brings - a
+    // mid-grey one is what a light-or-dark guess gets wrong - and spends
+    // whatever is left on chroma, which is what a single lightness for all of
+    // them cannot do.
+    void testByteColorsFollowTheBackground()
+    {
+        auto document = std::make_shared<BinEditorDocument>();
+        QVERIFY(document->setContents(QByteArray(64, '\0')).has_value());
+        BinEditorWidget widget(document);
+
+        const QList<QColor> backgrounds = {QColor(Qt::white), QColor(0xf0, 0xf0, 0xf0),
+                                           QColor(0x80, 0x80, 0x80), QColor(0x33, 0x33, 0x33),
+                                           QColor(0x2e, 0x2f, 0x30)};
+        for (const QColor &background : backgrounds) {
+            QPalette palette = widget.palette();
+            palette.setColor(QPalette::Base, background);
+            widget.setPalette(palette);
+            widget.init();
+
+            const double backgroundLightness = StyleHelper::oklab(background).lightness;
+            const auto distance = [backgroundLightness](const QColor &color) {
+                return std::abs(StyleHelper::oklab(color).lightness - backgroundLightness);
+            };
+            for (int nibble = 0; nibble < 16; ++nibble) {
+                const StyleHelper::OklabColor lab =
+                    StyleHelper::oklab(widget.byteColor(uchar(nibble * 16 + 1)));
+                const double hue = qRadiansToDegrees(std::atan2(lab.b, lab.a));
+                const double chroma = std::hypot(lab.a, lab.b);
+                QVERIFY(distance(widget.byteColor(uchar(nibble * 16 + 1))) > 0.25);
+                QVERIFY(chroma > StyleHelper::oklchFittingChroma(
+                                     {lab.lightness, StyleHelper::oklchFullChroma, hue})
+                                     - 0.01);
+                // The full byte stands out, so it reaches past every hue.
+                QVERIFY(distance(widget.byteColor(0xff)) > distance(widget.byteColor(
+                            uchar(nibble * 16 + 1))));
+            }
+        }
+    }
+
+    // Coloring reaches the hex column, but leaves the bytes alone that are
+    // drawn on a background of their own.
+    void testBytesAreColoredByValue()
+    {
+        auto document = std::make_shared<BinEditorDocument>();
+        QByteArray contents(64, '\0');
+        for (int i = 0; i < contents.size(); ++i)
+            contents[i] = char(i * 4);
+        QVERIFY(document->setContents(contents).has_value());
+        BinEditorWidget widget(document);
+        widget.resize(600, 200);
+        widget.init();
+
+        const QRect hexArea(widget.m_margin + widget.m_labelWidth - widget.m_charWidth / 2, 0,
+                            widget.hexAreaWidth(), widget.viewport()->height());
+        const auto renderedHexArea = [&widget, hexArea](bool colorBytes) {
+            widget.m_colorBytes = colorBytes;
+            QImage image(widget.viewport()->size(), QImage::Format_ARGB32);
+            image.fill(Qt::transparent);
+            widget.viewport()->render(&image);
+            return image.copy(hexArea);
+        };
+
+        renderedHexArea(false); // The first rendering polishes the widget.
+
+        // Colored or not, the hex column is then drawn byte by byte, so the two
+        // renderings differ in the pen color and in nothing else. Polishing the
+        // widget runs init() again, hence after the rendering above.
+        widget.m_isMonospacedFont = false;
+
+        QVERIFY(renderedHexArea(false) != renderedHexArea(true));
+
+        widget.addMarkup(0, document->m_size, QColor(0x40, 0x80, 0xc0), {});
+        widget.commitMarkup();
+        QVERIFY(!widget.m_isMonospacedFont);
+        QCOMPARE(renderedHexArea(false), renderedHexArea(true));
+    }
+
+    // Coloring is global just as the grouping is.
+    void testByteColoringIsShared()
+    {
+        const bool savedColorBytes = displaySettings().colorBytes();
+        const QScopeGuard restoreColoring([savedColorBytes] {
+            displaySettings().setColorBytes(savedColorBytes);
+        });
+
+        auto document = std::make_shared<BinEditorDocument>();
+        QVERIFY(document->setContents(QByteArray(64, '\0')).has_value());
+        BinEditorWidget widget(document);
+
+        displaySettings().setColorBytes(false);
+        QVERIFY(!widget.m_colorBytes);
+        displaySettings().setColorBytes(true);
+        QVERIFY(widget.m_colorBytes);
     }
 };
 
