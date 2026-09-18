@@ -37,6 +37,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QMimeData>
@@ -990,6 +991,13 @@ QIcon NavigatorTreeModel::colorizeIcon(const QIcon &icon, const QColor &color) c
 
     if (!color.isValid())
         return icon;
+
+    // An icon whose pixels follow the theme keeps its cache key, so the colorized
+    // copies of the theme that was left would still be served.
+    if (m_colorizeIconGeneration != Utils::ThemeManager::generation()) {
+        m_colorizeIconGeneration = Utils::ThemeManager::generation();
+        m_colorizeIconHash.clear();
+    }
 
     const quint64 key = icon.cacheKey();
     const auto it = m_colorizeIconHash.find(key);

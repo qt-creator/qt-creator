@@ -34,6 +34,7 @@ Project {
         "templateengine/templateengine.qbs",
         "terminalinterface/terminalinterface.qbs",
         "text/text.qbs",
+        "theme/theme.qbs",
         "treemodel/treemodel.qbs",
         "unarchiver/unarchiver.qbs",
         "unixdevicefileaccess/unixdevicefileaccess.qbs",

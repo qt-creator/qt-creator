@@ -371,6 +371,21 @@ void QtcButton::paintEvent(QPaintEvent *event)
 
 void QtcButton::setPixmap(const QPixmap &pixmap)
 {
+    // Whatever the caller hands in here wins over a themed pixmap set earlier,
+    // which would otherwise replace it again on the next theme change.
+    ThemeManager::onChanged(this, themedPixmapKey, {});
+    setPixmapNow(pixmap);
+}
+
+void QtcButton::setThemedPixmap(const Icon &icon)
+{
+    const auto setIconPixmap = [this, icon] { setPixmapNow(icon.pixmap()); };
+    setIconPixmap();
+    ThemeManager::onChanged(this, themedPixmapKey, setIconPixmap);
+}
+
+void QtcButton::setPixmapNow(const QPixmap &pixmap)
+{
     m_pixmap = pixmap;
     updateMargins();
     update();
@@ -1724,7 +1739,7 @@ void Button::setText(const QString &text)
 
 void Button::setIcon(const Icon &icon)
 {
-    Layouting::Tools::access(this)->setPixmap(icon.pixmap());
+    Layouting::Tools::access(this)->setThemedPixmap(icon);
 }
 
 void Button::setRole(QtcButton::Role role)

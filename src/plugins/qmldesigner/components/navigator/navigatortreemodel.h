@@ -124,6 +124,7 @@ private:
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
     mutable QHash<ModelNode, QList<ModelNode> > m_rowCache;
     mutable QHash<qint64, QIcon> m_colorizeIconHash;
+    mutable int m_colorizeIconGeneration = -1;
     bool m_showOnlyVisibleItems = true;
     bool m_reverseItemOrder = false;
     DesignerActionManager *m_actionManager = nullptr;

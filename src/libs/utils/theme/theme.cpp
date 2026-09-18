@@ -14,6 +14,7 @@
 #include <QApplication>
 #include <QMetaEnum>
 #include <QPalette>
+#include <QPixmapCache>
 #include <QSettings>
 #include <QStyleHints>
 
@@ -21,6 +22,7 @@ namespace Utils {
 
 static Theme *m_creatorTheme = nullptr;
 static std::optional<QPalette> m_initialPalette;
+static int m_generation = 0;
 
 ThemePrivate::ThemePrivate()
     : defaultToolbarStyle(StyleHelper::ToolbarStyle::Compact)
@@ -79,11 +81,49 @@ void setCreatorTheme(Theme *theme)
 {
     if (m_creatorTheme == theme)
         return;
-    delete m_creatorTheme;
+    Theme *oldTheme = m_creatorTheme;
     m_creatorTheme = theme;
+    ++m_generation;
 
     setMacAppearance(theme);
     setThemeApplicationPalette();
+    // Pixmaps derived from theme colors are cached under keys that do not
+    // mention the theme.
+    QPixmapCache::clear();
+
+    delete oldTheme;
+
+    if (oldTheme && theme)
+        emit ThemeManager::instance()->changed();
+}
+
+ThemeManager *ThemeManager::instance()
+{
+    static ThemeManager theInstance;
+    return &theInstance;
+}
+
+// Incremented on every theme change, for use as part of the key of caches that
+// hold values derived from theme colors.
+int ThemeManager::generation()
+{
+    return m_generation;
+}
+
+void ThemeManager::onChanged(QObject *owner,
+                             const QString &key,
+                             const std::function<void()> &handler)
+{
+    QTC_ASSERT(owner, return);
+    // A child object per key holds the connection and its lifetime, so that replacing one
+    // handler does not take the owner's unrelated ones with it.
+    const QString name = "themeChangeHandler." + key;
+    delete owner->findChild<QObject *>(name, Qt::FindDirectChildrenOnly);
+    if (!handler)
+        return;
+    QObject *holder = new QObject(owner);
+    holder->setObjectName(name);
+    connect(instance(), &ThemeManager::changed, holder, handler);
 }
 
 Theme::Theme(const QString &id, QObject *parent)

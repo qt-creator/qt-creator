@@ -10,6 +10,8 @@
 #include <QBrush> // QGradientStops
 #include <QObject>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QMenu;
 class QPalette;
@@ -636,5 +638,32 @@ private:
 
 QTCREATOR_UTILS_EXPORT Theme *creatorTheme();
 QTCREATOR_UTILS_EXPORT QColor creatorColor(Theme::Color role);
+
+QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
+
+class QTCREATOR_UTILS_EXPORT ThemeManager final : public QObject
+{
+    Q_OBJECT
+
+public:
+    static ThemeManager *instance();
+
+    static int generation();
+
+    // Connects handler to changed(), replacing an earlier connection made for the same
+    // owner and key, and leaving the owner's other theme change handlers in place.
+    // An empty handler only removes the earlier connection.
+    static void onChanged(QObject *owner,
+                          const QString &key,
+                          const std::function<void()> &handler);
+
+signals:
+    void changed();
+
+private:
+    ThemeManager() = default;
+
+    friend QTCREATOR_UTILS_EXPORT void setCreatorTheme(Theme *theme);
+};
 
 } // namespace Utils

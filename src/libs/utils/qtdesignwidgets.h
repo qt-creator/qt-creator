@@ -4,6 +4,7 @@
 #pragma once
 
 #include "fancylineedit.h"
+#include "icon.h"
 #include "infolabel.h"
 #include "layoutbuilder.h"
 #include "stylehelper.h"
@@ -45,13 +46,18 @@ public:
 
     explicit QtcButton(const QString &text, Role role, QWidget *parent = nullptr);
     QSize minimumSizeHint() const override;
+    // For an image that does not come from the theme, such as a downloaded one.
+    // It does not follow a theme change, and drops a themed pixmap set earlier.
     void setPixmap(const QPixmap &newPixmap);
+    // Keeps the drawn pixmap in sync with the theme.
+    void setThemedPixmap(const Icon &icon);
     void setRole(Role role);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
+    void setPixmapNow(const QPixmap &pixmap);
     void updateMargins();
 
     Role m_role = MediumPrimary;
