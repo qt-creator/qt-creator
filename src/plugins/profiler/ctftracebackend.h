@@ -34,6 +34,8 @@ public:
 private:
     void updateThreadMenu();
     void toggleThreadRestriction(QAction *action);
+    void updateProviderMenu();
+    void toggleShownProviders();
 
     class CtfTraceBackendPrivate *d;
 };

@@ -4,12 +4,23 @@
 #include "ctfloader_test.h"
 
 #include <profiler/ctfloader.h>
+#include <profiler/ctfplainviewmanager.h>
+#include <profiler/ctftracebackend.h>
+#include <profiler/ctftimelinemodel.h>
+#include <profiler/ctftracemanager.h>
 #include <profiler/ctfvisualizerconstants.h>
+
+#include <tracing/rangedetailswidget.h>
+#include <tracing/timelinezoomcontrol.h>
 
 #include <utils/filepath.h>
 
 #include <QDataStream>
 #include <QFuture>
+#include <QHBoxLayout>
+#include <QMenu>
+#include <QSignalSpy>
+#include <QToolButton>
 #include <QTemporaryDir>
 #include <QTest>
 #include <QUuid>
@@ -29,7 +40,9 @@ static const char traceUuid[] = "6ab1eafd-7a3c-4a2f-9d5b-2f9a3b6c8d10";
 // Metadata of a trace as Qt's CTF backend writes it: the thread that produced a
 // packet is named in the packet context, and no event carries a pid or tid.
 // `clockOffset` is the clock's origin in cycles, which Qt states as the
-// wall-clock time the trace began.
+// wall-clock time the trace began. The one event class that names no provider
+// stands for a kernel recording read beside a Qt one, whose events are plain
+// "sched_switch".
 static QByteArray metadata(quint64 clockOffset = 0)
 {
     return QByteArray(R"(/* CTF 1.8 */
@@ -101,6 +114,33 @@ event {
 event {
     name = "test:work_exit";
     id = 1;
+    stream_id = 0;
+    fields := struct {
+        uint32_t value;
+    };
+};
+
+event {
+    name = "other:idle_entry";
+    id = 2;
+    stream_id = 0;
+    fields := struct {
+        uint32_t value;
+    };
+};
+
+event {
+    name = "other:idle_exit";
+    id = 3;
+    stream_id = 0;
+    fields := struct {
+        uint32_t value;
+    };
+};
+
+event {
+    name = "sched_switch";
+    id = 4;
     stream_id = 0;
     fields := struct {
         uint32_t value;
@@ -232,11 +272,11 @@ static void writeTrace(const FilePath &dir)
                 .writeFileContents(channel(42, "beta", {{0, 2000}, {1, 5000}})));
 }
 
-static QList<json> load(const QString &dirPath)
+static QList<json> load(const QString &dirPath, const QStringList &providers = {})
 {
     QPromise<json> promise;
     promise.start();
-    loadCtf2Data(promise, dirPath);
+    loadCtf2Data(promise, dirPath, providers);
     promise.finish();
 
     const QFuture<json> future = promise.future();
@@ -558,6 +598,491 @@ void CtfLoaderTest::testUnnamedTraceIsCalledAfterItsRecording()
             processes.insert(QString::fromStdString(event.value(CtfProcessIdKey, std::string())));
     }
     QCOMPARE(processes, QSet<QString>{"myrecording"});
+}
+
+void CtfLoaderTest::testProvidersOfATrace()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    writeTrace(FilePath::fromString(dir.path()));
+
+    // Taken from the event classes the metadata declares, so a provider that
+    // fired no event is offered too -- writeTrace() records none of "other" --
+    // and sorted, since the order they were declared in is the producer's
+    // business and no order to show a reader. A class that names no provider
+    // adds none: it is not a provider called "".
+    QCOMPARE(ctfTraceProviders(dir.path()), (QStringList{"other", "test"}));
+
+    QTemporaryDir empty;
+    QVERIFY(empty.isValid());
+    QCOMPARE(ctfTraceProviders(empty.path()), QStringList());
+}
+
+void CtfLoaderTest::testLoadRestrictedToOneProvider()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+
+    // One thread per provider, so that a load restricted to one of them leaves
+    // the other's thread with no event at all.
+    QVERIFY(path.pathAppended("metadata").writeFileContents(metadata()));
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(channel(17, "alpha", {{0, 1000}, {1, 3000}})));
+    QVERIFY(path.pathAppended("channel_1")
+                .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
+
+    const auto categories = [](const QList<json> &events) {
+        QMap<QString, QString> result; // event name -> the provider it names
+        for (const json &event : events) {
+            if (event.value(CtfEventPhaseKey, std::string()) == CtfEventTypeComplete) {
+                result.insert(
+                    QString::fromStdString(event.value(CtfEventNameKey, std::string())),
+                    QString::fromStdString(event.value(CtfEventCategoryKey, std::string())));
+            }
+        }
+        return result;
+    };
+    const auto lanes = [](const QList<json> &events) {
+        QSet<QString> result;
+        for (const json &event : events) {
+            if (event.value(CtfEventNameKey, std::string()) == "thread_name")
+                result.insert(QString::fromStdString(event["args"]["name"]));
+        }
+        return result;
+    };
+
+    // Unrestricted, both threads are there and every event says which provider
+    // it came from.
+    const QList<json> all = load(dir.path());
+    QCOMPARE(categories(all),
+             (QMap<QString, QString>{{"test:work", "test"}, {"other:idle", "other"}}));
+    QCOMPARE(lanes(all), (QSet<QString>{"alpha", "beta"}));
+
+    // Restricted, the other provider's events are not emitted -- and neither is
+    // a name for the thread that produced only them, which would leave the
+    // timeline with a row that has nothing on it.
+    const QList<json> restricted = load(dir.path(), {"other"});
+    QCOMPARE(categories(restricted), (QMap<QString, QString>{{"other:idle", "other"}}));
+    QCOMPARE(lanes(restricted), QSet<QString>{"beta"});
+}
+
+void CtfLoaderTest::testEventsOfNoProviderAreAlwaysLoaded()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+
+    // One thread producing a provider's events, and one producing nothing but
+    // the events that name no provider.
+    QVERIFY(path.pathAppended("metadata").writeFileContents(metadata()));
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(channel(17, "alpha", {{0, 1000}, {1, 3000}})));
+    QVERIFY(path.pathAppended("channel_1")
+                .writeFileContents(channel(42, "beta", {{4, 2000}, {4, 5000}})));
+
+    const auto eventNames = [](const QList<json> &events) {
+        QSet<QString> result;
+        for (const json &event : events) {
+            if (event.value(CtfEventPhaseKey, std::string()) != CtfEventTypeMetadata)
+                result.insert(QString::fromStdString(event.value(CtfEventNameKey, std::string())));
+        }
+        return result;
+    };
+
+    QCOMPARE(eventNames(load(dir.path())), (QSet<QString>{"test:work", "sched_switch"}));
+
+    // An event that says where it came from is left out by a restriction that
+    // does not name it. One that says nothing came from no provider, so no
+    // provider being cleared is about it -- and there is no entry that would
+    // bring it back, since a provider it does not have cannot be selected.
+    QCOMPARE(eventNames(load(dir.path(), {"other"})), QSet<QString>{"sched_switch"});
+    QCOMPARE(eventNames(load(dir.path(), {"test"})),
+             (QSet<QString>{"test:work", "sched_switch"}));
+}
+
+void CtfLoaderTest::testRestrictingAProviderReloadsTheTrace()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+    QVERIFY(path.pathAppended("metadata").writeFileContents(metadata()));
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(channel(17, "alpha", {{0, 1000}, {1, 3000}})));
+    QVERIFY(path.pathAppended("channel_1")
+                .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
+
+    Timeline::RangeDetailsWidget details;
+    CtfPlainViewManager manager(&details);
+    QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
+
+    manager.loadCtf2(path);
+    QVERIFY(loaded.wait());
+
+    const auto laneNames = [&manager] {
+        QStringList names;
+        for (const CtfTimelineModel *model : manager.traceManager()->getSortedThreads())
+            names.append(model->displayName());
+        names.sort();
+        return names;
+    };
+
+    // A trace is shown whole: what it declares and what is on show are the
+    // same list, so neither stands for the other.
+    QCOMPARE(manager.traceProviders(), (QStringList{"other", "test"}));
+    QCOMPARE(manager.shownProviders(), (QStringList{"other", "test"}));
+    QCOMPARE(laneNames(), (QStringList{"alpha (17)", "beta (42)"}));
+
+    // Dropping one reads the trace again: the thread that produced nothing but
+    // that provider's events is not a lane of the timeline any more, while the
+    // trace still declares the provider it can be taken back from.
+    manager.setShownProviders({"other"});
+    QVERIFY(loaded.wait());
+    QCOMPARE(manager.shownProviders(), QStringList{"other"});
+    QCOMPARE(manager.traceProviders(), (QStringList{"other", "test"}));
+    QCOMPARE(laneNames(), QStringList{"beta (42)"});
+
+    // Showing no provider at all is no state to be in, and is not entered.
+    // What is shown is recorded before the trace is read, so the state right
+    // after the call already says whether it was taken.
+    manager.setShownProviders({});
+    QCOMPARE(manager.shownProviders(), QStringList{"other"});
+
+    manager.setShownProviders({"other", "test"});
+    QVERIFY(loaded.wait());
+    QCOMPARE(laneNames(), (QStringList{"alpha (17)", "beta (42)"}));
+}
+
+void CtfLoaderTest::testAThreadRestrictionOutlivesAProviderChange()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+    QVERIFY(path.pathAppended("metadata").writeFileContents(metadata()));
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(channel(17, "alpha", {{0, 1000}, {1, 3000}})));
+    QVERIFY(path.pathAppended("channel_1")
+                .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
+
+    Timeline::RangeDetailsWidget details;
+    CtfPlainViewManager manager(&details);
+    CtfTraceManager *traceManager = manager.traceManager();
+    QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
+
+    manager.loadCtf2(path);
+    QVERIFY(loaded.wait());
+
+    const auto shownLanes = [traceManager] {
+        QStringList names;
+        for (const CtfTimelineModel *model : traceManager->shownThreads())
+            names.append(model->displayName());
+        names.sort();
+        return names;
+    };
+
+    // "alpha" produces nothing but the events of the "test" provider.
+    traceManager->setThreadRestriction("17", true);
+    QCOMPARE(shownLanes(), QStringList{"alpha (17)"});
+
+    // Clearing that provider takes the thread the timeline is restricted to
+    // with it. What is left is shown whole: a restriction naming a thread that
+    // the trace on show does not have would leave the timeline with no lane at
+    // all, and no entry to take the restriction back by.
+    manager.setShownProviders({"other"});
+    QVERIFY(loaded.wait());
+    QCOMPARE(shownLanes(), QStringList{"beta (42)"});
+    QVERIFY(traceManager->showsAllThreads());
+
+    // The restriction is still the reader's: reading the trace again is not
+    // being asked to show every thread, so bringing the provider back brings
+    // back a timeline restricted as it was.
+    manager.setShownProviders({"other", "test"});
+    QVERIFY(loaded.wait());
+    QVERIFY(traceManager->isRestrictedTo("17"));
+    QCOMPARE(shownLanes(), QStringList{"alpha (17)"});
+}
+
+void CtfLoaderTest::testARestrictionReplacesOneFromAClearedProvider()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+    QVERIFY(path.pathAppended("metadata").writeFileContents(metadata()));
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(channel(17, "alpha", {{0, 1000}, {1, 3000}})));
+    QVERIFY(path.pathAppended("channel_1")
+                .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
+
+    Timeline::RangeDetailsWidget details;
+    CtfPlainViewManager manager(&details);
+    CtfTraceManager *traceManager = manager.traceManager();
+    QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
+
+    manager.loadCtf2(path);
+    QVERIFY(loaded.wait());
+
+    const auto shownLanes = [traceManager] {
+        QStringList names;
+        for (const CtfTimelineModel *model : traceManager->shownThreads())
+            names.append(model->displayName());
+        names.sort();
+        return names;
+    };
+
+    // "alpha" produces nothing but the events of the "test" provider, so
+    // clearing that provider leaves the timeline with no restricted thread on
+    // it -- and the thread menu with nothing ticked.
+    traceManager->setThreadRestriction("17", true);
+    manager.setShownProviders({"other"});
+    QVERIFY(loaded.wait());
+    QVERIFY(traceManager->showsAllThreads());
+
+    // What the reader asks for over that menu is the whole answer to which
+    // threads are shown. The restriction from before is not part of it: it
+    // was made of threads the trace on show does not have.
+    traceManager->setThreadRestriction("42", true);
+    QCOMPARE(shownLanes(), QStringList{"beta (42)"});
+
+    manager.setShownProviders({"other", "test"});
+    QVERIFY(loaded.wait());
+    QVERIFY(!traceManager->isRestrictedTo("17"));
+    QCOMPARE(shownLanes(), QStringList{"beta (42)"});
+}
+
+void CtfLoaderTest::testTheShownRangeOutlivesAProviderChange()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+    QVERIFY(path.pathAppended("metadata").writeFileContents(metadata()));
+    // The trace begins with the "test" provider and ends with it, so a trace
+    // read without that provider is a shorter one: what is left is in the
+    // middle of what the whole trace spans.
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(
+                    channel(17, "alpha", {{0, 1000}, {1, 1500}, {0, 8000}, {1, 9000}})));
+    QVERIFY(path.pathAppended("channel_1")
+                .writeFileContents(
+                    channel(42, "beta", {{2, 2000}, {3, 2500}, {2, 3000}, {3, 3500}})));
+
+    Timeline::RangeDetailsWidget details;
+    CtfPlainViewManager manager(&details);
+    Timeline::TimelineZoomControl *zoom = manager.zoomControl();
+    QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
+
+    manager.loadCtf2(path);
+    QVERIFY(loaded.wait());
+
+    // A trace that is opened is looked at whole.
+    const qint64 wholeStart = zoom->traceStart();
+    const qint64 wholeEnd = zoom->traceEnd();
+    QCOMPARE(zoom->rangeStart(), wholeStart);
+    QCOMPARE(zoom->rangeEnd(), wholeEnd);
+
+    // The reader zooms into the end of the trace, which is past everything the
+    // "other" provider recorded.
+    zoom->setRange(wholeStart + zoom->traceDuration() * 3 / 4, wholeEnd);
+
+    // None of that stretch is in the trace read without "test", so there is
+    // nothing to go back to, and what was read is looked at whole.
+    manager.setShownProviders({"other"});
+    QVERIFY(loaded.wait());
+    QVERIFY(zoom->traceEnd() < wholeEnd);
+    QCOMPARE(zoom->rangeStart(), zoom->traceStart());
+    QCOMPARE(zoom->rangeEnd(), zoom->traceEnd());
+
+    // A stretch the trace read next does have is gone back to: reading the
+    // trace for a provider is not the reader asking to see all of it again.
+    const qint64 start = zoom->traceStart() + zoom->traceDuration() / 4;
+    const qint64 end = zoom->traceEnd();
+    zoom->setRange(start, end);
+    QCOMPARE(zoom->rangeStart(), start);
+    QCOMPARE(zoom->rangeEnd(), end);
+
+    manager.setShownProviders({"other", "test"});
+    QVERIFY(loaded.wait());
+    QCOMPARE(zoom->traceEnd(), wholeEnd);
+    QCOMPARE(zoom->rangeStart(), start);
+    QCOMPARE(zoom->rangeEnd(), end);
+}
+
+void CtfLoaderTest::testClearedViewsShowTheNextTraceWhole()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+    QVERIFY(path.pathAppended("metadata").writeFileContents(metadata()));
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(channel(17, "alpha", {{0, 1000}, {1, 3000}})));
+    QVERIFY(path.pathAppended("channel_1")
+                .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
+
+    Timeline::RangeDetailsWidget details;
+    CtfPlainViewManager manager(&details);
+    QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
+
+    manager.loadCtf2(path);
+    QVERIFY(loaded.wait());
+    manager.setShownProviders({"other"});
+    QVERIFY(loaded.wait());
+    QCOMPARE(manager.shownProviders(), QStringList{"other"});
+
+    // A trace that is rewritten while it is open is reloaded by clearing the
+    // views and loading the same path again. That is the trace being opened,
+    // not its providers being changed: what the recording now declares is read
+    // again, and all of it is shown. A restriction carried over would hide a
+    // whole new recording, with a menu naming the providers of the one before.
+    manager.clear();
+    QCOMPARE(manager.traceProviders(), QStringList());
+    QCOMPARE(manager.shownProviders(), QStringList());
+
+    manager.loadCtf2(path);
+    QVERIFY(loaded.wait());
+    QCOMPARE(manager.traceProviders(), (QStringList{"other", "test"}));
+    QCOMPARE(manager.shownProviders(), (QStringList{"other", "test"}));
+
+    QStringList laneNames;
+    for (const CtfTimelineModel *model : manager.traceManager()->getSortedThreads())
+        laneNames.append(model->displayName());
+    laneNames.sort();
+    QCOMPARE(laneNames, (QStringList{"alpha (17)", "beta (42)"}));
+}
+
+void CtfLoaderTest::testRestrictionToASilentProviderSaysSo()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    // Declares "other" and records nothing of it.
+    writeTrace(FilePath::fromString(dir.path()));
+
+    Timeline::RangeDetailsWidget details;
+    CtfPlainViewManager manager(&details);
+    QSignalSpy loaded(&manager, &CtfPlainViewManager::loadFinished);
+    QSignalSpy failed(&manager, &CtfPlainViewManager::error);
+
+    manager.loadCtf2(FilePath::fromString(dir.path()));
+    QVERIFY(loaded.wait());
+    QVERIFY(failed.isEmpty());
+
+    // A provider the trace declares is offered whether or not its tracepoints
+    // were reached, so restricting to one can leave the timeline empty. What is
+    // reported then is the restriction, not a trace that has nothing in it.
+    manager.setShownProviders({"other"});
+    QVERIFY(loaded.wait());
+    QCOMPARE(failed.size(), 1);
+    QVERIFY(failed.first().first().toString().contains("other"));
+    QVERIFY(manager.traceManager()->isEmpty());
+
+    // And putting the other one back is the way out of that, so the trace
+    // still declares what it no longer shows.
+    QCOMPARE(manager.traceProviders(), (QStringList{"other", "test"}));
+    manager.setShownProviders({"other", "test"});
+    QVERIFY(loaded.wait());
+    QVERIFY(!manager.traceManager()->isEmpty());
+}
+
+// What the provider menu offers, as "<name>[x]" for a provider that is shown
+// and "<name>[ ]" for one that is not, with a "!" on an entry that cannot be
+// toggled.
+static QStringList menuState(const QMenu *menu)
+{
+    QStringList entries;
+    for (const QAction *action : menu->actions()) {
+        entries.append(QString("%1[%2]%3").arg(action->text(),
+                                               action->isChecked() ? u"x"_s : u" "_s,
+                                               action->isEnabled() ? QString() : u"!"_s));
+    }
+    return entries;
+}
+
+void CtfLoaderTest::testTheProviderMenuSaysWhatIsShown()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+    QVERIFY(path.pathAppended("metadata").writeFileContents(metadata()));
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(channel(17, "alpha", {{0, 1000}, {1, 3000}})));
+    QVERIFY(path.pathAppended("channel_1")
+                .writeFileContents(channel(42, "beta", {{2, 2000}, {3, 5000}})));
+
+    // The toolbar the editor puts the backend's controls on. Without it they
+    // have no parent, and showing one would put a window of its own on the
+    // desktop. It is declared before the backend that owns them, so that they
+    // are gone -- and unparented by their own destructor -- before it is.
+    QWidget toolBar;
+    QHBoxLayout toolBarLayout(&toolBar);
+
+    Timeline::RangeDetailsWidget details;
+    CtfTraceBackend backend(&details);
+    for (QWidget *widget : backend.toolBarWidgets())
+        toolBarLayout.addWidget(widget);
+
+    QSignalSpy loaded(&backend, &CtfTraceBackend::loadFinished);
+    backend.load(path);
+    QVERIFY(loaded.wait());
+
+    // The providers sit in the last of the backend's toolbar controls.
+    auto button = qobject_cast<QToolButton *>(backend.toolBarWidgets().last());
+    QVERIFY(button);
+    QMenu *menu = button->menu();
+
+    // A trace as it was opened shows every provider it has, and every entry is
+    // ticked: an empty menu and a full one must not mean the same thing.
+    QVERIFY(!button->isHidden());
+    QCOMPARE(menuState(menu), (QStringList{"other[x]", "test[x]"}));
+
+    // Clearing an entry drops that provider from the timeline, and the entry
+    // that is left cannot be cleared in turn: an empty timeline is no state to
+    // leave a reader in, and it would tick nothing while showing everything.
+    menu->actions().last()->trigger();
+    QVERIFY(loaded.wait());
+    QCOMPARE(menuState(menu), (QStringList{"other[x]!", "test[ ]"}));
+
+    // A change that is not taken puts the menu back to what is shown rather
+    // than leaving it saying something else.
+    menu->actions().first()->trigger();
+    QCOMPARE(menuState(menu), (QStringList{"other[x]!", "test[ ]"}));
+
+    // And ticking an entry again brings its provider back.
+    menu->actions().last()->trigger();
+    QVERIFY(loaded.wait());
+    QCOMPARE(menuState(menu), (QStringList{"other[x]", "test[x]"}));
+}
+
+void CtfLoaderTest::testOneProviderIsNothingToChooseFrom()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath path = FilePath::fromString(dir.path());
+
+    QByteArray oneProvider = metadata();
+    QVERIFY(oneProvider.contains("other:"));
+    oneProvider.replace("other:", "test:");
+    QVERIFY(path.pathAppended("metadata").writeFileContents(oneProvider));
+    QVERIFY(path.pathAppended("channel_0")
+                .writeFileContents(channel(17, "alpha", {{0, 1000}, {1, 3000}})));
+
+    QWidget toolBar;
+    QHBoxLayout toolBarLayout(&toolBar);
+
+    Timeline::RangeDetailsWidget details;
+    CtfTraceBackend backend(&details);
+    for (QWidget *widget : backend.toolBarWidgets())
+        toolBarLayout.addWidget(widget);
+
+    QSignalSpy loaded(&backend, &CtfTraceBackend::loadFinished);
+    backend.load(path);
+    QVERIFY(loaded.wait());
+
+    auto button = qobject_cast<QToolButton *>(backend.toolBarWidgets().last());
+    QVERIFY(button);
+
+    // A trace of one provider offers the entry that cannot be cleared, and
+    // nothing else: there is no other state its menu could be put in, so the
+    // button is not shown at all.
+    QCOMPARE(menuState(button->menu()), QStringList{"test[x]!"});
+    QVERIFY(button->isHidden());
 }
 
 } // namespace Profiler::Internal

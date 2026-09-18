@@ -57,8 +57,14 @@
 
     \image {qtcreator-ctf-visualizer-timeline.webp} {Timeline view}
 
-    Each category in the timeline describes a thread in the application. Move
-    the cursor on an event (5) on a row to view its duration and event category.
+    Each category in the timeline describes a thread in the application. The
+    thread that the application runs on is labeled with the name of the
+    application, where the trace has one, rather than with the name that all
+    Qt applications give that thread. Move the cursor over a label to see the
+    process and the thread it stands for.
+
+    Move the cursor on an event (5) on a row to view its duration and event
+    category.
     To display the information only when an event is selected, disable the
     \uicontrol {View Event Information on Mouseover} button (4).
 
@@ -75,6 +81,27 @@
     Select the \inlineimage {icons/filtericon.png} {Restrict to Threads}
     (\uicontrol {Restrict to Threads}) button (6) to select the threads to
     show.
+
+    A trace that lists its events under more than one tracepoint provider, as a
+    Qt application traced with \c {-trace ctf} lists them under the Qt modules
+    they come from (\c qtcore, \c qtgui, and so on), also has a
+    \uicontrol Providers button. Its menu lists the providers of the trace,
+    with the ones that the timeline and the statistics show selected. All of
+    them are selected for a trace that you have just opened or reloaded.
+
+    Clear a provider to leave its events out. \QC reads the trace again, so
+    they are gone from the timeline and the statistics until you select the
+    provider again. The last selected provider cannot be cleared, because that
+    would leave nothing to look at. Events that name no provider, such as the
+    events of a kernel trace recorded beside a Qt one, are always shown.
+
+    The threads that you selected in \uicontrol {Restrict to Threads} stay
+    selected. If the events of a selected thread all came from a provider that
+    you clear, \QC shows all the threads until you select that provider again.
+
+    The part of the timeline that you zoomed into stays in view. If the trace
+    that \QC reads has no events there, because the providers that recorded
+    them are not selected, it shows the whole trace instead.
 
     \section2 Selecting event ranges
 

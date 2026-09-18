@@ -190,8 +190,42 @@ void CtfTraceManager::setThreadRestriction(const QString &tid, bool restrictToTh
     if (m_threadRestrictions.value(tid) == restrictToThisThread)
         return;
 
+    // What the reader asks for here is which of the threads on show are shown,
+    // and says nothing about a thread that is not one of them. An entry left
+    // from a trace read with other providers would otherwise outlive the
+    // answer given over it and come back with its thread.
+    for (auto it = m_threadRestrictions.begin(); it != m_threadRestrictions.end();) {
+        if (m_threadModels.contains(it.key()))
+            ++it;
+        else
+            it = m_threadRestrictions.erase(it);
+    }
+
     m_threadRestrictions[tid] = restrictToThisThread;
     addModelsToAggregator();
+}
+
+QStringList CtfTraceManager::restrictedThreads() const
+{
+    QStringList tids;
+    for (auto it = m_threadRestrictions.cbegin(), end = m_threadRestrictions.cend(); it != end;
+         ++it) {
+        if (it.value())
+            tids.append(it.key());
+    }
+    tids.sort();
+    return tids;
+}
+
+void CtfTraceManager::setRestrictedThreads(const QStringList &tids)
+{
+    m_threadRestrictions.clear();
+    for (const QString &tid : tids)
+        m_threadRestrictions.insert(tid, true);
+    // A restriction put in place before a load has no lane to apply to yet;
+    // the load applies it when it adds them.
+    if (!m_threadModels.isEmpty())
+        addModelsToAggregator();
 }
 
 bool CtfTraceManager::isRestrictedTo(const QString &tid) const
@@ -199,37 +233,54 @@ bool CtfTraceManager::isRestrictedTo(const QString &tid) const
     return m_threadRestrictions.value(tid);
 }
 
+bool CtfTraceManager::showsAllThreads() const
+{
+    // A restriction to no thread at all shows them all. Only the threads the
+    // trace has count: one restricted to a thread that a later load left out --
+    // a thread whose every event belonged to a provider that is no longer shown
+    // -- would leave the timeline empty, with no entry to take the restriction
+    // back by.
+    return std::none_of(m_threadModels.keyBegin(), m_threadModels.keyEnd(),
+                        [this](const QString &tid) { return isRestrictedTo(tid); });
+}
+
 void CtfTraceManager::addModelForThread(const QString &threadId, const QString &processId)
 {
     CtfTimelineModel *model = new CtfTimelineModel(m_modelAggregator, this, threadId, processId);
     m_threadModels.insert(threadId, model);
-    m_threadRestrictions.insert(threadId, false);
+    // A restriction states which threads are shown, and is kept over a load
+    // that reads the same trace again. A thread it names is a thread it still
+    // names when that load brings it back.
+    if (!m_threadRestrictions.contains(threadId))
+        m_threadRestrictions.insert(threadId, false);
     connect(model, &CtfTimelineModel::detailsRequested, this,
             &CtfTraceManager::detailsRequested);
 }
 
+QList<CtfTimelineModel *> CtfTraceManager::shownThreads() const
+{
+    const bool showAll = showsAllThreads();
+
+    QList<CtfTimelineModel *> shown;
+    const QList<CtfTimelineModel *> models = getSortedThreads();
+    for (CtfTimelineModel *model : models) {
+        if (showAll || isRestrictedTo(model->tid()))
+            shown.append(model);
+    }
+    return shown;
+}
+
 void CtfTraceManager::addModelsToAggregator()
 {
-    const QList<CtfTimelineModel *> models = getSortedThreads();
-
-    const bool showAll = std::none_of(m_threadRestrictions.begin(), m_threadRestrictions.end(), [](bool value) {
-        return value;
-    });
-
-    QList<Timeline::TimelineModel *> modelsToAdd;
-    for (CtfTimelineModel *model: models) {
-        if (showAll || isRestrictedTo(model->tid()))
-            modelsToAdd.append(model);
-    }
-    m_modelAggregator->setModels(modelsToAdd);
+    const QList<CtfTimelineModel *> models = shownThreads();
+    m_modelAggregator->setModels(
+        QList<Timeline::TimelineModel *>(models.cbegin(), models.cend()));
     updateStatistics();
 }
 
 void CtfTraceManager::updateStatistics()
 {
-    const bool showAll = std::none_of(m_threadRestrictions.begin(), m_threadRestrictions.end(), [](bool value) {
-        return value;
-    });
+    const bool showAll = showsAllThreads();
 
     m_statisticsModel->beginLoading();
     for (auto thread : std::as_const(m_threadModels)) {
@@ -254,6 +305,9 @@ void CtfTraceManager::clearAll()
         model->deleteLater();
     }
     m_threadModels.clear();
+    // Which threads are shown is about the trace that is on show. A load that
+    // keeps a restriction of the reader's puts it back over this.
+    m_threadRestrictions.clear();
     m_traceBegin = std::numeric_limits<double>::max();
     m_traceEnd = std::numeric_limits<double>::min();
     m_timeOffset = -1;

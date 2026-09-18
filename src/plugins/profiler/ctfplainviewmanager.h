@@ -8,13 +8,17 @@
 #include <qwindowdefs.h>
 
 #include <QObject>
+#include <QStringList>
 
 #include <chrono>
 #include <functional>
 
 namespace QtTaskTree { class QTaskTree; }
 
-namespace Timeline { class RangeDetailsWidget; }
+namespace Timeline {
+class RangeDetailsWidget;
+class TimelineZoomControl;
+} // namespace Timeline
 namespace Utils { class FilePath; }
 
 namespace Profiler {
@@ -37,6 +41,9 @@ public:
 
     QWidgetList views(QWidget *parent);
     Internal::CtfTraceManager *traceManager();
+    // What of the trace the timeline shows, which a load states and the reader
+    // then zooms and scrolls within.
+    Timeline::TimelineZoomControl *zoomControl();
 
     // Called with a load's task tree before it starts, for a frontend that has
     // somewhere to report progress. Qt Creator attaches a Core::TaskProgress;
@@ -45,6 +52,20 @@ public:
     void setTaskTreeSetup(const std::function<void(QtTaskTree::QTaskTree &)> &setup);
     void loadJson(const Utils::FilePath &file);
     void loadCtf2(const Utils::FilePath &dir);
+
+    // The tracepoint providers the loaded CTF trace declares, and the ones of
+    // them the views show -- all of them for a trace as it was opened. What is
+    // shown is stated as the list it is rather than as an empty one standing
+    // for everything, so that a reader of it always sees the same answer as a
+    // reader of the timeline.
+    QStringList traceProviders() const;
+    QStringList shownProviders() const;
+    // Shows the events of `providers` and of no other, by reading the trace
+    // again: what is left out is not kept anywhere, and it is the trace rather
+    // than the views that is filtered. Showing none of them is no state to be
+    // in, so an empty list is ignored.
+    void setShownProviders(const QStringList &providers);
+
     void clear();
     std::chrono::milliseconds traceDuration() const;
 
