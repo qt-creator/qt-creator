@@ -2459,7 +2459,8 @@ CheckableDecider BoolAspect::askAgainCheckableDecider()
 {
     return CheckableDecider(
         [this] { return value(); },
-        [this] { setValue(false); }
+        [this] { setValue(false); },
+        CheckableDecider::OnAnyButton
     );
 }
 
@@ -2467,7 +2468,8 @@ CheckableDecider BoolAspect::doNotAskAgainCheckableDecider()
 {
     return CheckableDecider(
         [this] { return !value(); },
-        [this] { setValue(true); }
+        [this] { setValue(true); },
+        CheckableDecider::OnAnyButton
     );
 }
 
