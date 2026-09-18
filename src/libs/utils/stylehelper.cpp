@@ -22,7 +22,6 @@
 #include <qmath.h>
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <optional>
 
@@ -1025,22 +1024,27 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
 
 // A color in linear sRGB: the light the components stand for, before the
 // gamma encoding sRGB keeps them in.
-using LinearRgb = std::array<double, 3>;
+struct LinearRgb
+{
+    double red;
+    double green;
+    double blue;
+};
 
 // A component may land a hair outside the range it has to be in, which is
 // rounding in the conversion rather than a color out of gamut. A ten
 // thousandth of the range is well below what an eight-bit component keeps.
 const double GamutTolerance = 0.0001;
 
-static LinearRgb oklchLinearRgb(double lightness, double chroma, double hue)
+static LinearRgb oklchLinearRgb(const StyleHelper::OklchColor &oklch)
 {
-    const double a = chroma * std::cos(qDegreesToRadians(hue));
-    const double b = chroma * std::sin(qDegreesToRadians(hue));
+    const double a = oklch.chroma * std::cos(qDegreesToRadians(oklch.hue));
+    const double b = oklch.chroma * std::sin(qDegreesToRadians(oklch.hue));
     // The inverses of the two matrices oklab() ends with: Oklab's axes back to
     // the cone responses of the eye, and those back to linear sRGB.
-    const double longCone = std::pow(lightness + 0.3963377774 * a + 0.2158037573 * b, 3);
-    const double mediumCone = std::pow(lightness - 0.1055613458 * a - 0.0638541728 * b, 3);
-    const double shortCone = std::pow(lightness - 0.0894841775 * a - 1.2914855480 * b, 3);
+    const double longCone = std::pow(oklch.lightness + 0.3963377774 * a + 0.2158037573 * b, 3);
+    const double mediumCone = std::pow(oklch.lightness - 0.1055613458 * a - 0.0638541728 * b, 3);
+    const double shortCone = std::pow(oklch.lightness - 0.0894841775 * a - 1.2914855480 * b, 3);
     return {4.0767416621 * longCone - 3.3077115913 * mediumCone + 0.2309699292 * shortCone,
             -1.2684380046 * longCone + 2.6097574011 * mediumCone - 0.3413193965 * shortCone,
             -0.0041960863 * longCone - 0.7034186147 * mediumCone + 1.7076147010 * shortCone};
@@ -1049,23 +1053,24 @@ static LinearRgb oklchLinearRgb(double lightness, double chroma, double hue)
 // The largest chroma up to the one asked for that this lightness and hue have
 // in sRGB. Desaturating until the color fits keeps the lightness a palette is
 // built on, clamping the components would not.
-double StyleHelper::oklchFittingChroma(double lightness, double chroma, double hue)
+double StyleHelper::oklchFittingChroma(const OklchColor &oklch)
 {
-    const auto fits = [lightness, hue](double atChroma) {
-        const LinearRgb rgb = oklchLinearRgb(lightness, atChroma, hue);
-        return std::all_of(rgb.cbegin(), rgb.cend(), [](double component) {
+    const auto fits = [&oklch](double atChroma) {
+        const auto inGamut = [](double component) {
             return component >= -GamutTolerance && component <= 1 + GamutTolerance;
-        });
+        };
+        const LinearRgb rgb = oklchLinearRgb({oklch.lightness, atChroma, oklch.hue});
+        return inGamut(rgb.red) && inGamut(rgb.green) && inGamut(rgb.blue);
     };
 
-    if (fits(chroma))
-        return chroma;
+    if (fits(oklch.chroma))
+        return oklch.chroma;
     // Every step halves the interval the gamut boundary is known to lie in, so
     // sixteen of them come within a 65536th of the chroma asked for - finer
     // than an eight-bit component can tell apart.
     const int BisectionSteps = 16;
     double tooLow = 0;
-    double tooHigh = chroma;
+    double tooHigh = oklch.chroma;
     for (int step = 0; step < BisectionSteps; ++step) {
         const double middle = (tooLow + tooHigh) / 2;
         if (fits(middle))
@@ -1078,7 +1083,7 @@ double StyleHelper::oklchFittingChroma(double lightness, double chroma, double h
 
 // An Oklch color, converted to sRGB. The hue is in degrees, the rest is in
 // [0, 1].
-QColor StyleHelper::oklchColor(double lightness, double chroma, double hue)
+QColor StyleHelper::oklchColor(const OklchColor &oklch)
 {
     // Oklch is linear about light, sRGB is not: the transfer function of sRGB
     // (https://en.wikipedia.org/wiki/SRGB) is what QColor takes its components
@@ -1088,9 +1093,8 @@ QColor StyleHelper::oklchColor(double lightness, double chroma, double hue)
         return component <= 0.0031308 ? 12.92 * component
                                       : 1.055 * std::pow(component, 1 / 2.4) - 0.055;
     };
-    const LinearRgb rgb =
-        oklchLinearRgb(lightness, oklchFittingChroma(lightness, chroma, hue), hue);
-    return QColor::fromRgbF(gammaEncoded(rgb[0]), gammaEncoded(rgb[1]), gammaEncoded(rgb[2]));
+    const LinearRgb rgb = oklchLinearRgb({oklch.lightness, oklchFittingChroma(oklch), oklch.hue});
+    return QColor::fromRgbF(gammaEncoded(rgb.red), gammaEncoded(rgb.green), gammaEncoded(rgb.blue));
 }
 
 // The lightness at which a hue has the most chroma in sRGB.
@@ -1107,7 +1111,7 @@ double StyleHelper::oklchMostChromaticLightness(double hue)
     for (int step = 0; step <= LightnessSteps; ++step) {
         const double lightness = DarkestLightness
                                  + step * (LightestLightness - DarkestLightness) / LightnessSteps;
-        const double chroma = oklchFittingChroma(lightness, oklchFullChroma, hue);
+        const double chroma = oklchFittingChroma({lightness, oklchFullChroma, hue});
         if (chroma > bestChroma) {
             bestChroma = chroma;
             bestLightness = lightness;

@@ -175,26 +175,28 @@ void tst_StyleHelper::oklchSurvivesTheRoundTripThroughRgb()
     const double HueToleranceInDegrees = 1;
     const double Grey = 0.01; // Less chroma than this is a grey, which has no hue.
 
-    for (int hue = 0; hue < 360; hue += 5) {
+    for (int degrees = 0; degrees < 360; degrees += 5) {
+        const double hue = degrees;
         for (const double lightness : {0.3, 0.5, 0.7, 0.9}) {
             for (const double chroma : {0.0, 0.05, 0.12, StyleHelper::oklchFullChroma}) {
-                const QColor color = StyleHelper::oklchColor(lightness, chroma, hue);
+                const StyleHelper::OklchColor oklch = {lightness, chroma, hue};
+                const QColor color = StyleHelper::oklchColor(oklch);
                 const StyleHelper::OklabColor lab = StyleHelper::oklab(color);
-                const double fittingChroma
-                    = StyleHelper::oklchFittingChroma(lightness, chroma, hue);
+                const double fittingChroma = StyleHelper::oklchFittingChroma(oklch);
                 const QString asked = QString("oklch(%1 %2 %3), asked at chroma %4, paints %5")
                                           .arg(lightness).arg(fittingChroma).arg(hue)
                                           .arg(chroma).arg(color.name());
 
                 QVERIFY(fittingChroma <= chroma);
-                QVERIFY2(std::abs(lab[0] - lightness) < Tolerance,
-                         qPrintable(asked + QString(", whose lightness reads %1").arg(lab[0])));
-                const double readChroma = std::hypot(lab[1], lab[2]);
+                QVERIFY2(std::abs(lab.lightness - lightness) < Tolerance,
+                         qPrintable(asked
+                                    + QString(", whose lightness reads %1").arg(lab.lightness)));
+                const double readChroma = std::hypot(lab.a, lab.b);
                 QVERIFY2(std::abs(readChroma - fittingChroma) < Tolerance,
                          qPrintable(asked + QString(", whose chroma reads %1").arg(readChroma)));
                 if (readChroma < Grey)
                     continue;
-                const double readHue = qRadiansToDegrees(std::atan2(lab[2], lab[1]));
+                const double readHue = qRadiansToDegrees(std::atan2(lab.b, lab.a));
                 const double hueOff = std::fmod(readHue - hue + 540, 360) - 180;
                 QVERIFY2(std::abs(hueOff) < HueToleranceInDegrees,
                          qPrintable(asked + QString(", whose hue is %1 degrees off").arg(hueOff)));
