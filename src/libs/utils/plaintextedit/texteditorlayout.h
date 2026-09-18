@@ -9,6 +9,9 @@
 namespace Utils {
 
 inline constexpr int FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID = QTextFormat::UserProperty + 43;
+inline constexpr int INLINE_DIFF_FORMAT_PROPERTY_ID = QTextFormat::UserProperty + 44;
+inline constexpr int MERGE_CONFLICT_SECTION_PROPERTY_ID = QTextFormat::UserProperty + 45;
+inline constexpr int INLINE_DIFF_SIGN_PROPERTY_ID = QTextFormat::UserProperty + 46;
 
 using FormatRanges = QList<QTextLayout::FormatRange>;
 

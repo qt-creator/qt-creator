@@ -27,11 +27,6 @@ namespace TextEditor {
 
 const Id MERGE_CONFLICT_SPACER_CATEGORY("TextEditor.MergeConflict.Spacer");
 
-// marks the full-width backgrounds behind the two conflict sides, so they can
-// be swept from the main block layouts on refresh (UserProperty + 43 and + 44
-// are the full line highlight and the inline diff formats)
-constexpr int MERGE_CONFLICT_SECTION_PROPERTY_ID = QTextFormat::UserProperty + 45;
-
 // Seven is the shortest run Git writes; the conflict-marker-size gitattribute
 // makes it write longer ones, and that attribute is set on exactly the files
 // whose own content looks like a marker - prose, documentation, diff fixtures.

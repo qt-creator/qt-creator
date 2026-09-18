@@ -3,6 +3,8 @@
 
 #include "diffutils.h"
 
+#include <texteditor/texteditorconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/differ.h>
 
@@ -54,6 +56,51 @@ int DiffChunkInfo::chunkIndexForBlockNumber(int blockNumber) const
 int ChunkSelection::selectedRowsCount() const
 {
     return Utils::toSet(selection[LeftSide]).unite(Utils::toSet(selection[RightSide])).size();
+}
+
+// Spaces and tabs only. QChar::isSpace() would also match Unicode separators.
+bool DiffUtils::isWhitespace(QChar c)
+{
+    return c == ' ' || c == '\t';
+}
+
+static bool equalIgnoringHorizontalWhitespace(const QString &left, const QString &right)
+{
+    int leftPos = 0;
+    int rightPos = 0;
+    while (leftPos < left.size() && rightPos < right.size()) {
+        if (DiffUtils::isWhitespace(left.at(leftPos))) {
+            ++leftPos;
+        } else if (DiffUtils::isWhitespace(right.at(rightPos))) {
+            ++rightPos;
+        } else if (left.at(leftPos++) != right.at(rightPos++)) {
+            return false;
+        }
+    }
+    while (leftPos < left.size() && DiffUtils::isWhitespace(left.at(leftPos)))
+        ++leftPos;
+    while (rightPos < right.size() && DiffUtils::isWhitespace(right.at(rightPos)))
+        ++rightPos;
+    return leftPos == left.size() && rightPos == right.size();
+}
+
+bool DiffUtils::isWhitespaceOnlyChange(const RowData &row)
+{
+    if (row.equal || row.line[LeftSide].textLineType != TextLineData::TextLine
+        || row.line[RightSide].textLineType != TextLineData::TextLine
+        || row.line[LeftSide].text == row.line[RightSide].text) {
+        return false;
+    }
+    return equalIgnoringHorizontalWhitespace(row.line[LeftSide].text,
+                                             row.line[RightSide].text);
+}
+
+QChar DiffUtils::changeSign(const RowData &row, DiffSide side)
+{
+    if (isWhitespaceOnlyChange(row))
+        return TextEditor::Constants::DIFF_WHITESPACE_CHANGE_SIGN;
+    return side == LeftSide ? TextEditor::Constants::DIFF_REMOVED_LINE_SIGN
+                            : TextEditor::Constants::DIFF_ADDED_LINE_SIGN;
 }
 
 static QList<TextLineData> assemblyRows(const QList<TextLineData> &lines,

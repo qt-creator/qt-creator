@@ -151,10 +151,11 @@ DisplaySettings::DisplaySettings()
 
     markDiffChangeSigns.setSettingsKey("MarkDiffChangeSigns");
     markDiffChangeSigns.setDefaultValue(false);
-    markDiffChangeSigns.setLabelText(Tr::tr("Mark diff changes with +/- &signs"));
+    markDiffChangeSigns.setLabelText(Tr::tr("Mark diff changes with &signs"));
     markDiffChangeSigns.setToolTip(
-        Tr::tr("Shows \"+\" and \"-\" signs next to added and removed lines in the "
-               "inline diff, so the changes can be told apart without relying on color."));
+        Tr::tr("Shows plus, minus, and dot signs next to added, removed, and "
+               "whitespace-only lines in diff views, so the changes can be told apart "
+               "without relying on color."));
 
     animateWithinFileTimeMax.setSettingsKey("AnimateWithinFileTimeMax");
     animateWithinFileTimeMax.setDefaultValue(333); // read only setting

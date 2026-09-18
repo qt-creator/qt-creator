@@ -7,6 +7,7 @@
 #include "diffeditorwidgetcontroller.h"
 #include "selectabletexteditorwidget.h" // TODO: we need DiffSelections here only
 
+#include <QHash>
 #include <QWidget>
 
 namespace Core { class IContext; }
@@ -47,6 +48,8 @@ public:
     QMap<int, QPair<int, QString>> m_skippedLines;
     // block number, separator. Set for file, chunk or span line.
     QMap<int, bool> m_separators;
+    // block number, extra-area diff sign.
+    QHash<int, QChar> m_diffSigns;
 
     int m_lineNumberDigits = 1;
 
@@ -105,6 +108,8 @@ public:
 
     void setDiff(const QList<FileData> &diffFileList);
     void setCurrentDiffFileIndex(int diffFileIndex);
+
+    SideDiffData diffData(DiffSide side) const;
 
     void setHorizontalSync(bool sync);
 

@@ -15,12 +15,17 @@
 #include <QStringList>
 #include <QTextCursor>
 
+QT_BEGIN_NAMESPACE
+class QTextLayout;
+QT_END_NAMESPACE
+
 namespace TextEditor {
 
 class TextEditorWidget;
 
 // category of the ghost row layout items in Utils::TextEditorLayout
 TEXTEDITOR_EXPORT Utils::Id inlineDiffGhostCategory();
+TEXTEDITOR_EXPORT QChar inlineDiffGhostSign(const QTextLayout *layout, int textPosition);
 // the text covered by the character level change highlights the decorator
 // applied to the widget, in document order (for tests)
 TEXTEDITOR_EXPORT QStringList inlineDiffChangedCharTexts(TextEditorWidget *widget);
@@ -50,6 +55,7 @@ public:
         int anchorLine = 1;
         QStringList lines;
         QList<CharRanges> charHighlights; // one entry per line, may be shorter than lines
+        QList<QChar> diffSigns; // one entry per removed line
     };
 
     class TEXTEDITOR_EXPORT ChangedRange
@@ -58,6 +64,7 @@ public:
         int startLine = 1; // 1-based, inclusive
         int endLine = 1;   // 1-based, inclusive
         QHash<int, CharRanges> charHighlights; // per 1-based editor line
+        QHash<int, QChar> diffSigns; // per 1-based editor line
     };
 
     class TEXTEDITOR_EXPORT Spacer

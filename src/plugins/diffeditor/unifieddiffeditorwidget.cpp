@@ -210,6 +210,7 @@ void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu, int fileIndex, 
 void UnifiedDiffEditorWidget::clear(const QString &message)
 {
     m_data = {};
+    setDiffChangeSigns({}, false);
     setSelections({});
     if (m_asyncTask) {
         m_asyncTask.reset();
@@ -305,6 +306,7 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
 
         for (int j = 0; j < buffer[side].count(); j++) {
             const TextLineData &lineData = buffer[side].at(j);
+            const RowData &rowData = chunkData.rows.at(rowsBuffer[side].at(j));
             const QString line = DiffUtils::makePatchLine(
                         side == LeftSide ? '-' : '+',
                         lineData.text,
@@ -325,6 +327,8 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
             }
 
             if (!line.isEmpty()) {
+                m_diffSigns.insert(*blockNumber + blockCount + 1,
+                                   DiffUtils::changeSign(rowData, side));
                 setLineNumber(side,
                               *blockNumber + blockCount + 1,
                               chunkData.startingLineNumber[side] + lineCount[side] + 1,
@@ -478,6 +482,7 @@ void UnifiedDiffEditorWidget::showDiff()
                 setReadOnly(true);
             }
             setSelections(result.selections);
+            setDiffChangeSigns(result.diffData.m_diffSigns, false);
             setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
         }
         m_asyncTask.release()->deleteLater();

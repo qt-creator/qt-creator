@@ -7,6 +7,8 @@
 #include "diffeditor.h"
 #include "diffeditortr.h"
 #include "inlinediff.h"
+#include "sidebysidediffeditorwidget.h"
+#include "unifieddiffeditorwidget.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -21,8 +23,10 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <texteditor/displaysettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <utils/async.h>
 #include <utils/differ.h>
@@ -366,6 +370,11 @@ private slots:
     void testMakePatch();
     void testReadPatch_data();
     void testReadPatch();
+    void testChangeSigns_data();
+    void testChangeSigns();
+    void testInlineDiffGhostSigns();
+    void testSideBySideChangeSigns();
+    void testChangeSignsToggle();
     void testOpenPatch_data();
     void testOpenPatch();
     void testFilterPatch_data();
@@ -556,6 +565,125 @@ Q_DECLARE_METATYPE(DiffEditor::FileData)
 Q_DECLARE_METATYPE(DiffEditor::ChunkSelection)
 
 static inline QString _(const char *string) { return QString::fromLatin1(string); }
+
+void DiffEditor::Internal::DiffEditorPlugin::testChangeSigns_data()
+{
+    QTest::addColumn<QString>("leftText");
+    QTest::addColumn<QString>("rightText");
+    QTest::addColumn<bool>("whitespaceOnly");
+
+    QTest::newRow("indentation") << QString("foo") << QString("    foo") << true;
+    QTest::newRow("tabs") << QString("    foo") << QString("\tfoo") << true;
+    QTest::newRow("trailing space") << QString("foo") << QString("foo ") << true;
+    QTest::newRow("internal space") << QString("foo bar") << QString("foobar") << true;
+    QTest::newRow("blank line") << QString("") << QString(" \t") << true;
+    QTest::newRow("identical") << QString("foo") << QString("foo") << false;
+    QTest::newRow("replacement") << QString("foo") << QString("bar") << false;
+    QTest::newRow("nonbreaking space")
+        << QString("foo") << QString("foo\u00a0") << false;
+    QTest::newRow("Unicode separator")
+        << QString("foo") << QString("foo\u2003") << false;
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testChangeSigns()
+{
+    const QChar addedSign = TextEditor::Constants::DIFF_ADDED_LINE_SIGN;
+    const QChar removedSign = TextEditor::Constants::DIFF_REMOVED_LINE_SIGN;
+    const QChar whitespaceSign = TextEditor::Constants::DIFF_WHITESPACE_CHANGE_SIGN;
+    QFETCH(QString, leftText);
+    QFETCH(QString, rightText);
+    QFETCH(bool, whitespaceOnly);
+
+    RowData row{TextLineData(leftText), TextLineData(rightText)};
+    QCOMPARE(DiffUtils::isWhitespaceOnlyChange(row), whitespaceOnly);
+    QCOMPARE(DiffUtils::changeSign(row, LeftSide), whitespaceOnly ? whitespaceSign : removedSign);
+    QCOMPARE(DiffUtils::changeSign(row, RightSide), whitespaceOnly ? whitespaceSign : addedSign);
+
+    DiffEditorWidgetController controller(nullptr);
+    const DiffEditorInput input(&controller);
+    UnifiedDiffData data;
+    ChunkData chunk;
+    chunk.rows = {row};
+    DiffSelections selections;
+    int blockNumber = 0;
+    data.setChunk(input, chunk, false, &blockNumber, &selections);
+    QCOMPARE(data.m_diffSigns.value(1), whitespaceOnly ? whitespaceSign : removedSign);
+    QCOMPARE(data.m_diffSigns.value(2), whitespaceOnly ? whitespaceSign : addedSign);
+
+    row.equal = true;
+    QVERIFY(!DiffUtils::isWhitespaceOnlyChange(row));
+    row.equal = false;
+    row.line[LeftSide] = TextLineData(TextLineData::Separator);
+    QVERIFY(!DiffUtils::isWhitespaceOnlyChange(row));
+    QCOMPARE(DiffUtils::changeSign(row, RightSide), addedSign);
+    row.line[LeftSide] = TextLineData(leftText);
+    row.line[RightSide] = TextLineData(TextLineData::Separator);
+    QVERIFY(!DiffUtils::isWhitespaceOnlyChange(row));
+    QCOMPARE(DiffUtils::changeSign(row, LeftSide), removedSign);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testSideBySideChangeSigns()
+{
+    RowData whitespace{TextLineData("foo"), TextLineData(" foo")};
+    RowData replacement{TextLineData("old"), TextLineData("new")};
+    RowData context{TextLineData("same"), TextLineData("same")};
+    context.equal = true;
+    RowData added{TextLineData(TextLineData::Separator), TextLineData("added")};
+    RowData removed{TextLineData("removed"), TextLineData(TextLineData::Separator)};
+    ChunkData changed;
+    changed.startingLineNumber = {3, 3};
+    changed.rows = {whitespace, replacement, context, added, removed};
+    ChunkData skipped;
+    skipped.contextChunk = true;
+    skipped.rows = {context};
+    FileData file;
+    file.fileInfo[LeftSide].fileName = "left.txt";
+    file.fileInfo[RightSide].fileName = "right.txt";
+    file.chunks = {changed, skipped};
+    SideBySideDiffEditorWidget widget;
+    widget.setDiff({file, file});
+    QTRY_COMPARE(widget.diffData(LeftSide).m_fileInfo.size(), 2);
+    const QChar dot = TextEditor::Constants::DIFF_WHITESPACE_CHANGE_SIGN;
+    const QChar minus = TextEditor::Constants::DIFF_REMOVED_LINE_SIGN;
+    const QChar plus = TextEditor::Constants::DIFF_ADDED_LINE_SIGN;
+    const QHash<int, QChar> leftSigns{{2, dot}, {3, minus}, {6, minus},
+                                    {10, dot}, {11, minus}, {14, minus}};
+    const QHash<int, QChar> rightSigns{{2, dot}, {3, plus}, {5, plus},
+                                     {10, dot}, {11, plus}, {13, plus}};
+    QCOMPARE(widget.diffData(LeftSide).m_diffSigns, leftSigns);
+    QCOMPARE(widget.diffData(RightSide).m_diffSigns, rightSigns);
+    for (DiffSide side : {LeftSide, RightSide}) {
+        const SideDiffData data = widget.diffData(side);
+        QVERIFY(data.isFileLine(0));
+        QVERIFY(data.isChunkLine(1));
+        QVERIFY(data.isChunkLine(7));
+        QVERIFY(data.isFileLine(8));
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testChangeSignsToggle()
+{
+    const bool previous = TextEditor::displaySettings().markDiffChangeSigns();
+    const QScopeGuard restore([previous] {
+        TextEditor::displaySettings().markDiffChangeSigns.setValue(previous);
+        TextEditor::displaySettings().writeSettings();
+    });
+    IEditor *editor = EditorManager::openEditorWithContents(
+        Constants::DIFF_EDITOR_ID, nullptr, QByteArray("--- a/a.txt\n+++ b/a.txt\n"
+                                                     "@@ -1 +1 @@\n-old\n+new\n"));
+    QVERIFY(editor);
+    const QScopeGuard close([editor] { EditorManager::closeEditors({editor}, false); });
+    QAction *action = editor->toolBar()->findChild<QAction *>("DiffEditorChangeSignsAction");
+    QVERIFY(action);
+    QCOMPARE(action->isChecked(), previous);
+    action->trigger();
+    QCOMPARE(TextEditor::displaySettings().markDiffChangeSigns(), !previous);
+    QCOMPARE(action->isChecked(), !previous);
+    action->trigger();
+    QCOMPARE(TextEditor::displaySettings().markDiffChangeSigns(), previous);
+    TextEditor::displaySettings().markDiffChangeSigns.setValue(!previous);
+    QCOMPARE(action->isChecked(), !previous);
+}
 
 void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()
 {
@@ -1728,13 +1856,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testDiffDocuments()
 #include "inlinediff.h"
 #include "inlinediff_p.h"
 
-#include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/inlinediffdecorator.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditorconstants.h>
 
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/icore.h>
@@ -1805,6 +1931,50 @@ static void onContextMenuEntry(Core::IEditor *editor,
 }
 
 } // namespace DiffEditor::Internal
+
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffGhostSigns()
+{
+    const QChar addedSign = TextEditor::Constants::DIFF_ADDED_LINE_SIGN;
+    const QChar removedSign = TextEditor::Constants::DIFF_REMOVED_LINE_SIGN;
+    const QChar whitespaceSign = TextEditor::Constants::DIFF_WHITESPACE_CHANGE_SIGN;
+    ChunkData chunk;
+    chunk.rows = {RowData(TextLineData("foo"), TextLineData(" foo")),
+                  RowData(TextLineData("bar"), TextLineData("baz"))};
+    const InlineDiffRenderModel model = mapChunkToRenderModel(chunk);
+    QCOMPARE(model.ghosts.size(), 1);
+    QCOMPARE(model.ghosts.first().diffSigns, (QList<QChar>{whitespaceSign, removedSign}));
+    QCOMPARE(model.changes.first().diffSigns.value(1), whitespaceSign);
+    QCOMPARE(model.changes.first().diffSigns.value(2), addedSign);
+    QCOMPARE(model.baselineChanges.first().diffSigns.value(1), whitespaceSign);
+
+    TextEditorWidget widget;
+    widget.setupFallBackEditor(Utils::Id("DiffEditor.GhostSignsTest"));
+    widget.setPlainText(" foo\nbaz");
+    InlineDiffDecorator decorator(&widget);
+    decorator.apply(model.ghosts, model.changes);
+    const QList<Utils::LayoutItem *> items = widget.editorLayout()->layoutItemsForCategory(
+        widget.document()->firstBlock(), inlineDiffGhostCategory());
+    QCOMPARE(items.size(), 1);
+    auto *textItem = dynamic_cast<Utils::TextLayoutItem *>(items.first());
+    QVERIFY(textItem);
+    const QTextLayout *layout = textItem->layout();
+    QVERIFY(layout);
+    QCOMPARE(inlineDiffGhostSign(layout, 0), whitespaceSign);
+    QCOMPARE(inlineDiffGhostSign(layout, 4), removedSign);
+
+    InlineDiffDecorator::GhostBlock ghost;
+    ghost.lines = QStringList(102, "foo");
+    ghost.diffSigns = QList<QChar>(102, whitespaceSign);
+    decorator.apply({ghost}, {});
+    const auto elidedItems = widget.editorLayout()->layoutItemsForCategory(
+        widget.document()->firstBlock(), inlineDiffGhostCategory());
+    QCOMPARE(elidedItems.size(), 1);
+    auto *elidedItem = dynamic_cast<Utils::TextLayoutItem *>(elidedItems.first());
+    QVERIFY(elidedItem);
+    QCOMPARE(inlineDiffGhostSign(elidedItem->layout(), 99 * 4), whitespaceSign);
+    QCOMPARE(inlineDiffGhostSign(elidedItem->layout(), 100 * 4), removedSign);
+    decorator.clear();
+}
 
 void DiffEditor::Internal::DiffEditorPlugin::testInlineDiff()
 {

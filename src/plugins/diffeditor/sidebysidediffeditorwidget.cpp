@@ -285,6 +285,11 @@ static SideBySideDiffOutput diffOutput(QPromise<SideBySideShowResults> &promise,
                 output.side[side].selections[blockNumber].append({input.m_lineFormat[side]});
             else
                 output.side[side].selections[blockNumber].append({input.m_spanLineFormat});
+
+            if (rowData.line[side].textLineType == TextLineData::TextLine) {
+                output.side[side].diffData.m_diffSigns.insert(
+                    blockNumber, DiffUtils::changeSign(rowData, side));
+            }
         }
         for (auto it = rowData.line[side].changedPositions.cbegin(),
                   end = rowData.line[side].changedPositions.cend(); it != end; ++it) {
@@ -413,6 +418,7 @@ void SideDiffEditorWidget::clearAll(const QString &message)
 {
     clear();
     m_data = {};
+    setDiffChangeSigns({}, false);
     setSelections({});
     setExtraSelections(TextEditorWidget::OtherSelection, {});
     setPlainText(message);
@@ -814,6 +820,11 @@ void SideBySideDiffEditorWidget::unfoldAll(bool unfold)
         editor->unfoldAll(unfold);
 }
 
+SideDiffData SideBySideDiffEditorWidget::diffData(DiffSide side) const
+{
+    return m_editor[side]->diffData();
+}
+
 void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
@@ -905,6 +916,8 @@ void SideBySideDiffEditorWidget::showDiff()
             }
             m_editor[LeftSide]->setSelections(results[LeftSide].selections);
             m_editor[RightSide]->setSelections(results[RightSide].selections);
+            m_editor[LeftSide]->setDiffChangeSigns(results[LeftSide].diffData.m_diffSigns, false);
+            m_editor[RightSide]->setDiffChangeSigns(results[RightSide].diffData.m_diffSigns, false);
             setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
         }
         m_asyncTask.release()->deleteLater();

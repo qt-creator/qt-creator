@@ -5,6 +5,7 @@
 
 #include "texteditor_global.h"
 
+#include <QChar>
 #include <QLoggingCategory>
 
 namespace TextEditor {
@@ -121,6 +122,10 @@ enum TextStyle : quint8 {
 };
 
 namespace Constants {
+
+inline constexpr QChar DIFF_ADDED_LINE_SIGN = QChar('+');
+inline constexpr QChar DIFF_REMOVED_LINE_SIGN = QChar('-');
+inline constexpr QChar DIFF_WHITESPACE_CHANGE_SIGN = QChar(0x25cf);
 
 inline constexpr char C_TEXTEDITOR[]          = "Text Editor";
 inline constexpr char M_STANDARDCONTEXTMENU[] = "TextEditor.StandardContextMenu";

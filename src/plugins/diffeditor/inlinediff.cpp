@@ -123,6 +123,7 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
     int runRightCount = 0; // real editor lines in the run, without the phantom
     InlineDiffDecorator::GhostBlock pendingGhost;
     InlineDiffDecorator::ChangedRange pendingChange;
+    QHash<int, QChar> pendingBaselineSigns;
     bool hasPendingChange = false;
 
     const auto flushRun = [&] {
@@ -133,6 +134,7 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
             // show, and a hunk for it would offer unactionable buttons
             pendingGhost = {};
             pendingChange = {};
+            pendingBaselineSigns.clear();
             hasPendingChange = false;
             runStartLeftLine = -1;
             runStartRightLine = -1;
@@ -148,6 +150,7 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
             InlineDiffDecorator::ChangedRange baselineRange;
             baselineRange.startLine = runStartLeftLine;
             baselineRange.endLine = runStartLeftLine + runLeftCount - 1;
+            baselineRange.diffSigns = pendingBaselineSigns;
             for (int i = 0; i < runLeftCount && i < pendingGhost.charHighlights.size(); ++i) {
                 if (!pendingGhost.charHighlights.at(i).isEmpty())
                     baselineRange.charHighlights.insert(runStartLeftLine + i,
@@ -163,6 +166,7 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
         model.hunks.append(hunk);
         pendingGhost = {};
         pendingChange = {};
+        pendingBaselineSigns.clear();
         hasPendingChange = false;
         runStartLeftLine = -1;
         runStartRightLine = -1;
@@ -190,6 +194,9 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
                 pendingGhost.lines.append(left.text);
                 pendingGhost.charHighlights.append(
                     toCharRanges(left.changedPositions, int(left.text.size())));
+                const QChar sign = DiffUtils::changeSign(row, LeftSide);
+                pendingGhost.diffSigns.append(sign);
+                pendingBaselineSigns.insert(leftLine, sign);
             }
             ++leftLine;
         }
@@ -201,6 +208,7 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
                     hasPendingChange = true;
                 }
                 pendingChange.endLine = rightLine;
+                pendingChange.diffSigns.insert(rightLine, DiffUtils::changeSign(row, RightSide));
                 const InlineDiffDecorator::CharRanges ranges
                     = toCharRanges(right.changedPositions, int(right.text.size()));
                 if (!ranges.isEmpty())
@@ -211,39 +219,6 @@ InlineDiffRenderModel mapChunkToRenderModel(const ChunkData &chunk,
     }
     flushRun();
     return model;
-}
-
-// Spaces and tabs only, like "git diff -w" and Utils::Differ's own helper.
-// QChar::isSpace() would also match the no-break space and the other Unicode
-// separators, hiding an edit that is invisible in the editor - the diff is
-// the only place it shows up.
-static bool isWhitespace(QChar c)
-{
-    return c == ' ' || c == '\t';
-}
-
-// the two lines are the same apart from the whitespace in them
-static bool equalIgnoringWhitespace(const QString &left, const QString &right)
-{
-    int l = 0;
-    int r = 0;
-    while (l < left.size() && r < right.size()) {
-        if (isWhitespace(left.at(l))) {
-            ++l;
-        } else if (isWhitespace(right.at(r))) {
-            ++r;
-        } else if (left.at(l) != right.at(r)) {
-            return false;
-        } else {
-            ++l;
-            ++r;
-        }
-    }
-    while (l < left.size() && isWhitespace(left.at(l)))
-        ++l;
-    while (r < right.size() && isWhitespace(right.at(r)))
-        ++r;
-    return l == left.size() && r == right.size();
 }
 
 // Drops the character level highlights of a still changed line that cover
@@ -259,9 +234,9 @@ static void trimWhitespaceHighlights(TextLineData &line)
         // or into the next one, see TextLineData
         int start = qMax(0, it.key());
         int end = it.value() < 0 ? lineLength : qMin(it.value(), lineLength);
-        while (start < end && isWhitespace(line.text.at(start)))
+        while (start < end && DiffUtils::isWhitespace(line.text.at(start)))
             ++start;
-        while (end > start && isWhitespace(line.text.at(end - 1)))
+        while (end > start && DiffUtils::isWhitespace(line.text.at(end - 1)))
             --end;
         if (end > start)
             result.insert(start, end);
@@ -289,7 +264,7 @@ static void ignoreWhitespaceChanges(ChunkData &chunk)
             || left.text == right.text) {
             continue;
         }
-        if (equalIgnoringWhitespace(left.text, right.text)) {
+        if (DiffUtils::isWhitespaceOnlyChange(row)) {
             row.equal = true;
             left.changedPositions.clear();
             right.changedPositions.clear();
@@ -1802,20 +1777,19 @@ public:
         // a global display setting, but the toggle belongs where the diff is
         // shown: a reader who cannot tell the colors apart will not go looking
         // for it in the preferences
-        m_signsAction = m_toolBar->addAction(QIcon(), Tr::tr("+/- Signs"));
+        m_signsAction = m_toolBar->addAction(QIcon(), Tr::tr("Change Signs"));
         m_signsAction->setObjectName("InlineDiffChangeSignsAction"); // autotest
         m_signsAction->setCheckable(true);
         m_signsAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
-        m_signsAction->setToolTip(Tr::tr("Mark added and removed lines with \"+\" and \"-\" "
-                                         "signs, so the changes can be told apart without "
-                                         "relying on color."));
-        connect(m_signsAction, &QAction::toggled, this, [](bool on) {
+        m_signsAction->setToolTip(Tr::tr("Mark added, removed, and whitespace-only lines with "
+                                         "plus, minus, and dot signs, so changes can be told apart "
+                                         "without relying on color."));
+        connect(m_signsAction, &QAction::triggered, this, [](bool on) {
             TextEditor::displaySettings().markDiffChangeSigns.setValue(on);
             TextEditor::displaySettings().writeSettings();
         });
         connect(&TextEditor::displaySettings(), &DisplaySettings::changed,
                 m_signsAction, [this] {
-            QSignalBlocker blocker(m_signsAction);
             m_signsAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
         });
 

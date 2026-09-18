@@ -128,6 +128,9 @@ public:
 
 class DIFFEDITOR_EXPORT DiffUtils {
 public:
+    static bool isWhitespace(QChar c);
+    static bool isWhitespaceOnlyChange(const RowData &row);
+    static QChar changeSign(const RowData &row, DiffSide side);
     static ChunkData calculateOriginalData(const QList<Utils::Diff> &leftDiffList,
                                            const QList<Utils::Diff> &rightDiffList);
     static FileData calculateContextData(const ChunkData &originalData,

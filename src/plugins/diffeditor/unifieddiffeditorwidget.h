@@ -6,6 +6,8 @@
 #include "diffeditorwidgetcontroller.h"
 #include "selectabletexteditorwidget.h"
 
+#include <QHash>
+
 namespace Core { class IContext; }
 
 namespace TextEditor { class FontSettingsData; }
@@ -36,6 +38,8 @@ public:
     using LineNumbers = QMap<int, QPair<int, int>>;
     std::array<LineNumbers, SideCount> m_lineNumbers{};
     std::array<int, SideCount> m_lineNumberDigits{1, 1};
+    // block number, extra-area diff sign.
+    QHash<int, QChar> m_diffSigns;
 
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;

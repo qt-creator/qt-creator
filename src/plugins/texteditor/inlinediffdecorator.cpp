@@ -24,17 +24,23 @@ namespace TextEditor {
 
 const Id INLINE_DIFF_GHOST_CATEGORY("TextEditor.InlineDiff.Ghost");
 
-// marks the added/changed line and character highlight formats this decorator
-// added to the main block layouts, so stripChangedLineFormats() can sweep them
-// (FULL_LINE_HIGHLIGHT_FORMAT_PROPERTY_ID is UserProperty + 43)
-constexpr int INLINE_DIFF_FORMAT_PROPERTY_ID = QTextFormat::UserProperty + 44;
-
 // Deletion runs longer than this are elided to keep the ghost rows scannable.
 constexpr int maxGhostLines = 100;
 
 Utils::Id inlineDiffGhostCategory()
 {
     return INLINE_DIFF_GHOST_CATEGORY;
+}
+
+QChar inlineDiffGhostSign(const QTextLayout *layout, int textPosition)
+{
+    for (const QTextLayout::FormatRange &range : layout->formats()) {
+        if (range.start <= textPosition && textPosition < range.start + range.length
+            && range.format.hasProperty(INLINE_DIFF_SIGN_PROPERTY_ID)) {
+            return QChar(range.format.intProperty(INLINE_DIFF_SIGN_PROPERTY_ID));
+        }
+    }
+    return Constants::DIFF_REMOVED_LINE_SIGN;
 }
 
 QStringList inlineDiffChangedCharTexts(TextEditorWidget *widget)
@@ -84,6 +90,13 @@ static std::unique_ptr<QTextLayout> createGhostLayout(
 
     int lineStart = 0;
     for (int i = 0; i < lines.size(); ++i) {
+        if (i < maxGhostLines && i < ghost.diffSigns.size()) {
+            QTextLayout::FormatRange sign;
+            sign.start = lineStart;
+            sign.length = int(lines.at(i).size()) + 1;
+            sign.format.setProperty(INLINE_DIFF_SIGN_PROPERTY_ID, ghost.diffSigns.at(i).unicode());
+            formats << sign;
+        }
         if (i < charHighlights.size()) {
             for (const QPair<int, int> &range : charHighlights.at(i)) {
                 QTextLayout::FormatRange r;
@@ -318,10 +331,13 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
     // side and '-' on the baseline side; removed lines rendered as ghost rows
     // are marked '-' by the widget from the layout (hasGhostRows)
     QHash<int, QChar> signs;
-    const QChar changedSign = isBaseline ? u'-' : u'+';
+    const QChar changedSign = isBaseline ? Constants::DIFF_REMOVED_LINE_SIGN
+                                        : Constants::DIFF_ADDED_LINE_SIGN;
     for (const ChangedRange &range : std::as_const(m_changes)) {
-        for (int line = range.startLine; line <= range.endLine; ++line)
-            signs.insert(line - 1, changedSign);
+        for (int line = range.startLine; line <= range.endLine; ++line) {
+            const QChar sign = range.diffSigns.value(line, changedSign);
+            signs.insert(line - 1, sign);
+        }
     }
     m_widget->setDiffChangeSigns(signs, hasGhostRows);
 
