@@ -96,6 +96,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createLibrarySearchPathsTest);
         addTestCreator(createConditionalSourcesTest);
         addTestCreator(createQmlModuleFilesTest);
+        addTestCreator(createResourceFilesTest);
         addTestCreator(createSourceFilesTest);
         addTestCreator(createTargetSymbolsTest);
         addTestCreator(createTracepointFilesTest);

@@ -82,9 +82,13 @@
 #include <QPushButton>
 
 #ifdef WITH_TESTS
+#include "cmakecodestyle.h"
+
 #include <coreplugin/iwizardfactory.h>
 #include <cppeditor/cpptoolstestcase.h>
 #include <projectexplorer/jsonwizard/jsonwizard.h>
+#include <texteditor/icodestylepreferences.h>
+#include <texteditor/icodestylepreferencesfactory.h>
 #include <QTemporaryDir>
 #include <QTest>
 #endif
@@ -480,6 +484,99 @@ static CommandPredicate namedWithFirstArgument(QAnyStringView name, const QStrin
     };
 }
 
+static CMakeBuildSystem::SnippetAndLocation snippetAfterLastArgument(CommandAST *command,
+                                                                     const QString &newSourceFiles)
+{
+    const Token &lastArgument = command->arguments().last()->token;
+    return {QString("\n%1").arg(newSourceFiles),
+            lastArgument.line,
+            lastArgument.column + lastArgument.length - 1};
+}
+
+// The whitespace the line of the token starts with, where the token is the
+// first thing on it. Nothing where something else stands there already: a
+// value that shares a line has no indentation of its own to hand on.
+static std::optional<QString> indentationOf(const DocumentPtr &document, const Token &token)
+{
+    const QStringView source = document->source();
+    const int position = qBound(0, token.position, int(source.size()));
+    int lineStart = position;
+    while (lineStart > 0 && source.at(lineStart - 1) != QLatin1Char('\n'))
+        --lineStart;
+
+    const QStringView indentation = source.sliced(lineStart, position - lineStart);
+    if (!Utils::allOf(indentation, [](QChar character) { return character.isSpace(); }))
+        return std::nullopt;
+    return indentation.toString();
+}
+
+// The keywords of target_sources(), which no signature of the project spells
+// out: the scopes it hands the sources to, and the file set form of the call.
+static Signature targetSourcesSignature()
+{
+    Signature signature;
+    signature.add({"PRIVATE", "PUBLIC", "INTERFACE", "BASE_DIRS", "FILES"}, Signature::MultiValue);
+    signature.add({"FILE_SET", "TYPE"}, Signature::OneValue);
+    return signature;
+}
+
+// The scope that target_sources() has to name for the target: an interface
+// library compiles nothing of its own, and CMake takes INTERFACE sources only
+// for it.
+static QString sourcesScope(CommandAST *command)
+{
+    static const QSet<QString> libraryCommands{"add_library",
+                                               "qt_add_library",
+                                               "qt6_add_library"};
+    const bool isInterface = Utils::anyOf(command->arguments(), [](ArgumentAST *argument) {
+        return argument->value() == "INTERFACE";
+    });
+    return libraryCommands.contains(command->commandName().toLower()) && isInterface
+               ? QString("INTERFACE")
+               : QString("PRIVATE");
+}
+
+// The target_sources() that runs with the target, or a new one behind the call
+// that defined it. The files join the group of the scope the target takes:
+// another scope hands them to whoever links it, and a FILE_SET group would
+// take them for files of that set, which are not compiled sources.
+static CMakeBuildSystem::SnippetAndLocation generateSnippetAndLocationForTargetSources(
+        const QString &newSourceFiles,
+        const DocumentPtr &document,
+        CommandAST *command,
+        const QString &targetName)
+{
+    const QString scope = sourcesScope(command);
+    CommandAST *targetSources = findCommandNear(document, command,
+                                                namedWithFirstArgument("target_sources",
+                                                                       targetName));
+    if (targetSources) {
+        ArgumentAST *lastValue = lastValueOfKeyword(targetSources,
+                                                    targetSourcesSignature(),
+                                                    scope);
+        if (!lastValue) {
+            return snippetAfterLastArgument(targetSources,
+                                            QString("    %1\n        %2")
+                                                .arg(scope, newSourceFiles));
+        }
+
+        // The file lays the new value out the way it lays out the one it
+        // follows: under it where that has a line of its own, and next to it
+        // where the values stand together on one.
+        const Token &token = lastValue->token;
+        const std::optional<QString> indentation = indentationOf(document, token);
+        return {indentation ? QString("\n%1%2").arg(*indentation, newSourceFiles)
+                            : QString(" %1").arg(newSourceFiles),
+                token.line,
+                token.column + token.length - 1};
+    }
+
+    return {QString("\ntarget_sources(%1\n    %2\n        %3\n)\n")
+                .arg(targetName, scope, newSourceFiles),
+            command->lineEnd() + 1,
+            0};
+}
+
 static CMakeBuildSystem::SnippetAndLocation generateSnippetAndLocationForSources(
         const QString &newSourceFiles,
         const DocumentPtr &document,
@@ -494,32 +591,11 @@ static CMakeBuildSystem::SnippetAndLocation generateSnippetAndLocationForSources
                                              "qt6_add_library",
                                              "qt_add_qml_module",
                                              "qt6_add_qml_module"};
-    CMakeBuildSystem::SnippetAndLocation result;
-    auto afterLastArgument = [&result, newSourceFiles](CommandAST *command) {
-        const Token &lastArgument = command->arguments().last()->token;
-        result.line = lastArgument.line;
-        result.column = lastArgument.column + lastArgument.length - 1;
-        result.snippet = QString("\n%1").arg(newSourceFiles);
-    };
 
-    if (knownCommands.contains(command->commandName().toLower())) {
-        afterLastArgument(command);
-        return result;
-    }
+    if (knownCommands.contains(command->commandName().toLower()))
+        return snippetAfterLastArgument(command, newSourceFiles);
 
-    CommandAST *targetSources = findCommandNear(document, command,
-                                                namedWithFirstArgument("target_sources",
-                                                                       targetName));
-    if (targetSources) {
-        afterLastArgument(targetSources);
-    } else {
-        result.line = command->lineEnd() + 1;
-        result.column = 0;
-        result.snippet = QString("\ntarget_sources(%1\n  PRIVATE\n    %2\n)\n")
-                             .arg(targetName)
-                             .arg(newSourceFiles);
-    }
-    return result;
+    return generateSnippetAndLocationForTargetSources(newSourceFiles, document, command, targetName);
 }
 
 // The files go after the last value of the keyword that already takes their
@@ -566,8 +642,17 @@ static QList<CMakeBuildSystem::SnippetAndLocation> generateSnippetsAndLocationsF
     return result;
 }
 
+// A snippet that carries no indentation of its own is laid out by the
+// indenter, which reads the code style the user set for CMake. One that
+// spells its own out is left alone, so that what it writes is what it says.
+enum SnippetIndentation {
+    IndentSnippet,
+    SnippetIsIndented
+};
+
 static Result<bool> insertSnippetSilently(const FilePath &cmakeFile,
-                                          const CMakeBuildSystem::SnippetAndLocation &snippetLocation)
+                                          const CMakeBuildSystem::SnippetAndLocation &snippetLocation,
+                                          SnippetIndentation indentation = IndentSnippet)
 {
     BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(
         {cmakeFile, int(snippetLocation.line), int(snippetLocation.column)},
@@ -579,7 +664,8 @@ static Result<bool> insertSnippetSilently(const FilePath &cmakeFile,
                                + QString::number(snippetLocation.column));
     }
     editor->insert(snippetLocation.snippet);
-    editor->editorWidget()->autoIndent();
+    if (indentation == IndentSnippet)
+        editor->editorWidget()->autoIndent();
     if (!Core::DocumentManager::saveDocument(editor->document()))
         return ResultError("Changes to " + cmakeFile.toUserOutput() + " could not be saved.");
     return true;
@@ -1026,6 +1112,218 @@ bool CMakeBuildSystem::addTracepointFiles(Node *context, const FilePaths &filePa
     return true;
 }
 
+// The value the call gives the target the property, where it gives it one:
+// set_target_properties() names the targets before PROPERTIES and takes a
+// property and its value over and over, set_property() names them after TARGET
+// and takes one property with the values it holds. A name read wherever it
+// stands would take the value of another property for one.
+static std::optional<QString> targetPropertyValue(CommandAST *command,
+                                                  const QString &targetName,
+                                                  const QString &property)
+{
+    const bool setsProperties = command->isNamed("set_target_properties");
+    if (!setsProperties && !command->isNamed("set_property"))
+        return std::nullopt;
+
+    Signature signature;
+    if (setsProperties) {
+        signature.add({"PROPERTIES"}, Signature::MultiValue);
+    } else {
+        signature.add({"TARGET", "PROPERTY"}, Signature::MultiValue);
+        signature.add({"APPEND", "APPEND_STRING"}, Signature::Option);
+    }
+
+    QList<ArgumentAST *> targets;
+    if (setsProperties) {
+        const QList<KeywordArguments> groups = groupArguments(command, signature);
+        if (!groups.isEmpty() && !groups.first().keyword)
+            targets = groups.first().values;
+    } else {
+        targets = valuesOfKeyword(command, signature, "TARGET");
+    }
+    if (!Utils::anyOf(targets, [&targetName](ArgumentAST *argument) {
+            return argument->value() == targetName;
+        })) {
+        return std::nullopt;
+    }
+
+    const QList<ArgumentAST *> properties
+        = valuesOfKeyword(command,
+                          signature,
+                          setsProperties ? QString("PROPERTIES") : QString("PROPERTY"));
+    if (!setsProperties) {
+        if (properties.size() > 1 && properties.first()->value() == property)
+            return properties.at(1)->value();
+        return std::nullopt;
+    }
+    for (int i = 0, last = properties.size() - 1; i < last; i += 2) {
+        if (properties.at(i)->value() == property)
+            return properties.at(i + 1)->value();
+    }
+    return std::nullopt;
+}
+
+// The value the call leaves CMAKE_AUTORCC with in the scope the target is
+// defined in: one that spells PARENT_SCOPE writes the scope around this one
+// instead, and one that hands over no value takes the variable away.
+static std::optional<bool> autorccFromVariable(CommandAST *command)
+{
+    const bool unsets = command->isNamed("unset");
+    if (!unsets && !command->isNamed("set"))
+        return std::nullopt;
+
+    const ListView<ArgumentAST *> arguments = command->arguments();
+    ArgumentAST *variable = arguments.first();
+    if (!variable || variable->value() != "CMAKE_AUTORCC")
+        return std::nullopt;
+
+    auto spells = [&arguments](const QString &keyword) {
+        return Utils::anyOf(arguments, [&keyword](ArgumentAST *argument) {
+            return argument->value() == keyword;
+        });
+    };
+    if (spells("PARENT_SCOPE"))
+        return std::nullopt;
+    // unset(<variable> CACHE) takes the cache entry away and leaves the
+    // variable of the scope standing.
+    if (unsets)
+        return spells("CACHE") ? std::nullopt : std::make_optional(false);
+    // set(<variable>) is how set() takes one away.
+    if (arguments.size() < 2)
+        return false;
+    // A value that cannot be read, set(CMAKE_AUTORCC ${ENABLE_RESOURCES})
+    // among them, counts as off: nothing is what the variable stands for
+    // where it is empty or never set, and taking it for on leaves the .qrc
+    // a source that nothing compiles. Taking it for off costs a line that
+    // changes nothing where AUTORCC is on already.
+    return CMakeConfigItem::toBool(arguments.at(1)->value()).value_or(false);
+}
+
+// Whether rcc already runs over the .qrc files among the sources of the target:
+// CMAKE_AUTORCC held a true value where the target was defined, or the target
+// carries the property itself. Only the file that defines the target is read,
+// so a value a directory further up sets is missed and the property is written
+// a second time, where it changes nothing. A property whose value cannot be
+// read counts as true: it stands behind the call that defines the target and
+// is what the target ends up with, whatever is written above it.
+static bool usesAutorcc(const DocumentPtr &document, CommandAST *command, const QString &targetName)
+{
+    bool autorcc = false;
+    for (CommandAST *candidate : document->commands()) {
+        if (!document->runsWith(candidate, command))
+            continue;
+
+        // A variable the file sets behind the call does not reach the target:
+        // it takes the properties it is created with.
+        if (candidate->name.begin() < command->name.begin()) {
+            if (const std::optional<bool> value = autorccFromVariable(candidate)) {
+                autorcc = *value;
+                continue;
+            }
+        }
+        if (const std::optional<QString> value
+            = targetPropertyValue(candidate, targetName, "AUTORCC")) {
+            autorcc = CMakeConfigItem::toBool(*value).value_or(true);
+        }
+    }
+    return autorcc;
+}
+
+// A .qrc file is compiled by rcc, which AUTORCC runs over the .qrc files the
+// sources of a target name. The keywords that take resources take the files a
+// resource is assembled out of instead: qt_add_resources(<target> <name> FILES
+// ...) and the RESOURCES of qt_add_qml_module() write a .qrc of their own
+// listing them, so a .qrc handed to one of them ends up embedded as a file
+// rather than compiled. Only the variable form, qt_add_resources(<var>
+// file.qrc), compiles one, and what it hands back is the generated source, so
+// the .qrc itself would no longer be part of the target and would drop out of
+// the project tree.
+static Result<bool> insertQrcFiles(const DocumentPtr &document,
+                                   const FilePath &targetCMakeFile,
+                                   const QString &targetName,
+                                   int targetDefinitionLine,
+                                   const FilePaths &filePaths,
+                                   const FilePath &projDir)
+{
+    CommandAST *command = findCommand(document, startsOnLine(targetDefinitionLine));
+    if (!command) {
+        return ResultError(
+            QString("Failed to locate the target defining command at %1").arg(targetDefinitionLine));
+    }
+
+    // The Qt CMake API leaves AUTORCC off - qt_standard_project_setup() turns
+    // on AUTOMOC and AUTOUIC only - so the target is given the property along
+    // with the first .qrc that needs it.
+    QList<CMakeBuildSystem::SnippetAndLocation> snippets;
+    if (!usesAutorcc(document, command, targetName)) {
+        snippets.append({QString("\nset_target_properties(%1 PROPERTIES AUTORCC ON)\n")
+                             .arg(targetName),
+                         command->lineEnd() + 1,
+                         0});
+    }
+    // The keywords of the call that defined the target are each meant for a
+    // kind of file, and a .qrc is none of them, so it goes in as a source.
+    snippets.append(
+        generateSnippetAndLocationForTargetSources(relativeFilePaths(filePaths, projDir),
+                                                   document,
+                                                   command,
+                                                   targetName));
+
+    // Insert from the last location towards the first, where an insertion
+    // cannot move a location that is still to come. Where both go to the same
+    // place, inserting the one behind first leaves them in this order.
+    std::reverse(snippets.begin(), snippets.end());
+    std::stable_sort(snippets.begin(),
+                     snippets.end(),
+                     [](const CMakeBuildSystem::SnippetAndLocation &first,
+                        const CMakeBuildSystem::SnippetAndLocation &second) {
+                         return std::tie(first.line, first.column)
+                                > std::tie(second.line, second.column);
+                     });
+    for (const CMakeBuildSystem::SnippetAndLocation &snippet : snippets) {
+        const Result<bool> inserted = insertSnippetSilently(targetCMakeFile,
+                                                            snippet,
+                                                            SnippetIsIndented);
+        if (!inserted)
+            return inserted;
+    }
+    return true;
+}
+
+bool CMakeBuildSystem::addQrcFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
+{
+    if (notAdded)
+        notAdded->append(filePaths);
+
+    auto n = dynamic_cast<CMakeTargetNode *>(context);
+    if (!n)
+        return false;
+
+    const QString targetName = n->buildKey();
+    const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
+    if (!cmakeFile)
+        return false;
+
+    const DocumentPtr document = getUncachedCMakeFile(cmakeFile->targetFilePath);
+    if (!document)
+        return false;
+
+    const Result<bool> inserted = insertQrcFiles(document,
+                                                 cmakeFile->targetFilePath,
+                                                 targetName,
+                                                 cmakeFile->target.line,
+                                                 filePaths,
+                                                 n->filePath().canonicalPath());
+    if (!inserted) {
+        qCCritical(cmakeBuildSystemLog) << inserted.error();
+        return false;
+    }
+
+    if (notAdded)
+        notAdded->removeIf([filePaths](const FilePath &p) { return filePaths.contains(p); });
+    return true;
+}
+
 // The call that takes files the keywords of the command do not cover: the
 // command itself where it takes sources, or a target_sources() next to it.
 static CommandAST *commandTakingSources(const DocumentPtr &document,
@@ -1287,15 +1585,29 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
     std::tie(tracepointFiles, srcFiles) = Utils::partition(srcFiles, [](const FilePath &fp) {
         return fp.suffix() == "tracepoints";
     });
+    // The MIME type of a .qrc comes with the resource editor, which a project
+    // is built without, so the suffix is what tells one.
+    FilePaths qrcFiles;
+    std::tie(qrcFiles, srcFiles) = Utils::partition(srcFiles, [](const FilePath &fp) {
+        return fp.suffix() == "qrc";
+    });
+    // Each kind of file is added off the line the target was last parsed on,
+    // so the ones that only ever write behind that line go first: the sources
+    // may grow a set() the call reads, and the translations the find_package()
+    // that comes with them, either of which would leave the target a line
+    // further down than the one the others go looking for it on.
     bool success = true;
-    if (!srcFiles.isEmpty())
-        success = addSrcFiles(context, srcFiles, notAdded);
-
-    if (!tsFiles.isEmpty())
-        success = addTsFiles(context, tsFiles, notAdded) || success;
+    if (!qrcFiles.isEmpty() && !addQrcFiles(context, qrcFiles, notAdded))
+        success = false;
 
     if (!tracepointFiles.isEmpty() && !addTracepointFiles(context, tracepointFiles, notAdded))
         success = false;
+
+    if (!srcFiles.isEmpty())
+        success = addSrcFiles(context, srcFiles, notAdded) && success;
+
+    if (!tsFiles.isEmpty())
+        success = addTsFiles(context, tsFiles, notAdded) && success;
 
     if (success)
         return true;
@@ -2531,6 +2843,150 @@ private:
 QObject *createSourceFilesTest()
 {
     return new SourceFilesTest;
+}
+
+class ResourceFilesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase()
+    {
+        m_projectDir = std::make_unique<CppEditor::Tests::TemporaryCopiedDir>(
+            ":/cmakeprojectmanager/testcases/resourcefiles");
+        m_directory = m_projectDir->filePath().canonicalPath();
+
+        // The file goes in relative to the project, so it has to be there.
+        QVERIFY(m_directory.pathAppended("assets.qrc").writeFileContents({}));
+    }
+
+    void cleanupTestCase()
+    {
+        Core::EditorManager::closeAllEditors(/*askAboutModifiedEditors=*/false);
+        m_projectDir.reset();
+    }
+
+    void testAddQrcFiles_data()
+    {
+        QTest::addColumn<QString>("cmakeFileName");
+        QTest::addColumn<int>("targetDefinitionLine");
+
+        QTest::newRow("plain") << "plain.cmake" << 5;
+
+        // The keywords of qt_add_qml_module() take the files a resource is
+        // assembled out of, so a .qrc goes in as a source of the target.
+        QTest::newRow("qml module") << "qml_module.cmake" << 7;
+
+        // The .qrc joins the target_sources() the target already has, in the
+        // group of the scope it compiles: the files of another scope go to
+        // whoever links the target, and those of a file set are not sources.
+        QTest::newRow("target_sources in place") << "has_target_sources.cmake" << 5;
+        QTest::newRow("target_sources with a file set") << "file_set.cmake" << 5;
+        QTest::newRow("target_sources with public sources") << "public_sources.cmake" << 5;
+
+        // A call whose values stand on one line keeps standing on one.
+        QTest::newRow("sources on one line") << "one_line_sources.cmake" << 5;
+
+        // An interface library takes INTERFACE sources only.
+        QTest::newRow("interface library") << "interface_library.cmake" << 5;
+
+        // AUTORCC is left alone where it is on already, and written where the
+        // file turns it off or sets it behind the target, which no longer
+        // reaches it.
+        QTest::newRow("autorcc on") << "autorcc_on.cmake" << 7;
+        QTest::newRow("autorcc off") << "autorcc_off.cmake" << 7;
+        QTest::newRow("autorcc behind the target") << "autorcc_behind.cmake" << 5;
+
+        // A variable whose value cannot be read counts as off, a property
+        // whose value cannot be read as on: what is written lands below the
+        // variable, which no longer reaches the target, and above the
+        // property, which has the last word either way.
+        QTest::newRow("autorcc unknown") << "autorcc_unknown.cmake" << 7;
+        QTest::newRow("autorcc property unknown") << "autorcc_property_unknown.cmake" << 5;
+
+        // A value that goes to the scope around the file, and one the file
+        // takes away again, leave the target without it.
+        QTest::newRow("autorcc in the parent scope") << "autorcc_parent_scope.cmake" << 7;
+        QTest::newRow("autorcc unset") << "autorcc_unset.cmake" << 9;
+
+        // A second .qrc finds the property on the target and adds no other,
+        // whichever call put it there. A property of another target, and one
+        // whose value is the name of this one, are not this target's.
+        QTest::newRow("autorcc property") << "autorcc_property.cmake" << 5;
+        QTest::newRow("autorcc property of another target") << "autorcc_other_target.cmake" << 5;
+        QTest::newRow("autorcc set_property") << "autorcc_set_property.cmake" << 5;
+    }
+
+    void testAddQrcFiles()
+    {
+        QFETCH(QString, cmakeFileName);
+        QFETCH(int, targetDefinitionLine);
+
+        const FilePath cmakeFile = m_directory.pathAppended(cmakeFileName);
+        const DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+
+        const Result<bool> inserted = insertQrcFiles(document,
+                                                     cmakeFile,
+                                                     "HelloQt",
+                                                     targetDefinitionLine,
+                                                     {m_directory.pathAppended("assets.qrc")},
+                                                     m_directory);
+        if (!inserted)
+            QFAIL(qPrintable(inserted.error()));
+    }
+
+    // What the .qrc is written with is what lands, whatever the user set the
+    // CMake code style to: the layout of a project is the project's, and a
+    // setting of the one who adds the file has no business rewriting it.
+    void testCodeStyleDoesNotLayTheFileOut()
+    {
+        ICodeStylePreferences *codeStyle
+            = codeStyleFactory(Constants::CMAKE_LANGUAGE_ID)->globalCodeStyle();
+        QVERIFY(codeStyle);
+
+        // The setting that moves the values of a keyword is the one the
+        // indenter would lay the added line out with.
+        CMakeCodeStyleSettings settings
+            = codeStyle->currentValue().value<CMakeCodeStyleSettings>();
+        QVERIFY(settings.indentKeywordValues);
+        settings.indentKeywordValues = false;
+
+        const FilePath cmakeFile = m_directory.pathAppended("code_style.cmake");
+        const DocumentPtr document = getUncachedCMakeFile(cmakeFile);
+        QVERIFY(document);
+
+        // Nothing between here and where the style is put back may leave the
+        // function, or the rest of the tests run with the style of this one.
+        ICodeStylePreferences *delegate = codeStyle->currentDelegate();
+        const QVariant value = codeStyle->value();
+        codeStyle->setCurrentDelegate(nullptr);
+        codeStyle->setValue(QVariant::fromValue(settings));
+
+        const Result<bool> inserted = insertQrcFiles(document,
+                                                     cmakeFile,
+                                                     "HelloQt",
+                                                     5,
+                                                     {m_directory.pathAppended("assets.qrc")},
+                                                     m_directory);
+
+        codeStyle->setValue(value);
+        codeStyle->setCurrentDelegate(delegate);
+
+        if (!inserted)
+            QFAIL(qPrintable(inserted.error()));
+    }
+
+    void testExpectedContents() { compareWithExpected(m_directory); }
+
+private:
+    std::unique_ptr<CppEditor::Tests::TemporaryCopiedDir> m_projectDir;
+    FilePath m_directory;
+};
+
+QObject *createResourceFilesTest()
+{
+    return new ResourceFilesTest;
 }
 
 class TracepointFilesTest final : public QObject
