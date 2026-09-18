@@ -1664,8 +1664,10 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         CommandLine cmd = defaultInitialCMakeCommand(k, project(), buildType);
         cmakeBuildSystem()->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
-        const bool kitDefinesToolchainFile = CMakeConfigurationKitAspect::configuration(k).contains(
-            "CMAKE_TOOLCHAIN_FILE");
+        const bool kitDefinesToolchainFile
+            = CMakeConfigurationKitAspect::configuration(k).contains(CMAKE_TOOLCHAIN_FILE);
+        const bool environmentDefinesToolchainFile
+            = !configureEnvironment().value(QLatin1String(CMAKE_TOOLCHAIN_FILE)).isEmpty();
         // Android magic:
         if (RunDeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
             auto addUniqueKeyToCmd = [&cmd] (const QString &prefix, const QString &value) -> bool {
@@ -1717,10 +1719,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             } else {
                 cmd.addArg("-DANDROID_SDK:PATH=" + sdkLocation.path());
             }
-        } else if (!isDesktop(k) && !kitDefinesToolchainFile) {
+        } else if (!isDesktop(k) && !kitDefinesToolchainFile && !environmentDefinesToolchainFile) {
             // Android is handled above
             // Desktop should get more testing/exposure before enabling the toolchain file
             // Boot2Qt and MCU may define the toolchain file in the kit configuration already
+            // An SDK environment setup script may export CMAKE_TOOLCHAIN_FILE, which CMake reads
             if (qt && qt->qtVersion().majorVersion() >= 6) {
                 cmd.addArg(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
             } else {
