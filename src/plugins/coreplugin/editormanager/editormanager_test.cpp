@@ -24,6 +24,7 @@
 #include <QLineEdit>
 #include <QMainWindow>
 #include <QMenu>
+#include <QScopeGuard>
 #include <QSet>
 #include <QSignalSpy>
 #include <QTest>
@@ -88,6 +89,7 @@ private slots:
     void testMultiFileContextMenu();
     void testClosingCurrentViewKeepsCurrentView();
     void testRemovingAllSplitsKeepsCurrentView();
+    void testNoStaleEntryAfterResolvedPathChange();
 };
 
 QObject *createEditorManagerTest()
@@ -1249,6 +1251,56 @@ void EscapeKeyTest::testStaysInEditMode()
     QCOMPARE(ModeManager::currentModeId(), Id(Constants::MODE_EDIT));
     QVERIFY(viewHasFocus(view));
     QVERIFY2(log.messages().isEmpty(), qPrintable(log.messages().join(", ")));
+}
+
+/*
+    Check that removing an Entry actually removes it from the internal m_entryByFixedPath hash
+    even if the resolved path for the document changed in the meantime.
+*/
+void EditorManagerTest::testNoStaleEntryAfterResolvedPathChange()
+{
+    if (Utils::HostOsInfo::isWindowsHost())
+        QSKIP("Creating symbolic links requires elevated privileges on Windows");
+
+    TestFile target;
+    const FilePath targetPath = target.filePath();
+    const FilePath linkPath = targetPath.stringAppended("_link");
+    if (const Result<> createdLink = targetPath.createSymLink(linkPath); !createdLink)
+        QFAIL(qPrintable(createdLink.error()));
+    const QScopeGuard removeLink([&linkPath] {
+        if (linkPath.exists())
+            (void) linkPath.removeFile();
+    });
+
+    const QList<EditorView *> views = mainAreaViews();
+    QCOMPARE(views.size(), 1);
+
+    // The entry is registered with the resolved path as key, but the document's file path
+    // is the link path.
+    IEditor *editor = EMP::openEditor(views.at(0), linkPath);
+    QVERIFY(editor);
+    QCOMPARE(editor->document()->filePath(), linkPath);
+    DocumentModel::Entry *entry = DocumentModel::entryForFilePath(linkPath);
+    QVERIFY(entry);
+    QCOMPARE(DocumentModel::entryForFilePath(targetPath), entry);
+
+    // After this the link path does not resolve to the target path anymore.
+    if (const Result<> removedLink = linkPath.removeFile(); !removedLink)
+        QFAIL(qPrintable(removedLink.error()));
+
+    EMP::closeEditorOrDocument(editor);
+
+    const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
+    QVERIFY(entries.isEmpty());
+    const auto model = static_cast<DocumentModelPrivate *>(DocumentModel::model());
+    // Only compare the pointers, they might be dangling.
+    for (DocumentModel::Entry *cachedEntry : std::as_const(model->m_entryByFixedPath))
+        QVERIFY(entries.contains(cachedEntry));
+    QCOMPARE(DocumentModel::entryForFilePath(targetPath), nullptr);
+
+    // Opening the target must create a new entry instead of finding the removed one.
+    QVERIFY(EMP::openEditor(views.at(0), targetPath));
+    QCOMPARE(DocumentModel::entries().size(), 1);
 }
 
 } // namespace Core::Internal

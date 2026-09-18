@@ -22,6 +22,7 @@ private slots:
     void testAddWordWidth();
     void testHeaderPathOptionsOrder();
     void testHeaderPathOptionsOrderMsvc();
+    void testFrameworkHeaderPathOption();
     void testUseSystemHeader();
     void testNoClangHeadersPath();
     void testClangHeadersAndCppIncludePathsOrderMacOs();

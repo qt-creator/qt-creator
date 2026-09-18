@@ -34,7 +34,8 @@ public:
     };
 
     SdkManagerOutputParser(AndroidSdkPackageList &container) : m_packages(container) {}
-    void parsePackageListing(const QString &output);
+    void parsePackageListing(const QString &output,
+                             const Utils::FilePath &sdkLocation = {});
 
 private:
     void compilePackageAssociations();

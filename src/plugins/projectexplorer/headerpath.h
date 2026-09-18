@@ -12,7 +12,7 @@ enum class HeaderPathType {
     User,
     BuiltIn,
     System,
-    Framework,
+    Framework, // FIXME: This should combine with the other three.
 };
 
 class HeaderPath

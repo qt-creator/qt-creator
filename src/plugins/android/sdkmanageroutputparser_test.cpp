@@ -23,6 +23,9 @@ private slots:
     void testParsePackageListing_data();
     void testParsePackageListing();
 
+    void testParseAndroidCliPackageListing();
+    void testParseVerboseListingWithoutTrailingNewline();
+
     void testParseMarkers_data();
     void testParseMarkers();
 
@@ -821,7 +824,161 @@ Available Updates:
 cmdline-tools;latest
     Installed Version: 8.0
     Available Version: 9.)");
+}
 
+void SdkManagerOutputParserTest::testParseAndroidCliPackageListing()
+{
+    const QString output(R"(
+WARNING: The SDK Manager CLI tool (sdkmanager) is deprecated. Android CLI will be used instead.
+The 'android' binary can also be found in the cmdline-tools directory, and 'android sdk' is the replacement for 'sdkmanager'.
+To learn more about the Android CLI and how to use it, see the documentation (https://d.android.com/tools/agents/android-cli)
+
+Warning: Flag --verbose is no longer supported. Ignoring.
+Installed packages:
+  cmdline-tools/latest                                                                    23.0.0                 Android SDK Command-line Tools (latest)
+  emulator                                                                                37.1.11                Android Emulator
+  extras/google/usb_driver                                                                13.0.0                 Google USB Driver
+  ndk/29.0.14206865                                                                       29.0.14206865          NDK (Side by side) 29.0.14206865
+  platform-tools                                                                          37.0.1                 Android SDK Platform-Tools
+Available packages:
+  add-ons/addon-google_apis-google-24                                                     1.0.0                  Google APIs
+  add-ons/addon-google_gdk-google-19                                                      11.0.0                 Glass Development Kit Preview
+  add-ons/addon-google_tv_addon-google-12                                                 2.0.0                  Google TV Addon
+  add-ons/addon-google_tv_addon-google-13                                                 1.0.0                  Google TV Addon
+  build-tools/37.0.0                                                                      37.0.0                 Android SDK Build-Tools 37
+  build-tools/37.0.0-rc1                                                                  37.0.0-rc.1            Android SDK Build-Tools 37-rc1
+  build-tools/37.0.0-rc2                                                                  37.0.0-rc.2            Android SDK Build-Tools 37-rc2
+  build/lightbuild/0.0.10-alpha01                                                         0.0.10-rc.1            Lightbuild
+  build/templates                                                                         0.1.1                  Android Project   (wide whitespace) Templates
+  cmake/4.1.1                                                                             4.1.1                  CMake 4.1.1
+  cmake/4.1.2                                                                             4.1.2                  CMake 4.1.2
+  cmake/9.9.9                                                                             9.9.9
+  cmdline-tools/8.0                                                                       8.0.0                  Android SDK Command-line Tools
+  cmdline-tools/9.0                                                                       9.0.0                  Android SDK Command-line Tools
+  cmdline-tools/latest                                                                    23.0.0                 Android SDK Command-line Tools (latest)
+  emulator                                                                                37.1.11                Android Emulator
+  extras/google/market_licensing                                                          1.0.0                  Google Play Licensing Library
+  extras/google/simulators                                                                1.0.0                  Android Auto API Simulators
+  extras/google/usb_driver                                                                13.0.0                 Google USB Driver
+  extras/google/webdriver                                                                 2.0.0                  Google Web Driver
+  ndk-bundle                                                                              22.1.7171670 (+13)     NDK
+  ndk/30.0.14904198                                                                       30.0.14904198-rc.1     NDK (Side by side) 30.0.14904198
+  ndk/30.0.15729638                                                                       30.0.15729638-rc.2     NDK (Side by side) 30.0.15729638
+  ndk/30.0.16138531                                                                       30.0.16138531-rc.3     NDK (Side by side) 30.0.16138531
+  platform-tools                                                                          37.0.1                 Android SDK Platform-Tools
+  platforms/android-9                                                                     2.0.0                  Android SDK Platform 9
+  platforms/android-CANARY                                                                15.0.0                 Android SDK Platform CANARY
+  platforms/android-UpsideDownCake                                                        4.0.0                  Android SDK Platform UpsideDownCake
+  skiaparser/1                                                                            6.0.0                  Layout Inspector image server for API 29-30
+  skiaparser/2                                                                            3.0.0                  Layout Inspector image server for API S
+  skiaparser/3                                                                            8.0.0                  Layout Inspector image server for API 31-36
+  sources/android-37.0                                                                    2.0.0                  Sources for Android 37.0
+  sources/android-37.1                                                                    1.0.0                  Sources for Android 37.1
+  sources/android-37.2                                                                    1.0.0                  Sources for Android 37.2
+  system-images/android-37.0/android-wear-signed/arm64-v8a                                1.0.0                  Wear OS 7.0 ARM 64 v8a System Image (signed)
+  system-images/android-37.0/android-wear-signed/x86_64                                   1.0.0                  Wear OS 7.0 Intel x86_64 Atom System Image (signed)
+  system-images/android-37.0/google_apis/arm64-v8a                                        6.0.0                  Google APIs ARM 64 v8a System Image
+  system-images/android-37.0/google_apis/x86_64                                           6.0.0                  Google APIs Intel x86_64 Atom System Image
+  system-images/android-37.0/google_apis_playstore/arm64-v8a                              6.0.0                  Google Play ARM 64 v8a System Image
+  system-images/android-37.0/google_apis_playstore/x86_64                                 6.0.0                  Google Play Intel x86_64 Atom System Image
+  system-images/android-37.0/google_apis_playstore_ps16k/arm64-v8a                        6.0.0                  16 KB Page Size Google Play ARM 64 v8a System Image
+  system-images/android-37.0/google_apis_playstore_ps16k/x86_64                           6.0.0                  16 KB Page Size Google Play Intel x86_64 Atom System Image
+  system-images/android-37.0/google_apis_ps16k/arm64-v8a                                  6.0.0                  16 KB Page Size Google APIs ARM 64 v8a System Image
+  system-images/android-37.0/google_apis_ps16k/x86_64                                     6.0.0                  16 KB Page Size Google APIs Intel x86_64 Atom System Image
+  system-images/android-37.1/google_apis_playstore_ps16k/arm64-v8a                        9.0.0                  16 KB Page Size Google Play ARM 64 v8a System Image
+  system-images/android-37.1/google_apis_playstore_ps16k/x86_64                           9.0.0                  16 KB Page Size Google Play Intel x86_64 Atom System Image
+  system-images/android-37.1/google_apis_ps16k/arm64-v8a                                  9.0.0                  16 KB Page Size Google APIs ARM 64 v8a System Image
+  system-images/android-37.1/google_apis_ps16k/x86_64                                     9.0.0                  16 KB Page Size Google APIs Intel x86_64 Atom System Image
+  system-images/android-CANARY/google_apis_ps16k/arm64-v8a                                15.0.0                 16 KB Page Size Google APIs ARM 64 v8a System Image
+  system-images/android-CANARY/google_apis_ps16k/x86_64                                   15.0.0                 16 KB Page Size Google APIs Intel x86_64 Atom System Image
+  tools                                                                                   26.1.1                 Android SDK Tools
+)");
+
+    const QList<AndroidSdkPackage::PackageType> expectedTypes = {
+        AndroidSdkPackage::PackageType::SdkToolsPackage,
+        AndroidSdkPackage::PackageType::EmulatorToolsPackage,
+        AndroidSdkPackage::PackageType::ExtraToolsPackage,
+        AndroidSdkPackage::PackageType::NDKPackage,
+        AndroidSdkPackage::PackageType::PlatformToolsPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::BuildToolsPackage,
+        AndroidSdkPackage::PackageType::BuildToolsPackage,
+        AndroidSdkPackage::PackageType::BuildToolsPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::SdkToolsPackage,
+        AndroidSdkPackage::PackageType::SdkToolsPackage,
+        AndroidSdkPackage::PackageType::ExtraToolsPackage,
+        AndroidSdkPackage::PackageType::ExtraToolsPackage,
+        AndroidSdkPackage::PackageType::ExtraToolsPackage,
+        AndroidSdkPackage::PackageType::NDKPackage,
+        AndroidSdkPackage::PackageType::NDKPackage,
+        AndroidSdkPackage::PackageType::NDKPackage,
+        AndroidSdkPackage::PackageType::NDKPackage,
+        AndroidSdkPackage::PackageType::SdkPlatformPackage,
+        AndroidSdkPackage::PackageType::SdkPlatformPackage,
+        AndroidSdkPackage::PackageType::SdkPlatformPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::GenericSdkPackage,
+        AndroidSdkPackage::PackageType::SdkToolsPackage,
+    };
+    const int installedCount = 5;
+    const Utils::FilePath sdkLocation = Utils::FilePath::fromUserInput("/location/of/Android/Sdk");
+
+    AndroidSdkPackageList packages;
+    SdkManagerOutputParser parser(packages);
+    parser.parsePackageListing(output, sdkLocation);
+
+    QCOMPARE(packages.length(), expectedTypes.length());
+    for (int i = 0; i < packages.length(); ++i) {
+        const AndroidSdkPackage *package = packages.at(i);
+        QCOMPARE(package->type(), expectedTypes.at(i));
+        const bool installed = i < installedCount;
+        QCOMPARE(package->state(), installed ? AndroidSdkPackage::Installed
+                                             : AndroidSdkPackage::Available);
+        QCOMPARE(package->installedLocation().isEmpty(), !installed);
+    }
+    QCOMPARE(packages.at(3)->installedLocation(),
+             sdkLocation.pathAppended("ndk/29.0.14206865"));
+    qDeleteAll(packages);
+}
+
+void SdkManagerOutputParserTest::testParseVerboseListingWithoutTrailingNewline()
+{
+    // An output whose last line is the last detail line of the last package, without a final
+    // newline, used to drop that package for the lack of a terminating empty line.
+    const QString output(R"(
+Installed packages:
+--------------------------------------
+build-tools;33.0.1
+    Description:        Android SDK Build-Tools 33.0.1
+    Version:            33.0.1
+    Installed Location: /location/of/Android/Sdk/build-tools/33.0.1
+
+platform-tools
+    Description:        Android SDK Platform-Tools
+    Version:            33.0.3
+    Installed Location: /location/of/Android/Sdk/platform-tools)");
+
+    AndroidSdkPackageList packages;
+    SdkManagerOutputParser parser(packages);
+    parser.parsePackageListing(output);
+
+    QCOMPARE(packages.length(), 2);
+    QCOMPARE(packages.at(0)->type(), AndroidSdkPackage::PackageType::BuildToolsPackage);
+    QCOMPARE(packages.at(1)->type(), AndroidSdkPackage::PackageType::PlatformToolsPackage);
+    QCOMPARE(packages.at(1)->descriptionText(), "Android SDK Platform-Tools");
+    QCOMPARE(packages.at(1)->revision(), QVersionNumber(33, 0, 3));
+    qDeleteAll(packages);
 }
 
 QObject *createAndroidSdkManagerOutputParserTest()
