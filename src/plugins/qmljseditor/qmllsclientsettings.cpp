@@ -632,7 +632,7 @@ static GroupItem downloadGithubQmlls()
         const bool isArm64 = arch == Utils::OsArchArm64;
         const bool isAmd64 = arch == Utils::OsArchAMD64;
         if (isArm64 || isAmd64) {
-            static QLatin1StringView binaryName = [isArm64, isAmd64] {
+            static QLatin1StringView binaryName = [isArm64] {
                 if (HostOsInfo::isWindowsHost()) {
                     if (isArm64)
                         return "qmllanguageserver-windows-arm64"_L1;
