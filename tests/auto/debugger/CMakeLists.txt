@@ -229,3 +229,14 @@ add_qtc_test(tst_debugger_pdb
   SOURCES
     tst_pdb.cpp
 )
+
+find_package(Python3 3.8 COMPONENTS Interpreter QUIET)
+if(Python3_Interpreter_FOUND)
+  add_test(NAME tst_debugger_nativemsvctypename
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tst_nativemsvctypename.py")
+  # The dumpers live in the source tree; keep the run from writing __pycache__ there.
+  set_tests_properties(tst_debugger_nativemsvctypename PROPERTIES
+    ENVIRONMENT PYTHONDONTWRITEBYTECODE=1)
+else()
+  message(STATUS "No Python 3 interpreter found, skipping tst_debugger_nativemsvctypename")
+endif()

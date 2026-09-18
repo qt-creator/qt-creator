@@ -552,17 +552,16 @@ class DumperBase():
             raise RuntimeError('ARG ERROR FOR lookupType, got %s' % type(typename))
 
         typeid = self.typeid_for_string(typename)
-        native_type = self.cached_nativetype(typeid)
+        # Goes through type_nativetype() so that the candidate spellings are
+        # offered here too.
+        native_type = self.type_nativetype(typeid)
         if native_type is None:
-            native_type = self.lookupNativeType(typename)
-            if native_type is None:
-                #sCANNOT DETERMINE SIZE FOR TYelf.dump_location()
-                #self.dump_location()
-                self.warn("TYPEIDS: %s" % self.typeid_cache)
-                self.warn("COULD NOT FIND TYPE '%s'" % typename)
-                return None
+            #sCANNOT DETERMINE SIZE FOR TYelf.dump_location()
+            #self.dump_location()
+            self.warn("TYPEIDS: %s" % self.typeid_cache)
+            self.warn("COULD NOT FIND TYPE '%s'" % typename)
+            return None
 
-        self.type_nativetype_cache[typeid] = native_type
         typeid = self.from_native_type(native_type)
         if typeid == 0:
             return None
@@ -689,7 +688,9 @@ class DumperBase():
         self.register_struct('@QVariant', p5=2, p6=4)
         self.register_struct('@QXmlAttributes::Attribute', p5=4, p6=12)
 
-        self.register_struct('@QList<@QObject*>', p5=1, p6=3)
+        # Spelled the way the compilers spell it; sanitize_type_name() derives the
+        # collapsed internal key from this, not the other way round.
+        self.register_struct('@QList<@QObject *>', p5=1, p6=3)
         self.register_struct('@QList<@QStandardItemData>', p5=1, p6=3)
         self.register_struct('@QList<@QRect>', p5=1, p6=3)
 
@@ -3619,6 +3620,10 @@ typename))
         self.type_module_name_cache = {}
         self.type_nativetype_cache = {}
         self.type_modulename_cache = {}
+        # typeid -> the spelling the compiler uses, where it differs from the
+        # sanitized one: MSVC emits 'QList<QObject *>', the key is
+        # 'QList<QObject*>', and no PDB knows the latter.
+        self.type_nativename_cache = {}
         self.type_encoding_cache = {}
         self.type_qobject_based_cache = {}
         self.typeid_cache = {}   # internal typename -> id
@@ -3679,6 +3684,22 @@ typename))
                 typeid_arr.append(c)
         #self.warn("SANITIZE: '%s' TO '%s'" % (typeid_str, ''.join(typeid_arr)))
         return ''.join(typeid_arr)
+
+    # The shape a key gets where the compiler names no type: anonymous structs
+    # and unions ('s{field:type}...'). Not a type name, so no symbol reader is
+    # asked for one.
+    synthetic_typeid_key = re.compile(r'[{}]')
+
+    def note_native_type_name(self, typeid, native_name):
+        # Called by a bridge with a name its symbol reader gave, so that a later
+        # lookup can offer that spelling instead of the sanitized key.
+        if typeid == 0 or typeid in self.type_nativename_cache:
+            return
+        if native_name == self.sanitize_type_name(native_name):
+            return                                  # nothing was collapsed
+        if self.synthetic_typeid_key.search(native_name):
+            return
+        self.type_nativename_cache[typeid] = native_name
 
     def typeid_for_string(self, typeid_str, type_name=None):
         #typeid = self.typeid_cache.get(typeid_str, None)
@@ -4219,7 +4240,11 @@ typename))
         else:
             native_type = self.type_nativetype(typeid)
             # A layout cheap_typeid_from_name_nons() supplied has no native
-            # type to ask, and neither has one the debugger never saw.
+            # type to ask, and neither has one the debugger never saw. An answer
+            # that does not describe the type is no better a source, and is not
+            # final either: the guess is not cached.
+            if native_type is not None and not self.nativeTypeIsUsable(native_type):
+                return self.ptrSize()
             alignment = self.ptrSize() if native_type is None \
                         else self.nativeStructAlignment(native_type)
             #self.warn("GUESSING ALIGNMENT %s FOR TYPEID %s" % (alignment, typeid))
@@ -4227,18 +4252,41 @@ typename))
         return alignment
 
 
+    def native_type_name_candidates(self, typeid):
+        # The spellings to offer the symbol reader, best first. Overridden by a
+        # bridge whose reader does not know the internal type name.
+        return [self.type_name(typeid)]
+
     def type_nativetype(self, typeid):
         native_type = self.cached_nativetype(typeid)
         if native_type is not None:
             return native_type
 
-        typename = self.type_name(typeid)
-        native_type = self.lookupNativeType(typename)
-        # A failed lookup is not kept: the type can arrive with a later library.
-        if native_type is not None:
+        # A name the symbol reader parses can still be one that no module knows,
+        # so an answer that does not describe the type ends the candidates only
+        # when there is nothing left to try.
+        native_type = None
+        for name in self.native_type_name_candidates(typeid):
+            candidate = self.lookupNativeType(name)
+            if candidate is None:
+                continue
+            native_type = candidate
+            if self.nativeTypeIsUsable(candidate):
+                break
+        # An answer that does not describe the type is handed on but not kept:
+        # the type can arrive with a later module load, and keeping the answer
+        # would have cached_nativetype() drop what register_struct() seeded for
+        # the types no module knows.
+        if native_type is not None and self.nativeTypeIsUsable(native_type):
             self.type_nativetype_cache[typeid] = native_type
 
         return native_type
+
+    # Whether the symbol reader knows a name, asked where a spelling is chosen
+    # rather than a type used. An answer at all settles it, except for a bridge
+    # that answers a name it has not looked up.
+    def type_name_is_known(self, typename):
+        return self.lookupNativeType(typename) is not None
 
 
     def type_size(self, typeid):
@@ -4249,6 +4297,10 @@ typename))
 
         nativeType = self.type_nativetype(typeid)
         if self.isCdb:
+            # An answer that does not describe the type has no size to cache;
+            # the symbols may still arrive.
+            if nativeType is None or not self.nativeTypeIsUsable(nativeType):
+                return 0
             size = nativeType.bitsize() // 8
         else:
             if not self.type_size_cache.get(typeid):
@@ -4267,7 +4319,8 @@ typename))
         bitsize = self.type_bitsize_cache.get(typeid, None)
         if bitsize is None:
             bitsize = 8 * self.type_size(typeid)
-            self.type_bitsize_cache[typeid] = bitsize
+            if typeid in self.type_size_cache:
+                self.type_bitsize_cache[typeid] = bitsize
         return bitsize
 
     def dynamic_typeid_at_address(self, base_typeid, address):

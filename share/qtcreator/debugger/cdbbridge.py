@@ -14,6 +14,39 @@ sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.curre
 
 from dumper import DumperBase, SubItem, Children, DisplayFormat, UnnamedSubItem
 
+_CALL_CONV = r'__cdecl|__stdcall|__fastcall|__thiscall|__vectorcall|__clrcall'
+_CV_QUALIFIER = r'const|volatile'
+_ELABORATED = r'enum|struct|class|union'
+
+
+def native_msvc_type_name(typename):
+    # Undoes the collapsing that sanitize_type_name() applies to form the
+    # internal type key: MSVC, and therefore every PDB, keeps the spaces around
+    # '&*<>,' that the key does not have. A fallback only, and one that runs over
+    # its own output, since type_name() answers with the MSVC spelling for every
+    # typeid that came off a native type.
+    name = typename
+    # 'QObject*' -> 'QObject *', 'QString&' -> 'QString &'
+    name = re.sub(r'(?<=[\w>\]])(?=[*&])', ' ', name)
+    # 'void**' -> 'void * *', 'char*&' -> 'char * &'
+    name = re.sub(r'\*(?=[*&])', '* ', name)
+    # 'QList<QList<int>>' -> 'QList<QList<int> >'
+    name = re.sub(r'>(?=>)', '> ', name)
+    # 'char[13]' -> 'char [13]'
+    name = re.sub(r'(?<=[\w>])(?=\[)', ' ', name)
+    # '<T const>' -> '<T const >', but 'T * const' keeps its trailing star form
+    name = re.sub(r'(?<!\* )\b(' + _CV_QUALIFIER + r')(?=[>,])', r'\1 ', name)
+    # 'enum<unnamed-enum-X>' -> 'enum <unnamed-enum-X>'
+    name = re.sub(r'\b(' + _ELABORATED + r')(?=<)', r'\1 ', name)
+    # function pointers keep the star glued to the calling convention
+    name = re.sub(r'\b(' + _CALL_CONV + r') (?=\*)', r'\1', name)
+    name = re.sub(r'\b(' + _CALL_CONV + r')\* \*', r'\1**', name)
+    # 'QMap<QString, QVariant>' -> 'QMap<QString,QVariant>'. A space after ',' is
+    # never an MSVC spelling, and sanitize_type_name() leaves the one that
+    # follows a '@' in place, so a registered name keeps it.
+    name = re.sub(r',\s+', ',', name)
+    return name
+
 
 class FakeVoidType(cdbext.Type):
     def __init__(self, name, dumper):
@@ -168,8 +201,14 @@ class Dumper(DumperBase):
 
     def from_native_type(self, nativeType: cdbext.Type) -> str:
         self.check(isinstance(nativeType, cdbext.Type))
-        typeid = self.typeid_for_string(self.nativeTypeId(nativeType))
-        self.type_nativetype_cache[typeid] = nativeType
+        nativeTypeId = self.nativeTypeId(nativeType)
+        typeid = self.typeid_for_string(nativeTypeId)
+        # Only an answer that describes the type is kept, and only its spelling
+        # is worth offering first to a later lookup: it is the one the reader is
+        # known to resolve, where native_msvc_type_name() reconstructs a guess.
+        if self.nativeTypeIsUsable(nativeType):
+            self.note_native_type_name(typeid, nativeTypeId)
+            self.type_nativetype_cache[typeid] = nativeType
 
         if nativeType.name().startswith('void'):
             nativeType = FakeVoidType(nativeType.name(), self)
@@ -544,10 +583,47 @@ class Dumper(DumperBase):
     def nativeTypeIsUsable(self, nativeType) -> bool:
         return not nativeType.unresolvable()
 
+    def native_type_name_candidates(self, typeid):
+        return self.candidate_spellings(self.type_name(typeid),
+                                        self.type_nativename_cache.get(typeid, None))
+
+    def candidate_spellings(self, typename, recorded=None):
+        # A spelling the symbol reader produced is what it can look up again, the
+        # reconstructed MSVC one is the next best guess, and the internal key is
+        # offered only so that a type named by a dumper is still found.
+        seen = set()
+        for name in [recorded, native_msvc_type_name(typename), typename]:
+            if name and name not in seen:
+                seen.add(name)
+                yield name
+
+    def type_name_is_known(self, typename: str) -> bool:
+        # cdbext.lookupType() answers a name it has not looked up, and the name
+        # Qt spells is the collapsed one no module knows, so the question is
+        # whether one of the candidate spellings resolves. A probe, not a use: no
+        # typeid is minted for the spelling, a recorded one is consulted if there
+        # is one already.
+        key = self.sanitize_type_name(typename)
+        typeid = self.typeid_cache.get(key, None)
+        recorded = None if typeid is None else self.type_nativename_cache.get(typeid, None)
+        for name in self.candidate_spellings(key, recorded):
+            nativeType = self.lookupNativeType(name)
+            if nativeType is not None and self.nativeTypeIsUsable(nativeType):
+                return True
+        return False
+
     def lookupNativeType(self, name: str, module=0) -> cdbext.Type:
         if name.startswith('void'):
             return FakeVoidType(name, self)
-        return cdbext.lookupType(name, module)
+        nativeType = cdbext.lookupType(name, module)
+        if nativeType is not None:
+            # cdbext.lookupType() answers every name it can parse with a type it
+            # has not looked up yet, so unresolvable() would call a name no module
+            # knows usable. moduleId() forces the lookup. FakeVoidType stays out
+            # of it: its native type has no name, and resolving that one marks it
+            # unresolvable.
+            nativeType.moduleId()
+        return nativeType
 
     def reportResult(self, result, args):
         cdbext.reportResult('result={%s}' % result)
