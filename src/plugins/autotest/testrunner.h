@@ -96,7 +96,6 @@ private:
     }
 
     void reportResult(ResultType type, const QString &description);
-    bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
 
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
