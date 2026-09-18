@@ -166,10 +166,11 @@ public:
             return samplerRecipe(runControl, backendId);
         });
         addSupportedRunMode(samplerRunMode(backendId));
-        addSupportForLocalRunConfigs();
         // The samplers capture a process on this machine -- by its pid, or over a
         // debug connection to it -- so a target on a device needs a worker of the
-        // device's own, as the live profilers have.
+        // device's own, as the live profilers have. Which run configuration
+        // starts it does not matter, and listing the local ones would leave out
+        // a ".qmlproject"'s "QML Runtime".
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     }
 };
