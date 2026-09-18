@@ -9,6 +9,8 @@
 #include <QPen>
 #include <QStyle>
 
+#include <array>
+
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QPainter;
@@ -268,6 +270,14 @@ QTCREATOR_UTILS_EXPORT bool isReadableOn(const QColor &background, const QColor 
 // returns a foreground color readable on background (desiredForeground if already readable or adaption fails)
 QTCREATOR_UTILS_EXPORT QColor ensureReadableOn(const QColor &background,
                                                const QColor &desiredForeground);
+// a lightness, and the a and b axes that a chroma and a hue are the polar form of
+using OklabColor = std::array<double, 3>;
+// more chroma than any hue has in sRGB, so that asking for it lands on the gamut boundary
+inline constexpr double oklchFullChroma = 0.45;
+QTCREATOR_UTILS_EXPORT QColor oklchColor(double lightness, double chroma, double hue);
+QTCREATOR_UTILS_EXPORT OklabColor oklab(const QColor &color);
+QTCREATOR_UTILS_EXPORT double oklchFittingChroma(double lightness, double chroma, double hue);
+QTCREATOR_UTILS_EXPORT double oklchMostChromaticLightness(double hue);
 // modifies widget's palette QPalette::Base to color, leaves other colors of palette untouched
 QTCREATOR_UTILS_EXPORT void modifyPaletteBase(QWidget *widget, const QColor &color);
 // sets widget's background to colorRole from theme
