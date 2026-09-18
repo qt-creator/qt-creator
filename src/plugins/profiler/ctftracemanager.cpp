@@ -127,10 +127,33 @@ void CtfTraceManager::finalize()
     QSet<QString> processIds;
     for (const CtfTimelineModel *model : std::as_const(m_threadModels))
         processIds.insert(model->m_processId);
+
+    // The thread each process runs on, which is the lane its name goes on (see
+    // CtfTimelineModel::updateName). Nothing in a trace marks one, so it is
+    // recognized by the name Qt gives it -- see QAdoptedThread, which names the
+    // main thread and only ever that one. A process whose trace was written by
+    // another producer has no such lane, and none of its lanes is named after
+    // it; one that somehow has two keeps the first, in the order the lanes are
+    // shown in, so that the name is not on two of them. A process the trace
+    // does not name has nothing to put on the lane either: the process would be
+    // shown as the number it is, which says less than the thread name it would
+    // replace.
+    const QLatin1StringView qtMainThreadName("Qt mainThread");
+    QHash<QString, QString> mainThreadOfProcess; // process -> thread
+    const QList<CtfTimelineModel *> sorted = getSortedThreads();
+    for (const CtfTimelineModel *model : sorted) {
+        if (m_threadNames.value(model->m_threadId) == qtMainThreadName
+            && !m_processNames.value(model->m_processId).isEmpty()
+            && !mainThreadOfProcess.contains(model->m_processId)) {
+            mainThreadOfProcess.insert(model->m_processId, model->m_threadId);
+        }
+    }
+
     for (CtfTimelineModel *model: std::as_const(m_threadModels)) {
         model->finalize(m_traceBegin, m_traceEnd,
                         m_processNames[model->m_processId], m_threadNames[model->m_threadId],
-                        processIds.size() > 1);
+                        processIds.size() > 1,
+                        mainThreadOfProcess.value(model->m_processId) == model->m_threadId);
     }
     // TimelineModelAggregator::addModel() is called here because it
     // needs to be run in the main thread
