@@ -30,27 +30,27 @@ function(create_python_xy PythonExe PythonZipFilePath)
     colorsys.py          pickle.py        tracemalloc.py
     compileall.py        pickletools.py   tty.py
     configparser.py      pipes.py         turtle.py
-    contextvars.py       plistlib.py      typing.py
-    cProfile.py          poplib.py        uu.py
-    crypt.py             pprint.py        uuid.py
-    csv.py               profile.py       wave.py
-    dataclasses.py       pstats.py        webbrowser.py
-    datetime.py          pty.py           xdrlib.py
-    decimal.py           pyclbr.py        zipapp.py
-    difflib.py           py_compile.py    zipfile.py
-    doctest.py           queue.py         zipimport.py
-    dummy_threading.py   quopri.py        _compat_pickle.py
-    filecmp.py           random.py        _compression.py
-    fileinput.py         rlcompleter.py   _dummy_thread.py
-    formatter.py         runpy.py         _markupbase.py
-    fractions.py         sched.py         _osx_support.py
-    ftplib.py            secrets.py       _pydecimal.py
-    getopt.py            selectors.py     _pyio.py
-    getpass.py           shelve.py        _py_abc.py
-    gettext.py           shlex.py         _strptime.py
-    gzip.py              shutil.py        _threading_local.py
-    hashlib.py           smtpd.py         __future__.py
-    hmac.py              smtplib.py       __phello__.foo.py
+    contextvars.py       plistlib.py      uu.py
+    cProfile.py          poplib.py        uuid.py
+    crypt.py             pprint.py        wave.py
+    csv.py               profile.py       webbrowser.py
+    dataclasses.py       pstats.py        xdrlib.py
+    datetime.py          pty.py           zipapp.py
+    decimal.py           pyclbr.py        zipfile.py
+    difflib.py           py_compile.py    zipimport.py
+    doctest.py           queue.py         _compat_pickle.py
+    dummy_threading.py   quopri.py        _compression.py
+    filecmp.py           random.py        _dummy_thread.py
+    fileinput.py         rlcompleter.py   _markupbase.py
+    formatter.py         runpy.py         _osx_support.py
+    fractions.py         sched.py         _pydecimal.py
+    ftplib.py            secrets.py       _pyio.py
+    getopt.py            selectors.py     _py_abc.py
+    getpass.py           shelve.py        _strptime.py
+    gettext.py           shlex.py         _threading_local.py
+    gzip.py              shutil.py        __phello__.foo.py
+    hashlib.py           smtpd.py
+    hmac.py              smtplib.py
     imaplib.py           sndhdr.py
     )
     list(FIND python_lib_files "${python_lib_dir}/${not_needed}" found_not_needed)
