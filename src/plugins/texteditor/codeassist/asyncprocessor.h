@@ -13,6 +13,7 @@ class TEXTEDITOR_EXPORT AsyncProcessor : public TextEditor::IAssistProcessor
 {
 public:
     AsyncProcessor();
+    ~AsyncProcessor() override;
 
     IAssistProposal *perform() override;
     bool running() override;
