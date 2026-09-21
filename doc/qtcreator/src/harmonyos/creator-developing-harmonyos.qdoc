@@ -71,6 +71,13 @@
             starts but cannot load the platform plugin.
         \li Keep \uicontrol {Create kits automatically} selected to have \QC
             offer a kit for every Qt for HarmonyOS it knows about.
+        \li Building for HarmonyOS needs a Qt that was cross-built for it. The
+            Qt installer publishes one from Qt 6.12 on, and
+            \uicontrol {Install Qt for HarmonyOS} installs it. A Qt for
+            HarmonyOS that is there already but unknown to \QC is registered
+            instead. The button needs the maintenance tool that the Qt
+            installer manages its packages with, so it works in an installed
+            \QC only.
     \endlist
 
     Once the SDK location is set, the compilers in it appear in

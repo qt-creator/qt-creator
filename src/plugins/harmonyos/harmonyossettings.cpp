@@ -11,10 +11,18 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <qtsupport/qtversionfactory.h>
+#include <qtsupport/qtversionmanager.h>
 
 #include <QtTaskTree/QNetworkReplyWrapper>
 #include <QtTaskTree/qtasktree.h>
+
+#include <updateinfo/updateinfoservice.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -295,6 +303,80 @@ static QtTaskTree::GroupItem downloadSdkRecipe(const FilePath &sdkPath)
     };
 }
 
+// Qt installation
+
+// Qt for HarmonyOS comes from the Qt installer, so installing one means driving the
+// maintenance tool, which the updateinfo plugin owns. Taking its service out of the
+// object pool keeps that a run-time rather than a build-time dependency, and leaves
+// the tool's own location to the only place that knows it.
+static UpdateInfo::Service *installerService()
+{
+    return ExtensionSystem::PluginManager::getObject<UpdateInfo::Service>();
+}
+
+// The packages the installer publishes Qt for HarmonyOS as, e.g.
+// "qt.qt6.6120.harmonyos_arm64_v8a".
+static QString qtPackageFilter()
+{
+    return "qt\\.qt6\\..*harmonyos.*";
+}
+
+static QtSupport::QtVersions harmonyOsQtVersions()
+{
+    return QtSupport::QtVersionManager::versions([](const QtSupport::QtVersion *version) {
+        return version->type() == QLatin1String(Constants::HARMONYOS_QT_TYPE);
+    });
+}
+
+struct ScanResult
+{
+    QtSupport::QtVersions added;
+    // Registered, but not as a Qt for HarmonyOS, which is what the installer's own
+    // registration leaves behind: it names no device type, so nothing builds a
+    // HarmonyOS kit from such a Qt.
+    QtSupport::QtVersions mistyped;
+};
+
+// Registers the Qt for HarmonyOS installations in root that are not known here yet.
+static ScanResult registerQtVersions(const FilePath &root)
+{
+    ScanResult result;
+    const DirFilterFlags dirs = DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot;
+    for (const FilePath &versionDir : root.dirEntries({{"*"}, dirs})) {
+        for (const FilePath &prefix : versionDir.dirEntries({{"harmonyos*"}, dirs})) {
+            const FilePath qmake = (prefix / "bin" / "qmake").withExecutableSuffix();
+            if (!qmake.isExecutableFile())
+                continue;
+            if (QtSupport::QtVersion *known = QtSupport::QtVersionManager::version(
+                    [&qmake](const QtSupport::QtVersion *version) {
+                        return version->qmakeFilePath() == qmake;
+                    })) {
+                if (known->type() != QLatin1String(Constants::HARMONYOS_QT_TYPE))
+                    result.mistyped.append(known);
+                continue;
+            }
+            QtSupport::QtVersion *version
+                = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(
+                    qmake, ProjectExplorer::DetectionSource::FromSystem);
+            if (!version)
+                continue;
+            if (!version->isValid()) {
+                delete version;
+                continue;
+            }
+            QtSupport::QtVersionManager::addVersion(version);
+            result.added.append(version);
+        }
+    }
+    return result;
+}
+
+static QString versionNames(const QtSupport::QtVersions &versions)
+{
+    return Utils::transform<QStringList>(versions,
+        [](const QtSupport::QtVersion *version) { return version->displayName(); }).join(", ");
+}
+
 HarmonyOsSettings::HarmonyOsSettings()
 {
     setSettingsGroup("HarmonyOSConfiguration");
@@ -391,6 +473,23 @@ HarmonyOsSettings::HarmonyOsSettings()
         status->setElideMode(Qt::ElideNone);
         status->setWordWrap(true);
 
+        auto qtNote = new QLabel(
+            Tr::tr("Building for HarmonyOS needs a Qt that was cross-built for it. The Qt "
+                   "installer publishes one from Qt 6.12 on, and can install it here."));
+        qtNote->setWordWrap(true);
+
+        auto installQtButton = new QPushButton(Tr::tr("Install Qt for HarmonyOS"));
+        installQtButton->setEnabled(installerService() != nullptr);
+        if (!installQtButton->isEnabled()) {
+            installQtButton->setToolTip(
+                Tr::tr("Only an installed Qt Creator carries the maintenance tool that the "
+                       "Qt installer manages its packages with."));
+        }
+
+        auto qtStatus = new InfoLabel;
+        qtStatus->setElideMode(Qt::ElideNone);
+        qtStatus->setWordWrap(true);
+
         auto signingNote = new QLabel(
             Tr::tr("Material for signing HarmonyOS packages, as issued for the developer "
                    "account. Projects that DevEco Studio set up for automatic signing use "
@@ -410,6 +509,14 @@ HarmonyOsSettings::HarmonyOsSettings()
                         deviceSdkLocation, br,
                     },
                     automaticKitCreation,
+                },
+            },
+            Group {
+                title(Tr::tr("Qt for HarmonyOS")),
+                Column {
+                    qtNote,
+                    Row { installQtButton, st },
+                    qtStatus,
                 },
             },
             Group {
@@ -494,7 +601,50 @@ HarmonyOsSettings::HarmonyOsSettings()
             });
         });
 
+        const auto updateQtStatus = [qtStatus] {
+            const QtSupport::QtVersions versions = harmonyOsQtVersions();
+            if (versions.isEmpty()) {
+                qtStatus->setType(InfoLabelType::NotOk);
+                qtStatus->setText(Tr::tr("No Qt for HarmonyOS is registered."));
+                return;
+            }
+            qtStatus->setType(InfoLabelType::Ok);
+            qtStatus->setText(Tr::tr("Registered: %1.").arg(versionNames(versions)));
+        };
+
+        connect(installQtButton, &QPushButton::clicked, this, [qtStatus, updateQtStatus] {
+            UpdateInfo::Service *service = installerService();
+            QTC_ASSERT(service, return);
+            const FilePath root = service->installationRoot();
+            // A Qt that is installed but unknown here needs registering rather than
+            // installing, and that is the case the installer reports as "already
+            // installed", so look before offering an installation.
+            ScanResult scan = registerQtVersions(root);
+            if (scan.added.isEmpty() && scan.mistyped.isEmpty()) {
+                // The dialog's result tells whether it was closed on its install button,
+                // not whether anything arrived, so look at the directory either way.
+                service->installPackages(qtPackageFilter());
+                scan = registerQtVersions(root);
+            }
+            updateQtStatus();
+            if (!scan.added.isEmpty())
+                return;
+            if (!scan.mistyped.isEmpty()) {
+                qtStatus->setType(InfoLabelType::Warning);
+                qtStatus->setText(
+                    Tr::tr("The Qt installer registered \"%1\" without naming HarmonyOS as "
+                           "its device type, so no HarmonyOS kit is built from it. A Qt "
+                           "installer that knows about HarmonyOS is needed for that.")
+                        .arg(versionNames(scan.mistyped)));
+                return;
+            }
+            qtStatus->setType(InfoLabelType::Warning);
+            qtStatus->setText(Tr::tr("No Qt for HarmonyOS was found in \"%1\".")
+                                  .arg(root.toUserOutput()));
+        });
+
         updateStatus();
+        updateQtStatus();
 
         return column;
     });
