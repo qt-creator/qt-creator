@@ -12,8 +12,6 @@
 
 #include <QPointer>
 
-#include <optional>
-
 QT_BEGIN_NAMESPACE
 class QToolButton;
 class QAction;
@@ -152,7 +150,7 @@ private:
         QPointer<RunControl> runControl;
         QPointer<AppOutputWindow> window;
         AppOutputPaneMode behaviorOnOutput = AppOutputPaneMode::FlashOnOutput;
-        std::optional<QString> sourceFilterText;
+        QString sourceFilterText;
     };
 
     void closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
@@ -203,7 +201,6 @@ private:
     QWidget *m_formatterWidget;
     ShowOutputTaskHandler * const m_handler;
     bool m_paneVisible = false;
-    QString m_lastReportedFilterText;
 };
 
 AppOutputPane &appOutputPane();

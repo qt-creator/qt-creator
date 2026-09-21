@@ -619,18 +619,17 @@ void AppOutputPane::setFocus()
 
 void AppOutputPane::updateFilter()
 {
-    const QString filter = filterText();
-    if (RunControlTab * const tab = currentTab()) {
-        QTC_ASSERT(tab->window, return);
-        tab->sourceFilterText = filter;
-        tab->window->updateCategoriesProperties(tab->window->registry()->categories());
-        applyFilter(*tab);
-    }
-    if (filter == m_lastReportedFilterText)
+    RunControlTab *const tab = currentTab();
+    if (!tab)
         return;
-    m_lastReportedFilterText = filter;
-    if (RunControl * const runControl = currentRunControl())
-        runControl->reportOutputFilterChanged(filter);
+    const QString filter = filterText();
+    const bool changed = tab->sourceFilterText != filter;
+    QTC_ASSERT(tab->window, return);
+    tab->sourceFilterText = filter;
+    tab->window->updateCategoriesProperties(tab->window->registry()->categories());
+    applyFilter(*tab);
+    if (changed && tab->runControl)
+        tab->runControl->reportOutputFilterChanged(filter);
 }
 
 void AppOutputPane::applyFilter(const RunControlTab &tab)
@@ -682,7 +681,6 @@ void AppOutputPane::setFilterFieldText(const QString &text)
     QTC_ASSERT(edit, return);
     if (edit->text() == text)
         return;
-    m_lastReportedFilterText = text;
     edit->setText(text);
 }
 
@@ -758,7 +756,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         tab->runControl = rc;
         tab->sourceFilterText = rc->outputFilterText();
         if (currentRunControl() == rc)
-            setFilterFieldText(tab->sourceFilterText.value_or(QString()));
+            setFilterFieldText(tab->sourceFilterText);
         tab->window->reset();
         rc->setupFormatter(tab->window->outputFormatter());
 
@@ -1253,7 +1251,7 @@ void AppOutputPane::tabChanged(int i)
     RunControlTab * const controlTab = tabFor(m_tabWidget->widget(i));
     setFilterOptionsVisible(!filtersAtSource(currentRunControl()));
     if (i != -1 && controlTab && QTC_GUARD(controlTab->window)) {
-        const QString text = controlTab->sourceFilterText.value_or(QString());
+        const QString text = controlTab->sourceFilterText;
         if (filterText() == text)
             updateFilter();
         else

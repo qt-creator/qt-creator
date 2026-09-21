@@ -204,7 +204,7 @@ public:
     std::optional<int> exitCode;
     IDevice::ConstPtr device;
     Icon icon;
-    std::optional<QString> outputFilterText;
+    QString outputFilterText;
     bool filtersOutputAtSource = false;
     const MacroExpander *macroExpander = nullptr;
     AspectContainerData aspectData;
@@ -494,7 +494,7 @@ void RunControl::setOutputFilterText(const QString &text)
     appOutputPane().setFilterTextForRunControl(this, text);
 }
 
-std::optional<QString> RunControl::outputFilterText() const
+QString RunControl::outputFilterText() const
 {
     return d->data.outputFilterText;
 }
