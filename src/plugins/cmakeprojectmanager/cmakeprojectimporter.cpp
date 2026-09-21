@@ -1151,6 +1151,7 @@ static SetupResult setupQMakeProcess(
 {
     DirectoryData &data = storage.directoryData;
     CMakeConfig &config = storage.config;
+    const CMakeConfig &cache = storage.cache;
     Environment &env = storage.env;
     FilePath &qmake = storage.qmakePath;
     QString &prefixPath = storage.cmakePrefixPath;
@@ -1206,7 +1207,10 @@ static SetupResult setupQMakeProcess(
         return SetupResult::StopWithSuccess;
 
     const FilePath toolchainFile = config.filePathValueOf(QByteArray("CMAKE_TOOLCHAIN_FILE"));
-    if (prefixPath.isEmpty() && toolchainFile.isEmpty())
+    // Nothing in the preset points at a Qt, so let CMake search its default locations.
+    // For a cross-compiling preset that would find the host Qt, which is of no use.
+    if (prefixPath.isEmpty() && toolchainFile.isEmpty()
+        && !cache.valueOf("CMAKE_SYSTEM_NAME").isEmpty())
         return SetupResult::StopWithSuccess;
 
     // Run a CMake project that would do qmake probing
