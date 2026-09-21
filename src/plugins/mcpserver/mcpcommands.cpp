@@ -3958,6 +3958,56 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("ui_read_widget_text")
+            .title("Read a widget's text")
+            .description(
+                "Returns up to max_chars characters of the text of the widget the query "
+                "resolves to, where ui_find_widgets answers with a 400 character excerpt. "
+                "\"length\" is the size of the whole text. Meant for a log view or another "
+                "document whose end is the interesting part: set \"tail\" to read the last "
+                "characters rather than the first. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty(
+                        "max_chars",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "At most this many characters, 20000 by default."}})
+                    .addProperty(
+                        "tail",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description", "Read the last max_chars characters instead of the "
+                                            "first."}}))
+            .outputSchema(
+                Tool::OutputSchema{}
+                    .addProperty("text", QJsonObject{{"type", "string"}})
+                    .addProperty("length", QJsonObject{{"type", "integer"}})
+                    .addProperty("truncated", QJsonObject{{"type", "boolean"}})
+                    .addProperty("error", QJsonObject{{"type", "string"}})
+                    .addRequired("text")
+                    .addRequired("length")
+                    .addRequired("truncated")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            const Utils::Result<QWidget *> w = resolveSingleWidget(widgetQueryFromJson(p));
+            if (!w) {
+                return {{"text", QString()},
+                        {"length", 0},
+                        {"truncated", false},
+                        {"error", w.error()}};
+            }
+            const QString text = widgetVisibleText(*w);
+            const int maxChars = p.value("max_chars").toInt(20000);
+            const QString part = p.value("tail").toBool() ? text.right(maxChars)
+                                                          : text.left(maxChars);
+            return {{"text", part},
+                    {"length", text.size()},
+                    {"truncated", part.size() < text.size()}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("ui_list_windows")
             .title("List top-level windows")
             .description(

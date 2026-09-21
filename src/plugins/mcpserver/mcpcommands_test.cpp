@@ -68,6 +68,7 @@ private slots:
     void testSelectTextTakesOneBasedColumns();
     void testSelectTextRejectsAnInvalidRange();
     void testFindWidgetsReportsATextEditAsAnExcerpt();
+    void testReadWidgetTextReturnsTheWholeDocument();
     void testCursorPositionIsOneBased();
     void testCursorPositionReportsTheSelectedRange();
     void testCursorPositionCutsALongLine();
@@ -198,6 +199,40 @@ void McpCommandsTest::testFindWidgetsReportsATextEditAsAnExcerpt()
     QVERIFY(text.startsWith("cmake --build . && ctest"));
     QCOMPARE(text.size(), 400);
     QVERIFY(found.value("text_truncated").toBool());
+}
+
+void McpCommandsTest::testReadWidgetTextReturnsTheWholeDocument()
+{
+    TemporaryDirectory dir("qtc-mcpcommands-XXXXXX");
+    QVERIFY(dir.isValid());
+    const QScopeGuard closeEditors([] { Core::EditorManager::closeAllEditors(false); });
+    const QByteArray contents = QByteArray(600, 'x') + "\nthe end";
+    TextEditor::TextEditorWidget *widget = openText(dir, contents);
+    QVERIFY(widget);
+    widget->setObjectName("mcpCommandsTestEdit");
+
+    QString error;
+    const QJsonObject whole = callTool(
+        "ui_read_widget_text",
+        {{"object_name", "mcpCommandsTestEdit"}, {"include_invisible", true}},
+        &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(whole.value("length").toInt(), contents.size());
+    QCOMPARE(whole.value("text").toString().size(), contents.size());
+    QVERIFY(!whole.value("truncated").toBool());
+
+    // The end of a log is what a caller watches, so it is reachable without
+    // reading everything before it.
+    const QJsonObject tail = callTool(
+        "ui_read_widget_text",
+        {{"object_name", "mcpCommandsTestEdit"},
+         {"include_invisible", true},
+         {"max_chars", 7},
+         {"tail", true}},
+        &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(tail.value("text").toString(), QString("the end"));
+    QVERIFY(tail.value("truncated").toBool());
 }
 
 void McpCommandsTest::testCursorPositionIsOneBased()
