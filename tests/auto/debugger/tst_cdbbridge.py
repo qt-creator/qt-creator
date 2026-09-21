@@ -171,6 +171,25 @@ dumper.from_native_type(laterType)
 expect('the type is looked at again', calls['FakeType.code'], 1)
 
 print('')
+print('--- a lookup is pointed at the module of the value being dumped ---')
+lookups = []
+
+
+def fake_lookup_type(name, module=0):
+    lookups.append((name, module))
+    return None
+
+
+_cdbext.lookupType = fake_lookup_type
+dumper.fromNativeValue(FakeValue('list', FakeType('QList<Foo>', module=0x7000)))
+dumper.lookupNativeType('Foo')
+dumper.lookupNativeType('Bar', 0x9000)
+dumper.fromNativeValue(FakeValue('later', FakeType('Later', isResolved=False)))
+dumper.lookupNativeType('Baz')
+expect('the hint is the module of the last resolved value, an explicit module wins',
+       lookups, [('Foo', 0x7000), ('Bar', 0x9000), ('Baz', 0x7000)])
+
+print('')
 if failures:
     print('FAILED (%d):' % len(failures))
     for failure in failures:

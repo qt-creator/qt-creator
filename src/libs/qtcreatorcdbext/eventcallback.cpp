@@ -67,7 +67,8 @@ STDMETHODIMP EventCallback::GetInterestMask(THIS_ __out PULONG mask)
 
     *mask |= DEBUG_EVENT_CREATE_PROCESS  | DEBUG_EVENT_EXIT_PROCESS
             | DEBUG_EVENT_BREAKPOINT
-            | DEBUG_EVENT_EXCEPTION | DEBUG_EVENT_LOAD_MODULE | DEBUG_EVENT_UNLOAD_MODULE;
+            | DEBUG_EVENT_EXCEPTION | DEBUG_EVENT_LOAD_MODULE | DEBUG_EVENT_UNLOAD_MODULE
+            | DEBUG_EVENT_CHANGE_SYMBOL_STATE;
     return S_OK;
 }
 
@@ -237,7 +238,7 @@ STDMETHODIMP EventCallback::LoadModule(
     )
 {
 #ifdef WITH_PYTHON
-    PyType::clearUnresolvedTypes();
+    PyType::moduleLoaded(BaseOffset);
 #endif
     return m_wrapped ? m_wrapped->LoadModule(ImageFileHandle, BaseOffset,
                                              ModuleSize, ModuleName, ImageName,
@@ -250,6 +251,9 @@ STDMETHODIMP EventCallback::UnloadModule(
     __in ULONG64 BaseOffset
     )
 {
+#ifdef WITH_PYTHON
+    PyType::moduleUnloaded(BaseOffset);
+#endif
     return m_wrapped ? m_wrapped->UnloadModule(ImageBaseName, BaseOffset) : S_OK;
 }
 
@@ -294,5 +298,14 @@ STDMETHODIMP EventCallback::ChangeSymbolState(
     __in ULONG64 Argument
     )
 {
+#ifdef WITH_PYTHON
+    // Symbols arriving for a module - a deferred load, a .reload - make it one
+    // to ask a miss about again; a new symbol path or new symbol options may
+    // make any module know what none did.
+    if ((Flags & DEBUG_CSS_LOADS) && Argument)
+        PyType::moduleLoaded(Argument);
+    if (Flags & (DEBUG_CSS_PATHS | DEBUG_CSS_SYMBOL_OPTIONS))
+        PyType::symbolsChanged();
+#endif
     return m_wrapped ? m_wrapped->ChangeSymbolState(Flags, Argument) : S_OK;
 }

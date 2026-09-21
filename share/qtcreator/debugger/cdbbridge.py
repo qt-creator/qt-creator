@@ -129,6 +129,11 @@ class Dumper(DumperBase):
         # Native type name -> the typeid from_native_type() derived for it. Each
         # value carries its type, so the same type is handed in once per value.
         self.native_typeid_cache = {}
+        # The module of the value last seen. A name looked up while dumping it -
+        # an element type, a template argument - most likely lives there too, and
+        # asking that module, once the engine's own answer is a miss, is one
+        # GetTypeId() where the search over all modules is one per module.
+        self.lookupModuleHint = 0
 
     #FIXME
     def register_known_qt_types(self):
@@ -148,6 +153,7 @@ class Dumper(DumperBase):
         self.check(isinstance(nativeValue, cdbext.Value))
         nativeType = nativeValue.type()
         code = nativeType.code()
+        self.lookupModuleHint = nativeType.moduleId() or self.lookupModuleHint
         val = self.Value(self)
         val.name = nativeValue.name()
         # There is no cdb api for the size of bitfields.
@@ -630,7 +636,7 @@ class Dumper(DumperBase):
     def lookupNativeType(self, name: str, module=0) -> cdbext.Type:
         if name.startswith('void'):
             return FakeVoidType(name, self)
-        nativeType = cdbext.lookupType(name, module)
+        nativeType = cdbext.lookupType(name, module or self.lookupModuleHint)
         if nativeType is not None:
             # cdbext.lookupType() answers every name it can parse with a type it
             # has not looked up yet, so unresolvable() would call a name no module
