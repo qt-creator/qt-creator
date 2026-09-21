@@ -103,10 +103,12 @@ CommonVcsSettings::CommonVcsSettings()
     spellCheck.setLabelText(Tr::tr("Check spelling of submit messages"));
     spellCheck.setToolTip(Tr::tr("Marks misspelled words in a submit message. The language "
                                  "to check in is the one in Text Editor > Display."));
-    spellCheck.setVisible(SpellChecker::instance()->isAvailable());
 
     setLayouter([this] {
         using namespace Layouting;
+        // Asking whether the platform has a spell checking service is what loads it,
+        // which a Qt Creator whose settings are never opened has no reason to do.
+        spellCheck.setVisible(SpellChecker::instance()->isAvailable());
         return Column {
             Row { vcsShowStatus, vcsShowStatusInterval, st },
             Row { lineWrap, lineWrapWidth, st },
