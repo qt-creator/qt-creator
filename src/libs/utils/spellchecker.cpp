@@ -7,6 +7,8 @@
 
 #include <QTextBoundaryFinder>
 
+#include <algorithm>
+
 namespace Utils {
 
 static bool isGlue(QChar c)
@@ -101,11 +103,74 @@ QString SpellChecker::defaultLanguage() const
     return {};
 }
 
+// The one span that holds all of ranges. A dictionary answers about a text, and one
+// call that covers more than it has to beats a call for every range.
+static SpellChecker::Range coveringRange(const QList<SpellChecker::Range> &ranges)
+{
+    int start = ranges.first().start;
+    int end = start;
+    for (const SpellChecker::Range &range : ranges) {
+        start = std::min(start, range.start);
+        end = std::max(end, range.start + range.length);
+    }
+    return {start, end - start};
+}
+
+static bool isWordCharacter(QChar c)
+{
+    return c.isLetterOrNumber();
+}
+
+// The whole words of range. A range may begin or end in the middle of a word, where a
+// highlighter holds a part of one to be prose, and what is left of such a word is no
+// word: handing the dictionary the tail of one is asking it the wrong question.
+static SpellChecker::Range wholeWords(const QString &text, const SpellChecker::Range &range)
+{
+    int start = range.start;
+    int end = range.start + range.length;
+    while (start < end && start > 0 && isWordCharacter(text.at(start - 1))
+           && isWordCharacter(text.at(start))) {
+        ++start;
+    }
+    while (end > start && end < text.size() && isWordCharacter(text.at(end))
+           && isWordCharacter(text.at(end - 1))) {
+        --end;
+    }
+    return {start, end - start};
+}
+
+static bool isInside(const SpellChecker::Range &word, const QList<SpellChecker::Range> &ranges)
+{
+    const int wordEnd = word.start + word.length;
+    return Utils::anyOf(ranges, [&word, wordEnd](const SpellChecker::Range &range) {
+        return word.start >= range.start && wordEnd <= range.start + range.length;
+    });
+}
+
 QList<SpellChecker::Range> SpellChecker::misspelledRanges(const QString &text,
                                                           const QString &language) const
 {
-    QList<Range> ranges = check(text, language);
-    Utils::erase(ranges, [&text](const Range &range) { return isCode(text, range); });
+    return misspelledRanges(text, {{0, int(text.size())}}, language);
+}
+
+QList<SpellChecker::Range> SpellChecker::misspelledRanges(const QString &text,
+                                                          const QList<Range> &prose,
+                                                          const QString &language) const
+{
+    if (prose.isEmpty())
+        return {};
+
+    const Range span = wholeWords(text, coveringRange(prose));
+    if (span.length <= 0)
+        return {};
+
+    QList<Range> ranges = check(text.mid(span.start, span.length), language);
+    for (Range &range : ranges)
+        range.start += span.start;
+
+    Utils::erase(ranges, [&text, &prose](const Range &range) {
+        return isCode(text, range) || !isInside(range, prose);
+    });
     return ranges;
 }
 

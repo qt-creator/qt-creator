@@ -588,15 +588,6 @@ void SyntaxHighlighter::formatSpaces(const QString &text, int start, int count)
     }
 }
 
-static bool isInside(const Utils::SpellChecker::Range &word,
-                     const QList<Utils::SpellChecker::Range> &ranges)
-{
-    const int wordEnd = word.start + word.length;
-    return Utils::anyOf(ranges, [&word, wordEnd](const Utils::SpellChecker::Range &range) {
-        return word.start >= range.start && wordEnd <= range.start + range.length;
-    });
-}
-
 /*!
     Marks the \a count characters at \a start of the current text block as prose, for
     spellCheck() to look at. A highlighter may call this unconditionally: without a
@@ -626,8 +617,9 @@ void SyntaxHighlighter::addProseRange(int start, int count)
     the spelling error format. The prose is what addProseRange() was called for, which is
     nothing at all unless a highlighter says otherwise.
 
-    The dictionary sees the whole \a text either way: whether a word is prose or a token of
-    code depends on the characters next to it, which the range a word sits in does not tell.
+    Only the prose of \a text reaches the dictionary. Whether a word is prose or a token
+    of code is read off the whole of it either way: the characters next to a word tell,
+    and the range it sits in does not.
 
     \sa addProseRange(), setSpellCheckLanguage()
 */
@@ -647,12 +639,12 @@ void SyntaxHighlighter::spellCheck(const QString &text)
 
     const int blockPosition = d->currentBlock.position();
     const QList<Utils::SpellChecker::Range> ranges
-        = Utils::SpellChecker::instance()->misspelledRanges(text, d->spellCheckLanguage);
+        = Utils::SpellChecker::instance()->misspelledRanges(text,
+                                                            d->proseRanges,
+                                                            d->spellCheckLanguage);
 
     for (const Utils::SpellChecker::Range &range : ranges) {
         const int wordEnd = range.start + range.length;
-        if (!isInside(range, d->proseRanges))
-            continue;
         if (d->spellCheckCursorPosition >= blockPosition + range.start
             && d->spellCheckCursorPosition <= blockPosition + wordEnd) {
             // setSpellCheckCursorPosition() reads this back to tell whether moving the
