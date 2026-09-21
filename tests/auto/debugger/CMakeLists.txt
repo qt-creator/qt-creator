@@ -232,11 +232,13 @@ add_qtc_test(tst_debugger_pdb
 
 find_package(Python3 3.8 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
-  add_test(NAME tst_debugger_nativemsvctypename
-    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tst_nativemsvctypename.py")
-  # The dumpers live in the source tree; keep the run from writing __pycache__ there.
-  set_tests_properties(tst_debugger_nativemsvctypename PROPERTIES
-    ENVIRONMENT PYTHONDONTWRITEBYTECODE=1)
+  foreach(script tst_nativemsvctypename tst_cdbbridge)
+    string(REPLACE "tst_" "tst_debugger_" test_name "${script}")
+    add_test(NAME ${test_name}
+      COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/${script}.py")
+    # The dumpers live in the source tree; keep the run from writing __pycache__ there.
+    set_tests_properties(${test_name} PROPERTIES ENVIRONMENT PYTHONDONTWRITEBYTECODE=1)
+  endforeach()
 else()
-  message(STATUS "No Python 3 interpreter found, skipping tst_debugger_nativemsvctypename")
+  message(STATUS "No Python 3 interpreter found, skipping the debugger Python tests")
 endif()

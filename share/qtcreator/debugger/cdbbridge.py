@@ -126,6 +126,9 @@ class Dumper(DumperBase):
         DumperBase.__init__(self)
         self.outputLock = threading.Lock()
         self.isCdb = True
+        # Native type name -> the typeid from_native_type() derived for it. Each
+        # value carries its type, so the same type is handed in once per value.
+        self.native_typeid_cache = {}
 
     #FIXME
     def register_known_qt_types(self):
@@ -143,11 +146,13 @@ class Dumper(DumperBase):
 
     def fromNativeValue(self, nativeValue: cdbext.Value) -> DumperBase.Value:
         self.check(isinstance(nativeValue, cdbext.Value))
+        nativeType = nativeValue.type()
+        code = nativeType.code()
         val = self.Value(self)
         val.name = nativeValue.name()
         # There is no cdb api for the size of bitfields.
         # Workaround this issue by parsing the native debugger text for integral types.
-        if nativeValue.type().code() == TypeCode.Integral:
+        if code == TypeCode.Integral:
             try:
                 integerString = nativeValue.nativeDebuggerValue()
             except UnicodeDecodeError:
@@ -166,19 +171,19 @@ class Dumper(DumperBase):
                     base = 16
                 else:
                     base = 10
-                signed = not nativeValue.type().name().startswith('unsigned')
+                signed = not nativeType.name().startswith('unsigned')
                 try:
-                    val.ldata = int(integerString, base).to_bytes((nativeValue.type().bitsize() +7) // 8,
+                    val.ldata = int(integerString, base).to_bytes((nativeType.bitsize() +7) // 8,
                                                                   byteorder='little', signed=signed)
                 except:
                     # read raw memory in case the integerString can not be interpreted
                     pass
-        if nativeValue.type().code() == TypeCode.Enum:
+        if code == TypeCode.Enum:
             val.ldisplay = self.enumValue(nativeValue)
-        elif not nativeValue.type().resolved() and nativeValue.type().code() == TypeCode.Struct and not nativeValue.hasChildren():
+        elif not nativeType.resolved() and code == TypeCode.Struct and not nativeValue.hasChildren():
             val.ldisplay = self.enumValue(nativeValue)
-        val.isBaseClass = val.name == nativeValue.type().name()
-        val.typeid = self.from_native_type(nativeValue.type())
+        val.isBaseClass = val.name == nativeType.name()
+        val.typeid = self.from_native_type(nativeType)
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
         val.size = nativeValue.bitsize()
@@ -202,6 +207,16 @@ class Dumper(DumperBase):
     def from_native_type(self, nativeType: cdbext.Type) -> str:
         self.check(isinstance(nativeType, cdbext.Type))
         nativeTypeId = self.nativeTypeId(nativeType)
+        typeid = self.native_typeid_cache.get(nativeTypeId, None)
+        if typeid is None:
+            typeid = self.typeid_from_native_type(nativeType, nativeTypeId)
+            # Only what a resolved type answered is final; the size and the module
+            # of one that is not may still arrive with a later module load.
+            if nativeType.resolved():
+                self.native_typeid_cache[nativeTypeId] = typeid
+        return typeid
+
+    def typeid_from_native_type(self, nativeType: cdbext.Type, nativeTypeId: str) -> str:
         typeid = self.typeid_for_string(nativeTypeId)
         # Only an answer that describes the type is kept, and only its spelling
         # is worth offering first to a later lookup: it is the one the reader is
