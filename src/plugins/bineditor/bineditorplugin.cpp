@@ -2529,6 +2529,25 @@ static QColor cellColor(BinEditorWidget &widget, int line, int column)
                             line * widget.m_lineHeight + widget.m_lineHeight / 2);
 }
 
+// A cell a digit is drawn into is no longer of one color.
+static bool cellIsBlank(BinEditorWidget &widget, int line, int column)
+{
+    QImage image(widget.viewport()->size(), QImage::Format_ARGB32);
+    image.fill(Qt::transparent);
+    widget.viewport()->render(&image);
+    const QImage cell = image.copy(widget.m_margin + widget.m_labelWidth
+                                       + widget.hexColumnOffset(column) - widget.m_charWidth / 2,
+                                   line * widget.m_lineHeight,
+                                   widget.m_columnWidth, widget.m_lineHeight);
+    for (int y = 0; y < cell.height(); ++y) {
+        for (int x = 0; x < cell.width(); ++x) {
+            if (cell.pixel(x, y) != cell.pixel(0, 0))
+                return false;
+        }
+    }
+    return true;
+}
+
 class BinEditorTest final : public QObject
 {
     Q_OBJECT
@@ -2960,6 +2979,11 @@ private slots:
         QCOMPARE(cellColor(widget, lastLine - 1, column), changedColor);
         QCOMPARE(cellColor(widget, lastLine, 1), changedColor);
         QVERIFY(cellColor(widget, lastLine, column) != changedColor);
+
+        // Nor may a digit, now that the columns past the last byte are blanked
+        // before the line is filled rather than where the fill loop breaks.
+        QVERIFY(!cellIsBlank(widget, lastLine, 1));
+        QVERIFY(cellIsBlank(widget, lastLine, column));
     }
 
     // The memory view fetches a block at a time, so a line can be drawn before
@@ -2975,30 +2999,11 @@ private slots:
         widget.init();
         QCOMPARE(widget.m_bytesPerLine, 16);
 
-        // A cell a digit is drawn into is no longer of one color.
-        const auto cellIsBlank = [&widget](int line, int column) {
-            QImage image(widget.viewport()->size(), QImage::Format_ARGB32);
-            image.fill(Qt::transparent);
-            widget.viewport()->render(&image);
-            const QImage cell = image.copy(widget.m_margin + widget.m_labelWidth
-                                               + widget.hexColumnOffset(column)
-                                               - widget.m_charWidth / 2,
-                                           line * widget.m_lineHeight,
-                                           widget.m_columnWidth, widget.m_lineHeight);
-            for (int y = 0; y < cell.height(); ++y) {
-                for (int x = 0; x < cell.width(); ++x) {
-                    if (cell.pixel(x, y) != cell.pixel(0, 0))
-                        return false;
-                }
-            }
-            return true;
-        };
-
         // The rendering below is the second one: the first requests the block
         // that is missing and draws the empty one it is handed meanwhile, and
         // only from then on is line 1 left unfilled.
-        QVERIFY(!cellIsBlank(0, 5));
-        QVERIFY(cellIsBlank(1, 5));
+        QVERIFY(!cellIsBlank(widget, 0, 5));
+        QVERIFY(cellIsBlank(widget, 1, 5));
     }
 
     // The grouping is global, so choosing one in a context menu has to reach
