@@ -296,9 +296,11 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
 
     // Copy over DYLD_IMAGE_SUFFIX etc
     for (const auto &var :
-         QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
-        if (m_inferior.environment.hasKey(var))
-            m_debugger.environment.set(var, m_inferior.environment.expandedValueForKey(var));
+         QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"})) {
+        const QString value = m_inferior.environment.expandedValueForKey(var);
+        if (!value.isEmpty())
+            m_debugger.environment.set(var, value);
+    }
 
     // validate debugger if C++ debugging is enabled
     if (!m_validationErrors.isEmpty())

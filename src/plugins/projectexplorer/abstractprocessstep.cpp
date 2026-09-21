@@ -199,7 +199,7 @@ bool AbstractProcessStep::setupProcess(Process &process)
     if (d->m_lowPriority && ProjectExplorerSettings::get(this).lowBuildPriority())
         process.setLowPriority();
 
-    if (buildEnvironment().hasKey("VSLANG"))
+    if (!buildEnvironment().value("VSLANG").isEmpty())
         process.setUtf8StdOutCodec();
 
     process.setStdOutCallback([this](const QString &s){

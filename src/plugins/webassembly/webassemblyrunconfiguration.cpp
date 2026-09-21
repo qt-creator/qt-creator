@@ -45,9 +45,9 @@ WebBrowserEntries parseEmrunOutput(const QByteArray &output)
 
 static FilePath pythonInterpreter(const Environment &env)
 {
-    const QString emsdkPythonEnvVarKey("EMSDK_PYTHON");
-    if (env.hasKey(emsdkPythonEnvVarKey))
-        return FilePath::fromUserInput(env.value(emsdkPythonEnvVarKey));
+    const QString emsdkPython = env.value("EMSDK_PYTHON");
+    if (!emsdkPython.isEmpty())
+        return FilePath::fromUserInput(emsdkPython);
 
     // FIXME: Centralize addPythonsFromPath() from the Python plugin and use that
     for (const char *interpreterCandidate : {"python3", "python", "python2"}) {
