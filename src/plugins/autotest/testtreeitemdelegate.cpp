@@ -5,7 +5,6 @@
 
 #include "testtreeitem.h"
 
-#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QPainter>
@@ -50,11 +49,8 @@ void TestTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         opt.palette.setColor(QPalette::Text,
                              Utils::creatorColor(Utils::Theme::Token_Notification_Danger_Default));
     } else if (index.data(FailedChildRole).toBool()) {
-        QColor faded = Utils::creatorColor(Utils::Theme::Token_Notification_Danger_Default);
-        faded.setAlpha(160);
         opt.palette.setColor(QPalette::Text,
-                             Utils::StyleHelper::alphaBlendedColors(opt.palette.color(QPalette::Base),
-                                                                    faded));
+                             Utils::creatorColor(Utils::Theme::OutputPanes_TestFailTextColor));
     }
 
     // paint disabled items in gray
