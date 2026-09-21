@@ -9906,9 +9906,11 @@ void tst_backends::stepsOverOutOfACppMethodBackIntoQml()
         stackRequest.kind = RefreshKind::QmlStack;
         stackRequest.requestId = 20;
         engine->refresh(stackRequest);
-        QTest::qWaitFor([&responses] {
-            return responses.contains(int(RefreshKind::FullStack));
-        }, 8000);
+        if (!QTest::qWaitFor([&responses] {
+                return responses.contains(int(RefreshKind::FullStack));
+            }, 8000)) {
+            return -1;
+        }
         static const QRegularExpression block(R"RX(\{[^{}]*language="js"[^{}]*\})RX");
         static const QRegularExpression lineOf(R"RX(line="(\d+)")RX");
         const QRegularExpressionMatch b =
