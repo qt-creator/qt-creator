@@ -137,6 +137,10 @@ class Dumper(DumperBase):
         # Types whose members note_struct_layout() cannot vouch for.
         self.type_layout_rejected = set()
 
+    def resetStats(self):
+        DumperBase.resetStats(self)
+        cdbext.takeEngineStatistics()
+
     #FIXME
     def register_known_qt_types(self):
         DumperBase.register_known_qt_types(self)
@@ -746,6 +750,12 @@ class Dumper(DumperBase):
 
         self.put('],partial="%d"' % (len(self.partialVariable) > 0))
         self.put(',timings=%s' % self.timings)
+        # What this fetch cost in calls into the engine, by method, and in
+        # microseconds for the steps the extension times. Read off the debugger
+        # log; the GUI does not use it.
+        statistics = cdbext.takeEngineStatistics()
+        self.put(',enginecalls={%s}'
+                 % ','.join('%s="%d"' % item for item in sorted(statistics.items())))
 
         if self.forceQtNamespace:
             self.qtNamespaceToReport = self.qtNamespace()

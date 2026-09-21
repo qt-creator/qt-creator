@@ -16,9 +16,34 @@
 #include <structmember.h>
 
 #include <iterator>
+#include <map>
 
 static CurrentSymbolGroup currentSymbolGroup;
 static std::string results;
+
+static std::map<std::string, long long> &engineStatistics()
+{
+    static std::map<std::string, long long> statistics;
+    return statistics;
+}
+
+void countEngineCall(const char *method)
+{
+    ++engineStatistics()[method];
+}
+
+EngineTimer::EngineTimer(const char *what)
+    : m_what(what)
+    , m_start(std::chrono::steady_clock::now())
+{
+}
+
+EngineTimer::~EngineTimer()
+{
+    const auto elapsed = std::chrono::steady_clock::now() - m_start;
+    engineStatistics()[std::string(m_what) + "_us"]
+        += std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+}
 
 CurrentSymbolGroup::~CurrentSymbolGroup()
 {
@@ -30,6 +55,7 @@ IDebugSymbolGroup2 *CurrentSymbolGroup::get()
     ULONG threadId = ExtensionCommandContext::instance()->threadId();
     CIDebugControl *control = ExtensionCommandContext::instance()->control();
     DEBUG_STACK_FRAME frame;
+    countEngineCall("GetStackTrace");
     if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL)))
         return nullptr;
     if (currentSymbolGroup.m_symbolGroup
@@ -45,6 +71,7 @@ IDebugSymbolGroup2 *CurrentSymbolGroup::create()
     ULONG threadId = ExtensionCommandContext::instance()->threadId();
     CIDebugControl *control = ExtensionCommandContext::instance()->control();
     DEBUG_STACK_FRAME frame;
+    countEngineCall("GetStackTrace");
     if (FAILED(control->GetStackTrace(0, 0, 0, &frame, 1, NULL)))
         return nullptr;
     return create(threadId, frame.FrameNumber);
@@ -54,6 +81,7 @@ IDebugSymbolGroup2 *CurrentSymbolGroup::create(ULONG threadId, ULONG64 frameNumb
 {
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     currentSymbolGroup.releaseSymbolGroup();
+    countEngineCall("GetScopeSymbolGroup2");
     if (FAILED(symbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_ALL, NULL,
                                              &currentSymbolGroup.m_symbolGroup))) {
         currentSymbolGroup.releaseSymbolGroup();
@@ -83,11 +111,15 @@ static PyObject *cdbext_parseAndEvaluate(PyObject *, PyObject *args) // -> Value
         DebugPrint() << "evaluate expression: " << expr;
     CIDebugControl *control = ExtensionCommandContext::instance()->control();
     ULONG oldExpressionSyntax;
+    countEngineCall("GetExpressionSyntax");
     control->GetExpressionSyntax(&oldExpressionSyntax);
+    countEngineCall("SetExpressionSyntax");
     control->SetExpressionSyntax(DEBUG_EXPR_CPLUSPLUS);
     IDebugSymbolGroup2 *symbolGroup = CurrentSymbolGroup::get();
     ULONG index = DEBUG_ANY_ID;
+    countEngineCall("AddSymbol");
     HRESULT hr = symbolGroup->AddSymbol(expr, &index);
+    countEngineCall("SetExpressionSyntax");
     control->SetExpressionSyntax(oldExpressionSyntax);
     if (FAILED(hr))
         Py_RETURN_NONE;
@@ -111,21 +143,26 @@ static PyObject *cdbext_resolveSymbol(PyObject *, PyObject *args) // -> Value
     ULONG64 handle = 0;
     // E_NOINTERFACE means "no match". Apparently, it does not always
     // set handle.
+    countEngineCall("StartSymbolMatch");
     HRESULT hr = symbols->StartSymbolMatch(pattern, &handle);
     if (hr == E_NOINTERFACE || FAILED(hr)) {
-        if (handle)
+        if (handle) {
+            countEngineCall("EndSymbolMatch");
             symbols->EndSymbolMatch(handle);
+        }
         return rc;
     }
     char buf[bufSize];
     ULONG64 offset;
     while (true) {
+        countEngineCall("GetNextSymbolMatch");
         hr = symbols->GetNextSymbolMatch(handle, buf, bufSize - 1, 0, &offset);
         if (hr == E_NOINTERFACE)
             break;
         if (hr == S_OK)
             PyList_Append(rc, Py_BuildValue("s", buf));
     }
+    countEngineCall("EndSymbolMatch");
     symbols->EndSymbolMatch(handle);
     return rc;
 }
@@ -143,8 +180,10 @@ static PyObject *cdbext_getNameByAddress(PyObject *, PyObject *args)
 
     PyObject* ret = NULL;
     ULONG size;
+    countEngineCall("GetNameByOffset");
     symbols->GetNameByOffset (address, NULL, 0, &size, NULL);
     char *name = new char[size];
+    countEngineCall("GetNameByOffset");
     const HRESULT hr = symbols->GetNameByOffset (address, name, size, NULL, NULL);
     if (SUCCEEDED(hr))
         ret = PyUnicode_FromString(name);
@@ -166,6 +205,7 @@ static PyObject *cdbext_getAddressByName(PyObject *, PyObject *args)
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
 
     ULONG64 address = 0;
+    countEngineCall("GetOffsetByName");
     if (FAILED(symbols->GetOffsetByName(name, &address)))
         address = 0;
     return Py_BuildValue("K", address);
@@ -207,6 +247,7 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
             return locals;
 
         ULONG scopeEnd;
+        countEngineCall("GetNumberSymbols");
         if (FAILED(symbolGroup->GetNumberSymbols(&scopeEnd)))
             return locals;
 
@@ -227,10 +268,12 @@ static PyObject *cdbext_listOfLocals(PyObject *, PyObject *args) // -> [ Value ]
     }
 
     ULONG symbolCount;
+    countEngineCall("GetNumberSymbols");
     if (FAILED(symbolGroup->GetNumberSymbols(&symbolCount)))
         return locals;
     for (ULONG index = 0; index < symbolCount; ++index) {
         DEBUG_SYMBOL_PARAMETERS params;
+        countEngineCall("GetSymbolParameters");
         if (SUCCEEDED(symbolGroup->GetSymbolParameters(index, 1, &params))) {
             if ((params.Flags & DEBUG_SYMBOL_IS_ARGUMENT) || (params.Flags & DEBUG_SYMBOL_IS_LOCAL))
                 PyList_Append(locals, createPythonObject(PyValue(index, symbolGroup)));
@@ -245,13 +288,16 @@ static PyObject *cdbext_listOfModules(PyObject *, PyObject *)
     CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
     ULONG moduleCount;
     ULONG unloadedModuleCount;
+    countEngineCall("GetNumberModules");
     if (FAILED(symbols->GetNumberModules(&moduleCount, &unloadedModuleCount)))
         return modules;
     moduleCount += unloadedModuleCount;
     for (ULONG i = 0; i < moduleCount; ++i) {
         ULONG size;
+        countEngineCall("GetModuleNameString");
         symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, i, 0, NULL, 0, &size);
         char *name = new char[size];
+        countEngineCall("GetModuleNameString");
         const HRESULT hr = symbols->GetModuleNameString(DEBUG_MODNAME_MODULE, i, 0, name, size, 0);
         if (SUCCEEDED(hr))
             PyList_Append(modules, PyUnicode_FromString(name));
@@ -279,6 +325,7 @@ static PyObject *cdbext_readRawMemory(PyObject *, PyObject *args)
 
     CIDebugDataSpaces *data = ExtensionCommandContext::instance()->dataSpaces();
     ULONG bytesWritten = 0;
+    countEngineCall("ReadVirtual");
     HRESULT hr = data->ReadVirtual(address, buffer, size, &bytesWritten);
     if (FAILED(hr))
         bytesWritten = 0;
@@ -297,6 +344,7 @@ static PyObject *cdbext_writeRawMemory(PyObject *, PyObject *args) // (address, 
 
     CIDebugDataSpaces *data = ExtensionCommandContext::instance()->dataSpaces();
     ULONG bytesWritten = 0;
+    countEngineCall("WriteVirtual");
     HRESULT hr = data->WriteVirtual(address, const_cast<char *>(buffer),
                                     ULONG(size), &bytesWritten);
     if (FAILED(hr))
@@ -384,6 +432,7 @@ static PyObject *cdbext_call(PyObject *, PyObject *args)
         DebugPrint() << "Call ret value expression: " << name;
 
     IDebugSymbolGroup2 *symbolGroup = CurrentSymbolGroup::get();
+    countEngineCall("AddSymbol");
     if (FAILED(symbolGroup->AddSymbol(name.c_str(), &index)))
         Py_RETURN_NONE;
     return createPythonObject(PyValue(index, symbolGroup));
@@ -397,6 +446,24 @@ static PyObject *cdbext_reportResult(PyObject *, PyObject *args)
 
     results += result;
     Py_RETURN_NONE;
+}
+
+static PyObject *cdbext_takeEngineStatistics(PyObject *, PyObject *) // -> {method: count}
+{
+    PyObject *dict = PyDict_New();
+    if (!dict)
+        return nullptr;
+    for (const auto &[name, count] : engineStatistics()) {
+        PyObject *value = PyLong_FromLongLong(count);
+        const int rc = value ? PyDict_SetItemString(dict, name.c_str(), value) : -1;
+        Py_XDECREF(value);
+        if (rc < 0) {
+            Py_DECREF(dict);
+            return nullptr;
+        }
+    }
+    engineStatistics().clear();
+    return dict;
 }
 
 static PyMethodDef cdbextMethods[] = {
@@ -430,6 +497,8 @@ static PyMethodDef cdbextMethods[] = {
      "Call a function needing no prototype, returning its raw return value or None"},
     {"reportResult",        cdbext_reportResult,        METH_VARARGS,
      "Adds a result"},
+    {"takeEngineStatistics", cdbext_takeEngineStatistics, METH_NOARGS,
+     "Returns the engine calls made since the last call, by method, and forgets them"},
     {NULL,                  NULL,               0,
      NULL}        /* Sentinel */
 };

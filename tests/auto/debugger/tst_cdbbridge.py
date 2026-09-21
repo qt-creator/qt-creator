@@ -28,6 +28,7 @@ _cdbext.Value = type('Value', (), {})
 _cdbext.lookupType = lambda name, module=0: None
 _cdbext.listOfModules = lambda: []
 _cdbext.pointerSize = lambda: 8
+_cdbext.takeEngineStatistics = lambda: {}
 sys.modules['cdbext'] = _cdbext
 
 import cdbbridge

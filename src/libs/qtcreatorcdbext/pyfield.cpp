@@ -23,6 +23,7 @@ PyField::PyField(std::string name, const PyType &parentType)
 {
     auto extcmd = ExtensionCommandContext::instance();
     unsigned long typeID = 0;
+    countEngineCall("GetFieldTypeAndOffset");
     if (SUCCEEDED(extcmd->symbols()->GetFieldTypeAndOffset(
                       d->parentType.moduleId(), d->parentType.getTypeId(), d->name.c_str(),
                       &typeID, &d->offset))) {
