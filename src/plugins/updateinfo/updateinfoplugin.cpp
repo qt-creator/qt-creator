@@ -68,6 +68,7 @@ class ServiceImpl final : public QObject, public UpdateInfo::Service
 
 public:
     bool installPackages(const QString &filterRegex) override;
+    FilePath installationRoot() const override;
 };
 
 class UpdateInfoPluginPrivate
@@ -314,6 +315,18 @@ bool ServiceImpl::installPackages(const QString &filterRegex)
     runner.start({ProcessTask(onSearchSetup, onSearchDone)});
 
     return dialog.exec() == QDialog::Accepted;
+}
+
+FilePath ServiceImpl::installationRoot() const
+{
+    const FilePath tool = m_d->m_maintenanceTool;
+    if (tool.isEmpty())
+        return {};
+    const FilePath dir = tool.parentDir();
+    // On macOS the tool sits in MaintenanceTool.app/Contents/MacOS.
+    if (dir.fileName() == "MacOS" && dir.parentDir().fileName() == "Contents")
+        return dir.parentDir().parentDir().parentDir();
+    return dir;
 }
 
 UpdateInfoPlugin::UpdateInfoPlugin()
