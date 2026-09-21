@@ -308,7 +308,7 @@ private slots:
                 QString("TestA"),
                 QString("unit"),
                 true,
-                PresetsDetails::Filter::Include::Index{0, 10, 1, QList<int>{1, 2}}},
+                PresetsDetails::Filter::Include::Index{0, 10, 1, QList<int>{1, 2}, std::nullopt}},
             PresetsDetails::Filter::Exclude{
                 QString("TestB"),
                 QString("unit"),
@@ -325,7 +325,8 @@ private slots:
             true,
             false,
             120,
-            "skip"};
+            "skip",
+            std::nullopt};
 
         PresetsDetails::TestPreset child;
         child.name = "child";
@@ -432,7 +433,7 @@ private slots:
         include.label = "fast";
         include.useUnion = true;
         include.index = PresetsDetails::Filter::Include::Index{
-            1, 10, 2, QList<int>{3, 5, 7}
+            1, 10, 2, QList<int>{3, 5, 7}, std::nullopt
         };
         filter.include = include;
         p.filter = filter;
