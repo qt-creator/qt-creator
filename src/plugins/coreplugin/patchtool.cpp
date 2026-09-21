@@ -9,6 +9,7 @@
 #include "systemsettings.h"
 
 #include <utils/environment.h>
+#include <utils/processutils.h>
 #include <utils/qtcprocess.h>
 
 #include <QMessageBox>
@@ -106,7 +107,7 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
 
     QByteArray stdOut;
     QByteArray stdErr;
-    if (!patchProcess.readDataFromProcess(&stdOut, &stdErr)) {
+    if (!Utils::readDataFromProcess(patchProcess, &stdOut, &stdErr)) {
         patchProcess.stop();
         patchProcess.waitForFinished();
         report(Tr::tr("A timeout occurred running \"%1\".").arg(patch.toUserOutput()), false);
