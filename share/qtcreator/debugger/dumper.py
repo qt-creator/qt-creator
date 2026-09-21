@@ -545,7 +545,14 @@ class DumperBase():
         self.type_alignment_cache.pop(typeid, None)
         self.type_code_cache.pop(typeid, None)
         self.type_qobject_based_cache.pop(typeid, None)
+        self.type_fields_cache.pop(typeid, None)
+        self.native_type_dropped(typeid)
         return None
+
+    # What a bridge derived from the answer for a type on its own, to go with
+    # it in cached_nativetype().
+    def native_type_dropped(self, typeid):
+        pass
 
     def lookupType(self, typename):
         if not isinstance(typename, str):
@@ -4351,9 +4358,20 @@ typename))
         #self.warn("LISTING MEMBERS OF TYPE %s %s" % (value.typeid, self.type_name(value.typeid)))
         typeid = value.typeid
 
-        members = self.type_fields_cache.get(typeid, None)
-        if members is not None:
-            return members
+        # A layout a bridge recorded for the type: the members come out of the
+        # value's memory, and the debugger is not asked.
+        fields = self.type_fields_cache.get(typeid, None)
+        if fields is not None and value.ldata is None:
+            try:
+                value.ldata = self.value_data_from_address(value.laddress,
+                                                           self.type_size(typeid))
+            except Exception:
+                # No address, no size, or memory the debugger cannot read
+                # either; it shows what it can.
+                fields = None
+        if fields is not None:
+            return [self.value_member_by_field(value, field)
+                    for field in fields if include_bases or not field.is_base_class]
 
         members = []
         native_type = self.type_nativetype(typeid)

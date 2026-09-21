@@ -213,6 +213,113 @@ expect('base and member are listed', [(v.name, v.isBaseClass) for v in withBases
 expect('the base class can be left out',
        [v.name for v in dumper.listNativeValueChildren(parent, False)], ['count'])
 
+memory = bytearray(0x200)
+_cdbext.readRawMemory = lambda address, size: bytes(memory[address - 0x3000:address - 0x3000 + size])
+symbolsAdded = []
+
+
+def fake_create_value(address, nativeType):
+    symbolsAdded.append(address)
+    return FakeValue('*', nativeType, address=address)
+
+
+_cdbext.createValue = fake_create_value
+intType = FakeType('int', TypeCode.Integral, 4)
+uintType = FakeType('unsigned int', TypeCode.Integral, 4)
+
+
+def listed(members):
+    return [(m.name, int.from_bytes(m.ldata, 'little')) for m in members]
+
+
+print('')
+print('--- the layout of a struct is recorded from its first value ---')
+memory[0x000:0x008] = (3).to_bytes(4, 'little') + (2).to_bytes(4, 'little')
+memory[0x100:0x108] = (5).to_bytes(4, 'little') + (6).to_bytes(4, 'little')
+fooType = FakeType('Foo', size=8)
+foo = dumper.fromNativeValue(FakeValue('f', fooType, address=0x3000, members=[
+    FakeValue('a', intType, address=0x3000, text='0n3'),
+    FakeValue('b', intType, address=0x3004, text='0n2')]))
+expect('the first value is listed from the symbol group',
+       listed(dumper.value_members(foo, True)), [('a', 3), ('b', 2)])
+fields = dumper.type_fields_cache.get(foo.typeid, None)
+expect('and its layout is recorded',
+       [(f.name, f.bitpos, f.bitsize) for f in fields] if fields else None,
+       [('a', 0, 32), ('b', 32, 32)])
+another = dumper.createValue(0x3100, 'Foo')
+expect('the next value of the type is read from memory',
+       listed(dumper.value_members(another, True)), [('a', 5), ('b', 6)])
+expect('without a symbol added for it', symbolsAdded, [])
+
+print('')
+print('--- a layout the memory would misreport is not recorded ---')
+memory[0x010:0x014] = (0x1a).to_bytes(4, 'little')      # x:3 = 2 and y:4 = 3 in one unit
+bits = dumper.fromNativeValue(FakeValue('s', FakeType('Bits', size=4), address=0x3010, members=[
+    FakeValue('x', uintType, address=0x3010, text='2'),
+    FakeValue('y', uintType, address=0x3010, text='3')]))
+dumper.value_members(bits, True)
+expect('members sharing storage', dumper.type_fields_cache.get(bits.typeid, None), None)
+# Both bits happen to be zero, so what the engine prints is what memory holds;
+# only the shared storage gives them away.
+zeroBits = dumper.fromNativeValue(FakeValue('z', FakeType('ZeroBits', size=4), address=0x3040, members=[
+    FakeValue('x', uintType, address=0x3040, text='0'),
+    FakeValue('y', uintType, address=0x3040, text='0')]))
+dumper.value_members(zeroBits, True)
+expect('members sharing storage, all zero', dumper.type_fields_cache.get(zeroBits.typeid, None), None)
+memory[0x020:0x024] = (0x101).to_bytes(4, 'little')     # flag:1 = 1, with a bit set next to it
+lone = dumper.fromNativeValue(FakeValue('l', FakeType('Lone', size=4), address=0x3020, members=[
+    FakeValue('flag', uintType, address=0x3020, text='1')]))
+dumper.value_members(lone, True)
+expect('a printed value memory does not hold', dumper.type_fields_cache.get(lone.typeid, None), None)
+expect('and the type is not tried again', lone.typeid in dumper.type_layout_rejected, True)
+memory[0x030:0x034] = (1).to_bytes(4, 'little')
+withEnum = dumper.fromNativeValue(FakeValue('e', FakeType('WithEnum', size=4), address=0x3030, members=[
+    FakeValue('kind', FakeType('Kind', TypeCode.Enum, 4), address=0x3030, text='V2 (0n1)')]))
+dumper.value_members(withEnum, True)
+expect('an enum member', dumper.type_fields_cache.get(withEnum.typeid, None), None)
+withLater = dumper.fromNativeValue(FakeValue('u', FakeType('WithLater', size=4), address=0x3030, members=[
+    FakeValue('later', FakeType('Later', size=4, isResolved=False), address=0x3030, text='{...}')]))
+dumper.value_members(withLater, True)
+expect('a member of a type the engine could not resolve',
+       dumper.type_fields_cache.get(withLater.typeid, None), None)
+
+print('')
+print('--- a value whose memory cannot be read goes to the symbol group ---')
+symbolsAdded.clear()
+unreadable = dumper.createValue(0x9000, 'Foo')
+expect('the members are listed by the debugger', listed(dumper.value_members(unreadable, True)), [])
+expect('with a symbol added for the value', symbolsAdded, [0x9000])
+
+print('')
+print('--- a value without an address goes to the symbol group ---')
+inRegister = dumper.fromNativeValue(FakeValue('r', fooType, address=None, members=[
+    FakeValue('a', intType, address=None, text='0n8'),
+    FakeValue('b', intType, address=None, text='0n9')]))
+expect('the members are listed by the debugger',
+       listed(dumper.value_members(inRegister, True)), [('a', 8), ('b', 9)])
+
+print('')
+print('--- what a layout check found goes with the type that stops being usable ---')
+memory[0x0a0:0x0a8] = (1).to_bytes(4, 'little') + (2).to_bytes(4, 'little')
+goneType = FakeType('Gone', size=8)
+gone = dumper.fromNativeValue(FakeValue('g', goneType, address=0x30a0, members=[
+    FakeValue('a', intType, address=0x30a0, text='0n1'),
+    FakeValue('b', intType, address=0x30a4, text='0n2')]))
+dumper.value_members(gone, True)
+sharedType = FakeType('Shared', size=4)
+shared = dumper.fromNativeValue(FakeValue('s', sharedType, address=0x30b0, members=[
+    FakeValue('x', uintType, address=0x30b0, text='0'),
+    FakeValue('y', uintType, address=0x30b0, text='0')]))
+dumper.value_members(shared, True)
+expect('a layout is recorded', gone.typeid in dumper.type_fields_cache, True)
+expect('and another type rejected', shared.typeid in dumper.type_layout_rejected, True)
+goneType.isResolved = False
+sharedType.isResolved = False
+dumper.cached_nativetype(gone.typeid)
+dumper.cached_nativetype(shared.typeid)
+expect('the layout is dropped', gone.typeid in dumper.type_fields_cache, False)
+expect('and so is the rejection', shared.typeid in dumper.type_layout_rejected, False)
+
 print('')
 if failures:
     print('FAILED (%d):' % len(failures))
