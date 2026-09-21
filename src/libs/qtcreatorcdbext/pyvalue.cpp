@@ -55,6 +55,7 @@ PyValue::PyValue(unsigned long index, CIDebugSymbolGroup *symbolGroup)
 PyValue::PyValue(const PyValue &other)
     : m_index(other.m_index)
     , m_symbolGroup(other.m_symbolGroup)
+    , m_type(other.m_type)
 {
     if (m_symbolGroup)
         valuesForSymbolGroup[m_symbolGroup].push_back(this);
@@ -82,6 +83,8 @@ std::string PyValue::name() const
 
 PyType PyValue::type()
 {
+    if (m_type)
+        return *m_type;
     if (!m_symbolGroup)
         return PyType();
     DEBUG_SYMBOL_PARAMETERS params;
@@ -95,7 +98,8 @@ PyType PyValue::type()
         if (FAILED(m_symbolGroup->GetSymbolTypeName(m_index, &typeName[0], size, NULL)))
             typeName.clear();
     }
-    return PyType(params.Module, params.TypeId, typeName, tag());
+    m_type = PyType(params.Module, params.TypeId, typeName, tag());
+    return *m_type;
 }
 
 ULONG64 PyValue::bitsize()
@@ -280,6 +284,25 @@ PyValue PyValue::childFromIndex(int index)
     return PyValue(m_index + offset, m_symbolGroup);
 }
 
+// Every direct child once. childFromIndex() starts over at the first child
+// for each index it is asked for, walking the descendants of all the earlier
+// ones again.
+std::vector<PyValue> PyValue::children()
+{
+    std::vector<PyValue> children;
+    const int count = childCount();
+    if (count <= 0)
+        return children;
+    children.reserve(count);
+    ULONG childIndex = m_index + 1;
+    for (int child = 0; child < count; ++child) {
+        children.emplace_back(childIndex, m_symbolGroup);
+        if (child + 1 < count)
+            childIndex += ::currentNumberOfDescendants(childIndex, m_symbolGroup) + 1;
+    }
+    return children;
+}
+
 ULONG PyValue::currentNumberOfDescendants()
 {
     return ::currentNumberOfDescendants(m_index, m_symbolGroup);
@@ -377,6 +400,7 @@ PY_FUNC_DECL_WITH_ARGS(childFromIndex, PY_OBJ_NAME)
         Py_RETURN_NONE;
     return createPythonObject(self->impl->childFromIndex(index));
 }
+PY_FUNC_RET_OBJECT_LIST(children, PY_OBJ_NAME)
 static PyMethodDef valueMethods[] = {
     {"name",                PyCFunction(name),                  METH_NOARGS,
      "Name of this thing or None"},
@@ -401,6 +425,8 @@ static PyMethodDef valueMethods[] = {
      "Return the name of this value"},
     {"childFromIndex",  PyCFunction(childFromIndex),            METH_VARARGS,
      "Return the name of this value"},
+    {"children",        PyCFunction(children),                  METH_NOARGS,
+     "List of the direct children of this value"},
 
     {NULL}  /* Sentinel */
 };

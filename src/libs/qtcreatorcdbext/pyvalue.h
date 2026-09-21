@@ -9,6 +9,9 @@
 #include "pyfield.h"
 #include "pycdbextmodule.h"
 
+#include <optional>
+#include <vector>
+
 class PyValue
 {
 public:
@@ -33,6 +36,7 @@ public:
     PyValue childFromName(const std::string &name);
     PyValue childFromField(const PyField &field);
     PyValue childFromIndex(int index);
+    std::vector<PyValue> children();
     ULONG currentNumberOfDescendants();
 
     static PyValue createValue(ULONG64 address, const PyType &type);
@@ -43,6 +47,8 @@ private:
 
     unsigned long m_index = 0;
     CIDebugSymbolGroup *m_symbolGroup = nullptr;  // not owned
+    // A symbol keeps its type for as long as its group lives; asked once.
+    std::optional<PyType> m_type;
 };
 
 struct ValuePythonObject

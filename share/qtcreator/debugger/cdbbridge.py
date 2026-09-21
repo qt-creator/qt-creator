@@ -293,17 +293,14 @@ class Dumper(DumperBase):
 
     def listNativeValueChildren(self, nativeValue: cdbext.Value, include_bases: bool):
         fields = []
-        index = 0
-        nativeMember = nativeValue.childFromIndex(index)
-        while nativeMember:
+        for nativeMember in nativeValue.children():
             # Why this restriction to things with address? Can't nativeValue
             # be e.g. located in registers, without address?
-            if nativeMember.address() != 0:
-                if include_bases or nativeMember.name() != nativeMember.type().name():
-                    field = self.fromNativeValue(nativeMember)
-                    fields.append(field)
-            index += 1
-            nativeMember = nativeValue.childFromIndex(index)
+            if nativeMember.address() == 0:
+                continue
+            field = self.fromNativeValue(nativeMember)
+            if include_bases or not field.isBaseClass:
+                fields.append(field)
         return fields
 
     def listValueChildren(self, value: DumperBase.Value, include_bases=True):

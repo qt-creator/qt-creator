@@ -100,11 +100,12 @@ class FakeType(_cdbext.Type):
 
 
 class FakeValue(_cdbext.Value):
-    def __init__(self, name, nativeType, address=0x2000, text='0'):
+    def __init__(self, name, nativeType, address=0x2000, text='0', members=()):
         self.valueName = name
         self.nativeType = nativeType
         self.valueAddress = address
         self.text = text
+        self.members = list(members)
 
     @counted
     def name(self):
@@ -129,6 +130,14 @@ class FakeValue(_cdbext.Value):
     @counted
     def nativeDebuggerValue(self):
         return self.text
+
+    @counted
+    def children(self):
+        return self.members
+
+    @counted
+    def childFromIndex(self, index):
+        return self.members[index] if index < len(self.members) else None
 
 
 dumper = cdbbridge.Dumper()
@@ -188,6 +197,21 @@ dumper.fromNativeValue(FakeValue('later', FakeType('Later', isResolved=False)))
 dumper.lookupNativeType('Baz')
 expect('the hint is the module of the last resolved value, an explicit module wins',
        lookups, [('Foo', 0x7000), ('Bar', 0x9000), ('Baz', 0x7000)])
+
+print('')
+print('--- the children of a value are walked once ---')
+base = FakeValue('Base', FakeType('Base', size=4), address=0x3000)
+member = FakeValue('count', FakeType('int', TypeCode.Integral, 4), address=0x3004, text='0n1')
+parent = FakeValue('derived', FakeType('Derived', size=8), address=0x3000, members=[base, member])
+calls.clear()
+withBases = dumper.listNativeValueChildren(parent, True)
+expect('children() is asked once', calls['FakeValue.children'], 1)
+expect('childFromIndex() is not asked at all', calls['FakeValue.childFromIndex'], 0)
+expect('each child is asked for its name once', calls['FakeValue.name'], 2)
+expect('base and member are listed', [(v.name, v.isBaseClass) for v in withBases],
+       [('Base', True), ('count', False)])
+expect('the base class can be left out',
+       [v.name for v in dumper.listNativeValueChildren(parent, False)], ['count'])
 
 print('')
 if failures:
