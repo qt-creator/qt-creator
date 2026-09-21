@@ -2427,7 +2427,7 @@ using Mappings = QHash<char, ModeMapping>;
 class MappingsIterator : public QVector<ModeMapping::Iterator>
 {
 public:
-    MappingsIterator(Mappings *mappings, char mode = -1, const Inputs &inputs = Inputs())
+    MappingsIterator(Mappings *mappings, signed char mode = -1, const Inputs &inputs = Inputs())
         : m_parent(mappings)
     {
         reset(mode);
@@ -2435,7 +2435,7 @@ public:
     }
 
     // Reset iterator state. Keep previous mode if 0.
-    void reset(char mode = 0)
+    void reset(signed char mode = 0)
     {
         clear();
         m_lastValid = -1;
@@ -2535,7 +2535,7 @@ private:
     Mappings *m_parent;
     Mappings::Iterator m_modeMapping;
     int m_lastValid = -1;
-    char m_mode = 0;
+    signed char m_mode = 0;
     Inputs m_currentInputs;
 };
 
