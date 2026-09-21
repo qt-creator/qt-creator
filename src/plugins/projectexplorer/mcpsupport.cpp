@@ -1424,6 +1424,7 @@ static QJsonArray getRunConfigurations()
 static QJsonObject configureRunConfig(const QString &idOrName,
                                       const QString &executable,
                                       const std::optional<QString> &arguments,
+                                      const std::optional<QString> &workingDirectory,
                                       bool setActive)
 {
     Project *project = ProjectManager::startupProject();
@@ -1479,6 +1480,18 @@ static QJsonObject configureRunConfig(const QString &idOrName,
         }
         aspect->setArguments(*arguments);
     }
+    if (workingDirectory) {
+        auto aspect = match->aspect<WorkingDirectoryAspect>();
+        if (!aspect) {
+            return {{"success", false}, {"reason", "no_working_directory_aspect"},
+                    {"message", "Run configuration has no working directory aspect."}};
+        }
+        // Empty is how the panel's reset button spells "use the default", and
+        // an aspect left empty would hand the run control no directory at all.
+        aspect->setWorkingDirectory(workingDirectory->isEmpty()
+                                        ? aspect->defaultWorkingDirectory()
+                                        : FilePath::fromUserInput(*workingDirectory));
+    }
     if (setActive)
         bc->setActiveRunConfiguration(match);
     return {{"success", true},
@@ -1487,7 +1500,8 @@ static QJsonObject configureRunConfig(const QString &idOrName,
             {"name", match->expandedDisplayName()},
             {"active", match == target->activeRunConfiguration()},
             {"executable", match->runnable().command.executable().toUserOutput()},
-            {"arguments", match->runnable().command.arguments()}};
+            {"arguments", match->runnable().command.arguments()},
+            {"workingDirectory", match->runnable().workingDirectory.toUserOutput()}};
 }
 
 // Helper: compute FindFlags from regex/caseSensitive booleans
@@ -3705,8 +3719,8 @@ void registerMcpTools()
             .title("Configure a run configuration")
             .description(
                 "Selects an existing run configuration (by display name or type id, see "
-                "run_list_configs) as the active one and/or sets its executable and the "
-                "arguments the application is started with. Setting "
+                "run_list_configs) as the active one and/or sets its executable, the "
+                "arguments the application is started with, and its working directory. Setting "
                 "the executable only works for run configurations that have one, such as the "
                 "bare-metal \"Custom Executable\" configuration. Then debugger_start (with no "
                 "arguments) debugs it via its run configuration's own launch path. Several run "
@@ -3736,6 +3750,13 @@ void registerMcpTools()
                              "Command-line arguments to start the application with, as one "
                              "string; an empty one clears them."}})
                     .addProperty(
+                        "working_directory",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Directory to start the application in; an empty one restores the "
+                             "run configuration's default."}})
+                    .addProperty(
                         "set_active",
                         QJsonObject{
                             {"type", "boolean"},
@@ -3752,6 +3773,7 @@ void registerMcpTools()
                     .addProperty("active", QJsonObject{{"type", "boolean"}})
                     .addProperty("executable", QJsonObject{{"type", "string"}})
                     .addProperty("arguments", QJsonObject{{"type", "string"}})
+                    .addProperty("workingDirectory", QJsonObject{{"type", "string"}})
                     .addProperty(
                         "candidates",
                         QJsonObject{
@@ -3761,8 +3783,11 @@ void registerMcpTools()
             const bool setActive = p.contains("set_active") ? p.value("set_active").toBool() : true;
             const std::optional<QString> arguments = p.contains("arguments")
                 ? std::make_optional(p.value("arguments").toString()) : std::nullopt;
+            const std::optional<QString> workingDirectory = p.contains("working_directory")
+                ? std::make_optional(p.value("working_directory").toString()) : std::nullopt;
             return configureRunConfig(
-                p.value("id").toString(), p.value("executable").toString(), arguments, setActive);
+                p.value("id").toString(), p.value("executable").toString(), arguments,
+                workingDirectory, setActive);
         }));
 
     // --- Device management tools -------------------------------------------

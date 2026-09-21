@@ -299,6 +299,22 @@ FilePath WorkingDirectoryAspect::unexpandedWorkingDirectory() const
 }
 
 /*!
+    Sets the selected directory to \a workingDirectory.
+
+    Macros in \a workingDirectory are kept unexpanded, as if it had been typed
+    into the path chooser.
+*/
+void WorkingDirectoryAspect::setWorkingDirectory(const FilePath &workingDirectory)
+{
+    if (workingDirectory != m_workingDirectory) {
+        m_workingDirectory = workingDirectory;
+        emit changed();
+    }
+    if (m_chooser && m_chooser->unexpandedFilePath() != workingDirectory)
+        m_chooser->setFilePath(workingDirectory);
+}
+
+/*!
     Sets the default value to \a defaultWorkingDir.
 */
 void WorkingDirectoryAspect::setDefaultWorkingDirectory(const FilePath &defaultWorkingDir)
