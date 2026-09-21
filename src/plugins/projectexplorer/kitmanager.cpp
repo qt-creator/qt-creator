@@ -24,6 +24,7 @@
 #include <harmonyos/harmonyosconstants.h>
 #include <qnx/qnxconstants.h>
 #include <remote/remotelinux_constants.h>
+#include <wsl/wslconstants.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/persistentsettings.h>
@@ -158,8 +159,13 @@ static Id runDeviceTypeForKit(const Kit *kit)
         case Abi::LinuxOS:
             if (tcAbi.osFlavor() == Abi::AndroidLinuxFlavor)
                 return Android::Constants::ANDROID_DEVICE_TYPE;
-            if (buildDeviceType == HarmonyOs::Constants::HARMONYOS_BUILD_DEVICE_TYPE)
+            // A build device that is itself a Linux system runs what it
+            // built. Leaving it at the generic type would point the kit at
+            // whatever unrelated Remote Linux device is the default one.
+            if (buildDeviceType == HarmonyOs::Constants::HARMONYOS_BUILD_DEVICE_TYPE
+                || buildDeviceType == Wsl::Constants::WSL_DEVICE_TYPE) {
                 return buildDeviceType;
+            }
             return Remote::Constants::GenericLinuxOsType;
         case Abi::QnxOS:
             return Qnx::Constants::QNX_QNX_OS_TYPE;

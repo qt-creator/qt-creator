@@ -1,0 +1,31 @@
+{
+    "Id" : "wsl",
+    "DisplayName" : "WSL",
+    "Name" : "Wsl",
+    "Version" : "${IDE_VERSION}",
+    "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
+    "Vendor" : "The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
+    "Platform" : "Windows",
+    "Experimental" : true,
+    "License" : [ "Commercial Usage",
+                  "",
+                  "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
+                  "",
+                  "GNU General Public License Usage",
+                  "",
+                  "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
+    ],
+    "Description" : "Build and run in a Windows Subsystem for Linux distribution.",
+    "LongDescription" : [
+        "The Windows Subsystem for Linux (WSL) runs a Linux distribution directly on Windows, without the overhead of a traditional virtual machine or a dual-boot setup.",
+        "Adds a device for each installed distribution, so that a project can be built, run and debugged with the Linux toolchain inside it. The Windows drives are mounted in the distribution, so the sources can stay where they are.",
+        "You also need:",
+            "- Windows 10 version 2004 or later, or Windows 11",
+            "- WSL, with at least one distribution installed",
+        "Running \"wsl --install\" in PowerShell as administrator installs WSL together with a first distribution. See https://learn.microsoft.com/windows/wsl/ to read more about WSL."
+    ],
+    "Url" : "https://www.qt.io",
+    ${IDE_PLUGIN_DEPENDENCIES}
+}

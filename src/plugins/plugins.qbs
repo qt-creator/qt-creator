@@ -103,6 +103,7 @@ Project {
         "vcsbase/vcsbase.qbs",
         "webassembly/webassembly.qbs",
         "welcome/welcome.qbs",
+        "wsl/wsl.qbs",
         "zenmode/zenmode.qbs",
         "zephyr/zephyr.qbs",
     ].concat(project.additionalPlugins)
