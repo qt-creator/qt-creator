@@ -17,6 +17,7 @@
 #include <utils/algorithm.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
+#include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/spellchecker.h>
 
 #include <QAction>
@@ -120,6 +121,126 @@ private slots:
         setUpDocument(text);
         const int prose = text.indexOf("spelled");
         m_highlighter->setProseRanges({{prose, int(text.size()) - prose}});
+        m_highlighter->rehighlight();
+        QCOMPARE(underlinedTexts(), QStringList());
+    }
+
+    // Asking the dictionary costs a call into the spell checking service of the
+    // platform, too much to spend on a block nobody is looking at.
+    void testOnlyBlocksAViewerShowsAreMarked()
+    {
+        REQUIRE_SPELL_CHECKING();
+        setUpDocument("A mispelled word\nAnd a mistaeken one\n");
+
+        QObject viewer;
+        m_highlighter->setVisibleBlocks(&viewer, {{0, 0}});
+        m_highlighter->rehighlight();
+        QCOMPARE(underlinedTexts(), QStringList{"mispelled"});
+
+        // Scrolling the second block into view is what brings its mark out. The first
+        // one keeps the mark it has: a block is checked again when it is highlighted
+        // again, and scrolling out of view is no reason to highlight one.
+        m_highlighter->setVisibleBlocks(&viewer, {{1, 1}});
+        QCOMPARE(underlinedTexts(), (QStringList{"mispelled", "mistaeken"}));
+    }
+
+    // A fold spans the numbers of the blocks it hides without taking up a row of the
+    // viewport, so the range a viewer reports covers blocks that nobody is looking at.
+    void testBlocksAFoldHidesAreNotMarked()
+    {
+        REQUIRE_SPELL_CHECKING();
+        setUpDocument("A mispelled word\nAnd a mistaeken one\nAnd a mistuken one\n");
+
+        QTextBlock folded = m_checkedDocument->findBlockByNumber(1);
+        folded.setVisible(false);
+
+        QObject viewer;
+        m_highlighter->setVisibleBlocks(&viewer, {{0, 2}});
+        m_highlighter->rehighlight();
+        QCOMPARE(underlinedTexts(), (QStringList{"mispelled", "mistuken"}));
+
+        // Opening the fold is what brings the mark of the block out, with the range the
+        // viewer reports the same one as before.
+        folded.setVisible(true);
+        m_highlighter->setVisibleBlocks(&viewer, {{0, 2}});
+        QCOMPARE(underlinedTexts(), (QStringList{"mispelled", "mistaeken", "mistuken"}));
+    }
+
+    // A viewer that leaves blocks out in the middle of what it shows reports a range
+    // per run of the blocks it does show, so that the numbers of the ones in between
+    // fall into no range of its.
+    void testBlocksBetweenTheRunsAViewerShowsAreNotMarked()
+    {
+        REQUIRE_SPELL_CHECKING();
+        setUpDocument("A mispelled word\nAnd a mistaeken one\nAnd a mistuken one\n");
+
+        QObject viewer;
+        m_highlighter->setVisibleBlocks(&viewer, {{0, 0}, {2, 2}});
+        m_highlighter->rehighlight();
+        QCOMPARE(underlinedTexts(), (QStringList{"mispelled", "mistuken"}));
+
+        // Showing the block in between is what brings its mark out, which a viewer
+        // says by reporting the one run its blocks now make up.
+        m_highlighter->setVisibleBlocks(&viewer, {{0, 2}});
+        QCOMPARE(underlinedTexts(), (QStringList{"mispelled", "mistaeken", "mistuken"}));
+    }
+
+    // The unchanged lines an inline diff collapses are hidden in the layout of the
+    // editor that collapsed them and nowhere else, so the document other editors share
+    // keeps showing them and QTextBlock::isVisible() calls such a block visible. What
+    // the editor reports has to leave it out all the same.
+    void testBlocksTheEditorCollapsesAreNotMarked()
+    {
+        REQUIRE_SPELL_CHECKING();
+        QVERIFY(openEditor("A mispelled word\nAnd a mistaeken one\nAnd a mistuken one\n"));
+
+        Utils::TextEditorLayout *layout = m_editor->editorWidget()->editorLayout();
+        QVERIFY(layout);
+        layout->setBlockVisibleInEditor(m_checkedDocument->findBlockByNumber(1), false);
+
+        // Configuring a highlighter is what asks the editor which blocks it shows.
+        m_editor->editorWidget()->configureGenericHighlighter(
+            Utils::mimeTypeForName("text/plain"));
+        SyntaxHighlighter *highlighter = m_editor->textDocument()->syntaxHighlighter();
+        QVERIFY(highlighter);
+        highlighter->setSpellCheckLanguage(m_language);
+        QTRY_COMPARE(underlinedTexts(), (QStringList{"mispelled", "mistuken"}));
+    }
+
+    // Highlighting a block a viewer brought into view changes none of its text, so the
+    // formats a highlighter set for its semantics stay over the words they were set on.
+    void testExtraFormatsStayWhereTheyAreWhenABlockIsChecked()
+    {
+        REQUIRE_SPELL_CHECKING();
+        setUpDocument("A mispelled word\nAnd a mistaeken one\n");
+
+        QObject viewer;
+        m_highlighter->setVisibleBlocks(&viewer, {{0, 0}});
+        m_highlighter->rehighlight();
+        QCOMPARE(underlinedTexts(), QStringList{"mispelled"});
+
+        const QTextBlock unchecked = m_checkedDocument->findBlockByNumber(1);
+        const QString word = "mistaeken";
+        m_highlighter->setExtraFormats(unchecked,
+                                       {{int(unchecked.text().indexOf(word)),
+                                         int(word.size()),
+                                         extraFormat()}});
+        QCOMPARE(extraFormattedTexts(unchecked), QStringList{word});
+
+        m_highlighter->setVisibleBlocks(&viewer, {{0, 1}});
+        QCOMPARE(underlinedTexts(), (QStringList{"mispelled", "mistaeken"}));
+        QCOMPARE(extraFormattedTexts(unchecked), QStringList{word});
+    }
+
+    // Between the moment an editor is handed a document and the moment it lays out its
+    // viewport it shows nothing, which is not the same as there being no editor.
+    void testNothingIsMarkedWhileAViewerShowsNothing()
+    {
+        REQUIRE_SPELL_CHECKING();
+        setUpDocument("A mispelled word\n");
+
+        QObject viewer;
+        m_highlighter->setVisibleBlocks(&viewer, {});
         m_highlighter->rehighlight();
         QCOMPARE(underlinedTexts(), QStringList());
     }
@@ -305,6 +426,15 @@ private:
         return globalFontSettings().data().toTextCharFormat(C_SPELL_ERROR);
     }
 
+    // A format to hand setExtraFormats(), marked so that extraFormattedTexts() finds it
+    // again. The property is one the highlighter itself puts on no format.
+    static QTextCharFormat extraFormat()
+    {
+        QTextCharFormat format;
+        format.setProperty(QTextFormat::UserProperty, true);
+        return format;
+    }
+
     // The reason there is nothing to test against, empty when there is something.
     QString setUpSpellChecking()
     {
@@ -381,6 +511,18 @@ private:
                 if (SyntaxHighlighter::isSpellingError(range.format))
                     texts.append(block.text().mid(range.start, range.length));
             }
+        }
+        return texts;
+    }
+
+    // The words that the extra formats of block cover, wherever those formats sit now.
+    static QStringList extraFormattedTexts(const QTextBlock &block)
+    {
+        QStringList texts;
+        const QList<QTextLayout::FormatRange> ranges = block.layout()->formats();
+        for (const QTextLayout::FormatRange &range : ranges) {
+            if (range.format.property(QTextFormat::UserProperty).toBool())
+                texts.append(block.text().mid(range.start, range.length));
         }
         return texts;
     }

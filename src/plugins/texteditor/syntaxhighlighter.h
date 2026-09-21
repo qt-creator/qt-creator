@@ -12,6 +12,7 @@
 
 #include <functional>
 #include <climits>
+#include <utility>
 
 QT_BEGIN_NAMESPACE
 class QTextDocument;
@@ -67,6 +68,20 @@ public:
     // A word that the text cursor is on is being written and is not marked as
     // misspelled. Pass -1 for no such word.
     void setSpellCheckCursorPosition(int position);
+    // The blocks that viewer shows, as the ranges of block numbers they span. Asking
+    // the dictionary about a block costs a call into the spell checking service of the
+    // platform, too much to spend on a block nobody is looking at, so only the prose of
+    // a block some viewer shows is checked. A viewer that leaves blocks out in the
+    // middle of what it shows - the unchanged lines an inline diff collapses - reports
+    // a range per run of the blocks it does show. A block a fold hides takes up a
+    // number in a range without being shown, and is left unchecked until the fold
+    // opens. No range at all says that the viewer shows none of them for now. A
+    // highlighter that no viewer registered with checks every block, which is what a
+    // text without a viewport of its own - a submit message - needs.
+    void setVisibleBlocks(QObject *viewer, const QList<std::pair<int, int>> &ranges);
+    // viewer shows this document no more. The marks it asked for stay where they are:
+    // a block carries them until it is highlighted again.
+    void removeViewer(QObject *viewer);
     // Whether a format is the one a misspelled word is marked with.
     static bool isSpellingError(const QTextCharFormat &format);
 

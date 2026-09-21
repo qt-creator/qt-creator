@@ -902,6 +902,7 @@ void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter 
     delete d->m_highlighter;
     d->m_highlighter = creator();
     d->m_highlighter->setParent(this);
+    emit syntaxHighlighterChanged();
     d->m_highlighter->setDocument(this->document());
     d->m_highlighter->setFontSettings(globalFontSettings().data());
     d->m_highlighter->setMimeType(mimeType());

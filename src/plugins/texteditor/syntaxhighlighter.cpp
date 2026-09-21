@@ -10,6 +10,7 @@
 #include <utils/spellchecker.h>
 
 #include <QElapsedTimer>
+#include <QHash>
 #include <QPointer>
 #include <QTextDocument>
 #include <QThread>
@@ -57,6 +58,11 @@ public:
     void applyFormatChanges();
     void updateFormats(const FontSettingsData &fontSettings);
 
+    bool isBlockVisible(const QTextBlock &block) const;
+    void rehighlightBlocks(const QTextBlock &first, const QTextBlock &last);
+    std::pair<QTextBlock, QTextBlock> nextUncheckedVisibleRun() const;
+    void rehighlightUncheckedVisibleBlocks();
+
     FontSettingsData fontSettings;
     QList<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
@@ -70,6 +76,10 @@ public:
     QString spellCheckLanguage;
     bool spellCheckStrings = false;
     QList<Utils::SpellChecker::Range> proseRanges;
+    // The runs of blocks each viewer of the document shows, empty while no viewer said.
+    QHash<QObject *, QList<std::pair<int, int>>> visibleBlocks;
+    bool rehighlightUncheckedPending = false;
+    bool currentBlockIsVisible = true;
     int spellCheckCursorPosition = -1;
     // The block that holds a mark back for the word the text cursor is on. A block
     // rather than its number, which shifts when a line above it goes in or out.
@@ -288,6 +298,10 @@ void SyntaxHighlighterPrivate::reformatBlocks()
         qCDebug(Log) << "reformat blocks done";
         syntaxInfoUpToDate = true;
         emit q->finished();
+        if (rehighlightUncheckedPending) {
+            rehighlightUncheckedPending = false;
+            rehighlightUncheckedVisibleBlocks();
+        }
     }
 }
 
@@ -296,11 +310,18 @@ void SyntaxHighlighterPrivate::reformatBlock(const QTextBlock &block)
     QTC_ASSERT(!currentBlock.isValid(), return);
 
     currentBlock = block;
+    currentBlockIsVisible = isBlockVisible(block);
 
     formatChanges.fill(QTextCharFormat(), block.length() - 1);
     proseRanges.clear();
     q->highlightBlock(block.text());
     applyFormatChanges();
+
+    // What the block carries now was put there with the prose of a block in view
+    // checked and the prose of one out of view left alone. Scrolling it into view is
+    // what brings the marks of a misspelled word out.
+    if (!spellCheckLanguage.isEmpty())
+        TextBlockUserData::setSpellChecked(block, currentBlockIsVisible);
 
     foldValidator.process(currentBlock);
 
@@ -634,7 +655,7 @@ void SyntaxHighlighter::spellCheck(const QString &text)
     if (d->spellCheckHeldBackBlock == d->currentBlock)
         d->spellCheckHeldBackBlock = QTextBlock();
 
-    if (d->spellCheckLanguage.isEmpty() || d->proseRanges.isEmpty())
+    if (d->spellCheckLanguage.isEmpty() || d->proseRanges.isEmpty() || !d->currentBlockIsVisible)
         return;
 
     // A mark the color scheme draws nothing for is no mark, and asking the dictionary
@@ -973,6 +994,111 @@ static bool holdsSpellingErrorAt(const QTextBlock &block, int position)
         return SyntaxHighlighter::isSpellingError(range.format) && offset >= range.start
                && offset <= range.start + range.length;
     });
+}
+
+bool SyntaxHighlighterPrivate::isBlockVisible(const QTextBlock &block) const
+{
+    // A highlighter that no viewer registered with shows everything it has.
+    if (visibleBlocks.isEmpty())
+        return true;
+    // A block a fold hides is in the viewport of no viewer, whatever range of block
+    // numbers it falls into: a folded section spans numbers without taking up a row.
+    if (!block.isVisible())
+        return false;
+    const int blockNumber = block.blockNumber();
+    return Utils::anyOf(visibleBlocks, [blockNumber](const QList<std::pair<int, int>> &ranges) {
+        return Utils::anyOf(ranges, [blockNumber](const std::pair<int, int> &range) {
+            return blockNumber >= range.first && blockNumber <= range.second;
+        });
+    });
+}
+
+void SyntaxHighlighterPrivate::rehighlightBlocks(const QTextBlock &first, const QTextBlock &last)
+{
+    const bool wasPending = rehighlightPending;
+    const bool wasInReformatBlocks = inReformatBlocks;
+    const int from = first.position();
+    const int to = last.position() + last.length() - 1;
+
+    inReformatBlocks = true;
+    // The text itself did not change, so the formats of a block stay where they are.
+    rehighlightBlocks(from, 0, to - from);
+    inReformatBlocks = wasInReformatBlocks;
+
+    if (wasPending)
+        rehighlightPending = true;
+}
+
+// A run of blocks that a viewer shows in one piece and the dictionary was not asked
+// about, with an invalid first block when no such block is left. A block a fold hides
+// ends a run: it takes up a number in the range a viewer reports without being shown.
+std::pair<QTextBlock, QTextBlock> SyntaxHighlighterPrivate::nextUncheckedVisibleRun() const
+{
+    for (const QList<std::pair<int, int>> &ranges : visibleBlocks) {
+        for (const std::pair<int, int> &range : ranges) {
+            QTextBlock first;
+            QTextBlock last;
+            for (QTextBlock block = doc->findBlockByNumber(range.first);
+                 block.isValid() && block.blockNumber() <= range.second;
+                 block = block.next()) {
+                if (block.isVisible() && !TextBlockUserData::spellChecked(block)) {
+                    if (!first.isValid())
+                        first = block;
+                    last = block;
+                } else if (first.isValid()) {
+                    return {first, last};
+                }
+            }
+            if (first.isValid())
+                return {first, last};
+        }
+    }
+    return {};
+}
+
+// The blocks a viewer scrolled into view, or a fold it opened, were highlighted with
+// their prose left unchecked. Highlighting them again is what asks the dictionary
+// about them. What the blocks in between were spared stays spared, which takes one
+// run at a time: a rehighlight that ran out of its slice of the GUI thread widens the
+// range it continues with to whatever it is asked for next, so the run after it waits
+// until it is through rather than dragging the checked blocks of the gap along.
+void SyntaxHighlighterPrivate::rehighlightUncheckedVisibleBlocks()
+{
+    if (spellCheckLanguage.isEmpty() || !doc)
+        return;
+
+    while (!continueRehighlightScheduled) {
+        const std::pair<QTextBlock, QTextBlock> run = nextUncheckedVisibleRun();
+        if (!run.first.isValid())
+            return;
+        rehighlightBlocks(run.first, run.second);
+    }
+    rehighlightUncheckedPending = true;
+}
+
+void SyntaxHighlighter::setVisibleBlocks(QObject *viewer, const QList<std::pair<int, int>> &ranges)
+{
+    QTC_ASSERT(viewer, return);
+
+    const auto it = d->visibleBlocks.find(viewer);
+    if (it != d->visibleBlocks.end()) {
+        // Not skipped when the ranges are the ones the viewer had: opening a fold
+        // brings blocks into view without moving either end of the range they fall in.
+        *it = ranges;
+    } else {
+        d->visibleBlocks.insert(viewer, ranges);
+        connect(viewer, &QObject::destroyed, this, [this, viewer] { removeViewer(viewer); });
+    }
+    d->rehighlightUncheckedVisibleBlocks();
+}
+
+void SyntaxHighlighter::removeViewer(QObject *viewer)
+{
+    QTC_ASSERT(viewer, return);
+
+    // A viewer that is gone leaves behind the marks it asked for and asks for no block
+    // it did not have before.
+    d->visibleBlocks.remove(viewer);
 }
 
 void SyntaxHighlighter::setSpellCheckCursorPosition(int position)

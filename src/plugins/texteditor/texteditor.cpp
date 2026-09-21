@@ -811,6 +811,7 @@ public:
     // skips document-invisible blocks and blocks hidden in this widget's
     // layout only (e.g. unchanged lines collapsed by the inline diff editor)
     QTextBlock nextVisibleBlock(const QTextBlock &block) const;
+    QTextBlock previousVisibleBlock(const QTextBlock &block) const;
     bool isBlockVisibleInEditor(const QTextBlock &block) const;
     void scheduleCleanupAnnotationCache();
     void cleanupAnnotationCache();
@@ -858,6 +859,8 @@ public:
     void slotUpdateBlockCount();
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
+    void updateSpellCheckRange();
+    void scheduleUpdateSpellCheckRange();
     void updateTabStops();
     void applyTabSettings();
     void applyFontSettingsDelayed();
@@ -997,6 +1000,7 @@ public:
         { return a.mark == b.mark && a.rect == b.rect; }
     };
     bool cleanupAnnotationRectsScheduled = false;
+    bool spellCheckRangeUpdateScheduled = false;
     QMap<int, QList<AnnotationRect>> m_annotationRects;
     QRectF getLastLineLineRect(const QTextBlock &block);
 
@@ -1607,6 +1611,10 @@ void TextEditorWidgetPrivate::setupScrollBar()
 void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &doc)
 {
     QSharedPointer<TextDocument> previousDocument = m_document;
+    if (previousDocument) {
+        if (SyntaxHighlighter *highlighter = previousDocument->syntaxHighlighter())
+            highlighter->removeViewer(q);
+    }
     for (const QMetaObject::Connection &connection : std::as_const(m_documentConnections))
         disconnect(connection);
     m_documentConnections.clear();
@@ -1722,6 +1730,13 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      q,
                                      &TextEditorWidget::openFinishedSuccessfully);
 
+    // Not scheduled: a highlighter is told what this editor shows before it is handed
+    // the document, so that it never checks the prose of one end to end.
+    m_documentConnections << connect(m_document.data(),
+                                     &TextDocument::syntaxHighlighterChanged,
+                                     this,
+                                     &TextEditorWidgetPrivate::updateSpellCheckRange);
+
     m_documentConnections << connect(&globalFontSettings(), &FontSettings::changed,
                                      m_document.data(),
                                      [this] {
@@ -1729,6 +1744,8 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      });
 
     slotUpdateExtraAreaWidth();
+
+    updateSpellCheckRange();
 
     updateMergeConflictController();
 
@@ -6512,6 +6529,17 @@ QTextBlock TextEditorWidgetPrivate::nextVisibleBlock(const QTextBlock &block) co
     return nextVisibleBlock;
 }
 
+QTextBlock TextEditorWidgetPrivate::previousVisibleBlock(const QTextBlock &block) const
+{
+    QTextBlock previousVisibleBlock = block.previous();
+    while (previousVisibleBlock.isValid()
+           && (!previousVisibleBlock.isVisible()
+               || !isBlockVisibleInEditor(previousVisibleBlock))) {
+        previousVisibleBlock = previousVisibleBlock.previous();
+    }
+    return previousVisibleBlock;
+}
+
 void TextEditorWidgetPrivate::scheduleCleanupAnnotationCache()
 {
     if (cleanupAnnotationRectsScheduled)
@@ -7342,6 +7370,81 @@ void TextEditorWidgetPrivate::slotUpdateRequest(const QRect &r, int /*dy*/)
 
     if (r.contains(q->viewport()->rect()))
         slotUpdateExtraAreaWidth();
+
+    scheduleUpdateSpellCheckRange();
+}
+
+// The blocks this editor displays, and a screenful on either side of them so that the
+// marks of a misspelled word are there before a page of text is scrolled into view.
+// Both the screenful and what is reported are counted in the blocks the editor
+// displays rather than in the numbers they carry: a folded section and the unchanged
+// lines an inline diff collapses span numbers without taking up a row, and counting in
+// numbers would hand the highlighter a whole document to check. The blocks left out in
+// between are what a range per run of displayed ones keeps out of the checking.
+void TextEditorWidgetPrivate::updateSpellCheckRange()
+{
+    spellCheckRangeUpdateScheduled = false;
+    if (!m_document)
+        return;
+    SyntaxHighlighter *highlighter = m_document->syntaxHighlighter();
+    if (!highlighter)
+        return;
+
+    const int firstNumber = q->firstVisibleBlockNumber();
+    const int lastNumber = q->lastVisibleBlockNumber();
+    if (firstNumber < 0 || lastNumber < firstNumber) {
+        // An editor that has yet to lay out its viewport shows nothing, and says so:
+        // a highlighter no viewer registered with checks a document end to end.
+        highlighter->setVisibleBlocks(q, {});
+        return;
+    }
+
+    QTextBlock first = q->document()->findBlockByNumber(firstNumber);
+    QTextBlock last = q->document()->findBlockByNumber(lastNumber);
+
+    // The screenful is what the viewport holds in blocks, which is not the rows it
+    // has: a block that wraps takes up a row per line it needs.
+    int margin = 0;
+    for (QTextBlock block = first; block.isValid() && block.blockNumber() <= lastNumber;
+         block = nextVisibleBlock(block)) {
+        ++margin;
+    }
+
+    for (int i = 0; i < margin; ++i) {
+        const QTextBlock previous = previousVisibleBlock(first);
+        if (!previous.isValid())
+            break;
+        first = previous;
+    }
+    for (int i = 0; i < margin; ++i) {
+        const QTextBlock next = nextVisibleBlock(last);
+        if (!next.isValid())
+            break;
+        last = next;
+    }
+
+    QList<std::pair<int, int>> ranges;
+    for (QTextBlock block = first; block.isValid() && block.blockNumber() <= last.blockNumber();
+         block = nextVisibleBlock(block)) {
+        const int number = block.blockNumber();
+        if (!ranges.isEmpty() && ranges.last().second == number - 1)
+            ranges.last().second = number;
+        else
+            ranges.append({number, number});
+    }
+    highlighter->setVisibleBlocks(q, ranges);
+}
+
+// Scrolling asks for this far more often than the blocks in view change, and what
+// comes of a change is a call into the spell checking service of the platform.
+void TextEditorWidgetPrivate::scheduleUpdateSpellCheckRange()
+{
+    if (spellCheckRangeUpdateScheduled)
+        return;
+    spellCheckRangeUpdateScheduled = true;
+    QMetaObject::invokeMethod(this,
+                              &TextEditorWidgetPrivate::updateSpellCheckRange,
+                              Qt::QueuedConnection);
 }
 
 void TextEditorWidgetPrivate::saveCurrentCursorPositionForNavigation()
