@@ -22,6 +22,8 @@ public:
     Utils::FilePathAspect additionalPackages{this};
     Utils::FilePathAspect deviceSdkLocation{this};
 
+    Utils::StringAspect qtRepository{this};
+
     Utils::BoolAspect runWithoutInstalling{this};
 
     Utils::FilePathAspect signingCertificate{this};
@@ -42,6 +44,7 @@ private:
     QString m_keyPassword;
     QString m_storePassword;
     QtTaskTree::QSingleTaskTreeRunner m_sdkDownloader;
+    QtTaskTree::QSingleTaskTreeRunner m_qtDownloader;
 };
 
 HarmonyOsSettings &settings();

@@ -9,6 +9,7 @@
 #include "harmonyosdevice.h"
 #include "harmonyosqtversion.h"
 #include "harmonyosrunconfiguration.h"
+#include "harmonyossdk.h"
 #include "harmonyossettings.h"
 #include "harmonyostoolchain.h"
 
@@ -75,6 +76,7 @@ class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
 #ifdef WITH_TESTS
         addTestCreator(createHarmonyOsDeviceTest);
         addTestCreator(createHarmonyOsManifestTest);
+        addTestCreator(Sdk::createHarmonyOsSdkTest);
 #endif
     }
 

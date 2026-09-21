@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifdef WITH_TESTS
+class QObject;
+#endif
+
 #include <utils/filepath.h>
 #include <utils/result.h>
 
@@ -118,5 +122,34 @@ PublicSdk publicSdk();
 // The components of the public SDK that Qt Creator reads: "native" holds the compiler,
 // the sysroot and the CMake toolchain file, "toolchains" holds hdc and the signing tools.
 QStringList publicSdkComponents();
+
+// A Qt repository is an "Updates.xml" plus one directory of archives per package in it,
+// and reading that takes no installer binary. It is how a Qt Creator without the
+// maintenance tool, i.e. one running on a device, can still get a Qt.
+struct QtPackage
+{
+    QString name;
+    QString displayName;
+    // The repository's own version of the package, e.g. "6.12.0-0-202607072102". It is
+    // also the prefix every archive file name carries in the repository.
+    QString version;
+    QStringList archives;
+
+    // The Qt version the package holds, which is what its directory is named after.
+    QString qtVersion() const;
+    // The last component of the name, which is the directory the package unpacks into,
+    // e.g. "harmonyos_arm64_v8a".
+    QString target() const;
+};
+
+// The packages of an "Updates.xml" that hold a Qt for HarmonyOS, newest first.
+QList<QtPackage> harmonyOsQtPackages(const QByteArray &updatesXml);
+
+QUrl updatesXmlUrl(const QUrl &repository);
+QUrl archiveUrl(const QUrl &repository, const QtPackage &package, const QString &archive);
+
+#ifdef WITH_TESTS
+QObject *createHarmonyOsSdkTest();
+#endif
 
 } // namespace HarmonyOs::Internal::Sdk

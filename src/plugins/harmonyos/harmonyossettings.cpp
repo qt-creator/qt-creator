@@ -59,27 +59,61 @@ static QString downloadTitle()
     return Tr::tr("Download HarmonyOS SDK");
 }
 
-static void reportDownloadError(const QString &error)
+static void reportDownloadError(const QString &error, const QString &title = downloadTitle())
 {
-    QMessageBox::warning(Core::ICore::dialogParent(), downloadTitle(), error);
+    QMessageBox::warning(Core::ICore::dialogParent(), title, error);
 }
 
 static void verifyArchive(QPromise<Result<>> &promise, const FilePath &archive,
-                          const QByteArray &sha256)
+                          const QByteArray &checksum, QCryptographicHash::Algorithm algorithm)
 {
     QFile file(archive.toFSPathString());
-    QCryptographicHash hash(QCryptographicHash::Sha256);
+    QCryptographicHash hash(algorithm);
     if (!file.open(QIODevice::ReadOnly) || !hash.addData(&file)) {
         promise.addResult(ResultError(Tr::tr("Cannot read \"%1\": %2.")
                                           .arg(archive.toUserOutput(), file.errorString())));
         return;
     }
-    if (hash.result() != sha256) {
+    if (hash.result() != checksum) {
         promise.addResult(ResultError(
             Tr::tr("The checksum of the downloaded archive is not the published one.")));
         return;
     }
     promise.addResult(ResultOk);
+}
+
+// Gigabytes neither fit the progress dialog's int range nor memory, so the dialog counts
+// megabytes and the reply is drained into the file as it arrives.
+static constexpr qint64 megaByte = 1024 * 1024;
+
+static void setupDownload(QtTaskTree::QNetworkReplyWrapper &query, const QUrl &url,
+                          QProgressDialog *progressDialog, QFile *file, const QString &title)
+{
+    using namespace QtTaskTree;
+
+    query.setRequest(QNetworkRequest(url));
+    query.setNetworkAccessManager(NetworkAccessManager::instance());
+
+    QObject::connect(&query, &QNetworkReplyWrapper::downloadProgress, progressDialog,
+                     [progressDialog](qint64 received, qint64 total) {
+        progressDialog->setRange(0, total / megaByte);
+        progressDialog->setValue(received / megaByte);
+    });
+    QObject::connect(&query, &QNetworkReplyWrapper::started, &query, [file, queryPtr = &query] {
+        QNetworkReply *reply = queryPtr->reply();
+        QObject::connect(reply, &QNetworkReply::readyRead, reply, [file, reply] {
+            if (file->write(reply->readAll()) < 0)
+                reply->abort();
+        });
+    });
+#if QT_CONFIG(ssl)
+    QObject::connect(&query, &QNetworkReplyWrapper::sslErrors, &query,
+                     [title, queryPtr = &query](const QList<QSslError> &errors) {
+        reportDownloadError(Tr::tr("The download was aborted: %1")
+                                .arg(errors.constFirst().errorString()), title);
+        queryPtr->reply()->abort();
+    });
+#endif
 }
 
 // Installs the components of the public OpenHarmony SDK that Qt Creator reads into sdkPath.
@@ -89,8 +123,6 @@ static void verifyArchive(QPromise<Result<>> &promise, const FilePath &archive,
 static QtTaskTree::GroupItem downloadSdkRecipe(const FilePath &sdkPath)
 {
     using namespace QtTaskTree;
-
-    constexpr qint64 megaByte = 1024 * 1024;
 
     struct DownloadStorage
     {
@@ -164,33 +196,8 @@ static QtTaskTree::GroupItem downloadSdkRecipe(const FilePath &sdkPath)
     };
 
     const auto onDownloadSetup = [storage, sdk](QNetworkReplyWrapper &query) {
-        query.setRequest(QNetworkRequest(sdk.url));
-        query.setNetworkAccessManager(NetworkAccessManager::instance());
-
-        QProgressDialog *progressDialog = storage->progressDialog.get();
-        QObject::connect(&query, &QNetworkReplyWrapper::downloadProgress, progressDialog,
-                         [progressDialog](qint64 received, qint64 total) {
-            // Gigabytes do not fit the dialog's int range, so it counts megabytes.
-            progressDialog->setRange(0, total / megaByte);
-            progressDialog->setValue(received / megaByte);
-        });
-        // Gigabytes do not fit into memory either, so the reply is drained as it arrives.
-        QObject::connect(&query, &QNetworkReplyWrapper::started, &query,
-                         [storage, queryPtr = &query] {
-            QNetworkReply *reply = queryPtr->reply();
-            QObject::connect(reply, &QNetworkReply::readyRead, reply, [storage, reply] {
-                if (storage->file->write(reply->readAll()) < 0)
-                    reply->abort();
-            });
-        });
-#if QT_CONFIG(ssl)
-        QObject::connect(&query, &QNetworkReplyWrapper::sslErrors, &query,
-                         [queryPtr = &query](const QList<QSslError> &errors) {
-            reportDownloadError(Tr::tr("The download was aborted: %1")
-                                    .arg(errors.constFirst().errorString()));
-            queryPtr->reply()->abort();
-        });
-#endif
+        setupDownload(query, sdk.url, storage->progressDialog.get(), storage->file.get(),
+                      downloadTitle());
     };
     const auto onDownloadDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
                                                        DoneWith result) {
@@ -210,7 +217,8 @@ static QtTaskTree::GroupItem downloadSdkRecipe(const FilePath &sdkPath)
     const auto onVerifySetup = [storage](Async<Result<>> &async) {
         storage->progressDialog->setRange(0, 0);
         storage->progressDialog->setLabelText(Tr::tr("Verifying the downloaded archive..."));
-        async.setConcurrentCallData(verifyArchive, storage->archive, storage->sha256);
+        async.setConcurrentCallData(verifyArchive, storage->archive, storage->sha256,
+                                    QCryptographicHash::Sha256);
     };
     const auto onVerifyDone = [](const Async<Result<>> &async, DoneWith result) {
         if (result == DoneWith::Cancel)
@@ -337,6 +345,27 @@ struct ScanResult
     QtSupport::QtVersions mistyped;
 };
 
+// A Qt whose qmake runs describes itself best, but one that was downloaded for the device
+// Qt Creator itself runs on has a qmake that cannot run here, and then its files have to do.
+static QtSupport::QtVersion *createQtVersion(const FilePath &prefix, const FilePath &qmake)
+{
+    const ProjectExplorer::DetectionSource source = ProjectExplorer::DetectionSource::FromSystem;
+    QtSupport::QtVersion *version = qmake.isExecutableFile()
+        ? QtSupport::QtVersionFactory::createQtVersionFromQMakePath(qmake, source)
+        : nullptr;
+    if (version && !version->isValid()) {
+        delete version;
+        version = nullptr;
+    }
+    if (!version)
+        version = QtSupport::QtVersionFactory::createQtVersionFromPrefix(prefix, source);
+    if (version && !version->isValid()) {
+        delete version;
+        return nullptr;
+    }
+    return version;
+}
+
 // Registers the Qt for HarmonyOS installations in root that are not known here yet.
 static ScanResult registerQtVersions(const FilePath &root)
 {
@@ -345,25 +374,18 @@ static ScanResult registerQtVersions(const FilePath &root)
     for (const FilePath &versionDir : root.dirEntries({{"*"}, dirs})) {
         for (const FilePath &prefix : versionDir.dirEntries({{"harmonyos*"}, dirs})) {
             const FilePath qmake = (prefix / "bin" / "qmake").withExecutableSuffix();
-            if (!qmake.isExecutableFile())
-                continue;
             if (QtSupport::QtVersion *known = QtSupport::QtVersionManager::version(
-                    [&qmake](const QtSupport::QtVersion *version) {
-                        return version->qmakeFilePath() == qmake;
+                    [&qmake, &prefix](const QtSupport::QtVersion *version) {
+                        return version->qmakeFilePath() == qmake
+                               || version->qtFilePath() == prefix;
                     })) {
                 if (known->type() != QLatin1String(Constants::HARMONYOS_QT_TYPE))
                     result.mistyped.append(known);
                 continue;
             }
-            QtSupport::QtVersion *version
-                = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(
-                    qmake, ProjectExplorer::DetectionSource::FromSystem);
+            QtSupport::QtVersion *version = createQtVersion(prefix, qmake);
             if (!version)
                 continue;
-            if (!version->isValid()) {
-                delete version;
-                continue;
-            }
             QtSupport::QtVersionManager::addVersion(version);
             result.added.append(version);
         }
@@ -375,6 +397,216 @@ static QString versionNames(const QtSupport::QtVersions &versions)
 {
     return Utils::transform<QStringList>(versions,
         [](const QtSupport::QtVersion *version) { return version->displayName(); }).join(", ");
+}
+
+// Qt repository download
+
+static QString qtDownloadTitle()
+{
+    return Tr::tr("Download Qt for HarmonyOS");
+}
+
+// Where a Qt Creator that has no maintenance tool puts a downloaded Qt: beside its own
+// settings, the one directory it is sure to be allowed to write to.
+static FilePath downloadedQtRoot()
+{
+    return Core::ICore::userResourcePath("harmonyos/qt");
+}
+
+// Installs the newest Qt for HarmonyOS a repository offers into "<root>/<version>/<target>",
+// which is the layout the Qt installer produces as well. A repository is plain files over
+// HTTP, so this way needs no installer.
+static QtTaskTree::GroupItem downloadQtRecipe(const QUrl &repository, const FilePath &root)
+{
+    using namespace QtTaskTree;
+
+    struct QtDownloadStorage
+    {
+        QtDownloadStorage()
+        {
+            progressDialog.reset(createProgressDialog(0, qtDownloadTitle(),
+                                                      Tr::tr("Reading the repository...")));
+        }
+        std::unique_ptr<QProgressDialog> progressDialog;
+        std::unique_ptr<QFile> file;
+        Sdk::QtPackage package;
+        FilePath archive;
+        QByteArray sha1;
+    };
+
+    const Storage<QtDownloadStorage> storage;
+    const FilePath workPath = root / "download";
+
+    const auto onSetup = [workPath] {
+        if (const Result<> writable = workPath.ensureWritableDir(); !writable) {
+            reportDownloadError(writable.error(), qtDownloadTitle());
+            return SetupResult::StopWithError;
+        }
+        return SetupResult::Continue;
+    };
+
+    const auto onReplyDone = [](const QNetworkReplyWrapper &query, DoneWith result) {
+        QNetworkReply *reply = query.reply();
+        QTC_ASSERT(reply, return false);
+        if (result == DoneWith::Success)
+            return true;
+        if (result == DoneWith::Error) {
+            reportDownloadError(Tr::tr("Downloading \"%1\" failed: %2.")
+                                    .arg(reply->url().toString(), reply->errorString()),
+                                qtDownloadTitle());
+        }
+        return false;
+    };
+
+    const auto onUpdatesSetup = [repository](QNetworkReplyWrapper &query) {
+        query.setRequest(QNetworkRequest(Sdk::updatesXmlUrl(repository)));
+        query.setNetworkAccessManager(NetworkAccessManager::instance());
+    };
+    const auto onUpdatesDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
+                                                      DoneWith result) {
+        if (!onReplyDone(query, result))
+            return DoneResult::Error;
+        const QList<Sdk::QtPackage> packages = Sdk::harmonyOsQtPackages(query.reply()->readAll());
+        if (packages.isEmpty()) {
+            reportDownloadError(Tr::tr("This repository publishes no Qt for HarmonyOS."),
+                                qtDownloadTitle());
+            return DoneResult::Error;
+        }
+        storage->package = packages.constFirst();
+        return DoneResult::Success;
+    };
+
+    // How many archives a package has is known only once the repository has been read.
+    const UntilIterator archiveIterator([storage](qsizetype iteration) {
+        return iteration < storage->package.archives.size();
+    });
+    const auto currentArchive = [storage, archiveIterator] {
+        return storage->package.archives.at(archiveIterator.iteration());
+    };
+
+    const auto onArchiveSetup = [storage, workPath, currentArchive] {
+        storage->archive = workPath / currentArchive();
+        storage->file.reset(new QFile(storage->archive.toFSPathString()));
+        if (!storage->file->open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            reportDownloadError(Tr::tr("Cannot write \"%1\": %2.")
+                                    .arg(storage->archive.toUserOutput(),
+                                         storage->file->errorString()),
+                                qtDownloadTitle());
+            return SetupResult::StopWithError;
+        }
+        return SetupResult::Continue;
+    };
+
+    const auto onChecksumSetup = [storage, repository, currentArchive]
+                                 (QNetworkReplyWrapper &query) {
+        storage->progressDialog->setRange(0, 0);
+        storage->progressDialog->setLabelText(Tr::tr("Downloading %1...").arg(currentArchive()));
+        const QUrl archive = Sdk::archiveUrl(repository, storage->package, currentArchive());
+        query.setRequest(QNetworkRequest(QUrl(archive.toString() + ".sha1")));
+        query.setNetworkAccessManager(NetworkAccessManager::instance());
+    };
+    const auto onChecksumDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
+                                                       DoneWith result) {
+        if (!onReplyDone(query, result))
+            return DoneResult::Error;
+        const QByteArray published = query.reply()->readAll().simplified();
+        storage->sha1 = QByteArray::fromHex(published.split(' ').constFirst());
+        if (storage->sha1.size() != QCryptographicHash::hashLength(QCryptographicHash::Sha1)) {
+            reportDownloadError(Tr::tr("The published checksum of \"%1\" cannot be read.")
+                                    .arg(storage->archive.fileName()),
+                                qtDownloadTitle());
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onDownloadSetup = [storage, repository, currentArchive]
+                                 (QNetworkReplyWrapper &query) {
+        setupDownload(query, Sdk::archiveUrl(repository, storage->package, currentArchive()),
+                      storage->progressDialog.get(), storage->file.get(), qtDownloadTitle());
+    };
+    const auto onDownloadDone = [storage, onReplyDone](const QNetworkReplyWrapper &query,
+                                                       DoneWith result) {
+        const bool written = storage->file->flush();
+        storage->file->close();
+        if (!onReplyDone(query, result))
+            return DoneResult::Error;
+        if (!written) {
+            reportDownloadError(Tr::tr("Cannot write \"%1\": %2.")
+                                    .arg(storage->archive.toUserOutput(),
+                                         storage->file->errorString()),
+                                qtDownloadTitle());
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onVerifySetup = [storage](Async<Result<>> &async) {
+        storage->progressDialog->setRange(0, 0);
+        storage->progressDialog->setLabelText(
+            Tr::tr("Verifying %1...").arg(storage->archive.fileName()));
+        async.setConcurrentCallData(verifyArchive, storage->archive, storage->sha1,
+                                    QCryptographicHash::Sha1);
+    };
+    const auto onVerifyDone = [](const Async<Result<>> &async, DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return DoneResult::Error;
+        if (!async.isResultAvailable()) {
+            reportDownloadError(Tr::tr("Verifying the downloaded archive failed."),
+                                qtDownloadTitle());
+            return DoneResult::Error;
+        }
+        if (const Result<> verified = async.result(); !verified) {
+            reportDownloadError(verified.error(), qtDownloadTitle());
+            return DoneResult::Error;
+        }
+        return DoneResult::Success;
+    };
+
+    const auto onUnpackSetup = [storage, root](Unarchiver &task) {
+        storage->progressDialog->setLabelText(
+            Tr::tr("Unpacking %1...").arg(storage->archive.fileName()));
+        task.setArchive(storage->archive);
+        // The archives of a Qt package carry the contents of the installation itself, so
+        // they unpack into the prefix rather than into the root.
+        task.setDestination(root / storage->package.qtVersion() / storage->package.target());
+    };
+    const auto onUnpackDone = [storage](const Unarchiver &task, DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return DoneResult::Error;
+        if (const Result<> unpacked = task.result(); !unpacked) {
+            reportDownloadError(Tr::tr("Unpacking \"%1\" failed: %2.")
+                                    .arg(storage->archive.fileName(), unpacked.error()),
+                                qtDownloadTitle());
+            return DoneResult::Error;
+        }
+        // A Qt is gigabytes in a dozen archives, so an unpacked one goes away at once
+        // rather than at the end.
+        storage->archive.removeFile();
+        return DoneResult::Success;
+    };
+
+    const auto onCancel = [storage] {
+        return makeObjectSignal(storage->progressDialog.get(), &QProgressDialog::canceled);
+    };
+
+    return Group {
+        storage,
+        Group {
+            onGroupSetup(onSetup),
+            QNetworkReplyWrapperTask(onUpdatesSetup, onUpdatesDone),
+            For (archiveIterator) >> Do {
+                Group {
+                    onGroupSetup(onArchiveSetup),
+                    QNetworkReplyWrapperTask(onChecksumSetup, onChecksumDone),
+                    QNetworkReplyWrapperTask(onDownloadSetup, onDownloadDone),
+                    AsyncTask<Result<>>(onVerifySetup, onVerifyDone),
+                    UnarchiverTask(onUnpackSetup, onUnpackDone),
+                },
+            },
+        }.withCancel(onCancel),
+        onGroupDone([workPath] { workPath.removeRecursively(); }),
+    };
 }
 
 HarmonyOsSettings::HarmonyOsSettings()
@@ -407,6 +639,14 @@ HarmonyOsSettings::HarmonyOsSettings()
                "the payload is for arm64. Qt Creator assembles a toolchain out of it and "
                "carries it in its own package, which is what makes building on the device "
                "possible. Leave it empty when the device is only a target."));
+
+    qtRepository.setSettingsKey("QtRepository");
+    qtRepository.setDisplayStyle(StringAspect::LineEditDisplay);
+    qtRepository.setLabelText(Tr::tr("Qt repository:"));
+    qtRepository.setToolTip(
+        Tr::tr("The directory an \"Updates.xml\" describing Qt packages is published in, as "
+               "the Qt installer reads them. It is what a Qt Creator without the maintenance "
+               "tool, for example one running on a device, installs a Qt for HarmonyOS from."));
 
     runWithoutInstalling.setSettingsKey("RunWithoutInstalling");
     runWithoutInstalling.setLabelText(Tr::tr("Run without installing"));
@@ -475,15 +715,16 @@ HarmonyOsSettings::HarmonyOsSettings()
 
         auto qtNote = new QLabel(
             Tr::tr("Building for HarmonyOS needs a Qt that was cross-built for it. The Qt "
-                   "installer publishes one from Qt 6.12 on, and can install it here."));
+                   "installer publishes one from Qt 6.12 on, and can install it here. Where "
+                   "there is no Qt installer, it is downloaded from a repository instead."));
         qtNote->setWordWrap(true);
 
         auto installQtButton = new QPushButton(Tr::tr("Install Qt for HarmonyOS"));
-        installQtButton->setEnabled(installerService() != nullptr);
-        if (!installQtButton->isEnabled()) {
+        if (!installerService()) {
             installQtButton->setToolTip(
                 Tr::tr("Only an installed Qt Creator carries the maintenance tool that the "
-                       "Qt installer manages its packages with."));
+                       "Qt installer manages its packages with, so the packages come from "
+                       "the repository below here."));
         }
 
         auto qtStatus = new InfoLabel;
@@ -516,6 +757,7 @@ HarmonyOsSettings::HarmonyOsSettings()
                 Column {
                     qtNote,
                     Row { installQtButton, st },
+                    Form { qtRepository, br },
                     qtStatus,
                 },
             },
@@ -612,20 +854,8 @@ HarmonyOsSettings::HarmonyOsSettings()
             qtStatus->setText(Tr::tr("Registered: %1.").arg(versionNames(versions)));
         };
 
-        connect(installQtButton, &QPushButton::clicked, this, [qtStatus, updateQtStatus] {
-            UpdateInfo::Service *service = installerService();
-            QTC_ASSERT(service, return);
-            const FilePath root = service->installationRoot();
-            // A Qt that is installed but unknown here needs registering rather than
-            // installing, and that is the case the installer reports as "already
-            // installed", so look before offering an installation.
-            ScanResult scan = registerQtVersions(root);
-            if (scan.added.isEmpty() && scan.mistyped.isEmpty()) {
-                // The dialog's result tells whether it was closed on its install button,
-                // not whether anything arrived, so look at the directory either way.
-                service->installPackages(qtPackageFilter());
-                scan = registerQtVersions(root);
-            }
+        const auto reportScan = [qtStatus, updateQtStatus](const ScanResult &scan,
+                                                           const FilePath &root) {
             updateQtStatus();
             if (!scan.added.isEmpty())
                 return;
@@ -641,6 +871,38 @@ HarmonyOsSettings::HarmonyOsSettings()
             qtStatus->setType(InfoLabelType::Warning);
             qtStatus->setText(Tr::tr("No Qt for HarmonyOS was found in \"%1\".")
                                   .arg(root.toUserOutput()));
+        };
+
+        connect(installQtButton, &QPushButton::clicked, this, [this, qtStatus, reportScan] {
+            UpdateInfo::Service *service = installerService();
+            const FilePath root = service ? service->installationRoot() : downloadedQtRoot();
+            // A Qt that is installed but unknown here needs registering rather than
+            // installing, and that is the case the installer reports as "already
+            // installed", so look before offering an installation.
+            const ScanResult scan = registerQtVersions(root);
+            if (!scan.added.isEmpty() || !scan.mistyped.isEmpty()) {
+                reportScan(scan, root);
+                return;
+            }
+            if (service) {
+                // The dialog's result tells whether it was closed on its install button,
+                // not whether anything arrived, so look at the directory either way.
+                service->installPackages(qtPackageFilter());
+                reportScan(registerQtVersions(root), root);
+                return;
+            }
+            const QUrl repository(qtRepository.volatileValue().trimmed());
+            if (!repository.isValid() || repository.isRelative()) {
+                qtStatus->setType(InfoLabelType::Warning);
+                qtStatus->setText(Tr::tr("Enter the repository the Qt packages are "
+                                         "published in first."));
+                return;
+            }
+            m_qtDownloader.start({downloadQtRecipe(repository, root)}, {},
+                                 [root, reportScan](QtTaskTree::DoneWith result) {
+                if (result == QtTaskTree::DoneWith::Success)
+                    reportScan(registerQtVersions(root), root);
+            });
         });
 
         updateStatus();

@@ -9,9 +9,16 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSysInfo>
+#include <QVersionNumber>
+#include <QXmlStreamReader>
+
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
 
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
 #include <utils/elfreader.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -563,4 +570,159 @@ QStringList publicSdkComponents()
     return {"native", "toolchains"};
 }
 
+// Qt repository
+
+QString QtPackage::qtVersion() const
+{
+    const int dash = version.indexOf('-');
+    return dash < 0 ? version : version.left(dash);
+}
+
+QString QtPackage::target() const
+{
+    return name.mid(name.lastIndexOf('.') + 1);
+}
+
+QList<QtPackage> harmonyOsQtPackages(const QByteArray &updatesXml)
+{
+    QList<QtPackage> packages;
+    QXmlStreamReader reader(updatesXml);
+    while (!reader.atEnd()) {
+        if (reader.readNext() != QXmlStreamReader::StartElement
+            || reader.name() != QLatin1String("PackageUpdate")) {
+            continue;
+        }
+        QtPackage package;
+        while (reader.readNextStartElement()) {
+            const QStringView element = reader.name();
+            const QString text = reader.readElementText();
+            if (element == QLatin1String("Name"))
+                package.name = text;
+            else if (element == QLatin1String("DisplayName"))
+                package.displayName = text;
+            else if (element == QLatin1String("Version"))
+                package.version = text;
+            else if (element == QLatin1String("DownloadableArchives"))
+                package.archives = Utils::transform(text.split(',', Qt::SkipEmptyParts),
+                                                    [](const QString &a) { return a.trimmed(); });
+        }
+        // The group package and the debug information one carry no Qt, and both are
+        // named after the one that does, so the archives decide rather than the name.
+        if (package.target().startsWith("harmonyos") && !package.archives.isEmpty())
+            packages.append(package);
+    }
+
+    Utils::sort(packages, [](const QtPackage &lhs, const QtPackage &rhs) {
+        const QVersionNumber left = QVersionNumber::fromString(lhs.qtVersion());
+        const QVersionNumber right = QVersionNumber::fromString(rhs.qtVersion());
+        if (left != right)
+            return right < left;
+        return rhs.version < lhs.version;
+    });
+    return packages;
+}
+
+static QUrl urlInRepository(const QUrl &repository, const QString &path)
+{
+    QUrl url = repository;
+    QString base = repository.path();
+    if (!base.endsWith('/'))
+        base += '/';
+    url.setPath(base + path);
+    return url;
+}
+
+QUrl updatesXmlUrl(const QUrl &repository)
+{
+    return urlInRepository(repository, "Updates.xml");
+}
+
+QUrl archiveUrl(const QUrl &repository, const QtPackage &package, const QString &archive)
+{
+    // The installer's own layout: every archive of a package sits in a directory named
+    // after it, under a name the package version is prepended to.
+    return urlInRepository(repository, package.name + '/' + package.version + archive);
+}
+
+#ifdef WITH_TESTS
+
+class HarmonyOsSdkTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testQtPackages()
+    {
+        const QList<QtPackage> packages = harmonyOsQtPackages(updatesXml());
+        QCOMPARE(Utils::transform<QStringList>(packages,
+                                               [](const QtPackage &p) { return p.name; }),
+                 QStringList({"qt.qt6.6130.harmonyos_arm64_v8a",
+                              "qt.qt6.6120.harmonyos_arm64_v8a"}));
+
+        const QtPackage &package = packages.at(1);
+        QCOMPARE(package.qtVersion(), QString("6.12.0"));
+        QCOMPARE(package.target(), QString("harmonyos_arm64_v8a"));
+        QCOMPARE(package.archives,
+                 QStringList({"qtbase-HarmonyOS-ARM64.7z",
+                              "qtdeclarative-HarmonyOS-ARM64.7z"}));
+
+        const QUrl repository("https://example.com/qt6_6120");
+        QCOMPARE(updatesXmlUrl(repository).toString(),
+                 QString("https://example.com/qt6_6120/Updates.xml"));
+        QCOMPARE(archiveUrl(repository, package, package.archives.first()).toString(),
+                 QString("https://example.com/qt6_6120/qt.qt6.6120.harmonyos_arm64_v8a/"
+                         "6.12.0-0-202607072102qtbase-HarmonyOS-ARM64.7z"));
+    }
+
+private:
+    // The shape a repository publishes, with the entries that must not be taken for a
+    // Qt: the group package, the debug information, and another host's Qt.
+    static QByteArray updatesXml()
+    {
+        return R"(<?xml version="1.0"?>
+<Updates>
+ <ApplicationName>{AnyApplication}</ApplicationName>
+ <PackageUpdate>
+  <Name>qt.qt6.6120.harmonyos</Name>
+  <Version>6.12.0-0-202607072102</Version>
+  <DownloadableArchives/>
+ </PackageUpdate>
+ <PackageUpdate>
+  <Name>qt.qt6.6120.harmonyos_arm64_v8a</Name>
+  <DisplayName>Qt 6.12.0 for HarmonyOS ARM64-v8a</DisplayName>
+  <Version>6.12.0-0-202607072102</Version>
+  <DownloadableArchives>qtbase-HarmonyOS-ARM64.7z,
+   qtdeclarative-HarmonyOS-ARM64.7z</DownloadableArchives>
+ </PackageUpdate>
+ <PackageUpdate>
+  <Name>qt.qt6.6120.harmonyos_arm64_v8a.debug_information</Name>
+  <Version>6.12.0-0-202607072102</Version>
+  <DownloadableArchives>qtbase-HarmonyOS-ARM64-debug-symbols.7z</DownloadableArchives>
+ </PackageUpdate>
+ <PackageUpdate>
+  <Name>qt.qt6.6120.linux_gcc_64</Name>
+  <Version>6.12.0-0-202607072102</Version>
+  <DownloadableArchives>qtbase-Linux-RHEL_9_6-GCC-Linux-RHEL_9_6-X86_64.7z</DownloadableArchives>
+ </PackageUpdate>
+ <PackageUpdate>
+  <Name>qt.qt6.6130.harmonyos_arm64_v8a</Name>
+  <Version>6.13.0-0-202609151200</Version>
+  <DownloadableArchives>qtbase-HarmonyOS-ARM64.7z</DownloadableArchives>
+ </PackageUpdate>
+</Updates>
+)";
+    }
+};
+
+QObject *createHarmonyOsSdkTest()
+{
+    return new HarmonyOsSdkTest;
+}
+
+#endif // WITH_TESTS
+
 } // namespace HarmonyOs::Internal::Sdk
+
+#ifdef WITH_TESTS
+#include "harmonyossdk.moc"
+#endif

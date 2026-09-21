@@ -95,9 +95,13 @@
             Qt installer publishes one from Qt 6.12 on, and
             \uicontrol {Install Qt for HarmonyOS} installs it. A Qt for
             HarmonyOS that is there already but unknown to \QC is registered
-            instead. The button needs the maintenance tool that the Qt
-            installer manages its packages with, so it works in an installed
-            \QC only.
+            instead.
+        \li Where there is no Qt installer, which is the case for a \QC that
+            runs on a device, the same button downloads the Qt from the
+            repository that \uicontrol {Qt repository} names. That is the
+            directory an \c Updates.xml describing the Qt packages is
+            published in, and the newest Qt for HarmonyOS it offers is the
+            one installed.
     \endlist
 
     Once the SDK location is set, the compilers in it appear in
