@@ -1583,6 +1583,11 @@ bool BinEditorWidget::event(QEvent *e)
             e->accept();
             return true;
         case Qt::Key_Down: {
+            // Only a cursor that has nowhere left to go asks for the next
+            // range. One that is merely in a view scrolled to the bottom
+            // still moves down a line.
+            if (m_cursorPosition / m_bytesPerLine < (documentSize() - 1) / m_bytesPerLine)
+                break;
             const QScrollBar * const scrollBar = verticalScrollBar();
             const int maximum = scrollBar->maximum();
             if (maximum && scrollBar->value() >= maximum - 1) {
@@ -2600,6 +2605,33 @@ private slots:
         QCOMPARE(shortWidget.steppedCursorPosition(1), qint64(65));
         shortWidget.setCursorPosition(65);
         QCOMPARE(shortWidget.steppedCursorPosition(-1), qint64(60));
+    }
+
+    // A view scrolled to the end of the document is still a view the cursor
+    // can move down in: only a cursor on the last line asks the document for
+    // the range behind it.
+    void testCursorMovesDownAtEndOfDocument()
+    {
+        auto document = std::make_shared<BinEditorDocument>();
+        QVERIFY(document->setContents(QByteArray(4096, '\0')).has_value());
+        BinEditorWidget widget(document);
+        const qint64 bytesPerLine = widget.m_bytesPerLine;
+        const qint64 lastLine = (widget.documentSize() - 1) / bytesPerLine;
+        QVERIFY(widget.verticalScrollBar()->maximum() > 0);
+
+        const auto keyPress = [&widget](int key) {
+            QKeyEvent event(QEvent::KeyPress, key, Qt::NoModifier);
+            QCoreApplication::sendEvent(&widget, &event);
+            return widget.m_cursorPosition;
+        };
+
+        widget.setCursorPosition((lastLine - 1) * bytesPerLine);
+        widget.verticalScrollBar()->setValue(widget.verticalScrollBar()->maximum());
+        QCOMPARE(keyPress(Qt::Key_Down), lastLine * bytesPerLine);
+
+        // On the last line there is nothing below, and no handler that could
+        // provide it here, so the cursor stays.
+        QCOMPARE(keyPress(Qt::Key_Down), lastLine * bytesPerLine);
     }
 
     // The selection highlight otherwise follows the byte cells, so the gap
