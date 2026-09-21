@@ -41,6 +41,7 @@ public:
 
     static PyValue createValue(ULONG64 address, const PyType &type);
     static int tag(const std::string &typeName);
+    static void symbolGroupReleased(CIDebugSymbolGroup *symbolGroup);
 
 private:
     static void indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta);

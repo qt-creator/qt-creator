@@ -68,6 +68,7 @@ void CurrentSymbolGroup::releaseSymbolGroup()
 {
     if (!m_symbolGroup)
         return;
+    PyValue::symbolGroupReleased(m_symbolGroup);
     m_symbolGroup->Release();
     m_symbolGroup = nullptr;
 }
