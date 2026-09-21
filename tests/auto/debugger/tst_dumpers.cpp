@@ -1914,12 +1914,14 @@ void tst_Dumpers::dumper()
         cmds += "quit\n";
 
     } else if (m_debuggerEngine == CdbEngine) {
+        // cdb 10.0.26100 cannot start a debuggee named relative to its
+        // working directory: "Cannot execute 'doit.exe ', Win32 error 0n2".
         args << "-aqtcreatorcdbext.dll"
              << "-G"
              << "-xn"
              << "0x4000001f"
              << "-g"
-             << "doit.exe";
+             << QDir::toNativeSeparators(t->buildPath + "/doit.exe");
         cmds += ".symopt+0x8000\n"
                 "!qtcreatorcdbext.script sys.path.insert(1, '" + dumperDir + "')\n"
                 "!qtcreatorcdbext.script from cdbbridge import *\n"
