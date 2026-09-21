@@ -520,9 +520,13 @@ void GenericProposalWidget::updatePositionAndSize()
     if (!d->m_autoWidth)
         return;
 
+    static const int minimumVisibleChars = 40;
+
     const QSize &shint = d->m_completionListView->calculateSize();
     const int fw = frameWidth();
-    const int width = shint.width() + fw * 2 + 30;
+    const int minimumWidth =
+        d->m_completionListView->fontMetrics().averageCharWidth() * minimumVisibleChars;
+    const int width = qMax(shint.width(), minimumWidth) + fw * 2 + 30;
     const int height = shint.height() + fw * 2;
 
     // Determine the position, keeping the popup on the screen

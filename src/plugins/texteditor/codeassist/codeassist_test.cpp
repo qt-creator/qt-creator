@@ -57,6 +57,12 @@ public:
     Utils::FilePath m_filePath;
 };
 
+class PlainTestItem final : public TestProposalItem
+{
+public:
+    void apply(TextEditorWidget *, int) const final {}
+};
+
 class TestProposalWidget final : public GenericProposalWidget
 {
 public:
@@ -116,6 +122,7 @@ private slots:
     void initTestCase();
 
     void testFollowSymbolBigFile();
+    void testProposalWidthHasAMinimum();
 
     void cleanupTestCase();
 
@@ -161,6 +168,54 @@ void CodeAssistTests::testFollowSymbolBigFile()
     QVERIFY(spy.wait(1000));
     QVERIFY(item->m_openedEditor);
     m_editorsToClose << item->m_openedEditor;
+}
+
+static GenericProposalWidget *shownProposal(const QWidget *underlyingWidget,
+                                            const QStringList &texts)
+{
+    QList<AssistProposalItemInterface *> items;
+    for (const QString &text : texts) {
+        auto item = new PlainTestItem;
+        item->m_text = text;
+        item->m_detail.clear();
+        items.append(item);
+    }
+
+    GenericProposalModelPtr model(new GenericProposalModel);
+    model->loadContent(items);
+
+    auto widget = new GenericProposalWidget;
+    widget->setUnderlyingWidget(underlyingWidget);
+    widget->setDisplayRect(QRect(underlyingWidget->mapToGlobal(QPoint(0, 0)), QSize(1, 1)));
+    widget->setReason(ExplicitlyInvoked);
+    widget->setModel(model);
+    widget->showProposal({});
+    return widget;
+}
+
+static int proposalWidth(const QWidget *underlyingWidget, int itemLength)
+{
+    QStringList texts;
+    for (int i = 0; i < 20; ++i)
+        texts.append(QString(itemLength, QLatin1Char('a' + i % 26)));
+
+    GenericProposalWidget *widget = shownProposal(underlyingWidget, texts);
+    const int width = widget->width();
+    delete widget;
+    return width;
+}
+
+void CodeAssistTests::testProposalWidthHasAMinimum()
+{
+    const QWidget *underlying = m_editor->editorWidget();
+
+    // Below the minimum the width no longer follows the content.
+    const int tinyWidth = proposalWidth(underlying, 1);
+    QVERIFY(tinyWidth > 0);
+    QCOMPARE(proposalWidth(underlying, 10), tinyWidth);
+
+    // Above it the content still decides.
+    QVERIFY(proposalWidth(underlying, 60) > tinyWidth);
 }
 
 void CodeAssistTests::cleanupTestCase()
