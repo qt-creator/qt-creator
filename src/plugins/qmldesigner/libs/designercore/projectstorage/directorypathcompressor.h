@@ -48,7 +48,7 @@ public:
         return m_directoryPathIds;
     }
 
-    virtual void setCallback(std::function<void(const QmlDesigner::DirectoryPathIds &)> &&callback)
+    void setCallback(std::function<void(const QmlDesigner::DirectoryPathIds &)> &&callback)
     {
         NanotraceHR::Tracer tracer{"directory path compressor set callback",
                                    ProjectStorageTracing::category()};
@@ -67,7 +67,7 @@ public:
         });
     }
 
-    virtual void restartTimer()
+    void restartTimer()
     {
         NanotraceHR::Tracer tracer{"directory path compressor restart timer",
                                    ProjectStorageTracing::category()};
