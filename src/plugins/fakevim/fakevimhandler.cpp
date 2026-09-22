@@ -8843,7 +8843,7 @@ bool FakeVimHandler::Private::handleReflowSubMode(const Input &input)
     moveDown(count() - 1);
     const int pos = lastPositionInLine(cursorLine() + 1);
     setAnchorAndPosition(anc, pos);
-    setDotCommand(QString("%1%2").arg(count()).arg(keepCursor ? "gwgw" : "gqq"));
+    setDotCommand(QString("%1%2").arg(count()).arg(QLatin1String(keepCursor ? "gwgw" : "gqq")));
     finishMovement();
     g.submode = NoSubMode;
 
