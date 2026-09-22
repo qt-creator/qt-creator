@@ -10,6 +10,7 @@
 #include "androidtoolchain.h"
 #include "androidtr.h"
 #include "androidutils.h"
+#include "avdmanageroutputparser.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -940,9 +941,10 @@ static QStringList essentialsFromQtVersion(const QtVersion &version)
         if (ok) {
             QStringList builtWithPackages;
             builtWithPackages.append(ndkPackageMarker() + bw.ndkVersion.toString());
-            const QString apiVersion = QString::number(bw.apiVersion);
-            builtWithPackages.append(platformsPackageMarker() + "android-" + apiVersion);
-            builtWithPackages.append(essentialBuiltWithBuildToolsPackage(bw.apiVersion));
+            builtWithPackages.append(
+                platformsPackageMarker() + "android-" + bw.apiVersion.toString());
+            builtWithPackages.append(
+                essentialBuiltWithBuildToolsPackage(bw.apiVersion.majorVersion()));
 
             return builtWithPackages;
         }
@@ -978,11 +980,8 @@ QString optionalSystemImagePackage()
         return {};
 
     platforms.sort();
-    const QStringList platformBits = platforms.last().split('-');
-    if (platformBits.isEmpty())
-        return {};
-
-    const int apiLevel = platformBits.last().toInt();
+    const QString platformName = platforms.last().mid(platformsPackageMarker().size());
+    const int apiLevel = platformNameToApiLevel(platformName);
     if (apiLevel < 1)
         return {};
 
@@ -994,8 +993,8 @@ QString optionalSystemImagePackage()
     else if (hostArch == "arm")
         hostArch = ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A;
 
-    const auto imageName = QLatin1String("%1;android-%2;google_apis_playstore;%3")
-                               .arg(Constants::systemImagesPackageName).arg(apiLevel).arg(hostArch);
+    const auto imageName = QLatin1String("%1;%2;google_apis_playstore;%3")
+                               .arg(Constants::systemImagesPackageName, platformName, hostArch);
 
     const SdkPlatformList sdkPlatforms = sdkManager().filteredSdkPlatforms(
         apiLevel, AndroidSdkPackage::AnyValidState);

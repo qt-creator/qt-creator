@@ -186,13 +186,11 @@ AndroidQtVersion::BuiltWith AndroidQtVersion::builtWith(bool *ok) const
     return {};
 }
 
-static int versionFromPlatformString(const QString &string, bool *ok = nullptr)
+static QVersionNumber versionFromPlatformString(const QString &string)
 {
-    static const QRegularExpression regex("android-(\\d+)");
-    const QRegularExpressionMatch match = regex.match(string);
-    if (ok)
-        *ok = false;
-    return match.hasMatch() ? match.captured(1).toInt(ok) : -1;
+    // Platforms carry a minor API level (e.g. "android-36.0") since Android 16.
+    static const QRegularExpression regex(R"(^android-(\d+(?:\.\d+)*)$)");
+    return QVersionNumber::fromString(regex.match(string).captured(1));
 }
 
 static AndroidQtVersion::BuiltWith parseBuiltWith(const QJsonObject &jsonObject, bool *ok)
@@ -202,10 +200,8 @@ static AndroidQtVersion::BuiltWith parseBuiltWith(const QJsonObject &jsonObject,
     if (const QJsonValue builtWith = jsonObject.value("built_with"); !builtWith.isUndefined()) {
         if (const QJsonValue android = builtWith["android"]; !android.isUndefined()) {
             if (const QJsonValue apiVersion = android["api_version"]; !apiVersion.isUndefined()) {
-                const QString apiVersionString = apiVersion.toString();
-                const int v = versionFromPlatformString(apiVersionString, &validPlatformString);
-                if (validPlatformString)
-                    result.apiVersion = v;
+                result.apiVersion = versionFromPlatformString(apiVersion.toString());
+                validPlatformString = !result.apiVersion.isNull();
             }
             if (const QJsonValue ndk = android["ndk"]; !ndk.isUndefined()) {
                 if (const QJsonValue version = ndk["version"]; !version.isUndefined())
@@ -235,17 +231,18 @@ static AndroidQtVersion::BuiltWith parsePlatforms(const QJsonObject &jsonObject,
         const QString apiVersionString = target.value("api_version").toString();
         if (apiVersionString.isNull())
             continue;
-        bool apiVersionOK = false;
-        result.apiVersion = versionFromPlatformString(apiVersionString, &apiVersionOK);
-        if (!apiVersionOK)
+        result.apiVersion = versionFromPlatformString(apiVersionString);
+        if (result.apiVersion.isNull())
             continue;
         const QString ndkVersionString = target.value("ndk_version").toString();
         if (ndkVersionString.isNull())
             continue;
         result.ndkVersion = QVersionNumber::fromString(ndkVersionString);
         const QString androidPlatformString = target.value("android_platform").toString();
-        result.androidPlatform = versionFromPlatformString(androidPlatformString);
-        if (result.apiVersion != -1 && !result.ndkVersion.isNull()) {
+        const QVersionNumber androidPlatform = versionFromPlatformString(androidPlatformString);
+        if (!androidPlatform.isNull())
+            result.androidPlatform = androidPlatform.majorVersion();
+        if (!result.ndkVersion.isNull()) {
             if (ok)
                 *ok = true;
             break;
@@ -272,8 +269,9 @@ void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
     if (m_androidAbis.isEmpty())
         m_androidAbis = QStringList{evaluator->value(Constants::ANDROID_TARGET_ARCH)};
     const QString androidPlatform = evaluator->value("ANDROID_PLATFORM");
-    if (!androidPlatform.isEmpty())
-        m_minNdk = versionFromPlatformString(androidPlatform);
+    const QVersionNumber platformVersion = versionFromPlatformString(androidPlatform);
+    if (!platformVersion.isNull())
+        m_minNdk = platformVersion.majorVersion();
     QtVersion::parseMkSpec(evaluator);
 }
 
@@ -332,7 +330,7 @@ void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith_data()
     QTest::addColumn<QString>("modulesCoreJson");
     QTest::addColumn<bool>("hasInfo");
     QTest::addColumn<QVersionNumber>("ndkVersion");
-    QTest::addColumn<int>("apiVersion");
+    QTest::addColumn<QVersionNumber>("apiVersion");
 
     QTest::newRow("Android Qt 6.4")
         << R"({
@@ -348,7 +346,7 @@ void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith_data()
             })"
         << false
         << QVersionNumber()
-        << -1;
+        << QVersionNumber();
 
     QTest::newRow("Android Qt 6.5")
         << R"({
@@ -370,7 +368,7 @@ void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith_data()
             })"
         << true
         << QVersionNumber(25, 1, 8937393)
-        << 31;
+        << QVersionNumber(31);
 
     QTest::newRow("Android Qt 6.9")
         << R"({
@@ -397,14 +395,42 @@ void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith_data()
             })"
         << true
         << QVersionNumber(26, 1, 10909125)
-        << 34;
+        << QVersionNumber(34);
+
+    QTest::newRow("Android Qt 6.12 with a minor API level")
+        << R"({
+                "schema_version": 3,
+                "name": "Core",
+                "repository": "qtbase",
+                "version": "6.12.0",
+                "platforms": [
+                  {
+                    "name": "Android",
+                    "version": "1",
+                    "compiler_id": "Clang",
+                    "compiler_version": "21.0.0",
+                    "targets": [
+                      {
+                        "api_version": "android-37.0",
+                        "ndk_version": "27.2.12479018",
+                        "android_platform": "android-28",
+                        "architecture": "arm64",
+                        "abi": "arm64-little_endian-lp64"
+                      }
+                    ]
+                  }
+                ]
+            })"
+        << true
+        << QVersionNumber(27, 2, 12479018)
+        << QVersionNumber(37, 0);
 }
 
 void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith()
 {
     QFETCH(QString, modulesCoreJson);
     QFETCH(bool, hasInfo);
-    QFETCH(int, apiVersion);
+    QFETCH(QVersionNumber, apiVersion);
     QFETCH(QVersionNumber, ndkVersion);
 
     bool ok = false;
