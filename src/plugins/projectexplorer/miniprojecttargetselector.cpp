@@ -244,39 +244,28 @@ public:
     void setMaxCount(int maxCount);
     int maxCount();
 
-    int optimalWidth() const;
-    void setOptimalWidth(int width);
+    int optimalWidth();
 
     int padding();
 
     virtual GenericModel *theModel() const { return static_cast<GenericModel *>(model()); }
 
 protected:
-    void resetOptimalWidth()
+    // The width is not re-calculated here, but on demand in optimalWidth(), so that
+    // callers never see a value that predates the last model change.
+    void invalidateOptimalWidth()
     {
-        if (m_resetScheduled)
-            return;
-        m_resetScheduled = true;
-        QMetaObject::invokeMethod(this, &SelectorView::doResetOptimalWidth, Qt::QueuedConnection);
+        m_optimalWidthDirty = true;
+        updateGeometry();
     }
 
 private:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
-    void doResetOptimalWidth()
-    {
-        m_resetScheduled = false;
-        int width = 0;
-        QFontMetrics fn(font());
-        theModel()->forItemsAtLevel<1>([this, &width, &fn](const GenericItem *item) {
-            width = qMax(fn.horizontalAdvance(item->displayName()) + padding(), width);
-        });
-        setOptimalWidth(width);
-    }
 
     int m_maxCount = 0;
     int m_optimalWidth = 0;
-    bool m_resetScheduled = false;
+    bool m_optimalWidthDirty = true;
 };
 
 class ProjectListView : public SelectorView
@@ -291,11 +280,8 @@ public:
                                               [](Project *p) { return p; }));
         connect(ProjectManager::instance(), &ProjectManager::projectAdded,
                 this, [this, model](Project *project) {
-            const GenericItem *projectItem = model->addItemForObject(project);
-            QFontMetrics fn(font());
-            const int width = fn.horizontalAdvance(projectItem->displayName()) + padding();
-            if (width > optimalWidth())
-                setOptimalWidth(width);
+            model->addItemForObject(project);
+            invalidateOptimalWidth();
             restoreCurrentIndex();
         });
         connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveProject,
@@ -304,7 +290,7 @@ public:
             if (!item)
                 return;
             model->destroyItem(item);
-            resetOptimalWidth();
+            invalidateOptimalWidth();
         });
         connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
                 this, [this, model](const Project *project) {
@@ -314,7 +300,7 @@ public:
         });
         connect(model, &GenericModel::displayNameChanged, this, [this, model] {
             model->cachingSort();
-            resetOptimalWidth();
+            invalidateOptimalWidth();
             restoreCurrentIndex();
         });
         setModel(model);
@@ -349,7 +335,7 @@ public:
         connect(&m_updateTimer, &QTimer::timeout, this, [this, model] {
             const GenericItem * const activeItem = model->itemForIndex(toSource(currentIndex()));
             model->cachingSort();
-            resetOptimalWidth();
+            invalidateOptimalWidth();
             if (activeItem)
                 setCurrentIndex(fromSource(activeItem->index()));
         });
@@ -397,7 +383,7 @@ public:
     void setProjectConfigurations(const QObjectList &list, QObject *active)
     {
         theModel()->rebuild(list);
-        resetOptimalWidth();
+        invalidateOptimalWidth();
         setActiveProjectConfiguration(active);
     }
 
@@ -410,11 +396,8 @@ public:
     void addProjectConfiguration(QObject *pc)
     {
         const auto activeItem = theModel()->itemForIndex(toSource(currentIndex()));
-        const auto item = theModel()->addItemForObject(pc);
-        QFontMetrics fn(font());
-        const int width = fn.horizontalAdvance(item->displayName()) + padding();
-        if (width > optimalWidth())
-            setOptimalWidth(width);
+        theModel()->addItemForObject(pc);
+        invalidateOptimalWidth();
         if (activeItem)
             setCurrentIndex(fromSource(activeItem->index()));
     }
@@ -424,7 +407,7 @@ public:
         const auto activeItem = theModel()->itemForIndex(toSource(currentIndex()));
         if (GenericItem * const item = theModel()->itemForObject(pc)) {
             theModel()->destroyItem(item);
-            resetOptimalWidth();
+            invalidateOptimalWidth();
             if (activeItem && activeItem != item)
                 setCurrentIndex(fromSource(activeItem->index()));
         }
@@ -602,17 +585,21 @@ int SelectorView::maxCount()
     return m_maxCount;
 }
 
-int SelectorView::optimalWidth() const
+int SelectorView::optimalWidth()
 {
-    return m_optimalWidth;
-}
+    if (!m_optimalWidthDirty)
+        return m_optimalWidth;
 
-void SelectorView::setOptimalWidth(int width)
-{
-    m_optimalWidth = width;
+    m_optimalWidthDirty = false;
+    int width = 0;
+    const QFontMetrics fn(font());
+    theModel()->forItemsAtLevel<1>([this, &width, &fn](const GenericItem *item) {
+        width = qMax(fn.horizontalAdvance(item->displayName()) + padding(), width);
+    });
     if (model()->columnCount() == 2)
-        m_optimalWidth += RunColumnWidth;
-    updateGeometry();
+        width += RunColumnWidth;
+    m_optimalWidth = width;
+    return m_optimalWidth;
 }
 
 int SelectorView::padding()
@@ -824,6 +811,13 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 
 bool MiniProjectTargetSelector::event(QEvent *event)
 {
+    // Our child widgets are not managed by a layout, so we have to act on their
+    // geometry change requests ourselves.
+    if (event->type() == QEvent::LayoutRequest) {
+        doLayout();
+        return true;
+    }
+
     if (event->type() == QEvent::ShortcutOverride
         && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
         event->accept();
