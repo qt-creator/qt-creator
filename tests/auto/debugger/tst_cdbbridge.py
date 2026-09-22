@@ -429,7 +429,7 @@ expect('a string read from its address', idDumper.reported, [('string at', 0x400
 # pointing at them. The addresses are what couldBePointer() lets through.
 MODULE = 0x7ff600000000
 HEAP = 0x20000000
-regions = {0x3000: memory, MODULE: bytearray(0x3000), HEAP: bytearray(0x100)}
+regions = {0x3000: memory, MODULE: bytearray(0x3000), HEAP: bytearray(0x200)}
 
 
 def read_memory(address, size):
@@ -570,6 +570,39 @@ dumper.value_members(skewed, True)
 expect('a table the object does not hold at offset 0 is not recorded',
        dumper.type_fields_cache.get(skewed.typeid, None), None)
 expect('and the type is not tried again', skewed.typeid in dumper.type_layout_rejected, True)
+
+print('')
+print('--- a static member is recorded in the layout at its own address ---')
+regions[MODULE][0x2800:0x2804] = (7).to_bytes(4, 'little')
+heap[0x100:0x104] = (3).to_bytes(4, 'little')
+heap[0x110:0x114] = (5).to_bytes(4, 'little')
+symbolsAdded.clear()
+statics = dumper.fromNativeValue(FakeValue('s', FakeType('Statics', size=4), address=HEAP + 0x100, members=[
+    FakeValue('count', intType, address=HEAP + 0x100, text='0n3'),
+    FakeValue('instances', intType, address=MODULE + 0x2800, text='0n7')]))
+expect('the first value is listed from the symbol group',
+       [(m.name, dumper.value_as_integer(m)) for m in dumper.value_members(statics, True)],
+       [('count', 3), ('instances', 7)])
+fields = dumper.type_fields_cache.get(statics.typeid, None)
+expect('the layout has the member by offset and the static by address',
+       [(f.name, f.bitpos, f.address) for f in fields] if fields else None,
+       [('count', 0, None), ('instances', None, MODULE + 0x2800)])
+expect('the next value is read from memory, the static from where it lives',
+       [(m.name, dumper.value_as_integer(m))
+        for m in dumper.value_members(dumper.createValue(HEAP + 0x110, 'Statics'), True)],
+       [('count', 5), ('instances', 7)])
+expect('without a symbol added for it', symbolsAdded, [])
+referring = dumper.fromNativeValue(FakeValue('r', FakeType('Referring', size=8), address=HEAP + 0x120, members=[
+    FakeValue('target', FakeType('int &', TypeCode.Reference, 4), address=HEAP + 0x100, text='0n3')]))
+dumper.value_members(referring, True)
+expect('a reference member, outside the object as well, is not',
+       dumper.type_fields_cache.get(referring.typeid, None), None)
+virtually = dumper.fromNativeValue(FakeValue('v', FakeType('Middle', size=8), address=HEAP + 0x130, members=[
+    FakeValue('Top', FakeType('Top', size=4), address=HEAP + 0x150, text='0n1'),
+    FakeValue('count', intType, address=HEAP + 0x130, text='0n3')]))
+dumper.value_members(virtually, True)
+expect('nor is a virtual base, which the complete object places',
+       dumper.type_fields_cache.get(virtually.typeid, None), None)
 
 print('')
 print('--- a value without an address goes to the symbol group ---')

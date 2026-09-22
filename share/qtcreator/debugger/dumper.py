@@ -3849,16 +3849,20 @@ typename))
             return False
 
     class Field:
-        __slots__ = ['name', 'typeid', 'bitsize', 'bitpos', 'is_struct', 'is_artificial', 'is_base_class']
+        __slots__ = ['name', 'typeid', 'bitsize', 'bitpos', 'is_struct', 'is_artificial',
+                     'is_base_class', 'address']
 
         def __init__(self, name=None, typeid=None, bitsize=None, bitpos=None,
-                    extractor=None, is_struct=False, is_artificial=False, is_base_class=False):
+                    extractor=None, is_struct=False, is_artificial=False, is_base_class=False,
+                    address=None):
             self.name = name
             self.typeid = typeid
             self.bitsize = bitsize
             self.bitpos = bitpos
             self.is_struct = is_struct
             self.is_base_class = is_base_class
+            # Where a static member lives, instead of an offset into the object.
+            self.address = address
 
 
     def ptrCode(self):
@@ -4425,6 +4429,9 @@ typename))
         val.typeid = field.typeid
         val.name = field.name
         val.isBaseClass = field.is_base_class
+        if field.address is not None:
+            val.laddress = field.address
+            return val
         #self.warn('CREATING %s WITH DATA %s' % (val.type.name, self.hexencode(data)))
         field_offset = field.bitpos // 8
         if value.laddress is not None:

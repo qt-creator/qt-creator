@@ -356,7 +356,9 @@ class Dumper(DumperBase):
         # left to the symbol group as well - the memory path has nothing to show
         # for it - except an enum: its text carries the number the engine
         # printed, which is checked the same way, and from memory its display is
-        # a cast expression per enumerator value, asked once.
+        # a cast expression per enumerator value, asked once. A static member
+        # lies outside the object at an address all values of the type share,
+        # which is what the layout records for it.
         typeid = value.typeid
         if typeid in self.type_fields_cache or typeid in self.type_layout_rejected:
             return
@@ -389,10 +391,21 @@ class Dumper(DumperBase):
                 continue
             offset = member.laddress - address
             byte_size = (member.size + 7) // 8
-            if (member.name.startswith('__vtcast_')
-                    or offset < 0 or offset + byte_size > size):
+            if member.name.startswith('__vtcast_') or member.name.startswith('__vbptr'):
                 self.type_layout_rejected.add(typeid)
                 return
+            if offset < 0 or offset + byte_size > size:
+                # Outside the object: a static member, which every value of the
+                # type shares - or a virtual base, placed by the complete object,
+                # or a reference, whose symbol has the address of what it refers
+                # to; those two belong to the one value.
+                if (member.isBaseClass or self.type_code(member.typeid)
+                        in (TypeCode.Reference, TypeCode.RValueReference)):
+                    self.type_layout_rejected.add(typeid)
+                    return
+                fields.append(self.Field(name=member.name, typeid=member.typeid,
+                                         bitsize=member.size, address=member.laddress))
+                continue
             if not member.isBaseClass:
                 if any(offset < end and start < offset + byte_size for (start, end) in occupied):
                     self.type_layout_rejected.add(typeid)
