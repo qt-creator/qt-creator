@@ -591,6 +591,10 @@ expect('the next value is read from memory, the static from where it lives',
        [(m.name, dumper.value_as_integer(m))
         for m in dumper.value_members(dumper.createValue(HEAP + 0x110, 'Statics'), True)],
        [('count', 5), ('instances', 7)])
+expect('with the sizes the symbol group gives them',
+       [(m.name, m.size)
+        for m in dumper.value_members(dumper.createValue(HEAP + 0x110, 'Statics'), True)],
+       [('count', 32), ('instances', 32)])
 expect('without a symbol added for it', symbolsAdded, [])
 referring = dumper.fromNativeValue(FakeValue('r', FakeType('Referring', size=8), address=HEAP + 0x120, members=[
     FakeValue('target', FakeType('int &', TypeCode.Reference, 4), address=HEAP + 0x100, text='0n3')]))

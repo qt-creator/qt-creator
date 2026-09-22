@@ -4429,6 +4429,7 @@ typename))
         val.typeid = field.typeid
         val.name = field.name
         val.isBaseClass = field.is_base_class
+        val.size = field.bitsize
         if field.address is not None:
             val.laddress = field.address
             return val
