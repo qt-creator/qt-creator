@@ -66,11 +66,11 @@ public:
         m_cursorBlinkTimer.setInterval(750ms);
         m_cursorBlinkTimer.setSingleShot(false);
 
+        // Coarse rounds up to the ~15.6ms Windows tick, shifts 5% elsewhere.
         m_flushDelayTimer.setSingleShot(true);
-        m_flushDelayTimer.setInterval(minRefreshInterval);
+        m_flushDelayTimer.setTimerType(Qt::PreciseTimer);
 
         m_updateTimer.setSingleShot(true);
-        // Coarse rounds up to the ~15.6ms Windows tick, shifts 5% elsewhere.
         m_updateTimer.setTimerType(Qt::PreciseTimer);
 
         m_scrollTimer.setSingleShot(false);
