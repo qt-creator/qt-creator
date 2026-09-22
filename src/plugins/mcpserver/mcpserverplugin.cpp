@@ -45,10 +45,10 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
-#include <QTableView>
 #include <QTcpServer>
 #include <QThread>
 #include <QToolTip>
+#include <QTreeView>
 
 #include <QtTaskTree/QParallelTaskTreeRunner>
 
@@ -130,12 +130,12 @@ public:
     StringAspect customAddress{this};
 };
 
-// Calls resizeRowsToContents() deferred whenever the viewport is resized,
-// so row heights are computed after the columns have their final widths.
-class ResizeRowsOnViewportResize : public QObject
+// Calls doItemsLayout() deferred whenever the viewport is resized, so row
+// heights are computed after the columns have their final widths.
+class RelayoutOnViewportResize : public QObject
 {
 public:
-    explicit ResizeRowsOnViewportResize(QTableView *view)
+    explicit RelayoutOnViewportResize(QTreeView *view)
         : QObject(view)
         , m_view(view)
     {}
@@ -144,12 +144,12 @@ protected:
     bool eventFilter(QObject *, QEvent *e) override
     {
         if (e->type() == QEvent::Resize)
-            QMetaObject::invokeMethod(m_view, &QTableView::resizeRowsToContents, Qt::QueuedConnection);
+            QMetaObject::invokeMethod(m_view, &QTreeView::doItemsLayout, Qt::QueuedConnection);
         return false;
     }
 
 private:
-    QTableView *m_view;
+    QTreeView *m_view;
 };
 
 class PaddedItemDelegate : public QStyledItemDelegate
@@ -165,6 +165,9 @@ public:
     }
 };
 
+// Matches a tool against its name, title and description. A group row survives
+// the filter as long as one of its tools does, so a match is never hidden
+// behind a filtered-out parent.
 class ToolFilterProxyModel : public QSortFilterProxyModel
 {
 public:
@@ -176,9 +179,22 @@ protected:
         const QRegularExpression re = filterRegularExpression();
         if (!re.isValid() || re.pattern().isEmpty())
             return true;
+
         const QAbstractItemModel *m = sourceModel();
-        const QString name = m->index(sourceRow, 0, sourceParent).data(Qt::UserRole).toString();
         const QString title = m->index(sourceRow, 1, sourceParent).data().toString();
+
+        if (!sourceParent.isValid()) {
+            if (title.contains(re))
+                return true;
+            const QModelIndex group = m->index(sourceRow, 0, sourceParent);
+            for (int row = 0, count = m->rowCount(group); row < count; ++row) {
+                if (filterAcceptsRow(row, group))
+                    return true;
+            }
+            return false;
+        }
+
+        const QString name = m->index(sourceRow, 0, sourceParent).data(Qt::UserRole).toString();
         const QString desc = m->index(sourceRow, 2, sourceParent).data().toString();
         return name.contains(re) || title.contains(re) || desc.contains(re);
     }
@@ -244,6 +260,71 @@ public:
     }
 };
 
+// The check states live in the tool aspects; the model only mirrors them. A
+// click in the view arrives in setData(), while mirroring a changed aspect uses
+// QStandardItem::setCheckState(), which does not pass through setData() - so a
+// mirrored state cannot be mistaken for another click.
+class ToolTreeModel : public QStandardItemModel
+{
+    Q_OBJECT
+
+public:
+    using QStandardItemModel::QStandardItemModel;
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override
+    {
+        if (index.column() == 0 && role == Qt::CheckStateRole) {
+            emit checkStateClicked(index, value.toInt() == Qt::Checked);
+            return true;
+        }
+        return QStandardItemModel::setData(index, value, role);
+    }
+
+signals:
+    void checkStateClicked(const QModelIndex &index, bool checked);
+};
+
+// A tool name leads with the namespace its author chose - "debugger_start",
+// "fs_read_text" - and that namespace is the group. The prefixes rejected below
+// are bare verbs, so those names declare no namespace and their tools share a
+// catch-all group instead.
+static QString toolGroup(const QString &toolName)
+{
+    const qsizetype separator = toolName.indexOf('_');
+    if (separator <= 0)
+        return {};
+    const QStringView prefix = QStringView{toolName}.left(separator);
+    if (prefix == u"get" || prefix == u"set" || prefix == u"list" || prefix == u"register"
+        || prefix == u"setup")
+        return {};
+    return prefix.toString();
+}
+
+static QString toolGroupTitle(const QString &group)
+{
+    if (group.isEmpty())
+        return Tr::tr("Other");
+
+    // Only the prefixes that do not read as a title on their own are listed.
+    const QHash<QString, QString> titles{
+        {"app", Tr::tr("Application")},
+        {"cmake", Tr::tr("CMake")},
+        {"cpp", Tr::tr("C++")},
+        {"device", Tr::tr("Devices")},
+        {"fakevim", Tr::tr("FakeVim")},
+        {"fs", Tr::tr("File System")},
+        {"kit", Tr::tr("Kits")},
+        {"lsp", Tr::tr("Language Servers")},
+        {"project", Tr::tr("Projects")},
+        {"qt", Tr::tr("Qt Versions")},
+        {"session", Tr::tr("Sessions")},
+        {"test", Tr::tr("Tests")},
+        {"ui", Tr::tr("User Interface")},
+    };
+    const QString title = titles.value(group);
+    return title.isEmpty() ? group.at(0).toUpper() + group.mid(1) : title;
+}
+
 class ToolEnablerAspect : public AspectContainer
 {
 public:
@@ -288,35 +369,116 @@ private:
     {
         using namespace Layouting;
 
-        auto *view = new QTableView;
-        auto *model = new QStandardItemModel(0, 3, view);
+        QMap<QString, QStringList> toolsByGroup;
+        for (const QString &name : Utils::sorted(m_toolAspects.keys()))
+            toolsByGroup[toolGroup(name)].append(name);
+
+        // The catch-all group's empty key sorts first in the map, but it belongs
+        // after the named groups.
+        QStringList groups = toolsByGroup.keys();
+        if (groups.removeOne(QString{}))
+            groups.append(QString{});
+
+        auto *view = new QTreeView;
+        auto *model = new ToolTreeModel(view);
+        model->setColumnCount(3);
         model->setHorizontalHeaderLabels({{}, Tr::tr("Name"), Tr::tr("Description")});
 
-        for (const QString &name : Utils::sorted(m_toolAspects.keys())) {
-            const Schema::Tool &tool = m_toolMetadata[name];
-            BoolAspect *aspect = m_toolAspects[name];
+        QHash<QString, QStandardItem *> groupCheckItems;
+        QHash<QString, QStandardItem *> toolCheckItems;
 
-            auto *checkItem = new QStandardItem;
-            checkItem->setCheckable(true);
-            checkItem->setCheckState(aspect->volatileValue() ? Qt::Checked : Qt::Unchecked);
-            checkItem->setEditable(false);
-            checkItem->setData(name, Qt::UserRole);
-            checkItem->setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
-            checkItem->setToolTip(Tr::tr("Enable or disable this tool for MCP clients."));
+        for (const QString &group : groups) {
+            const QStringList tools = toolsByGroup.value(group);
 
-            auto *nameItem = new QStandardItem(tool.title().value_or(name));
-            nameItem->setEditable(false);
-            nameItem->setData(name, Qt::UserRole);
+            auto *groupCheckItem = new QStandardItem;
+            groupCheckItem->setCheckable(true);
+            groupCheckItem->setEditable(false);
+            groupCheckItem->setData(group, Qt::UserRole);
+            groupCheckItem->setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
+            groupCheckItem->setToolTip(Tr::tr("Enable or disable every tool in this group."));
 
-            auto *descItem = new QStandardItem(tool.description().value_or(QString{}));
-            descItem->setEditable(false);
+            auto *groupNameItem = new QStandardItem(toolGroupTitle(group));
+            groupNameItem->setEditable(false);
 
-            model->appendRow({checkItem, nameItem, descItem});
+            auto *groupCountItem = new QStandardItem;
+            groupCountItem->setEditable(false);
 
-            QObject::connect(aspect, &BaseAspect::volatileValueChanged, view, [aspect, checkItem] {
-                checkItem->setCheckState(aspect->volatileValue() ? Qt::Checked : Qt::Unchecked);
-            });
+            model->appendRow({groupCheckItem, groupNameItem, groupCountItem});
+            groupCheckItems.insert(group, groupCheckItem);
+
+            for (const QString &name : tools) {
+                const Schema::Tool &tool = m_toolMetadata[name];
+
+                auto *checkItem = new QStandardItem;
+                checkItem->setCheckable(true);
+                checkItem->setEditable(false);
+                checkItem->setData(name, Qt::UserRole);
+                checkItem->setTextAlignment(Qt::AlignTop | Qt::AlignHCenter);
+                checkItem->setToolTip(Tr::tr("Enable or disable this tool for MCP clients."));
+
+                auto *nameItem = new QStandardItem(tool.title().value_or(name));
+                nameItem->setEditable(false);
+                nameItem->setData(name, Qt::UserRole);
+
+                auto *descItem = new QStandardItem(tool.description().value_or(QString{}));
+                descItem->setEditable(false);
+
+                groupCheckItem->appendRow({checkItem, nameItem, descItem});
+                toolCheckItems.insert(name, checkItem);
+            }
         }
+
+        auto updateGroup = [this, model, toolsByGroup, groupCheckItems](const QString &group) {
+            const QStringList tools = toolsByGroup.value(group);
+            qsizetype enabled = 0;
+            for (const QString &name : tools) {
+                if (m_toolAspects.value(name)->volatileValue())
+                    ++enabled;
+            }
+            Qt::CheckState state = Qt::PartiallyChecked;
+            if (enabled == 0)
+                state = Qt::Unchecked;
+            else if (enabled == tools.size())
+                state = Qt::Checked;
+            QStandardItem *checkItem = groupCheckItems.value(group);
+            checkItem->setCheckState(state);
+            model->item(checkItem->row(), 2)
+                ->setText(Tr::tr("%1 of %2 enabled").arg(enabled).arg(tools.size()));
+        };
+
+        for (auto it = toolCheckItems.cbegin(); it != toolCheckItems.cend(); ++it) {
+            const QString name = it.key();
+            QStandardItem *checkItem = it.value();
+            BoolAspect *aspect = m_toolAspects.value(name);
+            checkItem->setCheckState(aspect->volatileValue() ? Qt::Checked : Qt::Unchecked);
+            QObject::connect(
+                aspect,
+                &BaseAspect::volatileValueChanged,
+                view,
+                [aspect, checkItem, name, updateGroup] {
+                    checkItem->setCheckState(aspect->volatileValue() ? Qt::Checked : Qt::Unchecked);
+                    updateGroup(toolGroup(name));
+                });
+        }
+
+        for (const QString &group : groups)
+            updateGroup(group);
+
+        // The check item of a group row carries its group, that of a tool row
+        // its tool, so one handler covers both.
+        QObject::connect(
+            model,
+            &ToolTreeModel::checkStateClicked,
+            view,
+            [this, toolsByGroup](const QModelIndex &index, bool checked) {
+                const QString key = index.data(Qt::UserRole).toString();
+                const QStringList tools = index.parent().isValid() ? QStringList{key}
+                                                                   : toolsByGroup.value(key);
+                for (const QString &name : tools) {
+                    if (BoolAspect *aspect = m_toolAspects.value(name))
+                        aspect->setVolatileValue(checked);
+                }
+            });
 
         auto *proxy = new ToolFilterProxyModel(view);
         proxy->setSourceModel(model);
@@ -331,32 +493,32 @@ private:
         view->setWordWrap(true);
         view->setSelectionBehavior(QAbstractItemView::SelectRows);
         view->setSelectionMode(QAbstractItemView::SingleSelection);
-        view->verticalHeader()->setVisible(false);
-        view->horizontalHeader()->setStretchLastSection(true);
-        view->setShowGrid(false);
-        view->resizeColumnToContents(0);
-        view->resizeColumnToContents(1);
+        view->header()->setStretchLastSection(true);
         view->setItemDelegate(new PaddedItemDelegate(view));
         view->setItemDelegateForColumn(1, new ToolNameDelegate(view));
-        view->viewport()->installEventFilter(new ResizeRowsOnViewportResize(view));
+        view->viewport()->installEventFilter(new RelayoutOnViewportResize(view));
         view->setAlternatingRowColors(true);
 
-        QObject::connect(filterEdit, &QLineEdit::textChanged, proxy, [proxy, view](const QString &text) {
-            proxy->setFilterFixedString(text);
-            QMetaObject::invokeMethod(view, &QTableView::resizeRowsToContents, Qt::QueuedConnection);
-        });
+        // Measure the columns against the tool rows, not just the group titles
+        // they would be showing while collapsed.
+        view->expandAll();
+        view->resizeColumnToContents(0);
+        view->resizeColumnToContents(1);
+        view->collapseAll();
 
+        // A filter is how a single tool gets found, so its matches are shown
+        // expanded. Without one the groups are the point, and stay closed.
         QObject::connect(
-            model,
-            &QStandardItemModel::dataChanged,
-            view,
-            [this, model](const QModelIndex &topLeft, const QModelIndex &, const QList<int> &roles) {
-                if (topLeft.column() != 0 || !roles.contains(Qt::CheckStateRole))
-                    return;
-                const QString name = model->data(topLeft, Qt::UserRole).toString();
-                if (auto *aspect = m_toolAspects.value(name))
-                    aspect->setVolatileValue(
-                        model->data(topLeft, Qt::CheckStateRole).toInt() == Qt::Checked);
+            filterEdit,
+            &QLineEdit::textChanged,
+            proxy,
+            [proxy, view](const QString &text) {
+                proxy->setFilterFixedString(text);
+                if (text.isEmpty())
+                    view->collapseAll();
+                else
+                    view->expandAll();
+                QMetaObject::invokeMethod(view, &QTreeView::doItemsLayout, Qt::QueuedConnection);
             });
 
         const Core::SettingsTransfer transfer{

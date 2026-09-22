@@ -84,8 +84,11 @@
     \section1 Select the tools to offer
 
     The list at the bottom of the page holds every tool the \QC MCP server can
-    offer. Clear the check box of a tool to hide it from MCP clients. To find a
-    tool in the list, enter part of its name or description in the filter field.
+    offer, grouped by the area that each tool belongs to. Clear the check box of
+    a tool to hide it from MCP clients, or that of a group to hide all of its
+    tools at once. A group check box shows a partial state while only some of
+    its tools are offered. To find a tool in the list, enter part of its name or
+    description in the filter field.
 
     To reuse a selection elsewhere, for example on another computer, select
     \uicontrol Export and save it as a file. Select \uicontrol Import to read
