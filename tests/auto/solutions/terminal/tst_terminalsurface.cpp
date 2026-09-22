@@ -930,6 +930,23 @@ private slots:
         }
     }
 
+    void shrinkingOnTheAltscreenKeepsThePrimaryScrollback()
+    {
+        initSurface({20, 6});
+        const QString expected = write({"L0", "L1", "L2", "L3", "L4"});
+
+        m_surface->dataFromPty("\x1b[?1049h");
+        // An application on the altscreen fills the rows the primary screen is
+        // about to push to its scrollback
+        m_surface->dataFromPty("\x1b[HA0\r\nA1\r\nA2");
+        resizeTo({20, 3});
+        m_surface->dataFromPty("\x1b[?1049l");
+
+        // The lines that leave the primary screen are its own, not the ones
+        // standing in the same rows of the buffer that happens to be shown
+        QCOMPARE(surfaceText(), expected);
+    }
+
     void aCellFilledWithCombiningMarksIsNotReadPastItsEnd()
     {
         initSurface({20, 4});
