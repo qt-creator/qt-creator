@@ -10197,9 +10197,6 @@ void tst_backends::insertsAQmlBreakpointWhileTheInferiorRuns()
     if (auto result = checkCapability(backend, Debugger::AdditionalQmlStackCapability); !result)
         QSKIP(qPrintable(result.error()));
 
-    if (backend == Backend::Gdb)
-        QSKIP("This test is flaky for Gdb backend");
-
 #ifndef QMLSTACK_INFERIOR_EXECUTABLE
     QSKIP("Qt::Quick not available when this test binary was configured.");
 #else
@@ -10250,6 +10247,16 @@ void tst_backends::insertsAQmlBreakpointWhileTheInferiorRuns()
                              || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
                              s_qmlStartupTimeout);
     QVERIFY(debuggerBackend->contains(InferiorEvent::SpontaneousStop));
+
+    // The file runs the line twice: once from Component.onCompleted and once
+    // from the call it queues there. Take the second one here, while the
+    // breakpoint is still armed, so that the line is behind the inferior for
+    // good and a stop reported further down can only be the backend's own.
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "the queued second call never ran into the QML breakpoint",
+                              s_qmlStartupTimeout);
 
     // Take it away again so continuing does not run straight back into it.
     BreakpointChangeRequest removal;
