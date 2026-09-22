@@ -53,6 +53,7 @@
 #include <webassembly/webassemblyconstants.h>
 
 #include <QApplication>
+#include <QCryptographicHash>
 #include <QLoggingCategory>
 #include <QUuid>
 #include <QtTaskTree/QConditional>
@@ -224,13 +225,63 @@ static QString uniqueCMakeToolDisplayName(CMakeTool &tool)
     return Utils::makeUniquelyNumbered(baseName, existingNames);
 }
 
-static std::unique_ptr<TemporaryFilePath> ensureDir(const FilePath &path, const QString &pattern)
+static const char probeStampName[] = "qtc-probe-stamp";
+
+// A probe directory outlives the session that created it, so that opening the project again
+// does not pay for compiler and Qt detection a second time: CMake reconfigures a cache it
+// already wrote in a fraction of the time it took to write it. That cache belongs to the
+// input that produced it, though, which is what the stamp records. The environment counts as
+// input: it decides which compiler CMake finds, and CMake does not look for one again once
+// its cache holds an answer. So does the content of a toolchain file, which can be rewritten
+// without its path changing.
+static QByteArray probeStamp(
+    const FilePath &cmakeExecutable,
+    const QStringList &arguments,
+    const Environment &environment,
+    const QByteArray &script,
+    const FilePaths &inputFiles = {})
 {
-    QTC_CHECK_RESULT(path.ensureWritableDir());
-    Result<std::unique_ptr<TemporaryFilePath>> tempDir
-        = TemporaryFilePath::create(path.pathAppended(pattern), true);
-    QTC_ASSERT_RESULT(tempDir, return nullptr);
-    return std::move(*tempDir);
+    QCryptographicHash hash(QCryptographicHash::Sha1);
+    hash.addData(cmakeExecutable.toFSPathString().toUtf8());
+    for (const QString &argument : arguments) {
+        hash.addData(argument.toUtf8());
+        hash.addData("\n");
+    }
+    for (const QString &variable : environment.toStringList()) {
+        hash.addData(variable.toUtf8());
+        hash.addData("\n");
+    }
+    hash.addData(script);
+    for (const FilePath &inputFile : inputFiles) {
+        if (!inputFile.isEmpty())
+            hash.addData(inputFile.fileContents().value_or(QByteArray()));
+    }
+    return hash.result().toHex();
+}
+
+// A preset that was renamed or removed leaves its probe directory behind.
+static void removeStaleProbeDirectories(const FilePath &probeDir, const FilePaths &inUse)
+{
+    const FilePaths entries = probeDir.dirEntries(
+        DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
+    for (const FilePath &entry : entries) {
+        if (!inUse.contains(entry)) {
+            QTC_CHECK_RESULT(entry.removeRecursively());
+        }
+    }
+}
+
+// The stamp is written once the probe has succeeded and lives in the directory it describes,
+// so that a probe which failed, or which ran with different input, starts from an empty one.
+// Reconfiguring a directory that answers a different question would produce a kit from the
+// wrong probe, so a directory that resists removal fails the probe instead of being reused.
+static Result<> discardUnusableProbe(const FilePath &probeDirectory, const QByteArray &stamp)
+{
+    const FilePath stampFile = probeDirectory / probeStampName;
+    if (stampFile.fileContents().value_or(QByteArray()) == stamp)
+        return ResultOk;
+
+    return probeDirectory.removeRecursively();
 }
 
 // CMakeProjectImporter
@@ -264,8 +315,8 @@ static void persistTemporaryCMake(Kit *k, const QVariantList &vl)
 CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const CMakeProject *project)
     : QtProjectImporter(path)
     , m_project(project)
-    , m_presetsTempDir(ensureDir(path.parentDir() / ProjectExplorer::Constants::PROJECT_QTC_DIR,
-                                 "qtc-cmake-presets-XXXXXXXX"))
+    , m_presetsProbeDir(
+          path.parentDir() / ProjectExplorer::Constants::PROJECT_QTC_DIR / "cmake-presets")
 {
     useTemporaryKitAspect(CMakeKitAspect::id(), &cleanupTemporaryCMake, &persistTemporaryCMake);
 }
@@ -463,12 +514,19 @@ FilePaths CMakeProjectImporter::presetCandidates()
                 continue;
         }
 
-        if (!m_presetsTempDir)
-            return candidates;
-
-        const FilePath configPresetDir = m_presetsTempDir->filePath()
+        const FilePath configPresetDir = m_presetsProbeDir
                                          / presetNameToFileName(configPreset.name);
-        configPresetDir.createDir();
+        const Result<> presetDirCreated = configPresetDir.ensureWritableDir();
+        if (!presetDirCreated) {
+            // Returning here would drop the presets that follow, and removeStaleProbeDirectories()
+            // would then delete their probe directories as no longer used.
+            TaskHub::addTask<BuildSystemTask>(
+                Task::TaskType::DisruptingError,
+                Tr::tr("Cannot create the probe directory of CMake Preset \"%1\": %2")
+                    .arg(configPreset.displayName.value_or(configPreset.name),
+                         presetDirCreated.error()));
+            continue;
+        }
         candidates << configPresetDir;
 
         // If the binaryFilePath exists, do not try to import the existing build, so that
@@ -978,6 +1036,8 @@ struct InternalStorage
     FilePath qmakePath;
     QString cmakePrefixPath;
     FilePath qtcQMakeProbeDir;
+    QByteArray compilerProbeStamp;
+    QByteArray qmakeProbeStamp;
 };
 
 static SetupResult setupCompilerProcess(Process &process, InternalStorage &storage,
@@ -1125,6 +1185,23 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
             }
         }
 
+        storage.compilerProbeStamp = probeStamp(
+            cmakeExecutable,
+            args,
+            env,
+            s_presetCompilerProbeCMakeScript,
+            {cache.filePathValueOf("CMAKE_TOOLCHAIN_FILE")});
+        const Result<> probeDiscarded
+            = discardUnusableProbe(presetPath / "build", storage.compilerProbeStamp);
+        if (!probeDiscarded) {
+            TaskHub::addTask<BuildSystemTask>(
+                Task::TaskType::DisruptingError,
+                Tr::tr("Cannot discard the stale compiler probe of CMake Preset \"%1\": %2")
+                    .arg(configurePreset.displayName.value_or(configurePreset.name),
+                         probeDiscarded.error()));
+            return SetupResult::StopWithError;
+        }
+
         qCDebug(cmInputLog) << "CMake probing for compilers: " << cmakeExecutable.toUserOutput()
                             << args;
         process.setCommand({cmakeExecutable, args});
@@ -1216,11 +1293,6 @@ static SetupResult setupQMakeProcess(
     // Run a CMake project that would do qmake probing
     FilePath &qtcQMakeProbeDir = storage.qtcQMakeProbeDir;
     qtcQMakeProbeDir = presetPath.pathAppended("qtc-cmake-qmake-probe");
-    qtcQMakeProbeDir.ensureWritableDir();
-
-    const FilePath cmakeListTxt(qtcQMakeProbeDir.pathAppended(Constants::CMAKE_LISTS_TXT));
-
-    cmakeListTxt.writeFileContents(s_qmakeProbeCMakeScript);
 
     process.setDisableUnixTerminal();
 
@@ -1266,6 +1338,28 @@ static SetupResult setupQMakeProcess(
         args.push_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(findRootPath));
     if (!hostPath.isEmpty())
         args.push_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(hostPath.path()));
+
+    storage.qmakeProbeStamp
+        = probeStamp(cmakeExecutable, args, cmakeEnv, s_qmakeProbeCMakeScript, {toolchainFile});
+
+    // The probe writes its answer next to its CMakeLists.txt rather than into the build
+    // directory, and says nothing at all when it finds no Qt, so the whole directory of a
+    // probe that answered a different question goes before this one writes its own input.
+    const Result<> probeDiscarded
+        = discardUnusableProbe(qtcQMakeProbeDir, storage.qmakeProbeStamp);
+    const Result<> probeDirReady = probeDiscarded ? qtcQMakeProbeDir.ensureWritableDir()
+                                                  : probeDiscarded;
+    if (!probeDirReady) {
+        const PresetsDetails::ConfigurePreset &preset = storage.configurePreset;
+        TaskHub::addTask<BuildSystemTask>(
+            Task::TaskType::DisruptingError,
+            Tr::tr("Cannot prepare the Qt probe of CMake Preset \"%1\": %2")
+                .arg(preset.displayName.value_or(preset.name), probeDirReady.error()));
+        return SetupResult::StopWithError;
+    }
+
+    const FilePath cmakeListTxt = qtcQMakeProbeDir / Constants::CMAKE_LISTS_TXT;
+    QTC_CHECK_RESULT(cmakeListTxt.writeFileContents(s_qmakeProbeCMakeScript));
 
     qCDebug(cmInputLog) << "CMake probing for qmake path: " << cmakeExecutable.toUserOutput()
                         << args;
@@ -1466,11 +1560,10 @@ static void applyRunDeviceToKit(
 
 void CMakeProjectImporter::createKitsFromPresets()
 {
-    m_presetsTempDir
-        = ensureDir(projectFilePath().parentDir() / ProjectExplorer::Constants::PROJECT_QTC_DIR,
-                    "qtc-cmake-presets-XXXXXXXX");
+    const FilePaths candidates = presetCandidates();
+    removeStaleProbeDirectories(m_presetsProbeDir, candidates);
 
-    const ListIterator iterator(presetCandidates());
+    const ListIterator iterator(candidates);
     const Storage<InternalStorage> storage;
 
     const auto onCompilerSetup = [this, iterator, storage](Process &process) {
@@ -1504,6 +1597,9 @@ void CMakeProjectImporter::createKitsFromPresets()
                 configurePreset.architecture = {data.platform, {}};
         }
         storage->config = config;
+
+        QTC_CHECK_RESULT((iterator->pathAppended("build") / probeStampName)
+                             .writeFileContents(storage->compilerProbeStamp));
     };
 
     const auto onQMakeSetup = [this, iterator, storage](Process &process) {
@@ -1540,6 +1636,9 @@ void CMakeProjectImporter::createKitsFromPresets()
         const FilePath prefixPathTxt = qtcQMakeProbeDir.pathAppended("cmake-prefix-path.txt");
         resultedPrefixPath = QString::fromUtf8(prefixPathTxt.fileContents().value_or(QByteArray()));
         qCDebug(cmInputLog) << "PrefixPath [after qmake probe]: " << resultedPrefixPath;
+
+        QTC_CHECK_RESULT(
+            (qtcQMakeProbeDir / probeStampName).writeFileContents(storage->qmakeProbeStamp));
     };
 
     const auto onPresetDone = [this, storage] {
@@ -2145,6 +2244,9 @@ private slots:
     void testCMakeProjectImporterToolchain();
 
     void testPresetKitsOfOtherProjectsAreFiltered();
+    void testPresetProbeIsReusedUntilThePresetChanges();
+    void testPresetProbeIsRedoneWhenTheEnvironmentChanges();
+    void testBrokenPresetKeepsTheKitsOfTheOthers();
 };
 
 void CMakeProjectImporterTest::testCMakeProjectImporterQt_data()
@@ -2291,6 +2393,219 @@ void CMakeProjectImporterTest::testPresetKitsOfOtherProjectsAreFiltered()
 
     QVERIFY(projectA.projectImporter()->filter(&kitOfProjectA));
     QVERIFY(!projectB.projectImporter()->filter(&kitOfProjectA));
+}
+
+static Result<qint64> writePresets(const FilePath &projectDir, const QByteArray &presets)
+{
+    return (projectDir / "CMakePresets.json").writeFileContents(presets);
+}
+
+static FilePath presetProjectDirectory(const QString &name)
+{
+    const FilePath projectDir = TemporaryDirectory::masterDirectoryFilePath() / name;
+    if (!projectDir.ensureWritableDir())
+        return {};
+    if (!(projectDir / Constants::CMAKE_LISTS_TXT)
+             .writeFileContents("project(" + name.toUtf8() + ")"))
+        return {};
+    return projectDir;
+}
+
+static void deregisterPresetKits(const CMakeProject &project)
+{
+    const QList<Id> ids = project.presetKitIds();
+    KitManager::deregisterKits(
+        Utils::filtered(KitManager::kits(), [&ids](Kit *k) { return ids.contains(k->id()); }));
+}
+
+// A preset that names no Qt lets the probe search the default locations of the machine that
+// runs the test, so a test can register a Qt that the developer never asked for.
+class QtVersionRestorer final
+{
+public:
+    QtVersionRestorer()
+        : m_versions(QtVersionManager::versions())
+    {}
+
+    ~QtVersionRestorer()
+    {
+        for (QtVersion *version : QtVersionManager::versions()) {
+            if (!m_versions.contains(version))
+                QtVersionManager::removeVersion(version);
+        }
+    }
+
+private:
+    const QtVersions m_versions;
+};
+
+// QTCREATORBUG-34838
+void CMakeProjectImporterTest::testPresetProbeIsReusedUntilThePresetChanges()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-probe-reuse");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    const QByteArray presets = R"({
+        "version": 3,
+        "vendor": {
+            "qt.io/QtCreator/1.0": {
+                "AskBeforePresetsReload": false
+            }
+        },
+        "configurePresets": [
+            {
+                "name": "probed",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++",
+                    "CMAKE_PREFIX_PATH": "@PREFIX@"
+                }
+            }
+        ]
+    })";
+    QVERIFY(writePresets(projectDir, QByteArray(presets).replace("@PREFIX@", "/first")));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    QVERIFY(project.presetsData().havePresets);
+
+    // The presets are read after the settings, so the vendor section only reaches them the way
+    // opening the project would, once. Without it, rewriting the file below asks a question.
+    project.settings().readSettings();
+    QVERIFY(!project.settings().askBeforePresetsReload());
+
+    // The compilers and the generator are in the preset, so only the Qt probe has to run.
+    const FilePath probeDir = projectDir / ProjectExplorer::Constants::PROJECT_QTC_DIR
+                              / "cmake-presets" / "probed" / "qtc-cmake-qmake-probe";
+    QVERIFY((probeDir / "build").exists());
+
+    // The probe writes its answer next to its CMakeLists.txt, so a directory it may not reuse
+    // has to go whole: a probe that finds no Qt writes nothing and would read the leftovers.
+    const FilePath buildMarker = probeDir / "build" / "marker";
+    const FilePath resultMarker = probeDir / "marker";
+    for (const FilePath &marker : {buildMarker, resultMarker})
+        QVERIFY(marker.writeFileContents("The probe that wrote this must not run again."));
+
+    project.createKitsFromPresets();
+    QVERIFY2(buildMarker.exists(), "An unchanged preset reuses what its probe left behind.");
+    QVERIFY2(resultMarker.exists(), "An unchanged preset keeps the answer of its probe.");
+
+    // Changing the file makes Qt Creator reload the presets, which probes them again.
+    QVERIFY(writePresets(projectDir, QByteArray(presets).replace("@PREFIX@", "/second")));
+    QTRY_VERIFY2_WITH_TIMEOUT(
+        !buildMarker.exists(), "A changed preset probes into a directory of its own.", 30000);
+    QVERIFY2(!resultMarker.exists(),
+             "A changed preset discards the answer of the probe that ran before it.");
+
+    deregisterPresetKits(project);
+}
+
+// QTCREATORBUG-34838
+void CMakeProjectImporterTest::testPresetProbeIsRedoneWhenTheEnvironmentChanges()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-probe-environment");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    // The command line of the probe says nothing about the environment it runs in, which is
+    // what decides the compiler and the Qt that CMake finds.
+    const QByteArray presets = R"({
+        "version": 3,
+        "vendor": {
+            "qt.io/QtCreator/1.0": {
+                "AskBeforePresetsReload": false
+            }
+        },
+        "configurePresets": [
+            {
+                "name": "probed",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build",
+                "environment": {
+                    "QTC_PROBE_TAG": "@TAG@"
+                },
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++",
+                    "CMAKE_PREFIX_PATH": "/none"
+                }
+            }
+        ]
+    })";
+    QVERIFY(writePresets(projectDir, QByteArray(presets).replace("@TAG@", "first")));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    QVERIFY(project.presetsData().havePresets);
+
+    project.settings().readSettings();
+    QVERIFY(!project.settings().askBeforePresetsReload());
+
+    const FilePath marker = projectDir / ProjectExplorer::Constants::PROJECT_QTC_DIR
+                            / "cmake-presets" / "probed" / "qtc-cmake-qmake-probe" / "marker";
+    QVERIFY(marker.parentDir().exists());
+    QVERIFY(marker.writeFileContents("The probe that wrote this must not run again."));
+
+    project.createKitsFromPresets();
+    QVERIFY2(marker.exists(), "An unchanged preset reuses what its probe left behind.");
+
+    QVERIFY(writePresets(projectDir, QByteArray(presets).replace("@TAG@", "second")));
+    QTRY_VERIFY2_WITH_TIMEOUT(
+        !marker.exists(), "A changed environment probes into a directory of its own.", 30000);
+
+    deregisterPresetKits(project);
+}
+
+// QTCREATORBUG-34838
+void CMakeProjectImporterTest::testBrokenPresetKeepsTheKitsOfTheOthers()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-probe-failure");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    // The first preset names a CMake that cannot be run, so its probe fails before the probe of
+    // the second one, which has a CMake to run, can have finished.
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "broken",
+                "binaryDir": "${sourceDir}/build-broken",
+                "cmakeExecutable": "/there/is/no/such/cmake"
+            },
+            {
+                "name": "working",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build-working",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++"
+                }
+            }
+        ]
+    })"));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    const QList<Id> kitIds = project.presetKitIds();
+    QCOMPARE(kitIds.size(), 2);
+
+    QVERIFY2(!KitManager::kit(kitIds.first()), "A preset that cannot be probed gets no kit.");
+    QVERIFY2(KitManager::kit(kitIds.last()), "A preset that can be probed keeps its kit.");
+
+    deregisterPresetKits(project);
 }
 
 QObject *createCMakeProjectImporterTest()
