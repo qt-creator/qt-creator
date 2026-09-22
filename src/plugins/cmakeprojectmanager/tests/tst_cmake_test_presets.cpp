@@ -1161,6 +1161,29 @@ private slots:
         QCOMPARE(errorMessages(data).filter("Cyclic inheritance").size(), 2);
     }
 
+    void testAnInheritedPresetThatDoesNotExistIsReported()
+    {
+        // CMake refuses to read the whole file in this case, the preset used to be
+        // configured as if the "inherits" entry were not there
+        const PresetsData data = combinedPresets(R"({
+            "version": 3,
+            "configurePresets": [
+                { "name": "h", "hidden": true },
+                { "name": "a", "inherits": ["h", "missing"] }
+            ],
+            "buildPresets": [ { "name": "b", "configurePreset": "a", "inherits": ["nope"] } ],
+            "testPresets": [ { "name": "t", "configurePreset": "a", "inherits": ["nada"] } ]
+        })");
+
+        QVERIFY(!data.hasValidPresets);
+        QCOMPARE(errorMessages(data),
+                 QStringList()
+                     << "Invalid configure preset: \"a\": Could not find inherited preset "
+                        "\"missing\""
+                     << "Invalid build preset: \"b\": Could not find inherited preset \"nope\""
+                     << "Invalid test preset: \"t\": Could not find inherited preset \"nada\"");
+    }
+
     void testDiamondInheritanceIsNotACycle()
     {
         // Two presets inheriting the same base form a diamond, which CMake allows
