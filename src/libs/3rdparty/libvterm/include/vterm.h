@@ -312,6 +312,7 @@ typedef struct {
 typedef struct {
   VTermPos pos;                /* current cursor position */
   VTermLineInfo *lineinfos[2]; /* [1] may be NULL */
+  VTermPos savedpos;           /* saved cursor position of the primary screen */
 } VTermStateFields;
 
 typedef struct {

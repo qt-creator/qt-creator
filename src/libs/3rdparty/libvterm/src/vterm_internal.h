@@ -27,6 +27,9 @@
 #define BUFIDX_PRIMARY   0
 #define BUFIDX_ALTSCREEN 1
 
+#define STATE_SAVED(state) \
+  ((state)->saved[(state)->mode.alt_screen ? BUFIDX_ALTSCREEN : BUFIDX_PRIMARY])
+
 typedef struct VTermEncoding VTermEncoding;
 
 typedef struct {
@@ -137,7 +140,9 @@ struct VTermState
 
   unsigned int protected_cell : 1;
 
-  /* Saved state under DEC mode 1048/1049 */
+  /* Saved state under DEC mode 1048/1049, one per screen as xterm keeps it:
+   * saving the cursor on the altscreen must not overwrite the one DEC mode
+   * 1049 saved for the primary */
   struct {
     VTermPos pos;
     struct VTermPen pen;
@@ -147,7 +152,7 @@ struct VTermState
       unsigned int cursor_blink:1;
       unsigned int cursor_shape:2;
     } mode;
-  } saved;
+  } saved[2];
 
   /* Temporary state for DECRQSS parsing */
   union {

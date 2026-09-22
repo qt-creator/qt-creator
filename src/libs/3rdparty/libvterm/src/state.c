@@ -594,21 +594,21 @@ static int settermprop_string(VTermState *state, VTermProp prop, VTermStringFrag
 static void savecursor(VTermState *state, int save)
 {
   if(save) {
-    state->saved.pos = state->pos;
-    state->saved.mode.cursor_visible = state->mode.cursor_visible;
-    state->saved.mode.cursor_blink   = state->mode.cursor_blink;
-    state->saved.mode.cursor_shape   = state->mode.cursor_shape;
+    STATE_SAVED(state).pos = state->pos;
+    STATE_SAVED(state).mode.cursor_visible = state->mode.cursor_visible;
+    STATE_SAVED(state).mode.cursor_blink   = state->mode.cursor_blink;
+    STATE_SAVED(state).mode.cursor_shape   = state->mode.cursor_shape;
 
     vterm_state_savepen(state, 1);
   }
   else {
     VTermPos oldpos = state->pos;
 
-    state->pos = state->saved.pos;
+    state->pos = STATE_SAVED(state).pos;
 
-    settermprop_bool(state, VTERM_PROP_CURSORVISIBLE, state->saved.mode.cursor_visible);
-    settermprop_bool(state, VTERM_PROP_CURSORBLINK,   state->saved.mode.cursor_blink);
-    settermprop_int (state, VTERM_PROP_CURSORSHAPE,   state->saved.mode.cursor_shape);
+    settermprop_bool(state, VTERM_PROP_CURSORVISIBLE, STATE_SAVED(state).mode.cursor_visible);
+    settermprop_bool(state, VTERM_PROP_CURSORBLINK,   STATE_SAVED(state).mode.cursor_blink);
+    settermprop_int (state, VTERM_PROP_CURSORSHAPE,   STATE_SAVED(state).mode.cursor_shape);
 
     vterm_state_savepen(state, 0);
 
@@ -854,8 +854,12 @@ static void set_dec_mode(VTermState *state, int num, int val)
     break;
 
   case 1049:
+    /* Both ways the cursor goes through the slot of the primary screen */
+    if(val)
+      savecursor(state, 1);
     settermprop_bool(state, VTERM_PROP_ALTSCREEN, val);
-    savecursor(state, val);
+    if(!val)
+      savecursor(state, 0);
     break;
 
   case 2004:
@@ -2015,11 +2019,13 @@ static int on_resize(int rows, int cols, void *user)
   VTermStateFields fields = {
     .pos       = state->pos,
     .lineinfos = { [0] = state->lineinfos[0], [1] = state->lineinfos[1] },
+    .savedpos  = state->saved[BUFIDX_PRIMARY].pos,
   };
 
   if(state->callbacks && state->callbacks->resize) {
     (*state->callbacks->resize)(rows, cols, &fields, state->cbdata);
     state->pos = fields.pos;
+    state->saved[BUFIDX_PRIMARY].pos = fields.savedpos;
 
     state->lineinfos[0] = fields.lineinfos[0];
     state->lineinfos[1] = fields.lineinfos[1];

@@ -947,6 +947,44 @@ private slots:
         QCOMPARE(surfaceText(), expected);
     }
 
+    void aResizeBehindTheAltscreenLeavesThePrimaryWhereADirectOneWould()
+    {
+        // Whether the altscreen happens to be up decides which screen is
+        // drawn on, and nothing else: the primary is reflowed around its own
+        // cursor either way, and that cursor is the one DECSET 1049 saved.
+        const auto shrinkThePrimary = [this](bool behindTheAltscreen) {
+            initSurface({20, 6});
+            write({"L0", "L1", "L2", "L3", "L4"});
+            if (behindTheAltscreen)
+                m_surface->dataFromPty("\x1b[?1049h");
+            resizeTo({20, 3});
+            if (behindTheAltscreen)
+                m_surface->dataFromPty("\x1b[?1049l");
+        };
+
+        shrinkThePrimary(false);
+        const QString text = surfaceText();
+        const QSize full = m_surface->fullSize();
+        const QPoint cursor = m_surface->cursor().position;
+        QVERIFY(cursor.y() < full.height());
+
+        shrinkThePrimary(true);
+        QCOMPARE(m_surface->cursor().position, cursor);
+        QCOMPARE(m_surface->fullSize(), full);
+        QCOMPARE(surfaceText(), text);
+    }
+
+    void aCursorSavedOnTheAltscreenIsNotMovedByTheReflowOfThePrimary()
+    {
+        initSurface({20, 6});
+        write({"L0", "L1", "L2", "L3", "L4"});
+        m_surface->dataFromPty("\x1b[?1049h");
+        m_surface->dataFromPty("\x1b[3;5H\x1b" "7");
+        resizeTo({20, 3});
+        m_surface->dataFromPty("\x1b[H\x1b" "8");
+        QCOMPARE(m_surface->cursor().position, QPoint(4, 2));
+    }
+
     void aCellFilledWithCombiningMarksIsNotReadPastItsEnd()
     {
         initSurface({20, 4});
