@@ -92,6 +92,11 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
     }
     m_transport = transport;
 
+    connect(m_transport, &AcpTransport::consoleOutput,
+            this, &AcpChatController::serverConsoleOutput);
+    connect(m_transport, &AcpTransport::acceptsConsoleInputChanged,
+            this, &AcpChatController::serverConsoleInputAcceptedChanged);
+
     m_client = new AcpClientObject(m_transport, this);
     if (m_inspector)
         m_client->setInspector(m_inspector, m_serverName);
@@ -113,6 +118,8 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
     connect(m_client, &AcpClientObject::errorOccurred,
             this, &AcpChatController::errorOccurred);
 
+    // This goes out before anything can be typed into the server's console,
+    // so console input always follows it on stdin.
     connect(m_transport, &AcpTransport::started, this, [this] {
         m_client->initializeRaw(buildInitializeParams(),
                                 [this](const QJsonObject &result,
@@ -169,6 +176,18 @@ QJsonObject AcpChatController::buildInitializeParams()
     params.insert(QStringLiteral("clientCapabilities"), toJson(caps));
 
     return params;
+}
+
+void AcpChatController::writeServerConsoleInput(const QByteArray &data)
+{
+    if (m_transport)
+        m_transport->writeConsoleInput(data);
+}
+
+void AcpChatController::closeServerConsoleInput()
+{
+    if (m_transport)
+        m_transport->closeConsoleInput();
 }
 
 void AcpChatController::disconnectFromServer()

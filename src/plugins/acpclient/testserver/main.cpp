@@ -35,6 +35,14 @@ int main(int argc, char *argv[])
     parser.addOption({"modes", "Report session modes."});
     parser.addOption({"updates-all", "Stream one session/update of each kind per prompt."});
     parser.addOption({"stderr-noise", "Write noise to stderr."});
+    parser.addOption({"stdout-banner", "Write a non-JSON line to stdout before reading "
+                                       "anything."});
+    parser.addOption({"prompt-on-initialize",
+                      "Before answering initialize, write a prompt without a newline to "
+                      "stdout and read the answer from stdin."});
+    parser.addOption({"log-on-initialize",
+                      "Before answering initialize, write a notification and then a "
+                      "non-JSON line to stdout."});
     parser.addOption({"invalid-response-on-prompt",
                       "Write a non-JSON line before answering session/prompt."});
     parser.addOption({"chunks", "Number of agent_message_chunk updates per prompt "
@@ -60,6 +68,9 @@ int main(int argc, char *argv[])
     scenario.allUpdateKinds = parser.isSet("updates-all");
     scenario.stderrNoise = parser.isSet("stderr-noise");
     scenario.invalidResponse = parser.isSet("invalid-response-on-prompt");
+    scenario.stdoutBanner = parser.isSet("stdout-banner");
+    scenario.promptOnInitialize = parser.isSet("prompt-on-initialize");
+    scenario.logOnInitialize = parser.isSet("log-on-initialize");
     if (parser.isSet("chunks"))
         scenario.chunks = parser.value("chunks").toInt();
     if (parser.isSet("protocol-version"))

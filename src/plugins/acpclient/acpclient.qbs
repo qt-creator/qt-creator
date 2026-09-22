@@ -9,6 +9,7 @@ Project {
 
         Depends { name: "Qt"; submodules: ["core", "widgets", "network"] }
         Depends { name: "AcpLib" }
+        Depends { name: "TerminalLib" }
         Depends { name: "Utils" }
         Depends { name: "ExtensionSystem" }
         Depends { name: "Core" }
@@ -43,6 +44,8 @@ Project {
             "acpprotocolv1adapter.h",
             "acpprotocolv2adapter.cpp",
             "acpprotocolv2adapter.h",
+            "acpserverconsole.cpp",
+            "acpserverconsole.h",
             "acpsettings.cpp",
             "acpsettings.h",
             "acpstdiotransport.cpp",

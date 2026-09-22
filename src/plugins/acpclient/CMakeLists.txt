@@ -8,6 +8,7 @@ add_qtc_plugin(AcpClient
     Qt::Network
     QtCreator::ExtensionSystem
     QtCreator::Utils
+    TerminalLib
   PUBLIC_DEPENDS
     AcpLib
   LONG_DESCRIPTION_MD AcpClientDescription.md
@@ -20,6 +21,7 @@ add_qtc_plugin(AcpClient
     acpclientobject.cpp acpclientobject.h
     acpclientplugin.cpp
     acpclienttr.h
+    acpserverconsole.cpp acpserverconsole.h
     acpsettings.cpp acpsettings.h
     acpelicitationhandler.cpp acpelicitationhandler.h
     acpfilesystemhandler.cpp acpfilesystemhandler.h

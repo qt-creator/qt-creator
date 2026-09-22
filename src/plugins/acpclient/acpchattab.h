@@ -15,13 +15,17 @@ class QVBoxLayout;
 namespace Utils {
 class FilePath;
 class InfoLabel;
+class ProgressIndicator;
+class QtcButton;
 }
 
 namespace AcpClient::Internal {
 
 class AcpChatController;
 class AcpInspector;
+class AcpServerConsole;
 class ChatPanel;
+class CollapsibleFrame;
 class SessionPickerWidget;
 
 class AcpChatTab : public QWidget
@@ -52,6 +56,7 @@ private:
     enum class RegistryFailure { Blocked, DownloadFailed };
 
     void populateServerButtons();
+    void abandonStartup();
     void showRegistryPage();
     void clearRegistryButtons();
     void populateRegistryButtons();
@@ -70,6 +75,11 @@ private:
 
     // Initializing page
     QLabel *m_initializingLabel = nullptr;
+    Utils::ProgressIndicator *m_initSpinner = nullptr;
+    Utils::InfoLabel *m_initErrorLabel = nullptr;
+    Utils::QtcButton *m_initCancelButton = nullptr;
+    CollapsibleFrame *m_serverConsoleFrame = nullptr;
+    AcpServerConsole *m_serverConsole = nullptr;
 
     // Auth page
     QComboBox *m_authMethodCombo = nullptr;
@@ -82,6 +92,7 @@ private:
     AcpChatController *m_controller;
     SessionPickerWidget *m_activePicker = nullptr;
     bool m_sessionPending = false;
+    bool m_startupFailed = false;
     QString m_pendingPrompt;
 };
 

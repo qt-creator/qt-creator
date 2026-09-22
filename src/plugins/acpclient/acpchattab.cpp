@@ -5,9 +5,11 @@
 #include "acpchatcontroller.h"
 #include "acpclienttr.h"
 #include "acppermissionhandler.h"
+#include "acpserverconsole.h"
 #include "acpsettings.h"
 #include "chatinputedit.h"
 #include "chatpanel.h"
+#include "collapsibleframe.h"
 #include "sessionpickerwidget.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -39,6 +41,9 @@ using namespace Utils;
 using namespace ProjectExplorer;
 
 namespace AcpClient::Internal {
+
+// Visible height of the server console, in lines of its own font.
+enum { MinimumConsoleLines = 8 };
 
 static QString joinedTextContent(const Patch<QList<ContentBlock>> &content)
 {
@@ -303,10 +308,10 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         auto *initLayout = new QVBoxLayout(initForm);
         initLayout->setSpacing(12);
 
-        auto *spinner = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
+        m_initSpinner = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Large);
         auto *spinnerRow = new QHBoxLayout;
         spinnerRow->addStretch();
-        spinnerRow->addWidget(spinner);
+        spinnerRow->addWidget(m_initSpinner);
         spinnerRow->addStretch();
         initLayout->addLayout(spinnerRow);
 
@@ -314,16 +319,20 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_initializingLabel->setAlignment(Qt::AlignHCenter);
         initLayout->addWidget(m_initializingLabel);
 
-        auto *cancelButton = new QtcButton(Tr::tr("Cancel"), QtcButton::MediumSecondary);
+        m_initErrorLabel = new InfoLabel({}, InfoLabelType::Error);
+        m_initErrorLabel->setFilled(true);
+        m_initErrorLabel->setElideMode(Qt::ElideNone);
+        m_initErrorLabel->setWordWrap(true);
+        m_initErrorLabel->hide();
+        initLayout->addWidget(m_initErrorLabel);
+
+        m_initCancelButton = new QtcButton(Tr::tr("Cancel"), QtcButton::MediumSecondary);
         auto *cancelRow = new QHBoxLayout;
         cancelRow->addStretch();
-        cancelRow->addWidget(cancelButton);
+        cancelRow->addWidget(m_initCancelButton);
         cancelRow->addStretch();
         initLayout->addLayout(cancelRow);
-        connect(cancelButton, &QAbstractButton::clicked, this, [this] {
-            m_controller->disconnectFromServer();
-            m_stack->setCurrentIndex(0);
-        });
+        connect(m_initCancelButton, &QAbstractButton::clicked, this, &AcpChatTab::abandonStartup);
 
         auto *initCenter = new QHBoxLayout;
         initCenter->addStretch();
@@ -331,6 +340,25 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         initCenter->addStretch();
         initOuter->addLayout(initCenter);
         initOuter->addStretch();
+
+        // The server's own output, and a way to answer it while it starts.
+        m_serverConsole = new AcpServerConsole;
+        m_serverConsole->setMinimumHeight(m_serverConsole->fontMetrics().height()
+                                          * MinimumConsoleLines);
+
+        // Nothing here is a pty, so the server cannot ask for its prompt to be
+        // unechoed the way it would for a password; the user has to.
+        auto *hideInput = new QtcCheckBox(Tr::tr("Hide Input"));
+        hideInput->setToolTip(Tr::tr("Do not show what is typed, for a password or a token."));
+        connect(hideInput, &QAbstractButton::toggled,
+                m_serverConsole, &AcpServerConsole::setInputMasked);
+
+        m_serverConsoleFrame = new CollapsibleFrame;
+        m_serverConsoleFrame->setFrameShape(QFrame::NoFrame);
+        m_serverConsoleFrame->headerLayout()->addWidget(new QLabel(Tr::tr("Server Output")), 1);
+        m_serverConsoleFrame->headerLayout()->addWidget(hideInput);
+        m_serverConsoleFrame->bodyLayout()->addWidget(m_serverConsole);
+        initOuter->addWidget(m_serverConsoleFrame, 4);
 
         m_stack->addWidget(initPage); // index 3
     }
@@ -407,9 +435,11 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     connect(m_controller, &AcpChatController::connectionStateChanged, this, [this](AcpClientObject::State state) {
         const bool disconnected = state == AcpClientObject::State::Disconnected;
         if (disconnected) {
+            m_serverConsole->setInputEnabled(false);
             m_sessionPending = false;
             m_pendingPrompt.clear();
-            m_stack->setCurrentIndex(0);
+            if (!m_startupFailed)
+                m_stack->setCurrentIndex(0);
             m_chatPanel->clear();
             m_chatPanel->setSendEnabled(false);
             m_chatPanel->setPrompting(false);
@@ -419,6 +449,18 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             emit titleChanged();
         }
     });
+    connect(m_controller, &AcpChatController::serverConsoleOutput,
+            m_serverConsole, &AcpServerConsole::appendOutput);
+    // Typing shares stdin with the protocol, so the transport decides how long
+    // it is allowed and the console follows it.
+    connect(m_controller, &AcpChatController::serverConsoleInputAcceptedChanged,
+            m_serverConsole, &AcpServerConsole::setInputEnabled);
+    connect(m_serverConsole, &AcpServerConsole::inputEntered,
+            m_controller, &AcpChatController::writeServerConsoleInput);
+    connect(m_serverConsole, &AcpServerConsole::endOfInputRequested,
+            m_controller, &AcpChatController::closeServerConsoleInput);
+    connect(m_serverConsole, &AcpServerConsole::interruptRequested,
+            this, &AcpChatTab::abandonStartup);
     connect(m_controller, &AcpChatController::agentInfoReceived, this,
             [this](const QString &, const QString &, const QString &iconUrl) {
         m_chatPanel->setAgentIcon(iconUrl);
@@ -587,11 +629,24 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->setPrompting(false);
         m_chatPanel->finishAgentMessage();
     });
+    // A failed startup keeps the connecting page up. Some errors do not end
+    // the connection, though, and once the tab has left that page the startup
+    // is over either way.
+    connect(m_stack, &QStackedWidget::currentChanged, this, [this](int index) {
+        if (index != 3)
+            m_startupFailed = false;
+    });
     connect(m_controller, &AcpChatController::errorOccurred, this, [this](const QString &msg) {
         m_sessionPending = false;
         m_pendingPrompt.clear();
-        if (m_stack->currentIndex() == 3)
-            m_stack->setCurrentIndex(0);
+        if (m_stack->currentIndex() == 3) {
+            // Stay put: the console holds the output that explains the failure.
+            m_startupFailed = true;
+            m_initSpinner->hide();
+            m_initCancelButton->setText(Tr::tr("Back"));
+            m_initErrorLabel->setText(msg);
+            m_initErrorLabel->show();
+        }
         m_chatPanel->addErrorMessage(msg);
         // Also show on the connection page so errors are visible if we switch back
         m_connectionErrorLabel->setText(Tr::tr("Error:") + " " + msg.toHtmlEscaped());
@@ -616,12 +671,29 @@ void AcpChatTab::setInspector(AcpInspector *inspector)
 
 bool AcpChatTab::hasFocus() const
 {
-    return m_chatPanel->inputEdit()->hasFocus();
+    return m_chatPanel->inputEdit()->hasFocus() || m_serverConsole->hasFocus()
+           || m_initCancelButton->hasFocus();
 }
 
 void AcpChatTab::setFocus()
 {
-    m_chatPanel->inputEdit()->setFocus();
+    if (m_stack->currentIndex() != 3) {
+        m_chatPanel->inputEdit()->setFocus();
+        return;
+    }
+    // A collapsed frame hides the console, and a hidden widget takes no focus,
+    // which would leave the page with none at all.
+    if (m_serverConsoleFrame->isCollapsed())
+        m_initCancelButton->setFocus();
+    else
+        m_serverConsole->setFocus();
+}
+
+void AcpChatTab::abandonStartup()
+{
+    m_startupFailed = false;
+    m_controller->disconnectFromServer();
+    m_stack->setCurrentIndex(0);
 }
 
 QString AcpChatTab::title() const
@@ -734,6 +806,12 @@ void AcpChatTab::populateServerButtons()
         const QString serverName = info.name;
         connect(button, &QAbstractButton::clicked, this, [this, serverId, serverName] {
             m_connectionErrorLabel->hide();
+            m_startupFailed = false;
+            m_initErrorLabel->hide();
+            m_initSpinner->show();
+            m_initCancelButton->setText(Tr::tr("Cancel"));
+            m_serverConsole->reset();
+            m_serverConsoleFrame->setCollapsed(false);
             m_initializingLabel->setText(Tr::tr("Connecting to %1").arg(serverName));
             m_stack->setCurrentIndex(3);
             m_chatPanel->setAgentId(serverId);
