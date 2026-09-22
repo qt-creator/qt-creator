@@ -360,6 +360,71 @@ evaluable = True
 dumper.enum_display_misses = set()      # what fetchVariables() starts with
 expect('the next fetch asks again', enum_display_at(0x3080), 'V3 (2)')
 
+print('')
+print('--- the string of a Utils::Id is fetched from the debuggee once ---')
+idCalls = []
+
+
+def fake_call(function):
+    idCalls.append(function)
+    if function.startswith('Utilsd!'):
+        return None
+    return FakeValue('*', FakeType('char *', TypeCode.Pointer), address=0x40000)
+
+
+_cdbext.call = fake_call
+expect('the string address', dumper.nameForCoreId(5), 0x40000)
+expect('the debug module is asked first, then the release one',
+       idCalls, ['Utilsd!Utils::nameForId(5)', 'Utils!Utils::nameForId(5)'])
+idCalls.clear()
+expect('the same id again', dumper.nameForCoreId(5), 0x40000)
+expect('without a call', idCalls, [])
+dumper.nameForCoreId(6)
+expect('another id asks the module that answered before, and only that',
+       idCalls, ['Utils!Utils::nameForId(6)'])
+idCalls.clear()
+expect('the null id has no string', dumper.nameForCoreId(0), 0)
+expect('and costs no call', idCalls, [])
+del _cdbext.call
+
+print('')
+print('--- a Utils::Id without a string reads no memory ---')
+import creatortypes
+
+
+class IdDumper:
+    def __init__(self, name):
+        self.name = name
+        self.reported = []
+
+    def isMsvcTarget(self):
+        return True
+
+    def nameForCoreId(self, id):
+        return self.name
+
+    def putSimpleCharArray(self, address):
+        self.reported.append(('string at', address))
+
+    def putValue(self, value, encoding=None):
+        self.reported.append(('value', value, encoding))
+
+    def putPlainChildren(self, value):
+        pass
+
+
+class IdValue:
+    def extractPointer(self):
+        return 5
+
+
+idDumper = IdDumper(0)
+creatortypes.qdump__Utils__Id(idDumper, IdValue())
+expect('the empty string', idDumper.reported, [('value', '', 'latin1')])
+idDumper = IdDumper(0x40000)
+creatortypes.qdump__Utils__Id(idDumper, IdValue())
+expect('a string read from its address', idDumper.reported, [('string at', 0x40000)])
+
 # A module with vtables and their RTTI locators, and a heap with objects
 # pointing at them. The addresses are what couldBePointer() lets through.
 MODULE = 0x7ff600000000
