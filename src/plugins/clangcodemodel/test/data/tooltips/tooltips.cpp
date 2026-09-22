@@ -210,3 +210,12 @@ static void func()
     const int i = 5;
     const int j = i;
 }
+
+struct MemFuncCaller : public Bar
+{
+    void caller()
+    {
+        mem();
+        this->mem();
+    }
+};

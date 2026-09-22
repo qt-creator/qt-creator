@@ -742,6 +742,10 @@ void ClangdTestTooltips::test_data()
             << QStringList() << QString() << int(HelpItem::Unknown);
     QTest::newRow("MemberFunctionCall") << 21 << 9
             << QStringList{"Bar::mem", "mem"} << QString("mem()") << int(HelpItem::Function);
+    QTest::newRow("MemberFunctionCallImplicitThis") << 218 << 12
+            << QStringList{"Bar::mem", "mem"} << QString("mem()") << int(HelpItem::Function);
+    QTest::newRow("MemberFunctionCallExplicitThis") << 219 << 15
+            << QStringList{"Bar::mem", "mem"} << QString("mem()") << int(HelpItem::Function);
     QTest::newRow("TemplateFunctionCall") << 30 << 5
             << QStringList{"t"} << QString("t(int)") << int(HelpItem::Function);
     QTest::newRow("Enum") << 49 << 12
