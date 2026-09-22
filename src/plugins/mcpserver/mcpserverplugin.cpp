@@ -300,6 +300,14 @@ static QString toolGroup(const QString &toolName)
     return prefix.toString();
 }
 
+// The ui_* tools click widgets, press keys and read the screen of the running
+// instance. That is for driving Qt Creator under test, not for working on a
+// project with it, so the group is opt-in.
+static bool toolEnabledByDefault(const QString &toolName)
+{
+    return toolGroup(toolName) != "ui";
+}
+
 static QString toolGroupTitle(const QString &group)
 {
     if (group.isEmpty())
@@ -356,7 +364,7 @@ private:
             auto *aspect = new BoolAspect(this);
             aspect->setSettingsKey(keyFromString(name));
             aspect->setLabelPlacement(BoolAspect::LabelPlacement::Compact);
-            aspect->setDefaultValue(true);
+            aspect->setDefaultValue(toolEnabledByDefault(name));
             const SettingsGroupNester nester({"McpServer", "EnabledTools"});
             aspect->readSettings();
             ToolRegistry::enableTool(name, aspect->value());

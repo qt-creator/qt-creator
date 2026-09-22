@@ -90,6 +90,11 @@
     its tools are offered. To find a tool in the list, enter part of its name or
     description in the filter field.
 
+    The \uicontrol {User Interface} group starts off. Its tools click widgets,
+    press keys, and read the screen of the running instance, which is meant for
+    driving \QC under test rather than for working on a project with it. Select
+    its check box to offer them.
+
     To reuse a selection elsewhere, for example on another computer, select
     \uicontrol Export and save it as a file. Select \uicontrol Import to read
     such a file, and then \uicontrol Apply to put the selection into use.
