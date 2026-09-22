@@ -11,12 +11,11 @@
 #include "cmakekitaspect.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
+#include "cmakeprojectmanager.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakeutils.h"
 #include "presetsmacros.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icontext.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitmanager.h>
@@ -107,14 +106,7 @@ Tasks CMakeProject::projectIssues(const Kit *k) const
     if (!presetItem.isNull() && !m_presetsData.havePresets)
         result << BuildSystemTask(Task::Error, "Kit is not suitable for CMake projects that don't use presets.");
     else if (!presetItem.isNull() && m_presetsData.havePresets) {
-        const auto configurePresets = presetsData().configurePresets;
-        const QList<Id> configurePresetKitIds
-            = Utils::transform(configurePresets, [project = projectFilePath()](const auto &preset) {
-                  return CMakeConfigurationKitAspect::cmakePresetKitId(
-                      project.toSettings().toString(), preset.name);
-              });
-
-        if (!configurePresetKitIds.contains(k->id()))
+        if (!presetKitIds().contains(k->id()))
             result << BuildSystemTask(Task::Error, "Kit was created for a different CMake project.");
     }
 
@@ -264,12 +256,22 @@ void CMakeProject::readPresets()
     m_includeFilesWatcher = FilePath::watch(readFiles);
     for (Result<std::unique_ptr<FilePathWatcher>> &watcher : m_includeFilesWatcher) {
         if (watcher) {
-            connect(watcher->get(), &FilePathWatcher::pathChanged, this, [] {
-                Command *reloadCMakePresets = ActionManager::command(
-                    Constants::RELOAD_CMAKE_PRESETS);
-
-                if (reloadCMakePresets)
-                    emit reloadCMakePresets->action()->triggered();
+            connect(watcher->get(), &FilePathWatcher::pathChanged, this, [this] {
+                // A change reaches several watchers at once, and reloading replaces all of
+                // them, so reload once, after they have all finished emitting. Reloading asks
+                // a question and creates kits, both of which run a nested event loop, so the
+                // flag only drops once that is over: a notification arriving in the meantime
+                // would otherwise reload the same project from inside its own reload.
+                if (m_presetsReloadPending)
+                    return;
+                m_presetsReloadPending = true;
+                QMetaObject::invokeMethod(
+                    this,
+                    [this] {
+                        Internal::reloadCMakePresets(this);
+                        m_presetsReloadPending = false;
+                    },
+                    Qt::QueuedConnection);
             });
         }
     }
@@ -286,8 +288,16 @@ void CMakeProject::readPresets()
 
     if (!m_presetsData.hasValidPresets) {
         m_presetsData = {};
+        m_presetKitIds.clear();
         return;
     }
+
+    m_presetKitIds = Utils::transform(
+        m_presetsData.configurePresets,
+        [project = projectFilePath().toSettings().toString()](
+            const Internal::PresetsDetails::ConfigurePreset &preset) {
+            return CMakeConfigurationKitAspect::cmakePresetKitId(project, preset.name);
+        });
 
     for (const auto &configPreset : std::as_const(m_presetsData.configurePresets)) {
         if (configPreset.hidden)
@@ -305,6 +315,11 @@ void CMakeProject::readPresets()
 void CMakeProject::createKitsFromPresets() const
 {
     static_cast<CMakeProjectImporter *>(projectImporter())->createKitsFromPresets();
+}
+
+const QList<Id> &CMakeProject::presetKitIds() const
+{
+    return m_presetKitIds;
 }
 
 FilePath CMakeProject::buildDirectoryToImport() const

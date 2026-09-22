@@ -63,7 +63,6 @@ private:
     void updateCMakeBuildTarget(Node *node);
     void clearCMakeCache(BuildSystem *buildSystem);
     void rescanProject(BuildSystem *buildSystem);
-    void reloadCMakePresets();
     void runSubprojectOperation(const QString &clean, const QString &build);
 
     QAction *m_runCMakeAction;
@@ -152,7 +151,9 @@ CMakeManager::CMakeManager()
         .bindContextAction(&m_reloadCMakePresetsAction)
         .setCommandAttribute(Command::CA_Hide)
         .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
-        .addOnTriggered(this, [this] { reloadCMakePresets(); });
+        .addOnTriggered(this, [] {
+            reloadCMakePresets(qobject_cast<CMakeProject *>(ProjectManager::startupProject()));
+        });
 
     // CMake Profiler
     ActionBuilder(this, Constants::RUN_CMAKE_PROFILER)
@@ -216,9 +217,9 @@ void CMakeManager::updateCMakeActions()
     const bool reloadPresetsVisible = [project] {
         if (!project)
             return false;
-        const FilePath presetsPath = project->projectFilePath().parentDir().pathAppended(
-            "CMakePresets.json");
-        return presetsPath.exists();
+        const FilePath projectDir = project->projectFilePath().parentDir();
+        return projectDir.pathAppended("CMakePresets.json").exists()
+               || projectDir.pathAppended("CMakeUserPresets.json").exists();
     }();
     m_reloadCMakePresetsAction->setVisible(reloadPresetsVisible);
 }
@@ -306,16 +307,16 @@ void CMakeManager::rescanProject(BuildSystem *buildSystem)
     cmakeBuildSystem->runCMakeAndScanProjectTree();// by my experience: every rescan run requires cmake run too
 }
 
-void CMakeManager::reloadCMakePresets()
+void reloadCMakePresets(CMakeProject *project)
 {
-    CMakeProject *project = qobject_cast<CMakeProject *>(ProjectTree::currentProject());
     if (!project)
         return;
 
     QMessageBox::StandardButton clickedButton = CheckableMessageBox::question(
         Tr::tr("Reload CMake Presets"),
-        Tr::tr("Re-generates the kits that were created for CMake presets. All manual "
-               "modifications to the CMake project settings will be lost."),
+        Tr::tr("Re-generates the kits that were created for the CMake presets of \"%1\". All "
+               "manual modifications to the CMake project settings will be lost.")
+            .arg(project->displayName()),
         cmakeSettingsForProject(project).askBeforePresetsReload.askAgainCheckableDecider(),
         QMessageBox::Yes | QMessageBox::Cancel,
         QMessageBox::Yes,
@@ -329,21 +330,13 @@ void CMakeManager::reloadCMakePresets()
     if (clickedButton == QMessageBox::Cancel)
         return;
 
-    const auto presetKitId = [project](const QString &presetName) {
-        return CMakeConfigurationKitAspect::cmakePresetKitId(
-            project->projectFilePath().toSettings().toString(), presetName);
-    };
+    // The preset kit IDs carry the project they were created for, so that reloading one project
+    // leaves the preset kits of the other projects in the session alone.
+    const QSet<Id> oldPresetKitIds = Utils::toSet(project->presetKitIds());
 
-    const QSet<Id> oldPresets = Utils::transform<QSet>(
-        project->presetsData().configurePresets,
-        [presetKitId](const auto &preset) { return presetKitId(preset.name); });
-
-    QList<Kit *> oldKits
-        = Utils::filtered(KitManager::kits(), [presetKitId, oldPresets](const Kit *k) {
-              const auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
-              return !presetConfigItem.isNull()
-                     && oldPresets.contains(presetKitId(QString::fromUtf8(presetConfigItem.value)));
-          });
+    const QList<Kit *> oldKits = Utils::filtered(KitManager::kits(), [&oldPresetKitIds](Kit *k) {
+        return oldPresetKitIds.contains(k->id());
+    });
 
     for (const auto &target : project->targets()) {
         const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(

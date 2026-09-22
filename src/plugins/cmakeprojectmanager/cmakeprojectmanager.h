@@ -9,17 +9,23 @@ class BuildSystem;
 class ProjectNode;
 }
 
-namespace CMakeProjectManager::Internal {
+namespace CMakeProjectManager {
+
+class CMakeProject;
+
+namespace Internal {
 
 void setupCMakeManager();
 void setupOnlineHelpManager();
 
 void runCMake(ProjectExplorer::BuildSystem *buildSystem);
 void runCMakeWithProfiling(ProjectExplorer::BuildSystem *buildSystem);
+void reloadCMakePresets(CMakeProject *project);
 
 void runSubprojectOperation(
     ProjectExplorer::BuildSystem *bs,
     const ProjectExplorer::ProjectNode *node,
     ProjectExplorer::BuildAction action);
 
-} // CMakeProjectManager::Internal
+} // namespace Internal
+} // namespace CMakeProjectManager

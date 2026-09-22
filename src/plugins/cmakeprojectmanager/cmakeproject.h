@@ -8,6 +8,7 @@
 #include "presetsparser.h"
 
 #include <projectexplorer/project.h>
+#include <utils/id.h>
 #include <utils/result.h>
 
 namespace CMakeProjectManager {
@@ -37,6 +38,7 @@ public:
     void readPresets();
     Utils::FilePath buildDirectoryToImport() const;
     void createKitsFromPresets() const;
+    const QList<Utils::Id> &presetKitIds() const;
 
     Internal::CMakeSpecificSettings &settings();
     static QString projectDisplayName(const Utils::FilePath &projectFilePath);
@@ -45,6 +47,8 @@ private:
 
     ProjectExplorer::Tasks m_issues;
     Internal::PresetsData m_presetsData;
+    QList<Utils::Id> m_presetKitIds;
+    bool m_presetsReloadPending = false;
     Internal::CMakeSpecificSettings m_settings;
     Utils::FilePath m_buildDirToImport;
     std::vector<Utils::Result<std::unique_ptr<Utils::FilePathWatcher>>> m_includeFilesWatcher;

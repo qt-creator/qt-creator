@@ -746,7 +746,7 @@ bool CMakeProjectImporter::filter(ProjectExplorer::Kit *k) const
     if (presetConfigItem.isNull())
         return false;
 
-    return true;
+    return m_project->presetKitIds().contains(k->id());
 }
 
 static Toolchain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
@@ -2143,6 +2143,8 @@ private slots:
 
     void testCMakeProjectImporterToolchain_data();
     void testCMakeProjectImporterToolchain();
+
+    void testPresetKitsOfOtherProjectsAreFiltered();
 };
 
 void CMakeProjectImporterTest::testCMakeProjectImporterQt_data()
@@ -2239,6 +2241,56 @@ void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));
         QCOMPARE(tcs.at(i).compilerPath, expectedToolchains.at(i));
     }
+}
+
+// QTCREATORBUG-33463
+void CMakeProjectImporterTest::testPresetKitsOfOtherProjectsAreFiltered()
+{
+    const QByteArray presets = R"(
+        {
+            "version": 3,
+            "configurePresets": [
+                {
+                    "name": "shared-name",
+                    "binaryDir": "${sourceDir}/build",
+                    "generator": "Ninja"
+                }
+            ]
+        }
+    )";
+
+    const FilePath tempDir = TemporaryDirectory::masterDirectoryFilePath();
+    FilePaths projectFiles;
+    for (const QString &name : {QString("projectA"), QString("projectB")}) {
+        const FilePath projectDir = tempDir / name;
+        QVERIFY(projectDir.ensureWritableDir());
+
+        const FilePath projectFile = projectDir / "CMakeLists.txt";
+        QVERIFY(projectFile.writeFileContents("project(" + name.toUtf8() + ")"));
+        projectFiles << projectFile;
+    }
+
+    // Two projects whose presets happen to have the same name. A project that already has
+    // presets when it is constructed creates their kits, which runs CMake and leaves the kits
+    // behind for the tests that follow, so hand it the presets afterwards.
+    CMakeProject projectA(projectFiles.first());
+    CMakeProject projectB(projectFiles.last());
+    for (const FilePath &projectFile : std::as_const(projectFiles))
+        QVERIFY((projectFile.parentDir() / "CMakePresets.json").writeFileContents(presets));
+    projectA.readPresets();
+    projectB.readPresets();
+
+    QVERIFY(projectA.presetsData().havePresets);
+    QVERIFY(projectB.presetsData().havePresets);
+
+    const QList<Id> kitIds = projectA.presetKitIds();
+    QCOMPARE(kitIds.size(), 1);
+
+    Kit kitOfProjectA(kitIds.first());
+    CMakeConfigurationKitAspect::setCMakePreset(&kitOfProjectA, "shared-name");
+
+    QVERIFY(projectA.projectImporter()->filter(&kitOfProjectA));
+    QVERIFY(!projectB.projectImporter()->filter(&kitOfProjectA));
 }
 
 QObject *createCMakeProjectImporterTest()
