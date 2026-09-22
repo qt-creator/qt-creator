@@ -34,6 +34,7 @@
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/toolchainkitaspect.h>
@@ -51,6 +52,19 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
+
+class CMakeToolAspectFactory : public DeviceToolAspectFactory
+{
+public:
+    CMakeToolAspectFactory()
+    {
+        setToolId(Constants::CMAKE_TOOL_ID);
+        setToolType(DeviceToolAspect::BuildTool);
+        setFilePattern({"cmake"});
+        setLabelText(Tr::tr("CMake executable:"));
+        setDisplayName(Tr::tr("CMake"));
+    }
+};
 
 class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 {
@@ -139,6 +153,8 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
         setupOnlineHelpManager();
     }
+
+    CMakeToolAspectFactory m_cmakeToolFactory;
 };
 
 } // CMakeProjectManager::Internal
