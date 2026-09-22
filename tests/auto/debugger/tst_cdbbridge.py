@@ -294,15 +294,23 @@ dumper.value_members(lone, True)
 expect('a printed value memory does not hold', dumper.type_fields_cache.get(lone.typeid, None), None)
 expect('and the type is not tried again', lone.typeid in dumper.type_layout_rejected, True)
 memory[0x030:0x034] = (1).to_bytes(4, 'little')
+kindType = FakeType('Kind', TypeCode.Enum, 4)
 withEnum = dumper.fromNativeValue(FakeValue('e', FakeType('WithEnum', size=4), address=0x3030, members=[
-    FakeValue('kind', FakeType('Kind', TypeCode.Enum, 4), address=0x3030, text='V2 (0n1)')]))
+    FakeValue('kind', kindType, address=0x3030, text='V2 (0n1)')]))
 dumper.value_members(withEnum, True)
-expect('an enum member', dumper.type_fields_cache.get(withEnum.typeid, None), None)
+fields = dumper.type_fields_cache.get(withEnum.typeid, None)
+expect('an enum member whose printed number memory holds',
+       [(f.name, f.bitpos, f.bitsize) for f in fields] if fields else None, [('kind', 0, 32)])
 withLater = dumper.fromNativeValue(FakeValue('u', FakeType('WithLater', size=4), address=0x3030, members=[
     FakeValue('later', FakeType('Later', size=4, isResolved=False), address=0x3030, text='{...}')]))
 dumper.value_members(withLater, True)
 expect('a member of a type the engine could not resolve',
        dumper.type_fields_cache.get(withLater.typeid, None), None)
+memory[0x050:0x054] = (0x11).to_bytes(4, 'little')     # kind:4 = 1, with a bit set next to it
+enumBits = dumper.fromNativeValue(FakeValue('b', FakeType('EnumBits', size=4), address=0x3050, members=[
+    FakeValue('kind', kindType, address=0x3050, text='V2 (0n1)')]))
+dumper.value_members(enumBits, True)
+expect('an enum bitfield', dumper.type_fields_cache.get(enumBits.typeid, None), None)
 
 print('')
 print('--- a value whose memory cannot be read goes to the symbol group ---')
@@ -310,6 +318,47 @@ symbolsAdded.clear()
 unreadable = dumper.createValue(0x9000, 'Foo')
 expect('the members are listed by the debugger', listed(dumper.value_members(unreadable, True)), [])
 expect('with a symbol added for the value', symbolsAdded, [0x9000])
+symbolsAdded.clear()
+
+print('')
+print('--- the display of an enum read from memory is asked for once per value ---')
+enumCasts = []
+
+
+def fake_enum_cast(expression):
+    enumCasts.append(expression)
+    return FakeValue('*', kindType, text='V2 (0n1)')
+
+
+_cdbext.parseAndEvaluate = fake_enum_cast
+memory[0x060:0x064] = (1).to_bytes(4, 'little')
+memory[0x070:0x074] = (1).to_bytes(4, 'little')
+displays = [dumper.value_display(dumper.value_members(dumper.createValue(address, 'WithEnum'), True)[0])
+            for address in (0x3060, 0x3070)]
+expect('the engine text, with the 0n taken off', displays, ['V2 (1)', 'V2 (1)'])
+expect('one cast expression for both values', enumCasts, ['(Kind)1'])
+enumCasts.clear()
+evaluable = False
+
+
+def fake_late_enum_cast(expression):
+    enumCasts.append(expression)
+    return FakeValue('*', kindType, text='V3 (0n2)') if evaluable else None
+
+
+def enum_display_at(address):
+    return dumper.value_display(dumper.value_members(dumper.createValue(address, 'WithEnum'), True)[0])
+
+
+_cdbext.parseAndEvaluate = fake_late_enum_cast
+memory[0x080:0x084] = (2).to_bytes(4, 'little')
+memory[0x090:0x094] = (2).to_bytes(4, 'little')
+expect('a cast the engine cannot evaluate shows nothing',
+       [enum_display_at(0x3080), enum_display_at(0x3090)], ['', ''])
+expect('and is tried once per fetch', enumCasts, ['(Kind)2'])
+evaluable = True
+dumper.enum_display_misses = set()      # what fetchVariables() starts with
+expect('the next fetch asks again', enum_display_at(0x3080), 'V3 (2)')
 
 # A module with vtables and their RTTI locators, and a heap with objects
 # pointing at them. The addresses are what couldBePointer() lets through.
