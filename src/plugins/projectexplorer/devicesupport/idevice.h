@@ -409,6 +409,8 @@ private:
     int version() const;
     void setFromSdk();
     bool kitCreationEnabled() const;
+    quint64 startToolDetection(const Utils::FilePaths &searchPaths,
+                               const ToolDetectionLogger &logger);
 
     const std::unique_ptr<Internal::IDevicePrivate> d;
     friend class DeviceManager;

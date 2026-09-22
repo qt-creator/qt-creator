@@ -46,6 +46,8 @@
 #include <QString>
 #include <QVersionNumber>
 
+#include <utility>
+
 /*!
  * \class ProjectExplorer::IDevice::DeviceAction
  * \brief The DeviceAction class describes an action that can be run on a device.
@@ -238,6 +240,7 @@ public:
 
     quint64 toolDetectionToken = 0;
     int toolDetectionTaskCount = 0;
+    std::function<void()> toolDetectionDone;
 
     bool isTesting = false;
 
@@ -378,10 +381,14 @@ void IDevice::registerToolDetectionTask(quint64 token)
 
 void IDevice::deregisterToolDetectionTask(quint64 token)
 {
-    if (token && token == d->toolDetectionToken) {
-        if (--d->toolDetectionTaskCount == 0)
-            KitManager::createKitsForBuildDevice(shared_from_this());
-    }
+    if (!token || token != d->toolDetectionToken)
+        return;
+    if (--d->toolDetectionTaskCount > 0)
+        return;
+    if (kitCreationEnabled())
+        KitManager::createKitsForBuildDevice(shared_from_this());
+    if (d->toolDetectionDone)
+        std::exchange(d->toolDetectionDone, {})();
 }
 
 bool IDevice::isUp() const
@@ -397,13 +404,24 @@ Result<Environment> IDevice::getUnixEnvironment(const FilePath &scriptToSource) 
     return Utils::getUnixEnvironment(filePath("env"), osType(), scriptToSource);
 }
 
-void IDevice::requestToolDetection(const FilePaths &searchPaths, const ToolDetectionLogger &logger)
+quint64 IDevice::startToolDetection(const FilePaths &searchPaths, const ToolDetectionLogger &logger)
 {
-    const quint64 token = kitCreationEnabled() ? ++d->toolDetectionToken : 0;
+    // A new detection supersedes a running one: its tasks stop being counted as
+    // soon as the token changes, so end it rather than leave its caller waiting.
+    if (d->toolDetectionDone)
+        std::exchange(d->toolDetectionDone, {})();
+    const quint64 token = ++d->toolDetectionToken;
     d->toolDetectionTaskCount = 0;
+    // The request itself is a task, so that a handler finishing before the next
+    // one is asked does not already end the detection. The caller closes it.
     registerToolDetectionTask(token);
     emit DeviceManager::instance()->toolDetectionRequested(id(), searchPaths, token, logger);
-    deregisterToolDetectionTask(token);
+    return token;
+}
+
+void IDevice::requestToolDetection(const FilePaths &searchPaths, const ToolDetectionLogger &logger)
+{
+    deregisterToolDetectionTask(startToolDetection(searchPaths, logger));
 }
 
 FilePaths IDevice::toolSearchPaths() const
@@ -1428,8 +1446,17 @@ void IDevice::runAutoDetect(
     const ToolDetectionLogger &logger,
     const std::function<void()> &onDone)
 {
-    requestToolDetection(toolSearchPaths(), logger);
-    GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onDone);
+    // The tool handlers and the recipe below search independently of each
+    // other, and both belong to this detection: it is done when the last of
+    // them is, not when the faster half is.
+    const quint64 token = startToolDetection(toolSearchPaths(), logger);
+    registerToolDetectionTask(token);
+    d->toolDetectionDone = onDone;
+    const auto onRecipeDone = [self = shared_from_this(), token] {
+        self->deregisterToolDetectionTask(token);
+    };
+    GlobalTaskTree::start(autoDetectDeviceToolsRecipe(logger), {}, onRecipeDone);
+    deregisterToolDetectionTask(token);
 }
 
 FilePath IDevice::rootPath() const
