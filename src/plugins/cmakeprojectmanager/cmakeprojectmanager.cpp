@@ -111,14 +111,14 @@ CMakeManager::CMakeManager()
         .setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon())
         .bindContextAction(&m_runCMakeAction)
         .setCommandAttribute(Command::CA_Hide)
-        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
+        .addToContainer(PEC::M_BUILD_TOOL, PEC::G_BUILD_TOOL)
         .addOnTriggered(this, [] { runCMake(activeBuildSystemForActiveProject()); });
 
     ActionBuilder(this, Constants::CLEAR_CMAKE_CACHE)
         .setText(Tr::tr("Clear CMake Configuration"))
         .bindContextAction(&m_clearCMakeCacheAction)
         .setCommandAttribute(Command::CA_Hide)
-        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
+        .addToContainer(PEC::M_BUILD_TOOL, PEC::G_BUILD_TOOL)
         .addOnTriggered(this, [this] { clearCMakeCache(activeBuildSystemForActiveProject()); });
 
     ActionBuilder(this, Constants::RUN_CMAKE_CONTEXT_MENU)
@@ -142,7 +142,7 @@ CMakeManager::CMakeManager()
         .setText(Tr::tr("Rescan Project"))
         .bindContextAction(&m_rescanProjectAction)
         .setCommandAttribute(Command::CA_Hide)
-        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
+        .addToContainer(PEC::M_BUILD_TOOL, PEC::G_BUILD_TOOL)
         .addOnTriggered(this, [this] { rescanProject(activeBuildSystemForCurrentProject()); });
 
     ActionBuilder(this, Constants::RELOAD_CMAKE_PRESETS)
@@ -150,7 +150,7 @@ CMakeManager::CMakeManager()
         .setIcon(Utils::Icons::RELOAD.icon())
         .bindContextAction(&m_reloadCMakePresetsAction)
         .setCommandAttribute(Command::CA_Hide)
-        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
+        .addToContainer(PEC::M_BUILD_TOOL, PEC::G_BUILD_TOOL)
         .addOnTriggered(this, [] {
             reloadCMakePresets(qobject_cast<CMakeProject *>(ProjectManager::startupProject()));
         });

@@ -129,8 +129,8 @@ void QbsProjectManagerPlugin::initialize()
 
     //menus
     // Build Menu:
-    Core::ActionContainer *mbuild =
-            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
+    Core::ActionContainer *mbuildTool =
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILD_TOOL);
     // PE Context menu for projects
     Core::ActionContainer *mproject =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
@@ -141,7 +141,7 @@ void QbsProjectManagerPlugin::initialize()
     m_reparseQbs = new QAction(Tr::tr("Reparse Qbs"), this);
     command = Core::ActionManager::registerAction(m_reparseQbs, Constants::ACTION_REPARSE_QBS, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    mbuildTool->addAction(command, ProjectExplorer::Constants::G_BUILD_TOOL);
     connect(m_reparseQbs, &QAction::triggered,
             this, &QbsProjectManagerPlugin::reparseCurrentProject);
 

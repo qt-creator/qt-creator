@@ -141,8 +141,8 @@ void QmakeProjectManagerPlugin::initialize()
     IWizardFactory::registerFactoryCreator([] { return new CustomWidgetWizard; });
 
     //menus
-    ActionContainer *mbuild =
-            ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
+    ActionContainer *mbuildTool =
+            ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILD_TOOL);
     ActionContainer *mproject =
             ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     ActionContainer *msubproject =
@@ -162,7 +162,7 @@ void QmakeProjectManagerPlugin::initialize()
     d->m_runQMakeAction = new QAction(Tr::tr("Run qmake"), this);
     const Context globalcontext(Core::Constants::C_GLOBAL);
     command = ActionManager::registerAction(d->m_runQMakeAction, Constants::RUNQMAKE, globalcontext);
-    mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
+    mbuildTool->addAction(command, ProjectExplorer::Constants::G_BUILD_TOOL);
     connect(d->m_runQMakeAction, &QAction::triggered,
             d, &QmakeProjectManagerPluginPrivate::runQMake);
 

@@ -37,16 +37,35 @@ inline constexpr char M_BUILDPROJECT[]       = "ProjectExplorer.Menu.Build";
 inline constexpr char M_DEBUG[]              = "ProjectExplorer.Menu.Debug";
 inline constexpr char M_DEBUG_STARTDEBUGGING[] = "ProjectExplorer.Menu.Debug.StartDebugging";
 
-// Menu groups
-inline constexpr char G_BUILD_BUILD[]        = "ProjectExplorer.Group.Build";
-inline constexpr char G_BUILD_ALLPROJECTS[]  = "ProjectExplorer.Group.AllProjects";
+// Submenus of M_BUILDPROJECT. Everything that does not act on the active project
+// in its active configuration lives in one of these, to keep the Build menu itself
+// down to the handful of actions that are used all the time.
+inline constexpr char M_BUILD_ALLPROJECTS[]  = "ProjectExplorer.Menu.Build.AllProjects";
+inline constexpr char M_BUILD_ALLCONFIGURATIONS[] = "ProjectExplorer.Menu.Build.AllConfigurations";
+inline constexpr char M_BUILD_OTHER[]        = "ProjectExplorer.Menu.Build.Other";
+inline constexpr char M_BUILD_TOOL[]         = "ProjectExplorer.Menu.Build.Tool";
+
+// Groups of M_BUILDPROJECT
 inline constexpr char G_BUILD_PROJECT[]      = "ProjectExplorer.Group.Project";
+inline constexpr char G_BUILD_CANCEL[]       = "ProjectExplorer.Group.BuildCancel";
+inline constexpr char G_BUILD_SUBMENUS[]     = "ProjectExplorer.Group.BuildSubMenus";
+inline constexpr char G_BUILD_RUN[]          = "ProjectExplorer.Group.Run";
+
+// Groups of M_BUILD_ALLPROJECTS
+inline constexpr char G_BUILD_ALLPROJECTS[]  = "ProjectExplorer.Group.AllProjects";
+
+// Groups of M_BUILD_ALLCONFIGURATIONS
+inline constexpr char G_BUILD_PROJECT_ALLCONFIGURATIONS[] = "ProjectExplorer.Group.Project.AllConfigurations";
+inline constexpr char G_BUILD_ALLPROJECTS_ALLCONFIGURATIONS[] = "ProjectExplorer.Group.AllProjects.AllConfigurations";
+
+// Groups of M_BUILD_OTHER
 inline constexpr char G_BUILD_SUBPROJECT[]   = "ProjectExplorer.Group.SubProject";
 inline constexpr char G_BUILD_FILE[]         = "ProjectExplorer.Group.File";
-inline constexpr char G_BUILD_ALLPROJECTS_ALLCONFIGURATIONS[] = "ProjectExplorer.Group.AllProjects.AllConfigurations";
-inline constexpr char G_BUILD_PROJECT_ALLCONFIGURATIONS[] = "ProjectExplorer.Group.Project.AllConfigurations";
-inline constexpr char G_BUILD_RUN[]          = "ProjectExplorer.Group.Run";
-inline constexpr char G_BUILD_CANCEL[]       = "ProjectExplorer.Group.BuildCancel";
+inline constexpr char G_BUILD_RUNCONFIGURATION[] = "ProjectExplorer.Group.RunConfiguration";
+
+// Groups of M_BUILD_TOOL
+inline constexpr char G_BUILD_TOOL[]         = "ProjectExplorer.Group.Build";
+inline constexpr char G_BUILD_GENERATORS[]   = "ProjectExplorer.Group.Generators";
 
 // Context menus
 inline constexpr char M_SESSIONCONTEXT[]     = "Project.Menu.Session";
