@@ -193,6 +193,30 @@ static PyObject *cdbext_getNameByAddress(PyObject *, PyObject *args)
     return ret;
 }
 
+static PyObject *cdbext_getSymbolByAddress(PyObject *, PyObject *args) // -> (name, displacement)
+{
+    ULONG64 address = 0;
+    if (!PyArg_ParseTuple(args, "K", &address))
+        Py_RETURN_NONE;
+
+    if (debugPyCdbextModule)
+        DebugPrint() << "symbol by address: " << address;
+
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+
+    ULONG size = 0;
+    countEngineCall("GetNameByOffset");
+    symbols->GetNameByOffset(address, NULL, 0, &size, NULL);
+    if (size == 0)
+        Py_RETURN_NONE;
+    std::string name(size, '\0');
+    ULONG64 displacement = 0;
+    countEngineCall("GetNameByOffset");
+    if (FAILED(symbols->GetNameByOffset(address, &name[0], size, NULL, &displacement)))
+        Py_RETURN_NONE;
+    return Py_BuildValue("(sK)", name.c_str(), displacement);
+}
+
 static PyObject *cdbext_getAddressByName(PyObject *, PyObject *args)
 {
     char *name = 0;
@@ -473,6 +497,9 @@ static PyMethodDef cdbextMethods[] = {
      "Returns a list of symbol names matching the given pattern"},
     {"getNameByAddress",    cdbext_getNameByAddress,    METH_VARARGS,
      "Returns the name of the symbol at the given address"},
+    {"getSymbolByAddress",  cdbext_getSymbolByAddress,  METH_VARARGS,
+     "Returns the name of the nearest symbol at or before the given address and the "
+     "distance to it, or None"},
     {"getAddressByName",    cdbext_getAddressByName,    METH_VARARGS,
      "Returns the address of the symbol with the given name"},
     {"lookupType",          cdbext_lookupType,          METH_VARARGS,

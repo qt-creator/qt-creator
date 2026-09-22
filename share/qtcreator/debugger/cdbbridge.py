@@ -136,6 +136,10 @@ class Dumper(DumperBase):
         self.lookupModuleHint = 0
         # Types whose members note_struct_layout() cannot vouch for.
         self.type_layout_rejected = set()
+        # Vtable address -> the class it belongs to and the subobject it
+        # serves, see vtable_owner(). Kept for one fetch: a module load may
+        # move the tables.
+        self.vtable_owners = {}
 
     def resetStats(self):
         DumperBase.resetStats(self)
@@ -345,6 +349,23 @@ class Dumper(DumperBase):
         for member in members:
             if member.laddress is None or member.size is None:
                 return
+            if member.name == '__vfptr':
+                # The engine hands the vfptr out as the table it points to - the
+                # table's address in the module, the size of the whole table -
+                # not as the slot in the object. Memory has the slot at offset 0
+                # where the class owns the table, which is where the pointer
+                # read from there is the table's address.
+                ptr_size = self.ptrSize()
+                if blob is None:
+                    blob = bytes(self.value_data(value, size))
+                if (int.from_bytes(blob[0:ptr_size], byteorder=self.byteorder) != member.laddress
+                        or any(0 < end and start < ptr_size for (start, end) in occupied)):
+                    self.type_layout_rejected.add(typeid)
+                    return
+                occupied.append((0, ptr_size))
+                fields.append(self.Field(name=member.name, typeid=self.vfptr_typeid(),
+                                         bitsize=ptr_size * 8, bitpos=0, is_base_class=False))
+                continue
             offset = member.laddress - address
             byte_size = (member.size + 7) // 8
             if (member.name.startswith('__vtcast_') or member.ldisplay is not None
@@ -365,6 +386,9 @@ class Dumper(DumperBase):
             fields.append(self.Field(name=member.name, typeid=member.typeid, bitsize=member.size,
                                      bitpos=offset * 8, is_base_class=member.isBaseClass))
         self.type_fields_cache[typeid] = fields
+
+    def vfptr_typeid(self):
+        return self.create_pointer_typeid(self.create_typeid('void'))
 
     def nativeStructAlignment(self, nativeType: cdbext.Type) -> int:
         #DumperBase.warn("NATIVE ALIGN FOR %s" % nativeType.name)
@@ -613,7 +637,9 @@ class Dumper(DumperBase):
             self.putAddress(address)
 
     def putVTableChildren(self, item: DumperBase.Value, itemCount: int) -> int:
-        p = item.address()
+        # From the symbol group the vfptr is the table itself, from memory it is
+        # the slot holding the table's address.
+        p = item.address() if item.nativeValue is not None else self.value_as_address(item)
         for i in range(itemCount):
             deref = self.extractPointer(p)
             if deref == 0:
@@ -730,6 +756,7 @@ class Dumper(DumperBase):
         self.setVariableFetchingOptions(args)
 
         self.output = []
+        self.vtable_owners = {}
 
         self.currentIName = 'local'
         self.put('data=[')
@@ -795,6 +822,9 @@ class Dumper(DumperBase):
         if nativeValue is None:
             if not self.isExpanded():
                 raise Exception("Casting not expanded values is to expensive")
+            val = self.value_from_vtable(value)
+            if val is not None:
+                return val
             nativeValue = self.nativeParseAndEvaluate('(%s)0x%x' % (value.type.name, value.pointer()))
         castVal = nativeVtCastValue(nativeValue)
         if castVal is not None:
@@ -806,6 +836,98 @@ class Dumper(DumperBase):
             val.nativeValue = value.nativeValue
 
         return val
+
+    def value_from_vtable(self, value: DumperBase.Value):
+        # What a pointer made up by a dumper points to, typed the way the
+        # __vtcast_ member of the symbol group would type it, but from memory:
+        # the class owning the vtable the object holds at offset 0 is the
+        # dynamic type, and the table's RTTI locator says where in that object
+        # the pointee sits. Where the pointee has no table or the table is the
+        # pointer's own type's, there is nothing to cast. This replaces a cast
+        # expression added to the symbol group and an expansion of it.
+        target = self.type_target(value.typeid)
+        if target is None or self.type_code(target) != TypeCode.Struct:
+            return None
+        address = value.pointer()
+        if not address:
+            return None
+        try:
+            vtable = self.extract_pointer_at_address(address)
+            if vtable in self.vtable_owners:
+                owner = self.vtable_owners[vtable]
+            else:
+                owner = self.vtable_owner(vtable)
+                self.vtable_owners[vtable] = owner
+        except Exception:
+            return None
+        if owner is None:
+            return None
+        klass, offset = owner
+        typeid = target
+        if klass and self.sanitize_type_name(klass) != self.type_name(target):
+            nativeType = self.lookupNativeType(klass)
+            if nativeType is None or not self.nativeTypeIsUsable(nativeType):
+                return None
+            typeid = self.from_native_type(nativeType)
+        elif offset:
+            return None
+        val = self.Value(self)
+        val.laddress = address - offset
+        val.typeid = typeid
+        return val
+
+    def vtable_owner(self, vtable: int):
+        # The class owning the vtable at the address and the offset of the
+        # subobject the table serves within the complete object; None where
+        # the table cannot be told, and ('', 0) where there is no vtable: what
+        # the object holds at offset 0 is no pointer, points to no symbol, or
+        # to one that is not a table, so the object's static type stands. A
+        # vbtable there means a class whose vfptr lies in a virtual base,
+        # which is for the symbol group to cast. The engine names the nearest
+        # symbol and undecorates the tables a class has for each of its bases
+        # to the same name, so the symbol has to sit at the address itself,
+        # and which subobject the table serves is read off its RTTI locator.
+        if not self.couldBePointer(vtable):
+            return ('', 0)
+        symbol = cdbext.getSymbolByAddress(vtable)
+        if symbol is None:
+            return ('', 0)
+        name, displacement = symbol
+        name = name[name.find('!') + 1:]
+        for marker in ("::`vftable'", "::`local vftable'"):
+            if name.endswith(marker):
+                if displacement != 0:
+                    return None
+                offset = self.vtable_subobject_offset(vtable)
+                return None if offset is None else (name[:-len(marker)], offset)
+        if name.endswith("::`vbtable'"):
+            return None
+        return ('', 0)
+
+    def vtable_subobject_offset(self, vtable: int):
+        # The RTTICompleteObjectLocator the slot before a table points to:
+        # signature, offset of the subobject in the complete object,
+        # constructor displacement, type and class descriptor, and on 64 bit
+        # the locator's own image-relative address. A table built without RTTI
+        # has none, so what the slot leads to is checked for the shape; the
+        # locator is DWORDs, aligned to 4 only. A constructor displacement
+        # means a virtual base, whose offset takes more than this to find.
+        ptr_size = self.ptrSize()
+        locator = self.extract_pointer_at_address(vtable - ptr_size)
+        if locator < 100000 or locator & 0x3:
+            return None
+        if ptr_size == 8:
+            (signature, offset, cd_offset, _, _, self_rva) = self.split('IIIIII', locator)
+            base = locator - self_rva
+            if signature != 1 or base & 0xffff or not base <= vtable < base + 0x100000000:
+                return None
+        else:
+            (signature, offset, cd_offset) = self.split('III', locator)
+            if signature != 0:
+                return None
+        if cd_offset != 0 or offset >= 0x100000:
+            return None
+        return offset
 
     def callHelper(self, rettype, value, function, args):
         raise Exception("cdb does not support calling functions")
