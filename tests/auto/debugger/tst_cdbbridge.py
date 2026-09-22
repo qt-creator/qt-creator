@@ -418,6 +418,13 @@ casts.clear()
 expect('a vbtable in the first slot is left to the symbol group',
        dereferenced(HEAP + 0x70), ('Base', HEAP + 0x70))
 expect('through a cast expression', len(casts), 1)
+put_pointer(heap, 0xf0, HEAP + 0x10)
+calls.clear()
+native = dumper.fromNativeValue(FakeValue('p', FakeType('Base *', TypeCode.Pointer), address=HEAP + 0xf0))
+value = dumper.value_dereference(native)
+expect('a pointer from the symbol group is typed the same way',
+       (dumper.type_name(value.typeid), value.laddress), ('Derived', HEAP))
+expect('without expanding its symbol for the probe', calls['FakeValue.hasChildren'], 0)
 
 print('')
 print('--- the vfptr is recorded in a layout as the slot holding the table ---')

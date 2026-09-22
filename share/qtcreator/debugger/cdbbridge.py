@@ -819,12 +819,12 @@ class Dumper(DumperBase):
             return None
 
         nativeValue = value.nativeValue
+        if nativeValue is None and not self.isExpanded():
+            raise Exception("Casting not expanded values is to expensive")
+        val = self.value_from_vtable(value)
+        if val is not None:
+            return val
         if nativeValue is None:
-            if not self.isExpanded():
-                raise Exception("Casting not expanded values is to expensive")
-            val = self.value_from_vtable(value)
-            if val is not None:
-                return val
             nativeValue = self.nativeParseAndEvaluate('(%s)0x%x' % (value.type.name, value.pointer()))
         castVal = nativeVtCastValue(nativeValue)
         if castVal is not None:
@@ -838,13 +838,14 @@ class Dumper(DumperBase):
         return val
 
     def value_from_vtable(self, value: DumperBase.Value):
-        # What a pointer made up by a dumper points to, typed the way the
-        # __vtcast_ member of the symbol group would type it, but from memory:
-        # the class owning the vtable the object holds at offset 0 is the
-        # dynamic type, and the table's RTTI locator says where in that object
-        # the pointee sits. Where the pointee has no table or the table is the
-        # pointer's own type's, there is nothing to cast. This replaces a cast
-        # expression added to the symbol group and an expansion of it.
+        # What a pointer points to, typed the way the __vtcast_ member of the
+        # symbol group would type it, but from memory: the class owning the
+        # vtable the object holds at offset 0 is the dynamic type, and the
+        # table's RTTI locator says where in that object the pointee sits.
+        # Where the pointee has no table or the table is the pointer's own
+        # type's, there is nothing to cast. This replaces an expansion of the
+        # pointer's symbol for the probe, and for a pointer a dumper made up
+        # the cast expression added to the group before it.
         target = self.type_target(value.typeid)
         if target is None or self.type_code(target) != TypeCode.Struct:
             return None
