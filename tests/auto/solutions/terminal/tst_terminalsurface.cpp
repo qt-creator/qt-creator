@@ -903,6 +903,33 @@ private slots:
         QCOMPARE(surfaceText(), expected);
     }
 
+    void anAltscreenBackgroundDoesNotReachThePrimaryScreen()
+    {
+        initSurface({20, 6});
+        write({"a", "b"});
+
+        const auto background = [this](int x, int y) {
+            return m_surface->fetchCell(x, y).backgroundColor;
+        };
+        const std::variant<int, QColor> untouched = background(10, 0);
+
+        m_surface->dataFromPty("\x1b[?1049h");
+        // An application on the altscreen paints with a background of its own
+        m_surface->dataFromPty("\x1b[44m\x1b[2J");
+        resizeTo({30, 10});
+        m_surface->dataFromPty("\x1b[0m\x1b[?1049l");
+
+        // The cells the primary screen gains are not the application's to
+        // paint: the pen it left behind belongs to the screen it was drawing on
+        for (int y = 0; y < m_surface->fullSize().height(); ++y) {
+            for (int x = 0; x < m_surface->fullSize().width(); ++x) {
+                QVERIFY2(background(x, y) == untouched,
+                         qPrintable(QString("cell %1,%2 does not have the background of an "
+                                            "untouched cell").arg(x).arg(y)));
+            }
+        }
+    }
+
     void aCellFilledWithCombiningMarksIsNotReadPastItsEnd()
     {
         initSurface({20, 4});

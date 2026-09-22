@@ -77,10 +77,10 @@ struct VTermScreen
   ScreenPen pen;
 };
 
-static inline void clearcell(const VTermScreen *screen, ScreenCell *cell)
+static inline void clearcell(ScreenCell *cell, const ScreenPen *pen)
 {
   cell->chars[0] = 0;
-  cell->pen = screen->pen;
+  cell->pen = *pen;
   cell->pen.uri = 0;
   cell->pen.image = 0;
 }
@@ -100,7 +100,7 @@ static ScreenCell *alloc_buffer(VTermScreen *screen, int rows, int cols)
 
   for(int row = 0; row < rows; row++) {
     for(int col = 0; col < cols; col++) {
-      clearcell(screen, &new_buffer[row * cols + col]);
+      clearcell(&new_buffer[row * cols + col], &screen->pen);
     }
   }
 
@@ -531,6 +531,16 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
   int old_rows = screen->rows;
   int old_cols = screen->cols;
 
+  /* The cells a buffer gains are blank ones that nothing has painted. The pen
+   * belongs to whatever is drawing on the active buffer, so it must not reach
+   * the one that is not shown: an application on the altscreen would colour
+   * the primary screen it is going to be left on. */
+  ScreenPen blank = screen->pen;
+  if(!active) {
+    blank = (ScreenPen){ 0 };
+    vterm_state_get_default_colors(screen->state, &blank.fg, &blank.bg);
+  }
+
   ScreenCell *old_buffer = screen->buffers[bufidx];
   VTermLineInfo *old_lineinfo = statefields->lineinfos[bufidx];
 
@@ -662,7 +672,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
       }
 
       while(new_col < new_cols) {
-        clearcell(screen, &new_buffer[new_row * new_cols + new_col]);
+        clearcell(&new_buffer[new_row * new_cols + new_col], &blank);
         new_col++;
       }
 
@@ -740,7 +750,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
           (dst + 1)->chars[0] = (uint32_t) -1;
       }
       for( ; pos.col < new_cols; pos.col++)
-        clearcell(screen, &new_buffer[pos.row * new_cols + pos.col]);
+        clearcell(&new_buffer[pos.row * new_cols + pos.col], &blank);
       new_row--;
 
       if(active)
@@ -757,7 +767,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
 
     for(new_row = moverows; new_row < new_rows; new_row++) {
       for(int col = 0; col < new_cols; col++)
-        clearcell(screen, &new_buffer[new_row * new_cols + col]);
+        clearcell(&new_buffer[new_row * new_cols + col], &blank);
       new_lineinfo[new_row] = (VTermLineInfo){ 0 };
     }
   }
