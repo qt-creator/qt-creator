@@ -59,7 +59,7 @@ using namespace Utils;
 namespace Wsl {
 namespace Internal {
 
-Q_LOGGING_CATEGORY(wslDeviceLog, "qtc.wsl.device", QtWarningMsg);
+static Q_LOGGING_CATEGORY(wslDeviceLog, "qtc.wsl.device", QtWarningMsg);
 
 const char WslDeviceDistributionKey[] = "WslDeviceDistribution";
 const char WslDeviceUserNameKey[] = "WslDeviceUserName";
