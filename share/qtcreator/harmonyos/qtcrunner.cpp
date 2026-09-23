@@ -16,6 +16,7 @@
 #include "qtcload.h"
 
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -400,14 +401,34 @@ static std::vector<std::string> rememberedPlugins(const std::string &directory)
     return plugins;
 }
 
+// Where the package's plugins are, which the platform plugin puts into the environment
+// for the Qt the package carries.
+static const char *PluginPaths[] = {"QT_QPA_PLATFORM_PLUGIN_PATH", "QT_PLUGIN_PATH"};
+
 static void registerPlugins(const std::vector<std::string> &plugins, QtcLoad::World *world)
 {
+    size_t registered = 0;
     for (const std::string &path : plugins) {
         std::string error;
-        if (QtcLoad::registerPlugin(path.c_str(), world, &error))
+        if (QtcLoad::registerPlugin(path.c_str(), world, &error)) {
             note("registered the plugin %s", fileName(path).c_str());
-        else
+            ++registered;
+        } else {
             note("%s", error.c_str());
+        }
+    }
+    if (registered == 0)
+        return;
+    // A registered plugin is one Qt finds among the static ones, which it looks at after
+    // the files: a plugin of the same name in the package therefore wins, and it is the
+    // one that cannot work, because it belongs to the package's Qt. Qt asks for a name
+    // rather than for all of them, so there is no falling back to the second answer once
+    // the first fails to load. Take the package's plugins out of the search instead.
+    for (const char *variable : PluginPaths) {
+        if (::getenv(variable)) {
+            ::unsetenv(variable);
+            note("unset %s, which is where the package's plugins are", variable);
+        }
     }
 }
 
