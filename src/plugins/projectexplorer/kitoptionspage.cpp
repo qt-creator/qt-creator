@@ -594,7 +594,8 @@ void KitOptionsPageWidget::load(const KitData &workingCopySrc, int row)
         aspect->reload();
 
     m_iconButton.setIcon(m_model.modifiedKit()->icon());
-    m_nameEdit.setText(m_model.modifiedKit()->unexpandedDisplayName());
+    m_nameEdit.setPlaceholderText(m_model.modifiedKit()->defaultUnexpandedDisplayName());
+    m_nameEdit.setText(m_model.modifiedKit()->customUnexpandedDisplayName());
     m_fileSystemFriendlyNameLineEdit.setText(m_model.modifiedKit()->customFileSystemFriendlyName());
 
     m_loading = false;
@@ -745,8 +746,12 @@ void KitOptionsPageWidget::workingCopyWasUpdated(Kit *k)
     for (KitAspect *w : std::as_const(m_kitAspects))
         w->refresh();
 
-    if (k->unexpandedDisplayName() != m_nameEdit.text())
-        m_nameEdit.setText(k->unexpandedDisplayName());
+    // Do not force the default name into the line edit; it is offered as placeholder text
+    // instead. Otherwise, the user could not clear the field in order to type a new name.
+    if (k->unexpandedDisplayName() != m_nameEdit.text()
+        && k->customUnexpandedDisplayName() != m_nameEdit.text()) {
+        m_nameEdit.setText(k->customUnexpandedDisplayName());
+    }
 
     m_fileSystemFriendlyNameLineEdit.setText(k->customFileSystemFriendlyName());
     m_iconButton.setIcon(k->icon());

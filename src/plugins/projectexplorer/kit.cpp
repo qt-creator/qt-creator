@@ -326,6 +326,18 @@ QString Kit::unexpandedDisplayName() const
     return d->m_unexpandedDisplayName.value();
 }
 
+QString Kit::customUnexpandedDisplayName() const
+{
+    if (d->m_unexpandedDisplayName.usesDefaultValue())
+        return {};
+    return d->m_unexpandedDisplayName.value();
+}
+
+QString Kit::defaultUnexpandedDisplayName() const
+{
+    return d->m_unexpandedDisplayName.defaultValue();
+}
+
 QString Kit::displayName() const
 {
     return d->m_macroExpander.expand(unexpandedDisplayName());
