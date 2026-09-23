@@ -26,6 +26,8 @@
 #include <QTest>
 #include <QTextCursor>
 
+#include <algorithm>
+
 using namespace Utils;
 
 namespace Mcp::Internal {
@@ -71,6 +73,7 @@ private slots:
     void testCursorPositionFollowsTheMainCursor();
     void testCursorPositionWithoutAnEditor();
     void testClickItemContextMenuKeepsAMultiSelection();
+    void testClickItemShiftExtendsTheSelection();
     void testActivateMenuItemGoesThroughTheMenu();
     void testActivateMenuItemRefusesADisabledItem();
 
@@ -361,6 +364,43 @@ void McpCommandsTest::testClickItemContextMenuKeepsAMultiSelection()
     // so asking that row for its context menu must not reduce it to the row.
     QCOMPARE(selection->selectedIndexes().size(), 3);
     QCOMPARE(view.currentIndex(), model.index(1, 0));
+}
+
+void McpCommandsTest::testClickItemShiftExtendsTheSelection()
+{
+    QStandardItemModel model;
+    for (const char *label : {"alpha", "beta", "gamma", "delta"})
+        model.appendRow(new QStandardItem(QLatin1String(label)));
+
+    QListView view;
+    view.setObjectName("mcpCommandsTestShiftList");
+    view.setModel(&model);
+    view.setSelectionMode(QAbstractItemView::ExtendedSelection);
+    view.resize(200, 200);
+    view.show();
+    const QScopeGuard hideView([&view] { view.hide(); });
+
+    QString error;
+    callTool("ui_click_item", {{"object_name", "mcpCommandsTestShiftList"}, {"item", "beta"}},
+             &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    callTool(
+        "ui_click_item",
+        {{"object_name", "mcpCommandsTestShiftList"}, {"item", "delta"}, {"modifiers", "shift"}},
+        &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+
+    // The view reads the modifier state from QGuiApplication, not from the
+    // mouse event, when it decides whether to keep the selection anchor. A
+    // click that leaves that state alone selects the clicked row only.
+    QList<int> rows;
+    for (const QModelIndex &index : view.selectionModel()->selectedRows())
+        rows.append(index.row());
+    std::sort(rows.begin(), rows.end());
+    QCOMPARE(rows, QList<int>({1, 2, 3}));
+
+    // And the keys must not stay down for whatever runs next.
+    QCOMPARE(QGuiApplication::keyboardModifiers(), Qt::NoModifier);
 }
 
 void McpCommandsTest::testActivateMenuItemGoesThroughTheMenu()

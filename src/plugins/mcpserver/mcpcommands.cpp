@@ -108,6 +108,18 @@
 
 using namespace Utils;
 
+// QEvent::setSpontaneous() is reachable only for QSpontaneKeyEvent, the friend
+// Qt declares so that synthesized input can look like the window system's own.
+// QtWebEngine impersonates it for that reason, and the alternative here is a
+// QtTest dependency for a single inline call.
+QT_BEGIN_NAMESPACE
+class QSpontaneKeyEvent
+{
+public:
+    static void setSpontaneous(QEvent *event) { event->setSpontaneous(); }
+};
+QT_END_NAMESPACE
+
 static Q_LOGGING_CATEGORY(mcpCommands, "qtc.mcpserver.commands", QtWarningMsg)
 
 namespace Mcp::Internal {
@@ -1191,6 +1203,95 @@ static Utils::Result<QAbstractItemView *> resolveSingleView(const WidgetQuery &q
     return ResultError(
         QString("Widget is not an item view: %1.").arg(describeWidgetShort(*w)));
 }
+
+static Utils::Result<Qt::KeyboardModifiers> modifiersFromString(const QString &spec)
+{
+    static const QMap<QString, Qt::KeyboardModifier> known = {
+        {"ctrl", Qt::ControlModifier},
+        {"shift", Qt::ShiftModifier},
+        {"alt", Qt::AltModifier},
+        {"meta", Qt::MetaModifier},
+    };
+    Qt::KeyboardModifiers result = Qt::NoModifier;
+    for (const QString &part : spec.split('+', Qt::SkipEmptyParts)) {
+        const auto it = known.constFind(part.trimmed().toLower());
+        if (it == known.constEnd()) {
+            return ResultError(QString("Unknown modifier \"%1\". Known: [%2].")
+                                   .arg(part, QStringList(known.keys()).join(", ")));
+        }
+        result |= *it;
+    }
+    return result;
+}
+
+struct ModifierKey
+{
+    Qt::Key key;
+    Qt::KeyboardModifier modifier;
+};
+
+// The keys a modifier set stands for, in the order a user presses them.
+static QList<ModifierKey> modifierKeys(Qt::KeyboardModifiers modifiers)
+{
+    static const ModifierKey all[] = {
+        {Qt::Key_Control, Qt::ControlModifier},
+        {Qt::Key_Shift, Qt::ShiftModifier},
+        {Qt::Key_Alt, Qt::AltModifier},
+        {Qt::Key_Meta, Qt::MetaModifier},
+    };
+    QList<ModifierKey> keys;
+    for (const ModifierKey &candidate : all) {
+        if (modifiers & candidate.modifier)
+            keys.append(candidate);
+    }
+    return keys;
+}
+
+// Holds the modifier keys down for as long as it lives. Setting them on the
+// mouse event alone is not enough: an item view asks QGuiApplication for the
+// modifier state when currentChanged() decides whether to keep the selection
+// anchor, so without this a shift-click moves the anchor to the clicked row
+// and selects only that row. QGuiApplication picks that state up from events
+// the window system sent, hence notify() on a spontaneous event rather than
+// sendEvent(), which clears the flag.
+class HeldModifiers
+{
+public:
+    HeldModifiers(QWidget *target, Qt::KeyboardModifiers modifiers)
+        : m_target(target)
+        , m_modifiers(modifiers)
+    {
+        Qt::KeyboardModifiers held = Qt::NoModifier;
+        for (const ModifierKey &modifierKey : modifierKeys(m_modifiers)) {
+            held |= modifierKey.modifier;
+            send(QEvent::KeyPress, modifierKey.key, held);
+        }
+    }
+
+    ~HeldModifiers()
+    {
+        const QList<ModifierKey> keys = modifierKeys(m_modifiers);
+        Qt::KeyboardModifiers held = m_modifiers;
+        for (auto it = keys.crbegin(); it != keys.crend(); ++it) {
+            held &= ~it->modifier;
+            send(QEvent::KeyRelease, it->key, held);
+        }
+    }
+
+    HeldModifiers(const HeldModifiers &) = delete;
+    HeldModifiers &operator=(const HeldModifiers &) = delete;
+
+private:
+    void send(QEvent::Type type, Qt::Key key, Qt::KeyboardModifiers modifiers)
+    {
+        QKeyEvent event(type, key, modifiers);
+        QSpontaneKeyEvent::setSpontaneous(&event);
+        QApplication::instance()->notify(m_target, &event);
+    }
+
+    QWidget *m_target;
+    const Qt::KeyboardModifiers m_modifiers;
+};
 
 // An item is named by its full path ("Outgoing / Fix the thing") or, when that
 // is unambiguous, by its label alone. More than one match is an error, for the
@@ -3357,6 +3458,15 @@ void McpCommands::registerCommands()
                             {"description",
                              "Double-click the row. Some views act only on that (opening what "
                              "the row stands for), and a single click then does nothing."}})
+                    .addProperty(
+                        "modifiers",
+                        QJsonObject{
+                            {"type", "string"},
+                            {"description",
+                             "Keyboard modifiers held while clicking, \"+\"-separated out of "
+                             "\"ctrl\", \"shift\", \"alt\" and \"meta\". This is how a "
+                             "multi-selection is built: ctrl adds the row to the selection, "
+                             "shift extends it to the row."}})
                     .addRequired("item")),
         [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
             const QJsonObject p = params.argumentsAsObject();
@@ -3372,6 +3482,10 @@ void McpCommands::registerCommands()
                 return ResultError(
                     QString("Item is disabled: \"%1\".").arg(itemPath(*index)));
             }
+            const Utils::Result<Qt::KeyboardModifiers> modifiers
+                = modifiersFromString(p.value("modifiers").toString());
+            if (!modifiers)
+                return ResultError(modifiers.error());
             // Scroll it into view first: a click outside the viewport lands
             // nowhere, and visualRect() of an off-screen row is empty.
             (*view)->scrollTo(*index);
@@ -3397,10 +3511,11 @@ void McpCommands::registerCommands()
                     describeItem(*view, *index));
             }
             QMouseEvent press(QEvent::MouseButtonPress, center, global, Qt::LeftButton,
-                              Qt::LeftButton, Qt::NoModifier);
+                              Qt::LeftButton, *modifiers);
             QMouseEvent release(QEvent::MouseButtonRelease, center, global, Qt::LeftButton,
-                                Qt::NoButton, Qt::NoModifier);
+                                Qt::NoButton, *modifiers);
             glidePointerToGlobal(global.toPoint());
+            const HeldModifiers held((*view)->viewport(), *modifiers);
             QApplication::sendEvent((*view)->viewport(), &press);
             waitPainting(demoPace().clickHoldMs);
             QApplication::sendEvent((*view)->viewport(), &release);
@@ -3408,7 +3523,7 @@ void McpCommands::registerCommands()
                 // The second press of a double click arrives as its own event
                 // type; a view that only reacts to that ignores two singles.
                 QMouseEvent doubleClick(QEvent::MouseButtonDblClick, center, global,
-                                        Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+                                        Qt::LeftButton, Qt::LeftButton, *modifiers);
                 QApplication::sendEvent((*view)->viewport(), &doubleClick);
                 QApplication::sendEvent((*view)->viewport(), &release);
             }
