@@ -258,10 +258,10 @@ static bool receiveQt(int fd, Launch *launch, std::string *error)
         }
         if (fileOfSize(path, sizes[index]))
             continue;
-        // What the platform has answers for a library, which is looked up by name, and for
-        // nothing else: a plugin of that name in the package is a different plugin, and one
-        // this process could reach at all is the exception rather than the rule.
-        if (!plugin && QtcLoad::installed(names[index].c_str()))
+        // What the platform has answers for a library, and only for the very same one: a
+        // copy of another size belongs to another Qt, and a plugin of that name in the
+        // package is another plugin whatever its size.
+        if (!plugin && QtcLoad::installed(names[index].c_str(), sizes[index]))
             continue;
         wanted[index] = 'S';
     }

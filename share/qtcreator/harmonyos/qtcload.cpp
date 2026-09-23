@@ -487,6 +487,13 @@ static bool isFile(const std::string &path)
     return ::stat(path.c_str(), &status) == 0 && S_ISREG(status.st_mode);
 }
 
+static bool isFileOfSize(const std::string &path, size_t size)
+{
+    struct stat status = {};
+    return ::stat(path.c_str(), &status) == 0 && S_ISREG(status.st_mode)
+           && size_t(status.st_size) == size;
+}
+
 Image *World::find(const std::string &name) const
 {
     for (const std::unique_ptr<Image> &image : images) {
@@ -770,15 +777,18 @@ bool load(const char *path, Image *image, std::string *error, World *world)
     return false;
 }
 
-bool installed(const char *name)
+bool installed(const char *name, size_t size)
 {
-    if (!loadedPath(name).empty())
-        return true;
+    // A library of that name that is loaded already is the one a dependency on it would
+    // reach, so it is the only candidate left once there is one.
+    const std::string loaded = loadedPath(name);
+    if (!loaded.empty())
+        return isFileOfSize(loaded, size);
     const std::string unversioned = unversionedName(name);
     for (const std::string &directory : loadedDirectories()) {
-        if (isFile(directory + '/' + name))
+        if (isFileOfSize(directory + '/' + name, size))
             return true;
-        if (!unversioned.empty() && isFile(directory + '/' + unversioned))
+        if (!unversioned.empty() && isFileOfSize(directory + '/' + unversioned, size))
             return true;
     }
     return false;
