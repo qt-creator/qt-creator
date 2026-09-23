@@ -16,11 +16,12 @@ namespace TextEditor { class TextEditorWidget; }
 
 namespace DiffEditor {
 
-// The declaration the code below line lastLine (1-based) belongs to, shown on
-// the placeholder of a collapsed region the way git puts it on a hunk header:
-// the closest line at or above lastLine that starts in column 0 with a letter,
-// an underscore or a dollar sign. Empty if there is none.
-QString inlineDiffContextLine(const QTextDocument *document, int lastLine);
+// The declaration a collapsed region belongs to, shown on its placeholder the
+// way git puts the function name on a hunk header. With searchForward false,
+// find the closest qualifying line at or above lastLine (1-based). With
+// searchForward true, find the closest qualifying line below lastLine.
+QString inlineDiffContextLine(const QTextDocument *document, int lastLine,
+                              bool searchForward = false);
 
 enum class InlineDiffViewMode { Inline, SideBySide };
 

@@ -741,19 +741,32 @@ static int baselineLineToEditorPosition(const InlineDiffRenderModel &model, int 
 
 } // anonymous namespace
 
-QString inlineDiffContextLine(const QTextDocument *document, int lastLine)
+QString inlineDiffContextLine(const QTextDocument *document, int lastLine, bool searchForward)
 {
     QTC_ASSERT(document, return {});
-    for (int line = qMin(lastLine, document->blockCount()); line >= 1; --line) {
+    const auto contextLine = [&](int line) {
         const QString text = document->findBlockByNumber(line - 1).text();
         if (text.isEmpty())
-            continue;
+            return QString();
         // git's default hunk header pattern: a declaration starts in column 0
         // with a letter, an underscore or a dollar sign, which skips comments,
         // preprocessor lines, closing braces and anything indented
         const QChar first = text.at(0);
         if (first.isLetter() || first == '_' || first == '$')
             return text.trimmed();
+        return QString();
+    };
+
+    if (searchForward) {
+        for (int line = qMax(1, lastLine + 1); line <= document->blockCount(); ++line) {
+            if (const QString context = contextLine(line); !context.isEmpty())
+                return context;
+        }
+    } else {
+        for (int line = qMin(lastLine, document->blockCount()); line >= 1; --line) {
+            if (const QString context = contextLine(line); !context.isEmpty())
+                return context;
+        }
     }
     return {};
 }
@@ -977,7 +990,11 @@ private:
         const bool collapseBaseline = m_baselineActive && m_baseline;
         const int baselineBlockCount = collapseBaseline ? m_baseline->document()->blockCount() : 0;
 
+        const ChangeIntervals changes = editorChanges(m_model);
         for (const QPair<int, int> &run : editorRuns) {
+            const bool searchForward = Utils::anyOf(changes, [run](const auto &change) {
+                return change.first > run.second;
+            });
             Unit unit;
             unit.id = ++m_nextUnitId;
             if (collapseBaseline) {
@@ -990,12 +1007,12 @@ private:
                 // must end before the baseline's last line
                 if (first < 1 || last < first || last >= baselineBlockCount)
                     continue; // out of range: leave this run expanded on both sides
-                unit.baseline = makePlaceholder(m_baseline, {first, last}, unit.id);
+                unit.baseline = makePlaceholder(m_baseline, {first, last}, unit.id, searchForward);
                 // collapsing only the editor side would break the row alignment
                 if (!unit.baseline.view)
                     continue; // failed before hiding anything: leave both sides expanded
             }
-            unit.editor = makePlaceholder(m_editor, run, unit.id);
+            unit.editor = makePlaceholder(m_editor, run, unit.id, searchForward);
             m_units.append(unit);
         }
         reposition();
@@ -1049,7 +1066,8 @@ private:
         }
     }
 
-    Placeholder makePlaceholder(TextEditorWidget *view, const QPair<int, int> &range, int unitId)
+    Placeholder makePlaceholder(TextEditorWidget *view, const QPair<int, int> &range, int unitId,
+                                bool searchForward)
     {
         Placeholder placeholder;
         TextEditorLayout *layout = view->editorLayout();
@@ -1074,7 +1092,7 @@ private:
         placeholder.anchor = QTextCursor(anchor);
         placeholder.anchorFragment = anchor.fragmentIndex();
         placeholder.row = new CollapsedRow(view->viewport(), placeholder.hiddenCount,
-                                           inlineDiffContextLine(doc, range.second),
+                                           inlineDiffContextLine(doc, range.second, searchForward),
                                            [this, unitId] { expandUnit(unitId); });
         return placeholder;
     }
