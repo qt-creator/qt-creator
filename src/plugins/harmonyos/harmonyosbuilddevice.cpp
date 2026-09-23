@@ -14,6 +14,10 @@
 
 #include <coreplugin/icore.h>
 
+#include <debugger/debuggeritem.h>
+#include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggerkitaspect.h>
+
 #include <projectexplorer/devicesupport/desktopdevice.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -276,6 +280,31 @@ static void bindQtVersion(Kit *kit)
     QtSupport::QtKitAspect::setQtVersion(kit, version);
 }
 
+// The lldb travels in Qt Creator's own package as the compiler does, so it too is a
+// fresh item on every install, and a restored kit names one that is gone.
+static bool bindDebugger(Kit *kit, const FilePath &sdkRoot)
+{
+    const FilePath lldb = Sdk::lldbCommand(sdkRoot);
+    if (!lldb.isExecutableFile())
+        return false;
+
+    const Debugger::DebuggerItem known = Debugger::DebuggerItemManager::findByCommand(lldb);
+    if (known && known.engineType() == Debugger::LldbEngineType) {
+        Debugger::DebuggerKitAspect::setDebugger(kit, known.id());
+        return true;
+    }
+
+    Debugger::DebuggerItem debugger;
+    debugger.setCommand(lldb);
+    debugger.setEngineType(Debugger::LldbEngineType);
+    debugger.setUnexpandedDisplayName(Tr::tr("HarmonyOS LLDB"));
+    debugger.setDetectionSource(DetectionSource::FromSystem);
+    debugger.reinitializeFromFile();
+    Debugger::DebuggerKitAspect::setDebugger(
+        kit, Debugger::DebuggerItemManager::registerDebugger(debugger));
+    return true;
+}
+
 // The headers of EGL and the other platform libraries sit in that SDK's sysroot, which
 // CMake looks at only once the kit names it. The Qt on the device is a native build, so
 // unlike a cross-built one its qt.toolchain.cmake says nothing about OpenHarmony: without
@@ -297,6 +326,9 @@ static void completeKit(Kit *kit)
 
     if (SysRootKitAspect::sysRoot(kit).isEmpty())
         SysRootKitAspect::setSysRoot(kit, Sdk::sysrootPath(sdkRoot));
+
+    if (!Debugger::DebuggerKitAspect::debugger(kit))
+        bindDebugger(kit, sdkRoot);
 
     using namespace CMakeProjectManager;
     const FilePath toolchainFile = Sdk::cmakeToolchainFile(sdkRoot);
