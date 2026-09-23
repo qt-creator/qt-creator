@@ -58,6 +58,7 @@ public:
     void setPatience(bool patience);
     bool patience() const;
     static QList<Diff> merge(const QList<Diff> &diffList);
+    static QList<Diff> cleanupLineDiffSemantics(const QList<Diff> &diffList);
     static QList<Diff> cleanupSemantics(const QList<Diff> &diffList);
     static QList<Diff> cleanupSemanticsLossless(const QList<Diff> &diffList);
 

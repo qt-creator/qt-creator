@@ -22,6 +22,8 @@ private slots:
     void deletionAtStart();
     void deletionAtEnd();
     void pureAddition();
+    void tableRowAddition();
+    void lineAdditionBeforeSimilarLine();
     void multiLineModification();
     void modifyDeleteAdd();
     void newlineOnlyDifference();
@@ -56,7 +58,7 @@ static QString patchFor(const QString &baseline, const QString &editor, bool pat
     Utils::Differ differ;
     differ.setPatience(patience);
     const QList<Utils::Diff> diffList
-        = Utils::Differ::cleanupSemantics(differ.diff(baseline, editor));
+        = Utils::Differ::cleanupLineDiffSemantics(differ.diff(baseline, editor));
     QList<Utils::Diff> left;
     QList<Utils::Diff> right;
     Utils::Differ::splitDiffList(diffList, &left, &right);
@@ -140,7 +142,7 @@ InlineDiffRenderModel tst_InlineDiff::compute(const QString &baseline, const QSt
     Utils::Differ differ;
     differ.setPatience(patience);
     const QList<Utils::Diff> diffList
-        = Utils::Differ::cleanupSemantics(differ.diff(baseline, editor));
+        = Utils::Differ::cleanupLineDiffSemantics(differ.diff(baseline, editor));
     QList<Utils::Diff> leftDiffList;
     QList<Utils::Diff> rightDiffList;
     Utils::Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
@@ -200,6 +202,51 @@ void tst_InlineDiff::pureAddition()
     QCOMPARE(model.changes.size(), 1);
     QCOMPARE(model.changes.first().startLine, 2);
     QCOMPARE(model.changes.first().endLine, 2);
+}
+
+void tst_InlineDiff::tableRowAddition()
+{
+    const QStringList baselineLines{
+        "A paragraph before the table.",
+        "| [Alpha](https://example.com/alpha) | 1.0 | MIT |",
+        "| [Beta](https://example.com/beta) | 2.0 | BSD-2-Clause |",
+        "| [Gamma](https://example.com/gamma) | 3.0 | Apache-2.0 |",
+        "| [Delta](https://example.com/delta) | 4.0 | MIT |",
+        "",
+        "## Another section"};
+    QStringList editorLines = baselineLines;
+    editorLines.insert(5,
+                       "| [Epsilon](https://example.com/epsilon) | 5.0 | MIT |");
+
+    for (const bool patience : {false, true}) {
+        const InlineDiffRenderModel model = compute(baselineLines.join('\n') + '\n',
+                                                    editorLines.join('\n') + '\n', patience);
+        QVERIFY(model.ghosts.isEmpty());
+        QCOMPARE(model.changes.size(), 1);
+        QCOMPARE(model.changes.first().startLine, 6);
+        QCOMPARE(model.changes.first().endLine, 6);
+    }
+}
+
+void tst_InlineDiff::lineAdditionBeforeSimilarLine()
+{
+    const QString baseline = "* Windows 11 (ARM64) or later\n"
+                             "* (K)Ubuntu Linux 22.04 (x86_64) or later (glibc 2.34)\n"
+                             "* (K)Ubuntu Linux 24.04 (arm64) or later (glibc 2.39)\n"
+                             "* macOS 13 or later\n";
+    const QString editor = "* Windows 11 (ARM64) or later\n"
+                           "* (K)Ubuntu Linux 22.04 (x86_64) or later (glibc 2.34)\n"
+                           "* (K)Ubuntu Linux 24.04 (arm64) or later (glibc 2.39)\n"
+                           "* (K)Ubuntu Linux 26.04 (arm64) or later (glibc 2.43)\n"
+                           "* macOS 13 or later\n";
+
+    for (const bool patience : {false, true}) {
+        const InlineDiffRenderModel model = compute(baseline, editor, patience);
+        QVERIFY(model.ghosts.isEmpty());
+        QCOMPARE(model.changes.size(), 1);
+        QCOMPARE(model.changes.first().startLine, 4);
+        QCOMPARE(model.changes.first().endLine, 4);
+    }
 }
 
 void tst_InlineDiff::multiLineModification()

@@ -313,7 +313,8 @@ static void computeRenderModel(QPromise<InlineDiffRenderModel> &promise,
 
     Differ differ(QFuture<void>(promise.future()));
     differ.setPatience(patience);
-    const QList<Diff> diffList = Differ::cleanupSemantics(differ.diff(baselineText, editorText));
+    const QList<Diff> diffList
+        = Differ::cleanupLineDiffSemantics(differ.diff(baselineText, editorText));
     QList<Diff> leftDiffList;
     QList<Diff> rightDiffList;
     Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);

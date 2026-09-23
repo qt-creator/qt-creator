@@ -54,6 +54,9 @@ private Q_SLOTS:
     void merge();
     void cleanupSemantics_data();
     void cleanupSemantics();
+    void cleanupLineDiffSemantics_data();
+    void cleanupLineDiffSemantics();
+    void cleanupLineDiffSemanticsWithDiffer();
     void cleanupSemanticsLossless_data();
     void cleanupSemanticsLossless();
     void diffBetweenEqualitiesRepeatedSubstrings_data();
@@ -740,6 +743,78 @@ void tst_Differ::cleanupSemantics()
 
     QList<Diff> result = Differ::cleanupSemantics(input);
     QCOMPARE(result, expected);
+}
+
+void tst_Differ::cleanupLineDiffSemantics_data()
+{
+    QTest::addColumn<QList<Diff> >("input");
+    QTest::addColumn<QList<Diff> >("expected");
+
+    QTest::newRow("Insertion between partial lines")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "prefix\n* ")
+                << Diff(Diff::Insert, "(K)Ubuntu Linux 26.04\n* ")
+                << Diff(Diff::Equal, "macOS 13 or later"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "prefix\n")
+                << Diff(Diff::Insert, "* (K)Ubuntu Linux 26.04\n")
+                << Diff(Diff::Equal, "* macOS 13 or later"));
+
+    QTest::newRow("Deletion between partial lines")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "prefix\n* ")
+                << Diff(Diff::Delete, "(K)Ubuntu Linux 26.04\n* ")
+                << Diff(Diff::Equal, "macOS 13 or later"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "prefix\n")
+                << Diff(Diff::Delete, "* (K)Ubuntu Linux 26.04\n")
+                << Diff(Diff::Equal, "* macOS 13 or later"));
+
+    QTest::newRow("Insertion inside a line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "foo(a")
+                << Diff(Diff::Insert, ",\n    b")
+                << Diff(Diff::Equal, ");\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "foo(a")
+                << Diff(Diff::Insert, ",\n    b")
+                << Diff(Diff::Equal, ");\n"));
+
+    QTest::newRow("Insertion after a line")
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int x = 1;")
+                << Diff(Diff::Insert, " // c\nint y;")
+                << Diff(Diff::Equal, "\n"))
+            << (QList<Diff>()
+                << Diff(Diff::Equal, "int x = 1;")
+                << Diff(Diff::Insert, " // c\nint y;")
+                << Diff(Diff::Equal, "\n"));
+}
+
+void tst_Differ::cleanupLineDiffSemantics()
+{
+    QFETCH(QList<Diff>, input);
+    QFETCH(QList<Diff>, expected);
+
+    QCOMPARE(Differ::cleanupLineDiffSemantics(input), expected);
+}
+
+void tst_Differ::cleanupLineDiffSemanticsWithDiffer()
+{
+    Differ differ;
+
+    const QString baseline = "prefix\n* macOS 13 or later\n";
+    const QString editor = "prefix\n* Ubuntu Linux 26.04\n* macOS 13 or later\n";
+    QCOMPARE(Differ::cleanupLineDiffSemantics(differ.diff(baseline, editor)),
+             QList<Diff>()
+                 << Diff(Diff::Equal, "prefix\n")
+                 << Diff(Diff::Insert, "* Ubuntu Linux 26.04\n")
+                 << Diff(Diff::Equal, "* macOS 13 or later\n"));
+
+    const QString inlineBaseline = "foo(a);\n";
+    const QString inlineEditor = "foo(a,\nfoo(a);\n";
+    const QList<Diff> rawDiff = differ.diff(inlineBaseline, inlineEditor);
+    QCOMPARE(Differ::cleanupLineDiffSemantics(rawDiff), rawDiff);
 }
 
 void tst_Differ::cleanupSemanticsLossless_data()

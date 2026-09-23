@@ -1483,7 +1483,7 @@ DiffEditor::ChunkData diffChunkAgainstEditorText(
 {
     Utils::Differ differ(future);
     const QList<Utils::Diff> diffList
-        = Utils::Differ::cleanupSemantics(differ.diff(baseText, editorText));
+        = Utils::Differ::cleanupLineDiffSemantics(differ.diff(baseText, editorText));
     QList<Utils::Diff> leftDiffList;
     QList<Utils::Diff> rightDiffList;
     Utils::Differ::splitDiffList(diffList, &leftDiffList, &rightDiffList);
