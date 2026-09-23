@@ -95,6 +95,8 @@ const Icon SAVEFILE({
         {":/utils/images/filesave.png", Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SAVEFILE_TOOLBAR({
         {":/utils/images/filesave.png", Theme::IconsBaseColor}});
+const Icon FILE({
+        {":/utils/images/file.png", Theme::PanelTextColorMid}}, Icon::Tint);
 
 const Icon EXPORTFILE_TOOLBAR({
         {":/utils/images/fileexport.png", Theme::IconsBaseColor}});
@@ -363,6 +365,7 @@ static QHash<QString, Icon> s_nameToIcon = {
     MAKE_ENTRY(EYE_CLOSED_TOOLBAR),
     MAKE_ENTRY(EYE_OPEN_TOOLBAR),
     MAKE_ENTRY(EYE_OPEN),
+    MAKE_ENTRY(FILE),
     MAKE_ENTRY(FILTER),
     MAKE_ENTRY(FITTOVIEW_TOOLBAR),
     MAKE_ENTRY(HELP),
