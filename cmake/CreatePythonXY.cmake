@@ -11,47 +11,46 @@ function(create_python_xy PythonExe PythonZipFilePath)
   endforeach()
   file(GLOB python_lib_files "${python_lib_dir}/*.py")
   foreach(not_needed
-    aifc.py              imghdr.py        socket.py
-    antigravity.py       imp.py           socketserver.py
-    argparse.py          ipaddress.py     ssl.py
-    asynchat.py          locale.py        statistics.py
-    asyncore.py          lzma.py          string.py
-    bdb.py               mailbox.py       stringprep.py
-    binhex.py            mailcap.py       sunau.py
-    bisect.py            mimetypes.py     symbol.py
-    bz2.py               modulefinder.py  symtable.py
-    calendar.py          netrc.py         tabnanny.py
-    cgi.py               nntplib.py       tarfile.py
-    cgitb.py             nturl2path.py    telnetlib.py
-    chunk.py             numbers.py       tempfile.py
-    cmd.py               optparse.py      this.py
-    code.py              pathlib.py       timeit.py
-    codeop.py            pdb.py           trace.py
-    colorsys.py          pickle.py        tracemalloc.py
-    compileall.py        pickletools.py   tty.py
-    configparser.py      pipes.py         turtle.py
-    contextvars.py       plistlib.py      uu.py
-    cProfile.py          poplib.py        uuid.py
-    crypt.py             pprint.py        wave.py
-    csv.py               profile.py       webbrowser.py
-    dataclasses.py       pstats.py        xdrlib.py
-    datetime.py          pty.py           zipapp.py
-    decimal.py           pyclbr.py        zipfile.py
-    difflib.py           py_compile.py    zipimport.py
-    doctest.py           queue.py         _compat_pickle.py
-    dummy_threading.py   quopri.py        _compression.py
-    filecmp.py           random.py        _dummy_thread.py
-    fileinput.py         rlcompleter.py   _markupbase.py
-    formatter.py         runpy.py         _osx_support.py
-    fractions.py         sched.py         _pydecimal.py
-    ftplib.py            secrets.py       _pyio.py
-    getopt.py            selectors.py     _py_abc.py
-    getpass.py           shelve.py        _strptime.py
-    gettext.py           shlex.py         _threading_local.py
-    gzip.py              shutil.py        __phello__.foo.py
-    hashlib.py           smtpd.py
-    hmac.py              smtplib.py
-    imaplib.py           sndhdr.py
+    aifc.py              imghdr.py        sndhdr.py
+    antigravity.py       imp.py           socket.py
+    argparse.py          ipaddress.py     socketserver.py
+    asynchat.py          locale.py        ssl.py
+    asyncore.py          lzma.py          statistics.py
+    bdb.py               mailbox.py       string.py
+    binhex.py            mailcap.py       stringprep.py
+    bisect.py            mimetypes.py     sunau.py
+    bz2.py               modulefinder.py  symbol.py
+    calendar.py          netrc.py         symtable.py
+    cgi.py               nntplib.py       tabnanny.py
+    cgitb.py             nturl2path.py    tarfile.py
+    chunk.py             numbers.py       telnetlib.py
+    cmd.py               optparse.py      tempfile.py
+    code.py              pathlib.py       this.py
+    codeop.py            pdb.py           timeit.py
+    colorsys.py          pickle.py        trace.py
+    compileall.py        pickletools.py   tracemalloc.py
+    configparser.py      pipes.py         tty.py
+    contextvars.py       plistlib.py      turtle.py
+    cProfile.py          poplib.py        uu.py
+    crypt.py             pprint.py        uuid.py
+    csv.py               profile.py       wave.py
+    dataclasses.py       pstats.py        webbrowser.py
+    decimal.py           pty.py           xdrlib.py
+    difflib.py           pyclbr.py        zipapp.py
+    doctest.py           py_compile.py    zipfile.py
+    dummy_threading.py   queue.py         zipimport.py
+    filecmp.py           quopri.py        _compat_pickle.py
+    fileinput.py         random.py        _compression.py
+    formatter.py         rlcompleter.py   _dummy_thread.py
+    fractions.py         runpy.py         _markupbase.py
+    ftplib.py            sched.py         _osx_support.py
+    getopt.py            secrets.py       _pydecimal.py
+    getpass.py           selectors.py     _pyio.py
+    gettext.py           shelve.py        _py_abc.py
+    gzip.py              shlex.py         _strptime.py
+    hashlib.py           shutil.py        _threading_local.py
+    hmac.py              smtpd.py         __phello__.foo.py
+    imaplib.py           smtplib.py
     )
     list(FIND python_lib_files "${python_lib_dir}/${not_needed}" found_not_needed)
     if (NOT found_not_needed STREQUAL "-1")
