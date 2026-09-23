@@ -541,6 +541,21 @@ quint8 TextBlockUserData::attributeState(const QTextBlock &block)
     return 0;
 }
 
+void TextBlockUserData::setSpellChecked(const QTextBlock &block, bool checked)
+{
+    if (TextBlockUserData * const data = textUserData(block))
+        data->m_spellChecked = checked;
+    else if (checked)
+        userData(block)->m_spellChecked = true;
+}
+
+bool TextBlockUserData::spellChecked(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = textUserData(block))
+        return userData->m_spellChecked;
+    return false;
+}
+
 void TextBlockUserData::updateSuggestionFormats(const QTextBlock &block,
                                                  const FontSettingsData &fontSettings)
 {

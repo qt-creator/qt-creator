@@ -51,6 +51,26 @@ static const char qtTrace[] = R"([
 {"ph":"E","pid":"qtracedemo","tid":"1","ts":2500}
 ])";
 
+// A trace of a main thread named the way Qt names it, recorded by a producer
+// that states no name for the process it ran in -- a Chrome-format trace of a
+// Qt application, where the process name is not the session a CTF trace is
+// recorded under but a field that need not be written.
+static const char unnamedProcessTrace[] = R"([
+{"ph":"M","name":"thread_name","pid":"1234","tid":"0","ts":1000,
+ "args":{"name":"Qt mainThread","displayId":"0"}},
+{"name":"work","ph":"B","pid":"1234","tid":"0","ts":1000},
+{"ph":"E","pid":"1234","tid":"0","ts":2000}
+])";
+
+// A trace that names neither the process nor the threads it recorded, which is
+// all a producer that states ids and nothing else leaves a reader with.
+static const char unnamedTrace[] = R"([
+{"name":"work","ph":"B","pid":7,"tid":7,"ts":1000},
+{"ph":"E","pid":7,"tid":7,"ts":2000},
+{"name":"work","ph":"B","pid":7,"tid":8,"ts":1500},
+{"ph":"E","pid":7,"tid":8,"ts":2500}
+])";
+
 // The same thread, recorded twice -- two traces loaded at once, whose lanes the
 // loader qualifies per trace to keep them apart. The ids the traces themselves
 // stated come with them, since the qualified ones are keys and no names: both
@@ -127,13 +147,13 @@ void CtfTimelineModelTest::testOneTypeInSeveralPlaces()
     QCOMPARE(m_model->location(SecondIfItem).line, 134);
 }
 
-void CtfTimelineModelTest::testLanesOfOneProcessAreNamedByTheirThread()
+void CtfTimelineModelTest::testTheMainThreadLaneIsNamedAfterTheProcess()
 {
-    // Every lane of a Qt trace belongs to the one traced process, so naming it
-    // in front of each of them says nothing about which lane this is -- and
-    // what it would name is the recording session, not a process the reader
-    // knows. The thread is what tells them apart.
-    QCOMPARE(laneNames(qtTrace), (QStringList{"Qt mainThread (0)", "alpha (1)"}));
+    // The lane the application runs on carries its name -- the session the
+    // recording was made under -- instead of "Qt mainThread", which is what
+    // every Qt application calls that thread. The other threads keep theirs:
+    // the process is named once, not down the whole timeline.
+    QCOMPARE(laneNames(qtTrace), (QStringList{"qtracedemo", "alpha (1)"}));
 
     // The tooltip names the process either way, and names it once: a process
     // called after the session it was recorded under has no id to add to that.
@@ -141,9 +161,20 @@ void CtfTimelineModelTest::testLanesOfOneProcessAreNamedByTheirThread()
              (QStringList{"Process: qtracedemo\nThread: Qt mainThread (0)",
                           "Process: qtracedemo\nThread: alpha (1)"}));
 
-    // A trace that has a process to name still leads with it. Here the lane is
-    // the process itself (tid == pid), as a cmake configure trace is.
+    // A lane that is the process itself (tid == pid), as a cmake configure
+    // trace's one is, names it whether or not the trace does -- and this trace
+    // does not, so its id is all there is to show.
     QCOMPARE(laneNames(cmakeTrace), QStringList{"Process 42"});
+
+    // A main thread whose process the trace does not name keeps its thread
+    // name: the process would be shown as the number it is, and "Process 1234"
+    // tells the reader less than the name it would have replaced.
+    QCOMPARE(laneNames(unnamedProcessTrace), QStringList{"Qt mainThread (0)"});
+
+    // A producer that marks no main thread leaves its lanes to their threads.
+    // The process is not put in front of them: with a single process that name
+    // repeated down the timeline tells no two lanes apart.
+    QCOMPARE(laneNames(unnamedTrace), (QStringList{"Process 7", "8"}));
 }
 
 void CtfTimelineModelTest::testLanesOfSeveralProcessesNameTheirProcess()

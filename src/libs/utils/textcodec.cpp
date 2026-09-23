@@ -107,6 +107,10 @@ QString TextEncoding::decode(QByteArrayView encoded) const
 
 QByteArray TextEncoding::encode(QStringView decoded) const
 {
+    // Work around QTBUG-150583: ISO-2022-KR writes its escape sequence into the
+    // zero-sized buffer that Qt allocates for empty input.
+    if (decoded.isEmpty())
+        return {};
     return QStringEncoder(m_name).encode(decoded);
 }
 

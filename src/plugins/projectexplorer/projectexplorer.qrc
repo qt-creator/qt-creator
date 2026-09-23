@@ -88,6 +88,8 @@
         <file>images/importasproject@2x.png</file>
         <file>testdata/multi-target-project/CMakeLists.txt</file>
         <file>testdata/multi-target-project/multi-target-project-app.pro</file>
+        <file>testdata/multi-target-project/multi-target-project-dyn.cpp</file>
+        <file>testdata/multi-target-project/multi-target-project-dyn.pro</file>
         <file>testdata/multi-target-project/multi-target-project-lib.cpp</file>
         <file>testdata/multi-target-project/multi-target-project-lib.pro</file>
         <file>testdata/multi-target-project/multi-target-project-main.cpp</file>

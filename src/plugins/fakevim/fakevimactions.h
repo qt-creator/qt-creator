@@ -138,6 +138,9 @@ public:
     FvBoolAspect ignoreCase;
     FvBoolAspect wrapScan;
 
+    // How much of the punctuation in a pattern carries a meaning of its own.
+    FvBoolAspect magic;
+
     // command ~ behaves as g~
     FvBoolAspect tildeOp;
 

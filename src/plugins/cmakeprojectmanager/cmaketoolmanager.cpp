@@ -643,8 +643,9 @@ CMakeToolManagerPrivate::CMakeToolManagerPrivate()
         if (project)
             project->additionalEnvironment().modifyEnvironment(environment, globalMacroExpander());
 
-        if (environment.hasKey("QTC_CMAKE_JUNCTIONS_DIR"))
-            m_junctionsDir = FilePath::fromUserInput(environment.value("QTC_CMAKE_JUNCTIONS_DIR"));
+        const QString junctionsDir = environment.value("QTC_CMAKE_JUNCTIONS_DIR");
+        if (!junctionsDir.isEmpty())
+            m_junctionsDir = FilePath::fromUserInput(junctionsDir);
 
         if (environment.hasKey("QTC_CMAKE_JUNCTIONS_HASH_LENGTH")) {
             bool ok = false;

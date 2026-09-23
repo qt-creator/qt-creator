@@ -14,6 +14,7 @@
 
 QT_BEGIN_NAMESPACE
 class QColor;
+class QLabel;
 class QPixmap;
 class QString;
 QT_END_NAMESPACE
@@ -64,9 +65,13 @@ public:
 private:
     QList<IconMaskAndColor> m_iconSourceList;
     IconStyleOptions m_style = None;
-    mutable int m_lastDevicePixelRatio = -1;
-    mutable QIcon m_lastIcon;
+    mutable QIcon m_icon;
 };
+
+// ThemeManager::onChanged() key of everything that keeps a drawn pixmap themed.
+inline constexpr char themedPixmapKey[] = "themedPixmap";
+
+QTCREATOR_UTILS_EXPORT void setThemedPixmap(QLabel *label, const Icon &icon);
 
 } // namespace Utils
 

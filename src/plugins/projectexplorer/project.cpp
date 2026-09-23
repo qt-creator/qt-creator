@@ -2267,7 +2267,13 @@ private slots:
             return theProject.project()->binariesForSourceFile(projectDir.pathAppended(fileName));
         };
         QCOMPARE(binariesForSource("multi-target-project-main.cpp").size(), 1);
-        QCOMPARE(binariesForSource("multi-target-project-lib.cpp").size(), 1);
+
+        // The static library ends up in the shared library linking it, not in its own archive.
+        const FilePaths viaLib = binariesForSource("multi-target-project-lib.cpp");
+        QCOMPARE(viaLib.size(), 1);
+        QVERIFY2(viaLib.first().fileName().contains("dyn"),
+                 qPrintable(viaLib.first().toUserOutput()));
+
         QCOMPARE(binariesForSource("multi-target-project-shared.h").size(), 2);
     }
 

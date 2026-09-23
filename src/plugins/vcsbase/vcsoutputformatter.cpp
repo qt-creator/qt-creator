@@ -26,8 +26,8 @@ VcsOutputLineParser::VcsOutputLineParser() :
     m_regexp(
         R"((https?://\S*))"                                           // https://codereview.org/c/1234
         R"(|(?<=[\s"])(v[0-9]+\.[0-9]+\.[0-9]+[\-A-Za-z0-9]*))"       // v0.1.2-beta3
-        R"(|(?<=[\s"])(?<!mode )([0-9a-f]{6,}(?:\.{2,3}[0-9a-f]{6,})" // 789acf or 123abc..456cde
-        R"(|\^+|~\d+)?)(?=[\s"]))"                                    // or 789acf^ or 123abc~99
+        R"(|(?:(?<=^)|(?<=[\s"])(?<!mode ))([0-9a-f]{6,}(?:\.{2,3}[0-9a-f]{6,})" // 789acf or 123abc..456cde
+        R"(|\^+|~\d+)?)(?=[\s"]|$))"                                  // or 789acf^ or 123abc~99
         R"(|(?<=\b[ab]/)\S+)")                                        // a/path/to/file.cpp
 {
 }
@@ -120,22 +120,76 @@ QString VcsOutputLineParser::unquoteGitPath(const QString &token)
     return QString::fromUtf8(unquoted);
 }
 
-FilePath VcsOutputLineParser::filePathForLink(const FilePath &workingDirectory,
-                                              const QString &href) const
+static FilePath resolveFileLinkPath(const FilePath &workingDirectory, const QString &href)
 {
-    FilePath repository;
-    if (!Core::VcsManager::findVersionControlForDirectory(workingDirectory, &repository))
-        return {};
-
     const FilePath path = FilePath::fromString(href);
-    return path.isAbsolutePath() ? workingDirectory.withNewPath(path.path())
-                                 : workingDirectory.pathAppended(href);
+    if (path.isAbsolutePath())
+        return workingDirectory.withNewPath(path.path()).cleanPath();
+    return workingDirectory.pathAppended(path.path()).cleanPath();
+}
+
+static bool isSameOrChildOf(const FilePath &path, const FilePath &parent)
+{
+    return path == parent || path.isChildOf(parent);
+}
+
+VcsOutputLineParser::FileLink VcsOutputLineParser::filePathForLink(
+    const FilePath &workingDirectory, const QString &href) const
+{
+    using namespace Core;
+
+    FileLink result;
+    result.filePath = resolveFileLinkPath(workingDirectory, href);
+    result.versionControl
+        = VcsManager::findVersionControlForDirectory(result.filePath, &result.topLevel);
+
+    // If the target repository contains the working directory, finding the
+    // target's version control also validates the working directory.
+    if (result.versionControl && isSameOrChildOf(workingDirectory, result.topLevel))
+        return result;
+
+    if (!VcsManager::findVersionControlForDirectory(workingDirectory))
+        return {}; // The working directory is not under version control.
+
+    // The working directory is version-controlled, while the target file
+    // belongs to another repository or is outside version control.
+    return result;
+}
+
+void VcsOutputLineParser::fillFileLinkContextMenu(QMenu *menu,
+                                                  const FilePath &workingDirectory,
+                                                  const QString &href) const
+{
+    if (!shouldOfferFileLink(href))
+        return;
+
+    const FileLink fileLink = filePathForLink(workingDirectory, href);
+    const FilePath file = fileLink.filePath;
+    if (!file.isFile())
+        return;
+
+    menu->addSeparator();
+    menu->addAction(Tr::tr("Open \"%1\"").arg(file.nativePath()),
+                    [file] { Core::EditorManager::openEditor(file.absoluteFilePath()); });
+
+    if (!fileLink.versionControl)
+        return;
+
+    const FilePath relativePath = file.relativeChildPath(fileLink.topLevel);
+    menu->addSeparator();
+    fileLink.versionControl->fillDefaultFileActionMenu(
+        menu, fileLink.versionControl, fileLink.topLevel, relativePath);
+    fileLink.versionControl->vcsFillFileActionMenu(
+        menu, fileLink.topLevel, relativePath, Core::VcsManager::fileState(file));
 }
 
 bool VcsOutputLineParser::handleFileLink(const FilePath &workingDirectory,
                                          const QString &href) const
 {
-    const FilePath file = filePathForLink(workingDirectory, href);
+    if (!shouldOfferFileLink(href))
+        return false;
+
+    const FilePath file = filePathForLink(workingDirectory, href).filePath;
     if (!file.isFile())
         return false;
 

@@ -27,6 +27,10 @@ namespace Utils {
 
 class QtcButton;
 
+// Neutralizes raw HTML in `markdown` by escaping '<' and '&' outside of code
+// spans, fenced code blocks and autolinks.
+QTCREATOR_UTILS_EXPORT QString escapeMarkdownHtml(const QString &markdown);
+
 class QTCREATOR_UTILS_EXPORT MarkdownBrowser : public QTextBrowser
 {
     Q_OBJECT
@@ -56,6 +60,7 @@ public:
     bool isWheelZoomEnabled() const;
     void setMargins(const QMargins &margins);
     void setEnableCodeCopyButton(bool enable);
+    void setAllowEmbeddedHtml(bool allow);
     void setShowRulersForHeadings(bool show);
 
 signals:
@@ -88,6 +93,7 @@ private:
     void withFixedTopPosition(const std::function<void()> &action);
 
     bool m_enableCodeCopyButton = false;
+    bool m_allowEmbeddedHtml = true;
     bool m_showRulersForHeadings = false;
     QList<CodeBlockEntry> m_codeBlocks;
     bool m_isWheelZoomEnabled = false;

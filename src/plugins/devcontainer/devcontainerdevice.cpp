@@ -487,6 +487,7 @@ Group Device::upRecipe(InstanceConfig instanceConfig, Storage<ProgressPtr> progr
 
             Kit *kit = KitManager::registerKit([this](Kit *kit) {
                 kit->setDetectionSource({DetectionSource::Temporary, id().toString()});
+                markKitAsDeclaredByDevice(kit);
                 kit->setUnexpandedDisplayName("%{Device:Name}");
 
                 RunDeviceTypeKitAspect::setDeviceTypeId(kit, type());

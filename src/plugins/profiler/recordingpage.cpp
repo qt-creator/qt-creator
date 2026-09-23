@@ -8,6 +8,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtdesignwidgets.h>
 
+#include <QFont>
 #include <QProgressBar>
 #include <QTime>
 #include <QTimer>
@@ -19,6 +20,13 @@ using namespace Qt::StringLiterals;
 
 namespace Profiler::Internal {
 
+static QString elapsedTimeFormatted(const qint64 ms)
+{
+    const QTime t = QTime::fromMSecsSinceStartOfDay(int(ms % (24 * 60 * 60 * 1000)));
+    const QString format = ms >= 60 * 60 * 1000 ? "HH:mm:ss"_L1 : "mm:ss.zzz"_L1;
+    return t.toString(format);
+}
+
 RecordingPage::RecordingPage(QWidget *parent)
     : QWidget(parent)
 {
@@ -26,48 +34,72 @@ RecordingPage::RecordingPage(QWidget *parent)
     m_tick->setInterval(100);
     connect(m_tick, &QTimer::timeout, this, &RecordingPage::updateElapsed);
 
-    m_progressBar = new QProgressBar;
+    m_progressBar = new QtcProgressBar;
     m_progressBar->setRange(0, 100);
     m_progressBar->setFixedWidth(240);
     m_progressBar->hide(); // only shown while processing
+
+    const int bigSpacing = SpacingTokens::PrimitiveL;
+
+    QtcRectangleWidget *panel = nullptr;
 
     // clang-format off
     Row {
         st,
         Column {
             st,
-            QtDesignWidgets::Label {
-                bindTo(&m_titleLabel),
-                role(QtcLabel::Primary),
-                text(Tr::tr("Recording...")),
-            },
-            Space(SpacingTokens::PrimitiveM),
-            QtDesignWidgets::Label {
-                bindTo(&m_timerLabel),
-                role(QtcLabel::Secondary),
-                text("00:00.0"),
-            },
-            Space(SpacingTokens::PrimitiveL),
-            m_progressBar,
-            Space(SpacingTokens::PrimitiveM),
-            QtDesignWidgets::Label {
-                bindTo(&m_statusLabel),
-                role(QtcLabel::Secondary),
-            },
-            Space(SpacingTokens::PrimitiveL),
-            QtDesignWidgets::Button {
-                bindTo(&m_stopButton),
-                role(QtcButton::LargePrimary),
-                text(Tr::tr("Stop Recording")),
-                Layouting::toolTip(Tr::tr("Stop recording and load the captured trace.")),
-                onClicked(this, [this] { emit stopRequested(); }),
+            QtDesignWidgets::Rectangle {
+                bindTo(&panel),
+                fillBrush(creatorColor(Theme::Token_Background_Muted)),
+                strokePen(creatorColor(Theme::Token_Stroke_Subtle)),
+                radius(SpacingTokens::RadiusL),
+                Column {
+                    customMargins(bigSpacing, bigSpacing, bigSpacing, bigSpacing),
+                    QtDesignWidgets::Label {
+                        bindTo(&m_titleLabel),
+                        role(QtcLabel::Primary),
+                        text(Tr::tr("Recording...")),
+                    },
+                    Row {
+                        QtDesignWidgets::Label {
+                            bindTo(&m_timerLabel),
+                            role(QtcLabel::Secondary),
+                            text(elapsedTimeFormatted(0)),
+                        },
+                        spacing(bigSpacing),
+                        m_progressBar,
+                        st,
+                    },
+                    QtDesignWidgets::Label {
+                        bindTo(&m_statusLabel),
+                        role(QtcLabel::Secondary),
+                    },
+                    Row {
+                        st,
+                        QtDesignWidgets::Button {
+                            bindTo(&m_stopButton),
+                            role(QtcButton::LargePrimary),
+                            text(Tr::tr("Stop Recording")),
+                            Layouting::toolTip(Tr::tr("Stop recording and load the captured trace.")),
+                            onClicked(this, [this] { emit stopRequested(); }),
+                        },
+                    },
+                },
             },
             st,
-        }
-        ,
+        },
         st,
     }.attachTo(this);
     // clang-format on
+
+    // A UI font is not guaranteed to have digits of equal width, so ask for
+    // tabular figures and keep the ticking time from pushing the progress bar.
+    QFont timerFont = m_timerLabel->font();
+    timerFont.setFeature(QFont::Tag("tnum"), 1);
+    m_timerLabel->setFont(timerFont);
+
+    // Keeps the panel from stepping as the title changes. Wider titles win.
+    panel->setMinimumWidth(520);
 
     m_statusLabel->hide(); // Only shown once there is something to report.
 }
@@ -131,10 +163,7 @@ void RecordingPage::stop()
 
 void RecordingPage::updateElapsed()
 {
-    const qint64 ms = m_elapsed.elapsed();
-    const QTime t = QTime::fromMSecsSinceStartOfDay(int(ms % (24 * 60 * 60 * 1000)));
-    const QString format = ms >= 60 * 60 * 1000 ? "HH:mm:ss"_L1 : "mm:ss.z"_L1;
-    m_timerLabel->setText(t.toString(format));
+    m_timerLabel->setText(elapsedTimeFormatted(m_elapsed.elapsed()));
 }
 
 } // namespace Profiler::Internal

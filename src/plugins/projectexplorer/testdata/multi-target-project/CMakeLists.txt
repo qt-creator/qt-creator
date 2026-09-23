@@ -1,3 +1,5 @@
 project(multi-target-project)
 add_executable(multi-target-project-app multi-target-project-main.cpp multi-target-project-shared.h)
 add_library(multi-target-project-lib STATIC multi-target-project-lib.cpp multi-target-project-shared.h)
+add_library(multi-target-project-dyn SHARED multi-target-project-dyn.cpp)
+target_link_libraries(multi-target-project-dyn PRIVATE multi-target-project-lib)

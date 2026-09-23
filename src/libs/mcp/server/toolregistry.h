@@ -25,6 +25,7 @@ public:
     static const ToolRegistry &instance();
 
     static void enableTool(const QString &toolName, bool enabled);
+    static bool isToolEnabled(const QString &toolName);
     static QList<Schema::Tool> registeredTools();
 
     // Invokes a registered synchronous tool by name and returns its result.

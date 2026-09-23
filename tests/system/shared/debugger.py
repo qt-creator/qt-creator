@@ -126,7 +126,7 @@ def doSimpleDebugging(currentKit, currentConfigName, expectedBPOrder=[], enableQ
         expectedLabelTexts.append("Running\.")
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(currentKit, ProjectSettings.RUN)
-    selectFromCombo(":EnableQMLDebugger_ComboBox", "Enable" if enableQml else "Disable")
+    selectFromCombo(":Debugger_ComboBox", "C++ and QML (separate engines)" if enableQml else "C++ only")
     switchViewTo(ViewConstants.EDIT)
     if not __startDebugger__(currentKit, currentConfigName):
         return False

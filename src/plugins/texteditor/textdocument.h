@@ -157,6 +157,9 @@ signals:
     void contentsChangedWithPosition(int position, int charsRemoved, int charsAdded);
     void tabSettingsChanged();
     void fontSettingsChanged();
+    // A new highlighter is in place and has yet to be handed the document, the moment
+    // for an editor to tell it what it shows.
+    void syntaxHighlighterChanged();
     void markRemoved(TextEditor::TextMark *mark);
 
 protected:

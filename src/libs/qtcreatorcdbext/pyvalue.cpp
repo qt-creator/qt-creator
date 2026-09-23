@@ -7,11 +7,68 @@
 #include "symbolgroupvalue.h"
 
 #include <list>
+#include <unordered_map>
 
 constexpr bool debugPyValue = false;
 constexpr bool debuggingValueEnabled() { return debugPyValue || debugPyCdbextModule; }
 
-static std::map<CIDebugSymbolGroup *, std::list<PyValue *>> valuesForSymbolGroup;
+// Both registries are consulted from destructors that run when the extension
+// unloads - the current symbol group's in pycdbextmodule.cpp, a PyValue's when
+// Python shuts down - and whether a file-scope static of this file is still
+// there at that point is up to the link order. They are never destroyed.
+static std::map<CIDebugSymbolGroup *, std::list<PyValue *>> &valuesForSymbolGroup()
+{
+    static auto *values = new std::map<CIDebugSymbolGroup *, std::list<PyValue *>>;
+    return *values;
+}
+
+// What createValue() asks of a symbol before it adds one: the address a symbol
+// describes and the type it has. Every symbol of a group is asked once, as it
+// appears, instead of every symbol on every call.
+struct SymbolKey
+{
+    ULONG64 offset = 0;
+    ULONG typeId = 0;
+    ULONG64 module = 0;
+
+    bool operator==(const SymbolKey &other) const
+    {
+        return offset == other.offset && typeId == other.typeId && module == other.module;
+    }
+};
+
+struct SymbolKeyHash
+{
+    size_t operator()(const SymbolKey &key) const
+    {
+        return std::hash<ULONG64>()(key.offset) ^ (std::hash<ULONG64>()(key.module) << 1)
+               ^ (std::hash<ULONG>()(key.typeId) << 2);
+    }
+};
+
+struct SymbolIndex
+{
+    std::unordered_map<SymbolKey, ULONG, SymbolKeyHash> indexByKey;
+    ULONG indexed = 0; // the symbols [0, indexed) are in indexByKey
+};
+
+static std::map<CIDebugSymbolGroup *, SymbolIndex> &symbolIndexForGroup()
+{
+    static auto *index = new std::map<CIDebugSymbolGroup *, SymbolIndex>;
+    return *index;
+}
+
+static void indexSymbols(CIDebugSymbolGroup *symbolGroup, SymbolIndex &index, ULONG from, ULONG to)
+{
+    for (ULONG i = from; i < to; ++i) {
+        ULONG64 offset = 0;
+        DEBUG_SYMBOL_PARAMETERS params;
+        if (SUCCEEDED(symbolGroup->GetSymbolOffset(i, &offset))
+                && SUCCEEDED(symbolGroup->GetSymbolParameters(i, 1, &params))) {
+            index.indexByKey.emplace(SymbolKey{offset, params.TypeId, params.Module}, i);
+        }
+    }
+}
 
 void dumpSymbolGroup(CIDebugSymbolGroup *symbolGroup)
 {
@@ -37,11 +94,29 @@ void PyValue::indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG d
         return;
     if (count <= start)
         return;
-    for (PyValue *val : valuesForSymbolGroup[symbolGroup]) {
+    for (PyValue *val : valuesForSymbolGroup()[symbolGroup]) {
         if (val->m_index >= start && val->m_index + delta < count)
             val->m_index += delta;
     }
+    auto indexIt = symbolIndexForGroup().find(symbolGroup);
+    if (indexIt != symbolIndexForGroup().end() && start < indexIt->second.indexed) {
+        // The symbols were inserted inside the indexed range: the ones behind
+        // them move, and the new ones take their place in the index.
+        SymbolIndex &index = indexIt->second;
+        for (auto &entry : index.indexByKey) {
+            if (entry.second >= start)
+                entry.second += delta;
+        }
+        index.indexed += delta;
+        indexSymbols(symbolGroup, index, start, start + delta);
+    }
     dumpSymbolGroup(symbolGroup);
+}
+
+void PyValue::symbolGroupReleased(CIDebugSymbolGroup *symbolGroup)
+{
+    symbolIndexForGroup().erase(symbolGroup);
+    valuesForSymbolGroup().erase(symbolGroup);
 }
 
 PyValue::PyValue(unsigned long index, CIDebugSymbolGroup *symbolGroup)
@@ -49,21 +124,26 @@ PyValue::PyValue(unsigned long index, CIDebugSymbolGroup *symbolGroup)
     , m_symbolGroup(symbolGroup)
 {
     if (m_symbolGroup)
-        valuesForSymbolGroup[symbolGroup].push_back(this);
+        valuesForSymbolGroup()[symbolGroup].push_back(this);
 }
 
 PyValue::PyValue(const PyValue &other)
     : m_index(other.m_index)
     , m_symbolGroup(other.m_symbolGroup)
+    , m_type(other.m_type)
 {
     if (m_symbolGroup)
-        valuesForSymbolGroup[m_symbolGroup].push_back(this);
+        valuesForSymbolGroup()[m_symbolGroup].push_back(this);
 }
 
 PyValue::~PyValue()
 {
-    if (m_symbolGroup)
-        valuesForSymbolGroup[m_symbolGroup].remove(this);
+    if (!m_symbolGroup)
+        return;
+    // The group may be gone already, with this value outliving it in Python.
+    auto valuesIt = valuesForSymbolGroup().find(m_symbolGroup);
+    if (valuesIt != valuesForSymbolGroup().end())
+        valuesIt->second.remove(this);
 }
 
 std::string PyValue::name() const
@@ -82,6 +162,8 @@ std::string PyValue::name() const
 
 PyType PyValue::type()
 {
+    if (m_type)
+        return *m_type;
     if (!m_symbolGroup)
         return PyType();
     DEBUG_SYMBOL_PARAMETERS params;
@@ -95,7 +177,8 @@ PyType PyValue::type()
         if (FAILED(m_symbolGroup->GetSymbolTypeName(m_index, &typeName[0], size, NULL)))
             typeName.clear();
     }
-    return PyType(params.Module, params.TypeId, typeName, tag());
+    m_type = PyType(params.Module, params.TypeId, typeName, tag());
+    return *m_type;
 }
 
 ULONG64 PyValue::bitsize()
@@ -280,6 +363,25 @@ PyValue PyValue::childFromIndex(int index)
     return PyValue(m_index + offset, m_symbolGroup);
 }
 
+// Every direct child once. childFromIndex() starts over at the first child
+// for each index it is asked for, walking the descendants of all the earlier
+// ones again.
+std::vector<PyValue> PyValue::children()
+{
+    std::vector<PyValue> children;
+    const int count = childCount();
+    if (count <= 0)
+        return children;
+    children.reserve(count);
+    ULONG childIndex = m_index + 1;
+    for (int child = 0; child < count; ++child) {
+        children.emplace_back(childIndex, m_symbolGroup);
+        if (child + 1 < count)
+            childIndex += ::currentNumberOfDescendants(childIndex, m_symbolGroup) + 1;
+    }
+    return children;
+}
+
 ULONG PyValue::currentNumberOfDescendants()
 {
     return ::currentNumberOfDescendants(m_index, m_symbolGroup);
@@ -296,30 +398,26 @@ PyValue PyValue::createValue(ULONG64 address, const PyType &type)
     if (symbolGroup == nullptr)
         return PyValue();
 
+    SymbolIndex &index = symbolIndexForGroup()[symbolGroup];
     ULONG numberOfSymbols = 0;
     symbolGroup->GetNumberSymbols(&numberOfSymbols);
-    ULONG index = 0;
-    for (;index < numberOfSymbols; ++index) {
-        ULONG64 offset;
-        symbolGroup->GetSymbolOffset(index, &offset);
-        if (offset == address) {
-            DEBUG_SYMBOL_PARAMETERS params;
-            if (SUCCEEDED(symbolGroup->GetSymbolParameters(index, 1, &params))) {
-                if (params.TypeId == type.getTypeId() && params.Module == type.moduleId())
-                    return PyValue(index, symbolGroup);
-            }
-        }
+    if (index.indexed < numberOfSymbols) {
+        indexSymbols(symbolGroup, index, index.indexed, numberOfSymbols);
+        index.indexed = numberOfSymbols;
     }
+    const auto existing = index.indexByKey.find(SymbolKey{address, type.getTypeId(), type.moduleId()});
+    if (existing != index.indexByKey.end())
+        return PyValue(existing->second, symbolGroup);
 
     const std::string name = SymbolGroupValue::pointedToSymbolName(address, type.name(true));
     if (debuggingValueEnabled())
         DebugPrint() << "Create Value expression: " << name;
 
-    index = DEBUG_ANY_ID;
-    if (FAILED(symbolGroup->AddSymbol(name.c_str(), &index)))
+    ULONG symbolIndex = DEBUG_ANY_ID;
+    if (FAILED(symbolGroup->AddSymbol(name.c_str(), &symbolIndex)))
         return PyValue();
 
-    return PyValue(index, symbolGroup);
+    return PyValue(symbolIndex, symbolGroup);
 }
 
 int PyValue::tag(const std::string &typeName)
@@ -377,6 +475,7 @@ PY_FUNC_DECL_WITH_ARGS(childFromIndex, PY_OBJ_NAME)
         Py_RETURN_NONE;
     return createPythonObject(self->impl->childFromIndex(index));
 }
+PY_FUNC_RET_OBJECT_LIST(children, PY_OBJ_NAME)
 static PyMethodDef valueMethods[] = {
     {"name",                PyCFunction(name),                  METH_NOARGS,
      "Name of this thing or None"},
@@ -401,6 +500,8 @@ static PyMethodDef valueMethods[] = {
      "Return the name of this value"},
     {"childFromIndex",  PyCFunction(childFromIndex),            METH_VARARGS,
      "Return the name of this value"},
+    {"children",        PyCFunction(children),                  METH_NOARGS,
+     "List of the direct children of this value"},
 
     {NULL}  /* Sentinel */
 };

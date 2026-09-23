@@ -19,6 +19,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QListView>
+#include <QMap>
 #include <QMenu>
 #include <QScopeGuard>
 #include <QStandardItemModel>
@@ -58,6 +59,8 @@ class McpCommandsTest final : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
     void testSelectTextSpansWholeLinesByDefault();
     void testSelectTextTakesOneBasedColumns();
     void testSelectTextRejectsAnInvalidRange();
@@ -70,7 +73,29 @@ private slots:
     void testClickItemContextMenuKeepsAMultiSelection();
     void testActivateMenuItemGoesThroughTheMenu();
     void testActivateMenuItemRefusesADisabledItem();
+
+private:
+    QMap<QString, bool> m_uiToolStates;
 };
+
+// The ui_* tools are off by default, and this suite is the caller they exist
+// for. The registry is process-wide, so note what each one was before.
+void McpCommandsTest::initTestCase()
+{
+    for (const Schema::Tool &tool : ToolRegistry::registeredTools()) {
+        const QString name = tool.name();
+        if (!name.startsWith("ui_"))
+            continue;
+        m_uiToolStates.insert(name, ToolRegistry::isToolEnabled(name));
+        ToolRegistry::enableTool(name, true);
+    }
+}
+
+void McpCommandsTest::cleanupTestCase()
+{
+    for (auto it = m_uiToolStates.cbegin(); it != m_uiToolStates.cend(); ++it)
+        ToolRegistry::enableTool(it.key(), it.value());
+}
 
 void McpCommandsTest::testSelectTextSpansWholeLinesByDefault()
 {
@@ -390,7 +415,9 @@ void McpCommandsTest::testActivateMenuItemRefusesADisabledItem()
     // is immediate and posts nothing, so there is no later event to wait for.
     QString error;
     callTool("ui_activate_menu_item", {{"title", "McpCommandsTestDisabledItem"}}, &error);
-    QVERIFY2(error.contains("disabled"), qPrintable(error));
+    // Naming the item keeps a refusal of the tool itself - which the registry
+    // also reports as "disabled" - from passing for the refusal under test.
+    QVERIFY2(error.contains("Menu item is disabled"), qPrintable(error));
     QCOMPARE(triggered, 0);
 }
 

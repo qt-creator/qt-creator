@@ -451,6 +451,15 @@ function(enable_pch target)
       if (TARGET "${PCH_TARGET}")
         set_target_properties(${target} PROPERTIES
           PRECOMPILE_HEADERS_REUSE_FROM ${PCH_TARGET})
+        # The shared precompiled header belongs to a static library and is
+        # therefore position independent code. An executable is a position
+        # independent executable by default on most distributions, and GCC
+        # refuses a precompiled header built with the other setting.
+        get_target_property(target_type ${target} TYPE)
+        if (target_type STREQUAL "EXECUTABLE" AND NOT WIN32 AND NOT APPLE)
+          target_compile_options(${target} PRIVATE
+            ${CMAKE_CXX_COMPILE_OPTIONS_PIC})
+        endif()
       endif()
     endif()
   endif()

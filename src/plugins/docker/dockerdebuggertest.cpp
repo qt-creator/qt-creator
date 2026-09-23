@@ -49,10 +49,10 @@ private:
     }
 
     // Build AspectContainerData with both C++ and QML debugging enabled.
-    static AspectContainerData makeCombinedAspectData()
+    static AspectContainerData makeCppAndQmlAspectData()
     {
         AspectContainerData data;
-        data.append(Debugger::DebuggerRunConfigurationAspect::Data::createCombinedTestData());
+        data.append(Debugger::DebuggerRunConfigurationAspect::Data::createCppAndQmlTestData());
         return data;
     }
 
@@ -93,16 +93,16 @@ private slots:
         delete rc;
     }
 
-    // Test 2: Docker device + combined C++/QML debugging -> requestQmlChannel() must be called.
-    // Regression test for QTCREATORBUG-34093: combined mode must also trigger
+    // Test 2: Docker device + C++ and QML debugging -> requestQmlChannel() must be called.
+    // Regression test for QTCREATORBUG-34093: debugging both languages must also trigger
     // requestQmlChannel() so that a QML channel port is allocated before
     // fixupParameters() looks at m_qmlServer.
-    void testDockerCombinedDebuggingRequestsQmlChannel()
+    void testDockerCppAndQmlDebuggingRequestsQmlChannel()
     {
         auto device = DockerDevice::create(&dockerSettings());
 
         Kit *kit = KitManager::registerKit([](Kit *k) {
-            k->setUnexpandedDisplayName("Docker_CombinedDebuggerTest");
+            k->setUnexpandedDisplayName("Docker_CppAndQmlDebuggerTest");
         });
         QVERIFY(kit);
         m_kits.append(kit);
@@ -111,7 +111,7 @@ private slots:
         rc->setKit(kit);
         rc->setDeviceForTest(device);
         rc->setRunConfigIdForTest(ProjectExplorer::Constants::CMAKE_RUNCONFIG_ID);
-        rc->setAspectDataForTest(makeCombinedAspectData());
+        rc->setAspectDataForTest(makeCppAndQmlAspectData());
 
         rc->createRecipe(ProjectExplorer::Constants::DEBUG_RUN_MODE);
 

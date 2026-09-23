@@ -310,6 +310,17 @@ void DisassemblerAgent::setContents(const DisassemblerLines &rawContents)
             d->cache.append(CacheEntry(key, contents));
         }
     }
+    if (contents.size() == 0) {
+        // Whatever the reason - an address nothing is mapped at, a symbol the
+        // debugger cannot reach - an empty view says less than the one that
+        // is already there.
+        d->engine->showMessage(Tr::tr("No disassembly for \"%1\".")
+                                   .arg(d->location.functionName().isEmpty()
+                                            ? QString::number(d->location.address(), 16)
+                                            : d->location.functionName()),
+                               LogWarning);
+        return;
+    }
     setContentsToDocument(contents);
 }
 

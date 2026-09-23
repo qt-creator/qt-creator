@@ -120,6 +120,8 @@ public:
     bool isQmlDebugging() const { return m_isQmlDebugging; }
     void setQmlDebugging(bool on) { m_isQmlDebugging = on; }
 
+    void setNativeMixedEnabled(bool on) { m_nativeMixedEnabled = on; }
+
     void setRemoteChannel(const QString &channel) { m_remoteChannel = channel; }
     QString remoteChannel() const { return m_remoteChannel; }
 
@@ -253,6 +255,7 @@ public:
 
     bool isCppDebugging() const;
     bool isNativeMixedDebugging() const;
+    bool needsQmlChannel() const;
     bool isElfTarget() const;
 
     const Utils::MacroExpander *macroExpander() const { return m_macroExpander; }
@@ -297,8 +300,19 @@ public:
     void populateQmlFileFinder(const ProjectExplorer::RunControl *runControl);
 
     Utils::FilePath mapToProjectPath(const QString &debuggerOutput) const;
+    Utils::FilePath findOnDebuggerDevice(const QString &debuggerOutput) const;
 
 private:
+    Utils::FilePath mapToDebuggerDevice(const QString &debuggerOutput) const;
+
+    // Looking a file up costs a stat, on the debugger's device even a round
+    // trip, and the stack view and the breakpoint handler ask for the same
+    // names again at every stop. Nothing invalidates these: they live and die
+    // with the run parameters, and a stale miss only answers what the mapping
+    // alone would have.
+    mutable QHash<QString, Utils::FilePath> m_mappedPaths;
+    mutable QHash<QString, Utils::FilePath> m_debuggerDeviceSources;
+
     Utils::ProcessHandle m_attachPid;
     Utils::ProcessHandle m_serverAttachPid;
     QUrl m_qmlServer; // Used by Qml debugging.
@@ -443,14 +457,18 @@ public:
     bool needsRaise() const { return m_needsRaise; }
     bool needsMarker() const { return m_needsMarker; }
     bool hasDebugInfo() const { return m_hasDebugInfo; }
+    // Only machine code can be, and only where there is some: a frame of the
+    // QML interpreter runs none of its own, and a location carrying neither
+    // an address nor a function names none.
     bool canBeDisassembled() const
-        { return m_address != quint64(-1) || !m_functionName.isEmpty(); }
+        { return m_isMachineCode && (m_address != 0 || !m_functionName.isEmpty()); }
     quint64 address() const { return m_address; }
 
 private:
     bool m_needsMarker = false;
     bool m_needsRaise = true;
     bool m_hasDebugInfo = true;
+    bool m_isMachineCode = true;
     Utils::Text::Position m_textPosition;
     Utils::FilePath m_fileName;
     QString m_functionName;

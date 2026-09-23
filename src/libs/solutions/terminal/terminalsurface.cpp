@@ -1235,8 +1235,9 @@ int TerminalSurface::gridToPos(QPoint gridPos) const
 
 void TerminalSurface::dataFromPty(const QByteArray &data)
 {
+    // flush() emits the damage, so that a burst of writes merges into one
+    // invalidation instead of one per chunk.
     vterm_input_write(d->m_vterm.get(), data.constData(), data.size());
-    vterm_screen_flush_damage(d->m_vtermScreen);
 }
 
 void TerminalSurface::flush()

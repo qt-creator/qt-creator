@@ -35,7 +35,7 @@ def main():
         return
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(Targets.getDefaultKit(), ProjectSettings.RUN)
-    selectFromCombo(":EnableQMLDebugger_ComboBox", "Enable")
+    selectFromCombo(":Debugger_ComboBox", "QML only")
     switchViewTo(ViewConstants.EDIT)
     clickButton(fancyDebugButton)
     locAndExprTV = waitForObject(":Locals and Expressions_Debugger::Internal::WatchTreeView")

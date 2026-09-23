@@ -14,6 +14,39 @@ sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.curre
 
 from dumper import DumperBase, SubItem, Children, DisplayFormat, UnnamedSubItem
 
+_CALL_CONV = r'__cdecl|__stdcall|__fastcall|__thiscall|__vectorcall|__clrcall'
+_CV_QUALIFIER = r'const|volatile'
+_ELABORATED = r'enum|struct|class|union'
+
+
+def native_msvc_type_name(typename):
+    # Undoes the collapsing that sanitize_type_name() applies to form the
+    # internal type key: MSVC, and therefore every PDB, keeps the spaces around
+    # '&*<>,' that the key does not have. A fallback only, and one that runs over
+    # its own output, since type_name() answers with the MSVC spelling for every
+    # typeid that came off a native type.
+    name = typename
+    # 'QObject*' -> 'QObject *', 'QString&' -> 'QString &'
+    name = re.sub(r'(?<=[\w>\]])(?=[*&])', ' ', name)
+    # 'void**' -> 'void * *', 'char*&' -> 'char * &'
+    name = re.sub(r'\*(?=[*&])', '* ', name)
+    # 'QList<QList<int>>' -> 'QList<QList<int> >'
+    name = re.sub(r'>(?=>)', '> ', name)
+    # 'char[13]' -> 'char [13]'
+    name = re.sub(r'(?<=[\w>])(?=\[)', ' ', name)
+    # '<T const>' -> '<T const >', but 'T * const' keeps its trailing star form
+    name = re.sub(r'(?<!\* )\b(' + _CV_QUALIFIER + r')(?=[>,])', r'\1 ', name)
+    # 'enum<unnamed-enum-X>' -> 'enum <unnamed-enum-X>'
+    name = re.sub(r'\b(' + _ELABORATED + r')(?=<)', r'\1 ', name)
+    # function pointers keep the star glued to the calling convention
+    name = re.sub(r'\b(' + _CALL_CONV + r') (?=\*)', r'\1', name)
+    name = re.sub(r'\b(' + _CALL_CONV + r')\* \*', r'\1**', name)
+    # 'QMap<QString, QVariant>' -> 'QMap<QString,QVariant>'. A space after ',' is
+    # never an MSVC spelling, and sanitize_type_name() leaves the one that
+    # follows a '@' in place, so a registered name keeps it.
+    name = re.sub(r',\s+', ',', name)
+    return name
+
 
 class FakeVoidType(cdbext.Type):
     def __init__(self, name, dumper):
@@ -93,6 +126,14 @@ class Dumper(DumperBase):
         DumperBase.__init__(self)
         self.outputLock = threading.Lock()
         self.isCdb = True
+        # Native type name -> the typeid from_native_type() derived for it. Each
+        # value carries its type, so the same type is handed in once per value.
+        self.native_typeid_cache = {}
+        # The module of the value last seen. A name looked up while dumping it -
+        # an element type, a template argument - most likely lives there too, and
+        # asking that module, once the engine's own answer is a miss, is one
+        # GetTypeId() where the search over all modules is one per module.
+        self.lookupModuleHint = 0
 
     #FIXME
     def register_known_qt_types(self):
@@ -110,11 +151,14 @@ class Dumper(DumperBase):
 
     def fromNativeValue(self, nativeValue: cdbext.Value) -> DumperBase.Value:
         self.check(isinstance(nativeValue, cdbext.Value))
+        nativeType = nativeValue.type()
+        code = nativeType.code()
+        self.lookupModuleHint = nativeType.moduleId() or self.lookupModuleHint
         val = self.Value(self)
         val.name = nativeValue.name()
         # There is no cdb api for the size of bitfields.
         # Workaround this issue by parsing the native debugger text for integral types.
-        if nativeValue.type().code() == TypeCode.Integral:
+        if code == TypeCode.Integral:
             try:
                 integerString = nativeValue.nativeDebuggerValue()
             except UnicodeDecodeError:
@@ -133,19 +177,19 @@ class Dumper(DumperBase):
                     base = 16
                 else:
                     base = 10
-                signed = not nativeValue.type().name().startswith('unsigned')
+                signed = not nativeType.name().startswith('unsigned')
                 try:
-                    val.ldata = int(integerString, base).to_bytes((nativeValue.type().bitsize() +7) // 8,
+                    val.ldata = int(integerString, base).to_bytes((nativeType.bitsize() +7) // 8,
                                                                   byteorder='little', signed=signed)
                 except:
                     # read raw memory in case the integerString can not be interpreted
                     pass
-        if nativeValue.type().code() == TypeCode.Enum:
+        if code == TypeCode.Enum:
             val.ldisplay = self.enumValue(nativeValue)
-        elif not nativeValue.type().resolved() and nativeValue.type().code() == TypeCode.Struct and not nativeValue.hasChildren():
+        elif not nativeType.resolved() and code == TypeCode.Struct and not nativeValue.hasChildren():
             val.ldisplay = self.enumValue(nativeValue)
-        val.isBaseClass = val.name == nativeValue.type().name()
-        val.typeid = self.from_native_type(nativeValue.type())
+        val.isBaseClass = val.name == nativeType.name()
+        val.typeid = self.from_native_type(nativeType)
         val.nativeValue = nativeValue
         val.laddress = nativeValue.address()
         val.size = nativeValue.bitsize()
@@ -168,8 +212,24 @@ class Dumper(DumperBase):
 
     def from_native_type(self, nativeType: cdbext.Type) -> str:
         self.check(isinstance(nativeType, cdbext.Type))
-        typeid = self.typeid_for_string(self.nativeTypeId(nativeType))
-        self.type_nativetype_cache[typeid] = nativeType
+        nativeTypeId = self.nativeTypeId(nativeType)
+        typeid = self.native_typeid_cache.get(nativeTypeId, None)
+        if typeid is None:
+            typeid = self.typeid_from_native_type(nativeType, nativeTypeId)
+            # Only what a resolved type answered is final; the size and the module
+            # of one that is not may still arrive with a later module load.
+            if nativeType.resolved():
+                self.native_typeid_cache[nativeTypeId] = typeid
+        return typeid
+
+    def typeid_from_native_type(self, nativeType: cdbext.Type, nativeTypeId: str) -> str:
+        typeid = self.typeid_for_string(nativeTypeId)
+        # Only an answer that describes the type is kept, and only its spelling
+        # is worth offering first to a later lookup: it is the one the reader is
+        # known to resolve, where native_msvc_type_name() reconstructs a guess.
+        if self.nativeTypeIsUsable(nativeType):
+            self.note_native_type_name(typeid, nativeTypeId)
+            self.type_nativetype_cache[typeid] = nativeType
 
         if nativeType.name().startswith('void'):
             nativeType = FakeVoidType(nativeType.name(), self)
@@ -233,17 +293,14 @@ class Dumper(DumperBase):
 
     def listNativeValueChildren(self, nativeValue: cdbext.Value, include_bases: bool):
         fields = []
-        index = 0
-        nativeMember = nativeValue.childFromIndex(index)
-        while nativeMember:
+        for nativeMember in nativeValue.children():
             # Why this restriction to things with address? Can't nativeValue
             # be e.g. located in registers, without address?
-            if nativeMember.address() != 0:
-                if include_bases or nativeMember.name() != nativeMember.type().name():
-                    field = self.fromNativeValue(nativeMember)
-                    fields.append(field)
-            index += 1
-            nativeMember = nativeValue.childFromIndex(index)
+            if nativeMember.address() == 0:
+                continue
+            field = self.fromNativeValue(nativeMember)
+            if include_bases or not field.isBaseClass:
+                fields.append(field)
         return fields
 
     def listValueChildren(self, value: DumperBase.Value, include_bases=True):
@@ -544,10 +601,47 @@ class Dumper(DumperBase):
     def nativeTypeIsUsable(self, nativeType) -> bool:
         return not nativeType.unresolvable()
 
+    def native_type_name_candidates(self, typeid):
+        return self.candidate_spellings(self.type_name(typeid),
+                                        self.type_nativename_cache.get(typeid, None))
+
+    def candidate_spellings(self, typename, recorded=None):
+        # A spelling the symbol reader produced is what it can look up again, the
+        # reconstructed MSVC one is the next best guess, and the internal key is
+        # offered only so that a type named by a dumper is still found.
+        seen = set()
+        for name in [recorded, native_msvc_type_name(typename), typename]:
+            if name and name not in seen:
+                seen.add(name)
+                yield name
+
+    def type_name_is_known(self, typename: str) -> bool:
+        # cdbext.lookupType() answers a name it has not looked up, and the name
+        # Qt spells is the collapsed one no module knows, so the question is
+        # whether one of the candidate spellings resolves. A probe, not a use: no
+        # typeid is minted for the spelling, a recorded one is consulted if there
+        # is one already.
+        key = self.sanitize_type_name(typename)
+        typeid = self.typeid_cache.get(key, None)
+        recorded = None if typeid is None else self.type_nativename_cache.get(typeid, None)
+        for name in self.candidate_spellings(key, recorded):
+            nativeType = self.lookupNativeType(name)
+            if nativeType is not None and self.nativeTypeIsUsable(nativeType):
+                return True
+        return False
+
     def lookupNativeType(self, name: str, module=0) -> cdbext.Type:
         if name.startswith('void'):
             return FakeVoidType(name, self)
-        return cdbext.lookupType(name, module)
+        nativeType = cdbext.lookupType(name, module or self.lookupModuleHint)
+        if nativeType is not None:
+            # cdbext.lookupType() answers every name it can parse with a type it
+            # has not looked up yet, so unresolvable() would call a name no module
+            # knows usable. moduleId() forces the lookup. FakeVoidType stays out
+            # of it: its native type has no name, and resolving that one marks it
+            # unresolvable.
+            nativeType.moduleId()
+        return nativeType
 
     def reportResult(self, result, args):
         cdbext.reportResult('result={%s}' % result)

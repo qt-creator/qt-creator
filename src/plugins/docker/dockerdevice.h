@@ -108,6 +108,8 @@ public:
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
     QList<ProjectExplorer::Task> validate() const override;
+    void runAutoDetect(const ProjectExplorer::ToolDetectionLogger &logger,
+                       const std::function<void()> &onDone) override;
 
     Utils::ProcessInterface *createProcessInterface() const override;
 

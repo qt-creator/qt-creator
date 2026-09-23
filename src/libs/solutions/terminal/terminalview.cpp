@@ -31,6 +31,7 @@
 #include <QToolTip>
 #include <QUrl>
 
+#include <chrono>
 #include <utility>
 
 static Q_LOGGING_CATEGORY(terminalLog, "qtc.terminal", QtWarningMsg)
@@ -65,11 +66,12 @@ public:
         m_cursorBlinkTimer.setInterval(750ms);
         m_cursorBlinkTimer.setSingleShot(false);
 
+        // Coarse rounds up to the ~15.6ms Windows tick, shifts 5% elsewhere.
         m_flushDelayTimer.setSingleShot(true);
-        m_flushDelayTimer.setInterval(minRefreshInterval);
+        m_flushDelayTimer.setTimerType(Qt::PreciseTimer);
 
         m_updateTimer.setSingleShot(true);
-        m_updateTimer.setInterval(minRefreshInterval);
+        m_updateTimer.setTimerType(Qt::PreciseTimer);
 
         m_scrollTimer.setSingleShot(false);
         m_scrollTimer.setInterval(500ms);
@@ -1134,6 +1136,10 @@ void TerminalView::paintEvent(QPaintEvent *event)
     QElapsedTimer t;
     t.start();
     event->accept();
+
+    // Taken here, not after, which would add the paint time to the interval.
+    d->m_sinceLastPaint = QDeadlineTimer(minRefreshInterval);
+
     QPainter p(viewport());
 
     p.save();
@@ -1170,8 +1176,6 @@ void TerminalView::paintEvent(QPaintEvent *event)
         QToolTip::showText(this->mapToGlobal(QPoint(width() - 200, 0)),
                            QString("Paint: %1ms").arg(t.elapsed()));
     }
-
-    d->m_sinceLastPaint = QDeadlineTimer(minRefreshInterval);
 }
 
 void TerminalView::keyPressEvent(QKeyEvent *event)
@@ -1334,7 +1338,9 @@ void TerminalView::updateViewportRect(const QRect &rect)
         return;
 
     if (!d->m_sinceLastPaint.hasExpired()) {
-        d->m_updateTimer.start();
+        // What is left of the interval, not a whole one from here.
+        d->m_updateTimer.start(
+            std::chrono::ceil<milliseconds>(d->m_sinceLastPaint.remainingTimeAsDuration()));
         return;
     }
 

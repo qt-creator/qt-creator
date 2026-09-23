@@ -18,8 +18,8 @@
 #include <dbghelp.h>
 #endif
 
-#include <regex>
 #include <unordered_map>
+#include <vector>
 
 constexpr bool debugPyType = false;
 constexpr bool debuggingTypeEnabled() { return debugPyType || debugPyCdbextModule; }
@@ -199,6 +199,40 @@ static std::vector<std::string> innerTypesOf(const std::string &t)
         }
     }
     return rc;
+}
+
+static bool isIdentifierStart(char c)
+{
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+}
+
+static bool isIdentifierChar(char c)
+{
+    return isIdentifierStart(c) || (c >= '0' && c <= '9');
+}
+
+static bool isTypeNameChar(char c)
+{
+    return isIdentifierChar(c) || c == '<' || c == '>' || c == ':' || c == ',' || c == ' '
+           || c == '*' || c == '&' || c == '[' || c == ']';
+}
+
+// What the engine can be asked about: an identifier, at most one '!' closing a
+// module name, and then the characters a C++ type name is made of.
+static bool isTypeNameLike(const std::string &typeName)
+{
+    if (typeName.empty() || !isIdentifierStart(typeName.front()))
+        return false;
+    size_t pos = 1;
+    while (pos < typeName.size() && isIdentifierChar(typeName[pos]))
+        ++pos;
+    if (pos < typeName.size() && typeName[pos] == '!')
+        ++pos;
+    for (; pos < typeName.size(); ++pos) {
+        if (!isTypeNameChar(typeName[pos]))
+            return false;
+    }
+    return true;
 }
 
 static std::string getModuleName(ULONG64 module)
@@ -449,21 +483,93 @@ PyType PyType::lookupType(const std::string &typeNameIn, ULONG64 module)
     if (typeName == "signed char")
         typeName.erase(0, 7);
 
-    const static std::regex typeNameRE("^[a-zA-Z_][a-zA-Z0-9_]*!?[a-zA-Z0-9_<>:, \\*\\&\\[\\]]*$");
-    if (std::regex_match(typeName, typeNameRE))
+    if (isTypeNameLike(typeName))
         return PyType(typeName, module);
     return PyType();
 }
 
-void PyType::clearUnresolvedTypes()
+// The bases of the modules that came since the extension started, in the order
+// they came: loaded, or their symbols loaded later than they were. A name that
+// no module knew is asked again only of the ones that came after the attempt.
+// A module that went is kept in place as a zero, so that what an attempt has
+// asked stays countable.
+static std::vector<ULONG64> &loadedModules()
 {
-    auto &cache = typeCache();
-    for (auto it = cache.begin(); it != cache.end();) {
-        if (it->second.m_resolved.value_or(false))
-            ++it;
-        else
-            it = cache.erase(it);
+    static std::vector<ULONG64> modules;
+    return modules;
+}
+
+void PyType::moduleLoaded(ULONG64 base)
+{
+    // Loading a module reports it once more when its symbols come along.
+    std::vector<ULONG64> &modules = loadedModules();
+    if (modules.empty() || modules.back() != base)
+        modules.push_back(base);
+}
+
+void PyType::moduleUnloaded(ULONG64 base)
+{
+    for (ULONG64 &module : loadedModules()) {
+        if (module == base)
+            module = 0;
     }
+}
+
+void PyType::symbolsChanged()
+{
+    // The symbol path or the symbol options changed: what no module knew may be
+    // known by any of them now. The misses go, the hits stay.
+    auto &cache = typeCache();
+    for (auto it = cache.begin(); it != cache.end(); ) {
+        if (it->second.m_resolved.has_value() && !*it->second.m_resolved)
+            it = cache.erase(it);
+        else
+            ++it;
+    }
+}
+
+// Asks every loaded module for the type, those with their symbols at hand
+// before those that would have to load them first: GetTypeId() on a module
+// with deferred symbols loads them, which is what makes a miss take seconds.
+static bool findTypeInModules(const std::string &name, ULONG *typeId, ULONG64 *module)
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    ULONG loaded = 0;
+    ULONG unloaded = 0;
+    if (FAILED(symbols->GetNumberModules(&loaded, &unloaded)) || loaded == 0)
+        return false;
+    std::vector<DEBUG_MODULE_PARAMETERS> modules(loaded);
+    if (FAILED(symbols->GetModuleParameters(loaded, NULL, 0, modules.data())))
+        return false;
+    for (const bool deferred : {false, true}) {
+        for (const DEBUG_MODULE_PARAMETERS &candidate : modules) {
+            if (candidate.Flags & DEBUG_MODULE_UNLOADED)
+                continue;
+            if ((candidate.SymbolType == DEBUG_SYMTYPE_DEFERRED) != deferred)
+                continue;
+            if (symbols->GetTypeId(candidate.Base, name.c_str(), typeId) == S_OK) {
+                *module = candidate.Base;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool findTypeInModulesLoadedSince(const std::string &name, size_t firstModule,
+                                         ULONG *typeId, ULONG64 *module)
+{
+    CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
+    const std::vector<ULONG64> &modules = loadedModules();
+    for (size_t i = firstModule; i < modules.size(); ++i) {
+        if (modules[i] == 0)
+            continue;
+        if (symbols->GetTypeId(modules[i], name.c_str(), typeId) == S_OK) {
+            *module = modules[i];
+            return true;
+        }
+    }
+    return false;
 }
 
 bool PyType::resolve() const
@@ -474,42 +580,48 @@ bool PyType::resolve() const
     if (!m_name.empty()) {
         auto cacheIt = typeCache().find(m_name);
         if (cacheIt != typeCache().end() && cacheIt->second.m_resolved.has_value()) {
-            if (debuggingTypeEnabled())
+            PyType &cached = cacheIt->second;
+            if (!*cached.m_resolved && cached.m_modulesAsked < loadedModules().size()) {
+                if (debuggingTypeEnabled())
+                    DebugPrint() << "asking the new modules for '" << m_name << "'";
+                ULONG typeId = 0;
+                ULONG64 module = 0;
+                if (findTypeInModulesLoadedSince(m_name, cached.m_modulesAsked, &typeId, &module)) {
+                    cached.m_typeId = typeId;
+                    cached.m_module = module;
+                    cached.m_resolved = true;
+                }
+                cached.m_modulesAsked = loadedModules().size();
+            } else if (debuggingTypeEnabled()) {
                 DebugPrint() << "found cached '" << m_name << "'";
+            }
 
             // found a resolved cache entry use the ids of this entry
-            m_typeId = cacheIt->second.m_typeId;
-            m_module = cacheIt->second.m_module;
-            m_resolved = cacheIt->second.m_resolved;
+            m_typeId = cached.m_typeId;
+            m_module = cached.m_module;
+            m_resolved = cached.m_resolved;
         } else {
             if (debuggingTypeEnabled())
                 DebugPrint() << "resolve '" << m_name << "'";
 
             CIDebugSymbols *symbols = ExtensionCommandContext::instance()->symbols();
-            ULONG typeId;
-            HRESULT result = S_FALSE;
-            if (m_module != 0 && !isIntegralType(m_name) && !isFloatType(m_name))
-                result = symbols->GetTypeId(m_module, m_name.c_str(), &typeId);
-            if (FAILED(result) || result == S_FALSE) {
-                ULONG64 module;
-                result = symbols->GetSymbolTypeId(m_name.c_str(), &typeId, &module);
-                if (FAILED(result) || result == S_FALSE) {
-                    ULONG loaded = 0;
-                    ULONG unloaded = 0;
-                    symbols->GetNumberModules(&loaded, &unloaded);
-                    ULONG moduleCount = loaded + unloaded;
-                    for (ULONG moduleIndex = 0;
-                         (FAILED(result) || result == S_FALSE) && moduleIndex < moduleCount;
-                         ++moduleIndex) {
-                        symbols->GetModuleByIndex(moduleIndex, &module);
-                        result = symbols->GetTypeId(module, m_name.c_str(), &typeId);
-                    }
-                }
-
-                m_module = SUCCEEDED(result) ? module : 0;
+            ULONG typeId = 0;
+            ULONG64 module = 0;
+            bool found = symbols->GetSymbolTypeId(m_name.c_str(), &typeId, &module) == S_OK;
+            // The module offered with the lookup - the one of the value being
+            // dumped - comes after the engine's own answer, so that a name several
+            // modules know resolves the same whatever was dumped last, and before
+            // the search over all of them, which is what it is there to save.
+            if (!found && m_module != 0 && !isIntegralType(m_name) && !isFloatType(m_name)) {
+                found = symbols->GetTypeId(m_module, m_name.c_str(), &typeId) == S_OK;
+                module = m_module;
             }
-            m_typeId = SUCCEEDED(result) ? typeId : 0;
-            m_resolved = SUCCEEDED(result);
+            if (!found)
+                found = findTypeInModules(m_name, &typeId, &module);
+            m_module = found ? module : 0;
+            m_typeId = found ? typeId : 0;
+            m_resolved = found;
+            m_modulesAsked = loadedModules().size();
             typeCache()[m_name] = *this;
         }
     }

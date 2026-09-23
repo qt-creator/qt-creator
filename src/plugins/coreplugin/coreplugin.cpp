@@ -22,6 +22,7 @@
 #include "icore.h"
 #include "idocument.h"
 #include "iwizardfactory.h"
+#include "jsexpander.h"
 #include "locator/locator.h"
 #include "locator/locator_test.h"
 #include "loggingviewer.h"
@@ -518,6 +519,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     addTestCreator(createNavigationSettingsTest);
     addTestCreator(createEscapeKeyTest);
     addTestCreator(createOutputFormatterTest);
+    addTestCreator(createJsExpanderTest);
 #endif
 
     return ResultOk;

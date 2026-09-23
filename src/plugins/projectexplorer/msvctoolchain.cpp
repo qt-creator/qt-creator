@@ -1519,7 +1519,7 @@ FilePath MsvcToolchain::makeCommand(const Environment &environment) const
     if (command.isEmpty())
         command = FilePath::fromString(useJom && !onDevice ? jom : nmake);
 
-    if (environment.hasKey("VSLANG"))
+    if (!environment.value("VSLANG").isEmpty())
         return wrappedMakeCommand(command);
 
     return command;

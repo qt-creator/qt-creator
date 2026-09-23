@@ -223,6 +223,8 @@ private:
                     Utils::FilePaths *);
     bool addTracepointFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
                             Utils::FilePaths *);
+    bool addQrcFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
+                     Utils::FilePaths *);
     bool renameFile(CMakeTargetNode *context,
                     const Utils::FilePath &oldFilePath,
                     const Utils::FilePath &newFilePath, bool &shouldRunCMake);
@@ -334,6 +336,7 @@ QObject *createAddDependenciesTest();
 QObject *createBinariesForSourceFileTest();
 QObject *createLibrarySearchPathsTest();
 QObject *createQmlModuleFilesTest();
+QObject *createResourceFilesTest();
 QObject *createSourceFilesTest();
 QObject *createTargetSymbolsTest();
 QObject *createTracepointFilesTest();

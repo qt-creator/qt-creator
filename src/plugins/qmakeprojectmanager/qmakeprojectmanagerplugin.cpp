@@ -106,6 +106,7 @@ void QmakeProjectManagerPlugin::initialize()
     addTestCreator(createQmakeOutputParserTest);
     addTestCreator(createQmakeMakeFileParserTest);
     addTestCreator(createQmakeParserNodesTest);
+    addTestCreator(createQmakeProjectTest);
 #endif
 
     const Context projectContext(QmakeProjectManager::Constants::QMAKEPROJECT_ID);

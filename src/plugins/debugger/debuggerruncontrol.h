@@ -35,4 +35,8 @@ public:
 
 DEBUGGER_EXPORT QString msgAttachToProcess();
 
+// For platforms that launch the application themselves, and therefore cannot ask it for the
+// native QML connection the combined engine needs.
+DEBUGGER_EXPORT QString msgCombinedEngineUnsupported(const QString &platform);
+
 } // Debugger

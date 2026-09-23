@@ -19,14 +19,24 @@ namespace Utils {
 
 #ifdef QTC_UTILS_WITH_LIBARCHIVE
 
-static Result<> copy_data(struct archive *ar, struct archive *aw, QPromise<Result<>> &promise)
+// An archive is attacker-supplied - the Extension Manager downloads one - so how
+// much work it costs to unpack is not the archive's decision to make.
+static constexpr int kMaxEntries = 100000;
+static constexpr qint64 kMaxTotalBytes = 4LL * 1024 * 1024 * 1024;
+static constexpr qint64 kMaxDecompressedBytes = 256LL * 1024 * 1024;
+
+static Result<qint64> copy_data(
+    struct archive *ar, struct archive *aw, QPromise<Result<>> &promise, qint64 maxBytes)
 {
     int r;
     const void *buff;
     size_t size;
     la_int64_t offset;
 
-    while (!promise.isCanceled()) {
+    qint64 written = 0;
+    for (;;) {
+        if (promise.isCanceled())
+            return ResultError(Tr::tr("Canceled."));
         r = archive_read_data_block(ar, &buff, &size, &offset);
         if (r == ARCHIVE_EOF)
             break;
@@ -35,8 +45,15 @@ static Result<> copy_data(struct archive *ar, struct archive *aw, QPromise<Resul
         r = archive_write_data_block(aw, buff, size, offset);
         if (r < ARCHIVE_OK)
             return ResultError(QString::fromUtf8(archive_error_string(aw)));
+        // A sparse entry writes its blocks at an offset, so what it costs on
+        // disk is the far end of the last block, not the sum of the blocks.
+        written = qMax(written, qint64(offset) + qint64(size));
+        if (written > maxBytes) {
+            return ResultError(
+                Tr::tr("Archive expands to more than %1 bytes.").arg(kMaxTotalBytes));
+        }
     }
-    return ResultOk;
+    return written;
 }
 
 static void readFree(struct archive *a)
@@ -86,11 +103,12 @@ static int _close(struct archive *a, void *client_data)
 
 static int64_t _skip(struct archive *a, void *client_data, int64_t request)
 {
+    Q_UNUSED(a)
     ReadData *data = static_cast<ReadData *>(client_data);
-    if (data->file.skip(request))
-        return request;
-    archive_set_error(a, EIO, "Skip error: %s", data->file.errorString().toUtf8().data());
-    return -1;
+    // A short skip is not an error: libarchive reads and discards the remainder.
+    // Zero means "cannot skip", on which it falls back to reading and reports
+    // whatever goes wrong there.
+    return qMax(data->file.skip(request), qint64(0));
 }
 
 static int64_t _seek(struct archive *a, void *client_data, int64_t request, int whence)
@@ -103,7 +121,7 @@ static int64_t _seek(struct archive *a, void *client_data, int64_t request, int 
         request += data->file.pos();
         break;
     case SEEK_END:
-        request = data->file.size() - request;
+        request += data->file.size();
         break;
     }
     if (!data->file.seek(request)) {
@@ -189,7 +207,11 @@ static Result<> unarchive(
         return ResultError(QString::fromUtf8(archive_error_string(a.get())));
 
     int fileNumber = 0;
-    while (!promise.isCanceled()) {
+    qint64 totalBytes = 0;
+    for (;;) {
+        if (promise.isCanceled())
+            return ResultError(Tr::tr("Canceled."));
+
         r = archive_read_next_header(a.get(), &entry);
 
         const int format = archive_format(a.get());
@@ -205,12 +227,14 @@ static Result<> unarchive(
             return ResultError(QString::fromUtf8(archive_error_string(a.get())));
         }
 
+        if (++fileNumber > kMaxEntries)
+            return ResultError(Tr::tr("Archive contains more than %1 entries.").arg(kMaxEntries));
+
         const char *pathname = archive_entry_pathname_utf8(entry);
         if (!pathname)
             return ResultError(Tr::tr("Rejected archive entry: The name is not valid UTF-8."));
         const QString entryPath = QString::fromUtf8(pathname);
 
-        ++fileNumber;
         promise.setProgressRange(0, fileNumber);
         promise.setProgressValueAndText(fileNumber, entryPath);
 
@@ -242,17 +266,31 @@ static Result<> unarchive(
 
         archive_entry_set_pathname_utf8(entry, (root / entryPath).path().toUtf8());
 
+        // libarchive pads the extracted file out to the size the header declares,
+        // which a sparse entry sets independently of the data it carries. Charge
+        // that before the file exists. The raw format leaves the size unset.
+        const qint64 entrySize = archive_entry_size_is_set(entry)
+                                     ? qint64(archive_entry_size(entry))
+                                     : 0;
+        if (entrySize > kMaxTotalBytes - totalBytes) {
+            return ResultError(
+                Tr::tr("Archive expands to more than %1 bytes.").arg(kMaxTotalBytes));
+        }
+
         r = archive_write_header(ext.get(), entry);
         if (r < ARCHIVE_OK) {
             return ResultError(QString::fromUtf8(archive_error_string(ext.get())));
         } else {
             const struct stat *stat = archive_entry_stat(entry);
+            if (!stat)
+                return ResultError(Tr::tr("Out of memory while extracting \"%1\".").arg(entryPath));
             // Is regular file ? (See S_ISREG macro in stat.h)
             if ((((stat->st_mode) & 0170000) == 0100000)) {
-                r = copy_data(a.get(), ext.get(), promise).has_value();
-                if (r < ARCHIVE_OK) {
-                    return ResultError(QString::fromUtf8(archive_error_string(ext.get())));
-                }
+                const Result<qint64> written
+                    = copy_data(a.get(), ext.get(), promise, kMaxTotalBytes - totalBytes);
+                if (!written)
+                    return ResultError(written.error());
+                totalBytes += qMax(*written, entrySize);
             }
         }
         r = archive_write_finish_entry(ext.get());
@@ -356,6 +394,9 @@ Result<QByteArray> gzipDecompress(const QByteArray &compressed)
     if (archive_read_next_header(a.get(), &entry) != ARCHIVE_OK)
         return ResultError(QString::fromUtf8(archive_error_string(a.get())));
 
+    if (archive_filter_code(a.get(), 0) == ARCHIVE_FILTER_NONE)
+        return ResultError(Tr::tr("Not compressed data."));
+
     QByteArray out;
     char buf[64 * 1024];
     for (;;) {
@@ -364,6 +405,10 @@ Result<QByteArray> gzipDecompress(const QByteArray &compressed)
             return ResultError(QString::fromUtf8(archive_error_string(a.get())));
         if (n == 0)
             break;
+        if (out.size() + qint64(n) > kMaxDecompressedBytes) {
+            return ResultError(Tr::tr("Compressed data expands to more than %1 bytes.")
+                                   .arg(kMaxDecompressedBytes));
+        }
         out.append(buf, int(n));
     }
     return out;

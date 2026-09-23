@@ -382,7 +382,8 @@ public:
 
     virtual void autoFormat();
 
-    virtual void encourageApply();
+    // Invokable for FakeVim, which changes the text itself.
+    Q_INVOKABLE virtual void encourageApply();
 
     virtual void setDisplaySettings(const TextEditor::DisplaySettingsData &);
     // Publishes the +/- diff signs for the extra area: blockSigns maps a
@@ -516,6 +517,7 @@ public:
     virtual bool isRedoAvailable() const;
 
     void openLinkUnderCursor();
+    void openLinkUnderCursor(const std::function<void(bool opened)> &answer);
     void openLinkUnderCursorInNextSplit();
     void openTypeUnderCursor();
     void openTypeUnderCursorInNextSplit();

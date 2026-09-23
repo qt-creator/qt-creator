@@ -163,11 +163,10 @@ public:
     QnxDebugWorkerFactory()
     {
         setId("QnxDebugWorkerFactory");
-        setRecipeProducer([](RunControl *runControl) {
-            runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
-
+        setRecipeProducer([](RunControl *runControl) -> Group {
             Kit *k = runControl->kit();
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+            runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
             rp.setupPortsGatherer(runControl);
             rp.setStartMode(AttachToRemoteServer);
             rp.setCloseMode(KillAtClose);
@@ -179,7 +178,14 @@ public:
                 rp.modifyDebuggerEnvironment(qtVersion->environment());
             }
 
-            const auto modifier = [runControl](Process &process) {
+            const auto modifier = [runControl, nativeMixed = rp.isNativeMixedDebugging()]
+                                  (Process &process) {
+                if (nativeMixed) {
+                    // The application inherits pdebug's environment. Nothing gdb sets reaches it.
+                    Environment env = process.environment();
+                    env.set("QV4_FORCE_INTERPRETER", "1");
+                    process.setEnvironment(env);
+                }
                 CommandLine cmd = runControl->commandLine();
                 QStringList arguments;
                 if (runControl->usesDebugChannel()) {

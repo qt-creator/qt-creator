@@ -31,7 +31,6 @@ private:
     DockerApi *m_api = nullptr;
     QLabel *m_daemonState;
     QToolButton *m_daemonReset;
-    QtTaskTree::QSingleTaskTreeRunner m_detectionRunner;
     QtTaskTree::QSingleTaskTreeRunner m_imageIdRunner;
 };
 

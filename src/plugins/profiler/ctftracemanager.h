@@ -8,6 +8,7 @@
 #include <QList>
 #include <QMap>
 #include <QObject>
+#include <QStringList>
 
 namespace Timeline { class TimelineModelAggregator; }
 
@@ -38,9 +39,21 @@ public:
     int getSelectionId(const std::string &name);
 
     QList<CtfTimelineModel *> getSortedThreads() const;
+    // The threads the views show: all of them where no restriction applies,
+    // and the restricted ones otherwise.
+    QList<CtfTimelineModel *> shownThreads() const;
 
     void setThreadRestriction(const QString &tid, bool restrictToThisThread);
     bool isRestrictedTo(const QString &tid) const;
+    bool showsAllThreads() const;
+    // The restriction as a whole, to carry over a load that reads the trace on
+    // show again -- what a change of tracepoint providers does. Which threads
+    // are shown is the reader's choice, and reading the trace again for it is
+    // not a reason to drop it. A thread the new load leaves out keeps its
+    // place in the restriction and takes it up again if a later load brings
+    // the thread back.
+    QStringList restrictedThreads() const;
+    void setRestrictedThreads(const QStringList &tids);
 
     void updateStatistics();
     void clearAll();

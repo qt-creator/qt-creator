@@ -378,7 +378,11 @@ struct Responder
     std::function<void(QHttpServerResponder::StatusCode)> writeStatus;
     std::function<void(const QByteArray &, const char *, QHttpServerResponse::StatusCode)> writeData;
     std::function<void(const QByteArray &)> writeSSE;
+    // Keeps the stream writeSSE opened alive. Unset on a transport that has
+    // nothing to keep alive, the IO one among them.
+    std::function<bool()> pingSSE;
     std::function<bool()> isCanceled;
+    bool overIO = false;
 };
 
 static QJsonObject jsonRpcError(const QJsonValue &id, int code, const QString &message)
@@ -391,15 +395,19 @@ static QJsonObject jsonRpcError(const QJsonValue &id, int code, const QString &m
 
 // The errors 2026-07-28 reserves for a malformed request - a header that
 // contradicts the body, an unsupported version - are the ones it also requires
-// to carry 400 Bad Request. Errors that are merely the answer to a well-formed
-// call stay on the 200 that JSON-RPC expects.
+// to carry 400 Bad Request, which is the default here. Errors that are merely
+// the answer to a well-formed call stay on the 200 that JSON-RPC expects.
 static void writeError(
-    const Responder &responder, const QJsonValue &id, int code, const QString &message)
+    const Responder &responder,
+    const QJsonValue &id,
+    int code,
+    const QString &message,
+    QHttpServerResponse::StatusCode status = QHttpServerResponse::StatusCode::BadRequest)
 {
     responder.writeData(
         QJsonDocument(jsonRpcError(id, code, message)).toJson(QJsonDocument::Compact),
         "application/json",
-        QHttpServerResponse::StatusCode::BadRequest);
+        status);
 }
 
 // The request body, or nothing once the malformed one has been answered.
@@ -588,12 +596,14 @@ public:
     {
         std::function<void(const QByteArray &)> send;
         std::function<bool()> isCanceled;
+        std::function<bool()> ping;
         V2026::SubscriptionFilter filter;
         QJsonValue subscriptionId;
         // The subscription id is the client's own JSON-RPC id, so it says
         // nothing about who opened the subscription. Only the session it was
         // opened for may end it.
         QString session;
+        bool overIO = false;
     };
 
     ServerPrivate(Schema::Implementation serverInfo)
@@ -617,6 +627,14 @@ public:
                         return true;
                     }),
                 m_sseStreams.end());
+
+            std::erase_if(m_listeners, [](const Listener &listener) {
+                if (!listener.ping || listener.ping())
+                    return false;
+                qCDebug(mcpServerLog)
+                    << "Heartbeat pruned dead subscription" << listener.subscriptionId;
+                return true;
+            });
         });
         m_heartbeatTimer.start();
     }
@@ -806,7 +824,9 @@ public:
         const QJsonObject json = toJson(notification);
         auto data = QJsonDocument(json).toJson(QJsonDocument::Compact);
 
-        if (m_ioOutputHandler)
+        // A 2026-07-28 listener on the IO transport writes to this same sink,
+        // so the unfiltered copy would reach that client a second time.
+        if (m_ioOutputHandler && !hasIOListenerFor(json, sessionId))
             m_ioOutputHandler(data);
 
         // 2026-07-28 listeners cannot be reached through the session-keyed
@@ -1290,7 +1310,8 @@ public:
                 id,
                 SubscriptionIdInUse,
                 "A subscription under this request id is already open for this session; "
-                "cancel it before listening again");
+                "cancel it before listening again",
+                QHttpServerResponse::StatusCode::Conflict);
             return;
         }
 
@@ -1308,7 +1329,8 @@ public:
                 QString(
                     "This session already holds %1 subscriptions; end one before "
                     "opening another")
-                    .arg(kMaxListenersPerSession));
+                    .arg(kMaxListenersPerSession),
+                QHttpServerResponse::StatusCode::Conflict);
             return;
         }
 
@@ -1332,8 +1354,14 @@ public:
         ackJson.insert("params", ackParams);
         responder.writeSSE(QJsonDocument(ackJson).toJson(QJsonDocument::Compact));
 
-        m_listeners.push_back(
-            Listener{responder.writeSSE, responder.isCanceled, filter, id, sessionId});
+        m_listeners.push_back(Listener{
+            responder.writeSSE,
+            responder.isCanceled,
+            responder.pingSSE,
+            filter,
+            id,
+            sessionId,
+            responder.overIO});
     }
 
     // notifications/cancelled is the only notification a 2026-07-28 client
@@ -1531,6 +1559,15 @@ public:
     {
         std::erase_if(m_listeners, [](const Listener &listener) {
             return listener.isCanceled && listener.isCanceled();
+        });
+    }
+
+    bool hasIOListenerFor(const QJsonObject &notification, const QString &sessionId) const
+    {
+        return Utils::anyOf(m_listeners, [&](const Listener &l) {
+            if (!l.overIO || (!sessionId.isEmpty() && l.session != sessionId))
+                return false;
+            return wantsNotification(l.filter, notification);
         });
     }
 
@@ -2925,12 +2962,15 @@ Server::Server(Schema::Implementation serverInfo)
             };
             r.isCanceled = [http]() { return http->isResponseCanceled(); };
 
-            r.writeSSE = [sessionId, corsHeaders, http, sseStream = std::shared_ptr<SseStream>()](
-                             QByteArray data) mutable {
-                if (!sseStream)
-                    sseStream = std::make_shared<SseStream>(corsHeaders, http);
-                sseStream->sendData(data, sessionId);
+            // Shared with pingSSE: the heartbeat has to reach the very stream
+            // a subscription opened through writeSSE.
+            auto sseStream = std::make_shared<std::shared_ptr<SseStream>>();
+            r.writeSSE = [sessionId, corsHeaders, http, sseStream](QByteArray data) {
+                if (!*sseStream)
+                    *sseStream = std::make_shared<SseStream>(corsHeaders, http);
+                (*sseStream)->sendData(data, sessionId);
             };
+            r.pingSSE = [sseStream] { return !*sseStream || (*sseStream)->sendPing(); };
 
             d->onData(
                 message,
@@ -3009,6 +3049,7 @@ Result<std::function<void(QByteArray)>> Server::bindIO(std::function<void(QByteA
     };
     r.writeSSE = [this](QByteArray data) { d->m_ioOutputHandler(data); };
     r.isCanceled = [] { return false; };
+    r.overIO = true;
 
     return [this, r = std::move(r)](QByteArray data) mutable {
         if (const std::optional<QJsonObject> message = parseRequestBody(data, r))

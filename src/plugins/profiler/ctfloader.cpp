@@ -179,7 +179,43 @@ QString traceDirectoryName(const QString &directory)
 // cycle counts itself, and is not trusted to keep either below it.
 constexpr qint64 maxClockSeconds = Q_INT64_C(1) << 40;
 
+// Where a tracepoint came from, which for Qt is the module that declares it:
+// its CTF2 namespace, or the "<provider>:" its name carries in a TSDL 1.8 trace
+// -- Qt's CTF backend writes "qtcore:QObject_..." and the like. An event class
+// with neither belongs to no provider, as a kernel trace's do not.
+QString eventProvider(const CommonTraceFormat::EventRecordClass &eventClass)
+{
+    if (!eventClass.namespaceName.isEmpty())
+        return eventClass.namespaceName;
+    const qsizetype colon = eventClass.name.indexOf(u':');
+    return colon > 0 ? eventClass.name.left(colon) : QString();
+}
+
 } // namespace
+
+QStringList ctfTraceProviders(const QString &dirPath)
+{
+    using namespace CommonTraceFormat;
+
+    const Utils::Result<TraceDirectory> traceDir = TraceDirectory::open(dirPath);
+    if (!traceDir)
+        return {};
+
+    QStringList providers;
+    for (const TraceDirectory::Trace &trace : traceDir->traces()) {
+        if (!trace.schema)
+            continue;
+        for (const DataStreamClass &dsc : trace.schema->dataStreamClasses) {
+            for (const EventRecordClass &erc : dsc.eventRecordClasses) {
+                const QString provider = eventProvider(erc);
+                if (!provider.isEmpty() && !providers.contains(provider))
+                    providers.append(provider);
+            }
+        }
+    }
+    providers.sort();
+    return providers;
+}
 
 void loadChromeJson(QPromise<json> &promise, const QString &fileName)
 {
@@ -201,7 +237,7 @@ void loadChromeJson(QPromise<json> &promise, const QString &fileName)
     file.close();
 }
 
-void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
+void loadCtf2Data(QPromise<json> &promise, const QString &dirPath, const QStringList &providers)
 {
     using namespace Qt::StringLiterals;
     using namespace Profiler::Constants;
@@ -216,6 +252,13 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
         return;
     }
     const TraceDirectory &traceDir = *tdResult;
+
+    // The providers the load keeps. Nothing states an event's provider per
+    // event: it is a property of its class, so the decision is made once per
+    // declared class below and looked up per event.
+    std::set<std::string> keptProviders;
+    for (const QString &provider : providers)
+        keptProviders.insert(provider.toStdString());
 
     // Collect all events first so we can sort by timestamp before emitting.
     // CtfTraceManager sets the global time offset from the first event it receives,
@@ -408,6 +451,16 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
         const std::string tracePid = laneQualifier + traceNames.at(traceIndex).toStdString();
         const std::string traceDisplayName = traceDisplayNames.at(traceIndex).toStdString();
 
+        // The provider of every event class the trace declares, which an event
+        // is shown and filtered by. The classes live in the schema the reader
+        // holds open for the whole load, which is what an event record points
+        // at, so they can be keyed by their address.
+        std::unordered_map<const EventRecordClass *, std::string> providerOf;
+        for (const DataStreamClass &streamClass : schema.dataStreamClasses) {
+            for (const EventRecordClass &eventClass : streamClass.eventRecordClasses)
+                providerOf[&eventClass] = eventProvider(eventClass).toStdString();
+        }
+
         for (const TraceDirectory::Stream &sf : trace.streams) {
             const DataStreamClass *dsc = sf.dsc;
             if (!dsc)
@@ -450,6 +503,22 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
                 }
 
                 const EventRecord &rec = *eventResult;
+
+                // A restricted load leaves out the events of every provider it
+                // was not asked for. An event whose class names no provider at
+                // all belongs to none of them -- a kernel recording's
+                // "sched_switch", read beside a Qt one -- so no provider being
+                // cleared takes it away: it has no entry of its own to be
+                // brought back by, and clearing one Qt module would be the end
+                // of the kernel side of such a trace.
+                const auto provider = providerOf.find(rec.eventClass);
+                const std::string eventProviderName = provider != providerOf.end() ? provider->second
+                                                                                   : std::string();
+                if (!keptProviders.empty() && !eventProviderName.empty()
+                    && !keptProviders.count(eventProviderName)) {
+                    continue;
+                }
+
                 // Cycles to microseconds from `streamBase`: the whole seconds
                 // are counted in integers, only the remainder is divided.
                 const quint64 cycles = clock.cyclesFromOrigin(rec.timestamp);
@@ -589,6 +658,10 @@ void loadCtf2Data(QPromise<json> &promise, const QString &dirPath)
                 }
 
                 event[CtfEventNameKey] = evName;
+                // Where the tracepoint came from, in the place the Chrome format
+                // keeps it, so that the details of an event name its provider.
+                if (!eventProviderName.empty())
+                    event[CtfEventCategoryKey] = eventProviderName;
 
                 if (!rec.payload.order.isEmpty())
                     event["args"] = structureValueToJson(rec.payload);

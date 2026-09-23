@@ -23,7 +23,7 @@ private slots:
     void testCommandLocation();
     void testOneTypeInSeveralPlaces();
     void testEventsWithoutLocation();
-    void testLanesOfOneProcessAreNamedByTheirThread();
+    void testTheMainThreadLaneIsNamedAfterTheProcess();
     void testLanesOfSeveralProcessesNameTheirProcess();
 
 private:

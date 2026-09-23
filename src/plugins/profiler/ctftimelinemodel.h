@@ -44,8 +44,10 @@ public:
 
     // `manyProcesses` says whether the trace holds more than one, which is when
     // naming this lane's process tells the reader which lane it is looking at.
+    // `mainThread` says that this lane is the one its process runs on, which is
+    // where the process is named instead of the thread (see updateName()).
     void finalize(double traceBegin, double traceEnd, const QString &processName,
-                  const QString &threadName, bool manyProcesses);
+                  const QString &threadName, bool manyProcesses, bool mainThread);
 
     QString tid() const;
     QString eventTitle(int index) const;
@@ -79,6 +81,7 @@ protected:
     QString m_threadDisplayId;
     QString m_processDisplayId;
     bool m_manyProcesses = true;
+    bool m_mainThread = false;
 
     int m_maxStackSize = 0;
     QList<int> m_rows;

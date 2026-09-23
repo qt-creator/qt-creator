@@ -96,7 +96,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
                                                QtcButton::MediumSecondary);
             manageButton->setToolTip(Tr::tr("Open ACP server settings."));
-            manageButton->setPixmap(Utils::Icons::SETTINGS.pixmap());
+            manageButton->setThemedPixmap(Utils::Icons::SETTINGS);
             connect(manageButton, &QAbstractButton::clicked, this, [] {
                 Core::ICore::showSettings("AI.ACPSERVERS");
             });
@@ -145,7 +145,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             auto *manageButton = new QtcButton(Tr::tr("Manage Agents..."),
                                                QtcButton::MediumGhost);
             manageButton->setToolTip(Tr::tr("Open ACP server settings."));
-            manageButton->setPixmap(Utils::Icons::SETTINGS.pixmap());
+            manageButton->setThemedPixmap(Utils::Icons::SETTINGS);
             connect(manageButton, &QAbstractButton::clicked, this, [] {
                 Core::ICore::showSettings("AI.ACPSERVERS");
             });

@@ -240,6 +240,7 @@ void ToolCallDetailWidget::addMarkdownContent(const QString &markdown)
     auto *browser = new Utils::MarkdownBrowser(this);
     browser->setFrameShape(QFrame::NoFrame);
     browser->setEnableCodeCopyButton(true);
+    browser->setAllowEmbeddedHtml(false);
     browser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     browser->setMargins({0, 0, 0, 0});
@@ -364,6 +365,7 @@ void ToolCallDetailWidget::addRawInputContent(const QJsonValue &rawInput)
         auto *browser = new Utils::MarkdownBrowser(frame);
         browser->setFrameShape(QFrame::NoFrame);
         browser->setEnableCodeCopyButton(true);
+        browser->setAllowEmbeddedHtml(false);
         browser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         browser->setMargins({0, 0, 0, 0});

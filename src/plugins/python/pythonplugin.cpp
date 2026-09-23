@@ -15,6 +15,7 @@
 #ifdef WITH_TESTS
 #include "tests/pylspprune_test.h"
 #include "tests/pyprojecttoml_test.h"
+#include "tests/pythonsettings_test.h"
 #endif // WITH_TESTS
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -82,6 +83,7 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
 #ifdef WITH_TESTS
         addTestCreator(createPylspPruneTest);
         addTestCreator(createPyProjectTomlTest);
+        addTestCreator(createPythonSettingsTest);
 #endif
         Core::IOptionsPage::registerCategory(
             Constants::C_PYTHON_SETTINGS_CATEGORY,

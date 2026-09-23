@@ -77,10 +77,10 @@ struct VTermScreen
   ScreenPen pen;
 };
 
-static inline void clearcell(const VTermScreen *screen, ScreenCell *cell)
+static inline void clearcell(ScreenCell *cell, const ScreenPen *pen)
 {
   cell->chars[0] = 0;
-  cell->pen = screen->pen;
+  cell->pen = *pen;
   cell->pen.uri = 0;
   cell->pen.image = 0;
 }
@@ -100,7 +100,7 @@ static ScreenCell *alloc_buffer(VTermScreen *screen, int rows, int cols)
 
   for(int row = 0; row < rows; row++) {
     for(int col = 0; col < cols; col++) {
-      clearcell(screen, &new_buffer[row * cols + col]);
+      clearcell(&new_buffer[row * cols + col], &screen->pen);
     }
   }
 
@@ -213,16 +213,56 @@ static int putglyph(VTermGlyphInfo *info, VTermPos pos, void *user)
   return 1;
 }
 
-static void sb_pushline_from_row(VTermScreen *screen, int row, bool continuation)
+/* Copy internal to external representation of a screen cell. nextcell is the
+ * cell to its right, or NULL if it is the last one on its row. */
+static void copy_cell(const VTermScreen *screen, const ScreenCell *intcell,
+    const ScreenCell *nextcell, VTermScreenCell *cell)
 {
-  VTermPos pos = { .row = row };
-  for(pos.col = 0; pos.col < screen->cols; pos.col++)
-    vterm_screen_get_cell(screen, pos, screen->sb_buffer + pos.col);
+  for(int i = 0; i < VTERM_MAX_CHARS_PER_CELL; i++) {
+    cell->chars[i] = intcell->chars[i];
+    if(!intcell->chars[i])
+      break;
+  }
+
+  cell->attrs.bold      = intcell->pen.bold;
+  cell->attrs.underline = intcell->pen.underline;
+  cell->attrs.italic    = intcell->pen.italic;
+  cell->attrs.blink     = intcell->pen.blink;
+  cell->attrs.reverse   = intcell->pen.reverse ^ screen->global_reverse;
+  cell->attrs.conceal   = intcell->pen.conceal;
+  cell->attrs.strike    = intcell->pen.strike;
+  cell->attrs.font      = intcell->pen.font;
+  cell->attrs.small     = intcell->pen.small;
+  cell->attrs.baseline  = intcell->pen.baseline;
+
+  cell->attrs.dwl = intcell->pen.dwl;
+  cell->attrs.dhl = intcell->pen.dhl;
+
+  cell->uri = intcell->pen.uri;
+  cell->image = intcell->pen.image;
+
+  cell->fg = intcell->pen.fg;
+  cell->bg = intcell->pen.bg;
+
+  if(nextcell && nextcell->chars[0] == (uint32_t)-1)
+    cell->width = 2;
+  else
+    cell->width = 1;
+}
+
+/* rowcells are the cols cells of the row being pushed. They belong to the
+ * buffer that is scrolling, which on a resize is not the one on screen. */
+static void sb_pushline_from_row(VTermScreen *screen, const ScreenCell *rowcells, int cols,
+    bool continuation)
+{
+  for(int col = 0; col < cols; col++)
+    copy_cell(screen, rowcells + col, col < cols - 1 ? rowcells + col + 1 : NULL,
+        screen->sb_buffer + col);
 
   if(screen->callbacks_has_pushline4 && screen->callbacks->sb_pushline4)
-    (screen->callbacks->sb_pushline4)(screen->cols, screen->sb_buffer, continuation, screen->cbdata);
+    (screen->callbacks->sb_pushline4)(cols, screen->sb_buffer, continuation, screen->cbdata);
   else
-    (screen->callbacks->sb_pushline)(screen->cols, screen->sb_buffer, screen->cbdata);
+    (screen->callbacks->sb_pushline)(cols, screen->sb_buffer, screen->cbdata);
 }
 
 static int premove(VTermRect rect, void *user)
@@ -236,7 +276,8 @@ static int premove(VTermRect rect, void *user)
      screen->buffer == screen->buffers[BUFIDX_PRIMARY]) { // not altscreen
     for(int row = 0; row < rect.end_row; row++) {
       const VTermLineInfo *lineinfo = vterm_state_get_lineinfo(screen->state, row);
-      sb_pushline_from_row(screen, row, lineinfo->continuation);
+      sb_pushline_from_row(screen, screen->buffer + row * screen->cols, screen->cols,
+          lineinfo->continuation);
     }
   }
 
@@ -531,6 +572,16 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
   int old_rows = screen->rows;
   int old_cols = screen->cols;
 
+  /* The cells a buffer gains are blank ones that nothing has painted. The pen
+   * belongs to whatever is drawing on the active buffer, so it must not reach
+   * the one that is not shown: an application on the altscreen would colour
+   * the primary screen it is going to be left on. */
+  ScreenPen blank = screen->pen;
+  if(!active) {
+    blank = (ScreenPen){ 0 };
+    vterm_state_get_default_colors(screen->state, &blank.fg, &blank.bg);
+  }
+
   ScreenCell *old_buffer = screen->buffers[bufidx];
   VTermLineInfo *old_lineinfo = statefields->lineinfos[bufidx];
 
@@ -662,7 +713,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
       }
 
       while(new_col < new_cols) {
-        clearcell(screen, &new_buffer[new_row * new_cols + new_col]);
+        clearcell(&new_buffer[new_row * new_cols + new_col], &blank);
         new_col++;
       }
 
@@ -697,7 +748,8 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
           (screen->callbacks_has_pushline4 && screen->callbacks && screen->callbacks->sb_pushline4))
       for(int row = 0; row <= old_row; row++) {
         const VTermLineInfo *lineinfo = old_lineinfo + row;
-        sb_pushline_from_row(screen, row, lineinfo->continuation);
+        sb_pushline_from_row(screen, old_buffer + row * old_cols, old_cols,
+            lineinfo->continuation);
       }
     if(active)
       statefields->pos.row -= (old_row + 1);
@@ -740,7 +792,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
           (dst + 1)->chars[0] = (uint32_t) -1;
       }
       for( ; pos.col < new_cols; pos.col++)
-        clearcell(screen, &new_buffer[pos.row * new_cols + pos.col]);
+        clearcell(&new_buffer[pos.row * new_cols + pos.col], &blank);
       new_row--;
 
       if(active)
@@ -757,7 +809,7 @@ static void resize_buffer(VTermScreen *screen, int bufidx, int new_rows, int new
 
     for(new_row = moverows; new_row < new_rows; new_row++) {
       for(int col = 0; col < new_cols; col++)
-        clearcell(screen, &new_buffer[new_row * new_cols + col]);
+        clearcell(&new_buffer[new_row * new_cols + col], &blank);
       new_lineinfo[new_row] = (VTermLineInfo){ 0 };
     }
   }
@@ -1001,44 +1053,13 @@ size_t vterm_screen_get_text(const VTermScreen *screen, char *str, size_t len, c
   return _get_chars(screen, 1, str, len, rect);
 }
 
-/* Copy internal to external representation of a screen cell */
 int vterm_screen_get_cell(const VTermScreen *screen, VTermPos pos, VTermScreenCell *cell)
 {
   ScreenCell *intcell = getcell(screen, pos.row, pos.col);
   if(!intcell)
     return 0;
 
-  for(int i = 0; i < VTERM_MAX_CHARS_PER_CELL; i++) {
-    cell->chars[i] = intcell->chars[i];
-    if(!intcell->chars[i])
-      break;
-  }
-
-  cell->attrs.bold      = intcell->pen.bold;
-  cell->attrs.underline = intcell->pen.underline;
-  cell->attrs.italic    = intcell->pen.italic;
-  cell->attrs.blink     = intcell->pen.blink;
-  cell->attrs.reverse   = intcell->pen.reverse ^ screen->global_reverse;
-  cell->attrs.conceal   = intcell->pen.conceal;
-  cell->attrs.strike    = intcell->pen.strike;
-  cell->attrs.font      = intcell->pen.font;
-  cell->attrs.small     = intcell->pen.small;
-  cell->attrs.baseline  = intcell->pen.baseline;
-
-  cell->attrs.dwl = intcell->pen.dwl;
-  cell->attrs.dhl = intcell->pen.dhl;
-
-  cell->uri = intcell->pen.uri;
-  cell->image = intcell->pen.image;
-
-  cell->fg = intcell->pen.fg;
-  cell->bg = intcell->pen.bg;
-
-  if(pos.col < (screen->cols - 1) &&
-     getcell(screen, pos.row, pos.col + 1)->chars[0] == (uint32_t)-1)
-    cell->width = 2;
-  else
-    cell->width = 1;
+  copy_cell(screen, intcell, pos.col < (screen->cols - 1) ? intcell + 1 : NULL, cell);
 
   return 1;
 }

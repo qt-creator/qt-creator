@@ -359,52 +359,55 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
             }
         }
     } else if (setting->startBehavior() == BaseSettings::RequiresProject) {
-        const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
-        for (Core::IDocument *document : openedDocuments) {
-            auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
-            if (!textDocument || !setting->languageFilter().isSupported(textDocument))
+        applySettingsForRequiresProject(setting);
+    }
+    emit managerInstance->settingsChanged(setting);
+}
+
+void LanguageClientManager::applySettingsForRequiresProject(BaseSettings *setting)
+{
+    QTC_ASSERT(setting->startBehavior() == BaseSettings::RequiresProject, return);
+
+    const QList<Core::IDocument *> &openedDocuments = Core::DocumentModel::openedDocuments();
+    for (Core::IDocument *document : openedDocuments) {
+        auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+        if (!textDocument || !setting->languageFilter().isSupported(textDocument))
+            continue;
+        const Utils::FilePath filePath = textDocument->filePath();
+        for (Project *project : ProjectManager::projects()) {
+            if (!setting->isEnabledOnProject(project))
                 continue;
-            const Utils::FilePath filePath = textDocument->filePath();
-            for (Project *project : ProjectManager::projects()) {
-                for (Target *target : project->targets()) {
-                    const bool targetIsActive = project->activeTarget() == target;
-                    for (BuildConfiguration *bc : target->buildConfigurations()) {
-                        if (!setting->isValidOnBuildConfiguration(bc))
-                            continue;
-                        const bool settingIsEnabled
-                            = ProjectSettings(project).enabledSettings().contains(setting->id())
-                              || (setting->enabled()
-                                  && !ProjectSettings(project).disabledSettings().contains(setting->id()));
-                        if (!settingIsEnabled)
-                            continue;
-                        if (!project->isKnownFile(filePath))
-                            continue;
-                        // Note: we might already have started the client in a previous iteration of
-                        // the openedDocuments-loop. In that case, use the existing one.
-                        Client *client = Utils::findOrDefault(
-                            clientsForSetting(setting), [bc](Client *candidate) {
-                                if (candidate->buildConfiguration() != bc)
-                                    return false;
-                                const auto state = candidate->state();
-                                return state == Client::Uninitialized
-                                       || state == Client::Initialized
-                                       || state == Client::InitializeRequested;
-                            });
-                        if (!client)
-                            client = startClient(setting, bc);
-                        if (!client)
-                            continue;
-                        if (targetIsActive && target->activeBuildConfiguration() == bc
-                            && client->activatable()) {
-                            openDocumentWithClient(textDocument, client);
-                        } else
-                            client->openDocument(textDocument);
-                    }
+
+            for (Target *target : project->targets()) {
+                const bool targetIsActive = project->activeTarget() == target;
+                for (BuildConfiguration *bc : target->buildConfigurations()) {
+                    if (!setting->isValidOnBuildConfiguration(bc))
+                        continue;
+                    if (!project->isKnownFile(filePath))
+                        continue;
+                    // Note: we might already have started the client in a previous iteration of
+                    // the openedDocuments-loop. In that case, use the existing one.
+                    Client *client
+                        = Utils::findOrDefault(clientsForSetting(setting), [bc](Client *candidate) {
+                              if (candidate->buildConfiguration() != bc)
+                                  return false;
+                              const auto state = candidate->state();
+                              return state == Client::Uninitialized || state == Client::Initialized
+                                     || state == Client::InitializeRequested;
+                          });
+                    if (!client)
+                        client = startClient(setting, bc);
+                    if (!client)
+                        continue;
+                    if (targetIsActive && target->activeBuildConfiguration() == bc
+                        && client->activatable()) {
+                        openDocumentWithClient(textDocument, client);
+                    } else
+                        client->openDocument(textDocument);
                 }
             }
         }
     }
-    emit managerInstance->settingsChanged(setting);
 }
 
 QList<BaseSettings *> LanguageClientManager::currentSettings()
@@ -561,6 +564,8 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                                            callback,
                                            resolveTarget,
                                            LinkTarget::SymbolDef);
+                    } else {
+                        callback({});
                     }
                 });
         connect(widget, &TextEditorWidget::requestTypeAt, this,
@@ -731,7 +736,7 @@ void LanguageClientManager::updateProject(BuildConfiguration *bc)
 {
     for (BaseSettings *setting : std::as_const(m_currentSettings)) {
         if (setting->isValid()
-            && setting->enabled()
+            && setting->isEnabledOnProject(bc->project())
             && setting->startBehavior() == BaseSettings::RequiresProject) {
             if (Utils::findOrDefault(clientsForSetting(setting),
                                      [bc](const QPointer<Client> &client) {

@@ -575,11 +575,11 @@ public:
     RecentProjectItem(QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        static const QPixmap iconPixmap = Icon({{":/projectexplorer/images/recentproject.png",
-                                           Theme::Token_Text_Muted}}, Icon::Tint).pixmap();
+        const Icon icon({{":/projectexplorer/images/recentproject.png",
+                          Theme::Token_Text_Muted}}, Icon::Tint);
         auto iconLabel = new QLabel;
-        iconLabel->setPixmap(iconPixmap);
-        iconLabel->setFixedWidth(iconPixmap.deviceIndependentSize().width());
+        setThemedPixmap(iconLabel, icon);
+        iconLabel->setFixedWidth(icon.pixmap().deviceIndependentSize().width());
         iconLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
 
         static constexpr TextFormat labelTF {

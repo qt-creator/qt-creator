@@ -4,6 +4,7 @@
 import QtQuick
 
 Item {
+    // MARKER: qml line without code
     function compute(value) {
         var doubled = value * 2
         function helper() { return doubled }

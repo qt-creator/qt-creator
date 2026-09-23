@@ -85,6 +85,8 @@ QtcPlugin {
             "pylspprune_test.h",
             "pyprojecttoml_test.cpp",
             "pyprojecttoml_test.h",
+            "pythonsettings_test.cpp",
+            "pythonsettings_test.h",
         ]
     }
     QtcTestResources {

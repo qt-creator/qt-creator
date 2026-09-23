@@ -9,10 +9,13 @@
 
 #include <devcontainer/devcontainer.h>
 
+#include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -196,6 +199,74 @@ private slots:
             ProjectExplorer::KitManager::instance()->kits(),
             [](ProjectExplorer::Kit *k) { return k->displayName() == QLatin1String("DevKit2"); });
         QVERIFY(kit2);
+    }
+
+    void testWithKitAndAutoDetect()
+    {
+        const auto cmakelists = testData / "withkitautodetect" / "CMakeLists.txt";
+        ProjectExplorer::OpenProjectResult opr
+            = ProjectExplorer::ProjectExplorerPlugin::openProject(cmakelists);
+
+        QVERIFY(opr);
+
+        QSignalSpy deviceAddedSpy(this, &Tests::deviceUpDone);
+
+        InstanceConfig instanceConfig;
+        instanceConfig.configFilePath = testData / "withkitautodetect" / ".devcontainer"
+                                        / "devcontainer.json";
+        instanceConfig.workspaceFolder = opr.project()->projectDirectory();
+
+        const auto infoBarEntryId = Utils::Id::fromString(QString(
+            "DevContainer.Instantiate.InfoBar." + instanceConfig.workspaceFolder.toUrlishString()));
+
+        Utils::InfoBar *infoBar = Core::ICore::popupInfoBar();
+        QVERIFY(infoBar->containsInfo(infoBarEntryId));
+        Utils::InfoBarEntry entry = Utils::findOrDefault(
+            infoBar->entries(),
+            [infoBarEntryId](const Utils::InfoBarEntry &e) { return e.id() == infoBarEntryId; });
+
+        QCOMPARE(entry.id(), infoBarEntryId);
+        QCOMPARE(entry.buttons().size(), 1);
+        auto yesButton = entry.buttons().first();
+
+        // Trigger loading the DevContainer instance
+        yesButton.callback();
+
+        using namespace std::chrono_literals;
+        QVERIFY(deviceAddedSpy.wait(
+            std::chrono::duration_cast<std::chrono::milliseconds>(10min).count()));
+
+        const auto kitNamed = [](const QString &name) {
+            return Utils::findOrDefault(
+                ProjectExplorer::KitManager::instance()->kits(),
+                [&name](ProjectExplorer::Kit *k) { return k->displayName() == name; });
+        };
+
+        ProjectExplorer::Kit *kit1 = kitNamed("AutoDetectKit1");
+        QVERIFY(kit1);
+        ProjectExplorer::Kit *kit2 = kitNamed("AutoDetectKit2");
+        QVERIFY(kit2);
+
+        // Detection sets the toolchain on the kit it works on, so the compilers
+        // the configuration pinned are what shows it left these two alone.
+        for (ProjectExplorer::Kit *kit : {kit1, kit2}) {
+            const ProjectExplorer::Toolchain *cxx
+                = ProjectExplorer::ToolchainKitAspect::cxxToolchain(kit);
+            QVERIFY(cxx);
+            QCOMPARE(cxx->compilerCommand().path(), QString("/usr/bin/g++"));
+            const ProjectExplorer::Toolchain *c
+                = ProjectExplorer::ToolchainKitAspect::cToolchain(kit);
+            QVERIFY(c);
+            QCOMPARE(c->compilerCommand().path(), QString("/usr/bin/gcc"));
+        }
+
+        // Detection must not adopt one of the declared kits, so the device ends
+        // up with the two it declared plus the detected one.
+        const QString deviceId = kit1->detectionSource().id;
+        const auto deviceKits = Utils::filtered(
+            ProjectExplorer::KitManager::instance()->kits(),
+            [&deviceId](ProjectExplorer::Kit *k) { return k->detectionSource().id == deviceId; });
+        QCOMPARE(deviceKits.size(), 3);
     }
 };
 

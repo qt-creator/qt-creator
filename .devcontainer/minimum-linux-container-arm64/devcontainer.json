@@ -22,7 +22,7 @@
             ],
             "settings": {
                 "qt-core.additionalQtPaths": [
-                    "/6.7.0/gcc_arm64/bin/qtpaths"
+                    "/6.8.3/gcc_arm64/bin/qtpaths"
                 ],
                 "qt-core.qtInstallationRoot": "",
                 "launch": {

@@ -170,6 +170,7 @@ public:
         setFrameShape(QFrame::NoFrame);
         setOpenExternalLinks(true);
         setEnableCodeCopyButton(true);
+        setAllowEmbeddedHtml(false);
         setMargins({0, 0, 0, 0});
         setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

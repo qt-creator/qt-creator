@@ -118,6 +118,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&smartCase,      false, "SmartCase",      "scs", Tr::tr("Use smartcase"));
     setup(&ignoreCase,     false, "IgnoreCase",     "ic",  Tr::tr("Use ignorecase"));
     setup(&wrapScan,       true,  "WrapScan",       "ws",  Tr::tr("Use wrapscan"));
+    setup(&magic,          true,  "Magic",          {},    {});
     setup(&tildeOp,        false, "TildeOp",        "top", Tr::tr("Use tildeop"));
     setup(&showCmd,        true,  "ShowCmd",        "sc",  Tr::tr("Show partial command"));
     setup(&relativeNumber, false, "RelativeNumber", "rnu", Tr::tr("Show line numbers relative to cursor"));
@@ -145,7 +146,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&formatListPat,  R"(^\s*\d\+[\]:.)}\t ]\s*)",
                                   "FormatListPat",  "flp", {});
     setup(&whichWrap,      "b,s", "WhichWrap",      "ww",  {});
-    setup(&joinSpaces,     false, "JoinSpaces",     "js",  {});
+    setup(&joinSpaces,     true,  "JoinSpaces",     "js",  {});
     setup(&ruler,          false, "Ruler",          "ru",  {});
     setup(&gDefault,       false, "GDefault",       "gd",  {});
     setup(&langMap,        QString(), "LangMap",       "lmap", {});
@@ -359,7 +360,7 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
     if (aspect == &tabStop || aspect == &shiftWidth) {
         const int minimum = aspect == &shiftWidth ? 0 : 1;
         if (value.toInt() < minimum)
-            return Tr::tr("Argument must be positive: %1=%2")
+            return Tr::tr("E487: Argument must be positive: %1=%2")
                     .arg(name).arg(value);
     }
     aspect->setVariantValue(value);

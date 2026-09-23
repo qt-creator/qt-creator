@@ -147,6 +147,16 @@ CommonSettings::CommonSettings()
                "the unresolved path."));
     resolveBreakpointSymlinks.setLabelText(Tr::tr("Resolve symbolic links in breakpoint paths"));
 
+    lookUpSourcesOnDebuggerDevice.setSettingsKey(debugModeGroup, "LookUpSourcesOnDebuggerDevice");
+    lookUpSourcesOnDebuggerDevice.setDefaultValue(true);
+    lookUpSourcesOnDebuggerDevice.setToolTip(
+        Tr::tr("Looks for a source file the debugger reports on the device the debugger itself "
+               "runs on, once it is not readable on the host. This finds sources that exist only "
+               "inside a container or on a remote device, at the price of one lookup on that "
+               "device for every name the debugger reports for the first time."));
+    lookUpSourcesOnDebuggerDevice.setLabelText(
+        Tr::tr("Look for sources on the debugger's device"));
+
     raiseOnInterrupt.setSettingsKey(debugModeGroup, "RaiseOnInterrupt");
     raiseOnInterrupt.setDefaultValue(true);
     raiseOnInterrupt.setLabelText(Tr::tr("Bring %1 to foreground when application interrupts")
@@ -166,28 +176,16 @@ CommonSettings::CommonSettings()
     warnOnReleaseBuilds.setToolTip(Tr::tr("Shows a warning when starting the debugger "
                                           "on a binary with insufficient debug information."));
 
-    nativeMixedMode.setSettingsKey(debugModeGroup, "UseNativeCombinedDebugging");
-    nativeMixedMode.setLabelText(Tr::tr("Use native combined debugging (experimental)"));
-    nativeMixedMode.setToolTip(
-        "<p>"
-        + Tr::tr("Debugs QML through the C++ debugger backend when both C++ "
-                 "and QML debugging are enabled for a run: QML breakpoints, "
-                 "mixed stacks, and QML locals are handled by the same "
-                 "debugger session instead of a separate QML debugger "
-                 "connection. The QTC_DEBUGGER_NATIVE_MIXED environment "
-                 "variable overrides this setting."));
-
     collapseMachineryFrames.setSettingsKey(debugModeGroup, "CollapseDebuggerMachineryFrames");
     collapseMachineryFrames.setDefaultValue(true);
     collapseMachineryFrames.setLabelText(
         Tr::tr("Collapse debugger machinery stack frames"));
     collapseMachineryFrames.setToolTip(
         "<p>"
-        + Tr::tr("In native combined debugging, replaces the frames between "
-                 "a QML frame and the application code, which only execute "
+        + Tr::tr("When debugging C++ and QML with a combined engine, replaces the frames "
+                 "between a QML frame and the application code, which only execute "
                  "debugger machinery, with a single placeholder frame in the "
                  "stack view."));
-    collapseMachineryFrames.setEnabler(&nativeMixedMode);
 
     useGenericDebugger.setSettingsKey(debugModeGroup, "UseGenericDebugger");
     useGenericDebugger.setLabelText(Tr::tr("Use the new debugger backends (experimental)"));
@@ -225,8 +223,8 @@ CommonSettings::CommonSettings()
                 warnOnReleaseBuilds,
                 breakpointsFullPathByDefault,
                 resolveBreakpointSymlinks,
+                lookUpSourcesOnDebuggerDevice,
                 forceLoggingToConsole,
-                nativeMixedMode,
                 collapseMachineryFrames,
                 useGenericDebugger,
                 Row { maximalStackDepth, st },

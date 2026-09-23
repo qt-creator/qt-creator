@@ -12,15 +12,28 @@ QT_BEGIN_NAMESPACE
 class QMenu;
 QT_END_NAMESPACE
 
+namespace Core {
+class IVersionControl;
+}
+
 namespace VcsBase {
 
 class VCSBASE_EXPORT VcsOutputLineParser : public Utils::OutputLineParser
 {
 public:
+    struct FileLink
+    {
+        Utils::FilePath filePath;
+        Core::IVersionControl *versionControl = nullptr;
+        Utils::FilePath topLevel;
+    };
+
     VcsOutputLineParser();
+    void fillFileLinkContextMenu(QMenu *menu,
+                                 const Utils::FilePath &workingDirectory,
+                                 const QString &href) const;
     void fillLinkContextMenu(QMenu *menu, const Utils::FilePath &workingDirectory, const QString &href);
-    Utils::FilePath filePathForLink(const Utils::FilePath &workingDirectory,
-                                    const QString &href) const;
+    FileLink filePathForLink(const Utils::FilePath &workingDirectory, const QString &href) const;
     bool handleFileLink(const Utils::FilePath &workingDirectory, const QString &href) const;
     bool handleVcsLink(const Utils::FilePath &workingDirectory, const QString &href);
     static bool shouldOfferFileLink(const QString &href);

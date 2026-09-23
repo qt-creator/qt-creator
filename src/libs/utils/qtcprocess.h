@@ -156,8 +156,6 @@ public:
     void setTextChannelMode(Channel channel, TextChannelMode mode);
     TextChannelMode textChannelMode(Channel channel) const;
 
-    bool readDataFromProcess(QByteArray *stdOut, QByteArray *stdErr, int timeoutS = 30);
-
     ProcessResult result() const;
 
     QByteArray allRawOutput() const;

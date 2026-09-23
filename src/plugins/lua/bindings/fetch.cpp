@@ -83,16 +83,12 @@ void setupFetchModule()
             setAutoApply(false);
 
             pluginsAllowedToFetch.setSettingsKey("pluginsAllowedToFetch");
-            pluginsAllowedToFetch.setLabelText(
-                Tr::tr("Plugins allowed to fetch data from the internet"));
             pluginsAllowedToFetch.setToolTip(
                 Tr::tr("List of plugins that are allowed to fetch data from the internet"));
             pluginsAllowedToFetch.setUiAllowAdding(false);
             pluginsAllowedToFetch.setUiAllowEditing(false);
 
             pluginsNotAllowedToFetch.setSettingsKey("pluginsNotAllowedToFetch");
-            pluginsNotAllowedToFetch.setLabelText(
-                Tr::tr("Plugins not allowed to fetch data from the internet"));
             pluginsNotAllowedToFetch.setToolTip(
                 Tr::tr("List of plugins that are not allowed to fetch data from the internet"));
             pluginsNotAllowedToFetch.setUiAllowAdding(false);
@@ -101,9 +97,15 @@ void setupFetchModule()
             setLayouter([this] {
                 using namespace Layouting;
                 // clang-format off
-                return Form {
-                    pluginsAllowedToFetch, br,
-                    pluginsNotAllowedToFetch, br,
+                return Column {
+                    Group {
+                        title(Tr::tr("Plugins allowed to fetch data from the internet")),
+                        Row { pluginsAllowedToFetch },
+                    },
+                    Group {
+                        title(Tr::tr("Plugins not allowed to fetch data from the internet")),
+                        Row { pluginsNotAllowedToFetch },
+                    },
                 };
                 // clang-format on
             });

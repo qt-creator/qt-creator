@@ -126,6 +126,14 @@ public:
     // event can leave the built-in action undone where one of them did it.
     int triggerAutocmd(const QString &event, const QString &target = {});
 
+    // The buffer having been saved to its own file, which is what clears the
+    // "[Not edited]" a ":file {name}" leaves behind.
+    void markBufferWritten();
+
+    // The answer to a tagJumpRequested(), which the editor has only once it
+    // has looked the symbol up. Vim reports one it does not find as E426.
+    void tagJumpAnswered(bool found);
+
     // A completion having been applied, with the word it put in - the one
     // moment the chosen word is known, the completion UI being Qt Creator's.
     void triggerCompleteDone(const QString &word);

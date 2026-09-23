@@ -20,6 +20,17 @@ private slots:
     void testStreamOfAnUndeclaredClockKeepsResolution();
     void testThreadLanesStayDistinctAcrossTraces();
     void testUnnamedTraceIsCalledAfterItsRecording();
+    void testProvidersOfATrace();
+    void testLoadRestrictedToOneProvider();
+    void testEventsOfNoProviderAreAlwaysLoaded();
+    void testRestrictingAProviderReloadsTheTrace();
+    void testAThreadRestrictionOutlivesAProviderChange();
+    void testARestrictionReplacesOneFromAClearedProvider();
+    void testTheShownRangeOutlivesAProviderChange();
+    void testClearedViewsShowTheNextTraceWhole();
+    void testRestrictionToASilentProviderSaysSo();
+    void testTheProviderMenuSaysWhatIsShown();
+    void testOneProviderIsNothingToChooseFrom();
 };
 
 } // namespace Profiler::Internal

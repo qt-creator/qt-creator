@@ -16,6 +16,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <utils/processutils.h>
 #include <utils/widgets.h>
 
 #include <QMessageBox>
@@ -380,7 +381,7 @@ bool ResourceGenerator::runRcc(const FilePath &qmlrcFilePath,
     if (!runAsync) {
         QByteArray stdOut;
         QByteArray stdErr;
-        if (!m_rccProcess.readDataFromProcess(&stdOut, &stdErr)) {
+        if (!Utils::readDataFromProcess(m_rccProcess, &stdOut, &stdErr)) {
             m_rccProcess.stop();
             Core::MessageManager::writeDisrupting(Tr::tr("A timeout occurred running \"%1\".")
                                                       .arg(m_rccProcess.commandLine().toUserOutput()));

@@ -51,7 +51,9 @@ public:
     bool isValid() const;
 
     static PyType lookupType(const std::string &typeName, ULONG64 module = 0);
-    static void clearUnresolvedTypes();
+    static void moduleLoaded(ULONG64 base);
+    static void moduleUnloaded(ULONG64 base);
+    static void symbolsChanged();
 
 private:
     bool resolve() const;
@@ -61,6 +63,9 @@ private:
     mutable std::optional<bool> m_resolved;
     mutable std::string m_name;
     mutable int m_tag = -1;
+    // How many of the modules loaded since the extension started had been
+    // asked when the name was not found; the ones after are asked next time.
+    mutable size_t m_modulesAsked = 0;
 };
 
 struct TypePythonObject

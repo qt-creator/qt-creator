@@ -72,6 +72,7 @@ public:
     Utils::FilePath workingDirectory() const;
     Utils::FilePath defaultWorkingDirectory() const;
     Utils::FilePath unexpandedWorkingDirectory() const;
+    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
     Utils::PathChooser *pathChooser() const;
     void setEnvironment(EnvironmentAspect *envAspect);

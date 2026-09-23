@@ -203,6 +203,8 @@ public:
     std::optional<int> exitCode;
     IDevice::ConstPtr device;
     Icon icon;
+    std::optional<QString> outputFilterText;
+    bool filtersOutputAtSource = false;
     const MacroExpander *macroExpander = nullptr;
     AspectContainerData aspectData;
     QString buildKey;
@@ -468,6 +470,43 @@ bool RunControl::canRun(Id runMode, Id deviceType, Id runConfigId, Id executionT
 void RunControl::postMessage(const QString &msg, OutputFormat format, bool appendNewLine)
 {
     emit appendMessage((appendNewLine && !msg.endsWith('\n')) ? msg + '\n': msg, format);
+}
+
+void RunControl::clearOutput()
+{
+    appOutputPane().clearForRunControl(this);
+}
+
+void RunControl::setFiltersOutputAtSource(bool enabled)
+{
+    d->data.filtersOutputAtSource = enabled;
+}
+
+bool RunControl::filtersOutputAtSource() const
+{
+    return d->data.filtersOutputAtSource;
+}
+
+void RunControl::setOutputFilterText(const QString &text)
+{
+    d->data.outputFilterText = text;
+    appOutputPane().setFilterTextForRunControl(this, text);
+}
+
+std::optional<QString> RunControl::outputFilterText() const
+{
+    return d->data.outputFilterText;
+}
+
+void RunControl::reportOutputFilterChanged(const QString &text)
+{
+    d->data.outputFilterText = text;
+    emit outputFilterChanged(text);
+}
+
+void RunControl::reportOutputCleared()
+{
+    emit outputCleared();
 }
 
 QUrl RunControlPrivate::getNextChannel(PortList *portList, const QList<Port> &usedPorts) const

@@ -15,10 +15,15 @@
 
     \image {qtquick-debugger-settings.webp} {Debugger Settings section in Run Settings}
 
-    To select the languages to debug, select \uicontrol Automatic
-    or \uicontrol Enabled in \uicontrol {Debugger Settings} >
-    \uicontrol {C++ debugger}, \uicontrol {QML debugger}, or
-    \uicontrol {Python debugger}.
+    To select the languages to debug, select a combination of them in
+    \uicontrol {Debugger Settings} > \uicontrol Debug. Select
+    \uicontrol Automatic to derive the languages from the contents of the
+    project.
+
+    \uicontrol {C++ and QML (combined engine, experimental)} debugs both
+    languages in a single engine. Only some debuggers support it, and it needs
+    \QC to launch the application, so it is not available for Android, iOS,
+    Boot2Qt, or Qt Application Manager.
 
     \section1 Debug C++
 

@@ -206,10 +206,12 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
     if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         params.m_qtSourceLocation = qtVersion->sourcePath();
 
+    bool useCombinedEngine = false;
     if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger)
             params.m_cppEngineType = NoEngineType;
         params.m_isQmlDebugging = aspect->useQmlDebugger;
+        useCombinedEngine = aspect->useCombinedEngine;
         params.m_isPythonDebugging = aspect->usePythonDebugger;
         params.m_multiProcess = aspect->useMultiProcess;
         params.m_additionalStartupCommands = aspect->overrideStartup;
@@ -251,11 +253,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
 
     params.m_toolChainAbi = ToolchainKitAspect::targetAbi(kit);
 
-    params.m_nativeMixedEnabled = settings().nativeMixedMode();
-    bool ok = false;
-    const int nativeMixedOverride = qtcEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);
-    if (ok)
-        params.m_nativeMixedEnabled = bool(nativeMixedOverride);
+    params.setNativeMixedEnabled(useCombinedEngine);
 
     if (QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
         const QVersionNumber qtVersion = baseQtVersion->qtVersion();
@@ -279,7 +277,7 @@ void DebuggerRunParameters::setupPortsGatherer(RunControl *runControl) const
 {
     if (isCppDebugging())
         runControl->requestDebugChannel();
-    if (isQmlDebugging())
+    if (needsQmlChannel())
         runControl->requestQmlChannel();
 }
 
@@ -298,9 +296,11 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
 
     // Copy over DYLD_IMAGE_SUFFIX etc
     for (const auto &var :
-         QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
-        if (m_inferior.environment.hasKey(var))
-            m_debugger.environment.set(var, m_inferior.environment.expandedValueForKey(var));
+         QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"})) {
+        const QString value = m_inferior.environment.expandedValueForKey(var);
+        if (!value.isEmpty())
+            m_debugger.environment.set(var, value);
+    }
 
     // validate debugger if C++ debugging is enabled
     if (!m_validationErrors.isEmpty())
@@ -341,7 +341,7 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
         const auto device = runControl->device();
         QmlDebugServicesPreset service;
         if (isCppDebugging()) {
-            if (m_nativeMixedEnabled) {
+            if (isNativeMixedDebugging()) {
                 service = QmlNativeDebuggerServices;
             } else {
                 service = QmlDebuggerServices;
@@ -354,7 +354,7 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
             const QString bindHost = device ? device->qmlDebugServerBindHost() : QString{};
             if (!bindHost.isEmpty())
                 appQmlServer.setHost(bindHost);
-            const QString qmlarg = isCppDebugging() && m_nativeMixedEnabled
+            const QString qmlarg = isNativeMixedDebugging()
                                  ? qmlDebugNativeArguments(service, false)
                                  : qmlDebugTcpArguments(service, appQmlServer);
             m_inferior.command.addArg(qmlarg);
@@ -456,9 +456,26 @@ bool DebuggerRunParameters::isCppDebugging() const
     return cppEngineType() != NoEngineType;
 }
 
+static std::optional<bool> nativeMixedOverride()
+{
+    bool ok = false;
+    const int value = qtcEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);
+    if (!ok)
+        return {};
+    return bool(value);
+}
+
 bool DebuggerRunParameters::isNativeMixedDebugging() const
 {
-    return m_nativeMixedEnabled && isCppDebugging() && m_isQmlDebugging;
+    return nativeMixedOverride().value_or(m_nativeMixedEnabled)
+           && isCppDebugging() && m_isQmlDebugging;
+}
+
+bool DebuggerRunParameters::needsQmlChannel() const
+{
+    // The combined engine carries the QML traffic over the C++ connection, so it needs no
+    // channel of its own, and asking for one would allocate a port nothing ever listens on.
+    return m_isQmlDebugging && !isNativeMixedDebugging();
 }
 
 bool DebuggerRunParameters::isElfTarget() const
@@ -493,9 +510,48 @@ FilePath DebuggerRunParameters::mapToProjectPath(const QString &debuggerOutput) 
     if (debuggerOutput.isEmpty())
         return {};
 
+    const auto it = m_mappedPaths.constFind(debuggerOutput);
+    if (it != m_mappedPaths.constEnd())
+        return *it;
+
     const FilePath fullBuild = m_buildDirectory.resolvePath(debuggerOutput);
     const FilePath local = fullBuild.localSource().value_or(fullBuild);
-    return m_projectSourceDirectory.withNewMappedPath(local);
+    const FilePath mapped = m_projectSourceDirectory.withNewMappedPath(local);
+    const FilePath result = [&] {
+        if (mapped.isReadableFile())
+            return mapped;
+        const FilePath onDebuggerDevice = findOnDebuggerDevice(debuggerOutput);
+        return onDebuggerDevice.isEmpty() ? mapped : onDebuggerDevice;
+    }();
+
+    m_mappedPaths.insert(debuggerOutput, result);
+    return result;
+}
+
+// Sources that exist only where the debugger itself runs, e.g. inside a container.
+FilePath DebuggerRunParameters::mapToDebuggerDevice(const QString &debuggerOutput) const
+{
+    // A relative name would resolve against the debugger's working directory,
+    // which says nothing about where the sources are.
+    if (!FilePath::fromString(debuggerOutput).isAbsolutePath())
+        return {};
+
+    return m_debugger.command.executable().withNewPath(debuggerOutput).cleanPath();
+}
+
+FilePath DebuggerRunParameters::findOnDebuggerDevice(const QString &debuggerOutput) const
+{
+    if (!settings().lookUpSourcesOnDebuggerDevice())
+        return {};
+
+    const auto it = m_debuggerDeviceSources.constFind(debuggerOutput);
+    if (it != m_debuggerDeviceSources.constEnd())
+        return *it;
+
+    const FilePath candidate = mapToDebuggerDevice(debuggerOutput);
+    const FilePath result = candidate.isReadableFile() ? candidate : FilePath();
+    m_debuggerDeviceSources.insert(debuggerOutput, result);
+    return result;
 }
 
 namespace Internal {
@@ -535,6 +591,7 @@ Location::Location(const StackFrame &frame, bool marker)
     m_hasDebugInfo = frame.isUsable();
     m_address = frame.address;
     m_from = frame.module;
+    m_isMachineCode = frame.language != QmlLanguage;
 }
 
 LocationMark::LocationMark(DebuggerEngine *engine, const FilePath &file, int line)

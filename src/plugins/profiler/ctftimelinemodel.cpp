@@ -204,11 +204,12 @@ QPair<bool, qint64> CtfTimelineModel::addEvent(const json &event, double timeOff
 }
 
 void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QString &processName,
-                                const QString &threadName, bool manyProcesses)
+                                const QString &threadName, bool manyProcesses, bool mainThread)
 {
     m_processName = processName;
     m_threadName = threadName;
     m_manyProcesses = manyProcesses;
+    m_mainThread = mainThread;
     updateName();
 
     qint64 normalizedEnd = qint64((traceEnd - traceBegin) * 1000);
@@ -264,15 +265,18 @@ void CtfTimelineModel::updateName()
                                 : titled(m_processName, m_processDisplayId);
     const QString thread = m_threadName.isEmpty() ? m_threadDisplayId
                                                   : titled(m_threadName, m_threadDisplayId);
-    // Lanes are per thread, so a multi-threaded process would otherwise show the
-    // same title several times. Lead with the process, but disambiguate the
-    // non-main threads (tid != pid) by their thread identity.
+    // The lane a process runs on is named after the process, and its siblings
+    // after their thread. A Qt application's main thread is called
+    // "Qt mainThread" in every Qt application there is, so the lane a reader
+    // looks at first would otherwise be the one lane saying nothing about what
+    // was recorded -- while the name of the application is right there, as the
+    // session a Qt CTF trace was recorded under. The tooltip still says which
+    // thread the lane is.
     //
-    // A trace of one process leads with nothing: the same process stands in
-    // front of every lane, so it tells them apart from nothing -- and a trace
-    // that names no process at all, as a Qt CTF one does not, would lead with
-    // the session it was recorded under. The tooltip still says it.
-    if (m_threadId == m_processId)
+    // Lanes are per thread, so leading every one of them with the process would
+    // repeat that name down the whole timeline instead. It is led with only
+    // where several processes make it the thing that tells two lanes apart.
+    if (m_threadId == m_processId || m_mainThread)
         setDisplayName(process);
     else if (m_manyProcesses)
         setDisplayName(QString("%1 / %2").arg(process, thread));

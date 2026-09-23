@@ -21,6 +21,8 @@
 
 #include <qmath.h>
 
+#include <algorithm>
+#include <cmath>
 #include <optional>
 
 // Clamps float color values within (0, 255)
@@ -1018,6 +1020,128 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
     const std::optional<int> desaturated = nearestReadable(atSaturation, saturation, 0);
     QTC_ASSERT(desaturated, return desiredForeground);
     return atSaturation(*desaturated);
+}
+
+// A color in linear sRGB: the light the components stand for, before the
+// gamma encoding sRGB keeps them in.
+struct LinearRgb
+{
+    double red;
+    double green;
+    double blue;
+};
+
+// A component may land a hair outside the range it has to be in, which is
+// rounding in the conversion rather than a color out of gamut. A ten
+// thousandth of the range is well below what an eight-bit component keeps.
+const double GamutTolerance = 0.0001;
+
+static LinearRgb oklchLinearRgb(const StyleHelper::OklchColor &oklch)
+{
+    const double a = oklch.chroma * std::cos(qDegreesToRadians(oklch.hue));
+    const double b = oklch.chroma * std::sin(qDegreesToRadians(oklch.hue));
+    // The inverses of the two matrices oklab() ends with: Oklab's axes back to
+    // the cone responses of the eye, and those back to linear sRGB.
+    const double longCone = std::pow(oklch.lightness + 0.3963377774 * a + 0.2158037573 * b, 3);
+    const double mediumCone = std::pow(oklch.lightness - 0.1055613458 * a - 0.0638541728 * b, 3);
+    const double shortCone = std::pow(oklch.lightness - 0.0894841775 * a - 1.2914855480 * b, 3);
+    return {4.0767416621 * longCone - 3.3077115913 * mediumCone + 0.2309699292 * shortCone,
+            -1.2684380046 * longCone + 2.6097574011 * mediumCone - 0.3413193965 * shortCone,
+            -0.0041960863 * longCone - 0.7034186147 * mediumCone + 1.7076147010 * shortCone};
+}
+
+// The largest chroma up to the one asked for that this lightness and hue have
+// in sRGB. Desaturating until the color fits keeps the lightness a palette is
+// built on, clamping the components would not.
+double StyleHelper::oklchFittingChroma(const OklchColor &oklch)
+{
+    const auto fits = [&oklch](double atChroma) {
+        const auto inGamut = [](double component) {
+            return component >= -GamutTolerance && component <= 1 + GamutTolerance;
+        };
+        const LinearRgb rgb = oklchLinearRgb({oklch.lightness, atChroma, oklch.hue});
+        return inGamut(rgb.red) && inGamut(rgb.green) && inGamut(rgb.blue);
+    };
+
+    if (fits(oklch.chroma))
+        return oklch.chroma;
+    // Every step halves the interval the gamut boundary is known to lie in, so
+    // sixteen of them come within a 65536th of the chroma asked for - finer
+    // than an eight-bit component can tell apart.
+    const int BisectionSteps = 16;
+    double tooLow = 0;
+    double tooHigh = oklch.chroma;
+    for (int step = 0; step < BisectionSteps; ++step) {
+        const double middle = (tooLow + tooHigh) / 2;
+        if (fits(middle))
+            tooLow = middle;
+        else
+            tooHigh = middle;
+    }
+    return tooLow;
+}
+
+// An Oklch color, converted to sRGB. The hue is in degrees, the rest is in
+// [0, 1].
+QColor StyleHelper::oklchColor(const OklchColor &oklch)
+{
+    // Oklch is linear about light, sRGB is not: the transfer function of sRGB
+    // (https://en.wikipedia.org/wiki/SRGB) is what QColor takes its components
+    // in, and leaving it out paints a far darker color than the one asked for.
+    const auto gammaEncoded = [](double component) {
+        component = std::clamp(component, 0.0, 1.0);
+        return component <= 0.0031308 ? 12.92 * component
+                                      : 1.055 * std::pow(component, 1 / 2.4) - 0.055;
+    };
+    const LinearRgb rgb = oklchLinearRgb({oklch.lightness, oklchFittingChroma(oklch), oklch.hue});
+    return QColor::fromRgbF(gammaEncoded(rgb.red), gammaEncoded(rgb.green), gammaEncoded(rgb.blue));
+}
+
+// The lightness at which a hue has the most chroma in sRGB.
+double StyleHelper::oklchMostChromaticLightness(double hue)
+{
+    // The range text is worth drawing in, walked finely enough to place the
+    // peak within a hundredth of a lightness of where it is.
+    const double DarkestLightness = 0.3;
+    const double LightestLightness = 0.95;
+    const int LightnessSteps = 64;
+
+    double bestLightness = DarkestLightness;
+    double bestChroma = 0;
+    for (int step = 0; step <= LightnessSteps; ++step) {
+        const double lightness = DarkestLightness
+                                 + step * (LightestLightness - DarkestLightness) / LightnessSteps;
+        const double chroma = oklchFittingChroma({lightness, oklchFullChroma, hue});
+        if (chroma > bestChroma) {
+            bestChroma = chroma;
+            bestLightness = lightness;
+        }
+    }
+    return bestLightness;
+}
+
+// A color in Oklab: the lightness oklchColor() takes one on, and the a and b
+// that a chroma is the length of.
+StyleHelper::OklabColor StyleHelper::oklab(const QColor &color)
+{
+    // Back through the transfer function, to the light the matrices below take.
+    const auto linear = [](double component) {
+        return component <= 0.04045 ? component / 12.92
+                                    : std::pow((component + 0.055) / 1.055, 2.4);
+    };
+    const double r = linear(color.redF());
+    const double g = linear(color.greenF());
+    const double b = linear(color.blueF());
+    // Light into the cone responses of the eye - long, medium and short
+    // wavelength - and their cube roots into the axes of Oklab, which is what
+    // gives it a lightness that matches what is seen. The matrices are the
+    // ones in https://en.wikipedia.org/wiki/Oklab_color_space.
+    const double longCone = std::cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+    const double mediumCone = std::cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+    const double shortCone = std::cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+    return {0.2104542553 * longCone + 0.7936177850 * mediumCone - 0.0040720468 * shortCone,
+            1.9779984951 * longCone - 2.4285922050 * mediumCone + 0.4505937099 * shortCone,
+            0.0259040371 * longCone + 0.7827717662 * mediumCone - 0.8086757660 * shortCone};
 }
 
 static const QStringList &applicationFontFamilies()

@@ -262,6 +262,9 @@ void TargetSetupPagePrivate::handleKitAddition(Kit *k)
     if (isUpdating())
         return;
 
+    if (importer() && !importer()->filter(k))
+        return;
+
     QTC_ASSERT(!widget(k), return);
     addWidget(k);
     kitSelectionChanged();
@@ -289,12 +292,16 @@ void TargetSetupPagePrivate::handleKitUpdate(Kit *k)
     if (importer())
         importer()->makePersistent(k);
 
+    TargetSetupWidget * const updatedWidget = widget(k);
+    if (!updatedWidget) // A kit the importer filters out for this project.
+        return;
+
     const auto newWidgetList = sortedWidgetList();
     if (newWidgetList != widgets) { // Sorting has changed.
         widgets = newWidgetList;
         reLayout();
     }
-    updateWidget(widget(k));
+    updateWidget(updatedWidget);
     kitSelectionChanged();
     updateVisibility();
 }

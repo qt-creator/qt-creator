@@ -116,8 +116,12 @@ public:
     QdbDebugWorkerFactory()
     {
         setId("QdbDebugWorkerFactory");
-        setRecipeProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) -> Group {
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+            // appcontroller launches the application and asks it for a TCP QML connection.
+            if (rp.isNativeMixedDebugging())
+                return runControl->errorTask(msgCombinedEngineUnsupported("Boot2Qt"));
+
             rp.setupPortsGatherer(runControl);
             rp.setStartMode(Debugger::AttachToRemoteServer);
             rp.setCloseMode(KillAndExitMonitorAtClose);

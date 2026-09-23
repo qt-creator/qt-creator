@@ -3,6 +3,8 @@
 
 #include "toolregistry.h"
 
+#include <utils/algorithm.h>
+
 namespace Mcp {
 
 namespace Internal {
@@ -77,6 +79,13 @@ Utils::Result<Schema::CallToolResult> ToolRegistry::callToolForTests(
             QString("Tool \"%1\" is asynchronous and cannot be called synchronously.").arg(name));
     }
     return Utils::ResultError(QString("No registered tool named \"%1\".").arg(name));
+}
+
+bool ToolRegistry::isToolEnabled(const QString &toolName)
+{
+    return Utils::anyOf(Internal::registry().tools, [&toolName](const Internal::Tool &tool) {
+        return tool.metadata.name() == toolName && tool.enabled;
+    });
 }
 
 void ToolRegistry::enableTool(const QString &toolName, bool enabled)

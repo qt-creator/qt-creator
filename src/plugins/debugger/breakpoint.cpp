@@ -367,7 +367,6 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Debugger
     QString name;
     if (!fullName.isEmpty()) {
         name = cleanupFullName(fullName);
-        fileName = rp.mapToProjectPath(name);
         //if (data->markerFileName().isEmpty())
         //    data->setMarkerFileName(name);
     } else {

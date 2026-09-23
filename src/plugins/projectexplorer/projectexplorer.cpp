@@ -1448,11 +1448,12 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     mbuild->addAction(cmd, Constants::G_BUILD_FILE);
 
     // Add to mode bar
+    QAction * const buildAction = ActionManager::command(Constants::BUILD)->action();
     dd->m_modeBarBuildAction = new ProxyAction(this);
     dd->m_modeBarBuildAction->setObjectName("Build"); // used for UI introduction
-    dd->m_modeBarBuildAction->initialize(cmd->action());
+    dd->m_modeBarBuildAction->initialize(buildAction);
     dd->m_modeBarBuildAction->setAttribute(ProxyAction::UpdateText);
-    dd->m_modeBarBuildAction->setAction(cmd->action());
+    dd->m_modeBarBuildAction->setAction(buildAction);
     if (!hideBuildMenu())
         ModeManager::addAction(dd->m_modeBarBuildAction, Constants::P_ACTION_BUILDPROJECT);
 

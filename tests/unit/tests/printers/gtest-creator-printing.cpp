@@ -35,7 +35,7 @@ std::ostream &operator<<(std::ostream &out, const monostate &)
 }
 
 namespace filesystem {
-std::ostream &operator<<(std::ostream &out, const file_time_type &time)
+std::ostream &operator<<(std::ostream &out, [[maybe_unused]] const file_time_type &time)
 {
 #ifdef Q_OS_WIN
     return out << clock_cast<std::chrono::utc_clock>(time);

@@ -103,6 +103,9 @@ public:
     static void clearSuggestion(const QTextBlock &block);
     static void setAttributeState(const QTextBlock &block, quint8 attrState);
     static quint8 attributeState(const QTextBlock &block);
+    // Whether the formats the block carries include the marks of a spell check.
+    static void setSpellChecked(const QTextBlock &block, bool checked);
+    static bool spellChecked(const QTextBlock &block);
     static void updateSuggestionFormats(const QTextBlock &block, const FontSettingsData &fontSettings);
     static KSyntaxHighlighting::State syntaxState(const QTextBlock &block);
     static void setSyntaxState(const QTextBlock &block, KSyntaxHighlighting::State state);
@@ -149,6 +152,7 @@ private:
     uint m_ifdefedOut : 1 = false;
     uint m_foldingStartIncluded : 1 = false;
     uint m_foldingEndIncluded : 1 = false;
+    uint m_spellChecked : 1 = false;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData = nullptr;
     KSyntaxHighlighting::State m_syntaxState;

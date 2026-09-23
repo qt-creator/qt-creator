@@ -17,34 +17,44 @@
 #include "breakhandler.h"
 #include "genericdebuggerengine.h"
 #include "debuggeritem.h"
+#include "debuggerkitaspect.h"
+#include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
 #include "debuggersourcepathmappingwidget.h"
 #include "enginemanager.h"
 #include "gdb/gdbengine.h"
 #include "registerhandler.h"
+#include "stackframe.h"
 #include "commonoptionspage.h"
 #include "stackhandler.h"
 
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
 
 #include <cppeditor/cpptoolstestcase.h>
 
-#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runcontrol.h>
 
+#include <qtsupport/qtkitaspect.h>
+
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/store.h>
 
 #include <QTest>
 #include <QVersionNumber>
@@ -109,6 +119,7 @@ private slots:
     void testCdbImplRegistersTree();
     void testCdbImplSetParameterArguments();
     void testMapsAnEmptyFileNameToNothing();
+    void testFindsASourceFileOnTheDebuggerDevice();
     void testCdbSourcePathMapping();
     void testCdbBreakpointFileName();
 
@@ -124,9 +135,15 @@ private slots:
     void testStepsOverACallWithoutEnteringIt();
     void testStepsOutOfACalledFunction();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
+    void testOnlyMachineCodeIsOfferedADisassembly();
+    void testAnEmptyDisassemblyLeavesTheViewAlone();
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
+    void testUnresolvedLegacyLanguagesSurviveASave();
+    void testLegacyQmlAndPythonKeepsBothLanguages();
+    void testNativeMixedEnvironmentVariableWins();
+    void testCombinedEngineNeedsNoQmlChannel();
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
 
@@ -159,12 +176,22 @@ void DebuggerUnitTests::cleanupTestCase()
     delete m_tmpDir;
 }
 
+static Kit *kitWithAQt()
+{
+    return Utils::findOr(KitManager::kits(), nullptr, [](Kit *kit) {
+        return kit->isValid() && QtSupport::QtKitAspect::qtVersion(kit);
+    });
+}
+
 void DebuggerUnitTests::testStateMachine()
 {
     FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
 
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to build its project with.");
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
-    QVERIFY(projectManager.open(proFile));
+    QVERIFY(projectManager.open(proFile, kit));
 
     QEventLoop loop;
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
@@ -205,8 +232,11 @@ void DebuggerUnitTests::testGdbDapEngineRunsASession()
 {
     FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
 
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to build its project with.");
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
-    QVERIFY(projectManager.open(proFile));
+    QVERIFY(projectManager.open(proFile, kit));
 
     QEventLoop loop;
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
@@ -224,6 +254,10 @@ void DebuggerUnitTests::testGdbDapEngineRunsASession()
 
     DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferior(rc->runnable());
+    // The DAP mode under test is gdb's, and the kit's debugger is whatever the
+    // machine has: on a macOS kit that is lldb, which answers none of it.
+    if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+        QSKIP("The debugger of this kit is not gdb.");
     // gdb only grew its DAP mode along the way, and the engine refuses an older
     // one rather than talking to something that will not answer.
     if (QVersionNumber::fromString(rp.version()) < QVersionNumber(14, 0, 50))
@@ -991,6 +1025,17 @@ void DebuggerUnitTests::testCdbImplBreakpointModuleScope()
     QVERIFY(cdbModuleName({}).isEmpty());
     QVERIFY(cdbModuleName({FilePath::fromUserInput("C:/build/core.lib")}).isEmpty());
 
+    // A source in several modules names each of them.
+    QCOMPARE(cdbModuleNames({FilePath::fromUserInput("C:/build/a.dll"),
+                             FilePath::fromUserInput("C:/build/b.lib"),
+                             FilePath::fromUserInput("C:/build/b.dll")}),
+             QStringList({"a", "b"}));
+
+    // Binaries cdb cannot tell apart are one module, not one each.
+    QCOMPARE(cdbModuleNames({FilePath::fromUserInput("C:/build/my-app.exe"),
+                             FilePath::fromUserInput("C:/build/my+app.dll")}),
+             QStringList("my_app"));
+
     const auto always = [](const FilePath &) { return QString("core"); };
     BreakpointParameters params(BreakpointByFileAndLine);
     params.fileName = FilePath::fromUserInput("C:/src/main.cpp");
@@ -1182,6 +1227,47 @@ void DebuggerUnitTests::testMapsAnEmptyFileNameToNothing()
 
     // What a stack frame that names no file would otherwise be opened from.
     QVERIFY(rp.mapToProjectPath({}).isEmpty());
+}
+
+void DebuggerUnitTests::testFindsASourceFileOnTheDebuggerDevice()
+{
+    Kit *kit = KitManager::defaultKit();
+    QVERIFY(kit);
+
+    const std::unique_ptr<RunControl> runControl(
+        new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE));
+    runControl->setKit(kit);
+    const DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl.get());
+
+    const bool wasOn = commonSettings().lookUpSourcesOnDebuggerDevice();
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(true);
+    const QScopeGuard restore(
+        [wasOn] { commonSettings().lookUpSourcesOnDebuggerDevice.setValue(wasOn); });
+
+    // The debugger binary itself is the one file the debugger's device is
+    // known to have, so it stands in for a source only that device can see.
+    const FilePath debugger = rp.debugger().command.executable();
+    const FilePath dir = debugger.parentDir();
+    if (!debugger.isReadableFile() || dir.fileName().isEmpty())
+        QSKIP("The kit has no readable debugger below a named directory.");
+
+    QCOMPARE(rp.findOnDebuggerDevice(debugger.path()), debugger);
+
+    const QString viaParent = dir.path() + "/../" + dir.fileName() + "/" + debugger.fileName();
+    QCOMPARE(rp.findOnDebuggerDevice(viaParent), debugger);
+
+    // A relative name is rejected outright, and the only way to tell that
+    // from failing the readability probe is to name a file that does exist
+    // where a relative name would be resolved.
+    const FilePaths here = FilePath::currentWorkingPath().dirEntries(DirFilterFlag::Files);
+    if (here.isEmpty())
+        QSKIP("The current directory has no file to name relatively.");
+    QVERIFY(rp.findOnDebuggerDevice(here.first().fileName()).isEmpty());
+
+    // Turning the lookup off has to reach both routes, so it sits in the one
+    // place they share rather than in either engine's cleanupFullName().
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(false);
+    QVERIFY(rp.findOnDebuggerDevice(debugger.path()).isEmpty());
 }
 
 void DebuggerUnitTests::testCdbSourcePathMapping()
@@ -1787,6 +1873,49 @@ void DebuggerUnitTests::testDisassemblyThatMissesTheAddressMarksNoLine()
                                              "not got - " + complaint));
 }
 
+// Operating by instruction sends every location to the disassembler, so the
+// question of whether one has machine code behind it is the only thing
+// standing between a QML frame and a disassembly of nothing.
+void DebuggerUnitTests::testOnlyMachineCodeIsOfferedADisassembly()
+{
+    QVERIFY2(!Location().canBeDisassembled(),
+             "a location naming neither an address nor a function offered one");
+
+    StackFrame native;
+    native.function = "main";
+    native.address = 0x1000;
+    QVERIFY(Location(native).canBeDisassembled());
+
+    StackFrame interpreted;
+    interpreted.language = QmlLanguage;
+    interpreted.function = "expression for onClicked";
+    interpreted.file = FilePath::fromUserInput("Main.qml");
+    interpreted.line = 26;
+    QVERIFY2(!Location(interpreted).canBeDisassembled(),
+             "a QML frame offered a disassembly of code it does not have");
+}
+
+void DebuggerUnitTests::testAnEmptyDisassemblyLeavesTheViewAlone()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] {
+        delete engine;
+        EditorManager::closeAllEditors(false);
+    });
+    engine->setRunParameters({});
+
+    Location location(quint64(0x1000));
+    location.setNeedsMarker(true);
+
+    DisassemblerAgent agent(engine);
+    agent.setLocation(location);
+
+    const int before = DocumentModel::entryCount();
+    agent.setContents({});
+    QCOMPARE(DocumentModel::entryCount(), before);
+}
+
 void DebuggerUnitTests::testScratchEditorAdoptsSavedName()
 {
     QTemporaryDir tmp;
@@ -1855,6 +1984,110 @@ void DebuggerUnitTests::testTerminateMessage()
 
     QVERIFY(!isTerminateMessage(u"Application exited with exit code 1"));
     QVERIFY(!isTerminateMessage(u""));
+}
+
+void DebuggerUnitTests::testUnresolvedLegacyLanguagesSurviveASave()
+{
+    const FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    QVERIFY(projectManager.open(proFile));
+    QCOMPARE(projectManager.projects().size(), 1);
+    BuildConfiguration * const bc = projectManager.projects().first()->activeBuildConfiguration();
+    QVERIFY(bc);
+
+    // "C++: Automatic, QML: Enabled", as Qt Creator 18 and earlier wrote it.
+    Store legacy;
+    legacy.insert("RunConfiguration.UseQmlDebugger", TriState::Enabled.toVariant());
+    legacy.insert("RunConfiguration.UseCppDebuggerAuto", true);
+
+    DebuggerRunConfigurationAspect aspect(bc);
+    aspect.fromMap(legacy);
+
+    Store saved;
+    aspect.toMap(saved);
+
+    // Nothing has picked a combo box item yet, so saving must leave the settings alone. Writing
+    // out what they currently amount to would turn the automatic C++ choice into an explicit
+    // one, and there is no way back from that on the next load.
+    QCOMPARE(TriState::fromVariant(saved.value("RunConfiguration.UseCppDebugger")),
+             TriState::Default);
+    QCOMPARE(saved.value("RunConfiguration.UseCppDebuggerAuto").toBool(), true);
+    QCOMPARE(TriState::fromVariant(saved.value("RunConfiguration.UseQmlDebugger")),
+             TriState::Enabled);
+    QVERIFY(!saved.contains("RunConfiguration.DebuggerLanguages"));
+}
+
+void DebuggerUnitTests::testLegacyQmlAndPythonKeepsBothLanguages()
+{
+    const FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    QVERIFY(projectManager.open(proFile));
+    QCOMPARE(projectManager.projects().size(), 1);
+    BuildConfiguration * const bc = projectManager.projects().first()->activeBuildConfiguration();
+    QVERIFY(bc);
+
+    Store legacy;
+    legacy.insert("RunConfiguration.UseQmlDebugger", TriState::Enabled.toVariant());
+    legacy.insert("RunConfiguration.UsePythonDebugger", TriState::Enabled.toVariant());
+
+    DebuggerRunConfigurationAspect aspect(bc);
+    aspect.fromMap(legacy);
+
+    QVERIFY(aspect.useQmlDebugger());
+    QVERIFY(aspect.usePythonDebugger());
+}
+
+void DebuggerUnitTests::testNativeMixedEnvironmentVariableWins()
+{
+    const auto setOverride = [](const QString &value, EnvironmentItem::Operation operation) {
+        Environment::modifySystemEnvironment(
+            {EnvironmentItem("QTC_DEBUGGER_NATIVE_MIXED", value, operation)});
+    };
+
+    const bool wasSet = qtcEnvironmentVariableIsSet("QTC_DEBUGGER_NATIVE_MIXED");
+    const QString oldValue = qtcEnvironmentVariable("QTC_DEBUGGER_NATIVE_MIXED");
+    const QScopeGuard restore([&] {
+        setOverride(oldValue, wasSet ? EnvironmentItem::SetEnabled : EnvironmentItem::Unset);
+    });
+    setOverride({}, EnvironmentItem::Unset);
+
+    DebuggerRunParameters rp;
+    rp.setCppEngineType(GdbEngineType);
+    rp.setQmlDebugging(true);
+
+    rp.setNativeMixedEnabled(true);
+    QVERIFY(rp.isNativeMixedDebugging());
+    rp.setNativeMixedEnabled(false);
+    QVERIFY(!rp.isNativeMixedDebugging());
+
+    setOverride("1", EnvironmentItem::SetEnabled);
+    rp.setNativeMixedEnabled(false);
+    QVERIFY(rp.isNativeMixedDebugging());
+
+    setOverride("0", EnvironmentItem::SetEnabled);
+    rp.setNativeMixedEnabled(true);
+    QVERIFY(!rp.isNativeMixedDebugging());
+
+    setOverride({}, EnvironmentItem::Unset);
+    rp.setNativeMixedEnabled(true);
+    QVERIFY(rp.isNativeMixedDebugging());
+}
+
+void DebuggerUnitTests::testCombinedEngineNeedsNoQmlChannel()
+{
+    const auto usesQmlChannel = [](bool nativeMixed) {
+        DebuggerRunParameters rp;
+        rp.setCppEngineType(GdbEngineType);
+        rp.setQmlDebugging(true);
+        rp.setNativeMixedEnabled(nativeMixed);
+        RunControl runControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        rp.setupPortsGatherer(&runControl);
+        QTC_CHECK(runControl.usesDebugChannel());
+        return runControl.usesQmlChannel();
+    };
+
+    QVERIFY(usesQmlChannel(false));
+    QVERIFY(!usesQmlChannel(true));
 }
 
 QObject *createDebuggerTest()

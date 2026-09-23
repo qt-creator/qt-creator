@@ -2467,6 +2467,8 @@ private slots:
     void testConflictedFileInTextEditor();
     void testGraphModelRepositorySwitch();
     void testWorkingDirectoryForShow();
+    void testFileLinkResolution();
+    void testFileLinkContextMenu();
     void testRevisionFilenameCollision();
     void testSubmitMessageSpellCheck();
     void testDiffDescriptionEditor();
@@ -3114,8 +3116,134 @@ void GitTest::testRevisionFilenameCollision()
     QVERIFY(runGit(repository, {"commit", "-m", "add colliding file"}));
 
     VcsOutputLineParser parser;
+    QVERIFY(!parser.handleFileLink(repository, filename));
+    QVERIFY(!Core::DocumentModel::documentForFilePath(collidingFile));
     QVERIFY(parser.handleVcsLink(repository, filename));
     QVERIFY(!Core::DocumentModel::documentForFilePath(collidingFile));
+}
+
+void GitTest::testFileLinkResolution()
+{
+    const auto runGit = [](const FilePath &directory, const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(directory, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+
+    QTemporaryDir temporaryDirectory;
+    QVERIFY(temporaryDirectory.isValid());
+    const FilePath baseDirectory = FilePath::fromString(temporaryDirectory.path());
+    const FilePath repository = baseDirectory / "repository";
+    QVERIFY(QDir().mkpath(repository.toFSPathString()));
+    QVERIFY(runGit(repository, {"init", "."}));
+
+    const FilePath repositoryFile = repository / "file.txt";
+    QVERIFY(repositoryFile.writeFileContents("repository file\n"));
+    const FilePath externalFile = baseDirectory / "external.txt";
+    QVERIFY(externalFile.writeFileContents("external file\n"));
+
+    VcsOutputLineParser parser;
+    VcsOutputLineParser::FileLink fileLink
+        = parser.filePathForLink(repository, repositoryFile.fileName());
+    QCOMPARE(fileLink.filePath, repositoryFile);
+    QVERIFY(fileLink.versionControl);
+    QCOMPARE(fileLink.topLevel, repository);
+
+    const FilePath repositorySubdirectory = repository / "subdirectory";
+    QVERIFY(QDir().mkpath(repositorySubdirectory.toFSPathString()));
+    fileLink = parser.filePathForLink(repositorySubdirectory, "../file.txt");
+    QCOMPARE(fileLink.filePath, repositoryFile);
+    QVERIFY(fileLink.versionControl);
+    QCOMPARE(fileLink.topLevel, repository);
+
+    const FilePath tildeDirectory = repository / "~";
+    QVERIFY(QDir().mkpath(tildeDirectory.toFSPathString()));
+    const FilePath tildeFile = tildeDirectory / "literal.txt";
+    QVERIFY(tildeFile.writeFileContents("literal tilde path\n"));
+    fileLink = parser.filePathForLink(repository, "~/literal.txt");
+    QCOMPARE(fileLink.filePath, tildeFile);
+    QVERIFY(fileLink.versionControl);
+    QCOMPARE(fileLink.topLevel, repository);
+
+    const FilePath missingFile = repository / "missing.txt";
+    fileLink = parser.filePathForLink(repository, missingFile.fileName());
+    QCOMPARE(fileLink.filePath, missingFile);
+    QVERIFY(fileLink.versionControl);
+    QCOMPARE(fileLink.topLevel, repository);
+
+    const FilePath nestedRepository = repository / "nested";
+    QVERIFY(QDir().mkpath(nestedRepository.toFSPathString()));
+    QVERIFY(runGit(nestedRepository, {"init", "."}));
+    const FilePath nestedFile = nestedRepository / "nested.txt";
+    QVERIFY(nestedFile.writeFileContents("nested repository file\n"));
+    fileLink = parser.filePathForLink(repository, "nested/nested.txt");
+    QCOMPARE(fileLink.filePath, nestedFile);
+    QVERIFY(fileLink.versionControl);
+    QCOMPARE(fileLink.topLevel, nestedRepository);
+
+    fileLink = parser.filePathForLink(repository, externalFile.toUrlishString());
+    QCOMPARE(fileLink.filePath, externalFile);
+    QVERIFY(!fileLink.versionControl);
+    QVERIFY(fileLink.topLevel.isEmpty());
+
+    fileLink = parser.filePathForLink(repositorySubdirectory, "../../external.txt");
+    QCOMPARE(fileLink.filePath, externalFile);
+    QVERIFY(!fileLink.versionControl);
+    QVERIFY(fileLink.topLevel.isEmpty());
+
+    const FilePath otherRepository = baseDirectory / "other-repository";
+    QVERIFY(QDir().mkpath(otherRepository.toFSPathString()));
+    QVERIFY(runGit(otherRepository, {"init", "."}));
+    const FilePath otherRepositoryFile = otherRepository / "other.txt";
+    QVERIFY(otherRepositoryFile.writeFileContents("other repository file\n"));
+    fileLink = parser.filePathForLink(repository, otherRepositoryFile.toUrlishString());
+    QCOMPARE(fileLink.filePath, otherRepositoryFile);
+    QVERIFY(fileLink.versionControl);
+    QCOMPARE(fileLink.topLevel, otherRepository);
+
+    const FilePath unrelatedDirectory = baseDirectory / "unrelated";
+    QVERIFY(QDir().mkpath(unrelatedDirectory.toFSPathString()));
+    fileLink = parser.filePathForLink(unrelatedDirectory, repositoryFile.toUrlishString());
+    QVERIFY(fileLink.filePath.isEmpty());
+    QVERIFY(!fileLink.versionControl);
+    QVERIFY(fileLink.topLevel.isEmpty());
+}
+
+void GitTest::testFileLinkContextMenu()
+{
+    const auto runGit = [](const FilePath &directory, const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(directory, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+
+    QTemporaryDir temporaryDirectory;
+    QVERIFY(temporaryDirectory.isValid());
+    const FilePath repository = FilePath::fromString(temporaryDirectory.path());
+    QVERIFY(runGit(repository, {"init", "."}));
+
+    const FilePath file = repository / "file.txt";
+    QVERIFY(file.writeFileContents("content\n"));
+
+    VcsOutputLineParser parser;
+    QMenu menu;
+    parser.fillFileLinkContextMenu(&menu, repository, file.fileName());
+
+    const QList<QAction *> actions = Utils::filtered(menu.actions(), [](const QAction *action) {
+        return !action->isSeparator();
+    });
+    QCOMPARE(actions.size(), 4);
+    QVERIFY(actions.first()->text().contains(file.nativePath()));
+    for (const QAction *action : actions.sliced(1))
+        QVERIFY(action->text().contains(file.fileName()));
+
+    const FilePath revisionFile = repository / "deadbeef";
+    QVERIFY(revisionFile.writeFileContents("not a revision\n"));
+    menu.clear();
+    parser.fillFileLinkContextMenu(&menu, repository, revisionFile.fileName());
+    QVERIFY(menu.actions().isEmpty());
+
+    menu.clear();
+    parser.fillFileLinkContextMenu(&menu, repository, "missing.txt");
+    QVERIFY(menu.actions().isEmpty());
 }
 
 static QStringList underlinedTexts(const QTextDocument *document)

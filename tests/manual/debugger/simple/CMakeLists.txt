@@ -27,6 +27,11 @@ add_executable(simple_test_app simple_test_app.cpp)
 
 add_compile_definitions(simple_test_app "USE_GUILIB")
 
+# The test app calls the C string functions the debugger is meant to show.
+if (MSVC)
+  add_compile_definitions(simple_test_app "_CRT_SECURE_NO_WARNINGS")
+endif()
+
 if (Qt${QT_VERSION_MAJOR}Script_FOUND)
   add_compile_definitions(simple_test_app "HAS_SCRIPT")
 endif()

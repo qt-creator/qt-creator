@@ -42,26 +42,26 @@ std::atomic_bool stopRequested{false};
 // sinks, so the optimizer cannot collapse the frames and the sampler sees each
 // function as its own stack level.
 
-[[gnu::noinline]] quint64 fib(quint64 n)
+Q_NEVER_INLINE quint64 fib(quint64 n)
 {
     if (n < 2)
         return n;
     return fib(n - 1) + fib(n - 2);
 }
 
-[[gnu::noinline]] void computeFibonacci()
+Q_NEVER_INLINE void computeFibonacci()
 {
     volatile quint64 sink = fib(30);
     (void) sink;
 }
 
-[[gnu::noinline]] void fibonacciWorker()
+Q_NEVER_INLINE void fibonacciWorker()
 {
     while (!stopRequested.load(std::memory_order_relaxed))
         computeFibonacci();
 }
 
-[[gnu::noinline]] quint64 mixBytes(quint64 state)
+Q_NEVER_INLINE quint64 mixBytes(quint64 state)
 {
     state ^= state >> 12;
     state ^= state << 25;
@@ -69,7 +69,7 @@ std::atomic_bool stopRequested{false};
     return state * 0x2545F4914F6CDD1DULL; // xorshift* multiplier
 }
 
-[[gnu::noinline]] quint64 hashBlock(quint64 seed)
+Q_NEVER_INLINE quint64 hashBlock(quint64 seed)
 {
     quint64 state = seed | 1;
     for (int i = 0; i < 100000; ++i)
@@ -77,14 +77,14 @@ std::atomic_bool stopRequested{false};
     return state;
 }
 
-[[gnu::noinline]] void hasherWorker()
+Q_NEVER_INLINE void hasherWorker()
 {
     volatile quint64 sink = 0;
     while (!stopRequested.load(std::memory_order_relaxed))
         sink = hashBlock(sink);
 }
 
-[[gnu::noinline]] void spinFor(qint64 ms)
+Q_NEVER_INLINE void spinFor(qint64 ms)
 {
     QElapsedTimer timer;
     timer.start();
@@ -94,30 +94,30 @@ std::atomic_bool stopRequested{false};
     (void) sink;
 }
 
-[[gnu::noinline]] void burstOfWork()
+Q_NEVER_INLINE void burstOfWork()
 {
     spinFor(100);
     QThread::msleep(400);
 }
 
-[[gnu::noinline]] void burstyWorker()
+Q_NEVER_INLINE void burstyWorker()
 {
     while (!stopRequested.load(std::memory_order_relaxed))
         burstOfWork();
 }
 
-[[gnu::noinline]] void waitAround()
+Q_NEVER_INLINE void waitAround()
 {
     QThread::msleep(1000);
 }
 
-[[gnu::noinline]] void sleeperWorker()
+Q_NEVER_INLINE void sleeperWorker()
 {
     while (!stopRequested.load(std::memory_order_relaxed))
         waitAround();
 }
 
-[[gnu::noinline]] void printHeartbeat()
+Q_NEVER_INLINE void printHeartbeat()
 {
     static int beat = 0;
     std::printf("heartbeat %d\n", ++beat);

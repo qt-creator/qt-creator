@@ -49,4 +49,8 @@ private:
     friend class Internal::ICorePrivate;
 };
 
+#ifdef WITH_TESTS
+namespace Internal { QObject *createJsExpanderTest(); }
+#endif
+
 } // namespace Core

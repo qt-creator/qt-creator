@@ -713,11 +713,13 @@ static QString idForPythonFromPath(const QList<Interpreter> &pythons)
         pythonFromPath = FilePath("python").searchInPath();
     if (pythonFromPath.isEmpty())
         return {};
-    const Interpreter &defaultInterpreter
-        = findOrDefault(pythons, [pythonFromPath](const Interpreter &interpreter) {
-              return interpreter.command == pythonFromPath;
-          });
-    return defaultInterpreter.id;
+    // Not findOrDefault(): a default-constructed Interpreter comes with a fresh id, which
+    // would end up as an id no interpreter has.
+    for (const Interpreter &interpreter : pythons) {
+        if (interpreter.command == pythonFromPath)
+            return interpreter.id;
+    }
+    return {};
 }
 
 static PythonSettings *settingsInstance = nullptr;
@@ -886,7 +888,10 @@ bool PythonSettings::interpreterIsValid(const Interpreter &interpreter)
 
 void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId)
 {
-    if (defaultId == settingsInstance->m_defaultInterpreterId
+    const bool defaultIsThere
+        = Utils::anyOf(interpreters, Utils::equal(&Interpreter::id, defaultId));
+    const QString newDefaultId = defaultIsThere ? defaultId : idForPythonFromPath(interpreters);
+    if (newDefaultId == settingsInstance->m_defaultInterpreterId
         && interpreters == settingsInstance->m_interpreters) {
         return;
     }
@@ -898,7 +903,7 @@ void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, cons
     for (const Interpreter &interpreter : std::as_const(toRemove))
         removeKitsForInterpreter(interpreter);
     settingsInstance->m_interpreters = interpreters;
-    settingsInstance->m_defaultInterpreterId = defaultId;
+    settingsInstance->m_defaultInterpreterId = newDefaultId;
     saveSettings();
 }
 

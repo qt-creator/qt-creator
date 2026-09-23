@@ -1384,6 +1384,15 @@ PresetsData combinePresets(PresetsData &cmakePresetsData, PresetsData &cmakeUser
                 if (!p.inherits)
                     continue;
 
+                for (const QString &inheritFrom : *p.inherits) {
+                    if (!presetsHash.contains(inheritFrom)) {
+                        addError(Tr::tr("Invalid %1 preset: \"%2\": Could not find inherited "
+                                        "preset \"%3\"")
+                                     .arg(presetType, p.name, inheritFrom),
+                                 p.filePath);
+                    }
+                }
+
                 bool cyclic = false;
                 const QStringList inheritsList
                     = recursiveInheritsList(presetsHash, p.name, *p.inherits, cyclic);

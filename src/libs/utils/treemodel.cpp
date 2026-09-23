@@ -750,11 +750,15 @@ void TreeItem::sortChildren(const std::function<bool(const TreeItem *, const Tre
 
 void TreeItem::update()
 {
-    if (m_model) {
-        QModelIndex idx = index();
-        emit m_model->dataChanged(idx.sibling(idx.row(), 0),
-                                  idx.sibling(idx.row(), m_model->m_columnCount - 1));
-    }
+    if (!m_model)
+        return;
+    // The root stands for no row of its own, and neither does an item the
+    // model has not taken yet: there is nothing to announce for either.
+    const QModelIndex idx = index();
+    if (!idx.isValid())
+        return;
+    emit m_model->dataChanged(idx.sibling(idx.row(), 0),
+                              idx.sibling(idx.row(), m_model->m_columnCount - 1));
 }
 
 void TreeItem::updateAll()

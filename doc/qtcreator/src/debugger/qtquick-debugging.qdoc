@@ -25,8 +25,8 @@
     \section2 Debugging Qt Quick UI projects
 
     To debug Qt Quick UI projects (\c .qmlproject), select \uicontrol Automatic
-    or \uicontrol Enabled in \uicontrol{Run Settings} >
-    \uicontrol {Debugger Settings} > \uicontrol {QML debugger}.
+    or \uicontrol {QML only} in \uicontrol{Run Settings} >
+    \uicontrol {Debugger Settings} > \uicontrol {Debug}.
 
     \image {qtquick-debugger-settings.webp} {Debugger settings section in Run Settings}
 
@@ -50,12 +50,12 @@
             protected by a firewall.
 
         \li In \uicontrol {Run Settings} > \uicontrol {Debugger settings} >
-            \uicontrol {QML debugger}, select \uicontrol Automatic or
-            \uicontrol Enabled to enable QML debugging for running applications.
+            \uicontrol {Debug}, select \uicontrol Automatic or
+            \uicontrol {QML only} to enable QML debugging for running
+            applications.
 
             To debug both the C++ and QML parts of your application at the same
-            time, also select \uicontrol Automatic or \uicontrol Enabled in
-            \uicontrol {C++ debugger}.
+            time, select \uicontrol {C++ and QML (separate engines)} instead.
 
         \li Go to \uicontrol Build, and select \uicontrol {Rebuild Project} to
             clean and rebuild the project.

@@ -35,7 +35,7 @@ public:
     static Utils::FilePath androidDeploymentSettings(const ProjectExplorer::BuildConfiguration *bc);
 
     struct BuiltWith {
-        int apiVersion = -1;
+        QVersionNumber apiVersion;
         QVersionNumber ndkVersion;
         int androidPlatform = -1;
     };

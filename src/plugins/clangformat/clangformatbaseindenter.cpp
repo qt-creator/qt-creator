@@ -45,8 +45,10 @@ static void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
                                           ReplacementsToKeep replacementsToKeep)
 {
     style.MaxEmptyLinesToKeep = 100;
-#if LLVM_VERSION_MAJOR > 20
-    style.SortIncludes = {.Enabled = false};
+#if LLVM_VERSION_MAJOR >= 23
+    style.SortIncludes = {.Enabled = false, .IgnoreCase = false, .IgnoreExtension = false};
+#elif LLVM_VERSION_MAJOR > 20
+    style.SortIncludes = {.Enabled = false, .IgnoreCase = false};
 #else
     style.SortIncludes = clang::format::FormatStyle::SI_Never;
 #endif
@@ -58,7 +60,9 @@ static void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
 
     // This is a separate pass, don't do it unless it's the full formatting.
     style.FixNamespaceComments = false;
-#if LLVM_VERSION_MAJOR >= 16
+#if LLVM_VERSION_MAJOR >= 23
+    style.AlignTrailingComments = {clang::format::FormatStyle::TCAS_Never, 0, false};
+#elif LLVM_VERSION_MAJOR >= 16
     style.AlignTrailingComments = {clang::format::FormatStyle::TCAS_Never, 0};
 #else
     style.AlignTrailingComments = false;

@@ -33,6 +33,7 @@ class RunControl;
 class Target;
 
 namespace Internal {
+class AppOutputPane;
 class RunControlPrivate;
 class RunWorkerConflictTest;
 } // Internal
@@ -243,6 +244,12 @@ public:
     static bool canRun(
         Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId, Utils::Id executionType);
     void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
+    void clearOutput();
+    // Kept per tab and shown while this tab is current.
+    void setOutputFilterText(const QString &text);
+    std::optional<QString> outputFilterText() const;
+    void setFiltersOutputAtSource(bool enabled);
+    bool filtersOutputAtSource() const;
 
     void requestDebugChannel();
     bool usesDebugChannel() const;
@@ -279,6 +286,8 @@ public:
 
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
+    void outputFilterChanged(const QString &text);
+    void outputCleared();
     void aboutToStart();
     void started();
     void canceled();
@@ -288,7 +297,11 @@ signals:
     void outputVisibilityChanged(bool visible);
 
 private:
+    friend class Internal::AppOutputPane;
+
     void setDevice(const IDeviceConstPtr &device);
+    void reportOutputFilterChanged(const QString &text);
+    void reportOutputCleared();
 
     // Just a helper
     template <typename Result, typename Function, typename ...Args,

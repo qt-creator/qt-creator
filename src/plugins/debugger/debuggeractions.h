@@ -25,8 +25,8 @@ public:
     Utils::BoolAspect &raiseOnInterrupt;
     Utils::BoolAspect &breakpointsFullPathByDefault;
     Utils::BoolAspect &resolveBreakpointSymlinks;
+    Utils::BoolAspect &lookUpSourcesOnDebuggerDevice;
     Utils::BoolAspect &warnOnReleaseBuilds;
-    Utils::BoolAspect &nativeMixedMode;
     Utils::BoolAspect &collapseMachineryFrames;
     Utils::BoolAspect &useGenericDebugger;
     Utils::IntegerAspect &maximalStackDepth;

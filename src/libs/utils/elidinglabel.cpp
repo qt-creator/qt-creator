@@ -58,15 +58,24 @@ void ElidingLabel::setAdditionalToolTip(const QString &additionalToolTip)
 
 void ElidingLabel::paintEvent(QPaintEvent *)
 {
+    if (m_elideMode == Qt::ElideNone) {
+        QLabel::paintEvent(nullptr);
+        updateToolTip({});
+        return;
+    }
+
     const int m = margin();
     const QRect contents = contentsRect().adjusted(m, m, -m, -m);
     const QFontMetrics fm = fontMetrics();
     const QString txt = text();
-    const bool elide = m_elideMode != Qt::ElideNone
-                       && txt.size() > 4
-                       && fm.horizontalAdvance(txt) > contents.width();
+    const bool elide = txt.size() > 4 && fm.horizontalAdvance(txt) > contents.width();
 
-    if (!elide) {
+    // QLabelPrivate::layoutRect() clamps the vertical offset at 0, so a label
+    // shorter than its text loses Qt::AlignBottom, and the descender with it.
+    // Equality is the normal case: it is what sizeHint() asks for.
+    const bool fitsVertically = fm.height() <= contents.height();
+
+    if (!elide && fitsVertically) {
         // Nothing to truncate: let QLabel paint so that features handled by the
         // base class, such as text selection, are rendered normally.
         QLabel::paintEvent(nullptr);
@@ -74,13 +83,13 @@ void ElidingLabel::paintEvent(QPaintEvent *)
         return;
     }
 
-    updateToolTip(txt);
-    const QString elided = fm.elidedText(txt, m_elideMode, contents.width());
+    updateToolTip(elide ? txt : QString());
+    const QString shown = elide ? fm.elidedText(txt, m_elideMode, contents.width()) : txt;
     const int flags = QStyle::visualAlignment(layoutDirection(), alignment()) | Qt::TextSingleLine;
 
     QPainter painter(this);
     drawFrame(&painter);
-    painter.drawText(contents, flags, elided);
+    painter.drawText(contents, flags, shown);
 }
 
 void ElidingLabel::updateToolTip(const QString &elidedText)

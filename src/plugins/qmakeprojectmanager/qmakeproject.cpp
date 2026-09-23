@@ -1446,7 +1446,7 @@ void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
-FilePath QmakeBuildSystem::executableFor(const QmakeProFile *file)
+FilePath QmakeBuildSystem::executableFor(const QmakeProFile *file) const
 {
     const Toolchain *const tc = ToolchainKitAspect::cxxToolchain(kit());
     if (!tc)
@@ -1496,6 +1496,82 @@ bool QmakeBuildSystem::canBuildFile(ProjectExplorer::FileNode *file) const
     if (type != FileType::Source && type != FileType::Header && type != FileType::Form)
         return false;
     return dynamic_cast<QmakePriFileNode *>(file->parentProjectNode());
+}
+
+static bool linksLibrary(const QmakeProFile *pro, const QString &target, const QString &artifact)
+{
+    const QStringList libs = pro->variableValue(Variable::Libs)
+                             + pro->variableValue(Variable::LibsPrivate);
+    for (const QString &lib : libs) {
+        if (lib.startsWith('-')) {
+            if (lib.startsWith("-l") && QStringView(lib).sliced(2) == target)
+                return true;
+        } else if (FilePath::fromUserInput(lib).fileName() == artifact) {
+            return true;
+        }
+    }
+    return false;
+}
+
+FilePath QmakeBuildSystem::productBinary(const QmakeProFile *file) const
+{
+    if (file->projectType() == ProjectType::ApplicationTemplate)
+        return executableFor(file);
+
+    const FilePaths libs = allLibraryTargetFiles(file);
+    if (libs.isEmpty())
+        return {};
+
+    // The versioned names are symbolic links to the longest one.
+    const FilePath lib = *std::max_element(libs.begin(), libs.end(),
+                                           [](const FilePath &lhs, const FilePath &rhs) {
+        return lhs.fileName().size() < rhs.fileName().size();
+    });
+    if (lib.isAbsolutePath())
+        return lib;
+    return file->targetInformation().destDir / lib.fileName();
+}
+
+FilePaths QmakeBuildSystem::binariesForSourceFile(const FilePath &sourceFile) const
+{
+    QmakeProFile * const root = rootProFile();
+    if (!root)
+        return {};
+
+    const QList<QmakeProFile *> products = root->allProFiles();
+    QList<QmakeProFile *> pending;
+    for (QmakeProFile * const pro : products) {
+        if (pro->collectFiles(FileType::Source).contains(sourceFile)
+                || pro->collectFiles(FileType::Header).contains(sourceFile)) {
+            pending << pro;
+        }
+    }
+
+    FilePaths binaries;
+    QSet<QmakeProFile *> seen;
+    while (!pending.isEmpty()) {
+        QmakeProFile * const pro = pending.takeLast();
+        if (!Utils::insert(seen, pro))
+            continue;
+        const ProjectType type = pro->projectType();
+        if (type == ProjectType::ApplicationTemplate
+                || type == ProjectType::SharedLibraryTemplate) {
+            const FilePath binary = productBinary(pro);
+            if (!binary.isEmpty())
+                binaries << binary;
+            continue;
+        }
+        if (type != ProjectType::StaticLibraryTemplate)
+            continue;
+        // Code from a static library ends up in whatever links it.
+        const QString artifact = productBinary(pro).fileName();
+        const QString target = pro->targetInformation().target;
+        for (QmakeProFile * const other : products) {
+            if (other != pro && linksLibrary(other, target, artifact))
+                pending << other;
+        }
+    }
+    return binaries;
 }
 
 FilePaths QmakeBuildSystem::filesGeneratedFrom(const FilePath &input) const
@@ -1638,5 +1714,124 @@ void QmakeBuildSystem::buildHelper(BuildAction action, bool isFileBuild, QmakePr
 }
 
 } // QmakeProjectManager
+
+#ifdef WITH_TESTS
+
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kit.h>
+
+#include <utils/temporarydirectory.h>
+
+#include <QScopeGuard>
+#include <QTest>
+
+namespace QmakeProjectManager::Internal {
+
+class QmakeProjectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testBinariesForSourceFile();
+};
+
+static bool writeProject(const FilePath &dir, const QString &proFile, const QByteArray &contents,
+                         const QString &source)
+{
+    return dir.ensureWritableDir() && dir.pathAppended(proFile).writeFileContents(contents)
+           && dir.pathAppended(source).writeFileContents("void unused() {}\n");
+}
+
+void QmakeProjectTest::testBinariesForSourceFile()
+{
+    TemporaryDirectory tmpDir("qtc-qmake-binaries-XXXXXX");
+    QVERIFY(tmpDir.isValid());
+
+    const FilePath proFilePath = tmpDir.filePath("top.pro");
+    QVERIFY(proFilePath.writeFileContents(
+        "TEMPLATE = subdirs\nSUBDIRS = core alpha beta gamma app\n"));
+    QVERIFY(writeProject(tmpDir.filePath("core"), "core.pro",
+                         "TEMPLATE = lib\nCONFIG += staticlib\nTARGET = core\nSOURCES = core.cpp\n",
+                         "core.cpp"));
+    QVERIFY(writeProject(tmpDir.filePath("alpha"), "alpha.pro",
+                         "TEMPLATE = lib\nTARGET = alpha\nSOURCES = alpha.cpp\n"
+                         "LIBS += -L$$OUT_PWD/../core -lcore\n",
+                         "alpha.cpp"));
+    // Name the archive instead of using -l, to cover the other rule in linksLibrary().
+    // Only on Linux: allLibraryTargetFiles() misnames a static library elsewhere.
+    QVERIFY(writeProject(tmpDir.filePath("beta"), "beta.pro",
+                         "TEMPLATE = lib\nTARGET = beta\nSOURCES = beta.cpp\n"
+                         "linux: LIBS += $$OUT_PWD/../core/"
+                         "$${QMAKE_PREFIX_STATICLIB}core.$${QMAKE_EXTENSION_STATICLIB}\n"
+                         "else: LIBS += -L$$OUT_PWD/../core -lcore\n",
+                         "beta.cpp"));
+    QVERIFY(writeProject(tmpDir.filePath("gamma"), "gamma.pro",
+                         "TEMPLATE = lib\nTARGET = gamma\nSOURCES = gamma.cpp\n"
+                         "LIBS_PRIVATE += -L$$OUT_PWD/../core -lcore\n",
+                         "gamma.cpp"));
+    QVERIFY(writeProject(tmpDir.filePath("app"), "app.pro",
+                         "TEMPLATE = app\nTARGET = app\nSOURCES = main.cpp\n"
+                         "LIBS += -L$$OUT_PWD/../alpha -lalpha\n",
+                         "main.cpp"));
+
+    const OpenProjectResult opened = ProjectExplorerPlugin::openProject(proFilePath);
+    if (!opened)
+        QSKIP(qPrintable(opened.errorMessage()));
+    Project * const project = opened.project();
+    const QScopeGuard unload([project] { ProjectExplorerPlugin::unloadProject(project); });
+    Kit * const kit = KitManager::kit([&proFilePath](const Kit *k) {
+        return k->isValid() && QtKitAspect::qtVersion(k) && ToolchainKitAspect::cxxToolchain(k)
+               && BuildConfigurationFactory::find(k, proFilePath);
+    });
+    if (!kit)
+        QSKIP("No kit with Qt and a C++ toolchain can build qmake projects");
+    QVERIFY(project->configureAsExampleProject(kit));
+
+    const auto buildSystem = qobject_cast<QmakeBuildSystem *>(project->activeBuildSystem());
+    QVERIFY(buildSystem);
+    // Every one of the six project files must have been evaluated, not just the root.
+    const auto parsedProFiles = [buildSystem] {
+        int count = 0;
+        if (QmakeProFile * const root = buildSystem->rootProFile()) {
+            for (const QmakeProFile * const pro : root->allProFiles()) {
+                if (pro->validParse() && !pro->parseInProgress())
+                    ++count;
+            }
+        }
+        return count;
+    };
+    QTRY_COMPARE_WITH_TIMEOUT(parsedProFiles(), 6, 60000);
+
+    const FilePaths viaAlpha
+        = buildSystem->binariesForSourceFile(tmpDir.filePath("alpha/alpha.cpp"));
+    const FilePaths viaBeta = buildSystem->binariesForSourceFile(tmpDir.filePath("beta/beta.cpp"));
+    QCOMPARE(viaAlpha.size(), 1);
+    QVERIFY(viaAlpha.first().fileName().contains("alpha"));
+    QCOMPARE(viaBeta.size(), 1);
+    QVERIFY(viaBeta.first().fileName().contains("beta"));
+    const FilePaths viaGamma
+        = buildSystem->binariesForSourceFile(tmpDir.filePath("gamma/gamma.cpp"));
+    QCOMPARE(viaGamma.size(), 1);
+    QVERIFY(viaGamma.first().fileName().contains("gamma"));
+
+    // The static library's code ends up in every library linking it, and nowhere else.
+    const FilePaths viaCore = buildSystem->binariesForSourceFile(tmpDir.filePath("core/core.cpp"));
+    QCOMPARE(Utils::sorted(viaCore), Utils::sorted(viaAlpha + viaBeta + viaGamma));
+
+    const FilePaths viaMain = buildSystem->binariesForSourceFile(tmpDir.filePath("app/main.cpp"));
+    QCOMPARE(viaMain.size(), 1);
+    QCOMPARE(viaMain.first().completeBaseName(), "app");
+
+    QVERIFY(buildSystem->binariesForSourceFile(tmpDir.filePath("app/none.cpp")).isEmpty());
+}
+
+QObject *createQmakeProjectTest()
+{
+    return new QmakeProjectTest;
+}
+
+} // namespace QmakeProjectManager::Internal
+
+#endif // WITH_TESTS
 
 #include "qmakeproject.moc"

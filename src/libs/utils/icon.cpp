@@ -12,9 +12,14 @@
 #include <QApplication>
 #include <QDebug>
 #include <QIcon>
+#include <QIconEngine>
 #include <QImage>
+#include <QLabel>
 #include <QPainter>
+#include <QPixmapCache>
 #include <QWidget>
+
+#include <functional>
 
 namespace Utils {
 
@@ -166,6 +171,106 @@ static OptMasksAndColors highlightMasksAndColors(const MasksAndColors &defaultSt
     return colorsReplaced ? std::make_optional(highlighted) : std::nullopt;
 }
 
+static QIcon renderIcon(const QList<IconMaskAndColor> &iconSourceList,
+                        Icon::IconStyleOptions style,
+                        int maxDpr)
+{
+    QIcon result;
+    for (int dpr = 1; dpr <= maxDpr; dpr++) {
+        const MasksAndColors masks = masksAndColors(iconSourceList, dpr);
+        const QPixmap combinedMask = Utils::combinedMask(masks, style);
+        result.addPixmap(masksToIcon(masks, combinedMask, style), QIcon::Normal, QIcon::Off);
+        const QColor disabledColor = creatorColor(Theme::IconsDisabledColor);
+        const QPixmap disabledIcon = maskToColorAndAlpha(combinedMask, disabledColor);
+        if (const OptMasksAndColors activeMasks =
+            highlightMasksAndColors(masks, iconSourceList);
+            activeMasks.has_value()) {
+            const QPixmap activePixmap = masksToIcon(*activeMasks, combinedMask, style);
+            result.addPixmap(activePixmap, QIcon::Active, QIcon::On);
+            result.addPixmap(disabledIcon, QIcon::Disabled, QIcon::On);
+            result.addPixmap(disabledIcon, QIcon::Disabled, QIcon::Off);
+        } else {
+            result.addPixmap(disabledIcon, QIcon::Disabled);
+        }
+    }
+    return result;
+}
+
+// Resolves the theme colors when the icon is drawn instead of when it is
+// created, so that icons which were handed to a QAction or a QWidget once
+// follow a theme change.
+class ThemedIconEngine final : public QIconEngine
+{
+public:
+    explicit ThemedIconEngine(const std::function<QIcon()> &render)
+        : m_render(render)
+    {}
+
+    void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override
+    {
+        // Fills the rect the way QPixmapIconEngine does, which also scales up.
+        // QIcon::paint() would clamp to actualSize(), which never does.
+        const QPaintDevice *device = painter->device();
+        const qreal dpr = device ? device->devicePixelRatio() : qApp->devicePixelRatio();
+        painter->drawPixmap(rect, icon().pixmap(rect.size(), dpr, mode, state));
+    }
+
+    QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override
+    {
+        return icon().pixmap(size, mode, state);
+    }
+
+    QPixmap scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State state,
+                         qreal scale) override
+    {
+        return icon().pixmap(size, scale, mode, state);
+    }
+
+    QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state) override
+    {
+        return icon().actualSize(size, mode, state);
+    }
+
+    QList<QSize> availableSizes(QIcon::Mode mode, QIcon::State state) override
+    {
+        return icon().availableSizes(mode, state);
+    }
+
+    QIconEngine *clone() const override { return new ThemedIconEngine(m_render); }
+
+    QString key() const override { return "Utils::ThemedIconEngine"; }
+
+    bool isNull() override { return false; }
+
+private:
+    // Rendering a recolored icon is expensive enough to be worth keeping, but
+    // the result only stays valid for one theme and one device pixel ratio.
+    QIcon icon() const
+    {
+        const int maxDpr = qRound(qApp->devicePixelRatio());
+        if (m_generation != ThemeManager::generation() || m_devicePixelRatio != maxDpr) {
+            m_generation = ThemeManager::generation();
+            m_devicePixelRatio = maxDpr;
+            m_icon = m_render();
+        }
+        return m_icon;
+    }
+
+    const std::function<QIcon()> m_render;
+    mutable QIcon m_icon;
+    mutable int m_generation = -1;
+    mutable int m_devicePixelRatio = -1;
+};
+
+static QString sourceListKey(const QList<IconMaskAndColor> &iconSourceList,
+                             Icon::IconStyleOptions style)
+{
+    QString result = QString::number(int(style));
+    for (const IconMaskAndColor &source : iconSourceList)
+        result += '|' + source.first.toFSPathString() + '|' + QString::number(int(source.second));
+    return result;
+}
+
 QIcon Icon::icon() const
 {
     if (m_iconSourceList.isEmpty())
@@ -174,46 +279,44 @@ QIcon Icon::icon() const
     if (m_style == None)
         return QIcon(m_iconSourceList.constFirst().first.toFSPathString());
 
-    const int maxDpr = qRound(qApp->devicePixelRatio());
-    if (maxDpr == m_lastDevicePixelRatio)
-        return m_lastIcon;
-
-    m_lastDevicePixelRatio = maxDpr;
-    m_lastIcon = QIcon();
-    for (int dpr = 1; dpr <= maxDpr; dpr++) {
-        const MasksAndColors masks = masksAndColors(m_iconSourceList, dpr);
-        const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
-        m_lastIcon.addPixmap(masksToIcon(masks, combinedMask, m_style), QIcon::Normal, QIcon::Off);
-        const QColor disabledColor = creatorColor(Theme::IconsDisabledColor);
-        const QPixmap disabledIcon = maskToColorAndAlpha(combinedMask, disabledColor);
-        if (const OptMasksAndColors activeMasks =
-            highlightMasksAndColors(masks, m_iconSourceList);
-            activeMasks.has_value()) {
-            const QPixmap activePixmap = masksToIcon(*activeMasks, combinedMask, m_style);
-            m_lastIcon.addPixmap(activePixmap, QIcon::Active, QIcon::On);
-            m_lastIcon.addPixmap(disabledIcon, QIcon::Disabled, QIcon::On);
-            m_lastIcon.addPixmap(disabledIcon, QIcon::Disabled, QIcon::Off);
-        } else {
-            m_lastIcon.addPixmap(disabledIcon, QIcon::Disabled);
-        }
+    // Keep handing out the same QIcon: it is what holds the rendered icon, and
+    // its cacheKey() is a key for QPixmapCache entries in
+    // StyleHelper::drawIconWithShadow.
+    if (m_icon.isNull()) {
+        const QList<IconMaskAndColor> sources = m_iconSourceList;
+        const IconStyleOptions style = m_style;
+        m_icon = QIcon(new ThemedIconEngine([sources, style] {
+            return renderIcon(sources, style, qRound(qApp->devicePixelRatio()));
+        }));
     }
-    return m_lastIcon;
+    return m_icon;
 }
 
 QPixmap Icon::pixmap(QIcon::Mode iconMode) const
 {
-    if (m_iconSourceList.isEmpty()) {
+    if (m_iconSourceList.isEmpty())
         return QPixmap();
-    } else if (m_style == None) {
-        return QPixmap(StyleHelper::dpiSpecificImageFile(m_iconSourceList.constFirst().first.toFSPathString()));
-    } else {
-        const MasksAndColors masks =
-                masksAndColors(m_iconSourceList, qRound(qApp->devicePixelRatio()));
-        const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
-        return iconMode == QIcon::Disabled
-                ? maskToColorAndAlpha(combinedMask, creatorColor(Theme::IconsDisabledColor))
-                : masksToIcon(masks, combinedMask, m_style);
+
+    if (m_style == None) {
+        return QPixmap(
+            StyleHelper::dpiSpecificImageFile(m_iconSourceList.constFirst().first.toFSPathString()));
     }
+
+    const int dpr = qRound(qApp->devicePixelRatio());
+    // QPixmapCache is cleared on a theme change, so the theme needs no key of its own.
+    const QString key = "Utils::Icon::pixmap|" + QString::number(int(iconMode)) + '|'
+                        + QString::number(dpr) + '|' + sourceListKey(m_iconSourceList, m_style);
+    QPixmap result;
+    if (QPixmapCache::find(key, &result))
+        return result;
+
+    const MasksAndColors masks = masksAndColors(m_iconSourceList, dpr);
+    const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
+    result = iconMode == QIcon::Disabled
+                 ? maskToColorAndAlpha(combinedMask, creatorColor(Theme::IconsDisabledColor))
+                 : masksToIcon(masks, combinedMask, m_style);
+    QPixmapCache::insert(key, result);
+    return result;
 }
 
 FilePath Icon::imageFilePath() const
@@ -222,7 +325,7 @@ FilePath Icon::imageFilePath() const
     return m_iconSourceList.first().first;
 }
 
-QIcon Icon::sideBarIcon(const Icon &classic, const Icon &flat)
+static QIcon renderSideBarIcon(const Icon &classic, const Icon &flat)
 {
     QIcon result;
     if (creatorTheme()->flag(Theme::FlatSideBarIcons)) {
@@ -239,7 +342,14 @@ QIcon Icon::sideBarIcon(const Icon &classic, const Icon &flat)
     return result;
 }
 
-QIcon Icon::combinedIcon(const QList<QIcon> &icons)
+QIcon Icon::sideBarIcon(const Icon &classic, const Icon &flat)
+{
+    return QIcon(new ThemedIconEngine([classic, flat] {
+        return renderSideBarIcon(classic, flat);
+    }));
+}
+
+static QIcon renderCombinedIcon(const QList<QIcon> &icons)
 {
     QIcon result;
     const qreal devicePixelRatio = qApp->devicePixelRatio();
@@ -250,15 +360,32 @@ QIcon Icon::combinedIcon(const QList<QIcon> &icons)
     return result;
 }
 
+QIcon Icon::combinedIcon(const QList<QIcon> &icons)
+{
+    return QIcon(new ThemedIconEngine([icons] { return renderCombinedIcon(icons); }));
+}
+
 QIcon Icon::combinedIcon(const QList<Icon> &icons)
 {
     const QList<QIcon> qIcons = transform(icons, &Icon::icon);
     return combinedIcon(qIcons);
 }
 
+void setThemedPixmap(QLabel *label, const Icon &icon)
+{
+    const auto setPixmap = [label, icon] { label->setPixmap(icon.pixmap()); };
+    setPixmap();
+    ThemeManager::onChanged(label, themedPixmapKey, setPixmap);
+}
+
 QIcon Icon::fromTheme(const QString &name)
 {
     static QHash<QString, QIcon> cache;
+    static int generation = -1;
+    if (generation != ThemeManager::generation()) {
+        generation = ThemeManager::generation();
+        cache.clear();
+    }
 
     auto found = cache.find(name);
     if (found != cache.end())

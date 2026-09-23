@@ -12,6 +12,6 @@ namespace CMakeProjectManager::Internal {
 void buildTarget(
     const ProjectExplorer::BuildSystem *buildSystem,
     const QString &targetName,
-    const QString &toolArguments = {});
+    const QString &extraToolArguments = {});
 
 } // namespace CMakeProjectManager::Internal

@@ -14,7 +14,7 @@ namespace CMakeProjectManager::Internal {
 void buildTarget(
     const ProjectExplorer::BuildSystem *buildSystem,
     const QString &targetName,
-    const QString &toolArguments)
+    const QString &extraToolArguments)
 {
     if (ProjectExplorer::BuildManager::isBuilding(buildSystem->project()))
         ProjectExplorer::BuildManager::cancel();
@@ -30,8 +30,15 @@ void buildTarget(
     const QStringList oldTargets = buildStep->buildTargets();
     const QString oldToolArguments = buildStep->toolArguments();
 
+    QString newToolArguments = oldToolArguments;
+    if (!extraToolArguments.isEmpty()) {
+        if (!newToolArguments.isEmpty())
+            newToolArguments += ' ';
+        newToolArguments += extraToolArguments;
+    }
+
     buildStep->setBuildTargets({targetName});
-    buildStep->toolArguments.setValue(toolArguments);
+    buildStep->toolArguments.setValue(newToolArguments);
 
     // Build
     ProjectExplorer::BuildManager::buildProjectWithDependencies(buildSystem->project());

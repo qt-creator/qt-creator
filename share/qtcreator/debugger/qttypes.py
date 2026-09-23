@@ -2553,7 +2553,7 @@ def qdumpHelper__QVariant45(d, value):
 
             # Prefer namespaced version.
             if len(ns) > 0:
-                if not d.lookupNativeType(ns + innerType) is None:
+                if d.type_name_is_known(ns + innerType):
                     innerType = ns + innerType
 
             if isShared:

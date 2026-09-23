@@ -308,7 +308,7 @@ private slots:
                 QString("TestA"),
                 QString("unit"),
                 true,
-                PresetsDetails::Filter::Include::Index{0, 10, 1, QList<int>{1, 2}}},
+                PresetsDetails::Filter::Include::Index{0, 10, 1, QList<int>{1, 2}, std::nullopt}},
             PresetsDetails::Filter::Exclude{
                 QString("TestB"),
                 QString("unit"),
@@ -325,7 +325,8 @@ private slots:
             true,
             false,
             120,
-            "skip"};
+            "skip",
+            std::nullopt};
 
         PresetsDetails::TestPreset child;
         child.name = "child";
@@ -432,7 +433,7 @@ private slots:
         include.label = "fast";
         include.useUnion = true;
         include.index = PresetsDetails::Filter::Include::Index{
-            1, 10, 2, QList<int>{3, 5, 7}
+            1, 10, 2, QList<int>{3, 5, 7}, std::nullopt
         };
         filter.include = include;
         p.filter = filter;
@@ -1158,6 +1159,29 @@ private slots:
 
         QVERIFY(!data.hasValidPresets);
         QCOMPARE(errorMessages(data).filter("Cyclic inheritance").size(), 2);
+    }
+
+    void testAnInheritedPresetThatDoesNotExistIsReported()
+    {
+        // CMake refuses to read the whole file in this case, the preset used to be
+        // configured as if the "inherits" entry were not there
+        const PresetsData data = combinedPresets(R"({
+            "version": 3,
+            "configurePresets": [
+                { "name": "h", "hidden": true },
+                { "name": "a", "inherits": ["h", "missing"] }
+            ],
+            "buildPresets": [ { "name": "b", "configurePreset": "a", "inherits": ["nope"] } ],
+            "testPresets": [ { "name": "t", "configurePreset": "a", "inherits": ["nada"] } ]
+        })");
+
+        QVERIFY(!data.hasValidPresets);
+        QCOMPARE(errorMessages(data),
+                 QStringList()
+                     << "Invalid configure preset: \"a\": Could not find inherited preset "
+                        "\"missing\""
+                     << "Invalid build preset: \"b\": Could not find inherited preset \"nope\""
+                     << "Invalid test preset: \"t\": Could not find inherited preset \"nada\"");
     }
 
     void testDiamondInheritanceIsNotACycle()

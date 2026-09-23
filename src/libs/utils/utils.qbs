@@ -253,6 +253,8 @@ QtcLibrary {
         "processinfo.h",
         "processinterface.cpp",
         "processinterface.h",
+        "processutils.cpp",
+        "processutils.h",
         "progressindicator.cpp",
         "progressindicator.h",
         "projectintropage.cpp",
