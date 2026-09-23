@@ -119,6 +119,8 @@ QtcPlugin {
         "cppincludesfilter.h",
         "cppindexingsupport.cpp",
         "cppindexingsupport.h",
+        "cppindexqueries.cpp",
+        "cppindexqueries.h",
         "cpplocalrenaming.cpp",
         "cpplocalrenaming.h",
         "cpplocalsymbols.cpp",

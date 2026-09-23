@@ -51,6 +51,7 @@ add_qtc_plugin(CppEditor
     cpphighlighter.cpp cpphighlighter.h
     cppincludehierarchy.cpp cppincludehierarchy.h
     cppincludesfilter.cpp cppincludesfilter.h
+    cppindexqueries.cpp cppindexqueries.h
     cppindexingsupport.cpp cppindexingsupport.h
     cpplocalrenaming.cpp cpplocalrenaming.h
     cpplocalsymbols.cpp cpplocalsymbols.h
