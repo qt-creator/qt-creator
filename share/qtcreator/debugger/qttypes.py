@@ -4,9 +4,9 @@
 import platform
 import struct
 import re
-from dumper import Children, SubItem, UnnamedSubItem, toInteger, DumperBase
+from dumper import Children, SubItem, UnnamedSubItem, toInteger
 from stdtypes import qdump__std__pair
-from utils import DisplayFormat, TypeCode
+from utils import DisplayFormat
 
 
 def qdump__QAtomicInt(d, value):
@@ -677,7 +677,6 @@ def qdump__QDir(d, value):
     if d.isExpanded():
         with Children(d):
             if not d.isMsvcTarget():
-                ns = d.qtNamespace()
                 try:
                     d.call('int', value, 'count')  # Fill cache.
                 except:
@@ -1681,7 +1680,7 @@ def qdump__QPixmap(d, value):
     if d.qtVersionAtLeast(0x060000):
         vtbl, painters, data = value.split('ppp')
     elif d.qtVersionAtLeast(0x050000):
-        vtbl, painters, reserved, data = s = d.split('pppp', value)
+        vtbl, painters, reserved, data = d.split('pppp', value)
     else:
         vtbl, painters, data = value.split('ppp')
 
@@ -2435,7 +2434,6 @@ def qdump__QVariant(d, value):
 
 def qdumpHelper__QVariant6(d, value):
     data, typeStuff = d.split('24sp', value)
-    packedType = typeStuff >> 2
     metaTypeInterface = typeStuff - (typeStuff & 3)
 
     if metaTypeInterface == 0:
@@ -2738,7 +2736,6 @@ def qdump__QV4__Heap__String(d, value):
     # Note: There's also the 'Identifier' case. And the largestSubLength != 0 case.
     (baseClass, textOrLeft, idOrRight, subtype, stringHash, largestSub, length, mm) \
         = value.split('QppIIIIp')
-    textPtr = d.split('{@QStringDataPtr}', textOrLeft)[0]
     qdump__QStringData(d, d.createValue(textOrLeft, d.qtNamespace() + 'QStringData'))
     if d.isExpanded():
         with Children(d):
@@ -2931,18 +2928,6 @@ def QV4_putObjectValue(d, objectPtr):
             #d.putFields(value)
 
 
-def qdump__QV4_Object(d, value):
-    ns = d.qtNamespace()
-    d.putEmptyValue()
-    if d.isExpanded():
-        with Children(d):
-            with SubItem(d, '[raw]'):
-                base = d.extractPointer(objectPtr)
-                (inlineMemberOffset, inlineMemberSize, internalClass, prototype,
-                 memberData, arrayData) = d.split('IIpppp', base)
-                d.putValue('PTR: 0x%x' % objectPtr)
-
-
 def qdump__QV4__Value(d, value):
     if d.ptrSize() == 4:
         qdump_32__QV4__Value(d, value)
@@ -3004,11 +2989,8 @@ def qdump_64__QV4__Value(d, value):
         QV4_NaNEncodeMask =         0xfffc000000000000
         QV4_Masks_Immediate_Mask =  0x00020000  # bit 49
 
-        QV4_ValueTypeInternal_Empty_Type_Internal =     QV4_Masks_Immediate_Mask | 0
         QV4_ConvertibleToInt =                          QV4_Masks_Immediate_Mask | 0x10000  # bit 48
         QV4_ValueTypeInternal_Null_Type_Internal =      QV4_ConvertibleToInt | 0x08000
-        QV4_ValueTypeInternal_Boolean_Type_Internal =   QV4_ConvertibleToInt | 0x04000
-        QV4_ValueTypeInternal_Integer_Type_Internal =   QV4_ConvertibleToInt | 0x02000
 
         QV4_ValueType_Undefined_Type = 0  # Dummy to make generic code below pass.
 
@@ -3016,37 +2998,20 @@ def qdump_64__QV4__Value(d, value):
         QV4_NaNEncodeMask =         0xffff800000000000
         QV4_Masks_Immediate_Mask =  0x00018000
 
-        QV4_IsInt32Mask =           0x0002000000000000
-        QV4_IsDoubleMask =          0xfffc000000000000
-        QV4_IsNumberMask =          QV4_IsInt32Mask | QV4_IsDoubleMask
-        QV4_IsNullOrUndefinedMask = 0x0000800000000000
-        QV4_IsNullOrBooleanMask =   0x0001000000000000
-
-        QV4_Masks_NaN_Mask =                0x7ff80000
-        QV4_Masks_Type_Mask =               0xffff8000
-        QV4_Masks_IsDouble_Mask =           0xfffc0000
         QV4_Masks_IsNullOrUndefined_Mask =  0x00008000
         QV4_Masks_IsNullOrBoolean_Mask =    0x00010000
 
         QV4_ValueType_Undefined_Type =  QV4_Masks_IsNullOrUndefined_Mask
         QV4_ValueType_Null_Type =       QV4_Masks_IsNullOrUndefined_Mask \
             | QV4_Masks_IsNullOrBoolean_Mask
-        QV4_ValueType_Boolean_Type =    QV4_Masks_IsNullOrBoolean_Mask
-        QV4_ValueType_Integer_Type =    0x20000 | QV4_Masks_IsNullOrBoolean_Mask
-        QV4_ValueType_Managed_Type =    0
-        QV4_ValueType_Empty_Type =      QV4_ValueType_Undefined_Type | 0x4000
 
         QV4_ValueTypeInternal_Null_Type_Internal =      QV4_ValueType_Null_Type
-        QV4_ValueTypeInternal_Boolean_Type_Internal =   QV4_ValueType_Boolean_Type
-        QV4_ValueTypeInternal_Integer_Type_Internal =   QV4_ValueType_Integer_Type
 
     QV4_PointerMask = 0xfffffffffffffffd
 
     QV4_Masks_Tag_Shift =           32
     QV4_IsDouble_Shift =            64 - 14
     QV4_IsNumber_Shift =            64 - 15
-    QV4_IsConvertibleToInt_Shift =  64 - 16
-    QV4_IsManaged_Shift =           64 - 17
 
     v = value.split('Q')[0]
     tag = v >> QV4_Masks_Tag_Shift
@@ -3093,8 +3058,6 @@ def qdump_64__QV4__Value(d, value):
         elif flags & 4:  # isObject
             d.putBetterType('@QV4::Value (object)')
             #QV4_putObjectValue(d, d.extractPointer(value) + 2 * d.ptrSize())
-            arrayVTable = d.symbolAddress(ns + 'QV4::ArrayObject::static_vtbl')
-            #DumperBase.warn('ARRAY VTABLE: 0x%x' % arrayVTable)
             d.putExpandable()
             d.putItem(d.createValue(d.extractPointer(value) + 2 * d.ptrSize(), ns + 'QV4::Object'))
             return
@@ -3342,6 +3305,10 @@ def qdump__QTJSC__JSValue(d, value):
                 d.putSubItem('cell', payload.cast(cellType))
 
             try:
+                # This might already fail for 'native' payloads.
+                scriptObjectType = d.lookupType(d.qtNamespace() + 'QScriptObject').pointer()
+                scriptObject = payload.cast(scriptObjectType)
+
                 # FIXME: This might not always be a variant.
                 delegateType = d.lookupType(d.qtNamespace() + 'QScript::QVariantDelegate').pointer()
                 delegate = scriptObject['d']['delegate'].cast(delegateType)
@@ -3379,7 +3346,6 @@ def qdump__QScriptValue(d, value):
 
     d.putType('%sQScriptValue (JSCoreValue)' % ns)
     x = dd['jscValue']['u']
-    tag = x['asBits']['tag']
     payload = x['asBits']['payload']
     #isValid = int(x['asBits']['tag']) != -6   # Empty
     #isCell = int(x['asBits']['tag']) == -2
@@ -3584,7 +3550,6 @@ def qdumpHelper_QJsonObject(d, data, obj):
                     entryStart = obj + d.extractUInt(entryPtr)  # Entry::value
                     keyStart = entryStart + 4  # sizeof(QJsonPrivate::Entry) == 4
                     val = d.extractInt(entryStart)
-                    key = d.extractInt(keyStart)
                     isLatinKey = qdumpHelper_qle_cutBits(val, 4, 1)
                     if isLatinKey:
                         keyLength = d.extractUShort(keyStart)
