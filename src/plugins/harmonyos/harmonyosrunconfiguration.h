@@ -31,6 +31,16 @@ Utils::FilePaths libraryDirectories(const Utils::FilePath &deploymentSettings);
 // to the unversioned one, which is what the libraries built for the platform carry.
 Utils::FilePath findLibrary(const QString &name, const Utils::FilePaths &directories);
 
+// One file of a Qt that is handed over, under the name the runner keeps it as: a file name
+// for a library, and "<category>/<file>" for a plugin, which is how a plugin stays
+// recognizable as one on the far side.
+class QtLibrary
+{
+public:
+    QString name;
+    Utils::FilePath file;
+};
+
 // What the application needs beside itself, and the name the runner caches that set under.
 // An installed package carries the Qt it was built with and nothing else, so an application
 // built against another one - which is every application a Qt Creator on the device builds,
@@ -39,13 +49,21 @@ class QtLibraries
 {
 public:
     QString tag;
-    Utils::FilePaths files;
+    QList<QtLibrary> files;
 };
 
-// The transitive DT_NEEDED closure of the application, as far as the directories can answer
-// it. What they cannot is the device's own business, exactly as in packaging. The tag covers
-// what the files are as well as which, so a Qt that was rebuilt is a different one.
-QtLibraries qtLibraries(const Utils::FilePath &library, const Utils::FilePaths &directories);
+// The plugins a handed-over Qt cannot leave behind. Qt reaches a plugin by dlopening it,
+// which the platform refuses for a file an application wrote, so the ones an application
+// cannot start without travel with the libraries and are registered by hand instead of
+// being found. The platform plugin is that, and for now it is all of it.
+Utils::FilePaths qtPlugins(const Utils::FilePath &deploymentSettings);
+
+// The transitive DT_NEEDED closure of the application and of the plugins, as far as the
+// directories can answer it. What they cannot is the device's own business, exactly as in
+// packaging. The tag covers what the files are as well as which, so a Qt that was rebuilt
+// is a different one.
+QtLibraries qtLibraries(const Utils::FilePath &library, const Utils::FilePaths &directories,
+                        const Utils::FilePaths &plugins = {});
 
 // What a project needs in its package beyond what harmonydeployqt stages, written by the
 // project's own build into "<target>-harmonyos-extras.json".

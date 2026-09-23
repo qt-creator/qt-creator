@@ -48,6 +48,9 @@ public:
     Image *find(const std::string &name) const;
     // The file a DT_NEEDED entry names, in the directories above, or empty.
     std::string locate(const char *name) const;
+    // What the mapped set defines, for a caller that has to reach into a privately mapped
+    // Qt rather than resolve against it.
+    void *symbol(const char *name) const;
 };
 
 bool load(const char *path, Image *image, std::string *error, World *world = nullptr);
@@ -56,5 +59,10 @@ void *lookup(const Image &image, const char *name);
 // Whether the platform has a library of this name to offer: one that is loaded already, or
 // one installed beside it. What it says no to is what a caller has to bring itself.
 bool installed(const char *name);
+
+// A plugin Qt would reach by dlopening it, which is refused for a file an application
+// wrote: map it into the world instead and register it with the Qt in this process as if
+// it had been linked in, which is the route Qt keeps open for a static build.
+bool registerPlugin(const char *path, World *world, std::string *error);
 
 } // namespace QtcLoad

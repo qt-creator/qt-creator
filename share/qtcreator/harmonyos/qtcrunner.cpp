@@ -22,6 +22,7 @@
 
 #include <arpa/inet.h>
 #include <cstdarg>
+#include <dirent.h>
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -63,6 +64,7 @@ struct Launch
     std::vector<std::string> arguments;
     bool argumentsGiven = false;
     std::string qtDirectory;
+    std::vector<std::string> plugins;
 };
 
 static const size_t ArgumentsAnnouncement = 0xffffffffu;
@@ -155,6 +157,21 @@ static bool isPlainName(const std::string &name)
            && name.find('/') == std::string::npos;
 }
 
+// A plugin arrives under the directory its kind lives in, which is what keeps it
+// recognizable as one here: nothing else on the channel carries a path at all.
+static bool isPluginName(const std::string &name)
+{
+    const size_t at = name.find('/');
+    return at != std::string::npos && isPlainName(name.substr(0, at))
+           && isPlainName(name.substr(at + 1));
+}
+
+static std::string fileName(const std::string &path)
+{
+    const size_t at = path.rfind('/');
+    return at == std::string::npos ? path : path.substr(at + 1);
+}
+
 static bool isDirectory(const std::string &path)
 {
     struct stat status = {};
@@ -228,13 +245,23 @@ static bool receiveQt(int fd, Launch *launch, std::string *error)
     for (size_t index = 0; index < count; ++index) {
         if (!readText(fd, &names[index], error) || !readSize(fd, &sizes[index]))
             return false;
-        if (!isPlainName(names[index]) || sizes[index] > FileLimit) {
+        const bool plugin = isPluginName(names[index]);
+        if ((!plugin && !isPlainName(names[index])) || sizes[index] > FileLimit) {
             *error = "a library on the channel is not named plausibly";
             return false;
         }
-        if (fileOfSize(directory + '/' + names[index], sizes[index]))
+        const std::string path = directory + '/' + names[index];
+        if (plugin) {
+            ::mkdir((directory + '/' + names[index].substr(0, names[index].find('/')))
+                        .c_str(), 0755);
+            launch->plugins.push_back(path);
+        }
+        if (fileOfSize(path, sizes[index]))
             continue;
-        if (QtcLoad::installed(names[index].c_str()))
+        // What the platform has answers for a library, which is looked up by name, and for
+        // nothing else: a plugin of that name in the package is a different plugin, and one
+        // this process could reach at all is the exception rather than the rule.
+        if (!plugin && QtcLoad::installed(names[index].c_str()))
             continue;
         wanted[index] = 'S';
     }
@@ -337,6 +364,45 @@ static std::string rememberedQt()
     return isDirectory(directory) ? directory : std::string();
 }
 
+// Which plugins a run that nobody is holding the channel open for registers: whatever the
+// last run left in a subdirectory of the Qt's own directory, since a plugin is the only
+// thing put there.
+static std::vector<std::string> rememberedPlugins(const std::string &directory)
+{
+    std::vector<std::string> plugins;
+    DIR * const top = ::opendir(directory.c_str());
+    if (!top)
+        return plugins;
+    while (const dirent * const entry = ::readdir(top)) {
+        const std::string name = entry->d_name;
+        if (!isPlainName(name) || !isDirectory(directory + '/' + name))
+            continue;
+        const std::string kind = directory + '/' + name;
+        DIR * const inner = ::opendir(kind.c_str());
+        if (!inner)
+            continue;
+        while (const dirent * const file = ::readdir(inner)) {
+            const std::string plugin = file->d_name;
+            if (isPlainName(plugin) && !isDirectory(kind + '/' + plugin))
+                plugins.push_back(kind + '/' + plugin);
+        }
+        ::closedir(inner);
+    }
+    ::closedir(top);
+    return plugins;
+}
+
+static void registerPlugins(const std::vector<std::string> &plugins, QtcLoad::World *world)
+{
+    for (const std::string &path : plugins) {
+        std::string error;
+        if (QtcLoad::registerPlugin(path.c_str(), world, &error))
+            note("registered the plugin %s", fileName(path).c_str());
+        else
+            note("%s", error.c_str());
+    }
+}
+
 extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv)
 {
     note("main() entered, argc %d, connecting to port %d", argc, ChannelPort);
@@ -357,10 +423,13 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
         }
     }
 
-    if (launch.qtDirectory.empty())
+    if (launch.qtDirectory.empty()) {
         launch.qtDirectory = rememberedQt();
-    else
+        if (!launch.qtDirectory.empty())
+            launch.plugins = rememberedPlugins(launch.qtDirectory);
+    } else {
         rememberQt(launch.qtDirectory);
+    }
 
     QtcLoad::World world;
     if (!launch.qtDirectory.empty()) {
@@ -401,6 +470,9 @@ extern "C" __attribute__((visibility("default"))) int main(int argc, char **argv
         for (const std::string &name : image.missing)
             ::dprintf(fd, "runner:   missing %s\n", name.c_str());
     }
+
+    // Before main(), because that is where the application asks Qt for a platform.
+    registerPlugins(launch.plugins, &world);
 
     typedef int (*Main)(int, char **);
     Main entry = reinterpret_cast<Main>(QtcLoad::lookup(image, "main"));

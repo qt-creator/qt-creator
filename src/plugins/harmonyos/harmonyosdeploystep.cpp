@@ -2488,6 +2488,9 @@ private slots:
         QVERIFY(two.pathAppended("libicudata.so").writeFileContents("x"));
         QCOMPARE(findLibrary("libicudata.so.78", {one, two}),
                  two.pathAppended("libicudata.so"));
+        QVERIFY(two.pathAppended("libicudata.so.78.1").writeFileContents("x"));
+        QCOMPARE(findLibrary("libicudata.so.78", {one, two}),
+                 two.pathAppended("libicudata.so.78.1"));
         QVERIFY(two.pathAppended("libicudata.so.78").writeFileContents("x"));
         QCOMPARE(findLibrary("libicudata.so.78", {one, two}),
                  two.pathAppended("libicudata.so.78"));
@@ -2592,15 +2595,52 @@ private slots:
         expected.append(hidden);
         expected.sort();
         const QtLibraries all = qtLibraries(application, {source});
-        QCOMPARE(Utils::transform(all.files, &FilePath::fileName), expected);
+        QCOMPARE(Utils::transform(all.files, &QtLibrary::name), expected);
         QCOMPARE(all.tag.size(), 16);
         QCOMPARE(qtLibraries(application, {source}).tag, all.tag);
+
+        // A plugin is a root of the same walk, and travels under the directory its kind
+        // lives in, which is what tells the runner it is one.
+        const FilePath plugins = root.pathAppended("plugins/platforms");
+        QVERIFY(plugins.ensureWritableDir());
+        const FilePath plugin = plugins.pathAppended("libqohos.so");
+        QVERIFY(self.copyFile(plugin));
+        const QtLibraries withPlugin = qtLibraries(application, {source}, {plugin});
+        QCOMPARE(Utils::transform(withPlugin.files, &QtLibrary::name),
+                 QStringList(expected) << "platforms/libqohos.so");
+        QVERIFY(withPlugin.tag != all.tag);
+
+        // A library found as the file behind its name still travels under the name.
+        const FilePath behind = source.pathAppended(needed.last() + ".9");
+        QVERIFY(source.pathAppended(needed.last()).renameFile(behind));
+        QCOMPARE(Utils::transform(qtLibraries(application, {source}).files, &QtLibrary::name),
+                 expected);
+        QVERIFY(behind.renameFile(source.pathAppended(needed.last())));
 
         // The tag is about the files, not only about their names.
         QByteArray grown = *contents;
         grown.append("more");
         QVERIFY(source.pathAppended(hidden).writeFileContents(grown));
         QVERIFY(qtLibraries(application, {source}).tag != all.tag);
+    }
+
+    void testQtPlugins()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        const FilePath settings = root.pathAppended("settings.json");
+        QVERIFY(qtPlugins(settings).isEmpty());
+
+        QVERIFY(settings.writeFileContents(QString(R"({ "qtPluginsDirectory": "%1" })")
+                                               .arg(root.path()).toUtf8()));
+        // The directory is only worth anything when the plugin is in it.
+        QVERIFY(qtPlugins(settings).isEmpty());
+
+        const FilePath platform = root.pathAppended("platforms/libqohos.so");
+        QVERIFY(platform.parentDir().ensureWritableDir());
+        QVERIFY(platform.writeFileContents("not an ELF file, but a file"));
+        QCOMPARE(qtPlugins(settings), FilePaths{platform});
     }
 
     void testAddPermissionWithoutList()

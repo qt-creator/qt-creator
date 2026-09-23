@@ -509,6 +509,16 @@ std::string World::locate(const char *name) const
     return {};
 }
 
+void *World::symbol(const char *name) const
+{
+    for (const std::unique_ptr<Image> &image : images) {
+        const auto found = image->exports.find(name);
+        if (found != image->exports.end())
+            return found->second;
+    }
+    return nullptr;
+}
+
 static std::string fileName(const std::string &path)
 {
     const size_t at = path.rfind('/');
@@ -772,6 +782,62 @@ bool installed(const char *name)
             return true;
     }
     return false;
+}
+
+// The two entry points Q_PLUGIN_METADATA generates, and what QtCore takes them as: Qt's
+// QPluginMetaData and QStaticPlugin, written out because nothing here holds a Qt header.
+// They describe an ABI, and a plugin built for another Qt is turned away by the version in
+// its own metadata rather than misread.
+struct PluginMetaData
+{
+    const void *data;
+    size_t size;
+};
+
+struct StaticPlugin
+{
+    void *(*instance)();
+    ptrdiff_t metaDataSize;
+    const void *metaData;
+};
+
+bool registerPlugin(const char *path, World *world, std::string *error)
+{
+    static const char registration[] = "_Z29qRegisterStaticPluginFunction13QStaticPlugin";
+    typedef void (*Register)(StaticPlugin);
+    // The registration has to reach the QtCore the application will use, which is the
+    // privately mapped one wherever there is one.
+    Register add = reinterpret_cast<Register>(world->symbol(registration));
+    if (!add)
+        add = reinterpret_cast<Register>(::dlsym(RTLD_DEFAULT, registration));
+    if (!add) {
+        *error = "this process has no Qt to register a plugin with";
+        return false;
+    }
+
+    const std::string name = fileName(path);
+    Image *image = world->find(name);
+    if (!image) {
+        world->images.push_back(std::make_unique<Image>());
+        image = world->images.back().get();
+        image->name = name;
+        if (!QtcLoad::load(path, image, error, world)) {
+            *error = "cannot map the plugin " + name + ": " + *error;
+            return false;
+        }
+    }
+    void * const instance = lookup(*image, "qt_plugin_instance");
+    void * const metaData = lookup(*image, "qt_plugin_query_metadata_v2");
+    if (!instance || !metaData) {
+        *error = name + " is not a Qt plugin";
+        return false;
+    }
+    typedef PluginMetaData (*MetaData)();
+    const PluginMetaData described = reinterpret_cast<MetaData>(metaData)();
+    const StaticPlugin plugin = {reinterpret_cast<void *(*)()>(instance),
+                                 ptrdiff_t(described.size), described.data};
+    add(plugin);
+    return true;
 }
 
 void *lookup(const Image &image, const char *name)

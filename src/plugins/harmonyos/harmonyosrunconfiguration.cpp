@@ -170,6 +170,12 @@ FilePath findLibrary(const QString &name, const FilePaths &directories)
             return exact;
         if (versioned < 0)
             continue;
+        // The file behind the name, for where the link to it cannot be read, as on the
+        // device's shared storage.
+        const FilePaths full
+            = directory.dirEntries(FileFilter({name + ".*"}, DirFilterFlag::Files));
+        if (!full.isEmpty())
+            return full.first();
         const FilePath unversioned = directory.pathAppended(name.left(versioned + 3));
         if (unversioned.isFile())
             return unversioned;
@@ -177,13 +183,34 @@ FilePath findLibrary(const QString &name, const FilePaths &directories)
     return {};
 }
 
-QtLibraries qtLibraries(const FilePath &library, const FilePaths &directories)
+// The plugin the platform is asked for by name, which on this platform is the only one the
+// device can use: the others in that directory are for displays it does not have.
+FilePaths qtPlugins(const FilePath &deploymentSettings)
+{
+    const Result<QByteArray> contents = deploymentSettings.fileContents();
+    if (!contents)
+        return {};
+    const QString plugins = QJsonDocument::fromJson(*contents)
+                                .object().value("qtPluginsDirectory").toString();
+    if (plugins.isEmpty())
+        return {};
+    const FilePath platform = FilePath::fromUserInput(plugins)
+                                  .pathAppended("platforms/libqohos.so");
+    return platform.isFile() ? FilePaths{platform} : FilePaths();
+}
+
+QtLibraries qtLibraries(const FilePath &library, const FilePaths &directories,
+                        const FilePaths &plugins)
 {
     if (directories.isEmpty())
         return {};
     QSet<QString> met;
     FilePaths pending{library};
-    FilePaths found;
+    pending.append(plugins);
+    QList<QtLibrary> found;
+    for (const FilePath &plugin : plugins) {
+        found.append({plugin.parentDir().fileName() + '/' + plugin.fileName(), plugin});
+    }
     while (!pending.isEmpty()) {
         const FilePath binary = pending.takeFirst();
         for (const QString &name : ElfReader(binary).neededLibraries()) {
@@ -193,20 +220,20 @@ QtLibraries qtLibraries(const FilePath &library, const FilePaths &directories)
             const FilePath file = findLibrary(name, directories);
             if (file.isEmpty())
                 continue;
-            found.append(file);
+            found.append({name, file});
             pending.append(file);
         }
     }
     if (found.isEmpty())
         return {};
-    Utils::sort(found, [](const FilePath &first, const FilePath &second) {
-        return first.fileName() < second.fileName();
+    Utils::sort(found, [](const QtLibrary &first, const QtLibrary &second) {
+        return first.name < second.name;
     });
 
     QCryptographicHash hash(QCryptographicHash::Sha1);
-    for (const FilePath &file : found) {
-        hash.addData(QString("%1 %2 %3").arg(file.fileName()).arg(file.fileSize())
-                         .arg(file.lastModified().toMSecsSinceEpoch()).toUtf8());
+    for (const QtLibrary &entry : found) {
+        hash.addData(QString("%1 %2 %3").arg(entry.name).arg(entry.file.fileSize())
+                         .arg(entry.file.lastModified().toMSecsSinceEpoch()).toUtf8());
     }
     return {QString::fromLatin1(hash.result().toHex().left(16)), found};
 }
@@ -249,9 +276,9 @@ private:
         announce(m_socket, qtAnnouncement);
         announceText(m_socket, m_qt.tag.toUtf8());
         announce(m_socket, quint32(m_qt.files.size()));
-        for (const FilePath &file : m_qt.files) {
-            announceText(m_socket, file.fileName().toUtf8());
-            announce(m_socket, quint32(file.fileSize()));
+        for (const QtLibrary &entry : m_qt.files) {
+            announceText(m_socket, entry.name.toUtf8());
+            announce(m_socket, quint32(entry.file.fileSize()));
         }
         m_expected = m_qt.files.size();
     }
@@ -263,7 +290,7 @@ private:
         for (qsizetype index = 0; index < m_qt.files.size(); ++index) {
             if (m_answer.at(index) != 'S')
                 continue;
-            const FilePath &file = m_qt.files.at(index);
+            const FilePath &file = m_qt.files.at(index).file;
             const Result<QByteArray> contents = file.fileContents();
             if (!contents) {
                 m_runControl->postMessage(contents.error(), ErrorMessageFormat);
@@ -502,12 +529,13 @@ public:
             if (!library.isEmpty()) {
                 const QStringList launchArguments
                     = harmonyOsExtras(bc->buildDirectory(), bc->activeBuildKey()).launchArguments;
+                const FilePath settings
+                    = deploymentSettings(bc->buildDirectory(), bc->activeBuildKey());
                 return handoverRecipe(runControl, library,
                                       launchArguments
                                           + runControl->commandLine().splitArguments(),
-                                      qtLibraries(library, libraryDirectories(
-                                          deploymentSettings(bc->buildDirectory(),
-                                                             bc->activeBuildKey()))));
+                                      qtLibraries(library, libraryDirectories(settings),
+                                                  qtPlugins(settings)));
             }
             return runControl->processRecipe(runControl->processTask());
         });
@@ -578,9 +606,10 @@ public:
                            "Build and deploy the package first."));
             }
 
+            const FilePath settings
+                = deploymentSettings(bc->buildDirectory(), bc->activeBuildKey());
             const QtLibraries qt = viaChannel
-                ? qtLibraries(library, libraryDirectories(
-                      deploymentSettings(bc->buildDirectory(), bc->activeBuildKey())))
+                ? qtLibraries(library, libraryDirectories(settings), qtPlugins(settings))
                 : QtLibraries();
 
             const Storage<std::unique_ptr<QTcpServer>> channelStorage;
