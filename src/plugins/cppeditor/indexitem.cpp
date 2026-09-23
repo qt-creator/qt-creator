@@ -9,8 +9,8 @@ namespace CppEditor {
 
 IndexItem::Ptr IndexItem::create(const QString &symbolName, const QString &symbolType,
                                  const QString &symbolScope, IndexItem::ItemType type,
-                                 const QString &fileName, int line, int column, const QIcon &icon,
-                                 bool isFunctionDefinition)
+                                 const QString &fileName, int line, int column,
+                                 Utils::CodeModelIcon::Type iconType, bool isFunctionDefinition)
 {
     Ptr ptr(new IndexItem);
 
@@ -21,7 +21,7 @@ IndexItem::Ptr IndexItem::create(const QString &symbolName, const QString &symbo
     ptr->m_filePath = FilePath::fromString(fileName);
     ptr->m_line = line;
     ptr->m_column = column;
-    ptr->m_icon = icon;
+    ptr->m_iconType = iconType;
     ptr->m_isFuncDef = isFunctionDefinition;
 
     return ptr;

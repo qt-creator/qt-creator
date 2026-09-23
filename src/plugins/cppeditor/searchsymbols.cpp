@@ -277,7 +277,7 @@ IndexItem::Ptr SearchSymbols::addChildItem(const QString &symbolName, const QStr
         m_paths.insert(symbol->fileId(), path);
     }
 
-    const QIcon icon = CPlusPlus::Icons::iconForSymbol(symbol);
+    const Utils::CodeModelIcon::Type iconType = CPlusPlus::Icons::iconTypeForSymbol(symbol);
 
     IndexItem::Ptr newItem = IndexItem::create(StringTable::insert(symbolName),
                                                StringTable::insert(symbolType),
@@ -286,7 +286,7 @@ IndexItem::Ptr SearchSymbols::addChildItem(const QString &symbolName, const QStr
                                                StringTable::insert(path),
                                                symbol->line(),
                                                symbol->column() - 1, // 1-based vs 0-based column
-                                               icon,
+                                               iconType,
                                                symbol->asFunction());
     _parent->addChild(newItem);
     return newItem;

@@ -6,6 +6,7 @@
 #include "cppeditor_global.h"
 
 #include <utils/filepath.h>
+#include <utils/utilsicons.h>
 
 #include <QIcon>
 #include <QSharedPointer>
@@ -40,7 +41,7 @@ public:
                       const QString &fileName,
                       int line,
                       int column,
-                      const QIcon &icon,
+                      Utils::CodeModelIcon::Type iconType,
                       bool isFunctionDefinition);
     static Ptr create(const QString &fileName, int sizeHint);
 
@@ -61,7 +62,11 @@ public:
     QString symbolType() const { return m_symbolType; }
     QString symbolScope() const { return m_symbolScope; }
     const Utils::FilePath &filePath() const { return m_filePath; }
-    QIcon icon() const { return m_icon; }
+    // Which icon this wants, and the icon itself. The kind is what an
+    // entry knows -- a rendered icon is presentation, and it cannot be
+    // written to disk and read back the way the kind can.
+    Utils::CodeModelIcon::Type iconType() const { return m_iconType; }
+    QIcon icon() const { return Utils::CodeModelIcon::iconForType(m_iconType); }
     ItemType type() const { return m_type; }
     int line() const { return m_line; }
     int column() const { return m_column; }
@@ -104,7 +109,7 @@ private:
     QString m_symbolType;
     QString m_symbolScope;
     Utils::FilePath m_filePath;
-    QIcon m_icon;
+    Utils::CodeModelIcon::Type m_iconType = Utils::CodeModelIcon::Unknown;
     ItemType m_type = All;
     int m_line = 0;
     int m_column = 0;
