@@ -49,10 +49,18 @@ static void note(const char *format, ...)
     ::vsnprintf(text, sizeof(text) - 1, format, arguments);
     va_end(arguments);
 
+    // Not through RTLD_DEFAULT: the library that writes to hilog is loaded, but a runner
+    // that resolves against what the package linked does not reach it, which left this
+    // very function silent on the device. A domain above 0xffff drops the line although
+    // the call reports success, and anything not marked public is logged as "<private>".
     typedef int (*LogPrint)(int, int, unsigned int, const char *, const char *, ...);
-    static LogPrint print = reinterpret_cast<LogPrint>(::dlsym(RTLD_DEFAULT, "OH_LOG_Print"));
+    static LogPrint print = []() -> LogPrint {
+        void * const library = ::dlopen("libhilog_ndk.z.so", RTLD_NOW);
+        return reinterpret_cast<LogPrint>(
+            ::dlsym(library ? library : RTLD_DEFAULT, "OH_LOG_Print"));
+    }();
     if (print)
-        print(0 /*LOG_APP*/, 5 /*LOG_WARN*/, 0xA00000, "qtcrunner", "%s", text);
+        print(0 /*LOG_APP*/, 5 /*LOG_WARN*/, 0, "qtcrunner", "%{public}s", text);
     ::printf("qtcrunner: %s\n", text);
 }
 
