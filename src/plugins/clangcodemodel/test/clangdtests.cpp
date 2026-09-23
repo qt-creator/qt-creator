@@ -1276,8 +1276,11 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_KEYWORD} << 0;
     QTest::newRow("Q_PROPERTY (type)") << 600 << 22 << 600 << 29
         << QList<int>{C_TYPE} << 0;
-    QTest::newRow("Q_PROPERTY (REVISION keyword [new])") << 600 << 46 << 600 << 54
-        << QList<int>{C_KEYWORD} << 0;
+    QTest::newRow("Q_PROPERTY (MEMBER keyword)")
+        << 600 << 34 << 600 << 40 << QList<int>{C_KEYWORD} << 0;
+    QTest::newRow("Q_PROPERTY (member)") << 600 << 41 << 600 << 46 << QList<int>{C_FIELD} << 0;
+    QTest::newRow("Q_PROPERTY (REVISION keyword [new])")
+        << 600 << 59 << 600 << 67 << QList<int>{C_KEYWORD} << 0;
     QTest::newRow("multi-line Q_PROPERTY (macro name)") << 704 << 5 << 704 << 15
         << QList<int>{C_MACRO} << 0;
     QTest::newRow("multi-line Q_PROPERTY (property name)") << 718 << 13 << 718 << 17
@@ -1595,12 +1598,12 @@ void ClangdTestHighlighting::test()
 void ClangdTestHighlighting::testIfdefedOutBlocks()
 {
     QCOMPARE(m_ifdefedOutBlocks->size(), 3);
-    QCOMPARE(m_ifdefedOutBlocks->at(0).first(), 12056);
-    QCOMPARE(m_ifdefedOutBlocks->at(0).last(), 12073);
-    QCOMPARE(m_ifdefedOutBlocks->at(1).first(), 13374);
-    QCOMPARE(m_ifdefedOutBlocks->at(1).last(), 13387);
-    QCOMPARE(m_ifdefedOutBlocks->at(2).first(), 13413);
-    QCOMPARE(m_ifdefedOutBlocks->at(2).last(), 13425);
+    QCOMPARE(m_ifdefedOutBlocks->at(0).first(), 12070);
+    QCOMPARE(m_ifdefedOutBlocks->at(0).last(), 12087);
+    QCOMPARE(m_ifdefedOutBlocks->at(1).first(), 13388);
+    QCOMPARE(m_ifdefedOutBlocks->at(1).last(), 13401);
+    QCOMPARE(m_ifdefedOutBlocks->at(2).first(), 13427);
+    QCOMPARE(m_ifdefedOutBlocks->at(2).last(), 13439);
 }
 
 

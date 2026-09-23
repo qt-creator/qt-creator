@@ -205,7 +205,7 @@ void QPropertyHighlighter::Private::highlightAttributes()
         } else {
             addResult(C_KEYWORD);
             parser.next(IDENTIFIER);
-            addResult(C_FUNCTION);
+            addResult(l[0] == 'M' ? C_FIELD : C_FUNCTION);
             v = parser.lexem();
             if (parser.test(LPAREN))
                 v2 = lexemUntil(RPAREN);
