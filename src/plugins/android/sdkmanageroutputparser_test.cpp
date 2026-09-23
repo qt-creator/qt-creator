@@ -836,7 +836,7 @@ To learn more about the Android CLI and how to use it, see the documentation (ht
 Warning: Flag --verbose is no longer supported. Ignoring.
 Installed packages:
   cmdline-tools/latest                                                                    23.0.0                 Android SDK Command-line Tools (latest)
-  emulator                                                                                37.1.11                Android Emulator
+  emulator                                                                         canary 37.3.1           ->        37.1.11  Android Emulator
   extras/google/usb_driver                                                                13.0.0                 Google USB Driver
   ndk/29.0.14206865                                                                       29.0.14206865          NDK (Side by side) 29.0.14206865
   platform-tools                                                                          37.0.1                 Android SDK Platform-Tools
@@ -913,6 +913,7 @@ Available packages:
         AndroidSdkPackage::PackageType::GenericSdkPackage,
         AndroidSdkPackage::PackageType::SdkToolsPackage,
         AndroidSdkPackage::PackageType::SdkToolsPackage,
+        AndroidSdkPackage::PackageType::EmulatorToolsPackage,
         AndroidSdkPackage::PackageType::ExtraToolsPackage,
         AndroidSdkPackage::PackageType::ExtraToolsPackage,
         AndroidSdkPackage::PackageType::ExtraToolsPackage,
@@ -949,6 +950,8 @@ Available packages:
     }
     QCOMPARE(packages.at(3)->installedLocation(),
              sdkLocation.pathAppended("ndk/29.0.14206865"));
+    QCOMPARE(packages.at(1)->sdkStylePath(), "emulator");
+    QCOMPARE(packages.at(1)->revision(), QVersionNumber(37, 3, 1));
     qDeleteAll(packages);
 }
 

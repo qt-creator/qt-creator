@@ -61,7 +61,8 @@ static QString androidCliToSdkManagerListing(const QString &output,
                                              const Utils::FilePath &sdkLocation)
 {
     static const QRegularExpression packageRow(
-        R"(^(?<path>\S+)[ \t]{2,}(?<revision>\S+)(?:[ \t]\(\+\d+\))?[ \t]{2,}(?<description>.+)$)");
+        R"(^(?<path>\S+)[ \t]{2,}(?:[a-z]+[ \t]+)?(?<revision>\d\S*))"
+        R"((?:[ \t]\(\+\d+\))?(?:[ \t]+->[ \t]+\S+)?[ \t]{2,}(?<description>.+)$)");
 
     const auto sectionMarker = [](SdkManagerOutputParser::MarkerTag tag) {
         return QString::fromLatin1(markerTags->at(tag));
@@ -98,9 +99,10 @@ static QString androidCliToSdkManagerListing(const QString &output,
         }
         if (section == NoSection || trimmed.isEmpty())
             continue;
-        // Columns are path, revision and description. The revision may be followed by the
-        // number of further hidden revisions, as in "22.1.7171670 (+13)", and the
-        // description may contain wide whitespace.
+        // Columns are path, revision and description. The revision may be preceded by a
+        // release channel, as in "canary 37.3.1", and followed by the number of further
+        // hidden revisions, as in "22.1.7171670 (+13)", or by the version an update would
+        // install, as in "37.3.1 -> 37.1.11". The description may contain wide whitespace.
         const QRegularExpressionMatch row = packageRow.match(trimmed);
         if (!row.hasMatch())
             continue;
