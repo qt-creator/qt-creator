@@ -135,6 +135,13 @@ void QmllsClient::deactivateDocument(TextEditor::TextDocument *document)
         qmljseditor->setSourcesWithCapabilities(LanguageServerProtocol::ServerCapabilities{});
 }
 
+bool QmllsClient::isSupportedDocument(const TextEditor::TextDocument *document) const
+{
+    if (!Client::isSupportedDocument(document))
+        return false;
+    return fileBelongsToProject(document->filePath());
+}
+
 QmllsClient::QmllsClient(StdIOClientInterface *interface)
     : Client(interface)
 {
