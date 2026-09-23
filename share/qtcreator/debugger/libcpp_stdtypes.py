@@ -25,7 +25,10 @@
 #      so dumping pmr containers still may still have some breakages for libcxx.
 #      Also see QTCREATORBUG-32455.
 
-from stdtypes import qdump__std__array, qdump__std__complex, qdump__std__once_flag, qdump__std__unique_ptr, qdumpHelper__std__deque__libcxx, qdumpHelper__std__vector__libcxx, qdump__std__forward_list
+from stdtypes import qdump__std__array, qdump__std__complex, qdump__std__once_flag, qdump__std__unique_ptr, qdumpHelper__std__deque__libcxx, qdumpHelper__std__vector__libcxx, qdump__std__forward_list, \
+    qform__std__span, qdump__std__span, qdump__std__reference_wrapper, \
+    qdump__std__chrono__duration, qdump__std__chrono__time_point, qdump__std__bitset, \
+    qdump__std__filesystem__path
 from utils import DisplayFormat
 from dumper import Children, DumperBase
 
@@ -503,3 +506,39 @@ def qdump__std____1__tuple(d, value):
             for internal_value in values:
                 d.putSubItem("[%i]" % count, internal_value)
                 count += 1
+
+
+def qdump__std____1__queue(d, value):
+    qdump__std____1__stack(d, value)
+
+
+def qdump__std____1__priority_queue(d, value):
+    qdump__std____1__stack(d, value)
+
+
+def qform__std____1__span():
+    return qform__std__span()
+
+
+def qdump__std____1__span(d, value):
+    qdump__std__span(d, value)
+
+
+def qdump__std____1__reference_wrapper(d, value):
+    qdump__std__reference_wrapper(d, value)
+
+
+def qdump__std____1__chrono__duration(d, value):
+    qdump__std__chrono__duration(d, value)
+
+
+def qdump__std____1__chrono__time_point(d, value):
+    qdump__std__chrono__time_point(d, value)
+
+
+def qdump__std____1__bitset(d, value):
+    qdump__std__bitset(d, value)
+
+
+def qdump__std____1____fs__filesystem__path(d, value):
+    qdump__std__filesystem__path(d, value)

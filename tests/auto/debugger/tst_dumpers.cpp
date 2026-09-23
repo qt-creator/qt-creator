@@ -5553,6 +5553,137 @@ void tst_Dumpers::dumper_data()
                + Check("s3.1", "[1]", "2", "int");
 
 
+    QTest::newRow("StdQueue")
+            << Data("#include <queue>\n",
+
+                    "std::queue<int> q0, q1;\n"
+                    "q1.push(1);\n"
+                    "q1.push(2);\n"
+                    "std::priority_queue<int> pq;\n"
+                    "pq.push(1);\n"
+                    "pq.push(3);\n"
+                    "pq.push(2);",
+
+                    "&q0, &q1, &pq")
+
+               + Check("q0", "<0 items>", TypePattern("std::queue<int.*>"))
+               + Check("q1", "<2 items>", TypePattern("std::queue<int.*>"))
+               + Check("q1.0", "[0]", "1", "int")
+               + Check("q1.1", "[1]", "2", "int")
+               + Check("pq", "<3 items>", TypePattern("std::priority_queue<int.*>"))
+               + Check("pq.0", "[0]", "3", "int");
+
+
+    QTest::newRow("StdSpan")
+            << Data("#include <span>\n",
+
+                    "int arr[3] = {1, 2, 3};\n"
+                    "std::span<int> s1(arr);\n"
+                    "std::span<int, 3> s2(arr);\n"
+                    "std::span<int> s3;",
+
+                    "&arr, &s1, &s2, &s3")
+
+               + Profile("CONFIG += c++latest\n")
+
+               + Check("s1", "<3 items>", TypePattern("std::span<int,.*>"))
+               + Check("s1.0", "[0]", "1", "int")
+               + Check("s1.2", "[2]", "3", "int")
+               + Check("s2", "<3 items>", TypePattern("std::span<int,3>"))
+               + Check("s2.1", "[1]", "2", "int")
+               + Check("s3", "<0 items>", TypePattern("std::span<int,.*>"));
+
+
+    QTest::newRow("StdReferenceWrapper")
+            << Data("#include <functional>\n",
+
+                    "int i = 5;\n"
+                    "std::reference_wrapper<int> r(i);",
+
+                    "&i, &r")
+
+               + Check("r", "5", "std::reference_wrapper<int>");
+
+
+    QTest::newRow("StdChrono")
+            << Data("#include <chrono>\n",
+
+                    "std::chrono::milliseconds ms(1500);\n"
+                    "std::chrono::duration<double> ds(2.5);\n"
+                    "std::chrono::minutes min(3);\n"
+                    "std::chrono::duration<int, std::ratio<1, 7>> odd(4);\n"
+                    "std::chrono::system_clock::time_point tp{std::chrono::hours(25)};\n"
+                    "std::chrono::system_clock::time_point tp2{std::chrono::milliseconds(1500)};\n"
+                    "std::chrono::steady_clock::time_point stp{std::chrono::seconds(2)};",
+
+                    "&ms, &ds, &min, &odd, &tp, &tp2, &stp")
+
+               + Cxx17Profile()
+
+               + Check("ms", "1500ms", TypePattern(".*"))
+               + Check("ds", "2.5s", TypePattern(".*"))
+               + Check("min", "3min", TypePattern(".*"))
+               + Check("odd", "4[1/7]s", TypePattern(".*"))
+               + Check("tp", "1970-01-02 01:00:00 UTC", TypePattern(".*"))
+               + Check("tp2", "1970-01-01 00:00:01.5 UTC", TypePattern(".*"))
+               + Check("stp", ValuePattern("2.*"), TypePattern(".*"));
+
+
+    QTest::newRow("StdBitset")
+            << Data("#include <bitset>\n",
+
+                    "std::bitset<5> b1(0x16);\n"
+                    "std::bitset<70> b2;\n"
+                    "b2.set(0);\n"
+                    "b2.set(69);",
+
+                    "&b1, &b2")
+
+               + Check("b1", "\"10110\"", "std::bitset<5>")
+               + Check("b1.0", "[0]", "false", "bool")
+               + Check("b1.1", "[1]", "true", "bool")
+               + Check("b1.4", "[4]", "true", "bool")
+               + Check("b2", ValuePattern("\"10*1\""), "std::bitset<70>")
+               + Check("b2.69", "[69]", "true", "bool");
+
+
+    QTest::newRow("StdFilesystemPath")
+            << Data("#include <filesystem>\n",
+
+                    "std::filesystem::path p(\"/foo/bar.txt\");",
+
+                    "&p")
+
+               + Cxx17Profile()
+
+               + Check("p", "\"/foo/bar.txt\"", TypePattern("std::.*filesystem::.*path"));
+
+
+    QTest::newRow("StdExpected")
+            << Data("#include <expected>\n"
+                    "#include <string>\n",
+
+                    "std::expected<int, std::string> e0(std::unexpected(std::string(\"first\")));\n"
+                    "std::expected<int, std::string> e1(42);\n"
+                    "std::expected<int, std::string> e2(std::unexpected(std::string(\"bad\")));\n"
+                    "std::expected<void, int> e3;\n"
+                    "std::expected<void, int> e4(std::unexpected(5));\n"
+                    "int z1 = 1, z2 = 2, z3 = 3, z4 = 4, z5 = 5, z6 = 6, z7 = 7, z8 = 8;",
+
+                    "&e0, &e1, &e2, &e3, &e4, &z1, &z2, &z3, &z4, &z5, &z6, &z7, &z8")
+
+               + Profile("CONFIG += c++latest\n")
+
+               + Check("e0", "<unexpected>", TypePattern("std::expected<int,.*>")) % NoLldbEngine
+               + Check("e0.error", "\"first\"", TypePattern("std::.*string.*")) % NoLldbEngine
+               + Check("e1", "42", TypePattern("std::expected<int,.*>")) % NoLldbEngine
+               + Check("e2", "<unexpected>", TypePattern("std::expected<int,.*>")) % NoLldbEngine
+               + Check("e2.error", "\"bad\"", TypePattern("std::.*string.*")) % NoLldbEngine
+               + Check("e3", "", TypePattern("std::expected<void,int>")) % NoLldbEngine
+               + Check("e4", "<unexpected>", TypePattern("std::expected<void,int>")) % NoLldbEngine
+               + Check("e4.error", "5", "int") % NoLldbEngine;
+
+
     QTest::newRow("StdStackQt")
             << Data("#include <stack>\n" + fooData,
 
