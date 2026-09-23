@@ -16,6 +16,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <utils/algorithm.h>
+#include <utils/elfreader.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
@@ -23,6 +25,7 @@
 #include <QtTaskTree/QBarrier>
 #include <QtTaskTree/qtasktree.h>
 
+#include <QCryptographicHash>
 #include <QDesktopServices>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -83,6 +86,22 @@ FilePath generatedProjectDir(const FilePath &buildDir, const QString &buildKey)
     return buildDir.pathAppended("harmonyos-build");
 }
 
+FilePaths libraryDirectories(const FilePath &deploymentSettings)
+{
+    const Result<QByteArray> contents = deploymentSettings.fileContents();
+    if (!contents)
+        return {};
+    const QJsonObject object = QJsonDocument::fromJson(*contents).object();
+
+    FilePaths directories;
+    const QString qtLibs = object.value("qtLibsDirectory").toString();
+    if (!qtLibs.isEmpty())
+        directories.append(FilePath::fromUserInput(qtLibs));
+    for (const QJsonValue &value : object.value("extra-libs-dirs").toArray())
+        directories.append(FilePath::fromUserInput(value.toString()));
+    return directories;
+}
+
 // The library the build produced, which is what a run hands to the runner.
 FilePath applicationLibrary(const FilePath &buildDir, const QString &buildKey)
 {
@@ -124,8 +143,9 @@ HarmonyOsExtras harmonyOsExtras(const FilePath &buildDir, const QString &buildKe
     return extras;
 }
 
-// A length no application can have, so what follows it is not one.
+// Lengths no application can have, so what follows one of them is not one.
 constexpr quint32 argumentsAnnouncement = 0xffffffff;
+constexpr quint32 qtAnnouncement = 0xfffffffe;
 
 static void announce(QTcpSocket *socket, quint32 size)
 {
@@ -134,43 +154,191 @@ static void announce(QTcpSocket *socket, quint32 size)
     socket->write(header, sizeof(header));
 }
 
-// The runner asks what to run by connecting, and gets a length and that many bytes. Read
-// when it asks rather than when the run starts, so a rebuild between runs needs no new
-// package. It holds the channel open for as long as the application runs and reports over
-// it what it did, which belongs in the application's own output.
-//
-// Arguments go ahead of the application, announced by a length no application can have, and
-// only where the launch cannot carry them: an empty list there is an answer too, and takes
-// the launch URI the platform passes out of the application's way.
-static void serveRunner(QTcpSocket *socket, const FilePath &library,
-                        const std::optional<QStringList> &arguments, RunControl *runControl)
+static void announceText(QTcpSocket *socket, const QByteArray &text)
 {
-    QObject::connect(socket, &QTcpSocket::readyRead, socket, [socket, runControl] {
-        const QString text = QString::fromUtf8(socket->readAll());
-        for (const QString &line : text.split('\n', Qt::SkipEmptyParts))
-            runControl->postMessage(line, StdOutFormat);
+    announce(socket, quint32(text.size()));
+    socket->write(text);
+}
+
+FilePath findLibrary(const QString &name, const FilePaths &directories)
+{
+    const qsizetype versioned = name.indexOf(".so.");
+    for (const FilePath &directory : directories) {
+        const FilePath exact = directory.pathAppended(name);
+        if (exact.isFile())
+            return exact;
+        if (versioned < 0)
+            continue;
+        const FilePath unversioned = directory.pathAppended(name.left(versioned + 3));
+        if (unversioned.isFile())
+            return unversioned;
+    }
+    return {};
+}
+
+QtLibraries qtLibraries(const FilePath &library, const FilePaths &directories)
+{
+    if (directories.isEmpty())
+        return {};
+    QSet<QString> met;
+    FilePaths pending{library};
+    FilePaths found;
+    while (!pending.isEmpty()) {
+        const FilePath binary = pending.takeFirst();
+        for (const QString &name : ElfReader(binary).neededLibraries()) {
+            if (met.contains(name))
+                continue;
+            met.insert(name);
+            const FilePath file = findLibrary(name, directories);
+            if (file.isEmpty())
+                continue;
+            found.append(file);
+            pending.append(file);
+        }
+    }
+    if (found.isEmpty())
+        return {};
+    Utils::sort(found, [](const FilePath &first, const FilePath &second) {
+        return first.fileName() < second.fileName();
     });
 
-    const Result<QByteArray> contents = library.fileContents();
-    if (!contents) {
-        runControl->postMessage(contents.error(), ErrorMessageFormat);
-        socket->disconnectFromHost();
-        return;
+    QCryptographicHash hash(QCryptographicHash::Sha1);
+    for (const FilePath &file : found) {
+        hash.addData(QString("%1 %2 %3").arg(file.fileName()).arg(file.fileSize())
+                         .arg(file.lastModified().toMSecsSinceEpoch()).toUtf8());
     }
-    if (arguments) {
-        QByteArray payload;
-        for (const QString &argument : *arguments)
-            payload += argument.toUtf8() + '\0';
-        announce(socket, argumentsAnnouncement);
-        announce(socket, quint32(payload.size()));
-        socket->write(payload);
-    }
-    const quint32 size = quint32(contents->size());
-    announce(socket, size);
-    socket->write(*contents);
-    runControl->postMessage(Tr::tr("Handed %1 to the runner (%2 bytes).")
-                                .arg(library.fileName()).arg(size), NormalMessageFormat);
+    return {QString::fromLatin1(hash.result().toHex().left(16)), found};
 }
+
+// One channel, from the runner's connection to the end of the application it runs. The
+// runner is read when it asks rather than when the run starts, so a rebuild between runs
+// needs no new package, and it holds the channel open for as long as the application runs
+// and reports over it what it did, which belongs in the application's own output.
+//
+// The libraries go first, because only the runner knows which of them it needs: it is
+// offered the whole set by name and size and answers, one letter per library, what it can
+// neither get from the platform nor find where an earlier run of the same set left it.
+//
+// Arguments go next, ahead of the application and only where the launch cannot carry them:
+// an empty list there is an answer too, and takes the launch URI the platform passes out of
+// the application's way.
+class Handover final : public QObject
+{
+public:
+    Handover(QTcpSocket *socket, const FilePath &library,
+             const std::optional<QStringList> &arguments, const QtLibraries &qt,
+             RunControl *runControl)
+        : QObject(socket)
+        , m_socket(socket)
+        , m_library(library)
+        , m_arguments(arguments)
+        , m_qt(qt)
+        , m_runControl(runControl)
+    {
+        connect(socket, &QTcpSocket::readyRead, this, &Handover::read);
+        if (m_qt.files.isEmpty())
+            serveApplication();
+        else
+            offerLibraries();
+    }
+
+private:
+    void offerLibraries()
+    {
+        announce(m_socket, qtAnnouncement);
+        announceText(m_socket, m_qt.tag.toUtf8());
+        announce(m_socket, quint32(m_qt.files.size()));
+        for (const FilePath &file : m_qt.files) {
+            announceText(m_socket, file.fileName().toUtf8());
+            announce(m_socket, quint32(file.fileSize()));
+        }
+        m_expected = m_qt.files.size();
+    }
+
+    bool serveLibraries()
+    {
+        qint64 sent = 0;
+        int count = 0;
+        for (qsizetype index = 0; index < m_qt.files.size(); ++index) {
+            if (m_answer.at(index) != 'S')
+                continue;
+            const FilePath &file = m_qt.files.at(index);
+            const Result<QByteArray> contents = file.fileContents();
+            if (!contents) {
+                m_runControl->postMessage(contents.error(), ErrorMessageFormat);
+                m_socket->disconnectFromHost();
+                return false;
+            }
+            if (contents->size() != file.fileSize()) {
+                m_runControl->postMessage(
+                    Tr::tr("\"%1\" changed while it was being handed over.")
+                        .arg(file.toUserOutput()), ErrorMessageFormat);
+                m_socket->disconnectFromHost();
+                return false;
+            }
+            m_socket->write(*contents);
+            sent += contents->size();
+            ++count;
+        }
+        if (count == 0) {
+            m_runControl->postMessage(Tr::tr("The runner has the %1 libraries it needs.")
+                                          .arg(m_qt.files.size()), NormalMessageFormat);
+            return true;
+        }
+        m_runControl->postMessage(Tr::tr("Handed %1 of %2 libraries to the runner (%3 MB). "
+                                         "It keeps them for the next run.")
+                                      .arg(count).arg(m_qt.files.size())
+                                      .arg(sent / (1024 * 1024)), NormalMessageFormat);
+        return true;
+    }
+
+    void serveApplication()
+    {
+        const Result<QByteArray> contents = m_library.fileContents();
+        if (!contents) {
+            m_runControl->postMessage(contents.error(), ErrorMessageFormat);
+            m_socket->disconnectFromHost();
+            return;
+        }
+        if (m_arguments) {
+            QByteArray payload;
+            for (const QString &argument : *m_arguments)
+                payload += argument.toUtf8() + '\0';
+            announce(m_socket, argumentsAnnouncement);
+            announceText(m_socket, payload);
+        }
+        const quint32 size = quint32(contents->size());
+        announce(m_socket, size);
+        m_socket->write(*contents);
+        m_runControl->postMessage(Tr::tr("Handed %1 to the runner (%2 bytes).")
+                                      .arg(m_library.fileName()).arg(size),
+                                  NormalMessageFormat);
+    }
+
+    void read()
+    {
+        if (m_expected > 0) {
+            m_answer += m_socket->read(m_expected - m_answer.size());
+            if (m_answer.size() < m_expected)
+                return;
+            m_expected = 0;
+            if (!serveLibraries())
+                return;
+            serveApplication();
+        }
+        const QString text = QString::fromUtf8(m_socket->readAll());
+        for (const QString &line : text.split('\n', Qt::SkipEmptyParts))
+            m_runControl->postMessage(line, StdOutFormat);
+    }
+
+    QTcpSocket * const m_socket;
+    const FilePath m_library;
+    const std::optional<QStringList> m_arguments;
+    const QtLibraries m_qt;
+    RunControl * const m_runControl;
+    qsizetype m_expected = 0;
+    QByteArray m_answer;
+};
 
 class HarmonyOsRunConfiguration final : public RunConfiguration
 {
@@ -232,13 +400,13 @@ constexpr bool runsOnTheDevice = false;
 // else of the host route is available - hdc is on the other side of it, and from an
 // application sandbox the "aa" command can neither start the runner nor stop it again.
 static Group handoverRecipe(RunControl *runControl, const FilePath &library,
-                            const QStringList &arguments)
+                            const QStringList &arguments, const QtLibraries &qt)
 {
     const Storage<std::unique_ptr<QTcpServer>> channelStorage;
     const QStoredBarrier answeredBarrier;
     const QStoredBarrier finishedBarrier;
 
-    const auto openChannel = [runControl, library, arguments, channelStorage, answeredBarrier,
+    const auto openChannel = [runControl, library, arguments, qt, channelStorage, answeredBarrier,
                               finishedBarrier] {
         QBarrier * const answered = answeredBarrier.activeStorage();
         QBarrier * const finished = finishedBarrier.activeStorage();
@@ -251,7 +419,7 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
         server->setMaxPendingConnections(1);
         QTcpServer * const channel = server.get();
         QObject::connect(channel, &QTcpServer::newConnection, channel,
-                         [channel, runControl, library, arguments, answered, finished] {
+                         [channel, runControl, library, arguments, qt, answered, finished] {
             QTcpSocket * const socket = channel->nextPendingConnection();
             QTC_ASSERT(socket, return);
             QObject::connect(socket, &QTcpSocket::disconnected, socket,
@@ -265,7 +433,7 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
                 QMetaObject::invokeMethod(channel, [finished] { finished->advance(); },
                                           Qt::QueuedConnection);
             });
-            serveRunner(socket, library, arguments, runControl);
+            new Handover(socket, library, arguments, qt, runControl);
             answered->advance();
         });
         *channelStorage = std::move(server);
@@ -335,7 +503,10 @@ public:
                     = harmonyOsExtras(bc->buildDirectory(), bc->activeBuildKey()).launchArguments;
                 return handoverRecipe(runControl, library,
                                       launchArguments
-                                          + runControl->commandLine().splitArguments());
+                                          + runControl->commandLine().splitArguments(),
+                                      qtLibraries(library, libraryDirectories(
+                                          deploymentSettings(bc->buildDirectory(),
+                                                             bc->activeBuildKey()))));
             }
             return runControl->processRecipe(runControl->processTask());
         });
@@ -406,8 +577,13 @@ public:
                            "Build and deploy the package first."));
             }
 
+            const QtLibraries qt = viaChannel
+                ? qtLibraries(library, libraryDirectories(
+                      deploymentSettings(bc->buildDirectory(), bc->activeBuildKey())))
+                : QtLibraries();
+
             const Storage<std::unique_ptr<QTcpServer>> channelStorage;
-            const auto openChannel = [channelStorage, runControl, library] {
+            const auto openChannel = [channelStorage, runControl, library, qt] {
                 auto server = std::make_unique<QTcpServer>();
                 if (!server->listen(QHostAddress::LocalHost)) {
                     runControl->postMessage(
@@ -417,11 +593,11 @@ public:
                 }
                 QTcpServer * const channel = server.get();
                 QObject::connect(channel, &QTcpServer::newConnection, channel,
-                                 [channel, runControl, library] {
+                                 [channel, runControl, library, qt] {
                     while (QTcpSocket * const socket = channel->nextPendingConnection()) {
                         QObject::connect(socket, &QTcpSocket::disconnected,
                                          socket, &QTcpSocket::deleteLater);
-                        serveRunner(socket, library, std::nullopt, runControl);
+                        new Handover(socket, library, std::nullopt, qt, runControl);
                     }
                 });
                 *channelStorage = std::move(server);

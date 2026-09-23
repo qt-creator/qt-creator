@@ -9,10 +9,12 @@
 // are copied into anonymous memory, relocations are applied by hand, and only the text
 // pages are handed to that guarded mprotect.
 //
-// Dependencies are not loaded here. Everything the object needs from outside is resolved
-// with dlsym() against what the process has already loaded, which is the point: in an IDE
-// the runner already holds Qt, so only the one library the user just built goes through
-// this path.
+// Dependencies take whichever of two routes they are allowed to. One the platform is
+// willing to load, a Qt that came installed with a package among them, is dlopened and
+// asked for symbols with dlsym(). One that the application wrote itself, a Qt that arrived
+// over the channel, is refused there as much as the application is, so it goes through this
+// loader too: naming its directory in the World below maps it here, and the mapped set
+// resolves against itself.
 
 #include "qtcload.h"
 
@@ -75,7 +77,9 @@ static size_t pageUp(size_t value) { return (value + PageSize - 1) & ~(PageSize 
 class Loader
 {
 public:
-    Loader(Image *image, std::string *error) : m_image(image), m_error(error) {}
+    Loader(Image *image, std::string *error, World *world)
+        : m_image(image), m_error(error), m_world(world)
+    {}
 
     bool load(const char *path);
 
@@ -84,6 +88,7 @@ private:
     bool readFile(const char *path);
     bool mapSegments();
     bool readDynamic();
+    void buildExports();
     void readStaticSymbols();
     bool loadDependencies();
     void *openDependency(const char *name) const;
@@ -103,6 +108,7 @@ private:
 
     Image *m_image = nullptr;
     std::string *m_error = nullptr;
+    World *m_world = nullptr;
     std::vector<char> m_file;
     Elf64_Addr m_lowest = 0;
     const Elf64_Dyn *m_dynamic = nullptr;
@@ -283,6 +289,22 @@ bool Loader::readDynamic()
     return true;
 }
 
+// What the image offers the rest of the world. The dynamic symbol table is walked once,
+// because resolving a Qt against a dozen other mapped images is a few hundred thousand
+// lookups and a linear scan over 40000 symbols each time is minutes.
+void Loader::buildExports()
+{
+    m_image->exports.reserve(m_symbolCount);
+    for (size_t index = 0; index < m_symbolCount; ++index) {
+        const Elf64_Sym &symbol = m_symbols[index];
+        if (symbol.st_shndx == SHN_UNDEF || symbol.st_name == 0)
+            continue;
+        if (ELF64_ST_VISIBILITY(symbol.st_other) == STV_HIDDEN)
+            continue;
+        m_image->exports.emplace(m_strings + symbol.st_name, slot(symbol.st_value));
+    }
+}
+
 // A plain dlopen("libQt6Core.so") is answered with ENOENT here: the application's own
 // libraries are not on any search path the platform consults. They are loaded, though, so
 // ask the loader where it put them and open that path.
@@ -459,10 +481,56 @@ static std::string unversionedName(const char *name)
     return std::string(name, size_t(suffix - name)) + ".so";
 }
 
+static bool isFile(const std::string &path)
+{
+    struct stat status = {};
+    return ::stat(path.c_str(), &status) == 0 && S_ISREG(status.st_mode);
+}
+
+Image *World::find(const std::string &name) const
+{
+    for (const std::unique_ptr<Image> &image : images) {
+        if (image->name == name)
+            return image.get();
+    }
+    return nullptr;
+}
+
+std::string World::locate(const char *name) const
+{
+    const std::string unversioned = unversionedName(name);
+    for (const std::string &directory : directories) {
+        const std::string path = directory + '/' + name;
+        if (isFile(path))
+            return path;
+        if (!unversioned.empty() && isFile(directory + '/' + unversioned))
+            return directory + '/' + unversioned;
+    }
+    return {};
+}
+
+static std::string fileName(const std::string &path)
+{
+    const size_t at = path.rfind('/');
+    return at == std::string::npos ? path : path.substr(at + 1);
+}
+
 bool Loader::loadDependencies()
 {
     for (Elf64_Xword offset : m_neededNames) {
         const char *name = m_strings + offset;
+        const std::string privatePath = m_world ? m_world->locate(name) : std::string();
+        if (!privatePath.empty()) {
+            if (m_world->find(fileName(privatePath)))
+                continue;
+            m_world->images.push_back(std::make_unique<Image>());
+            Image * const image = m_world->images.back().get();
+            image->name = fileName(privatePath);
+            std::string error;
+            if (!QtcLoad::load(privatePath.c_str(), image, &error, m_world))
+                return fail("cannot map %s: %s", image->name.c_str(), error.c_str());
+            continue;
+        }
         void *handle = openDependency(name);
         if (!handle) {
             const std::string unversioned = unversionedName(name);
@@ -477,6 +545,29 @@ bool Loader::loadDependencies()
     return true;
 }
 
+static std::vector<const Image *> &mappedImages()
+{
+    static std::vector<const Image *> images;
+    return images;
+}
+
+// The platform's dladdr() knows nothing of memory mapped here, and QtCore finds its own
+// prefix by asking it where QtCore lives, asserting if there is no answer.
+static int mappedDladdr(const void *address, Dl_info *info)
+{
+    const char *at = static_cast<const char *>(address);
+    for (const Image *image : mappedImages()) {
+        if (at >= image->base && at < image->base + image->size) {
+            info->dli_fname = image->path.c_str();
+            info->dli_fbase = image->base;
+            info->dli_sname = nullptr;
+            info->dli_saddr = nullptr;
+            return 1;
+        }
+    }
+    return ::dladdr(address, info);
+}
+
 void *Loader::resolve(const Elf64_Sym &symbol, const char *name, bool *ok)
 {
     *ok = true;
@@ -484,6 +575,17 @@ void *Loader::resolve(const Elf64_Sym &symbol, const char *name, bool *ok)
         return slot(symbol.st_value);
     if (!name || !*name)
         return nullptr;
+    if (::strcmp(name, "dladdr") == 0)
+        return reinterpret_cast<void *>(&mappedDladdr);
+    if (m_world) {
+        for (const std::unique_ptr<Image> &image : m_world->images) {
+            if (image.get() == m_image)
+                continue;
+            const auto found = image->exports.find(name);
+            if (found != image->exports.end())
+                return found->second;
+        }
+    }
     for (void *handle : m_image->dependencies) {
         if (void *found = ::dlsym(handle, name))
             return found;
@@ -624,8 +726,11 @@ void Loader::runInitializers()
 
 bool Loader::load(const char *path)
 {
-    if (!readFile(path) || !mapSegments() || !readDynamic() || !loadDependencies()
-            || !applyRelocations() || !protectSegments())
+    if (!readFile(path) || !mapSegments() || !readDynamic())
+        return false;
+    // Before the dependencies, so that a cycle among privately mapped images resolves.
+    buildExports();
+    if (!loadDependencies() || !applyRelocations() || !protectSegments())
         return false;
     registerFrames();
     readStaticSymbols();
@@ -637,14 +742,34 @@ bool Loader::load(const char *path)
     return true;
 }
 
-bool load(const char *path, Image *image, std::string *error)
+bool load(const char *path, Image *image, std::string *error, World *world)
 {
-    Loader loader(image, error);
+    if (image->name.empty())
+        image->name = fileName(path);
+    image->path = path;
+    // Before the initializers run, which may ask already.
+    mappedImages().push_back(image);
+    Loader loader(image, error, world);
     if (loader.load(path))
         return true;
+    mappedImages().erase(std::find(mappedImages().begin(), mappedImages().end(), image));
     if (image->base) {
         ::munmap(image->base, image->size);
         image->base = nullptr;
+    }
+    return false;
+}
+
+bool installed(const char *name)
+{
+    if (!loadedPath(name).empty())
+        return true;
+    const std::string unversioned = unversionedName(name);
+    for (const std::string &directory : loadedDirectories()) {
+        if (isFile(directory + '/' + name))
+            return true;
+        if (!unversioned.empty() && isFile(directory + '/' + unversioned))
+            return true;
     }
     return false;
 }

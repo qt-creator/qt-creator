@@ -24,6 +24,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 
+#include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/elfreader.h>
 #include <utils/qtcprocess.h>
@@ -586,22 +587,6 @@ static bool packageIsCurrent(const FilePath &hap, const QString &content, const 
     return noted && QString::fromUtf8(*noted) == packageNoteFor(content, signing);
 }
 
-static FilePaths libraryDirectories(const FilePath &deploymentSettings)
-{
-    const Result<QByteArray> contents = deploymentSettings.fileContents();
-    if (!contents)
-        return {};
-    const QJsonObject object = QJsonDocument::fromJson(*contents).object();
-
-    FilePaths directories;
-    const QString qtLibs = object.value("qtLibsDirectory").toString();
-    if (!qtLibs.isEmpty())
-        directories.append(FilePath::fromUserInput(qtLibs));
-    for (const QJsonValue &value : object.value("extra-libs-dirs").toArray())
-        directories.append(FilePath::fromUserInput(value.toString()));
-    return directories;
-}
-
 static QSet<QString> deviceLibraries(const FilePath &sdkRoot)
 {
     const FilePath sysroot = Sdk::sysrootPath(sdkRoot);
@@ -614,22 +599,6 @@ static QSet<QString> deviceLibraries(const FilePath &sdkRoot)
     for (const FilePath &file : files)
         names.insert(file.fileName());
     return names;
-}
-
-static FilePath findLibrary(const QString &name, const FilePaths &directories)
-{
-    const qsizetype versioned = name.indexOf(".so.");
-    for (const FilePath &directory : directories) {
-        const FilePath exact = directory.pathAppended(name);
-        if (exact.isFile())
-            return exact;
-        if (versioned < 0)
-            continue;
-        const FilePath unversioned = directory.pathAppended(name.left(versioned + 3));
-        if (unversioned.isFile())
-            return unversioned;
-    }
-    return {};
 }
 
 class MissingLibrary
@@ -2300,6 +2269,59 @@ private slots:
         walk = completeLibraries(libraries, {}, withoutFirst);
         QVERIFY(walk.added.isEmpty());
         QVERIFY(walk.missing.isEmpty());
+    }
+
+    void testQtLibraries()
+    {
+        const FilePath self = elfHostBinary();
+        if (self.isEmpty())
+            QSKIP("Not an ELF platform.");
+        const QStringList needed = ElfReader(self).neededLibraries();
+        QVERIFY(!needed.isEmpty());
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        const FilePath application = root.pathAppended("libapp.so");
+        QVERIFY(self.copyFile(application));
+
+        QVERIFY(qtLibraries(application, {}).files.isEmpty());
+        QVERIFY(qtLibraries(application, {root}).files.isEmpty());
+
+        const FilePath source = root.pathAppended("lib");
+        QVERIFY(source.ensureWritableDir());
+        for (const QString &name : needed)
+            QVERIFY(self.copyFile(source.pathAppended(name)));
+
+        // One of the copies asks for a name nothing else does, so it is only found if the
+        // walk follows what the dependencies need in turn.
+        const QString hidden = needed.first().left(3) + "0" + needed.first().mid(4);
+        QVERIFY(!needed.contains(hidden));
+        const Result<QByteArray> contents = self.fileContents();
+        QVERIFY(contents);
+        QByteArray from = needed.first().toUtf8();
+        from.append('\0');
+        QByteArray to = hidden.toUtf8();
+        to.append('\0');
+        QByteArray renamed = *contents;
+        renamed.replace(from, to);
+        QVERIFY(renamed != *contents);
+        QVERIFY(source.pathAppended(needed.last()).writeFileContents(renamed));
+        QVERIFY(self.copyFile(source.pathAppended(hidden)));
+
+        QStringList expected = needed;
+        expected.append(hidden);
+        expected.sort();
+        const QtLibraries all = qtLibraries(application, {source});
+        QCOMPARE(Utils::transform(all.files, &FilePath::fileName), expected);
+        QCOMPARE(all.tag.size(), 16);
+        QCOMPARE(qtLibraries(application, {source}).tag, all.tag);
+
+        // The tag is about the files, not only about their names.
+        QByteArray grown = *contents;
+        grown.append("more");
+        QVERIFY(source.pathAppended(hidden).writeFileContents(grown));
+        QVERIFY(qtLibraries(application, {source}).tag != all.tag);
     }
 
     void testAddPermissionWithoutList()
