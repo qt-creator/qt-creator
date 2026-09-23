@@ -1737,12 +1737,6 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      this,
                                      &TextEditorWidgetPrivate::updateSpellCheckRange);
 
-    m_documentConnections << connect(&globalFontSettings(), &FontSettings::changed,
-                                     m_document.data(),
-                                     [this] {
-                                         m_document->setFontSettings(globalFontSettings().data());
-                                     });
-
     slotUpdateExtraAreaWidth();
 
     updateSpellCheckRange();

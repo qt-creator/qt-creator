@@ -242,6 +242,9 @@ TextDocument::TextDocument(Id id)
             this, &Core::IDocument::contentsChanged);
     connect(&d->m_document, &QTextDocument::contentsChange,
             this, &TextDocument::contentsChangedWithPosition);
+    connect(&globalFontSettings(), &FontSettings::changed, this, [this] {
+        setFontSettings(globalFontSettings().data());
+    });
 
     // set new document layout
     QTextOption opt = d->m_document.defaultTextOption();
