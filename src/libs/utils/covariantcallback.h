@@ -64,6 +64,11 @@ using first_arg_or = typename std::conditional_t<
     first_arg_of_callable_impl<F>,
     std::type_identity<Default>>::type;
 
+// Whether T is a smart pointer, i.e. names what it points to. The checks below need this
+// spelled out separately rather than as a nested requirement, which crashes clang 22.
+template<typename T>
+concept HasElementType = requires { typename base_type<T>::element_type; };
+
 // F's first arg differs from T (and F is callable)
 template<typename F, typename T>
 concept DifferentFirstArg = HasCallableFirstArg<F> && !std::is_same_v<first_arg_of_callable<F>, T>;
@@ -97,16 +102,13 @@ concept TakesCovariantArg =
          (std::is_pointer_v<T> && std::is_pointer_v<first_arg_of_callable<F>>
           && std::is_base_of_v<std::remove_pointer_t<T>,
                                std::remove_pointer_t<first_arg_of_callable<F>>>)
-         || requires {
-             requires std::is_convertible_v<first_arg_of_callable<F>, T>;
-             requires !std::is_same_v<typename base_type<T>::element_type,
-                                      typename base_type<first_arg_of_callable<F>>::element_type>;
-         }
-         || requires {
-             requires std::is_pointer_v<first_arg_of_callable<F>>;
-             requires std::is_base_of_v<typename base_type<T>::element_type,
-                                        std::remove_pointer_t<first_arg_of_callable<F>>>;
-         }
+         || (std::is_convertible_v<first_arg_of_callable<F>, T> && HasElementType<T>
+             && HasElementType<first_arg_of_callable<F>>
+             && !std::is_same_v<typename base_type<T>::element_type,
+                                typename base_type<first_arg_of_callable<F>>::element_type>)
+         || (std::is_pointer_v<first_arg_of_callable<F>> && HasElementType<T>
+             && std::is_base_of_v<typename base_type<T>::element_type,
+                                  std::remove_pointer_t<first_arg_of_callable<F>>>)
      ))
     // member function pointer whose class derives from T's pointee/element_type
     || (std::is_member_function_pointer_v<F>
@@ -114,10 +116,9 @@ concept TakesCovariantArg =
         && (
             (std::is_pointer_v<T>
              && std::is_base_of_v<std::remove_pointer_t<T>, typename member_class_of<F>::type>)
-            || requires {
-                requires std::is_base_of_v<typename base_type<T>::element_type,
-                                           typename member_class_of<F>::type>;
-            }
+            || (HasElementType<T>
+                && std::is_base_of_v<typename base_type<T>::element_type,
+                                     typename member_class_of<F>::type>)
         ));
 
 template<typename Signature>
