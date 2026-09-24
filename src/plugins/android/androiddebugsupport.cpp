@@ -179,9 +179,19 @@ public:
             const auto useJavaDebugChannel = [javaDebugChannel](DebuggerRunParameters &rp) {
                 rp.setJavaDebugChannel(*javaDebugChannel);
             };
+            // Stopping a debug session cancels it, which is an error, and an error in the
+            // debugger would take the runner down with it. The runner has to run out
+            // instead: what it forwarded and started on the device is undone only after
+            // the application is gone. Asking the run control to stop is what ends it, and
+            // it ends gracefully.
+            const auto stopRunner = [runControl] { runControl->initiateStop(); };
             return Group {
                 When (kicker) >> Do {
-                    debuggerRecipe(runControl, rp, useJavaDebugChannel)
+                    Group {
+                        finishAllAndSuccess,
+                        debuggerRecipe(runControl, rp, useJavaDebugChannel),
+                        QSyncTask(stopRunner)
+                    }
                 }
             };
         });
