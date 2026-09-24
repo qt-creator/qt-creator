@@ -71,6 +71,7 @@ protected:
     virtual void handleEvent(DapEventType type, const QJsonObject &event);
 
     void askForTheStoppingSignal(const QString &description);
+    void reportProgress(const QString &event, const QJsonObject &body);
     void handleStopped(const QJsonObject &event);
     void readWhatAWatchpointWatches(const QString &id, const QString &expression, bool report);
     void reportAlienWatchpointHit(const QString &id);
@@ -177,6 +178,11 @@ protected:
     // The process the debuggee's threads run in, as the adapter named it. The
     // threads view groups them by it, and it is what takes them away again.
     QString m_threadGroupId;
+
+    // The title of a long operation the adapter is reporting on, by the id it
+    // gave it: the protocol carries the title on the start alone, so an update
+    // has nothing to name the operation by.
+    QHash<QString, QString> m_progressTitles;
 
     int m_currentThreadId = -1;
     int m_currentFrameId = -1;

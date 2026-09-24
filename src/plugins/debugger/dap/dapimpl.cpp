@@ -2808,7 +2808,31 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // announced once they have been read.
         if (!removed)
             emit progressMessage(Tr::tr("Read the symbols of %1").arg(path));
+    } else if (name == "progressStart" || name == "progressUpdate"
+               || name == "progressEnd") {
+        reportProgress(name, event.value("body").toObject());
     }
+}
+
+// What an adapter is spending its time on while a request of ours is out. The
+// protocol has the client show it and take it away again, while the views here
+// have one line for it, so the end is a message like any other.
+void DapImpl::reportProgress(const QString &event, const QJsonObject &body)
+{
+    const QString id = body.value("progressId").toVariant().toString();
+    if (event == "progressStart")
+        m_progressTitles.insert(id, body.value("title").toString());
+    const QString title = m_progressTitles.value(id);
+    const QString message = body.value("message").toString();
+    QString text = title.isEmpty() || message.isEmpty() ? title + message
+                                                        : Tr::tr("%1: %2").arg(title, message);
+    if (event == "progressEnd")
+        m_progressTitles.remove(id);
+    if (text.isEmpty())
+        return;
+    if (const QJsonValue percentage = body.value("percentage"); percentage.isDouble())
+        text = Tr::tr("%1 (%2%)").arg(text).arg(qRound(percentage.toDouble()));
+    emit progressMessage(text);
 }
 
 // An adapter that leaves the signal out of the stop event still knows it, and

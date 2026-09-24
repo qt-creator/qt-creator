@@ -1931,6 +1931,7 @@ private slots:
     void reportsTheBreakpointADapAdapterNeitherTakesNorStopsFor();
     void interruptsAResumeTheDapAdapterHasNotAnsweredYet();
     void reportsAPendingDapBreakpointWithoutAskingWhereItIs();
+    void showsWhatADapAdapterReportsProgressOn();
     void reportsTheThreadsADapAdapterListsAgainstTheStoppedOne();
     void stepsTheThreadThatWasSelectedFromADapAdapter();
     void reportsADetachFromADapAdapterAsOne();
@@ -18707,6 +18708,42 @@ private:
     bool m_running = false;
 };
 
+// An adapter that reports how far it has come with a long operation, the way
+// one loading symbols does. The title is on the start alone, the percentage
+// only on the update, and the end has a message of its own.
+class ToilingDapAdapter : public FakeDapAdapter
+{
+public:
+    static constexpr int stoppedThreadId = 13;
+
+private:
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        if (command == "initialize") {
+            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true}});
+            sendEvent("initialized");
+            return;
+        }
+        respond(request, QJsonObject{});
+        if (command == "configurationDone") {
+            sendEvent("progressStart", QJsonObject{{"progressId", "7"},
+                                                   {"title", "Loading symbols"}});
+            sendEvent("progressUpdate", QJsonObject{{"progressId", "7"},
+                                                    {"message", "libc.so.6"},
+                                                    {"percentage", 40}});
+            sendEvent("progressEnd", QJsonObject{{"progressId", "7"},
+                                                 {"message", "all read"}});
+            // Nothing names the operation any more once it has ended, so this
+            // one is all the update after it can be shown by.
+            sendEvent("progressUpdate", QJsonObject{{"progressId", "7"},
+                                                    {"message", "a straggler"}});
+            sendEvent("stopped", QJsonObject{{"reason", "breakpoint"},
+                                             {"threadId", stoppedThreadId}});
+        }
+    }
+};
+
 // An adapter that takes a breakpoint without binding it and that answers no
 // console command at all, the way a debugger behind one does not answer while
 // the debuggee runs.
@@ -20386,6 +20423,38 @@ void tst_backends::interruptsAResumeTheDapAdapterHasNotAnsweredYet()
                               "the interrupt went to an adapter that had not started the "
                               "debuggee yet, so nothing was left to stop it", s_timeout);
     QCOMPARE(adapter.droppedPauses(), 0);
+
+    engine->shutdownEngine();
+}
+
+// What an adapter says it is busy with reaches the views. The protocol keeps
+// the title on the start alone, so an update that arrives later has to be
+// shown by the title the operation was started under.
+void tst_backends::showsWhatADapAdapterReportsProgressOn()
+{
+    ToilingDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "toiling";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop), s_timeout);
+
+    // The stop is sent after them, so they are all in by the time it arrives.
+    const QStringList reported = debuggerBackend.progressMessages();
+    QVERIFY2(reported.contains("Loading symbols"), qPrintable(reported.join(", ")));
+    QVERIFY2(reported.contains("Loading symbols: libc.so.6 (40%)"),
+             qPrintable(reported.join(", ")));
+    QVERIFY2(reported.contains("Loading symbols: all read"), qPrintable(reported.join(", ")));
+    QVERIFY2(reported.contains("a straggler"), qPrintable(reported.join(", ")));
 
     engine->shutdownEngine();
 }
