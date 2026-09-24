@@ -53,6 +53,15 @@ constexpr bool isAnyUnixHost()
     return false;
 #endif
 }
+// No OsType of its own: HarmonyOS reports the Linux its toolchains are for.
+QTCREATOR_UTILS_EXPORT constexpr bool isHarmonyHost()
+{
+#ifdef Q_OS_OHOS
+    return true;
+#else
+    return false;
+#endif
+}
 
 QTCREATOR_UTILS_EXPORT QString withExecutableSuffix(const QString &executable);
 

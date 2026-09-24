@@ -37,6 +37,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>
 
@@ -117,8 +118,6 @@ Result<QByteArray> HarmonyOsBuildDevice::prepareExecutableForUpload(const QByteA
         return ResultError(Tr::tr("Failed to sign the bridge: %1").arg(signing.output.trimmed()));
     return signedFile.fileContents();
 }
-
-#ifdef Q_OS_OHOS
 
 static Q_LOGGING_CATEGORY(buildDeviceLog, "qtc.harmonyos.builddevice", QtWarningMsg)
 
@@ -386,8 +385,6 @@ static void detectToolsOnThisDevice()
     });
 }
 
-#endif // Q_OS_OHOS
-
 HarmonyOsBuildDeviceFactory::HarmonyOsBuildDeviceFactory()
     : IDeviceFactory(Constants::HARMONYOS_BUILD_DEVICE_TYPE)
 {
@@ -407,7 +404,9 @@ HarmonyOsBuildDeviceFactory::HarmonyOsBuildDeviceFactory()
 void setupHarmonyOsBuildDevice()
 {
     static HarmonyOsBuildDeviceFactory theHarmonyOsBuildDeviceFactory;
-#ifdef Q_OS_OHOS
+    if (!HostOsInfo::isHarmonyHost())
+        return;
+
     addNativePackageToEnvironment();
     // Adding a device before the saved ones are restored loses it: the restore replaces
     // the list. By the time this plugin is initialized they may or may not be there yet.
@@ -427,7 +426,6 @@ void setupHarmonyOsBuildDevice()
     QObject::connect(KitManager::instance(), &KitManager::kitsLoaded,
                      KitManager::instance(), whenRestored, Qt::SingleShotConnection);
     whenRestored();
-#endif
 }
 
 } // namespace HarmonyOs::Internal

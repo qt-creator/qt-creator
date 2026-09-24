@@ -26,15 +26,19 @@
 
 #include <qtsupport/qtversionmanager.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
 using namespace ProjectExplorer;
 
 namespace HarmonyOs::Internal {
 
-#ifdef Q_OS_OHOS
+// Only the Qt Creator on the device has anywhere else to put them: its own home is in a
+// sandbox that nothing else on the device can reach.
 static void useUserStorageForProjects()
 {
+    if (!Utils::HostOsInfo::isHarmonyHost())
+        return;
     const Utils::FilePath documents
         = Utils::FilePath::fromString(Constants::HARMONYOS_USER_DOCUMENTS);
     if (!documents.isDir())
@@ -44,7 +48,6 @@ static void useUserStorageForProjects()
     Core::DocumentManager::setProjectsDirectory(documents);
     ProjectExplorer::globalProjectExplorerSettings().projectsDirectory.setValue(documents);
 }
-#endif
 
 class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
 {
@@ -53,9 +56,7 @@ class HarmonyOsPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-#ifdef Q_OS_OHOS
         useUserStorageForProjects();
-#endif
         settings(); // Load the SDK configuration before toolchains are detected.
 
         setupHarmonyOsSettingsPage();

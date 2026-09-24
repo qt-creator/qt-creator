@@ -18,6 +18,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/elfreader.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
@@ -410,17 +411,6 @@ public:
     }
 };
 
-// Whether this is the Qt Creator that runs on the device, which is the only one that can
-// hand an application to the runner there: the channel is that device's own loopback, and
-// the want that starts the runner can only be sent from an application on it. Not an
-// OsType: what the build device says about the system it builds on is the Linux the
-// toolchains behind it are for.
-#ifdef Q_OS_OHOS
-constexpr bool runsOnTheDevice = true;
-#else
-constexpr bool runsOnTheDevice = false;
-#endif
-
 // Building for the platform produces an application module rather than a program, and the
 // only thing that loads one is the runner in an installed package. So a run offers it over
 // the same channel a run from a host does, and needs no forward for it: an application's
@@ -524,7 +514,7 @@ public:
         setId("HarmonyOsBuildDeviceRunWorkerFactory");
         setRecipeProducer([](RunControl *runControl) -> Group {
             BuildConfiguration * const bc = runControl->buildConfiguration();
-            const FilePath library = runsOnTheDevice && bc
+            const FilePath library = HostOsInfo::isHarmonyHost() && bc
                 ? applicationLibrary(bc->buildDirectory(), bc->activeBuildKey()) : FilePath();
             if (!library.isEmpty()) {
                 const QStringList launchArguments
