@@ -180,6 +180,14 @@ add_qtc_test(tst_debugger_backends
     tst_backends.cpp
 )
 
+if (MSVC)
+  # Prevent fatal error C1128 on large generated header
+  target_compile_options(tst_debugger_backends PRIVATE /bigobj)
+endif()
+if (MINGW)
+  target_compile_options(tst_debugger_backends PRIVATE "-Wa,-mbig-obj")
+endif()
+
 add_qtc_test(tst_debugger_protocol
   DEPENDS Qt::Network Utils
   INCLUDES
