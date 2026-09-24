@@ -191,6 +191,9 @@ private:
     QString m_inbuffer;
     QString m_resultVarName;
     bool m_debuginfodDownloadInProgress = false;
+    // Whether the debuggee said the C++ runtime was taking it down. An exit
+    // that follows has no location and no signal to explain itself by.
+    bool m_sawTerminateMessage = false;
     enum class AttachPhase { Idle, AwaitingConnect, Stopped, Continuing };
     AttachPhase m_attachPhase = AttachPhase::Idle;
     QString m_pendingConsoleStreamOutput;

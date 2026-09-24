@@ -2174,6 +2174,8 @@ private slots:
     void continueSignalsExitedForSpontaneousExit();
     void reportsApplicationOutput_data() { addBackendRows(); }
     void reportsApplicationOutput();
+    void reportsThatTheCppRuntimeTookTheInferior_data() { addBackendRows(); }
+    void reportsThatTheCppRuntimeTookTheInferior();
     void reportsAFirstChanceExceptionWhenAsked_data() { addBackendRows(); }
     void reportsAFirstChanceExceptionWhenAsked();
     void stopsWhereTheDebugRuntimeReports_data() { addBackendRows(); }
@@ -8282,6 +8284,50 @@ void tst_backends::reportsApplicationOutput()
                                                  "channels saw:\n  %2")
                                              .arg(marker, otherChannels.join("\n  ").left(600))),
                               s_timeout);
+}
+
+// An uncaught exception ends the debuggee through the C++ runtime, which says
+// so in the debuggee's own output and leaves no stop behind: the exit carries
+// neither a location nor a signal, so the report of it is the last place the
+// reason can still be attached to.
+void tst_backends::reportsThatTheCppRuntimeTookTheInferior()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::Launch); !result)
+        QSKIP(qPrintable(result.error()));
+    if (backend != Backend::Gdb)
+        QSKIP("only the gdb backend reads a runtime termination out of the debuggee's output");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList applicationOutput;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&applicationOutput](const QString &text, int channel, int) {
+        if (channel == Debugger::AppOutput || channel == Debugger::AppStuff)
+            applicationOutput.append(text);
+    });
+
+    // Letting the debuggee abort for real would leave the debugger stopped on
+    // the signal, and that is the case which explains itself. What is left is
+    // the runtime's parting words, so the debuggee is made to print them.
+    engine->executeDebuggerCommand(
+        "call (int) puts(\"terminate called after throwing an instance of 'int'\")", {});
+    engine->executeDebuggerCommand("call (int) fflush(0)", {});
+    QTRY_VERIFY2_WITH_TIMEOUT(applicationOutput.join(QString()).contains("terminate called"),
+                              "the debuggee's parting words never reached the application channel",
+                              s_timeout);
+
+    stopInferiorSpinLoop(backend, engine);
+
+    debuggerBackend->clearInferiorResults();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY2_WITH_TIMEOUT(!debuggerBackend->inferiorResults().isEmpty(),
+                              "the debuggee never reported an exit", s_timeout);
+    QVERIFY2(debuggerBackend->inferiorResults().constFirst().terminatedByRuntime,
+             "the runtime termination the debuggee announced was dropped from the exit report");
 }
 
 void tst_backends::reportsAFirstChanceExceptionWhenAsked()

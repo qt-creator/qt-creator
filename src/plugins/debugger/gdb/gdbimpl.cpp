@@ -28,6 +28,13 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
+// What the C++ runtime prints on its way out. There is no record for it, so
+// the debuggee's own output is all there is to go by.
+static bool isTerminateMessage(const QStringView msg)
+{
+    return msg.contains(u"terminate called");
+}
+
 static GdbMi constMi(const QString &name, const QString &data)
 {
     GdbMi mi;
@@ -430,7 +437,10 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
         emit engineProcessFinished(m_gdbProc.resultData());
     });
     connect(&m_outputCollector, &OutputCollector::byteDelivery, this, [this](const QByteArray &ba) {
-        emit message(m_outputDecoder.decode(ba), AppStuff);
+        const QString text = m_outputDecoder.decode(ba);
+        if (isTerminateMessage(text))
+            m_sawTerminateMessage = true;
+        emit message(text, AppStuff);
     });
 }
 
@@ -2320,15 +2330,22 @@ void GdbImpl::handleOutputLine(const QString &line)
                         }
                     }
                 }
-                if (reason == u"exited")
-                    emit inferiorDone({result["exit-code"].toInt(), InferiorExitStatus::Normal});
-                else if (reason == u"exited-normally")
-                    emit inferiorDone({0, InferiorExitStatus::Normal});
-                else
+                const bool byRuntime = std::exchange(m_sawTerminateMessage, false);
+                if (reason == u"exited") {
+                    emit inferiorDone({result["exit-code"].toInt(), InferiorExitStatus::Normal,
+                                       {}, byRuntime});
+                } else if (reason == u"exited-normally") {
+                    emit inferiorDone({0, InferiorExitStatus::Normal, {}, byRuntime});
+                } else {
                     emit inferiorDone({0, InferiorExitStatus::Crash,
-                                       result["signal-name"].data()});
+                                       result["signal-name"].data(), byRuntime});
+                }
                 break;
             }
+
+            // A stop names its reason and has a location to show it at, so
+            // whatever the runtime said before it needs no explaining any more.
+            m_sawTerminateMessage = false;
 
             if (m_attachPhase == AttachPhase::AwaitingConnect) {
                 const auto *remoteData = std::get_if<AttachToRemoteServerData>(&m_startData.inferiorStartData);
@@ -2531,10 +2548,16 @@ void GdbImpl::handleOutputLine(const QString &line)
         m_pendingLogStreamOutput += data;
         break;
     }
-    case '@':
-        emit message(parser.readCString(), AppOutput);
+    case '@': {
+        const QString data = parser.readCString();
+        if (isTerminateMessage(data))
+            m_sawTerminateMessage = true;
+        emit message(data, AppOutput);
         break;
+    }
     default:
+        if (isTerminateMessage(line))
+            m_sawTerminateMessage = true;
         emit message(line, AppOutput);
         break;
     }

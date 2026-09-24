@@ -265,6 +265,9 @@ public:
     // What the signal that took the inferior down is called, for a backend that
     // has a name for it rather than just a number.
     QString signalName;
+    // Whether the C++ runtime said it was terminating the inferior. Such an
+    // exit has no location and no signal, so nothing else would explain it.
+    bool terminatedByRuntime = false;
 };
 
 class DEBUGGER_EXPORT AcceptsBreakpointQuery

@@ -75,6 +75,16 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
                 showStatusMessage(Tr::tr("Application exited normally."));
             }
         }
+        if (resultData.terminatedByRuntime) {
+            AsynchronousMessageBox::information(
+                Tr::tr("Terminated by the C++ Runtime"),
+                Tr::tr("The application was terminated by the C++ runtime, in most cases "
+                       "because of an uncaught exception. The runtime reported the reason "
+                       "in the application output.\n\n"
+                       "There is no location to show, as the termination did not produce a "
+                       "signal or exception the debugger stops on. Add a breakpoint at "
+                       "\"throw\" to stop where an exception is thrown."));
+        }
         notifyInferiorExited();
     });
     connect(m_backend.get(), &DebuggerEngineInterface::inferiorPidKnown,
