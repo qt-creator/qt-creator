@@ -2955,6 +2955,10 @@ class Dumper(DumperBase):
     def reportBreakpointsOfCommand(self, before):
         # A breakpoint a typed command created or deleted is nothing lldb tells
         # anybody about, so the difference over the command is what tells us.
+        # A target deleted by the command is invalid, but its breakpoints are
+        # still to be reported as removed.
+        if self.target is None:
+            return
         for i in range(self.target.GetNumBreakpoints()):
             bp = self.target.GetBreakpointAtIndex(i)
             if bp.GetID() in before or bp.GetID() in self.internalBreakpointIds:
