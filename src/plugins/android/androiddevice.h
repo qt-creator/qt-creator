@@ -94,4 +94,8 @@ QtTaskTree::Group createAvdRecipe(const QtTaskTree::Storage<std::optional<QStrin
 void setupAndroidDevice();
 void setupAndroidDeviceManager();
 
+#ifdef WITH_TESTS
+QObject *createAndroidDeviceTest();
+#endif
+
 } // Android::Internal

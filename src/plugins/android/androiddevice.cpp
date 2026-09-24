@@ -48,6 +48,10 @@
 #include <QRegularExpression>
 #include <QTimer>
 
+#ifdef WITH_TESTS
+#   include <QTest>
+#endif // WITH_TESTS
+
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
@@ -587,6 +591,11 @@ bool AndroidDevice::canSupportAbis(const QStringList &abis) const
     for (const QString &abi : abis)
         if (ourAbis.contains(abi))
             return true; // it's enough if only one abi match is found
+
+    // A physical device's list of runnable ABIs includes 32-bit ABIs in
+    // ro.product.cpu.abilist. An AVD's config.ini lists only the primary.
+    if (machineType() == IDevice::Hardware)
+        return false;
 
     // If no exact match is found, let's take ABI backward compatibility into account
     // https://developer.android.com/ndk/guides/abis#android-platform-abi-support
@@ -1360,4 +1369,81 @@ void setupAndroidDeviceManager()
     static GuardedObject<AndroidDeviceManagerInstance> theAndroidDeviceManager;
 }
 
+#ifdef WITH_TESTS
+
+class AndroidDeviceTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testCanSupportAbis_data();
+    void testCanSupportAbis();
+};
+
+void AndroidDeviceTest::testCanSupportAbis_data()
+{
+    QTest::addColumn<bool>("isHardware");
+    QTest::addColumn<QStringList>("deviceAbis");
+    QTest::addColumn<QStringList>("kitAbis");
+    QTest::addColumn<bool>("supported");
+
+    using namespace ProjectExplorer::Constants;
+    const QString arm64 = ANDROID_ABI_ARM64_V8A;
+    const QString armv7 = ANDROID_ABI_ARMEABI_V7A;
+    const QString armeabi = ANDROID_ABI_ARMEABI;
+    const QString x86 = ANDROID_ABI_X86;
+    const QString x86_64 = ANDROID_ABI_X86_64;
+
+    QTest::newRow("hardware: exact match")
+        << true << QStringList{arm64, armv7, armeabi} << QStringList{arm64} << true;
+    QTest::newRow("hardware: one matching ABI is enough")
+        << true << QStringList{arm64} << QStringList{x86_64, arm64} << true;
+    QTest::newRow("hardware: 32-bit ABI listed by the device")
+        << true << QStringList{arm64, armv7, armeabi} << QStringList{armv7} << true;
+    QTest::newRow("hardware: 64-bit only device rejects armeabi-v7a")
+        << true << QStringList{arm64} << QStringList{armv7} << false;
+    QTest::newRow("hardware: 64-bit only device rejects armeabi")
+        << true << QStringList{arm64} << QStringList{armeabi} << false;
+    QTest::newRow("hardware: x86_64 only device rejects x86")
+        << true << QStringList{x86_64} << QStringList{x86} << false;
+    QTest::newRow("hardware: arm64 rejects x86_64")
+        << true << QStringList{arm64} << QStringList{x86_64} << false;
+
+    QTest::newRow("emulator: exact match")
+        << false << QStringList{x86_64} << QStringList{x86_64} << true;
+    QTest::newRow("emulator: arm64 assumed to run armeabi-v7a")
+        << false << QStringList{arm64} << QStringList{armv7} << true;
+    QTest::newRow("emulator: x86 assumed to run armeabi-v7a")
+        << false << QStringList{x86} << QStringList{armv7} << true;
+    QTest::newRow("emulator: x86_64 assumed to run x86")
+        << false << QStringList{x86_64} << QStringList{x86} << true;
+    QTest::newRow("emulator: arm64 rejects x86_64")
+        << false << QStringList{arm64} << QStringList{x86_64} << false;
+    QTest::newRow("emulator: x86_64 rejects armeabi-v7a")
+        << false << QStringList{x86_64} << QStringList{armv7} << false;
+}
+
+void AndroidDeviceTest::testCanSupportAbis()
+{
+    QFETCH(bool, isHardware);
+    QFETCH(QStringList, deviceAbis);
+    QFETCH(QStringList, kitAbis);
+    QFETCH(bool, supported);
+
+    AndroidDevice device;
+    device.setMachineType(isHardware ? IDevice::Hardware : IDevice::Emulator);
+    device.setExtraData(Constants::AndroidCpuAbi, deviceAbis);
+
+    QCOMPARE(device.canSupportAbis(kitAbis), supported);
+}
+
+QObject *createAndroidDeviceTest()
+{
+    return new AndroidDeviceTest;
+}
+
+#endif // WITH_TESTS
+
 } // Android::Internal
+
+#include "androiddevice.moc"
