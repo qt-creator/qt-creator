@@ -1466,7 +1466,8 @@ CommandLine::CommandLine(const FilePath &exe, const QString &args, RawType)
     addArgs(args, Raw);
 }
 
-CommandLine CommandLine::fromUserInput(const QString &cmdline, MacroExpander *expander)
+CommandLine CommandLine::fromUserInput(const QString &cmdline, MacroExpander *expander,
+                                       const FilePath &workingDirectory)
 {
     if (cmdline.isEmpty())
         return {};
@@ -1475,6 +1476,22 @@ CommandLine CommandLine::fromUserInput(const QString &cmdline, MacroExpander *ex
 
     if (expander)
         input = expander->expand(input);
+
+    // A host program cannot start in a directory on a device, so the command is meant for the
+    // device, written for its shell.
+    if (!workingDirectory.isLocal()) {
+        if (input.trimmed().isEmpty())
+            return {};
+        // File macros expand to the host's view of device paths.
+        const QString deviceRoot = workingDirectory.withNewPath("/").toFSPathString();
+        if (workingDirectory.osType() == OsTypeWindows) {
+            input.replace(deviceRoot, QString());
+            return CommandLine(workingDirectory.withNewPath("cmd"),
+                               "/v:off /s /c \"" + input + '"', Raw);
+        }
+        input.replace(deviceRoot, "/");
+        return CommandLine(workingDirectory.withNewPath("/bin/sh"), {"-c", input});
+    }
 
     const QStringList result = ProcessArgs::splitArgs(input, HostOsInfo::hostOs());
 

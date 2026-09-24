@@ -92,8 +92,11 @@ void ExecuteFilter::acceptCommand(const QString &cmd)
     if (!found || workingDirectory.isEmpty())
         workingDirectory = globalMacroExpander()->value("CurrentDocument:Project:Path", &found);
 
-    const ExecuteData data{CommandLine::fromUserInput(displayName, globalMacroExpander()),
-                           FilePath::fromString(workingDirectory)};
+    const FilePath workingDirectoryPath = FilePath::fromString(workingDirectory);
+    const ExecuteData data{CommandLine::fromUserInput(displayName, globalMacroExpander(),
+                                                      workingDirectoryPath),
+                           workingDirectoryPath,
+                           displayName};
     if (m_process) {
         const QString info
             = m_taskQueue.size() > 1
@@ -175,6 +178,9 @@ void ExecuteFilter::runHeadCommand()
         MessageManager::writeDisrupting(Tr::tr("Starting command \"%1\".").arg(headCommand()));
         QTC_CHECK(!m_process);
         createProcess();
+        // A device keeps its own environment, the host's would replace it.
+        if (d.command.executable().isLocal())
+            m_process->setEnvironment(Environment::systemEnvironment());
         m_process->setWorkingDirectory(d.workingDirectory);
         m_process->setCommand(d.command);
         m_process->start();
@@ -187,7 +193,6 @@ void ExecuteFilter::createProcess()
         return;
 
     m_process = new Process;
-    m_process->setEnvironment(Environment::systemEnvironment());
     connect(m_process, &Process::done, this, &ExecuteFilter::done);
     connect(m_process, &Process::readyReadStandardOutput, this, &ExecuteFilter::readStdOutput);
     connect(m_process, &Process::readyReadStandardError, this, &ExecuteFilter::readStdError);
@@ -224,8 +229,7 @@ QString ExecuteFilter::headCommand() const
 {
     if (m_taskQueue.isEmpty())
         return QString();
-    const ExecuteData &data = m_taskQueue.first();
-    return data.command.toUserOutput();
+    return m_taskQueue.first().displayName;
 }
 
 } // namespace Core::Internal

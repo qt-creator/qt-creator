@@ -19,6 +19,7 @@ class ExecuteFilter final : public Core::ILocatorFilter
     {
         Utils::CommandLine command;
         Utils::FilePath workingDirectory;
+        QString displayName;
     };
 
 public:

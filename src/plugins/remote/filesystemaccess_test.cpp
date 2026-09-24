@@ -224,7 +224,7 @@ void FileSystemAccessTest::testWorkingDirectory()
     const FilePath dir = baseFilePath() / "testdir with space and 'various' \"quotes\" here";
     QVERIFY(dir.ensureWritableDir());
     Process proc;
-    proc.setCommand(CommandLine{"pwd"});
+    proc.setCommand(CommandLine{dir.withNewPath("pwd")});
     proc.setWorkingDirectory(dir);
     proc.start();
     QVERIFY(proc.waitForFinished());
@@ -232,6 +232,21 @@ void FileSystemAccessTest::testWorkingDirectory()
     QVERIFY(baseFilePath().withNewPath(out).isSameFile(dir));
     const QString err = proc.readAllStandardOutput();
     QVERIFY(err.isEmpty());
+}
+
+void FileSystemAccessTest::testUserCommandInWorkingDirectory()
+{
+    const FilePath dir = baseFilePath() / "testdir with space and 'various' \"quotes\" here";
+    QVERIFY(dir.ensureWritableDir());
+    Process proc;
+    proc.setCommand(CommandLine::fromUserInput("pwd && echo 'a  b'", nullptr, dir));
+    proc.setWorkingDirectory(dir);
+    proc.start();
+    QVERIFY(proc.waitForFinished());
+    const QStringList out = proc.readAllStandardOutput().trimmed().split('\n');
+    QCOMPARE(out.size(), 2);
+    QVERIFY(baseFilePath().withNewPath(out.at(0)).isSameFile(dir));
+    QCOMPARE(out.at(1), "a  b");
 }
 
 void FileSystemAccessTest::testDirStatus()

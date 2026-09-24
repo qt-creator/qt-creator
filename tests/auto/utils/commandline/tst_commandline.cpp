@@ -51,6 +51,15 @@ private slots:
             newLine = "\r\n";
         else
             newLine = "\n";
+
+        DeviceFileHooks fileHooks;
+        fileHooks.isSameDevice = [](const FilePath &left, const FilePath &right) {
+            return left.scheme() == right.scheme() && left.host() == right.host();
+        };
+        fileHooks.osType = [](const FilePath &fp) {
+            return fp.scheme() == u"windev" ? OsTypeWindows : OsTypeLinux;
+        };
+        DeviceFileHooks::setupDeviceFileHooks(fileHooks);
     }
 
     void cleanupTestCase() { ProcessReaper::deleteAll(); }
@@ -195,6 +204,51 @@ private slots:
         CommandLine cmd = CommandLine::fromUserInput(input);
         QCOMPARE(cmd.executable(), FilePath::fromUserInput(executable));
         QCOMPARE(cmd.arguments(), arguments);
+    }
+
+    void testFromUserInputOnDevice_data()
+    {
+        QTest::addColumn<FilePath>("dir");
+        QTest::addColumn<QString>("input");
+        QTest::addColumn<QString>("command");
+
+        const FilePath linux = FilePath::fromString("linuxdev://dev/home/u");
+        const FilePath windows = FilePath::fromString("windev://dev/c:/u");
+        const QStringList inputs = {"ls \"a b\" c", "ls a\\b c", "echo it's done",
+                                    "ls ~/src", "~/bin/tool x", "/bin/ls x", "make && ls"};
+        for (const QString &input : inputs) {
+            QTest::newRow(qPrintable("linux: " + input)) << linux << input << input;
+            QTest::newRow(qPrintable("windows: " + input)) << windows << input << input;
+        }
+        QTest::newRow("linux: blank") << linux << "   " << QString();
+        QTest::newRow("windows: blank") << windows << "   " << QString();
+        QTest::newRow("windows: quoted program")
+            << windows << "\"c:/Program Files/Git/bin/git.exe\" log \"--format=%h %s\""
+            << "\"c:/Program Files/Git/bin/git.exe\" log \"--format=%h %s\"";
+        QTest::newRow("linux: file macro")
+            << linux << "wc -l %{File:FilePath}" << "wc -l /home/u/f.cpp";
+        QTest::newRow("windows: file macro")
+            << windows << "type %{File:FilePath}" << "type c:/u/f.cpp";
+    }
+
+    void testFromUserInputOnDevice()
+    {
+        QFETCH(FilePath, dir);
+        QFETCH(QString, input);
+        QFETCH(QString, command);
+
+        MacroExpander expander;
+        expander.registerFileVariables("File", {}, [dir] { return dir.pathAppended("f.cpp"); });
+        const CommandLine cmd = CommandLine::fromUserInput(input, &expander, dir);
+        if (command.isEmpty()) {
+            QVERIFY(cmd.isEmpty());
+        } else if (dir.osType() == OsTypeWindows) {
+            QCOMPARE(cmd.executable(), dir.withNewPath("cmd"));
+            QCOMPARE(cmd.arguments(), "/v:off /s /c \"" + command + '"');
+        } else {
+            QCOMPARE(cmd.executable(), dir.withNewPath("/bin/sh"));
+            QCOMPARE(cmd.splitArguments(), QStringList({"-c", command}));
+        }
     }
 
     void testFromInputFails()

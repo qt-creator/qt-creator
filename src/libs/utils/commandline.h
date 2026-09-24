@@ -126,7 +126,8 @@ public:
     CommandLine(const FilePath &exe, const QStringList &args, OsType osType);
     CommandLine(const FilePath &exe, const QString &unparsedArgs, RawType);
 
-    static CommandLine fromUserInput(const QString &cmdline, MacroExpander *expander = nullptr);
+    static CommandLine fromUserInput(const QString &cmdline, MacroExpander *expander = nullptr,
+                                     const FilePath &workingDirectory = {});
 
     void addArg(const QString &arg);
     void addArg(const QString &arg, OsType osType);
