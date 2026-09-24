@@ -12,8 +12,12 @@ class QtProfilerSettings : public Utils::AspectContainer
 public:
     QtProfilerSettings();
 
+    void addRecentFile(const Utils::FilePath &filePath);
+    Utils::FilePaths sanitizedRecentFiles();
+
     Utils::FilePathAspect lastTraceFile{this};
     Utils::ByteArrayAspect windowGeometry{this};
+    Utils::FilePathListAspect recentFiles{this};
 
     // Not persisted. A command line passed via --launch; the window seeds the
     // active backend's launch settings from these. Backend-specific recording

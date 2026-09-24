@@ -20,6 +20,7 @@
 #include <profiler/traceformat.h>
 #include <profiler/welcomepage.h>
 
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/minisplitter.h>
 
 #include <tracing/rangedetailswidget.h>
@@ -34,6 +35,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
@@ -47,6 +49,7 @@
 #include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
+#include <QSet>
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTime>
@@ -92,6 +95,7 @@ public:
 
     void showOpenFileDialog();
     void showOpenCtfDirDialog();
+    void updateLoadMenu(QMenu *menu, const QList<QAction *> &fixedActions);
     void showBackendConfig();
     void showWelcomePage();
 
@@ -109,6 +113,7 @@ public:
     void resetActiveLayout();
     void setActiveFormat(Format format);
     void closeCurrentTrace();
+    void showTrace(const Utils::FilePath &filePath);
     void doLoad(const Utils::FilePath &filePath);
     void setTraceDuration(milliseconds ms);
     milliseconds traceDuration(Format format) const;
@@ -148,6 +153,7 @@ public:
     Format activeFormat = Format::Qml;
     QHash<const QObject *, QMetaObject::Connection> loadConnections; // Pending loads.
     QString lastLoadError;
+    QSet<Utils::FilePath> pendingRecentFiles; // Join the recent files once they loaded.
     QLabel *traceDurationLabel = nullptr;
     ProgressIndicator *progressIndicator;
     ViewGroup qmlGroup;
@@ -207,7 +213,7 @@ WindowPrivate::WindowPrivate(Window *window)
     connect(recorder, &ProfilerRecorder::finished,
             this, [this](const FilePath &tracePath) {
         recordingPage->stop();
-        q->loadTraceFile(tracePath);
+        showTrace(tracePath);
     });
     connect(recorder, &ProfilerRecorder::error, this,
             [this](const QString &e, const std::optional<SamplerFix> &fix) {
@@ -283,6 +289,31 @@ void WindowPrivate::showOpenCtfDirDialog()
 
     if (!dir.isEmpty())
         q->loadTraceFile(dir);
+}
+
+void WindowPrivate::updateLoadMenu(QMenu *menu, const QList<QAction *> &fixedActions)
+{
+    for (QAction *action : menu->actions()) {
+        if (!fixedActions.contains(action)) {
+            menu->removeAction(action);
+            action->deleteLater();
+        }
+    }
+    const FilePaths recentFiles = settings().sanitizedRecentFiles();
+    if (recentFiles.isEmpty())
+        return;
+    menu->addSeparator();
+    for (const FilePath &filePath : recentFiles) {
+        QAction *action = menu->addAction(Utils::quoteAmpersands(filePath.shortNativePath()));
+        connect(action, &QAction::triggered, this, [this, filePath] {
+            q->loadTraceFile(filePath);
+        });
+    }
+    menu->addSeparator();
+    QAction *clearAction = menu->addAction(Core::msgClearMenu());
+    connect(clearAction, &QAction::triggered, this, [] {
+        settings().recentFiles.setValue({});
+    });
 }
 
 void WindowPrivate::showBackendConfig()
@@ -383,6 +414,8 @@ void WindowPrivate::onLoadFinished(const FilePath &trace, Format format)
         setTraceDuration(duration);
         progressIndicator->hide();
     }
+    if (pendingRecentFiles.remove(trace) && lastLoadError.isEmpty())
+        settings().addRecentFile(trace);
     RPC::notifyTraceFileLoadingFinished(trace, lastLoadError);
 }
 
@@ -593,6 +626,12 @@ void WindowPrivate::closeCurrentTrace()
     RPC::notifyTraceDiscarded();
 }
 
+void WindowPrivate::showTrace(const FilePath &filePath)
+{
+    sidebar->addTrace(filePath); // Registers + selects it without triggering a reload.
+    doLoad(filePath);
+}
+
 void WindowPrivate::doLoad(const FilePath &filePath)
 {
     settings().lastTraceFile.setValue(filePath);
@@ -740,6 +779,10 @@ Window::Window(QWidget *parent)
         auto loadMenu = new QMenu(loadButton);
         loadMenu->addAction(loadTraceFileAction);
         loadMenu->addAction(loadCtfDirAction);
+        connect(loadMenu, &QMenu::aboutToShow, d,
+                [d = d, loadMenu, fixedActions = loadMenu->actions()] {
+            d->updateLoadMenu(loadMenu, fixedActions);
+        });
         loadButton->setMenu(loadMenu);
         loadButton->setPopupMode(QToolButton::MenuButtonPopup);
         toolBar->addWidget(loadButton);
@@ -776,8 +819,10 @@ Window::Window(QWidget *parent)
 
 void Window::loadTraceFile(const FilePath &filePath)
 {
-    d->sidebar->addTrace(filePath); // Registers + selects it without triggering a reload.
-    d->doLoad(filePath);
+#ifndef Q_OS_WASM
+    d->pendingRecentFiles.insert(filePath);
+#endif
+    d->showTrace(filePath);
 }
 
 bool Window::selectBackend(const QString &name)
