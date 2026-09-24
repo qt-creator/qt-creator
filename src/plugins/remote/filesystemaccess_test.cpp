@@ -22,6 +22,8 @@
 #include <QTest>
 #include <QTimer>
 
+#include <chrono>
+
 Q_DECLARE_METATYPE(ProjectExplorer::FileTransferMethod)
 
 using namespace ProjectExplorer;
@@ -536,8 +538,12 @@ void FileSystemAccessTest::testFileStreamer()
         }
     };
 
-    using namespace std::chrono_literals;
-    QCOMPARE(QTaskTree::runBlocking(recipe.withTimeout(10000ms)), DoneWith::Success);
+    // The recipe moves the payload through eight streamer legs, so the time it takes scales
+    // with the payload and with the speed of the link to the device. The timeout is a guard
+    // against a streamer that hangs, not an assertion on throughput, hence the low bar of
+    // one megabyte per second.
+    const std::chrono::milliseconds timeout(10000 + data.size() / 1024);
+    QCOMPARE(QTaskTree::runBlocking(recipe.withTimeout(timeout)), DoneWith::Success);
 
     QVERIFY(localData);
     QCOMPARE(*localData, data);
