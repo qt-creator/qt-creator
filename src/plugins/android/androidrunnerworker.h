@@ -36,6 +36,9 @@ public:
 
     // business logic -> GUI
     void setStartData(qint64 pid, const QString &packageDir);
+    // Where the application's Java debug agent is forwarded to on this computer.
+    void setJavaDebugChannel(const QString &channel) { m_javaDebugChannel = channel; }
+    QString javaDebugChannel() const { return m_javaDebugChannel; }
 
     // GUI -> business logic
     void cancel();
@@ -53,6 +56,7 @@ private:
     QString m_deviceSerialNumber;
     bool m_wasCancelled = false;
     int m_apiLevel = -1;
+    QString m_javaDebugChannel;
     ProjectExplorer::QmlDebugServicesPreset m_qmlDebugServices = ProjectExplorer::NoQmlDebugServices;
 };
 

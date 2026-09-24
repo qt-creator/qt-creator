@@ -196,6 +196,10 @@ public:
 
     bool isPythonDebugging() const { return m_isPythonDebugging; }
     bool isJavaDebugging() const { return m_isJavaDebugging; }
+    // Where the debug agent of a Java virtual machine that is running already
+    // listens, as "host:port", when the native debugger has a channel of its own.
+    void setJavaDebugChannel(const QString &channel) { m_javaDebugChannel = channel; }
+    QString javaDebugChannel() const { return m_javaDebugChannel; }
 
     void setBreakOnMain(bool on) { m_breakOnMain = on; }
     bool breakOnMain() const { return m_breakOnMain; }
@@ -379,6 +383,7 @@ private:
     bool m_useTargetAsync = false;
     bool m_continueAfterAttach = false;
     bool m_isSnapshot = false; // Set if created internally.
+    QString m_javaDebugChannel;
     bool m_isPythonDebugging = false;
     bool m_isJavaDebugging = false;
     // Whether nobody named the languages to debug, so that the run may tell.

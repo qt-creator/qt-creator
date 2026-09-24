@@ -15,7 +15,9 @@ namespace Debugger::Internal {
 DebuggerEngine *createJdwpEngine(const DebuggerRunParameters &rp)
 {
     JdwpImplStartData startData;
-    if (rp.startMode() == AttachToRemoteServer)
+    if (!rp.javaDebugChannel().isEmpty())
+        startData.inferiorStartData = AttachToRemoteServerData{rp.javaDebugChannel(), {}};
+    else if (rp.startMode() == AttachToRemoteServer)
         startData.inferiorStartData = AttachToRemoteServerData{rp.remoteChannel(), {}};
     else
         startData.inferiorStartData = rp.inferior();

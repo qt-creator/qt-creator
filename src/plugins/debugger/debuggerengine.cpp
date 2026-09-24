@@ -294,17 +294,16 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
                           || m_startMode == StartExternal;
     if (m_languagesAutomatic && launches && (launcher == "java" || launcher == "javaw")) {
         m_isJavaDebugging = true;
-    }
-    if (m_isJavaDebugging) {
         m_cppEngineType = NoEngineType;
         m_isQmlDebugging = false;
         m_isPythonDebugging = false;
         // What is left to validate is the C++ debugger, which is not used.
         m_validationErrors.clear();
-        // The backend starts the virtual machine itself, with the agent, so a
-        // terminal starting it as well would run the program twice.
-        m_useTerminal = false;
     }
+    // The backend starts the virtual machine itself, with the agent, so a
+    // terminal starting it as well would run the program twice.
+    if (m_isJavaDebugging && launches && m_javaDebugChannel.isEmpty())
+        m_useTerminal = false;
 
     if (m_symbolFile.isEmpty())
         m_symbolFile = m_inferior.command.executable();

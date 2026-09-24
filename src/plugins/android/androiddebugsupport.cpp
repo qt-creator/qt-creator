@@ -172,12 +172,16 @@ public:
             if (rp.isNativeMixedDebugging())
                 return runControl->errorTask(msgCombinedEngineUnsupported("Android"));
 
-            const auto kicker = [runControl](const QStoredBarrier &barrier) {
-                return androidKicker(barrier, runControl);
+            const auto javaDebugChannel = std::make_shared<QString>();
+            const auto kicker = [runControl, javaDebugChannel](const QStoredBarrier &barrier) {
+                return androidKicker(barrier, runControl, javaDebugChannel);
+            };
+            const auto useJavaDebugChannel = [javaDebugChannel](DebuggerRunParameters &rp) {
+                rp.setJavaDebugChannel(*javaDebugChannel);
             };
             return Group {
                 When (kicker) >> Do {
-                    debuggerRecipe(runControl, rp)
+                    debuggerRecipe(runControl, rp, useJavaDebugChannel)
                 }
             };
         });

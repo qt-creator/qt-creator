@@ -16,8 +16,11 @@
 
 #include <QPointer>
 #include <QRegularExpression>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QtEndian>
 
 #include <memory>
 
@@ -183,6 +186,152 @@ private:
     quint64 m_nextRequestId = 1;
 };
 
+// An agent that answers what a session starts with, hangs up on the command it
+// was told about instead of answering it, and says what else it was asked.
+class FakeAgent : public QObject
+{
+public:
+    explicit FakeAgent(quint8 commandSet = Jdwp::VirtualMachineSet,
+                       quint8 command = Jdwp::VmDispose, int idSize = 8)
+        : m_hangUpSet(commandSet)
+        , m_hangUpCommand(command)
+        , m_idSize(idSize)
+    {
+        m_server.listen(QHostAddress::LocalHost);
+        connect(&m_server, &QTcpServer::newConnection, this, [this] {
+            m_socket = m_server.nextPendingConnection();
+            connect(m_socket, &QTcpSocket::readyRead, this, &FakeAgent::handleData);
+        });
+    }
+
+    quint16 port() const { return m_server.serverPort(); }
+    bool hungUp() const { return m_hungUp; }
+    int resumes() const { return m_resumes; }
+    // How much the agent had been asked to set up when it was first resumed,
+    // which tells a resume that waited for the breakpoints from one that did
+    // not.
+    int requestsBeforeTheFirstResume() const { return m_requestsBeforeTheFirstResume; }
+
+    // One event set holding the start of the virtual machine and a class that
+    // was prepared, which suspends the machine once for both.
+    QByteArray startAndClassPrepare() const
+    {
+        JdwpWriter body(sizes());
+        body.writeByte(Jdwp::SuspendAll).writeInt(2);
+        body.writeByte(Jdwp::VmStartEvent).writeInt(0).writeObjectId(1);
+        body.writeByte(Jdwp::ClassPrepareEvent).writeInt(0).writeObjectId(1)
+            .writeByte(Jdwp::ClassTag).writeReferenceTypeId(2)
+            .writeString(QString("L%1;").arg(QString(s_mainClass).replace('.', '/')))
+            .writeInt(7);
+        return body.data();
+    }
+
+    // A suspension that comes with nothing a debugger can make sense of: an
+    // event of an unknown kind says nothing about how long it is.
+    QByteArray unreadableEvent() const
+    {
+        JdwpWriter body(sizes());
+        body.writeByte(Jdwp::SuspendAll).writeInt(1).writeByte(200).writeInt(0);
+        return body.data();
+    }
+
+    void sendStartAndClassPrepare() { sendEvents(startAndClassPrepare()); }
+
+    // What the machine says as soon as hands have been shaken, which is before
+    // it has answered anything it is asked.
+    void sendOnHandshake(const QByteArray &events) { m_onHandshake = events; }
+
+private:
+    JdwpIdSizes sizes() const
+    {
+        JdwpIdSizes sizes;
+        sizes.fieldId = sizes.methodId = sizes.objectId = m_idSize;
+        sizes.referenceTypeId = sizes.frameId = m_idSize;
+        return sizes;
+    }
+
+    void sendEvents(const QByteArray &body)
+    {
+        QByteArray packet(11, Qt::Uninitialized);
+        qToBigEndian<quint32>(quint32(11 + body.size()), packet.data());
+        qToBigEndian<quint32>(quint32(0), packet.data() + 4);
+        packet[8] = 0;
+        packet[9] = char(Jdwp::EventSet);
+        packet[10] = char(Jdwp::EventComposite);
+        m_socket->write(packet + body);
+    }
+
+    void handleData()
+    {
+        m_buffer += m_socket->readAll();
+        if (!m_shookHands) {
+            if (m_buffer.size() < 14)
+                return;
+            m_socket->write(m_buffer.left(14));
+            m_buffer.remove(0, 14);
+            m_shookHands = true;
+            if (!m_onHandshake.isEmpty()) {
+                sendEvents(m_onHandshake);
+                m_onHandshake.clear();
+            }
+        }
+        while (m_buffer.size() >= 11) {
+            const quint32 length = qFromBigEndian<quint32>(m_buffer.constData());
+            if (quint32(m_buffer.size()) < length)
+                return;
+            const quint32 id = qFromBigEndian<quint32>(m_buffer.constData() + 4);
+            const quint8 commandSet = quint8(m_buffer.at(9));
+            const quint8 command = quint8(m_buffer.at(10));
+            m_buffer.remove(0, length);
+
+            if (commandSet == Jdwp::EventRequestSet && command == Jdwp::EventRequestSetCommand)
+                ++m_requests;
+            if (commandSet == Jdwp::VirtualMachineSet && command == Jdwp::VmResume) {
+                if (m_resumes == 0)
+                    m_requestsBeforeTheFirstResume = m_requests;
+                ++m_resumes;
+            }
+            if (commandSet == m_hangUpSet && command == m_hangUpCommand) {
+                m_hungUp = true;
+                m_socket->disconnectFromHost();
+                return;
+            }
+            JdwpWriter body(sizes());
+            if (commandSet == Jdwp::VirtualMachineSet && command == Jdwp::VmIdSizes) {
+                for (int i = 0; i < 5; ++i)
+                    body.writeInt(m_idSize);
+            } else if (commandSet == Jdwp::VirtualMachineSet
+                       && command == Jdwp::VmCapabilitiesNew) {
+                for (int i = 0; i < 32; ++i)
+                    body.writeBool(false);
+            } else if (commandSet == Jdwp::EventRequestSet
+                       && command == Jdwp::EventRequestSetCommand) {
+                body.writeInt(qint32(id));
+            }
+            QByteArray reply(11, Qt::Uninitialized);
+            qToBigEndian<quint32>(quint32(11 + body.data().size()), reply.data());
+            qToBigEndian<quint32>(id, reply.data() + 4);
+            reply[8] = char(0x80);
+            reply[9] = 0;
+            reply[10] = 0;
+            m_socket->write(reply + body.data());
+        }
+    }
+
+    QTcpServer m_server;
+    QTcpSocket *m_socket = nullptr;
+    QByteArray m_buffer;
+    QByteArray m_onHandshake;
+    bool m_shookHands = false;
+    const quint8 m_hangUpSet;
+    const quint8 m_hangUpCommand;
+    const int m_idSize;
+    bool m_hungUp = false;
+    int m_resumes = 0;
+    int m_requests = 0;
+    int m_requestsBeforeTheFirstResume = 0;
+};
+
 static GdbMi childNamed(const GdbMi &list, const QString &name)
 {
     for (const GdbMi &child : list) {
@@ -225,6 +374,11 @@ private slots:
     void interruptsARunningProgram();
     void attachesAndDetaches();
     void detachesFromALaunchedProgram();
+    void detachesFromAnAgentThatHangsUp();
+    void answersTheCommandsThatWereStillOut();
+    void givesBackOneSuspensionPerEventSet();
+    void readsAnEventThatCameBeforeTheHandleSizes();
+    void holdsASuspendedMachineUntilItIsSetUp();
 
 private:
     std::unique_ptr<DebuggerBackend> launch(const QStringList &arguments = {});
@@ -766,6 +920,111 @@ void tst_jdwp::detachesFromALaunchedProgram()
     QVERIFY(vm->isRunning());
     vm->kill();
     QTRY_VERIFY_WITH_TIMEOUT(!vm, s_timeoutMs);
+}
+
+void tst_jdwp::detachesFromAnAgentThatHangsUp()
+{
+    FakeAgent agent;
+    DebuggerBackend backend(JdwpImplStartData{
+        .inferiorStartData = AttachToRemoteServerData{QString("127.0.0.1:%1").arg(agent.port()),
+                                                      {}}});
+    backend.start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend.contains(InferiorEvent::RunAndInferiorRunOk), s_timeoutMs);
+
+    backend.execute(ExecutionCommand::Detach);
+    QTRY_VERIFY_WITH_TIMEOUT(!backend.results().isEmpty(), s_timeoutMs);
+    QVERIFY(agent.hungUp());
+    QCOMPARE(backend.results().first().exitStatus, InferiorExitStatus::Detached);
+}
+
+void tst_jdwp::answersTheCommandsThatWereStillOut()
+{
+    // The agent hangs up on the question about the threads rather than
+    // answering it, so nothing is ever going to come back for it.
+    FakeAgent agent(Jdwp::VirtualMachineSet, Jdwp::VmAllThreads);
+    DebuggerBackend backend(JdwpImplStartData{
+        .inferiorStartData = AttachToRemoteServerData{QString("127.0.0.1:%1").arg(agent.port()),
+                                                      {}}});
+    backend.start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend.contains(InferiorEvent::RunAndInferiorRunOk), s_timeoutMs);
+
+    // The view still hears back, with what little is known, rather than being
+    // left to wait for the rest of the session.
+    const quint64 request = backend.refresh(RefreshKind::Threads);
+    QTRY_VERIFY_WITH_TIMEOUT(backend.refreshed(request), s_timeoutMs);
+    QVERIFY(agent.hungUp());
+    QCOMPARE(int(backend.refreshData(request)["threads"].childCount()), 0);
+}
+
+// A set of events carries one suspension of the virtual machine, however many
+// events it holds, so one resume is what gives it back.
+void tst_jdwp::givesBackOneSuspensionPerEventSet()
+{
+    FakeAgent agent;
+    DebuggerBackend backend(JdwpImplStartData{
+        .inferiorStartData = AttachToRemoteServerData{QString("127.0.0.1:%1").arg(agent.port()),
+                                                      {}}});
+    backend.start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend.contains(InferiorEvent::RunAndInferiorRunOk), s_timeoutMs);
+
+    agent.sendStartAndClassPrepare();
+    QTRY_VERIFY_WITH_TIMEOUT(agent.resumes() >= 1, s_timeoutMs);
+    // Commands are answered in the order they were sent, so another resume
+    // would have been here before the answer to this one.
+    const quint64 request = backend.refresh(RefreshKind::Threads);
+    QTRY_VERIFY_WITH_TIMEOUT(backend.refreshed(request), s_timeoutMs);
+    QCOMPARE(agent.resumes(), 1);
+}
+
+// A machine speaks of its start before it has said how wide its handles are,
+// and they are not the eight bytes a reader would otherwise assume.
+void tst_jdwp::readsAnEventThatCameBeforeTheHandleSizes()
+{
+    FakeAgent agent(Jdwp::VirtualMachineSet, Jdwp::VmDispose, 4);
+    agent.sendOnHandshake(agent.startAndClassPrepare());
+
+    JdwpClient client;
+    QList<JdwpEventSet> sets;
+    bool connected = false;
+    QString failure;
+    connect(&client, &JdwpClient::eventSetReceived, this,
+            [&sets](const JdwpEventSet &set) { sets.append(set); });
+    connect(&client, &JdwpClient::connected, this, [&connected] { connected = true; });
+    connect(&client, &JdwpClient::disconnected, this, [&failure](const QString &reason) {
+        failure = reason;
+    });
+    client.connectToHost("127.0.0.1", agent.port());
+    QTRY_VERIFY_WITH_TIMEOUT(connected || !failure.isEmpty(), s_timeoutMs);
+    QVERIFY2(connected, qPrintable(failure));
+    QCOMPARE(client.idSizes().objectId, 4);
+    // Read with the sizes the machine gave, and there before the session is
+    // called connected, whenever they arrived.
+    QCOMPARE(sets.size(), 1);
+    QCOMPARE(sets.first().events.size(), 2);
+    QCOMPARE(sets.first().events.first().kind, quint8(Jdwp::VmStartEvent));
+    QCOMPARE(sets.first().events.last().signature,
+             QString("L%1;").arg(QString(s_mainClass).replace('.', '/')));
+    client.close();
+}
+
+// What holds a machine at its start is the suspension its event set came with,
+// not what the set says: one that cannot be read must not let it run off.
+void tst_jdwp::holdsASuspendedMachineUntilItIsSetUp()
+{
+    FakeAgent agent;
+    agent.sendOnHandshake(agent.unreadableEvent());
+    DebuggerBackend backend(JdwpImplStartData{
+        .inferiorStartData = AttachToRemoteServerData{QString("127.0.0.1:%1").arg(agent.port()),
+                                                      {}}});
+    backend.start();
+    QTRY_VERIFY_WITH_TIMEOUT(agent.resumes() >= 1, s_timeoutMs);
+    QVERIFY(backend.contains(InferiorEvent::EngineSetupOk));
+    // The requests of the session go out as it is set up, ahead of the resume
+    // that lets the machine go.
+    QVERIFY(agent.requestsBeforeTheFirstResume() > 0);
+    const quint64 request = backend.refresh(RefreshKind::Threads);
+    QTRY_VERIFY_WITH_TIMEOUT(backend.refreshed(request), s_timeoutMs);
+    QCOMPARE(agent.resumes(), 1);
 }
 
 QTEST_GUILESS_MAIN(tst_jdwp)

@@ -10,8 +10,11 @@
 
 namespace Android::Internal {
 
+// The application is up once the barrier is passed. A Java debugger attaches to what the
+// channel holds by then, if it was given one.
 QtTaskTree::Group androidKicker(const QtTaskTree::QStoredBarrier &barrier,
-                                ProjectExplorer::RunControl *runControl);
+                                ProjectExplorer::RunControl *runControl,
+                                const std::shared_ptr<QString> &javaDebugChannel = {});
 QtTaskTree::Group androidRecipe(ProjectExplorer::RunControl *runControl);
 void setupAndroidRunWorker();
 

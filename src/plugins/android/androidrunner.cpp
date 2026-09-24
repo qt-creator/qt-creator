@@ -34,7 +34,8 @@ using namespace Utils;
 
 namespace Android::Internal {
 
-Group androidKicker(const QStoredBarrier &barrier, RunControl *runControl)
+Group androidKicker(const QStoredBarrier &barrier, RunControl *runControl,
+                    const std::shared_ptr<QString> &javaDebugChannel)
 {
     BuildConfiguration *bc = runControl->buildConfiguration();
     QTC_ASSERT(bc, return {});
@@ -71,7 +72,8 @@ Group androidKicker(const QStoredBarrier &barrier, RunControl *runControl)
         apiLevel = Internal::deviceApiLevel(bc);
     }
 
-    const auto onSetup = [runControl, glueStorage, deviceSerialNumber, apiLevel, barrier] {
+    const auto onSetup = [runControl, glueStorage, deviceSerialNumber, apiLevel, barrier,
+                          javaDebugChannel] {
         RunnerInterface *glue = glueStorage.activeStorage();
         glue->setRunControl(runControl);
         glue->setDeviceSerialNumber(deviceSerialNumber);
@@ -104,6 +106,11 @@ Group androidKicker(const QStoredBarrier &barrier, RunControl *runControl)
         }
 
         QObject::connect(runControl, &RunControl::canceled, glue, &RunnerInterface::cancel);
+        if (javaDebugChannel) {
+            QObject::connect(glue, &RunnerInterface::started, glue, [glue, javaDebugChannel] {
+                *javaDebugChannel = glue->javaDebugChannel();
+            });
+        }
         QObject::connect(glue, &RunnerInterface::started, barrier.activeStorage(), &QBarrier::advance,
                          Qt::QueuedConnection);
         QObject::connect(glue, &RunnerInterface::finished, runControl, [runControl](const QString &errorString) {

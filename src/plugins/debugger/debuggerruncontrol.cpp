@@ -622,16 +622,18 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
         engines << createPdbEngine(rp);
 
     if (rp.isJavaDebugging()) {
-        // The debug agent connects back to a port opened on this computer.
-        if (rp.startMode() != AttachToRemoteServer
-            && !rp.inferior().command.executable().isLocal()) {
-            return make_unexpected(Tr::tr("Java programs can only be debugged on this "
-                                          "computer."));
-        }
-        if (rp.startMode() != StartInternal && rp.startMode() != StartExternal
-            && rp.startMode() != AttachToRemoteServer) {
-            return make_unexpected(Tr::tr("A Java program can only be launched, or attached "
-                                          "to at the port of its debug agent."));
+        if (rp.javaDebugChannel().isEmpty()) {
+            // The debug agent connects back to a port opened on this computer.
+            if (rp.startMode() != AttachToRemoteServer
+                && !rp.inferior().command.executable().isLocal()) {
+                return make_unexpected(Tr::tr("Java programs can only be debugged on this "
+                                              "computer."));
+            }
+            if (rp.startMode() != StartInternal && rp.startMode() != StartExternal
+                && rp.startMode() != AttachToRemoteServer) {
+                return make_unexpected(Tr::tr("A Java program can only be launched, or "
+                                              "attached to at the port of its debug agent."));
+            }
         }
         engines << createJdwpEngine(rp);
     }

@@ -49,7 +49,8 @@ enum class LanguageSelection {
     CppAndPython,
     QmlAndPython,
     CppQmlAndPython,
-    Java
+    Java,
+    CppAndJava
 };
 
 static const Key cppKey = "RunConfiguration.UseCppDebugger";
@@ -259,6 +260,9 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
     addLanguageOption(LanguageSelection::Java, Tr::tr("Java only"), "Java",
               Tr::tr("Debug the Java virtual machine the run starts. \"Automatic\" does "
                      "that, too, when the run starts java itself."));
+    addLanguageOption(LanguageSelection::CppAndJava, Tr::tr("C++ and Java"), "CppAndJava",
+              Tr::tr("Debug the native code and the Java code of one application, such as "
+                     "a Qt application on Android."));
     m_languagesAspect.setUseDataAsSavedValue();
     m_languagesAspect.setDefaultValue(int(LanguageSelection::Automatic));
 
@@ -321,6 +325,7 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
     case LanguageSelection::CppAndQmlCombined:
     case LanguageSelection::CppAndPython:
     case LanguageSelection::CppQmlAndPython:
+    case LanguageSelection::CppAndJava:
         return true;
     case LanguageSelection::Qml:
     case LanguageSelection::Python:
@@ -348,6 +353,7 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
     case LanguageSelection::Python:
     case LanguageSelection::CppAndPython:
     case LanguageSelection::Java:
+    case LanguageSelection::CppAndJava:
         return false;
     case LanguageSelection::Automatic:
         return autoUseQmlDebugger(m_buildConfiguration);
@@ -368,6 +374,7 @@ bool DebuggerRunConfigurationAspect::usePythonDebugger() const
     case LanguageSelection::CppAndQml:
     case LanguageSelection::CppAndQmlCombined:
     case LanguageSelection::Java:
+    case LanguageSelection::CppAndJava:
         return false;
     case LanguageSelection::Automatic:
         return autoUsePythonDebugger(m_buildConfiguration);
@@ -381,7 +388,7 @@ bool DebuggerRunConfigurationAspect::usePythonDebugger() const
 // DebuggerRunParameters::fixupParameters().
 bool DebuggerRunConfigurationAspect::useJavaDebugger() const
 {
-    return languages() == LanguageSelection::Java;
+    return languages() == LanguageSelection::Java || languages() == LanguageSelection::CppAndJava;
 }
 
 bool DebuggerRunConfigurationAspect::isAutomatic() const

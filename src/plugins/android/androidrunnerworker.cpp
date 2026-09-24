@@ -11,6 +11,7 @@
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <debugger/jdwp/jdwpclient.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
@@ -26,12 +27,12 @@
 #include <QtTaskTree/QConditional>
 
 #include <utils/hostosinfo.h>
-#include <utils/port.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 #include <QDateTime>
 #include <QLoggingCategory>
+#include <QPointer>
 #include <QRegularExpression>
 
 #include <chrono>
@@ -55,9 +56,7 @@ namespace Android::Internal {
 static const QString pidPollingScript = QStringLiteral("while [ -d /proc/%1 ]; do sleep 1; done");
 static const QRegularExpression userIdPattern("u(\\d+)_a");
 
-static const std::chrono::milliseconds s_jdbTimeout = 60s;
-
-static const Port s_localJdbServerPort(5038);
+static constexpr std::chrono::seconds s_jdwpReleaseTimeout = 60s;
 
 static qint64 extractPID(const QString &output, const QString &packageName)
 {
@@ -155,6 +154,7 @@ public:
     qint64 m_processPID = -1;
     qint64 m_processUser = -1;
     bool m_useCppDebugger = false;
+    bool m_useJavaDebugger = false;
     QmlDebugServicesPreset m_qmlDebugServices = NoQmlDebugServices;
     int m_qmlPort = -1;
     QString m_extraAppParams;
@@ -171,6 +171,7 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     const Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     storage->m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
+    storage->m_useJavaDebugger = debuggingMode && aspect->useJavaDebugger;
     storage->m_qmlDebugServices = glue->qmlDebugServicesPreset();
     storage->m_qmlPort = runControl->qmlChannel().port();
 
@@ -298,51 +299,111 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
     };
 }
 
+// Forwards a port on this computer to the Java debug agent of the application, on a port
+// adb picks, so that two runs never compete for one.
+static ExecutableItem jdwpForwardRecipe(const Storage<RunnerStorage> &storage,
+                                        const std::function<void(quint16)> &onForwarded)
+{
+    const auto onForwardSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand(
+            {"forward", "tcp:0", QString("jdwp:%1").arg(storage->m_processPID)}));
+    };
+    const auto onForwardDone = [storage, onForwarded](const Process &process) {
+        bool ok = false;
+        const quint16 port = process.cleanedStdOut().trimmed().toUShort(&ok);
+        if (!ok || port == 0) {
+            emit storage->m_glue->finished(Tr::tr("Failed to forward %1 debugging ports.")
+                                               .arg("Java"));
+            return DoneResult::Error;
+        }
+        storage->m_afterFinishAdbCommands.push_back(QString("forward --remove tcp:%1").arg(port));
+        onForwarded(port);
+        return DoneResult::Success;
+    };
+    return ProcessTask(onForwardSetup, onForwardDone);
+}
+
+// An application started to wait for a Java debugger does so until one has attached and
+// gone quiet. Letting go of it then is what lets it run, and all there is to do when
+// only the native code is debugged.
+class JdwpRelease : public QObject
+{
+    Q_OBJECT
+
+public:
+    void setPort(quint16 port) { m_port = port; }
+    void setSettledBarrier(QBarrier *settled) { m_settled = settled; }
+
+    void start()
+    {
+        connect(&m_client, &Debugger::Internal::JdwpClient::connected, this, [this] {
+            if (!m_settled || m_settled->result()) {
+                release();
+                return;
+            }
+            connect(m_settled, &QBarrier::done, this, &JdwpRelease::release);
+        });
+        connect(&m_client, &Debugger::Internal::JdwpClient::disconnected,
+                this, [this](const QString &reason) {
+            qCDebug(androidRunWorkerLog) << "Java debug connection closed:" << reason;
+            emit done(DoneResult::Error);
+        });
+        m_client.connectToHost("127.0.0.1", m_port);
+    }
+
+signals:
+    void done(QtTaskTree::DoneResult result);
+
+private:
+    void release()
+    {
+        m_client.send(Debugger::Internal::Jdwp::VirtualMachineSet,
+                      Debugger::Internal::Jdwp::VmDispose, {}, [this](const auto &) {
+            m_client.disconnect(this);
+            m_client.close();
+            emit done(DoneResult::Success);
+        });
+    }
+
+    Debugger::Internal::JdwpClient m_client;
+    quint16 m_port = 0;
+    QPointer<QBarrier> m_settled;
+};
+
+using JdwpReleaseTask = QCustomTask<JdwpRelease>;
+
 // The startBarrier is passed when logcat process received "Sending WAIT chunk" message.
 // The settledBarrier is passed when logcat process received "debugger has settled" message.
-static ExecutableItem jdbRecipe(const Storage<RunnerStorage> &storage,
-                                const QStoredBarrier &startBarrier,
-                                const QStoredBarrier &settledBarrier)
+// A Java debugger of our own takes the place of this when there is one.
+static ExecutableItem jdwpReleaseRecipe(const Storage<RunnerStorage> &storage,
+                                        const QStoredBarrier &startBarrier,
+                                        const QStoredBarrier &settledBarrier)
 {
+    const Storage<quint16> portStorage;
+
     const auto onSetup = [storage] {
-        return storage->m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
+        return storage->m_useCppDebugger && !storage->m_useJavaDebugger
+                   ? SetupResult::Continue : SetupResult::StopWithSuccess;
     };
 
-    const auto onTaskTreeSetup = [storage](QTaskTree &taskTree) {
-        taskTree.setRecipe({removeForwardPortRecipe(storage.activeStorage(),
-                            "tcp:" + s_localJdbServerPort.toString(),
-                            "jdwp:" + QString::number(storage->m_processPID), "JDB")
-        });
-    };
+    const auto onForwarded = [portStorage](quint16 port) { *portStorage = port; };
 
-    const auto onJdbSetup = [settledBarrier](Process &process) {
-        const FilePath jdbPath = AndroidConfig::openJDKLocation().pathAppended("bin/jdb")
-                                     .withExecutableSuffix();
-        const QString portArg = QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")
-                                    .arg(s_localJdbServerPort.toString());
-        process.setCommand({jdbPath, {"-connect", portArg}});
-        process.setProcessMode(ProcessMode::Writer);
-        process.setProcessChannelMode(ProcessChannelMode::MergedChannels);
-        process.setReaperTimeout(s_jdbTimeout);
-        QObject::connect(settledBarrier.activeStorage(), &QBarrier::done, &process, [processPtr = &process] {
-            processPtr->write("ignore uncaught java.lang.Throwable\n"
-                              "threads\n"
-                              "cont\n"
-                              "exit\n");
-        });
+    const auto onReleaseSetup = [portStorage, settledBarrier](JdwpRelease &release) {
+        release.setPort(*portStorage);
+        release.setSettledBarrier(settledBarrier.activeStorage());
     };
-    const auto onJdbDone = [](const Process &process, DoneWith result) {
-        qCDebug(androidRunWorkerLog) << qPrintable(process.allOutput());
+    const auto onReleaseDone = [](DoneWith result) {
         if (result == DoneWith::Cancel)
-            qCCritical(androidRunWorkerLog) << "Terminating JDB due to timeout";
+            qCCritical(androidRunWorkerLog) << "Gave up releasing the application in time";
     };
 
     return Group {
+        portStorage,
         onGroupSetup(onSetup),
         barrierAwaiterTask(startBarrier),
-        QTaskTreeTask(onTaskTreeSetup),
-        ProcessTask(onJdbSetup, onJdbDone).withTimeout(60s)
-    };
+        jdwpForwardRecipe(storage, onForwarded),
+        JdwpReleaseTask(onReleaseSetup, onReleaseDone).withTimeout(s_jdwpReleaseTimeout)
+    } || successItem;
 }
 
 static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
@@ -456,7 +517,7 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
             ProcessTask(onTimeSetup, onTimeDone, CallDoneFlag::OnSuccess) || successItem,
             ProcessTask(onLogcatSetup)
         },
-        jdbRecipe(storage, startJdbBarrier, settledJdbBarrier)
+        jdwpReleaseRecipe(storage, startJdbBarrier, settledJdbBarrier)
     };
 }
 
@@ -469,7 +530,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
 
     const auto onArgsSetup = [storage, cmdStorage] {
         *cmdStorage = storage->adbCommand({"shell", "am", "start", "-n", storage->m_intentName});
-        if (storage->m_useCppDebugger)
+        if (storage->m_useCppDebugger || storage->m_useJavaDebugger)
             *cmdStorage << "-D";
     };
 
@@ -752,9 +813,6 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
             if (ok) {
                 storage->m_processUser = processUser;
                 qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
-                if (!storage->m_useCppDebugger) {
-                    storage->m_glue->setStartData(storage->m_processPID, storage->m_packageDir);
-                }
                 return DoneResult::Success;
             }
         }
@@ -785,6 +843,16 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
         return DoneResult::Success;
     };
 
+    const auto useJavaDebugger = [storage] { return storage->m_useJavaDebugger; };
+    const auto withoutCppDebugger = [storage] { return !storage->m_useCppDebugger; };
+    const auto onJavaForwarded = [storage](quint16 port) {
+        storage->m_glue->setJavaDebugChannel(QString("127.0.0.1:%1").arg(port));
+    };
+    // With the native debugger, the start is reported once its server is up.
+    const auto onStartedWithoutNativeDebugger = [storage] {
+        storage->m_glue->setStartData(storage->m_processPID, storage->m_packageDir);
+    };
+
     const auto onIsAliveSetup = [storage](Process &process) {
         process.setProcessChannelMode(ProcessChannelMode::MergedChannels);
         process.setCommand(storage->adbCommand({"shell", pidPollingScript.arg(storage->m_processPID)}));
@@ -798,6 +866,13 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
             timeoutTask(200ms)
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneFlag::OnSuccess),
+        // Before anything is started: the Java debugger attaches as soon as it is.
+        If (useJavaDebugger) >> Then {
+            jdwpForwardRecipe(storage, onJavaForwarded)
+        },
+        If (withoutCppDebugger) >> Then {
+            QSyncTask(onStartedWithoutNativeDebugger)
+        },
         ProcessTask(onArtSetup, onArtDone),
         ProcessTask(onCompileSetup, onCompileDone),
         Group {
@@ -857,3 +932,5 @@ ExecutableItem runnerRecipe(const Storage<RunnerInterface> &glueStorage)
 }
 
 } // namespace Android::Internal
+
+#include "androidrunnerworker.moc"
