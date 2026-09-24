@@ -180,6 +180,16 @@ add_qtc_test(tst_debugger_backends
     tst_backends.cpp
 )
 
+add_qtc_test(tst_debugger_jdwp
+  DEPENDS Qt::Network Utils Debugger
+  DEFINES JDWP_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/jdwp"
+  INCLUDES
+    "${DEBUGGERDIR}"
+  SOURCES
+    "${DEBUGGERDIR}/debuggerprotocol.cpp" "${DEBUGGERDIR}/debuggerprotocol.h"
+    tst_jdwp.cpp
+)
+
 add_qtc_test(tst_debugger_protocol
   DEPENDS Qt::Network Utils
   INCLUDES

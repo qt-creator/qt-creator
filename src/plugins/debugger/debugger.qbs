@@ -107,6 +107,15 @@ QtcPlugin {
     }
 
     Group {
+        name: "jdwp"
+        prefix: "jdwp/"
+        files: [
+            "jdwpclient.cpp", "jdwpclient.h",
+            "jdwpimpl.cpp", "jdwpimpl.h",
+        ]
+    }
+
+    Group {
         name: "lldb"
         prefix: "lldb/"
         files: [

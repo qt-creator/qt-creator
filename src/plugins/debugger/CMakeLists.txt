@@ -58,6 +58,8 @@ add_qtc_plugin(Debugger
     genericdebuggerengine.cpp genericdebuggerengine.h
     imageviewer.cpp imageviewer.h
     enginemanager.cpp enginemanager.h
+    jdwp/jdwpclient.cpp jdwp/jdwpclient.h
+    jdwp/jdwpimpl.cpp jdwp/jdwpimpl.h
     lldb/lldbengine.cpp lldb/lldbengine.h
     lldb/lldbimpl.cpp lldb/lldbimpl.h
     loadcoredialog.cpp loadcoredialog.h

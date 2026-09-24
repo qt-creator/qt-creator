@@ -10,6 +10,7 @@ Project {
         "disassembler.qbs",
         "dumpers.qbs",
         "gdb.qbs",
+        "jdwp.qbs",
         "pdb.qbs",
         "protocol.qbs",
         "offsets.qbs",
