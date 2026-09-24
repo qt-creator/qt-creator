@@ -1,0 +1,39 @@
+From 5ffacee8b9c0c79125e22b6dea19b325c1f36fda Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jean-Micha=C3=ABl=20Celerier?=
+ <jeanmichael.celerier@gmail.com>
+Date: Mon, 3 Aug 2026 00:13:00 -0400
+Subject: [PATCH] QTipLabel: guard styleSheetParentDestroyed() definition
+
+Its declaration and the styleSheetParent member are already guarded by
+QT_CONFIG(style_stylesheet).
+
+Change-Id: Id9e73e1529d8433a48ca6d41ec5b6a9ac50f426d
+Reviewed-by: David Edmundson <davidedmundson@kde.org>
+Reviewed-by: Tim Blechmann <tim.blechmann@qt.io>
+(cherry picked from commit 230d9f54483a207f51201fea73333f03aab0daeb)
+Reviewed-by: Qt Cherry-pick Bot <cherrypick_bot@qt-project.org>
+(cherry picked from commit 6c975573b29e9ef215b9f1d6678f8f34d4f6e7af)
+---
+ src/widgets/kernel/qtooltip.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/widgets/kernel/qtooltip.cpp b/src/widgets/kernel/qtooltip.cpp
+index 97332cd7d5d9..fcb32c5a9039 100644
+--- a/src/widgets/kernel/qtooltip.cpp
++++ b/src/widgets/kernel/qtooltip.cpp
+@@ -377,6 +377,7 @@ bool QTipLabel::tipChanged(const QPoint &pos, const QString &text, QObject *o)
+        return false;
+ }
+ 
++#if QT_CONFIG(style_stylesheet)
+ /** \internal
+   Cleanup the _q_stylesheet_parent property.
+  */
+@@ -385,6 +386,7 @@ void QTipLabel::styleSheetParentDestroyed()
+     setProperty("_q_stylesheet_parent", QVariant());
+     styleSheetParent = nullptr;
+ }
++#endif
+ 
+ /*!
+     Shows \a text as a tool tip, with the global position \a pos as

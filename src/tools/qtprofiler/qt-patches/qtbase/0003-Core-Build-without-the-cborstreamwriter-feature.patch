@@ -1,0 +1,35 @@
+From 2eb228bc69b05aab8926a915100ffc8e3e654ead Mon Sep 17 00:00:00 2001
+From: Marcus Tillmanns <marcus.tillmanns@qt.io>
+Date: Sat, 26 Sep 2026 15:20:27 +0200
+Subject: [PATCH] Core: Build without the cborstreamwriter feature
+
+removed_api.cpp included qcborstreamwriter.h unconditionally, for the
+Q_WEAK_OVERLOAD the header gained, so Qt Core did not compile with
+-no-feature-cborstreamwriter: the header requires the feature. Guard
+the include, as the same section already guards the permissions API.
+
+Amends c17a934197a0ca27c15abebbbdfddc6b70a393f0.
+
+Pick-to: 6.12 6.11 6.10
+Change-Id: I513f1b891972699de0cfb34a6be15480f34e4c43
+---
+ src/corelib/compat/removed_api.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/corelib/compat/removed_api.cpp b/src/corelib/compat/removed_api.cpp
+index 9e5de0edcdf..8bdc5fd2941 100644
+--- a/src/corelib/compat/removed_api.cpp
++++ b/src/corelib/compat/removed_api.cpp
+@@ -1386,7 +1386,9 @@ QUuid::Version QUuid::version() const noexcept
+ 
+ #if QT_CORE_REMOVED_SINCE(6, 10)
+ 
++#if QT_CONFIG(cborstreamwriter)
+ #include "qcborstreamwriter.h"      // Q_WEAK_OVERLOAD added
++#endif
+ 
+ #include "qcoreapplication.h"
+ 
+-- 
+2.54.0 (Apple Git-157)
+
