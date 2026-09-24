@@ -3,12 +3,22 @@
 
 package org.qtproject.jdwptest;
 
+// A second top-level class in a file named after another one, whose static
+// goes by its plain name from the class below it.
+class Shared
+{
+    static int counted = 17;
+    int level = 1;
+}
+
 // Loaded only once main() gets to it, and a class of its own besides.
 class Helper
 {
-    static class Nested
+    static class Nested extends Shared
     {
         private final int value;
+        // Hides the one of the superclass.
+        int level = 2;
 
         Nested(int value)
         {
@@ -19,6 +29,14 @@ class Helper
         {
             int doubled = value * 2; // nested-body
             return doubled;
+        }
+
+        // A local of the same name as the field, which is what an expression
+        // has to prefer.
+        int shadow()
+        {
+            int value = 42;
+            return value; // nested-shadow
         }
     }
 }

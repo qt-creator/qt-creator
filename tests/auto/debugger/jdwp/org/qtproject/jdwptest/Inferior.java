@@ -18,6 +18,12 @@ public class Inferior
         }
     }
 
+    static int calls = 0;
+
+    // A string that is not plain ASCII: a null character, and one outside the
+    // basic plane, written here as the halves of its pair.
+    static String awkward = "a\0b\ud83d\ude00c";
+
     static int square(int value)
     {
         int result = value * value; // square-body
@@ -26,6 +32,7 @@ public class Inferior
 
     static int sum(int[] values)
     {
+        calls = calls + 1;
         int total = 0;
         for (int value : values)
             total += value; // sum-loop
@@ -55,6 +62,7 @@ public class Inferior
         int total = sum(values); // after-square
         Helper.Nested nested = new Helper.Nested(total);
         int described = nested.describe(); // call-nested
+        nested.shadow();
         System.out.println("result " + squared + " " + total + " " + described + " " + text
                            + " " + point.x); // print-result
         System.exit(3);

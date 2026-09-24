@@ -14,6 +14,8 @@
 #include <utils/qtcprocess.h>
 #include <utils/shutdownguard.h>
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QPointer>
 #include <QRegularExpression>
 #include <QTcpServer>
@@ -132,12 +134,22 @@ public:
         return request.requestId;
     }
 
-    quint64 refresh(RefreshKind kind, const QSet<QString> &expanded = {})
+    quint64 refresh(RefreshKind kind, const QSet<QString> &expanded = {},
+                    const QStringList &watchers = {})
     {
         RefreshRequest request;
         request.requestId = m_nextRequestId++;
         request.kind = kind;
         request.expandedINames = expanded;
+        // The model hands the expressions over hex-encoded, under an iname of
+        // its own making.
+        QJsonArray items;
+        for (int i = 0; i < watchers.size(); ++i) {
+            items.append(QJsonObject{
+                {"iname", QString("watch.%1").arg(i)},
+                {"exp", QString::fromLatin1(watchers.at(i).toUtf8().toHex())}});
+        }
+        request.watchers = items;
         m_engine->refresh(request);
         return request.requestId;
     }
@@ -367,6 +379,10 @@ private slots:
     void findsASourceThroughTheProjectFiles();
     void readsLocalsAndExpandsThem();
     void readsTheFieldsOfThis();
+    void parsesExpressions();
+    void readsWatchers();
+    void readsAWatcherOfThis();
+    void readsAndWritesStringsTheMachineWay();
     void listsTheThreads();
     void doesNotStopAtARemovedBreakpoint();
     void doesNotStopAtADisabledBreakpoint();
@@ -740,6 +756,171 @@ void tst_jdwp::readsTheFieldsOfThis()
     const GdbMi self = childNamed(locals, "this");
     QCOMPARE(self["type"].data(), QString("org.qtproject.jdwptest.Helper$Nested"));
     QCOMPARE(childNamed(self["children"], "value")["value"].data(), QString("6"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::parsesExpressions()
+{
+    using Kind = JdwpExpression::Kind;
+
+    const Result<JdwpExpression> name = parseJdwpExpression("number");
+    QVERIFY(name);
+    QCOMPARE(name->kind, Kind::Name);
+    QCOMPARE(name->text, QString("number"));
+
+    const Result<JdwpExpression> field = parseJdwpExpression(" point . x ");
+    QVERIFY(field);
+    QCOMPARE(field->kind, Kind::Field);
+    QCOMPARE(field->text, QString("x"));
+    QCOMPARE(field->base->kind, Kind::Name);
+    QCOMPARE(field->base->text, QString("point"));
+
+    const Result<JdwpExpression> element = parseJdwpExpression("values[1].name");
+    QVERIFY(element);
+    QCOMPARE(element->kind, Kind::Field);
+    QCOMPARE(element->base->kind, Kind::Index);
+    QCOMPARE(element->base->base->text, QString("values"));
+    QCOMPARE(element->base->index->kind, Kind::Int);
+    QCOMPARE(element->base->index->integer, 1);
+
+    QCOMPARE(parseJdwpExpression("this")->kind, Kind::This);
+    QCOMPARE(parseJdwpExpression("null")->kind, Kind::Null);
+    QCOMPARE(parseJdwpExpression("true")->integer, 1);
+    QCOMPARE(parseJdwpExpression("0x1f")->integer, 31);
+    // An int holds what an int holds: a hexadecimal literal may spell out the
+    // bits of a negative number, a decimal one that does not fit is no int.
+    QCOMPARE(parseJdwpExpression("0xffffffff")->integer, -1);
+    QCOMPARE(parseJdwpExpression("2147483647")->integer, 2147483647);
+    QCOMPARE(parseJdwpExpression("3000000000L")->integer, 3000000000LL);
+    QCOMPARE(parseJdwpExpression("-7")->integer, -7);
+    QCOMPARE(parseJdwpExpression("1_000_000")->integer, 1000000);
+    QCOMPARE(parseJdwpExpression("12L")->kind, Kind::Long);
+    QCOMPARE(parseJdwpExpression("1.5")->kind, Kind::Double);
+    QCOMPARE(parseJdwpExpression("1.5")->number, 1.5);
+    QCOMPARE(parseJdwpExpression("1.5f")->kind, Kind::Float);
+    QCOMPARE(parseJdwpExpression("2e-3")->number, 0.002);
+    QCOMPARE(parseJdwpExpression("'a'")->integer, qint64('a'));
+    QCOMPARE(parseJdwpExpression("'\\n'")->integer, qint64('\n'));
+    QCOMPARE(parseJdwpExpression("\"a\\tb\"")->text, QString("a\tb"));
+    QCOMPARE(parseJdwpExpression("\"\\u0041\"")->text, QString("A"));
+
+    // What it cannot read it says so about, rather than guessing at a meaning.
+    for (const QString &bad : QStringList{"", "  ", "point.", "values[1", "(x", "1 + 2", "@x",
+                                          "'ab'", "\"open", "0x", "3000000000", "0x1ffffffff"}) {
+        const Result<JdwpExpression> result = parseJdwpExpression(bad);
+        QVERIFY2(!result, qPrintable(QString("\"%1\" was read as an expression").arg(bad)));
+        QVERIFY(!result.error().isEmpty());
+    }
+}
+
+void tst_jdwp::readsWatchers()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const QStringList expressions = {"number", "point.x", "values[1]", "values.length", "text",
+                                     "calls", "point", "nope", "values[9]", "1 + 2"};
+    const quint64 request = backend->refresh(RefreshKind::Locals, {"watch.6"}, expressions);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+
+    // The locals are still there, and each watcher carries the expression it stands for.
+    QVERIFY(namesIn(data).contains("squared"));
+    const GdbMi number = childNamed(data, "number");
+    QCOMPARE(number["iname"].data(), QString("watch.0"));
+    QCOMPARE(number["value"].data(), QString("7"));
+    QCOMPARE(number["type"].data(), QString("int"));
+    QCOMPARE(QByteArray::fromHex(number["wname"].data().toLatin1()), QByteArray("number"));
+
+    QCOMPARE(childNamed(data, "point.x")["value"].data(), QString("3"));
+    QCOMPARE(childNamed(data, "values[1]")["value"].data(), QString("2"));
+    QCOMPARE(childNamed(data, "values.length")["value"].data(), QString("3"));
+    QCOMPARE(childNamed(data, "text")["value"].data(), QString("\"hello\""));
+    // A static field of the class the frame is in, which square() counted up.
+    QCOMPARE(childNamed(data, "calls")["value"].data(), QString("1"));
+
+    // An object among the watchers expands the way a local does.
+    const GdbMi point = childNamed(data, "point");
+    QCOMPARE(point["type"].data(), QString("%1$Point").arg(s_mainClass));
+    QCOMPARE(namesIn(point["children"]), QStringList({"x", "y"}));
+    QCOMPARE(childNamed(point["children"], "y")["value"].data(), QString("4"));
+    QCOMPARE(childNamed(point["children"], "y")["iname"].data(), QString("watch.6.y"));
+
+    // What cannot be answered says why, in the place of the value.
+    QVERIFY(childNamed(data, "nope")["value"].data().startsWith('<'));
+    QVERIFY(childNamed(data, "values[9]")["value"].data().contains("outside"));
+    QVERIFY(!childNamed(data, "1 + 2")["value"].data().isEmpty());
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::readsAWatcherOfThis()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_helperSource, lineOf(m_helperSource, "nested-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::Locals, {},
+                                             {"this.value", "value", "doubled", "counted",
+                                              "level", "this.level"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "this.value")["value"].data(), QString("6"));
+    // A static field of a superclass is a name here as it is in Java.
+    QCOMPARE(childNamed(data, "counted")["value"].data(), QString("17"));
+    // A name the frame has no local for is looked for in the object it runs on.
+    QCOMPARE(childNamed(data, "value")["value"].data(), QString("6"));
+    // A field hiding one of the superclass is the one the name means.
+    QCOMPARE(childNamed(data, "level")["value"].data(), QString("2"));
+    QCOMPARE(childNamed(data, "this.level")["value"].data(), QString("2"));
+    // A local is only a name from where it is in scope, which "doubled" is not
+    // on the line that declares it.
+    QVERIFY(childNamed(data, "doubled")["value"].data().startsWith('<'));
+
+    // The next method has a local of the same name as the field, which wins.
+    const quint64 inserted = backend->insertBreakpoint(m_helperSource,
+                                                       lineOf(m_helperSource, "nested-shadow"));
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(inserted), s_timeoutMs);
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
+    const quint64 shadowed = backend->refresh(RefreshKind::Locals, {}, {"value", "this.value"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(shadowed), s_timeoutMs);
+    const GdbMi shadowedData = backend->refreshData(shadowed)["data"];
+    QCOMPARE(childNamed(shadowedData, "value")["value"].data(), QString("42"));
+    QCOMPARE(childNamed(shadowedData, "this.value")["value"].data(), QString("6"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+// The virtual machine holds a string as UTF-16 and the wire carries it as
+// UTF-8, counted rather than terminated. One with a null character in it, or
+// with a character outside the basic plane, only comes across whole if nothing
+// on the way stops at the null or reads the four bytes as four characters.
+void tst_jdwp::readsAndWritesStringsTheMachineWay()
+{
+    const QString awkward = QString("a") + QChar(QChar::Null) + 'b'
+                            + QChar(char16_t(0xd83d)) + QChar(char16_t(0xde00)) + 'c';
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // The field is read from the machine, the literal is made there first and
+    // then read back, so the two together cover both directions.
+    const QString literal = "\"a\\u0000b\\ud83d\\ude00c\"";
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, {"awkward", literal});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "awkward")["value"].data(), '"' + awkward + '"');
+    QCOMPARE(childNamed(data, literal)["value"].data(), '"' + awkward + '"');
+    QCOMPARE(childNamed(data, literal)["type"].data(), QString("java.lang.String"));
 
     backend->shutdownInferior(ShutdownMode::Kill);
     QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);

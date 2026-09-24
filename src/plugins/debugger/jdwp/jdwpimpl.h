@@ -4,6 +4,7 @@
 #pragma once
 
 #include "jdwpclient.h"
+#include "jdwpexpression.h"
 
 #include "../debuggerengineinterface.h"
 
@@ -108,7 +109,20 @@ private:
         // The instance fields of the class and of all its superclasses.
         bool fieldsKnown = false;
         QList<FieldInfo> fields;
+        // Its static ones and those of its superclasses, closest first.
+        QList<FieldInfo> staticFields;
     };
+
+    // What an expression came out as: a value and the type it is declared with,
+    // or why it could not be read.
+    class Evaluated
+    {
+    public:
+        JdwpValue value;
+        QString type;
+        QString error;
+    };
+    using Evaluation = std::function<void(const Evaluated &)>;
 
     class ResolvedLocation
     {
@@ -156,6 +170,9 @@ private:
         QString value;
         bool hasChildren = false;
         QStringList children;
+        // The expression a watcher stands for, hex-encoded, which is how the
+        // model finds its way back to the row the user typed.
+        QString watcherName;
     };
 
     void start() final;
@@ -238,7 +255,20 @@ private:
     void reportStack(quint64 requestId, int depthLimit);
     void reportThreads(quint64 requestId);
 
+    // Expressions, as far as reading the virtual machine answers them: no call
+    // runs in it, so nothing a watcher shows can change what the program does.
+    void evaluate(const JdwpExpression &expression, const Evaluation &done);
+    void evaluateName(const QString &name, const Evaluation &done);
+    void evaluateThis(const Evaluation &done);
+    void staticFieldOf(quint64 classId, const QString &className, const QString &name,
+                       const Evaluation &done);
+    void fieldOf(const Evaluated &base, const QString &name, const Evaluation &done);
+    void elementOf(const Evaluated &base, const Evaluated &index, const Evaluation &done);
+    void withCurrentFrame(const std::function<void(const Frame *)> &done);
+    QList<MethodInfo::Variable> visibleVariables(const JdwpLocation &location) const;
+
     void fetchLocals(const RefreshRequest &request);
+    void addWatchers(const JoinPtr &join, const QJsonArray &watchers);
     void addValue(const JoinPtr &join, const QString &iname, const QString &name,
                   const QString &declaredType, const JdwpValue &value);
     void addObjectValue(const JoinPtr &join, const QString &iname, const JdwpValue &value);

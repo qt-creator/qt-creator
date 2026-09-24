@@ -112,6 +112,7 @@ QtcPlugin {
         files: [
             "jdwpclient.cpp", "jdwpclient.h",
             "jdwpengine.cpp",
+            "jdwpexpression.cpp", "jdwpexpression.h",
             "jdwpimpl.cpp", "jdwpimpl.h",
         ]
     }

@@ -41,6 +41,7 @@ enum VirtualMachineCommand : quint8 {
     VmVersion = 1,
     VmAllClasses = 3,
     VmAllThreads = 4,
+    VmCreateString = 11,
     VmDispose = 6,
     VmIdSizes = 7,
     VmSuspend = 8,
@@ -51,6 +52,7 @@ enum VirtualMachineCommand : quint8 {
 
 enum ReferenceTypeCommand : quint8 {
     RefTypeSignature = 1,
+    RefTypeGetValues = 6,
     RefTypeSourceFile = 7,
     RefTypeFieldsWithGeneric = 14,
     RefTypeMethodsWithGeneric = 15,

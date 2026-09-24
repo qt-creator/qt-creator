@@ -967,6 +967,7 @@ void JdwpImpl::withFields(quint64 classId, const Done &done)
              writer().writeReferenceTypeId(classId).data(),
              [this, classId, finish](const JdwpReply &reply) {
             QList<FieldInfo> declared;
+            QList<FieldInfo> statics;
             if (reply.ok()) {
                 JdwpReader r = reader(reply.data);
                 const qint32 count = r.readInt();
@@ -977,29 +978,38 @@ void JdwpImpl::withFields(quint64 classId, const Done &done)
                     field.signature = r.readString();
                     r.readString(); // generic signature
                     field.modBits = r.readInt();
-                    if (r.ok() && !(field.modBits & Jdwp::StaticModifierBit))
+                    if (!r.ok())
+                        continue;
+                    if (field.modBits & Jdwp::StaticModifierBit)
+                        statics.append(field);
+                    else
                         declared.append(field);
                 }
             }
             // An interface has no superclass, and the question is refused.
             send(Jdwp::ClassTypeSet, Jdwp::ClassTypeSuperclass,
                  writer().writeReferenceTypeId(classId).data(),
-                 [this, classId, declared, finish](const JdwpReply &reply) {
+                 [this, classId, declared, statics, finish](const JdwpReply &reply) {
                 const quint64 superclass = reply.ok()
                                                ? reader(reply.data).readReferenceTypeId() : 0;
-                const auto store = [this, classId, declared, finish](
-                                       const QList<FieldInfo> &inherited) {
+                const auto store = [this, classId, declared, statics, finish](
+                                       const QList<FieldInfo> &inherited,
+                                       const QList<FieldInfo> &inheritedStatics) {
                     ClassInfo &info = m_classes[classId];
                     info.fieldsKnown = true;
                     info.fields = inherited + declared;
+                    // A static of a superclass goes by its plain name here as
+                    // it does in Java, and the closest declaration wins.
+                    info.staticFields = statics + inheritedStatics;
                     finish();
                 };
                 if (superclass == 0) {
-                    store({});
+                    store({}, {});
                     return;
                 }
                 withFields(superclass, [this, superclass, store] {
-                    store(m_classes.value(superclass).fields);
+                    const ClassInfo info = m_classes.value(superclass);
+                    store(info.fields, info.staticFields);
                 });
             });
         });
@@ -1653,6 +1663,390 @@ void JdwpImpl::refresh(const RefreshRequest &request)
     }
 }
 
+// The variables a frame can see where it stands, in the order they were declared.
+QList<JdwpImpl::MethodInfo::Variable> JdwpImpl::visibleVariables(const JdwpLocation &location) const
+{
+    QList<MethodInfo::Variable> visible;
+    const MethodInfo *where = method(location.classId, location.methodId);
+    if (!where)
+        return visible;
+    for (const MethodInfo::Variable &variable : where->variables) {
+        // javac lists it, too, and it is asked for on its own.
+        if (variable.name == "this")
+            continue;
+        if (variable.codeIndex <= location.index
+            && location.index < variable.codeIndex + quint64(variable.length)) {
+            visible.append(variable);
+        }
+    }
+    std::sort(visible.begin(), visible.end(), [](const auto &a, const auto &b) {
+        return a.slot < b.slot;
+    });
+    return visible;
+}
+
+// Hands over the frame the views are showing, or nothing when the program is
+// running or the stack does not reach that far.
+void JdwpImpl::withCurrentFrame(const std::function<void(const Frame *)> &done)
+{
+    if (m_running || m_currentThread == 0 || !m_client.isConnected()) {
+        done(nullptr);
+        return;
+    }
+    const int frameIndex = m_currentFrame;
+    const int stopGeneration = m_stopGeneration;
+    withFrames(frameIndex + 1, [this, done, frameIndex, stopGeneration] {
+        if (stopGeneration != m_stopGeneration || frameIndex >= m_frames.size()) {
+            done(nullptr);
+            return;
+        }
+        done(&m_frames.at(frameIndex));
+    });
+}
+
+void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done)
+{
+    const auto literal = [&done, &expression](quint8 tag, quint64 bits) {
+        done({.value = {tag, bits}, .type = expression.typeName()});
+    };
+    switch (expression.kind) {
+    case JdwpExpression::Kind::Int:
+        literal(Jdwp::IntValueTag, quint64(expression.integer));
+        return;
+    case JdwpExpression::Kind::Long:
+        literal(Jdwp::LongValueTag, quint64(expression.integer));
+        return;
+    case JdwpExpression::Kind::Boolean:
+        literal(Jdwp::BooleanValueTag, quint64(expression.integer != 0));
+        return;
+    case JdwpExpression::Kind::Char:
+        literal(Jdwp::CharValueTag, quint64(expression.integer));
+        return;
+    case JdwpExpression::Kind::Float: {
+        const float value = float(expression.number);
+        quint32 bits = 0;
+        std::memcpy(&bits, &value, sizeof(value));
+        literal(Jdwp::FloatValueTag, bits);
+        return;
+    }
+    case JdwpExpression::Kind::Double: {
+        const double value = expression.number;
+        quint64 bits = 0;
+        std::memcpy(&bits, &value, sizeof(value));
+        literal(Jdwp::DoubleValueTag, bits);
+        return;
+    }
+    case JdwpExpression::Kind::Null:
+        literal(Jdwp::ObjectValueTag, 0);
+        return;
+    case JdwpExpression::Kind::String:
+        // The machine holds the strings, so even a literal one has to be made there.
+        send(Jdwp::VirtualMachineSet, Jdwp::VmCreateString,
+             writer().writeString(expression.text).data(),
+             [this, done](const JdwpReply &reply) {
+            if (!reply.ok()) {
+                done({.error = JdwpClient::errorString(reply.errorCode)});
+                return;
+            }
+            done({.value = {Jdwp::StringValueTag, reader(reply.data).readObjectId()},
+                  .type = "java.lang.String"});
+        });
+        return;
+    case JdwpExpression::Kind::This:
+        evaluateThis(done);
+        return;
+    case JdwpExpression::Kind::Name:
+        evaluateName(expression.text, done);
+        return;
+    case JdwpExpression::Kind::Field: {
+        const QString name = expression.text;
+        evaluate(*expression.base, [this, name, done](const Evaluated &base) {
+            if (!base.error.isEmpty()) {
+                done(base);
+                return;
+            }
+            fieldOf(base, name, done);
+        });
+        return;
+    }
+    case JdwpExpression::Kind::Index: {
+        const JdwpExpression index = *expression.index;
+        evaluate(*expression.base, [this, index, done](const Evaluated &base) {
+            if (!base.error.isEmpty()) {
+                done(base);
+                return;
+            }
+            evaluate(index, [this, base, done](const Evaluated &position) {
+                if (!position.error.isEmpty()) {
+                    done(position);
+                    return;
+                }
+                elementOf(base, position, done);
+            });
+        });
+        return;
+    }
+    }
+}
+
+void JdwpImpl::evaluateThis(const Evaluation &done)
+{
+    withCurrentFrame([this, done](const Frame *frame) {
+        if (!frame) {
+            done({.error = Tr::tr("There is no frame to look in.")});
+            return;
+        }
+        send(Jdwp::StackFrameSet, Jdwp::StackFrameThisObject,
+             writer().writeObjectId(m_currentThread).writeFrameId(frame->id).data(),
+             [this, done](const JdwpReply &reply) {
+            if (!reply.ok()) {
+                done({.error = JdwpClient::errorString(reply.errorCode)});
+                return;
+            }
+            const JdwpValue self = reader(reply.data).readTaggedValue();
+            if (!self.isObject() || self.isNull()) {
+                done({.error = Tr::tr("The frame is of a static method, which has no \"this\".")});
+                return;
+            }
+            done({.value = self});
+        });
+    });
+}
+
+// A name is a local variable of the frame first, then a field of its object,
+// then a static field of its class, which is the order Java itself resolves.
+void JdwpImpl::evaluateName(const QString &name, const Evaluation &done)
+{
+    withCurrentFrame([this, name, done](const Frame *frame) {
+        if (!frame) {
+            done({.error = Tr::tr("There is no frame to look in.")});
+            return;
+        }
+        const JdwpLocation location = frame->location;
+        const quint64 frameId = frame->id;
+        const quint64 thread = m_currentThread;
+        withVariables(location.classId, location.methodId,
+                      [this, name, done, location, frameId, thread] {
+            const QList<MethodInfo::Variable> visible = visibleVariables(location);
+            const auto it = std::find_if(visible.cbegin(), visible.cend(),
+                                         [&name](const MethodInfo::Variable &variable) {
+                return variable.name == name;
+            });
+            if (it == visible.cend()) {
+                // Not a local, so whatever holds the frame may have it as a field.
+                const QString type = typeName(m_classes.value(location.classId).signature);
+                evaluateThis([this, name, done, location, type](const Evaluated &self) {
+                    if (self.error.isEmpty()) {
+                        fieldOf(self, name, [this, name, done, location,
+                                             type](const Evaluated &field) {
+                            if (field.error.isEmpty()) {
+                                done(field);
+                                return;
+                            }
+                            staticFieldOf(location.classId, type, name, done);
+                        });
+                        return;
+                    }
+                    staticFieldOf(location.classId, type, name, done);
+                });
+                return;
+            }
+            const MethodInfo::Variable variable = *it;
+            JdwpWriter request = writer();
+            request.writeObjectId(thread).writeFrameId(frameId).writeInt(1)
+                .writeInt(variable.slot)
+                .writeByte(quint8(variable.signature.isEmpty()
+                                      ? 'L' : variable.signature.at(0).toLatin1()));
+            send(Jdwp::StackFrameSet, Jdwp::StackFrameGetValues, request.data(),
+                 [this, done, variable](const JdwpReply &reply) {
+                if (!reply.ok()) {
+                    done({.error = JdwpClient::errorString(reply.errorCode)});
+                    return;
+                }
+                JdwpReader r = reader(reply.data);
+                if (r.readInt() < 1) {
+                    done({.error = Tr::tr("The virtual machine returned no value.")});
+                    return;
+                }
+                done({.value = r.readTaggedValue(), .type = typeName(variable.signature)});
+            });
+        });
+    });
+}
+
+// Reads one static field of a class, which is where a name that is neither a
+// local nor a field of "this" can still be.
+void JdwpImpl::staticFieldOf(quint64 classId, const QString &className, const QString &name,
+                             const Evaluation &done)
+{
+    withFields(classId, [this, classId, className, name, done] {
+        const QList<FieldInfo> fields = m_classes.value(classId).staticFields;
+        const auto it = std::find_if(fields.cbegin(), fields.cend(),
+                                     [&name](const FieldInfo &field) {
+            return field.name == name;
+        });
+        if (it == fields.cend()) {
+            done({.error = Tr::tr("\"%1\" is not a variable here, and %2 has no field of that "
+                                  "name.").arg(name, className)});
+            return;
+        }
+        const FieldInfo field = *it;
+        send(Jdwp::ReferenceTypeSet, Jdwp::RefTypeGetValues,
+             writer().writeReferenceTypeId(classId).writeInt(1).writeFieldId(field.id).data(),
+             [this, done, field](const JdwpReply &reply) {
+            if (!reply.ok()) {
+                done({.error = JdwpClient::errorString(reply.errorCode)});
+                return;
+            }
+            JdwpReader r = reader(reply.data);
+            if (r.readInt() < 1) {
+                done({.error = Tr::tr("The virtual machine returned no value.")});
+                return;
+            }
+            done({.value = r.readTaggedValue(), .type = typeName(field.signature)});
+        });
+    });
+}
+
+void JdwpImpl::fieldOf(const Evaluated &base, const QString &name, const Evaluation &done)
+{
+    if (!base.value.isObject()) {
+        done({.error = Tr::tr("\"%1\" is not something with fields.")
+                           .arg(primitiveText(base.value))});
+        return;
+    }
+    if (base.value.isNull()) {
+        done({.error = Tr::tr("The value is null.")});
+        return;
+    }
+    const quint64 object = base.value.bits;
+    if (base.value.tag == Jdwp::ArrayValueTag) {
+        if (name != "length") {
+            done({.error = Tr::tr("An array has no field \"%1\".").arg(name)});
+            return;
+        }
+        send(Jdwp::ArrayReferenceSet, Jdwp::ArrayLength, writer().writeObjectId(object).data(),
+             [this, done](const JdwpReply &reply) {
+            if (!reply.ok()) {
+                done({.error = JdwpClient::errorString(reply.errorCode)});
+                return;
+            }
+            done({.value = {Jdwp::IntValueTag, quint64(reader(reply.data).readInt())},
+                  .type = "int"});
+        });
+        return;
+    }
+    send(Jdwp::ObjectReferenceSet, Jdwp::ObjectReferenceType, writer().writeObjectId(object).data(),
+         [this, object, name, done](const JdwpReply &reply) {
+        if (!reply.ok()) {
+            done({.error = JdwpClient::errorString(reply.errorCode)});
+            return;
+        }
+        JdwpReader r = reader(reply.data);
+        r.readByte();
+        const quint64 typeId = r.readReferenceTypeId();
+        withSignature(typeId, [this, object, name, done, typeId] {
+            const QString className = typeName(m_classes.value(typeId).signature);
+            withFields(typeId, [this, object, name, done, typeId, className] {
+                // The superclasses come first, and a field hides theirs of its name.
+                const QList<FieldInfo> fields = m_classes.value(typeId).fields;
+                const auto it = std::find_if(fields.crbegin(), fields.crend(),
+                                             [&name](const FieldInfo &field) {
+                    return field.name == name;
+                });
+                if (it == fields.crend()) {
+                    staticFieldOf(typeId, className, name, done);
+                    return;
+                }
+                const FieldInfo field = *it;
+                send(Jdwp::ObjectReferenceSet, Jdwp::ObjectGetValues,
+                     writer().writeObjectId(object).writeInt(1).writeFieldId(field.id).data(),
+                     [this, done, field](const JdwpReply &reply) {
+                    if (!reply.ok()) {
+                        done({.error = JdwpClient::errorString(reply.errorCode)});
+                        return;
+                    }
+                    JdwpReader r = reader(reply.data);
+                    if (r.readInt() < 1) {
+                        done({.error = Tr::tr("The virtual machine returned no value.")});
+                        return;
+                    }
+                    done({.value = r.readTaggedValue(), .type = typeName(field.signature)});
+                });
+            });
+        });
+    });
+}
+
+// The tags an array index can come in, which is the integral ones alone: a
+// float indexes nothing in Java, and its bits are not a number here.
+static bool isIntegralTag(quint8 tag)
+{
+    switch (tag) {
+    case Jdwp::ByteValueTag:
+    case Jdwp::CharValueTag:
+    case Jdwp::ShortValueTag:
+    case Jdwp::IntValueTag:
+    case Jdwp::LongValueTag:
+        return true;
+    default:
+        return false;
+    }
+}
+
+void JdwpImpl::elementOf(const Evaluated &base, const Evaluated &index, const Evaluation &done)
+{
+    if (base.value.tag != Jdwp::ArrayValueTag) {
+        done({.error = Tr::tr("The value is not an array.")});
+        return;
+    }
+    if (base.value.isNull()) {
+        done({.error = Tr::tr("The array is null.")});
+        return;
+    }
+    if (!isIntegralTag(index.value.tag)) {
+        done({.error = Tr::tr("The index is not a number.")});
+        return;
+    }
+    const qint64 position = qint64(index.value.bits);
+    const quint64 object = base.value.bits;
+    send(Jdwp::ArrayReferenceSet, Jdwp::ArrayLength, writer().writeObjectId(object).data(),
+         [this, object, position, done](const JdwpReply &reply) {
+        if (!reply.ok()) {
+            done({.error = JdwpClient::errorString(reply.errorCode)});
+            return;
+        }
+        const qint32 length = reader(reply.data).readInt();
+        if (position < 0 || position >= length) {
+            done({.error = Tr::tr("The index %1 is outside the array, which holds %n item(s).",
+                                  nullptr, length).arg(position)});
+            return;
+        }
+        send(Jdwp::ArrayReferenceSet, Jdwp::ArrayGetValues,
+             writer().writeObjectId(object).writeInt(qint32(position)).writeInt(1).data(),
+             [this, done](const JdwpReply &reply) {
+            if (!reply.ok()) {
+                done({.error = JdwpClient::errorString(reply.errorCode)});
+                return;
+            }
+            JdwpReader r = reader(reply.data);
+            const quint8 elementTag = r.readByte();
+            if (r.readInt() < 1) {
+                done({.error = Tr::tr("The virtual machine returned no value.")});
+                return;
+            }
+            const bool primitive = Jdwp::isPrimitiveTag(elementTag);
+            const JdwpValue element = primitive ? r.readUntaggedValue(elementTag)
+                                                : r.readTaggedValue();
+            // Only a primitive tag names a type; the type of an object is its own,
+            // and is read off the value.
+            done({.value = element,
+                  .type = primitive ? typeName(QChar::fromLatin1(char(elementTag)))
+                                    : QString()});
+        });
+    });
+}
+
 void JdwpImpl::fetchLocals(const RefreshRequest &request)
 {
     const int generation = ++m_localsGeneration;
@@ -1671,6 +2065,7 @@ void JdwpImpl::fetchLocals(const RefreshRequest &request)
         join->release();
         return;
     }
+    addWatchers(join, request.watchers);
 
     const int frameIndex = m_currentFrame;
     const quint64 thread = m_currentThread;
@@ -1707,21 +2102,7 @@ void JdwpImpl::fetchLocals(const RefreshRequest &request)
                       [this, join, generation, location, frame, thread] {
             if (generation != m_localsGeneration)
                 return;
-            QList<MethodInfo::Variable> visible;
-            if (const MethodInfo *where = method(location.classId, location.methodId)) {
-                for (const MethodInfo::Variable &variable : where->variables) {
-                    // javac lists it, too, and it has been asked for above.
-                    if (variable.name == "this")
-                        continue;
-                    if (variable.codeIndex <= location.index
-                        && location.index < variable.codeIndex + quint64(variable.length)) {
-                        visible.append(variable);
-                    }
-                }
-            }
-            std::sort(visible.begin(), visible.end(), [](const auto &a, const auto &b) {
-                return a.slot < b.slot;
-            });
+            const QList<MethodInfo::Variable> visible = visibleVariables(location);
             if (visible.isEmpty()) {
                 join->release();
                 return;
@@ -1756,6 +2137,43 @@ void JdwpImpl::fetchLocals(const RefreshRequest &request)
         join->release();
     });
     join->release();
+}
+
+// The expressions the user typed into the Expressions view, each answered the
+// way a local is, so that an object among them expands like one.
+void JdwpImpl::addWatchers(const JoinPtr &join, const QJsonArray &watchers)
+{
+    const int generation = m_localsGeneration;
+    for (const QJsonValue &watcherValue : watchers) {
+        const QJsonObject watcher = watcherValue.toObject();
+        const QString iname = watcher.value("iname").toString();
+        const QString hexExpression = watcher.value("exp").toString();
+        const QString expression
+            = QString::fromUtf8(QByteArray::fromHex(hexExpression.toLatin1()));
+        if (iname.isEmpty())
+            continue;
+
+        m_localRoots.append(iname);
+        Local &local = m_locals[iname];
+        local.name = expression;
+        local.watcherName = hexExpression;
+
+        const Result<JdwpExpression> parsed = parseJdwpExpression(expression);
+        if (!parsed) {
+            local.value = '<' + parsed.error() + '>';
+            continue;
+        }
+        join->add();
+        evaluate(*parsed, [this, join, generation, iname, expression](const Evaluated &result) {
+            if (generation != m_localsGeneration)
+                return;
+            if (result.error.isEmpty())
+                addValue(join, iname, expression, result.type, result.value);
+            else
+                m_locals[iname].value = '<' + result.error + '>';
+            join->release();
+        });
+    }
 }
 
 void JdwpImpl::addValue(const JoinPtr &join, const QString &iname, const QString &name,
@@ -1908,6 +2326,8 @@ GdbMi JdwpImpl::localsItem(const QString &iname) const
     item.m_type = GdbMi::Tuple;
     item.addChild(constMi("iname", iname));
     item.addChild(constMi("name", local.name));
+    if (!local.watcherName.isEmpty())
+        item.addChild(constMi("wname", local.watcherName));
     item.addChild(constMi("type", local.type));
     item.addChild(constMi("value", local.value));
     item.addChild(constMi("numchild", local.hasChildren ? "1" : "0"));
