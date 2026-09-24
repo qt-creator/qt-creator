@@ -1036,6 +1036,12 @@ void LldbEngine::handleStateNotification(const GdbMi &item)
     } else if (newState == "enginerunandinferiorstopok") {
         notifyEngineRunAndInferiorStopOk();
         continueInferior();
+        // The terminal stub suspended the inferior by injecting SIGSTOP, and only a SIGCONT
+        // clears that group-stop. A ptrace continue leaves it pending, and every thread
+        // cloned later stops in __clone3. Resume before sending, or an interrupt arriving
+        // in between is refused and then lost.
+        if (usesTerminal())
+            emit kickoffTerminalProcessRequested();
     } else if (newState == "enginerunokandinferiorunrunnable") {
         notifyEngineRunOkAndInferiorUnrunnable();
         if (runParameters().startMode() == AttachToCore)
