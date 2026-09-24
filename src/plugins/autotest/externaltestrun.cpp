@@ -3,6 +3,7 @@
 
 #include "externaltestrun.h"
 
+#include "autotestplugin.h"
 #include "testresultspane.h"
 #include "testrunner.h"
 #include "testtreemodel.h"
@@ -43,6 +44,7 @@ ExternalTestRun::ExternalTestRun(const QString &suiteName,
     TestResultsPane::instance()->clearContents();
     TestTreeModel::instance()->clearFailedMarks();
     emit runner->testRunStarted();
+    updateMenuItemsEnabledState();
 }
 
 ExternalTestRun::~ExternalTestRun()
@@ -52,9 +54,13 @@ ExternalTestRun::~ExternalTestRun()
     TestRunner *runner = TestRunner::instance();
     QTC_ASSERT(runner, return);
     QObject::disconnect(m_cancelConnection);
-    runner->m_externalCancelable = false;
-    runner->m_externalRunning = false;
-    emit runner->testRunFinished();
+    // queued, so results reported from other threads before this land first
+    QMetaObject::invokeMethod(runner, [runner] {
+        runner->m_externalCancelable = false;
+        runner->m_externalRunning = false;
+        emit runner->testRunFinished();
+        updateMenuItemsEnabledState();
+    }, Qt::QueuedConnection);
 }
 
 void ExternalTestRun::reportResult(const QString &testName, ResultType type,

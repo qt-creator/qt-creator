@@ -302,7 +302,7 @@ static void cancelTestRun()
     if (!resultsManager().isRunning())
         return;
     TestRunner *runner = TestRunner::instance();
-    if (!runner)
+    if (!runner || !runner->isCancelable())
         return;
     emit runner->requestStopTestRun();
 }
