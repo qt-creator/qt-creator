@@ -503,7 +503,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
         const QString showFormat = QStringLiteral(
                                     "--pretty=format:"
-                                    "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
+                                    "commit %C(%1)%H%Creset%C(%2)% d%Creset%n"
                                     "Author: %C(%3)%aN <%aE>%Creset, %C(%4)%ad (%ar)%Creset%n"
                                     "Committer: %C(%3)%cN <%cE>%Creset, %C(%4)%cd (%cr)%Creset%n"
                                     "%n%C(%5)%s%Creset%n%n%b"
@@ -1848,9 +1848,9 @@ static QStringList normalLogArguments()
     const ColorNames colors = GitClient::colorNames();
     const QString logArgs = QStringLiteral(
                 "--pretty=format:"
-                "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
+                "commit %C(%1)%H%Creset%C(%2)% d%Creset%n"
                 "Author: %C(%3)%aN <%aE>%Creset%n"
-                "Date:   %C(%4)%cD %Creset%n%n"
+                "Date:   %C(%4)%cD%Creset%n%n"
                 "%C(%5)%w(0,4,4)%s%Creset%n%n%b"
                 ).arg(colors.hash, colors.decoration, colors.author, colors.date, colors.subject);
     return {logArgs};
