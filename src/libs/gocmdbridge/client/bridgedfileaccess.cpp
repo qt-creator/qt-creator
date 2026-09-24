@@ -128,6 +128,7 @@ Result<> FileAccess::init(
     // Waiting without an event loop is what the rest of deployAndInit() does too:
     // this runs on the main thread for an Android device, where pumping events
     // would let the very adb notification that got here arrive again.
+    std::optional<std::string> failure;
     try {
         const Result<QFuture<bool>> answer = m_client->is("/", Client::Is::Dir);
         if (!answer)
@@ -144,11 +145,18 @@ Result<> FileAccess::init(
         if (future.isCanceled() || future.resultCount() == 0)
             return logError(Tr::tr("The bridge did not answer."));
     } catch (const std::exception &e) {
+        failure = e.what();
+    }
+    // Handled out here: built and returned inside the handler, the message
+    // crashed on its way out in a clang-cl build for Windows on Arm, when the
+    // bridge had exited. Why this handler and not the others is not known.
+    if (failure) {
         // concludePendingJobs() spells a clean early exit "NormalExit"; this is
         // the one caller that knows what that silence means.
-        if (str(e) == "NormalExit")
+        if (*failure == "NormalExit")
             return logError(Tr::tr("The bridge exited without answering."));
-        return logError(Tr::tr("The bridge did not answer: %1").arg(str(e)));
+        return logError(Tr::tr("The bridge did not answer: %1")
+                            .arg(QString::fromLocal8Bit(*failure)));
     }
 
     m_started = true;
