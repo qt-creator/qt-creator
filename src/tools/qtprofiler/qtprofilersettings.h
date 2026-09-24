@@ -27,6 +27,9 @@ public:
     Utils::StringAspect recordArguments{this};
     Utils::BoolAspect exitOnError{this};
     Utils::BoolAspect withRpc{this};
+    // Embedded in a host that supplies the trace itself (see --embedded). Hides
+    // everything that would open, switch or close a trace behind the host's back.
+    Utils::BoolAspect embedded{this};
 };
 
 QtProfilerSettings &settings();

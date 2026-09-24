@@ -706,17 +706,27 @@ Window::Window(QWidget *parent)
     : QMainWindow(parent)
     , d(new WindowPrivate(this))
 {
+    // Embedded in a host that supplies the trace: everything that would open, switch
+    // or close one behind the host's back is left out, so the window shows that trace
+    // and nothing else.
+    const bool embedded = settings().embedded();
+
     QAction *recordAction = nullptr;
 #ifndef Q_OS_WASM
-    recordAction = new QAction(Icons::PLUS.icon(), Tr::tr("New Recording"), this);
-    recordAction->setToolTip(Tr::tr("Set up and start a new recording."));
-    recordAction->setShortcut(QKeySequence::New);
-    connect(recordAction, &QAction::triggered, d, &WindowPrivate::showWelcomePage);
-    connect(d->sidebar, &MainSidebar::newRecordingRequested, recordAction, &QAction::trigger);
+    if (!embedded) {
+        recordAction = new QAction(Icons::PLUS.icon(), Tr::tr("New Recording"), this);
+        recordAction->setToolTip(Tr::tr("Set up and start a new recording."));
+        recordAction->setShortcut(QKeySequence::New);
+        connect(recordAction, &QAction::triggered, d, &WindowPrivate::showWelcomePage);
+        connect(d->sidebar, &MainSidebar::newRecordingRequested, recordAction, &QAction::trigger);
+    }
 #endif
 
-    auto loadTraceFileAction = new QAction(Icons::FILE.icon(), Tr::tr("Load Trace File"), this);
-    connect(loadTraceFileAction, &QAction::triggered, d, &WindowPrivate::showOpenFileDialog);
+    QAction *loadTraceFileAction = nullptr;
+    if (!embedded) {
+        loadTraceFileAction = new QAction(Icons::FILE.icon(), Tr::tr("Load Trace File"), this);
+        connect(loadTraceFileAction, &QAction::triggered, d, &WindowPrivate::showOpenFileDialog);
+    }
 
     // Loading a Common Trace Format *directory* needs a directory picker, which blocks in a
     // nested event loop (QFileDialog::getExistingDirectory) and which the browser cannot offer
@@ -724,34 +734,42 @@ Window::Window(QWidget *parent)
     // WebAssembly rather than crash on a dead-end feature.
     QAction *loadCtfDirAction = nullptr;
 #ifndef Q_OS_WASM
-    loadCtfDirAction
-        = new QAction(Icons::OPENFILE.icon(), Tr::tr("Load Common Trace Format Directory"), this);
-    loadCtfDirAction->setToolTip(Tr::tr("Load a Common Trace Format trace directory."));
-    connect(loadCtfDirAction, &QAction::triggered, d, &WindowPrivate::showOpenCtfDirDialog);
+    if (!embedded) {
+        loadCtfDirAction = new QAction(Icons::OPENFILE.icon(),
+                                       Tr::tr("Load Common Trace Format Directory"), this);
+        loadCtfDirAction->setToolTip(Tr::tr("Load a Common Trace Format trace directory."));
+        connect(loadCtfDirAction, &QAction::triggered, d, &WindowPrivate::showOpenCtfDirDialog);
+    }
 #endif
 
-    auto loadTraceAction = new QAction(Icons::OPENFILE.icon(), Tr::tr("Load Trace"), this);
-    loadTraceAction->setShortcut(QKeySequence::Open);
-    connect(loadTraceAction, &QAction::triggered, this, [=] {
-        const TraceFile lastTraceFile = identifyTrace(settings().lastTraceFile());
-        const bool isFile = !loadCtfDirAction
-                            || lastTraceFile.format != Format::Ctf
-                            || !lastTraceFile.path.isDir();
-        QAction *currentAction = isFile ? loadTraceFileAction : loadCtfDirAction;
-        currentAction->trigger();
-    });
+    QAction *loadTraceAction = nullptr;
+    if (!embedded) {
+        loadTraceAction = new QAction(Icons::OPENFILE.icon(), Tr::tr("Load Trace"), this);
+        loadTraceAction->setShortcut(QKeySequence::Open);
+        connect(loadTraceAction, &QAction::triggered, this, [=] {
+            const TraceFile lastTraceFile = identifyTrace(settings().lastTraceFile());
+            const bool isFile = !loadCtfDirAction
+                                || lastTraceFile.format != Format::Ctf
+                                || !lastTraceFile.path.isDir();
+            QAction *currentAction = isFile ? loadTraceFileAction : loadCtfDirAction;
+            currentAction->trigger();
+        });
+    }
 
-    auto closeTraceAction = new QAction(Icons::CLOSE_TOOLBAR.icon(), Tr::tr("Close Trace"), this);
+    QAction *closeTraceAction = nullptr;
+    if (!embedded) {
+        closeTraceAction = new QAction(Icons::CLOSE_TOOLBAR.icon(), Tr::tr("Close Trace"), this);
 #if defined(Q_OS_WASM) || defined(Q_OS_MACOS)
-    // On WebAssembly the browser keeps Ctrl+W for closing its own tab, so that key
-    // never reaches us. On macOS Cmd+W closes the window, which is not ours to take.
-    closeTraceAction->setShortcut(QKeySequence::Delete);
+        // On WebAssembly the browser keeps Ctrl+W for closing its own tab, so that key
+        // never reaches us. On macOS Cmd+W closes the window, which is not ours to take.
+        closeTraceAction->setShortcut(QKeySequence::Delete);
 #else
-    closeTraceAction->setShortcut(QKeySequence::Close);
+        closeTraceAction->setShortcut(QKeySequence::Close);
 #endif
-    closeTraceAction->setEnabled(d->sidebar->hasTrace());
-    connect(closeTraceAction, &QAction::triggered, d, &WindowPrivate::closeCurrentTrace);
-    connect(d->sidebar, &MainSidebar::hasTraceChanged, closeTraceAction, &QAction::setEnabled);
+        closeTraceAction->setEnabled(d->sidebar->hasTrace());
+        connect(closeTraceAction, &QAction::triggered, d, &WindowPrivate::closeCurrentTrace);
+        connect(d->sidebar, &MainSidebar::hasTraceChanged, closeTraceAction, &QAction::setEnabled);
+    }
 
     auto helpAction = new QAction("?", this);
     helpAction->setToolTip(Tr::tr("Open Help in Web Browser"));
@@ -786,13 +804,15 @@ Window::Window(QWidget *parent)
         loadButton->setMenu(loadMenu);
         loadButton->setPopupMode(QToolButton::MenuButtonPopup);
         toolBar->addWidget(loadButton);
-    } else {
+    } else if (loadTraceAction) {
         toolBar->addAction(loadTraceAction);
     }
     if (recordAction)
         toolBar->addAction(recordAction);
-    toolBar->addAction(closeTraceAction);
-    toolBar->addSeparator();
+    if (closeTraceAction)
+        toolBar->addAction(closeTraceAction);
+    if (!embedded)
+        toolBar->addSeparator();
     toolBar->addWidget(d->traceDurationLabel);
     toolBar->addAction(helpAction);
     toolBar->setMovable(false);
@@ -804,13 +824,24 @@ Window::Window(QWidget *parent)
     // whichever format is active once a trace has been loaded.
     connect(d->traceArea, &FancyMainWindow::resetLayout, d, &WindowPrivate::resetActiveLayout);
 
-    auto splitter = new Core::MiniSplitter(Qt::Horizontal);
-    splitter->addWidget(d->sidebar);
-    splitter->addWidget(d->rightPane);
-    splitter->setStretchFactor(0, 0);
-    splitter->setStretchFactor(1, 1);
-    splitter->setSizes({200, 800});
-    setCentralWidget(splitter);
+    if (embedded) {
+        // The host decides which trace is shown, so the list to switch between them
+        // has nothing to offer. It stays alive as the window's record of the current
+        // trace, its format and its duration; it is only never shown.
+        d->sidebar->hide();
+        // Nor is the welcome page, which offers to record a trace of the window's own:
+        // until the host's trace is loaded, the trace area stays empty.
+        d->rightPane->setCurrentWidget(d->traceArea);
+        setCentralWidget(d->rightPane);
+    } else {
+        auto splitter = new Core::MiniSplitter(Qt::Horizontal);
+        splitter->addWidget(d->sidebar);
+        splitter->addWidget(d->rightPane);
+        splitter->setStretchFactor(0, 0);
+        splitter->setStretchFactor(1, 1);
+        splitter->setSizes({200, 800});
+        setCentralWidget(splitter);
+    }
 
     d->progressIndicator->attachToWidget(this);
 

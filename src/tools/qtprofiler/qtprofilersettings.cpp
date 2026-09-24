@@ -28,6 +28,8 @@ QtProfilerSettings::QtProfilerSettings()
     exitOnError.setDefaultValue(false);
 
     withRpc.setDefaultValue(false);
+
+    embedded.setDefaultValue(false);
 }
 
 void QtProfilerSettings::addRecentFile(const Utils::FilePath &filePath)
