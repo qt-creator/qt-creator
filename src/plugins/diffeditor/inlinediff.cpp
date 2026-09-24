@@ -31,6 +31,7 @@
 #include <utils/qtdesignwidgets.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
+#include <utils/widgets.h>
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
@@ -52,6 +53,7 @@
 #include <QSplitter>
 #include <QTextDocument>
 #include <QSpinBox>
+#include <QStackedWidget>
 #include <QTimer>
 #include <QToolBar>
 
@@ -1579,6 +1581,7 @@ public:
     using MenuProvider = std::function<void(QMenu *, const QTextCursor &)>;
 
     void setContextMenuProvider(const MenuProvider &filler) { m_menuProvider = filler; }
+    void setFocusInHandler(const std::function<void()> &handler) { m_focusInHandler = handler; }
 
     // the diff specific entries for the given position
     void fillContextMenu(QMenu *menu, const QTextCursor &cursor)
@@ -1598,8 +1601,16 @@ protected:
         menu.exec(event->globalPos());
     }
 
+    void focusInEvent(QFocusEvent *event) override
+    {
+        TextEditorWidget::focusInEvent(event);
+        if (m_focusInHandler)
+            m_focusInHandler();
+    }
+
 private:
     MenuProvider m_menuProvider;
+    std::function<void()> m_focusInHandler;
 };
 
 class InlineDiffEditor final : public Core::IEditor
@@ -1636,7 +1647,21 @@ public:
         m_collapseController = new CollapseController(m_widget);
         setupContextMenu(m_widget);
 
+        // the diff actions, followed by the tool bar of the focused view, with
+        // its cursor position and tab settings
+        m_toolBarWidget = new Utils::StyledBar;
+        auto toolBarLayout = new QHBoxLayout(m_toolBarWidget);
+        toolBarLayout->setContentsMargins(0, 0, 0, 0);
+        toolBarLayout->setSpacing(0);
         m_toolBar = new QToolBar;
+        m_toolBar->setObjectName("InlineDiffToolBar"); // autotest
+        toolBarLayout->addWidget(m_toolBar);
+        m_viewToolBars = new QStackedWidget;
+        m_viewToolBars->addWidget(m_widget->toolBarWidget());
+        toolBarLayout->addWidget(m_viewToolBars, 1);
+        m_widget->setFocusInHandler([this] {
+            m_viewToolBars->setCurrentWidget(m_widget->toolBarWidget());
+        });
         // like the diff editor's view switcher, the icon shows the view that
         // a click switches to
         m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
@@ -1817,7 +1842,7 @@ public:
     {
         editorRegistry().remove(m_source.data());
         delete m_splitter.data(); // deletes the decorators, which must not clear()
-        delete m_toolBar.data();
+        delete m_toolBarWidget.data();
     }
 
     void setBaseline(const InlineDiffBaseline &baseline, const QString &title)
@@ -1851,6 +1876,7 @@ public:
             m_baselineWidget->show();
         } else if (m_baselineWidget) {
             m_baselineWidget->hide();
+            m_viewToolBars->setCurrentWidget(m_widget->toolBarWidget());
         }
         const bool isInline = mode == InlineDiffViewMode::Inline;
         m_viewSwitcherAction->setIcon(
@@ -1869,7 +1895,7 @@ public:
     }
 
     Core::IDocument *document() const override { return m_document; }
-    QWidget *toolBar() override { return m_toolBar; }
+    QWidget *toolBar() override { return m_toolBarWidget; }
 
     void fillContextMenu(TextEditorWidget *view, QMenu *menu, const QTextCursor &cursor)
     {
@@ -2124,6 +2150,10 @@ private:
                                                       InlineDiffDecorator::DiffSide::Baseline);
         setupContextMenu(m_baselineWidget);
         m_splitter->insertWidget(0, m_baselineWidget);
+        m_viewToolBars->addWidget(m_baselineWidget->toolBarWidget());
+        m_baselineWidget->setFocusInHandler([this] {
+            m_viewToolBars->setCurrentWidget(m_baselineWidget->toolBarWidget());
+        });
         updateBaselineDocument();
         if (m_baseline.setupBaselineView)
             m_baseline.setupBaselineView(m_baselineWidget);
@@ -2350,7 +2380,9 @@ private:
     QPointer<InlineDiffDecorator> m_baselineDecorator;
     QPointer<SideBySideAligner> m_aligner;
     TextDocumentPtr m_baselineDocument;
-    QPointer<QToolBar> m_toolBar;
+    QPointer<QWidget> m_toolBarWidget;
+    QToolBar *m_toolBar = nullptr;
+    QStackedWidget *m_viewToolBars = nullptr;
     QAction *m_viewSwitcherAction = nullptr;
     QAction *m_previousChangeAction = nullptr;
     QAction *m_nextChangeAction = nullptr;
