@@ -60,6 +60,10 @@ using namespace Utils;
 static constexpr std::chrono::seconds s_timeout{5};
 static constexpr std::chrono::seconds s_warmUpTimeout{30};
 static constexpr std::chrono::seconds s_qmlStartupTimeout{15};
+// Splicing the interpreter's frames into the native ones on a full Qt Quick
+// process is the slowest single answer the suite waits for, and slower again
+// while the rest of it runs beside this row.
+static constexpr std::chrono::seconds s_qmlStackTimeout{15};
 static constexpr std::chrono::seconds s_compileTimeout{120};
 
 // The gdb version from which "gdb -i dap" speaks the protocol well enough
@@ -15452,7 +15456,7 @@ void tst_backends::splicesQmlFramesIntoPlainFullStackWhenNativeMixed()
         request.kind = RefreshKind::FullStack;
         request.requestId = 1;
         engine->refresh(request);
-        [&response] { QTRY_VERIFY_WITH_TIMEOUT(response.isValid(), s_timeout); }();
+        [&response] { QTRY_VERIFY_WITH_TIMEOUT(response.isValid(), s_qmlStackTimeout); }();
         return response.toString();
     };
 
