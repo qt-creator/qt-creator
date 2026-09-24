@@ -562,6 +562,18 @@ void TestTreeModel::clearFailedMarks()
         rootNode->forAllChildren(clearMarks);
     }
     m_failedStateCache.clear();
+    m_failedMarksHidden = false;
+}
+
+void TestTreeModel::hideFailedMarks()
+{
+    if (m_failedMarksHidden)
+        return;
+    m_failedMarksHidden = true;
+    rootItem()->forAllChildren([](TreeItem *item) {
+        if (item->data(0, FailedRole).toBool() || item->data(0, FailedChildRole).toBool())
+            item->update();
+    });
 }
 
 void TestTreeModel::markAllFrameworkItemsForRemoval()

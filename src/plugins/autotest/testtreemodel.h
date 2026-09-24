@@ -54,6 +54,8 @@ public:
 
     bool hasFailedTests() const;
     void clearFailedMarks();
+    void hideFailedMarks();
+    bool failedMarksHidden() const { return m_failedMarksHidden; }
 #ifdef WITH_TESTS
     int autoTestsCount() const;
     int namedQuickTestsCount() const;
@@ -102,6 +104,7 @@ private:
     Internal::TestCodeParser *m_parser = nullptr;
     Internal::ItemDataCache<Qt::CheckState> *m_checkStateCache = nullptr; // not owned
     Internal::ItemDataCache<bool> m_failedStateCache;
+    bool m_failedMarksHidden = false;
 };
 
 namespace Internal {

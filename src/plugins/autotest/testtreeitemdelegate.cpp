@@ -4,6 +4,7 @@
 #include "testtreeitemdelegate.h"
 
 #include "testtreeitem.h"
+#include "testtreemodel.h"
 
 #include <utils/theme/theme.h>
 
@@ -45,10 +46,11 @@ void TestTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
         }
     }
 
-    if (index.data(FailedRole).toBool()) {
+    const bool showFailed = !TestTreeModel::instance()->failedMarksHidden();
+    if (showFailed && index.data(FailedRole).toBool()) {
         opt.palette.setColor(QPalette::Text,
                              Utils::creatorColor(Utils::Theme::Token_Notification_Danger_Default));
-    } else if (index.data(FailedChildRole).toBool()) {
+    } else if (showFailed && index.data(FailedChildRole).toBool()) {
         opt.palette.setColor(QPalette::Text,
                              Utils::creatorColor(Utils::Theme::OutputPanes_TestFailTextColor));
     }

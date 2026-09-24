@@ -14,6 +14,7 @@
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreeitem.h"
+#include "testtreemodel.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -361,6 +362,9 @@ void TestResultsPane::clearContents()
     m_textOutput->reset();
     m_textOutput->clear();
     clearMarks();
+    auto treeModel = TestTreeModel::instance();
+    QTC_ASSERT(treeModel, return);
+    treeModel->hideFailedMarks();
 }
 
 void TestResultsPane::setFocus()
