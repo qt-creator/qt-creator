@@ -200,8 +200,11 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
         const QVariant &first = sd.first();
         QTC_CHECK(first.typeId() == QMetaType::QStringList);
         const QStringList commands = first.toStringList();
-        for (const QString &shellCmd : commands)
-            storage->m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
+        for (const QString &shellCmd : commands) {
+            // An empty one would be a bare "adb shell", an interactive shell to nowhere.
+            if (!shellCmd.trimmed().isEmpty())
+                storage->m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
+        }
     }
 
     if (const Store sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
@@ -209,8 +212,10 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
         const QVariant &first = sd.first();
         QTC_CHECK(first.typeId() == QMetaType::QStringList);
         const QStringList commands = first.toStringList();
-        for (const QString &shellCmd : commands)
-            storage->m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
+        for (const QString &shellCmd : commands) {
+            if (!shellCmd.trimmed().isEmpty())
+                storage->m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
+        }
     }
 
     storage->m_debugServerPath = debugServer(bc);
@@ -621,7 +626,9 @@ static ExecutableItem postDoneRecipe(const Storage<RunnerStorage> &storage)
     return Group {
         finishAllAndSuccess,
         For (iterator) >> Do {
-            ProcessTask(onProcessSetup)
+            // The commands that remove the forwarded ports come last, so one that fails
+            // must not take them with it.
+            ProcessTask(onProcessSetup) || successItem
         },
         onGroupDone(onDone)
     };
