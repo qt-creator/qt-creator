@@ -100,11 +100,7 @@ set(QMLPROFILER_CPP_SOURCES
   memoryusagemodel.cpp memoryusagemodel.h
   pixmapcachemodel.cpp pixmapcachemodel.h
   qmlnote.cpp qmlnote.h
-  profilermode.cpp profilermode.h
-  profilerplugin.cpp
   profilerrecorder.cpp profilerrecorder.h
-  profilersamplerruncontrol.cpp profilersamplerruncontrol.h
-  profilerstarteditor.cpp profilerstarteditor.h
   profilertracebackend.cpp profilertracebackend.h
   profilertracedocument.cpp profilertracedocument.h
   profilertraceeditor.cpp profilertraceeditor.h
@@ -114,12 +110,11 @@ set(QMLPROFILER_CPP_SOURCES
   traceformat.cpp traceformat.h
   welcomepage.cpp welcomepage.h
   qmlprofileranimationsmodel.cpp qmlprofileranimationsmodel.h
-  qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h
   qmlprofilerclientmanager.cpp qmlprofilerclientmanager.h
   qmlprofilerconstants.h
   qmlprofilerdashboardstats.cpp qmlprofilerdashboardstats.h
   qmlprofilerdashboardview.cpp qmlprofilerdashboardview.h
-  qmlprofilerdetailsrewriter.cpp qmlprofilerdetailsrewriter.h
+  qmlprofilerdetailsrewriter.h
   qmlprofilereventsview.h
   qmlprofilerfindings.cpp qmlprofilerfindings.h
   qmlprofilerfindingsmodel.cpp qmlprofilerfindingsmodel.h
@@ -128,8 +123,6 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
   qmlprofilerplainviewmanager.cpp qmlprofilerplainviewmanager.h
   qmlprofilerrangemodel.cpp qmlprofilerrangemodel.h
-  qmlprofilerrunconfigurationaspect.cpp qmlprofilerrunconfigurationaspect.h
-  qmlprofilerruncontrol.cpp qmlprofilerruncontrol.h
   qmlprofilersettings.cpp qmlprofilersettings.h
   qmlprofilerstatemanager.cpp qmlprofilerstatemanager.h
   qmlprofilerstatewidget.cpp qmlprofilerstatewidget.h
@@ -137,7 +130,6 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilerstatisticsview.cpp qmlprofilerstatisticsview.h
   qmlprofilertimelinemodel.cpp qmlprofilertimelinemodel.h
   qmlprofilertracebackend.cpp qmlprofilertracebackend.h
-  qmlprofilertool.cpp qmlprofilertool.h
   qmlprofilertracefile.cpp qmlprofilertracefile.h
   qmlprofilertraceview.cpp qmlprofilertraceview.h
   qmlrecordingtimeline.h
@@ -156,7 +148,6 @@ set(PERFPROFILER_CPP_SOURCES
   perfdatareader.cpp perfdatareader.h
   perfevent.h
   perfeventtype.h
-  perfloaddialog.cpp perfloaddialog.h
   perfnativemixed.cpp perfnativemixed.h
   perfprofiler.qrc
   profiler.qrc
@@ -164,21 +155,17 @@ set(PERFPROFILER_CPP_SOURCES
   perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h
   perfprofilertracebackend.cpp perfprofilertracebackend.h
   perfprofilerflamegraphview.cpp perfprofilerflamegraphview.h
-  perfprofilerruncontrol.cpp perfprofilerruncontrol.h
   perfprofilerstatisticsmodel.cpp perfprofilerstatisticsmodel.h
   perfprofilerstatisticsview.cpp perfprofilerstatisticsview.h
-  perfprofilertool.cpp perfprofilertool.h
   perfprofilertracefile.cpp perfprofilertracefile.h
   perfprofilertracemanager.cpp perfprofilertracemanager.h
   perfprofilertr.h
   perfrecordreader.cpp perfrecordreader.h
   perfresourcecounter.h
-  perfrunconfigurationaspect.cpp perfrunconfigurationaspect.h
   perfsampler.cpp perfsampler.h
   perfsettings.cpp perfsettings.h
   perftimelinemodel.cpp perftimelinemodel.h
   perftimelinemodelmanager.cpp perftimelinemodelmanager.h
-  perftracepointdialog.cpp perftracepointdialog.h
 )
 
 # elfutils/libdw is a system library found via find_package(), not vendored
@@ -194,15 +181,50 @@ endif()
 # kit/version to run and profile an app), which is unavailable on WebAssembly. Drop it
 # there so the offline trace viewer does not drag in QtSupport -> ProParser -> qmake.
 set(_profiler_qtsupport_dep QtSupport)
-if (EMSCRIPTEN)
+set(_profiler_projectexplorer_dep ProjectExplorer)
+# Only the details rewriter parses QML, and it cannot resolve a source file on
+# WebAssembly (see qmlprofilerdetailsrewriter_wasm.cpp), so the parser - and
+# the C++ one behind it - are left out there.
+set(_profiler_qmljs_dep QmlJS)
+# TextEditor is only used to put text marks in Qt Creator's editors, which the
+# standalone viewer does not have.
+set(_profiler_texteditor_dep TextEditor)
+if (QTPROFILER_WASM)
   set(_profiler_qtsupport_dep "")
+  set(_profiler_projectexplorer_dep "")
+  set(_profiler_qmljs_dep "")
+  set(_profiler_texteditor_dep "")
 endif()
+
+# Everything that integrates the profiler into Qt Creator: the mode, the plugin
+# entry point, the run controls and run-configuration aspects, and the tool
+# classes owning a Qt Creator perspective. The WebAssembly build is the
+# standalone viewer, which loads no plugins and cannot run a target, so none of
+# it is reachable there - and leaving it out is what lets that build do without
+# ProjectExplorer.
+set(PROFILER_CREATOR_SOURCES
+  perfloaddialog.cpp perfloaddialog.h
+  perfprofilerruncontrol.cpp perfprofilerruncontrol.h
+  perfprofilertool.cpp perfprofilertool.h
+  perfrunconfigurationaspect.cpp perfrunconfigurationaspect.h
+  perftracepointdialog.cpp perftracepointdialog.h
+  profilermode.cpp profilermode.h
+  profilerplugin.cpp
+  profilersamplerruncontrol.cpp profilersamplerruncontrol.h
+  profilerstarteditor.cpp profilerstarteditor.h
+  qmlprofilerattachdialog.cpp qmlprofilerattachdialog.h
+  qmlprofilerrunconfigurationaspect.cpp qmlprofilerrunconfigurationaspect.h
+  qmlprofilerruncontrol.cpp qmlprofilerruncontrol.h
+  qmlprofilertool.cpp qmlprofilertool.h
+)
 
 add_qtc_plugin(Profiler
   CONDITION TARGET Tracing
-  DEPENDS Qt::Network QmlDebug QmlJS Tracing CommonTraceFormat QtTaskTree ${PROFILER_APPLE_LIBS}
-  INCLUDES ${PROJECT_SOURCE_DIR}/src
-  PLUGIN_DEPENDS Core ProjectExplorer ${_profiler_qtsupport_dep} TextEditor
+  DEPENDS Qt::Network QmlDebug ${_profiler_qmljs_dep} Tracing CommonTraceFormat QtTaskTree ${PROFILER_APPLE_LIBS}
+  # The CTF loader includes <json/json.hpp> directly; own that include path
+  # rather than inheriting it from whichever plugin happens to be built too.
+  INCLUDES ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/libs/3rdparty
+  PLUGIN_DEPENDS Core ${_profiler_projectexplorer_dep} ${_profiler_qtsupport_dep} ${_profiler_texteditor_dep}
   SOURCES
     ${TEST_SOURCES}
     ${QMLPROFILER_CPP_SOURCES}
@@ -218,6 +240,22 @@ add_qtc_plugin(Profiler
 )
 
 extend_qtc_plugin(Profiler
+  CONDITION NOT QTPROFILER_WASM
+  SOURCES ${PROFILER_CREATOR_SOURCES}
+)
+
+extend_qtc_plugin(Profiler
+  CONDITION QTPROFILER_WASM
+  SOURCES qmlprofilerdetailsrewriter_wasm.cpp
+)
+
+extend_qtc_plugin(Profiler
+  CONDITION NOT QTPROFILER_WASM
+  SOURCES qmlprofilerdetailsrewriter.cpp
+)
+
+extend_qtc_plugin(Profiler
+  CONDITION NOT QTPROFILER_WASM
   SOURCES mcpsupport.cpp mcpsupport.h
   DEPENDS McpServerLib
 )

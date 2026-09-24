@@ -31,7 +31,9 @@
 #include "idocumentfactory.h"
 #include "inavigationwidgetfactory.h"
 #include "iwizardfactory.h"
+#ifndef Q_OS_WASM
 #include "jsexpander.h"
+#endif
 #include "loggingviewer.h"
 #include "manhattanstyle.h"
 #include "messagemanager.h"
@@ -312,7 +314,9 @@ public:
     EditorManager *m_editorManager = nullptr;
     ExternalToolManager *m_externalToolManager = nullptr;
     ProgressManagerPrivate *m_progressManager = nullptr;
+#ifndef Q_OS_WASM
     JsExpander *m_jsExpander = nullptr;
+#endif
     VcsManager *m_vcsManager = nullptr;
     ModeManager *m_modeManager = nullptr;
     FancyTabWidget *m_modeStack = nullptr;
@@ -1347,7 +1351,9 @@ void ICorePrivate::init()
     m_mainwindow = new MainWindow;
 
     m_progressManager = new ProgressManagerPrivate;
+#ifndef Q_OS_WASM
     m_jsExpander = JsExpander::createGlobalJsExpander();
+#endif
     m_vcsManager = new VcsManager;
     m_modeStack = new FancyTabWidget(m_mainwindow);
     m_modeStack->setInfoBar(&m_infoBar);
@@ -1496,8 +1502,10 @@ ICorePrivate::~ICorePrivate()
     delete m_modeManager;
     m_modeManager = nullptr;
 
+#ifndef Q_OS_WASM
     delete m_jsExpander;
     m_jsExpander = nullptr;
+#endif
 
     delete m_mainwindow;
     m_mainwindow = nullptr;

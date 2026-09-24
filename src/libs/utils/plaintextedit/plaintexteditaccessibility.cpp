@@ -3,6 +3,8 @@
 
 #include "plaintexteditaccessibility.h"
 
+#if QT_CONFIG(accessibility)
+
 #include "plaintextedit.h"
 
 #include <QScrollBar>
@@ -530,3 +532,5 @@ QAccessibleInterface *accessiblePlainTextEditFactory(const QString &classname, Q
 }
 
 } // namespace Utils
+
+#endif // QT_CONFIG(accessibility)

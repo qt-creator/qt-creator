@@ -18,7 +18,7 @@
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#ifndef __EMSCRIPTEN__ // QtSupport is excluded from the WebAssembly build
+#ifndef QTPROFILER_WASM // QtSupport is excluded from the standalone viewer
 #include <qtsupport/qtkitaspect.h>
 #endif
 
@@ -252,7 +252,7 @@ void PerfDataReader::collectArguments(CommandLine *cmd, const QString &exe, cons
         cmd->addArg(exe);
     }
 
-#ifndef __EMSCRIPTEN__
+#ifndef QTPROFILER_WASM
     if (QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(kit)) {
         cmd->addArg("--extra");
         cmd->addArg(QString("%1%5%2%5%3%5%4")

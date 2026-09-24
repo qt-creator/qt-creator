@@ -40,12 +40,13 @@
         "QT_HOST_PATH": "$env{QT_HOST_PATH}",
         "QTC_STATIC_BUILD": "ON",
         "BUILD_SHARED_LIBS": "OFF",
-        "BUILD_PLUGINS": "Core;TextEditor;ProjectExplorer;Profiler",
+        "BUILD_PLUGINS": "Core;Profiler",
         "BUILD_EXECUTABLES": "qtprofiler",
         "WITH_QMLDESIGNER": "OFF",
         "WITH_TESTS": "OFF",
         "BUILD_WITH_PCH": "OFF",
-        "BUILD_EXECUTABLE_CMDBRIDGE": "OFF"
+        "BUILD_EXECUTABLE_CMDBRIDGE": "OFF",
+        "QTPROFILER_WASM": "ON"
       }
     }
   ],

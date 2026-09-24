@@ -1,14 +1,25 @@
+# The GPU track backend draws through CanvasPainter, and is only ever chosen on
+# macOS and Windows (see resolvedTrackBackend()). On WebAssembly it would be
+# dead code that still pulls CanvasPainter, and Qt Quick behind it, into the
+# binary, so leave it out and build only the software backend there.
+if (EMSCRIPTEN)
+  set(tracing_condition ON)
+  set(tracing_canvaspainter "")
+else()
+  set(tracing_condition TARGET Qt::CanvasPainter)
+  set(tracing_canvaspainter Qt::CanvasPainter)
+endif()
+
 add_qtc_library(Tracing
   DEPENDS Utils
-  CONDITION TARGET Qt::CanvasPainter
-  PUBLIC_DEPENDS Qt::Widgets Qt::CanvasPainter
+  CONDITION ${tracing_condition}
+  PUBLIC_DEPENDS Qt::Widgets ${tracing_canvaspainter}
   SOURCES
     flamegraphwidget.cpp flamegraphwidget.h
     safecastable.h
     timelinecoordinates.h
     timelineformatdata.cpp timelineformatdata.h
     trackpainterbase.cpp trackpainterbase.h
-    trackpaintergpu.cpp trackpaintergpu.h
     trackpainterraster.cpp trackpainterraster.h
     tracklabels.cpp tracklabels.h
     timeruler.cpp timeruler.h
@@ -30,6 +41,11 @@ add_qtc_library(Tracing
     tracestashfile.h
     tracing_global.h
     tracingtr.h
+)
+
+extend_qtc_library(Tracing
+  CONDITION NOT EMSCRIPTEN
+  SOURCES trackpaintergpu.cpp trackpaintergpu.h
 )
 
 if(TARGET Tracing)

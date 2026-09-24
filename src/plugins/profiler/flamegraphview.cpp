@@ -80,8 +80,10 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
 
     QPoint position = ev->globalPos();
 
+#ifndef Q_OS_WASM
     menu->addActions(QmlProfilerTool::profilerContextMenuActions());
     menu->addSeparator();
+#endif
     QAction *getGlobalStatsAction = menu->addAction(Tr::tr("Show Full Range"));
     getGlobalStatsAction->setEnabled(m_model->modelManager()->isRestrictedToRange());
     connect(getGlobalStatsAction, &QAction::triggered, this, [this] {

@@ -154,7 +154,9 @@ CrumblePath::CrumblePath(QWidget *parent) : QWidget(parent)
     layout->setSpacing(0);
     setLayout(layout);
 
+#if QT_CONFIG(style_stylesheet)
     setStyleSheet("QPushButton { padding-left: 12; padding-right: 12; }");
+#endif
 }
 
 CrumblePath::~CrumblePath()

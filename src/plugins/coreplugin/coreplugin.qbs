@@ -10,7 +10,15 @@ QtcPlugin {
 
     Depends {
         name: "Qt"
-        submodules: ["gui-private", "network", "printsupport", "qml", "widgets", "xml"]
+        submodules: ["gui-private", "network", "printsupport", "widgets", "xml"]
+    }
+
+    // Only the JavaScript macro expander and the Locator's JavaScript filter
+    // need a JavaScript engine, and a WebAssembly build leaves both out
+    // (see CMakeLists.txt).
+    Depends {
+        name: "Qt.qml"
+        condition: !project.qtprofilerWasm
     }
 
     Depends { name: "Utils" }
@@ -39,6 +47,15 @@ QtcPlugin {
     Properties {
         condition: useUnityLauncher
         cpp.defines: base.concat("QTC_SUPPORT_UNITY_LAUNCHER")
+    }
+
+    Group {
+        name: "JavaScript engine users"
+        condition: !project.qtprofilerWasm
+        files: [
+            "jsexpander.cpp", "jsexpander.h",
+            "locator/javascriptfilter.cpp", "locator/javascriptfilter.h",
+        ]
     }
 
     Group {
@@ -124,8 +141,6 @@ QtcPlugin {
             "iwelcomepage.h",
             "iwizardfactory.cpp",
             "iwizardfactory.h",
-            "jsexpander.cpp",
-            "jsexpander.h",
             "loggingviewer.cpp",
             "loggingviewer.h",
             "manhattanstyle.cpp",
@@ -379,8 +394,6 @@ QtcPlugin {
             "filesystemfilter.h",
             "ilocatorfilter.cpp",
             "ilocatorfilter.h",
-            "javascriptfilter.cpp",
-            "javascriptfilter.h",
             "locatorconstants.h",
             "locatorfiltersfilter.cpp",
             "locatorfiltersfilter.h",

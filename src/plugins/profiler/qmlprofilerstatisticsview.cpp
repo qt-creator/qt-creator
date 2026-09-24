@@ -8,7 +8,9 @@
 
 #include <qmldebug/qmleventlocation.h>
 
+#ifndef Q_OS_WASM
 #include <texteditor/textmark.h>
+#endif
 
 #include <coreplugin/minisplitter.h>
 #include <utils/filepath.h>
@@ -30,6 +32,9 @@ using namespace Utils;
 
 namespace Profiler::Internal {
 
+#ifndef Q_OS_WASM
+// Text marks annotate the source in Qt Creator's editors. The standalone
+// WebAssembly viewer has none, so the whole mechanism is left out there.
 class QmlProfilerTextMark : public TextEditor::TextMark
 {
 public:
@@ -69,6 +74,7 @@ private:
     QMultiHash<QString, TextMarkId> m_ids;
     QList<QmlProfilerTextMark *> m_marks;
 };
+#endif
 
 const int DEFAULT_SORT_COLUMN = MainTimeInPercent;
 
@@ -100,6 +106,7 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
     setObjectName(QLatin1String("QmlProfiler.Statistics.Dock"));
     setWindowTitle(Tr::tr("Statistics"));
 
+#ifndef Q_OS_WASM
     m_textMarkModel = new QmlProfilerTextMarkModel(this, this);
     connect(profilerModelManager, &QmlProfilerModelManager::initialized,
             m_textMarkModel, &QmlProfilerTextMarkModel::hideTextMarks);
@@ -109,6 +116,7 @@ QmlProfilerStatisticsView::QmlProfilerStatisticsView(QmlProfilerModelManager *pr
             m_textMarkModel, &QmlProfilerTextMarkModel::addTextMarkId);
     connect(profilerModelManager, &Timeline::TimelineTraceManager::loadFinished,
             m_textMarkModel, &QmlProfilerTextMarkModel::showTextMarks);
+#endif
 
     auto model = new QmlProfilerStatisticsModel(profilerModelManager);
     m_mainView.reset(new QmlProfilerStatisticsMainView(model));
@@ -177,12 +185,15 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
 
     QPoint position = ev->globalPos();
 
+#ifndef Q_OS_WASM
     const QList <QAction *> commonActions = QmlProfilerTool::profilerContextMenuActions();
     for (QAction *act : commonActions)
         menu->addAction(act);
+#endif
 
     if (mouseOnTable(position)) {
-        menu->addSeparator();
+        if (!menu->isEmpty())
+            menu->addSeparator();
         if (m_mainView->selectedModelIndex().isValid()) {
             QAction *copyRowAction = menu->addAction(Tr::tr("Copy Row"));
             connect(copyRowAction, &QAction::triggered, this, [this] {
@@ -202,7 +213,8 @@ void QmlProfilerStatisticsView::contextMenuEvent(QContextMenuEvent *ev)
         });
     }
 
-    menu->addSeparator();
+    if (!menu->isEmpty())
+        menu->addSeparator();
     QAction *getGlobalStatsAction = menu->addAction(Tr::tr("Show Full Range"));
     if (!m_mainView->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
@@ -238,10 +250,12 @@ void QmlProfilerStatisticsView::onVisibleFeaturesChanged(quint64 features)
     m_mainView->restrictToFeatures(features);
 }
 
+#ifndef Q_OS_WASM
 void QmlProfilerStatisticsView::createMarks(const QString &fileName)
 {
     m_textMarkModel->createMarks(fileName);
 }
+#endif
 
 //  QmlProfilerStatisticsMainView
 
@@ -454,6 +468,7 @@ void QmlProfilerStatisticsRelativesView::jumpToItem(int typeIndex)
     emit typeClicked(typeIndex);
 }
 
+#ifndef Q_OS_WASM
 QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerStatisticsView *statisticsView,
                                          int typeId,
                                          const FilePath &fileName, int lineNumber)
@@ -566,5 +581,6 @@ void QmlProfilerTextMarkModel::hideTextMarks()
     for (QmlProfilerTextMark *mark : std::as_const(m_marks))
         mark->setVisible(false);
 }
+#endif
 
 } // namespace Profiler::Internal

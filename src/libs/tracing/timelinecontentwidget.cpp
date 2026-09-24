@@ -13,7 +13,9 @@
 #include "timelinezoomcontrol.h"
 #include "timeruler.h"
 #include "tracklabels.h"
+#ifndef Q_OS_WASM
 #include "trackpaintergpu.h"
+#endif
 #include "trackpainterraster.h"
 
 #include <utils/stylehelper.h>
@@ -486,14 +488,17 @@ void TimelineContentWidget::activateTrackView(TrackBackend backend)
     QWidget *viewport = m_scrollArea->viewport();
     QWidget *previous = m_tracksWidget;
 
-    if (backend == TrackBackend::Software) {
+    // Without a GPU backend the software one is all there is, whatever is asked for.
+    if (backend == TrackBackend::Software || !hasGpuTrackBackend()) {
         if (!m_rasterView) {
             m_rasterView = new TrackPainterRaster(viewport);
             wireTrackView(m_rasterView);
         }
         m_tracksView = m_rasterView;
         m_tracksWidget = m_rasterView;
-    } else {
+    }
+#ifndef Q_OS_WASM
+    else {
         if (!m_gpuView) {
             m_gpuView = new TrackPainterGpu(viewport);
             wireTrackView(m_gpuView);
@@ -501,6 +506,7 @@ void TimelineContentWidget::activateTrackView(TrackBackend backend)
         m_tracksView = m_gpuView;
         m_tracksWidget = m_gpuView;
     }
+#endif
 
     m_tracksWidget->resize(viewport->size());
     m_tracksWidget->show();

@@ -34,8 +34,21 @@ TrackBackend trackBackendOverride()
     return g_trackBackendOverride;
 }
 
+bool hasGpuTrackBackend()
+{
+#ifdef Q_OS_WASM
+    // WebAssembly resolves to software below whatever is asked for, so the GPU
+    // backend is not built there (see the Tracing library's CMakeLists.txt).
+    return false;
+#else
+    return true;
+#endif
+}
+
 TrackBackend resolvedTrackBackend()
 {
+    if (!hasGpuTrackBackend())
+        return TrackBackend::Software;
     if (g_trackBackendOverride != TrackBackend::Automatic)
         return g_trackBackendOverride;
     // The QCanvasPainter (RHI) backend is the default where the RHI stack is

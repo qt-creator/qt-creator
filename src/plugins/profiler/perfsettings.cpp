@@ -126,8 +126,10 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
     }.attachTo(this);
 
     IDevice::ConstPtr device;
+#ifndef Q_OS_WASM
     if (target)
         device = RunDeviceKitAspect::device(target->kit());
+#endif
 
     if (!device) {
         useTracePointsButton->setEnabled(false);

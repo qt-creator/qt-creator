@@ -180,9 +180,35 @@ def check_prerequisites(args: argparse.Namespace, env: dict[str, str]) -> None:
         sys.exit('--zip: neither 7zz nor 7z was found in PATH (install 7-Zip).')
 
 
+def wasm_font_source(qt_wasm: Path) -> Path | None:
+    """The directory holding the fonts Qt's platform plugin bundles, if it exists here.
+
+    qtprofiler links a subset of them in place of Qt's copy; see
+    src/tools/qtprofiler/CMakeLists.txt. Only Qt's sources have them, and a Qt
+    install records where it was built from. A prebuilt Qt names a directory on
+    the machine that built it, so the fonts are only found for a Qt built here.
+    """
+    extra = qt_wasm / 'lib' / 'cmake' / 'Qt6BuildInternals' / 'QtBuildInternalsExtra.cmake'
+    if not extra.exists():
+        return None
+    match = re.search(r'set\(QT_SOURCE_TREE "([^"]+)"',
+                      extra.read_text(encoding='utf-8', errors='replace'))
+    if not match:
+        return None
+    fonts = Path(match.group(1)) / 'src' / '3rdparty' / 'wasm'
+    if not all((fonts / name).exists() for name in ('DejaVuSans.ttf', 'DejaVuSansMono.ttf')):
+        return None
+    return fonts
+
+
 def configure(args: argparse.Namespace, env: dict[str, str]) -> None:
     command = ['cmake', '--preset', PRESET, '-B', str(args.build),
                f'-DCMAKE_BUILD_TYPE={args.build_type}']
+    fonts = wasm_font_source(args.qt_wasm)
+    if fonts:
+        command.append(f'-DQTPROFILER_WASM_FONT_SOURCE={fonts}')
+    else:
+        print(f"No sources found for {args.qt_wasm}: qtprofiler keeps Qt's full fonts.")
     # Run from the sources: that is where CMake looks for CMakePresets.json.
     common.check_print_call(command, cwd=args.src, env=env)
 

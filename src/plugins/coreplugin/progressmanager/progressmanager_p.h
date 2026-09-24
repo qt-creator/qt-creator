@@ -9,12 +9,15 @@
 
 #include <QFutureWatcher>
 #include <QList>
-#include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPointer>
 #include <QPropertyAnimation>
 #include <QToolButton>
+
+#if QT_CONFIG(graphicseffect)
+#include <QGraphicsOpacityEffect>
+#endif
 
 namespace Core {
 
@@ -96,8 +99,10 @@ private:
     QPointer<FutureProgress> m_currentStatusDetailsProgress;
     QLabel *m_statusDetailsLabel = nullptr;
     ProgressBar *m_summaryProgressBar;
+#if QT_CONFIG(graphicseffect)
     QGraphicsOpacityEffect *m_opacityEffect;
     QPointer<QPropertyAnimation> m_opacityAnimation;
+#endif
     bool m_progressViewPinned = false;
     bool m_hovered = false;
     bool m_summaryProgressBarUpdateScheduled = false;

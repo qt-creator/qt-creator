@@ -141,6 +141,10 @@ qtc_add_resources(TextEditor "images"
     images/snippet.png
 )
 
+if(NOT TARGET TextEditor)
+  return()
+endif()
+
 # from cmake 3.24 $<LINK_LIBRARY:WHOLE_ARCHIVE,TextEditorSupport> is supported which can be added to DEPENDS
 if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0" AND NOT CMAKE_GENERATOR STREQUAL "FASTBuild")
   target_link_libraries(TextEditor PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,TextEditorSupport>)

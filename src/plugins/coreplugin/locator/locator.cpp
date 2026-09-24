@@ -7,7 +7,9 @@
 #include "executefilter.h"
 #include "externaltoolsfilter.h"
 #include "filesystemfilter.h"
+#ifndef Q_OS_WASM
 #include "javascriptfilter.h"
+#endif
 #include "locatorconstants.h"
 #include "locatorfiltersfilter.h"
 #include "locatormanager.h"
@@ -100,7 +102,9 @@ public:
     LocatorManager m_locatorManager;
     LocatorSettingsPage m_locatorSettingsPage;
 
+#ifndef Q_OS_WASM
     JavaScriptFilter m_javaScriptFilter;
+#endif
     OpenDocumentsFilter m_openDocumentsFilter;
     FileSystemFilter m_fileSystemFilter;
     ExecuteFilter m_executeFilter;

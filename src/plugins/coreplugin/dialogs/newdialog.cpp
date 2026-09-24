@@ -223,9 +223,11 @@ NewDialog::NewDialog()
                                           Qt::Horizontal);
 
     m_templateCategoryView->setObjectName("templateCategoryView");
+#if QT_CONFIG(style_stylesheet)
     m_templateCategoryView->setStyleSheet(QString::fromUtf8(" QTreeView::branch {\n"
                                                             "         background: transparent;\n"
                                                             " }"));
+#endif
     m_templateCategoryView->setIndentation(0);
     m_templateCategoryView->setRootIsDecorated(false);
     m_templateCategoryView->setItemsExpandable(false);

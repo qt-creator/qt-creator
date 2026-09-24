@@ -42,7 +42,11 @@ public:
     qreal opacity();
     void setOpacity(qreal value) override;
 protected:
+#if QT_CONFIG(graphicseffect)
     QGraphicsOpacityEffect * const m_opacityEffect;
+#else
+    qreal m_opacity = 0;
+#endif
 };
 
 class QTCREATOR_UTILS_EXPORT ExpandButton : public QToolButton

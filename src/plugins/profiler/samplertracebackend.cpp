@@ -5,7 +5,7 @@
 
 #include "samplerviewmanager.h"
 
-#ifndef __EMSCRIPTEN__ // QtSupport is excluded from the WebAssembly build
+#ifndef QTPROFILER_WASM // QtSupport is excluded from the standalone viewer
 #include <qtsupport/baseqtversion.h>
 #endif
 
@@ -89,7 +89,7 @@ void SamplerTraceBackend::load(const FilePath &path)
 {
     // Which projects are open, and what their resources map to, can have changed
     // since the last trace, so this is answered per load rather than once.
-#ifndef __EMSCRIPTEN__
+#ifndef QTPROFILER_WASM
     QtSupport::QtVersion::populateQmlFileFinder(&d->fileFinder, nullptr);
 #endif
     d->viewManager.load(path);

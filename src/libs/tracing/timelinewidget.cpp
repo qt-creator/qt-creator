@@ -125,6 +125,8 @@ TimelineWidget::TimelineWidget(TimelineModelAggregator *aggregator,
     toolbar->addSeparator();
     auto softwareAction = toolbar->addAction(tr("SW"));
     softwareAction->setCheckable(true);
+    // Nothing to choose between when only the software backend was built.
+    softwareAction->setVisible(hasGpuTrackBackend());
     softwareAction->setToolTip(
         tr("Render the timeline with the software (QPainter) backend instead of "
            "the hardware-accelerated (QCanvasPainter) one"));

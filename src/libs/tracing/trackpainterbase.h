@@ -48,6 +48,9 @@ static constexpr int kNoteIconSize = 24;
 // change only affects track areas created afterwards.
 TRACING_EXPORT void setTrackBackendOverride(TrackBackend backend);
 TRACING_EXPORT TrackBackend trackBackendOverride();
+// Whether the GPU backend exists here at all. It is left out where it could
+// never be chosen, and then there is no choice to offer and nothing to switch.
+TRACING_EXPORT bool hasGpuTrackBackend();
 // Automatic resolved to a concrete backend for this host OS.
 TRACING_EXPORT TrackBackend resolvedTrackBackend();
 
