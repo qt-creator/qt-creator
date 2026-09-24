@@ -798,6 +798,7 @@ public:
                             int cursorPosition) const;
     void paintAdditionalVisualWhitespaces(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintIndentDepth(PaintEventData &data, QPainter &painter, const PaintEventBlockData &blockData);
+    bool hasFoldedReplacement(const QTextBlock &block) const;
     QRectF replacementRect(const QTextBlock &block, const QRectF &lineRect) const;
     void paintReplacement(PaintEventData &data, QPainter &painter, qreal top) const;
     void paintWidgetBackground(const PaintEventData &data, QPainter &painter) const;
@@ -5768,12 +5769,9 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         return;
 
     QRectF annotationLineRect = lineRect;
-    const QTextBlock nextBlock = data.block.next();
     if (m_displaySettings.m_annotationAlignment != AnnotationAlignment::BetweenLines
-            && nextBlock.isValid() && !nextBlock.isVisible()
-            && q->replacementVisible(data.block.blockNumber())) {
+            && hasFoldedReplacement(data.block))
         annotationLineRect.setRight(replacementRect(data.block, lineRect).right());
-    }
 
     Utils::sort(marks, [](const TextMark* mark1, const TextMark* mark2){
         return mark1->priority() > mark2->priority();
@@ -6298,6 +6296,13 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     painter.restore();
 }
 
+bool TextEditorWidgetPrivate::hasFoldedReplacement(const QTextBlock &block) const
+{
+    const QTextBlock nextBlock = block.next();
+    return nextBlock.isValid() && !nextBlock.isVisible()
+           && q->replacementVisible(block.blockNumber());
+}
+
 QRectF TextEditorWidgetPrivate::replacementRect(const QTextBlock &block,
                                                 const QRectF &lineRect) const
 {
@@ -6312,9 +6317,8 @@ QRectF TextEditorWidgetPrivate::replacementRect(const QTextBlock &block,
 void TextEditorWidgetPrivate::paintReplacement(PaintEventData &data, QPainter &painter,
                                                qreal top) const
 {
-    QTextBlock nextBlock = data.block.next();
-
-    if (nextBlock.isValid() && !nextBlock.isVisible() && q->replacementVisible(data.block.blockNumber())) {
+    if (hasFoldedReplacement(data.block)) {
+        const QTextBlock nextBlock = data.block.next();
         const bool selectThis = (data.textCursor.hasSelection()
                                  && nextBlock.position() >= data.textCursor.selectionStart()
                                  && nextBlock.position() < data.textCursor.selectionEnd());
