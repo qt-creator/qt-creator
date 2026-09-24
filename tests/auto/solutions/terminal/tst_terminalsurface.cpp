@@ -8,6 +8,7 @@
 
 #include <QRandomGenerator>
 #include <QRegularExpression>
+#include <QSignalSpy>
 #include <QStringList>
 
 #include <limits>
@@ -1177,6 +1178,88 @@ private slots:
 
         m_surface->dataFromPty("\x1b[?2004l");
         QVERIFY(!m_surface->isBracketedPasteEnabled());
+    }
+
+    static QRect damageIn(const QSignalSpy &invalidated)
+    {
+        QRect damage;
+        for (const QList<QVariant> &args : invalidated)
+            damage = damage.united(args.at(0).toRect());
+        return damage;
+    }
+
+    void synchronizedOutputIsReportedThroughDecrqm()
+    {
+        m_surface->dataFromPty("[?2026$p");
+        QTRY_COMPARE(m_written, QByteArray("[?2026;2$y"));
+
+        m_written.clear();
+        m_surface->dataFromPty("[?2026h[?2026$p");
+        QTRY_COMPARE(m_written, QByteArray("[?2026;1$y"));
+
+        m_written.clear();
+        m_surface->dataFromPty("[?2026l[?2026$p");
+        QTRY_COMPARE(m_written, QByteArray("[?2026;2$y"));
+    }
+
+    void aSynchronizedUpdateIsReportedWholeWhenItEnds()
+    {
+        QSignalSpy invalidated(m_surface.get(), &TerminalSurface::invalidated);
+        QSignalSpy changed(m_surface.get(), &TerminalSurface::synchronizedUpdateChanged);
+
+        m_surface->dataFromPty("[?2026h");
+        QVERIFY(m_surface->isSynchronizedUpdateActive());
+
+        m_surface->dataFromPty("[5;1Hframe");
+        m_surface->flush();
+        QCOMPARE(invalidated.count(), 0);
+
+        m_surface->dataFromPty("[?2026l");
+        QVERIFY(!m_surface->isSynchronizedUpdateActive());
+        QCOMPARE(changed.count(), 2);
+        QCOMPARE(changed.at(0).at(0).toBool(), true);
+        QCOMPARE(changed.at(1).at(0).toBool(), false);
+        QVERIFY(damageIn(invalidated).contains(QPoint(0, 4)));
+    }
+
+    void aSynchronizedUpdateThatIsNeverEndedTimesOut()
+    {
+        QSignalSpy invalidated(m_surface.get(), &TerminalSurface::invalidated);
+
+        m_surface->dataFromPty("[?2026h[5;1Hframe");
+        m_surface->flush();
+        QVERIFY(m_surface->isSynchronizedUpdateActive());
+
+        QTRY_VERIFY(!m_surface->isSynchronizedUpdateActive());
+        QVERIFY(damageIn(invalidated).contains(QPoint(0, 4)));
+
+        // The application never reset the mode, but the terminal no longer
+        // honours it, so that is what it is told.
+        m_surface->dataFromPty("[?2026$p");
+        QTRY_COMPARE(m_written, QByteArray("[?2026;2$y"));
+    }
+
+    void aResetEndsASynchronizedUpdate_data()
+    {
+        QTest::addColumn<QByteArray>("reset");
+
+        QTest::newRow("RIS") << QByteArray("" "c");
+        QTest::newRow("DECSTR") << QByteArray("[!p");
+    }
+
+    void aResetEndsASynchronizedUpdate()
+    {
+        QFETCH(QByteArray, reset);
+
+        QSignalSpy changed(m_surface.get(), &TerminalSurface::synchronizedUpdateChanged);
+
+        m_surface->dataFromPty("[?2026h");
+        QVERIFY(m_surface->isSynchronizedUpdateActive());
+
+        m_surface->dataFromPty(reset);
+        QVERIFY(!m_surface->isSynchronizedUpdateActive());
+        QCOMPARE(changed.count(), 2);
+        QCOMPARE(changed.at(1).at(0).toBool(), false);
     }
 
     // The introducer and the terminator around the data of a sixel image

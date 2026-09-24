@@ -866,6 +866,10 @@ static void set_dec_mode(VTermState *state, int num, int val)
     state->mode.bracketpaste = val;
     break;
 
+  case 2026: // Synchronized Output
+    settermprop_bool(state, VTERM_PROP_SYNCHRONIZEDOUTPUT, val);
+    break;
+
   default:
     DEBUG_LOG("libvterm: Unknown DEC mode %d\n", num);
     return;
@@ -939,6 +943,10 @@ static void request_dec_mode(VTermState *state, int num)
 
     case 2004:
       reply = state->mode.bracketpaste;
+      break;
+
+    case 2026:
+      reply = state->mode.synchronized_output;
       break;
 
     default:
@@ -2160,6 +2168,10 @@ void vterm_state_reset(VTermState *state, int hard)
   settermprop_bool(state, VTERM_PROP_CURSORVISIBLE, 1);
   settermprop_bool(state, VTERM_PROP_CURSORBLINK,   1);
   settermprop_int (state, VTERM_PROP_CURSORSHAPE,   VTERM_PROP_CURSORSHAPE_BLOCK);
+  // Through the prop, not the mode bit: usercode holding a frame back for a
+  // synchronized update has to be told the update is over, or it never draws
+  // again.
+  settermprop_bool(state, VTERM_PROP_SYNCHRONIZEDOUTPUT, 0);
 
   if(hard) {
     state->pos.row = 0;
@@ -2277,6 +2289,9 @@ int vterm_state_set_termprop(VTermState *state, VTermProp prop, VTermValue *val)
     return 1;
   case VTERM_PROP_FOCUSREPORT:
     state->mode.report_focus = val->boolean;
+    return 1;
+  case VTERM_PROP_SYNCHRONIZEDOUTPUT:
+    state->mode.synchronized_output = val->boolean;
     return 1;
 
   case VTERM_N_PROPS:
