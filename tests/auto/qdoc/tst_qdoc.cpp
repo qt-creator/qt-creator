@@ -4,6 +4,7 @@
 #include <qdocrenderer.h>
 
 #include <QDirIterator>
+#include <QFile>
 #include <QTemporaryDir>
 #include <QTest>
 
@@ -491,7 +492,6 @@ void tst_QDoc::configResolver()
 // is only reused while the files it was read from are unchanged.
 void tst_QDoc::editedConfiguration()
 {
-    QSKIP("This test fails in CI");
     ConfigDir tree;
     tree.write("doc/m.qdocconf", "imagedirs = ../nowhere\nsourcedirs = ..\n");
     tree.write("page.qdoc", "/*!\n    \\page p.html\n*/\n");
@@ -505,7 +505,14 @@ void tst_QDoc::editedConfiguration()
     QCOMPARE(resolver.contextFor(page, candidates).confFiles,
              Utils::FilePaths({tree.root.pathAppended("doc/m.qdocconf")}));
 
+    const Utils::FilePath conf = tree.root.pathAppended("doc/m.qdocconf");
+    const QDateTime firstStamp = conf.lastModified();
     tree.write("doc/m.qdocconf", "imagedirs = ../images\nsourcedirs = ..\n");
+    // both writes can fall into the same tick of the file system clock
+    QFile confFile(conf.toFSPathString());
+    QVERIFY(confFile.open(QIODevice::ReadWrite));
+    QVERIFY(confFile.setFileTime(firstStamp.addSecs(1), QFileDevice::FileModificationTime));
+    confFile.close();
     QCOMPARE(resolver.contextFor(page, candidates).imageSearchDirs,
              Utils::FilePaths({tree.root.pathAppended("images")}));
 }
