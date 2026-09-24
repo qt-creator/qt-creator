@@ -265,6 +265,10 @@ public:
     Id runMode;
     Group m_runRecipe {};
     QSingleTaskTreeRunner m_taskTreeRunner;
+
+    // The application process, as long as it is writable, i.e. does not run in a terminal.
+    QPointer<Process> stdInProcess;
+    bool stdInClosed = false;
 };
 
 } // Internal
@@ -998,6 +1002,25 @@ void RunControlPrivate::debugMessage(const QString &msg) const
     qCDebug(statesLog()) << msg;
 }
 
+bool RunControl::acceptsStandardInput() const
+{
+    return d->stdInProcess && !d->stdInClosed && d->stdInProcess->isRunning();
+}
+
+void RunControl::writeStandardInput(const QString &data)
+{
+    QTC_ASSERT(acceptsStandardInput(), return);
+    d->stdInProcess->write(data);
+}
+
+void RunControl::closeStandardInput()
+{
+    QTC_ASSERT(acceptsStandardInput(), return);
+    d->stdInClosed = true;
+    d->stdInProcess->closeWriteChannel();
+    emit acceptsStandardInputChanged(QPrivateSignal());
+}
+
 ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> &startModifier,
                                     const ProcessSetupConfig &config)
 {
@@ -1029,6 +1052,16 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
 
         const Environment environment = process.environment();
         process.setTerminalMode(useTerminal ? Utils::TerminalMode::Run : Utils::TerminalMode::Off);
+        const IDeviceConstPtr dev = device();
+        if (!useTerminal && (!dev || dev->supportsStandardInput())) {
+            // Keep the write channel open, so that the application output pane can feed stdin.
+            process.setProcessMode(ProcessMode::Writer);
+            d->stdInProcess = &process;
+            d->stdInClosed = false;
+            QObject::connect(&process, &Process::started, this, [this] {
+                emit acceptsStandardInputChanged(QPrivateSignal());
+            });
+        }
         process.setReaperTimeout(
             std::chrono::seconds(ProjectExplorerSettings::get(this).reaperTimeoutInSeconds()));
 
@@ -1131,6 +1164,10 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
     };
 
     const auto onDone = [this](const Process &process) {
+        if (d->stdInProcess.data() == &process) {
+            d->stdInProcess = nullptr;
+            emit acceptsStandardInputChanged(QPrivateSignal());
+        }
         postMessage(process.exitMessage(), NormalMessageFormat);
         // Expose the exit code to interested consumers (e.g. AutoTest::TestRunner).
         // Leave it unset on crash so a crash is not mistaken for a clean exit(0).
@@ -1210,6 +1247,7 @@ void RunControl::handleProcessCancellation(Process *process)
 
 #ifdef WITH_TESTS
 
+#include <QSignalSpy>
 #include <QTest>
 
 namespace ProjectExplorer::Internal {
@@ -1267,6 +1305,58 @@ private slots:
 QObject *createRunWorkerConflictTest()
 {
     return new RunWorkerConflictTest;
+}
+
+class RunControlStandardInputTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+
+    void testStandardInput()
+    {
+        const QString echoerName = HostOsInfo::isWindowsHost() ? QString("findstr")
+                                                                : QString("cat");
+        const FilePath echoer = Environment::systemEnvironment().searchInPath(echoerName);
+        if (echoer.isEmpty())
+            QSKIP("The test needs a command echoing its standard input.");
+        const QStringList args = HostOsInfo::isWindowsHost() ? QStringList{"/r", ".*"}
+                                                             : QStringList();
+
+        RunControl runControl(Constants::NORMAL_RUN_MODE);
+        runControl.setDeviceForTest(DeviceManager::defaultDesktopDevice());
+        runControl.setCommandLine({echoer, args});
+        runControl.setRunRecipe(runControl.processRecipe(runControl.processTask()));
+
+        QString output;
+        QString messages;
+        connect(&runControl, &RunControl::appendMessage,
+                [&output, &messages](const QString &msg, OutputFormat format) {
+            messages += msg;
+            if (format == StdOutFormat)
+                output += msg;
+        });
+
+        QSignalSpy startedSpy(&runControl, &RunControl::started);
+        QSignalSpy stoppedSpy(&runControl, &RunControl::stopped);
+        QSignalSpy changedSpy(&runControl, &RunControl::acceptsStandardInputChanged);
+        runControl.initiateStart();
+        QTRY_VERIFY2(!startedSpy.isEmpty(), qPrintable(messages));
+        QVERIFY(runControl.acceptsStandardInput());
+        QCOMPARE(changedSpy.count(), 1);
+
+        runControl.writeStandardInput("hello\n");
+        runControl.closeStandardInput();
+        QVERIFY(!runControl.acceptsStandardInput());
+        QCOMPARE(changedSpy.count(), 2);
+        QTRY_VERIFY2(!stoppedSpy.isEmpty(), qPrintable(messages));
+        QVERIFY2(output.contains("hello"), qPrintable(messages));
+    }
+};
+
+QObject *createRunControlStandardInputTest()
+{
+    return new RunControlStandardInputTest;
 }
 
 } // ProjectExplorer::Internal

@@ -278,6 +278,12 @@ public:
     Canceler canceler();
     void handleProcessCancellation(Utils::Process *process);
 
+    // Standard input of the application, writable while it runs outside a terminal
+    // and its write channel has not been closed.
+    bool acceptsStandardInput() const;
+    void writeStandardInput(const QString &data);
+    void closeStandardInput();
+
 #ifdef WITH_TESTS
     void setAspectDataForTest(Utils::AspectContainerData data);
     void setDeviceForTest(const IDeviceConstPtr &device);
@@ -293,6 +299,7 @@ signals:
     void canceled();
     void stopped();
     void applicationProcessHandleChanged(QPrivateSignal);
+    void acceptsStandardInputChanged(QPrivateSignal);
     void stdOutData(const QByteArray &data);
     void outputVisibilityChanged(bool visible);
 
@@ -331,7 +338,10 @@ void addOutputParserFactory(const std::function<Utils::OutputLineParser *(BuildC
 PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(BuildConfiguration *bc);
 
 #ifdef WITH_TESTS
-namespace Internal { QObject *createRunWorkerConflictTest(); }
+namespace Internal {
+QObject *createRunWorkerConflictTest();
+QObject *createRunControlStandardInputTest();
+} // Internal
 #endif
 
 } // namespace ProjectExplorer

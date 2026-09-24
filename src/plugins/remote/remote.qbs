@@ -76,6 +76,8 @@ QtcPlugin {
         files: [
             "filesystemaccess_test.cpp",
             "filesystemaccess_test.h",
+            "remoterun_test.cpp",
+            "remoterun_test.h",
             "windowsdevicedetection_test.cpp",
             "windowsdevicedetection_test.h",
         ]

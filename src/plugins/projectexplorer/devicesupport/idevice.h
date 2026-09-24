@@ -226,6 +226,8 @@ public:
     virtual QtTaskTree::ExecutableItem portsGatheringRecipe(
         const QtTaskTree::Storage<Utils::PortsOutputData> &output) const;
     virtual bool canCreateProcessModel() const { return false; }
+    // Whether an application running on this device can be fed standard input while it runs.
+    virtual bool supportsStandardInput() const { return true; }
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester();
     void setIsTesting(bool isTesting);

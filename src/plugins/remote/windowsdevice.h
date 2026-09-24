@@ -36,6 +36,12 @@ public:
 
     bool canCreateProcessModel() const override { return true; }
 
+    // The application is started on the interactive desktop session by a scheduled task
+    // (see WindowsProcessInterface), so it has no standard input reaching back here. Leaving
+    // the SSH client's own stdin open would on top of that hold the session open past the
+    // application's exit, as Windows OpenSSH waits for EOF there.
+    bool supportsStandardInput() const override { return false; }
+
     QString userAtHost() const;
     QString userAtHostAndPort() const;
 

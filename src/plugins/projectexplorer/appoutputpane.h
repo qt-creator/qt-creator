@@ -150,9 +150,12 @@ private:
         explicit RunControlTab(RunControl *runControl = nullptr, AppOutputWindow *window = nullptr);
         QPointer<RunControl> runControl;
         QPointer<AppOutputWindow> window;
+        QPointer<QWidget> inputWidget;
         AppOutputPaneMode behaviorOnOutput = AppOutputPaneMode::FlashOnOutput;
         std::optional<QString> sourceFilterText;
     };
+
+    void updateInputWidget(const RunControlTab &tab);
 
     void closeTab(int index, CloseTabMode cm = CloseTabWithPrompt);
     bool optionallyPromptToStop(RunControl *runControl);

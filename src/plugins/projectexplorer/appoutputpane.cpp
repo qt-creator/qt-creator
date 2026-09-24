@@ -272,9 +272,13 @@ QWidget *TabWidget::filtersWidget(int index) const
 
 QWidget *TabWidget::getActualWidget(QWidget *w, int splitterIndex) const
 {
-    if (const auto splitter = qobject_cast<QSplitter*>(w))
-        return splitter->widget(splitterIndex);
-    return nullptr;
+    const auto splitter = qobject_cast<QSplitter*>(w);
+    if (!splitter)
+        return nullptr;
+    QWidget * const widget = splitter->widget(splitterIndex);
+    if (widget && splitterIndex == 0 && !qobject_cast<OutputWindow *>(widget))
+        return widget->findChild<OutputWindow *>();
+    return widget;
 }
 
 class LoggingCategoryModel : public QAbstractListModel
@@ -713,6 +717,10 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             }
         }
     });
+    connect(rc, &RunControl::acceptsStandardInputChanged, this, [this, rc] {
+        if (const RunControlTab * const tab = tabFor(rc))
+            updateInputWidget(*tab);
+    });
     connect(rc, &RunControl::applicationProcessHandleChanged,
             this, &AppOutputPane::enableDefaultButtons);
     connect(rc, &RunControl::appendMessage,
@@ -937,8 +945,53 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     }.attachTo(cv);
     // clang-format on
 
+    auto inputEdit = new FancyLineEdit;
+    inputEdit->setHistoryCompleter("AppOutputInputHistory");
+    inputEdit->setPlaceholderText(Tr::tr("Standard input"));
+
+    auto eofButton = new QToolButton;
+    eofButton->setText(Tr::tr("EOF"));
+    eofButton->setToolTip(Tr::tr("Close the standard input channel of the application."));
+
+    auto inputWidget = new QWidget;
+    inputWidget->setVisible(false);
+
+    auto outputWidget = new QWidget;
+
+    // clang-format off
+    Row {
+        noMargin,
+        inputEdit,
+        eofButton,
+    }.attachTo(inputWidget);
+
+    Column {
+        noMargin,
+        spacing(0),
+        ow,
+        inputWidget,
+    }.attachTo(outputWidget);
+    // clang-format on
+
+    connect(inputEdit, &QLineEdit::returnPressed, this, [this, ow, inputEdit] {
+        const RunControlTab * const tab = tabFor(ow);
+        if (!tab || !tab->runControl || !tab->runControl->acceptsStandardInput())
+            return;
+        const QString text = inputEdit->text();
+        tab->runControl->postMessage(text, StdOutFormat);
+        tab->runControl->writeStandardInput(text + '\n');
+        inputEdit->clear();
+    });
+    connect(eofButton, &QAbstractButton::clicked, this, [this, ow] {
+        const RunControlTab * const tab = tabFor(ow);
+        if (!tab || !tab->runControl || !tab->runControl->acceptsStandardInput())
+            return;
+        tab->runControl->closeStandardInput();
+    });
+
     m_runControlTabs.push_back(RunControlTab(rc, ow));
-    m_tabWidget->addTab(ow, cv, rc->displayName());
+    m_runControlTabs.last().inputWidget = inputWidget;
+    m_tabWidget->addTab(outputWidget, cv, rc->displayName());
     updateOutputFileName(m_tabWidget->count() - 1, rc);
     updateOutputFiltersWidget(m_tabWidget->count() - 1, rc);
     qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Adding tab for" << rc;
@@ -1199,6 +1252,12 @@ void AppOutputPane::resetZoom()
         tab.window->resetZoom();
 }
 
+void AppOutputPane::updateInputWidget(const RunControlTab &tab)
+{
+    if (tab.inputWidget)
+        tab.inputWidget->setVisible(tab.runControl && tab.runControl->acceptsStandardInput());
+}
+
 void AppOutputPane::enableButtons(const RunControl *rc)
 {
     if (rc) {
@@ -1296,6 +1355,8 @@ void AppOutputPane::runControlFinished(RunControl *runControl)
     // This slot is queued, so the stop() call in closeTab might lead to this slot, after closeTab already cleaned up
     if (!tab)
         return;
+
+    updateInputWidget(*tab);
 
     // Enable buttons for current
     RunControl *current = currentRunControl();

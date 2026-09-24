@@ -24,6 +24,7 @@
 
 #ifdef WITH_TESTS
 #include "filesystemaccess_test.h"
+#include "remoterun_test.h"
 #include "windowsdevicedetection_test.h"
 #endif
 
@@ -79,6 +80,7 @@ public:
 #ifdef WITH_TESTS
         addTest<AccessViaTest>();
         addTest<FileSystemAccessTest>();
+        addTest<RemoteRunTest>();
         addTest<WindowsDeviceDetectionTest>();
 #endif
     }
