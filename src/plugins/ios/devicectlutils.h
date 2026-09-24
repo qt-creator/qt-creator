@@ -23,7 +23,7 @@ Utils::Result<> checkDevicectlResult(const QByteArray &rawOutput);
 Utils::Result<IosDeviceInfo> parseDeviceInfo(const QByteArray &rawOutput,
                                               const QString &deviceUsbId);
 Utils::Result<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bundleIdentifier);
-Utils::Result<qint64> parseProcessIdentifier(const QByteArray &rawOutput);
+Utils::Result<qint64> parseProcessIdentifier(const QUrl &appPath, const QByteArray &rawOutput);
 Utils::Result<qint64> parseLaunchResult(const QByteArray &rawOutput);
 Utils::Result<QSet<QString>> parseAppIdentifiers(const QByteArray &rawOutput);
 Utils::Result<QMap<Utils::FilePath, Utils::FilePathInfo>> parseFileList(

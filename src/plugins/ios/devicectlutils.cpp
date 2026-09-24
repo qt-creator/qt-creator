@@ -114,14 +114,20 @@ Utils::Result<QUrl> parseAppInfo(const QByteArray &rawOutput, const QString &bun
     return {};
 }
 
-Utils::Result<qint64> parseProcessIdentifier(const QByteArray &rawOutput)
+Utils::Result<qint64> parseProcessIdentifier(const QUrl &appUrl, const QByteArray &rawOutput)
 {
     const Result<QJsonValue> result = parseDevicectlResult(rawOutput);
     if (!result)
         return make_unexpected(result.error());
+    QString appPath = appUrl.path();
+    if (appPath.endsWith('/'))
+        appPath.chop(1);
     const QJsonArray matchingProcesses = (*result)["runningProcesses"].toArray();
-    if (matchingProcesses.size() > 0)
-        return matchingProcesses.first()["processIdentifier"].toInteger(-1);
+    for (const QJsonValue &item : matchingProcesses) {
+        const QString executable = QUrl(item["executable"].toString()).path();
+        if (executable == appPath || executable.startsWith(appPath + '/'))
+            return item["processIdentifier"].toInteger(-1);
+    }
     return -1;
 }
 

@@ -173,13 +173,12 @@ static GroupItem findProcess(RunControl *runControl, const Storage<AppInfo> &app
               appInfo->device->iosDeviceInformation().uniqueDeviceId,
               "--quiet",
               "--json-output",
-              "-",
-              "--filter",
-              QLatin1String("executable.path BEGINSWITH '%1'").arg(appInfo->pathOnDevice.path())}});
+              "-"}});
         return SetupResult::Continue;
     };
     const auto onDone = [runControl, appInfo](const Process &process) {
-        const Utils::Result<qint64> pid = parseProcessIdentifier(process.rawStdOut());
+        const Utils::Result<qint64> pid
+            = parseProcessIdentifier(appInfo->pathOnDevice, process.rawStdOut());
         if (pid) {
             appInfo->processIdentifier = *pid;
             return DoneResult::Success;

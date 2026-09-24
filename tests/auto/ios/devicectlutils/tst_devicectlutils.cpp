@@ -422,7 +422,9 @@ void tst_Devicectlutils::parseAppInfo()
 
 void tst_Devicectlutils::parseProcessIdentifier()
 {
-    const QByteArray data(R"raw(
+    const QByteArray appPath = "file:///private/var/containers/Bundle/Application/"
+                               "00000000-0000-0000-0000-000000000000/CMake%20Widgets.app";
+    const auto data = QByteArray(R"raw(
 {
   "info" : {
     "arguments" : [
@@ -450,16 +452,24 @@ void tst_Devicectlutils::parseProcessIdentifier()
     "deviceIdentifier" : "00000000-0000-0000-0000-000000000000",
     "runningProcesses" : [
       {
-        "executable" : "file:///private/var/containers/Bundle/Application/00000000-0000-0000-0000-000000000000/test.app/test",
+        "executable" : "file:///sbin/launchd",
+        "processIdentifier" : 1
+      },
+      {
+        "executable" : "%1/CMake%20Widgets",
         "processIdentifier" : 1000
       }
     ]
   }
-})raw");
+})raw").replace("%1", appPath);
 
-    const Utils::Result<qint64> result = Ios::Internal::parseProcessIdentifier(data);
+    const Utils::Result<qint64> result = Ios::Internal::parseProcessIdentifier(QUrl(appPath), data);
     QVERIFY(result);
     QCOMPARE(*result, 1000);
+    const Utils::Result<qint64> resultSlash
+        = Ios::Internal::parseProcessIdentifier(QUrl(QString(appPath + '/')), data);
+    QVERIFY(resultSlash);
+    QCOMPARE(*resultSlash, 1000);
 }
 
 void tst_Devicectlutils::parseLaunchResult()
