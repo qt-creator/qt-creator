@@ -3,6 +3,8 @@
 
 #include "timelinetracefile.h"
 
+#include <utils/async.h>
+
 #include <QIODevice>
 
 namespace Timeline {
@@ -54,6 +56,7 @@ void TimelineTraceFile::finish()
 
 bool TimelineTraceFile::isCanceled() const
 {
+    Utils::asyncYield();
     return m_future.isCanceled();
 }
 

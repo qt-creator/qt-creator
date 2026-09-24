@@ -111,6 +111,16 @@ endif()
 # the generated loader depends on. Only done for WebAssembly, where the app is
 # unusable without it; the desktop builds have never been finalized either.
 if (EMSCRIPTEN AND TARGET qtprofiler)
+  # A Qt for WebAssembly without thread support parses a trace on the main thread (see
+  # Utils::asyncRun), where Utils::asyncYield() has to suspend mid-parse and give the
+  # browser its turn so that the window stays alive. That needs JSPI or Asyncify; a Qt
+  # configured with JSPI carries the linker options for it itself, so only fall back to
+  # Asyncify, whose default stack holds far less than the parser call stacks it has to
+  # save here. With thread support none of this applies: the trace is parsed on a thread
+  # and asyncYield() compiles to nothing.
+  if (NOT QT_FEATURE_wasm_jspi AND NOT QT_FEATURE_thread)
+    target_link_options(qtprofiler PRIVATE -sASYNCIFY -sASYNCIFY_STACK_SIZE=1048576)
+  endif()
   qt_finalize_target(qtprofiler)
 endif()
 
