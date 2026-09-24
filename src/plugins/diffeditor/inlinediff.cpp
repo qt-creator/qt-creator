@@ -37,6 +37,7 @@
 
 #include <utils/utilsicons.h>
 
+#include <QApplication>
 #include <QBrush>
 #include <QEnterEvent>
 #include <QEvent>
@@ -1635,12 +1636,15 @@ private:
 class InlineDiffEditor final : public Core::IEditor
 {
 public:
-    InlineDiffEditor(const TextDocumentPtr &source, const InlineDiffBaseline &baseline,
-                     const QString &title, bool readOnlySource)
+    InlineDiffEditor(
+        const TextDocumentPtr &source,
+        const InlineDiffBaseline &baseline,
+        const QString &title,
+        bool readOnlySource)
         : m_source(source)
         , m_document(new InlineDiffDocument(source, title))
         , m_splitter(new QSplitter)
-        , m_widget(new InlineDiffTextEditorWidget)
+        , m_diffWidget(new InlineDiffTextEditorWidget)
     {
         editorRegistry().insert(source.data(), this);
         m_document->setParent(this);
@@ -1651,20 +1655,26 @@ public:
         // above each marker for the resolution links would throw off its row
         // alignment with the baseline. Disable them before the document is set,
         // which is what would create them.
-        m_widget->setMergeConflictResolutionEnabled(false);
-        m_widget->setTextDocument(source);
+        m_diffWidget->setMergeConflictResolutionEnabled(false);
+        m_diffWidget->setTextDocument(source);
         if (readOnlySource) {
-            m_widget->setReadOnly(true);
-            m_widget->setupGenericHighlighter();
+            m_diffWidget->setReadOnly(true);
+            m_diffWidget->setupGenericHighlighter();
         } else {
-            m_hunkControls = new HunkControls(m_widget);
+            m_hunkControls = new HunkControls(m_diffWidget);
         }
         m_splitter->setChildrenCollapsible(false);
-        m_splitter->addWidget(m_widget);
-        setWidget(m_splitter);
-        m_decorator = new InlineDiffDecorator(m_widget);
-        m_collapseController = new CollapseController(m_widget);
-        setupContextMenu(m_widget);
+        m_splitter->addWidget(m_diffWidget);
+        auto mainWidget = new QWidget;
+        auto layout = new QVBoxLayout;
+        layout->setContentsMargins(0, 0, 0, 0);
+        mainWidget->setLayout(layout);
+        layout->addWidget(m_splitter);
+        setWidget(mainWidget);
+        widget()->installEventFilter(this);
+        m_decorator = new InlineDiffDecorator(m_diffWidget);
+        m_collapseController = new CollapseController(m_diffWidget);
+        setupContextMenu(m_diffWidget);
 
         // the diff actions, followed by the tool bar of the focused view, with
         // its cursor position and tab settings
@@ -1676,11 +1686,10 @@ public:
         m_toolBar->setObjectName("InlineDiffToolBar"); // autotest
         toolBarLayout->addWidget(m_toolBar);
         m_viewToolBars = new QStackedWidget;
-        m_viewToolBars->addWidget(m_widget->toolBarWidget());
+        m_viewToolBars->addWidget(m_diffWidget->toolBarWidget());
         toolBarLayout->addWidget(m_viewToolBars, 1);
-        m_widget->setFocusInHandler([this] {
-            m_viewToolBars->setCurrentWidget(m_widget->toolBarWidget());
-        });
+        m_diffWidget->setFocusInHandler(
+            [this] { m_viewToolBars->setCurrentWidget(m_diffWidget->toolBarWidget()); });
         // like the diff editor's view switcher, the icon shows the view that
         // a click switches to
         m_viewSwitcherAction = m_toolBar->addAction(QIcon(), QString());
@@ -1703,8 +1712,9 @@ public:
         m_nextChangeAction->setToolTip(Tr::tr("Go to the closest change below the cursor."));
         connect(m_nextChangeAction, &QAction::triggered,
                 this, [this] { goToChange(/*forward=*/true); });
-        connect(m_widget, &PlainTextEdit::cursorPositionChanged,
-                this, [this] { updateChangeNavigationActions(); });
+        connect(m_diffWidget, &PlainTextEdit::cursorPositionChanged, this, [this] {
+            updateChangeNavigationActions();
+        });
         updateChangeNavigationActions();
 
         const bool collapse = Core::ICore::settings()
@@ -1860,8 +1870,20 @@ public:
     ~InlineDiffEditor() override
     {
         editorRegistry().remove(m_source.data());
-        delete m_splitter.data(); // deletes the decorators, which must not clear()
+        delete widget(); // deletes the splitter and the decorators, which must not clear()
         delete m_toolBarWidget.data();
+    }
+
+    bool eventFilter(QObject *obj, QEvent *e) override
+    {
+        if (obj == widget() && e->type() == QEvent::FocusIn) {
+            QWidget *focusWidget = m_splitter->focusWidget();
+            if (focusWidget && focusWidget->isVisibleTo(m_splitter))
+                focusWidget->setFocus();
+            else
+                m_diffWidget->setFocus();
+        }
+        return false;
     }
 
     void setBaseline(const InlineDiffBaseline &baseline, const QString &title)
@@ -1872,12 +1894,15 @@ public:
         m_jumpToFirstChange = true;
         m_document->setPreferredDisplayName(title);
         if (m_baselineWidget) {
+            const bool hadFocus = m_baselineWidget->isAncestorOf(QApplication::focusWidget());
             // recreate the baseline view, it may carry baseline specific
             // attachments like revision annotations
             delete m_baselineWidget.data();
             m_baselineDocument.reset();
             if (m_viewMode == InlineDiffViewMode::SideBySide) {
                 ensureBaselineView();
+                if (hadFocus)
+                    m_baselineWidget->setFocus();
                 m_baselineWidget->show();
             }
         }
@@ -1885,7 +1910,7 @@ public:
     }
 
     InlineDiffViewMode viewMode() const { return m_viewMode; }
-    TextEditorWidget *editorWidget() const { return m_widget; }
+    TextEditorWidget *editorWidget() const { return m_diffWidget; }
 
     void setViewMode(InlineDiffViewMode mode)
     {
@@ -1894,8 +1919,10 @@ public:
             ensureBaselineView();
             m_baselineWidget->show();
         } else if (m_baselineWidget) {
+            if (m_baselineWidget->isAncestorOf(QApplication::focusWidget()))
+                m_diffWidget->setFocus();
             m_baselineWidget->hide();
-            m_viewToolBars->setCurrentWidget(m_widget->toolBarWidget());
+            m_viewToolBars->setCurrentWidget(m_diffWidget->toolBarWidget());
         }
         const bool isInline = mode == InlineDiffViewMode::Inline;
         m_viewSwitcherAction->setIcon(
@@ -1909,7 +1936,7 @@ public:
         if (mode == InlineDiffViewMode::SideBySide && m_baselineWidget) {
             // catch up on scrolling that happened while the mirror was off
             m_baselineWidget->verticalScrollBar()->setValue(
-                m_widget->verticalScrollBar()->value());
+                m_diffWidget->verticalScrollBar()->value());
         }
     }
 
@@ -1918,15 +1945,15 @@ public:
 
     void fillContextMenu(TextEditorWidget *view, QMenu *menu, const QTextCursor &cursor)
     {
-        QTC_ASSERT(view && (view == m_widget || view == m_baselineWidget), return);
+        QTC_ASSERT(view && (view == m_diffWidget || view == m_baselineWidget), return);
         static_cast<InlineDiffTextEditorWidget *>(view)->fillContextMenu(menu, cursor);
     }
 
-    int currentLine() const override { return m_widget->textCursor().blockNumber() + 1; }
-    int currentColumn() const override { return m_widget->textCursor().positionInBlock(); }
+    int currentLine() const override { return m_diffWidget->textCursor().blockNumber() + 1; }
+    int currentColumn() const override { return m_diffWidget->textCursor().positionInBlock(); }
     void gotoLine(int line, int column, bool centerLine) override
     {
-        m_widget->gotoLine(line, column, centerLine);
+        m_diffWidget->gotoLine(line, column, centerLine);
         m_jumpToFirstChange = false; // the caller picked the line
         // decorations arriving later insert rows above the line and push it
         // away, so re-center once when the next diff result is applied
@@ -1980,9 +2007,9 @@ private:
     // above, so that going up lands on its first line first.
     int adjacentChangeLine(bool forward) const
     {
-        if (!m_widget)
+        if (!m_diffWidget)
             return 0;
-        const int line = m_widget->textCursor().blockNumber() + 1;
+        const int line = m_diffWidget->textCursor().blockNumber() + 1;
         int previous = 0;
         for (const InlineDiffChunk &hunk : m_model.hunks) { // ordered by line
             if (hunk.editorStartLine > line)
@@ -2182,7 +2209,7 @@ private:
         // values keeps the views aligned. Only mirror while side by side: the
         // hidden baseline view of the inline mode has a smaller range and
         // would bounce back a clamped value.
-        m_aligner = new SideBySideAligner(m_baselineWidget, m_widget, m_baselineWidget);
+        m_aligner = new SideBySideAligner(m_baselineWidget, m_diffWidget, m_baselineWidget);
         const auto syncScrollBars = [this](TextEditorWidget *from, TextEditorWidget *to) {
             connect(from->verticalScrollBar(), &QAbstractSlider::valueChanged,
                     to->verticalScrollBar(), [this, to](int value) {
@@ -2190,8 +2217,8 @@ private:
                     to->verticalScrollBar()->setValue(value);
             });
         };
-        syncScrollBars(m_baselineWidget, m_widget);
-        syncScrollBars(m_widget, m_baselineWidget);
+        syncScrollBars(m_baselineWidget, m_diffWidget);
+        syncScrollBars(m_diffWidget, m_baselineWidget);
     }
 
     void updateBaselineDocument()
@@ -2239,13 +2266,15 @@ private:
             // editing the file and must leave the cursor where it is
             m_jumpToFirstChange = false;
             if (!model.hunks.isEmpty()) {
-                m_widget->gotoLine(model.hunks.first().editorStartLine, 0,
-                                   /*centerLine=*/true);
+                m_diffWidget->gotoLine(
+                    model.hunks.first().editorStartLine,
+                    0,
+                    /*centerLine=*/true);
             }
         }
         if (m_centerOnNextModel) {
             m_centerOnNextModel = false;
-            m_widget->centerCursor();
+            m_diffWidget->centerCursor();
         }
     }
 
@@ -2391,7 +2420,7 @@ private:
     const TextDocumentPtr m_source;
     InlineDiffDocument *m_document = nullptr;
     QPointer<QSplitter> m_splitter;
-    QPointer<InlineDiffTextEditorWidget> m_widget;
+    QPointer<InlineDiffTextEditorWidget> m_diffWidget;
     QPointer<InlineDiffDecorator> m_decorator;
     QPointer<CollapseController> m_collapseController;
     QPointer<HunkControls> m_hunkControls;
