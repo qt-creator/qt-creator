@@ -5,6 +5,7 @@
 
 #include <texteditor/displaysettings.h>
 #include <texteditor/icodestylepreferences.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
@@ -23,6 +24,9 @@ SelectableTextEditorWidget::SelectableTextEditorWidget(Utils::Id id, QWidget *pa
     setFrameStyle(QFrame::NoFrame);
     connect(this, &TextEditorWidget::textDocumentChanged,
             this, &SelectableTextEditorWidget::fixupTabSettings);
+    connect(this, &TextEditorWidget::textDocumentChanged, this, [this] {
+        textDocument()->resetSyntaxHighlighter([] { return new SyntaxHighlighter; });
+    });
     setupFallBackEditor(id);
 
     setReadOnly(true);
