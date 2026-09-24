@@ -48,7 +48,8 @@ enum class LanguageSelection {
     Python,
     CppAndPython,
     QmlAndPython,
-    CppQmlAndPython
+    CppQmlAndPython,
+    Java
 };
 
 static const Key cppKey = "RunConfiguration.UseCppDebugger";
@@ -221,6 +222,8 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useCppDebugger, &Data::useCppDebugger);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useQmlDebugger, &Data::useQmlDebugger);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::usePythonDebugger, &Data::usePythonDebugger);
+    addDataExtractor(this, &DebuggerRunConfigurationAspect::useJavaDebugger, &Data::useJavaDebugger);
+    addDataExtractor(this, &DebuggerRunConfigurationAspect::isAutomatic, &Data::isAutomatic);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useCombinedEngine, &Data::useCombinedEngine);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useMultiProcess, &Data::useMultiProcess);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::overrideStartup, &Data::overrideStartup);
@@ -237,7 +240,8 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
         m_languagesAspect.addOption({displayName, toolTip, savedValue});
     };
     addLanguageOption(LanguageSelection::Automatic, Tr::tr("Automatic"), "Automatic",
-              Tr::tr("Derive the debuggers to use from the project contents."));
+              Tr::tr("Derive the debuggers to use from the project contents, or from the "
+                     "program the run starts."));
     addLanguageOption(LanguageSelection::Cpp, Tr::tr("C++ only"), "Cpp");
     addLanguageOption(LanguageSelection::Qml, Tr::tr("QML only"), "Qml");
     addLanguageOption(LanguageSelection::CppAndQml, Tr::tr("C++ and QML (separate engines)"),
@@ -252,6 +256,9 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
     addLanguageOption(LanguageSelection::QmlAndPython, Tr::tr("QML and Python"), "QmlAndPython");
     addLanguageOption(LanguageSelection::CppQmlAndPython, Tr::tr("C++, QML, and Python"),
               "CppQmlAndPython");
+    addLanguageOption(LanguageSelection::Java, Tr::tr("Java only"), "Java",
+              Tr::tr("Debug the Java virtual machine the run starts. \"Automatic\" does "
+                     "that, too, when the run starts java itself."));
     m_languagesAspect.setUseDataAsSavedValue();
     m_languagesAspect.setDefaultValue(int(LanguageSelection::Automatic));
 
@@ -318,6 +325,7 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
     case LanguageSelection::Qml:
     case LanguageSelection::Python:
     case LanguageSelection::QmlAndPython:
+    case LanguageSelection::Java:
         return false;
     case LanguageSelection::Automatic:
         return autoUseCppDebugger(m_buildConfiguration,
@@ -339,6 +347,7 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
     case LanguageSelection::Cpp:
     case LanguageSelection::Python:
     case LanguageSelection::CppAndPython:
+    case LanguageSelection::Java:
         return false;
     case LanguageSelection::Automatic:
         return autoUseQmlDebugger(m_buildConfiguration);
@@ -358,11 +367,26 @@ bool DebuggerRunConfigurationAspect::usePythonDebugger() const
     case LanguageSelection::Qml:
     case LanguageSelection::CppAndQml:
     case LanguageSelection::CppAndQmlCombined:
+    case LanguageSelection::Java:
         return false;
     case LanguageSelection::Automatic:
         return autoUsePythonDebugger(m_buildConfiguration);
     }
     return false;
+}
+
+// What a project holds does not say which of it a run is to debug - the Java of an
+// Android application and of one using JNI is built next to native code - so
+// "Automatic" never says Java here. What the run starts does say, see
+// DebuggerRunParameters::fixupParameters().
+bool DebuggerRunConfigurationAspect::useJavaDebugger() const
+{
+    return languages() == LanguageSelection::Java;
+}
+
+bool DebuggerRunConfigurationAspect::isAutomatic() const
+{
+    return languages() == LanguageSelection::Automatic;
 }
 
 bool DebuggerRunConfigurationAspect::useCombinedEngine() const

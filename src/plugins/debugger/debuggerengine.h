@@ -195,6 +195,7 @@ public:
     QString version() const { return m_version; }
 
     bool isPythonDebugging() const { return m_isPythonDebugging; }
+    bool isJavaDebugging() const { return m_isJavaDebugging; }
 
     void setBreakOnMain(bool on) { m_breakOnMain = on; }
     bool breakOnMain() const { return m_breakOnMain; }
@@ -379,6 +380,9 @@ private:
     bool m_continueAfterAttach = false;
     bool m_isSnapshot = false; // Set if created internally.
     bool m_isPythonDebugging = false;
+    bool m_isJavaDebugging = false;
+    // Whether nobody named the languages to debug, so that the run may tell.
+    bool m_languagesAutomatic = true;
     bool m_breakOnMain = false;
     bool m_multiProcess = false; // Whether to set detach-on-fork off.
     bool m_useTerminal = false;

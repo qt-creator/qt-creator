@@ -150,6 +150,8 @@ private slots:
     void testInterpreterBreakpointStaysEnabled();
     void testUnresolvedLegacyLanguagesSurviveASave();
     void testLegacyQmlAndPythonKeepsBothLanguages();
+    void testJavaOnlyEnablesNoOtherDebugger();
+    void testAutomaticDebugsAJavaLaunchAsJava();
     void testNativeMixedEnvironmentVariableWins();
     void testCombinedEngineNeedsNoQmlChannel();
     void testNamespaceFromQObjectRtti_data();
@@ -2226,6 +2228,55 @@ void DebuggerUnitTests::testLegacyQmlAndPythonKeepsBothLanguages()
 
     QVERIFY(aspect.useQmlDebugger());
     QVERIFY(aspect.usePythonDebugger());
+}
+
+void DebuggerUnitTests::testJavaOnlyEnablesNoOtherDebugger()
+{
+    const FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    QVERIFY(projectManager.open(proFile));
+    QCOMPARE(projectManager.projects().size(), 1);
+    BuildConfiguration * const bc = projectManager.projects().first()->activeBuildConfiguration();
+    QVERIFY(bc);
+
+    Store stored;
+    stored.insert("RunConfiguration.DebuggerLanguages", "Java");
+    DebuggerRunConfigurationAspect aspect(bc);
+    aspect.fromMap(stored);
+
+    QVERIFY(aspect.useJavaDebugger());
+    QVERIFY(!aspect.isAutomatic());
+    // A C++ project, which "Automatic" would debug with the C++ debugger.
+    QVERIFY(!aspect.useCppDebugger());
+    QVERIFY(!aspect.useQmlDebugger());
+    QVERIFY(!aspect.usePythonDebugger());
+
+    Store saved;
+    aspect.toMap(saved);
+    QCOMPARE(saved.value("RunConfiguration.DebuggerLanguages").toString(), QString("Java"));
+}
+
+void DebuggerUnitTests::testAutomaticDebugsAJavaLaunchAsJava()
+{
+    const auto fixedUp = [](const QString &executable, DebuggerStartMode startMode) {
+        DebuggerRunParameters rp;
+        rp.setCppEngineType(GdbEngineType);
+        rp.setUseTerminal(true);
+        rp.setStartMode(startMode);
+        rp.setInferiorExecutable(FilePath::fromString(executable));
+        RunControl runControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        QTC_CHECK(rp.fixupParameters(&runControl));
+        return rp;
+    };
+
+    const DebuggerRunParameters java = fixedUp("/nonexistent/java", NoStartMode);
+    QVERIFY(java.isJavaDebugging());
+    QVERIFY(!java.isCppDebugging());
+    QVERIFY(!java.useTerminal());
+    QVERIFY(fixedUp("/nonexistent/javaw", StartExternal).isJavaDebugging());
+    // Attaching to the process of the virtual machine stays native debugging.
+    QVERIFY(!fixedUp("/nonexistent/java", AttachToLocalProcess).isJavaDebugging());
+    QVERIFY(!fixedUp("/nonexistent/javac", NoStartMode).isJavaDebugging());
 }
 
 void DebuggerUnitTests::testNativeMixedEnvironmentVariableWins()

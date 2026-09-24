@@ -111,6 +111,7 @@ QtcPlugin {
         prefix: "jdwp/"
         files: [
             "jdwpclient.cpp", "jdwpclient.h",
+            "jdwpengine.cpp",
             "jdwpimpl.cpp", "jdwpimpl.h",
         ]
     }

@@ -26,6 +26,8 @@ public:
     bool useCppDebugger() const;
     bool useQmlDebugger() const;
     bool usePythonDebugger() const;
+    bool useJavaDebugger() const;
+    bool isAutomatic() const;
     void setUseQmlDebugger(bool value);
     bool useCombinedEngine() const;
     bool useMultiProcess() const;
@@ -37,6 +39,8 @@ public:
         bool useCppDebugger = false;
         bool useQmlDebugger = false;
         bool usePythonDebugger = false;
+        bool useJavaDebugger = false;
+        bool isAutomatic = false;
         bool useCombinedEngine = false;
         bool useMultiProcess = false;
         QString overrideStartup;

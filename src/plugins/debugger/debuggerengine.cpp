@@ -213,6 +213,8 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
         params.m_isQmlDebugging = aspect->useQmlDebugger;
         useCombinedEngine = aspect->useCombinedEngine;
         params.m_isPythonDebugging = aspect->usePythonDebugger;
+        params.m_isJavaDebugging = aspect->useJavaDebugger;
+        params.m_languagesAutomatic = aspect->isAutomatic;
         params.m_multiProcess = aspect->useMultiProcess;
         params.m_additionalStartupCommands = aspect->overrideStartup;
 
@@ -283,6 +285,27 @@ void DebuggerRunParameters::setupPortsGatherer(RunControl *runControl) const
 
 Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
 {
+    // No project says it is Java, but a launch of the launcher does, whichever way it
+    // was started. What an automatic choice made of the project is beside the point
+    // then: a native debugger on the virtual machine gets in the way of its agent.
+    const QString launcher = m_inferior.command.executable().baseName();
+    // A run configuration gets its start mode further down.
+    const bool launches = m_startMode == NoStartMode || m_startMode == StartInternal
+                          || m_startMode == StartExternal;
+    if (m_languagesAutomatic && launches && (launcher == "java" || launcher == "javaw")) {
+        m_isJavaDebugging = true;
+    }
+    if (m_isJavaDebugging) {
+        m_cppEngineType = NoEngineType;
+        m_isQmlDebugging = false;
+        m_isPythonDebugging = false;
+        // What is left to validate is the C++ debugger, which is not used.
+        m_validationErrors.clear();
+        // The backend starts the virtual machine itself, with the agent, so a
+        // terminal starting it as well would run the program twice.
+        m_useTerminal = false;
+    }
+
     if (m_symbolFile.isEmpty())
         m_symbolFile = m_inferior.command.executable();
 
@@ -3324,6 +3347,10 @@ void DebuggerEngine::showModuleSections(const FilePath &moduleName, const Sectio
 void DebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
     if (!d->m_runParametersValidationEnabled)
+        return;
+
+    // What is checked is whether the native debugger fits the native binary.
+    if (!rp.isCppDebugging())
         return;
 
     static const Key warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";

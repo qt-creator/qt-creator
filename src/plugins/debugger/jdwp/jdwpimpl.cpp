@@ -1044,9 +1044,16 @@ FilePath JdwpImpl::localFile(const QString &signature, const QString &sourceFile
     const QString relative = package.isEmpty() ? sourceFile : package + '/' + sourceFile;
     if (const FilePath known = m_knownSources.value(relative); !known.isEmpty())
         return known;
+    const FilePaths matches = Utils::filtered(m_startData.sourceFiles, [&](const FilePath &file) {
+        return file.path().endsWith('/' + relative);
+    });
+    // A class in the default package names no directory, so a file of the
+    // same name in any package matches as well.
+    if (matches.size() == 1 || (!matches.isEmpty() && !package.isEmpty()))
+        return matches.first();
 
     QList<FilePath> roots = m_startData.sourceSearchPaths;
-    if (roots.isEmpty() && isLaunch())
+    if (isLaunch())
         roots.append(std::get<ProcessRunData>(m_startData.inferiorStartData).workingDirectory);
     for (const FilePath &root : std::as_const(roots)) {
         if (root.isEmpty())
@@ -1056,8 +1063,9 @@ FilePath JdwpImpl::localFile(const QString &signature, const QString &sourceFile
         if (const FilePath candidate = root / sourceFile; candidate.exists())
             return candidate;
     }
-    // Somebody who knows the project may still find it by this name.
-    return FilePath::fromString(relative);
+    // A relative name would be resolved against the debugger's own location
+    // further up, which is somewhere the file is not.
+    return {};
 }
 
 JdwpImpl::Breakpoint *JdwpImpl::breakpoint(const QString &number)
@@ -1702,6 +1710,9 @@ void JdwpImpl::fetchLocals(const RefreshRequest &request)
             QList<MethodInfo::Variable> visible;
             if (const MethodInfo *where = method(location.classId, location.methodId)) {
                 for (const MethodInfo::Variable &variable : where->variables) {
+                    // javac lists it, too, and it has been asked for above.
+                    if (variable.name == "this")
+                        continue;
                     if (variable.codeIndex <= location.index
                         && location.index < variable.codeIndex + quint64(variable.length)) {
                         visible.append(variable);

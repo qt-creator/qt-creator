@@ -28,9 +28,11 @@ public:
     // opened here. An attach reaches an agent that listens already, at the
     // "host:port" of the channel.
     InferiorStartData inferiorStartData;
-    // Where the sources are, as the roots of their package directories.
-    // Empty means the working directory of a launch.
+    // Where the sources are, as the roots of their package directories. The
+    // working directory of a launch is looked in last.
     QList<Utils::FilePath> sourceSearchPaths;
+    // The sources of the project, which is where a class is looked for first.
+    QList<Utils::FilePath> sourceFiles;
 };
 
 // A backend that is no debugger process but the virtual machine itself,

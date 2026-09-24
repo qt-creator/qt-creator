@@ -58,6 +58,7 @@ namespace Internal {
 DebuggerEngine *createCdbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp);
+DebuggerEngine *createJdwpEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createQmlEngine();
 DebuggerEngine *createLldbEngine(const DebuggerRunParameters &rp);
 DebuggerEngine *createUvscEngine();
@@ -619,6 +620,21 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
 
     if (rp.isPythonDebugging())
         engines << createPdbEngine(rp);
+
+    if (rp.isJavaDebugging()) {
+        // The debug agent connects back to a port opened on this computer.
+        if (rp.startMode() != AttachToRemoteServer
+            && !rp.inferior().command.executable().isLocal()) {
+            return make_unexpected(Tr::tr("Java programs can only be debugged on this "
+                                          "computer."));
+        }
+        if (rp.startMode() != StartInternal && rp.startMode() != StartExternal
+            && rp.startMode() != AttachToRemoteServer) {
+            return make_unexpected(Tr::tr("A Java program can only be launched, or attached "
+                                          "to at the port of its debug agent."));
+        }
+        engines << createJdwpEngine(rp);
+    }
 
     // In native combined debugging the C++ engine drives QML as well, so
     // the separate QML engine must not be created; it would otherwise own

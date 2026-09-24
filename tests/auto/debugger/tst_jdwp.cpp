@@ -215,6 +215,7 @@ private slots:
     void movesABreakpointToTheNextLineWithCode();
     void stepsInOverAndOut();
     void reportsTheStack();
+    void findsASourceThroughTheProjectFiles();
     void readsLocalsAndExpandsThem();
     void readsTheFieldsOfThis();
     void listsTheThreads();
@@ -503,6 +504,30 @@ void tst_jdwp::reportsTheStack()
     QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
 }
 
+void tst_jdwp::findsASourceThroughTheProjectFiles()
+{
+    ProcessRunData runData;
+    runData.command = CommandLine(m_java, {"-cp", m_classesDir->path(), s_mainClass});
+    // Holds the classes, but no sources to find there.
+    runData.workingDirectory = FilePath::fromUserInput(m_classesDir->path());
+    runData.environment = Environment::systemEnvironment();
+    DebuggerBackend backend(JdwpImplStartData{.inferiorStartData = runData,
+                                              .sourceFiles = {m_helperSource, m_inferiorSource}});
+    backend.addInitialBreakpoint(m_helperSource, lineOf(m_helperSource, "nested-body"));
+    backend.start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend.stops() == 1 || !backend.results().isEmpty(), s_timeoutMs);
+
+    // The caller's file had no breakpoint to name it, so only the project knows it.
+    const quint64 request = backend.refresh(RefreshKind::FullStack);
+    QTRY_VERIFY_WITH_TIMEOUT(backend.refreshed(request), s_timeoutMs);
+    const GdbMi caller = backend.refreshData(request)["stack"]["frames"].childAt(1);
+    QCOMPARE(caller["function"].data(), QString("%1.main").arg(s_mainClass));
+    QCOMPARE(FilePath::fromUserInput(caller["file"].data()), m_inferiorSource);
+
+    backend.shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend.contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
 void tst_jdwp::readsLocalsAndExpandsThem()
 {
     const auto backend = launch();
@@ -556,6 +581,8 @@ void tst_jdwp::readsTheFieldsOfThis()
     QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
     const GdbMi locals = backend->refreshData(request)["data"];
     QCOMPARE(namesIn(locals).value(0), QString("this"));
+    // javac lists it among the variables, too.
+    QCOMPARE(namesIn(locals).count("this"), qsizetype(1));
     const GdbMi self = childNamed(locals, "this");
     QCOMPARE(self["type"].data(), QString("org.qtproject.jdwptest.Helper$Nested"));
     QCOMPARE(childNamed(self["children"], "value")["value"].data(), QString("6"));
