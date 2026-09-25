@@ -1013,12 +1013,12 @@ void MsvcToolchain::holdToolDetection(const IDevicePtr &device, quint64 token)
     device->registerToolDetectionTask(token);
     m_detectionDeviceId = device->id();
     m_detectionToken = token;
-    connect(&m_envModWatcher, &QFutureWatcherBase::finished,
-            this, &MsvcToolchain::releaseToolDetection, Qt::SingleShotConnection);
 }
 
 void MsvcToolchain::releaseToolDetection()
 {
+    if (!m_detectionToken)
+        return;
     if (const IDevice::Ptr device = DeviceManager::find(m_detectionDeviceId))
         device->deregisterToolDetectionTask(m_detectionToken);
     m_detectionDeviceId = {};
@@ -1141,6 +1141,8 @@ MsvcToolchain::MsvcToolchain(Utils::Id typeId)
     setTypeDisplayName(Tr::tr("MSVC"));
     connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt,
             this, &MsvcToolchain::handleEnvModResult);
+    connect(&m_envModWatcher, &QFutureWatcherBase::finished,
+            this, &MsvcToolchain::releaseToolDetection);
     addToAvailableMsvcToolchains(this);
     setTargetAbiKey(KEY_ROOT "SupportedAbi");
     setVersionFlagsAndParser({}, [](const QString &, const QString &stdErr) -> QVersionNumber {
