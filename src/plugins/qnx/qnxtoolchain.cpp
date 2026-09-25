@@ -389,6 +389,9 @@ static void detectQnxDebuggers(const IDevice::ConstPtr &device, const ToolDetect
     if (qnxHost.isEmpty())
         return;
 
+    if (logger)
+        logger.logTopLevel(Tr::tr("Searching for QNX debuggers..."));
+
     const FilePath binDir = qnxHost.pathAppended("usr/bin");
     QString pattern = "nto*-gdb";
     if (binDir.osType() == OsTypeWindows)
@@ -397,6 +400,7 @@ static void detectQnxDebuggers(const IDevice::ConstPtr &device, const ToolDetect
     Environment sysEnv = qnxHost.deviceEnvironment();
     sysEnv.modify(qnxVars);
     const FilePaths gdbs = binDir.dirEntries({{pattern}, DirFilterFlag::Files});
+    bool foundNew = false;
     for (const FilePath &gdb : gdbs) {
         const bool known = Utils::anyOf(Debugger::DebuggerItemManager::debuggers(),
                                         [&gdb](const Debugger::DebuggerItem &di) {
@@ -412,9 +416,12 @@ static void detectQnxDebuggers(const IDevice::ConstPtr &device, const ToolDetect
         item.setUnexpandedDisplayName(Tr::tr("QNX Debugger (%1)").arg(gdb.fileName()));
         item.setDetectionSource({DetectionSource::Manual, gdb.toUrlishString()});
         Debugger::DebuggerItemManager::registerDebugger(item);
+        foundNew = true;
         if (logger)
             logger.logItem(Tr::tr("Found QNX debugger: %1").arg(gdb.toUserOutput()));
     }
+    if (logger && !foundNew)
+        logger.logItem(Tr::tr("No new QNX debuggers found."));
 }
 
 void setupQnxDebuggerDetection(QObject *guard)
@@ -425,8 +432,6 @@ void setupQnxDebuggerDetection(QObject *guard)
         const IDevice::Ptr device = DeviceManager::find(devId);
         QTC_ASSERT(device, return);
         device->registerToolDetectionTask(token);
-        if (logger)
-            logger.logTopLevel(Tr::tr("Searching for QNX debuggers..."));
         detectQnxDebuggers(device, logger);
         device->deregisterToolDetectionTask(token);
     });
