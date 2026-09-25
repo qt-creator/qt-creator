@@ -1813,26 +1813,27 @@ void BridgeImpl::reportStop()
             emit inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
             return;
         }
-        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
-        if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
-            if (m_startData.continueAfterAttach)
-                execute({ExecutionCommand::Continue});
-            return;
-        }
-        if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
-            // The stub holds the inferior stopped until it is told to let it
-            // go, which is only safe once the debugger has it running.
-            m_expectTerminalTrap = true;
-            execute({ExecutionCommand::Continue});
-            emit kickoffTerminalProcessRequested();
-            return;
-        }
         // Attaching to a process the server was pointed at stops it, and the
         // session is expected to hand it back running, while a target that was
-        // handed over loaded is only resumed when the run asked for it.
+        // handed over loaded is only resumed when the run asked for it. The
+        // stub holds its inferior stopped until it is told to let it go, which
+        // is only safe once the debugger has it running.
         const auto remote = std::get_if<AttachToRemoteServerData>(&m_startData.inferiorStartData);
-        if (remote && (remote->attachPid.isValid() || m_startData.continueInsteadOfRun))
+        const bool isTerminalStub
+            = std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData);
+        bool resume = isTerminalStub;
+        if (std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData))
+            resume = m_startData.continueAfterAttach;
+        else if (remote)
+            resume = remote->attachPid.isValid() || m_startData.continueInsteadOfRun;
+        emit inferiorEvent(resume ? InferiorEvent::RunAndInferiorStopOkAndResuming
+                                  : InferiorEvent::RunAndInferiorStopOk);
+        if (isTerminalStub)
+            m_expectTerminalTrap = true;
+        if (resume)
             execute({ExecutionCommand::Continue});
+        if (isTerminalStub)
+            emit kickoffTerminalProcessRequested();
         return;
     }
     // Only the interrupt the queue asked for may serve it: a stop of anybody

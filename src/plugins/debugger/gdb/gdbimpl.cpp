@@ -476,8 +476,10 @@ void GdbImpl::handleLocalAttach(const DebuggerResponse &response)
         // resuming is what the run asked for, or the user's next command.
         m_inferiorRunning = false;
         runPostAttachCommands();
-        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
-        if (m_startData.isSet(GdbImplFlag::ContinueAfterAttach))
+        const bool resume = m_startData.isSet(GdbImplFlag::ContinueAfterAttach);
+        emit inferiorEvent(resume ? InferiorEvent::RunAndInferiorStopOkAndResuming
+                                  : InferiorEvent::RunAndInferiorStopOk);
+        if (resume)
             continueAfterAttach();
     } else {
         if (isPtraceRefusal(response.data["msg"].data())) {
@@ -506,13 +508,13 @@ void GdbImpl::handleTerminalStubAttach(const DebuggerResponse &response, qint64 
             emit message("Inferior attached, unable to resume thread "
                          + QString::number(mainThreadId) + ": " + errorMessage, LogWarning);
         }
-        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOkAndResuming);
         runRunRequestCommand("-exec-continue");
         return;
     }
     if (m_attachPhase == AttachPhase::AwaitingConnect) {
         m_attachPhase = AttachPhase::Stopped;
-        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOkAndResuming);
         continueAfterAttach();
     }
     emit kickoffTerminalProcessRequested();
@@ -542,11 +544,14 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
         for (const QString &command : m_startData.userCommands.afterConnect)
             runCommand({command, DebuggerCommand::NativeCommand});
         runPostAttachCommands();
-        if (!stoppedAlready)
-            emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
         // The server handed the inferior over stopped, and a target that is
         // loaded already is resumed rather than run.
-        if (m_startData.isSet(GdbImplFlag::ContinueInsteadOfRun))
+        const bool resume = m_startData.isSet(GdbImplFlag::ContinueInsteadOfRun);
+        if (!stoppedAlready) {
+            emit inferiorEvent(resume ? InferiorEvent::RunAndInferiorStopOkAndResuming
+                                      : InferiorEvent::RunAndInferiorStopOk);
+        }
+        if (resume)
             continueAfterAttach();
         return;
     }
@@ -603,7 +608,7 @@ void GdbImpl::handleExtendedRemoteAttach(const DebuggerResponse &response)
         if (m_attachPhase != AttachPhase::AwaitingConnect)
             return;
         m_attachPhase = AttachPhase::Stopped;
-        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOkAndResuming);
         continueAfterAttach();
     } else {
         m_runCommandPending = true;
@@ -2415,12 +2420,18 @@ void GdbImpl::handleOutputLine(const QString &line)
                 const bool isTerminalStub
                     = std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData);
                 m_attachPhase = AttachPhase::Stopped;
-                if (isTerminalStub)
-                    emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
+                // The stop of the connect can arrive before its answer, which
+                // then only resumes it: who does that is said here, where the
+                // stop is reported, rather than where the resume is sent.
+                const bool resume = isTerminalStub
+                                    || (remoteData
+                                        && m_startData.isSet(GdbImplFlag::ContinueInsteadOfRun));
+                if (!isRemoteAttachPid) {
+                    emit inferiorEvent(resume ? InferiorEvent::RunAndInferiorStopOkAndResuming
+                                              : InferiorEvent::RunAndInferiorStopOk);
+                }
                 if (isRemoteAttachPid || isTerminalStub)
                     continueAfterAttach();
-                else
-                    emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
             } else if (m_attachPhase == AttachPhase::Continuing) {
             } else if (!m_onStopCommands.isEmpty()) {
                 const bool wasInterruptRequested = m_interruptRequested;

@@ -641,12 +641,11 @@ void DapImpl::postLaunchOrAttach()
 
 // The end of the setup, which is a running debuggee for a launch and the stop
 // attaching caused for an attach.
-void DapImpl::reportRunStarted(bool running)
+void DapImpl::reportRunStarted(InferiorEvent event)
 {
     reportRunning(true);
-    emit inferiorEvent(running ? InferiorEvent::RunAndInferiorRunOk
-                               : InferiorEvent::RunAndInferiorStopOk);
-    m_inferiorRunning = running;
+    emit inferiorEvent(event);
+    m_inferiorRunning = (event == InferiorEvent::RunAndInferiorRunOk);
     m_runReported = true;
     // Whatever became of the debuggee while the launch was in flight is only
     // reportable now that the run itself has been.
@@ -3467,19 +3466,22 @@ void DapImpl::reportStop()
 {
     if (std::exchange(m_reportsSetupStop, false)) {
         m_stopRequested = false;
-        reportRunStarted(false);
-        if (std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData)) {
-            // The stub holds the inferior stopped until it is told to let it
-            // go, which is only safe once the debugger has it running.
-            m_expectTerminalTrap = true;
-            execute({ExecutionCommand::Continue});
-            emit kickoffTerminalProcessRequested();
-            return;
-        }
         // A target the server was pointed at is handed over stopped, and only
-        // the session knows whether it is meant to run from here.
-        if (m_startData.continueAfterAttach || m_startData.continueInsteadOfRun)
+        // the session knows whether it is meant to run from here. The stub
+        // holds its inferior stopped until it is told to let it go, which is
+        // only safe once the debugger has it running.
+        const bool isTerminalStub
+            = std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData);
+        const bool resume = isTerminalStub || m_startData.continueAfterAttach
+                            || m_startData.continueInsteadOfRun;
+        reportRunStarted(resume ? InferiorEvent::RunAndInferiorStopOkAndResuming
+                                : InferiorEvent::RunAndInferiorStopOk);
+        if (isTerminalStub)
+            m_expectTerminalTrap = true;
+        if (resume)
             execute({ExecutionCommand::Continue});
+        if (isTerminalStub)
+            emit kickoffTerminalProcessRequested();
         return;
     }
     // The debuggee stopped by itself before the stop asked for to get a

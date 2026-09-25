@@ -250,6 +250,10 @@ enum class InferiorEvent {
     EngineSetupOk, EngineSetupFailed, EngineRunFailed, EngineIll,
     EngineShutdownFinished, EngineSpontaneousShutdown,
     RunAndInferiorStopOk, RunAndInferiorRunOk, RunOkAndInferiorUnrunnable,
+    // Like RunAndInferiorStopOk, but the backend resumes the inferior itself
+    // right away: the stop is an artefact of attaching and never the user's,
+    // so the views are not worth filling from it.
+    RunAndInferiorStopOkAndResuming,
 };
 
 enum class InferiorExitStatus {

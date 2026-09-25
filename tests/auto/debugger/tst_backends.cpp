@@ -1638,6 +1638,13 @@ public:
     void execute(const ExecutionRequest &request) { m_engine->execute(request); }
 
     bool contains(InferiorEvent event) const { return m_events.contains(event); }
+    // Either way a backend reports the stop attaching causes: the one it
+    // resumes by itself, and the one it leaves for the user to read.
+    bool containsAttachStop() const
+    {
+        return contains(InferiorEvent::RunAndInferiorStopOk)
+               || contains(InferiorEvent::RunAndInferiorStopOkAndResuming);
+    }
     qsizetype count(InferiorEvent event) const { return m_events.count(event); }
     bool isEmpty() const { return m_events.isEmpty(); }
     qsizetype size() const { return m_events.size(); }
@@ -9737,17 +9744,26 @@ void tst_backends::continuesAfterAttachWhenConfigured()
         DebuggerEngineInterface *engine = debuggerBackend->engine();
         engine->start();
         [&] {
-            QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk),
+            QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->containsAttachStop(),
                                      s_timeout);
         }();
 
         bool resumed = false;
         if (!QTest::currentTestFailed()) {
             if (continueAfterAttach) {
-                // The resume is an event of its own; nothing else to wait for.
+                // The resume is an event of its own, and it arrives after the
+                // stop: had the backend claimed a stop for the engine to read,
+                // it would be here.
                 [&] {
                     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk),
                                              s_timeout);
+                    QVERIFY2(debuggerBackend->contains(
+                                 InferiorEvent::RunAndInferiorStopOkAndResuming),
+                             "a backend that resumes the attach stop did not say so, so the "
+                             "engine fills the stack and thread views from a frame the user "
+                             "never asked to see");
+                    QVERIFY2(!debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk),
+                             "the attach stop was also reported as one the engine should read");
                 }();
                 resumed = debuggerBackend->contains(InferiorEvent::RunOk);
             } else {
@@ -9764,6 +9780,15 @@ void tst_backends::continuesAfterAttachWhenConfigured()
                 // gdb reads the target's symbols after answering the attach,
                 // and this queues behind that.
                 [&] { QTRY_VERIFY_WITH_TIMEOUT(threads.isValid(), s_qmlStartupTimeout); }();
+                // The answer is a round trip past the attach: whatever the
+                // backend had to say about that stop has arrived by now.
+                [&] {
+                    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk),
+                             "the stop the engine is to read was not reported");
+                    QVERIFY2(!debuggerBackend->contains(
+                                 InferiorEvent::RunAndInferiorStopOkAndResuming),
+                             "a backend that leaves the inferior stopped claimed it resumes it");
+                }();
                 resumed = debuggerBackend->contains(InferiorEvent::RunOk);
                 const QString currentId = threads["current-thread-id"].data();
                 for (const GdbMi &thread : threads["threads"]) {
@@ -12778,7 +12803,7 @@ void tst_backends::interruptsRightAfterAttaching()
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->containsAttachStop()
                              || debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
                              || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
                              s_timeout);
@@ -17199,10 +17224,10 @@ void tst_backends::attachesToRunningProcess()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+                             || debuggerBackend->containsAttachStop()
                              || debuggerBackend->contains(InferiorEvent::EngineIll), s_timeout);
     QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-            || debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk));
+            || debuggerBackend->containsAttachStop());
 
     // Attaching holds the inferior for whoever asked for it: only a run that says
     // so resumes it, so the state is final here.
@@ -17291,11 +17316,13 @@ void tst_backends::reportsTheStackOfASelectedThread()
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->containsAttachStop()
                              || debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
                              || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
                              s_timeout);
     QVERIFY2(!debuggerBackend->contains(InferiorEvent::EngineSetupFailed), "attaching failed");
+    // A run that resumes the attach stop reports it and lets the inferior run
+    // again, so the stop alone does not mean it is held.
     if (!debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)) {
         debuggerBackend->clearEvents();
         debuggerBackend->execute({ExecutionCommand::Interrupt});
@@ -17672,12 +17699,14 @@ void tst_backends::reportsTheStackOfAnInferiorOfTheOtherWordWidth()
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->containsAttachStop()
                              || debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
                              || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
                              s_timeout);
     QVERIFY2(!debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
              "attaching to the inferior of the other word width failed");
+    // A run that resumes the attach stop reports it and lets the inferior run
+    // again, so the stop alone does not mean it is held.
     if (!debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)) {
         debuggerBackend->clearEvents();
         debuggerBackend->execute({ExecutionCommand::Interrupt});
@@ -17826,9 +17855,9 @@ void tst_backends::attachesToTerminalRunProcess()
     });
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->containsAttachStop()
                              || debuggerBackend->contains(InferiorEvent::EngineIll), s_timeout);
-    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk));
+    QVERIFY(debuggerBackend->containsAttachStop());
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk)
                              || debuggerBackend->contains(InferiorEvent::RunFailed), s_timeout);
     QVERIFY(debuggerBackend->contains(InferiorEvent::RunOk));
@@ -17925,9 +17954,9 @@ void tst_backends::attachesToRunningRemoteServer()
 #ifdef Q_OS_WIN
     QSKIP("This test fails on Win");
 #endif
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->containsAttachStop()
                              || debuggerBackend->contains(InferiorEvent::EngineIll), s_timeout);
-    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk));
+    QVERIFY(debuggerBackend->containsAttachStop());
 
     debuggerBackend->clearEvents();
     engine->shutdownInferior(ShutdownMode::Kill);
@@ -18022,9 +18051,9 @@ void tst_backends::runsUserCommandsAfterConnectingToARemoteServer()
             [&messages](const QString &text, int, int) { messages.append(text); });
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->containsAttachStop()
                              || debuggerBackend->contains(InferiorEvent::EngineIll), s_timeout);
-    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk));
+    QVERIFY(debuggerBackend->containsAttachStop());
 
     QTRY_VERIFY2_WITH_TIMEOUT(messages.join(' ').contains(probe.marker),
                               qPrintable("connecting to the server ran no configured command - "
@@ -18118,11 +18147,17 @@ void tst_backends::continuesAfterConnectingWhenConfigured()
     QVERIFY(debuggerBackend);
 
     debuggerBackend->engine()->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk),
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->containsAttachStop(),
                              s_timeout);
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk),
                               "the target that was handed over stopped was never resumed",
                               s_timeout);
+    // Whether the stop of the connect is seen before its answer is the
+    // debugger's to decide, and the stop is resumed either way, so no order
+    // of the two may claim a stop the engine is to read.
+    QVERIFY2(!debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk),
+             "the attach stop that is resumed at once was reported as one the engine "
+             "should fill the stack and thread views from");
 }
 
 void tst_backends::exitsTheMonitorWhenClosing()
@@ -18222,9 +18257,9 @@ void tst_backends::attachesToRemoteProcessByPid()
 #ifdef Q_OS_WIN
     QSKIP("This test fails on Win");
 #endif
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->containsAttachStop()
                              || debuggerBackend->contains(InferiorEvent::EngineIll), s_timeout);
-    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk));
+    QVERIFY(debuggerBackend->containsAttachStop());
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk), s_timeout);
 
     debuggerBackend->clearEvents();
@@ -18283,12 +18318,12 @@ void tst_backends::runsRemoteExecutableViaExtendedRemote()
 
     engine->start();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk)
+                             || debuggerBackend->containsAttachStop()
                              || debuggerBackend->contains(InferiorEvent::EngineIll)
                              || debuggerBackend->contains(InferiorEvent::EngineRunFailed), s_timeout);
     if (stubHostsProcess) {
         // The stub hands the process over stopped, so the backend has to resume it.
-        QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorStopOk));
+        QVERIFY(debuggerBackend->containsAttachStop());
         QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunOk),
                                   "the remote executable was never resumed", s_timeout);
     } else {

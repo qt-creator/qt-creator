@@ -1489,7 +1489,6 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         emit inferiorEvent(InferiorEvent::RunAndInferiorRunOk);
     } else if (state == "enginerunandinferiorstopok") {
         m_inferiorRunning = false;
-        emit inferiorEvent(InferiorEvent::RunAndInferiorStopOk);
         // Only the attaching paths report this state, and they all leave the inferior
         // stopped. Whether it stays there is for whoever asked for the attach to say:
         // a process and a bare server are held, while a server that was handed a
@@ -1504,6 +1503,8 @@ void LldbImpl::handleStateReport(const GdbMi &item)
         } else if (!std::holds_alternative<AttachToProcessData>(m_startData.inferiorStartData)) {
             resume = true;
         }
+        emit inferiorEvent(resume ? InferiorEvent::RunAndInferiorStopOkAndResuming
+                                  : InferiorEvent::RunAndInferiorStopOk);
         if (resume) {
             m_resumeAfterAttachPending = true;
             runCommand({"continueInferior", DebuggerCommand::RunRequest});

@@ -134,7 +134,7 @@ protected:
 
     void sendCustomRequest(const QString &command, const QJsonObject &arguments,
                            const DapSessionChannel::Answer &answer);
-    void reportRunStarted(bool running = true);
+    void reportRunStarted(InferiorEvent event = InferiorEvent::RunAndInferiorRunOk);
     void reportRunning(bool running);
     void reportRunRequested();
     void reportRunResult(bool ok);

@@ -110,5 +110,6 @@ private:
     QHash<quint64, MemoryReadCallback> m_pendingMemoryReads;
     QHash<quint64, QPointer<DisassemblerAgent>> m_pendingDisassemblyRequests;
     bool m_notRespondingPending = false;
+    bool m_attachStopUnread = false;
 };
 } // namespace Debugger::Internal

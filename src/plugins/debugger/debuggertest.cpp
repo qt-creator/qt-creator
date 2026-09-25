@@ -235,6 +235,9 @@ private slots:
     void testASkippedTopFrameNamesItsMissingSource();
     void testSkippedMachineryFramesStaySilent();
     void testAFailedRunRestoresOnlyAPendingReset();
+    void testAResumedAttachStopLeavesTheViewsAlone();
+    void testARefusedResumeReadsTheAttachStopAfterAll();
+    void testASuccessfulRunDropsTheUnreadAttachStop();
     void testTheDisassemblyMessageIsSaidOncePerStop();
 
     void testScratchEditorAdoptsSavedName();
@@ -2314,12 +2317,15 @@ public:
     }
 
     QList<BreakpointChangeRequest> requests;
+    // What the engine went on to read, which is how a view that was filled is
+    // told from one that was left alone.
+    QList<RefreshKind> refreshes;
 
     void start() override {}
     void shutdownInferior(ShutdownMode) override {}
     void shutdownEngine() override {}
     void execute(const ExecutionRequest &) override {}
-    void refresh(const RefreshRequest &) override {}
+    void refresh(const RefreshRequest &request) override { refreshes.append(request.kind); }
     void accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArray &) override {}
     void executeDebuggerCommand(const QString &, const WatchItemData &) override {}
     void selectThread(const QString &) override {}
@@ -4618,6 +4624,87 @@ void DebuggerUnitTests::testAFailedRunRestoresOnlyAPendingReset()
     stack->commitResetLocation();
     stack->cancelResetLocation();
     QVERIFY(!stack->isContentsValid());
+}
+
+// Attaching stops the inferior wherever it happens to be, and a backend whose
+// run asks for it to go on resumes that stop by itself. Where every one of
+// these tests starts: such a stop, reported as what it is.
+static void reportAnAttachStopThatIsResumed(RecordingBackend *backend)
+{
+    emit backend->inferiorEvent(InferiorEvent::EngineSetupOk);
+    emit backend->inferiorEvent(InferiorEvent::RunAndInferiorStopOkAndResuming);
+}
+
+// On Android that stop is every thread parked in libc's syscall(). With no
+// source for the frame, reading it puts disassembly in the editor and asks for
+// more of it, all before the run has reached main().
+void DebuggerUnitTests::testAResumedAttachStopLeavesTheViewsAlone()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    engine->start();
+    reportAnAttachStopThatIsResumed(backend);
+
+    QCOMPARE(engine->state(), InferiorStopOk);
+    QVERIFY2(!backend->refreshes.contains(RefreshKind::FullStack),
+             "the stack was read from an attach stop the backend resumes at once");
+    QVERIFY2(!backend->refreshes.contains(RefreshKind::Threads),
+             "the threads were read from an attach stop the backend resumes at once");
+}
+
+// That stop is the only one an attach has, so a resume the debugger refuses
+// leaves the session on it with nothing in the views, unless the engine goes
+// back for the stop it skipped.
+void DebuggerUnitTests::testARefusedResumeReadsTheAttachStopAfterAll()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    engine->start();
+    reportAnAttachStopThatIsResumed(backend);
+
+    emit backend->inferiorEvent(InferiorEvent::RunRequested);
+    emit backend->inferiorEvent(InferiorEvent::RunFailed);
+
+    QCOMPARE(engine->state(), InferiorStopOk);
+    QVERIFY2(backend->refreshes.contains(RefreshKind::FullStack),
+             "the resume was refused and the stack of the stop it skipped stayed unread");
+    QVERIFY2(backend->refreshes.contains(RefreshKind::Threads),
+             "the threads of that stop stayed unread as well");
+}
+
+// What is owed is that one stop. Once the inferior has run, the views belong
+// to wherever it went, and a run that fails later must not reach back for the
+// attach.
+void DebuggerUnitTests::testASuccessfulRunDropsTheUnreadAttachStop()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    // A stop the inferior ran into selects the perspective, which only an
+    // engine that was given its views has.
+    engine->setDevice({});
+
+    engine->start();
+    reportAnAttachStopThatIsResumed(backend);
+
+    emit backend->inferiorEvent(InferiorEvent::RunRequested);
+    emit backend->inferiorEvent(InferiorEvent::RunOk);
+    emit backend->inferiorEvent(InferiorEvent::SpontaneousStop);
+    QCOMPARE(engine->state(), InferiorStopOk);
+
+    // The stop the inferior ran into filled the views itself.
+    backend->refreshes.clear();
+    emit backend->inferiorEvent(InferiorEvent::RunRequested);
+    emit backend->inferiorEvent(InferiorEvent::RunFailed);
+    QVERIFY2(!backend->refreshes.contains(RefreshKind::FullStack),
+             "a run that failed after the inferior had run read the attach stop again");
 }
 
 void DebuggerUnitTests::testTheDisassemblyMessageIsSaidOncePerStop()

@@ -377,8 +377,19 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
     connect(m_backend.get(), &DebuggerEngineInterface::inferiorEvent, this,
             [this](InferiorEvent event) {
         switch (event) {
-        case InferiorEvent::RunOk: notifyInferiorRunOk(); break;
-        case InferiorEvent::RunFailed: notifyInferiorRunFailed(); break;
+        case InferiorEvent::RunOk:
+            m_attachStopUnread = false;
+            notifyInferiorRunOk();
+            break;
+        case InferiorEvent::RunFailed:
+            notifyInferiorRunFailed();
+            // The views were left unfilled on the promise of a resume that did
+            // not happen, and the stop they skipped is the only one there is.
+            if (std::exchange(m_attachStopUnread, false)) {
+                reloadStack(settings().maximalStackDepth());
+                reloadThreads();
+            }
+            break;
         case InferiorEvent::RunRequested: notifyInferiorRunRequested(); break;
         case InferiorEvent::StopOk:
             notifyInferiorStopOk();
@@ -408,6 +419,10 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             notifyEngineRunAndInferiorStopOk();
             reloadStack(settings().maximalStackDepth());
             reloadThreads();
+            break;
+        case InferiorEvent::RunAndInferiorStopOkAndResuming:
+            notifyEngineRunAndInferiorStopOk();
+            m_attachStopUnread = true;
             break;
         case InferiorEvent::RunAndInferiorRunOk: notifyEngineRunAndInferiorRunOk(); break;
         case InferiorEvent::RunOkAndInferiorUnrunnable:
