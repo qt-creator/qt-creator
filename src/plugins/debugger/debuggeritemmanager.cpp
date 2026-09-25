@@ -115,7 +115,9 @@ public:
     void deregisterDebugger(const QVariant &id);
 
     void readDebuggers(const FilePath &fileName, bool isSdk);
-    void autoDetectCdbDebuggers(const ToolDetectionLogger &logger = {});
+    void autoDetectCdbDebuggers(const IDeviceConstPtr &device,
+                                const DetectionSource &detectionSource,
+                                const ToolDetectionLogger &logger = {});
     void autoDetectGdbOrLldbDebuggers(
         const FilePaths &searchPaths,
         const DetectionSource &detectionSource,
@@ -189,66 +191,70 @@ void DebuggerModel::updateDebugger(const DebuggerItem &ditem)
 }
 
 
-void DebuggerModel::autoDetectCdbDebuggers(const ToolDetectionLogger &logger)
+void DebuggerModel::autoDetectCdbDebuggers(const IDeviceConstPtr &device,
+                                           const DetectionSource &detectionSource,
+                                           const ToolDetectionLogger &logger)
 {
+    if (device->osType() != OsTypeWindows)
+        return;
+
     if (logger)
         logger.logTopLevel(Tr::tr("Searching for CDB..."));
 
+    const bool isLocal = device->rootPath().isLocal();
+    const Environment env = device->systemEnvironment();
     FilePaths cdbs;
+    FilePaths kitFolders;
 
-    const QStringList programDirs = {qtcEnvironmentVariable("ProgramFiles"),
-                                     qtcEnvironmentVariable("ProgramFiles(x86)"),
-                                     qtcEnvironmentVariable("ProgramW6432")};
+    FilePaths programDirs;
+    for (const char *name : {"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
+        const QString dirName = env.value(QLatin1StringView(name));
+        if (!dirName.isEmpty())
+            programDirs.append(device->filePath(QDir::fromNativeSeparators(dirName)));
+    }
 
-    QFileInfoList kitFolders;
-
-    for (const QString &dirName : programDirs) {
-        if (dirName.isEmpty())
-            continue;
-        const QDir dir(dirName);
+    for (const FilePath &dir : Utils::filteredUnique(programDirs)) {
         // Windows SDK's starting from version 8 live in
         // "ProgramDir\Windows Kits\<version>"
-        const QString windowsKitsFolderName = "Windows Kits";
-        if (dir.exists(windowsKitsFolderName)) {
-            QDir windowKitsFolder = dir;
-            if (windowKitsFolder.cd(windowsKitsFolderName)) {
-                // Check in reverse order (latest first)
-                kitFolders.append(windowKitsFolder.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
-                                                                 QDir::Time | QDir::Reversed));
-            }
-        }
+        const FileFilter dirs({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
+        kitFolders.append((dir / "Windows Kits").dirEntries(dirs, DirSortFlag::Time));
 
         // Pre Windows SDK 8: Check 'Debugging Tools for Windows'
-        for (const QFileInfo &fi : dir.entryInfoList({"Debugging Tools for Windows*"},
-                                                     QDir::Dirs | QDir::NoDotAndDotDot)) {
-            const FilePath filePath = FilePath::fromFileInfo(fi).pathAppended("cdb.exe");
+        const FilePaths toolDirs = dir.dirEntries({{"Debugging Tools for Windows*"},
+                                                   DirFilterFlag::Dirs
+                                                       | DirFilterFlag::NoDotAndDotDot});
+        for (const FilePath &toolDir : toolDirs) {
+            const FilePath filePath = toolDir.pathAppended("cdb.exe");
             if (!cdbs.contains(filePath))
                 cdbs.append(filePath);
         }
     }
 
-
-    constexpr char RootVal[]   = "KitsRoot";
-    constexpr char RootVal81[] = "KitsRoot81";
-    constexpr char RootVal10[] = "KitsRoot10";
-    const QSettings installedRoots(
-                "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots",
-                QSettings::NativeFormat);
-    for (auto rootVal : {RootVal, RootVal81, RootVal10}) {
-        QFileInfo root(installedRoots.value(QLatin1String(rootVal)).toString());
-        if (root.exists() && !kitFolders.contains(root))
-            kitFolders.append(root);
+    if (isLocal) {
+        constexpr char RootVal[]   = "KitsRoot";
+        constexpr char RootVal81[] = "KitsRoot81";
+        constexpr char RootVal10[] = "KitsRoot10";
+        const QSettings installedRoots(
+                    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots",
+                    QSettings::NativeFormat);
+        for (auto rootVal : {RootVal, RootVal81, RootVal10}) {
+            const FilePath root = FilePath::fromUserInput(
+                installedRoots.value(QLatin1String(rootVal)).toString());
+            if (!root.isEmpty() && root.exists() && !kitFolders.contains(root))
+                kitFolders.append(root);
+        }
     }
 
-    for (const QFileInfo &kitFolderFi : kitFolders) {
-        const QString path = kitFolderFi.absoluteFilePath();
-        QStringList abis = {"x86", "x64"};
-        if (HostOsInfo::hostArchitecture() == Utils::OsArchArm64)
-            abis << "arm64";
-        for (const QString &abi: std::as_const(abis)) {
-            const QFileInfo cdbBinary(path + "/Debuggers/" + abi + "/cdb.exe");
-            if (cdbBinary.isExecutable())
-                cdbs.append(FilePath::fromString(cdbBinary.absoluteFilePath()));
+    const bool isArm64 = isLocal ? HostOsInfo::hostArchitecture() == Utils::OsArchArm64
+                                 : env.value("PROCESSOR_ARCHITECTURE") == "ARM64";
+    QStringList abis = {"x86", "x64"};
+    if (isArm64)
+        abis << "arm64";
+    for (const FilePath &kitFolder : std::as_const(kitFolders)) {
+        for (const QString &abi : std::as_const(abis)) {
+            const FilePath cdbBinary = kitFolder / "Debuggers" / abi / "cdb.exe";
+            if (cdbBinary.isExecutableFile() && !cdbs.contains(cdbBinary))
+                cdbs.append(cdbBinary);
         }
     }
 
@@ -257,7 +263,7 @@ void DebuggerModel::autoDetectCdbDebuggers(const ToolDetectionLogger &logger)
             continue;
         DebuggerItem item;
         item.createId();
-        item.setDetectionSource(DetectionSource::FromSystem);
+        item.setDetectionSource(detectionSource);
         item.setAbis(Abi::abisOfBinary(cdb));
         item.setCommand(cdb);
         item.setEngineType(CdbEngineType);
@@ -608,10 +614,9 @@ void DebuggerModel::detectDebuggers(
         = isDesktopDevice ? DetectionSource(DetectionSource::FromSystem)
                           : DetectionSource(DetectionSource::Manual, device->id().toString());
     autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource, logger);
-    if (isDesktopDevice) {
-        autoDetectCdbDebuggers(logger);
+    autoDetectCdbDebuggers(device, detectionSource, logger);
+    if (isDesktopDevice)
         autoDetectUvscDebuggers(logger);
-    }
 }
 
 void DebuggerModel::saveDebuggers()
