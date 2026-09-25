@@ -3047,12 +3047,14 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
         move.beginEditBlock();
 
     bool hasSelection = cursor.hasSelection();
+    bool selectsWholeLines = false;
 
     if (hasSelection) {
         move.setPosition(cursor.selectionStart());
         move.movePosition(QTextCursor::StartOfBlock);
         move.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
-        move.movePosition(move.atBlockStart() ? QTextCursor::PreviousCharacter: QTextCursor::EndOfBlock,
+        selectsWholeLines = move.atBlockStart();
+        move.movePosition(selectsWholeLines ? QTextCursor::PreviousCharacter : QTextCursor::EndOfBlock,
                           QTextCursor::KeepAnchor);
     } else {
         move.movePosition(QTextCursor::StartOfBlock);
@@ -3140,6 +3142,17 @@ void TextEditorWidgetPrivate::moveLineUpDown(bool up)
         m_document->autoReindent(move);
     }
     move.endEditBlock();
+
+    if (selectsWholeLines) {
+        // Keep ending the selection at the start of the next line. Ending it at the end of
+        // the last moved line would leave that line out of the next move if it is empty.
+        const QTextBlock next = q->document()->findBlock(move.selectionEnd()).next();
+        if (next.isValid()) {
+            const int start = move.selectionStart();
+            move.setPosition(next.position());
+            move.setPosition(start, QTextCursor::KeepAnchor);
+        }
+    }
 
     q->setTextCursor(move);
     m_moveLineUndoHack = true;

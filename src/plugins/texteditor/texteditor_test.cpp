@@ -106,6 +106,7 @@ private slots:
     void testIndentUnindent();
     void testMakefileForcesTabPolicy();
     void testTextDocumentChanged();
+    void testMoveLinesEndingInEmptyLine();
 };
 
 void TextEditorTest::testIndentationClean_data()
@@ -308,6 +309,35 @@ void TextEditorTest::testTextDocumentChanged()
 
     QCOMPARE(signalSpy.count(), 1);
     QCOMPARE(widget.textDocument(), document.data());
+}
+
+// Regression test for QTCREATORBUG-34933.
+void TextEditorTest::testMoveLinesEndingInEmptyLine()
+{
+    const QString input = "a\nb\n\nc\nd\ne";
+    QString title = "move_lines.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, input.toUtf8());
+    QVERIFY(editor);
+    const QScopeGuard cleanup([&] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *editorWidget = baseEditor->editorWidget();
+    QVERIFY(editorWidget);
+
+    // The lines "b" and "", selected from the start of "b" to the start of "c".
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(2);
+    cursor.setPosition(5, QTextCursor::KeepAnchor);
+    editorWidget->setTextCursor(cursor);
+
+    editorWidget->moveLineDown();
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a\nc\nb\n\nd\ne"));
+    editorWidget->moveLineDown();
+    QCOMPARE(editorWidget->textDocument()->plainText(), QString("a\nc\nd\nb\n\ne"));
+    editorWidget->moveLineUp();
+    editorWidget->moveLineUp();
+    QCOMPARE(editorWidget->textDocument()->plainText(), input);
 }
 
 QObject *createTextEditorTest()
