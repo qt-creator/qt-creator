@@ -95,6 +95,9 @@ public:
     ToolTypes toolType() const;
     QString toolDisplayName() const;
 
+    Utils::FilePath toolPath() const;
+    void setToolPath(const Utils::FilePath &toolPath);
+
     void setToolId(const Utils::Id toolId);
     void setToolType(ToolTypes toolType);
     void setToolDisplayName(const QString &displayName);

@@ -795,6 +795,12 @@ void PathChooser::setHistoryCompleter(const Key &historyKey, bool restoreLastIte
     d->m_lineEdit.setHistoryCompleter(historyKey, restoreLastItemFromHistory);
 }
 
+/*!
+    Offers \a candidates in an \uicontrol Alternatives menu.
+
+    A candidate on the device of a remote base directory reads as it does on
+    that device, without scheme and host, as the base directory resolves it.
+*/
 void PathChooser::setValueAlternatives(const FilePaths &candidates)
 {
     if (candidates.size() <= 1) {
@@ -806,11 +812,17 @@ void PathChooser::setValueAlternatives(const FilePaths &candidates)
     if (!d->m_alternativesButton)
         d->m_alternativesButton = new QPushButton(Tr::tr("Alternatives"), this);
 
+    const FilePath base = baseDirectory();
     auto menu = new QMenu(d->m_alternativesButton);
     for (const FilePath &candidate : candidates) {
-        QAction *action = menu->addAction(candidate.toUserOutput());
-        connect(action, &QAction::triggered, this, [this, candidate] {
-            setFilePath(candidate);
+        const QString text = !candidate.isLocal() && candidate.isSameDevice(base)
+                                 ? candidate.nativePath()
+                                 : candidate.toUserOutput();
+        QAction *action = menu->addAction(text);
+        connect(action, &QAction::triggered, this, [this, text] {
+            QTC_ASSERT(!d->m_callGuard.isLocked(), return);
+            GuardLocker locker(d->m_callGuard);
+            d->m_lineEdit.setTextKeepingActiveCursor(text);
         });
     }
     delete d->m_alternativesButton->menu();

@@ -1838,7 +1838,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
     if (defaultValue() == value())
         d->m_pathChooserDisplay->setDefaultValue(FilePath::fromUserInput(defaultValue()));
     else
-        d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
+        d->m_pathChooserDisplay->lineEdit()->setText(displayedString);
     // do not override default value with placeholder, but use placeholder if default is empty
     if (d->m_pathChooserDisplay->lineEdit()->placeholderText().isEmpty())
         d->m_pathChooserDisplay->lineEdit()->setPlaceholderText(d->m_placeHolderText);
@@ -1981,6 +1981,11 @@ void FilePathAspect::setBaseDirectory(const Lazy<FilePath> &baseDirectory)
     d->m_baseDirectory = baseDirectory;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setBaseDirectory(baseDirectory);
+}
+
+FilePath FilePathAspect::baseDirectory() const
+{
+    return d->m_baseDirectory.value();
 }
 
 void FilePathAspect::setInitialBrowsePathBackup(const FilePath &initialBrowsePathBackup)

@@ -26,6 +26,7 @@
 #include <utils/environment.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -303,6 +304,31 @@ QString DeviceToolAspect::toolDisplayName() const
     return m_toolName;
 }
 
+/*!
+    Returns the path of the tool.
+
+    A value without scheme and host is a path on the device the base directory
+    is on, not on the host.
+*/
+FilePath DeviceToolAspect::toolPath() const
+{
+    const FilePath filePath = expandedValue();
+    if (filePath.isEmpty() || !filePath.isLocal())
+        return filePath;
+    return baseDirectory().withNewPath(filePath.path());
+}
+
+/*!
+    Sets the tool to \a toolPath, which is stored without scheme and host,
+    and with the separators of its device, if it is on the device of the
+    base directory.
+*/
+void DeviceToolAspect::setToolPath(const FilePath &toolPath)
+{
+    setValue(toolPath.isSameDevice(baseDirectory()) ? toolPath.nativePath()
+                                                    : toolPath.toUserOutput());
+}
+
 // DeviceToolFactory
 
 static QList<DeviceToolAspectFactory *> theDeviceToolFactories;
@@ -454,7 +480,7 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
         QTC_ASSERT(toolAspect, continue);
         QTC_CHECK(!toolAspect->toolDisplayName().isEmpty());
         datas << Data{
-            factory, patterns, toolAspect->expandedValue(), {}, toolAspect->toolDisplayName()};
+            factory, patterns, toolAspect->toolPath(), {}, toolAspect->toolDisplayName()};
     }
 
     const ListIterator iterator(datas);
@@ -475,9 +501,7 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
         if (logger)
             logger.logTopLevel(Tr::tr("Searching for %1...").arg(iterator->label));
         const FilePaths detectionPaths = *searchPaths;
-        const FilePath deviceRootPath = device->rootPath();
-        const auto searchForTools = [deviceRootPath,
-                                     detectionPaths](Data data, IDeviceConstPtr device) -> Data {
+        const auto searchForTools = [detectionPaths](Data data, IDeviceConstPtr device) -> Data {
             FilePaths candidates;
             for (const FilePath &pattern : std::as_const(data.patterns)) {
                 candidates += Utils::filtered(
@@ -489,17 +513,9 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
                         return bool(data.factory->check(device, toolPath));
                     });
             }
-            // Before the scheme goes, isSameExecutable() still asks the device.
-            data.candidates = Utils::transform(
-                candidates.uniqueExecutables(), [deviceRootPath](const FilePath &path) {
-                    if (path.isChildOf(deviceRootPath))
-                        return FilePath::fromPathPart(path.path());
-                    return path;
-                });
-            if (!data.currentValue.isEmpty()) {
-                if (!data.currentValue.isExecutableFile())
-                    data.currentValue.clear();
-            }
+            data.candidates = candidates.uniqueExecutables();
+            if (!data.currentValue.isEmpty() && !data.currentValue.isExecutableFile())
+                data.currentValue.clear();
             return data;
         };
 
@@ -526,15 +542,19 @@ Group IDevice::autoDetectDeviceToolsRecipe(ToolDetectionLogger logger)
             return FilePath{};
         }();
 
-        toolAspect->setValue(newValue);
+        // A tool that is still there stays as written if that uses macros.
+        const QString written = toolAspect->value();
+        if (data.currentValue.isEmpty() || toolAspect->macroExpander()->expand(written) == written)
+            toolAspect->setToolPath(newValue);
 
         if (logger) {
-            if (newValue.isEmpty()) {
+            const QString storedValue = toolAspect->value();
+            if (storedValue.isEmpty()) {
                 //: %1 = tool name
                 logger.logItem(Tr::tr("%1: not found").arg(data.label));
             } else {
                 //: %1 = tool name, %2 = tool path
-                logger.logItem(Tr::tr("%1: %2").arg(data.label, newValue.toUserOutput()));
+                logger.logItem(Tr::tr("%1: %2").arg(data.label, storedValue));
             }
         }
     };
@@ -566,20 +586,25 @@ DeviceToolAspect *DeviceToolAspectFactory::createAspect(const DeviceConstRef &de
     toolAspect->setToolDisplayName(m_displayName);
     toolAspect->setPlaceHolderText(Tr::tr("Leave empty to look up executable in PATH"));
     toolAspect->setHistoryCompleter(m_toolId.name());
+    const FilePath rootPath = device.lock()->rootPath();
     toolAspect->setValidationFunction(
-        [device, checker = m_checker](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
-            return asyncRun([device, checker, newValue]() -> Result<QString> {
+        [toolAspect, device, rootPath, checker = m_checker](
+            const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
+            const QString expanded = toolAspect->macroExpander()->expand(newValue);
+            return asyncRun([device, rootPath, checker, newValue, expanded]() -> Result<QString> {
                 if (!checker)
                     return newValue;
-                FilePath path = FilePath::fromUserInput(newValue);
+                FilePath path = FilePath::fromUserInput(expanded);
+                if (!path.isEmpty() && path.isLocal())
+                    path = rootPath.withNewPath(path.path());
                 Result<> result = checker(device, path);
-                return result ? newValue : result.error();
+                return result ? Result<QString>(newValue) : ResultError(result.error());
             });
         });
 
     toolAspect->setAllowPathFromDevice(true);
     toolAspect->setExpectedKind(PathChooserKind::ExistingCommand);
-    toolAspect->setBaseDirectory(device.lock()->rootPath());
+    toolAspect->setBaseDirectory(rootPath);
     toolAspect->setToolType(m_toolType);
     return toolAspect;
 }
@@ -1336,12 +1361,7 @@ FilePath IDevice::deviceToolPath(Id toolId) const
 {
     DeviceToolAspect *toolAspect = d->deviceToolAspects.value(toolId);
     QTC_ASSERT(toolAspect, return {});
-    FilePath filePath = (*toolAspect)();
-    if (filePath.isEmpty())
-        return {};
-    if (filePath.isLocal())
-        return rootPath().withNewMappedPath(filePath);
-    return filePath;
+    return toolAspect->toolPath();
 }
 
 FilePath IDevice::deviceToolPath(Id toolId, const FilePath &deviceHint)
