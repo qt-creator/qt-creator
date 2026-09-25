@@ -15,6 +15,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/abi.h>
+#include <projectexplorer/javakitaspect.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -28,6 +29,7 @@
 #include <QtTaskTree/QConditional>
 #include <QtTaskTree/QTcpSocketWrapper>
 
+#include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
@@ -91,6 +93,15 @@ static int parseMinSdk(const QDomElement &manifestElem)
             return tmp;
     }
     return 0;
+}
+
+FilePath javaHomeForBuild(const Environment &env, const Kit *k)
+{
+    if (const QString javaHome = env.value(Constants::JAVA_HOME_ENV_VAR); !javaHome.isEmpty())
+        return FilePath::fromUserInput(javaHome);
+    if (const FilePath named = JavaKitAspect::javaHome(k); !named.isEmpty())
+        return named;
+    return AndroidConfig::openJDKLocation();
 }
 
 static const ProjectNode *currentProjectNode(const BuildConfiguration *bc)

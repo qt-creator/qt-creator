@@ -784,7 +784,7 @@ bool AndroidBuildApkStep::init()
     QStringList arguments = {"--input", m_inputFile.path(),
                              "--output", outputDir.path(),
                              "--android-platform", m_buildTargetSdk,
-                             "--jdk", AndroidConfig::openJDKLocation().path()};
+                             "--jdk", javaHomeForBuild(buildEnvironment(), kit()).path()};
 
     if (verboseOutput())
         arguments << "--verbose";

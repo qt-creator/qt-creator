@@ -17,6 +17,8 @@
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/environmentkitaspect.h>
+#include <projectexplorer/javakitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -53,6 +55,9 @@
 #include <functional>
 
 #ifdef WITH_TESTS
+#   include <QFile>
+#   include <QScopeGuard>
+#   include <QTemporaryDir>
 #   include <QTest>
 #endif // WITH_TESTS
 
@@ -1374,9 +1379,61 @@ void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
     for (Toolchain *tc : customToolchains)
         findOrRegisterDebugger(tc, true);
 }
+
+/*!
+    Keeps the JDK of \a k in step with \a jdk, the one of the Android settings.
+
+    A kit that runs on an Android device builds with that JDK: \c
+    AndroidToolchain exports it, and the one of the kit, applied after it,
+    would take its place. A kit left on the JDK of the day it was made would
+    send CMake and Gradle to one JDK while androiddeployqt gets the one of
+    these settings.
+
+    Only the detected kits are written to, and the field of the kit page is
+    closed for them: what it offered would be written over on the next update.
+    That page makes a sticky field read-only for a detected kit alone, so a
+    lock on one of the user's own would hold nothing back and only hide that
+    the next update overwrites what they typed.
+
+    The other kits are let go of instead - a clone of a detected one, which
+    carries its JDK but is the user's from then on, or one put together by
+    hand. What was written here is taken back out, so that they build with the
+    live JAVA_HOME of the toolchain and their field is theirs to fill. A JDK
+    the user has put there in the meantime stays; only the lock goes.
+
+    A configuration with no JDK in it, or one naming a JDK that is no longer
+    there, says nothing at all: the toolchain exports none for it either, so
+    the kits it wrote to are let go of the same way.
+*/
+static void followTheConfiguredJdk(Kit *k, const FilePath &jdk)
+{
+    if (RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::ANDROID_DEVICE_TYPE
+        && k->detectionSource().isAutoDetected() && jdk.exists()) {
+        JavaKitAspect::setJavaHome(k, jdk);
+        // What the aspect made of that JDK, rather than the JDK, since the
+        // kit is let go of again by what it holds no longer being this.
+        if (const QVariant taken = k->value(JavaKitAspect::id()); !taken.isNull()) {
+            k->setSticky(JavaKitAspect::id(), true);
+            k->setValueSilently(Constants::ANDROID_KIT_JDK, taken);
+            return;
+        }
+    }
+
+    const QVariant written = k->value(Constants::ANDROID_KIT_JDK);
+    if (written.isNull())
+        return;
+    if (k->value(JavaKitAspect::id()) == written)
+        k->removeKey(JavaKitAspect::id()); // Which takes the lock with it.
+    else
+        k->setSticky(JavaKitAspect::id(), false);
+    k->removeKeySilently(Constants::ANDROID_KIT_JDK);
+}
+
 void AndroidConfigurations::updateAutomaticKitList()
 {
+    const FilePath configuredJdk = AndroidConfig::openJDKLocation();
     for (Kit *k : KitManager::kits()) {
+        followTheConfiguredJdk(k, configuredJdk);
         if (RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::ANDROID_DEVICE_TYPE) {
             if (k->value(Constants::ANDROID_KIT_NDK).isNull() || k->value(Constants::ANDROID_KIT_SDK).isNull()) {
                 if (QtVersion *qt = QtKitAspect::qtVersion(k)) {
@@ -1437,6 +1494,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                     DetectionSource::FromSystem : DetectionSource::Manual;
                 k->setDetectionSource({source, androidConfigurationId});
                 RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+                followTheConfiguredJdk(k, AndroidConfig::openJDKLocation());
                 ToolchainKitAspect::setBundle(k, bundle);
                 QtKitAspect::setQtVersion(k, qt);
                 Debugger::DebuggerKitAspect::setDebugger(
@@ -1496,6 +1554,10 @@ class AndroidConfigurationsTest final : public QObject
 private slots:
    void testAndroidConfigAvailableNdkPlatforms_data();
    void testAndroidConfigAvailableNdkPlatforms();
+   void testADetectedAndroidKitFollowsTheConfiguredJdk();
+   void testAnAndroidKitOfTheUserIsLeftWithItsOwnJdk();
+   void testTheJdkOfAKitOfAnotherPluginIsLeftAlone();
+   void testTheBuildAndAndroiddeployqtGetTheSameJdk();
 };
 
 void AndroidConfigurationsTest::testAndroidConfigAvailableNdkPlatforms_data()
@@ -1548,6 +1610,298 @@ void AndroidConfigurationsTest::testAndroidConfigAvailableNdkPlatforms()
 
     const QList<int> foundPlatforms = AndroidConfig::availableNdkPlatformsImpl(ndkPath, abis, hostOs);
     QCOMPARE(foundPlatforms, expectedPlatforms);
+}
+
+// Enough of a JDK for a kit to take it: what is looked for is bin/java.
+static FilePath makeFakeJdk(const QTemporaryDir &directory, const QString &name)
+{
+    const FilePath home = FilePath::fromString(directory.path()) / name;
+    const FilePath bin = home / "bin";
+    if (!bin.ensureWritableDir())
+        return {};
+    for (const QString &tool : {QString("java"), QString("javac")}) {
+        const FilePath path = (bin / tool).withExecutableSuffix();
+        if (!path.writeFileContents("#!/bin/sh\n"))
+            return {};
+        path.setPermissions(path.permissions() | QFile::ExeOwner | QFile::ExeUser);
+    }
+    return home;
+}
+
+// updateAutomaticKitList() runs over every kit of the session, so what it
+// writes into the ones this test did not make - a JDK in a directory that goes
+// away with the test - is put back the way it was.
+struct JdkOfAKit
+{
+    QVariant javaHome;
+    QVariant written;
+    bool locked = false;
+};
+
+static QHash<Kit *, JdkOfAKit> theJdksOfTheKits()
+{
+    QHash<Kit *, JdkOfAKit> jdks;
+    for (Kit *k : KitManager::kits()) {
+        jdks.insert(k, {k->value(JavaKitAspect::id()), k->value(Constants::ANDROID_KIT_JDK),
+                        k->isSticky(JavaKitAspect::id())});
+    }
+    return jdks;
+}
+
+static void putTheJdksOfTheKitsBack(const QHash<Kit *, JdkOfAKit> &jdks)
+{
+    for (Kit *k : KitManager::kits()) {
+        const auto jdk = jdks.constFind(k);
+        if (jdk == jdks.constEnd())
+            continue;
+        if (jdk->javaHome.isNull())
+            k->removeKey(JavaKitAspect::id());
+        else
+            k->setValue(JavaKitAspect::id(), jdk->javaHome);
+        if (jdk->written.isNull())
+            k->removeKeySilently(Constants::ANDROID_KIT_JDK);
+        else
+            k->setValueSilently(Constants::ANDROID_KIT_JDK, jdk->written);
+        k->setSticky(JavaKitAspect::id(), jdk->locked);
+    }
+}
+
+// A kit this plugin detected builds with the JDK of these settings: the one
+// the toolchain exports and the one the kit names have to be the same JDK.
+void AndroidConfigurationsTest::testADetectedAndroidKitFollowsTheConfiguredJdk()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath configured = makeFakeJdk(directory, "jdk-configured");
+    const FilePath changedTo = makeFakeJdk(directory, "jdk-changed-to");
+    QVERIFY(!configured.isEmpty());
+    QVERIFY(!changedTo.isEmpty());
+
+    const FilePath savedJdk = AndroidConfig::openJDKLocation();
+    const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    AndroidConfig::setOpenJDKLocation(configured);
+
+    // Detected, as the kits of this plugin and the ones an installer brings
+    // are. It comes from an installer here because a kit of this plugin's own
+    // that matches no Qt version is taken for one left over and removed below.
+    Kit *k = KitManager::registerKit([](Kit *k) {
+        k->setUnexpandedDisplayName("AndroidJdkTestKit");
+        k->setDetectionSource({DetectionSource::FromSdk, "AndroidJdkTest"});
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+    });
+    QVERIFY(k);
+    const QScopeGuard cleanup([k, savedJdk, savedJdks] {
+        KitManager::deregisterKit(k);
+        AndroidConfig::setOpenJDKLocation(savedJdk);
+        putTheJdksOfTheKitsBack(savedJdks);
+    });
+
+    QCOMPARE(JavaKitAspect::javaHome(k), configured);
+
+    AndroidConfig::setOpenJDKLocation(changedTo);
+    AndroidConfigurations::updateAutomaticKitList();
+    QVERIFY2(JavaKitAspect::javaHome(k) == changedTo,
+             "the kit kept the JDK it was set up with, so its build runs with another JDK than "
+             "the one androiddeployqt is given");
+    QVERIFY2(k->isSticky(JavaKitAspect::id()),
+             "the kit page offers to edit a JDK that the next update writes over");
+
+    // A JDK that is not on the machine is nothing to send a kit to: the
+    // toolchain exports none for one either.
+    AndroidConfig::setOpenJDKLocation(FilePath::fromString(directory.path()) / "jdk-removed");
+    AndroidConfigurations::updateAutomaticKitList();
+    QVERIFY2(JavaKitAspect::javaHome(k).isEmpty(),
+             "the kit was sent to a JDK that is not on the machine");
+    QVERIFY2(!k->isSticky(JavaKitAspect::id()),
+             "the kit page keeps the JDK field locked although nothing writes it any more");
+
+    // Neither is a configuration with no JDK in it.
+    AndroidConfig::setOpenJDKLocation(configured);
+    AndroidConfigurations::updateAutomaticKitList();
+    QCOMPARE(JavaKitAspect::javaHome(k), configured);
+    QVERIFY(k->isSticky(JavaKitAspect::id()));
+    AndroidConfig::setOpenJDKLocation({});
+    AndroidConfigurations::updateAutomaticKitList();
+    QVERIFY(JavaKitAspect::javaHome(k).isEmpty());
+    QVERIFY(!k->isSticky(JavaKitAspect::id()));
+}
+
+// A kit of the user's own is theirs: the kit page lets them edit its JDK - it
+// makes a sticky field read-only for a detected kit alone - so this plugin
+// writes none into it and takes back what it wrote into the kit it was cloned
+// from.
+void AndroidConfigurationsTest::testAnAndroidKitOfTheUserIsLeftWithItsOwnJdk()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath configured = makeFakeJdk(directory, "jdk-configured");
+    const FilePath ofTheUser = makeFakeJdk(directory, "jdk-of-the-user");
+    QVERIFY(!configured.isEmpty());
+    QVERIFY(!ofTheUser.isEmpty());
+
+    const FilePath savedJdk = AndroidConfig::openJDKLocation();
+    const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    AndroidConfig::setOpenJDKLocation(configured);
+
+    Kit *detected = KitManager::registerKit([](Kit *k) {
+        k->setUnexpandedDisplayName("AndroidJdkDetectedTestKit");
+        k->setDetectionSource({DetectionSource::FromSdk, "AndroidJdkTest"});
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+    });
+    QVERIFY(detected);
+    AndroidConfigurations::updateAutomaticKitList();
+
+    // What Kit::clone() leaves behind: the data and the sticky flags of the
+    // kit it came from, and nothing detected about it any more.
+    Kit *clone = KitManager::registerKit([detected](Kit *k) {
+        k->copyFrom(detected);
+        k->setUnexpandedDisplayName("AndroidJdkCloneTestKit");
+        k->setDetectionSource(DetectionSource::Manual);
+    });
+    QVERIFY(clone);
+    const QScopeGuard cleanup([detected, clone, savedJdk, savedJdks] {
+        KitManager::deregisterKits({detected, clone});
+        AndroidConfig::setOpenJDKLocation(savedJdk);
+        putTheJdksOfTheKitsBack(savedJdks);
+    });
+    QCOMPARE(JavaKitAspect::javaHome(clone), configured);
+
+    AndroidConfigurations::updateAutomaticKitList();
+    QVERIFY2(JavaKitAspect::javaHome(clone).isEmpty(),
+             "the clone keeps the JDK of the day it was made, which its build then uses over "
+             "the one the toolchain exports");
+    QVERIFY2(!clone->isSticky(JavaKitAspect::id()),
+             "the JDK field of the clone is locked although the kit page lets the user edit it "
+             "all the same");
+    QCOMPARE(JavaKitAspect::javaHome(detected), configured);
+
+    // A kit put together by hand is asked about by nothing here, so what the
+    // user names in it is what it builds with.
+    Kit *ofTheirOwn = KitManager::registerKit([](Kit *k) {
+        k->setUnexpandedDisplayName("AndroidJdkManualTestKit");
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+    });
+    QVERIFY(ofTheirOwn);
+    const QScopeGuard cleanupOfTheirOwn([ofTheirOwn] { KitManager::deregisterKit(ofTheirOwn); });
+    QVERIFY2(JavaKitAspect::javaHome(ofTheirOwn) != configured,
+             "a kit of the user's own was given the JDK of these settings, which nothing then "
+             "keeps up to date for it");
+    QVERIFY(ofTheirOwn->value(Constants::ANDROID_KIT_JDK).isNull());
+
+    JavaKitAspect::setJavaHome(ofTheirOwn, ofTheUser);
+    AndroidConfigurations::updateAutomaticKitList();
+    QCOMPARE(JavaKitAspect::javaHome(ofTheirOwn), ofTheUser);
+
+    // Even where this plugin wrote the kit before: what the user typed over it
+    // is theirs, and only the lock goes.
+    JavaKitAspect::setJavaHome(clone, configured);
+    const QVariant written = clone->value(JavaKitAspect::id());
+    JavaKitAspect::setJavaHome(clone, ofTheUser);
+    clone->setSticky(JavaKitAspect::id(), true);
+    clone->setValueSilently(Constants::ANDROID_KIT_JDK, written);
+    AndroidConfigurations::updateAutomaticKitList();
+    QCOMPARE(JavaKitAspect::javaHome(clone), ofTheUser);
+    QVERIFY(!clone->isSticky(JavaKitAspect::id()));
+}
+
+// JavaKitAspect is one of ProjectExplorer's, and an installer or another
+// plugin can name and lock a JDK of its own in a kit that is none of this
+// plugin's business. Going over every kit is for finding the ones it wrote
+// to, not for speaking about the rest.
+void AndroidConfigurationsTest::testTheJdkOfAKitOfAnotherPluginIsLeftAlone()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath configured = makeFakeJdk(directory, "jdk-configured");
+    const FilePath ofTheOther = makeFakeJdk(directory, "jdk-of-another-plugin");
+    QVERIFY(!configured.isEmpty());
+    QVERIFY(!ofTheOther.isEmpty());
+
+    const FilePath savedJdk = AndroidConfig::openJDKLocation();
+    const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    AndroidConfig::setOpenJDKLocation(configured);
+
+    Kit *k = KitManager::registerKit([ofTheOther](Kit *k) {
+        k->setUnexpandedDisplayName("AnotherPluginJdkTestKit");
+        k->setDetectionSource({DetectionSource::FromSdk, "AnotherPlugin"});
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+        JavaKitAspect::setJavaHome(k, ofTheOther);
+        k->setSticky(JavaKitAspect::id(), true);
+    });
+    QVERIFY(k);
+    const QScopeGuard cleanup([k, savedJdk, savedJdks] {
+        KitManager::deregisterKit(k);
+        AndroidConfig::setOpenJDKLocation(savedJdk);
+        putTheJdksOfTheKitsBack(savedJdks);
+    });
+
+    AndroidConfigurations::updateAutomaticKitList();
+    QCOMPARE(JavaKitAspect::javaHome(k), ofTheOther);
+    QVERIFY2(k->isSticky(JavaKitAspect::id()),
+             "a lock another plugin put on the JDK field of its kit was taken off by this one");
+}
+
+// The JDK of the kit is the one answer to which JDK the build uses: what
+// JAVA_HOME carries into CMake and Gradle, and what androiddeployqt is told
+// of, are the same one, so that one half of a build cannot be on another JDK
+// than the other.
+void AndroidConfigurationsTest::testTheBuildAndAndroiddeployqtGetTheSameJdk()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath configured = makeFakeJdk(directory, "jdk-configured");
+    const FilePath ofTheUser = makeFakeJdk(directory, "jdk-of-the-user");
+    QVERIFY(!configured.isEmpty());
+    QVERIFY(!ofTheUser.isEmpty());
+
+    const FilePath savedJdk = AndroidConfig::openJDKLocation();
+    const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    AndroidConfig::setOpenJDKLocation(configured);
+
+    Kit *detected = KitManager::registerKit([](Kit *k) {
+        k->setUnexpandedDisplayName("AndroidJdkDeployTestKit");
+        k->setDetectionSource({DetectionSource::FromSdk, "AndroidJdkTest"});
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+    });
+    QVERIFY(detected);
+    Kit *ofTheirOwn = KitManager::registerKit([](Kit *k) {
+        k->setUnexpandedDisplayName("AndroidJdkDeployManualTestKit");
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+    });
+    QVERIFY(ofTheirOwn);
+    const QScopeGuard cleanup([detected, ofTheirOwn, savedJdk, savedJdks] {
+        KitManager::deregisterKits({detected, ofTheirOwn});
+        AndroidConfig::setOpenJDKLocation(savedJdk);
+        putTheJdksOfTheKitsBack(savedJdks);
+    });
+    AndroidConfigurations::updateAutomaticKitList();
+    JavaKitAspect::setJavaHome(ofTheirOwn, ofTheUser);
+
+    for (Kit *k : {detected, ofTheirOwn}) {
+        const FilePath named = JavaKitAspect::javaHome(k);
+        QVERIFY(!named.isEmpty());
+        QCOMPARE(FilePath::fromUserInput(k->buildEnvironment().value("JAVA_HOME")), named);
+        QVERIFY2(javaHomeForBuild(k->buildEnvironment(), k) == named,
+                 "androiddeployqt is told of another JDK than the one the build runs with, so "
+                 "Gradle runs on one JDK while the configure step ran on another");
+    }
+
+    // The environment of the kit has the last word on JAVA_HOME, so what it
+    // names is what androiddeployqt is told of as well.
+    EnvironmentChanges changes;
+    changes.setItemsFromUser({{"JAVA_HOME", ofTheUser.toUserOutput()}});
+    EnvironmentKitAspect::setBuildEnvChanges(detected, changes);
+    QCOMPARE(FilePath::fromUserInput(detected->buildEnvironment().value("JAVA_HOME")), ofTheUser);
+    QVERIFY2(javaHomeForBuild(detected->buildEnvironment(), detected) == ofTheUser,
+             "androiddeployqt was told of the JDK of the kit although the environment of that "
+             "kit sends the rest of the build to another one");
+
+    // Where nothing names one, the settings answer, which is also what
+    // AndroidToolchain exports into the build.
+    ofTheirOwn->removeKey(JavaKitAspect::id());
+    Environment withoutJavaHome = ofTheirOwn->buildEnvironment();
+    withoutJavaHome.unset(Constants::JAVA_HOME_ENV_VAR);
+    QCOMPARE(javaHomeForBuild(withoutJavaHome, ofTheirOwn), configured);
 }
 
 QObject *createAndroidConfigurationsTest()

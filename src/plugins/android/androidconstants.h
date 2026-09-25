@@ -25,6 +25,9 @@ inline constexpr char ANDROID_MANIFEST_EDITOR_CONTEXT[] = "Android.AndroidManife
 
 inline constexpr char ANDROID_KIT_NDK[] = "Android.NDK";
 inline constexpr char ANDROID_KIT_SDK[] = "Android.SDK";
+// The JDK this plugin last wrote into the kit, which tells the kits it speaks
+// for apart from the ones that are the user's to fill.
+inline constexpr char ANDROID_KIT_JDK[] = "Android.JDK";
 
 inline constexpr char ANDROID_BUILD_DIRECTORY[] = "android-build";
 inline constexpr char JAVA_EDITOR_ID[] = "java.editor";

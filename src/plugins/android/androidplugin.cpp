@@ -33,7 +33,9 @@
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/environmentkitaspect.h>
+#include <projectexplorer/javakitaspect.h>
 #include <projectexplorer/kitmanager.h>
 
 #include <qtsupport/qtversionmanager.h>
@@ -75,6 +77,18 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         setupAndroidConfigurations();
+
+        ProjectExplorer::javaHomeCandidateProviders().append([](const Kit *k) -> Utils::FilePaths {
+            // Only the kits whose JDK this plugin goes on to keep in step with
+            // the setting. A kit of the user's own is theirs to point wherever
+            // they like, and what the setting names reaches it through
+            // AndroidToolchain, which exports it as it is at the time.
+            if (RunDeviceTypeKitAspect::deviceTypeId(k) != Constants::ANDROID_DEVICE_TYPE
+                || !k->detectionSource().isAutoDetected()) {
+                return {};
+            }
+            return {AndroidConfig::openJDKLocation()};
+        });
 
         setupAndroidDevice();
         setupAndroidQtVersion();

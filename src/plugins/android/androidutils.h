@@ -15,6 +15,7 @@ class Target;
 namespace QtSupport { class QtVersion; }
 
 namespace Utils {
+class Environment;
 class FilePath;
 class Process;
 }
@@ -30,6 +31,15 @@ class Storage;
 QT_END_NAMESPACE
 
 namespace Android::Internal {
+
+// The JDK a build runs Java with: the JAVA_HOME of the environment \a env it
+// runs in, which the kit, the environment of the kit and the build
+// configuration have all had their say in, and the JDK the kit \a k names, or
+// the one of the Android settings, where that environment carries none.
+// Everything a build runs is to be handed the same one - CMake and Gradle
+// read JAVA_HOME, and androiddeployqt is told of it.
+Utils::FilePath javaHomeForBuild(const Utils::Environment &env,
+                                 const ProjectExplorer::Kit *k);
 
 QString packageName(const ProjectExplorer::BuildConfiguration *bc);
 QString activityName(const ProjectExplorer::BuildConfiguration *bc);
