@@ -124,6 +124,25 @@ private:
     };
     using Evaluation = std::function<void(const Evaluated &)>;
 
+    // Where a value lives, which is what an assignment needs and reading one
+    // does not. The signature is the type the place is declared with, and what
+    // the value assigned to it is made to fit.
+    class Place
+    {
+    public:
+        enum class Kind { Local, Field, StaticField, Element };
+        Kind kind = Kind::Local;
+        // The frame for a local, the object for a field, the class for a static
+        // one, the array for an element.
+        quint64 owner = 0;
+        quint64 fieldId = 0;
+        // The slot of a local, or the index of an element.
+        qint32 position = 0;
+        QString signature;
+        QString error;
+    };
+    using Placement = std::function<void(const Place &)>;
+
     class ResolvedLocation
     {
     public:
@@ -173,6 +192,7 @@ private:
         // The expression a watcher stands for, hex-encoded, which is how the
         // model finds its way back to the row the user typed.
         QString watcherName;
+        QString exp;
     };
 
     void start() final;
@@ -267,11 +287,20 @@ private:
     void withCurrentFrame(const std::function<void(const Frame *)> &done);
     QList<MethodInfo::Variable> visibleVariables(const JdwpLocation &location) const;
 
+    // Assignment, which is the one thing a debugger does to a value rather
+    // than with it.
+    void placeOf(const JdwpExpression &expression, const Placement &done);
+    void placeOfName(const QString &name, const Placement &done);
+    void placeOfStaticField(quint64 classId, const QString &name, const Placement &done);
+    void placeOfFieldIn(quint64 object, const QString &name, const Placement &done);
+    void writeTo(const Place &place, const JdwpValue &value, const QString &shown);
+
     void fetchLocals(const RefreshRequest &request);
     void addWatchers(const JoinPtr &join, const QJsonArray &watchers);
     void addValue(const JoinPtr &join, const QString &iname, const QString &name,
                   const QString &declaredType, const JdwpValue &value);
     void addObjectValue(const JoinPtr &join, const QString &iname, const JdwpValue &value);
+    QString expressionOf(const QString &iname) const;
     GdbMi localsItem(const QString &iname) const;
     void reportLocals();
 
@@ -313,6 +342,8 @@ private:
     int m_stopGeneration = 0;
 
     quint64 m_localsRequestId = 0;
+    // What the views last asked for, which a write makes stale.
+    RefreshRequest m_lastLocalsRequest;
     int m_localsGeneration = 0;
     QSet<QString> m_expandedINames;
     QJsonObject m_expandedItems;

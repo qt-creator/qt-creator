@@ -154,6 +154,11 @@ public:
         return request.requestId;
     }
 
+    void assign(const QString &expression, const QString &value)
+    {
+        m_engine->assignValueInDebugger({}, expression, value);
+    }
+
     bool answered(quint64 requestId) const { return m_breakpointAnswers.contains(requestId); }
     bool answeredOk(quint64 requestId) const { return m_breakpointAnswers.value(requestId).first; }
     GdbMi answer(quint64 requestId) const { return m_breakpointAnswers.value(requestId).second; }
@@ -383,6 +388,7 @@ private slots:
     void readsWatchers();
     void readsAWatcherOfThis();
     void readsAndWritesStringsTheMachineWay();
+    void writesValues();
     void listsTheThreads();
     void doesNotStopAtARemovedBreakpoint();
     void doesNotStopAtADisabledBreakpoint();
@@ -889,11 +895,18 @@ void tst_jdwp::readsAWatcherOfThis()
     QTRY_VERIFY_WITH_TIMEOUT(backend->answered(inserted), s_timeoutMs);
     backend->execute(ExecutionCommand::Continue);
     QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
-    const quint64 shadowed = backend->refresh(RefreshKind::Locals, {}, {"value", "this.value"});
+    const quint64 shadowed = backend->refresh(RefreshKind::Locals, {},
+                                              {"value", "this.value", "this.level"});
     QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(shadowed), s_timeoutMs);
     const GdbMi shadowedData = backend->refreshData(shadowed)["data"];
     QCOMPARE(childNamed(shadowedData, "value")["value"].data(), QString("42"));
     QCOMPARE(childNamed(shadowedData, "this.value")["value"].data(), QString("6"));
+
+    // Writing a field that hides one of the superclass writes the one it reads.
+    backend->assign("this.level", "3");
+    QTRY_COMPARE_WITH_TIMEOUT(
+        childNamed(backend->refreshData(shadowed)["data"], "this.level")["value"].data(),
+        QString("3"), s_timeoutMs);
 
     backend->shutdownInferior(ShutdownMode::Kill);
     QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
@@ -921,6 +934,72 @@ void tst_jdwp::readsAndWritesStringsTheMachineWay()
     QCOMPARE(childNamed(data, "awkward")["value"].data(), '"' + awkward + '"');
     QCOMPARE(childNamed(data, literal)["value"].data(), '"' + awkward + '"');
     QCOMPARE(childNamed(data, literal)["type"].data(), QString("java.lang.String"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::writesValues()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const QStringList watchers = {"number", "values[1]", "point.x", "calls", "text",
+                                  "values[0]", "squared"};
+    const quint64 before = backend->refresh(RefreshKind::Locals, {"local.point"}, watchers);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(before), s_timeoutMs);
+    const GdbMi locals = backend->refreshData(before)["data"];
+    QCOMPARE(childNamed(locals, "number")["value"].data(), QString("7"));
+    // A row of the Locals view is written through what it says it is, and
+    // for a child that has to name the object it is a field of.
+    const QString pointX = childNamed(childNamed(locals, "point")["children"], "x")["exp"].data();
+    QCOMPARE(pointX, QString("(point).x"));
+
+    // A local, an element of an array, a field of an object, a static field,
+    // and a string, which the machine has to be asked to make.
+    backend->assign("number", "11");
+    backend->assign("values[1]", "20");
+    backend->assign(pointX, "30");
+    backend->assign("calls", "40");
+    backend->assign("text", "\"other\"");
+    // A write that the type refuses leaves what is there alone.
+    backend->assign("number", "\"not a number\"");
+    // So does an index that is not a whole number, rather than landing on
+    // whatever its bits happen to say.
+    backend->assign("values[1.5]", "77");
+    // A value too large for the type it goes to stops at the end of its range,
+    // which is what a Java cast does.
+    backend->assign("squared", "1e30");
+
+    // The backend answers the last request again once a write has gone
+    // through, so the view it leaves behind is the one to read.
+    const auto written = [&] {
+        const GdbMi data = backend->refreshData(before)["data"];
+        const auto valueOf = [&data](const char *name) {
+            return childNamed(data, QString::fromLatin1(name))["value"].data();
+        };
+        return valueOf("number") == QString("11") && valueOf("values[1]") == QString("20")
+               && valueOf("point.x") == QString("30") && valueOf("calls") == QString("40")
+               && valueOf("text") == QString("\"other\"")
+               && valueOf("squared") == QString::number(std::numeric_limits<qint32>::max());
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(written(), s_timeoutMs);
+
+    const quint64 after = backend->refresh(RefreshKind::Locals, {}, watchers);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(after), s_timeoutMs);
+    const GdbMi data = backend->refreshData(after)["data"];
+    QCOMPARE(childNamed(data, "number")["value"].data(), QString("11"));
+    QCOMPARE(childNamed(data, "values[1]")["value"].data(), QString("20"));
+    QCOMPARE(childNamed(data, "point.x")["value"].data(), QString("30"));
+    QCOMPARE(childNamed(data, "calls")["value"].data(), QString("40"));
+    QCOMPARE(childNamed(data, "text")["value"].data(), QString("\"other\""));
+    QCOMPARE(childNamed(data, "values[0]")["value"].data(), QString("1"));
+    QCOMPARE(childNamed(data, "squared")["value"].data(),
+             QString::number(std::numeric_limits<qint32>::max()));
+    // The locals show the same, since that is where the values are.
+    QCOMPARE(childNamed(data, "number")["type"].data(), QString("int"));
 
     backend->shutdownInferior(ShutdownMode::Kill);
     QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);

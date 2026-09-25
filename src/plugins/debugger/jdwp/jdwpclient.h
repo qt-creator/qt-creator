@@ -41,12 +41,12 @@ enum VirtualMachineCommand : quint8 {
     VmVersion = 1,
     VmAllClasses = 3,
     VmAllThreads = 4,
-    VmCreateString = 11,
     VmDispose = 6,
     VmIdSizes = 7,
     VmSuspend = 8,
     VmResume = 9,
     VmExit = 10,
+    VmCreateString = 11,
     VmCapabilitiesNew = 17,
 };
 
@@ -60,6 +60,7 @@ enum ReferenceTypeCommand : quint8 {
 
 enum ClassTypeCommand : quint8 {
     ClassTypeSuperclass = 1,
+    ClassTypeSetValues = 2,
 };
 
 enum MethodCommand : quint8 {
@@ -70,6 +71,7 @@ enum MethodCommand : quint8 {
 enum ObjectReferenceCommand : quint8 {
     ObjectReferenceType = 1,
     ObjectGetValues = 2,
+    ObjectSetValues = 3,
 };
 
 enum StringReferenceCommand : quint8 {
@@ -86,6 +88,7 @@ enum ThreadReferenceCommand : quint8 {
 enum ArrayReferenceCommand : quint8 {
     ArrayLength = 1,
     ArrayGetValues = 2,
+    ArraySetValues = 3,
 };
 
 enum EventRequestCommand : quint8 {
@@ -95,6 +98,7 @@ enum EventRequestCommand : quint8 {
 
 enum StackFrameCommand : quint8 {
     StackFrameGetValues = 1,
+    StackFrameSetValues = 2,
     StackFrameThisObject = 3,
 };
 
@@ -251,6 +255,10 @@ public:
     JdwpWriter &writeFieldId(quint64 value);
     JdwpWriter &writeFrameId(quint64 value);
     JdwpWriter &writeLocation(const JdwpLocation &location);
+    // A value where its type is known from elsewhere, as a field or an array
+    // element holds it, and one that carries its tag along.
+    JdwpWriter &writeUntaggedValue(const JdwpValue &value);
+    JdwpWriter &writeTaggedValue(const JdwpValue &value);
 
     const QByteArray &data() const { return m_data; }
 

@@ -136,6 +136,37 @@ JdwpWriter &JdwpWriter::writeLocation(const JdwpLocation &location)
     return writeLong(qint64(location.index));
 }
 
+JdwpWriter &JdwpWriter::writeUntaggedValue(const JdwpValue &value)
+{
+    switch (value.tag) {
+    case Jdwp::ByteValueTag:
+    case Jdwp::BooleanValueTag:
+        return writeSized(value.bits, 1);
+    case Jdwp::CharValueTag:
+    case Jdwp::ShortValueTag:
+        return writeSized(value.bits, 2);
+    case Jdwp::FloatValueTag:
+    case Jdwp::IntValueTag:
+        return writeSized(value.bits, 4);
+    case Jdwp::DoubleValueTag:
+    case Jdwp::LongValueTag:
+        return writeSized(value.bits, 8);
+    case Jdwp::VoidValueTag:
+        return *this;
+    default:
+        break;
+    }
+    if (Jdwp::isObjectTag(value.tag))
+        return writeObjectId(value.bits);
+    return *this;
+}
+
+JdwpWriter &JdwpWriter::writeTaggedValue(const JdwpValue &value)
+{
+    writeByte(value.tag);
+    return writeUntaggedValue(value);
+}
+
 JdwpWriter &JdwpWriter::writeSized(quint64 value, int size)
 {
     for (int shift = (size - 1) * 8; shift >= 0; shift -= 8)

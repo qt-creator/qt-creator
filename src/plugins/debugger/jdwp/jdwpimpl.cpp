@@ -15,6 +15,7 @@
 #include <QRegularExpression>
 #include <QTcpSocket>
 
+#include <cmath>
 #include <cstring>
 #include <limits>
 
@@ -2050,6 +2051,7 @@ void JdwpImpl::elementOf(const Evaluated &base, const Evaluated &index, const Ev
 void JdwpImpl::fetchLocals(const RefreshRequest &request)
 {
     const int generation = ++m_localsGeneration;
+    m_lastLocalsRequest = request;
     m_localsRequestId = request.requestId;
     m_expandedINames = request.expandedINames;
     m_expandedItems = request.expandedForDumpers();
@@ -2265,6 +2267,8 @@ void JdwpImpl::addObjectValue(const JoinPtr &join, const QString &iname, const J
                                                               : r.readTaggedValue();
                                 const QString child = iname + '.' + QString::number(i);
                                 m_locals[iname].children.append(child);
+                                m_locals[child].exp
+                                    = QString("(%1)[%2]").arg(expressionOf(iname)).arg(i);
                                 addValue(join, child, QString("[%1]").arg(i), elementType, element);
                             }
                         }
@@ -2308,6 +2312,8 @@ void JdwpImpl::addObjectValue(const JoinPtr &join, const QString &iname, const J
                             if (m_locals.contains(child))
                                 child += '#' + QString::number(i);
                             m_locals[iname].children.append(child);
+                            m_locals[child].exp
+                                = QString("(%1).%2").arg(expressionOf(iname), field.name);
                             addValue(join, child, field.name, typeName(field.signature),
                                      fieldValue);
                         }
@@ -2319,6 +2325,14 @@ void JdwpImpl::addObjectValue(const JoinPtr &join, const QString &iname, const J
     });
 }
 
+// What an assignment to the row is given, which for a child has to say
+// whose child it is.
+QString JdwpImpl::expressionOf(const QString &iname) const
+{
+    const Local local = m_locals.value(iname);
+    return local.exp.isEmpty() ? local.name : local.exp;
+}
+
 GdbMi JdwpImpl::localsItem(const QString &iname) const
 {
     const Local local = m_locals.value(iname);
@@ -2328,6 +2342,8 @@ GdbMi JdwpImpl::localsItem(const QString &iname) const
     item.addChild(constMi("name", local.name));
     if (!local.watcherName.isEmpty())
         item.addChild(constMi("wname", local.watcherName));
+    if (!local.exp.isEmpty())
+        item.addChild(constMi("exp", local.exp));
     item.addChild(constMi("type", local.type));
     item.addChild(constMi("value", local.value));
     item.addChild(constMi("numchild", local.hasChildren ? "1" : "0"));
@@ -2406,9 +2422,335 @@ void JdwpImpl::createSnapshot(quint64 requestId)
     emit snapshotCreated(requestId, false, {});
 }
 
-void JdwpImpl::assignValueInDebugger(const WatchItemData &, const QString &, const QString &)
+// Where a name stands for a value that can be written: a local of the frame,
+// a field of the object it runs on, or a static field of its class.
+void JdwpImpl::placeOfName(const QString &name, const Placement &done)
 {
-    reportUnsupported(Tr::tr("changing values"));
+    withCurrentFrame([this, name, done](const Frame *frame) {
+        if (!frame) {
+            done({.error = Tr::tr("There is no frame to look in.")});
+            return;
+        }
+        const JdwpLocation location = frame->location;
+        const quint64 frameId = frame->id;
+        withVariables(location.classId, location.methodId, [this, name, done, location, frameId] {
+            const QList<MethodInfo::Variable> visible = visibleVariables(location);
+            const auto it = std::find_if(visible.cbegin(), visible.cend(),
+                                         [&name](const MethodInfo::Variable &variable) {
+                return variable.name == name;
+            });
+            if (it != visible.cend()) {
+                done({.kind = Place::Kind::Local, .owner = frameId, .position = it->slot,
+                      .signature = it->signature});
+                return;
+            }
+            const quint64 classId = location.classId;
+            evaluateThis([this, name, done, classId](const Evaluated &self) {
+                if (self.error.isEmpty()) {
+                    placeOfFieldIn(self.value.bits, name,
+                                   [this, name, done, classId](const Place &place) {
+                        if (place.error.isEmpty()) {
+                            done(place);
+                            return;
+                        }
+                        placeOfStaticField(classId, name, done);
+                    });
+                    return;
+                }
+                placeOfStaticField(classId, name, done);
+            });
+        });
+    });
+}
+
+void JdwpImpl::placeOfStaticField(quint64 classId, const QString &name, const Placement &done)
+{
+    withFields(classId, [this, classId, name, done] {
+        const QList<FieldInfo> fields = m_classes.value(classId).staticFields;
+        const auto it = std::find_if(fields.cbegin(), fields.cend(),
+                                     [&name](const FieldInfo &field) {
+            return field.name == name;
+        });
+        if (it == fields.cend()) {
+            done({.error = Tr::tr("There is nothing called \"%1\" here.").arg(name)});
+            return;
+        }
+        done({.kind = Place::Kind::StaticField, .owner = classId, .fieldId = it->id,
+              .signature = it->signature});
+    });
+}
+
+void JdwpImpl::placeOfFieldIn(quint64 object, const QString &name, const Placement &done)
+{
+    send(Jdwp::ObjectReferenceSet, Jdwp::ObjectReferenceType, writer().writeObjectId(object).data(),
+         [this, object, name, done](const JdwpReply &reply) {
+        if (!reply.ok()) {
+            done({.error = JdwpClient::errorString(reply.errorCode)});
+            return;
+        }
+        JdwpReader r = reader(reply.data);
+        r.readByte();
+        const quint64 typeId = r.readReferenceTypeId();
+        withFields(typeId, [this, object, name, done, typeId] {
+            // The superclasses come first, and a field hides theirs of its name.
+            const QList<FieldInfo> fields = m_classes.value(typeId).fields;
+            const auto it = std::find_if(fields.crbegin(), fields.crend(),
+                                         [&name](const FieldInfo &field) {
+                return field.name == name;
+            });
+            if (it == fields.crend()) {
+                placeOfStaticField(typeId, name, done);
+                return;
+            }
+            done({.kind = Place::Kind::Field, .owner = object, .fieldId = it->id,
+                  .signature = it->signature});
+        });
+    });
+}
+
+void JdwpImpl::placeOf(const JdwpExpression &expression, const Placement &done)
+{
+    switch (expression.kind) {
+    case JdwpExpression::Kind::Name:
+        placeOfName(expression.text, done);
+        return;
+    case JdwpExpression::Kind::Field: {
+        const QString name = expression.text;
+        evaluate(*expression.base, [this, name, done](const Evaluated &base) {
+            if (!base.error.isEmpty()) {
+                done({.error = base.error});
+                return;
+            }
+            if (!base.value.isObject() || base.value.isNull()) {
+                done({.error = Tr::tr("The value has no field to write to.")});
+                return;
+            }
+            placeOfFieldIn(base.value.bits, name, done);
+        });
+        return;
+    }
+    case JdwpExpression::Kind::Index: {
+        const JdwpExpression index = *expression.index;
+        evaluate(*expression.base, [this, index, done](const Evaluated &base) {
+            if (!base.error.isEmpty()) {
+                done({.error = base.error});
+                return;
+            }
+            if (base.value.tag != Jdwp::ArrayValueTag || base.value.isNull()) {
+                done({.error = Tr::tr("The value is not an array.")});
+                return;
+            }
+            const quint64 array = base.value.bits;
+            evaluate(index, [this, array, done](const Evaluated &position) {
+                if (!position.error.isEmpty()) {
+                    done({.error = position.error});
+                    return;
+                }
+                if (!isIntegralTag(position.value.tag)) {
+                    done({.error = Tr::tr("The index is not a number.")});
+                    return;
+                }
+                // The type of an element is the type of the array without its
+                // leading bracket, which is what its signature says.
+                send(Jdwp::ObjectReferenceSet, Jdwp::ObjectReferenceType,
+                     writer().writeObjectId(array).data(),
+                     [this, array, position, done](const JdwpReply &reply) {
+                    if (!reply.ok()) {
+                        done({.error = JdwpClient::errorString(reply.errorCode)});
+                        return;
+                    }
+                    JdwpReader r = reader(reply.data);
+                    r.readByte();
+                    const quint64 typeId = r.readReferenceTypeId();
+                    withSignature(typeId, [this, array, position, done, typeId] {
+                        const QString signature = m_classes.value(typeId).signature;
+                        done({.kind = Place::Kind::Element, .owner = array,
+                              .position = qint32(position.value.bits),
+                              .signature = signature.mid(1)});
+                    });
+                });
+            });
+        });
+        return;
+    }
+    default:
+        break;
+    }
+    done({.error = Tr::tr("This is not something a value can be written to.")});
+}
+
+// Makes a value fit the type of the place it goes to, as far as Java would
+// widen it by itself. A value that does not fit says so rather than being
+// written as something else.
+static Utils::Result<JdwpValue> coerced(const JdwpValue &value, const QString &signature)
+{
+    if (signature.isEmpty())
+        return value;
+    const char wanted = signature.at(0).toLatin1();
+    if (!Jdwp::isPrimitiveTag(quint8(wanted))) {
+        if (value.isObject())
+            return value;
+        return ResultError(Tr::tr("An object cannot hold %1.").arg(primitiveText(value)));
+    }
+    if (value.isObject()) {
+        return ResultError(Tr::tr("A %1 cannot hold an object.")
+                               .arg(typeName(signature)));
+    }
+
+    // Read what is there as a number, then put it back the way the place holds one.
+    const auto asDouble = [&value]() -> double {
+        if (value.tag == Jdwp::FloatValueTag) {
+            const quint32 bits = quint32(value.bits);
+            float f = 0;
+            std::memcpy(&f, &bits, sizeof(f));
+            return f;
+        }
+        if (value.tag == Jdwp::DoubleValueTag) {
+            double d = 0;
+            const quint64 bits = value.bits;
+            std::memcpy(&d, &bits, sizeof(d));
+            return d;
+        }
+        return double(qint64(value.bits));
+    };
+    // A Java cast to anything narrower than a long goes through an int, and a
+    // value that does not fit stops at the end of the range rather than being
+    // left to a conversion that is undefined here.
+    const auto asInteger = [&value, &asDouble](bool wide) -> qint64 {
+        if (value.tag != Jdwp::FloatValueTag && value.tag != Jdwp::DoubleValueTag)
+            return qint64(value.bits);
+        const double number = asDouble();
+        if (std::isnan(number))
+            return 0;
+        const qint64 high = wide ? std::numeric_limits<qint64>::max()
+                                 : std::numeric_limits<qint32>::max();
+        const qint64 low = wide ? std::numeric_limits<qint64>::min()
+                                : std::numeric_limits<qint32>::min();
+        if (number >= double(high))
+            return high;
+        return number <= double(low) ? low : qint64(number);
+    };
+
+    JdwpValue result;
+    result.tag = quint8(wanted);
+    switch (wanted) {
+    case Jdwp::BooleanValueTag:
+        if (value.tag != Jdwp::BooleanValueTag)
+            return ResultError(Tr::tr("A boolean can only hold true or false."));
+        result.bits = value.bits ? 1 : 0;
+        return result;
+    case Jdwp::ByteValueTag:
+        result.bits = quint64(qint8(asInteger(false)));
+        return result;
+    case Jdwp::ShortValueTag:
+        result.bits = quint64(qint16(asInteger(false)));
+        return result;
+    case Jdwp::CharValueTag:
+        result.bits = quint64(quint16(asInteger(false)));
+        return result;
+    case Jdwp::IntValueTag:
+        result.bits = quint64(qint32(asInteger(false)));
+        return result;
+    case Jdwp::LongValueTag:
+        result.bits = quint64(asInteger(true));
+        return result;
+    case Jdwp::FloatValueTag: {
+        const float f = float(asDouble());
+        quint32 bits = 0;
+        std::memcpy(&bits, &f, sizeof(f));
+        result.bits = bits;
+        return result;
+    }
+    case Jdwp::DoubleValueTag: {
+        const double d = asDouble();
+        quint64 bits = 0;
+        std::memcpy(&bits, &d, sizeof(d));
+        result.bits = bits;
+        return result;
+    }
+    default:
+        break;
+    }
+    return ResultError(Tr::tr("A %1 cannot be written.").arg(typeName(signature)));
+}
+
+void JdwpImpl::writeTo(const Place &place, const JdwpValue &value, const QString &shown)
+{
+    const auto report = [this, shown](const JdwpReply &reply) {
+        if (reply.ok()) {
+            // The view read its values before the write, and the engine asked
+            // for them again before it had happened, so it is asked once more.
+            if (m_lastLocalsRequest.requestId != 0)
+                fetchLocals(m_lastLocalsRequest);
+            return;
+        }
+        emit message(Tr::tr("Cannot set %1: %2")
+                         .arg(shown, JdwpClient::errorString(reply.errorCode)), LogError);
+    };
+
+    switch (place.kind) {
+    case Place::Kind::Local: {
+        JdwpWriter request = writer();
+        request.writeObjectId(m_currentThread).writeFrameId(place.owner).writeInt(1)
+            .writeInt(place.position).writeTaggedValue(value);
+        send(Jdwp::StackFrameSet, Jdwp::StackFrameSetValues, request.data(), report);
+        return;
+    }
+    case Place::Kind::Field: {
+        JdwpWriter request = writer();
+        request.writeObjectId(place.owner).writeInt(1).writeFieldId(place.fieldId)
+            .writeUntaggedValue(value);
+        send(Jdwp::ObjectReferenceSet, Jdwp::ObjectSetValues, request.data(), report);
+        return;
+    }
+    case Place::Kind::StaticField: {
+        JdwpWriter request = writer();
+        request.writeReferenceTypeId(place.owner).writeInt(1).writeFieldId(place.fieldId)
+            .writeUntaggedValue(value);
+        send(Jdwp::ClassTypeSet, Jdwp::ClassTypeSetValues, request.data(), report);
+        return;
+    }
+    case Place::Kind::Element: {
+        JdwpWriter request = writer();
+        request.writeObjectId(place.owner).writeInt(place.position).writeInt(1)
+            .writeUntaggedValue(value);
+        send(Jdwp::ArrayReferenceSet, Jdwp::ArraySetValues, request.data(), report);
+        return;
+    }
+    }
+}
+
+void JdwpImpl::assignValueInDebugger(const WatchItemData &, const QString &expr,
+                                     const QString &value)
+{
+    const Result<JdwpExpression> target = parseJdwpExpression(expr);
+    if (!target) {
+        emit message(target.error(), LogError);
+        return;
+    }
+    const Result<JdwpExpression> assigned = parseJdwpExpression(value);
+    if (!assigned) {
+        emit message(assigned.error(), LogError);
+        return;
+    }
+    placeOf(*target, [this, assigned, expr, value](const Place &place) {
+        if (!place.error.isEmpty()) {
+            emit message(Tr::tr("Cannot set %1: %2").arg(expr, place.error), LogError);
+            return;
+        }
+        evaluate(*assigned, [this, place, expr, value](const Evaluated &result) {
+            if (!result.error.isEmpty()) {
+                emit message(Tr::tr("Cannot set %1: %2").arg(expr, result.error), LogError);
+                return;
+            }
+            const Result<JdwpValue> fitted = coerced(result.value, place.signature);
+            if (!fitted) {
+                emit message(Tr::tr("Cannot set %1: %2").arg(expr, fitted.error()), LogError);
+                return;
+            }
+            writeTo(place, *fitted, expr);
+        });
+    });
 }
 
 void JdwpImpl::executeDebuggerCommand(const QString &, const WatchItemData &)
