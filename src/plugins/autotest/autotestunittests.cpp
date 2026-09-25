@@ -5,9 +5,11 @@
 
 #include "externaltestrun.h"
 #include "testcodeparser.h"
+#include "testoutputreader.h"
 #include "testrunner.h"
 #include "testtreemodel.h"
 
+#include "gtest/gtestoutputreader.h"
 #include "qtest/qttest_utils.h"
 #include "qtest/qttestframework.h"
 
@@ -428,6 +430,130 @@ void QtTestUtilsTest::testFilterInterferingWithoutOmitted()
              QStringList({"-iterations", "5"}));
 }
 
+class TestOutputReaderTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testColorRemoval();
+    void testColorRemoval_data();
+    void testBoundedAppend();
+    void testGTestDescriptions();
+    void testGTestDescriptions_data();
+};
+
+void TestOutputReaderTest::testColorRemoval()
+{
+    QFETCH(QString, original);
+    QFETCH(QString, expected);
+
+    QCOMPARE(TestOutputReader::removeCommandlineColors(original), expected);
+}
+
+void TestOutputReaderTest::testColorRemoval_data()
+{
+    QTest::addColumn<QString>("original");
+    QTest::addColumn<QString>("expected");
+
+    const QString esc(QChar(0x1B));
+
+    QTest::newRow("empty") << QString() << QString();
+    QTest::newRow("nothing to do") << QString("plain text") << QString("plain text");
+    QTest::newRow("single") << esc + "[31mFAIL" + esc + "[0m" << QString("FAIL");
+    QTest::newRow("reset only") << esc + "[m" << QString();
+    QTest::newRow("bare escape") << esc + "text" << esc + "text";
+    QTest::newRow("unterminated") << esc + "[31 no end" << esc + "[31 no end";
+    QTest::newRow("no terminator before newline")
+        << esc + "[31\n" + esc + "[0mx" << esc + "[31\nx";
+    // removing a sequence can put a leftover escape next to a following bracket, and the result
+    // is a sequence that was not in the input
+    QTest::newRow("removal creates a sequence")
+        << esc + esc + "[a2m[2m;" << QString(";");
+    QTest::newRow("adjacent") << esc + "[1m" + esc + "[31mx" << QString("x");
+}
+
+void TestOutputReaderTest::testBoundedAppend()
+{
+    const QString line(1024, 'x');
+    QString accumulated;
+    for (int i = 0; i < 4096; ++i)
+        TestOutputReader::appendBounded(accumulated, line);
+
+    // bounded, and it says so where a reader of the result will see it
+    QVERIFY(accumulated.size() < 4096 * (line.size() + 1));
+    QVERIFY(accumulated.contains("truncated"));
+
+    // once truncated it stays put, and clearing starts over
+    const QString truncated = accumulated;
+    TestOutputReader::appendBounded(accumulated, line);
+    QCOMPARE(accumulated, truncated);
+
+    accumulated.clear();
+    TestOutputReader::appendBounded(accumulated, "one");
+    QCOMPARE(accumulated, QString("one"));
+
+    // check for append without separating
+    accumulated.clear();
+    TestOutputReader::appendBounded(accumulated, "a");
+    TestOutputReader::appendBounded(accumulated, "b", false);
+    QCOMPARE(accumulated, "ab");
+}
+
+static QString resultTypeName(ResultType type)
+{
+    switch (type) {
+    case ResultType::Pass: return "Pass";
+    case ResultType::Fail: return "Fail";
+    case ResultType::Skip: return "Skip";
+    case ResultType::MessageLocation: return "Location";
+    default: return {};
+    }
+}
+
+void TestOutputReaderTest::testGTestDescriptions()
+{
+    QFETCH(QStringList, output);
+    QFETCH(QStringList, expected);
+
+    GTestOutputReader reader(nullptr, {}, {});
+    QStringList reported;
+    connect(&reader, &TestOutputReader::newResult, this, [&reported](const TestResult &result) {
+        const QString type = resultTypeName(result.result());
+        if (!type.isEmpty())
+            reported << type + ": " + result.description();
+    });
+    for (const QString &line : std::as_const(output))
+        reader.processStdOutput(line.toLatin1());
+
+    QCOMPARE(reported, expected);
+}
+
+void TestOutputReaderTest::testGTestDescriptions_data()
+{
+    QTest::addColumn<QStringList>("output");
+    QTest::addColumn<QStringList>("expected");
+
+    QTest::newRow("pass")
+        << QStringList{"[ RUN      ] Suite.Test", "some output", "more output",
+                       "[       OK ] Suite.Test (0 ms)"}
+        << QStringList{"Pass: some output\nmore output"};
+    QTest::newRow("fail")
+        << QStringList{"[ RUN      ] Suite.Test", "some output", "more output",
+                       "[  FAILED  ] Suite.Test (0 ms)"}
+        << QStringList{"Fail: some output\nmore output"};
+    QTest::newRow("fail with location")
+        << QStringList{"[ RUN      ] Suite.Test", "foo.cpp:12: Failure",
+                       "Expected equality of these values:", "  a", "    Which is: 1", "  b",
+                       "    Which is: 2", "[  FAILED  ] Suite.Test (0 ms)"}
+        << QStringList{"Fail: ",
+                       "Location: foo.cpp:12: Failure\nExpected equality of these values:\n"
+                       "  a\n    Which is: 1\n  b\n    Which is: 2"};
+    QTest::newRow("skip")
+        << QStringList{"[ RUN      ] Suite.Test", "foo.cpp:12: Skipped", "the reason",
+                       "[  SKIPPED ] Suite.Test (0 ms)"}
+        << QStringList{"Skip: Suite.Test\nfoo.cpp:12: Skipped\nthe reason"};
+}
+
 QObject *createAutotestUnitTests()
 {
     return new AutotestUnitTests;
@@ -441,6 +567,11 @@ QObject *createExternalTestRunTest()
 QObject *createQtTestUtilsTest()
 {
     return new QtTestUtilsTest;
+}
+
+QObject *createTestOutputReaderTest()
+{
+    return new TestOutputReaderTest;
 }
 
 } // namespace Autotest::Internal

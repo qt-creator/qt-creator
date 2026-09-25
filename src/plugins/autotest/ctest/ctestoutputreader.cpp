@@ -134,10 +134,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         int current = match.captured("current").toInt();
         if (m_result != ResultType::Invalid && m_currentTestNo != -1 && current != m_currentTestNo)
             sendCompleteInformation();
-        if (!m_description.isEmpty() && match.captured("first").isEmpty())
-            m_description.append('\n').append(match.captured());
-        else
-            m_description = match.captured();
+        if (!match.captured("first").isEmpty())
+            m_description.clear();
+        appendBounded(m_description, match.captured());
         m_currentTestNo = current;
         m_testName = match.captured(3);
         const QString resultType = match.captured(5);
@@ -171,14 +170,13 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         m_executionDuration = qRound(match.captured(1).toDouble() * 1000.);
         reportResult(testResult);
     } else if (ExactMatch match = testCrash.match(line)) {
-        m_description = match.captured();
+        m_description.clear();
+        appendBounded(m_description, match.captured());
         m_testName = match.captured(1);
         m_result = ResultType::Fail;
         m_expectExceptionFromCrash = true;
     } else {
-        if (!m_description.isEmpty())
-            m_description.append('\n');
-        m_description.append(line);
+        appendBounded(m_description, line);
         if (m_expectExceptionFromCrash) {
             if (QTC_GUARD(line.startsWith("***Exception:")))
                 m_expectExceptionFromCrash = false;

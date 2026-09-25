@@ -255,9 +255,7 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
                 m_dataTag = text.toString();
                 break;
             case Description:
-                if (!m_description.isEmpty())
-                    m_description.append('\n');
-                m_description.append(text.toString());
+                appendBounded(m_description, text.toString());
                 break;
             case QtVersion:
                 m_description = trQtVersion(text.toString());
@@ -397,9 +395,7 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
     } else if (finish.match(line).hasMatch()) {
         processSummaryFinishOutput();
     } else { // we have some plain output, but we cannot say where for sure it belongs to..
-        if (!m_description.isEmpty())
-            m_description.append('\n');
-        m_description.append(line);
+        appendBounded(m_description, line);
     }
 }
 
@@ -428,11 +424,8 @@ void QtTestOutputReader::processResultOutput(const QString &result, const QStrin
     }
     m_dataTag = funcWithTag.at(1);
     const QString description = funcWithTag.at(2);
-    if (!description.isEmpty()) {
-        if (!m_description.isEmpty())
-            m_description.append('\n');
-        m_description.append(description.mid(1)); // cut the first whitespace
-    }
+    if (!description.isEmpty())
+        appendBounded(m_description, description.mid(1)); // cut the first whitespace
     m_formerTestCase = m_testCase;
 }
 

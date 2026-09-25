@@ -569,6 +569,7 @@ public:
         addTestCreator(createAutotestUnitTests);
         addTestCreator(createExternalTestRunTest);
         addTestCreator(createQtTestUtilsTest);
+        addTestCreator(createTestOutputReaderTest);
 #endif
     }
 

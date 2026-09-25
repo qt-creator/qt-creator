@@ -55,7 +55,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
     };
 
     if (!line.startsWith('[')) {
-        m_description.append(line).append('\n');
+        appendBounded(m_description, line);
         if (ExactMatch match = iterations.match(line)) {
             m_iteration = match.captured(1).toInt();
             m_inSummary = false;
@@ -117,7 +117,6 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         m_testSetStarted = false;
         TestResult testResult = createDefaultResult();
         testResult.setResult(ResultType::Fail);
-        m_description.chop(1);
         handleDescriptionAndReportResult(testResult);
         testResult = createDefaultResult();
         testResult.setResult(ResultType::MessageInternal);
@@ -130,7 +129,6 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         m_testSetStarted = false;
         TestResult testResult = createDefaultResult();
         testResult.setResult(ResultType::Skip);
-        m_description.chop(1);
         m_description.prepend(match.captured(1) + '\n');
         handleDescriptionAndReportResult(testResult);
         testResult = createDefaultResult();
@@ -156,8 +154,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult.setDescription(match.captured(4));
         reportResult(testResult);
     } else if (ExactMatch match = testDeath.match(line)) {
-        m_description.append(line);
-        m_description.append('\n');
+        appendBounded(m_description, line);
     } else if (summary.match(line).hasMatch()) {
         m_inSummary = true;
     } else if (m_inSummary) {

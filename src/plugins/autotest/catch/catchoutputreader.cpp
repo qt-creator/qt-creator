@@ -134,12 +134,12 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
         case QXmlStreamReader::Characters: {
             const auto text = m_xmlReader.text();
             if (m_currentTagName == CatchXml::ExpandedElement) {
-                m_currentExpression.append(text);
+                appendBounded(m_currentExpression, text.toString(), false);
             } else if (m_currentTagName == CatchXml::ExceptionElement
                        || m_currentTagName == CatchXml::InfoElement
                        || m_currentTagName == CatchXml::WarningElement
                        || m_currentTagName == CatchXml::FailureElement) {
-                m_currentExpression.append('\n').append(text.trimmed());
+                appendBounded(m_currentExpression, text.trimmed().toString());
             }
             break;
         }
