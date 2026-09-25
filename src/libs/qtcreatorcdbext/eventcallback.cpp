@@ -205,6 +205,7 @@ STDMETHODIMP EventCallback::CreateProcess(
     __in ULONG64 StartOffset
     )
 {
+    justMyCodeImageChanged(BaseOffset);
     return m_wrapped ? m_wrapped->CreateProcess(ImageFileHandle, Handle,
                                                  BaseOffset, ModuleSize, ModuleName,
                                                  ImageName, CheckSum, TimeDateStamp,
@@ -240,6 +241,7 @@ STDMETHODIMP EventCallback::LoadModule(
 #ifdef WITH_PYTHON
     PyType::moduleLoaded(BaseOffset);
 #endif
+    justMyCodeImageChanged(BaseOffset);
     return m_wrapped ? m_wrapped->LoadModule(ImageFileHandle, BaseOffset,
                                              ModuleSize, ModuleName, ImageName,
                                              CheckSum, TimeDateStamp) : S_OK;
@@ -254,6 +256,9 @@ STDMETHODIMP EventCallback::UnloadModule(
 #ifdef WITH_PYTHON
     PyType::moduleUnloaded(BaseOffset);
 #endif
+    // Just My Code keeps per image state, which goes stale with the image.
+    justMyCodeImageChanged(BaseOffset);
+    ExtensionContext::instance().report('E', 0, 0, "module_unloaded", "0x%llx", BaseOffset);
     return m_wrapped ? m_wrapped->UnloadModule(ImageBaseName, BaseOffset) : S_OK;
 }
 

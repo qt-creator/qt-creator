@@ -181,6 +181,14 @@ DebuggerSettings::DebuggerSettings() :
     cdbUsePythonDumper.setDefaultValue(true);
     cdbUsePythonDumper.setLabelText(Tr::tr("Use Python dumper"));
 
+    cdbJustMyCode.setSettingsKey(cdbSettingsGroup, "JustMyCode");
+    cdbJustMyCode.setDefaultValue(true);
+    cdbJustMyCode.setToolTip("<p>" + Tr::tr(
+        "Steps only through code of the project in binaries built with /JMC. "
+        "Stepping into a call skips the standard library, Qt, and other code outside "
+        "the project directory, but stops in project code that it calls."));
+    cdbJustMyCode.setLabelText(Tr::tr("Just My Code stepping"));
+
     firstChanceExceptionTaskEntry.setSettingsKey(cdbSettingsGroup, "FirstChanceExceptionTaskEntry");
     firstChanceExceptionTaskEntry.setDefaultValue(true);
     firstChanceExceptionTaskEntry.setLabelText(Tr::tr("First chance exceptions"));
@@ -262,6 +270,7 @@ DebuggerSettings::DebuggerSettings() :
     page5.registerAspect(&useCdbConsole);
     page5.registerAspect(&cdbBreakPointCorrection);
     page5.registerAspect(&cdbUsePythonDumper);
+    page5.registerAspect(&cdbJustMyCode);
     page5.registerAspect(&firstChanceExceptionTaskEntry);
     page5.registerAspect(&secondChanceExceptionTaskEntry);
     page5.registerAspect(&ignoreFirstChanceAccessViolation);

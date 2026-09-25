@@ -34,6 +34,48 @@ enum class StepIntoLanding { Arrived, OnThunk, WithoutSource };
 DEBUGGER_EXPORT StepIntoLanding stepIntoLanding(
     const GdbMi &stopData, const std::function<bool(const QString &)> &hasSource);
 
+DEBUGGER_EXPORT bool isJustMyCodeUserFile(const Utils::FilePath &file,
+                                          const Utils::FilePath &projectDirectory);
+
+class DEBUGGER_EXPORT JustMyCode
+{
+public:
+    using IsUserFile = std::function<bool(const QString &)>;
+
+    enum class Next { Stop, ReturnFromHelper, StepOut, StepAgain };
+
+    QString queryArguments() const;
+    QStringList adopt(const GdbMi &reply, const IsUserFile &isUserFile,
+                      const std::function<QString()> &nextBreakpointId);
+    bool isCurrentImageInstrumented() const { return m_currentImageInstrumented; }
+    QStringList armCommands() const;
+    QStringList disarmCommands() const;
+    bool isStepBreakpoint(const QString &id) const;
+    bool isStepStop(const GdbMi &stopData) const;
+    Next next(const GdbMi &stopData, bool stepInto, const IsUserFile &isUserFile) const;
+    void forget(quint64 base);
+    QStringList takeForgottenBreakpointIds();
+
+    static bool leavesForUserCode(const GdbMi &stack, const IsUserFile &isUserFile);
+
+private:
+    struct Image
+    {
+        quint64 base = 0;
+        quint64 threadIdAddress = 0;
+        QString breakpointId;
+    };
+
+    bool isOnStartLine(const GdbMi &stack) const;
+
+    QList<Image> m_images;
+    QStringList m_forgottenBreakpointIds;
+    QString m_threadId;
+    GdbMi m_startFrame;
+    int m_startDepth = 0;
+    bool m_currentImageInstrumented = false;
+};
+
 class DEBUGGER_EXPORT BreakpointStopMessages
 {
 public:
@@ -139,6 +181,11 @@ public:
     // What the sources of a file end up in, for scoping a breakpoint to a
     // module that is not loaded yet.
     std::function<QString(const Utils::FilePath &)> moduleForSourceFile;
+    // Step through the code of the user only, in binaries built with /JMC.
+    bool justMyCode = false;
+    // Where the code of the user is, for Just My Code. Empty for all but the
+    // runtime, the standard library and the Windows SDK.
+    Utils::FilePath projectDirectory;
 };
 
 Utils::Result<QByteArray> cdbEnvironmentScript(const Utils::Environment &env,
@@ -271,6 +318,13 @@ private:
     void setupScripting();
     void flushPendingBridgeWork();
     void adjustOperateByInstruction(bool operateByInstruction);
+    bool isJustMyCodeUserFile(const QString &debuggerFile) const;
+    bool stepsWithJustMyCode() const;
+    void stepWithJustMyCode(const QString &command, bool stepInto);
+    void setJustMyCodeArmed(bool armed);
+    bool continueJustMyCodeStep(const GdbMi &stopData);
+    void endJustMyCodeStep();
+    void updateJustMyCodeAtStop(const GdbMi &stopData, bool ownBreakIn);
     void jumpToAddress(quint64 address, const Utils::FilePath &file, int line);
     QString nextBreakpointId();
     struct ResolvedFunction
@@ -333,6 +387,13 @@ private:
     bool m_sourceStepInto = false;
     bool m_nativeMethodBodyHopPending = false;
     int m_thunkStepsTaken = 0;
+    JustMyCode m_justMyCode;
+    bool m_justMyCodeStepping = false;
+    bool m_justMyCodeStepInto = false;
+    bool m_justMyCodeArmed = false;
+    bool m_justMyCodeUnsupported = false;
+    int m_lastJustMyCodeQuery = 0;
+    int m_pendingJustMyCodeQuery = 0;
     bool m_inferiorRunning = false;
     bool m_stopAnnounced = false;
     bool m_interruptRequested = false;

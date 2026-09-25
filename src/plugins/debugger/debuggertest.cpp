@@ -147,6 +147,13 @@ private slots:
     void testCdbImplResolvedBreakpointUpdates();
     void testCdbImplBreakpointStopMessages();
     void testCdbImplStepIntoLanding();
+    void testCdbImplJustMyCodeUserFile();
+    void testCdbImplJustMyCode();
+    void testCdbImplJustMyCodeLeavesForUserCode();
+    void testCdbImplJustMyCodeNext();
+    void testCdbImplJustMyCodeForget();
+    void testCdbImplJustMyCodeUnsupported();
+    void testCdbImplJustMyCodeOwnBreakIn();
     void testCdbImplScriptMessages();
     void testCdbImplDebuggeeOutput();
     void testCdbImplExtensionCommandLines();
@@ -273,6 +280,9 @@ private slots:
     void testTerminateMessage();
 
 private:
+    static bool startCdbStandIn(CdbImpl &cdb, QStringList *written);
+    static void answerCdbBuiltin(CdbImpl &cdb, int token);
+
     CppEditor::Tests::TemporaryCopiedDir *m_tmpDir = nullptr;
 };
 
@@ -1215,6 +1225,352 @@ void DebuggerUnitTests::testCdbImplStepIntoLanding()
     GdbMi empty;
     empty.fromString(R"({reason="exception"})", decoder);
     QCOMPARE(stepIntoLanding(empty, never), StepIntoLanding::Arrived);
+}
+
+void DebuggerUnitTests::testCdbImplJustMyCodeUserFile()
+{
+    const FilePath project = FilePath::fromUserInput("C:/work/app");
+
+    // With a project, its directory is what the user's code is.
+    QVERIFY(isJustMyCodeUserFile(FilePath::fromUserInput("C:/work/app/src/main.cpp"), project));
+    QVERIFY(!isJustMyCodeUserFile(FilePath::fromUserInput("C:/work/lib/lib.cpp"), project));
+    QVERIFY(!isJustMyCodeUserFile(FilePath::fromUserInput("C:/Qt/6.11.1/include/QtCore/qstring.h"),
+                                  project));
+
+    // Without one, everything but the runtime, the standard library and the SDK.
+    const FilePath noProject;
+    QVERIFY(isJustMyCodeUserFile(FilePath::fromUserInput("C:/work/lib/lib.cpp"), noProject));
+    QVERIFY(!isJustMyCodeUserFile(
+        FilePath::fromUserInput("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/"
+                                "Tools/MSVC/14.44.35207/include/vector"),
+        noProject));
+    QVERIFY(!isJustMyCodeUserFile(
+        FilePath::fromUserInput("C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/"
+                                "ucrt/corecrt_math.h"),
+        noProject));
+    QVERIFY(!isJustMyCodeUserFile(
+        FilePath::fromUserInput("D:/a/_work/1/s/src/vctools/crt/vcstartup/src/misc/"
+                                "debugger_jmc.c"),
+        noProject));
+
+    // A frame without a source file is not the user's in either case.
+    QVERIFY(!isJustMyCodeUserFile({}, project));
+    QVERIFY(!isJustMyCodeUserFile({}, noProject));
+}
+
+void DebuggerUnitTests::testCdbImplJustMyCode()
+{
+    const auto gdbmi = [](const QString &text) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString(text, decoder);
+        return data;
+    };
+    const auto isUserFile = [](const QString &file) { return file.startsWith("C:/app/"); };
+    int nextId = 90000;
+    const auto nextBreakpointId = [&nextId] { return QString::number(nextId++); };
+
+    JustMyCode jmc;
+    QCOMPARE(jmc.queryArguments(), QString());
+
+    // The flags of files that are not the user's are cleared, and a breakpoint
+    // goes on the nop of each image. A flag that also names a file of the user
+    // could be either, so it stays.
+    const QStringList setup = jmc.adopt(
+        gdbmi(R"({thread="4711",current="0x10000",modules=[)"
+              R"({name="app",base="0x10000",tid="0x18000",nop="0x11234",flags=[)"
+              R"({address="0x19000",files=["C:/vc/include/vector"]},)"
+              R"({address="0x19001",files=["C:/app/main.cpp"]},)"
+              R"({address="0x19002",files=["C:/vc/include/utility","C:/app/utility"]},)"
+              R"({address="0x19003",files=["C:/qt/include/qstring.h"]}]},)"
+              R"({name="lib",base="0x20000",tid="0x28000",nop="0x21234",flags=[]}]})"),
+        isUserFile, nextBreakpointId);
+    QCOMPARE(setup, QStringList({"eb 0x19000 0;eb 0x19003 0", "bp90000 0x11234",
+                                 "bp90001 0x21234"}));
+    QVERIFY(jmc.isCurrentImageInstrumented());
+    QVERIFY(jmc.isStepBreakpoint("90000"));
+    QVERIFY(jmc.isStepBreakpoint("90001"));
+    QVERIFY(!jmc.isStepBreakpoint("100000"));
+    QCOMPARE(jmc.armCommands(), QStringList({"ed 0x18000 0n4711", "ed 0x28000 0n4711"}));
+    QCOMPARE(jmc.disarmCommands(), QStringList({"ed 0x18000 0", "ed 0x28000 0"}));
+
+    // The images already set up are not asked for again.
+    QCOMPARE(jmc.queryArguments(), QString("0x10000 0x20000"));
+
+    // A step from outside the instrumented images is a plain one, and arming
+    // goes to the thread that is stepped now.
+    QCOMPARE(jmc.adopt(gdbmi(R"({thread="42",current="0x30000",modules=[]})"), isUserFile,
+                       nextBreakpointId),
+             QStringList());
+    QVERIFY(!jmc.isCurrentImageInstrumented());
+    QCOMPARE(jmc.armCommands(), QStringList({"ed 0x18000 0n42", "ed 0x28000 0n42"}));
+
+    // Many flags to clear take several command lines.
+    QString manyFlags;
+    for (int i = 0; i < 500; ++i) {
+        manyFlags += QString(R"(%1{address="0x%2",files=["C:/vc/include/f%3"]})")
+                         .arg(QLatin1String(i ? "," : "")).arg(0x50000 + i, 0, 16).arg(i);
+    }
+    const QStringList manySetup = JustMyCode().adopt(
+        gdbmi(R"({thread="1",current="0x40000",modules=[{name="big",base="0x40000",)"
+              R"(tid="0x48000",nop="0x41234",flags=[)" + manyFlags + "]}]}"),
+        isUserFile, nextBreakpointId);
+    QVERIFY(manySetup.size() > 2);
+    int cleared = 0;
+    for (const QString &command : manySetup.mid(0, manySetup.size() - 1)) {
+        QVERIFY(command.size() < 4096);
+        cleared += command.split(';').size();
+    }
+    QCOMPARE(cleared, 500);
+}
+
+void DebuggerUnitTests::testCdbImplJustMyCodeLeavesForUserCode()
+{
+    const auto stack = [](const QString &frames) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString("{stack=[" + frames + "]}", decoder);
+        return data["stack"];
+    };
+    const auto isUserFile = [](const QString &file) { return file.startsWith("C:/app/"); };
+
+    // Arrived in code of the user: done.
+    QVERIFY(!JustMyCode::leavesForUserCode(
+        stack(R"({fullname="C:/app/main.cpp"},{fullname="C:/vc/include/algorithm"})"),
+        isUserFile));
+
+    // Returned into the standard library, which the user's code called.
+    QVERIFY(JustMyCode::leavesForUserCode(
+        stack(R"({fullname="C:/vc/include/xutility"},{fullname=""},)"
+              R"({fullname="C:/app/main.cpp"})"),
+        isUserFile));
+
+    // Past the last frame of the user, as when stepping out of main(): there
+    // is nothing of the user's to get back to.
+    QVERIFY(!JustMyCode::leavesForUserCode(
+        stack(R"({fullname="C:/crt/exe_common.inl"},{fullname=""})"), isUserFile));
+
+    QVERIFY(!JustMyCode::leavesForUserCode(stack({}), isUserFile));
+}
+
+void DebuggerUnitTests::testCdbImplJustMyCodeNext()
+{
+    const auto gdbmi = [](const QString &text) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString(text, decoder);
+        return data;
+    };
+    const auto isUserFile = [](const QString &file) { return file.startsWith("C:/app/"); };
+    const QString startFrame
+        = R"(frame={level="0",address="0x11100",function="run",from="app",)"
+          R"(fullname="C:/app/main.cpp",file="main.cpp",line="12"})";
+    const QString caller
+        = R"({level="1",address="0x11200",function="main",from="app",)"
+          R"(fullname="C:/app/main.cpp",file="main.cpp",line="20"})";
+
+    JustMyCode jmc;
+    int nextId = 80000;
+    jmc.adopt(gdbmi(R"({thread="1",current="0x10000",start={depth="2",)" + startFrame
+                    + R"(},modules=[{name="app",base="0x10000",tid="0x18000",)"
+                      R"(nop="0x11234",flags=[]}]})"),
+              isUserFile, [&nextId] { return QString::number(nextId++); });
+    const auto stop = [&](const QString &reason, const QString &frames) {
+        return gdbmi("{" + reason + ",stack=[" + frames + "]}");
+    };
+    const QString inLibrary = R"({level="0",address="0x51000",function="std::sort",from="app",)"
+                              R"(fullname="C:/vc/include/algorithm",file="algorithm",line="7"},)"
+                              R"({level="1",address="0x11100",function="run",from="app",)"
+                              R"(fullname="C:/app/main.cpp",file="main.cpp",line="12"},)"
+                              + caller;
+    const QString onStartLine = R"({level="0",address="0x11108",function="run",from="app",)"
+                                R"(fullname="C:/app/main.cpp",file="main.cpp",line="12"},)"
+                                + caller;
+    const QString onNextLine = R"({level="0",address="0x11110",function="run",from="app",)"
+                               R"(fullname="C:/app/main.cpp",file="main.cpp",line="13"},)"
+                               + caller;
+    const QString onThunk = R"x({level="0",address="0x10500",function="ILT+1280(run)",)x"
+                            R"(from="app"},)" + caller;
+    const QString step = R"(reason="unknown")";
+    const QString stepOut = R"(reason="breakpoint",breakpointId="10000")";
+    using Next = JustMyCode::Next;
+
+    // The nop of the helper, which a function of the user called on entry.
+    QCOMPARE(jmc.next(stop(R"(reason="breakpoint",breakpointId="80000")", inLibrary), true,
+                      isUserFile),
+             Next::ReturnFromHelper);
+
+    // Arrived outside the user's code, with the user's code up the stack.
+    QCOMPARE(jmc.next(stop(step, inLibrary), true, isUserFile), Next::StepOut);
+    QCOMPARE(jmc.next(stop(stepOut, inLibrary), false, isUserFile), Next::StepOut);
+
+    // A breakpoint of the engine's or the user's, or an exception, is no part
+    // of the step, wherever it is.
+    for (const QString &reason : {QString(R"(reason="breakpoint",breakpointId="80001")"),
+                                  QString(R"(reason="breakpoint",breakpointId="100000")"),
+                                  QString(R"(reason="exception")")}) {
+        QVERIFY(!jmc.isStepStop(stop(reason, inLibrary)));
+        QCOMPARE(jmc.next(stop(reason, inLibrary), true, isUserFile), Next::Stop);
+    }
+    QVERIFY(jmc.isStepStop(stop(stepOut, inLibrary)));
+
+    // A step into goes on through a thunk and over the rest of the line it
+    // started on, which it gets back to from a call it stepped out of.
+    QCOMPARE(jmc.next(stop(step, onThunk), true, isUserFile), Next::StepAgain);
+    QCOMPARE(jmc.next(stop(stepOut, onStartLine), true, isUserFile), Next::StepAgain);
+    QCOMPARE(jmc.next(stop(step, onNextLine), true, isUserFile), Next::Stop);
+
+    // The same line in another call of the function is somewhere new.
+    QCOMPARE(jmc.next(stop(stepOut, onStartLine + ',' + caller), true, isUserFile),
+             Next::Stop);
+
+    // Other steps leave it at the code of the user.
+    QCOMPARE(jmc.next(stop(stepOut, onStartLine), false, isUserFile), Next::Stop);
+}
+
+void DebuggerUnitTests::testCdbImplJustMyCodeForget()
+{
+    const auto gdbmi = [](const QString &text) {
+        QStringDecoder decoder(QStringDecoder::Utf8);
+        GdbMi data;
+        data.fromString(text, decoder);
+        return data;
+    };
+    const auto isUserFile = [](const QString &) { return false; };
+    int nextId = 80000;
+    const auto nextBreakpointId = [&nextId] { return QString::number(nextId++); };
+
+    JustMyCode jmc;
+    jmc.adopt(gdbmi(R"({thread="7",current="0x10000",modules=[)"
+                    R"({name="app",base="0x10000",tid="0x18000",nop="0x11234",flags=[]},)"
+                    R"({name="lib",base="0x20000",tid="0x28000",nop="0x21234",flags=[]}]})"),
+              isUserFile, nextBreakpointId);
+
+    // An unloaded image is asked for again, its thread id variable is left
+    // alone, and its breakpoint goes.
+    jmc.forget(0x20000);
+    jmc.forget(0x30000);
+    QCOMPARE(jmc.queryArguments(), QString("0x10000"));
+    QCOMPARE(jmc.armCommands(), QStringList({"ed 0x18000 0n7"}));
+    QCOMPARE(jmc.disarmCommands(), QStringList({"ed 0x18000 0"}));
+    QVERIFY(!jmc.isStepBreakpoint("80001"));
+    QCOMPARE(jmc.takeForgottenBreakpointIds(), QStringList({"80001"}));
+    QCOMPARE(jmc.takeForgottenBreakpointIds(), QStringList());
+
+    // Loaded again, it is set up anew.
+    QCOMPARE(jmc.adopt(gdbmi(R"({thread="7",current="0x20000",modules=[)"
+                             R"({name="lib",base="0x20000",tid="0x28000",nop="0x21234",)"
+                             R"(flags=[]}]})"),
+                       isUserFile, nextBreakpointId),
+             QStringList({"bp80002 0x21234"}));
+    QVERIFY(jmc.isCurrentImageInstrumented());
+    QVERIFY(jmc.isStepBreakpoint("80002"));
+}
+
+// Runs a stand-in for cdb that takes whatever it is sent, and collects what
+// the engine writes to it.
+bool DebuggerUnitTests::startCdbStandIn(CdbImpl &cdb, QStringList *written)
+{
+    QObject::connect(&cdb, &CdbImpl::message, &cdb, [written](const QString &text, int channel) {
+        if (channel == LogInput)
+            written->append(text);
+    });
+    cdb.m_cdbProc.setCommand(HostOsInfo::isWindowsHost()
+                                 ? CommandLine{"cmd.exe", {"/c", "more > nul"}}
+                                 : CommandLine{"sh", {"-c", "cat > /dev/null"}});
+    cdb.m_cdbProc.start();
+    cdb.m_initialSessionIdleHandled = true;
+    return cdb.m_cdbProc.waitForStarted();
+}
+
+void DebuggerUnitTests::answerCdbBuiltin(CdbImpl &cdb, int token)
+{
+    const QString marker = cdb.m_tokenPrefix + QString::number(token);
+    cdb.handleCdbOutputLine(marker + '<');
+    cdb.handleCdbOutputLine({});
+    cdb.handleCdbOutputLine(marker + '>');
+}
+
+void DebuggerUnitTests::testCdbImplJustMyCodeUnsupported()
+{
+    CdbImplStartData startData;
+    startData.justMyCode = true;
+    CdbImpl cdb(startData);
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+
+    // The step waits for the query and the command that follows it.
+    cdb.execute({ExecutionCommand::StepIn});
+    const int queryToken = cdb.m_nextCommandToken - 1;
+    QVERIFY(written.contains("!qtcreatorcdbext.jmc -t " + QString::number(queryToken) + ".0"));
+    QVERIFY(!written.contains("t"));
+
+    // An extension that knows the command answers it before that command ends.
+    cdb.handleCdbOutputLine("<qtcreatorcdbext>|R|" + QString::number(queryToken)
+                            + R"(|0|jmc|{thread="1",current="0x10000",modules=[]})");
+    answerCdbBuiltin(cdb, queryToken + 1);
+    QCOMPARE(written.last(), QString("t"));
+    QVERIFY(cdb.m_commandForToken.isEmpty());
+    QVERIFY(!cdb.m_justMyCodeUnsupported);
+
+    // An older one only says that it does not have it. The step goes on as a
+    // plain one, and so do the steps after it.
+    cdb.m_inferiorRunning = false;
+    written.clear();
+    cdb.execute({ExecutionCommand::StepIn});
+    const int unansweredToken = cdb.m_nextCommandToken - 1;
+    QVERIFY(written.contains("!qtcreatorcdbext.jmc -t " + QString::number(unansweredToken)
+                             + ".0"));
+    cdb.handleCdbOutputLine("C:\\qtc\\qtcreatorcdbext.dll has no jmc export");
+    answerCdbBuiltin(cdb, unansweredToken + 1);
+    QCOMPARE(written.last(), QString("t"));
+    QVERIFY(cdb.m_commandForToken.isEmpty());
+    QVERIFY(cdb.m_justMyCodeUnsupported);
+
+    cdb.m_inferiorRunning = false;
+    written.clear();
+    cdb.execute({ExecutionCommand::StepIn});
+    QCOMPARE(written.last(), QString("t"));
+    QVERIFY(!written.join(' ').contains("jmc"));
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplJustMyCodeOwnBreakIn()
+{
+    CdbImplStartData startData;
+    startData.justMyCode = true;
+    CdbImpl cdb(startData);
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+
+    // A step into that starts in an instrumented image arms the thread.
+    cdb.execute({ExecutionCommand::StepIn});
+    const int queryToken = cdb.m_nextCommandToken - 1;
+    cdb.handleCdbOutputLine("<qtcreatorcdbext>|R|" + QString::number(queryToken)
+                            + R"(|0|jmc|{thread="1",current="0x10000",modules=[)"
+                              R"({name="app",base="0x10000",tid="0x18000",nop="0x11234",)"
+                              R"(flags=[]}]})");
+    answerCdbBuiltin(cdb, queryToken + 1);
+    QVERIFY(written.contains("ed 0x18000 0n1"));
+    QCOMPARE(written.last(), QString("t"));
+    QVERIFY(cdb.m_justMyCodeStepping);
+
+    // The engine breaks in to get a command in while the step runs. It resumes
+    // from there, and the step goes on, still armed.
+    cdb.m_callbackStop = true;
+    written.clear();
+    cdb.handleCdbOutputLine(R"(<qtcreatorcdbext>|E|0|0|session_idle|{reason="exception",)"
+                            R"(exceptionCode="2147483651",exceptionFunction="ntdll!DbgBreakPoint"})");
+    QCOMPARE(written.last(), QString("g"));
+    QVERIFY(!written.contains("ed 0x18000 0"));
+    QVERIFY(cdb.m_justMyCodeStepping);
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
 }
 
 void DebuggerUnitTests::testCdbImplScriptMessages()

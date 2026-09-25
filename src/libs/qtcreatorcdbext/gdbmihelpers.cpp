@@ -9,8 +9,13 @@
 
 #undef GetContext // From wdbgexts.h, clashes with IDebugHostSymbol::GetContext().
 #include <dbgmodel.h>
+#include <dbghelp.h>
 #include <wrl/client.h>
 
+#include <algorithm>
+#include <cwctype>
+#include <map>
+#include <set>
 #include <vector>
 
 StackFrame::StackFrame(ULONG64 a) : address(a) {}
@@ -907,4 +912,284 @@ bool evaluateInt64Expression(CIDebugControl *control, const std::string expressi
         return false;
     *v = dv.I64;
     return true;
+}
+
+// Just My Code: an image built with /JMC has a flag byte per source file in its
+// .msvcjmc section and calls __CheckForDebuggerJustMyCode() with the flag of
+// its file on entry to every function. That helper runs a 'nop' if the flag is
+// set and the calling thread is the one __DebuggerCurrentSteppingThreadId names.
+
+static bool msvcJmcSection(CIDebugDataSpaces *dataSpaces, ULONG64 base,
+                           ULONG64 *start, ULONG *size)
+{
+    IMAGE_DOS_HEADER dosHeader;
+    ULONG read = 0;
+    if (FAILED(dataSpaces->ReadVirtual(base, &dosHeader, sizeof(dosHeader), &read))
+            || read != sizeof(dosHeader) || dosHeader.e_magic != IMAGE_DOS_SIGNATURE) {
+        return false;
+    }
+    const ULONG64 ntHeaders = base + dosHeader.e_lfanew;
+    DWORD signature = 0;
+    IMAGE_FILE_HEADER fileHeader;
+    if (FAILED(dataSpaces->ReadVirtual(ntHeaders, &signature, sizeof(signature), &read))
+            || signature != IMAGE_NT_SIGNATURE
+            || FAILED(dataSpaces->ReadVirtual(ntHeaders + sizeof(signature), &fileHeader,
+                                              sizeof(fileHeader), &read))
+            || read != sizeof(fileHeader)) {
+        return false;
+    }
+    ULONG64 sectionAddress = ntHeaders + sizeof(signature) + sizeof(fileHeader)
+            + fileHeader.SizeOfOptionalHeader;
+    for (WORD s = 0; s < fileHeader.NumberOfSections; ++s) {
+        IMAGE_SECTION_HEADER section;
+        if (FAILED(dataSpaces->ReadVirtual(sectionAddress, &section, sizeof(section), &read))
+                || read != sizeof(section)) {
+            return false;
+        }
+        if (!strncmp(reinterpret_cast<const char *>(section.Name), ".msvcjmc",
+                     IMAGE_SIZEOF_SHORT_NAME)) {
+            *start = base + section.VirtualAddress;
+            *size = section.Misc.VirtualSize;
+            return true;
+        }
+        sectionAddress += sizeof(section);
+    }
+    return false;
+}
+
+static ULONG64 symbolOffset(CIDebugSymbols *symbols, const std::string &module,
+                            std::initializer_list<const char *> names)
+{
+    for (const char *name : names) {
+        ULONG64 offset = 0;
+        if (SUCCEEDED(symbols->GetOffsetByName((module + '!' + name).c_str(), &offset)))
+            return offset;
+    }
+    return 0;
+}
+
+// The mnemonic of a disassembled instruction. What precedes the address depends
+// on the '.asm' options: a line with the symbol, the source line number.
+static std::string disassembledMnemonic(const std::string &disassembly)
+{
+    std::string line = disassembly;
+    while (!line.empty() && (line.back() == '\n' || line.back() == '\r'))
+        line.pop_back();
+    const std::string::size_type lineStart = line.rfind('\n');
+    if (lineStart != std::string::npos)
+        line.erase(0, lineStart + 1);
+    std::istringstream str(line);
+    std::string token;
+    while (str >> token) {
+        const bool isAddress = token.find('`') != std::string::npos
+            || (token.size() >= 8
+                && token.find_first_not_of("0123456789abcdefABCDEF") == std::string::npos);
+        if (isAddress) {
+            std::string bytes;
+            std::string mnemonic;
+            str >> bytes >> mnemonic;
+            return mnemonic;
+        }
+    }
+    return {};
+}
+
+// The address of the 'nop' the helper runs for the thread that is being stepped.
+static ULONG64 justMyCodeNopAddress(CIDebugControl *control, ULONG64 helper)
+{
+    char buffer[512];
+    ULONG64 offset = helper;
+    for (int i = 0; i < 64; ++i) {
+        ULONG64 endOffset = 0;
+        if (FAILED(control->Disassemble(offset, 0, buffer, sizeof(buffer), nullptr, &endOffset))
+                || endOffset <= offset) {
+            return 0;
+        }
+        const std::string mnemonic = disassembledMnemonic(buffer);
+        if (mnemonic == "nop")
+            return offset;
+        if (mnemonic == "ret")
+            return 0;
+        offset = endOffset;
+    }
+    return 0;
+}
+
+using SourceFilesByName = std::multimap<std::wstring, std::wstring>;
+
+static std::wstring lowerCaseFileName(const std::wstring &path)
+{
+    const std::wstring::size_type slash = path.find_last_of(L"\\/");
+    std::wstring name = slash == std::wstring::npos ? path : path.substr(slash + 1);
+    for (wchar_t &c : name)
+        c = towlower(c);
+    return name;
+}
+
+static BOOL CALLBACK collectSourceFile(PSOURCEFILEW sourceFile, PVOID context)
+{
+    const std::wstring path = sourceFile->FileName;
+    static_cast<SourceFilesByName *>(context)->emplace(lowerCaseFileName(path), path);
+    return TRUE;
+}
+
+// dbgeng has no interface for the source files of a module, so ask the dbghelp
+// that cdb uses.
+static SourceFilesByName sourceFiles(CIDebugSystemObjects *systemObjects, ULONG64 base)
+{
+    using SymEnumSourceFilesW = BOOL(WINAPI *)(HANDLE, ULONG64, PCWSTR,
+                                               PSYM_ENUMSOURCEFILES_CALLBACKW, PVOID);
+    static const auto enumSourceFiles = [] {
+        const HMODULE dbghelp = GetModuleHandleW(L"dbghelp.dll");
+        return dbghelp ? reinterpret_cast<SymEnumSourceFilesW>(
+                             GetProcAddress(dbghelp, "SymEnumSourceFilesW"))
+                       : nullptr;
+    }();
+    SourceFilesByName files;
+    ULONG64 process = 0;
+    if (enumSourceFiles && SUCCEEDED(systemObjects->GetCurrentProcessHandle(&process))) {
+        enumSourceFiles(reinterpret_cast<HANDLE>(process), base, nullptr, collectSourceFile,
+                        &files);
+    }
+    return files;
+}
+
+// The flags are named '__<hash>_<file name>' with the dots of the file name
+// replaced by '@'. The hash is undocumented, which leaves the file name to find
+// the source file of a flag by.
+static std::wstring justMyCodeFlagFileName(const std::wstring &symbol)
+{
+    std::wstring::size_type pos = symbol.find(L'!');
+    pos = pos == std::wstring::npos ? 0 : pos + 1;
+    while (pos < symbol.size() && symbol.at(pos) == L'_')
+        ++pos;
+    const std::wstring::size_type underscore = symbol.find(L'_', pos);
+    if (underscore == std::wstring::npos || underscore - pos != 8)
+        return {};
+    std::wstring name = symbol.substr(underscore + 1);
+    replace(name, L'@', L'.');
+    return lowerCaseFileName(name);
+}
+
+static void formatJustMyCodeFlags(std::ostream &str, CIDebugSymbols *symbols,
+                                  CIDebugSystemObjects *systemObjects, ULONG64 base,
+                                  ULONG64 start, ULONG size)
+{
+    const SourceFilesByName files = sourceFiles(systemObjects, base);
+    str << "flags=[";
+    bool first = true;
+    wchar_t name[1024];
+    for (ULONG64 flag = start; flag < start + size; ++flag) {
+        ULONG64 displacement = 0;
+        if (FAILED(symbols->GetNameByOffsetWide(flag, name, 1024, nullptr, &displacement))
+                || displacement) {
+            continue;
+        }
+        const auto range = files.equal_range(justMyCodeFlagFileName(name));
+        if (range.first == range.second)
+            continue;
+        if (!first)
+            str << ',';
+        first = false;
+        str << "{address=\"0x" << std::hex << flag << std::dec << "\",files=[";
+        for (auto it = range.first; it != range.second; ++it) {
+            std::wstring path = it->second;
+            replace(path, L'\\', L'/');
+            if (it != range.first)
+                str << ',';
+            str << '"' << gdbmiWStringFormat(path) << '"';
+        }
+        str << "]}";
+    }
+    str << ']';
+}
+
+// The images found to be built without /JMC, so that each is looked at once.
+static std::set<ULONG64> &imagesWithoutJustMyCode()
+{
+    static std::set<ULONG64> images;
+    return images;
+}
+
+void justMyCodeImageChanged(ULONG64 base)
+{
+    imagesWithoutJustMyCode().erase(base);
+}
+
+std::string gdbmiJustMyCode(CIDebugSymbols *symbols, CIDebugControl *control,
+                            CIDebugDataSpaces *dataSpaces,
+                            CIDebugSystemObjects *systemObjects,
+                            CIDebugRegisters *registers,
+                            const std::vector<ULONG64> &knownBases,
+                            std::string *errorMessage)
+{
+    const Modules modules = getModules(symbols, errorMessage);
+    if (modules.empty())
+        return {};
+
+    ULONG threadId = 0;
+    systemObjects->GetCurrentThreadSystemId(&threadId);
+    ULONG64 instructionOffset = 0;
+    ULONG64 currentBase = 0;
+    if (SUCCEEDED(registers->GetInstructionOffset(&instructionOffset)))
+        symbols->GetModuleByOffset(instructionOffset, 0, nullptr, &currentBase);
+
+    bool currentInstrumented = std::find(knownBases.cbegin(), knownBases.cend(), currentBase)
+            != knownBases.cend();
+    std::ostringstream images;
+    bool first = true;
+    for (const Module &module : modules) {
+        if (std::find(knownBases.cbegin(), knownBases.cend(), module.base) != knownBases.cend()
+                || imagesWithoutJustMyCode().count(module.base)) {
+            continue;
+        }
+        ULONG64 start = 0;
+        ULONG size = 0;
+        if (!msvcJmcSection(dataSpaces, module.base, &start, &size)) {
+            imagesWithoutJustMyCode().insert(module.base);
+            continue;
+        }
+        // Symbols that are missing now may still come, so this is not remembered.
+        const ULONG64 threadIdAddress = symbolOffset(symbols, module.name,
+                                                     {"__DebuggerCurrentSteppingThreadId",
+                                                      "___DebuggerCurrentSteppingThreadId"});
+        const ULONG64 helper = symbolOffset(symbols, module.name,
+                                            {"__CheckForDebuggerJustMyCode",
+                                             "@__CheckForDebuggerJustMyCode@4"});
+        const ULONG64 nop = helper ? justMyCodeNopAddress(control, helper) : 0;
+        if (!threadIdAddress || !nop)
+            continue;
+        if (module.base == currentBase)
+            currentInstrumented = true;
+        if (!first)
+            images << ',';
+        first = false;
+        images << std::hex << "{name=\"" << gdbmiStringFormat(module.name)
+               << "\",base=\"0x" << module.base << "\",tid=\"0x" << threadIdAddress
+               << "\",nop=\"0x" << nop << "\"," << std::dec;
+        formatJustMyCodeFlags(images, symbols, systemObjects, module.base, start, size);
+        images << '}';
+    }
+
+    std::ostringstream str;
+    str << "{thread=\"" << threadId << "\",current=\"0x" << std::hex << currentBase << std::dec
+        << '"';
+    // Where a step in instrumented code starts, in the terms of the stack a stop
+    // reports, which lists one empty frame more if it is cut off. A step anywhere
+    // else is a plain one, which does not need it.
+    if (currentInstrumented) {
+        bool incomplete = false;
+        std::string stackError;
+        const StackFrames frames = getStackTrace(control, symbols,
+                                                 ExtensionContext::instance().parameters().maxStackDepth,
+                                                 &incomplete, &stackError);
+        str << ",start={depth=\"" << frames.size() + (incomplete ? 1 : 0) << '"';
+        if (!frames.empty()) {
+            str << ',';
+            frames.front().formatGDBMI(str);
+        }
+        str << '}';
+    }
+    str << ",modules=[" << images.str() << "]}";
+    return str.str();
 }

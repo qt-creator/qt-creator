@@ -189,6 +189,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
                     s.cdbBreakOnCrtDbgReport,
                     s.cdbBreakPointCorrection,
                     s.cdbUsePythonDumper,
+                    s.cdbJustMyCode,
                     s.enableHeapDebugging
                 }
             }

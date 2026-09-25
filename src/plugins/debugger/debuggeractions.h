@@ -93,6 +93,7 @@ public:
     Utils::BoolAspect useCdbConsole;
     Utils::BoolAspect cdbBreakPointCorrection;
     Utils::BoolAspect cdbUsePythonDumper;
+    Utils::BoolAspect cdbJustMyCode;
     Utils::BoolAspect firstChanceExceptionTaskEntry;
     Utils::BoolAspect secondChanceExceptionTaskEntry;
     Utils::BoolAspect ignoreFirstChanceAccessViolation;

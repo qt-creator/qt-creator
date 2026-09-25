@@ -205,6 +205,12 @@ void CdbEngine::init()
     m_lastOperateByInstruction = true; // Default CDB setting.
     m_hasDebuggee = false;
     m_sourceStepInto = false;
+    m_justMyCode = {};
+    m_justMyCodeStepping = false;
+    m_justMyCodeStepInto = false;
+    m_justMyCodeArmed = false;
+    m_justMyCodeUnsupported = false;
+    m_nextInternalBreakpointId = cdbInternalBreakPointStartId;
     m_autoBreakPointCorrection = false;
     m_wow64State = wow64Uninitialized;
 
@@ -616,6 +622,12 @@ void CdbEngine::handleInitialSessionIdle()
     }});
 }
 
+// Without a project, the parameters name the directory of the debugger instead.
+static FilePath justMyCodeProjectDirectory(const DebuggerRunParameters &rp)
+{
+    return rp.projectSourceFiles().isEmpty() ? FilePath() : rp.projectSourceDirectory();
+}
+
 static QString msvcRunTime(const Abi::OSFlavor flavour)
 {
     switch (flavour)  {
@@ -637,10 +649,11 @@ static QString msvcRunTime(const Abi::OSFlavor flavour)
     return QLatin1String("MSVCRT"); // MinGW, others.
 }
 
-static QString breakAtFunctionCommand(const QString &function,
-                                      const QString &module = QString())
+// The id tells a stop at the breakpoint apart from the ones cdb sets for itself.
+static QString breakAtFunctionCommand(const QString &function, const QString &module,
+                                      const QString &id)
 {
-     QString result = "bu ";
+     QString result = "bu" + id + ' ';
      if (!module.isEmpty()) {
          result += module;
          result += '!';
@@ -696,9 +709,14 @@ void CdbEngine::runEngine()
             const QString module = msvcRunTime(flavor);
             const QString debugModule = module + 'D';
             const QString wideFunc = QString(Constants::CRT_DEBUG_REPORT).append('W');
-            runCommand({breakAtFunctionCommand(Constants::CRT_DEBUG_REPORT, module), BuiltinCommand, cb});
-            runCommand({breakAtFunctionCommand(wideFunc, module), BuiltinCommand, cb});
-            runCommand({breakAtFunctionCommand(Constants::CRT_DEBUG_REPORT, debugModule), BuiltinCommand, cb});
+            runCommand({breakAtFunctionCommand(Constants::CRT_DEBUG_REPORT, module,
+                                               nextInternalBreakpointId()),
+                        BuiltinCommand, cb});
+            runCommand({breakAtFunctionCommand(wideFunc, module, nextInternalBreakpointId()),
+                        BuiltinCommand, cb});
+            runCommand({breakAtFunctionCommand(Constants::CRT_DEBUG_REPORT, debugModule,
+                                               nextInternalBreakpointId()),
+                        BuiltinCommand, cb});
         }
     }
 //    if (settings().breakOnWarning())) {
@@ -721,9 +739,11 @@ void CdbEngine::runEngine()
         // Set a deferred breakpoint for each candidate module name (release and
         // debug) and let whichever plugin actually loads bind it.
         for (const QString &module : {QString("qmldbg_native"), QString("qmldbg_natived")}) {
-            runCommand({breakAtFunctionCommand("qt_qmlDebugConnectorOpen", module),
+            runCommand({breakAtFunctionCommand("qt_qmlDebugConnectorOpen", module,
+                                               nextInternalBreakpointId()),
                         BuiltinCommand, cb});
-            runCommand({breakAtFunctionCommand("qt_qmlDebugMessageAvailable", module),
+            runCommand({breakAtFunctionCommand("qt_qmlDebugMessageAvailable", module,
+                                               nextInternalBreakpointId()),
                         BuiltinCommand, cb});
         }
     }
@@ -870,6 +890,10 @@ bool CdbEngine::hasCapability(unsigned cap) const
 void CdbEngine::executeStepIn(bool byInstruction)
 {
     adjustOperateByInstruction(byInstruction);
+    if (!m_lastOperateByInstruction && stepsWithJustMyCode()) {
+        stepWithJustMyCode("t", true);
+        return;
+    }
     if (!m_lastOperateByInstruction)
         m_sourceStepInto = true; // See explanation at handleStackTrace().
     runCommand({"t", NoFlags}); // Step into-> t (trace)
@@ -879,6 +903,10 @@ void CdbEngine::executeStepIn(bool byInstruction)
 
 void CdbEngine::executeStepOut()
 {
+    if (!operatesByInstruction() && stepsWithJustMyCode()) {
+        stepWithJustMyCode("gu", false);
+        return;
+    }
     runCommand({"gu", NoFlags}); // Step out-> gu (go up)
     STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunRequested")
     notifyInferiorRunRequested();
@@ -887,9 +915,130 @@ void CdbEngine::executeStepOut()
 void CdbEngine::executeStepOver(bool byInstruction)
 {
     adjustOperateByInstruction(byInstruction);
+    if (!m_lastOperateByInstruction && stepsWithJustMyCode()) {
+        stepWithJustMyCode("p", false);
+        return;
+    }
     runCommand({"p", NoFlags}); // Step over -> p
     STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunRequested")
     notifyInferiorRunRequested();
+}
+
+bool CdbEngine::isJustMyCodeUserFile(const QString &debuggerFile) const
+{
+    const QString file = m_sourcePathMappings.isEmpty()
+        ? debuggerFile
+        : cdbSourcePathMapping(debuggerFile, m_sourcePathMappings, DebuggerToSource);
+    return Internal::isJustMyCodeUserFile(FilePath::fromUserInput(file),
+                                          justMyCodeProjectDirectory(runParameters()));
+}
+
+bool CdbEngine::stepsWithJustMyCode() const
+{
+    return settings().cdbJustMyCode() && !m_justMyCodeUnsupported;
+}
+
+// Sets up the images built with /JMC that are new since the last step. A step
+// that does not start in one of them is a plain one.
+void CdbEngine::stepWithJustMyCode(const QString &command, bool stepInto)
+{
+    DebuggerCommand query("jmc", ExtensionCommand);
+    const QString knownImages = m_justMyCode.queryArguments();
+    if (!knownImages.isEmpty())
+        query.args = knownImages;
+    struct Reply
+    {
+        bool answered = false;
+        bool instrumented = false;
+    };
+    const auto reply = std::make_shared<Reply>();
+    query.callback = [this, reply](const DebuggerResponse &response) {
+        reply->answered = true;
+        if (response.resultClass != ResultDone)
+            return;
+        const QStringList setup = m_justMyCode.adopt(
+            response.data,
+            [this](const QString &file) { return isJustMyCodeUserFile(file); },
+            [this] { return nextInternalBreakpointId(); });
+        for (const QString &setupCommand : setup)
+            runCommand({setupCommand, NoFlags});
+        reply->instrumented = m_justMyCode.isCurrentImageInstrumented();
+    };
+    runCommand(query);
+    const int queryToken = m_nextCommandToken;
+    // An extension without the command leaves it unanswered. cdb runs the
+    // commands in turn, so any answer has come by the time this one ends.
+    DebuggerCommand step(".echo", BuiltinCommand);
+    step.callback = [this, command, stepInto, queryToken, reply](const DebuggerResponse &) {
+        if (!reply->answered) {
+            m_commandForToken.remove(queryToken);
+            m_justMyCodeUnsupported = true;
+            showMessage(Tr::tr("The debugger extension does not support Just My Code stepping."),
+                        LogWarning);
+        }
+        if (!reply->instrumented) {
+            m_sourceStepInto = stepInto;
+            runCommand({command, NoFlags});
+            return;
+        }
+        m_justMyCodeStepping = true;
+        m_justMyCodeStepInto = stepInto;
+        setJustMyCodeArmed(stepInto);
+        runCommand({command, NoFlags});
+    };
+    runCommand(step);
+    STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorRunRequested")
+    notifyInferiorRunRequested();
+}
+
+void CdbEngine::setJustMyCodeArmed(bool armed)
+{
+    if (m_justMyCodeArmed == armed)
+        return;
+    m_justMyCodeArmed = armed;
+    const QStringList commands = armed ? m_justMyCode.armCommands()
+                                       : m_justMyCode.disarmCommands();
+    for (const QString &command : commands)
+        runCommand({command, NoFlags});
+}
+
+// Keeps a Just My Code step going until it arrives in code of the user, or
+// something else stops it.
+bool CdbEngine::continueJustMyCodeStep(const GdbMi &stopReason)
+{
+    const QStringList forgotten = m_justMyCode.takeForgottenBreakpointIds();
+    if (!forgotten.isEmpty())
+        runCommand({"bc " + forgotten.join(' '), NoFlags});
+    if (!m_justMyCodeStepping || isDying())
+        return false;
+    // A break-in to get a command in is resumed from, and the step goes on
+    // after it, see examineStopReason().
+    if (m_stopMode == Callback && stopReason["reason"].data() == "exception")
+        return false;
+    const auto isUserFile = [this](const QString &file) { return isJustMyCodeUserFile(file); };
+    switch (m_justMyCode.next(stopReason, m_justMyCodeStepInto, isUserFile)) {
+    case JustMyCode::Next::ReturnFromHelper:
+        runCommand({"gu", NoFlags});
+        return true;
+    case JustMyCode::Next::StepOut:
+        showMessage("Just My Code: Stepping out to user code...", LogMisc);
+        setJustMyCodeArmed(true);
+        runCommand({"gu", NoFlags});
+        return true;
+    case JustMyCode::Next::StepAgain:
+        runCommand({"t", NoFlags});
+        return true;
+    case JustMyCode::Next::Stop:
+        break;
+    }
+    m_justMyCodeStepping = false;
+    setJustMyCodeArmed(false);
+    return false;
+}
+
+QString CdbEngine::nextInternalBreakpointId()
+{
+    return QString::number(m_nextInternalBreakpointId++);
 }
 
 void CdbEngine::continueInferior()
@@ -1919,6 +2068,8 @@ unsigned CdbEngine::examineStopReason(const GdbMi &stopReason,
 
 void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointTriggered)
 {
+    if (continueJustMyCodeStep(stopReason))
+        return;
     // Further examine stop and report to user
     QString message;
     QString exceptionBoxMessage;
@@ -2289,6 +2440,11 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
 
     if (what == "debuggee_output") {
         showMessage(debuggeeOutput(message), AppOutput);
+        return;
+    }
+
+    if (what == "module_unloaded") {
+        m_justMyCode.forget(message.trimmed().toULongLong(nullptr, 0));
         return;
     }
 
@@ -3347,8 +3503,10 @@ void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
                 qPrintable(reportedResponse.toString()));
         if (!responseId.isEmpty() && !reportedResponse.pending) {
             Breakpoint bp = handler->findBreakpointByResponseId(responseId);
-            if (!bp && reportedResponse.type == BreakpointByFunction)
-                continue; // Breakpoints from options, CrtDbgReport() and others.
+            if (!bp && (reportedResponse.type == BreakpointByFunction
+                        || responseId.toInt() < cdbBreakPointStartId)) {
+                continue; // Breakpoints from options, CrtDbgReport(), Just My Code and others.
+            }
 
             if (bp) {
                 if (!bp->isPending())
@@ -3517,6 +3675,8 @@ CdbImplStartData cdbImplStartData(const DebuggerRunParameters &rp)
         .useCtrlCStub = true,
         .watchdogTimeout = std::chrono::seconds(s.gdbWatchdogTimeout()),
         .moduleForSourceFile = &moduleForSourceFile,
+        .justMyCode = s.cdbJustMyCode(),
+        .projectDirectory = justMyCodeProjectDirectory(rp),
     };
 }
 

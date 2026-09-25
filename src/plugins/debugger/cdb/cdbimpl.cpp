@@ -854,6 +854,8 @@ void CdbImpl::execute(const ExecutionRequest &request)
         runCommand({"g", NoFlags});
         break;
     case ExecutionCommand::Interrupt:
+        // A step that is still waiting for the "jmc" query never started.
+        m_pendingJustMyCodeQuery = 0;
         if (!m_inferiorRunning) {
             emit inferiorEvent(InferiorEvent::StopOk);
             break;
@@ -880,10 +882,14 @@ void CdbImpl::execute(const ExecutionRequest &request)
             break;
         }
         m_expectSpontaneousStop = true;
-        m_inferiorRunning = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
         emit inferiorEvent(InferiorEvent::RunOk);
         adjustOperateByInstruction(request.flag);
+        if (!request.flag && stepsWithJustMyCode()) {
+            stepWithJustMyCode("t", true);
+            break;
+        }
+        m_inferiorRunning = true;
         m_sourceStepInto = !request.flag;
         m_thunkStepsTaken = 0;
         runCommand({"t", NoFlags});
@@ -897,10 +903,14 @@ void CdbImpl::execute(const ExecutionRequest &request)
             break;
         }
         m_expectSpontaneousStop = true;
-        m_inferiorRunning = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
         emit inferiorEvent(InferiorEvent::RunOk);
         adjustOperateByInstruction(request.flag);
+        if (!request.flag && stepsWithJustMyCode()) {
+            stepWithJustMyCode("p", false);
+            break;
+        }
+        m_inferiorRunning = true;
         runCommand({"p", NoFlags});
         break;
     case ExecutionCommand::StepOut:
@@ -916,9 +926,13 @@ void CdbImpl::execute(const ExecutionRequest &request)
             break;
         }
         m_expectSpontaneousStop = true;
-        m_inferiorRunning = true;
         emit inferiorEvent(InferiorEvent::RunRequested);
         emit inferiorEvent(InferiorEvent::RunOk);
+        if (stepsWithJustMyCode() && m_lastOperateByInstruction != true) {
+            stepWithJustMyCode("gu", false);
+            break;
+        }
+        m_inferiorRunning = true;
         runCommand({"gu", NoFlags});
         break;
     case ExecutionCommand::Abort:
@@ -2378,6 +2392,12 @@ void CdbImpl::restartSession()
     m_runToBreakpointIds.clear();
     m_breakpointHitCounts.clear();
     m_stopAnnounced = false;
+    m_justMyCode = {};
+    m_justMyCodeStepping = false;
+    m_justMyCodeStepInto = false;
+    m_justMyCodeArmed = false;
+    m_justMyCodeUnsupported = false;
+    m_pendingJustMyCodeQuery = 0;
     m_pythonVersion = 0;
     m_interpreterResolverIds.clear();
     m_interpreterMessageIds.clear();
@@ -3521,6 +3541,11 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         return;
     }
 
+    if (what == "module_unloaded") {
+        m_justMyCode.forget(payload.trimmed().toULongLong(nullptr, 0));
+        return;
+    }
+
     if (what == "event" && payload.startsWith("Process exited")) {
         m_inferiorRunning = false;
         if (!m_shuttingDown && !m_inferiorExited) {
@@ -3615,6 +3640,7 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         m_deferredCommands.clear();
         for (const DebuggerCommand &cmd : deferred)
             runCommand(cmd);
+        updateJustMyCodeAtStop(stopData, ownBreakIn);
         if (!m_serviceSafePointId.isEmpty() && !m_interruptRequested
                 && stopData["breakpointId"].data() == m_serviceSafePointId) {
             handleServiceSafePoint(stopData);
@@ -3756,6 +3782,188 @@ StepIntoLanding stepIntoLanding(const GdbMi &stopData,
     return hasSource(file) ? StepIntoLanding::Arrived : StepIntoLanding::WithoutSource;
 }
 
+// With a project to go by, the code in its directory is the user's. Without
+// one, all code is, except for what the Visual Studio debugger excludes by
+// default: the runtime, the standard library and the Windows SDK.
+bool isJustMyCodeUserFile(const FilePath &file, const FilePath &projectDirectory)
+{
+    if (file.isEmpty())
+        return false;
+    if (!projectDirectory.isEmpty())
+        return file.isChildOf(projectDirectory);
+    static const QRegularExpression systemFile(
+        "/(VC/include|VC/Tools/.*/include|VC/atlmfc|VC/Tools/.*/atlmfc"
+        "|Windows Kits/.*/include|vctools/crt)/",
+        QRegularExpression::CaseInsensitiveOption);
+    return !systemFile.match(file.path()).hasMatch();
+}
+
+/*!
+    \class Debugger::Internal::JustMyCode
+    \internal
+
+    Steps through the code of the user only, in binaries built with /JMC.
+
+    Such a binary calls \c __CheckForDebuggerJustMyCode() on entry to every
+    function, with a flag that belongs to the source file of the function.
+    The helper runs a \c nop if the flag is set and the calling thread is the
+    one that \c __DebuggerCurrentSteppingThreadId names. The compiler sets all
+    flags, so the ones of files that are not the user's are cleared first.
+    A breakpoint on the \c nop then stops in the next function of the user
+    that the stepped thread enters.
+
+    A step into traces, so that it also enters code of the user that was built
+    without /JMC. Where it arrives in code that is not the user's, it steps out
+    again, and the breakpoint on the \c nop catches the functions of the user
+    that are called on the way.
+*/
+
+QString JustMyCode::queryArguments() const
+{
+    return Utils::transform(m_images, [](const Image &image) {
+        return hexAddress(image.base);
+    }).join(' ');
+}
+
+// Takes in the reply to the "jmc" extension command. Returns the commands that
+// prepare the images it describes, which are the ones not seen before.
+QStringList JustMyCode::adopt(const GdbMi &reply, const IsUserFile &isUserFile,
+                              const std::function<QString()> &nextBreakpointId)
+{
+    // Stay well below the 4096 characters of a cdb command line.
+    constexpr int maxCommandLength = 3000;
+    m_threadId = reply["thread"].data();
+    m_startFrame = reply["start"]["frame"];
+    m_startDepth = reply["start"]["depth"].toInt();
+    QStringList commands;
+    for (const GdbMi &image : reply["modules"]) {
+        QString clearFlags;
+        for (const GdbMi &flag : image["flags"]) {
+            const GdbMi &files = flag["files"];
+            if (std::any_of(files.begin(), files.end(),
+                            [&](const GdbMi &file) { return isUserFile(file.data()); })) {
+                continue;
+            }
+            if (clearFlags.size() > maxCommandLength) {
+                commands.append(clearFlags);
+                clearFlags.clear();
+            }
+            if (!clearFlags.isEmpty())
+                clearFlags += ';';
+            clearFlags += "eb " + flag["address"].data() + " 0";
+        }
+        if (!clearFlags.isEmpty())
+            commands.append(clearFlags);
+        const QString id = nextBreakpointId();
+        m_images.append({image["base"].toAddress(), image["tid"].toAddress(), id});
+        commands.append("bp" + id + ' ' + image["nop"].data());
+    }
+    const quint64 current = reply["current"].toAddress();
+    m_currentImageInstrumented = std::any_of(m_images.cbegin(), m_images.cend(),
+                                             [current](const Image &image) {
+                                                 return image.base == current;
+                                             });
+    return commands;
+}
+
+QStringList JustMyCode::armCommands() const
+{
+    return Utils::transform(m_images, [this](const Image &image) -> QString {
+        return "ed " + hexAddress(image.threadIdAddress) + " 0n" + m_threadId;
+    });
+}
+
+QStringList JustMyCode::disarmCommands() const
+{
+    return Utils::transform(m_images, [](const Image &image) -> QString {
+        return "ed " + hexAddress(image.threadIdAddress) + " 0";
+    });
+}
+
+bool JustMyCode::isStepBreakpoint(const QString &id) const
+{
+    return std::any_of(m_images.cbegin(), m_images.cend(),
+                       [&id](const Image &image) { return image.breakpointId == id; });
+}
+
+// True if a stop belongs to the step, and is not something else that
+// interrupted it: an exception, or a breakpoint the engine or the user set.
+// cdb gives the ones it sets for itself, such as the one on the return address
+// of a step out, ids below those.
+bool JustMyCode::isStepStop(const GdbMi &stopData) const
+{
+    const QString reason = stopData["reason"].data();
+    if (reason == "exception")
+        return false;
+    if (reason != "breakpoint")
+        return true;
+    const QString id = stopData["breakpointId"].data();
+    return isStepBreakpoint(id) || id.toInt() < cdbInternalBreakPointStartId;
+}
+
+// What to do at a stop of a step: keep going, or leave it at that.
+JustMyCode::Next JustMyCode::next(const GdbMi &stopData, bool stepInto,
+                                  const IsUserFile &isUserFile) const
+{
+    if (!isStepStop(stopData))
+        return Next::Stop;
+    if (stopData["reason"].data() == "breakpoint"
+        && isStepBreakpoint(stopData["breakpointId"].data())) {
+        // In the helper, which a function of the user called on entry.
+        return Next::ReturnFromHelper;
+    }
+    const GdbMi stack = stopData["stack"];
+    if (stepInto) {
+        if (stepIntoLanding(stopData, isUserFile) == StepIntoLanding::OnThunk)
+            return Next::StepAgain;
+        // Back from a call out of the user's code, with the rest of the line to go.
+        if (isOnStartLine(stack))
+            return Next::StepAgain;
+    }
+    return leavesForUserCode(stack, isUserFile) ? Next::StepOut : Next::Stop;
+}
+
+bool JustMyCode::isOnStartLine(const GdbMi &stack) const
+{
+    if (stack.childCount() != m_startDepth || stack.childCount() == 0 || !m_startFrame.isValid())
+        return false;
+    const GdbMi &top = stack.childAt(0);
+    for (const char *field : {"function", "from", "fullname", "line"}) {
+        if (top[field].data() != m_startFrame[field].data())
+            return false;
+    }
+    return true;
+}
+
+// Drops what is known about an image that was unloaded. The breakpoint on its
+// nop is left for the engine to clear, see takeForgottenBreakpointIds().
+void JustMyCode::forget(quint64 base)
+{
+    for (auto it = m_images.begin(); it != m_images.end(); ++it) {
+        if (it->base == base) {
+            m_forgottenBreakpointIds.append(it->breakpointId);
+            m_images.erase(it);
+            return;
+        }
+    }
+}
+
+QStringList JustMyCode::takeForgottenBreakpointIds()
+{
+    return std::exchange(m_forgottenBreakpointIds, {});
+}
+
+// True if a step ended outside the code of the user, with code of the user
+// further up the stack to return to.
+bool JustMyCode::leavesForUserCode(const GdbMi &stack, const IsUserFile &isUserFile)
+{
+    if (stack.childCount() == 0 || isUserFile(stack.childAt(0)["fullname"].data()))
+        return false;
+    return std::any_of(std::next(stack.begin()), stack.end(), [&](const GdbMi &frame) {
+        return isUserFile(frame["fullname"].data());
+    });
+}
+
 // True if the frame the inferior stopped in was called straight from the QML
 // interpreter through the metacall machinery, with no user C++ frame in between.
 // Stepping out of it returns to the QML caller.
@@ -3779,6 +3987,8 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         ensureStackBitness([this, stopData] { reportStop(stopData); });
         return;
     }
+    if (continueJustMyCodeStep(stopData))
+        return;
     if (m_sourceStepInto) {
         const StepIntoLanding landing = stepIntoLanding(stopData, [this](const QString &file) {
             return FilePath::fromUserInput(mappedFromDebugger(file, sourcePathMap()))
@@ -3863,6 +4073,148 @@ void CdbImpl::reportStop(const GdbMi &stopData)
     m_expectSpontaneousStop = false;
     if (const std::optional<QString> exception = stoppedByException(stopData))
         emit signalReceived({}, *exception);
+}
+
+bool CdbImpl::isJustMyCodeUserFile(const QString &debuggerFile) const
+{
+    return Internal::isJustMyCodeUserFile(
+        FilePath::fromUserInput(mappedFromDebugger(debuggerFile, sourcePathMap())),
+        m_startData.projectDirectory);
+}
+
+bool CdbImpl::stepsWithJustMyCode() const
+{
+    return m_startData.justMyCode && !m_justMyCodeUnsupported;
+}
+
+// Sets up the images built with /JMC that are new since the last step. A step
+// that does not start in one of them is a plain one.
+void CdbImpl::stepWithJustMyCode(const QString &command, bool stepInto)
+{
+    DebuggerCommand query("jmc", ExtensionCommand);
+    const QString knownImages = m_justMyCode.queryArguments();
+    if (!knownImages.isEmpty())
+        query.args = knownImages;
+    const int queryId = ++m_lastJustMyCodeQuery;
+    m_pendingJustMyCodeQuery = queryId;
+    struct Reply
+    {
+        bool answered = false;
+        bool instrumented = false;
+    };
+    const auto reply = std::make_shared<Reply>();
+    query.callback = [this, reply](const DebuggerResponse &response) {
+        reply->answered = true;
+        if (response.resultClass != ResultDone)
+            return;
+        const QStringList setup = m_justMyCode.adopt(
+            response.data,
+            [this](const QString &file) { return isJustMyCodeUserFile(file); },
+            [this] {
+                const QString id = nextBreakpointId();
+                m_internalBreakpointIds.insert(id);
+                return id;
+            });
+        for (const QString &setupCommand : setup)
+            runCommand({setupCommand, NoFlags});
+        reply->instrumented = m_justMyCode.isCurrentImageInstrumented();
+    };
+    runCommand(query);
+    const int queryToken = m_nextCommandToken;
+    // An extension without the command leaves it unanswered. cdb runs the
+    // commands in turn, so any answer has come by the time this one ends.
+    DebuggerCommand step(".echo", BuiltinCommand);
+    step.callback = [this, command, stepInto, queryId, queryToken, reply](
+                        const DebuggerResponse &) {
+        if (!reply->answered) {
+            m_commandForToken.remove(queryToken);
+            restartWatchdog();
+            m_justMyCodeUnsupported = true;
+            emit message(Tr::tr("The debugger extension does not support "
+                                "Just My Code stepping."),
+                         LogWarning);
+        }
+        const bool instrumented = reply->instrumented;
+        // An interrupt while the query ran reported the step as stopped already.
+        if (m_pendingJustMyCodeQuery != queryId || m_shuttingDown)
+            return;
+        m_pendingJustMyCodeQuery = 0;
+        m_inferiorRunning = true;
+        if (!instrumented) {
+            m_sourceStepInto = stepInto;
+            m_thunkStepsTaken = 0;
+            runCommand({command, NoFlags});
+            return;
+        }
+        m_justMyCodeStepping = true;
+        m_justMyCodeStepInto = stepInto;
+        setJustMyCodeArmed(stepInto);
+        runCommand({command, NoFlags});
+    };
+    runCommand(step);
+}
+
+void CdbImpl::setJustMyCodeArmed(bool armed)
+{
+    if (m_justMyCodeArmed == armed)
+        return;
+    m_justMyCodeArmed = armed;
+    const QStringList commands = armed ? m_justMyCode.armCommands()
+                                       : m_justMyCode.disarmCommands();
+    for (const QString &command : commands)
+        runCommand({command, NoFlags});
+}
+
+// Keeps a Just My Code step going until it arrives in code of the user, or
+// something else stops it.
+bool CdbImpl::continueJustMyCodeStep(const GdbMi &stopData)
+{
+    if (!m_justMyCodeStepping)
+        return false;
+    const auto isUserFile = [this](const QString &file) { return isJustMyCodeUserFile(file); };
+    switch (m_justMyCode.next(stopData, m_justMyCodeStepInto, isUserFile)) {
+    case JustMyCode::Next::ReturnFromHelper:
+        m_inferiorRunning = true;
+        runCommand({"gu", NoFlags});
+        return true;
+    case JustMyCode::Next::StepOut:
+        emit message("Just My Code: Stepping out to user code...", LogMisc);
+        setJustMyCodeArmed(true);
+        m_inferiorRunning = true;
+        runCommand({"gu", NoFlags});
+        return true;
+    case JustMyCode::Next::StepAgain:
+        m_inferiorRunning = true;
+        runCommand({"t", NoFlags});
+        return true;
+    case JustMyCode::Next::Stop:
+        break;
+    }
+    endJustMyCodeStep();
+    return false;
+}
+
+void CdbImpl::endJustMyCodeStep()
+{
+    m_justMyCodeStepping = false;
+    setJustMyCodeArmed(false);
+}
+
+// Clears the breakpoints on the nops of images that were unloaded, and ends a
+// step that something else stopped. The engine resumes from some of those
+// stops on its own, which must not leave the thread armed. A break-in of the
+// engine's own is not one of them: the step goes on after it, and the
+// breakpoints on the nops still end it.
+void CdbImpl::updateJustMyCodeAtStop(const GdbMi &stopData, bool ownBreakIn)
+{
+    const QStringList forgotten = m_justMyCode.takeForgottenBreakpointIds();
+    if (!forgotten.isEmpty()) {
+        runCommand({"bc " + forgotten.join(' '), NoFlags});
+        for (const QString &id : forgotten)
+            m_internalBreakpointIds.remove(id);
+    }
+    if (m_justMyCodeStepping && !ownBreakIn && !m_justMyCode.isStepStop(stopData))
+        endJustMyCodeStep();
 }
 
 void CdbImpl::adjustOperateByInstruction(bool operateByInstruction)

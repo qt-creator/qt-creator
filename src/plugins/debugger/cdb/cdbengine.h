@@ -85,6 +85,12 @@ private:
     void processDone();
     void runCommand(const DebuggerCommand &cmd);
     void adjustOperateByInstruction(bool);
+    bool isJustMyCodeUserFile(const QString &debuggerFile) const;
+    bool stepsWithJustMyCode() const;
+    void stepWithJustMyCode(const QString &command, bool stepInto);
+    void setJustMyCodeArmed(bool armed);
+    bool continueJustMyCodeStep(const GdbMi &stopReason);
+    QString nextInternalBreakpointId();
 
     void createFullBacktrace();
 
@@ -221,6 +227,12 @@ private:
     Utils::FilePath m_environmentScriptFile;
     QString m_extensionMessageBuffer;
     bool m_sourceStepInto = false;
+    JustMyCode m_justMyCode;
+    bool m_justMyCodeStepping = false;
+    bool m_justMyCodeStepInto = false;
+    bool m_justMyCodeArmed = false;
+    bool m_justMyCodeUnsupported = false;
+    int m_nextInternalBreakpointId = 0;
     QSet<Breakpoint> m_pendingBreakpointMap;
     bool m_autoBreakPointCorrection = false;
     QMultiHash<QString, quint64> m_symbolAddressCache;

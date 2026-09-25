@@ -28,7 +28,8 @@ QString cdbSourcePathMapping(QString fileName,
 
 // Ensure unique 'namespace' for breakpoints of the breakhandler.
 enum { cdbBreakPointStartId = 100000,
-       cdbBreakPointIdMinorPart = 100};
+       cdbBreakPointIdMinorPart = 100,
+       cdbInternalBreakPointStartId = 80000};
 
 QString breakPointCdbId(const Breakpoint &bp);
 

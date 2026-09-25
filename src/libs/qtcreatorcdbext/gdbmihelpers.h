@@ -151,3 +151,13 @@ bool evaluateExpression(CIDebugControl *control, const std::string expression,
 
 bool evaluateInt64Expression(CIDebugControl *control, const std::string expression,
                              LONG64 *, std::string *errorMessage);
+
+// Describe the images built with /JMC that are not in knownBases.
+std::string gdbmiJustMyCode(CIDebugSymbols *symbols, CIDebugControl *control,
+                            CIDebugDataSpaces *dataSpaces,
+                            CIDebugSystemObjects *systemObjects,
+                            CIDebugRegisters *registers,
+                            const std::vector<ULONG64> &knownBases,
+                            std::string *errorMessage);
+// Makes gdbmiJustMyCode() look at the image at base again.
+void justMyCodeImageChanged(ULONG64 base);

@@ -91,7 +91,8 @@ enum Command {
     CmdBreakPoints,
     CmdTest,
     CmdSetParameter,
-    CmdScript
+    CmdScript,
+    CmdJustMyCode
 };
 
 static const CommandDescription commandDescriptions[] = {
@@ -158,7 +159,8 @@ static const CommandDescription commandDescriptions[] = {
 {"test","Testing command","-T type | -w watch-expression"},
 {"setparameter","Set parameter",
  "maxStringLength=value maxArraySize=value maxStackDepth=value stateNotification=1,0"},
-{"script", "Run Python command", "[-t token]"}
+{"script", "Run Python command", "[-t token]"},
+{"jmc", "Describes the images built with /JMC in GDBMI format.", "[-t token] [known-base...]"}
 };
 
 typedef std::vector<std::string> StringVector;
@@ -1017,6 +1019,35 @@ extern "C" HRESULT CALLBACK modules(CIDebugClient *Client, PCSTR argsIn)
         ExtensionContext::instance().report('N', token, 0, "modules", errorMessage.c_str());
     else
         ExtensionContext::instance().reportLong('R', token, "modules", modules);
+    return S_OK;
+}
+
+// Extension command 'jmc':
+// Describe the images built with /JMC that are not among the given base addresses.
+
+extern "C" HRESULT CALLBACK jmc(CIDebugClient *client, PCSTR argsIn)
+{
+    ExtensionCommandContext exc(client);
+    std::string errorMessage;
+
+    int token;
+    const StringList tokens = commandTokens<StringList>(argsIn, &token);
+    if (token == 0) // partial message
+        return S_OK;
+
+    std::vector<ULONG64> knownBases;
+    for (const std::string &base : tokens) {
+        ULONG64 value = 0;
+        if (integerFromString(base, &value))
+            knownBases.push_back(value);
+    }
+    const std::string images = gdbmiJustMyCode(exc.symbols(), exc.control(), exc.dataSpaces(),
+                                               exc.systemObjects(), exc.registers(), knownBases,
+                                               &errorMessage);
+    if (images.empty())
+        ExtensionContext::instance().report('N', token, 0, "jmc", errorMessage.c_str());
+    else
+        ExtensionContext::instance().reportLong('R', token, "jmc", images);
     return S_OK;
 }
 
