@@ -869,6 +869,12 @@ static TargetDetails extractTargetDetails
         });
     }
     {
+        const QJsonArray interfaceSources = root.value("interfaceSources").toArray();
+        t.interfaceSources = transform<FilePaths>(interfaceSources, [replyDir](const QJsonValue &v) {
+            return replyDir.withNewPath(v.toObject().value("path").toString());
+        });
+    }
+    {
         const QJsonArray sourceGroups = root.value("sourceGroups").toArray();
         t.sourceGroups = transform<std::vector>(sourceGroups, [](const QJsonValue &v) {
             const QJsonObject o = v.toObject();
@@ -1248,6 +1254,8 @@ FileApiData FileApiParser::parseData(const QFuture<void> &future,
     QStringList pendingIds;
     for (const TargetDetails &t : result.targetDetails) {
         for (const DependencyInfo &d : t.linkLibraries)
+            pendingIds.append(d.targetId);
+        for (const DependencyInfo &d : t.interfaceLinkLibraries)
             pendingIds.append(d.targetId);
     }
     QSet<QString> seenIds;

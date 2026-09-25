@@ -970,7 +970,8 @@ static void addCompileGroups(ProjectNode *targetRoot,
                              const FilePath &sourceDirectory,
                              const FilePath &buildDirectory,
                              const TargetDetails &td,
-                             const QHash<FilePath, FilePaths> &projectHeaders)
+                             const QHash<FilePath, FilePaths> &projectHeaders,
+                             const QSet<FilePath> &interfaceSources)
 {
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
 
@@ -981,6 +982,7 @@ static void addCompileGroups(ProjectNode *targetRoot,
         [&alreadyListed](const Node *n) { alreadyListed.insert(n->filePath()); });
 
     std::vector<std::unique_ptr<FileNode>> buildFileNodes;
+    std::vector<std::unique_ptr<FileNode>> interfaceFileNodes;
     std::vector<std::unique_ptr<FileNode>> otherFileNodes;
     std::vector<std::vector<std::unique_ptr<FileNode>>> sourceGroupFileNodes{td.sourceGroups.size()};
 
@@ -1031,6 +1033,8 @@ static void addCompileGroups(ProjectNode *targetRoot,
             buildFileNodes.emplace_back(std::move(node));
         } else if (!showSourceFolders || sourcePath.isChildOf(sourceDirectory)) {
             sourceGroupFileNodes[si.sourceGroup].emplace_back(std::move(node));
+        } else if (interfaceSources.contains(sourcePath)) {
+            interfaceFileNodes.emplace_back(std::move(node));
         } else {
             otherFileNodes.emplace_back(std::move(node));
         }
@@ -1064,6 +1068,11 @@ static void addCompileGroups(ProjectNode *targetRoot,
                     100,
                     Tr::tr("<Build Directory>"),
                     std::move(buildFileNodes));
+    addCMakeVFolder(targetRoot,
+                    topSourceDirectory,
+                    50,
+                    Tr::tr("<Interfaces>"),
+                    std::move(interfaceFileNodes));
     addCMakeVFolder(targetRoot,
                     FilePath(),
                     10,
@@ -1100,12 +1109,101 @@ static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLe
     addCMakeVFolder(targetRoot, buildDir, 10, Tr::tr("<Generated Files>"), std::move(nodes));
 }
 
+// The interface sources a target gets from what it links to, directly or through the
+// interface link libraries of those.
+static QSet<FilePath> linkedInterfaceSources(
+    const TargetDetails &t,
+    const FilePath &sourceDirectory,
+    const QHash<QString, const TargetDetails *> &dependencyById)
+{
+    QSet<FilePath> sources;
+    QSet<QString> seenIds;
+    QStringList pendingIds;
+    for (const DependencyInfo &d : t.linkLibraries)
+        pendingIds.append(d.targetId);
+
+    while (!pendingIds.isEmpty()) {
+        const QString id = pendingIds.takeLast();
+        if (!Utils::insert(seenIds, id))
+            continue;
+        const TargetDetails *dependency = dependencyById.value(id);
+        if (!dependency)
+            continue;
+        for (const DependencyInfo &d : dependency->interfaceLinkLibraries)
+            pendingIds.append(d.targetId);
+        for (const FilePath &path : dependency->interfaceSources) {
+            const FilePath sourcePath = sourceDirectory.resolvePath(path);
+            if (sourcePath.isChildOf(sourceDirectory))
+                sources.insert(sourcePath);
+        }
+    }
+    return sources;
+}
+
+#ifdef WITH_TESTS
+class LinkedInterfaceSourcesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        const FilePath sourceDirectory = "/s";
+
+        TargetDetails common;
+        common.id = "Common::@0";
+        common.type = "INTERFACE_LIBRARY";
+        common.interfaceSources = {"common/common.h", "/elsewhere/external.h"};
+
+        TargetDetails library;
+        library.id = "Library::@0";
+        library.type = "STATIC_LIBRARY";
+        library.interfaceSources = {"library/library.h"};
+        library.interfaceLinkLibraries = {{"Common::@0", -1}};
+        // A cycle must not send the walk in circles.
+        common.interfaceLinkLibraries = {{"Library::@0", -1}};
+
+        TargetDetails unrelated;
+        unrelated.id = "Unrelated::@0";
+        unrelated.type = "INTERFACE_LIBRARY";
+        unrelated.interfaceSources = {"unrelated/unrelated.h"};
+
+        const QHash<QString, const TargetDetails *> dependencyById{
+            {common.id, &common}, {library.id, &library}, {unrelated.id, &unrelated}};
+
+        TargetDetails app;
+        app.id = "App::@0";
+        app.type = "EXECUTABLE";
+        app.linkLibraries = {{"Library::@0", -1}};
+
+        QCOMPARE(linkedInterfaceSources(app, sourceDirectory, dependencyById),
+                 (QSet<FilePath>{"/s/library/library.h", "/s/common/common.h"}));
+
+        // A target does not get the interface sources of what it does not link to,
+        // nor its own ones.
+        TargetDetails standalone;
+        standalone.id = "Standalone::@0";
+        standalone.type = "EXECUTABLE";
+        standalone.interfaceSources = {"unrelated/unrelated.h"};
+
+        QCOMPARE(linkedInterfaceSources(standalone, sourceDirectory, dependencyById),
+                 QSet<FilePath>());
+    }
+};
+
+QObject *createLinkedInterfaceSourcesTest()
+{
+    return new LinkedInterfaceSourcesTest;
+}
+#endif
+
 static void addTargets(
     FolderNode *root,
     const QFuture<void> &cancelFuture,
     const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
     const ConfigurationInfo &config,
     const std::vector<TargetDetails> &targetDetails,
+    const std::vector<TargetDetails> &importedTargetDetails,
     const FilePath &sourceDir,
     const FilePath &buildDir,
     const QList<CMakeBuildTarget> &generatedBuildTargets,
@@ -1114,6 +1212,10 @@ static void addTargets(
     QHash<QString, const TargetDetails *> targetDetailsHash;
     for (const TargetDetails &t : targetDetails)
         targetDetailsHash.insert(t.id, &t);
+    // An INTERFACE library without build rules is reported as an abstract target.
+    QHash<QString, const TargetDetails *> dependencyById = targetDetailsHash;
+    for (const TargetDetails &t : importedTargetDetails)
+        dependencyById.insert(t.id, &t);
     const TargetDetails defaultTargetDetails;
     auto getTargetDetails = [&targetDetailsHash,
                              &defaultTargetDetails](const QString &id) -> const TargetDetails & {
@@ -1176,7 +1278,13 @@ static void addTargets(
         tNode->setTargetInformation(td.artifacts, td.type);
         tNode->setBuildDirectory(directoryBuildDir(config, buildDir, t.directory));
 
-        addCompileGroups(tNode, sourceDir, dir, tNode->buildDirectory(), td, projectHeaders);
+        addCompileGroups(tNode,
+                         sourceDir,
+                         dir,
+                         tNode->buildDirectory(),
+                         td,
+                         projectHeaders,
+                         linkedInterfaceSources(td, sourceDir, dependencyById));
         addGeneratedFilesNode(tNode, buildDir, td);
     }
 }
@@ -1212,6 +1320,7 @@ static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
                cmakeListsNodes,
                data.codemodel,
                data.targetDetails,
+               data.importedTargetDetails,
                sourceDirectory,
                buildDirectory,
                generatedBuildTargets,
