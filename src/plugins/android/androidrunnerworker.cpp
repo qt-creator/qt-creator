@@ -330,7 +330,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
         if (result == DoneWith::Success) {
             storage->m_afterFinishAdbCommands.push_back("forward --remove " + port);
         } else {
-            //: %1 = QML/JDB/C++
+            //: %1 = QML/Java
             emit storage->m_glue->finished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
         }
     };
@@ -458,11 +458,11 @@ static ExecutableItem jdwpReleaseRecipe(const Storage<RunnerStorage> &storage,
 // pidRecipe ends so stopOnSuccessOrError doesn't cancel the app early.
 static ExecutableItem jdbMonitorRecipe(const Storage<RunnerStorage> &storage)
 {
-    const QStoredBarrier startJdbBarrier;
-    const QStoredBarrier settledJdbBarrier;
+    const QStoredBarrier startDebugBarrier;
+    const QStoredBarrier settledDebugBarrier;
     const QStoredBarrier keepAliveBarrier;
 
-    const auto onSetup = [storage, startJdbBarrier, settledJdbBarrier] {
+    const auto onSetup = [storage, startDebugBarrier, settledDebugBarrier] {
         if (!storage->m_useCppDebugger)
             return;
         // The barriers are advanced from inside this tree's own handlers: a
@@ -474,8 +474,8 @@ static ExecutableItem jdbMonitorRecipe(const Storage<RunnerStorage> &storage)
             };
         };
         auto matcher = std::make_shared<JdbHandshakeMatcher>();
-        matcher->onWaitChunk = queuedAdvance(startJdbBarrier.activeStorage());
-        matcher->onSettled = queuedAdvance(settledJdbBarrier.activeStorage());
+        matcher->onWaitChunk = queuedAdvance(startDebugBarrier.activeStorage());
+        matcher->onSettled = queuedAdvance(settledDebugBarrier.activeStorage());
         storage->m_jdbMatcher = matcher;
         monitorLogcat(storage->m_glue->runControl(), [matcher](qint64 pid, const QString &line) {
             matcher->observe(pid, line);
@@ -485,14 +485,14 @@ static ExecutableItem jdbMonitorRecipe(const Storage<RunnerStorage> &storage)
 
     return Group {
         parallel,
-        startJdbBarrier,
-        settledJdbBarrier,
+        startDebugBarrier,
+        settledDebugBarrier,
         keepAliveBarrier,
         onGroupSetup(onSetup),
         onGroupDone(onDone),
         barrierAwaiterTask(keepAliveBarrier),
         // A failed handshake must not cancel pidRecipe: that force-stops the app.
-        (jdwpReleaseRecipe(storage, startJdbBarrier, settledJdbBarrier) || successItem)
+        (jdwpReleaseRecipe(storage, startDebugBarrier, settledDebugBarrier) || successItem)
     };
 }
 
