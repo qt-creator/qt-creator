@@ -201,6 +201,7 @@ private:
     void settleStackBitness(Wow64State state);
     void syncExceptionEvents();
     void interruptInferior();
+    QString executableModule() const;
     void insertMainBreakpoint();
     void insertCrtDebugReportBreakpoints();
     void resumeAfterSetup();
@@ -296,6 +297,7 @@ private:
     bool m_nativeMethodBodyHopPending = false;
     int m_thunkStepsTaken = 0;
     bool m_inferiorRunning = false;
+    bool m_stopAnnounced = false;
     bool m_interruptRequested = false;
     bool m_inferiorExited = false;
     bool m_shuttingDown = false;

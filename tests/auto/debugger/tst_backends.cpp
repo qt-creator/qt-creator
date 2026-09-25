@@ -4547,6 +4547,16 @@ void tst_backends::initTestCase()
         m_backendData[Backend::Pdb].inferiorData.alienBreakpointDeleteCommand = "clear %1";
     }
 
+    const QStringList selected = qtcEnvironmentVariable("QTC_BACKENDS_FOR_TEST")
+                                     .split(',', Qt::SkipEmptyParts);
+    if (!selected.isEmpty()) {
+        const QList<Backend> backends = m_backendData.keys();
+        for (Backend backend : backends) {
+            if (!selected.contains(backendName(backend)))
+                m_backendData.remove(backend);
+        }
+    }
+
     warmUpBackends();
 }
 
@@ -5754,9 +5764,12 @@ void tst_backends::reportsSourceLinesInTheDisassembly()
 
     int sourceLines = 0;
     bool sawSource = false;
+    QStringList seen;
     for (const DisassemblerLine &line : disassembly.data()) {
-        if (line.isCode())
+        if (line.isCode()) {
             ++sourceLines;
+            seen.append(QString::number(line.lineNumber + 1) + ": " + line.data.trimmed());
+        }
         if (line.data.contains(testData.disassemblySourceMarker))
             sawSource = true;
     }
@@ -5764,9 +5777,9 @@ void tst_backends::reportsSourceLinesInTheDisassembly()
                                                  "out of %1 lines it came back with")
                                              .arg(disassembly.data().size())));
     QVERIFY2(sawSource, qPrintable(QString("none of the %1 source lines the disassembly names "
-                                           "contains \"%2\"")
+                                           "contains \"%2\": %3")
                                        .arg(sourceLines)
-                                       .arg(testData.disassemblySourceMarker)));
+                                       .arg(testData.disassemblySourceMarker, seen.join(" | "))));
 }
 
 void tst_backends::testJumpToLineCapability()
@@ -10917,13 +10930,15 @@ void tst_backends::reportsTheKindOfARegister()
     // A register the view cannot classify loses the reinterpretations of its
     // value that the register view offers below it. Only the pointer-wide
     // members of the general group are looked at, the narrower ones there are
-    // the flag and segment registers, which are not integers. A backend that
-    // names no groups reports only the general ones to begin with.
+    // the flag and segment registers, which are not integers. Where a backend
+    // names no groups, what it calls a vector is left out instead.
     int seen = 0;
     QStringList unclassified;
     for (const GdbMi &item : responses.value(int(RefreshKind::Registers))) {
         const QStringList groups = item["groups"].data().split(',', Qt::SkipEmptyParts);
         if (!groups.isEmpty() && !groups.contains("general"))
+            continue;
+        if (groups.isEmpty() && item["type"].data().contains("vec"))
             continue;
         if (item["size"].toInt() != 8)
             continue;
@@ -21483,7 +21498,8 @@ void tst_backends::watchesDataThroughADapAdapter()
     QVERIFY(!adapter.argumentsOf("dataBreakpointInfo", 1).value("asAddress").toBool());
 
     // The one it will not watch is not in the array either, and the one it will
-    // still is.
+    // still is. The array goes out after the refusal is answered.
+    QTRY_VERIFY_WITH_TIMEOUT(!adapter.argumentsOf("setDataBreakpoints", 1).isEmpty(), s_timeout);
     const QJsonArray resent = adapter.argumentsOf("setDataBreakpoints", 1)
                                   .value("breakpoints").toArray();
     QCOMPARE(resent.size(), 1);

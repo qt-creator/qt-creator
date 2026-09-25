@@ -271,16 +271,15 @@ static DebuggerEngineSetupData cdbImplSetupData()
 {
     DebuggerEngineSetupData data;
     // A dump has no thread to run, so only what can be read off it is left.
-    const unsigned coreCaps = AddWatcherCapability
+    const unsigned coreCaps = AdditionalQmlStackCapability
+                            | AddWatcherCapability
                             | CreateFullBacktraceCapability
                             | DisassemblerCapability
                             | OperateByInstructionCapability
                             | RegisterCapability
                             | ShowMemoryCapability;
-    // The QML stack is reconstructed from data the dump carries, not from a
-    // running thread, so a core session offers it just as a live one does.
-    data.attachToCoreCapabilities = coreCaps | AdditionalQmlStackCapability;
-    data.capabilities = data.attachToCoreCapabilities
+    data.attachToCoreCapabilities = coreCaps;
+    data.capabilities = coreCaps
                       | BreakConditionCapability
                       | BreakIndividualLocationsCapability
                       | BreakModuleCapability
@@ -990,14 +989,9 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
     }
     BreakpointParameters fixed
         = scopedToModule(fixedBreakpointParameters(params), m_startData.moduleForSourceFile);
-    // cdb cannot resolve an unqualified "main"; name the module the entry point
-    // is in, the way the break-on-main start option does.
-    if (params.type == BreakpointAtMain && fixed.module.isEmpty()
-            && std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
-        const QString fileName = std::get<ProcessRunData>(m_startData.inferiorStartData)
-                                     .command.executable().fileName();
-        fixed.module = fileName.left(fileName.indexOf('.'));
-    }
+    // Another module can have a main() of its own.
+    if (params.type == BreakpointAtMain && fixed.module.isEmpty())
+        fixed.module = executableModule();
     if (fixed.type == BreakpointByFunction && !fixed.oneShot) {
         insertFunctionBreakpoint(requestId, id, fixed, report);
         return;
@@ -1309,48 +1303,107 @@ void CdbImpl::setResolvedFunctionBreakpoints(quint64 requestId, const QString &i
                              params.functionName, locations, report);
 }
 
+// The function "ln" names the nearest symbol at or before an address with, as in
+// "(00007ff7`be868130)   inferior!bump+0xee   |  (00007ff7`be868230)   inferior!next".
+static QString functionFromNearSymbols(const QString &reply)
+{
+    for (const QString &line : reply.split('\n')) {
+        if (!line.startsWith('('))
+            continue;
+        const int addressEnd = line.indexOf(')');
+        if (addressEnd == -1)
+            continue;
+        QString symbol = line.mid(addressEnd + 1).trimmed();
+        symbol.truncate(symbol.indexOf(' ') == -1 ? symbol.size() : symbol.indexOf(' '));
+        const int offset = symbol.lastIndexOf("+0x");
+        if (offset > 0)
+            symbol.truncate(offset);
+        return symbol.mid(symbol.indexOf('!') + 1);
+    }
+    return {};
+}
+
 void CdbImpl::reportBreakpointInserted(quint64 requestId, const QString &id, bool enabled,
                                        const QString &file, int line, const QString &function,
                                        const GdbMi &locations, bool report)
 {
     if (!report)
         return;
-    GdbMi bkpt;
-    bkpt.m_type = GdbMi::Tuple;
-    bkpt.addChild(constMi("number", id));
-    bkpt.addChild(constMi("enabled", QLatin1String(enabled ? "y" : "n")));
-    if (!file.isEmpty()) {
-        bkpt.addChild(constMi("file", file));
-        bkpt.addChild(constMi("line", QString::number(line)));
+    const auto emitInserted = [this, requestId, id, enabled, file, line, function,
+                               locations](const GdbMi &resolved, const QString &resolvedFunction) {
+        GdbMi bkpt;
+        bkpt.m_type = GdbMi::Tuple;
+        bkpt.addChild(constMi("number", id));
+        bkpt.addChild(constMi("enabled", QLatin1String(enabled ? "y" : "n")));
+        if (!file.isEmpty()) {
+            bkpt.addChild(constMi("file", file));
+            bkpt.addChild(constMi("line", QString::number(line)));
+        }
+        const QString func = function.isEmpty() ? resolvedFunction : function;
+        if (!func.isEmpty())
+            bkpt.addChild(constMi("func", func));
+        // cdb has no catchpoint of its own; it stands in for one with a breakpoint on
+        // the function behind the event, so the view is told what it really catches.
+        if (m_insertedBreakpoints.value(id).type == BreakpointAtExec)
+            bkpt.addChild(constMi("catch-type", "exec"));
+        // cdb does not echo the thread a breakpoint is restricted to; the one the
+        // insert was asked for stands in for it, so a thread specific breakpoint is
+        // reported the same way gdb reports one.
+        if (const int threadSpec = m_insertedBreakpoints.value(id).threadSpec; threadSpec >= 0)
+            bkpt.addChild(constMi("thread", QString::number(threadSpec)));
+        if (resolved["addr"].isValid())
+            bkpt.addChild(resolved["addr"]);
+        if (resolved["module"].isValid())
+            bkpt.addChild(resolved["module"]);
+        if (locations.childCount() > 0)
+            bkpt.addChild(locations);
+        GdbMi list;
+        list.m_type = GdbMi::List;
+        list.addChild(bkpt);
+        emit breakpointEvent(requestId, BreakpointOp::Insert, true, list);
+    };
+    if (locations.childCount() > 0 || (file.isEmpty() && function.isEmpty())) {
+        emitInserted({}, {});
+        return;
     }
-    if (!function.isEmpty())
-        bkpt.addChild(constMi("func", function));
-    // cdb has no catchpoint of its own; it stands in for one with a breakpoint on
-    // the function behind the event, so the view is told what it really catches.
-    if (m_insertedBreakpoints.value(id).type == BreakpointAtExec)
-        bkpt.addChild(constMi("catch-type", "exec"));
-    // cdb does not echo the thread a breakpoint is restricted to; the one the
-    // insert was asked for stands in for it, so a thread specific breakpoint is
-    // reported the same way gdb reports one.
-    if (const int threadSpec = m_insertedBreakpoints.value(id).threadSpec; threadSpec >= 0)
-        bkpt.addChild(constMi("thread", QString::number(threadSpec)));
-    if (locations.childCount() > 0)
-        bkpt.addChild(locations);
-    GdbMi list;
-    list.m_type = GdbMi::List;
-    list.addChild(bkpt);
-    emit breakpointEvent(requestId, BreakpointOp::Insert, true, list);
     // Where cdb put the breakpoint is not part of what it answers an insert with, and
     // for one in a module that is not loaded yet there is nothing to answer at all.
-    // Ask again at the next stop, until it has an address.
-    if (locations.childCount() == 0 && !(file.isEmpty() && function.isEmpty())) {
-        m_unresolvedBreakpointIds.insert(id);
-        // A breakpoint set while the session is accessible already has an address;
-        // ask for it now the way CdbEngine does after every insert, so the view
-        // fills the column without waiting for the next stop.
-        if (m_accessible)
-            listBreakpoints();
-    }
+    // Ask for it now, and again at the next stop until it has an address.
+    m_unresolvedBreakpointIds.insert(id);
+    DebuggerCommand cmd("breakpoints", ExtensionCommand);
+    cmd.args = "-v";
+    cmd.callback = [this, id, emitInserted](const DebuggerResponse &response) {
+        GdbMi resolved;
+        if (response.resultClass == ResultDone) {
+            const GdbMi list = resolvedBreakpointUpdates(response.data,
+                                                         &m_unresolvedBreakpointIds,
+                                                         sourcePathMap(),
+                                                         m_conditionForBreakpointId);
+            for (const GdbMi &one : list) {
+                if (one["number"].data() == id)
+                    resolved = one;
+            }
+            // Others that resolved on the way are due an update of their own.
+            GdbMi others;
+            others.m_type = GdbMi::List;
+            for (const GdbMi &one : list) {
+                if (one["number"].data() != id)
+                    others.addChild(one);
+            }
+            if (others.childCount() > 0)
+                emit breakpointModified(others);
+        }
+        const QString address = resolved["addr"].data();
+        if (address.isEmpty()) {
+            emitInserted(resolved, {});
+            return;
+        }
+        runCommand({"ln " + address, BuiltinCommand,
+                   [emitInserted, resolved](const DebuggerResponse &nearSymbols) {
+            emitInserted(resolved, functionFromNearSymbols(nearSymbols.data.data()));
+        }});
+    };
+    runCommand(cmd);
 }
 
 // Turns what "breakpoints -v" answers into the update the breakpoint view takes,
@@ -2125,6 +2178,7 @@ void CdbImpl::restartSession()
     m_internalBreakpointIds.clear();
     m_runToBreakpointIds.clear();
     m_breakpointHitCounts.clear();
+    m_stopAnnounced = false;
     m_pythonVersion = 0;
     m_interpreterResolverIds.clear();
     m_interpreterMessageIds.clear();
@@ -2251,17 +2305,23 @@ void CdbImpl::interruptInferior()
 
 // One shot, and qualified by the module the program starts in: an unqualified
 // "main" makes cdb search every module it has symbols for.
+// cdb names a module after its image without the suffix.
+QString CdbImpl::executableModule() const
+{
+    if (!std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData))
+        return {};
+    const QString fileName = std::get<ProcessRunData>(m_startData.inferiorStartData)
+                                 .command.executable().fileName();
+    return fileName.left(fileName.indexOf('.'));
+}
+
 void CdbImpl::insertMainBreakpoint()
 {
     BreakpointParameters params(BreakpointByFunction);
     params.functionName = "main";
     params.oneShot = true;
     params.enabled = true;
-    if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
-        const QString fileName = std::get<ProcessRunData>(m_startData.inferiorStartData)
-                                     .command.executable().fileName();
-        params.module = fileName.left(fileName.indexOf('.'));
-    }
+    params.module = executableModule();
     const QString id = nextBreakpointId();
     m_internalBreakpointIds.insert(id);
     insertBreakpoint(0, id, 0, params, false);
@@ -2640,11 +2700,14 @@ void CdbImpl::refresh(const RefreshRequest &request)
         }});
         return;
     }
-    if (request.kind == RefreshKind::FullStack) {
+    // The QML frames come from a call into the inferior, which a dump cannot run,
+    // so there only the native frames are left.
+    if (request.kind == RefreshKind::FullStack
+        || (request.kind == RefreshKind::QmlStack && isCore())) {
         const quint64 requestId = request.requestId;
         DebuggerCommand cmd("stack", ExtensionCommand,
                            [this, requestId](const DebuggerResponse &response) {
-            if (m_startData.nativeMixed && qmlSpliceIndex(response.data) >= 0) {
+            if (m_startData.nativeMixed && !isCore() && qmlSpliceIndex(response.data) >= 0) {
                 reportSplicedStack(requestId, response.data);
                 return;
             }
@@ -2907,20 +2970,30 @@ void CdbImpl::disassembleFunction(quint64 requestId, quint64 address, const QStr
                          .arg(functionName)
                          .arg(functionAddresses.constFirst(), 0, 16), LogMisc);
     }
-    const quint64 target = address ? address
-                                   : (functionAddresses.isEmpty() ? 0
-                                                                   : functionAddresses.constFirst());
-    if (!target) {
+    const DisassemblyRange range = disassemblyRange(address, functionAddresses);
+    if (range.isEmpty()) {
         emit message(QString("CdbImpl: cannot resolve \"%1\" to disassemble it.")
                          .arg(functionName), LogWarning);
         emit disassemblyReceived(requestId, {});
         return;
     }
-    // "uf" disassembles the whole function the address falls in, where a fixed
-    // window around it would cut a longer one short before its later lines.
-    runCommand({"uf " + hexAddress(target), BuiltinCommand,
-               [this, requestId](const DebuggerResponse &response) {
-        emit disassemblyReceived(requestId, parseCdbDisassembler(response.data.data()));
+    // A window of bytes can end before the function does, "uf" takes all of it.
+    const quint64 start = address ? enclosingFunctionAddress(functionAddresses, address)
+                                  : functionAddresses.value(0);
+    if (!start) {
+        disassemble(requestId, range);
+        return;
+    }
+    runCommand({"uf /o " + hexAddress(start), BuiltinCommand,
+               [this, requestId, range, start, address](const DebuggerResponse &response) {
+        const DisassemblerLines lines = response.resultClass == ResultDone
+                                            ? parseCdbDisassembler(response.data.data())
+                                            : DisassemblerLines();
+        if (!lines.coversAddress(start) || (address && !lines.coversAddress(address))) {
+            disassemble(requestId, range);
+            return;
+        }
+        emit disassemblyReceived(requestId, lines);
     }});
 }
 
@@ -2965,6 +3038,7 @@ void CdbImpl::executeDebuggerCommand(const QString &command,
                                      const WatchItemData &inspectorItem)
 {
     Q_UNUSED(inspectorItem)
+    const bool running = m_inferiorRunning;
     // Tokenized, so that the command counts as one awaiting a reply, and its
     // output is reported the way a plain one would print it.
     runCommand({command, BuiltinCommand, [this](const DebuggerResponse &response) {
@@ -2972,6 +3046,19 @@ void CdbImpl::executeDebuggerCommand(const QString &command,
         if (!output.isEmpty())
             emit message(output, LogMisc);
     }});
+    // A command that resumes the inferior is seen by nobody but this backend, and
+    // unannounced the stop that ends it would be taken for the one before.
+    static const QRegularExpression resumeRe(
+        "^\\s*(~\\S*\\s*)?(g|gh|gn|gu|p|pa|pc|pct|ph|pt|t|ta|tb|tc|tct|th|tt)(\\s|$)");
+    if (!running && !isCore() && resumeRe.match(command).hasMatch()) {
+        m_inInternalStop = false;
+        m_stopReported = false;
+        m_expectStaleStop = false;
+        m_expectSpontaneousStop = true;
+        m_inferiorRunning = true;
+        emit inferiorEvent(InferiorEvent::RunRequested);
+        emit inferiorEvent(InferiorEvent::RunOk);
+    }
 }
 
 void CdbImpl::handleCdbOutputLine(const QString &rawLine)
@@ -3055,6 +3142,7 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
     static const QRegularExpression hitRe("^Breakpoint (\\d+) hit$");
     const QRegularExpressionMatch hit = hitRe.match(line);
     if (hit.hasMatch()) {
+        m_stopAnnounced = true;
         const QString number = hit.captured(1);
         if (m_internalBreakpointIds.contains(number)) {
             emit message(line, LogMisc);
@@ -3064,6 +3152,15 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
         if (m_insertedBreakpoints.value(reportedNumber).oneShot) {
             // cdb takes a one-shot breakpoint back the moment it hits, so the
             // view keeps one the debugger no longer has unless it is told.
+            // It does so only for the one of several locations that was hit.
+            QStringList others;
+            for (const QString &subId : m_parentForSubBreakpointId.keys(reportedNumber)) {
+                if (subId != number)
+                    others.append(subId);
+                m_parentForSubBreakpointId.remove(subId);
+            }
+            if (!others.isEmpty())
+                runCommand({"bc " + others.join(' '), NoFlags});
             m_insertedBreakpoints.remove(reportedNumber);
             m_conditionForBreakpointId.remove(reportedNumber);
             m_breakpointHitCounts.remove(reportedNumber);
@@ -3103,10 +3200,16 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
         emit message(line, LogMisc);
         return;
     }
+    // cdb announces where a run stopped as "module!function+offset:", followed by
+    // the instruction there, before the session goes idle.
+    static const QRegularExpression locationRe("^\\S+!\\S+( \\[.*\\])?:$");
+    if (locationRe.match(line).hasMatch())
+        m_stopAnnounced = true;
     // What cdb relays inline while the inferior runs is the debuggee's own output.
     // Once the session is accessible again cdb has the inferior stopped and is
     // printing its own location banner, which is traffic of ours, not the program's.
-    emit message(line, m_inferiorRunning && !m_accessible ? AppOutput : LogMisc);
+    emit message(line, m_inferiorRunning && !m_accessible && !m_stopAnnounced
+                     ? AppOutput : LogMisc);
 }
 
 // Whatever the Python bridge printed on its way to an answer. That is where a
@@ -3245,6 +3348,7 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
     }
 
     if (what == "session_idle") {
+        m_stopAnnounced = false;
         if (!m_initialSessionIdleHandled) {
             handleInitialSessionIdle();
             return;

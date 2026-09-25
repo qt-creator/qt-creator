@@ -437,6 +437,8 @@ DisassemblerLines parseCdbDisassembler(const QString &a)
             DisassemblerLine disassemblyLine;
             uint sourceLine;
             if (parseCdbDisassemblerLine(line, &disassemblyLine, &sourceLine)) {
+                result.setBytesLength(qMax(result.bytesLength(),
+                                           int(disassemblyLine.bytes.size())));
                 // New source line: Add source code if available.
                 if (sourceLine && sourceLine != lastSourceLine) {
                     lastSourceLine = sourceLine;
