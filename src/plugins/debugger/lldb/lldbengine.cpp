@@ -1319,6 +1319,7 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
         .inferiorStartData = lldbInferiorStartData(rp),
         .dumperScriptsDir = ICore::resourcePath("debugger"),
         .loadInitFile = settings().loadGdbInit(),
+        .loadJitCode = rp.toolChainAbi().osFlavor() != ProjectExplorer::Abi::AndroidLinuxFlavor,
         .nativeMixedDebugging = rp.isNativeMixedDebugging(),
         .breakOnMain = rp.breakOnMain(),
         .mainFunctionName = QLatin1String(

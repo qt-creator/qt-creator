@@ -445,6 +445,11 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
                         DebuggerCommand::NativeCommand});
         }
 
+        if (!m_startData.loadJitCode) {
+            runCommand({"settings set plugin.jit-loader.gdb.enable off",
+                        DebuggerCommand::NativeCommand});
+        }
+
         if (m_startData.extraDumperFile.isReadableFile()) {
             DebuggerCommand dumperModule("addDumperModule");
             dumperModule.arg("path", m_startData.extraDumperFile.path());

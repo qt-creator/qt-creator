@@ -26,6 +26,10 @@ public:
     Utils::FilePath dumperScriptsDir;
     // Whether the debugger reads the init file in the user's home directory.
     bool loadInitFile = false;
+    // Whether the debugger picks up the code a runtime registers through gdb's
+    // JIT interface. The Android runtime registers enough of it to slow the
+    // session down and leave it stopped in disassembly.
+    bool loadJitCode = true;
     bool nativeMixedDebugging = false;
     bool breakOnMain = false;
     // Which symbol main() is: a Windows Qt application without a terminal
