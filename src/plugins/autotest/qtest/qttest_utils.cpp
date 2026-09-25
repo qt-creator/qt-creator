@@ -95,23 +95,33 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
     auto end = provided.cend();
     for ( ; it != end; ++it) {
         QString currentOpt = *it;
+        // an option whose parameter is missing drops that option, not the whole list
+        const bool hasParameter = it + 1 != end;
         if (knownAllowedOptionsWithParameter.contains(currentOpt)) {
-            allowed.append(currentOpt);
-            ++it;
-            QTC_ASSERT(it != end, return {});
-            allowed.append(*it);
-        } else if (knownInterferingOptionWithParameter.contains(currentOpt)) {
-            if (omitted) {
-                omitted->append(currentOpt);
-                ++it;
-                QTC_ASSERT(it != end, return {});
-                omitted->append(*it);
+            if (!hasParameter) {
+                if (omitted)
+                    omitted->append(currentOpt);
+                break;
             }
+            allowed.append(currentOpt);
+            allowed.append(*(++it));
+        } else if (knownInterferingOptionWithParameter.contains(currentOpt)) {
+            if (omitted)
+                omitted->append(currentOpt);
+            if (!hasParameter)
+                break;
+            if (omitted)
+                omitted->append(*(it + 1));
+            ++it; // the parameter is consumed whether or not it was collected
         } else if (knownInterferingSingleOptions.contains(currentOpt)) {
             if (omitted)
                 omitted->append(currentOpt);
         } else if (currentOpt == "-o") { // more complex check
-            QTC_ASSERT(it + 1 != end, return {});
+            if (!hasParameter) {
+                if (omitted)
+                    omitted->append(currentOpt);
+                break;
+            }
             const QString next = *(++it);
             const QStringList formats{",txt", ",xml", ",csv", ",lightxml", ",junitxml",
                                       ",teamcity", ",tap"};
@@ -134,10 +144,13 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
             }
         } else if (isQuickTest) {
             if (knownAllowedQuickOptionsWithParameter.contains(currentOpt)) {
+                if (!hasParameter) {
+                    if (omitted)
+                        omitted->append(currentOpt);
+                    break;
+                }
                 allowed.append(currentOpt);
-                ++it;
-                QTC_ASSERT(it != end, return {});
-                allowed.append(*it);
+                allowed.append(*(++it));
             } else if (knownAllowedSingleQuickOptions.contains(currentOpt)) {
                 allowed.append(currentOpt);
             } else if (knownInterferingQuickOption.contains(currentOpt)) {

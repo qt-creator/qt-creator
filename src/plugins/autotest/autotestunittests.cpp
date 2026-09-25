@@ -8,6 +8,7 @@
 #include "testrunner.h"
 #include "testtreemodel.h"
 
+#include "qtest/qttest_utils.h"
 #include "qtest/qttestframework.h"
 
 #include <cppeditor/cpptoolstestcase.h>
@@ -362,6 +363,71 @@ void ExternalTestRunTest::testResultNesting()
     QVERIFY(!results.at(1).isDirectParentOf(results.at(0), &needsIntermediate));
 }
 
+class QtTestUtilsTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testFilterInterfering();
+    void testFilterInterfering_data();
+    void testFilterInterferingWithoutOmitted();
+};
+
+void QtTestUtilsTest::testFilterInterfering()
+{
+    QFETCH(QStringList, provided);
+    QFETCH(QStringList, expectedAllowed);
+    QFETCH(QStringList, expectedOmitted);
+
+    QStringList omitted;
+    const QStringList allowed = QTestUtils::filterInterfering(provided, &omitted, false);
+    QCOMPARE(allowed, expectedAllowed);
+    QCOMPARE(omitted, expectedOmitted);
+}
+
+void QtTestUtilsTest::testFilterInterfering_data()
+{
+    QTest::addColumn<QStringList>("provided");
+    QTest::addColumn<QStringList>("expectedAllowed");
+    QTest::addColumn<QStringList>("expectedOmitted");
+
+    QTest::newRow("empty") << QStringList() << QStringList() << QStringList();
+    QTest::newRow("allowed with parameter")
+        << QStringList{"-iterations", "5"} << QStringList{"-iterations", "5"} << QStringList();
+    QTest::newRow("interfering single")
+        << QStringList{"-silent"} << QStringList() << QStringList{"-silent"};
+    // logging to a file is supported, logging to stdout would collide with the plugin's own
+    QTest::newRow("new style logging to a file is allowed")
+        << QStringList{"-o", "/tmp/out,xml"} << QStringList{"-o", "/tmp/out,xml"} << QStringList();
+    QTest::newRow("new style logging to stdout is interfering")
+        << QStringList{"-o", "-,xml"} << QStringList() << QStringList{"-o", "-,xml"};
+    QTest::newRow("unknown output format is interfering")
+        << QStringList{"-o", "/tmp/out"} << QStringList() << QStringList{"-o", "/tmp/out"};
+    QTest::newRow("several loggings to files")
+        << QStringList{"-o", "/tmp/a,xml", "-o", "/tmp/b,tap"}
+        << QStringList{"-o", "/tmp/a,xml", "-o", "/tmp/b,tap"} << QStringList();
+    // a trailing option without its parameter drops that option, not the whole list
+    QTest::newRow("trailing output option")
+        << QStringList{"-iterations", "5", "-o"}
+        << QStringList{"-iterations", "5"} << QStringList{"-o"};
+    QTest::newRow("trailing allowed option with parameter")
+        << QStringList{"-silent", "-iterations"}
+        << QStringList() << QStringList{"-silent", "-iterations"};
+    QTest::newRow("trailing interfering option with parameter")
+        << QStringList{"-o", "/tmp/out,xml", "-maxwarnings"}
+        << QStringList{"-o", "/tmp/out,xml"} << QStringList{"-maxwarnings"};
+}
+
+// The parameter of an interfering option has to be consumed even when there is nowhere to
+// report it, or it is read as the next option and allowed through for matching nothing.
+void QtTestUtilsTest::testFilterInterferingWithoutOmitted()
+{
+    QCOMPARE(QTestUtils::filterInterfering({"-maxwarnings", "500"}, nullptr, false), QStringList());
+    QCOMPARE(QTestUtils::filterInterfering({"-maxwarnings", "500", "-iterations", "5"},
+                                           nullptr, false),
+             QStringList({"-iterations", "5"}));
+}
+
 QObject *createAutotestUnitTests()
 {
     return new AutotestUnitTests;
@@ -370,6 +436,11 @@ QObject *createAutotestUnitTests()
 QObject *createExternalTestRunTest()
 {
     return new ExternalTestRunTest;
+}
+
+QObject *createQtTestUtilsTest()
+{
+    return new QtTestUtilsTest;
 }
 
 } // namespace Autotest::Internal

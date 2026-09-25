@@ -568,6 +568,7 @@ public:
 #ifdef WITH_TESTS
         addTestCreator(createAutotestUnitTests);
         addTestCreator(createExternalTestRunTest);
+        addTestCreator(createQtTestUtilsTest);
 #endif
     }
 
