@@ -101,6 +101,19 @@ QString registerTypeName(const QString &reportedType)
     return reportedType;
 }
 
+// The group cdb's register width stands for, in the vocabulary the Registers
+// view sorts by. It is where CdbEngine's IntegerRegister/FloatRegister/
+// VectorRegister kind went: the pointer-wide integers the view reinterprets are
+// the general ones, and the wider float and vector registers stay out of them.
+static QString registerGroupName(const QString &reportedType)
+{
+    if (reportedType.startsWith('F'))
+        return "float";
+    if (reportedType.startsWith('V'))
+        return "vector";
+    return "general";
+}
+
 GdbMi registersTree(const GdbMi &reply)
 {
     GdbMi registers;
@@ -114,6 +127,7 @@ GdbMi registersTree(const GdbMi &reply)
             else
                 reg.addChild(child);
         }
+        reg.addChild(constMi("groups", registerGroupName(reported["type"].data())));
         registers.addChild(reg);
     }
     return registers;
@@ -263,9 +277,10 @@ static DebuggerEngineSetupData cdbImplSetupData()
                             | OperateByInstructionCapability
                             | RegisterCapability
                             | ShowMemoryCapability;
-    data.attachToCoreCapabilities = coreCaps;
-    data.capabilities = coreCaps
-                      | AdditionalQmlStackCapability
+    // The QML stack is reconstructed from data the dump carries, not from a
+    // running thread, so a core session offers it just as a live one does.
+    data.attachToCoreCapabilities = coreCaps | AdditionalQmlStackCapability;
+    data.capabilities = data.attachToCoreCapabilities
                       | BreakConditionCapability
                       | BreakIndividualLocationsCapability
                       | BreakModuleCapability
@@ -973,8 +988,16 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
         reportBreakpointInserted(requestId, id, params.enabled, {}, 0, {}, {}, report);
         return;
     }
-    const BreakpointParameters fixed
+    BreakpointParameters fixed
         = scopedToModule(fixedBreakpointParameters(params), m_startData.moduleForSourceFile);
+    // cdb cannot resolve an unqualified "main"; name the module the entry point
+    // is in, the way the break-on-main start option does.
+    if (params.type == BreakpointAtMain && fixed.module.isEmpty()
+            && std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
+        const QString fileName = std::get<ProcessRunData>(m_startData.inferiorStartData)
+                                     .command.executable().fileName();
+        fixed.module = fileName.left(fileName.indexOf('.'));
+    }
     if (fixed.type == BreakpointByFunction && !fixed.oneShot) {
         insertFunctionBreakpoint(requestId, id, fixed, report);
         return;
@@ -1302,6 +1325,15 @@ void CdbImpl::reportBreakpointInserted(quint64 requestId, const QString &id, boo
     }
     if (!function.isEmpty())
         bkpt.addChild(constMi("func", function));
+    // cdb has no catchpoint of its own; it stands in for one with a breakpoint on
+    // the function behind the event, so the view is told what it really catches.
+    if (m_insertedBreakpoints.value(id).type == BreakpointAtExec)
+        bkpt.addChild(constMi("catch-type", "exec"));
+    // cdb does not echo the thread a breakpoint is restricted to; the one the
+    // insert was asked for stands in for it, so a thread specific breakpoint is
+    // reported the same way gdb reports one.
+    if (const int threadSpec = m_insertedBreakpoints.value(id).threadSpec; threadSpec >= 0)
+        bkpt.addChild(constMi("thread", QString::number(threadSpec)));
     if (locations.childCount() > 0)
         bkpt.addChild(locations);
     GdbMi list;
@@ -1311,8 +1343,14 @@ void CdbImpl::reportBreakpointInserted(quint64 requestId, const QString &id, boo
     // Where cdb put the breakpoint is not part of what it answers an insert with, and
     // for one in a module that is not loaded yet there is nothing to answer at all.
     // Ask again at the next stop, until it has an address.
-    if (locations.childCount() == 0 && !(file.isEmpty() && function.isEmpty()))
+    if (locations.childCount() == 0 && !(file.isEmpty() && function.isEmpty())) {
         m_unresolvedBreakpointIds.insert(id);
+        // A breakpoint set while the session is accessible already has an address;
+        // ask for it now the way CdbEngine does after every insert, so the view
+        // fills the column without waiting for the next stop.
+        if (m_accessible)
+            listBreakpoints();
+    }
 }
 
 // Turns what "breakpoints -v" answers into the update the breakpoint view takes,
@@ -2324,11 +2362,27 @@ static GdbMi interpreterStackFrames(const GdbMi &msg)
     return frames;
 }
 
+// The executable the inferior runs, as a plain file name, or empty when the
+// session has no binary to name (a bare attach by pid).
+static QString inferiorBinaryName(const InferiorStartData &startData)
+{
+    if (const auto run = std::get_if<ProcessRunData>(&startData))
+        return run->command.executable().fileName();
+    if (const auto core = std::get_if<AttachToCoreData>(&startData))
+        return core->executable.fileName();
+    if (const auto stub = std::get_if<AttachToTerminalStubData>(&startData))
+        return stub->executable.fileName();
+    if (const auto remote = std::get_if<AttachToRemoteServerData>(&startData))
+        return remote->remoteExecutable.fileName();
+    return {};
+}
+
 // The extension reports the full path as "fullname" and the plain base name as "file", and
 // the module as "from". StackFrame::parseFrame() expects the path in "file" and the module
 // in "module" - a base name there would be resolved against the build directory.
 static GdbMi normalizedFrame(const GdbMi &frameMi,
                              const QList<QPair<QString, QString>> &sourcePathMap,
+                             const QString &binaryName,
                              QHash<QString, QString> *nameCache)
 {
     const QString fullName = mappedFromDebugger(frameMi["fullname"].data(), sourcePathMap);
@@ -2347,19 +2401,77 @@ static GdbMi normalizedFrame(const GdbMi &frameMi,
         frame.addChild(constMi("fullname", fullName));
         frame.addChild(constMi("file", normalizedSourceFileName(fullName, nameCache)));
     }
-    if (!module.isEmpty())
-        frame.addChild(constMi("module", module));
+    if (!module.isEmpty()) {
+        // cdb names a module after its base name, but the stack view's module column
+        // is the binary a frame runs in, so the inferior's frames name its file the
+        // way every other backend reports it.
+        const bool isInferior = !binaryName.isEmpty()
+            && module.compare(FilePath::fromString(binaryName).completeBaseName(),
+                              Qt::CaseInsensitive) == 0;
+        frame.addChild(constMi("module", isInferior ? binaryName : module));
+    }
     return frame;
+}
+
+// The extension names a thread's stopped frame the way it names a stack frame:
+// "function"/"address"/"from", the full path in "fullname". The threads view
+// reads the gdb short spellings "func"/"addr" and the module in "from", and it
+// wants the state named. A thread the debugger can list is one it stopped.
+static GdbMi threadsTree(const GdbMi &reply,
+                         const QList<QPair<QString, QString>> &sourcePathMap,
+                         QHash<QString, QString> *nameCache)
+{
+    GdbMi threads;
+    threads.m_type = GdbMi::List;
+    threads.m_name = "threads";
+    for (const GdbMi &reported : reply["threads"]) {
+        GdbMi thread;
+        thread.m_type = GdbMi::Tuple;
+        for (const GdbMi &child : reported) {
+            if (child.m_name == "frame") {
+                const QString fullName = mappedFromDebugger(child["fullname"].data(),
+                                                            sourcePathMap);
+                GdbMi frame;
+                frame.m_type = GdbMi::Tuple;
+                frame.m_name = "frame";
+                for (const GdbMi &frameChild : child) {
+                    if (frameChild.m_name == "function")
+                        frame.addChild(constMi("func", frameChild.data()));
+                    else if (frameChild.m_name == "address")
+                        frame.addChild(constMi("addr", frameChild.data()));
+                    else if (frameChild.m_name == "fullname")
+                        frame.addChild(constMi("fullname", fullName));
+                    else if (frameChild.m_name == "file" && !fullName.isEmpty())
+                        frame.addChild(constMi("file",
+                                               normalizedSourceFileName(fullName, nameCache)));
+                    else
+                        frame.addChild(frameChild);
+                }
+                thread.addChild(frame);
+            } else {
+                thread.addChild(child);
+            }
+        }
+        thread.addChild(constMi("state", "stopped"));
+        threads.addChild(thread);
+    }
+    GdbMi wrapper;
+    wrapper.m_type = GdbMi::Tuple;
+    wrapper.addChild(threads);
+    if (const GdbMi current = reply["current-thread-id"]; current.isValid())
+        wrapper.addChild(constMi("current-thread-id", current.data()));
+    return wrapper;
 }
 
 static GdbMi stackTreeFromFrames(const GdbMi &reply,
                                  const QList<QPair<QString, QString>> &sourcePathMap,
+                                 const QString &binaryName,
                                  QHash<QString, QString> *nameCache)
 {
     GdbMi frames;
     frames.m_type = GdbMi::List;
     for (const GdbMi &frameMi : reply)
-        frames.addChild(normalizedFrame(frameMi, sourcePathMap, nameCache));
+        frames.addChild(normalizedFrame(frameMi, sourcePathMap, binaryName, nameCache));
     frames.m_name = "frames";
     GdbMi stack;
     stack.m_type = GdbMi::Tuple;
@@ -2481,6 +2593,7 @@ void CdbImpl::reportSplicedStack(quint64 requestId, const GdbMi &nativeFrames)
                                            qmlSpliceIndex(nativeFrames));
         emit refreshDataReceived(requestId, RefreshKind::FullStack,
                                  stackTreeFromFrames(frames, sourcePathMap(),
+                                                     inferiorBinaryName(m_startData.inferiorStartData),
                                                      &m_normalizedFileCache));
     };
     runCommand(cmd);
@@ -2537,6 +2650,7 @@ void CdbImpl::refresh(const RefreshRequest &request)
             }
             emit refreshDataReceived(requestId, RefreshKind::FullStack,
                                      stackTreeFromFrames(response.data, sourcePathMap(),
+                                                         inferiorBinaryName(m_startData.inferiorStartData),
                                                          &m_normalizedFileCache));
         });
         cmd.args = request.stackDepthLimit < 0 ? QString("unlimited")
@@ -2546,28 +2660,46 @@ void CdbImpl::refresh(const RefreshRequest &request)
     }
     if (request.kind == RefreshKind::QmlStack) {
         const quint64 requestId = request.requestId;
+        // The QML frames go in front of the native ones. When none can be had -
+        // as on a core, where the call into the QML engine cannot run - the
+        // native frames are the answer, not an empty stack that drops them.
+        const auto reportNativeStack = [this, requestId] {
+            runCommand({"stack", ExtensionCommand,
+                       [this, requestId](const DebuggerResponse &response) {
+                emit refreshDataReceived(requestId, RefreshKind::FullStack,
+                                         stackTreeFromFrames(response.data, sourcePathMap(),
+                                                             inferiorBinaryName(m_startData.inferiorStartData),
+                                                             &m_normalizedFileCache));
+            }});
+        };
         DebuggerCommand cmd("print('qmlstack=%s' % __import__('json').dumps("
                             "theDumper.extractInterpreterStack()))", ScriptCommand);
-        cmd.callback = [this, requestId](const DebuggerResponse &response) {
+        cmd.callback = [this, requestId, reportNativeStack](const DebuggerResponse &response) {
             const GdbMi frames = response.resultClass == ResultDone
                                      ? interpreterStackFrames(response.data["msg"])
                                      : GdbMi();
             if (frames.childCount() != 0) {
                 emit refreshDataReceived(requestId, RefreshKind::FullStack,
                                          stackTreeFromFrames(frames, sourcePathMap(),
+                                                             inferiorBinaryName(m_startData.inferiorStartData),
                                                              &m_normalizedFileCache));
                 return;
             }
             runCommand({"qmlstack", ExtensionCommand,
-                       [this, requestId](const DebuggerResponse &fallback) {
+                       [this, requestId, reportNativeStack](const DebuggerResponse &fallback) {
                 if (fallback.resultClass != ResultDone) {
                     emit message("CdbImpl: could not create a QML stack trace: "
                                      + fallback.data["msg"].data(), LogWarning);
-                    emit refreshDataReceived(requestId, RefreshKind::FullStack, {});
+                    reportNativeStack();
+                    return;
+                }
+                if (fallback.data.childCount() == 0) {
+                    reportNativeStack();
                     return;
                 }
                 emit refreshDataReceived(requestId, RefreshKind::FullStack,
                                          stackTreeFromFrames(fallback.data, sourcePathMap(),
+                                                             inferiorBinaryName(m_startData.inferiorStartData),
                                                              &m_normalizedFileCache));
             }});
         };
@@ -2592,7 +2724,9 @@ void CdbImpl::refresh(const RefreshRequest &request)
     if (request.kind == RefreshKind::Threads) {
         const quint64 requestId = request.requestId;
         runCommand({"threads", ExtensionCommand, [this, requestId](const DebuggerResponse &response) {
-            emit refreshDataReceived(requestId, RefreshKind::Threads, response.data);
+            emit refreshDataReceived(requestId, RefreshKind::Threads,
+                                     threadsTree(response.data, sourcePathMap(),
+                                                 &m_normalizedFileCache));
         }});
         return;
     }
@@ -2773,14 +2907,21 @@ void CdbImpl::disassembleFunction(quint64 requestId, quint64 address, const QStr
                          .arg(functionName)
                          .arg(functionAddresses.constFirst(), 0, 16), LogMisc);
     }
-    const DisassemblyRange range = disassemblyRange(address, functionAddresses);
-    if (range.isEmpty()) {
+    const quint64 target = address ? address
+                                   : (functionAddresses.isEmpty() ? 0
+                                                                   : functionAddresses.constFirst());
+    if (!target) {
         emit message(QString("CdbImpl: cannot resolve \"%1\" to disassemble it.")
                          .arg(functionName), LogWarning);
         emit disassemblyReceived(requestId, {});
         return;
     }
-    disassemble(requestId, range);
+    // "uf" disassembles the whole function the address falls in, where a fixed
+    // window around it would cut a longer one short before its later lines.
+    runCommand({"uf " + hexAddress(target), BuiltinCommand,
+               [this, requestId](const DebuggerResponse &response) {
+        emit disassemblyReceived(requestId, parseCdbDisassembler(response.data.data()));
+    }});
 }
 
 void CdbImpl::disassemble(quint64 requestId, const DisassemblyRange &range)
@@ -2920,6 +3061,20 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
             return;
         }
         const QString reportedNumber = m_parentForSubBreakpointId.value(number, number);
+        if (m_insertedBreakpoints.value(reportedNumber).oneShot) {
+            // cdb takes a one-shot breakpoint back the moment it hits, so the
+            // view keeps one the debugger no longer has unless it is told.
+            m_insertedBreakpoints.remove(reportedNumber);
+            m_conditionForBreakpointId.remove(reportedNumber);
+            m_breakpointHitCounts.remove(reportedNumber);
+            m_unresolvedBreakpointIds.remove(reportedNumber);
+            GdbMi removed;
+            removed.m_type = GdbMi::Tuple;
+            removed.addChild(constMi("number", reportedNumber));
+            emit breakpointEvent(0, BreakpointOp::Remove, true, removed);
+            emit message(line, LogMisc);
+            return;
+        }
         const int times = ++m_breakpointHitCounts[reportedNumber];
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
@@ -2949,7 +3104,9 @@ void CdbImpl::handleCdbOutputLine(const QString &rawLine)
         return;
     }
     // What cdb relays inline while the inferior runs is the debuggee's own output.
-    emit message(line, m_inferiorRunning ? AppOutput : LogMisc);
+    // Once the session is accessible again cdb has the inferior stopped and is
+    // printing its own location banner, which is traffic of ours, not the program's.
+    emit message(line, m_inferiorRunning && !m_accessible ? AppOutput : LogMisc);
 }
 
 // Whatever the Python bridge printed on its way to an answer. That is where a
@@ -3067,12 +3224,22 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         if (!m_accessible)
             return;
         m_accessible = false;
-        if (payload.trimmed() != "7")
+        if (payload.trimmed() == "7") {
+            m_inferiorRunning = false;
+            if (!m_shuttingDown && !m_inferiorExited) {
+                m_inferiorExited = true;
+                emit inferiorDone({0, InferiorExitStatus::Normal});
+            }
             return;
-        m_inferiorRunning = false;
-        if (!m_shuttingDown && !m_inferiorExited) {
-            m_inferiorExited = true;
-            emit inferiorDone({0, InferiorExitStatus::Normal});
+        }
+        // A console command of the user's resumed the inferior: the engine did not
+        // drive this run, so nobody has announced it. Report it, or the stop that
+        // ends it arrives in the stopped state it never left and cannot take it.
+        if (m_stopReported && !m_inferiorRunning && !m_inInternalStop && !m_callbackStop
+                && !m_interruptRequested && m_initialSessionIdleHandled && !m_shuttingDown) {
+            m_inferiorRunning = true;
+            emit inferiorEvent(InferiorEvent::RunRequested);
+            emit inferiorEvent(InferiorEvent::RunOk);
         }
         return;
     }
@@ -3330,8 +3497,11 @@ void CdbImpl::reportStop(const GdbMi &stopData)
         const GdbMi &topFrame = stack.childAt(0);
         const QString fullName = mappedFromDebugger(topFrame["fullname"].data(),
                                                     sourcePathMap());
-        if (!fullName.isEmpty())
-            emit locationChanged(FilePath::fromUserInput(fullName), topFrame["line"].toInt());
+        // The path comes from the debug information, so a source that has since
+        // moved away is a location the editor cannot go to. Keep it to ourselves.
+        const FilePath file = FilePath::fromUserInput(fullName);
+        if (!fullName.isEmpty() && file.exists())
+            emit locationChanged(file, topFrame["line"].toInt());
     }
     m_inferiorRunning = false;
     m_inInternalStop = false;

@@ -1516,17 +1516,11 @@ static QString printCommand(Backend backend, const QString &expression)
     case Backend::Qml:
         return expression;
     case Backend::Cdb:
-        return "? " + expression;
+        // The C++ evaluator, not the MASM one ("?"): only "??" reads a symbol as
+        // its value rather than its address, and takes bare numbers as decimal.
+        return "?? " + expression;
     }
     return {};
-}
-
-static QString decimalLiteral(Backend backend, const QString &digits)
-{
-    // "0n" spells the number out in decimal: cdb reads a bare one as hex, and
-    // echoes a 64-bit value with a backtick between its halves, which would
-    // break the digits apart.
-    return backend == Backend::Cdb ? "0n" + digits : digits;
 }
 
 static GdbMi findItemByIName(const GdbMi &data, const QString &iname)
@@ -6689,6 +6683,11 @@ void tst_backends::testRunCommandDeferralCapability()
 
     if (auto result = checkExtraCapability(backend, Debugger::DebuggerExtraCapability::RunCommandDeferral); !result)
         QSKIP(qPrintable(result.error()));
+    // Deferral applies the change at a stop of the backend's own making, which it
+    // reaches by interrupting the running inferior. Where that interrupt is not
+    // available, the deferred change never lands and there is nothing to observe.
+    if (!canInterruptRunningInferior(backend))
+        QSKIP("this backend's running inferior cannot be interrupted on this host");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -8070,6 +8069,11 @@ void tst_backends::reportsAnInterruptThatCollidesWithATemporaryStop()
     // so asking for one while it runs is what produces the collision.
     if (auto result = checkCapability(backend, Debugger::ReloadModuleCapability); !result)
         QSKIP(qPrintable(result.error()));
+    // Both the interrupt and the temporary stop it collides with reach the
+    // inferior by interrupting it while it runs. Where that is not available,
+    // neither stop happens and there is no collision to observe.
+    if (!canInterruptRunningInferior(backend))
+        QSKIP("this backend's running inferior cannot be interrupted on this host");
 
     std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
     QVERIFY(debuggerBackend);
@@ -10092,8 +10096,12 @@ void tst_backends::restrictsABreakpointToOneThread()
     QTRY_VERIFY_WITH_TIMEOUT(threadsById.contains(470), s_timeout);
     const GdbMi threads = threadsById.value(470)["threads"];
     QVERIFY2(threads.childCount() > 0, "the inferior reported no threads");
-    const int threadSpec = threads.childAt(0)["id"].data().toInt();
-    QVERIFY2(threadSpec > 0, "the inferior's thread has no number to restrict a breakpoint to");
+    // cdb numbers threads from zero, gdb from one, so the thread that runs the
+    // line is not always above zero. What has to hold is that it has a number.
+    const QString firstThreadId = threads.childAt(0)["id"].data();
+    QVERIFY2(!firstThreadId.isEmpty(),
+             "the inferior's thread has no number to restrict a breakpoint to");
+    const int threadSpec = firstThreadId.toInt();
 
     QHash<quint64, bool> results;
     QHash<quint64, GdbMi> replies;
@@ -10274,9 +10282,7 @@ void tst_backends::runsAConsoleCommandInTheActivatedFrame()
 
     // Neither frame's answer contains the other's, so a command that ran in
     // the frame the session was left in cannot look like a pass.
-    const QString expression = decimalLiteral(backend, "100000") + " - "
-                               + testData.recursionDepthVariable + " * "
-                               + decimalLiteral(backend, "1000");
+    const QString expression = "100000 - " + testData.recursionDepthVariable + " * 1000";
     const auto answersInFrame = [&](int frame, const QString &expected) {
         messages.clear();
         engine->activateFrame(frame);
@@ -10365,6 +10371,19 @@ void tst_backends::fillsInTheColumnsOfTheBreakpointView()
             results[requestId] = {ok, data};
     });
 
+    // cdb does not put the address in the answer to setting a breakpoint; it
+    // resolves it with a follow-up query and reports it as a modification, so the
+    // view fills the column from there.
+    QHash<QString, QString> addressByNumber;
+    connect(engine, &DebuggerEngineInterface::breakpointModified, this,
+            [&addressByNumber](const GdbMi &data) {
+        for (const GdbMi &bkpt : data) {
+            const QString address = bkpt["addr"].data();
+            if (!address.isEmpty())
+                addressByNumber[bkpt["number"].data()] = address;
+        }
+    });
+
     BreakpointChangeRequest request;
     request.op = BreakpointOp::Insert;
     request.requestId = 345;
@@ -10384,10 +10403,19 @@ void tst_backends::fillsInTheColumnsOfTheBreakpointView()
     QVERIFY2(location["line"].toInt() == testData.secondBreakpointLine,
              qPrintable("no line in " + report));
     // An interpreter never binds a line to an address of its own.
-    if (backend != Backend::Pdb)
-        QVERIFY2(location["addr"].data().startsWith("0x"), qPrintable("no address in " + report));
-    // The protocol has no field for the function an adapter bound a breakpoint in.
-    if (backend != Backend::Dap)
+    if (backend != Backend::Pdb) {
+        QString address = location["addr"].data();
+        if (address.isEmpty()) {
+            const QString number = location["number"].data();
+            QTRY_VERIFY_WITH_TIMEOUT(addressByNumber.contains(number), s_timeout);
+            address = addressByNumber.value(number);
+        }
+        QVERIFY2(address.startsWith("0x"), qPrintable("no address in " + report));
+    }
+    // Neither a DAP adapter nor cdb names the function it bound a file-and-line
+    // breakpoint in: the protocol has no field for it, and cdb's breakpoint listing
+    // reports the address and module but not the function.
+    if (backend != Backend::Dap && backend != Backend::Cdb)
         QVERIFY2(!location["func"].data().isEmpty(), qPrintable("no function in " + report));
     QVERIFY2(location["fullname"].data().endsWith(testData.source.fileName())
                  || location["file"].data().endsWith(testData.source.fileName()),
@@ -10785,8 +10813,7 @@ void tst_backends::reportsAFailedConsoleCommand()
     // The expression is more than the name alone, so the echo of the command
     // cannot pass for the report of the failure.
     const QString symbol = "qtcNoSuchSymbol";
-    const QString command = printCommand(backend, symbol + " + "
-                                                      + decimalLiteral(backend, "1"));
+    const QString command = printCommand(backend, symbol + " + 1");
     engine->executeDebuggerCommand(command, {});
 
     QTRY_VERIFY2_WITH_TIMEOUT(std::any_of(messages.cbegin(), messages.cend(),
@@ -11322,7 +11349,7 @@ void tst_backends::executesRawCommandAndAssignsValue()
         if (channel != Debugger::LogInput)
             messages.append(text);
     });
-    engine->executeDebuggerCommand(printCommand(backend, decimalLiteral(backend, "123456789")), {});
+    engine->executeDebuggerCommand(printCommand(backend, "123456789"), {});
     QTRY_VERIFY_WITH_TIMEOUT(std::any_of(messages.cbegin(), messages.cend(),
                                          [](const QString &text) {
         return text.contains("123456789");

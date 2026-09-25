@@ -872,21 +872,23 @@ class Dumper(DumperBase):
             return None
 
         nativeValue = value.nativeValue
-        if nativeValue is None and not self.isExpanded():
-            raise Exception("Casting not expanded values is to expensive")
-        val = self.value_from_vtable(value)
-        if val is not None:
-            return val
-        if nativeValue is None:
-            nativeValue = self.nativeParseAndEvaluate('(%s)0x%x' % (value.type.name, value.pointer()))
-        castVal = nativeVtCastValue(nativeValue)
-        if castVal is not None:
-            val = self.fromNativeValue(castVal)
-        else:
-            val = self.Value(self)
-            val.laddress = value.pointer()
-            val.typeid = self.type_target(value.typeid)
-            val.nativeValue = value.nativeValue
+        # Casting to the vtable's own type is what reports the dynamic type, so it
+        # is left undone when the request asked for the static one.
+        if self.useDynamicType:
+            if nativeValue is None and not self.isExpanded():
+                raise Exception("Casting not expanded values is to expensive")
+            val = self.value_from_vtable(value)
+            if val is not None:
+                return val
+            if nativeValue is None:
+                nativeValue = self.nativeParseAndEvaluate('(%s)0x%x' % (value.type.name, value.pointer()))
+            castVal = nativeVtCastValue(nativeValue)
+            if castVal is not None:
+                return self.fromNativeValue(castVal)
+        val = self.Value(self)
+        val.laddress = value.pointer()
+        val.typeid = self.type_target(value.typeid)
+        val.nativeValue = value.nativeValue
 
         return val
 

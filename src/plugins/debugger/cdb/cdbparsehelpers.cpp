@@ -356,60 +356,63 @@ static bool parseCdbDisassemblerFunctionLine(const QString &l,
     return true;
 }
 
-/* Parse an instruction line, CDB 6.12:
- *  0123456
- * '   21 00000001`3fcebff1 8b4030          mov     eax,dword ptr [rax+30h]'
- * or CDB 6.11 (source line and address joined, 725 being the source line number):
- *  0123456
- * '  725078bb291 8bec            mov     ebp,esp
- * '<source_line>[ ]?<address> <raw data> <instruction> */
+static bool isHexToken(const QString &token)
+{
+    if (token.isEmpty())
+        return false;
+    for (const QChar c : token) {
+        if (!c.isDigit() && !(c >= 'a' && c <= 'f') && !(c >= 'A' && c <= 'F'))
+            return false;
+    }
+    return true;
+}
+
+/* Parse an instruction line. "u" prints one source-line column in front of the
+ * address, "uf" two; the address itself is a run of hex split by a backtick into
+ * its high and low halves on 64 bit:
+ *  '   21 00000001`3fcebff1 8b4030          mov     eax,dword ptr [rax+30h]'
+ *  '   21    21 00000001`3fcebff1 8b4030    mov     eax,dword ptr [rax+30h]'
+ * so the address is found rather than sat at a fixed column: it is the first
+ * token that is either backtick-joined or eight or more hex digits wide. The
+ * numeric column right before it, if any, is the source line, the one after it
+ * the raw bytes, and the rest the instruction. */
 
 static bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint *sourceLine)
 {
     *sourceLine = 0;
-    if (line.size() < 6)
+    const QStringList parts = line.split(' ', Qt::SkipEmptyParts);
+    if (parts.size() < 3)
         return false;
-    const QChar blank = ' ';
-    int addressPos = 0;
-    // Check for joined source and address in 6.11
-    const bool hasV611SourceLine = line.at(5).isDigit();
-    const bool hasV612SourceLine = !hasV611SourceLine && line.at(4).isDigit();
-    if (hasV611SourceLine) {
-        // v6.11: Fixed 5 source line columns, joined
-        *sourceLine = line.left(5).trimmed().toUInt();
-        addressPos = 5;
-    } else if (hasV612SourceLine) {
-        // v6.12: Free format columns
-        const int sourceLineEnd = line.indexOf(blank, 4);
-        if (sourceLineEnd == -1)
-              return false;
-        *sourceLine = line.left(sourceLineEnd).trimmed().toUInt();
-        addressPos = sourceLineEnd + 1;
-    } else {
-        // Skip source line column.
-        const int size = line.size();
-        for ( ; addressPos < size && line.at(addressPos).isSpace(); ++addressPos) ;
-        if (addressPos == size)
-            return false;
+    int addressIndex = -1;
+    for (int i = 0; i < parts.size(); ++i) {
+        const QString &part = parts.at(i);
+        if (part.contains('`') || (part.size() >= 8 && isHexToken(part))) {
+            addressIndex = i;
+            break;
+        }
     }
-    // Find positions of address/raw data/instruction
-    const int addressEnd = line.indexOf(blank, addressPos + 1);
-    if (addressEnd < 0)
+    if (addressIndex < 0 || addressIndex + 1 >= parts.size())
         return false;
-    const int rawDataPos = addressEnd + 1;
-    const int rawDataEnd = line.indexOf(blank, rawDataPos + 1);
-    if (rawDataEnd < 0)
-        return false;
-    const int instructionPos = rawDataEnd + 1;
-    bool ok;
-    QString addressS = line.mid(addressPos, addressEnd - addressPos);
-    if (addressS.size() > 9 && addressS.at(8) == '`')
-        addressS.remove(8, 1);
+    if (addressIndex >= 1) {
+        bool lineOk = false;
+        const uint parsed = parts.at(addressIndex - 1).toUInt(&lineOk);
+        if (lineOk)
+            *sourceLine = parsed;
+    }
+    QString addressS = parts.at(addressIndex);
+    addressS.remove('`');
+    bool ok = false;
     dLine->address = addressS.toULongLong(&ok, 16);
     if (!ok)
         return false;
-    dLine->rawData = QByteArray::fromHex(line.mid(rawDataPos, rawDataEnd - rawDataPos).toLatin1());
-    dLine->data = line.right(line.size() - instructionPos).trimmed();
+    const QString rawData = parts.at(addressIndex + 1);
+    if (!isHexToken(rawData))
+        return false;
+    const int addressPos = line.indexOf(parts.at(addressIndex));
+    const int rawDataPos = line.indexOf(rawData, addressPos + parts.at(addressIndex).size());
+    dLine->rawData = QByteArray::fromHex(rawData.toLatin1());
+    dLine->bytes = rawData;
+    dLine->data = line.mid(rawDataPos + rawData.size()).trimmed();
     return true;
 }
 
