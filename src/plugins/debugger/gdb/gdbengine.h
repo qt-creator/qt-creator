@@ -148,6 +148,8 @@ private: ////////// General Interface //////////
     int m_gdbVersion = 100;    // 7.6.1 is 70601
     int m_pythonVersion = 0; // 2.7.2 is 20702
     bool m_isQnxGdb = false;
+    bool m_targetNonStop = false;
+    bool m_retriedWithoutTargetNonStop = false;
 
     ////////// Inferior Management //////////
 
@@ -356,6 +358,8 @@ private: ////////// General Interface //////////
 
     // Remote
     void callTargetRemote();
+    bool retryWithoutTargetNonStop(const DebuggerResponse &response);
+    QString msgConnectFailed(const DebuggerResponse &response) const;
     void handleSetTargetAsync(const DebuggerResponse &response);
     void handleTargetRemote(const DebuggerResponse &response);
     void handleTargetExtendedRemote(const DebuggerResponse &response);

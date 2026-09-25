@@ -64,6 +64,7 @@ DebuggerSettings::DebuggerSettings() :
     gdbStartupCommands{gdbSettings().gdbStartupCommands},
     gdbPostAttachCommands{gdbSettings().gdbPostAttachCommands},
     targetAsync{gdbSettings().targetAsync},
+    targetNonStop{gdbSettings().targetNonStop},
     autoEnrichParameters{gdbSettings().autoEnrichParameters},
     breakOnThrow{gdbSettings().breakOnThrow},
     breakOnCatch{gdbSettings().breakOnCatch},

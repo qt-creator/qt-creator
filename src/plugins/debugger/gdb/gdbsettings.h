@@ -27,6 +27,7 @@ public:
     Utils::StringAspect gdbPostAttachCommands{this};
 
     Utils::BoolAspect targetAsync{this};
+    Utils::BoolAspect targetNonStop{this};
     Utils::BoolAspect autoEnrichParameters{this};
     Utils::BoolAspect breakOnThrow{this};
     Utils::BoolAspect breakOnCatch{this};

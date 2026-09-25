@@ -116,6 +116,18 @@ GdbSettings::GdbSettings()
     targetAsync.setLabelText(Tr::tr(
         "Use asynchronous mode to control the debugged process"));
 
+    targetNonStop.setSettingsKey(debugModeGroup, "TargetNonStop");
+    targetNonStop.setDefaultValue(true);
+    targetNonStop.setLabelText(Tr::tr("Use non-stop mode for remote Linux targets"));
+    targetNonStop.setToolTip(Tr::tr(
+        "<html><head/><body><p>Lets the other threads keep running while GDB steps "
+        "over a breakpoint. Without it, stepping can hang when the stepped thread "
+        "waits for a lock held by another thread.</p>"
+        "<p>GDB still stops all threads when the debugged program stops, but one "
+        "by one, which can make each stop noticeably slower with many threads "
+        "on a slow connection.</p>"
+        "</body></html>"));
+
     QString howToUsePython = Tr::tr(
         "<p>To execute simple Python commands, prefix them with \"python\".</p>"
         "<p>To execute sequences of Python commands spanning multiple lines "
@@ -235,6 +247,7 @@ GdbSettings::GdbSettings()
             Column {
                 labelDangerous,
                 targetAsync,
+                targetNonStop,
                 autoEnrichParameters,
                 breakOnWarning,
                 breakOnFatal,
