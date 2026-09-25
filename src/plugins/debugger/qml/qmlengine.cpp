@@ -454,6 +454,21 @@ void QmlEngine::handleApplicationOutput(const QString &output)
     }
 }
 
+void QmlEngine::quitDebugger()
+{
+    // A stop request that arrives while the connection is still being attempted finds
+    // nothing to shut down: DebuggerEngine::quitDebugger() leaves the engine in
+    // EngineRunRequested and waits for a notifyEngineRun*() that a connection which never
+    // comes up cannot produce.
+    if (state() == EngineRunRequested && !isConnected()) {
+        startDying();
+        closeConnection();
+        notifyEngineRunFailed();
+        return;
+    }
+    DebuggerEngine::quitDebugger();
+}
+
 void QmlEngine::errorMessageBoxFinished(int result)
 {
     switch (result) {

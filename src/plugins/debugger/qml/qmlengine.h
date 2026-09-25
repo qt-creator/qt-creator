@@ -39,6 +39,7 @@ private:
     void handleApplicationOutput(const QString &output);
 
     void setState(DebuggerState state, bool forced) override;
+    void quitDebugger() override;
 
     void gotoLocation(const Internal::Location &location) override;
 
