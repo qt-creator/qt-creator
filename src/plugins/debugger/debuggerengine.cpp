@@ -354,9 +354,12 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
             const QString bindHost = device ? device->qmlDebugServerBindHost() : QString{};
             if (!bindHost.isEmpty())
                 appQmlServer.setHost(bindHost);
+            const bool isDesktop =
+                device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
             const QString qmlarg = isNativeMixedDebugging()
                                  ? qmlDebugNativeArguments(service, false)
-                                 : qmlDebugTcpArguments(service, appQmlServer);
+                                 : isDesktop ? qmlDebugDesktopTcpArguments(service, appQmlServer)
+                                             : qmlDebugTcpArguments(service, appQmlServer);
             m_inferior.command.addArg(qmlarg);
         }
     }

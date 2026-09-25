@@ -190,8 +190,10 @@ void QmlProfilerSampler::prepareLaunch(const std::shared_ptr<RecordingSession> &
     // Launch: capture on a freshly allocated local port and tell the target to
     // open a matching QML debug server, blocking until we connect.
     session->serverUrl = urlFromLocalHostAndFreePort();
-    const QString args = ProcessArgs::quoteArg(qmlDebugCommandLineArguments(
-        QmlProfilerServices, u"port:%1"_s.arg(session->serverUrl.port()), /*block*/ true));
+    const QString args = ProcessArgs::quoteArg(
+        session->launchCommand->executable().isLocal()
+            ? qmlDebugDesktopTcpArguments(QmlProfilerServices, session->serverUrl, /*block*/ true)
+            : qmlDebugTcpArguments(QmlProfilerServices, session->serverUrl, /*block*/ true));
     session->launchCommand->prependArgs(args, CommandLine::Raw);
 }
 
