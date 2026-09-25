@@ -8,6 +8,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
 #include <utils/fadingindicator.h>
@@ -316,6 +317,11 @@ void setupChatBrowser(Utils::MarkdownBrowser *browser)
     browser->setScale(ChatFontScale::scale());
     QObject::connect(&ChatFontScale::instance(), &ChatFontScale::scaleChanged, browser,
                      [browser](qreal scale) { browser->setScale(scale); });
+    QObject::connect(browser, &Utils::MarkdownBrowser::openFileRequested, browser,
+                     [](const Utils::Link &link) {
+                         if (link.targetFilePath.isAbsolutePath() && link.targetFilePath.exists())
+                             Core::EditorManager::openEditorAt(link);
+                     });
     enableChatZoom(browser);
 }
 
