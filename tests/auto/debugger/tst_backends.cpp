@@ -17068,6 +17068,10 @@ void tst_backends::reportsARemoteServerThatGoesAway()
     if (backend == Backend::Gdb || backend == Backend::Bridge)
         QSKIP("gdb dies with a fatal internal error of its own when the remote connection goes "
               "away, so no session is left to report anything.");
+    if (backend == Backend::Lldb)
+        QSKIP("lldb does not recognize the entry point breakpoint it set itself in what gdbserver "
+              "reports for it, so resuming stops again right away instead of leaving the inferior "
+              "running, and a stopped lldb never reads the connection the server went away on.");
 
     if (!m_gdbserverPath.isExecutableFile())
         QSKIP("gdbserver not found - set QTC_GDBSERVER_PATH_FOR_TEST to override.");
