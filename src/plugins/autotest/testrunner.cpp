@@ -94,8 +94,19 @@ TestRunner::TestRunner()
 {
     s_instance = this;
 
+    constexpr std::chrono::seconds PostponeTimeout{5};
     m_cancelTimer.setSingleShot(true);
+    m_postponeTimer.setSingleShot(true);
+    m_postponeTimer.setInterval(PostponeTimeout);
     connect(&m_cancelTimer, &QTimer::timeout, this, [this] { cancelCurrent(Timeout); });
+    connect(&m_postponeTimer, &QTimer::timeout, this, [this, PostponeTimeout] {
+        disconnect(m_buildUpdateConnect);
+        reportResult(ResultType::MessageWarn,
+                     Tr::tr("The build system did not report the executables to run "
+                            "within %1 seconds. Running the tests anyway.")
+                     .arg(int(PostponeTimeout.count())));
+        runOrDebugTests();
+    });
     connect(this, &TestRunner::requestStopTestRun, this, [this] { cancelCurrent(UserCanceled); });
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
             this, &TestRunner::onBuildQueueFinished);
@@ -370,13 +381,11 @@ int TestRunner::precheckTestConfigurations()
 
 void TestRunner::onBuildSystemUpdated()
 {
-    BuildSystem *bs = activeBuildSystemForActiveProject();
-    if (QTC_GUARD(bs))
-        disconnect(bs, &BuildSystem::updated, this, &TestRunner::onBuildSystemUpdated);
-    if (!m_skipTargetsCheck) {
-        m_skipTargetsCheck = true;
-        runOrDebugTests();
-    }
+    disconnect(m_buildUpdateConnect);
+    if (!m_postponeTimer.isActive())
+        return;
+    m_postponeTimer.stop();
+    runOrDebugTests();
 }
 
 void TestRunner::runTestsHelper()
@@ -810,16 +819,16 @@ void TestRunner::runOrDebugTests()
 {
     if (!m_skipTargetsCheck) {
         if (executablesEmpty()) {
+            // Postpone the run until the build system reports the executables, and bound the
+            // wait. Either BuildSystem::updated or the timer resumes it, never both:
+            // re-entering runOrDebugTests() from each of them destroys the running task tree in
+            // place and frees the configurations the first tree still iterates over, so
+            // m_postponeTimer being active is what makes them exclusive.
             m_skipTargetsCheck = true;
+            m_postponeTimer.start();
             BuildSystem *bs = activeBuildSystemForActiveProject();
-            QTimer::singleShot(5000, this, [this, bs = QPointer<BuildSystem>(bs)] {
-                if (bs) {
-                    disconnect(bs, &BuildSystem::updated,
-                               this, &TestRunner::onBuildSystemUpdated);
-                }
-                runOrDebugTests();
-            });
-            connect(bs, &BuildSystem::updated, this, &TestRunner::onBuildSystemUpdated);
+            m_buildUpdateConnect = connect(bs, &BuildSystem::updated,
+                                           this, &TestRunner::onBuildSystemUpdated);
             return;
         }
     }
@@ -982,6 +991,8 @@ void TestRunner::onFinished()
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();
     m_cancelTimer.stop();
+    m_postponeTimer.stop();
+    disconnect(m_buildUpdateConnect);
     m_runMode = TestRunMode::None;
     emit testRunFinished();
     QTC_ASSERT(!m_currentRunControl, m_currentRunControl->forceStop());

@@ -53,7 +53,7 @@ public:
     bool isTestRunning() const
     {
         return m_buildConnect || m_taskTreeRunner.isRunning()
-               || !m_currentRunControl.isNull() || m_externalRunning;
+               || !m_currentRunControl.isNull() || m_externalRunning || m_postponeTimer.isActive();
     }
 
     // False only while a run another plugin performs offers no way to stop it.
@@ -114,7 +114,10 @@ private:
     QMetaObject::Connection m_buildConnect;
     // temporarily used for handling of switching the current target
     QMetaObject::Connection m_targetConnect;
+    // temporarily used for handling not yet available executables
+    QMetaObject::Connection m_buildUpdateConnect;
     QTimer m_cancelTimer;
+    QTimer m_postponeTimer;
     bool m_skipTargetsCheck = false;
 
     bool m_outputWarningShown = false;
