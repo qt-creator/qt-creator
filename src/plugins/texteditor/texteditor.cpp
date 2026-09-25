@@ -5347,7 +5347,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
     QTextCursor cursor = q->textCursor();
     QString text = block.text();
     text.replace(QChar::Nbsp, QLatin1Char(' '));
-    int idx = -1;
+    int idx = 0;
     int l = 0;
 
     const int left = data.viewportRect.left() - int(data.mainLayoutOffset.x());
@@ -5358,7 +5358,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
             .toTextCharFormat(C_SEARCH_RESULT).background().color().darker(120);
 
     while (idx < text.size()) {
-        const QRegularExpressionMatch match = m_searchExpr.match(text, idx + l + 1);
+        const QRegularExpressionMatch match = m_searchExpr.match(text, idx + l);
         if (!match.hasMatch())
             break;
         idx = match.capturedStart();
