@@ -905,6 +905,11 @@ BreakHandler::BreakHandler(DebuggerEngine *engine)
          Tr::tr("Threads")});
 }
 
+BreakHandler::~BreakHandler()
+{
+    releaseAllBreakpoints();
+}
+
 bool BreakpointParameters::isLocatedAt(const FilePath &file, int line, const FilePath &markerFile) const
 {
     return textPosition.line == line && (fileName == file || fileName == markerFile);
