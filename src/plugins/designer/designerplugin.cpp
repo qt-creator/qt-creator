@@ -32,6 +32,10 @@
 #include <QMenu>
 #include <QTranslator>
 
+#ifdef WITH_TESTS
+#include "formwindowfile.h"
+#endif
+
 using namespace Core;
 using namespace Designer::Constants;
 using namespace Utils;

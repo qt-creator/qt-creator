@@ -68,4 +68,6 @@ private:
     Utils::Guard m_modificationChangedGuard;
 };
 
+QObject *createFormWindowFileTest();
+
 } // namespace Designer::Internal

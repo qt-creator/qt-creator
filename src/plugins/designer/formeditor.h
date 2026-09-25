@@ -65,7 +65,6 @@ void setQtPluginPath(const QString &qtPluginPath);
 void addPluginPath(const QString &pluginPath);
 
 QObject *createGoToSlotTest();
-QObject *createFormWindowFileTest();
 
 } // namespace Internal
 } // namespace Designer
