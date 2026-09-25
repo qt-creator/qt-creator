@@ -170,6 +170,125 @@ static PreprocessedData preprocess(const QFuture<void> &cancelFuture, FileApiDat
     return result;
 }
 
+/*!
+    Puts the \c .java files of the \a javaTargets back into the targets of
+    \a data that they belong to.
+
+    \c UseJava.cmake builds an archive from a custom command and hands the
+    custom target of \c add_jar() no sources at all, so the file API reports
+    none. Adding them here makes them part of the project like any other
+    source: they show up in the tree, and the debugger can map a class back to
+    the file it came from.
+*/
+static void addJavaSources(PreprocessedData &data,
+                           const QList<CMakeJavaTarget> &javaTargets,
+                           const FilePath &topSourceDirectory)
+{
+    for (const CMakeJavaTarget &javaTarget : javaTargets) {
+        const auto target = std::find_if(data.targetDetails.begin(),
+                                         data.targetDetails.end(),
+                                         [&javaTarget](const TargetDetails &td) {
+                                             return td.name == javaTarget.name;
+                                         });
+        if (target == data.targetDetails.end())
+            continue;
+
+        // The group a source without one of its own ends up in. Any named one
+        // becomes a folder in the tree, and a jar target has named groups of
+        // its own, for the .rule files of its custom command, so the unnamed
+        // group has to be looked up and added when it is not there.
+        auto unnamed = std::find(target->sourceGroups.begin(),
+                                 target->sourceGroups.end(),
+                                 QString());
+        if (unnamed == target->sourceGroups.end())
+            unnamed = target->sourceGroups.emplace(target->sourceGroups.end());
+        const int sourceGroup = int(unnamed - target->sourceGroups.begin());
+
+        for (const FilePath &source : javaTarget.sources) {
+            // The file API reports a source in the tree relative to its top.
+            const auto isSame = [&](const SourceInfo &si) {
+                return topSourceDirectory.resolvePath(si.path) == source;
+            };
+            if (std::any_of(target->sources.cbegin(), target->sources.cend(), isSame))
+                continue;
+
+            SourceInfo info;
+            info.path = source;
+            info.sourceGroup = sourceGroup;
+            target->sources.push_back(info);
+        }
+    }
+}
+
+#ifdef WITH_TESTS
+class JavaSourcesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        const FilePath sourceDirectory = "/s";
+
+        TargetDetails jar;
+        jar.name = "hello";
+        // What add_jar() leaves of its target: the .rule file of the custom
+        // command, in a group of its own.
+        jar.sourceGroups = {"CMake Rules"};
+        SourceInfo rule;
+        rule.path = "b/CMakeFiles/hello.dir/hello.rule";
+        rule.sourceGroup = 0;
+        rule.isGenerated = true;
+        jar.sources = {rule};
+
+        TargetDetails other;
+        other.name = "app";
+
+        PreprocessedData data;
+        data.targetDetails = {jar, other};
+
+        CMakeJavaTarget javaTarget;
+        javaTarget.name = "hello";
+        javaTarget.sources = {"/s/Hello.java", "/s/sub/Other.java"};
+
+        // A target the file API does not report is one nothing can be added to.
+        CMakeJavaTarget missingTarget;
+        missingTarget.name = "gone";
+        missingTarget.sources = {"/s/Gone.java"};
+
+        addJavaSources(data, {javaTarget, missingTarget}, sourceDirectory);
+
+        // The .java files land in an unnamed group, which has to be added:
+        // a named one would show up as a folder in the tree.
+        QCOMPARE(data.targetDetails[0].sourceGroups, (std::vector<QString>{"CMake Rules", {}}));
+        QCOMPARE(data.targetDetails[0].sources.size(), size_t(3));
+        QCOMPARE(data.targetDetails[0].sources[1].path, FilePath("/s/Hello.java"));
+        QCOMPARE(data.targetDetails[0].sources[1].sourceGroup, 1);
+        QCOMPARE(data.targetDetails[0].sources[2].path, FilePath("/s/sub/Other.java"));
+        QCOMPARE(data.targetDetails[0].sources[2].sourceGroup, 1);
+        QCOMPARE(data.targetDetails[1].sources.size(), size_t(0));
+
+        // A second parse of the same build must not list a source twice, and
+        // the file API reports one relative to the top of the source tree.
+        PreprocessedData reported;
+        TargetDetails jarWithSources = data.targetDetails[0];
+        jarWithSources.sources[1].path = "Hello.java";
+        jarWithSources.sources[2].path = "sub/Other.java";
+        reported.targetDetails = {jarWithSources};
+
+        addJavaSources(reported, {javaTarget}, sourceDirectory);
+
+        QCOMPARE(reported.targetDetails[0].sources.size(), size_t(3));
+        QCOMPARE(reported.targetDetails[0].sourceGroups.size(), size_t(2));
+    }
+};
+
+QObject *createJavaSourcesTest()
+{
+    return new JavaSourcesTest;
+}
+#endif
+
 static QList<FolderNode::LocationInfo> extractBacktraceInformation(
     const BacktraceInfo &backtraces,
     const FilePath &sourceDir,
@@ -1504,6 +1623,9 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
     const bool haveLibrariesRelativeToBuildDirectory =
             input.replyFile.generator.startsWith("Ninja")
          && input.replyFile.cmakeVersion >= QVersionNumber(3, 20, 5);
+
+    result.javaTargets = readJavaTargets(sourceDir, buildDir);
+    addJavaSources(data, result.javaTargets, sourceDir);
 
     result.buildTargets = generateBuildTargets(cancelFuture, data, sourceDir, buildDir,
                                                haveLibrariesRelativeToBuildDirectory);

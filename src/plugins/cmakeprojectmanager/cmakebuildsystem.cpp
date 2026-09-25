@@ -3969,6 +3969,7 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
             return result;
         });
         m_buildTargets += m_reader.takeBuildTargets(errorMessage);
+        m_javaTargets = m_reader.javaTargets();
         m_cmakeFiles = m_reader.takeCMakeFileInfos(errorMessage);
         setupCommandSignatures();
         setupCMakeSymbolsHash();
@@ -4484,6 +4485,335 @@ static BuildTargetInfo createStandaloneBuildTargetInfo(
     return bti;
 }
 
+/*!
+    Returns the \c java that runs the jars of this build: the one
+    \c find_package(Java) found, or the one the build environment \a env has
+    on the device \a buildDirectory is on.
+
+    The kit is not asked for its JDK. What \c JavaKitAspect puts into the
+    build environment is less than what the kit names: a \c JAVA_HOME the
+    user spelled out for the kit wins over it, and a JDK the build device
+    does not have is left out. Reading the kit would name a JDK that \c javac
+    was never run from, and a jar built by a newer one does not start under
+    an older one.
+
+    An empty return says that there is no Java here, and a jar that nothing
+    on this machine can start is not offered as something to run.
+*/
+static FilePath javaExecutable(const CMakeConfig &cm,
+                               const Environment &env,
+                               const FilePath &buildDirectory)
+{
+    // FindJava looks for the runtime before anything else and caches where it
+    // found it, leaving a "-NOTFOUND" behind where there was none.
+    const QString fromCMake = cm.stringValueOf("Java_JAVA_EXECUTABLE");
+    if (!fromCMake.isEmpty() && !fromCMake.endsWith("-NOTFOUND"))
+        return buildDirectory.withNewPath(fromCMake);
+    return env.searchInPath("java", {}, {}, FilePath::WithAnySuffix, buildDirectory);
+}
+
+/*!
+    Tells whether \a k starts what it builds as a process of its own, on the
+    device it built it on.
+
+    Only such a run configuration can run a jar: the java and the archive are
+    paths on the build device, and what says which jar to run is an argument.
+    The others - a package deployed to a device, a binary copied to a remote
+    machine - would take the java for the application to deploy and leave the
+    argument where it is.
+*/
+static bool runsWhereItBuilds(const Kit *k)
+{
+    const IDevice::ConstPtr runDevice = RunDeviceKitAspect::device(k);
+    const IDevice::ConstPtr buildDevice = BuildDeviceKitAspect::device(k);
+    return runDevice && buildDevice && runDevice->rootPath().isSameDevice(buildDevice->rootPath())
+           && RunDeviceTypeKitAspect::executionTypeId(k)
+                  == ProjectExplorer::Constants::STDPROCESS_EXECUTION_TYPE_ID;
+}
+
+/*!
+    Returns what starts the jar of \a jt: the archive is the executable, and
+    the \a java that runs it is the launcher in front of it.
+
+    The virtual machine does not go into the arguments, which belong to the
+    program. A run configuration writes the arguments its build target names
+    over that field on every parse and on every restore, so \c{-jar <archive>}
+    there would take with it whatever the user typed beside it.
+
+    \a qtcRunnable is what the utility target add_jar() leaves behind carries,
+    which is only true where the project asked for it with
+    \c {FOLDER qtc_runnable}. The flag of a \c BuildTargetInfo defaults to
+    true, so a jar has to be told: one target carrying it turns the run
+    configuration of every other into one the user has to add by hand.
+*/
+static BuildTargetInfo javaBuildTargetInfo(const CMakeJavaTarget &jt,
+                                           const FilePath &java,
+                                           bool qtcRunnable)
+{
+    Launcher launcher;
+    launcher.id = "java";
+    launcher.displayName = Tr::tr("Java (%1)").arg(java.toUserOutput());
+    launcher.command = java;
+    launcher.arguments = {"-jar"};
+
+    BuildTargetInfo bti;
+    bti.displayName = jt.name;
+    bti.buildKey = jt.name;
+    bti.targetFilePath = jt.jar;
+    bti.projectFilePath = jt.sourceDirectory.cleanPath().pathAppended(
+        Constants::CMAKE_LISTS_TXT);
+    bti.workingDirectory = jt.jar.parentDir();
+    bti.usesTerminal = true;
+    bti.isQtcRunnable = qtcRunnable;
+    bti.launchers = {launcher};
+    return bti;
+}
+
+/*!
+    Returns the run targets of the jars in \a javaTargets, started by \a java,
+    with one entry per run setting of \a runSettingsByTarget where the target
+    has any, the way an executable gets them.
+
+    What \a buildTargets holds for a jar is the utility target add_jar() leaves
+    behind, which carries the name of the jar and what the project said about
+    it. That target has to give way to the entry here, as a run configuration
+    takes the first entry it finds under a build key and the jar is the one
+    that runs.
+
+    An empty \a java leaves the jars out: there is nothing here to start them
+    with, and the utility targets keep their place.
+*/
+static QList<BuildTargetInfo> javaAppTargets(
+    const QList<CMakeJavaTarget> &javaTargets,
+    const QList<CMakeBuildTarget> &buildTargets,
+    const FilePath &java,
+    const QMap<QString, QList<const PresetsDetails::RunSettings *>> &runSettingsByTarget)
+{
+    QList<BuildTargetInfo> result;
+    if (java.isEmpty())
+        return result;
+
+    for (const CMakeJavaTarget &jt : javaTargets) {
+        const std::optional<CMakeBuildTarget> ct
+            = Utils::findOr(buildTargets,
+                            std::nullopt,
+                            Utils::equal(&CMakeBuildTarget::title, jt.name));
+        const BuildTargetInfo bti = javaBuildTargetInfo(jt, java, ct && ct->qtcRunnable);
+
+        const QList<const PresetsDetails::RunSettings *> runSettings
+            = runSettingsByTarget.value(jt.name);
+        if (runSettings.isEmpty()) {
+            result.append(bti);
+            continue;
+        }
+        for (int idx = 0; idx < runSettings.size(); ++idx) {
+            BuildTargetInfo rsBti = bti;
+            rsBti.displayName = runSettingsDisplayName(*runSettings.at(idx), jt.name, idx);
+            result.append(rsBti);
+        }
+    }
+    return result;
+}
+
+/*!
+    Returns \a appTargets with the entries whose build key a jar of
+    \a javaTargets claims left out of it, and those jars put in their place.
+
+    add_jar() leaves a utility target behind that carries the name of the jar,
+    and a project that marks that target runnable or names it in a preset gets
+    an entry for it of the kind every utility target gets: one that builds the
+    target over again. A run configuration is built from the first entry under
+    its build key, and the one that runs the jar is the one it has to be.
+*/
+static QList<BuildTargetInfo> mergeJavaTargets(const QList<BuildTargetInfo> &appTargets,
+                                               const QList<BuildTargetInfo> &javaTargets)
+{
+    const QSet<QString> javaBuildKeys
+        = Utils::transform<QSet>(javaTargets, &BuildTargetInfo::buildKey);
+    QList<BuildTargetInfo> result
+        = Utils::filtered(appTargets, [&javaBuildKeys](const BuildTargetInfo &bti) {
+              return !javaBuildKeys.contains(bti.buildKey);
+          });
+    result.append(javaTargets);
+    return result;
+}
+
+#ifdef WITH_TESTS
+class JavaExecutableTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        QTemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+        const FilePath directory = FilePath::fromString(temporaryDir.path());
+        const FilePath binDirectory = directory / "jdk" / "bin";
+        QVERIFY(binDirectory.ensureWritableDir());
+        const FilePath java = (binDirectory / "java").withExecutableSuffix();
+        QVERIFY(java.ensureExistingFile());
+        QVERIFY(java.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+
+        Environment env;
+        env.prependOrSetPath(binDirectory);
+
+        // What find_package(Java) found is the runtime the jars were built
+        // against, and it is a path on the device the build ran on.
+        const FilePath buildDirectory = FilePath::fromParts(u"device", u"build-host", u"/b");
+        const CMakeConfig found{
+            CMakeConfigItem("Java_JAVA_EXECUTABLE", "/opt/jdk/bin/java")};
+        QCOMPARE(javaExecutable(found, env, buildDirectory),
+                 FilePath::fromParts(u"device", u"build-host", u"/opt/jdk/bin/java"));
+
+        // A configure that looked for the runtime and did not find it leaves
+        // the cache entry behind all the same.
+        const CMakeConfig notFound{
+            CMakeConfigItem("Java_JAVA_EXECUTABLE", "Java_JAVA_EXECUTABLE-NOTFOUND")};
+        QCOMPARE(javaExecutable(notFound, env, directory), java);
+        QCOMPARE(javaExecutable({}, env, directory), java);
+
+        // No Java anywhere: there is nothing to run the jars with.
+        QVERIFY(javaExecutable({}, {}, directory).isEmpty());
+    }
+};
+
+QObject *createJavaExecutableTest()
+{
+    return new JavaExecutableTest;
+}
+
+class JavaBuildTargetTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        CMakeJavaTarget jt;
+        jt.name = "hello";
+        jt.jar = "/b/hello.jar";
+        jt.sourceDirectory = "/s";
+
+        const FilePath java = "/opt/jdk/bin/java";
+        const BuildTargetInfo bti = javaBuildTargetInfo(jt, java, false);
+
+        // The jar is the executable and the virtual machine the launcher, so
+        // that the arguments stay the ones of the program.
+        QCOMPARE(bti.targetFilePath, jt.jar);
+        QCOMPARE(bti.launchers.size(), 1);
+        QCOMPARE(bti.launchers.first().command, java);
+        QCOMPARE(bti.launchers.first().arguments, QStringList{"-jar"});
+        QVERIFY(bti.additionalData.toMap().value("arguments").toStringList().isEmpty());
+
+        // A jar that the project did not mark runnable must not take the
+        // automatic run configuration away from the executables beside it,
+        // and one that it did has to keep it.
+        QVERIFY(!bti.isQtcRunnable);
+        QVERIFY(javaBuildTargetInfo(jt, java, true).isQtcRunnable);
+
+        QCOMPARE(bti.buildKey, jt.name);
+        QCOMPARE(bti.workingDirectory, jt.jar.parentDir());
+        QCOMPARE(bti.projectFilePath, FilePath("/s/CMakeLists.txt"));
+    }
+
+    void testTargetsOfTheBuild()
+    {
+        CMakeJavaTarget jt;
+        jt.name = "hello";
+        jt.jar = "/b/hello.jar";
+        jt.sourceDirectory = "/s";
+
+        // What add_jar() leaves in the file API: a utility target of the name
+        // of the jar, carrying what the project said about it.
+        CMakeBuildTarget utility;
+        utility.title = "hello";
+        utility.targetType = UtilityType;
+        utility.qtcRunnable = true;
+
+        const FilePath java = "/opt/jdk/bin/java";
+        const QList<BuildTargetInfo> targets = javaAppTargets({jt}, {utility}, java, {});
+
+        // One entry, which is the jar and not the "cmake --build" of the
+        // utility target, and which carries the flag of the project.
+        QCOMPARE(targets.size(), 1);
+        QCOMPARE(targets.first().buildKey, jt.name);
+        QCOMPARE(targets.first().targetFilePath, jt.jar);
+        QVERIFY(targets.first().isQtcRunnable);
+
+        // A jar the project said nothing about is not runnable by itself.
+        utility.qtcRunnable = false;
+        QVERIFY(!javaAppTargets({jt}, {utility}, java, {}).first().isQtcRunnable);
+        QVERIFY(!javaAppTargets({jt}, {}, java, {}).first().isQtcRunnable);
+
+        // No java, no jar to run: the utility target keeps the build key.
+        QVERIFY(javaAppTargets({jt}, {utility}, {}, {}).isEmpty());
+
+        // A preset that names the target gives one run configuration per run
+        // setting, all under the build key of the jar.
+        PresetsDetails::RunSettings first;
+        first.target = "hello";
+        PresetsDetails::RunSettings second;
+        second.target = "hello";
+        second.displayName = QString("Second");
+        const QMap<QString, QList<const PresetsDetails::RunSettings *>> runSettings{
+            {"hello", {&first, &second}}};
+
+        const QList<BuildTargetInfo> withSettings
+            = javaAppTargets({jt}, {utility}, java, runSettings);
+        QCOMPARE(withSettings.size(), 2);
+        QCOMPARE(withSettings.at(0).buildKey, jt.name);
+        QCOMPARE(withSettings.at(1).buildKey, jt.name);
+        QCOMPARE(withSettings.at(0).displayName, QString("hello"));
+        QCOMPARE(withSettings.at(1).displayName, QString("Second"));
+        QCOMPARE(withSettings.at(1).targetFilePath, jt.jar);
+    }
+
+    void testTakesTheBuildKeyOfTheUtilityTarget()
+    {
+        CMakeJavaTarget jt;
+        jt.name = "hello";
+        jt.jar = "/b/hello.jar";
+        jt.sourceDirectory = "/s";
+
+        // What a utility target of that name is made into, both the way a
+        // project that marked it runnable gets it and the way a preset that
+        // names it does.
+        BuildTargetInfo utility;
+        utility.displayName = "hello";
+        utility.buildKey = "hello";
+        utility.targetFilePath = "/usr/bin/cmake";
+        utility.additionalData = QVariantMap{
+            {"arguments", QStringList{"--build", ".", "--target", "hello"}}};
+        BuildTargetInfo ofARunSetting = utility;
+        ofARunSetting.displayName = "hello2";
+
+        BuildTargetInfo app;
+        app.displayName = "app";
+        app.buildKey = "app";
+        app.targetFilePath = "/b/app";
+
+        const QList<BuildTargetInfo> jars
+            = javaAppTargets({jt}, {}, FilePath("/opt/jdk/bin/java"), {});
+        const QList<BuildTargetInfo> targets
+            = mergeJavaTargets({utility, app, ofARunSetting}, jars);
+
+        // Nothing of that target is left for a run configuration to be built
+        // from before the jar, and what is beside it stays.
+        QCOMPARE(targets.size(), 2);
+        QCOMPARE(targets.at(0).buildKey, QString("app"));
+        QCOMPARE(targets.at(1).buildKey, jt.name);
+        QCOMPARE(targets.at(1).targetFilePath, jt.jar);
+        QVERIFY(targets.at(1).additionalData.toMap().value("arguments").toStringList().isEmpty());
+    }
+};
+
+QObject *createJavaBuildTargetTest()
+{
+    return new JavaBuildTargetTest;
+}
+#endif
+
 const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
 {
     const CMakeConfig &cm = configurationFromCMake();
@@ -4530,6 +4860,18 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             }
         }
     }
+
+    // A jar is not something the system knows how to start: what runs it is the
+    // virtual machine of the build, which goes in front of the archive. Where
+    // there is none, or where the kit does not run what it builds as a process
+    // of its own, there is nothing to offer.
+    const FilePath java = m_javaTargets.isEmpty() || !runsWhereItBuilds(kit())
+                              ? FilePath()
+                              : javaExecutable(cm,
+                                               buildConfiguration()->environment(),
+                                               m_parameters.buildDirectory);
+    const QList<BuildTargetInfo> javaTargetList
+        = javaAppTargets(m_javaTargets, m_buildTargets, java, runSettingsByTarget);
 
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (CMakeBuildSystem::filteredOutTarget(ct))
@@ -4632,7 +4974,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
         }
     }
 
-    return appTargetList;
+    return mergeJavaTargets(appTargetList, javaTargetList);
 }
 
 QStringList CMakeBuildSystem::buildTargetTitles() const

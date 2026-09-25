@@ -6,6 +6,7 @@
 #include "cmakebuildtarget.h"
 #include "cmakeinstallrules.h"
 #include "cmakeprojectnodes.h"
+#include "javatargets.h"
 
 #include <cmakelang/cmakedocument.h>
 
@@ -43,6 +44,7 @@ public:
     CMakeConfig cache;
     QSet<CMakeFileInfo> cmakeFiles;
     QList<CMakeBuildTarget> buildTargets;
+    QList<CMakeJavaTarget> javaTargets;
     ProjectExplorer::RawProjectParts projectParts;
     InstallRuleDeployment deployment;
     std::unique_ptr<CMakeProjectNode> rootProjectNode;
@@ -58,6 +60,7 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
 
 #ifdef WITH_TESTS
 QObject *createImportedLibraryDirectoriesTest();
+QObject *createJavaSourcesTest();
 QObject *createLinkedInterfaceSourcesTest();
 #endif
 

@@ -1,3 +1,5 @@
+import qbs.FileInfo
+
 Project {
     QtcPlugin {
         name: "CMakeProjectManager"
@@ -111,6 +113,8 @@ Project {
             "headerdependencyscanner.h",
             "headerdependencyupdater.cpp",
             "headerdependencyupdater.h",
+            "javatargets.cpp",
+            "javatargets.h",
             "mcptools.cpp",
             "mcptools.h",
             "presetsparser.cpp",
@@ -151,6 +155,20 @@ Project {
         files: [
             "cmakeinstallrules.cpp",
             "tests/tst_cmake_install_rules.cpp",
+        ]
+    }
+
+    QtcAutotest {
+        name: "CMake Java targets test"
+        Depends { name: "ProjectExplorer" }
+        Depends { name: "Utils" }
+        cpp.defines: base.concat(['JAVA_TARGETS_CMAKE="'
+                                  + FileInfo.joinPaths(path, "..", "..", "share", "3rdparty",
+                                                       "cmake-helper", "java-targets.cmake")
+                                  + '"'])
+        files: [
+            "javatargets.cpp",
+            "tests/tst_cmake_java_targets.cpp",
         ]
     }
 

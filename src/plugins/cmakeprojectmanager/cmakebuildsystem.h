@@ -294,6 +294,7 @@ private:
     bool m_scanningHeaderDependencies = false;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
+    QList<CMakeJavaTarget> m_javaTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;
     InstallRuleDeployment m_deploymentFromInstallRules;
     ProjectExplorer::DeploymentKnowledge m_deploymentKnowledge
@@ -334,6 +335,8 @@ private:
 #ifdef WITH_TESTS
 QObject *createAddDependenciesTest();
 QObject *createBinariesForSourceFileTest();
+QObject *createJavaBuildTargetTest();
+QObject *createJavaExecutableTest();
 QObject *createLibrarySearchPathsTest();
 QObject *createQmlModuleFilesTest();
 QObject *createResourceFilesTest();

@@ -52,6 +52,7 @@ add_qtc_plugin(CMakeProjectManager
     headerdependencies.cpp headerdependencies.h
     headerdependencyscanner.cpp headerdependencyscanner.h
     headerdependencyupdater.cpp headerdependencyupdater.h
+    javatargets.cpp javatargets.h
     presetsparser.cpp presetsparser.h
     presetsmacros.cpp presetsmacros.h
     projecttreehelper.cpp projecttreehelper.h
@@ -76,6 +77,15 @@ add_qtc_test(tst_cmake_install_rules
   SOURCES
     tests/tst_cmake_install_rules.cpp
     cmakeinstallrules.cpp
+)
+
+add_qtc_test(tst_cmake_java_targets
+  CONDITION WITH_TESTS
+  DEPENDS Utils ProjectExplorer
+  DEFINES "JAVA_TARGETS_CMAKE=\"${PROJECT_SOURCE_DIR}/src/share/3rdparty/cmake-helper/java-targets.cmake\""
+  SOURCES
+    tests/tst_cmake_java_targets.cpp
+    javatargets.cpp
 )
 
 add_qtc_test(tst_cmake_test_presets

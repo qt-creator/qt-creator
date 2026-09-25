@@ -36,6 +36,7 @@ public:
     bool isParsing() const;
 
     QList<CMakeBuildTarget> takeBuildTargets(QString &errorMessage);
+    QList<CMakeJavaTarget> javaTargets() const { return m_data.javaTargets; }
     QSet<CMakeFileInfo> takeCMakeFileInfos(QString &errorMessage);
     CMakeConfig takeParsedConfiguration();
     InstallRuleDeployment takeDeployment();
@@ -77,5 +78,9 @@ private:
     QDateTime m_lastReplyTimestamp;
     QtTaskTree::QSingleTaskTreeRunner m_taskTreeRunner;
 };
+
+#ifdef WITH_TESTS
+QObject *createCMakeHelperDirectoryTest();
+#endif
 
 } // CMakeProjectManager::Internal

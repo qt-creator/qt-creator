@@ -82,6 +82,15 @@ if (CMAKE_VERSION GREATER_EQUAL "3.19")
 endif()
 
 #
+# Java archives
+#
+if (CMAKE_VERSION GREATER_EQUAL "3.19")
+  # OPTIONAL: a helper file that did not make it into the build directory
+  # costs the jar targets in the IDE, and must not cost the configure.
+  include(${CMAKE_CURRENT_LIST_DIR}/java-targets.cmake OPTIONAL)
+endif()
+
+#
 # QML Debugging
 #
 if (QT_ENABLE_QML_DEBUG)

@@ -106,7 +106,11 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createCMakeSemanticHighlighterTest);
         addTestCreator(createAddDependenciesTest);
         addTestCreator(createBinariesForSourceFileTest);
+        addTestCreator(createCMakeHelperDirectoryTest);
         addTestCreator(createImportedLibraryDirectoriesTest);
+        addTestCreator(createJavaBuildTargetTest);
+        addTestCreator(createJavaExecutableTest);
+        addTestCreator(createJavaSourcesTest);
         addTestCreator(createLinkedInterfaceSourcesTest);
         addTestCreator(createLibrarySearchPathsTest);
         addTestCreator(createConditionalSourcesTest);

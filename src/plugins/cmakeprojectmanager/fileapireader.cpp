@@ -37,6 +37,12 @@
 #include <QGuiApplication>
 #include <QLoggingCategory>
 
+#ifdef WITH_TESTS
+#include <QFile>
+#include <QTemporaryDir>
+#include <QTest>
+#endif
+
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;
@@ -54,6 +60,194 @@ static QString stripTrailingNewline(QString str)
         str.chop(1);
     return str;
 }
+
+/*!
+    Brings the copy of the \c cmake-helper directory in \a localDirectory in
+    line with the one the running \QC ships in \a ideDirectory.
+
+    A build directory keeps its copy, so one configured by an earlier \QC would
+    go on including the helpers of that version, and a helper file added since
+    would never arrive at all. The copy belongs to the IDE rather than to the
+    project, so whatever differs from what is installed is replaced.
+
+    Returns what could not be copied and leaves the rest of the directory as it
+    was: a missing helper costs a feature, while stopping the configure over it
+    would cost the project.
+*/
+static QStringList updateCMakeHelperDirectory(const FilePath &ideDirectory,
+                                              const FilePath &localDirectory)
+{
+    QStringList errors;
+    ideDirectory.iterateDirectory(
+        [&](const FilePath &source) {
+            const Result<QByteArray> installed = source.fileContents();
+            if (!installed) {
+                errors << installed.error();
+                return IterationPolicy::Continue;
+            }
+            const FilePath target
+                = localDirectory.resolvePath(source.relativePathFromDir(ideDirectory));
+            if (!target.isFile()) {
+                if (const Result<> created = target.parentDir().ensureWritableDir(); !created) {
+                    errors << created.error();
+                    return IterationPolicy::Continue;
+                }
+                // The contents are written rather than the file copied, which
+                // would bring the permissions of the installation along: a
+                // read-only one leaves a copy that the next configure cannot
+                // replace.
+                if (const Result<qint64> written = target.writeFileContents(*installed); !written)
+                    errors << written.error();
+                return IterationPolicy::Continue;
+            }
+            if (const Result<QByteArray> local = target.fileContents();
+                local && *local == *installed) {
+                return IterationPolicy::Continue;
+            }
+            // The helper that is there keeps its place until there is one to
+            // take it: the project includes these files, so a configure
+            // survives a stale one and stops over a missing one.
+            const FilePath fresh = target.stringAppended(".new");
+            if (const Result<qint64> written = fresh.writeFileContents(*installed); !written) {
+                errors << written.error();
+                return IterationPolicy::Continue;
+            }
+            if (const Result<> removed = target.removeFile(); !removed) {
+                errors << removed.error();
+                fresh.removeFile();
+                return IterationPolicy::Continue;
+            }
+            if (const Result<> renamed = fresh.renameFile(target); !renamed)
+                errors << renamed.error();
+            return IterationPolicy::Continue;
+        },
+        {{}, DirFilterFlag::Files, DirIteratorFlag::Subdirectories});
+
+    return errors;
+}
+
+#ifdef WITH_TESTS
+class CMakeHelperDirectoryTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testUpdatesWhatDiffers()
+    {
+        QTemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+        const FilePath directory = FilePath::fromString(temporaryDir.path());
+        const FilePath ideDirectory = directory / "ide";
+        const FilePath localDirectory = directory / "local";
+
+        const auto writeFile = [](const FilePath &file, const QByteArray &contents) {
+            return file.parentDir().ensureWritableDir() && file.writeFileContents(contents);
+        };
+        QVERIFY(writeFile(ideDirectory / "unchanged.cmake", "same\n"));
+        QVERIFY(writeFile(ideDirectory / "changed.cmake", "new\n"));
+        QVERIFY(writeFile(ideDirectory / "added.cmake", "added\n"));
+        QVERIFY(writeFile(ideDirectory / "sub" / "nested.cmake", "nested\n"));
+        QVERIFY(writeFile(localDirectory / "unchanged.cmake", "same\n"));
+        QVERIFY(writeFile(localDirectory / "changed.cmake", "old\n"));
+        QVERIFY(writeFile(localDirectory / "ownedByTheProject.cmake", "kept\n"));
+
+        // A file of an earlier configure is older than the ones of this run,
+        // which is what says whether it was written again.
+        const QDateTime before = QDateTime::currentDateTime().addSecs(-3600);
+        QFile unchanged((localDirectory / "unchanged.cmake").toFSPathString());
+        QVERIFY(unchanged.open(QIODevice::ReadWrite));
+        QVERIFY(unchanged.setFileTime(before, QFileDevice::FileModificationTime));
+        unchanged.close();
+
+        QCOMPARE(updateCMakeHelperDirectory(ideDirectory, localDirectory), QStringList());
+
+        QCOMPARE((localDirectory / "unchanged.cmake").lastModified(), before);
+        QCOMPARE((localDirectory / "changed.cmake").fileContents().value_or(QByteArray()),
+                 QByteArray("new\n"));
+        QCOMPARE((localDirectory / "added.cmake").fileContents().value_or(QByteArray()),
+                 QByteArray("added\n"));
+        QCOMPARE((localDirectory / "sub" / "nested.cmake").fileContents().value_or(QByteArray()),
+                 QByteArray("nested\n"));
+        // What the IDE does not ship is none of its business.
+        QVERIFY((localDirectory / "ownedByTheProject.cmake").isFile());
+    }
+
+    void testReportsWhatItCouldNotWrite()
+    {
+        QTemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+        const FilePath directory = FilePath::fromString(temporaryDir.path());
+        const FilePath ideDirectory = directory / "ide";
+        const FilePath localDirectory = directory / "local";
+
+        QVERIFY((ideDirectory / "blocked.cmake").parentDir().ensureWritableDir());
+        QVERIFY((ideDirectory / "blocked.cmake").writeFileContents("blocked\n"));
+        QVERIFY((ideDirectory / "copied.cmake").writeFileContents("copied\n"));
+        // A directory where a file belongs is not something a copy gets past.
+        QVERIFY((localDirectory / "blocked.cmake").ensureWritableDir());
+
+        const QStringList errors = updateCMakeHelperDirectory(ideDirectory, localDirectory);
+
+        QCOMPARE(errors.size(), 1);
+        // The one that could not be written stops neither the others nor the
+        // configure that follows.
+        QCOMPARE((localDirectory / "copied.cmake").fileContents().value_or(QByteArray()),
+                 QByteArray("copied\n"));
+    }
+
+    void testLeavesTheInstallationBehind()
+    {
+        QTemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+        const FilePath directory = FilePath::fromString(temporaryDir.path());
+        const FilePath ideDirectory = directory / "ide";
+        const FilePath localDirectory = directory / "local";
+
+        const FilePath installed = ideDirectory / "helper.cmake";
+        QVERIFY(installed.parentDir().ensureWritableDir());
+        QVERIFY(installed.writeFileContents("helper\n"));
+        QVERIFY(installed.setPermissions(QFile::ReadOwner | QFile::ReadGroup | QFile::ReadOther));
+
+        QCOMPARE(updateCMakeHelperDirectory(ideDirectory, localDirectory), QStringList());
+
+        // An installation can be read-only, and what is written into a build
+        // directory has to stay the IDE's to replace on the next configure.
+        const FilePath local = localDirectory / "helper.cmake";
+        QCOMPARE(local.fileContents().value_or(QByteArray()), QByteArray("helper\n"));
+        QVERIFY(local.isWritableFile());
+    }
+
+    void testKeepsWhatItCannotReplace()
+    {
+        QTemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+        const FilePath directory = FilePath::fromString(temporaryDir.path());
+        const FilePath ideDirectory = directory / "ide";
+        const FilePath localDirectory = directory / "local";
+
+        QVERIFY((ideDirectory / "helper.cmake").parentDir().ensureWritableDir());
+        QVERIFY((ideDirectory / "helper.cmake").writeFileContents("new\n"));
+        QVERIFY((localDirectory / "helper.cmake").parentDir().ensureWritableDir());
+        QVERIFY((localDirectory / "helper.cmake").writeFileContents("old\n"));
+        // Nothing can be written where the new contents go.
+        QVERIFY((localDirectory / "helper.cmake.new").ensureWritableDir());
+
+        const QStringList errors = updateCMakeHelperDirectory(ideDirectory, localDirectory);
+
+        // The helper of the earlier configure is still there. A file the
+        // project includes and that is gone stops the configure, which is
+        // what the one that could not be replaced would have survived.
+        QCOMPARE(errors.size(), 1);
+        QCOMPARE((localDirectory / "helper.cmake").fileContents().value_or(QByteArray()),
+                 QByteArray("old\n"));
+    }
+};
+
+QObject *createCMakeHelperDirectoryTest()
+{
+    return new CMakeHelperDirectoryTest;
+}
+#endif
 
 static void doParse(QPromise<FileApiQtcData> &promise,
                     const FilePath &replyFilePath,
@@ -291,6 +485,16 @@ void FileApiReader::parse(bool forceCMakeRun,
                     BuildSystem::appendBuildSystemOutput(
                         addCMakePrefix(
                             {Tr::tr("Failed to copy \"cmake-helper\" folder:"), result.error()})
+                            .join('\n'));
+                }
+            } else {
+                const QStringList errors
+                    = updateCMakeHelperDirectory(ideCMakeHelperDir, localCMakeHelperDir);
+                if (!errors.isEmpty()) {
+                    BuildSystem::appendBuildSystemOutput(
+                        addCMakePrefix(
+                            QStringList{Tr::tr("Failed to update the \"cmake-helper\" folder:")}
+                            + errors)
                             .join('\n'));
                 }
             }
@@ -538,3 +742,7 @@ void FileApiReader::handleReplyIndexFileChange(const FilePath &indexFile)
 }
 
 } // CMakeProjectManager::Internal
+
+#ifdef WITH_TESTS
+#include <fileapireader.moc>
+#endif
