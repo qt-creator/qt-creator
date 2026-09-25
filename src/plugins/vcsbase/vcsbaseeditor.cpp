@@ -51,6 +51,7 @@
 #include <QDesktopServices>
 #include <QFile>
 #include <QFileInfo>
+#include <QFontMetrics>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QRegularExpression>
@@ -58,6 +59,7 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextEdit>
+#include <QTextLayout>
 #include <QTimer>
 #include <QUrl>
 
@@ -159,7 +161,7 @@ class AbstractTextCursorHandler : public QObject
 public:
     AbstractTextCursorHandler(VcsBaseEditorWidget *editorWidget = nullptr);
 
-    /*! Tries to find some matching contents under \a cursor.
+    /*! Tries to find matching contents at \a pos.
      *
      *  It is the first function to be called because it changes the internal
      *  state of the handler. Other functions (such as
@@ -168,27 +170,34 @@ public:
      *
      *  Returns \c true if contents could be found.
      */
-    virtual bool findContentsUnderCursor(const QTextCursor &cursor);
+    virtual bool findContentsAtPosition(const QPoint &pos) = 0;
 
-    //! Highlight (eg underline) the contents matched with findContentsUnderCursor()
+    //! Highlight (eg underline) the contents matched with findContentsAtPosition()
     virtual void highlightCurrentContents() = 0;
 
-    //! React to user-interaction with the contents matched with findContentsUnderCursor()
+    //! React to user-interaction with the contents matched with findContentsAtPosition()
     virtual void handleCurrentContents() = 0;
 
-    //! Contents matched with the last call to findContentsUnderCursor()
+    //! Contents matched with the last call to findContentsAtPosition()
     virtual QString currentContents() const = 0;
 
     /*! Fills \a menu with contextual actions applying to the contents matched
-     *  with findContentsUnderCursor().
+     *  with findContentsAtPosition().
      */
     virtual void fillContextMenu(QMenu *menu, EditorContentType type) const = 0;
 
     //! Editor passed on construction of this handler
     VcsBaseEditorWidget *editorWidget() const;
 
-    //! Text cursor used to match contents with findContentsUnderCursor()
+    //! Text cursor used to match contents with findContentsAtPosition()
     QTextCursor currentCursor() const;
+
+protected:
+    /*! Sets the text cursor to the character at \a pos.
+     *
+     *  Returns false if \a pos is outside the text.
+     */
+    bool setCursorAtPosition(const QPoint &pos);
 
 private:
     VcsBaseEditorWidget *m_editorWidget;
@@ -201,12 +210,6 @@ AbstractTextCursorHandler::AbstractTextCursorHandler(VcsBaseEditorWidget *editor
 {
 }
 
-bool AbstractTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
-{
-    m_currentCursor = cursor;
-    return false;
-}
-
 VcsBaseEditorWidget *AbstractTextCursorHandler::editorWidget() const
 {
     return m_editorWidget;
@@ -215,6 +218,43 @@ VcsBaseEditorWidget *AbstractTextCursorHandler::editorWidget() const
 QTextCursor AbstractTextCursorHandler::currentCursor() const
 {
     return m_currentCursor;
+}
+
+bool AbstractTextCursorHandler::setCursorAtPosition(const QPoint &pos)
+{
+    m_currentCursor = editorWidget()->cursorForPosition(pos);
+
+    const QTextBlock block = m_currentCursor.block();
+    QTextLayout *layout = block.layout();
+    const int blockPosition = block.position();
+    const int blockEnd = blockPosition + block.text().size();
+    const int position = m_currentCursor.position();
+    if (!layout || position < blockPosition || position > blockEnd)
+        return false;
+
+    const int textPosition = position - blockPosition;
+    const QTextLine line = layout->lineForTextPosition(textPosition);
+    if (!line.isValid())
+        return false;
+
+    // cursorForPosition() can return a cursor on another visual line when the
+    // pointer is in the blank area beside a wrapped line. Check the point
+    // against the line that contains the returned cursor before matching text.
+    const QRect cursorRect = editorWidget()->cursorRect(m_currentCursor);
+    const qreal lineX = cursorRect.x() - line.cursorToX(textPosition);
+    const qreal lineY = cursorRect.y() - line.y();
+    const QRectF lineRect = line.naturalTextRect().translated(lineX, lineY);
+    if (!lineRect.contains(QPointF(pos)))
+        return false;
+
+    // cursorForPosition() gives the nearest caret boundary. Move to the preceding character
+    // when the pointer is on its right half.
+    if (pos.x() < editorWidget()->cursorRect(m_currentCursor).x()
+        && !m_currentCursor.movePosition(QTextCursor::PreviousCharacter)) {
+        return false;
+    }
+
+    return m_currentCursor.position() >= blockPosition && m_currentCursor.position() < blockEnd;
 }
 
 /*! \class ChangeTextCursorHandler
@@ -228,7 +268,7 @@ class ChangeTextCursorHandler : public AbstractTextCursorHandler
 public:
     ChangeTextCursorHandler(VcsBaseEditorWidget *editorWidget = nullptr);
 
-    bool findContentsUnderCursor(const QTextCursor &cursor) override;
+    bool findContentsAtPosition(const QPoint &pos) override;
     void highlightCurrentContents() override;
     void handleCurrentContents() override;
     QString currentContents() const override;
@@ -252,12 +292,18 @@ ChangeTextCursorHandler::ChangeTextCursorHandler(VcsBaseEditorWidget *editorWidg
 {
 }
 
-bool ChangeTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
+bool ChangeTextCursorHandler::findContentsAtPosition(const QPoint &pos)
 {
-    AbstractTextCursorHandler::findContentsUnderCursor(cursor);
+    if (!setCursorAtPosition(pos))
+        return false;
+
+    const QTextCursor cursor = currentCursor();
     m_currentChange = editorWidget()->changeUnderCursor(cursor);
     m_changeLine = editorWidget()->originalLineUnderCursor(cursor);
-    return !m_currentChange.isEmpty();
+    if (m_currentChange.isEmpty())
+        return false;
+
+    return true;
 }
 
 void ChangeTextCursorHandler::highlightCurrentContents()
@@ -367,7 +413,7 @@ class UrlTextCursorHandler : public AbstractTextCursorHandler
 public:
     UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget = nullptr);
 
-    bool findContentsUnderCursor(const QTextCursor &cursor) override;
+    bool findContentsAtPosition(const QPoint &pos) override;
     void highlightCurrentContents() override;
     void handleCurrentContents() override;
     void fillContextMenu(QMenu *menu, EditorContentType type) const override;
@@ -406,9 +452,12 @@ UrlTextCursorHandler::UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget)
     m_gerritPattern = QRegularExpression("Change-Id: (I[a-f0-9]{40})");
 }
 
-bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
+bool UrlTextCursorHandler::findContentsAtPosition(const QPoint &pos)
 {
-    AbstractTextCursorHandler::findContentsUnderCursor(cursor);
+    if (!setCursorAtPosition(pos))
+        return false;
+
+    const QTextCursor cursor = currentCursor();
 
     m_urlData.url.clear();
     m_urlData.startColumn = -1;
@@ -418,7 +467,7 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
     cursorForUrl.select(QTextCursor::LineUnderCursor);
     if (cursorForUrl.hasSelection()) {
         const QString line = cursorForUrl.selectedText();
-        const int cursorCol = cursor.columnNumber();
+        const int characterColumn = cursor.columnNumber();
 
         struct {
             QRegularExpression &pattern;
@@ -435,7 +484,8 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
                 const QRegularExpressionMatch match = i.next();
                 const int urlMatchIndex = match.capturedStart(r.matchNumber);
                 const QString url = match.captured(r.matchNumber);
-                if (urlMatchIndex <= cursorCol && cursorCol < urlMatchIndex + url.size()) {
+                if (urlMatchIndex <= characterColumn
+                    && characterColumn < urlMatchIndex + url.size()) {
                     m_urlData.startColumn = urlMatchIndex;
                     m_urlData.url = r.urlPrefix + url;
                     m_urlData.urlLength = url.size();
@@ -554,7 +604,7 @@ class VcsBaseEditorWidgetPrivate
 public:
     VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget);
 
-    AbstractTextCursorHandler *findTextCursorHandler(const QTextCursor &cursor);
+    AbstractTextCursorHandler *findTextCursorHandler(const QPoint &pos);
     // creates a browse combo in the toolbar for quick access to entries.
     // Can be used for diff and log. Combo created on first call.
     QComboBox *entriesComboBox();
@@ -595,10 +645,10 @@ VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *edit
     m_textCursorHandlers.append(new EmailTextCursorHandler(editorWidget));
 }
 
-AbstractTextCursorHandler *VcsBaseEditorWidgetPrivate::findTextCursorHandler(const QTextCursor &cursor)
+AbstractTextCursorHandler *VcsBaseEditorWidgetPrivate::findTextCursorHandler(const QPoint &pos)
 {
     for (AbstractTextCursorHandler *handler : std::as_const(m_textCursorHandlers)) {
-        if (handler->findContentsUnderCursor(cursor))
+        if (handler->findContentsAtPosition(pos))
             return handler;
     }
     return nullptr;
@@ -1072,8 +1122,7 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QPointer<QMenu> menu;
     // 'click on change-interaction'
     if (supportChangeLinks()) {
-        const QTextCursor cursor = cursorForPosition(e->pos());
-        if (Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor)) {
+        if (Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(e->pos())) {
             menu = new QMenu;
             handler->fillContextMenu(menu, d->m_parameters.type);
         }
@@ -1142,8 +1191,7 @@ void VcsBaseEditorWidget::mouseMoveEvent(QMouseEvent *e)
 
     if (supportChangeLinks()) {
         // Link emulation behaviour for 'click on change-interaction'
-        const QTextCursor cursor = cursorForPosition(e->pos());
-        Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
+        Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(e->pos());
         if (handler != nullptr) {
             handler->highlightCurrentContents();
             overrideCursor = true;
@@ -1166,8 +1214,7 @@ void VcsBaseEditorWidget::mouseReleaseEvent(QMouseEvent *e)
     d->m_mouseDragging = false;
     if (!wasDragging && supportChangeLinks()) {
         if (e->button() == Qt::LeftButton &&!(e->modifiers() & Qt::ShiftModifier)) {
-            const QTextCursor cursor = cursorForPosition(e->pos());
-            Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(cursor);
+            Internal::AbstractTextCursorHandler *handler = d->findTextCursorHandler(e->pos());
             if (handler != nullptr) {
                 handler->handleCurrentContents();
                 e->accept();
@@ -1859,6 +1906,46 @@ void VcsBaseEditorWidget::testLogResolving(const VcsEditorFactory &factory,
     widget->textDocument()->setPlainText(QLatin1String(data));
     QCOMPARE(widget->d->entriesComboBox()->itemText(0), QString::fromLatin1(entry1));
     QCOMPARE(widget->d->entriesComboBox()->itemText(1), QString::fromLatin1(entry2));
+
+    delete editor;
+}
+
+void VcsBaseEditorWidget::testLinkBoundaries(const VcsEditorFactory &factory)
+{
+    VcsBaseEditor *editor = qobject_cast<VcsBaseEditor *>(factory.createEditor());
+    auto widget = qobject_cast<VcsBaseEditorWidget *>(editor->editorWidget());
+
+    widget->resize(900, 100);
+    widget->show();
+
+    for (const QString &text : QStringList{"commit " + QString(40, 'a'),
+                                          "see https://example.com"}) {
+        widget->setPlainText(text);
+        widget->resize(QFontMetrics(widget->font()).horizontalAdvance(text) + 100, 100);
+        QCoreApplication::processEvents();
+
+        const int linkStart = text.indexOf(' ') + 1;
+        const QString link = text.mid(linkStart);
+        const QTextCursor start = widget->textCursorAt(linkStart);
+        const QRect startRect = widget->cursorRect(start);
+        const QPoint beforeLink(startRect.x() - 1, startRect.center().y());
+        const QPoint onFirstCharacter(startRect.x() + 1, startRect.center().y());
+        const QTextCursor end = widget->textCursorAt(text.size());
+        const QRect endRect = widget->cursorRect(end);
+        const QPoint onLastCharacter(endRect.x() - 1, endRect.center().y());
+        const QPoint beyondLink(endRect.x() + 30, endRect.center().y());
+
+        QVERIFY(widget->viewport()->rect().contains(beyondLink));
+        QCOMPARE(widget->cursorForPosition(beforeLink).position(), start.position());
+        QVERIFY(!widget->d->findTextCursorHandler(beforeLink));
+        auto handler = widget->d->findTextCursorHandler(onFirstCharacter);
+        QVERIFY(handler);
+        QCOMPARE(handler->currentContents(), link);
+        handler = widget->d->findTextCursorHandler(onLastCharacter);
+        QVERIFY(handler);
+        QCOMPARE(handler->currentContents(), link);
+        QVERIFY(!widget->d->findTextCursorHandler(beyondLink));
+    }
 
     delete editor;
 }

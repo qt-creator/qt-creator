@@ -2464,6 +2464,7 @@ private slots:
     void testDiffFileResolving_data();
     void testDiffFileResolving();
     void testLogResolving();
+    void testLinkBoundaries();
     void testGitRemote_data();
     void testGitRemote();
     void testInlineDiffFile();
@@ -2667,6 +2668,11 @@ void GitTest::testLogResolving()
                             "50a6b54 - (HEAD -> feature, tag: v1.8.2) HEAD@{0}: commit: "
                             "Update draft release notes to 1.8.2",
                             "3587b51 - HEAD@{1}: checkout: moving from master to feature");
+}
+
+void GitTest::testLinkBoundaries()
+{
+    VcsBaseEditorWidget::testLinkBoundaries(dd->logEditorFactory);
 }
 
 class RemoteTest {

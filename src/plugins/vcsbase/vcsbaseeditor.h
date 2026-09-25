@@ -298,6 +298,7 @@ public:
                                  const QByteArray &data,
                                  const QByteArray &entry1,
                                  const QByteArray &entry2);
+    static void testLinkBoundaries(const VcsEditorFactory &factory);
 #endif
 };
 
