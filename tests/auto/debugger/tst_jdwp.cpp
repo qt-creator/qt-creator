@@ -565,7 +565,6 @@ void tst_jdwp::runsToTheEndAndReportsTheExitCode()
     QCOMPARE(backend->results().first().exitCode, 3);
     QCOMPARE(backend->stops(), qsizetype(0));
     QTRY_VERIFY_WITH_TIMEOUT(backend->output().contains("result 49 6 12 hello 3"), s_timeoutMs);
-    QVERIFY(backend->threadsCreated() > 0);
 }
 
 void tst_jdwp::stopsInAClassThatIsNotLoadedYet()
@@ -1196,6 +1195,11 @@ void tst_jdwp::listsTheThreads()
     QVERIFY2(main.isValid(), qPrintable(namesIn(data["threads"]).join(", ")));
     QCOMPARE(main["state"].data(), QString("stopped"));
     QCOMPARE(data["current-thread-id"].data(), main["id"].data());
+    // The machine reports a thread as it starts, over the connection the stop
+    // came in on, so by now those events have been in for a while. After the
+    // program has ended there is no such order to rely on, which is why this
+    // is asked here and not of a run that goes to the end.
+    QVERIFY(backend->threadsCreated() > 0);
 
     backend->shutdownInferior(ShutdownMode::Kill);
     QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
