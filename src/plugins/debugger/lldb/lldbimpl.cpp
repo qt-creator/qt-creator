@@ -529,6 +529,9 @@ LldbImpl::LldbImpl(const LldbImplStartData &startData)
             cmd.arg("processargs", QString());
             cmd.arg("symbolfile", remoteData->symbolFile.path());
             cmd.arg("remotechannel", remoteData->channel);
+            // A platform that attaches, rather than speaking the raw remote
+            // protocol, has nothing to attach to without the process.
+            cmd.arg("attachpid", remoteData->attachPid.pid());
         } else if (const auto *coreData
                        = std::get_if<AttachToCoreData>(&m_startData.inferiorStartData)) {
             cmd.arg("executable", coreData->executable.path());

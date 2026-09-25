@@ -1312,9 +1312,18 @@ static TriState lldbHeapDebugging(const DebuggerRunParameters &rp)
     return settings().enableHeapDebugging() ? TriState::Enabled : TriState::Disabled;
 }
 
+// The lldb an Android NDK ships brings its own Python, which it only finds
+// when the environment says where it is.
+static ProcessRunData lldbImplDebuggerRunData(const DebuggerRunParameters &rp)
+{
+    ProcessRunData debugger = rp.debugger();
+    DebuggerItem::addAndroidLldbPythonEnv(debugger.command.executable(), debugger.environment);
+    return debugger;
+}
+
 static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
 {
-    ProcessRunData debuggerRunData = rp.debugger();
+    ProcessRunData debuggerRunData = lldbImplDebuggerRunData(rp);
     if (!rp.runAsUser().isEmpty())
         ProjectExplorer::RunControl::provideAskPassEntry(debuggerRunData.environment);
     return {
