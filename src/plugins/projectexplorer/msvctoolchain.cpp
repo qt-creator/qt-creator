@@ -36,11 +36,13 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
 #include <QLoggingCategory>
+#include <QMutex>
 #include <QRegularExpression>
 #include <QSet>
 #include <QSettings>
@@ -980,6 +982,22 @@ static void environmentModifications(QPromise<MsvcToolchain::GenerateEnvResult> 
     promise.addResult(diff);
 }
 
+// The C and the C++ toolchain of one setup run the same script. They share a capture that has
+// not finished yet instead of queueing it twice on the single thread the captures get.
+static QFuture<MsvcToolchain::GenerateEnvResult> captureEnvironment(const FilePath &vcvarsBat,
+                                                                    const QString &varsBatArg)
+{
+    static QMutex mutex;
+    static QHash<std::pair<FilePath, QString>, QFuture<MsvcToolchain::GenerateEnvResult>> captures;
+    const QMutexLocker locker(&mutex);
+    QFuture<MsvcToolchain::GenerateEnvResult> &capture = captures[{vcvarsBat, varsBatArg}];
+    if (!capture.isValid() || capture.isFinished()) {
+        capture = Utils::asyncRun(envModThreadPool(), &environmentModifications, vcvarsBat,
+                                  varsBatArg);
+    }
+    return capture;
+}
+
 void MsvcToolchain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
 {
     m_envModWatcher.setFuture(future);
@@ -1051,8 +1069,7 @@ void MsvcToolchain::rescanWhenDeviceReady()
             if (m_environmentModifications.isEmpty()) {
                 // The environment capture failed while the device was offline. Re-run it;
                 // on success updateEnvironmentModifications() re-probes the compiler.
-                initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &environmentModifications,
-                                                  m_vcvarsBat, m_varsBatArg));
+                initEnvModWatcher(captureEnvironment(m_vcvarsBat, m_varsBatArg));
             } else if (compilerCommand().isEmpty()) {
                 rescanForCompiler();
                 toolChainUpdated();
@@ -1294,8 +1311,7 @@ void MsvcToolchain::fromMap(const Store &data)
         data.value(environModsKeyC).toList());
     if (m_vcvarsBat.hasFileAccess()) {
         rescanForCompiler();
-        initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &environmentModifications,
-                                          m_vcvarsBat, m_varsBatArg));
+        initEnvModWatcher(captureEnvironment(m_vcvarsBat, m_varsBatArg));
     } else {
         // Device offline at startup: retry the probe once it is connected.
         rescanWhenDeviceReady();
@@ -1584,8 +1600,7 @@ void MsvcToolchain::setupVarsBat(const Abi &abi, const FilePath &varsBat, const 
     m_varsBatArg = varsBatArg;
 
     if (!varsBat.isEmpty()) {
-        initEnvModWatcher(Utils::asyncRun(envModThreadPool(),
-                          &environmentModifications, varsBat, varsBatArg));
+        initEnvModWatcher(captureEnvironment(varsBat, varsBatArg));
     }
 }
 
