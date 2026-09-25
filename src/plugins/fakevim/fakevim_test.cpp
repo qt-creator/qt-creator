@@ -29,6 +29,7 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/multitextcursor.h>
+#include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/stringutils.h>
 
 #include <QApplication>
@@ -38,10 +39,12 @@
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QRegularExpression>
+#include <QScrollBar>
 #include <QMainWindow>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 #include <QTest>
+#include <QTextLayout>
 #include <QTimer>
 #include <QTextEdit>
 #include <QTextDocument>
@@ -70,7 +73,6 @@ using namespace TextEditor;
 namespace FakeVim::Internal {
 
 static QString _(const char *c) { return QLatin1String(c); }
-static QString _(const QByteArray &c) { return QLatin1String(c); }
 static QString _(const QString &c) { return c; }
 
 class FakeVimTester final : public QObject
@@ -83,6 +85,14 @@ private slots:
     void test_vim_movement();
 
     void test_vim_target_column_normal();
+    void test_vim_target_column_screen_lines();
+    void test_vim_screen_line_columns();
+    void test_vim_sideways_scroll();
+    void test_vim_side_scroll_offset();
+    void test_vim_screen_lines_wrapped();
+    void test_vim_screen_lines_window();
+    void test_vim_screen_view_wrapped();
+    void test_vim_screen_scrolling_wrapped();
     void test_vim_target_column_visual_char();
     void test_vim_target_column_visual_block();
     void test_vim_target_column_visual_line();
@@ -99,10 +109,15 @@ private slots:
     void test_vim_delete_a_word();
     void test_vim_change_a_word();
 
+    void test_vim_word_class_above_latin1();
+
     void test_vim_change_replace();
+    void test_vim_change_ending_in_newline();
 
     void test_vim_block_selection();
     void test_vim_block_selection_insert();
+    void test_vim_block_selection_caret();
+    void test_vim_block_selection_delete();
 
     void test_vim_delete_inner_paragraph();
     void test_vim_delete_a_paragraph();
@@ -113,6 +128,7 @@ private slots:
 
     void test_vim_repeat();
     void test_vim_search();
+    void test_vim_pattern_over_line_end();
     void test_vim_nohlsearch_core_search();
     void test_vim_indent();
     void test_vim_marks();
@@ -129,10 +145,12 @@ private slots:
     void test_vim_ex_commandbuffer_paste();
     void test_vim_ex_yank();
     void test_vim_ex_delete();
+    void test_vim_ex_register_unnamed();
     void test_vim_ex_change();
     void test_vim_ex_shift();
     void test_vim_ex_move();
     void test_vim_ex_join();
+    void test_vim_ex_at();
     void test_vim_ex_normal();
     void test_vim_ex_error_messages();
     void test_advanced_commands();
@@ -149,6 +167,7 @@ private slots:
 //    // functional tests
     void test_vim_indentation();
     void test_vim_readonly();
+    void test_vim_ctrl_backslash();
 
     // command mode
     void test_vim_command_oO();
@@ -188,6 +207,7 @@ private slots:
     void test_vim_command_y_dollar();
     void test_vim_command_percent();
     void test_vim_percent_like_vim();
+    void test_vim_percent_conditionals();
 
     void test_vim_visual_d();
     void test_vim_Visual_d();
@@ -202,10 +222,15 @@ private slots:
     void test_vim_surround_emulation();
     void test_vim_unimpaired_emulation();
     void test_vim_reflow();
+    void test_vim_reflow_formatexpr();
+    void test_vim_reflow_formatprg();
+    void test_vim_wrapmargin();
+    void test_vim_indent_equalprg();
     void test_vim_plugin_off_leaves_buffer_alone();
     void test_vim_plugin_modeline_of_the_current_buffer();
     void test_vim_plugin_buffer_lifecycle_events();
     void test_vim_plugin_window_events();
+    void test_vim_plugin_exit_events();
     void test_vim_visual_selection_focus_out();
     void test_vim_tagstack();
     void test_vim_source_utf8();
@@ -254,6 +279,10 @@ private slots:
     void test_vim_script_functions();
     void test_vim_script_defer();
     void test_vim_script_string_builtins();
+    void test_vim_script_printf_arguments();
+    void test_vim_script_printf_conversions();
+    void test_vim_script_printf_positional();
+    void test_vim_script_printf_flags();
     void test_vim_script_collection_builtins();
     void test_vim_script_map_filter();
     void test_vim_script_try_catch();
@@ -283,6 +312,7 @@ private slots:
     void test_vim_command_line_ctrl_w();
     void test_vim_command_line_ctrl_b_e();
     void test_vim_ctrl_q_literal();
+    void test_vim_digraphs();
     void test_vim_script_searchpair();
     void test_vim9_matchit();
     void test_vim_script_setline_place();
@@ -323,6 +353,7 @@ private slots:
     void test_vim_command_line_expression();
     void test_vim9_unimpaired();
     void test_vim_script_count_in_mapping();
+    void test_vim_script_prevcount();
     void test_vim_script_curly_name();
     void test_vim_script_tr();
     void test_vim_script_string_as_number();
@@ -341,9 +372,14 @@ private slots:
     void test_vim_script_file_info();
     void test_vim_script_islocked();
     void test_vim_script_autocmd_get();
+    void test_vim_autocmd_once();
     void test_vim_script_typename();
     void test_vim_autocmd_bang_clears();
     void test_vim_autocmd_bar();
+    void test_vim_autocmd_nesting();
+    void test_vim_autocmd_nested();
+    void test_vim_autocmd_eventignore();
+    void test_vim_autocmd_eventignorewin();
     void test_vim_autocmd_error_while_handling_key();
     void test_vim_script_autocmd_add_delete();
     void test_vim_script_filecopy();
@@ -356,6 +392,9 @@ private slots:
     void test_vim_substitute_print_flags();
     void test_vim_substitute_count();
     void test_vim_substitute_remembered();
+    void test_vim_substitute_repeat_pattern();
+    void test_vim_substitute_blank_flags();
+    void test_vim_substitute_glued_flags();
     void test_vim_normal_bang();
     void test_vim_autocmd_optionset();
     void test_vim_autocmd_encodingchanged();
@@ -368,6 +407,8 @@ private slots:
     void test_vim_autocmd_quickfixcmd();
     void test_vim_autocmd_syntax();
     void test_vim_option_buffer_state();
+    void test_vim_function_diff();
+    void test_vim_function_assert_beeps();
     void test_vim_blob();
     void test_vim_blob_operations();
     void test_vim_ex_mode();
@@ -375,6 +416,11 @@ private slots:
     void test_vim_pattern_file_position();
     void test_vim_map_leader();
     void test_vim_auto_wrap();
+    void test_vim_auto_wrap_break_point();
+    void test_vim_auto_wrap_options();
+    void test_vim_auto_wrap_cells();
+    void test_vim_auto_wrap_multibyte();
+    void test_vim_reflow_multibyte();
     void test_vim_format_options_leader();
     void test_vim_format_options_leader_flags();
     void test_vim_set_number_option();
@@ -394,9 +440,14 @@ private slots:
     void test_vim_numbered_register_whole_lines();
     void test_vim_change_marks_after_operator();
     void test_vim_ex_semicolon_range();
+    void test_vim_ex_star_range();
     void test_vim_autoindent_kept_over_line_break();
+    void test_vim_autoindent_kept_by_arrow();
+    void test_vim_comment_leader_kept_by_arrow();
     void test_vim_insert_ctrl_g();
+    void test_vim_insert_ctrl_o();
     void test_vim_insert_abbreviation_word();
+    void test_vim_abbreviation_kinds();
     void test_vim_substitute_expression();
     void test_vim_substitute_collection();
     void test_vim_substitute_added_lines();
@@ -413,6 +464,7 @@ private slots:
     void test_vim_block_change();
     void test_vim_undo_line();
     void test_vim_replace_count();
+    void test_vim_replace_indent_keys();
     void test_vim_replace_special_key();
     void test_vim_block_object_ahead();
     void test_vim_quoted_string_blanks();
@@ -420,6 +472,7 @@ private slots:
     void test_vim_quote_object_count();
     void test_vim_empty_block_object();
     void test_vim_join_spacing();
+    void test_vim_join_multibyte();
     void test_vim_visual_join();
     void test_vim_dot_with_count();
     void test_vim_a_word_blanks();
@@ -439,6 +492,10 @@ private slots:
     void test_vim_middle_of_line();
     void test_vim_ascii_key();
     void test_vim_scroll_page_line();
+    void test_vim_scroll_half_page();
+    void test_vim_scroll_jump_placement();
+    void test_vim_scroll_page();
+    void test_vim_scroll_align();
     void test_vim_balanced_brace();
     void test_vim_filter_lines();
     void test_vim_command_map_listing();
@@ -449,10 +506,12 @@ private slots:
     void test_vim_command_cabbrev();
     void test_vim_command_append_insert();
     void test_vim_command_swept_batch();
+    void test_vim_command_undolist();
     void test_vim_function_confirm_listeners();
     void test_vim_function_matchfuzzy();
     void test_vim_functions_none_of_that();
     void test_vim_function_undotree_screen();
+    void test_vim_function_undotree_branches();
     void test_vim_tuple();
     void test_vim_option_modifiable();
     void test_vim_command_wincmd_clearjumps();
@@ -460,6 +519,16 @@ private slots:
     void test_vim_input_functions();
     void test_vim_command_small_ex_commands();
     void test_vim_command_changes();
+    void test_vim_command_quickfix();
+    void test_vim_command_quickfix_jump();
+    void test_vim_command_quickfix_do();
+    void test_vim_command_quickfix_cursor();
+    void test_vim_command_vimgrep();
+    void test_vim_command_grep();
+    void test_vim_command_errorformat();
+    void test_vim_command_quickfix_buffer();
+    void test_vim_command_quickfix_file();
+    void test_vim_command_quickfix_expr();
     void test_vim_command_scriptnames();
     void test_vim_command_buffer_list();
     void test_vim_command_match();
@@ -482,6 +551,7 @@ private slots:
     void test_vim_option_display();
     void test_vim_option_depth_limits();
     void test_vim_autocmd_focus();
+    void test_vim_autocmd_afile_amatch();
     void test_vim_autocmd_completedone();
     void test_vim_autocmd_safestate();
     void test_vim_autocmd_menupopup();
@@ -492,12 +562,17 @@ private slots:
     void test_vim_autocmd_shell();
     void test_vim_autocmd_filter();
     void test_vim_autocmd_modechanged();
+    void test_vim_autocmd_modechanged_order();
     void test_vim_read_from_command();
+    void test_vim_ex_command_line_completion();
     void test_vim_ex_history();
     void test_vim_ex_map_list();
     void test_vim_ex_filter();
     void test_vim_ex_join_count();
     void test_vim_command_nargs();
+    void test_vim_command_range_and_count();
+    void test_vim_ex_command_list();
+    void test_vim_ex_command_attributes();
     void test_vim_autocmd_filewrite();
     void test_vim_autocmd_cmd_events();
     void test_vim_command_write_whole_buffer();
@@ -509,6 +584,8 @@ private slots:
     void test_vim_script_arglist();
     void test_vim_script_fold_queries();
     void test_vim_script_setmatches_and_state();
+    void test_vim_script_state_pending_operator();
+    void test_vim_script_state_mapping_autocmd();
     void test_vim_script_assert_functions();
     void test_vim_script_misc_builtins();
     void test_vim_script_getstacktrace();
@@ -581,6 +658,8 @@ private slots:
     void test_vim_command_changelist();
     void test_vim_script_list_functions();
     void test_vim_command_earlier_later();
+    void test_vim_command_earlier_later_file();
+    void test_vim_command_undo_number();
     void test_vim_script_buffer_lines();
     void test_vim_substitute_flags();
     void test_vim_substitute_flag_parsing();
@@ -611,6 +690,7 @@ private slots:
     void test_vim_script_localtime_and_strptime();
     void test_vim_script_reltime();
     void test_vim_command_marks();
+    void test_vim_command_registers();
     void test_vim_command_mark();
     void test_vim_command_jumps();
     void test_vim_script_bufexists();
@@ -642,6 +722,7 @@ private slots:
     void test_vim_script_getbufoneline_wordcount();
     void test_vim_script_foreach();
     void test_vim_script_combining_and_non_bmp();
+    void test_vim_script_string_byte_indices();
     void test_vim_script_window_functions();
     void test_vim_pattern_class_and_lookaround();
     void test_vim_script_changedtick();
@@ -657,6 +738,7 @@ private slots:
     void test_vim_script_width_and_getline();
     void test_vim9_justify();
     void test_vim_softtabstop();
+    void test_vim_smarttab();
     void test_vim_script_mode();
     void test_vim_ex_command_own_selection();
     void test_vim9_comment_text_object();
@@ -668,6 +750,7 @@ private slots:
     void test_vim_set_escaped_value();
     void test_vim_script_throwpoint();
     void test_vim_pattern_lookaround();
+    void test_vim_pattern_collection_escapes();
     void test_vim_pattern_percent_atoms();
     void test_vim_pattern_very_magic();
     void test_vim_script_lockvar();
@@ -704,6 +787,8 @@ private slots:
     void test_vim_script_modifiers();
     void test_vim_script_operator_plugin();
     void test_vim_file_info();
+    void test_vim_status_ruler_column();
+    void test_vim_status_ruler_lines_seen();
     void test_vim_ex_plugin_command_moves_cursor();
     void test_vim_dot_after_visual_paste();
     void test_vim_use_editor_tab_settings();
@@ -717,6 +802,23 @@ private slots:
     void test_vim_gv_after_visual_yank();
     void test_vim_visual_paste_registers();
     void test_vim_ft_repeat_after_operator();
+    void test_vim_cpoptions_minus();
+    void test_vim_cpoptions_o();
+    void test_vim_cpoptions_brace();
+    void test_vim_cpoptions_e_upper();
+    void test_vim_cpoptions_h_upper();
+    void test_vim_cpoptions_i_upper();
+    void test_vim_cpoptions_j_upper();
+    void test_vim_cpoptions_l();
+    void test_vim_cpoptions_m_upper();
+    void test_vim_cpoptions_percent();
+    void test_vim_cpoptions_r();
+    void test_vim_cpoptions_u();
+    void test_vim_cpoptions_x_upper();
+    void test_vim_cpoptions_y();
+    void test_vim_cpoptions_gt();
+    void test_vim_cpoptions_w();
+    void test_vim_cpoptions_hash();
     void test_vim_visual_change_linewise();
     void test_vim_shift_blockwise();
     void test_vim_visual_reselect_count();
@@ -735,6 +837,14 @@ private slots:
     // special tests
     void test_i_cw_i();
 
+    // Adds buffers the whole run then sees, so it comes after the tests that
+    // count them.
+    void test_vim_script_bufadd_bufload();
+    void test_vim_command_buffer_delete();
+    void test_vim_command_buffer_list_flags();
+    void test_vim_command_set_listing();
+    void test_vim_command_set_reset_all();
+
     // map test should be last one since it changes default behaviour
     void test_map();
     void test_vim_command_mapclear();
@@ -742,6 +852,10 @@ private slots:
     void test_vim_no_overwrite_when_editor_takes_keys();
     void test_vim_edit_during_inline_rename();
     void test_vim_command_map_bang();
+    void test_vim_virtualedit_onemore();
+    void test_vim_virtualedit_all();
+    void test_vim_virtualedit_insert();
+    void test_vim_virtualedit_block();
 
 //private:
 //    QString m_statusMessage;
@@ -772,14 +886,32 @@ static const QString helpFormat = _(
     "\n\tShould be:\n" \
     LINE_START "%4" LINE_END);
 
+// A position counts characters, as the document does, while the text holds
+// UTF-8 bytes: a character outside ASCII takes more than one of them.
+static int bytePosition(const QByteArray &text, int position)
+{
+    int bytes = 0;
+    for (int chars = 0; bytes < text.size() && chars < position; ) {
+        const uchar c = uchar(text.at(bytes));
+        const int length = c < 0x80 ? 1 : c < 0xe0 ? 2 : c < 0xf0 ? 3 : 4;
+        bytes += length;
+        chars += length == 4 ? 2 : 1;
+    }
+    return bytes;
+}
+
 static QByteArray textWithCursor(const QByteArray &text, int position)
 {
-    return (position == -1) ? text : (text.left(position) + X + text.mid(position));
+    if (position == -1)
+        return text;
+    const int pos = bytePosition(text, position);
+    return text.left(pos) + X + text.mid(pos);
 }
 
 static QByteArray textWithCursor(const QByteArray &text, const QTextBlock &block, int column)
 {
-    const int pos = block.position() + qMin(column, qMax(0, block.length() - 2));
+    const int pos = bytePosition(text, block.position()
+                                       + qMin(column, qMax(0, block.length() - 2)));
     return text.left(pos) + X + text.mid(pos);
 }
 
@@ -923,16 +1055,18 @@ struct FakeVimTester::TestData
     }
     void doKeys(const char *keys) { doKeys(_(keys)); }
 
-    void setText(const char *text)
+    void setText(const char *text) { setText(_(text)); }
+
+    void setText(const QString &text)
     {
         doKeys("<ESC>");
-        QByteArray str = text;
-        int i = str.indexOf(X);
+        QString str = text;
+        int i = str.indexOf(QLatin1Char(*X));
         if (i != -1)
             str.remove(i, 1);
         else
             i = 0;
-        editor()->document()->setPlainText(_(str));
+        editor()->document()->setPlainText(str);
         QTRY_VERIFY(editor()->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate());
         setPosition(i);
         QCOMPARE(position(), i);
@@ -975,6 +1109,10 @@ void FakeVimTester::setup(TestData *data)
 {
     setupTest(&data->title, &data->handler, &data->edit);
     data->reset();
+    // Going to a quickfix entry of another file asks Qt Creator to open that
+    // file. A test that means to see the request takes this over, and the
+    // rest are kept to the one document they work on.
+    data->handler->fileOpenRequested.set([](const QString &, int, int) {});
     data->doCommand("| set nopasskeys"
                     "| set nopasscontrolkey"
                     "| set smartindent"
@@ -1075,6 +1213,83 @@ void FakeVimTester::test_vim_readonly()
     // (QTCREATORBUG-24237).
     data.editor()->setReadOnly(false);
     KEYS("x", X "bc def");
+}
+
+void FakeVimTester::test_vim_ctrl_backslash()
+{
+    TestData data;
+    setup(&data);
+
+    // CTRL-\ CTRL-N and CTRL-\ CTRL-G go to normal mode, any other key is
+    // taken on its own with the CTRL-\ dropped.
+    data.setText("abc def");
+    KEYS("<C-\\><C-n>x", X "bc def");
+    data.setText("abc def");
+    KEYS("<C-\\>x", X "abc def");
+
+    // Out of visual mode normal mode is where the cursor stands, not where the
+    // selection started.
+    data.setText("abcd");
+    KEYS("vlx", X "cd");
+    data.setText("abcd");
+    KEYS("vl<C-\\><C-n>x", "a" X "cd");
+    data.setText("abcd");
+    KEYS("vl<C-\\><C-g>x", "a" X "cd");
+    data.setText("abcd");
+    KEYS("Vl<C-\\><C-n>x", "a" X "cd");
+
+    // In insert and replace mode both are exactly Escape.
+    data.setText("abc def");
+    KEYS("iQR<Esc>x", "Q" X "abc def");
+    data.setText("abc def");
+    KEYS("iQR<C-\\><C-n>x", "Q" X "abc def");
+    data.setText("abc def");
+    KEYS("iQR<C-\\><C-g>x", "Q" X "abc def");
+    data.setText("abc def");
+    KEYS("RQ<Esc>x", X "bc def");
+    data.setText("abc def");
+    KEYS("RQ<C-\\><C-n>x", X "bc def");
+    data.setText("abc def");
+    KEYS("i<C-\\><C-g>Y<Esc>", X "abc def");
+
+    // CTRL-\ CTRL-O is the single command of CTRL-O, with the cursor left
+    // standing past the end of the line.
+    data.setText("abc def");
+    KEYS("i<C-\\><C-o>dwX<Esc>", X "Xdef");
+    data.setText("abc def");
+    KEYS("A<C-o>rZ<Esc>", "abc de" X "Z");
+    data.setText("abc def");
+    KEYS("A<C-\\><C-o>rZ<Esc>", "abc de" X "f");
+    data.setText("abc def");
+    KEYS("A<C-o>x<Esc>", "abc d" X "e");
+    data.setText("abc def");
+    KEYS("A<C-\\><C-o>x<Esc>", "abc de" X "f");
+    data.setText("abc def");
+    KEYS("A<C-o>iQ<Esc>", "abc de" X "Qf");
+    data.setText("abc def");
+    KEYS("A<C-\\><C-o>iQ<Esc>", "abc def" X "Q");
+    data.setText("abc def");
+    KEYS("A<C-o>D<Esc>", "abc d" X "e");
+    data.setText("abc def");
+    KEYS("A<C-\\><C-o>D<Esc>", "abc de" X "f");
+
+    // On the command line CTRL-\ e asks for an expression and puts its value in
+    // place of the whole line. The first Return ends the expression, the second
+    // executes the line it left behind.
+    data.setText("abc");
+    KEYS(":s/a/X/<C-\\>e's/b/Y/'<CR><CR>", X "aYc");
+    data.setText("abc");
+    KEYS(":s/a/X/<C-\\>esubstitute(getcmdline(),'X','Z','')<CR><CR>", X "Zbc");
+    data.setText("abc");
+    KEYS("/a<C-\\>e'c'<CR><CR>x", "a" X "b");
+    data.setText("abc");
+    KEYS("$?a<C-\\>e'b'<CR><CR>x", "a" X "c");
+
+    // CTRL-\ CTRL-N gives up on the line, any other key goes into it.
+    data.setText("abc");
+    KEYS(":s/a/X<C-\\><C-n>x", X "bc");
+    data.setText("abc");
+    KEYS(":s/a/X<C-\\>z/<CR>", X "Xzbc");
 }
 
 void FakeVimTester::test_vim_movement()
@@ -1300,6 +1515,1424 @@ void FakeVimTester::test_vim_target_column_normal()
     KEYS("^9ljj", "abcdefghij" N "\t\tx" N "abcdefghi" X "jklmnopq");
 }
 
+void FakeVimTester::test_vim_target_column_screen_lines()
+{
+    // Without "wrap" a screen line is a line, so "gj" and "gk" move the way "j"
+    // and "k" do, and they keep the column the last horizontal motion wanted
+    // even across a line too short to hold it. Measured in Vim 9.1 with
+    // "nowrap" in a window of 80 columns.
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the document has a layout to move along.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    QByteArray text = QByteArray("A").repeated(200) + "\n" + QByteArray("B").repeated(10)
+                      + "\n" + QByteArray("C").repeated(200) + "\n"
+                      + QByteArray("D").repeated(200);
+    data.setText(text.constData());
+
+    const auto cursorLine = [&] { return data.editor()->textCursor().blockNumber() + 1; };
+    const auto cursorColumn = [&] { return data.editor()->textCursor().positionInBlock() + 1; };
+
+    data.doKeys("1G50|gj");
+    QCOMPARE(cursorLine(), 2);
+    QCOMPARE(cursorColumn(), 10);
+    data.doKeys("1G50|gjgj");
+    QCOMPARE(cursorLine(), 3);
+    QCOMPARE(cursorColumn(), 50);
+    data.doKeys("1G50|2gj");
+    QCOMPARE(cursorLine(), 3);
+    QCOMPARE(cursorColumn(), 50);
+    data.doKeys("2G50|gj");
+    QCOMPARE(cursorLine(), 3);
+    QCOMPARE(cursorColumn(), 50);
+    data.doKeys("3G50|gk");
+    QCOMPARE(cursorLine(), 2);
+    QCOMPARE(cursorColumn(), 10);
+    data.doKeys("2G$gj");
+    QCOMPARE(cursorLine(), 3);
+    QCOMPARE(cursorColumn(), 200);
+
+    // A tab counts for the columns it is wide here as well.
+    data.setText("\tx" N "abcdefghijklmnopqrst" N "abcdefghijklmnopqrst");
+    data.doKeys("1G10|gj");
+    QCOMPARE(cursorLine(), 2);
+    QCOMPARE(cursorColumn(), 10);
+    data.doKeys("1G10|gjgj");
+    QCOMPARE(cursorLine(), 3);
+    QCOMPARE(cursorColumn(), 10);
+    data.doKeys("1G5|gj");
+    QCOMPARE(cursorLine(), 2);
+    QCOMPARE(cursorColumn(), 5);
+}
+
+void FakeVimTester::test_vim_sideways_scroll()
+{
+    // A window that does not wrap its lines can be scrolled sideways, and the
+    // "z" commands that do it leave the cursor inside the window. Measured in
+    // Vim 9.1 with "nowrap" in a window of 80 columns over a line of 200
+    // characters, the view at its leftmost and the cursor in column 1: "zl"
+    // gives leftcol 1 and column 2, "5zl" leftcol 6 and column 7, "zh" back
+    // to leftcol 5, "3zh" to leftcol 2, "zL" leftcol 40 and column 41, a
+    // second "zL" leftcol 80 and column 81, "zH" leftcol 40 with the column
+    // kept, and from column 100 "zs" gives leftcol 99 while
+    // "ze" gives leftcol 20, the cursor staying where it is for both.
+    TestData data;
+    setup(&data);
+
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message.toInt();
+    };
+    const auto cursorColumn = [&] { return data.editor()->textCursor().positionInBlock() + 1; };
+    const auto leftcol = [&] { return echo("winsaveview().leftcol"); };
+
+    data.setText(QByteArray(".").repeated(200).constData());
+    // A window that wraps has nothing to scroll sideways, and the editor wraps
+    // until it is told not to.
+    data.doCommand("set nowrap");
+    // The editor lays the text out again where the width changes, and only a
+    // layout made after the text was set knows how wide the line is.
+    data.editor()->resize(601, 400);
+    QCoreApplication::processEvents();
+    // The window learns how far it can scroll from the line it has to show.
+    data.editor()->ensureCursorVisible();
+    QCoreApplication::processEvents();
+    QVERIFY(data.editor()->horizontalScrollBar()->maximum() > 0);
+    // The columns the window shows are the ones the layout of the line fits
+    // beside the margin the editor keeps on either side of the text. Read them
+    // off that layout: a font whose characters are not all of one width would
+    // make any count from a column width drift over a line this long.
+    const QTextLine line = data.editor()->document()->firstBlock().layout()->lineAt(0);
+    const int columns = line.xToCursor(data.editor()->viewport()->width()
+                                       - 2 * data.editor()->document()->documentMargin());
+    const int half = columns / 2;
+    QVERIFY(columns > 20 && columns < 200);
+
+    data.doKeys("1G1|");
+    QCOMPARE(leftcol(), 0);
+    data.doKeys("zl");
+    QCOMPARE(leftcol(), 1);
+    QCOMPARE(cursorColumn(), 2);
+    data.doKeys("5zl");
+    QCOMPARE(leftcol(), 6);
+    QCOMPARE(cursorColumn(), 7);
+    data.doKeys("zh");
+    QCOMPARE(leftcol(), 5);
+    QCOMPARE(cursorColumn(), 7);
+    data.doKeys("3zh");
+    QCOMPARE(leftcol(), 2);
+    QCOMPARE(cursorColumn(), 7);
+
+    data.doKeys("1|");
+    QCOMPARE(leftcol(), 0);
+    data.doKeys("zL");
+    QCOMPARE(leftcol(), half);
+    QCOMPARE(cursorColumn(), half + 1);
+    data.doKeys("zL");
+    QCOMPARE(leftcol(), 2 * half);
+    QCOMPARE(cursorColumn(), 2 * half + 1);
+    data.doKeys("zH");
+    QCOMPARE(leftcol(), half);
+    QCOMPARE(cursorColumn(), 2 * half + 1);
+
+    data.doKeys("1|100|");
+    data.doKeys("zs");
+    QCOMPARE(leftcol(), 99);
+    QCOMPARE(cursorColumn(), 100);
+    QCOMPARE(echo("getwininfo(win_getid())[0].leftcol"), 99);
+    data.doKeys("ze");
+    QCOMPARE(leftcol(), 100 - columns);
+    QCOMPARE(cursorColumn(), 100);
+
+    // A view put back is put back sideways as well, which takes a cursor the
+    // window then shows: a window scrolled away from the cursor is one the
+    // next redraw takes back to it.
+    // Each batch of keys reaches the window once, so the cursor has to take it
+    // back to the left in a batch of its own.
+    data.doKeys("1|");
+    QCOMPARE(leftcol(), 0);
+    data.doKeys("40|");
+    QCOMPARE(leftcol(), 0);
+    data.doCommand("call winrestview({'leftcol': 30})");
+    QCOMPARE(leftcol(), 30);
+    QCOMPARE(cursorColumn(), 40);
+}
+
+void FakeVimTester::test_vim_side_scroll_offset()
+{
+    // A cursor that moves out of a window which does not wrap its lines takes
+    // the window along, which is the curs_columns() of Vim. "sidescroll" is how
+    // far the window moves at a time, "sidescrolloff" how many columns it keeps
+    // beside the cursor, and a cursor further off than half a window lands in
+    // the middle of one, as every cursor does while "sidescroll" is zero.
+    // Measured in Vim 9.1 in a window of 80 columns over a line of 200
+    // characters, the view at its leftmost: with the defaults, column 80 keeps
+    // leftcol 0 while column 81 gives leftcol 40. With "sidescroll" 1 column
+    // 81 gives leftcol 1, with "sidescroll" 10 it gives leftcol 10, and with
+    // "sidescrolloff" 5 beside a "sidescroll" of 1 column 80 already gives
+    // leftcol 5. Column 200 gives leftcol 159 whatever "sidescroll" says,
+    // being more than half a window away, and column 1 takes the view back to
+    // leftcol 0. A model of this was checked against 2400 measured cases over
+    // five "sidescroll" and four "sidescrolloff" values, no mismatch.
+    TestData data;
+    setup(&data);
+
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message.toInt();
+    };
+    const auto cursorColumn = [&] { return data.editor()->textCursor().positionInBlock() + 1; };
+    const auto leftcol = [&] { return echo("winsaveview().leftcol"); };
+
+    // Vim scrolls a window as far sideways as a column asks, the editor only
+    // as far as the longest line reaches, so the line is longer here than the
+    // one the values were measured over.
+    data.setText(QByteArray(".").repeated(400).constData());
+    // The values were measured without line numbers beside the text, which
+    // take columns of the window here as they do in Vim.
+    data.doCommand("set nowrap nonumber");
+    data.editor()->resize(601, 400);
+    QCoreApplication::processEvents();
+    data.editor()->ensureCursorVisible();
+    QCoreApplication::processEvents();
+    QVERIFY(data.editor()->horizontalScrollBar()->maximum() > 0);
+    const QTextLine line = data.editor()->document()->firstBlock().layout()->lineAt(0);
+    const int columns = line.xToCursor(data.editor()->viewport()->width()
+                                       - 2 * data.editor()->document()->documentMargin());
+    const int half = columns / 2;
+    QVERIFY(columns > 20 && columns < 200);
+
+    // Each batch of keys reaches the window once, so a case takes a batch to
+    // place the cursor and another to move it.
+    const auto place = [&](const QString &keys) {
+        data.doKeys("1|");
+        QCOMPARE(leftcol(), 0);
+        data.doKeys(keys);
+    };
+
+    // The window a cursor still fits in does not move at all.
+    place(QString::number(columns) + "|");
+    QCOMPARE(leftcol(), 0);
+    // One column further takes it to the middle of the window, which is where
+    // an unset "sidescroll" puts every cursor the window has to follow.
+    place(QString::number(columns + 1) + "|");
+    QCOMPARE(leftcol(), columns - half);
+    QCOMPARE(cursorColumn(), columns + 1);
+
+    data.doCommand("set sidescroll=1");
+    place(QString::number(columns + 1) + "|");
+    QCOMPARE(leftcol(), 1);
+    data.doCommand("set sidescroll=10");
+    place(QString::number(columns + 1) + "|");
+    QCOMPARE(leftcol(), 10);
+
+    // A cursor more than half a window away lands in the middle whatever
+    // "sidescroll" says.
+    place("200|");
+    QCOMPARE(leftcol(), 199 - half);
+
+    data.doCommand("set sidescroll=1 sidescrolloff=5");
+    place(QString::number(columns) + "|");
+    QCOMPARE(leftcol(), 5);
+    // The offset counts on the way back as well, where the window follows a
+    // cursor that comes closer to its left edge than the offset. Measured in
+    // Vim from that same leftcol 5: column 8 gives leftcol 2 and column 1
+    // gives leftcol 0.
+    data.doKeys("8|");
+    QCOMPARE(leftcol(), 2);
+    data.doKeys("1|");
+    QCOMPARE(leftcol(), 0);
+
+    data.doCommand("set sidescroll=0");
+    place(QString::number(columns) + "|");
+    QCOMPARE(leftcol(), columns - 1 - half);
+
+    // The offset is what "zs" and "ze" leave beside the cursor too, and what
+    // the cursor a scrolled view drags along keeps from the edge.
+    data.doKeys("1|");
+    data.doKeys("100|");
+    data.doKeys("zs");
+    QCOMPARE(leftcol(), 94);
+    QCOMPARE(cursorColumn(), 100);
+    data.doKeys("ze");
+    QCOMPARE(leftcol(), 105 - columns);
+    QCOMPARE(cursorColumn(), 100);
+    data.doKeys("1|");
+    QCOMPARE(leftcol(), 0);
+    data.doKeys("zL");
+    QCOMPARE(leftcol(), half);
+    QCOMPARE(cursorColumn(), half + 6);
+
+    // The window position of a column counts from the one the window starts
+    // with, and a column the window does not show at all answers zeroes.
+    // Measured in Vim over that same line with leftcol 60: column 100 gives
+    // 40, column 61 gives 1, column 140 gives 80, and columns 60 and 141 both
+    // give a dictionary of zeroes.
+    data.doKeys("1|");
+    data.doKeys("100|");
+    data.doKeys("zs");
+    QCOMPARE(leftcol(), 94);
+    QCOMPARE(echo("wincol()"), 6);
+    QCOMPARE(echo("screencol()"), 6);
+    QCOMPARE(echo("screenpos(0, 1, 100)['col']"), 6);
+    QCOMPARE(echo("screenpos(0, 1, 95)['col']"), 1);
+    QCOMPARE(echo("screenpos(0, 1, 94)['col']"), 0);
+    QCOMPARE(echo(QString("screenpos(0, 1, %1)['col']").arg(94 + columns)), columns);
+    QCOMPARE(echo(QString("screenpos(0, 1, %1)['col']").arg(95 + columns)), 0);
+
+    // One set of settings serves every test, so the two options go back to
+    // what the ones that follow expect.
+    data.doCommand("set sidescroll=0 sidescrolloff=0");
+}
+
+void FakeVimTester::test_vim_screen_line_columns()
+{
+    // Where the line does not wrap, the screen line is the stretch of it the
+    // window shows, so "g0" goes to the leftmost column of the window, "g$" to
+    // the rightmost and "gm" to the middle one, and a line that ends before
+    // that column ends the motion there. Measured in Vim 9.1 with "nowrap" in
+    // a window of 80 columns over a line of 200 characters: "g0" gives column
+    // 1, "g$" column 80 and "gm" column 41, with the columns here taken from
+    // the window this editor has.
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the window has a width to count columns of.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    data.setText(QByteArray(QByteArray("A").repeated(200) + "\n  spaced line").constData());
+
+    const auto cursorColumn = [&] { return data.editor()->textCursor().positionInBlock() + 1; };
+    const auto columnAt = [&](int x) {
+        const int y = data.editor()->cursorRect(data.editor()->textCursor()).y();
+        return data.editor()->cursorForPosition(QPoint(x, y)).positionInBlock() + 1;
+    };
+    const int width = data.editor()->viewport()->width();
+    const int rightmost = columnAt(width - 1);
+    QVERIFY(rightmost > 8 && rightmost < 200);
+
+    data.doKeys("1G1|g$");
+    QCOMPARE(cursorColumn(), rightmost);
+    data.doKeys("1G50|g$");
+    QCOMPARE(cursorColumn(), rightmost);
+    data.doKeys("1G$g$");
+    QCOMPARE(cursorColumn(), rightmost);
+    data.doKeys("1G50|g0");
+    QCOMPARE(cursorColumn(), 1);
+    data.doKeys("1G50|gm");
+    QCOMPARE(cursorColumn(), columnAt(width / 2));
+
+    // The end of the line comes first where the window reaches beyond it, and
+    // "g^" stops at the first non-blank of what the window shows.
+    data.doKeys("2G1|g$");
+    QCOMPARE(cursorColumn(), 13);
+    data.doKeys("2G$gm");
+    QCOMPARE(cursorColumn(), 13);
+    data.doKeys("2G$g0");
+    QCOMPARE(cursorColumn(), 1);
+    data.doKeys("2G1|g^");
+    QCOMPARE(cursorColumn(), 3);
+
+    // The motion covers the columns it reaches over, the one it lands on
+    // included.
+    data.doKeys("1G1|dg$");
+    QCOMPARE(data.editor()->document()->firstBlock().text().size(), 200 - rightmost);
+
+    // A window scrolled sideways shows a stretch of the line that begins past
+    // its first column, and every one of these motions addresses that stretch
+    // rather than the line. Measured in Vim 9.1 with "nowrap" in a window of
+    // 80 columns over a line of 49 "x", 12 blanks and 139 "y", the cursor in
+    // column 100 and the view starting at column 56: "g0" gives column 56,
+    // "g^" column 62, "g$" column 135 and "gm" column 96, and from column 70
+    // "dg0" takes 14 characters and "dg$" takes 66.
+    const QByteArray scrolled = QByteArray("x").repeated(49) + QByteArray(" ").repeated(12)
+                                + QByteArray("y").repeated(139);
+    data.setText(scrolled.constData());
+    // A window that wraps has nothing to scroll sideways, and the editor
+    // wraps until it is told not to.
+    data.doCommand("set nowrap");
+    // The editor lays the text out again where the width changes, and only a
+    // layout made after the text was set knows how wide the line is.
+    data.editor()->resize(601, 400);
+    QCoreApplication::processEvents();
+    // The window learns how far it can scroll from the line it has to show.
+    data.editor()->ensureCursorVisible();
+    QCoreApplication::processEvents();
+    QScrollBar *bar = data.editor()->horizontalScrollBar();
+    QVERIFY(bar->maximum() > 0);
+    const int scrolledWidth = data.editor()->viewport()->width();
+    // Taking the cursor to the first column takes the window back with it, so
+    // every case below places the cursor inside the stretch and scrolls the
+    // window to where it is measured again.
+    const auto scrollAway = [&](const char *keys) {
+        data.doKeys(keys);
+        bar->setValue(55 * data.editor()->fontMetrics().horizontalAdvance(QLatin1Char('x')));
+        data.editor()->viewport()->repaint();
+    };
+    scrollAway("100|");
+    const int leftmost = columnAt(0);
+    const int last = columnAt(scrolledWidth - 1);
+    const int middle = columnAt(scrolledWidth / 2);
+    // The view has to begin among the blanks, which is what tells "g0" and
+    // "g^" apart, and to end inside the line.
+    QVERIFY(leftmost > 49 && leftmost < 62);
+    QVERIFY(last > 62 && last < 200);
+
+    data.doKeys("g0");
+    QCOMPARE(cursorColumn(), leftmost);
+    scrollAway("100|");
+    data.doKeys("g^");
+    QCOMPARE(cursorColumn(), 62);
+    scrollAway("100|");
+    data.doKeys("g$");
+    QCOMPARE(cursorColumn(), last);
+    scrollAway("100|");
+    data.doKeys("gm");
+    QCOMPARE(cursorColumn(), middle);
+
+    scrollAway("70|");
+    data.doKeys("dg0");
+    QCOMPARE(data.editor()->document()->firstBlock().text().size(), 200 - (70 - leftmost));
+    QCOMPARE(cursorColumn(), leftmost);
+    data.setText(scrolled.constData());
+    scrollAway("70|");
+    data.doKeys("dg$");
+    QCOMPARE(data.editor()->document()->firstBlock().text().size(), 200 - (last - 69));
+}
+
+void FakeVimTester::test_vim_screen_lines_wrapped()
+{
+    // Where a line wraps, a screen line is one row of it. "gj" and "gk" step
+    // a row at a time and keep the column offset the row started at, clamped
+    // to the length of the line they land on while the wanted offset stays
+    // what it was, and "g0", "g$" and "gm" address the row the cursor sits
+    // on. Measured in Vim 9.1 with "wrap" in a window of 80 columns over a
+    // buffer of 200 "A", 10 "B", 200 "C" and "   spaced line here": from
+    // column 151 "gj" gives column 200 and back "gk" 151 and 71, from column
+    // 177 three times "gj" gives column 10, then 17, then 97, "g0" on column
+    // 90 gives 81, "g$" 160 and "2g$" 240, "gm" on column 1 gives 41 and on
+    // column 90 gives 121. "gk" on the first row of the buffer and "gj" on
+    // the last one do not move and their operator takes nothing, "dgj" from
+    // column 5 and "dgk" from column 100 each take 80 characters, "dg0" from
+    // column 90 takes 9 and "dg$" from column 50 takes 31. The window here
+    // has a width of its own, so the expectations are computed from the
+    // columns one of its rows holds.
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the window has a width to count columns of.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    const QByteArray text = QByteArray("A").repeated(200) + "\n" + QByteArray("B").repeated(10)
+                            + "\n" + QByteArray("C").repeated(200) + "\n   spaced line here";
+    data.setText(text.constData());
+    data.doCommand("set wrap");
+    // The editor lays the text out again where the width changes, and only a
+    // layout made after the text was set knows where the text wraps.
+    data.editor()->resize(601, 400);
+
+    const auto cursorColumn = [&] { return data.editor()->textCursor().positionInBlock() + 1; };
+    const auto lineSize = [&](int n) {
+        return int(data.editor()->document()->findBlockByNumber(n - 1).text().size());
+    };
+    const int lineHeight = data.editor()->cursorRect().height();
+    const auto columnAt = [&](int x, int row) {
+        const int y = lineHeight * row - lineHeight / 2;
+        return data.editor()->cursorForPosition(QPoint(x, y)).positionInBlock() + 1;
+    };
+    const int width = data.editor()->viewport()->width();
+    const int row = columnAt(width - 1, 1);
+    // The arithmetic below wants the first line to wrap over three rows, with
+    // room for a column past the second row that the short line clamps.
+    QVERIFY(row >= 67 && row <= 91);
+    // Wrapping is on where the second row starts where the first one ended.
+    QCOMPARE(columnAt(0, 2), row + 1);
+
+    data.doKeys("1G50|gj");
+    QCOMPARE(cursorColumn(), row + 50);
+    data.doKeys("gj");
+    QCOMPARE(cursorColumn(), 2 * row + 50);
+    data.doKeys("gk");
+    QCOMPARE(cursorColumn(), row + 50);
+
+    // A row the wanted column reaches past ends the motion at its own end,
+    // and the wanted column survives it.
+    data.doKeys(QString("1G%1|gj").arg(2 * row + 17));
+    QCOMPARE(data.editor()->textCursor().blockNumber(), 1);
+    QCOMPARE(cursorColumn(), 10);
+    data.doKeys("gj");
+    QCOMPARE(data.editor()->textCursor().blockNumber(), 2);
+    QCOMPARE(cursorColumn(), 17);
+
+    // There is no row before the first one and none after the last.
+    data.doKeys("1G5|gk");
+    QCOMPARE(cursorColumn(), 5);
+    QCOMPARE(data.editor()->textCursor().blockNumber(), 0);
+    data.doKeys("4G1|gj");
+    QCOMPARE(cursorColumn(), 1);
+    QCOMPARE(data.editor()->textCursor().blockNumber(), 3);
+
+    // The ends of a row, and its middle.
+    data.doKeys("1G90|g0");
+    QCOMPARE(cursorColumn(), row + 1);
+    data.doKeys("1G1|g$");
+    QCOMPARE(cursorColumn(), row);
+    data.doKeys("1G90|g$");
+    QCOMPARE(cursorColumn(), 2 * row);
+    data.doKeys("1G190|g$");
+    QCOMPARE(cursorColumn(), 200);
+    data.doKeys("1G50|2g$");
+    QCOMPARE(cursorColumn(), 2 * row);
+    data.doKeys("1G1|gm");
+    const int middle = cursorColumn();
+    QCOMPARE(middle, columnAt(width / 2, 1));
+    data.doKeys("1G90|gm");
+    QCOMPARE(cursorColumn(), row + middle);
+
+    // The end of a row is where the next "gj" goes.
+    data.doKeys("1G50|g$gj");
+    QCOMPARE(cursorColumn(), 2 * row);
+
+    // The motions take the columns they reach over, the one "g$" lands on
+    // included, and a motion that does not move takes nothing.
+    data.doKeys("1G5|dgj");
+    QCOMPARE(lineSize(1), 200 - row);
+    data.doKeys("u1G90|dgk");
+    QCOMPARE(lineSize(1), 200 - row);
+    QCOMPARE(cursorColumn(), 90 - row);
+    data.doKeys("u1G90|dg0");
+    QCOMPARE(lineSize(1), 200 - (89 - row));
+    data.doKeys("u1G50|dg$");
+    QCOMPARE(lineSize(1), 200 - (row - 50 + 1));
+    data.doKeys("u1G5|dgk");
+    QCOMPARE(lineSize(1), 200);
+    data.doKeys("4G1|dgj");
+    QCOMPARE(lineSize(4), 19);
+}
+
+void FakeVimTester::test_vim_screen_lines_window()
+{
+    // "H", "M" and "L" address the lines the window shows, and a line the
+    // editor wraps takes as many of the window rows as it wraps into: "L"
+    // goes to the last line the window shows whole and "M" to the line
+    // holding the middle of the rows the text fills. Measured in Vim 9.1 in a
+    // window of 23 rows and 80 columns: over lines of 200 characters, three
+    // rows each, "H" gives line 1, "M" line 4 and "L" line 7, with "2H" line
+    // 2, "2L" line 6 and "3L" line 5. Over the same lines behind one of 20
+    // characters, which takes a single row, "H" gives line 1, "M" line 5,
+    // "L" line 8, "2L" line 7 and "3H" line 3. The window here has a height
+    // of its own, so the expectations are computed from it.
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the viewport has a real size and actually wraps.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    QByteArray text;
+    for (int i = 1; i <= 30; ++i)
+        text += (i > 1 ? "\n" : "") + QByteArray(1, char('A' + i % 26)).repeated(200);
+    data.setText(text.constData());
+    data.doCommand("set wrap");
+    // The editor lays the text out again where the width changes, and only a
+    // layout made after the text was set knows where the text wraps.
+    data.editor()->resize(601, 400);
+
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto cursorLine = [&] { return data.editor()->textCursor().blockNumber() + 1; };
+    const auto topLine = [&] {
+        return data.editor()->cursorForPosition(QPoint(0, 0)).blockNumber() + 1;
+    };
+
+    const int height = echo("winheight(0)").toInt();
+    QVERIFY(height > 8);
+    // Every line takes three rows, and the document reaches past the window.
+    const int lineHeight = data.editor()->cursorRect().height();
+    QCOMPARE(data.editor()->cursorForPosition(QPoint(0, lineHeight * 5 / 2)).blockNumber(), 0);
+    QCOMPARE(data.editor()->cursorForPosition(QPoint(0, lineHeight * 7 / 2)).blockNumber(), 1);
+    QCOMPARE(30 * 3 > height, true);
+
+    const int visible = height / 3;
+    const int half = (height + 1) / 2;
+    data.doKeys("10G1GH");
+    QCOMPARE(topLine(), 1);
+    QCOMPARE(cursorLine(), 1);
+    data.doKeys("2H");
+    QCOMPARE(cursorLine(), 2);
+    data.doKeys("L");
+    QCOMPARE(cursorLine(), visible);
+    data.doKeys("2L");
+    QCOMPARE(cursorLine(), visible - 1);
+    data.doKeys("3L");
+    QCOMPARE(cursorLine(), visible - 2);
+    data.doKeys("M");
+    QCOMPARE(cursorLine(), (half + 2) / 3);
+
+    // A line of a single row shifts the rest of the window by the rows it
+    // does not take.
+    data.setText(QByteArray(QByteArray("S").repeated(20) + "\n" + text).constData());
+    data.editor()->resize(600, 400);
+    data.editor()->resize(601, 400);
+    const int shortHeight = echo("winheight(0)").toInt();
+    QVERIFY(shortHeight > 8);
+    const int shortHalf = (shortHeight + 1) / 2;
+
+    data.doKeys("10G1GH");
+    QCOMPARE(topLine(), 1);
+    QCOMPARE(cursorLine(), 1);
+    data.doKeys("3H");
+    QCOMPARE(cursorLine(), 3);
+    data.doKeys("L");
+    QCOMPARE(cursorLine(), 1 + (shortHeight - 1) / 3);
+    data.doKeys("2L");
+    QCOMPARE(cursorLine(), (shortHeight - 1) / 3);
+    data.doKeys("M");
+    QCOMPARE(cursorLine(), 1 + (shortHalf + 1) / 3);
+}
+
+void FakeVimTester::test_vim_screen_view_wrapped()
+{
+    // "zt", "zz" and "zb" place the window by rows, so a line the editor
+    // wraps counts for every row it takes, and CTRL-E and CTRL-Y scroll whole
+    // lines. Measured in Vim 9.1 over lines of 200 characters, three rows
+    // each: in a window of 24 rows "12Gzt" gives a top line of 12, "12Gzz"
+    // one of 9 and "12Gzb" one of 5, and in one of 23 rows the same except
+    // 6 for "zb". One CTRL-E from the top of the document gives a top line
+    // of 2, three more give 5, and a CTRL-Y takes it back to 4, with the
+    // cursor dragged along to the line at the edge of the window.
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the viewport has a real size and actually wraps.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    QByteArray text;
+    for (int i = 1; i <= 30; ++i)
+        text += (i > 1 ? "\n" : "") + QByteArray(1, char('A' + i % 26)).repeated(200);
+    data.setText(text.constData());
+    data.doCommand("set wrap");
+    // The editor lays the text out again where the width changes, and only a
+    // layout made after the text was set knows where the text wraps.
+    data.editor()->resize(601, 400);
+
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto cursorLine = [&] { return data.editor()->textCursor().blockNumber() + 1; };
+    const auto topLine = [&] {
+        return data.editor()->cursorForPosition(QPoint(0, 0)).blockNumber() + 1;
+    };
+
+    const int height = echo("winheight(0)").toInt();
+    // The measured numbers below hold for a window of seven to eight lines of
+    // three rows.
+    QVERIFY(height >= 21 && height <= 26);
+    const int visible = height / 3;
+    // Every line takes three rows, and the document reaches past the window.
+    const int lineHeight = data.editor()->cursorRect().height();
+    QCOMPARE(data.editor()->cursorForPosition(QPoint(0, lineHeight * 5 / 2)).blockNumber(), 0);
+    QCOMPARE(data.editor()->cursorForPosition(QPoint(0, lineHeight * 7 / 2)).blockNumber(), 1);
+
+    data.doKeys("12Gzt");
+    QCOMPARE(topLine(), 12);
+    data.doKeys("12Gzz");
+    QCOMPARE(topLine(), 12 - (visible - 1) / 2);
+    data.doKeys("12Gzb");
+    QCOMPARE(topLine(), 12 - visible + 1);
+    data.doKeys("28Gzb");
+    QCOMPARE(topLine(), 28 - visible + 1);
+
+    data.doKeys("1G");
+    QCOMPARE(topLine(), 1);
+    data.doKeys("<C-e>");
+    QCOMPARE(topLine(), 2);
+    QCOMPARE(cursorLine(), 2);
+    data.doKeys("3<C-e>");
+    QCOMPARE(topLine(), 5);
+    QCOMPARE(cursorLine(), 5);
+    data.doKeys("<C-y>");
+    QCOMPARE(topLine(), 4);
+    QCOMPARE(cursorLine(), 5);
+
+    // The prompt of a confirmed substitution scrolls the same way, leaving
+    // the cursor on the match.
+    data.doKeys("1G");
+    data.doKeys(":3s/D/D/gc<CR>");
+    QCOMPARE(cursorLine(), 3);
+    QCOMPARE(topLine(), 1);
+    data.doKeys("<C-e>");
+    QCOMPARE(topLine(), 2);
+    QCOMPARE(cursorLine(), 3);
+    data.doKeys("q");
+}
+
+void FakeVimTester::test_vim_screen_scrolling_wrapped()
+{
+    // CTRL-F, CTRL-B, CTRL-D and CTRL-U scroll the window by screen rows, so
+    // a line the editor wraps counts for every row it takes. The window can
+    // only start at a line, and a scroll that ends inside a wrapped line is
+    // rounded back to the line it has passed, while the cursor keeps the rows
+    // that were asked for. Measured in Vim 9.1 with "scrolloff" 0 and
+    // "nosmoothscroll" over a buffer of 30 lines of three rows each and one
+    // of 20 lines of 3, 1, 5, 1, 3, 1, 8, 3, 3, 3, 1, 1, 4, 2, 1, 3, 1, 5, 2
+    // and 1 rows, in windows of 23 and 24 rows. Nineteen of the 96 cases are
+    // left out, three because Vim ends them with a partly scrolled top line,
+    // which a window starting at a line cannot show, and sixteen because the
+    // window they start or end in shows fewer rows than it has, which the
+    // editor never scrolls that far for.
+    struct Case
+    {
+        int height;
+        bool mixed;
+        int scroll;
+        const char *setup;
+        int setupTopLine;
+        const char *keys;
+        int topLine;
+        int cursorLine;
+    };
+    static const Case cases[] = {
+        {23, false, 0, "1Gzt", 1, "<C-f>", 8, 8},
+        {23, false, 0, "10Gzt", 10, "<C-f>", 17, 17},
+        {23, false, 0, "1Gzt", 1, "2<C-f>", 15, 15},
+        {23, false, 0, "10Gzt", 10, "<C-b>", 3, 9},
+        {23, false, 0, "10Gzt", 10, "2<C-b>", 1, 7},
+        {23, false, 11, "1Gzt", 1, "<C-d>", 4, 4},
+        {23, false, 11, "10Gzt", 10, "<C-d>", 13, 13},
+        {23, false, 11, "10Gzt", 10, "<C-u>", 7, 7},
+        {23, false, 5, "1Gzt", 1, "<C-d>", 2, 2},
+        {23, false, 5, "10Gzt", 10, "<C-d>", 11, 11},
+        {23, false, 5, "10Gzt", 10, "<C-u>", 9, 9},
+        {23, false, 3, "1Gzt", 1, "<C-d>", 2, 2},
+        {23, false, 3, "10Gzt", 10, "<C-d>", 11, 11},
+        {23, false, 3, "10Gzt", 10, "<C-u>", 9, 9},
+        {23, false, 1, "1Gzt", 1, "<C-d>", 2, 2},
+        {23, false, 1, "10Gzt", 10, "<C-d>", 11, 11},
+        {23, false, 1, "10Gzt", 10, "<C-u>", 9, 9},
+        {23, true, 0, "1Gzt", 1, "<C-f>", 7, 7},
+        {23, true, 0, "10Gzt", 10, "<C-b>", 4, 11},
+        {23, true, 0, "10Gzt", 10, "2<C-b>", 1, 7},
+        {23, true, 11, "1Gzt", 1, "<C-d>", 5, 5},
+        {23, true, 11, "10Gzt", 10, "<C-u>", 8, 8},
+        {23, true, 5, "1Gzt", 1, "<C-d>", 3, 3},
+        {23, true, 5, "10Gzt", 10, "<C-u>", 9, 9},
+        {23, true, 3, "1Gzt", 1, "<C-d>", 2, 2},
+        {23, true, 3, "10Gzt", 10, "<C-u>", 9, 9},
+        {23, true, 1, "1Gzt", 1, "<C-d>", 2, 2},
+        {23, true, 1, "10Gzt", 10, "<C-u>", 9, 9},
+        {24, false, 0, "1Gzt", 1, "<C-f>", 8, 8},
+        {24, false, 0, "10Gzt", 10, "<C-f>", 17, 17},
+        {24, false, 0, "1Gzt", 1, "2<C-f>", 15, 15},
+        {24, false, 0, "10Gzt", 10, "<C-b>", 3, 10},
+        {24, false, 0, "30Gzb", 23, "<C-b>", 16, 23},
+        {24, false, 0, "10Gzt", 10, "2<C-b>", 1, 8},
+        {24, false, 12, "1Gzt", 1, "<C-d>", 5, 5},
+        {24, false, 12, "10Gzt", 10, "<C-d>", 14, 14},
+        {24, false, 12, "10Gzt", 10, "<C-u>", 6, 6},
+        {24, false, 12, "30Gzb", 23, "<C-u>", 19, 26},
+        {24, false, 11, "1Gzt", 1, "<C-d>", 4, 4},
+        {24, false, 11, "10Gzt", 10, "<C-d>", 13, 13},
+        {24, false, 11, "10Gzt", 10, "<C-u>", 7, 7},
+        {24, false, 11, "30Gzb", 23, "<C-u>", 20, 27},
+        {24, false, 5, "1Gzt", 1, "<C-d>", 2, 2},
+        {24, false, 5, "10Gzt", 10, "<C-d>", 11, 11},
+        {24, false, 5, "10Gzt", 10, "<C-u>", 9, 9},
+        {24, false, 5, "30Gzb", 23, "<C-u>", 22, 29},
+        {24, false, 3, "1Gzt", 1, "<C-d>", 2, 2},
+        {24, false, 3, "10Gzt", 10, "<C-d>", 11, 11},
+        {24, false, 3, "10Gzt", 10, "<C-u>", 9, 9},
+        {24, false, 3, "30Gzb", 23, "<C-u>", 22, 29},
+        {24, false, 1, "1Gzt", 1, "<C-d>", 2, 2},
+        {24, false, 1, "10Gzt", 10, "<C-d>", 11, 11},
+        {24, false, 1, "10Gzt", 10, "<C-u>", 9, 9},
+        {24, false, 1, "30Gzb", 23, "<C-u>", 22, 29},
+        {24, true, 0, "1Gzt", 1, "<C-f>", 8, 8},
+        {24, true, 0, "10Gzt", 10, "<C-b>", 4, 12},
+        {24, true, 0, "20Gzb", 10, "<C-b>", 4, 12},
+        {24, true, 0, "10Gzt", 10, "2<C-b>", 1, 7},
+        {24, true, 12, "1Gzt", 1, "<C-d>", 5, 5},
+        {24, true, 12, "10Gzt", 10, "<C-d>", 10, 16},
+        {24, true, 12, "10Gzt", 10, "<C-u>", 8, 8},
+        {24, true, 12, "20Gzb", 10, "<C-u>", 9, 18},
+        {24, true, 11, "1Gzt", 1, "<C-d>", 5, 5},
+        {24, true, 11, "10Gzt", 10, "<C-d>", 10, 15},
+        {24, true, 11, "10Gzt", 10, "<C-u>", 8, 8},
+        {24, true, 11, "20Gzb", 10, "<C-u>", 9, 18},
+        {24, true, 5, "1Gzt", 1, "<C-d>", 3, 3},
+        {24, true, 5, "10Gzt", 10, "<C-d>", 10, 13},
+        {24, true, 5, "10Gzt", 10, "<C-u>", 9, 9},
+        {24, true, 5, "20Gzb", 10, "<C-u>", 9, 18},
+        {24, true, 3, "1Gzt", 1, "<C-d>", 2, 2},
+        {24, true, 3, "10Gzt", 10, "<C-d>", 10, 11},
+        {24, true, 3, "10Gzt", 10, "<C-u>", 9, 9},
+        {24, true, 3, "20Gzb", 10, "<C-u>", 9, 18},
+        {24, true, 1, "1Gzt", 1, "<C-d>", 2, 2},
+        {24, true, 1, "10Gzt", 10, "<C-d>", 10, 10},
+        {24, true, 1, "10Gzt", 10, "<C-u>", 9, 9},
+    };
+
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the viewport has a real size and actually wraps.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto cursorLine = [&] { return data.editor()->textCursor().blockNumber() + 1; };
+    const auto topLine = [&] {
+        return data.editor()->cursorForPosition(QPoint(0, 0)).blockNumber() + 1;
+    };
+    const auto rowsOfLine = [&](int line) {
+        const QTextBlock block = data.editor()->document()->findBlockByNumber(line);
+        Utils::TextEditorLayout *layout = data.editor()->editorLayout();
+        layout->ensureBlockLayout(block);
+        return layout->blockLineCount(block);
+    };
+
+    // How many characters go into a row, and what a window of one row costs
+    // in pixels, so that the buffers below take the rows they were measured
+    // with and the window has the height they were measured in.
+    QByteArray probe;
+    for (int i = 0; i < 30; ++i)
+        probe += (i > 0 ? "\n" : "") + QByteArray("x").repeated(200);
+    data.setText(probe.constData());
+    data.doCommand("set wrap");
+    data.editor()->resize(599, 400);
+    data.editor()->resize(600, 400);
+    const int lineHeight = data.editor()->cursorRect().height();
+    QVERIFY(lineHeight > 0);
+    const QTextCursor secondRow = data.editor()->cursorForPosition(QPoint(0, lineHeight * 3 / 2));
+    QCOMPARE(secondRow.blockNumber(), 0);
+    const int columns = secondRow.position();
+    QVERIFY(columns > 20 && columns < 200);
+    const int frame = data.editor()->height() - data.editor()->viewport()->height();
+
+    const QList<int> uniform(30, 3);
+    const QList<int> mixed = {3, 1, 5, 1, 3, 1, 8, 3, 3, 3, 1, 1, 4, 2, 1, 3, 1, 5, 2, 1};
+    const auto loadBuffer = [&](int height, bool wantMixed, bool layOut = true) {
+        const QList<int> &rows = wantMixed ? mixed : uniform;
+        QByteArray text;
+        for (int i = 0; i < rows.size(); ++i) {
+            text += (i > 0 ? "\n" : "")
+                    + QByteArray("x").repeated((rows.at(i) - 1) * columns + 1);
+        }
+        data.setText(text.constData());
+        // The editor takes "wrap" when the option changes, so it has to be
+        // set again after the text was replaced.
+        data.doCommand("set nowrap");
+        data.doCommand("set wrap");
+        // The editor lays the text out again where its width changes, and
+        // only a layout made after the text was set knows where the text
+        // wraps, so the width has to move and come back.
+        data.editor()->resize(599, height * lineHeight + frame);
+        data.editor()->resize(600, height * lineHeight + frame);
+        QCOMPARE(echo("winheight(0)").toInt(), height);
+        if (!layOut)
+            return;
+        for (int i = 0; i < rows.size(); ++i)
+            QCOMPARE(rowsOfLine(i), rows.at(i));
+    };
+
+    int loadedHeight = 0;
+    int loadedMixed = -1;
+    for (const Case &c : cases) {
+        if (c.height != loadedHeight || c.mixed != loadedMixed) {
+            loadBuffer(c.height, c.mixed);
+            loadedHeight = c.height;
+            loadedMixed = c.mixed;
+        }
+        // "scroll" 0 stands for half the window, which is what the cases
+        // without one were measured with.
+        data.doCommand(QString("set scroll=%1").arg(c.scroll));
+        data.doKeys(c.setup);
+        const QByteArray what = QString("h%1 %2 scroll=%3 %4%5")
+                                    .arg(c.height)
+                                    .arg(QLatin1String(c.mixed ? "mixed" : "uniform"))
+                                    .arg(c.scroll)
+                                    .arg(QLatin1String(c.setup), QLatin1String(c.keys))
+                                    .toLatin1();
+        const QByteArray at = what + " starts at " + QByteArray::number(topLine());
+        QVERIFY2(topLine() == c.setupTopLine, at.constData());
+        data.doKeys(c.keys);
+        const QByteArray got = what + " leaves top " + QByteArray::number(topLine())
+                               + " line " + QByteArray::number(cursorLine());
+        QVERIFY2(topLine() == c.topLine && cursorLine() == c.cursorLine, got.constData());
+    }
+
+    // A jump the window has to follow weighs the lines by their rows as well:
+    // Vim moves the window as little as it can while the lines around the
+    // cursor still fit in it, and puts the cursor in the middle of the window
+    // where they do not, so over wrapped lines a jump of two lines can be the
+    // longer kind. Measured over the same two buffers and window heights with
+    // "scrolloff" 0, from the top of the document downwards and from a window
+    // further down upwards. Of the 162 cases 37 are left out, 28 because the
+    // window they start in shows fewer rows than it has and 9 because the one
+    // they end in does, which the editor never scrolls that far for.
+    struct Jump
+    {
+        int height;
+        bool mixed;
+        const char *setup;
+        int setupTopLine;
+        const char *keys;
+        int topLine;
+        int cursorLine;
+    };
+    static const Jump jumps[] = {
+        {23, false, "1Gzt", 1, "2G", 1, 2},
+        {23, false, "1Gzt", 1, "3G", 1, 3},
+        {23, false, "1Gzt", 1, "4G", 1, 4},
+        {23, false, "1Gzt", 1, "5G", 1, 5},
+        {23, false, "1Gzt", 1, "6G", 1, 6},
+        {23, false, "1Gzt", 1, "7G", 1, 7},
+        {23, false, "1Gzt", 1, "8G", 2, 8},
+        {23, false, "1Gzt", 1, "9G", 3, 9},
+        {23, false, "1Gzt", 1, "10G", 4, 10},
+        {23, false, "1Gzt", 1, "11G", 5, 11},
+        {23, false, "1Gzt", 1, "12G", 9, 12},
+        {23, false, "1Gzt", 1, "13G", 10, 13},
+        {23, false, "1Gzt", 1, "14G", 11, 14},
+        {23, false, "1Gzt", 1, "15G", 12, 15},
+        {23, false, "1Gzt", 1, "16G", 13, 16},
+        {23, false, "1Gzt", 1, "17G", 14, 17},
+        {23, false, "1Gzt", 1, "18G", 15, 18},
+        {23, false, "1Gzt", 1, "19G", 16, 19},
+        {23, false, "1Gzt", 1, "20G", 17, 20},
+        {23, false, "1Gzt", 1, "21G", 18, 21},
+        {23, false, "1Gzt", 1, "22G", 19, 22},
+        {23, false, "1Gzt", 1, "23G", 20, 23},
+        {23, false, "1Gzt", 1, "24G", 21, 24},
+        {23, false, "1Gzt", 1, "25G", 22, 25},
+        {23, false, "1Gzt", 1, "26G", 23, 26},
+        {23, false, "20Gzt", 20, "19G", 19, 19},
+        {23, false, "20Gzt", 20, "18G", 18, 18},
+        {23, false, "20Gzt", 20, "17G", 17, 17},
+        {23, false, "20Gzt", 20, "16G", 16, 16},
+        {23, false, "20Gzt", 20, "15G", 15, 15},
+        {23, false, "20Gzt", 20, "14G", 14, 14},
+        {23, false, "20Gzt", 20, "13G", 13, 13},
+        {23, false, "20Gzt", 20, "12G", 12, 12},
+        {23, false, "20Gzt", 20, "11G", 11, 11},
+        {23, false, "20Gzt", 20, "10G", 7, 10},
+        {23, false, "20Gzt", 20, "9G", 6, 9},
+        {23, false, "20Gzt", 20, "8G", 5, 8},
+        {23, false, "20Gzt", 20, "7G", 4, 7},
+        {23, false, "20Gzt", 20, "6G", 3, 6},
+        {23, false, "20Gzt", 20, "5G", 2, 5},
+        {23, false, "20Gzt", 20, "4G", 1, 4},
+        {23, false, "20Gzt", 20, "3G", 1, 3},
+        {23, false, "20Gzt", 20, "2G", 1, 2},
+        {23, false, "20Gzt", 20, "1G", 1, 1},
+        {24, false, "1Gzt", 1, "2G", 1, 2},
+        {24, false, "1Gzt", 1, "3G", 1, 3},
+        {24, false, "1Gzt", 1, "4G", 1, 4},
+        {24, false, "1Gzt", 1, "5G", 1, 5},
+        {24, false, "1Gzt", 1, "6G", 1, 6},
+        {24, false, "1Gzt", 1, "7G", 1, 7},
+        {24, false, "1Gzt", 1, "8G", 1, 8},
+        {24, false, "1Gzt", 1, "9G", 2, 9},
+        {24, false, "1Gzt", 1, "10G", 3, 10},
+        {24, false, "1Gzt", 1, "11G", 4, 11},
+        {24, false, "1Gzt", 1, "12G", 5, 12},
+        {24, false, "1Gzt", 1, "13G", 9, 13},
+        {24, false, "1Gzt", 1, "14G", 10, 14},
+        {24, false, "1Gzt", 1, "15G", 11, 15},
+        {24, false, "1Gzt", 1, "16G", 12, 16},
+        {24, false, "1Gzt", 1, "17G", 13, 17},
+        {24, false, "1Gzt", 1, "18G", 14, 18},
+        {24, false, "1Gzt", 1, "19G", 15, 19},
+        {24, false, "1Gzt", 1, "20G", 16, 20},
+        {24, false, "1Gzt", 1, "21G", 17, 21},
+        {24, false, "1Gzt", 1, "22G", 18, 22},
+        {24, false, "1Gzt", 1, "23G", 19, 23},
+        {24, false, "1Gzt", 1, "24G", 20, 24},
+        {24, false, "1Gzt", 1, "25G", 21, 25},
+        {24, false, "1Gzt", 1, "26G", 22, 26},
+        {24, false, "1Gzt", 1, "27G", 23, 27},
+        {24, false, "1Gzt", 1, "28G", 23, 28},
+        {24, false, "1Gzt", 1, "29G", 23, 29},
+        {24, false, "1Gzt", 1, "30G", 23, 30},
+        {24, false, "20Gzt", 20, "19G", 19, 19},
+        {24, false, "20Gzt", 20, "18G", 18, 18},
+        {24, false, "20Gzt", 20, "17G", 17, 17},
+        {24, false, "20Gzt", 20, "16G", 16, 16},
+        {24, false, "20Gzt", 20, "15G", 15, 15},
+        {24, false, "20Gzt", 20, "14G", 14, 14},
+        {24, false, "20Gzt", 20, "13G", 13, 13},
+        {24, false, "20Gzt", 20, "12G", 12, 12},
+        {24, false, "20Gzt", 20, "11G", 11, 11},
+        {24, false, "20Gzt", 20, "10G", 10, 10},
+        {24, false, "20Gzt", 20, "9G", 6, 9},
+        {24, false, "20Gzt", 20, "8G", 5, 8},
+        {24, false, "20Gzt", 20, "7G", 4, 7},
+        {24, false, "20Gzt", 20, "6G", 3, 6},
+        {24, false, "20Gzt", 20, "5G", 2, 5},
+        {24, false, "20Gzt", 20, "4G", 1, 4},
+        {24, false, "20Gzt", 20, "3G", 1, 3},
+        {24, false, "20Gzt", 20, "2G", 1, 2},
+        {24, false, "20Gzt", 20, "1G", 1, 1},
+        {23, true, "1Gzt", 1, "2G", 1, 2},
+        {23, true, "1Gzt", 1, "3G", 1, 3},
+        {23, true, "1Gzt", 1, "4G", 1, 4},
+        {23, true, "1Gzt", 1, "5G", 1, 5},
+        {23, true, "1Gzt", 1, "6G", 1, 6},
+        {23, true, "1Gzt", 1, "7G", 1, 7},
+        {23, true, "1Gzt", 1, "8G", 2, 8},
+        {23, true, "1Gzt", 1, "9G", 4, 9},
+        {23, true, "1Gzt", 1, "10G", 4, 10},
+        {23, true, "1Gzt", 1, "11G", 4, 11},
+        {23, true, "1Gzt", 1, "12G", 5, 12},
+        {23, true, "1Gzt", 1, "13G", 9, 13},
+        {23, true, "1Gzt", 1, "14G", 10, 14},
+        {23, true, "1Gzt", 1, "15G", 10, 15},
+        {24, true, "1Gzt", 1, "2G", 1, 2},
+        {24, true, "1Gzt", 1, "3G", 1, 3},
+        {24, true, "1Gzt", 1, "4G", 1, 4},
+        {24, true, "1Gzt", 1, "5G", 1, 5},
+        {24, true, "1Gzt", 1, "6G", 1, 6},
+        {24, true, "1Gzt", 1, "7G", 1, 7},
+        {24, true, "1Gzt", 1, "8G", 2, 8},
+        {24, true, "1Gzt", 1, "9G", 3, 9},
+        {24, true, "1Gzt", 1, "10G", 4, 10},
+        {24, true, "1Gzt", 1, "11G", 4, 11},
+        {24, true, "1Gzt", 1, "12G", 4, 12},
+        {24, true, "1Gzt", 1, "13G", 9, 13},
+        {24, true, "1Gzt", 1, "14G", 9, 14},
+        {24, true, "1Gzt", 1, "15G", 10, 15},
+        {24, true, "1Gzt", 1, "16G", 10, 16},
+        {24, true, "1Gzt", 1, "17G", 10, 17},
+        {24, true, "1Gzt", 1, "18G", 10, 18},
+        {24, true, "1Gzt", 1, "19G", 10, 19},
+        {24, true, "1Gzt", 1, "20G", 10, 20},
+    };
+
+    for (const Jump &j : jumps) {
+        if (j.height != loadedHeight || j.mixed != loadedMixed) {
+            loadBuffer(j.height, j.mixed);
+            loadedHeight = j.height;
+            loadedMixed = j.mixed;
+        }
+        data.doKeys(j.setup);
+        const QByteArray what = QString("h%1 %2 %3%4")
+                                    .arg(j.height)
+                                    .arg(QLatin1String(j.mixed ? "mixed" : "uniform"))
+                                    .arg(QLatin1String(j.setup), QLatin1String(j.keys))
+                                    .toLatin1();
+        const QByteArray at = what + " starts at " + QByteArray::number(topLine());
+        QVERIFY2(topLine() == j.setupTopLine, at.constData());
+        data.doKeys(j.keys);
+        const QByteArray got = what + " leaves top " + QByteArray::number(topLine())
+                               + " line " + QByteArray::number(cursorLine());
+        QVERIFY2(topLine() == j.topLine && cursorLine() == j.cursorLine, got.constData());
+    }
+
+    // "zt", "z<CR>", "zb" and "z-" place the window by rows as well, and with
+    // "scrolloff" set they keep that many rows of context at the window edge
+    // rather than that many lines: over lines of three rows a "scrolloff" of
+    // two is covered by the one line next to the cursor line. Vim reaches the
+    // place by the same two walks a jump uses, so "zb" ends the window with
+    // the cursor line before it counts the context below it, which leaves rows
+    // of the window empty where the line above does not fit. Measured over the
+    // same two buffers and window heights at "scrolloff" 0, 2 and 5. Of the
+    // 1200 cases 226 are left out because the window they start or end in
+    // shows fewer rows than it has, and the 974 that are left are sampled
+    // every sixth.
+    //
+    // "z+" and "z^" take the cursor to a line of their own first and then run
+    // the same two walks. Uncounted, "z+" goes to the first line the window
+    // does not show whole, which over wrapped lines is not one window of lines
+    // further down, and "z^" to the line above the window. A counted "z^"
+    // places the window with the counted line at its bottom, takes the cursor
+    // to the line that left at the top and places the window a second time.
+    // Measured over the same buffers and heights at "scrolloff" 0 and 2: of
+    // the 10800 cases 4182 start or end in a window showing fewer rows than it
+    // has, and of the rest the 82 uncounted "z+" ones that a single walk gets
+    // wrong are all here, the 3562 counted ones sampled every ninetieth.
+    struct Align
+    {
+        int height;
+        bool mixed;
+        int scrollOff;
+        const char *setup;
+        int setupTopLine;
+        const char *keys;
+        int topLine;
+        int cursorLine;
+    };
+    static const Align aligns[] = {
+        {23, false, 0, "1Gzt1G", 1, "z-", 1, 1},
+        {23, false, 0, "1Gzt7G", 1, "z-", 1, 7},
+        {23, false, 0, "1Gzt13G", 10, "z-", 7, 13},
+        {23, false, 0, "1Gzt19G", 16, "z-", 13, 19},
+        {23, false, 0, "1Gzt25G", 22, "z-", 19, 25},
+        {23, false, 0, "1Gzt5G", 1, "z<CR>", 5, 5},
+        {23, false, 0, "1Gzt11G", 5, "z<CR>", 11, 11},
+        {23, false, 0, "1Gzt17G", 14, "z<CR>", 17, 17},
+        {23, false, 0, "1Gzt23G", 20, "z<CR>", 23, 23},
+        {23, false, 0, "1Gzt6G", 1, "zb", 1, 6},
+        {23, false, 0, "1Gzt12G", 9, "zb", 6, 12},
+        {23, false, 0, "1Gzt18G", 15, "zb", 12, 18},
+        {23, false, 0, "1Gzt24G", 21, "zb", 18, 24},
+        {23, false, 0, "1Gzt4G", 1, "zt", 4, 4},
+        {23, false, 0, "1Gzt10G", 4, "zt", 10, 10},
+        {23, false, 0, "1Gzt16G", 13, "zt", 16, 16},
+        {23, false, 0, "1Gzt22G", 19, "zt", 22, 22},
+        {23, false, 2, "1Gzt5G", 1, "z-", 1, 5},
+        {23, false, 2, "1Gzt11G", 6, "z-", 6, 11},
+        {23, false, 2, "1Gzt17G", 14, "z-", 12, 17},
+        {23, false, 2, "1Gzt23G", 20, "z-", 18, 23},
+        {23, false, 2, "1Gzt3G", 1, "z<CR>", 2, 3},
+        {23, false, 2, "1Gzt9G", 4, "z<CR>", 8, 9},
+        {23, false, 2, "1Gzt15G", 12, "z<CR>", 14, 15},
+        {23, false, 2, "1Gzt21G", 18, "z<CR>", 20, 21},
+        {23, false, 2, "1Gzt3G", 1, "zb", 1, 3},
+        {23, false, 2, "1Gzt9G", 4, "zb", 4, 9},
+        {23, false, 2, "1Gzt15G", 12, "zb", 10, 15},
+        {23, false, 2, "1Gzt21G", 18, "zb", 16, 21},
+        {23, false, 2, "1Gzt1G", 1, "zt", 1, 1},
+        {23, false, 2, "1Gzt7G", 1, "zt", 6, 7},
+        {23, false, 2, "1Gzt13G", 10, "zt", 12, 13},
+        {23, false, 2, "1Gzt19G", 16, "zt", 18, 19},
+        {23, false, 5, "1Gzt1G", 1, "z-", 1, 1},
+        {23, false, 5, "1Gzt7G", 3, "z-", 3, 7},
+        {23, false, 5, "1Gzt13G", 10, "z-", 9, 13},
+        {23, false, 5, "1Gzt19G", 16, "z-", 15, 19},
+        {23, false, 5, "1Gzt25G", 22, "z-", 21, 25},
+        {23, false, 5, "1Gzt5G", 1, "z<CR>", 3, 5},
+        {23, false, 5, "1Gzt11G", 7, "z<CR>", 9, 11},
+        {23, false, 5, "1Gzt17G", 14, "z<CR>", 15, 17},
+        {23, false, 5, "1Gzt23G", 20, "z<CR>", 21, 23},
+        {23, false, 5, "1Gzt4G", 1, "zb", 1, 4},
+        {23, false, 5, "1Gzt10G", 6, "zb", 6, 10},
+        {23, false, 5, "1Gzt16G", 13, "zb", 12, 16},
+        {23, false, 5, "1Gzt22G", 19, "zb", 18, 22},
+        {23, false, 5, "1Gzt2G", 1, "zt", 1, 2},
+        {23, false, 5, "1Gzt8G", 4, "zt", 6, 8},
+        {23, false, 5, "1Gzt14G", 11, "zt", 12, 14},
+        {23, false, 5, "1Gzt20G", 17, "zt", 18, 20},
+        {23, true, 0, "1Gzt1G", 1, "z-", 1, 1},
+        {23, true, 0, "1Gzt7G", 1, "z-", 1, 7},
+        {23, true, 0, "1Gzt13G", 9, "z-", 7, 13},
+        {23, true, 0, "1Gzt4G", 1, "z<CR>", 4, 4},
+        {23, true, 0, "1Gzt10G", 4, "z<CR>", 10, 10},
+        {23, true, 0, "1Gzt6G", 1, "zb", 1, 6},
+        {23, true, 0, "1Gzt12G", 5, "zb", 5, 12},
+        {23, true, 0, "1Gzt3G", 1, "zt", 3, 3},
+        {23, true, 0, "1Gzt9G", 4, "zt", 9, 9},
+        {23, true, 2, "1Gzt5G", 1, "z-", 1, 5},
+        {23, true, 2, "1Gzt11G", 7, "z-", 7, 11},
+        {23, true, 2, "1Gzt2G", 1, "z<CR>", 1, 2},
+        {23, true, 2, "1Gzt8G", 4, "z<CR>", 7, 8},
+        {23, true, 2, "1Gzt2G", 1, "zb", 1, 2},
+        {23, true, 2, "1Gzt8G", 4, "zb", 4, 8},
+        {23, true, 2, "1Gzt14G", 10, "zb", 8, 14},
+        {23, true, 2, "1Gzt5G", 1, "zt", 3, 5},
+        {23, true, 2, "1Gzt11G", 7, "zt", 10, 11},
+        {23, true, 5, "1Gzt5G", 1, "z-", 1, 5},
+        {23, true, 5, "1Gzt11G", 7, "z-", 7, 11},
+        {23, true, 5, "1Gzt2G", 1, "z<CR>", 1, 2},
+        {23, true, 5, "1Gzt8G", 4, "z<CR>", 7, 8},
+        {23, true, 5, "1Gzt1G", 1, "zb", 1, 1},
+        {23, true, 5, "1Gzt7G", 4, "zb", 4, 7},
+        {23, true, 5, "1Gzt13G", 9, "zb", 8, 13},
+        {23, true, 5, "1Gzt4G", 1, "zt", 3, 4},
+        {23, true, 5, "1Gzt10G", 7, "zt", 8, 10},
+        {24, false, 0, "1Gzt3G", 1, "z-", 1, 3},
+        {24, false, 0, "1Gzt9G", 2, "z-", 2, 9},
+        {24, false, 0, "1Gzt15G", 11, "z-", 8, 15},
+        {24, false, 0, "1Gzt21G", 17, "z-", 14, 21},
+        {24, false, 0, "1Gzt27G", 23, "z-", 20, 27},
+        {24, false, 0, "1Gzt3G", 1, "z<CR>", 3, 3},
+        {24, false, 0, "1Gzt9G", 2, "z<CR>", 9, 9},
+        {24, false, 0, "1Gzt15G", 11, "z<CR>", 15, 15},
+        {24, false, 0, "1Gzt21G", 17, "z<CR>", 21, 21},
+        {24, false, 0, "1Gzt4G", 1, "zb", 1, 4},
+        {24, false, 0, "1Gzt10G", 3, "zb", 3, 10},
+        {24, false, 0, "1Gzt16G", 12, "zb", 9, 16},
+        {24, false, 0, "1Gzt22G", 18, "zb", 15, 22},
+        {24, false, 0, "1Gzt28G", 23, "zb", 21, 28},
+        {24, false, 0, "1Gzt4G", 1, "zt", 4, 4},
+        {24, false, 0, "1Gzt10G", 3, "zt", 10, 10},
+        {24, false, 0, "1Gzt16G", 12, "zt", 16, 16},
+        {24, false, 0, "1Gzt22G", 18, "zt", 22, 22},
+        {24, false, 2, "1Gzt5G", 1, "z-", 1, 5},
+        {24, false, 2, "1Gzt11G", 5, "z-", 5, 11},
+        {24, false, 2, "1Gzt17G", 13, "z-", 11, 17},
+        {24, false, 2, "1Gzt23G", 19, "z-", 17, 23},
+        {24, false, 2, "1Gzt29G", 23, "z-", 23, 29},
+        {24, false, 2, "1Gzt5G", 1, "z<CR>", 4, 5},
+        {24, false, 2, "1Gzt11G", 5, "z<CR>", 10, 11},
+        {24, false, 2, "1Gzt17G", 13, "z<CR>", 16, 17},
+        {24, false, 2, "1Gzt23G", 19, "z<CR>", 22, 23},
+        {24, false, 2, "1Gzt5G", 1, "zb", 1, 5},
+        {24, false, 2, "1Gzt11G", 5, "zb", 5, 11},
+        {24, false, 2, "1Gzt17G", 13, "zb", 11, 17},
+        {24, false, 2, "1Gzt23G", 19, "zb", 17, 23},
+        {24, false, 2, "1Gzt29G", 23, "zb", 23, 29},
+        {24, false, 2, "1Gzt5G", 1, "zt", 4, 5},
+        {24, false, 2, "1Gzt11G", 5, "zt", 10, 11},
+        {24, false, 2, "1Gzt17G", 13, "zt", 16, 17},
+        {24, false, 2, "1Gzt23G", 19, "zt", 22, 23},
+        {24, false, 5, "1Gzt5G", 1, "z-", 1, 5},
+        {24, false, 5, "1Gzt11G", 6, "z-", 6, 11},
+        {24, false, 5, "1Gzt17G", 13, "z-", 12, 17},
+        {24, false, 5, "1Gzt23G", 19, "z-", 18, 23},
+        {24, false, 5, "1Gzt29G", 23, "z-", 23, 29},
+        {24, false, 5, "1Gzt5G", 1, "z<CR>", 3, 5},
+        {24, false, 5, "1Gzt11G", 6, "z<CR>", 9, 11},
+        {24, false, 5, "1Gzt17G", 13, "z<CR>", 15, 17},
+        {24, false, 5, "1Gzt23G", 19, "z<CR>", 21, 23},
+        {24, false, 5, "1Gzt4G", 1, "zb", 1, 4},
+        {24, false, 5, "1Gzt10G", 5, "zb", 5, 10},
+        {24, false, 5, "1Gzt16G", 12, "zb", 11, 16},
+        {24, false, 5, "1Gzt22G", 18, "zb", 17, 22},
+        {24, false, 5, "1Gzt28G", 23, "zb", 23, 28},
+        {24, false, 5, "1Gzt4G", 1, "zt", 2, 4},
+        {24, false, 5, "1Gzt10G", 5, "zt", 8, 10},
+        {24, false, 5, "1Gzt16G", 12, "zt", 14, 16},
+        {24, false, 5, "1Gzt22G", 18, "zt", 20, 22},
+        {24, true, 0, "1Gzt3G", 1, "z-", 1, 3},
+        {24, true, 0, "1Gzt9G", 3, "z-", 3, 9},
+        {24, true, 0, "1Gzt15G", 10, "z-", 8, 15},
+        {24, true, 0, "1Gzt1G", 1, "z<CR>", 1, 1},
+        {24, true, 0, "1Gzt7G", 1, "z<CR>", 7, 7},
+        {24, true, 0, "1Gzt3G", 1, "zb", 1, 3},
+        {24, true, 0, "1Gzt9G", 3, "zb", 3, 9},
+        {24, true, 0, "1Gzt15G", 10, "zb", 8, 15},
+        {24, true, 0, "1Gzt1G", 1, "zt", 1, 1},
+        {24, true, 0, "1Gzt7G", 1, "zt", 7, 7},
+        {24, true, 2, "1Gzt3G", 1, "z-", 1, 3},
+        {24, true, 2, "1Gzt9G", 4, "z-", 4, 9},
+        {24, true, 2, "1Gzt15G", 10, "z-", 8, 15},
+        {24, true, 2, "1Gzt1G", 1, "z<CR>", 1, 1},
+        {24, true, 2, "1Gzt7G", 1, "z<CR>", 5, 7},
+        {24, true, 2, "1Gzt1G", 1, "zb", 1, 1},
+        {24, true, 2, "1Gzt7G", 1, "zb", 2, 7},
+        {24, true, 2, "1Gzt13G", 9, "zb", 8, 13},
+        {24, true, 2, "1Gzt19G", 10, "zb", 10, 19},
+        {24, true, 2, "1Gzt5G", 1, "zt", 3, 5},
+        {24, true, 2, "1Gzt11G", 6, "zt", 10, 11},
+        {24, true, 5, "1Gzt5G", 1, "z-", 1, 5},
+        {24, true, 5, "1Gzt11G", 6, "z-", 6, 11},
+        {24, true, 5, "1Gzt17G", 10, "z-", 9, 17},
+        {24, true, 5, "1Gzt3G", 1, "z<CR>", 1, 3},
+        {24, true, 5, "1Gzt9G", 4, "z<CR>", 7, 9},
+        {24, true, 5, "1Gzt2G", 1, "zb", 1, 2},
+        {24, true, 5, "1Gzt8G", 4, "zb", 4, 8},
+        {24, true, 5, "1Gzt14G", 9, "zb", 8, 14},
+        {24, true, 5, "1Gzt20G", 10, "zb", 10, 20},
+        {24, true, 5, "1Gzt6G", 1, "zt", 3, 6},
+        {24, true, 5, "1Gzt12G", 8, "zt", 9, 12},
+    {23, false, 0, "1Gzt", 1, "z+", 8, 8},
+    {23, false, 0, "1Gzt", 1, "10z^", 1, 4},
+    {23, false, 0, "2Gzt", 2, "z+", 9, 9},
+    {23, false, 0, "3Gzt", 3, "z+", 10, 10},
+    {23, false, 0, "4Gzt", 4, "z+", 11, 11},
+    {23, false, 0, "4Gzt", 4, "13z^", 1, 7},
+    {23, false, 0, "5Gzt", 5, "z+", 12, 12},
+    {23, false, 0, "6Gzt", 6, "z+", 13, 13},
+    {23, false, 0, "7Gzt", 7, "z+", 14, 14},
+    {23, false, 0, "7Gzt", 7, "16z^", 4, 10},
+    {23, false, 0, "8Gzt", 8, "z+", 15, 15},
+    {23, false, 0, "9Gzt", 9, "z+", 16, 16},
+    {23, false, 0, "10Gzt", 10, "z+", 17, 17},
+    {23, false, 0, "10Gzt", 10, "19z^", 7, 13},
+    {23, false, 0, "11Gzt", 11, "z+", 18, 18},
+    {23, false, 0, "12Gzt", 12, "z+", 19, 19},
+    {23, false, 0, "13Gzt", 13, "z+", 20, 20},
+    {23, false, 0, "13Gzt", 13, "22z^", 10, 16},
+    {23, false, 0, "14Gzt", 14, "z+", 21, 21},
+    {23, false, 0, "15Gzt", 15, "z+", 22, 22},
+    {23, false, 0, "16Gzt", 16, "z+", 23, 23},
+    {23, false, 0, "16Gzt", 16, "25z^", 13, 19},
+    {23, false, 0, "19Gzt", 19, "28z^", 16, 22},
+    {23, false, 0, "22Gzt", 22, "30z^", 18, 24},
+    {23, false, 2, "1Gzt", 1, "z+", 7, 8},
+    {23, false, 2, "2Gzt", 1, "z+", 7, 8},
+    {23, false, 2, "2Gzt", 1, "5z^", 1, 1},
+    {23, false, 2, "3Gzt", 2, "z+", 8, 9},
+    {23, false, 2, "4Gzt", 3, "z+", 9, 10},
+    {23, false, 2, "5Gzt", 4, "z+", 10, 11},
+    {23, false, 2, "5Gzt", 4, "8z^", 1, 3},
+    {23, false, 2, "6Gzt", 5, "z+", 11, 12},
+    {23, false, 2, "7Gzt", 6, "z+", 12, 13},
+    {23, false, 2, "8Gzt", 7, "z+", 13, 14},
+    {23, false, 2, "9Gzt", 8, "z+", 14, 15},
+    {23, false, 2, "9Gzt", 8, "11z^", 1, 6},
+    {23, false, 2, "10Gzt", 9, "z+", 15, 16},
+    {23, false, 2, "11Gzt", 10, "z+", 16, 17},
+    {23, false, 2, "12Gzt", 11, "z+", 17, 18},
+    {23, false, 2, "12Gzt", 11, "14z^", 4, 9},
+    {23, false, 2, "13Gzt", 12, "z+", 18, 19},
+    {23, false, 2, "14Gzt", 13, "z+", 19, 20},
+    {23, false, 2, "15Gzt", 14, "z+", 20, 21},
+    {23, false, 2, "15Gzt", 14, "17z^", 7, 12},
+    {23, false, 2, "16Gzt", 15, "z+", 21, 22},
+    {23, false, 2, "17Gzt", 16, "z+", 22, 23},
+    {23, false, 2, "18Gzt", 17, "z+", 23, 24},
+    {23, false, 2, "18Gzt", 17, "20z^", 10, 15},
+    {23, false, 2, "21Gzt", 20, "23z^", 13, 18},
+    {23, false, 2, "24Gzt", 23, "26z^", 16, 21},
+    {24, false, 0, "1Gzt", 1, "z+", 9, 9},
+    {24, false, 0, "2Gzt", 2, "z+", 10, 10},
+    {24, false, 0, "3Gzt", 3, "z+", 11, 11},
+    {24, false, 0, "3Gzt", 3, "29z^", 15, 22},
+    {24, false, 0, "4Gzt", 4, "z+", 12, 12},
+    {24, false, 0, "5Gzt", 5, "z+", 13, 13},
+    {24, false, 0, "6Gzt", 6, "z+", 14, 14},
+    {24, false, 0, "6Gzt", 6, "3z^", 1, 1},
+    {24, false, 0, "7Gzt", 7, "z+", 15, 15},
+    {24, false, 0, "8Gzt", 8, "z+", 16, 16},
+    {24, false, 0, "9Gzt", 9, "z+", 17, 17},
+    {24, false, 0, "9Gzt", 9, "6z^", 1, 1},
+    {24, false, 0, "10Gzt", 10, "z+", 18, 18},
+    {24, false, 0, "11Gzt", 11, "z+", 19, 19},
+    {24, false, 0, "12Gzt", 12, "z+", 20, 20},
+    {24, false, 0, "12Gzt", 12, "9z^", 1, 2},
+    {24, false, 0, "13Gzt", 13, "z+", 21, 21},
+    {24, false, 0, "14Gzt", 14, "z+", 22, 22},
+    {24, false, 0, "15Gzt", 15, "z+", 23, 23},
+    {24, false, 0, "16Gzt", 16, "12z^", 1, 5},
+    {24, false, 0, "19Gzt", 19, "15z^", 1, 8},
+    {24, false, 0, "22Gzt", 22, "18z^", 4, 11},
+    {24, false, 2, "1Gzt", 1, "z+", 8, 9},
+    {24, false, 2, "2Gzt", 1, "z+", 8, 9},
+    {24, false, 2, "2Gzt", 1, "21z^", 9, 15},
+    {24, false, 2, "3Gzt", 2, "z+", 9, 10},
+    {24, false, 2, "4Gzt", 3, "z+", 10, 11},
+    {24, false, 2, "5Gzt", 4, "z+", 11, 12},
+    {24, false, 2, "5Gzt", 4, "24z^", 12, 18},
+    {24, false, 2, "6Gzt", 5, "z+", 12, 13},
+    {24, false, 2, "7Gzt", 6, "z+", 13, 14},
+    {24, false, 2, "8Gzt", 7, "z+", 14, 15},
+    {24, false, 2, "8Gzt", 7, "27z^", 15, 21},
+    {24, false, 2, "9Gzt", 8, "z+", 15, 16},
+    {24, false, 2, "10Gzt", 9, "z+", 16, 17},
+    {24, false, 2, "11Gzt", 10, "z+", 17, 18},
+    {24, false, 2, "11Gzt", 10, "2z^", 1, 1},
+    {24, false, 2, "12Gzt", 11, "z+", 18, 19},
+    {24, false, 2, "13Gzt", 12, "z+", 19, 20},
+    {24, false, 2, "14Gzt", 13, "z+", 20, 21},
+    {24, false, 2, "14Gzt", 13, "4z^", 1, 1},
+    {24, false, 2, "15Gzt", 14, "z+", 21, 22},
+    {24, false, 2, "16Gzt", 15, "z+", 22, 23},
+    {24, false, 2, "17Gzt", 16, "z+", 23, 24},
+    {24, false, 2, "17Gzt", 16, "7z^", 1, 1},
+    {24, false, 2, "21Gzt", 20, "10z^", 1, 4},
+    {24, false, 2, "24Gzt", 23, "13z^", 1, 7},
+    {23, true, 0, "1Gzt", 1, "z+", 8, 8},
+    {23, true, 0, "2Gzt", 2, "z+", 9, 9},
+    {23, true, 0, "3Gzt", 3, "z+", 9, 9},
+    {23, true, 0, "4Gzt", 4, "17z^", 2, 8},
+    {23, true, 0, "9Gzt", 9, "12z^", 1, 5},
+    {23, true, 2, "1Gzt", 1, "z+", 7, 8},
+    {23, true, 2, "2Gzt", 1, "z+", 7, 8},
+    {23, true, 2, "3Gzt", 1, "z+", 7, 8},
+    {23, true, 2, "3Gzt", 1, "7z^", 1, 2},
+    {23, true, 2, "4Gzt", 3, "z+", 8, 9},
+    {23, true, 2, "5Gzt", 3, "z+", 8, 9},
+    {23, true, 2, "8Gzt", 7, "2z^", 1, 1},
+    {24, true, 0, "1Gzt", 1, "z+", 8, 8},
+    {24, true, 0, "1Gzt", 1, "16z^", 2, 8},
+    {24, true, 0, "2Gzt", 2, "z+", 9, 9},
+    {24, true, 0, "3Gzt", 3, "z+", 10, 10},
+    {24, true, 0, "6Gzt", 6, "11z^", 1, 4},
+    {24, true, 0, "10Gzt", 10, "6z^", 1, 1},
+    {24, true, 2, "1Gzt", 1, "z+", 7, 8},
+    {24, true, 2, "2Gzt", 1, "z+", 7, 8},
+    {24, true, 2, "3Gzt", 1, "z+", 7, 8},
+    {24, true, 2, "4Gzt", 3, "z+", 9, 10},
+    {24, true, 2, "5Gzt", 3, "z+", 9, 10},
+    {24, true, 2, "5Gzt", 3, "20z^", 4, 10},
+    {24, true, 2, "10Gzt", 9, "15z^", 3, 8},
+    };
+
+    for (const Align &a : aligns) {
+        if (a.height != loadedHeight || a.mixed != loadedMixed) {
+            loadBuffer(a.height, a.mixed);
+            loadedHeight = a.height;
+            loadedMixed = a.mixed;
+        }
+        data.doCommand(QString("set scrolloff=%1").arg(a.scrollOff));
+        data.doKeys(a.setup);
+        const QByteArray what = QString("h%1 %2 so=%3 %4%5")
+                                    .arg(a.height)
+                                    .arg(QLatin1String(a.mixed ? "mixed" : "uniform"))
+                                    .arg(a.scrollOff)
+                                    .arg(QLatin1String(a.setup), QLatin1String(a.keys))
+                                    .toLatin1();
+        const QByteArray at = what + " starts at " + QByteArray::number(topLine());
+        QVERIFY2(topLine() == a.setupTopLine, at.constData());
+        data.doKeys(a.keys);
+        const QByteArray got = what + " leaves top " + QByteArray::number(topLine())
+                               + " line " + QByteArray::number(cursorLine());
+        QVERIFY2(topLine() == a.topLine && cursorLine() == a.cursorLine, got.constData());
+    }
+
+    // The lines below the window have no row count of their own before the
+    // editor has laid them out, and a page down over them needs one.
+    loadBuffer(23, false, false);
+    data.doKeys("1Gzt<C-f>");
+    QCOMPARE(topLine(), 8);
+
+    // The options are shared, so the ones this test set go back to their
+    // defaults for the tests that follow.
+    // "scroll" 0 would be resolved to half of this window at once, while
+    // "&" leaves the option itself at its default.
+    data.doCommand("set scroll&");
+    data.doCommand("set scrolloff&");
+    data.doCommand("set nowrap");
+}
+
 void FakeVimTester::test_vim_target_column_visual_char()
 {
     TestData data;
@@ -1332,20 +2965,20 @@ void FakeVimTester::test_vim_target_column_visual_block()
     data.setText("a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
 
     KEYS("<C-V>",
-                 "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
-    KEYS("j",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+               X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
     KEYS("$",    "a"   "b"   "c"   N   "d"   "e" X N   ""   N   "k"   "l"   "m"   "n");
     KEYS("k",    "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
     KEYS("3j",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n" X);
-    KEYS("02k",  "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
-    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
+    KEYS("02k",  "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
     KEYS("$",    "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
     KEYS("2k",   "a"   "b"   "c" X N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
     KEYS("jj2|", "a"   "b"   "c"   N   "d"   "e"   N   "" X N   "k"   "l"   "m"   "n");
-    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l" X "m"   "n");
-    KEYS("gg",   "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
-    KEYS("j",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
-    KEYS("^k",   "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
+    KEYS("gg", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("j",    "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("^k", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
     KEYS("lO", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
     KEYS("<ESC>j",
                  "a"   "b"   "c"   N X "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
@@ -1363,8 +2996,19 @@ void FakeVimTester::test_vim_target_column_visual_line()
     KEYS("Vj<ESC>",    "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k" X "l"   "m"   "n");
     KEYS("Vgg<ESC>", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
 
-    NOT_IMPLEMENTED
-    // Movement inside selection is not supported.
+    // Moving inside the selection keeps the column the same way.
+    KEYS("gg0lVjk<ESC>",     "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("gg0lVjjk<ESC>",    "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("gg0lVjjjk<ESC>",   "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("gg0lVjjjkk<ESC>",  "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("gg02lVjjj<ESC>",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l" X "m"   "n");
+    KEYS("gg02lVjjjk<ESC>",  "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("gg0$Vj<ESC>",      "a"   "b"   "c"   N   "d" X "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("gg0$Vjj<ESC>",     "a"   "b"   "c"   N   "d"   "e"   N X ""   N   "k"   "l"   "m"   "n");
+    KEYS("gg0lVjjjgg<ESC>", X "a"   "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("gg0lVjjjG<ESC>",   "a"   "b"   "c"   N   "d"   "e"   N   ""   N X "k"   "l"   "m"   "n");
+    KEYS("gg0lVjjjo<ESC>",   "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
+    KEYS("gg0lVjjjok<ESC>",  "a" X "b"   "c"   N   "d"   "e"   N   ""   N   "k"   "l"   "m"   "n");
 }
 
 void FakeVimTester::test_vim_target_column_insert()
@@ -1603,6 +3247,14 @@ void FakeVimTester::test_vim_insert()
     KEYS("2I<lt>end><esc>", "  <end><end" X ">abc" N "  def");
     KEYS("u", "  " X "abc" N "  def");
     KEYS(".", "  <end><end" X ">abc" N "  def");
+
+    // repeat insert of what CTRL-V or CTRL-K put in
+    data.setText("ab" X "c");
+    KEYS("3A<C-v>065<esc>", "abcAA" X "A");
+    // No cursor marker: the harness places it at a byte offset, which lands
+    // inside the last character here.
+    data.setText("ab" X "c");
+    KEYS("3A<C-k>a:<esc>", "abc\xc3\xa4\xc3\xa4\xc3\xa4");
 }
 
 void FakeVimTester::test_vim_fFtT()
@@ -2147,6 +3799,40 @@ void FakeVimTester::test_vim_change_a_word()
     KEYS("cawZ<esc>", "a " X "Zc");
 }
 
+void FakeVimTester::test_vim_word_class_above_latin1()
+{
+    TestData data;
+    setup(&data);
+
+    // Above Latin-1 Vim sorts characters into a class per script, so a word
+    // motion stops where a run of kana meets the ideographs beside it
+    // (measured).
+    const QString text = QString(2, QChar(0x3042)) + QString(2, QChar(0x6f22))
+                         + QLatin1String("ab") + QString(2, QChar(0x30a2));
+    data.setText(text);
+
+    data.doKeys("gg0");
+    QCOMPARE(data.position(), 0);
+    data.doKeys("w"); QCOMPARE(data.position(), 2);
+    data.doKeys("w"); QCOMPARE(data.position(), 4);
+    data.doKeys("w"); QCOMPARE(data.position(), 6);
+    data.doKeys("w"); QCOMPARE(data.position(), 7);
+
+    data.doKeys("0");
+    data.doKeys("e"); QCOMPARE(data.position(), 1);
+    data.doKeys("e"); QCOMPARE(data.position(), 3);
+    data.doKeys("e"); QCOMPARE(data.position(), 5);
+    data.doKeys("e"); QCOMPARE(data.position(), 7);
+
+    data.doKeys("b"); QCOMPARE(data.position(), 6);
+    data.doKeys("b"); QCOMPARE(data.position(), 4);
+    data.doKeys("b"); QCOMPARE(data.position(), 2);
+    data.doKeys("b"); QCOMPARE(data.position(), 0);
+
+    data.doKeys("diw");
+    QCOMPARE(data.text(), text.mid(2).toUtf8());
+}
+
 void FakeVimTester::test_vim_change_replace()
 {
     TestData data;
@@ -2298,6 +3984,35 @@ void FakeVimTester::test_vim_change_replace()
     data.setText(X "abcdef");
     KEYS("R<delete>", X "bcdef");
     KEYS("<delete>", X "cdef");
+}
+
+void FakeVimTester::test_vim_change_ending_in_newline()
+{
+    TestData data;
+    setup(&data);
+
+    // The <CR> that ends a change is an ordinary line break: what stays in
+    // front of the cursor is nothing, so the line broken off is not indented
+    // and loses the blank it had. All measured.
+    data.setText(X "abc def");
+    KEYS("vllc<CR><ESC>", "" N X "def");
+    data.setText(X "abc def");
+    KEYS("vllc<CR>Z<ESC>", "" N X "Zdef");
+    data.setText(X "abcdef");
+    KEYS("vllc<CR><ESC>", "" N X "def");
+
+    // A change that does not end in <CR> leaves the blank where it was.
+    data.setText(X "abc def");
+    KEYS("vllcZ<ESC>", X "Z def");
+
+    // A plain line break does the same, and the blanks it leaves behind on
+    // the line in front of it are not touched either.
+    data.setText(X " def");
+    KEYS("i<CR><ESC>", "" N X "def");
+    data.setText(X "   def");
+    KEYS("i<CR>x<ESC>", "" N X "xdef");
+    data.setText(X "ab   cd");
+    KEYS("fci<CR><ESC>", "ab   " N X "cd");
 }
 
 void FakeVimTester::test_vim_block_selection()
@@ -2538,6 +4253,69 @@ void FakeVimTester::test_vim_block_selection_insert()
     KEYS("<c-v>2jI<tab><esc>", X "    abc" N "    def" N "    ghi");
     data.doCommand("set noexpandtab");
     data.doCommand("set tabstop=8");
+}
+
+// Where the editor draws the caret of a block selection. Vim puts it on the
+// column the cursor is on, and that column is the right edge of the rectangle
+// as often as the left one. All values measured.
+void FakeVimTester::test_vim_block_selection_caret()
+{
+    TestData data;
+    setup(&data);
+
+    // The cursor is the right edge, the block runs backwards.
+    data.setText("abcd" N "e");
+    data.doKeys("2G<c-v>kl");
+    QCOMPARE(data.position(), 1);
+
+    // The cursor is the right edge, the block runs forwards.
+    data.setText("abcd" N "efgh");
+    data.doKeys("1G<c-v>jl");
+    QCOMPARE(data.position(), 6);
+
+    data.setText("abcd" N "efgh");
+    data.doKeys("1G<c-v>jll");
+    QCOMPARE(data.position(), 7);
+
+    // A rectangle one column wide.
+    data.setText("abcd" N "e");
+    data.doKeys("2G<c-v>k");
+    QCOMPARE(data.position(), 0);
+
+    // The cursor is the left edge, which has always worked.
+    data.setText("abcd" N "efgh");
+    data.doKeys("1Glll<c-v>jhh");
+    QCOMPARE(data.position(), 6);
+
+    // A line the rectangle reaches past keeps the caret behind its end.
+    data.setText("abcd" N "e");
+    data.doKeys("1Gll<c-v>j");
+    QCOMPARE(data.position(), 6);
+
+    // After "$" the caret stands past the last character, as in Vim.
+    data.setText("abcd" N "efgh");
+    data.doKeys("1G<c-v>j$");
+    QCOMPARE(data.position(), 9);
+}
+
+// Deleting a block leaves the cursor on the top left corner of the rectangle,
+// whichever corner the cursor was on. All values measured.
+void FakeVimTester::test_vim_block_selection_delete()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abcd" N "e");
+    KEYS("2G<c-v>k3ld", X "" N "");
+
+    data.setText("abcd" N "efgh");
+    KEYS("1G<c-v>jld", X "cd" N "gh");
+
+    data.setText("abcd" N "efgh");
+    KEYS("2Gl<c-v>kld", "a" X "d" N "eh");
+
+    data.setText("abcd" N "efgh" N "ijkl");
+    KEYS("3Gll<c-v>2kd", "ab" X "d" N "efh" N "ijl");
 }
 
 void FakeVimTester::test_vim_delete_inner_paragraph()
@@ -3177,6 +4955,219 @@ void FakeVimTester::test_vim_search()
     data.doCommand("set wrapscan incsearch");
 }
 
+void FakeVimTester::test_vim_pattern_over_line_end()
+{
+    // A pattern that can match a newline reaches over the end of a line: a
+    // search finds such a match, a ":substitute" makes it, a ":global" marks the
+    // line it starts on and a ":vimgrep" lists it. None of that happened before,
+    // the pattern simply found nothing. Measured in Vim 9.1 with
+    // "vim -n -u NONE -i NONE -N --not-a-term -S".
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    data.doCommand("set ws report=0");
+
+    // A match is found where it starts, and one starting at the end of a line
+    // puts the cursor on the last character of that line.
+    data.setText(X "abc" N "dabc" N "dxx");
+    KEYS("/c\\nd<CR>", "ab" X "c" N "dabc" N "dxx");
+    KEYS("n", "abc" N "dab" X "c" N "dxx");
+    KEYS("n", "ab" X "c" N "dabc" N "dxx");
+    KEYS("3gg?c\\nd<CR>", "abc" N "dab" X "c" N "dxx");
+    data.setText(X "ab" N "cd" N "ef");
+    KEYS("/\\n<CR>", "a" X "b" N "cd" N "ef");
+    KEYS("$/\\n<CR>", "ab" N "c" X "d" N "ef");
+    data.setText(X "abc");
+    KEYS("/\\_s<CR>", "ab" X "c");
+    data.setText(X "abc" N "dabc");
+    KEYS("/c\\_[de]<CR>", "ab" X "c" N "dabc");
+    message.clear();
+    KEYS("/c\\nz<CR>", "ab" X "c" N "dabc");
+    QCOMPARE(message, QLatin1String("E486: Pattern not found: c\\nz"));
+
+    // An operator using such a search as its motion stops where the match
+    // starts, which is exclusive as any search motion is.
+    data.setText(X "ab" N "cd" N "ef");
+    KEYS("d/\\n<CR>", X "b" N "cd" N "ef");
+    data.setText(X "ab" N "cd" N "ef");
+    KEYS("$d/\\n<CR>", "a" X "d" N "ef");
+    data.setText(X "abc" N "def");
+    KEYS("ld/\\n<CR>", "a" X "c" N "def");
+    data.setText(X "abc");
+    KEYS("d/\\_s<CR>", X "c");
+
+    // In visual mode the cursor may stand on the line break a match begins at,
+    // so the selection takes in the end of the line.
+    data.setText(X "abc" N "def");
+    KEYS("v/\\n<CR>", "abc" X N "def");
+    data.setText(X "abc" N "def");
+    KEYS("v/\\n<CR>d", X "def");
+    data.setText(X "abc" N "def");
+    KEYS("v/\\_s<CR>d", X "def");
+    data.setText(X "abc" N "def" N "ghi");
+    KEYS("jv/\\n<CR>d", "abc" N X "ghi");
+    data.setText(X "abc" N "def");
+    KEYS("<c-v>/\\n<CR>d", X "" N "def");
+    data.setText(X "abc" N "def");
+    KEYS("v/$<CR>d", X "def");
+
+    // A ":substitute" takes one match per line it starts on, or every match
+    // with a "g". The lines a report counts are the ones the substitutions end
+    // up on, after whatever they joined.
+    data.setText(X "ab" N "cd" N "ef");
+    message.clear();
+    COMMAND("%s/\\n//g", "abcd" X "ef");
+    QCOMPARE(message, QLatin1String("2 substitutions on 1 line"));
+    data.setText(X "ab" N "cd" N "ef");
+    message.clear();
+    COMMAND("%s/\\n/-/g", X "ab-cd-ef-");
+    QCOMPARE(message, QLatin1String("3 substitutions on 1 line"));
+    data.setText(X "ab" N "cd" N "ef");
+    message.clear();
+    COMMAND("2,3s/\\n//g", "ab" N "cd" X "ef");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    data.setText(X "ab" N "cd" N "ef");
+    COMMAND("2s/\\n//", "ab" N "cd" X "ef");
+    data.setText(X "  ab" N "  cd" N "  ef");
+    COMMAND("2s/\\n//", "  ab" N "  cd" X "  ef");
+    // An "n" changes nothing, so what it counts are the lines the matches are
+    // found on.
+    data.setText(X "abc" N "dabc" N "dxx");
+    message.clear();
+    COMMAND("%s/\\n/-/gn", X "abc" N "dabc" N "dxx");
+    QCOMPARE(message, QLatin1String("3 matches on 3 lines"));
+    // Where a lone newline is replaced by nothing the cursor stays where the
+    // two lines were joined, everywhere else it goes to the first non-blank of
+    // the line the last replacement ends on.
+    data.setText(X "ab" N "cd");
+    COMMAND("%s/\\nc//", X "abd");
+    data.setText(X "ab" N "  cd");
+    COMMAND("%s/\\n//", "ab" X "  cd");
+    data.setText(X "  ab" N "  cd");
+    COMMAND("1s/\\n  //", "  " X "abcd");
+    data.setText(X "  ab" N "  cd");
+    COMMAND("%s/ab\\n//g", "    " X "cd");
+    data.setText(X "  ab" N "  cd");
+    COMMAND("%s/b\\n  //", "  " X "acd");
+    data.setText(X "ab" N "cd");
+    COMMAND("%s/b\\nc//", X "ad");
+    data.setText(X "ab" N "cd" N "ef");
+    COMMAND("%s/b\\nc/Z/", X "aZd" N "ef");
+    data.setText(X "  ab" N "  cd");
+    COMMAND("%s/b\\nZ*/Z/", "  " X "aZ  cd");
+    data.setText(X "ab" N "cd" N "ef");
+    COMMAND("%s/\\nc\\|\\ne/-/g", X "ab-d-f");
+    // "^" and "$" mean the ends of a line here as they do anywhere else, and
+    // the newline that ends the last line is matched as well.
+    data.setText(X "ab" N "cd");
+    COMMAND("%s/\\n$/Z/", "ab" N X "cdZ");
+    data.setText(X "ab" N "cd");
+    COMMAND("%s/b$\\n^c/Q/", X "aQd");
+    // A match of that newline counts as a substitution although it changes
+    // nothing, the bare "\n" replaced by nothing being the one exception.
+    data.setText(X "ab" N "cd");
+    message.clear();
+    COMMAND("%s/\\n$//", "ab" N X "cd");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    data.setText(X "ab" N "  cd");
+    COMMAND("%s/\\n$//", "ab" N "  " X "cd");
+    data.setText(X "ab" N "cd");
+    message.clear();
+    COMMAND("%s/\\n$//n", X "ab" N "cd");
+    QCOMPARE(message, QLatin1String("1 match on 1 line"));
+    data.setText(X "ab" N "cd");
+    message.clear();
+    COMMAND("%s/\\(\\n\\)//g", X "abcd");
+    QCOMPARE(message, QLatin1String("2 substitutions on 1 line"));
+    data.setText(X "ab" N "cd");
+    message.clear();
+    COMMAND("%s/\\_s//g", X "abcd");
+    QCOMPARE(message, QLatin1String("2 substitutions on 1 line"));
+    data.setText(X "ab" N "cd");
+    message.clear();
+    COMMAND("%s/\\n//", "ab" X "cd");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    // Whether Vim makes that no-op substitution for the bare "\n" replaced by
+    // nothing goes by the flags as typed: none at all and a single "g", "p", "#"
+    // or "l" leave the newline alone and report nothing, while any other flag,
+    // two of them, a count or a lone blank make Vim count it.
+    data.setText(X "ab");
+    message.clear();
+    COMMAND("%s/\\n//", X "ab");
+    QCOMPARE(message, QString());
+    data.setText(X "ab");
+    message.clear();
+    COMMAND("%s/\\n//g", X "ab");
+    QCOMPARE(message, QString());
+    data.setText(X "ab");
+    message.clear();
+    COMMAND("%s/\\n//e", X "ab");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    data.setText(X "ab");
+    message.clear();
+    COMMAND("%s/\\n//gg", X "ab");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    data.setText(X "ab");
+    message.clear();
+    COMMAND("%s/\\n// ", X "ab");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    data.setText(X "ab");
+    message.clear();
+    COMMAND("%s/\\v\\n//", X "ab");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    data.setText(X "ab");
+    message.clear();
+    COMMAND("%s/\\n/X/", X "abX");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    data.setText(X "ab" N "cd");
+    message.clear();
+    COMMAND("2s/\\n//", "ab" N X "cd");
+    QCOMPARE(message, QString());
+    data.setText(X "ab" N "cd");
+    message.clear();
+    COMMAND("2s/\\n//e", "ab" N X "cd");
+    QCOMPARE(message, QLatin1String("1 substitution on 1 line"));
+    // The cursor goes to the start of the line the match was left alone on,
+    // where one that counts takes it to the first non-blank.
+    data.setText(X "ab" N "  cd");
+    COMMAND("2s/\\n//", "ab" N X "  cd");
+    data.setText(X "  ab");
+    COMMAND("%s/\\n//", X "  ab");
+    data.setText(X "  ab");
+    COMMAND("%s/\\n//e", "  " X "ab");
+    // A "\r" in the replacement starts a line of its own.
+    data.setText(X "ab" N "    cd");
+    COMMAND("1s/b\\n/Z\\r    /", "aZ" N "        " X "cd");
+    // Without a "g" it is the first match of a line that is taken, whether the
+    // pattern reaches over the end of that line or not.
+    data.setText(X "aZbZc" N "dZe");
+    COMMAND("%s/Z\\|\\n/-/", "a-bZc" N X "d-e");
+    data.setText(X "aZbZc" N "dZe");
+    COMMAND("%s/Z\\|\\n/-/g", X "a-b-c-d-e-");
+    // An empty match sitting where the one before it ended is none of its own.
+    data.setText(X "ab" N "cd");
+    data.doCommand("%s/\\_s*/-/g");
+    QCOMPARE(data.text(), QByteArray("-a-b-c-d-"));
+    data.setText(X "ab" N "cd");
+    data.doCommand("%s/\\_.\\_./Z/g");
+    QCOMPARE(data.text(), QByteArray("ZZZ"));
+
+    // ":global" and ":vglobal" work on the line a match starts on.
+    data.setText(X "abc" N "dabc" N "dxx");
+    data.doCommand("g/c\\nd/d");
+    QCOMPARE(data.text(), QByteArray("dxx"));
+    data.setText(X "abc" N "dabc" N "dxx");
+    data.doCommand("v/c\\nd/d");
+    QCOMPARE(data.text(), QByteArray("abc" N "dabc"));
+
+    data.doCommand("set report=2");
+}
+
 void FakeVimTester::test_vim_nohlsearch_core_search()
 {
     TestData data;
@@ -3514,9 +5505,9 @@ void FakeVimTester::test_vim_current_column()
 
     // change
     data.setText("  abc" N "  d" X "ef" N "  ghi");
-    KEYS("cc<up>", "  " X "abc" N "  " N "  ghi");
+    KEYS("cc<up>", "  " X "abc" N "" N "  ghi");
     data.setText("  abc" N "  d" X "ef" N "  ghi");
-    KEYS("cc<up>x<down><down>", "  xabc" N "  " N "  g" X "hi");
+    KEYS("cc<up>x<down><down>", "  xabc" N "" N "  g" X "hi");
 }
 
 void FakeVimTester::test_vim_copy_paste()
@@ -3826,6 +5817,50 @@ void FakeVimTester::test_vim_script_reltime()
     data.doCommand("unlet! g:t g:a g:b");
 }
 
+void FakeVimTester::test_vim_command_registers()
+{
+    // ":registers" heads its listing "Type Name Content" and names the kind of
+    // each register, l for linewise, c for charwise and b for blockwise, with a
+    // line break in the contents shown as "^J". An argument filters the list,
+    // and a register that was never written to stays out of it either way.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString info;
+    data.handler->extraInformationChanged.set([&](const QString &text) { info = text; });
+    const auto shown = [&](const QString &command) {
+        info.clear();
+        data.doCommand(command);
+        return info;
+    };
+
+    data.setText(X "one" N "two" N "three");
+    data.doCommand("call setreg('a', \"AAA\\n\", 'V')");
+    data.doCommand("call setreg('b', 'BBB', 'v')");
+    data.doCommand("call setreg('c', 'CC', 'b')");
+    QCOMPARE(shown("registers abc"),
+             QLatin1String("Type Name Content\n"
+                           "  l  \"a   AAA^J\n"
+                           "  c  \"b   BBB\n"
+                           "  b  \"c   CC\n"));
+    // Emptying one does not take it off the list, and the read-only registers
+    // go by their contents instead, so one that comes out empty is left out.
+    data.doCommand("call setreg('d', '')");
+    QCOMPARE(shown("registers d"), QLatin1String("Type Name Content\n"
+                                                 "  c  \"d   \n"));
+    QCOMPARE(shown("registers %"), QLatin1String("Type Name Content\n"));
+    data.doKeys("/two<CR>");
+    QCOMPARE(shown("registers /"), QLatin1String("Type Name Content\n"
+                                                 "  c  \"/   two\n"));
+    // The order is the one Vim uses, not the order they were written in.
+    QCOMPARE(shown("registers cb/a"),
+             QLatin1String("Type Name Content\n"
+                           "  l  \"a   AAA^J\n"
+                           "  c  \"b   BBB\n"
+                           "  b  \"c   CC\n"
+                           "  c  \"/   two\n"));
+}
+
 void FakeVimTester::test_vim_command_marks()
 {
     // ":marks" lists the "'" mark first, then a-z/A-Z alphabetically, then any
@@ -3927,6 +5962,70 @@ void FakeVimTester::test_vim_command_jumps()
                             "   2     2    0 two\n"
                             "   1     5    0 five\n"
                             ">\n"));
+
+    // A real CTRL-O walk. Vim keeps ONE list and an index into it, not two
+    // stacks: the position CTRL-O starts from is appended to the list, the
+    // number in front of a row is its distance from where the walk stands, so
+    // that row is numbered zero and carries the ">", and the ">" is a line of
+    // its own only while no walk is under way. Nothing is cut short, and a
+    // jump made mid-walk leaves the rows CTRL-I could still have reached.
+    const QString head = " jump line  col file/text\n";
+    data.setText("l1" N "l2" N "l3" N "l4" N "l5" N "l6" N "l7" N "l8" N "l9");
+    data.doCommand("clearjumps");
+    data.doKeys("3G6G9G");
+    QCOMPARE(shown("jumps"), head + "   3     1    0 l1\n"
+                                    "   2     3    0 l3\n"
+                                    "   1     6    0 l6\n"
+                                    ">\n");
+    data.doKeys("<C-O>");
+    QCOMPARE(shown("jumps"), head + "   2     1    0 l1\n"
+                                    "   1     3    0 l3\n"
+                                    ">  0     6    0 l6\n"
+                                    "   1     9    0 l9\n");
+    data.doKeys("<C-O>");
+    QCOMPARE(shown("jumps"), head + "   1     1    0 l1\n"
+                                    ">  0     3    0 l3\n"
+                                    "   1     6    0 l6\n"
+                                    "   2     9    0 l9\n");
+    data.doKeys("<C-I>");
+    QCOMPARE(shown("jumps"), head + "   2     1    0 l1\n"
+                                    "   1     3    0 l3\n"
+                                    ">  0     6    0 l6\n"
+                                    "   1     9    0 l9\n");
+    data.doKeys("<C-I>");
+    QCOMPARE(shown("jumps"), head + "   3     1    0 l1\n"
+                                    "   2     3    0 l3\n"
+                                    "   1     6    0 l6\n"
+                                    ">  0     9    0 l9\n");
+
+    // A jump after two CTRL-O appends the line it leaves, drops the row that
+    // line already had, and keeps the two rows in front of the index.
+    data.doKeys("1G");
+    data.doCommand("clearjumps");
+    data.doKeys("3G6G9G<C-O><C-O>5G");
+    QCOMPARE(shown("jumps"), head + "   4     1    0 l1\n"
+                                    "   3     6    0 l6\n"
+                                    "   2     9    0 l9\n"
+                                    "   1     3    0 l3\n"
+                                    ">\n");
+
+    // A count walks that far in one go, over the row the walk appends first.
+    data.doKeys("1G");
+    data.doCommand("clearjumps");
+    data.doKeys("3G6G9G3<C-O>");
+    QCOMPARE(shown("jumps"), head + ">  0     1    0 l1\n"
+                                    "   1     3    0 l3\n"
+                                    "   2     6    0 l6\n"
+                                    "   3     9    0 l9\n");
+
+    // The jump to the "" mark is an ordinary jump as well, and the line it
+    // leaves being already in the list is what keeps the list short here.
+    data.doKeys("1G");
+    data.doCommand("clearjumps");
+    data.doKeys("3G''''");
+    QCOMPARE(shown("jumps"), head + "   2     3    0 l3\n"
+                                    "   1     1    0 l1\n"
+                                    ">\n");
 }
 
 void FakeVimTester::test_vim_script_bufexists()
@@ -5708,11 +7807,9 @@ void FakeVimTester::test_vim_script_extendnew()
 
 void FakeVimTester::test_vim_script_srand_rand()
 {
-    // Vim's actual generator is xoshiro128** and is not cloned here (a
-    // "carry the algorithm" decision, not a queue ticket) - so only the
-    // STRUCTURE is asserted, deliberately not the numbers themselves:
-    // srand() gives a List of 4 Numbers, rand() a Number in [0, 2^32), and
-    // one seed replays one sequence.
+    // srand() gives the four 32-bit words of a xoshiro128** state, seeded by
+    // splitmix32 from the number it is given, and rand() draws from such a
+    // state and advances it in place. Values taken from Vim 9.1.
     TestData data;
     setup(&data);
     QString message;
@@ -5745,7 +7842,35 @@ void FakeVimTester::test_vim_script_srand_rand()
     data.doCommand("let g:b = [rand(g:s2), rand(g:s2), rand(g:s2)]");
     QCOMPARE(value("g:a == g:b"), QLatin1String("1"));
 
+    // The numbers themselves, which are Vim own.
+    QCOMPARE(value("string(srand(4))"),
+             QLatin1String("[1486870344, 755456664, 333189277, 970576561]"));
+    QCOMPARE(value("string(srand(0))"),
+             QLatin1String("[2462723854, 1020716019, 454327756, 1275600319]"));
+    QCOMPARE(value("string(srand(123456789))"),
+             QLatin1String("[1573771921, 319883699, 2742014374, 1324369493]"));
+    data.doCommand("let g:r = srand(4)");
+    data.doCommand("let g:seq = []");
+    data.doCommand("for i in range(5) | call add(g:seq, rand(g:r)) | endfor");
+    QCOMPARE(value("string(g:seq)"),
+             QLatin1String("[628514800, 131287287, 3762185039, 2775974355, 1126976248]"));
+    // The state the draws leave behind.
+    QCOMPARE(value("string(g:r)"),
+             QLatin1String("[3587665575, 155723753, 528496627, 4065610949]"));
+    data.doCommand("let g:r0 = srand(0)");
+    QCOMPARE(value("rand(g:r0) .. ',' .. rand(g:r0) .. ',' .. rand(g:r0)"),
+             QLatin1String("3809008728,1133695204,53579671"));
+
+    // Anything but a state of four numbers is an invalid argument, and a List
+    // or a Dict cannot be put into that message at all.
     QCOMPARE(value("rand(5)"), QLatin1String("E475: Invalid argument: 5"));
+    QCOMPARE(value("rand('x')"), QLatin1String("E475: Invalid argument: x"));
+    QCOMPARE(value("rand(1.5)"), QLatin1String("E475: Invalid argument: 1.5"));
+    QCOMPARE(value("rand([1, 2])"), QLatin1String("E730: Using a List as a String"));
+    QCOMPARE(value("rand([1, 2, 3, 'a'])"), QLatin1String("E730: Using a List as a String"));
+    QCOMPARE(value("rand([])"), QLatin1String("E730: Using a List as a String"));
+    QCOMPARE(value("rand({})"), QLatin1String("E731: Using a Dictionary as a String"));
+    QCOMPARE(value("srand([1])"), QLatin1String("E745: Using a List as a Number"));
 
     QCOMPARE(value("exists('*srand')"), QLatin1String("1"));
     QCOMPARE(value("exists('*rand')"), QLatin1String("1"));
@@ -5787,6 +7912,19 @@ void FakeVimTester::test_vim_script_cursorcharpos()
 
     QCOMPARE(value("setcursorcharpos(0, 0)"), QLatin1String("0"));
     QCOMPARE(value("string(getcursorcharpos())"), QLatin1String("[0, 4, 1, 0, 1]"));
+
+    // One number is no position: both want the line and the column, as two
+    // arguments or as the first two items of a list.
+    const QLatin1String invalid("E474: Invalid argument");
+    QCOMPARE(value("setcursorcharpos(1)"), invalid);
+    QCOMPARE(value("setcursorcharpos([1])"), invalid);
+    QCOMPARE(value("setcursorcharpos([])"), invalid);
+    QCOMPARE(value("setcursorcharpos('x')"), invalid);
+    QCOMPARE(value("setcursorcharpos({})"), invalid);
+    QCOMPARE(value("cursor(1)"), invalid);
+    QCOMPARE(value("cursor([1])"), invalid);
+    QCOMPARE(value("setcursorcharpos([1, 1, 1])"), QLatin1String("0"));
+    QCOMPARE(value("setcursorcharpos('1', '1')"), QLatin1String("0"));
 
     QCOMPARE(value("exists('*getcursorcharpos')"), QLatin1String("1"));
     QCOMPARE(value("exists('*setcursorcharpos')"), QLatin1String("1"));
@@ -5944,10 +8082,9 @@ void FakeVimTester::test_vim_script_changenr_reg_recording_executing()
 
 void FakeVimTester::test_vim_script_strutf16len_utf16idx()
 {
-    // strutf16len({string} [, {countcc}]) is just size() here: the string is
-    // already stored in UTF-16, and neither string below has a composing
-    // character (countcc, like elsewhere in this engine, is never
-    // distinguished - every codepoint is always counted on its own).
+    // strutf16len({string} [, {countcc}]) counts the UTF-16 code units of the
+    // string, where a combining mark folded into the character in front of it
+    // counts none of its own unless {countcc} asks for it.
     // utf16idx({string}, {idx} [, {countcc} [, {charidx}]]) answers the
     // UTF-16 index of byte (or, with {charidx}, character) {idx}, rounding
     // an {idx} in the middle of a multi-byte/surrogate sequence down to
@@ -5999,6 +8136,51 @@ void FakeVimTester::test_vim_script_strutf16len_utf16idx()
         QCOMPARE(value(QString("utf16idx(g:nb, %1, 0, 1)").arg(i)),
                  QString::number(nbChar[i]));
     }
+
+    // A combining mark is where the two counts part: folded away it is no
+    // unit of its own, and a byte of it answers the character it belongs to.
+    const QString cc = QString("e") + QChar(0x0301) + QString("x");
+    data.doCommand("let g:cc = '" + cc + "'");
+    QCOMPARE(value("strutf16len(g:cc)"), QLatin1String("2"));
+    QCOMPARE(value("strutf16len(g:cc, 1)"), QLatin1String("3"));
+    const int ccByte[] = {0, 0, 0, 1, 2, -1};
+    for (int i = 0; i < 6; ++i)
+        QCOMPARE(value(QString("utf16idx(g:cc, %1)").arg(i)), QString::number(ccByte[i]));
+    const int ccByteCountcc[] = {0, 1, 1, 2, 3, -1};
+    for (int i = 0; i < 6; ++i) {
+        QCOMPARE(value(QString("utf16idx(g:cc, %1, 1)").arg(i)),
+                 QString::number(ccByteCountcc[i]));
+    }
+    const int ccChar[] = {0, 1, 2, -1};
+    for (int i = 0; i < 4; ++i) {
+        QCOMPARE(value(QString("utf16idx(g:cc, %1, 0, 1)").arg(i)),
+                 QString::number(ccChar[i]));
+    }
+    const int ccCharCountcc[] = {0, 1, 2, 3, -1};
+    for (int i = 0; i < 5; ++i) {
+        QCOMPARE(value(QString("utf16idx(g:cc, %1, 1, 1)").arg(i)),
+                 QString::number(ccCharCountcc[i]));
+    }
+    // Two marks on one base, and a mark with nothing in front of it, which
+    // stays a character of its own.
+    const QString two = QString("e") + QChar(0x0301) + QChar(0x0308) + QString("x");
+    const QString lead = QString(QChar(0x0301)) + QString("a");
+    data.doCommand("let g:two = '" + two + "'");
+    data.doCommand("let g:lead = '" + lead + "'");
+    QCOMPARE(value("strutf16len(g:two)"), QLatin1String("2"));
+    QCOMPARE(value("strutf16len(g:two, 1)"), QLatin1String("4"));
+    QCOMPARE(value("strutf16len(g:lead)"), QLatin1String("2"));
+    QCOMPARE(value("strutf16len(g:lead, 1)"), QLatin1String("2"));
+    const int twoByte[] = {0, 0, 0, 0, 0, 1, 2, -1};
+    for (int i = 0; i < 8; ++i)
+        QCOMPARE(value(QString("utf16idx(g:two, %1)").arg(i)), QString::number(twoByte[i]));
+    const int leadByte[] = {0, 0, 1, 2, -1};
+    for (int i = 0; i < 5; ++i)
+        QCOMPARE(value(QString("utf16idx(g:lead, %1)").arg(i)), QString::number(leadByte[i]));
+    QCOMPARE(value("strutf16len('')"), QLatin1String("0"));
+    QCOMPARE(value("utf16idx('', 0)"), QLatin1String("0"));
+    QCOMPARE(value("utf16idx('', 1)"), QLatin1String("-1"));
+    QCOMPARE(value("utf16idx(g:cc, -1)"), QLatin1String("-1"));
 
     for (const QString &fn : {QString("strutf16len"), QString("utf16idx")}) {
         QCOMPARE(value("exists('*" + fn + "')"), QLatin1String("1"));
@@ -6613,6 +8795,27 @@ void FakeVimTester::test_vim_script_combining_and_non_bmp()
     walk("byteidxcomp", "g:nb", {0, 1, 5, 6, -1});
     walk("byteidx", "''", {0, -1});
 
+    // With {utf16} the index counts UTF-16 code units, and a folded mark
+    // counts none of its own. An index inside a surrogate pair rounds down
+    // to where the pair starts.
+    const auto walk16 = [&](const QString &fn, const QString &var,
+                            const QList<int> &expected) {
+        for (int i = 0; i < expected.size(); ++i) {
+            QCOMPARE(value(QString("%1(%2, %3, 1)").arg(fn, var).arg(i)),
+                     QString::number(expected.at(i)));
+        }
+    };
+    walk16("byteidx", "g:cc", {0, 3, 4, -1});
+    walk16("byteidxcomp", "g:cc", {0, 1, 3, 4, -1});
+    walk16("byteidx", "g:two", {0, 5, 6, -1});
+    walk16("byteidxcomp", "g:two", {0, 1, 3, 5, 6, -1});
+    walk16("byteidx", "g:lead", {0, 2, 3, -1});
+    walk16("byteidxcomp", "g:lead", {0, 2, 3, -1});
+    walk16("byteidx", "g:nb", {0, 1, 1, 5, 6, -1});
+    walk16("byteidxcomp", "g:nb", {0, 1, 1, 5, 6, -1});
+    walk16("byteidx", "''", {0, -1});
+    QCOMPARE(value("byteidx(g:cc, -1, 1)"), QLatin1String("-1"));
+
     // -- charidx() --
     // A byte inside a character answers that character.
     walk("charidx", "g:cc", {0, 0, 0, 1, 2, -1});
@@ -6625,6 +8828,30 @@ void FakeVimTester::test_vim_script_combining_and_non_bmp()
         QCOMPARE(value(QString("charidx(g:cc, %1, 1)").arg(i)),
                  QString::number(ccCountcc[i]));
     }
+
+    // With {utf16} the index counts UTF-16 code units, and the character a
+    // unit inside a surrogate pair belongs to is the one the pair starts. An
+    // index of exactly the unit count answers the character count, so how
+    // many of them there are is what {countcc} decides here too.
+    const auto walkChar16 = [&](const QString &var, bool countcc,
+                                const QList<int> &expected) {
+        for (int i = 0; i < expected.size(); ++i) {
+            QCOMPARE(value(QString("charidx(%1, %2, %3, 1)")
+                               .arg(var).arg(i).arg(countcc ? 1 : 0)),
+                     QString::number(expected.at(i)));
+        }
+    };
+    walkChar16("g:cc", false, {0, 1, 2, -1});
+    walkChar16("g:cc", true, {0, 1, 2, 3, -1});
+    walkChar16("g:two", false, {0, 1, 2, -1});
+    walkChar16("g:two", true, {0, 1, 2, 3, 4, -1});
+    walkChar16("g:lead", false, {0, 1, 2, -1});
+    walkChar16("g:lead", true, {0, 1, 2, -1});
+    walkChar16("g:nb", false, {0, 1, 1, 2, 3, -1});
+    walkChar16("g:nb", true, {0, 1, 1, 2, 3, -1});
+    walkChar16("''", false, {0, -1});
+    walkChar16("''", true, {0, -1});
+    QCOMPARE(value("charidx(g:cc, -1, 0, 1)"), QLatin1String("-1"));
 
     // -- strcharpart() --
     // Without {skipcc} a mark is a piece of its own; with it, it goes along
@@ -6645,6 +8872,82 @@ void FakeVimTester::test_vim_script_combining_and_non_bmp()
 
     for (const QString &fn : {QString("strcharlen"), QString("byteidxcomp")})
         QCOMPARE(value("exists('*" + fn + "')"), QLatin1String("1"));
+}
+
+void FakeVimTester::test_vim_script_string_byte_indices()
+{
+    // A string is measured in BYTES by strlen(), stridx(), strridx(), match(),
+    // matchend(), matchstrpos() and strpart(), where strchars(), strcharpart(),
+    // slice() and strgetchar() count characters. A start given to one of the
+    // byte-counting ones may land in the middle of a character, and the search
+    // then begins at the next one. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    const QString auml(QChar(0x00e4));
+    // "a\u00e4b\u00e4c": five characters, seven bytes, the two multibyte ones
+    // beginning at byte 1 and byte 4. The escape is this engine own string
+    // syntax, so the source stays 7-bit ASCII.
+    data.doCommand("let g:s = \"a\\u00e4b\\u00e4c\"");
+    QCOMPARE(value("strlen(g:s) .. ',' .. strchars(g:s)"), QLatin1String("7,5"));
+
+    QCOMPARE(value("stridx(g:s, 'b')"), QLatin1String("3"));
+    QCOMPARE(value("stridx(g:s, 'b', 4)"), QLatin1String("-1"));
+    QCOMPARE(value("stridx(g:s, 'b', -1)"), QLatin1String("3"));
+    QCOMPARE(value("stridx(g:s, 'x')"), QLatin1String("-1"));
+    QCOMPARE(value("stridx(g:s, \"\\u00e4\", 1)"), QLatin1String("1"));
+    // Byte 2 is the second half of the first character, so the next one over
+    // is where the search starts.
+    QCOMPARE(value("stridx(g:s, \"\\u00e4\", 2)"), QLatin1String("4"));
+    QCOMPARE(value("strridx(g:s, \"\\u00e4\")"), QLatin1String("4"));
+    QCOMPARE(value("strridx(g:s, \"\\u00e4\", 3)"), QLatin1String("1"));
+    QCOMPARE(value("strridx(g:s, \"\\u00e4\", 4)"), QLatin1String("4"));
+    QCOMPARE(value("strridx(g:s, \"\\u00e4\", 5)"), QLatin1String("4"));
+
+    QCOMPARE(value("match(g:s, 'b') .. ',' .. matchend(g:s, 'b')"), QLatin1String("3,4"));
+    QCOMPARE(value("matchend(g:s, 'c')"), QLatin1String("7"));
+    QCOMPARE(value("match(g:s, 'b', 4)"), QLatin1String("-1"));
+    QCOMPARE(value("match(g:s, \"\\u00e4\", 2)"), QLatin1String("4"));
+    QCOMPARE(value("match(g:s, 'c', 5) .. ',' .. matchend(g:s, 'c', 5)"), QLatin1String("6,7"));
+    QCOMPARE(value("stridx(g:s, 'c', 5)"), QLatin1String("6"));
+    QCOMPARE(value("strridx(g:s, \"\\u00e4\", 2)"), QLatin1String("1"));
+    QCOMPARE(value("matchend(g:s, \"\\u00e4\")"), QLatin1String("3"));
+    QCOMPARE(value("string(matchstrpos(g:s, 'b'))"), QLatin1String("['b', 3, 4]"));
+    QCOMPARE(value("string(matchstrpos(g:s, \"\\u00e4\", 2))"),
+             QString("['") + auml + "', 4, 6]");
+    QCOMPARE(value("string(matchstrpos(g:s, \"\\u00e4\", 4))"),
+             QString("['") + auml + "', 4, 6]");
+    QCOMPARE(value("string(matchstrpos(g:s, 'c', 5))"), QLatin1String("['c', 6, 7]"));
+    QCOMPARE(value("string(matchstrpos([\"a\\u00e4bc\", 'x'], 'b'))"),
+             QLatin1String("['b', 0, 3, 4]"));
+    QCOMPARE(value("matchstrlist([\"a\\u00e4bc\"], 'b')[0].byteidx"), QLatin1String("3"));
+
+    QCOMPARE(value("strpart(g:s, 1)"), auml + "b" + auml + "c");
+    QCOMPARE(value("strpart(g:s, 1, 2)"), auml);
+    QCOMPARE(value("strpart(g:s, 3, 1)"), QLatin1String("b"));
+    QCOMPARE(value("strlen(strpart(g:s, 1, 99))"), QLatin1String("6"));
+    // The fourth argument counts characters instead.
+    QCOMPARE(value("strpart(g:s, 1, 2, 1)"), auml + "b");
+    // A byte range ending inside a character takes the whole character. This
+    // is the one place the two cannot agree: Vim hands out the bytes it covers,
+    // half a character among them, and a string here holds characters.
+    QCOMPARE(value("strpart(g:s, 1, 1)"), auml);
+
+    // The character-counting ones are unmoved by any of it.
+    QCOMPARE(value("strcharpart(g:s, 1, 2)"), auml + "b");
+    QCOMPARE(value("slice(g:s, 1, 3)"), auml + "b");
+    QCOMPARE(value("strgetchar(g:s, 1)"), QLatin1String("228"));
 }
 
 void FakeVimTester::test_vim_script_window_functions()
@@ -6683,6 +8986,28 @@ void FakeVimTester::test_vim_script_window_functions()
     QCOMPARE(value("getwininfo()[0]['quickfix']"), QLatin1String("0"));
     QCOMPARE(value("getwininfo()[0]['terminal']"), QLatin1String("0"));
     QCOMPARE(value("getwininfo()[0]['tabnr']"), QLatin1String("1"));
+    // Nothing is drawn below the one window, so it has no status line: Vim
+    // gives a single window one only where "laststatus" is 2, which asks for
+    // one under every window.
+    QCOMPARE(value("getwininfo()[0]['status_height']"), QLatin1String("0"));
+    QCOMPARE(value("getwininfo()[0]['winrow']"), QLatin1String("1"));
+    QCOMPARE(value("getwininfo()[0]['wincol']"), QLatin1String("1"));
+    QCOMPARE(value("getwininfo()[0]['winbar']"), QLatin1String("0"));
+    // The variables of a window are its w: scope. Measured in Vim over the
+    // same two, which reports them in the order they were set where this
+    // engine keeps its dictionaries sorted, so the keys are asked for sorted.
+    QCOMPARE(value("getwininfo()[0]['variables']"), QLatin1String("{}"));
+    data.doCommand("let w:one = 42");
+    data.doCommand("let w:two = [1, 2]");
+    QCOMPARE(value("string(sort(keys(getwininfo()[0]['variables'])))"),
+             QLatin1String("['one', 'two']"));
+    QCOMPARE(value("getwininfo()[0]['variables']['one']"), QLatin1String("42"));
+    QCOMPARE(value("string(getwininfo()[0]['variables']['two'])"), QLatin1String("[1, 2]"));
+    data.doCommand("unlet w:one");
+    QCOMPARE(value("string(sort(keys(getwininfo()[0]['variables'])))"),
+             QLatin1String("['two']"));
+    data.doCommand("unlet! w:two");
+    QCOMPARE(value("getwininfo()[0]['variables']"), QLatin1String("{}"));
 
     // Realize the editor so scrolling has a real viewport to scroll within;
     // otherwise "zt" has nothing to do and winline() just answers with the
@@ -6694,6 +9019,9 @@ void FakeVimTester::test_vim_script_window_functions()
     // the editor's size: "zt" puts the cursor line at the top of the window.
     // The buffer must be taller than the window or there is nothing to
     // scroll and the cursor line stays wherever it already was.
+    // Line numbers beside the text take columns of the window, which the
+    // measurement did without.
+    data.doCommand("set nonumber");
     QByteArray longText;
     for (int i = 1; i <= 200; ++i)
         longText += QByteArray("line ") + QByteArray::number(i) + '\n';
@@ -6713,6 +9041,62 @@ void FakeVimTester::test_vim_script_window_functions()
                                / data.editor()->fontMetrics().horizontalAdvance(' ');
     QCOMPARE(value("winheight(0)"), QString::number(expectedHeight));
     QCOMPARE(value("winwidth(0)"), QString::number(expectedWidth));
+
+    // A screen holding one window is as wide as that window, which is what
+    // Vim answers for "columns" there. ":set" prints it the same way.
+    QCOMPARE(value("&columns"), QString::number(expectedWidth));
+    QCOMPARE(value("&co"), QString::number(expectedWidth));
+    message.clear();
+    data.doCommand("set columns?");
+    QCOMPARE(message, QString("columns=%1").arg(expectedWidth));
+
+    // "lines" counts the command line the window leaves out, one row here as
+    // it is in Vim with the "cmdheight" it starts with.
+    QCOMPARE(value("&lines"), QString::number(expectedHeight + 1));
+    message.clear();
+    data.doCommand("set lines?");
+    QCOMPARE(message, QString("lines=%1").arg(expectedHeight + 1));
+
+    // "w0" and "w$" are the first and the last line the window shows whole,
+    // which is what getwininfo() reports as "topline" and "botline". Measured
+    // in Vim over 200 lines in a 23-row window at "100Gzt": w0 100, w$ 122,
+    // and "G" gives 178 and 200. The window here is not 23 rows, so the pair
+    // is read off its own height.
+    data.doKeys("100Gzt");
+    QCOMPARE(value("line('w0')"), QLatin1String("100"));
+    QCOMPARE(value("line('w0', win_getid())"), QLatin1String("100"));
+    QCOMPARE(value("getwininfo(win_getid())[0]['topline']"), QLatin1String("100"));
+    const QString bottom = QString::number(99 + expectedHeight);
+    QCOMPARE(value("line('w$')"), bottom);
+    QCOMPARE(value("getwininfo(win_getid())[0]['botline']"), bottom);
+    // The column functions have nothing to say about either of the two.
+    QCOMPARE(value("col('w0')"), QLatin1String("0"));
+    QCOMPARE(value("virtcol('w$')"), QLatin1String("0"));
+    QCOMPARE(value("getpos('w0')"), QLatin1String("[0, 100, 1, 0]"));
+    QCOMPARE(value("getpos('w$')"), QString("[0, %1, 1, 0]").arg(bottom));
+    // The last line of the buffer is the last one the window shows, whatever
+    // room is left below it.
+    data.doKeys("G");
+    const QString last = value("line('$')");
+    QCOMPARE(value("line('w$')"), last);
+    QCOMPARE(value("line('w0')"), QString::number(last.toInt() + 1 - expectedHeight));
+
+    // A line the window wraps takes several of its rows, so fewer lines fit
+    // and the last one shown whole comes sooner. In Vim, 200-character lines
+    // wrapped over three rows each leave 7 of the 23 rows-worth whole.
+    data.doCommand("set wrap");
+    QByteArray wrapped;
+    for (int i = 1; i <= 200; ++i)
+        wrapped += QByteArray(200, 'x') + '\n';
+    data.setText(wrapped.constData());
+    data.doKeys("100Gzt");
+    QCOMPARE(value("line('w0')"), QLatin1String("100"));
+    const int wrapBottom = value("line('w$')").toInt();
+    QVERIFY2(wrapBottom >= 100 && wrapBottom < 99 + expectedHeight,
+             qPrintable(QString("w$ %1 with %2 rows").arg(wrapBottom).arg(expectedHeight)));
+    QCOMPARE(value("getwininfo(win_getid())[0]['botline']"), QString::number(wrapBottom));
+    // One set of settings serves every test.
+    data.doCommand("set nowrap");
 }
 
 void FakeVimTester::test_vim_script_localtime_and_strptime()
@@ -6864,22 +9248,52 @@ void FakeVimTester::test_vim_script_charcol_and_charpos()
     data.doCommand("call setcharpos('.', [0, 3, 2, 0])");
     QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("3,2"));
 
-    // A multibyte character is one character but more than one byte: in real
-    // Vim, on a line holding one, charcol()/getcharpos() and col()/getpos() give
-    // different numbers (measured: charcol/getcharpos 4/[0,1,4,0] against
-    // col/getpos 5/[0,1,5,0] here). This engine's own col()/getpos() are not yet
-    // byte-based - see QTCREATORBUG-34817 - so only what THIS ticket adds is
-    // asserted against the real values; col()/getpos() are left alone. The
-    // escape is FakeVim's own Vimscript string syntax, so the source stays 7-bit
-    // ASCII.
-    data.doCommand("call setline(1, \"a\\u00e4bc\")");
+    // A multibyte character is one character but more than one byte, which is
+    // where the two counts part. The escape is the Vimscript string syntax of
+    // this engine, so the source stays 7-bit ASCII.
+    data.doCommand("call setline(1, \"a\\u00e4b\\u00e4c\")");
     data.doCommand("normal! gg0lll");
-    QCOMPARE(value("charcol('.')"), QLatin1String("4"));
-    QCOMPARE(value("charcol('$')"), QLatin1String("5"));
+    QCOMPARE(value("charcol('.') .. ',' .. col('.')"), QLatin1String("4,5"));
+    QCOMPARE(value("charcol('$') .. ',' .. col('$')"), QLatin1String("6,8"));
     QCOMPARE(value("string(getcharpos('.'))"), QLatin1String("[0, 1, 4, 0]"));
-    // setcharpos() reaches the second CHARACTER, not the second byte.
-    data.doCommand("call setcharpos('.', [0, 1, 2, 0])");
-    QCOMPARE(value("charcol('.')"), QLatin1String("2"));
+    QCOMPARE(value("string(getpos('.'))"), QLatin1String("[0, 1, 5, 0]"));
+    QCOMPARE(value("string(getcurpos())"), QLatin1String("[0, 1, 5, 0, 4]"));
+
+    // A column in a list is counted the way the function counts, so how far it
+    // may reach differs, and one past the end of the line is as far as it goes.
+    QCOMPARE(value("col([1, 8]) .. ',' .. col([1, 9])"), QLatin1String("8,0"));
+    QCOMPARE(value("charcol([1, 6]) .. ',' .. charcol([1, 7])"), QLatin1String("6,0"));
+    QCOMPARE(value("line([1, 8]) .. ',' .. line([1, 9])"), QLatin1String("1,0"));
+    // virtcol() takes bytes as well, and answers screen columns either way.
+    QCOMPARE(value("virtcol([1, 3]) .. ',' .. virtcol([1, 4])"), QLatin1String("2,3"));
+    QCOMPARE(value("virtcol([1, '$'])"), QLatin1String("6"));
+    QCOMPARE(value("virtcol2col(0, 1, 3)"), QLatin1String("4"));
+
+    // setpos() and cursor() are given bytes, setcharpos() characters.
+    data.doCommand("call setpos('.', [0, 1, 4, 0])");
+    QCOMPARE(value("charcol('.') .. ',' .. col('.')"), QLatin1String("3,4"));
+    // A byte inside a character belongs to it, and Vim stands at its start.
+    data.doCommand("call setpos('.', [0, 1, 3, 0])");
+    QCOMPARE(value("col('.')"), QLatin1String("2"));
+    // Past the end of the line the cursor comes to rest on its last character.
+    data.doCommand("call setpos('.', [0, 1, 99, 0])");
+    QCOMPARE(value("col('.')"), QLatin1String("7"));
+    data.doCommand("call setcharpos('.', [0, 1, 3, 0])");
+    QCOMPARE(value("col('.')"), QLatin1String("4"));
+    data.doCommand("call cursor(1, 5)");
+    QCOMPARE(value("charcol('.') .. ',' .. col('.')"), QLatin1String("4,5"));
+    data.doCommand("call setcursorcharpos(1, 3)");
+    QCOMPARE(value("col('.')"), QLatin1String("4"));
+
+    // What searchpos() answers with, and the marks a script reads, count bytes
+    // the same way.
+    data.doCommand("normal! gg0");
+    QCOMPARE(value("string(searchpos(\"\\u00e4\", 'bcn'))"), QLatin1String("[1, 5]"));
+    data.doCommand("normal! gg0lllma");
+    QCOMPARE(value("getmarklist(1)[0].pos[2]"), QLatin1String("5"));
+    // The change list counts bytes from zero instead (measured).
+    data.doCommand("normal! gg0lllx");
+    QCOMPARE(value("getchangelist()[0][0].col"), QLatin1String("4"));
 }
 
 void FakeVimTester::test_vim_script_charclass()
@@ -7125,6 +9539,39 @@ void FakeVimTester::test_vim_code_autoindent()
     // But indentation is kept once something is typed on the line.
     data.setText("    abc");
     KEYS("oX<esc>", "    abc" N "    " X "X");
+
+    // A line break in front of nothing but blanks hands those blanks to the
+    // line it breaks off, which is what the indenter cannot see: the line it
+    // would read has no content left. All measured.
+    data.setText("    abc");
+    KEYS("^i<CR><ESC>", "    " N "   " X " abc");
+    data.setText("    abc");
+    KEYS("0lli<CR><ESC>", "  " N " " X " abc");
+    data.setText("    abc");
+    KEYS("0i<CR><ESC>", "" N X "abc");
+    // What stays in front of the cursor is not all blanks here, so the
+    // indenter answers and agrees with Vim.
+    data.setText("    abc");
+    KEYS("$i<CR><ESC>", "    ab" N "   " X " c");
+    data.setText("  x abc");
+    KEYS("^lli<CR><ESC>", "  x " N " " X " abc");
+    data.setText("    abc {");
+    KEYS("A<CR>x<ESC>", "    abc {" N "        " X "x");
+
+    // The text that moves down loses its leading blanks, however far from the
+    // indentation the break is.
+    data.setText("        abc");
+    KEYS("0lli<CR><ESC>", "  " N " " X " abc");
+    data.setText("  ab   cd");
+    KEYS("05li<CR>x<ESC>", "  ab " N "  " X "xcd");
+
+    // Without an option that indents, nothing is taken off either.
+    data.doCommand("set noautoindent");
+    data.doCommand("set nosmartindent");
+    data.setText("        abc");
+    KEYS("0lli<CR><ESC>", "  " N X "      abc");
+    data.doCommand("set autoindent");
+    data.doCommand("set smartindent");
 }
 
 void FakeVimTester::test_vim_code_folding()
@@ -7547,7 +9994,7 @@ void FakeVimTester::test_vim_ex_delete()
     COMMAND("u", X "abc" N "ghi" N "jkl");
     COMMAND("u", "abc" N X "def" N "ghi" N "jkl");
     KEYS("p", "abc" N "def" N X "abc" N "ghi" N "ghi" N "jkl");
-    COMMAND("set ws|" "/abc/,/ghi/d|" "set nows", X "ghi" N "jkl");
+    COMMAND("set ws|" "/abc/,/ghi/d", X "ghi" N "jkl");
     COMMAND("u", X "abc" N "def" N "abc" N "ghi" N "ghi" N "jkl");
     COMMAND("2,/abc/d3", "abc" N "def" N X "jkl");
     COMMAND("u", "abc" N "def" N X "abc" N "ghi" N "ghi" N "jkl");
@@ -7569,6 +10016,34 @@ void FakeVimTester::test_vim_ex_delete()
     data.setText("  ab" X "c" N N "  ghi");
     COMMAND("1d", X N "  ghi");
     data.doCommand("set startofline");
+}
+
+void FakeVimTester::test_vim_ex_register_unnamed()
+{
+    // The register ":delete" and ":yank" name is what the unnamed one stands
+    // for afterwards, the black hole excepted. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText(X "a" N "b" N "c" N "d");
+    KEYS("yy:2d x<CR>P", "a" N X "b" N "c" N "d");
+    data.setText(X "a" N "b" N "c" N "d");
+    KEYS("yy:2y x<CR>GP", "a" N "b" N "c" N X "b" N "d");
+    data.setText(X "a" N "b" N "c" N "d");
+    KEYS("yy:2d _<CR>P", "a" N X "a" N "c" N "d");
+    data.setText(X "a" N "b" N "c" N "d");
+    KEYS("yy:2y a<CR>:3y b<CR>GP", "a" N "b" N "c" N X "c" N "d");
+    data.setText(X "a" N "b" N "c" N "d");
+    KEYS("yy:2d x<CR>:put<CR>", "a" N "c" N X "b" N "d");
+    data.setText(X "a" N "b" N "c" N "d");
+    KEYS("yy:2d x 2<CR>P", "a" N X "b" N "c" N "d");
+    data.setText(X "abcd");
+    KEYS("yy:1y x<CR>P", X "abcd" N "abcd");
+
+    // An uppercase name appends, and everything the register then holds is
+    // what the unnamed one stands for.
+    data.setText(X "a" N "b" N "c" N "d");
+    KEYS("yy:2d x<CR>:3d X<CR>GP", "a" N X "b" N "d" N "c");
 }
 
 void FakeVimTester::test_vim_ex_change()
@@ -7846,21 +10321,26 @@ void FakeVimTester::test_vim_ex_error_messages()
 
     // ":undo {N}" goes to the state change number N left behind, and refuses a
     // number no change has. Measured on a buffer of one line with three more
-    // appended one at a time: ":undo 2" leaves the first of them, ":undo 0"
-    // the buffer as it was.
+    // appended one at a time: the numbers count the changes of the whole
+    // session, so this block reaches its own states through changenr().
     data.setText("abc");
     data.doKeys("ox<ESC>oy<ESC>oz<ESC>");
     QCOMPARE(data.text(), QByteArray("abc" N "x" N "y" N "z"));
+    message.clear();
+    data.doCommand("echo changenr()");
+    const int here = message.toInt();
+    const auto undoTo = [&](int number) {
+        data.doCommand(QString("undo %1").arg(number));
+        return data.text();
+    };
     QCOMPARE(error("undo 99"), QLatin1String("E830: Undo number 99 not found"));
     QCOMPARE(data.text(), QByteArray("abc" N "x" N "y" N "z"));
     QCOMPARE(error("undo -1"), QLatin1String("E488: Trailing characters: -1"));
     QCOMPARE(error("undo x"), QLatin1String("E488: Trailing characters: x"));
-    data.doCommand("undo 2");
-    QCOMPARE(data.text(), QByteArray("abc" N "x"));
-    data.doCommand("undo 0");
-    QCOMPARE(data.text(), QByteArray("abc"));
-    data.doCommand("undo 3");
-    QCOMPARE(data.text(), QByteArray("abc" N "x" N "y"));
+    QCOMPARE(undoTo(here - 1), QByteArray("abc" N "x" N "y"));
+    QCOMPARE(undoTo(here - 3), QByteArray("abc"));
+    QCOMPARE(undoTo(here), QByteArray("abc" N "x" N "y" N "z"));
+    QCOMPARE(undoTo(here - 2), QByteArray("abc" N "x"));
 
     // The listing and the line commands take no "!" at all, and a bang on one
     // of them keeps it from running. The commands that do take one are the
@@ -7902,10 +10382,56 @@ void FakeVimTester::test_vim_ex_error_messages()
     QCOMPARE(error("%s/\\)/x/"), QLatin1String("E55: Unmatched \\)"));
     QCOMPARE(error("%s/\\%(/x/"), QLatin1String("E53: Unmatched \\%("));
     QCOMPARE(error("%s/\\(a\\|/x/"), QLatin1String("E54: Unmatched \\("));
+    QCOMPARE(error("%s/\\v(a/x/"), QLatin1String("E54: Unmatched ("));
+    QCOMPARE(error("%s/\\v%(a/x/"), QLatin1String("E53: Unmatched %("));
+    QCOMPARE(error("%s/\\v)/x/"), QLatin1String("E55: Unmatched )"));
+
+    // The rest of what Vim refuses outright: a back reference wants a group
+    // that is closed, "\z1" belongs to a syntax file, a multi has to be closed
+    // and so has a "\%[" sequence. Values taken from Vim 9.1.
+    const QLatin1String backReference("E65: Illegal back reference");
+    QCOMPARE(error("%s/\\1/x/"), backReference);
+    QCOMPARE(error("%s/\\(a\\)\\2/x/"), backReference);
+    QCOMPARE(error("%s/\\(a\\1\\)/x/"), backReference);
+    QCOMPARE(error("%s/\\v(a)\\2/x/"), backReference);
+    QCOMPARE(error("%s/\\z1/x/"), QLatin1String("E67: \\z1 - \\z9 not allowed here"));
+    QCOMPARE(error("%s/\\z9/x/"), QLatin1String("E67: \\z1 - \\z9 not allowed here"));
+    const QLatin1String multi("E554: Syntax error in \\{...}");
+    QCOMPARE(error("%s/a\\{/x/"), multi);
+    QCOMPARE(error("%s/a\\{1/x/"), multi);
+    QCOMPARE(error("%s/a\\{x}/x/"), multi);
+    QCOMPARE(error("%s/\\(a\\)\\{/x/"), multi);
+    QCOMPARE(error("%s/\\va{/x/"), QLatin1String("E554: Syntax error in {...}"));
+    QCOMPARE(error("%s/\\%[ab/x/"), QLatin1String("E69: Missing ] after \\%["));
+    QCOMPARE(error("%s/\\v%[ab/x/"), QLatin1String("E69: Missing ] after %["));
+
+    // What only looks like one of those: inside a collection and behind a
+    // backslash of its own the atom is a character, and a group that is closed
+    // is there to be named.
+    QCOMPARE(error("%s/[\\(]/x/"), QLatin1String("E486: Pattern not found: [\\(]"));
+    QCOMPARE(error("%s/[a/x/"), QLatin1String("E486: Pattern not found: [a/x/"));
+    QCOMPARE(error("%s/[\\{]/x/"), QLatin1String("E486: Pattern not found: [\\{]"));
+    QCOMPARE(error("%s/\\\\(/x/"), QLatin1String("E486: Pattern not found: \\\\("));
+    QCOMPARE(error("%s/\\(a\\)\\1/x/"),
+             QLatin1String("E486: Pattern not found: \\(a\\)\\1"));
+    QCOMPARE(error("%s/\\v(a)\\1/x/"),
+             QLatin1String("E486: Pattern not found: \\v(a)\\1"));
     QCOMPARE(data.text(), QByteArray("abc"));
     message.clear();
     data.doKeys("/\\(<CR>");
     QCOMPARE(message, QLatin1String("E54: Unmatched \\("));
+    message.clear();
+    data.doKeys("/\\z1<CR>");
+    QCOMPARE(message, QLatin1String("E67: \\z1 - \\z9 not allowed here"));
+    message.clear();
+    data.doKeys("/a\\{<CR>");
+    QCOMPARE(message, QLatin1String("E554: Syntax error in \\{...}"));
+    message.clear();
+    data.doKeys("/\\%[ab<CR>");
+    QCOMPARE(message, QLatin1String("E69: Missing ] after \\%["));
+    message.clear();
+    data.doKeys("/\\1<CR>");
+    QCOMPARE(message, QLatin1String("E65: Illegal back reference"));
 
     // ":unlet" of a key or an index takes that item out of the dictionary or
     // the list, and names what is not there. A "!" keeps quiet about it.
@@ -8430,6 +10956,99 @@ void FakeVimTester::test_vim_ex_error_messages()
     QCOMPARE(error(qPrintable("if 0 | echo strlen(" + over + ") | endif")), QString());
 }
 
+void FakeVimTester::test_vim_ex_at()
+{
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto error = [&](const char *cmd) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String(cmd));
+        return message;
+    };
+
+    // What the register holds is run as ex command lines.
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @a = 's/o/O/'");
+    COMMAND("@a", "One" N "two" N "three");
+
+    // A line break at the end of it changes nothing.
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @a = \"s/o/O/\\n\"");
+    COMMAND("@a", "One" N "two" N "three");
+
+    // Each line of the register is a command line of its own.
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @a = \"2\\ns/t/T/\"");
+    COMMAND("@a", "one" N "Two" N "three");
+
+    // A range names the line to run on, the last of it, rather than reaching
+    // the commands: only that one line is touched.
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @a = 's/e/E/'");
+    COMMAND("1,3@a", "one" N "two" N "thrEe");
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @a = 's/o/O/'");
+    COMMAND("2@a", "one" N "twO" N "three");
+
+    // The cursor goes to the start of that line whatever the commands make of
+    // it, a command that fails included.
+    data.setText("  one" N "  two" N "  three");
+    data.doCommand("let @a = 's/z/Z/'");
+    COMMAND("2@a", "  one" N X "  two" N "  three");
+
+    // A register of "@" is the one the last "@" took, and so is a name left
+    // out altogether.
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @a = 's/o/O/'");
+    COMMAND("@a", "One" N "two" N "three");
+    data.setText("one" N "two" N "three");
+    COMMAND("@@", "One" N "two" N "three");
+    data.setText("one" N "two" N "three");
+    COMMAND("@", "One" N "two" N "three");
+
+    // An upper case name reads the same register as the lower case one, and a
+    // space before the name is allowed.
+    data.setText("one" N "two" N "three");
+    COMMAND("@A", "One" N "two" N "three");
+    data.setText("one" N "two" N "three");
+    COMMAND("@ a", "One" N "two" N "three");
+
+    // The unnamed register is executed like any other.
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @\" = 's/o/O/'");
+    COMMAND("@\"", "One" N "two" N "three");
+
+    // A bar in the register separates commands, and one after the register
+    // name runs what follows once the register is through.
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @a = 's/o/O/|s/n/N/'");
+    COMMAND("@a", "ONe" N "two" N "three");
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @a = 's/o/O/'");
+    COMMAND("@a|s/n/N/", "ONe" N "two" N "three");
+
+    // The keys of a ":normal" are replayed from there as well.
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @a = 'normal! xx'");
+    COMMAND("@a", "e" N "two" N "three");
+
+    // A register holding nothing runs nothing and reports nothing.
+    data.setText("one" N "two" N "three");
+    data.doCommand("let @z = ''");
+    QCOMPARE(error("@z"), QString());
+    QCOMPARE(data.text(), QByteArray("one" N "two" N "three"));
+
+    // A name that is no register, and a "!" nobody allows.
+    QCOMPARE(error("@%"), QLatin1String("E354: Invalid register name: '%'"));
+    QCOMPARE(error("@!"), QLatin1String("E477: No ! allowed"));
+}
+
 void FakeVimTester::test_vim_ex_normal()
 {
     TestData data;
@@ -8520,6 +11139,32 @@ void FakeVimTester::test_advanced_commands()
     data.setText("aa" N "bb" N "aa");
     data.doCommand("let @/ = 'aa'");
     COMMAND("g//d", "bb");
+
+    // The pattern is a Vim pattern and not a Qt one, so "\|" is an either-or
+    // and "\(" a group. Values taken from Vim 9.1.
+    const auto global = [&](const char *cmd, const char *expected) {
+        data.setText("abc" N "def" N "ghi" N "a1");
+        data.doCommand(QLatin1String(cmd));
+        QCOMPARE(data.text(), QByteArray(expected));
+    };
+    global("g/a\\|d/d", "ghi");
+    global("g/\\va|d/d", "ghi");
+    global("g/\\(a\\)/d", "def" N "ghi");
+    global("g/a\\+/d", "def" N "ghi");
+    global("g/\\<abc\\>/d", "def" N "ghi" N "a1");
+    global("g/\\d/d", "abc" N "def" N "ghi");
+    global("v/a\\|d/d", "abc" N "def" N "a1");
+
+    // And a pattern Vim refuses outright is refused here.
+    data.setText("abc" N "def");
+    message.clear();
+    data.doCommand("g/\\(/d");
+    QCOMPARE(message, QLatin1String("E54: Unmatched \\("));
+    QCOMPARE(data.text(), QByteArray("abc" N "def"));
+    message.clear();
+    data.doCommand("v/a\\{/d");
+    QCOMPARE(message, QLatin1String("E554: Syntax error in \\{...}"));
+    QCOMPARE(data.text(), QByteArray("abc" N "def"));
 
     // A real pattern given to ":global" becomes the new last search pattern.
     data.setText("aa" N "bb" N "cc");
@@ -9536,6 +12181,79 @@ void FakeVimTester::test_vim_command_percent()
     );
 }
 
+void FakeVimTester::test_vim_percent_conditionals()
+{
+    // Besides the pairs of "matchpairs", % matches the preprocessor
+    // conditionals and the ends of a comment, both of which a "%" among
+    // "cpoptions" takes away again. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|#if A" N "x" N "#else" N "y" N "#endif" N "z");
+    KEYS("%", "#if A" N "x" N "|#else" N "y" N "#endif" N "z");
+    KEYS("%", "#if A" N "x" N "#else" N "y" N "|#endif" N "z");
+    KEYS("%", "|#if A" N "x" N "#else" N "y" N "#endif" N "z");
+    // The cursor may stand anywhere on the line, and a line that is none of
+    // the conditionals has nothing to jump to.
+    data.setText("#if A" N "|x" N "#endif");
+    KEYS("%", "#if A" N "|x" N "#endif");
+    data.setText("#if |A" N "x" N "#endif");
+    KEYS("%", "#if A" N "x" N "|#endif");
+    data.setText("|x #if A" N "y" N "#endif");
+    KEYS("%", "|x #if A" N "y" N "#endif");
+    data.setText("|#define A ( B" N "x )");
+    KEYS("%", "#define A ( B" N "x |)");
+    // The conditionals in between are skipped over, and "#ifdef" and "#elif"
+    // count as one of them.
+    data.setText("|#if A" N "#if B" N "x" N "#endif" N "#endif");
+    KEYS("%", "#if A" N "#if B" N "x" N "#endif" N "|#endif");
+    data.setText("#if A" N "#if B" N "x" N "#endif" N "|#endif");
+    KEYS("%", "|#if A" N "#if B" N "x" N "#endif" N "#endif");
+    data.setText("|#ifdef A" N "x" N "#elif B" N "y" N "#endif");
+    KEYS("%", "#ifdef A" N "x" N "|#elif B" N "y" N "#endif");
+    KEYS("%", "#ifdef A" N "x" N "#elif B" N "y" N "|#endif");
+    data.setText("|  #if A" N "x" N "  #endif");
+    KEYS("%", "  #if A" N "x" N "  |#endif");
+    // What stands on the line past the "#" is matched before the conditional.
+    data.setText("|#if A ( B" N "x" N "#endif" N "y )");
+    KEYS("%", "#if A ( B" N "x" N "|#endif" N "y )");
+    data.setText("#if |A ( B" N "x" N "#endif" N "y )");
+    KEYS("%", "#if A ( B" N "x" N "#endif" N "y |)");
+    data.setText("#if A ( |B" N "x" N "#endif" N "y )");
+    KEYS("%", "#if A ( B" N "x" N "|#endif" N "y )");
+
+    // Both characters of a comment marker jump to the slash of the other one.
+    data.setText("a |/* b */ c");
+    KEYS("%", "a /* b *|/ c");
+    data.setText("a /|* b */ c");
+    KEYS("%", "a /* b *|/ c");
+    data.setText("a /* b |*/ c");
+    KEYS("%", "a |/* b */ c");
+    data.setText("a /* b *|/ c");
+    KEYS("%", "a |/* b */ c");
+    data.setText("a |/* b" N "c */ d");
+    KEYS("%", "a /* b" N "c *|/ d");
+    // A marker the cursor is not on is none, comments do not nest, and one
+    // that is never closed has nothing to jump to.
+    data.setText("|a /* b */ c");
+    KEYS("%", "|a /* b */ c");
+    data.setText("a /*| b */ c");
+    KEYS("%", "a /*| b */ c");
+    data.setText("|/* a /* b */ c */");
+    KEYS("%", "/* a /* b *|/ c */");
+    data.setText("a |/* b" N "c");
+    KEYS("%", "a |/* b" N "c");
+    data.setText("a |// b c" N "d");
+    KEYS("%", "a |// b c" N "d");
+
+    data.doCommand("set cpoptions=aABceFsz%");
+    data.setText("|#if A" N "x" N "#endif");
+    KEYS("%", "|#if A" N "x" N "#endif");
+    data.setText("a |/* b */ c");
+    KEYS("%", "a |/* b */ c");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
 void FakeVimTester::test_vim_percent_like_vim()
 {
     // With matchBracketsLikeVim, % matches brackets purely textually, ignoring
@@ -9552,10 +12270,11 @@ void FakeVimTester::test_vim_percent_like_vim()
     KEYS("%", "(a(b)c|)");
     KEYS("%", "|(a(b)c)");
 
-    // A bracket inside a string is counted (Vim is not syntax-aware), so % on
-    // the opening ( jumps to the ) between the quotes, not the one after them.
+    // A bracket inside a string is left out of the matching, as it is in Vim
+    // without a "%" among cpoptions, so % on the opening ( jumps past the
+    // quotes rather than to the bracket between them.
     data.setText("|( \")\" )");
-    KEYS("%", "( \"|)\" )");
+    KEYS("%", "( \")\" |)");
 
     opt.setValue(saved);
 }
@@ -9742,7 +12461,7 @@ void FakeVimTester::test_vim_visual_block_D()
     setup(&data);
 
     data.setText("abc def" N "ghi" N "" N "jklm");
-    KEYS("l<C-V>3j", "abc def" N "ghi" N "" N "jk" X "lm");
+    KEYS("l<C-V>3j", "abc def" N "ghi" N "" N "j" X "klm");
     KEYS("D", X "a" N "g" N "" N "j");
 
     KEYS("u", "a" X "bc def" N "ghi" N "" N "jklm");
@@ -10445,7 +13164,25 @@ void FakeVimTester::test_vim_search_smartcase()
     data.doCommand("set nosmartcase");
     data.setText("|xxx foo xxx Foo xxx");
     KEYS("/Foo<cr>", "xxx " X "foo xxx Foo xxx");
+
+    // Only a pattern that was typed is refined that way. The pattern "*" and
+    // "#" build is none, so they search with 'ignorecase' alone, and so does
+    // the "n" that follows them (measured).
+    data.doCommand("set smartcase");
+    data.setText("foo" N "aaa" N "F|oo" N "FOO" N "fOo" N "bar");
+    KEYS("*", "foo" N "aaa" N "Foo" N X "FOO" N "fOo" N "bar");
+    KEYS("n", "foo" N "aaa" N "Foo" N "FOO" N X "fOo" N "bar");
+    data.setText("foo" N "aaa" N "F|oo" N "FOO" N "fOo" N "bar");
+    KEYS("#", X "foo" N "aaa" N "Foo" N "FOO" N "fOo" N "bar");
+    data.setText("fooz" N "aaa" N "F|ooz" N "FOOZ" N "bar");
+    KEYS("g*", "fooz" N "aaa" N "Fooz" N X "FOOZ" N "bar");
+
+    // A pattern typed after one of them has its say again.
+    data.setText("|foo" N "aaa" N "Foo" N "FOO" N "fOo" N "bar");
+    KEYS("/Foo<cr>", "foo" N "aaa" N X "Foo" N "FOO" N "fOo" N "bar");
+
     // The options are shared with every other test.
+    data.doCommand("set nosmartcase");
     data.doCommand("set noignorecase");
 }
 
@@ -10458,9 +13195,45 @@ void FakeVimTester::test_vim_replace_char_newline()
 
     // r<CR> replaces the character with a line break; with 'autoindent' the
     // new line is indented like a normal insert-mode Enter would be, instead
-    // of starting in the first column (QTCREATORBUG-21835).
+    // of starting in the first column (QTCREATORBUG-21835). The cursor stops
+    // one column short of the text, where leaving insert mode leaves it.
     data.setText("    abc" X "def");
-    KEYS("r<CR>", "    abc" N "    " X "ef");
+    KEYS("r<CR>", "    abc" N "   " X " ef");
+
+    // Nothing is typed on the line the break opens, so its indentation goes
+    // again, and the cursor with it.
+    data.setText("    fo" X "o");
+    KEYS("r<CR>", "    fo" N X "");
+    data.setText("    " X "foo");
+    KEYS("r<CR>", "    " N "   " X " oo");
+    data.setText("    foo" X "bar");
+    KEYS("3r<CR>", "    foo" N X "");
+    data.setText("    fo" X "o");
+    KEYS("r<CR>iZ<Esc>", "    fo" N X "Z");
+
+    // Blanks behind the break are text the line break moved down, not
+    // indentation nothing was typed on.
+    data.setText("    f" X "oo  ");
+    KEYS("r<CR>", "    f" N "   " X " o  ");
+
+    // Unlike an opened line, this one loses its indentation under cpo "I".
+    data.doCommand("set cpo+=I");
+    data.setText("    fo" X "o");
+    KEYS("r<CR>", "    fo" N X "");
+    data.doCommand("set cpo-=I");
+
+    data.setText("    fo" X "o" N "    bar");
+    KEYS("r<CR>j$.", "    fo" N "" N "    ba" N X "");
+
+    // A comment leader is repeated on the line the break opens and trimmed
+    // there the same way.
+    data.doCommand("set comments=:// fo=croql");
+    data.setText("// fo" X "o");
+    KEYS("r<CR>", "// fo" N "/" X "/");
+    data.setText("// foo" X "bar");
+    KEYS("r<CR>", "// foo" N "//" X " ar");
+    data.doCommand("set fo=tcq");
+    data.doCommand("set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-");
 
     // Without auto-/smart-indent the new line stays in the first column
     // (plain Vim behavior).
@@ -10708,6 +13481,80 @@ void FakeVimTester::test_vim_plugin_buffer_lifecycle_events()
         "['BufWinLeave:other.txt', 'BufUnload:other.txt', 'BufDelete:other.txt']"));
 }
 
+void FakeVimTester::test_vim_plugin_exit_events()
+{
+    // The exit sequence, measured in Vim 9.1 on ":qa!" with two buffers
+    // open: QuitPre and ExitPre once each, named after the current buffer,
+    // then BufWinLeave and BufUnload per buffer, then VimLeavePre and
+    // VimLeave once. Vim fires no BufDelete and no WinLeave on the way out.
+    // ":qall" here closes every editor and leaves Qt Creator running, so the
+    // last two are an analogue of Vim leaving rather than the thing itself.
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+
+    TestData data;
+    setup(&data);
+    data.doCommand("let g:ex = []");
+    data.doCommand("augroup FvEx");
+    data.doCommand("augroup END");
+    for (const QString &event : QStringList{"QuitPre", "ExitPre", "BufWinLeave", "BufUnload",
+                                            "BufDelete", "WinLeave", "VimLeavePre", "VimLeave"}) {
+        data.doCommand("autocmd FvEx " + event + " * call add(g:ex, '" + event
+                       + ":' . fnamemodify(expand('<afile>'), ':t'))");
+    }
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const Utils::FilePath file = Utils::FilePath::fromString(dir.path() + "/gone.txt");
+    QVERIFY(file.writeFileContents("alpha\n"));
+    QVERIFY(Core::EditorManager::openEditor(file));
+
+    // Opening that editor switched away from the nameless test one, which is
+    // a buffer leaving its window and not part of the exit at all.
+    data.doCommand("let g:ex = []");
+
+    // The plugin answers ":qall" over a queued connection, so the loop has
+    // to be turned once. The event is posted by the time doCommand() returns,
+    // so this is not a wait, and that every editor is gone proves it ran.
+    data.doCommand("qa!");
+    QCoreApplication::processEvents();
+    QVERIFY(!Core::EditorManager::currentEditor());
+
+    // The handler this TestData holds went with its editor, so the table is
+    // read back through a new one: GlobalData is static, so it survived.
+    TestData after;
+    setup(&after);
+    QString message;
+    after.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        after.doCommand("echo " + expr);
+        return message;
+    };
+
+    // Which buffer goes first is not fixed, so the order is asserted over
+    // the event names with the file names taken off.
+    const QString order = value("string(map(copy(g:ex), \"substitute(v:val, ':.*', '', '')\"))");
+    const QString first = value("g:ex[0]");
+    after.doCommand("autocmd! FvEx");
+    after.doCommand("unlet! g:ex");
+    useFakeVim.setValue(savedUseFakeVim);
+
+    // No BufDelete and no WinLeave, and the pair announcing the exit comes
+    // once at the end rather than once per buffer.
+    QCOMPARE(order, QLatin1String(
+        "['QuitPre', 'ExitPre', 'BufWinLeave', 'BufUnload',"
+        " 'BufWinLeave', 'BufUnload', 'VimLeavePre', 'VimLeave']"));
+    // QuitPre names the buffer that was current, the file opened above
+    // rather than the nameless test editor.
+    QCOMPARE(first, QLatin1String("QuitPre:gone.txt"));
+}
+
 void FakeVimTester::test_vim_plugin_window_events()
 {
     // WinNew and WinClosed, which are about the window LAYOUT rather than
@@ -10890,6 +13737,236 @@ void FakeVimTester::test_vim_visual_selection_focus_out()
     useFakeVim.setValue(savedUseFakeVim);
 
     QCOMPARE(selected, QString("test"));
+}
+
+void FakeVimTester::test_vim_indent_equalprg()
+{
+    // "=" filters the lines through the program "equalprg" names and leaves
+    // the cursor on the first non-blank of the first of them. The program
+    // comes before "indentexpr", not after it. Measured in Vim 9.1. Nothing
+    // here reaches a program: processOutput is a plugin callback, so the stub
+    // answers by the command line it is given.
+    TestData data;
+    setup(&data);
+    QString ran;
+    QString given;
+    data.handler->processOutput.set(
+        [&](const QString &command, const QString &input, QString *output) {
+            ran = command;
+            given = input;
+            if (command == "tr a-z A-Z")
+                *output = input.toUpper();
+            else
+                *output = "/bin/bash: line 1: " + command + ": command not found\n";
+        });
+
+    data.doCommand("set equalprg=tr\\ a-z\\ A-Z");
+
+    data.setText("one two" N "four five" N "zzz");
+    KEYS("=j", X "ONE TWO" N "FOUR FIVE" N "zzz");
+    QCOMPARE(ran, QLatin1String("tr a-z A-Z"));
+    QCOMPARE(given, QLatin1String("one two\nfour five\n"));
+
+    // The cursor takes the first non-blank of that line, whatever the program
+    // left there.
+    data.setText("  aaa" N "bbb");
+    KEYS("==", "  " X "AAA" N "bbb");
+
+    data.setText("aaa" N "bbb");
+    KEYS("VG=", X "AAA" N "BBB");
+
+    // The program wins over "indentexpr".
+    data.doCommand("set indentexpr=setline(v:lnum,'XX')*0");
+    data.setText("aaa" N "bbb");
+    KEYS("==", X "AAA" N "bbb");
+    data.doCommand("set indentexpr=");
+
+    // What a program that is not there writes ends up in the lines it was
+    // given, as any other output would.
+    data.doCommand("set equalprg=nosuchprogram");
+    data.setText("aaa" N "bbb");
+    KEYS("==", X "/bin/bash: line 1: nosuchprogram: command not found" N "bbb");
+    data.doCommand("set equalprg=");
+}
+
+void FakeVimTester::test_vim_wrapmargin()
+{
+    // With "textwidth" zero, "wrapmargin" says how many columns short of the
+    // right of the window the text stops. Both the wrap while typing and "gq"
+    // go by it, a "textwidth" of its own wins over it, and zero in both wraps
+    // nothing. Measured in Vim 9.1 in a window of 80 columns, where "wm" 70
+    // breaks the text at ten columns and "wm" 75 at five.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    // Realize the editor so there is a window width to measure from.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+    // The width the text has, which is the window without the line numbers.
+    const int columns = value("winwidth(0)").toInt()
+                        - value("getwininfo()[0].textoff").toInt();
+    QVERIFY(columns > 20);
+    const auto margin = [&](int width) {
+        data.doCommand(QString("set wrapmargin=%1").arg(columns - width));
+    };
+
+    data.doCommand("set textwidth=0 formatoptions=t noautoindent");
+    margin(10);
+    data.setText("");
+    data.doKeys("iaaa bbb ccc ddd eee<Esc>");
+    QCOMPARE(data.text(), QByteArray("aaa bbb" N "ccc ddd" N "eee"));
+
+    margin(5);
+    data.setText("");
+    data.doKeys("iaaa bbb ccc<Esc>");
+    QCOMPARE(data.text(), QByteArray("aaa" N "bbb" N "ccc"));
+
+    // "gq" measures the lines the same way.
+    margin(10);
+    data.setText("aaa bbb ccc ddd eee fff");
+    data.doKeys("gqq");
+    QCOMPARE(data.text(), QByteArray("aaa bbb" N "ccc ddd" N "eee fff"));
+
+    // A "textwidth" of its own is what counts then.
+    data.doCommand("set textwidth=12");
+    data.setText("");
+    data.doKeys("iaaa bbb ccc ddd eee<Esc>");
+    QCOMPARE(data.text(), QByteArray("aaa bbb ccc" N "ddd eee"));
+
+    // Neither of them, and nothing wraps.
+    data.doCommand("set textwidth=0 wrapmargin=0");
+    data.setText("");
+    data.doKeys("iaaa bbb ccc ddd eee<Esc>");
+    QCOMPARE(data.text(), QByteArray("aaa bbb ccc ddd eee"));
+}
+
+void FakeVimTester::test_vim_reflow_formatprg()
+{
+    // "gq" filters the lines through the program "formatprg" names and leaves
+    // the cursor on the first column of the last line that comes back. "gw"
+    // reflows here instead, and a "formatexpr" is asked before the program.
+    // Measured in Vim 9.1. Nothing here reaches a program: processOutput is a
+    // plugin callback, so the stub answers by the command line it is given,
+    // which is what proves that line is built from the option.
+    TestData data;
+    setup(&data);
+    QString ran;
+    QString given;
+    data.handler->processOutput.set(
+        [&](const QString &command, const QString &input, QString *output) {
+            ran = command;
+            given = input;
+            if (command == "tr a-z A-Z") {
+                *output = input.toUpper();
+            } else if (command == "sed -e 's/^/>/'") {
+                const QStringList lines = input.split('\n');
+                for (const QString &line : lines)
+                    *output += line.isEmpty() ? line : '>' + line + '\n';
+            } else {
+                *output = "/bin/bash: line 1: " + command + ": command not found\n";
+            }
+        });
+
+    data.doCommand("set textwidth=10 noautoindent");
+    data.doCommand("set formatprg=tr\\ a-z\\ A-Z");
+
+    data.setText("one two three" N "four five" N "zzz");
+    KEYS("gqj", "ONE TWO THREE" N X "FOUR FIVE" N "zzz");
+    QCOMPARE(ran, QLatin1String("tr a-z A-Z"));
+    QCOMPARE(given, QLatin1String("one two three\nfour five\n"));
+
+    // "gw" leaves the program alone and reflows.
+    ran.clear();
+    data.setText(X "one two three" N "four five");
+    KEYS("gww", X "one two" N "three" N "four five");
+    QCOMPARE(ran, QString());
+
+    // A "formatexpr" is asked first, and its zero answer ends it there.
+    data.doCommand("set formatexpr=setline(v:lnum,'XX')*0");
+    data.setText(X "one two three");
+    KEYS("gqq", X "XX");
+    QCOMPARE(ran, QString());
+    data.doCommand("set formatexpr=");
+
+    data.setText(X "aaa" N "bbb");
+    data.doCommand("set formatprg=sed\\ -e\\ 's/^/>/'");
+    KEYS("VGgq", ">aaa" N X ">bbb");
+
+    // What a program that is not there writes ends up in the lines it was
+    // given, as any other output would.
+    data.setText(X "aaa" N "bbb");
+    data.doCommand("set formatprg=nosuchprogram");
+    KEYS("gqq",
+         X "/bin/bash: line 1: nosuchprogram: command not found" N "bbb");
+    data.doCommand("set formatprg=");
+}
+
+void FakeVimTester::test_vim_reflow_formatexpr()
+{
+    // "gq" hands the lines to "formatexpr" instead of reflowing them: v:lnum
+    // names the first line and v:count how many there are, and an answer of
+    // zero says the expression has done the work. Anything else, and "gw"
+    // whatever the option says, reflows here (measured in Vim 9.1).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.doCommand("set textwidth=10 noautoindent");
+    data.doCommand("let g:c = []");
+    data.doCommand("set formatexpr=len(add(g:c,v:lnum.':'.v:count))*0");
+
+    data.setText("one two three four five six" N "zzz");
+    KEYS("gqq", X "one two three four five six" N "zzz");
+    QCOMPARE(value("string(g:c)"), QLatin1String("['1:1']"));
+
+    data.doCommand("let g:c = []");
+    data.setText("aaa bbb ccc" N "ddd" N "zzz");
+    KEYS("gqj", X "aaa bbb ccc" N "ddd" N "zzz");
+    QCOMPARE(value("string(g:c)"), QLatin1String("['1:2']"));
+
+    data.doCommand("let g:c = []");
+    data.setText("aaa bbb ccc" N "ddd");
+    KEYS("VGgq", X "aaa bbb ccc" N "ddd");
+    QCOMPARE(value("string(g:c)"), QLatin1String("['1:2']"));
+
+    // "gw" reflows whatever the option says.
+    data.doCommand("let g:c = []");
+    data.setText("one |two three four five six");
+    KEYS("gww", "one |two" N "three four" N "five six");
+    QCOMPARE(value("string(g:c)"), QLatin1String("[]"));
+
+    // The expression edits the lines itself.
+    data.doCommand("set formatexpr=setline(v:lnum,'XX')*0");
+    data.setText("one two three four five six" N "zzz");
+    KEYS("gqq", X "XX" N "zzz");
+
+    // A non-zero answer leaves the reflow here.
+    data.doCommand("set formatexpr=1");
+    data.setText("one two three four five six");
+    KEYS("gqq", "one two" N "three four" N X "five six");
+
+    data.doCommand("set formatexpr=");
+    data.doCommand("unlet! g:c");
 }
 
 void FakeVimTester::test_vim_reflow()
@@ -11947,6 +15024,51 @@ void FakeVimTester::test_vim_script_positions()
     data.doCommand("call setpos(\"'b\", [0, 1, 3, 0])");
     QCOMPARE(echo("line(\"'b\")"), QLatin1String("1"));
     QCOMPARE(echo("col(\"'b\")"), QLatin1String("3"));
+
+    // The "'" and "`" marks are one mark under two names, so whichever name
+    // wrote it, both read it back. Measured in Vim 9.1 over "one one" /
+    // "two two" / "  three three": a jump, "m", ":mark" and setpos() all land
+    // in the same place, and only the MOTION differs, "''" going to the first
+    // non-blank of the line and "``" to the column itself.
+    data.setText("one one" N "two two" N "  three three");
+    data.doKeys("3G5|1G");
+    QCOMPARE(echo("getpos(\"''\")"), QLatin1String("[0, 3, 5, 0]"));
+    QCOMPARE(echo("getpos(\"'`\")"), QLatin1String("[0, 3, 5, 0]"));
+    data.doCommand("call setpos(\"''\", [0, 2, 3, 0])");
+    QCOMPARE(echo("getpos(\"'`\")"), QLatin1String("[0, 2, 3, 0]"));
+    data.doCommand("call setpos(\"'`\", [0, 3, 7, 0])");
+    QCOMPARE(echo("getpos(\"''\")"), QLatin1String("[0, 3, 7, 0]"));
+    data.doKeys("2G4|m'");
+    QCOMPARE(echo("getpos(\"'`\")"), QLatin1String("[0, 2, 4, 0]"));
+    data.doKeys("3G6|m`");
+    QCOMPARE(echo("getpos(\"''\")"), QLatin1String("[0, 3, 6, 0]"));
+    data.doCommand("3mark `");
+    QCOMPARE(echo("getpos(\"''\")"), QLatin1String("[0, 3, 1, 0]"));
+    // Each motion starts from a buffer of its own: the cursor stands at the
+    // first line, where "gg" is no jump at all and leaves the mark alone.
+    data.setText("one one" N "two two" N "  three three");
+    data.doCommand("call setpos(\"'`\", [0, 3, 9, 0])");
+    data.doKeys("gg" "''");
+    QCOMPARE(echo("getpos(\".\")"), QLatin1String("[0, 3, 3, 0]"));
+    data.setText("one one" N "two two" N "  three three");
+    data.doCommand("call setpos(\"''\", [0, 3, 9, 0])");
+    data.doKeys("gg" "``");
+    QCOMPARE(echo("getpos(\".\")"), QLatin1String("[0, 3, 9, 0]"));
+
+    // The """, "[" and "]" marks are there before anything has changed, which
+    // is what a freshly loaded file carries them at. Measured in Vim 9.1 over
+    // "one" / "two" / "  three": """ and "[" at line 1 column 1, "]" at
+    // column 1 of the last line, and the motions land where the marks say,
+    // the one for "]" on the first non-blank of that line.
+    data.setText("one" N "two" N "  three");
+    QCOMPARE(echo("getpos(\"'[\")"), QLatin1String("[0, 1, 1, 0]"));
+    QCOMPARE(echo("getpos(\"']\")"), QLatin1String("[0, 3, 1, 0]"));
+    QCOMPARE(echo("getpos(\"'\\\"\")"), QLatin1String("[0, 1, 1, 0]"));
+    KEYS("3G" "'[", X "one" N "two" N "  three");
+    KEYS("']", "one" N "two" N "  " X "three");
+    KEYS("3G" "'\"", X "one" N "two" N "  three");
+    data.setText("only");
+    QCOMPARE(echo("getpos(\"']\")"), QLatin1String("[0, 1, 1, 0]"));
 }
 
 void FakeVimTester::test_vim_script_operatorfunc()
@@ -12554,6 +15676,302 @@ void FakeVimTester::test_vim_script_string_builtins()
     QCOMPARE(echo("printf(\"%.2f\", 3.14159)"), QLatin1String("3.14"));
 }
 
+void FakeVimTester::test_vim_script_printf_arguments()
+{
+    // printf() counts the arguments the format uses: one too few is E766, one
+    // left over E767. A character that is no conversion at all takes none, and
+    // "%%" takes none either, while "*" takes one for the width and one for the
+    // precision. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+    const QLatin1String tooFew("E766: Insufficient arguments for printf()");
+    const QLatin1String tooMany("E767: Too many arguments for printf()");
+
+    QCOMPARE(echo("printf('%d', 1)"), QLatin1String("1"));
+    QCOMPARE(echo("printf('%d', 1, 2)"), tooMany);
+    QCOMPARE(echo("printf('%d')"), tooFew);
+    QCOMPARE(echo("printf('%d %d', 1)"), tooFew);
+    QCOMPARE(echo("printf('abc')"), QLatin1String("abc"));
+    QCOMPARE(echo("printf('abc', 1)"), tooMany);
+    QCOMPARE(echo("printf('%%', 1)"), tooMany);
+    QCOMPARE(echo("printf('%q', 1)"), tooMany);
+    QCOMPARE(echo("printf('a%qb')"), QLatin1String("aqb"));
+
+    // The width and the precision take an argument of their own, and a width
+    // that comes out negative aligns to the left.
+    QCOMPARE(echo("printf('%*d|', 3, 1)"), QLatin1String("  1|"));
+    QCOMPARE(echo("printf('%*d|', -3, 1)"), QLatin1String("1  |"));
+    QCOMPARE(echo("printf('%*d', 3)"), tooFew);
+    QCOMPARE(echo("printf('%.*f', 2, 1.5)"), QLatin1String("1.50"));
+    QCOMPARE(echo("printf('%.*f', 2)"), tooFew);
+
+    // The integer conversions want a Number, and so do a width and a precision
+    // taken from an argument: a String counts as one, a Float does not. The
+    // float conversions want a Float or a Number and have a message of their
+    // own, "%p" wants a String, and "%s" takes anything at all. The type is
+    // complained about before the count is.
+    QCOMPARE(echo("printf('%d', [1])"), QLatin1String("E745: Using a List as a Number"));
+    QCOMPARE(echo("printf('%d', {})"), QLatin1String("E728: Using a Dictionary as a Number"));
+    QCOMPARE(echo("printf('%d', function('strlen'))"),
+             QLatin1String("E703: Using a Funcref as a Number"));
+    QCOMPARE(echo("printf('%d', 0z01)"), QLatin1String("E974: Using a Blob as a Number"));
+    QCOMPARE(echo("printf('%d', 1.9)"), QLatin1String("E805: Using a Float as a Number"));
+    QCOMPARE(echo("printf('%x', 1.5)"), QLatin1String("E805: Using a Float as a Number"));
+    QCOMPARE(echo("printf('%c', 1.5)"), QLatin1String("E805: Using a Float as a Number"));
+    QCOMPARE(echo("printf('%d', 'x')"), QLatin1String("0"));
+    QCOMPARE(echo("printf('%d', '12ab')"), QLatin1String("12"));
+    QCOMPARE(echo("printf('%d', [1], 2)"), QLatin1String("E745: Using a List as a Number"));
+    QCOMPARE(echo("printf('%*d', 1.5, 2)"), QLatin1String("E805: Using a Float as a Number"));
+    QCOMPARE(echo("printf('%.*f', [1], 1.5)"), QLatin1String("E745: Using a List as a Number"));
+    QCOMPARE(echo("printf('%.*f', 'x', 1.5)"), QLatin1String("2"));
+
+    const QLatin1String wantsFloat("E807: Expected Float argument for printf()");
+    QCOMPARE(echo("printf('%f', 'x')"), wantsFloat);
+    QCOMPARE(echo("printf('%f', [1])"), wantsFloat);
+    QCOMPARE(echo("printf('%e', '1.5')"), wantsFloat);
+    QCOMPARE(echo("printf('%f', v:true)"), wantsFloat);
+    QCOMPARE(echo("printf('%f %d', 'x', [1])"), wantsFloat);
+    QCOMPARE(echo("printf('%f', 1)"), QLatin1String("1.000000"));
+    QCOMPARE(echo("printf('%g', 3)"), QLatin1String("3.0"));
+
+    QCOMPARE(echo("printf('%p', {})"), QLatin1String("E731: Using a Dictionary as a String"));
+    QCOMPARE(echo("printf('%s', [1])"), QLatin1String("[1]"));
+    QCOMPARE(echo("printf('%s', 1.5)"), QLatin1String("1.5"));
+    QCOMPARE(echo("printf('%s', v:true)"), QLatin1String("v:true"));
+    QCOMPARE(echo("printf('%d', v:true)"), QLatin1String("1"));
+}
+
+void FakeVimTester::test_vim_script_printf_conversions()
+{
+    // Every conversion but "%d" writes the unsigned value of the same bits, in
+    // the base the letter names, and "#" prefixes that base. "%g" has a form of
+    // its own: the plain form for a value of a middling size and the scientific
+    // one otherwise, both keeping the point and, without a precision, one digit
+    // behind it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("printf('%u', 3)"), QLatin1String("3"));
+    QCOMPARE(echo("printf('%u', -1)"), QLatin1String("18446744073709551615"));
+    QCOMPARE(echo("printf('%x', -1)"), QLatin1String("ffffffffffffffff"));
+    QCOMPARE(echo("printf('%X', -1)"), QLatin1String("FFFFFFFFFFFFFFFF"));
+    QCOMPARE(echo("printf('%o', -1)"), QLatin1String("1777777777777777777777"));
+    QCOMPARE(echo("printf('%b', 5)"), QLatin1String("101"));
+    QCOMPARE(echo("printf('%B', 255)"), QLatin1String("11111111"));
+    QCOMPARE(echo("printf('%b', -1)"),
+             QLatin1String("1111111111111111111111111111111111111111111111111111111111111111"));
+    QCOMPARE(echo("printf('%#x', 255)"), QLatin1String("0xff"));
+    QCOMPARE(echo("printf('%#X', 255)"), QLatin1String("0XFF"));
+    QCOMPARE(echo("printf('%#b', 5)"), QLatin1String("0b101"));
+    QCOMPARE(echo("printf('%#B', 5)"), QLatin1String("0B101"));
+    QCOMPARE(echo("printf('%#o', 8)"), QLatin1String("010"));
+    QCOMPARE(echo("printf('%#x', 0)"), QLatin1String("0"));
+    QCOMPARE(echo("printf('%010b|', 5)"), QLatin1String("0000000101|"));
+
+    QCOMPARE(echo("printf('%e', 1.5)"), QLatin1String("1.500000e+00"));
+    QCOMPARE(echo("printf('%E', 1.5)"), QLatin1String("1.500000E+00"));
+    QCOMPARE(echo("printf('%e', 123456789.0)"), QLatin1String("1.234568e+08"));
+    QCOMPARE(echo("printf('%.2e', 12345.678)"), QLatin1String("1.23e+04"));
+    QCOMPARE(echo("printf('%F', 1.5)"), QLatin1String("1.500000"));
+    QCOMPARE(echo("printf('%S', 'ab')"), QLatin1String("ab"));
+    QCOMPARE(echo("printf('%5S|', 'ab')"), QLatin1String("   ab|"));
+    QCOMPARE(echo("printf('%-5S|', 'ab')"), QLatin1String("ab   |"));
+
+    QCOMPARE(echo("printf('%g', 1.5)"), QLatin1String("1.5"));
+    QCOMPARE(echo("printf('%g', 1.0)"), QLatin1String("1.0"));
+    QCOMPARE(echo("printf('%g', 0.0)"), QLatin1String("0.0"));
+    QCOMPARE(echo("printf('%g', 1000000.0)"), QLatin1String("1000000.0"));
+    QCOMPARE(echo("printf('%g', 1234.5678)"), QLatin1String("1234.5678"));
+    QCOMPARE(echo("printf('%g', 3.14159265358979)"), QLatin1String("3.141593"));
+    QCOMPARE(echo("printf('%g', 0.001)"), QLatin1String("0.001"));
+    QCOMPARE(echo("printf('%g', 0.0000015)"), QLatin1String("1.5e-6"));
+    QCOMPARE(echo("printf('%g', 10000000.0)"), QLatin1String("1.0e7"));
+    QCOMPARE(echo("printf('%g', 12345678.0)"), QLatin1String("1.234568e7"));
+    QCOMPARE(echo("printf('%G', 0.00000000000000000001)"), QLatin1String("1.0E-20"));
+    QCOMPARE(echo("printf('%.3g', 1234.5)"), QLatin1String("1234.500"));
+    QCOMPARE(echo("printf('%.3g', 0.0000015)"), QLatin1String("1.500e-6"));
+
+    // An infinity and a not-a-number come out in words, in the case of the
+    // conversion.
+    QCOMPARE(echo("printf('%f', 1.0 / 0)"), QLatin1String("inf"));
+    QCOMPARE(echo("printf('%f', -1.0 / 0)"), QLatin1String("-inf"));
+    QCOMPARE(echo("printf('%g', 1.0 / 0)"), QLatin1String("inf"));
+    QCOMPARE(echo("printf('%F', 1.0 / 0)"), QLatin1String("INF"));
+}
+
+void FakeVimTester::test_vim_script_printf_positional()
+{
+    // A "%N$" numbers the arguments in the format itself, and then every
+    // conversion has to carry a number: what would be counted otherwise is
+    // checked against the numbers instead, and Vim has a message for each way
+    // that goes wrong. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("printf('%1$d', 1)"), QLatin1String("1"));
+    QCOMPARE(echo("printf('%2$d %1$d', 1, 2)"), QLatin1String("2 1"));
+    QCOMPARE(echo("printf('%1$d %1$d', 5)"), QLatin1String("5 5"));
+    QCOMPARE(echo("printf('%2$s %1$d', 1, 'a')"), QLatin1String("a 1"));
+    QCOMPARE(echo("printf('%3$d %1$d %2$d', 1, 2, 3)"), QLatin1String("3 1 2"));
+    QCOMPARE(echo("printf('a%1$db', 5)"), QLatin1String("a5b"));
+    QCOMPARE(echo("printf('%1$*2$d', 7, 4)"), QLatin1String("   7"));
+    QCOMPARE(echo("printf('%1$.*2$f', 1.5, 3)"), QLatin1String("1.500"));
+    QCOMPARE(echo("printf('%1$010.3f', 1.5)"), QLatin1String("000001.500"));
+    QCOMPARE(echo("printf('%1$#x', 255)"), QLatin1String("0xff"));
+    QCOMPARE(echo("printf('%1$-5d|', 7)"), QLatin1String("7    |"));
+    QCOMPARE(echo("printf('%1$s %1$S', 'a')"), QLatin1String("a a"));
+
+    // A conversion that takes no argument is no numbered one either, so it may
+    // stand in a numbered format but not carry a number of its own.
+    QCOMPARE(echo("printf('%1$d %%', 1)"), QLatin1String("1 %"));
+    QCOMPARE(echo("printf('%1$d a%qb', 1)"), QLatin1String("1 aqb"));
+
+    const QLatin1String mixed("E1500: Cannot mix positional and non-positional arguments: ");
+    QCOMPARE(echo("printf('%2$d %d', 1, 2)"), QString(mixed) + "%2$d %d");
+    QCOMPARE(echo("printf('%d %2$d', 1, 2)"), QString(mixed) + "%d %2$d");
+    QCOMPARE(echo("printf('%1$*d', 7, 3)"), QString(mixed) + "%1$*d");
+    QCOMPARE(echo("printf('%1$%')"), QString(mixed) + "%1$%");
+
+    QCOMPARE(echo("printf('%2$d', 1)"),
+             QLatin1String("E1501: format argument 1 unused in $-style format: %2$d"));
+    QCOMPARE(echo("printf('%1$d %3$d', 1, 2, 3)"),
+             QLatin1String("E1501: format argument 2 unused in $-style format: %1$d %3$d"));
+    QCOMPARE(echo("printf('%1$*2$d', 7)"),
+             QLatin1String("E1503: Positional argument 2 out of bounds: %1$*2$d"));
+    QCOMPARE(echo("printf('%1$d %2$s', 1)"),
+             QLatin1String("E1503: Positional argument 2 out of bounds: %1$d %2$s"));
+
+    // The type one number is used for is part of the check, and it is the
+    // names of the C types that Vim reports.
+    const QLatin1String inconsistent("E1504: Positional argument 1 type used inconsistently: ");
+    QCOMPARE(echo("printf('%1$d %1$s', 1)"), QString(inconsistent) + "string/int");
+    QCOMPARE(echo("printf('%1$d %1$f', 1)"), QString(inconsistent) + "float/int");
+    QCOMPARE(echo("printf('%1$d %1$x', 5)"), QString(inconsistent) + "unsigned int/int");
+    QCOMPARE(echo("printf('%1$d %1$c', 65)"), QString(inconsistent) + "char/int");
+    QCOMPARE(echo("printf('%1$s %1$b', 'a')"),
+             QString(inconsistent) + "unsigned long long int/string");
+    QCOMPARE(echo("printf('%1$s %1$p', 'a')"), QString(inconsistent) + "pointer/string");
+
+    QCOMPARE(echo("printf('%0$d', 1)"),
+             QLatin1String("E1505: Invalid format specifier: %0$d"));
+    QCOMPARE(echo("printf('%1$2$d', 1, 2)"),
+             QLatin1String("E1505: Invalid format specifier: %1$2$d"));
+    QCOMPARE(echo("printf('%1$d %0$d', 1)"),
+             QLatin1String("E1505: Invalid format specifier: %1$d %0$d"));
+
+    // What is left counts as one too many, and a number out of bounds is
+    // complained about ahead of an argument of the wrong type.
+    QCOMPARE(echo("printf('%1$d', 1, 2)"),
+             QLatin1String("E767: Too many arguments for printf()"));
+    QCOMPARE(echo("printf('%1$d %2$d', [1])"),
+             QLatin1String("E1503: Positional argument 2 out of bounds: %1$d %2$d"));
+    QCOMPARE(echo("printf('%1$d %2$d', 1, [1])"),
+             QLatin1String("E745: Using a List as a Number"));
+    QCOMPARE(echo("printf('%1$f', 'x')"),
+             QLatin1String("E807: Expected Float argument for printf()"));
+}
+
+void FakeVimTester::test_vim_script_printf_flags()
+{
+    // A precision on an integer pads its digits with zeroes and takes the "0"
+    // flag out of the width, a sign flag reaches "%d" and the float
+    // conversions and nothing else, and zero padding of a width sits behind the
+    // sign. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    QCOMPARE(echo("printf('%.3d', 5)"), QLatin1String("005"));
+    QCOMPARE(echo("printf('%.3x', 5)"), QLatin1String("005"));
+    QCOMPARE(echo("printf('%.3o', 5)"), QLatin1String("005"));
+    QCOMPARE(echo("printf('%.5b', 5)"), QLatin1String("00101"));
+    QCOMPARE(echo("printf('%.5u', 7)"), QLatin1String("00007"));
+    QCOMPARE(echo("printf('%#.5x', 255)"), QLatin1String("0x000ff"));
+    QCOMPARE(echo("printf('%#.3o', 8)"), QLatin1String("010"));
+    QCOMPARE(echo("printf('%.3d', -5)"), QLatin1String("-005"));
+    QCOMPARE(echo("printf('%.9d', -5)"), QLatin1String("-000000005"));
+    QCOMPARE(echo("printf('%.3d', 0)"), QLatin1String("000"));
+    QCOMPARE(echo("printf('%.0d', 0)"), QLatin1String(""));
+    QCOMPARE(echo("printf('%.0x', 0)"), QLatin1String(""));
+    QCOMPARE(echo("printf('%+.0d', 0)"), QLatin1String("+"));
+    QCOMPARE(echo("printf('%.0d', 5)"), QLatin1String("5"));
+    QCOMPARE(echo("printf('%.2c', 65)"), QLatin1String("A"));
+    QCOMPARE(echo("printf('%.3s', 'abcde')"), QLatin1String("abc"));
+
+    QCOMPARE(echo("printf('%8.3d|', 5)"), QLatin1String("     005|"));
+    QCOMPARE(echo("printf('%08.3d|', 5)"), QLatin1String("     005|"));
+    QCOMPARE(echo("printf('%-8.3d|', 5)"), QLatin1String("005     |"));
+
+    QCOMPARE(echo("printf('%+d', 7)"), QLatin1String("+7"));
+    QCOMPARE(echo("printf('% d', 7)"), QLatin1String(" 7"));
+    QCOMPARE(echo("printf('%+d', 0)"), QLatin1String("+0"));
+    QCOMPARE(echo("printf('%+.3d', 5)"), QLatin1String("+005"));
+    QCOMPARE(echo("printf('%+05d', 7)"), QLatin1String("+0007"));
+    QCOMPARE(echo("printf('% 05d', 7)"), QLatin1String(" 0007"));
+    QCOMPARE(echo("printf('%05d', -7)"), QLatin1String("-0007"));
+    QCOMPARE(echo("printf('%08.2f', -1.5)"), QLatin1String("-0001.50"));
+    QCOMPARE(echo("printf('%+08.2f', 1.5)"), QLatin1String("+0001.50"));
+    QCOMPARE(echo("printf('%+.3f', 1.5)"), QLatin1String("+1.500"));
+    QCOMPARE(echo("printf('%+f', 1.0/0)"), QLatin1String("+inf"));
+    QCOMPARE(echo("printf('%+g', 1.5)"), QLatin1String("+1.5"));
+    QCOMPARE(echo("printf('% g', 1.5)"), QLatin1String(" 1.5"));
+    QCOMPARE(echo("printf('%+e', 1.5)"), QLatin1String("+1.500000e+00"));
+
+    QCOMPARE(echo("printf('%+x', 7)"), QLatin1String("7"));
+    QCOMPARE(echo("printf('%+u', 7)"), QLatin1String("7"));
+    QCOMPARE(echo("printf('%+b', 5)"), QLatin1String("101"));
+    QCOMPARE(echo("printf('%+s', 'a')"), QLatin1String("a"));
+    QCOMPARE(echo("printf('%+c', 65)"), QLatin1String("A"));
+
+    QCOMPARE(echo("printf('%-05d|', 7)"), QLatin1String("7    |"));
+    QCOMPARE(echo("printf('%0-8d|', 7)"), QLatin1String("7       |"));
+    QCOMPARE(echo("printf('%05s|', 'ab')"), QLatin1String("000ab|"));
+    QCOMPARE(echo("printf('%03c|', 65)"), QLatin1String("00A|"));
+}
+
 void FakeVimTester::test_vim_script_collection_builtins()
 {
     // sort, reverse, copy, type, max, min.
@@ -12906,13 +16324,55 @@ void FakeVimTester::test_vim_script_funcref()
     QCOMPARE(echo("call(function(\"strlen\"), [\"abcd\"])"), QLatin1String("4"));
     QCOMPARE(echo("call(g:Add, [10, 20])"), QLatin1String("30"));
 
+    // call() takes the name of a function as well as a Funcref, and its
+    // arguments as a list and nothing else. Twenty is the most it passes on,
+    // and the message for one too many is its own. Values taken from Vim 9.1.
+    QCOMPARE(echo("call(\"strlen\", [\"ab\"])"), QLatin1String("2"));
+    QCOMPARE(echo("call(\"nosuchfunc\", [])"),
+             QLatin1String("E117: Unknown function: nosuchfunc"));
+    QCOMPARE(echo("call(\"strlen\", [])"),
+             QLatin1String("E119: Not enough arguments for function: strlen"));
+    QCOMPARE(echo("call(\"strlen\", [\"a\", \"b\"])"),
+             QLatin1String("E118: Too many arguments for function: strlen"));
+    QCOMPARE(echo("call(\"strlen\", \"ab\")"),
+             QLatin1String("E1211: List required for argument 2"));
+    QCOMPARE(echo("call(\"strlen\", 0)"), QLatin1String("E1211: List required for argument 2"));
+    QCOMPARE(echo("call(\"nosuchfunc\", \"x\")"),
+             QLatin1String("E1211: List required for argument 2"));
+    QCOMPARE(echo("call(\"strlen\", repeat([0], 21))"),
+             QLatin1String("E699: Too many arguments"));
+    QCOMPARE(echo("call(\"strlen\", repeat([0], 20))"),
+             QLatin1String("E118: Too many arguments for function: strlen"));
+    QCOMPARE(echo("call(\"nosuchfunc\", repeat([0], 21))"),
+             QLatin1String("E699: Too many arguments"));
+    QCOMPARE(echo("call(function(\"strlen\"), repeat([0], 21))"),
+             QLatin1String("E699: Too many arguments"));
+
     // Method syntax: v->f(args) is f(v, args).
     QCOMPARE(echo("\"abc\"->strlen()"), QLatin1String("3"));
     QCOMPARE(echo("[3, 1, 2]->sort()"), QLatin1String("[1, 2, 3]"));
     QCOMPARE(echo("21->g:Double()"), QLatin1String("42"));
 
     // string() of a named funcref.
+    source("function! Foo()\n  return 1\nendfunction\n");
     QCOMPARE(echo("string(function(\"Foo\"))"), QLatin1String("function('Foo')"));
+
+    // function() refuses a name that is not there, and does it there and not
+    // at the call. An autoload name is taken on trust, and the call is where
+    // it turns out not to be there. call() takes the name as a string, so one
+    // that is no string at all is refused as such. Values taken from Vim 9.1.
+    QCOMPARE(echo("function('nosuchfunc')"), QLatin1String("E700: Unknown function: nosuchfunc"));
+    QCOMPARE(echo("funcref('nosuchfunc')"), QLatin1String("E700: Unknown function: nosuchfunc"));
+    QCOMPARE(echo("function('nosuchfunc', [1])"),
+             QLatin1String("E700: Unknown function: nosuchfunc"));
+    QCOMPARE(echo("string(function('foo#bar'))"), QLatin1String("function('foo#bar')"));
+    QCOMPARE(echo("call(function('foo#bar'), [])"),
+             QLatin1String("E117: Unknown function: foo#bar"));
+    QCOMPARE(echo("call([], [])"), QLatin1String("E730: Using a List as a String"));
+    QCOMPARE(echo("call({}, [])"), QLatin1String("E731: Using a Dictionary as a String"));
+    QCOMPARE(echo("call(0z01, [])"), QLatin1String("E976: Using a Blob as a String"));
+    QCOMPARE(echo("call(1, [])"), QLatin1String("E117: Unknown function: 1"));
+    QCOMPARE(echo("call('', [])"), QLatin1String("0"));
 
     // Closures capture the defining scope.
     source("function MkAdder(n)\n  return {x -> x + a:n}\nendfunction\n");
@@ -13017,6 +16477,31 @@ void FakeVimTester::test_vim_script_error_numbers()
     QCOMPARE(echo("-5 / 0"), QLatin1String("-9223372036854775807"));
     QCOMPARE(echo("0 / 0"), QLatin1String("-9223372036854775808"));
     QCOMPARE(echo("5 % 0"), QLatin1String("0"));
+
+    // A pattern Vim refuses outright is refused wherever it is given, and not
+    // quietly taken as one that matches nothing.
+    const QLatin1String unmatchedGroup("E54: Unmatched \\(");
+    QCOMPARE(echo("match(\"a\", \"\\\\(\")"), unmatchedGroup);
+    QCOMPARE(echo("match([\"a\"], \"\\\\(\")"), unmatchedGroup);
+    QCOMPARE(echo("matchlist(\"a\", \"\\\\(\")"), unmatchedGroup);
+    QCOMPARE(echo("matchstrpos(\"a\", \"\\\\(\")"), unmatchedGroup);
+    QCOMPARE(echo("matchstrlist([\"a\"], \"\\\\(\")"), unmatchedGroup);
+    QCOMPARE(echo("searchcount({'pattern': \"\\\\(\"})"), unmatchedGroup);
+    QCOMPARE(echo("searchpos(\"\\\\(\")"), unmatchedGroup);
+    QCOMPARE(echo("searchpair(\"\\\\(\", \"\", \"b\")"), unmatchedGroup);
+    QCOMPARE(echo("split(\"a-b\", \"\\\\(\")"), unmatchedGroup);
+    QCOMPARE(echo("match(\"a\", \"\\\\%(\")"), QLatin1String("E53: Unmatched \\%("));
+    QCOMPARE(echo("matchend(\"a\", \"\\\\)\")"), QLatin1String("E55: Unmatched \\)"));
+    const QLatin1String multi("E554: Syntax error in \\{...}");
+    QCOMPARE(echo("matchstr(\"aaa\", \"a\\\\{\")"), multi);
+    QCOMPARE(echo("split(\"a\", \"a\\\\{\")"), multi);
+    const QLatin1String zmark("E67: \\z1 - \\z9 not allowed here");
+    QCOMPARE(echo("search(\"\\\\z1\")"), zmark);
+    QCOMPARE(echo("substitute(\"a\", \"\\\\z1\", \"x\", \"\")"), zmark);
+    QCOMPARE(echo("substitute(\"a\", \"\\\\%[ab\", \"x\", \"\")"),
+             QLatin1String("E69: Missing ] after \\%["));
+    // "matchfuzzy()" is no regexp match, so nothing there is a pattern.
+    QCOMPARE(echo("matchfuzzy([\"a\"], \"\\\\(\")"), QLatin1String("[]"));
 }
 
 void FakeVimTester::test_vim_pattern_lookbehind_limit()
@@ -13217,6 +16702,249 @@ void FakeVimTester::test_vim_ctrl_q_literal()
     KEYS("A<C-v>065<Esc>", "abc" X "A");
 }
 
+void FakeVimTester::test_vim_digraphs()
+{
+    // CTRL-K takes the two characters behind it and puts in the character they
+    // stand for. Values taken from Vim 9.1. The expected text is UTF-8, since
+    // that is what the document is compared as.
+    TestData data;
+    setup(&data);
+    // "a:" is a-umlaut, and Vim looks the pair up the other way round too.
+    data.setText(X "abc");
+    KEYS("A<C-k>a:<Esc>", "abc" X "\xc3\xa4");
+    data.setText(X "abc");
+    KEYS("A<C-k>:a<Esc>", "abc" X "\xc3\xa4");
+    // The euro and the quadruple prime are Vim's own additions to RFC 1345.
+    data.setText(X "abc");
+    KEYS("A<C-k>=e<Esc>", "abc" X "\xe2\x82\xac");
+    data.setText(X "abc");
+    KEYS("A<C-k>4'<Esc>", "abc" X "\xe2\x81\x97");
+    data.setText(X "abc");
+    KEYS("A<C-k>Co<Esc>", "abc" X "\xc2\xa9");
+    data.setText(X "abc");
+    KEYS("A<C-k>OK<Esc>", "abc" X "\xe2\x9c\x93");
+    // Where the pair stands for something both ways round, each way keeps its
+    // own character: "=R" is the rouble sign, "R=" a Cyrillic letter.
+    data.setText(X "abc");
+    KEYS("A<C-k>=R<Esc>", "abc" X "\xe2\x82\xbd");
+    data.setText(X "abc");
+    KEYS("A<C-k>R=<Esc>", "abc" X "\xd0\xa0");
+    // A pair that stands for nothing either way puts in the second character.
+    data.setText(X "abc");
+    KEYS("A<C-k>qq<Esc>", "abc" X "q");
+    data.setText(X "abc");
+    KEYS("A<C-k>xz<Esc>", "abc" X "z");
+    data.setText(X "abc");
+    KEYS("A<C-k>zx<Esc>", "abc" X "x");
+    // A Return is one of the two characters, not a line break, and so is
+    // another CTRL-K.
+    data.setText(X "abc");
+    KEYS("A<C-k><CR>a:<Esc>", "abca" X ":");
+    data.setText(X "abc");
+    KEYS("A<C-k><C-k>a<Esc>", "abc" X "a");
+    data.setText(X "abc");
+    KEYS("A<C-k><C-k><Esc><Esc>", "ab" X "c");
+    // An Escape in either position takes back the CTRL-K and leaves the insert
+    // running, so a second one is what ends it.
+    data.setText(X "abc");
+    KEYS("A<C-k><Esc>x<Esc>", "abc" X "x");
+    data.setText(X "abc");
+    KEYS("A<C-k>a<Esc>x<Esc>", "abc" X "x");
+    data.setText(X "abc");
+    KEYS("A<C-k>a<Esc>:<Esc>", "abc" X ":");
+    data.setText(X "abc");
+    KEYS("A<C-k><Esc><C-k>a:<Esc>", "abc" X "\xc3\xa4");
+    data.setText(X "abc");
+    KEYS("A<C-k><Esc><Esc>x", "a" X "b");
+    // The insert goes on afterwards, and a repeat carries it. Only the text is
+    // compared here: the cursor marker goes in by character index, which lands
+    // inside a multibyte one.
+    data.setText(X "abc");
+    data.doKeys("A<C-k>a:b<Esc>");
+    QCOMPARE(data.text(), QByteArray("abc" "\xc3\xa4" "b"));
+    data.setText(X "abc");
+    data.doKeys("A<C-k>a:<Esc>.");
+    QCOMPARE(data.text(), QByteArray("abc" "\xc3\xa4" "\xc3\xa4"));
+    data.setText(X "abc");
+    KEYS("i<C-k>a:<Esc>", X "\xc3\xa4" "abc");
+    data.setText(X "abc");
+    KEYS("ce<C-k>a:<Esc>", X "\xc3\xa4");
+    // Replace mode writes it over what stands there.
+    data.setText(X "abc");
+    KEYS("R<C-k>a:<Esc>", X "\xc3\xa4" "bc");
+
+    // "ga" names the character under the cursor, and the pair it can be typed
+    // with where there is one. An abbreviated "Oct" goes with that pair, the
+    // spelled-out "Octal" without it, and past ASCII the whole line is spaced
+    // differently.
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    // The character goes in by its code point, since the harness reads the
+    // text it is given as Latin-1.
+    const auto named = [&](const QString &code) {
+        data.setText(X "x");
+        data.doKeys("i<C-v>u" + code + "<Esc>");
+        message.clear();
+        data.doKeys("ga");
+        return message;
+    };
+    QCOMPARE(named("006c"), QLatin1String("<l>  108,  Hex 6c,  Octal 154"));
+    QCOMPARE(named("0061"), QLatin1String("<a>  97,  Hex 61,  Octal 141"));
+    QCOMPARE(named("0023"), QLatin1String("<#>  35,  Hex 23,  Oct 043, Digr Nb"));
+    QCOMPARE(named("0020"), QLatin1String("< >  32,  Hex 20,  Oct 040, Digr SP"));
+    QCOMPARE(named("0009"), QLatin1String("<^I>  9,  Hex 09,  Oct 011, Digr HT"));
+    QCOMPARE(named("00e4"),
+             QString::fromUtf8("<\xc3\xa4> 228, Hex 00e4, Oct 344, Digr a:"));
+    QCOMPARE(named("2026"),
+             QString::fromUtf8("<\xe2\x80\xa6> 8230, Hex 2026, Oct 20046, Digr ,."));
+    QCOMPARE(named("4e00"),
+             QString::fromUtf8("<\xe4\xb8\x80> 19968, Hex 4e00, Octal 47000"));
+    // The characters above the control codes are spelled out in hex, and a
+    // combining mark is drawn on a space put in front of it.
+    QCOMPARE(named("0080"), QLatin1String("<<80>> 128, Hex 0080, Oct 200, Digr PA"));
+    QCOMPARE(named("0301"),
+             QString::fromUtf8("< \xcc\x81> 769, Hex 0301, Octal 1401"));
+
+    // ":digraphs" lists the table in Vim's own order, 13 columns an entry and
+    // six of them to a line at the 80 columns Vim assumes.
+    QString info;
+    data.handler->extraInformationChanged.set([&](const QString &text) { info = text; });
+    data.doCommand("digraphs");
+    QStringList lines = info.split(QLatin1Char('\n'));
+    QCOMPARE(lines.size(), 228);
+    QCOMPARE(lines.at(0),
+             QLatin1String("NU ^@  10    SH ^A   1    SX ^B   2    EX ^C   3    "
+                           "ET ^D   4    EQ ^E   5"));
+    QCOMPARE(lines.at(1),
+             QLatin1String("AK ^F   6    BL ^G   7    BS ^H   8    HT ^I   9    "
+                           "LF ^@  10    VT ^K  11"));
+    // A combining mark takes no column of its own, a wide character two.
+    QCOMPARE(lines.at(108),
+             QString::fromUtf8("w+ \xd9\x88  1608   j+ \xd9\x89  1609   y+ \xd9\x8a  1610   "
+                               ":+  \xd9\x8b  1611   \"+  \xd9\x8c  1612   =+  \xd9\x8d  1613"));
+    QCOMPARE(lines.at(225),
+             QString::fromUtf8("nG \xe3\x84\xab 12587  gn \xe3\x84\xac 12588  "
+                               "1c \xe3\x88\xa0 12832  2c \xe3\x88\xa1 12833  "
+                               "3c \xe3\x88\xa2 12834  4c \xe3\x88\xa3 12835"));
+    QCOMPARE(lines.at(227),
+             QString::fromUtf8("fi \xef\xac\x81  64257  fl \xef\xac\x82  64258  "
+                               "ft \xef\xac\x85  64261  st \xef\xac\x86  64262"));
+
+    // ":digraphs!" lists the same table, broken into the blocks Vim names,
+    // each of them behind a header line of its own. The entry a header falls
+    // in front of starts a new line, so the line before it is a short one.
+    const auto blockHeaders = [&](const QStringList &lines) {
+        QStringList out;
+        for (int i = 0; i < lines.size(); ++i) {
+            const QString line = lines.at(i);
+            const bool entry = std::any_of(line.begin(), line.end(),
+                                           [](QChar c) { return c.isDigit(); });
+            if (!entry)
+                out.append(QString::number(i) + QLatin1Char(' ') + line);
+        }
+        return out.join(QLatin1String(", "));
+    };
+    data.doCommand("digraphs!");
+    lines = info.split(QLatin1Char('\n'));
+    QCOMPARE(lines.size(), 268);
+    QCOMPARE(lines.at(13), QString::fromUtf8("NS \xc2\xa0  160"));
+    QCOMPARE(lines.at(15).left(9), QString::fromUtf8("!I \xc2\xa1  161"));
+    QCOMPARE(blockHeaders(lines),
+             QLatin1String("14 Latin supplement, 69 Greek and Coptic, 84 Cyrillic, "
+                           "103 Hebrew, 109 Arabic, 121 Latin extended, "
+                           "138 Greek extended, 141 Punctuation, "
+                           "149 Super- and subscripts, 155 Currency, 158 Other, "
+                           "163 Roman numbers, 168 Arrows, "
+                           "171 Mathematical operators, 182 Technical, "
+                           "185 Dingbats, 190 Box drawing, 200 Block elements, "
+                           "203 Geometric shapes, 210 Symbols, 215 Dingbats, "
+                           "217 CJK symbols and punctuation, 223 Hiragana, "
+                           "239 Katakana, 256 Bopomofo, 264 Other"));
+
+    // ":dig {pair} {number}" sets one, several pairs to a command. What a
+    // script sets is looked up before the table, so it wins over the pair the
+    // character would otherwise be named by, and it is listed after it.
+    data.doCommand("dig ab 233 cd 234");
+    QCOMPARE(named("00e9"), QString::fromUtf8("<\xc3\xa9> 233, Hex 00e9, Oct 351, Digr ab"));
+    data.setText(X "x");
+    data.doKeys("A<C-k>ab<Esc>");
+    QCOMPARE(data.text(), QByteArray("x" "\xc3\xa9"));
+    data.doCommand("digraphs");
+    lines = info.split(QLatin1Char('\n'));
+    QCOMPARE(lines.size(), 228);
+    QCOMPARE(lines.at(227),
+             QString::fromUtf8("fi \xef\xac\x81  64257  fl \xef\xac\x82  64258  "
+                               "ft \xef\xac\x85  64261  st \xef\xac\x86  64262  "
+                               "ab \xc3\xa9  233    cd \xc3\xaa  234"));
+
+    // What a script sets goes into a block of its own, called "Custom".
+    data.doCommand("digraphs!");
+    lines = info.split(QLatin1Char('\n'));
+    QCOMPARE(lines.size(), 270);
+    QCOMPARE(blockHeaders(lines).section(QLatin1String(", "), -1),
+             QLatin1String("268 Custom"));
+    QCOMPARE(lines.at(269),
+             QString::fromUtf8("ab \xc3\xa9  233    cd \xc3\xaa  234"));
+    // Only a pair of two characters, and only a number behind it.
+    const auto failing = [&](const QString &command) {
+        message.clear();
+        data.doCommand(command);
+        return message;
+    };
+    QCOMPARE(failing("dig a"), QLatin1String("E1214: Digraph must be just two characters: a"));
+    QCOMPARE(failing("dig abc 100"), QLatin1String("E39: Number expected"));
+    QCOMPARE(failing("dig ab xx"), QLatin1String("E39: Number expected"));
+    QCOMPARE(failing("dig ab"), QLatin1String("E39: Number expected"));
+    QCOMPARE(failing("1dig ab 100"), QLatin1String("E481: No range allowed"));
+
+    // digraph_get() answers what CTRL-K would put in, which for a pair that
+    // stands for nothing is its second character. digraph_getlist() gives what
+    // a script has set, newest last, and with a true argument the whole table.
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    QCOMPARE(value("digraph_get('a:')"), QString::fromUtf8("\xc3\xa4"));
+    QCOMPARE(value("digraph_get(':a')"), QString::fromUtf8("\xc3\xa4"));
+    QCOMPARE(value("digraph_get('qQ')"), QLatin1String("Q"));
+    QCOMPARE(value("digraph_getlist()"),
+             QString::fromUtf8("[['ab', '\xc3\xa9'], ['cd', '\xc3\xaa']]"));
+    QCOMPARE(value("len(digraph_getlist(1))"), QLatin1String("1368"));
+    QCOMPARE(value("digraph_getlist(1)[1365]"),
+             QString::fromUtf8("['st', '\xef\xac\x86']"));
+    QCOMPARE(value("digraph_getlist(1)[-1]"), QString::fromUtf8("['cd', '\xc3\xaa']"));
+    // digraph_set() and digraph_setlist() answer whether they set anything,
+    // and setting a pair again replaces what it stands for.
+    QCOMPARE(value("digraph_set('zz', 'X')"), QLatin1String("v:true"));
+    QCOMPARE(value("digraph_setlist([['yy', 'A'], ['yx', 'B']])"), QLatin1String("v:true"));
+    QCOMPARE(value("digraph_setlist([])"), QLatin1String("v:true"));
+    QCOMPARE(value("digraph_set('zz', 'Y')"), QLatin1String("v:true"));
+    QCOMPARE(value("digraph_get('zz')"), QLatin1String("Y"));
+    QCOMPARE(value("digraph_getlist()[-3:]"),
+             QLatin1String("[['zz', 'Y'], ['yy', 'A'], ['yx', 'B']]"));
+    QCOMPARE(failing("echo digraph_get('abc')"),
+             QLatin1String("E1214: Digraph must be just two characters: abc"));
+    QCOMPARE(failing("echo digraph_get(5)"),
+             QLatin1String("E1214: Digraph must be just two characters: 5"));
+    QCOMPARE(failing("echo digraph_set('xx', 'ab')"),
+             QLatin1String("E1215: Digraph must be one character: ab"));
+    QCOMPARE(failing("echo digraph_set('x', 'a')"),
+             QLatin1String("E1214: Digraph must be just two characters: x"));
+    QCOMPARE(failing("echo digraph_setlist([['a']])"),
+             QLatin1String("E1216: digraph_setlist() argument must be a list of "
+                           "lists with two items"));
+    QCOMPARE(failing("echo digraph_setlist('x')"),
+             QLatin1String("E1216: digraph_setlist() argument must be a list of "
+                           "lists with two items"));
+    QCOMPARE(failing("echo digraph_getlist('x')"),
+             QLatin1String("E1212: Bool required for argument 1"));
+}
+
 void FakeVimTester::test_vim_insert_ctrl_r_literal()
 {
     // CTRL-R CTRL-O puts a register in as it stands, a linewise one above this
@@ -13334,6 +17062,20 @@ void FakeVimTester::test_vim_insert_ctrl_r_newline()
     data.setText(X "    ab" N "  cd" N "zzz");
     KEYS("\"ay2yGA<C-r>aZ<Esc>",
          "    ab" N "  cd" N "zzz    ab" N "  cd" N "  " X "Z");
+
+    // What the line in front is indented by is taken as a width and written
+    // out again under "expandtab" and "tabstop", not copied blank by blank.
+    data.doCommand("set tabstop=8");
+    data.doCommand("set noexpandtab");
+    data.setText(X "    abc");
+    KEYS("yyo<C-r>\"X<Esc>", "    abc" N "        abc" N "\t" X "X");
+    data.setText(X "            abc");
+    KEYS("yyo<C-r>\"X<Esc>",
+         "            abc" N "\t                abc" N "\t\t\t" X "X");
+    data.doCommand("set expandtab");
+    data.setText(X "    abc");
+    KEYS("yyo<C-r>\"X<Esc>", "    abc" N "        abc" N "        " X "X");
+    data.doCommand("set noexpandtab");
 }
 
 void FakeVimTester::test_vim_insert_ctrl_r_above_line()
@@ -13362,6 +17104,22 @@ void FakeVimTester::test_vim_insert_ctrl_r_above_line()
     data.setText(X "  foo" N "  bar" N "    zzz");
     KEYS("\"ay2yGA<C-r><C-p>aZ<Esc>",
          "  foo" N "  bar" N "    foo" N "    bar" N X "Z    zzz");
+
+    // What stays behind is still the untouched indentation of an opened line,
+    // so leaving insert mode takes it where nothing was typed on it.
+    data.setText(X "    abc");
+    KEYS("yyo<C-r><C-p>\"<Esc>", "    abc" N "    abc" N X "");
+    data.setText(X "    abc");
+    KEYS("yyo<C-r><C-o>\"<Esc>", "    abc" N "    abc" N X "");
+    data.setText(X "    abc");
+    KEYS("yyo<C-r><C-p>\"X<Esc>", "    abc" N "    abc" N X "X    ");
+
+    // A comment leader is not indentation and stays whatever happens.
+    data.doCommand("set comments=:// fo=croql");
+    data.setText(X "// abc");
+    KEYS("yyo<C-r><C-p>\"<Esc>", "// abc" N "// abc" N X "// ");
+    data.doCommand("set fo=tcq");
+    data.doCommand("set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-");
 }
 
 void FakeVimTester::test_vim_insert_0_ctrl_d()
@@ -13436,10 +17194,14 @@ void FakeVimTester::test_vim_replace_return()
     KEYS("RX<CR><CR>Y<Esc>", "X" N "" N X "Ycdef");
     data.setText(X "ab");
     KEYS("RXY<CR>Z<Esc>", "XY" N X "Z");
+    // What is written on the line a return opened is written on nothing: the
+    // break that ends it stays where it is.
+    data.setText(X "abc" N "def");
+    KEYS("$R-<CR>=<Esc>", "ab-" N X "=" N "def");
     // One undo takes the whole lot back.
     data.setText(X "abcdef");
     KEYS("RX<CR>Y<Esc>u", X "abcdef");
-    // A count writes the whole lot over again, further along.
+    // A count types the whole lot again.
     data.setText(X "abcdefghij");
     KEYS("2RX<CR><Esc>", "X" N "X" N X "cdefghij");
 
@@ -14614,8 +18376,9 @@ void FakeVimTester::test_vim_ex_put()
         data.setText(X "alpha" N "beta" N "gamma");
         data.doCommand("call setreg('a', \"AAA\\n\", 'V')");
         data.doCommand("call setreg('b', 'BBB', 'v')");
-        // The registers are shared with every other test.
-        data.doCommand("call setreg('z', '')");
+        // The registers are shared with every other test, and an empty list
+        // is what unsets one again.
+        data.doCommand("call setreg('z', [])");
         data.doKeys(start);
         data.doCommand(QLatin1String("let g:e = '' | try | ") + command
                        + " | catch | let g:e = v:exception | endtry");
@@ -14661,8 +18424,13 @@ void FakeVimTester::test_vim_ex_put()
     // A blockwise register ends each of its lines, as a linewise one does.
     QCOMPARE(run("call setreg('c', 'a' . nr2char(10) . 'b', 'b') | put c", "0l"),
              QLatin1String("alpha/a/b/beta/gamma  at 3,1"));
-    // An empty register is an error, and nothing is put.
+    // A register nothing ever wrote is an error, and nothing is put.
     QVERIFY(run("put z", "j0l").contains(QLatin1String("E353")));
+    // One that was SET to nothing is an empty line.
+    QCOMPARE(run("call setreg('y', '') | put y", "j0l"),
+             QLatin1String("alpha/beta//gamma  at 3,1"));
+    QCOMPARE(run("call setreg('y', '') | put! y", "j0l"),
+             QLatin1String("alpha//beta/gamma  at 2,1"));
 
     // The unnamed register, as a plugin duplicates a line.
     data.setText(X "alpha" N "beta" N "gamma");
@@ -15102,6 +18870,107 @@ void FakeVimTester::test_vim_script_count_in_mapping()
     data.doCommand("delfunction Report | delfunction Expr | unlet g:seen");
 }
 
+void FakeVimTester::test_vim_script_prevcount()
+{
+    // The count the command before the running one was given, which Vim writes
+    // down as each command starts. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    const auto prev = [&] {
+        message.clear();
+        data.doCommand("echo v:prevcount");
+        return message;
+    };
+    data.setText(X "one" N "two" N "three" N "four" N "five" N "six" N "seven" N
+                 "eight" N "nine" N "ten" N "eleven" N "twelve" N "thirteen" N "fourteen" N
+                 "fifteen" N "sixteen" N "seventeen" N "eighteen" N "nineteen" N "twenty" N
+                 "twentyone" N "twentytwo" N "twentythree" N "twentyfour");
+
+    // A command with no count was given zero, which is what the one after it
+    // reads, and the count is the one the last command had rather than the
+    // last count that was typed.
+    data.doKeys("j");
+    data.doKeys("2j");
+    QCOMPARE(prev(), QLatin1String("0"));
+    data.doKeys("3k");
+    QCOMPARE(prev(), QLatin1String("2"));
+    data.doKeys("dd");
+    QCOMPARE(prev(), QLatin1String("3"));
+    // A count in front of an operator multiplies with one in front of the
+    // motion, and the product is what the command was given.
+    data.doKeys("2d3d");
+    QCOMPARE(prev(), QLatin1String("0"));
+    data.doKeys("j");
+    QCOMPARE(prev(), QLatin1String("6"));
+    // A count an escape throws away still counted as a command.
+    data.doKeys("5<Esc>");
+    QCOMPARE(prev(), QLatin1String("0"));
+    data.doKeys("x");
+    QCOMPARE(prev(), QLatin1String("5"));
+    // The count of an insertion is the count of the command that opened it,
+    // and the keys typed into it are none of it.
+    data.doKeys("3ix<Esc>");
+    QCOMPARE(prev(), QLatin1String("0"));
+    data.doKeys("x");
+    QCOMPARE(prev(), QLatin1String("3"));
+    // A register named in front of a command does not make a command of its
+    // own, so the count behind it belongs to the whole.
+    data.doKeys("\"a4dd");
+    QCOMPARE(prev(), QLatin1String("0"));
+    data.doKeys("x");
+    QCOMPARE(prev(), QLatin1String("4"));
+    // Entering Visual mode and each command given in it count as their own.
+    data.doKeys("3j");
+    data.doKeys("v");
+    QCOMPARE(prev(), QLatin1String("3"));
+    data.doKeys("2l");
+    QCOMPARE(prev(), QLatin1String("0"));
+    data.doKeys("d");
+    QCOMPARE(prev(), QLatin1String("2"));
+    // A repeat plays back what was counted when it was typed, so it counts as
+    // nothing of its own.
+    data.doKeys("2x");
+    QCOMPARE(prev(), QLatin1String("0"));
+    data.doKeys(".");
+    QCOMPARE(prev(), QLatin1String("0"));
+    data.doKeys("j");
+    QCOMPARE(prev(), QLatin1String("2"));
+
+    data.setText(X "one" N "two" N "three" N "four" N "five" N "six" N "seven" N
+                 "eight" N "nine" N "ten" N "eleven" N "twelve" N "thirteen" N "fourteen" N
+                 "fifteen" N "sixteen" N "seventeen" N "eighteen" N "nineteen" N "twenty" N
+                 "twentyone" N "twentytwo" N "twentythree" N "twentyfour");
+    // What a macro spells out are commands of their own, and the macro itself
+    // is the one before the first of them.
+    data.doCommand("let @q = \"4j\"");
+    data.doKeys("2j");
+    data.doKeys("@q");
+    QCOMPARE(prev(), QLatin1String("0"));
+    data.doKeys("j");
+    QCOMPARE(prev(), QLatin1String("4"));
+    // So are the keys a mapping stands for, but the mapping is not a command
+    // beside them.
+    data.doCommand("nnoremap X 5j");
+    data.doKeys("2k");
+    data.doKeys("X");
+    QCOMPARE(prev(), QLatin1String("2"));
+    data.doKeys("k");
+    QCOMPARE(prev(), QLatin1String("5"));
+    data.doCommand("nunmap X");
+    // The keys ":normal" is given are commands of their own as well.
+    data.doKeys("3k");
+    data.doCommand("normal! 6j");
+    QCOMPARE(prev(), QLatin1String("3"));
+    data.doKeys("k");
+    QCOMPARE(prev(), QLatin1String("6"));
+}
+
 void FakeVimTester::test_vim_script_curly_name()
 {
     // "{expr}" inside a name stands for what the expression says, so
@@ -15439,6 +19308,20 @@ void FakeVimTester::test_vim_script_maplist()
     QCOMPARE(value("maparg('<F5>e', 'n', 0, 1).expr"), QLatin1String("1"));
     QCOMPARE(value("maparg('<F5>e', 'n')"), QLatin1String("'iX'"));
     data.doCommand("nunmap <F5>e");
+    // A dict has to carry the five entries Vim insists on, and the two ends of
+    // the mapping alone are not enough for it.
+    const QLatin1String missing("E460: Entries missing in mapset() dict argument");
+    QCOMPARE(value("mapset({})"), missing);
+    QCOMPARE(value("mapset({'lhs': '<F5>a', 'rhs': 'x'})"), missing);
+    QCOMPARE(value("mapset({'lhs': '<F5>a', 'lhsraw': '<F5>a', 'rhs': 'x', 'mode': 'n'})"),
+             missing);
+    QCOMPARE(value("mapset('n', 0, {})"), missing);
+    QCOMPARE(value("mapset({'lhs': '<F5>a', 'lhsraw': '<F5>a', 'rhs': 'x', 'mode': 'n',"
+                   " 'abbr': 0})"),
+             QLatin1String("0"));
+    QCOMPARE(value("maparg('<F5>a', 'n')"), QLatin1String("x"));
+    data.doCommand("nunmap <F5>a");
+
     data.doCommand("unlet g:saved | unlet g:e");
     QCOMPARE(value("len(" + mine + ")"), QLatin1String("0"));
 }
@@ -15931,6 +19814,70 @@ void FakeVimTester::test_vim_script_islocked()
     data.doCommand("unlet g:plain | unlet g:l | unlet g:d");
 }
 
+void FakeVimTester::test_vim_autocmd_once()
+{
+    // "++once" runs the command one time and takes the autocommand off the
+    // list, which autocmd_get() answers nothing for afterwards. "++nested"
+    // and the bare "nested" are taken as well and belong to neither the
+    // pattern nor the command. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto mine = [](const QString &pattern) {
+        return "autocmd_get({'group': 'FvOnceTest', 'pattern': '" + pattern + "'})";
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/ao.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("let g:fvOnce = 0\n"
+            "let g:fvNested = 0\n"
+            "augroup FvOnceTest\n"
+            "  autocmd User FvOnceA ++once let g:fvOnce += 1\n"
+            "  autocmd User FvOnceB ++nested let g:fvNested += 1\n"
+            "augroup END\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/ao.vim");
+
+    QCOMPARE(value(mine("FvOnceA") + "[0].once"), QLatin1String("v:true"));
+    QCOMPARE(value(mine("FvOnceA") + "[0].cmd"), QLatin1String("let g:fvOnce += 1"));
+    QCOMPARE(value(mine("FvOnceB") + "[0].cmd"), QLatin1String("let g:fvNested += 1"));
+
+    data.doCommand("doautocmd User FvOnceA");
+    data.doCommand("doautocmd User FvOnceA");
+    QCOMPARE(value("g:fvOnce"), QLatin1String("1"));
+    QCOMPARE(value("len(" + mine("FvOnceA") + ")"), QLatin1String("0"));
+
+    // What has no "++once" stays and runs every time.
+    data.doCommand("doautocmd User FvOnceB");
+    data.doCommand("doautocmd User FvOnceB");
+    QCOMPARE(value("g:fvNested"), QLatin1String("2"));
+    QCOMPARE(value("len(" + mine("FvOnceB") + ")"), QLatin1String("1"));
+
+    // autocmd_add() reads the flag out of its dict.
+    data.doCommand("call autocmd_add([{'event': 'User', 'pattern': 'FvOnceC',"
+                   " 'group': 'FvOnceTest', 'cmd': 'let g:fvOnce += 10',"
+                   " 'once': v:true}])");
+    QCOMPARE(value(mine("FvOnceC") + "[0].once"), QLatin1String("v:true"));
+    data.doCommand("doautocmd User FvOnceC");
+    data.doCommand("doautocmd User FvOnceC");
+    QCOMPARE(value("g:fvOnce"), QLatin1String("11"));
+    QCOMPARE(value("len(" + mine("FvOnceC") + ")"), QLatin1String("0"));
+
+    data.doCommand("autocmd! FvOnceTest");
+}
+
 void FakeVimTester::test_vim_script_autocmd_get()
 {
     // The autocommands there are, one dict each. Values taken from Vim 9.1.
@@ -16002,6 +19949,27 @@ void FakeVimTester::test_vim_script_autocmd_get()
     message.clear();
     data.doCommand("echo autocmd_get({'group': 'FvNoSuchGroupXyz'})");
     QVERIFY(message.contains("E367"));
+
+    // The event comes back as Vim spells it, whatever spelling it was given
+    // in, and by the first of the names it goes by: "BufWritePre" and
+    // "BufReadPost" read back "BufWrite" and "BufRead".
+    QFile g(dir.path() + "/ag2.vim");
+    QVERIFY(g.open(QIODevice::WriteOnly));
+    g.write("augroup FvGetSpell\n"
+            "  autocmd bufwritepre *.c echo 3\n"
+            "  autocmd BufReadPost *.h echo 4\n"
+            "  autocmd cursormoved *.d echo 5\n"
+            "augroup END\n");
+    g.close();
+    data.doCommand("source " + dir.path() + "/ag2.vim");
+    const QString spelled = "autocmd_get({'group': 'FvGetSpell'})";
+    QCOMPARE(value("sort(map(copy(" + spelled + "), {_, a -> a.event}))"),
+             QLatin1String("['BufRead', 'BufWrite', 'CursorMoved']"));
+    data.doCommand("autocmd! FvGetSpell");
+    // Vim has no "TermOpen" event, whatever other editors call theirs.
+    message.clear();
+    data.doCommand("autocmd TermOpen * echo 6");
+    QVERIFY(message.contains("E216"));
 
     data.doCommand("autocmd! FvGetTest");
     QCOMPARE(value("exists('*autocmd_get')"), QLatin1String("1"));
@@ -16246,6 +20214,258 @@ void FakeVimTester::test_vim_autocmd_bar()
     data.doCommand("autocmd! FvBarB");
     data.doCommand("autocmd! User FvBarPlain");
     data.doCommand("unlet! g:a g:b g:x g:t1 g:t2");
+}
+
+void FakeVimTester::test_vim_autocmd_nesting()
+{
+    TestData data;
+    setup(&data);
+
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    // An event an autocommand fires runs as well, ten of them deep, and the
+    // eleventh is where Vim gives up (measured).
+    data.doCommand("autocmd User FvNestEvent let g:fvNest += 1"
+                   " | if g:fvNest < 30 | doautocmd User FvNestEvent | endif");
+    data.doCommand("let g:fvNest = 0");
+    message.clear();
+    data.doCommand("doautocmd User FvNestEvent");
+    QCOMPARE(message, QLatin1String("E218: Autocommand nesting too deep"));
+    QCOMPARE(value("g:fvNest"), QLatin1String("10"));
+
+    // At that depth an event nothing is registered for is no error, it just
+    // reports that nothing matched (measured).
+    data.doCommand("autocmd User FvNestEvent2 let g:fvNest += 1"
+                   " | if g:fvNest < 10 | doautocmd User FvNestEvent2"
+                   " | else | doautocmd BufWritePost | endif");
+    data.doCommand("let g:fvNest = 0");
+    data.doCommand("let v:errmsg = ''");
+    message.clear();
+    data.doCommand("doautocmd User FvNestEvent2");
+    QCOMPARE(message, QLatin1String("No matching autocommands: BufWritePost"));
+    QCOMPARE(value("v:errmsg"), QString());
+    QCOMPARE(value("g:fvNest"), QLatin1String("10"));
+
+    data.doCommand("autocmd! User FvNestEvent");
+    data.doCommand("autocmd! User FvNestEvent2");
+    data.doCommand("unlet! g:fvNest");
+}
+
+void FakeVimTester::test_vim_autocmd_nested()
+{
+    // An event a command sets off while an autocommand is running is dropped,
+    // where the autocommand asking for nesting lets it run. A filetype and a
+    // syntax are exempt from the rule (measured in Vim 9.1).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    data.setText("one" N "two");
+    data.doCommand("augroup FvN");
+    data.doCommand("augroup END");
+    data.doCommand("autocmd FvN BufWritePost * call add(g:n, 'post')");
+    data.doCommand("autocmd FvN FileType * call add(g:n, 'ft:' . expand('<amatch>'))");
+    data.doCommand("autocmd FvN Syntax * call add(g:n, 'syn:' . expand('<amatch>'))");
+    data.doCommand("autocmd FvN User FvPlain call add(g:n, 'start') | w! "
+                   + dir.path() + "/p.txt | call add(g:n, 'end')");
+    data.doCommand("autocmd FvN User FvNested nested call add(g:n, 'start') | w! "
+                   + dir.path() + "/n.txt | call add(g:n, 'end')");
+    data.doCommand("autocmd FvN User FvSetf call add(g:n, 'start')"
+                   " | set filetype=aaa | set syntax=bbb | call add(g:n, 'end')");
+    const auto fire = [&](const QString &event) {
+        data.doCommand("let g:n = []");
+        data.doCommand("doautocmd User " + event);
+        return value("string(g:n)");
+    };
+
+    QCOMPARE(fire("FvPlain"), QLatin1String("['start', 'end']"));
+    QCOMPARE(fire("FvNested"), QLatin1String("['start', 'post', 'end']"));
+    QCOMPARE(fire("FvSetf"),
+             QLatin1String("['start', 'ft:aaa', 'syn:bbb', 'end']"));
+
+    // The flag is part of what an autocommand is, so it is read back.
+    QCOMPARE(value("autocmd_get({'group': 'FvN', 'event': 'User',"
+                   " 'pattern': 'FvNested'})[0].nested"),
+             QLatin1String("v:true"));
+    QCOMPARE(value("autocmd_get({'group': 'FvN', 'event': 'User',"
+                   " 'pattern': 'FvPlain'})[0].nested"),
+             QLatin1String("v:false"));
+    data.doCommand("call autocmd_add([{'group': 'FvN', 'event': 'User',"
+                   " 'pattern': 'FvAdded', 'cmd': 'echo 1', 'nested': v:true}])");
+    QCOMPARE(value("autocmd_get({'group': 'FvN', 'event': 'User',"
+                   " 'pattern': 'FvAdded'})[0].nested"),
+             QLatin1String("v:true"));
+
+    data.doCommand("autocmd! FvN");
+    data.doCommand("unlet! g:n");
+}
+
+void FakeVimTester::test_vim_autocmd_eventignore()
+{
+    // An event named by "eventignore" runs nothing at all, and ":doautocmd"
+    // then says that nothing matched. Names are matched without regard to
+    // case, "all" stands for every event and a leading "-" takes one back out
+    // of the list (measured in Vim 9.1).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    data.setText("one" N "two");
+    data.doCommand("augroup FvE");
+    data.doCommand("augroup END");
+    data.doCommand("autocmd FvE User Fv call add(g:n, 'user')");
+    data.doCommand("autocmd FvE BufWritePost * call add(g:n, 'post')");
+    const auto fire = [&](const QString &ignore) {
+        data.doCommand("set eventignore=" + ignore);
+        data.doCommand("let g:n = []");
+        data.doCommand("doautocmd User Fv");
+        data.doCommand("w! " + dir.path() + "/e.txt");
+        return value("string(g:n)");
+    };
+
+    QCOMPARE(fire(""), QLatin1String("['user', 'post']"));
+    QCOMPARE(fire("User"), QLatin1String("['post']"));
+    QCOMPARE(fire("user"), QLatin1String("['post']"));
+    QCOMPARE(fire("all"), QLatin1String("[]"));
+    QCOMPARE(fire("all,-user"), QLatin1String("['user']"));
+    QCOMPARE(fire("all,-bufwritepost"), QLatin1String("['post']"));
+    QCOMPARE(fire("-User"), QLatin1String("['user', 'post']"));
+
+    // An ignored event leaves ":doautocmd" with nothing to report but that.
+    data.doCommand("set eventignore=User");
+    QCOMPARE(run("doautocmd User Fv"),
+             QLatin1String("No matching autocommands: User Fv"));
+
+    // The list is edited like any other, and read back as it was typed.
+    data.doCommand("set eventignore=User,BufWritePost");
+    QCOMPARE(run("set eventignore?"), QLatin1String("eventignore=User,BufWritePost"));
+    data.doCommand("set ei+=CursorHold");
+    QCOMPARE(value("&eventignore"), QLatin1String("User,BufWritePost,CursorHold"));
+    data.doCommand("set ei-=User");
+    QCOMPARE(value("&eventignore"), QLatin1String("BufWritePost,CursorHold"));
+    data.doCommand("set ei&");
+    QCOMPARE(value("&eventignore"), QString());
+
+    // An event nothing knows is refused, and the value stays as it was. The
+    // ":set" form names the option and the value, assigning to it does not.
+    data.doCommand("set eventignore=User");
+    QCOMPARE(run("set eventignore=nosuchevent"),
+             QLatin1String("E474: Invalid argument: eventignore=nosuchevent"));
+    QCOMPARE(value("&eventignore"), QLatin1String("User"));
+    QCOMPARE(run("let &eventignore = 'nosuch'"), QLatin1String("E474: Invalid argument"));
+    QCOMPARE(value("&eventignore"), QLatin1String("User"));
+
+    data.doCommand("set eventignore=");
+    data.doCommand("autocmd! FvE");
+    data.doCommand("unlet! g:n");
+}
+
+void FakeVimTester::test_vim_autocmd_eventignorewin()
+{
+    // "eventignorewin" is the same list for the window alone, and it takes
+    // only the events a window or a buffer has: "User" is refused, and its
+    // "all" reaches the window events and leaves the rest alone (measured in
+    // Vim 9.1).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    data.setText("one" N "two");
+    data.doCommand("augroup FvW");
+    data.doCommand("augroup END");
+    data.doCommand("autocmd FvW User Fv call add(g:n, 'user')");
+    data.doCommand("autocmd FvW BufWritePost * call add(g:n, 'post')");
+    const auto fire = [&](const QString &ignore) {
+        data.doCommand("set eventignorewin=" + ignore);
+        data.doCommand("let g:n = []");
+        data.doCommand("doautocmd User Fv");
+        data.doCommand("w! " + dir.path() + "/w.txt");
+        return value("string(g:n)");
+    };
+
+    QCOMPARE(fire(""), QLatin1String("['user', 'post']"));
+    QCOMPARE(fire("BufWritePost"), QLatin1String("['user']"));
+    QCOMPARE(fire("all"), QLatin1String("['user']"));
+    QCOMPARE(fire("all,-bufwritepost"), QLatin1String("['user', 'post']"));
+
+    // The two lists are read together, each keeping its own events.
+    data.doCommand("set eventignorewin=");
+    data.doCommand("set eventignore=User");
+    QCOMPARE(fire("BufWritePost"), QLatin1String("[]"));
+    data.doCommand("set eventignore=");
+
+    // An event no window has is refused, and the value stays as it was.
+    data.doCommand("set eventignorewin=WinEnter,CursorMoved");
+    QCOMPARE(run("set eventignorewin=User"),
+             QLatin1String("E474: Invalid argument: eventignorewin=User"));
+    QCOMPARE(run("let &eventignorewin = 'User'"), QLatin1String("E474: Invalid argument"));
+    QCOMPARE(run("set eventignorewin?"),
+             QLatin1String("eventignorewin=WinEnter,CursorMoved"));
+    data.doCommand("set eiw+=BufEnter");
+    QCOMPARE(value("&eiw"), QLatin1String("WinEnter,CursorMoved,BufEnter"));
+    data.doCommand("set eiw-=WinEnter");
+    QCOMPARE(value("&eiw"), QLatin1String("CursorMoved,BufEnter"));
+    data.doCommand("set eiw&");
+    QCOMPARE(value("&eiw"), QString());
+
+    data.doCommand("autocmd! FvW");
+    data.doCommand("unlet! g:n");
 }
 
 void FakeVimTester::test_vim_autocmd_error_while_handling_key()
@@ -16558,13 +20778,25 @@ void FakeVimTester::test_vim_script_filecopy()
     QCOMPARE(copy("ro.txt", "ro2.txt"), QLatin1String("1"));
     QCOMPARE(value("getfperm('" + where + "ro2.txt')"), QLatin1String("r--r--r--"));
 
-    // A link is followed rather than copied as a link, which is where this
-    // parts from Vim: there the copy is a link of its own again.
+    // A link is copied as a link again, and it is the text of the link that
+    // is copied: the new one leads to the same file the old one led to.
     QVERIFY(QFile::link("src.txt", where + "link.txt"));
     QCOMPARE(value("getftype('" + where + "link.txt')"), QLatin1String("link"));
     QCOMPARE(copy("link.txt", "fromlink.txt"), QLatin1String("1"));
+    QCOMPARE(value("getftype('" + where + "fromlink.txt')"), QLatin1String("link"));
     QCOMPARE(contentOf("fromlink.txt"), QByteArray("the source\n"));
-    QCOMPARE(value("getftype('" + where + "fromlink.txt')"), QLatin1String("file"));
+    // Where the link leads is no matter, so one that leads nowhere and one
+    // that leads to a directory are copied as well - a directory itself,
+    // which the answer above is zero for, is not.
+    QVERIFY(QFile::link("nosuch.txt", where + "dead.txt"));
+    QCOMPARE(copy("dead.txt", "dead2.txt"), QLatin1String("1"));
+    QVERIFY(QFileInfo(where + "dead2.txt").isSymLink());
+    QVERIFY(QFile::link("adir", where + "dirlink"));
+    QCOMPARE(copy("dirlink", "dirlink2"), QLatin1String("1"));
+    QVERIFY(QFileInfo(where + "dirlink2").isSymLink());
+    // A destination that is there already stops it just the same.
+    QCOMPARE(copy("link.txt", "taken.txt"), QLatin1String("0"));
+    QCOMPARE(contentOf("taken.txt"), QByteArray("already here\n"));
 
     QCOMPARE(value("exists('*filecopy')"), QLatin1String("1"));
 }
@@ -16813,6 +21045,50 @@ void FakeVimTester::test_vim_autocmd_insertcharpre()
     data.setText("|");
     data.doKeys("iplain<Esc>");
     QCOMPARE(data.text(), QString("plain"));
+
+    // What CTRL-R holds up is typed out, so each character of it is
+    // announced on its own and what the autocommand leaves there lands.
+    data.setText("|");
+    data.doCommand("let @a = 'xy'");
+    data.doCommand("let g:seen = []");
+    data.doCommand("autocmd FvIc InsertCharPre * call add(g:seen, v:char)");
+    data.doKeys("i<C-r>a<Esc>");
+    QCOMPARE(data.text(), QString("xy"));
+    QCOMPARE(value("string(g:seen)"), QLatin1String("['x', 'y']"));
+    clear();
+    data.setText("|");
+    data.doCommand("autocmd FvIc InsertCharPre * let v:char = toupper(v:char)");
+    data.doKeys("i<C-r>a<Esc>");
+    QCOMPARE(data.text(), QString("XY"));
+    clear();
+
+    // The line breaks in it are not announced, and still break the line.
+    data.setText("|");
+    data.doCommand("let @b = \"x\\ny\"");
+    data.doCommand("let g:seen = []");
+    data.doCommand("autocmd FvIc InsertCharPre * call add(g:seen, v:char)");
+    data.doKeys("i<C-r>b<Esc>");
+    QCOMPARE(data.text(), QString("x" N "y"));
+    QCOMPARE(value("string(g:seen)"), QLatin1String("['x', 'y']"));
+    data.doCommand("unlet! g:seen");
+    clear();
+
+    // A tab put in as it stands is announced, where the blanks that stand in
+    // for one under "expandtab" are not.
+    data.setText("|");
+    data.doCommand("set noexpandtab");
+    data.doCommand("let g:seen = []");
+    data.doCommand("autocmd FvIc InsertCharPre * call add(g:seen, char2nr(v:char))");
+    data.doKeys("ia<Tab><Esc>");
+    QCOMPARE(value("string(g:seen)"), QLatin1String("[97, 9]"));
+    data.setText("|");
+    data.doCommand("set expandtab");
+    data.doCommand("let g:seen = []");
+    data.doKeys("ia<Tab><Esc>");
+    QCOMPARE(value("string(g:seen)"), QLatin1String("[97]"));
+    data.doCommand("set noexpandtab");
+    data.doCommand("unlet! g:seen");
+    clear();
 
     // v:char is nothing outside an autocommand.
     QCOMPARE(value("char2nr(v:char)"), QLatin1String("0"));
@@ -17208,10 +21484,97 @@ void FakeVimTester::test_vim_script_more_stubs_and_region()
     QCOMPARE(value("getregion(getpos(\"'<\"), getpos(\"'>\"), {'type': 'V'})"),
              QLatin1String("['alpha beta']"));
 
-    // getregionpos(): the one shape actually measured, a single charwise line.
+    // getregionpos(): one [start, end] pair per line, each of them a place the
+    // way getpos() writes one except that the buffer is named outright where
+    // getpos() writes a zero for the one in hand.
+    // Which number the buffer has depends on how many the run has made, so the
+    // expectations below name it B and have it filled in.
+    const QString buffer = value("bufnr('')");
+    const auto pos = [&buffer](const QString &expected) {
+        QString filled = expected;
+        return filled.replace(QLatin1Char('B'), buffer);
+    };
     data.doKeys("gg0vey");
     QCOMPARE(value("getregionpos(getpos(\"'<\"), getpos(\"'>\"))"),
-             QLatin1String("[[[0, 1, 1, 0], [0, 1, 5, 0]]]"));
+             pos("[[[B, 1, 1, 0], [B, 1, 5, 0]]]"));
+
+    // The shapes a region takes, measured in Vim 9.1 over the five lines
+    // below. A line the region enters and leaves is taken from where it
+    // enters to its last character, a blockwise one takes the same columns
+    // from every line, and a line that keeps nothing of the region says so
+    // with a column of zero - which an empty line always does.
+    data.setText("one two three" N "ab" N "a very long line" N "" N "four five");
+    QCOMPARE(value("getregion([0,1,5,0],[0,3,3,0],{'type':'v'})"),
+             QLatin1String("['two three', 'ab', 'a v']"));
+    QCOMPARE(value("getregionpos([0,1,5,0],[0,3,3,0],{'type':'v'})"),
+             pos("[[[B, 1, 5, 0], [B, 1, 13, 0]], [[B, 2, 1, 0], [B, 2, 2, 0]], "
+                 "[[B, 3, 1, 0], [B, 3, 3, 0]]]"));
+    // The ends may come in either order.
+    QCOMPARE(value("getregionpos([0,3,3,0],[0,1,5,0],{'type':'v'})"),
+             pos("[[[B, 1, 5, 0], [B, 1, 13, 0]], [[B, 2, 1, 0], [B, 2, 2, 0]], "
+                 "[[B, 3, 1, 0], [B, 3, 3, 0]]]"));
+    QCOMPARE(value("getregion([0,1,5,0],[0,3,3,0],{'type':'V'})"),
+             QLatin1String("['one two three', 'ab', 'a very long line']"));
+    QCOMPARE(value("getregionpos([0,1,5,0],[0,3,3,0],{'type':'V'})"),
+             pos("[[[B, 1, 1, 0], [B, 1, 13, 0]], [[B, 2, 1, 0], [B, 2, 2, 0]], "
+                 "[[B, 3, 1, 0], [B, 3, 16, 0]]]"));
+    QCOMPARE(value("getregion([0,1,3,0],[0,3,6,0],{'type':\"\x16\"})"),
+             QLatin1String("['e tw', '', 'very']"));
+    QCOMPARE(value("getregionpos([0,1,3,0],[0,3,6,0],{'type':\"\x16\"})"),
+             pos("[[[B, 1, 3, 0], [B, 1, 6, 0]], [[B, 2, 0, 0], [B, 2, 2, 0]], "
+                 "[[B, 3, 3, 0], [B, 3, 6, 0]]]"));
+    // A blockwise type can carry the width of the block, which then decides
+    // its right edge whatever column the range ends in.
+    QCOMPARE(value("getregion([0,1,3,0],[0,2,3,0],{'type':\"\x16\" .. \"3\"})"),
+             QLatin1String("['e t', '']"));
+    QCOMPARE(value("getregionpos([0,1,3,0],[0,2,1,0],{'type':\"\x16\" .. \"3\"})"),
+             pos("[[[B, 1, 1, 0], [B, 1, 3, 0]], [[B, 2, 1, 0], [B, 2, 2, 0]]]"));
+    // An empty line is a line of the region all the same, and a charwise
+    // region starting past the end of a line keeps nothing of it.
+    QCOMPARE(value("getregion([0,3,3,0],[0,5,4,0],{'type':'v'})"),
+             QLatin1String("['very long line', '', 'four']"));
+    QCOMPARE(value("getregionpos([0,3,3,0],[0,5,4,0],{'type':'v'})"),
+             pos("[[[B, 3, 3, 0], [B, 3, 16, 0]], [[B, 4, 0, 0], [B, 4, 0, 0]], "
+                 "[[B, 5, 1, 0], [B, 5, 4, 0]]]"));
+    QCOMPARE(value("getregionpos([0,4,1,0],[0,4,1,0],{'type':'v'})"),
+             pos("[[[B, 4, 0, 0], [B, 4, 0, 0]]]"));
+    QCOMPARE(value("getregionpos([0,2,3,0],[0,3,3,0],{'type':'v'})"),
+             pos("[[[B, 2, 0, 0], [B, 2, 0, 0]], [[B, 3, 1, 0], [B, 3, 3, 0]]]"));
+    // An exclusive region leaves out the place it ends in: a charwise one
+    // gives back one character less, a line it would end in the first column
+    // of is not one of its lines at all, and a blockwise one loses its right
+    // column while a single one stays. Whole lines are whole either way.
+    QCOMPARE(value("getregion([0,1,5,0],[0,3,3,0],{'type':'v','exclusive':v:true})"),
+             QLatin1String("['two three', 'ab', 'a ']"));
+    QCOMPARE(value("getregionpos([0,1,5,0],[0,3,2,0],{'type':'v','exclusive':v:true})"),
+             pos("[[[B, 1, 5, 0], [B, 1, 13, 0]], [[B, 2, 1, 0], [B, 2, 2, 0]], "
+                 "[[B, 3, 1, 0], [B, 3, 1, 0]]]"));
+    QCOMPARE(value("getregion([0,1,5,0],[0,3,1,0],{'type':'v','exclusive':v:true})"),
+             QLatin1String("['two three', 'ab']"));
+    QCOMPARE(value("getregion([0,3,3,0],[0,4,1,0],{'type':'v','exclusive':v:true})"),
+             QLatin1String("['very long line']"));
+    QCOMPARE(value("getregion([0,1,5,0],[0,1,5,0],{'type':'v','exclusive':v:true})"),
+             QLatin1String("['t']"));
+    QCOMPARE(value("getregion([0,1,3,0],[0,3,6,0],{'type':\"\x16\",'exclusive':v:true})"),
+             QLatin1String("['e t', '', 'ver']"));
+    QCOMPARE(value("getregion([0,1,3,0],[0,3,3,0],{'type':\"\x16\",'exclusive':v:true})"),
+             QLatin1String("['e', '', 'v']"));
+    QCOMPARE(value("getregion([0,1,3,0],[0,3,5,0],{'type':'V','exclusive':v:true})"),
+             QLatin1String("['one two three', 'ab', 'a very long line']"));
+    // A place the buffer has not got is an error rather than an empty answer.
+    // A column one past the last character of its line is a place, the one
+    // after that is not, and an empty line has only the first.
+    QCOMPARE(value("getregion([0,1,5,0],[0,2,3,0],{'type':'v'})"),
+             QLatin1String("['two three', 'ab']"));
+    QVERIFY(value("getregionpos([0,1,5,0],[0,2,4,0],{'type':'v'})")
+            .contains("E964: Invalid column number: 4"));
+    QVERIFY(value("getregion([0,2,1,0],[0,2,99,0],{'type':'v'})")
+            .contains("E964: Invalid column number: 99"));
+    QVERIFY(value("getregionpos([0,4,0,0],[0,4,0,0],{'type':'v'})")
+            .contains("E964: Invalid column number: 0"));
+    QVERIFY(value("getregionpos([0,9,1,0],[0,9,1,0],{'type':'v'})")
+            .contains("E966: Invalid line number: 9"));
+    data.setText("alpha beta" N "gamma delta" N "epsilon zeta");
 
     // readdirex(): the same names readdir() gives, with details alongside.
     QTemporaryDir dir;
@@ -17826,6 +22189,142 @@ void FakeVimTester::test_vim_script_assert_functions()
     reset();
 }
 
+void FakeVimTester::test_vim_script_state_pending_operator()
+{
+    // An operator waiting for its motion is part of what state() names, which
+    // a mapping the operator is waiting on can ask about (measured in Vim
+    // 9.1).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile f(dir.path() + "/s.vim");
+    QVERIFY(f.open(QIODevice::WriteOnly));
+    f.write("function! Pending()\n"
+            "  let g:seen = state()\n"
+            "  return 'l'\n"
+            "endfunction\n"
+            "function! Plain()\n"
+            "  let g:seen = state()\n"
+            "  return ''\n"
+            "endfunction\n"
+            "onoremap <expr> QO Pending()\n"
+            "nnoremap <expr> QN Plain()\n");
+    f.close();
+    data.doCommand("source " + dir.path() + "/s.vim");
+
+    data.setText("alpha beta");
+    data.doKeys("dQO");
+    QCOMPARE(value("g:seen =~# 'o'"), QLatin1String("1"));
+    data.doKeys("QN");
+    QCOMPARE(value("g:seen =~# 'o'"), QLatin1String("0"));
+
+    data.doCommand("ounmap QO");
+    data.doCommand("nunmap QN");
+}
+
+void FakeVimTester::test_vim_script_state_mapping_autocmd()
+{
+    // The other letters of state(): "m" while keys are still to come from a
+    // mapping, from ":normal" or from feedkeys(), "x" inside an autocommand,
+    // and "S" for everything Vim does not count as a safe state, which is
+    // everything but waiting for a key. Their order is "m" before "x" before
+    // "S", and a mask asks about the letters it names only (measured in Vim
+    // 9.1).
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto seen = [&] { return value("string(g:st)"); };
+
+    data.setText("alpha beta");
+    const QString plain = value("state()");
+    QCOMPARE(plain, QLatin1String("S"));
+
+    // A mapping with a key of its own still to come, and the last one of it.
+    data.doCommand("let g:st = []");
+    data.doCommand("nnoremap QS :call add(g:st, state())<CR>"
+                   ":call add(g:st, state())<CR>");
+    data.doKeys("QS");
+    const QString mapped = seen();
+    QCOMPARE(mapped, QLatin1String("['mS', 'S']"));
+
+    // ":normal" feeds keys the same way, and so does feedkeys(), whose keys
+    // this harness cannot see run before it reads the answer.
+    data.doCommand("let g:st = []");
+    data.doCommand("normal QS");
+    const QString normal = seen();
+    QCOMPARE(normal, QLatin1String("['mS', 'S']"));
+
+    // An autocommand being run, on its own and with a mapping over it.
+    data.doCommand("let g:st = []");
+    data.doCommand("augroup FvSt");
+    data.doCommand("augroup END");
+    data.doCommand("autocmd FvSt User FvStX call add(g:st, state())");
+    data.doCommand("doautocmd User FvStX");
+    const QString inAutocmd = seen();
+    QCOMPARE(inAutocmd, QLatin1String("['xS']"));
+    data.doCommand("let g:st = []");
+    data.doCommand("nnoremap QT :doautocmd User FvStX<CR>"
+                   ":call add(g:st, state())<CR>");
+    data.doKeys("QT");
+    const QString both = seen();
+    QCOMPARE(both, QLatin1String("['mxS', 'S']"));
+
+    // The mask keeps what it names, and an empty one keeps nothing.
+    data.doCommand("autocmd! FvSt");
+    data.doCommand("let g:st = []");
+    data.doCommand("autocmd FvSt User FvStX call add(g:st, state('x') . '|'"
+                   " . state('mx') . '|' . state('m') . '|' . state('z')"
+                   " . '|' . state(''))");
+    data.doCommand("doautocmd User FvStX");
+    const QString masked = seen();
+    QCOMPARE(masked, QLatin1String("['x|x|||']"));
+
+    // A timer callback runs from the event loop, which is where Vim waits and
+    // counts itself safe, so the answer is the callback letter alone.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.path() + "/cb.vim";
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("function! FvStateTick(id)\n"
+               "  let g:cb = state()\n"
+               "endfunction\n");
+    file.close();
+    data.doCommand("source " + path);
+    data.doCommand("let g:cb = 'none'");
+    data.doCommand("call timer_start(1, 'FvStateTick')");
+    QTRY_COMPARE(value("g:cb"), QLatin1String("c"));
+
+    data.doCommand("autocmd! FvSt");
+    data.doCommand("nunmap QS");
+    data.doCommand("nunmap QT");
+    data.doCommand("unlet! g:st");
+    data.doCommand("unlet! g:cb");
+}
+
 void FakeVimTester::test_vim_script_setmatches_and_state()
 {
     // setmatches() puts back what getmatches() handed out; matcharg() answers
@@ -17878,8 +22377,27 @@ void FakeVimTester::test_vim_script_setmatches_and_state()
     QCOMPARE(value("len(matcharg(1))"), QLatin1String("2"));
     QCOMPARE(value("len(matcharg(9))"), QLatin1String("0"));
 
-    // Nothing is going on, and both say so with a value of the right type.
-    QCOMPARE(value("state()"), QLatin1String(""));
+    // A slot that is filled answers with its group and its pattern, and the
+    // three are matches like any other: matchdelete() and clearmatches()
+    // reach them, and a slot given again replaces what was in it.
+    data.doCommand("match Search /foo/");
+    data.doCommand("2match IncSearch /bar/");
+    QCOMPARE(value("matcharg(1)"), QLatin1String("['Search', 'foo']"));
+    QCOMPARE(value("matcharg(2)"), QLatin1String("['IncSearch', 'bar']"));
+    QCOMPARE(value("matcharg(3)"), QLatin1String("['', '']"));
+    data.doCommand("call matchdelete(1)");
+    QCOMPARE(value("matcharg(1)"), QLatin1String("['', '']"));
+    data.doCommand("call clearmatches()");
+    QCOMPARE(value("matcharg(2)"), QLatin1String("['', '']"));
+    data.doCommand("match Search /foo/");
+    data.doCommand("match IncSearch /baz/");
+    QCOMPARE(value("matcharg(1)"), QLatin1String("['IncSearch', 'baz']"));
+    QCOMPARE(value("len(getmatches())"), QLatin1String("1"));
+    data.doCommand("call clearmatches()");
+
+    // Nothing is going on, and both say so with a value of the right type:
+    // running the command is itself no safe state, which is what "S" says.
+    QCOMPARE(value("state()"), QLatin1String("S"));
     QCOMPARE(value("type(state()) == v:t_string"), QLatin1String("1"));
     QCOMPARE(value("getcharmod()"), QLatin1String("0"));
     QCOMPARE(value("type(getcharmod()) == v:t_number"), QLatin1String("1"));
@@ -18643,6 +23161,318 @@ void FakeVimTester::test_vim_command_nargs()
     data.doCommand("unlet! g:n");
 }
 
+void FakeVimTester::test_vim_command_range_and_count()
+{
+    // ":command" recorded "-range" and "-count" without acting on them, so
+    // every user command took an address and a "!" and none of them was told
+    // what it had been given. All values measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto run = [&](const QString &command) {
+        message.clear();
+        data.doCommand("let g:c = ''");
+        data.doCommand(command);
+        if (!message.isEmpty())
+            return message;
+        data.doCommand("echo g:c");
+        return message;
+    };
+
+    data.setText("1" N "2" N "3" N "4" N "5" N "6" N "7" N "8" N "9" N "10");
+    data.doKeys("3G");
+    data.doCommand("command! -nargs=* FvPlain let g:c ="
+                   " '<line1>,<line2> count=<count> args=[<args>]'");
+    data.doCommand("command! -range -nargs=* FvRange let g:c ="
+                   " '<line1>,<line2> count=<count> args=[<args>]'");
+    data.doCommand("command! -range=% FvWhole let g:c = '<line1>,<line2> count=<count>'");
+    data.doCommand("command! -range=5 -nargs=* FvRangeN let g:c ="
+                   " '<line1>,<line2> count=<count> args=[<args>]'");
+    data.doCommand("command! -count -nargs=* FvCount let g:c ="
+                   " '<line1>,<line2> count=<count> args=[<args>]'");
+    data.doCommand("command! -count=7 FvCountN let g:c = '<line1>,<line2> count=<count>'");
+    data.doCommand("command! -bang FvBang let g:c = 'bang=[<bang>]'");
+
+    // A command that takes neither an address nor a count refuses both an
+    // address and a "!", and hears about line 1 twice and about no count.
+    QCOMPARE(run("FvPlain"), QLatin1String("1,1 count=-1 args=[]"));
+    QVERIFY(run("2,4FvPlain foo").contains("E481: No range allowed: 2,4FvPlain foo"));
+    QVERIFY(run("FvPlain!").contains("E477: No ! allowed: FvPlain!"));
+    QCOMPARE(run("FvBang!"), QLatin1String("bang=[!]"));
+    QCOMPARE(run("FvBang"), QLatin1String("bang=[]"));
+
+    // An address given to one that takes a range is what it hears about, and
+    // the count is the line the range ends in. Where none was given it is the
+    // cursor line, the whole file, or the default the attribute named.
+    QCOMPARE(run("FvRange"), QLatin1String("3,3 count=-1 args=[]"));
+    QCOMPARE(run("2,4FvRange"), QLatin1String("2,4 count=4 args=[]"));
+    QCOMPARE(run("9FvRange"), QLatin1String("9,9 count=9 args=[]"));
+    QCOMPARE(run("%FvRange"), QLatin1String("1,10 count=10 args=[]"));
+    QCOMPARE(run(".,+2FvRange"), QLatin1String("3,5 count=5 args=[]"));
+    QCOMPARE(run("FvWhole"), QLatin1String("1,10 count=-1"));
+    QCOMPARE(run("2,4FvWhole"), QLatin1String("2,4 count=4"));
+    QCOMPARE(run("FvRangeN"), QLatin1String("3,3 count=5 args=[]"));
+    QCOMPARE(run("9FvRangeN"), QLatin1String("9,9 count=9 args=[]"));
+    // An address is a line all the same, so one past the last is no address.
+    QVERIFY(run("25FvRange").contains("E16"));
+    // A number in the arguments is nothing to a command that takes a range.
+    QCOMPARE(run("FvRangeN 3"), QLatin1String("3,3 count=5 args=[3]"));
+
+    // A count is not an address: it may name more than the buffer holds, and
+    // it may come in front of the name or as the first argument, where the
+    // argument wins and only the one in front places the cursor line.
+    QCOMPARE(run("FvCount"), QLatin1String("3,1 count=0 args=[]"));
+    QCOMPARE(run("FvCountN"), QLatin1String("3,1 count=7"));
+    QCOMPARE(run("9FvCount"), QLatin1String("9,9 count=9 args=[]"));
+    QCOMPARE(run("25FvCount"), QLatin1String("25,25 count=25 args=[]"));
+    QCOMPARE(run("FvCount 4"), QLatin1String("3,4 count=4 args=[]"));
+    QCOMPARE(run("3FvCount 4 foo"), QLatin1String("3,4 count=4 args=[foo]"));
+    QCOMPARE(run("2,4FvCount"), QLatin1String("2,4 count=4 args=[]"));
+    QCOMPARE(run("0FvCount"), QLatin1String("0,0 count=0 args=[]"));
+    QCOMPARE(run("$FvCount"), QLatin1String("10,10 count=10 args=[]"));
+    // The count is a run of digits and nothing else, so what follows one is
+    // an argument and what is not one at all is no count.
+    QCOMPARE(run("FvCount 0x10"), QLatin1String("3,0 count=0 args=[x10]"));
+    QCOMPARE(run("FvCount -3"), QLatin1String("3,1 count=0 args=[-3]"));
+    // What the count leaves behind is what "-nargs" is checked against.
+    QVERIFY(run("FvCountN 4 5").contains("5: FvCountN 4 5"));
+
+    // What "-bar" allows to follow the command, and what a command without it
+    // takes as its argument instead. An escaped bar is one of the argument
+    // either way, and the backslash is not.
+    data.doCommand("command! -bar -nargs=* FvBar let g:c = \"args=[<args>]\"");
+    data.doCommand("command! -nargs=* FvNoBar let g:c = \"args=[<args>]\"");
+    data.doCommand("let g:tail = ''");
+    QCOMPARE(run("FvBar a b | let g:tail = 'ran'"), QLatin1String("args=[a b]"));
+    QCOMPARE(run("echo g:tail"), QLatin1String("ran"));
+    data.doCommand("let g:tail = ''");
+    QCOMPARE(run("FvNoBar a b | let g:tail = 'ran'"),
+             QLatin1String("args=[a b | let g:tail = 'ran']"));
+    QCOMPARE(run("echo g:tail"), QLatin1String(""));
+    QCOMPARE(run("FvBar a \\| b"), QLatin1String("args=[a | b]"));
+
+    // The register a "-register" command is given, which is the first
+    // character of its arguments where that names one, no blank needed. A
+    // digit goes to the count of a command that takes one, and a command
+    // without the attribute is given no register at all.
+    data.doCommand("command! -register -nargs=* FvReg let g:c ="
+                   " 'reg=[<reg>] register=[<register>] args=[<args>]'");
+    data.doCommand("command! -nargs=* FvNoReg let g:c = 'reg=[<reg>] args=[<args>]'");
+    data.doCommand("command! -register -count -nargs=* FvRegCount let g:c ="
+                   " 'reg=[<reg>] count=<count> args=[<args>]'");
+    QCOMPARE(run("FvReg a foo"), QLatin1String("reg=[a] register=[a] args=[foo]"));
+    QCOMPARE(run("FvReg foo"), QLatin1String("reg=[f] register=[f] args=[oo]"));
+    QCOMPARE(run("FvReg 3 foo"), QLatin1String("reg=[3] register=[3] args=[foo]"));
+    QCOMPARE(run("FvReg % foo"), QLatin1String("reg=[%] register=[%] args=[foo]"));
+    QCOMPARE(run("FvReg _ foo"), QLatin1String("reg=[_] register=[_] args=[foo]"));
+    QCOMPARE(run("FvReg A foo"), QLatin1String("reg=[A] register=[A] args=[foo]"));
+    QCOMPARE(run("FvNoReg foo"), QLatin1String("reg=[] args=[foo]"));
+    QCOMPARE(run("FvRegCount a 4 foo"), QLatin1String("reg=[a] count=4 args=[foo]"));
+    QCOMPARE(run("FvRegCount 4 foo"), QLatin1String("reg=[] count=4 args=[foo]"));
+    QCOMPARE(run("2FvRegCount a foo"), QLatin1String("reg=[a] count=2 args=[foo]"));
+
+    data.doCommand("delcommand FvBar");
+    data.doCommand("delcommand FvNoBar");
+    data.doCommand("delcommand FvReg");
+    data.doCommand("delcommand FvNoReg");
+    data.doCommand("delcommand FvRegCount");
+    data.doCommand("unlet! g:tail");
+    data.doCommand("delcommand FvPlain");
+    data.doCommand("delcommand FvRange");
+    data.doCommand("delcommand FvWhole");
+    data.doCommand("delcommand FvRangeN");
+    data.doCommand("delcommand FvCount");
+    data.doCommand("delcommand FvCountN");
+    data.doCommand("delcommand FvBang");
+    data.doCommand("unlet! g:c");
+}
+
+void FakeVimTester::test_vim_ex_command_list()
+{
+    // ":command" with no replacement lists what is defined, which used to be a
+    // no-op. The columns sit on 4, 22, 27, 35 and 47, the flag column spells
+    // out the attributes, and the names come sorted. All values measured in
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString info;
+    QString message;
+    data.handler->extraInformationChanged.set([&](const QString &text) { info = text; });
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto list = [&](const QString &args) {
+        info.clear();
+        message.clear();
+        data.doCommand("command" + (args.isEmpty() ? QString() : " " + args));
+        return info.isEmpty() ? message : info;
+    };
+    const QLatin1String header(
+        "    Name              Args Address Complete    Definition");
+
+    // Nothing defined at all. The table is the engine's, so what an earlier
+    // test left in it goes first.
+    data.doCommand("comclear");
+    QCOMPARE(list({}), QLatin1String("No user-defined commands found"));
+
+    data.doCommand("command! -nargs=0 FvFoo echo 1");
+    data.doCommand("command! -nargs=1 -range FvBar echo 2");
+    data.doCommand("command! -nargs=* -bang -complete=file FvBaz echo 3");
+    QCOMPARE(list({}), header + "\n"
+             "    FvBar             1    .                   echo 2\n"
+             "!   FvBaz             *            file        echo 3\n"
+             "    FvFoo             0                        echo 1");
+
+    // A name given lists what starts with it, and nothing matching says so.
+    QCOMPARE(list("FvBa"), header + "\n"
+             "    FvBar             1    .                   echo 2\n"
+             "!   FvBaz             *            file        echo 3");
+    QCOMPARE(list("FvFoo"), header + "\n"
+             "    FvFoo             0                        echo 1");
+    QCOMPARE(list("FvZz"), QLatin1String("No user-defined commands found"));
+    data.doCommand("comclear");
+
+    // The flag column is "!" for -bang, then the register, the buffer and the
+    // bar, each in its own place and packed to the left. The -buffer ones come
+    // first: Vim keeps them in a list of their own.
+    data.doCommand("command! -buffer FvBuf echo 5");
+    data.doCommand("command! -register FvReg echo 4");
+    data.doCommand("command! -bar FvBar echo 3");
+    data.doCommand("command! -bang -bar -register -buffer -nargs=*"
+                   " -range -complete=dir FvAll echo 12");
+    QCOMPARE(list({}), header + "\n"
+             "!\"b|FvAll             *    .       dir         echo 12\n"
+             "b   FvBuf             0                        echo 5\n"
+             "|   FvBar             0                        echo 3\n"
+             "\"   FvReg             0                        echo 4");
+    data.doCommand("comclear");
+
+    // The address column: a count wins over a range and carries a "c", and
+    // -addr names the type in a second word of its own.
+    data.doCommand("command! -count FvA echo 1");
+    data.doCommand("command! -count=12 FvB echo 2");
+    data.doCommand("command! -range -count=7 FvC echo 3");
+    data.doCommand("command! -range=% FvD echo 4");
+    data.doCommand("command! -range=5 FvE echo 5");
+    data.doCommand("command! -range=0 FvF echo 6");
+    data.doCommand("command! -addr=buffers FvG echo 7");
+    data.doCommand("command! -addr=quickfix -range FvH echo 8");
+    data.doCommand("command! -addr=lines -range FvI echo 9");
+    QCOMPARE(list({}), header + "\n"
+             "    FvA               0    0c ?                echo 1\n"
+             "    FvB               0    12c ?               echo 2\n"
+             "    FvC               0    7c                  echo 3\n"
+             "    FvD               0    %                   echo 4\n"
+             "    FvE               0    5                   echo 5\n"
+             "    FvF               0    0                   echo 6\n"
+             "    FvG               0    .  buf              echo 7\n"
+             "    FvH               0    .  qf               echo 8\n"
+             "    FvI               0    .                   echo 9");
+    data.doCommand("comclear");
+
+    // A name too long for its column pushes the rest along by one space and
+    // no more, and so does a completion name.
+    data.doCommand("command! -nargs=0 FvVeryLongCommandName echo 11");
+    data.doCommand("command! -nargs=1 -complete=file_in_path FvFip echo 12");
+    QCOMPARE(list({}), header + "\n"
+             "    FvFip             1            file_in_path echo 12\n"
+             "    FvVeryLongCommandName 0                    echo 11");
+    data.doCommand("comclear");
+}
+
+void FakeVimTester::test_vim_ex_command_attributes()
+{
+    // What ":command" refuses. An unknown attribute, a wrong "-nargs" and a
+    // name that is not a name all used to go through unread. All values
+    // measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    QString info;
+    data.handler->extraInformationChanged.set([&](const QString &text) { info = text; });
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto run = [&](const QString &command) {
+        message.clear();
+        data.doCommand(command);
+        return message;
+    };
+
+    data.doCommand("comclear");
+
+    // "-nargs" takes one of 0 1 * ? +, and nothing else.
+    const QLatin1String nargs("E176: Invalid number of arguments");
+    QCOMPARE(run("command! -nargs=x FvA echo 1"), nargs);
+    QCOMPARE(run("command! -nargs= FvA echo 1"), nargs);
+    QCOMPARE(run("command! -nargs=2 FvA echo 1"), nargs);
+
+    // "-complete" names a kind Vim knows, and the message names the value and
+    // all that follows it. "custom" and "customlist" want a function with it.
+    QCOMPARE(run("command! -complete=nosuch -nargs=1 FvA echo 1"),
+             QLatin1String("E180: Invalid complete value: nosuch -nargs=1 FvA echo 1"));
+    QCOMPARE(run("command! -nargs=1 -complete=nosuch FvA echo 1"),
+             QLatin1String("E180: Invalid complete value: nosuch FvA echo 1"));
+    const QLatin1String custom("E467: Custom completion requires a function argument");
+    QCOMPARE(run("command! -complete=custom FvA echo 1"), custom);
+    QCOMPARE(run("command! -complete=customlist FvA echo 1"), custom);
+
+    // "-addr" names one of the eight address types.
+    QCOMPARE(run("command! -addr=nosuch -range FvA echo 1"),
+             QLatin1String("E180: Invalid address type value: nosuch"));
+
+    // An attribute nobody knows, and a default that is no line number.
+    QCOMPARE(run("command! -nosuchattr FvA echo 1"),
+             QLatin1String("E181: Invalid attribute: nosuchattr"));
+    const QLatin1String badDefault("E178: Invalid default value for count");
+    QCOMPARE(run("command! -range=x FvA echo 1"), badDefault);
+    QCOMPARE(run("command! -count=x FvA echo 1"), badDefault);
+
+    // The name is letters and digits, and starts with a capital.
+    const QLatin1String lower("E183: User defined commands must start with an uppercase letter");
+    QCOMPARE(run("command! lower echo 1"), lower);
+    QCOMPARE(run("command! a echo 1"), lower);
+    QCOMPARE(run("command! -nargs=0 lower echo 1"), lower);
+    const QLatin1String badName("E182: Invalid command name");
+    QCOMPARE(run("command! _under echo 1"), badName);
+    QCOMPARE(run("command! FvA-b echo 1"), badName);
+    QCOMPARE(run("command! FvA_b echo 1"), badName);
+    QCOMPARE(run("command! 1ab echo 1"), badName);
+    // The attributes are read first, so a wrong one is named before the name.
+    QCOMPARE(run("command! -nargs=x lower echo 1"), nargs);
+
+    // A digit inside the name is fine.
+    QVERIFY(run("command! FvA1b echo 1").isEmpty());
+
+    // Without the bang a name that is taken is refused, and the message names
+    // the rest of the line.
+    QVERIFY(run("command! FvPlain echo 1").isEmpty());
+    QCOMPARE(run("command FvPlain echo 2"),
+             QLatin1String("E174: Command already exists: add ! to replace it: FvPlain echo 2"));
+    QVERIFY(run("command! FvPlain echo 3").isEmpty());
+
+    // Nothing that was refused got defined, and the replacement that did go
+    // through is the last one. "-complete=custom,Fn" is listed by its kind.
+    QVERIFY(run("command! -nargs=1 -complete=custom,Fn FvCu echo 4").isEmpty());
+    info.clear();
+    data.doCommand("command");
+    QCOMPARE(info, QLatin1String(
+                 "    Name              Args Address Complete    Definition\n"
+                 "    FvA1b             0                        echo 1\n"
+                 "    FvCu              1            custom      echo 4\n"
+                 "    FvPlain           0                        echo 3"));
+    data.doCommand("comclear");
+}
+
 void FakeVimTester::test_vim_ex_join_count()
 {
     // ":join" and its count, in every spelling. All values measured in Vim 9.1
@@ -18672,6 +23502,50 @@ void FakeVimTester::test_vim_ex_join_count()
     QCOMPARE(data.text(), QString("ab" N "c" N "d" N "e"));
     five(); data.doCommand("j!3");
     QCOMPARE(data.text(), QString("abc" N "d" N "e"));
+}
+
+void FakeVimTester::test_vim_ex_command_line_completion()
+{
+    // A tab on the command line completes the word before the cursor, and
+    // every further one puts the next match there. All measured in Vim 9.1
+    // with wildcharm set so that the keys could be fed:
+    //   :se<Tab>            -> :set
+    //   :se<Tab><Tab>       -> :setfiletype
+    //   :se<Tab>x4          -> :setlocal, the last of the four matches
+    //   :se<Tab>x5          -> :se, the line as it was typed
+    //   :se<Tab>x6          -> :set again
+    //   :se<Tab><S-Tab>     -> :se
+    //   :set tabsto<Tab>    -> :set tabstop
+    //   :hi CursorLineN<Tab>-> :hi CursorLineNr
+    //   :se<Tab>x           -> :setx
+    //   :se<Tab><BS>        -> :se
+    TestData data;
+    setup(&data);
+    QString line;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { line = msg; });
+    data.setText("alpha");
+    const auto typed = [&](const QString &keys) {
+        line.clear();
+        data.doKeys(":" + keys);
+        const QString shown = line;
+        data.doKeys("<Esc>");
+        return shown;
+    };
+
+    QCOMPARE(typed("se<Tab>"), QLatin1String(":set"));
+    QCOMPARE(typed("set tabsto<Tab>"), QLatin1String(":set tabstop"));
+    QCOMPARE(typed("hi CursorLineN<Tab>"), QLatin1String(":hi CursorLineNr"));
+    QCOMPARE(typed("se<Tab><S-Tab>"), QLatin1String(":se"));
+    QCOMPARE(typed("zzznope<Tab>"), QLatin1String(":zzznope"));
+    QCOMPARE(typed("se<Tab><Tab>"), QLatin1String(":setfiletype"));
+    QCOMPARE(typed("se<Tab><Tab><Tab><Tab>"), QLatin1String(":setlocal"));
+    QCOMPARE(typed("se<Tab><Tab><Tab><Tab><Tab>"), QLatin1String(":se"));
+    QCOMPARE(typed("se<Tab><Tab><Tab><Tab><Tab><Tab>"), QLatin1String(":set"));
+    // A key that is no tab ends the completion, and what it does it does to
+    // the match that stands there.
+    QCOMPARE(typed("se<Tab>x"), QLatin1String(":setx"));
+    QCOMPARE(typed("se<Tab><BS>"), QLatin1String(":se"));
 }
 
 void FakeVimTester::test_vim_ex_history()
@@ -18963,6 +23837,52 @@ void FakeVimTester::test_vim_autocmd_modechanged()
                    " 'pattern': '*', 'cmd': 'echo 1'}])"), QLatin1String("v:true"));
 
     data.doCommand("autocmd! FvMc");
+    data.doCommand("unlet! g:d");
+}
+
+void FakeVimTester::test_vim_autocmd_modechanged_order()
+{
+    // Where ModeChanged falls among the events of the same key. Measured in
+    // Vim 9.1: leaving insert mode gives InsertLeavePre, then the change, then
+    // InsertLeave, where leaving a command line gives CmdlineLeave first and
+    // the change after it. Entering either announces the change last.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto go = [&](const QString &keys) {
+        data.setText("alpha beta");
+        data.doCommand("let g:d = []");
+        data.doKeys(keys);
+        return value("string(g:d)");
+    };
+
+    data.doCommand("augroup FvMo");
+    data.doCommand("augroup END");
+    data.doCommand("autocmd FvMo InsertEnter * call add(g:d, 'InsertEnter')");
+    data.doCommand("autocmd FvMo InsertLeavePre * call add(g:d, 'InsertLeavePre')");
+    data.doCommand("autocmd FvMo InsertLeave * call add(g:d, 'InsertLeave')");
+    data.doCommand("autocmd FvMo CmdlineEnter * call add(g:d, 'CmdlineEnter')");
+    data.doCommand("autocmd FvMo CmdlineLeave * call add(g:d, 'CmdlineLeave')");
+    data.doCommand("autocmd FvMo ModeChanged * call add(g:d, expand('<amatch>'))");
+
+    QCOMPARE(go("gg0ix<Esc>"),
+             QLatin1String("['InsertEnter', 'n:i', 'InsertLeavePre', 'i:n', 'InsertLeave']"));
+    QCOMPARE(go("gg0Rx<Esc>"),
+             QLatin1String("['InsertEnter', 'n:R', 'InsertLeavePre', 'R:n', 'InsertLeave']"));
+    QCOMPARE(go("gg0:<Esc>"),
+             QLatin1String("['CmdlineEnter', 'n:c', 'CmdlineLeave', 'c:n']"));
+
+    data.doCommand("autocmd! FvMo");
     data.doCommand("unlet! g:d");
 }
 
@@ -19600,6 +24520,204 @@ void FakeVimTester::test_vim_option_buffer_state()
     QVERIFY2(!message.startsWith("E45"), qPrintable(message));
 }
 
+void FakeVimTester::test_vim_function_assert_beeps()
+{
+    // assert_beeps({cmd}) and assert_nobeep({cmd}) run the command and look at
+    // whether it beeped, which is what Vim does where a command cannot be
+    // carried out. All measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto beeps = [&](const QString &command) {
+        data.setText("l1" N "l2" N "l3");
+        data.doCommand("let v:errors = []");
+        return value("assert_beeps('" + command + "')");
+    };
+    const auto nobeep = [&](const QString &command) {
+        data.setText("l1" N "l2" N "l3");
+        data.doCommand("let v:errors = []");
+        return value("assert_nobeep('" + command + "')");
+    };
+    const QLatin1String pass("0");
+    const QLatin1String fail("1");
+
+    // A motion with nowhere to go, and one an operator waits for.
+    QCOMPARE(beeps("normal! Gj"), pass);
+    QCOMPARE(beeps("normal! ggk"), pass);
+    QCOMPARE(beeps("normal! gg0h"), pass);
+    QCOMPARE(beeps("normal! gg$l"), pass);
+    QCOMPARE(beeps("normal! Gdj"), pass);
+    QCOMPARE(beeps("normal! Gyj"), pass);
+    QCOMPARE(beeps("normal! G2yy"), pass);
+    QCOMPARE(beeps("normal! G2dd"), pass);
+    QCOMPARE(beeps("normal! G2>>"), pass);
+
+    // A character that is not in the rest of the line, the repeats of that,
+    // and nothing to match.
+    QCOMPARE(beeps("normal! ggfz"), pass);
+    QCOMPARE(beeps("normal! ggtz"), pass);
+    QCOMPARE(beeps("normal! ggdfz"), pass);
+    QCOMPARE(beeps("normal! gg;"), pass);
+    QCOMPARE(beeps("normal! gg,"), pass);
+    QCOMPARE(beeps("normal! gg%"), pass);
+
+    // What does NOT beep: a count that merely reaches past the buffer, a
+    // motion that gets somewhere, a command that does its work, and an undo
+    // with nothing left to undo. An operator makes "l" at the end of a line a
+    // motion that stands, so that one does not beep either.
+    QCOMPARE(nobeep("normal! 99G"), pass);
+    QCOMPARE(nobeep("normal! gg}"), pass);
+    QCOMPARE(nobeep("normal! ggx"), pass);
+    QCOMPARE(nobeep("normal! gg$~~"), pass);
+    QCOMPARE(nobeep("normal! u"), pass);
+    QCOMPARE(nobeep("normal! gg$dl"), pass);
+    // An error message is not a beep.
+    QCOMPARE(nobeep("echo g:nosuchvar"), pass);
+
+    // The other way round each, with the line it leaves in v:errors.
+    QCOMPARE(beeps("normal! ggx"), fail);
+    QCOMPARE(value("v:errors[0] =~ 'command did not beep: normal! ggx'"), QLatin1String("1"));
+    QCOMPARE(nobeep("normal! Gj"), fail);
+    QCOMPARE(value("v:errors[0] =~ 'command did beep: normal! Gj'"), QLatin1String("1"));
+
+    data.doCommand("let v:errors = []");
+}
+
+void FakeVimTester::test_vim_function_diff()
+{
+    // diff({fromlist}, {tolist} [, {options}]) - the difference between two
+    // lists of lines, as a unified diff by default. All measured in Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    // A "|" stands for the newline each line of the answer ends in.
+    const auto unified = [&](const QString &args) {
+        return value("substitute(diff(" + args + "), \"\\n\", \"|\", \"g\")");
+    };
+    const auto indices = [&](const QString &args) {
+        return value("join(map(diff(" + args + ", {'output': 'indices'}), "
+                     "'v:val.from_idx .\",\". v:val.from_count .\",\". "
+                     "v:val.to_idx .\",\". v:val.to_count'), ' ')");
+    };
+    data.setText("one" N "two");
+
+    QCOMPARE(unified("['a','b','c'],['a','x','c']"),
+             QLatin1String("@@ -2 +2 @@|-b|+x|"));
+    QCOMPARE(unified("['a','b','c'],['a','b','c']"), QString());
+    QCOMPARE(unified("[],[]"), QString());
+
+    // A line count of one is the line number alone, of none the number of the
+    // line BEFORE the gap and a zero.
+    QCOMPARE(unified("['a','b','c'],['a','x','b','c']"),
+             QLatin1String("@@ -1,0 +2 @@|+x|"));
+    QCOMPARE(unified("['a','b','c'],['a','c']"),
+             QLatin1String("@@ -2 +1,0 @@|-b|"));
+    QCOMPARE(unified("[],['a']"), QLatin1String("@@ -0,0 +1 @@|+a|"));
+    QCOMPARE(unified("['a'],[]"), QLatin1String("@@ -1 +0,0 @@|-a|"));
+
+    // No context at all by default, so two changes are two hunks. Context is
+    // taken from the FROM list, and hunks whose context would meet or overlap
+    // are emitted as one: the gap of four lines below is covered at a context
+    // of two, and not at one.
+    QCOMPARE(unified("['1','2','3','4','5'],['1','3','5']"),
+             QLatin1String("@@ -2 +1,0 @@|-2|@@ -4 +2,0 @@|-4|"));
+    QCOMPARE(unified("['1','2','3','4','5'],['1','3','5'],{'context': 1}"),
+             QLatin1String("@@ -1,5 +1,3 @@| 1|-2| 3|-4| 5|"));
+    const QString eight = "['a','b','c','d','e','f','g','h'],"
+                          "['a','B','c','d','e','f','G','h']";
+    QCOMPARE(unified(eight + ",{'context': 2}"),
+             QLatin1String("@@ -1,8 +1,8 @@| a|-b|+B| c| d| e| f|-g|+G| h|"));
+    QCOMPARE(unified(eight + ",{'context': 1}"),
+             QLatin1String("@@ -1,3 +1,3 @@| a|-b|+B| c|@@ -6,3 +6,3 @@| f|-g|+G| h|"));
+    // A context that is not a number is none.
+    QCOMPARE(unified("['1','2','3'],['1','3'],{'context': 'x'}"),
+             QLatin1String("@@ -2 +1,0 @@|-2|"));
+
+    // What the lines are compared by. "iwhite" collapses every run of white
+    // space into one and drops a trailing run, so a tab counts as a space,
+    // but a leading run still marks the line as indented. "iwhiteeol" is the
+    // trailing run alone.
+    QCOMPARE(unified("['Abc'],['abc'],{'icase': 1}"), QString());
+    QCOMPARE(unified("[\"a  b\", \"c\"],[\"a\\tb\", \"c  \"],{'iwhite': 1}"), QString());
+    QCOMPARE(unified("['  a'],['a'],{'iwhite': 1}"),
+             QLatin1String("@@ -1 +1 @@|-  a|+a|"));
+    QCOMPARE(unified("['  a'],['a'],{'iwhiteall': 1}"), QString());
+    QCOMPARE(unified("['a  ','  b'],['a','b'],{'iwhiteeol': 1}"),
+             QLatin1String("@@ -2 +2 @@|-  b|+b|"));
+
+    // "iblank" drops a change whose lines are all EMPTY. A line of white
+    // space is not empty, and a change is dropped as a whole or not at all.
+    QCOMPARE(unified("['a','','b'],['a','b'],{'iblank': 1}"), QString());
+    QCOMPARE(unified("['a',' ','b'],['a','b'],{'iblank': 1}"),
+             QLatin1String("@@ -2 +1,0 @@|- |"));
+    QCOMPARE(unified("['a','','x','b'],['a','b'],{'iblank': 1}"),
+             QLatin1String("@@ -2,2 +1,0 @@|-|-x|"));
+
+    // There is one algorithm here, so the keys that would choose another are
+    // taken and change nothing, as does a key Vim does not know.
+    QCOMPARE(unified("['a'],['b'],{'algorithm': 'zork', 'indent-heuristic': 1,"
+                     " 'linematch': 1, 'zork': 1}"),
+             QLatin1String("@@ -1 +1 @@|-a|+b|"));
+
+    // With "indices" the ranges come as dictionaries, counted from zero.
+    QCOMPARE(indices("['a','b','c'],['a','x','c']"), QLatin1String("1,1,1,1"));
+    QCOMPARE(indices("['a','b','c'],['a','b','c']"), QString());
+    QCOMPARE(indices("['a','b','c'],['a','x','b','c']"), QLatin1String("1,0,1,1"));
+    QCOMPARE(indices("[],['a']"), QLatin1String("0,0,0,1"));
+    QCOMPARE(indices("['1','2','3','4','5'],['1','3','5']"),
+             QLatin1String("1,1,1,0 3,1,2,0"));
+
+    // Where the same lines could be taken from either end of a run, the
+    // change is the one as far DOWN the lists as it will go.
+    QCOMPARE(indices("['a','b','a','b','c'],['a','b','c']"), QLatin1String("2,2,2,0"));
+    QCOMPARE(indices("['x','a','y','a','z'],['x','a','z']"), QLatin1String("2,2,2,0"));
+    QCOMPARE(indices("['p','a','q'],['p','a','a','q']"), QLatin1String("2,0,2,1"));
+    QCOMPARE(indices("['a','a','a'],['a']"), QLatin1String("1,2,1,0"));
+    QCOMPARE(indices("['x','a','b','a','b','y'],['x','a','b','y']"),
+             QLatin1String("3,2,3,0"));
+
+    // What it refuses.
+    QVERIFY2(value("diff(['a'],['b'],{'output': 'x'})").contains("E106"),
+             qPrintable(message));
+    QVERIFY2(value("diff('a',['b'])").contains("E1211: List required for argument 1"),
+             qPrintable(message));
+    QVERIFY2(value("diff(['a'],'b')").contains("E1211: List required for argument 2"),
+             qPrintable(message));
+    QVERIFY2(value("diff(['a'],['b'],'x')")
+                 .contains("E1206: Dictionary required for argument 3"),
+             qPrintable(message));
+    QVERIFY2(value("diff([['a']],['b'])").contains("E730"), qPrintable(message));
+    QVERIFY2(value("diff(['a'],[{'a': 1}])").contains("E731"), qPrintable(message));
+    QVERIFY2(value("diff(['a'],['b'],{'algorithm': ['x']})").contains("E730"),
+             qPrintable(message));
+    QVERIFY2(value("diff(['a'],['b'],{'algorithm': {'x': 1}})").contains("E731"),
+             qPrintable(message));
+    QVERIFY2(value("diff(['a'])").contains("E119"), qPrintable(message));
+    QVERIFY2(value("diff(['a'],['b'],{},1)").contains("E118"), qPrintable(message));
+
+    QCOMPARE(value("exists('*diff')"), QLatin1String("1"));
+}
+
 void FakeVimTester::test_vim_blob()
 {
     // The Blob type: a sequence of bytes, written "0z" and two hex digits
@@ -19919,6 +25037,105 @@ void FakeVimTester::test_vim_map_leader()
     data.doCommand("unlet! g:mapleader g:maplocalleader");
 }
 
+// Where the auto-wrap breaks a line when no blank fits inside the width, and
+// what does not trigger it at all. Values taken from Vim 9.1.
+void FakeVimTester::test_vim_auto_wrap_break_point()
+{
+    TestData data;
+    setup(&data);
+
+    // A typed blank never wraps, however far past the width it stands.
+    data.doCommand("set tw=20 fo=t");
+    data.setText("aaaa bbbb cccc dddd");
+    KEYS("A<Space><Esc>", "aaaa bbbb cccc dddd" X " ");
+    data.setText("aaaa bbbb cccc dddddd");
+    KEYS("A<Space><Esc>", "aaaa bbbb cccc dddddd" X " ");
+
+    // With no blank inside the width the break goes to the first one behind
+    // it, and the blanks there go with it.
+    data.setText("");
+    KEYS("iaaaaaaaaaaaaaaaaaaaaaaaa bb<Esc>", "aaaaaaaaaaaaaaaaaaaaaaaa" N "b" X "b");
+    data.doCommand("set tw=10");
+    data.setText("");
+    KEYS("iaaaaaaaaaaaa bb cc<Esc>", "aaaaaaaaaaaa" N "bb c" X "c");
+    data.setText("");
+    KEYS("iaaaaaaaaaaaa  bb<Esc>", "aaaaaaaaaaaa" N "b" X "b");
+    data.setText("aaaaaaaaaaaa bb");
+    KEYS("Acc<Esc>", "aaaaaaaaaaaa" N "bbc" X "c");
+
+    // And the break repeats until what is left fits, which one typed
+    // character on a line long enough shows.
+    data.setText("aaaa bbbb cccc dddd eeee");
+    KEYS("Ax<Esc>", "aaaa bbbb" N "cccc dddd" N "eeee" X "x");
+    data.setText("aaaa bbbbbbbbbbbb cc");
+    KEYS("Ax<Esc>", "aaaa" N "bbbbbbbbbbbb" N "cc" X "x");
+
+    data.doCommand("set tw=0 fo=tcq");
+}
+
+// The 'l', 'v' and 'b' flags of 'formatoptions', which each take the
+// auto-wrap away in a case of their own. Values taken from Vim 9.1.
+void FakeVimTester::test_vim_auto_wrap_options()
+{
+    TestData data;
+    setup(&data);
+
+    // "l" leaves a line alone that was already longer than the width when
+    // the insert began, where a shorter one, the width itself included,
+    // still wraps.
+    data.doCommand("set tw=20 fo=t");
+    data.setText("aaaa bbbb cccc dddd eeee");
+    KEYS("A ffff<Esc>", "aaaa bbbb cccc dddd" N "eeee fff" X "f");
+    data.doCommand("set fo=tl");
+    data.setText("aaaa bbbb cccc dddd eeee");
+    KEYS("A ffff<Esc>", "aaaa bbbb cccc dddd eeee fff" X "f");
+    data.setText("aaaa bbbb cccc ddddd");
+    KEYS("Axxxxx<Esc>", "aaaa bbbb cccc" N "dddddxxxx" X "x");
+    data.setText("aaaa bbbb cccc dddddd");
+    KEYS("Axxxxx<Esc>", "aaaa bbbb cccc ddddddxxxx" X "x");
+
+    // "v" breaks only at a blank this insert typed itself, so the blanks
+    // that were already there are out of reach.
+    data.doCommand("set fo=t");
+    data.setText("aaaa bbbb cccc dddd");
+    KEYS("Axxxxx<Esc>", "aaaa bbbb cccc" N "ddddxxxx" X "x");
+    data.doCommand("set fo=tv");
+    data.setText("aaaa bbbb cccc dddd");
+    KEYS("Axxxxx<Esc>", "aaaa bbbb cccc ddddxxxx" X "x");
+    data.setText("aaaa bbbb cccc");
+    KEYS("A ddxxxxxxxx<Esc>", "aaaa bbbb cccc" N "ddxxxxxxx" X "x");
+
+    // The memory of it lasts one insert: the blank typed by the one before
+    // does not count.
+    data.setText("aaaa bbbb cccc");
+    KEYS("A dd<Esc>Axxxxxxxx<Esc>", "aaaa bbbb cccc ddxxxxxxx" X "x");
+
+    // "b" is "v" with one more condition: the typed blank has to stand
+    // inside the width.
+    data.setText("aaaa bbbb cccc dddd eeee");
+    KEYS("A fff<Esc>", "aaaa bbbb cccc dddd eeee" N "ff" X "f");
+    data.doCommand("set fo=tb");
+    data.setText("aaaa bbbb cccc dddd eeee");
+    KEYS("A fff<Esc>", "aaaa bbbb cccc dddd eeee ff" X "f");
+    data.setText("aaaa bbbb cccc");
+    KEYS("A dddddd eee<Esc>", "aaaa bbbb cccc" N "dddddd ee" X "e");
+    data.setText("");
+    KEYS("iaaaaaaaaaaaaaaaaaaaaaaaa bb<Esc>", "aaaaaaaaaaaaaaaaaaaaaaaa b" X "b");
+    data.doCommand("set fo=tv");
+    data.setText("");
+    KEYS("iaaaaaaaaaaaaaaaaaaaaaaaa bb<Esc>", "aaaaaaaaaaaaaaaaaaaaaaaa" N "b" X "b");
+
+    // Both of them lose the blanks that were already there.
+    data.doCommand("set tw=10 fo=tv");
+    data.setText("aaaaaaaaaaaa bb");
+    KEYS("Acc<Esc>", "aaaaaaaaaaaa bbc" X "c");
+    data.doCommand("set fo=tb");
+    data.setText("aaaaaaaaaaaa bb");
+    KEYS("Acc<Esc>", "aaaaaaaaaaaa bbc" X "c");
+
+    data.doCommand("set tw=0 fo=tcq");
+}
+
 void FakeVimTester::test_vim_auto_wrap()
 {
     // What 'textwidth' does while typing: the word that would reach past it
@@ -19951,6 +25168,209 @@ void FakeVimTester::test_vim_auto_wrap()
     data.doCommand("set fo=q");
     data.setText("// x");
     KEYS("Aaaa bbb ccc<Esc>", "// xaaa bbb cc" X "c");
+
+    data.doCommand("set tw=0 fo=tcq");
+}
+
+// The characters below, written as numbers to keep the source 7-bit clean,
+// take two cells on the screen each.
+static QString wideChars(int from, int count)
+{
+    static const ushort cp[] = {0x4e00, 0x4e8c, 0x4e09, 0x56db, 0x4e94, 0x516d};
+    QString text;
+    for (int i = from; i < from + count; ++i)
+        text += QChar(cp[i]);
+    return text;
+}
+
+void FakeVimTester::test_vim_auto_wrap_cells()
+{
+    // What 'textwidth' counts is the cells a line takes on the screen, and an
+    // East Asian character takes two of them. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    const QString blank = QLatin1String(" ");
+    const QString line = wideChars(0, 2) + blank + wideChars(2, 2) + blank
+                         + wideChars(4, 2);
+
+    // Nine cells fit within ten, the pair behind them does not.
+    data.doCommand("set tw=10 fo=t");
+    data.setText("");
+    KEYS(QLatin1String("i") + line + QLatin1String("<Esc>"),
+         (wideChars(0, 2) + blank + wideChars(2, 2) + QLatin1String("\n")
+          + wideChars(4, 1) + QLatin1String(X) + wideChars(5, 1)).toUtf8());
+
+    // "gq" measures the same way.
+    data.doCommand("set tw=40 fo=t");
+    data.setText("");
+    data.doKeys(QLatin1String("i") + line + QLatin1String("<Esc>"));
+    data.doCommand("set tw=10");
+    KEYS("gqq", (wideChars(0, 2) + blank + wideChars(2, 2) + QLatin1String("\n")
+                 + QLatin1String(X) + wideChars(4, 2)).toUtf8());
+
+    // Fourteen cells are what the line takes, and it stays whole.
+    data.doCommand("set tw=40");
+    data.setText("");
+    data.doKeys(QLatin1String("i") + line + QLatin1String("<Esc>"));
+    data.doCommand("set tw=14");
+    KEYS("gqq", (QLatin1String(X) + line).toUtf8());
+
+    data.doCommand("set tw=0 fo=tcq");
+}
+
+void FakeVimTester::test_vim_auto_wrap_multibyte()
+{
+    // An "m" among 'formatoptions' breaks a line between two characters that
+    // have no blank between them, where one of them is above 255. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    const QString stop = QString(QChar(ushort(0x3002)));
+    const QString open = QString(QChar(ushort(0xff08)));
+    const QString nl = QLatin1String("\n");
+    const QString x = QLatin1String(X);
+
+    data.doCommand("set tw=10 fo=tm");
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 6) + QLatin1String("<Esc>"),
+         (wideChars(0, 5) + nl + x + wideChars(5, 1)).toUtf8());
+
+    // Without the "m" the line stays long, there being no blank to break at.
+    data.doCommand("set fo=t");
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 6) + QLatin1String("<Esc>"),
+         (wideChars(0, 5) + x + wideChars(5, 1)).toUtf8());
+
+    // Two cells the plain characters in front take leave room for four.
+    data.doCommand("set fo=tm");
+    data.setText("");
+    KEYS(QLatin1String("iab") + wideChars(0, 5) + QLatin1String("<Esc>"),
+         (QLatin1String("ab") + wideChars(0, 4) + nl + x + wideChars(4, 1)).toUtf8());
+
+    // The break is taken where a wide character meets a plain word, whichever
+    // of them comes first.
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 4) + QLatin1String("abcdefgh<Esc>"),
+         (wideChars(0, 4) + nl + QLatin1String("abcdefg") + x
+          + QLatin1String("h")).toUtf8());
+    data.setText("");
+    KEYS(QLatin1String("iabcdefgh") + wideChars(0, 4) + QLatin1String("<Esc>"),
+         (QLatin1String("abcdefgh") + wideChars(0, 1) + nl + wideChars(1, 2) + x
+          + wideChars(3, 1)).toUtf8());
+
+    // Nothing breaks in front of a full stop, nor behind an opening bracket.
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 5) + stop + wideChars(5, 1)
+             + QLatin1String("<Esc>"),
+         (wideChars(0, 5) + stop + nl + x + wideChars(5, 1)).toUtf8());
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 4) + open + wideChars(4, 2)
+             + QLatin1String("<Esc>"),
+         (wideChars(0, 4) + nl + open + wideChars(4, 1) + x
+          + wideChars(5, 1)).toUtf8());
+
+    // Only the pair the line first reaches back to is asked, so a break the
+    // full stop forbids leaves the line long, while a blank further back is
+    // still found.
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 4) + QLatin1String("a") + stop
+             + QLatin1String("<Esc>"),
+         (wideChars(0, 4) + QLatin1String("a") + x + stop).toUtf8());
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 4) + QLatin1String(" ab") + stop
+             + QLatin1String("<Esc>"),
+         (wideChars(0, 4) + nl + QLatin1String("ab") + x + stop).toUtf8());
+
+    // A closing character counts as well, plain as it may be: it holds the
+    // break back, and what follows it takes one.
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 4) + QLatin1String("ab!<Esc>"),
+         (wideChars(0, 4) + QLatin1String("ab") + x + QLatin1String("!")).toUtf8());
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 4) + QLatin1String("ab!c<Esc>"),
+         (wideChars(0, 4) + QLatin1String("ab!") + nl + x + QLatin1String("c")).toUtf8());
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 4) + QLatin1String("a(b<Esc>"),
+         (wideChars(0, 4) + nl + QLatin1String("a(") + x + QLatin1String("b")).toUtf8());
+
+    // An opening bracket sends the break one pair further back, a full stop
+    // ends the search where it stands.
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 4) + open + open + wideChars(4, 1)
+             + QLatin1String("<Esc>"),
+         (wideChars(0, 4) + nl + open + open + x + wideChars(4, 1)).toUtf8());
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 4) + QLatin1String("a") + stop
+             + wideChars(4, 1) + QLatin1String("<Esc>"),
+         (wideChars(0, 4) + QLatin1String("a") + stop + nl + x
+          + wideChars(4, 1)).toUtf8());
+
+    // What counts is the number the character has, not the cells it takes.
+    QString macrons;
+    for (int i = 0; i < 6; ++i)
+        macrons += QChar(ushort(0x101)) + QString(QChar(ushort(0x113)));
+    data.setText("");
+    KEYS(QLatin1String("i") + macrons + QLatin1String("<Esc>"),
+         (macrons.left(10) + nl + macrons.mid(10, 1) + x + macrons.mid(11, 1)).toUtf8());
+
+    data.doCommand("set tw=0 fo=tcq");
+}
+
+void FakeVimTester::test_vim_reflow_multibyte()
+{
+    // "gq" breaks where typing would with an "m" among 'formatoptions', which
+    // is inside a word as well: the line is filled to the width rather than
+    // word by word. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    const QString stop = QString(QChar(ushort(0x3002)));
+    const QString nl = QLatin1String("\n");
+    const QString x = QLatin1String(X);
+
+    // Typed wide of the width, so that only the reflow breaks the line.
+    const auto write = [&data](const QString &text, const QString &options) {
+        data.doCommand("set tw=40 fo=t");
+        data.setText("");
+        data.doKeys(QLatin1String("i") + text + QLatin1String("<Esc>"));
+        data.doCommand("set tw=10 fo=" + options);
+    };
+
+    write(wideChars(0, 6), "tm");
+    KEYS("gqq", (wideChars(0, 5) + nl + x + wideChars(5, 1)).toUtf8());
+
+    // Without the "m" the word stays whole.
+    write(wideChars(0, 6), "t");
+    KEYS("gqq", (x + wideChars(0, 6)).toUtf8());
+
+    // The fill goes on to the width, blank or no blank in front of it.
+    write(QLatin1String("ab ") + wideChars(0, 6), "tm");
+    KEYS("gqq", (QLatin1String("ab ") + wideChars(0, 3) + nl + x
+                 + wideChars(3, 3)).toUtf8());
+    write(wideChars(0, 3) + QLatin1String(" ") + wideChars(3, 3), "tm");
+    KEYS("gqq", (wideChars(0, 3) + QLatin1String(" ") + wideChars(3, 1) + nl + x
+                 + wideChars(4, 2)).toUtf8());
+    write(QLatin1String("  ") + wideChars(0, 6), "tm");
+    KEYS("gqq", (QLatin1String("  ") + wideChars(0, 4) + nl + QLatin1String("  ")
+                 + x + wideChars(4, 2)).toUtf8());
+    write(wideChars(0, 4) + QLatin1String("abcdefgh"), "tm");
+    KEYS("gqq", (wideChars(0, 4) + nl + x + QLatin1String("abcdefgh")).toUtf8());
+
+    // A full stop the break would put in front leaves the line long, and
+    // plain words are still wrapped word by word.
+    write(wideChars(0, 4) + QLatin1String("a") + stop, "tm");
+    KEYS("gqq", (x + wideChars(0, 4) + QLatin1String("a") + stop).toUtf8());
+    write(QLatin1String("one two three four five"), "tm");
+    KEYS("gqq", QByteArray("one two" N "three four" N X "five"));
+    write(QLatin1String("abcdefghijklm no"), "tm");
+    KEYS("gqq", QByteArray("abcdefghijklm" N X "no"));
+
+    // A whole paragraph reads as one line, wherever its own breaks were.
+    write(QLatin1String("one two<CR>three ") + wideChars(0, 3), "tm");
+    KEYS("gqap", (QLatin1String("one two") + nl + QLatin1String("three ")
+                  + wideChars(0, 2) + nl + x + wideChars(2, 1)).toUtf8());
 
     data.doCommand("set tw=0 fo=tcq");
 }
@@ -20670,6 +26090,37 @@ void FakeVimTester::test_vim_change_marks_after_operator()
     data.doCommand("set noexpandtab | set shiftwidth=8");
 }
 
+void FakeVimTester::test_vim_ex_star_range()
+{
+    // ":*" names the area the last visual selection covered, whatever
+    // addresses stand in front of it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText(X "a" N "b" N "c" N "d" N "e");
+    KEYS("jVj<Esc>gg:*d<CR>", "a" N X "d" N "e");
+    data.setText(X "a" N "b" N "c" N "d" N "e");
+    KEYS("jVj<Esc>gg:*y<CR>P", X "b" N "c" N "a" N "b" N "c" N "d" N "e");
+    data.setText(X "a" N "b" N "c" N "d" N "e");
+    KEYS("jVj<Esc>gg:* d<CR>", "a" N X "d" N "e");
+    data.setText(X "a" N "b" N "c" N "d" N "e");
+    KEYS("jVj<Esc>gg: *d<CR>", "a" N X "d" N "e");
+    data.setText(X "a" N "b" N "c" N "d" N "e");
+    KEYS("jVj<Esc>gg:*normal Ax<CR>", "a" N "bx" N "c" X "x" N "d" N "e");
+    data.setText(X "aa" N "bb" N "cc" N "dd");
+    KEYS("jVj<Esc>gg:*s/./X/<CR>", "aa" N "Xb" N X "Xc" N "dd");
+    data.setText(X "a" N "b" N "c" N "d" N "e");
+    KEYS("jVj<Esc>gg:*m$<CR>", "a" N "d" N "e" N "b" N X "c");
+
+    // An address in front of it is taken over, not added to.
+    data.setText(X "a" N "b" N "c" N "d" N "e");
+    KEYS("jVj<Esc>gg:1,*d<CR>", "a" N X "d" N "e");
+
+    // What the selection covered follows the lines it stood on.
+    data.setText(X "a" N "b" N "c" N "d" N "e");
+    KEYS("Vj:d<CR>gg:*d<CR>", X "d" N "e");
+}
+
 void FakeVimTester::test_vim_ex_semicolon_range()
 {
     // ";" separates two addresses like "," does, but it goes to the first of
@@ -20750,6 +26201,142 @@ void FakeVimTester::test_vim_autoindent_kept_over_line_break()
     // Nothing typed on either line leaves no indentation behind.
     data.setText("    abc");
     KEYS("cc<cr><esc>", "" N X "");
+}
+
+void FakeVimTester::test_vim_autoindent_kept_by_arrow()
+{
+    // An arrow key that moves in insert mode keeps the indentation autoindent
+    // has just put in: leaving insert mode afterwards no longer takes it away.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set autoindent");
+    data.doCommand("set nosmartindent");
+
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<Left><Esc>", "    foo" N "  " X "  " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<Left><Left><Esc>", "    foo" N " " X "   " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<Left><Right><Esc>", "    foo" N "   " X " " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("oX<Left><Esc>", "    foo" N "   " X " X" N "    bar" N "baz");
+
+    // A key that cannot move leaves the indentation to go, which is what a
+    // "<Right>" at the end of the line and a bare "<Esc>" both do.
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<Right><Esc>", "    foo" N X "" N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<Esc>", "    foo" N X "" N "    bar" N "baz");
+
+    // "<Home>" and "<End>" keep it whether they move or not, and so do the
+    // word-wise arrows, which reach into the line above.
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<Home><Esc>", "    foo" N X "    " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<End><Esc>", "    foo" N "   " X " " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<S-Left><Esc>", "   " X " foo" N "    " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<C-Left><Esc>", "   " X " foo" N "    " N "    bar" N "baz");
+
+    // The indentation stays once an arrow has moved, the cursor leaving the
+    // line afterwards included.
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<Left><Down><Esc>", "    foo" N "    " N "  " X "  bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<Left><Up><Esc>", "  " X "  foo" N "    " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("A<CR><Left><Esc>", "    foo" N "  " X "  " N "    bar" N "baz");
+
+    // A "<C-g>U" holds the insert together over the one arrow it is given, and
+    // the indentation then goes as it would without the arrow. It does not
+    // reach the arrow after that one, nor "<Home>" and "<End>".
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<C-g>U<Left><Esc>", "    foo" N X "" N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<C-g>U<Right><Esc>", "    foo" N X "" N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<C-g>U<Left><Left><Esc>", "    foo" N " " X "   " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<C-g>U<Home><Esc>", "    foo" N X "    " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<C-g>U<End><Esc>", "    foo" N "   " X " " N "    bar" N "baz");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<C-g>U<Down><Esc>", "    foo" N "" N "   " X " bar" N "baz");
+
+    // A "<Right>" that "whichwrap" lets into the next line moves, so it keeps
+    // the indentation as well.
+    data.doCommand("set whichwrap+=]");
+    data.setText(X "    foo" N "    bar" N "baz");
+    KEYS("o<Right><Esc>", "    foo" N "    " N X "    bar" N "baz");
+    data.doCommand("set whichwrap=b,s");
+
+    data.doCommand("set noautoindent");
+}
+
+void FakeVimTester::test_vim_comment_leader_kept_by_arrow()
+{
+    // The blank behind a comment leader that "formatoptions" put in goes the
+    // way the automatic indentation goes: an arrow that moves in insert mode
+    // keeps it, "<Up>" and "<Down>" take it away, and an "I" among
+    // "cpoptions" keeps it for them as well. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set comments=:// fo=ro");
+
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Esc>", "// foo" N "/" X "/" N "// bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Left><Esc>", "// foo" N "/" X "/ " N "// bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Left><Right><Esc>", "// foo" N "//" X " " N "// bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Home><Esc>", "// foo" N X "// " N "// bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<End><Esc>", "// foo" N "//" X " " N "// bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<S-Left><Esc>", "// foo" N X "// " N "// bar" N "baz");
+
+    // A "<C-g>U" holds the insert together over the arrow it is given, so the
+    // blank goes as it would without it.
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<C-g>U<Left><Esc>", "// foo" N "/" X "/" N "// bar" N "baz");
+
+    // A "<Right>" with nowhere to go moves nothing, so the blank goes.
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Right><Esc>", "// foo" N "/" X "/" N "// bar" N "baz");
+
+    // The cursor leaving the line takes it, unless an arrow has moved first.
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Down><Esc>", "// foo" N "//" N "//" X " bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Up><Esc>", "//" X " foo" N "//" N "// bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("O<Down><Esc>", "//" N "//" X " foo" N "// bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Left><Down><Esc>", "// foo" N "// " N "/" X "/ bar" N "baz");
+    data.setText(X "    // foo" N "baz");
+    KEYS("o<Down><Esc>", "    // foo" N "    //" N "ba" X "z");
+
+    // What is typed keeps the whole leader, and a line opened with a return
+    // goes the same way as one opened with "o".
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("oX<Esc>", "// foo" N "// " X "X" N "// bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("A<CR><Esc>", "// foo" N "/" X "/" N "// bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("A<CR><Left><Esc>", "// foo" N "/" X "/ " N "// bar" N "baz");
+
+    data.doCommand("set cpoptions=aABceFszI");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Down><Esc>", "// foo" N "// " N "//" X " bar" N "baz");
+    data.setText(X "// foo" N "// bar" N "baz");
+    KEYS("o<Esc>", "// foo" N "/" X "/" N "// bar" N "baz");
+    data.doCommand("set cpoptions=aABceFsz");
+
+    data.doCommand("set fo=tcq");
+    data.doCommand("set comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-");
 }
 
 void FakeVimTester::test_vim_insert_ctrl_u_indent()
@@ -20917,12 +26504,88 @@ void FakeVimTester::test_vim_register_black_hole()
     KEYS("yiw:let @_=\'zz\'<cr>A<C-R>_<esc>", "ab" X "c");
 }
 
+void FakeVimTester::test_vim_insert_ctrl_o()
+{
+    // CTRL-O runs one command and comes back to insert mode. What the insert
+    // changed before the command is a change of its own: an undo takes back
+    // only what was typed after it, and "." repeats only that much. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-o>ly<Esc>u", "abcxd" X "ef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-o>ly<Esc>uu", "abc" X "def" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-o>dwy<Esc>", "abcx" X "y" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-o>dwy<Esc>u", "abc" X "x" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-o>dwy<Esc>uu", "abcx" X "def" N "ghijkl");
+
+    // CTRL-\ CTRL-O ends the change as much as CTRL-O does.
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-\\><C-o>dwy<Esc>", "abcx" X "y" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-\\><C-o>dwy<Esc>u", "abc" X "x" N "ghijkl");
+
+    // What "." repeats is what was typed after the command, where a plain
+    // insert repeats all of itself.
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-o>dwy<Esc>j3l.", "abcxy" N "ghijk" X "yl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lixy<Esc>j3l.", "abcxydef" N "ghijkx" X "yl");
+
+    // "u" as the single command takes back what the insert has put in, and the
+    // insert takes up again where the undo left the cursor.
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lixy<C-o>u<Esc>", "ab" X "cdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lixy<C-o>uz<Esc>", "abc" X "zdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lixy<C-o>uz<Esc>u", "abc" X "def" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lixy<C-o>u<C-o><C-r><Esc>", "ab" X "cxydef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("ox<C-o>u<Esc>", X "abcdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<Esc>A<C-o>uQ<Esc>", "abc" X "Qdef" N "ghijkl");
+
+    // Replace mode is no different, and comes back to replace mode.
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("RX<C-o>lY<Esc>", "Xb" X "Ydef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("RX<C-o>lY<Esc>u", "Xb" X "cdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("RX<C-o>lY<Esc>uu", X "abcdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("RX<C-\\><C-o>lY<Esc>u", "Xb" X "cdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("RX<C-o>dwY<Esc>", "X" X "Y" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("RX<C-o>dwY<Esc>u", X "X" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("RX<C-o>dwY<Esc>uu", "X" X "bcdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("RX<C-\\><C-o>dwY<Esc>u", X "X" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("RXY<C-o>u<Esc>", X "abcdef" N "ghijkl");
+
+    // The count belongs to the command the CTRL-O runs, and the cursor keeps
+    // its place past the end of the line.
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-o>3ly<Esc>", "abcxde" X "yf" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("Ax<C-o>ly<Esc>", "abcdefx" X "y" N "ghijkl");
+}
+
 void FakeVimTester::test_vim_insert_ctrl_g()
 {
-    // CTRL-G u breaks the change in two, CTRL-G j and CTRL-G k move a line
-    // to the column the insert started in, and a cursor key ends the change
-    // as well. CTRL-@ puts the last insert in and stops. Values taken from
-    // Vim 9.1.
+    // CTRL-G u breaks the change in two, CTRL-G U holds it over the next
+    // movement to the left or right, CTRL-G j and CTRL-G k move a line to the
+    // column the insert started in, and a cursor key ends the change as well.
+    // CTRL-@ puts the last insert in and stops. Values taken from Vim 9.1.
     TestData data;
     setup(&data);
 
@@ -20968,8 +26631,174 @@ void FakeVimTester::test_vim_insert_ctrl_g()
     KEYS("3liuv<C-g>jp<C-g>jz<Esc>",
          "abcuvdef" N "ghipjkl" N "mno" X "zpqr");
 
+    // CTRL-G U holds the change over the movement that comes next, so the undo
+    // takes back what was typed on both sides of it rather than the last part
+    // alone. It reaches a character and a word to either side.
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<Left>y<Esc>u", "abc" X "xdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>U<Left>y<Esc>u", "abc" X "def" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<Right>y<Esc>u", "abcxd" X "ef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>U<Right>y<Esc>u", "abc" X "def" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<S-Left>y<Esc>u", X "abcxdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>U<S-Left>y<Esc>u", "abc" X "def" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-Left>y<Esc>u", X "abcxdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>U<C-Left>y<Esc>u", "abc" X "def" N "ghijkl");
+    data.setText(X "abc def" N "ghijkl");
+    KEYS("ix<S-Right>y<Esc>u", "xabc " X "def" N "ghijkl");
+    data.setText(X "abc def" N "ghijkl");
+    KEYS("ix<C-g>U<S-Right>y<Esc>u", X "abc def" N "ghijkl");
+    data.setText(X "abc def" N "ghijkl");
+    KEYS("ix<C-Right>y<Esc>u", "xabc " X "def" N "ghijkl");
+    data.setText(X "abc def" N "ghijkl");
+    KEYS("ix<C-g>U<C-Right>y<Esc>u", X "abc def" N "ghijkl");
+
+    // To the start or the end of the line, and a line up or down, are movements
+    // it does not hold.
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>U<Home>y<Esc>u", X "abcxdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>U<End>y<Esc>u", "abcxde" X "f" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("ix<Home>y<Esc>u", X "xabcdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("ix<C-g>U<Home>y<Esc>u", X "xabcdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("$ax<End>y<Esc>u", "abcdef" X "x" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("$ax<C-g>U<End>y<Esc>u", "abcdef" X "x" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>U<Down>y<Esc>u", "abcxdef" N "ghij" X "kl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("j3lix<C-g>U<Up>y<Esc>u", "abcd" X "ef" N "ghixjkl");
+
+    // One movement is all it holds, and the next character typed is what it
+    // was waiting for as much as a movement is.
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>U<Left><Left>y<Esc>u", "ab" X "cxdef" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>U<Left><C-g>U<Left>y<Esc>u", "abc" X "def" N "ghijkl");
+    data.setText(X "abcdef" N "ghijkl");
+    KEYS("3lix<C-g>Uy<Left>z<Esc>u", "abcx" X "ydef" N "ghijkl");
+
     data.setText("abc");
     KEYS("ixy<Esc>A<C-@><Esc>", "xyabcx" X "y");
+}
+
+void FakeVimTester::test_vim_abbreviation_kinds()
+{
+    // Vim knows three kinds of abbreviation: all keyword characters ("teh"),
+    // a keyword character at the end and none of them before it ("#i"), and
+    // anything ending in a character that is no keyword character (";;").
+    // What may stand in front of a match follows from the word Vim looks up
+    // rather than from the kind. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto error = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+
+    data.doCommand("abclear");
+    data.doCommand("cabclear");
+
+    // A left hand side of none of the three kinds is refused.
+    const QLatin1String invalid("E474: Invalid argument");
+    QCOMPARE(error("iabbrev a.b x"), invalid);
+    QCOMPARE(error("iabbrev #def x"), invalid);
+    QCOMPARE(error("iabbrev _$r x"), invalid);
+    QCOMPARE(error("abbreviate a.b x"), invalid);
+    QCOMPARE(error("cabbrev a.b x"), invalid);
+    // A removal is not, it says what it says about any name it does not know.
+    QCOMPARE(error("iunabbrev a.b"), QLatin1String("E24: No such abbreviation"));
+
+    QCOMPARE(error("iabbrev #i INCLUDE"), QString());
+    QCOMPARE(error("iabbrev ;; DOTS"), QString());
+    data.doCommand("iabbrev teh the");
+    data.doCommand("iabbrev a A");
+
+    // End-id: a keyword character, a blank or nothing may stand in front,
+    // another character that is no keyword character may not.
+    data.setText("");
+    KEYS("cc#i<Esc>", "INCLUD" X "E");
+    data.setText("");
+    KEYS("ccx#i<Esc>", "xINCLUD" X "E");
+    data.setText("");
+    KEYS("ccx #i<Esc>", "x INCLUD" X "E");
+    data.setText("");
+    KEYS("cc>#i<Esc>", ">#" X "i");
+
+    // Non-id: only a blank or nothing.
+    data.setText("");
+    KEYS("cc;;<Esc>", "DOT" X "S");
+    data.setText("");
+    KEYS("ccx ;;<Esc>", "x DOT" X "S");
+    data.setText("");
+    KEYS("ccx;;<Esc>", "x;" X ";");
+
+    // Full-id: a keyword character in front is part of the word and so no
+    // match, where a character that is not one leaves the word alone. One
+    // character long it is an exception, only a blank or nothing counts.
+    data.setText("");
+    KEYS("ccteh<Esc>", "th" X "e");
+    data.setText("");
+    KEYS("ccxteh<Esc>", "xte" X "h");
+    data.setText("");
+    KEYS("cc>teh<Esc>", ">th" X "e");
+    data.setText("");
+    KEYS("cca<Esc>", X "A");
+    data.setText("");
+    KEYS("cc a<Esc>", " " X "A");
+    data.setText("");
+    KEYS("cc>a<Esc>", ">" X "a");
+
+    // In insert mode a typed printable character does NOT end a non-id
+    // abbreviation, where leaving the mode does. Measured in Vim 9.1, which
+    // is neither what ":help abbreviations" describes nor what Vim's own
+    // command line does with the same abbreviation, see below.
+    data.setText("");
+    KEYS("cc;; <Esc>", ";;" X " ");
+    // An end-id one is ended by it.
+    data.setText("");
+    KEYS("cc#i <Esc>", "INCLUDE" X " ");
+
+    // The command line knows the same kinds, and the same word decides, so
+    // the "/" of a substitution is in front of a match as any other
+    // character that is no blank and no keyword character would be.
+    data.doCommand("cabbrev #c INC");
+    data.doCommand("cabbrev ,, DOT");
+    data.setText("one");
+    data.doKeys(":s/one/ #c<CR>");
+    QCOMPARE(data.text(), QByteArray(" INC"));
+    data.setText("one");
+    data.doKeys(":s/one/#c<CR>");
+    QCOMPARE(data.text(), QByteArray("#c"));
+    data.setText("one");
+    data.doKeys(":s/one/ ,,<CR>");
+    QCOMPARE(data.text(), QByteArray(" DOT"));
+    data.setText("one");
+    data.doKeys(":s/one/x,,<CR>");
+    QCOMPARE(data.text(), QByteArray("x,,"));
+    // A typed blank ends a non-id one here, where in insert mode it does not.
+    data.setText("one");
+    data.doKeys(":s/one/ ,, z<CR>");
+    QCOMPARE(data.text(), QByteArray(" DOT z"));
+
+    data.doCommand("abclear");
+    data.doCommand("cabclear");
 }
 
 void FakeVimTester::test_vim_insert_abbreviation_word()
@@ -21411,8 +27240,9 @@ void FakeVimTester::test_vim_undo_line()
 
 void FakeVimTester::test_vim_replace_count()
 {
-    // A count in front of "R" writes what was typed over what follows, that
-    // many times, and "." does it again. Values taken from Vim 9.1.
+    // A count in front of "R" types what was typed that many times, writing
+    // over the text every time, and "." does it again. Values taken from
+    // Vim 9.1.
     TestData data;
     setup(&data);
 
@@ -21420,10 +27250,59 @@ void FakeVimTester::test_vim_replace_count()
     KEYS("3RX<Esc>", "XX" X "Xdef");
     data.setText("abcdefghi");
     KEYS("2RXY<Esc>", "XYX" X "Yefghi");
+    data.setText("1234567890");
+    KEYS("2Rab<Esc>", "aba" X "b567890");
+    data.setText("1234567890");
+    KEYS("3Rab<Esc>", "ababa" X "b7890");
     data.setText("abcdef");
     KEYS("RX<Esc>l.", "X" X "Xcdef");
     data.setText("abcdef");
     KEYS("RX<Esc>lA<C-a><Esc>", "Xbcdef" X "X");
+}
+
+void FakeVimTester::test_vim_replace_indent_keys()
+{
+    // CTRL-T and CTRL-D work in replace mode as they do in insert mode: the
+    // indentation of the line goes up or down by a shiftwidth, the cursor
+    // rides along with it and the replacing goes on from there. A "0" in
+    // front of CTRL-D takes all of the indentation, and the overwrite the
+    // "0" itself was is taken back. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set shiftwidth=4 expandtab");
+
+    data.setText("        abcdef");
+    KEYS("3|R0<C-d>y<Esc>", X "ybcdef");
+    data.setText("        abcdef");
+    KEYS("3|R0<C-t>y<Esc>", "    0" X "y    abcdef");
+    // With no indentation to take the "0" still goes back.
+    data.setText("abcdef");
+    KEYS("3|R0<C-d>y<Esc>", "ab" X "ydef");
+    data.setText("abcdef");
+    KEYS("3|Rxy<C-t>z<Esc>", "    abxy" X "zf");
+    // A backspace puts back what was written over, and not the indentation.
+    data.setText("        abcdef");
+    KEYS("3|R0<C-d>y<BS><BS><Esc>", X "abcdef");
+    // A second CTRL-D finds nothing left to take.
+    data.setText("            abcdef");
+    KEYS("5|R0<C-d><C-d>y<Esc>", X "ybcdef");
+    // Alone they are a shiftwidth off and on, and the cursor stops at the
+    // start of the line where the indentation goes past it.
+    data.setText("        abcdef");
+    KEYS("3|R<C-d><Esc>", X "    abcdef");
+    data.setText("        abcdef");
+    KEYS("3|R<C-t><Esc>", "     " X "       abcdef");
+    // A count repeats the keys, control keys and all, and every pass writes
+    // over the text.
+    data.setText("        abcdef");
+    KEYS("3|2R0<C-d>y<Esc>", "y" X "ycdef");
+    data.setText("        abcdef");
+    KEYS("3|2R0<C-d><Esc>", X "abcdef");
+    data.setText("        abcdef");
+    KEYS("3|2R0<C-t>y<Esc>", "        0y0" X "y  abcdef");
+    // A "." repeats the keys, control keys and all.
+    data.setText("        abcdef" N "        ghijkl");
+    KEYS("3|R0<C-d>y<Esc>j3|.", "ybcdef" N X "yhijkl");
 }
 
 void FakeVimTester::test_vim_replace_special_key()
@@ -21550,6 +27429,87 @@ void FakeVimTester::test_vim_join_spacing()
     KEYS("3J", "one" X ")two");
     data.setText(N N "two");
     KEYS("3J", X "two");
+
+    // A "q" among 'cpoptions' leaves the cursor where the join of the first
+    // two lines would have left it, whichever join it is.
+    data.setText(X "aaa" N "bbb" N "ccc" N "ddd");
+    KEYS("3J", "aaa bbb" X " ccc" N "ddd");
+    data.setText(X "aaa" N "bbb" N "ccc" N "ddd");
+    KEYS("3gJ", "aaabbb" X "ccc" N "ddd");
+    data.setText(X "aaa" N "bbb" N "ccc" N "ddd");
+    KEYS("VGJ", "aaa bbb ccc" X " ddd");
+    data.doCommand("set cpoptions=aABceFszq");
+    data.setText(X "aaa" N "bbb" N "ccc" N "ddd");
+    KEYS("3J", "aaa" X " bbb ccc" N "ddd");
+    data.setText(X "aaa" N "bbb" N "ccc" N "ddd");
+    KEYS("3gJ", "aaa" X "bbbccc" N "ddd");
+    data.setText(X "aaa" N "bbb" N "ccc" N "ddd");
+    KEYS("VGJ", "aaa" X " bbb ccc ddd");
+    // The join of two lines lands there either way.
+    data.setText(X "aaa" N "bbb");
+    KEYS("J", "aaa" X " bbb");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_join_multibyte()
+{
+    // An "M" among 'formatoptions' keeps the space out of a join unless both
+    // characters it would stand between are below 256, a "B" unless one of
+    // them is and the other carries no room of its own. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    const QString stop = QString(QChar(ushort(0x3002)));
+    const QString x = QLatin1String(X);
+    const QString enter = QLatin1String("<CR>");
+    const QString join = QLatin1String("<Esc>ggJ");
+
+    data.doCommand("set fo=tcq");
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 2) + enter + wideChars(2, 2) + join,
+         (wideChars(0, 2) + x + QLatin1String(" ") + wideChars(2, 2)).toUtf8());
+
+    data.doCommand("set fo=tcqM");
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 2) + enter + wideChars(2, 2) + join,
+         (wideChars(0, 2) + x + wideChars(2, 2)).toUtf8());
+
+    data.doCommand("set fo=tcqB");
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 2) + enter + wideChars(2, 2) + join,
+         (wideChars(0, 2) + x + wideChars(2, 2)).toUtf8());
+
+    // What "M" asks of both characters "B" asks of one.
+    data.doCommand("set fo=tcqM");
+    data.setText("");
+    KEYS(QLatin1String("iab") + enter + wideChars(0, 2) + join,
+         (QLatin1String("ab") + x + wideChars(0, 2)).toUtf8());
+    data.doCommand("set fo=tcqB");
+    data.setText("");
+    KEYS(QLatin1String("iab") + enter + wideChars(0, 2) + join,
+         (QLatin1String("ab") + x + QLatin1String(" ") + wideChars(0, 2)).toUtf8());
+
+    // A full stop that takes its own room leaves "B" nothing to ask for,
+    // whichever of the two lines it ends up on.
+    data.setText("");
+    KEYS(QLatin1String("i") + wideChars(0, 1) + stop + enter + QLatin1String("ab") + join,
+         (wideChars(0, 1) + stop + x + QLatin1String("ab")).toUtf8());
+    data.setText("");
+    KEYS(QLatin1String("iab") + enter + stop + wideChars(0, 1) + join,
+         (QLatin1String("ab") + x + stop + wideChars(0, 1)).toUtf8());
+
+    // The number the character has is what counts, not the cells it takes.
+    const QString macrons = QString(QChar(ushort(0x101))) + QChar(ushort(0x113));
+    data.doCommand("set fo=tcqM");
+    data.setText("");
+    KEYS(QLatin1String("i") + macrons.left(1) + enter + macrons.mid(1) + join,
+         (macrons.left(1) + x + macrons.mid(1)).toUtf8());
+    data.setText("");
+    KEYS(QLatin1String("iab") + enter + QLatin1String("cd") + join,
+         QByteArray("ab" X " cd"));
+
+    data.doCommand("set fo=tcq");
 }
 
 void FakeVimTester::test_vim_quote_object_count()
@@ -22428,8 +28388,9 @@ void FakeVimTester::test_vim_ascii_key()
 void FakeVimTester::test_vim_scroll_page_line()
 {
     // "z+" puts the line below the window's last one on top, "z^" the one
-    // above its first at the bottom; a count names the line instead. Values
-    // taken from Vim 9.1.
+    // above its first at the bottom. A count names the line instead, and a
+    // counted "z^" then takes the cursor to the line that ends up on top and
+    // places the window a second time. Values taken from Vim 9.1.
     TestData data;
     setup(&data);
 
@@ -22437,10 +28398,410 @@ void FakeVimTester::test_vim_scroll_page_line()
     KEYS("3Gz+", "1" N "2" N "3" N "4" N "" X "5");
     KEYS("z^", "" X "1" N "2" N "3" N "4" N "5");
     KEYS("4z+", "1" N "2" N "3" N "" X "4" N "5");
-    KEYS("2z^", "1" N "" X "2" N "3" N "4" N "5");
+    KEYS("2z^", "" X "1" N "2" N "3" N "4" N "5");
 
     data.setText("  indented" N "next");
     KEYS("1Gz+", "  indented" N "" X "next");
+}
+
+void FakeVimTester::test_vim_scroll_half_page()
+{
+    // CTRL-D and CTRL-U move the view and the cursor by 'scroll' lines, which
+    // is half the window while nothing sets it, and which a count to either of
+    // them sets for the ones that follow. Values taken from Vim 9.1, in a
+    // window of its own geometry, so the expectations below are computed from
+    // the one this editor has rather than written out.
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the viewport has a real size and actually scrolls.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    QByteArray text;
+    for (int i = 1; i <= 200; ++i)
+        text += (i > 1 ? "\n" : "") + QByteArray("line ") + QByteArray::number(i);
+    data.setText(text.constData());
+
+    const int height = data.editor()->viewport()->height()
+                       / data.editor()->cursorRect().height();
+    QVERIFY(height > 8);
+    const int half = qMax(1, height / 2);
+
+    const auto cursorLine = [&] { return data.editor()->textCursor().blockNumber() + 1; };
+    const auto topLine = [&] {
+        return data.editor()->cursorForPosition(QPoint(0, 0)).blockNumber() + 1;
+    };
+
+    data.doKeys("gg<C-d>");
+    QCOMPARE(cursorLine(), 1 + half);
+    QCOMPARE(topLine(), 1 + half);
+    data.doKeys("<C-d>");
+    QCOMPARE(cursorLine(), 1 + 2 * half);
+    QCOMPARE(topLine(), 1 + 2 * half);
+    data.doKeys("<C-u>");
+    QCOMPARE(cursorLine(), 1 + half);
+    QCOMPARE(topLine(), 1 + half);
+
+    // Wherever the window stands, both go down by the same lines - here after
+    // a jump the window followed on its own rather than by a scroll command.
+    data.doKeys("100G");
+    const int top = topLine();
+    data.doKeys("<C-d>");
+    QCOMPARE(cursorLine(), 100 + half);
+    QCOMPARE(topLine(), top + half);
+
+    // A count sets the option, so the next one without a count moves as far.
+    data.doKeys("gg5<C-d>");
+    QCOMPARE(cursorLine(), 6);
+    QCOMPARE(topLine(), 6);
+    data.doKeys("<C-d>");
+    QCOMPARE(cursorLine(), 11);
+    QCOMPARE(topLine(), 11);
+    data.doKeys("<C-u>");
+    QCOMPARE(cursorLine(), 6);
+    QCOMPARE(topLine(), 6);
+
+    // A count to CTRL-U sets it as well.
+    data.doKeys("100Gzt4<C-u>");
+    QCOMPARE(cursorLine(), 96);
+    QCOMPARE(topLine(), 96);
+    data.doKeys("<C-u>");
+    QCOMPARE(cursorLine(), 92);
+    QCOMPARE(topLine(), 92);
+
+    // And so does the option itself.
+    data.doCommand("set scroll=7");
+    data.doKeys("gg<C-d>");
+    QCOMPARE(cursorLine(), 8);
+    QCOMPARE(topLine(), 8);
+
+    // A size the window cannot hold is refused, and the option keeps what it
+    // had.
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    data.doCommand("set scroll=" + QString::number(height + 1));
+    QVERIFY2(message.startsWith("E49"), qPrintable(message));
+    data.doKeys("gg<C-d>");
+    QCOMPARE(cursorLine(), 8);
+
+    // Zero asks for half the window, which is the number the option then has.
+    data.doCommand("set scroll=0");
+    message.clear();
+    data.doCommand("echo &scroll");
+    QCOMPARE(message, QString::number(half));
+
+    // 'scrolloff' keeps the cursor off the top of the window, which pushes it
+    // further down than the view went.
+    data.doCommand("set scroll=7");
+    data.doCommand("set so=3");
+    data.doKeys("gg<C-d>");
+    QCOMPARE(cursorLine(), 11);
+    QCOMPARE(topLine(), 8);
+
+    // At the bottom of the document the cursor comes up against 'scrolloff'
+    // from below the same way.
+    data.doCommand("set scroll=0");
+    data.doKeys("G<C-u>");
+    QCOMPARE(cursorLine(), 197 - half);
+    QCOMPARE(topLine(), 201 - height - half);
+    data.doCommand("set so=0");
+
+    // Neither command goes over an end of the document.
+    data.doKeys("gg<C-u>");
+    QCOMPARE(cursorLine(), 1);
+    QCOMPARE(topLine(), 1);
+    data.doKeys("G<C-d>");
+    QCOMPARE(cursorLine(), 200);
+    QCOMPARE(topLine(), 201 - height);
+
+    data.doCommand("set scroll=0");
+}
+
+void FakeVimTester::test_vim_scroll_jump_placement()
+{
+    // A jump the window has to follow scrolls it as little as it takes while
+    // the line is close by, and puts the line in the middle of the window when
+    // it is further off. Measured in Vim 9.1 over window heights from 11 to 41:
+    // going up the window follows minimally while the step is at most half its
+    // height less two lines, going down while the step is at most half its
+    // height, and the middle the line lands on sits a line lower going down
+    // than going up, except that a step of more than a window and a line down
+    // takes the higher middle again. The window here has a geometry of its own,
+    // so the expectations are computed from its height, and the whole set runs
+    // over an even and an odd height, which is what the rounding turns on.
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the viewport has a real size and actually scrolls.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    QByteArray text;
+    for (int i = 1; i <= 300; ++i)
+        text += (i > 1 ? "\n" : "") + QByteArray("line ") + QByteArray::number(i);
+    data.setText(text.constData());
+
+    const auto topLine = [&] {
+        return data.editor()->cursorForPosition(QPoint(0, 0)).blockNumber() + 1;
+    };
+    const int lineHeight = data.editor()->cursorRect().height();
+    QVERIFY(lineHeight > 0);
+    const int chrome = data.editor()->height() - data.editor()->viewport()->height();
+
+    for (int height = 24; height <= 25; ++height) {
+        data.editor()->resize(600, chrome + height * lineHeight + lineHeight / 2);
+        QCOMPARE(data.editor()->viewport()->height() / lineHeight, height);
+
+        const int up = height / 2 - 2;
+        const int down = (height + 1) / 2;
+        const int bottom = 149 + height;
+
+        // The step the window still follows minimally leaves the line at the
+        // edge it came in over.
+        data.doKeys("150Gzt" + QString::number(bottom + down) + "G");
+        QCOMPARE(topLine(), 150 + down);
+        data.doKeys("150Gzt" + QString::number(150 - up) + "G");
+        QCOMPARE(topLine(), 150 - up);
+
+        // One line further and the window centers the line instead.
+        data.doKeys("150Gzt" + QString::number(bottom + down + 1) + "G");
+        QCOMPARE(topLine(), bottom + down + 1 - height / 2);
+        data.doKeys("150Gzt" + QString::number(150 - up - 1) + "G");
+        QCOMPARE(topLine(), 150 - up - 1 - (height - 1) / 2);
+
+        // A step of more than a window and a line down takes the same middle
+        // as a step up does.
+        data.doKeys("150Gzt" + QString::number(bottom + height + 2) + "G");
+        QCOMPARE(topLine(), bottom + height + 2 - (height - 1) / 2);
+
+        // Centering stops at the end of the document, which the window keeps
+        // at its last line.
+        data.doKeys("1Gzt300G");
+        QCOMPARE(topLine(), 301 - height);
+
+        // Any other move the window has to follow places it the same way, a
+        // search and a mark jump included.
+        data.doKeys("150Gzt/^line " + QString::number(bottom + down) + "$<CR>");
+        QCOMPARE(topLine(), 150 + down);
+        data.doKeys("150Gzt?^line " + QString::number(150 - up) + "$<CR>");
+        QCOMPARE(topLine(), 150 - up);
+        data.doKeys(QString::number(150 - up - 1) + "Gma150Gzt`a");
+        QCOMPARE(topLine(), 150 - up - 1 - (height - 1) / 2);
+
+        // "scrolloff" holds the cursor that many lines off the window edge, so
+        // the step going down reaches that much further before the window
+        // gives up following it, while the step going up keeps its length.
+        data.doCommand("set so=3");
+        data.doKeys("150Gzt");
+        QCOMPARE(topLine(), 147);
+        const int lowest = 143 + height;
+        data.doKeys("150Gzt" + QString::number(lowest + down + 3) + "G");
+        QCOMPARE(topLine(), 150 + down);
+        data.doKeys("150Gzt" + QString::number(lowest + down + 4) + "G");
+        QCOMPARE(topLine(), lowest + down + 4 - height / 2);
+        data.doKeys("150Gzt" + QString::number(lowest + height + 2) + "G");
+        QCOMPARE(topLine(), lowest + height + 2 - (height - 1) / 2);
+        data.doKeys("150Gzt" + QString::number(150 - up) + "G");
+        QCOMPARE(topLine(), 147 - up);
+        data.doKeys("150Gzt" + QString::number(150 - up - 1) + "G");
+        QCOMPARE(topLine(), 150 - up - 1 - (height - 1) / 2);
+        data.doCommand("set so=0");
+    }
+}
+
+void FakeVimTester::test_vim_scroll_page()
+{
+    // CTRL-F and CTRL-B move the window by a page, which is the window less
+    // the two lines that stay in sight across the move, and a count multiplies
+    // that. Measured in Vim 9.1 in a window of 23 lines over 200 of text: the
+    // window goes from line 1 to 22 and on to 43, CTRL-F leaves the cursor on
+    // the first line of the new window and CTRL-B on the last one, a window
+    // that already shows the last line of the document answers CTRL-F by
+    // putting that line on top, CTRL-B does nothing at the first line, and
+    // "scrolloff" pushes the cursor that far inside either way. Values are
+    // computed from the window this editor has rather than written out.
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the viewport has a real size and actually scrolls.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    QByteArray text;
+    for (int i = 1; i <= 200; ++i)
+        text += (i > 1 ? "\n" : "") + QByteArray("  line ") + QByteArray::number(i);
+    data.setText(text.constData());
+
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const int height = echo("winheight(0)").toInt();
+    QVERIFY(height > 8);
+    const int page = height - 2;
+
+    const auto cursorLine = [&] { return data.editor()->textCursor().blockNumber() + 1; };
+    const auto topLine = [&] {
+        return data.editor()->cursorForPosition(QPoint(0, 0)).blockNumber() + 1;
+    };
+    const auto cursorColumn = [&] { return data.editor()->textCursor().positionInBlock() + 1; };
+
+    data.doKeys("gg<C-f>");
+    QCOMPARE(topLine(), 1 + page);
+    QCOMPARE(cursorLine(), 1 + page);
+    QCOMPARE(cursorColumn(), 3);
+    data.doKeys("<C-f>");
+    QCOMPARE(topLine(), 1 + 2 * page);
+    QCOMPARE(cursorLine(), 1 + 2 * page);
+
+    // CTRL-B leaves the cursor on the last line of the window it moves to,
+    // which is the line the window CTRL-F came from started at.
+    data.doKeys("<C-b>");
+    QCOMPARE(topLine(), 1 + page);
+    QCOMPARE(cursorLine(), page + height);
+
+    // A count multiplies the page, in both directions.
+    data.doKeys("gg2<C-f>");
+    QCOMPARE(topLine(), 1 + 2 * page);
+    QCOMPARE(cursorLine(), 1 + 2 * page);
+    data.doKeys("100Gzt2<C-f>");
+    QCOMPARE(topLine(), 100 + 2 * page);
+    QCOMPARE(cursorLine(), 100 + 2 * page);
+    data.doKeys("100Gzt2<C-b>");
+    QCOMPARE(topLine(), 100 - 2 * page);
+    QCOMPARE(cursorLine(), 100 - 2 * page + height - 1);
+
+    // There is nothing for CTRL-B to do while the window stands at the first
+    // line, and CTRL-F on a window that has the last line in sight puts the
+    // cursor on that line, where a further one leaves it.
+    data.doKeys("gg<C-b>");
+    QCOMPARE(topLine(), 1);
+    QCOMPARE(cursorLine(), 1);
+    data.doKeys("G<C-f>");
+    QCOMPARE(cursorLine(), 200);
+    QCOMPARE(topLine(), 201 - height);
+    data.doKeys("<C-f>");
+    QCOMPARE(cursorLine(), 200);
+
+    // "scrolloff" keeps the cursor that far inside the window, on the line it
+    // lands on from either direction.
+    data.doCommand("set so=3");
+    data.doKeys("gg<C-f>");
+    QCOMPARE(topLine(), 1 + page);
+    QCOMPARE(cursorLine(), 1 + page + 3);
+    data.doKeys("100Gzt");
+    const int top = topLine();
+    data.doKeys("<C-b>");
+    QCOMPARE(topLine(), top - page);
+    QCOMPARE(cursorLine(), top - page + height - 4);
+    data.doCommand("set so=0");
+}
+
+void FakeVimTester::test_vim_scroll_align()
+{
+    // "zt", "zb" and "zz" put the cursor line on the top, the bottom and the
+    // middle of the window, and "scrolloff" counts from the window edge here
+    // as well, so the view goes that much further than the cursor line while
+    // the document allows it. Centering is not affected. "z<CR>" follows "zt",
+    // "z." follows "zz" and "z-" follows "zb". "z+" and "z^" name the line
+    // below the last and above the first one of the window and place it the
+    // same way. Measured in Vim 9.1 in a window of 23 lines over 200 of text,
+    // with values here computed from the window this editor has.
+    TestData data;
+    setup(&data);
+
+    // Realize the editor so the viewport has a real size and actually scrolls.
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    QByteArray text;
+    for (int i = 1; i <= 200; ++i)
+        text += (i > 1 ? "\n" : "") + QByteArray("  line ") + QByteArray::number(i);
+    data.setText(text.constData());
+
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto echo = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const int height = echo("winheight(0)").toInt();
+    QVERIFY(height > 8);
+
+    const auto cursorLine = [&] { return data.editor()->textCursor().blockNumber() + 1; };
+    const auto topLine = [&] {
+        return data.editor()->cursorForPosition(QPoint(0, 0)).blockNumber() + 1;
+    };
+    const auto cursorColumn = [&] { return data.editor()->textCursor().positionInBlock() + 1; };
+
+    data.doKeys("100Gzt");
+    QCOMPARE(topLine(), 100);
+    QCOMPARE(cursorLine(), 100);
+    QCOMPARE(cursorColumn(), 3);
+    data.doKeys("100Gzb");
+    QCOMPARE(topLine(), 101 - height);
+    QCOMPARE(cursorLine(), 100);
+    data.doKeys("100Gzz");
+    QCOMPARE(topLine(), 100 - height / 2);
+    data.doKeys("4Gzb");
+    QCOMPARE(topLine(), 1);
+    QCOMPARE(cursorLine(), 4);
+
+    data.doCommand("set so=3");
+    data.doKeys("100Gzt");
+    QCOMPARE(topLine(), 97);
+    QCOMPARE(cursorLine(), 100);
+    QCOMPARE(cursorColumn(), 3);
+    data.doKeys("100Gz<CR>");
+    QCOMPARE(topLine(), 97);
+    QCOMPARE(cursorLine(), 100);
+    data.doKeys("100Gzb");
+    QCOMPARE(topLine(), 104 - height);
+    QCOMPARE(cursorLine(), 100);
+    data.doKeys("100Gz-");
+    QCOMPARE(topLine(), 104 - height);
+    QCOMPARE(cursorLine(), 100);
+
+    // Centering stays where it was, and either edge of the document takes
+    // precedence over the offset.
+    data.doKeys("100Gzz");
+    QCOMPARE(topLine(), 100 - height / 2);
+    data.doKeys("5Gzt");
+    QCOMPARE(topLine(), 2);
+    QCOMPARE(cursorLine(), 5);
+    data.doKeys("4Gzb");
+    QCOMPARE(topLine(), 1);
+    QCOMPARE(cursorLine(), 4);
+    data.doKeys("199Gzb");
+    QCOMPARE(topLine(), 201 - height);
+    QCOMPARE(cursorLine(), 199);
+
+    // "z+" and "z^" take the line beyond the window as the offset leaves it,
+    // and then place that line as "zt" and "zb" do.
+    data.doKeys("100Gztz+");
+    QCOMPARE(topLine(), 94 + height);
+    QCOMPARE(cursorLine(), 97 + height);
+    data.doKeys("100Gztz^");
+    QCOMPARE(topLine(), 100 - height);
+    QCOMPARE(cursorLine(), 96);
+    data.doCommand("set so=0");
 }
 
 void FakeVimTester::test_vim_balanced_brace()
@@ -22562,6 +28923,22 @@ void FakeVimTester::test_vim_command_map_listing()
     QVERIFY2(vimrc.endsWith("\" vim: set ft=vim :\n"), qPrintable(vimrc));
     // An option left alone is not written.
     QVERIFY2(!vimrc.contains("set tabstop"), qPrintable(vimrc));
+    // An option goes in once with its full name, although it answers to a
+    // short one as well, and the mappings come before the options.
+    QCOMPARE(vimrc.count("set shiftwidth=7"), 1);
+    QVERIFY2(!vimrc.contains("set sw="), qPrintable(vimrc));
+    QVERIFY2(vimrc.indexOf("nnoremap BB") < vimrc.indexOf("set shiftwidth"), qPrintable(vimrc));
+    // The settings of the plugin are no options of Vim, so a vimrc Vim could
+    // not read is not written.
+    const QString third = dir.path() + "/out3.vimrc";
+    data.doCommand("set showmarks");
+    data.doCommand("mkvimrc " + third);
+    data.doCommand("set noshowmarks");
+    QFile plugin(third);
+    QVERIFY(plugin.open(QIODevice::ReadOnly));
+    const QString written3 = QString::fromUtf8(plugin.readAll());
+    plugin.close();
+    QVERIFY2(!written3.contains("showmarks"), qPrintable(written3));
 
     // It refuses an existing file without the bang, as Vim does.
     message.clear();
@@ -22577,7 +28954,8 @@ void FakeVimTester::test_vim_command_map_listing()
     QVERIFY(second.open(QIODevice::ReadOnly));
     const QString written2 = QString::fromUtf8(second.readAll());
     second.close();
-    QVERIFY2(written2.startsWith("version 6.0\nset "), qPrintable(written2));
+    QVERIFY2(written2.startsWith("version 6.0\nnnoremap "), qPrintable(written2));
+    QVERIFY2(!written2.contains("if &cp"), qPrintable(written2));
 
     data.doCommand("set shiftwidth&");
     data.doCommand("mapclear");
@@ -23018,6 +29396,232 @@ void FakeVimTester::test_vim_command_append_insert()
     data.doCommand("set modifiable");
 }
 
+void FakeVimTester::test_vim_command_undolist()
+{
+    // ":undolist" lists the LEAFS of the tree of changes, and the engine keeps
+    // one line of them, so there is at most one. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString fileName = dir.path() + "/undolist.txt";
+    data.handler->setCurrentFileName(fileName);
+
+    const QLatin1String header("number changes  when               saved");
+    QString when;
+    // The "when" column comes out on its own: the clock can tick over between
+    // the change and the row, and the column behind it does not move with the
+    // width of the text, which is padded to a fixed place.
+    const auto row = [&](const QString &command) -> QString {
+        extra.clear();
+        when.clear();
+        message.clear();
+        data.doCommand(command);
+        const QStringList lines = extra.split('\n');
+        if (lines.size() != 2 || lines.first() != header)
+            return extra;
+        const QString line = lines.at(1);
+        when = line.mid(16, 17).trimmed();
+        return line.left(16) + "|" + line.mid(33);
+    };
+    const auto recent = [&] { return when == "0 seconds ago" || when == "1 second ago"; };
+    const auto number = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText(X "one" N "two" N "three");
+
+    // A buffer nothing has happened to has no leaf to list.
+    extra.clear();
+    message.clear();
+    data.doCommand("undolist");
+    QCOMPARE(extra, QString());
+    QCOMPARE(message, QLatin1String("Nothing to undo"));
+    QCOMPARE(number("undotree().save_last"), QLatin1String("0"));
+
+    KEYS("x", X "ne" N "two" N "three");
+    QCOMPARE(row("undolist"), QLatin1String("     1       1  |"));
+    QVERIFY2(recent(), qPrintable(when));
+
+    KEYS("jx", "ne" N X "wo" N "three");
+    QCOMPARE(row("undol"), QLatin1String("     2       2  |"));
+    QVERIFY2(recent(), qPrintable(when));
+
+    // The write leaves the state it wrote numbered, and the number stands in
+    // the last column of the row.
+    data.doCommand("w! " + fileName);
+    QCOMPARE(row("undolist"), QLatin1String("     2       2  |    1"));
+    QCOMPARE(number("undotree().save_cur"), QLatin1String("1"));
+    QCOMPARE(number("undotree().save_last"), QLatin1String("1"));
+
+    // A change of its own is no write, so the new leaf carries no number.
+    KEYS("x", "ne" N X "o" N "three");
+    QCOMPARE(row("undolist"), QLatin1String("     3       3  |"));
+    QCOMPARE(number("undotree().save_cur"), QLatin1String("1"));
+
+    // What the row says is the leaf, and an undo moves the buffer rather than
+    // the leaf: both columns and the number stay where they were.
+    data.doCommand("earlier 1");
+    QCOMPARE(row("undolist"), QLatin1String("     3       3  |"));
+    data.doCommand("later 1");
+    QCOMPARE(row("undolist"), QLatin1String("     3       3  |"));
+
+    // The second write numbers the state it wrote, which is this leaf.
+    data.doCommand("w! " + fileName);
+    QCOMPARE(row("undolist"), QLatin1String("     3       3  |    2"));
+    QCOMPARE(number("undotree().save_cur"), QLatin1String("2"));
+    QCOMPARE(number("undotree().save_last"), QLatin1String("2"));
+
+    KEYS("x", "ne" N X N "three");
+    data.doCommand("w! " + fileName);
+    QCOMPARE(row("undolist"), QLatin1String("     4       4  |    3"));
+
+    // Back behind the first write, where the leaf keeps the number of the last
+    // one and "save_cur" counts the writes the buffer is at or past.
+    data.doCommand("earlier 2");
+    QCOMPARE(row("undolist"), QLatin1String("     4       4  |    3"));
+    QCOMPARE(number("undotree().save_cur"), QLatin1String("1"));
+    QCOMPARE(number("undotree().save_last"), QLatin1String("3"));
+}
+
+void FakeVimTester::test_vim_function_undotree_branches()
+{
+    // The tree of changes: a change made after an undo leaves the states it
+    // came back over behind, with their numbers, rather than reusing them.
+    // Measured in Vim 9.1 through a pty over the tree of this test, chains 2-3,
+    // 4-5 and 6 all hanging off state 1. A sourced script is no good for this:
+    // its changes collapse into one undo block unless something breaks them
+    // apart.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    // The "when" column comes out on its own: the clock can tick over while the
+    // rows are made, and the column behind it stands at a fixed place.
+    const auto rows = [&] {
+        extra.clear();
+        data.doCommand("undolist");
+        QStringList lines = extra.split('\n');
+        for (int i = 1; i < lines.size(); ++i)
+            lines[i] = lines.at(i).left(16) + "|" + lines.at(i).mid(33);
+        return lines.join('\n');
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString fileName = dir.path() + "/undotree.txt";
+    data.handler->setCurrentFileName(fileName);
+
+    data.setText(X "abcdefgh");
+    QCOMPARE(value("undotree().seq_cur"), QLatin1String("0"));
+    QCOMPARE(value("undotree().seq_last"), QLatin1String("0"));
+    QCOMPARE(value("len(undotree().entries)"), QLatin1String("0"));
+
+    // One state per change, the newest of them the head of the branch.
+    data.doKeys("xxx");
+    QCOMPARE(value("undotree().seq_cur"), QLatin1String("3"));
+    QCOMPARE(value("undotree().seq_last"), QLatin1String("3"));
+    QCOMPARE(value("changenr()"), QLatin1String("3"));
+    QCOMPARE(value("len(undotree().entries)"), QLatin1String("3"));
+    QCOMPARE(value("undotree().entries[2].seq"), QLatin1String("3"));
+    QCOMPARE(value("has_key(undotree().entries[2], 'newhead')"), QLatin1String("1"));
+
+    // Back to state 1 and on from there: the states left behind keep their
+    // numbers, the new change takes the next unused one, and the head of the
+    // branch that was left carries the old chain in "alt".
+    data.doCommand("undo 1");
+    QCOMPARE(value("undotree().seq_cur"), QLatin1String("1"));
+    data.doKeys("xx");
+    QCOMPARE(value("undotree().seq_cur"), QLatin1String("5"));
+    QCOMPARE(value("undotree().seq_last"), QLatin1String("5"));
+    QCOMPARE(value("len(undotree().entries)"), QLatin1String("3"));
+    QCOMPARE(value("undotree().entries[1].seq"), QLatin1String("4"));
+    QCOMPARE(value("len(undotree().entries[1].alt)"), QLatin1String("2"));
+    QCOMPARE(value("undotree().entries[1].alt[0].seq"), QLatin1String("2"));
+    QCOMPARE(value("undotree().entries[1].alt[1].seq"), QLatin1String("3"));
+
+    // Branching off the same state twice nests them: the newest child is the
+    // spine and each older chain hangs off the head of the next younger one.
+    data.doCommand("undo 1");
+    data.doKeys("x");
+    QCOMPARE(value("undotree().seq_cur"), QLatin1String("6"));
+    QCOMPARE(value("len(undotree().entries)"), QLatin1String("2"));
+    QCOMPARE(value("undotree().entries[1].seq"), QLatin1String("6"));
+    QCOMPARE(value("undotree().entries[1].alt[0].seq"), QLatin1String("4"));
+    QCOMPARE(value("undotree().entries[1].alt[1].seq"), QLatin1String("5"));
+    QCOMPARE(value("undotree().entries[1].alt[0].alt[0].seq"), QLatin1String("2"));
+    QCOMPARE(value("undotree().entries[1].alt[0].alt[1].seq"), QLatin1String("3"));
+
+    // ":undolist" lists the leafs of the whole tree, each with its own number
+    // and its depth, oldest number first.
+    QCOMPARE(rows(), QLatin1String("number changes  when               saved" N
+                                   "     3       3  |" N
+                                   "     5       3  |" N
+                                   "     6       2  |"));
+
+    // The write stamps the state it wrote, which is the leaf the buffer stands
+    // on, and that state alone.
+    data.doCommand("w! " + fileName);
+    QCOMPARE(value("undotree().save_cur"), QLatin1String("1"));
+    QCOMPARE(value("undotree().save_last"), QLatin1String("1"));
+    QCOMPARE(value("undotree().entries[1].save"), QLatin1String("1"));
+    QCOMPARE(value("sort(keys(undotree().entries[1]))"),
+             QLatin1String("['alt', 'newhead', 'save', 'seq', 'time']"));
+    QCOMPARE(rows(), QLatin1String("number changes  when               saved" N
+                                   "     3       3  |" N
+                                   "     5       3  |" N
+                                   "     6       2  |    1"));
+
+    // An undo leaves the head of the branch where it is and marks the state it
+    // came back over as the one a redo goes to. It also carries the write
+    // number of that state back, one short of it.
+    data.doKeys("u");
+    QCOMPARE(value("undotree().seq_cur"), QLatin1String("1"));
+    QCOMPARE(value("undotree().seq_last"), QLatin1String("6"));
+    QCOMPARE(value("undotree().save_cur"), QLatin1String("0"));
+    QCOMPARE(value("undotree().save_last"), QLatin1String("1"));
+    QCOMPARE(value("has_key(undotree().entries[1], 'newhead')"), QLatin1String("1"));
+    QCOMPARE(value("has_key(undotree().entries[1], 'curhead')"), QLatin1String("1"));
+    data.doKeys("<c-r>");
+    QCOMPARE(value("undotree().seq_cur"), QLatin1String("6"));
+    QCOMPARE(value("undotree().save_cur"), QLatin1String("1"));
+    QCOMPARE(value("has_key(undotree().entries[1], 'curhead')"), QLatin1String("0"));
+
+    // A number on a branch that was left behind names a state whose TEXT is
+    // gone: the document undoes along one line where Vim keeps the whole tree,
+    // so the command says so rather than land somewhere else.
+    message.clear();
+    data.doCommand("undo 3");
+    QCOMPARE(message,
+             QLatin1String("Undo number 3 is on a branch this editor does not keep"));
+    QCOMPARE(value("undotree().seq_cur"), QLatin1String("6"));
+    message.clear();
+    data.doCommand("undo 7");
+    QCOMPARE(message, QLatin1String("E830: Undo number 7 not found"));
+}
+
 void FakeVimTester::test_vim_command_swept_batch()
 {
     // A batch of ex commands the 2026-09-04 sweep found absent. All values
@@ -23045,15 +29649,6 @@ void FakeVimTester::test_vim_command_swept_batch()
 
     data.setText("alpha" N "beta" N "gamma");
     data.doKeys("gg");
-
-    // ":undolist" lists what undotree() reports, with Vim's header.
-    extra.clear();
-    data.doCommand("undolist");
-    QVERIFY2(extra.startsWith("number changes  when"), qPrintable(extra));
-    data.doKeys("x");
-    extra.clear();
-    data.doCommand("undol");
-    QVERIFY2(extra.contains("seconds ago"), qPrintable(extra));
 
     // ":ascii" is what "ga" says. Measured: "<l>  108,  Hex 6c,  Octal 154".
     data.setText("lpha" N "beta");
@@ -23407,15 +30002,14 @@ void FakeVimTester::test_vim_functions_none_of_that()
     data.doCommand("def Dn(): number | return exists_compiled('g:nope') | enddef");
     QCOMPARE(value("Dn()"), QLatin1String("0"));
 
-    // Nothing here beeps, so the pair that asks about beeping always answers
-    // the same way - a failure for the first and a pass for the second, by
-    // the assert_*() convention the other fifteen follow.
+    // The pair that asks about beeping runs the command, so the first "j"
+    // lands on the second of the two lines and the second one has nowhere to
+    // go: both pass, measured.
     data.doCommand("let v:errors = []");
     QCOMPARE(value("assert_nobeep('normal! j')"), QLatin1String("0"));
     QCOMPARE(value("len(v:errors)"), QLatin1String("0"));
-    QCOMPARE(value("assert_beeps('normal! j')"), QLatin1String("1"));
-    QCOMPARE(value("len(v:errors)"), QLatin1String("1"));
-    data.doCommand("let v:errors = []");
+    QCOMPARE(value("assert_beeps('normal! j')"), QLatin1String("0"));
+    QCOMPARE(value("len(v:errors)"), QLatin1String("0"));
 
     // All of them exist as far as a script is concerned, which is the point.
     for (const QString &name : QStringList{"hlID", "highlightID", "synID", "synIDattr",
@@ -23470,16 +30064,15 @@ void FakeVimTester::test_vim_function_undotree_screen()
     QCOMPARE(value("len(undotree()['entries']) > 0"), QLatin1String("1"));
     QCOMPARE(value("sort(keys(undotree()['entries'][-1]))"),
              QLatin1String("['newhead', 'seq', 'time']"));
-    // A DIVERGENCE worth knowing about: what this engine keeps is a STACK of
-    // states that an undo pops, where Vim keeps the whole tree and leaves the
-    // entry in it. So the entries here are what can still be undone, and
-    // undoing the only change leaves none - Vim would still list it.
+    // An undo moves the buffer and leaves the state in the tree, so the entry
+    // stays and is marked as the one a redo goes back to.
     data.doKeys("u");
-    QCOMPARE(value("len(undotree()['entries'])"), QLatin1String("0"));
+    QCOMPARE(value("len(undotree()['entries'])"), QLatin1String("1"));
+    QCOMPARE(value("undotree()['seq_cur']"), QLatin1String("0"));
+    QCOMPARE(value("has_key(undotree()['entries'][0], 'curhead')"), QLatin1String("1"));
+    QCOMPARE(value("has_key(undotree()['entries'][0], 'newhead')"), QLatin1String("1"));
     QCOMPARE(value("undotree()['synced']"), QLatin1String("1"));
-    // Qt Creator owns the writing and nothing records which state was saved,
-    // so both "save" numbers say none - what Vim answers for a buffer never
-    // written.
+    // Nothing has been written, which is what both "save" numbers say.
     QCOMPARE(value("undotree()['save_cur']"), QLatin1String("0"));
     QCOMPARE(value("undotree()['save_last']"), QLatin1String("0"));
 
@@ -23489,6 +30082,7 @@ void FakeVimTester::test_vim_function_undotree_screen()
     // here, the command line being a widget rather than part of the editor,
     // so the nearest true answer is given instead.
     data.setText("one" N "two" N "three");
+    data.doCommand("set nonumber");
     data.doKeys("gg");
     QCOMPARE(value("screenrow()"), value("winline()"));
     QCOMPARE(value("screencol()"), value("wincol()"));
@@ -23506,6 +30100,76 @@ void FakeVimTester::test_vim_function_undotree_screen()
     QCOMPARE(value("screenpos(0, 2, 3)['col']"), QLatin1String("3"));
     QVERIFY2(value("screenpos(0, 99, 1)").contains("E966"), qPrintable(message));
     QVERIFY2(value("screenpos(0, 0, 1)").contains("E966"), qPrintable(message));
+
+    // A tab is drawn as the cells up to the next stop and the cursor sits on
+    // the last of them, so "col" is the cell the character starts in and
+    // "endcol" the one it ends in, with "curscol" going along with the cursor.
+    // Measured in Vim 9.1 over a line of tab, "a", tab, "b": the cursor on the
+    // leading tab gives wincol 8, byte 1 gives 1, 8 and 8, byte 2 gives 9, 9
+    // and 9, byte 3 gives 10, 16 and 16, and a byte past the end of the line
+    // counts on from it.
+    data.setText("\ta\tb");
+    data.doKeys("gg0");
+    QCOMPARE(value("wincol()"), QLatin1String("8"));
+    QCOMPARE(value("screenpos(0, 1, 1)['col']"), QLatin1String("1"));
+    QCOMPARE(value("screenpos(0, 1, 1)['endcol']"), QLatin1String("8"));
+    QCOMPARE(value("screenpos(0, 1, 1)['curscol']"), QLatin1String("8"));
+    QCOMPARE(value("screenpos(0, 1, 2)['col']"), QLatin1String("9"));
+    QCOMPARE(value("screenpos(0, 1, 2)['endcol']"), QLatin1String("9"));
+    QCOMPARE(value("screenpos(0, 1, 3)['col']"), QLatin1String("10"));
+    QCOMPARE(value("screenpos(0, 1, 3)['endcol']"), QLatin1String("16"));
+    QCOMPARE(value("screenpos(0, 1, 5)['col']"), QLatin1String("18"));
+    data.doKeys("l");
+    QCOMPARE(value("wincol()"), QLatin1String("9"));
+    data.doKeys("l");
+    QCOMPARE(value("wincol()"), QLatin1String("16"));
+    // An empty line has a first cell all the same.
+    data.setText("");
+    QCOMPARE(value("screenpos(0, 1, 1)['col']"), QLatin1String("1"));
+    QCOMPARE(value("screenpos(0, 1, 1)['curscol']"), QLatin1String("1"));
+
+    // The line numbers beside the text take cells of the window, which Vim
+    // counts in "textoff" and adds to every position it answers. As many as
+    // "numberwidth" asks for, or one more than the widest line number needs
+    // where that is wider, and "relativenumber" brings them as much as
+    // "number" does. Measured in Vim 9.1 over a buffer of twelve lines: with
+    // "numberwidth" 4 the cursor in column 1 gives wincol 5, with 1, 2 and 3 it
+    // gives 4, and over a buffer of 120 lines "numberwidth" 3 gives 5 where 2
+    // digits gave 4. On a leading tab wincol is 12, with screenpos() answering
+    // 5 for the cell the tab starts in and 12 for the one it ends in.
+    data.setText("one" N "two" N "three");
+    data.doKeys("gg");
+    const int bare = value("winwidth(0)").toInt();
+    data.doCommand("set number");
+    QCOMPARE(value("wincol()"), QLatin1String("5"));
+    QCOMPARE(value("screencol()"), QLatin1String("5"));
+    QCOMPARE(value("screenpos(0, 1, 1)['col']"), QLatin1String("5"));
+    QCOMPARE(value("getwininfo(win_getid())[0]['textoff']"), QLatin1String("4"));
+    // The width of a window counts its number column, so what is left for the
+    // text is the width less "textoff". The editor draws the numbers in a
+    // margin of its own width and takes it off the viewport, so the window
+    // grows by the modelled column here where the one in Vim stays put.
+    QVERIFY2(value("winwidth(0)").toInt() > bare,
+             qPrintable(QString("%1 <= %2").arg(value("winwidth(0)")).arg(bare)));
+    // "relativenumber" brings the same column without "number".
+    data.doCommand("set nonumber relativenumber");
+    QCOMPARE(value("wincol()"), QLatin1String("5"));
+    data.doCommand("set norelativenumber number");
+    data.doCommand("set numberwidth=3");
+    QCOMPARE(value("wincol()"), QLatin1String("4"));
+    QCOMPARE(value("getwininfo(win_getid())[0]['textoff']"), QLatin1String("3"));
+    data.setText(QString("y" N).repeated(119).append("y").toUtf8().constData());
+    data.doKeys("gg");
+    QCOMPARE(value("wincol()"), QLatin1String("5"));
+    QCOMPARE(value("getwininfo(win_getid())[0]['textoff']"), QLatin1String("4"));
+    // One set of settings serves every test, so the width goes back to what
+    // the ones that follow expect.
+    data.doCommand("set numberwidth=4");
+    data.setText("\ta\tb");
+    data.doKeys("gg0");
+    QCOMPARE(value("wincol()"), QLatin1String("12"));
+    QCOMPARE(value("screenpos(0, 1, 1)['col']"), QLatin1String("5"));
+    QCOMPARE(value("screenpos(0, 1, 1)['endcol']"), QLatin1String("12"));
 
     for (const QString &name : QStringList{"undotree", "screenrow", "screencol",
                                            "screenpos"}) {
@@ -24395,10 +31059,10 @@ void FakeVimTester::test_vim_command_scriptnames()
 void FakeVimTester::test_vim_command_buffer_list()
 {
     // ":ls", ":buffers" and ":files" are one command, and all three answered
-    // "E492: Not an editor command". This engine has exactly ONE buffer and
-    // says so everywhere - bufnr(), bufname() and bufexists() are all written
-    // to the one this handler works on - so the honest listing is that one
-    // line, which is what makes this implementable at all.
+    // "E492: Not an editor command". Only listed buffers are shown, and the
+    // one this handler works on is the only listed one there is, so without
+    // the bang the listing is that one line. The unlisted buffers a script
+    // adds are in test_vim_script_bufadd_bufload().
     //
     // Measured in Vim 9.1, with the column layout derived from three name
     // lengths rather than guessed:
@@ -24604,12 +31268,9 @@ void FakeVimTester::test_vim_script_getcompletion()
     QCOMPARE(value("string(getcompletion('norm', 'command'))"),
              QLatin1String("['normal']"));
 
-    // Events, and the case-insensitive match. The names come back as this
-    // engine holds them, which is lower case where Vim capitalises them - the
-    // one divergence here, and it costs a script nothing, event names being
-    // matched without regard to case.
+    // Events, spelled as Vim spells them, and the case-insensitive match.
     QCOMPARE(value("string(getcompletion('bufwritec', 'event'))"),
-             QLatin1String("['bufwritecmd']"));
+             QLatin1String("['BufWriteCmd']"));
     QCOMPARE(value("getcompletion('BUFWRITEC', 'event') ==# "
                    "getcompletion('bufwritec', 'event')"), QLatin1String("1"));
 
@@ -24642,6 +31303,38 @@ void FakeVimTester::test_vim_script_getcompletion()
     QCOMPARE(value("string(getcompletion('g:fvCompletionProbe', 'var'))"),
              QLatin1String("['g:fvCompletionProbe']"));
 
+    // The kinds whose answer is a list of its own, the same in every Vim.
+    QCOMPARE(value("string(getcompletion('', 'behave'))"),
+             QLatin1String("['mswin', 'xterm']"));
+    QCOMPARE(value("string(getcompletion('', 'breakpoint'))"),
+             QLatin1String("['expr', 'file', 'func', 'here']"));
+    QCOMPARE(value("string(getcompletion('', 'filetypecmd'))"),
+             QLatin1String("['indent', 'off', 'on', 'plugin']"));
+    QCOMPARE(value("string(getcompletion('o', 'filetypecmd'))"),
+             QLatin1String("['off', 'on']"));
+    QCOMPARE(value("string(getcompletion('', 'history'))"),
+             QLatin1String("['/', ':', '=', '>', '?', '@', 'all', 'cmd', "
+                           "'debug', 'expr', 'input', 'search']"));
+    QCOMPARE(value("string(getcompletion('', 'mapclear'))"),
+             QLatin1String("['<buffer>']"));
+    QCOMPARE(value("string(getcompletion('', 'messages'))"),
+             QLatin1String("['clear']"));
+    QCOMPARE(value("string(getcompletion('', 'retab'))"),
+             QLatin1String("['-indentonly']"));
+    QCOMPARE(value("string(getcompletion('', 'sign'))"),
+             QLatin1String("['define', 'jump', 'list', 'place', 'undefine', "
+                           "'unplace']"));
+    QCOMPARE(value("string(getcompletion('', 'syntime'))"),
+             QLatin1String("['clear', 'off', 'on', 'report']"));
+    QCOMPARE(value("string(getcompletion('behave ', 'cmdline'))"),
+             QLatin1String("['mswin', 'xterm']"));
+    QCOMPARE(value("string(getcompletion('history c', 'cmdline'))"),
+             QLatin1String("['cmd']"));
+
+    // The environment as this process has it.
+    QCOMPARE(value("index(getcompletion('PATH', 'environment'), 'PATH') >= 0"),
+             QLatin1String("1"));
+
     // A type Vim knows and this engine has nothing for is an empty list, not
     // an error - there are no menus, no tags file and no shell completion.
     for (const QString &type : QStringList{"menu", "tag", "shellcmd", "help",
@@ -24650,10 +31343,66 @@ void FakeVimTester::test_vim_script_getcompletion()
                  QLatin1String("[]"));
     }
 
-    // A type Vim does not know at all is an error, as in Vim.
-    message.clear();
-    data.doCommand("echo getcompletion('x', 'nosuchtypexyz')");
-    QVERIFY2(message.contains("E475"), qPrintable(message));
+    // A type Vim does not know at all is an error, as in Vim. There is no
+    // "messagesclear" kind, however much ":messages clear" looks like one.
+    for (const QString &type : QStringList{"nosuchtypexyz", "messagesclear"}) {
+        message.clear();
+        data.doCommand("echo getcompletion('x', '" + type + "')");
+        QVERIFY2(message.contains("E475"), qPrintable(message));
+    }
+
+    // An expression completes a function and a variable both.
+    QCOMPARE(value("string(getcompletion('strlen', 'expression'))"),
+             QLatin1String("['strlen(']"));
+    QCOMPARE(value("string(getcompletion('g:fvCompletionProbe', 'expression'))"),
+             QLatin1String("['g:fvCompletionProbe']"));
+
+    // A whole command line completes what that line completes, over the last
+    // word of it. Where the name is still being typed the name itself is the
+    // word, a range or a modifier before it aside (measured).
+    QCOMPARE(value("string(getcompletion('norm', 'cmdline'))"),
+             QLatin1String("['normal']"));
+    QCOMPARE(value("string(getcompletion('3norm', 'cmdline'))"),
+             QLatin1String("['normal']"));
+    QCOMPARE(value("string(getcompletion('silent norm', 'cmdline'))"),
+             QLatin1String("['normal']"));
+    QCOMPARE(value("string(getcompletion('set tabsto', 'cmdline'))"),
+             QLatin1String("['tabstop']"));
+    QCOMPARE(value("string(getcompletion('setlocal shiftw', 'cmdline'))"),
+             QLatin1String("['shiftwidth']"));
+    QCOMPARE(value("string(getcompletion('autocmd bufwritec', 'cmdline'))"),
+             QLatin1String("['BufWriteCmd']"));
+    QCOMPARE(value("string(getcompletion('hi CursorLineN', 'cmdline'))"),
+             QLatin1String("['CursorLineNr']"));
+    QCOMPARE(value("string(getcompletion('set nu|set tabsto', 'cmdline'))"),
+             QLatin1String("['tabstop']"));
+    QCOMPARE(value("string(getcompletion('echo strle', 'cmdline'))"),
+             QLatin1String("['strlen(']"));
+
+    // Mappings: the words a map command takes before one, and the mappings
+    // themselves only where a whole command line asked (measured).
+    data.doCommand("nmap gxy :echo 1<CR>");
+    data.doCommand("imap <C-k>z xx");
+    QCOMPARE(value("string(getcompletion('', 'mapping'))"),
+             QLatin1String("['<buffer>', '<expr>', '<nowait>', '<script>', "
+                           "'<silent>', '<special>', '<unique>']"));
+    QCOMPARE(value("string(getcompletion('gx', 'mapping'))"),
+             QLatin1String("[]"));
+    QCOMPARE(value("string(getcompletion('<b', 'mapping'))"),
+             QLatin1String("['<buffer>']"));
+    QCOMPARE(value("string(getcompletion('nmap gx', 'cmdline'))"),
+             QLatin1String("['gxy']"));
+    QCOMPARE(value("string(getcompletion('imap <C-K', 'cmdline'))"),
+             QLatin1String("['<C-K>z']"));
+    QCOMPARE(value("string(getcompletion('nunmap gx', 'cmdline'))"),
+             QLatin1String("['gxy']"));
+    data.doCommand("nunmap gxy");
+    data.doCommand("iunmap <C-k>z");
+    // A command that completes nothing in particular offers nothing.
+    QCOMPARE(value("string(getcompletion('undo ', 'cmdline'))"),
+             QLatin1String("[]"));
+    QCOMPARE(value("string(getcompletion('normal ', 'cmdline'))"),
+             QLatin1String("[]"));
 
     QCOMPARE(value("exists('*getcompletion')"), QLatin1String("1"));
 
@@ -25160,9 +31909,1350 @@ void FakeVimTester::test_vim_script_getcompletiontype()
 
     QCOMPARE(kind("echo v:tr"), QLatin1String("expression"));
 
+    // What stands before the name is none of it: the colons, the blanks and
+    // the line range in every form it has.
+    QCOMPARE(kind(":set "), QLatin1String("option"));
+    QCOMPARE(kind("::: set "), QLatin1String("option"));
+    QCOMPARE(kind("  set "), QLatin1String("option"));
+    QCOMPARE(kind("3set "), QLatin1String("option"));
+    QCOMPARE(kind("1,2set "), QLatin1String("option"));
+    QCOMPARE(kind("2,set "), QLatin1String("option"));
+    QCOMPARE(kind("1;2set "), QLatin1String("option"));
+    QCOMPARE(kind("%set "), QLatin1String("option"));
+    QCOMPARE(kind("$set "), QLatin1String("option"));
+    QCOMPARE(kind(".+3set "), QLatin1String("option"));
+    QCOMPARE(kind("-,+set "), QLatin1String("option"));
+    QCOMPARE(kind("/x/set "), QLatin1String("option"));
+    QCOMPARE(kind("?x?set "), QLatin1String("option"));
+    // A range with nothing after it still names a command.
+    QCOMPARE(kind("3"), QLatin1String("command"));
+    QCOMPARE(kind("%"), QLatin1String("command"));
+    QCOMPARE(kind("  "), QLatin1String("command"));
+
+    // A "!" ends the name the way a blank does.
+    QCOMPARE(kind("set!"), QLatin1String("option"));
+    QCOMPARE(kind("hi!"), QLatin1String("highlight"));
+    QCOMPARE(kind("edit!"), QLatin1String("file"));
+    QCOMPARE(kind("map!"), QLatin1String("mapping"));
+    QCOMPARE(kind("3set!"), QLatin1String("option"));
+    QCOMPARE(kind("silent!"), QLatin1String("command"));
+    QCOMPARE(kind("normal!"), QString());
+    QCOMPARE(kind("qa!"), QString());
+
+    // ":filter" hands the question on as the other modifiers do, once its
+    // pattern is out of the way.
+    QCOMPARE(kind("filter /x/ set "), QLatin1String("option"));
+    QCOMPARE(kind("filter! /x/ set "), QLatin1String("option"));
+    QCOMPARE(kind("filt /x/ set "), QLatin1String("option"));
+    QCOMPARE(kind("filter /x/set "), QLatin1String("option"));
+    QCOMPARE(kind("filter /x/  set "), QLatin1String("option"));
+    QCOMPARE(kind("filter #x# set "), QLatin1String("option"));
+    QCOMPARE(kind("silent filter /x/ set "), QLatin1String("option"));
+    QCOMPARE(kind("filter /x/ silent set "), QLatin1String("option"));
+    QCOMPARE(kind("filter /x/ command "), QString());
+    QCOMPARE(kind("filter /x/ "), QLatin1String("command"));
+    // A word character starts a pattern that runs to the next blank and
+    // swallows it.
+    QCOMPARE(kind("filter x set "), QLatin1String("option"));
+    QCOMPARE(kind("filter xx set "), QLatin1String("option"));
+    QCOMPARE(kind("filter x "), QLatin1String("command"));
+    // While the pattern is still open there is nothing to complete.
+    QCOMPARE(kind("filter "), QString());
+    QCOMPARE(kind("filter!"), QString());
+    QCOMPARE(kind("filter! "), QString());
+    QCOMPARE(kind("filter /x"), QString());
+    QCOMPARE(kind("filter /x/"), QString());
+    QCOMPARE(kind("filter x"), QString());
+    // The name itself is still being completed.
+    QCOMPARE(kind("filter"), QLatin1String("command"));
+
+    // A shell command completes its own name, and file names past it.
+    QCOMPARE(kind("!"), QLatin1String("shellcmd"));
+    QCOMPARE(kind("! "), QLatin1String("shellcmd"));
+    QCOMPARE(kind("!  "), QLatin1String("shellcmd"));
+    QCOMPARE(kind("!ls"), QLatin1String("shellcmd"));
+    QCOMPARE(kind("1,2!sort"), QLatin1String("shellcmd"));
+    QCOMPARE(kind("silent !ls"), QLatin1String("shellcmd"));
+    QCOMPARE(kind("!ls "), QLatin1String("file"));
+    QCOMPARE(kind("!ls -l "), QLatin1String("file"));
+    QCOMPARE(kind("1,2!sort "), QLatin1String("file"));
+    // ":read" and ":write" take one too, where the others take a file name
+    // of its own: ":edit !ls" is a file called "!ls".
+    QCOMPARE(kind("r !ls"), QLatin1String("shellcmd"));
+    QCOMPARE(kind("w !cat"), QLatin1String("shellcmd"));
+    QCOMPARE(kind("r !ls "), QLatin1String("file"));
+    QCOMPARE(kind("e !ls"), QLatin1String("file"));
+    QCOMPARE(kind("source !ls"), QLatin1String("file"));
+
+    // The rest of the commands that complete a name on the file system.
+    for (const QString &command : QStringList{"r", "read", "w", "write",
+                                              "update", "wq", "xit", "saveas",
+                                              "view", "sview", "sp", "split",
+                                              "vs", "vsplit", "tabedit",
+                                              "pedit", "badd", "args",
+                                              "argadd", "argedit", "next",
+                                              "mkvimrc", "diffsplit",
+                                              "diffpatch"}) {
+        QCOMPARE(kind(command + " "), QLatin1String("file"));
+    }
+    QCOMPARE(kind("find "), QLatin1String("file_in_path"));
+    QCOMPARE(kind("sfind "), QLatin1String("file_in_path"));
+    QCOMPARE(kind("cd "), QLatin1String("dir_in_path"));
+    QCOMPARE(kind("lcd "), QLatin1String("dir_in_path"));
+    QCOMPARE(kind("tcd "), QLatin1String("dir_in_path"));
+    QCOMPARE(kind("chdir "), QLatin1String("dir_in_path"));
+    QCOMPARE(kind("sbuffer "), QLatin1String("buffer"));
+    QCOMPARE(kind("bdelete "), QLatin1String("buffer"));
+    // Their neighbours still complete nothing.
+    for (const QString &line : QStringList{"ilist ", "djump ", "wall ",
+                                           "later ", "earlier "}) {
+        QCOMPARE(kind(line), QString());
+    }
+
+    // ":set" reads its argument: what stands there may be no option name at
+    // all, and a whole one with something behind it ends the question.
+    QCOMPARE(kind("set ic"), QLatin1String("option"));
+    QCOMPARE(kind("set ic "), QLatin1String("option"));
+    QCOMPARE(kind("set all"), QLatin1String("option"));
+    QCOMPARE(kind("set foo"), QLatin1String("option"));
+    QCOMPARE(kind("set 1"), QLatin1String("option"));
+    QCOMPARE(kind("set _x"), QLatin1String("option"));
+    QCOMPARE(kind("set *x"), QLatin1String("option"));
+    QCOMPARE(kind("set <"), QLatin1String("option"));
+    QCOMPARE(kind("set ic\\\\ "), QLatin1String("option"));
+    for (const QString &line : QStringList{"set !", "set &", "set @", "set =",
+                                           "set +", "set ic!", "set ic?",
+                                           "set ic=", "set ic=1", "set ic,no",
+                                           "set ts=", "set ts=8", "set ts =",
+                                           "set bg=x", "set <F1>", "set ic no",
+                                           "set ic\\ ", "set PATH=x",
+                                           "setglobal ic!", "silent set !"}) {
+        QCOMPARE(kind(line), QString());
+    }
+    // A "no" or "inv" prefix asks for a boolean option, which has no name.
+    for (const QString &line : QStringList{"set no", "set inv", "set nowrap",
+                                           "set invwrap", "set nofoo",
+                                           "set nopath=x"}) {
+        QCOMPARE(kind(line), QString());
+    }
+
+    // An option that takes a name on the file system says so once there is
+    // something to complete from, and taking one away completes nothing.
+    QCOMPARE(kind("set path=x"), QLatin1String("dir"));
+    QCOMPARE(kind("set path+=x"), QLatin1String("dir"));
+    QCOMPARE(kind("set path^=x"), QLatin1String("dir"));
+    QCOMPARE(kind("set path:x"), QLatin1String("dir"));
+    QCOMPARE(kind("set path=a,b"), QLatin1String("dir"));
+    QCOMPARE(kind("set   path=x"), QLatin1String("dir"));
+    QCOMPARE(kind("set ic path=x"), QLatin1String("dir"));
+    QCOMPARE(kind("setlocal path=x"), QLatin1String("dir"));
+    QCOMPARE(kind("setglobal path=x"), QLatin1String("dir"));
+    QCOMPARE(kind("set dir=x"), QLatin1String("dir"));
+    QCOMPARE(kind("set tags=x"), QLatin1String("file"));
+    QCOMPARE(kind("set dictionary=x"), QLatin1String("file"));
+    for (const QString &line : QStringList{"set path=", "set path+=",
+                                           "set path-=x", "set path!",
+                                           "set path&", "set path-x",
+                                           "set tags=", "set dict-=x"}) {
+        QCOMPARE(kind(line), QString());
+    }
+
+    // The three that complete a list of their own answer with an empty value
+    // too, and to a removal.
+    QCOMPARE(kind("set filetype="), QLatin1String("filetype"));
+    QCOMPARE(kind("set ft+=c"), QLatin1String("filetype"));
+    QCOMPARE(kind("set ft-=c"), QLatin1String("filetype"));
+    QCOMPARE(kind("set syntax=c"), QLatin1String("syntax"));
+    QCOMPARE(kind("set syn-=c"), QLatin1String("syntax"));
+    QCOMPARE(kind("set keymap="), QLatin1String("keymap"));
+    QCOMPARE(kind("set ft!"), QString());
+    QCOMPARE(kind("set ft&"), QString());
+
+    // A user command completes what its "-complete=" said, as long as it
+    // takes an argument at all. The name has to stand in full, where an ex
+    // command may be abbreviated, and a "custom" kind names its function.
+    data.doCommand("command! -nargs=1 -complete=color FvUcA echo 1");
+    data.doCommand("command! -nargs=1 -complete=event FvUcAb echo 1");
+    data.doCommand("command! -nargs=0 -complete=color FvUcB echo 1");
+    data.doCommand("command! -nargs=* FvUcC echo 1");
+    data.doCommand("command! -bang -nargs=* -complete=custom,FvUcF FvUcD echo 1");
+    data.doCommand("command! -nargs=* -complete=customlist,FvUcF FvUcE echo 1");
+    QCOMPARE(kind("FvUcA "), QLatin1String("color"));
+    QCOMPARE(kind("FvUcA bl"), QLatin1String("color"));
+    QCOMPARE(kind("3FvUcA "), QLatin1String("color"));
+    QCOMPARE(kind("silent FvUcA "), QLatin1String("color"));
+    QCOMPARE(kind("FvUcAb "), QLatin1String("event"));
+    QCOMPARE(kind("FvUcD! "), QLatin1String("custom,FvUcF"));
+    QCOMPARE(kind("FvUcE "), QLatin1String("customlist,FvUcF"));
+    // Nothing to complete: no argument, no "-complete=", no such command, and
+    // a name that stands short of one.
+    for (const QString &line : QStringList{"FvUcB ", "FvUcC ", "FvUcZ ",
+                                           "FvUc "}) {
+        QCOMPARE(kind(line), QString());
+    }
+    for (const QString &name : QStringList{"FvUcA", "FvUcAb", "FvUcB", "FvUcC",
+                                           "FvUcD", "FvUcE"}) {
+        data.doCommand("delcommand " + name);
+    }
+
     message.clear();
     data.doCommand("echo exists('*getcompletiontype')");
     QCOMPARE(message, QLatin1String("1"));
+}
+
+void FakeVimTester::test_vim_command_quickfix()
+{
+    // getqflist()/setqflist(), getloclist()/setloclist() and the commands that
+    // report on the lists: ":clist", ":chistory", ":colder", ":cnewer" and the
+    // location list four beside them. All of it answered "E117: Unknown
+    // function" and "E492: Not an editor command" before.
+    //
+    // There is no quickfix window here, nothing to jump to and no
+    // 'errorformat' parsing, so what a list does is be kept and be listed.
+    // An entry names its file by buffer number, and this engine has one
+    // buffer: a name that is not it stays without a number, which leaves the
+    // entry invalid.
+    //
+    // Measured in Vim 9.1 with "vim -n -u NONE -i NONE -N --not-a-term -S".
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+
+    data.setText("alpha" N "beta" N "gamma");
+    // The quickfix stack is one for the whole engine, so the run starts by
+    // freeing whatever is on it.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    const QString buf = value("bufnr('%')");
+
+    // An empty stack: no list, no entry, and every command with its own word
+    // for it. A location list that is not there at all is E776, while ":clist"
+    // on the empty quickfix stack is E42.
+    QCOMPARE(value("string(getqflist())"), QLatin1String("[]"));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'nr':0,'id':1,'idx':1,'size':1,'changedtick':1}).changedtick"),
+             QLatin1String("0"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(""));
+    QCOMPARE(run("clist"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("chistory"), QLatin1String("No entries"));
+    QCOMPARE(run("colder"), QLatin1String("E380: At bottom of quickfix stack"));
+    QCOMPARE(run("cnewer"), QLatin1String("E381: At top of quickfix stack"));
+    QCOMPARE(run("llist"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lolder"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lhistory 1"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lhistory"), QLatin1String("No entries"));
+    QCOMPARE(value("string(getloclist(0))"), QLatin1String("[]"));
+    QCOMPARE(value("string(getloclist(99))"), QLatin1String("[]"));
+    QCOMPARE(value("setloclist(99, [])"), QLatin1String("-1"));
+
+    // What an entry comes back as. Read member by member: this engine sorts
+    // the keys of a dict where Vim prints them in the order they went in, and
+    // that difference is no part of this.
+    data.doCommand("call setqflist([{'bufnr': bufnr('%'), 'lnum': 2, 'col': 3,"
+                   " 'text': 'here', 'nr': 7, 'module': 'mod'}])");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].bufnr"), buf);
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].col"), QLatin1String("3"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("here"));
+    QCOMPARE(value("getqflist()[0].nr"), QLatin1String("7"));
+    QCOMPARE(value("getqflist()[0].module"), QLatin1String("mod"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    // Everything not given is a zero or an empty string rather than absent.
+    QCOMPARE(value("len(getqflist()[0])"), QLatin1String("12"));
+    QCOMPARE(value("getqflist()[0].end_lnum"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].end_col"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].vcol"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].pattern"), QLatin1String(""));
+    QCOMPARE(value("getqflist()[0].type"), QLatin1String(""));
+
+    // The properties of a list. The title a function gives is the name of the
+    // function, changedtick counts the changes from one, and there is no
+    // quickfix buffer, no window and no text function here.
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":setqflist()"));
+    QCOMPARE(value("getqflist({'size':1}).size"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'nr':0}).nr"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'changedtick':1}).changedtick"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'context':1}).context"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'qfbufnr':1}).qfbufnr"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'winid':1}).winid"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'quickfixtextfunc':1}).quickfixtextfunc"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'id':1}).id > 0"), QLatin1String("1"));
+    // "all" stands for every one of them, and a key Vim does not know is
+    // dropped from the answer rather than complained about.
+    QCOMPARE(value("len(getqflist({'all':1}))"), QLatin1String("11"));
+    QCOMPARE(value("string(getqflist({'nosuch':1}))"), QLatin1String("{}"));
+    QCOMPARE(value("string(getqflist({}))"), QLatin1String("{}"));
+    // A list the stack has not got answers with the empty values.
+    QCOMPARE(value("getqflist({'id':999999,'nr':1}).nr"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'nr':9,'title':1}).title"), QLatin1String(""));
+
+    // What makes an entry valid: a buffer, and a line or a pattern. An
+    // explicit "valid" overrides it, and a negative line counts as a line.
+    const auto validOf = [&](const QString &item) {
+        data.doCommand("call setqflist([" + item + "], 'r')");
+        return value("getqflist()[0].valid");
+    };
+    QCOMPARE(validOf("{'lnum': 1}"), QLatin1String("0"));
+    QCOMPARE(validOf("{'bufnr': bufnr('%')}"), QLatin1String("0"));
+    QCOMPARE(validOf("{'bufnr': bufnr('%'), 'lnum': 1}"), QLatin1String("1"));
+    QCOMPARE(validOf("{'bufnr': bufnr('%'), 'pattern': 'beta'}"), QLatin1String("1"));
+    QCOMPARE(validOf("{'bufnr': bufnr('%'), 'lnum': -1}"), QLatin1String("1"));
+    QCOMPARE(validOf("{'bufnr': bufnr('%'), 'lnum': 1, 'valid': 0}"), QLatin1String("0"));
+    QCOMPARE(validOf("{'lnum': 1, 'valid': 1}"), QLatin1String("1"));
+    // A number given as a string is read as one, and only the first character
+    // of a type is kept.
+    data.doCommand("call setqflist([{'lnum': '5', 'type': 'EE'}], 'r')");
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("5"));
+    QCOMPARE(value("getqflist()[0].type"), QLatin1String("E"));
+    // "bufnr" wins over "filename", a buffer that is not there is E92 and the
+    // entry goes in all the same, naming no buffer at all.
+    data.doCommand("call setqflist([{'bufnr': bufnr('%'), 'filename': 'nosuch'}], 'r')");
+    QCOMPARE(value("getqflist()[0].bufnr"), buf);
+    message.clear();
+    data.doCommand("call setqflist([{'bufnr': " + QString::number(buf.toInt() + 1000) + "}], 'r')");
+    QCOMPARE(message, QString("E92: Buffer %1 not found").arg(buf.toInt() + 1000));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].bufnr"), QLatin1String("0"));
+    // A "filename" naming another file gets a buffer of its own, unlisted and
+    // unloaded as bufadd() leaves one, and the entry stands on its number. The
+    // same name twice is the same buffer, and a file that is not there to read
+    // is no different (measured).
+    QCOMPARE(value("bufexists('qf1.c')"), QLatin1String("0"));
+    QCOMPARE(value("setqflist([{'filename': 'qf1.c', 'lnum': 2, 'text': 'hi'}], 'r')"),
+             QLatin1String("0"));
+    const QString made = value("getqflist()[0].bufnr");
+    QCOMPARE(value("bufname(" + made + ")"), QLatin1String("qf1.c"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    QCOMPARE(value("bufexists('qf1.c')"), QLatin1String("1"));
+    QCOMPARE(value("buflisted('qf1.c') + bufloaded('qf1.c')"), QLatin1String("0"));
+    QCOMPARE(value("setqflist([{'filename': 'qf1.c', 'lnum': 3}], 'r')"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].bufnr"), made);
+    QCOMPARE(value("setqflist([{'filename': 'qf2.c/nofile.c', 'lnum': 1}], 'r')"),
+             QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    // Without a line there is nowhere to go, so the entry stays invalid.
+    QCOMPARE(value("setqflist([{'filename': 'qf3.c', 'text': 'hi'}], 'r')"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("0"));
+    // A "bufnr" naming a buffer that is there is taken as it stands, whether
+    // it is the one on show or not.
+    const QString other = value("bufadd('qf4.c')");
+    QCOMPARE(value("setqflist([{'bufnr': " + other + ", 'lnum': 5}], 'r')"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].bufnr"), other);
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    // The buffer registry belongs to the process, so what this made goes again.
+    data.doCommand("bwipeout! " + made + " " + other + " "
+                   + value("bufnr('qf2.c/nofile.c')") + " " + value("bufnr('qf3.c')"));
+    QCOMPARE(value("bufexists('qf1.c') + bufexists('qf3.c') + bufexists('qf4.c')"),
+             QLatin1String("0"));
+
+    // An item that is no dictionary is skipped without a word, so a list of
+    // strings puts nothing in the list - 'errorformat' does not come into it.
+    QCOMPARE(value("setqflist(['alpha.c:10:oops'], 'r')"), QLatin1String("0"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+
+    // What the arguments have to be.
+    QCOMPARE(run("echo setqflist('x')"), QLatin1String("E714: List required"));
+    QCOMPARE(run("echo setqflist([], 1)"), QLatin1String("E928: String required"));
+    QCOMPARE(run("echo setqflist([], 'z')"), QLatin1String("E927: Invalid action: 'z'"));
+    QCOMPARE(run("echo setqflist([], 'r', 1)"), QLatin1String("E715: Dictionary required"));
+    QCOMPARE(run("echo getqflist(1)"), QLatin1String("E715: Dictionary required"));
+    QCOMPARE(run("echo setqflist([{'lnum': 1}], ' ', {})"),
+             QLatin1String("E475: Invalid argument: cannot have both a list and a"
+                           " \"what\" argument"));
+
+    // The items can come through "what" instead, and a "what" with no items
+    // leaves the ones that are there alone. A title has to be a string, and a
+    // property Vim does not know makes the call fail.
+    const QString mk = "{'bufnr': bufnr('%'), 'lnum': 1, 'text': 'x'}";
+    QCOMPARE(value("setqflist([], 'r', {'items': [" + mk + "], 'title': 'T'})"),
+             QLatin1String("0"));
+    QCOMPARE(value("getqflist({'size':1}).size"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String("T"));
+    QCOMPARE(value("setqflist([], 'r', {'title': 0})"), QLatin1String("-1"));
+    QCOMPARE(value("setqflist([], 'r', {'nosuch': 1})"), QLatin1String("-1"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String("T"));
+    QCOMPARE(value("setqflist([], 'r', {'context': {'a': 1}})"), QLatin1String("0"));
+    QCOMPARE(value("string(getqflist({'context':1}).context)"), QLatin1String("{'a': 1}"));
+    QCOMPARE(value("getqflist({'size':1}).size"), QLatin1String("1"));
+    // An append raises changedtick as any other change does.
+    const QString tick = value("getqflist({'changedtick':1}).changedtick");
+    QCOMPARE(value("setqflist([" + mk + "], 'a')"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'size':1}).size"), QLatin1String("2"));
+    QCOMPARE(value("getqflist({'changedtick':1}).changedtick"),
+             QString::number(tick.toInt() + 1));
+
+    // The stack holds ten lists, the oldest dropping out, and a new list goes
+    // in behind the one the stack stands on, so the ones above it go.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    for (int i = 1; i <= 12; ++i) {
+        data.doCommand(QString("call setqflist([], ' ', {'title': 'T%1', 'items': [%2]})")
+                           .arg(i).arg(mk));
+    }
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("10"));
+    QCOMPARE(value("getqflist({'nr':1,'title':1}).title"), QLatin1String("T3"));
+    QCOMPARE(value("getqflist({'nr':0,'title':1}).title"), QLatin1String("T12"));
+    QCOMPARE(run("chistory 8"), QLatin1String("error list 8 of 10; 1 errors      T10"));
+    QCOMPARE(value("setqflist([], ' ', {'title': 'TN', 'items': [" + mk + "]})"),
+             QLatin1String("0"));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("9"));
+    QCOMPARE(value("getqflist({'nr':0,'title':1}).title"), QLatin1String("TN"));
+    // A number or an id in "what" names the list a modification is about, and
+    // leaves the one the stack stands on where it is.
+    QCOMPARE(value("setqflist([], 'r', {'nr': 1, 'title': 'TR'})"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'nr':1,'title':1}).title"), QLatin1String("TR"));
+    QCOMPARE(value("getqflist({'nr':0,'title':1}).title"), QLatin1String("TN"));
+    QCOMPARE(value("setqflist([], 'r', {'id': getqflist({'nr':2,'id':0}).id,"
+                   " 'title': 'TI'})"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'nr':2,'title':1}).title"), QLatin1String("TI"));
+    QCOMPARE(value("getqflist({'nr':0,'title':1}).title"), QLatin1String("TN"));
+    QCOMPARE(value("setqflist([], 'r', {'id': 999999, 'title': 'TZ'})"), QLatin1String("-1"));
+    // An id names the list even where a number is there beside it, and the
+    // number that comes back is the one of the list the id picked.
+    QCOMPARE(value("getqflist({'nr':3,'id':getqflist({'nr':1,'id':0}).id}).nr"),
+             QLatin1String("1"));
+
+    // ":chistory" lists the whole stack, one line for each list, and marks the
+    // one the stack stands on. The line is padded to 34 columns before the
+    // title, and the plural is there whatever the count.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    for (int i = 1; i <= 3; ++i) {
+        data.doCommand(QString("call setqflist([], ' ', {'title': 'T%1', 'items': [%2]})")
+                           .arg(i).arg(mk));
+    }
+    extra.clear();
+    data.doCommand("chistory");
+    QCOMPARE(extra, QString("  error list 1 of 3; 1 errors     T1\n"
+                            "  error list 2 of 3; 1 errors     T2\n"
+                            "> error list 3 of 3; 1 errors     T3\n"));
+    // ":colder" and ":cnewer" walk the stack and report where they arrived. A
+    // count walks that many steps, and Vim clamps and says it could not take
+    // them all. Vim prints the list it arrived at as well, where there is one
+    // line to say it in here.
+    QCOMPARE(run("colder"), QLatin1String("error list 2 of 3; 1 errors       T2"));
+    QCOMPARE(run("cnewer"), QLatin1String("error list 3 of 3; 1 errors       T3"));
+    QCOMPARE(run("colder 2"), QLatin1String("error list 1 of 3; 1 errors       T1"));
+    QCOMPARE(run("colder"), QLatin1String("E380: At bottom of quickfix stack"));
+    QCOMPARE(run("cnewer 9"), QLatin1String("E381: At top of quickfix stack"));
+    QCOMPARE(value("getqflist({'nr':0,'title':1}).title"), QLatin1String("T3"));
+    // A count in front of the command is the same count, and where there are
+    // two addresses the last one is the one that counts.
+    QCOMPARE(run("2chistory"), QLatin1String("error list 2 of 3; 1 errors       T2"));
+    QCOMPARE(run("1,3chistory"), QLatin1String("error list 3 of 3; 1 errors       T3"));
+    QCOMPARE(run("chistory 0"), QLatin1String("E939: Positive count required: chistory 0"));
+    QCOMPARE(run("chistory 9"), QLatin1String("E16: Invalid range"));
+    QCOMPARE(run("chistory x"), QLatin1String("E488: Trailing characters: x"));
+    QCOMPARE(run("chistory!"), QLatin1String("E477: No ! allowed"));
+    QCOMPARE(run("colder!"), QLatin1String("E477: No ! allowed"));
+    QCOMPARE(run("2clist"), QLatin1String("E481: No range allowed"));
+
+    // What ":clist" makes of an entry: the index in two columns, the module or
+    // the file name, the line and column range, what kind of entry it is, and
+    // the text. The name comes from the buffer where there is no module, and
+    // this buffer has no name, so the rows below name themselves.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    data.doCommand(
+        "call setqflist([{'module': 'mod', 'bufnr': bufnr('%'), 'lnum': 2, 'col': 3,"
+        " 'nr': 7, 'text': 'here'},"
+        " {'text': 'nobuf'},"
+        " {'module': 'f1.txt', 'bufnr': bufnr('%'), 'lnum': 3, 'col': 1, 'type': 'W',"
+        " 'text': 'second'},"
+        " {'module': 'f1.txt', 'bufnr': bufnr('%'), 'pattern': 'beta', 'text': 'bypattern'},"
+        " {'module': 'f1.txt', 'bufnr': bufnr('%'), 'lnum': 1, 'end_lnum': 3, 'col': 2,"
+        " 'end_col': 5, 'text': 'range'},"
+        " {'module': 'f1.txt', 'bufnr': bufnr('%'), 'lnum': 2, 'end_lnum': 2, 'col': 4,"
+        " 'end_col': 4, 'text': 'same'},"
+        " {'module': 'f1.txt', 'bufnr': bufnr('%'), 'lnum': 1, 'type': 'I', 'text': 'info'},"
+        " {'module': 'f1.txt', 'bufnr': bufnr('%'), 'lnum': 1, 'type': 'N', 'text': 'note'},"
+        " {'module': 'f1.txt', 'bufnr': bufnr('%'), 'lnum': 1, 'type': 'x', 'text': 'other'},"
+        " {'module': 'f1.txt', 'bufnr': bufnr('%'), 'lnum': 10, 'text': 'e9'}])");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("10"));
+    extra.clear();
+    data.doCommand("clist!");
+    QCOMPARE(extra, QString(" 1 mod:2 col 3 error   7: here\n"
+                            " 2: nobuf\n"
+                            " 3 f1.txt:3 col 1 warning: second\n"
+                            " 4 f1.txt:beta: bypattern\n"
+                            " 5 f1.txt:1-3 col 2-5: range\n"
+                            " 6 f1.txt:2 col 4: same\n"
+                            " 7 f1.txt:1 info: info\n"
+                            " 8 f1.txt:1 note: note\n"
+                            " 9 f1.txt:1 x: other\n"
+                            "10 f1.txt:10: e9\n"));
+    // Without the "!" only the valid entries are listed.
+    extra.clear();
+    data.doCommand("clist");
+    QCOMPARE(extra, QString(" 1 mod:2 col 3 error   7: here\n"
+                            " 3 f1.txt:3 col 1 warning: second\n"
+                            " 4 f1.txt:beta: bypattern\n"
+                            " 5 f1.txt:1-3 col 2-5: range\n"
+                            " 6 f1.txt:2 col 4: same\n"
+                            " 7 f1.txt:1 info: info\n"
+                            " 8 f1.txt:1 note: note\n"
+                            " 9 f1.txt:1 x: other\n"
+                            "10 f1.txt:10: e9\n"));
+    // A list with no valid entry at all is listed whole, "!" or not.
+    data.doCommand("call setqflist([{'text': 'x'}, {'text': 'y'}], 'r')");
+    extra.clear();
+    data.doCommand("clist");
+    QCOMPARE(extra, QString(" 1: x\n 2: y\n"));
+
+    // ":clist" takes a range of ENTRIES, counted from the end where a number
+    // is negative and from the entry the list stands on after a "+". Nothing
+    // in range prints nothing at all, and no error either.
+    data.doCommand("call setqflist([], 'r', {'items': ["
+                   "{'bufnr': bufnr('%'), 'lnum': 1, 'text': 'e1'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 2, 'text': 'e2'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 3, 'text': 'e3'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 4, 'text': 'e4'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 5, 'text': 'e5'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 6, 'text': 'e6'}]})");
+    const auto listed = [&](const QString &range) {
+        extra = "nothing";
+        data.doCommand("clist " + range);
+        return extra;
+    };
+    QCOMPARE(listed(""), QString(" 1:1: e1\n 2:2: e2\n 3:3: e3\n"
+                                 " 4:4: e4\n 5:5: e5\n 6:6: e6\n"));
+    QCOMPARE(listed("2,3"), QString(" 2:2: e2\n 3:3: e3\n"));
+    QCOMPARE(listed("3"), QString(" 3:3: e3\n"));
+    QCOMPARE(listed("+2"), QString(" 1:1: e1\n 2:2: e2\n 3:3: e3\n"));
+    QCOMPARE(listed("+0"), QString(" 1:1: e1\n"));
+    QCOMPARE(listed("3,"), QString(" 3:3: e3\n 4:4: e4\n 5:5: e5\n 6:6: e6\n"));
+    QCOMPARE(listed(",3"), QString(" 1:1: e1\n 2:2: e2\n 3:3: e3\n"));
+    QCOMPARE(listed("-2"), QString(" 5:5: e5\n"));
+    QCOMPARE(listed("-3,-2"), QString(" 4:4: e4\n 5:5: e5\n"));
+    QCOMPARE(listed("2,-1"), QString(" 2:2: e2\n 3:3: e3\n 4:4: e4\n"
+                                     " 5:5: e5\n 6:6: e6\n"));
+    for (const QString &range : QStringList{"4,2", "0", "-9", "99", "11,13"})
+        QCOMPARE(listed(range), QString("nothing"));
+    QCOMPARE(run("clist abc"), QLatin1String("E488: Trailing characters: abc"));
+    QCOMPARE(run("clist 2 3"), QLatin1String("E488: Trailing characters: 3"));
+
+    // A location list is the window's own, and the quickfix stack does not
+    // hear of it. Its title names the function that made it.
+    QCOMPARE(value("setloclist(0, [], ' ', {'items': [" + mk + "]})"), QLatin1String("0"));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("1"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("6"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"), QLatin1String(":setloclist()"));
+    QCOMPARE(value("getloclist(0, {'nr':'$'}).nr"), QLatin1String("1"));
+    extra.clear();
+    data.doCommand("llist");
+    QCOMPARE(extra, QString(" 1:1: x\n"));
+    QCOMPARE(run("lhistory"), QLatin1String(""));
+    extra.clear();
+    data.doCommand("lhistory");
+    QCOMPARE(extra, QString("> error list 1 of 1; 1 errors     :setloclist()\n"));
+    // The window a location list belongs to: there is one window here, and it
+    // answers to its number and to its id both.
+    QCOMPARE(value("len(getloclist(1))"), QLatin1String("1"));
+    QCOMPARE(value("len(getloclist(win_getid()))"), QLatin1String("1"));
+    QCOMPARE(value("string(getloclist(99))"), QLatin1String("[]"));
+
+    // The names are there for exists() as well as for a call.
+    QCOMPARE(value("exists('*getqflist')"), QLatin1String("1"));
+    QCOMPARE(value("exists('*setqflist')"), QLatin1String("1"));
+    QCOMPARE(value("exists('*getloclist')"), QLatin1String("1"));
+    QCOMPARE(value("exists('*setloclist')"), QLatin1String("1"));
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_command_quickfix_jump()
+{
+    // ":cc", ":cfirst"/":crewind", ":clast", ":cnfile", ":cpfile" and the
+    // location list eight beside them: the commands that go to an entry of a
+    // quickfix or location list, and the list index they move. All of them
+    // answered "E492: Not an editor command" before, and getqflist({'idx':1})
+    // always said the first entry.
+    //
+    // ":cnext" and ":cprevious"/":cNext" are not among them: the plugin maps
+    // those three to Qt Creator's own issue pane and is asked first, so what
+    // they do is not this engine's to say. The location list forms of the
+    // same three are free, and stand in for them below.
+    //
+    // There is one buffer here, so an entry either names it or names no
+    // buffer at all, which is what makes ":cnfile" and ":cpfile" answer
+    // "E553: No more items" for every list with a file in it.
+    //
+    // Measured in Vim 9.1 with "vim -n -u NONE -i NONE -N --not-a-term -S".
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+    const auto at = [&] { return value("line('.')") + ':' + value("col('.')"); };
+
+    data.setText("alpha" N "\tbeta tab" N "gamma" N "delta" N "epsilon");
+    // The quickfix stack is one for the whole engine, so the run starts by
+    // freeing whatever is on it.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    data.doCommand("set tabstop=8");
+
+    // An empty stack. ":cc" and ":ll" carry the command line as typed into
+    // their error where the rest of the family reports on its own, and a
+    // location list that is not there at all is E776 except to ":ll".
+    QCOMPARE(run("cc"), QLatin1String("E42: No Errors: cc"));
+    QCOMPARE(run("cc 2"), QLatin1String("E42: No Errors: cc 2"));
+    QCOMPARE(run("cc!"), QLatin1String("E42: No Errors: cc!"));
+    QCOMPARE(run("cfirst"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("crewind"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("clast"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("cnfile"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("cpfile"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("cNfile"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("ll"), QLatin1String("E42: No Errors: ll"));
+    QCOMPARE(run("ll 2"), QLatin1String("E42: No Errors: ll 2"));
+    QCOMPARE(run("ll!"), QLatin1String("E42: No Errors: ll!"));
+    QCOMPARE(run("lfirst"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lrewind"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("llast"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lnext"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lprevious"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lNext"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lnfile"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lpfile"), QLatin1String("E776: No location list"));
+    QCOMPARE(run("lNfile"), QLatin1String("E776: No location list"));
+
+    // The order the complaints come in differs between ":cc"/":ll" and the
+    // rest: those two answer for the list before they look at the count, the
+    // rest the other way round. A zero address beats both, and it is only a
+    // count of zero where a count names an entry.
+    QCOMPARE(run("cc 0"), QLatin1String("E42: No Errors: cc 0"));
+    QCOMPARE(run("cc x"), QLatin1String("E42: No Errors: cc x"));
+    QCOMPARE(run("0cc"), QLatin1String("E16: Invalid range: 0cc"));
+    QCOMPARE(run("0ll"), QLatin1String("E16: Invalid range: 0ll"));
+    QCOMPARE(run("cfirst 0"), QLatin1String("E939: Positive count required: cfirst 0"));
+    QCOMPARE(run("cfirst x"), QLatin1String("E488: Trailing characters: x: cfirst x"));
+    QCOMPARE(run("clast 0"), QLatin1String("E939: Positive count required: clast 0"));
+    QCOMPARE(run("lfirst 0"), QLatin1String("E939: Positive count required: lfirst 0"));
+    QCOMPARE(run("lfirst x"), QLatin1String("E488: Trailing characters: x: lfirst x"));
+    QCOMPARE(run("lnext 0"), QLatin1String("E939: Positive count required: lnext 0"));
+    QCOMPARE(run("0cfirst"), QLatin1String("E42: No Errors"));
+
+    // A list that is there but empty: the index is zero and E42 is what every
+    // one of them says, the location list included.
+    QCOMPARE(value("setqflist([], 'r')"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("0"));
+    QCOMPARE(run("cc"), QLatin1String("E42: No Errors: cc"));
+    QCOMPARE(run("cfirst"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("clast"), QLatin1String("E42: No Errors"));
+    QCOMPARE(value("setloclist(0, [], 'r')"), QLatin1String("0"));
+    QCOMPARE(run("ll"), QLatin1String("E42: No Errors: ll"));
+    QCOMPARE(run("lfirst"), QLatin1String("E42: No Errors"));
+
+    // What a jump says: "(idx of size)", the type, then the text. The pattern
+    // is no part of it, unlike in a ":clist" row, and an empty text keeps the
+    // space in front of it.
+    data.doCommand("call setqflist(["
+                   "{'bufnr': bufnr('%'), 'lnum': 1, 'text': 'one'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 2, 'col': 3, 'text': 'two'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 99, 'text': 'clamp'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 5, 'col': 99, 'text': 'colclamp'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 2, 'col': 5, 'vcol': 1, 'text': 'vcol'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 1, 'type': 'w', 'nr': 4, 'text': 'warn'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 3, 'text': ''}])");
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("1"));
+    QCOMPARE(run("cc 1"), QLatin1String("(1 of 7): one"));
+    QCOMPARE(at(), QLatin1String("1:1"));
+    QCOMPARE(run("cc 2"), QLatin1String("(2 of 7): two"));
+    QCOMPARE(at(), QLatin1String("2:3"));
+    // A line past the last one is that last line, a column past the last
+    // character is that character, and a virtual column lands where the tab
+    // it points into begins.
+    QCOMPARE(run("cc 3"), QLatin1String("(3 of 7): clamp"));
+    QCOMPARE(at(), QLatin1String("5:1"));
+    QCOMPARE(run("cc 4"), QLatin1String("(4 of 7): colclamp"));
+    QCOMPARE(at(), QLatin1String("5:7"));
+    QCOMPARE(run("cc 5"), QLatin1String("(5 of 7): vcol"));
+    QCOMPARE(at(), QLatin1String("2:1"));
+    QCOMPARE(run("cc 6"), QLatin1String("(6 of 7) warning   4: warn"));
+    QCOMPARE(at(), QLatin1String("1:1"));
+    QCOMPARE(run("cc 7"), QLatin1String("(7 of 7): "));
+    QCOMPARE(at(), QLatin1String("3:1"));
+
+    // Without a count ":cc" repeats where the list stands, and a count above
+    // the size is the last entry. The count comes from an address as well,
+    // and a "!" is allowed.
+    QCOMPARE(run("cc 2"), QLatin1String("(2 of 7): two"));
+    QCOMPARE(run("cc"), QLatin1String("(2 of 7): two"));
+    QCOMPARE(run("cc 99"), QLatin1String("(7 of 7): "));
+    QCOMPARE(run("3cc"), QLatin1String("(3 of 7): clamp"));
+    QCOMPARE(run("cc! 1"), QLatin1String("(1 of 7): one"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("1"));
+    QCOMPARE(run("cc 0"), QLatin1String("E939: Positive count required: cc 0"));
+    QCOMPARE(run("cc x"), QLatin1String("E488: Trailing characters: x: cc x"));
+    QCOMPARE(run("cc -1"), QLatin1String("E488: Trailing characters: -1: cc -1"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("1"));
+
+    // ":cfirst" and ":clast" go to the ends, and a count makes both of them
+    // name an entry the way ":cc" does.
+    QCOMPARE(run("clast"), QLatin1String("(7 of 7): "));
+    QCOMPARE(run("cfirst"), QLatin1String("(1 of 7): one"));
+    QCOMPARE(run("crewind"), QLatin1String("(1 of 7): one"));
+    QCOMPARE(run("2cfirst"), QLatin1String("(2 of 7): two"));
+    QCOMPARE(run("2clast"), QLatin1String("(2 of 7): two"));
+    QCOMPARE(run("0clast"), QLatin1String("(1 of 7): one"));
+    QCOMPARE(run("0cfirst"), QLatin1String("(1 of 7): one"));
+
+    // A pattern is looked for from the top of the buffer and beats a line
+    // number given beside it. One that does not match leaves the cursor where
+    // it is, while the index moves all the same.
+    data.doCommand("call setqflist(["
+                   "{'bufnr': bufnr('%'), 'lnum': 1, 'pattern': 'silon', 'text': 'pat'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 1, 'pattern': 'nosuch', 'text': 'miss'}])");
+    QCOMPARE(run("cc 1"), QLatin1String("(1 of 2): pat"));
+    QCOMPARE(at(), QLatin1String("5:3"));
+    QCOMPARE(run("cc 2"), QLatin1String("(2 of 2): miss"));
+    QCOMPARE(at(), QLatin1String("5:3"));
+
+    // ":clast" takes the last entry whether it is valid or not, while an
+    // entry with a buffer but no line and no pattern moves nothing.
+    data.doCommand("call setqflist(["
+                   "{'bufnr': bufnr('%'), 'lnum': 1, 'text': 'v'},"
+                   "{'bufnr': bufnr('%'), 'text': 'bad'},"
+                   "{'bufnr': bufnr('%'), 'text': 'bad2'}])");
+    QCOMPARE(value("getqflist()[1].valid"), QLatin1String("0"));
+    QCOMPARE(run("cfirst"), QLatin1String("(1 of 3): v"));
+    QCOMPARE(at(), QLatin1String("1:1"));
+    QCOMPARE(run("clast"), QLatin1String("(3 of 3): bad2"));
+    QCOMPARE(at(), QLatin1String("1:1"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("3"));
+
+    // ":cnfile" and ":cpfile" want an entry in another file. There is one
+    // buffer here, so the only one they can reach is an entry that names it,
+    // from an entry that names no file at all.
+    data.doCommand("call setqflist(["
+                   "{'text': 'nobuf'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 2, 'text': 'here'}])");
+    QCOMPARE(value("getqflist()[0].bufnr"), QLatin1String("0"));
+    QCOMPARE(run("cnfile"), QLatin1String("(2 of 2): here"));
+    QCOMPARE(run("cnfile"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("cpfile"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("cNfile"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("cnfile 2"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("0cnfile"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("cnfile 0"), QLatin1String("E939: Positive count required: cnfile 0"));
+    QCOMPARE(run("cnfile x"), QLatin1String("E488: Trailing characters: x: cnfile x"));
+    data.doCommand("call setqflist(["
+                   "{'bufnr': bufnr('%'), 'lnum': 1, 'text': 'a'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 2, 'text': 'b'}])");
+    QCOMPARE(run("cnfile"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("cpfile"), QLatin1String("E553: No more items"));
+
+    // What the index is worth. A fresh list stands on its first entry, an
+    // append leaves it where it was, and a replacement puts it back.
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'changedtick':1}).changedtick"), QLatin1String("1"));
+    QCOMPARE(run("clast"), QLatin1String("(2 of 2): b"));
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'lnum': 3, 'text': 'c'}], 'a')"),
+             QLatin1String("0"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("2"));
+    QCOMPARE(value("getqflist({'changedtick':1}).changedtick"), QLatin1String("2"));
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'lnum': 1, 'text': 'd'}], 'r')"),
+             QLatin1String("0"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("1"));
+
+    // Setting it: a number moves the index, one above the size and a "$" are
+    // both the last entry, and anything below one is refused without moving.
+    data.doCommand("call setqflist(["
+                   "{'bufnr': bufnr('%'), 'lnum': 1, 'text': 'a'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 2, 'text': 'b'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 3, 'text': 'c'}])");
+    QCOMPARE(value("setqflist([], 'r', {'idx': 2})"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("2"));
+    QCOMPARE(run("cc"), QLatin1String("(2 of 3): b"));
+    QCOMPARE(value("setqflist([], 'r', {'idx': '2'})"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("2"));
+    QCOMPARE(value("setqflist([], 'r', {'idx': 99})"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("3"));
+    QCOMPARE(value("setqflist([], 'r', {'idx': '$'})"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("3"));
+    QCOMPARE(value("setqflist([], 'r', {'idx': 0})"), QLatin1String("-1"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("3"));
+    QCOMPARE(value("setqflist([], 'r', {'idx': -1})"), QLatin1String("-1"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("3"));
+
+    // ":clist +N" counts from the entry the list stands on.
+    QCOMPARE(run("cc 2"), QLatin1String("(2 of 3): b"));
+    extra.clear();
+    data.doCommand("clist +1");
+    QCOMPARE(extra, QString(" 2:2: b\n 3:3: c\n"));
+
+    // The location list has the same commands and an index of its own, the
+    // three that walk among them. A step goes to the next entry that is
+    // valid, skipping the ones that are not, and where no step can be taken
+    // it is E553.
+    QCOMPARE(value("setloclist(0, ["
+                   "{'bufnr': bufnr('%'), 'lnum': 1, 'text': 'l1'},"
+                   "{'bufnr': bufnr('%'), 'text': 'lbad'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 3, 'text': 'l2'}])"),
+             QLatin1String("0"));
+    QCOMPARE(value("getloclist(0, {'idx':1}).idx"), QLatin1String("1"));
+    QCOMPARE(run("lnext"), QLatin1String("(3 of 3): l2"));
+    QCOMPARE(at(), QLatin1String("3:1"));
+    QCOMPARE(value("getloclist(0, {'idx':1}).idx"), QLatin1String("3"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("2"));
+    QCOMPARE(run("lnext"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("lprevious"), QLatin1String("(1 of 3): l1"));
+    QCOMPARE(run("lNext"), QLatin1String("E553: No more items"));
+    // A zero address is no count here, and a count that walks past the end
+    // stops there rather than complaining.
+    QCOMPARE(run("0lnext"), QLatin1String("(3 of 3): l2"));
+    QCOMPARE(run("lfirst"), QLatin1String("(1 of 3): l1"));
+    QCOMPARE(run("2lnext"), QLatin1String("(3 of 3): l2"));
+    QCOMPARE(run("llast"), QLatin1String("(3 of 3): l2"));
+    QCOMPARE(run("lrewind"), QLatin1String("(1 of 3): l1"));
+    QCOMPARE(run("ll 2"), QLatin1String("(2 of 3): lbad"));
+    QCOMPARE(run("ll"), QLatin1String("(2 of 3): lbad"));
+    QCOMPARE(run("ll 99"), QLatin1String("(3 of 3): l2"));
+    QCOMPARE(run("2lfirst"), QLatin1String("(2 of 3): lbad"));
+    QCOMPARE(run("2llast"), QLatin1String("(2 of 3): lbad"));
+    QCOMPARE(run("0llast"), QLatin1String("(1 of 3): l1"));
+    QCOMPARE(run("lnfile"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("lpfile"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("ll 0"), QLatin1String("E939: Positive count required: ll 0"));
+    QCOMPARE(run("ll x"), QLatin1String("E488: Trailing characters: x: ll x"));
+
+    // Where the list has no valid entry at all every entry counts, which is
+    // the rule ":clist" follows for its rows as well.
+    QCOMPARE(value("setloclist(0, ["
+                   "{'bufnr': bufnr('%'), 'text': 'bad1'},"
+                   "{'bufnr': bufnr('%'), 'text': 'bad2'}])"),
+             QLatin1String("0"));
+    QCOMPARE(run("lnext"), QLatin1String("(2 of 2): bad2"));
+    QCOMPARE(run("lprevious"), QLatin1String("(1 of 2): bad1"));
+
+    // The shortest each of them goes by. ":cl" is ":clist" while ":cla" is
+    // ":clast", and ":cnf" is ":cnfile" while ":cnew" is ":cnewer".
+    QCOMPARE(run("cla"), QLatin1String("(3 of 3): c"));
+    QCOMPARE(run("cfir"), QLatin1String("(1 of 3): a"));
+    QCOMPARE(run("cr"), QLatin1String("(1 of 3): a"));
+    QCOMPARE(run("cnf"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("cpf"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("lne"), QLatin1String("(2 of 2): bad2"));
+    QCOMPARE(run("lp"), QLatin1String("(1 of 2): bad1"));
+    QCOMPARE(run("lN"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("lla"), QLatin1String("(2 of 2): bad2"));
+    QCOMPARE(run("lfir"), QLatin1String("(1 of 2): bad1"));
+    QCOMPARE(run("lr"), QLatin1String("(1 of 2): bad1"));
+    QCOMPARE(run("lnf"), QLatin1String("E553: No more items"));
+    QCOMPARE(run("lpf"), QLatin1String("E553: No more items"));
+    extra.clear();
+    data.doCommand("cl");
+    QCOMPARE(extra, QString(" 1:1: a\n 2:2: b\n 3:3: c\n"));
+    extra.clear();
+    data.doCommand("lli");
+    QCOMPARE(extra, QString(" 1: bad1\n 2: bad2\n"));
+
+    // ":lnfile" reaches the one entry that names this buffer from one that
+    // names no file, and cannot come back.
+    QCOMPARE(value("setloclist(0, [{'text': 'nobuf'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 2, 'text': 'here'}])"),
+             QLatin1String("0"));
+    QCOMPARE(run("lnfile"), QLatin1String("(2 of 2): here"));
+    QCOMPARE(run("lpfile"), QLatin1String("E553: No more items"));
+
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+
+    // ":cNfile" is ":cpfile" under another name, entry for entry.
+    data.doCommand("call setqflist(["
+                   "{'bufnr': bufnr('%'), 'lnum': 2, 'text': 'here'},"
+                   "{'text': 'nobuf'}])");
+    QCOMPARE(run("clast"), QLatin1String("(2 of 2): nobuf"));
+    QCOMPARE(run("cpfile"), QLatin1String("(1 of 2): here"));
+    QCOMPARE(run("clast"), QLatin1String("(2 of 2): nobuf"));
+    QCOMPARE(run("cNfile"), QLatin1String("(1 of 2): here"));
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+
+    // An entry naming another file is opened there, at the line and column
+    // the entry carries, which is Qt Creator part rather than this one.
+    QString opened;
+    int openedLine = -1;
+    int openedColumn = -1;
+    data.handler->fileOpenRequested.set([&](const QString &name, int line, int column) {
+        opened = name;
+        openedLine = line;
+        openedColumn = column;
+    });
+    data.setText("aa" N "bb" N "c" X "c");
+    const int stays = data.position();
+    QCOMPARE(value("setqflist([{'filename': 'zz2.c', 'lnum': 2, 'col': 3, 'text': 'far'}])"),
+             QLatin1String("0"));
+    QCOMPARE(run("cc"), QLatin1String("(1 of 1): far"));
+    QCOMPARE(opened, QLatin1String("zz2.c"));
+    QCOMPARE(openedLine, 2);
+    QCOMPARE(openedColumn, 3);
+    // The cursor of this buffer stays where it was.
+    QCOMPARE(data.position(), stays);
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    data.doCommand("bwipeout zz2.c");
+    data.handler->fileOpenRequested.set([](const QString &, int, int) {});
+}
+
+void FakeVimTester::test_vim_command_quickfix_do()
+{
+    // ":cdo", ":cfdo", ":ldo" and ":lfdo": a command run over the entries of a
+    // list. All four answered "E492: Not an editor command" before.
+    //
+    // There is one buffer here, so every entry that names a file names it, and
+    // the file forms run the command once.
+    //
+    // Measured in Vim 9.1 with "vim -n -u NONE -i NONE -N --not-a-term -S".
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+    const auto lines = [&] { return value("getline(1) . getline(2) . getline(3)"); };
+    const auto at = [&] { return value("line('.')") + ':' + value("col('.')"); };
+
+    data.setText("a1" N "a2" N "a3" N "a4" N "a5");
+    // The quickfix stack is one for the whole engine, so the run starts by
+    // freeing whatever is on it.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+
+    // A list that is not there at all is nothing to do rather than an error,
+    // the location list forms included.
+    QCOMPARE(run("cdo s/^/X/"), QString());
+    QCOMPARE(run("cfdo s/^/X/"), QString());
+    QCOMPARE(run("ldo s/^/X/"), QString());
+    QCOMPARE(run("lfdo s/^/X/"), QString());
+    QCOMPARE(lines(), QLatin1String("a1a2a3"));
+
+    // The command is wanted, whether there is a list or not.
+    QCOMPARE(run("cdo"), QLatin1String("E471: Argument required: cdo"));
+    QCOMPARE(run("cfdo"), QLatin1String("E471: Argument required: cfdo"));
+    QCOMPARE(run("ldo"), QLatin1String("E471: Argument required: ldo"));
+    QCOMPARE(run("lfdo"), QLatin1String("E471: Argument required: lfdo"));
+
+    const QString threeEntries = "call setqflist(["
+                                 "{'bufnr': bufnr('%'), 'lnum': 1, 'text': 'one'},"
+                                 "{'bufnr': bufnr('%'), 'lnum': 2, 'text': 'two'},"
+                                 "{'bufnr': bufnr('%'), 'lnum': 3, 'text': 'three'}])";
+
+    // Every entry in list order, from the first whatever the index says, and
+    // the whole run is one undo step.
+    data.doCommand(threeEntries);
+    QCOMPARE(run("clast"), QLatin1String("(3 of 3): three"));
+    data.doCommand("cdo s/^/X/");
+    QCOMPARE(lines(), QLatin1String("Xa1Xa2Xa3"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("3"));
+    QCOMPARE(at(), QLatin1String("3:1"));
+    data.doKeys("u");
+    QCOMPARE(lines(), QLatin1String("a1a2a3"));
+
+    // The file forms take the first entry of each file, of which there is one.
+    data.doCommand("cfdo s/^/Y/");
+    QCOMPARE(lines(), QLatin1String("Ya1a2a3"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("1"));
+    data.doKeys("u");
+
+    // The range names entries rather than lines, an address past the last
+    // entry is E16, and a zero address is the first entry.
+    data.doCommand("2,3cdo s/^/X/");
+    QCOMPARE(lines(), QLatin1String("a1Xa2Xa3"));
+    data.doKeys("u");
+    QCOMPARE(run("4cdo s/^/X/"), QLatin1String("E16: Invalid range: 4cdo s/^/X/"));
+    QCOMPARE(run("1,5cdo s/^/X/"), QLatin1String("E16: Invalid range: 1,5cdo s/^/X/"));
+    QCOMPARE(lines(), QLatin1String("a1a2a3"));
+    data.doCommand("0cdo s/^/X/");
+    QCOMPARE(lines(), QLatin1String("Xa1a2a3"));
+    data.doKeys("u");
+
+    // An error on one entry does not keep the rest from running.
+    data.doCommand("cdo s/a[23]/Q/");
+    QCOMPARE(lines(), QLatin1String("a1QQ"));
+    data.doKeys("u");
+
+    // An entry with no file behind it is stepped over.
+    data.doCommand("call setqflist([{'text': 'nobuf'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 2, 'text': 'two'}])");
+    data.doCommand("cdo s/^/Z/");
+    QCOMPARE(lines(), QLatin1String("a1Za2a3"));
+    data.doKeys("u");
+
+    // The location list is this engine own, and its four forms work the same.
+    data.doCommand("call setloclist(win_getid(), ["
+                   "{'bufnr': bufnr('%'), 'lnum': 3, 'text': 'L'}])");
+    data.doCommand("ldo s/^/W/");
+    QCOMPARE(lines(), QLatin1String("a1a2Wa3"));
+    data.doKeys("u");
+    data.doCommand("lfdo s/^/W/");
+    QCOMPARE(lines(), QLatin1String("a1a2Wa3"));
+    data.doKeys("u");
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_command_vimgrep()
+{
+    // ":vimgrep", ":vimgrepadd", ":lvimgrep" and ":lvimgrepadd": the pattern
+    // is looked for in the files named behind it, and every match becomes an
+    // entry of the quickfix or the location list. All four answered "E492: Not
+    // an editor command" before.
+    //
+    // A file that has a match gets a buffer of its own, unlisted and unloaded,
+    // which is the buffer the entry names, so ":clist" names the file the
+    // match was found in. Going to an entry of another file asks Qt Creator
+    // to open it, which the test takes over so that no second document is
+    // opened behind the one under test.
+    //
+    // Measured in Vim 9.1 with "vim -n -u NONE -i NONE -N --not-a-term -S".
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+    const auto listed = [&](const QString &cmd) {
+        extra.clear();
+        data.doCommand(cmd);
+        return extra;
+    };
+    const auto write = [](const QString &path, const QString &text) {
+        QFile file(path);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(text.toUtf8());
+    };
+
+    const QString before = value("getcwd()");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QVERIFY(QDir(dir.path()).mkdir("sub"));
+    write(dir.path() + "/a.txt", "alpha one\nbeta alpha two alpha\n   alpha indented\n");
+    write(dir.path() + "/b.txt", "beta one\nALPHA b\n");
+    write(dir.path() + "/sub/c.txt", "alpha c\n");
+    data.doCommand("cd " + dir.path());
+
+    data.setText("alpha" N "beta" N "gamma");
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+
+    // What an entry holds: the line, the column the match starts at and the
+    // one behind its end, both one based, and the whole line untrimmed. The
+    // end line is the line itself, and neither a pattern nor a number goes in.
+    QCOMPARE(run("vimgrep /alpha/j a.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].col"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].end_lnum"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].end_col"), QLatin1String("6"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("alpha one"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].pattern"), QLatin1String(""));
+    QCOMPARE(value("getqflist()[0].nr"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].vcol"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[2].col"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[2].end_col"), QLatin1String("9"));
+    QCOMPARE(value("getqflist()[2].text"), QLatin1String("   alpha indented"));
+    // One entry a line without the "g" flag, every match on it with it.
+    QCOMPARE(value("getqflist()[1].col"), QLatin1String("6"));
+    QCOMPARE(run("vimgrep /alpha/gj a.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[1].lnum"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[1].col"), QLatin1String("6"));
+    QCOMPARE(value("getqflist()[2].lnum"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[2].col"), QLatin1String("16"));
+
+    // The file a match was found in gets a buffer, unlisted and unloaded, and
+    // that is what the entry names. A file with no match gets none.
+    const QString buf = value("getqflist()[0].bufnr");
+    QVERIFY(buf.toInt() > 0);
+    QCOMPARE(value("bufname(" + buf + ")"), QLatin1String("a.txt"));
+    QCOMPARE(value("bufexists('a.txt')"), QLatin1String("1"));
+    QCOMPARE(value("buflisted('a.txt')"), QLatin1String("0"));
+    QCOMPARE(value("bufloaded('a.txt')"), QLatin1String("0"));
+    QCOMPARE(value("bufexists('b.txt')"), QLatin1String("0"));
+    // Which is what ":clist" names it by.
+    QCOMPARE(listed("clist"), QString(" 1 a.txt:1 col 1-6: alpha one\n"
+                                      " 2 a.txt:2 col 6-11: beta alpha two alpha\n"
+                                      " 3 a.txt:2 col 16-21: beta alpha two alpha\n"
+                                      " 4 a.txt:3 col 4-9:    alpha indented\n"));
+
+    // The title is the command line as it was typed, count and abbreviation
+    // and all, behind a colon.
+    QCOMPARE(value("getqflist({'title':1}).title"),
+             QLatin1String(":vimgrep /alpha/gj a.txt"));
+    QCOMPARE(run("2vim /alpha/gj a.txt"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":2vim /alpha/gj a.txt"));
+    // A count is a limit on the MATCHES, and zero counts as one.
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(run("1vimgrep /alpha/gj a.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+
+    // The files are searched in the order they are named, and every ":vimgrep"
+    // pushes a list of its own.
+    const QString nr = value("getqflist({'nr':'$'}).nr");
+    QCOMPARE(run("vimgrep /alpha/j b.txt a.txt"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QString::number(nr.toInt() + 1));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("alpha one"));
+    // 'ignorecase' counts, 'smartcase' does not.
+    data.doCommand("set ignorecase smartcase");
+    QCOMPARE(run("vimgrep /ALPHA/j b.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(run("vimgrep /alpha/j b.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    data.doCommand("set noignorecase nosmartcase");
+    QCOMPARE(run("vimgrep /alpha/j b.txt"), QLatin1String("E480: No match: alpha"));
+    // A failing ":vimgrep" pushes an empty list all the same.
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":vimgrep /alpha/j b.txt"));
+
+    // A wildcard stands for the files it matches, in name order, and "**"
+    // reaches below as well: Vim walks the names of a directory in order and
+    // descends where it comes to one, so a file here can come out behind a
+    // file below it.
+    QCOMPARE(run("vimgrep /alpha/j *.txt"), QLatin1String(""));
+    QCOMPARE(listed("clist"), QString(" 1 a.txt:1 col 1-6: alpha one\n"
+                                      " 2 a.txt:2 col 6-11: beta alpha two alpha\n"
+                                      " 3 a.txt:3 col 4-9:    alpha indented\n"));
+    QCOMPARE(run("vimgrep /alpha/j **/*.txt"), QLatin1String(""));
+    QCOMPARE(listed("clist"), QString(" 1 a.txt:1 col 1-6: alpha one\n"
+                                      " 2 a.txt:2 col 6-11: beta alpha two alpha\n"
+                                      " 3 a.txt:3 col 4-9:    alpha indented\n"
+                                      " 4 sub/c.txt:1 col 1-6: alpha c\n"));
+    QCOMPARE(run("vimgrep /alpha/j **"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("4"));
+
+    // A pattern that starts with a word character reaches to the first blank
+    // and takes no flags at all, so what looks like one is a file name. Only
+    // "g", "j" and "f" are flags behind a delimited one, and anything else is
+    // where the file names start: both files below are named after a flag.
+    write(dir.path() + "/j", "alpha in j\n");
+    write(dir.path() + "/z", "alpha in z\n");
+    data.doCommand("vimgrep alpha j a.txt");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("alpha in j"));
+    data.doCommand("vimgrep /alpha/z z");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("alpha in z"));
+    // Any other character is a delimiter.
+    QCOMPARE(run("vimgrep #alpha#j a.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+
+    // A file that cannot be read is said so and the walk goes on. A wildcard
+    // that matches nothing is silent, and so is a directory.
+    QCOMPARE(run("vimgrep /alpha/j nosuch.txt a.txt"),
+             QLatin1String("Cannot open file \"nosuch.txt\""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(run("vimgrep /alpha/j *.none"), QLatin1String("E480: No match: alpha"));
+    QCOMPARE(run("vimgrep /alpha/j sub"), QLatin1String("E480: No match: alpha"));
+
+    // The "f" flag matches the way matchfuzzy() does: one entry a line
+    // whatever the "g" flag says, the column the first matched character, and
+    // no end at all.
+    QCOMPARE(run("vimgrep /alpha/gjf a.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(run("vimgrep /ind/gjf a.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("3"));
+    QCOMPARE(value("getqflist()[0].col"), QLatin1String("10"));
+    QCOMPARE(value("getqflist()[0].end_col"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].end_lnum"), QLatin1String("0"));
+
+    // An empty pattern is the one last searched for, and ":vimgrep" is no
+    // search of its own, so it leaves that alone.
+    data.doCommand("let @/ = ''");
+    QCOMPARE(run("vimgrep //j a.txt"), QLatin1String("E35: No previous regular expression"));
+    data.doCommand("let @/ = 'indented'");
+    QCOMPARE(run("vimgrep //j a.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("@/"), QLatin1String("indented"));
+
+    // What the arguments have to be.
+    QCOMPARE(run("vimgrep"), QLatin1String("E471: Argument required: vimgrep"));
+    QCOMPARE(run("lvimgrep!"), QLatin1String("E471: Argument required: lvimgrep!"));
+    QCOMPARE(run("vimgrep /alpha/j"), QLatin1String("E683: File name missing or invalid pattern"));
+    QCOMPARE(run("vimgrep alpha"), QLatin1String("E683: File name missing or invalid pattern"));
+    QCOMPARE(run("vimgrep /alpha a.txt"), QLatin1String("E682: Invalid search pattern or delimiter"));
+
+    // "%" is the file the buffer stands for, and the buffer is searched as it
+    // stands rather than as it is on disk.
+    QCOMPARE(run("vimgrep /alpha/j %"),
+             QLatin1String("E499: Empty file name for '%' or '#', only works with"
+                           " \":p:h\": vimgrep /alpha/j %"));
+    data.handler->setCurrentFileName(dir.path() + "/a.txt");
+    data.setText("alpha here" N "nothing");
+    QCOMPARE(run("vimgrep /alpha/j %"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("alpha here"));
+    QCOMPARE(value("getqflist()[0].bufnr"), value("bufnr('%')"));
+    // Named rather than through "%" it is the same buffer, so no second one is
+    // made for it.
+    QCOMPARE(run("vimgrep /here/j a.txt"), QLatin1String(""));
+    QCOMPARE(value("getqflist()[0].bufnr"), value("bufnr('%')"));
+    data.handler->setCurrentFileName(QString());
+
+    // Without "j" the cursor goes to the first match, which is the first
+    // entry the list stands on. An entry of another file leaves this one
+    // where it was and asks for that file at the line of the match.
+    data.setText("one alpha" N "two" N "three alpha");
+    data.handler->setCurrentFileName(dir.path() + "/live.txt");
+    write(dir.path() + "/live.txt", "written\n");
+    QCOMPARE(run("vimgrep /alpha/ live.txt"), QLatin1String("(1 of 2): one alpha"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("1"));
+    QCOMPARE(data.position(), 4);
+    data.handler->setCurrentFileName(QString());
+    data.doKeys("gg");
+    QString opened;
+    int openedLine = -1;
+    int openedColumn = -1;
+    data.handler->fileOpenRequested.set([&](const QString &name, int line, int column) {
+        opened = name;
+        openedLine = line;
+        openedColumn = column;
+    });
+    data.doCommand("vimgrep /indented/ a.txt");
+    QCOMPARE(data.position(), 0);
+    QCOMPARE(opened, QLatin1String("a.txt"));
+    QCOMPARE(openedLine, 3);
+    QCOMPARE(openedColumn, 10);
+
+    // ":vimgrepadd" appends to the list the stack stands on, leaves its title
+    // and its index alone, and on no match says nothing and makes no list.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("vimgrep /alpha/j a.txt"), QLatin1String(""));
+    QCOMPARE(run("vimgrepadd /beta/j b.txt"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("1"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[3].text"), QLatin1String("beta one"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":vimgrep /alpha/j a.txt"));
+    QCOMPARE(run("vimgrepadd /nosuchword/j a.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("4"));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("1"));
+    // An add with nothing on the stack makes the one list it needs.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("vimgrepadd /alpha/j a.txt"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("1"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+
+    // The location list forms do the same to the window's own list, and the
+    // quickfix list does not hear of it.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("lvimgrep /alpha/j a.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("3"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"), QLatin1String(":lvimgrep /alpha/j a.txt"));
+    QCOMPARE(run("lv /beta/j b.txt"), QLatin1String(""));
+    QCOMPARE(value("getloclist(0, {'nr':'$'}).nr"), QLatin1String("2"));
+    QCOMPARE(run("lvimgrepadd /alpha/j a.txt"), QLatin1String(""));
+    QCOMPARE(value("getloclist(0, {'nr':'$'}).nr"), QLatin1String("2"));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("4"));
+    QCOMPARE(listed("llist"), QString(" 1 b.txt:1 col 1-5: beta one\n"
+                                      " 2 a.txt:1 col 1-6: alpha one\n"
+                                      " 3 a.txt:2 col 6-11: beta alpha two alpha\n"
+                                      " 4 a.txt:3 col 4-9:    alpha indented\n"));
+
+    // A pattern that reaches over a line end is matched against the whole file
+    // at once. The entry names where the match starts, uncapped, and its end can
+    // name the line behind the last one of the file, which is where the newline
+    // ending that file reaches.
+    write(dir.path() + "/d.txt", "abc\ndabc\ndxx\n");
+    data.doCommand("vimgrep /c\\nd/j d.txt");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].col"), QLatin1String("3"));
+    QCOMPARE(value("getqflist()[0].end_lnum"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].end_col"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("abc"));
+    QCOMPARE(value("getqflist()[1].lnum"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[1].col"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[1].end_lnum"), QLatin1String("3"));
+    QCOMPARE(value("getqflist()[1].end_col"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[1].text"), QLatin1String("dabc"));
+    data.doCommand("vimgrep /\\n/j d.txt");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist()[0].col"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[0].end_lnum"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].end_col"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[1].col"), QLatin1String("5"));
+    QCOMPARE(value("getqflist()[2].col"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[2].end_lnum"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[2].end_col"), QLatin1String("1"));
+    data.doCommand("vimgrep /abc\\ndabc/j d.txt");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].end_lnum"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].end_col"), QLatin1String("5"));
+    message.clear();
+    data.doCommand("vimgrep /q\\nz/j d.txt");
+    QCOMPARE(message, QLatin1String("E480: No match: q\\nz"));
+
+
+
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    // The buffer registry and the working directory belong to the process, so
+    // what the run made goes again.
+    QStringList made;
+    for (const QString &name : QStringList{"a.txt", "b.txt", "sub/c.txt", "d.txt", "j", "z"})
+        made += value("bufnr('" + name + "')");
+    data.doCommand("bwipeout! " + made.join(' '));
+    QCOMPARE(value("bufexists('a.txt') + bufexists('b.txt') + bufexists('c.txt')"),
+             QLatin1String("0"));
+    data.doCommand("let @/ = ''");
+    data.doCommand("cd " + before);
+    data.handler->fileOpenRequested.set([](const QString &, int, int) {});
 }
 
 void FakeVimTester::test_vim_command_match()
@@ -26000,6 +34090,33 @@ void FakeVimTester::test_vim_command_arglist()
     //   ":argadd {file}" puts it AFTER the current entry, not at the end
     //   ":argdelete {file}" with no match is "E480: No match: {file}"
     //   ":next" past the last is "E165: Cannot go beyond last file"
+    // Re-measured with the files saved, which the first pass could not do:
+    //   ":argument 0" is "E939: Positive count required: {command}" and
+    //     ":argument 9" is E165, not the E163 an empty list gives
+    //   ":argadd" with no name adds the file being edited
+    //   ":argdelete" takes file PATTERNS, several of them, and with none at
+    //     all the entry the walk stands at goes
+    //   ":{range}argdelete" names entries by their place in the list
+    //   the walk moves by the entries deleted in FRONT of it and is not
+    //     pulled back into the shortened list
+    // Re-measured with more entries than the buffer has lines, which is what
+    // shows the range to be about the list rather than the lines:
+    //   ":5argdelete" works on a six-entry list whatever the buffer holds, and
+    //     a place the list does not have is "E16: Invalid range" for
+    //     ":argdelete", ":argument" and ":argadd" alike
+    //   "$", "." and "%" address the list the same way they address buffers,
+    //     and ":0argdelete" acts on the first entry
+    //   ":3,2argdelete" is sorted out rather than refused
+    //   ":{n}argument" is the count ":argument {n}" takes, except that a zero
+    //     moves nowhere and says nothing
+    //   ":{n}argadd {file}" puts it after entry n, and ":0argadd" in front of
+    //     the first, which moves the walk up by one
+    //   ":{n}args" is "E481: No range allowed"
+    //   ":argadd {file} {file}" takes both names, in the order given
+    // The listing measured with execute('args') over 80 columns: the entries
+    // are laid out in columns filled DOWNWARDS, a cell is the longest entry
+    // with its brackets counted plus one, and an entry wider than the line
+    // leaves one column, which is padded not at all
     TestData data;
     setup(&data);
     QString message;
@@ -26021,7 +34138,7 @@ void FakeVimTester::test_vim_command_arglist()
     // Walking the list opens a file, which is Qt Creator's part; the test
     // takes it so that what is checked is the walking.
     QStringList opened;
-    data.handler->fileOpenRequested.set([&](const QString &name, int) {
+    data.handler->fileOpenRequested.set([&](const QString &name, int, int) {
         opened += name;
     });
 
@@ -26046,16 +34163,17 @@ void FakeVimTester::test_vim_command_arglist()
              QLatin1String("['/tmp/a1.txt', '/tmp/a2.txt', '/tmp/a3.txt']"));
     QCOMPARE(value("argv(1)"), QLatin1String("/tmp/a2.txt"));
 
-    // The listing puts the current entry in brackets.
+    // The listing puts the current entry in brackets, and pads every entry to
+    // the longest of them plus one.
     QCOMPARE(run("args"),
-             QLatin1String("[/tmp/a1.txt] /tmp/a2.txt /tmp/a3.txt"));
+             QLatin1String("[/tmp/a1.txt] /tmp/a2.txt   /tmp/a3.txt   "));
 
     // ":argument" is one-based.
     opened.clear();
     data.doCommand("argument 2");
     QCOMPARE(value("argidx()"), QLatin1String("1"));
     QCOMPARE(opened, QStringList{"/tmp/a2.txt"});
-    QVERIFY2(run("argument 9").contains("E163"), qPrintable(message));
+    QVERIFY2(run("argument 9").contains("E165"), qPrintable(message));
     QCOMPARE(value("argidx()"), QLatin1String("1"));
 
     // ":argadd" goes AFTER the current entry, which is the measured detail.
@@ -26101,6 +34219,178 @@ void FakeVimTester::test_vim_command_arglist()
     data.doCommand("first");
     QVERIFY2(run("previous").contains("E164"), qPrintable(message));
     QCOMPARE(value("argidx()"), QLatin1String("0"));
+
+    // A count of less than one is a complaint of its own, and it names the
+    // command as it was typed.
+    QVERIFY2(run("argu 0").contains("E939: Positive count required: argu 0"),
+             qPrintable(message));
+
+    // ":argadd" with no name adds the file being edited, after the current
+    // entry as a named one goes.
+    data.doCommand("first");
+    data.doCommand("argadd");
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a1.txt', '/tmp/open.txt', '/tmp/a2.txt',"
+                           " '/tmp/a3.txt']"));
+
+    // A name is a file pattern, and "%" is the file being edited.
+    QCOMPARE(run("argdelete %"), QString());
+    data.doCommand("argdelete *a2*");
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a1.txt', '/tmp/a3.txt']"));
+
+    // Several patterns, where the first one matching nothing is the complaint
+    // and what the others matched still goes.
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
+    QVERIFY2(run("argdelete /tmp/nosuch.txt /tmp/a2.txt")
+                 .contains("E480: No match: /tmp/nosuch.txt"), qPrintable(message));
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a1.txt', '/tmp/a3.txt']"));
+
+    // A range names entries by their one-based place in the list, and a place
+    // beyond it is no range.
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
+    data.doCommand("2argdelete");
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a1.txt', '/tmp/a3.txt']"));
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
+    data.doCommand("1,2argdelete");
+    QCOMPARE(value("string(argv())"), QLatin1String("['/tmp/a3.txt']"));
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
+    QVERIFY2(run("3,4argdelete").contains("E16"), qPrintable(message));
+    QCOMPARE(value("argc()"), QLatin1String("3"));
+
+    // The range counts ENTRIES OF THE LIST, not lines of the buffer: with
+    // four lines here, six entries reach past what a line address may be.
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt /tmp/a4.txt"
+                   " /tmp/a5.txt /tmp/a6.txt");
+    data.doCommand("5argdelete");
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a1.txt', '/tmp/a2.txt', '/tmp/a3.txt',"
+                           " '/tmp/a4.txt', '/tmp/a6.txt']"));
+    // "$" is the last entry, "." the one the walk stands at, a zero the first
+    // one, and "%" all of them.
+    data.doCommand("$argdelete");
+    QCOMPARE(value("argc()"), QLatin1String("4"));
+    data.doCommand("argument 2");
+    data.doCommand(".argdelete");
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a1.txt', '/tmp/a3.txt', '/tmp/a4.txt']"));
+    data.doCommand("0argdelete");
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a3.txt', '/tmp/a4.txt']"));
+    data.doCommand("%argdelete");
+    QCOMPARE(value("argc()"), QLatin1String("1"));
+
+    // A backwards range is sorted out rather than refused, which a line range
+    // does not do.
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt /tmp/a4.txt");
+    data.doCommand("3,2argdelete");
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a1.txt', '/tmp/a4.txt']"));
+
+    // The count ":argument" takes in FRONT of it, where a zero moves nowhere
+    // and says nothing, the "argument 0" after it being E939.
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
+    opened.clear();
+    data.doCommand("2argument");
+    QCOMPARE(value("argidx()"), QLatin1String("1"));
+    QCOMPARE(opened, QStringList{"/tmp/a2.txt"});
+    QCOMPARE(run("0argument"), QString());
+    QCOMPARE(value("argidx()"), QLatin1String("1"));
+    data.doCommand("$argument");
+    QCOMPARE(value("argidx()"), QLatin1String("2"));
+
+    // The count ":argadd" takes says which entry to put the name after, and a
+    // zero puts it in front of the first, carrying the walk along with it.
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
+    data.doCommand("2argadd /tmp/x.txt");
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a1.txt', '/tmp/a2.txt', '/tmp/x.txt',"
+                           " '/tmp/a3.txt']"));
+    QCOMPARE(value("argidx()"), QLatin1String("0"));
+    data.doCommand("0argadd /tmp/y.txt");
+    QCOMPARE(value("argv(0)"), QLatin1String("/tmp/y.txt"));
+    QCOMPARE(value("argidx()"), QLatin1String("1"));
+
+    // Several names go in at once, in the order given.
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
+    data.doCommand("argadd /tmp/x.txt /tmp/y.txt");
+    QCOMPARE(value("string(argv())"),
+             QLatin1String("['/tmp/a1.txt', '/tmp/x.txt', '/tmp/y.txt',"
+                           " '/tmp/a2.txt', '/tmp/a3.txt']"));
+
+    // ":args" takes no range at all.
+    QVERIFY2(run("2args").contains("E481"), qPrintable(message));
+
+    // A place the list does not have is "E16: Invalid range" whichever of the
+    // three commands takes it, and nothing moves.
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
+    QVERIFY2(run("9argdelete").contains("E16"), qPrintable(message));
+    QVERIFY2(run("9argument").contains("E16"), qPrintable(message));
+    QVERIFY2(run("9argadd /tmp/x.txt").contains("E16"), qPrintable(message));
+    QVERIFY2(run("2,9argdelete").contains("E16"), qPrintable(message));
+    QCOMPARE(value("argc()"), QLatin1String("3"));
+    QCOMPARE(value("argidx()"), QLatin1String("0"));
+
+    // With no name and no range the entry the walk stands at goes, and the
+    // walk moves only by what went in front of it: deleting the last entry
+    // while standing on it leaves the index past the end of the list.
+    data.doCommand("last");
+    data.doCommand("argdelete");
+    QCOMPARE(value("argc()"), QLatin1String("2"));
+    QCOMPARE(value("argidx()"), QLatin1String("2"));
+    QVERIFY2(run("next").contains("E165"), qPrintable(message));
+    data.doCommand("previous");
+    QCOMPARE(value("argidx()"), QLatin1String("1"));
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
+
+    // The listing lays the entries out in COLUMNS, filled downwards, over the
+    // 80 columns Vim assumes here, and a cell is the longest entry with its
+    // brackets counted plus one. All measured in Vim 9.1.
+    data.doCommand("args a.txt bb.txt ccc.txt");
+    data.doCommand("2argument");
+    QCOMPARE(run("args"), QLatin1String("a.txt    [bb.txt] ccc.txt  "));
+    data.doCommand("args e1 e2 e3 e4 e5 e6 e7 e8");
+    QCOMPARE(run("args"),
+             QLatin1String("[e1] e2   e3   e4   e5   e6   e7   e8   "));
+
+    // More than a line holds takes several, and the columns are filled
+    // downwards rather than across.
+    QString info;
+    data.handler->extraInformationChanged.set([&](const QString &text) { info = text; });
+    data.doCommand("args /tmp/name01.txt /tmp/name02.txt /tmp/name03.txt"
+                   " /tmp/name04.txt /tmp/name05.txt /tmp/name06.txt"
+                   " /tmp/name07.txt /tmp/name08.txt /tmp/name09.txt"
+                   " /tmp/name10.txt /tmp/name11.txt /tmp/name12.txt");
+    data.doCommand("2argument");
+    info.clear();
+    data.doCommand("args");
+    QCOMPARE(info, QLatin1String(
+        "/tmp/name01.txt   /tmp/name04.txt   /tmp/name07.txt   /tmp/name10.txt\n"
+        "[/tmp/name02.txt] /tmp/name05.txt   /tmp/name08.txt   /tmp/name11.txt\n"
+        "/tmp/name03.txt   /tmp/name06.txt   /tmp/name09.txt   /tmp/name12.txt\n"));
+
+    // Three columns of 27 fit 80 only because the rightmost one needs no
+    // separator of its own, which is what Vim sacrifices it for.
+    data.doCommand("args aa n1xxxxxxxxxxxxxxxxxxxxxxxx n2xxxxxxxxxxxxxxxxxxxxxxxx"
+                   " n3xxxxxxxxxxxxxxxxxxxxxxxx n4xxxxxxxxxxxxxxxxxxxxxxxx"
+                   " n5xxxxxxxxxxxxxxxxxxxxxxxx");
+    info.clear();
+    data.doCommand("args");
+    QCOMPARE(info, QLatin1String(
+        "[aa]                       "
+        "n2xxxxxxxxxxxxxxxxxxxxxxxx n4xxxxxxxxxxxxxxxxxxxxxxxx\n"
+        "n1xxxxxxxxxxxxxxxxxxxxxxxx "
+        "n3xxxxxxxxxxxxxxxxxxxxxxxx n5xxxxxxxxxxxxxxxxxxxxxxxx\n"));
+
+    // An entry wider than the line leaves one column, which needs no padding
+    // at all.
+    data.doCommand("args aa " + QString(100, 'z') + " bb");
+    info.clear();
+    data.doCommand("args");
+    QCOMPARE(info, QLatin1String("[aa]\n") + QString(100, 'z') + QLatin1String("\nbb\n"));
+    data.doCommand("args /tmp/a1.txt /tmp/a2.txt /tmp/a3.txt");
 
     // Emptying the list puts argc() back to answering about the open file.
     data.doCommand("argdelete /tmp/a1.txt");
@@ -26450,6 +34740,68 @@ void FakeVimTester::test_vim_autocmd_focus()
     data.doCommand("autocmd! FvFo");
     data.doCommand("unlet! g:fo");
     useFakeVim.setValue(savedUseFakeVim);
+}
+
+void FakeVimTester::test_vim_autocmd_afile_amatch()
+{
+    // Measured in Vim 9.1: "<amatch>" is what the pattern was matched against
+    // and "<afile>" what the event is about, which are not always the same
+    // thing. An OptionSet or a ModeChanged is about no file and leaves
+    // "<afile>" empty, a FileType or a Syntax matches the name it sets while
+    // "<afile>" still names the file in the buffer.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("one");
+    data.doCommand("file fvam.c");
+    data.doCommand("augroup FvAm");
+    data.doCommand("augroup END");
+    // The match, the tail of the file the event is about, and whether that is
+    // the file in the buffer.
+    const QString record = " call add(g:am, expand('<amatch>') . '/['"
+                           " . fnamemodify(expand('<afile>'), ':t') . ']/'"
+                           " . (expand('<afile>') ==# expand('%')))";
+
+    data.doCommand("let g:am = []");
+    data.doCommand("autocmd FvAm OptionSet *" + record);
+    data.doCommand("set noignorecase");
+    data.doCommand("let g:am = []");
+    data.doCommand("set ignorecase");
+    QCOMPARE(value("string(g:am)"), QLatin1String("['ignorecase/[]/0']"));
+
+    data.doCommand("autocmd! FvAm");
+    data.doCommand("let g:am = []");
+    data.doCommand("autocmd FvAm FileType *" + record);
+    data.doCommand("setf zig");
+    QCOMPARE(value("string(g:am)"), QLatin1String("['zig/[fvam.c]/1']"));
+
+    data.doCommand("autocmd! FvAm");
+    data.doCommand("let g:am = []");
+    data.doCommand("autocmd FvAm Syntax *" + record);
+    data.doCommand("set syntax=c");
+    QCOMPARE(value("string(g:am)"), QLatin1String("['c/[fvam.c]/1']"));
+
+    data.doCommand("autocmd! FvAm");
+    data.doCommand("let g:am = []");
+    data.doCommand("autocmd FvAm ModeChanged *" + record);
+    data.doKeys("gg0ix<Esc>");
+    QCOMPARE(value("string(g:am)"),
+             QLatin1String("['n:i/[]/0', 'i:n/[]/0']"));
+
+    data.doCommand("autocmd! FvAm");
+    data.doCommand("set noignorecase");
+    data.doCommand("unlet! g:am");
 }
 
 void FakeVimTester::test_vim_autocmd_completedone()
@@ -27192,6 +35544,85 @@ void FakeVimTester::test_vim_substitute_remembered()
     QCOMPARE(data.text(), QString("1aa" N "99b" N "aac" N "aad" N "aae"));
 }
 
+void FakeVimTester::test_vim_substitute_repeat_pattern()
+{
+    // Which pattern a substitute with no pattern of its own reads, measured
+    // in Vim 9.1: ":&" and a bare ":s" read the pattern of the last
+    // substitute, while ":~" and the "r" flag read the last SEARCH pattern.
+    // The two part where a "/" search has run since, a substitute setting
+    // both and a search only the one.
+    TestData data;
+    setup(&data);
+    const auto repeat = [&](const QString &cmd) {
+        data.setText("aaa bbb" N "aaa bbb");
+        data.doCommand("1substitute/aaa/X/");
+        data.doKeys("/bbb<CR>");
+        data.doCommand("2" + cmd);
+        return data.text();
+    };
+
+    QCOMPARE(repeat("&"), QString("X bbb" N "X bbb"));
+    QCOMPARE(repeat("substitute"), QString("X bbb" N "X bbb"));
+    QCOMPARE(repeat("&r"), QString("X bbb" N "aaa X"));
+    QCOMPARE(repeat("&&r"), QString("X bbb" N "aaa X"));
+    QCOMPARE(repeat("~"), QString("X bbb" N "aaa X"));
+    QCOMPARE(repeat("~r"), QString("X bbb" N "aaa X"));
+}
+
+void FakeVimTester::test_vim_substitute_blank_flags()
+{
+    // A blank between ":s" and its flags does not make what follows a
+    // pattern: the characters a flag or a count starts with are never read as
+    // the separator (measured in Vim 9.1). Anything else still is one, "#"
+    // and "," among them.
+    TestData data;
+    setup(&data);
+    const auto run = [&](const QString &cmd) {
+        data.setText("aaa bbb" N "aaa bbb" N "aaa bbb");
+        data.doCommand("1substitute/aaa/X/");
+        data.doKeys("/bbb<CR>");
+        data.doCommand("2" + cmd);
+        return data.text();
+    };
+
+    QCOMPARE(run("s g"), QString("X bbb" N "X bbb" N "aaa bbb"));
+    QCOMPARE(run("s r"), QString("X bbb" N "aaa X" N "aaa bbb"));
+    QCOMPARE(run("s 2"), QString("X bbb" N "X bbb" N "X bbb"));
+    QCOMPARE(run("s r 2"), QString("X bbb" N "aaa X" N "aaa X"));
+    QCOMPARE(run("& r"), QString("X bbb" N "aaa X" N "aaa bbb"));
+    QCOMPARE(run("s #aaa#Z#"), QString("X bbb" N "Z bbb" N "aaa bbb"));
+    QCOMPARE(run("s ,aaa,Z,"), QString("X bbb" N "Z bbb" N "aaa bbb"));
+}
+
+void FakeVimTester::test_vim_substitute_glued_flags()
+{
+    // A single flag stands glued to the name of the substitute where that
+    // cannot be another command, measured in Vim 9.1: ":sg", ":sr", ":si" and
+    // ":sI" substitute, while ":sig", ":sim" and ":sil" are the commands they
+    // read as. ":sre" rewinds, which this cannot ask for: FakeVim answers a
+    // window split where Vim answers that the range is not allowed.
+    TestData data;
+    setup(&data);
+    const auto run = [&](const QString &cmd) {
+        data.setText("aaa bbb" N "aaa bbb" N "aaa bbb");
+        data.doCommand("1substitute/aaa/X/");
+        data.doKeys("/bbb<CR>");
+        data.doCommand("2" + cmd);
+        return data.text();
+    };
+
+    QCOMPARE(run("sg"), QString("X bbb" N "X bbb" N "aaa bbb"));
+    QCOMPARE(run("sr"), QString("X bbb" N "aaa X" N "aaa bbb"));
+    QCOMPARE(run("si"), QString("X bbb" N "X bbb" N "aaa bbb"));
+    QCOMPARE(run("sI"), QString("X bbb" N "X bbb" N "aaa bbb"));
+    QCOMPARE(run("sgi"), QString("X bbb" N "X bbb" N "aaa bbb"));
+    QCOMPARE(run("sir"), QString("X bbb" N "aaa X" N "aaa bbb"));
+    QCOMPARE(run("sg2"), QString("X bbb" N "X bbb" N "X bbb"));
+    QCOMPARE(run("sig"), QString("X bbb" N "aaa bbb" N "aaa bbb"));
+    QCOMPARE(run("sim"), QString("X bbb" N "aaa bbb" N "aaa bbb"));
+    QCOMPARE(run("sil"), QString("X bbb" N "aaa bbb" N "aaa bbb"));
+}
+
 void FakeVimTester::test_vim_script_flatten()
 {
     // flatten() takes the lists inside a list apart, as deep as it is told to,
@@ -27376,6 +35807,7 @@ void FakeVimTester::test_vim_script_error_inspection()
     data.doCommand("call setreg('a', \"line\\n\", 'V')");
     data.doCommand("call setreg('b', 'chars', 'v')");
     data.doCommand("call setreg('z', '')");
+    data.doCommand("call setreg('q', [])");
     // Point the unnamed register somewhere known: the registers are shared with
     // every other test, and getreginfo() tells where it points.
     data.doCommand("call setreg('\"', 'aside')");
@@ -27383,8 +35815,13 @@ void FakeVimTester::test_vim_script_error_inspection()
              QLatin1String("{'isunnamed': v:false, 'regcontents': ['line'], 'regtype': 'V'}"));
     QCOMPARE(value("getreginfo('b')"),
              QLatin1String("{'isunnamed': v:false, 'regcontents': ['chars'], 'regtype': 'v'}"));
-    // An empty register has nothing to tell.
-    QCOMPARE(value("getreginfo('z')"), QLatin1String("{}"));
+    // A register that was SET to nothing holds one empty line, and only a
+    // register nothing ever wrote has nothing to tell.
+    QCOMPARE(value("getreginfo('z')"),
+             QLatin1String("{'isunnamed': v:false, 'regcontents': [''], 'regtype': 'v'}"));
+    QCOMPARE(value("getreginfo('q')"), QLatin1String("{}"));
+    QCOMPARE(value("getregtype('z')"), QLatin1String("v"));
+    QCOMPARE(value("getregtype('q')"), QLatin1String(""));
 
     // The error is held even where it is not shown, which is what the
     // "empty it, do the thing, look at it" idiom reads.
@@ -27654,9 +36091,8 @@ void FakeVimTester::test_vim_operator_motion_at_the_edge()
 void FakeVimTester::test_vim_script_characters_and_bytes()
 {
     // Vim counts a string in bytes (strlen, strpart, stridx) and offers the
-    // character-wise ones beside them; here everything is counted in characters,
-    // so strlen() answers what strchars() answers. Values taken from Vim 9.1,
-    // with the two that differ named.
+    // character-wise ones beside them, which is what this engine does as well.
+    // Values taken from Vim 9.1.
     TestData data;
     setup(&data);
     QString message;
@@ -27678,9 +36114,8 @@ void FakeVimTester::test_vim_script_characters_and_bytes()
     QCOMPARE(value("strchars(" + word + ")"), QLatin1String("4"));
     QCOMPARE(value("strwidth(" + word + ")"), QLatin1String("4"));
     QCOMPARE(value("strchars('')"), QLatin1String("0"));
-    // Vim says 5 here, counting the bytes; every column and offset in this
-    // engine is a character, so this agrees with those instead.
-    QCOMPARE(value("strlen(" + word + ")"), QLatin1String("4"));
+    // Bytes, so one more than the four characters.
+    QCOMPARE(value("strlen(" + word + ")"), QLatin1String("5"));
     // A piece counted in characters, which Vim's strcharpart() gives as well.
     QCOMPARE(value("strcharpart(" + word + ", 1, 1)"), QString::fromUtf8("\xc3\xa9"));
     QCOMPARE(value("strcharpart(" + word + ", 0, 2)"), QString::fromUtf8("a\xc3\xa9"));
@@ -27916,6 +36351,32 @@ void FakeVimTester::test_vim_script_feedkeys()
     data.doKeys("gg");
     KEYS("", X "ne" N "two");
     QCOMPARE(value("feedkeys('', 'n')"), QLatin1String("0"));
+
+    // "x" runs what is waiting at once, rather than leaving it for the key
+    // that comes next.
+    data.setText("alpha");
+    data.doKeys("gg0");
+    data.doCommand("call feedkeys('x', 'x')");
+    QCOMPARE(data.text(), QString("lpha"));
+    // Without it the keys wait, and an empty call with "x" flushes them.
+    data.setText("alpha");
+    data.doKeys("gg0");
+    data.doCommand("call feedkeys('x', '')");
+    QCOMPARE(data.text(), QString("alpha"));
+    data.doCommand("call feedkeys('', 'x')");
+    QCOMPARE(data.text(), QString("lpha"));
+    // What waits already runs first, unless "i" puts the new keys in front.
+    data.setText("abc");
+    data.doKeys("gg0");
+    data.doCommand("call feedkeys('x', '')");
+    data.doCommand("call feedkeys('l', 'x')");
+    QCOMPARE(data.text(), QString("bc"));
+    data.setText("abc");
+    data.doKeys("gg0");
+    data.doCommand("call feedkeys('x', '')");
+    data.doCommand("call feedkeys('l', 'ix')");
+    QCOMPARE(data.text(), QString("ac"));
+
     data.doCommand("unlet g:log");
     data.doCommand("nunmap ,3 | nunmap ,4 | nunmap ,t | nunmap ,a | nunmap ,n");
     data.doCommand("delfunction TwoI | delfunction Tail | delfunction NoRemap");
@@ -29264,7 +37725,7 @@ void FakeVimTester::test_vim_goto_file()
 
     QString opened;
     int openedLine = -1;
-    data.handler->fileOpenRequested.set([&](const QString &fileName, int line) {
+    data.handler->fileOpenRequested.set([&](const QString &fileName, int line, int) {
         opened = fileName;
         openedLine = line;
     });
@@ -29329,7 +37790,7 @@ void FakeVimTester::test_vim_goto_file()
     QCOMPARE(go("3lgF"), dir.path() + "/sub/inc.h@9");
     data.setText(X "#include \"sub/inc.h\":42");
     QCOMPARE(go("11lgF"), dir.path() + "/sub/inc.h@0");
-    data.handler->fileOpenRequested.set([](const QString &, int) {});
+    data.handler->fileOpenRequested.set([](const QString &, int, int) {});
 }
 
 void FakeVimTester::test_vim_script_findfile()
@@ -29453,7 +37914,7 @@ void FakeVimTester::test_vim_script_line2byte()
     // Latin-1.
     data.setText(X "b");
     data.doKeys(QString::fromUtf8("Oa\xc3\xa4\x1b"));
-    QCOMPARE(value("getline(1)->strlen()"), QLatin1String("2"));
+    QCOMPARE(value("getline(1)->strlen()"), QLatin1String("3"));
     QCOMPARE(value("line2byte(2)"), QLatin1String("5"));
     QCOMPARE(value("byte2line(4)"), QLatin1String("1"));
     QCOMPARE(value("exists('*line2byte') .. exists('*byte2line')"), QLatin1String("11"));
@@ -29832,6 +38293,35 @@ void FakeVimTester::test_vim_script_winsaveview()
     // Only what the view names is put back.
     data.doCommand("call winrestview({'lnum': 4, 'col': 2})");
     QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("4,3"));
+
+    // The wanted column of a view is counted from zero as its column is, and
+    // reads v:maxcol where the cursor wants the end of whatever line it lands
+    // on. Restoring it makes the next vertical motion want that column again,
+    // and a view that does not name one leaves the wanted column alone: a
+    // "col" of its own is where the cursor goes, not what it wants.
+    data.doCommand("call cursor(2, 4)");
+    QCOMPARE(value("winsaveview().curswant"), QLatin1String("3"));
+    data.doKeys("$");
+    QCOMPARE(value("winsaveview().curswant"), QLatin1String("2147483647"));
+    data.doKeys("j");
+    QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("3,10"));
+    data.doCommand("let g:v = winsaveview()");
+    data.doCommand("call cursor(1, 1)");
+    data.doCommand("call winrestview(g:v)");
+    QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("3,10"));
+    QCOMPARE(value("winsaveview().curswant"), QLatin1String("2147483647"));
+    data.doKeys("j");
+    QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("4,9"));
+    data.doCommand("call winrestview({'curswant': 2})");
+    QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("4,9"));
+    data.doKeys("j");
+    QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("5,3"));
+    data.doKeys("0");
+    data.doCommand("call winrestview({'lnum': 3, 'col': 4})");
+    QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("3,5"));
+    QCOMPARE(value("winsaveview().curswant"), QLatin1String("0"));
+    data.doKeys("j");
+    QCOMPARE(value("line('.') .. ',' .. col('.')"), QLatin1String("4,1"));
     data.doCommand("unlet! g:v");
 }
 
@@ -30117,9 +38607,17 @@ void FakeVimTester::test_vim_whichwrap()
     // A "~" changes the character either way, and moves on where it is named.
     data.setText(X "ab" N "cd");
     KEYS("$~", "a" X "B" N "cd");
+    // From an empty line there is nothing to change, and nothing to carry on
+    // from unless the "~" is named.
+    data.setText(X N "cd");
+    KEYS("2~", X N "cd");
     data.doCommand("set whichwrap=~");
     data.setText(X "ab" N "cd");
     KEYS("$~", "aB" N X "cd");
+    data.setText(X "abc" N "def");
+    KEYS("5~", "ABC" N "DE" X "f");
+    data.setText(X N "cd");
+    KEYS("2~", N "C" X "d");
     data.doCommand("set whichwrap=b,s");
 }
 
@@ -30183,6 +38681,17 @@ void FakeVimTester::test_vim_joinspaces_gdefault()
     // Anything else keeps the one space.
     data.setText(X "a word" N "and more");
     KEYS("J", "a word" X " and more");
+    // A "j" among 'cpoptions' leaves the second space to the full stop.
+    data.doCommand("set cpoptions=aABceFszj");
+    data.setText(X "End of it." N "Next one");
+    KEYS("J", "End of it." X "  Next one");
+    data.setText(X "Really?" N "Yes");
+    KEYS("J", "Really?" X " Yes");
+    data.setText(X "Wow!" N "Yes");
+    KEYS("J", "Wow!" X " Yes");
+    data.doCommand("set cpoptions=aABceFsz");
+    data.setText(X "Wow!" N "Yes");
+    KEYS("J", "Wow!" X "  Yes");
     // A substitute reaches every place where 'gdefault' says so.
     data.doCommand("set gdefault");
     data.setText(X "aXbXc");
@@ -30500,6 +39009,18 @@ void FakeVimTester::test_vim_search_messages()
     message.clear();
     KEYS("n", "one " X "foo" N "two" N "three foo" N "four");
     QCOMPARE(message, QLatin1String("search hit BOTTOM, continuing at TOP"));
+    // An "s" among 'shortmess' takes that word away, the search still wraps.
+    data.doCommand("set shortmess+=s");
+    KEYS("n", "one foo" N "two" N "three " X "foo" N "four");
+    message.clear();
+    KEYS("n", "one " X "foo" N "two" N "three foo" N "four");
+    // What is left is the echo of the search itself, as it is in Vim.
+    QCOMPARE(message, QLatin1String("/foo"));
+    data.doCommand("set shortmess-=s");
+    message.clear();
+    KEYS("nn", "one " X "foo" N "two" N "three foo" N "four");
+    QCOMPARE(message, QLatin1String("search hit BOTTOM, continuing at TOP"));
+
     // With 'nowrapscan' it stops where the buffer does.
     data.doCommand("set nowrapscan");
     data.setText("one foo" N "two" N "three foo" N X "four");
@@ -30869,6 +39390,101 @@ void FakeVimTester::test_vim_command_earlier_later()
     QCOMPARE(message, QLatin1String("Already at oldest change"));
 }
 
+void FakeVimTester::test_vim_command_earlier_later_file()
+{
+    // A "f" behind the count of ":earlier" and ":later" counts FILE WRITES
+    // rather than changes. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString fileName = dir.path() + "/earlier.txt";
+    const QString other = dir.path() + "/other.txt";
+    data.handler->setCurrentFileName(fileName);
+
+    data.setText(X "one" N "two" N "threeee");
+    KEYS("ggxjxjx", "ne" N "wo" N X "hreeee");
+    data.doCommand("w! " + fileName);
+    KEYS("x", "ne" N "wo" N X "reeee");
+
+    // The text has changed since the write, so the first step back is the
+    // write itself, and the step past the only write there is reaches the
+    // state the buffer was loaded in.
+    COMMAND("earlier 1f", "ne" N "wo" N X "hreeee");
+    COMMAND("later 1f", "ne" N "wo" N X "reeee");
+    COMMAND("earlier 2f", X "one" N "two" N "threeee");
+    COMMAND("later 1f", "ne" N "wo" N X "hreeee");
+    COMMAND("later 1f", "ne" N "wo" N X "reeee");
+
+    // A copy under another name is not a write the count sees, so the step
+    // back still lands on the one write there is rather than on the change
+    // the copy was made after.
+    data.doCommand("w! " + other);
+    KEYS("x", "ne" N "wo" N X "eeee");
+    COMMAND("earlier 1f", "ne" N "wo" N X "hreeee");
+    COMMAND("later 9f", "ne" N "wo" N X "eeee");
+
+    // Neither is a range of the buffer, whatever file it goes to.
+    data.doCommand("1,1w! " + fileName);
+    KEYS("x", "ne" N "wo" N X "eee");
+    COMMAND("earlier 1f", "ne" N "wo" N X "hreeee");
+    COMMAND("later 9f", "ne" N "wo" N X "eee");
+
+    // A second write, and there are two of them to count over.
+    data.doCommand("w! " + fileName);
+    KEYS("x", "ne" N "wo" N X "ee");
+    COMMAND("earlier 1f", "ne" N "wo" N X "eee");
+    COMMAND("earlier 1f", "ne" N "wo" N X "hreeee");
+    COMMAND("earlier 1f", X "one" N "two" N "threeee");
+    COMMAND("later 2f", "ne" N "wo" N X "eee");
+    COMMAND("earlier 3f", X "one" N "two" N "threeee");
+    COMMAND("later 9f", "ne" N "wo" N X "ee");
+
+    // A unit says what the count counts, so a unit without one is refused,
+    // and so is a letter that is no unit at all.
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    data.doCommand("earlier f");
+    QCOMPARE(message, QLatin1String("E475: Invalid argument: f"));
+    data.doCommand("later f");
+    QCOMPARE(message, QLatin1String("E475: Invalid argument: f"));
+    data.doCommand("earlier s");
+    QCOMPARE(message, QLatin1String("E475: Invalid argument: s"));
+    data.doCommand("earlier 1x");
+    QCOMPARE(message, QLatin1String("E475: Invalid argument: 1x"));
+}
+
+void FakeVimTester::test_vim_command_undo_number()
+{
+    // ":undo {n}" goes to the state the n-th change left behind, backwards or
+    // forwards, and zero is the state the buffer was loaded in. The cursor lands
+    // on the line the change it walked over touched. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.setText(X "one" N "two" N "three");
+    KEYS("ggxjxjx", "ne" N "wo" N X "hree");
+    COMMAND("undo 1", "ne" N X "two" N "three");
+    // A number ahead of where we stand walks forward to it.
+    COMMAND("undo 3", "ne" N "wo" N X "hree");
+    COMMAND("undo 0", X "one" N "two" N "three");
+    COMMAND("undo 2", "ne" N X "wo" N "three");
+
+    // A number no change ever had leaves the buffer where it is.
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.startsWith("--"))
+                message = msg;
+        });
+    COMMAND("undo 99", "ne" N X "wo" N "three");
+    QCOMPARE(message, QLatin1String("E830: Undo number 99 not found"));
+}
+
 void FakeVimTester::test_vim_script_list_functions()
 {
     // uniq() leaves out only what stands next to something the same and takes it
@@ -31040,6 +39656,27 @@ void FakeVimTester::test_vim_command_gn()
     // Where the pattern is nowhere to be found nothing happens.
     data.setText(X "foo bar foo");
     KEYS("/nomatchhere<CR>dgn", X "foo bar foo");
+
+    // A selection "gN" grows keeps the end it started from and reaches back to
+    // the start of every match it takes.
+    data.setText(X "Xab Yab Z");
+    KEYS("$?ab<CR>gNgNgNd", "Xab Y" X " Z");
+    data.setText(X "Xab Yab Z");
+    KEYS("/ab<CR>gngNd", "X" X "b Yab Z");
+
+    // Without "wrapscan" there is nothing behind the last match: the selection
+    // and the cursor stay where they were.
+    data.doCommand("set nowrapscan");
+    data.setText(X "ab ab ab");
+    KEYS("/ab<CR>gngngnd", "ab" X " ");
+    data.setText(X "ab ab ab");
+    KEYS("/ab<CR>gngngngnd", "ab" X " ");
+    data.setText(X "ab ab ab");
+    KEYS("$?ab<CR>gNgNgNd", X "");
+    // A count that reaches past the last match takes nothing at all.
+    data.setText(X "ab ab ab");
+    KEYS("/ab<CR>3gnd", "ab " X "ab ab");
+    data.doCommand("set wrapscan");
 }
 
 void FakeVimTester::test_vim_command_sort()
@@ -32768,6 +41405,62 @@ void FakeVimTester::test_vim9_justify()
                            "/Another line of words to justify nicely across the page width"));
 }
 
+void FakeVimTester::test_vim_smarttab()
+{
+    // With "smarttab" a tab in front of the text of a line reaches the next
+    // "shiftwidth" and a backspace there takes one back, whatever
+    // "softtabstop" says. Anywhere else in the line the tab is measured as it
+    // is without the option. The whitespace that comes out is written as
+    // "expandtab" and "tabstop" ask for it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    const auto typed = [&](const char *options, const QByteArray &text, const char *keys) {
+        data.doCommand(QLatin1String("set ") + QLatin1String(options));
+        data.setText(text);
+        data.doKeys(keys);
+        data.doKeys("<Esc>");
+        return QString::fromUtf8(data.text()).replace(QLatin1Char('\t'),
+                                                      QLatin1String("<TAB>"));
+    };
+    const char *base = "sta sts=0 noet ts=8 sw=4";
+
+    QCOMPARE(typed(base, "" X "x", "i<Tab>"), QLatin1String("    x"));
+    // Two of them reach a real tab stop, so a tab is what is left there.
+    QCOMPARE(typed(base, "" X "x", "i<Tab><Tab>"), QLatin1String("<TAB>x"));
+    QCOMPARE(typed(base, "" X "x", "i<Tab><Tab><Tab>"), QLatin1String("<TAB>    x"));
+    QCOMPARE(typed(base, "" X "ab", "i<Tab>"), QLatin1String("    ab"));
+
+    // Behind the text the tab is the one "tabstop" measures.
+    QCOMPARE(typed(base, "a" X "b", "a<Tab>"), QLatin1String("ab<TAB>"));
+
+    // In the indentation, the stop is counted from where the cursor stands.
+    QCOMPARE(typed(base, " " X " ab", "i<Tab>"), QLatin1String("     ab"));
+    QCOMPARE(typed(base, "  " X "ab", "i<Tab>"), QLatin1String("    ab"));
+
+    // A backspace takes back one "shiftwidth", down to the stop below.
+    QCOMPARE(typed(base, "        " X "ab", "i<BS>"), QLatin1String("    ab"));
+    QCOMPARE(typed(base, "      " X "ab", "i<BS>"), QLatin1String("    ab"));
+    QCOMPARE(typed(base, "\t\t" X "ab", "i<BS>"), QLatin1String("<TAB>    ab"));
+
+    // "expandtab" leaves spaces where the tabs would have been.
+    QCOMPARE(typed("sta sts=0 et ts=8 sw=4", "" X "x", "i<Tab>"), QLatin1String("    x"));
+    QCOMPARE(typed("sta sts=0 et ts=8 sw=4", "        " X "ab", "i<BS>"),
+             QLatin1String("    ab"));
+
+    // A "shiftwidth" of zero is "tabstop", as everywhere else.
+    QCOMPARE(typed("sta sts=0 noet ts=8 sw=0", "" X "x", "i<Tab>"), QLatin1String("<TAB>x"));
+
+    // The option beats a "softtabstop" in front of the text.
+    QCOMPARE(typed("sta sts=4 noet ts=8 sw=8", "" X "x", "i<Tab>"), QLatin1String("<TAB>x"));
+    QCOMPARE(typed("sta sts=4 noet ts=8 sw=8", "            " X "ab", "i<BS>"),
+             QLatin1String("        ab"));
+
+    // Without the option "tabstop" is in charge again.
+    QCOMPARE(typed("nosta sts=0 noet ts=8 sw=4", "" X "x", "i<Tab>"), QLatin1String("<TAB>x"));
+
+    data.doCommand("set nosta sts=0 ts=8 sw=8 noet");
+}
+
 void FakeVimTester::test_vim_softtabstop()
 {
     // 'softtabstop' sets how far a tab reaches in insert mode where that is not
@@ -32797,6 +41490,22 @@ void FakeVimTester::test_vim_softtabstop()
     QCOMPARE(typed("sts=0 et ts=8 sw=8", "i<Tab>"), QLatin1String("        x"));
     // A tab reaches the next stop, counting from where the cursor stands.
     QCOMPARE(typed("sts=3 et ts=8 sw=8", "iab<Tab>"), QLatin1String("ab x"));
+    // What the backspace leaves behind is the whitespace that was there, not
+    // the same width written out afresh.
+    data.doCommand("set sts=4 noet ts=8 sw=8");
+    data.setText("            " X "ab");
+    KEYS("i<BS><Esc>", "       " X " ab");
+    data.setText("\t    " X "ab");
+    KEYS("i<BS><Esc>", "" X "\tab");
+
+    // Without one, a backspace in the indentation takes a single character
+    // rather than reaching back to a tab stop.
+    data.doCommand("set sts=0 noet ts=8 sw=4");
+    data.setText("    " X "x");
+    KEYS("i<BS><Esc>", "  " X " x");
+    data.setText("\t\t" X "x");
+    KEYS("i<BS><Esc>", "" X "\tx");
+
     // What ":set" reports is what was asked for.
     QString message;
     data.handler->commandBufferChanged.set(
@@ -33325,6 +42034,59 @@ void FakeVimTester::test_vim_pattern_lookaround()
     // A group inside one is still counted, so what follows keeps its number.
     QCOMPARE(echo("matchlist('foobar', '\\(foo\\)\\@<=\\(bar\\)')[0:2]"),
              QLatin1String("['bar', 'foo', 'bar']"));
+}
+
+void FakeVimTester::test_vim_pattern_collection_escapes()
+{
+    // A collection reads a backslash too: some characters it names that way,
+    // some it gives by number, and a line break. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) { message = msg; });
+    auto echo = [&](const char *expr) -> QString {
+        message.clear();
+        data.doCommand(QLatin1String("echo ") + QLatin1String(expr));
+        return message;
+    };
+
+    // The characters a collection names after a backslash.
+    QCOMPARE(echo("match(\"a\\tb\", '[\\t]')"), QLatin1String("1"));
+    QCOMPARE(echo("match(\"a\\eb\", '[\\e]')"), QLatin1String("1"));
+    QCOMPARE(echo("match(\"a\\rb\", '[\\r]')"), QLatin1String("1"));
+    QCOMPARE(echo("match(\"a\\bb\", '[\\b]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('a\\b', '[\\\\]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('a]b', '[\\]]')"), QLatin1String("1"));
+
+    // A member by its number, in decimal, hex, octal and as a code point.
+    QCOMPARE(echo("match('abc', '[\\d98]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('abc', '[\\x62]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('abc', '[\\o142]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('abc', '[\\u0062]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('abc', '[\\x61-\\x63]')"), QLatin1String("0"));
+
+    // A backslash before a member that needs none stands for itself as well.
+    QCOMPARE(echo("match('aqb', '[\\q]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('a\\b', '[\\q]')"), QLatin1String("1"));
+    // Where the member would mean something else it does not, and the
+    // collection holds the member alone.
+    QCOMPARE(echo("match('a-b', '[\\-]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('a\\b', '[\\-]')"), QLatin1String("-1"));
+    QCOMPARE(echo("match('a^b', '[\\^]')"), QLatin1String("1"));
+    QCOMPARE(echo("match('a\\b', '[\\^]')"), QLatin1String("-1"));
+    QCOMPARE(echo("match('a\\b', '[^\\t]')"), QLatin1String("0"));
+
+    // A "\n" among the members takes in a line break, and a negated
+    // collection keeps it out as it keeps out any other member.
+    data.setText("|aXb" N "cYd");
+    KEYS("/[\\n]<CR>", "aX|b" N "cYd");
+    data.setText("|aXb" N "cYd");
+    KEYS("/b[\\nc]<CR>", "aX|b" N "cYd");
+    data.setText("|aXb" N "cYd");
+    KEYS("/X[\\nb]<CR>", "a|Xb" N "cYd");
+    data.setText("|aXb" N "cYd");
+    KEYS("/b[^\\nq]<CR>", "|aXb" N "cYd");
 }
 
 void FakeVimTester::test_vim_pattern_percent_atoms()
@@ -34012,14 +42774,15 @@ void FakeVimTester::test_vim_script_command()
     data.doCommand("Say hi there");
     QCOMPARE(echo("g:said"), QLatin1String("hi there"));
 
-    // <bang>.
-    data.doCommand("command Bang let g:bang = \"<bang>\"");
+    // <bang>, which needs "-bang" to be allowed in the first place.
+    data.doCommand("command -bang Bang let g:bang = \"<bang>\"");
     data.doCommand("Bang!");
     QCOMPARE(echo("\"[\" . g:bang . \"]\""), QLatin1String("[!]"));
     data.doCommand("Bang");
     QCOMPARE(echo("\"[\" . g:bang . \"]\""), QLatin1String("[]"));
 
-    // Attributes are accepted; "-nargs" is acted on, the rest passed over.
+    // Attributes are accepted, and what they allow is what an invocation may
+    // carry.
     data.doCommand("command -nargs=1 Double let g:dbl = <args> * 2");
     data.doCommand("Double 21");
     QCOMPARE(echo("g:dbl"), QLatin1String("42"));
@@ -35241,6 +44004,72 @@ void FakeVimTester::test_vim_file_info()
     QVERIFY2(message.startsWith("\"[No Name]\" [Modified]"), qPrintable(message));
 }
 
+void FakeVimTester::test_vim_status_ruler_column()
+{
+    // The ruler names the byte column, and the screen column behind it where
+    // the two differ. The screen column of a tab is the last cell it covers,
+    // and an empty line has no byte column at all (measured).
+    TestData data;
+    setup(&data);
+    QString status;
+    data.handler->statusDataChanged.set([&](const QString &msg) { status = msg; });
+    data.doCommand("set tabstop=8");
+    data.setText("abc" N "ab\tcd" N "" N "x");
+    const auto column = [&] { return status.section(' ', 0, 0); };
+    data.doKeys("gg0");
+    QCOMPARE(column(), QLatin1String("1,1"));
+    data.doKeys("$");
+    QCOMPARE(column(), QLatin1String("1,3"));
+    data.doKeys("2G0");
+    QCOMPARE(column(), QLatin1String("2,1"));
+    data.doKeys("ll");
+    QCOMPARE(column(), QLatin1String("2,3-8"));
+    data.doKeys("$");
+    QCOMPARE(column(), QLatin1String("2,5-10"));
+    data.doKeys("3G");
+    QCOMPARE(column(), QLatin1String("3,0-1"));
+}
+
+void FakeVimTester::test_vim_status_ruler_lines_seen()
+{
+    // The other half of the ruler is what the window leaves out, not where the
+    // cursor is: "All" while the whole buffer is shown, "Top" and "Bot" at the
+    // ends, and otherwise the lines above the window against the lines below
+    // it (measured).
+    TestData data;
+    setup(&data);
+    data.editor()->resize(600, 400);
+    data.editor()->show();
+
+    QString status;
+    data.handler->statusDataChanged.set([&](const QString &msg) { status = msg; });
+
+    const int lineHeight = data.editor()->cursorRect().height();
+    QVERIFY(lineHeight > 0);
+    const int chrome = data.editor()->height() - data.editor()->viewport()->height();
+    const int height = 10;
+    data.editor()->resize(600, chrome + height * lineHeight + lineHeight / 2);
+    QCOMPARE(data.editor()->viewport()->height() / lineHeight, height);
+
+    data.setText("one" N "two" N "three");
+    data.doKeys("gg");
+    QCOMPARE(status, QLatin1String("1,1           All"));
+
+    QByteArray text;
+    for (int i = 1; i <= 200; ++i)
+        text += (i > 1 ? "\n" : "") + QByteArray("line ") + QByteArray::number(i);
+    data.setText(text.constData());
+
+    data.doKeys("gg");
+    QCOMPARE(status, QLatin1String("1,1           Top"));
+    data.doKeys("G");
+    QCOMPARE(status, QLatin1String("200,1         Bot"));
+    data.doKeys("2Gzt");
+    QCOMPARE(status, QLatin1String("2,1            0%"));
+    data.doKeys("50Gzt");
+    QCOMPARE(status, QString("50,1          %1%").arg(49 * 100 / (200 - height)));
+}
+
 void FakeVimTester::test_vim_ex_plugin_command_moves_cursor()
 {
     // An Ex command mapped to a Qt Creator action that moves the cursor
@@ -35560,6 +44389,622 @@ void FakeVimTester::test_vim_visual_paste_registers()
     KEYS("yyjVpo<C-r>\"<ESC>", "abc" N "abc" N "def" N "|");
 }
 
+void FakeVimTester::test_vim_cpoptions_minus()
+{
+    // A count that reaches past the first or the last line stops there, and a
+    // "-" among "cpoptions" makes it an error instead, leaving the cursor
+    // where it stands. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|one" N "two" N "three" N "four");
+    KEYS("9j", "one" N "two" N "three" N "|four");
+    data.setText("one" N "two" N "three" N "|four");
+    KEYS("9k", "|one" N "two" N "three" N "four");
+    data.setText("|one" N "two" N "three");
+    KEYS("9dd", "|");
+
+    data.doCommand("set cpoptions=aABceFsz-");
+    data.setText("|one" N "two" N "three" N "four");
+    KEYS("9j", "|one" N "two" N "three" N "four");
+    KEYS("2j", "one" N "two" N "|three" N "four");
+    data.setText("one" N "two" N "three" N "|four");
+    KEYS("9k", "one" N "two" N "three" N "|four");
+    KEYS("9-", "one" N "two" N "three" N "|four");
+    data.setText("|one" N "two" N "three" N "four");
+    KEYS("9+", "|one" N "two" N "three" N "four");
+    KEYS("3+", "one" N "two" N "three" N "|four");
+    // A count on "G" is not a count on a line motion, and an operator that
+    // loses its motion leaves the text alone.
+    data.setText("|one" N "two" N "three");
+    KEYS("9G", "one" N "two" N "|three");
+    data.setText("|one" N "two" N "three");
+    KEYS("9dd", "|one" N "two" N "three");
+    data.setText("|one" N "two" N "three");
+    KEYS("9dj", "|one" N "two" N "three");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_brace()
+{
+    // The paragraph motions stop at an empty line, and a "{" among
+    // "cpoptions" has them stop at a line a brace opens as well. Values taken
+    // from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|one" N "{" N "two" N "" N "three" N "}" N "four");
+    KEYS("}", "one" N "{" N "two" N "|" N "three" N "}" N "four");
+    data.setText("|one" N "{x" N "two");
+    KEYS("}", "one" N "{x" N "tw" X "o");
+    data.setText("|one" N "{" N "two");
+    KEYS("d}", X "");
+
+    data.doCommand("set cpoptions=aABceFsz{");
+    data.setText("|one" N "{" N "two" N "" N "three" N "}" N "four");
+    KEYS("}", "one" N "|{" N "two" N "" N "three" N "}" N "four");
+    data.setText("one" N "{" N "|two" N "" N "three" N "}" N "four");
+    KEYS("}", "one" N "{" N "two" N "|" N "three" N "}" N "four");
+    KEYS("{{", "|one" N "{" N "two" N "" N "three" N "}" N "four");
+    data.setText("one" N "{" N "|two" N "" N "three");
+    KEYS("{", "one" N "|{" N "two" N "" N "three");
+    // A closing brace stops nothing, and neither does one the line does not
+    // begin with.
+    data.setText("one" N "{" N "two" N "" N "three" N "}" N "|four");
+    KEYS("{", "one" N "{" N "two" N "|" N "three" N "}" N "four");
+    data.setText("|one" N " {" N "two");
+    KEYS("}", "one" N " {" N "tw" X "o");
+    data.setText("|one" N "}" N "two");
+    KEYS("}", "one" N "}" N "tw" X "o");
+    // What follows the brace on its line does not matter.
+    data.setText("|one" N "{x" N "two");
+    KEYS("}", "one" N "|{x" N "two");
+    data.setText("|one" N "{" N "two");
+    KEYS("d}", "|{" N "two");
+    // A run of empty lines is one boundary, a run of braces is one each.
+    data.setText("one" N "|{" N "{" N "two");
+    KEYS("}", "one" N "{" N "|{" N "two");
+    data.setText("|one" N "" N "{" N "two");
+    KEYS("2}", "one" N "" N "|{" N "two");
+    data.setText("a" N "" N "b" N "{" N "|c");
+    KEYS("2{", "a" N "|" N "b" N "{" N "c");
+    // The paragraph text objects are left alone.
+    data.setText("|one" N "{" N "two");
+    KEYS("dap", X "");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_o()
+{
+    // An "n" repeats the offset of the search it repeats, and an "o" among
+    // "cpoptions" keeps the offset to the search it was typed with. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|x" N "aa" N "y" N "z" N "aa" N "q" N "w");
+    KEYS("/aa/+1<CR>", "x" N "aa" N "|y" N "z" N "aa" N "q" N "w");
+    KEYS("n", "x" N "aa" N "y" N "z" N "aa" N "|q" N "w");
+    data.setText("|x" N "aa" N "y" N "z" N "aa" N "q" N "w");
+    KEYS("/aa/+1<CR>nn", "x" N "aa" N "|y" N "z" N "aa" N "q" N "w");
+    data.setText("|x" N "aa" N "y" N "z" N "aa" N "q" N "w");
+    KEYS("/aa/+1<CR>N", "x" N "aa" N "|y" N "z" N "aa" N "q" N "w");
+
+    data.doCommand("set cpoptions=aABceFszo");
+    // The search the offset was typed with still takes it.
+    data.setText("|x" N "aa" N "y" N "z" N "aa" N "q" N "w");
+    KEYS("/aa/+1<CR>", "x" N "aa" N "|y" N "z" N "aa" N "q" N "w");
+    KEYS("n", "x" N "aa" N "y" N "z" N "|aa" N "q" N "w");
+    data.setText("|x" N "aa" N "y" N "z" N "aa" N "q" N "w");
+    KEYS("/aa/+1<CR>nn", "x" N "|aa" N "y" N "z" N "aa" N "q" N "w");
+    data.setText("|x" N "aa" N "y" N "z" N "aa" N "q" N "w");
+    KEYS("/aa/+1<CR>N", "x" N "|aa" N "y" N "z" N "aa" N "q" N "w");
+    // A search of its own drops the offset either way.
+    data.setText("|x" N "aa" N "y" N "z" N "aa" N "q" N "w");
+    KEYS("/aa/+1<CR>/aa<CR>", "x" N "aa" N "y" N "z" N "|aa" N "q" N "w");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_e_upper()
+{
+    // An operator over an empty region runs and leaves the register empty, and
+    // an "E" among "cpoptions" makes it an error. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("|abc");
+    KEYS("\"ayiw", "|abc");
+    KEYS("\"ay0", "|abc");
+    QCOMPARE(value("@a"), QString());
+    data.setText("|abc" N "");
+    KEYS("\"byiw", "|abc" N "");
+    KEYS("j\"byl", "abc" N "|");
+    QCOMPARE(value("@b"), QString());
+    data.setText("|abc");
+    KEYS("c0X<Esc>", "|Xabc");
+
+    data.doCommand("set cpoptions=aABceFszE");
+    data.setText("|abc");
+    KEYS("\"cyiw", "|abc");
+    KEYS("\"cy0", "|abc");
+    QCOMPARE(value("@c"), QString("abc"));
+    data.setText("|abc" N "");
+    KEYS("\"dyiw", "|abc" N "");
+    KEYS("j\"dyl", "abc" N "|");
+    QCOMPARE(value("@d"), QString("abc"));
+    data.setText("|abc");
+    KEYS("c0X<Esc>", "|abc");
+
+    // A region that holds something is no error, and neither is a line.
+    data.setText("a|bc");
+    KEYS("\"ey0", "|abc");
+    QCOMPARE(value("@e"), QString("a"));
+    data.setText("|abc" N "");
+    KEYS("j\"fyy", "abc" N "|");
+    QCOMPARE(value("@f"), QString("\n"));
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_h_upper()
+{
+    // An "I" goes behind the blanks of a line that holds nothing else, and an
+    // "H" among "cpoptions" stops it before the last one. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|    ");
+    KEYS("IX<Esc>", "    |X");
+    data.setText("| ");
+    KEYS("IX<Esc>", " |X");
+    data.setText("|");
+    KEYS("IX<Esc>", "|X");
+    data.setText("|\t\t");
+    KEYS("IX<Esc>", "\t\t|X");
+
+    data.doCommand("set cpoptions=aABceFszH");
+    data.setText("|    ");
+    KEYS("IX<Esc>", "   |X ");
+    data.setText("| ");
+    KEYS("IX<Esc>", "|X ");
+    data.setText("|\t\t");
+    KEYS("IX<Esc>", "\t|X\t");
+    // An empty line has no blank to sit before, a count repeats what is
+    // typed, and only the plain "I" is moved, not "A" or "gI".
+    data.setText("|");
+    KEYS("IX<Esc>", "|X");
+    data.setText("|  " N "zz");
+    KEYS("2IX<Esc>", " X|X " N "zz");
+    data.setText("|   ");
+    KEYS("AX<Esc>", "   |X");
+    data.setText("|   ");
+    KEYS("gIX<Esc>", "|X   ");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_i_upper()
+{
+    // The indent that autoindent puts in goes again when the cursor leaves the
+    // line without anything typed on it, and an "I" among "cpoptions" keeps it.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set autoindent");
+
+    data.setText("|    foo" N "    bar" N "baz");
+    KEYS("o<Up><Esc>", "   | foo" N "" N "    bar" N "baz");
+    data.setText("|    foo" N "    bar" N "baz");
+    KEYS("o<Down><Esc>", "    foo" N "" N "   | bar" N "baz");
+    data.setText("|    foo" N "    bar" N "baz");
+    KEYS("O<Down><Esc>", "" N "   | foo" N "    bar" N "baz");
+    data.setText("    foo" N "|    bar" N "baz");
+    KEYS("A<CR><Up><Esc>", "    foo" N "   | bar" N "" N "baz");
+
+    data.doCommand("set cpoptions=aABceFszI");
+    data.setText("|    foo" N "    bar" N "baz");
+    KEYS("o<Up><Esc>", "   | foo" N "    " N "    bar" N "baz");
+    data.setText("|    foo" N "    bar" N "baz");
+    KEYS("o<Down><Esc>", "    foo" N "    " N "   | bar" N "baz");
+    data.setText("|    foo" N "    bar" N "baz");
+    KEYS("O<Down><Esc>", "    " N "   | foo" N "    bar" N "baz");
+    data.setText("    foo" N "|    bar" N "baz");
+    KEYS("A<CR><Up><Esc>", "    foo" N "   | bar" N "    " N "baz");
+    // What is typed keeps the indent for good, a cursor that comes back finds
+    // it there, and leaving insert mode without moving drops it either way.
+    data.setText("|    foo" N "    bar" N "baz");
+    KEYS("oX<Up><Esc>", "    |foo" N "    X" N "    bar" N "baz");
+    data.setText("|    foo" N "    bar" N "baz");
+    KEYS("o<Up><Down><Esc>", "    foo" N "   | " N "    bar" N "baz");
+    data.setText("|    foo" N "    bar" N "baz");
+    KEYS("o<Esc>", "    foo" N "|" N "    bar" N "baz");
+    data.doCommand("set cpoptions=aABceFsz");
+    data.doCommand("set noautoindent");
+}
+
+void FakeVimTester::test_vim_cpoptions_j_upper()
+{
+    // One blank behind the period ends a sentence, and a "J" among
+    // "cpoptions" asks for two spaces there. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|One. Two.  Three.");
+    KEYS(")", "One. |Two.  Three.");
+    data.setText("|One.\tTwo.  X.");
+    KEYS(")", "One.\t|Two.  X.");
+    data.setText("|A. " N "B. C.  D.");
+    KEYS(")", "A. " N "|B. C.  D.");
+
+    data.doCommand("set cpoptions=aABceFszJ");
+    data.setText("|One. Two.  Three.");
+    KEYS(")", "One. Two.  |Three.");
+    // A tab is no white space behind a sentence, and a lone space is none
+    // either, not even where the line ends behind it.
+    data.setText("|One.\tTwo.  X.");
+    KEYS(")", "One.\tTwo.  |X.");
+    data.setText("|A. \tB.  C.");
+    KEYS(")", "A. \tB.  |C.");
+    data.setText("|A. " N "B. C.  D.");
+    KEYS(")", "A. " N "B. C.  |D.");
+    // The end of the line still ends a sentence, and so do two spaces behind
+    // what closes it.
+    data.setText("|A." N "B. C.  D.");
+    KEYS(")", "A." N "|B. C.  D.");
+    data.setText("|One.)  Two.");
+    KEYS(")", "One.)  |Two.");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_l()
+{
+    // A collection reads a backslash, and an "l" among "cpoptions" leaves the
+    // backslash to itself there. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|x" N "a\tb" N "a\\tb");
+    KEYS("/[\\t]<CR>", "x" N "a|\tb" N "a\\tb");
+    data.setText("|x" N "abc" N "a\\b");
+    KEYS("/[\\d98]<CR>", "x" N "a|bc" N "a\\b");
+    data.setText("|x" N "a\\b" N "aeb");
+    KEYS("/[\\e]<CR>", "|x" N "a\\b" N "aeb");
+
+    data.doCommand("set cpoptions=aABceFszl");
+    data.setText("|x" N "a\tb" N "a\\tb");
+    KEYS("/[\\t]<CR>", "x" N "a\tb" N "a|\\tb");
+    data.setText("|x" N "abc" N "a\\b");
+    KEYS("/[\\d98]<CR>", "x" N "abc" N "a|\\b");
+    data.setText("|x" N "a\\b" N "aeb");
+    KEYS("/[\\e]<CR>", "x" N "a|\\b" N "aeb");
+
+    // What the collection itself needs the backslash for it keeps.
+    data.setText("|x" N "a\\b" N "a]b");
+    KEYS("/[\\]]<CR>", "x" N "a\\b" N "a|]b");
+    data.setText("|x" N "a\\b" N "a-b");
+    KEYS("/[\\-]<CR>", "x" N "a\\b" N "a|-b");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_m_upper()
+{
+    // A backslash before a parenthesis makes it a pair of its own, and an "M"
+    // among "cpoptions" takes the backslash out of the matching. Values taken
+    // from Vim 9.1.
+    auto &opt = FakeVim::Internal::settings().matchBracketsLikeVim;
+    const bool saved = opt.value();
+    opt.setValue(true);
+
+    TestData data;
+    setup(&data);
+
+    // An escaped parenthesis pairs with an escaped one.
+    data.setText("a\\|(b\\)c");
+    KEYS("%", "a\\(b\\|)c");
+    // An unescaped one has nothing to pair with here, and the cursor stays.
+    data.setText("a|(b\\)c");
+    KEYS("%", "a|(b\\)c");
+    // The escaped one does not count against the unescaped pair either.
+    data.setText("|(a\\(b)c");
+    KEYS("%", "(a\\(b|)c");
+
+    data.doCommand("set cpoptions=aABceFszM");
+    data.setText("a\\|(b)c");
+    KEYS("%", "a\\(b|)c");
+    data.setText("a|(b\\)c");
+    KEYS("%", "a(b\\|)c");
+    data.setText("|(a\\(b)c");
+    KEYS("%", "|(a\\(b)c");
+    data.doCommand("set cpoptions=aABceFsz");
+
+    opt.setValue(saved);
+}
+
+void FakeVimTester::test_vim_cpoptions_percent()
+{
+    // A parenthesis in a string is matched by one in a string alone, and a "%"
+    // among "cpoptions" asks for the Vi-compatible way, where every one of them
+    // counts. Values taken from Vim 9.1.
+    auto &opt = FakeVim::Internal::settings().matchBracketsLikeVim;
+    const bool saved = opt.value();
+    opt.setValue(true);
+
+    TestData data;
+    setup(&data);
+
+    data.setText("|( \"a)\" b )");
+    KEYS("%", "( \"a)\" b |)");
+    data.setText("( \"a)\" b |)");
+    KEYS("%", "|( \"a)\" b )");
+    // One inside the string has nothing outside to pair with.
+    data.setText("( \"a|)\" b )");
+    KEYS("%", "( \"a|)\" b )");
+    data.setText("a \"x|(y)z\" b");
+    KEYS("%", "a \"x(y|)z\" b");
+    data.setText("|( \"a(\" b )");
+    KEYS("%", "( \"a(\" b |)");
+    data.setText("|( \"a\\\")\" b )");
+    KEYS("%", "( \"a\\\")\" b |)");
+    // A single character between two single quotes is a string of its own,
+    // where more than one character is none.
+    data.setText("|( '(' b )");
+    KEYS("%", "( '(' b |)");
+    data.setText("|( ')' b )");
+    KEYS("%", "( ')' b |)");
+    data.setText("|( 'a)' b )");
+    KEYS("%", "( 'a|)' b )");
+    // The quotes are counted line by line, and an odd number leaves a line
+    // without a string at all.
+    data.setText("|( a" N "\"b)c\"" N "d )");
+    KEYS("%", "( a" N "\"b)c\"" N "d |)");
+    data.setText("|( a" N "x \"y) z" N "d )");
+    KEYS("%", "( a" N "x \"y|) z" N "d )");
+
+    data.doCommand("set cpoptions=aABceFsz%");
+    data.setText("|( \"a)\" b )");
+    KEYS("%", "( \"a|)\" b )");
+    data.setText("|( \"a(\" b )");
+    KEYS("%", "|( \"a(\" b )");
+    data.setText("|( \"a\\\")\" b )");
+    KEYS("%", "( \"a\\\"|)\" b )");
+    data.setText("|( '(' b )");
+    KEYS("%", "|( '(' b )");
+    data.setText("|( ')' b )");
+    KEYS("%", "( '|)' b )");
+    data.setText("|( a" N "\"b)c\"" N "d )");
+    KEYS("%", "( a" N "\"b|)c\"" N "d )");
+    data.doCommand("set cpoptions=aABceFsz");
+
+    opt.setValue(saved);
+}
+
+void FakeVimTester::test_vim_cpoptions_r()
+{
+    // A "." repeats a search with the pattern that was typed, and an "r"
+    // among "cpoptions" has it take the last pattern instead. Values taken
+    // from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|foo bar" N "baz foo" N "bar baz");
+    KEYS("d/bar<CR>/baz<CR>gg.", X "bar baz");
+
+    data.doCommand("set cpoptions=aABceFszr");
+    data.setText("|foo bar" N "baz foo" N "bar baz");
+    KEYS("d/bar<CR>/baz<CR>gg.", X "baz foo" N "bar baz");
+    // With no search in between there is no other pattern to take.
+    data.setText("|foo bar" N "baz foo" N "bar baz");
+    KEYS("d/bar<CR>gg.", X "bar baz");
+    data.setText("|foo bar" N "baz foo" N "bar baz");
+    KEYS("/baz<CR>ggd/bar<CR>.", X "bar baz");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_u()
+{
+    // Undo walks back through the changes one by one, and a "u" among
+    // "cpoptions" has it walk back and forth over the last one instead.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|abcd");
+    KEYS("xxx", X "d");
+    KEYS("u", X "cd");
+    KEYS("u", X "bcd");
+    KEYS("u", X "abcd");
+    KEYS("u", X "abcd");
+    data.setText("|abcd");
+    KEYS("xxu", X "bcd");
+    KEYS("<C-r>", X "cd");
+
+    data.doCommand("set cpoptions=aABceFszu");
+    data.setText("|abcd");
+    KEYS("xxx", X "d");
+    KEYS("u", X "cd");
+    KEYS("u", X "d");
+    KEYS("u", X "cd");
+    KEYS("u", X "d");
+    // CTRL-R goes the way the last "u" went rather than the other one.
+    data.setText("|abcd");
+    KEYS("xxu", X "bcd");
+    KEYS("<C-r>", X "abcd");
+    KEYS("u", X "bcd");
+    KEYS("u", X "abcd");
+    // A change of its own leaves nothing to come back to.
+    data.setText("|abcd");
+    KEYS("xxu", X "bcd");
+    KEYS("ix<Esc>", X "xbcd");
+    KEYS("u", X "bcd");
+    KEYS("u", X "xbcd");
+    // A count takes as many steps, and the next "u" one step back.
+    data.setText("|abcd");
+    KEYS("xxx2u", X "bcd");
+    KEYS("u", X "cd");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_x_upper()
+{
+    // A count in front of "R" writes over the text on every pass, and an "X"
+    // among "cpoptions" leaves that to the first one. Values taken from
+    // Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set shiftwidth=4 expandtab");
+
+    data.setText("|abcdef");
+    KEYS("3RX<Esc>", "XX" X "Xdef");
+    data.setText("|abcdefghi");
+    KEYS("2RXY<Esc>", "XYX" X "Yefghi");
+
+    data.doCommand("set cpoptions=aABceFszX");
+    data.setText("|abcdef");
+    KEYS("3RX<Esc>", "XX" X "Xbcdef");
+    data.setText("|abcdefghi");
+    KEYS("2RXY<Esc>", "XYX" X "Ycdefghi");
+    data.setText("|1234567890");
+    KEYS("2Rab<Esc>", "aba" X "b34567890");
+    // The repeats are typed as an insert, control keys and all, and a return
+    // among them opens a line as it does on the first pass.
+    data.setText("|abcdefghij");
+    KEYS("2RX<CR><Esc>", "X" N "X" N X "bcdefghij");
+    data.setText("|        abcdef");
+    KEYS("3|2R0<C-d>y<Esc>", "y" X "ybcdef");
+    data.setText("|        abcdef");
+    KEYS("3|2R0<C-t>y<Esc>", "        0y0" X "y    abcdef");
+    // A count of one has nothing to repeat.
+    data.setText("|abcdefghij");
+    KEYS("1Rxy<Esc>", "x" X "ycdefghij");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_y()
+{
+    // A "." repeats the last change and leaves a yank in between alone, and a
+    // "y" among "cpoptions" makes the yank the command it repeats. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+
+    data.setText("|one two" N "aaa bbb");
+    KEYS("xyiwj0.", "ne two" N "|aa bbb");
+    QCOMPARE(value("@\""), QString("a"));
+    data.setText("|one" N "two" N "three");
+    KEYS("xyyj.", "ne" N "|wo" N "three");
+    QCOMPARE(value("@\""), QString("t"));
+
+    data.doCommand("set cpoptions=aABceFszy");
+    data.setText("|one two" N "aaa bbb");
+    KEYS("xyiwj0.", "ne two" N "|aaa bbb");
+    QCOMPARE(value("@\""), QString("aaa"));
+    data.setText("|one" N "two" N "three");
+    KEYS("xyyj.", "ne" N "|two" N "three");
+    QCOMPARE(value("@\"[0:2]"), QString("two"));
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_gt()
+{
+    // Appending to a register runs the texts together, and a ">" among
+    // "cpoptions" breaks the line between them. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|one two" N "three");
+    KEYS("\"ayiww\"Ayiw$\"ap", "one twoonetw|o" N "three");
+
+    data.doCommand("set cpoptions=aABceFsz>");
+    data.setText("|one two" N "three");
+    KEYS("\"byiww\"Byiw$\"bp", "one two|one" N "two" N "three");
+
+    // Only an uppercase register name appends, a lowercase one overwrites.
+    data.setText("|one two" N "three");
+    KEYS("\"cyiww\"cyiw$\"cp", "one twotw|o" N "three");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_w()
+{
+    // A "cw" that starts on a blank reaches over the blanks to the next word,
+    // and a "w" among "cpoptions" keeps it to the one blank it starts on.
+    // Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("a|   b c");
+    KEYS("cwX<Esc>", "a|Xb c");
+    data.setText("a|  b c");
+    KEYS("cWX<Esc>", "a|Xb c");
+
+    data.doCommand("set cpoptions=aABceFszw");
+    data.setText("a|   b c");
+    KEYS("cwX<Esc>", "a|X  b c");
+    data.setText("a|  b c");
+    KEYS("cWX<Esc>", "a|X b c");
+
+    // A word under the cursor is changed as before, and so is a counted "cw".
+    data.setText("|aaa  bbb");
+    KEYS("cwX<Esc>", "|X  bbb");
+    data.setText("a|  b c");
+    KEYS("c2wX<Esc>", "a|Xc");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
+void FakeVimTester::test_vim_cpoptions_hash()
+{
+    // A count before "D", "o" or "O" reaches over that many lines, and a "#"
+    // among 'cpoptions' takes the count away from the three of them. Values
+    // taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+
+    data.setText("|xxxx" N "yyyy" N "zzzz");
+    KEYS("ll3D", "x|x");
+    data.setText("|xxxx" N "yyyy" N "zzzz");
+    KEYS("ll2D", "x|x" N "zzzz");
+    data.setText("|xxxx");
+    KEYS("3ozz<Esc>", "xxxx" N "zz" N "zz" N "z|z");
+    data.setText("|xxxx");
+    KEYS("3Ozz<Esc>", "zz" N "zz" N "z|z" N "xxxx");
+
+    data.doCommand("set cpoptions=aABceFsz#");
+    data.setText("|xxxx" N "yyyy" N "zzzz");
+    KEYS("ll3D", "x|x" N "yyyy" N "zzzz");
+    data.setText("|xxxx");
+    KEYS("3ozz<Esc>", "xxxx" N "z|z");
+    data.setText("|xxxx");
+    KEYS("3Ozz<Esc>", "z|z" N "xxxx");
+
+    // The flag is about those three alone.
+    data.setText("|xxxx" N "yyyy" N "zzzz");
+    KEYS("ll3Cq<Esc>", "xx|q");
+    data.setText("|xxxx" N "yyyy" N "zzzz");
+    KEYS("3Yp", "xxxx" N "|xxxx" N "yyyy" N "zzzz" N "yyyy" N "zzzz");
+    data.doCommand("set cpoptions=aABceFsz");
+}
+
 void FakeVimTester::test_vim_ft_repeat_after_operator()
 {
     // ";" and "," repeat the last f/F/t/T, and an operator sees the repeat the
@@ -35600,6 +45045,23 @@ void FakeVimTester::test_vim_ft_repeat_after_operator()
 
     data.setText("|a.b.c.d");
     KEYS("$F.,x", "a.b.c|d");
+
+    data.setText("|a.b.c.d");
+    KEYS("$T.;x", "a.b.|.d");
+
+    // A ";" among 'cpoptions' leaves a repeated "t" or "T" where it already
+    // stands rather than taking it over the character it stopped at. Only a
+    // repeat without a count of its own, and only the two of them.
+    data.doCommand("set cpoptions=aABceFsz;");
+    data.setText("|a.b.c.d");
+    KEYS("t.;x", "|.b.c.d");
+    data.setText("|a.b.c.d");
+    KEYS("$T.;x", "a.b.c|.");
+    data.setText("|a.b.c.d");
+    KEYS("f.;x", "a.b|c.d");
+    data.setText("|a.b.c.d");
+    KEYS("t.2;x", "a.|.c.d");
+    data.doCommand("set cpoptions=aABceFsz");
 }
 
 void FakeVimTester::test_vim_visual_change_linewise()
@@ -37103,6 +46565,8 @@ void FakeVimTester::test_vim_ex_filter()
     // A pattern that starts with a word character is delimited by a blank,
     // and that blank goes with it, so nothing is left to be the command.
     QCOMPARE(run("filter ab"), QString("E476: Invalid command: filter ab"));
+    // The pattern is a Vim one, so what Vim refuses outright it refuses here.
+    QCOMPARE(run("filter /\\(/ map"), QString("E54: Unmatched \\("));
 
     data.setText("alpha" N "bravo" N "charlie");
 
@@ -37143,9 +46607,27 @@ void FakeVimTester::test_vim_ex_filter()
 
     // The header of ":registers" stays whatever the filter leaves.
     data.doKeys("gg\"ayy");
-    QCOMPARE(run("filter /zzz/ registers a"), QString("--- Registers ---" N));
-    QCOMPARE(run("filter /alpha/ registers a"), QString("--- Registers ---" N
-                                                        "\"a   alpha<CR>" N));
+    QCOMPARE(run("filter /zzz/ registers a"), QString("Type Name Content" N));
+    QCOMPARE(run("filter /alpha/ registers a"), QString("Type Name Content" N
+                                                        "  l  \"a   alpha^J" N));
+
+    // ":command" matches the name and not the definition, and its header goes
+    // with the rows. An empty table says so, but a filter that leaves nothing
+    // prints nothing at all.
+    data.doCommand("comclear");
+    QCOMPARE(run("filter /Zz/ command"), QString());
+    QCOMPARE(run("command"), QString("No user-defined commands found"));
+    data.doCommand("command! -nargs=1 FvBar echo 2");
+    data.doCommand("command! -nargs=0 FvFoo echo 1");
+    const QLatin1String header(
+        "    Name              Args Address Complete    Definition");
+    QCOMPARE(run("filter /Bar/ command"), header + "\n"
+             "    FvBar             1                        echo 2");
+    QCOMPARE(run("filter! /Bar/ command"), header + "\n"
+             "    FvFoo             0                        echo 1");
+    QCOMPARE(run("filter /echo 1/ command"), QString());
+    QCOMPARE(run("filter /Zz/ command"), QString());
+    data.doCommand("comclear");
 
     // The one of ":marks" goes with its rows.
     data.doKeys("ggma");
@@ -37213,7 +46695,10 @@ void FakeVimTester::test_vim_ex_iput()
     // The expression form is indented just the same.
     QCOMPARE(run("2iput ='   expr'", "['  two']"),
              QLatin1String("no indent/    four/    expr/        eight/end  at 3,5"));
-    QVERIFY(run("2iput q", "['  two']").contains(QLatin1String("E353")));
+    // The registers are shared with every other test, and an empty list is
+    // what unsets one again.
+    QVERIFY(run("call setreg('q', []) | 2iput q", "['  two']")
+                .contains(QLatin1String("E353")));
 
     // With 'noexpandtab' the new indentation is written with tabs.
     data.doCommand("set noexpandtab");
@@ -37328,6 +46813,2314 @@ void FakeVimTester::test_vim_nearby_marks()
     KEYS("2Glma6Gd[`", "  aa" N "  b" X "ff");
     data.setText(lines);
     KEYS("2Glma6Gv['d", "  aa" N "  " X "f");
+}
+
+void FakeVimTester::test_vim_script_bufadd_bufload()
+{
+    // bufadd() and bufload(), and what the functions that ask about a buffer
+    // answer for one nothing shows. All values measured in Vim 9.1. The
+    // buffers this makes outlive the test, belonging to the session the way
+    // the numbers they are given do, so everything here is relative to the
+    // number this handler's own buffer has.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString where = dir.path() + '/';
+    QFile file(where + "read.txt");
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("one\ntwo\nthree\n");
+    file.close();
+
+    data.setText(X "alpha" N "bravo");
+    const int own = value("bufnr('%')").toInt();
+    QVERIFY(own > 0);
+
+    // A name no buffer has is no buffer, and a digit STRING is a name rather
+    // than a number: bufnr("2") is not buffer 2.
+    QCOMPARE(value("bufnr('" + where + "read.txt')"), QLatin1String("-1"));
+    QCOMPARE(value("bufnr('2')"), QLatin1String("-1"));
+    QCOMPARE(value("bufexists('" + where + "read.txt')"), QLatin1String("0"));
+
+    // bufadd() answers a NEW number, the buffer being unlisted and unloaded,
+    // and it keeps the name as it was given.
+    data.doCommand("let g:a = bufadd('" + where + "read.txt')");
+    QCOMPARE(value("g:a > " + QString::number(own)), QLatin1String("1"));
+    QCOMPARE(value("bufnr('$') == g:a"), QLatin1String("1"));
+    QCOMPARE(value("bufexists(g:a)"), QLatin1String("1"));
+    QCOMPARE(value("buflisted(g:a)"), QLatin1String("0"));
+    QCOMPARE(value("bufloaded(g:a)"), QLatin1String("0"));
+    QCOMPARE(value("bufname(g:a)"), where + "read.txt");
+    // Nothing shows it, so it is in no window.
+    QCOMPARE(value("bufwinnr(g:a)"), QLatin1String("-1"));
+    QCOMPARE(value("bufwinid(g:a)"), QLatin1String("-1"));
+
+    // The name reaches it now, by its last path component as well, and adding
+    // the same name again is the same buffer.
+    QCOMPARE(value("bufnr('" + where + "read.txt') == g:a"), QLatin1String("1"));
+    QCOMPARE(value("bufnr('read.txt') == g:a"), QLatin1String("1"));
+    QCOMPARE(value("bufadd('" + where + "read.txt') == g:a"), QLatin1String("1"));
+    QCOMPARE(value("bufexists('read.txt')"), QLatin1String("1"));
+
+    // bufnr({name}, 1) adds one the way bufadd() does, and an empty name makes
+    // a fresh unnamed buffer every time.
+    data.doCommand("let g:c = bufnr('" + where + "made.txt', 1)");
+    QCOMPARE(value("g:c == g:a + 1"), QLatin1String("1"));
+    data.doCommand("let g:u1 = bufadd('')");
+    data.doCommand("let g:u2 = bufadd('')");
+    QCOMPARE(value("g:u2 == g:u1 + 1"), QLatin1String("1"));
+    QCOMPARE(value("'[' . bufname(g:u1) . ']'"), QLatin1String("[]"));
+
+    // Nothing is in a buffer until bufload() reads it, and the functions that
+    // change one answer a one and leave it alone rather than loading it.
+    QCOMPARE(value("getbufline(g:a, 1)"), QLatin1String("[]"));
+    QCOMPARE(value("setbufline(g:a, 1, 'x')"), QLatin1String("1"));
+    QCOMPARE(value("appendbufline(g:a, 0, 'x')"), QLatin1String("1"));
+    QCOMPARE(value("deletebufline(g:a, 1)"), QLatin1String("1"));
+    QCOMPARE(value("bufloaded(g:a)"), QLatin1String("0"));
+    QCOMPARE(value("getbufvar(g:a, 'changedtick')"), QLatin1String("1"));
+
+    // bufload() reads the file, leaving the buffer loaded and still unlisted.
+    QCOMPARE(value("bufload(g:a)"), QLatin1String("0"));
+    QCOMPARE(value("bufloaded(g:a)"), QLatin1String("1"));
+    QCOMPARE(value("buflisted(g:a)"), QLatin1String("0"));
+    QCOMPARE(value("getbufline(g:a, 1, '$')"), QLatin1String("['one', 'two', 'three']"));
+    QCOMPARE(value("getbufvar(g:a, 'changedtick')"), QLatin1String("2"));
+    // A buffer nothing shows has no cursor, so "." names no line in it.
+    QCOMPARE(value("getbufline(g:a, '.')"), QLatin1String("[]"));
+    QCOMPARE(value("getbufline(g:a, '$')"), QLatin1String("['three']"));
+    QCOMPARE(value("getbufoneline(g:a, 2)"), QLatin1String("two"));
+    QCOMPARE(value("'[' . getbufoneline(g:a, 9) . ']'"), QLatin1String("[]"));
+
+    // A name that is no file on disk is no error: the buffer ends up loaded
+    // holding one empty line.
+    QCOMPARE(value("bufload(g:c)"), QLatin1String("0"));
+    QCOMPARE(value("getbufline(g:c, 1, '$')"), QLatin1String("['']"));
+    QCOMPARE(value("getbufline(g:u1, 1, '$')"), QLatin1String("[]"));
+
+    // bufload() makes no buffer, so a name no buffer has is an error, as is a
+    // number none has.
+    QCOMPARE(value("bufload('" + where + "nosuch.txt')"),
+             QLatin1String("E158: Invalid buffer name: ") + where + "nosuch.txt");
+    QCOMPARE(value("bufload(9999)"), QLatin1String("E158: Invalid buffer name: 9999"));
+    QCOMPARE(value("bufload(-1)"), QLatin1String("E158: Invalid buffer name: -1"));
+    // Zero is this buffer, which is loaded already.
+    QCOMPARE(value("bufload(0)"), QLatin1String("0"));
+
+    // The lines of a loaded buffer can be changed, a list longer than the
+    // buffer appending what is left over.
+    QCOMPARE(value("setbufline(g:a, 2, ['B', 'C', 'D'])"), QLatin1String("0"));
+    QCOMPARE(value("getbufline(g:a, 1, '$')"), QLatin1String("['one', 'B', 'C', 'D']"));
+    QCOMPARE(value("setbufline(g:a, 9, 'far')"), QLatin1String("1"));
+    QCOMPARE(value("appendbufline(g:a, 0, 'first')"), QLatin1String("0"));
+    QCOMPARE(value("getbufoneline(g:a, 1)"), QLatin1String("first"));
+    QCOMPARE(value("appendbufline(g:a, 9, 'far')"), QLatin1String("1"));
+    QCOMPARE(value("deletebufline(g:a, 2, 4)"), QLatin1String("0"));
+    QCOMPARE(value("getbufline(g:a, 1, '$')"), QLatin1String("['first', 'D']"));
+    QCOMPARE(value("deletebufline(g:a, 9)"), QLatin1String("1"));
+    // Deleting every line leaves one empty line behind.
+    QCOMPARE(value("deletebufline(g:a, 1, '$')"), QLatin1String("0"));
+    QCOMPARE(value("getbufline(g:a, 1, '$')"), QLatin1String("['']"));
+
+    // A buffer only a script knows of has a b: scope of its own, and no
+    // options at all, so an option of one reads as empty.
+    QCOMPARE(value("setbufvar(g:a, 'mine', 'here')"), QLatin1String("0"));
+    QCOMPARE(value("getbufvar(g:a, 'mine')"), QLatin1String("here"));
+    QCOMPARE(value("'[' . getbufvar(g:a, 'nosuch') . ']'"), QLatin1String("[]"));
+    QCOMPARE(value("getbufvar(g:a, 'nosuch', 'def')"), QLatin1String("def"));
+    QCOMPARE(value("'[' . getbufvar(g:a, '&filetype') . ']'"), QLatin1String("[]"));
+
+    // getbufinfo() lists every buffer, the unlisted ones included, and a
+    // filter set to zero is off rather than inverted. One set to a true value
+    // does filter: the unlisted buffers go, and so do the unloaded ones.
+    QCOMPARE(value("len(getbufinfo()) > 1"), QLatin1String("1"));
+    QCOMPARE(value("len(getbufinfo()) == len(getbufinfo({'buflisted': 0}))"),
+             QLatin1String("1"));
+    QCOMPARE(value("len(getbufinfo({'buflisted': 1}))"), QLatin1String("1"));
+    QCOMPARE(value("len(getbufinfo({'bufloaded': 1}))"), QLatin1String("3"));
+    QCOMPARE(value("len(getbufinfo(g:a))"), QLatin1String("1"));
+    data.doCommand("let g:i = getbufinfo(g:a)[0]");
+    QCOMPARE(value("g:i.listed"), QLatin1String("0"));
+    QCOMPARE(value("g:i.loaded"), QLatin1String("1"));
+    // Nothing shows it, so a loaded one counts as hidden, has no window and
+    // is on no line. The name reads as the whole path here, where bufname()
+    // answers it as it was given.
+    QCOMPARE(value("g:i.hidden"), QLatin1String("1"));
+    QCOMPARE(value("g:i.windows"), QLatin1String("[]"));
+    QCOMPARE(value("g:i.popups"), QLatin1String("[]"));
+    QCOMPARE(value("g:i.lnum"), QLatin1String("0"));
+    QCOMPARE(value("g:i.lastused"), QLatin1String("0"));
+    QCOMPARE(value("g:i.changed"), QLatin1String("1"));
+    QCOMPARE(value("g:i.name"), where + "read.txt");
+    QCOMPARE(value("getbufinfo(g:u1)[0].linecount"), QLatin1String("1"));
+    QCOMPARE(value("getbufinfo(g:u1)[0].hidden"), QLatin1String("0"));
+
+    // ":ls" shows the listed buffers, which is this one alone; the bang adds
+    // the unlisted ones, "u" saying so and "h" standing where a loaded buffer
+    // has no window.
+    extra.clear();
+    data.doCommand("ls");
+    QCOMPARE(extra.count('\n'), 1);
+    const auto unlisted = [](int number, const QString &name, bool loaded, bool modified) {
+        const QString quoted = QChar('"') + name + QChar('"');
+        return QString("%1u %2 %3 %4 line 0")
+            .arg(number, 3)
+            .arg(loaded ? QChar('h') : QChar(' '))
+            .arg(modified ? QChar('+') : QChar(' '))
+            .arg(quoted.leftJustified(30));
+    };
+    extra.clear();
+    data.doCommand("ls!");
+    const QStringList rows = extra.split('\n', Qt::SkipEmptyParts);
+    QCOMPARE(rows.size(), 5);
+    QCOMPARE(rows.at(1), unlisted(own + 1, where + "read.txt", true, true));
+    QCOMPARE(rows.at(2), unlisted(own + 2, where + "made.txt", true, false));
+    QCOMPARE(rows.at(3), unlisted(own + 3, "[No Name]", false, false));
+    QCOMPARE(rows.at(4), unlisted(own + 4, "[No Name]", false, false));
+
+    // bufadd() fires BufNew, with the name and the NEW buffer's number, and
+    // bufload() fires the read events and the enter ones after them, even
+    // though no window shows what it read.
+    data.doCommand("let g:seen = []");
+    data.doCommand("autocmd BufNew * call add(g:seen, 'new ' . expand('<abuf>'))");
+    data.doCommand("autocmd BufNew * let g:afile = expand('<afile>')");
+    data.doCommand("autocmd BufReadPre * call add(g:seen, 'pre ' . expand('<abuf>'))");
+    data.doCommand("autocmd BufReadPost * call add(g:seen, 'post')");
+    data.doCommand("autocmd BufEnter * call add(g:seen, 'enter')");
+    data.doCommand("autocmd BufWinEnter * call add(g:seen, 'winenter')");
+    data.doCommand("let g:e = bufadd('" + where + "events.txt')");
+    QCOMPARE(value("g:seen == ['new ' . g:e]"), QLatin1String("1"));
+    QCOMPARE(value("stridx(g:afile, 'events.txt') >= 0"), QLatin1String("1"));
+    data.doCommand("let g:seen = []");
+    data.doCommand("call bufload(g:e)");
+    QCOMPARE(value("g:seen == ['pre ' . g:e, 'post', 'enter', 'winenter']"),
+             QLatin1String("1"));
+    data.doCommand("autocmd!");
+    // The registry is process-wide, so the buffers this added would show in
+    // every later listing.
+    data.doCommand("bwipeout! " + QString::number(own + 1) + " " + QString::number(own + 2)
+                   + " " + QString::number(own + 3) + " " + QString::number(own + 4) + " "
+                   + value("g:e"));
+    QCOMPARE(value("bufexists(g:e) + bufexists(g:u1) + bufexists(g:u2)"), QLatin1String("0"));
+    data.doCommand("unlet! g:a g:c g:u1 g:u2 g:i g:e g:seen g:afile");
+}
+
+void FakeVimTester::test_vim_command_buffer_delete()
+{
+    // ":bunload", ":bdelete" and ":bwipeout" on the buffers a script added
+    // with bufadd(). All values measured in Vim 9.1. Those buffers are never
+    // listed, so a delete has nothing to take off the buffer list and differs
+    // from an unload only in the line it leaves remembered, while a wipeout
+    // leaves nothing of the buffer at all.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &command) {
+        message.clear();
+        data.doCommand(command);
+        return message;
+    };
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString where = dir.path() + '/';
+    QFile file(where + "drop.txt");
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("one\ntwo\nthree\n");
+    file.close();
+
+    data.setText(X "alpha" N "bravo");
+    const int own = value("bufnr('%')").toInt();
+    QVERIFY(own > 0);
+
+    // An unload or a delete of a buffer that is neither listed nor loaded is
+    // no work at all, which is what the two complaints say, and the bang makes
+    // no difference to that. Both name the command as it was typed.
+    data.doCommand("let g:a = bufadd('" + where + "drop.txt')");
+    const QString a = value("g:a");
+    QCOMPARE(run("bunload " + a), "E515: No buffers were unloaded: bunload " + a);
+    QCOMPARE(run("bd " + a), "E516: No buffers were deleted: bd " + a);
+    QCOMPARE(run("bdelete! " + a), "E516: No buffers were deleted: bdelete! " + a);
+    QCOMPARE(value("bufexists(g:a)"), QLatin1String("1"));
+
+    // An unload throws away what bufload() read and leaves the buffer there,
+    // one line remembered for it being what a delete adds to that.
+    data.doCommand("call bufload(g:a)");
+    QCOMPARE(value("getbufvar(g:a, 'changedtick')"), QLatin1String("2"));
+    QCOMPARE(run("bunload " + a), QString());
+    QCOMPARE(value("bufexists(g:a)"), QLatin1String("1"));
+    QCOMPARE(value("bufloaded(g:a)"), QLatin1String("0"));
+    QCOMPARE(value("getbufline(g:a, 1, '$')"), QLatin1String("[]"));
+    QCOMPARE(value("getbufvar(g:a, 'changedtick')"), QLatin1String("3"));
+    QCOMPARE(value("getbufinfo(g:a)[0].lnum"), QLatin1String("0"));
+    // The file is read again, the b: scope of the buffer having survived.
+    data.doCommand("call setbufvar(g:a, 'mine', 'here')");
+    data.doCommand("call bufload(g:a)");
+    QCOMPARE(value("getbufline(g:a, 1, '$')"), QLatin1String("['one', 'two', 'three']"));
+    QCOMPARE(value("getbufvar(g:a, 'changedtick')"), QLatin1String("4"));
+    QCOMPARE(run("bdelete " + a), QString());
+    QCOMPARE(value("bufexists(g:a)"), QLatin1String("1"));
+    QCOMPARE(value("bufloaded(g:a)"), QLatin1String("0"));
+    QCOMPARE(value("getbufvar(g:a, 'mine')"), QLatin1String("here"));
+    QCOMPARE(value("getbufinfo(g:a)[0].lnum"), QLatin1String("1"));
+
+    // A modified buffer needs the bang, whichever of the three it is.
+    data.doCommand("let g:b = bufadd('" + where + "mod.txt')");
+    const QString b = value("g:b");
+    data.doCommand("call bufload(g:b)");
+    data.doCommand("call setbufline(g:b, 1, 'dirty')");
+    const QString needsBang
+        = "E89: No write since last change for buffer " + b + " (add ! to override)";
+    QCOMPARE(run("bunload " + b), needsBang);
+    QCOMPARE(run("bdelete " + b), needsBang);
+    QCOMPARE(run("bwipeout " + b), needsBang);
+    QCOMPARE(value("bufloaded(g:b)"), QLatin1String("1"));
+    QCOMPARE(run("bunload! " + b), QString());
+    QCOMPARE(value("bufloaded(g:b)"), QLatin1String("0"));
+    QCOMPARE(value("bufexists(g:b)"), QLatin1String("1"));
+    QCOMPARE(value("getbufinfo(g:b)[0].changed"), QLatin1String("0"));
+
+    // A wipeout leaves nothing of the buffer, and bufnr("$") comes back down
+    // to the highest number a buffer still has. The number itself is never
+    // handed out a second time.
+    data.doCommand("let g:c = bufadd('" + where + "gone.txt')");
+    QCOMPARE(value("bufnr('$') == g:c"), QLatin1String("1"));
+    QCOMPARE(run("bwipeout " + value("g:c")), QString());
+    QCOMPARE(value("bufexists(g:c)"), QLatin1String("0"));
+    QCOMPARE(value("getbufinfo(g:c)"), QLatin1String("[]"));
+    QCOMPARE(value("bufname(g:c)"), QString());
+    QCOMPARE(value("bufnr('$') == g:c - 1"), QLatin1String("1"));
+    data.doCommand("let g:d = bufadd('" + where + "after.txt')");
+    QCOMPARE(value("g:d == g:c + 1"), QLatin1String("1"));
+    // The name is nobody's now, and bufload() makes no buffer for it.
+    QCOMPARE(value("bufload('" + where + "gone.txt')"),
+             QLatin1String("E158: Invalid buffer name: ") + where + "gone.txt");
+    // An unloaded buffer is wiped out without a bang, there being nothing
+    // unwritten about it.
+    QCOMPARE(run("bwipe " + value("g:d")), QString());
+    QCOMPARE(value("bufexists(g:d)"), QLatin1String("0"));
+
+    // A number no buffer has is no work either, and an argument of zero is no
+    // count at all.
+    QCOMPARE(run("bdelete 9999"), QLatin1String("E516: No buffers were deleted: bdelete 9999"));
+    QCOMPARE(run("bwipeout 9999"),
+             QLatin1String("E517: No buffers were wiped out: bwipeout 9999"));
+    QCOMPARE(run("bdelete 0"), QLatin1String("E939: Positive count required: bdelete 0"));
+    QCOMPARE(run("0bdelete"), QLatin1String("E16: Invalid range: 0bdelete"));
+
+    // An argument that is not digits is a NAME, and a name finds a listed
+    // buffer only, which the buffers a script added never are. The complaint
+    // carries the rest of the line from the name that failed.
+    QCOMPARE(run("bdelete " + where + "drop.txt"),
+             QLatin1String("E94: No matching buffer for ") + where + "drop.txt");
+    QCOMPARE(run("bdelete nosuch.txt " + a),
+             QLatin1String("E94: No matching buffer for nosuch.txt ") + a);
+    QCOMPARE(value("bufexists(g:a)"), QLatin1String("1"));
+
+    // Several arguments are taken left to right, and what was done before one
+    // that names no buffer stands.
+    data.doCommand("let g:e = bufadd('" + where + "one.txt')");
+    data.doCommand("let g:f = bufadd('" + where + "two.txt')");
+    const QString e = value("g:e");
+    const QString f = value("g:f");
+    data.doCommand("call bufload(g:e)");
+    data.doCommand("call bufload(g:f)");
+    QCOMPARE(run("bunload " + e + " " + f), QString());
+    QCOMPARE(value("bufloaded(g:e) + bufloaded(g:f)"), QLatin1String("0"));
+    data.doCommand("call bufload(g:e)");
+    data.doCommand("call bufload(g:f)");
+    QCOMPARE(run("bunload " + e + " nosuch.txt " + f),
+             QLatin1String("E94: No matching buffer for nosuch.txt ") + f);
+    QCOMPARE(value("bufloaded(g:e)"), QLatin1String("0"));
+    QCOMPARE(value("bufloaded(g:f)"), QLatin1String("1"));
+
+    // The address in front counts buffers rather than lines, so it reaches
+    // past the end of a two-line document, "$" being the highest buffer
+    // number and an offset counting from the one on show.
+    data.doCommand("call bufload(g:e)");
+    QCOMPARE(run(e + "," + f + "bunload"), QString());
+    QCOMPARE(value("bufloaded(g:e) + bufloaded(g:f)"), QLatin1String("0"));
+    data.doCommand("call bufload(g:f)");
+    QCOMPARE(run("$bunload"), QString());
+    QCOMPARE(value("bufloaded(g:f)"), QLatin1String("0"));
+    data.doCommand("call bufload(g:e)");
+    QCOMPARE(run("+" + QString::number(e.toInt() - own) + "bunload"), QString());
+    QCOMPARE(value("bufloaded(g:e)"), QLatin1String("0"));
+
+    // The buffer on show is the editor's document and the only listed one, so
+    // there is no other buffer left to unload it for, and "%" reaches it the
+    // way an empty argument does.
+    QCOMPARE(run("bunload"), QLatin1String("E90: Cannot unload last buffer"));
+    QCOMPARE(run("bunload %"), QLatin1String("E90: Cannot unload last buffer"));
+    QCOMPARE(run("bunload " + QString::number(own)),
+             QLatin1String("E90: Cannot unload last buffer"));
+    // A delete or a wipeout of it is the editor's document going, which is the
+    // plugin's side of this and not reached from here. What this side has for
+    // it is the only honest answer left.
+    QCOMPARE(run("bdelete " + QString::number(own)),
+             QLatin1String("Not implemented in FakeVim."));
+    QCOMPARE(run("bwipeout " + QString::number(own)),
+             QLatin1String("Not implemented in FakeVim."));
+
+    // ":ls!" shows the line a delete left remembered where it shows a zero for
+    // every other unlisted buffer.
+    data.doCommand("call bufload(g:e)");
+    QCOMPARE(run("bdelete " + e), QString());
+    extra.clear();
+    data.doCommand("ls!");
+    const QStringList rows = extra.split('\n', Qt::SkipEmptyParts);
+    const auto row = [&](const QString &number) {
+        for (const QString &line : rows) {
+            if (line.startsWith(QString("%1u").arg(number.toInt(), 3)))
+                return line;
+        }
+        return QString();
+    };
+    QCOMPARE(row(e).endsWith("line 1"), true);
+    QCOMPARE(row(f).endsWith("line 0"), true);
+
+    // BufUnload announces the lines going, BufWipeout the buffer itself, and
+    // BufDelete does not come up at all, nothing here being listed.
+    data.doCommand("let g:seen = []");
+    data.doCommand("autocmd BufUnload * call add(g:seen, 'unload ' . expand('<abuf>'))");
+    data.doCommand("autocmd BufDelete * call add(g:seen, 'delete ' . expand('<abuf>'))");
+    data.doCommand("autocmd BufWipeout * call add(g:seen, 'wipe ' . expand('<abuf>'))");
+    data.doCommand("autocmd BufUnload * let g:afile = expand('<afile>')");
+    data.doCommand("call bufload(g:f)");
+    QCOMPARE(run("bunload " + f), QString());
+    QCOMPARE(value("g:seen == ['unload ' . g:f]"), QLatin1String("1"));
+    QCOMPARE(value("stridx(g:afile, 'two.txt') >= 0"), QLatin1String("1"));
+    data.doCommand("let g:seen = []");
+    data.doCommand("call bufload(g:f)");
+    QCOMPARE(run("bdelete " + f), QString());
+    QCOMPARE(value("g:seen == ['unload ' . g:f]"), QLatin1String("1"));
+    data.doCommand("let g:seen = []");
+    data.doCommand("call bufload(g:f)");
+    QCOMPARE(run("bwipeout " + f), QString());
+    QCOMPARE(value("g:seen == ['unload ' . g:f, 'wipe ' . g:f]"), QLatin1String("1"));
+    // An unloaded buffer has no lines to announce going.
+    data.doCommand("let g:seen = []");
+    QCOMPARE(run("bwipeout " + a), QString());
+    QCOMPARE(value("g:seen == ['wipe ' . g:a]"), QLatin1String("1"));
+    data.doCommand("autocmd!");
+
+    // What this leaves of the buffers it made: nothing, which is what the
+    // three commands are for.
+    QCOMPARE(run("bwipeout! " + b + " " + e), QString());
+    QCOMPARE(value("bufexists(g:a) + bufexists(g:b) + bufexists(g:e) + bufexists(g:f)"),
+             QLatin1String("0"));
+    data.doCommand("unlet! g:a g:b g:c g:d g:e g:f g:seen g:afile");
+}
+
+void FakeVimTester::test_vim_command_buffer_list_flags()
+{
+    // ":ls [flags]" - the flags restrict what the listing shows. Measured in
+    // Vim 9.1: several of them are "and"ed together, "u" overrides the bang, a
+    // space between them is no matter, a flag given twice is the same as once,
+    // and a character that is no flag at all is ignored rather than an error.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+    const auto list = [&](const QString &command) {
+        extra.clear();
+        data.doCommand(command);
+        return extra;
+    };
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString where = dir.path() + '/';
+    QFile file(where + "kept.txt");
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("one\n");
+    file.close();
+
+    data.setText(X "alpha" N "bravo");
+    data.doCommand("set nomodified");
+    const int own = value("bufnr('%')").toInt();
+    QVERIFY(own > 0);
+    QCOMPARE(value("bufname('%')"), QString());
+
+    // The row of the buffer on show: "%" for the window it is in and "a" for
+    // active, then the column that carries 'modifiable' and 'readonly', then
+    // the one for a modified buffer.
+    const auto shownRow = [&](QChar state, QChar mod, const QString &tail) {
+        const QString quoted = QLatin1String("\"[No Name]\"");
+        return QString("%1 %2%3%4 %5 %6\n")
+            .arg(own, 3)
+            .arg(QLatin1String("%a"))
+            .arg(state)
+            .arg(mod)
+            .arg(quoted.leftJustified(30))
+            .arg(tail);
+    };
+    const auto unlistedRow = [](int number, const QString &name, bool loaded, bool modified) {
+        const QString quoted = QChar('"') + name + QChar('"');
+        return QString("%1u %2 %3 %4 line 0\n")
+            .arg(number, 3)
+            .arg(loaded ? QChar('h') : QChar(' '))
+            .arg(modified ? QChar('+') : QChar(' '))
+            .arg(quoted.leftJustified(30));
+    };
+    const QString plain = shownRow(' ', ' ', "line 1");
+    QCOMPARE(list("ls"), plain);
+
+    // "+" wants a modified buffer, and nothing else is listed while this one
+    // is the only candidate.
+    QCOMPARE(list("ls +"), QString());
+    data.doCommand("set modified");
+    QCOMPARE(list("ls +"), shownRow(' ', '+', "line 1"));
+    QCOMPARE(list("ls"), shownRow(' ', '+', "line 1"));
+    data.doCommand("set nomodified");
+
+    data.doCommand("let g:a = bufadd('" + where + "kept.txt')");
+    data.doCommand("let g:b = bufadd('" + where + "dirty.txt')");
+    data.doCommand("let g:c = bufadd('" + where + "cold.txt')");
+    data.doCommand("call bufload(g:a)");
+    data.doCommand("call bufload(g:b)");
+    data.doCommand("call setbufline(g:b, 1, 'dirty')");
+    const int a = value("g:a").toInt();
+    const int b = value("g:b").toInt();
+    const int c = value("g:c").toInt();
+    const QString rowA = unlistedRow(a, where + "kept.txt", true, false);
+    const QString rowB = unlistedRow(b, where + "dirty.txt", true, true);
+    const QString rowC = unlistedRow(c, where + "cold.txt", false, false);
+
+    // "u" asks for the unlisted buffers and for nothing else, whether the bang
+    // is there or not, and the bang alone adds them to the listed ones.
+    QCOMPARE(list("ls u"), rowA + rowB + rowC);
+    QCOMPARE(list("ls! u"), rowA + rowB + rowC);
+    QCOMPARE(list("ls uu"), rowA + rowB + rowC);
+    QCOMPARE(list("ls!"), plain + rowA + rowB + rowC);
+
+    // "h" is a buffer that is loaded with nothing showing it, which the one on
+    // show never is.
+    QCOMPARE(list("ls h"), QString());
+    QCOMPARE(list("ls! h"), rowA + rowB);
+    QCOMPARE(list("ls uh"), rowA + rowB);
+    QCOMPARE(list("ls u+"), rowB);
+    QCOMPARE(list("ls! +"), rowB);
+    QCOMPARE(list("ls! h+"), rowB);
+
+    // "%" and "a" both reach the buffer on show, and no unlisted one can be
+    // either of those.
+    QCOMPARE(list("ls a"), plain);
+    QCOMPARE(list("ls %"), plain);
+    QCOMPARE(list("ls! a"), plain);
+    QCOMPARE(list("ls % a"), plain);
+    QCOMPARE(list("ls ua"), QString());
+
+    // A read error, the terminal kinds and the alternate buffer are states no
+    // buffer here is in.
+    for (const QLatin1String flag : {QLatin1String("x"), QLatin1String("R"),
+                                     QLatin1String("F"), QLatin1String("?"),
+                                     QLatin1String("#")}) {
+        QCOMPARE(list("ls " + flag), QString());
+        QCOMPARE(list("ls! " + flag), QString());
+    }
+
+    // A character that is no flag counts for nothing.
+    QCOMPARE(list("ls Z"), plain);
+    QCOMPARE(list("ls aZ"), plain);
+    QCOMPARE(list("ls 3"), plain);
+
+    // "t" puts the time a buffer was last used where the line stands. The one
+    // on show is the buffer being used, and the buffers a script added were
+    // never shown at all, so Vim leaves their line standing.
+    QCOMPARE(list("ls t"), shownRow(' ', ' ', "0 seconds ago"));
+    QCOMPARE(list("ls! t"), shownRow(' ', ' ', "0 seconds ago") + rowA + rowB + rowC);
+
+    // "=" is a read-only buffer and "-" one with 'modifiable' off. The column
+    // shows the second where both hold.
+    data.doCommand("set readonly");
+    QCOMPARE(list("ls"), shownRow('=', ' ', "line 1"));
+    QCOMPARE(list("ls ="), shownRow('=', ' ', "line 1"));
+    QCOMPARE(list("ls -"), QString());
+    QCOMPARE(list("ls u="), QString());
+    data.doCommand("set nomodifiable");
+    QCOMPARE(list("ls"), shownRow('-', ' ', "line 1"));
+    QCOMPARE(list("ls ="), shownRow('-', ' ', "line 1"));
+    QCOMPARE(list("ls -"), shownRow('-', ' ', "line 1"));
+    data.doCommand("set noreadonly");
+    QCOMPARE(list("ls"), shownRow('-', ' ', "line 1"));
+    QCOMPARE(list("ls ="), QString());
+    QCOMPARE(list("ls -"), shownRow('-', ' ', "line 1"));
+    data.doCommand("set modifiable");
+    QCOMPARE(list("ls"), plain);
+
+    data.doCommand("bwipeout! " + QString::number(a) + " " + QString::number(b) + " "
+                   + QString::number(c));
+    QCOMPARE(value("bufexists(g:a) + bufexists(g:b) + bufexists(g:c)"), QLatin1String("0"));
+    data.doCommand("unlet! g:a g:b g:c");
+}
+
+void FakeVimTester::test_vim_command_set_listing()
+{
+    // ":set all" lists every option and ":set" with no argument those that
+    // differ from what they start out as. Measured in Vim 9.1: the entries
+    // stand in name order DOWN twenty column cells, four of them on the eighty
+    // column screen Vim starts with, an entry too wide for a cell goes behind
+    // the table one to a line, and a ":filter" pattern is matched against the
+    // option's name alone rather than against the value beside it.
+    TestData data;
+    setup(&data);
+    QString extra;
+    data.handler->extraInformationChanged.set([&](const QString &msg) { extra = msg; });
+    const auto list = [&](const QString &command) {
+        extra.clear();
+        data.doCommand(command);
+        return extra;
+    };
+    data.setText(X "alpha");
+    data.doCommand("set nomodified");
+
+    const QLatin1String header("--- Options ---\n");
+    // A boolean that is off carries its "no" where the others keep two blanks.
+    data.doCommand("set noexpandtab");
+    QCOMPARE(list("filter /^expandtab$/ set all"), header + "noexpandtab\n");
+    QCOMPARE(list("filter /^expandtab$/ set"), QString(header));
+    data.doCommand("set expandtab");
+    QCOMPARE(list("filter /^expandtab$/ set"), header + "  expandtab\n");
+    data.doCommand("set noexpandtab");
+
+    // Only the long name of an option is listed, and the pattern never sees
+    // the value.
+    QCOMPARE(list("filter /^ts$/ set all"), QString(header));
+    QCOMPARE(list("filter /=8/ set all"), QString(header));
+
+    // Two entries, the second in the cell that begins at column twenty.
+    data.doCommand("set dictionary=abcdef");
+    QCOMPARE(list("filter /^\\(dictionary\\|tabstop\\)$/ set all"),
+             header + "  dictionary=abcdef   tabstop=8\n");
+    // One character more than a cell holds, so the entry stands on a line of
+    // its own behind the table.
+    data.doCommand("set dictionary=abcdefg");
+    QCOMPARE(list("filter /^\\(dictionary\\|tabstop\\)$/ set all"),
+             header + "  tabstop=8\n  dictionary=abcdefg\n");
+
+    // Five entries fill two rows of three and two, which is the order running
+    // down the columns rather than across the rows.
+    data.doCommand("set dictionary=x numberwidth=4 shiftwidth=8 softtabstop=0 tabstop=8");
+    const QString names = "/^\\(dictionary\\|numberwidth\\|shiftwidth\\|softtabstop"
+                          "\\|tabstop\\)$/";
+    QCOMPARE(list("filter " + names + " set all"),
+             header + "  dictionary=x        shiftwidth=8        tabstop=8\n"
+                      "  numberwidth=4       softtabstop=0\n");
+    // Of those five only 'dictionary' was left away from its default.
+    QCOMPARE(list("filter " + names + " set"), header + "  dictionary=x\n");
+    data.doCommand("set dictionary=");
+
+    // The state of the buffer is listed with the options, and it counts as
+    // changed against the state a buffer starts out in.
+    data.doCommand("set modified");
+    QCOMPARE(list("filter /^modified$/ set"), header + "  modified\n");
+    data.doCommand("set nomodified");
+    QCOMPARE(list("filter /^modified$/ set"), QString(header));
+    QCOMPARE(list("filter /^modified$/ set all"), header + "nomodified\n");
+
+    // Nothing matched still prints the heading.
+    QCOMPARE(list("filter /^nosuchoption$/ set all"), QString(header));
+    QCOMPARE(list("filter! /./ set all"), QString(header));
+
+    // ":setlocal" and ":setglobal" carry a heading of their own. One value per
+    // option is all there is here, so what they list is what ":set" lists.
+    QCOMPARE(list("filter /^tabstop$/ setlocal all"),
+             QLatin1String("--- Local option values ---\n  tabstop=8\n"));
+    QCOMPARE(list("filter /^tabstop$/ setglobal all"),
+             QLatin1String("--- Global option values ---\n  tabstop=8\n"));
+}
+
+void FakeVimTester::test_vim_command_set_reset_all()
+{
+    // ":set all&" puts every option back to what it starts out as and prints
+    // nothing at all. Measured in Vim 9.1 with 'dictionary', 'tabstop',
+    // 'expandtab', 'filetype', 'number', 'shiftwidth', 'ignorecase' and
+    // 'textwidth' all changed: the reset left ''/8/0/''/0/8/0/0 behind, and the
+    // buffer-local and window-local ones went with them. The word is read on
+    // past the "&", so ":set all&!" resets and then trips over the "!", and
+    // ":set all& tabstop=7" resets before it reads the seven.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set([&](const QString &msg, int, int, int) {
+        if (!msg.isEmpty() && !msg.startsWith("--"))
+            message = msg;
+    });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+    data.setText(X "alpha");
+    data.doCommand("set nomodified");
+
+    data.doCommand("set dictionary=abc tabstop=3 expandtab filetype=cpp number "
+                   "shiftwidth=2 ignorecase textwidth=40 nowrap colorcolumn=7 foldlevel=2");
+    QCOMPARE(value("&tabstop . &dictionary . &expandtab"), QLatin1String("3abc1"));
+    QCOMPARE(run("set all&"), QString());
+    QCOMPARE(value("&dictionary"), QString());
+    QCOMPARE(value("&tabstop"), QLatin1String("8"));
+    QCOMPARE(value("&expandtab"), QLatin1String("0"));
+    QCOMPARE(value("&filetype"), QString());
+    QCOMPARE(value("&number"), QLatin1String("0"));
+    QCOMPARE(value("&shiftwidth"), QLatin1String("8"));
+    QCOMPARE(value("&ignorecase"), QLatin1String("0"));
+    QCOMPARE(value("&textwidth"), QLatin1String("0"));
+    QCOMPARE(value("&wrap"), QLatin1String("1"));
+    QCOMPARE(value("&colorcolumn"), QString());
+    QCOMPARE(value("&foldlevel"), QLatin1String("0"));
+
+    // The state of the buffer is put back with the options: Vim clears the
+    // 'modified' flag over unsaved changes as well (measured).
+    data.doCommand("set readonly nomodifiable");
+    data.setText(X "beta");
+    data.doCommand("set modified");
+    QCOMPARE(run("set all&"), QString());
+    QCOMPARE(value("&modified . &readonly . &modifiable"), QLatin1String("001"));
+
+    // An option word does not have to stand alone behind the "all&".
+    data.doCommand("set tabstop=3");
+    QCOMPARE(run("set all&!"), QLatin1String("E518: Unknown option: !"));
+    QCOMPARE(value("&tabstop"), QLatin1String("8"));
+
+    // A further option on the line is read after the reset, not before it.
+    data.doCommand("set tabstop=3");
+    QCOMPARE(run("set all& tabstop=7"), QString());
+    QCOMPARE(value("&tabstop"), QLatin1String("7"));
+
+    // ":setlocal" resets what ":set" resets, this engine keeping one value per
+    // option.
+    QCOMPARE(run("setlocal all&"), QString());
+    QCOMPARE(value("&tabstop"), QLatin1String("8"));
+}
+
+void FakeVimTester::test_vim_command_grep()
+{
+    // ":grep", ":grepadd", ":lgrep" and ":lgrepadd": 'grepprg' is run with the
+    // arguments in place of its "$*", and every line of what it writes is read
+    // through 'grepformat' into an entry of the quickfix or the location list.
+    // All four answered "E492: Not an editor command" before, and 'grepprg'
+    // and 'grepformat' were options that could be set and did nothing.
+    //
+    // Measured in Vim 9.1 with "vim -n -u NONE -i NONE -N --not-a-term -S".
+    // Nothing here reaches a program: processOutput is a plugin callback, so
+    // the answers are held in a table by the command line they belong to,
+    // which is what proves how that command line is built.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+    const auto write = [](const QString &path, const QString &text) {
+        QFile file(path);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write(text.toUtf8());
+    };
+    QMap<QString, QString> answers;
+    QStringList ran;
+    data.handler->processOutput.set(
+        [&](const QString &command, const QString &, QString *output) {
+            ran += command;
+            *output = answers.value(command);
+        });
+
+    const QString before = value("getcwd()");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    write(dir.path() + "/ga.txt", "alpha one\nbeta here\nthird alpha\n");
+    write(dir.path() + "/gb.txt", "nothing\nalpha in b\n");
+    data.doCommand("cd " + dir.path());
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+
+    // What the two options start out as.
+    QCOMPARE(value("&grepprg"), QLatin1String("grep -n $* /dev/null"));
+    QCOMPARE(value("&grepformat"), QLatin1String("%f:%l:%m,%f:%l%m,%f  %l%m"));
+
+    // The arguments go where the "$*" of 'grepprg' stands, and what comes back
+    // is one entry a line: the line number, no column at all, and the message
+    // the format's "%m" caught. The title is the program's command line behind
+    // a colon, not the ex command, and the command goes to the first entry.
+    answers["grep -n alpha ga.txt gb.txt /dev/null"]
+        = "ga.txt:1:alpha one\nga.txt:3:third alpha\ngb.txt:2:alpha in b\n";
+    QCOMPARE(run("grep alpha ga.txt gb.txt"), QLatin1String("(1 of 3): alpha one"));
+    QCOMPARE(ran.last(), QLatin1String("grep -n alpha ga.txt gb.txt /dev/null"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'idx':1}).idx"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'title':1}).title"),
+             QLatin1String(":grep -n alpha ga.txt gb.txt /dev/null"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].col"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("alpha one"));
+    QCOMPARE(value("getqflist()[2].lnum"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[2].text"), QLatin1String("alpha in b"));
+    // The file an entry names gets a buffer of its own, unlisted and unloaded.
+    QCOMPARE(value("bufname(" + value("getqflist()[0].bufnr") + ")"), QLatin1String("ga.txt"));
+    QCOMPARE(value("buflisted('ga.txt')"), QLatin1String("0"));
+    QCOMPARE(value("bufloaded('ga.txt')"), QLatin1String("0"));
+
+    // A "!" fills the list and goes nowhere.
+    QCOMPARE(run("grep! alpha ga.txt gb.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+
+    // ":grepadd" adds to the list the stack stands on, leaving its title and
+    // its index alone, and goes to the entry the list already stood on rather
+    // than to the first of the ones it just got.
+    answers["grep -n beta ga.txt /dev/null"] = "ga.txt:2:beta here\n";
+    QCOMPARE(run("grepadd beta ga.txt"), QLatin1String("(1 of 4): alpha one"));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("2"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[3].text"), QLatin1String("beta here"));
+    QCOMPARE(value("getqflist({'title':1}).title"),
+             QLatin1String(":grep -n alpha ga.txt gb.txt /dev/null"));
+
+    // Nothing found is no error at all, unlike ":vimgrep": the list is pushed
+    // empty and nothing moves.
+    QCOMPARE(run("grep nosuchword ga.txt"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("3"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+
+    // A 'grepprg' with no "$*" gets the arguments behind it, and a line no
+    // format matches is an entry all the same: no file, no line, no column,
+    // standing invalid and carrying the line as it was written.
+    data.doCommand("set grepprg=myprog");
+    answers["myprog raw"] = "1:alpha one\n";
+    QCOMPARE(run("grep raw"), QLatin1String("(1 of 1): 1:alpha one"));
+    QCOMPARE(ran.last(), QLatin1String("myprog raw"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].bufnr"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].col"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("1:alpha one"));
+
+    // A list stands on its first valid entry rather than on its first entry,
+    // which is where the jump goes as well.
+    answers["myprog mixed"] = "junk\nga.txt:3:third alpha\n";
+    QCOMPARE(run("grep mixed"), QLatin1String("(2 of 2): third alpha"));
+    QCOMPARE(value("getqflist({'idx':0}).idx"), QLatin1String("2"));
+    data.doCommand("set grepprg&");
+
+    // A 'grepformat' with a "%c" gives the entry a column, and that is where
+    // the jump lands. "%m" catches the message alone, not the whole line.
+    data.doCommand("set grepformat=%f:%l:%c:%m");
+    data.setText("alpha one" N "beta here" N "third alpha");
+    data.handler->setCurrentFileName(dir.path() + "/ga.txt");
+    answers["grep -n zzz ga.txt /dev/null"] = "ga.txt:2:3:hi zzz\n";
+    QCOMPARE(run("grep zzz ga.txt"), QLatin1String("(1 of 1): hi zzz"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].col"), QLatin1String("3"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("hi zzz"));
+    // The file being edited keeps its own buffer rather than getting a second.
+    QCOMPARE(value("getqflist()[0].bufnr"), value("bufnr('%')"));
+    QCOMPARE(data.position(), 12);
+    data.handler->setCurrentFileName(QString());
+    data.doCommand("set grepformat&");
+
+    // The location list forms do the same to the window's own list, and the
+    // quickfix list does not hear of it.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("lgrep alpha ga.txt gb.txt"), QLatin1String("(1 of 3): alpha one"));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("3"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"),
+             QLatin1String(":grep -n alpha ga.txt gb.txt /dev/null"));
+    QCOMPARE(run("lgrepadd beta ga.txt"), QLatin1String("(1 of 4): alpha one"));
+    QCOMPARE(value("getloclist(0, {'nr':'$'}).nr"), QLatin1String("1"));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("4"));
+
+    // The QuickFixCmdPre and QuickFixCmdPost events fire around the run, with
+    // "<amatch>" the full name of the command whatever spelling was typed.
+    data.doCommand("let g:pre = ''");
+    data.doCommand("let g:post = ''");
+    data.doCommand("autocmd QuickFixCmdPre * let g:pre = expand('<amatch>')");
+    data.doCommand("autocmd QuickFixCmdPost * let g:post = expand('<amatch>')");
+    data.doCommand("grep alpha ga.txt gb.txt");
+    QCOMPARE(value("g:pre"), QLatin1String("grep"));
+    QCOMPARE(value("g:post"), QLatin1String("grep"));
+    data.doCommand("lgrepa beta ga.txt");
+    QCOMPARE(value("g:pre"), QLatin1String("lgrepadd"));
+    QCOMPARE(value("g:post"), QLatin1String("lgrepadd"));
+    data.doCommand("autocmd!");
+
+    // 'grepprg' set to "internal" makes these the ":vimgrep" commands: the
+    // files are searched here, so an entry has a column, and the title is the
+    // ex command rather than a program's command line.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    data.doCommand("set grepprg=internal");
+    QCOMPARE(run("grep /alpha/j ga.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].col"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("alpha one"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":grep /alpha/j ga.txt"));
+    data.doCommand("set grepprg&");
+
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    // The buffer registry and the working directory belong to the process, so
+    // what the run made goes again.
+    QStringList made;
+    for (const QString &name : QStringList{"ga.txt", "gb.txt"})
+        made += value("bufnr('" + name + "')");
+    data.doCommand("bwipeout! " + made.join(' '));
+    QCOMPARE(value("bufexists('ga.txt') + bufexists('gb.txt')"), QLatin1String("0"));
+    data.doCommand("let @/ = ''");
+    data.doCommand("cd " + before);
+}
+
+void FakeVimTester::test_vim_command_errorformat()
+{
+    // The format language 'grepformat' and 'errorformat' share. What was read
+    // of it here was "%f", "%l", "%c", "%m" and "%%" alone, and a format
+    // holding any other conversion matched nothing at all.
+    //
+    // Measured in Vim 9.1 with 'grepprg' set to "cat $*" over a file holding
+    // the lines below, and the format set with ":let &grepformat" so that no
+    // backslash of it is eaten on the way in.
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    QMap<QString, QString> answers;
+    data.handler->processOutput.set(
+        [&](const QString &command, const QString &, QString *output) {
+            *output = answers.value(command);
+        });
+
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    data.doCommand("set grepprg=myprog");
+    int nth = 0;
+    // One run of the program, its output read through the format given.
+    const auto parse = [&](const QString &format, const QString &output) {
+        data.doCommand("let &grepformat = '" + format + "'");
+        const QString word = QString("w%1").arg(++nth);
+        answers["myprog " + word] = output;
+        data.doCommand("grep! " + word);
+    };
+
+    // "%t" is the kind of the entry, one character, and "%n" its number.
+    parse("%f:%l:%t:%n:%m", "a.c:12:w:77:oops\n");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("12"));
+    QCOMPARE(value("getqflist()[0].type"), QLatin1String("w"));
+    QCOMPARE(value("getqflist()[0].nr"), QLatin1String("77"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("oops"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+
+    // "%p" is the run of spaces, tabs, dots and dashes a pointer line puts in
+    // front of its mark: how wide it is says which column the entry is at, a
+    // tab reaching the next eighth one.
+    parse("%f:%l:%m,%p^", "a.c:1:x\n\t ^\n");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[1].col"), QLatin1String("10"));
+    QCOMPARE(value("getqflist()[1].vcol"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[1].text"), QLatin1String(""));
+    QCOMPARE(value("getqflist()[1].valid"), QLatin1String("1"));
+
+    // "%*" and one of something stand for one or more of it, and what they
+    // match is thrown away. A class of characters or a Vim regexp atom.
+    parse("%f:%*[0-9]:%m", "a.c:123:oops\n");
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("oops"));
+    parse("\"%f\"%*\\D%l: %m", "\"a.c\", line 12: oops\n");
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("12"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("oops"));
+    parse("%f:%*[ ]%l:%m", "a.c:   12:oops\n");
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("12"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("oops"));
+
+    // "%-G" drops the line it matches, "%+G" takes it whole, and "%.%#" is
+    // any run of characters.
+    parse("%-Gnote:%.%#,%f:%l:%m", "note: skip me\na.c:12:oops\n");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("oops"));
+    parse("%+Gnote:%.%#,%f:%l:%m", "note: keep me\na.c:12:oops\n");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("note: keep me"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("0"));
+
+    // A backslash takes the character behind it as it stands, which is how a
+    // comma gets into a format at all, and "%\" leaves a Vim regexp atom.
+    parse("%f\\,%l\\,%m", "a.c,12,oops\n");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("12"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("oops"));
+    parse("g%\\?make: %f:%l:%m", "make: a.c:12:one\ngmake: a.c:13:two\n");
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("one"));
+    QCOMPARE(value("getqflist()[1].text"), QLatin1String("two"));
+
+    // "%%" is a percent sign of its own.
+    parse("%f:%l:%%%m", "a.c:12:%oops\n");
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("oops"));
+
+    // A message is one character at least, so a line ending where "%m" begins
+    // matches nothing and stands invalid. A format without a "%m" leaves the
+    // entry with no text at all.
+    parse("%f:%l:%m", "a.c:12:\n");
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("a.c:12:"));
+    parse("%f:%l", "a.c:12\n");
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("12"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String(""));
+
+    // The name takes as little as lets the rest of the format match.
+    parse("%f:%l:%m", "z:1:b:2:x\n");
+    QCOMPARE(value("bufname(" + value("getqflist()[0].bufnr") + ")"), QLatin1String("z"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("b:2:x"));
+
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    data.doCommand("set grepprg&");
+    data.doCommand("set grepformat&");
+    // The buffer registry belongs to the process, so what the run made goes.
+    QStringList made;
+    for (const QString &name : QStringList{"a.c", "z"})
+        made += value("bufnr('" + name + "')");
+    data.doCommand("bwipeout! " + made.join(' '));
+    QCOMPARE(value("bufexists('a.c') + bufexists('z')"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_command_quickfix_buffer()
+{
+    // ":cbuffer", ":cgetbuffer" and ":caddbuffer", and the three location list
+    // commands beside them: the lines of a buffer read through 'errorformat'
+    // into a list, the way ":grep" reads what a program wrote. All six
+    // answered "E492: Not an editor command" before, and there was no
+    // 'errorformat' option at all.
+    //
+    // Measured in Vim 9.1 with "vim -n -u NONE -i NONE -N --not-a-term -S".
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+
+    // The value Vim ships, which is what a compiler run is read through.
+    QCOMPARE(value("&errorformat"), QLatin1String(
+        "%*[^\"]\"%f\"%*\\D%l: %m,\"%f\"%*\\D%l: %m,"
+        "%-Gg%\\?make[%*\\d]: *** [%f:%l:%m,%-Gg%\\?make: *** [%f:%l:%m,"
+        "%-G%f:%l: (Each undeclared identifier is reported only once,"
+        "%-G%f:%l: for each function it appears in.),"
+        "%-GIn file included from %f:%l:%c:,"
+        "%-GIn file included from %f:%l:%c\\,,"
+        "%-GIn file included from %f:%l:%c,"
+        "%-GIn file included from %f:%l,%-G%*[ ]from %f:%l:%c,"
+        "%-G%*[ ]from %f:%l:,%-G%*[ ]from %f:%l\\,,%-G%*[ ]from %f:%l,"
+        "%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,\"%f\"\\, line %l%*\\D%c%*[^ ] %m,"
+        "%D%*\\a[%*\\d]: Entering directory %*[`']%f',"
+        "%X%*\\a[%*\\d]: Leaving directory %*[`']%f',"
+        "%D%*\\a: Entering directory %*[`']%f',"
+        "%X%*\\a: Leaving directory %*[`']%f',%DMaking %*\\a in %f,"
+        "%f|%l| %m"));
+    QCOMPARE(value("&efm == &errorformat"), QLatin1String("1"));
+
+    data.doCommand("set errorformat=%f:%l:%m");
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    data.setText("zz.c:1:one" N "junk" N "zz.c:3:three");
+
+    // ":cgetbuffer" reads the lines and says nothing. The title is the ex
+    // command as it was typed behind a colon, a line no format matches is an
+    // entry of its own standing invalid, and the file an entry names gets a
+    // buffer.
+    QCOMPARE(run("cgetbuffer"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cgetbuffer"));
+    QCOMPARE(value("getqflist({'idx':0}).idx"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("one"));
+    QCOMPARE(value("getqflist()[0].valid"), QLatin1String("1"));
+    QCOMPARE(value("bufname(" + value("getqflist()[0].bufnr") + ")"), QLatin1String("zz.c"));
+    QCOMPARE(value("getqflist()[1].valid"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[1].text"), QLatin1String("junk"));
+    QCOMPARE(value("getqflist()[2].lnum"), QLatin1String("3"));
+
+    // ":cbuffer" goes to the entry the list stands on and says where it went,
+    // which is the first entry that parsed rather than the first of all.
+    QCOMPARE(run("cbuffer"), QLatin1String("(1 of 3): one"));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("2"));
+    data.setText("junk" N "zz.c:3:three");
+    QCOMPARE(run("cbuffer"), QLatin1String("(2 of 2): three"));
+    QCOMPARE(value("getqflist({'idx':0}).idx"), QLatin1String("2"));
+
+    // ":caddbuffer" adds to the list the stack stands on, leaving its title
+    // and its index alone, and goes nowhere.
+    data.setText("zz.c:5:five");
+    QCOMPARE(run("caddbuffer"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("3"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist()[2].text"), QLatin1String("five"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cbuffer"));
+    QCOMPARE(value("getqflist({'idx':0}).idx"), QLatin1String("2"));
+
+    // The range names lines of the buffer, and a zero address is its first.
+    data.setText("zz.c:1:one" N "zz.c:2:two" N "zz.c:3:three");
+    QCOMPARE(run("1,2cgetbuffer"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":1,2cgetbuffer"));
+    QCOMPARE(run("0cgetbuffer"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":0cgetbuffer"));
+    QCOMPARE(run("%cgetbuffer"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":%cgetbuffer"));
+
+    // A "!" is allowed on ":cbuffer" alone, where it only says that a changed
+    // buffer may be left behind.
+    QCOMPARE(run("cgetbuffer!"), QLatin1String("E477: No ! allowed: cgetbuffer!"));
+    QCOMPARE(run("caddbuffer!"), QLatin1String("E477: No ! allowed: caddbuffer!"));
+    QCOMPARE(run("cbuffer!"), QLatin1String("(1 of 3): one"));
+
+    // The argument is a buffer number and nothing else, and a zero of it
+    // names the buffer on show.
+    QCOMPARE(run("cgetbuffer x"), QLatin1String("E474: Invalid argument"));
+    QCOMPARE(run("cgetbuffer 1 2"), QLatin1String("E474: Invalid argument"));
+    QCOMPARE(run("cgetbuffer 9999"), QLatin1String("E474: Invalid argument"));
+    QCOMPARE(run("cgetbuffer 0"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cgetbuffer 0"));
+
+    // A buffer that exists but was never loaded has no lines to read.
+    const QString unloaded = value("bufadd('nope.txt')");
+    QCOMPARE(run("cgetbuffer " + unloaded), QLatin1String("E681: Buffer is not loaded"));
+
+    // Another buffer is read by its number, and its name goes into the title.
+    const QString before = value("getcwd()");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile file(dir.path() + "/qb.txt");
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("qq.c:7:seven\n");
+    file.close();
+    data.doCommand("cd " + dir.path());
+    const QString other = value("bufadd('qb.txt')");
+    data.doCommand("call bufload(" + other + ")");
+    QCOMPARE(run("cgetbuffer " + other), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].text"), QLatin1String("seven"));
+    QCOMPARE(value("getqflist({'title':1}).title"),
+             QLatin1String(":cgetbuffer ") + other + " (qb.txt)");
+
+    // The name of the buffer on show goes into the title the same way.
+    data.handler->setCurrentFileName("gg.txt");
+    QCOMPARE(run("cgetbuffer"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cgetbuffer (gg.txt)"));
+    data.handler->setCurrentFileName(QString());
+
+    // An 'errorformat' with nothing in it is an error of its own.
+    data.doCommand("set errorformat=");
+    QCOMPARE(run("cgetbuffer"), QLatin1String("E378: 'errorformat' contains no pattern"));
+    data.doCommand("set errorformat=%f:%l:%m");
+
+    // The QuickFixCmdPre and QuickFixCmdPost events fire around the read,
+    // with "<amatch>" the full name of the command whatever spelling was
+    // typed. The shortest spellings are ":cb", ":cgetb" and ":caddb".
+    data.doCommand("let g:pre = ''");
+    data.doCommand("let g:post = ''");
+    data.doCommand("autocmd QuickFixCmdPre * let g:pre = expand('<amatch>')");
+    data.doCommand("autocmd QuickFixCmdPost * let g:post = expand('<amatch>')");
+    QCOMPARE(run("cb"), QLatin1String("(1 of 3): one"));
+    QCOMPARE(value("g:pre"), QLatin1String("cbuffer"));
+    QCOMPARE(value("g:post"), QLatin1String("cbuffer"));
+    QCOMPARE(run("cgetb"), QLatin1String(""));
+    QCOMPARE(value("g:pre"), QLatin1String("cgetbuffer"));
+    QCOMPARE(run("caddb"), QLatin1String(""));
+    QCOMPARE(value("g:pre"), QLatin1String("caddbuffer"));
+    data.doCommand("autocmd!");
+
+    // The location list forms do the same to the window own list, and the
+    // quickfix list does not hear of it.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("lbuffer"), QLatin1String("(1 of 3): one"));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("3"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"), QLatin1String(":lbuffer"));
+    QCOMPARE(run("lgetbuffer!"), QLatin1String("E477: No ! allowed: lgetbuffer!"));
+    QCOMPARE(run("laddb"), QLatin1String(""));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("6"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"), QLatin1String(":lbuffer"));
+
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    data.doCommand("set errorformat&");
+    // The buffer registry and the working directory belong to the process, so
+    // what the run made goes again.
+    QStringList made;
+    for (const QString &name : QStringList{"zz.c", "qq.c", "nope.txt", "qb.txt"})
+        made += value("bufnr('" + name + "')");
+    data.doCommand("bwipeout! " + made.join(' '));
+    QCOMPARE(value("bufexists('zz.c') + bufexists('qq.c')"), QLatin1String("0"));
+    QCOMPARE(value("bufexists('nope.txt') + bufexists('qb.txt')"), QLatin1String("0"));
+    data.doCommand("cd " + before);
+}
+
+void FakeVimTester::test_vim_command_quickfix_file()
+{
+    // ":cfile", ":cgetfile" and ":caddfile", and the three location list
+    // commands beside them: the lines of the file 'errorfile' names, read
+    // through 'errorformat'. All six answered "E492: Not an editor command"
+    // before, and there was no 'errorfile' option at all.
+    //
+    // Measured in Vim 9.1 with "vim -n -u NONE -i NONE -N --not-a-term -S".
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+
+    // The file Vim reads where none was named.
+    QCOMPARE(value("&errorfile"), QLatin1String("errors.err"));
+    QCOMPARE(value("&ef == &errorfile"), QLatin1String("1"));
+
+    const QString before = value("getcwd()");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QFile one(dir.path() + "/ef1.txt");
+    QVERIFY(one.open(QIODevice::WriteOnly));
+    one.write("ff.c:1:one\njunk\nff.c:3:three\n");
+    one.close();
+    QFile two(dir.path() + "/ef2.txt");
+    QVERIFY(two.open(QIODevice::WriteOnly));
+    two.write("gg.c:9:nine\n");
+    two.close();
+    data.doCommand("cd " + dir.path());
+
+    data.doCommand("set errorformat=%f:%l:%m");
+    data.setText("aaa" N "bbb" N "ccc");
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+
+    // The argument is a file name and it sets 'errorfile'. The title is the
+    // ex command as it was typed behind a colon, with no name behind it.
+    QCOMPARE(run("cgetfile ef1.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cgetfile ef1.txt"));
+    QCOMPARE(value("getqflist({'idx':0}).idx"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[1].valid"), QLatin1String("0"));
+    QCOMPARE(value("getqflist()[2].text"), QLatin1String("three"));
+    QCOMPARE(value("&errorfile"), QLatin1String("ef1.txt"));
+
+    // With no argument the file 'errorfile' already names is read again.
+    QCOMPARE(run("cgetfile"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("3"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cgetfile"));
+
+    // ":cfile" goes to the entry the list stands on and says where it went.
+    QCOMPARE(run("cfile ef2.txt"), QLatin1String("(1 of 1): nine"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cfile ef2.txt"));
+    QCOMPARE(value("&errorfile"), QLatin1String("ef2.txt"));
+
+    // ":caddfile" adds to the list the stack stands on and goes nowhere.
+    QCOMPARE(run("caddfile ef1.txt"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("3"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("4"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cfile ef2.txt"));
+
+    // A file that cannot be read leaves the stack as it stands, where
+    // 'errorfile' is set to the name all the same, and the whole argument is
+    // that name, spaces and all.
+    QCOMPARE(run("cgetfile nosuch.txt"),
+             QLatin1String("E40: Can't open errorfile nosuch.txt"));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("3"));
+    QCOMPARE(value("&errorfile"), QLatin1String("nosuch.txt"));
+    QCOMPARE(run("cgetfile a b"), QLatin1String("E40: Can't open errorfile a b"));
+    QCOMPARE(value("&errorfile"), QLatin1String("a b"));
+
+    // A "!" is allowed on ":cfile" alone, and a range on none of the six.
+    // Both are refused before 'errorfile' is set.
+    QCOMPARE(run("cgetfile! ef1.txt"), QLatin1String("E477: No ! allowed: cgetfile! ef1.txt"));
+    QCOMPARE(run("caddfile! ef1.txt"), QLatin1String("E477: No ! allowed: caddfile! ef1.txt"));
+    QCOMPARE(value("&errorfile"), QLatin1String("a b"));
+    QCOMPARE(run("1,2cgetfile ef1.txt"),
+             QLatin1String("E481: No range allowed: 1,2cgetfile ef1.txt"));
+    QCOMPARE(value("&errorfile"), QLatin1String("a b"));
+    QCOMPARE(run("cfile! ef1.txt"), QLatin1String("(1 of 3): one"));
+
+    // An 'errorformat' with nothing in it is an error of its own, and the
+    // name is set before it is raised.
+    data.doCommand("set errorformat=");
+    QCOMPARE(run("cgetfile ef2.txt"), QLatin1String("E378: 'errorformat' contains no pattern"));
+    QCOMPARE(value("&errorfile"), QLatin1String("ef2.txt"));
+    data.doCommand("set errorformat=%f:%l:%m");
+
+    // The shortest spellings are ":cf", ":cg" and ":caddf", and ":cget" is
+    // one of its own.
+    QCOMPARE(run("cf ef1.txt"), QLatin1String("(1 of 3): one"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cf ef1.txt"));
+    QCOMPARE(run("cg ef1.txt"), QLatin1String(""));
+    QCOMPARE(run("cget ef1.txt"), QLatin1String(""));
+    QCOMPARE(run("caddf ef1.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("6"));
+
+    // The QuickFixCmdPre and QuickFixCmdPost events fire around the read,
+    // with "<amatch>" the full name of the command. Unlike the buffer
+    // commands, these let the Post event fire where the read went wrong.
+    data.doCommand("let g:pre = ''");
+    data.doCommand("let g:post = ''");
+    data.doCommand("autocmd QuickFixCmdPre * let g:pre = expand('<amatch>')");
+    data.doCommand("autocmd QuickFixCmdPost * let g:post = expand('<amatch>')");
+    QCOMPARE(run("cf ef1.txt"), QLatin1String("(1 of 3): one"));
+    QCOMPARE(value("g:pre"), QLatin1String("cfile"));
+    QCOMPARE(value("g:post"), QLatin1String("cfile"));
+    QCOMPARE(run("cgetfile nosuch.txt"),
+             QLatin1String("E40: Can't open errorfile nosuch.txt"));
+    QCOMPARE(value("g:pre"), QLatin1String("cgetfile"));
+    QCOMPARE(value("g:post"), QLatin1String("cgetfile"));
+    data.doCommand("let g:pre = ''");
+    data.doCommand("let g:post = ''");
+    QCOMPARE(run("1,2cgetfile ef1.txt"),
+             QLatin1String("E481: No range allowed: 1,2cgetfile ef1.txt"));
+    QCOMPARE(value("g:pre"), QLatin1String(""));
+    QCOMPARE(value("g:post"), QLatin1String(""));
+    data.doCommand("autocmd!");
+
+    // The location list forms do the same to the window own list, and the
+    // quickfix list does not hear of it.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("lfile ef1.txt"), QLatin1String("(1 of 3): one"));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("3"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"), QLatin1String(":lfile ef1.txt"));
+    QCOMPARE(run("lg ef2.txt"), QLatin1String(""));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"), QLatin1String(":lg ef2.txt"));
+    QCOMPARE(run("laddfile ef1.txt"), QLatin1String(""));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("4"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"), QLatin1String(":lg ef2.txt"));
+
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    data.doCommand("set errorformat&");
+    data.doCommand("set errorfile&");
+    // The buffer registry and the working directory belong to the process, so
+    // what the run made goes again.
+    QStringList made;
+    for (const QString &name : QStringList{"ff.c", "gg.c"})
+        made += value("bufnr('" + name + "')");
+    data.doCommand("bwipeout! " + made.join(' '));
+    QCOMPARE(value("bufexists('ff.c') + bufexists('gg.c')"), QLatin1String("0"));
+    data.doCommand("cd " + before);
+}
+
+void FakeVimTester::test_vim_command_quickfix_expr()
+{
+    // ":cexpr", ":cgetexpr" and ":caddexpr", and the three location list
+    // commands beside them: the value of an expression read through
+    // 'errorformat'. All six answered "E492: Not an editor command" before.
+    //
+    // Measured in Vim 9.1 with "vim -n -u NONE -i NONE -N --not-a-term -S".
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+
+    data.doCommand("set errorformat=%f:%l:%m");
+    data.setText("aaa" N "bbb");
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+
+    // A List holds the lines. ":cexpr" goes to the entry the list stands on
+    // and says where it went, and the title is the ex command as it was typed
+    // behind a colon.
+    QCOMPARE(run("cexpr [\"aa.c:4:four\", \"junk\"]"), QLatin1String("(1 of 2): four"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist({'title':1}).title"),
+             QLatin1String(":cexpr [\"aa.c:4:four\", \"junk\"]"));
+    QCOMPARE(value("getqflist({'idx':0}).idx"), QLatin1String("1"));
+    QCOMPARE(value("getqflist()[0].lnum"), QLatin1String("4"));
+    QCOMPARE(value("getqflist()[1].valid"), QLatin1String("0"));
+
+    // The list stands on its first valid entry rather than on its first.
+    QCOMPARE(run("cexpr [\"junk\", \"aa.c:4:four\"]"), QLatin1String("(2 of 2): four"));
+    QCOMPARE(value("getqflist({'idx':0}).idx"), QLatin1String("2"));
+
+    // An item of the List that is no string is passed over.
+    QCOMPARE(run("cexpr [\"aa.c:4:four\", 12, \"junk\"]"), QLatin1String("(1 of 2): four"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[1].text"), QLatin1String("junk"));
+
+    // A String holds the lines where the newlines are, and one at its end
+    // makes no line of its own.
+    QCOMPARE(run("cexpr \"aa.c:4:four\\naa.c:5:five\\n\""), QLatin1String("(1 of 2): four"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[1].lnum"), QLatin1String("5"));
+    QCOMPARE(run("cexpr \"\""), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+
+    // An empty List pushes a list of its own all the same.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("cexpr []"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("1"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cexpr []"));
+
+    // ":cgetexpr" says nothing and goes nowhere, and ":caddexpr" adds to the
+    // list the stack stands on, leaving its title and its index alone.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("cgetexpr [\"aa.c:4:four\"]"), QLatin1String(""));
+    QCOMPARE(run("caddexpr \"aa.c:6:six\""), QLatin1String(""));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("1"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+    QCOMPARE(value("getqflist()[1].lnum"), QLatin1String("6"));
+    QCOMPARE(value("getqflist({'title':1}).title"),
+             QLatin1String(":cgetexpr [\"aa.c:4:four\"]"));
+
+    // On an empty stack the add makes the list itself.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("caddexpr [\"aa.c:4:four\"]"), QLatin1String(""));
+    QCOMPARE(value("getqflist({'nr':'$'}).nr"), QLatin1String("1"));
+    QCOMPARE(value("getqflist({'title':1}).title"),
+             QLatin1String(":caddexpr [\"aa.c:4:four\"]"));
+
+    // The argument is wanted, and it is a String or a List and nothing else.
+    // The name in the complaint is the one that was typed.
+    QCOMPARE(run("cexpr"), QLatin1String("E471: Argument required: cexpr"));
+    QCOMPARE(run("cex"), QLatin1String("E471: Argument required: cex"));
+    QCOMPARE(run("cgete"), QLatin1String("E471: Argument required: cgete"));
+    QCOMPARE(run("cexpr 12"), QLatin1String("E777: String or List expected"));
+    QCOMPARE(run("cexpr nosuchfunc()"), QLatin1String("E117: Unknown function: nosuchfunc"));
+
+    // A "!" is allowed on ":cexpr" alone, and a range on none of the six.
+    QCOMPARE(run("cgetexpr! [\"x\"]"), QLatin1String("E477: No ! allowed: cgetexpr! [\"x\"]"));
+    QCOMPARE(run("1,2cgetexpr [\"x\"]"),
+             QLatin1String("E481: No range allowed: 1,2cgetexpr [\"x\"]"));
+    QCOMPARE(run("cexpr! [\"aa.c:4:four\"]"), QLatin1String("(1 of 1): four"));
+
+    // The shortest spellings.
+    QCOMPARE(run("cex [\"aa.c:4:four\"]"), QLatin1String("(1 of 1): four"));
+    QCOMPARE(value("getqflist({'title':1}).title"), QLatin1String(":cex [\"aa.c:4:four\"]"));
+    QCOMPARE(run("cadde [\"aa.c:5:five\"]"), QLatin1String(""));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("2"));
+
+    // The QuickFixCmdPre and QuickFixCmdPost events fire around the read,
+    // with "<amatch>" the full name of the command. A value of the wrong kind
+    // is found after the Pre event has fired and keeps the Post one from it.
+    data.doCommand("let g:pre = ''");
+    data.doCommand("let g:post = ''");
+    data.doCommand("autocmd QuickFixCmdPre * let g:pre = expand('<amatch>')");
+    data.doCommand("autocmd QuickFixCmdPost * let g:post = expand('<amatch>')");
+    QCOMPARE(run("cex [\"aa.c:4:four\"]"), QLatin1String("(1 of 1): four"));
+    QCOMPARE(value("g:pre"), QLatin1String("cexpr"));
+    QCOMPARE(value("g:post"), QLatin1String("cexpr"));
+    QCOMPARE(run("cgete [\"aa.c:4:four\"]"), QLatin1String(""));
+    QCOMPARE(value("g:pre"), QLatin1String("cgetexpr"));
+    QCOMPARE(value("g:post"), QLatin1String("cgetexpr"));
+    QCOMPARE(run("cadde [\"aa.c:4:four\"]"), QLatin1String(""));
+    QCOMPARE(value("g:pre"), QLatin1String("caddexpr"));
+    QCOMPARE(value("g:post"), QLatin1String("caddexpr"));
+    data.doCommand("let g:post = ''");
+    QCOMPARE(run("cexpr 12"), QLatin1String("E777: String or List expected"));
+    QCOMPARE(value("g:pre"), QLatin1String("cexpr"));
+    QCOMPARE(value("g:post"), QLatin1String(""));
+    data.doCommand("let g:pre = ''");
+    QCOMPARE(run("cexpr"), QLatin1String("E471: Argument required: cexpr"));
+    QCOMPARE(value("g:pre"), QLatin1String(""));
+    data.doCommand("autocmd!");
+
+    // The location list forms do the same to the window own list, and the
+    // quickfix list does not hear of it.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    QCOMPARE(run("lexpr [\"aa.c:4:four\", \"junk\"]"), QLatin1String("(1 of 2): four"));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("2"));
+    QCOMPARE(value("len(getqflist())"), QLatin1String("0"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"),
+             QLatin1String(":lexpr [\"aa.c:4:four\", \"junk\"]"));
+    QCOMPARE(run("lgete [\"aa.c:9:nine\"]"), QLatin1String(""));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("1"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"),
+             QLatin1String(":lgete [\"aa.c:9:nine\"]"));
+    QCOMPARE(run("lad [\"aa.c:8:eight\"]"), QLatin1String(""));
+    QCOMPARE(value("len(getloclist(0))"), QLatin1String("2"));
+    QCOMPARE(value("getloclist(0, {'title':1}).title"),
+             QLatin1String(":lgete [\"aa.c:9:nine\"]"));
+
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    data.doCommand("set errorformat&");
+    // The buffer registry belongs to the process, so what the run made goes
+    // again.
+    data.doCommand("bwipeout! " + value("bufnr('aa.c')"));
+    QCOMPARE(value("bufexists('aa.c')"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_command_quickfix_cursor()
+{
+    // ":cabove", ":cbelow", ":cbefore", ":cafter", ":cbottom" and the five
+    // location list forms beside them: the commands that go to an entry by
+    // where the cursor stands rather than by the list index. All ten answered
+    // "E492: Not an editor command" before.
+    //
+    // Measured in Vim 9.1 with "vim -n -u NONE -i NONE -N --not-a-term -S".
+    TestData data;
+    setup(&data);
+    QString message;
+    data.handler->commandBufferChanged.set(
+        [&](const QString &msg, int, int, int) {
+            if (!msg.isEmpty() && !msg.startsWith("--"))
+                message = msg;
+        });
+    const auto value = [&](const QString &expr) {
+        message.clear();
+        data.doCommand("echo " + expr);
+        return message;
+    };
+    const auto run = [&](const QString &cmd) {
+        message.clear();
+        data.doCommand(cmd);
+        return message;
+    };
+    const auto at = [&] { return value("line('.')") + ':' + value("col('.')"); };
+    const auto go = [&](int line, int column) {
+        data.doCommand(QString("call cursor(%1, %2)").arg(line).arg(column));
+    };
+
+    data.setText("one" N "two two" N "three" N "four four four" N "five" N "six" N "seven"
+                 N "eight" N "nine" N "ten");
+    // The quickfix stack is one for the whole engine, so the run starts by
+    // freeing whatever is on it.
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+
+    // Nothing on the stack at all. ":cbottom" scrolls the quickfix window to
+    // its last line, and there is no such window here, so it says nothing
+    // either way, where ":lbottom" still answers about a window with no list.
+    for (const QString &cmd : QStringList{"cabove", "cbelow", "cbefore", "cafter",
+                                          "labove", "lbelow", "lbefore", "lafter"})
+        QCOMPARE(run(cmd), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("cbottom"), QLatin1String(""));
+    QCOMPARE(run("lbottom"), QLatin1String("E776: No location list"));
+
+    // A bang and trailing characters are refused before the list is looked at,
+    // a count only afterwards. A count of zero is E939 where a negative one is
+    // trailing characters, and ":cbottom" takes no count at all.
+    QCOMPARE(run("cabove!"), QLatin1String("E477: No ! allowed: cabove!"));
+    QCOMPARE(run("cabove foo"), QLatin1String("E488: Trailing characters: foo: cabove foo"));
+    QCOMPARE(run("cafter bar baz"),
+             QLatin1String("E488: Trailing characters: bar baz: cafter bar baz"));
+    QCOMPARE(run("cabove -1"), QLatin1String("E488: Trailing characters: -1: cabove -1"));
+    QCOMPARE(run("cabove 0"), QLatin1String("E939: Positive count required: cabove 0"));
+    QCOMPARE(run("2cabove"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("cbottom!"), QLatin1String("E477: No ! allowed: cbottom!"));
+    QCOMPARE(run("cbottom foo"), QLatin1String("E488: Trailing characters: foo: cbottom foo"));
+    QCOMPARE(run("lbottom foo"), QLatin1String("E488: Trailing characters: foo: lbottom foo"));
+    QCOMPARE(run("2cbottom"), QLatin1String("E481: No range allowed: 2cbottom"));
+
+    // A list that is there but empty says the same, where ":lbottom" no longer
+    // complains once the window has one.
+    QCOMPARE(value("setqflist([], 'r')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [])"), QLatin1String("0"));
+    QCOMPARE(run("cabove"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("labove"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("lbottom"), QLatin1String(""));
+
+    // The nearest entry above or below the cursor line. An entry on the
+    // cursor's own line is neither, and the jump lands on the first entry of
+    // the line it reaches.
+    const QString four = "{'bufnr': bufnr('%'), 'lnum': 2, 'col': 3, 'text': 'e2'},"
+                         "{'bufnr': bufnr('%'), 'lnum': 4, 'col': 2, 'text': 'e4a'},"
+                         "{'bufnr': bufnr('%'), 'lnum': 4, 'col': 6, 'text': 'e4b'},"
+                         "{'bufnr': bufnr('%'), 'lnum': 8, 'col': 1, 'text': 'e8'}";
+    QCOMPARE(value("setqflist([" + four + "], 'r')"), QLatin1String("0"));
+    go(5, 1);
+    QCOMPARE(run("cabove"), QLatin1String("(2 of 4): e4a"));
+    QCOMPARE(at(), QLatin1String("4:2"));
+    QCOMPARE(value("getqflist({'idx':0}).idx"), QLatin1String("2"));
+    go(5, 1);
+    QCOMPARE(run("cbelow"), QLatin1String("(4 of 4): e8"));
+    QCOMPARE(at(), QLatin1String("8:1"));
+
+    // The count of ":cabove" and ":cbelow" counts lines rather than entries,
+    // and clamps where there are fewer.
+    go(8, 1);
+    QCOMPARE(run("2cabove"), QLatin1String("(1 of 4): e2"));
+    QCOMPARE(at(), QLatin1String("2:3"));
+    go(8, 1);
+    QCOMPARE(run("3cabove"), QLatin1String("(1 of 4): e2"));
+    go(8, 1);
+    QCOMPARE(run("9cabove"), QLatin1String("(1 of 4): e2"));
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'lnum': 4, 'col': 1, 'text': 'a'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 4, 'col': 6, 'text': 'b'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 4, 'col': 11, 'text': 'c'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 6, 'col': 1, 'text': 'd'}], 'r')"),
+             QLatin1String("0"));
+    go(1, 1);
+    QCOMPARE(run("cbelow"), QLatin1String("(1 of 4): a"));
+    go(1, 1);
+    QCOMPARE(run("2cbelow"), QLatin1String("(4 of 4): d"));
+
+    // A numeric argument is a count too, and beats an address prefix where
+    // there is both.
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'lnum': 2, 'col': 3, 'text': 'e2'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 4, 'col': 1, 'text': 'e4'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 8, 'col': 1, 'text': 'e8'}], 'r')"),
+             QLatin1String("0"));
+    go(9, 1);
+    QCOMPARE(run("cabove 2"), QLatin1String("(2 of 3): e4"));
+    QCOMPARE(at(), QLatin1String("4:1"));
+    go(9, 1);
+    QCOMPARE(run("2cabove 3"), QLatin1String("(1 of 3): e2"));
+    QCOMPARE(at(), QLatin1String("2:3"));
+
+    // Entries on the cursor's own line are nowhere to go, in either direction.
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'lnum': 4, 'col': 2, 'text': 'a'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 4, 'col': 6, 'text': 'b'}], 'r')"),
+             QLatin1String("0"));
+    go(4, 8);
+    QCOMPARE(run("cabove"), QLatin1String("E553: No more items"));
+    go(4, 2);
+    QCOMPARE(run("cbelow"), QLatin1String("E553: No more items"));
+
+    // ":cbefore" and ":cafter" compare the column as well, strictly, and their
+    // count counts entries rather than lines.
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'lnum': 4, 'col': 2, 'text': 'a'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 4, 'col': 6, 'text': 'b'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 4, 'col': 10, 'text': 'c'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 6, 'col': 1, 'text': 'd'}], 'r')"),
+             QLatin1String("0"));
+    go(4, 1);
+    QCOMPARE(run("cafter"), QLatin1String("(1 of 4): a"));
+    QCOMPARE(at(), QLatin1String("4:2"));
+    go(4, 1);
+    QCOMPARE(run("2cafter"), QLatin1String("(2 of 4): b"));
+    QCOMPARE(at(), QLatin1String("4:6"));
+    go(4, 1);
+    QCOMPARE(run("3cafter"), QLatin1String("(3 of 4): c"));
+    go(4, 1);
+    QCOMPARE(run("9cafter"), QLatin1String("(4 of 4): d"));
+    QCOMPARE(at(), QLatin1String("6:1"));
+    go(4, 11);
+    QCOMPARE(run("2cbefore"), QLatin1String("(2 of 4): b"));
+    go(4, 11);
+    QCOMPARE(run("9cbefore"), QLatin1String("(1 of 4): a"));
+
+    // An entry exactly where the cursor stands is neither before nor after it.
+    QCOMPARE(value("setqflist([" + four + "], 'r')"), QLatin1String("0"));
+    go(4, 2);
+    QCOMPARE(run("cbefore"), QLatin1String("(1 of 4): e2"));
+
+    // The column is compared as it stands, so an entry with none at all is
+    // before the first column rather than at it.
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'lnum': 4, 'col': 0, 'text': 'n'}], 'r')"),
+             QLatin1String("0"));
+    go(4, 1);
+    QCOMPARE(run("cbefore"), QLatin1String("(1 of 1): n"));
+    QCOMPARE(at(), QLatin1String("4:1"));
+    go(4, 1);
+    QCOMPARE(run("cafter"), QLatin1String("E553: No more items"));
+
+    // An entry with no line number stands for a file rather than for a place:
+    // it is nowhere to go, and a list of nothing else has nothing valid in it.
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'text': 'nowhere'}], 'r')"),
+             QLatin1String("0"));
+    go(4, 1);
+    QCOMPARE(run("cabove"), QLatin1String("E42: No Errors"));
+    QCOMPARE(run("cbelow"), QLatin1String("E42: No Errors"));
+
+    // An invalid entry that does have a line number is gone to like any other.
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'lnum': 2, 'col': 1, 'text': 'v'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 9, 'col': 1, 'valid': 0,"
+                   " 'text': 'invalid'}], 'r')"),
+             QLatin1String("0"));
+    go(4, 1);
+    QCOMPARE(run("cbelow"), QLatin1String("(2 of 2): invalid"));
+
+    // Only entries of the buffer on show count.
+    QCOMPARE(value("setqflist([{'bufnr': bufnr('%'), 'lnum': 2, 'col': 1, 'text': 'here'},"
+                   "{'filename': 'other.txt', 'lnum': 8, 'col': 1, 'text': 'elsewhere'}], 'r')"),
+             QLatin1String("0"));
+    go(5, 1);
+    QCOMPARE(run("cbelow"), QLatin1String("E553: No more items"));
+    go(5, 1);
+    QCOMPARE(run("cabove"), QLatin1String("(1 of 2): here"));
+
+    // The location list forms work on the window's own list, and ":cbottom"
+    // and ":lbottom" move nothing and say nothing where there is one either.
+    QCOMPARE(value("setloclist(0, [{'bufnr': bufnr('%'), 'lnum': 3, 'col': 1, 'text': 'l3'},"
+                   "{'bufnr': bufnr('%'), 'lnum': 7, 'col': 1, 'text': 'l7'}])"),
+             QLatin1String("0"));
+    go(5, 1);
+    QCOMPARE(run("lbelow"), QLatin1String("(2 of 2): l7"));
+    QCOMPARE(value("getloclist(0, {'idx':0}).idx"), QLatin1String("2"));
+    go(5, 1);
+    QCOMPARE(run("labove"), QLatin1String("(1 of 2): l3"));
+    go(5, 1);
+    QCOMPARE(run("lafter"), QLatin1String("(2 of 2): l7"));
+    go(5, 1);
+    QCOMPARE(run("lbefore"), QLatin1String("(1 of 2): l3"));
+    QCOMPARE(at(), QLatin1String("3:1"));
+    QCOMPARE(run("lbottom"), QLatin1String(""));
+    QCOMPARE(at(), QLatin1String("3:1"));
+    QCOMPARE(value("getloclist(0, {'idx':0}).idx"), QLatin1String("1"));
+    QCOMPARE(run("cbottom"), QLatin1String(""));
+    QCOMPARE(at(), QLatin1String("3:1"));
+
+    // The shortest spellings, where ":cbe" is ":cbefore" although ":cbel" is
+    // ":cbelow".
+    QCOMPARE(value("setqflist([" + four + "], 'r')"), QLatin1String("0"));
+    go(5, 1);
+    QCOMPARE(run("cabo"), QLatin1String("(2 of 4): e4a"));
+    go(5, 1);
+    QCOMPARE(run("cbel"), QLatin1String("(4 of 4): e8"));
+    go(5, 1);
+    QCOMPARE(run("cbe"), QLatin1String("(3 of 4): e4b"));
+    go(5, 1);
+    QCOMPARE(run("caf"), QLatin1String("(4 of 4): e8"));
+    QCOMPARE(run("cbo"), QLatin1String(""));
+    go(5, 1);
+    QCOMPARE(run("lab"), QLatin1String("(1 of 2): l3"));
+    go(5, 1);
+    QCOMPARE(run("lbel"), QLatin1String("(2 of 2): l7"));
+    go(5, 1);
+    QCOMPARE(run("lbe"), QLatin1String("(1 of 2): l3"));
+    go(5, 1);
+    QCOMPARE(run("laf"), QLatin1String("(2 of 2): l7"));
+    QCOMPARE(run("lbo"), QLatin1String(""));
+
+    QCOMPARE(value("setqflist([], 'f')"), QLatin1String("0"));
+    QCOMPARE(value("setloclist(0, [], 'f')"), QLatin1String("0"));
+    // The buffer registry belongs to the process, so the file an entry named
+    // goes again.
+    data.doCommand("bwipeout! " + value("bufnr('other.txt')"));
+    QCOMPARE(value("bufexists('other.txt')"), QLatin1String("0"));
+}
+
+void FakeVimTester::test_vim_virtualedit_onemore()
+{
+    // The "onemore" flag of 'virtualedit' lets the cursor stand one past the
+    // last character of a line, where it otherwise stops on it. Nothing else
+    // about the line changes: what is not there cannot be deleted or
+    // replaced, and an operator reaching that column backwards still works on
+    // the character in front of it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set ve=onemore");
+
+    data.setText("abc");
+    KEYS("$", "ab" X "c");
+    KEYS("l", "abc" X);
+    KEYS("l", "abc" X);
+    data.setText("abc");
+    KEYS("llll", "abc" X);
+
+    // There is no character there to work on.
+    data.setText("abc");
+    KEYS("$lx", "abc" X);
+    data.setText("abc");
+    KEYS("$ldl", "abc" X);
+    data.setText("abc");
+    KEYS("$lrZ", "abc" X);
+    data.setText("abc");
+    KEYS("$l~", "abc" X);
+    data.setText("abc");
+    KEYS("$lyl", "abc" X);
+
+    // Backwards the column counts, and the inclusive range of "D" inverts
+    // into taking the last character.
+    data.setText("abcdef");
+    KEYS("$lD", "abcde" X);
+    data.setText("abcdef");
+    KEYS("0llD", "ab" X);
+    data.setText("abc def");
+    KEYS("$ldb", "abc " X);
+    data.setText("abc");
+    KEYS("$lvhd", "ab" X);
+    data.setText("abc");
+    KEYS("$ly0P", "ab" X "cabc");
+
+    // The line break is not a character the end of a line reaches either.
+    data.setText("abc" N "def");
+    KEYS("$lD", "ab" X N "def");
+    data.setText("abc" N "def");
+    KEYS("$lx", "abc" X N "def");
+    data.setText("abc" N "def");
+    KEYS("$ldb", X N "def");
+    data.setText("abc" N "def");
+    KEYS("$lJ", "abc" X " def");
+    data.setText("abc" N "def");
+    KEYS("$l~", "abc" N X "def");
+
+    // A count carries on into the line the step arrives in.
+    data.setText("abc" N "def");
+    KEYS("$l2~", "abc" N "D" X "ef");
+    data.setText("abc" N "def");
+    KEYS("$l5~", "abc" N "DEF" X);
+    // The step that reaches the end of a line ends the count.
+    data.setText("abc" N "def");
+    KEYS("$3~", "abC" X N "def");
+
+    // What "~" changed it ends behind, which is the new column there too.
+    data.setText("abc");
+    KEYS("$~", "abC" X);
+
+    // Inserting there appends, and leaving insert mode steps back as usual.
+    data.setText("abc");
+    KEYS("$laZ<Esc>", "abc" X "Z");
+    data.setText("abc");
+    KEYS("$lsZ<Esc>", "abc" X "Z");
+    data.setText("abc");
+    KEYS("$lclZ<Esc>", "abc" X "Z");
+    data.setText("abc");
+    KEYS("A<Esc>", "ab" X "c");
+    data.setText("abc");
+    KEYS("$li<Esc>", "ab" X "c");
+
+    // An undo goes back to the column the change was made in, which is the
+    // one past the end of a line that a change appended there.
+    data.setText("abc");
+    KEYS("A-<Esc>u", "abc" X);
+    data.setText("abc");
+    KEYS("$a-<Esc>u", "abc" X);
+
+    // The wanted column survives a line that is too short for it.
+    data.setText("abcdef" N "ab");
+    KEYS("$lj", "abcdef" N "ab" X);
+    KEYS("k", "abcdef" X N "ab");
+    data.setText("abc" N "defghi");
+    KEYS("$lj", "abc" N "def" X "ghi");
+    data.setText("abc" N "de");
+    KEYS("$lG", "abc" N X "de");
+    data.setText("abc" N "de");
+    KEYS("$ljdd", X "abc");
+
+    // An empty line has its one column either way.
+    data.setText("");
+    KEYS("$", X);
+    KEYS("l", X);
+
+    // Without the flag the cursor stops on the last character.
+    data.doCommand("set ve=");
+    data.setText("abc");
+    KEYS("$l", "ab" X "c");
+}
+
+void FakeVimTester::test_vim_virtualedit_all()
+{
+    // The "all" flag of 'virtualedit' lets the cursor stand in the space a
+    // line does not have. Moving there changes nothing, and what is put there
+    // fills the space up to it with blanks. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set ve=all");
+
+    data.setText("abc");
+    KEYS("10li-<Esc>", "abc       " X "-");
+    data.setText("abc");
+    KEYS("$3li-<Esc>", "abc  " X "-");
+    data.setText("abc");
+    KEYS("$3l2li-<Esc>", "abc    " X "-");
+    data.setText("");
+    KEYS("5li-<Esc>", "     " X "-");
+
+    // An append goes one column further out, the end of the line is where
+    // "A" and "$" put the cursor back.
+    data.setText("abc");
+    KEYS("$3la-<Esc>", "abc   " X "-");
+    data.setText("abc");
+    KEYS("$3lA-<Esc>", "abc" X "-");
+    data.setText("abc");
+    KEYS("$3l$i-<Esc>", "ab" X "-c");
+    data.setText("abc");
+    KEYS("$3l0i-<Esc>", X "-abc");
+
+    // A replacement fills the space as well.
+    data.setText("abc");
+    KEYS("$3lrZ", "abc  " X "Z");
+    data.setText("abc");
+    KEYS("$3l3rZ", "abc  ZZ" X "Z");
+
+    // Leaving insert mode steps back one column of the space, "h" steps back
+    // through all of it.
+    data.setText("abc");
+    KEYS("$3li<Esc>i-<Esc>", "abc " X "-");
+    data.setText("abc");
+    KEYS("$3lhi-<Esc>", "abc " X "-");
+    data.setText("abc");
+    KEYS("$3lhhhhi-<Esc>", "a" X "-bc");
+
+    // The wanted column reaches past the end of the line it lands in.
+    data.setText("abcdef" N "ab");
+    KEYS("5|ji-<Esc>", "abcdef" N "ab  " X "-");
+    data.setText("abcdef" N "ab");
+    KEYS("$ji-<Esc>", "abcdef" N "ab   " X "-");
+    data.setText("abc" N "defghij");
+    KEYS("$3ljki-<Esc>", "abc  " X "-" N "defghij");
+
+    // A command that finds nothing out there changes nothing and leaves the
+    // wanted column where it was, an undo and a redo included.
+    data.setText("abc");
+    KEYS("$3lxi-<Esc>", "abc  " X "-");
+    data.setText("abc");
+    KEYS("$3ldli-<Esc>", "abc  " X "-");
+    data.setText("abc");
+    KEYS("$3lyli-<Esc>", "abc  " X "-");
+    data.setText("abc");
+    KEYS("$3lDi-<Esc>", "abc  " X "-");
+    data.setText("abc");
+    KEYS("$3ldhi-<Esc>", "abc " X "-");
+    data.setText("abc");
+    KEYS("10li-<Esc>ui-<Esc>", "abc       " X "-");
+    data.setText("abc");
+    KEYS("10li-<Esc>u<C-r>i-<Esc>", "abc       " X "--");
+
+    // What is put out there fills the space in front of it with blanks, up to
+    // the column the cursor stands in for "p" and to the one before it for
+    // "P".
+    data.setText("abc");
+    KEYS("yl$3lp", "abc   " X "a");
+    data.setText("abc");
+    KEYS("yl$3lP", "abc  " X "a");
+    data.setText("abc");
+    KEYS("yl$3l2p", "abc   a" X "a");
+    data.setText("abc");
+    KEYS("yl$3l2P", "abc  a" X "a");
+    data.setText("abc");
+    KEYS("y2l$3lp", "abc   a" X "b");
+    data.setText("abc");
+    KEYS("yl$3lgp", "abc   a" X);
+    data.setText("abc");
+    KEYS("yl$3lgP", "abc  a" X);
+    data.setText("abc" N "");
+    KEYS("ylj$3lp", "abc" N "    " X "a");
+
+    // Whole lines go where they always go.
+    data.setText("abc" N "def");
+    KEYS("yy$3lp", "abc" N X "abc" N "def");
+
+    // A block fills the space of every line it lands in.
+    data.setText("abc" N "def");
+    KEYS("<C-v>jly$3lp", "abc   " X "ab" N "def   de");
+    data.setText("abc" N "def");
+    KEYS("<C-v>jly$3lP", "abc  " X "ab" N "def  de");
+
+    // Replace mode fills the space in front of what it writes, and so does a
+    // single "r", which finds nothing to replace out there and still writes.
+    data.setText("abc");
+    KEYS("$3lR-=<Esc>", "abc  -" X "=");
+    data.setText("abc");
+    KEYS("$3lR<Esc>i-<Esc>", "abc " X "-");
+    data.setText("abc");
+    KEYS("$3lR-=<BS><Esc>", "abc  " X "-");
+    data.setText("abc");
+    KEYS("$3lR-=<BS><BS><BS><Esc>i*<Esc>", "abc" X "*  ");
+    data.setText("abc");
+    KEYS("$3lr-", "abc  " X "-");
+    data.setText("abc");
+    KEYS("$3l3r-", "abc  --" X "-");
+    data.setText("abc");
+    KEYS("$lr-", "abc" X "-");
+    data.setText("abc" N "def");
+    KEYS("$3lR-<CR>=<Esc>", "abc  -" N X "=" N "def");
+    data.setText("");
+    KEYS("$3lR-=<Esc>", "   -" X "=");
+    data.setText("");
+    KEYS("r-", X "-");
+    data.setText("abc");
+    KEYS("$l3r-", "abc--" X "-");
+    data.setText("abc");
+    KEYS("$3lr<CR>", "abc  " N X);
+
+    // Leaving insert mode steps back through the space that is not there,
+    // which leaves the text alone.
+    data.setText("abc");
+    KEYS("$3li<Esc>i-<Esc>", "abc " X "-");
+    data.setText("abc");
+    KEYS("$3la<Esc>i-<Esc>", "abc  " X "-");
+    data.setText("abc");
+    KEYS("$li<Esc>i-<Esc>", "ab" X "-c");
+
+    // A selection out there covers the space the line does not have, so what
+    // it hands an operator is nothing, the wanted column surviving both. An
+    // "o" swaps the ends of it, the space they stand in included.
+    data.setText("abc");
+    KEYS("$3lv3lyi*<Esc>", "abc  " X "*");
+    data.setText("abc");
+    KEYS("$3lvdi*<Esc>", "abc  " X "*");
+    data.setText("abc");
+    KEYS("$3lv3ldi*<Esc>", "abc  " X "*");
+    data.setText("abc");
+    KEYS("$3lvhdi*<Esc>", "abc " X "*");
+    data.setText("abc");
+    KEYS("$3lv<Esc>i*<Esc>", "abc  " X "*");
+    data.setText("abc");
+    KEYS("$3lv0d", X);
+    data.setText("abc" N "def");
+    KEYS("$3lvjdi*<Esc>", "abc" X "*");
+    data.setText("abc");
+    KEYS("$3lvhodi*<Esc>", "abc " X "*");
+
+    // What an operator takes out there is the blanks the space would turn
+    // into, as many as the selection covers columns. A yank is a yank and a
+    // delete a small delete, so the registers they fill are the usual ones.
+    data.setText("abc");
+    KEYS("$3lvyP", "abc  " X " ");
+    data.setText("abc");
+    KEYS("$3lvd0P", X " abc");
+    data.setText("abc");
+    KEYS("$3lvd0\"-P", X " abc");
+    data.setText("abc");
+    KEYS("$3lv3ly0P", "   " X " abc");
+    data.setText("abc");
+    KEYS("$3lv3ly0\"0P", "   " X " abc");
+    data.setText("abc");
+    KEYS("$3lvhd0P", " " X " abc");
+
+    // A block out there holds no text either, so what it takes is as many
+    // blanks per line as it covers columns.
+    data.setText("abc" N "def");
+    KEYS("$3l<C-v>jy0P", X " abc" N " def");
+    data.setText("abc" N "def");
+    KEYS("$3l<C-v>jdi*<Esc>", "abc  " X "*" N "def");
+    // A block fills the space of the lines it reaches into: "I" only of the
+    // line the block begins in, "A" and "r" of every one of them.
+    data.setText("abc" N "def");
+    KEYS("$3l<C-v>jI-<Esc>i*<Esc>", "abc" X "*  -" N "def");
+    data.setText("abc" N "def");
+    KEYS("$3l<C-v>jA-<Esc>", "abc" X "   -" N "def   -");
+    data.setText("abc" N "def");
+    KEYS("$3l<C-v>jr-", "abc" X "  -" N "def  -");
+
+    // An undo of any of them is back where the block was.
+    data.setText("abc" N "def");
+    KEYS("$3l<C-v>jI-<Esc>ui*<Esc>", "abc  " X "*" N "def");
+    data.setText("abc" N "def");
+    KEYS("$3l<C-v>jA-<Esc>ui*<Esc>", "abc  " X "*" N "def");
+    data.setText("abc" N "def");
+    KEYS("$3l<C-v>jr-ui*<Esc>", "abc  " X "*" N "def");
+    data.setText("abc" N "def");
+    KEYS("$3l<C-v>jdui*<Esc>", "abc  " X "*" N "def");
+
+    // A tab is several columns wide, and the cursor can stand in any of them.
+    // What is typed there turns the tab into the blanks it stood for.
+    data.setText("a\tb");
+    KEYS("0li-<Esc>", "a" X "-\tb");
+    data.setText("a\tb");
+    KEYS("0l2li-<Esc>", "a  " X "-     b");
+    data.setText("a\tb");
+    KEYS("0l3li-<Esc>", "a   " X "-    b");
+    data.setText("a\tb");
+    KEYS("0l6li-<Esc>", "a      " X "- b");
+    data.setText("a\tb");
+    KEYS("0l7li-<Esc>", "a\t" X "-b");
+    data.setText("a\tb");
+    KEYS("4|i-<Esc>", "a  " X "-     b");
+    data.setText("a\tb");
+    KEYS("$hi-<Esc>", "a      " X "- b");
+    data.setText("a\tb");
+    KEYS("0l2la-<Esc>", "a   " X "-    b");
+    data.setText("a\tb");
+    KEYS("0l2lrX", "a  " X "X    b");
+    data.setText("a\tb");
+    KEYS("0l2lR-=<Esc>", "a  -" X "=   b");
+    data.setText("a\tb");
+    KEYS("0l2li-<Esc>ui*<Esc>", "a  " X "*     b");
+    data.setText("a\tb" N "xxxxxxxxxx");
+    KEYS("0l2lji-<Esc>", "a\tb" N "xxx" X "-xxxxxxx");
+    data.setText("a\tb" N "xxxxxxxxxx");
+    KEYS("0l2ljki-<Esc>", "a  " X "-     b" N "xxxxxxxxxx");
+
+    data.setText("a\tb");
+    KEYS("0l2lx", "a  " X "    b");
+    data.setText("a\tb");
+    KEYS("0l2ldl", "a  " X "    b");
+    data.setText("a\tb");
+    KEYS("0l2l3x", "a  " X "  b");
+    data.setText("a\tb");
+    KEYS("0l2ld2l", "a  " X "   b");
+    data.setText("a\tb");
+    KEYS("0l2lDi*<Esc>", "a  " X "*");
+    data.setText("a\tb");
+    KEYS("0l2ld6li*<Esc>", "a  " X "*");
+    data.setText("a\tb");
+    KEYS("0l2lC-<Esc>", "a  " X "-");
+    data.setText("a\tb");
+    KEYS("0l2lcl-<Esc>", "a  " X "-    b");
+    data.setText("a\tb");
+    KEYS("0l2ls-<Esc>", "a  " X "-    b");
+    data.setText("a\tb");
+    KEYS("0l2lvld", "a  " X "   b");
+    data.setText("a\tb");
+    KEYS("0l2lylp", "a   " X "     b");
+    data.setText("a\tb");
+    KEYS("0l2lylP", "a  " X "      b");
+    data.setText("a\tb");
+    KEYS("yl0l2lp", "a   " X "a    b");
+    data.setText("a\tb");
+    KEYS("yl0l2lP", "a  " X "a     b");
+    data.setText("a\tb");
+    KEYS("0l2ly2lP", "a   " X "      b");
+    data.setText("a\tb");
+    KEYS("0l2lvlyP", "a   " X "      b");
+    data.setText("a\tb");
+    KEYS("0l2lv2lyP", "a    " X "      b");
+    data.setText("a\tb");
+    KEYS("0l2ly6lP", "a       " X "b     b");
+    data.setText("a\tb");
+    KEYS("0l2lxui*<Esc>", "a  " X "*     b");
+    data.setText("a\tb");
+    KEYS("0l2lDui*<Esc>", "a  " X "*     b");
+    data.setText("a\tb");
+    KEYS("0l2lC-<Esc>ui*<Esc>", "a  " X "*     b");
+    data.setText("a\tb");
+    KEYS("0l2lvldui*<Esc>", "a  " X "*     b");
+
+    data.setText("a\tb" N "a\tb");
+    KEYS("0l2l<C-v>jd", "a  " X "    b" N "a      b");
+    data.setText("a\tb" N "a\tb");
+    KEYS("0l2l<C-v>jx", "a  " X "    b" N "a      b");
+    data.setText("a\tb" N "a\tb");
+    KEYS("0l2l<C-v>jdi*<Esc>", "a  " X "*    b" N "a      b");
+    data.setText("a\tb" N "a\tb");
+    KEYS("0l2l<C-v>jyP", "a  " X "      b" N "a        b");
+    data.setText("a\tb" N "a\tb");
+    KEYS("0l2l<C-v>jr-", "a" X "  -    b" N "a  -    b");
+    data.setText("a\tb" N "a\tb");
+    KEYS("0l2l<C-v>jI-<Esc>", "a" X "  -     b" N "a  -     b");
+    data.setText("a\tb" N "a\tb");
+    KEYS("0l2l<C-v>jA-<Esc>", "a" X "   -    b" N "a   -    b");
+    data.setText("a\tb" N "a\tb");
+    KEYS("0l2l<C-v>jc-<Esc>", "a  " X "-    b" N "a  -    b");
+
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j3lr-", "a" X "----" N "d----");
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j3lA-<Esc>", "a" X "bc  -" N "de   -");
+
+    // Without the flag the cursor stops on the last character.
+    data.doCommand("set ve=");
+    data.setText("abc");
+    KEYS("5li-<Esc>", "ab" X "-c");
+}
+
+void FakeVimTester::test_vim_virtualedit_insert()
+{
+    // The "insert" flag of 'virtualedit' gives insert and replace mode the
+    // space behind the end of a line, and lets a cursor key there walk the
+    // columns of the screen. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set ve=insert");
+
+    data.setText("abc");
+    KEYS("A<Right><Right>-<Esc>", "abc  " X "-");
+    data.setText("abc");
+    KEYS("i<Right><Right><Right><Right>-<Esc>", "abc " X "-");
+    data.setText("abc");
+    KEYS("A<Right><Right><Left>-<Esc>", "abc " X "-");
+    data.setText("abc");
+    KEYS("R<Right><Right><Right><Right>-<Esc>", "abc " X "-");
+    data.setText("abc");
+    KEYS("o<Right><Right>-<Esc>", "abc" N "  " X "-");
+    data.setText("abc");
+    KEYS("A<Right><Right><CR>-<Esc>", "abc" N X "-");
+
+    // The wanted column carries the space, so a line the cursor moves to has
+    // as much of it as the column is behind its end.
+    data.setText("abc" N "de");
+    KEYS("A<Right><Right><Down>-<Esc>", "abc" N "de   " X "-");
+    data.setText("abc" N "de");
+    KEYS("jA<Right><Right><Up>-<Esc>", "abc " X "-" N "de");
+    data.setText("abc" N "de");
+    KEYS("A<Right><Right><Right>-<Esc>", "abc   " X "-" N "de");
+
+    // A backspace steps back through the space rather than taking anything
+    // away, and <Del> out there reaches for nothing at all.
+    data.setText("abc");
+    KEYS("A<Right><Right><BS>-<Esc>", "abc " X "-");
+    data.setText("abc");
+    KEYS("A<Right><Right><BS><BS><BS>-<Esc>", "ab" X "-");
+    data.setText("abc");
+    KEYS("R<Right><Right><Right><Right><BS>-<Esc>", "abc" X "-");
+    data.setText("abc");
+    KEYS("R<Right><Right><Right><Right><BS><BS>-<Esc>", "ab" X "-");
+    data.setText("abc" N "de");
+    KEYS("A<Right><Right><Del>-<Esc>", "abc  " X "-" N "de");
+
+    // The columns a tab reaches over are columns of their own out here.
+    data.setText("a\tb");
+    KEYS("0li<Right>-<Esc>", "a " X "-      b");
+    data.setText("a\tb");
+    KEYS("0li<Right><Right>-<Esc>", "a  " X "-     b");
+    data.setText("a\tb");
+    KEYS("0li<Right><Right><Left>-<Esc>", "a " X "-      b");
+    data.setText("a\tb");
+    KEYS("0li<Right><Right><BS>-<Esc>", "a " X "-      b");
+    data.setText("a\tb");
+    KEYS("0lli<Left>-<Esc>", "a      " X "- b");
+    data.setText("a\tb");
+    KEYS("0lli<Left><Left>-<Esc>", "a     " X "-  b");
+    data.setText("a\tb");
+    KEYS("0li<Right><Right><Right><Right><Right><Right><Right>-<Esc>", "a\t" X "-b");
+
+    // The flag says insert mode, so the cursor of command mode stops where the
+    // line ends and steps over a tab in one.
+    data.setText("abc");
+    KEYS("$li-<Esc>", "ab" X "-c");
+    data.setText("a\tb");
+    KEYS("0l<Right>i-<Esc>", "a\t" X "-b");
+
+    data.doCommand("set ve=");
+}
+
+void FakeVimTester::test_vim_virtualedit_block()
+{
+    // The "block" flag of 'virtualedit' gives the space behind the end of a
+    // line to a blockwise selection, so a block keeps its width over the
+    // lines that are too short for it. Values taken from Vim 9.1.
+    TestData data;
+    setup(&data);
+    data.doCommand("set ve=block");
+
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j3ld0", X "a" N "d");
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j3lx0", X "a" N "d");
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j3lr-", "a" X "----" N "d----");
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j3lI-<Esc>", "a" X "-bc" N "d-e");
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j3lA-<Esc>", "a" X "bc  -" N "de   -");
+    data.setText("abc" N "de");
+    KEYS("j0l<C-v>k3lA-<Esc>", "a" X "bc  -" N "de   -");
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j3ly0P", X "bc  abc" N "e   de");
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j3lc-<Esc>", "a" X "-" N "d-");
+    data.setText("abc" N "de");
+    KEYS("0l<C-v>j$A-<Esc>", "a" X "bc-" N "de-");
+
+    // A line the block is wider than keeps the width of it all the same.
+    data.setText("abcdef" N "x" N "abcdef");
+    KEYS("0l<C-v>2j3lr-", "a" X "----f" N "x----" N "a----f");
+    data.setText("abcdef" N "x" N "abcdef");
+    KEYS("0l<C-v>2j3lI-<Esc>", "a" X "-bcdef" N "x-" N "a-bcdef");
+    data.setText("abcdef" N "x" N "abcdef");
+    KEYS("0l<C-v>2j3lA-<Esc>", "a" X "bcde-f" N "x    -" N "abcde-f");
+    data.setText("abcdef" N "x" N "abcdef");
+    KEYS("0l<C-v>2j3ly0P", X "bcdeabcdef" N "    x" N "bcdeabcdef");
+
+    // The flag says blockwise, so neither command mode nor insert mode has
+    // that space.
+    data.setText("abc");
+    KEYS("$li*<Esc>", "ab" X "*c");
+    data.setText("abc");
+    KEYS("A<Right><Right>-<Esc>", "abc" X "-");
+
+    data.doCommand("set ve=");
 }
 
 } // FakeVim::Internal

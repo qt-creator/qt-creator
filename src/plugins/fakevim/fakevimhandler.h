@@ -244,7 +244,8 @@ public:
     Callback<void()> findHideRequested;
     Callback<void(bool *handled, const ExCommand &cmd)> handleExCommandRequested;
     Callback<void()> requestDisableBlockSelection;
-    Callback<void(const QTextCursor &cursor, bool toEndOfLine)> requestSetBlockSelection;
+    Callback<void(const QTextCursor &cursor, int caretPosition, bool toEndOfLine)>
+        requestSetBlockSelection;
     Callback<void(QTextCursor *cursor)> requestBlockSelection;
     Callback<void(bool *on)> requestHasBlockSelection;
     Callback<void(int depth)> foldToggle;
@@ -297,8 +298,9 @@ public:
     // CTRL-^: edit the alternate file, the previously active one.
     Callback<void()> alternateFileRequested;
     // gf, gF: open the file named under the cursor, gF at the line the number
-    // behind the name says. Line 0 asks for no particular line.
-    Callback<void(const QString &fileName, int line)> fileOpenRequested;
+    // behind the name says, and ":cc" on an entry of another file. Line 0 asks
+    // for no particular line, column 0 for no particular column.
+    Callback<void(const QString &fileName, int line, int column)> fileOpenRequested;
     // Move in Qt Creator's global navigation history when the buffer-local
     // jump list is exhausted, so CTRL-O / CTRL-I cross files. Negative distance
     // goes back, positive forward (QTCREATORBUG-12114).

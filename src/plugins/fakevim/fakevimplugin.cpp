@@ -478,6 +478,9 @@ public:
     };
 
     QHash<IEditor *, HandlerAndData> m_editorToHandler;
+    // Set while ":qall" is closing everything, which is what tells the exit
+    // apart from a buffer being closed on its own.
+    bool m_quittingAll = false;
 
     void setActionChecked(Id id, bool check);
 
@@ -2004,7 +2007,9 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             tew->setTextCursor(tew->textCursor());
     });
 
-    handler->requestSetBlockSelection.set([tew](const QTextCursor &cursor, bool toEndOfLine) {
+    handler->requestSetBlockSelection.set([tew](const QTextCursor &cursor,
+                                                int caretPosition,
+                                                bool toEndOfLine) {
         if (tew) {
             const TabSettingsData &tabs = tew->textDocument()->tabSettings();
             MultiTextCursor mtc;
@@ -2018,11 +2023,17 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
                 if (columns >= anchor || (!toEndOfLine && columns >= pos)) {
                     QTextCursor c(block);
                     c.setPosition(block.position() + tabs.positionAtColumn(block.text(), anchor));
+                    int endPosition = block.position() + tabs.positionAtColumn(block.text(), pos);
                     // After '$' the selection extends to the end of each line
                     // rather than to a fixed column (QTCREATORBUG-22192).
-                    const int endPosition = toEndOfLine
-                            ? block.position() + block.length() - 1
-                            : block.position() + tabs.positionAtColumn(block.text(), pos);
+                    if (toEndOfLine) {
+                        endPosition = block.position() + block.length() - 1;
+                    } else if (block == cursor.block()) {
+                        // The caret is this cursor's position, and Vim puts it on
+                        // the column the rectangle ends at rather than past it.
+                        // The thick cursor covers that column.
+                        endPosition = caretPosition;
+                    }
                     c.setPosition(endPosition, QTextCursor::KeepAnchor);
                     mtc.addCursor(c);
                 }
@@ -2319,10 +2330,10 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             }
         });
 
-    handler->fileOpenRequested.set([](const QString &fileName, int line) {
+    handler->fileOpenRequested.set([](const QString &fileName, int line, int column) {
         const FilePath path = FilePath::fromString(fileName);
         if (line > 0)
-            EditorManager::openEditorAt(Link(path, line));
+            EditorManager::openEditorAt(Link(path, line, qMax(0, column - 1)));
         else
             EditorManager::openEditor(path);
     });
@@ -2534,7 +2545,14 @@ void FakeVimPlugin::editorAboutToClose(IEditor *editor)
     if (FakeVimHandler *handler = m_editorToHandler.value(editor, {}).handler) {
         handler->triggerAutocmd("BufWinLeave");
         handler->triggerAutocmd("BufUnload");
-        handler->triggerAutocmd("BufDelete");
+        // On the way out Vim unloads a buffer but does not drop it from the
+        // list, and announces the exit once the last one is gone (measured).
+        if (!m_quittingAll)
+            handler->triggerAutocmd("BufDelete");
+        else if (m_editorToHandler.size() == 1) {
+            handler->triggerAutocmd("VimLeavePre");
+            handler->triggerAutocmd("VimLeave");
+        }
     }
     m_editorToHandler.remove(editor);
     if (m_alternateFileEditor == editor)
@@ -2826,8 +2844,10 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
             handler->showMessage(MessageError,
                 Tr::tr("E345: Can't find file \"%1\" in path").arg(name));
         }
-    } else if (cmd.matches("bd", "bdelete")) {
-        // :bd[elete]
+    } else if (cmd.matches("bd", "bdelete") && cmd.args.isEmpty() && !cmd.hasRange) {
+        // :bd[elete] of the buffer on show, which is this editor's document.
+        // One that names another buffer is the handler's, which keeps the
+        // buffers a script added.
         emit delayedBufferDeleteRequested(cmd.hasBang, editorFromHandler());
     } else if (cmd.matches("q", "quit")) {
         // :q[uit]
@@ -3015,8 +3035,18 @@ void FakeVimPlugin::handleDelayedQuit(bool forced, IEditor *editor)
 
 void FakeVimPlugin::handleDelayedQuitAll(bool forced)
 {
+    // Vim's exit sequence, measured on ":qa!": QuitPre and ExitPre once
+    // before the buffers go, each named after the current one, then the
+    // buffers leaving their windows and unloading, then VimLeavePre and
+    // VimLeave through the last buffer to go. WinLeave does NOT fire on the
+    // way out. What ends here is every editor and not the program, so the
+    // last two are an analogue of Vim leaving rather than the thing itself.
+    triggerAutocmdInAnyBuffer("QuitPre", {});
+    triggerAutocmdInAnyBuffer("ExitPre", {});
+    m_quittingAll = true;
     triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
     EditorManager::closeAllEditors(!forced);
+    m_quittingAll = false;
 }
 
 void FakeVimPlugin::handleBufferDelete(bool forced, IEditor *editor)
