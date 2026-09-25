@@ -171,6 +171,12 @@ private:
         // Where the code nearest to the line is, which is where it stops.
         int actualLine = 0;
         bool enabled = true;
+        // Worked out here at every hit, since the protocol has no conditions
+        // and its count modifier stops the request rather than ignoring it.
+        QString condition;
+        int ignoreCount = 0;
+        int hits = 0;
+        int ignoredSince = 0;
         // Behind a run to a line, and invisible to the model.
         bool internal = false;
         // Whether the model has heard about it yet.
@@ -238,8 +244,14 @@ private:
     // machine, and a resume gives back exactly those it holds.
     void resumeFromStop();
     void reportRunOk();
-    void reportStop(quint64 thread, const JdwpLocation &location);
-    void reportStopAt(quint64 thread, const JdwpLocation &location);
+    void reportStop(const QList<JdwpEvent> &hits);
+    void reportStopAt(quint64 thread, const JdwpLocation &location,
+                      const QList<JdwpEvent> &hits = {});
+    // Whether a hit is one to stop at: its condition holds, and it is not one
+    // of the first that are to be ignored.
+    void decideOnHit(quint8 eventKind, qint32 requestId, const std::function<void(bool)> &done);
+    void decideOnHits(QList<JdwpEvent> hits, bool stop, const std::function<void(bool)> &done);
+    Breakpoint *breakpointOfRequest(quint8 eventKind, qint32 requestId);
     void stopAfterInterrupt();
     void step(Jdwp::StepDepth depth, bool byInstruction);
     void runToLine(const ContextData &context);
@@ -316,6 +328,7 @@ private:
     bool m_suspendedForSetup = false;
     bool m_running = false;
     bool m_interruptRequested = false;
+    bool m_decidingOnHit = false;
     bool m_runRequestPending = false;
     bool m_shuttingDown = false;
     bool m_shutdownReported = false;
@@ -324,7 +337,7 @@ private:
     int m_extraSuspends = 0;
     // Stops that other threads ran into while one was being reported. Each
     // holds a suspension of its own, and comes next.
-    QList<JdwpEvent> m_pendingStops;
+    QList<QList<JdwpEvent>> m_pendingStops;
 
     QHash<quint64, ClassInfo> m_classes;
     // The files the breakpoints were set in, by their path below the package root.
@@ -339,9 +352,12 @@ private:
     int m_currentFrame = 0;
     QList<Frame> m_frames;
     bool m_framesComplete = false;
-    // Changes with every resume, which makes what the stop before it had
-    // fetched stale.
+    // Changes with every resume and with every thread selected, which makes
+    // what was fetched before it stale.
     int m_stopGeneration = 0;
+    // Changes with every resume alone, which is what tells a stop that is
+    // still being decided on that the machine was let go without it.
+    int m_runGeneration = 0;
 
     quint64 m_localsRequestId = 0;
     // What the views last asked for, which a write makes stale.

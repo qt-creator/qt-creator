@@ -147,7 +147,8 @@ static QString threadStatusText(int status)
 static DebuggerEngineSetupData jdwpImplSetupData()
 {
     DebuggerEngineSetupData data;
-    data.capabilities = RunToLineCapability;
+    data.capabilities = RunToLineCapability | AddWatcherCapability
+                      | BreakConditionCapability;
     data.extraCapabilities = DebuggerExtraCapability::Threads
                            | DebuggerExtraCapability::ThreadEvent;
     data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToRemoteServer;
@@ -451,7 +452,12 @@ void JdwpImpl::execute(const ExecutionRequest &request)
         return;
     case ExecutionCommand::Interrupt:
         if (!m_running) {
-            emit inferiorEvent(InferiorEvent::StopOk);
+            // A hit whose condition is still being worked out holds the
+            // machine already, and that stop is what answers the interrupt.
+            if (m_decidingOnHit)
+                m_interruptRequested = true;
+            else
+                emit inferiorEvent(InferiorEvent::StopOk);
             return;
         }
         m_interruptRequested = true;
@@ -518,6 +524,7 @@ void JdwpImpl::execute(const ExecutionRequest &request)
 void JdwpImpl::resumeFromStop()
 {
     ++m_stopGeneration;
+    ++m_runGeneration;
     m_frames.clear();
     m_framesComplete = false;
     const int suspensions = 1 + std::exchange(m_extraSuspends, 0);
@@ -527,9 +534,9 @@ void JdwpImpl::resumeFromStop()
         // machine stays where it is, and that stop is reported right away.
         for (int i = 0; i < suspensions; ++i)
             send(Jdwp::VirtualMachineSet, Jdwp::VmResume);
-        const JdwpEvent next = m_pendingStops.takeFirst();
+        const QList<JdwpEvent> next = m_pendingStops.takeFirst();
         QMetaObject::invokeMethod(this, [this, next] {
-            reportStopAt(next.thread, next.location);
+            reportStopAt(next.first().thread, next.first().location, next);
         }, Qt::QueuedConnection);
         return;
     }
@@ -625,7 +632,9 @@ void JdwpImpl::handleEventSet(const JdwpEventSet &set)
 {
     const bool suspended = set.suspendPolicy != Jdwp::SuspendNone;
     QList<JdwpEvent> classPrepares;
-    std::optional<JdwpEvent> stop;
+    // Everything that stops at one place comes in one set, and it takes only
+    // one of them to mean it.
+    QList<JdwpEvent> stops;
 
     for (const JdwpEvent &event : set.events) {
         switch (event.kind) {
@@ -646,21 +655,17 @@ void JdwpImpl::handleEventSet(const JdwpEventSet &set)
             break;
         case Jdwp::BreakpointEvent:
         case Jdwp::SingleStepEvent:
-            if (!stop)
-                stop = event;
+            stops.append(event);
             break;
         default:
             break;
         }
     }
 
-    if (stop) {
+    if (!stops.isEmpty()) {
         // The stop holds the suspension the set came with, and gives it back
         // when it is over.
-        const JdwpEvent event = *stop;
-        handleClassPrepares(classPrepares, [this, event] {
-            reportStop(event.thread, event.location);
-        });
+        handleClassPrepares(classPrepares, [this, stops] { reportStop(stops); });
         return;
     }
 
@@ -686,19 +691,100 @@ void JdwpImpl::handleEventSet(const JdwpEventSet &set)
         send(Jdwp::VirtualMachineSet, Jdwp::VmResume);
 }
 
-void JdwpImpl::reportStop(quint64 thread, const JdwpLocation &location)
+void JdwpImpl::reportStop(const QList<JdwpEvent> &hits)
 {
     if (!m_running) {
-        JdwpEvent event;
-        event.thread = thread;
-        event.location = location;
-        m_pendingStops.append(event);
+        m_pendingStops.append(hits);
         return;
     }
-    reportStopAt(thread, location);
+    reportStopAt(hits.first().thread, hits.first().location, hits);
 }
 
-void JdwpImpl::reportStopAt(quint64 thread, const JdwpLocation &location)
+// The protocol numbers a request within its kind, so the request a step was
+// registered under can carry the same number as a breakpoint's.
+JdwpImpl::Breakpoint *JdwpImpl::breakpointOfRequest(quint8 eventKind, qint32 requestId)
+{
+    if (eventKind != Jdwp::BreakpointEvent || requestId == 0)
+        return nullptr;
+    for (Breakpoint &bp : m_breakpoints) {
+        if (bp.requests.contains(requestId))
+            return &bp;
+    }
+    return nullptr;
+}
+
+// A condition the virtual machine cannot be asked about is worked out here,
+// with the thread suspended where it stopped, and the stop given up if it
+// does not hold. A condition that cannot be read stops, since going on past
+// it silently would be worse.
+void JdwpImpl::decideOnHit(quint8 eventKind, qint32 requestId,
+                           const std::function<void(bool)> &done)
+{
+    Breakpoint *bp = breakpointOfRequest(eventKind, requestId);
+    if (!bp) {
+        done(true);
+        return;
+    }
+    const QString number = bp->number;
+    const QString condition = bp->condition;
+    const auto counted = [this, number] {
+        Breakpoint *bp = breakpoint(number);
+        if (!bp)
+            return true;
+        ++bp->hits;
+        if (!bp->internal) {
+            GdbMi data;
+            data.m_type = GdbMi::List;
+            data.addChild(breakpointData(*bp));
+            emit breakpointModified(data);
+        }
+        return bp->hits - bp->ignoredSince > bp->ignoreCount;
+    };
+
+    if (condition.isEmpty()) {
+        done(counted());
+        return;
+    }
+    const Result<JdwpExpression> parsed = parseJdwpExpression(condition);
+    if (!parsed) {
+        emit message(Tr::tr("The condition of breakpoint %1 cannot be read: %2")
+                         .arg(number, parsed.error()), LogWarning);
+        done(true);
+        return;
+    }
+    evaluate(*parsed, [this, number, counted, done](const Evaluated &result) {
+        if (!result.error.isEmpty()) {
+            emit message(Tr::tr("The condition of breakpoint %1 could not be worked out: %2")
+                             .arg(number, result.error), LogWarning);
+            done(true);
+            return;
+        }
+        if (result.value.tag != Jdwp::BooleanValueTag) {
+            emit message(Tr::tr("The condition of breakpoint %1 is not a boolean.").arg(number),
+                         LogWarning);
+            done(true);
+            return;
+        }
+        done(result.value.bits != 0 && counted());
+    });
+}
+
+// Every breakpoint hit counts its hit, even where another one already stops.
+void JdwpImpl::decideOnHits(QList<JdwpEvent> hits, bool stop,
+                            const std::function<void(bool)> &done)
+{
+    if (hits.isEmpty()) {
+        done(stop);
+        return;
+    }
+    const JdwpEvent hit = hits.takeFirst();
+    decideOnHit(hit.kind, hit.requestId, [this, hits, stop, done](bool yes) {
+        decideOnHits(hits, stop || yes, done);
+    });
+}
+
+void JdwpImpl::reportStopAt(quint64 thread, const JdwpLocation &location,
+                            const QList<JdwpEvent> &hits)
 {
     m_running = false;
     ++m_stopGeneration;
@@ -706,18 +792,38 @@ void JdwpImpl::reportStopAt(quint64 thread, const JdwpLocation &location)
     m_currentFrame = 0;
     m_frames.clear();
     m_framesComplete = false;
-    // A step can end before the answer to its resume has been read.
-    reportRunOk();
-    clearTransientRequests();
 
-    const bool requested = std::exchange(m_interruptRequested, false);
-    const int generation = m_stopGeneration;
-    resolveLocation(location, [this, requested, generation](const ResolvedLocation &resolved) {
-        if (generation != m_stopGeneration)
+    // Only a resume gives up on this stop. A thread selected in the meantime
+    // moves on the other generation, and the suspension this holds would be
+    // lost for good if that ended the stop here.
+    const int generation = m_runGeneration;
+    m_decidingOnHit = true;
+    decideOnHits(hits, hits.isEmpty(), [this, location, generation](bool stop) {
+        m_decidingOnHit = false;
+        if (generation != m_runGeneration)
             return;
-        if (resolved.line > 0 && resolved.file.exists())
-            emit locationChanged(resolved.file, resolved.line);
-        emit inferiorEvent(requested ? InferiorEvent::StopOk : InferiorEvent::SpontaneousStop);
+        // An interrupt is answered by wherever the machine is, so a hit that
+        // is given up on is still where it stops, and the flag is spent here
+        // either way: a later stop of its own is not what was asked for.
+        const bool requested = std::exchange(m_interruptRequested, false);
+        if (!stop && !requested) {
+            resumeFromStop();
+            return;
+        }
+        // A step can end before the answer to its resume has been read.
+        reportRunOk();
+        clearTransientRequests();
+
+        const int stopGeneration = m_stopGeneration;
+        resolveLocation(location, [this, requested, generation,
+                                   stopGeneration](const ResolvedLocation &resolved) {
+            if (generation != m_runGeneration)
+                return;
+            if (stopGeneration == m_stopGeneration && resolved.line > 0 && resolved.file.exists())
+                emit locationChanged(resolved.file, resolved.line);
+            emit inferiorEvent(requested ? InferiorEvent::StopOk
+                                         : InferiorEvent::SpontaneousStop);
+        });
     });
 }
 
@@ -1095,6 +1201,7 @@ GdbMi JdwpImpl::breakpointData(const Breakpoint &bp) const
     bkpt.addChild(constMi("line", QString::number(bp.actualLine ? bp.actualLine : bp.line)));
     bkpt.addChild(constMi("enabled", bp.enabled ? "y" : "n"));
     bkpt.addChild(constMi("pending", bp.locations.isEmpty() ? "1" : "0"));
+    bkpt.addChild(constMi("times", QString::number(bp.hits)));
     return bkpt;
 }
 
@@ -1104,6 +1211,11 @@ void JdwpImpl::updateFromBreakpointRequest(Breakpoint &bp, const BreakpointParam
     bp.sourceName = params.fileName.fileName();
     bp.line = params.textPosition.line;
     bp.enabled = params.enabled;
+    bp.condition = params.condition;
+    // As in gdb, a count ignores the hits from the time it is set on.
+    if (params.ignoreCount != bp.ignoreCount)
+        bp.ignoredSince = bp.hits;
+    bp.ignoreCount = params.ignoreCount;
     bp.packageKnown = false;
     bp.packagePath.clear();
     // The class signatures name the package, and the file says which one it

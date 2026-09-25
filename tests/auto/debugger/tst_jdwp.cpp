@@ -54,8 +54,10 @@ public:
             m_events.append(event);
             // The engine hands its breakpoints over while it hears this.
             if (event == InferiorEvent::EngineSetupOk) {
-                for (const auto &[file, line] : std::as_const(m_initialBreakpoints))
-                    insertBreakpoint(file, line);
+                for (const auto &[file, line, condition, ignoreCount]
+                     : std::as_const(m_initialBreakpoints)) {
+                    insertBreakpoint(file, line, condition, ignoreCount);
+                }
             }
         });
         connect(m_engine.get(), &DebuggerEngineInterface::locationChanged, this,
@@ -84,9 +86,10 @@ public:
 
     ~DebuggerBackend() override { m_engine->disconnect(); }
 
-    void addInitialBreakpoint(const FilePath &file, int line)
+    void addInitialBreakpoint(const FilePath &file, int line, const QString &condition = {},
+                              int ignoreCount = 0)
     {
-        m_initialBreakpoints.append({file, line});
+        m_initialBreakpoints.append({file, line, condition, ignoreCount});
     }
 
     void start() { m_engine->start(); }
@@ -97,7 +100,8 @@ public:
     void selectThread(const QString &id) { m_engine->selectThread(id); }
     void activateFrame(int index) { m_engine->activateFrame(index); }
 
-    quint64 insertBreakpoint(const FilePath &file, int line)
+    quint64 insertBreakpoint(const FilePath &file, int line, const QString &condition = {},
+                             int ignoreCount = 0)
     {
         BreakpointChangeRequest request;
         request.op = BreakpointOp::Insert;
@@ -106,6 +110,8 @@ public:
         request.params.fileName = file;
         request.params.textPosition = {line, -1};
         request.params.enabled = true;
+        request.params.condition = condition;
+        request.params.ignoreCount = ignoreCount;
         m_engine->changeBreakpoint(request);
         return request.requestId;
     }
@@ -121,7 +127,7 @@ public:
     }
 
     quint64 setBreakpointEnabled(const QString &number, const FilePath &file, int line,
-                                 bool enabled)
+                                 bool enabled, int ignoreCount = 0)
     {
         BreakpointChangeRequest request;
         request.op = BreakpointOp::Update;
@@ -131,6 +137,7 @@ public:
         request.params.fileName = file;
         request.params.textPosition = {line, -1};
         request.params.enabled = enabled;
+        request.params.ignoreCount = ignoreCount;
         m_engine->changeBreakpoint(request);
         return request.requestId;
     }
@@ -190,7 +197,15 @@ public:
 
 private:
     std::unique_ptr<DebuggerEngineInterface> m_engine;
-    QList<QPair<FilePath, int>> m_initialBreakpoints;
+    class InitialBreakpoint
+    {
+    public:
+        FilePath file;
+        int line = 0;
+        QString condition;
+        int ignoreCount = 0;
+    };
+    QList<InitialBreakpoint> m_initialBreakpoints;
     QList<InferiorEvent> m_events;
     QHash<quint64, QPair<bool, GdbMi>> m_breakpointAnswers;
     QHash<quint64, GdbMi> m_refreshes;
@@ -390,6 +405,10 @@ private slots:
     void readsAWatcherOfThis();
     void readsAndWritesStringsTheMachineWay();
     void writesValues();
+    void stopsOnlyWhereAConditionHolds();
+    void ignoresTheFirstHits();
+    void ignoresHitsFromWhenTheCountIsSet();
+    void stopsWhenAConditionCannotBeWorkedOut();
     void listsTheThreads();
     void doesNotStopAtARemovedBreakpoint();
     void doesNotStopAtADisabledBreakpoint();
@@ -1063,6 +1082,101 @@ void tst_jdwp::writesValues()
              QString::number(std::numeric_limits<qint32>::max()));
     // The locals show the same, since that is where the values are.
     QCOMPARE(childNamed(data, "number")["type"].data(), QString("int"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::stopsOnlyWhereAConditionHolds()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    // The loop adds 1, 2 and 3 in turn, so each of these holds on one round
+    // only. Both are hit at the same place, and neither may hide the other.
+    backend->addInitialBreakpoint(m_inferiorSource, loopLine, "total == 3");
+    backend->addInitialBreakpoint(m_inferiorSource, loopLine, "total == 1");
+    backend->start();
+    const auto total = [&backend](quint64 request) {
+        return childNamed(backend->refreshData(request)["data"], "total")["value"].data();
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), loopLine);
+    const quint64 first = backend->refresh(RefreshKind::Locals, {}, {"total"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(first), s_timeoutMs);
+    QCOMPARE(total(first), QString("1"));
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), loopLine);
+    const quint64 second = backend->refresh(RefreshKind::Locals, {}, {"total"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(second), s_timeoutMs);
+    QCOMPARE(total(second), QString("3"));
+
+    // Nothing else in the program satisfies them, so the run goes to the end.
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(!backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(2));
+    QCOMPARE(backend->results().first().exitCode, 3);
+}
+
+void tst_jdwp::ignoresTheFirstHits()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, loopLine, {}, 2);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), loopLine);
+
+    // The first two rounds were passed over, so this is the third.
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, {"value"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    QCOMPARE(childNamed(backend->refreshData(request)["data"], "value")["value"].data(),
+             QString("3"));
+    // The ones passed over count as hits too, as they do in the views of gdb.
+    QVERIFY(!backend->modified().isEmpty());
+    QCOMPARE(backend->modified().last().childAt(0)["times"].data(), QString("3"));
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(!backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+}
+
+void tst_jdwp::ignoresHitsFromWhenTheCountIsSet()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, loopLine);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // One hit is behind it already, and the count is about the ones to come.
+    const quint64 update = backend->setBreakpointEnabled(backend->numberOf(1), m_inferiorSource,
+                                                         loopLine, true, 1);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(update), s_timeoutMs);
+    QVERIFY(backend->answeredOk(update));
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, {"value"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    QCOMPARE(childNamed(backend->refreshData(request)["data"], "value")["value"].data(),
+             QString("3"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::stopsWhenAConditionCannotBeWorkedOut()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, loopLine, "nothingHere == 1");
+    backend->start();
+    // A condition that cannot be worked out stops, and says why.
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), loopLine);
+    QVERIFY(backend->log().contains("condition of breakpoint"));
 
     backend->shutdownInferior(ShutdownMode::Kill);
     QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
