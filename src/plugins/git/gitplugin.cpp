@@ -84,6 +84,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
@@ -2478,6 +2479,7 @@ private slots:
     void testRebaseActionSelection();
     void testSubmitMessageSpellCheck();
     void testDiffDescriptionEditor();
+    void testRebaseAction();
 };
 
 void GitTest::testStatusParsing_data()
@@ -2631,6 +2633,107 @@ void GitTest::testDiffFileResolving_data()
 void GitTest::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->commitTextEditorFactory);
+}
+
+void GitTest::testRebaseAction()
+{
+    auto editor = qobject_cast<VcsBaseEditor *>(dd->rebaseEditorFactory.createEditor());
+    QVERIFY(editor);
+    const QScopeGuard deleteEditor([editor] { delete editor; });
+    auto widget = qobject_cast<GitEditorWidget *>(editor->editorWidget());
+    QVERIFY(widget);
+    widget->setReadOnly(false);
+    widget->show();
+    widget->setFocus();
+
+    const auto setCursor = [widget](int position) {
+        QTextCursor cursor(widget->document());
+        cursor.setPosition(position);
+        widget->setMultiTextCursor(MultiTextCursor({cursor}));
+    };
+    const auto setSelection = [widget](int start, int end) {
+        QTextCursor cursor(widget->document());
+        cursor.setPosition(start);
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+        widget->setMultiTextCursor(MultiTextCursor({cursor}));
+    };
+    const auto setReversedSelection = [widget](int start, int end) {
+        QTextCursor cursor(widget->document());
+        cursor.setPosition(end);
+        cursor.setPosition(start, QTextCursor::KeepAnchor);
+        widget->setMultiTextCursor(MultiTextCursor({cursor}));
+    };
+    const auto press = [widget](Qt::Key key, const QString &text) {
+        QKeyEvent event(QEvent::KeyPress, key, {}, text);
+        QCoreApplication::sendEvent(widget, &event);
+    };
+
+    const QString todo = "pick abc\nreword def\nsquash ghi\n";
+
+    // Replace one action at a single cursor.
+    widget->setPlainText(todo);
+    setCursor(0);
+    press(Qt::Key_E, "e");
+    QCOMPARE(widget->toPlainText(), "edit abc\nreword def\nsquash ghi\n");
+
+    // Replace actions on several complete lines.
+    widget->setPlainText(todo);
+    setSelection(0, todo.indexOf("squash"));
+    press(Qt::Key_E, "e");
+    QCOMPARE(widget->toPlainText(), "edit abc\nedit def\nsquash ghi\n");
+
+    // Replace actions in a reversed full-line selection.
+    widget->setPlainText(todo);
+    setReversedSelection(0, todo.indexOf("squash"));
+    press(Qt::Key_E, "e");
+    QCOMPARE(widget->toPlainText(), "edit abc\nedit def\nsquash ghi\n");
+
+    // Replace every valid action line in the selection.
+    widget->setPlainText(todo);
+    const QTextBlock lastBlock = widget->document()->findBlockByNumber(2);
+    setSelection(0, lastBlock.position() + lastBlock.text().size());
+    press(Qt::Key_E, "e");
+    QCOMPARE(widget->toPlainText(), "edit abc\nedit def\nedit ghi\n");
+
+    // A partial-line selection uses normal editor replacement behavior.
+    widget->setPlainText(todo);
+    setSelection(1, todo.indexOf("squash"));
+    press(Qt::Key_E, "e");
+    QCOMPARE(widget->toPlainText(), "pesquash ghi\n");
+
+    // A selection containing a comment uses normal editor replacement behavior.
+    const QString todoWithComment = todo + "# comment\n";
+    widget->setPlainText(todoWithComment);
+    setSelection(0, todoWithComment.size() - 1);
+    press(Qt::Key_E, "e");
+    QCOMPARE(widget->toPlainText(), "e\n");
+
+    // An unrelated key uses normal editor replacement behavior.
+    widget->setPlainText(todo);
+    setSelection(0, todo.indexOf("reword"));
+    press(Qt::Key_Z, "z");
+    QCOMPARE(widget->toPlainText(), "zreword def\nsquash ghi\n");
+
+    // Keep deletion available for selected text.
+    widget->setPlainText(todo);
+    setSelection(0, todo.indexOf('\n'));
+    press(Qt::Key_Delete, {});
+    QCOMPARE(widget->toPlainText(), "\nreword def\nsquash ghi\n");
+
+    // Keep backspace available for selected text.
+    widget->setPlainText(todo);
+    setSelection(0, todo.indexOf('\n'));
+    press(Qt::Key_Backspace, {});
+    QCOMPARE(widget->toPlainText(), "\nreword def\nsquash ghi\n");
+
+    // Replace actions at independent cursors without a selection.
+    widget->setPlainText(todo);
+    QTextCursor firstCursor(widget->document());
+    QTextCursor thirdCursor(widget->document());
+    thirdCursor.setPosition(todo.indexOf("squash"));
+    widget->setMultiTextCursor(MultiTextCursor({firstCursor, thirdCursor}));
+    press(Qt::Key_E, "e");
+    QCOMPARE(widget->toPlainText(), "edit abc\nreword def\nedit ghi\n");
 }
 
 void GitTest::testLogResolving()
