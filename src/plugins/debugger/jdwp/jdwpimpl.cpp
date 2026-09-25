@@ -1705,6 +1705,200 @@ void JdwpImpl::withCurrentFrame(const std::function<void(const Frame *)> &done)
     });
 }
 
+static bool isFloating(quint8 tag)
+{
+    return tag == Jdwp::FloatValueTag || tag == Jdwp::DoubleValueTag;
+}
+
+static bool isNumeric(quint8 tag)
+{
+    return Jdwp::isPrimitiveTag(tag) && tag != Jdwp::BooleanValueTag;
+}
+
+static double asDouble(const JdwpValue &value)
+{
+    if (value.tag == Jdwp::FloatValueTag) {
+        const quint32 bits = quint32(value.bits);
+        float f = 0;
+        std::memcpy(&f, &bits, sizeof(f));
+        return f;
+    }
+    if (value.tag == Jdwp::DoubleValueTag) {
+        const quint64 bits = value.bits;
+        double d = 0;
+        std::memcpy(&d, &bits, sizeof(d));
+        return d;
+    }
+    if (value.tag == Jdwp::CharValueTag)
+        return double(quint16(value.bits));
+    return double(qint64(value.bits));
+}
+
+// What a Java cast of a floating value to an integral type of this width
+// gives: a value that does not fit stops at the end of the range, where the
+// conversion would be undefined here.
+static qint64 saturated(double number, bool wide)
+{
+    if (std::isnan(number))
+        return 0;
+    const qint64 high = wide ? std::numeric_limits<qint64>::max()
+                             : std::numeric_limits<qint32>::max();
+    const qint64 low = wide ? std::numeric_limits<qint64>::min()
+                            : std::numeric_limits<qint32>::min();
+    if (number >= double(high))
+        return high;
+    return number <= double(low) ? low : qint64(number);
+}
+
+static qint64 asInteger(const JdwpValue &value)
+{
+    if (isFloating(value.tag))
+        return saturated(asDouble(value), true);
+    if (value.tag == Jdwp::CharValueTag)
+        return qint64(quint16(value.bits));
+    return qint64(value.bits);
+}
+
+// Java wraps where signed arithmetic overflows, which C++ leaves undefined.
+static qint64 wrapped(quint64 bits)
+{
+    return qint64(bits);
+}
+
+static JdwpValue madeOf(double number)
+{
+    quint64 bits = 0;
+    std::memcpy(&bits, &number, sizeof(number));
+    return {Jdwp::DoubleValueTag, bits};
+}
+
+static JdwpValue madeOf(float number)
+{
+    quint32 bits = 0;
+    std::memcpy(&bits, &number, sizeof(number));
+    return {Jdwp::FloatValueTag, bits};
+}
+
+static JdwpValue madeOf(qint64 number, bool wide)
+{
+    return {quint8(wide ? Jdwp::LongValueTag : Jdwp::IntValueTag),
+            wide ? quint64(number) : quint64(qint32(number))};
+}
+
+static JdwpValue madeOf(bool yes)
+{
+    return {Jdwp::BooleanValueTag, quint64(yes ? 1 : 0)};
+}
+
+// What Java makes of two values and an operator, as far as it needs no code to
+// run in the virtual machine. The promotions are Java's: a double operand
+// makes the result double, else a float one float, else a long one long, and
+// anything narrower is an int.
+static Utils::Result<JdwpValue> combined(JdwpExpression::Operator op, const JdwpValue &left,
+                                         const JdwpValue &right)
+{
+    using Op = JdwpExpression::Operator;
+    const bool comparison = op == Op::Equal || op == Op::NotEqual;
+    if (left.isObject() || right.isObject()) {
+        if (!comparison) {
+            return ResultError(Tr::tr("An object is not something to do arithmetic on, and "
+                                      "a method cannot be called here."));
+        }
+        if (!left.isObject() || !right.isObject())
+            return ResultError(Tr::tr("An object and a number cannot be compared."));
+        // Java compares the references, and so does this.
+        return madeOf((left.bits == right.bits) == (op == Op::Equal));
+    }
+    if (left.tag == Jdwp::BooleanValueTag || right.tag == Jdwp::BooleanValueTag) {
+        if (left.tag != right.tag || !comparison)
+            return ResultError(Tr::tr("A boolean can only be compared with a boolean."));
+        return madeOf(((left.bits != 0) == (right.bits != 0)) == (op == Op::Equal));
+    }
+    if (!isNumeric(left.tag) || !isNumeric(right.tag))
+        return ResultError(Tr::tr("These are not values to combine."));
+
+    const bool real = isFloating(left.tag) || isFloating(right.tag);
+    const bool wide = left.tag == Jdwp::LongValueTag || right.tag == Jdwp::LongValueTag;
+    if (real) {
+        // Float arithmetic done in double and rounded once is exact, while the
+        // operands have to be rounded to float first.
+        const bool single = left.tag != Jdwp::DoubleValueTag
+                            && right.tag != Jdwp::DoubleValueTag;
+        const auto operand = [single](const JdwpValue &value) -> double {
+            if (!single || value.tag == Jdwp::FloatValueTag)
+                return asDouble(value);
+            return isFloating(value.tag) ? float(asDouble(value)) : float(asInteger(value));
+        };
+        const auto number = [single](double result) {
+            return single ? madeOf(float(result)) : madeOf(result);
+        };
+        const double a = operand(left);
+        const double b = operand(right);
+        switch (op) {
+        case Op::Add: return number(a + b);
+        case Op::Subtract: return number(a - b);
+        case Op::Multiply: return number(a * b);
+        case Op::Divide: return number(a / b);
+        case Op::Remainder: return number(std::fmod(a, b));
+        case Op::Less: return madeOf(a < b);
+        case Op::LessEqual: return madeOf(a <= b);
+        case Op::Greater: return madeOf(a > b);
+        case Op::GreaterEqual: return madeOf(a >= b);
+        case Op::Equal: return madeOf(a == b);
+        case Op::NotEqual: return madeOf(a != b);
+        default: break;
+        }
+        return ResultError(Tr::tr("This operator does not work on numbers."));
+    }
+    const qint64 a = asInteger(left);
+    const qint64 b = asInteger(right);
+    switch (op) {
+    case Op::Add: return madeOf(wrapped(quint64(a) + quint64(b)), wide);
+    case Op::Subtract: return madeOf(wrapped(quint64(a) - quint64(b)), wide);
+    case Op::Multiply: return madeOf(wrapped(quint64(a) * quint64(b)), wide);
+    case Op::Divide:
+    case Op::Remainder:
+        if (b == 0)
+            return ResultError(Tr::tr("The virtual machine would divide by zero."));
+        // The one division that overflows traps here but wraps in Java.
+        if (a == std::numeric_limits<qint64>::min() && b == -1)
+            return madeOf(op == Op::Divide ? a : 0, wide);
+        return madeOf(op == Op::Divide ? a / b : a % b, wide);
+    case Op::Less: return madeOf(a < b);
+    case Op::LessEqual: return madeOf(a <= b);
+    case Op::Greater: return madeOf(a > b);
+    case Op::GreaterEqual: return madeOf(a >= b);
+    case Op::Equal: return madeOf(a == b);
+    case Op::NotEqual: return madeOf(a != b);
+    default: break;
+    }
+    return ResultError(Tr::tr("This operator does not work on numbers."));
+}
+
+static Utils::Result<JdwpValue> negatedOrFlipped(JdwpExpression::Operator op,
+                                                 const JdwpValue &value)
+{
+    if (op == JdwpExpression::Operator::Not) {
+        if (value.tag != Jdwp::BooleanValueTag)
+            return ResultError(Tr::tr("Only a boolean can be negated with \"!\"."));
+        return madeOf(value.bits == 0);
+    }
+    if (!isNumeric(value.tag))
+        return ResultError(Tr::tr("Only a number can be negated with \"-\"."));
+    if (value.tag == Jdwp::FloatValueTag)
+        return madeOf(-float(asDouble(value)));
+    if (isFloating(value.tag))
+        return madeOf(-asDouble(value));
+    return madeOf(wrapped(0 - quint64(asInteger(value))), value.tag == Jdwp::LongValueTag);
+}
+
+// The type a value that came out of an operator is shown with.
+static QString typeOf(const JdwpValue &value)
+{
+    return Jdwp::isPrimitiveTag(value.tag) ? typeName(QChar::fromLatin1(char(value.tag)))
+                                           : QString();
+}
+
 void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done)
 {
     const auto literal = [&done, &expression](quint8 tag, quint64 bits) {
@@ -1787,7 +1981,117 @@ void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done
         });
         return;
     }
+    case JdwpExpression::Kind::Unary: {
+        const JdwpExpression::Operator op = expression.op;
+        evaluate(*expression.base, [op, done](const Evaluated &operand) {
+            if (!operand.error.isEmpty()) {
+                done(operand);
+                return;
+            }
+            const Result<JdwpValue> result = negatedOrFlipped(op, operand.value);
+            if (!result) {
+                done({.error = result.error()});
+                return;
+            }
+            done({.value = *result, .type = typeOf(*result)});
+        });
+        return;
     }
+    case JdwpExpression::Kind::Binary: {
+        const JdwpExpression::Operator op = expression.op;
+        const JdwpExpression right = *expression.right;
+        if (op == JdwpExpression::Operator::Equal || op == JdwpExpression::Operator::NotEqual) {
+            // A literal is interned, which makes it the very string it spells in
+            // the program. The one made in the machine to stand for it is not,
+            // so a literal is compared by what it spells instead.
+            const bool leftLiteral = expression.base->kind == JdwpExpression::Kind::String;
+            if (leftLiteral || right.kind == JdwpExpression::Kind::String) {
+                compareWithLiteral(leftLiteral ? expression.base->text : right.text,
+                                   leftLiteral ? right : *expression.base,
+                                   op == JdwpExpression::Operator::Equal, done);
+                return;
+            }
+        }
+        evaluate(*expression.base, [this, op, right, done](const Evaluated &left) {
+            if (!left.error.isEmpty()) {
+                done(left);
+                return;
+            }
+            // Java decides "&&" and "||" on the left alone where it can, and
+            // then the right side is never even read.
+            const bool logical = op == JdwpExpression::Operator::And
+                                 || op == JdwpExpression::Operator::Or;
+            if (logical) {
+                if (left.value.tag != Jdwp::BooleanValueTag) {
+                    done({.error = Tr::tr("\"%1\" needs a boolean on both sides.")
+                                       .arg(op == JdwpExpression::Operator::And ? "&&" : "||")});
+                    return;
+                }
+                const bool yes = left.value.bits != 0;
+                if (yes == (op == JdwpExpression::Operator::Or)) {
+                    done({.value = madeOf(yes), .type = "boolean"});
+                    return;
+                }
+            }
+            evaluate(right, [op, left, logical, done](const Evaluated &other) {
+                if (!other.error.isEmpty()) {
+                    done(other);
+                    return;
+                }
+                if (logical) {
+                    if (other.value.tag != Jdwp::BooleanValueTag) {
+                        done({.error = Tr::tr("\"%1\" needs a boolean on both sides.")
+                                           .arg(op == JdwpExpression::Operator::And
+                                                    ? "&&" : "||")});
+                        return;
+                    }
+                    done({.value = madeOf(other.value.bits != 0), .type = "boolean"});
+                    return;
+                }
+                const Result<JdwpValue> result = combined(op, left.value, other.value);
+                if (!result) {
+                    done({.error = result.error()});
+                    return;
+                }
+                done({.value = *result, .type = typeOf(*result)});
+            });
+        });
+        return;
+    }
+    }
+}
+
+void JdwpImpl::compareWithLiteral(const QString &literal, const JdwpExpression &other,
+                                  bool equal, const Evaluation &done)
+{
+    if (other.kind == JdwpExpression::Kind::String) {
+        done({.value = madeOf((other.text == literal) == equal), .type = "boolean"});
+        return;
+    }
+    evaluate(other, [this, literal, equal, done](const Evaluated &result) {
+        if (!result.error.isEmpty()) {
+            done(result);
+            return;
+        }
+        if (!result.value.isObject()) {
+            done({.error = Tr::tr("An object and a number cannot be compared.")});
+            return;
+        }
+        if (result.value.isNull() || result.value.tag != Jdwp::StringValueTag) {
+            done({.value = madeOf(!equal), .type = "boolean"});
+            return;
+        }
+        send(Jdwp::StringReferenceSet, Jdwp::StringValue,
+             writer().writeObjectId(result.value.bits).data(),
+             [this, literal, equal, done](const JdwpReply &reply) {
+            if (!reply.ok()) {
+                done({.error = JdwpClient::errorString(reply.errorCode)});
+                return;
+            }
+            const bool same = reader(reply.data).readString() == literal;
+            done({.value = madeOf(same == equal), .type = "boolean"});
+        });
+    });
 }
 
 void JdwpImpl::evaluateThis(const Evaluation &done)
@@ -2597,38 +2901,10 @@ static Utils::Result<JdwpValue> coerced(const JdwpValue &value, const QString &s
                                .arg(typeName(signature)));
     }
 
-    // Read what is there as a number, then put it back the way the place holds one.
-    const auto asDouble = [&value]() -> double {
-        if (value.tag == Jdwp::FloatValueTag) {
-            const quint32 bits = quint32(value.bits);
-            float f = 0;
-            std::memcpy(&f, &bits, sizeof(f));
-            return f;
-        }
-        if (value.tag == Jdwp::DoubleValueTag) {
-            double d = 0;
-            const quint64 bits = value.bits;
-            std::memcpy(&d, &bits, sizeof(d));
-            return d;
-        }
-        return double(qint64(value.bits));
-    };
-    // A Java cast to anything narrower than a long goes through an int, and a
-    // value that does not fit stops at the end of the range rather than being
-    // left to a conversion that is undefined here.
-    const auto asInteger = [&value, &asDouble](bool wide) -> qint64 {
-        if (value.tag != Jdwp::FloatValueTag && value.tag != Jdwp::DoubleValueTag)
-            return qint64(value.bits);
-        const double number = asDouble();
-        if (std::isnan(number))
-            return 0;
-        const qint64 high = wide ? std::numeric_limits<qint64>::max()
-                                 : std::numeric_limits<qint32>::max();
-        const qint64 low = wide ? std::numeric_limits<qint64>::min()
-                                : std::numeric_limits<qint32>::min();
-        if (number >= double(high))
-            return high;
-        return number <= double(low) ? low : qint64(number);
+    // A Java cast to anything narrower than a long goes through an int, so a
+    // floating value stops at the ends of that range before it is cut to width.
+    const auto asNarrow = [&value] {
+        return isFloating(value.tag) ? saturated(asDouble(value), false) : asInteger(value);
     };
 
     JdwpValue result;
@@ -2640,29 +2916,29 @@ static Utils::Result<JdwpValue> coerced(const JdwpValue &value, const QString &s
         result.bits = value.bits ? 1 : 0;
         return result;
     case Jdwp::ByteValueTag:
-        result.bits = quint64(qint8(asInteger(false)));
+        result.bits = quint64(qint8(asNarrow()));
         return result;
     case Jdwp::ShortValueTag:
-        result.bits = quint64(qint16(asInteger(false)));
+        result.bits = quint64(qint16(asNarrow()));
         return result;
     case Jdwp::CharValueTag:
-        result.bits = quint64(quint16(asInteger(false)));
+        result.bits = quint64(quint16(asNarrow()));
         return result;
     case Jdwp::IntValueTag:
-        result.bits = quint64(qint32(asInteger(false)));
+        result.bits = quint64(qint32(asNarrow()));
         return result;
     case Jdwp::LongValueTag:
-        result.bits = quint64(asInteger(true));
+        result.bits = quint64(asInteger(value));
         return result;
     case Jdwp::FloatValueTag: {
-        const float f = float(asDouble());
+        const float f = float(asDouble(value));
         quint32 bits = 0;
         std::memcpy(&bits, &f, sizeof(f));
         result.bits = bits;
         return result;
     }
     case Jdwp::DoubleValueTag: {
-        const double d = asDouble();
+        const double d = asDouble(value);
         quint64 bits = 0;
         std::memcpy(&bits, &d, sizeof(d));
         result.bits = bits;

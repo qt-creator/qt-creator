@@ -24,6 +24,8 @@ QString JdwpExpression::typeName() const
     case Kind::This:
     case Kind::Field:
     case Kind::Index:
+    case Kind::Unary:
+    case Kind::Binary:
         break;
     }
     return {};
@@ -42,7 +44,7 @@ public:
         skipSpace();
         if (atEnd())
             return ResultError(Tr::tr("The expression is empty."));
-        const Result<JdwpExpression> expression = parsePostfix();
+        const Result<JdwpExpression> expression = parseBinary(0);
         if (!expression)
             return expression;
         skipSpace();
@@ -72,6 +74,78 @@ private:
                                .arg(m_text, m_text.mid(m_pos)));
     }
 
+    // The binary operators by how tightly they bind, loosest first, which is
+    // the order Java gives them.
+    static const QList<QList<QPair<QString, JdwpExpression::Operator>>> &levels()
+    {
+        using Op = JdwpExpression::Operator;
+        static const QList<QList<QPair<QString, Op>>> table = {
+            {{"||", Op::Or}},
+            {{"&&", Op::And}},
+            {{"==", Op::Equal}, {"!=", Op::NotEqual}},
+            {{"<=", Op::LessEqual}, {">=", Op::GreaterEqual}, {"<", Op::Less}, {">", Op::Greater}},
+            {{"+", Op::Add}, {"-", Op::Subtract}},
+            {{"*", Op::Multiply}, {"/", Op::Divide}, {"%", Op::Remainder}},
+        };
+        return table;
+    }
+
+    Result<JdwpExpression> parseBinary(int level)
+    {
+        if (level == levels().size())
+            return parseUnary();
+        Result<JdwpExpression> left = parseBinary(level + 1);
+        if (!left)
+            return left;
+        while (true) {
+            skipSpace();
+            JdwpExpression::Operator op = JdwpExpression::Operator::None;
+            for (const auto &[text, candidate] : levels().at(level)) {
+                if (!m_text.mid(m_pos).startsWith(text))
+                    continue;
+                // A "<" is not the start of a "<=", and an "=" alone is not an
+                // operator this reads at all.
+                op = candidate;
+                m_pos += text.size();
+                break;
+            }
+            if (op == JdwpExpression::Operator::None)
+                return left;
+            const Result<JdwpExpression> right = parseBinary(level + 1);
+            if (!right)
+                return right;
+            JdwpExpression binary;
+            binary.kind = JdwpExpression::Kind::Binary;
+            binary.op = op;
+            binary.base = std::make_shared<JdwpExpression>(*left);
+            binary.right = std::make_shared<JdwpExpression>(*right);
+            left = binary;
+        }
+    }
+
+    Result<JdwpExpression> parseUnary()
+    {
+        skipSpace();
+        JdwpExpression::Operator op = JdwpExpression::Operator::None;
+        if (current() == '!' && at(1) != '=') {
+            op = JdwpExpression::Operator::Not;
+        } else if (current() == '-' && !at(1).isDigit() && at(1) != '.') {
+            // A minus in front of a number belongs to the number.
+            op = JdwpExpression::Operator::Negate;
+        }
+        if (op == JdwpExpression::Operator::None)
+            return parsePostfix();
+        ++m_pos;
+        const Result<JdwpExpression> operand = parseUnary();
+        if (!operand)
+            return operand;
+        JdwpExpression unary;
+        unary.kind = JdwpExpression::Kind::Unary;
+        unary.op = op;
+        unary.base = std::make_shared<JdwpExpression>(*operand);
+        return unary;
+    }
+
     Result<JdwpExpression> parsePostfix()
     {
         Result<JdwpExpression> value = parsePrimary();
@@ -94,7 +168,7 @@ private:
             }
             if (current() == '[') {
                 ++m_pos;
-                const Result<JdwpExpression> inner = parsePostfix();
+                const Result<JdwpExpression> inner = parseBinary(0);
                 if (!inner)
                     return inner;
                 skipSpace();
@@ -120,7 +194,7 @@ private:
         const QChar c = current();
         if (c == '(') {
             ++m_pos;
-            const Result<JdwpExpression> inner = parsePostfix();
+            const Result<JdwpExpression> inner = parseBinary(0);
             if (!inner)
                 return inner;
             skipSpace();

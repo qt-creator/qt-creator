@@ -24,6 +24,12 @@ public class Inferior
     // basic plane, written here as the halves of its pair.
     static String awkward = "a\0b\ud83d\ude00c";
 
+    // Negative numbers, which the wire carries in as few bytes as they take.
+    static byte tiny = -8;
+    static short small = -300;
+    static int negative = -5;
+    static long least = Long.MIN_VALUE;
+
     static int square(int value)
     {
         int result = value * value; // square-body

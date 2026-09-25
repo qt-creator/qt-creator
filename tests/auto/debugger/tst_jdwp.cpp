@@ -24,6 +24,7 @@
 #include <QTest>
 #include <QtEndian>
 
+#include <limits>
 #include <memory>
 
 using namespace Debugger::Internal;
@@ -812,9 +813,33 @@ void tst_jdwp::parsesExpressions()
     QCOMPARE(parseJdwpExpression("\"a\\tb\"")->text, QString("a\tb"));
     QCOMPARE(parseJdwpExpression("\"\\u0041\"")->text, QString("A"));
 
+    // Operators bind the way Java binds them.
+    const Result<JdwpExpression> sum = parseJdwpExpression("1 + 2 * 3");
+    QVERIFY(sum);
+    QCOMPARE(sum->kind, Kind::Binary);
+    QCOMPARE(sum->op, JdwpExpression::Operator::Add);
+    QCOMPARE(sum->right->op, JdwpExpression::Operator::Multiply);
+    QCOMPARE(parseJdwpExpression("(1 + 2) * 3")->op, JdwpExpression::Operator::Multiply);
+    // A comparison is looser than the arithmetic in it, and "&&" looser still.
+    const Result<JdwpExpression> condition = parseJdwpExpression("a + 1 == b && c");
+    QVERIFY(condition);
+    QCOMPARE(condition->op, JdwpExpression::Operator::And);
+    QCOMPARE(condition->base->op, JdwpExpression::Operator::Equal);
+    QCOMPARE(condition->base->base->op, JdwpExpression::Operator::Add);
+    // "<" is not the start of "<=", and "!" is not the start of "!=".
+    QCOMPARE(parseJdwpExpression("a < b")->op, JdwpExpression::Operator::Less);
+    QCOMPARE(parseJdwpExpression("a <= b")->op, JdwpExpression::Operator::LessEqual);
+    QCOMPARE(parseJdwpExpression("a != b")->op, JdwpExpression::Operator::NotEqual);
+    QCOMPARE(parseJdwpExpression("!a")->op, JdwpExpression::Operator::Not);
+    // A minus in front of a number belongs to the number, in front of a name
+    // it is an operator.
+    QCOMPARE(parseJdwpExpression("-a")->op, JdwpExpression::Operator::Negate);
+    QCOMPARE(parseJdwpExpression("-1")->kind, Kind::Int);
+
     // What it cannot read it says so about, rather than guessing at a meaning.
-    for (const QString &bad : QStringList{"", "  ", "point.", "values[1", "(x", "1 + 2", "@x",
-                                          "'ab'", "\"open", "0x", "3000000000", "0x1ffffffff"}) {
+    for (const QString &bad : QStringList{"", "  ", "point.", "values[1", "(x", "1 +", "@x",
+                                          "'ab'", "\"open", "0x", "a =", "a ? b : c",
+                                          "3000000000", "0x1ffffffff"}) {
         const Result<JdwpExpression> result = parseJdwpExpression(bad);
         QVERIFY2(!result, qPrintable(QString("\"%1\" was read as an expression").arg(bad)));
         QVERIFY(!result.error().isEmpty());
@@ -829,7 +854,13 @@ void tst_jdwp::readsWatchers()
     QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
 
     const QStringList expressions = {"number", "point.x", "values[1]", "values.length", "text",
-                                     "calls", "point", "nope", "values[9]", "1 + 2"};
+                                     "calls", "point", "nope", "values[9]", "number + 1",
+                                     "number > 3 && point.x == 3", "values[number - 6]",
+                                     "text == null", "-number", "number / 0",
+                                     "negative < 0", "negative / 2", "tiny + 0", "small * 1",
+                                     "least / -1", "least % -1", "least - 1", "-least",
+                                     "least * 2", "0.1f * 3 == 0.3f", "1.5f + 1",
+                                     "text == \"hello\"", "\"hi\" != text", "point == \"x\""};
     const quint64 request = backend->refresh(RefreshKind::Locals, {"watch.6"}, expressions);
     QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
     const GdbMi data = backend->refreshData(request)["data"];
@@ -856,10 +887,42 @@ void tst_jdwp::readsWatchers()
     QCOMPARE(childNamed(point["children"], "y")["value"].data(), QString("4"));
     QCOMPARE(childNamed(point["children"], "y")["iname"].data(), QString("watch.6.y"));
 
+    // Operators are worked out here rather than in the virtual machine.
+    QCOMPARE(childNamed(data, "number + 1")["value"].data(), QString("8"));
+    QCOMPARE(childNamed(data, "number + 1")["type"].data(), QString("int"));
+    QCOMPARE(childNamed(data, "number > 3 && point.x == 3")["value"].data(), QString("true"));
+    // An index is an expression of its own.
+    QCOMPARE(childNamed(data, "values[number - 6]")["value"].data(), QString("2"));
+    QCOMPARE(childNamed(data, "text == null")["value"].data(), QString("false"));
+    QCOMPARE(childNamed(data, "-number")["value"].data(), QString("-7"));
+    // A number that came in narrower than it is wide keeps its sign.
+    QCOMPARE(childNamed(data, "negative < 0")["value"].data(), QString("true"));
+    QCOMPARE(childNamed(data, "negative / 2")["value"].data(), QString("-2"));
+    QCOMPARE(childNamed(data, "tiny + 0")["value"].data(), QString("-8"));
+    QCOMPARE(childNamed(data, "small * 1")["value"].data(), QString("-300"));
+    // The division that overflows answers what Java answers, rather than
+    // trapping.
+    QCOMPARE(childNamed(data, "least / -1")["value"].data(),
+             QString::number(std::numeric_limits<qint64>::min()));
+    QCOMPARE(childNamed(data, "least % -1")["value"].data(), QString("0"));
+    // So do the ones that overflow the other way, which wrap in Java.
+    QCOMPARE(childNamed(data, "least - 1")["value"].data(),
+             QString::number(std::numeric_limits<qint64>::max()));
+    QCOMPARE(childNamed(data, "-least")["value"].data(),
+             QString::number(std::numeric_limits<qint64>::min()));
+    QCOMPARE(childNamed(data, "least * 2")["value"].data(), QString("0"));
+    // Float arithmetic stays float, which rounds differently from double.
+    QCOMPARE(childNamed(data, "0.1f * 3 == 0.3f")["value"].data(), QString("true"));
+    QCOMPARE(childNamed(data, "1.5f + 1")["type"].data(), QString("float"));
+    // "hello" in the program is the same interned string as the literal here.
+    QCOMPARE(childNamed(data, "text == \"hello\"")["value"].data(), QString("true"));
+    QCOMPARE(childNamed(data, "\"hi\" != text")["value"].data(), QString("true"));
+    QCOMPARE(childNamed(data, "point == \"x\"")["value"].data(), QString("false"));
+
     // What cannot be answered says why, in the place of the value.
     QVERIFY(childNamed(data, "nope")["value"].data().startsWith('<'));
     QVERIFY(childNamed(data, "values[9]")["value"].data().contains("outside"));
-    QVERIFY(!childNamed(data, "1 + 2")["value"].data().isEmpty());
+    QVERIFY(childNamed(data, "number / 0")["value"].data().contains("zero"));
 
     backend->shutdownInferior(ShutdownMode::Kill);
     QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);

@@ -280,6 +280,8 @@ private:
     void evaluate(const JdwpExpression &expression, const Evaluation &done);
     void evaluateName(const QString &name, const Evaluation &done);
     void evaluateThis(const Evaluation &done);
+    void compareWithLiteral(const QString &literal, const JdwpExpression &other, bool equal,
+                            const Evaluation &done);
     void staticFieldOf(quint64 classId, const QString &className, const QString &name,
                        const Evaluation &done);
     void fieldOf(const Evaluated &base, const QString &name, const Evaluation &done);

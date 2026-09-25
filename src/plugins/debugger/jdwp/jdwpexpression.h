@@ -30,17 +30,34 @@ public:
         // of an array reads as a field, as it does in Java.
         Field,
         Index,
+        // On base, and on right as well where there are two of them.
+        Unary,
+        Binary,
+    };
+
+    enum class Operator {
+        None,
+        Not, Negate,
+        Multiply, Divide, Remainder,
+        Add, Subtract,
+        Less, LessEqual, Greater, GreaterEqual,
+        Equal, NotEqual,
+        And, Or,
     };
 
     Kind kind = Kind::Null;
+    Operator op = Operator::None;
     // The identifier of a Name or a Field, and the contents of a String.
     QString text;
     // Int, Long, Char and Boolean keep their value here, Float and Double theirs
     // in number.
     qint64 integer = 0;
     double number = 0;
+    // What a Field or an Index is taken from, and the one side of a Unary or
+    // the left of a Binary.
     std::shared_ptr<JdwpExpression> base;
     std::shared_ptr<JdwpExpression> index;
+    std::shared_ptr<JdwpExpression> right;
 
     QString typeName() const;
 };
