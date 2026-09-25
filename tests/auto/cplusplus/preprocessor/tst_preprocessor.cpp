@@ -374,6 +374,11 @@ private slots:
     void glib_attribute();
     void builtin__FILE__();
     void blockSkipping();
+    void multilineCommentBeforeDirective();
+    void macroDefinitionAfterComment();
+    void lineSpliceBeforeDirective();
+    void multilineCommentInMacroBody();
+    void lineSpliceAfterDirective();
     void includes_1();
     void dont_eagerly_expand();
     void dont_eagerly_expand_data();
@@ -997,6 +1002,104 @@ void tst_Preprocessor::blockSkipping()
     MockClient::Block b = blocks.at(0);
     QCOMPARE(b.start, 6);
     QCOMPARE(b.end, 34);
+}
+
+void tst_Preprocessor::multilineCommentBeforeDirective()
+{
+    const QByteArray suffix = "#if 0\nint skipped;\n#endif\nint kept;\n";
+    for (bool keepComments : {false, true}) {
+        for (const QByteArray &prefix : {QByteArray("/*\n*/"), QByteArray("\n/* x */"),
+                                         QByteArray("\n/* x *//*\n*/"), QByteArray("/**/"),
+                                         QByteArray("/*! x */"), QByteArray("\r\n/*\r\n*/"),
+                                         QByteArray("/* x */\\\n")}) {
+            Environment env;
+            Preprocessor pp(nullptr, &env);
+            pp.setKeepComments(keepComments);
+            const QByteArray output = pp.run("<stdin>", prefix + suffix, true);
+            QVERIFY(!output.contains("skipped"));
+            QVERIFY(output.contains("kept"));
+        }
+
+        Environment env;
+        Preprocessor pp(nullptr, &env);
+        pp.setKeepComments(keepComments);
+        const QByteArray output = pp.run(
+            "<stdin>", QByteArray("int a; /*\n*/#if 0\nint notSkipped;\n"), true);
+        QVERIFY(output.contains("notSkipped"));
+
+        Environment splicedEnv;
+        Preprocessor splicedPp(nullptr, &splicedEnv);
+        splicedPp.setKeepComments(keepComments);
+        const QByteArray splicedOutput = splicedPp.run(
+            "<stdin>", QByteArray("int a; /* x */\\\n#if 0\nint notSkipped;\n"), true);
+        QVERIFY(splicedOutput.contains("notSkipped"));
+
+        Environment digraphEnv;
+        Preprocessor digraphPp(nullptr, &digraphEnv);
+        digraphPp.setKeepComments(keepComments);
+        const QByteArray digraphOutput = digraphPp.run(
+            "<stdin>", QByteArray("/* x */%:if 0\nint skipped;\n%:endif\nint kept;\n"), true);
+        QVERIFY(!digraphOutput.contains("skipped"));
+        QVERIFY(digraphOutput.contains("kept"));
+    }
+}
+
+void tst_Preprocessor::macroDefinitionAfterComment()
+{
+    for (bool keepComments : {false, true}) {
+        Environment env;
+        Preprocessor pp(nullptr, &env);
+        pp.setKeepComments(keepComments);
+        const QByteArray output = pp.run(
+            "<stdin>", QByteArray("/*\n*/#define VALUE 42\nVALUE\n"), true);
+        QVERIFY2(output.contains("\n42\n"), output.constData());
+        QVERIFY2(!output.contains("\nVALUE\n"), output.constData());
+    }
+}
+
+void tst_Preprocessor::lineSpliceBeforeDirective()
+{
+    for (bool keepComments : {false, true}) {
+        Environment env;
+        Preprocessor pp(nullptr, &env);
+        pp.setKeepComments(keepComments);
+        const QByteArray output = pp.run(
+            "<stdin>", QByteArray("int a;\n\\\n#if 0\nint skipped;\n#endif\nint kept;\n"), true);
+        QVERIFY2(!output.contains("skipped"), output.constData());
+        QVERIFY2(output.contains("kept"), output.constData());
+    }
+}
+
+void tst_Preprocessor::multilineCommentInMacroBody()
+{
+    for (bool keepComments : {false, true}) {
+        Environment env;
+        Preprocessor pp(nullptr, &env);
+        pp.setKeepComments(keepComments);
+        const QByteArray output = pp.run(
+            "<stdin>", QByteArray("#define X 1 /*\n*/ + 2\nint v = X;\n"), true);
+        const qsizetype start = output.indexOf("int v");
+        QVERIFY2(start != -1, output.constData());
+        QVERIFY2(output.mid(start).contains("+ 2"), output.constData());
+        QVERIFY2(!output.left(start).contains('+'), output.constData());
+    }
+}
+
+void tst_Preprocessor::lineSpliceAfterDirective()
+{
+    for (bool keepComments : {false, true}) {
+        Environment env;
+        Preprocessor pp(nullptr, &env);
+        pp.setKeepComments(keepComments);
+        const QByteArray output = pp.run(
+            "<stdin>", QByteArray("#define X 1\n\\\n+ 2\nint v = X;\n"), true);
+        const qsizetype start = output.indexOf("int v");
+        QVERIFY2(start != -1, output.constData());
+        QEXPECT_FAIL("", "The line splice is taken to continue the directive", Continue);
+        QVERIFY2(output.left(start).contains("+ 2"), output.constData());
+        QEXPECT_FAIL("", "The line splice is taken to continue the directive", Continue);
+        QVERIFY2(!output.mid(start).contains('+'), output.constData());
+    }
 }
 
 void tst_Preprocessor::includes_1()
