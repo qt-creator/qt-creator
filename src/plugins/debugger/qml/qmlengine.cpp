@@ -341,6 +341,10 @@ void QmlEngine::tryToConnect()
 
 void QmlEngine::beginConnection()
 {
+    // A retry can still be pending when a stop has taken the engine down.
+    if (isDying())
+        return;
+
     if (state() != EngineRunRequested && d->retryOnConnectFail)
         return;
 
