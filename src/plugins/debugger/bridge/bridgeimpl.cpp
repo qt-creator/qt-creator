@@ -7,6 +7,7 @@
 
 #include "../debuggerinternalconstants.h"
 #include "../disassemblerlines.h"
+#include "../shared/hostutils.h"
 #include "../watchutils.h"
 
 #include "../dap/dapclient.h"
@@ -140,7 +141,7 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                       | WatchWidgetsCapability
                       | ReloadModuleCapability | ReloadModuleSymbolsCapability
                       | BreakConditionCapability | BreakIndividualLocationsCapability
-                      | BreakOnThrowAndCatchCapability
+                      | BreakOnThrowAndCatchCapability | BreakModuleCapability
                       | RunToLineCapability | JumpToLineCapability
                       | WatchpointByAddressCapability | WatchpointByExpressionCapability
                       | ResetInferiorCapability
@@ -654,6 +655,9 @@ void BridgeImpl::execute(const ExecutionRequest &request)
             postRequest(m_lastDebuggableCommand, m_lastDebuggableArguments);
         return;
     case ExecutionCommand::ResetInferior:
+        // The inferior that comes back has nothing to do with what the runtime
+        // said about the one being killed.
+        m_sawTerminateMessage = false;
         emit inferiorEvent(InferiorEvent::RunRequested);
         if (!m_startData.userCommands.forReset.isEmpty()) {
             postRequest("qtc/runUserCommands",
@@ -740,6 +744,7 @@ void BridgeImpl::postBreakpointRequest(const QString &request,
                      {"command", QString::fromUtf8(params.command.toUtf8().toHex())},
                      {"function", params.type == BreakpointAtMain
                                       ? m_startData.mainFunctionName : params.functionName},
+                     {"module", params.module},
                      {"oneshot", params.oneShot},
                      {"enabled", params.enabled},
                      {"line", params.textPosition.line},
@@ -936,6 +941,7 @@ void BridgeImpl::refresh(const RefreshRequest &request)
         return;
     case RefreshKind::ModuleSymbols:
         m_pendingSymbolsRequestId = request.requestId;
+        m_pendingSymbolsModule = request.path;
         postRequest("qtc/fetchSymbols", QJsonObject{{"module", request.path.path()}});
         return;
     case RefreshKind::ModuleSections:
@@ -1064,8 +1070,17 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
         }
         return;
     case DapResponseType::Attach:
-        if (success)
+        if (success) {
             runPostAttachCommands();
+        } else if (isPtraceRefusal(response.value("message").toString())) {
+            const bool startedByUs
+                = std::holds_alternative<AttachToTerminalStubData>(m_startData.inferiorStartData);
+            emit startFailed(Tr::tr("Debugger Error"), msgPtraceRefused(startedByUs),
+                             startedByUs ? Key("GdbPtraceRefusedTerminalAttach")
+                                         : Key("GdbPtraceRefusedAttach"));
+            emit inferiorEvent(InferiorEvent::EngineIll);
+            return;
+        }
         Q_FALLTHROUGH();
     case DapResponseType::Launch:
         if (!success) {
@@ -1216,6 +1231,11 @@ void BridgeImpl::handleResponse(DapResponseType type, const QJsonObject &respons
             emit message("BridgeImpl: no usable disassembly for " + request.target, LogWarning);
         }
     } else if (command == "qtc/fetchSymbols") {
+        if (!success) {
+            emit refreshFailed(m_pendingSymbolsRequestId, RefreshKind::ModuleSymbols,
+                               m_pendingSymbolsModule);
+            return;
+        }
         const QJsonObject body = response.value("body").toObject();
         GdbMi symbolList;
         symbolList.m_type = GdbMi::List;
@@ -1470,6 +1490,7 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             result.exitStatus = InferiorExitStatus::Crash;
             result.signalName = body.value("exitSignalName").toString();
         }
+        result.terminatedByRuntime = std::exchange(m_sawTerminateMessage, false);
         m_inferiorRunning = false;
         failDeferredRequests();
         emit inferiorDone(result);
@@ -1504,8 +1525,10 @@ void BridgeImpl::handleEvent(DapEventType type, const QJsonObject &event)
             }
             return;
         }
-        emit message(body.value("output").toString(),
-                     category == "stderr" ? AppError : AppOutput);
+        const QString text = body.value("output").toString();
+        if (isTerminateMessage(text))
+            m_sawTerminateMessage = true;
+        emit message(text, category == "stderr" ? AppError : AppOutput);
         return;
     }
     default:
@@ -1695,6 +1718,8 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
     m_currentThreadId = body.value("threadId").toInt();
     m_currentFrameId = 1;
     m_inferiorRunning = false;
+    // A stop explains itself, whatever the runtime said before it.
+    m_sawTerminateMessage = false;
     GdbMi stoppedThread;
     stoppedThread.m_type = GdbMi::Tuple;
     stoppedThread.addChild(constMi("id", body.value("allThreadsStopped").toBool()
@@ -1727,6 +1752,12 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
     if (reason == u"exception") {
         emit signalReceived(body.value("text").toString(),
                             body.value("description").toString());
+    } else if (reason == u"recording-failed") {
+        emit recordingFailed();
+    } else if (reason == u"resume-aborted") {
+        const QString description = body.value("description").toString();
+        emit message(description.isEmpty() ? Tr::tr("gdb aborted the resume.") : description,
+                     StatusBar);
     }
 
     // Which breakpoint a stop belongs to is in this event only, and a stop the
@@ -1747,8 +1778,11 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
                                  watchpoint.value("new").toString());
     }
 
-    if (reason != u"exception" && hitBreakpointIds.isEmpty() && hitWatchpoints.isEmpty())
+    if (reason != u"exception" && reason != u"recording-failed"
+            && reason != u"resume-aborted" && hitBreakpointIds.isEmpty()
+            && hitWatchpoints.isEmpty()) {
         emit stopReasonReported(reason);
+    }
 
     // Report the stop only once the location is known, as the other backends do.
     const int seq = m_client->stackTrace(m_currentThreadId, 0);
@@ -1808,6 +1842,8 @@ void BridgeImpl::reportStop()
     emit inferiorEvent(m_stopRequested ? InferiorEvent::StopOk
                                        : InferiorEvent::SpontaneousStop);
     m_stopRequested = false;
+    if (const std::optional<QPoint> pnt = std::exchange(m_watchPointNeedingAStop, {}))
+        postRequest("qtc/watchPoint", QJsonObject{{"x", pnt->x()}, {"y", pnt->y()}});
 }
 
 void BridgeImpl::selectThread(const QString &threadId)
@@ -1924,6 +1960,13 @@ void BridgeImpl::watchPoint(quint64 requestId, const QPoint &pnt)
 {
     QTC_ASSERT(m_client, return);
     m_pendingWatchPointRequestId = requestId;
+    // The widget is looked up with a call into the inferior, which takes a
+    // stop, and what is picked is shown in one: the inferior stays stopped.
+    if (m_inferiorRunning || m_resumePending) {
+        if (!std::exchange(m_watchPointNeedingAStop, pnt))
+            execute({ExecutionCommand::Interrupt});
+        return;
+    }
     postRequest("qtc/watchPoint", QJsonObject{{"x", pnt.x()}, {"y", pnt.y()}});
 }
 

@@ -387,7 +387,6 @@ private: ////////// General Interface //////////
     QtTaskTree::QSingleTaskTreeRunner m_signalOperationRunner;
 };
 
-bool isTerminateMessage(const QStringView msg);
 InferiorStartData inferiorStartData(const DebuggerRunParameters &rp);
 DebuggerEngine *createGdbEngine(const DebuggerRunParameters &rp);
 

@@ -190,12 +190,20 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             this, &GenericDebuggerEngine::handleSignalReceived);
     connect(m_backend.get(), &DebuggerEngineInterface::stopReasonReported,
             this, &GenericDebuggerEngine::handleStopReasonReported);
+    connect(m_backend.get(), &DebuggerEngineInterface::recordingFailed,
+            this, &GenericDebuggerEngine::handleRecordingFailed);
     connect(m_backend.get(), &DebuggerEngineInterface::notResponding,
             this, &GenericDebuggerEngine::handleNotResponding);
     connect(m_backend.get(), &DebuggerEngineInterface::startFailed,
             this, [this](const QString &title, const QString &message, const Key &settingsKey) {
         showMessage(message, LogError);
         CheckableMessageBox::information(title, message, settingsKey);
+    });
+    connect(m_backend.get(), &DebuggerEngineInterface::refreshFailed,
+            this, [](quint64, RefreshKind kind, const FilePath &path) {
+        QTC_ASSERT(kind == RefreshKind::ModuleSymbols, return);
+        AsynchronousMessageBox::critical(Tr::tr("Cannot Read Symbols"),
+            Tr::tr("Cannot read symbols for module \"%1\".").arg(path.toUserOutput()));
     });
     connect(m_backend.get(), &DebuggerEngineInterface::refreshDataReceived, this,
             [this](quint64 requestId, RefreshKind kind, const GdbMi &data) {
@@ -422,6 +430,15 @@ GenericDebuggerEngine::~GenericDebuggerEngine()
 
 void GenericDebuggerEngine::setupEngine()
 {
+    const FilePath script = runParameters().overrideStartScript();
+    if (!script.isEmpty() && !script.isReadableFile()) {
+        AsynchronousMessageBox::warning(
+            Tr::tr("Cannot Find Debugger Initialization Script"),
+            Tr::tr("The debugger settings point to a script file at \"%1\", "
+                   "which is not accessible. If a script file is not needed, "
+                   "consider clearing that entry to avoid this warning.")
+                .arg(script.toUserOutput()));
+    }
     m_backend->start();
 }
 

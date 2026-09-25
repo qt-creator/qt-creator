@@ -25,6 +25,7 @@
 #include "logwindow.h"
 #include "gdb/gdbengine.h"
 #include "registerhandler.h"
+#include "shared/hostutils.h"
 #include "stackframe.h"
 #include "commonoptionspage.h"
 #include "stackhandler.h"

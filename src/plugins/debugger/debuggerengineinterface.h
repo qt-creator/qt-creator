@@ -331,6 +331,9 @@ signals:
 
     void refreshDataReceived(quint64 requestId, RefreshKind kind, const GdbMi &data);
 
+    // A refresh the backend could not answer, with the path the request named.
+    void refreshFailed(quint64 requestId, RefreshKind kind, const Utils::FilePath &path);
+
     void libraryEvent(LibraryEvent event, const GdbMi &data);
 
     void threadEvent(ThreadEvent event, const GdbMi &data);
@@ -344,6 +347,9 @@ signals:
     // The bare reason a stop came with, for a stop none of the reports above
     // covers. Empty where the backend named none.
     void stopReasonReported(const QString &reason);
+
+    // Recording for reverse execution stopped the inferior because it could not go on.
+    void recordingFailed();
 
     void watchpointTriggered(const QString &responseId, const QString &expression,
                              const QString &oldValue, const QString &newValue);

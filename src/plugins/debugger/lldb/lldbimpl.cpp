@@ -1155,6 +1155,9 @@ void LldbImpl::fetchLocationAfterStop(InferiorEvent event)
         emit inferiorEvent(event);
     };
     runCommand(cmd);
+    const QList<DebuggerCommand> picks = std::exchange(m_watchPointsNeedingAStop, {});
+    for (const DebuggerCommand &pick : picks)
+        runCommand(pick);
 }
 
 void LldbImpl::selectThread(const QString &threadId)
@@ -1266,6 +1269,14 @@ void LldbImpl::watchPoint(quint64 requestId, const QPoint &pnt)
         emit watchPointResolved(requestId, response.data["selected"].toAddress(),
                                 response.data["expr"].data());
     };
+    // The widget is looked up with a call into the inferior, which takes a
+    // stop, and what is picked is shown in one: the inferior stays stopped.
+    if (m_inferiorRunning) {
+        m_watchPointsNeedingAStop.append(cmd);
+        if (m_watchPointsNeedingAStop.size() == 1)
+            execute({ExecutionCommand::Interrupt});
+        return;
+    }
     runCommand(cmd);
 }
 

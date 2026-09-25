@@ -117,6 +117,8 @@ protected:
     void jumpOverTheConsole(const ContextData &context);
     void returnOverTheConsole();
     void runConsoleCommand(const QString &command, const QString &what);
+    void checkLineStep(const QString &command, const QJsonObject &arguments);
+    void checkAttached();
     void loadSymbols(const QString &pattern, const QString &what);
     void fetchModuleSections(quint64 requestId, const Utils::FilePath &modulePath);
     void reportRegisters(quint64 requestId, const GdbMi &registers);
@@ -127,6 +129,8 @@ protected:
     void askWhereTheDebuggerSelectionIs(bool report);
     void reportUnsupported(const QString &what);
     void setBreakpointCommands(const QString &adapterId, const QString &command);
+    void sendBreakpointModules();
+    bool m_breakpointModulesSent = false;
 
     void sendCustomRequest(const QString &command, const QJsonObject &arguments,
                            const DapSessionChannel::Answer &answer);
@@ -196,6 +200,12 @@ protected:
     bool m_interruptWhenResumed = false;
     // Armed while the stub still has to be told to let go of the inferior.
     bool m_expectTerminalTrap = false;
+    // Set while a "record full" is in effect, so a stop it silently aborted
+    // (see handleStopped()) can be told from an ordinary one.
+    bool m_recordingActive = false;
+    bool m_debuginfodDownloadInProgress = false;
+    bool m_sawTerminateMessage = false;
+    bool m_lineStepUnchecked = false;
     bool m_configured = false;
     bool m_setupReported = false;
     // The engine has to hear that the run began before it hears it ended,
@@ -205,6 +215,8 @@ protected:
     bool m_runRequestPending = false;
     // Whether the next stop ends the setup rather than a run of its own.
     bool m_reportsSetupStop = false;
+    bool isCoreSession() const;
+    void loadCore();
     // The major version gdb names in its banner, 0 for another adapter.
     int m_gdbMajorVersion = 0;
     std::optional<InferiorResultData> m_pendingResult;
@@ -227,6 +239,8 @@ protected:
         // Whether a step brought the inferior here, which is the only stop the
         // skip list has a say over.
         bool fromStep = false;
+        // What the QML engine said its stack is, put on top of the native one.
+        GdbMi qmlFrames;
     };
     QHash<int, StackTraceRequest> m_stackTraceRequests;
     // A foreign adapter hands out its own frame ids, so the view's index into
@@ -358,6 +372,15 @@ private:
     // debuggee is let go once the last of them is answered.
     QSet<int> m_breakpointResends;
     bool m_resumeAfterBreakpointStop = false;
+    struct WidgetPick {
+        quint64 requestId = 0;
+        QPoint point;
+    };
+    // Picks asked for while the debuggee runs, made once it has stopped.
+    QList<WidgetPick> m_widgetPicksNeedingAStop;
+    int m_inferiorCallsInFlight = 0;
+    void pickWidget(const WidgetPick &pick);
+    void fetchQmlStack(const RefreshRequest &request);
     void changeCatchpoint(const BreakpointChangeRequest &request);
     void insertCatchpointCompanion(const std::shared_ptr<QString> &owner, bool enabled);
     void resendCatchpoints();
@@ -386,6 +409,8 @@ private:
         // assignment goes through where the adapter takes no expression.
         int parentReference = 0;
         bool hasChildren = false;
+        // A pointer shown as what it points to.
+        bool derefed = false;
         QStringList childINames;
     };
     quint64 m_localsRequestId = 0;
@@ -396,6 +421,10 @@ private:
     // the frame it is to be evaluated in.
     std::optional<RefreshRequest> m_deferredLocalsRequest;
     QSet<QString> m_expandedINames;
+    bool m_autoDerefPointers = true;
+    // The pointers whose children are asked for to show their pointee instead.
+    QSet<QString> m_derefINames;
+    void queueChildren(const Local &local);
     QString m_partialVariable;
     QMap<QString, Local> m_locals;
     QStringList m_localRoots;

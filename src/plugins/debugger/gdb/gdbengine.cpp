@@ -77,11 +77,6 @@ static int &currentToken()
     return token;
 }
 
-bool isTerminateMessage(const QStringView msg)
-{
-    return msg.contains(u"terminate called");
-}
-
 static bool isMostlyHarmlessMessage(const QStringView msg)
 {
     return msg == u"warning: GDB: Failed to set controlling terminal: "
@@ -4645,7 +4640,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
         break;
     }
     case ResultFail:
-        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
+        if (response.data["msg"].data().contains("ptrace: Operation not permitted.")) {
             const QString msg = msgPtraceError(runParameters().startMode());
             showStatusMessage(Tr::tr("Failed to attach to application: %1").arg(msg));
             AsynchronousMessageBox::warning(Tr::tr("Debugger Error"), msg);
@@ -4676,7 +4671,7 @@ void GdbEngine::handleRemoteAttach(const DebuggerResponse &response)
         break;
     }
     case ResultFail:
-        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
+        if (response.data["msg"].data().contains("ptrace: Operation not permitted.")) {
             notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
         }
@@ -5014,7 +5009,7 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
         }
         break;
     case ResultFail:
-        if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
+        if (response.data["msg"].data().contains("ptrace: Operation not permitted.")) {
             notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
         }

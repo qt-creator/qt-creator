@@ -3450,16 +3450,19 @@ class Dumper(DumperBase):
     def watchPoint(self, args):
         self.reportToken(args)
         ns = self.qtNamespace()
-        # No QApplication::widgetAt at all (e.g. a non-widgets target) - degrade
-        # gracefully instead of indexing funcs[1] into an empty/short list.
-        funcs = self.target.FindGlobalFunctions('.*QApplication::widgetAt', 2, 1)
+        # The overload taking two ints is inline, so the one taking a QPoint
+        # is called. A non-widgets target has none at all.
+        funcs = self.target.FindGlobalFunctions('.*QApplication::widgetAt', 0, 1)
         p = 0
-        if len(funcs) > 1:
-            func = funcs[1]
-            addr = func.GetFunction().GetStartAddress().GetLoadAddress(self.target)
-            expr = '((void*(*)(int,int))0x%x)' % addr
+        for func in funcs:
+            if 'QPoint' not in func.GetSymbol().GetName():
+                continue
+            addr = func.GetSymbol().GetStartAddress().GetLoadAddress(self.target)
+            expr = 'int point[2] = {%d, %d}; ((void *(*)(const int *)) 0x%x)(point)' \
+                % (int(args['x']), int(args['y']), addr)
             res = self.parseAndEvaluateAllowingCalls(expr)
             p = 0 if res is None else res.pointer()
+            break
         n = ns + 'QWidget'
         self.reportResult('selected="0x%x",expr="(%s*)0x%x"' % (p, n, p), args)
 

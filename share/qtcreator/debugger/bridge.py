@@ -244,6 +244,8 @@ class DapServer():
         self.lastExitCode = None
         self.lastExitSignal = 0
         self.inferiorExited = False
+        self.lastResumeOutput = ''
+        self.lastResumeError = ''
         self.announcedThreads = set()
         self.answeredSeq = None
         self.loadedObjfiles = None
@@ -652,16 +654,21 @@ class DapServer():
     def _execute(self, command):
         # Run a command that resumes the inferior and blocks until it stops or
         # exits, then report the resulting state as a DAP event.
-        self._resumeAndReport(command, lambda: gdb.execute(command, to_string=True))
+        def resume():
+            self.lastResumeOutput = gdb.execute(command, to_string=True)
+        self._resumeAndReport(command, resume)
 
     def _resumeAndReport(self, what, resume):
         self.lastStopEvent = None
+        self.lastResumeOutput = ''
+        self.lastResumeError = ''
         self.inferiorExited = False
         self.lastExitCode = None
         self.lastExitSignal = 0
         try:
             resume()
         except Exception as error:
+            self.lastResumeError = str(error)
             warn('DAP execute %r failed: %s' % (what, error))
         except KeyboardInterrupt:
             # How an interrupt arrives while the inferior runs: it is not a
@@ -753,6 +760,12 @@ class DapServer():
                 reason = 'breakpoint'
         elif event is not None and hasattr(event, 'stop_signal'):
             reason = 'exception'
+        elif 'Process record: failed to record execution log.' in self.lastResumeOutput:
+            # A recording that meets an instruction it cannot record stops the
+            # inferior with nothing but this line to say so.
+            reason = 'recording-failed'
+        elif self.lastResumeError == 'Command aborted.':
+            reason = 'resume-aborted'
 
         self._dropDeadBreakpoints()
 
@@ -771,6 +784,8 @@ class DapServer():
         }
         if hitWatchpoints:
             body['hitWatchpoints'] = hitWatchpoints
+        if reason == 'resume-aborted':
+            body['description'] = self._uninsertableBreakpoints()
         # Where we stopped, so a client does not have to fetch a stack to find
         # out; DAP leaves this to a stackTrace round trip.
         try:
@@ -1455,6 +1470,25 @@ class DapServer():
         if location.fullname:
             target['fullname'] = location.fullname
 
+    def _uninsertableBreakpoints(self):
+        # gdb names the breakpoints that made it abort a resume on its log only,
+        # which a command run from Python does not get to see. The ones it
+        # cannot write are the ones whose memory is not there to read.
+        lines = []
+        for bp in gdb.breakpoints():
+            if not bp.enabled:
+                continue
+            for location in getattr(bp, 'locations', []):
+                if not location.enabled or location.address is None:
+                    continue
+                try:
+                    gdb.selected_inferior().read_memory(location.address, 1)
+                except gdb.MemoryError:
+                    lines.append('Cannot insert breakpoint %d. '
+                                 'Cannot access memory at address 0x%x'
+                                 % (bp.number, location.address))
+        return '\n'.join(lines)
+
     def _dropDeadBreakpoints(self):
         # gdb deletes a temporary breakpoint as it is hit. Keeping the object
         # would hold it alive with every access raising, so let it go.
@@ -1733,6 +1767,9 @@ class DapServer():
         bp = None
         try:
             bp = self._createOwnBreakpoint(lambda: self._createGdbBreakpoint(args))
+            if args.get('module') and args.get('type') == self.BP_BY_FUNCTION:
+                import gdbbridge
+                gdbbridge.restrictBreakpointToModule(bp.number, args['module'])
             # A tracepoint is in none of gdb's lists, so it needs saying.
             self.ownBreakpoints.add(str(bp.number))
             self.breakpointById[str(bp.number)] = bp

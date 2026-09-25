@@ -1246,10 +1246,23 @@ class Dumper(DumperBase):
         ns = self.qtNamespace()
         lenns = len(ns)
         strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
-        sym = '_ZN%s12QApplication8widgetAtEii' % strns
-        expr = '%s(%s,%s)' % (sym, args['x'], args['y'])
-        res = self.parseAndEvaluate(expr)
-        p = 0 if res is None else res.pointer()
+        # The overload taking two ints is inline, so the one taking a QPoint
+        # is called, with the point in memory of the inferior's own.
+        point = 'NS_6QPointE' if lenns else '6QPoint'
+        sym = '_ZN%s12QApplication8widgetAtERK%s' % (strns, point)
+        p = 0
+        buf = self.parseAndEvaluateAllowingCalls('((void *(*)(unsigned long)) malloc)(8)')
+        b = 0 if buf is None else buf.pointer()
+        if b:
+            try:
+                gdb.parse_and_eval('*(int *) 0x%x = %d' % (b, int(args['x'])))
+                gdb.parse_and_eval('*(int *) 0x%x = %d' % (b + 4, int(args['y'])))
+                res = self.parseAndEvaluateAllowingCalls(
+                    '((void *(*)(void *)) %s)((void *) 0x%x)' % (sym, b))
+                p = 0 if res is None else res.pointer()
+            except RuntimeError as error:
+                self.warn('Cannot pass the point: %s' % error)
+            self.parseAndEvaluateAllowingCalls('((void (*)(void *)) free)((void *) 0x%x)' % b)
         n = ("'%sQWidget'" % ns) if lenns else 'QWidget'
         self.reportResult('selected="0x%x",expr="(%s*)0x%x"' % (p, n, p), args)
 
@@ -2072,6 +2085,67 @@ def new_objfile_handler(event):
 
 
 gdb.events.new_objfile.connect(new_objfile_handler)
+
+
+#######################################################################
+#
+# Breakpoints in one module
+#
+#######################################################################
+
+# gdb has no linespec for "this function in that shared object", so the
+# locations elsewhere are disabled, also the ones a library loaded later adds.
+breakpointModules = {}
+
+
+def objfileNameOfAddress(address):
+    progspace = gdb.current_progspace()
+    try:
+        objfile = progspace.objfile_for_address(address)
+        if objfile is not None:
+            return objfile.filename
+    except AttributeError:
+        pass
+    return gdb.solib_name(address) or progspace.filename or ''
+
+
+def isAddressInModule(address, module):
+    name = os.path.basename(objfileNameOfAddress(address)).lower()
+    module = module.lower()
+    return module in (name, name.split('.')[0]) or name.startswith('lib' + module + '.')
+
+
+def keepBreakpointInModule(bp):
+    module = breakpointModules.get(bp.number)
+    if not module:
+        return
+    for location in getattr(bp, 'locations', []):
+        if location.enabled and location.address is not None \
+                and not isAddressInModule(location.address, module):
+            location.enabled = False
+
+
+def restrictBreakpointToModule(number, module):
+    breakpointModules[number] = module
+    for bp in gdb.breakpoints():
+        if bp.number == number:
+            keepBreakpointInModule(bp)
+
+
+def lastBreakpointNumber():
+    number = gdb.convenience_variable('bpnum')
+    return None if number is None else int(number)
+
+
+# A failed insertion leaves $bpnum at the breakpoint before it.
+def restrictNewBreakpointToModule(numberBefore, module):
+    number = lastBreakpointNumber()
+    if number is not None and number != numberBefore:
+        restrictBreakpointToModule(number, module)
+
+
+gdb.events.breakpoint_modified.connect(keepBreakpointInModule)
+gdb.events.breakpoint_deleted.connect(lambda bp: breakpointModules.pop(bp.number, None))
 
 
 def interpreterStopHandler(event):

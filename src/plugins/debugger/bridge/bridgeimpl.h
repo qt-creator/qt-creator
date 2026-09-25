@@ -122,6 +122,7 @@ private:
     int m_currentFrameId = -1;
     bool m_stopRequested = false;
     bool m_inferiorRunning = false;
+    bool m_sawTerminateMessage = false;
     bool m_resumePending = false;
     bool m_interruptOnceRunning = false;
     bool m_detaching = false;
@@ -174,6 +175,7 @@ private:
     quint64 m_pendingDumpersRequestId = 0;
     quint64 m_pendingModulesRequestId = 0;
     quint64 m_pendingSymbolsRequestId = 0;
+    Utils::FilePath m_pendingSymbolsModule;
     quint64 m_pendingSectionsRequestId = 0;
     quint64 m_pendingRegistersRequestId = 0;
     quint64 m_pendingBacktraceRequestId = 0;
@@ -208,6 +210,8 @@ private:
     quint64 m_nextPeripheralToken = 1000000;
     quint64 m_pendingModuleSymbolsRequestId = 0;
     quint64 m_pendingWatchPointRequestId = 0;
+    // A widget pick asked for while the inferior runs, made once it has stopped.
+    std::optional<QPoint> m_watchPointNeedingAStop;
 
     // The core file to be, kept until its request is answered.
     class SnapshotRequest

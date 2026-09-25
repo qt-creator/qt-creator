@@ -3,6 +3,8 @@
 
 #include "hostutils.h"
 
+#include "../debuggertr.h"
+
 #ifdef Q_OS_WIN
 
 #include <QTextStream>
@@ -197,5 +199,40 @@ bool isFatalWinException(unsigned long) { return false; }
 bool isDebuggerWinException(unsigned long) { return false; }
 
 #endif // !Q_OS_WIN
+
+// What the C++ runtime prints on its way out. There is no record for it, so
+// the debuggee's own output is all there is to go by.
+bool isTerminateMessage(const QStringView msg)
+{
+    return msg.contains(u"terminate called");
+}
+
+// gdb passes the kernel's refusal on as it is, which does not say what to do.
+// Newer ones put a warning about the tracer in front of it.
+bool isPtraceRefusal(const QString &message)
+{
+    return message.contains("ptrace: Operation not permitted.");
+}
+
+QString msgPtraceRefused(bool startedByUs)
+{
+    if (startedByUs) {
+        return Tr::tr(
+            "ptrace: Operation not permitted.\n\n"
+            "Could not attach to the process. "
+            "Make sure no other debugger traces this process.\n"
+            "Check the settings of\n"
+            "/proc/sys/kernel/yama/ptrace_scope\n"
+            "For more details, see /etc/sysctl.d/10-ptrace.conf\n");
+    }
+    return Tr::tr(
+        "ptrace: Operation not permitted.\n\n"
+        "Could not attach to the process. "
+        "Make sure no other debugger traces this process.\n"
+        "If your uid matches the uid\n"
+        "of the target process, check the settings of\n"
+        "/proc/sys/kernel/yama/ptrace_scope\n"
+        "For more details, see /etc/sysctl.d/10-ptrace.conf\n");
+}
 
 } // namespace Debugger::Internal

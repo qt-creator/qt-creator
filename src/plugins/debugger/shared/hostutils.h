@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QList>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -41,5 +42,9 @@ bool isFatalWinException(unsigned long code);
 
 // Check for EXCEPTION_BREAKPOINT, EXCEPTION_SINGLE_STEP
 bool isDebuggerWinException(unsigned long code);
+
+bool isTerminateMessage(const QStringView msg);
+bool isPtraceRefusal(const QString &message);
+QString msgPtraceRefused(bool startedByUs);
 
 } // namespace Debugger::Internal

@@ -10,6 +10,7 @@
 #include "../debuggertr.h"
 #include "../disassemblerlines.h"
 #include "../genericdebuggerengine.h"
+#include "../shared/hostutils.h"
 #include "../watchutils.h"
 
 #include <utils/algorithm.h>
@@ -86,11 +87,20 @@ static DebuggerEngineSetupData dapImplSetupData()
     // Only what the protocol itself defines. Memory, disassembly and running
     // backwards are optional in DAP, so they are offered here and refused per
     // session if the adapter turns out not to have them.
+    data.attachToCoreCapabilities = AdditionalQmlStackCapability | AddWatcherCapability
+                                  | AutoDerefPointersCapability
+                                  | CreateFullBacktraceCapability | DisassemblerCapability
+                                  | OperateByInstructionCapability | RegisterCapability
+                                  | ShowMemoryCapability | ShowModuleSectionsCapability
+                                  | ShowModuleSymbolsCapability
+                                  | WatchComplexExpressionsCapability;
     data.capabilities = AddWatcherCapability | AddWatcherWhileRunningCapability
                       | ReverseSteppingCapability
                       | BreakConditionCapability | BreakIndividualLocationsCapability
                       | CreateFullBacktraceCapability | ShowMemoryCapability
                       | DisassemblerCapability | OperateByInstructionCapability
+                      | WatchWidgetsCapability | AdditionalQmlStackCapability
+                      | AutoDerefPointersCapability | BreakModuleCapability
                       | BreakOnThrowAndCatchCapability | TracePointCapability
                       | RegisterCapability | ReloadModuleCapability
                       | ReloadModuleSymbolsCapability
@@ -118,6 +128,7 @@ static DebuggerEngineSetupData dapImplSetupData()
     data.startModes = DebuggerStartModeFlag::AttachToProcess
                     | DebuggerStartModeFlag::AttachToRemoteServer
                     | DebuggerStartModeFlag::AttachToTerminalStub
+                    | DebuggerStartModeFlag::AttachToCore
                     | DebuggerStartModeFlag::Launch;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferiorAndCppEditor;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
@@ -149,7 +160,10 @@ DapImpl::DapImpl(const DapStartData &startData)
         QStringList pending;
         for (const PendingRequest &request : std::as_const(m_pendingRequests))
             pending.append(request.text);
-        emit notResponding(m_startData.watchdogTimeout, pending);
+        emit notResponding(m_startData.watchdogTimeout, pending,
+                           m_debuginfodDownloadInProgress
+                               ? NotRespondingCause::FetchingDebugInfo
+                               : NotRespondingCause::Unknown);
     });
 }
 
@@ -341,8 +355,11 @@ void DapImpl::restartSession()
     m_stackTraceRequests.clear();
     m_pendingRequests.clear();
     m_customRequests.clear();
+    m_inferiorCallsInFlight = 0;
+    m_widgetPicksNeedingAStop.clear();
     m_breakpointRequests.clear();
     m_functionBreakpointRequests.clear();
+    m_breakpointModulesSent = false;
     m_instructionBreakpointRequests.clear();
     m_ownBreakpointIds.clear();
     // What the debugger was asked for past the adapter is numbered by that
@@ -552,6 +569,54 @@ void DapImpl::configureTheSymbolIndexAndForks()
     }
 }
 
+bool DapImpl::isCoreSession() const
+{
+    return std::holds_alternative<AttachToCoreData>(m_startData.inferiorStartData);
+}
+
+// The protocol has no notion of a core file, and gdb's adapter can neither
+// launch nor attach to one. Its console can load one, and what the requests
+// read after that is the state the core recorded. There is no launch, so there
+// is no configuration to be done either.
+void DapImpl::loadCore()
+{
+    const auto &core = std::get<AttachToCoreData>(m_startData.inferiorStartData);
+    if (m_startData.adapterId != "gdb") {
+        reportUnsupported(Tr::tr("loading a core file"));
+        emit inferiorEvent(InferiorEvent::EngineRunFailed);
+        return;
+    }
+    if (!core.executable.isEmpty()) {
+        const QString command = "file " + quotedPath(core.executable.path());
+        sendCustomRequest("evaluate", QJsonObject{{"expression", command}, {"context", "repl"}},
+                          [](const Utils::Result<QJsonObject> &) {});
+    }
+    // Work around gdb's adapter taking the threads a core brings for a process
+    // that runs: nothing stops, so it refuses every later request that reads
+    // them. The core is loaded in the one request that is still let through.
+    // "core-file" takes the rest of the line verbatim and does not strip
+    // quotes, so the path travels unquoted; the hex encoding keeps it intact.
+    const QString command = "python gdb.execute('core-file ' + bytes.fromhex('"
+                            + toHex(core.coreFile.path()) + "').decode()); "
+                            "import gdb.dap.events; gdb.dap.events.inferior_running = False; "
+                            "print(gdb.selected_thread().global_num "
+                            "if gdb.selected_thread() else 1)";
+    sendCustomRequest("evaluate", QJsonObject{{"expression", command}, {"context", "repl"}},
+                      [this](const Utils::Result<QJsonObject> &answer) {
+        if (!answer) {
+            emit message(Tr::tr("The core file could not be loaded: %1").arg(answer.error()),
+                         LogError);
+            emit inferiorEvent(InferiorEvent::EngineRunFailed);
+            return;
+        }
+        bool ok = false;
+        const int threadId = answer->value("result").toString().trimmed().toInt(&ok);
+        m_currentThreadId = ok ? threadId : 1;
+        m_runReported = true;
+        emit inferiorEvent(InferiorEvent::RunOkAndInferiorUnrunnable);
+    });
+}
+
 void DapImpl::postLaunchOrAttach()
 {
     // The configuration is the adapter's own schema, so it travels as it came.
@@ -600,6 +665,10 @@ void DapImpl::shutdownInferior(ShutdownMode mode)
         return;
     }
     m_shuttingDown = true;
+    if (isCoreSession()) {
+        emit inferiorEvent(InferiorEvent::ShutdownFinished);
+        return;
+    }
     if (mode == ShutdownMode::Detach) {
         sendDetach();
     } else if (m_client->capabilities().supportsTerminateRequest) {
@@ -642,8 +711,9 @@ void DapImpl::execute(const ExecutionRequest &request)
     switch (request.command) {
     case ExecutionCommand::Continue:
         // A resume the engine asked for before it heard that the debuggee had
-        // ended. There is nothing left for the adapter to continue.
-        if (m_inferiorDoneReported) {
+        // ended. There is nothing left for the adapter to continue, and a core
+        // never had anything.
+        if (m_inferiorDoneReported || isCoreSession()) {
             emit inferiorEvent(InferiorEvent::InferiorIll);
             return;
         }
@@ -695,6 +765,8 @@ void DapImpl::execute(const ExecutionRequest &request)
         reportRunRequested();
         m_resumeRequestPending = true;
         postRequest("stepIn", stepArguments(request.flag));
+        if (!request.flag)
+            checkLineStep("stepIn", stepArguments(false));
         return;
     case ExecutionCommand::StepOver:
         if (request.reverse && !m_client->capabilities().supportsStepBack) {
@@ -708,6 +780,8 @@ void DapImpl::execute(const ExecutionRequest &request)
         m_resumeRequestPending = true;
         postRequest(request.reverse ? QLatin1String("stepBack") : QLatin1String("next"),
                     stepArguments(request.flag));
+        if (!request.reverse && !request.flag)
+            checkLineStep("next", stepArguments(false));
         return;
     case ExecutionCommand::StepOut:
         if (request.reverse) {
@@ -774,6 +848,9 @@ void DapImpl::execute(const ExecutionRequest &request)
             reportUnsupported(Tr::tr("Restarting the debuggee"));
             return;
         }
+        // The debuggee that comes back has nothing to do with what the runtime
+        // said about the one being killed.
+        m_sawTerminateMessage = false;
         // Whatever has to happen while the debuggee that ran is still there.
         runUserCommands(m_startData.userCommands.forReset);
         reportRunRequested();
@@ -794,6 +871,7 @@ void DapImpl::execute(const ExecutionRequest &request)
             reportUnsupported(Tr::tr("recording the execution to walk it backwards"));
             return;
         }
+        m_recordingActive = request.flag;
         runConsoleCommand(request.flag ? QLatin1String("record full")
                                        : QLatin1String("record stop"),
                           Tr::tr("recording the execution to walk it backwards"));
@@ -855,6 +933,84 @@ void DapImpl::setBreakpointCommands(const QString &adapterId, const QString &com
                       [this](const Utils::Result<QJsonObject> &answer) {
         if (!answer)
             reportUnsupported(Tr::tr("a command on a breakpoint"));
+    });
+}
+
+// gdb has no linespec for "this function in that shared object", so the
+// locations elsewhere are disabled, also the ones a library loaded later adds.
+// This goes out ahead of the breakpoints, whose numbers are not known yet, and
+// finds them by the function they are on.
+void DapImpl::sendBreakpointModules()
+{
+    QHash<QString, QString> modules;
+    for (const Breakpoint &breakpoint : std::as_const(m_functionBreakpoints)) {
+        if (!breakpoint.enabled)
+            continue;
+        const QString &function = breakpoint.params.functionName;
+        const auto it = modules.constFind(function);
+        if (it == modules.cend()) {
+            modules.insert(function, breakpoint.params.module);
+        } else if (*it != breakpoint.params.module) {
+            reportUnsupported(Tr::tr("breakpoints on one function restricted to different "
+                                     "modules"));
+            modules[function].clear();
+        }
+    }
+    QStringList entries;
+    for (auto it = modules.cbegin(); it != modules.cend(); ++it) {
+        if (!it.value().isEmpty()) {
+            entries.append("bytes.fromhex('" + toHex(it.key()) + "').decode(): bytes.fromhex('"
+                           + toHex(it.value()) + "').decode()");
+        }
+    }
+    if (entries.isEmpty() && !m_breakpointModulesSent)
+        return;
+    if (m_startData.adapterId != "gdb") {
+        reportUnsupported(Tr::tr("breakpoints restricted to a module"));
+        return;
+    }
+    m_breakpointModulesSent = true;
+    static const QByteArray script = R"(
+if 'qtcBreakpointModules' not in globals():
+    import os
+    qtcBreakpointModules = {}
+
+    def qtcObjfileName(address):
+        progspace = gdb.current_progspace()
+        try:
+            objfile = progspace.objfile_for_address(address)
+            if objfile is not None:
+                return objfile.filename
+        except AttributeError:
+            pass
+        return gdb.solib_name(address) or progspace.filename or ''
+
+    def qtcIsInModule(address, module):
+        name = os.path.basename(qtcObjfileName(address)).lower()
+        module = module.lower()
+        return module in (name, name.split('.')[0]) or name.startswith('lib' + module + '.')
+
+    def qtcKeepBreakpointInModule(bp):
+        location = (getattr(bp, 'location', None) or '').replace('-function ', '', 1)
+        module = qtcBreakpointModules.get(location.strip())
+        if not module:
+            return
+        for location in getattr(bp, 'locations', []):
+            if location.enabled and location.address is not None \
+                    and not qtcIsInModule(location.address, module):
+                location.enabled = False
+
+    gdb.events.breakpoint_created.connect(qtcKeepBreakpointInModule)
+    gdb.events.breakpoint_modified.connect(qtcKeepBreakpointInModule)
+)";
+    const QString expression = "python exec(bytes.fromhex('" + QString::fromLatin1(script.toHex())
+                               + "').decode()); qtcBreakpointModules = {" + entries.join(", ")
+                               + "}; [qtcKeepBreakpointInModule(bp) for bp in gdb.breakpoints()]";
+    sendCustomRequest("evaluate",
+                      QJsonObject{{"expression", expression}, {"context", "repl"}},
+                      [this](const Utils::Result<QJsonObject> &answer) {
+        if (!answer)
+            reportUnsupported(Tr::tr("breakpoints restricted to a module"));
     });
 }
 
@@ -953,6 +1109,52 @@ void DapImpl::runConsoleCommand(const QString &command, const QString &what)
     });
 }
 
+// gdb's adapter answers a line step it could not take like one it took, and
+// says why only in a log of its own: where gdb knows no bounds of the function,
+// as in a stub the linker jumps through, the debuggee stays where it was and no
+// stop ever follows. Whether it runs tells the two apart, and the adapter
+// answers in order, so a step that ended quickly has reported its stop before
+// the answer comes. One that went nowhere is taken again by instruction.
+void DapImpl::checkLineStep(const QString &command, const QJsonObject &arguments)
+{
+    if (m_startData.adapterId != "gdb" || !m_client->capabilities().supportsSteppingGranularity)
+        return;
+    m_lineStepUnchecked = true;
+    const QString probe = "python print(gdb.selected_thread().is_running())";
+    sendCustomRequest("evaluate",
+                      QJsonObject{{"expression", probe}, {"context", "repl"}},
+                      [this, command, arguments](const Utils::Result<QJsonObject> &answer) {
+        if (!std::exchange(m_lineStepUnchecked, false) || !answer)
+            return;
+        if (answer->value("result").toString().trimmed() != "False")
+            return;
+        QJsonObject byInstruction = arguments;
+        byInstruction.insert("granularity", "instruction");
+        m_resumeRequestPending = true;
+        postRequest(command, byInstruction);
+    });
+}
+
+// gdb's adapter answers an attach the kernel refused as a success, having
+// logged the refusal where no client sees it. What is left to go by is an
+// inferior without a process while the process is still there.
+void DapImpl::checkAttached()
+{
+    const int pid = m_startData.configuration.value("pid").toInt();
+    if (m_startData.adapterId != "gdb" || pid <= 0)
+        return;
+    const QString probe = QString("python import os; print(gdb.selected_inferior().pid,"
+                                  " os.path.exists('/proc/%1'))").arg(pid);
+    sendCustomRequest("evaluate", QJsonObject{{"expression", probe}, {"context", "repl"}},
+                      [this](const Utils::Result<QJsonObject> &answer) {
+        if (!answer || answer->value("result").toString().trimmed() != "0 True")
+            return;
+        emit startFailed(Tr::tr("Debugger Error"), msgPtraceRefused(false),
+                         Key("GdbPtraceRefusedAttach"));
+        emit inferiorEvent(InferiorEvent::EngineIll);
+    });
+}
+
 // Loading symbols is nothing the protocol asks for, while the debugger behind
 // the adapter does it over its console, taking the modules by a pattern their
 // names match.
@@ -1038,6 +1240,7 @@ void DapImpl::fetchModuleSymbols(quint64 requestId, const FilePath &modulePath)
     if (!tempFile->open()) {
         emit message(Tr::tr("Cannot create a temporary file for the symbols of %1.")
                          .arg(modulePath.toUserOutput()), LogWarning);
+        emit refreshFailed(requestId, RefreshKind::ModuleSymbols, modulePath);
         return;
     }
     const FilePath listingPath = tempFile->filePath();
@@ -1054,6 +1257,7 @@ void DapImpl::fetchModuleSymbols(quint64 requestId, const FilePath &modulePath)
         if (!answer || !listing) {
             emit message(Tr::tr("Cannot fetch the symbols of %1.")
                              .arg(modulePath.toUserOutput()), LogError);
+            emit refreshFailed(requestId, RefreshKind::ModuleSymbols, modulePath);
             return;
         }
         emit refreshDataReceived(requestId, RefreshKind::ModuleSymbols,
@@ -1193,6 +1397,7 @@ int DapImpl::sendFunctionBreakpoints()
         reportUnsupported(Tr::tr("breakpoints by function name"));
         return -1;
     }
+    sendBreakpointModules();
     QJsonArray breakpoints;
     for (const Breakpoint &breakpoint : m_functionBreakpoints) {
         if (!breakpoint.enabled)
@@ -2190,6 +2395,8 @@ void DapImpl::refresh(const RefreshRequest &request)
         m_lastLocalsRequest = request;
         m_localsRequestId = request.requestId;
         m_expandedINames = request.expandedINames;
+        m_autoDerefPointers = request.autoDerefPointers;
+        m_derefINames.clear();
         m_partialVariable = request.partialVariable;
         m_locals.clear();
         m_localRoots.clear();
@@ -2316,6 +2523,9 @@ void DapImpl::refresh(const RefreshRequest &request)
         m_registersRequestId = request.requestId;
         m_registerScopesSeq = m_client->scopes(m_currentFrameId);
         return;
+    case RefreshKind::QmlStack:
+        fetchQmlStack(request);
+        return;
     default:
         // Symbols and snapshots have no counterpart the protocol defines, so
         // the view is answered with nothing rather than being left waiting.
@@ -2334,6 +2544,7 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         emit message(QString("Response time: %1: %2 s").arg(answered.command)
                          .arg(elapsed / 1000.), LogTime);
     }
+    m_debuginfodDownloadInProgress = false;
     restartWatchdog();
 
     if (const DapSessionChannel::Answer answer
@@ -2424,6 +2635,7 @@ void DapImpl::handleResponse(DapResponseType type, const QJsonObject &response)
         if (success) {
             runUserCommands(m_startData.userCommands.afterConnect);
             runUserCommands(m_startData.userCommands.afterAttach.split('\n'));
+            checkAttached();
         }
         Q_FALLTHROUGH();
     case DapResponseType::Launch:
@@ -2640,6 +2852,10 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         // The one window in which DAP accepts breakpoints, so whatever was
         // collected while the adapter started goes out now.
         m_configured = true;
+        if (isCoreSession()) {
+            loadCore();
+            return;
+        }
         // A session started anew behind a reset has the breakpoints already,
         // the ones made here among them, and the run it stands for has been
         // reported when the reset was asked for.
@@ -2707,6 +2923,7 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
         reportThreadGroupGone();
         InferiorResultData result;
         result.exitCode = event.value("body").toObject().value("exitCode").toInt();
+        result.terminatedByRuntime = std::exchange(m_sawTerminateMessage, false);
         askWhetherASignalTookTheInferior(result);
         return;
     }
@@ -2741,6 +2958,15 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
             if (match.hasMatch())
                 m_gdbMajorVersion = match.captured(1).toInt();
         }
+        // gdb announces a debug info download with one line and then fetches
+        // silently, which looks exactly like a debugger that stopped answering.
+        // Its own output shares the pipe of the debuggee's.
+        if (m_startData.adapterId == "gdb" && output.contains("Downloading")
+                && output.contains("separate debug info")) {
+            m_debuginfodDownloadInProgress = true;
+        }
+        if ((channel == AppOutput || channel == AppError) && isTerminateMessage(output))
+            m_sawTerminateMessage = true;
         emit message(output, channel);
         return;
     }
@@ -2750,6 +2976,8 @@ void DapImpl::handleEvent(DapEventType type, const QJsonObject &event)
 
     const QString name = event.value("event").toString();
     if (name == "continued") {
+        if (m_inferiorCallsInFlight > 0)
+            return;
         const QJsonObject body = event.value("body").toObject();
         GdbMi runningThread;
         runningThread.m_type = GdbMi::Tuple;
@@ -2973,8 +3201,15 @@ void DapImpl::reportBreakpointHits(const QJsonArray &adapterIds)
 void DapImpl::handleStopped(const QJsonObject &event)
 {
     const QJsonObject body = event.value("body").toObject();
+    // gdb reports each call made on the debugger's own behalf as a run of its
+    // own, which ends where the stop the call was made in already is.
+    if (m_inferiorCallsInFlight > 0 && body.value("reason").toString() == "function call")
+        return;
     m_currentThreadId = body.value("threadId").toInt();
     m_inferiorRunning = false;
+    m_lineStepUnchecked = false;
+    // A stop explains itself, whatever the runtime said before it.
+    m_sawTerminateMessage = false;
     // The debuggee stopped before the resume was answered, so the interrupt
     // waiting for that answer has what it wanted.
     m_interruptWhenResumed = false;
@@ -3006,7 +3241,18 @@ void DapImpl::handleStopped(const QJsonObject &event)
         execute({ExecutionCommand::Continue});
         return;
     }
-    if (reason == "exception" || reason == "signal") {
+    // gdb's own DAP support has no reason for a stop that a recording aborted
+    // by itself (a "signal 0"): nothing set the field it reports one in, and
+    // the fallback it answers with otherwise is meant for a stop made by a
+    // "repl" command such as an "attach" typed in by hand, which is not a
+    // shape this engine's own requests ever produce. So this is the only way
+    // that fallback reaches this engine, and the one place the failure is
+    // told apart from an ordinary stop.
+    const bool recordingJustFailed = m_recordingActive && reason == "stopped";
+    if (recordingJustFailed) {
+        m_recordingActive = false;
+        emit recordingFailed();
+    } else if (reason == "exception" || reason == "signal") {
         // The protocol names no signals. "text" is where an adapter says what
         // it was, if it says anything at all.
         const QString text = body.value("text").toString();
@@ -3060,7 +3306,7 @@ void DapImpl::handleStopped(const QJsonObject &event)
         sendBreakpointsFor(it.key());
     }
 
-    if (reason != u"exception" && reason != u"signal" && hit.isEmpty())
+    if (!recordingJustFailed && reason != u"exception" && reason != u"signal" && hit.isEmpty())
         emit stopReasonReported(reason);
 
     // Report the stop only once the location is known, as the other backends do.
@@ -3207,6 +3453,9 @@ void DapImpl::reportStop()
     emit inferiorEvent(m_stopRequested ? InferiorEvent::StopOk
                                        : InferiorEvent::SpontaneousStop);
     m_stopRequested = false;
+    const QList<WidgetPick> picks = std::exchange(m_widgetPicksNeedingAStop, {});
+    for (const WidgetPick &pick : picks)
+        pickWidget(pick);
     if (m_deferredLocalsRequest) {
         const RefreshRequest deferred = *m_deferredLocalsRequest;
         m_deferredLocalsRequest.reset();
@@ -3310,6 +3559,8 @@ void DapImpl::handleStackTrace(const QJsonObject &response)
     GdbMi frameList;
     frameList.m_name = "frames";
     frameList.m_type = GdbMi::List;
+    for (int i = 0; i < request.qmlFrames.childCount(); ++i)
+        frameList.addChild(request.qmlFrames.childAt(i));
     int level = 0;
     for (const QJsonValue &value : frames) {
         const QJsonObject item = value.toObject();
@@ -3590,6 +3841,22 @@ void DapImpl::handleVariables(const QJsonObject &response)
     const QJsonArray variables = response.value("body").toObject()
                                      .value("variables").toArray();
 
+    // A pointer's only child is its pointee, which takes the pointer's place.
+    if (m_derefINames.remove(parent) && variables.size() == 1) {
+        const QJsonObject item = variables.first().toObject();
+        Local &local = m_locals[parent];
+        local.type = item.value("type").toString().section('\n', 0, 0);
+        local.value = item.value("value").toString();
+        local.reference = item.value("variablesReference").toInt();
+        local.hasChildren = local.reference != 0;
+        local.address = item.value("memoryReference").toString().toULongLong(nullptr, 0);
+        local.derefed = true;
+        if (local.hasChildren && m_expandedINames.contains(parent))
+            queueVariables(parent, local.reference);
+        continueLocalsWalk();
+        return;
+    }
+
     // Where in the parent this level continues. More than one scope can be
     // locals - arguments are their own scope for some adapters - so the root
     // count carries across the answers rather than restarting per scope.
@@ -3617,10 +3884,7 @@ void DapImpl::handleVariables(const QJsonObject &response)
             m_locals[parent].childINames.append(local.iname);
         m_locals.insert(local.iname, local);
 
-        if (local.hasChildren && m_expandedINames.contains(local.iname)
-                && isRequestedLocal(local.iname)) {
-            queueVariables(local.iname, local.reference);
-        }
+        queueChildren(local);
     }
     continueLocalsWalk();
 }
@@ -3644,12 +3908,35 @@ void DapImpl::handleWatcher(const QJsonObject &response)
     local.address = body.value("memoryReference").toString().toULongLong(nullptr, 0);
     m_localRoots.append(local.iname);
     m_locals.insert(local.iname, local);
+    queueChildren(local);
+    continueLocalsWalk();
+}
 
-    if (local.hasChildren && m_expandedINames.contains(local.iname)
-            && isRequestedLocal(local.iname)) {
+// What the dumpers leave alone: strings, untyped memory, functions, and a
+// pointer to a pointer, which is dereferenced a level at a time.
+static bool isDerefablePointer(const QString &type, const QString &value)
+{
+    const QString simplified = type.simplified();
+    if (!simplified.endsWith('*') || simplified.contains('('))
+        return false;
+    static const QRegularExpression notDerefed(
+        "^(const |volatile )*(void|char|signed char|unsigned char|wchar_t|char8_t|char16_t"
+        "|char32_t)( const| volatile)* ?\\*$|\\*\\s*\\*$");
+    if (notDerefed.match(simplified).hasMatch())
+        return false;
+    return !value.startsWith("0x") || value.section(' ', 0, 0).toULongLong(nullptr, 0) != 0;
+}
+
+void DapImpl::queueChildren(const Local &local)
+{
+    if (!local.hasChildren || !isRequestedLocal(local.iname))
+        return;
+    if (m_autoDerefPointers && isDerefablePointer(local.type, local.value)) {
+        m_derefINames.insert(local.iname);
+        queueVariables(local.iname, local.reference);
+    } else if (m_expandedINames.contains(local.iname)) {
         queueVariables(local.iname, local.reference);
     }
-    continueLocalsWalk();
 }
 
 GdbMi DapImpl::localsItem(const QString &iname) const
@@ -3662,6 +3949,8 @@ GdbMi DapImpl::localsItem(const QString &iname) const
     item.addChild(constMi("type", local.type));
     item.addChild(constMi("value", local.value));
     item.addChild(constMi("numchild", local.hasChildren ? "1" : "0"));
+    if (local.derefed)
+        item.addChild(constMi("autoderefcount", "1"));
     if (local.address != 0)
         item.addChild(constMi("address", QString::number(local.address)));
 
@@ -4016,11 +4305,120 @@ void DapImpl::setPeripheralRegisterValue(quint64 address, quint64 value)
     accessMemory(MemoryOp::Change, 0, address, sizeof(word), data);
 }
 
+static QString widgetExpression(quint64 address)
+{
+    return "(QWidget*)0x" + QString::number(address, 16);
+}
+
+// The widget is looked up the way the user would do it in the console, which
+// takes a stopped debuggee. A running one is stopped for good, the way gdb's
+// own backend does it: what is picked is shown in a stop, not in a run.
 void DapImpl::watchPoint(quint64 requestId, const QPoint &pnt)
 {
-    Q_UNUSED(pnt)
-    reportUnsupported(Tr::tr("watching a widget"));
-    emit watchPointResolved(requestId, 0, {});
+    if (!m_inferiorRunning) {
+        pickWidget({requestId, pnt});
+        return;
+    }
+    m_widgetPicksNeedingAStop.append({requestId, pnt});
+    if (m_widgetPicksNeedingAStop.size() == 1)
+        execute({ExecutionCommand::Interrupt});
+}
+
+// The overload taking two ints is inline, so the one taking a QPoint is
+// called, with the point in memory the call can see. gdb calls it by the name
+// the library exports, which needs no debug information: the point is put
+// where the debuggee's own allocator says, once the function is known to exist.
+void DapImpl::pickWidget(const WidgetPick &pick)
+{
+    const int x = pick.point.x();
+    const int y = pick.point.y();
+    QJsonObject arguments;
+    if (m_startData.adapterId == "gdb") {
+        const QString script = QString(
+            "python f = int(gdb.parse_and_eval('_ZN12QApplication8widgetAtERK6QPoint').address);"
+            " b = int(gdb.parse_and_eval('((void *(*)(unsigned long)) malloc)(8)'));"
+            " gdb.parse_and_eval('*(int *) %d = %1' % b);"
+            " gdb.parse_and_eval('*(int *) %d = %2' % (b + 4));"
+            " w = int(gdb.parse_and_eval('((void *(*)(void *)) %d)((void *) %d)' % (f, b)));"
+            " gdb.parse_and_eval('((void (*)(void *)) free)((void *) %d)' % b);"
+            " print(hex(w))").arg(x).arg(y);
+        arguments = {{"expression", script}, {"context", "repl"}};
+    } else {
+        const QString expression = QString("int point[2] = {%1, %2};"
+                                           " (void *) QApplication::widgetAt(*(QPoint *) point)")
+                                       .arg(x).arg(y);
+        arguments = {{"expression", expression}, {"context", "watch"}};
+    }
+    ++m_inferiorCallsInFlight;
+    sendCustomRequest("evaluate", arguments,
+                      [this, requestId = pick.requestId](const Utils::Result<QJsonObject> &answer) {
+        --m_inferiorCallsInFlight;
+        const quint64 address = answer ? addressOfEvaluated(*answer) : 0;
+        emit watchPointResolved(requestId, address, widgetExpression(address));
+    });
+}
+
+// The QML engine is asked for its stack with a call into the debuggee, as the
+// gdb dumper does it. Only gdb's adapter runs the Python that finds the engine,
+// the others give the native stack alone.
+void DapImpl::fetchQmlStack(const RefreshRequest &request)
+{
+    auto fetchStack = [this, request](const GdbMi &qmlFrames) {
+        const int seq = m_client->stackTrace(m_currentThreadId,
+                                             qMax(request.stackDepthLimit, 0));
+        if (seq >= 0)
+            m_stackTraceRequests.insert(seq, {false, request.requestId, false, qmlFrames});
+    };
+    // A core has no process to run the call in.
+    if (m_startData.adapterId != "gdb" || isCoreSession()) {
+        fetchStack({});
+        return;
+    }
+    static const QByteArray script = R"(
+q = chr(34)
+old = gdb.parameter('print elements')
+gdb.execute('set print elements unlimited')
+out = ''
+try:
+    f = gdb.newest_frame()
+    while f is not None and not out:
+        try:
+            symbols = list(f.block())
+        except RuntimeError:
+            symbols = []
+        for s in symbols:
+            if not (s.is_variable or s.is_argument) or s.type is None:
+                continue
+            t = s.type.strip_typedefs()
+            if t.code != gdb.TYPE_CODE_PTR:
+                continue
+            if t.target().unqualified().name != 'QV4::ExecutionEngine':
+                continue
+            engine = int(s.value(f))
+            r = str(gdb.parse_and_eval('qt_v4StackTraceForEngine((void *) 0x%x)' % engine))
+            p = r.find(q + 'stack=[')
+            if p != -1:
+                out = r[p + 8:-2].replace(chr(92) + q, q).replace('func=', 'function=')
+            break
+        f = f.older()
+finally:
+    gdb.execute('set print elements %s' % ('unlimited' if old is None else old))
+print(out)
+)";
+    const QString command = "python exec(bytes.fromhex('" + QString::fromLatin1(script.toHex())
+                            + "').decode())";
+    ++m_inferiorCallsInFlight;
+    sendCustomRequest("evaluate", {{"expression", command}, {"context", "repl"}},
+                      [this, fetchStack](const Utils::Result<QJsonObject> &answer) {
+        --m_inferiorCallsInFlight;
+        GdbMi all;
+        if (answer) {
+            QStringDecoder decoder(QStringDecoder::Utf8);
+            all.fromString("{frames=[" + answer->value("result").toString().trimmed() + "]}",
+                           decoder);
+        }
+        fetchStack(all["frames"]);
+    });
 }
 
 void DapImpl::createSnapshot(quint64 requestId)

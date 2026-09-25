@@ -162,6 +162,8 @@ private:
     // running when they were asked for and so has to be resumed afterwards.
     QList<DebuggerCommand> m_onStopCommands;
     bool m_onStopWantContinue = false;
+    // Widget picks asked for while the inferior runs, made once it has stopped.
+    QList<DebuggerCommand> m_watchPointsNeedingAStop;
     bool m_temporaryStopRequested = false;
     bool m_resumingFromTemporaryStop = false;
     bool m_resumeRequested = false;

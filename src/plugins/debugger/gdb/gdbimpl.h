@@ -139,7 +139,8 @@ private:
     void continueAfterAttach();
     void handleShowVersion(const DebuggerResponse &response);
 
-    void runRunRequestCommand(const QString &function, int flags = 0);
+    void runRunRequestCommand(const QString &function, int flags = 0,
+                              const QString &instructionWise = {});
 
     void fetchRegisterValues(quint64 requestId);
     void handleModulesList(quint64 requestId, const DebuggerResponse &response);
@@ -180,6 +181,7 @@ private:
     void runCommandNow(const DebuggerCommand &command);
     void handleOutputLine(const QString &line);
     void handleResultRecord(DebuggerResponse *response);
+    void handleAbortedRun(const DebuggerResponse &response);
     void reportEngineSetupOk();
     void reportEngineSetupFailed();
 

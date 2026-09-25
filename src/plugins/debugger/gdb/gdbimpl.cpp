@@ -6,6 +6,7 @@
 #include "../breakpoint.h"
 #include "../debuggerconstants.h"
 #include "../debuggerinternalconstants.h"
+#include "../debuggertr.h"
 #include "../procinterrupt.h"
 #include "../shared/hostutils.h"
 #include "../watchutils.h"
@@ -27,13 +28,6 @@
 using namespace Utils;
 
 namespace Debugger::Internal {
-
-// What the C++ runtime prints on its way out. There is no record for it, so
-// the debuggee's own output is all there is to go by.
-static bool isTerminateMessage(const QStringView msg)
-{
-    return msg.contains(u"terminate called");
-}
 
 static GdbMi constMi(const QString &name, const QString &data)
 {
@@ -96,7 +90,7 @@ static DebuggerEngineSetupData gdbImplSetupData()
                       | AddWatcherWhileRunningCapability
                       | BreakConditionCapability
                       | BreakIndividualLocationsCapability
-                      | BreakOnThrowAndCatchCapability
+                      | BreakOnThrowAndCatchCapability | BreakModuleCapability
                       | JumpToLineCapability
                       | ReloadModuleCapability
                       | ReloadModuleSymbolsCapability
@@ -486,6 +480,10 @@ void GdbImpl::handleLocalAttach(const DebuggerResponse &response)
         if (m_startData.isSet(GdbImplFlag::ContinueAfterAttach))
             continueAfterAttach();
     } else {
+        if (isPtraceRefusal(response.data["msg"].data())) {
+            emit startFailed(Tr::tr("Debugger Error"), msgPtraceRefused(false),
+                             Key("GdbPtraceRefusedAttach"));
+        }
         emit inferiorEvent(InferiorEvent::EngineIll);
     }
 }
@@ -494,6 +492,10 @@ void GdbImpl::handleTerminalStubAttach(const DebuggerResponse &response, qint64 
 {
     if (response.resultClass != ResultDone && response.resultClass != ResultRunning) {
         m_attachPhase = AttachPhase::Idle;
+        if (isPtraceRefusal(response.data["msg"].data())) {
+            emit startFailed(Tr::tr("Debugger Error"), msgPtraceRefused(true),
+                             Key("GdbPtraceRefusedTerminalAttach"));
+        }
         emit inferiorEvent(InferiorEvent::EngineIll);
         return;
     }
@@ -725,9 +727,12 @@ void GdbImpl::execute(const ExecutionRequest &request)
                 break;
             }
         }
-        runRunRequestCommand(withDirection(request.reverse,
-                                           request.flag ? "-exec-next-instruction"
-                                                        : "-exec-next"));
+        if (request.flag) {
+            runRunRequestCommand(withDirection(request.reverse, "-exec-next-instruction"));
+        } else {
+            runRunRequestCommand(withDirection(request.reverse, "-exec-next"), 0,
+                                 withDirection(request.reverse, "-exec-next-instruction"));
+        }
         break;
     case ExecutionCommand::StepIn:
         if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging) && request.currentFrameIsQml && !request.flag) {
@@ -735,7 +740,8 @@ void GdbImpl::execute(const ExecutionRequest &request)
         } else if (!request.flag) {
             if (m_startData.isSet(GdbImplFlag::NativeMixedDebugging))
                 runCommand({"armInterpreterStepIn"});
-            runRunRequestCommand(withDirection(request.reverse, "-exec-step"));
+            runRunRequestCommand(withDirection(request.reverse, "-exec-step"), 0,
+                                 withDirection(request.reverse, "-exec-step-instruction"));
         } else {
             runRunRequestCommand(withDirection(request.reverse, "-exec-step-instruction"));
         }
@@ -766,6 +772,9 @@ void GdbImpl::execute(const ExecutionRequest &request)
         }});
         break;
     case ExecutionCommand::ResetInferior:
+        // The inferior that comes back has nothing to do with what the runtime
+        // said about the one being killed, and it reports no stop of its own.
+        m_sawTerminateMessage = false;
         for (const QString &command : m_startData.userCommands.forReset) {
             runCommand({command, DebuggerCommand::NativeCommand
                                      | DebuggerCommand::NeedsTemporaryStop});
@@ -1050,6 +1059,7 @@ void GdbImpl::refresh(const RefreshRequest &request)
         auto tempFile = std::make_shared<TemporaryFile>("gdbsymbols");
         if (!tempFile->open()) {
             emit message("GdbImpl: cannot create a temp file for module symbols", LogWarning);
+            emit refreshFailed(requestId, RefreshKind::ModuleSymbols, request.path);
             return;
         }
         const FilePath tempFilePath = tempFile->filePath();
@@ -1151,12 +1161,14 @@ void GdbImpl::handleModuleSymbols(quint64 requestId, const FilePath &modulePath,
     if (response.resultClass != ResultDone) {
         emit message("GdbImpl: cannot read symbols for module " + modulePath.toUserOutput(),
                      LogWarning);
+        emit refreshFailed(requestId, RefreshKind::ModuleSymbols, modulePath);
         return;
     }
 
     QFile file(tempFilePath.toFSPathString());
     if (!file.open(QIODevice::ReadOnly)) {
         emit message("GdbImpl: cannot open module symbols temp file", LogWarning);
+        emit refreshFailed(requestId, RefreshKind::ModuleSymbols, modulePath);
         return;
     }
     const QString listing = QString::fromLocal8Bit(file.readAll());
@@ -1397,6 +1409,12 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
     }
     function += gdbBreakpointLocation(params, m_startData.mainFunctionName);
 
+    const bool restrictToModule = params.type == BreakpointByFunction
+                                  && !params.module.isEmpty();
+    if (restrictToModule) {
+        runCommand({"python qtcBreakpointNumberBefore = lastBreakpointNumber()",
+                    DebuggerCommand::NeedsTemporaryStop});
+    }
     const QString command = params.command;
     runCommand({function, DebuggerCommand::NeedsTemporaryStop,
                [this, requestId, command](const DebuggerResponse &response) {
@@ -1405,6 +1423,12 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
             setBreakpointCommands(response.data["bkpt"]["number"].data(), command);
         emit breakpointEvent(requestId, BreakpointOp::Insert, ok, response.data);
     }});
+    // Right behind the insertion, so gdb's $bpnum is still its number.
+    if (restrictToModule) {
+        runCommand({"python restrictNewBreakpointToModule(qtcBreakpointNumberBefore, "
+                    "bytes.fromhex('" + toHex(params.module) + "').decode())",
+                    DebuggerCommand::NeedsTemporaryStop});
+    }
 }
 
 void GdbImpl::setBreakpointCommands(const QString &bpnr, const QString &command)
@@ -1809,13 +1833,23 @@ void GdbImpl::executeDebuggerCommand(const QString &command,
     runCommand({command, DebuggerCommand::NativeCommand | DebuggerCommand::NeedsTemporaryStop});
 }
 
-void GdbImpl::runRunRequestCommand(const QString &function, int flags)
+// Where gdb cannot tell the bounds of the line, as in a PLT stub, stepping by
+// instruction still gets the user out of it.
+static bool isLineStepRefusal(const QString &msg)
+{
+    return msg.startsWith("Cannot find bounds of current function")
+           || msg.contains("Error accessing memory address")
+           || msg.startsWith("Cannot access memory at address");
+}
+
+void GdbImpl::runRunRequestCommand(const QString &function, int flags,
+                                   const QString &instructionWise)
 {
     const bool silent = std::exchange(m_resumingFromTemporaryStop, false);
     if (!silent)
         emit inferiorEvent(InferiorEvent::RunRequested);
     m_runCommandPending = true;
-    runCommand({function, flags, [this, silent](const DebuggerResponse &response) {
+    runCommand({function, flags, [this, silent, instructionWise](const DebuggerResponse &response) {
         m_runCommandPending = false;
         if (response.resultClass == ResultRunning) {
             m_inferiorRunning = true;
@@ -1849,6 +1883,12 @@ void GdbImpl::runRunRequestCommand(const QString &function, int flags)
             // The inferior stays where the interrupt left it, so the stop that
             // was kept from the engine is now the truth and has to be reported.
             emit inferiorEvent(InferiorEvent::SpontaneousStop);
+            return;
+        }
+        if (!inferiorGone && !instructionWise.isEmpty()
+                && isLineStepRefusal(response.data["msg"].data())) {
+            emit inferiorEvent(InferiorEvent::RunFailed);
+            runRunRequestCommand(instructionWise);
             return;
         }
         emit inferiorEvent(inferiorGone ? InferiorEvent::InferiorIll : InferiorEvent::RunFailed);
@@ -2215,6 +2255,10 @@ void GdbImpl::handleOutputLine(const QString &line)
                                                      ? QString("all")
                                                      : result["thread-id"].data()));
             emit threadEvent(ThreadEvent::Stopped, stoppedThread);
+            // gdb stops a recording that meets an instruction it cannot record
+            // by a "signal 0", which is not one the user wants to hear about.
+            const bool cannotRecord = m_pendingLogStreamOutput.contains(
+                "Process record: failed to record execution log.");
             m_pendingConsoleStreamOutput.clear();
             m_pendingLogStreamOutput.clear();
 
@@ -2224,6 +2268,15 @@ void GdbImpl::handleOutputLine(const QString &line)
             m_resultVarName = resultVar.isValid() ? resultVar.data() : QString();
 
             const QString reason = result["reason"].data();
+
+            // A stop names its reason and has a location to show it at, so
+            // whatever the runtime said before it needs no explaining any more.
+            // Several of the arms below resume and never reach the end of the
+            // dispatch, so the clearing cannot wait until there.
+            const bool isInferiorExit = reason == u"exited" || reason == u"exited-normally"
+                                        || reason == u"exited-signalled";
+            if (!isInferiorExit)
+                m_sawTerminateMessage = false;
 
             // A watchpoint stop looks like any other one in the views, so the
             // value the debugger saw change is only in this record. gdb keeps
@@ -2314,8 +2367,7 @@ void GdbImpl::handleOutputLine(const QString &line)
                 }
             }
 
-            if (reason == u"exited" || reason == u"exited-normally"
-                    || reason == u"exited-signalled") {
+            if (isInferiorExit) {
                 if (!m_onStopCommands.isEmpty()) {
                     const QList<DebuggerCommand> commands = m_onStopCommands;
                     m_onStopCommands.clear();
@@ -2342,10 +2394,6 @@ void GdbImpl::handleOutputLine(const QString &line)
                 }
                 break;
             }
-
-            // A stop names its reason and has a location to show it at, so
-            // whatever the runtime said before it needs no explaining any more.
-            m_sawTerminateMessage = false;
 
             if (m_attachPhase == AttachPhase::AwaitingConnect) {
                 const auto *remoteData = std::get_if<AttachToRemoteServerData>(&m_startData.inferiorStartData);
@@ -2392,7 +2440,9 @@ void GdbImpl::handleOutputLine(const QString &line)
                 m_interruptRequested = false;
                 emit inferiorEvent(wasInterruptRequested ? InferiorEvent::StopOk
                                                          : InferiorEvent::SpontaneousStop);
-                if (reason == u"signal-received") {
+                if (cannotRecord) {
+                    emit recordingFailed();
+                } else if (reason == u"signal-received") {
                     emit signalReceived(result["signal-name"].data(),
                                         result["signal-meaning"].data());
                 } else {
@@ -2570,6 +2620,13 @@ void GdbImpl::handleResultRecord(DebuggerResponse *response)
         return;
 
     if (!m_commandForToken.contains(token)) {
+        // A resume gdb cannot insert the breakpoints for gets a second answer
+        // after the ^running, and no *stopped.
+        if (response->resultClass == ResultFail && m_inferiorRunning
+                && response->data["msg"].data() == "Command aborted.") {
+            handleAbortedRun(*response);
+            return;
+        }
         emit message(QString("GdbImpl: no command found for token %1").arg(token), LogError);
         return;
     }
@@ -2587,5 +2644,21 @@ void GdbImpl::handleResultRecord(DebuggerResponse *response)
     }
     if (cmd.callback)
         cmd.callback(*response);
+}
+
+void GdbImpl::handleAbortedRun(const DebuggerResponse &response)
+{
+    m_inferiorRunning = false;
+    const bool wasInterruptRequested = std::exchange(m_interruptRequested, false);
+    m_temporaryStopRequested = false;
+    m_onStopWantContinue = false;
+    const QList<DebuggerCommand> commands = std::exchange(m_onStopCommands, {});
+    emit inferiorEvent(wasInterruptRequested ? InferiorEvent::StopOk
+                                             : InferiorEvent::SpontaneousStop);
+    const QString reason = response.logStreamOutput.trimmed();
+    if (!reason.isEmpty())
+        emit message(reason, StatusBar);
+    for (const DebuggerCommand &queuedCommand : commands)
+        runCommandNow(queuedCommand);
 }
 } // namespace Debugger::Internal
