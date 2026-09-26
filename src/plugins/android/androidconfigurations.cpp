@@ -39,6 +39,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
@@ -320,7 +321,8 @@ void AndroidConfigData::load()
     m_customNdkList = FilePaths::fromSettings(settings.value(CustomNdkLocationsKey));
     m_defaultNdk = FilePath::fromSettings(settings.value(DefaultNdkLocationKey)).cleanPath();
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
-    m_openJDKLocation = FilePath::fromSettings(settings.value(OpenJDKLocationKey));
+    // The old detection wrote a trailing separator.
+    m_openJDKLocation = FilePath::fromSettings(settings.value(OpenJDKLocationKey)).cleanPath();
     m_openSslLocation = FilePath::fromSettings(settings.value(OpenSslPriLocationKey));
     m_automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
     m_sdkFullyConfigured = settings.value(SdkFullyConfiguredKey, false).toBool();
@@ -335,7 +337,7 @@ void AndroidConfigData::load()
         m_customNdkList = FilePaths::fromSettings(reader.restoreValue(CustomNdkLocationsKey));
         m_sdkManagerToolArgs = reader.restoreValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs).toStringList();
         m_openJDKLocation = FilePath::fromSettings(
-            reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toSettings()));
+            reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toSettings())).cleanPath();
         m_openSslLocation = FilePath::fromSettings(
             reader.restoreValue(OpenSslPriLocationKey, m_openSslLocation.toSettings()));
         m_automaticKitCreation = reader.restoreValue(AutomaticKitCreationKey, m_automaticKitCreation).toBool();
@@ -1059,9 +1061,13 @@ bool sdkToolsOk()
 
 FilePath openJDKLocation() { return config().m_openJDKLocation; }
 
+// The setting stores a directory, but follows the entry when its directory is edited.
+static Id jdkTheSettingNames;
+
 void setOpenJDKLocation(const FilePath &openJDKLocation)
 {
     config().m_openJDKLocation = openJDKLocation;
+    jdkTheSettingNames = JdkManager::jdkForJavaHome(openJDKLocation).id;
 }
 
 QString toolchainHost(const QtVersion *qtVersion)
@@ -1148,76 +1154,111 @@ static FilePath androidStudioPath()
     const QSettings settings32(registryKey, QSettings::Registry32Format);
     return FilePath::fromUserInput(
         settings64.value(valueName, settings32.value(valueName).toString()).toString());
+#else
+    const FilePath home = FileUtils::homePath();
+    const FilePaths candidates = HostOsInfo::isMacHost()
+        ? FilePaths{"/Applications/Android Studio.app/Contents",
+                    home / "Applications/Android Studio.app/Contents"}
+        : FilePaths{"/opt/android-studio",
+                    "/usr/local/android-studio",
+                    "/snap/android-studio/current/android-studio",
+                    home / "android-studio",
+                    home / ".local/share/JetBrains/Toolbox/apps/android-studio"};
+    return Utils::findOrDefault(candidates, &FilePath::isReadableDir);
 #endif
-    return {}; // TODO non-Windows
 }
 
-FilePath getJdkPath()
+// The JDK detection does not look inside applications.
+FilePaths androidStudioJdks()
 {
-    FilePath jdkHome = FilePath::fromString(qtcEnvironmentVariable(Constants::JAVA_HOME_ENV_VAR));
-    if (jdkHome.exists())
-        return jdkHome;
+    const FilePath studio = androidStudioPath();
+    if (studio.isEmpty())
+        return {};
 
-    if (HostOsInfo::isWindowsHost()) {
-        // Look for Android Studio's jdk first
-        const FilePath androidStudioSdkPath = androidStudioPath();
-        if (!androidStudioSdkPath.isEmpty()) {
-            const QStringList allVersions{"jbr", "jre"};
-            for (const QString &version : allVersions) {
-                const FilePath androidStudioSdkJbrPath = androidStudioSdkPath / version;
-                if (androidStudioSdkJbrPath.exists())
-                    return androidStudioSdkJbrPath;
-            }
-        }
-
-        if (jdkHome.isEmpty()) {
-            QStringList allVersions;
-            QSettings settings("HKEY_LOCAL_MACHINE\\SOFTWARE\\JavaSoft\\JDK\\",
-                               QSettings::NativeFormat);
-            allVersions = settings.childGroups();
-#ifdef Q_OS_WIN
-            if (allVersions.isEmpty()) {
-                settings.setDefaultFormat(QSettings::Registry64Format);
-                allVersions = settings.childGroups();
-            }
-#endif // Q_OS_WIN
-
-            // Look for the highest existing JDK
-            allVersions.sort();
-            std::reverse(allVersions.begin(), allVersions.end()); // Order descending
-            for (const QString &version : std::as_const(allVersions)) {
-                settings.beginGroup(version);
-                jdkHome = FilePath::fromUserInput(settings.value("JavaHome").toString());
-                settings.endGroup();
-                if (jdkHome.exists())
-                    break;
-            }
-        }
-    } else {
-        QStringList args;
+    FilePaths jdks;
+    for (const QString &name : QStringList{"jbr", "jre"}) {
+        FilePath jdk = studio / name;
         if (HostOsInfo::isMacHost())
-            args << "-c"
-                 << "/usr/libexec/java_home";
-        else
-            args << "-c"
-                 << "readlink -f $(which java)";
+            jdk = jdk / "Contents/Home";
+        if (jdk.isReadableDir())
+            jdks << jdk;
+    }
+    return jdks;
+}
 
-        Process findJdkPathProc;
-        findJdkPathProc.setCommand({"sh", args});
-        findJdkPathProc.runBlocking();
-        QByteArray jdkPath = findJdkPathProc.rawStdOut().trimmed();
+// The user's pick, then JAVA_HOME, then Android Studio's JDK, then the machine default.
+// The Android Studio JDKs are passed in for the test.
+static FilePath defaultJdkLocationImpl(const FilePaths &studioJdks)
+{
+    if (const Jdk chosen = JdkManager::jdk(JdkManager::chosenDefaultJdkId());
+        chosen.javaHome.isLocal() && chosen.hasJava()) {
+        return chosen.javaHome;
+    }
+    if (const Jdk ofTheEnvironment = JdkManager::jdkOfTheEnvironment();
+        ofTheEnvironment.javaHome.isLocal() && ofTheEnvironment.hasJava()) {
+        return ofTheEnvironment.javaHome;
+    }
+    for (const FilePath &javaHome : studioJdks) {
+        const Jdk jdk = JdkManager::jdkForJavaHome(javaHome);
+        if (jdk.hasJava())
+            return jdk.javaHome;
+    }
+    return JdkManager::defaultJdk().javaHome;
+}
 
-        if (HostOsInfo::isMacHost()) {
-            jdkHome = FilePath::fromUtf8(jdkPath);
-        } else {
-            jdkPath.replace("bin/java", ""); // For OpenJDK 11
-            jdkPath.replace("jre", "");
-            jdkPath.replace("//", "/");
-            jdkHome = FilePath::fromUtf8(jdkPath);
-        }
+static FilePath defaultJdkLocation()
+{
+    return defaultJdkLocationImpl(androidStudioJdks());
+}
+
+QList<Jdk> jdksOfThisMachine()
+{
+    return Utils::filtered(JdkManager::jdks(), [](const Jdk &jdk) {
+        return jdk.javaHome.isLocal();
+    });
+}
+
+Jdk jdkOfTheSettings()
+{
+    const auto isOffered = [](const Jdk &jdk) {
+        return jdk.id.isValid() && jdk.javaHome.isLocal();
+    };
+
+    const Jdk configured = JdkManager::jdkForJavaHome(openJDKLocation());
+    if (isOffered(configured))
+        return configured;
+    const Jdk instead = JdkManager::jdkForJavaHome(defaultJdkLocation());
+    return isOffered(instead) ? instead : Jdk();
+}
+
+// Returns whether the setting changed.
+static bool updateOpenJdkLocation()
+{
+    // Detection finishing emits jdksChanged, which brings us here again.
+    if (!JdkManager::jdksWereDetected())
+        return false;
+
+    const FilePath configured = openJDKLocation();
+    if (configured.isEmpty())
+        return false;
+    if (const Jdk named = JdkManager::jdkForJavaHome(configured); named.id.isValid()) {
+        jdkTheSettingNames = named.id;
+        return false;
     }
 
-    return jdkHome;
+    const Jdk moved = JdkManager::jdk(jdkTheSettingNames);
+    setOpenJDKLocation(moved.javaHome.isLocal() && moved.hasJava() ? moved.javaHome
+                                                                  : defaultJdkLocation());
+    config().save();
+    return true;
+}
+
+// Marked like a JDK a kit names, so that detection can take it over later.
+static void registerConfiguredJdk()
+{
+    const FilePath configured = openJDKLocation();
+    if (!configured.isEmpty() && !JdkManager::jdkForJavaHome(configured).id.isValid())
+        JdkManager::registerJavaHome(configured, {DetectionSource::Manual, JDK_NAMED_BY_A_KIT});
 }
 
 } // namespace AndroidConfig
@@ -1234,6 +1275,18 @@ AndroidConfigurations::AndroidConfigurations()
 
     connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
             this, &AndroidConfigurations::updateAndroidDevice);
+
+    // JDK detection may still be running here, the kits do not wait for it.
+    connect(KitManager::instance(), &KitManager::kitsLoaded, this, [this] {
+        AndroidConfig::registerConfiguredJdk();
+        // AndroidPlugin::kitsRestored() updates the kits right after this.
+        AndroidConfig::updateOpenJdkLocation();
+        // JavaKitAspect has already handled the change with the old setting.
+        connect(JdkManager::instance(), &JdkManager::jdksChanged, this, [] {
+            if (AndroidConfig::updateOpenJdkLocation())
+                updateAutomaticKitList();
+        });
+    }, Qt::SingleShotConnection);
 
     m_instance = this;
 }
@@ -1573,9 +1626,13 @@ private slots:
    void testAndroidConfigAvailableNdkPlatforms_data();
    void testAndroidConfigAvailableNdkPlatforms();
    void testADetectedAndroidKitFollowsTheConfiguredJdk();
+   void testAJdkTakenOutOfTheListTakesTheSettingAndTheKitsAlong();
+   void testAJdkThatMovesTakesTheSettingAndTheKitsWithIt();
    void testAnAndroidKitOfTheUserIsLeftWithItsOwnJdk();
    void testTheJdkOfAKitOfAnotherPluginIsLeftAlone();
    void testTheBuildAndAndroiddeployqtGetTheSameJdk();
+   void testASettingThatNamesItsJdkByALinkKeepsIt();
+   void testTheEnvironmentIsFollowedBeforeAndroidStudio();
 };
 
 void AndroidConfigurationsTest::testAndroidConfigAvailableNdkPlatforms_data()
@@ -1682,6 +1739,13 @@ static void putTheJdkListBack(const TheJdkList &list)
     JdkManager::setJdks(list.jdks, list.chosenDefault);
 }
 
+// Saved too, as the tests can make updateOpenJdkLocation() save a temporary directory.
+static void putTheSettingBack(const FilePath &javaHome)
+{
+    AndroidConfig::setOpenJDKLocation(javaHome);
+    AndroidConfig::config().save();
+}
+
 static QHash<Kit *, JdkOfAKit> theJdksOfTheKits()
 {
     QHash<Kit *, JdkOfAKit> jdks;
@@ -1746,7 +1810,7 @@ void AndroidConfigurationsTest::testADetectedAndroidKitFollowsTheConfiguredJdk()
     QVERIFY(k);
     const QScopeGuard cleanup([k, savedJdk, savedJdks, savedList] {
         KitManager::deregisterKit(k);
-        AndroidConfig::setOpenJDKLocation(savedJdk);
+        putTheSettingBack(savedJdk);
         putTheJdksOfTheKitsBack(savedJdks);
         putTheJdkListBack(savedList);
     });
@@ -1779,6 +1843,106 @@ void AndroidConfigurationsTest::testADetectedAndroidKitFollowsTheConfiguredJdk()
     AndroidConfigurations::updateAutomaticKitList();
     QVERIFY(JavaKitAspect::javaHome(k).isEmpty());
     QVERIFY(!k->isSticky(JavaKitAspect::id()));
+}
+
+void AndroidConfigurationsTest::testAJdkTakenOutOfTheListTakesTheSettingAndTheKitsAlong()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath configured = makeFakeJdk(directory, "jdk-configured");
+    const FilePath theOther = makeFakeJdk(directory, "jdk-the-other");
+    QVERIFY(!configured.isEmpty());
+    QVERIFY(!theOther.isEmpty());
+
+    QTRY_VERIFY_WITH_TIMEOUT(JdkManager::jdksWereDetected(), 60000);
+
+    const FilePath savedJdk = AndroidConfig::openJDKLocation();
+    const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    const TheJdkList savedList = theJdkList();
+
+    Kit *k = KitManager::registerKit([](Kit *k) {
+        k->setUnexpandedDisplayName("AndroidJdkRemovedTestKit");
+        k->setDetectionSource({DetectionSource::FromSdk, "AndroidJdkTest"});
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+    });
+    QVERIFY(k);
+    const QScopeGuard cleanup([k, savedJdk, savedJdks, savedList] {
+        KitManager::deregisterKit(k);
+        putTheSettingBack(savedJdk);
+        putTheJdksOfTheKitsBack(savedJdks);
+        putTheJdkListBack(savedList);
+    });
+
+    AndroidConfig::setOpenJDKLocation(configured);
+    AndroidConfig::registerConfiguredJdk();
+    const Jdk entered = JdkManager::jdkForJavaHome(configured);
+    QVERIFY(entered.id.isValid());
+
+    const Jdk fallBackOn = JdkManager::registerJavaHome(theOther, DetectionSource::Manual);
+    QVERIFY(fallBackOn.id.isValid());
+    JdkManager::setJdks(JdkManager::jdks(), fallBackOn.id);
+
+    AndroidConfigurations::updateAutomaticKitList();
+    QCOMPARE(JavaKitAspect::javaHome(k), configured);
+
+    const QList<Jdk> withoutIt = Utils::filtered(JdkManager::jdks(), [entered](const Jdk &jdk) {
+        return jdk.id != entered.id;
+    });
+    JdkManager::setJdks(withoutIt, fallBackOn.id);
+
+    QCOMPARE(AndroidConfig::openJDKLocation(), theOther);
+    QCOMPARE(JavaKitAspect::javaHome(k), theOther);
+}
+
+void AndroidConfigurationsTest::testAJdkThatMovesTakesTheSettingAndTheKitsWithIt()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath configured = makeFakeJdk(directory, "jdk-17.0.8");
+    const FilePath movedTo = makeFakeJdk(directory, "jdk-17.0.12");
+    const FilePath theDefault = makeFakeJdk(directory, "jdk-the-default");
+    QVERIFY(!configured.isEmpty());
+    QVERIFY(!movedTo.isEmpty());
+    QVERIFY(!theDefault.isEmpty());
+
+    QTRY_VERIFY_WITH_TIMEOUT(JdkManager::jdksWereDetected(), 60000);
+
+    const FilePath savedJdk = AndroidConfig::openJDKLocation();
+    const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    const TheJdkList savedList = theJdkList();
+
+    Kit *k = KitManager::registerKit([](Kit *k) {
+        k->setUnexpandedDisplayName("AndroidJdkMovedTestKit");
+        k->setDetectionSource({DetectionSource::FromSdk, "AndroidJdkTest"});
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+    });
+    QVERIFY(k);
+    const QScopeGuard cleanup([k, savedJdk, savedJdks, savedList] {
+        KitManager::deregisterKit(k);
+        putTheSettingBack(savedJdk);
+        putTheJdksOfTheKitsBack(savedJdks);
+        putTheJdkListBack(savedList);
+    });
+
+    const Jdk entered = JdkManager::registerJavaHome(configured, DetectionSource::Manual);
+    QVERIFY(entered.id.isValid());
+    const Jdk fallBackOn = JdkManager::registerJavaHome(theDefault, DetectionSource::Manual);
+    QVERIFY(fallBackOn.id.isValid());
+    JdkManager::setJdks(JdkManager::jdks(), fallBackOn.id);
+
+    AndroidConfig::setOpenJDKLocation(configured);
+    AndroidConfigurations::updateAutomaticKitList();
+    QCOMPARE(JavaKitAspect::javaHome(k), configured);
+
+    const QList<Jdk> moved = Utils::transform(JdkManager::jdks(), [entered, movedTo](Jdk jdk) {
+        if (jdk.id == entered.id)
+            jdk.javaHome = movedTo;
+        return jdk;
+    });
+    JdkManager::setJdks(moved, fallBackOn.id);
+
+    QCOMPARE(AndroidConfig::openJDKLocation(), movedTo);
+    QCOMPARE(JavaKitAspect::javaHome(k), movedTo);
 }
 
 // A kit of the user's own is theirs: the kit page lets them edit its JDK - it
@@ -1817,7 +1981,7 @@ void AndroidConfigurationsTest::testAnAndroidKitOfTheUserIsLeftWithItsOwnJdk()
     QVERIFY(clone);
     const QScopeGuard cleanup([detected, clone, savedJdk, savedJdks, savedList] {
         KitManager::deregisterKits({detected, clone});
-        AndroidConfig::setOpenJDKLocation(savedJdk);
+        putTheSettingBack(savedJdk);
         putTheJdksOfTheKitsBack(savedJdks);
         putTheJdkListBack(savedList);
     });
@@ -1900,7 +2064,7 @@ void AndroidConfigurationsTest::testTheJdkOfAKitOfAnotherPluginIsLeftAlone()
     QVERIFY(k);
     const QScopeGuard cleanup([k, savedJdk, savedJdks, savedList] {
         KitManager::deregisterKit(k);
-        AndroidConfig::setOpenJDKLocation(savedJdk);
+        putTheSettingBack(savedJdk);
         putTheJdksOfTheKitsBack(savedJdks);
         putTheJdkListBack(savedList);
     });
@@ -1942,7 +2106,7 @@ void AndroidConfigurationsTest::testTheBuildAndAndroiddeployqtGetTheSameJdk()
     QVERIFY(ofTheirOwn);
     const QScopeGuard cleanup([detected, ofTheirOwn, savedJdk, savedJdks, savedList] {
         KitManager::deregisterKits({detected, ofTheirOwn});
-        AndroidConfig::setOpenJDKLocation(savedJdk);
+        putTheSettingBack(savedJdk);
         putTheJdksOfTheKitsBack(savedJdks);
         putTheJdkListBack(savedList);
     });
@@ -1974,6 +2138,68 @@ void AndroidConfigurationsTest::testTheBuildAndAndroiddeployqtGetTheSameJdk()
     Environment withoutJavaHome = ofTheirOwn->buildEnvironment();
     withoutJavaHome.unset(Constants::JAVA_HOME_ENV_VAR);
     QCOMPARE(javaHomeForBuild(withoutJavaHome, ofTheirOwn), configured);
+}
+
+void AndroidConfigurationsTest::testASettingThatNamesItsJdkByALinkKeepsIt()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("a directory symlink needs a privilege that the test does not have on Windows");
+
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath javaHome = makeFakeJdk(directory, "jdk-configured");
+    QVERIFY(!javaHome.isEmpty());
+    const FilePath byAnotherName = FilePath::fromString(directory.path()) / "jdk-link";
+    QVERIFY(javaHome.createSymLink(byAnotherName));
+
+    const FilePath savedJdk = AndroidConfig::openJDKLocation();
+    const TheJdkList savedList = theJdkList();
+    const QScopeGuard cleanup([savedJdk, savedList] {
+        putTheSettingBack(savedJdk);
+        putTheJdkListBack(savedList);
+    });
+
+    const Jdk entered = JdkManager::registerJavaHome(byAnotherName, DetectionSource::Manual);
+    QVERIFY(entered.id.isValid());
+    AndroidConfig::setOpenJDKLocation(javaHome);
+
+    const Jdk shown = AndroidConfig::jdkOfTheSettings();
+    QCOMPARE(shown.id, entered.id);
+    QCOMPARE(shown.javaHome, byAnotherName);
+}
+
+void AndroidConfigurationsTest::testTheEnvironmentIsFollowedBeforeAndroidStudio()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath ofTheEnvironment = makeFakeJdk(directory, "jdk-of-the-environment");
+    const FilePath ofAndroidStudio = makeFakeJdk(directory, "jbr");
+    QVERIFY(!ofTheEnvironment.isEmpty());
+    QVERIFY(!ofAndroidStudio.isEmpty());
+    // JAVA_HOME is only taken to name a JDK with a release file.
+    QVERIFY(ofTheEnvironment.pathAppended("release").writeFileContents("JAVA_VERSION=\"21\"\n"));
+
+    const Environment savedEnvironment = Environment::systemEnvironment();
+    const FilePath savedJdk = AndroidConfig::openJDKLocation();
+    const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    const TheJdkList savedList = theJdkList();
+    const QScopeGuard cleanup([savedEnvironment, savedJdk, savedJdks, savedList] {
+        Environment::setSystemEnvironment(savedEnvironment);
+        putTheSettingBack(savedJdk);
+        putTheJdksOfTheKitsBack(savedJdks);
+        putTheJdkListBack(savedList);
+    });
+
+    Environment environment = savedEnvironment;
+    environment.set(Constants::JAVA_HOME_ENV_VAR, ofTheEnvironment.nativePath());
+    Environment::setSystemEnvironment(environment);
+
+    const Jdk entered = JdkManager::registerJavaHome(ofTheEnvironment, DetectionSource::Manual);
+    QVERIFY(entered.id.isValid());
+    QVERIFY(JdkManager::registerJavaHome(ofAndroidStudio, DetectionSource::Manual).id.isValid());
+    JdkManager::setJdks(JdkManager::jdks(), Id());
+
+    QCOMPARE(AndroidConfig::defaultJdkLocationImpl({ofAndroidStudio}), ofTheEnvironment);
 }
 
 QObject *createAndroidConfigurationsTest()

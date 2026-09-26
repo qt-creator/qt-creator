@@ -31,6 +31,7 @@
 #include <extensionsystem/iplugin.h>
 
 #include <java/javakitaspect.h>
+#include <java/jdkmanager.h>
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -97,6 +98,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
                     return Utils::FilePaths();
                 return Utils::FilePaths{AndroidConfig::openJDKLocation()};
             });
+        Java::jdkProviders().append(&AndroidConfig::androidStudioJdks);
 
         setupAndroidDevice();
         setupAndroidQtVersion();

@@ -11,7 +11,9 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/messagemanager.h>
+
+#include <java/javaconstants.h>
+#include <java/jdkmanager.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kitmanager.h>
@@ -22,9 +24,9 @@
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
 #include <utils/algorithm.h>
-#include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>
+#include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -35,6 +37,7 @@
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
@@ -69,6 +72,7 @@ public:
 private:
     void showEvent(QShowEvent *event) override;
 
+    void updateJdkList();
     void validateJdk();
     void updateNdkList();
     void onSdkPathChanged();
@@ -88,6 +92,7 @@ private:
 
     QSingleTaskTreeRunner m_sdkDownloader;
     bool m_isInitialReloadDone = false;
+    Guard m_ignoreJdkChanges;
 
     SummaryWidget *m_androidSummary = nullptr;
     SummaryWidget *m_openSslSummary = nullptr;
@@ -95,7 +100,7 @@ private:
     PathChooser *m_sdkLocationPathChooser;
     QPushButton *m_makeDefaultNdkButton;
     QListWidget *m_ndkListWidget;
-    PathChooser *m_openJdkLocationPathChooser;
+    QComboBox *m_jdkComboBox;
     QCheckBox *m_createKitCheckBox;
     PathChooser *m_openSslPathChooser;
 };
@@ -201,7 +206,13 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_ndkListWidget->setModelColumn(0);
     m_ndkListWidget->setSortingEnabled(false);
 
-    m_openJdkLocationPathChooser = new PathChooser;
+    m_jdkComboBox = new QComboBox;
+    m_jdkComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    m_jdkComboBox->setToolTip(Tr::tr("The JDK that the Android SDK tools and the Gradle build "
+                                     "of a project are run with."));
+
+    auto manageJdksButton = new QPushButton(Tr::tr("Manage..."));
+    manageJdksButton->setToolTip(Tr::tr("Opens the list of the JDKs of this machine."));
 
     auto downloadOpenJdkToolButton = new QToolButton;
     downloadOpenJdkToolButton->setIcon(downloadIcon);
@@ -264,21 +275,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                          Tr::tr("OpenSSL settings have errors."),
                                          openSslDetailsWidget);
 
-    m_openJdkLocationPathChooser->setValidationFunction([](const QString &s) {
-        return Utils::asyncRun([s]() -> Result<QString> {
-            Result<> test = testJavaC(FilePath::fromUserInput(s));
-            if (!test) {
-                Core::MessageManager::writeSilently(test.error());
-                return ResultError(test.error());
-            }
-            return s;
-        });
-    });
-
-    if (AndroidConfig::openJDKLocation().isEmpty())
-        AndroidConfig::setOpenJDKLocation(AndroidConfig::getJdkPath());
-    m_openJdkLocationPathChooser->setFilePath(AndroidConfig::openJDKLocation());
-    m_openJdkLocationPathChooser->setPromptDialogTitle(Tr::tr("Select JDK Path"));
+    updateJdkList();
 
     if (AndroidConfig::sdkLocation().isEmpty())
         AndroidConfig::setSdkLocation(AndroidConfig::defaultSdkPath());
@@ -303,8 +300,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             title(Tr::tr("Android Settings")),
             Grid {
                 Tr::tr("JDK location:"),
-                m_openJdkLocationPathChooser,
-                empty,
+                m_jdkComboBox,
+                manageJdksButton,
                 downloadOpenJdkToolButton,
                 br,
 
@@ -347,8 +344,13 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 
     // Below the setFilePath() calls above: showEvent() does the first
     // validation, once the page is really on screen.
-    connect(m_openJdkLocationPathChooser, &PathChooser::rawPathChanged,
+    connect(m_jdkComboBox, &QComboBox::currentIndexChanged,
             this, &AndroidSettingsWidget::validateJdk);
+    connect(manageJdksButton, &QAbstractButton::clicked, this, [] {
+        Core::ICore::showSettings(Java::Constants::JDK_SETTINGS_PAGE_ID);
+    });
+    connect(Java::JdkManager::instance(), &Java::JdkManager::jdksChanged,
+            this, &AndroidSettingsWidget::updateJdkList);
     connect(m_sdkLocationPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::onSdkPathChanged);
     connect(m_openSslPathChooser, &PathChooser::rawPathChanged,
@@ -392,7 +394,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     setOnApply([] { AndroidConfigurations::applyConfig(); });
 
     const QWidgetList dirtyTriggerWidgets = {
-        m_openJdkLocationPathChooser->lineEdit(),
+        m_jdkComboBox,
         m_sdkLocationPathChooser->lineEdit(),
         sdkManagerToolButton,
         addCustomNdkButton,
@@ -503,9 +505,47 @@ bool AndroidSettingsWidget::isDefaultNdkSelected() const
     return false;
 }
 
+void AndroidSettingsWidget::updateJdkList()
+{
+    using namespace Java;
+
+    const QList<Jdk> offered = AndroidConfig::jdksOfThisMachine();
+    const Jdk current = AndroidConfig::jdkOfTheSettings();
+
+    const FilePath shown = FilePath::fromSettings(m_jdkComboBox->currentData());
+
+    {
+        const GuardLocker locker(m_ignoreJdkChanges);
+        const DirtySettingsGuard suppressor;
+        m_jdkComboBox->clear();
+        int currentIndex = -1;
+        for (const Jdk &jdk : offered) {
+            m_jdkComboBox->addItem(QString("%1 (%2)").arg(jdk.name, jdk.javaHome.toUserOutput()),
+                                   jdk.javaHome.toSettings());
+            if (jdk.id == current.id)
+                currentIndex = m_jdkComboBox->count() - 1;
+        }
+        m_jdkComboBox->setCurrentIndex(currentIndex);
+    }
+
+    // The list may name the same JDK by another directory.
+    AndroidConfig::setOpenJDKLocation(current.javaHome);
+
+    if (current.javaHome == shown)
+        return;
+
+    // Before the page is shown, showEvent() validates. After, this comes from
+    // another page's apply(), and reloadPackages() must not nest an event loop in it.
+    if (m_isInitialReloadDone)
+        QTimer::singleShot(0, this, &AndroidSettingsWidget::validateJdk);
+}
+
 void AndroidSettingsWidget::validateJdk()
 {
-    AndroidConfig::setOpenJDKLocation(m_openJdkLocationPathChooser->filePath());
+    if (m_ignoreJdkChanges.isLocked())
+        return;
+
+    AndroidConfig::setOpenJDKLocation(FilePath::fromSettings(m_jdkComboBox->currentData()));
     Result<> test = testJavaC(AndroidConfig::openJDKLocation());
 
     m_androidSummary->setPointValid(JavaPathExistsAndWritableRow, test);

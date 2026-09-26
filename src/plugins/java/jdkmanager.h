@@ -99,6 +99,9 @@ public:
     // so this is what a page that has not been touched hands back.
     static Utils::Id chosenDefaultJdkId();
 
+    // The entry JAVA_HOME names, invalid where it names none.
+    static Jdk jdkOfTheEnvironment();
+
     // Whether the machine has been looked at. Until it has, the list holds
     // only what the kits named, so there is no default of the machine to
     // speak of and nothing is to be set up with one.

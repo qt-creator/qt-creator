@@ -15,6 +15,7 @@
 #include <QVersionNumber>
 #include <QtTaskTree/QTaskTree>
 
+namespace Java { class Jdk; }
 namespace ProjectExplorer { class Abi; }
 namespace QtSupport { class QtVersion; }
 
@@ -107,7 +108,10 @@ Utils::FilePath defaultNdk();
 Utils::FilePath openSslLocation();
 void setOpenSslLocation(const Utils::FilePath &openSslLocation);
 
-Utils::FilePath getJdkPath();
+Utils::FilePaths androidStudioJdks();
+QList<Java::Jdk> jdksOfThisMachine();
+Java::Jdk jdkOfTheSettings();
+
 QStringList getAbis(const QString &device);
 int getSDKVersion(const QString &device);
 

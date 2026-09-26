@@ -190,6 +190,11 @@ static FilePath javaHomeOf(const FilePath &candidate)
     return {};
 }
 
+static FilePath javaHomeOfTheEnvironment()
+{
+    return javaHomeOf(FilePath::fromUserInput(Environment::systemEnvironment().value("JAVA_HOME")));
+}
+
 // /usr/libexec/java_home answers with the JDK the system would pick, and with
 // every one it knows of when asked for a property list, which is what -X
 // prints.
@@ -337,8 +342,7 @@ static FilePaths javaHomesFromProviders()
 static QList<Jdk> javaHomesOfTheMachine(const FilePaths &fromProviders)
 {
     const Environment environment = Environment::systemEnvironment();
-    const FilePath fromEnvironment = javaHomeOf(
-        FilePath::fromUserInput(environment.value("JAVA_HOME")));
+    const FilePath fromEnvironment = javaHomeOfTheEnvironment();
 
     FilePaths candidates{fromEnvironment};
     candidates += javaHomesFromMacOsTool();
@@ -528,6 +532,12 @@ Id JdkManager::chosenDefaultJdkId()
 {
     instance();
     return s_chosenDefaultId;
+}
+
+Jdk JdkManager::jdkOfTheEnvironment()
+{
+    instance();
+    return jdkForJavaHome(javaHomeOfTheEnvironment());
 }
 
 bool JdkManager::jdksWereDetected()
