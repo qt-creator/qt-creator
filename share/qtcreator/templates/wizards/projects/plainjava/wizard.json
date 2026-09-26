@@ -1,0 +1,116 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
+    "id": "S.Plain Java Application",
+    "category": "I.Projects",
+    "trDescription": "Creates a Java application that CMake builds into an executable JAR archive, optionally with a C++ library that it calls through JNI.",
+    "trDisplayName": "Plain Java Application",
+    "trDisplayCategory": "Non-Qt Project",
+    "icon": "../../global/consoleapplication.png",
+    "iconKind": "Themed",
+    "enabled": "%{JS: isPluginRunning('cmakeprojectmanager')}",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{CMakeFile}" },
+        { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
+        { "key": "NativeTarget", "value": "%{ProjectName}Native" },
+        { "key": "PackageDirectory", "value": "%{JS: value('Package') === '' ? '' : value('Package').split('.').join('/') + '/'}" },
+        { "key": "JavaFileName", "value": "%{JS: 'src/main/java/' + value('PackageDirectory') + value('ClassName') + '.java'}" },
+        { "key": "CppFileName", "value": "%{JS: 'src/main/cpp/native.' + Util.preferredSuffix('text/x-c++src')}" },
+        { "key": "EntryPoint", "value": "%{JS: (value('Package') === '' ? '' : value('Package') + '.') + value('ClassName')}" },
+        { "key": "JniFunction", "value": "%{JS: 'Java_' + value('EntryPoint').split('_').join('_1').split('.').join('_') + '_greetingFromCpp'}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Define Class",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "ClassName",
+                    "trDisplayName": "Class name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "[a-zA-Z_][a-zA-Z_0-9]*",
+                        "text": "Main"
+                    }
+                },
+                {
+                    "name": "Package",
+                    "trDisplayName": "Package:",
+                    "mandatory": false,
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "(?:[a-zA-Z_][a-zA-Z_0-9]*(?:\\.[a-zA-Z_][a-zA-Z_0-9]*)*|)",
+                        "text": "com.example"
+                    }
+                },
+                {
+                    "name": "UseJni",
+                    "trDisplayName": "Call into C++ through JNI",
+                    "type": "CheckBox",
+                    "span": true,
+                    "visible": "%{JS: isPluginRunning('cppeditor')}",
+                    "persistenceKey": "PlainJava.UseJni",
+                    "data": { "checked": false }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "data": { "projectFilePath": "%{ProjectFile}" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "CMakeLists.txt",
+                    "openAsProject": true
+                },
+                {
+                    "source": "Main.java",
+                    "target": "%{ProjectDirectory}/%{JavaFileName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "native.cpp",
+                    "target": "%{ProjectDirectory}/%{CppFileName}",
+                    "openInEditor": true,
+                    "condition": "%{UseJni}"
+                },
+                {
+                    "source": "manifest.txt",
+                    "condition": "%{UseJni}"
+                },
+                {
+                    "source": "../git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: ! %{IsSubproject} && '%{VersionControl}' === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}
