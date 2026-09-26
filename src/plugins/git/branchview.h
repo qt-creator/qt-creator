@@ -22,6 +22,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 class ElidingLabel;
+class FancyLineEdit;
 class NavigationTreeView;
 } // Utils
 
@@ -43,6 +44,9 @@ protected:
     void showEvent(QShowEvent *) override;
 
 private:
+#ifdef WITH_TESTS
+    friend class BranchViewTest;
+#endif
     void refresh();
     void resizeColumns();
     void slotCustomContextMenu(const QPoint &point);
@@ -74,6 +78,7 @@ private:
     QAction *m_refreshAction = nullptr;
 
     Utils::ElidingLabel *m_repositoryLabel = nullptr;
+    Utils::FancyLineEdit *m_filterEdit = nullptr;
     Utils::NavigationTreeView *m_branchView = nullptr;
     BranchModel *m_model = nullptr;
     BranchFilterModel *m_filterModel = nullptr;
@@ -103,5 +108,9 @@ private:
     Utils::FilePath m_repository;
     bool m_needsRefresh = true;
 };
+
+#ifdef WITH_TESTS
+QObject *createBranchViewTest();
+#endif
 
 } // Git::Internal

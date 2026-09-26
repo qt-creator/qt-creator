@@ -2516,6 +2516,12 @@ private slots:
     void testCommitMessageHighlighting_data();
     void testCommitMessageHighlighting();
     void testSharedBranchViews();
+    void testBranchModelAsyncCommands();
+    void testBranchModelMergedDuringRefresh_data();
+    void testBranchModelMergedDuringRefresh();
+    void testBranchModelCreateOldBranch();
+    void testBranchModelAsyncRefresh_data();
+    void testBranchModelAsyncRefresh();
     void testBranchViewVisibility();
     void testBranchRefreshError();
     void testBranchViewRefreshErrorOnRepositoryChange();
@@ -3912,6 +3918,283 @@ void GitTest::testSubmitMessageSpellCheck()
     QCOMPARE(underlinedTexts(widget.descriptionEdit()->document()), QStringList());
 }
 
+static bool createAsyncBranchTestRepository(const FilePath &repository)
+{
+    const auto run = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    return run({"init", "-b", "main", "."})
+           && run({"config", "user.email", "test@test"})
+           && run({"config", "user.name", "test"})
+           && bool((repository / "file.txt").writeFileContents("test\n"))
+           && run({"add", "file.txt"})
+           && run({"-c", "commit.gpgsign=false", "commit", "-m", "initial"});
+}
+
+static QModelIndex findAsyncBranchTestRef(BranchModel &model, const QString &ref,
+                                         const QModelIndex &parent = {})
+{
+    for (int row = 0; row < model.rowCount(parent); ++row) {
+        const QModelIndex index = model.index(row, 0, parent);
+        if (model.isLeaf(index) && model.fullName(index, true) == ref)
+            return index;
+        const QModelIndex child = findAsyncBranchTestRef(model, ref, index);
+        if (child.isValid())
+            return child;
+    }
+    return {};
+}
+
+void GitTest::testBranchModelAsyncCommands()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repository = FilePath::fromString(directory.path());
+    QVERIFY(createAsyncBranchTestRepository(repository));
+    auto model = std::make_unique<BranchModel>();
+    model->refresh(repository);
+    QTRY_VERIFY(model->currentBranch().isValid());
+    QAbstractItemModelTester modelTester(model.get());
+    QString addedRef;
+    int completions = 0;
+    model->addBranch("nested/one/two", false, model->currentBranch(),
+                     [&](const QModelIndex &index) {
+        addedRef = model->fullName(index, true);
+        ++completions;
+    });
+    QTRY_COMPARE(completions, 1);
+    QCOMPARE(addedRef, QString("refs/heads/nested/one/two"));
+    model->renameBranch("nested/one/two", "renamed");
+    model->refresh(repository);
+    QTRY_VERIFY(findAsyncBranchTestRef(*model, "refs/heads/renamed").isValid());
+    const auto run = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(run({"config", "color.branch", "always"}));
+    QVERIFY(run({"config", "column.branch", "always"}));
+    bool merged = false;
+    bool queryDone = false;
+    model->branchIsMerged(findAsyncBranchTestRef(*model, "refs/heads/renamed"), [&](bool value) {
+        merged = value;
+        queryDone = true;
+    });
+    QTRY_VERIFY(queryDone);
+    QVERIFY(merged);
+    model->removeBranch(findAsyncBranchTestRef(*model, "refs/heads/renamed"));
+    QTRY_VERIFY(!findAsyncBranchTestRef(*model, "refs/heads/renamed").isValid());
+    queryDone = false;
+    model->branchIsMerged(model->currentBranch(), [&](bool value) {
+        merged = value;
+        queryDone = true;
+    });
+    QTRY_VERIFY(queryDone);
+    QVERIFY(!merged);
+
+    QVERIFY(run({"remote", "add", "origin", "."}));
+    QVERIFY(run({"update-ref", "refs/remotes/origin/main", "HEAD"}));
+    QVERIFY(run({"tag", "original-tag"}));
+    const bool previousShowTags = settings().showTags();
+    const QScopeGuard restoreShowTags([previousShowTags] {
+        settings().showTags.setValue(previousShowTags);
+    });
+    settings().showTags.setValue(true);
+    model->refresh(repository);
+    QTRY_VERIFY(findAsyncBranchTestRef(*model, "refs/tags/original-tag").isValid());
+    model->renameTag("original-tag", "renamed-tag");
+    QTRY_VERIFY(findAsyncBranchTestRef(*model, "refs/tags/renamed-tag").isValid()
+                && !findAsyncBranchTestRef(*model, "refs/tags/original-tag").isValid());
+    model->removeTag(findAsyncBranchTestRef(*model, "refs/tags/renamed-tag"));
+    QTRY_VERIFY(!findAsyncBranchTestRef(*model, "refs/tags/renamed-tag").isValid());
+    model->setRemoteTracking(findAsyncBranchTestRef(*model, "refs/remotes/origin/main"));
+    QTRY_COMPARE(model->tracking(model->currentBranch()), QString("origin/main"));
+    model->setRemoteTracking({});
+    QTRY_VERIFY(model->tracking(model->currentBranch()).isEmpty());
+
+    const QString initialTip = model->currentBranch().data(Qt::ToolTipRole).toString();
+    QVERIFY(!initialTip.isEmpty());
+    QTRY_VERIFY(model->currentBranch().data(Qt::ToolTipRole).toString().contains("initial"));
+
+    model->addBranch("main", false, {}, [&](const QModelIndex &index) {
+        QVERIFY(!index.isValid());
+        ++completions;
+    });
+    QTRY_COMPARE(completions, 2);
+    // A queued mutation must still finish after its initiating model is closed.
+    model->renameBranch("main", "survived");
+    model.reset();
+    bool barrierDone = false;
+    gitClient().enqueueCommand({
+        .workingDirectory = repository,
+        .arguments = {"rev-parse", "--verify", "refs/heads/survived"},
+        .commandHandler = [&](const CommandResult &result) {
+            QCOMPARE(result.result(), ProcessResult::FinishedWithSuccess);
+            barrierDone = true;
+        },
+    });
+    QTRY_VERIFY(barrierDone);
+}
+
+void GitTest::testBranchModelMergedDuringRefresh_data()
+{
+    QTest::addColumn<bool>("switchRepository");
+    QTest::newRow("deferred refresh") << false;
+    QTest::newRow("repository switch") << true;
+}
+
+void GitTest::testBranchModelMergedDuringRefresh()
+{
+    QFETCH(bool, switchRepository);
+    QTemporaryDir directory;
+    QTemporaryDir otherDirectory;
+    QVERIFY(directory.isValid());
+    QVERIFY(otherDirectory.isValid());
+    const FilePath repository = FilePath::fromString(directory.path());
+    const FilePath other = FilePath::fromString(otherDirectory.path());
+    QVERIFY(createAsyncBranchTestRepository(repository));
+    QVERIFY(createAsyncBranchTestRepository(other));
+    QVERIFY(gitClient().vcsSynchronousExec(repository, {"branch", "topic"}).result()
+            == ProcessResult::FinishedWithSuccess);
+    BranchModel model;
+    model.refresh(repository);
+    QTRY_VERIFY(findAsyncBranchTestRef(model, "refs/heads/topic").isValid());
+    QSignalSpy resultReady(&model, &BranchModel::refreshResultReady);
+    model.refresh(repository, BranchModel::ShowError::No, BranchModel::RefreshMode::Force);
+    model.setRefreshBlocked(true);
+    auto unblock = qScopeGuard([&model] { model.setRefreshBlocked(false); });
+    QTRY_COMPARE(resultReady.count(), 1);
+    bool finished = false;
+    bool merged = false;
+    model.branchIsMerged(findAsyncBranchTestRef(model, "refs/heads/topic"), [&](bool value) {
+        merged = value;
+        finished = true;
+    });
+    if (switchRepository)
+        model.refresh(other);
+    model.setRefreshBlocked(false);
+    unblock.dismiss();
+    QTRY_VERIFY(finished);
+    QCOMPARE(merged, !switchRepository);
+}
+
+void GitTest::testBranchModelCreateOldBranch()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repository = FilePath::fromString(directory.path());
+    QVERIFY(createAsyncBranchTestRepository(repository));
+    Process oldCommit;
+    Environment environment = Environment::systemEnvironment();
+    environment.set("GIT_AUTHOR_DATE", "2001-01-01T12:00:00+0000");
+    environment.set("GIT_COMMITTER_DATE", "2001-01-01T12:00:00+0000");
+    oldCommit.setEnvironment(environment);
+    oldCommit.setWorkingDirectory(repository);
+    oldCommit.setCommand({gitClient().vcsBinary(repository),
+                          {"-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "old"}});
+    oldCommit.runBlocking();
+    QCOMPARE(oldCommit.result(), ProcessResult::FinishedWithSuccess);
+    const auto run = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(run({"tag", "old"}));
+    QVERIFY(run({"-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "recent"}));
+    for (int i = 0; i < 5; ++i)
+        QVERIFY(run({"branch", QString("recent-%1").arg(i)}));
+    const bool showTags = settings().showTags();
+    const QScopeGuard restore([showTags] { settings().showTags.setValue(showTags); });
+    settings().showTags.setValue(true);
+    BranchModel model;
+    model.refresh(repository);
+    QTRY_VERIFY(findAsyncBranchTestRef(model, "refs/tags/old").isValid());
+    QVERIFY(!model.oldBranchesIncluded());
+    bool completed = false;
+    bool valid = false;
+    model.addBranch("created-from-old", false, findAsyncBranchTestRef(model, "refs/tags/old"),
+                    [&](const QModelIndex &index) {
+        valid = index.isValid();
+        completed = true;
+    });
+    QTRY_VERIFY(completed);
+    QVERIFY(valid);
+    QVERIFY(findAsyncBranchTestRef(model, "refs/heads/created-from-old").isValid());
+}
+
+void GitTest::testBranchModelAsyncRefresh_data()
+{
+    QTest::addColumn<QString>("scenario");
+    QTest::newRow("blocked") << QString("blocked");
+    QTest::newRow("repository-switch") << QString("switch");
+    QTest::newRow("return-to-repository") << QString("return");
+    QTest::newRow("refresh-failure") << QString("failure");
+}
+
+void GitTest::testBranchModelAsyncRefresh()
+{
+    QFETCH(QString, scenario);
+    QTemporaryDir directory;
+    QTemporaryDir otherDirectory;
+    QVERIFY(directory.isValid());
+    QVERIFY(otherDirectory.isValid());
+    const FilePath repository = FilePath::fromString(directory.path());
+    const FilePath other = FilePath::fromString(otherDirectory.path());
+    QVERIFY(createAsyncBranchTestRepository(repository));
+    QVERIFY(createAsyncBranchTestRepository(other));
+    BranchModel model;
+    model.refresh(repository);
+    QTRY_VERIFY(model.currentBranch().isValid());
+    bool movedGitDir = false;
+    const QScopeGuard restoreGitDir([&] {
+        if (movedGitDir)
+            QVERIFY(QDir(directory.path()).rename("saved.git", ".git"));
+    });
+    if (scenario == "failure") {
+        connect(&model, &BranchModel::refreshStarted, &model, [&] {
+            if (!movedGitDir)
+                movedGitDir = QDir(directory.path()).rename(".git", "saved.git");
+        });
+    } else if (scenario != "return") {
+        model.setRefreshBlocked(true);
+    }
+    int completions = 0;
+    bool validIndex = false;
+    model.addBranch("created", false, model.currentBranch(), [&](const QModelIndex &index) {
+        validIndex = index.isValid();
+        ++completions;
+    });
+    if (scenario == "switch")
+        model.refresh(other);
+    if (scenario == "return") {
+        model.refresh(other);
+        model.setRefreshBlocked(true);
+        model.refresh(repository);
+    }
+    bool barrierDone = false;
+    gitClient().enqueueCommand({
+        .workingDirectory = other,
+        .arguments = {"rev-parse", "HEAD"},
+        .commandHandler = [&](const CommandResult &) { barrierDone = true; },
+    });
+    QTRY_VERIFY(barrierDone);
+    if (scenario == "blocked" || scenario == "return") {
+        QCOMPARE(completions, 0);
+        model.setRefreshBlocked(false);
+        QTRY_COMPARE(completions, 1);
+        QVERIFY(validIndex);
+    } else {
+        QTRY_COMPARE(completions, 1);
+        QVERIFY(!validIndex);
+        if (scenario == "switch") {
+            model.setRefreshBlocked(false);
+            QTRY_COMPARE(model.repository(), other);
+            QVERIFY(!findAsyncBranchTestRef(model, "refs/heads/created").isValid());
+        } else {
+            QVERIFY(movedGitDir);
+        }
+    }
+}
+
 void GitTest::testSharedBranchViews()
 {
     const bool previousShowTags = settings().showTags();
@@ -4759,6 +5042,7 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
     {
 #ifdef WITH_TESTS
         addTest<GitTest>();
+        addTestCreator(createBranchViewTest);
         registerInstantBlameTests(this);
         Gerrit::Internal::registerGerritModelTests(this);
 #endif

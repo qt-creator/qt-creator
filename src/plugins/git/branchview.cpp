@@ -29,6 +29,7 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <QCursor>
 #include <QLabel>
 #include <QKeySequence>
 #include <QMenu>
@@ -37,6 +38,7 @@
 #include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <QToolButton>
+#include <QToolTip>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -45,6 +47,17 @@ using namespace Core;
 using namespace QtTaskTree;
 using namespace Utils;
 using namespace VcsBase;
+
+#ifdef WITH_TESTS
+#include <utils/guitest.h>
+#include <QDialogButtonBox>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QScopeGuard>
+#include <QSignalSpy>
+#include <QTemporaryDir>
+#include <QTest>
+#endif
 
 namespace Git::Internal {
 
@@ -74,9 +87,24 @@ struct SetInContext
     SetInContext &operator=(const SetInContext &) = delete;
     SetInContext(SetInContext &&) = delete;
     SetInContext &operator=(SetInContext &&) = delete;
-    ~SetInContext() { m_model->setRefreshBlocked(false); }
-    BranchModel *m_model;
+    ~SetInContext() { if (m_model) m_model->setRefreshBlocked(false); }
+    QPointer<BranchModel> m_model;
 };
+
+static QModelIndex findBranchIndex(BranchModel *model, const QString &ref, const QString &hash)
+{
+    QList<QModelIndex> parents{QModelIndex{}};
+    while (!parents.isEmpty()) {
+        const QModelIndex parent = parents.takeLast();
+        for (int row = 0; row < model->rowCount(parent); ++row) {
+            const QModelIndex index = model->index(row, 0, parent);
+            if (model->fullName(index, true) == ref && model->hash(index) == hash)
+                return index;
+            parents.append(index);
+        }
+    }
+    return {};
+}
 
 static BranchModel *globalModel = nullptr;
 
@@ -93,6 +121,7 @@ BranchView::BranchView(BranchViewFactory *factory)
     , m_addAction(new QAction(this))
     , m_refreshAction(new QAction(this))
     , m_repositoryLabel(new ElidingLabel(this))
+    , m_filterEdit(new FancyLineEdit(this))
     , m_branchView(new NavigationTreeView(this))
     , m_model(branchModel())
     , m_filterModel(new BranchFilterModel(this))
@@ -117,12 +146,11 @@ BranchView::BranchView(BranchViewFactory *factory)
     m_filterModel->setFilterRole(Qt::EditRole);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_branchView->setModel(m_filterModel);
-    auto filterEdit = new FancyLineEdit(this);
-    filterEdit->setFiltering(true);
-    connect(filterEdit, &FancyLineEdit::textChanged,
+    m_filterEdit->setFiltering(true);
+    connect(m_filterEdit, &FancyLineEdit::textChanged,
             m_filterModel, QOverload<const QString &>::of(&BranchFilterModel::setFilterRegularExpression));
     auto layout = new QVBoxLayout(this);
-    layout->addWidget(filterEdit);
+    layout->addWidget(m_filterEdit);
     layout->addWidget(m_repositoryLabel);
     layout->addWidget(m_branchView);
     layout->setContentsMargins(0, 2, 0, 0);
@@ -158,6 +186,29 @@ BranchView::BranchView(BranchViewFactory *factory)
     m_branchView->selectionModel()->clear();
     expandAndResize();
     connect(m_model, &BranchModel::repositoryChanged, this, &BranchView::refresh);
+    connect(m_model, &QAbstractItemModel::dataChanged, this,
+            [this](const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                   const QList<int> &roles) {
+        if (!QToolTip::isVisible() || (!roles.isEmpty() && !roles.contains(Qt::ToolTipRole)))
+            return;
+        QWidget *viewport = m_branchView->viewport();
+        const QPoint globalPosition = QCursor::pos();
+        const QPoint viewportPosition = viewport->mapFromGlobal(globalPosition);
+        if (!viewport->rect().contains(viewportPosition))
+            return;
+        const QModelIndex proxyIndex = m_branchView->indexAt(viewportPosition);
+        const QModelIndex sourceIndex = m_filterModel->mapToSource(proxyIndex);
+        if (!sourceIndex.isValid() || sourceIndex.parent() != topLeft.parent()
+            || sourceIndex.row() < topLeft.row() || sourceIndex.row() > bottomRight.row()
+            || sourceIndex.column() < topLeft.column() || sourceIndex.column() > bottomRight.column()) {
+            return;
+        }
+        const QString toolTip = proxyIndex.data(Qt::ToolTipRole).toString();
+        if (!toolTip.isEmpty()) {
+            QToolTip::showText(globalPosition, toolTip, viewport,
+                               m_branchView->visualRect(proxyIndex));
+        }
+    });
     refresh();
 }
 
@@ -442,6 +493,7 @@ bool BranchView::add()
         return true;
     }
 
+    SetInContext block(m_model);
     QModelIndex trackedIndex = selectedIndex();
     QString trackedBranch = m_model->fullName(trackedIndex);
     if (trackedBranch.isEmpty()) {
@@ -463,18 +515,38 @@ bool BranchView::add()
     branchAddDialog.setCheckoutVisible(true);
 
     if (branchAddDialog.exec() == QDialog::Accepted) {
-        QModelIndex idx = m_model->addBranch(branchAddDialog.branchName(), branchAddDialog.track(),
-                                             trackedIndex);
-        if (!idx.isValid())
-            return false;
-        QModelIndex mappedIdx = m_filterModel->mapFromSource(idx);
-        QTC_ASSERT(m_branchView, return false);
-        m_branchView->selectionModel()->select(mappedIdx, QItemSelectionModel::Clear
-                                             | QItemSelectionModel::Select
-                                             | QItemSelectionModel::Current);
-        m_branchView->scrollTo(mappedIdx);
-        if (branchAddDialog.checkout())
-            return checkout();
+        const QString name = branchAddDialog.branchName();
+        const bool track = branchAddDialog.track();
+        const bool checkoutAfter = branchAddDialog.checkout();
+        const QPointer<BranchView> self(this);
+        m_model->addBranch(name, track, trackedIndex,
+                           [self, checkoutAfter](const QModelIndex &idx) {
+            if (!self || !idx.isValid() || !self->m_branchView)
+                return;
+            const FilePath repository = self->m_model->repository();
+            const QString ref = self->m_model->fullName(idx, true);
+            const QString hash = self->m_model->hash(idx);
+            QMetaObject::invokeMethod(self, [self, repository, ref, hash, checkoutAfter] {
+                if (!self || self->m_model->repository() != repository)
+                    return;
+                SetInContext block(self->m_model);
+                const QModelIndex index = findBranchIndex(self->m_model, ref, hash);
+                if (!index.isValid())
+                    return;
+                QModelIndex mapped = self->m_filterModel->mapFromSource(index);
+                if (!mapped.isValid()) {
+                    self->m_filterEdit->clear();
+                    mapped = self->m_filterModel->mapFromSource(index);
+                }
+                if (!mapped.isValid())
+                    return;
+                self->m_branchView->setCurrentIndex(mapped);
+                self->m_branchView->scrollTo(mapped);
+                if (checkoutAfter)
+                    self->checkout();
+            }, Qt::QueuedConnection);
+        });
+        return true;
     }
 
     return false;
@@ -482,6 +554,7 @@ bool BranchView::add()
 
 bool BranchView::checkout()
 {
+    SetInContext block(m_model);
     const FilePath workingDirectory = m_model->repository();
     if (!Core::DocumentManager::saveAllModifiedDocuments())
         return false;
@@ -565,23 +638,59 @@ bool BranchView::remove()
         return false;
 
     const bool isTag = m_model->isTag(selected);
-    const bool wasMerged = isTag ? true : m_model->branchIsMerged(selected);
-    QString message;
-    if (isTag)
-        message = Tr::tr("Would you like to delete the tag \"%1\"?").arg(branchName);
-    else if (wasMerged)
-        message = Tr::tr("Would you like to delete the branch \"%1\"?").arg(branchName);
-    else
-        message = Tr::tr("Would you like to delete the <b>unmerged</b> branch \"%1\"?").arg(branchName);
-
-    if (QMessageBox::question(this, isTag ? Tr::tr("Delete Tag") : Tr::tr("Delete Branch"),
-                              message, QMessageBox::Yes | QMessageBox::No,
-                              wasMerged ? QMessageBox::Yes : QMessageBox::No) == QMessageBox::Yes) {
+    const FilePath repository = m_model->repository();
+    const QString refName = m_model->fullName(selected, true);
+    const QString branchHash = m_model->hash(selected);
+    const QPointer<BranchView> self(this);
+    const auto confirmDelete = [self, repository, branchName, refName, branchHash,
+                                isTag](bool wasMerged) {
+        if (!self || self->m_model->repository() != repository)
+            return;
+        const auto currentIndex = [self, refName, branchHash] {
+            return findBranchIndex(self->m_model, refName, branchHash);
+        };
+        if (!currentIndex().isValid())
+            return;
+        QString message;
         if (isTag)
-            m_model->removeTag(selected);
+            message = Tr::tr("Would you like to delete the tag \"%1\"?").arg(branchName);
+        else if (wasMerged)
+            message = Tr::tr("Would you like to delete the branch \"%1\"?").arg(branchName);
         else
-            m_model->removeBranch(selected);
-    }
+            message = Tr::tr("Would you like to delete the <b>unmerged</b> branch \"%1\"?")
+                          .arg(branchName);
+
+        if (QMessageBox::question(self, isTag ? Tr::tr("Delete Tag") : Tr::tr("Delete Branch"),
+                                  message, QMessageBox::Yes | QMessageBox::No,
+                                  wasMerged ? QMessageBox::Yes : QMessageBox::No)
+            != QMessageBox::Yes) {
+            return;
+        }
+        if (!self || self->m_model->repository() != repository)
+            return;
+        const QModelIndex index = currentIndex();
+        if (!index.isValid() || index == self->m_model->currentBranch())
+            return;
+        if (isTag)
+            self->m_model->removeTag(index);
+        else
+            self->m_model->removeBranch(index);
+    };
+
+    const auto queueConfirmation = [self, confirmDelete](bool merged) {
+        if (!self)
+            return;
+        QMetaObject::invokeMethod(self, [self, confirmDelete, merged] {
+            if (!self)
+                return;
+            SetInContext block(self->m_model);
+            confirmDelete(merged);
+        }, Qt::QueuedConnection);
+    };
+    if (isTag)
+        queueConfirmation(true);
+    else
+        m_model->branchIsMerged(selected, queueConfirmation);
 
     return true;
 }
@@ -815,4 +924,104 @@ bool BranchViewFactory::hasVisibleView() const
     });
 }
 
+#ifdef WITH_TESTS
+class BranchViewTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testModalRefresh_data();
+    void testModalRefresh();
+};
+
+void BranchViewTest::testModalRefresh_data()
+{
+    QTest::addColumn<QString>("operation");
+    QTest::newRow("delete confirmation") << QString("remove");
+    QTest::newRow("checkout dialog") << QString("checkout");
+    QTest::newRow("checkout after creating branch") << QString("add");
+}
+
+void BranchViewTest::testModalRefresh()
+{
+    QFETCH(QString, operation);
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repository = FilePath::fromString(directory.path());
+    const auto run = [repository](const QStringList &args) {
+        return gitClient().vcsSynchronousExec(repository, args).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(run({"init", "-b", "main", "."}));
+    QVERIFY(run({"config", "user.name", "test"}));
+    QVERIFY(run({"config", "user.email", "test@example.invalid"}));
+    QVERIFY((repository / "file.txt").writeFileContents("initial\n"));
+    QVERIFY(run({"add", "file.txt"}));
+    QVERIFY(run({"-c", "commit.gpgsign=false", "commit", "-m", "initial"}));
+    QVERIFY(run({"branch", "topic"}));
+    if (operation != "remove")
+        QVERIFY((repository / "file.txt").writeFileContents("modified\n"));
+    BranchView view;
+    BranchModel *model = view.m_model;
+    const QScopeGuard clearRepository([model] {
+        model->refresh({}, BranchModel::ShowError::No, BranchModel::RefreshMode::Force);
+    });
+    view.show();
+    model->refresh(repository, BranchModel::ShowError::No, BranchModel::RefreshMode::Force);
+    QTRY_VERIFY(model->currentBranch().isValid());
+    const QModelIndex topic = findBranchIndex(model, "refs/heads/topic",
+                                             model->hash(model->currentBranch()));
+    QVERIFY(topic.isValid());
+    view.m_branchView->setCurrentIndex(view.m_filterModel->mapFromSource(topic));
+    if (operation == "add") {
+        const auto added = GuiTest::onNextDialog([](QWidget *widget) {
+            auto edit = widget->findChild<QLineEdit *>();
+            QVERIFY(edit);
+            edit->setText("created");
+            auto buttons = widget->findChild<QDialogButtonBox *>();
+            QVERIFY(buttons);
+            buttons->button(QDialogButtonBox::Ok)->click();
+        });
+        QVERIFY(view.add());
+        QVERIFY(*added);
+    }
+    QSignalSpy started(model, &BranchModel::refreshStarted);
+    bool blocked = false;
+    const auto handled = GuiTest::onNextDialog([&](QWidget *widget) {
+        auto dialog = qobject_cast<QDialog *>(widget);
+        QVERIFY(dialog);
+        if (operation == "remove")
+            QCOMPARE(dialog->windowTitle(), QString("Delete Branch"));
+        else
+            QCOMPARE(dialog->windowTitle(), QString("Checkout branch \"%1\"")
+                                               .arg(operation == "add" ? QString("created")
+                                                                         : QString("topic")));
+        const int before = started.count();
+        model->refresh(repository, BranchModel::ShowError::No, BranchModel::RefreshMode::Force);
+        blocked = started.count() == before;
+        dialog->reject();
+    });
+    if (operation == "remove")
+        QVERIFY(view.remove());
+    else if (operation == "checkout")
+        view.checkout();
+    QTRY_VERIFY(*handled);
+    QVERIFY(blocked);
+    QTRY_VERIFY(started.count() > 0);
+    QTRY_VERIFY(model->currentBranch().isValid());
+    QCOMPARE(model->fullName(model->currentBranch()), QString("main"));
+    if (operation == "add")
+        QVERIFY(model->localBranchNames().contains("created"));
+}
+
+QObject *createBranchViewTest()
+{
+    return new BranchViewTest;
+}
+#endif
+
 } // Git::Internal
+
+#ifdef WITH_TESTS
+#include "branchview.moc"
+#endif

@@ -60,8 +60,9 @@ public:
     void removeTag(const QModelIndex &idx);
     void checkoutBranch(const QModelIndex &idx,
                         const std::function<void(const VcsBase::CommandResult &)> &handler = {});
-    bool branchIsMerged(const QModelIndex &idx);
-    QModelIndex addBranch(const QString &name, bool track, const QModelIndex &trackedBranch);
+    void branchIsMerged(const QModelIndex &idx, const std::function<void(bool)> &handler);
+    void addBranch(const QString &name, bool track, const QModelIndex &trackedBranch,
+                   const std::function<void(const QModelIndex &)> &handler);
     void setRemoteTracking(const QModelIndex &trackingIndex);
     void setOldBranchesIncluded(bool value);
     bool oldBranchesIncluded() const;
@@ -90,9 +91,6 @@ private:
     void setCurrentBranch(const QString &currentBranch);
     BranchNode *indexToNode(const QModelIndex &index) const;
     QModelIndex nodeToIndex(BranchNode *node, int column) const;
-    void removeNode(const QModelIndex &idx);
-
-    QString toolTip(const QString &hash) const;
 
     class Private;
     Private *d;
