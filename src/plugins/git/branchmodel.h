@@ -24,6 +24,13 @@ public:
     explicit BranchModel(QObject *parent = nullptr);
     ~BranchModel() override;
 
+    enum BranchRole {
+        BranchNameRole = Qt::UserRole + 1,
+        AheadRole,
+        BehindRole,
+        ModifiedRole
+    };
+
     // QAbstractItemModel
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;

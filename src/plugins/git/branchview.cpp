@@ -24,18 +24,23 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <QApplication>
 #include <QCursor>
+#include <QHeaderView>
 #include <QLabel>
 #include <QKeySequence>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPainter>
 #include <QPoint>
 #include <QSortFilterProxyModel>
+#include <QStyle>
 #include <QTreeView>
 #include <QToolButton>
 #include <QToolTip>
@@ -46,6 +51,7 @@
 using namespace Core;
 using namespace QtTaskTree;
 using namespace Utils;
+using namespace Utils::StyleHelper::SpacingTokens;
 using namespace VcsBase;
 
 #ifdef WITH_TESTS
@@ -75,6 +81,264 @@ protected:
             return true;
         return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
     }
+};
+
+static QFont branchStatusFont(const QFont &baseFont)
+{
+    QFont font = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
+    font.setResolveMask(QFont::WeightResolved);
+    return font.resolve(baseFont);
+}
+
+struct BranchStatusBadge
+{
+    QString label;
+    QString compactLabel;
+    Theme::Color color;
+};
+
+static QList<BranchStatusBadge> statusBadges(const QModelIndex &source)
+{
+    QList<BranchStatusBadge> badges;
+    if (const int ahead = source.data(BranchModel::AheadRole).toInt(); ahead > 0)
+        badges.append({QString("\u2191 %1").arg(ahead), QString("\u2191%1").arg(ahead),
+                       Theme::Token_Notification_Success_Default});
+    if (const int behind = source.data(BranchModel::BehindRole).toInt(); behind > 0)
+        badges.append({QString("\u2193 %1").arg(behind), QString("\u2193%1").arg(behind),
+                       Theme::Token_Notification_Success_Default});
+    if (const int modified = source.data(BranchModel::ModifiedRole).toInt(); modified > 0)
+        badges.append({QString("\u00b1%1").arg(modified), QString("\u00b1%1").arg(modified),
+                       Theme::Token_Notification_Alert_Default});
+    return badges;
+}
+
+static int statusBadgeWidth(const BranchStatusBadge &badge, const QFontMetrics &metrics)
+{
+    return metrics.horizontalAdvance(badge.label) + metrics.height() + GapHXs;
+}
+
+static int statusBadgesWidth(const QList<BranchStatusBadge> &badges, const QFontMetrics &metrics)
+{
+    int width = 0;
+    for (const BranchStatusBadge &badge : badges)
+        width += statusBadgeWidth(badge, metrics) + GapHXs;
+    return width;
+}
+
+class BranchVisualDelegate final : public BranchValidationDelegate
+{
+public:
+    BranchVisualDelegate(BranchModel *model, BranchFilterModel *filterModel,
+                         QTreeView *view, QWidget *parent)
+        : BranchValidationDelegate(parent, model)
+        , m_model(model)
+        , m_filterModel(filterModel)
+        , m_view(view)
+    {}
+
+    QSize sizeHint(const QStyleOptionViewItem &viewOption, const QModelIndex &index) const override
+    {
+        const QStyleOptionViewItem option = setOptions(index, viewOption);
+        QSize size = BranchValidationDelegate::sizeHint(option, index);
+        if (m_model->isLeaf(m_filterModel->mapToSource(index))) {
+            const QModelIndex source = m_filterModel->mapToSource(index);
+            const QString tracking = m_model->tracking(source);
+            const bool hasTracking = !tracking.isEmpty();
+            const bool dateBelow = needsDateLine(option, index);
+            const int lineHeight = option.fontMetrics.height() + GapHXs;
+            const int lineCount = 1 + hasTracking + dateBelow;
+            size.setHeight(qMax(size.height(), lineHeight * lineCount + PaddingVXxs));
+            QFont nameFont = option.font;
+            const QFontMetrics nameMetrics(nameFont);
+            const QFont badgeFont = branchStatusFont(option.font);
+            const QFontMetrics badgeMetrics(badgeFont);
+            const QString name = source.data(BranchModel::BranchNameRole).toString();
+            int firstLineWidth = nameMetrics.horizontalAdvance(name);
+            firstLineWidth += statusBadgesWidth(statusBadges(source), badgeMetrics);
+            const int trackingWidth = QFontMetrics(option.font).horizontalAdvance(
+                QString("\u21b3 %1").arg(tracking));
+            size.setWidth(qMax(firstLineWidth, trackingWidth) + PaddingHL + PaddingHS);
+        } else {
+            size.setHeight(qMax(size.height(), option.fontMetrics.height() + PaddingVS));
+        }
+        return size;
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &viewOption,
+               const QModelIndex &index) const override
+    {
+        const QStyleOptionViewItem option = setOptions(index, viewOption);
+        const QModelIndex sourceIndex = m_filterModel->mapToSource(index);
+        if (!m_model->isLeaf(sourceIndex)) {
+            BranchValidationDelegate::paint(painter, option, index);
+            return;
+        }
+
+        painter->save();
+        painter->setClipRect(option.rect, Qt::IntersectClip);
+        const bool selected = option.state & QStyle::State_Selected;
+        QStyleOptionViewItem background = option;
+        if (selected)
+            background.state |= QStyle::State_Selected;
+        background.text.clear();
+        background.icon = {};
+        QStyle *style = option.widget ? option.widget->style() : QApplication::style();
+        style->drawControl(QStyle::CE_ItemViewItem, &background, painter, option.widget);
+
+        const bool current = sourceIndex == m_model->currentBranch();
+        const Theme::Color colorId = m_model->isHead(sourceIndex)
+            ? Theme::Token_Accent_Default
+            : m_model->isTag(sourceIndex) ? Theme::Token_Notification_Alert_Default
+            : m_model->isLocal(sourceIndex) ? Theme::Token_Notification_Success_Default
+                                            : Theme::Token_Notification_Neutral_Default;
+        const QColor color = Utils::creatorColor(colorId);
+        if (current && !selected) {
+            QColor fill = color;
+            fill.setAlphaF(0.12f);
+            QColor outline = color;
+            outline.setAlphaF(0.45f);
+            StyleHelper::drawCardBg(painter, option.rect.adjusted(PaddingHXxs,
+                                            PaddingVXxs / 2,
+                                            -PaddingHXxs,
+                                            -PaddingVXxs / 2), fill,
+                                    QPen(outline, 1), RadiusS);
+        }
+
+        const QColor textColor = option.palette.color(selected ? QPalette::HighlightedText
+                                                               : QPalette::Text);
+        const QFont badgeFont = branchStatusFont(option.font);
+        const QFontMetrics badgeMetrics(badgeFont);
+        const int badgeHeight = qMin(badgeMetrics.height() + GapHXs, option.rect.height() - PaddingVXxs);
+        painter->setRenderHint(QPainter::Antialiasing);
+        const QString tracking = m_model->tracking(sourceIndex);
+        const bool hasTracking = !tracking.isEmpty();
+        const QString date = index.siblingAtColumn(1).data().toString();
+        const bool dateBelow = needsDateLine(option, index);
+        const int firstLineHeight = option.fontMetrics.height() + GapHXs;
+        const int firstLineCenter = hasTracking || dateBelow
+                                        ? option.rect.top() + firstLineHeight / 2
+                                        : option.rect.center().y();
+        painter->setPen(QPen(color, 1.5));
+        painter->setBrush(current ? QBrush(color) : QBrush(Qt::NoBrush));
+        painter->drawEllipse(QPointF(option.rect.left() + PaddingHS + GapHXxs / 2, firstLineCenter), PrimitiveS / 2,
+                             PrimitiveS / 2);
+
+        const int textLeft = option.rect.left() + PaddingHL + GapHXxs;
+        QFont nameFont = option.font;
+        QList<BranchStatusBadge> badges = statusBadges(sourceIndex);
+
+        const QFontMetrics nameMetrics(nameFont);
+        const int rowRight = qMin(option.rect.right(), m_view->viewport()->rect().right());
+        const int dateWidth = option.fontMetrics.horizontalAdvance(date);
+        const int dateLeft = rowRight - PaddingHXs - dateWidth;
+        const int availableWidth = dateBelow || date.isEmpty()
+                                       ? rowRight - textLeft - PaddingHXs
+                                       : dateLeft - option.fontMetrics.horizontalAdvance(' ') - textLeft;
+        int totalBadgeWidth = statusBadgesWidth(badges, badgeMetrics);
+        if (totalBadgeWidth > availableWidth) {
+            totalBadgeWidth = 0;
+            for (BranchStatusBadge &badge : badges) {
+                badge.label = badge.compactLabel;
+                totalBadgeWidth += statusBadgeWidth(badge, badgeMetrics) + GapHXs;
+            }
+        }
+        while (totalBadgeWidth > availableWidth && badges.size() > 1)
+            totalBadgeWidth -= statusBadgeWidth(badges.takeLast(), badgeMetrics) + GapHXs;
+        if (totalBadgeWidth > availableWidth) {
+            badges.clear();
+            totalBadgeWidth = 0;
+        }
+
+        const int nameWidth = qMax(0, availableWidth - totalBadgeWidth);
+        const QString name = sourceIndex.data(BranchModel::BranchNameRole).toString();
+        const QString visibleName = nameMetrics.horizontalAdvance(name) <= nameWidth
+                                        ? name : nameMetrics.elidedText(name, Qt::ElideRight,
+                                                                       nameWidth);
+        painter->setFont(nameFont);
+        painter->setPen(textColor);
+        const QRect nameRect(textLeft, option.rect.top(), nameWidth,
+                             hasTracking || dateBelow ? firstLineHeight : option.rect.height());
+        painter->drawText(nameRect, Qt::AlignVCenter | Qt::AlignLeft, visibleName);
+        int badgeX = textLeft + nameMetrics.horizontalAdvance(visibleName) + GapHXs;
+        painter->setFont(badgeFont);
+        for (const BranchStatusBadge &badgeInfo : std::as_const(badges)) {
+            const int width = statusBadgeWidth(badgeInfo, badgeMetrics);
+            const QRect badge(badgeX, firstLineCenter - badgeHeight / 2, width, badgeHeight);
+            QColor border = Utils::creatorColor(badgeInfo.color);
+            QColor fill = border;
+            const QColor filledText = Utils::creatorColor(Theme::Token_Basic_White);
+            if (current) {
+                fill = StyleHelper::ensureReadableOn(filledText, fill);
+                border = fill;
+            } else {
+                border.setAlphaF(0.6f);
+                fill.setAlphaF(0.16f);
+            }
+            StyleHelper::drawCardBg(painter, badge, fill, QPen(border, 1), badgeHeight / 2);
+            painter->setPen(current ? filledText : selected ? textColor
+                                               : Utils::creatorColor(Theme::Token_Text_Muted));
+            painter->drawText(badge, Qt::AlignCenter, badgeInfo.label);
+            badgeX += width + GapHXs;
+        }
+        if (hasTracking) {
+            painter->setFont(option.font);
+            painter->setPen(selected ? textColor
+                                     : Utils::creatorColor(Theme::Token_Text_Muted));
+            const QRect trackingRect(textLeft, option.rect.top() + firstLineHeight,
+                                     qMax(0, rowRight - textLeft - PaddingHXs),
+                                     firstLineHeight);
+            painter->drawText(trackingRect, Qt::AlignVCenter | Qt::AlignLeft,
+                              QFontMetrics(option.font).elidedText(QString("\u21b3 %1").arg(tracking),
+                                                                   Qt::ElideMiddle,
+                                                                   trackingRect.width()));
+        }
+        if (dateBelow) {
+            painter->setFont(option.font);
+            painter->setPen(selected ? textColor
+                                     : Utils::creatorColor(Theme::Token_Text_Muted));
+            const int dateLine = hasTracking ? 2 : 1;
+            const QRect dateRect(textLeft, option.rect.top() + firstLineHeight * dateLine,
+                                 qMax(0, rowRight - textLeft - PaddingHXs), firstLineHeight);
+            painter->drawText(dateRect, Qt::AlignVCenter | Qt::AlignLeft, date);
+        } else if (!date.isEmpty()) {
+            painter->setFont(option.font);
+            painter->setPen(selected ? textColor
+                                     : Utils::creatorColor(Theme::Token_Text_Muted));
+            const QRect dateRect(dateLeft, option.rect.top(), dateWidth,
+                                 hasTracking ? firstLineHeight : option.rect.height());
+            painter->drawText(dateRect, Qt::AlignVCenter | Qt::AlignRight, date);
+        }
+        painter->restore();
+    }
+
+private:
+    bool needsDateLine(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        const QString date = index.siblingAtColumn(1).data().toString();
+        if (date.isEmpty())
+            return false;
+
+        const QModelIndex source = m_filterModel->mapToSource(index);
+        QFont nameFont = option.font;
+        const QFont badgeFont = branchStatusFont(option.font);
+        const QFontMetrics badgeMetrics(badgeFont);
+        const int branchWidth = QFontMetrics(nameFont).horizontalAdvance(
+                                    source.data(BranchModel::BranchNameRole).toString())
+                                + statusBadgesWidth(statusBadges(source), badgeMetrics);
+
+        int depth = 0;
+        for (QModelIndex parent = index; parent.isValid(); parent = parent.parent())
+            ++depth;
+        const int textLeft = depth * m_view->indentation() + PaddingHL + GapHXxs;
+        const int dateWidth = option.fontMetrics.horizontalAdvance(date);
+        const int spaceWidth = option.fontMetrics.horizontalAdvance(' ');
+        return textLeft + branchWidth + spaceWidth + dateWidth + GapHXs
+               > m_view->viewport()->width();
+    }
+
+    BranchModel *m_model;
+    BranchFilterModel *m_filterModel;
+    QTreeView *m_view;
 };
 
 struct SetInContext
@@ -136,6 +400,10 @@ BranchView::BranchView(BranchViewFactory *factory)
     connect(m_refreshAction, &QAction::triggered, m_model, &BranchModel::refreshCurrentRepository);
 
     m_branchView->setHeaderHidden(true);
+    m_branchView->setUniformRowHeights(false);
+    m_branchView->setIndentation(m_branchView->fontMetrics().height());
+    m_branchView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_branchView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFocus();
 
     m_repositoryLabel->setElideMode(Qt::ElideLeft);
@@ -146,7 +414,13 @@ BranchView::BranchView(BranchViewFactory *factory)
     m_filterModel->setFilterRole(Qt::EditRole);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_branchView->setModel(m_filterModel);
+    m_branchView->setColumnHidden(1, true);
+    m_branchView->header()->setStretchLastSection(false);
+    m_branchView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    connect(m_branchView->header(), &QHeaderView::sectionResized,
+            this, &BranchView::updateRowLayout);
     m_filterEdit->setFiltering(true);
+    m_filterEdit->setPlaceholderText(Tr::tr("Filter branches and tags"));
     connect(m_filterEdit, &FancyLineEdit::textChanged,
             m_filterModel, QOverload<const QString &>::of(&BranchFilterModel::setFilterRegularExpression));
     auto layout = new QVBoxLayout(this);
@@ -175,7 +449,7 @@ BranchView::BranchView(BranchViewFactory *factory)
     m_branchView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_branchView->setEditTriggers(QAbstractItemView::SelectedClicked
                                   | QAbstractItemView::EditKeyPressed);
-    m_branchView->setItemDelegate(new BranchValidationDelegate(this, m_model));
+    m_branchView->setItemDelegate(new BranchVisualDelegate(m_model, m_filterModel, m_branchView, this));
     connect(m_branchView, &QAbstractItemView::doubleClicked,
             this, [this](const QModelIndex &idx) { log(m_filterModel->mapToSource(idx)); });
     connect(m_branchView, &QWidget::customContextMenuRequested,
@@ -189,6 +463,8 @@ BranchView::BranchView(BranchViewFactory *factory)
     connect(m_model, &QAbstractItemModel::dataChanged, this,
             [this](const QModelIndex &topLeft, const QModelIndex &bottomRight,
                    const QList<int> &roles) {
+        if (roles.isEmpty() || roles.contains(Qt::DisplayRole) || roles.contains(Qt::FontRole))
+            updateRowLayout();
         if (!QToolTip::isVisible() || (!roles.isEmpty() && !roles.contains(Qt::ToolTipRole)))
             return;
         QWidget *viewport = m_branchView->viewport();
@@ -214,6 +490,7 @@ BranchView::BranchView(BranchViewFactory *factory)
 
 void BranchView::refresh()
 {
+    updateRowLayout();
     const FilePath repository = m_model->repository();
 
     if (repository.isEmpty()) {
@@ -230,6 +507,7 @@ void BranchView::refresh()
 
 void BranchView::showEvent(QShowEvent *)
 {
+    updateRowLayout();
     if (m_factory)
         m_factory->viewShown(this);
     else
@@ -260,10 +538,21 @@ QList<QToolButton *> BranchView::createToolButtons()
     return {filter, addButton, refreshButton};
 }
 
-void BranchView::resizeColumns()
+void BranchView::resizeEvent(QResizeEvent *event)
 {
-    for (int column = 0, total = m_model->columnCount(); column < total; ++column)
-        m_branchView->resizeColumnToContents(column);
+    QWidget::resizeEvent(event);
+    updateRowLayout();
+}
+
+void BranchView::updateRowLayout()
+{
+    if (m_rowLayoutPending)
+        return;
+    m_rowLayoutPending = true;
+    QMetaObject::invokeMethod(this, [this] {
+        m_rowLayoutPending = false;
+        m_branchView->doItemsLayout();
+    }, Qt::QueuedConnection);
 }
 
 void BranchView::slotCustomContextMenu(const QPoint &point)
@@ -377,7 +666,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
 void BranchView::expandAndResize()
 {
     m_branchView->expandAll();
-    resizeColumns();
+    updateRowLayout();
 }
 
 QString BranchView::pathElementForIndex(const QModelIndex &index) const
@@ -465,7 +754,7 @@ void BranchView::restoreTreeState()
         if (proxy.isValid())
             m_branchView->setExpanded(proxy, m_expandedPaths.value(path));
     }
-    resizeColumns();
+    updateRowLayout();
 }
 
 void BranchView::setIncludeOldEntries(bool filter)

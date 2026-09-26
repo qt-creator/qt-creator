@@ -42,13 +42,14 @@ public:
 
 protected:
     void showEvent(QShowEvent *) override;
+    void resizeEvent(QResizeEvent *) override;
 
 private:
 #ifdef WITH_TESTS
     friend class BranchViewTest;
 #endif
     void refresh();
-    void resizeColumns();
+    void updateRowLayout();
     void slotCustomContextMenu(const QPoint &point);
     void expandAndResize();
     void saveTreeState();
@@ -87,6 +88,7 @@ private:
     QString m_currentPath;
     Utils::FilePath m_treeStateRepository;
     bool m_hasSavedTreeState = false;
+    bool m_rowLayoutPending = false;
 };
 
 class BranchViewFactory : public Core::INavigationWidgetFactory

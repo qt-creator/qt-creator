@@ -20,6 +20,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/stylehelper.h>
 
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -27,6 +28,7 @@
 #include <QDateTime>
 #include <QFont>
 #include <QLoggingCategory>
+#include <QLocale>
 #include <QSet>
 
 #include <memory>
@@ -516,6 +518,14 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
     }
 
     switch (role) {
+    case BranchNameRole:
+        return node->name;
+    case AheadRole:
+        return node->isLeaf() ? node->status.ahead : -1;
+    case BehindRole:
+        return node->isLeaf() ? node->status.behind : -1;
+    case ModifiedRole:
+        return node->isLeaf() ? node->modified : 0;
     case Qt::DisplayRole: {
         QString res;
         switch (index.column()) {
@@ -530,9 +540,9 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
                 break;
             }
 
-            if (node->status.ahead >= 0)
+            if (node->status.ahead > 0)
                 res += ' ' + arrowUp + QString::number(node->status.ahead);
-            if (node->status.behind >= 0)
+            if (node->status.behind > 0)
                 res += ' ' + arrowDown + QString::number(node->status.behind);
             if (node->modified)
                 res += ' ' + plusMinus + QString::number(node->modified);
@@ -541,8 +551,17 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
             break;
         }
         case ColumnDateTime:
-            if (node->isLeaf() && node->dateTime.isValid())
-                res = node->dateTime.toString("yyyy-MM-dd HH:mm");
+            if (node->isLeaf() && node->dateTime.isValid()) {
+                const QDateTime time = node->dateTime.toLocalTime();
+                const QDate today = QDate::currentDate();
+                const QLocale locale;
+                if (time.date() == today)
+                    res = locale.toString(time.time(), QString("HH:mm"));
+                else if (time.date().year() == today.year())
+                    res = locale.toString(time.date(), QString("MMM d"));
+                else
+                    res = time.toString("yyyy-MM-dd");
+            }
             break;
         }
         qCDebug(modelLog) << "data: DisplayRole for node:" << node->name << "column:" << index.column() << "result:" << res;
@@ -581,20 +600,35 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
             });
             const_cast<BranchModel *>(this)->d->parallelTaskTreeRunner.start({task});
         }
+        {
+            QStringList summary;
+            if (!node->tracking.isEmpty())
+                summary << Tr::tr("Tracking: %1").arg(node->tracking);
+            if (node->status.ahead >= 0 && node->status.behind >= 0)
+                summary << Tr::tr("Ahead: %1 \u00b7 Behind: %2")
+                               .arg(node->status.ahead).arg(node->status.behind);
+            if (node == d->currentBranch)
+                summary << Tr::tr("Modified files: %n", nullptr, node->modified);
+            if (node->dateTime.isValid())
+                summary << Tr::tr("Last commit: %1")
+                               .arg(node->dateTime.toLocalTime().toString("yyyy-MM-dd HH:mm"));
+            if (!summary.isEmpty()) {
+                QString result = summary.join('\n');
+                if (!node->toolTip.isEmpty())
+                    result += "\n\n" + node->toolTip;
+                return result;
+            }
+        }
         qCDebug(modelLog) << "data: ToolTipRole for node:" << node->name << "toolTip:" << node->toolTip;
         return node->toolTip.isEmpty() ? node->fullRef() : node->toolTip;
     case Qt::FontRole:
-    {
-        QFont font;
-        if (!node->isLeaf()) {
-            font.setBold(true);
-        } else if (node == d->currentBranch) {
-            font.setBold(true);
-            font.setUnderline(true);
+        if (index.column() == ColumnBranch && (!node->isLeaf() || node == d->currentBranch)) {
+            QFont font = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
+            font.setResolveMask(QFont::WeightResolved);
+            return font;
         }
-        qCDebug(modelLog) << "data: FontRole for node:" << node->name << "font:" << font;
-        return font;
-    }
+        return {};
+
     default:
         return {};
     }
@@ -1351,7 +1385,7 @@ void BranchModel::updateCurrentBranchModifiedFiles()
 
     node->modified = d->currentBranchModifiedFiles();
     const QModelIndex idx = nodeToIndex(node, ColumnBranch);
-    emit dataChanged(idx, idx, {Qt::DisplayRole});
+    emit dataChanged(idx, idx, {Qt::DisplayRole, ModifiedRole, Qt::ToolTipRole});
 }
 
 void BranchModel::Private::parseOutputLine(const QString &line, bool force)
@@ -1547,7 +1581,8 @@ ExecutableItem BranchModel::Private::updateUpstreamStatusTask(BranchNode *node)
 
         const QModelIndex idx = q->nodeToIndex(nodePtr.get(), ColumnBranch);
         if (idx.isValid()) {
-            emit q->dataChanged(idx, idx, {Qt::DisplayRole});
+            emit q->dataChanged(idx, idx, {Qt::DisplayRole, AheadRole, BehindRole,
+                                           ModifiedRole, Qt::ToolTipRole});
             qCDebug(modelLog) << "updateUpstreamStatus: dataChanged emitted for node" << nodePtr->name;
         }
     };

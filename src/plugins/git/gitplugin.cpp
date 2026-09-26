@@ -89,6 +89,7 @@
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QLocale>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMouseEvent>
@@ -115,11 +116,16 @@
 #include <utils/fancylineedit.h>
 #include <utils/guitest.h>
 #include <utils/hostosinfo.h>
+#include <utils/stylehelper.h>
 
 #include <QAbstractItemModelTester>
 #include <QAbstractProxyModel>
 #include <QDialogButtonBox>
 #include <QLineEdit>
+#include <QHeaderView>
+#include <QImage>
+#include <QStyleOptionViewItem>
+#include <QPainter>
 #include <QScrollBar>
 #include <QSignalSpy>
 #include <QSortFilterProxyModel>
@@ -2520,6 +2526,9 @@ private slots:
     void testBranchModelMergedDuringRefresh_data();
     void testBranchModelMergedDuringRefresh();
     void testBranchModelCreateOldBranch();
+    void testBranchViewStatusLayout();
+    void testBranchDateDisplay_data();
+    void testBranchDateDisplay();
     void testBranchModelAsyncRefresh_data();
     void testBranchModelAsyncRefresh();
     void testBranchViewVisibility();
@@ -3946,6 +3955,108 @@ static QModelIndex findAsyncBranchTestRef(BranchModel &model, const QString &ref
     return {};
 }
 
+void GitTest::testBranchViewStatusLayout()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repository = FilePath::fromString(directory.path());
+    QVERIFY(createAsyncBranchTestRepository(repository));
+    const auto run = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(run({"branch", "x"}));
+    QVERIFY(run({"remote", "add", "origin", "."}));
+    QVERIFY(run({"update-ref", "refs/remotes/origin/main", "HEAD"}));
+    QVERIFY(run({"branch", "--set-upstream-to=origin/main", "main"}));
+    QVERIFY(bool((repository / "file.txt").writeFileContents("test\nlocal\n")));
+    QVERIFY(run({"add", "file.txt"}));
+    QVERIFY(run({"-c", "commit.gpgsign=false", "commit", "-m", "local change"}));
+
+    BranchView view;
+    auto *tree = view.findChild<QTreeView *>();
+    QVERIFY(tree);
+    auto *proxy = qobject_cast<QAbstractProxyModel *>(tree->model());
+    QVERIFY(proxy);
+    auto *model = qobject_cast<BranchModel *>(proxy->sourceModel());
+    QVERIFY(model);
+    const FilePath originalRepository = model->repository();
+    const QScopeGuard restoreRepository([&] {
+        QSignalSpy finished(model, &BranchModel::refreshFinished);
+        model->refresh(originalRepository);
+        QTRY_VERIFY(!finished.isEmpty());
+    });
+    view.resize(800, 500);
+    view.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&view));
+    model->refresh(repository);
+    const auto mainIndex = [&] { return findAsyncBranchTestRef(*model, "refs/heads/main"); };
+    const auto shortIndex = [&] { return findAsyncBranchTestRef(*model, "refs/heads/x"); };
+    QTRY_VERIFY(mainIndex().isValid());
+    QTRY_COMPARE(mainIndex().data(BranchModel::AheadRole).toInt(), 1);
+    QCOMPARE(mainIndex().data(BranchModel::BehindRole).toInt(), 0);
+    QCOMPARE(mainIndex().data(BranchModel::BranchNameRole).toString(), QString("main"));
+    const QFont currentFont = mainIndex().data(Qt::FontRole).value<QFont>().resolve(tree->font());
+    QCOMPARE(currentFont.pointSizeF(), tree->font().pointSizeF());
+    QCOMPARE(currentFont.pixelSize(), tree->font().pixelSize());
+    QCOMPARE(currentFont.family(), tree->font().family());
+    QTRY_VERIFY(mainIndex().data(Qt::ToolTipRole).toString().contains("local change"));
+    const QString tip = mainIndex().data(Qt::ToolTipRole).toString();
+    QVERIFY(tip.contains("Tracking: origin/main"));
+    QVERIFY(tip.contains("Ahead: 1"));
+    QVERIFY(tip.contains("Behind: 0"));
+    QVERIFY(tip.contains("\n\n"));
+    QVERIFY(tree->isColumnHidden(1));
+    QCOMPARE(tree->selectionBehavior(), QAbstractItemView::SelectRows);
+    const auto rowHeight = [&](const QModelIndex &source) {
+        return tree->visualRect(proxy->mapFromSource(source)).height();
+    };
+    QTRY_VERIFY(rowHeight(mainIndex()) > rowHeight(shortIndex()));
+    const int wideHeight = rowHeight(mainIndex());
+    view.resize(130, 500);
+    QTRY_VERIFY(rowHeight(mainIndex()) > wideHeight);
+    QCOMPARE(tree->header()->sectionSize(0), tree->viewport()->width());
+    view.resize(800, 500);
+    QTRY_COMPARE(rowHeight(mainIndex()), wideHeight);
+    const QModelIndex selected = proxy->mapFromSource(mainIndex());
+    tree->setCurrentIndex(selected);
+    QVERIFY(tree->selectionModel()->isSelected(selected));
+
+    // Custom painting must leave the painter state and neighboring pixels intact.
+    QImage image(180, 120, QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+    QPainter painter(&image);
+    const QFont originalFont = painter.font();
+    const QPen originalPen = painter.pen();
+    QStyleOptionViewItem option;
+    option.initFrom(tree);
+    option.widget = tree;
+    option.rect = QRect(40, 20, 15, 70);
+    option.state |= QStyle::State_Selected;
+    tree->itemDelegate()->paint(&painter, option, selected);
+    QCOMPARE(painter.font(), originalFont);
+    QCOMPARE(painter.pen(), originalPen);
+    QVERIFY(!painter.hasClipping());
+    painter.end();
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
+            if (!option.rect.contains(x, y))
+                QCOMPARE(image.pixelColor(x, y).alpha(), 0);
+        }
+    }
+
+    image.fill(Qt::transparent);
+    painter.begin(&image);
+    option.rect = QRect(20, 20, 150, 30);
+    option.state &= ~QStyle::State_Selected;
+    tree->itemDelegate()->paint(&painter, option, proxy->mapFromSource(shortIndex()));
+    painter.end();
+    const int markerX = option.rect.left() + StyleHelper::SpacingTokens::PaddingHS
+                        + StyleHelper::SpacingTokens::GapHXxs / 2;
+    QCOMPARE(image.pixelColor(markerX, option.rect.center().y()),
+             image.pixelColor(option.rect.left() + 1, option.rect.center().y()));
+}
+
 void GitTest::testBranchModelAsyncCommands()
 {
     QTemporaryDir directory;
@@ -4119,6 +4230,64 @@ void GitTest::testBranchModelCreateOldBranch()
     QTRY_VERIFY(completed);
     QVERIFY(valid);
     QVERIFY(findAsyncBranchTestRef(model, "refs/heads/created-from-old").isValid());
+}
+
+void GitTest::testBranchDateDisplay_data()
+{
+    QTest::addColumn<QString>("language");
+    QTest::addColumn<QString>("age");
+    for (const QString &language : {QString("de_DE"), QString("ja_JP")}) {
+        for (const QString &age : {QString("today"), QString("this-year"), QString("older")})
+            QTest::newRow(qPrintable(language + '-' + age)) << language << age;
+    }
+}
+
+void GitTest::testBranchDateDisplay()
+{
+    QFETCH(QString, language);
+    QFETCH(QString, age);
+    const QDate today = QDate::currentDate();
+    QDateTime commitTime = QDateTime::currentDateTime();
+    QDate date = today;
+    if (age == "this-year") {
+        date = QDate(today.year(), 10, 3);
+        if (date == today)
+            date = date.addDays(1);
+    } else if (age == "older") {
+        date = today.addYears(-1);
+    }
+    commitTime.setDate(date);
+    commitTime.setTime(QTime(12, 34));
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repository = FilePath::fromString(directory.path());
+    QVERIFY(createAsyncBranchTestRepository(repository));
+    Process commit;
+    Environment environment = Environment::systemEnvironment();
+    environment.set("GIT_AUTHOR_DATE", commitTime.toString(Qt::ISODate));
+    environment.set("GIT_COMMITTER_DATE", commitTime.toString(Qt::ISODate));
+    commit.setEnvironment(environment);
+    commit.setWorkingDirectory(repository);
+    commit.setCommand({gitClient().vcsBinary(repository),
+                       {"-c", "commit.gpgsign=false", "commit", "--allow-empty", "-m", "dated"}});
+    commit.runBlocking();
+    QCOMPARE(commit.result(), ProcessResult::FinishedWithSuccess);
+    const QLocale previous;
+    const QScopeGuard restoreLocale([previous] { QLocale::setDefault(previous); });
+    const QLocale locale(language);
+    QLocale::setDefault(locale);
+    BranchModel model;
+    model.refresh(repository);
+    QTRY_VERIFY(model.currentBranch().isValid());
+    const QString actual = model.currentBranch().siblingAtColumn(1).data().toString();
+    const auto expected = [&](const QDate &reference) {
+        if (date == reference)
+            return locale.toString(commitTime.time(), QString("HH:mm"));
+        if (date.year() == reference.year())
+            return locale.toString(date, QString("MMM d"));
+        return date.toString("yyyy-MM-dd");
+    };
+    QVERIFY2(actual == expected(today) || actual == expected(QDate::currentDate()), qPrintable(actual));
 }
 
 void GitTest::testBranchModelAsyncRefresh_data()
@@ -4369,9 +4538,9 @@ void GitTest::testSharedBranchViews()
     QTRY_VERIFY(checkoutCompleted);
     QTRY_COMPARE(model->fullName(model->currentBranch(), true),
                  QString("refs/remotes/origin/remote-only"));
-    QCOMPARE(firstProxy->mapFromSource(model->currentBranch()).data(Qt::FontRole).value<QFont>().underline(),
+    QCOMPARE(firstProxy->mapFromSource(model->currentBranch()).data(Qt::FontRole).value<QFont>().bold(),
              true);
-    QCOMPARE(secondProxy->mapFromSource(model->currentBranch()).data(Qt::FontRole).value<QFont>().underline(),
+    QCOMPARE(secondProxy->mapFromSource(model->currentBranch()).data(Qt::FontRole).value<QFont>().bold(),
              true);
     QSignalSpy remoteRefreshSpy(model, &QAbstractItemModel::modelReset);
     model->refreshCurrentRepository();
