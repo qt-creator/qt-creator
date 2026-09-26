@@ -5,7 +5,7 @@ QtcPlugin {
     Depends { name: "CmdBridgeClient" }
     Depends { name: "Core" }
     Depends { name: "Debugger" }
-    Depends { name: "LanguageClient" }
+    Depends { name: "Java" }
     Depends { name: "McpServerLib" }
     Depends { name: "ProParser" }
     Depends { name: "ProjectExplorer" }
@@ -29,6 +29,8 @@ QtcPlugin {
         "androiddevice.h",
         "androiddeviceinfo.cpp",
         "androiddeviceinfo.h",
+        "androidjavaclasspath.cpp",
+        "androidjavaclasspath.h",
         "androidlogcat.cpp",
         "androidlogcat.h",
         "androidlogcatcrashparser.cpp",
@@ -74,10 +76,6 @@ QtcPlugin {
         "avdmanageroutputparser.h",
         "iconcontainerwidget.cpp",
         "iconcontainerwidget.h",
-        "javaeditor.cpp",
-        "javaeditor.h",
-        "javalanguageserver.cpp",
-        "javalanguageserver.h",
         "javaparser.cpp",
         "javaparser.h",
         "keystorecertificatedialog.cpp",

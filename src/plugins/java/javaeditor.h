@@ -3,8 +3,8 @@
 
 #pragma once
 
-namespace Android::Internal {
+namespace Java::Internal {
 
 void setupJavaEditor();
 
-} // Android::Internal
+} // Java::Internal

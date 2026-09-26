@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "javaeditor.h"
-#include "androidconstants.h"
-#include "androidtr.h"
+
+#include "javaconstants.h"
+#include "javatr.h"
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 #include <texteditor/textdocument.h>
@@ -13,7 +14,7 @@
 #include <utils/mimeconstants.h>
 #include <utils/uncommentselection.h>
 
-namespace Android::Internal {
+namespace Java::Internal {
 
 class JavaIndenter final : public TextEditor::TextIndenter
 {
@@ -107,4 +108,4 @@ void setupJavaEditor()
     static JavaEditorFactory theJavaEditorFactory;
 }
 
-} // Android::Internal
+} // Java::Internal

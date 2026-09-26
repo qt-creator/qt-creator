@@ -1,6 +1,6 @@
 add_qtc_plugin(Android
   DEPENDS Qt::Xml CmdBridgeClient McpServerLib ProParser
-  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport LanguageClient
+  PLUGIN_DEPENDS Core Debugger Java ProjectExplorer QtSupport
   LONG_DESCRIPTION_MD plugindescription.md
   LICENSE_MD LICENSE.md
   SOURCES
@@ -13,6 +13,7 @@ add_qtc_plugin(Android
     androiddevice.cpp androiddevice.h
     androiddeviceinfo.cpp androiddeviceinfo.h
     androidlogcat.cpp androidlogcat.h
+    androidjavaclasspath.cpp androidjavaclasspath.h
     androidlogcatcrashparser.cpp androidlogcatcrashparser.h
     androidmanifesteditor.cpp androidmanifesteditor.h
     androidmanifestutils.cpp androidmanifestutils.h
@@ -35,8 +36,6 @@ add_qtc_plugin(Android
     avdcreatordialog.cpp avdcreatordialog.h
     avdmanageroutputparser.cpp avdmanageroutputparser.h
     iconcontainerwidget.cpp iconcontainerwidget.h
-    javaeditor.cpp javaeditor.h
-    javalanguageserver.cpp javalanguageserver.h
     javaparser.cpp javaparser.h
     keystorecertificatedialog.cpp keystorecertificatedialog.h
     manifestwizard.cpp manifestwizard.h

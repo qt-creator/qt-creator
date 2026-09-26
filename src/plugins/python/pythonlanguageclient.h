@@ -30,7 +30,7 @@ public:
     void updateExtraCompilers(const ProjectExplorer::Project *project);
 
     static PyLSClient *clientForPython(const Utils::FilePath &python);
-    void updateConfiguration();
+    void updatePylsConfiguration();
 
 private:
     void updateExtraCompilerContents(ProjectExplorer::ExtraCompiler *compiler,

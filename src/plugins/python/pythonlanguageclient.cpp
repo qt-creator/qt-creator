@@ -165,7 +165,7 @@ PyLSClient *clientForPython(const FilePath &python)
     interface->setCommandLine({python, {"-m", "pylsp"}});
     auto client = new PyLSClient(interface);
     client->setName(Tr::tr("Python Language Server (%1)").arg(python.toUserOutput()));
-    client->updateConfiguration();
+    client->updatePylsConfiguration();
     LanguageFilter filter;
     filter.mimeTypes = QStringList() << Constants::C_PY_MIMETYPE << Constants::C_PY3_MIMETYPE;
     client->setSupportedLanguage(filter);
@@ -184,9 +184,9 @@ PyLSClient::PyLSClient(PyLSInterface *interface)
     : Client(interface)
     , m_extraCompilerOutputDir(interface->m_extraPythonPath.path())
 {
-    connect(this, &Client::initialized, this, &PyLSClient::updateConfiguration);
+    connect(this, &Client::initialized, this, &PyLSClient::updatePylsConfiguration);
     connect(PythonSettings::instance(), &PythonSettings::pylsConfigurationChanged,
-            this, &PyLSClient::updateConfiguration);
+            this, &PyLSClient::updatePylsConfiguration);
     connect(PythonSettings::instance(), &PythonSettings::pylsEnabledChanged,
             this, [this](const bool enabled){
                 if (!enabled)
@@ -202,7 +202,7 @@ PyLSClient::~PyLSClient()
         deleteExtraCompiler(compiler);
 }
 
-void PyLSClient::updateConfiguration()
+void PyLSClient::updatePylsConfiguration()
 {
     const auto doc = QJsonDocument::fromJson(PythonSettings::pylsConfiguration().toUtf8());
     if (doc.isArray())

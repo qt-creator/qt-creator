@@ -30,8 +30,6 @@ inline constexpr char ANDROID_KIT_SDK[] = "Android.SDK";
 inline constexpr char ANDROID_KIT_JDK[] = "Android.JDK";
 
 inline constexpr char ANDROID_BUILD_DIRECTORY[] = "android-build";
-inline constexpr char JAVA_EDITOR_ID[] = "java.editor";
-inline constexpr char JLS_SETTINGS_ID[] = "Java::JLSSettingsID";
 inline constexpr char ANDROID_ARCHITECTURE[] = "Android.Architecture";
 inline constexpr char ANDROID_PACKAGE_SOURCE_DIR[] = "ANDROID_PACKAGE_SOURCE_DIR";
 inline constexpr char QT_ANDROID_PACKAGE_SOURCE_DIR[] = "QT_ANDROID_PACKAGE_SOURCE_DIR";

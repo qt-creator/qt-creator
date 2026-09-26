@@ -59,6 +59,7 @@ Project {
         "imageviewer/imageviewer.qbs",
         "incredibuild/incredibuild.qbs",
         "ios/ios.qbs",
+        "java/java.qbs",
         "languageclient/languageclient.qbs",
         "languageclient/lualanguageclient/lualanguageclient.qbs",
         "learning/learning.qbs",

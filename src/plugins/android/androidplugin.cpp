@@ -7,6 +7,7 @@
 #include "androiddebugsupport.h"
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
+#include "androidjavaclasspath.h"
 #include "androidlogcatcrashparser.h"
 #include "androidmcpsupport.h"
 #include "androidpackageinstallationstep.h"
@@ -24,9 +25,6 @@
 #  include "androidsdkmanager_test.h"
 #  include "sdkmanageroutputparser_test.h"
 #endif
-
-#include "javaeditor.h"
-#include "javalanguageserver.h"
 
 #include <coreplugin/icore.h>
 
@@ -110,13 +108,11 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         setupAndroidQmlToolingSupport();
         setupAndroidLogcatCrashParser();
 
-        setupJavaEditor();
+        setupAndroidJavaClassPath();
         setupAndroidToolsMenu();
 
         connect(KitManager::instance(), &KitManager::kitsLoaded, this, &AndroidPlugin::kitsRestored,
                 Qt::SingleShotConnection);
-
-        setupJavaLanguageServer();
 
         registerAndroidMcpTools();
 
@@ -129,6 +125,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createAndroidLogcatCrashParserTest);
         addTestCreator(createAndroidMcpSupportTest);
         addTestCreator(createAndroidManifestUtilsTest);
+        addTestCreator(createAndroidJavaClassPathTest);
 #endif
     }
 

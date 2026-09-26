@@ -194,7 +194,10 @@ public:
     virtual void buildConfigurationOpened(ProjectExplorer::BuildConfiguration *bc);
     virtual void buildConfigurationClosed(ProjectExplorer::BuildConfiguration *bc);
     virtual bool canOpenProject(ProjectExplorer::Project *project);
-    void updateConfiguration(const QJsonValue &configuration);
+    // Virtual so that a client with a part of the configuration of its own
+    // can put it back into whatever it is handed: the workspace
+    // configuration is the user's to set, and setting it replaces.
+    virtual void updateConfiguration(const QJsonValue &configuration);
 
     // commands
     void requestCodeActions(const QString &uri, const LanguageServerProtocol::Diagnostic &diagnostic);

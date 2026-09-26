@@ -1,0 +1,27 @@
+{
+    "Id" : "java",
+    "DisplayName" : "Java",
+    "Name" : "Java",
+    "Version" : "${IDE_VERSION}",
+    "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
+    "Vendor" : "The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
+    "License" : [ "Commercial Usage",
+                  "",
+                  "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
+                  "",
+                  "GNU General Public License Usage",
+                  "",
+                  "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
+    ],
+    "Category" : "Other Languages",
+    "Description" : "Edit Java code, with a language server where one is set up.",
+    "LongDescription" : [
+        "The Java editor works on its own. For code completion, navigation and",
+        "diagnostics, set up the Eclipse JDT Language Server in Preferences >",
+        "Language Client."
+    ],
+    "Url" : "https://www.qt.io",
+    ${IDE_PLUGIN_DEPENDENCIES}
+}
