@@ -16,11 +16,14 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Other Languages",
-    "Description" : "Edit Java code, with a language server where one is set up.",
+    "Description" : "Edit Java code and keep the JDKs a kit builds with.",
     "LongDescription" : [
         "The Java editor works on its own. For code completion, navigation and",
         "diagnostics, set up the Eclipse JDT Language Server in Preferences >",
-        "Language Client."
+        "Language Client.",
+        "",
+        "The JDKs this machine has are looked for and kept in Preferences >",
+        "Kits > JDKs, and a kit names the one it builds Java with."
     ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}

@@ -74,7 +74,6 @@ QtcPlugin {
             "importwidget.cpp", "importwidget.h",
             "ioutputparser.cpp", "ioutputparser.h",
             "issuesmanager.cpp", "issuesmanager.h",
-            "javakitaspect.cpp", "javakitaspect.h",
             "kit.cpp", "kit.h",
             "kitdata.cpp", "kitdata.h",
             "kitaspect.cpp", "kitaspect.h",
@@ -226,8 +225,6 @@ QtcPlugin {
 
     QtcTestFiles {
         files: [
-            "javakitaspect_test.cpp",
-            "javakitaspect_test.h",
             "jsonwizard/jsonwizard_test.cpp",
             "jsonwizard/jsonwizard_test.h",
             "outputparser_test.cpp",

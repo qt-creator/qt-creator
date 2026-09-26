@@ -6,6 +6,7 @@
 #include "javaclasspath.h"
 #include "javaconstants.h"
 #include "javatr.h"
+#include "jdkmanager.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -93,11 +94,15 @@ JLSSettings::JLSSettings()
     startBehavior.setValue(RequiresProject);
     mimeTypes.setValue({Utils::Constants::JAVA_MIMETYPE});
 
-    // The server is a Java program of its own, and what runs it is the java
-    // of the machine rather than anything the kits build with. Whether that
-    // one runs is not asked here: this is a default the user is shown and
-    // can change, and a settings page is no place to start a process from.
-    const FilePath java = javaIn(Environment::systemEnvironment());
+    // The server is a Java program of its own, and what runs it is the JDK
+    // the machine is set up with rather than anything the kits build with.
+    // The environment answers where the list does not yet, the machine not
+    // having been looked at by the time a setting is made. Whether that java
+    // runs is not asked here: this is a default the user is shown and can
+    // change, and a settings page is no place to start a process from.
+    const Jdk jdk = JdkManager::defaultJdk();
+    const FilePath java = jdk.hasJava() ? jdk.javaExecutable()
+                                        : javaIn(Environment::systemEnvironment());
     if (java.isExecutableFile())
         executable.setValue(java);
 }
@@ -534,8 +539,9 @@ JdtlsCommand jdtlsCommandIn(const FilePath &installation, const FilePath &java)
 
 // How the server of this machine is to be started. Reads the directories of
 // every installation there may be and runs a java, so it belongs away from
-// whatever asked for it.
-static JdtlsCommand jdtlsCommand(const Environment &environment)
+// whatever asked for it. The java of the default JDK is handed in rather than
+// asked for here, the list of the JDKs being the main thread's to read.
+static JdtlsCommand jdtlsCommand(const Environment &environment, const FilePath &defaultJava)
 {
     // The installations before the java, so that the machines that have no
     // server at all - the ones this runs for most - are not made to start a
@@ -545,11 +551,13 @@ static JdtlsCommand jdtlsCommand(const Environment &environment)
         return {};
 
     // What runs the jar is the java of the machine, as it is what runs the
-    // server itself. One that cannot run is no java here: the launcher of an
-    // installation brings a JDK of its own along, so it is a way in where
-    // the jar is none, and handing the jar to a java that dies on it would
-    // leave the user with a server that never comes up.
-    const FilePath java = javaIn(environment);
+    // server itself: the JDK the machine is set up with, and what the
+    // environment names where the list holds none. One that cannot run is no
+    // java here: the launcher of an installation brings a JDK of its own
+    // along, so it is a way in where the jar is none, and handing the jar to
+    // a java that dies on it would leave the user with a server that never
+    // comes up.
+    const FilePath java = defaultJava.isEmpty() ? javaIn(environment) : defaultJava;
     const FilePath workingJava = javaRuns(java) ? java : FilePath();
 
     // Each installation is asked for both, so that the one the user named
@@ -597,8 +605,11 @@ static void findJdtlsCommand()
         return;
     started = true;
 
+    const Jdk jdk = JdkManager::defaultJdk();
     const QFuture<JdtlsCommand> future
-        = Utils::asyncRun(jdtlsCommand, Environment::systemEnvironment());
+        = Utils::asyncRun(jdtlsCommand,
+                          Environment::systemEnvironment(),
+                          jdk.hasJava() ? jdk.javaExecutable() : FilePath());
     Utils::futureSynchronizer()->addFuture(future);
     Utils::onResultReady(future,
                          Core::EditorManager::instance(),

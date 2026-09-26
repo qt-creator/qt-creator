@@ -82,7 +82,6 @@ add_qtc_plugin(ProjectExplorer
     headerpath.h
     importwidget.cpp importwidget.h
     ioutputparser.cpp ioutputparser.h
-    javakitaspect.cpp javakitaspect.h
     jsonwizard/jsonfieldpage.cpp jsonwizard/jsonfieldpage.h jsonwizard/jsonfieldpage_p.h
     jsonwizard/jsonfilepage.cpp jsonwizard/jsonfilepage.h
     jsonwizard/jsonkitspage.cpp jsonwizard/jsonkitspage.h
@@ -206,7 +205,6 @@ extend_qtc_plugin(ProjectExplorer
 extend_qtc_plugin(ProjectExplorer
   CONDITION WITH_TESTS
   SOURCES
-    javakitaspect_test.cpp javakitaspect_test.h
     jsonwizard/jsonwizard_test.cpp jsonwizard/jsonwizard_test.h
     outputparser_test.cpp outputparser_test.h
     taskhandling_test.cpp taskhandling_test.h

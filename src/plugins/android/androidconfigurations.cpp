@@ -15,10 +15,13 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <java/javaconstants.h>
+#include <java/javakitaspect.h>
+#include <java/jdkmanager.h>
+
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/environmentkitaspect.h>
-#include <projectexplorer/javakitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -78,6 +81,7 @@ Suggested NDK and Debugger version per Qt version:
 >= Qt 6.5: Mapping read from <QtDir>/modules/Core.json
 */
 
+using namespace Java;
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace QtTaskTree;
@@ -1422,7 +1426,13 @@ static void followTheConfiguredJdk(Kit *k, const FilePath &jdk)
     const QVariant written = k->value(Constants::ANDROID_KIT_JDK);
     if (written.isNull())
         return;
-    if (k->value(JavaKitAspect::id()) == written)
+    // What this plugin wrote is the entry it gave the kit, so an entry the
+    // list no longer holds is no JDK of any kit and there is nothing of this
+    // plugin's to let go of.
+    const Jdk ofThisPlugin = JdkManager::jdk(Id::fromSetting(written));
+    const bool itWrote = ofThisPlugin.id.isValid()
+                         && ofThisPlugin.id == Id::fromSetting(k->value(JavaKitAspect::id()));
+    if (itWrote)
         k->removeKey(JavaKitAspect::id()); // Which takes the lock with it.
     else
         k->setSticky(JavaKitAspect::id(), false);
@@ -1633,16 +1643,45 @@ static FilePath makeFakeJdk(const QTemporaryDir &directory, const QString &name)
 // away with the test - is put back the way it was.
 struct JdkOfAKit
 {
+    // Whether the key was there at all: a kit set to "None" holds it with
+    // nothing in it, which is a choice of the user's, while a kit that has
+    // none is one the default is written into. The mark says whether the JDK
+    // it holds is one it was given rather than one the user picked.
+    bool namesAJdk = false;
     QVariant javaHome;
+    bool isOfTheMachine = false;
+    QVariant ofTheMachine;
     QVariant written;
     bool locked = false;
 };
+
+// A JDK a test names is entered into the list of the ones of the machine, and
+// one the user entered is never taken out of it again: a directory that goes
+// away with the test would be left in their settings for good.
+struct TheJdkList
+{
+    QList<Jdk> jdks;
+    Id chosenDefault;
+};
+
+static TheJdkList theJdkList()
+{
+    return {JdkManager::jdks(), JdkManager::chosenDefaultJdkId()};
+}
+
+static void putTheJdkListBack(const TheJdkList &list)
+{
+    JdkManager::setJdks(list.jdks, list.chosenDefault);
+}
 
 static QHash<Kit *, JdkOfAKit> theJdksOfTheKits()
 {
     QHash<Kit *, JdkOfAKit> jdks;
     for (Kit *k : KitManager::kits()) {
-        jdks.insert(k, {k->value(JavaKitAspect::id()), k->value(Constants::ANDROID_KIT_JDK),
+        const Id mark = Java::Constants::JAVA_HOME_OF_THE_MACHINE;
+        jdks.insert(k, {k->hasValue(JavaKitAspect::id()), k->value(JavaKitAspect::id()),
+                        k->hasValue(mark), k->value(mark),
+                        k->value(Constants::ANDROID_KIT_JDK),
                         k->isSticky(JavaKitAspect::id())});
     }
     return jdks;
@@ -1654,10 +1693,16 @@ static void putTheJdksOfTheKitsBack(const QHash<Kit *, JdkOfAKit> &jdks)
         const auto jdk = jdks.constFind(k);
         if (jdk == jdks.constEnd())
             continue;
-        if (jdk->javaHome.isNull())
+        const Id mark = Java::Constants::JAVA_HOME_OF_THE_MACHINE;
+        if (!jdk->namesAJdk)
             k->removeKey(JavaKitAspect::id());
         else
             k->setValue(JavaKitAspect::id(), jdk->javaHome);
+        // After the JDK, which is what removing it takes the mark with.
+        if (!jdk->isOfTheMachine)
+            k->removeKeySilently(mark);
+        else
+            k->setValueSilently(mark, jdk->ofTheMachine);
         if (jdk->written.isNull())
             k->removeKeySilently(Constants::ANDROID_KIT_JDK);
         else
@@ -1679,6 +1724,7 @@ void AndroidConfigurationsTest::testADetectedAndroidKitFollowsTheConfiguredJdk()
 
     const FilePath savedJdk = AndroidConfig::openJDKLocation();
     const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    const TheJdkList savedList = theJdkList();
     AndroidConfig::setOpenJDKLocation(configured);
 
     // Detected, as the kits of this plugin and the ones an installer brings
@@ -1690,10 +1736,11 @@ void AndroidConfigurationsTest::testADetectedAndroidKitFollowsTheConfiguredJdk()
         RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
     });
     QVERIFY(k);
-    const QScopeGuard cleanup([k, savedJdk, savedJdks] {
+    const QScopeGuard cleanup([k, savedJdk, savedJdks, savedList] {
         KitManager::deregisterKit(k);
         AndroidConfig::setOpenJDKLocation(savedJdk);
         putTheJdksOfTheKitsBack(savedJdks);
+        putTheJdkListBack(savedList);
     });
 
     QCOMPARE(JavaKitAspect::javaHome(k), configured);
@@ -1741,6 +1788,7 @@ void AndroidConfigurationsTest::testAnAndroidKitOfTheUserIsLeftWithItsOwnJdk()
 
     const FilePath savedJdk = AndroidConfig::openJDKLocation();
     const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    const TheJdkList savedList = theJdkList();
     AndroidConfig::setOpenJDKLocation(configured);
 
     Kit *detected = KitManager::registerKit([](Kit *k) {
@@ -1759,10 +1807,11 @@ void AndroidConfigurationsTest::testAnAndroidKitOfTheUserIsLeftWithItsOwnJdk()
         k->setDetectionSource(DetectionSource::Manual);
     });
     QVERIFY(clone);
-    const QScopeGuard cleanup([detected, clone, savedJdk, savedJdks] {
+    const QScopeGuard cleanup([detected, clone, savedJdk, savedJdks, savedList] {
         KitManager::deregisterKits({detected, clone});
         AndroidConfig::setOpenJDKLocation(savedJdk);
         putTheJdksOfTheKitsBack(savedJdks);
+        putTheJdkListBack(savedList);
     });
     QCOMPARE(JavaKitAspect::javaHome(clone), configured);
 
@@ -1776,16 +1825,27 @@ void AndroidConfigurationsTest::testAnAndroidKitOfTheUserIsLeftWithItsOwnJdk()
     QCOMPARE(JavaKitAspect::javaHome(detected), configured);
 
     // A kit put together by hand is asked about by nothing here, so what the
-    // user names in it is what it builds with.
+    // user names in it is what it builds with. The default JDK of the machine
+    // is no answer for it either: what the setting names reaches such a kit
+    // through AndroidToolchain, which exports it as it is at the time, and a
+    // JDK written into the kit would be exported over that one.
+    // The looking at the machine is done on another thread, and until it has
+    // come back no kit is given a JDK at all - which would have what follows
+    // hold without having asked anything.
+    QTRY_VERIFY_WITH_TIMEOUT(JdkManager::jdksWereDetected(), 60000);
+    const Jdk defaultJdk = JdkManager::registerJavaHome(configured, DetectionSource::Manual);
+    QVERIFY(defaultJdk.id.isValid());
+    JdkManager::setJdks(JdkManager::jdks(), defaultJdk.id);
+
     Kit *ofTheirOwn = KitManager::registerKit([](Kit *k) {
         k->setUnexpandedDisplayName("AndroidJdkManualTestKit");
         RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
     });
     QVERIFY(ofTheirOwn);
     const QScopeGuard cleanupOfTheirOwn([ofTheirOwn] { KitManager::deregisterKit(ofTheirOwn); });
-    QVERIFY2(JavaKitAspect::javaHome(ofTheirOwn) != configured,
-             "a kit of the user's own was given the JDK of these settings, which nothing then "
-             "keeps up to date for it");
+    QVERIFY2(JavaKitAspect::javaHome(ofTheirOwn).isEmpty(),
+             "a kit of the user's own was given a JDK, which nothing then keeps up to date for "
+             "it and which its build uses over the one the toolchain exports");
     QVERIFY(ofTheirOwn->value(Constants::ANDROID_KIT_JDK).isNull());
 
     JavaKitAspect::setJavaHome(ofTheirOwn, ofTheUser);
@@ -1804,9 +1864,9 @@ void AndroidConfigurationsTest::testAnAndroidKitOfTheUserIsLeftWithItsOwnJdk()
     QVERIFY(!clone->isSticky(JavaKitAspect::id()));
 }
 
-// JavaKitAspect is one of ProjectExplorer's, and an installer or another
-// plugin can name and lock a JDK of its own in a kit that is none of this
-// plugin's business. Going over every kit is for finding the ones it wrote
+// JavaKitAspect is the Java plugin's, and an installer or another plugin
+// can name and lock a JDK of its own in a kit that is none of this plugin's
+// business. Going over every kit is for finding the ones it wrote
 // to, not for speaking about the rest.
 void AndroidConfigurationsTest::testTheJdkOfAKitOfAnotherPluginIsLeftAlone()
 {
@@ -1819,6 +1879,7 @@ void AndroidConfigurationsTest::testTheJdkOfAKitOfAnotherPluginIsLeftAlone()
 
     const FilePath savedJdk = AndroidConfig::openJDKLocation();
     const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    const TheJdkList savedList = theJdkList();
     AndroidConfig::setOpenJDKLocation(configured);
 
     Kit *k = KitManager::registerKit([ofTheOther](Kit *k) {
@@ -1829,10 +1890,11 @@ void AndroidConfigurationsTest::testTheJdkOfAKitOfAnotherPluginIsLeftAlone()
         k->setSticky(JavaKitAspect::id(), true);
     });
     QVERIFY(k);
-    const QScopeGuard cleanup([k, savedJdk, savedJdks] {
+    const QScopeGuard cleanup([k, savedJdk, savedJdks, savedList] {
         KitManager::deregisterKit(k);
         AndroidConfig::setOpenJDKLocation(savedJdk);
         putTheJdksOfTheKitsBack(savedJdks);
+        putTheJdkListBack(savedList);
     });
 
     AndroidConfigurations::updateAutomaticKitList();
@@ -1856,6 +1918,7 @@ void AndroidConfigurationsTest::testTheBuildAndAndroiddeployqtGetTheSameJdk()
 
     const FilePath savedJdk = AndroidConfig::openJDKLocation();
     const QHash<Kit *, JdkOfAKit> savedJdks = theJdksOfTheKits();
+    const TheJdkList savedList = theJdkList();
     AndroidConfig::setOpenJDKLocation(configured);
 
     Kit *detected = KitManager::registerKit([](Kit *k) {
@@ -1869,10 +1932,11 @@ void AndroidConfigurationsTest::testTheBuildAndAndroiddeployqtGetTheSameJdk()
         RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
     });
     QVERIFY(ofTheirOwn);
-    const QScopeGuard cleanup([detected, ofTheirOwn, savedJdk, savedJdks] {
+    const QScopeGuard cleanup([detected, ofTheirOwn, savedJdk, savedJdks, savedList] {
         KitManager::deregisterKits({detected, ofTheirOwn});
         AndroidConfig::setOpenJDKLocation(savedJdk);
         putTheJdksOfTheKitsBack(savedJdks);
+        putTheJdkListBack(savedList);
     });
     AndroidConfigurations::updateAutomaticKitList();
     JavaKitAspect::setJavaHome(ofTheirOwn, ofTheUser);

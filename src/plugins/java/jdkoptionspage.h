@@ -4,13 +4,15 @@
 #pragma once
 
 #ifdef WITH_TESTS
+class QObject;
+#endif
 
-#include <QObject>
+namespace Java::Internal {
 
-namespace ProjectExplorer::Internal {
+void setupJdkOptionsPage();
 
-QObject *createJavaKitAspectTest();
+#ifdef WITH_TESTS
+QObject *createJdkOptionsPageTest();
+#endif
 
-} // namespace ProjectExplorer::Internal
-
-#endif // WITH_TESTS
+} // namespace Java::Internal

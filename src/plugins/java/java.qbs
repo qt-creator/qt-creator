@@ -20,16 +20,26 @@ QtcPlugin {
         "javaconstants.h",
         "javaeditor.cpp",
         "javaeditor.h",
+        "javakitaspect.cpp",
+        "javakitaspect.h",
         "javalanguageserver.cpp",
         "javalanguageserver.h",
         "javaplugin.cpp",
         "javatr.h",
+        "jdkmanager.cpp",
+        "jdkmanager.h",
+        "jdkoptionspage.cpp",
+        "jdkoptionspage.h",
     ]
 
     QtcTestFiles {
         files: [
             "javaclasspath_test.cpp",
             "javaclasspath_test.h",
+            "javakitaspect_test.cpp",
+            "javakitaspect_test.h",
+            "jdkmanager_test.cpp",
+            "jdkmanager_test.h",
         ]
     }
 }

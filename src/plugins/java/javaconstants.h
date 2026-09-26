@@ -10,6 +10,13 @@ namespace Java::Constants {
 inline constexpr char JAVA_EDITOR_ID[] = "java.editor";
 inline constexpr char JLS_SETTINGS_ID[] = "Java::JLSSettingsID";
 
+// The leading letter is what orders the page among the Kits pages.
+inline constexpr char JDK_SETTINGS_PAGE_ID[] = "O.Java.JdkOptions";
+
+// What a kit holds the JDK it was given for want of a plugin that speaks for
+// it under, as against one the user picked themselves. See JavaKitAspect.
+inline constexpr char JAVA_HOME_OF_THE_MACHINE[] = "Java.JavaHomeOfTheMachine";
+
 // What a build system tells the Java support about a target of its, through
 // the extra data of that target. This way a build system says where the Java
 // of a project is without depending on the Java plugin, and the Java plugin

@@ -14,8 +14,9 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <java/javakitaspect.h>
+
 #include <projectexplorer/abi.h>
-#include <projectexplorer/javakitaspect.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -42,6 +43,7 @@
 #include <QVersionNumber>
 
 using namespace Core;
+using namespace Java;
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
 using namespace Utils;

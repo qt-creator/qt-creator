@@ -35,11 +35,12 @@ public:
     bool isAdded(int row) const;
     bool isRemoved(int row) const;
     bool isChanged(int row) const;
+    bool isItemDirty(int row) const;
     bool isDirty(int row) const;
     bool isDirty() const;
     int defaultRow() const;
     bool isDefault(int row) const;
-    void setVolatileDefaultRow(int row);
+    virtual void setVolatileDefaultRow(int row);
     virtual void markRemoved(int row);
     virtual int cloneRow(int row) { Q_UNUSED(row); return -1; }
     void removeItem(int row);
@@ -170,6 +171,7 @@ public:
 
     void setCanRemoveRow(std::function<bool(int)> predicate);
     void setCanCloneRow(std::function<bool(int)> predicate);
+    void setCanMakeRowDefault(std::function<bool(int)> predicate);
 
     int currentRow() const;
     void selectRow(int row);
@@ -197,6 +199,7 @@ private:
     int m_removedDefaultRow = -1;
     std::function<bool(int)> m_canRemove;
     std::function<bool(int)> m_canClone;
+    std::function<bool(int)> m_canMakeDefault;
 };
 
 } // namespace Utils

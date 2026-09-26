@@ -30,10 +30,11 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <java/javakitaspect.h>
+
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/environmentkitaspect.h>
-#include <projectexplorer/javakitaspect.h>
 #include <projectexplorer/kitmanager.h>
 
 #include <qtsupport/qtversionmanager.h>
@@ -44,6 +45,9 @@
 
 #include <QTimer>
 
+#include <optional>
+
+using namespace Java;
 using namespace ProjectExplorer;
 
 const char kSetupAndroidSetting[] = "ConfigureAndroid";
@@ -76,17 +80,23 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
     {
         setupAndroidConfigurations();
 
-        ProjectExplorer::javaHomeCandidateProviders().append([](const Kit *k) -> Utils::FilePaths {
-            // Only the kits whose JDK this plugin goes on to keep in step with
-            // the setting. A kit of the user's own is theirs to point wherever
-            // they like, and what the setting names reaches it through
-            // AndroidToolchain, which exports it as it is at the time.
-            if (RunDeviceTypeKitAspect::deviceTypeId(k) != Constants::ANDROID_DEVICE_TYPE
-                || !k->detectionSource().isAutoDetected()) {
-                return {};
-            }
-            return {AndroidConfig::openJDKLocation()};
-        });
+        Java::javaHomeCandidateProviders().append(
+            [](const Kit *k) -> std::optional<Utils::FilePaths> {
+                // A kit of another device is none of this plugin's business,
+                // and the JDK of the machine is as good an answer for it as
+                // any.
+                if (RunDeviceTypeKitAspect::deviceTypeId(k) != Constants::ANDROID_DEVICE_TYPE)
+                    return std::nullopt;
+                // Only the kits whose JDK this plugin goes on to keep in step
+                // with the setting name one. A kit of the user's own is theirs
+                // to point wherever they like, and what the setting names
+                // reaches it through AndroidToolchain, which exports it as it
+                // is at the time: a JDK of the machine written into the kit
+                // would be exported over that one.
+                if (!k->detectionSource().isAutoDetected())
+                    return Utils::FilePaths();
+                return Utils::FilePaths{AndroidConfig::openJDKLocation()};
+            });
 
         setupAndroidDevice();
         setupAndroidQtVersion();

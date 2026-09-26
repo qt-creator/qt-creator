@@ -347,14 +347,23 @@ bool GroupedModel::isChanged(int row) const
     return m_changed.at(row);
 }
 
-bool GroupedModel::isDirty(int row) const
+// Whether the row holds anything other than what it was filled with. Which
+// row carries the default is not of any row's own: the flag moves between
+// them without either coming to hold something else.
+bool GroupedModel::isItemDirty(int row) const
 {
     QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return false);
     if (m_added.at(row) || m_changed.at(row) || m_removed.at(row))
         return true;
-    if (m_showDefault && m_volatileDefaultFlag.at(row) != m_defaultFlag.at(row))
-        return true;
     return m_volatileVariants.at(row) != m_variants.at(row);
+}
+
+bool GroupedModel::isDirty(int row) const
+{
+    QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return false);
+    if (isItemDirty(row))
+        return true;
+    return m_showDefault && m_volatileDefaultFlag.at(row) != m_defaultFlag.at(row);
 }
 
 bool GroupedModel::isDirty() const
@@ -477,6 +486,11 @@ void GroupedModel::removeItem(int row)
     QTC_ASSERT(row >= 0 && row < m_volatileVariants.size(), return);
     if (m_added.at(row))
         return;
+    // A row that holds the default as applied as well as shown takes both
+    // flags with it: the row the shown one falls to is to hold the applied
+    // one too, or it would be telling of a change nobody made. Where the two
+    // lie apart, the user has picked another row and that is their change.
+    const bool heldBothFlags = isDefault(row) && isOriginalDefault(row);
     reassignDefaultIfNeeded(row);
     beginRemoveRows({}, row, row);
     m_variants.removeAt(row);
@@ -487,6 +501,13 @@ void GroupedModel::removeItem(int row)
     m_volatileDefaultFlag.removeAt(row);
     m_defaultFlag.removeAt(row);
     endRemoveRows();
+    if (heldBothFlags) {
+        if (const int fellTo = defaultRow(); fellTo >= 0 && fellTo < m_defaultFlag.size())
+            m_defaultFlag[fellTo] = true;
+    }
+    // Last, since moving the flag reports a change of its own on the way and
+    // what the settings dialog hears last is what it shows.
+    checkSettingsDirty();
 }
 
 void GroupedModel::apply()
@@ -665,6 +686,11 @@ GroupedView::GroupedView(GroupedModel &model)
         updateButtons();
     });
 
+    // What a predicate answers for a row turns on what the row holds, and
+    // the user changes that in the fields beside the view rather than by
+    // moving between rows.
+    connect(&model, &QAbstractItemModel::dataChanged, this, [this] { updateButtons(); });
+
     m_cloneButton.setText(Tr::tr("Clone"));
     m_cloneButton.setEnabled(false);
     connect(&m_cloneButton, &QPushButton::clicked, this, &GroupedView::cloneCurrent);
@@ -721,6 +747,11 @@ void GroupedView::setCanCloneRow(std::function<bool(int)> predicate)
     m_canClone = std::move(predicate);
 }
 
+void GroupedView::setCanMakeRowDefault(std::function<bool(int)> predicate)
+{
+    m_canMakeDefault = std::move(predicate);
+}
+
 void GroupedView::updateButtons()
 {
     const int row = currentRow();
@@ -730,7 +761,8 @@ void GroupedView::updateButtons()
     m_removeButton.setEnabled(canRemove);
     const bool canClone = row >= 0 && !isRemoved && (!m_canClone || m_canClone(row));
     m_cloneButton.setEnabled(canClone);
-    const bool canMakeDefault = row >= 0 && !isRemoved && !m_model.isDefault(row);
+    const bool canMakeDefault = row >= 0 && !isRemoved && !m_model.isDefault(row)
+                                && (!m_canMakeDefault || m_canMakeDefault(row));
     m_makeDefaultButton.setEnabled(canMakeDefault);
 }
 

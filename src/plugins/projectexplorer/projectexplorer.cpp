@@ -169,7 +169,6 @@
 #include "clangparser.h"
 #include "gccparser.h"
 #include "gnumakeparser.h"
-#include "javakitaspect_test.h"
 #include "jsonwizard/jsonwizard_test.h"
 #include "linuxiccparser.h"
 #include "msvcparser.h"
@@ -909,7 +908,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createGccToolchainTest);
     addTestCreator(createGenericOutputParserTest);
     addTestCreator(createGnuMakeParserTest);
-    addTestCreator(createJavaKitAspectTest);
     addTestCreator(createJsonWizardTest);
     addTestCreator(createKitModelTest);
     addTestCreator(createLdOutputParserTest);
