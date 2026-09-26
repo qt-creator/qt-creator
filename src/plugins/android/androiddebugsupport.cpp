@@ -15,6 +15,8 @@
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
+#include <java/javaclasspath.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -148,6 +150,19 @@ static DebuggerRunParameters debuggerRunParameters(RunControl *runControl)
                 sysRoot = AndroidConfig::toolchainPathFromNdk(ndkLocation) / "sysroot";
             rp.setSysRoot(sysRoot);
             qCDebug(androidDebugSupportLog).noquote() << "Sysroot: " << sysRoot.toUserOutput();
+        }
+    }
+    if (rp.isJavaDebugging()) {
+        // The Java of an Android application is more than the files of the
+        // project: the Java that Qt ships for Android is built into the
+        // application and stepped into like any other, and it lies in the Qt
+        // installation. The class path of the build configuration is what
+        // knows where all of it is.
+        if (const std::optional<Java::JavaClassPath> classPath = Java::javaClassPath(bc)) {
+            for (const FilePath &directory : classPath->sourceDirectories)
+                rp.addSearchDirectory(directory);
+            qCDebug(androidDebugSupportLog).noquote()
+                << "Java source directories: " << classPath->sourceDirectories;
         }
     }
     if (rp.isQmlDebugging()) {
