@@ -398,11 +398,20 @@ void GroupedModel::setVolatileDefaultRow(int row)
 
 void GroupedModel::setDefaultRow(int row)
 {
+    QTC_ASSERT(row >= -1 && row < m_defaultFlag.size(), return);
+    const int old = m_defaultFlag.indexOf(true);
     m_volatileDefaultFlag.fill(false);
     m_defaultFlag.fill(false);
     if (row >= 0) {
         m_volatileDefaultFlag[row] = true;
         m_defaultFlag[row] = true;
+    }
+
+    // The caller says what the default is rather than changes it, so the rows
+    // are to be painted anew without the model becoming dirty over it.
+    for (const int changed : {old, row}) {
+        if (changed >= 0 && changed < m_volatileVariants.size())
+            emit dataChanged(index(changed, 0), index(changed, columnCount() - 1));
     }
 }
 
@@ -490,13 +499,12 @@ void GroupedModel::apply()
             newDefault.append(m_volatileDefaultFlag.at(i));
         }
     }
-    m_defaultFlag = newDefault;
-    setVariants(committed);
+    resetVariants(committed, newDefault);
 }
 
 void GroupedModel::cancel()
 {
-    setVariants(m_variants);
+    resetVariants(m_variants, m_defaultFlag);
 }
 
 QVariant GroupedModel::volatileVariant(int row) const
@@ -554,14 +562,24 @@ int GroupedModel::appendVariant(const QVariant &item)
     return insertPos;
 }
 
+// Which row is the default is about the rows that were there, so filling the
+// model with others says nothing about it: none of them is the default until
+// setDefaultRow() names one.
 void GroupedModel::setVariants(const QVariantList &items)
 {
+    resetVariants(items, QList<bool>(items.size(), false));
+}
+
+void GroupedModel::resetVariants(const QVariantList &items, const QList<bool> &defaultFlag)
+{
+    QTC_CHECK(items.size() == defaultFlag.size());
     beginResetModel();
     m_variants = items;
     m_volatileVariants = items;
     m_added = QList<bool>(items.size(), false);
     m_removed = QList<bool>(items.size(), false);
     m_changed = QList<bool>(items.size(), false);
+    m_defaultFlag = defaultFlag;
     m_volatileDefaultFlag = m_defaultFlag;
     endResetModel();
 }

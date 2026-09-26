@@ -77,6 +77,7 @@ protected:
 private:
     virtual QVariant variantData(int row, int column, int role) const = 0;
 
+    void resetVariants(const QVariantList &items, const QList<bool> &defaultFlag);
     void reassignDefaultIfNeeded(int row);
 
     QVariantList m_variants;
