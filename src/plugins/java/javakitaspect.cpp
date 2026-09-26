@@ -4,6 +4,7 @@
 #include "javakitaspect.h"
 
 #include "javaconstants.h"
+#include "javaparser.h"
 #include "javatr.h"
 #include "jdkmanager.h"
 
@@ -242,6 +243,7 @@ public:
     ItemList toUserOutput(const Kit *k) const override;
     void addToBuildEnvironment(const Kit *k, Environment &env) const override;
     void addToRunEnvironment(const Kit *k, Environment &env) const override;
+    QList<OutputLineParser *> createOutputParsers(const Kit *k) const override;
     void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
 };
 
@@ -261,6 +263,10 @@ JavaKitAspectFactory::JavaKitAspectFactory()
     // the environment of the kit, which is the user's and so has the last word
     // over this one - without this having to work out what they meant.
     setPriority(29500);
+    // Above the toolchain (30000) and Qt (26000), whose parsers would take a
+    // diagnostic of javac for one of gcc or of moc: they read alike, and this
+    // is the parser that knows which of them a .java line is.
+    setOutputParserPriority(40000);
 }
 
 // The factory is there before anything it could connect to is, and the kits
@@ -475,6 +481,20 @@ void JavaKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env)
 void JavaKitAspectFactory::addToRunEnvironment(const Kit *k, Environment &env) const
 {
     addJavaHome(k, env, RunDeviceKitAspect::device(k));
+}
+
+// Whatever builds the Java of a project, what compiles it is javac, and what
+// it says about a file of the user belongs in the issues of the build.
+QList<OutputLineParser *> JavaKitAspectFactory::createOutputParsers(const Kit *k) const
+{
+    // Kit::createOutputParsers() asks every aspect, relevant to the kit or
+    // not, and a kit that has nothing to do with Java builds none.
+    QTC_ASSERT(k, return {});
+    if (!k->isAspectRelevant(JavaKitAspect::id()))
+        return {};
+    if (JavaKitAspect::javaHome(k).isEmpty())
+        return {};
+    return {new JavaParser};
 }
 
 void JavaKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const

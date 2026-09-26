@@ -24,6 +24,8 @@ QtcPlugin {
         "javakitaspect.h",
         "javalanguageserver.cpp",
         "javalanguageserver.h",
+        "javaparser.cpp",
+        "javaparser.h",
         "javaplugin.cpp",
         "javatr.h",
         "jdkmanager.cpp",

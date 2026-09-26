@@ -16,7 +16,9 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/outputparser_test.h>
 #include <projectexplorer/task.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -52,6 +54,27 @@ static FilePath makeFakeJdk(const QTemporaryDir &dir, const QString &name)
         path.setPermissions(path.permissions() | QFile::ExeOwner | QFile::ExeUser);
     }
     return home;
+}
+
+// What the parsers of a kit make of a line of build output, which is what
+// the issues of a build of it are made of.
+static Tasks tasksOfTheKit(const Kit *k, const QString &line)
+{
+    Tasks tasks;
+    const QMetaObject::Connection connection
+        = QObject::connect(&taskHub(), &TaskHub::taskAdded, [&tasks](const Task &t) {
+              tasks << t;
+          });
+    const QScopeGuard disconnect([connection] { QObject::disconnect(connection); });
+
+    OutputFormatter formatter;
+    const QList<OutputLineParser *> parsers = k->createOutputParsers();
+    for (OutputLineParser * const parser : parsers)
+        parser->skipFileExistsCheck();
+    formatter.setLineParsers(parsers);
+    formatter.appendMessage(line, StdErrFormat);
+    formatter.flush();
+    return tasks;
 }
 
 QHash<Kit *, JdkOfAKit> theJdksOfTheKits()
@@ -604,6 +627,64 @@ private slots:
         JdkManager::setJdks(JdkManager::jdks(), JdkManager::jdkForJavaHome(m_offeredJdk).id);
 
         QCOMPARE(JavaKitAspect::javaHome(k), m_offeredJdk);
+    }
+
+    // The build output of a kit goes through the parsers it hands out, and
+    // what javac says about a file of the user belongs among the issues of
+    // the build. The parsers of the toolchain and of Qt would take these two
+    // lines for diagnostics of their own, and make an issue of no type of the
+    // first and one about a file called "[javac] ..." of the second.
+    void testGivesTheKitTheParserOfJavacBeforeTheOnesThatWouldTakeIts_data()
+    {
+        QTest::addColumn<QString>("line");
+
+        QTest::newRow("error without a kind") << QString("/src/Greeter.java:11: cannot find symbol");
+        QTest::newRow("error through Ant")
+            << QString("    [javac] /src/Greeter.java:11: error: cannot find symbol");
+    }
+
+    void testGivesTheKitTheParserOfJavacBeforeTheOnesThatWouldTakeIts()
+    {
+        Kit *k = addKit();
+        QFETCH(QString, line);
+
+        // Which parsers would take the line is the host's to say: they come
+        // from the toolchains it has, and where none of them reads a line of
+        // javac as one of its own there is no order here to check.
+        k->setValue(JavaKitAspect::id(), {});
+        const Tasks takenWithoutAJdk = tasksOfTheKit(k, line);
+        if (takenWithoutAJdk.isEmpty())
+            QSKIP("no other parser of this kit makes anything of a diagnostic of javac");
+
+        JavaKitAspect::setJavaHome(k, m_jdk);
+
+        OutputParserTester testbench;
+        testbench.setLineParsers(k->createOutputParsers());
+        testbench.testParsing(line,
+                              OutputParserTester::STDERR,
+                              Tasks{CompileTask(Task::Error,
+                                                "cannot find symbol",
+                                                FilePath::fromUserInput("/src/Greeter.java"),
+                                                11)},
+                              {},
+                              {});
+    }
+
+    // A kit that names no JDK has nothing to do with javac.
+    void testGivesNoParserOfJavacToAKitThatNamesNoJdk()
+    {
+        Kit *k = addKit();
+        JavaKitAspect::setJavaHome(k, m_jdk);
+        const auto parserCount = [k] {
+            const QList<Utils::OutputLineParser *> parsers = k->createOutputParsers();
+            qDeleteAll(parsers);
+            return parsers.size();
+        };
+        const int withAJdk = parserCount();
+
+        k->setValue(JavaKitAspect::id(), {});
+
+        QCOMPARE(parserCount(), withAJdk - 1);
     }
 
     void testLeavesTheEnvironmentOfAnotherDeviceAlone()

@@ -3,17 +3,27 @@
 
 #pragma once
 
+#include "java_global.h"
+
 #include <projectexplorer/ioutputparser.h>
 
 #include <utils/filepath.h>
 
-namespace Android::Internal {
+namespace Java {
 
-class JavaParser : public ProjectExplorer::OutputTaskParser
+// The diagnostics of javac, which it prints as
+//
+//     Greeter.java:11: error: cannot find symbol
+//
+// and which Ant and Gradle print with a "[javac]" in front of.
+class JAVA_EXPORT JavaParser : public ProjectExplorer::OutputTaskParser
 {
 public:
     JavaParser();
 
+    // A build that compiles copies of the sources rather than the sources
+    // themselves - as the Android package build does - reports the copy. These
+    // say where to look for the file the user has.
     void setProjectFileList(const Utils::FilePaths &fileList);
     void setBuildDirectory(const Utils::FilePath &buildDirectory);
     void setSourceDirectory(const Utils::FilePath &sourceDirectory);
@@ -26,4 +36,8 @@ private:
     Utils::FilePath m_buildDirectory;
 };
 
-} // Android::Internal
+#ifdef WITH_TESTS
+namespace Internal { QObject *createJavaParserTest(); }
+#endif
+
+} // namespace Java

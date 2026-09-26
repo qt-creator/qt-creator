@@ -9,6 +9,7 @@
 #ifdef WITH_TESTS
 #  include "javaclasspath_test.h"
 #  include "javakitaspect_test.h"
+#  include "javaparser.h"
 #  include "jdkmanager_test.h"
 #endif
 
@@ -34,6 +35,7 @@ public:
 #ifdef WITH_TESTS
         addTestCreator(createJavaClassPathTest);
         addTestCreator(createJavaKitAspectTest);
+        addTestCreator(createJavaParserTest);
         addTestCreator(createJdkManagerTest);
         addTestCreator(createJdkOptionsPageTest);
 #endif

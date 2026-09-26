@@ -119,6 +119,10 @@ public:
     Utils::Id id() const { return m_id; }
     QList<Utils::Id> jsonKeys() const { return m_jsonKeys; }
     int priority() const { return m_priority; }
+    // Where the parsers of this aspect go among the ones of a kit: the higher,
+    // the earlier they are asked about a line. The priority of the aspect
+    // unless it says otherwise, which is the order of the kit page.
+    int outputParserPriority() const { return m_outputParserPriority.value_or(m_priority); }
     QString displayName() const { return m_displayName; }
     QString description() const { return m_description; }
     bool isEssential() const { return m_essential; }
@@ -190,6 +194,7 @@ protected:
     void setDescription(const QString &desc) { m_description = desc; }
     void makeEssential() { m_essential = true; }
     void setPriority(int priority) { m_priority = priority; }
+    void setOutputParserPriority(int priority) { m_outputParserPriority = priority; }
     void setEmbeddableAspects(const QList<Utils::Id> &aspects) { m_embeddableAspects = aspects; }
     void notifyAboutUpdate(Kit *k);
 
@@ -200,6 +205,7 @@ private:
     QList<Utils::Id> m_jsonKeys;
     QList<Utils::Id> m_embeddableAspects;
     int m_priority = 0; // The higher the closer to the top.
+    std::optional<int> m_outputParserPriority;
     bool m_essential = false;
 };
 

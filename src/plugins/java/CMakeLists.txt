@@ -7,6 +7,7 @@ add_qtc_plugin(Java
     javaeditor.cpp javaeditor.h
     javakitaspect.cpp javakitaspect.h
     javalanguageserver.cpp javalanguageserver.h
+    javaparser.cpp javaparser.h
     javaplugin.cpp
     javatr.h
     jdkmanager.cpp jdkmanager.h

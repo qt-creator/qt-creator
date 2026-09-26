@@ -643,8 +643,17 @@ Environment Kit::runEnvironment() const
 
 QList<OutputLineParser *> Kit::createOutputParsers() const
 {
+    // The first parser that takes a line is the one that has it, so the order
+    // of the aspects here is one of their own: what javac prints reads like
+    // what gcc and moc print, and a parser that knows the language a line is
+    // in has to be asked before the ones that would take it for theirs.
+    QList<KitAspectFactory *> factories = KitManager::kitAspectFactories();
+    Utils::sort(factories, [](const KitAspectFactory *first, const KitAspectFactory *second) {
+        return first->outputParserPriority() > second->outputParserPriority();
+    });
+
     QList<OutputLineParser *> parsers{createOsOutputParser()};
-    for (KitAspectFactory *factory : KitManager::kitAspectFactories())
+    for (KitAspectFactory *factory : std::as_const(factories))
         parsers << factory->createOutputParsers(this);
     parsers << createGenericOutputParser();
     return parsers;

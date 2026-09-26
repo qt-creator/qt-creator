@@ -76,8 +76,6 @@ QtcPlugin {
         "avdmanageroutputparser.h",
         "iconcontainerwidget.cpp",
         "iconcontainerwidget.h",
-        "javaparser.cpp",
-        "javaparser.h",
         "keystorecertificatedialog.cpp",
         "keystorecertificatedialog.h",
         "manifestwizard.h",

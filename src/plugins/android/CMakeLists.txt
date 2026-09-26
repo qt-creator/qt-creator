@@ -36,7 +36,6 @@ add_qtc_plugin(Android
     avdcreatordialog.cpp avdcreatordialog.h
     avdmanageroutputparser.cpp avdmanageroutputparser.h
     iconcontainerwidget.cpp iconcontainerwidget.h
-    javaparser.cpp javaparser.h
     keystorecertificatedialog.cpp keystorecertificatedialog.h
     manifestwizard.cpp manifestwizard.h
     permissionscontainerwidget.h permissionscontainerwidget.cpp

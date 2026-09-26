@@ -11,11 +11,12 @@
 #include "androidutils.h"
 #include "keystorecertificatedialog.h"
 #include "manifestwizard.h"
-#include "javaparser.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
+#include <java/javaparser.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
@@ -862,7 +863,7 @@ bool AndroidBuildApkStep::init()
 
 void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    const auto parser = new JavaParser;
+    const auto parser = new Java::JavaParser;
     parser->setProjectFileList(project()->files(Project::AllFiles));
 
     const QString buildKey = buildConfiguration()->activeBuildKey();
