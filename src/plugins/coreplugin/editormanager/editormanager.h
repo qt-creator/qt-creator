@@ -128,7 +128,10 @@ public:
 
     static int viewIdForEditor(IEditor *editor);
     static int otherViewId(int viewId);
-    static int splitView(int viewId, Qt::Orientation orientation);
+    enum SplitViewOption { DuplicateCurrentEditor, LeaveEmpty };
+    static int splitView(int viewId,
+                         Qt::Orientation orientation,
+                         SplitViewOption option = DuplicateCurrentEditor);
 
     static void showEditorStatusBar(const QString &id,
                                     const QString &infoText,

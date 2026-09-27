@@ -89,22 +89,22 @@ void DisassemblerLines::appendSourceLine(const QString &fileName, int lineNumber
 
     if (fileName.isEmpty() || lineNumber == 0)
         return;
-    lineNumber--; // Fix 1..n range.
     SourceFileCache *cache = sourceFileCache();
     if (fileName != cache->fileName) {
         cache->fileName = fileName;
         cache->lines.clear();
         QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly)) {
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream ts(&file);
             cache->lines = ts.readAll().split('\n');
         }
     }
-    if (lineNumber >= cache->lines.size())
+    if (lineNumber > cache->lines.size())
         return;
     DisassemblerLine dl;
+    dl.fileName = fileName;
     dl.lineNumber = lineNumber;
-    dl.data = cache->lines.at(lineNumber);
+    dl.data = cache->lines.at(lineNumber - 1);
     appendLine(dl);
 }
 
@@ -124,12 +124,14 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
         return;
     if (line.startsWith("Dump of assembler")) {
         m_lastFunction.clear();
+        m_lastFile.clear();
         return;
     }
     if (line.startsWith("The current source"))
         return;
     if (line.startsWith("End of assembler")) {
         m_lastFunction.clear();
+        m_lastFile.clear();
         return;
     }
     if (line.startsWith("=> "))
@@ -182,6 +184,10 @@ void DisassemblerLines::appendUnparsed(const QString &unparsed)
         DisassemblerLine dl;
         ts >> dl.lineNumber;
         dl.data = line.mid(ts.pos());
+        if (dl.lineNumber != 0)
+            dl.fileName = m_lastFile;
+        else if (line.endsWith(':') && !line.startsWith("Address range"))
+            m_lastFile = line.chopped(1); // With /s, gdb names the file of the lines that follow.
         m_data.append(dl);
     }
 }

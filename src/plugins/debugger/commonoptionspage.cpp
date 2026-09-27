@@ -73,6 +73,13 @@ CommonSettings::CommonSettings()
         Tr::tr("Scrolls the editor only when it is necessary to keep the current line in view, "
                "instead of keeping the next statement centered at all times."));
 
+    showSourceBesideDisassembly.setSettingsKey(debugModeGroup, "ShowSourceBesideDisassembly");
+    showSourceBesideDisassembly.setDefaultValue(true);
+    showSourceBesideDisassembly.setLabelText(Tr::tr("Show source code beside disassembly"));
+    showSourceBesideDisassembly.setToolTip(
+        Tr::tr("When operating by instruction, shows the source code in a split view next to "
+               "the disassembly and highlights the lines that belong together."));
+
     showUnsupportedBreakpointWarning.setSettingsKey(debugModeGroup, "ShowUnsupportedBreakpointWarning");
     showUnsupportedBreakpointWarning.setDefaultValue(true);
     showUnsupportedBreakpointWarning.setLabelText(
@@ -240,6 +247,7 @@ CommonSettings::CommonSettings()
                 useAlternatingRowColors,
                 fontSizeFollowsEditor,
                 stationaryEditorWhileStepping,
+                showSourceBesideDisassembly,
                 showQmlObjectTree,
                 showUnsupportedBreakpointWarning,
             }

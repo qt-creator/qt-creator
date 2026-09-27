@@ -81,7 +81,7 @@ public:
     ~EditorView() override;
 
     bool isInSplit() const;
-    EditorView *split(Qt::Orientation orientation);
+    EditorView *split(Qt::Orientation orientation, bool duplicateCurrentEditor = true);
     EditorArea *editorArea() const;
 
     SplitterOrView *parentSplitterOrView() const;
@@ -220,7 +220,7 @@ public:
     explicit SplitterOrView(EditorView *view);
     ~SplitterOrView() override;
 
-    EditorView *split(Qt::Orientation orientation);
+    EditorView *split(Qt::Orientation orientation, bool duplicateCurrentEditor = true);
     void unsplit();
 
     bool isView() const { return m_view != nullptr; }

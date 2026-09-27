@@ -3,6 +3,8 @@
 
 #include "disassemblerlines.h"
 
+#include <QFile>
+#include <QTemporaryDir>
 #include <QTest>
 
 //TESTED_COMPONENT=src/plugins/debugger/gdb
@@ -21,6 +23,8 @@ public:
 private slots:
     void parse();
     void parse_data();
+    void mixedSourceNamesItsFile();
+    void appendedSourceLineIsTheOneAsked();
 
 private:
     DisassemblerLines lines;
@@ -104,6 +108,56 @@ void tst_disassembler::parse_data()
             << 10 << line;
  }
 
+
+void tst_disassembler::mixedSourceNamesItsFile()
+{
+    const QString dump =
+        "Dump of assembler code for function main():\n"
+        "main.cpp:\n"
+        "5\t{\n"
+        "   0x0000000000401126 <+0>:\tpush   %rbp\n"
+        "Address range 0x401130 to 0x401140:\n"
+        "6\t  return answer();\n"
+        "   0x000000000040112a <+4>:\tmov    $0x2a,%eax\n"
+        "\n"
+        "/usr/include/answer.h:\n"
+        "10\t  return 42;\n"
+        "   0x000000000040112f <+9>:\tret\n"
+        "End of assembler dump.\n";
+    const DisassemblerLines lines = parseCliDisassembly(dump);
+
+    QStringList sources;
+    for (int i = 0; i < lines.size(); ++i) {
+        const DisassemblerLine &line = lines.at(i);
+        if (!line.isAssembler() && line.isCode())
+            sources.append(line.fileName + ':' + QString::number(line.lineNumber));
+    }
+    QCOMPARE(sources, QStringList({"main.cpp:5", "main.cpp:6", "/usr/include/answer.h:10"}));
+}
+
+void tst_disassembler::appendedSourceLineIsTheOneAsked()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString fileName = dir.filePath("main.cpp");
+    QFile file(fileName);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("first\nsecond\nthird\n");
+    file.close();
+
+    DisassemblerLines lines;
+    lines.appendSourceLine(fileName, 1);
+    lines.appendSourceLine(fileName, 3);
+    QCOMPARE(lines.size(), 2);
+    QCOMPARE(lines.at(0).lineNumber, 1);
+    QCOMPARE(lines.at(0).data, QString("first"));
+    QCOMPARE(lines.at(0).fileName, fileName);
+    QCOMPARE(lines.at(1).lineNumber, 3);
+    QCOMPARE(lines.at(1).data, QString("third"));
+
+    lines.appendSourceLine(fileName, 5);
+    QCOMPARE(lines.size(), 2);
+}
 
 QTEST_APPLESS_MAIN(tst_disassembler);
 

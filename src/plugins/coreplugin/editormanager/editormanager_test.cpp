@@ -83,6 +83,7 @@ private slots:
     void testOtherViewIdWithoutSplit();
     void testOtherViewIdCyclesWithinWindow();
     void testSplitView();
+    void testSplitViewLeaveEmpty();
     void testOpenEditorInView();
     void testOpenEditorInClosedView();
     void testClosedViewIsReported();
@@ -831,6 +832,25 @@ void EditorManagerTest::testSplitView()
 
     QCOMPARE(EM::splitView(0, Qt::Horizontal), 0);
     QCOMPARE(mainAreaViews().size(), 2);
+}
+
+void EditorManagerTest::testSplitViewLeaveEmpty()
+{
+    TestFile a;
+    EditorView *view = mainAreaViews().at(0);
+    const int viewId = view->viewId();
+    IEditor *editorA = EMP::openEditor(view, a.filePath());
+    QVERIFY(editorA);
+
+    const int newId = EM::splitView(viewId, Qt::Horizontal, EM::LeaveEmpty);
+
+    const QList<EditorView *> after = mainAreaViews();
+    QCOMPARE(after.size(), 2);
+    QCOMPARE(after.at(1)->viewId(), newId);
+    QCOMPARE(after.at(0)->currentEditor(), editorA);
+    QVERIFY(!after.at(1)->currentEditor());
+    QCOMPARE(DocumentModel::editorsForDocument(editorA->document()).size(), 1);
+    QCOMPARE(EMP::currentEditorView(), after.at(0));
 }
 
 void EditorManagerTest::testOpenEditorInView()

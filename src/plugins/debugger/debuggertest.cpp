@@ -28,6 +28,9 @@
 #include "commonoptionspage.h"
 #include "stackhandler.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -50,13 +53,17 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <texteditor/texteditor.h>
+
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/store.h>
 
+#include <QMouseEvent>
 #include <QTest>
+#include <QTextBlock>
 #include <QVersionNumber>
 #include <QSignalSpy>
 #include <QTemporaryDir>
@@ -137,6 +144,7 @@ private slots:
     void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testOnlyMachineCodeIsOfferedADisassembly();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
+    void testDisassemblyLinksToItsSource();
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
@@ -1914,6 +1922,189 @@ void DebuggerUnitTests::testAnEmptyDisassemblyLeavesTheViewAlone()
     const int before = DocumentModel::entryCount();
     agent.setContents({});
     QCOMPARE(DocumentModel::entryCount(), before);
+}
+
+static QList<int> linkedLines(const DisassemblerAgent &agent, IEditor *editor)
+{
+    QList<int> lines;
+    const auto widget = TextEditor::TextEditorWidget::fromEditor(editor);
+    for (const QTextEdit::ExtraSelection &selection :
+         widget->extraSelections(agent.linkedLinesSelection())) {
+        lines.append(selection.cursor.document()->findBlock(selection.cursor.selectionStart())
+                         .blockNumber());
+    }
+    return lines;
+}
+
+void DebuggerUnitTests::testDisassemblyLinksToItsSource()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath sourceFile = FilePath::fromString(tmp.path()) / "main.cpp";
+    QVERIFY(sourceFile.writeFileContents("int main()\n{\n    int x = 1;\n    return x;\n}\n"));
+
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] {
+        delete engine;
+        EditorManager::closeAllEditors(false);
+    });
+    engine->setRunParameters({});
+
+    BoolAspect &besideSource = settings().showSourceBesideDisassembly;
+    const bool wasBesideSource = besideSource();
+    besideSource.setValue(true);
+    const QScopeGuard restoreSetting([&besideSource, wasBesideSource] {
+        besideSource.setValue(wasBesideSource);
+    });
+
+    IEditor *source = EditorManager::openEditor(sourceFile);
+    QVERIFY(source);
+
+    StackFrame frame;
+    frame.function = "main";
+    frame.address = 0x1000;
+    frame.file = sourceFile;
+    frame.line = 3;
+    frame.usable = true;
+
+    DisassemblerLines lines;
+    DisassemblerLine line;
+    line.lineNumber = 3;
+    line.data = "    int x = 1;";
+    lines.appendLine(line);
+    line = {};
+    line.address = 0x1000;
+    line.data = "movl   $0x1,-0x4(%rbp)";
+    lines.appendLine(line);
+    line = {};
+    line.lineNumber = 4;
+    line.data = "    return x;";
+    lines.appendLine(line);
+    line = {};
+    line.address = 0x1007;
+    line.data = "mov    -0x4(%rbp),%eax";
+    lines.appendLine(line);
+    line = {};
+    line.address = 0x100a;
+    line.data = "pop    %rbp";
+    lines.appendLine(line);
+
+    DisassemblerAgent agent(engine);
+    agent.setLocation(Location(frame));
+    agent.setContents(lines);
+
+    IEditor *disassembly = EditorManager::currentEditor();
+    QVERIFY(disassembly && disassembly != source);
+    QVERIFY2(EditorManager::visibleEditors().contains(source),
+             "the disassembly took the place of the source");
+    QVERIFY(EditorManager::viewIdForEditor(disassembly) != EditorManager::viewIdForEditor(source));
+    QVERIFY2(DocumentModel::editorsForDocument(source->document()).size() == 1,
+             "the split made for the disassembly holds a copy of the source");
+
+    // The cursor is on the instruction at the address, which is from line 3.
+    QCOMPARE(linkedLines(agent, source), QList<int>{2});
+    QCOMPARE(linkedLines(agent, disassembly), (QList<int>{0, 1}));
+
+    EditorManager::activateEditor(source);
+    TextEditor::TextEditorWidget::fromEditor(source)->gotoLine(4);
+    QCOMPARE(linkedLines(agent, disassembly), (QList<int>{2, 3, 4}));
+    QCOMPARE(linkedLines(agent, source), QList<int>{3});
+
+    TextEditor::TextEditorWidget::fromEditor(source)->gotoLine(1);
+    QVERIFY2(linkedLines(agent, disassembly).isEmpty(), "a line without instructions linked some");
+    QVERIFY(linkedLines(agent, source).isEmpty());
+
+    // A step within the function brings the same disassembly again.
+    const QTextDocument *disassemblyText
+        = TextEditor::TextEditorWidget::fromEditor(disassembly)->document();
+    const int revision = disassemblyText->revision();
+    agent.setContents(lines);
+    QCOMPARE(disassemblyText->revision(), revision);
+    QCOMPARE(EditorManager::currentEditor(), disassembly);
+    QCOMPARE(linkedLines(agent, source), QList<int>{2});
+    QCOMPARE(linkedLines(agent, disassembly), (QList<int>{0, 1}));
+
+    // The line under the mouse takes over from the one the cursor is on, on
+    // either side, until the mouse leaves.
+    const auto hover = [](IEditor *editor, int line) {
+        const auto widget = TextEditor::TextEditorWidget::fromEditor(editor);
+        const QTextBlock block = widget->document()->findBlockByNumber(line);
+        const QPoint pos = widget->cursorRect(QTextCursor(block)).center();
+        QMouseEvent move(QEvent::MouseMove, pos, widget->viewport()->mapToGlobal(pos),
+                         Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+        QCoreApplication::sendEvent(widget->viewport(), &move);
+    };
+    const auto leave = [](IEditor *editor) {
+        QEvent event(QEvent::Leave);
+        QCoreApplication::sendEvent(
+            TextEditor::TextEditorWidget::fromEditor(editor)->viewport(), &event);
+    };
+    hover(disassembly, 3);
+    QCOMPARE(linkedLines(agent, source), QList<int>{3});
+    QCOMPARE(linkedLines(agent, disassembly), (QList<int>{2, 3, 4}));
+    leave(disassembly);
+    QCOMPARE(linkedLines(agent, source), QList<int>{2});
+
+    hover(source, 3);
+    QCOMPARE(linkedLines(agent, disassembly), (QList<int>{2, 3, 4}));
+    hover(source, 0);
+    QVERIFY2(linkedLines(agent, disassembly).isEmpty(), "a line without instructions linked some");
+    leave(source);
+    QCOMPARE(linkedLines(agent, disassembly), (QList<int>{0, 1}));
+
+    // Another session showing the same source leaves these links alone.
+    auto otherEngine = new GenericDebuggerEngine("other", new RecordingBackend);
+    const QScopeGuard otherCleanup([otherEngine] { delete otherEngine; });
+    otherEngine->setRunParameters({});
+    DisassemblerAgent otherAgent(otherEngine);
+    otherAgent.setLocation(Location(frame));
+    otherAgent.setContents(lines);
+    QCOMPARE(linkedLines(otherAgent, source), QList<int>{2});
+    EditorManager::activateEditor(disassembly);
+    QVERIFY(linkedLines(otherAgent, source).isEmpty());
+    QCOMPARE(linkedLines(agent, source), QList<int>{2});
+
+    // A source editor opened again gets the links it shows.
+    QVERIFY(EditorManager::closeDocuments({source->document()}, false));
+    QVERIFY(!DocumentModel::documentForFilePath(sourceFile));
+    source = EditorManager::openEditor(sourceFile, {}, EditorManager::DoNotChangeCurrentEditor);
+    QVERIFY(source);
+    QCOMPARE(EditorManager::currentEditor(), disassembly);
+    QCOMPARE(linkedLines(agent, source), QList<int>{2});
+
+    // With the source's split gone, the split made for it again holds no
+    // copy of the disassembly.
+    Command *removeAllSplits = ActionManager::command(Core::Constants::REMOVE_ALL_SPLITS);
+    QVERIFY(removeAllSplits && removeAllSplits->action()->isEnabled());
+    removeAllSplits->action()->trigger();
+    QVERIFY(!EditorManager::hasSplitter());
+    EditorManager::activateEditor(disassembly);
+    QCOMPARE(EditorManager::visibleEditors(), QList<IEditor *>{disassembly});
+    const int sourceViewId = agent.sourceViewId(sourceFile);
+    QVERIFY(sourceViewId != 0);
+    QVERIFY(sourceViewId != EditorManager::viewIdForEditor(disassembly));
+    QVERIFY2(DocumentModel::editorsForDocument(disassembly->document()).size() == 1,
+             "the split made for the source holds a copy of the disassembly");
+    removeAllSplits->action()->trigger();
+
+    // The file named by the debug information goes through the source path mapping.
+    auto mappedEngine = new GenericDebuggerEngine("mapped", new RecordingBackend);
+    const QScopeGuard mappedCleanup([mappedEngine] { delete mappedEngine; });
+    DebuggerRunParameters rp;
+    rp.insertSourcePath("/home/qt/work", tmp.path());
+    mappedEngine->setRunParameters(rp);
+    DisassemblerLines mappedLines;
+    for (int i = 0; i < lines.size(); ++i) {
+        DisassemblerLine mappedLine = lines.at(i);
+        if (mappedLine.isCode())
+            mappedLine.fileName = "/home/qt/work/main.cpp";
+        mappedLines.appendLine(mappedLine);
+    }
+    DisassemblerAgent mappedAgent(mappedEngine);
+    mappedAgent.setLocation(Location(frame));
+    mappedAgent.setContents(mappedLines);
+    QCOMPARE(linkedLines(mappedAgent, source), QList<int>{2});
 }
 
 void DebuggerUnitTests::testScratchEditorAdoptsSavedName()

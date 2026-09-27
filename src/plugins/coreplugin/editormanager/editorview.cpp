@@ -764,9 +764,9 @@ bool EditorView::isInSplit() const
     return parentSplitter && parentSplitter->isSplitter();
 }
 
-EditorView *EditorView::split(Qt::Orientation orientation)
+EditorView *EditorView::split(Qt::Orientation orientation, bool duplicateCurrentEditor)
 {
-    return parentSplitterOrView()->split(orientation);
+    return parentSplitterOrView()->split(orientation, duplicateCurrentEditor);
 }
 
 EditorArea *EditorView::editorArea() const
@@ -1531,7 +1531,7 @@ EditorView *SplitterOrView::takeView()
     return oldView;
 }
 
-EditorView *SplitterOrView::split(Qt::Orientation orientation)
+EditorView *SplitterOrView::split(Qt::Orientation orientation, bool duplicateCurrentEditor)
 {
     QTC_ASSERT(m_view && m_splitter == nullptr, return nullptr);
     m_splitter = new MiniSplitter(this);
@@ -1546,7 +1546,9 @@ EditorView *SplitterOrView::split(Qt::Orientation orientation)
 
     SplitterOrView *view = nullptr;
     SplitterOrView *otherView = nullptr;
-    IEditor *duplicate = e && e->duplicateSupported() ? EditorManagerPrivate::duplicateEditor(e) : nullptr;
+    IEditor *duplicate = duplicateCurrentEditor && e && e->duplicateSupported()
+                             ? EditorManagerPrivate::duplicateEditor(e)
+                             : nullptr;
     m_splitter->addWidget((view = new SplitterOrView(editorView)));
     m_splitter->addWidget((otherView = new SplitterOrView(duplicate)));
 

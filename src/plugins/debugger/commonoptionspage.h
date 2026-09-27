@@ -63,6 +63,7 @@ public:
     Utils::BoolAspect switchModeOnExit{this};
     Utils::BoolAspect showQmlObjectTree{this};
     Utils::BoolAspect stationaryEditorWhileStepping{this};
+    Utils::BoolAspect showSourceBesideDisassembly{this};
     Utils::BoolAspect forceLoggingToConsole{this};
     Utils::BoolAspect showUnsupportedBreakpointWarning{this};
 

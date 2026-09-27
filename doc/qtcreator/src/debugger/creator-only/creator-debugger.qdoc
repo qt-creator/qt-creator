@@ -1529,6 +1529,14 @@
     go to \preferences > \uicontrol Debugger >
     \uicontrol GDB > \uicontrol {Use Intel style disassembly}.
 
+    When you operate by instruction, \QC shows the source code in a split next
+    to the \uicontrol Disassembler view, and both follow the current debugger
+    location. Move the cursor or the mouse pointer to an instruction to
+    highlight the source line it was compiled from, or to a source line to
+    highlight its instructions. To show only the disassembly, go to
+    \preferences > \uicontrol Debugger > \uicontrol General and clear
+    \uicontrol {Show source code beside disassembly}.
+
     To open the \uicontrol Disassembler view:
 
     \list

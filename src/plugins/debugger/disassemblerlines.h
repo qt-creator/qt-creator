@@ -61,6 +61,7 @@ public:
 
 private:
     QString m_lastFunction;
+    QString m_lastFile;
     int m_bytesLength = 0;
     QList<DisassemblerLine> m_data;
     QHash<quint64, int> m_rowCache;

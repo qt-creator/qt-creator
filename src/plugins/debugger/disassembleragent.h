@@ -5,6 +5,8 @@
 
 #include "breakhandler.h"
 
+#include <utils/id.h>
+
 #include <QObject>
 
 namespace Debugger::Internal {
@@ -43,7 +45,11 @@ public:
     // Force reload, e.g. after changing the output flavour.
     void reload();
 
+    int sourceViewId(const Utils::FilePath &sourceFile);
+    Utils::Id linkedLinesSelection() const;
+
 private:
+    bool eventFilter(QObject *watched, QEvent *event) override;
     void setContentsToDocument(const DisassemblerLines &contents);
     int indexOf(const Location &loc) const;
 

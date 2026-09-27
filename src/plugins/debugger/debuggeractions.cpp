@@ -44,6 +44,7 @@ DebuggerSettings::DebuggerSettings() :
     switchModeOnExit{commonSettings().switchModeOnExit},
     showQmlObjectTree{commonSettings().showQmlObjectTree},
     stationaryEditorWhileStepping{commonSettings().stationaryEditorWhileStepping},
+    showSourceBesideDisassembly{commonSettings().showSourceBesideDisassembly},
     forceLoggingToConsole{commonSettings().forceLoggingToConsole},
     showUnsupportedBreakpointWarning{commonSettings().showUnsupportedBreakpointWarning},
 

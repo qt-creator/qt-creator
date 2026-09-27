@@ -4691,20 +4691,22 @@ int EditorManager::otherViewId(int viewId)
     Splits the view identified by \a viewId along \a orientation and returns
     the id of the split this adds beside it, or 0 if there is no split with that
     id. \a viewId keeps its editors and its id, and the focus stays where it
-    was. As with any other split, the new one shows a duplicate of the split
-    view's current editor where that editor supports duplication.
+    was. With \a option \c DuplicateCurrentEditor, as with any other split, the
+    new one shows a duplicate of the split view's current editor where that
+    editor supports duplication. With \c LeaveEmpty it shows no editor, for
+    callers that open their own editor in it.
 
     \sa otherViewId()
     \sa openEditorInViewAt()
     \sa splitSideBySide()
 */
-int EditorManager::splitView(int viewId, Qt::Orientation orientation)
+int EditorManager::splitView(int viewId, Qt::Orientation orientation, SplitViewOption option)
 {
     EditorView *view = viewForId(viewId);
     if (!view)
         return 0;
 
-    EditorView *newView = view->split(orientation);
+    EditorView *newView = view->split(orientation, option == DuplicateCurrentEditor);
     QTC_ASSERT(newView, return 0);
     EditorManagerPrivate::updateActions();
     return newView->viewId();

@@ -877,6 +877,7 @@ public:
 
 public:
     void setInitialActionStates();
+    bool showSourceLocation(const Location &loc, int viewId);
     void setBusyCursor(bool on);
     void cleanupViews();
     void updateState();
@@ -1548,6 +1549,53 @@ void DebuggerEngine::resetLocation()
     d->scheduleResetLocation();
 }
 
+// Opens the source of the location in the split viewId, or where it is visible
+// already if that is 0. Returns false if the engine is gone afterwards.
+bool DebuggerEnginePrivate::showSourceLocation(const Location &loc, int viewId)
+{
+    const FilePath file = loc.fileName();
+    const int line = loc.textPosition().line;
+    bool newEditor = false;
+    const EditorManager::OpenEditorFlags flags = EditorManager::IgnoreNavigationHistory
+                                                 | EditorManager::DoNotSwitchToDesignMode;
+
+    // EditorManager::openEditor() spins a local event loop, during which the debug
+    // session may finish and destroy this engine (and its 'd'). Guard with a QPointer
+    // so we never touch freed memory afterwards.
+    const QPointer<DebuggerEngine> guard(m_engine);
+    IEditor *editor = nullptr;
+    if (viewId != 0) {
+        // Activating the source would take the focus from the disassembly beside
+        // it, only for the disassembly to take it back.
+        editor = Utils::findOrDefault(EditorManager::visibleEditors(), [&](IEditor *e) {
+            return e->document()->filePath() == file
+                   && EditorManager::viewIdForEditor(e) == viewId;
+        });
+        if (!editor)
+            editor = EditorManager::openEditorInViewAt(viewId, Link(file), Id(), flags, &newEditor);
+    } else {
+        editor = EditorManager::openEditor(file,
+                                           Id(),
+                                           flags | EditorManager::SwitchSplitIfAlreadyVisible,
+                                           &newEditor);
+    }
+    if (!guard)
+        return false;
+    QTC_ASSERT(editor, return true); // Unreadable file?
+
+    editor->gotoLine(line, 0, !settings().stationaryEditorWhileStepping());
+
+    if (newEditor)
+        editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
+
+    if (loc.needsMarker()) {
+        m_locationMark.reset(new LocationMark(m_engine, file, line));
+        m_locationMark->setToolTip(
+            Tr::tr("Current debugger location of %1").arg(m_engine->displayName()));
+    }
+    return true;
+}
+
 void DebuggerEngine::gotoLocation(const Location &loc)
 {
      d->resetLocation();
@@ -1556,6 +1604,11 @@ void DebuggerEngine::gotoLocation(const Location &loc)
             && ((hasCapability(OperateByInstructionCapability) && operatesByInstruction())
                 || !loc.hasDebugInfo()) )
     {
+        if (loc.hasDebugInfo() && !loc.fileName().isEmpty()
+                && settings().showSourceBesideDisassembly()) {
+            if (!d->showSourceLocation(loc, d->m_disassemblerAgent.sourceViewId(loc.fileName())))
+                return;
+        }
         d->m_disassemblerAgent.setLocation(loc);
         return;
     }
@@ -1564,33 +1617,8 @@ void DebuggerEngine::gotoLocation(const Location &loc)
         showMessage("CANNOT GO TO THIS LOCATION");
         return;
     }
-    const FilePath file = loc.fileName();
-    const int line = loc.textPosition().line;
-    bool newEditor = false;
-
-    // EditorManager::openEditor() spins a local event loop, during which the debug
-    // session may finish and destroy this engine (and its 'd'). Guard with a QPointer
-    // so we never touch freed memory afterwards.
-    const QPointer<DebuggerEngine> guard(this);
-    IEditor *editor = EditorManager::openEditor(file,
-                                                Id(),
-                                                EditorManager::IgnoreNavigationHistory
-                                                    | EditorManager::DoNotSwitchToDesignMode
-                                                    | EditorManager::SwitchSplitIfAlreadyVisible,
-                                                &newEditor);
-    if (!guard)
+    if (!d->showSourceLocation(loc, 0))
         return;
-    QTC_ASSERT(editor, return); // Unreadable file?
-
-    editor->gotoLine(line, 0, !settings().stationaryEditorWhileStepping());
-
-    if (newEditor)
-        editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
-
-    if (loc.needsMarker()) {
-        d->m_locationMark.reset(new LocationMark(this, loc.fileName(), line));
-        d->m_locationMark->setToolTip(Tr::tr("Current debugger location of %1").arg(displayName()));
-    }
 
     d->m_breakHandler.setLocation(loc);
     d->m_watchHandler.setLocation(loc);

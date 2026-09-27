@@ -7,6 +7,7 @@
 #include "debuggeractions.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
+#include "debuggersourcepathmappingwidget.h"
 #include "debuggertr.h"
 #include "disassemblerlines.h"
 #include "sourceutils.h"
@@ -15,13 +16,18 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/textmark.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/algorithm.h>
+#include <utils/link.h>
+#include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
+#include <QMouseEvent>
 #include <QTextBlock>
 
 using namespace Core;
@@ -29,6 +35,8 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace Debugger::Internal {
+
+const char LinkedLinesSelection[] = "Debugger.Disassembler.LinkedLines";
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -102,6 +110,16 @@ public:
     ~DisassemblerAgentPrivate();
     void configureMimeType();
     int lineForAddress(quint64 address) const;
+    FilePath sourceFile(const QString &fileName) const;
+    void updateSourceForLine(const DisassemblerLines &contents);
+    void trackEditor(IEditor *editor);
+    std::optional<Link> sourceAt(TextEditorWidget *widget, int line) const;
+    void linkFromCursor();
+    void linkFromMouse(TextEditorWidget *widget, const QPoint &pos);
+    QList<int> instructionLines(const Link &source) const;
+    void highlight(const Link &source);
+    void setLinkedLines(IDocument *document, const QList<int> &lines) const;
+    void highlightEditor(IEditor *editor) const;
 
 public:
     QPointer<TextDocument> document;
@@ -112,6 +130,15 @@ public:
     QList<CacheEntry> cache;
     QString mimeType;
     bool resetLocationScheduled;
+    QList<Link> sourceForLine; // Indexed by the line in the document, starting at 0.
+    QHash<FilePath, QSet<int>> sourceLines;
+    QList<QPair<QString, QString>> sourcePathMap;
+    Link highlightedSource;
+    Id linkedLinesId;
+    QPointer<TextEditorWidget> trackedWidget;
+    QMetaObject::Connection cursorConnection;
+    bool hovering = false;
+    bool closing = false;
 };
 
 DisassemblerAgentPrivate::DisassemblerAgentPrivate(DebuggerEngine *engine)
@@ -120,10 +147,15 @@ DisassemblerAgentPrivate::DisassemblerAgentPrivate(DebuggerEngine *engine)
     locationMark(engine, Utils::FilePath(), 0),
     mimeType("text/x-qtcreator-generic-asm"),
     resetLocationScheduled(false)
-{}
+{
+    static int agentCount = 0;
+    linkedLinesId = Id(LinkedLinesSelection).withSuffix(++agentCount);
+}
 
 DisassemblerAgentPrivate::~DisassemblerAgentPrivate()
 {
+    QObject::disconnect(cursorConnection);
+    highlight({});
     if (document)
         EditorManager::closeDocuments({document});
     document = nullptr;
@@ -140,6 +172,187 @@ int DisassemblerAgentPrivate::lineForAddress(quint64 address) const
     return 0;
 }
 
+// The debuggers name the source file of a line in the form the debug information
+// has it, which may be relative, and which the source path mapping has not been
+// applied to.
+FilePath DisassemblerAgentPrivate::sourceFile(const QString &fileName) const
+{
+    const FilePath locationFile = location.fileName();
+    if (fileName.isEmpty())
+        return locationFile;
+    const FilePath file = FilePath::fromUserInput(fileName);
+    if (file.isAbsolutePath())
+        return locationFile.withNewPath(mappedSourcePath(sourcePathMap, file.path(), true));
+    if (locationFile.fileName() == file.path() || locationFile.path().endsWith('/' + file.path()))
+        return locationFile;
+    return locationFile.parentDir().resolvePath(file.path());
+}
+
+void DisassemblerAgentPrivate::updateSourceForLine(const DisassemblerLines &contents)
+{
+    sourceForLine.clear();
+    sourceForLine.reserve(contents.size());
+    sourceLines.clear();
+
+    // The same mapping as the one the engines pass to the debugger.
+    sourcePathMap.clear();
+    if (engine) {
+        const DebuggerRunParameters &rp = engine->runParameters();
+        const SourcePathMap map = mergeStartParametersSourcePathMap(
+            rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+        for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
+            sourcePathMap.append(
+                {it.key(), rp.macroExpander() ? rp.macroExpander()->expand(it.value()) : it.value()});
+        }
+    }
+
+    Link source;
+    for (int i = 0, n = contents.size(); i != n; ++i) {
+        const DisassemblerLine &line = contents.at(i);
+        // An instruction belongs to the source line above it.
+        if (!line.isAssembler()) {
+            source = line.isCode() ? Link(sourceFile(line.fileName), line.lineNumber) : Link();
+            if (source.hasValidTarget())
+                sourceLines[source.targetFilePath].insert(source.target.line);
+        }
+        sourceForLine.append(source);
+    }
+}
+
+void DisassemblerAgentPrivate::trackEditor(IEditor *editor)
+{
+    QObject::disconnect(cursorConnection);
+    TextEditorWidget *widget = editor ? TextEditorWidget::fromEditor(editor) : nullptr;
+    trackedWidget = widget;
+    if (widget) {
+        cursorConnection = QObject::connect(widget, &TextEditorWidget::cursorPositionChanged,
+                                            widget, [this] { linkFromCursor(); });
+    }
+    linkFromCursor();
+}
+
+// The source line that \a line of \a widget stands for, an invalid link for a
+// line standing for none, or nothing if \a widget shows neither the disassembly
+// nor a file it was compiled from.
+std::optional<Link> DisassemblerAgentPrivate::sourceAt(TextEditorWidget *widget, int line) const
+{
+    if (widget->textDocument() == document)
+        return sourceForLine.value(line);
+    const FilePath file = widget->textDocument()->filePath();
+    const auto lines = sourceLines.constFind(file);
+    if (lines == sourceLines.constEnd())
+        return {};
+    return lines->contains(line + 1) ? Link(file, line + 1) : Link();
+}
+
+// Lets the line the cursor is on in the disassembly or in its source pick the
+// lines on the other side that belong to it.
+void DisassemblerAgentPrivate::linkFromCursor()
+{
+    hovering = false;
+    if (!trackedWidget || !document || !settings().showSourceBesideDisassembly()) {
+        highlight({});
+        return;
+    }
+    highlight(sourceAt(trackedWidget, trackedWidget->textCursor().blockNumber()).value_or(Link()));
+}
+
+// As linkFromCursor(), for the line under the mouse, which takes precedence
+// while it is over the disassembly or its source.
+void DisassemblerAgentPrivate::linkFromMouse(TextEditorWidget *widget, const QPoint &pos)
+{
+    if (!document || !settings().showSourceBesideDisassembly())
+        return;
+    if (widget->textDocument() != document
+            && !sourceLines.contains(widget->textDocument()->filePath())) {
+        return;
+    }
+    const std::optional<Link> source
+        = sourceAt(widget, widget->cursorForPosition(pos).blockNumber());
+    if (!source)
+        return;
+    hovering = true;
+    highlight(*source);
+}
+
+static QList<QTextEdit::ExtraSelection> linkedLineSelections(TextDocument *textDocument,
+                                                              const QList<int> &lines)
+{
+    QTextCharFormat format = globalFontSettings().data().toTextCharFormat(C_OCCURRENCES);
+    format.setProperty(QTextFormat::FullWidthSelection, true);
+    QList<QTextEdit::ExtraSelection> selections;
+    for (const int line : lines) {
+        const QTextBlock block = textDocument->document()->findBlockByNumber(line);
+        if (!block.isValid())
+            continue;
+        QTextEdit::ExtraSelection selection;
+        selection.cursor = QTextCursor(block);
+        // Taking in the line break makes the selection span the full width.
+        if (!selection.cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor))
+            selection.cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        selection.format = format;
+        selections.append(selection);
+    }
+    return selections;
+}
+
+void DisassemblerAgentPrivate::setLinkedLines(IDocument *document, const QList<int> &lines) const
+{
+    auto textDocument = qobject_cast<TextDocument *>(document);
+    if (!textDocument)
+        return;
+    const QList<QTextEdit::ExtraSelection> selections = linkedLineSelections(textDocument, lines);
+    for (IEditor *editor : DocumentModel::editorsForDocument(document)) {
+        if (TextEditorWidget *widget = TextEditorWidget::fromEditor(editor))
+            widget->setExtraSelections(linkedLinesId, selections);
+    }
+}
+
+QList<int> DisassemblerAgentPrivate::instructionLines(const Link &source) const
+{
+    QList<int> lines;
+    for (int i = 0, n = sourceForLine.size(); i != n; ++i) {
+        if (sourceForLine.at(i) == source)
+            lines.append(i);
+    }
+    return lines;
+}
+
+void DisassemblerAgentPrivate::highlight(const Link &source)
+{
+    if (source == highlightedSource)
+        return;
+    if (highlightedSource.hasValidTarget()) {
+        setLinkedLines(DocumentModel::documentForFilePath(highlightedSource.targetFilePath), {});
+        setLinkedLines(document, {});
+    }
+    highlightedSource = source;
+    if (!source.hasValidTarget())
+        return;
+
+    setLinkedLines(DocumentModel::documentForFilePath(source.targetFilePath),
+                   {source.target.line - 1});
+    setLinkedLines(document, instructionLines(source));
+}
+
+// Gives an editor opened after the highlight was set the lines it shows.
+void DisassemblerAgentPrivate::highlightEditor(IEditor *editor) const
+{
+    if (!highlightedSource.hasValidTarget())
+        return;
+    TextEditorWidget *widget = TextEditorWidget::fromEditor(editor);
+    if (!widget)
+        return;
+    TextDocument *textDocument = widget->textDocument();
+    QList<int> lines;
+    if (textDocument == document)
+        lines = instructionLines(highlightedSource);
+    else if (textDocument->filePath() == highlightedSource.targetFilePath)
+        lines = {highlightedSource.target.line - 1};
+    else
+        return;
+    widget->setExtraSelections(linkedLinesId, linkedLineSelections(textDocument, lines));
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -160,10 +373,41 @@ DisassemblerAgent::DisassemblerAgent(DebuggerEngine *engine)
 {
     connect(&settings().intelFlavor, &Utils::BaseAspect::changed,
             this, &DisassemblerAgent::reload);
+    connect(&settings().showSourceBesideDisassembly, &Utils::BaseAspect::changed,
+            this, [this] { d->linkFromCursor(); });
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, [this](IEditor *editor) { d->trackEditor(editor); });
+
+    const auto watchMouse = [this](IEditor *editor) {
+        if (TextEditorWidget *widget = TextEditorWidget::fromEditor(editor))
+            widget->viewport()->installEventFilter(this);
+    };
+    for (IEditor *editor : DocumentModel::editorsForOpenedDocuments())
+        watchMouse(editor);
+    connect(EditorManager::instance(), &EditorManager::editorCreated, this, watchMouse);
+    connect(EditorManager::instance(), &EditorManager::editorOpened,
+            this, [this](IEditor *editor) { d->highlightEditor(editor); });
+}
+
+bool DisassemblerAgent::eventFilter(QObject *watched, QEvent *event)
+{
+    if (!d || d->closing)
+        return false;
+    if (event->type() == QEvent::MouseMove) {
+        if (auto widget = qobject_cast<TextEditorWidget *>(watched->parent()))
+            d->linkFromMouse(widget, static_cast<QMouseEvent *>(event)->position().toPoint());
+    } else if (event->type() == QEvent::Leave && d->hovering) {
+        d->linkFromCursor();
+    }
+    return false;
 }
 
 DisassemblerAgent::~DisassemblerAgent()
 {
+    // Closing the document makes another editor the current one, and moves the
+    // mouse off it.
+    disconnect(EditorManager::instance(), nullptr, this, nullptr);
+    d->closing = true;
     delete d;
     d = nullptr;
 }
@@ -327,11 +571,26 @@ void DisassemblerAgent::setContents(const DisassemblerLines &rawContents)
 void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
 {
     QTC_ASSERT(d, return);
+    const bool besideSource = settings().showSourceBesideDisassembly();
     if (!d->document) {
+        EditorManager::OpenEditorFlags flags;
+        const FilePath sourceFile = d->location.fileName();
+        IEditor *sourceEditor = besideSource && !sourceFile.isEmpty()
+            ? Utils::findOrDefault(EditorManager::visibleEditors(), [sourceFile](IEditor *e) {
+                  return e->document()->filePath() == sourceFile;
+              })
+            : nullptr;
+        if (sourceEditor) {
+            const int sourceViewId = EditorManager::viewIdForEditor(sourceEditor);
+            if (EditorManager::otherViewId(sourceViewId) == 0)
+                EditorManager::splitView(sourceViewId, Qt::Horizontal, EditorManager::LeaveEmpty);
+            EditorManager::activateEditor(sourceEditor);
+            flags |= EditorManager::OpenInOtherSplit;
+        }
         QString titlePattern = "Disassembler";
         IEditor *editor = EditorManager::openEditorWithContents(
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
-                &titlePattern);
+                &titlePattern, {}, {}, flags);
         QTC_ASSERT(editor, return);
         if (auto widget = TextEditorWidget::fromEditor(editor)) {
             widget->setReadOnly(true);
@@ -346,11 +605,24 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
         d->document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
         d->document->setProperty(Debugger::Constants::DISASSEMBLER_SOURCE_FILE, d->location.fileName().toUrlishString());
         d->configureMimeType();
+    } else if (besideSource) {
+        // In its own split, not in the one the source was just shown in.
+        const QList<IEditor *> editors = DocumentModel::editorsForDocument(d->document);
+        if (QTC_GUARD(!editors.isEmpty()))
+            EditorManager::activateEditor(editors.first());
     } else {
         EditorManager::activateEditorForDocument(d->document);
     }
 
-    d->document->setPlainText(contents.toString());
+    // Stepping within a function shows the same text again, and replacing it
+    // would redo its layout and highlighting.
+    const QString text = contents.toString();
+    const bool changed = text != d->document->plainText();
+    if (changed)
+        d->highlight({});
+    d->updateSourceForLine(contents);
+    if (changed)
+        d->document->setPlainText(text);
 
     d->document->setPreferredDisplayName(QString("Disassembler (%1)")
         .arg(d->location.functionName()));
@@ -431,6 +703,46 @@ void DisassemblerAgent::updateBreakpointMarker(const Breakpoint &bp)
 quint64 DisassemblerAgent::address() const
 {
     return d->location.address();
+}
+
+/*!
+    Returns the kind of the extra selections that mark the lines of the
+    disassembly and of its source that belong together.
+*/
+Id DisassemblerAgent::linkedLinesSelection() const
+{
+    return d->linkedLinesId;
+}
+
+/*!
+    Returns the split to show \a sourceFile beside the disassembly in: one
+    that shows it already, or else the one next to the disassembly, splitting
+    the one the disassembly is in if it is the only one. Returns 0 if the
+    disassembly is not shown.
+*/
+int DisassemblerAgent::sourceViewId(const FilePath &sourceFile)
+{
+    if (!d->document)
+        return 0;
+    const QList<IEditor *> disassemblyEditors = DocumentModel::editorsForDocument(d->document);
+    const QList<int> disassemblyViewIds
+        = Utils::transform(disassemblyEditors, &EditorManager::viewIdForEditor);
+    for (IEditor *editor : EditorManager::visibleEditors()) {
+        if (editor->document()->filePath() != sourceFile)
+            continue;
+        const int viewId = EditorManager::viewIdForEditor(editor);
+        if (viewId != 0 && !disassemblyViewIds.contains(viewId))
+            return viewId;
+    }
+    for (IEditor *editor : disassemblyEditors) {
+        const int viewId = EditorManager::viewIdForEditor(editor);
+        if (viewId == 0)
+            continue;
+        if (const int otherViewId = EditorManager::otherViewId(viewId))
+            return otherViewId;
+        return EditorManager::splitView(viewId, Qt::Horizontal, EditorManager::LeaveEmpty);
+    }
+    return 0;
 }
 
 } // Debugger::Internal
