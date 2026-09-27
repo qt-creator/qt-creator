@@ -23,6 +23,12 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
+bool isJvmSource(const FilePath &file)
+{
+    const QString suffix = file.suffix();
+    return suffix == "java" || suffix == "kt" || suffix == "kts";
+}
+
 /*!
     \class Debugger::Internal::BreakpointParameters
 
@@ -152,9 +158,10 @@ bool BreakpointParameters::isCppBreakpoint() const
     if (type == BreakpointAtJavaScriptThrow || type == BreakpointOnQmlSignalEmit)
         return false;
 
-    // Qml is currently only file. A native debugger cannot stop in Java sources either.
+    // Qml is currently only file. A native debugger cannot stop in the sources
+    // of a virtual machine language either.
     if (type == BreakpointByFileAndLine)
-        return !isQmlFileAndLineBreakpoint() && fileName.suffix() != "java";
+        return !isQmlFileAndLineBreakpoint() && !isJvmSource(fileName);
 
     return true;
 }

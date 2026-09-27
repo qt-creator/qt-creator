@@ -15,9 +15,9 @@ bool AcceptsBreakpointQuery::isCppBreakpoint() const
 {
     if (type == BreakpointAtJavaScriptThrow || type == BreakpointOnQmlSignalEmit)
         return false;
-    // A native debugger cannot stop in Java sources.
+    // A native debugger cannot stop in the sources of a virtual machine language.
     if (type == BreakpointByFileAndLine)
-        return !isQmlFileAndLineBreakpoint() && fileName.suffix() != "java";
+        return !isQmlFileAndLineBreakpoint() && !isJvmSource(fileName);
     return true;
 }
 

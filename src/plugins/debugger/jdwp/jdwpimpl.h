@@ -19,8 +19,14 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 namespace Debugger::Internal {
+
+// The directory the package statement of a source names, "pkg/sub" for
+// "package pkg.sub;", and nothing where the source names no package. Kotlin
+// ends the statement with the line rather than with a semicolon.
+DEBUGGER_EXPORT QString packageDirectoryOf(const QString &source);
 
 class DEBUGGER_EXPORT JdwpImplStartData
 {
@@ -111,6 +117,12 @@ private:
         QList<FieldInfo> fields;
         // Its static ones and those of its superclasses, closest first.
         QList<FieldInfo> staticFields;
+        // The toString() an object of the class is shown by, and the class
+        // that declares it. Both stay zero where nothing but Object declares
+        // one, since what Object answers is the identity shown anyway.
+        bool toStringKnown = false;
+        quint64 toStringClass = 0;
+        quint64 toStringMethod = 0;
     };
 
     // What an expression came out as: a value and the type it is declared with,
@@ -162,6 +174,8 @@ private:
     {
     public:
         QString number;
+        // What it stops at: a line of a file, or every exception that is thrown.
+        BreakpointType type = BreakpointByFileAndLine;
         Utils::FilePath file;
         QString sourceName;
         // The directory of the package, as in a class signature.
@@ -245,12 +259,15 @@ private:
     void resumeFromStop();
     void reportRunOk();
     void reportStop(const QList<JdwpEvent> &hits);
-    void reportStopAt(quint64 thread, const JdwpLocation &location,
-                      const QList<JdwpEvent> &hits = {});
+    void reportStopAt(const QList<JdwpEvent> &hits);
+    void reportException(const JdwpEvent &event);
     // Whether a hit is one to stop at: its condition holds, and it is not one
     // of the first that are to be ignored.
-    void decideOnHit(quint8 eventKind, qint32 requestId, const std::function<void(bool)> &done);
+    void decideOnHit(const JdwpEvent &event, const std::function<void(bool)> &done);
     void decideOnHits(QList<JdwpEvent> hits, bool stop, const std::function<void(bool)> &done);
+    // Whether an exception was both thrown and caught inside the runtime, and
+    // so is none the program can be stopped at on its account.
+    void isRuntimesOwn(const JdwpEvent &event, const std::function<void(bool)> &done);
     Breakpoint *breakpointOfRequest(quint8 eventKind, qint32 requestId);
     void stopAfterInterrupt();
     void step(Jdwp::StepDepth depth, bool byInstruction);
@@ -267,6 +284,7 @@ private:
     void withLineTable(quint64 classId, quint64 methodId, const Done &done);
     void withVariables(quint64 classId, quint64 methodId, const Done &done);
     void withFields(quint64 classId, const Done &done);
+    void withToString(quint64 classId, const Done &done);
     const MethodInfo *method(quint64 classId, quint64 methodId) const;
     void resolveLocation(const JdwpLocation &location,
                          const std::function<void(const ResolvedLocation &)> &done);
@@ -309,6 +327,26 @@ private:
     void placeOfFieldIn(quint64 object, const QString &name, const Placement &done);
     void writeTo(const Place &place, const JdwpValue &value, const QString &shown);
 
+    // What an object shows itself as, which is the one thing here that makes
+    // the program run: toString() is called in the virtual machine, on the
+    // thread that is stopped and with the others left suspended.
+    class ToStringCall
+    {
+    public:
+        QString iname;
+        quint64 object = 0;
+        quint64 declaringClass = 0;
+        quint64 methodId = 0;
+    };
+    void showAsToString(const JoinPtr &join, const QString &iname, quint64 object,
+                        quint64 classId);
+    void answerToStrings(int generation, int stopGeneration);
+    // Hands over what the call returned, and whether it was given up on rather
+    // than answered.
+    using Called = std::function<void(const std::optional<QString> &text, bool gaveUp)>;
+    void invokeToString(quint64 object, quint64 declaringClass, quint64 methodId,
+                        const Called &done);
+
     void fetchLocals(const RefreshRequest &request);
     void addWatchers(const JoinPtr &join, const QJsonArray &watchers);
     void addValue(const JoinPtr &join, const QString &iname, const QString &name,
@@ -334,6 +372,14 @@ private:
     bool m_shutdownReported = false;
     bool m_detaching = false;
     bool m_inferiorDoneReported = false;
+    // The threads a call the views made is out on, by how many are out on
+    // each. A call is out until the machine answers it and not until it is
+    // waited for: one given up on still has the thread it runs on, and one
+    // made on that thread afterwards is refused rather than answered. A stop
+    // of such a thread while a call is out is none of the user's, and is run
+    // past rather than reported, once with a word about it.
+    QHash<quint64, int> m_callsOut;
+    bool m_callStopMentioned = false;
     int m_extraSuspends = 0;
     // Stops that other threads ran into while one was being reported. Each
     // holds a suspension of its own, and comes next.
@@ -352,6 +398,11 @@ private:
     int m_currentFrame = 0;
     QList<Frame> m_frames;
     bool m_framesComplete = false;
+    // A call into the virtual machine lets the thread run, and every frame
+    // handle read before it stops being valid. This counts the calls, and the
+    // frames remember the count they were read at.
+    int m_callGeneration = 0;
+    int m_framesFrom = 0;
     // Changes with every resume and with every thread selected, which makes
     // what was fetched before it stale.
     int m_stopGeneration = 0;
@@ -360,6 +411,9 @@ private:
     int m_runGeneration = 0;
 
     quint64 m_localsRequestId = 0;
+    // Whether the views allow the program to be made to run, which is what
+    // showing an object by its toString() takes.
+    bool m_inferiorCallsAllowed = true;
     // What the views last asked for, which a write makes stale.
     RefreshRequest m_lastLocalsRequest;
     int m_localsGeneration = 0;
@@ -367,6 +421,7 @@ private:
     QJsonObject m_expandedItems;
     QMap<QString, Local> m_locals;
     QStringList m_localRoots;
+    QList<ToStringCall> m_toStringCalls;
 };
 
 } // namespace Debugger::Internal

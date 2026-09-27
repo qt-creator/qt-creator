@@ -621,6 +621,7 @@ QString JdwpClient::commandName(quint8 commandSet, quint8 command)
         {Jdwp::ObjectReferenceSet << 8 | Jdwp::ObjectReferenceType,
          "ObjectReference.ReferenceType"},
         {Jdwp::ObjectReferenceSet << 8 | Jdwp::ObjectGetValues, "ObjectReference.GetValues"},
+        {Jdwp::ObjectReferenceSet << 8 | Jdwp::ObjectInvokeMethod, "ObjectReference.InvokeMethod"},
         {Jdwp::StringReferenceSet << 8 | Jdwp::StringValue, "StringReference.Value"},
         {Jdwp::ThreadReferenceSet << 8 | Jdwp::ThreadName, "ThreadReference.Name"},
         {Jdwp::ThreadReferenceSet << 8 | Jdwp::ThreadStatus, "ThreadReference.Status"},

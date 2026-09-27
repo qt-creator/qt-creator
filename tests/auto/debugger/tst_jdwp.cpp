@@ -54,6 +54,8 @@ public:
             m_events.append(event);
             // The engine hands its breakpoints over while it hears this.
             if (event == InferiorEvent::EngineSetupOk) {
+                if (m_initialThrow != 0)
+                    insertThrowBreakpoint(m_initialThrow > 0);
                 for (const auto &[file, line, condition, ignoreCount]
                      : std::as_const(m_initialBreakpoints)) {
                     insertBreakpoint(file, line, condition, ignoreCount);
@@ -91,6 +93,8 @@ public:
     {
         m_initialBreakpoints.append({file, line, condition, ignoreCount});
     }
+
+    void addInitialThrowBreakpoint(bool enabled = true) { m_initialThrow = enabled ? 1 : -1; }
 
     void start() { m_engine->start(); }
     void execute(ExecutionCommand command) { m_engine->execute({command}); }
@@ -142,13 +146,26 @@ public:
         return request.requestId;
     }
 
+    quint64 insertThrowBreakpoint(bool enabled = true, const QString &condition = {})
+    {
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = m_nextRequestId++;
+        request.params = BreakpointParameters(BreakpointAtThrow);
+        request.params.enabled = enabled;
+        request.params.condition = condition;
+        m_engine->changeBreakpoint(request);
+        return request.requestId;
+    }
+
     quint64 refresh(RefreshKind kind, const QSet<QString> &expanded = {},
-                    const QStringList &watchers = {})
+                    const QStringList &watchers = {}, bool allowInferiorCalls = true)
     {
         RefreshRequest request;
         request.requestId = m_nextRequestId++;
         request.kind = kind;
         request.expandedINames = expanded;
+        request.allowInferiorCalls = allowInferiorCalls;
         // The model hands the expressions over hex-encoded, under an iname of
         // its own making.
         QJsonArray items;
@@ -192,6 +209,13 @@ public:
     const QList<InferiorResultData> &results() const { return m_results; }
     const QList<GdbMi> &modified() const { return m_modified; }
     QString output() const { return m_output; }
+    bool logged(const QString &text) const { return logCount(text) > 0; }
+    qsizetype logCount(const QString &text) const
+    {
+        return std::count_if(m_log.cbegin(), m_log.cend(), [&text](const QString &line) {
+            return line.contains(text);
+        });
+    }
     QString log() const { return m_log.mid(qMax(0, m_log.size() - 60)).join('\n'); }
     int threadsCreated() const { return m_threadsCreated; }
 
@@ -206,6 +230,8 @@ private:
         int ignoreCount = 0;
     };
     QList<InitialBreakpoint> m_initialBreakpoints;
+    // Nothing, one that is enabled, or one that is not.
+    int m_initialThrow = 0;
     QList<InferiorEvent> m_events;
     QHash<quint64, QPair<bool, GdbMi>> m_breakpointAnswers;
     QHash<quint64, GdbMi> m_refreshes;
@@ -400,6 +426,17 @@ private slots:
     void findsASourceThroughTheProjectFiles();
     void readsLocalsAndExpandsThem();
     void readsTheFieldsOfThis();
+    void showsAnObjectByItsToString();
+    void leavesAnObjectAloneWhenCallsAreNotAllowed();
+    void givesUpOnACallThatDoesNotComeBack();
+    void runsPastABreakpointInsideACallItMade();
+    void keepsACallItGaveUpOnApartFromOneOnAnotherThread();
+    void stopsWhereAnExceptionIsThrown();
+    void stopsAtAnExceptionThrownInsideTheRuntime();
+    void runsPastAnExceptionTheRuntimeCatchesItself();
+    void runsPastAnExceptionBreakpointThatIsDisabled();
+    void findsThePackageOfASourceWithAndWithoutASemicolon();
+    void takesABreakpointInEveryVirtualMachineSource();
     void parsesExpressions();
     void readsWatchers();
     void readsAWatcherOfThis();
@@ -576,10 +613,13 @@ void tst_jdwp::stopsInAClassThatIsNotLoadedYet()
     backend->start();
 
     // Nothing of the class is there before main() runs, so the breakpoint is
-    // taken, but not set anywhere yet.
+    // taken, but not set anywhere yet. The field says nothing: what it says is
+    // read as a location, and this one has its own.
     QTRY_VERIFY_WITH_TIMEOUT(backend->answered(1), s_timeoutMs);
     QVERIFY(backend->answeredOk(1));
-    QCOMPARE(backend->answer(1).childAt(0)["pending"].data(), QString("1"));
+    const GdbMi taken = backend->answer(1).childAt(0);
+    QVERIFY(taken["pending"].isValid());
+    QVERIFY(taken["pending"].data().isEmpty());
 
     QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
     QCOMPARE(backend->stops(), qsizetype(1));
@@ -591,7 +631,9 @@ void tst_jdwp::stopsInAClassThatIsNotLoadedYet()
     QVERIFY(!backend->modified().isEmpty());
     const GdbMi resolved = backend->modified().last().childAt(0);
     QCOMPARE(resolved["number"].data(), backend->numberOf(1));
-    QCOMPARE(resolved["pending"].data(), QString("0"));
+    // The model marks by the field being there rather than by what it says,
+    // so one that is in says nothing.
+    QVERIFY(!resolved["pending"].isValid());
     QCOMPARE(resolved["line"].toInt(), line);
 
     backend->execute(ExecutionCommand::Continue);
@@ -614,7 +656,7 @@ void tst_jdwp::stopsAtABreakpointSetWhileStopped()
     const quint64 request = backend->insertBreakpoint(m_inferiorSource, squareLine);
     QTRY_VERIFY_WITH_TIMEOUT(backend->answered(request), s_timeoutMs);
     QVERIFY(backend->answeredOk(request));
-    QCOMPARE(backend->answer(request).childAt(0)["pending"].data(), QString("0"));
+    QVERIFY(!backend->answer(request).childAt(0)["pending"].isValid());
 
     backend->execute(ExecutionCommand::Continue);
     QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
@@ -784,6 +826,308 @@ void tst_jdwp::readsTheFieldsOfThis()
 
     backend->shutdownInferior(ShutdownMode::Kill);
     QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::showsAnObjectByItsToString()
+{
+    const auto backend = launch({"show"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "show-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+
+    const quint64 request = backend->refresh(RefreshKind::Locals);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi locals = backend->refreshData(request)["data"];
+    // A class that overrides toString() says what it is, and one call waits
+    // for the other: each one runs the thread that both were read from.
+    QCOMPARE(childNamed(locals, "located")["value"].data(), QString("(3, 4)"));
+    QCOMPARE(childNamed(locals, "other")["value"].data(), QString("(5, 6)"));
+    // One that does not keeps the identity it reads as, since what
+    // java.lang.Object would answer says no more than that.
+    const QString plain = childNamed(locals, "plain")["value"].data();
+    QVERIFY2(plain.startsWith('@'), qPrintable(plain));
+    // A line break in what one answers would break out of the cell it is
+    // shown in, so it reads the way a string value does.
+    QCOMPARE(childNamed(locals, "wordy")["value"].data(), QString("one\\ttwo\\nthree"));
+    // It is still an object, with its fields below it.
+    QCOMPARE(childNamed(locals, "located")["numchild"].data(), QString("1"));
+    QCOMPARE(childNamed(locals, "located")["type"].data(),
+             QString("%1$Point").arg(s_mainClass));
+
+    const quint64 expanded = backend->refresh(RefreshKind::Locals, {"local.located"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(expanded), s_timeoutMs);
+    const GdbMi fields = childNamed(backend->refreshData(expanded)["data"], "located")["children"];
+    QCOMPARE(namesIn(fields), QStringList({"x", "y"}));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::leavesAnObjectAloneWhenCallsAreNotAllowed()
+{
+    const auto backend = launch({"show"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "show-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, {}, false);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi locals = backend->refreshData(request)["data"];
+    // The one thing that would make the program run is not done here.
+    const QString located = childNamed(locals, "located")["value"].data();
+    QVERIFY2(located.startsWith('@'), qPrintable(located));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::givesUpOnACallThatDoesNotComeBack()
+{
+    const auto backend = launch({"slow"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "slow-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::Locals);
+    // The views hear back rather than waiting for the rest of the session.
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi locals = backend->refreshData(request)["data"];
+    QVERIFY(childNamed(locals, "first")["value"].data().startsWith('@'));
+    QVERIFY(childNamed(locals, "second")["value"].data().startsWith('@'));
+    // And the second one is not even asked: the thread is off running the call
+    // that never came back, and the machine takes no other while it does.
+    QCOMPARE(backend->logCount("ObjectReference.InvokeMethod"), qsizetype(1));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+// A breakpoint the user set in a toString() is hit by the call the views make
+// to show a value. Stopping there would leave the program standing in a call
+// nobody asked for, and the call would never come back either: the thread it
+// needs is the one the stop suspends.
+void tst_jdwp::runsPastABreakpointInsideACallItMade()
+{
+    const auto backend = launch({"show"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "show-body"));
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "tostring-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::Locals);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    // The call runs past the breakpoint and comes back with what it answers,
+    // rather than being given up on at its timeout.
+    const GdbMi locals = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(locals, "located")["value"].data(), QString("(3, 4)"));
+    QCOMPARE(childNamed(locals, "other")["value"].data(), QString("(5, 6)"));
+    QVERIFY(backend->logged("stopped inside a call made to show a value"));
+    // Said once for the call it happened in, however many times it was hit.
+    QCOMPARE(backend->logCount("stopped inside a call made to show a value"), qsizetype(2));
+    QCOMPARE(backend->stops(), qsizetype(1));
+
+    // And nothing of it is left over to stop at the next time the program is
+    // let go: a stop that was passed over is gone, not put by.
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(!backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+// A call given up on is still out: the thread it runs on has it, and every
+// stop that thread runs into is still the call's rather than the user's. A
+// call made on another thread is answered while it goes on, and answering
+// that one says nothing about the one that was given up on.
+void tst_jdwp::keepsACallItGaveUpOnApartFromOneOnAnotherThread()
+{
+    const auto backend = launch({"looping"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "looping-stop"));
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "looping-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+    QCOMPARE(backend->stoppedLine(), lineOf(m_inferiorSource, "looping-stop"));
+
+    // The call runs into the breakpoint in it, which is run past, and never
+    // comes back: the views are let go of it at its timeout, and the object
+    // keeps the identity it reads as.
+    const quint64 locals = backend->refresh(RefreshKind::Locals);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(locals), s_timeoutMs);
+    QVERIFY(backend->logged("stopped inside a call made to show a value"));
+    const QString looping = childNamed(backend->refreshData(locals)["data"], "looping")["value"]
+                                .data();
+    QVERIFY2(looping.startsWith('@'), qPrintable(looping));
+    QCOMPARE(backend->stops(), qsizetype(1));
+
+    // Another thread is selected, and what it is standing in has an object of
+    // its own to show. The call for it is made and answered - the machine
+    // refuses it, since only a thread an event suspended takes one - while
+    // the first call is still out.
+    const quint64 threads = backend->refresh(RefreshKind::Threads);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(threads), s_timeoutMs);
+    const GdbMi worker = childNamed(backend->refreshData(threads)["threads"], "worker");
+    QVERIFY2(worker.isValid(),
+             qPrintable(namesIn(backend->refreshData(threads)["threads"]).join(", ")));
+    backend->selectThread(worker["id"].data());
+    const quint64 onWorker = backend->refresh(RefreshKind::Locals);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(onWorker) || backend->stops() > 1, s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+    QCOMPARE(childNamed(backend->refreshData(onWorker)["data"], "seen")["type"].data(),
+             QString("%1$Point").arg(s_mainClass));
+    QCOMPARE(backend->logCount("ObjectReference.InvokeMethod"), qsizetype(2));
+
+    // And that answer is not the answer to the call that was given up on:
+    // what that one keeps running into is still run past, rather than leaving
+    // the program standing in a call nobody asked for.
+    const qsizetype resumes = backend->logCount("VirtualMachine.Resume");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() > 1
+                                 || backend->logCount("VirtualMachine.Resume") > resumes + 1,
+                             s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::stopsWhereAnExceptionIsThrown()
+{
+    const int caughtLine = lineOf(m_inferiorSource, "throw-caught");
+    const int looseLine = lineOf(m_inferiorSource, "throw-uncaught");
+    QVERIFY(caughtLine > 0 && looseLine > 0);
+    const auto backend = launch({"throw"});
+    backend->addInitialThrowBreakpoint();
+    backend->start();
+
+    // Nothing has to be loaded for it, so it is in as soon as it is taken,
+    // and it stands at no line of any file.
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(1), s_timeoutMs);
+    QVERIFY(backend->answeredOk(1));
+    const GdbMi taken = backend->answer(1).childAt(0);
+    QVERIFY(!taken["pending"].isValid());
+    QVERIFY(!taken["file"].isValid());
+    QVERIFY(!taken["line"].isValid());
+
+    // Loading a class throws exceptions the runtime catches itself, so the
+    // first one this stops at has to be the one the program throws.
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+    QCOMPARE(backend->stoppedFile(), m_inferiorSource);
+    QCOMPARE(backend->stoppedLine(), caughtLine);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("java.lang.IllegalStateException"), s_timeoutMs);
+    QVERIFY(backend->logged("is caught further up"));
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(),
+                             s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(2));
+    QCOMPARE(backend->stoppedLine(), looseLine);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("java.lang.IllegalArgumentException"), s_timeoutMs);
+    QVERIFY(backend->logged("nothing catches it"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+// Most of what a debugger is wanted for is thrown by the runtime, not by the
+// program: a number that will not parse, an index outside a list. Filtering by
+// where the throw happens would leave exactly those unanswered.
+void tst_jdwp::stopsAtAnExceptionThrownInsideTheRuntime()
+{
+    const auto backend = launch({"parse"});
+    backend->addInitialThrowBreakpoint();
+    backend->start();
+
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("java.lang.NumberFormatException"), s_timeoutMs);
+    QVERIFY(backend->logged("nothing catches it"));
+    // There is no source of java.lang.Integer to show, so the stop moves the
+    // editor nowhere.
+    QVERIFY(backend->stoppedFile().isEmpty());
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+// The other half of that: one the runtime throws and catches within itself is
+// its own business, and a breakpoint at a throw is not set for it. Loading a
+// class, looking up a character set and reaching for something by reflection
+// all throw them, and stopping at each would make the breakpoint useless.
+void tst_jdwp::runsPastAnExceptionTheRuntimeCatchesItself()
+{
+    const int looseLine = lineOf(m_inferiorSource, "throw-uncaught");
+    QVERIFY(looseLine > 0);
+    const auto backend = launch({"swallow"});
+    backend->addInitialThrowBreakpoint();
+    backend->start();
+
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+    // The NumberFormatException that java.lang.Integer threw and caught on the
+    // way here is not what this stops at; the program's own throw is.
+    QCOMPARE(backend->stoppedFile(), m_inferiorSource);
+    QCOMPARE(backend->stoppedLine(), looseLine);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("java.lang.IllegalArgumentException"), s_timeoutMs);
+    QVERIFY(!backend->logged("java.lang.NumberFormatException"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::runsPastAnExceptionBreakpointThatIsDisabled()
+{
+    const auto backend = launch({"throw"});
+    backend->addInitialThrowBreakpoint(false);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(1), s_timeoutMs);
+    QVERIFY(backend->answeredOk(1));
+
+    // The exception that nothing catches is what ends the program.
+    QTRY_VERIFY_WITH_TIMEOUT(!backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(0));
+    QCOMPARE(backend->results().first().exitCode, 1);
+}
+
+void tst_jdwp::findsThePackageOfASourceWithAndWithoutASemicolon()
+{
+    QCOMPARE(packageDirectoryOf("package org.qtproject.jdwptest;\n\nclass A {}\n"),
+             QString("org/qtproject/jdwptest"));
+    // Kotlin writes the same statement, and ends it with the line.
+    QCOMPARE(packageDirectoryOf("package org.qtproject.jdwptest\n\nclass A\n"),
+             QString("org/qtproject/jdwptest"));
+    QCOMPARE(packageDirectoryOf("// Copyright\n\npackage a.b;\n"), QString("a/b"));
+    QCOMPARE(packageDirectoryOf("class A {}\n"), QString());
+}
+
+void tst_jdwp::takesABreakpointInEveryVirtualMachineSource()
+{
+    QVERIFY(isJvmSource(FilePath::fromString("/src/A.java")));
+    QVERIFY(isJvmSource(FilePath::fromString("/src/A.kt")));
+    QVERIFY(isJvmSource(FilePath::fromString("/src/A.kts")));
+    QVERIFY(!isJvmSource(FilePath::fromString("/src/a.cpp")));
+
+    // What this stops in, a native debugger must not claim.
+    BreakpointParameters kotlin(BreakpointByFileAndLine);
+    kotlin.fileName = FilePath::fromString("/src/A.kt");
+    kotlin.textPosition = {3, -1};
+    QVERIFY(!kotlin.isCppBreakpoint());
+
+    JdwpImpl backend{JdwpImplStartData{}};
+    const auto accepts = backend.setupData().acceptsBreakpoint;
+    QVERIFY(bool(accepts));
+    QVERIFY(accepts({.type = BreakpointByFileAndLine,
+                     .fileName = FilePath::fromString("/src/A.kt")}));
+    QVERIFY(accepts({.type = BreakpointByFileAndLine,
+                     .fileName = FilePath::fromString("/src/A.java")}));
+    QVERIFY(!accepts({.type = BreakpointByFileAndLine,
+                      .fileName = FilePath::fromString("/src/a.cpp")}));
+    QVERIFY(accepts({.type = BreakpointAtThrow}));
+    // The virtual machine stops where an exception is thrown, and nowhere a
+    // handler takes it.
+    QVERIFY(!accepts({.type = BreakpointAtCatch}));
 }
 
 void tst_jdwp::parsesExpressions()

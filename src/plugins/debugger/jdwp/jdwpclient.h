@@ -72,7 +72,13 @@ enum ObjectReferenceCommand : quint8 {
     ObjectReferenceType = 1,
     ObjectGetValues = 2,
     ObjectSetValues = 3,
+    ObjectInvokeMethod = 6,
 };
+
+// How a method the debugger calls is run. Single-threaded leaves the rest of
+// the virtual machine suspended, so that a call cannot let the program get
+// anywhere the user did not ask it to go.
+enum InvokeOption : qint32 { InvokeSingleThreaded = 0x01, InvokeNonVirtual = 0x02 };
 
 enum StringReferenceCommand : quint8 {
     StringValue = 1,
@@ -192,7 +198,7 @@ enum ThreadStatusValue {
     ThreadWait = 4,
 };
 
-enum ModifierBits { StaticModifierBit = 0x0008 };
+enum ModifierBits { StaticModifierBit = 0x0008, AbstractModifierBit = 0x0400 };
 
 // The indices into the answer to CapabilitiesNew.
 enum Capability { CanUseSourceNameFilters = 18 };

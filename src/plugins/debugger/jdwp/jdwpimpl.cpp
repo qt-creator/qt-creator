@@ -14,7 +14,9 @@
 
 #include <QRegularExpression>
 #include <QTcpSocket>
+#include <QTimer>
 
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <limits>
@@ -23,10 +25,38 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-// Where a step does not stop, as jdb has it: the runtime's own code.
-static const QStringList s_stepExcludes = {"java.*", "javax.*", "sun.*", "jdk.*", "com.sun.*"};
+// Where a step does not stop, as jdb has it: the runtime's own code. An
+// exception breakpoint does not exclude these by where the throw happens. What
+// a user wants to be stopped by is mostly thrown from inside the runtime - an
+// index outside a list, a number that will not parse - and such a filter would
+// drop exactly those. Only a throw the runtime also catches itself is left out.
+// A device runs a runtime of its own, and its framework throws and catches
+// within itself as much as a desktop one does; the Kotlin library stands for
+// the same part of a Kotlin program that java.lang does of a Java one.
+static const QStringList s_stepExcludes = {
+    "java.*", "javax.*", "sun.*", "jdk.*", "com.sun.*",
+    "android.*", "com.android.internal.*", "dalvik.*", "libcore.*",
+    "org.apache.harmony.*", "kotlin.*"};
+
+// Whether a class name is matched by one of those patterns, which are the ones
+// the protocol takes: a name, or one with a "*" at either end of it.
+static bool isRuntimeClass(const QString &name)
+{
+    return Utils::anyOf(s_stepExcludes, [&name](const QString &pattern) {
+        if (pattern.startsWith('*'))
+            return name.endsWith(QStringView(pattern).mid(1));
+        if (pattern.endsWith('*'))
+            return name.startsWith(QStringView(pattern).chopped(1));
+        return name == pattern;
+    });
+}
 
 static constexpr qint32 s_classPreparedStatus = 2;
+
+// How long a toString() is given before the views go on without it. A call
+// that does not return holds a thread the virtual machine will not suspend
+// again, which is bad; waiting for it for the rest of the session is worse.
+static constexpr std::chrono::seconds s_invokeTimeout{5};
 
 static GdbMi constMi(const QString &name, const QString &data)
 {
@@ -68,6 +98,15 @@ static QString typeName(const QString &signature)
     return name;
 }
 
+QString packageDirectoryOf(const QString &source)
+{
+    // Kotlin ends the statement with the line rather than with a semicolon.
+    static const QRegularExpression packageStatement(R"(^\s*package\s+([\w.]+)\s*;?)",
+                                                     QRegularExpression::MultilineOption);
+    const QRegularExpressionMatch match = packageStatement.match(source);
+    return match.hasMatch() ? match.captured(1).replace('.', '/') : QString();
+}
+
 // The directory of the package a class signature names, "pkg/sub" for
 // "Lpkg/sub/Name;".
 static QString packagePath(const QString &signature)
@@ -87,12 +126,19 @@ static QString outerClassName(const QString &signature)
     return name.section('$', 0, 0);
 }
 
-static QString quoted(const QString &text)
+// What a value reads as in a view that gives it one line and one cell, which
+// is no place for the characters that would break out of either.
+static QString escaped(const QString &text)
 {
     QString result = text;
     result.replace('\\', "\\\\").replace('"', "\\\"").replace('\n', "\\n")
         .replace('\r', "\\r").replace('\t', "\\t");
-    return '"' + result + '"';
+    return result;
+}
+
+static QString quoted(const QString &text)
+{
+    return '"' + escaped(text) + '"';
 }
 
 static QString primitiveText(const JdwpValue &value)
@@ -144,6 +190,14 @@ static QString threadStatusText(int status)
     return {};
 }
 
+// The kind of event a breakpoint of this type is registered under, which is
+// what it takes to clear the request again and to tell a hit of one kind from
+// a request of another that carries the same number.
+static quint8 eventKindOf(BreakpointType type)
+{
+    return type == BreakpointAtThrow ? Jdwp::ExceptionEvent : Jdwp::BreakpointEvent;
+}
+
 static DebuggerEngineSetupData jdwpImplSetupData()
 {
     DebuggerEngineSetupData data;
@@ -154,7 +208,9 @@ static DebuggerEngineSetupData jdwpImplSetupData()
     data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToRemoteServer;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
-        return query.type == BreakpointByFileAndLine && query.fileName.suffix() == "java";
+        if (query.type == BreakpointAtThrow)
+            return true;
+        return query.type == BreakpointByFileAndLine && isJvmSource(query.fileName);
     };
     return data;
 }
@@ -535,9 +591,8 @@ void JdwpImpl::resumeFromStop()
         for (int i = 0; i < suspensions; ++i)
             send(Jdwp::VirtualMachineSet, Jdwp::VmResume);
         const QList<JdwpEvent> next = m_pendingStops.takeFirst();
-        QMetaObject::invokeMethod(this, [this, next] {
-            reportStopAt(next.first().thread, next.first().location, next);
-        }, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, [this, next] { reportStopAt(next); },
+                                  Qt::QueuedConnection);
         return;
     }
 
@@ -655,6 +710,7 @@ void JdwpImpl::handleEventSet(const JdwpEventSet &set)
             break;
         case Jdwp::BreakpointEvent:
         case Jdwp::SingleStepEvent:
+        case Jdwp::ExceptionEvent:
             stops.append(event);
             break;
         default:
@@ -694,39 +750,111 @@ void JdwpImpl::handleEventSet(const JdwpEventSet &set)
 void JdwpImpl::reportStop(const QList<JdwpEvent> &hits)
 {
     if (!m_running) {
+        // A call the views made is out on the thread that ran into this.
+        // Reporting it would leave the program standing in a call nobody
+        // asked for, and the call could not come back, since the thread it
+        // needs is the one this suspends. The suspension it came with is
+        // given back instead, which lets the call run on. Any other thread
+        // ran into something of the user's, and waits its turn below.
+        if (m_callsOut.value(hits.first().thread) > 0) {
+            if (!std::exchange(m_callStopMentioned, true)) {
+                emit message(Tr::tr("The program stopped inside a call made to show a value, "
+                                    "and is run past it: the call has to come back before "
+                                    "the program can be left standing anywhere."), LogWarning);
+            }
+            send(Jdwp::VirtualMachineSet, Jdwp::VmResume);
+            return;
+        }
         m_pendingStops.append(hits);
         return;
     }
-    reportStopAt(hits.first().thread, hits.first().location, hits);
+    reportStopAt(hits);
+}
+
+// What was thrown, and whether anything is going to catch it. The message the
+// exception carries is not read: that would mean calling getMessage() in the
+// virtual machine, and a stop is reported before anything is allowed to run.
+void JdwpImpl::reportException(const JdwpEvent &event)
+{
+    if (!event.exception.isObject() || event.exception.isNull())
+        return;
+    const bool caught = event.catchLocation.isValid();
+    // Let go of again before the name came back, which would put the line
+    // among what a later stop, or the running program, is saying.
+    const int generation = m_runGeneration;
+    send(Jdwp::ObjectReferenceSet, Jdwp::ObjectReferenceType,
+         writer().writeObjectId(event.exception.bits).data(),
+         [this, caught, generation](const JdwpReply &reply) {
+        if (!reply.ok() || generation != m_runGeneration)
+            return;
+        JdwpReader r = reader(reply.data);
+        r.readByte();
+        const quint64 typeId = r.readReferenceTypeId();
+        if (!r.ok())
+            return;
+        withSignature(typeId, [this, typeId, caught, generation] {
+            if (generation != m_runGeneration)
+                return;
+            const QString name = typeName(m_classes.value(typeId).signature);
+            emit message(caught
+                             ? Tr::tr("%1 was thrown, and is caught further up.").arg(name)
+                             : Tr::tr("%1 was thrown, and nothing catches it.").arg(name),
+                         LogMisc);
+        });
+    });
 }
 
 // The protocol numbers a request within its kind, so the request a step was
 // registered under can carry the same number as a breakpoint's.
 JdwpImpl::Breakpoint *JdwpImpl::breakpointOfRequest(quint8 eventKind, qint32 requestId)
 {
-    if (eventKind != Jdwp::BreakpointEvent || requestId == 0)
+    if (requestId == 0)
         return nullptr;
     for (Breakpoint &bp : m_breakpoints) {
-        if (bp.requests.contains(requestId))
+        if (eventKindOf(bp.type) == eventKind && bp.requests.contains(requestId))
             return &bp;
     }
     return nullptr;
+}
+
+// An exception the runtime throws and catches within itself is its own
+// business: loading a class, looking up a character set or reaching for
+// something by reflection throw them by the dozen, and none of them is what a
+// breakpoint at a throw is set for. One that is caught outside the runtime, or
+// caught nowhere at all, is the program's, wherever it was thrown.
+void JdwpImpl::isRuntimesOwn(const JdwpEvent &event, const std::function<void(bool)> &done)
+{
+    if (!event.catchLocation.isValid()) {
+        done(false);
+        return;
+    }
+    const quint64 thrownIn = event.location.classId;
+    const quint64 caughtIn = event.catchLocation.classId;
+    withSignature(thrownIn, [this, thrownIn, caughtIn, done] {
+        if (!isRuntimeClass(typeName(m_classes.value(thrownIn).signature))) {
+            done(false);
+            return;
+        }
+        withSignature(caughtIn, [this, caughtIn, done] {
+            done(isRuntimeClass(typeName(m_classes.value(caughtIn).signature)));
+        });
+    });
 }
 
 // A condition the virtual machine cannot be asked about is worked out here,
 // with the thread suspended where it stopped, and the stop given up if it
 // does not hold. A condition that cannot be read stops, since going on past
 // it silently would be worse.
-void JdwpImpl::decideOnHit(quint8 eventKind, qint32 requestId,
-                           const std::function<void(bool)> &done)
+void JdwpImpl::decideOnHit(const JdwpEvent &event, const std::function<void(bool)> &done)
 {
-    Breakpoint *bp = breakpointOfRequest(eventKind, requestId);
+    Breakpoint *bp = breakpointOfRequest(event.kind, event.requestId);
     if (!bp) {
         done(true);
         return;
     }
     const QString number = bp->number;
     const QString condition = bp->condition;
+    const bool atThrow = bp->type == BreakpointAtThrow;
     const auto counted = [this, number] {
         Breakpoint *bp = breakpoint(number);
         if (!bp)
@@ -741,31 +869,46 @@ void JdwpImpl::decideOnHit(quint8 eventKind, qint32 requestId,
         return bp->hits - bp->ignoredSince > bp->ignoreCount;
     };
 
-    if (condition.isEmpty()) {
-        done(counted());
-        return;
-    }
-    const Result<JdwpExpression> parsed = parseJdwpExpression(condition);
-    if (!parsed) {
-        emit message(Tr::tr("The condition of breakpoint %1 cannot be read: %2")
-                         .arg(number, parsed.error()), LogWarning);
-        done(true);
-        return;
-    }
-    evaluate(*parsed, [this, number, counted, done](const Evaluated &result) {
-        if (!result.error.isEmpty()) {
-            emit message(Tr::tr("The condition of breakpoint %1 could not be worked out: %2")
-                             .arg(number, result.error), LogWarning);
+    // What the runtime throws and catches itself never reaches the condition
+    // or the count either: it is not a hit of this breakpoint at all.
+    const auto decide = [this, number, condition, counted, done] {
+        if (condition.isEmpty()) {
+            done(counted());
+            return;
+        }
+        const Result<JdwpExpression> parsed = parseJdwpExpression(condition);
+        if (!parsed) {
+            emit message(Tr::tr("The condition of breakpoint %1 cannot be read: %2")
+                             .arg(number, parsed.error()), LogWarning);
             done(true);
             return;
         }
-        if (result.value.tag != Jdwp::BooleanValueTag) {
-            emit message(Tr::tr("The condition of breakpoint %1 is not a boolean.").arg(number),
-                         LogWarning);
-            done(true);
-            return;
-        }
-        done(result.value.bits != 0 && counted());
+        evaluate(*parsed, [this, number, counted, done](const Evaluated &result) {
+            if (!result.error.isEmpty()) {
+                emit message(Tr::tr("The condition of breakpoint %1 could not be worked out: %2")
+                                 .arg(number, result.error), LogWarning);
+                done(true);
+                return;
+            }
+            if (result.value.tag != Jdwp::BooleanValueTag) {
+                emit message(Tr::tr("The condition of breakpoint %1 is not a boolean.").arg(number),
+                             LogWarning);
+                done(true);
+                return;
+            }
+            done(result.value.bits != 0 && counted());
+        });
+    };
+
+    if (!atThrow) {
+        decide();
+        return;
+    }
+    isRuntimesOwn(event, [decide, done](bool own) {
+        if (own)
+            done(false);
+        else
+            decide();
     });
 }
 
@@ -778,17 +921,19 @@ void JdwpImpl::decideOnHits(QList<JdwpEvent> hits, bool stop,
         return;
     }
     const JdwpEvent hit = hits.takeFirst();
-    decideOnHit(hit.kind, hit.requestId, [this, hits, stop, done](bool yes) {
+    decideOnHit(hit, [this, hits, stop, done](bool yes) {
         decideOnHits(hits, stop || yes, done);
     });
 }
 
-void JdwpImpl::reportStopAt(quint64 thread, const JdwpLocation &location,
-                            const QList<JdwpEvent> &hits)
+// The first of the hits says where the stop is. None at all is a stop that
+// no request asked for, which is one to stop at.
+void JdwpImpl::reportStopAt(const QList<JdwpEvent> &hits)
 {
     m_running = false;
     ++m_stopGeneration;
-    m_currentThread = thread;
+    const JdwpEvent where = hits.value(0);
+    m_currentThread = where.thread;
     m_currentFrame = 0;
     m_frames.clear();
     m_framesComplete = false;
@@ -798,7 +943,7 @@ void JdwpImpl::reportStopAt(quint64 thread, const JdwpLocation &location,
     // lost for good if that ended the stop here.
     const int generation = m_runGeneration;
     m_decidingOnHit = true;
-    decideOnHits(hits, hits.isEmpty(), [this, location, generation](bool stop) {
+    decideOnHits(hits, hits.isEmpty(), [this, hits, where, generation](bool stop) {
         m_decidingOnHit = false;
         if (generation != m_runGeneration)
             return;
@@ -813,10 +958,14 @@ void JdwpImpl::reportStopAt(quint64 thread, const JdwpLocation &location,
         // A step can end before the answer to its resume has been read.
         reportRunOk();
         clearTransientRequests();
+        for (const JdwpEvent &hit : hits) {
+            if (hit.kind == Jdwp::ExceptionEvent)
+                reportException(hit);
+        }
 
         const int stopGeneration = m_stopGeneration;
-        resolveLocation(location, [this, requested, generation,
-                                   stopGeneration](const ResolvedLocation &resolved) {
+        resolveLocation(where.location, [this, requested, generation,
+                                         stopGeneration](const ResolvedLocation &resolved) {
             if (generation != m_runGeneration)
                 return;
             if (stopGeneration == m_stopGeneration && resolved.line > 0 && resolved.file.exists())
@@ -843,22 +992,23 @@ void JdwpImpl::stopAfterInterrupt()
 
         const auto stopIn = [this](quint64 thread) {
             if (thread == 0) {
-                reportStopAt(0, {});
+                reportStopAt({});
                 return;
             }
             JdwpWriter request = writer();
             request.writeObjectId(thread).writeInt(0).writeInt(1);
             send(Jdwp::ThreadReferenceSet, Jdwp::ThreadFrames, request.data(),
                  [this, thread](const JdwpReply &reply) {
-                JdwpLocation location;
+                JdwpEvent where;
+                where.thread = thread;
                 if (reply.ok()) {
                     JdwpReader r = reader(reply.data);
                     if (r.readInt() > 0) {
                         r.readFrameId();
-                        location = r.readLocation();
+                        where.location = r.readLocation();
                     }
                 }
-                reportStopAt(thread, location);
+                reportStopAt({where});
             });
         };
 
@@ -1123,6 +1273,128 @@ void JdwpImpl::withFields(quint64 classId, const Done &done)
     }, done);
 }
 
+// Which toString() an object of this class answers with, looked for in the
+// class itself and then up its superclasses. The one java.lang.Object declares
+// is not taken: what it returns is the type and the identity, and those are
+// shown without making the program run at all.
+void JdwpImpl::withToString(quint64 classId, const Done &done)
+{
+    fetchOnce(QString("tostring:%1").arg(classId),
+              [this, classId] {
+        const auto it = m_classes.constFind(classId);
+        return it != m_classes.cend() && it->toStringKnown;
+    }, [this, classId](const Done &finish) {
+        withSignature(classId, [this, classId, finish] {
+            if (m_classes.value(classId).signature == "Ljava/lang/Object;") {
+                m_classes[classId].toStringKnown = true;
+                finish();
+                return;
+            }
+            withMethods(classId, [this, classId, finish] {
+                const QList<MethodInfo> methods = m_classes.value(classId).methods;
+                const auto it = std::find_if(methods.cbegin(), methods.cend(),
+                                             [](const MethodInfo &method) {
+                    return method.name == "toString" && method.signature == "()Ljava/lang/String;"
+                           && !(method.modBits & (Jdwp::StaticModifierBit
+                                                  | Jdwp::AbstractModifierBit));
+                });
+                if (it != methods.cend()) {
+                    ClassInfo &info = m_classes[classId];
+                    info.toStringKnown = true;
+                    info.toStringClass = classId;
+                    info.toStringMethod = it->id;
+                    finish();
+                    return;
+                }
+                // An interface has no superclass, and the question is refused.
+                send(Jdwp::ClassTypeSet, Jdwp::ClassTypeSuperclass,
+                     writer().writeReferenceTypeId(classId).data(),
+                     [this, classId, finish](const JdwpReply &reply) {
+                    const quint64 superclass = reply.ok()
+                                                   ? reader(reply.data).readReferenceTypeId() : 0;
+                    if (superclass == 0) {
+                        m_classes[classId].toStringKnown = true;
+                        finish();
+                        return;
+                    }
+                    withToString(superclass, [this, classId, superclass, finish] {
+                        const ClassInfo above = m_classes.value(superclass);
+                        ClassInfo &info = m_classes[classId];
+                        info.toStringKnown = true;
+                        info.toStringClass = above.toStringClass;
+                        info.toStringMethod = above.toStringMethod;
+                        finish();
+                    });
+                });
+            });
+        });
+    }, done);
+}
+
+// Runs the method and hands over what it returned, or nothing where it threw,
+// returned something other than a string, or did not come back in time. The
+// call cannot be taken back once it is out: a thread that does not return is
+// one the virtual machine keeps running, so the views are let go of it rather
+// than waiting for the rest of the session.
+void JdwpImpl::invokeToString(quint64 object, quint64 declaringClass, quint64 methodId,
+                              const Called &done)
+{
+    const auto answered = std::make_shared<bool>(false);
+    const auto answer = [answered, done](const std::optional<QString> &text, bool gaveUp) {
+        if (!std::exchange(*answered, true))
+            done(text, gaveUp);
+    };
+
+    // Whatever was read off a frame up to here is all there is to read: the
+    // thread runs while the call does, and the machine forgets the handles of
+    // the frames it was standing in.
+    ++m_callGeneration;
+
+    // The call is out until the machine answers it, which is not the same as
+    // until it is waited for: one that is given up on still has its thread,
+    // and one made on that thread afterwards is refused while it runs. They
+    // are counted by thread, so that the answer to the one does not take the
+    // other for answered, and so that a stop of any other thread is reported
+    // the way it would be with no call out at all.
+    const quint64 thread = m_currentThread;
+    if (m_callsOut[thread]++ == 0)
+        m_callStopMentioned = false;
+
+    JdwpWriter request = writer();
+    request.writeObjectId(object).writeObjectId(thread)
+        .writeReferenceTypeId(declaringClass).writeMethodId(methodId)
+        .writeInt(0).writeInt(Jdwp::InvokeSingleThreaded);
+    send(Jdwp::ObjectReferenceSet, Jdwp::ObjectInvokeMethod, request.data(),
+         [this, thread, answer](const JdwpReply &reply) {
+        const auto out = m_callsOut.find(thread);
+        if (out != m_callsOut.end() && --out.value() <= 0)
+            m_callsOut.erase(out);
+        if (!reply.ok()) {
+            answer({}, false);
+            return;
+        }
+        JdwpReader r = reader(reply.data);
+        const JdwpValue result = r.readTaggedValue();
+        const JdwpValue thrown = r.readTaggedValue();
+        if (!r.ok() || !thrown.isNull() || result.tag != Jdwp::StringValueTag
+            || result.isNull()) {
+            answer({}, false);
+            return;
+        }
+        send(Jdwp::StringReferenceSet, Jdwp::StringValue,
+             writer().writeObjectId(result.bits).data(),
+             [this, answer](const JdwpReply &reply) {
+            if (!reply.ok()) {
+                answer({}, false);
+                return;
+            }
+            answer(escaped(reader(reply.data).readString()), false);
+        });
+    });
+
+    QTimer::singleShot(s_invokeTimeout, this, [answer] { answer({}, true); });
+}
+
 void JdwpImpl::resolveLocation(const JdwpLocation &location,
                                const std::function<void(const ResolvedLocation &)> &done)
 {
@@ -1196,36 +1468,47 @@ GdbMi JdwpImpl::breakpointData(const Breakpoint &bp) const
     GdbMi bkpt;
     bkpt.m_type = GdbMi::Tuple;
     bkpt.addChild(constMi("number", bp.number));
-    bkpt.addChild(constMi("file", bp.file.path()));
-    bkpt.addChild(constMi("fullname", bp.file.path()));
-    bkpt.addChild(constMi("line", QString::number(bp.actualLine ? bp.actualLine : bp.line)));
+    // An exception breakpoint stands at no line of any file, so it says
+    // nothing about one: what the model reads there it also marks with.
+    if (bp.type == BreakpointByFileAndLine) {
+        bkpt.addChild(constMi("file", bp.file.path()));
+        bkpt.addChild(constMi("fullname", bp.file.path()));
+        bkpt.addChild(constMi("line", QString::number(bp.actualLine ? bp.actualLine : bp.line)));
+    }
     bkpt.addChild(constMi("enabled", bp.enabled ? "y" : "n"));
-    bkpt.addChild(constMi("pending", bp.locations.isEmpty() ? "1" : "0"));
+    // An exception breakpoint waits for no class to load: it is in as soon as
+    // its request is, and a disabled one asks for no request at all. The field
+    // is written only where it holds, since the model reads the presence of it
+    // rather than what it says, as gdb, which only writes it then, allows. It
+    // says nothing: what it says is read as the location of a breakpoint that
+    // named no file, and a breakpoint at a throw names none.
+    const bool pending = bp.type == BreakpointAtThrow ? bp.enabled && bp.requests.isEmpty()
+                                                      : bp.locations.isEmpty();
+    if (pending)
+        bkpt.addChild(constMi("pending", {}));
     bkpt.addChild(constMi("times", QString::number(bp.hits)));
     return bkpt;
 }
 
 void JdwpImpl::updateFromBreakpointRequest(Breakpoint &bp, const BreakpointParameters &params)
 {
-    bp.file = params.fileName;
-    bp.sourceName = params.fileName.fileName();
-    bp.line = params.textPosition.line;
     bp.enabled = params.enabled;
     bp.condition = params.condition;
     // As in gdb, a count ignores the hits from the time it is set on.
     if (params.ignoreCount != bp.ignoreCount)
         bp.ignoredSince = bp.hits;
     bp.ignoreCount = params.ignoreCount;
+    if (bp.type != BreakpointByFileAndLine)
+        return;
+    bp.file = params.fileName;
+    bp.sourceName = params.fileName.fileName();
+    bp.line = params.textPosition.line;
     bp.packageKnown = false;
     bp.packagePath.clear();
     // The class signatures name the package, and the file says which one it
     // belongs to. A file that cannot be read matches its name in any package.
     if (const Result<QByteArray> contents = params.fileName.fileContents()) {
-        static const QRegularExpression packageStatement(R"(^\s*package\s+([\w.]+)\s*;)",
-                                                         QRegularExpression::MultilineOption);
-        const QRegularExpressionMatch match
-            = packageStatement.match(QString::fromUtf8(*contents));
-        bp.packagePath = match.hasMatch() ? match.captured(1).replace('.', '/') : QString();
+        bp.packagePath = packageDirectoryOf(QString::fromUtf8(*contents));
         bp.packageKnown = true;
         m_knownSources.insert(bp.packagePath.isEmpty() ? bp.sourceName
                                                        : bp.packagePath + '/' + bp.sourceName,
@@ -1238,12 +1521,14 @@ void JdwpImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     const quint64 requestId = request.requestId;
     switch (request.op) {
     case BreakpointOp::Insert: {
-        if (request.params.type != BreakpointByFileAndLine) {
+        const BreakpointType type = request.params.type;
+        if (type != BreakpointByFileAndLine && type != BreakpointAtThrow) {
             emit breakpointEvent(requestId, BreakpointOp::Insert, false);
             return;
         }
         Breakpoint bp;
         bp.number = QString::number(m_nextBreakpointNumber++);
+        bp.type = type;
         updateFromBreakpointRequest(bp, request.params);
         const QString number = bp.number;
         m_breakpoints.insert(number, bp);
@@ -1306,11 +1591,41 @@ void JdwpImpl::armBreakpoint(const QString &number, const Done &done)
     const Breakpoint *bp = breakpoint(number);
     QTC_ASSERT(bp, done(); return);
 
-    const auto join = std::make_shared<Join>([this, number, done] {
+    const auto answer = [this, number, done] {
         if (Breakpoint *bp = breakpoint(number))
             bp->answered = true;
         done();
-    });
+    };
+
+    // An exception is thrown by code that is running already, so there is
+    // nothing to wait for: one request covers the whole virtual machine.
+    if (bp->type == BreakpointAtThrow) {
+        if (!bp->enabled) {
+            answer();
+            return;
+        }
+        JdwpWriter request = writer();
+        // A null class stands for every exception there is, and both flags for
+        // one whether or not a handler is waiting for it.
+        request.writeByte(Jdwp::ExceptionEvent).writeByte(Jdwp::SuspendAll).writeInt(1);
+        request.writeByte(Jdwp::ExceptionOnlyModifier).writeReferenceTypeId(0)
+            .writeBool(true).writeBool(true);
+        send(Jdwp::EventRequestSet, Jdwp::EventRequestSetCommand, request.data(),
+             [this, number, answer](const JdwpReply &reply) {
+            if (reply.ok()) {
+                const qint32 id = reader(reply.data).readInt();
+                // Taken back while the request was out, it must not stop anything.
+                if (Breakpoint *bp = breakpoint(number))
+                    bp->requests.append(id);
+                else
+                    clearRequest(Jdwp::ExceptionEvent, id);
+            }
+            answer();
+        });
+        return;
+    }
+
+    const auto join = std::make_shared<Join>(answer);
     join->add();
 
     // Classes that load later are caught as they do. A virtual machine that
@@ -1418,9 +1733,10 @@ void JdwpImpl::disarmBreakpoint(const QString &number, const Done &done)
         join->add();
         clearRequest(Jdwp::ClassPrepareEvent, bp->classPrepareRequest, [join] { join->release(); });
     }
+    const quint8 kind = eventKindOf(bp->type);
     for (const qint32 id : std::as_const(bp->requests)) {
         join->add();
-        clearRequest(Jdwp::BreakpointEvent, id, [join] { join->release(); });
+        clearRequest(kind, id, [join] { join->release(); });
     }
     bp->classPrepareRequest = 0;
     bp->requests.clear();
@@ -1536,8 +1852,10 @@ void JdwpImpl::handleClassPrepares(const QList<JdwpEvent> &events, const Done &d
 {
     QStringList wasPending;
     for (const Breakpoint &bp : std::as_const(m_breakpoints)) {
-        if (!bp.internal && bp.answered && bp.locations.isEmpty())
+        if (bp.type == BreakpointByFileAndLine && !bp.internal && bp.answered
+            && bp.locations.isEmpty()) {
             wasPending.append(bp.number);
+        }
     }
     const auto join = std::make_shared<Join>([this, wasPending, done] {
         for (const QString &number : wasPending) {
@@ -1562,6 +1880,8 @@ void JdwpImpl::handleClassPrepares(const QList<JdwpEvent> &events, const Done &d
         // By file rather than by request: a class can be prepared before the
         // answer that says which request is the breakpoint's has been read.
         for (const Breakpoint &bp : std::as_const(m_breakpoints)) {
+            if (bp.type != BreakpointByFileAndLine)
+                continue;
             if (bp.packageKnown) {
                 if (packagePath(event.signature) != bp.packagePath)
                     continue;
@@ -1587,15 +1907,22 @@ void JdwpImpl::handleClassPrepares(const QList<JdwpEvent> &events, const Done &d
 
 void JdwpImpl::withFrames(int count, const Done &done)
 {
+    // Read before the last call into the virtual machine, and so no longer
+    // anything the machine would recognize.
+    if (m_framesFrom != m_callGeneration) {
+        m_frames.clear();
+        m_framesComplete = false;
+    }
     if (m_framesComplete || (count > 0 && m_frames.size() >= count)) {
         done();
         return;
     }
     const int generation = m_stopGeneration;
+    const int callGeneration = m_callGeneration;
     const quint64 thread = m_currentThread;
     // Asking for more frames than there are is an error, so the count comes first.
     send(Jdwp::ThreadReferenceSet, Jdwp::ThreadFrameCount, writer().writeObjectId(thread).data(),
-         [this, count, done, generation, thread](const JdwpReply &reply) {
+         [this, count, done, generation, callGeneration, thread](const JdwpReply &reply) {
         if (generation != m_stopGeneration) {
             // The frames belong to the stop that has since been left behind,
             // so nothing here is written down. The caller does hear back: it
@@ -1616,13 +1943,14 @@ void JdwpImpl::withFrames(int count, const Done &done)
         if (wanted <= 0) {
             m_frames.clear();
             m_framesComplete = true;
+            m_framesFrom = callGeneration;
             done();
             return;
         }
         JdwpWriter request = writer();
         request.writeObjectId(thread).writeInt(0).writeInt(wanted);
         send(Jdwp::ThreadReferenceSet, Jdwp::ThreadFrames, request.data(),
-             [this, done, generation, available, wanted](const JdwpReply &reply) {
+             [this, done, generation, callGeneration, available, wanted](const JdwpReply &reply) {
             if (generation != m_stopGeneration || !reply.ok()) {
                 done();
                 return;
@@ -1638,6 +1966,7 @@ void JdwpImpl::withFrames(int count, const Done &done)
                     m_frames.append(frame);
             }
             m_framesComplete = wanted >= available;
+            m_framesFrom = callGeneration;
             done();
         });
     });
@@ -2471,12 +2800,17 @@ void JdwpImpl::fetchLocals(const RefreshRequest &request)
     m_localsRequestId = request.requestId;
     m_expandedINames = request.expandedINames;
     m_expandedItems = request.expandedForDumpers();
+    m_inferiorCallsAllowed = request.allowInferiorCalls;
     m_locals.clear();
     m_localRoots.clear();
+    m_toStringCalls.clear();
 
-    const auto join = std::make_shared<Join>([this, generation] {
+    // The calls are made on the thread that is stopped, so the batch belongs
+    // to this stop of it and to no other.
+    const int stopGeneration = m_stopGeneration;
+    const auto join = std::make_shared<Join>([this, generation, stopGeneration] {
         if (generation == m_localsGeneration)
-            reportLocals();
+            answerToStrings(generation, stopGeneration);
     });
     join->add();
     if (m_running || m_currentThread == 0 || !m_client.isConnected()) {
@@ -2487,7 +2821,6 @@ void JdwpImpl::fetchLocals(const RefreshRequest &request)
 
     const int frameIndex = m_currentFrame;
     const quint64 thread = m_currentThread;
-    const int stopGeneration = m_stopGeneration;
     join->add();
     withFrames(frameIndex + 1, [this, join, generation, stopGeneration, frameIndex, thread] {
         if (generation != m_localsGeneration)
@@ -2695,6 +3028,8 @@ void JdwpImpl::addObjectValue(const JoinPtr &join, const QString &iname, const J
             }
 
             m_locals[iname].hasChildren = true;
+            if (m_inferiorCallsAllowed)
+                showAsToString(join, iname, object, typeId);
             if (!m_expandedINames.contains(iname)) {
                 join->release();
                 return;
@@ -2747,6 +3082,57 @@ QString JdwpImpl::expressionOf(const QString &iname) const
 {
     const Local local = m_locals.value(iname);
     return local.exp.isEmpty() ? local.name : local.exp;
+}
+
+// Notes that the object is one to show by what its own toString() answers.
+// The call is not made here: it lets the thread run, and everything read off a
+// frame has to be in before that happens, so the calls all come afterwards.
+void JdwpImpl::showAsToString(const JoinPtr &join, const QString &iname, quint64 object,
+                              quint64 classId)
+{
+    const int generation = m_localsGeneration;
+    join->add();
+    withToString(classId, [this, join, generation, iname, object, classId] {
+        if (generation != m_localsGeneration)
+            return;
+        const ClassInfo info = m_classes.value(classId);
+        if (info.toStringMethod != 0)
+            m_toStringCalls.append({iname, object, info.toStringClass, info.toStringMethod});
+        join->release();
+    });
+}
+
+// Calls what was gathered, one call at a time: a call runs the thread it is
+// made on, and the virtual machine refuses the next one for as long as that
+// thread has not come back and been suspended again. An object whose call
+// answers nothing keeps the identity it reads as, which is what
+// java.lang.Object would have said anyway.
+void JdwpImpl::answerToStrings(int generation, int stopGeneration)
+{
+    if (generation != m_localsGeneration)
+        return;
+    // Let go of again while the values were being read, or another thread
+    // selected, which leaves the thread the batch was gathered on where the
+    // calls cannot be made. What is there is what the views get.
+    if (m_toStringCalls.isEmpty() || m_running || stopGeneration != m_stopGeneration) {
+        m_toStringCalls.clear();
+        reportLocals();
+        return;
+    }
+    const ToStringCall call = m_toStringCalls.takeFirst();
+    invokeToString(call.object, call.declaringClass, call.methodId,
+                   [this, call, generation, stopGeneration](const std::optional<QString> &text,
+                                                            bool gaveUp) {
+        if (generation != m_localsGeneration)
+            return;
+        if (text)
+            m_locals[call.iname].value = *text;
+        // The thread is off running the call that did not come back, so there
+        // is nothing left to make the calls behind it on either.
+        if (gaveUp)
+            m_toStringCalls.clear();
+        answerToStrings(generation, stopGeneration);
+    });
 }
 
 GdbMi JdwpImpl::localsItem(const QString &iname) const

@@ -19,6 +19,12 @@ namespace Internal {
 
 class GdbMi;
 
+// Whether a file holds source of a language that compiles to classes a Java
+// virtual machine can be stopped in. Kotlin names its sources in the class
+// files it produces exactly as Java does, so nothing below this tells the two
+// apart.
+DEBUGGER_EXPORT bool isJvmSource(const Utils::FilePath &file);
+
 //////////////////////////////////////////////////////////////////
 //
 // BreakpointData

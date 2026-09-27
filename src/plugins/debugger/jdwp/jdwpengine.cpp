@@ -3,6 +3,7 @@
 
 #include "jdwpimpl.h"
 
+#include "../breakpoint.h"
 #include "../debuggerengine.h"
 #include "../genericdebuggerengine.h"
 
@@ -28,9 +29,7 @@ DebuggerEngine *createJdwpEngine(const DebuggerRunParameters &rp)
     // what the run was set up with knows about such a directory, and the files
     // of the project do not.
     startData.sourceSearchPaths += rp.additionalSearchDirectories();
-    startData.sourceFiles = Utils::filtered(rp.projectSourceFiles(), [](const FilePath &file) {
-        return file.suffix() == "java";
-    });
+    startData.sourceFiles = Utils::filtered(rp.projectSourceFiles(), isJvmSource);
     return new GenericDebuggerEngine("JDWP", new JdwpImpl(startData));
 }
 
