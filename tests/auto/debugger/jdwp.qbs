@@ -17,7 +17,7 @@ QtcAutotest {
     Group {
         name: "Inferior sources"
         prefix: "jdwp/org/qtproject/jdwptest/"
-        files: ["Helper.java", "Inferior.java"]
+        files: ["Helper.java", "Inferior.java", "other/Helper.java"]
     }
     cpp.defines: base.concat(['JDWP_TEST_SOURCE_DIR="' + path + '/jdwp"'])
     cpp.includePaths: base.concat([project.debuggerDir])

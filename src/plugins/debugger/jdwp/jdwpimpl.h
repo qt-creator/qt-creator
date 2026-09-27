@@ -11,6 +11,7 @@
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
+#include <QElapsedTimer>
 #include <QHash>
 #include <QJsonObject>
 #include <QMap>
@@ -97,6 +98,7 @@ private:
     {
     public:
         quint64 id = 0;
+        quint64 declaringClass = 0;
         QString name;
         QString signature;
         qint32 modBits = 0;
@@ -173,8 +175,26 @@ private:
     class Breakpoint
     {
     public:
+        class Location
+        {
+        public:
+            // "3.1"
+            QString number;
+            JdwpLocation where;
+            quint64 fieldClass = 0;
+            quint64 fieldId = 0;
+            QString function;
+            Utils::FilePath file;
+            int line = 0;
+            bool enabled = true;
+            qint32 request = 0;
+            // Stable across a change of the breakpoint.
+            QString key() const;
+        };
+
         QString number;
-        // What it stops at: a line of a file, or every exception that is thrown.
+        // What it stops at: a line of a file, a method of a class, a write to
+        // a field, or every exception that is thrown.
         BreakpointType type = BreakpointByFileAndLine;
         Utils::FilePath file;
         QString sourceName;
@@ -184,6 +204,8 @@ private:
         int line = 0;
         // Where the code nearest to the line is, which is where it stops.
         int actualLine = 0;
+        QString className;
+        QString memberName;
         bool enabled = true;
         // Worked out here at every hit, since the protocol has no conditions
         // and its count modifier stops the request rather than ignoring it.
@@ -191,14 +213,32 @@ private:
         int ignoreCount = 0;
         int hits = 0;
         int ignoredSince = 0;
+        // A thread object id, or -1 for any.
+        qint64 threadSpec = -1;
+        bool tracepoint = false;
+        QString message;
+        bool oneShot = false;
         // Behind a run to a line, and invisible to the model.
         bool internal = false;
         // Whether the model has heard about it yet.
         bool answered = false;
         qint32 classPrepareRequest = 0;
         QSet<quint64> classes;
+        // Only an exception breakpoint has one.
         QList<qint32> requests;
-        QList<JdwpLocation> locations;
+        QList<Location> locations;
+        int nextLocationNumber = 1;
+        // By Location::key().
+        QSet<QString> disabledLocations;
+    };
+
+    // The breakpoint is looked up while the requests are still out, as a
+    // one-shot gives its own up when spent. Empty for a stop of no breakpoint.
+    class Hit
+    {
+    public:
+        QString number;
+        JdwpEvent event;
     };
 
     class Local
@@ -260,15 +300,20 @@ private:
     void reportRunOk();
     void reportStop(const QList<JdwpEvent> &hits);
     void reportStopAt(const QList<JdwpEvent> &hits);
+    void reportStopReached(const QList<JdwpEvent> &hits, const QList<Hit> &taken, bool requested,
+                           int generation);
     void reportException(const JdwpEvent &event);
     // Whether a hit is one to stop at: its condition holds, and it is not one
     // of the first that are to be ignored.
     void decideOnHit(const JdwpEvent &event, const std::function<void(bool)> &done);
-    void decideOnHits(QList<JdwpEvent> hits, bool stop, const std::function<void(bool)> &done);
+    void decideOnHits(QList<JdwpEvent> hits, QList<JdwpEvent> taken,
+                      const std::function<void(const QList<JdwpEvent> &)> &done);
     // Whether an exception was both thrown and caught inside the runtime, and
     // so is none the program can be stopped at on its account.
     void isRuntimesOwn(const JdwpEvent &event, const std::function<void(bool)> &done);
     Breakpoint *breakpointOfRequest(quint8 eventKind, qint32 requestId);
+    Breakpoint *breakpointBeingArmedFor(const JdwpEvent &event);
+    Breakpoint *breakpointOfHit(const JdwpEvent &event);
     void stopAfterInterrupt();
     void step(Jdwp::StepDepth depth, bool byInstruction);
     void runToLine(const ContextData &context);
@@ -290,15 +335,40 @@ private:
                          const std::function<void(const ResolvedLocation &)> &done);
     Utils::FilePath localFile(const QString &signature, const QString &sourceFile) const;
 
+    class Modifiers
+    {
+    public:
+        void add(const QByteArray &modifier) { ++count; data += modifier; }
+        qint32 count = 0;
+        QByteArray data;
+    };
+
     // Breakpoints, which cannot be set before their class is loaded and are
-    // set in each class the source file turns out to have.
+    // set in each class the source file or the class name turns out to have.
     Breakpoint *breakpoint(const QString &number);
+    Breakpoint::Location *breakpointLocation(const QString &number);
     GdbMi breakpointData(const Breakpoint &bp) const;
+    GdbMi locationData(const Breakpoint &bp, const Breakpoint::Location &location) const;
+    GdbMi breakpointReport(const Breakpoint &bp) const;
     void armBreakpoint(const QString &number, const Done &done);
     void disarmBreakpoint(const QString &number, const Done &done);
+    // Keeps the resolved locations.
+    void clearRequestsOf(const QString &number, const Done &done);
+    Modifiers commonModifiers(const Breakpoint &bp) const;
+    void armLocation(const QString &number, const QString &locationNumber, const Done &done);
+    void dropLocation(const QString &locationNumber, const QString &reason);
+    void enableLocation(const QString &locationNumber, bool enabled, const Done &done);
+    QString addLocation(Breakpoint &bp, const Breakpoint::Location &location);
     void resolveInClass(const QString &number, quint64 classId, const Done &done);
+    void resolveLineInClass(const QString &number, quint64 classId, const Done &done);
+    void resolveMethodInClass(const QString &number, quint64 classId, const Done &done);
+    void resolveFieldInClass(const QString &number, quint64 classId, const Done &done);
     void handleClassPrepares(const QList<JdwpEvent> &events, const Done &done);
     void updateFromBreakpointRequest(Breakpoint &bp, const BreakpointParameters &params);
+    void reportTracepoint(const QString &number, const JdwpEvent &event, const Done &done);
+    void reportTracepoints(QList<Hit> hits, const Done &done);
+    void reportFieldWrite(const Hit &hit);
+    void valueText(const JdwpValue &value, const std::function<void(const QString &)> &done);
 
     // The stack of the current thread while it is stopped.
     void withFrames(int count, const Done &done);
@@ -360,6 +430,8 @@ private:
     JdwpClient m_client;
     QTcpServer m_server;
     std::unique_ptr<Utils::Process> m_process;
+    // For $TICK.
+    QElapsedTimer m_since;
 
     bool m_setupReported = false;
     bool m_runReported = false;
@@ -393,6 +465,9 @@ private:
     QMap<QString, Breakpoint> m_breakpoints;
     int m_nextBreakpointNumber = 1;
     QList<qint32> m_stepRequests;
+    // By event kind. A hit of one may still be on its way. Kept until the
+    // machine hands the number out again.
+    QSet<QPair<quint8, qint32>> m_givenUpRequests;
 
     quint64 m_currentThread = 0;
     int m_currentFrame = 0;

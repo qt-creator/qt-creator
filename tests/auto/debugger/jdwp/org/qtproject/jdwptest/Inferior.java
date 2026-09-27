@@ -128,6 +128,9 @@ public class Inferior
     static volatile boolean released = false;
     static int spins = 0;
 
+    // No initializer, so there is no write in <clinit>.
+    static int watched;
+
     // A string that is not plain ASCII: a null character, and one outside the
     // basic plane, written here as the halves of its pair.
     static String awkward = "a\0b\ud83d\ude00c";
@@ -164,6 +167,43 @@ public class Inferior
         return located.x + other.y + plain.kept + wordy.hashCode(); // show-body
     }
 
+    static int twice(int value)
+    {
+        return value + value; // twice-int
+    }
+
+    static String twice(String value)
+    {
+        return value + value; // twice-string
+    }
+
+    static void overloads()
+    {
+        twice(21);
+        twice("ha");
+    }
+
+    static int shared(int value)
+    {
+        return value + 1; // shared-body
+    }
+
+    static void twoThreads() throws InterruptedException
+    {
+        Thread other = new Thread(() -> shared(1));
+        other.setName("other");
+        System.out.println("ready"); // threads-ready
+        other.start();
+        other.join();
+        shared(2);
+    }
+
+    static void writes()
+    {
+        watched = 1; // writes-first
+        watched = 2; // writes-second
+    }
+
     static void spin()
     {
         long counter = 0;
@@ -171,8 +211,20 @@ public class Inferior
             counter = counter + 1; // spin-body
     }
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws InterruptedException
     {
+        if (args.length > 0 && args[0].equals("overloads")) {
+            overloads();
+            return;
+        }
+        if (args.length > 0 && args[0].equals("threads")) {
+            twoThreads();
+            return;
+        }
+        if (args.length > 0 && args[0].equals("writes")) {
+            writes();
+            return;
+        }
         if (args.length > 0 && args[0].equals("spin")) {
             spin();
             return;
@@ -209,6 +261,11 @@ public class Inferior
             // Thrown inside the runtime rather than here, which is where most
             // of what a debugger is wanted for comes from.
             Integer.parseInt("not a number");
+            return;
+        }
+        if (args.length > 0 && args[0].equals("packages")) {
+            Helper.describe();
+            org.qtproject.jdwptest.other.Helper.describe();
             return;
         }
         int number = 7; // main-start

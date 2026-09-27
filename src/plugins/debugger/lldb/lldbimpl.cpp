@@ -105,6 +105,8 @@ static DebuggerEngineSetupData lldbImplSetupData()
         // through, and a system call has none.
         if (query.type == BreakpointAtSysCall)
             return false;
+        if (query.isVirtualMachineBreakpoint())
+            return false;
         if (query.isCppBreakpoint())
             return true;
         return query.isNativeMixedEnabled;

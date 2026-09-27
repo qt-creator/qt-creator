@@ -1988,6 +1988,8 @@ private slots:
     void watchesDataThroughADapAdapter();
     void jumpsToALineThroughADapAdapter();
     void runsBackwardsThroughADapAdapter();
+    void putsAThreadOnADapFunctionBreakpointThatIsChanged();
+    void takesTheThreadOffADapBreakpointThatIsChanged();
 
     void testAdditionalQmlStackCapability_data() { addBackendRows(); }
     void testAdditionalQmlStackCapability();
@@ -20250,6 +20252,72 @@ private:
     int m_breakpointId = 200;
 };
 
+// Takes the thread of a breakpoint through the console, as gdb does, and
+// lists it in "info breakpoints".
+class ListingDapAdapter : public FakeDapAdapter
+{
+public:
+    static constexpr int stoppedThreadId = 17;
+
+    QStringList threadCommands() const { return m_threadCommands; }
+
+private:
+    void handle(const QJsonObject &request) override
+    {
+        const QString command = request.value("command").toString();
+        if (command == "initialize") {
+            respond(request, QJsonObject{{"supportsConfigurationDoneRequest", true},
+                                         {"supportsFunctionBreakpoints", true}});
+            sendEvent("initialized");
+            return;
+        }
+        if (command == "setBreakpoints" || command == "setFunctionBreakpoints") {
+            const QJsonObject arguments = request.value("arguments").toObject();
+            const QJsonObject source = arguments.value("source").toObject();
+            QJsonArray taken;
+            for (const QJsonValue &value : arguments.value("breakpoints").toArray()) {
+                Q_UNUSED(value)
+                taken.append(QJsonObject{{"id", m_breakpointId}, {"verified", true},
+                                         {"line", m_line}, {"source", source}});
+            }
+            respond(request, QJsonObject{{"breakpoints", taken}});
+            return;
+        }
+        if (command == "evaluate") {
+            const QString expression = request.value("arguments").toObject()
+                                           .value("expression").toString();
+            if (expression.startsWith("info breakpoints")) {
+                QString listing
+                    = "Num     Type           Disp Enb Address            What\n"
+                      + QString("%1       breakpoint     keep y   0x0000000000401136 "
+                                "in main at main.cpp:%2\n").arg(m_breakpointId).arg(m_line);
+                if (!m_thread.isEmpty())
+                    listing += QString("\tstop only in thread %1\n").arg(m_thread);
+                respond(request, QJsonObject{{"result", listing}});
+                return;
+            }
+            static const QRegularExpression threadRe("bp\\.thread = (\\S+)");
+            if (const QRegularExpressionMatch match = threadRe.match(expression);
+                match.hasMatch()) {
+                m_threadCommands.append(expression);
+                m_thread = match.captured(1) == "None" ? QString() : match.captured(1);
+            }
+            respond(request, QJsonObject{{"result", QString()}});
+            return;
+        }
+        respond(request, QJsonObject{});
+        if (command == "configurationDone") {
+            sendEvent("stopped", QJsonObject{{"reason", "breakpoint"},
+                                             {"threadId", stoppedThreadId}});
+        }
+    }
+
+    int m_breakpointId = 4;
+    int m_line = 42;
+    QString m_thread;
+    QStringList m_threadCommands;
+};
+
 // The engine takes the run being reported and its outcome only in that order,
 // so an outcome that arrives first has to wait for the run.
 void tst_backends::reportsTheRunBeforeItsOutcomeThroughDapAdapter()
@@ -22404,6 +22472,128 @@ void tst_backends::runsBackwardsThroughADapAdapter()
     QCOMPARE(adapter.commands().count("stepBack"), 2);
     QCOMPARE(adapter.commands().count("stepIn"), 1);
     QVERIFY(!adapter.commands().contains("stepOut"));
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::putsAThreadOnADapFunctionBreakpointThatIsChanged()
+{
+    ListingDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "gdb";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> answered;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, &debuggerBackend,
+            [&answered](quint64 requestId, BreakpointOp, bool ok, const GdbMi &data) {
+        if (ok)
+            answered[requestId] = data;
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop), s_timeout);
+
+    BreakpointChangeRequest request;
+    request.op = BreakpointOp::Insert;
+    request.requestId = 930;
+    request.params.type = BreakpointByFunction;
+    request.params.functionName = "spin";
+    request.params.enabled = true;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(answered.contains(930), s_timeout);
+    const QString number = answered.value(930).childAt(0)["number"].data();
+    QVERIFY2(!number.isEmpty(),
+             qPrintable("the insert answered with no number to name the breakpoint by: "
+                        + answered.value(930).toString()));
+    QVERIFY2(adapter.threadCommands().isEmpty(),
+             qPrintable("a breakpoint for every thread named one: "
+                        + adapter.threadCommands().join(", ")));
+
+    request.op = BreakpointOp::Update;
+    request.requestId = 931;
+    request.responseId = number;
+    request.params.threadSpec = 7;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(answered.contains(931), s_timeout);
+    const QStringList commands = adapter.threadCommands();
+    QVERIFY2(commands.size() == 1 && commands.constLast().endsWith("bp.thread = 7"),
+             qPrintable("the thread the change named never reached the debugger: "
+                        + commands.join(", ")));
+    BreakpointParameters reported;
+    reported.type = BreakpointByFunction;
+    for (const GdbMi &bkpt : answered.value(931))
+        reported.updateFromGdbOutput(bkpt, Debugger::DebuggerRunParameters());
+    QCOMPARE(reported.threadSpec, qint64(7));
+
+    engine->shutdownEngine();
+}
+
+void tst_backends::takesTheThreadOffADapBreakpointThatIsChanged()
+{
+    ListingDapAdapter adapter;
+    QVERIFY(adapter.listen());
+
+    DapStartData startData;
+    startData.adapter.kind = DapAdapterDescriptor::Kind::Server;
+    startData.adapter.host = "127.0.0.1";
+    startData.adapter.port = adapter.port();
+    startData.adapterId = "gdb";
+    startData.configuration = QJsonObject{{"program", "/nonexistent"}};
+
+    DebuggerBackend debuggerBackend(std::make_unique<DapImpl>(startData));
+    DebuggerEngineInterface *engine = debuggerBackend.engine();
+
+    QHash<quint64, GdbMi> answered;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, &debuggerBackend,
+            [&answered](quint64 requestId, BreakpointOp, bool ok, const GdbMi &data) {
+        if (ok)
+            answered[requestId] = data;
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend.contains(InferiorEvent::SpontaneousStop), s_timeout);
+
+    BreakpointChangeRequest request;
+    request.op = BreakpointOp::Insert;
+    request.requestId = 940;
+    request.params.type = BreakpointByFileAndLine;
+    request.params.fileName = FilePath::fromString("/nonexistent/main.cpp");
+    request.params.textPosition.line = 42;
+    request.params.enabled = true;
+    request.params.threadSpec = 5;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(answered.contains(940), s_timeout);
+
+    // As the model applies it, a field that is not reported stays.
+    BreakpointParameters reported;
+    reported.type = BreakpointByFileAndLine;
+    const auto apply = [&reported](const GdbMi &data) {
+        for (const GdbMi &bkpt : data)
+            reported.updateFromGdbOutput(bkpt, Debugger::DebuggerRunParameters());
+    };
+    apply(answered.value(940));
+    QCOMPARE(reported.threadSpec, qint64(5));
+
+    request.op = BreakpointOp::Update;
+    request.requestId = 941;
+    request.responseId = answered.value(940).childAt(0)["number"].data();
+    request.params.threadSpec = -1;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(answered.contains(941), s_timeout);
+    const QStringList commands = adapter.threadCommands();
+    QVERIFY2(commands.size() == 2 && commands.constLast().endsWith("bp.thread = None"),
+             qPrintable("the thread was never taken off the debugger's breakpoint: "
+                        + commands.join(", ")));
+    apply(answered.value(941));
+    QCOMPARE(reported.threadSpec, qint64(-1));
 
     engine->shutdownEngine();
 }

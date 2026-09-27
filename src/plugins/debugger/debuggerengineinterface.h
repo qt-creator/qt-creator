@@ -279,13 +279,17 @@ class DEBUGGER_EXPORT AcceptsBreakpointQuery
 {
 public:
     bool isCppBreakpoint() const;
+    bool isVirtualMachineBreakpoint() const;
     bool isQmlFileAndLineBreakpoint() const;
 
     BreakpointType type = UnknownBreakpointType;
     Utils::FilePath fileName;
+    QString functionName;
+    QString expression;
     DebuggerStartMode startMode = NoStartMode;
     bool isNativeMixedEnabled = false;
     bool isQmlCompiledToNative = false;
+    bool isJavaDebugging = false;
 };
 
 class DEBUGGER_EXPORT DebuggerEngineSetupData

@@ -293,6 +293,8 @@ static DebuggerEngineSetupData cdbImplSetupData()
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
             return false;
+        if (query.isVirtualMachineBreakpoint())
+            return false;
         if (!query.isCppBreakpoint())
             return query.isNativeMixedEnabled;
         switch (query.type) {

@@ -111,5 +111,7 @@ private:
     QHash<quint64, QPointer<DisassemblerAgent>> m_pendingDisassemblyRequests;
     bool m_notRespondingPending = false;
     bool m_attachStopUnread = false;
+
+    friend class DebuggerUnitTests;
 };
 } // namespace Debugger::Internal

@@ -324,6 +324,8 @@ void UvscEngine::activateFrame(int index)
 
 bool UvscEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
+    if (isVirtualMachineBreakpoint(bp, runParameters().isJavaDebugging()))
+        return false;
     if (bp.isCppBreakpoint()) {
         switch (bp.type) {
         case BreakpointByFileAndLine:

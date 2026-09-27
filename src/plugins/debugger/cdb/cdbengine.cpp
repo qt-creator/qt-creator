@@ -2593,6 +2593,8 @@ static QByteArray multiBreakpointCommand(const char *cmdC, const Breakpoints &bp
 
 bool CdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
+    if (isVirtualMachineBreakpoint(bp, runParameters().isJavaDebugging()))
+        return false;
     if (bp.isCppBreakpoint()) {
         switch (bp.type) {
         case UnknownBreakpointType:
@@ -3307,7 +3309,8 @@ BreakpointParameters CdbEngine::parseBreakPoint(const GdbMi &gdbmi)
         result.address = addressG.data().toULongLong(nullptr, 0);
     if (const std::optional<int> ignoreCount = gdbmiChildToInt(gdbmi, "passcount"))
         result.ignoreCount = *ignoreCount - 1;
-    result.threadSpec = gdbmiChildToInt(gdbmi, "thread").value_or(result.threadSpec);
+    if (const std::optional<int> thread = gdbmiChildToInt(gdbmi, "thread"))
+        result.threadSpec = *thread;
     return result;
 }
 

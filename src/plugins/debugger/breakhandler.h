@@ -103,6 +103,7 @@ public:
     bool needsChange() const;
 
     SubBreakpoint findOrCreateSubBreakpoint(const QString &responseId);
+    void keepOnlySubBreakpoints(const QSet<QString> &responseIds);
     Utils::FilePath markerFileName() const;
     int markerLineNumber() const;
 
@@ -125,7 +126,7 @@ public:
 
     QString condition() const { return m_parameters.condition; }
     int ignoreCount() const { return m_parameters.ignoreCount; }
-    int threadSpec() const { return m_parameters.threadSpec; }
+    qint64 threadSpec() const { return m_parameters.threadSpec; }
     Utils::FilePath fileName() const { return m_parameters.fileName; }
     QString functionName() const { return m_parameters.functionName; }
     QString expression() const { return m_parameters.expression; }
@@ -149,7 +150,7 @@ public:
     void setAddress(quint64 address) { m_parameters.address = address; }
     void setEnabled(bool on);
     void setHitCount(int hitCount) { m_parameters.hitCount = hitCount; }
-    void setThreadSpec(int threadSpec) { m_parameters.threadSpec = threadSpec; }
+    void setThreadSpec(qint64 threadSpec) { m_parameters.threadSpec = threadSpec; }
     void setIgnoreCount(int count) { m_parameters.ignoreCount = count; }
     void setCommand(const QString &command) { m_parameters.command = command; }
     void setCondition(const QString &condition) { m_parameters.condition = condition; }
@@ -232,8 +233,8 @@ public:
     Breakpoint findWatchpoint(const BreakpointParameters &data) const;
     Breakpoint findBreakpointByModelId(int modelId) const;
 
-    static QString displayFromThreadSpec(int spec);
-    static int threadSpecFromDisplay(const QString &str);
+    static QString displayFromThreadSpec(qint64 spec);
+    static qint64 threadSpecFromDisplay(const QString &str);
 
     // Convenience.
     void setWatchpointAtAddress(quint64 address, unsigned size);

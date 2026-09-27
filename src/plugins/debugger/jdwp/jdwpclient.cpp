@@ -493,12 +493,12 @@ void JdwpClient::handleEventPacket(const QByteArray &data)
         case Jdwp::FieldModificationEvent:
             event.thread = reader.readObjectId();
             event.location = reader.readLocation();
-            reader.readByte(); // refTypeTag
-            reader.readReferenceTypeId();
-            reader.readFieldId();
-            reader.readTaggedValue(); // object
+            event.refTypeTag = reader.readByte();
+            event.typeId = reader.readReferenceTypeId();
+            event.fieldId = reader.readFieldId();
+            event.fieldObject = reader.readTaggedValue();
             if (event.kind == Jdwp::FieldModificationEvent)
-                reader.readTaggedValue();
+                event.valueToBe = reader.readTaggedValue();
             break;
         case Jdwp::MonitorContendedEnterEvent:
         case Jdwp::MonitorContendedEnteredEvent:

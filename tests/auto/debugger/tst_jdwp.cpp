@@ -5,8 +5,10 @@
 #include "debuggerengineinterface.h"
 #include "debuggerprotocol.h"
 
+#include "gdb/gdbimpl.h"
 #include "jdwp/jdwpclient.h"
 #include "jdwp/jdwpimpl.h"
+#include "lldb/lldbimpl.h"
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -54,12 +56,8 @@ public:
             m_events.append(event);
             // The engine hands its breakpoints over while it hears this.
             if (event == InferiorEvent::EngineSetupOk) {
-                if (m_initialThrow != 0)
-                    insertThrowBreakpoint(m_initialThrow > 0);
-                for (const auto &[file, line, condition, ignoreCount]
-                     : std::as_const(m_initialBreakpoints)) {
-                    insertBreakpoint(file, line, condition, ignoreCount);
-                }
+                for (const BreakpointParameters &params : std::as_const(m_initialBreakpoints))
+                    insert(params);
             }
         });
         connect(m_engine.get(), &DebuggerEngineInterface::locationChanged, this,
@@ -88,13 +86,48 @@ public:
 
     ~DebuggerBackend() override { m_engine->disconnect(); }
 
+    void addInitial(const BreakpointParameters &params) { m_initialBreakpoints.append(params); }
+
     void addInitialBreakpoint(const FilePath &file, int line, const QString &condition = {},
                               int ignoreCount = 0)
     {
-        m_initialBreakpoints.append({file, line, condition, ignoreCount});
+        addInitial(lineParameters(file, line, condition, ignoreCount));
     }
 
-    void addInitialThrowBreakpoint(bool enabled = true) { m_initialThrow = enabled ? 1 : -1; }
+    void addInitialThrowBreakpoint(bool enabled = true)
+    {
+        BreakpointParameters params(BreakpointAtThrow);
+        params.enabled = enabled;
+        addInitial(params);
+    }
+
+    static BreakpointParameters lineParameters(const FilePath &file, int line,
+                                               const QString &condition = {}, int ignoreCount = 0)
+    {
+        BreakpointParameters params(BreakpointByFileAndLine);
+        params.fileName = file;
+        params.textPosition = {line, -1};
+        params.enabled = true;
+        params.condition = condition;
+        params.ignoreCount = ignoreCount;
+        return params;
+    }
+
+    static BreakpointParameters functionParameters(const QString &spec)
+    {
+        BreakpointParameters params(BreakpointByFunction);
+        params.functionName = spec;
+        params.enabled = true;
+        return params;
+    }
+
+    static BreakpointParameters watchpointParameters(const QString &spec)
+    {
+        BreakpointParameters params(WatchpointAtExpression);
+        params.expression = spec;
+        params.enabled = true;
+        return params;
+    }
 
     void start() { m_engine->start(); }
     void execute(ExecutionCommand command) { m_engine->execute({command}); }
@@ -104,18 +137,29 @@ public:
     void selectThread(const QString &id) { m_engine->selectThread(id); }
     void activateFrame(int index) { m_engine->activateFrame(index); }
 
-    quint64 insertBreakpoint(const FilePath &file, int line, const QString &condition = {},
-                             int ignoreCount = 0)
+    quint64 insert(const BreakpointParameters &params)
     {
         BreakpointChangeRequest request;
         request.op = BreakpointOp::Insert;
         request.requestId = m_nextRequestId++;
-        request.params = BreakpointParameters(BreakpointByFileAndLine);
-        request.params.fileName = file;
-        request.params.textPosition = {line, -1};
-        request.params.enabled = true;
-        request.params.condition = condition;
-        request.params.ignoreCount = ignoreCount;
+        request.params = params;
+        m_engine->changeBreakpoint(request);
+        return request.requestId;
+    }
+
+    quint64 insertBreakpoint(const FilePath &file, int line, const QString &condition = {},
+                             int ignoreCount = 0)
+    {
+        return insert(lineParameters(file, line, condition, ignoreCount));
+    }
+
+    quint64 enableSubBreakpoint(const QString &number, bool enabled)
+    {
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::EnableSub;
+        request.requestId = m_nextRequestId++;
+        request.subResponseId = number;
+        request.enabled = enabled;
         m_engine->changeBreakpoint(request);
         return request.requestId;
     }
@@ -130,32 +174,34 @@ public:
         return request.requestId;
     }
 
-    quint64 setBreakpointEnabled(const QString &number, const FilePath &file, int line,
-                                 bool enabled, int ignoreCount = 0)
+    quint64 update(const QString &number, const BreakpointParameters &params)
     {
         BreakpointChangeRequest request;
         request.op = BreakpointOp::Update;
         request.requestId = m_nextRequestId++;
         request.responseId = number;
-        request.params = BreakpointParameters(BreakpointByFileAndLine);
-        request.params.fileName = file;
-        request.params.textPosition = {line, -1};
-        request.params.enabled = enabled;
-        request.params.ignoreCount = ignoreCount;
+        request.params = params;
         m_engine->changeBreakpoint(request);
         return request.requestId;
     }
 
+    quint64 setBreakpointEnabled(const QString &number, const FilePath &file, int line,
+                                 bool enabled, int ignoreCount = 0)
+    {
+        BreakpointParameters params(BreakpointByFileAndLine);
+        params.fileName = file;
+        params.textPosition = {line, -1};
+        params.enabled = enabled;
+        params.ignoreCount = ignoreCount;
+        return update(number, params);
+    }
+
     quint64 insertThrowBreakpoint(bool enabled = true, const QString &condition = {})
     {
-        BreakpointChangeRequest request;
-        request.op = BreakpointOp::Insert;
-        request.requestId = m_nextRequestId++;
-        request.params = BreakpointParameters(BreakpointAtThrow);
-        request.params.enabled = enabled;
-        request.params.condition = condition;
-        m_engine->changeBreakpoint(request);
-        return request.requestId;
+        BreakpointParameters params(BreakpointAtThrow);
+        params.enabled = enabled;
+        params.condition = condition;
+        return insert(params);
     }
 
     quint64 refresh(RefreshKind kind, const QSet<QString> &expanded = {},
@@ -221,17 +267,7 @@ public:
 
 private:
     std::unique_ptr<DebuggerEngineInterface> m_engine;
-    class InitialBreakpoint
-    {
-    public:
-        FilePath file;
-        int line = 0;
-        QString condition;
-        int ignoreCount = 0;
-    };
-    QList<InitialBreakpoint> m_initialBreakpoints;
-    // Nothing, one that is enabled, or one that is not.
-    int m_initialThrow = 0;
+    QList<BreakpointParameters> m_initialBreakpoints;
     QList<InferiorEvent> m_events;
     QHash<quint64, QPair<bool, GdbMi>> m_breakpointAnswers;
     QHash<quint64, GdbMi> m_refreshes;
@@ -296,6 +332,24 @@ public:
 
     void sendStartAndClassPrepare() { sendEvents(startAndClassPrepare()); }
 
+    QByteArray exceptionHit(qint32 requestId) const
+    {
+        JdwpWriter body(sizes());
+        body.writeByte(Jdwp::SuspendAll).writeInt(1);
+        body.writeByte(Jdwp::ExceptionEvent).writeInt(requestId).writeObjectId(1)
+            .writeLocation({Jdwp::ClassTag, 2, 3, 0})
+            .writeByte(Jdwp::ObjectValueTag).writeObjectId(4)
+            .writeLocation({0, 0, 0, 0});
+        return body.data();
+    }
+
+    void sendExceptionHit(qint32 requestId) { sendEvents(exceptionHit(requestId)); }
+
+    // The agent installs a request before it answers, so a hit can come first.
+    void sendExceptionHitBeforeTheAnswer() { m_hitBeforeTheAnswer = true; }
+
+    qint32 lastRequestId() const { return m_lastRequestId; }
+
     // What the machine says as soon as hands have been shaken, which is before
     // it has answered anything it is asked.
     void sendOnHandshake(const QByteArray &events) { m_onHandshake = events; }
@@ -343,8 +397,12 @@ private:
             const quint8 command = quint8(m_buffer.at(10));
             m_buffer.remove(0, length);
 
-            if (commandSet == Jdwp::EventRequestSet && command == Jdwp::EventRequestSetCommand)
+            if (commandSet == Jdwp::EventRequestSet && command == Jdwp::EventRequestSetCommand) {
                 ++m_requests;
+                m_lastRequestId = qint32(id);
+                if (std::exchange(m_hitBeforeTheAnswer, false))
+                    sendEvents(exceptionHit(qint32(id)));
+            }
             if (commandSet == Jdwp::VirtualMachineSet && command == Jdwp::VmResume) {
                 if (m_resumes == 0)
                     m_requestsBeforeTheFirstResume = m_requests;
@@ -389,6 +447,8 @@ private:
     int m_resumes = 0;
     int m_requests = 0;
     int m_requestsBeforeTheFirstResume = 0;
+    bool m_hitBeforeTheAnswer = false;
+    qint32 m_lastRequestId = 0;
 };
 
 static GdbMi childNamed(const GdbMi &list, const QString &name)
@@ -396,6 +456,43 @@ static GdbMi childNamed(const GdbMi &list, const QString &name)
     for (const GdbMi &child : list) {
         if (child["name"].data() == name)
             return child;
+    }
+    return {};
+}
+
+static GdbMi lastReportOf(const QList<GdbMi> &modified, const QString &number)
+{
+    GdbMi found;
+    for (const GdbMi &data : modified) {
+        if (data.childAt(0)["number"].data() == number)
+            found = data;
+    }
+    return found;
+}
+
+static QStringList locationNumbersIn(const GdbMi &report)
+{
+    QStringList numbers;
+    for (const GdbMi &location : report.childAt(0)["locations"])
+        numbers.append(location["number"].data());
+    return numbers;
+}
+
+// The numbering follows the method order, which is up to the machine.
+static QString locationNumberAtLine(const GdbMi &report, int line)
+{
+    for (const GdbMi &location : report.childAt(0)["locations"]) {
+        if (location["line"].toInt() == line)
+            return location["number"].data();
+    }
+    return {};
+}
+
+static FilePath locationFileAtLine(const GdbMi &report, int line)
+{
+    for (const GdbMi &location : report.childAt(0)["locations"]) {
+        if (location["line"].toInt() == line)
+            return FilePath::fromUserInput(location["file"].data());
     }
     return {};
 }
@@ -437,6 +534,23 @@ private slots:
     void runsPastAnExceptionBreakpointThatIsDisabled();
     void findsThePackageOfASourceWithAndWithoutASemicolon();
     void takesABreakpointInEveryVirtualMachineSource();
+    void namesWhatBelongsToAVirtualMachine();
+    void leavesWhatOnlyAVirtualMachineCanStopAtToIt();
+    void stopsInEveryMethodOfAName();
+    void stopsInAClassInsideAnotherByEitherSpelling();
+    void saysWhichFileEachLocationOfAMethodStandsIn();
+    void turnsOneLocationOfABreakpointOff();
+    void saysWhichPlacesAreLeftAfterAChange();
+    void stopsOnlyInTheThreadABreakpointIsMeantFor();
+    void printsATracepointAndRunsOn();
+    void stopsOnceAtAOneShotBreakpoint();
+    void printsAOneShotTracepointOnce();
+    void leavesAHitItsConditionTurnedDownAlone();
+    void stepsOverACallThatRunsIntoATracepoint();
+    void stopsWhereAFieldIsWritten();
+    void watchesTheFieldThatHidesTheInheritedOne();
+    void watchesAStaticThatHidesAnInheritedField();
+    void saysWhatAOneShotWatchpointIsAboutToWrite();
     void parsesExpressions();
     void readsWatchers();
     void readsAWatcherOfThis();
@@ -456,6 +570,9 @@ private slots:
     void detachesFromAnAgentThatHangsUp();
     void answersTheCommandsThatWereStillOut();
     void givesBackOneSuspensionPerEventSet();
+    void doesNotStopAtAHitOfARequestItGaveUp();
+    void stopsAtAHitThatCameBeforeTheAnswerNamingItsRequest();
+    void printsATracepointHitThatCameBeforeItsAnswer();
     void readsAnEventThatCameBeforeTheHandleSizes();
     void holdsASuspendedMachineUntilItIsSetUp();
 
@@ -469,6 +586,7 @@ private:
     FilePath m_sourceRoot;
     FilePath m_inferiorSource;
     FilePath m_helperSource;
+    FilePath m_otherHelperSource;
     std::unique_ptr<QTemporaryDir> m_classesDir;
 };
 
@@ -488,12 +606,14 @@ void tst_jdwp::initTestCase()
     m_sourceRoot = FilePath::fromUserInput(JDWP_TEST_SOURCE_DIR);
     m_inferiorSource = m_sourceRoot / "org/qtproject/jdwptest/Inferior.java";
     m_helperSource = m_sourceRoot / "org/qtproject/jdwptest/Helper.java";
+    m_otherHelperSource = m_sourceRoot / "org/qtproject/jdwptest/other/Helper.java";
 
     m_classesDir = std::make_unique<QTemporaryDir>();
     QVERIFY(m_classesDir->isValid());
     Process compile;
     compile.setCommand({javac, {"-g", "-d", m_classesDir->path(),
-                                m_inferiorSource.nativePath(), m_helperSource.nativePath()}});
+                                m_inferiorSource.nativePath(), m_helperSource.nativePath(),
+                                m_otherHelperSource.nativePath()}});
     compile.runBlocking(std::chrono::seconds(120));
     QVERIFY2(compile.result() == ProcessResult::FinishedWithSuccess,
              qPrintable(compile.verboseExitMessage() + '\n' + compile.allOutput()));
@@ -1128,6 +1248,442 @@ void tst_jdwp::takesABreakpointInEveryVirtualMachineSource()
     // The virtual machine stops where an exception is thrown, and nowhere a
     // handler takes it.
     QVERIFY(!accepts({.type = BreakpointAtCatch}));
+    QVERIFY(accepts({.type = BreakpointByFunction, .functionName = "com.example.Foo.bar"}));
+    QVERIFY(!accepts({.type = BreakpointByFunction, .functionName = "Foo::bar"}));
+    QVERIFY(accepts({.type = WatchpointAtExpression, .expression = "com.example.Foo.count"}));
+    QVERIFY(!accepts({.type = WatchpointAtExpression, .expression = "counter"}));
+    QVERIFY(!accepts({.type = WatchpointAtExpression, .expression = "this.count"}));
+}
+
+void tst_jdwp::namesWhatBelongsToAVirtualMachine()
+{
+    QVERIFY(isJvmMember("com.example.Foo.bar"));
+    QVERIFY(isJvmMember("Foo.bar"));
+    QVERIFY(isJvmMember("com.example.Foo.bar()"));
+    QVERIFY(isJvmMember("com.example.Outer$Inner.<init>"));
+    QVERIFY(!isJvmMember("main"));
+    QVERIFY(!isJvmMember("Foo::bar"));
+    QVERIFY(!isJvmMember("std::vector<int>::size"));
+    QVERIFY(!isJvmMember("foo.cpp:12"));
+    QVERIFY(!isJvmMember("a..b"));
+    QVERIFY(!isJvmMember({}));
+    QVERIFY(!isJvmMember("this.count"));
+    QVERIFY(!isJvmMember("super.level"));
+    QVERIFY(!isJvmMember("new.thing"));
+
+    // Go writes dotted names as well, so it depends on the session.
+    BreakpointParameters method(BreakpointByFunction);
+    method.functionName = "com.example.Foo.bar";
+    QVERIFY(isVirtualMachineBreakpoint(method, true));
+    QVERIFY(!isVirtualMachineBreakpoint(method, false));
+    method.functionName = "main.main";
+    QVERIFY(!isVirtualMachineBreakpoint(method, false));
+    method.functionName = "Foo::bar";
+    QVERIFY(!isVirtualMachineBreakpoint(method, true));
+
+    method.functionName = "com.example.Foo.bar";
+    QVERIFY(method.isCppBreakpoint());
+    BreakpointParameters kotlin(BreakpointByFileAndLine);
+    kotlin.fileName = FilePath::fromString("/src/A.kt");
+    kotlin.textPosition = {3, -1};
+    QVERIFY(isVirtualMachineBreakpoint(kotlin, false));
+    QVERIFY(!kotlin.isCppBreakpoint());
+
+    AcceptsBreakpointQuery query{.type = BreakpointByFunction, .functionName = "main.main"};
+    QVERIFY(!query.isVirtualMachineBreakpoint());
+    // Nothing in the name tells the two apart.
+    query.isJavaDebugging = true;
+    QVERIFY(query.isVirtualMachineBreakpoint());
+    query.functionName = "com.example.Foo.bar";
+    QVERIFY(query.isVirtualMachineBreakpoint());
+    QVERIFY(query.isCppBreakpoint());
+}
+
+void tst_jdwp::leavesWhatOnlyAVirtualMachineCanStopAtToIt()
+{
+    GdbImpl gdb{GdbImplStartData{}};
+    LldbImpl lldb{LldbImplStartData{}};
+    const auto nativeAccepts = [&gdb, &lldb](const AcceptsBreakpointQuery &query) {
+        return gdb.setupData().acceptsBreakpoint(query)
+               || lldb.setupData().acceptsBreakpoint(query);
+    };
+
+    AcceptsBreakpointQuery method{.type = BreakpointByFunction,
+                                  .functionName = "com.example.Foo.bar",
+                                  .isNativeMixedEnabled = true,
+                                  .isJavaDebugging = true};
+    QVERIFY2(!nativeAccepts(method),
+             "a native debugger took a method only the virtual machine has a name for, and "
+             "would hand it to the interpreter it drives");
+    method.isJavaDebugging = false;
+    QVERIFY2(nativeAccepts(method),
+             "a dotted name outside a Java session is a name a native language wrote, and the "
+             "native debugger is the one that has a symbol for it");
+
+    const AcceptsBreakpointQuery source{.type = BreakpointByFileAndLine,
+                                        .fileName = FilePath::fromString("/src/A.java"),
+                                        .isNativeMixedEnabled = true};
+    QVERIFY2(!nativeAccepts(source),
+             "a native debugger took a breakpoint in a source it cannot stop in");
+}
+
+void tst_jdwp::stopsInAClassInsideAnotherByEitherSpelling()
+{
+    const int bodyLine = lineOf(m_helperSource, "nested-body");
+    QVERIFY(bodyLine > 0);
+    for (const QString &spec : QStringList{"Helper.Nested.describe", "Helper$Nested.describe",
+                                           "Nested.describe"}) {
+        const auto backend = launch();
+        backend->addInitial(DebuggerBackend::functionParameters(spec));
+        backend->start();
+        QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(),
+                                 s_timeoutMs);
+        QVERIFY2(backend->stops() == 1,
+                 qPrintable(QString("the breakpoint on \"%1\" never stood anywhere, so the "
+                                    "program ran out").arg(spec)));
+        QCOMPARE(backend->stoppedFile(), m_helperSource);
+        QCOMPARE(backend->stoppedLine(), bodyLine);
+        backend->shutdownInferior(ShutdownMode::Kill);
+        QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+    }
+}
+
+void tst_jdwp::stopsInEveryMethodOfAName()
+{
+    const int intLine = lineOf(m_inferiorSource, "twice-int");
+    const int stringLine = lineOf(m_inferiorSource, "twice-string");
+    QVERIFY(intLine > 0 && stringLine > intLine);
+    const auto backend = launch({"overloads"});
+    backend->addInitial(DebuggerBackend::functionParameters(QString(s_mainClass) + ".twice"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), intLine);
+
+    const GdbMi report = lastReportOf(backend->modified(), backend->numberOf(1));
+    QVERIFY(report.isValid());
+    QCOMPARE(locationNumbersIn(report).size(), qsizetype(2));
+    QVERIFY(!locationNumberAtLine(report, intLine).isEmpty());
+    QVERIFY(!locationNumberAtLine(report, stringLine).isEmpty());
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), stringLine);
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::saysWhichFileEachLocationOfAMethodStandsIn()
+{
+    const int mineLine = lineOf(m_helperSource, "helper-describe");
+    const int othersLine = lineOf(m_otherHelperSource, "other-describe");
+    QVERIFY(mineLine > 0 && othersLine > 0);
+    const auto backend = launch({"packages"});
+    backend->addInitial(DebuggerBackend::functionParameters("Helper.describe"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedFile(), m_helperSource);
+    QCOMPARE(backend->stoppedLine(), mineLine);
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedFile(), m_otherHelperSource);
+    QCOMPARE(backend->stoppedLine(), othersLine);
+
+    const GdbMi report = lastReportOf(backend->modified(), backend->numberOf(1));
+    QVERIFY(report.isValid());
+    QCOMPARE(locationNumbersIn(report).size(), qsizetype(2));
+    QCOMPARE(locationFileAtLine(report, mineLine), m_helperSource);
+    QCOMPARE(locationFileAtLine(report, othersLine), m_otherHelperSource);
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::turnsOneLocationOfABreakpointOff()
+{
+    const int intLine = lineOf(m_inferiorSource, "twice-int");
+    const int stringLine = lineOf(m_inferiorSource, "twice-string");
+    const auto backend = launch({"overloads"});
+    backend->addInitial(DebuggerBackend::functionParameters(QString(s_mainClass) + ".twice"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), intLine);
+
+    const GdbMi report = lastReportOf(backend->modified(), backend->numberOf(1));
+    const QString ofString = locationNumberAtLine(report, stringLine);
+    QVERIFY(!ofString.isEmpty());
+    const quint64 request = backend->enableSubBreakpoint(ofString, false);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(request), s_timeoutMs);
+    QVERIFY(backend->answeredOk(request));
+
+    const quint64 update = backend->setBreakpointEnabled(backend->numberOf(1), m_inferiorSource,
+                                                         intLine, true);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(update), s_timeoutMs);
+    QVERIFY(backend->answeredOk(update));
+    QCOMPARE(locationNumberAtLine(backend->answer(update), stringLine), ofString);
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(!backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+}
+
+void tst_jdwp::saysWhichPlacesAreLeftAfterAChange()
+{
+    const int intLine = lineOf(m_inferiorSource, "twice-int");
+    const auto backend = launch({"overloads"});
+    const QString spec = QString(s_mainClass) + ".twice";
+    backend->addInitial(DebuggerBackend::functionParameters(spec));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), intLine);
+    QCOMPARE(locationNumbersIn(lastReportOf(backend->modified(), backend->numberOf(1))).size(),
+             qsizetype(2));
+
+    BreakpointParameters params = DebuggerBackend::functionParameters(spec);
+    params.threadSpec = std::numeric_limits<qint32>::max();
+    const quint64 update = backend->update(backend->numberOf(1), params);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(update), s_timeoutMs);
+    QVERIFY(backend->answeredOk(update));
+    const GdbMi answer = backend->answer(update);
+    QVERIFY2(locationNumbersIn(answer).isEmpty(),
+             "the answer still lists the places the breakpoint stood in before the change, so "
+             "the model goes on showing rows for places that are gone");
+    QVERIFY2(answer.childAt(0)["pending"].isValid(),
+             "the breakpoint stands nowhere and does not say so, so it reads as one that is in "
+             "and never hits");
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::stopsOnlyInTheThreadABreakpointIsMeantFor()
+{
+    const int readyLine = lineOf(m_inferiorSource, "threads-ready");
+    const int sharedLine = lineOf(m_inferiorSource, "shared-body");
+    QVERIFY(readyLine > 0 && sharedLine > 0);
+    const auto backend = launch({"threads"});
+    backend->addInitialBreakpoint(m_inferiorSource, readyLine);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), readyLine);
+
+    const quint64 threads = backend->refresh(RefreshKind::Threads);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(threads), s_timeoutMs);
+    const QString main = backend->refreshData(threads)["current-thread-id"].data();
+    QVERIFY(main.toLongLong() > 0);
+
+    BreakpointParameters params = DebuggerBackend::lineParameters(m_inferiorSource, sharedLine);
+    params.threadSpec = main.toLongLong();
+    const quint64 request = backend->insert(params);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(request), s_timeoutMs);
+    QVERIFY(backend->answeredOk(request));
+    QVERIFY(!backend->answer(request).childAt(0)["pending"].isValid());
+    QCOMPARE(backend->answer(request).childAt(0)["thread"].data(), main);
+
+    // The worker is through with shared() before the main thread gets there.
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), sharedLine);
+
+    const quint64 again = backend->refresh(RefreshKind::Threads);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(again), s_timeoutMs);
+    QCOMPARE(backend->refreshData(again)["current-thread-id"].data(), main);
+
+    params.threadSpec = -1;
+    const quint64 update = backend->update(backend->numberOf(request), params);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(update), s_timeoutMs);
+    QVERIFY(backend->answeredOk(update));
+    QCOMPARE(backend->answer(update).childAt(0)["thread"].data(), QString("-1"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::printsATracepointAndRunsOn()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    BreakpointParameters params = DebuggerBackend::lineParameters(m_inferiorSource, loopLine);
+    params.tracepoint = true;
+    params.message = "adding {value} in $FUNCTION";
+    backend->addInitial(params);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(!backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->results().first().exitCode, 3);
+    QCOMPARE(backend->stops(), qsizetype(0));
+    const QString where = QString(s_mainClass) + ".sum";
+    QCOMPARE(backend->logCount("adding 1 in " + where), qsizetype(1));
+    QCOMPARE(backend->logCount("adding 2 in " + where), qsizetype(1));
+    QCOMPARE(backend->logCount("adding 3 in " + where), qsizetype(1));
+}
+
+void tst_jdwp::stopsOnceAtAOneShotBreakpoint()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    BreakpointParameters params = DebuggerBackend::lineParameters(m_inferiorSource, loopLine);
+    params.oneShot = true;
+    backend->addInitial(params);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), loopLine);
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(!backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(1));
+    const GdbMi report = lastReportOf(backend->modified(), backend->numberOf(1));
+    QVERIFY(report.isValid());
+    QCOMPARE(report.childAt(0)["enabled"].data(), QString("n"));
+}
+
+void tst_jdwp::printsAOneShotTracepointOnce()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    BreakpointParameters params = DebuggerBackend::lineParameters(m_inferiorSource, loopLine);
+    params.tracepoint = true;
+    params.oneShot = true;
+    params.message = "adding {value}";
+    backend->addInitial(params);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(!backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(0));
+    QCOMPARE(backend->logCount("adding 1"), qsizetype(1));
+    QCOMPARE(backend->logCount("adding 2"), qsizetype(0));
+    QCOMPARE(backend->logCount("adding 3"), qsizetype(0));
+    const GdbMi report = lastReportOf(backend->modified(), backend->numberOf(1));
+    QVERIFY(report.isValid());
+    QCOMPARE(report.childAt(0)["enabled"].data(), QString("n"));
+}
+
+void tst_jdwp::leavesAHitItsConditionTurnedDownAlone()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, loopLine);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), loopLine);
+
+    BreakpointParameters params
+        = DebuggerBackend::lineParameters(m_inferiorSource, loopLine, "value > 2");
+    params.tracepoint = true;
+    params.message = "traced {value}";
+    const quint64 request = backend->insert(params);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->answered(request), s_timeoutMs);
+    QVERIFY(backend->answeredOk(request));
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 3 || !backend->results().isEmpty(), s_timeoutMs);
+    // The messages come in order.
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("traced 3"), s_timeoutMs);
+    QCOMPARE(backend->logCount("traced 2"), qsizetype(0));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::stepsOverACallThatRunsIntoATracepoint()
+{
+    const int callLine = lineOf(m_inferiorSource, "call-square");
+    const int bodyLine = lineOf(m_inferiorSource, "square-body");
+    QVERIFY(callLine > 0 && bodyLine > 0);
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, callLine);
+    BreakpointParameters params = DebuggerBackend::lineParameters(m_inferiorSource, bodyLine);
+    params.tracepoint = true;
+    params.message = "squaring {value}";
+    backend->addInitial(params);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), callLine);
+
+    backend->execute(ExecutionCommand::StepOver);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
+    QVERIFY2(backend->stoppedLine() == lineOf(m_inferiorSource, "after-square"),
+             "the step was given up at the tracepoint inside the call it stepped over, so the "
+             "program stands at a breakpoint that is meant never to stop it");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("squaring 7"), s_timeoutMs);
+    QCOMPARE(backend->logCount("squaring 7"), qsizetype(1));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::stopsWhereAFieldIsWritten()
+{
+    const int firstLine = lineOf(m_inferiorSource, "writes-first");
+    const int secondLine = lineOf(m_inferiorSource, "writes-second");
+    QVERIFY(firstLine > 0 && secondLine > firstLine);
+    const auto backend = launch({"writes"});
+    backend->addInitial(DebuggerBackend::watchpointParameters(QString(s_mainClass) + ".watched"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), firstLine);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("watched is about to be set to 1"), s_timeoutMs);
+
+    backend->execute(ExecutionCommand::Continue);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 2 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), secondLine);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("watched is about to be set to 2"), s_timeoutMs);
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::watchesTheFieldThatHidesTheInheritedOne()
+{
+    const int nestedLine = lineOf(m_helperSource, "nested-level");
+    const int sharedLine = lineOf(m_helperSource, "shared-level");
+    QVERIFY(nestedLine > 0 && sharedLine > 0 && sharedLine < nestedLine);
+    const auto backend = launch();
+    backend->addInitial(DebuggerBackend::watchpointParameters("Helper$Nested.level"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedFile(), m_helperSource);
+    QVERIFY2(backend->stoppedLine() == nestedLine,
+             "the watchpoint was put on the field of the superclass that this one hides");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("level is about to be set to 2"), s_timeoutMs);
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::watchesAStaticThatHidesAnInheritedField()
+{
+    const int nestedLine = lineOf(m_helperSource, "nested-tally");
+    const int sharedLine = lineOf(m_helperSource, "shared-tally");
+    QVERIFY(nestedLine > 0 && sharedLine > 0 && sharedLine < nestedLine);
+    const auto backend = launch();
+    backend->addInitial(DebuggerBackend::watchpointParameters("Helper$Nested.tally"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedFile(), m_helperSource);
+    QVERIFY2(backend->stoppedLine() == nestedLine,
+             "the watchpoint was put on the instance field of the superclass that this static "
+             "hides, so it stops where that one is written and never where this one is");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("tally is about to be set to 9"), s_timeoutMs);
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::saysWhatAOneShotWatchpointIsAboutToWrite()
+{
+    const int firstLine = lineOf(m_inferiorSource, "writes-first");
+    const auto backend = launch({"writes"});
+    BreakpointParameters params
+        = DebuggerBackend::watchpointParameters(QString(s_mainClass) + ".watched");
+    params.oneShot = true;
+    backend->addInitial(params);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), firstLine);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("watched is about to be set to 1"), s_timeoutMs);
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
 }
 
 void tst_jdwp::parsesExpressions()
@@ -1759,6 +2315,85 @@ void tst_jdwp::givesBackOneSuspensionPerEventSet()
     const quint64 request = backend.refresh(RefreshKind::Threads);
     QTRY_VERIFY_WITH_TIMEOUT(backend.refreshed(request), s_timeoutMs);
     QCOMPARE(agent.resumes(), 1);
+}
+
+void tst_jdwp::doesNotStopAtAHitOfARequestItGaveUp()
+{
+    FakeAgent agent;
+    DebuggerBackend backend(JdwpImplStartData{
+        .inferiorStartData = AttachToRemoteServerData{QString("127.0.0.1:%1").arg(agent.port()),
+                                                      {}}});
+    backend.start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend.contains(InferiorEvent::RunAndInferiorRunOk), s_timeoutMs);
+    agent.sendStartAndClassPrepare();
+    QTRY_VERIFY_WITH_TIMEOUT(agent.resumes() >= 1, s_timeoutMs);
+
+    const quint64 inserted = backend.insertThrowBreakpoint();
+    QTRY_VERIFY_WITH_TIMEOUT(backend.answered(inserted), s_timeoutMs);
+    const qint32 given = agent.lastRequestId();
+    const quint64 removed = backend.removeBreakpoint(backend.numberOf(inserted));
+    QTRY_VERIFY_WITH_TIMEOUT(backend.answered(removed), s_timeoutMs);
+
+    agent.sendExceptionHit(given);
+    // Either the hit is resumed, or it was wrongly stopped at.
+    QTRY_VERIFY_WITH_TIMEOUT(agent.resumes() >= 2
+                                 || backend.contains(InferiorEvent::SpontaneousStop),
+                             s_timeoutMs);
+    QVERIFY2(!backend.contains(InferiorEvent::SpontaneousStop),
+             "the program was stopped at a hit of a request that no breakpoint has, so it "
+             "stands at a breakpoint that is gone and nothing says why");
+    QVERIFY(!backend.contains(InferiorEvent::StopOk));
+}
+
+void tst_jdwp::stopsAtAHitThatCameBeforeTheAnswerNamingItsRequest()
+{
+    FakeAgent agent;
+    DebuggerBackend backend(JdwpImplStartData{
+        .inferiorStartData = AttachToRemoteServerData{QString("127.0.0.1:%1").arg(agent.port()),
+                                                      {}}});
+    backend.start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend.contains(InferiorEvent::RunAndInferiorRunOk), s_timeoutMs);
+    agent.sendStartAndClassPrepare();
+    QTRY_VERIFY_WITH_TIMEOUT(agent.resumes() >= 1, s_timeoutMs);
+
+    agent.sendExceptionHitBeforeTheAnswer();
+    const quint64 request = backend.insertThrowBreakpoint();
+    QTRY_VERIFY_WITH_TIMEOUT(backend.answered(request), s_timeoutMs);
+
+    QTRY_VERIFY_WITH_TIMEOUT(backend.contains(InferiorEvent::SpontaneousStop)
+                                 || agent.resumes() >= 2,
+                             s_timeoutMs);
+    QVERIFY2(backend.contains(InferiorEvent::SpontaneousStop),
+             "the program was let go at a hit of a request that is live, so a breakpoint the "
+             "user had just set was passed over without a word");
+}
+
+void tst_jdwp::printsATracepointHitThatCameBeforeItsAnswer()
+{
+    FakeAgent agent;
+    DebuggerBackend backend(JdwpImplStartData{
+        .inferiorStartData = AttachToRemoteServerData{QString("127.0.0.1:%1").arg(agent.port()),
+                                                      {}}});
+    backend.start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend.contains(InferiorEvent::RunAndInferiorRunOk), s_timeoutMs);
+    agent.sendStartAndClassPrepare();
+    QTRY_VERIFY_WITH_TIMEOUT(agent.resumes() >= 1, s_timeoutMs);
+
+    BreakpointParameters params(BreakpointAtThrow);
+    params.enabled = true;
+    params.tracepoint = true;
+    params.message = "thrown";
+    agent.sendExceptionHitBeforeTheAnswer();
+    const quint64 request = backend.insert(params);
+    QTRY_VERIFY_WITH_TIMEOUT(backend.answered(request), s_timeoutMs);
+
+    QTRY_VERIFY_WITH_TIMEOUT(backend.logged("thrown")
+                                 || backend.contains(InferiorEvent::SpontaneousStop),
+                             s_timeoutMs);
+    QVERIFY2(!backend.contains(InferiorEvent::SpontaneousStop),
+             "the program was stopped at a tracepoint, which is what a tracepoint is there not "
+             "to do: the hit was taken for one that belongs to no breakpoint");
+    QVERIFY(backend.logged("thrown"));
 }
 
 // A machine speaks of its start before it has said how wide its handles are,

@@ -844,12 +844,12 @@ public:
 
     QString condition() const { return m_lineEditCondition->text(); }
     int ignoreCount() const { return m_spinBoxIgnoreCount->value(); }
-    int threadSpec() const
+    qint64 threadSpec() const
        { return BreakHandler::threadSpecFromDisplay(m_lineEditThreadSpec->text()); }
 
     void setCondition(const QString &c) { m_lineEditCondition->setText(c); }
     void setIgnoreCount(int i) { m_spinBoxIgnoreCount->setValue(i); }
-    void setThreadSpec(int t)
+    void setThreadSpec(qint64 t)
         { return m_lineEditThreadSpec->setText(BreakHandler::displayFromThreadSpec(t)); }
 
 private:
@@ -1012,15 +1012,15 @@ SubBreakpoints BreakHandler::findSubBreakpointsByIndex(const QList<QModelIndex> 
 
 }
 
-QString BreakHandler::displayFromThreadSpec(int spec)
+QString BreakHandler::displayFromThreadSpec(qint64 spec)
 {
     return spec == -1 ? Tr::tr("(all)") : QString::number(spec);
 }
 
-int BreakHandler::threadSpecFromDisplay(const QString &str)
+qint64 BreakHandler::threadSpecFromDisplay(const QString &str)
 {
     bool ok = false;
-    int result = str.toInt(&ok);
+    qint64 result = str.toLongLong(&ok);
     return ok ? result : -1;
 }
 
@@ -1496,6 +1496,14 @@ SubBreakpoint BreakpointItem::findOrCreateSubBreakpoint(const QString &responseI
     return loc;
 }
 
+void BreakpointItem::keepOnlySubBreakpoints(const QSet<QString> &responseIds)
+{
+    for (int pos = childCount() - 1; pos >= 0; --pos) {
+        if (!responseIds.contains(childAt(pos)->responseId))
+            removeChildAt(pos);
+    }
+}
+
 bool BreakHandler::tryClaimBreakpoint(const GlobalBreakpoint &gbp)
 {
     const Breakpoints bps = breakpoints();
@@ -1876,7 +1884,7 @@ void BreakHandler::editBreakpoints(const Breakpoints &bps, QWidget *parent)
 
     const QString newCondition = dialog.condition();
     const int newIgnoreCount = dialog.ignoreCount();
-    const int newThreadSpec = dialog.threadSpec();
+    const qint64 newThreadSpec = dialog.threadSpec();
 
     for (Breakpoint bp : bps) {
         if (bp) {
@@ -2880,7 +2888,7 @@ void BreakpointManager::editBreakpoints(const GlobalBreakpoints &gbps, QWidget *
 
     const QString newCondition = dialog.condition();
     const int newIgnoreCount = dialog.ignoreCount();
-    const int newThreadSpec = dialog.threadSpec();
+    const qint64 newThreadSpec = dialog.threadSpec();
 
     for (GlobalBreakpoint gbp : gbps) {
         QTC_ASSERT(gbp, continue);
@@ -2963,7 +2971,7 @@ void BreakpointManager::loadSessionData()
             params.ignoreCount = v.toString().toInt();
         v = map.value("threadspec");
         if (v.isValid())
-            params.threadSpec = v.toString().toInt();
+            params.threadSpec = v.toString().toLongLong();
         v = map.value("funcname");
         if (v.isValid())
             params.functionName = v.toString();

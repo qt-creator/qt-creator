@@ -122,8 +122,9 @@ protected:
     void loadSymbols(const QString &pattern, const QString &module);
     void fetchModuleSections(quint64 requestId, const Utils::FilePath &modulePath);
     void reportRegisters(quint64 requestId, const GdbMi &registers);
-    void reportBreakpointInsert(quint64 requestId, bool taken, bool verified, const GdbMi &data,
-                                const QString &number, int threadSpec);
+    void reportBreakpointWithLocations(quint64 requestId, BreakpointOp op, bool taken,
+                                       bool verified, const GdbMi &data, const QString &number,
+                                       qint64 threadSpec);
     void reportModules(quint64 requestId, const GdbMi &modules);
     void fetchModuleSymbols(quint64 requestId, const Utils::FilePath &modulePath);
     void askWhereTheDebuggerSelectionIs(bool report);

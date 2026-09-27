@@ -126,6 +126,18 @@ static QString outerClassName(const QString &signature)
     return name.section('$', 0, 0);
 }
 
+// A name without package matches in any package. A nested class can be
+// written Outer.Inner or Outer$Inner, the signature tells which dot is which.
+static bool namesClass(const QString &className, const QString &signature)
+{
+    const QString full = typeName(signature);
+    const QString wanted = QString(className).replace('$', '.');
+    if (QString(full).replace('$', '.') == wanted)
+        return true;
+    const QString nested = full.section('.', -1).replace('$', '.');
+    return nested == wanted || nested.endsWith('.' + wanted);
+}
+
 // What a value reads as in a view that gives it one line and one cell, which
 // is no place for the characters that would break out of either.
 static QString escaped(const QString &text)
@@ -195,22 +207,57 @@ static QString threadStatusText(int status)
 // a request of another that carries the same number.
 static quint8 eventKindOf(BreakpointType type)
 {
-    return type == BreakpointAtThrow ? Jdwp::ExceptionEvent : Jdwp::BreakpointEvent;
+    switch (type) {
+    case BreakpointAtThrow:
+        return Jdwp::ExceptionEvent;
+    // Writes only, as gdb's plain watchpoint.
+    case WatchpointAtExpression:
+        return Jdwp::FieldModificationEvent;
+    default:
+        return Jdwp::BreakpointEvent;
+    }
+}
+
+static bool namesAClass(BreakpointType type)
+{
+    return type == BreakpointByFunction || type == WatchpointAtExpression;
+}
+
+static QString classOfMember(const QString &spec)
+{
+    return jvmMemberSpec(spec).section('.', 0, -2);
+}
+
+static QString memberOfMember(const QString &spec)
+{
+    return jvmMemberSpec(spec).section('.', -1);
 }
 
 static DebuggerEngineSetupData jdwpImplSetupData()
 {
     DebuggerEngineSetupData data;
+    // No WatchpointByExpressionCapability: the Locals view would hand over a
+    // plain field name or a local, which the machine cannot watch.
     data.capabilities = RunToLineCapability | AddWatcherCapability
-                      | BreakConditionCapability;
+                      | BreakConditionCapability | BreakOnThrowAndCatchCapability
+                      | BreakIndividualLocationsCapability | TracePointCapability;
     data.extraCapabilities = DebuggerExtraCapability::Threads
                            | DebuggerExtraCapability::ThreadEvent;
     data.startModes = DebuggerStartModeFlag::Launch | DebuggerStartModeFlag::AttachToRemoteServer;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
-        if (query.type == BreakpointAtThrow)
+        switch (query.type) {
+        case BreakpointAtThrow:
             return true;
-        return query.type == BreakpointByFileAndLine && isJvmSource(query.fileName);
+        case BreakpointByFileAndLine:
+            return isJvmSource(query.fileName);
+        case BreakpointByFunction:
+            return isJvmMember(query.functionName);
+        case WatchpointAtExpression:
+            return isJvmMember(query.expression);
+        default:
+            return false;
+        }
     };
     return data;
 }
@@ -229,6 +276,7 @@ JdwpImpl::JdwpImpl(const JdwpImplStartData &startData)
     , m_startData(startData)
     , m_process(std::make_unique<Process>())
 {
+    m_since.start();
     connect(&m_client, &JdwpClient::logMessage, this, [this](const QString &text, bool outgoing) {
         emit message(text, outgoing ? LogInput : LogOutput);
     });
@@ -660,6 +708,7 @@ void JdwpImpl::runToLine(const ContextData &context)
 
 void JdwpImpl::clearRequest(quint8 eventKind, qint32 requestId, const Done &done)
 {
+    m_givenUpRequests.insert({eventKind, requestId});
     send(Jdwp::EventRequestSet, Jdwp::EventRequestClear,
          writer().writeByte(eventKind).writeInt(requestId).data(),
          [done](const JdwpReply &) {
@@ -711,6 +760,7 @@ void JdwpImpl::handleEventSet(const JdwpEventSet &set)
         case Jdwp::BreakpointEvent:
         case Jdwp::SingleStepEvent:
         case Jdwp::ExceptionEvent:
+        case Jdwp::FieldModificationEvent:
             stops.append(event);
             break;
         default:
@@ -804,14 +854,235 @@ void JdwpImpl::reportException(const JdwpEvent &event)
     });
 }
 
+void JdwpImpl::valueText(const JdwpValue &value, const std::function<void(const QString &)> &done)
+{
+    if (!value.isObject()) {
+        done(primitiveText(value));
+        return;
+    }
+    if (value.isNull()) {
+        done("null");
+        return;
+    }
+    const quint64 object = value.bits;
+    if (value.tag != Jdwp::StringValueTag) {
+        done(QString("@%1").arg(object, 0, 16));
+        return;
+    }
+    send(Jdwp::StringReferenceSet, Jdwp::StringValue, writer().writeObjectId(object).data(),
+         [this, object, done](const JdwpReply &reply) {
+        done(reply.ok() ? quoted(reader(reply.data).readString())
+                        : QString("@%1").arg(object, 0, 16));
+    });
+}
+
+// Reports the value about to be written.
+void JdwpImpl::reportFieldWrite(const Hit &hit)
+{
+    const Breakpoint *bp = breakpoint(hit.number);
+    if (!bp)
+        return;
+    const QString name = bp->className + '.' + bp->memberName;
+    // Dropped if the program ran on in the meantime.
+    const int generation = m_runGeneration;
+    valueText(hit.event.valueToBe, [this, name, generation](const QString &text) {
+        if (generation == m_runGeneration)
+            emit message(Tr::tr("%1 is about to be set to %2.").arg(name, text), LogMisc);
+    });
+}
+
+void JdwpImpl::reportTracepoint(const QString &number, const JdwpEvent &event, const Done &done)
+{
+    const Breakpoint *bp = breakpoint(number);
+    if (!bp) {
+        done();
+        return;
+    }
+    const QString text = bp->message;
+    const QList<TracepointCapture> captures = parseTracepointCaptures(text);
+    const auto filled = std::make_shared<QStringList>(captures.size(), QString());
+    const int generation = m_runGeneration;
+    const auto join = std::make_shared<Join>([this, text, captures, filled, generation, done] {
+        if (generation != m_runGeneration) {
+            done();
+            return;
+        }
+        QString formatted = text;
+        // Back to front: a replacement moves everything behind it.
+        for (qsizetype i = captures.size() - 1; i >= 0; --i) {
+            const TracepointCapture &capture = captures.at(i);
+            formatted.replace(capture.start, capture.end - capture.start, filled->at(i));
+        }
+        emit message(formatted, LogMisc);
+        done();
+    });
+    join->add();
+
+    const auto withResolvedFrame = [this, join, filled](qsizetype index, int frame,
+                                                        const std::function<QString(
+                                                            const ResolvedLocation &)> &text) {
+        join->add();
+        withFrames(frame + 1, [this, join, filled, index, frame, text] {
+            if (frame >= m_frames.size()) {
+                join->release();
+                return;
+            }
+            resolveLocation(m_frames.at(frame).location,
+                            [join, filled, index, text](const ResolvedLocation &resolved) {
+                (*filled)[index] = text(resolved);
+                join->release();
+            });
+        });
+    };
+
+    for (qsizetype i = 0; i < captures.size(); ++i) {
+        const TracepointCapture &capture = captures.at(i);
+        switch (capture.type) {
+        case TracepointCaptureType::Expression: {
+            const Result<JdwpExpression> parsed = parseJdwpExpression(capture.expression);
+            if (!parsed) {
+                (*filled)[i] = parsed.error();
+                break;
+            }
+            join->add();
+            evaluate(*parsed, [this, filled, i, join](const Evaluated &result) {
+                if (!result.error.isEmpty()) {
+                    (*filled)[i] = result.error;
+                    join->release();
+                    return;
+                }
+                valueText(result.value, [filled, i, join](const QString &text) {
+                    (*filled)[i] = text;
+                    join->release();
+                });
+            });
+            break;
+        }
+        case TracepointCaptureType::Function:
+            withResolvedFrame(i, 0, [](const ResolvedLocation &r) { return r.function; });
+            break;
+        case TracepointCaptureType::FilePos:
+            withResolvedFrame(i, 0, [](const ResolvedLocation &r) {
+                return QString("%1:%2").arg(r.file.fileName()).arg(r.line);
+            });
+            break;
+        case TracepointCaptureType::Caller:
+            withResolvedFrame(i, 1, [](const ResolvedLocation &r) { return r.function; });
+            break;
+        case TracepointCaptureType::Callstack: {
+            join->add();
+            withFrames(0, [this, join, filled, i] {
+                const auto names = std::make_shared<QStringList>(m_frames.size(),
+                                                                 QString());
+                const auto stackJoin = std::make_shared<Join>([join, filled, i, names] {
+                    (*filled)[i] = names->join(" <- ");
+                    join->release();
+                });
+                stackJoin->add();
+                for (qsizetype frame = 0; frame < m_frames.size(); ++frame) {
+                    stackJoin->add();
+                    resolveLocation(m_frames.at(frame).location,
+                                    [stackJoin, names, frame](const ResolvedLocation &resolved) {
+                        (*names)[frame] = resolved.function;
+                        stackJoin->release();
+                    });
+                }
+                stackJoin->release();
+            });
+            break;
+        }
+        // The code index stands in for an address.
+        case TracepointCaptureType::Address:
+            (*filled)[i] = QString("0x%1").arg(event.location.index, 0, 16);
+            break;
+        case TracepointCaptureType::Tid:
+            (*filled)[i] = QString::number(event.thread);
+            break;
+        case TracepointCaptureType::ThreadName:
+            join->add();
+            send(Jdwp::ThreadReferenceSet, Jdwp::ThreadName,
+                 writer().writeObjectId(event.thread).data(),
+                 [this, filled, i, join](const JdwpReply &reply) {
+                if (reply.ok())
+                    (*filled)[i] = reader(reply.data).readString();
+                join->release();
+            });
+            break;
+        case TracepointCaptureType::Tick:
+            (*filled)[i] = QString::number(m_since.elapsed());
+            break;
+        // Unknown when attached.
+        case TracepointCaptureType::Pid:
+            (*filled)[i] = QString::number(m_process ? m_process->processId() : 0);
+            break;
+        case TracepointCaptureType::ProcessName:
+            if (m_process)
+                (*filled)[i] = m_process->commandLine().executable().fileName();
+            break;
+        }
+    }
+    join->release();
+}
+
+void JdwpImpl::reportTracepoints(QList<Hit> hits, const Done &done)
+{
+    if (hits.isEmpty()) {
+        done();
+        return;
+    }
+    const Hit hit = hits.takeFirst();
+    reportTracepoint(hit.number, hit.event, [this, hits, done] { reportTracepoints(hits, done); });
+}
+
 // The protocol numbers a request within its kind, so the request a step was
 // registered under can carry the same number as a breakpoint's.
+// For a hit that came before the answer naming its request: matched by its
+// location, or for an exception breakpoint, by being the one being armed.
+JdwpImpl::Breakpoint *JdwpImpl::breakpointBeingArmedFor(const JdwpEvent &event)
+{
+    for (Breakpoint &bp : m_breakpoints) {
+        if (!bp.enabled || eventKindOf(bp.type) != event.kind)
+            continue;
+        if (bp.type == BreakpointAtThrow) {
+            if (bp.requests.isEmpty())
+                return &bp;
+            continue;
+        }
+        const bool stands = Utils::anyOf(bp.locations, [&event](const Breakpoint::Location &l) {
+            if (l.request != 0 || !l.enabled)
+                return false;
+            if (event.kind == Jdwp::FieldModificationEvent)
+                return l.fieldClass == event.typeId && l.fieldId == event.fieldId;
+            return l.where == event.location;
+        });
+        if (stands)
+            return &bp;
+    }
+    return nullptr;
+}
+
+JdwpImpl::Breakpoint *JdwpImpl::breakpointOfHit(const JdwpEvent &event)
+{
+    if (Breakpoint *bp = breakpointOfRequest(event.kind, event.requestId))
+        return bp;
+    if (m_givenUpRequests.contains({event.kind, event.requestId}))
+        return nullptr;
+    return breakpointBeingArmedFor(event);
+}
+
 JdwpImpl::Breakpoint *JdwpImpl::breakpointOfRequest(quint8 eventKind, qint32 requestId)
 {
     if (requestId == 0)
         return nullptr;
     for (Breakpoint &bp : m_breakpoints) {
-        if (eventKindOf(bp.type) == eventKind && bp.requests.contains(requestId))
+        if (eventKindOf(bp.type) != eventKind)
+            continue;
+        if (bp.requests.contains(requestId))
+            return &bp;
+        const bool atOne = Utils::anyOf(bp.locations, [requestId](const Breakpoint::Location &l) {
+            return l.request == requestId;
+        });
+        if (atOne)
             return &bp;
     }
     return nullptr;
@@ -847,9 +1118,11 @@ void JdwpImpl::isRuntimesOwn(const JdwpEvent &event, const std::function<void(bo
 // it silently would be worse.
 void JdwpImpl::decideOnHit(const JdwpEvent &event, const std::function<void(bool)> &done)
 {
-    Breakpoint *bp = breakpointOfRequest(event.kind, event.requestId);
+    Breakpoint *bp = breakpointOfHit(event);
     if (!bp) {
-        done(true);
+        // A hit of a request given back was already on its way and is
+        // nobody's. A request still being made is live.
+        done(!m_givenUpRequests.contains({event.kind, event.requestId}));
         return;
     }
     const QString number = bp->number;
@@ -913,16 +1186,19 @@ void JdwpImpl::decideOnHit(const JdwpEvent &event, const std::function<void(bool
 }
 
 // Every breakpoint hit counts its hit, even where another one already stops.
-void JdwpImpl::decideOnHits(QList<JdwpEvent> hits, bool stop,
-                            const std::function<void(bool)> &done)
+void JdwpImpl::decideOnHits(QList<JdwpEvent> hits, QList<JdwpEvent> taken,
+                            const std::function<void(const QList<JdwpEvent> &)> &done)
 {
     if (hits.isEmpty()) {
-        done(stop);
+        done(taken);
         return;
     }
     const JdwpEvent hit = hits.takeFirst();
-    decideOnHit(hit, [this, hits, stop, done](bool yes) {
-        decideOnHits(hits, stop || yes, done);
+    decideOnHit(hit, [this, hit, hits, taken, done](bool yes) {
+        QList<JdwpEvent> all = taken;
+        if (yes)
+            all.append(hit);
+        decideOnHits(hits, all, done);
     });
 }
 
@@ -943,36 +1219,90 @@ void JdwpImpl::reportStopAt(const QList<JdwpEvent> &hits)
     // lost for good if that ended the stop here.
     const int generation = m_runGeneration;
     m_decidingOnHit = true;
-    decideOnHits(hits, hits.isEmpty(), [this, hits, where, generation](bool stop) {
-        m_decidingOnHit = false;
-        if (generation != m_runGeneration)
+    decideOnHits(hits, {}, [this, hits, generation](const QList<JdwpEvent> &accepted) {
+        if (generation != m_runGeneration) {
+            m_decidingOnHit = false;
             return;
+        }
         // An interrupt is answered by wherever the machine is, so a hit that
         // is given up on is still where it stops, and the flag is spent here
         // either way: a later stop of its own is not what was asked for.
         const bool requested = std::exchange(m_interruptRequested, false);
+        const bool stop = hits.isEmpty() || !accepted.isEmpty();
         if (!stop && !requested) {
+            m_decidingOnHit = false;
             resumeFromStop();
             return;
         }
+        QList<Hit> taken;
+        for (const JdwpEvent &hit : accepted) {
+            const Breakpoint *bp = breakpointOfHit(hit);
+            taken.append({bp ? bp->number : QString(), hit});
+        }
+        QList<Hit> tracepoints;
+        for (const Hit &hit : std::as_const(taken)) {
+            Breakpoint *bp = breakpoint(hit.number);
+            if (!bp)
+                continue;
+            if (bp->tracepoint)
+                tracepoints.append(hit);
+            // Disabled rather than removed, so that it can be re-enabled.
+            if (bp->oneShot && bp->enabled) {
+                const QString number = bp->number;
+                bp->enabled = false;
+                clearRequestsOf(number, [this, number] {
+                    if (const Breakpoint *bp = breakpoint(number))
+                        emit breakpointModified(breakpointReport(*bp));
+                });
+            }
+        }
+        // Tracepoints let the program go on, unless a finished step, an
+        // interrupt or another hit wants it stopped. A step still on its way
+        // is carried on by that.
+        if (!tracepoints.isEmpty()) {
+            const bool goesOn = tracepoints.size() == taken.size() && !requested;
+            reportTracepoints(tracepoints, [this, hits, taken, generation, goesOn, requested] {
+                m_decidingOnHit = false;
+                if (generation != m_runGeneration)
+                    return;
+                const bool late = std::exchange(m_interruptRequested, false);
+                if (goesOn && !late) {
+                    resumeFromStop();
+                    return;
+                }
+                reportRunOk();
+                clearTransientRequests();
+                reportStopReached(hits, taken, requested || late, generation);
+            });
+            return;
+        }
+        m_decidingOnHit = false;
         // A step can end before the answer to its resume has been read.
         reportRunOk();
         clearTransientRequests();
-        for (const JdwpEvent &hit : hits) {
-            if (hit.kind == Jdwp::ExceptionEvent)
-                reportException(hit);
-        }
+        reportStopReached(hits, taken, requested, generation);
+    });
+}
 
-        const int stopGeneration = m_stopGeneration;
-        resolveLocation(where.location, [this, requested, generation,
-                                         stopGeneration](const ResolvedLocation &resolved) {
-            if (generation != m_runGeneration)
-                return;
-            if (stopGeneration == m_stopGeneration && resolved.line > 0 && resolved.file.exists())
-                emit locationChanged(resolved.file, resolved.line);
-            emit inferiorEvent(requested ? InferiorEvent::StopOk
-                                         : InferiorEvent::SpontaneousStop);
-        });
+void JdwpImpl::reportStopReached(const QList<JdwpEvent> &hits, const QList<Hit> &taken,
+                                 bool requested, int generation)
+{
+    for (const Hit &hit : taken) {
+        if (hit.event.kind == Jdwp::ExceptionEvent)
+            reportException(hit.event);
+        else if (hit.event.kind == Jdwp::FieldModificationEvent)
+            reportFieldWrite(hit);
+    }
+
+    const int stopGeneration = m_stopGeneration;
+    resolveLocation(hits.value(0).location, [this, requested, generation,
+                                             stopGeneration](const ResolvedLocation &resolved) {
+        if (generation != m_runGeneration)
+            return;
+        if (stopGeneration == m_stopGeneration && resolved.line > 0 && resolved.file.exists())
+            emit locationChanged(resolved.file, resolved.line);
+        emit inferiorEvent(requested ? InferiorEvent::StopOk
+                                     : InferiorEvent::SpontaneousStop);
     });
 }
 
@@ -1231,6 +1561,7 @@ void JdwpImpl::withFields(quint64 classId, const Done &done)
                 for (qint32 i = 0; i < count && r.ok(); ++i) {
                     FieldInfo field;
                     field.id = r.readFieldId();
+                    field.declaringClass = classId;
                     field.name = r.readString();
                     field.signature = r.readString();
                     r.readString(); // generic signature
@@ -1463,6 +1794,34 @@ JdwpImpl::Breakpoint *JdwpImpl::breakpoint(const QString &number)
     return it == m_breakpoints.end() ? nullptr : &*it;
 }
 
+JdwpImpl::Breakpoint::Location *JdwpImpl::breakpointLocation(const QString &number)
+{
+    Breakpoint *bp = breakpoint(number.section('.', 0, 0));
+    if (!bp)
+        return nullptr;
+    for (Breakpoint::Location &location : bp->locations) {
+        if (location.number == number)
+            return &location;
+    }
+    return nullptr;
+}
+
+GdbMi JdwpImpl::locationData(const Breakpoint &bp, const Breakpoint::Location &location) const
+{
+    GdbMi item;
+    item.m_type = GdbMi::Tuple;
+    item.addChild(constMi("number", location.number));
+    item.addChild(constMi("func", location.function));
+    const Utils::FilePath file = location.file.isEmpty() ? bp.file : location.file;
+    if (!file.isEmpty() && location.line > 0) {
+        item.addChild(constMi("file", file.path()));
+        item.addChild(constMi("fullname", file.path()));
+        item.addChild(constMi("line", QString::number(location.line)));
+    }
+    item.addChild(constMi("enabled", location.enabled ? "y" : "n"));
+    return item;
+}
+
 GdbMi JdwpImpl::breakpointData(const Breakpoint &bp) const
 {
     GdbMi bkpt;
@@ -1470,12 +1829,19 @@ GdbMi JdwpImpl::breakpointData(const Breakpoint &bp) const
     bkpt.addChild(constMi("number", bp.number));
     // An exception breakpoint stands at no line of any file, so it says
     // nothing about one: what the model reads there it also marks with.
-    if (bp.type == BreakpointByFileAndLine) {
-        bkpt.addChild(constMi("file", bp.file.path()));
-        bkpt.addChild(constMi("fullname", bp.file.path()));
-        bkpt.addChild(constMi("line", QString::number(bp.actualLine ? bp.actualLine : bp.line)));
+    if (bp.type == BreakpointByFileAndLine || bp.type == BreakpointByFunction) {
+        if (!bp.file.isEmpty()) {
+            bkpt.addChild(constMi("file", bp.file.path()));
+            bkpt.addChild(constMi("fullname", bp.file.path()));
+        }
+        if (const int line = bp.actualLine ? bp.actualLine : bp.line; line > 0)
+            bkpt.addChild(constMi("line", QString::number(line)));
     }
+    if (bp.type == BreakpointByFunction)
+        bkpt.addChild(constMi("func", bp.className + '.' + bp.memberName));
     bkpt.addChild(constMi("enabled", bp.enabled ? "y" : "n"));
+    // Also -1, as the model keeps a field that is not reported.
+    bkpt.addChild(constMi("thread", QString::number(bp.threadSpec)));
     // An exception breakpoint waits for no class to load: it is in as soon as
     // its request is, and a disabled one asks for no request at all. The field
     // is written only where it holds, since the model reads the presence of it
@@ -1487,7 +1853,27 @@ GdbMi JdwpImpl::breakpointData(const Breakpoint &bp) const
     if (pending)
         bkpt.addChild(constMi("pending", {}));
     bkpt.addChild(constMi("times", QString::number(bp.hits)));
+    if (bp.locations.size() > 1) {
+        GdbMi locations;
+        locations.m_type = GdbMi::List;
+        locations.m_name = "locations";
+        for (const Breakpoint::Location &location : bp.locations)
+            locations.addChild(locationData(bp, location));
+        bkpt.addChild(locations);
+    }
     return bkpt;
+}
+
+GdbMi JdwpImpl::breakpointReport(const Breakpoint &bp) const
+{
+    GdbMi data;
+    data.m_type = GdbMi::List;
+    data.addChild(breakpointData(bp));
+    if (bp.locations.size() > 1) {
+        for (const Breakpoint::Location &location : bp.locations)
+            data.addChild(locationData(bp, location));
+    }
+    return data;
 }
 
 void JdwpImpl::updateFromBreakpointRequest(Breakpoint &bp, const BreakpointParameters &params)
@@ -1498,6 +1884,17 @@ void JdwpImpl::updateFromBreakpointRequest(Breakpoint &bp, const BreakpointParam
     if (params.ignoreCount != bp.ignoreCount)
         bp.ignoredSince = bp.hits;
     bp.ignoreCount = params.ignoreCount;
+    bp.threadSpec = params.threadSpec;
+    bp.tracepoint = params.tracepoint;
+    bp.message = params.message;
+    bp.oneShot = params.oneShot;
+    if (namesAClass(bp.type)) {
+        const QString spec = bp.type == BreakpointByFunction ? params.functionName
+                                                             : params.expression;
+        bp.className = classOfMember(spec);
+        bp.memberName = memberOfMember(spec);
+        return;
+    }
     if (bp.type != BreakpointByFileAndLine)
         return;
     bp.file = params.fileName;
@@ -1522,7 +1919,8 @@ void JdwpImpl::changeBreakpoint(const BreakpointChangeRequest &request)
     switch (request.op) {
     case BreakpointOp::Insert: {
         const BreakpointType type = request.params.type;
-        if (type != BreakpointByFileAndLine && type != BreakpointAtThrow) {
+        if (type != BreakpointByFileAndLine && type != BreakpointAtThrow
+            && type != BreakpointByFunction && type != WatchpointAtExpression) {
             emit breakpointEvent(requestId, BreakpointOp::Insert, false);
             return;
         }
@@ -1573,17 +1971,146 @@ void JdwpImpl::changeBreakpoint(const BreakpointChangeRequest &request)
                 merged.fileName = bp->file;
             if (merged.textPosition.line <= 0)
                 merged.textPosition.line = bp->line;
+            const QString spec = bp->className + '.' + bp->memberName;
+            if (merged.functionName.isEmpty())
+                merged.functionName = spec;
+            if (merged.expression.isEmpty())
+                merged.expression = spec;
             updateFromBreakpointRequest(*bp, merged);
-            armBreakpoint(number, [this, requestId] {
-                emit breakpointEvent(requestId, BreakpointOp::Update, true);
+            armBreakpoint(number, [this, number, requestId] {
+                const Breakpoint *bp = breakpoint(number);
+                GdbMi data;
+                data.m_type = GdbMi::List;
+                if (bp)
+                    data.addChild(breakpointData(*bp));
+                emit breakpointEvent(requestId, BreakpointOp::Update, bp != nullptr, data);
             });
         });
         return;
     }
-    case BreakpointOp::EnableSub:
-        emit breakpointEvent(requestId, BreakpointOp::EnableSub, false);
+    case BreakpointOp::EnableSub: {
+        const QString number = request.subResponseId;
+        if (!breakpointLocation(number)) {
+            emit breakpointEvent(requestId, BreakpointOp::EnableSub, false);
+            return;
+        }
+        enableLocation(number, request.enabled, [this, requestId] {
+            emit breakpointEvent(requestId, BreakpointOp::EnableSub, true);
+        });
         return;
     }
+    }
+}
+
+JdwpImpl::Modifiers JdwpImpl::commonModifiers(const Breakpoint &bp) const
+{
+    Modifiers modifiers;
+    // No CountModifier for a one-shot: a hit turned down by the condition or
+    // the ignore count would spend it.
+    if (bp.threadSpec >= 0) {
+        modifiers.add(writer().writeByte(Jdwp::ThreadOnlyModifier)
+                          .writeObjectId(quint64(bp.threadSpec)).data());
+    }
+    return modifiers;
+}
+
+QString JdwpImpl::Breakpoint::Location::key() const
+{
+    if (where.isValid())
+        return QString("%1/%2/%3").arg(where.classId).arg(where.methodId).arg(where.index);
+    return QString("%1#%2").arg(fieldClass).arg(fieldId);
+}
+
+QString JdwpImpl::addLocation(Breakpoint &bp, const Breakpoint::Location &location)
+{
+    Breakpoint::Location added = location;
+    added.number = QString("%1.%2").arg(bp.number).arg(bp.nextLocationNumber++);
+    added.enabled = !bp.disabledLocations.contains(added.key());
+    bp.locations.append(added);
+    return added.number;
+}
+
+void JdwpImpl::armLocation(const QString &number, const QString &locationNumber, const Done &done)
+{
+    const Breakpoint *bp = breakpoint(number);
+    const Breakpoint::Location *location = breakpointLocation(locationNumber);
+    if (!bp || !location || location->request != 0 || !bp->enabled || !location->enabled) {
+        done();
+        return;
+    }
+    Modifiers modifiers = commonModifiers(*bp);
+    if (location->where.isValid()) {
+        modifiers.add(writer().writeByte(Jdwp::LocationOnlyModifier)
+                          .writeLocation(location->where).data());
+    } else {
+        modifiers.add(writer().writeByte(Jdwp::FieldOnlyModifier)
+                          .writeReferenceTypeId(location->fieldClass)
+                          .writeFieldId(location->fieldId).data());
+    }
+    const quint8 kind = eventKindOf(bp->type);
+    const QByteArray request = writer().writeByte(kind).writeByte(Jdwp::SuspendAll)
+                                   .writeInt(modifiers.count).data() + modifiers.data;
+    send(Jdwp::EventRequestSet, Jdwp::EventRequestSetCommand, request,
+         [this, locationNumber, kind, done](const JdwpReply &reply) {
+        if (reply.ok()) {
+            const qint32 id = reader(reply.data).readInt();
+            // Taken back, switched off or armed again while the request was
+            // out, it must not stop anything.
+            m_givenUpRequests.remove({kind, id});
+            const Breakpoint *bp = breakpoint(locationNumber.section('.', 0, 0));
+            Breakpoint::Location *location = breakpointLocation(locationNumber);
+            if (bp && location && bp->enabled && location->enabled && location->request == 0)
+                location->request = id;
+            else
+                clearRequest(kind, id);
+        } else {
+            dropLocation(locationNumber, JdwpClient::errorString(reply.errorCode));
+        }
+        done();
+    });
+}
+
+void JdwpImpl::dropLocation(const QString &locationNumber, const QString &reason)
+{
+    Breakpoint *bp = breakpoint(locationNumber.section('.', 0, 0));
+    if (!bp)
+        return;
+    const int at = Utils::indexOf(bp->locations,
+                                  [&locationNumber](const Breakpoint::Location &location) {
+        return location.number == locationNumber;
+    });
+    if (at < 0)
+        return;
+    const QString where = bp->locations.at(at).function;
+    bp->locations.removeAt(at);
+    if (bp->internal)
+        return;
+    emit message(Tr::tr("The virtual machine will not stop at %1: %2")
+                     .arg(where.isEmpty() ? bp->number : where, reason), LogWarning);
+}
+
+void JdwpImpl::enableLocation(const QString &locationNumber, bool enabled, const Done &done)
+{
+    const QString number = locationNumber.section('.', 0, 0);
+    Breakpoint *bp = breakpoint(number);
+    Breakpoint::Location *location = breakpointLocation(locationNumber);
+    if (!bp || !location) {
+        done();
+        return;
+    }
+    location->enabled = enabled;
+    if (enabled) {
+        bp->disabledLocations.remove(location->key());
+        armLocation(number, locationNumber, done);
+        return;
+    }
+    bp->disabledLocations.insert(location->key());
+    const qint32 request = std::exchange(location->request, 0);
+    if (request == 0) {
+        done();
+        return;
+    }
+    clearRequest(eventKindOf(bp->type), request, done);
 }
 
 void JdwpImpl::armBreakpoint(const QString &number, const Done &done)
@@ -1604,18 +2131,23 @@ void JdwpImpl::armBreakpoint(const QString &number, const Done &done)
             answer();
             return;
         }
-        JdwpWriter request = writer();
+        Modifiers modifiers = commonModifiers(*bp);
         // A null class stands for every exception there is, and both flags for
         // one whether or not a handler is waiting for it.
-        request.writeByte(Jdwp::ExceptionEvent).writeByte(Jdwp::SuspendAll).writeInt(1);
-        request.writeByte(Jdwp::ExceptionOnlyModifier).writeReferenceTypeId(0)
-            .writeBool(true).writeBool(true);
-        send(Jdwp::EventRequestSet, Jdwp::EventRequestSetCommand, request.data(),
+        modifiers.add(writer().writeByte(Jdwp::ExceptionOnlyModifier).writeReferenceTypeId(0)
+                          .writeBool(true).writeBool(true).data());
+        const QByteArray request = writer().writeByte(Jdwp::ExceptionEvent)
+                                       .writeByte(Jdwp::SuspendAll)
+                                       .writeInt(modifiers.count).data() + modifiers.data;
+        send(Jdwp::EventRequestSet, Jdwp::EventRequestSetCommand, request,
              [this, number, answer](const JdwpReply &reply) {
             if (reply.ok()) {
                 const qint32 id = reader(reply.data).readInt();
-                // Taken back while the request was out, it must not stop anything.
-                if (Breakpoint *bp = breakpoint(number))
+                // Taken back or switched off while the request was out, or
+                // armed a second time over, it must not stop anything.
+                m_givenUpRequests.remove({Jdwp::ExceptionEvent, id});
+                Breakpoint *bp = breakpoint(number);
+                if (bp && bp->enabled && bp->requests.isEmpty())
                     bp->requests.append(id);
                 else
                     clearRequest(Jdwp::ExceptionEvent, id);
@@ -1637,17 +2169,20 @@ void JdwpImpl::armBreakpoint(const QString &number, const Done &done)
     request.writeByte(Jdwp::ClassPrepareEvent).writeByte(Jdwp::SuspendAll);
     const QString package = bp->packageKnown ? QString(bp->packagePath).replace('/', '.')
                                              : QString();
-    if (m_client.hasCapability(Jdwp::CanUseSourceNameFilters)) {
+    if (namesAClass(bp->type)) {
+        // A class match takes one wildcard, at one end. A full name would need
+        // the machine's spelling of nested classes, so "*Name" is asked for and
+        // the names sort the answers out below.
+        const QString simpleName = bp->className.section('.', -1).section('$', -1);
+        request.writeInt(1);
+        request.writeByte(Jdwp::ClassMatchModifier).writeString('*' + simpleName);
+    } else if (m_client.hasCapability(Jdwp::CanUseSourceNameFilters)) {
         request.writeInt(1);
         request.writeByte(Jdwp::SourceNameMatchModifier).writeString(bp->sourceName);
     } else if (!package.isEmpty()) {
         request.writeInt(1);
         request.writeByte(Jdwp::ClassMatchModifier).writeString(package + ".*");
     } else {
-        // A class match takes one wildcard, at one end, so no pattern covers
-        // the class in any package and its nested ones at once. Every class
-        // that loads is heard instead, but for those of the platform, and the
-        // names sort them out below.
         static const QStringList platform = {"java.*", "javax.*", "jdk.*", "sun.*",
                                              "com.sun.*"};
         request.writeInt(platform.size());
@@ -1676,6 +2211,7 @@ void JdwpImpl::armBreakpoint(const QString &number, const Done &done)
             join->release();
             return;
         }
+        const bool byClass = namesAClass(bp->type);
         QList<quint64> candidates;
         JdwpReader r = reader(reply.data);
         const qint32 count = r.readInt();
@@ -1694,8 +2230,11 @@ void JdwpImpl::armBreakpoint(const QString &number, const Done &done)
             }
             if (tag == Jdwp::ArrayTag || !(status & s_classPreparedStatus))
                 continue;
-            if (bp->packageKnown ? packagePath(signature) != bp->packagePath
-                                 : outerClassName(signature) != baseName) {
+            if (byClass) {
+                if (!namesClass(bp->className, signature))
+                    continue;
+            } else if (bp->packageKnown ? packagePath(signature) != bp->packagePath
+                                        : outerClassName(signature) != baseName) {
                 continue;
             }
             candidates.append(id);
@@ -1703,6 +2242,10 @@ void JdwpImpl::armBreakpoint(const QString &number, const Done &done)
         const QString sourceName = bp->sourceName;
         for (const quint64 id : std::as_const(candidates)) {
             join->add();
+            if (byClass) {
+                resolveInClass(number, id, [join] { join->release(); });
+                continue;
+            }
             withSourceFile(id, [this, number, id, sourceName, join] {
                 if (m_classes.value(id).sourceFile == sourceName)
                     resolveInClass(number, id, [join] { join->release(); });
@@ -1713,6 +2256,34 @@ void JdwpImpl::armBreakpoint(const QString &number, const Done &done)
         join->release();
     });
 
+    join->release();
+}
+
+void JdwpImpl::clearRequestsOf(const QString &number, const Done &done)
+{
+    Breakpoint *bp = breakpoint(number);
+    if (!bp) {
+        if (done)
+            done();
+        return;
+    }
+    const auto join = std::make_shared<Join>([done] {
+        if (done)
+            done();
+    });
+    join->add();
+    const quint8 kind = eventKindOf(bp->type);
+    for (const qint32 id : std::exchange(bp->requests, {})) {
+        join->add();
+        clearRequest(kind, id, [join] { join->release(); });
+    }
+    for (Breakpoint::Location &location : bp->locations) {
+        const qint32 id = std::exchange(location.request, 0);
+        if (id == 0)
+            continue;
+        join->add();
+        clearRequest(kind, id, [join] { join->release(); });
+    }
     join->release();
 }
 
@@ -1733,21 +2304,16 @@ void JdwpImpl::disarmBreakpoint(const QString &number, const Done &done)
         join->add();
         clearRequest(Jdwp::ClassPrepareEvent, bp->classPrepareRequest, [join] { join->release(); });
     }
-    const quint8 kind = eventKindOf(bp->type);
-    for (const qint32 id : std::as_const(bp->requests)) {
-        join->add();
-        clearRequest(kind, id, [join] { join->release(); });
-    }
+    join->add();
+    clearRequestsOf(number, [join] { join->release(); });
     bp->classPrepareRequest = 0;
-    bp->requests.clear();
     bp->classes.clear();
     bp->locations.clear();
+    bp->nextLocationNumber = 1;
     bp->actualLine = 0;
     join->release();
 }
 
-// Every method of the class whose code is on the line gets a location, or on
-// the next line with code where the line itself has none, as gdb does it.
 void JdwpImpl::resolveInClass(const QString &number, quint64 classId, const Done &done)
 {
     Breakpoint *bp = breakpoint(number);
@@ -1757,6 +2323,23 @@ void JdwpImpl::resolveInClass(const QString &number, quint64 classId, const Done
     }
     bp->classes.insert(classId);
 
+    switch (bp->type) {
+    case BreakpointByFunction:
+        resolveMethodInClass(number, classId, done);
+        return;
+    case WatchpointAtExpression:
+        resolveFieldInClass(number, classId, done);
+        return;
+    default:
+        resolveLineInClass(number, classId, done);
+        return;
+    }
+}
+
+// Every method of the class whose code is on the line gets a location, or on
+// the next line with code where the line itself has none, as gdb does it.
+void JdwpImpl::resolveLineInClass(const QString &number, quint64 classId, const Done &done)
+{
     withMethods(classId, [this, number, classId, done] {
         const auto join = std::make_shared<Join>([this, number, classId, done] {
             Breakpoint *bp = breakpoint(number);
@@ -1765,16 +2348,22 @@ void JdwpImpl::resolveInClass(const QString &number, quint64 classId, const Done
                 return;
             }
             const ClassInfo &info = m_classes[classId];
-            QList<JdwpLocation> found;
-            const auto collect = [&info, &found, classId](int line) {
+            const QString className = typeName(info.signature);
+            QList<Breakpoint::Location> found;
+            const auto collect = [&info, &found, &className, classId](int line) {
                 for (const MethodInfo &method : info.methods) {
                     quint64 best = std::numeric_limits<quint64>::max();
                     for (const auto &[index, entryLine] : method.lines) {
                         if (entryLine == line && index < best)
                             best = index;
                     }
-                    if (best != std::numeric_limits<quint64>::max())
-                        found.append({info.tag, classId, method.id, best});
+                    if (best == std::numeric_limits<quint64>::max())
+                        continue;
+                    Breakpoint::Location location;
+                    location.where = {info.tag, classId, method.id, best};
+                    location.function = className + '.' + method.name;
+                    location.line = line;
+                    found.append(location);
                 }
             };
             int line = bp->line;
@@ -1808,32 +2397,16 @@ void JdwpImpl::resolveInClass(const QString &number, quint64 classId, const Done
             }
             if (bp->actualLine == 0)
                 bp->actualLine = line;
-            bp->locations += found;
-            if (!bp->enabled) {
-                done();
-                return;
-            }
+
+            QStringList added;
+            for (const Breakpoint::Location &location : std::as_const(found))
+                added.append(addLocation(*bp, location));
 
             const auto setJoin = std::make_shared<Join>(done);
             setJoin->add();
-            for (const JdwpLocation &location : std::as_const(found)) {
-                JdwpWriter request = writer();
-                request.writeByte(Jdwp::BreakpointEvent).writeByte(Jdwp::SuspendAll).writeInt(1)
-                    .writeByte(Jdwp::LocationOnlyModifier).writeLocation(location);
+            for (const QString &locationNumber : std::as_const(added)) {
                 setJoin->add();
-                send(Jdwp::EventRequestSet, Jdwp::EventRequestSetCommand, request.data(),
-                     [this, number, setJoin](const JdwpReply &reply) {
-                    if (reply.ok()) {
-                        const qint32 id = reader(reply.data).readInt();
-                        // Taken back while the request was out, it must
-                        // not stop anything.
-                        if (Breakpoint *bp = breakpoint(number))
-                            bp->requests.append(id);
-                        else
-                            clearRequest(Jdwp::BreakpointEvent, id);
-                    }
-                    setJoin->release();
-                });
+                armLocation(number, locationNumber, [setJoin] { setJoin->release(); });
             }
             setJoin->release();
         });
@@ -1848,24 +2421,152 @@ void JdwpImpl::resolveInClass(const QString &number, quint64 classId, const Done
     });
 }
 
+// One location per overload, at the first line of the method rather than its
+// first instruction, so that the arguments are in place.
+void JdwpImpl::resolveMethodInClass(const QString &number, quint64 classId, const Done &done)
+{
+    withMethods(classId, [this, number, classId, done] {
+        const Breakpoint *bp = breakpoint(number);
+        if (!bp) {
+            done();
+            return;
+        }
+        const QString member = bp->memberName;
+        QList<quint64> wanted;
+        const QList<MethodInfo> methods = m_classes.value(classId).methods;
+        for (const MethodInfo &method : methods) {
+            if (method.name == member)
+                wanted.append(method.id);
+        }
+        if (wanted.isEmpty()) {
+            done();
+            return;
+        }
+
+        const auto join = std::make_shared<Join>([this, number, classId, wanted, done] {
+            Breakpoint *bp = breakpoint(number);
+            if (!bp) {
+                done();
+                return;
+            }
+            const ClassInfo &info = m_classes[classId];
+            const QString className = typeName(info.signature);
+            const Utils::FilePath source = localFile(info.signature, info.sourceFile);
+            QStringList added;
+            for (const quint64 methodId : wanted) {
+                const MethodInfo *found = method(classId, methodId);
+                // Abstract or native.
+                if (!found || found->lines.isEmpty())
+                    continue;
+                QPair<quint64, int> first = found->lines.first();
+                for (const auto &entry : found->lines) {
+                    if (entry.first < first.first)
+                        first = entry;
+                }
+                Breakpoint::Location location;
+                location.where = {info.tag, classId, methodId, first.first};
+                location.function = className + '.' + found->name;
+                location.file = source;
+                location.line = first.second;
+                added.append(addLocation(*bp, location));
+                if (bp->actualLine == 0) {
+                    bp->actualLine = first.second;
+                    bp->file = source;
+                }
+            }
+            if (added.isEmpty()) {
+                done();
+                return;
+            }
+            const auto setJoin = std::make_shared<Join>(done);
+            setJoin->add();
+            for (const QString &locationNumber : std::as_const(added)) {
+                setJoin->add();
+                armLocation(number, locationNumber, [setJoin] { setJoin->release(); });
+            }
+            setJoin->release();
+        });
+
+        join->add();
+        for (const quint64 methodId : std::as_const(wanted)) {
+            join->add();
+            withLineTable(classId, methodId, [join] { join->release(); });
+        }
+        join->add();
+        withSourceFile(classId, [join] { join->release(); });
+        join->release();
+    });
+}
+
+void JdwpImpl::resolveFieldInClass(const QString &number, quint64 classId, const Done &done)
+{
+    withFields(classId, [this, number, classId, done] {
+        Breakpoint *bp = breakpoint(number);
+        if (!bp) {
+            done();
+            return;
+        }
+        const ClassInfo &info = m_classes[classId];
+        const auto named = [bp](const FieldInfo &field) { return field.name == bp->memberName; };
+        // The nearest declaration wins, static or not. The superclasses come
+        // first among the instance fields, so this class is looked at first.
+        const auto declaredHere = [classId, &named](const FieldInfo &field) {
+            return field.declaringClass == classId && named(field);
+        };
+        const FieldInfo *found = nullptr;
+        for (const QList<FieldInfo> *fields : {&info.fields, &info.staticFields}) {
+            const auto it = std::find_if(fields->cbegin(), fields->cend(), declaredHere);
+            if (it != fields->cend()) {
+                found = &*it;
+                break;
+            }
+        }
+        if (!found) {
+            const auto inherited = std::find_if(info.fields.crbegin(), info.fields.crend(), named);
+            if (inherited != info.fields.crend()) {
+                found = &*inherited;
+            } else {
+                const auto shared = std::find_if(info.staticFields.cbegin(),
+                                                 info.staticFields.cend(), named);
+                if (shared != info.staticFields.cend())
+                    found = &*shared;
+            }
+        }
+        if (!found) {
+            done();
+            return;
+        }
+        // Two classes that inherit the same field are one field to watch.
+        const quint64 fieldClass = found->declaringClass;
+        const quint64 fieldId = found->id;
+        const bool known = Utils::anyOf(bp->locations,
+                                        [fieldClass, fieldId](const Breakpoint::Location &other) {
+            return other.fieldClass == fieldClass && other.fieldId == fieldId;
+        });
+        if (known) {
+            done();
+            return;
+        }
+        Breakpoint::Location location;
+        location.fieldClass = fieldClass;
+        location.fieldId = fieldId;
+        location.function = typeName(info.signature) + '.' + bp->memberName;
+        armLocation(number, addLocation(*bp, location), done);
+    });
+}
+
 void JdwpImpl::handleClassPrepares(const QList<JdwpEvent> &events, const Done &done)
 {
-    QStringList wasPending;
+    QHash<QString, qsizetype> before;
     for (const Breakpoint &bp : std::as_const(m_breakpoints)) {
-        if (bp.type == BreakpointByFileAndLine && !bp.internal && bp.answered
-            && bp.locations.isEmpty()) {
-            wasPending.append(bp.number);
-        }
+        if (!bp.internal && bp.answered && bp.type != BreakpointAtThrow)
+            before.insert(bp.number, bp.locations.size());
     }
-    const auto join = std::make_shared<Join>([this, wasPending, done] {
-        for (const QString &number : wasPending) {
-            const Breakpoint *bp = breakpoint(number);
-            if (!bp || bp->locations.isEmpty())
-                continue;
-            GdbMi data;
-            data.m_type = GdbMi::List;
-            data.addChild(breakpointData(*bp));
-            emit breakpointModified(data);
+    const auto join = std::make_shared<Join>([this, before, done] {
+        for (auto it = before.cbegin(); it != before.cend(); ++it) {
+            const Breakpoint *bp = breakpoint(it.key());
+            if (bp && bp->locations.size() != it.value())
+                emit breakpointModified(breakpointReport(*bp));
         }
         done();
     });
@@ -1877,9 +2578,16 @@ void JdwpImpl::handleClassPrepares(const QList<JdwpEvent> &events, const Done &d
         info.tag = event.refTypeTag;
         info.signatureKnown = true;
         info.signature = event.signature;
-        // By file rather than by request: a class can be prepared before the
+        // By name rather than by request: a class can be prepared before the
         // answer that says which request is the breakpoint's has been read.
+        QStringList byName;
+        QStringList bySource;
         for (const Breakpoint &bp : std::as_const(m_breakpoints)) {
+            if (namesAClass(bp.type)) {
+                if (namesClass(bp.className, event.signature))
+                    byName.append(bp.number);
+                continue;
+            }
             if (bp.type != BreakpointByFileAndLine)
                 continue;
             if (bp.packageKnown) {
@@ -1891,7 +2599,13 @@ void JdwpImpl::handleClassPrepares(const QList<JdwpEvent> &events, const Done &d
                 // be a round trip per class that loads.
                 continue;
             }
-            const QString number = bp.number;
+            bySource.append(bp.number);
+        }
+        for (const QString &number : std::as_const(byName)) {
+            join->add();
+            resolveInClass(number, classId, [join] { join->release(); });
+        }
+        for (const QString &number : std::as_const(bySource)) {
             join->add();
             withSourceFile(classId, [this, number, classId, join] {
                 const Breakpoint *bp = breakpoint(number);

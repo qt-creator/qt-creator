@@ -151,6 +151,7 @@ enum ModifierKind : quint8 {
     ClassExcludeModifier = 6,
     LocationOnlyModifier = 7,
     ExceptionOnlyModifier = 8,
+    FieldOnlyModifier = 9,
     StepModifier = 10,
     SourceNameMatchModifier = 12,
 };
@@ -332,6 +333,10 @@ public:
     // What an exception event carries in addition to the location.
     JdwpValue exception;
     JdwpLocation catchLocation;
+    // Field events. The declaring type is in typeId.
+    quint64 fieldId = 0;
+    JdwpValue fieldObject;
+    JdwpValue valueToBe;
 };
 
 class DEBUGGER_EXPORT JdwpEventSet

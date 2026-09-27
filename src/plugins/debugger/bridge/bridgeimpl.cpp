@@ -172,6 +172,8 @@ static DebuggerEngineSetupData bridgeImplSetupData()
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
             return false;
+        if (query.isVirtualMachineBreakpoint())
+            return false;
         if (query.isCppBreakpoint())
             return true;
         return query.isNativeMixedEnabled;

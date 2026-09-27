@@ -8,17 +8,26 @@ package org.qtproject.jdwptest;
 class Shared
 {
     static int counted = 17;
-    int level = 1;
+    int level = 1; // shared-level
+    // Hidden by a static in the class below.
+    int tally = 5; // shared-tally
 }
 
 // Loaded only once main() gets to it, and a class of its own besides.
 class Helper
 {
+    static int describe()
+    {
+        int answer = 1; // helper-describe
+        return answer;
+    }
+
     static class Nested extends Shared
     {
         private final int value;
         // Hides the one of the superclass.
-        int level = 2;
+        int level = 2; // nested-level
+        static int tally = 9; // nested-tally
 
         Nested(int value)
         {

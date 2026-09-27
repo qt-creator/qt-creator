@@ -25,6 +25,13 @@ class GdbMi;
 // apart.
 DEBUGGER_EXPORT bool isJvmSource(const Utils::FilePath &file);
 
+// "com.example.Foo.bar". Go writes "main.main" as well, so this only means a
+// class member in a session that debugs a virtual machine.
+DEBUGGER_EXPORT bool isJvmMember(const QString &name);
+
+// The name without surrounding whitespace and a trailing "()".
+DEBUGGER_EXPORT QString jvmMemberSpec(const QString &name);
+
 //////////////////////////////////////////////////////////////////
 //
 // BreakpointData
@@ -154,7 +161,8 @@ public:
     uint size;               //!< Size of watched area for data breakpoints.
     uint bitpos;             //!< Location of watched bitfield within watched area.
     uint bitsize;            //!< Size of watched bitfield within watched area.
-    int threadSpec;          //!< Thread specification.
+    // Thread specification. A JVM object id there, so as wide as a pointer.
+    qint64 threadSpec;
     QString functionName;
     QString module;          //!< module for file name
     QString command;         //!< command to execute
@@ -182,6 +190,16 @@ public:
     int start = 0;
     int end = 0;
 };
+
+// Not for a native debugger, nor for an interpreter it drives. Without
+// \a javaDebugging a dotted name is taken as native.
+DEBUGGER_EXPORT bool isVirtualMachineBreakpoint(BreakpointType type,
+                                                const Utils::FilePath &fileName,
+                                                const QString &functionName,
+                                                bool javaDebugging);
+
+DEBUGGER_EXPORT bool isVirtualMachineBreakpoint(const BreakpointParameters &params,
+                                                bool javaDebugging);
 
 QList<TracepointCapture> parseTracepointCaptures(const QString &message);
 QString formatTracepointMessage(const QString &message,

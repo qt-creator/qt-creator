@@ -620,6 +620,8 @@ bool LldbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     if (runParameters().startMode() == AttachToCore)
         return false;
+    if (isVirtualMachineBreakpoint(bp, runParameters().isJavaDebugging()))
+        return false;
     if (bp.isCppBreakpoint())
         return true;
     return isNativeMixedEnabled();

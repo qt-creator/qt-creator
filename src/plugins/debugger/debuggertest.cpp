@@ -232,6 +232,7 @@ private slots:
     void testOnlyMachineCodeIsOfferedADisassembly();
     void testCompiledQmlFramesAreNative();
     void testGdbEngineTakesCompiledQmlBreakpoints();
+    void testABreakpointDropsThePlacesItNoLongerStandsIn();
     void testClaimedQmlBreakpointsGetNoQmlHint();
     void testUnhandledQmlBreakpointsGetAHint();
     void testKitWithCompiledQmlDisablesQmlDebugging();
@@ -4358,6 +4359,62 @@ void DebuggerUnitTests::testGdbEngineTakesCompiledQmlBreakpoints()
     QVERIFY(asEngine.acceptsBreakpoint(fileAndLine));
     QVERIFY2(!asEngine.acceptsBreakpoint(signalEmit),
              "gdb took a breakpoint only the QML engine can handle");
+}
+
+void DebuggerUnitTests::testABreakpointDropsThePlacesItNoLongerStandsIn()
+{
+    BreakpointItem bp({});
+    for (const QString &responseId : QStringList{"3.1", "3.2", "3.3"}) {
+        auto sub = new SubBreakpointItem;
+        sub->responseId = responseId;
+        bp.appendChild(sub);
+    }
+    QCOMPARE(bp.childCount(), 3);
+
+    bp.keepOnlySubBreakpoints({"3.1", "3.3"});
+    QCOMPARE(bp.childCount(), 2);
+    QCOMPARE(bp.childAt(0)->responseId, QString("3.1"));
+    QCOMPARE(bp.childAt(1)->responseId, QString("3.3"));
+
+    bp.keepOnlySubBreakpoints({});
+    QCOMPARE(bp.childCount(), 0);
+
+    auto engine = new GenericDebuggerEngine("test", new RecordingBackend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const auto constMi = [](const QString &name, const QString &data) {
+        GdbMi child;
+        child.m_type = GdbMi::Const;
+        child.m_name = name;
+        child.m_data = data;
+        return child;
+    };
+    GdbMi locations;
+    locations.m_type = GdbMi::List;
+    locations.m_name = "locations";
+    for (const QString &responseId : QStringList{"3.1", "3.2", "3.3"}) {
+        GdbMi location;
+        location.m_type = GdbMi::Tuple;
+        location.addChild(constMi("number", responseId));
+        locations.addChild(location);
+    }
+    GdbMi several;
+    several.m_type = GdbMi::Tuple;
+    several.addChild(constMi("number", "3"));
+    several.addChild(locations);
+
+    BreakpointItem reported({});
+    engine->applyBkptData(several, Breakpoint(&reported));
+    QCOMPARE(reported.childCount(), 3);
+
+    GdbMi single;
+    single.m_type = GdbMi::Tuple;
+    single.addChild(constMi("number", "4"));
+    engine->applyBkptData(single, Breakpoint(&reported));
+    QVERIFY2(reported.childCount() == 0,
+             "the rows of the places the breakpoint stood in before are still there, and each "
+             "of them offers to switch off a place it no longer has");
 }
 
 void DebuggerUnitTests::testClaimedQmlBreakpointsGetNoQmlHint()

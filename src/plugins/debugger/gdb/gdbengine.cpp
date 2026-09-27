@@ -2545,6 +2545,9 @@ bool GdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     if (runParameters().startMode() == AttachToCore)
         return false;
+    // Not even in native mixed mode.
+    if (isVirtualMachineBreakpoint(bp, runParameters().isJavaDebugging()))
+        return false;
     return !isInterpreterBreakpoint(bp) || isNativeMixedEnabled();
 }
 
@@ -2599,7 +2602,7 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
         cmd.function = "catch syscall";
         cmd.callback = handleCatch;
     } else {
-        int spec = requested.threadSpec;
+        qint64 spec = requested.threadSpec;
         if (requested.isTracepoint()) {
 
             if (settings().usePseudoTracepoints()) {

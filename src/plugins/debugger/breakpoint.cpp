@@ -18,6 +18,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QRegularExpression>
+#include <QSet>
 
 using namespace Utils;
 
@@ -27,6 +28,55 @@ bool isJvmSource(const FilePath &file)
 {
     const QString suffix = file.suffix();
     return suffix == "java" || suffix == "kt" || suffix == "kts";
+}
+
+// So that "this.count" is not taken for a field of a class "this".
+static bool isJvmReservedWord(QStringView text)
+{
+    static const QSet<QStringView> reserved = {
+        u"abstract", u"assert", u"boolean", u"break", u"byte", u"case", u"catch", u"char",
+        u"class", u"const", u"continue", u"default", u"do", u"double", u"else", u"enum",
+        u"extends", u"false", u"final", u"finally", u"float", u"for", u"goto", u"if",
+        u"implements", u"import", u"instanceof", u"int", u"interface", u"long", u"native",
+        u"new", u"null", u"package", u"private", u"protected", u"public", u"return", u"short",
+        u"static", u"strictfp", u"super", u"switch", u"synchronized", u"this", u"throw",
+        u"throws", u"transient", u"true", u"try", u"void", u"volatile", u"while"};
+    return reserved.contains(text);
+}
+
+static bool isJvmIdentifier(QStringView text)
+{
+    if (text.isEmpty() || text.at(0).isDigit() || isJvmReservedWord(text))
+        return false;
+    for (const QChar c : text) {
+        if (!c.isLetterOrNumber() && c != '_' && c != '$')
+            return false;
+    }
+    return true;
+}
+
+QString jvmMemberSpec(const QString &name)
+{
+    QString spec = name.trimmed();
+    if (spec.endsWith("()"))
+        spec.chop(2);
+    return spec;
+}
+
+bool isJvmMember(const QString &name)
+{
+    const QString spec = jvmMemberSpec(name);
+    if (spec.contains("::") || !spec.contains('.'))
+        return false;
+    const QStringList parts = spec.split('.');
+    const QString member = parts.last();
+    if (!isJvmIdentifier(member) && member != "<init>" && member != "<clinit>")
+        return false;
+    for (qsizetype i = 0; i < parts.size() - 1; ++i) {
+        if (!isJvmIdentifier(parts.at(i)))
+            return false;
+    }
+    return true;
 }
 
 /*!
@@ -174,6 +224,22 @@ bool BreakpointParameters::isCppBreakpoint() const
         return !isQmlFileAndLineBreakpoint() && !isJvmSource(fileName);
 
     return true;
+}
+
+bool isVirtualMachineBreakpoint(BreakpointType type, const FilePath &fileName,
+                                const QString &functionName, bool javaDebugging)
+{
+    if (type == BreakpointByFileAndLine)
+        return isJvmSource(fileName);
+    if (type == BreakpointByFunction)
+        return javaDebugging && isJvmMember(functionName);
+    return false;
+}
+
+bool isVirtualMachineBreakpoint(const BreakpointParameters &params, bool javaDebugging)
+{
+    return isVirtualMachineBreakpoint(params.type, params.fileName, params.functionName,
+                                      javaDebugging);
 }
 
 QString BreakpointParameters::toString() const
@@ -339,7 +405,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Debugger
                 ba = ba.mid(1, ba.size() - 2);
             functionName = ba;
         } else if (child.hasName("thread")) {
-            threadSpec = child.toInt();
+            threadSpec = child.toLongLong();
         } else if (child.hasName("type")) {
             // "breakpoint", "hw breakpoint", "tracepoint", "hw watchpoint"
             // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",

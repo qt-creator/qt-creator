@@ -481,9 +481,12 @@ bool GenericDebuggerEngine::acceptsBreakpoint(const BreakpointParameters &bp) co
     AcceptsBreakpointQuery query;
     query.type = bp.type;
     query.fileName = bp.fileName;
+    query.functionName = bp.functionName;
+    query.expression = bp.expression;
     query.startMode = runParameters().startMode();
     query.isNativeMixedEnabled = isNativeMixedEnabled();
     query.isQmlCompiledToNative = runParameters().isQmlCompiledToNative();
+    query.isJavaDebugging = runParameters().isJavaDebugging();
     return accepts(query);
 }
 
@@ -686,15 +689,16 @@ void GenericDebuggerEngine::applyBkptData(const GdbMi &bkpt, const Breakpoint &b
         return;
     }
 
-    const GdbMi locations = bkpt["locations"];
-    if (locations.isValid()) {
-        for (const GdbMi &location : locations) {
-            const QString subnr = location["number"].data();
-            SubBreakpoint sub = bp->findOrCreateSubBreakpoint(subnr);
-            QTC_ASSERT(sub, return);
-            applyToSub(location, sub);
-        }
+    QSet<QString> listed;
+    for (const GdbMi &location : bkpt["locations"]) {
+        const QString subnr = location["number"].data();
+        listed.insert(subnr);
+        SubBreakpoint sub = bp->findOrCreateSubBreakpoint(subnr);
+        QTC_ASSERT(sub, return);
+        applyToSub(location, sub);
     }
+    // No list means a single location or none.
+    bp->keepOnlySubBreakpoints(listed);
 
     bp->setResponseId(nr);
     bp->updateFromGdbOutput(bkpt, runParameters());

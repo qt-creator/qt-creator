@@ -21,6 +21,11 @@ bool AcceptsBreakpointQuery::isCppBreakpoint() const
     return true;
 }
 
+bool AcceptsBreakpointQuery::isVirtualMachineBreakpoint() const
+{
+    return Internal::isVirtualMachineBreakpoint(type, fileName, functionName, isJavaDebugging);
+}
+
 bool AcceptsBreakpointQuery::isQmlFileAndLineBreakpoint() const
 {
     if (type != BreakpointByFileAndLine)

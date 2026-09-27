@@ -23,6 +23,8 @@
 #include <QJsonDocument>
 #include <QRegularExpression>
 
+#include <limits>
+
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -133,6 +135,8 @@ static DebuggerEngineSetupData dapImplSetupData()
     data.toolTipHandling = ToolTipHandling::IfStoppedInferiorAndCppEditor;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
+            return false;
+        if (query.isVirtualMachineBreakpoint())
             return false;
         // A QML file has no adapter of its own here, and the source breakpoint
         // an adapter for the native side would get is one it cannot resolve.
@@ -1978,8 +1982,8 @@ void DapImpl::changeBreakpoint(const BreakpointChangeRequest &request)
         if (request.op == BreakpointOp::Remove) {
             list->erase(it);
         } else {
-            if (!params.fileName.isEmpty())
-                it->params = params;
+            // Also for a breakpoint that names no file.
+            it->params = params;
             it->enabled = params.enabled;
             it->requestId = request.requestId;
             it->op = request.op;
@@ -2164,12 +2168,14 @@ void DapImpl::reportBreakpointsSet(const QJsonObject &response, BreakpointArray 
         // does not list it at all, which a refused request lists nothing in.
         const bool taken = i < reported.size()
                            && (verified || item.value("reason").toString() != "failed");
-        if (sent.at(i).op == BreakpointOp::Insert && kind != BreakpointArray::Data) {
-            reportBreakpointInsert(sent.at(i).requestId, taken, verified, data,
-                                   sent.at(i).adapterId, sent.at(i).params.threadSpec);
+        const BreakpointOp op = sent.at(i).op;
+        if ((op == BreakpointOp::Insert || op == BreakpointOp::Update)
+            && kind != BreakpointArray::Data) {
+            reportBreakpointWithLocations(sent.at(i).requestId, op, taken, verified, data,
+                                          sent.at(i).adapterId, sent.at(i).params.threadSpec);
             continue;
         }
-        emit breakpointEvent(sent.at(i).requestId, sent.at(i).op, taken, data);
+        emit breakpointEvent(sent.at(i).requestId, op, taken, data);
     }
 }
 
@@ -2219,35 +2225,47 @@ static QString parseBreakpointThread(const QString &listing)
 // A breakpoint that resolves to several places, a template instantiated more
 // than once at the head of them, is one breakpoint for the protocol, while the
 // view gives every place a row of its own. The debugger behind the adapter
-// lists them, so its own listing is read where a breakpoint was taken.
-void DapImpl::reportBreakpointInsert(quint64 requestId, bool taken, bool verified,
-                                     const GdbMi &data, const QString &number, int threadSpec)
+// lists them, so its own listing is read where a breakpoint was taken or
+// changed.
+void DapImpl::reportBreakpointWithLocations(quint64 requestId, BreakpointOp op, bool taken,
+                                           bool verified, const GdbMi &data,
+                                           const QString &number, qint64 threadSpec)
 {
     // A breakpoint the debugger has not bound yet sits at no place it could
     // list, and the listing would have to wait for a debuggee that is on its
-    // way: the answer to it may never come, and the insert would be lost.
+    // way: the answer to it may never come, and this one would be lost.
     if (!taken || !verified || number.isEmpty()) {
-        emit breakpointEvent(requestId, BreakpointOp::Insert, taken, data);
+        emit breakpointEvent(requestId, op, taken, data);
         return;
     }
     // A breakpoint of the protocol names no thread it is the only one to stop
     // in, while the debugger behind the adapter takes one on a breakpoint it
-    // has already.
-    if (threadSpec > 0) {
+    // has already. Only gdb is asked. A number beyond int is a JVM object id.
+    const bool namesAThread = threadSpec > 0
+                              && threadSpec <= std::numeric_limits<int>::max();
+    if (threadSpec > 0 && !namesAThread) {
+        emit message(Tr::tr("The debugger has no thread %1, so the breakpoint stops in every "
+                            "thread.").arg(threadSpec), LogWarning);
+    }
+    // A change also takes the thread off.
+    if (m_startData.adapterId == "gdb" && (namesAThread || op == BreakpointOp::Update)) {
         postReplCommand(QString("python bp = [b for b in gdb.breakpoints() "
                                 "if b.number == %1][0]; bp.thread = %2")
-                            .arg(number).arg(threadSpec));
+                            .arg(number, namesAThread ? QString::number(threadSpec)
+                                                      : QString("None")));
     }
     const QString listing = "info breakpoints " + number;
     sendCustomRequest("evaluate",
                       QJsonObject{{"expression", listing}, {"context", "repl"}},
-                      [this, requestId, data, number](const Utils::Result<QJsonObject> &answer) {
+                      [this, requestId, op, data, number](const Utils::Result<QJsonObject> &answer) {
         const QString reported = answer ? answer->value("result").toString() : QString();
         const GdbMi locations = parseBreakpointLocations(reported, number);
         const QString thread = parseBreakpointThread(reported);
         const bool multiple = locations.childCount() > 1;
-        if (!multiple && thread.isEmpty()) {
-            emit breakpointEvent(requestId, BreakpointOp::Insert, true, data);
+        // The model keeps a field that is not reported.
+        const bool namesTheThread = !thread.isEmpty() || op == BreakpointOp::Update;
+        if (!multiple && !namesTheThread) {
+            emit breakpointEvent(requestId, op, true, data);
             return;
         }
         GdbMi bkpt;
@@ -2260,12 +2278,12 @@ void DapImpl::reportBreakpointInsert(quint64 requestId, bool taken, bool verifie
             bkpt.addChild(constMi("addr", "<MULTIPLE>"));
             bkpt.addChild(locations);
         }
-        if (!thread.isEmpty())
-            bkpt.addChild(constMi("thread", thread));
+        if (namesTheThread)
+            bkpt.addChild(constMi("thread", thread.isEmpty() ? QString("-1") : thread));
         GdbMi all;
         all.m_type = GdbMi::List;
         all.addChild(bkpt);
-        emit breakpointEvent(requestId, BreakpointOp::Insert, true, all);
+        emit breakpointEvent(requestId, op, true, all);
     });
 }
 
