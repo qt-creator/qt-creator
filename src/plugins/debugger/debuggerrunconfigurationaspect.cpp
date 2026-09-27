@@ -50,7 +50,9 @@ enum class LanguageSelection {
     QmlAndPython,
     CppQmlAndPython,
     Java,
-    CppAndJava
+    CppAndJava,
+    QmlAndJava,
+    CppQmlAndJava
 };
 
 static const Key cppKey = "RunConfiguration.UseCppDebugger";
@@ -263,6 +265,13 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
     addLanguageOption(LanguageSelection::CppAndJava, Tr::tr("C++ and Java"), "CppAndJava",
               Tr::tr("Debug the native code and the Java code of one application, such as "
                      "a Qt application on Android."));
+    addLanguageOption(LanguageSelection::QmlAndJava, Tr::tr("QML and Java"), "QmlAndJava",
+              Tr::tr("Debug the QML and the Java of one application, and leave its native "
+                     "code to run."));
+    addLanguageOption(LanguageSelection::CppQmlAndJava, Tr::tr("C++, QML, and Java"),
+              "CppQmlAndJava",
+              Tr::tr("Debug all three languages a Qt application on Android is written in, "
+                     "with an engine for each."));
     m_languagesAspect.setUseDataAsSavedValue();
     m_languagesAspect.setDefaultValue(int(LanguageSelection::Automatic));
 
@@ -326,11 +335,13 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
     case LanguageSelection::CppAndPython:
     case LanguageSelection::CppQmlAndPython:
     case LanguageSelection::CppAndJava:
+    case LanguageSelection::CppQmlAndJava:
         return true;
     case LanguageSelection::Qml:
     case LanguageSelection::Python:
     case LanguageSelection::QmlAndPython:
     case LanguageSelection::Java:
+    case LanguageSelection::QmlAndJava:
         return false;
     case LanguageSelection::Automatic:
         return autoUseCppDebugger(m_buildConfiguration,
@@ -348,6 +359,8 @@ bool DebuggerRunConfigurationAspect::useQmlDebugger() const
     case LanguageSelection::CppAndQmlCombined:
     case LanguageSelection::QmlAndPython:
     case LanguageSelection::CppQmlAndPython:
+    case LanguageSelection::QmlAndJava:
+    case LanguageSelection::CppQmlAndJava:
         return true;
     case LanguageSelection::Cpp:
     case LanguageSelection::Python:
@@ -375,6 +388,8 @@ bool DebuggerRunConfigurationAspect::usePythonDebugger() const
     case LanguageSelection::CppAndQmlCombined:
     case LanguageSelection::Java:
     case LanguageSelection::CppAndJava:
+    case LanguageSelection::QmlAndJava:
+    case LanguageSelection::CppQmlAndJava:
         return false;
     case LanguageSelection::Automatic:
         return autoUsePythonDebugger(m_buildConfiguration);
@@ -388,7 +403,26 @@ bool DebuggerRunConfigurationAspect::usePythonDebugger() const
 // DebuggerRunParameters::fixupParameters().
 bool DebuggerRunConfigurationAspect::useJavaDebugger() const
 {
-    return languages() == LanguageSelection::Java || languages() == LanguageSelection::CppAndJava;
+    // A switch rather than a comparison, so that a language added to the list
+    // is one the compiler asks about here as well.
+    switch (languages()) {
+    case LanguageSelection::Java:
+    case LanguageSelection::CppAndJava:
+    case LanguageSelection::QmlAndJava:
+    case LanguageSelection::CppQmlAndJava:
+        return true;
+    case LanguageSelection::Cpp:
+    case LanguageSelection::Qml:
+    case LanguageSelection::CppAndQml:
+    case LanguageSelection::CppAndQmlCombined:
+    case LanguageSelection::Python:
+    case LanguageSelection::CppAndPython:
+    case LanguageSelection::QmlAndPython:
+    case LanguageSelection::CppQmlAndPython:
+    case LanguageSelection::Automatic:
+        return false;
+    }
+    return false;
 }
 
 bool DebuggerRunConfigurationAspect::isAutomatic() const

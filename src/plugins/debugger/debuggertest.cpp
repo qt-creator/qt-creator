@@ -122,6 +122,9 @@ private slots:
     void testRegisterValue_data();
     void testRegisterValue();
 
+    void testDebuggerLanguages_data();
+    void testDebuggerLanguages();
+
     void testInferiorStartData();
     void testCdbImplStartData();
     void testCdbImplCommandLine();
@@ -479,6 +482,54 @@ void DebuggerUnitTests::testRegisterValue()
     twoPow64.fromString("0x10000000000000000", HexadecimalFormat);
     QCOMPARE(twoPow64.toString(IntegerRegister, 16, DecimalFormat).trimmed(),
              QString("18446744073709551616"));
+}
+
+// What a run configuration stores is the name of the selection, and what it
+// means is read back off the index of it, so the two lists have to line up.
+void DebuggerUnitTests::testDebuggerLanguages_data()
+{
+    QTest::addColumn<QString>("stored");
+    QTest::addColumn<bool>("cpp");
+    QTest::addColumn<bool>("qml");
+    QTest::addColumn<bool>("python");
+    QTest::addColumn<bool>("java");
+
+    QTest::newRow("Cpp") << "Cpp" << true << false << false << false;
+    QTest::newRow("Qml") << "Qml" << false << true << false << false;
+    QTest::newRow("CppAndQml") << "CppAndQml" << true << true << false << false;
+    QTest::newRow("CppAndQmlCombined") << "CppAndQmlCombined" << true << true << false << false;
+    QTest::newRow("Python") << "Python" << false << false << true << false;
+    QTest::newRow("CppAndPython") << "CppAndPython" << true << false << true << false;
+    QTest::newRow("QmlAndPython") << "QmlAndPython" << false << true << true << false;
+    QTest::newRow("CppQmlAndPython") << "CppQmlAndPython" << true << true << true << false;
+    QTest::newRow("Java") << "Java" << false << false << false << true;
+    QTest::newRow("CppAndJava") << "CppAndJava" << true << false << false << true;
+    QTest::newRow("QmlAndJava") << "QmlAndJava" << false << true << false << true;
+    QTest::newRow("CppQmlAndJava") << "CppQmlAndJava" << true << true << false << true;
+}
+
+void DebuggerUnitTests::testDebuggerLanguages()
+{
+    QFETCH(QString, stored);
+    QFETCH(bool, cpp);
+    QFETCH(bool, qml);
+    QFETCH(bool, python);
+    QFETCH(bool, java);
+
+    // The build configuration is only read where the selection is automatic,
+    // which is none of the rows above.
+    DebuggerRunConfigurationAspect aspect(nullptr);
+    Store map;
+    map.insert("RunConfiguration.DebuggerLanguages", stored);
+    aspect.fromMap(map);
+
+    QCOMPARE(aspect.isAutomatic(), false);
+    QCOMPARE(aspect.useCppDebugger(), cpp);
+    QCOMPARE(aspect.useQmlDebugger(), qml);
+    QCOMPARE(aspect.usePythonDebugger(), python);
+    QCOMPARE(aspect.useJavaDebugger(), java);
+    // The one selection that puts both languages on a single engine.
+    QCOMPARE(aspect.useCombinedEngine(), stored == "CppAndQmlCombined");
 }
 
 void DebuggerUnitTests::testInferiorStartData()
