@@ -6,8 +6,22 @@ package org.qtproject.jdwptest;
 // The lines the test stops at are found by the markers in their comments.
 public class Inferior
 {
-    static class Point
+    interface Marked
     {
+    }
+
+    interface Labelled extends Marked
+    {
+    }
+
+    // Met as a Marked before it is met as a Labelled.
+    static class Tag implements Marked, Labelled
+    {
+    }
+
+    static class Point implements Marked
+    {
+        static int corners = 4;
         final int x;
         final int y;
 
@@ -21,6 +35,12 @@ public class Inferior
         public String toString()
         {
             return "(" + x + ", " + y + ")"; // tostring-body
+        }
+
+        // Something for a watcher to call.
+        int sum()
+        {
+            return x + y;
         }
     }
 
@@ -177,6 +197,77 @@ public class Inferior
         return value + value; // twice-string
     }
 
+    static String pick(Object value)
+    {
+        return "object";
+    }
+
+    static String pick(long value)
+    {
+        return "long";
+    }
+
+    static String pick(String value)
+    {
+        return "string";
+    }
+
+    static String pick(int value)
+    {
+        return "int";
+    }
+
+    static String pick(Marked value)
+    {
+        return "marked";
+    }
+
+    static String pick(Labelled value)
+    {
+        return "labelled";
+    }
+
+    static Tag tag()
+    {
+        return new Tag();
+    }
+
+    static class Base
+    {
+        String foo(Object value)
+        {
+            return "base";
+        }
+
+        String log(long value)
+        {
+            return "base long";
+        }
+
+        String call()
+        {
+            return foo("x"); // base-call
+        }
+    }
+
+    static class Derived extends Base
+    {
+        String foo(String value)
+        {
+            return "derived";
+        }
+
+        String log(int value)
+        {
+            return "derived int";
+        }
+    }
+
+    static int shadowing(int calls)
+    {
+        return calls + 1; // shadowing-body
+    }
+
     static void overloads()
     {
         twice(21);
@@ -198,6 +289,13 @@ public class Inferior
         shared(2);
     }
 
+    // A method that answers nothing and throws instead, so that a watcher
+    // calling it has something to report.
+    static int explode()
+    {
+        throw new IllegalStateException("boom");
+    }
+
     static void writes()
     {
         watched = 1; // writes-first
@@ -217,12 +315,31 @@ public class Inferior
             overloads();
             return;
         }
+        if (args.length > 0 && args[0].equals("shadowing")) {
+            shadowing(5);
+            return;
+        }
         if (args.length > 0 && args[0].equals("threads")) {
             twoThreads();
             return;
         }
         if (args.length > 0 && args[0].equals("writes")) {
             writes();
+            return;
+        }
+        if (args.length > 0 && args[0].equals("bare")) {
+            Bare.work(3);
+            return;
+        }
+        if (args.length > 1 && args[0].equals("late")) {
+            // Bare is loaded only once the file is there, while the program runs.
+            java.io.File signal = new java.io.File(args[1]);
+            System.out.println("waiting");
+            while (!signal.exists())
+                Thread.sleep(20);
+            Bare.work(3);
+            System.out.println("loaded");
+            spin();
             return;
         }
         if (args.length > 0 && args[0].equals("spin")) {
@@ -263,6 +380,10 @@ public class Inferior
             Integer.parseInt("not a number");
             return;
         }
+        if (args.length > 0 && args[0].equals("base")) {
+            new Derived().call();
+            return;
+        }
         if (args.length > 0 && args[0].equals("packages")) {
             Helper.describe();
             org.qtproject.jdwptest.other.Helper.describe();
@@ -271,6 +392,7 @@ public class Inferior
         int number = 7; // main-start
         String text = "hello";
         int[] values = {1, 2, 3};
+        Base base = new Derived();
 
         // no-code
         Point point = new Point(3, 4); // after-no-code

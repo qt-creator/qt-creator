@@ -77,17 +77,22 @@ private:
         quint64 id = 0;
         QString name;
         QString signature;
+        QString genericSignature;
         qint32 modBits = 0;
         bool lineTableKnown = false;
         // Code index and line, in the order of the code.
         QList<QPair<quint64, int>> lines;
         bool variablesKnown = false;
+        // Compiled without the table that names them, which is why there are
+        // none rather than because the method has none.
+        bool variablesAbsent = false;
         class Variable
         {
         public:
             quint64 codeIndex = 0;
             QString name;
             QString signature;
+            QString genericSignature;
             qint32 length = 0;
             qint32 slot = 0;
         };
@@ -101,6 +106,7 @@ private:
         quint64 declaringClass = 0;
         QString name;
         QString signature;
+        QString genericSignature;
         qint32 modBits = 0;
     };
 
@@ -125,6 +131,9 @@ private:
         bool toStringKnown = false;
         quint64 toStringClass = 0;
         quint64 toStringMethod = 0;
+        // Itself, its superclasses, then its interfaces.
+        bool supertypesKnown = false;
+        QList<quint64> supertypes;
     };
 
     // What an expression came out as: a value and the type it is declared with,
@@ -134,9 +143,63 @@ private:
     public:
         JdwpValue value;
         QString type;
+        // The type again, as the machine spells it, which is what Java picks
+        // an overload by. Empty where it is a type variable or not known, and
+        // then the class of the value stands in for it. A null with none is
+        // of the null type, which every reference type takes.
+        QString signature;
         QString error;
     };
     using Evaluation = std::function<void(const Evaluated &)>;
+
+    // A method a call could mean, and what it takes and answers.
+    class Callable
+    {
+    public:
+        quint64 declaringClass = 0;
+        quint64 methodId = 0;
+        // The signatures of what it takes, and of what it answers.
+        QStringList parameters;
+        QString returns;
+        // What it answers is of a type variable, which tells nothing about
+        // the class of what comes back.
+        bool returnsTypeVariable = false;
+        bool isStatic = false;
+        bool isVarArgs = false;
+    };
+
+    // What a call is made on: the class its method is looked for in, and the
+    // object it goes to, which is none where only a static method will do.
+    class Receiver
+    {
+    public:
+        quint64 searchType = 0;
+        quint64 object = 0;
+        // The object is a null, which only a static method can be called on.
+        bool isNull = false;
+    };
+
+    // The stop a call is asked for at. A call can only go out while the
+    // program is still there and the thread is still the one selected.
+    class Stop
+    {
+    public:
+        int runGeneration = 0;
+        quint64 thread = 0;
+    };
+
+    // What a call into the virtual machine came back with: what the method
+    // answered, or what it threw instead, or nothing because it never came
+    // back at all.
+    class Invoked
+    {
+    public:
+        JdwpValue value;
+        JdwpValue thrown;
+        bool gaveUp = false;
+        QString error;
+    };
+    using Returned = std::function<void(const Invoked &)>;
 
     // Where a value lives, which is what an assignment needs and reading one
     // does not. The signature is the type the place is declared with, and what
@@ -297,6 +360,11 @@ private:
     // Running and stopping. Every stop holds one suspension of the virtual
     // machine, and a resume gives back exactly those it holds.
     void resumeFromStop();
+    void pin(const JdwpValue &value, const Stop &stop);
+    Stop currentStop() const { return {m_runGeneration, m_currentThread}; }
+    // Why a call cannot go out at the stop it was asked for at, or nothing
+    // where it can.
+    QString whyNoCallAt(const Stop &stop) const;
     void reportRunOk();
     void reportStop(const QList<JdwpEvent> &hits);
     void reportStopAt(const QList<JdwpEvent> &hits);
@@ -367,6 +435,17 @@ private:
     void updateFromBreakpointRequest(Breakpoint &bp, const BreakpointParameters &params);
     void reportTracepoint(const QString &number, const JdwpEvent &event, const Done &done);
     void reportTracepoints(QList<Hit> hits, const Done &done);
+    // A capture whose expression calls, which is worked out after the ones
+    // read off the frames: the call would make the machine forget them.
+    class CallingCapture
+    {
+    public:
+        qsizetype index = 0;
+        JdwpExpression parsed;
+    };
+    void answerTracepointCalls(const std::shared_ptr<QStringList> &filled,
+                               const std::shared_ptr<QList<CallingCapture>> &calling,
+                               int generation, const Done &done);
     void reportFieldWrite(const Hit &hit);
     void valueText(const JdwpValue &value, const std::function<void(const QString &)> &done);
 
@@ -374,9 +453,16 @@ private:
     void withFrames(int count, const Done &done);
     void reportStack(quint64 requestId, int depthLimit);
     void reportThreads(quint64 requestId);
+    // What the machine was started with, which is what it has in place of the
+    // libraries a native program is made of.
+    void reportModules(quint64 requestId);
+    // The sources of the classes that are the program's rather than the
+    // runtime's, which are the ones a user has any use for.
+    void reportSourceFiles(quint64 requestId);
 
-    // Expressions, as far as reading the virtual machine answers them: no call
-    // runs in it, so nothing a watcher shows can change what the program does.
+    // Expressions. Everything but a call is read off the suspended thread and
+    // changes nothing about what the program does; a call is the exception,
+    // and only runs where the views allow it.
     void evaluate(const JdwpExpression &expression, const Evaluation &done);
     void evaluateName(const QString &name, const Evaluation &done);
     void evaluateThis(const Evaluation &done);
@@ -388,6 +474,73 @@ private:
     void elementOf(const Evaluated &base, const Evaluated &index, const Evaluation &done);
     void withCurrentFrame(const std::function<void(const Frame *)> &done);
     QList<MethodInfo::Variable> visibleVariables(const JdwpLocation &location) const;
+    // The class a dotted name stands for, or zero where no loaded class goes
+    // by it. A plain name is tried in the package of the frame and in
+    // java.lang as well, the way a source that imports neither would read it.
+    void classNamed(const QString &name, const std::function<void(quint64)> &done);
+    void classNamedAmong(const QStringList &candidates, qsizetype index,
+                         const std::function<void(quint64)> &done);
+    // The loaded class of that signature, or zero.
+    void classOfSignature(const QString &signature, const std::function<void(quint64)> &done);
+    void withObjectClass(const std::function<void(quint64)> &done);
+    void withAllClasses(const Done &done);
+    void classNameOf(const JdwpValue &object, const std::function<void(const QString &)> &done);
+    // The class of the object, or 0 where the machine does not say.
+    void withClassOf(quint64 object, const std::function<void(quint64)> &done);
+
+    // Calls, which are what makes an expression more than a read. The method
+    // is chosen the way JLS 15.12 has it, by the static types of the receiver
+    // and of the arguments, and the machine's dispatch picks the override.
+    void callOf(const JdwpExpression &expression, const Evaluation &done);
+    void callOn(const Stop &stop, const Receiver &receiver, const QString &name,
+                const QList<Evaluated> &arguments, const Evaluation &done);
+    // The class an unqualified call is one of: the innermost of the frame's
+    // class and those around it with a method of the name, and the object of
+    // it the frame has, if any.
+    void enclosingReceiver(quint64 classId, quint64 object, const QString &name,
+                           const std::function<void(const Receiver &)> &done);
+    // The arguments of a call, worked out left to right as Java has them, and
+    // answered with what went wrong where one of them could not be.
+    using Arguments = QList<std::shared_ptr<JdwpExpression>>;
+    void evaluateEach(const Arguments &expressions, qsizetype index,
+                      const std::shared_ptr<QList<Evaluated>> &values,
+                      const std::function<void(const QString &error)> &done);
+    // The methods of the class and of everything it inherits from that go by
+    // the name, each declaration ahead of those it overrides or hides.
+    void withCallables(quint64 classId, const QString &name,
+                       const std::function<void(const QList<Callable> &)> &done);
+    void gatherCallables(const QList<quint64> &types, qsizetype index, const QString &name,
+                         const std::shared_ptr<QList<Callable>> &found,
+                         const std::function<void(const QList<Callable> &)> &done);
+    // The type, its superclasses, and then the interfaces of all of them, each
+    // ahead of those it extends.
+    using Types = std::function<void(const QList<quint64> &)>;
+    class SupertypeWalk;
+    void withSupertypes(quint64 typeId, const Types &done);
+    void expandSupertypes(const std::shared_ptr<SupertypeWalk> &walk, const Types &done);
+    void withSignatures(const QList<quint64> &typeIds, qsizetype index, const Done &done);
+    // What each of the types is a subtype of, by signature, and itself.
+    using Subtyping = QHash<QString, QSet<QString>>;
+    void withSupertypeSignatures(const QStringList &signatures, qsizetype index,
+                                 const std::shared_ptr<Subtyping> &subtyping, const Done &done);
+    // The static type of each argument, with the class of the value where
+    // the type is not known.
+    void withArgumentSignatures(const QList<Evaluated> &arguments, qsizetype index,
+                                const std::shared_ptr<QStringList> &signatures,
+                                const Done &done);
+    // The argument as the parameter takes it: boxed, unboxed or widened.
+    void converted(const Stop &stop, const Evaluated &argument, const QString &parameter,
+                   const std::function<void(const JdwpValue &, const QString &error)> &done);
+    void convertedEach(const Stop &stop, const QList<Evaluated> &arguments,
+                       const QStringList &parameters, qsizetype index,
+                       const std::shared_ptr<QList<JdwpValue>> &values,
+                       const std::function<void(const QString &error)> &done);
+    // The array the trailing arguments of a variable arity call go in.
+    void newArray(const Stop &stop, const QString &signature, const QList<JdwpValue> &elements,
+                  const std::function<void(const JdwpValue &, const QString &error)> &done);
+    enum class Dispatch { OnObject, Static };
+    void invoke(const Stop &stop, quint64 object, quint64 classId, quint64 methodId,
+                Dispatch dispatch, const QList<JdwpValue> &arguments, const Returned &done);
 
     // Assignment, which is the one thing a debugger does to a value rather
     // than with it.
@@ -410,21 +563,42 @@ private:
     };
     void showAsToString(const JoinPtr &join, const QString &iname, quint64 object,
                         quint64 classId);
-    void answerToStrings(int generation, int stopGeneration);
+    // Runs what the views put off until everything that reads off a frame was
+    // read: the watchers that call, and then the toString() of every object
+    // shown. One at a time, since the machine takes no second call on a
+    // thread that is off running the first.
+    void answerCalls(int generation, const Stop &stop);
     // Hands over what the call returned, and whether it was given up on rather
     // than answered.
     using Called = std::function<void(const std::optional<QString> &text, bool gaveUp)>;
-    void invokeToString(quint64 object, quint64 declaringClass, quint64 methodId,
-                        const Called &done);
+    void invokeToString(const Stop &stop, quint64 object, quint64 declaringClass,
+                        quint64 methodId, const Called &done);
+
+    // A watcher whose expression calls, which cannot be worked out while the
+    // frames are being read: the call would make the machine forget them.
+    class DeferredWatcher
+    {
+    public:
+        QString iname;
+        QString expression;
+        JdwpExpression parsed;
+    };
 
     void fetchLocals(const RefreshRequest &request);
     void addWatchers(const JoinPtr &join, const QJsonArray &watchers);
+    // The statics of the class the frame stands in, under one row of their
+    // own, since they belong to no local and to no object.
+    void addStaticFields(const JoinPtr &join);
+    // Says once why a method shows no locals where the reason is that it was
+    // compiled without the table that names them.
+    void mentionAbsentVariables(const JdwpLocation &location);
     void addValue(const JoinPtr &join, const QString &iname, const QString &name,
                   const QString &declaredType, const JdwpValue &value);
     void addObjectValue(const JoinPtr &join, const QString &iname, const JdwpValue &value);
     QString expressionOf(const QString &iname) const;
     GdbMi localsItem(const QString &iname) const;
     void reportLocals();
+    void runPendingCommands();
 
     const JdwpImplStartData m_startData;
     JdwpClient m_client;
@@ -452,15 +626,27 @@ private:
     // past rather than reported, once with a word about it.
     QHash<quint64, int> m_callsOut;
     bool m_callStopMentioned = false;
+    // The objects an expression made or got back from a call, which nothing in
+    // the program need refer to while the next call runs the thread. They are
+    // kept from being collected until the program is let go.
+    QList<quint64> m_pinned;
     int m_extraSuspends = 0;
     // Stops that other threads ran into while one was being reported. Each
     // holds a suspension of its own, and comes next.
     QList<QList<JdwpEvent>> m_pendingStops;
 
     QHash<quint64, ClassInfo> m_classes;
+    // The stop every class the machine had loaded was read at, which is what
+    // the Source Files view lists. Classes load while the program runs, so it
+    // is read again at the next stop, and every time while it runs.
+    int m_allClassesFrom = -1;
+    quint64 m_objectClass = 0;
     // The files the breakpoints were set in, by their path below the package root.
     QHash<QString, Utils::FilePath> m_knownSources;
     QHash<QString, QList<Done>> m_waiting;
+    // The methods whose missing variable table has been mentioned, so that it
+    // is said once rather than at every stop in them.
+    QSet<QString> m_absentMentioned;
 
     QMap<QString, Breakpoint> m_breakpoints;
     int m_nextBreakpointNumber = 1;
@@ -486,17 +672,27 @@ private:
     int m_runGeneration = 0;
 
     quint64 m_localsRequestId = 0;
-    // Whether the views allow the program to be made to run, which is what
-    // showing an object by its toString() takes.
-    bool m_inferiorCallsAllowed = true;
-    // What the views last asked for, which a write makes stale.
+    // What the views last asked for, which a write makes stale. Whether they
+    // allow the program to be made to run is part of it, and holds for the
+    // views alone: everything else that calls was asked for by the user.
     RefreshRequest m_lastLocalsRequest;
     int m_localsGeneration = 0;
+    int m_reportedLocalsGeneration = 0;
+    // Typed into the console while the views' calls were still being made.
+    QStringList m_pendingCommands;
+    // The run generation the console's expression is being worked out at, if
+    // any. Selecting another thread does not end it, only going on does.
+    int m_commandRunGeneration = -1;
+    // Per stop and per class of the frame, misses included, with the call
+    // generation they were looked up at.
+    QHash<QString, std::pair<quint64, int>> m_classesNamed;
+    int m_classesNamedGeneration = -1;
     QSet<QString> m_expandedINames;
     QJsonObject m_expandedItems;
     QMap<QString, Local> m_locals;
     QStringList m_localRoots;
     QList<ToStringCall> m_toStringCalls;
+    QList<DeferredWatcher> m_deferredWatchers;
 };
 
 } // namespace Debugger::Internal

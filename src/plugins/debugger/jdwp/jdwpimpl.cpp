@@ -53,6 +53,10 @@ static bool isRuntimeClass(const QString &name)
 
 static constexpr qint32 s_classPreparedStatus = 2;
 
+// The row the statics of the class the frame stands in are shown under.
+// "static" is a keyword, so no local of that frame can be standing there.
+static const char s_staticIName[] = "local.@static";
+
 // How long a toString() is given before the views go on without it. A call
 // that does not return holds a thread the virtual machine will not suspend
 // again, which is bad; waiting for it for the rest of the session is worse.
@@ -625,8 +629,43 @@ void JdwpImpl::execute(const ExecutionRequest &request)
     }
 }
 
+void JdwpImpl::pin(const JdwpValue &value, const Stop &stop)
+{
+    // The stop it was made for is over, and with it the pins.
+    if (stop.runGeneration != m_runGeneration || !value.isObject() || value.isNull()
+        || m_pinned.contains(value.bits)) {
+        return;
+    }
+    m_pinned.append(value.bits);
+    send(Jdwp::ObjectReferenceSet, Jdwp::ObjectDisableCollection,
+         writer().writeObjectId(value.bits).data());
+}
+
+QString JdwpImpl::whyNoCallAt(const Stop &stop) const
+{
+    if (m_running || stop.thread == 0)
+        return Tr::tr("A method can only be called while the program is stopped.");
+    if (stop.runGeneration != m_runGeneration)
+        return Tr::tr("The program went on before the call could be made.");
+    if (stop.thread != m_currentThread)
+        return Tr::tr("Another thread was selected before the call could be made.");
+    // The machine refuses a call on a thread that is still off running one
+    // that was given up on.
+    if (m_callsOut.value(stop.thread) > 0)
+        return Tr::tr("The thread is still running an earlier call.");
+    return {};
+}
+
 void JdwpImpl::resumeFromStop()
 {
+    for (const quint64 object : std::exchange(m_pinned, {})) {
+        send(Jdwp::ObjectReferenceSet, Jdwp::ObjectEnableCollection,
+             writer().writeObjectId(object).data());
+    }
+    for (const QString &command : std::exchange(m_pendingCommands, {})) {
+        emit message(Tr::tr("The program went on before \"%1\" was worked out.").arg(command),
+                     ConsoleOutput);
+    }
     ++m_stopGeneration;
     ++m_runGeneration;
     m_frames.clear();
@@ -902,7 +941,8 @@ void JdwpImpl::reportTracepoint(const QString &number, const JdwpEvent &event, c
     const QList<TracepointCapture> captures = parseTracepointCaptures(text);
     const auto filled = std::make_shared<QStringList>(captures.size(), QString());
     const int generation = m_runGeneration;
-    const auto join = std::make_shared<Join>([this, text, captures, filled, generation, done] {
+    const auto calling = std::make_shared<QList<CallingCapture>>();
+    const auto say = [this, text, captures, filled, generation, done] {
         if (generation != m_runGeneration) {
             done();
             return;
@@ -915,6 +955,9 @@ void JdwpImpl::reportTracepoint(const QString &number, const JdwpEvent &event, c
         }
         emit message(formatted, LogMisc);
         done();
+    };
+    const auto join = std::make_shared<Join>([this, filled, calling, generation, say] {
+        answerTracepointCalls(filled, calling, generation, say);
     });
     join->add();
 
@@ -942,6 +985,12 @@ void JdwpImpl::reportTracepoint(const QString &number, const JdwpEvent &event, c
             const Result<JdwpExpression> parsed = parseJdwpExpression(capture.expression);
             if (!parsed) {
                 (*filled)[i] = parsed.error();
+                break;
+            }
+            // One that calls lets the thread run, and the frames the captures
+            // beside it are read off go with it, so it waits until they are in.
+            if (parsed->makesTheProgramRun()) {
+                calling->append({i, *parsed});
                 break;
             }
             join->add();
@@ -1032,6 +1081,34 @@ void JdwpImpl::reportTracepoints(QList<Hit> hits, const Done &done)
     }
     const Hit hit = hits.takeFirst();
     reportTracepoint(hit.number, hit.event, [this, hits, done] { reportTracepoints(hits, done); });
+}
+
+// One at a time, since the machine takes no second call on a thread that is
+// off running the first, and after everything else in the message: what the
+// frames say is gone as soon as the first of these runs.
+void JdwpImpl::answerTracepointCalls(const std::shared_ptr<QStringList> &filled,
+                                     const std::shared_ptr<QList<CallingCapture>> &calling,
+                                     int generation, const Done &done)
+{
+    if (calling->isEmpty() || generation != m_runGeneration) {
+        done();
+        return;
+    }
+    const CallingCapture capture = calling->takeFirst();
+    const auto next = [this, filled, calling, generation, done] {
+        answerTracepointCalls(filled, calling, generation, done);
+    };
+    evaluate(capture.parsed, [this, filled, capture, next](const Evaluated &result) {
+        if (!result.error.isEmpty()) {
+            (*filled)[capture.index] = result.error;
+            next();
+            return;
+        }
+        valueText(result.value, [filled, capture, next](const QString &text) {
+            (*filled)[capture.index] = text;
+            next();
+        });
+    });
 }
 
 // The protocol numbers a request within its kind, so the request a step was
@@ -1153,6 +1230,15 @@ void JdwpImpl::decideOnHit(const JdwpEvent &event, const std::function<void(bool
         if (!parsed) {
             emit message(Tr::tr("The condition of breakpoint %1 cannot be read: %2")
                              .arg(number, parsed.error()), LogWarning);
+            done(true);
+            return;
+        }
+        // The decision is made while the program stands at the hit, and a
+        // call would run it on from there at every hit.
+        if (parsed->makesTheProgramRun()) {
+            emit message(Tr::tr("The condition of breakpoint %1 calls a method, which would "
+                                "make the program run while it is being decided.").arg(number),
+                         LogWarning);
             done(true);
             return;
         }
@@ -1444,7 +1530,7 @@ void JdwpImpl::withMethods(quint64 classId, const Done &done)
                     method.id = r.readMethodId();
                     method.name = r.readString();
                     method.signature = r.readString();
-                    r.readString(); // generic signature
+                    method.genericSignature = r.readString();
                     method.modBits = r.readInt();
                     if (r.ok())
                         info.methods.append(method);
@@ -1519,8 +1605,10 @@ void JdwpImpl::withVariables(quint64 classId, quint64 methodId, const Done &done
                         continue;
                     info.variablesKnown = true;
                     // Code compiled without -g has no table, and so no locals.
-                    if (!reply.ok())
+                    if (!reply.ok()) {
+                        info.variablesAbsent = reply.errorCode == Jdwp::AbsentInformationError;
                         break;
+                    }
                     JdwpReader r = reader(reply.data);
                     r.readInt(); // argument count
                     const qint32 count = r.readInt();
@@ -1529,7 +1617,7 @@ void JdwpImpl::withVariables(quint64 classId, quint64 methodId, const Done &done
                         variable.codeIndex = quint64(r.readLong());
                         variable.name = r.readString();
                         variable.signature = r.readString();
-                        r.readString(); // generic signature
+                        variable.genericSignature = r.readString();
                         variable.length = r.readInt();
                         variable.slot = r.readInt();
                         if (r.ok())
@@ -1564,7 +1652,7 @@ void JdwpImpl::withFields(quint64 classId, const Done &done)
                     field.declaringClass = classId;
                     field.name = r.readString();
                     field.signature = r.readString();
-                    r.readString(); // generic signature
+                    field.genericSignature = r.readString();
                     field.modBits = r.readInt();
                     if (!r.ok())
                         continue;
@@ -1667,63 +1755,29 @@ void JdwpImpl::withToString(quint64 classId, const Done &done)
 // call cannot be taken back once it is out: a thread that does not return is
 // one the virtual machine keeps running, so the views are let go of it rather
 // than waiting for the rest of the session.
-void JdwpImpl::invokeToString(quint64 object, quint64 declaringClass, quint64 methodId,
-                              const Called &done)
+void JdwpImpl::invokeToString(const Stop &stop, quint64 object, quint64 declaringClass,
+                              quint64 methodId, const Called &done)
 {
-    const auto answered = std::make_shared<bool>(false);
-    const auto answer = [answered, done](const std::optional<QString> &text, bool gaveUp) {
-        if (!std::exchange(*answered, true))
-            done(text, gaveUp);
-    };
-
-    // Whatever was read off a frame up to here is all there is to read: the
-    // thread runs while the call does, and the machine forgets the handles of
-    // the frames it was standing in.
-    ++m_callGeneration;
-
-    // The call is out until the machine answers it, which is not the same as
-    // until it is waited for: one that is given up on still has its thread,
-    // and one made on that thread afterwards is refused while it runs. They
-    // are counted by thread, so that the answer to the one does not take the
-    // other for answered, and so that a stop of any other thread is reported
-    // the way it would be with no call out at all.
-    const quint64 thread = m_currentThread;
-    if (m_callsOut[thread]++ == 0)
-        m_callStopMentioned = false;
-
-    JdwpWriter request = writer();
-    request.writeObjectId(object).writeObjectId(thread)
-        .writeReferenceTypeId(declaringClass).writeMethodId(methodId)
-        .writeInt(0).writeInt(Jdwp::InvokeSingleThreaded);
-    send(Jdwp::ObjectReferenceSet, Jdwp::ObjectInvokeMethod, request.data(),
-         [this, thread, answer](const JdwpReply &reply) {
-        const auto out = m_callsOut.find(thread);
-        if (out != m_callsOut.end() && --out.value() <= 0)
-            m_callsOut.erase(out);
-        if (!reply.ok()) {
-            answer({}, false);
+    invoke(stop, object, declaringClass, methodId, Dispatch::OnObject, {},
+           [this, done](const Invoked &result) {
+        if (result.gaveUp) {
+            done({}, true);
             return;
         }
-        JdwpReader r = reader(reply.data);
-        const JdwpValue result = r.readTaggedValue();
-        const JdwpValue thrown = r.readTaggedValue();
-        if (!r.ok() || !thrown.isNull() || result.tag != Jdwp::StringValueTag
-            || result.isNull()) {
-            answer({}, false);
+        // Anything but a string it answered leaves the object shown by its
+        // identity, which is what it had before the call.
+        if (!result.error.isEmpty() || !result.thrown.isNull()
+            || result.value.tag != Jdwp::StringValueTag || result.value.isNull()) {
+            done({}, false);
             return;
         }
         send(Jdwp::StringReferenceSet, Jdwp::StringValue,
-             writer().writeObjectId(result.bits).data(),
-             [this, answer](const JdwpReply &reply) {
-            if (!reply.ok()) {
-                answer({}, false);
-                return;
-            }
-            answer(escaped(reader(reply.data).readString()), false);
+             writer().writeObjectId(result.value.bits).data(),
+             [this, done](const JdwpReply &reply) {
+            done(reply.ok() ? std::optional<QString>(escaped(reader(reply.data).readString()))
+                            : std::optional<QString>(), false);
         });
     });
-
-    QTimer::singleShot(s_invokeTimeout, this, [answer] { answer({}, true); });
 }
 
 void JdwpImpl::resolveLocation(const JdwpLocation &location,
@@ -2746,6 +2800,89 @@ void JdwpImpl::reportStack(quint64 requestId, int depthLimit)
     });
 }
 
+// A virtual machine is made of no libraries: what it was started with is the
+// class path, which is where its code comes from and the nearest thing it has.
+void JdwpImpl::reportModules(quint64 requestId)
+{
+    send(Jdwp::VirtualMachineSet, Jdwp::VmClassPaths, {},
+         [this, requestId](const JdwpReply &reply) {
+        GdbMi list;
+        list.m_type = GdbMi::List;
+        if (reply.ok()) {
+            JdwpReader r = reader(reply.data);
+            // Where the machine was started, which the entries behind it may
+            // be written relative to.
+            const QString base = r.readString();
+            // The class path of the program, and then the one the runtime
+            // brings with it.
+            for (int which = 0; which < 2 && r.ok(); ++which) {
+                const qint32 count = r.readInt();
+                for (qint32 i = 0; i < count && r.ok(); ++i) {
+                    const QString entry = r.readString();
+                    if (entry.isEmpty())
+                        continue;
+                    FilePath path = FilePath::fromUserInput(entry);
+                    if (path.isRelativePath() && !base.isEmpty())
+                        path = FilePath::fromUserInput(base).resolvePath(entry);
+                    GdbMi item;
+                    item.m_type = GdbMi::Tuple;
+                    item.addChild(constMi("modulepath", path.toUserOutput()));
+                    list.addChild(item);
+                }
+            }
+        }
+        emit refreshDataReceived(requestId, RefreshKind::Modules, list);
+    });
+}
+
+// The sources of the classes that are the program's. The runtime's own are
+// thousands, and there is no source on this computer for any of them.
+void JdwpImpl::reportSourceFiles(quint64 requestId)
+{
+    withAllClasses([this, requestId] {
+        QList<quint64> wanted;
+        for (auto it = m_classes.cbegin(); it != m_classes.cend(); ++it) {
+            if (it->tag == Jdwp::ArrayTag || !it->signatureKnown)
+                continue;
+            const QString name = typeName(it->signature);
+            if (name.isEmpty() || isRuntimeClass(name))
+                continue;
+            wanted.append(it.key());
+        }
+        const auto join = std::make_shared<Join>([this, requestId, wanted] {
+            GdbMi list;
+            list.m_type = GdbMi::List;
+            QSet<QString> seen;
+            for (const quint64 classId : wanted) {
+                const ClassInfo info = m_classes.value(classId);
+                if (info.sourceFile.isEmpty())
+                    continue;
+                // The classes of one file are many, and the file is one.
+                const QString package = packagePath(info.signature);
+                const QString relative = package.isEmpty() ? info.sourceFile
+                                                           : package + '/' + info.sourceFile;
+                if (seen.contains(relative))
+                    continue;
+                seen.insert(relative);
+                GdbMi item;
+                item.m_type = GdbMi::Tuple;
+                item.addChild(constMi("file", relative));
+                const FilePath local = localFile(info.signature, info.sourceFile);
+                if (!local.isEmpty())
+                    item.addChild(constMi("fullname", local.path()));
+                list.addChild(item);
+            }
+            emit refreshDataReceived(requestId, RefreshKind::SourceFiles, list);
+        });
+        join->add();
+        for (const quint64 classId : std::as_const(wanted)) {
+            join->add();
+            withSourceFile(classId, [join] { join->release(); });
+        }
+        join->release();
+    });
+}
+
 void JdwpImpl::reportThreads(quint64 requestId)
 {
     send(Jdwp::VirtualMachineSet, Jdwp::VmAllThreads, {},
@@ -2812,6 +2949,12 @@ void JdwpImpl::refresh(const RefreshRequest &request)
         return;
     case RefreshKind::Threads:
         reportThreads(request.requestId);
+        return;
+    case RefreshKind::Modules:
+        reportModules(request.requestId);
+        return;
+    case RefreshKind::SourceFiles:
+        reportSourceFiles(request.requestId);
         return;
     default:
         emit refreshDataReceived(request.requestId, request.kind, {});
@@ -2945,6 +3088,263 @@ static JdwpValue madeOf(bool yes)
     return {Jdwp::BooleanValueTag, quint64(yes ? 1 : 0)};
 }
 
+// The signatures of what a method takes, "(ILjava/lang/String;)V" giving "I"
+// and "Ljava/lang/String;".
+static QStringList parameterSignatures(const QString &signature)
+{
+    QStringList parameters;
+    qsizetype pos = signature.indexOf('(');
+    if (pos < 0)
+        return parameters;
+    ++pos;
+    while (pos < signature.size() && signature.at(pos) != ')') {
+        const qsizetype start = pos;
+        while (pos < signature.size() && signature.at(pos) == '[')
+            ++pos;
+        if (pos >= signature.size())
+            break;
+        if (signature.at(pos) == 'L') {
+            const qsizetype end = signature.indexOf(';', pos);
+            if (end < 0)
+                break;
+            pos = end + 1;
+        } else {
+            ++pos;
+        }
+        parameters.append(signature.mid(start, pos - start));
+    }
+    return parameters;
+}
+
+static QString returnSignature(const QString &signature)
+{
+    const qsizetype close = signature.lastIndexOf(')');
+    return close < 0 ? QString() : signature.mid(close + 1);
+}
+
+static bool isPrimitiveSignature(const QString &signature)
+{
+    return signature.size() == 1 && signature != "V";
+}
+
+// A type variable, or an array of one, which the erased signature hides.
+static bool isTypeVariable(const QString &genericSignature)
+{
+    qsizetype pos = 0;
+    while (pos < genericSignature.size() && genericSignature.at(pos) == '[')
+        ++pos;
+    return pos < genericSignature.size() && genericSignature.at(pos) == 'T';
+}
+
+// The static type a declaration gives what it holds, or nothing where that
+// is a type variable.
+static QString staticSignature(const QString &signature, const QString &genericSignature)
+{
+    return isTypeVariable(genericSignature) ? QString() : signature;
+}
+
+static QString signatureOf(const JdwpValue &value)
+{
+    return Jdwp::isPrimitiveTag(value.tag) ? QString(QChar::fromLatin1(char(value.tag)))
+                                           : QString();
+}
+
+// Java widens a primitive silently in this order and in no other, and
+// nothing widens to a char (JLS 5.1.2).
+static bool widens(QChar from, QChar to)
+{
+    if (from == to)
+        return true;
+    switch (from.toLatin1()) {
+    case 'B':
+        return QString("SIJFD").contains(to);
+    case 'S':
+    case 'C':
+        return QString("IJFD").contains(to);
+    case 'I':
+        return QString("JFD").contains(to);
+    case 'J':
+        return QString("FD").contains(to);
+    case 'F':
+        return to == 'D';
+    }
+    return false;
+}
+
+static const QList<std::pair<QChar, QString>> &wrappers()
+{
+    static const QList<std::pair<QChar, QString>> list = {
+        {'Z', "Ljava/lang/Boolean;"}, {'B', "Ljava/lang/Byte;"},
+        {'C', "Ljava/lang/Character;"}, {'S', "Ljava/lang/Short;"},
+        {'I', "Ljava/lang/Integer;"}, {'J', "Ljava/lang/Long;"},
+        {'F', "Ljava/lang/Float;"}, {'D', "Ljava/lang/Double;"}};
+    return list;
+}
+
+static QString boxed(QChar primitive)
+{
+    for (const auto &[kind, wrapper] : wrappers()) {
+        if (kind == primitive)
+            return wrapper;
+    }
+    return {};
+}
+
+static QChar unboxed(const QString &signature)
+{
+    for (const auto &[kind, wrapper] : wrappers()) {
+        if (wrapper == signature)
+            return kind;
+    }
+    return {};
+}
+
+using Subtypes = QHash<QString, QSet<QString>>;
+
+// Whether a value of the one type goes to the other with no more than a
+// widening (JLS 4.10): the same type, a primitive that widens, or a subtype.
+// An empty signature is the null type.
+static bool isSubtype(const QString &sub, const QString &super, const Subtypes &subtypes)
+{
+    if (sub == super)
+        return true;
+    if (sub.isEmpty())
+        return !isPrimitiveSignature(super);
+    if (isPrimitiveSignature(sub) || isPrimitiveSignature(super)) {
+        return isPrimitiveSignature(sub) && isPrimitiveSignature(super)
+               && widens(sub.at(0), super.at(0));
+    }
+    if (super == "Ljava/lang/Object;")
+        return true;
+    if (sub.startsWith('[')) {
+        if (super == "Ljava/lang/Cloneable;" || super == "Ljava/io/Serializable;")
+            return true;
+        // An array of references is one of every supertype of what it holds.
+        return super.startsWith('[') && !isPrimitiveSignature(sub.mid(1))
+               && !isPrimitiveSignature(super.mid(1))
+               && isSubtype(sub.mid(1), super.mid(1), subtypes);
+    }
+    return subtypes.value(sub).contains(super);
+}
+
+// The parameters the arguments go to. In a call of variable arity, the type
+// of the elements of the last one stands in for every argument from there.
+static QStringList parameterTypesFor(const QStringList &parameters, bool varArgs,
+                                     qsizetype count)
+{
+    if (!varArgs || parameters.isEmpty())
+        return parameters;
+    QStringList types = parameters.first(parameters.size() - 1);
+    const QString element = parameters.last().mid(1);
+    while (types.size() < count)
+        types.append(element);
+    return types;
+}
+
+// Whether the argument goes to the parameter in the phase: by subtyping and
+// widening alone, or also by boxing and unboxing (JLS 5.3).
+static bool converts(const QString &argument, const QString &parameter, bool loose,
+                     const Subtypes &subtypes)
+{
+    if (isSubtype(argument, parameter, subtypes))
+        return true;
+    if (!loose || argument.isEmpty())
+        return false;
+    if (isPrimitiveSignature(argument)) {
+        return !isPrimitiveSignature(parameter)
+               && isSubtype(boxed(argument.at(0)), parameter, subtypes);
+    }
+    const QChar primitive = unboxed(argument);
+    return !primitive.isNull() && isPrimitiveSignature(parameter)
+           && widens(primitive, parameter.at(0));
+}
+
+// The three phases of JLS 15.12.2, each tried only where the one before
+// found nothing: strict, loose, and then by variable arity.
+enum class Phase { Strict, Loose, VariableArity };
+
+static bool isApplicable(const QStringList &parameters, bool varArgs,
+                         const QStringList &arguments, Phase phase, const Subtypes &subtypes)
+{
+    const bool byArity = phase == Phase::VariableArity;
+    if (byArity ? !varArgs || arguments.size() < parameters.size() - 1
+                : arguments.size() != parameters.size()) {
+        return false;
+    }
+    const QStringList types = parameterTypesFor(parameters, byArity, arguments.size());
+    for (qsizetype i = 0; i < arguments.size(); ++i) {
+        if (!converts(arguments.at(i), types.at(i), phase != Phase::Strict, subtypes))
+            return false;
+    }
+    return true;
+}
+
+// Whether the one method is at least as specific as the other for a call
+// with that many arguments (JLS 15.12.2.5).
+static bool isMoreSpecific(const QStringList &one, const QStringList &other, bool byArity,
+                           qsizetype count, const Subtypes &subtypes)
+{
+    const QStringList ones = parameterTypesFor(one, byArity, count);
+    const QStringList others = parameterTypesFor(other, byArity, count);
+    for (qsizetype i = 0; i < count; ++i) {
+        if (!isSubtype(ones.at(i), others.at(i), subtypes))
+            return false;
+    }
+    if (byArity && other.size() == count + 1) {
+        return isSubtype(parameterTypesFor(one, true, count + 1).at(count),
+                         other.last().mid(1), subtypes);
+    }
+    return true;
+}
+
+// The one that is more specific than all the others, or -1 where none is,
+// which makes the call ambiguous. Two with the same parameters cannot both
+// be there, since a declaration hides those it overrides.
+static qsizetype mostSpecific(const QList<QStringList> &applicable, bool byArity,
+                              qsizetype count, const Subtypes &subtypes)
+{
+    for (qsizetype i = 0; i < applicable.size(); ++i) {
+        bool beatsAll = true;
+        for (qsizetype j = 0; j < applicable.size() && beatsAll; ++j) {
+            beatsAll = i == j
+                       || isMoreSpecific(applicable.at(i), applicable.at(j), byArity, count,
+                                         subtypes);
+        }
+        if (beatsAll)
+            return i;
+    }
+    return -1;
+}
+
+// The primitive as a parameter of a wider type takes it.
+static JdwpValue widenedTo(const JdwpValue &value, QChar kind)
+{
+    const quint8 want = quint8(kind.toLatin1());
+    switch (want) {
+    case Jdwp::ShortValueTag:
+        return JdwpValue{want, quint64(qint16(asInteger(value)))};
+    case Jdwp::IntValueTag:
+        return JdwpValue{want, quint64(qint32(asInteger(value)))};
+    case Jdwp::LongValueTag:
+        return JdwpValue{want, quint64(asInteger(value))};
+    case Jdwp::FloatValueTag: {
+        const float number = isFloating(value.tag) ? float(asDouble(value))
+                                                   : float(asInteger(value));
+        quint32 bits = 0;
+        std::memcpy(&bits, &number, sizeof(number));
+        return JdwpValue{want, bits};
+    }
+    case Jdwp::DoubleValueTag: {
+        const double number = isFloating(value.tag) ? asDouble(value)
+                                                    : double(asInteger(value));
+        quint64 bits = 0;
+        std::memcpy(&bits, &number, sizeof(number));
+        return JdwpValue{want, bits};
+    }
+    }
+    return value;
+}
+
 // What Java makes of two values and an operator, as far as it needs no code to
 // run in the virtual machine. The promotions are Java's: a double operand
 // makes the result double, else a float one float, else a long one long, and
@@ -3054,10 +3454,1003 @@ static QString typeOf(const JdwpValue &value)
                                            : QString();
 }
 
+void JdwpImpl::withAllClasses(const Done &done)
+{
+    // Only a stopped machine keeps the classes it has. One that runs is asked
+    // again every time.
+    const int generation = m_runGeneration;
+    fetchOnce(QString("allclasses:%1:%2").arg(generation).arg(m_running),
+              [this, generation] { return !m_running && m_allClassesFrom == generation; },
+              [this, generation, stopped = !m_running](const Done &finish) {
+        send(Jdwp::VirtualMachineSet, Jdwp::VmAllClasses, {},
+             [this, generation, stopped, finish](const JdwpReply &reply) {
+            if (reply.ok()) {
+                JdwpReader r = reader(reply.data);
+                const qint32 count = r.readInt();
+                for (qint32 i = 0; i < count && r.ok(); ++i) {
+                    const quint8 tag = r.readByte();
+                    const quint64 id = r.readReferenceTypeId();
+                    const QString signature = r.readString();
+                    r.readInt(); // status
+                    if (!r.ok())
+                        break;
+                    ClassInfo &info = m_classes[id];
+                    info.tag = tag;
+                    if (!info.signatureKnown) {
+                        info.signatureKnown = true;
+                        info.signature = signature;
+                    }
+                }
+                if (stopped && !m_running && generation == m_runGeneration)
+                    m_allClassesFrom = generation;
+            }
+            finish();
+        });
+    }, done);
+}
+
+void JdwpImpl::classNamed(const QString &name, const std::function<void(quint64)> &done)
+{
+    if (name.isEmpty()) {
+        done(0);
+        return;
+    }
+    if (m_classesNamedGeneration != m_stopGeneration) {
+        m_classesNamed.clear();
+        m_classesNamedGeneration = m_stopGeneration;
+    }
+    // The few names it can be are asked for one by one, which is cheaper than
+    // the list of every class of the machine, repeated at every stop.
+    const auto pick = [this, name, done](quint64 frameClass, const QStringList &candidates) {
+        const QString key = QString::number(frameClass) + ' ' + name;
+        // A call can load the class a miss was about.
+        const auto known = m_classesNamed.constFind(key);
+        if (known != m_classesNamed.cend()
+            && (known->first != 0 || known->second == m_callGeneration)) {
+            done(known->first);
+            return;
+        }
+        classNamedAmong(candidates, 0,
+                        [this, key, done, generation = m_stopGeneration,
+                         callGeneration = m_callGeneration](quint64 id) {
+            if (generation == m_stopGeneration)
+                m_classesNamed.insert(key, {id, callGeneration});
+            done(id);
+        });
+    };
+    // A nested class is Outer$Inner in the machine, so a dotted name is also
+    // tried with its last dots read as nesting, from the right.
+    const auto spellings = [](const QString &dotted) {
+        QStringList result{dotted};
+        QString spelled = dotted;
+        for (qsizetype dot = spelled.lastIndexOf('.'); dot > 0;
+             dot = spelled.lastIndexOf('.', dot - 1)) {
+            spelled[dot] = '$';
+            result.append(spelled);
+        }
+        return result;
+    };
+    // A plain name reads the way a source that imports nothing of its own
+    // would read it: the classes enclosing the frame and its package first,
+    // then java.lang.
+    const auto candidatesFor = [this, name, spellings](quint64 frameClass) {
+        QString package;
+        QStringList candidates;
+        if (frameClass) {
+            const QString signature = m_classes.value(frameClass).signature;
+            package = packagePath(signature);
+            if (!package.isEmpty())
+                package = QString(package).replace('/', '.') + '.';
+            if (!name.contains('.') && signature.startsWith('L')) {
+                QString enclosing = QString(signature.mid(1, signature.size() - 2))
+                                        .replace('/', '.');
+                for (; !enclosing.isEmpty(); enclosing.truncate(enclosing.lastIndexOf('$')))
+                    candidates.append(enclosing + '$' + name);
+            }
+        }
+        // Only the dots of the name can be nesting, never those of the package.
+        if (!package.isEmpty()) {
+            for (const QString &spelled : spellings(name))
+                candidates.append(package + spelled);
+        }
+        candidates.append(spellings(name));
+        if (!name.contains('.'))
+            candidates.append("java.lang." + name);
+        return candidates;
+    };
+    withCurrentFrame([this, pick, candidatesFor](const Frame *frame) {
+        if (!frame) {
+            pick(0, candidatesFor(0));
+            return;
+        }
+        const quint64 frameClass = frame->location.classId;
+        withSignature(frameClass, [pick, candidatesFor, frameClass] {
+            pick(frameClass, candidatesFor(frameClass));
+        });
+    });
+}
+
+void JdwpImpl::classNamedAmong(const QStringList &candidates, qsizetype index,
+                               const std::function<void(quint64)> &done)
+{
+    if (index >= candidates.size()) {
+        done(0);
+        return;
+    }
+    const QString signature = 'L' + QString(candidates.at(index)).replace('.', '/') + ';';
+    classOfSignature(signature, [this, candidates, index, done](quint64 id) {
+        if (id != 0)
+            done(id);
+        else
+            classNamedAmong(candidates, index + 1, done);
+    });
+}
+
+void JdwpImpl::classOfSignature(const QString &signature,
+                                const std::function<void(quint64)> &done)
+{
+    send(Jdwp::VirtualMachineSet, Jdwp::VmClassesBySignature,
+         writer().writeString(signature).data(),
+         [this, signature, done](const JdwpReply &reply) {
+        if (reply.ok()) {
+            JdwpReader r = reader(reply.data);
+            if (r.readInt() > 0) {
+                const quint8 tag = r.readByte();
+                const quint64 id = r.readReferenceTypeId();
+                if (r.ok() && id != 0) {
+                    ClassInfo &info = m_classes[id];
+                    info.tag = tag;
+                    if (!info.signatureKnown) {
+                        info.signatureKnown = true;
+                        info.signature = signature;
+                    }
+                    done(id);
+                    return;
+                }
+            }
+        }
+        done(0);
+    });
+}
+
+void JdwpImpl::withObjectClass(const std::function<void(quint64)> &done)
+{
+    if (m_objectClass != 0) {
+        done(m_objectClass);
+        return;
+    }
+    classOfSignature("Ljava/lang/Object;", [this, done](quint64 id) {
+        m_objectClass = id;
+        done(id);
+    });
+}
+
+void JdwpImpl::classNameOf(const JdwpValue &object,
+                           const std::function<void(const QString &)> &done)
+{
+    if (!object.isObject() || object.isNull()) {
+        done({});
+        return;
+    }
+    send(Jdwp::ObjectReferenceSet, Jdwp::ObjectReferenceType,
+         writer().writeObjectId(object.bits).data(), [this, done](const JdwpReply &reply) {
+        if (!reply.ok()) {
+            done({});
+            return;
+        }
+        JdwpReader r = reader(reply.data);
+        r.readByte();
+        const quint64 typeId = r.readReferenceTypeId();
+        if (!r.ok()) {
+            done({});
+            return;
+        }
+        withSignature(typeId, [this, typeId, done] {
+            done(typeName(m_classes.value(typeId).signature));
+        });
+    });
+}
+
+void JdwpImpl::invoke(const Stop &stop, quint64 object, quint64 classId, quint64 methodId,
+                      Dispatch dispatch, const QList<JdwpValue> &arguments, const Returned &done)
+{
+    // The lookups that got here took round trips, in which the program can
+    // have moved on, even to a stop on the same thread.
+    if (const QString why = whyNoCallAt(stop); !why.isEmpty()) {
+        done({.error = why});
+        return;
+    }
+    const auto answered = std::make_shared<bool>(false);
+    const auto answer = [answered, done](const Invoked &result) {
+        if (!std::exchange(*answered, true))
+            done(result);
+    };
+
+    // Whatever was read off a frame up to here is all there is to read: the
+    // thread runs while the call does, and the machine forgets the handles of
+    // the frames it was standing in.
+    ++m_callGeneration;
+
+    // The call is out until the machine answers it, which is not the same as
+    // until it is waited for: one that is given up on still has its thread,
+    // and one made on that thread afterwards is refused while it runs. They
+    // are counted by thread, so that the answer to the one does not take the
+    // other for answered, and so that a stop of any other thread is reported
+    // the way it would be with no call out at all.
+    const quint64 thread = stop.thread;
+    if (m_callsOut[thread]++ == 0)
+        m_callStopMentioned = false;
+
+    // The two commands spell the same call out in a different order.
+    JdwpWriter request = writer();
+    if (dispatch == Dispatch::Static) {
+        request.writeReferenceTypeId(classId).writeObjectId(thread).writeMethodId(methodId);
+    } else {
+        request.writeObjectId(object).writeObjectId(thread)
+            .writeReferenceTypeId(classId).writeMethodId(methodId);
+    }
+    request.writeInt(qint32(arguments.size()));
+    for (const JdwpValue &argument : arguments)
+        request.writeTaggedValue(argument);
+    // Single-threaded, so that the rest of the machine stays where it is and
+    // the call cannot let the program get anywhere the user did not ask it to.
+    request.writeInt(Jdwp::InvokeSingleThreaded);
+    // The two commands are numbered within their own sets, so neither their
+    // types nor their values have anything to do with one another.
+    // A static method of an interface is not one of a class, and the machine
+    // refuses it there.
+    const bool ofAnInterface = m_classes.value(classId).tag == Jdwp::InterfaceTag;
+    const bool onObject = dispatch == Dispatch::OnObject;
+    const quint8 commandSet = onObject ? quint8(Jdwp::ObjectReferenceSet)
+                              : ofAnInterface ? quint8(Jdwp::InterfaceTypeSet)
+                                              : quint8(Jdwp::ClassTypeSet);
+    const quint8 command = onObject ? quint8(Jdwp::ObjectInvokeMethod)
+                           : ofAnInterface ? quint8(Jdwp::InterfaceTypeInvokeMethod)
+                                           : quint8(Jdwp::ClassTypeInvokeMethod);
+    send(commandSet, command, request.data(),
+         [this, thread, answer](const JdwpReply &reply) {
+        const auto out = m_callsOut.find(thread);
+        if (out != m_callsOut.end() && --out.value() <= 0)
+            m_callsOut.erase(out);
+        if (!reply.ok()) {
+            answer({.error = JdwpClient::errorString(reply.errorCode)});
+            return;
+        }
+        JdwpReader r = reader(reply.data);
+        const JdwpValue value = r.readTaggedValue();
+        const JdwpValue thrown = r.readTaggedValue();
+        if (!r.ok()) {
+            answer({.error = Tr::tr("The virtual machine returned no value.")});
+            return;
+        }
+        answer({.value = value, .thrown = thrown});
+    });
+
+    // A call that never comes back cannot be taken back, so the views go on
+    // without it rather than waiting for the rest of the session.
+    QTimer::singleShot(s_invokeTimeout, this, [answer] { answer({.gaveUp = true}); });
+}
+
+class JdwpImpl::SupertypeWalk
+{
+public:
+    QList<quint64> order;
+    QList<quint64> pending;
+    QHash<quint64, QList<quint64>> direct;
+};
+
+// Each type ahead of all it inherits from, and otherwise in the order of the
+// walk, which keeps the classes ahead of the interfaces.
+static QList<quint64> subtypesFirst(QList<quint64> left,
+                                    const QHash<quint64, QList<quint64>> &direct)
+{
+    QHash<quint64, int> subtypes;
+    for (const QList<quint64> &supertypes : direct) {
+        for (const quint64 supertype : supertypes)
+            ++subtypes[supertype];
+    }
+    QList<quint64> sorted;
+    while (!left.isEmpty()) {
+        const auto next = std::find_if(left.begin(), left.end(), [&subtypes](quint64 type) {
+            return subtypes.value(type) == 0;
+        });
+        QTC_ASSERT(next != left.end(), return sorted + left);
+        const quint64 type = *next;
+        left.erase(next);
+        sorted.append(type);
+        for (const quint64 supertype : direct.value(type))
+            --subtypes[supertype];
+    }
+    return sorted;
+}
+
+// What a loaded class inherits from cannot change, so the walk is made once.
+void JdwpImpl::withSupertypes(quint64 typeId, const Types &done)
+{
+    fetchOnce(QString("supertypes:%1").arg(typeId),
+              [this, typeId] { return m_classes.value(typeId).supertypesKnown; },
+              [this, typeId](const Done &finish) {
+        const auto walk = std::make_shared<SupertypeWalk>();
+        walk->pending.append(typeId);
+        expandSupertypes(walk, [this, typeId, walk, finish](const QList<quint64> &order) {
+            ClassInfo &info = m_classes[typeId];
+            info.supertypes = subtypesFirst(order, walk->direct);
+            info.supertypesKnown = true;
+            finish();
+        });
+    }, [this, typeId, done] { done(m_classes.value(typeId).supertypes); });
+}
+
+void JdwpImpl::expandSupertypes(const std::shared_ptr<SupertypeWalk> &walk, const Types &done)
+{
+    while (!walk->pending.isEmpty()
+           && (walk->pending.first() == 0 || walk->order.contains(walk->pending.first()))) {
+        walk->pending.removeFirst();
+    }
+    if (walk->pending.isEmpty()) {
+        done(walk->order);
+        return;
+    }
+    const quint64 typeId = walk->pending.takeFirst();
+    walk->order.append(typeId);
+    // An interface has no superclass, and the question is refused. The
+    // superclass goes in front of the interfaces still waiting, so that every
+    // class is met before any interface.
+    send(Jdwp::ClassTypeSet, Jdwp::ClassTypeSuperclass,
+         writer().writeReferenceTypeId(typeId).data(),
+         [this, walk, typeId, done](const JdwpReply &reply) {
+        if (reply.ok()) {
+            const quint64 superclass = reader(reply.data).readReferenceTypeId();
+            if (superclass != 0) {
+                m_classes[superclass].tag = Jdwp::ClassTag;
+                walk->pending.prepend(superclass);
+                walk->direct[typeId].append(superclass);
+            }
+        }
+        send(Jdwp::ReferenceTypeSet, Jdwp::RefTypeInterfaces,
+             writer().writeReferenceTypeId(typeId).data(),
+             [this, walk, typeId, done](const JdwpReply &reply) {
+            if (reply.ok()) {
+                JdwpReader r = reader(reply.data);
+                const qint32 count = r.readInt();
+                for (qint32 i = 0; i < count && r.ok(); ++i) {
+                    const quint64 implemented = r.readReferenceTypeId();
+                    m_classes[implemented].tag = Jdwp::InterfaceTag;
+                    walk->pending.append(implemented);
+                    walk->direct[typeId].append(implemented);
+                }
+            }
+            expandSupertypes(walk, done);
+        });
+    });
+}
+
+void JdwpImpl::withSignatures(const QList<quint64> &typeIds, qsizetype index, const Done &done)
+{
+    if (index >= typeIds.size()) {
+        done();
+        return;
+    }
+    withSignature(typeIds.at(index), [this, typeIds, index, done] {
+        withSignatures(typeIds, index + 1, done);
+    });
+}
+
+void JdwpImpl::withClassOf(quint64 object, const std::function<void(quint64)> &done)
+{
+    send(Jdwp::ObjectReferenceSet, Jdwp::ObjectReferenceType,
+         writer().writeObjectId(object).data(), [this, done](const JdwpReply &reply) {
+        JdwpReader r = reader(reply.data);
+        const quint8 tag = r.readByte();
+        const quint64 typeId = r.readReferenceTypeId();
+        if (!reply.ok() || !r.ok() || typeId == 0) {
+            done(0);
+            return;
+        }
+        m_classes[typeId].tag = tag;
+        withSignature(typeId, [done, typeId] { done(typeId); });
+    });
+}
+
+// What each class is a subtype of. One the machine has not loaded has no
+// object of its own yet, and is taken for a subtype of Object alone.
+void JdwpImpl::withSupertypeSignatures(const QStringList &signatures, qsizetype index,
+                                       const std::shared_ptr<Subtyping> &subtyping,
+                                       const Done &done)
+{
+    if (index >= signatures.size()) {
+        done();
+        return;
+    }
+    const QString signature = signatures.at(index);
+    const auto next = [this, signatures, index, subtyping, done] {
+        withSupertypeSignatures(signatures, index + 1, subtyping, done);
+    };
+    if (!signature.startsWith('L') || subtyping->contains(signature)) {
+        next();
+        return;
+    }
+    subtyping->insert(signature, {signature, "Ljava/lang/Object;"});
+    classOfSignature(signature, [this, signature, subtyping, next](quint64 classId) {
+        if (classId == 0) {
+            next();
+            return;
+        }
+        withSupertypes(classId, [this, signature, subtyping, next](const QList<quint64> &types) {
+            withSignatures(types, 0, [this, signature, subtyping, types, next] {
+                QSet<QString> &supertypes = (*subtyping)[signature];
+                for (const quint64 type : types)
+                    supertypes.insert(m_classes.value(type).signature);
+                next();
+            });
+        });
+    });
+}
+
+void JdwpImpl::withArgumentSignatures(const QList<Evaluated> &arguments, qsizetype index,
+                                      const std::shared_ptr<QStringList> &signatures,
+                                      const Done &done)
+{
+    if (index >= arguments.size()) {
+        done();
+        return;
+    }
+    const Evaluated &argument = arguments.at(index);
+    const auto next = [this, arguments, index, signatures, done](const QString &signature) {
+        signatures->append(signature);
+        withArgumentSignatures(arguments, index + 1, signatures, done);
+    };
+    if (!argument.value.isObject()) {
+        next(signatureOf(argument.value));
+        return;
+    }
+    if (!argument.signature.isEmpty() || argument.value.isNull()) {
+        next(argument.signature);
+        return;
+    }
+    withClassOf(argument.value.bits, [this, next](quint64 typeId) {
+        next(typeId ? m_classes.value(typeId).signature : QString("Ljava/lang/Object;"));
+    });
+}
+
+void JdwpImpl::gatherCallables(const QList<quint64> &types, qsizetype index, const QString &name,
+                               const std::shared_ptr<QList<Callable>> &found,
+                               const std::function<void(const QList<Callable> &)> &done)
+{
+    if (index >= types.size()) {
+        done(*found);
+        return;
+    }
+    const quint64 classId = types.at(index);
+    withMethods(classId, [this, types, index, classId, name, found, done] {
+        const QList<MethodInfo> methods = m_classes.value(classId).methods;
+        const bool ofAnInterface = m_classes.value(classId).tag == Jdwp::InterfaceTag;
+        for (const MethodInfo &method : methods) {
+            if (method.name != name)
+                continue;
+            const quint32 modifiers = quint32(method.modBits);
+            // None of these is a method the source declared.
+            if (modifiers & (Jdwp::BridgeModifierBit | Jdwp::SyntheticModifierBit
+                             | Jdwp::JdwpSyntheticModifierBits)) {
+                continue;
+            }
+            const bool isStatic = modifiers & Jdwp::StaticModifierBit;
+            // Neither a private method nor a static one of an interface is
+            // inherited (JLS 8.4.8, 9.4.1).
+            const bool inherited = !(modifiers & Jdwp::PrivateModifierBit)
+                                   && !(isStatic && ofAnInterface);
+            if (index > 0 && !inherited)
+                continue;
+            Callable callable;
+            callable.declaringClass = classId;
+            callable.methodId = method.id;
+            callable.parameters = parameterSignatures(method.signature);
+            callable.returns = returnSignature(method.signature);
+            callable.returnsTypeVariable = isTypeVariable(returnSignature(method.genericSignature));
+            callable.isStatic = isStatic;
+            callable.isVarArgs = modifiers & Jdwp::VarArgsModifierBit;
+            // A declaration overrides or hides what it inherits with the same
+            // parameters, and comes first.
+            const bool hidden = Utils::anyOf(*found, [&callable](const Callable &known) {
+                return known.parameters == callable.parameters;
+            });
+            if (!hidden)
+                found->append(callable);
+        }
+        gatherCallables(types, index + 1, name, found, done);
+    });
+}
+
+void JdwpImpl::withCallables(quint64 classId, const QString &name,
+                             const std::function<void(const QList<Callable> &)> &done)
+{
+    withSupertypes(classId, [this, classId, name, done](const QList<quint64> &types) {
+        const auto gather = [this, name, done](const QList<quint64> &searched) {
+            gatherCallables(searched, 0, name, std::make_shared<QList<Callable>>(), done);
+        };
+        // An interface has the methods of Object as well (JLS 9.2).
+        if (m_classes.value(classId).tag != Jdwp::InterfaceTag) {
+            gather(types);
+            return;
+        }
+        withObjectClass([types, gather](quint64 objectClass) {
+            gather(objectClass ? types + QList<quint64>{objectClass} : types);
+        });
+    });
+}
+
+void JdwpImpl::evaluateEach(const Arguments &expressions, qsizetype index,
+                            const std::shared_ptr<QList<Evaluated>> &values,
+                            const std::function<void(const QString &error)> &done)
+{
+    if (index >= expressions.size()) {
+        done({});
+        return;
+    }
+    const std::shared_ptr<JdwpExpression> expression = expressions.at(index);
+    if (!expression) {
+        done(Tr::tr("An argument is missing."));
+        return;
+    }
+    evaluate(*expression, [this, expressions, index, values, done](const Evaluated &value) {
+        if (!value.error.isEmpty()) {
+            done(value.error);
+            return;
+        }
+        if (value.value.tag == Jdwp::VoidValueTag) {
+            done(Tr::tr("A method that returns nothing cannot be an argument."));
+            return;
+        }
+        values->append(value);
+        evaluateEach(expressions, index + 1, values, done);
+    });
+}
+
+void JdwpImpl::converted(const Stop &stop, const Evaluated &argument, const QString &parameter,
+                         const std::function<void(const JdwpValue &, const QString &)> &done)
+{
+    const JdwpValue value = argument.value;
+    if (isPrimitiveSignature(parameter)) {
+        if (Jdwp::isPrimitiveTag(value.tag)) {
+            done(widenedTo(value, parameter.at(0)), {});
+            return;
+        }
+        if (value.isNull()) {
+            done({}, Tr::tr("The value is null."));
+            return;
+        }
+        // Unboxed by what the wrapper holds, which needs no call.
+        withClassOf(value.bits, [this, value, parameter, done](quint64 typeId) {
+            withFields(typeId, [this, value, parameter, done, typeId] {
+                const QList<FieldInfo> fields = m_classes.value(typeId).fields;
+                const auto held = std::find_if(fields.cbegin(), fields.cend(),
+                                               [](const FieldInfo &field) {
+                    return field.name == "value";
+                });
+                if (held == fields.cend()) {
+                    done({}, Tr::tr("What the wrapper holds could not be read."));
+                    return;
+                }
+                send(Jdwp::ObjectReferenceSet, Jdwp::ObjectGetValues,
+                     writer().writeObjectId(value.bits).writeInt(1).writeFieldId(held->id).data(),
+                     [this, parameter, done](const JdwpReply &reply) {
+                    if (!reply.ok()) {
+                        done({}, JdwpClient::errorString(reply.errorCode));
+                        return;
+                    }
+                    JdwpReader r = reader(reply.data);
+                    if (r.readInt() < 1) {
+                        done({}, Tr::tr("The virtual machine returned no value."));
+                        return;
+                    }
+                    done(widenedTo(r.readTaggedValue(), parameter.at(0)), {});
+                });
+            });
+        });
+        return;
+    }
+    if (!Jdwp::isPrimitiveTag(value.tag)) {
+        done(value, {});
+        return;
+    }
+    // Boxed the way Java boxes, by valueOf() of the wrapper.
+    const QChar primitive = QChar::fromLatin1(char(value.tag));
+    const QString wrapper = boxed(primitive);
+    classOfSignature(wrapper, [this, stop, value, primitive, wrapper, done](quint64 classId) {
+        withMethods(classId, [this, stop, value, primitive, wrapper, done, classId] {
+            const QString signature = QString("(%1)%2").arg(primitive, wrapper);
+            const QList<MethodInfo> methods = m_classes.value(classId).methods;
+            const auto valueOf = std::find_if(methods.cbegin(), methods.cend(),
+                                              [&signature](const MethodInfo &method) {
+                return method.name == "valueOf" && method.signature == signature;
+            });
+            if (valueOf == methods.cend()) {
+                done({}, Tr::tr("%1 cannot be boxed here.").arg(typeName(primitive)));
+                return;
+            }
+            invoke(stop, 0, classId, valueOf->id, Dispatch::Static, {value},
+                   [this, stop, primitive, done](const Invoked &result) {
+                if (!result.error.isEmpty() || result.gaveUp || !result.thrown.isNull()) {
+                    done({}, result.error.isEmpty()
+                                 ? Tr::tr("%1 could not be boxed.").arg(typeName(primitive))
+                                 : result.error);
+                    return;
+                }
+                pin(result.value, stop);
+                done(result.value, {});
+            });
+        });
+    });
+}
+
+void JdwpImpl::convertedEach(const Stop &stop, const QList<Evaluated> &arguments,
+                             const QStringList &parameters, qsizetype index,
+                             const std::shared_ptr<QList<JdwpValue>> &values,
+                             const std::function<void(const QString &)> &done)
+{
+    if (index >= arguments.size()) {
+        done({});
+        return;
+    }
+    converted(stop, arguments.at(index), parameters.at(index),
+              [this, stop, arguments, parameters, index, values, done](const JdwpValue &value,
+                                                                       const QString &error) {
+        if (!error.isEmpty()) {
+            done(error);
+            return;
+        }
+        values->append(value);
+        convertedEach(stop, arguments, parameters, index + 1, values, done);
+    });
+}
+
+void JdwpImpl::newArray(const Stop &stop, const QString &signature,
+                        const QList<JdwpValue> &elements,
+                        const std::function<void(const JdwpValue &, const QString &)> &done)
+{
+    // The machine makes an array only of a class it has loaded, which it does
+    // when the program first makes one of the kind.
+    classOfSignature(signature, [this, stop, signature, elements, done](quint64 arrayType) {
+        if (arrayType == 0) {
+            done({}, Tr::tr("The program has no %1 yet to pass the arguments in.")
+                         .arg(typeName(signature)));
+            return;
+        }
+        send(Jdwp::ArrayTypeSet, Jdwp::ArrayTypeNewInstance,
+             writer().writeReferenceTypeId(arrayType).writeInt(qint32(elements.size())).data(),
+             [this, stop, elements, done](const JdwpReply &reply) {
+            if (!reply.ok()) {
+                done({}, JdwpClient::errorString(reply.errorCode));
+                return;
+            }
+            JdwpReader r = reader(reply.data);
+            const JdwpValue array = r.readTaggedValue();
+            if (!r.ok() || array.isNull()) {
+                done({}, Tr::tr("The virtual machine returned no value."));
+                return;
+            }
+            pin(array, stop);
+            if (elements.isEmpty()) {
+                done(array, {});
+                return;
+            }
+            JdwpWriter request = writer();
+            request.writeObjectId(array.bits).writeInt(0).writeInt(qint32(elements.size()));
+            for (const JdwpValue &element : elements)
+                request.writeUntaggedValue(element);
+            send(Jdwp::ArrayReferenceSet, Jdwp::ArraySetValues, request.data(),
+                 [array, done](const JdwpReply &reply) {
+                if (!reply.ok()) {
+                    done({}, JdwpClient::errorString(reply.errorCode));
+                    return;
+                }
+                done(array, {});
+            });
+        });
+    });
+}
+
+void JdwpImpl::callOn(const Stop &stop, const Receiver &receiver, const QString &name,
+                      const QList<Evaluated> &arguments, const Evaluation &done)
+{
+    if (const QString why = whyNoCallAt(stop); !why.isEmpty()) {
+        done({.error = why});
+        return;
+    }
+    const auto call = [this, stop, receiver, name, done](const Callable &chosen,
+                                                         const QList<JdwpValue> &values) {
+        invoke(stop, receiver.object, chosen.declaringClass, chosen.methodId,
+               chosen.isStatic ? Dispatch::Static : Dispatch::OnObject, values,
+               [this, stop, name, chosen, done](const Invoked &result) {
+            if (!result.error.isEmpty()) {
+                done({.error = result.error});
+                return;
+            }
+            if (result.gaveUp) {
+                done({.error = Tr::tr("\"%1\" did not come back.").arg(name)});
+                return;
+            }
+            if (!result.thrown.isNull()) {
+                // By its class: reading the message it carries would be
+                // another call, and the first one has the thread.
+                classNameOf(result.thrown, [done, name](const QString &className) {
+                    done({.error = Tr::tr("\"%1\" threw %2.").arg(name, className)});
+                });
+                return;
+            }
+            pin(result.value, stop);
+            done({.value = result.value, .type = typeName(chosen.returns),
+                  .signature = chosen.returnsTypeVariable ? QString() : chosen.returns});
+        });
+    };
+
+    const auto choose = [this, stop, receiver, name, arguments, done, call]
+                        (const QList<Callable> &candidates, const QStringList &signatures,
+                         const Subtyping &subtyping) {
+        const qsizetype count = arguments.size();
+        const Callable *chosen = nullptr;
+        bool byArity = false;
+        for (const Phase phase : {Phase::Strict, Phase::Loose, Phase::VariableArity}) {
+            QList<const Callable *> applicable;
+            QList<QStringList> parameters;
+            for (const Callable &candidate : candidates) {
+                if (isApplicable(candidate.parameters, candidate.isVarArgs, signatures, phase,
+                                 subtyping)) {
+                    applicable.append(&candidate);
+                    parameters.append(candidate.parameters);
+                }
+            }
+            if (applicable.isEmpty())
+                continue;
+            byArity = phase == Phase::VariableArity;
+            const qsizetype best = mostSpecific(parameters, byArity, count, subtyping);
+            if (best < 0) {
+                done({.error = Tr::tr("The call to \"%1\" is ambiguous.").arg(name)});
+                return;
+            }
+            chosen = applicable.at(best);
+            break;
+        }
+        if (!chosen) {
+            const bool arityFits = Utils::anyOf(candidates, [count](const Callable &candidate) {
+                return candidate.parameters.size() == count
+                       || (candidate.isVarArgs && count >= candidate.parameters.size() - 1);
+            });
+            done({.error = arityFits
+                               ? Tr::tr("No method \"%1\" here takes what was written for it.")
+                                     .arg(name)
+                               : Tr::tr("There is no method \"%1\" here that takes %n "
+                                        "argument(s).", nullptr, int(count)).arg(name)});
+            return;
+        }
+        // Chosen first and refused afterwards, the way JLS 15.12.3 has it.
+        if (!chosen->isStatic && receiver.object == 0) {
+            done({.error = receiver.isNull
+                               ? Tr::tr("The value is null.")
+                               : Tr::tr("\"%1\" is not static, and there is no object here to "
+                                        "call it on.").arg(name)});
+            return;
+        }
+        QList<Evaluated> typed = arguments;
+        for (qsizetype i = 0; i < count; ++i)
+            typed[i].signature = signatures.at(i);
+        const QStringList parameters = parameterTypesFor(chosen->parameters, byArity, count);
+        const auto values = std::make_shared<QList<JdwpValue>>();
+        convertedEach(stop, typed, parameters, 0, values,
+                      [this, stop, chosen = *chosen, byArity, values, done, call]
+                      (const QString &error) {
+            if (!error.isEmpty()) {
+                done({.error = error});
+                return;
+            }
+            if (!byArity) {
+                call(chosen, *values);
+                return;
+            }
+            // The trailing arguments go in an array of the last parameter.
+            const qsizetype fixed = chosen.parameters.size() - 1;
+            newArray(stop, chosen.parameters.last(), values->mid(fixed),
+                     [chosen, values, fixed, done, call](const JdwpValue &array,
+                                                         const QString &error) {
+                if (!error.isEmpty()) {
+                    done({.error = error});
+                    return;
+                }
+                call(chosen, values->first(fixed) << array);
+            });
+        });
+    };
+
+    withCallables(receiver.searchType, name,
+                  [this, name, arguments, done, choose](const QList<Callable> &candidates) {
+        if (candidates.isEmpty()) {
+            done({.error = Tr::tr("There is no method \"%1\" here.").arg(name)});
+            return;
+        }
+        const auto signatures = std::make_shared<QStringList>();
+        withArgumentSignatures(arguments, 0, signatures,
+                               [this, candidates, signatures, choose] {
+            // Everything the choice compares, without the arrays around it.
+            QStringList types;
+            for (const QString &signature : std::as_const(*signatures)) {
+                types.append(signature);
+                if (isPrimitiveSignature(signature))
+                    types.append(boxed(signature.at(0)));
+            }
+            for (const Callable &candidate : candidates)
+                types += candidate.parameters;
+            for (QString &type : types) {
+                while (type.startsWith('['))
+                    type.remove(0, 1);
+            }
+            types.removeDuplicates();
+            const auto subtyping = std::make_shared<Subtyping>();
+            withSupertypeSignatures(types, 0, subtyping,
+                                    [candidates, signatures, subtyping, choose] {
+                choose(candidates, *signatures, *subtyping);
+            });
+        });
+    });
+}
+
+void JdwpImpl::enclosingReceiver(quint64 classId, quint64 object, const QString &name,
+                                 const std::function<void(const Receiver &)> &done)
+{
+    withCallables(classId, name,
+                  [this, classId, object, name, done](const QList<Callable> &found) {
+        withSignature(classId, [this, classId, object, name, done, found] {
+            const QString signature = m_classes.value(classId).signature;
+            const qsizetype cut = signature.lastIndexOf('$');
+            if (!found.isEmpty() || cut < 0) {
+                done({.searchType = classId, .object = object});
+                return;
+            }
+            const QString outer = signature.left(cut) + ';';
+            classOfSignature(outer, [this, classId, object, name, done, outer](quint64 outerId) {
+                if (outerId == 0) {
+                    done({.searchType = classId, .object = object});
+                    return;
+                }
+                const auto onwards = [this, outerId, name, done](quint64 outerObject) {
+                    enclosingReceiver(outerId, outerObject, name, done);
+                };
+                if (object == 0) {
+                    onwards(0);
+                    return;
+                }
+                // An inner class keeps the object it was made in.
+                withFields(classId, [this, classId, object, outer, onwards] {
+                    const QList<FieldInfo> fields = m_classes.value(classId).fields;
+                    const auto it = std::find_if(fields.cbegin(), fields.cend(),
+                                                 [&outer](const FieldInfo &field) {
+                        return field.name.startsWith("this$") && field.signature == outer;
+                    });
+                    if (it == fields.cend()) {
+                        onwards(0);
+                        return;
+                    }
+                    send(Jdwp::ObjectReferenceSet, Jdwp::ObjectGetValues,
+                         writer().writeObjectId(object).writeInt(1).writeFieldId(it->id).data(),
+                         [this, onwards](const JdwpReply &reply) {
+                        JdwpReader r = reader(reply.data);
+                        if (!reply.ok() || r.readInt() < 1) {
+                            onwards(0);
+                            return;
+                        }
+                        const JdwpValue enclosing = r.readTaggedValue();
+                        onwards(enclosing.isNull() ? 0 : enclosing.bits);
+                    });
+                });
+            });
+        });
+    });
+}
+
+void JdwpImpl::callOf(const JdwpExpression &expression, const Evaluation &done)
+{
+    const Stop stop = currentStop();
+    if (const QString why = whyNoCallAt(stop); !why.isEmpty()) {
+        done({.error = why});
+        return;
+    }
+    const QString name = expression.text;
+    const Arguments arguments = expression.arguments;
+    const auto withReceiver = [this, stop, name, arguments, done](const Receiver &receiver) {
+        const auto values = std::make_shared<QList<Evaluated>>();
+        evaluateEach(arguments, 0, values,
+                     [this, stop, name, receiver, values, done](const QString &error) {
+            if (!error.isEmpty()) {
+                done({.error = error});
+                return;
+            }
+            callOn(stop, receiver, name, *values, done);
+        });
+    };
+
+    if (!expression.base) {
+        // A call with nothing in front of it is one of the class the frame is
+        // in, or of a class around it (JLS 15.12.1).
+        withCurrentFrame([this, name, withReceiver, done](const Frame *frame) {
+            if (!frame) {
+                done({.error = Tr::tr("There is no frame to look in.")});
+                return;
+            }
+            const quint64 frameClass = frame->location.classId;
+            // The call goes out as an interface's or a class's by this tag.
+            m_classes[frameClass].tag = frame->location.typeTag;
+            evaluateThis([this, frameClass, name, withReceiver](const Evaluated &self) {
+                enclosingReceiver(frameClass, self.error.isEmpty() ? self.value.bits : 0, name,
+                                  withReceiver);
+            });
+        });
+        return;
+    }
+
+    const JdwpExpression base = *expression.base;
+    evaluate(base, [this, base, name, withReceiver, done](const Evaluated &target) {
+        if (target.error.isEmpty()) {
+            if (!target.value.isObject()) {
+                done({.error = Tr::tr("\"%1\" has no methods.")
+                                   .arg(primitiveText(target.value))});
+                return;
+            }
+            const bool isNull = target.value.isNull();
+            if (isNull && target.signature.isEmpty()) {
+                done({.error = Tr::tr("The value is null.")});
+                return;
+            }
+            const quint64 object = isNull ? 0 : target.value.bits;
+            const auto searchIn = [withReceiver, name, object, isNull, done](quint64 searchType) {
+                if (searchType == 0) {
+                    done({.error = Tr::tr("The class to look up \"%1\" in is not known.")
+                                       .arg(name)});
+                    return;
+                }
+                withReceiver({.searchType = searchType, .object = object, .isNull = isNull});
+            };
+            // The methods of an array are those of Object.
+            const QString signature = target.signature;
+            if (signature.startsWith('[')
+                || (signature.isEmpty() && target.value.tag == Jdwp::ArrayValueTag)) {
+                withObjectClass(searchIn);
+                return;
+            }
+            // The method is chosen by the type the expression is declared
+            // with, and the machine's dispatch picks the override.
+            if (signature.isEmpty()) {
+                withClassOf(object, searchIn);
+                return;
+            }
+            classOfSignature(signature, [this, object, searchIn](quint64 classId) {
+                if (classId != 0 || object == 0)
+                    searchIn(classId);
+                else
+                    withClassOf(object, searchIn);
+            });
+            return;
+        }
+        // Nothing goes by that name here, but a class may, and then this is a
+        // static method of it.
+        const QString dotted = base.dottedName();
+        if (dotted.isEmpty()) {
+            done(target);
+            return;
+        }
+        classNamed(dotted, [target, withReceiver, done](quint64 classId) {
+            if (classId == 0) {
+                done(target);
+                return;
+            }
+            withReceiver({.searchType = classId});
+        });
+    });
+}
+
 void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done)
 {
     const auto literal = [&done, &expression](quint8 tag, quint64 bits) {
-        done({.value = {tag, bits}, .type = expression.typeName()});
+        const JdwpValue value{tag, bits};
+        done({.value = value, .type = expression.typeName(), .signature = signatureOf(value)});
     };
     switch (expression.kind) {
     case JdwpExpression::Kind::Int:
@@ -3093,13 +4486,15 @@ void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done
         // The machine holds the strings, so even a literal one has to be made there.
         send(Jdwp::VirtualMachineSet, Jdwp::VmCreateString,
              writer().writeString(expression.text).data(),
-             [this, done](const JdwpReply &reply) {
+             [this, done, stop = currentStop()](const JdwpReply &reply) {
             if (!reply.ok()) {
                 done({.error = JdwpClient::errorString(reply.errorCode)});
                 return;
             }
-            done({.value = {Jdwp::StringValueTag, reader(reply.data).readObjectId()},
-                  .type = "java.lang.String"});
+            const JdwpValue string = {Jdwp::StringValueTag, reader(reply.data).readObjectId()};
+            pin(string, stop);
+            done({.value = string, .type = "java.lang.String",
+                  .signature = "Ljava/lang/String;"});
         });
         return;
     case JdwpExpression::Kind::This:
@@ -3108,14 +4503,31 @@ void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done
     case JdwpExpression::Kind::Name:
         evaluateName(expression.text, done);
         return;
+    case JdwpExpression::Kind::Call:
+        callOf(expression, done);
+        return;
     case JdwpExpression::Kind::Field: {
         const QString name = expression.text;
-        evaluate(*expression.base, [this, name, done](const Evaluated &base) {
-            if (!base.error.isEmpty()) {
-                done(base);
+        const JdwpExpression base = *expression.base;
+        evaluate(base, [this, name, base, done](const Evaluated &value) {
+            if (value.error.isEmpty()) {
+                fieldOf(value, name, done);
                 return;
             }
-            fieldOf(base, name, done);
+            // Nothing goes by that name here; a class may, and then this is a
+            // static field of it.
+            const QString dotted = base.dottedName();
+            if (dotted.isEmpty()) {
+                done(value);
+                return;
+            }
+            classNamed(dotted, [this, name, dotted, value, done](quint64 classId) {
+                if (classId == 0) {
+                    done(value);
+                    return;
+                }
+                staticFieldOf(classId, dotted, name, done);
+            });
         });
         return;
     }
@@ -3148,7 +4560,7 @@ void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done
                 done({.error = result.error()});
                 return;
             }
-            done({.value = *result, .type = typeOf(*result)});
+            done({.value = *result, .type = typeOf(*result), .signature = signatureOf(*result)});
         });
         return;
     }
@@ -3184,7 +4596,7 @@ void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done
                 }
                 const bool yes = left.value.bits != 0;
                 if (yes == (op == JdwpExpression::Operator::Or)) {
-                    done({.value = madeOf(yes), .type = "boolean"});
+                    done({.value = madeOf(yes), .type = "boolean", .signature = "Z"});
                     return;
                 }
             }
@@ -3200,7 +4612,8 @@ void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done
                                                     ? "&&" : "||")});
                         return;
                     }
-                    done({.value = madeOf(other.value.bits != 0), .type = "boolean"});
+                    done({.value = madeOf(other.value.bits != 0), .type = "boolean",
+                          .signature = "Z"});
                     return;
                 }
                 const Result<JdwpValue> result = combined(op, left.value, other.value);
@@ -3208,7 +4621,8 @@ void JdwpImpl::evaluate(const JdwpExpression &expression, const Evaluation &done
                     done({.error = result.error()});
                     return;
                 }
-                done({.value = *result, .type = typeOf(*result)});
+                done({.value = *result, .type = typeOf(*result),
+                      .signature = signatureOf(*result)});
             });
         });
         return;
@@ -3220,7 +4634,8 @@ void JdwpImpl::compareWithLiteral(const QString &literal, const JdwpExpression &
                                   bool equal, const Evaluation &done)
 {
     if (other.kind == JdwpExpression::Kind::String) {
-        done({.value = madeOf((other.text == literal) == equal), .type = "boolean"});
+        done({.value = madeOf((other.text == literal) == equal), .type = "boolean",
+              .signature = "Z"});
         return;
     }
     evaluate(other, [this, literal, equal, done](const Evaluated &result) {
@@ -3233,7 +4648,7 @@ void JdwpImpl::compareWithLiteral(const QString &literal, const JdwpExpression &
             return;
         }
         if (result.value.isNull() || result.value.tag != Jdwp::StringValueTag) {
-            done({.value = madeOf(!equal), .type = "boolean"});
+            done({.value = madeOf(!equal), .type = "boolean", .signature = "Z"});
             return;
         }
         send(Jdwp::StringReferenceSet, Jdwp::StringValue,
@@ -3244,7 +4659,7 @@ void JdwpImpl::compareWithLiteral(const QString &literal, const JdwpExpression &
                 return;
             }
             const bool same = reader(reply.data).readString() == literal;
-            done({.value = madeOf(same == equal), .type = "boolean"});
+            done({.value = madeOf(same == equal), .type = "boolean", .signature = "Z"});
         });
     });
 }
@@ -3256,9 +4671,10 @@ void JdwpImpl::evaluateThis(const Evaluation &done)
             done({.error = Tr::tr("There is no frame to look in.")});
             return;
         }
+        const quint64 classId = frame->location.classId;
         send(Jdwp::StackFrameSet, Jdwp::StackFrameThisObject,
              writer().writeObjectId(m_currentThread).writeFrameId(frame->id).data(),
-             [this, done](const JdwpReply &reply) {
+             [this, done, classId](const JdwpReply &reply) {
             if (!reply.ok()) {
                 done({.error = JdwpClient::errorString(reply.errorCode)});
                 return;
@@ -3268,7 +4684,11 @@ void JdwpImpl::evaluateThis(const Evaluation &done)
                 done({.error = Tr::tr("The frame is of a static method, which has no \"this\".")});
                 return;
             }
-            done({.value = self});
+            // "this" is declared as the class the frame is in.
+            withSignature(classId, [this, done, classId, self] {
+                const QString signature = m_classes.value(classId).signature;
+                done({.value = self, .type = typeName(signature), .signature = signature});
+            });
         });
     });
 }
@@ -3328,7 +4748,9 @@ void JdwpImpl::evaluateName(const QString &name, const Evaluation &done)
                     done({.error = Tr::tr("The virtual machine returned no value.")});
                     return;
                 }
-                done({.value = r.readTaggedValue(), .type = typeName(variable.signature)});
+                done({.value = r.readTaggedValue(), .type = typeName(variable.signature),
+                      .signature = staticSignature(variable.signature,
+                                                   variable.genericSignature)});
             });
         });
     });
@@ -3363,7 +4785,8 @@ void JdwpImpl::staticFieldOf(quint64 classId, const QString &className, const QS
                 done({.error = Tr::tr("The virtual machine returned no value.")});
                 return;
             }
-            done({.value = r.readTaggedValue(), .type = typeName(field.signature)});
+            done({.value = r.readTaggedValue(), .type = typeName(field.signature),
+                  .signature = staticSignature(field.signature, field.genericSignature)});
         });
     });
 }
@@ -3392,7 +4815,7 @@ void JdwpImpl::fieldOf(const Evaluated &base, const QString &name, const Evaluat
                 return;
             }
             done({.value = {Jdwp::IntValueTag, quint64(reader(reply.data).readInt())},
-                  .type = "int"});
+                  .type = "int", .signature = "I"});
         });
         return;
     }
@@ -3431,7 +4854,9 @@ void JdwpImpl::fieldOf(const Evaluated &base, const QString &name, const Evaluat
                         done({.error = Tr::tr("The virtual machine returned no value.")});
                         return;
                     }
-                    done({.value = r.readTaggedValue(), .type = typeName(field.signature)});
+                    done({.value = r.readTaggedValue(), .type = typeName(field.signature),
+                          .signature = staticSignature(field.signature,
+                                                       field.genericSignature)});
                 });
             });
         });
@@ -3471,7 +4896,7 @@ void JdwpImpl::elementOf(const Evaluated &base, const Evaluated &index, const Ev
     const qint64 position = qint64(index.value.bits);
     const quint64 object = base.value.bits;
     send(Jdwp::ArrayReferenceSet, Jdwp::ArrayLength, writer().writeObjectId(object).data(),
-         [this, object, position, done](const JdwpReply &reply) {
+         [this, object, position, done, arrayType = base.signature](const JdwpReply &reply) {
         if (!reply.ok()) {
             done({.error = JdwpClient::errorString(reply.errorCode)});
             return;
@@ -3484,7 +4909,7 @@ void JdwpImpl::elementOf(const Evaluated &base, const Evaluated &index, const Ev
         }
         send(Jdwp::ArrayReferenceSet, Jdwp::ArrayGetValues,
              writer().writeObjectId(object).writeInt(qint32(position)).writeInt(1).data(),
-             [this, done](const JdwpReply &reply) {
+             [this, done, arrayType](const JdwpReply &reply) {
             if (!reply.ok()) {
                 done({.error = JdwpClient::errorString(reply.errorCode)});
                 return;
@@ -3500,9 +4925,11 @@ void JdwpImpl::elementOf(const Evaluated &base, const Evaluated &index, const Ev
                                                 : r.readTaggedValue();
             // Only a primitive tag names a type; the type of an object is its own,
             // and is read off the value.
-            done({.value = element,
-                  .type = primitive ? typeName(QChar::fromLatin1(char(elementTag)))
-                                    : QString()});
+            const QString elementType = primitive ? QString(QChar::fromLatin1(char(elementTag)))
+                                        : arrayType.startsWith('[') ? arrayType.mid(1)
+                                                                    : QString();
+            done({.value = element, .type = primitive ? typeName(elementType) : QString(),
+                  .signature = elementType});
         });
     });
 }
@@ -3514,17 +4941,17 @@ void JdwpImpl::fetchLocals(const RefreshRequest &request)
     m_localsRequestId = request.requestId;
     m_expandedINames = request.expandedINames;
     m_expandedItems = request.expandedForDumpers();
-    m_inferiorCallsAllowed = request.allowInferiorCalls;
     m_locals.clear();
     m_localRoots.clear();
     m_toStringCalls.clear();
+    m_deferredWatchers.clear();
 
     // The calls are made on the thread that is stopped, so the batch belongs
     // to this stop of it and to no other.
     const int stopGeneration = m_stopGeneration;
-    const auto join = std::make_shared<Join>([this, generation, stopGeneration] {
+    const auto join = std::make_shared<Join>([this, generation, stop = currentStop()] {
         if (generation == m_localsGeneration)
-            answerToStrings(generation, stopGeneration);
+            answerCalls(generation, stop);
     });
     join->add();
     if (m_running || m_currentThread == 0 || !m_client.isConnected()) {
@@ -3532,6 +4959,7 @@ void JdwpImpl::fetchLocals(const RefreshRequest &request)
         return;
     }
     addWatchers(join, request.watchers);
+    addStaticFields(join);
 
     const int frameIndex = m_currentFrame;
     const quint64 thread = m_currentThread;
@@ -3569,6 +4997,7 @@ void JdwpImpl::fetchLocals(const RefreshRequest &request)
                 return;
             const QList<MethodInfo::Variable> visible = visibleVariables(location);
             if (visible.isEmpty()) {
+                mentionAbsentVariables(location);
                 join->release();
                 return;
             }
@@ -3628,6 +5057,18 @@ void JdwpImpl::addWatchers(const JoinPtr &join, const QJsonArray &watchers)
             local.value = '<' + parsed.error() + '>';
             continue;
         }
+        // One that calls cannot be worked out here: the call lets the thread
+        // run, and the machine forgets the frames the rest of this reads off.
+        // It waits until the reading is over.
+        if (parsed->makesTheProgramRun()) {
+            if (!m_lastLocalsRequest.allowInferiorCalls) {
+                local.value = '<' + Tr::tr("calling would make the program run, which the views "
+                                           "are not allowed to do") + '>';
+                continue;
+            }
+            m_deferredWatchers.append({iname, expression, *parsed});
+            continue;
+        }
         join->add();
         evaluate(*parsed, [this, join, generation, iname, expression](const Evaluated &result) {
             if (generation != m_localsGeneration)
@@ -3639,6 +5080,101 @@ void JdwpImpl::addWatchers(const JoinPtr &join, const QJsonArray &watchers)
             join->release();
         });
     }
+}
+
+void JdwpImpl::mentionAbsentVariables(const JdwpLocation &location)
+{
+    const MethodInfo *info = method(location.classId, location.methodId);
+    if (!info || !info->variablesAbsent)
+        return;
+    const QString key = QString("%1:%2").arg(location.classId).arg(location.methodId);
+    if (!m_absentMentioned.contains(key)) {
+        m_absentMentioned.insert(key);
+        emit message(Tr::tr("%1.%2 was compiled without the table that names its local "
+                            "variables, so there are none to show.")
+                         .arg(typeName(m_classes.value(location.classId).signature), info->name),
+                     LogWarning);
+    }
+}
+
+void JdwpImpl::addStaticFields(const JoinPtr &join)
+{
+    const int generation = m_localsGeneration;
+    join->add();
+    withCurrentFrame([this, join, generation](const Frame *frame) {
+        if (generation != m_localsGeneration)
+            return;
+        if (!frame) {
+            join->release();
+            return;
+        }
+        const quint64 classId = frame->location.classId;
+        withSignature(classId, [this, join, generation, classId] {
+            if (generation != m_localsGeneration)
+                return;
+            withFields(classId, [this, join, generation, classId] {
+                if (generation != m_localsGeneration)
+                    return;
+                const QList<FieldInfo> fields = m_classes.value(classId).staticFields;
+                if (fields.isEmpty()) {
+                    join->release();
+                    return;
+                }
+                const QString iname = s_staticIName;
+                m_localRoots.append(iname);
+                Local &local = m_locals[iname];
+                local.name = "static";
+                local.type = typeName(m_classes.value(classId).signature);
+                local.value = Tr::tr("<%n items>", nullptr, int(fields.size()));
+                local.hasChildren = true;
+                if (!m_expandedINames.contains(iname)) {
+                    join->release();
+                    return;
+                }
+                JdwpWriter request = writer();
+                request.writeReferenceTypeId(classId).writeInt(qint32(fields.size()));
+                QList<quint64> declaring;
+                for (const FieldInfo &field : fields) {
+                    request.writeFieldId(field.id);
+                    if (!declaring.contains(field.declaringClass))
+                        declaring.append(field.declaringClass);
+                }
+                // Each is named after its declaring class, since the name alone
+                // would be taken for a local of the same name.
+                withSignatures(declaring, 0, [this, join, generation, iname, fields,
+                                              request = request.data()] {
+                    if (generation != m_localsGeneration)
+                        return;
+                    send(Jdwp::ReferenceTypeSet, Jdwp::RefTypeGetValues, request,
+                         [this, join, generation, iname, fields](const JdwpReply &reply) {
+                        if (generation != m_localsGeneration)
+                            return;
+                        if (reply.ok()) {
+                            JdwpReader r = reader(reply.data);
+                            const qint32 count = r.readInt();
+                            for (qint32 i = 0; i < count && i < fields.size() && r.ok(); ++i) {
+                                const JdwpValue value = r.readTaggedValue();
+                                const FieldInfo &field = fields.at(i);
+                                // A static a superclass declares is shown under
+                                // its plain name here, and one of them can hide
+                                // another exactly as an instance field does.
+                                QString child = iname + '.' + field.name;
+                                if (m_locals.contains(child))
+                                    child += '#' + QString::number(i);
+                                m_locals[iname].children.append(child);
+                                m_locals[child].exp
+                                    = typeName(m_classes.value(field.declaringClass).signature)
+                                      + '.' + field.name;
+                                addValue(join, child, field.name, typeName(field.signature),
+                                         value);
+                            }
+                        }
+                        join->release();
+                    });
+                });
+            });
+        });
+    });
 }
 
 void JdwpImpl::addValue(const JoinPtr &join, const QString &iname, const QString &name,
@@ -3742,7 +5278,7 @@ void JdwpImpl::addObjectValue(const JoinPtr &join, const QString &iname, const J
             }
 
             m_locals[iname].hasChildren = true;
-            if (m_inferiorCallsAllowed)
+            if (m_lastLocalsRequest.allowInferiorCalls)
                 showAsToString(join, iname, object, typeId);
             if (!m_expandedINames.contains(iname)) {
                 join->release();
@@ -3821,22 +5357,49 @@ void JdwpImpl::showAsToString(const JoinPtr &join, const QString &iname, quint64
 // thread has not come back and been suspended again. An object whose call
 // answers nothing keeps the identity it reads as, which is what
 // java.lang.Object would have said anyway.
-void JdwpImpl::answerToStrings(int generation, int stopGeneration)
+void JdwpImpl::answerCalls(int generation, const Stop &stop)
 {
     if (generation != m_localsGeneration)
         return;
     // Let go of again while the values were being read, or another thread
     // selected, which leaves the thread the batch was gathered on where the
-    // calls cannot be made. What is there is what the views get.
-    if (m_toStringCalls.isEmpty() || m_running || stopGeneration != m_stopGeneration) {
+    // calls cannot be made, or a call given up on is still out on it. What is
+    // there is what the views get.
+    if (const QString why = whyNoCallAt(stop); !why.isEmpty()) {
+        for (const DeferredWatcher &watcher : std::as_const(m_deferredWatchers))
+            m_locals[watcher.iname].value = '<' + why + '>';
+        m_deferredWatchers.clear();
         m_toStringCalls.clear();
         reportLocals();
         return;
     }
+    // The watchers that call come first, since what they answer is shown by
+    // its toString() as any other value is, and those calls join the batch.
+    if (!m_deferredWatchers.isEmpty()) {
+        const DeferredWatcher watcher = m_deferredWatchers.takeFirst();
+        const auto join = std::make_shared<Join>([this, generation, stop] {
+            answerCalls(generation, stop);
+        });
+        join->add();
+        evaluate(watcher.parsed, [this, join, generation, watcher](const Evaluated &result) {
+            if (generation != m_localsGeneration)
+                return;
+            if (result.error.isEmpty())
+                addValue(join, watcher.iname, watcher.expression, result.type, result.value);
+            else
+                m_locals[watcher.iname].value = '<' + result.error + '>';
+            join->release();
+        });
+        return;
+    }
+    if (m_toStringCalls.isEmpty()) {
+        reportLocals();
+        return;
+    }
     const ToStringCall call = m_toStringCalls.takeFirst();
-    invokeToString(call.object, call.declaringClass, call.methodId,
-                   [this, call, generation, stopGeneration](const std::optional<QString> &text,
-                                                            bool gaveUp) {
+    invokeToString(stop, call.object, call.declaringClass, call.methodId,
+                   [this, call, generation, stop](const std::optional<QString> &text,
+                                                  bool gaveUp) {
         if (generation != m_localsGeneration)
             return;
         if (text)
@@ -3845,7 +5408,7 @@ void JdwpImpl::answerToStrings(int generation, int stopGeneration)
         // is nothing left to make the calls behind it on either.
         if (gaveUp)
             m_toStringCalls.clear();
-        answerToStrings(generation, stopGeneration);
+        answerCalls(generation, stop);
     });
 }
 
@@ -3879,12 +5442,29 @@ void JdwpImpl::reportLocals()
     GdbMi data;
     data.m_type = GdbMi::List;
     data.m_name = "data";
-    for (const QString &iname : std::as_const(m_localRoots))
-        data.addChild(localsItem(iname));
+    // The statics come after the locals however the two were read, which is
+    // in whatever order the machine answered about them.
+    for (const QString &iname : std::as_const(m_localRoots)) {
+        if (iname != s_staticIName)
+            data.addChild(localsItem(iname));
+    }
+    if (m_localRoots.contains(s_staticIName))
+        data.addChild(localsItem(s_staticIName));
     GdbMi all;
     all.m_type = GdbMi::Tuple;
     all.addChild(data);
     emit refreshDataReceived(m_localsRequestId, RefreshKind::Locals, all);
+    m_reportedLocalsGeneration = m_localsGeneration;
+    runPendingCommands();
+}
+
+// One at a time, since each may make calls on the thread.
+void JdwpImpl::runPendingCommands()
+{
+    while (!m_pendingCommands.isEmpty() && m_reportedLocalsGeneration == m_localsGeneration
+           && m_commandRunGeneration != m_runGeneration) {
+        executeDebuggerCommand(m_pendingCommands.takeFirst(), {});
+    }
 }
 
 void JdwpImpl::selectThread(const QString &threadId)
@@ -4032,9 +5612,22 @@ void JdwpImpl::placeOf(const JdwpExpression &expression, const Placement &done)
         return;
     case JdwpExpression::Kind::Field: {
         const QString name = expression.text;
-        evaluate(*expression.base, [this, name, done](const Evaluated &base) {
+        const JdwpExpression baseExpression = *expression.base;
+        evaluate(baseExpression, [this, name, baseExpression, done](const Evaluated &base) {
             if (!base.error.isEmpty()) {
-                done({.error = base.error});
+                // Nothing goes by that name here; a class may, and then this
+                // is a static field of it.
+                const QString dotted = baseExpression.dottedName();
+                if (dotted.isEmpty()) {
+                    done({.error = base.error});
+                    return;
+                }
+                classNamed(dotted, [this, name, base, done](quint64 classId) {
+                    if (classId == 0)
+                        done({.error = base.error});
+                    else
+                        placeOfStaticField(classId, name, done);
+                });
                 return;
             }
             if (!base.value.isObject() || base.value.isNull()) {
@@ -4221,29 +5814,109 @@ void JdwpImpl::assignValueInDebugger(const WatchItemData &, const QString &expr,
         emit message(assigned.error(), LogError);
         return;
     }
-    placeOf(*target, [this, assigned, expr, value](const Place &place) {
+    using Kind = JdwpExpression::Kind;
+    if (target->kind != Kind::Name && target->kind != Kind::Field && target->kind != Kind::Index) {
+        emit message(Tr::tr("Cannot set %1: %2").arg(expr,
+                         Tr::tr("This is not something a value can be written to.")), LogError);
+        return;
+    }
+    const auto write = [this, expr](const Evaluated &result, const Place &place) {
         if (!place.error.isEmpty()) {
             emit message(Tr::tr("Cannot set %1: %2").arg(expr, place.error), LogError);
             return;
         }
-        evaluate(*assigned, [this, place, expr, value](const Evaluated &result) {
+        const Result<JdwpValue> fitted = coerced(result.value, place.signature);
+        if (!fitted) {
+            emit message(Tr::tr("Cannot set %1: %2").arg(expr, fitted.error()), LogError);
+            return;
+        }
+        writeTo(place, *fitted, expr);
+    };
+    // A call in the value lets the thread run, and the frame id read before
+    // that is gone after, so there the value is worked out before the place is
+    // looked up. Otherwise a target that cannot be written to is found first.
+    if (assigned->makesTheProgramRun()) {
+        evaluate(*assigned, [this, target, expr, write](const Evaluated &result) {
             if (!result.error.isEmpty()) {
                 emit message(Tr::tr("Cannot set %1: %2").arg(expr, result.error), LogError);
                 return;
             }
-            const Result<JdwpValue> fitted = coerced(result.value, place.signature);
-            if (!fitted) {
-                emit message(Tr::tr("Cannot set %1: %2").arg(expr, fitted.error()), LogError);
+            placeOf(*target, [result, write](const Place &place) { write(result, place); });
+        });
+        return;
+    }
+    placeOf(*target, [this, assigned, expr, write](const Place &place) {
+        if (!place.error.isEmpty()) {
+            emit message(Tr::tr("Cannot set %1: %2").arg(expr, place.error), LogError);
+            return;
+        }
+        evaluate(*assigned, [this, place, expr, write](const Evaluated &result) {
+            if (!result.error.isEmpty()) {
+                emit message(Tr::tr("Cannot set %1: %2").arg(expr, result.error), LogError);
                 return;
             }
-            writeTo(place, *fitted, expr);
+            write(result, place);
         });
     });
 }
 
-void JdwpImpl::executeDebuggerCommand(const QString &, const WatchItemData &)
+// There is no command language on the wire, so what can be typed here is what
+// a watcher takes: an expression, worked out where the program stands.
+void JdwpImpl::executeDebuggerCommand(const QString &command, const WatchItemData &)
 {
-    reportUnsupported(Tr::tr("debugger commands"));
+    const QString text = command.trimmed();
+    if (text.isEmpty())
+        return;
+    if (m_running || m_decidingOnHit || m_currentThread == 0) {
+        emit message(Tr::tr("The program has to be stopped for an expression to be worked out."),
+                     ConsoleOutput);
+        return;
+    }
+    // The views' calls run on the same thread, one after the other, and would
+    // collide with the ones of the expression, as would those of another one.
+    if (m_reportedLocalsGeneration != m_localsGeneration
+        || m_commandRunGeneration == m_runGeneration) {
+        m_pendingCommands.append(text);
+        return;
+    }
+    const Result<JdwpExpression> parsed = parseJdwpExpression(text);
+    if (!parsed) {
+        emit message(parsed.error(), ConsoleOutput);
+        return;
+    }
+    const int callGeneration = m_callGeneration;
+    m_commandRunGeneration = m_runGeneration;
+    const auto wentOn = [this, text, runGeneration = m_runGeneration] {
+        if (runGeneration == m_runGeneration)
+            return false;
+        emit message(Tr::tr("The program went on before \"%1\" was worked out.").arg(text),
+                     ConsoleOutput);
+        return true;
+    };
+    evaluate(*parsed, [this, text, callGeneration, wentOn](const Evaluated &result) {
+        if (wentOn())
+            return;
+        // What the views show was read before the call, and may be what it
+        // changed. Reading them while the thread is still off in a call fails.
+        if (m_callGeneration != callGeneration && m_callsOut.value(m_currentThread) == 0
+            && m_lastLocalsRequest.requestId != 0) {
+            fetchLocals(m_lastLocalsRequest);
+        }
+        if (!result.error.isEmpty()) {
+            m_commandRunGeneration = -1;
+            emit message(result.error, ConsoleOutput);
+            runPendingCommands();
+            return;
+        }
+        // The next one waits for this line, which may take a round trip.
+        valueText(result.value, [this, text, wentOn](const QString &value) {
+            if (wentOn())
+                return;
+            m_commandRunGeneration = -1;
+            emit message(text + " = " + value, ConsoleOutput);
+            runPendingCommands();
+        });
+    });
 }
 
 } // namespace Debugger::Internal

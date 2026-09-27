@@ -10,6 +10,7 @@
 #include "jdwp/jdwpimpl.h"
 #include "lldb/lldbimpl.h"
 
+#include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -26,6 +27,7 @@
 #include <QTest>
 #include <QtEndian>
 
+#include <algorithm>
 #include <limits>
 #include <memory>
 
@@ -230,6 +232,8 @@ public:
         m_engine->assignValueInDebugger({}, expression, value);
     }
 
+    void type(const QString &command) { m_engine->executeDebuggerCommand(command, {}); }
+
     bool answered(quint64 requestId) const { return m_breakpointAnswers.contains(requestId); }
     bool answeredOk(quint64 requestId) const { return m_breakpointAnswers.value(requestId).first; }
     GdbMi answer(quint64 requestId) const { return m_breakpointAnswers.value(requestId).second; }
@@ -256,6 +260,10 @@ public:
     const QList<GdbMi> &modified() const { return m_modified; }
     QString output() const { return m_output; }
     bool logged(const QString &text) const { return logCount(text) > 0; }
+    qsizetype logIndex(const QString &text) const
+    {
+        return Utils::indexOf(m_log, [&text](const QString &line) { return line.contains(text); });
+    }
     qsizetype logCount(const QString &text) const
     {
         return std::count_if(m_log.cbegin(), m_log.cend(), [&text](const QString &line) {
@@ -543,6 +551,7 @@ private slots:
     void saysWhichPlacesAreLeftAfterAChange();
     void stopsOnlyInTheThreadABreakpointIsMeantFor();
     void printsATracepointAndRunsOn();
+    void printsATracepointWhoseExpressionCalls();
     void stopsOnceAtAOneShotBreakpoint();
     void printsAOneShotTracepointOnce();
     void leavesAHitItsConditionTurnedDownAlone();
@@ -552,6 +561,28 @@ private slots:
     void watchesAStaticThatHidesAnInheritedField();
     void saysWhatAOneShotWatchpointIsAboutToWrite();
     void parsesExpressions();
+    void parsesCalls();
+    void callsAMethodOfAnObject();
+    void picksTheMethodTheArgumentsFit();
+    void picksTheMethodNearestTheArguments();
+    void picksTheMethodOfTheFramesClass();
+    void boxesUnboxesAndSpreadsArguments();
+    void callsOnlyStaticMethodsWithoutAnObject();
+    void callsMethodsOfInterfaces();
+    void findsNestedClassesBySourceName();
+    void asksForNoClassListToFindAClass();
+    void assignsToAStaticALocalHides();
+    void assignsAValueThatCalls();
+    void callsAStaticMethodOfAClassItNames();
+    void saysWhatACallThrew();
+    void leavesACallAloneWhenCallsAreNotAllowed();
+    void showsTheStaticsOfTheClass();
+    void saysWhyAMethodHasNoLocals();
+    void listsTheModules();
+    void listsTheSourceFiles();
+    void reloadsTheSourceFilesWhileRunning();
+    void answersAnExpressionTypedAtIt();
+    void keepsTheConsoleInOrderAcrossAThreadSelection();
     void readsWatchers();
     void readsAWatcherOfThis();
     void readsAndWritesStringsTheMachineWay();
@@ -560,6 +591,7 @@ private slots:
     void ignoresTheFirstHits();
     void ignoresHitsFromWhenTheCountIsSet();
     void stopsWhenAConditionCannotBeWorkedOut();
+    void doesNotCallFromACondition();
     void listsTheThreads();
     void doesNotStopAtARemovedBreakpoint();
     void doesNotStopAtADisabledBreakpoint();
@@ -587,6 +619,7 @@ private:
     FilePath m_inferiorSource;
     FilePath m_helperSource;
     FilePath m_otherHelperSource;
+    FilePath m_bareSource;
     std::unique_ptr<QTemporaryDir> m_classesDir;
 };
 
@@ -607,16 +640,24 @@ void tst_jdwp::initTestCase()
     m_inferiorSource = m_sourceRoot / "org/qtproject/jdwptest/Inferior.java";
     m_helperSource = m_sourceRoot / "org/qtproject/jdwptest/Helper.java";
     m_otherHelperSource = m_sourceRoot / "org/qtproject/jdwptest/other/Helper.java";
+    m_bareSource = m_sourceRoot / "org/qtproject/jdwptest/Bare.java";
 
     m_classesDir = std::make_unique<QTemporaryDir>();
     QVERIFY(m_classesDir->isValid());
-    Process compile;
-    compile.setCommand({javac, {"-g", "-d", m_classesDir->path(),
-                                m_inferiorSource.nativePath(), m_helperSource.nativePath(),
-                                m_otherHelperSource.nativePath()}});
-    compile.runBlocking(std::chrono::seconds(120));
-    QVERIFY2(compile.result() == ProcessResult::FinishedWithSuccess,
-             qPrintable(compile.verboseExitMessage() + '\n' + compile.allOutput()));
+    const auto build = [this, javac](const QString &debugInfo, const FilePaths &sources) {
+        Process compile;
+        CommandLine command(javac, {debugInfo, "-d", m_classesDir->path()});
+        for (const FilePath &source : sources)
+            command.addArg(source.nativePath());
+        compile.setCommand(command);
+        compile.runBlocking(std::chrono::seconds(120));
+        QVERIFY2(compile.result() == ProcessResult::FinishedWithSuccess,
+                 qPrintable(compile.verboseExitMessage() + '\n' + compile.allOutput()));
+    };
+    build("-g", {m_inferiorSource, m_helperSource, m_otherHelperSource, m_bareSource});
+    // And once more over the one that is to have no variable table, which
+    // overwrites what the first pass made of it.
+    build("-g:lines,source", {m_bareSource});
 }
 
 int tst_jdwp::lineOf(const FilePath &file, const QString &marker) const
@@ -895,9 +936,13 @@ void tst_jdwp::readsLocalsAndExpandsThem()
     const quint64 collapsed = backend->refresh(RefreshKind::Locals);
     QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(collapsed), s_timeoutMs);
     const GdbMi locals = backend->refreshData(collapsed)["data"];
-    // A static method has no this, and the arguments come first.
-    QCOMPARE(namesIn(locals), QStringList({"args", "number", "text", "values", "point",
-                                           "squared", "total", "nested"}));
+    // A static method has no this, the arguments come first, and the statics
+    // of the class the frame stands in come last, under one row of their own.
+    QCOMPARE(namesIn(locals), QStringList({"args", "number", "text", "values", "base", "point",
+                                           "squared", "total", "nested", "static"}));
+    QCOMPARE(childNamed(locals, "static")["type"].data(), QString(s_mainClass));
+    QCOMPARE(childNamed(locals, "static")["numchild"].data(), QString("1"));
+    QVERIFY(!childNamed(locals, "static")["children"].isValid());
     QCOMPARE(childNamed(locals, "number")["value"].data(), QString("7"));
     QCOMPARE(childNamed(locals, "number")["type"].data(), QString("int"));
     QCOMPARE(childNamed(locals, "text")["value"].data(), QString("\"hello\""));
@@ -1009,12 +1054,15 @@ void tst_jdwp::givesUpOnACallThatDoesNotComeBack()
     backend->start();
     QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
 
-    const quint64 request = backend->refresh(RefreshKind::Locals);
+    const quint64 request = backend->refresh(RefreshKind::Locals, {},
+                                             {"first.toString()", "second.toString()"});
     // The views hear back rather than waiting for the rest of the session.
     QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
     const GdbMi locals = backend->refreshData(request)["data"];
     QVERIFY(childNamed(locals, "first")["value"].data().startsWith('@'));
     QVERIFY(childNamed(locals, "second")["value"].data().startsWith('@'));
+    QVERIFY(childNamed(locals, "first.toString()")["value"].data().contains("did not come back"));
+    QVERIFY(childNamed(locals, "second.toString()")["value"].data().contains("earlier call"));
     // And the second one is not even asked: the thread is off running the call
     // that never came back, and the machine takes no other while it does.
     QCOMPARE(backend->logCount("ObjectReference.InvokeMethod"), qsizetype(1));
@@ -1517,6 +1565,27 @@ void tst_jdwp::printsATracepointAndRunsOn()
     QCOMPARE(backend->logCount("adding 3 in " + where), qsizetype(1));
 }
 
+// A call runs the thread it is made on, and the machine refuses the next one
+// while it is out, so the captures that call are worked out one after the
+// other - and after everything that is read off the frames, which the first
+// call makes the machine forget.
+void tst_jdwp::printsATracepointWhoseExpressionCalls()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    BreakpointParameters params = DebuggerBackend::lineParameters(m_inferiorSource, loopLine);
+    params.tracepoint = true;
+    params.message = "squared {square(value)} of {square(total)} in $FUNCTION";
+    backend->addInitial(params);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(!backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stops(), qsizetype(0));
+    const QString where = QString(s_mainClass) + ".sum";
+    QCOMPARE(backend->logCount("squared 1 of 0 in " + where), qsizetype(1));
+    QCOMPARE(backend->logCount("squared 4 of 1 in " + where), qsizetype(1));
+    QCOMPARE(backend->logCount("squared 9 of 9 in " + where), qsizetype(1));
+}
+
 void tst_jdwp::stopsOnceAtAOneShotBreakpoint()
 {
     const int loopLine = lineOf(m_inferiorSource, "sum-loop");
@@ -1762,6 +1831,613 @@ void tst_jdwp::parsesExpressions()
         QVERIFY2(!result, qPrintable(QString("\"%1\" was read as an expression").arg(bad)));
         QVERIFY(!result.error().isEmpty());
     }
+}
+
+void tst_jdwp::parsesCalls()
+{
+    using Kind = JdwpExpression::Kind;
+
+    const Result<JdwpExpression> plain = parseJdwpExpression("size()");
+    QVERIFY(plain);
+    QCOMPARE(plain->kind, Kind::Call);
+    QCOMPARE(plain->text, QString("size"));
+    QVERIFY(!plain->base);
+    QVERIFY(plain->arguments.isEmpty());
+
+    const Result<JdwpExpression> onAName = parseJdwpExpression("list . get ( 1 + 1 , x )");
+    QVERIFY(onAName);
+    QCOMPARE(onAName->kind, Kind::Call);
+    QCOMPARE(onAName->text, QString("get"));
+    QCOMPARE(onAName->base->kind, Kind::Name);
+    QCOMPARE(onAName->base->text, QString("list"));
+    QCOMPARE(onAName->arguments.size(), qsizetype(2));
+    QCOMPARE(onAName->arguments.at(0)->kind, Kind::Binary);
+    QCOMPARE(onAName->arguments.at(1)->text, QString("x"));
+
+    // A chain of names in front of one is what a class is written as.
+    const Result<JdwpExpression> onAClass = parseJdwpExpression("java.lang.Integer.parseInt(\"3\")");
+    QVERIFY(onAClass);
+    QCOMPARE(onAClass->kind, Kind::Call);
+    QCOMPARE(onAClass->base->dottedName(), QString("java.lang.Integer"));
+
+    QVERIFY(parseJdwpExpression("a.b().c")->kind == Kind::Field);
+    QVERIFY(parseJdwpExpression("a.b().c")->base->kind == Kind::Call);
+    QVERIFY(!parseJdwpExpression("size("));
+    QVERIFY(!parseJdwpExpression("size(1,)"));
+
+    // What tells an expression that can be read off a suspended thread from
+    // one that makes the program go.
+    QVERIFY(!parseJdwpExpression("point.x + 1")->makesTheProgramRun());
+    QVERIFY(parseJdwpExpression("point.sum() + 1")->makesTheProgramRun());
+    QVERIFY(parseJdwpExpression("values[size()]")->makesTheProgramRun());
+    QVERIFY(parseJdwpExpression("f(g())")->makesTheProgramRun());
+
+    QCOMPARE(parseJdwpExpression("com.example.Foo.bar")->dottedName(),
+             QString("com.example.Foo.bar"));
+    QVERIFY(parseJdwpExpression("a[0].b")->dottedName().isEmpty());
+}
+
+void tst_jdwp::callsAMethodOfAnObject()
+{
+    const auto backend = launch({"show"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "show-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::Locals, {},
+                                             {"located.sum()", "located.toString()"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "located.sum()")["value"].data(), QString("7"));
+    QCOMPARE(childNamed(data, "located.sum()")["type"].data(), QString("int"));
+    QCOMPARE(childNamed(data, "located.toString()")["value"].data(), QString("\"(3, 4)\""));
+
+    // What it answered is shown the way any other value of that type is, and
+    // the locals it was read beside are still there: the frames the call made
+    // the machine forget were read before it went out.
+    QVERIFY(namesIn(data).contains("located"));
+    QCOMPARE(childNamed(data, "located")["value"].data(), QString("(3, 4)"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::picksTheMethodTheArgumentsFit()
+{
+    const auto backend = launch({"show"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "show-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // Two methods of one name: which is meant is said by what is handed to it.
+    // A call with nothing in front of it is one of the class the frame is in.
+    const quint64 request = backend->refresh(RefreshKind::Locals, {},
+                                             {"twice(21)", "twice(\"ha\")", "square(5)"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "twice(21)")["value"].data(), QString("42"));
+    QCOMPARE(childNamed(data, "twice(\"ha\")")["value"].data(), QString("\"haha\""));
+    QCOMPARE(childNamed(data, "square(5)")["value"].data(), QString("25"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::picksTheMethodNearestTheArguments()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // Java takes the most specific of the methods the arguments fit, not the
+    // first declared, and an array is passed on as the array it is.
+    const QStringList watchers = {"pick(\"x\")", "pick(1)", "pick(1L)", "pick(null)",
+                                  "pick(point)", "pick(tag())", "pick(values)",
+                                  "java.util.Arrays.toString(values)", "String.valueOf(text.toCharArray())", "base.foo(\"x\")"};
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, watchers);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    // The overload is the one of the declared type, whatever the object is.
+    QCOMPARE(childNamed(data, "base.foo(\"x\")")["value"].data(), QString("\"base\""));
+    QCOMPARE(childNamed(data, "pick(\"x\")")["value"].data(), QString("\"string\""));
+    QCOMPARE(childNamed(data, "pick(1)")["value"].data(), QString("\"int\""));
+    QCOMPARE(childNamed(data, "pick(1L)")["value"].data(), QString("\"long\""));
+    // Neither of String and Labelled is more specific than the other.
+    QVERIFY(childNamed(data, "pick(null)")["value"].data().contains("ambiguous"));
+    QCOMPARE(childNamed(data, "pick(point)")["value"].data(), QString("\"marked\""));
+    QCOMPARE(childNamed(data, "pick(tag())")["value"].data(), QString("\"labelled\""));
+    QCOMPARE(childNamed(data, "pick(values)")["value"].data(), QString("\"object\""));
+    QCOMPARE(childNamed(data, "java.util.Arrays.toString(values)")["value"].data(),
+             QString("\"[1, 2, 3]\""));
+    QCOMPARE(childNamed(data, "String.valueOf(text.toCharArray())")["value"].data(),
+             QString("\"hello\""));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::picksTheMethodOfTheFramesClass()
+{
+    const auto backend = launch({"base"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "base-call"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // "this" is declared as the class the frame is in, whatever the object is.
+    // A strict fit wins over a looser one, which is why Derived's log(int) is
+    // not even looked at. square() is a method of the class around it.
+    const QStringList watchers = {"foo(\"x\")", "this.foo(\"x\")", "log(1)", "this.log(1)",
+                                  "square(3)"};
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, watchers);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "foo(\"x\")")["value"].data(), QString("\"base\""));
+    QCOMPARE(childNamed(data, "this.foo(\"x\")")["value"].data(), QString("\"base\""));
+    QCOMPARE(childNamed(data, "log(1)")["value"].data(), QString("\"base long\""));
+    QCOMPARE(childNamed(data, "this.log(1)")["value"].data(), QString("\"base long\""));
+    QCOMPARE(childNamed(data, "square(3)")["value"].data(), QString("9"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::boxesUnboxesAndSpreadsArguments()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const QStringList watchers = {"java.util.List.of(1, 2).contains(2)",
+                                  "Math.abs(Integer.valueOf(-3))",
+                                  "String.format(\"%d-%s\", 4, \"x\")",
+                                  "java.util.Arrays.asList(1, 2, 3).size()"};
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, watchers);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "java.util.List.of(1, 2).contains(2)")["value"].data(),
+             QString("true"));
+    QCOMPARE(childNamed(data, "Math.abs(Integer.valueOf(-3))")["value"].data(), QString("3"));
+    QCOMPARE(childNamed(data, "String.format(\"%d-%s\", 4, \"x\")")["value"].data(),
+             QString("\"4-x\""));
+    QCOMPARE(childNamed(data, "java.util.Arrays.asList(1, 2, 3).size()")["value"].data(),
+             QString("3"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::callsOnlyStaticMethodsWithoutAnObject()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // main() is static, and so is a call through a class name.
+    const QStringList watchers = {"Point.sum()", "hashCode()"};
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, watchers);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QVERIFY(childNamed(data, "Point.sum()")["value"].data().contains("not static"));
+    QVERIFY(childNamed(data, "hashCode()")["value"].data().contains("not static"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::callsMethodsOfInterfaces()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "main-start"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // List.of() is a static method of an interface, and stream() a default
+    // one that the class of the list does not declare.
+    const QStringList watchers = {"java.util.List.of(\"a\").size()",
+                                  "java.util.List.of(\"a\").stream().count()"};
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, watchers);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "java.util.List.of(\"a\").size()")["value"].data(), QString("1"));
+    QCOMPARE(childNamed(data, "java.util.List.of(\"a\").stream().count()")["value"].data(),
+             QString("1"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::findsNestedClassesBySourceName()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-square"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // Inferior$Point is what the machine calls it, by a name relative to the
+    // frame or by a qualified one.
+    const QStringList watchers = {"Point.corners", "org.qtproject.jdwptest.Inferior.Point.corners"};
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, watchers);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    for (const QString &watcher : watchers)
+        QCOMPARE(childNamed(data, watcher.toUtf8())["value"].data(), QString("4"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::asksForNoClassListToFindAClass()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "main-start"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // A watcher whose first name is not in scope is looked up as a class, and
+    // that is a question about a name rather than the download of every class.
+    const quint64 warm = backend->refresh(RefreshKind::Locals, {}, {"Integer.MAX_VALUE"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(warm), s_timeoutMs);
+    const qsizetype listed = backend->logCount("VirtualMachine.AllClasses");
+
+    const quint64 request = backend->refresh(RefreshKind::Locals, {},
+                                             {"Integer.MAX_VALUE", "nothing.here"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "Integer.MAX_VALUE")["value"].data(), QString("2147483647"));
+    QCOMPARE(backend->logCount("VirtualMachine.AllClasses"), listed);
+    QVERIFY(backend->logCount("VirtualMachine.ClassesBySignature") > 0);
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::assignsToAStaticALocalHides()
+{
+    const auto backend = launch({"shadowing"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "shadowing-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // The parameter "calls" hides the static of that name, which the static
+    // row names after its class to be written to, and not by the bare name.
+    const QStringList watchers = {"calls", "Inferior.calls"};
+    const quint64 request = backend->refresh(RefreshKind::Locals, {"local.@static"}, watchers);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi statics = childNamed(backend->refreshData(request)["data"], "static")["children"];
+    const QString exp = childNamed(statics, "calls")["exp"].data();
+    QCOMPARE(exp, QString("org.qtproject.jdwptest.Inferior.calls"));
+
+    backend->assign(exp, "40");
+    const auto written = [&] {
+        const GdbMi data = backend->refreshData(request)["data"];
+        return childNamed(data, "Inferior.calls")["value"].data() == QString("40");
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(written(), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "calls")["value"].data(), QString("5"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::assignsAValueThatCalls()
+{
+    const auto backend = launch({"shadowing"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "shadowing-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // The call lets the thread run and the machine forget the frame, so the
+    // local is looked up after it and not before.
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, {"calls"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    backend->assign("calls", "square(3)");
+    const auto written = [&] {
+        return childNamed(backend->refreshData(request)["data"], "calls")["value"].data()
+               == QString("9");
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(written(), s_timeoutMs);
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::callsAStaticMethodOfAClassItNames()
+{
+    const auto backend = launch({"show"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "show-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // A plain name is read the way a source that imports nothing would read
+    // it: java.lang, and then the package the frame stands in.
+    const quint64 request = backend->refresh(RefreshKind::Locals, {},
+                                             {"Integer.parseInt(\"42\")",
+                                              "java.lang.Math.abs(-3)",
+                                              "Inferior.square(6)",
+                                              "Integer.MAX_VALUE"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QCOMPARE(childNamed(data, "Integer.parseInt(\"42\")")["value"].data(), QString("42"));
+    QCOMPARE(childNamed(data, "java.lang.Math.abs(-3)")["value"].data(), QString("3"));
+    QCOMPARE(childNamed(data, "Inferior.square(6)")["value"].data(), QString("36"));
+    // A static field of a named class reads the same way, and needs no call.
+    QCOMPARE(childNamed(data, "Integer.MAX_VALUE")["value"].data(), QString("2147483647"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::saysWhatACallThrew()
+{
+    const auto backend = launch({"show"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "show-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::Locals, {},
+                                             {"explode()", "located.nowhere()", "located.sum(1)",
+                                              "pick(overloads())"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QVERIFY2(childNamed(data, "explode()")["value"].data()
+                 .contains("java.lang.IllegalStateException"),
+             qPrintable(childNamed(data, "explode()")["value"].data()));
+    QVERIFY(childNamed(data, "located.nowhere()")["value"].data().contains("no method"));
+    QVERIFY(childNamed(data, "located.sum(1)")["value"].data().contains("no method"));
+    QVERIFY2(childNamed(data, "pick(overloads())")["value"].data().contains("returns nothing"),
+             qPrintable(childNamed(data, "pick(overloads())")["value"].data()));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::leavesACallAloneWhenCallsAreNotAllowed()
+{
+    const auto backend = launch({"show"});
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "show-body"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, {"located.sum()"}, false);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi data = backend->refreshData(request)["data"];
+    QVERIFY2(childNamed(data, "located.sum()")["value"].data().contains("not allowed"),
+             qPrintable(childNamed(data, "located.sum()")["value"].data()));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::showsTheStaticsOfTheClass()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "main-start"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::Locals, {"local.@static"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    const GdbMi statics = childNamed(backend->refreshData(request)["data"], "static")["children"];
+    QVERIFY(namesIn(statics).contains("negative"));
+    QCOMPARE(childNamed(statics, "negative")["value"].data(), QString("-5"));
+    QCOMPARE(childNamed(statics, "tiny")["type"].data(), QString("byte"));
+    QCOMPARE(childNamed(statics, "calls")["iname"].data(), QString("local.@static.calls"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::saysWhyAMethodHasNoLocals()
+{
+    const int line = lineOf(m_bareSource, "bare-body");
+    QVERIFY(line > 0);
+    const auto backend = launch({"bare"});
+    backend->addInitialBreakpoint(m_bareSource, line);
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), line);
+
+    const quint64 request = backend->refresh(RefreshKind::Locals);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    // The class was compiled without the table, so there is nothing to show
+    // and a word about why rather than an empty view and no reason for it.
+    QVERIFY(!namesIn(backend->refreshData(request)["data"]).contains("doubled"));
+    QVERIFY(backend->logged("compiled without the table"));
+    // Said once, however often the view asks again.
+    const quint64 again = backend->refresh(RefreshKind::Locals);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(again), s_timeoutMs);
+    QCOMPARE(backend->logCount("compiled without the table"), qsizetype(1));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::listsTheModules()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "main-start"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::Modules);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    // A virtual machine is made of no libraries; what it was started with is
+    // its class path, and the classes come from there.
+    QStringList paths;
+    for (const GdbMi &item : backend->refreshData(request))
+        paths.append(item["modulepath"].data());
+    QVERIFY2(Utils::anyOf(paths, [this](const QString &path) {
+        return FilePath::fromUserInput(path) == FilePath::fromUserInput(m_classesDir->path());
+    }), qPrintable(paths.join(", ")));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::listsTheSourceFiles()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    const quint64 request = backend->refresh(RefreshKind::SourceFiles);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    QMap<QString, QString> files;
+    QStringList listed;
+    for (const GdbMi &item : backend->refreshData(request)) {
+        files.insert(item["file"].data(), item["fullname"].data());
+        listed.append(item["file"].data());
+    }
+    QVERIFY2(files.contains("org/qtproject/jdwptest/Inferior.java"),
+             qPrintable(QStringList(files.keys()).join(", ")));
+    QCOMPARE(FilePath::fromUserInput(files.value("org/qtproject/jdwptest/Inferior.java")),
+             m_inferiorSource);
+    // The many classes of one file are one file, and the runtime's own are
+    // not the program's and are left out.
+    QCOMPARE(listed.count("org/qtproject/jdwptest/Inferior.java"), 1);
+    QVERIFY(!Utils::anyOf(files.keys(), [](const QString &file) {
+        return file.startsWith("java/lang/");
+    }));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::reloadsTheSourceFilesWhileRunning()
+{
+    QTemporaryDir signalDir;
+    QVERIFY(signalDir.isValid());
+    const FilePath signal = FilePath::fromUserInput(signalDir.path()) / "go";
+    const auto backend = launch({"late", signal.nativePath()});
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->output().contains("waiting"), s_timeoutMs);
+
+    const quint64 before = backend->refresh(RefreshKind::SourceFiles);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(before), s_timeoutMs);
+    QVERIFY(signal.writeFileContents("go"));
+    QTRY_VERIFY_WITH_TIMEOUT(backend->output().contains("loaded"), s_timeoutMs);
+
+    // Asked again while the program still runs, the list has what it loaded
+    // since.
+    const quint64 after = backend->refresh(RefreshKind::SourceFiles);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(after), s_timeoutMs);
+    QStringList files;
+    for (const GdbMi &item : backend->refreshData(after))
+        files.append(item["file"].data());
+    QVERIFY2(files.contains("org/qtproject/jdwptest/Bare.java"), qPrintable(files.join(", ")));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::answersAnExpressionTypedAtIt()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+
+    // There is no command language on the wire, so what can be typed is an
+    // expression, answered where the program stands.
+    backend->type("number + 1");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("number + 1 = 8"), s_timeoutMs);
+    const quint64 shown = backend->refresh(RefreshKind::Locals, {}, {"Inferior.calls"});
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(shown), s_timeoutMs);
+    const QString before = childNamed(backend->refreshData(shown)["data"],
+                                      "Inferior.calls")["value"].data();
+    // Typed one right behind the other, they take turns on the thread.
+    backend->type("square(4)");
+    backend->type("square(6)");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("square(6) = 36"), s_timeoutMs);
+    QVERIFY(backend->logged("square(4) = 16"));
+    // One answered at once still waits for the line of the one before.
+    backend->type("text");
+    backend->type("1 + 1");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("1 + 1 = 2"), s_timeoutMs);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("text = \"hello\""), s_timeoutMs);
+    QVERIFY(backend->logIndex("text = \"hello\"") < backend->logIndex("1 + 1 = 2"));
+    // A call can change what the views show, which they are asked for again.
+    backend->type("sum(values)");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("sum(values) = 6"), s_timeoutMs);
+    QTRY_VERIFY_WITH_TIMEOUT(childNamed(backend->refreshData(shown)["data"],
+                                        "Inferior.calls")["value"].data() != before,
+                             s_timeoutMs);
+
+    // What the views are allowed is theirs and holds for their own batch: an
+    // expression the user types is asked for, whatever the last refresh of
+    // the Locals view was willing to let the program do.
+    // Typed right behind the refresh, while its batch is still being read.
+    const quint64 request = backend->refresh(RefreshKind::Locals, {}, {}, false);
+    backend->type("square(5)");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("square(5) = 25"), s_timeoutMs);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(request), s_timeoutMs);
+    QVERIFY(!backend->logged("the views are not allowed"));
+
+    // A line that does not parse waits its turn as well.
+    backend->type("square(3)");
+    backend->type("nonsense !");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("Cannot read"), s_timeoutMs);
+    QVERIFY(backend->logIndex("square(3) = 9") >= 0);
+    QVERIFY(backend->logIndex("square(3) = 9") < backend->logIndex("Cannot read"));
+
+    // The string made for the argument and the one that comes back are kept
+    // from the collector, which a later call could otherwise run into, until
+    // the program is let go.
+    backend->type("twice(\"ab\")");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("twice(\"ab\") = \"abab\""), s_timeoutMs);
+    QCOMPARE(backend->logCount("ObjectReference.DisableCollection"), qsizetype(2));
+    QCOMPARE(backend->logCount("ObjectReference.EnableCollection"), qsizetype(0));
+    backend->execute(ExecutionCommand::StepOver);
+    QTRY_COMPARE_WITH_TIMEOUT(backend->logCount("ObjectReference.EnableCollection"), qsizetype(2),
+                              s_timeoutMs);
+
+    // A thread with no Java frames has nothing a call could be made on, and
+    // that is what is said, not that a value has no methods.
+    const quint64 threads = backend->refresh(RefreshKind::Threads);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(threads), s_timeoutMs);
+    const GdbMi bare = childNamed(backend->refreshData(threads)["threads"], "Signal Dispatcher");
+    QVERIFY2(bare.isValid(), qPrintable(namesIn(backend->refreshData(threads)["threads"])
+                                            .join(", ")));
+    backend->selectThread(bare["id"].data());
+    backend->type("square(4)");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("There is no frame to look in."), s_timeoutMs);
+    QVERIFY(!backend->logged("has no methods"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::keepsTheConsoleInOrderAcrossAThreadSelection()
+{
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, lineOf(m_inferiorSource, "call-nested"));
+    backend->start();
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    const quint64 threads = backend->refresh(RefreshKind::Threads);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->refreshed(threads), s_timeoutMs);
+    const GdbMi other = childNamed(backend->refreshData(threads)["threads"], "Signal Dispatcher");
+    QVERIFY(other.isValid());
+
+    // Selecting a thread is not the program going on, so the second line
+    // still waits for the first, however that one ends.
+    backend->type("square(4)");
+    backend->selectThread(other["id"].data());
+    backend->type("1 + 1");
+    QTRY_VERIFY_WITH_TIMEOUT(backend->logged("1 + 1 = 2"), s_timeoutMs);
+    // What became of the first depends on how far it got before the switch.
+    const qsizetype first = std::max({backend->logIndex("square(4) = 16"),
+                                      backend->logIndex("Another thread was selected"),
+                                      backend->logIndex("There is no frame to look in.")});
+    QVERIFY2(first >= 0, qPrintable(backend->log()));
+    QVERIFY2(first < backend->logIndex("1 + 1 = 2"), qPrintable(backend->log()));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
 }
 
 void tst_jdwp::readsWatchers()
@@ -2076,6 +2752,21 @@ void tst_jdwp::stopsWhenAConditionCannotBeWorkedOut()
     QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
     QCOMPARE(backend->stoppedLine(), loopLine);
     QVERIFY(backend->log().contains("condition of breakpoint"));
+
+    backend->shutdownInferior(ShutdownMode::Kill);
+    QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);
+}
+
+void tst_jdwp::doesNotCallFromACondition()
+{
+    const int loopLine = lineOf(m_inferiorSource, "sum-loop");
+    const auto backend = launch();
+    backend->addInitialBreakpoint(m_inferiorSource, loopLine, "pick(1).isEmpty()");
+    backend->start();
+    // Were the call made, the condition would be false and the program would run on.
+    QTRY_VERIFY_WITH_TIMEOUT(backend->stops() == 1 || !backend->results().isEmpty(), s_timeoutMs);
+    QCOMPARE(backend->stoppedLine(), loopLine);
+    QVERIFY(backend->log().contains("calls a method"));
 
     backend->shutdownInferior(ShutdownMode::Kill);
     QTRY_VERIFY_WITH_TIMEOUT(backend->contains(InferiorEvent::ShutdownFinished), s_timeoutMs);

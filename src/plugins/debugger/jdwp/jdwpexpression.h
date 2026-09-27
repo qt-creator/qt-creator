@@ -13,10 +13,10 @@
 
 namespace Debugger::Internal {
 
-// As much of a Java expression as a debugger can answer by reading the virtual
-// machine, which is what JDWP offers: a name, a literal, and the two ways of
-// reaching inside a value. Anything that would have to run code in the machine
-// to produce its result - a method call, an operator on objects - is not here.
+// As much of a Java expression as a debugger can answer: a name, a literal,
+// the two ways of reaching inside a value, and a method call. What an operator
+// means for an object - "+" on two strings, say - is not here, since that is
+// the compiler's doing rather than the machine's.
 class DEBUGGER_EXPORT JdwpExpression
 {
 public:
@@ -30,6 +30,10 @@ public:
         // of an array reads as a field, as it does in Java.
         Field,
         Index,
+        // A method of what base holds, of the class base names where it names
+        // one, or of the frame itself where there is no base. This is the one
+        // thing here that makes the program run.
+        Call,
         // On base, and on right as well where there are two of them.
         Unary,
         Binary,
@@ -47,19 +51,29 @@ public:
 
     Kind kind = Kind::Null;
     Operator op = Operator::None;
-    // The identifier of a Name or a Field, and the contents of a String.
+    // The identifier of a Name, a Field or a Call, and the contents of a String.
     QString text;
     // Int, Long, Char and Boolean keep their value here, Float and Double theirs
     // in number.
     qint64 integer = 0;
     double number = 0;
-    // What a Field or an Index is taken from, and the one side of a Unary or
-    // the left of a Binary.
+    // What a Field, an Index or a Call is taken from, and the one side of a
+    // Unary or the left of a Binary. A Call of a method of the frame itself
+    // has none.
     std::shared_ptr<JdwpExpression> base;
     std::shared_ptr<JdwpExpression> index;
     std::shared_ptr<JdwpExpression> right;
+    // What a Call passes, in the order they are written.
+    QList<std::shared_ptr<JdwpExpression>> arguments;
 
     QString typeName() const;
+    // Whether anything in it has to be run in the virtual machine, which is
+    // what tells an expression that can be read off a suspended thread from
+    // one that makes the program go.
+    bool makesTheProgramRun() const;
+    // The dotted name it spells out, "com.example.Foo", or nothing where it is
+    // anything but names joined by dots.
+    QString dottedName() const;
 };
 
 // Parses expression, or says what is wrong with it.

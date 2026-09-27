@@ -24,11 +24,37 @@ QString JdwpExpression::typeName() const
     case Kind::This:
     case Kind::Field:
     case Kind::Index:
+    case Kind::Call:
     case Kind::Unary:
     case Kind::Binary:
         break;
     }
     return {};
+}
+
+bool JdwpExpression::makesTheProgramRun() const
+{
+    if (kind == Kind::Call)
+        return true;
+    for (const std::shared_ptr<JdwpExpression> &part : {base, index, right}) {
+        if (part && part->makesTheProgramRun())
+            return true;
+    }
+    for (const std::shared_ptr<JdwpExpression> &argument : arguments) {
+        if (argument && argument->makesTheProgramRun())
+            return true;
+    }
+    return false;
+}
+
+QString JdwpExpression::dottedName() const
+{
+    if (kind == Kind::Name)
+        return text;
+    if (kind != Kind::Field || !base)
+        return {};
+    const QString prefix = base->dottedName();
+    return prefix.isEmpty() ? QString() : prefix + '.' + text;
 }
 
 // A hand-written scanner and a recursive descent over it, which is all the
@@ -54,6 +80,8 @@ public:
     }
 
 private:
+    using Arguments = QList<std::shared_ptr<JdwpExpression>>;
+
     bool atEnd() const { return m_pos >= m_text.size(); }
     QChar current() const { return atEnd() ? QChar() : m_text.at(m_pos); }
     QChar at(int offset) const
@@ -159,6 +187,20 @@ private:
                 const QString name = takeIdentifier();
                 if (name.isEmpty())
                     return unexpected();
+                skipSpace();
+                if (current() == '(') {
+                    ++m_pos;
+                    const Result<Arguments> arguments = parseArguments();
+                    if (!arguments)
+                        return ResultError(arguments.error());
+                    JdwpExpression call;
+                    call.kind = JdwpExpression::Kind::Call;
+                    call.text = name;
+                    call.base = std::make_shared<JdwpExpression>(*value);
+                    call.arguments = *arguments;
+                    value = call;
+                    continue;
+                }
                 JdwpExpression field;
                 field.kind = JdwpExpression::Kind::Field;
                 field.text = name;
@@ -213,6 +255,24 @@ private:
         const QString name = takeIdentifier();
         if (name.isEmpty())
             return unexpected();
+        // A name with an argument list behind it is a method of whatever the
+        // frame stands in, which is the one call that names no receiver.
+        if (name != "true" && name != "false" && name != "null" && name != "this") {
+            const int before = m_pos;
+            skipSpace();
+            if (current() == '(') {
+                ++m_pos;
+                const Result<Arguments> arguments = parseArguments();
+                if (!arguments)
+                    return ResultError(arguments.error());
+                JdwpExpression call;
+                call.kind = JdwpExpression::Kind::Call;
+                call.text = name;
+                call.arguments = *arguments;
+                return call;
+            }
+            m_pos = before;
+        }
         JdwpExpression expression;
         if (name == "true" || name == "false") {
             expression.kind = JdwpExpression::Kind::Boolean;
@@ -226,6 +286,34 @@ private:
             expression.text = name;
         }
         return expression;
+    }
+
+    // What is written between the parentheses of a call, whose opening one has
+    // been taken already.
+    Result<Arguments> parseArguments()
+    {
+        Arguments arguments;
+        skipSpace();
+        if (current() == ')') {
+            ++m_pos;
+            return arguments;
+        }
+        while (true) {
+            const Result<JdwpExpression> argument = parseBinary(0);
+            if (!argument)
+                return ResultError(argument.error());
+            arguments.append(std::make_shared<JdwpExpression>(*argument));
+            skipSpace();
+            if (current() == ',') {
+                ++m_pos;
+                continue;
+            }
+            if (current() == ')') {
+                ++m_pos;
+                return arguments;
+            }
+            return ResultError(Tr::tr("The arguments in \"%1\" are not closed.").arg(m_text));
+        }
     }
 
     QString takeIdentifier()

@@ -27,6 +27,8 @@ enum CommandSet : quint8 {
     VirtualMachineSet = 1,
     ReferenceTypeSet = 2,
     ClassTypeSet = 3,
+    ArrayTypeSet = 4,
+    InterfaceTypeSet = 5,
     MethodSet = 6,
     ObjectReferenceSet = 9,
     StringReferenceSet = 10,
@@ -39,6 +41,7 @@ enum CommandSet : quint8 {
 
 enum VirtualMachineCommand : quint8 {
     VmVersion = 1,
+    VmClassesBySignature = 2,
     VmAllClasses = 3,
     VmAllThreads = 4,
     VmDispose = 6,
@@ -47,6 +50,7 @@ enum VirtualMachineCommand : quint8 {
     VmResume = 9,
     VmExit = 10,
     VmCreateString = 11,
+    VmClassPaths = 13,
     VmCapabilitiesNew = 17,
 };
 
@@ -54,6 +58,7 @@ enum ReferenceTypeCommand : quint8 {
     RefTypeSignature = 1,
     RefTypeGetValues = 6,
     RefTypeSourceFile = 7,
+    RefTypeInterfaces = 10,
     RefTypeFieldsWithGeneric = 14,
     RefTypeMethodsWithGeneric = 15,
 };
@@ -61,6 +66,15 @@ enum ReferenceTypeCommand : quint8 {
 enum ClassTypeCommand : quint8 {
     ClassTypeSuperclass = 1,
     ClassTypeSetValues = 2,
+    ClassTypeInvokeMethod = 3,
+};
+
+enum ArrayTypeCommand : quint8 {
+    ArrayTypeNewInstance = 1,
+};
+
+enum InterfaceTypeCommand : quint8 {
+    InterfaceTypeInvokeMethod = 1,
 };
 
 enum MethodCommand : quint8 {
@@ -73,6 +87,8 @@ enum ObjectReferenceCommand : quint8 {
     ObjectGetValues = 2,
     ObjectSetValues = 3,
     ObjectInvokeMethod = 6,
+    ObjectDisableCollection = 7,
+    ObjectEnableCollection = 8,
 };
 
 // How a method the debugger calls is run. Single-threaded leaves the rest of
@@ -199,7 +215,16 @@ enum ThreadStatusValue {
     ThreadWait = 4,
 };
 
-enum ModifierBits { StaticModifierBit = 0x0008, AbstractModifierBit = 0x0400 };
+enum ModifierBits : quint32 {
+    PrivateModifierBit = 0x0002,
+    StaticModifierBit = 0x0008,
+    BridgeModifierBit = 0x0040,
+    VarArgsModifierBit = 0x0080,
+    AbstractModifierBit = 0x0400,
+    SyntheticModifierBit = 0x1000,
+    // What JDWP sets for a method the virtual machine made up itself.
+    JdwpSyntheticModifierBits = 0xf0000000,
+};
 
 // The indices into the answer to CapabilitiesNew.
 enum Capability { CanUseSourceNameFilters = 18 };
