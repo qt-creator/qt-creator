@@ -2368,13 +2368,29 @@ bool WatchHandler::insertItem(WatchItem *item)
     if (!found)
         parent->appendChild(item);
 
+    itemInserted(item);
+    return !found;
+}
+
+// Skips looking for an existing item, which is linear in the number of siblings.
+void WatchHandler::appendNewItem(WatchItem *item)
+{
+    QTC_ASSERT(!item->iname.isEmpty(), delete item; return);
+
+    WatchItem *parent = m_model->findItem(parentName(item->iname));
+    QTC_ASSERT(parent, delete item; return);
+
+    parent->appendChild(item);
+    itemInserted(item);
+}
+
+void WatchHandler::itemInserted(WatchItem *item)
+{
     item->update();
 
     if (!m_model->completeValueCopy(item))
         m_model->showEditValue(item);
     item->forAllChildren([this](WatchItem *sub) { m_model->showEditValue(sub); });
-
-    return !found;
 }
 
 void WatchModel::reexpandItems()

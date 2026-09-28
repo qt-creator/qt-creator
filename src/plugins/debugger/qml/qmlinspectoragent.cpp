@@ -18,6 +18,7 @@
 #include <qmldebug/qmlenginedebugclient.h>
 #include <qmldebug/qmltoolsclient.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
@@ -27,6 +28,7 @@
 
 using namespace QmlDebug;
 using namespace Utils;
+using namespace std::chrono;
 
 namespace Debugger::Internal {
 
@@ -40,6 +42,9 @@ static Q_LOGGING_CATEGORY(qmlInspectorLog, "qtc.dbg.qmlinspector", QtWarningMsg)
 // defensive; this node cap is a further last-resort guard against a
 // pathologically large tree. See QTCREATORBUG-33434.
 static const int MaxInspectorTreeNodes = 100000;
+
+static constexpr milliseconds MinRebuildDelay = 100ms;
+static constexpr milliseconds RebuildInterval = 1000ms;
 
 
 /*!
@@ -57,9 +62,8 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     connect(&settings().sortStructMembers, &Utils::BaseAspect::changed,
             this, &QmlInspectorAgent::updateState);
     m_delayQueryTimer.setSingleShot(true);
-    m_delayQueryTimer.setInterval(100);
     connect(&m_delayQueryTimer, &QTimer::timeout,
-            this, &QmlInspectorAgent::queryEngineContext);
+            this, &QmlInspectorAgent::rebuildObjectTree);
     m_updateLocalsTimer.setSingleShot(true);
     m_updateLocalsTimer.setInterval(0);
     connect(&m_updateLocalsTimer, &QTimer::timeout, this, [this] {
@@ -275,7 +279,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
         const ObjectReference object = qvariant_cast<ObjectReference>(value);
         // The application answers with nothing for an object it has destroyed.
         if (object.isValid())
-            verifyAndInsertObjectInTree(object);
+            verifyAndInsertObjectInTree(object, m_knownDelegateIds.value(debugId, -1));
         else
             m_knownDelegateIds.remove(debugId);
     } else if (m_objectTreeQueryIds.contains(queryId)) {
@@ -332,11 +336,14 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
                 // after clearObjectTree() so the FETCH_OBJECT responses are not
                 // discarded. Fetch only the headers, as this runs after every
                 // burst of object creations. Properties come on expansion.
-                for (int id : std::as_const(m_knownDelegateIds)) {
-                    if (!m_debugIdToIname.contains(id))
-                        fetchObjectHeader(id);
+                for (auto it = m_knownDelegateIds.cbegin(); it != m_knownDelegateIds.cend(); ++it) {
+                    if (!m_debugIdToIname.contains(it.key()))
+                        fetchObjectHeader(it.key());
                 }
                 m_rootContextQueryIds.clear();
+                m_lastRebuild.start();
+                if (std::exchange(m_rebuildPending, false))
+                    scheduleRebuild();
             }
         }
     }
@@ -373,15 +380,48 @@ void QmlInspectorAgent::newObject(int engineId, int objectId, int parentId)
         // parent. Objects created by QQmlInstantiator do have a non-null
         // parent and are missed here despite the same context-tree gap.
         qCDebug(qmlInspectorLog) << "  no QObject parent, queuing for post-rebuild fetch:" << objectId;
-        m_knownDelegateIds.insert(objectId);
+        m_knownDelegateIds.insert(objectId, engineId);
     }
 
-    for (const auto &engine : std::as_const(m_engines)) {
-        if (engine.debugId() == engineId) {
-            m_delayQueryTimer.start();
-            break;
+    const bool knownEngine = Utils::anyOf(m_engines, [engineId](const EngineReference &engine) {
+        return engine.debugId() == engineId;
+    });
+    if (!knownEngine)
+        return;
+
+    // Insert objects that would be visible right away. The full rebuild is
+    // still needed to get rid of destroyed objects, but it is expensive for
+    // large trees, so do not run it more often than once a second.
+    if (!m_debugIdToIname.contains(objectId)) {
+        const auto parentIt = m_debugIdToIname.constFind(parentId);
+        if (parentId == WatchItem::InvalidId) {
+            fetchObjectHeader(objectId);
+        } else if (parentIt != m_debugIdToIname.constEnd()
+                   && m_qmlEngine->watchHandler()->isExpandedIName(*parentIt)) {
+            fetchObject(objectId);
         }
     }
+
+    scheduleRebuild();
+}
+
+void QmlInspectorAgent::scheduleRebuild()
+{
+    if (m_delayQueryTimer.isActive())
+        return;
+    const milliseconds sinceLastRebuild = m_lastRebuild.isValid()
+            ? milliseconds(m_lastRebuild.elapsed()) : RebuildInterval;
+    m_delayQueryTimer.start(std::max(MinRebuildDelay, RebuildInterval - sinceLastRebuild));
+}
+
+// A new LIST_OBJECTS drops the answers to the previous one, so a tree that takes
+// longer than the throttle interval to answer would never be rebuilt.
+void QmlInspectorAgent::rebuildObjectTree()
+{
+    if (m_rootContextQueryIds.isEmpty())
+        queryEngineContext();
+    else
+        m_rebuildPending = true;
 }
 
 static void sortChildrenIfNecessary(WatchItem *propertiesWatch)
@@ -503,6 +543,7 @@ void QmlInspectorAgent::queryEngineContext()
 
     log(LogSend, "LIST_OBJECTS");
 
+    m_rebuildPending = false;
     m_rootContexts.clear();
     m_rootContextQueryIds.clear();
     for (const auto &engine : std::as_const(m_engines))
@@ -630,7 +671,10 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
                                || (parentIt != m_debugIdToIname.constEnd()
                                    && handler->findItem(parentIname) != nullptr);
     if (parentPresent) {
-        if (parentId != WatchItem::InvalidId && !handler->isExpandedIName(parentIname)
+        // The engine item is filled when it is inserted. Fetching more of it would
+        // only expand it again after the user collapsed it.
+        if (parentId != WatchItem::InvalidId && parentId != engineId
+                && !handler->isExpandedIName(parentIname)
                 && !m_fetchDataIds.contains(parentId)) {
             const WatchItem *parentItem = handler->findItem(parentIname);
             const int parentChildCount = parentItem ? parentItem->childCount() : -1;
@@ -773,6 +817,16 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
 
     int objDebugId = obj.debugId();
     QString objIname = buildIName(parentIname, objDebugId);
+    // All items are registered, so there is nothing to replace unless the object
+    // is registered with this iname.
+    const bool isNew = m_debugIdToIname.value(objDebugId) != objIname;
+    WatchHandler *handler = m_qmlEngine->watchHandler();
+    const auto insert = [handler, isNew](WatchItem *item) {
+        if (isNew)
+            handler->appendNewItem(item);
+        else
+            handler->insertItem(item);
+    };
 
     if (append) {
         QString name = obj.idString();
@@ -800,8 +854,8 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
         objWatch->value = "object";
         objWatch->wantsChildren = true;
 
-        m_qmlEngine->watchHandler()->insertItem(objWatch);
-        addObjectWatch(objWatch->id);
+        insert(objWatch);
+        addObjectWatch(objDebugId);
         // Pending changes are older than the values fetched with obj.
         m_valueChanges.remove(objDebugId);
         if (m_debugIdToIname.contains(objDebugId)) {
@@ -848,7 +902,7 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
         }
 
         sortChildrenIfNecessary(propertiesWatch);
-        m_qmlEngine->watchHandler()->insertItem(propertiesWatch);
+        insert(propertiesWatch);
     }
 
     // recurse
