@@ -312,16 +312,6 @@ void AcpChatController::sendPrompt(const QString &text,
                        .name(file.fileName())
                        .description("Manually added context file.")
                        .uri(uri);
-
-        if (embeddedContext) {
-            const auto fileContents = file.fileContents();
-            if (fileContents) {
-                content << V2::EmbeddedResource().resource(
-                    V2::TextResourceContents()
-                        .text(QString::fromUtf8(*fileContents))
-                        .uri(uri));
-            }
-        }
     }
 
     for (const TextContext &ctx : textContexts) {
