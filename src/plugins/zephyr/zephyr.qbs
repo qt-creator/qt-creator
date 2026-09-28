@@ -14,6 +14,7 @@ QtcPlugin {
 
     files: [
         "westbuildstep.cpp", "westbuildstep.h",
+        "zephyr.qrc",
         "zephyrconstants.h",
         "zephyrdebug.cpp", "zephyrdebug.h",
         "zephyrplugin.cpp",
@@ -22,4 +23,10 @@ QtcPlugin {
         "zephyrsettings.cpp", "zephyrsettings.h",
         "zephyrtr.h",
     ]
+
+    Group {
+        name: "wizards"
+        files: "wizards/**/*"
+        fileTags: []
+    }
 }

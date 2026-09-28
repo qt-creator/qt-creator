@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/zephyr">
+        <file>wizards/application/CMakeLists.txt</file>
+        <file>wizards/application/main.c</file>
+        <file>wizards/application/prj.conf</file>
+        <file>wizards/application/west.yml</file>
+        <file>wizards/application/wizard.json</file>
+    </qresource>
+</RCC>

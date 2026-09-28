@@ -2,6 +2,7 @@ add_qtc_plugin(Zephyr
   PLUGIN_DEPENDS Core ProjectExplorer CMakeProjectManager Debugger QtSupport
   SOURCES
     westbuildstep.cpp westbuildstep.h
+    zephyr.qrc
     zephyrconstants.h
     zephyrdebug.cpp zephyrdebug.h
     zephyrplugin.cpp

@@ -1,0 +1,65 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "Zephyr.Project" ],
+    "id": "Z.ZephyrApplication",
+    "category": "I.Projects",
+    "trDescription": "Creates a Zephyr RTOS application with a west manifest, built with west in the workspace set up in Preferences > Zephyr.",
+    "trDisplayName": "Zephyr Application",
+    "trDisplayCategory": "Non-Qt Project",
+    "iconText": "Z",
+    "enabled": "%{JS: isPluginRunning('zephyr')}",
+
+    "options":
+    [
+        { "key": "ManifestFile", "value": "%{ProjectDirectory}/west.yml" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project"
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "data": { "projectFilePath": "%{ManifestFile}" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "west.yml",
+                    "openAsProject": true
+                },
+                {
+                    "source": "CMakeLists.txt"
+                },
+                {
+                    "source": "prj.conf"
+                },
+                {
+                    "source": "main.c",
+                    "target": "src/main.c",
+                    "openInEditor": true
+                },
+                {
+                    "source": "%{IDE:ResourcePath}/templates/wizards/projects/git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
+                }
+            ]
+        }
+    ]
+}

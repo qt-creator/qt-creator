@@ -22,6 +22,9 @@
     "core" : {
         "ProjectFileMimeTypes" : [ "text/x-west-manifest" ]
     },
+    "projectexplorer" : {
+        "JsonWizardPaths" : [":/zephyr/wizards/"]
+    },
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
