@@ -10172,7 +10172,6 @@ Utils::Result<WorkspaceFoldersServerCapabilitiesChangeNotifications> fromJson<Wo
 QJsonValue toJsonValue(const WorkspaceFoldersServerCapabilitiesChangeNotifications &val)
 {
     return std::visit([](const auto &v) -> QJsonValue {
-        using T = std::decay_t<decltype(v)>;
         {
             return QVariant::fromValue(v).toJsonValue();
         }

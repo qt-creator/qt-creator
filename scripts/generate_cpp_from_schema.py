@@ -1907,30 +1907,33 @@ def _typed_toJsonValue_lines(alias, variant_types, types):
             or is_union_type_name(elem_type, types or {}) else "toJson"
         return f"{fn}({expr})"
 
-    lines = ["", f"inline QJsonValue toJsonValue(const {alias} &val) {{",
-             "    return std::visit([](const auto &v) -> QJsonValue {",
-             "        using T = std::decay_t<decltype(v)>;"]
+    branches = []
     for vt in variant_types:
         if vt == "std::monostate":
-            lines.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
-            lines.append("            return QJsonValue(QJsonValue::Null);")
-            lines.append("        } else")
+            branches.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
+            branches.append("            return QJsonValue(QJsonValue::Null);")
+            branches.append("        } else")
         elif vt.startswith("QList<") or vt == "QStringList":
             elem_type = "QString" if vt == "QStringList" else vt[len("QList<"):-1]
-            lines.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
-            lines.append("            QJsonArray arr;")
-            lines.append("            for (const auto &elem : v)")
-            lines.append(f"                arr.append({element_call(elem_type, 'elem')});")
-            lines.append("            return arr;")
-            lines.append("        } else")
+            branches.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
+            branches.append("            QJsonArray arr;")
+            branches.append("            for (const auto &elem : v)")
+            branches.append(f"                arr.append({element_call(elem_type, 'elem')});")
+            branches.append("            return arr;")
+            branches.append("        } else")
         elif vt == "QJsonObject":
-            lines.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
-            lines.append("            return v;")
-            lines.append("        } else")
+            branches.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
+            branches.append("            return v;")
+            branches.append("        } else")
         elif vt not in _SCALAR_VARIANT_TYPES:
-            lines.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
-            lines.append(f"            return {element_call(vt, 'v')};")
-            lines.append("        } else")
+            branches.append(f"        if constexpr (std::is_same_v<T, {vt}>) {{")
+            branches.append(f"            return {element_call(vt, 'v')};")
+            branches.append("        } else")
+    lines = ["", f"inline QJsonValue toJsonValue(const {alias} &val) {{",
+             "    return std::visit([](const auto &v) -> QJsonValue {"]
+    if branches:
+        lines.append("        using T = std::decay_t<decltype(v)>;")
+    lines.extend(branches)
     lines.append("        {")
     lines.append("            return QVariant::fromValue(v).toJsonValue();")
     lines.append("        }")
