@@ -3,11 +3,13 @@
 
 #include "zephyrproject.h"
 
+#include "westbuildstep.h"
 #include "zephyrconstants.h"
 #include "zephyrtr.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
@@ -26,6 +28,7 @@
 
 #include <utils/async.h>
 #include <utils/commandline.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QJsonArray>
@@ -35,8 +38,16 @@
 
 #include <QtTaskTree/QSingleTaskTreeRunner>
 
+#include <optional>
+
 #ifdef WITH_TESTS
+#include "zephyrsettings.h"
+
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorer.h>
+
 #include <QFile>
+#include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
 #endif
@@ -252,6 +263,16 @@ static FilePath compileDatabaseFile(const FilePath &buildDir, const QString &app
     return buildDir / "compile_commands.json";
 }
 
+// Builds what source needs in the build directory that holds dbFile, which for
+// a sysbuild is the one of the application and not the top level one.
+static CommandLine generatedHeadersCommand(const FilePath &west,
+                                           const FilePath &dbFile,
+                                           const FilePath &source)
+{
+    return {west, {"build", "-d", dbFile.parentDir().nativePath(),
+                   "-o", source.nativePath() + '^'}};
+}
+
 // A build rewrites the database only when CMake reconfigures.
 class CompileDatabaseStamp
 {
@@ -354,6 +375,11 @@ public:
 
     void triggerParsing() final
     {
+        if (m_configureProcess || m_configureReader.isRunning()) {
+            m_reparseAfterConfigure = true;
+            return;
+        }
+
         ParseGuard guard = guardParsingRun();
         const FilePath root = projectDirectory();
 
@@ -380,21 +406,124 @@ public:
             newRoot->addNestedNode(std::make_unique<FileNode>(f, FileNode::fileTypeForFileName(f)));
         setRootProjectNode(std::move(newRoot));
 
-        updateCppCodeModel();
+        const FilePath buildDir = buildConfiguration()->buildDirectory();
+        if (project()->activeBuildSystem() == this && !compileDatabaseFile().exists()) {
+            m_configureGuard = std::move(guard);
+            if (startConfigure(buildDir))
+                return;
+            guard = std::move(m_configureGuard);
+        }
 
+        finishParsing(guard);
+    }
+
+private:
+    void finishParsing(ParseGuard &guard,
+                       const std::optional<Result<CompileDatabase>> &parsed = {})
+    {
+        updateCppCodeModel(parsed);
         guard.markAsSuccess();
         emitBuildSystemUpdated();
     }
 
-private:
     FilePath compileDatabaseFile() const
     {
         return Internal::compileDatabaseFile(buildConfiguration()->buildDirectory(),
                                              projectDirectory().fileName());
     }
 
+    // Without a build there are no compile commands for the code model. The
+    // CMake part of "west build" produces them.
+    bool startConfigure(const FilePath &buildDir)
+    {
+        // Once per build directory, so a failing configuration is not repeated
+        // on every reparse.
+        if (m_configuredBuildDir == buildDir || BuildManager::isBuilding(project()))
+            return false;
+        const CommandLine configure = westConfigureCommand(buildConfiguration());
+        if (configure.executable().isEmpty())
+            return false;
+        m_configuredBuildDir = buildDir;
+
+        const std::function<void(bool)> recordConfigure
+            = westConfigureRecorder(buildConfiguration());
+        runConfigureStep(configure, [this, buildDir, recordConfigure,
+                                     west = configure.executable()](bool success) {
+            recordConfigure(success);
+            if (!success) {
+                finishConfigure();
+                return;
+            }
+            // <zephyr/kernel.h> includes headers that the build generates, not the
+            // configuration. Ninja's "<source>^" builds what one source needs.
+            const FilePath dbFile
+                = Internal::compileDatabaseFile(buildDir, projectDirectory().fileName());
+            const auto onSetup = [dbFile, buildDir](Async<Result<CompileDatabase>> &task) {
+                task.setConcurrentCallData(readCompileDatabase, dbFile, buildDir);
+            };
+            const auto onDone = [this, dbFile, west](const Async<Result<CompileDatabase>> &task) {
+                if (task.isResultAvailable())
+                    m_configuredDatabase = task.result();
+                const FilePath source = m_configuredDatabase
+                                            ? firstApplicationSource(*m_configuredDatabase)
+                                            : FilePath();
+                if (source.isEmpty()) {
+                    finishConfigure();
+                    return;
+                }
+                runConfigureStep(generatedHeadersCommand(west, dbFile, source),
+                                 [this](bool) { finishConfigure(); });
+            };
+            m_configureReader.start({AsyncTask<Result<CompileDatabase>>(onSetup, onDone)});
+        });
+        return true;
+    }
+
+    static FilePath firstApplicationSource(const Result<CompileDatabase> &db)
+    {
+        if (!db)
+            return {};
+        for (const CompileGroup &group : db->groups) {
+            if (group.target == "app" && !group.files.isEmpty())
+                return group.files.first();
+        }
+        return {};
+    }
+
+    void runConfigureStep(const CommandLine &cmd, const std::function<void(bool)> &onDone)
+    {
+        m_configureProcess = new Process(this);
+        m_configureProcess->setCommand(cmd);
+        m_configureProcess->setWorkingDirectory(westWorkingDirectory(project()));
+        m_configureProcess->setEnvironment(buildConfiguration()->environment());
+        auto progress = new Core::ProcessProgress(m_configureProcess);
+        progress->setDisplayName(Tr::tr("Configuring \"%1\"").arg(project()->displayName()));
+        startNewBuildSystemOutput(Tr::tr("Running %1.").arg(cmd.toUserOutput()));
+        connect(m_configureProcess, &Process::done, this, [this, onDone] {
+            const bool success = m_configureProcess->result() == ProcessResult::FinishedWithSuccess;
+            if (!success) {
+                appendBuildSystemOutput(m_configureProcess->exitMessage() + '\n'
+                                        + m_configureProcess->allOutput());
+            }
+            m_configureProcess->deleteLater();
+            m_configureProcess = nullptr;
+            onDone(success);
+        });
+        m_configureProcess->start();
+    }
+
+    void finishConfigure()
+    {
+        ParseGuard guard = std::move(m_configureGuard);
+        finishParsing(guard, std::exchange(m_configuredDatabase, std::nullopt));
+        if (m_reparseAfterConfigure) {
+            m_reparseAfterConfigure = false;
+            requestDelayedParse();
+        }
+    }
+
     // A Zephyr database is several megabytes, so it is read in a worker.
-    void updateCppCodeModel()
+    void updateCppCodeModel(const std::optional<Result<CompileDatabase>> &parsed = {})
     {
         // CppModelManager keeps one project info per project.
         if (!m_cppCodeModelUpdater || project()->activeBuildSystem() != this)
@@ -403,6 +532,10 @@ private:
         const FilePath buildDir = buildConfiguration()->buildDirectory();
         const FilePath dbFile = compileDatabaseFile();
         m_compileDatabaseStamp.update(dbFile);
+        if (parsed) {
+            applyCompileDatabase(*parsed, buildDir);
+            return;
+        }
         const auto onSetup = [dbFile, buildDir](Async<Result<CompileDatabase>> &task) {
             task.setConcurrentCallData(readCompileDatabase, dbFile, buildDir);
         };
@@ -442,6 +575,12 @@ private:
     OwnedToolchains m_detectedToolchains;
     CompileDatabaseStamp m_compileDatabaseStamp;
     QSingleTaskTreeRunner m_compileDatabaseReader;
+    Process *m_configureProcess = nullptr;
+    QSingleTaskTreeRunner m_configureReader;
+    ParseGuard m_configureGuard;
+    std::optional<Result<CompileDatabase>> m_configuredDatabase;
+    FilePath m_configuredBuildDir;
+    bool m_reparseAfterConfigure = false;
 };
 
 // ZephyrBuildConfiguration
@@ -730,6 +869,14 @@ void ZephyrCompileDatabaseTest::testCompileDatabaseFile()
     QVERIFY((buildDir / "app").createDir());
     QVERIFY_RESULT((buildDir / "app/compile_commands.json").writeFileContents("[]"));
     QCOMPARE(compileDatabaseFile(buildDir, "app"), buildDir / "app/compile_commands.json");
+
+    const FilePath west = FilePath::fromString("/bin/west");
+    const FilePath source = FilePath::fromString("/src/main.c");
+    const CommandLine expected(west, {"build", "-d", (buildDir / "app").nativePath(), "-o",
+                                      source.nativePath() + '^'});
+    QCOMPARE(generatedHeadersCommand(west, compileDatabaseFile(buildDir, "app"), source)
+                 .toUserOutput(),
+             expected.toUserOutput());
 }
 
 void ZephyrCompileDatabaseTest::testCompileDatabaseStamp()
@@ -761,6 +908,193 @@ void ZephyrCompileDatabaseTest::testCompileDatabaseStamp()
 QObject *createZephyrCompileDatabaseTest()
 {
     return new ZephyrCompileDatabaseTest;
+}
+
+class ZephyrParseFlowTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void init();
+    void cleanup();
+    void testReparseDuringConfigure();
+    void testConfigureFails();
+    void testNoApplicationSource();
+
+private:
+    void openProject();
+    QStringList westCalls() const;
+
+    Kit *m_kit = nullptr;
+    QString m_previousWest;
+    std::unique_ptr<QTemporaryDir> m_dir;
+    FilePath m_tmp;
+    FilePath m_source;
+    Project *m_project = nullptr;
+    BuildSystem *m_buildSystem = nullptr;
+    std::unique_ptr<QSignalSpy> m_started;
+    std::unique_ptr<QSignalSpy> m_finished;
+};
+
+void ZephyrParseFlowTest::initTestCase()
+{
+    m_previousWest = settings().westFilePath.value();
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The fake west is a shell script.");
+    m_kit = KitManager::registerKit([](Kit *k) { k->setUnexpandedDisplayName("Zephyr Test"); });
+    QVERIFY(m_kit);
+}
+
+void ZephyrParseFlowTest::cleanupTestCase()
+{
+    if (m_kit)
+        KitManager::deregisterKit(m_kit);
+    settings().westFilePath.setValue(m_previousWest);
+}
+
+// The fake west logs the arguments of "west build". Its configure step blocks
+// while "hold" exists, fails if "fail" exists and otherwise copies "db.json"
+// to the compile database.
+void ZephyrParseFlowTest::init()
+{
+    m_dir = std::make_unique<QTemporaryDir>();
+    QVERIFY(m_dir->isValid());
+    m_tmp = FilePath::fromString(m_dir->path());
+
+    const FilePath west = m_tmp / "bin/west";
+    QVERIFY(west.parentDir().createDir());
+    QVERIFY_RESULT(west.writeFileContents(R"(#!/bin/sh
+[ "$1" = build ] || exit 0
+tmp=$(dirname "$0")/..
+echo "$*" >> "$tmp/log"
+case " $* " in
+*" --cmake-only "*)
+    while [ -e "$tmp/hold" ]; do sleep 0.05; done
+    [ -e "$tmp/fail" ] && exit 1
+    while [ $# -gt 0 ]; do
+        [ "$1" = -d ] && build=$2
+        shift
+    done
+    mkdir -p "$build" && cp "$tmp/db.json" "$build/compile_commands.json"
+    ;;
+esac
+exit 0
+)"));
+    QVERIFY(west.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+    settings().westFilePath.setValue(west);
+
+    const FilePath projectDir = m_tmp / "hello";
+    m_source = projectDir / "src/main.c";
+    QVERIFY(m_source.parentDir().createDir());
+    QVERIFY_RESULT(m_source.writeFileContents("int main() { return 0; }\n"));
+    QVERIFY_RESULT((projectDir / "CMakeLists.txt").writeFileContents("project(hello)\n"));
+    QVERIFY_RESULT((projectDir / "west.yml").writeFileContents("manifest:\n  self:\n"));
+    const QJsonObject entry{{"directory", (projectDir / "build").path()},
+                            {"file", m_source.path()},
+                            {"output", "CMakeFiles/app.dir/src/main.c.obj"},
+                            {"command", QString("/sdk/arm-zephyr-eabi-gcc -c " + m_source.path())}};
+    QVERIFY_RESULT((m_tmp / "db.json")
+                       .writeFileContents(QJsonDocument(QJsonArray{entry}).toJson()));
+}
+
+void ZephyrParseFlowTest::cleanup()
+{
+    (m_tmp / "hold").removeFile();
+    m_started.reset();
+    m_finished.reset();
+    if (m_project)
+        ProjectExplorerPlugin::unloadProject(m_project);
+    m_project = nullptr;
+    m_buildSystem = nullptr;
+    m_dir.reset();
+}
+
+void ZephyrParseFlowTest::openProject()
+{
+    const OpenProjectResult result = ProjectExplorerPlugin::openProject(m_tmp / "hello/west.yml");
+    QVERIFY2(result && result.project(), qPrintable(result.errorMessage()));
+    m_project = result.project();
+    QVERIFY(m_project->configureAsExampleProject(m_kit));
+    m_buildSystem = m_project->activeBuildSystem();
+    QVERIFY(m_buildSystem);
+    m_started = std::make_unique<QSignalSpy>(m_buildSystem, &BuildSystem::parsingStarted);
+    m_finished = std::make_unique<QSignalSpy>(m_buildSystem, &BuildSystem::parsingFinished);
+}
+
+QStringList ZephyrParseFlowTest::westCalls() const
+{
+    const QByteArray log = (m_tmp / "log").fileContents().value_or(QByteArray());
+    return QString::fromUtf8(log).split('\n', Qt::SkipEmptyParts);
+}
+
+void ZephyrParseFlowTest::testReparseDuringConfigure()
+{
+    QVERIFY_RESULT((m_tmp / "hold").writeFileContents({}));
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+
+    QTRY_COMPARE(westCalls().size(), 1);
+    QVERIFY(westCalls().at(0).contains("--cmake-only"));
+    QCOMPARE(m_started->size(), 1);
+
+    m_buildSystem->requestParse();
+    QTRY_VERIFY(!m_buildSystem->isWaitingForParse());
+    QCOMPARE(m_started->size(), 1);
+    QCOMPARE(m_finished->size(), 0);
+
+    QVERIFY((m_tmp / "hold").removeFile());
+    QTRY_COMPARE(m_finished->size(), 2);
+    QCOMPARE(m_started->size(), 2);
+    const QStringList calls = westCalls();
+    QCOMPARE(calls.size(), 2);
+    QVERIFY(calls.at(1).endsWith("-o " + m_source.nativePath() + '^'));
+
+    m_buildSystem->requestParse();
+    QTRY_COMPARE(m_finished->size(), 3);
+    QCOMPARE(m_started->size(), 3);
+    QCOMPARE(westCalls().size(), 2);
+}
+
+void ZephyrParseFlowTest::testConfigureFails()
+{
+    QVERIFY_RESULT((m_tmp / "fail").writeFileContents({}));
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+
+    QTRY_COMPARE(m_finished->size(), 1);
+    QCOMPARE(m_started->size(), 1);
+    QCOMPARE(westCalls().size(), 1);
+
+    // Once per build directory.
+    m_buildSystem->requestParse();
+    QTRY_COMPARE(m_finished->size(), 2);
+    QCOMPARE(westCalls().size(), 1);
+}
+
+void ZephyrParseFlowTest::testNoApplicationSource()
+{
+    const QJsonObject entry{{"directory", (m_tmp / "hello/build").path()},
+                            {"file", "/zephyr/kernel/init.c"},
+                            {"output", "zephyr/CMakeFiles/zephyr.dir/kernel/init.c.obj"},
+                            {"command", "/sdk/arm-zephyr-eabi-gcc -c /zephyr/kernel/init.c"}};
+    QVERIFY_RESULT((m_tmp / "db.json")
+                       .writeFileContents(QJsonDocument(QJsonArray{entry}).toJson()));
+    openProject();
+    if (QTest::currentTestFailed())
+        return;
+
+    QTRY_COMPARE(m_finished->size(), 1);
+    QCOMPARE(m_started->size(), 1);
+    QCOMPARE(westCalls().size(), 1);
+}
+
+QObject *createZephyrParseFlowTest()
+{
+    return new ZephyrParseFlowTest;
 }
 
 #endif // WITH_TESTS

@@ -5,6 +5,8 @@
 
 #include <QtGlobal>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QObject;
 class QString;
@@ -15,7 +17,10 @@ class BuildConfiguration;
 class Project;
 } // namespace ProjectExplorer
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class CommandLine;
+class FilePath;
+} // namespace Utils
 
 namespace Zephyr::Internal {
 
@@ -23,6 +28,9 @@ void setupWestBuildSteps();
 
 Utils::FilePath westWorkingDirectory(const ProjectExplorer::Project *project);
 QString westBoard(const ProjectExplorer::BuildConfiguration *bc);
+Utils::CommandLine westConfigureCommand(const ProjectExplorer::BuildConfiguration *bc);
+std::function<void(bool success)> westConfigureRecorder(
+    const ProjectExplorer::BuildConfiguration *bc);
 
 #ifdef WITH_TESTS
 QObject *createWestBuildStepTest();

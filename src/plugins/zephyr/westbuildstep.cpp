@@ -323,6 +323,32 @@ static QStringList reconfigureArgs(const QStringList &configureArgs,
     return args;
 }
 
+static Result<> writeConfigureStamp(const FilePath &stampFile, const QStringList &applied)
+{
+    if (!stampFile.parentDir().exists())
+        return ResultOk;
+    const Result<qint64> res = stampFile.writeFileContents(applied.join('\n').toUtf8());
+    if (!res)
+        return ResultError(res.error());
+    return ResultOk;
+}
+
+static QStringList readConfigureStamp(const FilePath &stampFile)
+{
+    const QByteArray stamp = stampFile.fileContents().value_or(QByteArray());
+    return QString::fromUtf8(stamp).split('\n', Qt::SkipEmptyParts);
+}
+
+static std::function<void(bool)> configureRecorder(const FilePath &stampFile,
+                                                   const QStringList &applied)
+{
+    return [stampFile, applied](bool success) {
+        const QStringList recorded = success ? applied : applied + QStringList{"<incomplete>"};
+        if (const Result<> res = writeConfigureStamp(stampFile, recorded); !res)
+            MessageManager::writeSilently(res.error());
+    };
+}
+
 class WestBuildStep final : public AbstractProcessStep
 {
 public:
@@ -417,6 +443,45 @@ public:
 
     QString board() const { return m_board(); }
 
+    enum class WestStage { Build, ConfigureOnly };
+
+    CommandLine westCommand(WestStage stage = WestStage::Build) const
+    {
+        const FilePath projectDir = project()->projectDirectory();
+        const FilePath ws = settings().workspaceDir();
+
+        CommandLine cmd{settings().westFilePath()};
+        cmd.addArg("build");
+        if (!m_board().isEmpty()) {
+            cmd.addArg("-b");
+            cmd.addArg(m_board());
+        }
+        cmd.addArg("-d");
+        cmd.addArg(buildConfiguration()->buildDirectory().nativePath());
+        if (!ws.isEmpty() && ws != projectDir) {
+            cmd.addArg("--source-dir");
+            cmd.addArg(projectDir.nativePath());
+        }
+        if (const QString sysbuild = m_sysbuild.itemValue().toString(); !sysbuild.isEmpty())
+            cmd.addArg(sysbuild);
+        const QStringList configure = configureArgs();
+        if (needsPristine())
+            cmd.addArg("--pristine=always");
+        else
+            cmd.addArgs(reconfigureArgs(configure, lastConfigureArgs()));
+        cmd.addArgs(configure);
+        if (stage == WestStage::ConfigureOnly)
+            cmd.addArg("--cmake-only");
+        cmd.addArgs(m_extraArgs(), CommandLine::Raw);
+        return cmd;
+    }
+
+    // Records the outcome of a westCommand(WestStage::ConfigureOnly) run that started now.
+    std::function<void(bool)> configureRecorder() const
+    {
+        return Internal::configureRecorder(stampFile(), configureArgs());
+    }
+
 private:
     bool init() final
     {
@@ -430,11 +495,7 @@ private:
     GroupItem runRecipe() final
     {
         const auto writeStamp = [this](const QStringList &applied) {
-            if (!m_appliedStampFile.parentDir().exists())
-                return;
-            const Result<qint64> res
-                = m_appliedStampFile.writeFileContents(applied.join('\n').toUtf8());
-            if (!res)
+            if (const Result<> res = writeConfigureStamp(m_appliedStampFile, applied); !res)
                 emit addOutput(res.error(), OutputFormat::ErrorMessage);
         };
         // Until the build succeeds, the CMake cache may hold the new arguments or the old.
@@ -465,8 +526,7 @@ private:
 
     QStringList lastConfigureArgs() const
     {
-        const QByteArray stamp = stampFile().fileContents().value_or(QByteArray());
-        return QString::fromUtf8(stamp).split('\n', Qt::SkipEmptyParts);
+        return readConfigureStamp(stampFile());
     }
 
     QStringList configureArgs() const
@@ -480,35 +540,6 @@ private:
         if (!optimization.isEmpty())
             args.append("--cmake-opt=-D" + optimization + "=y");
         return args;
-    }
-
-    CommandLine westCommand() const
-    {
-        const FilePath projectDir = project()->projectDirectory();
-        const FilePath ws = settings().workspaceDir();
-
-        CommandLine cmd{settings().westFilePath()};
-        cmd.addArg("build");
-        if (!m_board().isEmpty()) {
-            cmd.addArg("-b");
-            cmd.addArg(m_board());
-        }
-        cmd.addArg("-d");
-        cmd.addArg(buildConfiguration()->buildDirectory().nativePath());
-        if (!ws.isEmpty() && ws != projectDir) {
-            cmd.addArg("--source-dir");
-            cmd.addArg(projectDir.nativePath());
-        }
-        if (const QString sysbuild = m_sysbuild.itemValue().toString(); !sysbuild.isEmpty())
-            cmd.addArg(sysbuild);
-        const QStringList configure = configureArgs();
-        if (needsPristine())
-            cmd.addArg("--pristine=always");
-        else
-            cmd.addArgs(reconfigureArgs(configure, lastConfigureArgs()));
-        cmd.addArgs(configure);
-        cmd.addArgs(m_extraArgs(), CommandLine::Raw);
-        return cmd;
     }
 
     QCompleter m_boardCompleter{&boardList().m_model};
@@ -542,6 +573,20 @@ QString westBoard(const BuildConfiguration *bc)
             return board;
     }
     return boardFromWestConfig(westWorkingDirectory(bc->project()));
+}
+
+CommandLine westConfigureCommand(const BuildConfiguration *bc)
+{
+    if (BuildStep *step = bc->buildSteps()->firstStepWithId(Constants::WEST_BUILD_STEP_ID))
+        return static_cast<WestBuildStep *>(step)->westCommand(WestBuildStep::WestStage::ConfigureOnly);
+    return {};
+}
+
+std::function<void(bool)> westConfigureRecorder(const BuildConfiguration *bc)
+{
+    if (BuildStep *step = bc->buildSteps()->firstStepWithId(Constants::WEST_BUILD_STEP_ID))
+        return static_cast<WestBuildStep *>(step)->configureRecorder();
+    return [](bool) {};
 }
 
 static FilePath qmlProjectExporterFromKit(const Kit *kit)
@@ -825,6 +870,7 @@ private slots:
     void testReconfigureArgs_data();
     void testReconfigureArgs();
     void testSysbuildSwitched();
+    void testConfigureRecorder();
 };
 
 void WestBuildStepTest::testReconfigureArgs_data()
@@ -887,6 +933,24 @@ void WestBuildStepTest::testSysbuildSwitched()
     QVERIFY(sysbuildSwitched(buildDir, off));
     QVERIFY(!sysbuildSwitched(buildDir, on));
     QVERIFY(!sysbuildSwitched(buildDir, workspaceDefault));
+}
+
+void WestBuildStepTest::testConfigureRecorder()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath stampFile = FilePath::fromString(tmp.path()) / ".qtc_west_configure";
+    const QStringList applied{"--extra-conf=/a.conf"};
+
+    configureRecorder(stampFile, applied)(true);
+    QCOMPARE(reconfigureArgs(applied, readConfigureStamp(stampFile)), QStringList());
+
+    configureRecorder(stampFile, applied)(false);
+    QVERIFY(!reconfigureArgs(applied, readConfigureStamp(stampFile)).isEmpty());
+
+    const FilePath missingDirStamp = FilePath::fromString(tmp.path()) / "build/.qtc_west_configure";
+    configureRecorder(missingDirStamp, applied)(true);
+    QVERIFY(!missingDirStamp.exists());
 }
 
 QObject *createWestBuildStepTest()

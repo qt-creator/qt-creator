@@ -15,6 +15,7 @@ void setupZephyrProject();
 
 #ifdef WITH_TESTS
 QObject *createZephyrCompileDatabaseTest();
+QObject *createZephyrParseFlowTest();
 #endif
 
 } // namespace Zephyr::Internal
