@@ -83,7 +83,20 @@ macro(qt_maintenance_tool_dependency method package_name)
     cmake_policy(SET CMP0155 OLD)
   endif()
 
-  if (${package_name} MATCHES "^Qt([5-9])(.*)$")
+  # A package with a find module of its own is not a Qt package, even when it
+  # is named like one (Qt for MCUs' Qt6Bundle), and the PATHS below would force
+  # config mode on it.
+  set(__qt_dependency_has_find_module OFF)
+  set(__qt_dependency_args ${ARGN})
+  if (NOT "CONFIG" IN_LIST __qt_dependency_args AND NOT "NO_MODULE" IN_LIST __qt_dependency_args)
+    foreach(__qt_dependency_module_dir IN LISTS CMAKE_MODULE_PATH)
+      if (EXISTS "${__qt_dependency_module_dir}/Find${package_name}.cmake")
+        set(__qt_dependency_has_find_module ON)
+      endif()
+    endforeach()
+  endif()
+
+  if (${package_name} MATCHES "^Qt([5-9])(.*)$" AND NOT __qt_dependency_has_find_module)
     set(__qt_dependency_qt_major_version ${CMAKE_MATCH_1})
     set(__qt_dependency_qt_package_name ${CMAKE_MATCH_2})
 
