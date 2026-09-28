@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -29,6 +30,9 @@ static const char *Application = "/data/storage/el2/base/files/qtcrun/libapp.so"
 // a file naming the one the last run used.
 static const char *QtDirectory = "/data/storage/el2/base/files/qtcrun/qt";
 static const char *QtCurrent = "/data/storage/el2/base/files/qtcrun/qt/current";
+// How many of them stay. Each is tens of megabytes, and a Qt that was rebuilt comes under a
+// tag of its own, so they pile up. Nothing but the runner can delete here.
+static const size_t KeptQts = 3;
 
 // A runner that fails before the channel is open would otherwise be invisible: the
 // platform sends an application's stdout nowhere. hilog is what the device does have, and
@@ -232,11 +236,59 @@ static inline bool receiveApplication(int fd, size_t size, std::string *error)
     return true;
 }
 
+static inline void removeTree(const std::string &path)
+{
+    struct stat status = {};
+    if (::lstat(path.c_str(), &status) != 0)
+        return;
+    if (S_ISDIR(status.st_mode)) {
+        if (DIR * const directory = ::opendir(path.c_str())) {
+            while (const dirent * const entry = ::readdir(directory)) {
+                if (isPlainName(entry->d_name))
+                    removeTree(path + '/' + entry->d_name);
+            }
+            ::closedir(directory);
+        }
+        ::rmdir(path.c_str());
+    } else {
+        ::unlink(path.c_str());
+    }
+}
+
+// The least recently used Qts beyond KeptQts, never the one in use. A use touches its
+// directory, so the modification time is the order.
+static inline void forgetOldQts(const std::string &inUse)
+{
+    std::vector<std::pair<time_t, std::string>> others;
+    DIR * const top = ::opendir(QtDirectory);
+    if (!top)
+        return;
+    while (const dirent * const entry = ::readdir(top)) {
+        const std::string directory = std::string(QtDirectory) + '/' + entry->d_name;
+        struct stat status = {};
+        if (isPlainName(entry->d_name) && directory != inUse
+            && ::lstat(directory.c_str(), &status) == 0 && S_ISDIR(status.st_mode)) {
+            others.emplace_back(status.st_mtime, directory);
+        }
+    }
+    ::closedir(top);
+    std::sort(others.begin(), others.end(), [](const auto &a, const auto &b) {
+        return a.first > b.first;
+    });
+    for (size_t index = KeptQts - 1; index < others.size(); ++index) {
+        removeTree(others[index].second);
+        note("removed the Qt %s, which was used least recently",
+             fileName(others[index].second).c_str());
+    }
+}
+
 // Which Qt a run that nobody is holding the channel open for maps: the one the last run
 // used. Remembered here rather than guessed from what is on disk, because a device can
 // hold several.
 static inline void rememberQt(const std::string &directory)
 {
+    ::utimensat(AT_FDCWD, directory.c_str(), nullptr, 0);
+    forgetOldQts(directory);
     const int out = ::open(QtCurrent, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (out < 0)
         return;
