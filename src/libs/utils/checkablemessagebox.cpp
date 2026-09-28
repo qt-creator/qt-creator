@@ -87,6 +87,9 @@ static QMessageBox::StandardButton exec(
             return acceptButton;
     }
 
+    if (!dialogsInteractive())
+        return defaultButton;
+
     QMessageBox msgBox(dialogParent());
     prepare(icon, title, text, decider, buttons, defaultButton, buttonTextOverrides, msg, msgBox);
     msgBox.exec();
@@ -120,6 +123,16 @@ static void show(QMessageBox::Icon icon,
                 Qt::QueuedConnection);
         }
 
+        return;
+    }
+
+    if (!dialogsInteractive()) {
+        if (callback) {
+            QMetaObject::invokeMethod(
+                guard ? guard : qApp,
+                [callback, defaultButton] { callback(defaultButton); },
+                Qt::QueuedConnection);
+        }
         return;
     }
 
