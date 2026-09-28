@@ -532,6 +532,13 @@ void addToEnvironment(const FilePath &sdkRoot, Environment &env)
     const FilePath node = nodeBinPath(sdkRoot);
     if (!node.isEmpty())
         env.prependOrSetPath(node);
+
+    // hvigor starts whichever "java" comes first in PATH. Its packing tool cleans up by
+    // deleting new File(""), which Java 24 and later take to be the working directory, i.e.
+    // the whole generated project.
+    const FilePath javaHome = FilePath::fromUserInput(env.value("JAVA_HOME"));
+    if (!javaHome.isEmpty() && javaHome.pathAppended("bin/java").withExecutableSuffix().exists())
+        env.prependOrSetPath(javaHome.pathAppended("bin"));
 }
 
 FilePath detectDevEcoSdk()
