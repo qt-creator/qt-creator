@@ -1,0 +1,170 @@
+# yaml-language-server: $schema=./scenario.schema.json
+name: Create, build and debug a Zephyr application
+intent: >
+  A Zephyr RTOS application from nothing to a stop in the debugger: the west
+  workspace Qt Creator builds in, a project made with the wizard, a build with
+  west, a breakpoint in main.c, a debug session on the emulated board, a step,
+  and the locals. The board is the one the workspace's west configuration
+  names ("west config build.board"). Pick one that runs in an emulator, such
+  as qemu_cortex_m3, and tell the scenario with --set board=...
+  West finds the compiler through the environment Qt Creator runs in, so
+  start the runner with ZEPHYR_TOOLCHAIN_VARIANT and ZEPHYR_SDK_INSTALL_DIR
+  (or CROSS_COMPILE, whose gdb is the one the session uses) set. The settings
+  below reach a Creator the runner launches, set them in Preferences > SDKs >
+  Zephyr for an attached one.
+
+vars:
+  # The west executable and the workspace set up with "west init" and
+  # "west update", which contains zephyr/ and modules/.
+  west: /opt/zephyrproject/.venv/bin/west
+  zephyr_workspace: /opt/zephyrproject
+  # Where the wizard puts the project.
+  workspace: "{scratch}"
+  project: zephyrdemo
+  # What "west config build.board" says in that workspace. main.c reads it
+  # into a local.
+  board: qemu_cortex_m3
+
+settings:
+  Zephyr:
+    WestFilePath: "{west}"
+    WorkspaceDir: "{zephyr_workspace}"
+
+steps:
+  - describe: Close whatever a previous run left open
+    call_action: ProjectExplorer.ClearSession
+    optional: true
+
+  - describe: Start from a project directory that does not exist yet
+    remove: "{workspace}/{project}"
+
+  - describe: Show the west workspace Qt Creator builds in
+    settings_page: Zephyr.Settings
+
+  - describe: Capture the Zephyr page
+    screenshot:
+
+  - describe: Leave Preferences
+    activate_mode: Welcome
+
+  - describe: Open the New Project dialog
+    caption: File > New Project
+    call_action: QtCreator.New
+
+  - describe: Wait for the template list
+    wait_for:
+      object_name: templateCategoryView
+
+  - describe: Pick the non-Qt project templates
+    click_item:
+      object_name: templateCategoryView
+      item: "Projects /   Non-Qt Project"
+
+  - describe: Pick the Zephyr Application template
+    click_item:
+      object_name: templatesView
+      item: Zephyr Application
+
+  - describe: Start the wizard
+    click_widget:
+      text: Choose...
+      window_title: New Project
+
+  - describe: Wait for the location page
+    wait_for:
+      object_name: nameLineEdit
+
+  - describe: Select the suggested name
+    press_keys:
+      keys: Ctrl+A
+      object_name: nameLineEdit
+
+  - describe: Name the project
+    type_text:
+      object_name: nameLineEdit
+      input: "{project}"
+
+  - describe: Select the suggested location
+    press_keys:
+      keys: Ctrl+A
+      object_name: LineEdit
+      window_title: Zephyr Application
+
+  - describe: Say where it goes
+    type_text:
+      object_name: LineEdit
+      window_title: Zephyr Application
+      input: "{workspace}"
+
+  - describe: On to the kit selection
+    click_widget:
+      text: Next >
+
+  - describe: The wizard offers the kit it has
+    click_widget:
+      text: Next >
+
+  - describe: Create the project
+    click_widget:
+      text: Finish
+
+  - describe: Wait for the generated main.c
+    wait_for:
+      class_name: TextEditor::TextEditorWidget
+    timeout: 60
+
+  - describe: Show the Compile Output
+    call_action: QtCreator.Pane.CompileOutput
+
+  - describe: Build it with west
+    caption: Build > Build Project
+    build:
+      timeout: 900
+
+  - describe: Keep the compile output
+    read_pane: Compile Output
+
+  - describe: Capture the build result
+    screenshot:
+
+  - describe: Show main.c again
+    open: "{workspace}/{project}/src/main.c"
+
+  - describe: Drop the breakpoints an earlier run left
+    clear_breakpoints: true
+
+  - describe: Set a breakpoint on the greeting
+    caption: Breakpoint on line 7
+    breakpoint:
+      file: "{workspace}/{project}/src/main.c"
+      line: 7
+
+  - describe: Start debugging on the emulated board
+    caption: Debug > Start Debugging
+    debug: {}
+
+  - describe: Wait for the stop at the breakpoint
+    wait_for_stop:
+      file: main.c
+      line: 7
+      timeout: 180
+
+  - describe: Capture the stop at the breakpoint
+    screenshot:
+
+  - describe: Look at the locals
+    locals: [board]
+
+  - describe: Step over the greeting
+    caption: Debug > Step Over
+    debug_step: over
+
+  - describe: Capture the step
+    screenshot:
+
+  - describe: Stop debugging
+    caption: Debug > Stop Debugger
+    debug_stop: true
+
+  - describe: Close the project again
+    call_action: ProjectExplorer.ClearSession

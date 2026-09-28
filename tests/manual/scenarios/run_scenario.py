@@ -739,6 +739,19 @@ class Runner:
                     note=", ".join("{} = {}".format(k, v) for k, v in found.items()),
                     tool="locals", check={"names": sorted(wanted)})
 
+    def do_debug_stop(self, step):
+        self.call_or_fail("debugger_stop", {}, step["describe"])
+        deadline = time.monotonic() + float(step.get("timeout", 30))
+        while time.monotonic() < deadline:
+            r = self.call_or_fail("debugger_get_status", {}, step["describe"]) or {}
+            if not r.get("has_session"):
+                break
+            time.sleep(0.2)
+        else:
+            raise ScenarioError("step {}: the debug session did not end".format(self.step_no))
+        self.record(step["describe"], "debug_stop", note="The debug session ended.",
+                    tool="debug_stop", check={"stopped": True})
+
     def do_click(self, step):
         query = self.subst(step["click_widget"])
         self.point_at(query)
@@ -988,6 +1001,8 @@ class Runner:
                 self.do_debug_step(step)
             elif "locals" in step:
                 self.do_locals(step)
+            elif "debug_stop" in step:
+                self.do_debug_stop(step)
             elif "expect" in step:
                 self.do_expect(step, True)
             elif "expect_gone" in step:

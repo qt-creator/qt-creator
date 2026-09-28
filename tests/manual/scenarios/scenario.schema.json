@@ -575,6 +575,20 @@
                             "description": "Seconds to wait for the names. Default 15."
                         }
                     }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "debug_stop"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "debug_stop": {
+                            "description": "Ends the debug session and waits until it is gone.",
+                            "type": "boolean"
+                        },
+                        "timeout": { "type": "number", "description": "Seconds to wait. Default 30." }
+                    }
                 }
             ]
         }

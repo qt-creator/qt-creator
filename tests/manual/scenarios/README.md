@@ -178,6 +178,7 @@ Action keys mirror the MCP tool names. Each step has exactly one:
 | `wait_for_stop`     | Waits until the debugger is paused, optionally at `line:` and in a `file:` whose path ends with the given one; `timeout:` seconds (default 60). On a timeout the report includes the end of the Application Output. |
 | `debug_step`        | `over`, `in` or `out`, or `{kind:, line:, timeout:}`; steps and waits for the stop that follows, optionally at `line:`. |
 | `locals`            | A list of names that must show up in the Locals view; the tutorial lists all locals with their values. `timeout:` seconds (default 15). |
+| `debug_stop`        | `true`. Ends the debug session and waits until it is gone, `timeout:` seconds (default 30). |
 
 `{scratch}` in any string expands to a fresh per-run temporary directory, so a
 run never depends on the developer's home state.
@@ -217,7 +218,8 @@ honest: it fails the moment the line means something else.
 There is deliberately no `sleep`: wait only on observable conditions
 (`wait_for`, `wait_for_output`). See `about-dialog.yaml` for a small complete
 example and `cmake-project.yaml` for a whole development story - detected
-device and kit, the wizard, an edit, a build and a run.
+device and kit, the wizard, an edit, a build and a run. `zephyr-project.yaml`
+tells the same story for an embedded target and ends in the debugger.
 
 `harmonyos-project.yaml` is that same story for a HarmonyOS device, and is the
 exception to the rule that a scenario runs anywhere: it needs a HarmonyOS SDK,
