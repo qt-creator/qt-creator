@@ -750,7 +750,7 @@ public:
     int printPageCount(QPrinter *printer) const;
     QTextDocument *createPrintDocument(bool selectionOnly) const;
 
-    void maybeSelectLine();
+    void selectLines();
     void duplicateSelection(bool comment);
     void updateCannotDecodeInfo();
     void collectToCircularClipboard();
@@ -9401,14 +9401,17 @@ void TextEditorWidget::focusOutEvent(QFocusEvent *e)
         d->clearCurrentSuggestion();
 }
 
-void TextEditorWidgetPrivate::maybeSelectLine()
+void TextEditorWidgetPrivate::selectLines()
 {
     MultiTextCursor cursor = m_cursors;
-    if (cursor.hasSelection())
-        return;
+    QTextDocument *document = m_document->document();
     for (QTextCursor &c : cursor) {
-        const QTextBlock &block = m_document->document()->findBlock(c.selectionStart());
-        const QTextBlock &end = m_document->document()->findBlock(c.selectionEnd()).next();
+        const QTextBlock &block = document->findBlock(c.selectionStart());
+        QTextBlock end = document->findBlock(c.selectionEnd());
+        const bool endsAtLineStart = c.hasSelection() && end != block
+                                     && end.position() == c.selectionEnd();
+        if (!endsAtLineStart)
+            end = end.next();
         c.setPosition(block.position());
         if (!end.isValid()) {
             c.movePosition(QTextCursor::PreviousCharacter);
@@ -9424,14 +9427,14 @@ void TextEditorWidgetPrivate::maybeSelectLine()
 // shift+del
 void TextEditorWidget::cutLine()
 {
-    d->maybeSelectLine();
+    d->selectLines();
     cut();
 }
 
 // ctrl+ins
 void TextEditorWidget::copyLine()
 {
-    d->maybeSelectLine();
+    d->selectLines();
     copy();
 }
 
@@ -9577,8 +9580,10 @@ void TextEditorWidget::duplicateSelectionAndComment()
 
 void TextEditorWidget::deleteLine()
 {
-    d->maybeSelectLine();
-    textCursor().removeSelectedText();
+    d->selectLines();
+    MultiTextCursor cursor = multiTextCursor();
+    cursor.removeSelectedText();
+    setMultiTextCursor(cursor);
 }
 
 void TextEditorWidget::deleteEndOfLine()
