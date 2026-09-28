@@ -75,4 +75,7 @@ bool installed(const char *name, size_t size);
 // it had been linked in, which is the route Qt keeps open for a static build.
 bool registerPlugin(const char *path, World *world, std::string *error);
 
+// Undefined symbols of these names resolve to the address given, before anything else.
+std::unordered_map<std::string, void *> &interposers();
+
 } // namespace QtcLoad

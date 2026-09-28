@@ -586,6 +586,12 @@ static int mappedDladdr(const void *address, Dl_info *info)
     return ::dladdr(address, info);
 }
 
+std::unordered_map<std::string, void *> &interposers()
+{
+    static std::unordered_map<std::string, void *> table;
+    return table;
+}
+
 void *Loader::resolve(const Elf64_Sym &symbol, const char *name, bool *ok)
 {
     *ok = true;
@@ -595,6 +601,9 @@ void *Loader::resolve(const Elf64_Sym &symbol, const char *name, bool *ok)
         return nullptr;
     if (::strcmp(name, "dladdr") == 0)
         return reinterpret_cast<void *>(&mappedDladdr);
+    const auto interposed = interposers().find(name);
+    if (interposed != interposers().end())
+        return interposed->second;
     if (m_world) {
         for (const std::unique_ptr<Image> &image : m_world->images) {
             if (image.get() == m_image)
