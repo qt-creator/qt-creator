@@ -65,6 +65,10 @@ Utils::FilePaths qtPlugins(const Utils::FilePath &deploymentSettings);
 QtLibraries qtLibraries(const Utils::FilePath &library, const Utils::FilePaths &directories,
                         const Utils::FilePaths &plugins = {});
 
+// The files of the Qt that the runner's cache for it lacks, going by a listing of that cache
+// as "<size> <path>" lines. A file of another size is what a lost transfer leaves behind.
+QList<QtLibrary> missingLibraries(const QtLibraries &qt, const QString &listing);
+
 // What a project needs in its package beyond what harmonydeployqt stages, written by the
 // project's own build into "<target>-harmonyos-extras.json".
 class HarmonyOsExtras

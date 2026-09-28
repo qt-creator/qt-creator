@@ -2624,6 +2624,31 @@ private slots:
         QVERIFY(qtLibraries(application, {source}).tag != all.tag);
     }
 
+    void testMissingLibraries()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path());
+        const FilePath core = root.pathAppended("libQt6Core.so.6");
+        const FilePath platform = root.pathAppended("libqohos.so");
+        QVERIFY(core.writeFileContents("core"));
+        QVERIFY(platform.writeFileContents("platform"));
+        const QtLibraries qt{"tag", {{"libQt6Core.so.6", core},
+                                     {"platforms/libqohos.so", platform}}};
+        const auto names = [&qt](const QString &listing) {
+            return Utils::transform(missingLibraries(qt, listing), &QtLibrary::name);
+        };
+
+        QCOMPARE(names({}), QStringList({"libQt6Core.so.6", "platforms/libqohos.so"}));
+        // As the device's shell writes it, with the line ends hdc gives it.
+        QCOMPARE(names("4 ./libQt6Core.so.6\r\n8 ./platforms/libqohos.so\r\n"), QStringList());
+        // A transfer that broke off, and a plugin that is not where it would be read from.
+        QCOMPARE(names("2 ./libQt6Core.so.6\n8 ./libqohos.so\n"),
+                 QStringList({"libQt6Core.so.6", "platforms/libqohos.so"}));
+        QCOMPARE(names("/bin/sh: cd: no such directory\n4 ./libQt6Core.so.6\n"),
+                 QStringList({"platforms/libqohos.so"}));
+    }
+
     void testQtPlugins()
     {
         QTemporaryDir dir;

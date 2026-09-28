@@ -22,6 +22,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/temporarydirectory.h>
 
 #include <QtTaskTree/QBarrier>
 #include <QtTaskTree/qtasktree.h>
@@ -237,6 +238,25 @@ QtLibraries qtLibraries(const FilePath &library, const FilePaths &directories,
                          .arg(entry.file.lastModified().toMSecsSinceEpoch()).toUtf8());
     }
     return {QString::fromLatin1(hash.result().toHex().left(16)), found};
+}
+
+QList<QtLibrary> missingLibraries(const QtLibraries &qt, const QString &listing)
+{
+    QHash<QString, qint64> present;
+    for (const QString &line : listing.split('\n', Qt::SkipEmptyParts)) {
+        const qsizetype space = line.indexOf(' ');
+        bool ok = false;
+        const qint64 size = line.left(space).toLongLong(&ok);
+        if (space <= 0 || !ok)
+            continue;
+        QString name = line.mid(space + 1).trimmed();
+        if (name.startsWith("./"))
+            name = name.mid(2);
+        present.insert(name, size);
+    }
+    return Utils::filtered(qt.files, [&present](const QtLibrary &entry) {
+        return present.value(entry.name, -1) != entry.file.fileSize();
+    });
 }
 
 // One channel, from the runner's connection to the end of the application it runs. The
@@ -683,6 +703,74 @@ public:
                 };
             };
 
+            // What the runner's cache lacks of the Qt goes there before the start, not over the
+            // channel: a runner without a Qt of its own takes one while the platform is waiting
+            // for the ability, and a Qt takes longer than the platform waits. hdc can neither
+            // create a directory for a single file nor delete one, but a directory it sends
+            // lands in whatever is already there.
+            const Storage<QList<QtLibrary>> missingStorage;
+            const Storage<std::unique_ptr<TemporaryDirectory>> stageStorage;
+            const QString cache = QString("qtcrun/qt/") + qt.tag;
+
+            const auto onCacheListSetup = [command, bundle, cache](Process &process) {
+                // The sandbox as the shell sees it, for the device's one user.
+                process.setCommand(command(
+                    {"shell", QString("cd /data/app/el2/100/base/%1/files/%2 && "
+                                      "find . -type f -exec stat -c '%s %n' {} +")
+                                  .arg(bundle, cache)}));
+            };
+            const auto onCacheListDone = [missingStorage, qt](const Process &process, DoneWith) {
+                *missingStorage = missingLibraries(qt, process.cleanedStdOut());
+                return DoneResult::Success;
+            };
+            const auto onStageSetup = [command, bundle, qt, missingStorage, stageStorage,
+                                       runControl](Process &process) {
+                if (missingStorage->isEmpty())
+                    return SetupResult::StopWithSuccess;
+                auto stage = std::make_unique<TemporaryDirectory>("qtc-harmonyos-qt-XXXXXX");
+                const FilePath root = stage->path().pathAppended("qtcrun");
+                qint64 size = 0;
+                for (const QtLibrary &entry : *missingStorage) {
+                    const FilePath link = root.pathAppended("qt/" + qt.tag + '/' + entry.name);
+                    Result<> linked = link.parentDir().ensureWritableDir();
+                    if (linked)
+                        linked = entry.file.createSymLink(link);
+                    if (!linked) {
+                        runControl->postMessage(linked.error(), ErrorMessageFormat);
+                        return SetupResult::StopWithError;
+                    }
+                    size += entry.file.fileSize();
+                }
+                runControl->postMessage(Tr::tr("Handing %1 of %2 libraries to the runner "
+                                               "(%3 MB). It keeps them for the next run.")
+                                            .arg(missingStorage->size()).arg(qt.files.size())
+                                            .arg(size / (1024 * 1024)), NormalMessageFormat);
+                process.setCommand(command({"file", "send", "-b", bundle, root.nativePath(),
+                                            "data/storage/el2/base/files/"}));
+                process.setEnvironment(Sdk::hdcEnvironment());
+                *stageStorage = std::move(stage);
+                return SetupResult::Continue;
+            };
+            const auto onStageDone = [runControl](const Process &process) {
+                if (!process.allOutput().contains("[Fail]"))
+                    return DoneResult::Success;
+                runControl->postMessage(Tr::tr("Could not hand the Qt to the runner: %1")
+                                            .arg(process.allOutput().trimmed()),
+                                        ErrorMessageFormat);
+                return DoneResult::Error;
+            };
+
+            const auto stageGroup = [=] {
+                if (qt.files.isEmpty())
+                    return Group { nullItem };
+                return Group {
+                    missingStorage,
+                    stageStorage,
+                    ProcessTask(onCacheListSetup, onCacheListDone),
+                    ProcessTask(onStageSetup, onStageDone)
+                };
+            };
+
             const auto forceStopTask = [command, bundle] {
                 const auto onSetup = [command, bundle](Process &process) {
                     process.setCommand(command({"shell", "aa", "force-stop", bundle}));
@@ -748,6 +836,7 @@ public:
                 channelStorage,
                 channelGroup(),
                 forceStopTask(),
+                stageGroup(),
                 Group {
                     ProcessTask(onStartSetup),
                     ProcessTask(onPidSetup, onPidDone),
