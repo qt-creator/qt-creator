@@ -32,7 +32,8 @@ Added
 * `Copy Path Relative to Project` and `Copy Path and Line Number Relative to
   Project` to the file context menus
   ([QTCREATORBUG-9028](https://bugreports.qt.io/browse/QTCREATORBUG-9028))
-* The option to turn the atomic saving of files off
+* The `Disable atomic saving of files` option to
+  `Preferences > Environment > System` for turning off the atomic saving of files
   ([QTCREATORBUG-7598](https://bugreports.qt.io/browse/QTCREATORBUG-7598))
 
 Changed

@@ -197,7 +197,9 @@
     \uicontrol File menu, as well as commands that copy the path and name of the
     current file and the number of the line where the cursor is
     currently located to the clipboard: \uicontrol {Copy Full Path},
-    \uicontrol {Copy File Name}, and \uicontrol {Copy Path and Line Number}.
+    \uicontrol {Copy Relative Path}, \uicontrol {Copy File Name},
+    \uicontrol {Copy Path and Line Number}, and
+    \uicontrol {Copy Relative Path and Line Number}.
 
     \section1 Editing selected lines
 
