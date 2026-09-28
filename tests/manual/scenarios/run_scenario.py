@@ -25,6 +25,7 @@ import http.client
 import json
 import os
 import re
+import secrets
 import shlex
 import subprocess
 import sys
@@ -43,15 +44,12 @@ FONT_CANDIDATES = [
 ]
 
 
-# Settings pre-seeded into a launched Creator's throwaway config so recordings
-# are not cluttered by first-run prompts. TakeUITour and LinkWithQtInstallation
-# are InfoBar ids suppressed via the global SuppressedWarnings list. (FakeVim is
-# kept out of the way by not loading its plugin - see LAUNCH_ARGS - rather than
-# by a setting, so typed text is inserted, not read as Vim commands.)
-DEFAULT_SETTINGS = """\
-[General]
-SuppressedWarnings=TakeUITour, LinkWithQtInstallation
-"""
+# Settings pre-seeded into a launched Creator's throwaway config (see
+# write_default_settings) so recordings are not cluttered by first-run prompts.
+# TakeUITour and LinkWithQtInstallation are InfoBar ids suppressed via the
+# global SuppressedWarnings list. (FakeVim is kept out of the way by not loading
+# its plugin - see LAUNCH_NOLOAD - rather than by a setting, so typed text is
+# inserted, not read as Vim commands.)
 
 # Plugins to skip when the runner launches Creator, so recordings are not
 # affected by editing modes that reinterpret keystrokes.
@@ -59,9 +57,12 @@ LAUNCH_NOLOAD = ["FakeVim"]
 
 
 def write_default_settings(settings_dir):
+    groups = {"General": {"SuppressedWarnings": "TakeUITour, LinkWithQtInstallation"}}
+    text = "".join("[{}]\n{}\n".format(group, "".join(
+        "{}={}\n".format(k, v) for k, v in keys.items())) for group, keys in groups.items())
     ini = Path(settings_dir) / "QtProject" / "QtCreator.ini"
     ini.parent.mkdir(parents=True, exist_ok=True)
-    ini.write_text(DEFAULT_SETTINGS, encoding="utf-8")
+    ini.write_text(text, encoding="utf-8")
 
 
 def find_font():
@@ -80,9 +81,10 @@ class McpClient:
     connection without stalling the others.
     """
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, token=None):
         self.host = host
         self.port = port
+        self.token = token
         self.session_id = None
 
     def _rpc(self, obj):
@@ -91,6 +93,8 @@ class McpClient:
             "Content-Type": "application/json",
             "Accept": "application/json, text/event-stream",
         }
+        if self.token:
+            headers["Authorization"] = "Bearer " + self.token
         if self.session_id:
             headers["mcp-session-id"] = self.session_id
         conn.request("POST", "/", json.dumps(obj), headers)
@@ -565,21 +569,27 @@ class Runner:
         timeout = float(spec.pop("timeout", 300))
         deadline = time.monotonic() + timeout
         r = self.call_or_fail("build_project", spec, step["describe"]) or {}
-        # build_project blocks for its own wait_ms only, then hands back a
-        # build_id to attach to - the way to wait for a long build without
-        # holding an HTTP request open past the client's timeout.
-        while r.get("reason") == "still_building" and time.monotonic() < deadline:
-            r = self.call_or_fail("build_project", {"build_id": r["build_id"]},
+        if not r.get("started"):
+            raise ScenarioError("step {}: the build did not start: {}".format(
+                self.step_no, r.get("message") or json.dumps(r)))
+        # build_project only starts the build. build_get_status waits for it,
+        # up to its own cap per call, so the wait is a loop.
+        state = "running"
+        while state == "running" and time.monotonic() < deadline:
+            r = self.call_or_fail("build_get_status", {"build_id": r["build_id"]},
                                   step["describe"]) or {}
-        if not r.get("finished"):
-            raise ScenarioError("step {}: the build did not finish within {}s ({})".format(
-                self.step_no, timeout, r.get("reason")))
-        if not r.get("succeeded"):
-            raise ScenarioError("step {}: the build failed: {}".format(
-                self.step_no, r.get("summary_text") or json.dumps(r.get("issues"))))
+            state = r.get("state")
+        if state == "running":
+            raise ScenarioError("step {}: the build did not finish within {}s".format(
+                self.step_no, timeout))
+        if state != "succeeded":
+            _, issues, _ = self.client.call("build_get_issues", {"build_id": r["build_id"]})
+            raise ScenarioError("step {}: the build {}: {}".format(
+                self.step_no, state, json.dumps(issues)[:2000]))
         self.record(step["describe"], "build " + json.dumps(spec),
-                    note="{} ({} errors, {} warnings).".format(
-                        r.get("summary_text"), r.get("error_count"), r.get("warning_count")),
+                    note="Built in {:.1f}s ({} errors, {} warnings).".format(
+                        (r.get("duration_ms") or 0) / 1000, r.get("error_count"),
+                        r.get("warning_count")),
                     tool="build", check={"succeeded": True,
                                          "error_count": r.get("error_count"),
                                          "warning_count": r.get("warning_count")})
@@ -943,6 +953,9 @@ def main():
                          "--set workspace=/home/me/tmp. A var is written {NAME} in the "
                          "scenario and is how a machine-specific path or kit name stays "
                          "out of the file.")
+    ap.add_argument("--token", default=os.environ.get("QTC_MCP_TOKEN"),
+                    help="Bearer token of the running Qt Creator's MCP server (default "
+                         "$QTC_MCP_TOKEN). A launched Creator gets a fresh one.")
     ap.add_argument("--qtcreator", help="Path to a Qt Creator binary to launch "
                     "(otherwise attach to --port)")
     ap.add_argument("--timeout", type=float, default=60,
@@ -1015,7 +1028,9 @@ def main():
         for plugin in args.load:
             launch += ["-load", plugin]
         # McpServer is loaded last so it survives a user "-noload all".
-        launch += ["-load", "McpServer", "-mcp-port", str(args.port)]
+        args.token = secrets.token_hex(16)
+        launch += ["-load", "McpServer", "-mcp-port", str(args.port), "-mcp-token", args.token,
+                   "-mcp-enable-tools", "ui"]
         child = subprocess.Popen(launch)
 
     exit_code = 0
@@ -1031,7 +1046,7 @@ def main():
         if not wait_for_port(args.host, args.port, args.timeout, child):
             raise ScenarioError("MCP port {} did not open within {}s"
                                 .format(args.port, args.timeout))
-        client = McpClient(args.host, args.port)
+        client = McpClient(args.host, args.port, args.token)
         client.initialize()
         runner = Runner(client, scenario, out_dir, scratch, variables)
 

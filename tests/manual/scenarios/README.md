@@ -34,8 +34,14 @@ Or let the runner launch Creator itself with a throwaway settings directory:
 A launched Creator is set up to keep recordings clean: the "Take a UI Tour?"
 and "Link with an Installed Qt?" first-run prompts are suppressed via the
 throwaway settings, and the FakeVim plugin is skipped with `-noload FakeVim`
-so typed text is inserted rather than read as Vim commands. Pass
-`--no-preseed` for a pristine configuration (default settings, all plugins).
+so typed text is inserted rather than read as Vim commands. The `ui_*` tools
+the runner drives are opt-in on the MCP server, so the launch line enables
+them with `-mcp-enable-tools ui`, with or without preseeding. Pass
+`--no-preseed` for a pristine configuration (default settings, all
+plugins).
+
+A launched Creator gets a fresh MCP bearer token (`-mcp-token`). For an
+already running one, pass its token with `--token`, or set `QTC_MCP_TOKEN`.
 
 `--noload PLUGIN` and `--load PLUGIN` (both repeatable) are passed through to a
 launched Creator. Use `--noload` to skip a plugin whose load error would pop a
