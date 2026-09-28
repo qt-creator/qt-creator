@@ -13,5 +13,6 @@ inline constexpr char WEST_CLEAN_STEP_ID[] = "Zephyr.WestCleanStep";
 inline constexpr char WEST_FLASH_STEP_ID[] = "Zephyr.WestFlashStep";
 inline constexpr char ZEPHYR_DEPLOY_CONFIG_ID[] = "Zephyr.DeployConfiguration";
 inline constexpr char ZEPHYR_RUN_CONFIG_ID[] = "Zephyr.RunConfig";
+inline constexpr char ZEPHYR_TWISTER_RUN_CONFIG_ID[] = "Zephyr.TwisterRunConfig";
 
 } // namespace Zephyr::Constants

@@ -56,7 +56,7 @@ namespace Zephyr::Internal {
 
 static const char SDK_INSTALL_SCHEME[] = "zephyr-sdk-install";
 
-static FilePath westWorkingDirectory(const Project *project)
+FilePath westWorkingDirectory(const Project *project)
 {
     const FilePath ws = settings().workspaceDir();
     return ws.isEmpty() && project ? project->projectDirectory() : ws;
@@ -415,6 +415,8 @@ public:
         AbstractProcessStep::setupOutputFormatter(formatter);
     }
 
+    QString board() const { return m_board(); }
+
 private:
     bool init() final
     {
@@ -532,6 +534,15 @@ public:
         setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD});
     }
 };
+
+QString westBoard(const BuildConfiguration *bc)
+{
+    if (BuildStep *step = bc->buildSteps()->firstStepWithId(Constants::WEST_BUILD_STEP_ID)) {
+        if (const QString board = static_cast<WestBuildStep *>(step)->board(); !board.isEmpty())
+            return board;
+    }
+    return boardFromWestConfig(westWorkingDirectory(bc->project()));
+}
 
 static FilePath qmlProjectExporterFromKit(const Kit *kit)
 {

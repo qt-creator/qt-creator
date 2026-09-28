@@ -3,12 +3,15 @@
 
 #include "zephyrrun.h"
 
+#include "westbuildstep.h"
 #include "zephyrconstants.h"
 #include "zephyrsettings.h"
 #include "zephyrtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/processinterface.h>
@@ -68,10 +71,59 @@ public:
     }
 };
 
+class ZephyrTwisterRunConfiguration final : public RunConfiguration
+{
+public:
+    ZephyrTwisterRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id)
+    {
+        setDefaultDisplayName(Tr::tr("Run Tests with Twister"));
+        setUsesEmptyBuildKeys();
+
+        setCommandLineGetter([this] {
+            const FilePath buildDir = buildConfiguration()->buildDirectory();
+            CommandLine cmd{settings().westFilePath()};
+            cmd.addArg("twister");
+            cmd.addArg("-T");
+            cmd.addArg(project()->projectDirectory().nativePath());
+            const QString board = westBoard(buildConfiguration());
+            if (!board.isEmpty()) {
+                cmd.addArg("-p");
+                cmd.addArg(board);
+            }
+            cmd.addArg("--clobber-output");
+            cmd.addArg("-O");
+            cmd.addArg(buildDir.pathAppended("twister-out").nativePath());
+            cmd.addArgs(arguments(), CommandLine::Raw);
+            return cmd;
+        });
+
+        setRunnableModifier([this](ProcessRunData &r) {
+            r.workingDirectory = westWorkingDirectory(project());
+        });
+    }
+
+    ArgumentsAspect arguments{this};
+};
+
+class ZephyrTwisterRunConfigurationFactory final : public FixedRunConfigurationFactory
+{
+public:
+    ZephyrTwisterRunConfigurationFactory()
+        : FixedRunConfigurationFactory(Tr::tr("Run Tests with Twister"))
+    {
+        registerRunConfiguration<ZephyrTwisterRunConfiguration>(
+            Constants::ZEPHYR_TWISTER_RUN_CONFIG_ID);
+        addSupportedProjectType(Constants::ZEPHYR_PROJECT_ID);
+    }
+};
+
 void setupZephyrRun()
 {
     static ZephyrRunConfigurationFactory theRunConfigurationFactory;
-    static ProcessRunnerFactory theRunWorkerFactory({Constants::ZEPHYR_RUN_CONFIG_ID});
+    static ZephyrTwisterRunConfigurationFactory theTwisterRunConfigurationFactory;
+    static ProcessRunnerFactory theRunWorkerFactory(
+        {Constants::ZEPHYR_RUN_CONFIG_ID, Constants::ZEPHYR_TWISTER_RUN_CONFIG_ID});
 }
 
 } // namespace Zephyr::Internal
