@@ -93,7 +93,7 @@ void AndroidQtVersion::addToBuildEnvironment(const Kit *k, Utils::Environment &e
 
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfig::toolchainHost(this));
-    env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfig::ndkLocation(this).toUserOutput());
+    env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfig::ndkLocation(this).nativePath());
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
         AndroidConfig::bestNdkPlatformMatch(qMax(minimumNDK(), minimumSDK(k)), this));
 }
@@ -101,7 +101,7 @@ void AndroidQtVersion::addToBuildEnvironment(const Kit *k, Utils::Environment &e
 void AndroidQtVersion::setupQmakeRunEnvironment(Utils::Environment &env) const
 {
     env.set(QLatin1String("ANDROID_NDK_ROOT"),
-            AndroidConfig::ndkLocation(this).toUserOutput());
+            AndroidConfig::ndkLocation(this).nativePath());
 }
 
 QString AndroidQtVersion::description() const

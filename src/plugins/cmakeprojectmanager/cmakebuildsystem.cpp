@@ -5023,7 +5023,7 @@ void CMakeBuildSystem::runGenerator(Id id)
         return;
     }
     CommandLine cmdLine(cmakeExecutable, {"-S", buildConfiguration()
-                        ->project()->projectDirectory().toUserOutput(), "-G", generator});
+                        ->project()->projectDirectory().nativePath(), "-G", generator});
     const auto itemFilter = [](const CMakeConfigItem &item) {
         return !item.isNull()
                 && item.type != CMakeConfigItem::STATIC

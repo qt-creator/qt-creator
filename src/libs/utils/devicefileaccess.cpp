@@ -953,7 +953,7 @@ Result<bool> DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) con
     }
     return false;
 #elif defined(Q_OS_WIN)
-    const HANDLE handle = CreateFile((wchar_t *) filePath.toUserOutput().utf16(),
+    const HANDLE handle = CreateFile((wchar_t *) filePath.nativePath().utf16(),
                                      0,
                                      FILE_SHARE_READ,
                                      NULL,
@@ -1435,7 +1435,7 @@ Result<QByteArray> DesktopDeviceFileAccess::fileId(const FilePath &filePath) con
     QByteArray result;
 
 #ifdef Q_OS_WIN
-    const HANDLE handle = CreateFile((wchar_t *) filePath.toUserOutput().utf16(),
+    const HANDLE handle = CreateFile((wchar_t *) filePath.nativePath().utf16(),
                                      0,
                                      FILE_SHARE_READ,
                                      NULL,

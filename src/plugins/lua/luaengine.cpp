@@ -332,7 +332,7 @@ Result<sol::protected_function> prepareSetup(
         }
     };
 
-    const QString searchPath = (pluginSpec.location() / "?.lua").toUserOutput();
+    const QString searchPath = (pluginSpec.location() / "?.lua").nativePath();
     lua["package"]["path"] = searchPath.toStdString();
 
     const FilePath appDataPath = Core::ICore::userResourcePath() / "plugin-data" / "lua"

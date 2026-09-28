@@ -180,7 +180,7 @@ ClipInfo clipInfo(const FilePath &path)
             "-show_format",
             "-show_streams",
             "-select_streams", "V",
-            path.toUserOutput()
+            path.nativePath()
         }
     };
     proc.setCommand(cl);

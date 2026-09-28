@@ -1250,9 +1250,9 @@ bool Process::startDetached(const CommandLine &cmd, const FilePath &workingDirec
     return false;
 #else
     QProcess process;
-    process.setProgram(cmd.executable().toUserOutput());
+    process.setProgram(cmd.executable().nativePath());
     process.setArguments(cmd.splitArguments());
-    process.setWorkingDirectory(workingDirectory.toUserOutput());
+    process.setWorkingDirectory(workingDirectory.nativePath());
     if (channelMode == DetachedChannelMode::Discard) {
         process.setStandardOutputFile(QProcess::nullDevice());
         process.setStandardErrorFile(QProcess::nullDevice());

@@ -5027,7 +5027,7 @@ CoreInfo CoreInfo::readExecutableNameFromCore(const ProcessRunData &debugger, co
     // Multiarch GDB on Windows crashes if osabi is cygwin (the default) when opening a core dump.
     if (HostOsInfo::isWindowsHost())
         args += {"-ex", "set osabi GNU/Linux"};
-    args += {"-ex", "core " + coreFile.toUserOutput()};
+    args += {"-ex", "core " + coreFile.nativePath()};
 
     Process proc;
     Environment envLang(Environment::systemEnvironment());

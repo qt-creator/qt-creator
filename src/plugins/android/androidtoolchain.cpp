@@ -96,15 +96,15 @@ void AndroidToolchain::addToEnvironment(Environment &env) const
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfig::toolchainHostFromNdk(m_ndkLocation));
     const FilePath javaHome = AndroidConfig::openJDKLocation();
     if (javaHome.exists()) {
-        env.set(Constants::JAVA_HOME_ENV_VAR, javaHome.toUserOutput());
+        env.set(Constants::JAVA_HOME_ENV_VAR, javaHome.nativePath());
         const FilePath javaBin = javaHome.pathAppended("bin");
         const FilePath currentJavaFilePath
             = env.searchInPath("java", {}, {}, FilePath::WithExeSuffix);
         if (!currentJavaFilePath.isChildOf(javaBin))
             env.prependOrSetPath(javaBin);
     }
-    env.set(QLatin1String("ANDROID_HOME"), AndroidConfig::sdkLocation().toUserOutput());
-    env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfig::sdkLocation().toUserOutput());
+    env.set(QLatin1String("ANDROID_HOME"), AndroidConfig::sdkLocation().nativePath());
+    env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfig::sdkLocation().nativePath());
 }
 
 void AndroidToolchain::fromMap(const Store &data)

@@ -110,7 +110,7 @@ static void setupCSharpLanguageServer(IDocument *document)
             const auto onInstallSetup = [dotnet, lsPath, languageServer](Process &process) {
                 CommandLine command(dotnet);
                 command.addArgs(
-                    {"tool", "install", "--tool-path", lsPath.toUserOutput(), languageServer});
+                    {"tool", "install", "--tool-path", lsPath.nativePath(), languageServer});
                 process.setCommand(command);
                 process.setWorkingDirectory(lsPath);
                 process.setTerminalMode(TerminalMode::Run);

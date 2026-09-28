@@ -3181,7 +3181,7 @@ void GitTest::testWorkingDirectoryForShow()
     QVERIFY(repoToolMetadata.parentDir().ensureWritableDir());
     QVERIFY(repoToolWorktree.ensureWritableDir());
     QVERIFY(runGit(repoToolWorktree, {"init", "--separate-git-dir",
-                                      repoToolMetadata.toUserOutput(), "."}));
+                                      repoToolMetadata.nativePath(), "."}));
     QVERIFY(repoToolRebaseApply.ensureWritableDir());
     QVERIFY(repoToolRebaseMerge.ensureWritableDir());
     QVERIFY(!runGit(repoToolRebaseApply, {"rev-parse", "--show-toplevel"}));

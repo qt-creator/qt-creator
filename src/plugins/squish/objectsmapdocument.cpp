@@ -197,7 +197,7 @@ Result<> ObjectsMapDocument::openImpl(const FilePath &fileName, const FilePath &
 
         Process objectMapReader;
         objectMapReader.setCommand({exe, {"--scriptMap", "--mode", "read",
-                                          "--scriptedObjectMapPath", realFileName.toUserOutput()}});
+                                          "--scriptedObjectMapPath", realFileName.nativePath()}});
         objectMapReader.setUtf8Codec();
         objectMapReader.start();
         objectMapReader.waitForFinished();
@@ -225,7 +225,7 @@ bool ObjectsMapDocument::writeFile(const FilePath &fileName) const
 
     Process objectMapWriter;
     objectMapWriter.setCommand({exe, {"--scriptMap", "--mode", "write",
-                                      "--scriptedObjectMapPath", fileName.toUserOutput()}});
+                                      "--scriptedObjectMapPath", fileName.nativePath()}});
     objectMapWriter.setWriteData(contents());
     objectMapWriter.start();
     objectMapWriter.waitForFinished();

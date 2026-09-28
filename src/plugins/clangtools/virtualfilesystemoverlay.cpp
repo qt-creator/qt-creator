@@ -63,7 +63,7 @@ void VirtualFileSystemOverlay::update()
         QJsonObject content;
         content["name"] = document->filePath().fileName();
         content["type"] = "file";
-        content["external-contents"] = m_saved[document].path.toUserOutput();
+        content["external-contents"] = m_saved[document].path.nativePath();
         return content;
     };
 
@@ -73,7 +73,7 @@ void VirtualFileSystemOverlay::update()
     for (const auto &[root, documents] : documentRoots) {
         QJsonObject jsonRoot;
         jsonRoot["type"] = "directory";
-        jsonRoot["name"] = root.toUserOutput();
+        jsonRoot["name"] = root.nativePath();
         QJsonArray contents;
         for (auto doc : std::as_const(documents))
             contents << toContent(doc);

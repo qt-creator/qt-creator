@@ -204,9 +204,9 @@ void startPluginArServer(const FilePath &bauhausSuite, const OnServerStarted &on
         if (!bauhausSuite.isEmpty())
             env.prependOrSetPath(bauhausSuite.pathAppended("bin"));
         if (!settings().javaHome().isEmpty())
-            env.set("JAVA_HOME", settings().javaHome().toUserOutput());
+            env.set("JAVA_HOME", settings().javaHome().nativePath());
         if (!settings().bauhausPython().isEmpty())
-            env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
+            env.set("BAUHAUS_PYTHON", settings().bauhausPython().nativePath());
         env.set("PYTHON_IO_ENCODING", "utf-8:replace");
         env.set("PYTHONUNBUFFERED", "1");
         env.set("AXIVION_USER_AGENT", QString::fromUtf8(axivionUserAgent()));

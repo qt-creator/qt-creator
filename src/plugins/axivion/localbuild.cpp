@@ -511,7 +511,7 @@ static void setupEnvAndCommandLineFromUserInput(Environment *env, CommandLine *c
     }
 
     if (file.isDir() || (file.isFile() && file.suffix() == "json")) {
-        env->set("BAUHAUS_CONFIG", file.toUserOutput());
+        env->set("BAUHAUS_CONFIG", file.nativePath());
         *cmdLine = CommandLine{ FilePath("axivion_ci").withExecutableSuffix() };
     } else {
         *cmdLine = CommandLine{file};
@@ -546,13 +546,13 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
 
     const FilePath bauhaus = dia.bauhausSuite();
     if (!bauhaus.isEmpty()) {
-        env.set("AXIVION_BASE_DIR", bauhaus.toUserOutput());
+        env.set("AXIVION_BASE_DIR", bauhaus.nativePath());
         env.prependOrSetPath(bauhaus.pathAppended("bin"));
     }
     if (!settings().javaHome().isEmpty())
-        env.set("JAVA_HOME", settings().javaHome().toUserOutput());
+        env.set("JAVA_HOME", settings().javaHome().nativePath());
     if (!settings().bauhausPython().isEmpty())
-        env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
+        env.set("BAUHAUS_PYTHON", settings().bauhausPython().nativePath());
     env.set("PYTHON_IO_ENCODING", "utf-8:replace");
     env.set("PYTHONUNBUFFERED", "1");
 

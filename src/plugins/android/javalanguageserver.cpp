@@ -231,7 +231,7 @@ static void generateClassPathFile(const FilePath &projectDir,
         for (const FilePath &sourceDir : sourceDirs) {
             writer.writeEmptyElement("classpathentry");
             writer.writeAttribute("kind", "src");
-            writer.writeAttribute("path", sourceDir.toUserOutput());
+            writer.writeAttribute("path", sourceDir.nativePath());
         }
         writer.writeEmptyElement("classpathentry");
         writer.writeAttribute("kind", "src");
@@ -239,7 +239,7 @@ static void generateClassPathFile(const FilePath &projectDir,
         for (const FilePath &lib : libs) {
             writer.writeEmptyElement("classpathentry");
             writer.writeAttribute("kind", "lib");
-            writer.writeAttribute("path", lib.toUserOutput());
+            writer.writeAttribute("path", lib.nativePath());
         }
         writer.writeEndElement(); // classpath
         writer.writeEndDocument();

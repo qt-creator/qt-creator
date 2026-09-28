@@ -927,7 +927,7 @@ ExecutableItem FossilPluginPrivate::cloneTask(const CloneTaskData &data) const
     const FilePath checkoutPath = data.baseDirectory.pathAppended(data.localName);
     const QString fossilFile = options.value("fossil-file");
     const FilePath fossilFilePath = FilePath::fromUserInput(QDir::fromNativeSeparators(fossilFile));
-    const QString fossilFileNative = fossilFilePath.toUserOutput();
+    const QString fossilFileNative = fossilFilePath.nativePath();
     const QFileInfo cloneRepository(fossilFilePath.toUrlishString());
 
     // Check when requested to clone a local repository and clone-into repository file is the same
