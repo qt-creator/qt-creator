@@ -376,9 +376,20 @@ private:
             serveApplication();
         }
         const QString text = QString::fromUtf8(m_socket->readAll());
-        for (const QString &line : text.split('\n', Qt::SkipEmptyParts))
+        for (const QString &line : text.split('\n', Qt::SkipEmptyParts)) {
+            if (line == "runner: staged, start again")
+                m_staged = true;
             m_runControl->postMessage(line, StdOutFormat);
+        }
     }
+
+public:
+    // Whether the runner took the Qt and ended the start it took it in, which is what a
+    // runner without a Qt of its own does: the platform does not wait for the time a Qt
+    // takes to arrive.
+    bool staged() const { return m_staged; }
+
+private:
 
     QTcpSocket * const m_socket;
     const FilePath m_library;
@@ -387,6 +398,7 @@ private:
     RunControl * const m_runControl;
     qsizetype m_expected = 0;
     QByteArray m_answer;
+    bool m_staged = false;
 };
 
 class HarmonyOsRunConfiguration final : public RunConfiguration
@@ -444,8 +456,20 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
     const QStoredBarrier answeredBarrier;
     const QStoredBarrier finishedBarrier;
 
+    // An implicit want is all an application may send, so the runner is reached through the
+    // scheme its package declares rather than by name.
+    const auto askForTheRunner = [runControl] {
+        const QUrl url(QString("%1://run")
+                           .arg(QString::fromLatin1(Constants::HARMONYOS_RUN_SCHEME)));
+        if (QDesktopServices::openUrl(url))
+            return true;
+        runControl->postMessage(Tr::tr("The device did not accept \"%1\".")
+                                    .arg(url.toString()), ErrorMessageFormat);
+        return false;
+    };
+
     const auto openChannel = [runControl, library, arguments, qt, channelStorage, answeredBarrier,
-                              finishedBarrier] {
+                              finishedBarrier, askForTheRunner] {
         QBarrier * const answered = answeredBarrier.activeStorage();
         QBarrier * const finished = finishedBarrier.activeStorage();
         auto server = std::make_unique<QTcpServer>();
@@ -457,12 +481,20 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
         server->setMaxPendingConnections(1);
         QTcpServer * const channel = server.get();
         QObject::connect(channel, &QTcpServer::newConnection, channel,
-                         [channel, runControl, library, arguments, qt, answered, finished] {
+                         [channel, runControl, library, arguments, qt, answered, finished,
+                          askForTheRunner] {
             QTcpSocket * const socket = channel->nextPendingConnection();
             QTC_ASSERT(socket, return);
+            const Handover * const handover
+                = new Handover(socket, library, arguments, qt, runControl);
             QObject::connect(socket, &QTcpSocket::disconnected, socket,
-                             [socket, channel, finished] {
+                             [socket, channel, finished, handover, askForTheRunner] {
                 socket->deleteLater();
+                if (handover->staged()) {
+                    QMetaObject::invokeMethod(channel, [askForTheRunner] { askForTheRunner(); },
+                                              Qt::QueuedConnection);
+                    return;
+                }
                 // The runner closes the channel when the application's main() has returned,
                 // so this is the run being over. Ending it takes the channel down, and with
                 // it this socket, which a socket does not survive being emitted from - so
@@ -471,23 +503,10 @@ static Group handoverRecipe(RunControl *runControl, const FilePath &library,
                 QMetaObject::invokeMethod(channel, [finished] { finished->advance(); },
                                           Qt::QueuedConnection);
             });
-            new Handover(socket, library, arguments, qt, runControl);
             answered->advance();
         });
         *channelStorage = std::move(server);
         return true;
-    };
-
-    // An implicit want is all an application may send, so the runner is reached through the
-    // scheme its package declares rather than by name.
-    const auto askForTheRunner = [runControl] {
-        const QUrl url(QString("%1://run")
-                           .arg(QString::fromLatin1(Constants::HARMONYOS_RUN_SCHEME)));
-        if (QDesktopServices::openUrl(url))
-            return true;
-        runControl->postMessage(Tr::tr("The device did not accept \"%1\".")
-                                    .arg(url.toString()), ErrorMessageFormat);
-        return false;
     };
 
     return Group {
