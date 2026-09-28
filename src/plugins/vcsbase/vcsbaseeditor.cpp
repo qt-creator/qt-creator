@@ -1341,14 +1341,13 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
     block = block.previous();
     if (!block.isValid())
         return;
-    const QString fileName = findDiffFile(fileNameFromDiffSpecification(block));
+    const FilePath filePath = FilePath::fromUserInput(
+        findDiffFile(fileNameFromDiffSpecification(block)));
 
-    const bool exists = fileName.isEmpty() ? false : QFileInfo::exists(fileName);
-
-    if (!exists)
+    if (!filePath.exists())
         return;
 
-    jumpToDiffTarget(FilePath::fromUserInput(fileName), chunkStart + lineCount, block);
+    jumpToDiffTarget(filePath, chunkStart + lineCount, block);
 }
 
 void VcsBaseEditorWidget::jumpToDiffTarget(const FilePath &filePath,

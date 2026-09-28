@@ -32,7 +32,6 @@
 #include <utils/widgets.h>
 
 #include <QDrag>
-#include <QFileInfo>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLibraryInfo>
@@ -1765,9 +1764,10 @@ void SplitterOrView::restoreState(const QByteArray &state)
         view()->restoreTabState(&stream);
         view()->m_editorHistory = loadHistory(historyData);
 
-        if (!QFileInfo::exists(fileName))
+        const FilePath filePath = FilePath::fromString(fileName);
+        if (!filePath.exists())
             return;
-        IEditor *e = EditorManagerPrivate::openEditor(view(), FilePath::fromString(fileName), Id::fromString(id),
+        IEditor *e = EditorManagerPrivate::openEditor(view(), filePath, Id::fromString(id),
                                                       EditorManager::IgnoreNavigationHistory
                                                       | EditorManager::DoNotChangeCurrentEditor);
 
