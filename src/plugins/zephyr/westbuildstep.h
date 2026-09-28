@@ -3,8 +3,18 @@
 
 #pragma once
 
+#include <QtGlobal>
+
+QT_BEGIN_NAMESPACE
+class QObject;
+QT_END_NAMESPACE
+
 namespace Zephyr::Internal {
 
 void setupWestBuildSteps();
+
+#ifdef WITH_TESTS
+QObject *createWestBuildStepTest();
+#endif
 
 } // namespace Zephyr::Internal

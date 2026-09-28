@@ -3,4 +3,14 @@
 
 #pragma once
 
-namespace Zephyr::Internal { void setupZephyrRun(); }
+#include <QString>
+
+namespace Utils { class FilePath; }
+
+namespace Zephyr::Internal {
+
+void setupZephyrRun();
+
+QString sysbuildDomain(const Utils::FilePath &buildDir);
+
+} // namespace Zephyr::Internal

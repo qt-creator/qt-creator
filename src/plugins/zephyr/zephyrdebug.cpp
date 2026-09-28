@@ -4,6 +4,7 @@
 #include "zephyrdebug.h"
 
 #include "zephyrconstants.h"
+#include "zephyrrun.h"
 #include "zephyrsettings.h"
 #include "zephyrtr.h"
 
@@ -20,6 +21,7 @@
 #include <QRegularExpression>
 
 #ifdef WITH_TESTS
+#include <QTemporaryDir>
 #include <QTest>
 #endif
 
@@ -152,7 +154,9 @@ public:
     {
         setRecipeProducer([](RunControl *runControl) -> Group {
             const FilePath buildDir = runControl->buildDirectory();
-            const RunnerConfig rc = readRunnerConfig(buildDir);
+            const QString domain = sysbuildDomain(buildDir);
+            const FilePath appBuildDir = domain.isEmpty() ? buildDir : buildDir / domain;
+            const RunnerConfig rc = readRunnerConfig(appBuildDir);
 
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
             rp.setStartMode(AttachToRemoteServer);
@@ -162,13 +166,15 @@ public:
             rp.setUseContinueInsteadOfRun(true);
             rp.setSkipDebugServer(true);
 
-            const auto modifier = [buildDir](Process &process) {
+            const auto modifier = [buildDir, domain](Process &process) {
                 CommandLine cmd{settings().westFilePath()};
                 cmd.addArg("build");
                 cmd.addArg("-d");
                 cmd.addArg(buildDir.nativePath());
                 cmd.addArg("-t");
                 cmd.addArg("debugserver");
+                if (!domain.isEmpty())
+                    cmd.addArgs({"--domain", domain});
                 process.setCommand(cmd);
                 process.setWorkingDirectory(settings().workspaceDir());
             };
@@ -202,8 +208,8 @@ public:
 
             return Group {
                 usableGdb,
-                onGroupSetup([buildDir] {
-                    killQemuIfRunning(buildDir);
+                onGroupSetup([appBuildDir] {
+                    killQemuIfRunning(appBuildDir);
                     return SetupResult::Continue;
                 }),
                 ProcessTask(onProbeSetup, onProbeDone).withTimeout(std::chrono::seconds(10))
@@ -234,6 +240,7 @@ private slots:
     void testRunnerConfig();
     void testGdbHasPython_data();
     void testGdbHasPython();
+    void testSysbuildDomain();
 };
 
 void ZephyrRunnerConfigTest::testRunnerConfig_data()
@@ -327,6 +334,27 @@ void ZephyrRunnerConfigTest::testGdbHasPython()
     QFETCH(bool, hasPython);
 
     QCOMPARE(gdbHasPython(configuration), hasPython);
+}
+
+void ZephyrRunnerConfigTest::testSysbuildDomain()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath buildDir = FilePath::fromString(tmp.path());
+    QCOMPARE(sysbuildDomain(buildDir), QString());
+
+    QVERIFY_RESULT((buildDir / "domains.yaml").writeFileContents(R"(default: hello_world
+build_dir: /build
+domains:
+  - name: mcuboot
+    build_dir: /build/mcuboot
+  - name: hello_world
+    build_dir: /build/hello_world
+flash_order:
+  - mcuboot
+  - hello_world
+)"));
+    QCOMPARE(sysbuildDomain(buildDir), QString("hello_world"));
 }
 
 QObject *createZephyrRunnerConfigTest()

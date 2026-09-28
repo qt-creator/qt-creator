@@ -13,10 +13,22 @@
 
 #include <utils/processinterface.h>
 
+#include <QRegularExpression>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Zephyr::Internal {
+
+// A sysbuild builds the application as the default domain, in a subdirectory of that name.
+// Its run and debugserver targets are not forwarded to the top level.
+QString sysbuildDomain(const FilePath &buildDir)
+{
+    const QByteArray yaml = (buildDir / "domains.yaml").fileContents().value_or(QByteArray());
+    static const QRegularExpression defaultRe(R"(^default:\s*(\S+))",
+                                              QRegularExpression::MultilineOption);
+    return defaultRe.match(QString::fromUtf8(yaml)).captured(1);
+}
 
 class ZephyrRunConfiguration final : public RunConfiguration
 {
@@ -34,6 +46,8 @@ public:
             cmd.addArg(buildDir.nativePath());
             cmd.addArg("-t");
             cmd.addArg("run");
+            if (const QString domain = sysbuildDomain(buildDir); !domain.isEmpty())
+                cmd.addArgs({"--domain", domain});
             return cmd;
         });
 
