@@ -228,7 +228,10 @@ void CdbEngine::init()
     QTC_ASSERT(m_process.state() != ProcessState::Running, m_process.stop());
 }
 
-CdbEngine::~CdbEngine() = default;
+CdbEngine::~CdbEngine()
+{
+    removeStagedScripts();
+}
 
 void CdbEngine::adjustOperateByInstruction(bool operateByInstruction)
 {
@@ -267,19 +270,29 @@ void CdbEngine::handleSetupFailure(const QString &errorMessage)
     notifyEngineSetupFailed();
 }
 
-// Writes the cdb startup command script next to the inferior on the device and returns its
-// path, or an empty path (after reporting the failure) when it cannot be staged.
-FilePath CdbEngine::stageInitScript(const DebuggerRunParameters &sp, const QString &commands)
+void CdbEngine::removeStagedScripts()
 {
-    FilePath dir = sp.inferior().workingDirectory;
+    for (FilePath *file : {&m_initScriptFile, &m_environmentScriptFile}) {
+        if (!file->isEmpty()) {
+            file->removeFile();
+            file->clear();
+        }
+    }
+}
+
+// Writes a script for starting cdb next to the inferior on the device, unless dir says
+// otherwise, and returns its path.
+Result<FilePath> CdbEngine::stageScript(const DebuggerRunParameters &sp,
+                                        const QByteArray &contents, const FilePath &givenDir)
+{
+    FilePath dir = givenDir.isEmpty() ? sp.inferior().workingDirectory : givenDir;
     if (dir.isEmpty())
         dir = sp.inferior().command.executable().parentDir();
     const FilePath scriptFile
         = dir / ("qtc-cdb-" + QUuid::createUuid().toString(QUuid::Id128) + ".cmd");
-    if (const Result<qint64> res = scriptFile.writeFileContents(commands.toLocal8Bit()); !res) {
-        handleSetupFailure(Tr::tr("Cannot write the debugger startup script \"%1\": %2")
+    if (const Result<qint64> res = scriptFile.writeFileContents(contents); !res) {
+        return ResultError(Tr::tr("Cannot write the debugger startup script \"%1\": %2")
                                .arg(scriptFile.toUserOutput(), res.error()));
-        return {};
     }
     return scriptFile;
 }
@@ -375,12 +388,11 @@ void CdbEngine::setupEngine()
     CommandLine debugger{sp.debugger().command};
     const bool isRemote = sp.startMode() == AttachToRemoteServer;
     // "-a<name>" only takes a bare DLL name, which cdb resolves through
-    // _NT_DEBUGGER_EXTENSION_PATH. That variable cannot be relied on for a cdb on a device:
-    // the process runs in ProcessMode::Writer, for which the device process interface does not
-    // inject an environment (a shell wrapper would corrupt the command stream). Load the
-    // extension by its absolute device path instead. ".load" needs the full path and consumes
-    // the rest of the line, so it cannot share the single "-c" string with ".idle_cmd"; use a
-    // startup script ("-cf"), which takes one command per line.
+    // _NT_DEBUGGER_EXTENSION_PATH. For a cdb on a device, load the extension by its absolute
+    // device path instead, which does not depend on the environment reaching it through the
+    // batch file staged below. ".load" needs the full path and consumes the rest of the line,
+    // so it cannot share the single "-c" string with ".idle_cmd"; use a startup script ("-cf"),
+    // which takes one command per line.
     const bool loadExtensionByPath = !cdbCommand.isLocal();
     if (isRemote) // Must be first
         debugger.addArgs({"-remote", sp.remoteChannel()});
@@ -393,13 +405,15 @@ void CdbEngine::setupEngine()
     // Source line info/No terminal breakpoint / Pull extension
     debugger.addArgs({"-lines", "-G"});
     if (loadExtensionByPath) {
-        const FilePath scriptFile = stageInitScript(
-            sp, ".load " + extensionDir.pathAppended(m_extensionFileName).nativePath() + '\n'
-                    + idleCommand + '\n');
-        if (scriptFile.isEmpty())
-            return; // stageInitScript() reported the failure.
-        m_initScriptFile = scriptFile;
-        debugger.addArgs({"-cf", scriptFile.nativePath()});
+        const Result<FilePath> scriptFile = stageScript(
+            sp, (".load " + extensionDir.pathAppended(m_extensionFileName).nativePath() + '\n'
+                 + idleCommand + '\n').toLocal8Bit());
+        if (!scriptFile) {
+            handleSetupFailure(scriptFile.error());
+            return;
+        }
+        m_initScriptFile = *scriptFile;
+        debugger.addArgs({"-cf", m_initScriptFile.nativePath()});
     } else {
         debugger.addArgs({"-c", idleCommand});
     }
@@ -451,18 +465,15 @@ void CdbEngine::setupEngine()
         break;
     default:
         handleSetupFailure(QString("Internal error: Unsupported start mode %1.").arg(sp.startMode()));
+        removeStagedScripts();
         return;
     }
 
-    const QString msg = QString("Launching %1\nusing %2.")
-                            .arg(debugger.toUserOutput(),
-                                 extensionDir.pathAppended(m_extensionFileName).toUserOutput());
-    showMessage(msg, LogMisc);
-
     m_autoBreakPointCorrection = false;
 
+    const Result<Environment> deviceEnvironmentResult = cdbCommand.deviceEnvironmentWithError();
     Environment inferiorEnvironment = sp.inferior().environment.hasChanges()
-            ? sp.inferior().environment : Environment::systemEnvironment();
+            ? sp.inferior().environment : deviceEnvironmentResult.value_or(Environment());
 
     // Make sure that QTestLib uses OutputDebugString for logging.
     const QString qtLoggingToConsoleKey = QStringLiteral("QT_LOGGING_TO_CONSOLE");
@@ -473,7 +484,7 @@ void CdbEngine::setupEngine()
         inferiorEnvironment.set(qtForceStderrLogging, "0");
 
     static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";
-    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionDir.path());
+    inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionDir.nativePath());
     if (cdbCommand.isLocal()) {
         const QString oldCdbExtensionPath = qtcEnvironmentVariable(cdbExtensionPathVariableC);
         if (!oldCdbExtensionPath.isEmpty())
@@ -484,11 +495,34 @@ void CdbEngine::setupEngine()
         const QString value = s.enableHeapDebugging() ? "0" : "1";
         inferiorEnvironment.set(Debugger::Constants::NO_DEBUG_HEAP, value);
     }
-    m_process.setEnvironment(inferiorEnvironment);
-    if (!sp.inferior().workingDirectory.isEmpty())
-        m_process.setWorkingDirectory(sp.inferior().workingDirectory);
-
-    m_process.setCommand(debugger);
+    if (cdbCommand.isLocal()) {
+        m_process.setEnvironment(inferiorEnvironment);
+        if (!sp.inferior().workingDirectory.isEmpty())
+            m_process.setWorkingDirectory(sp.inferior().workingDirectory);
+        m_process.setCommand(debugger);
+    } else {
+        const Result<CdbDeviceStart> start = cdbDeviceStart(
+            debugger, inferiorEnvironment, deviceEnvironmentResult,
+            sp.inferior().workingDirectory,
+            [this, &sp](const QByteArray &contents, const FilePath &dir) {
+                return stageScript(sp, contents, dir);
+            });
+        if (!start) {
+            handleSetupFailure(start.error());
+            removeStagedScripts();
+            return;
+        }
+        m_environmentScriptFile = start->scriptFile;
+        for (const QString &warning : start->warnings)
+            showMessage(warning, LogWarning);
+        m_process.setCommand(start->command);
+    }
+    const QString msg = QString("Launching %1\nusing %2.")
+                            .arg(debugger.toUserOutput(),
+                                 extensionDir.pathAppended(m_extensionFileName).toUserOutput());
+    showMessage(msg, LogMisc);
+    if (!cdbCommand.isLocal())
+        showMessage("Through " + m_process.commandLine().toUserOutput(), LogMisc);
     m_process.start();
 }
 
@@ -785,10 +819,7 @@ void CdbEngine::abortDebuggerProcess()
 
 void CdbEngine::processDone()
 {
-    if (!m_initScriptFile.isEmpty()) {
-        m_initScriptFile.removeFile();
-        m_initScriptFile.clear();
-    }
+    removeStagedScripts();
 
     if (m_process.result() == ProcessResult::StartFailed) {
         handleSetupFailure(m_process.exitMessage());

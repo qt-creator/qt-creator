@@ -149,6 +149,8 @@ private slots:
     void testCdbSourcePathMappingToHost();
     void testCdbSourceFileNameOnDevice();
     void testCdbBreakpointFileName();
+    void testCdbEnvironmentScript();
+    void testCdbEnvironmentScriptOnDevice();
 
     void testQtBuildSourceRoots_data();
     void testQtBuildSourceRoots();
@@ -787,16 +789,39 @@ void DebuggerUnitTests::testCdbImplCommandLine()
         QVERIFY(cdb.m_initScriptFile.isEmpty());
     }
 
-    // A cdb on a device gets no environment, so the extension is loaded by its
-    // absolute path, from a startup script staged next to the inferior.
+    // A cdb on a device is started by a batch file that sets the environment, and the
+    // extension is loaded by its absolute path, from a startup script. Without a TEMP
+    // on the device, both are staged next to the inferior.
     {
         CdbImplStartData deviceData = startData;
-        deviceData.debuggerRunData.command
-            = CommandLine(FilePath::fromParts(u"ssh", u"somehost", u"C:/dbg/cdb.exe"));
+        const FilePath cdbExecutable = FilePath::fromParts(u"ssh", u"somehost", u"C:/dbg/cdb.exe");
+        deviceData.debuggerRunData.command = CommandLine(cdbExecutable);
 
         CdbImpl cdb(deviceData);
         QVERIFY(cdb.setupProcess());
-        const QStringList args = cdb.m_cdbProc.commandLine().splitArguments();
+        const CommandLine cmd = cdb.m_cdbProc.commandLine();
+        QCOMPARE(cmd.executable(), cdbExecutable.withNewPath("cmd.exe"));
+        QCOMPARE(cmd.arguments(),
+                 "/d /v:off /c \"" + cdb.m_environmentScriptFile.nativePath() + '"');
+        QCOMPARE(cdb.m_environmentScriptFile.parentDir(), inferiorDir);
+        const QByteArray environmentScript
+            = cdb.m_environmentScriptFile.fileContents().value_or(QByteArray());
+        QVERIFY(environmentScript.contains("set QT_LOGGING_TO_CONSOLE=0\r\n"));
+        const QString cdLine = "cd /d \"" + inferiorDir.nativePath() + "\"\r\n";
+        QVERIFY(environmentScript.contains(cdLine.toUtf8()));
+
+        const QList<QByteArray> scriptLines = environmentScript.split('\n');
+        const auto cdbLine = std::find_if(scriptLines.cbegin(), scriptLines.cend(),
+                                          [](const QByteArray &line) {
+                                              return line.startsWith("set QTC_CDB=");
+                                          });
+        QVERIFY(cdbLine != scriptLines.cend());
+        QString launch = QString::fromUtf8(cdbLine->mid(12).chopped(1)).replace("%%", "%");
+        launch.replace(QRegularExpression("\\^(.)"), "\\1");
+        const QString exePart = '"' + cdbExecutable.nativePath() + "\" ";
+        QVERIFY(launch.startsWith(exePart));
+        const QStringList args
+            = CommandLine({}, launch.mid(exePart.size()), CommandLine::Raw).splitArguments();
         QVERIFY(!args.contains("-aqtcreatorcdbext.dll"));
         QVERIFY(!args.contains("-c"));
         const int scriptIndex = args.indexOf("-cf") + 1;
@@ -806,6 +831,48 @@ void DebuggerUnitTests::testCdbImplCommandLine()
         const QByteArray script = cdb.m_initScriptFile.fileContents().value_or(QByteArray());
         QCOMPARE(QString::fromLocal8Bit(script),
                  ".load " + extension.nativePath() + '\n' + idleCommand + '\n');
+
+        // A reset restart reuses the command line, so the scripts stay until the
+        // session really ends. A local stand-in for cdb ends right away, and the
+        // restarted one ends before it ever came up.
+        const FilePath environmentScriptFile = cdb.m_environmentScriptFile;
+        const FilePath initScriptFile = cdb.m_initScriptFile;
+        cdb.m_cdbProc.setCommand(HostOsInfo::isWindowsHost()
+                                     ? CommandLine{"cmd.exe", {"/c", "exit"}}
+                                     : CommandLine{"true"});
+        cdb.m_isResetRestart = true;
+        cdb.m_initialSessionIdleHandled = true;
+        int doneCount = 0;
+        bool scriptsKept = false;
+        QObject::connect(&cdb.m_cdbProc, &Process::done, &cdb, [&] {
+            if (++doneCount == 1)
+                scriptsKept = environmentScriptFile.exists() && initScriptFile.exists();
+        });
+        cdb.m_cdbProc.start();
+        QTRY_COMPARE(doneCount, 2);
+        QVERIFY(scriptsKept);
+        QVERIFY(!environmentScriptFile.exists());
+        QVERIFY(!initScriptFile.exists());
+
+        // An engine destroyed while cdb runs never sees it end, and removes the scripts
+        // itself.
+        FilePath stagedByImpl[2];
+        {
+            CdbImpl tornDown(deviceData);
+            QVERIFY(tornDown.setupProcess());
+            stagedByImpl[0] = tornDown.m_environmentScriptFile;
+            stagedByImpl[1] = tornDown.m_initScriptFile;
+            QVERIFY(stagedByImpl[0].exists() && stagedByImpl[1].exists());
+        }
+        QVERIFY(!stagedByImpl[0].exists());
+        QVERIFY(!stagedByImpl[1].exists());
+        const FilePath stagedByEngine = inferiorDir / "qtc-cdb-engine.cmd";
+        QVERIFY(stagedByEngine.writeFileContents("@echo off\r\n"));
+        {
+            CdbEngine engine;
+            engine.m_environmentScriptFile = stagedByEngine;
+        }
+        QVERIFY(!stagedByEngine.exists());
     }
 
     // Attaching to a remote server: "-remote" has to come first, the session loads
@@ -1568,6 +1635,202 @@ void DebuggerUnitTests::testCdbBreakpointFileName()
     params.pathUsage = BreakpointUseShortPath;
     QCOMPARE(cdbAddBreakpointCommand(params, mapping, "100000"),
              QString("bu100000 `foo.cpp:42`"));
+}
+
+void DebuggerUnitTests::testCdbEnvironmentScript()
+{
+    const Environment device({"SystemRoot=C:\\Windows", "KEPT=1", "UNSET=2", "DISABLED=3",
+                              "LONGKEPT=" + QString(9000, 'x')},
+                             OsTypeWindows);
+    Environment env = device;
+    env.unset("UNSET");
+    env.set("DISABLED", "3", false);
+    env.set("QUOTED", "\"C:\\Program Files\";a&b|c<d>e(f)^");
+    env.set("PERCENT", "50%");
+    env.set("NEWLINE", "a\nb");
+    env.set("LONG", QString(5000, '('));
+
+    QStringList skipped;
+    const CommandLine cdb(FilePath::fromParts(u"ssh", u"somehost", u"C:/dbg/cdb.exe"),
+                          "-cf \"C:\\R&D 50%\\init.cmd\"", CommandLine::Raw);
+    const Result<QByteArray> scriptResult = cdbEnvironmentScript(env, device, {}, cdb, &skipped);
+    QVERIFY(scriptResult);
+    const QByteArray script = *scriptResult;
+    // A variable the device has already is inherited, even one too long to be set.
+    QVERIFY(!script.contains("KEPT"));
+    QVERIFY(script.contains("set UNSET=\r\n"));
+    QVERIFY(script.contains("set DISABLED=\r\n"));
+    QVERIFY(script.contains("set PERCENT=50%%\r\n"));
+    QVERIFY(script.contains("set QUOTED=^\"C:\\Program Files^\";a^&b^|c^<d^>e^(f^)^^\r\n"));
+    QVERIFY(!script.contains("NEWLINE"));
+    QVERIFY(!script.contains("LONG"));
+    QCOMPARE(skipped, QStringList({"LONG", "NEWLINE"}));
+    // cdb runs last, after the code page is restored, from a line read before that.
+    QVERIFY(script.contains(QByteArray("set QTC_CDB=^\"" + cdb.executable().nativePath().toUtf8()
+                                       + "^\" -cf ^\"C:\\R^&D 50%%\\init.cmd^\"\r\n")));
+    QVERIFY(script.endsWith("\"%QTC_CHCP%\" %QTC_OLD_CP% > nul\r\n"
+                            "set QTC_CHCP=\r\nset QTC_OLD_CP=\r\n"
+                            "set \"QTC_CDB=\" & %QTC_CDB%\r\n"));
+
+    // A cdb command line that cmd.exe cannot take is an error, not a skipped variable.
+    const CommandLine longCdb(cdb.executable(), QString(5000, '('), CommandLine::Raw);
+    QVERIFY(!cdbEnvironmentScript(env, device, {}, longCdb));
+    const CommandLine brokenCdb(cdb.executable(), "a\nb", CommandLine::Raw);
+    QVERIFY(!cdbEnvironmentScript(env, device, {}, brokenCdb));
+
+    // The default shell of the device parses the command line before cmd.exe does.
+    const FilePath scriptDir = FilePath::fromParts(u"ssh", u"somehost", u"C:/Users/A B/Temp");
+    const FilePath cmdExe = scriptDir.withNewPath("C:/Windows/System32/cmd.exe");
+    const Result<CommandLine> command = cdbDeviceCommandLine(scriptDir / "x.cmd", cmdExe);
+    QVERIFY(command);
+    QCOMPARE(command->executable(), cmdExe);
+    QCOMPARE(command->arguments(),
+             "/d /v:off /c \"" + (scriptDir / "x.cmd").nativePath() + '"');
+    QVERIFY(!cdbDeviceCommandLine(scriptDir.withNewPath("C:/R&D/x.cmd"), cmdExe));
+    // PowerShell expands a '$' in a double-quoted string.
+    QVERIFY(!cdbDeviceCommandLine(scriptDir.withNewPath("C:/Users/svc$x/x.cmd"), cmdExe));
+
+    const Environment withTemp({"TEMP=C:\\Users\\A B\\AppData\\Local\\Temp"}, OsTypeWindows);
+    QCOMPARE(cdbScriptDir(cdb.executable(), withTemp),
+             cdb.executable().withNewPath("C:/Users/A B/AppData/Local/Temp"));
+    QVERIFY(cdbScriptDir(cdb.executable(), Environment(OsTypeWindows)).isEmpty());
+    // The script then goes next to the inferior.
+    const Environment withSpecialTemp({"TEMP=C:\\Users\\R&D\\AppData\\Local\\Temp"},
+                                      OsTypeWindows);
+    QVERIFY(cdbScriptDir(cdb.executable(), withSpecialTemp).isEmpty());
+
+    // cmd.exe ignores the case of a key, a host-typed env does not.
+    const Environment windowsDevice({"SystemRoot=C:\\Windows", "Path=C:\\Windows"},
+                                    OsTypeWindows);
+    Environment linuxEnv(OsTypeLinux);
+    linuxEnv.set("SYSTEMROOT", "C:\\Windows");
+    for (const QString &path : {QString("C:\\Qt\\bin"), QString("C:\\Windows")}) {
+        linuxEnv.set("PATH", path);
+        const Result<QByteArray> linuxScript
+            = cdbEnvironmentScript(linuxEnv, windowsDevice, {}, {});
+        QVERIFY(linuxScript);
+        const QStringList lines = QString::fromUtf8(*linuxScript).split("\r\n");
+        const QStringList pathLines = Utils::filtered(lines, [](const QString &line) {
+            return line.startsWith("set PATH=", Qt::CaseInsensitive);
+        });
+        // With the value of the device, PATH is inherited from Path.
+        QCOMPARE(pathLines, path == windowsDevice.value("Path") ? QStringList()
+                                                                : QStringList("set PATH=" + path));
+    }
+
+    // A staged script that cmd.exe cannot be pointed at is removed again.
+    QTemporaryDir stageDir;
+    QVERIFY(stageDir.isValid());
+    const FilePath specialDir = FilePath::fromString(stageDir.path()) / "R&D";
+    QVERIFY(specialDir.ensureWritableDir());
+    const FilePath staged = specialDir / "x.cmd";
+    const Result<CdbDeviceStart> refused = cdbDeviceStart(
+        cdb, env, device, {}, [&staged](const QByteArray &contents, const FilePath &) {
+            return staged.writeFileContents(contents).transform([&staged](qint64) {
+                return staged;
+            });
+        });
+    QVERIFY(!refused);
+    QVERIFY(specialDir.exists());
+    QVERIFY(!staged.exists());
+
+    // A run environment that was not built on the one of the device only adds to it.
+    Environment additions(OsTypeWindows);
+    additions.set("QT_LOGGING_TO_CONSOLE", "0");
+    const Result<QByteArray> additionsScript = cdbEnvironmentScript(additions, device, {}, {});
+    QVERIFY(additionsScript);
+    QVERIFY(additionsScript->contains("set QT_LOGGING_TO_CONSOLE=0\r\n"));
+    QVERIFY(!additionsScript->contains("set SystemRoot="));
+    QVERIFY(!additionsScript->contains("set KEPT="));
+    // Prepending to PATH keeps the entries of the device, whatever the case of the key.
+    Environment pathAdditions(OsTypeWindows);
+    pathAdditions.prependOrSet("PATH", "C:\\Qt\\bin");
+    const Result<QByteArray> pathScript
+        = cdbEnvironmentScript(pathAdditions, windowsDevice, {}, {});
+    QVERIFY(pathScript);
+    const QStringList pathScriptLines = Utils::filtered(
+        QString::fromUtf8(*pathScript).split("\r\n"),
+        [](const QString &line) { return line.startsWith("set PATH=", Qt::CaseInsensitive); });
+    QCOMPARE(pathScriptLines, QStringList("set Path=C:\\Qt\\bin;C:\\Windows"));
+}
+
+// The batch file holds up in a real cmd.exe, run the way a cdb on a device is.
+void DebuggerUnitTests::testCdbEnvironmentScriptOnDevice()
+{
+    const IDevicePtr device = addWindowsTestDevice();
+    if (!device)
+        QSKIP(noWindowsTestDevice);
+    const QScopeGuard cleanup([id = device->id()] { DeviceManager::removeDevice(id); });
+    QVERIFY2(connectToDevice(device), "Cannot connect to the device.");
+
+    const FilePath root = device->rootPath();
+    const Environment deviceEnvironment = root.deviceEnvironment();
+    QVERIFY(deviceEnvironment.hasKey("USERNAME"));
+    QVERIFY(deviceEnvironment.hasKey("COMPUTERNAME"));
+    const FilePath tempDir
+        = root.withNewPath(FilePath::fromUserInput(deviceEnvironment.value("TEMP")).path());
+    QVERIFY(tempDir.isDir());
+
+    Environment env = deviceEnvironment;
+    env.set("QTC_TEST_PERCENT", "100% sure %NOPE");
+    env.set("QTC_TEST_BANG", "a!PATH!b");
+    env.set("QTC_TEST_META", "\"C:\\Program Files\";\"a&b|c<d>e(f)^");
+    env.set("QTC_TEST_UMLAUT", QString::fromUtf8("Gr\xc3\xbc\xc3\x9f" "e"));
+    const QString quotedPathEntry = "\"C:\\Qtc Test;Dir\"";
+    // Without System32, which the restoring chcp in the batch file must not depend on.
+    env.set("PATH", quotedPathEntry);
+    env.unset("USERNAME");
+    env.set("COMPUTERNAME", deviceEnvironment.value("COMPUTERNAME"), false);
+    const FilePath workDir = tempDir / "qtc a&b";
+    QVERIFY(workDir.ensureWritableDir());
+    const QScopeGuard removeWorkDir([workDir] { workDir.removeRecursively(); });
+
+    // The stand-in for cdb gets an argument that is not safe in cmd.exe and not ASCII.
+    // The commands after it run in the batch file, once the code page is restored.
+    const FilePath cmdExe = root.findCmdExe(deviceEnvironment);
+    const QString launchArgs = QString::fromUtf8("/d /c echo \"QTC_ARG=a&b \xc3\xbc\"")
+                               + " & set & cd & "
+                               + cmdExe.parentDir().pathAppended("chcp.com").nativePath();
+    const CommandLine launch(cmdExe, launchArgs, CommandLine::Raw);
+    // An ssh session may well be in 65001 already. Start from another code page, which
+    // the batch file has to switch away from and back to.
+    const Result<QByteArray> contents = cdbEnvironmentScript(env, deviceEnvironment, workDir,
+                                                             launch);
+    QVERIFY(contents);
+    const FilePath script = tempDir / "qtc-cdb-environment-test.cmd";
+    QVERIFY(script.writeFileContents("@chcp 850 > nul\r\n@chcp\r\n" + *contents));
+    const QScopeGuard removeScript([script] { script.removeFile(); });
+
+    const Result<CommandLine> command = cdbDeviceCommandLine(script, cmdExe);
+    QVERIFY(command);
+    Process cmd;
+    cmd.setCommand(*command);
+    cmd.runBlocking(std::chrono::seconds(60));
+    QCOMPARE(cmd.result(), ProcessResult::FinishedWithSuccess);
+    const QStringList lines = cmd.cleanedStdOut().split('\n', Qt::SkipEmptyParts);
+    QVERIFY(lines.contains("QTC_TEST_PERCENT=100% sure %NOPE"));
+    QVERIFY(lines.contains("QTC_TEST_BANG=a!PATH!b"));
+    QVERIFY(lines.contains("QTC_TEST_META=\"C:\\Program Files\";\"a&b|c<d>e(f)^"));
+    // Read in 65001 and printed in 850. Read in 850, the UTF-8 bytes would come back as they are.
+    QVERIFY(cmd.rawStdOut().contains("QTC_TEST_UMLAUT=Gr\x81\xe1" "e\r\n"));
+    QVERIFY(cmd.rawStdOut().contains("\"QTC_ARG=a&b \x81\""));
+    static const QRegularExpression codePageLine(": *\\d+\\.?$");
+    const QStringList codePages = Utils::filtered(lines, [](const QString &line) {
+        return !line.contains('=') && codePageLine.match(line).hasMatch();
+    });
+    QCOMPARE(codePages.size(), 2);
+    QCOMPARE(codePages.at(0), codePages.at(1));
+    const auto isSet = [&lines](const QString &key) {
+        return Utils::anyOf(lines, [key](const QString &line) {
+            return line.startsWith(key + '=', Qt::CaseInsensitive);
+        });
+    };
+    QVERIFY(!isSet("USERNAME"));
+    QVERIFY(!isSet("COMPUTERNAME"));
+    QVERIFY(!isSet("QTC_CDB"));
+    QVERIFY(!isSet("QTC_CHCP"));
+    QVERIFY(lines.contains("PATH=" + quotedPathEntry, Qt::CaseInsensitive));
+    QVERIFY(lines.contains(workDir.nativePath(), Qt::CaseInsensitive));
 }
 
 static QByteArray debugStrings(const QStringList &strings)

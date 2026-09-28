@@ -190,7 +190,10 @@ private:
 
     const QString m_tokenPrefix;
     void handleSetupFailure(const QString &errorMessage);
-    Utils::FilePath stageInitScript(const DebuggerRunParameters &sp, const QString &commands);
+    Utils::Result<Utils::FilePath> stageScript(const DebuggerRunParameters &sp,
+                                               const QByteArray &contents,
+                                               const Utils::FilePath &dir = {});
+    void removeStagedScripts();
 
     Utils::Process m_process;
     DebuggerStartMode m_effectiveStartMode = NoStartMode;
@@ -213,8 +216,9 @@ private:
     } m_wow64State = wow64Uninitialized;
     QElapsedTimer m_logTimer;
     QString m_extensionFileName;
-    // Startup command script staged on the device for a remote cdb; removed when it is done.
+    // Startup scripts staged on the device for a remote cdb; removed when it is done.
     Utils::FilePath m_initScriptFile;
+    Utils::FilePath m_environmentScriptFile;
     QString m_extensionMessageBuffer;
     bool m_sourceStepInto = false;
     QSet<Breakpoint> m_pendingBreakpointMap;

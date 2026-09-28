@@ -361,24 +361,23 @@ CdbImpl::CdbImpl(const CdbImplStartData &startData)
     });
     connect(&m_cdbProc, &Process::done, this, [this] {
         m_watchdog.stop();
-        if (!m_initScriptFile.isEmpty()) {
-            m_initScriptFile.removeFile();
-            m_initScriptFile.clear();
-        }
         // A session that ends before it ever opened never came up, whatever the
         // process made of it: a debugger that cannot be run at all and one that
         // runs and gives up are the same failure from here.
         if (m_cdbProc.result() == ProcessResult::StartFailed || !m_initialSessionIdleHandled) {
             m_isResetRestart = false;
+            removeStagedScripts();
             emit inferiorEvent(InferiorEvent::EngineSetupFailed);
             emit engineProcessFinished(m_cdbProc.resultData());
             return;
         }
         if (m_isResetRestart) {
             // Process::start() must not be called from one of its own signal handlers.
+            // The restart reuses the command line, and with it the staged scripts.
             QMetaObject::invokeMethod(this, [this] { restartSession(); }, Qt::QueuedConnection);
             return;
         }
+        removeStagedScripts();
         emit engineProcessFinished(m_cdbProc.resultData());
     });
 }
@@ -388,14 +387,171 @@ CdbImpl::~CdbImpl()
     m_shuttingDown = true;
     if (m_cdbProc.isRunning())
         m_cdbProc.kill();
+    removeStagedScripts();
 }
 
-// cdb reads its startup script where it runs itself, so the script is staged
-// next to the inferior.
-Result<Utils::FilePath> CdbImpl::stageInitScript(const QString &commands)
+// A batch file setting the environment and the working directory of a cdb on a device. It is
+// UTF-8, which cmd.exe reads in the console code page, so that is 65001 while it runs. The
+// restoring chcp is located before the run environment can change PATH or SystemRoot.
+// Only keys whose value differs from the one on the device are written, compared in the case
+// rules of the device, as cmd.exe ignores the case of a key.
+// The script ends by running cdb, from a variable set while the code page is still 65001.
+Result<QByteArray> cdbEnvironmentScript(const Environment &env,
+                                        const Environment &deviceEnvironment,
+                                        const FilePath &workingDirectory,
+                                        const CommandLine &cdb,
+                                        QStringList *skippedKeys)
 {
-    FilePath dir;
-    if (std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
+    // In an unquoted line, a '^' makes the next character literal, including a '"', which then
+    // does not start quoting. A '%' is expanded before that and needs doubling instead.
+    const qsizetype maxLineLength = 8191; // The limit of cmd.exe.
+    const auto escaped = [](const QString &text) {
+        QString result;
+        for (const QChar c : text) {
+            if (c == '%') {
+                result += "%%";
+                continue;
+            }
+            if (QStringView(u"^&|<>\"()").contains(c))
+                result += '^';
+            result += c;
+        }
+        return result;
+    };
+    QString script = "@echo off\r\n"
+                     "for /f \"tokens=2 delims=:.\" %%c in ('chcp') do set /a QTC_OLD_CP=%%c\r\n"
+                     "set \"QTC_CHCP=%SystemRoot%\\System32\\chcp.com\"\r\n"
+                     "chcp 65001 > nul\r\n";
+    const auto set = [&](const QString &key, const QString &value) {
+        if (key.trimmed().isEmpty() || key.contains('=') || key.contains('\n')
+            || key.contains('\r') || value.contains('\n') || value.contains('\r')) {
+            if (skippedKeys && !value.isEmpty())
+                skippedKeys->append(key);
+            return;
+        }
+        const QString line = "set " + escaped(key) + '=' + escaped(value);
+        if (line.size() > maxLineLength) {
+            if (skippedKeys)
+                skippedKeys->append(key);
+            return;
+        }
+        script += line + "\r\n";
+    };
+    // A run environment without SystemRoot was not built on the one of the device, which
+    // may not have been known yet. Its changes then apply to the environment of the device,
+    // so that prepending to PATH keeps what the device has there.
+    bool hasBase = false;
+    env.forEachEntry([&](const QString &key, const QString &, bool enabled) {
+        if (enabled && key.compare("SystemRoot", Qt::CaseInsensitive) == 0)
+            hasBase = true;
+    });
+    const Environment effective = hasBase ? env : env.appliedToEnvironment(deviceEnvironment);
+    Environment target(deviceEnvironment.osType());
+    effective.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
+        if (enabled)
+            target.set(key, effective.expandVariables(value));
+    });
+    for (const EnvironmentItem &item : deviceEnvironment.diff(target))
+        set(item.name, item.operation == EnvironmentItem::Unset ? QString() : item.value);
+    if (!workingDirectory.isEmpty())
+        script += "cd /d \"" + workingDirectory.nativePath().replace('%', "%%") + "\"\r\n";
+    if (!cdb.isEmpty()) {
+        const QString launch = '"' + cdb.executable().nativePath() + "\" " + cdb.arguments();
+        const QString runLine = "set \"QTC_CDB=\" & " + launch;
+        const QString line = "set QTC_CDB=" + escaped(launch);
+        if (launch.contains('\n') || launch.contains('\r') || line.size() > maxLineLength
+            || runLine.size() > maxLineLength) {
+            return ResultError(Tr::tr("The debugger command line cannot be run by cmd.exe on "
+                                      "the device: it is too long or spans several lines."));
+        }
+        script += line + "\r\n";
+    }
+    script += "\"%QTC_CHCP%\" %QTC_OLD_CP% > nul\r\n"
+              "set QTC_CHCP=\r\n"
+              "set QTC_OLD_CP=\r\n";
+    if (!cdb.isEmpty())
+        script += "set \"QTC_CDB=\" & %QTC_CDB%\r\n";
+    return script.toUtf8();
+}
+
+// The device's default shell (cmd.exe or PowerShell) parses the command line before cmd.exe
+// does, so it holds nothing but a path that needs no escaping in any of them.
+static bool hasShellSpecialCharacters(const FilePath &path)
+{
+    const QString nativePath = path.nativePath();
+    return std::any_of(nativePath.cbegin(), nativePath.cend(), [](QChar c) {
+        return QStringView(u"&|<>^()@%!\"$`").contains(c);
+    });
+}
+
+// The device's temporary directory, where a path is less likely to need escaping than next
+// to the inferior. Empty when it is not known or does need escaping.
+FilePath cdbScriptDir(const FilePath &cdb, const Environment &deviceEnvironment)
+{
+    const QString tempDir = deviceEnvironment.value("TEMP");
+    if (tempDir.isEmpty())
+        return {};
+    const FilePath dir = cdb.withNewPath(FilePath::fromUserInput(tempDir).path());
+    return hasShellSpecialCharacters(dir) ? FilePath() : dir;
+}
+
+// cmd.exe runs the script from cdbEnvironmentScript(), "/v:off" keeps a '!' in it literal.
+Result<CommandLine> cdbDeviceCommandLine(const FilePath &script, const FilePath &cmdExe)
+{
+    if (hasShellSpecialCharacters(script)) {
+        return ResultError(Tr::tr("The debugger startup script \"%1\" cannot be run from a path "
+                                  "with special characters of the shell.")
+                               .arg(script.toUserOutput()));
+    }
+    return CommandLine{cmdExe, "/d /v:off /c \"" + script.nativePath() + '"', CommandLine::Raw};
+}
+
+// The device process interface does not inject an environment into a process in
+// ProcessMode::Writer. Set it from a batch file in a cmd.exe running cdb, which
+// leaves the command stream alone.
+Result<CdbDeviceStart> cdbDeviceStart(const CommandLine &cdb, const Environment &env,
+                                      const Result<Environment> &deviceEnvironmentResult,
+                                      const FilePath &workingDirectory,
+                                      const CdbScriptStager &stageScript)
+{
+    const Environment deviceEnvironment = deviceEnvironmentResult.value_or(Environment());
+    CdbDeviceStart start;
+    if (!deviceEnvironmentResult) {
+        start.warnings.append("Cannot get the environment of the device, variables unset in "
+                              "the run environment stay set: " + deviceEnvironmentResult.error());
+    }
+    QStringList skippedKeys;
+    const Result<QByteArray> script
+        = cdbEnvironmentScript(env, deviceEnvironment, workingDirectory, cdb, &skippedKeys);
+    if (!script)
+        return ResultError(script.error());
+    if (!skippedKeys.isEmpty()) {
+        start.warnings.append("Cannot pass these environment variables to the debugger on the "
+                              "device: " + skippedKeys.join(", "));
+    }
+    const Result<FilePath> scriptFile
+        = stageScript(*script, cdbScriptDir(cdb.executable(), deviceEnvironment));
+    if (!scriptFile)
+        return ResultError(scriptFile.error());
+    const FilePath cmdExe = deviceEnvironmentResult
+                                ? cdb.executable().findCmdExe(deviceEnvironment)
+                                : cdb.executable().withNewPath("cmd.exe");
+    const Result<CommandLine> command = cdbDeviceCommandLine(*scriptFile, cmdExe);
+    if (!command) {
+        scriptFile->removeFile();
+        return ResultError(command.error());
+    }
+    start.command = *command;
+    start.scriptFile = *scriptFile;
+    return start;
+}
+
+// cdb reads its startup scripts where it runs itself, so they are staged
+// next to the inferior unless dir says otherwise.
+Result<Utils::FilePath> CdbImpl::stageScript(const QByteArray &contents, const FilePath &givenDir)
+{
+    FilePath dir = givenDir;
+    if (dir.isEmpty() && std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
         const auto &runData = std::get<ProcessRunData>(m_startData.inferiorStartData);
         dir = runData.workingDirectory.isEmpty() ? runData.command.executable().parentDir()
                                                  : runData.workingDirectory;
@@ -404,11 +560,21 @@ Result<Utils::FilePath> CdbImpl::stageInitScript(const QString &commands)
         dir = m_startData.debuggerRunData.command.executable().parentDir();
     const FilePath scriptFile
         = dir / ("qtc-cdb-" + QUuid::createUuid().toString(QUuid::Id128) + ".cmd");
-    if (const Result<qint64> res = scriptFile.writeFileContents(commands.toLocal8Bit()); !res) {
+    if (const Result<qint64> res = scriptFile.writeFileContents(contents); !res) {
         return ResultError(Tr::tr("Cannot write the debugger startup script \"%1\": %2")
                                .arg(scriptFile.toUserOutput(), res.error()));
     }
     return scriptFile;
+}
+
+void CdbImpl::removeStagedScripts()
+{
+    for (FilePath *file : {&m_initScriptFile, &m_environmentScriptFile}) {
+        if (!file->isEmpty()) {
+            file->removeFile();
+            file->clear();
+        }
+    }
 }
 
 Result<> CdbImpl::setupProcess()
@@ -444,20 +610,19 @@ Result<> CdbImpl::setupProcess()
                                 .channel});
     }
     // "-a<name>" takes a bare DLL name, which cdb resolves through
-    // _NT_DEBUGGER_EXTENSION_PATH. That variable does not reach a cdb on a device: the
-    // process runs in ProcessMode::Writer, for which the device process interface injects
-    // no environment (a shell wrapper would corrupt the command stream). Load the extension
-    // by its absolute device path instead, from a startup script, as ".load" needs the full
-    // path and consumes the rest of the line, so it cannot share the single "-c" string
-    // with ".idle_cmd". A remote session loads it once the connection stands.
+    // _NT_DEBUGGER_EXTENSION_PATH. For a cdb on a device, load the extension by its absolute
+    // device path instead, which does not depend on the environment reaching it through the
+    // batch file staged below. ".load" needs the full path and consumes the rest of the
+    // line, so it cannot share the single "-c" string with ".idle_cmd". Use a startup script.
+    // A remote session loads it once the connection stands.
     const bool loadExtensionByPath = !cdbExecutable.isLocal();
     if (!loadExtensionByPath && !isRemoteServer)
         cdbCommand.addArg("-a" + m_startData.extensionFileName);
     const QString idleCommand = ".idle_cmd " + m_extensionCommandPrefix + "idle";
     cdbCommand.addArgs({"-lines", "-G"});
     if (loadExtensionByPath) {
-        const Result<FilePath> scriptFile
-            = stageInitScript(".load " + extension.nativePath() + '\n' + idleCommand + '\n');
+        const Result<FilePath> scriptFile = stageScript(
+            (".load " + extension.nativePath() + '\n' + idleCommand + '\n').toLocal8Bit());
         if (!scriptFile)
             return ResultError(scriptFile.error());
         m_initScriptFile = *scriptFile;
@@ -526,11 +691,11 @@ Result<> CdbImpl::setupProcess()
         const auto &coreData = std::get<AttachToCoreData>(m_startData.inferiorStartData);
         cdbCommand.addArgs({"-z", coreData.coreFile.nativePath()});
     }
-    m_cdbProc.setCommand(cdbCommand);
-    if (runData.workingDirectory.isDir())
-        m_cdbProc.setWorkingDirectory(runData.workingDirectory);
-    Environment env = runData.environment.hasChanges() ? runData.environment
-                                                       : Environment::systemEnvironment();
+    const FilePath workingDirectory = runData.workingDirectory.isDir()
+                                          ? runData.workingDirectory : FilePath();
+    const Result<Environment> deviceEnvironmentResult = cdbExecutable.deviceEnvironmentWithError();
+    Environment env = runData.environment.hasChanges()
+                          ? runData.environment : deviceEnvironmentResult.value_or(Environment());
     env.set("_NT_DEBUGGER_EXTENSION_PATH", m_startData.extensionDir.nativePath());
     if (!env.hasKey(Constants::NO_DEBUG_HEAP))
         env.set(Constants::NO_DEBUG_HEAP, m_startData.enableHeapDebugging ? "0" : "1");
@@ -542,7 +707,27 @@ Result<> CdbImpl::setupProcess()
                 env.set(key, "0");
         }
     }
-    m_cdbProc.setEnvironment(env);
+    if (cdbExecutable.isLocal()) {
+        m_cdbProc.setCommand(cdbCommand);
+        if (!workingDirectory.isEmpty())
+            m_cdbProc.setWorkingDirectory(workingDirectory);
+        m_cdbProc.setEnvironment(env);
+        return ResultOk;
+    }
+    const Result<CdbDeviceStart> start = cdbDeviceStart(
+        cdbCommand, env, deviceEnvironmentResult, workingDirectory,
+        [this](const QByteArray &contents, const FilePath &dir) {
+            return stageScript(contents, dir);
+        });
+    if (!start)
+        return ResultError(start.error());
+    m_environmentScriptFile = start->scriptFile;
+    emit message(QString("Running %1\nfrom %2.")
+                     .arg(cdbCommand.toUserOutput(), m_environmentScriptFile.toUserOutput()),
+                 LogMisc);
+    for (const QString &warning : start->warnings)
+        emit message(warning, LogWarning);
+    m_cdbProc.setCommand(start->command);
     return ResultOk;
 }
 
@@ -581,6 +766,7 @@ void CdbImpl::handleInitialSessionIdle()
 void CdbImpl::start()
 {
     if (const Result<> res = setupProcess(); !res) {
+        removeStagedScripts();
         emit message(res.error(), LogError);
         emit inferiorEvent(InferiorEvent::EngineSetupFailed);
         return;
