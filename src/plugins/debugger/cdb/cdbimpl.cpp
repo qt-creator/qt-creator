@@ -2321,9 +2321,8 @@ void CdbImpl::setupScripting()
         emit message(QString("CdbImpl: Python %1 in the cdb extension")
                          .arg(reportedVersion.trimmed()), LogMisc);
 
-        QString dumperPath = m_startData.dumperScriptsDir.toUserOutput();
-        dumperPath.replace('\\', "\\\\");
-        runCommand({"sys.path.insert(1, '" + dumperPath + "')", ScriptCommand});
+        const QString dumperPath = m_startData.dumperScriptsDir.nativePath();
+        runCommand({"sys.path.insert(1, " + cdbPythonString(dumperPath) + ')', ScriptCommand});
         runCommand({"from cdbbridge import Dumper", ScriptCommand});
         runCommand({"theDumper = Dumper()", ScriptCommand,
                    [this](const DebuggerResponse &response) {

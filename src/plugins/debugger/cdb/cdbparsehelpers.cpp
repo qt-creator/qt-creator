@@ -207,6 +207,14 @@ QString cdbWriteMemoryCommand(quint64 addr, const QByteArray &data)
     return cmd;
 }
 
+// A Python expression for a string literal, as cdb passes commands on in the
+// ANSI code page, but Python reads them as UTF-8.
+QString cdbPythonString(const QString &text)
+{
+    return QString("bytes.fromhex('%1').decode('utf-8')")
+        .arg(QString::fromLatin1(text.toUtf8().toHex()));
+}
+
 QString debugByteArray(const QByteArray &a)
 {
     QString rc;
