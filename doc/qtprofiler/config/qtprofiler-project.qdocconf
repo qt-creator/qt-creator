@@ -1,0 +1,64 @@
+project     = qtprofiler
+description = "Qt Profiler"
+url         = https://doc.qt.io/qtprofiler
+
+# Project contains only .qdoc sources, no PCH to generate
+moduleheader =
+
+# Words to ignore for auto-linking
+ignorewords += \
+    macOS \
+    WebAssembly
+
+headerdirs =
+sourcedirs = ../src
+
+imagedirs = ../images
+
+# exampledirs = ../examples
+# examples.fileextensions += *.qml *.svg
+
+include(../../config/macros.qdocconf)
+include(../../config/qt-cpp-ignore.qdocconf)
+include(../../config/qt-defines.qdocconf)
+include(../../config/icon-macros.qdocconf)
+
+depends +=    qtcore \
+              qtdoc \
+              qtqml \
+              qtquick
+
+defines += qtprofiler
+
+sources.fileextensions         = "*.qdoc"
+
+qhp.projects                    = QtProfiler
+qhp.QtProfiler.file             = qtprofiler.qhp
+qhp.QtProfiler.namespace        = org.qt-project.qtprofiler.$QTC_VERSION_TAG
+qhp.QtProfiler.virtualFolder    = doc
+qhp.QtProfiler.indexTitle       = Qt Profiler $QTC_VERSION
+qhp.QtProfiler.filterAttributes = qtprofiler
+qhp.QtProfiler.customFilters.QtProfiler.name = Qt Profiler $QTC_VERSION
+qhp.QtProfiler.customFilters.QtProfiler.filterAttributes = \
+    qtprofiler
+qhp.QtProfiler.indexRoot        =
+
+qhp.QtProfiler.subprojects = manual
+qhp.QtProfiler.subprojects.manual.title = Qt Profiler
+qhp.QtProfiler.subprojects.manual.indexTitle = All topics
+qhp.QtProfiler.subprojects.manual.type = manual
+
+# Doxygen compatibility commands
+
+macro.see                       = "\\sa"
+macro.function                  = "\\fn"
+
+navigation.homepage = "Qt Profiler"
+
+# Auto-generate navigation linking based on "All topics":
+navigation.toctitles = "All topics"
+navigation.toctitles.inclusive = false
+
+buildversion = "Qt Profiler"
+
+codelanguages = Shell JSON CMake

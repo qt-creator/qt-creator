@@ -147,3 +147,5 @@ if (TARGET qtcreator AND TARGET McpServer AND NOT CMAKE_CROSSCOMPILING)
     endforeach()
   endif()
 endif()
+
+add_subdirectory(qtprofiler)
