@@ -245,7 +245,12 @@ FilePath runnerLibrary(const FilePath &sdkRoot)
 
     const FilePath library = Core::ICore::userResourcePath("harmonyos")
                                  .pathAppended(Constants::HARMONYOS_RUNNER_LIBRARY);
-    const QDateTime newest = std::max(loader.lastModified(), source.lastModified());
+    QDateTime newest;
+    const FilePath headers = source.parentDir();
+    for (const FilePath &file : {loader, headers.pathAppended("qtcload.h"), source,
+                                 headers.pathAppended("qtcchannel.h")}) {
+        newest = std::max(newest, file.lastModified());
+    }
     if (library.exists() && library.lastModified() > newest)
         return library;
     if (const Result<> created = library.parentDir().ensureWritableDir(); !created)
