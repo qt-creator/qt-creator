@@ -33,6 +33,11 @@ static const char *QtCurrent = "/data/storage/el2/base/files/qtcrun/qt/current";
 // How many of them stay. Each is tens of megabytes, and a Qt that was rebuilt comes under a
 // tag of its own, so they pile up. Nothing but the runner can delete here.
 static const size_t KeptQts = 3;
+// Where in such a directory the plugins go. Qt must not find them there by itself: it looks
+// at files before the plugins registered with it, and a file the application wrote is one
+// the platform refuses to map, so a plugin in "<qt>/platforms" hides the one the runner
+// registers.
+static const char *PluginDirectory = "registered";
 
 // A runner that fails before the channel is open would otherwise be invisible: the
 // platform sends an application's stdout nowhere. hilog is what the device does have, and
@@ -313,12 +318,29 @@ static inline std::string rememberedQt()
     return isDirectory(directory) ? directory : std::string();
 }
 
+// What an earlier runner put beside the libraries, which is where Qt would find it.
+static inline void removeStrayDirectories(const std::string &directory)
+{
+    DIR * const top = ::opendir(directory.c_str());
+    if (!top)
+        return;
+    std::vector<std::string> strays;
+    while (const dirent * const entry = ::readdir(top)) {
+        const std::string name = entry->d_name;
+        if (isPlainName(name) && name != PluginDirectory && isDirectory(directory + '/' + name))
+            strays.push_back(directory + '/' + name);
+    }
+    ::closedir(top);
+    for (const std::string &stray : strays)
+        removeTree(stray);
+}
+
 // Which plugins a run that nobody is holding the channel open for registers: whatever the
-// last run left in a subdirectory of the Qt's own directory, since a plugin is the only
-// thing put there.
-static inline std::vector<std::string> rememberedPlugins(const std::string &directory)
+// last run left in the Qt's plugin directory.
+static inline std::vector<std::string> rememberedPlugins(const std::string &qtDirectory)
 {
     std::vector<std::string> plugins;
+    const std::string directory = qtDirectory + '/' + PluginDirectory;
     DIR * const top = ::opendir(directory.c_str());
     if (!top)
         return plugins;

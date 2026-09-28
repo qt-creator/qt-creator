@@ -2711,9 +2711,11 @@ private slots:
 
         QCOMPARE(names({}), QStringList({"libQt6Core.so.6", "platforms/libqohos.so"}));
         // As the device's shell writes it, with the line ends hdc gives it.
-        QCOMPARE(names("4 ./libQt6Core.so.6\r\n8 ./platforms/libqohos.so\r\n"), QStringList());
-        // A transfer that broke off, and a plugin that is not where it would be read from.
-        QCOMPARE(names("2 ./libQt6Core.so.6\n8 ./libqohos.so\n"),
+        QCOMPARE(names("4 ./libQt6Core.so.6\r\n8 ./registered/platforms/libqohos.so\r\n"),
+                 QStringList());
+        // A transfer that broke off, and plugins that are not where they would be read from,
+        // the second one where Qt would find it.
+        QCOMPARE(names("2 ./libQt6Core.so.6\n8 ./libqohos.so\n8 ./platforms/libqohos.so\n"),
                  QStringList({"libQt6Core.so.6", "platforms/libqohos.so"}));
         QCOMPARE(names("/bin/sh: cd: no such directory\n4 ./libQt6Core.so.6\n"),
                  QStringList({"platforms/libqohos.so"}));

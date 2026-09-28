@@ -73,6 +73,8 @@ static bool receiveQt(int fd, Launch *launch, std::string *error)
     ::mkdir(QtDirectory, 0755);
     const std::string directory = std::string(QtDirectory) + '/' + tag;
     ::mkdir(directory.c_str(), 0755);
+    removeStrayDirectories(directory);
+    const std::string pluginDirectory = directory + '/' + PluginDirectory;
     launch->qtDirectory = directory;
 
     for (size_t index = 0; index < count; ++index) {
@@ -83,9 +85,10 @@ static bool receiveQt(int fd, Launch *launch, std::string *error)
             *error = "a library on the channel is not named plausibly";
             return false;
         }
-        const std::string path = directory + '/' + names[index];
+        const std::string path = (plugin ? pluginDirectory : directory) + '/' + names[index];
         if (plugin) {
-            ::mkdir((directory + '/' + names[index].substr(0, names[index].find('/')))
+            ::mkdir(pluginDirectory.c_str(), 0755);
+            ::mkdir((pluginDirectory + '/' + names[index].substr(0, names[index].find('/')))
                         .c_str(), 0755);
             launch->plugins.push_back(path);
         }
@@ -108,7 +111,8 @@ static bool receiveQt(int fd, Launch *launch, std::string *error)
     for (size_t index = 0; index < count; ++index) {
         if (wanted[index] != 'S')
             continue;
-        const std::string path = directory + '/' + names[index];
+        const std::string path = (isPluginName(names[index]) ? pluginDirectory : directory)
+                                 + '/' + names[index];
         const std::string incoming = path + ".part";
         if (!receiveFile(fd, incoming, sizes[index], error)) {
             ::unlink(incoming.c_str());
@@ -176,8 +180,10 @@ static bool mapQt()
     }
     if (launch.qtDirectory.empty()) {
         launch.qtDirectory = rememberedQt();
-        if (!launch.qtDirectory.empty())
+        if (!launch.qtDirectory.empty()) {
+            removeStrayDirectories(launch.qtDirectory);
             launch.plugins = rememberedPlugins(launch.qtDirectory);
+        }
     } else {
         rememberQt(launch.qtDirectory);
     }
@@ -188,7 +194,7 @@ static bool mapQt()
     }
     std::string path = directory + "/libqohos.so";
     if (!exists(path))
-        path = directory + "/platforms/libqohos.so";
+        path = directory + '/' + PluginDirectory + "/platforms/libqohos.so";
     if (!exists(path)) {
         note("%s has no libqohos.so", directory.c_str());
         return false;

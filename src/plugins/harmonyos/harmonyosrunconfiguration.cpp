@@ -240,6 +240,13 @@ QtLibraries qtLibraries(const FilePath &library, const FilePaths &directories,
     return {QString::fromLatin1(hash.result().toHex().left(16)), found};
 }
 
+// Where the runner keeps a file, relative to the directory of its Qt. It puts plugins where
+// Qt does not look for them.
+static QString cachedPath(const QString &name)
+{
+    return name.contains('/') ? "registered/" + name : name;
+}
+
 QList<QtLibrary> missingLibraries(const QtLibraries &qt, const QString &listing)
 {
     QHash<QString, qint64> present;
@@ -255,7 +262,7 @@ QList<QtLibrary> missingLibraries(const QtLibraries &qt, const QString &listing)
         present.insert(name, size);
     }
     return Utils::filtered(qt.files, [&present](const QtLibrary &entry) {
-        return present.value(entry.name, -1) != entry.file.fileSize();
+        return present.value(cachedPath(entry.name), -1) != entry.file.fileSize();
     });
 }
 
@@ -750,7 +757,8 @@ public:
                 const FilePath root = stage->path().pathAppended("qtcrun");
                 qint64 size = 0;
                 for (const QtLibrary &entry : *missingStorage) {
-                    const FilePath link = root.pathAppended("qt/" + qt.tag + '/' + entry.name);
+                    const FilePath link = root.pathAppended("qt/" + qt.tag + '/'
+                                                              + cachedPath(entry.name));
                     Result<> linked = link.parentDir().ensureWritableDir();
                     if (linked)
                         linked = entry.file.createSymLink(link);
