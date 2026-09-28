@@ -27,6 +27,7 @@ public:
         addTestCreator(createZephyrCompileDatabaseTest);
         addTestCreator(createZephyrRunnerConfigTest);
         addTestCreator(createWestBuildStepTest);
+        addTestCreator(createWestBoardsTest);
 #endif
     }
 };

@@ -15,6 +15,7 @@ void setupWestBuildSteps();
 
 #ifdef WITH_TESTS
 QObject *createWestBuildStepTest();
+QObject *createWestBoardsTest();
 #endif
 
 } // namespace Zephyr::Internal
