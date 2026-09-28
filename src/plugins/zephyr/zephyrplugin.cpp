@@ -22,6 +22,10 @@ public:
         setupZephyrProject();
         setupZephyrRun();
         setupZephyrDebug();
+
+#ifdef WITH_TESTS
+        addTestCreator(createZephyrCompileDatabaseTest);
+#endif
     }
 };
 
