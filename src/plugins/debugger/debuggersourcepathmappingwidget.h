@@ -22,8 +22,13 @@ using SourcePathMap = QMap<QString, QString>;
  * called once per run and the result passed along in the run parameters. */
 QStringList qtBuildSourceRoots(const DebuggerRunParameters &sp, const QtSupport::QtVersion *qt);
 
-/* The same extraction on the raw contents of a .debug_str section. */
+/* The same extraction on NUL separated strings, such as the raw contents of a
+ * .debug_str section or the string table of a PDB. */
 QStringList qtBuildSourceRoots(const QByteArray &debugStrings);
+
+/* The source file names, NUL separated, from the string table of a PDB. Empty if
+ * the file is no readable PDB. */
+QByteArray pdbSourceFileNames(const Utils::FilePath &pdb);
 
 /* Gdb's debug-file-directory for the given run: the location set for the run,
  * or gdb's own default below the sysroot. */

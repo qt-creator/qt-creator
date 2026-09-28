@@ -41,6 +41,10 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
+#include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -52,18 +56,23 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/store.h>
 
+#include <QElapsedTimer>
+#include <QEventLoop>
 #include <QTest>
+#include <QTimer>
 #include <QVersionNumber>
 #include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTestEventLoop>
+#include <QtEndian>
 
 #include <memory>
 
@@ -128,6 +137,8 @@ private slots:
 
     void testQtBuildSourceRoots_data();
     void testQtBuildSourceRoots();
+    void testPdbSourceFileNames();
+    void testPdbSourceFileNamesOnDevice();
 
     void testDebugInfoDirectory();
     void testDebugInfoFile();
@@ -1369,6 +1380,18 @@ void DebuggerUnitTests::testQtBuildSourceRoots_data()
 
     QTest::newRow("marker in a neighbor string")
         << debugStrings({"/build/a", "/qtbase/src/corelib"}) << QStringList();
+
+    QTest::newRow("drive letter")
+        << debugStrings({"C:/Users/qt/work/qt/qtbase/src/corelib/global/qglobal.cpp"})
+        << QStringList{"C:/Users/qt/work/qt"};
+
+    QTest::newRow("drive root")
+        << debugStrings({"c:/qtbase/src/corelib/global/qglobal.cpp"}) << QStringList();
+
+    QTest::newRow("no drive letter")
+        << debugStrings({"1:/qt/qtbase/src/corelib/global/qglobal.cpp",
+                         "C:qt/qtbase/src/corelib/global/qglobal.cpp"})
+        << QStringList();
 }
 
 void DebuggerUnitTests::testQtBuildSourceRoots()
@@ -1377,6 +1400,133 @@ void DebuggerUnitTests::testQtBuildSourceRoots()
     QFETCH(QStringList, roots);
 
     QCOMPARE(qtBuildSourceRoots(blob), roots);
+}
+
+static QByteArray le32(quint32 value)
+{
+    QByteArray result(4, '\0');
+    qToLittleEndian(value, result.data());
+    return result;
+}
+
+// A PDB with just an info stream and a string table, whose blocks are out of
+// order so that they have to be gathered, and partly consecutive.
+static QByteArray fakePdb(const QByteArray &strings)
+{
+    const int blockSize = 512;
+    const QByteArray streamNames("/LinkInfo\0/names\0", 17);
+    QByteArray info(28, '\0'); // Version, signature, age, GUID.
+    info += le32(streamNames.size()) + streamNames;
+    info += le32(2) + le32(4);          // Entries, capacity.
+    info += le32(1) + le32(0b11);       // Present buckets.
+    info += le32(0);                    // Deleted buckets.
+    info += le32(0) + le32(0);          // "/LinkInfo" is stream 0.
+    info += le32(10) + le32(2);         // "/names" is stream 2.
+
+    const QByteArray names = le32(0xeffeeffe) + le32(1) + le32(strings.size()) + strings
+                             + le32(0);
+    const QList<quint32> namesBlocks = {7, 5, 6};
+
+    QByteArray directory = le32(3) + le32(0) + le32(info.size()) + le32(names.size());
+    directory += le32(4);
+    for (const quint32 block : namesBlocks)
+        directory += le32(block);
+
+    QList<QByteArray> blocks(8, QByteArray(blockSize, '\0'));
+    const auto put = [&blocks](int block, const QByteArray &data) {
+        blocks[block].replace(0, data.size(), data);
+    };
+    QByteArray super("Microsoft C/C++ MSF 7.00\r\n\x1a" "DS\0\0\0", 32);
+    super += le32(blockSize) + le32(1) + le32(blocks.size()) + le32(directory.size());
+    super += le32(0) + le32(2);
+    put(0, super);
+    put(2, le32(3));
+    put(3, directory);
+    put(4, info);
+    for (int i = 0; i < namesBlocks.size(); ++i)
+        put(namesBlocks.at(i), names.mid(i * blockSize, blockSize));
+    return blocks.join();
+}
+
+void DebuggerUnitTests::testPdbSourceFileNames()
+{
+    QStringList files{"", "C:\\Users\\qt\\work\\qt\\qtbase\\src\\corelib\\global\\qglobal.cpp"};
+    for (int i = 0; i < 25; ++i)
+        files << QString("C:\\Users\\qt\\work\\qt\\qtbase_build\\gen\\file%1.h").arg(i);
+    const QByteArray strings = debugStrings(files);
+    // The string table has to take all three of its blocks.
+    QVERIFY(strings.size() + 16 > 2 * 512 && strings.size() + 16 <= 3 * 512);
+
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath pdb = FilePath::fromString(tmp.path()) / "Qt6Core.pdb";
+    const QByteArray contents = fakePdb(strings);
+
+    QVERIFY(pdb.writeFileContents(contents));
+    QCOMPARE(pdbSourceFileNames(pdb), strings);
+    QCOMPARE(qtBuildSourceRoots(pdbSourceFileNames(pdb).replace('\\', '/')),
+             QStringList{"C:/Users/qt/work/qt"});
+
+    // Anything but an intact PDB yields nothing.
+    QVERIFY(pdb.writeFileContents(contents.first(4 * 512)));
+    QCOMPARE(pdbSourceFileNames(pdb), QByteArray());
+
+    QByteArray noMagic = contents;
+    noMagic[0] = 'm';
+    QVERIFY(pdb.writeFileContents(noMagic));
+    QCOMPARE(pdbSourceFileNames(pdb), QByteArray());
+
+    QByteArray badBlock = contents;
+    qToLittleEndian<quint32>(100, badBlock.data() + 3 * 512 + 20);
+    QVERIFY(pdb.writeFileContents(badBlock));
+    QCOMPARE(pdbSourceFileNames(pdb), QByteArray());
+}
+
+// The PDB of a Qt on a Windows device is read through the device's file access,
+// piecewise at the offsets of its blocks.
+void DebuggerUnitTests::testPdbSourceFileNamesOnDevice()
+{
+    const SshParameters params = SshTest::getParameters("WIN");
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params))
+        QSKIP("Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE) to a Windows-over-SSH host.");
+    IDeviceFactory *factory
+        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [](IDeviceFactory *f) {
+              return f->deviceType() == Id("GenericWindowsOsType");
+          });
+    if (!factory)
+        QSKIP("The Remote plugin with the Windows device is not loaded.");
+
+    const IDevicePtr device = factory->construct();
+    QVERIFY(device);
+    device->sshParametersAspectContainer().setSshParameters(params);
+    DeviceManager::addDevice(device);
+    const QScopeGuard cleanup([id = device->id()] { DeviceManager::removeDevice(id); });
+
+    QEventLoop loop;
+    QTimer::singleShot(60 * 1000, &loop, [&loop] { loop.exit(1); });
+    device->tryToConnect(Continuation<>(&loop, [&loop](const Result<> &res) {
+        loop.exit(res ? 0 : 1);
+    }));
+    QVERIFY2(loop.exec() == 0, "Cannot connect to the device.");
+
+    FilePath pdb;
+    const FilePath qtRoot = device->rootPath().withNewPath("C:/Qt");
+    const DirFilterFlags dirs = DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot;
+    for (const FilePath &version : qtRoot.dirEntries(dirs)) {
+        for (const FilePath &qt : version.dirEntries(FileFilter({"msvc*"}, dirs))) {
+            if ((qt / "bin/Qt6Core.pdb").isReadableFile())
+                pdb = qt / "bin/Qt6Core.pdb";
+        }
+    }
+    if (pdb.isEmpty())
+        QSKIP("The device has no MSVC Qt with a Qt6Core.pdb below C:/Qt.");
+
+    QElapsedTimer timer;
+    timer.start();
+    const QByteArray names = pdbSourceFileNames(pdb);
+    qDebug() << "Read the string table of" << pdb.toUserOutput() << "in" << timer.elapsed()
+             << "ms:" << names.size() << "bytes";
+    QVERIFY(!qtBuildSourceRoots(QByteArray(names).replace('\\', '/')).isEmpty());
 }
 
 void DebuggerUnitTests::testDebugInfoDirectory()
