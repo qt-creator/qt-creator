@@ -56,14 +56,14 @@ constexpr TextFormat nameTf
 constexpr TextFormat currentNameTf
     {Theme::Token_Text_Accent, nameTf.uiElement, nameTf.drawTextFlags};
 constexpr TextFormat descriptionTf
-    {Theme::Token_Text_Subtle, UiElementCaption, nameTf.drawTextFlags};
+    {Theme::Token_Text_Muted, UiElementCaption, nameTf.drawTextFlags};
 
 static QIcon favoriteIcon(bool on)
 {
     static const QIcon onIcon
         = Icon({{":/utils/images/pinned_small.png", Theme::Token_Text_Accent}}, Icon::Tint).icon();
     static const QIcon offIcon
-        = Icon({{":/utils/images/pinned_small.png", Theme::Token_Text_Subtle}}, Icon::Tint).icon();
+        = Icon({{":/utils/images/pinned_small.png", Theme::Token_Text_Muted}}, Icon::Tint).icon();
     return on ? onIcon : offIcon;
 }
 
