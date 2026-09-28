@@ -93,7 +93,10 @@ int QmlProfilerDashboardStats::uiResponsivenessPercent() const
     const int total = framesTotal();
     // Approximation: near-target frames count half as much towards
     // responsiveness as on-target ones.
-    return total > 0 ? (m_framesOnTarget * 100 + m_framesNearTarget * 50) / total : 100;
+    return total > 0
+               ? (m_framesOnTarget * 100
+                  + m_framesNearTarget * kNearTargetResponsivenessWeightPercent) / total
+               : 100;
 }
 
 int QmlProfilerDashboardStats::p99Percent() const
@@ -102,7 +105,7 @@ int QmlProfilerDashboardStats::p99Percent() const
     const int failedPercent = total > 0 ? m_framesFailed * 100 / total : 0;
     // Approximation: a P99 stand-in that weighs failed frames three times as
     // heavily, since a real 99th-percentile metric is dominated by the tail.
-    return qMax(0, 100 - failedPercent * 3);
+    return qMax(0, 100 - failedPercent * kP99FailedFrameWeight);
 }
 
 int QmlProfilerDashboardStats::startupSpeedPercent() const
@@ -116,7 +119,7 @@ int QmlProfilerDashboardStats::overallPercent() const
 {
     // Approximation: overall rating is a plain average of the categories above.
     return (onTargetPercent() + stutterFreePercent() + uiResponsivenessPercent()
-            + p99Percent() + startupSpeedPercent()) / 5;
+            + p99Percent() + startupSpeedPercent()) / kOverallPercentCategoryCount;
 }
 
 } // namespace Profiler::Internal

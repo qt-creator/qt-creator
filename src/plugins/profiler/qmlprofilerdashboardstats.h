@@ -27,6 +27,18 @@ constexpr double kStutterRefreshRateDivisor = 2;
 constexpr double kStutterFps = kDisplayRefreshRate / kStutterRefreshRateDivisor;
 constexpr double kStutterFrameTimeMs = 1000 / kStutterFps;
 
+// Weight of a near-target frame relative to an on-target one, for
+// uiResponsivenessPercent.
+constexpr int kNearTargetResponsivenessWeightPercent = 50;
+
+// p99Percent weighs failed frames this many times as heavily as a plain
+// failure rate would, since a real 99th-percentile metric is dominated by
+// the tail.
+constexpr int kP99FailedFrameWeight = 3;
+
+// Number of categories averaged by overallPercent.
+constexpr int kOverallPercentCategoryCount = 5;
+
 // Frame timing statistics derived from the ProfileAnimations trace events,
 // for QmlProfilerDashboardView.
 class QmlProfilerDashboardStats : public QObject
