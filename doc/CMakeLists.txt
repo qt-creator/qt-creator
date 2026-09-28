@@ -101,13 +101,20 @@ install(DIRECTORY config
 # whenever a tool is added in another commit, so the real list is produced at
 # doc-build time: regenerate_mcp_tools_doc writes it from the built server
 # into the generated sources directory, which qtcreator-project.qdocconf lists
-# before ../src so that it wins over the placeholder, and is made a
-# prerequisite of the documentation targets. A doc build without the
-# application (or a cross build, which cannot run it) keeps the placeholder.
+# before ../src so that it wins over the placeholder. With
+# BUILD_MCP_TOOLS_DOC it is also made a prerequisite of the documentation
+# targets. That is off by default, because it makes a doc build build the
+# whole application, which a docs-only setup (such as the doc snapshot
+# server) cannot do. Otherwise, or in a cross build, which cannot run the
+# application, the placeholder is used unless regenerate_mcp_tools_doc is
+# built explicitly.
 #
 # "-load all" force-enables every plugin, so tools from plugins that are
 # disabled by default are captured too; the list is meant to be exhaustive.
 # That needs every plugin built first, not just the ones qtcreator links.
+option(BUILD_MCP_TOOLS_DOC "Generate the MCP tool list as part of the documentation build" OFF)
+add_feature_info("Generate the MCP tool list for the documentation" BUILD_MCP_TOOLS_DOC "")
+
 if (TARGET qtcreator AND TARGET McpServer AND NOT CMAKE_CROSSCOMPILING)
   set(_mcp_dump_env QT_QPA_PLATFORM=offscreen)
   if (WIN32)
@@ -131,10 +138,12 @@ if (TARGET qtcreator AND TARGET McpServer AND NOT CMAKE_CROSSCOMPILING)
       add_dependencies(regenerate_mcp_tools_doc ${_plugin})
     endif()
   endforeach()
-  foreach(_doc_target html_docs_qtcreator qch_docs_qtcreator
-                      html_docs_qtcreator-online qch_docs_qtcreator-online)
-    if (TARGET ${_doc_target})
-      add_dependencies(${_doc_target} regenerate_mcp_tools_doc)
-    endif()
-  endforeach()
+  if (BUILD_MCP_TOOLS_DOC)
+    foreach(_doc_target html_docs_qtcreator qch_docs_qtcreator
+                        html_docs_qtcreator-online qch_docs_qtcreator-online)
+      if (TARGET ${_doc_target})
+        add_dependencies(${_doc_target} regenerate_mcp_tools_doc)
+      endif()
+    endforeach()
+  endif()
 endif()
