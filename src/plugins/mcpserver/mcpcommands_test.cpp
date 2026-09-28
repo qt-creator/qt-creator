@@ -3,6 +3,7 @@
 
 #include "mcpcommands_test.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
@@ -72,6 +73,8 @@ private slots:
     void testCursorPositionCutsALongLine();
     void testCursorPositionFollowsTheMainCursor();
     void testCursorPositionWithoutAnEditor();
+    void testGetTextLeavesTheSelectionAlone();
+    void testGetTextReadsAnEditorWithoutAFilePath();
     void testClickItemContextMenuKeepsAMultiSelection();
     void testClickItemShiftExtendsTheSelection();
     void testActivateMenuItemGoesThroughTheMenu();
@@ -331,6 +334,54 @@ void McpCommandsTest::testCursorPositionWithoutAnEditor()
     QVERIFY2(error.isEmpty(), qPrintable(error));
     QCOMPARE(result.value("reason").toString(), QString("no_text_editor"));
     QVERIFY(!result.contains("line"));
+}
+
+void McpCommandsTest::testGetTextLeavesTheSelectionAlone()
+{
+    TemporaryDirectory dir("qtc-mcpcommands-XXXXXX");
+    QVERIFY(dir.isValid());
+    const QScopeGuard closeEditors([] { Core::EditorManager::closeAllEditors(false); });
+    TextEditor::TextEditorWidget *widget = openText(dir, "alpha one\nbeta two\ngamma three\n");
+    QVERIFY(widget);
+
+    QTextCursor cursor(widget->document());
+    cursor.setPosition(11);
+    cursor.setPosition(23, QTextCursor::KeepAnchor);
+    widget->setTextCursor(cursor);
+
+    QString error;
+    const QJsonObject whole = callTool("editor_get_text", {}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(whole.value("reason").toString(), QString("ok"));
+    QCOMPARE(whole.value("path").toString(), dir.filePath("selection.txt").toUserOutput());
+    QCOMPARE(whole.value("text").toString(), QString("alpha one\nbeta two\ngamma three\n"));
+
+    const QJsonObject range
+        = callTool("editor_get_text", {{"start_line", 2}, {"end_line", 3}}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(range.value("text").toString(), QString("beta two\ngamma three"));
+
+    QCOMPARE(widget->textCursor().anchor(), 11);
+    QCOMPARE(widget->textCursor().position(), 23);
+}
+
+void McpCommandsTest::testGetTextReadsAnEditorWithoutAFilePath()
+{
+    const QScopeGuard closeEditors([] { Core::EditorManager::closeAllEditors(false); });
+    QString title = "McpCommandsTest Scratch";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, "unsaved scratch\ncontent");
+    QVERIFY(editor);
+    QVERIFY(editor->document()->filePath().isEmpty());
+    QCOMPARE(Core::EditorManager::currentEditor(), editor);
+
+    QString error;
+    const QJsonObject result = callTool("editor_get_text", {}, &error);
+    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QCOMPARE(result.value("reason").toString(), QString("ok"));
+    QVERIFY(result.value("path").toString().isEmpty());
+    QCOMPARE(result.value("display_name").toString(), editor->document()->displayName());
+    QCOMPARE(result.value("text").toString(), QString("unsaved scratch\ncontent"));
 }
 
 void McpCommandsTest::testClickItemContextMenuKeepsAMultiSelection()

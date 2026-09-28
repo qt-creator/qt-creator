@@ -4237,6 +4237,51 @@ void McpCommands::registerCommands()
 
     ToolRegistry::registerTool(
         Tool{}
+            .name("editor_get_text")
+            .title("Get the text of the current editor")
+            .description(
+                "Returns the text of the current text editor as the user sees it, including "
+                "unsaved changes. Optionally restrict to a line range via start_line/end_line "
+                "(1-based, inclusive). Also works for editors without a file path, such as diff "
+                "views or other temporary editors, which fs_read_text cannot read; \"path\" is "
+                "empty for those and \"display_name\" names the editor. Unlike editor_select_text "
+                "this leaves the cursor and selection alone. Read-only.")
+            .annotations(ToolAnnotations{}.readOnlyHint(true))
+            .inputSchema(
+                Tool::InputSchema{}
+                    .addProperty(
+                        "start_line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "First line to return, 1-based inclusive (optional)"}})
+                    .addProperty(
+                        "end_line",
+                        QJsonObject{
+                            {"type", "integer"},
+                            {"description", "Last line to return, 1-based inclusive (optional)"}}))
+            .outputSchema(Tool::OutputSchema{}
+                              .addProperty("path", QJsonObject{{"type", "string"}})
+                              .addProperty("display_name", QJsonObject{{"type", "string"}})
+                              .addProperty("text", QJsonObject{{"type", "string"}})
+                              .addProperty("reason", QJsonObject{{"type", "string"}})
+                              .addRequired("reason")),
+        wrap([](const QJsonObject &p) -> QJsonObject {
+            auto currentDoc = qobject_cast<Core::BaseTextDocument *>(Core::EditorManager::currentDocument());
+            if (!currentDoc)
+                return {{"reason", "no_text_editor"}, {"message", "No text editor is current."}};
+
+            const QString text = sliceLines(currentDoc->plainText(),
+                                            p.value("start_line").toInt(0),
+                                            p.value("end_line").toInt(0));
+            return {
+                {"reason", "ok"},
+                {"path", currentDoc->filePath().toUserOutput()},
+                {"display_name", currentDoc->displayName()},
+                {"text", text}};
+        }));
+
+    ToolRegistry::registerTool(
+        Tool{}
             .name("editor_get_completions")
             .title("Get code completions")
             .description(
