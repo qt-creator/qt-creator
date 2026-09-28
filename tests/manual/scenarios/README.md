@@ -38,7 +38,7 @@ so typed text is inserted rather than read as Vim commands. The `ui_*` tools
 the runner drives are opt-in on the MCP server, so the launch line enables
 them with `-mcp-enable-tools ui`, with or without preseeding. Pass
 `--no-preseed` for a pristine configuration (default settings, all
-plugins).
+plugins), apart from the `settings` and `load` the scenario itself names.
 
 A launched Creator gets a fresh MCP bearer token (`-mcp-token`). For an
 already running one, pass its token with `--token`, or set `QTC_MCP_TOKEN`.
@@ -129,6 +129,11 @@ Top level:
 - `intent` - one paragraph; appears as a blockquote in the tutorial.
 - `vars` - placeholders the steps use as `{name}` (see below).
 - `setup.open` - a file path to open first (supports `{scratch}`).
+- `load` - plugins a launched Creator loads in addition, for a scenario that
+  needs one which is off by default (such as `McuSupport`).
+- `settings` - settings groups a launched Creator starts with, as
+  `Group: {Key: value}` on top of the pre-seeded ones. A key given here
+  replaces the pre-seeded value. Values support vars.
 - `steps` - a list; each step has a `describe` (the tutorial sentence) plus
   exactly one action key.
 
@@ -162,6 +167,12 @@ Action keys mirror the MCP tool names. Each step has exactly one:
 | `run`               | Runs it. Dispatched, not awaited (see below). |
 | `wait_for_output`   | `text:` plus `pane:` (default Application Output) and `timeout:`; polls the pane until a line contains the text. Only what the dispatched run itself wrote counts. |
 | `remove`            | A path to remove recursively, so a scenario can start from nothing. Removing what is not there succeeds. |
+| `clear_breakpoints` | `true`; deletes all breakpoints, so a run does not depend on what an earlier one left. |
+| `breakpoint`        | `file:` and `line:`; sets a breakpoint there. |
+| `debug`             | Starts debugging the startup project, `{}` or `debugger_start` arguments. Dispatched, a `wait_for_stop` follows. |
+| `wait_for_stop`     | Waits until the debugger is paused, optionally at `line:` and in a `file:` whose path ends with the given one; `timeout:` seconds (default 60). On a timeout the report includes the end of the Application Output. |
+| `debug_step`        | `over`, `in` or `out`, or `{kind:, line:, timeout:}`; steps and waits for the stop that follows, optionally at `line:`. |
+| `locals`            | A list of names that must show up in the Locals view; the tutorial lists all locals with their values. `timeout:` seconds (default 15). |
 
 `{scratch}` in any string expands to a fresh per-run temporary directory, so a
 run never depends on the developer's home state.

@@ -18,6 +18,19 @@
             "description": "Placeholders the scenario's strings use as {name}, so a machine-specific path or kit name stays out of the file. Overridden per run with --set name=value. A value may itself use {scratch}.",
             "additionalProperties": { "type": ["string", "number", "boolean"] }
         },
+        "load": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Plugins a launched Creator loads in addition to the default ones, for a scenario that needs a plugin which is off by default. Added to --load."
+        },
+        "settings": {
+            "type": "object",
+            "description": "Settings groups a launched Creator starts with, as group: {key: value}, on top of the pre-seeded ones. A key given here replaces the pre-seeded value. Values support vars.",
+            "additionalProperties": {
+                "type": "object",
+                "additionalProperties": { "type": ["string", "number", "boolean"] }
+            }
+        },
         "setup": {
             "type": "object",
             "additionalProperties": false,
@@ -453,6 +466,113 @@
                                     }
                                 }
                             ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "clear_breakpoints"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "clear_breakpoints": {
+                            "type": "boolean",
+                            "description": "Deletes all breakpoints, so a scenario does not depend on what an earlier run left."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "breakpoint"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "breakpoint": {
+                            "type": "object",
+                            "description": "Sets a breakpoint by file and line. Supports vars.",
+                            "required": ["file", "line"],
+                            "additionalProperties": false,
+                            "properties": {
+                                "file": { "type": "string" },
+                                "line": { "type": "integer" }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "debug"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "debug": {
+                            "type": "object",
+                            "description": "Starts debugging the startup project, with optional debugger_start arguments. Returns once the start is requested, so a wait_for_stop follows."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "wait_for_stop"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "wait_for_stop": {
+                            "type": "object",
+                            "description": "Waits until the debugger is paused, optionally at the given line and in a file whose path ends with the given one. Supports vars.",
+                            "additionalProperties": false,
+                            "properties": {
+                                "file": { "type": "string" },
+                                "line": { "type": "integer" },
+                                "timeout": { "type": "number", "description": "Seconds to wait. Default 60." }
+                            }
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "debug_step"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "debug_step": {
+                            "description": "Steps over, into or out of the current line and waits for the stop that follows, optionally at the given line.",
+                            "oneOf": [
+                                { "enum": ["over", "in", "out"] },
+                                {
+                                    "type": "object",
+                                    "required": ["kind"],
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "kind": { "enum": ["over", "in", "out"] },
+                                        "line": { "type": "integer" },
+                                        "timeout": { "type": "number", "description": "Seconds to wait. Default 60." }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "required": ["describe", "locals"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "describe": { "$ref": "#/definitions/describeField" },
+                        "caption": { "$ref": "#/definitions/captionField" },
+                        "locals": {
+                            "type": "array",
+                            "items": { "type": "string" },
+                            "description": "Names that must show up in the Locals view of the current frame. The tutorial lists all locals with their values."
+                        },
+                        "timeout": {
+                            "type": "number",
+                            "description": "Seconds to wait for the names. Default 15."
                         }
                     }
                 }

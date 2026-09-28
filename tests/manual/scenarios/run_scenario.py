@@ -56,10 +56,17 @@ FONT_CANDIDATES = [
 LAUNCH_NOLOAD = ["FakeVim"]
 
 
-def write_default_settings(settings_dir):
-    groups = {"General": {"SuppressedWarnings": "TakeUITour, LinkWithQtInstallation"}}
+def write_default_settings(settings_dir, extra=None, defaults=True):
+    """Write the pre-seeded settings, plus a scenario's own "settings" groups.
+    A key the scenario sets replaces the default one. Backslashes in values
+    are escaped, as the INI format reads them as escape characters."""
+    groups = ({"General": {"SuppressedWarnings": "TakeUITour, LinkWithQtInstallation"}}
+              if defaults else {})
+    for group, keys in (extra or {}).items():
+        groups.setdefault(group, {}).update(keys)
     text = "".join("[{}]\n{}\n".format(group, "".join(
-        "{}={}\n".format(k, v) for k, v in keys.items())) for group, keys in groups.items())
+        "{}={}\n".format(k, str(v).replace("\\", "\\\\")) for k, v in keys.items()))
+        for group, keys in groups.items())
     ini = Path(settings_dir) / "QtProject" / "QtCreator.ini"
     ini.parent.mkdir(parents=True, exist_ok=True)
     ini.write_text(text, encoding="utf-8")
@@ -614,6 +621,116 @@ class Runner:
                     note="Dispatched (the application keeps running; wait_for_output "
                          "observes it).")
 
+    def do_clear_breakpoints(self, step):
+        # Breakpoints outlive the project they were set in, so a rerun would
+        # show one row per earlier run.
+        r = self.call_or_fail("debugger_get_breakpoints", {}, step["describe"]) or {}
+        old = r.get("breakpoints", [])
+        for bp in old:
+            r = self.call_or_fail("debugger_delete_breakpoint", {"id": bp["id"]},
+                                  step["describe"]) or {}
+            if not r.get("success"):
+                raise ScenarioError("step {}: breakpoint {} was not deleted".format(
+                    self.step_no, bp["id"]))
+        self.record(step["describe"], "clear_breakpoints",
+                    note="Deleted {} breakpoint(s).".format(len(old)),
+                    tool="clear_breakpoints", check={"cleared": True})
+
+    def do_breakpoint(self, step):
+        spec = self.subst(step["breakpoint"])
+        args = {"type": "fileAndLine", "file": spec["file"], "line": int(spec["line"])}
+        r = self.call_or_fail("debugger_add_breakpoint", args, step["describe"]) or {}
+        if not r.get("success"):
+            raise ScenarioError("step {}: no breakpoint at {}:{}: {}".format(
+                self.step_no, spec["file"], spec["line"], r.get("error")))
+        self.record(step["describe"], "breakpoint " + json.dumps(args),
+                    note="Breakpoint {} at line {}.".format(r.get("id"), spec["line"]),
+                    tool="breakpoint", check={"line": args["line"]})
+
+    def debugger_status(self, describe):
+        return self.call_or_fail("debugger_get_status", {}, describe) or {}
+
+    def wait_until_stopped(self, spec, describe, moved_from=None):
+        """Poll until the debugger is paused with a known position, optionally
+        at the given line, or away from where a step started."""
+        timeout = float(spec.get("timeout", 60))
+        deadline = time.monotonic() + timeout
+        status = {}
+        while time.monotonic() < deadline:
+            time.sleep(0.1)
+            status = self.debugger_status(describe)
+            # The position is filled in one round trip after the state turns
+            # paused, so a stop without it is not the stop yet.
+            pos = status.get("current_position") if status.get("is_paused") else None
+            if pos and pos.get("line") is not None:
+                if moved_from is not None and pos == moved_from:
+                    continue
+                if "line" in spec and pos["line"] != int(spec["line"]):
+                    continue
+                if "file" in spec and not pos.get("file", "").endswith(spec["file"]):
+                    continue
+                return pos
+        # What the application printed usually says why it went elsewhere.
+        is_error, r, _ = self.client.call("ui_read_output_pane",
+                                          {"name": "Application Output", "max_lines": 20})
+        output = "" if is_error or not r else (r.get("text") or "")
+        raise ScenarioError("step {}: the debugger did not stop{} within {}s ({}){}".format(
+            self.step_no, " at line {}".format(spec["line"]) if "line" in spec else "",
+            timeout, json.dumps(status), "\nApplication Output:\n" + output if output else ""))
+
+    def record_stop(self, step, call_line, tool, pos):
+        where = "{}:{}".format(os.path.basename(pos.get("file", "?")), pos.get("line"))
+        self.record(step["describe"], call_line,
+                    note="Stopped at {} ({}).".format(where, pos.get("function", "")),
+                    tool=tool, check={"file": os.path.basename(pos.get("file", "")),
+                                      "line": pos.get("line")})
+
+    def do_debug(self, step):
+        args = self.subst(step["debug"]) if isinstance(step["debug"], dict) else {}
+        # debugger_start returns once the launch is requested, and a later
+        # wait_for_stop observes the session.
+        self.call_or_fail("debugger_start", args, step["describe"])
+        self.record(step["describe"], "debug " + json.dumps(args), tool="debug",
+                    check={"started": True}, note="The debug session is starting.")
+
+    def do_wait_for_stop(self, step):
+        spec = self.subst(step["wait_for_stop"]) if isinstance(step["wait_for_stop"], dict) else {}
+        pos = self.wait_until_stopped(spec, step["describe"])
+        self.record_stop(step, "wait_for_stop " + json.dumps(spec), "wait_for_stop", pos)
+
+    def do_debug_step(self, step):
+        spec = step["debug_step"]
+        if isinstance(spec, str):
+            spec = {"kind": spec}
+        kind = spec.get("kind", "over")
+        before = (self.debugger_status(step["describe"]) or {}).get("current_position")
+        self.call_or_fail("debugger_step_" + kind, {}, step["describe"])
+        pos = self.wait_until_stopped(spec, step["describe"], moved_from=before)
+        self.record_stop(step, "debug_step " + json.dumps(spec), "debug_step", pos)
+
+    def do_locals(self, step):
+        wanted = step["locals"] or []
+        timeout = float(step.get("timeout", 15))
+        deadline = time.monotonic() + timeout
+        found = {}
+        # The server waits for the locals of the current stop, so a reply is
+        # never stale. Poll only until every wanted name is there.
+        while True:
+            remaining_ms = max(int((deadline - time.monotonic()) * 1000), 0)
+            r = self.call_or_fail("debugger_get_variables", {"timeout_ms": remaining_ms},
+                                  step["describe"]) or {}
+            found = {v.get("name"): v.get("value") for v in r.get("variables", [])}
+            if all(name in found for name in wanted) or time.monotonic() >= deadline:
+                break
+            time.sleep(0.1)
+        missing = [name for name in wanted if name not in found]
+        if missing:
+            raise ScenarioError("step {}: no local {} (have {})".format(
+                self.step_no, ", ".join(missing), json.dumps(found)))
+        self.record(step["describe"], "locals " + json.dumps(wanted),
+                    note=", ".join("{} = {}".format(k, v) for k, v in found.items()),
+                    tool="locals", check={"names": sorted(wanted)})
+
     def do_click(self, step):
         query = self.subst(step["click_widget"])
         self.point_at(query)
@@ -851,6 +968,18 @@ class Runner:
                 self.do_run(step)
             elif "remove" in step:
                 self.do_remove(step)
+            elif "clear_breakpoints" in step:
+                self.do_clear_breakpoints(step)
+            elif "breakpoint" in step:
+                self.do_breakpoint(step)
+            elif "debug" in step:
+                self.do_debug(step)
+            elif "wait_for_stop" in step:
+                self.do_wait_for_stop(step)
+            elif "debug_step" in step:
+                self.do_debug_step(step)
+            elif "locals" in step:
+                self.do_locals(step)
             elif "expect" in step:
                 self.do_expect(step, True)
             elif "expect_gone" in step:
@@ -1019,13 +1148,23 @@ def main():
         settings = scratch / "settings"
         settings.mkdir()
         launch = [args.qtcreator, "-settingspath", str(settings)]
+        def expand(value):
+            value = str(value)
+            for var, replacement in variables.items():
+                value = value.replace("{" + var + "}", replacement)
+            return value
+        # The scenario's own settings are part of the scenario, not of the
+        # runner's pre-seeding.
+        write_default_settings(settings, {
+            group: {k: expand(v) for k, v in keys.items()}
+            for group, keys in (scenario.get("settings") or {}).items()},
+            defaults=not args.no_preseed)
         if not args.no_preseed:
-            write_default_settings(settings)
             for plugin in LAUNCH_NOLOAD:
                 launch += ["-noload", plugin]
         for plugin in args.noload:
             launch += ["-noload", plugin]
-        for plugin in args.load:
+        for plugin in (scenario.get("load") or []) + args.load:
             launch += ["-load", plugin]
         # McpServer is loaded last so it survives a user "-noload all".
         args.token = secrets.token_hex(16)

@@ -1,0 +1,309 @@
+# yaml-language-server: $schema=./scenario.schema.json
+name: Debug the QML of a Qt for MCUs application
+intent: >
+  The Qt for MCUs debugging story on the desktop platform: a new application
+  from the QmlProject wizard, a few lines of QML with some logic in a Timer
+  handler, debug line directives switched on in the project file, a build, a
+  breakpoint in the .qml file, and a debug session that stops there, steps
+  one line and shows the handler's locals. qmltocpp compiles the QML
+  to C++, and the #line directives it writes then are what map the generated
+  code back to the .qml lines, so gdb stops in the QML source.
+  It needs a Qt for MCUs installation whose qmltocpp writes absolute #line
+  paths, given as qul_sdk, and loads the McuSupport plugin, which is off by
+  default. The kit comes from McuSupport's automatic kit creation.
+
+vars:
+  qul_sdk: /data/dev/qul-install-2025-base
+  workspace: "{scratch}"
+  project: blinky
+  kit: Qt for MCUs 2.11 - Desktop 32bpp (GCC)
+
+load:
+  - McuSupport
+
+settings:
+  General:
+    SuppressedWarnings: TakeUITour, LinkWithQtInstallation, SetupMcuSupportKits, ErrorWhileCreatingMCUKits
+  McuSupport:
+    Package_QtForMCUsSdk: "{qul_sdk}"
+    AutomaticKitCreation: "true"
+  DebugMode:
+    ShowUnsupportedBreakpointWarning: "false"
+
+steps:
+  - describe: Close whatever a previous run left open
+    call_action: ProjectExplorer.ClearSession
+    optional: true
+
+  - describe: Start without breakpoints from an earlier run
+    clear_breakpoints: true
+
+  - describe: Start from a project directory that does not exist yet
+    remove: "{workspace}/{project}"
+
+  - describe: Open the New Project dialog
+    caption: File > New Project
+    call_action: QtCreator.New
+
+  - describe: Wait for the template list
+    wait_for:
+      object_name: templateCategoryView
+
+  - describe: Pick the Qt for MCUs templates
+    click_item:
+      object_name: templateCategoryView
+      item: "Projects /   Application (Qt for MCUs)"
+
+  - describe: Pick the QmlProject example application
+    click_item:
+      object_name: templatesView
+      item: Example Application (QmlProject)
+
+  - describe: Start the wizard
+    click_widget:
+      text: Choose...
+      window_title: New Project
+
+  - describe: Wait for the location page
+    wait_for:
+      object_name: nameLineEdit
+
+  - describe: Select the suggested name
+    press_keys:
+      keys: Ctrl+A
+      object_name: nameLineEdit
+
+  - describe: Name the project
+    type_text:
+      object_name: nameLineEdit
+      input: "{project}"
+
+  - describe: Select the suggested location
+    press_keys:
+      keys: Ctrl+A
+      object_name: LineEdit
+      window_title: Example Application (QmlProject)
+
+  - describe: Say where it goes
+    type_text:
+      object_name: LineEdit
+      window_title: Example Application (QmlProject)
+      input: "{workspace}"
+
+  - describe: On to the kit selection
+    click_widget:
+      text: Next >
+
+  - describe: Take the Qt for MCUs kit
+    click_widget:
+      text: Next >
+
+  - describe: Create the project
+    click_widget:
+      text: Finish
+
+  - describe: Wait for the generated sources
+    wait_for:
+      class_name: TextEditor::TextEditorWidget
+    timeout: 60
+
+  - describe: Build and debug with the desktop Qt for MCUs kit
+    use_kit: "{kit}"
+
+  - describe: Open the project file
+    open: "{workspace}/{project}/qmlproject/{project}.qmlproject"
+
+  - describe: Find the debug line directives switch
+    select_text:
+      start_line: 13
+      start_column: 30
+      end_line: 13
+      end_column: 35
+      expect: "false"
+
+  - describe: Let qmltocpp map the generated C++ back to the QML lines
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "true"
+
+  - describe: Open the main QML file
+    open: "{workspace}/{project}/qmlproject/{project}.qml"
+
+  - describe: Put the caret behind the button
+    select_text:
+      start_line: 21
+      end_line: 21
+      expect: "    }"
+
+  - describe: Keep the line
+    press_keys:
+      keys: End
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: Leave a blank line
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: A counter for the timer to drive, on a line of its own
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "property int counter: 0"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "property int counter: 0"
+
+  - describe: A timer, on a line of its own
+    # The editor closes a brace block itself when Return follows the "{", so
+    # neither the timer nor its handler needs a typed "}".
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "Timer {"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "Timer {"
+
+  - describe: Next line
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "interval: 200"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "interval: 200"
+
+  - describe: Next line
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "running: true"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "running: true"
+
+  - describe: Next line
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "repeat: true"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "repeat: true"
+
+  - describe: A handler with some logic to step through, on a line of its own
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "onTriggered: {"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "onTriggered: {"
+
+  - describe: Next line
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "var step = 2"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "var step = 2"
+
+  - describe: Next line
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "counter = counter + step"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "counter = counter + step"
+
+  - describe: Next line
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "if (counter > 10)"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "if (counter > 10)"
+
+  - describe: Next line
+    press_keys:
+      keys: Return
+      class_name: TextEditor::TextEditorWidget
+
+  - describe: 'Type "counter = 0"'
+    type_text:
+      class_name: TextEditor::TextEditorWidget
+      input: "counter = 0"
+
+  - describe: Save the files
+    call_action: QtCreator.SaveAll
+
+  - describe: Show the Compile Output
+    call_action: QtCreator.Pane.CompileOutput
+
+  - describe: Build the project
+    # qmltocpp turns the QML into C++, which the desktop GCC then compiles.
+    build:
+      timeout: 600
+
+  - describe: Capture the build result
+    screenshot:
+
+  - describe: Put the caret on the line that changes the counter
+    select_text:
+      start_line: 30
+      end_line: 30
+      expect: "            counter = counter + step"
+
+  - describe: Set a breakpoint on it
+    caption: Debug > Toggle Breakpoint (F9)
+    breakpoint:
+      file: "{workspace}/{project}/qmlproject/{project}.qml"
+      line: 30
+
+  - describe: Start debugging
+    caption: Debug > Start Debugging (F5)
+    debug: {}
+
+  - describe: Wait for the stop in the QML handler
+    # The first timer tick hits it, 200 ms after the application came up.
+    wait_for_stop:
+      file: "{project}.qml"
+      line: 30
+      timeout: 120
+
+  - describe: Show the handler's locals
+    # qmltocpp compiles the handler to register style C++, and the Locals
+    # view shows those registers: r2 holds step here.
+    caption: The Locals view, r2 holds step
+    locals:
+      - r2
+
+  - describe: Capture the stop in the QML source
+    screenshot:
+
+  - describe: Step over the assignment
+    caption: Debug > Step Over (F10)
+    debug_step:
+      kind: over
+      line: 31
+
+  - describe: Show the locals after the step
+    caption: The registers after the step
+    locals:
+      - r2
+
+  - describe: Capture the next line
+    screenshot:
