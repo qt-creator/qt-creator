@@ -321,6 +321,20 @@ endfunction()
         mylib.cpp mylib.h
     )
 #]=]
+
+# Qt Creator's generated headers and unity-style translation units routinely
+# hold more sections than the object format takes by default, which MSVC and
+# MinGW's assembler both reject with a fatal error. Every library, plugin,
+# and test built through this file needs the higher limit, so it is set here
+# once instead of per target.
+function(qtc_enable_bigobj target)
+  if (MSVC)
+    target_compile_options(${target} PRIVATE /bigobj)
+  elseif (MINGW)
+    target_compile_options(${target} PRIVATE "-Wa,-mbig-obj")
+  endif()
+endfunction()
+
 function(add_qtc_library name)
   set(opt_args
     STATIC
@@ -419,6 +433,7 @@ function(add_qtc_library name)
 
   add_library(${name} ${library_type})
   add_library(QtCreator::${name} ALIAS ${name})
+  qtc_enable_bigobj(${name})
 
   if (${name} MATCHES "^[^0-9-]+$")
     if (QTC_STATIC_BUILD)
@@ -1032,6 +1047,7 @@ function(add_qtc_plugin target_name)
 
   add_library(${target_name} ${library_type} ${_arg_SOURCES})
   add_library(QtCreator::${target_name} ALIAS ${target_name})
+  qtc_enable_bigobj(${target_name})
 
   set_public_headers(${target_name} "${_arg_SOURCES}")
   update_resource_files_list("${_arg_SOURCES}")
@@ -1878,6 +1894,7 @@ function(add_qtc_test name)
   file(RELATIVE_PATH _RPATH "/${IDE_BIN_PATH}" "/${IDE_LIBRARY_PATH}")
 
   add_executable(${name} ${_arg_SOURCES})
+  qtc_enable_bigobj(${name})
 
   extend_qtc_target(${name}
     DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
