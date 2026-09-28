@@ -82,6 +82,15 @@ void SamplerSettings::setTargetChosenElsewhere(bool chosen)
     emit targetSelectionChanged();
 }
 
+void SamplerSettings::setOptionsChosenElsewhere(bool chosen)
+{
+    if (m_optionsChosenElsewhere == chosen)
+        return;
+    m_optionsChosenElsewhere = chosen;
+    updateOptionsEnabled();
+    emit optionsSelectionChanged();
+}
+
 void SamplerSettings::fillOptions(RecordingSession &) const
 {
     // Backends with options of their own -- a cadence, a feature set -- override
@@ -95,6 +104,8 @@ void SamplerSettings::updateTargetEnabled()
     arguments.setEnabled(enabled);
     workingDirectory.setEnabled(enabled);
 }
+
+void SamplerSettings::updateOptionsEnabled() {}
 
 Result<> SamplerSettings::fillLaunch(RecordingSession &session) const
 {

@@ -23,6 +23,7 @@
 #include <QtTaskTree/QBarrier>
 
 #include <QDebug>
+#include <QGroupBox>
 
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
@@ -73,15 +74,20 @@ QmlProfilerSamplerSettings::QmlProfilerSamplerSettings()
         for (BoolAspect *aspect : std::as_const(featureAspects))
             features.addItem(*aspect);
 
-        return Column {
+        QGroupBox *record = nullptr;
+        Column column {
             connectToServer,
             Row { host, port, st },
             executable,
             arguments,
             workingDirectory,
-            Layouting::Group { title(Tr::tr("Record")), Column { features } },
+            Layouting::Group { bindTo(&record), title(Tr::tr("Record")), Column { features } },
             noMargin,
         };
+        const auto updateRecord = [this, record] { record->setEnabled(!optionsChosenElsewhere()); };
+        updateRecord();
+        connect(this, &SamplerSettings::optionsSelectionChanged, record, updateRecord);
+        return column;
     });
 }
 

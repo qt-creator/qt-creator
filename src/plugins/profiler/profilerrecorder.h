@@ -66,6 +66,9 @@ public:
     // settings -- a run configuration, say. The settings that pick a target then
     // go read-only, leaving the rest of a backend's options alone.
     void setTargetChosenElsewhere(bool chosen);
+    // Whether the backends' own options come from somewhere else as well, which
+    // makes those read-only too.
+    void setOptionsChosenElsewhere(bool chosen);
 
     // The backend with this id among those offered here, or null.
     Sampler *backendById(Utils::Id id) const;

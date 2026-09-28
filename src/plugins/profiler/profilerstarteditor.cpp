@@ -10,6 +10,7 @@
 #include "profilertraceeditor.h"
 #include "qmlprofilerconstants.h"
 #include "recordingpage.h"
+#include "sampler.h"
 #include "welcomepage.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -20,8 +21,12 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/idocument.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
@@ -44,6 +49,29 @@ namespace Profiler::Internal {
 // What a recording runs against. The startup project is what the run button
 // would run; the other is an executable the user points the backend at.
 enum Target { StartupProject, ChosenExecutable };
+
+// The samplers' run workers record on the desktop only. Devices provide run
+// workers for the live profilers' run modes, so a backend that has one of
+// those can still record a target on a device through it.
+static Id liveRunModeFor(Id backendId)
+{
+    if (backendId == SamplerIds::Qml)
+        return ProjectExplorer::Constants::QML_PROFILER_RUN_MODE;
+    if (backendId == SamplerIds::Perf)
+        return ProjectExplorer::Constants::PERFPROFILER_RUN_MODE;
+    return {};
+}
+
+// Whether the startup project's device has a run worker for `runMode`. Unlike
+// ProjectExplorerPlugin::canRunStartupProject() this does not change while a
+// run is being started or a build is going on.
+static bool deviceSupports(Id runMode)
+{
+    RunConfiguration *runConfig = activeRunConfigForActiveProject();
+    return runConfig
+           && RunControl::canRun(runMode, RunDeviceTypeKitAspect::deviceTypeId(runConfig->kit()),
+                                 runConfig->id(), runConfig->executionType());
+}
 
 // The page that starts a run, and the progress of one that is running. They
 // share a widget because a recording begins on the first and continues on the
@@ -127,12 +155,30 @@ public:
     }
 
 private:
+    Id currentBackendId() const
+    {
+        const int backend = profilerRecorder()->currentBackend();
+        return backend >= 0 && backend < m_backendIds.size() ? m_backendIds[backend] : Id();
+    }
+
+    QString currentBackendName() const
+    {
+        const QStringList names = profilerRecorder()->backendNames();
+        const int backend = profilerRecorder()->currentBackend();
+        return backend >= 0 && backend < names.size() ? names[backend] : QString();
+    }
+
     // The run mode that records the startup project with the selected backend.
     Id currentRunMode() const
     {
-        const int backend = profilerRecorder()->currentBackend();
-        return backend >= 0 && backend < m_backendIds.size() ? samplerRunMode(m_backendIds[backend])
-                                                             : Id();
+        const Id backendId = currentBackendId();
+        if (!backendId.isValid())
+            return {};
+        const Id samplerMode = samplerRunMode(backendId);
+        const Id liveMode = liveRunModeFor(backendId);
+        if (liveMode.isValid() && !deviceSupports(samplerMode) && deviceSupports(liveMode))
+            return liveMode;
+        return samplerMode;
     }
 
     // Describes what the current backend and target would profile, and whether
@@ -141,20 +187,44 @@ private:
     {
         // The settings that pick a target are the user's to edit only when the
         // target is theirs to choose; the backend's own options -- a sampling
-        // interval, the features to record -- apply either way and stay.
+        // interval, the features to record -- apply either way and stay, unless
+        // a live profiler records the target instead (see below).
         profilerRecorder()->setTargetChosenElsewhere(m_target == StartupProject);
-        QWidget *config = profilerRecorder()->createConfigWidget();
 
         if (m_target == ChosenExecutable) {
-            m_welcomePage->setActiveBackend(config);
+            profilerRecorder()->setOptionsChosenElsewhere(false);
+            m_welcomePage->setActiveBackend(profilerRecorder()->createConfigWidget());
             m_welcomePage->setStartEnabled(true);
             return;
         }
 
         // The run control brings the kit and its device along, so it is that
         // which decides whether the project can be profiled this way.
-        const Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(currentRunMode());
+        const Id backendId = currentBackendId();
+        const Id runMode = currentRunMode();
+        Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(runMode);
         RunConfiguration *runConfig = activeRunConfigForActiveProject();
+
+        // The run machinery only says that it cannot run the project, not that
+        // it is the device that the backend cannot record on.
+        if (!canRun && runConfig
+            && RunDeviceTypeKitAspect::deviceTypeId(runConfig->kit())
+                   != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
+            && !deviceSupports(runMode)) {
+            canRun = ResultError(
+                liveRunModeFor(backendId).isValid()
+                    ? Tr::tr("\"%1\" cannot record applications on the device of the "
+                             "kit \"%2\".")
+                          .arg(currentBackendName(), runConfig->kit()->displayName())
+                    : Tr::tr("\"%1\" records only applications that run on the desktop.")
+                          .arg(currentBackendName()));
+        }
+
+        // The live profilers that record on a device have settings of their
+        // own and would ignore the backend's.
+        const bool live = runMode.isValid() && runMode == liveRunModeFor(backendId);
+        profilerRecorder()->setOptionsChosenElsewhere(live);
+        QWidget *config = profilerRecorder()->createConfigWidget();
 
         auto description = new InfoLabel;
         description->setElideMode(Qt::ElideNone);
