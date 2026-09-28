@@ -3,4 +3,18 @@
 
 #pragma once
 
-namespace Zephyr::Internal { void setupZephyrDebug(); }
+#include <QtGlobal>
+
+QT_BEGIN_NAMESPACE
+class QObject;
+QT_END_NAMESPACE
+
+namespace Zephyr::Internal {
+
+void setupZephyrDebug();
+
+#ifdef WITH_TESTS
+QObject *createZephyrRunnerConfigTest();
+#endif
+
+} // namespace Zephyr::Internal

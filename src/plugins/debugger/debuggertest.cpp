@@ -177,6 +177,7 @@ private slots:
     void testJavaOnlyEnablesNoOtherDebugger();
     void testAutomaticDebugsAJavaLaunchAsJava();
     void testNativeMixedEnvironmentVariableWins();
+    void testOverrideKitDebugger();
     void testCombinedEngineNeedsNoQmlChannel();
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
@@ -2772,6 +2773,48 @@ void DebuggerUnitTests::testAutomaticDebugsAJavaLaunchAsJava()
     // Attaching to the process of the virtual machine stays native debugging.
     QVERIFY(!fixedUp("/nonexistent/java", AttachToLocalProcess).isJavaDebugging());
     QVERIFY(!fixedUp("/nonexistent/javac", NoStartMode).isJavaDebugging());
+}
+
+void DebuggerUnitTests::testOverrideKitDebugger()
+{
+    const auto setOverride = [](const QString &value, EnvironmentItem::Operation operation) {
+        Environment::modifySystemEnvironment(
+            {EnvironmentItem("QTC_DEBUGGER_PATH", value, operation)});
+    };
+
+    const bool wasSet = qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PATH");
+    const QString oldValue = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
+    const QScopeGuard restore([&] {
+        setOverride(oldValue, wasSet ? EnvironmentItem::SetEnabled : EnvironmentItem::Unset);
+    });
+    setOverride({}, EnvironmentItem::Unset);
+
+    // What fromRunControl() leaves for a kit without a debugger.
+    const auto kitWithoutDebugger = [] {
+        DebuggerRunParameters rp;
+        rp.m_validationErrors.append("The kit does not have a debugger set.");
+        rp.m_version = "kit's version";
+        return rp;
+    };
+
+    DebuggerRunParameters rp = kitWithoutDebugger();
+    rp.overrideKitDebugger("/sdk/gdb", GdbEngineType);
+    QCOMPARE(rp.debugger().command.executable(), FilePath("/sdk/gdb"));
+    QCOMPARE(rp.debugger().environment.value("LC_NUMERIC"), QString("C"));
+    QCOMPARE(rp.cppEngineType(), GdbEngineType);
+    QVERIFY(rp.version().isEmpty());
+    QVERIFY(rp.m_validationErrors.isEmpty());
+
+    // The run configuration does not debug C++.
+    rp = kitWithoutDebugger();
+    rp.m_cppDebuggingRequested = false;
+    rp.overrideKitDebugger("/sdk/gdb", GdbEngineType);
+    QCOMPARE(rp.cppEngineType(), NoEngineType);
+
+    setOverride("/usr/bin/my-gdb", EnvironmentItem::SetEnabled);
+    rp = kitWithoutDebugger();
+    rp.overrideKitDebugger("/sdk/gdb", GdbEngineType);
+    QCOMPARE(rp.debugger().command.executable(), FilePath("/usr/bin/my-gdb"));
 }
 
 void DebuggerUnitTests::testNativeMixedEnvironmentVariableWins()

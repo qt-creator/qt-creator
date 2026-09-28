@@ -45,6 +45,8 @@ class ProcessResultData;
 
 namespace Debugger {
 
+namespace Internal { class DebuggerUnitTests; }
+
 enum DebuggerState
 {
     DebuggerNotReady,          // Debugger not started
@@ -216,6 +218,7 @@ public:
     }
     void setDebugger(const Utils::ProcessRunData &runnable) { m_debugger = runnable; }
     Utils::ProcessRunData debugger() const { return m_debugger; }
+    void overrideKitDebugger(const Utils::FilePath &command, DebuggerEngineType engineType);
 
     // Directory of the qtcreatorcdbext.dll arch subdirs on a remote Windows device. Empty for
     // local CDB, where the extension shipped next to Qt Creator is used instead.
@@ -308,6 +311,8 @@ public:
     Utils::FilePath findOnDebuggerDevice(const QString &debuggerOutput) const;
 
 private:
+    friend class Internal::DebuggerUnitTests;
+
     Utils::FilePath mapToDebuggerDevice(const QString &debuggerOutput) const;
 
     // Looking a file up costs a stat, on the debugger's device even a round
@@ -371,6 +376,7 @@ private:
     DebuggerStartMode m_startMode = NoStartMode;
     DebuggerCloseMode m_closeMode = KillAtClose;
     DebuggerEngineType m_cppEngineType = NoEngineType;
+    bool m_cppDebuggingRequested = true;
     std::optional<Internal::DapStartData> m_dapAdapter;
     int m_testCase = 0; // For Debugger testing.
     int m_qtVersion = 0;

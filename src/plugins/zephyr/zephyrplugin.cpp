@@ -25,6 +25,7 @@ public:
 
 #ifdef WITH_TESTS
         addTestCreator(createZephyrCompileDatabaseTest);
+        addTestCreator(createZephyrRunnerConfigTest);
 #endif
     }
 };

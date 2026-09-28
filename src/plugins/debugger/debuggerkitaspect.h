@@ -32,6 +32,7 @@ public:
     static ConfigurationErrors configurationErrors(const ProjectExplorer::Kit *k);
     static DebuggerItem debugger(const ProjectExplorer::Kit *kit);
     static Utils::ProcessRunData runnable(const ProjectExplorer::Kit *kit);
+    static Utils::ProcessRunData commandRunnable(const Utils::FilePath &command);
     static void setDebugger(ProjectExplorer::Kit *k, const QVariant &id);
     static DebuggerEngineType engineType(const ProjectExplorer::Kit *k);
     static QString displayString(const ProjectExplorer::Kit *k);

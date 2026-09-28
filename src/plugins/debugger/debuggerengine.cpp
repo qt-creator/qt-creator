@@ -178,6 +178,13 @@ static QString qtNamespaceFromBinary(const FilePath &binary)
 
 } // namespace Internal
 
+static void applyDebuggerPathOverride(ProcessRunData &debugger)
+{
+    const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
+    if (!envBinary.isEmpty())
+        debugger.command.setExecutable(FilePath::fromString(envBinary));
+}
+
 DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runControl)
 {
     Kit *kit = runControl->kit();
@@ -200,8 +207,11 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
     params.setSysRoot(SysRootKitAspect::sysRoot(kit));
     params.m_macroExpander = runControl->macroExpander();
     params.m_debugger = DebuggerKitAspect::runnable(kit);
-    params.m_cppEngineType = DebuggerKitAspect::engineType(kit);
-    params.m_version = DebuggerKitAspect::version(kit);
+    const DebuggerItem debuggerItem = DebuggerKitAspect::debugger(kit);
+    if (debuggerItem) {
+        params.m_cppEngineType = debuggerItem.engineType();
+        params.m_version = debuggerItem.version();
+    }
 
     if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         params.m_qtSourceLocation = qtVersion->sourcePath();
@@ -210,6 +220,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
     if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger)
             params.m_cppEngineType = NoEngineType;
+        params.m_cppDebuggingRequested = aspect->useCppDebugger;
         params.m_isQmlDebugging = aspect->useQmlDebugger;
         useCombinedEngine = aspect->useCombinedEngine;
         params.m_isPythonDebugging = aspect->usePythonDebugger;
@@ -219,7 +230,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
         params.m_additionalStartupCommands = aspect->overrideStartup;
 
         if (aspect->useCppDebugger) {
-            if (DebuggerKitAspect::debugger(kit)) {
+            if (debuggerItem) {
                 const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
                 for (const Task &t : tasks) {
                     if (!t.isWarning())
@@ -236,9 +247,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
     inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
     params.setInferior(inferior);
 
-    const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
-    if (!envBinary.isEmpty())
-        params.m_debugger.command.setExecutable(FilePath::fromString(envBinary));
+    applyDebuggerPathOverride(params.m_debugger);
 
     if (BuildConfiguration *buildConfig = runControl->buildConfiguration())
         params.m_buildDirectory = buildConfig->buildDirectory();
@@ -266,6 +275,19 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
     }
 
     return params;
+}
+
+// For a debugger the caller found itself, so what is wrong with the kit's does not matter.
+// QTC_DEBUGGER_PATH still wins, as it does over the kit's.
+void DebuggerRunParameters::overrideKitDebugger(const FilePath &command,
+                                                DebuggerEngineType engineType)
+{
+    m_debugger = DebuggerKitAspect::commandRunnable(command);
+    applyDebuggerPathOverride(m_debugger);
+    if (m_cppDebuggingRequested)
+        m_cppEngineType = engineType;
+    m_version.clear();
+    m_validationErrors.clear();
 }
 
 static bool breakOnMainNextTime = false;

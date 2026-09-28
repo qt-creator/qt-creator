@@ -179,11 +179,18 @@ ProcessRunData DebuggerKitAspect::runnable(const Kit *kit)
             if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit))
                 cmd = buildDevice->searchExecutableInPath(cmd.path());
         }
-        runnable.command.setExecutable(cmd);
+        runnable = commandRunnable(cmd);
         runnable.workingDirectory = item.workingDirectory();
-        runnable.environment = cmd.deviceEnvironment();
-        runnable.environment.set("LC_NUMERIC", "C");
     }
+    return runnable;
+}
+
+ProcessRunData DebuggerKitAspect::commandRunnable(const FilePath &command)
+{
+    ProcessRunData runnable;
+    runnable.command.setExecutable(command);
+    runnable.environment = command.deviceEnvironment();
+    runnable.environment.set("LC_NUMERIC", "C");
     return runnable;
 }
 
