@@ -6,10 +6,14 @@
 #include "mcusupportconstants.h"
 #include "mcusupporttr.h"
 
+#include <baremetal/baremetaldebugsupport.h>
+
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
 #include <cmakeprojectmanager/cmakekitaspect.h>
@@ -21,6 +25,14 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace McuSupport::Internal {
+
+class FlashAndRunParametersAspect final : public StringAspect
+{
+    Q_OBJECT
+
+public:
+    using StringAspect::StringAspect;
+};
 
 static QStringList flashAndRunArgs(const RunConfiguration *rc)
 {
@@ -43,7 +55,15 @@ public:
         flashAndRunParameters.setDisplayStyle(StringAspect::TextEditDisplay);
         flashAndRunParameters.setSettingsKey("FlashAndRunConfiguration.Parameters");
 
-        setUpdater([this] { flashAndRunParameters.setValue(flashAndRunArgs(this).join(' ')); });
+        executable.setLabelText(Tr::tr("Executable to debug:"));
+        executable.setPlaceHolderText(Tr::tr("Unknown"));
+
+        debugServerProvider.setSettingsKey("FlashAndRunConfiguration.DebugServerProvider");
+
+        setUpdater([this] {
+            flashAndRunParameters.setValue(flashAndRunArgs(this).join(' '));
+            executable.setExecutable(buildTargetInfo().targetFilePath);
+        });
         update();
         connect(project(), &Project::displayNameChanged, this, &RunConfiguration::update);
     }
@@ -57,7 +77,9 @@ public:
     }
 
     static bool disabled;
-    StringAspect flashAndRunParameters{this};
+    FlashAndRunParametersAspect flashAndRunParameters{this};
+    ExecutableAspect executable{this};
+    BareMetal::DebugServerProviderAspect debugServerProvider{this};
 };
 
 bool FlashAndRunConfiguration::disabled = false;
@@ -77,7 +99,7 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
         const auto modifier = [runControl](Process &process) {
             process.setCommand({
                 CMakeProjectManager::CMakeKitAspect::cmakeExecutable(runControl->kit()),
-                runControl->aspectData<StringAspect>()->value,
+                runControl->aspectData<FlashAndRunParametersAspect>()->value,
                 CommandLine::Raw});
             const BuildConfiguration *bc = runControl->buildConfiguration();
             process.setWorkingDirectory(bc->buildDirectory());
@@ -98,4 +120,31 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
     addSupportedRunConfig(Constants::RUNCONFIGURATION);
 }
 
+class McuDebugWorkerFactory final : public RunWorkerFactory
+{
+public:
+    McuDebugWorkerFactory()
+    {
+        setId("McuDebugWorkerFactory");
+        setRecipeProducer([](RunControl *runControl) {
+            const auto provider = runControl->aspectData<BareMetal::DebugServerProviderAspect>();
+            if (!provider || provider->value.isEmpty()) {
+                return runControl->errorTask(
+                    Tr::tr("Cannot debug: No debug server provider is selected in the run "
+                           "configuration."));
+            }
+            return BareMetal::debugServerRecipe(runControl, provider->value);
+        });
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedRunConfig(Constants::RUNCONFIGURATION);
+    }
+};
+
+void setupMcuDebugSupport()
+{
+    static McuDebugWorkerFactory theMcuDebugWorkerFactory;
+}
+
 } // McuSupport::Internal
+
+#include "mcusupportrunconfiguration.moc"

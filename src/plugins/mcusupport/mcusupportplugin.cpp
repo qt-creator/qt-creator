@@ -189,6 +189,8 @@ void McuSupportPlugin::initialize()
     setObjectName("McuSupportPlugin");
     dd = new McuSupportPluginPrivate;
 
+    setupMcuDebugSupport();
+
     connect(ProjectManager::instance(),
             &ProjectManager::projectFinishedParsing,
             updateMCUProjectTree);
