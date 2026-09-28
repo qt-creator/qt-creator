@@ -13,10 +13,6 @@ the public Git repository or view online at
 New plugins
 -----------
 
-### Zephyr
-
-Adds support for [Zephyr RTOS](https://www.zephyrproject.org/) and West.
-
 ### HarmonyOS
 
 Adds support for [HarmonyOS](https://consumer.huawei.com/en/harmonyos/).
@@ -66,6 +62,12 @@ Fixed
 * That `file://` links in the application output were not opened
   ([QTCREATORBUG-34870](https://bugreports.qt.io/browse/QTCREATORBUG-34870))
 * That nested macros could recurse endlessly
+* That the `Show keyboard shortcuts in context menus` setting was not applied
+  at startup
+  ([QTCREATORBUG-35019](https://bugreports.qt.io/browse/QTCREATORBUG-35019))
+* That failures were not reported when extracting archives; for example,
+  when installing plugins
+
 
 ### Agent Client Protocol (ACP)
 
@@ -86,21 +88,33 @@ Added
 * Actions for clearing the chat input history
 * Suggestions from the chat input history
   ([QTCREATORBUG-34877](https://bugreports.qt.io/browse/QTCREATORBUG-34877))
+* Filterable pickers for the mode and model, with favorites
+  ([QTCREATORBUG-34469](https://bugreports.qt.io/browse/QTCREATORBUG-34469))
+* The working directory of a chat to the tool tip of its tab
+  ([QTCREATORBUG-34995](https://bugreports.qt.io/browse/QTCREATORBUG-34995))
+* The option to add agents from the registry directly from the chat
+* Progress information while downloading and extracting agents
 
 Changed
 
 * Enabled the ACP integration by default
 * Changed to use tabs for chats only when tabs are used for the editors
 * Improved the chat input field and the session options
+* The content of additional context files and of editors without a file is
+  no longer sent to the agent, which reduces the token usage
 
 Fixed
 
 * That the chat button was only added to the tool bar of text editors
+* That file links in the chat were not opened
+  ([QTCREATORBUG-34927](https://bugreports.qt.io/browse/QTCREATORBUG-34927))
+* That text after a `<` in the output of agents could be lost
 
 ### Model Context Protocol
 
 Added
 
+* Support for the MCP revision 2026-07-28
 * Authentication of clients with a bearer token
 * The option to import and export the Qt Creator MCP server settings
   ([QTCREATORBUG-34918](https://bugreports.qt.io/browse/QTCREATORBUG-34918))
@@ -125,6 +139,7 @@ Changed
   requiring authentication with a bearer token and listening on a local port
 * Improved `list_projects` and `set_active_project`
 * Prefixed the names of the tools with their area
+* Grouped the tools by area in the preferences
 
 Fixed
 
@@ -136,6 +151,12 @@ Help
 Fixed
 
 * That registered Qt Creator documentation could accumulate over version updates
+* The rendering of `sub` and `sup` tags
+  ([QTBUG-102998](https://bugreports.qt.io/browse/QTBUG-102998))
+* That animated images were not supported
+  ([QTBUG-111594](https://bugreports.qt.io/browse/QTBUG-111594))
+* That opening links to images only showed garbled text
+  ([QTCREATORBUG-31339](https://qt-project.atlassian.net/browse/QTCREATORBUG-31339))
 
 Editing
 -------
@@ -190,6 +211,9 @@ Fixed
 * That the `Do not ask again` check box of the dialog for large files was not
   persisted
   ([QTCREATORBUG-34916](https://bugreports.qt.io/browse/QTCREATORBUG-34916))
+* That the completion popup changed its width while scrolling
+  ([QTCREATORBUG-7925](https://bugreports.qt.io/browse/QTCREATORBUG-7925))
+* That annotations, such as `Instant Blame`, overlapped with folded code
 
 ### C++
 
@@ -228,11 +252,25 @@ Fixed
   ([QTCREATORBUG-34858](https://bugreports.qt.io/browse/QTCREATORBUG-34858))
 * That the code model could work on an outdated document
   ([QTCREATORBUG-18800](https://bugreports.qt.io/browse/QTCREATORBUG-18800))
+* The performance of finding function definitions, for example for the
+  `Add Definitions` quick fixes
+  ([QTCREATORBUG-32466](https://bugreports.qt.io/browse/QTCREATORBUG-32466))
+* Clangd
+    * That the context help was not shown for calls without an explicit
+      `this->` when the cursor is in front of the parenthesis
+      ([QTCREATORBUG-34937](https://bugreports.qt.io/browse/QTCREATORBUG-34937))
 
 ### QML
 
+Changed
+
+* Enabled `qmlls` by default
+  ([QTCREATORBUG-30851](https://bugreports.qt.io/browse/QTCREATORBUG-30851))
+
 Fixed
 
+* A crash when editing a file with an inline component
+  ([QTCREATORBUG-34993](https://bugreports.qt.io/browse/QTCREATORBUG-34993))
 * That `qmlls` was not enabled for Python projects
   ([QTCREATORBUG-34467](https://bugreports.qt.io/browse/QTCREATORBUG-34467))
 * That `qmlls` was enabled for `.qbs` files
@@ -249,6 +287,7 @@ Fixed
   ([QTCREATORBUG-34264](https://bugreports.qt.io/browse/QTCREATORBUG-34264))
 * That `qmlImportPaths` from `pyproject.toml` was ignored
   ([QTCREATORBUG-34911](https://bugreports.qt.io/browse/QTCREATORBUG-34911))
+* That Python interpreters were not found by the tool detection of devices
 
 ### Language Server Protocol
 
@@ -257,6 +296,16 @@ Fixed
 * That the tool button in the editor could vanish if the language server failed
 * That symbol tags that are not part of the released protocol were advertised
   ([QTCREATORBUG-34906](https://bugreports.qt.io/browse/QTCREATORBUG-34906))
+* That servers with an empty file pattern were used for documents without a
+  file, such as version control logs
+  ([QTCREATORBUG-34935](https://bugreports.qt.io/browse/QTCREATORBUG-34935))
+
+### QDoc
+
+Added
+
+* An editor for QDoc documentation files with a rendered preview and markup
+  linting
 
 ### Diff Viewer
 
@@ -275,12 +324,20 @@ Fixed
 * The highlighting of changes that contain repeated substrings
   ([QTCREATORBUG-33879](https://bugreports.qt.io/browse/QTCREATORBUG-33879))
 * `Jump to Original File` for renamed files
+* The color for visualized whitespace
 
 ### Widget Designer
 
-* Added the option `Generate pointer-to-member connections in "Go to Slot"`
+Added
+
+* The option `Generate pointer-to-member connections in "Go to Slot"`
   (enabled by default)
   ([QTCREATORBUG-29257](https://bugreports.qt.io/browse/QTCREATORBUG-29257))
+
+Fixed
+
+* That the text representation of `.ui` files was not updated when saving
+  ([QTCREATORBUG-11270](https://bugreports.qt.io/browse/QTCREATORBUG-11270))
 
 ### TODO
 
@@ -476,11 +533,18 @@ Added
 
 * The option to group bytes into words for the display
   ([QTCREATORBUG-4392](https://bugreports.qt.io/browse/QTCREATORBUG-4392))
+* Coloring of the bytes by their value
+  ([QTCREATORBUG-34459](https://bugreports.qt.io/browse/QTCREATORBUG-34459))
 
 Fixed
 
 * That a missing file was not reported as missing
   ([QTCREATORBUG-34870](https://bugreports.qt.io/browse/QTCREATORBUG-34870))
+* That the cursor did not move down when the view is scrolled to the end
+  ([QTCREATORBUG-35016](https://bugreports.qt.io/browse/QTCREATORBUG-35016))
+* A crash when selecting the `ISO-2022-KR` encoding
+  ([QTCREATORBUG-35018](https://bugreports.qt.io/browse/QTCREATORBUG-35018))
+* That changed bytes could be marked in the wrong columns
 
 Projects
 --------
@@ -500,6 +564,8 @@ Added
   ([QTCREATORBUG-9333](https://bugreports.qt.io/browse/QTCREATORBUG-9333))
 * A warning when adding files to a resource that already contains them
   ([QTCREATORBUG-10328](https://bugreports.qt.io/browse/QTCREATORBUG-10328))
+* Removing multiple files from a resource at once
+  ([QTCREATORBUG-11276](https://bugreports.qt.io/browse/QTCREATORBUG-11276))
 
 Changed
 
@@ -508,7 +574,9 @@ Changed
   been detected, and remote toolchains are revalidated when a device
   reconnects
 * Unified the context menu of the `Projects` view with the other file menus
-
+* The default name of a kit is now shown as a placeholder instead of being
+  written into the name field
+  ([QTCREATORBUG-25411](https://bugreports.qt.io/browse/QTCREATORBUG-25411))
 
 Fixed
 
@@ -540,6 +608,19 @@ Fixed
   ([QTCREATORBUG-34920](https://bugreports.qt.io/browse/QTCREATORBUG-34920))
 * That devices whose type is not available were permanently removed
 * That run configurations could end up without a name
+* That the columns of the target selector kept the width for the previously
+  selected project
+  ([QTCREATORBUG-30476](https://bugreports.qt.io/browse/QTCREATORBUG-30476))
+* That the names of compressed folder chains were shortened in the project tree
+  ([QTCREATORBUG-35030](https://bugreports.qt.io/browse/QTCREATORBUG-35030))
+* That environment variables that are disabled in the environment editor were
+  treated as set in some places, for example `VSLANG`
+* That passwords were shown in the exit message of build steps
+* That re-detecting the tools of a device replaced its kit, which removed it
+  from projects
+* That removing a device left the tools that were detected on it behind
+* That tools that are reachable through symbolic links were detected multiple
+  times
 
 ### CMake
 
@@ -594,6 +675,22 @@ Fixed
   ([QTCREATORBUG-34930](https://bugreports.qt.io/browse/QTCREATORBUG-34930))
 * That issues could be reported for the wrong line
   ([QTCREATORBUG-31944](https://bugreports.qt.io/browse/QTCREATORBUG-31944))
+* That a toolchain file from the environment was overridden
+  ([QTCREATORBUG-35012](https://bugreports.qt.io/browse/QTCREATORBUG-35012))
+* That `.qrc` files were added with the wrong syntax
+  ([QTCREATORBUG-34248](https://bugreports.qt.io/browse/QTCREATORBUG-34248))
+* That interface sources from other directories were shown with absolute paths
+  in `<Other Locations>`
+  ([QTCREATORBUG-35030](https://bugreports.qt.io/browse/QTCREATORBUG-35030))
+* Presets
+    * Various differences to the handling of presets by CMake, including a
+      crash with cyclic `inherits` and the merging of environments
+    * That presets that inherit from a missing preset were accepted
+      ([QTCREATORBUG-35022](https://bugreports.qt.io/browse/QTCREATORBUG-35022))
+    * That the preset kits of multiple projects were mixed up
+      ([QTCREATORBUG-33463](https://bugreports.qt.io/browse/QTCREATORBUG-33463))
+    * That the presets were probed again in every session, which could be slow
+      ([QTCREATORBUG-34838](https://bugreports.qt.io/browse/QTCREATORBUG-34838))
 
 ### qmake
 
@@ -622,14 +719,19 @@ Debugging
 
 Added
 
-* The experimental `Use native combined debugging` option that enables combined
-  stack traces when debugging C++ and QML (GDB and LLDB)
+* The experimental option to use a combined engine for debugging C++ and QML
+  that enables combined stack traces (GDB and LLDB), in the `Debug` setting of
+  run configurations
 * The option `Resolve symbolic links in breakpoint paths`
   ([QTCREATORBUG-17554](https://bugreports.qt.io/browse/QTCREATORBUG-17554))
 * Support for passing arguments to the debuggee with the `-debug` command line
   option
   ([QTCREATORBUG-19398](https://bugreports.qt.io/browse/QTCREATORBUG-19398))
 * The experimental option to use new debugger backends
+* Support for source files and source path mapping targets that exist only on
+  the device of the debugger
+* A message when the source file of a stop location is not found
+* The display of the progress that DAP adapters report
 
 Fixed
 
@@ -659,8 +761,13 @@ Fixed
 
 Added
 
-* A pretty printer for `QColor`
+* Pretty printers for `QColor`, `std::span`, `std::queue`,
+  `std::priority_queue`, `std::chrono::duration`, `std::chrono::time_point`,
+  `std::bitset`, `std::reference_wrapper`, `std::filesystem::path`, and
+  `std::expected`
   ([QTCREATORBUG-34499](https://bugreports.qt.io/browse/QTCREATORBUG-34499))
+* The `Show variables from all scopes` option (GDB)
+  ([QTCREATORBUG-18058](https://bugreports.qt.io/browse/QTCREATORBUG-18058))
 
 Changed
 
@@ -698,6 +805,12 @@ Fixed
       ([QTCREATORBUG-14133](https://bugreports.qt.io/browse/QTCREATORBUG-14133))
     * The detection of `gdb-multiarch` and of a crosstool-NG GDB
       ([QTCREATORBUG-34887](https://bugreports.qt.io/browse/QTCREATORBUG-34887))
+    * That the debuggee read back its own output from the standard input when
+      not running in a terminal
+      ([QTCREATORBUG-35027](https://bugreports.qt.io/browse/QTCREATORBUG-35027))
+    * That stepping could hang in remote Linux sessions, for example on
+      Boot to Qt devices
+      ([QTCREATORBUG-33753](https://bugreports.qt.io/browse/QTCREATORBUG-33753))
 * LLDB
     * Issues with `Additional startup commands`
       ([QTCREATORBUG-15584](https://bugreports.qt.io/browse/QTCREATORBUG-15584))
@@ -706,6 +819,8 @@ Fixed
     * That threads were not ordered and identified by their index ID
       ([QTCREATORBUG-34580](https://bugreports.qt.io/browse/QTCREATORBUG-34580))
     * The display of signed bitfields
+    * That the debugger stopped in `__clone3` when running in a terminal
+      ([QTCREATORBUG-34842](https://bugreports.qt.io/browse/QTCREATORBUG-34842))
 * CDB
     * That the output of the debuggee was not shown in `Application Output`
       ([QTCREATORBUG-10626](https://bugreports.qt.io/browse/QTCREATORBUG-10626))
@@ -716,6 +831,19 @@ Fixed
     * That all registers were dropped when one of them is unreadable
     * That Qt Creator did not tell the user when the system blocks
       `qtcreatorcdbext.dll`
+    * Performance issues when expanding values in the `Locals` view
+
+### QML
+
+Fixed
+
+* That the QML debugger could hang when the first connection attempt stalls
+  ([QTCREATORBUG-34848](https://bugreports.qt.io/browse/QTCREATORBUG-34848))
+* That the QML debugger could fail to start when the port is used on a
+  different network interface
+  ([QTCREATORBUG-35032](https://bugreports.qt.io/browse/QTCREATORBUG-35032))
+* That debugging hung without explanation when the QML debug server of the
+  application did not start
 
 ### Python
 
@@ -743,9 +871,12 @@ Added
       the file (for example on the command line or with `File > Open File`)
     * Opening several traces at once, each in its own editor
     * The option to open the source code behind an event of a trace
+    * A list of recently loaded traces
+    * Scrolling in both directions at once, and zooming with a pinch gesture
 * A dashboard for the QML profiler that shows statistics and findings with
   suggestions
-* Support for Qt tracepoints as a profiling backend
+* Support for Qt tracepoints as a profiling backend, including a wizard for
+  tracepoint providers and a quick fix for adding them to CMake projects
 * The option to show and control `debuginfod` downloads
 * Better error reporting when a recording is not permitted or captured no
   samples, including the option to lower `perf_event_paranoid`
@@ -780,11 +911,13 @@ Added
   ([QTCREATORBUG-32316](https://bugreports.qt.io/browse/QTCREATORBUG-32316))
 * Support for OSC 11 background color queries
 * A confirmation prompt for pasting control characters
+* Support for synchronized output (DEC mode 2026)
 
 Changed
 
 * Improved the rendering of box drawing and block characters
 * Changed to use a newer console host on Windows, if available
+* New terminals now open in the projects directory if no project is open
 
 Fixed
 
@@ -792,6 +925,8 @@ Fixed
   ([QTCREATORBUG-32648](https://bugreports.qt.io/browse/QTCREATORBUG-32648))
 * That the title that the shell sets was not shown in the tab
 * That the cursor could move when the terminal is resized
+* Issues when resizing the terminal while an application uses the alternate
+  screen
 * Various crashes and rendering issues
 
 Version Control Systems
@@ -807,6 +942,8 @@ Fixed
 * That files could not be opened from the `Version Control` output pane
   ([QTCREATORBUG-23690](https://bugreports.qt.io/browse/QTCREATORBUG-23690))
 * The activation of a link at the end of a match
+* That commit hashes at the start or end of a line in the `Version Control`
+  output pane were not linked
 
 ### Git
 
@@ -840,6 +977,9 @@ Fixed
 * That instant blame was not available when showing files at a revision
 * That opening a commit from the editor for an interactive rebase did not
   find the right repository for a submodule
+* Crashes in the `Branches` view
+  ([QTCREATORBUG-32186](https://bugreports.qt.io/browse/QTCREATORBUG-32186),
+   [QTCREATORBUG-33765](https://bugreports.qt.io/browse/QTCREATORBUG-33765))
 
 Test Integration
 ----------------
@@ -857,6 +997,7 @@ Fixed
   ([QTCREATORBUG-25875](https://bugreports.qt.io/browse/QTCREATORBUG-25875))
 * The performance of parsing for tests
   ([QTCREATORBUG-34915](https://bugreports.qt.io/browse/QTCREATORBUG-34915))
+* A possible crash when parsing for tests is canceled
 
 ### Qt Quick
 
@@ -912,6 +1053,9 @@ Fixed
 * Fixed a freeze when resolving emulator names
 * That the keystore password was asked for twice
   ([QTCREATORBUG-34712](https://bugreports.qt.io/browse/QTCREATORBUG-34712))
+* That deployment reported success when installing the application failed,
+  and that 32-bit ABIs were assumed to be supported by 64-bit devices
+  ([QTCREATORBUG-33326](https://bugreports.qt.io/browse/QTCREATORBUG-33326))
 
 ### iOS
 
@@ -928,6 +1072,7 @@ Fixed
 * That no useful error message was shown when Rosetta is not installed or the
   architecture of the simulator does not match the application binary
   ([QTCREATORBUG-34070](https://bugreports.qt.io/browse/QTCREATORBUG-34070))
+* Running on devices with Xcode 27
 
 ### Remote SSH
 
@@ -964,6 +1109,11 @@ Added
 * The option to mount a host directory elsewhere in the container
   ([QTCREATORBUG-31762](https://bugreports.qt.io/browse/QTCREATORBUG-31762))
 
+Changed
+
+* Replaced the separate auto-detection buttons and log with the
+  `Run Auto-Detection Now` button of the other devices
+
 Fixed
 
 * That the container start event could be lost, and that a transient failure
@@ -999,6 +1149,10 @@ Fixed
 
 ### Bare Metal
 
+Added
+
+* Support for [Zephyr RTOS](https://www.zephyrproject.org/) and West
+
 Fixed
 
 * The cloning of debug server providers
@@ -1009,6 +1163,7 @@ Credits for these changes go to:
 --------------------------------
 Ahmed El Khazari  
 Alessandro Portale  
+Alexandre Laurent  
 Andre Hartmann  
 André Pönitz  
 Assam Boudjelthia  
@@ -1026,6 +1181,7 @@ Jeff Heller
 Joni Poikelin  
 Jörg Bornemann  
 Kai Köhne  
+Lauri Pohjanheimo  
 Leena Miettinen  
 Marcus Tillmanns  
 Mitch Curtis  
@@ -1033,6 +1189,7 @@ Orgad Shaneh
 Paul Olav Tvete  
 Sami Shalayel  
 Samuel Gaist  
+SanthoshKumar Selvaraj  
 Tasuku Suzuki  
 Ulf Hermann  
 Xavier Besson  
