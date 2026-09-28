@@ -40,6 +40,7 @@ public:
         : RunConfiguration(bc, id)
     {
         setDefaultDisplayName(Tr::tr("Run with West"));
+        setUsesEmptyBuildKeys();
 
         setCommandLineGetter([this] {
             const FilePath buildDir = buildConfiguration()->buildDirectory();
