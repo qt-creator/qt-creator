@@ -24,6 +24,8 @@
 
 #include <cplusplus/ASTPath.h>
 
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -58,6 +60,21 @@ using namespace Utils;
 namespace CppEditor {
 
 using namespace Internal;
+
+// Until the first parse is done, the project cannot tell the code model about the file.
+static bool isInProjectBeingParsed(const FilePath &filePath)
+{
+    const Project *project = ProjectManager::projectForFile(filePath);
+    if (!project)
+        return false;
+    const Core::Context languages = project->projectLanguages();
+    if (!languages.contains(ProjectExplorer::Constants::C_LANGUAGE_ID)
+        && !languages.contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID)) {
+        return false;
+    }
+    const BuildSystem *buildSystem = project->activeBuildSystem();
+    return buildSystem && (buildSystem->isWaitingForParse() || buildSystem->isParsing());
+}
 
 static InfoBarEntry createInfoBarEntry(const FilePath &filePath)
 {
@@ -107,6 +124,7 @@ public:
     void onDiagnosticsChanged(const Utils::FilePath &fileName, const QString &kind);
 
     void updateInfoBarEntryIfVisible();
+    void updateNoProjectInfoBar();
 
     void reparseWithPreferredParseContext(const QString &id);
 
@@ -149,6 +167,7 @@ public:
     Internal::ParseContextModel m_parseContextModel;
     Internal::OutlineModel m_overviewModel;
     QList<TextEditor::BlockRange> m_ifdefedOutBlocks;
+    bool m_hasProjectPart = true;
 
     CppEditorDocument *q = nullptr;
 };
@@ -199,6 +218,14 @@ CppEditorDocument::CppEditorDocument()
     connect(this, &TextEditor::TextDocument::tabSettingsChanged, this, [this] {
         d->invalidateFormatterCache();
     });
+    // A successful parse updates the code model, which reports the project part
+    // again. After a failed one nothing would show the bar.
+    connect(ProjectManager::instance(), &ProjectManager::projectFinishedParsing,
+            this, [this](Project *project) {
+                const BuildSystem *buildSystem = project->activeBuildSystem();
+                if (buildSystem && !buildSystem->hasParsingData())
+                    d->updateNoProjectInfoBar();
+            });
     connect(this, &Core::IDocument::mimeTypeChanged, this, [this] { d->onMimeTypeChanged(); });
 
     connect(this, &Core::IDocument::aboutToReload, this, [this] { d->onAboutToReload(); });
@@ -659,9 +686,8 @@ BaseEditorDocumentProcessor *CppEditorDocument::Private::processor()
         m_processor.reset(CppModelManager::createEditorDocumentProcessor(q));
         connect(m_processor.data(), &BaseEditorDocumentProcessor::projectPartInfoUpdated, q,
                 [this](const ProjectPartInfo &info) {
-                    const bool hasProjectPart = !(info.hints & ProjectPartInfo::IsFallbackMatch);
-                    q->minimizableInfoBars()->setInfoVisible(NO_PROJECT_CONFIGURATION, !hasProjectPart);
-                    updateInfoBarEntryIfVisible();
+                    m_hasProjectPart = !(info.hints & ProjectPartInfo::IsFallbackMatch);
+                    updateNoProjectInfoBar();
                     m_parseContextModel.update(info);
                     const bool isAmbiguous = info.hints & ProjectPartInfo::IsAmbiguousMatch;
                     const bool isProjectFile = info.hints & ProjectPartInfo::IsFromProjectMatch;
@@ -800,6 +826,13 @@ void CppEditorDocument::Private::onDiagnosticsChanged(const FilePath &fileName, 
             delete *it;
         }
     }
+}
+
+void CppEditorDocument::Private::updateNoProjectInfoBar()
+{
+    const bool show = !m_hasProjectPart && !isInProjectBeingParsed(filePath());
+    q->minimizableInfoBars()->setInfoVisible(NO_PROJECT_CONFIGURATION, show);
+    updateInfoBarEntryIfVisible();
 }
 
 void CppEditorDocument::Private::updateInfoBarEntryIfVisible()
