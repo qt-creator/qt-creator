@@ -81,6 +81,10 @@ Utils::FilePath waitLibrary(const Utils::FilePath &sdkRoot);
 // Returns an empty path when the SDK does not have what it takes to build it.
 Utils::FilePath runnerLibrary(const Utils::FilePath &sdkRoot);
 
+// The library that stands in for Qt's platform plugin in that package, and maps the one of
+// the Qt the channel handed over. Built and kept like the one above.
+Utils::FilePath shimLibrary(const Utils::FilePath &sdkRoot);
+
 // The CMake toolchain file that Qt's qt.toolchain.cmake chain-loads for HarmonyOS.
 Utils::FilePath cmakeToolchainFile(const Utils::FilePath &sdkRoot);
 

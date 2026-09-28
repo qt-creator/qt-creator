@@ -69,6 +69,8 @@ struct Launch
     bool argumentsGiven = false;
     std::string qtDirectory;
     std::vector<std::string> plugins;
+    // How many files of the Qt came over the channel this time.
+    size_t received = 0;
 };
 
 static const size_t ArgumentsAnnouncement = 0xffffffffu;

@@ -494,6 +494,26 @@ static Result<QString> setApplicationLibrary(const FilePath &constants, const QS
     return previous;
 }
 
+// Takes out of a package's libraries what harmonydeployqt put there of Qt: its libraries,
+// its platform plugin, and the other plugins, which are all that it puts into a directory
+// there. What they need of the platform stays, as the device may not have it.
+static Result<> dropPackagedQt(const FilePath &libraries)
+{
+    FilePaths files = libraries.dirEntries(FileFilter({"libQt6*", "libqohos.so"},
+                                                      DirFilterFlag::Files));
+    for (const FilePath &file : std::as_const(files)) {
+        if (const Result<> removed = file.removeFile(); !removed)
+            return removed;
+    }
+    const FilePaths plugins
+        = libraries.dirEntries(DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
+    for (const FilePath &directory : plugins) {
+        if (const Result<> removed = directory.removeRecursively(); !removed)
+            return removed;
+    }
+    return ResultOk;
+}
+
 static FilePath packageDir(const BuildConfiguration *bc)
 {
     return bc->buildDirectory().pathAppended("harmonyos-package");
@@ -1000,6 +1020,30 @@ private:
         return true;
     }
 
+    // Takes the place of the package's Qt, which it drops, so that one package runs an
+    // application built against any Qt. Without it the package keeps its Qt, and runs only
+    // what was built against that one.
+    bool shipShimLibrary(const FilePath &libraries)
+    {
+        const FilePath library = Sdk::shimLibrary(settings().sdkLocation());
+        if (library.isEmpty()) {
+            emit addOutput(Tr::tr("Cannot build the library that stands in for the Qt of the "
+                                  "runner package; the package keeps its Qt."),
+                           OutputFormat::Stdout);
+            return true;
+        }
+        if (const Result<> dropped = dropPackagedQt(libraries); !dropped) {
+            emit addOutput(dropped.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        if (const Result<> copied = library.copyFile(libraries.pathAppended(library.fileName()));
+            !copied) {
+            emit addOutput(copied.error(), OutputFormat::ErrorMessage);
+            return false;
+        }
+        return true;
+    }
+
     // Takes the application's place in the package. The application library is dropped from
     // it in return: nothing loads it any more, and leaving it out is what keeps the package
     // identical across edits, so it is installed once instead of once per run.
@@ -1021,6 +1065,8 @@ private:
             emit addOutput(copied.error(), OutputFormat::ErrorMessage);
             return false;
         }
+        if (!shipShimLibrary(libraries))
+            return false;
 
         const FilePath constants = m_project.pathAppended(
             "entry/src/main/ets/common/QtAppConstants.ets");
@@ -2208,6 +2254,30 @@ private slots:
         const FilePath other = FilePath::fromString(dir.filePath("Other.ets"));
         QVERIFY(other.writeFileContents("export const LOG_TAG = 'nothing here';\n"));
         QVERIFY(!setApplicationLibrary(other, "libqtcrunner.so"));
+    }
+
+    void testDropPackagedQt()
+    {
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath libraries = FilePath::fromString(dir.path());
+        const QStringList packaged = {"libQt6Core.so", "libQt6Widgets.so", "libqohos.so",
+                                      "libicuuc.so", "libc++_shared.so", "libqtcrunner.so",
+                                      "styles/libqohosstyle.so", "generic/libqtcdebug.so"};
+        for (const QString &name : packaged) {
+            const FilePath file = libraries.pathAppended(name);
+            QVERIFY(file.parentDir().ensureWritableDir());
+            QVERIFY(file.writeFileContents("x"));
+        }
+
+        QVERIFY(dropPackagedQt(libraries));
+        QStringList left;
+        for (const FilePath &file : libraries.dirEntries(DirFilterFlag::AllEntries
+                                                         | DirFilterFlag::NoDotAndDotDot)) {
+            left.append(file.fileName());
+        }
+        left.sort();
+        QCOMPARE(left, QStringList({"libc++_shared.so", "libicuuc.so", "libqtcrunner.so"}));
     }
 
     void testGeneratedProjectDir()

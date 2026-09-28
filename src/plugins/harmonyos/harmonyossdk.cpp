@@ -234,41 +234,60 @@ FilePath waitLibrary(const FilePath &sdkRoot)
     return library.exists() ? library : FilePath();
 }
 
-FilePath runnerLibrary(const FilePath &sdkRoot)
+// A library of the runner package, built from the sources shipped beside Qt Creator. Every
+// one of them includes the headers there, so a change to any of those rebuilds it.
+static FilePath runnerPackageLibrary(const FilePath &sdkRoot, const QString &fileName,
+                                     const QStringList &sources, const QStringList &libraries)
 {
-    const FilePath loader = Core::ICore::resourcePath("harmonyos/qtcload.cpp");
-    const FilePath source = Core::ICore::resourcePath("harmonyos/qtcrunner.cpp");
+    const FilePath directory = Core::ICore::resourcePath("harmonyos");
     const FilePath compiler = clangCompiler(sdkRoot, true);
     const FilePath sysroot = sysrootPath(sdkRoot);
-    if (!loader.exists() || !source.exists() || compiler.isEmpty() || sysroot.isEmpty())
+    if (compiler.isEmpty() || sysroot.isEmpty())
         return {};
-
-    const FilePath library = Core::ICore::userResourcePath("harmonyos")
-                                 .pathAppended(Constants::HARMONYOS_RUNNER_LIBRARY);
-    QDateTime newest;
-    const FilePath headers = source.parentDir();
-    for (const FilePath &file : {loader, headers.pathAppended("qtcload.h"), source,
-                                 headers.pathAppended("qtcchannel.h")}) {
-        newest = std::max(newest, file.lastModified());
+    FilePaths inputs = directory.dirEntries(FileFilter({"qtc*.h"}, DirFilterFlag::Files));
+    for (const QString &source : sources) {
+        const FilePath file = directory.pathAppended(source);
+        if (!file.exists())
+            return {};
+        inputs.append(file);
     }
+
+    const FilePath library = Core::ICore::userResourcePath("harmonyos").pathAppended(fileName);
+    QDateTime newest;
+    for (const FilePath &input : std::as_const(inputs))
+        newest = std::max(newest, input.lastModified());
     if (library.exists() && library.lastModified() > newest)
         return library;
     if (const Result<> created = library.parentDir().ensureWritableDir(); !created)
         return {};
 
+    QStringList arguments
+        = {"--target=aarch64-linux-ohos",
+           "--sysroot=" + sysroot.path(),
+           "-fPIC", "-shared", "-O1", "-std=c++17",
+           // The template loads both by these names.
+           "-Wl,-soname," + fileName,
+           "-I" + directory.path(),
+           QString("-DQTC_CHANNEL_PORT=%1").arg(Constants::HARMONYOS_CHANNEL_PORT)};
+    for (const QString &source : sources)
+        arguments.append(directory.pathAppended(source).path());
+    arguments << libraries << "-o" << library.path();
     Process compile;
-    compile.setCommand(
-        {compiler,
-         {"--target=aarch64-linux-ohos",
-          "--sysroot=" + sysroot.path(),
-          "-fPIC", "-shared", "-O1", "-std=c++17",
-          // The template dlopens the application by this name and calls its main().
-          "-Wl,-soname," + library.fileName(),
-          "-I" + source.parentDir().path(),
-          QString("-DQTC_CHANNEL_PORT=%1").arg(Constants::HARMONYOS_CHANNEL_PORT),
-          loader.path(), source.path(), "-o", library.path()}});
+    compile.setCommand({compiler, arguments});
     compile.runBlocking();
     return library.exists() ? library : FilePath();
+}
+
+FilePath runnerLibrary(const FilePath &sdkRoot)
+{
+    return runnerPackageLibrary(sdkRoot, Constants::HARMONYOS_RUNNER_LIBRARY,
+                                {"qtcrunner.cpp"}, {"-ldl"});
+}
+
+FilePath shimLibrary(const FilePath &sdkRoot)
+{
+    return runnerPackageLibrary(sdkRoot, Constants::HARMONYOS_SHIM_LIBRARY,
+                                {"qtcshim.cpp", "qtcload.cpp"}, {"-lace_napi.z", "-ldl"});
 }
 
 // The single directory under "llvm/lib/clang", whose name is the compiler's version and
