@@ -784,6 +784,11 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                 it->removeOne(watcher);
                 if (it->size() == 0) {
                     m_watchClients.erase(it);
+                    // An "atomic" write replaces the file, which may have dropped the watch.
+                    if (!m_watcher->files().contains(path.path())
+                        && !m_watcher->directories().contains(path.path())) {
+                        return ResultOk;
+                    }
                     if (!m_watcher->removePath(path.path())) {
                         if (!path.exists())
                             return ResultOk;
