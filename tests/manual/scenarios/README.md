@@ -25,7 +25,13 @@ visible `text`, or `class_name` plus `window_title`.
 Attach to an already-running Creator (started with
 `-load McpServer -mcp-port <PORT>`):
 
-    ./run_scenario.py about-dialog.yaml --port 8765
+    ./run_scenario.py about-dialog.yaml --port 8765 --token <TOKEN>
+
+The token is the one shown in Preferences > MCP Server (or passed to that
+Creator as `-mcp-token <TOKEN>`), and `$QTC_MCP_TOKEN` is read when `--token`
+is not given. The runner drives Creator through the "User Interface" tools,
+which the MCP server offers only when they are switched on: enable that group
+in the same preferences page first.
 
 Or let the runner launch Creator itself with a throwaway settings directory:
 
@@ -40,8 +46,7 @@ them with `-mcp-enable-tools ui`, with or without preseeding. Pass
 `--no-preseed` for a pristine configuration (default settings, all
 plugins), apart from the `settings` and `load` the scenario itself names.
 
-A launched Creator gets a fresh MCP bearer token (`-mcp-token`). For an
-already running one, pass its token with `--token`, or set `QTC_MCP_TOKEN`.
+A launched Creator gets a fresh MCP bearer token (`-mcp-token`).
 
 `--noload PLUGIN` and `--load PLUGIN` (both repeatable) are passed through to a
 launched Creator. Use `--noload` to skip a plugin whose load error would pop a
