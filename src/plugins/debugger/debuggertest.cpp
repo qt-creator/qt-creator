@@ -141,6 +141,7 @@ private slots:
     void testQtBuildSourceRoots();
     void testPdbSourceFileNames();
     void testPdbSourceFileNamesOnDevice();
+    void testPeDebugStrings();
 
     void testDebugInfoDirectory();
     void testDebugInfoFile();
@@ -1596,6 +1597,79 @@ void DebuggerUnitTests::testPdbSourceFileNames()
     qToLittleEndian<quint32>(100, badBlock.data() + 3 * 512 + 20);
     QVERIFY(pdb.writeFileContents(badBlock));
     QCOMPARE(pdbSourceFileNames(pdb), QByteArray());
+}
+
+struct FakeSection
+{
+    QByteArray name;
+    QByteArray data;
+    QByteArray padding;
+};
+
+// A PE file without optional header whose sections all have long names, which
+// makes it need a string table. lld puts the names of the symbols first.
+static QByteArray fakePe(const QList<FakeSection> &sections, qsizetype symbolNames = 0)
+{
+    QByteArray dos(64, '\0');
+    dos[0] = 'M';
+    dos[1] = 'Z';
+    qToLittleEndian<quint32>(dos.size(), dos.data() + 0x3c);
+
+    const int tableStart = dos.size() + 24;
+    qsizetype dataStart = tableStart + sections.size() * 40;
+    QByteArray table;
+    QByteArray data;
+    QByteArray names = le32(0) + QByteArray(symbolNames, 's');
+    for (const FakeSection &section : sections) {
+        QByteArray entry = "/" + QByteArray::number(names.size());
+        entry.resize(8, '\0');
+        names += section.name + '\0';
+        entry += le32(section.data.size()) + le32(0);
+        entry += le32(section.data.size() + section.padding.size());
+        entry += le32(dataStart + data.size()) + QByteArray(16, '\0');
+        table += entry;
+        data += section.data + section.padding;
+    }
+    qToLittleEndian<quint32>(names.size(), names.data());
+
+    QByteArray header = QByteArray("PE\0\0", 4) + QByteArray(20, '\0');
+    qToLittleEndian<quint16>(0x8664, header.data() + 4);
+    qToLittleEndian<quint16>(sections.size(), header.data() + 6);
+    qToLittleEndian<quint32>(dataStart + data.size(), header.data() + 12);
+    return dos + header + table + data + names;
+}
+
+void DebuggerUnitTests::testPeDebugStrings()
+{
+    QTemporaryDir tmp;
+    QVERIFY(tmp.isValid());
+    const FilePath dir = FilePath::fromString(tmp.path());
+    const FilePath library = dir / "Qt6Core.dll";
+    const FilePath companion = dir / "Qt6Core.debug";
+
+    const QByteArray str = debugStrings({"C:/Users/qt/work/qt/qtbase/src/corelib/io"});
+    const QByteArray lineStr = debugStrings({"C:\\Users\\qt\\work\\qt\\qtbase_build",
+                                             "D:/qt/qtbase/src/corelib/qglobal.cpp"});
+    // Past the end of the data, the padding up to the file alignment is no string.
+    const QByteArray padding("/padding/qtbase/src/", 20);
+    const QStringList roots{"C:/Users/qt/work/qt", "D:/qt"};
+
+    QVERIFY(companion.writeFileContents(fakePe({{".debug_str", str, padding},
+                                                {".debug_line_str", lineStr, padding}},
+                                               512 * 1024)));
+    QCOMPARE(qtBuildSourceRoots(peDebugStrings(companion).replace('\\', '/')), roots);
+
+    // A stripped library leads to its companion.
+    QVERIFY(library.writeFileContents(
+        fakePe({{".text", "code", {}},
+                {".gnu_debuglink", QByteArray("Qt6Core.debug\0\0\0", 16) + le32(0), {}}})));
+    QCOMPARE(qtBuildSourceRoots(peDebugStrings(library).replace('\\', '/')), roots);
+
+    QVERIFY(companion.removeFile());
+    QCOMPARE(qtBuildSourceRoots(peDebugStrings(library)), QStringList());
+
+    QVERIFY(library.writeFileContents(str));
+    QCOMPARE(peDebugStrings(library), QByteArray(1, '\0'));
 }
 
 // The PDB of a Qt on a Windows device is read through the device's file access,

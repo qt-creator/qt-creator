@@ -33,6 +33,7 @@
 #include <QTreeView>
 #include <QtEndian>
 
+#include <algorithm>
 #include <optional>
 
 using namespace Utils;
@@ -745,12 +746,136 @@ static QStringList pdbQtBuildSourceRoots(const QtSupport::QtVersion *qt)
     return {};
 }
 
+struct PeSection
+{
+    QByteArray name;
+    quint32 offset = 0;
+    quint32 size = 0;
+};
+
+// Names longer than eight characters, the DWARF ones among them, are stored as
+// "/<offset>" into the COFF string table.
+static QList<PeSection> peSections(const FilePath &file)
+{
+    const Result<QByteArray> dos = file.fileContents(64);
+    const std::optional<quint32> peOffset = dos ? readUInt32(*dos, 0x3c) : std::nullopt;
+    if (!peOffset || !dos->startsWith("MZ"))
+        return {};
+
+    // The signature, then the COFF file header.
+    const Result<QByteArray> header = file.fileContents(24, *peOffset);
+    if (!header || header->size() != 24 || !header->startsWith(QByteArray("PE\0\0", 4)))
+        return {};
+    const quint16 sectionCount = qFromLittleEndian<quint16>(header->constData() + 6);
+    const quint32 symbolTable = *readUInt32(*header, 12);
+    const quint32 symbolCount = *readUInt32(*header, 16);
+    const quint16 optionalHeaderSize = qFromLittleEndian<quint16>(header->constData() + 20);
+
+    const qint64 tableSize = qint64(sectionCount) * 40;
+    const Result<QByteArray> table
+        = file.fileContents(tableSize, qint64(*peOffset) + 24 + optionalHeaderSize);
+    if (!table || table->size() != tableSize)
+        return {};
+
+    QList<PeSection> sections;
+    QList<quint32> longNames;
+    for (qsizetype entry = 0; entry < tableSize; entry += 40) {
+        PeSection section;
+        section.name = table->mid(entry, 8);
+        if (const qsizetype nul = section.name.indexOf('\0'); nul >= 0)
+            section.name.truncate(nul);
+        const quint32 virtualSize = *readUInt32(*table, entry + 8);
+        const quint32 rawSize = *readUInt32(*table, entry + 16);
+        section.offset = *readUInt32(*table, entry + 20);
+        // The raw data is padded to the file alignment.
+        section.size = virtualSize == 0 ? rawSize : qMin(virtualSize, rawSize);
+        if (section.name.startsWith('/')) {
+            bool ok = false;
+            const quint32 offset = section.name.mid(1).toUInt(&ok);
+            if (ok)
+                longNames.append(offset);
+        }
+        sections.append(section);
+    }
+    if (longNames.isEmpty() || symbolTable == 0)
+        return sections;
+
+    // Depending on the linker, the section names come before or after those of
+    // the symbols, so only the range they span is read.
+    const qint64 stringTable = qint64(symbolTable) + qint64(symbolCount) * 18;
+    const Result<QByteArray> stringTableHeader = file.fileContents(4, stringTable);
+    const std::optional<quint32> stringTableSize
+        = stringTableHeader ? readUInt32(*stringTableHeader, 0) : std::nullopt;
+    const auto [first, last] = std::minmax_element(longNames.cbegin(), longNames.cend());
+    if (!stringTableSize || *last >= *stringTableSize)
+        return sections;
+    const qint64 end = qMin(qint64(*last) + 256, qint64(*stringTableSize));
+    const Result<QByteArray> names = file.fileContents(end - *first, stringTable + *first);
+    if (!names)
+        return sections;
+    for (PeSection &section : sections) {
+        bool ok = false;
+        const quint32 offset = section.name.startsWith('/') ? section.name.mid(1).toUInt(&ok) : 0;
+        if (!ok)
+            continue;
+        const qsizetype start = offset - *first;
+        const qsizetype nul = names->indexOf('\0', start);
+        section.name = nul >= 0 ? names->mid(start, nul - start) : QByteArray();
+    }
+    return sections;
+}
+
+static QByteArray peSectionContents(const FilePath &file, const QList<PeSection> &sections,
+                                    QByteArrayView name)
+{
+    for (const PeSection &section : sections) {
+        if (section.name != name)
+            continue;
+        const Result<QByteArray> data = file.fileContents(section.size, section.offset);
+        return data && data->size() == section.size ? *data : QByteArray();
+    }
+    return {};
+}
+
+QByteArray peDebugStrings(const FilePath &library)
+{
+    QList<PeSection> sections = peSections(library);
+    // The name of the companion is NUL terminated and followed by a checksum.
+    const QByteArray link = peSectionContents(library, sections, ".gnu_debuglink");
+    const qsizetype linkEnd = link.indexOf('\0');
+    const FilePath file = debugInfoFile(library, linkEnd > 0 ? link.left(linkEnd) : QByteArray(),
+                                        {}, {});
+    if (file != library)
+        sections = peSections(file);
+
+    return peSectionContents(file, sections, ".debug_str") + '\0'
+           + peSectionContents(file, sections, ".debug_line_str");
+}
+
+// MinGW builds of Qt keep their DWARF debug information in a PE file of its own
+// next to the stripped DLL. A self-built debug DLL may carry it itself.
+static QStringList peQtBuildSourceRoots(const QtSupport::QtVersion *qt)
+{
+    const QString core = QString("Qt%1Core").arg(qt->qtVersion().majorVersion());
+    for (const char *suffix : {".dll", "d.dll"}) {
+        const FilePath library = qt->binPath() / QString(core + suffix);
+        if (!library.isReadableFile())
+            continue;
+        const QStringList roots = qtBuildSourceRoots(peDebugStrings(library).replace('\\', '/'));
+        if (!roots.isEmpty())
+            return roots;
+    }
+    return {};
+}
+
 QStringList qtBuildSourceRoots(const DebuggerRunParameters &sp, const QtSupport::QtVersion *qt)
 {
     if (!qt || !hasQtSources(sp.qtSourceLocation()))
         return {};
-    if (sp.toolChainAbi().binaryFormat() == ProjectExplorer::Abi::PEFormat)
-        return pdbQtBuildSourceRoots(qt);
+    if (sp.toolChainAbi().binaryFormat() == ProjectExplorer::Abi::PEFormat) {
+        const QStringList roots = pdbQtBuildSourceRoots(qt);
+        return roots.isEmpty() ? peQtBuildSourceRoots(qt) : roots;
+    }
     if (sp.toolChainAbi().binaryFormat() != ProjectExplorer::Abi::ElfFormat)
         return {};
 

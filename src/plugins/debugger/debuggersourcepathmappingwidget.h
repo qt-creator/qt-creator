@@ -30,6 +30,10 @@ QStringList qtBuildSourceRoots(const QByteArray &debugStrings);
  * the file is no readable PDB. */
 QByteArray pdbSourceFileNames(const Utils::FilePath &pdb);
 
+/* The DWARF strings of a PE library, NUL separated: its .debug_str and
+ * .debug_line_str, or those of the companion its .gnu_debuglink names. */
+QByteArray peDebugStrings(const Utils::FilePath &library);
+
 /* Gdb's debug-file-directory for the given run: the location set for the run,
  * or gdb's own default below the sysroot. */
 Utils::FilePath debugInfoDirectory(const DebuggerRunParameters &sp);
