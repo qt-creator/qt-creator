@@ -287,6 +287,7 @@ struct OklchColor
 inline constexpr double oklchFullChroma = 0.45;
 QTCREATOR_UTILS_EXPORT QColor oklchColor(const OklchColor &oklch);
 QTCREATOR_UTILS_EXPORT OklabColor oklab(const QColor &color);
+QTCREATOR_UTILS_EXPORT OklchColor oklch(const QColor &color);
 QTCREATOR_UTILS_EXPORT double oklchFittingChroma(const OklchColor &oklch);
 QTCREATOR_UTILS_EXPORT double oklchMostChromaticLightness(double hue);
 // modifies widget's palette QPalette::Base to color, leaves other colors of palette untouched

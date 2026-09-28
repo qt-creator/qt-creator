@@ -1144,6 +1144,17 @@ StyleHelper::OklabColor StyleHelper::oklab(const QColor &color)
             0.0259040371 * longCone + 0.7827717662 * mediumCone - 0.8086757660 * shortCone};
 }
 
+// A color in Oklch: the polar form of the a and b that oklab() returns.
+StyleHelper::OklchColor StyleHelper::oklch(const QColor &color)
+{
+    const OklabColor lab = oklab(color);
+    const double C = std::hypot(lab.a, lab.b);
+    double H = qRadiansToDegrees(std::atan2(lab.b, lab.a));
+    if (H < 0)
+        H += 360.0;
+    return {lab.lightness, C, H};
+}
+
 static const QStringList &applicationFontFamilies()
 {
     const static QStringList families = [] {
