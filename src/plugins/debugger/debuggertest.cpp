@@ -25,6 +25,8 @@
 #include "mcpsessionstate.h"
 #include "mcpsupport.h"
 #include "mcpsupport_p.h"
+#include "qml/qmlengine.h"
+#include "qml/qmlinspectoragent.h"
 #include "gdb/gdbengine.h"
 #include "genericdebuggerengine.h"
 #include "registerhandler.h"
@@ -84,6 +86,7 @@
 #include <QtEndian>
 
 #include <memory>
+#include <optional>
 
 //#define WITH_BENCHMARK
 #ifdef WITH_BENCHMARK
@@ -229,6 +232,7 @@ private slots:
     void testNativeMixedEnvironmentVariableWins();
     void testCombinedEngineNeedsNoQmlChannel();
     void testQmlInspectorLeavesParentlessObjectsCollapsed();
+    void testInspectorFollowsParentlessObjects();
     void testNamespaceFromQObjectRtti_data();
     void testNamespaceFromQObjectRtti();
 
@@ -4394,6 +4398,204 @@ void DebuggerUnitTests::testQmlInspectorLeavesParentlessObjectsCollapsed()
 
     watchHandler->fetchMore(orphanIName);
     QTRY_VERIFY_WITH_TIMEOUT(watchHandler->findItem(propertiesIName + ".orphanValue"), 30000);
+}
+
+// Objects made with createObject(null) have no parent to hang them under the
+// engine, so the inspector shows them at its top level. The test starts the
+// churning only after the ticks: a new object makes the inspector fetch the
+// tree again, which brings every value along whether or not its change came
+// through.
+static const char s_parentlessObjectsQml[] = R"QML(
+import QtQuick
+import QtQuick.Window
+
+Window {
+    id: root
+    property int ticks: 0
+    property int churns: 0
+    property bool churning: false
+    property var ticking
+    property var churned
+    property QtObject box: QtObject {
+        id: holder
+        property QtObject inner: QtObject { id: nested; property int tick: root.ticks }
+    }
+
+    Component {
+        id: tickingComponent
+        QtObject { id: tickingOrphan; property int tick: root.ticks }
+    }
+    Component {
+        id: churnedComponent
+        QtObject { id: churnedOrphan; property QtObject child: QtObject { id: orphanChild } }
+    }
+    Timer {
+        interval: 100
+        repeat: true
+        running: true
+        onTriggered: ++root.ticks
+    }
+    Timer {
+        interval: 400
+        repeat: true
+        running: root.churning
+        onTriggered: {
+            if (root.churned)
+                root.churned.destroy()
+            root.churned = churnedComponent.createObject(null)
+            ++root.churns
+        }
+    }
+    Component.onCompleted: ticking = tickingComponent.createObject(null)
+}
+)QML";
+
+// The item Locals shows for a property of the inspected object with the given
+// QML id. Asks for the properties when they are not there yet.
+static WatchItem *inspectedItem(DebuggerEngine *engine, const QString &id,
+                                const QString &property)
+{
+    WatchHandler *handler = engine->watchHandler();
+    const WatchItem *root = handler->findItem("inspect");
+    if (!root)
+        return nullptr;
+    const WatchItem *object = root->findAnyChild([&id](TreeItem *item) {
+        return static_cast<WatchItem *>(item)->name == id;
+    });
+    if (!object)
+        return nullptr;
+    if (WatchItem *item = handler->findItem(object->iname + ".[properties]." + property))
+        return item;
+    handler->fetchMore(object->iname);
+    return nullptr;
+}
+
+static std::optional<int> inspectedProperty(DebuggerEngine *engine, const QString &id,
+                                            const QString &property)
+{
+    if (const WatchItem *item = inspectedItem(engine, id, property)) {
+        bool ok = false;
+        const int value = item->value.toInt(&ok);
+        if (ok)
+            return value;
+    }
+    return {};
+}
+
+void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
+{
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to run qml from.");
+    const FilePath qml = QtSupport::QtKitAspect::qtVersion(kit)->qmlRuntimeFilePath();
+    if (!qml.isExecutableFile())
+        QSKIP("The Qt of the kit has no qml runtime.");
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath mainQml = FilePath::fromString(dir.path()) / "Main.qml";
+    QVERIFY(mainQml.writeFileContents(s_parentlessObjectsQml));
+
+    // Nothing here can answer the dialog about breakpoints that do not apply.
+    const bool warnedAboutBreakpoints = settings().showUnsupportedBreakpointWarning();
+    settings().showUnsupportedBreakpointWarning.setValue(false);
+    const QScopeGuard restore([warnedAboutBreakpoints] {
+        settings().showUnsupportedBreakpointWarning.setValue(warnedAboutBreakpoints);
+    });
+
+    const QList<QPointer<DebuggerEngine>> before = EngineManager::engines();
+    QPointer<RunControl> runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(kit);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    rp.setCppEngineType(NoEngineType);
+    rp.setQmlDebugging(true);
+    rp.setInferior(ProcessRunData{CommandLine{qml, {mainQml.nativePath()}}, mainQml.parentDir()});
+    rp.setInferiorEnvironment(Environment::systemEnvironment());
+    rp.setStartMode(StartExternal);
+    connect(runControl, &RunControl::stopped,
+            &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
+    runControl->start();
+    const QScopeGuard stop([runControl] {
+        if (runControl && runControl->isRunning()) {
+            runControl->initiateStop();
+            QTestEventLoop::instance().enterLoop(30);
+        }
+    });
+
+    QPointer<DebuggerEngine> engine;
+    const bool running = QTest::qWaitFor([&engine, &before] {
+        for (const QPointer<DebuggerEngine> &candidate : EngineManager::engines()) {
+            if (candidate && !before.contains(candidate)
+                && candidate->objectName() == "QmlEngine") {
+                engine = candidate;
+            }
+        }
+        return engine && engine->state() == InferiorRunOk;
+    }, 60000);
+    QVERIFY2(running, "the QML session never came up");
+    const QmlInspectorAgent &agent = static_cast<QmlEngine *>(engine.data())->inspectorAgent();
+
+    std::optional<int> firstTick;
+    QVERIFY2(QTest::qWaitFor([&] {
+        return bool(firstTick = inspectedProperty(engine, "tickingOrphan", "tick"));
+    }, 30000), "the parentless object never showed its properties");
+    // Changes come in batches, the root's and the orphan's of one tick together.
+    std::optional<int> ticks;
+    QVERIFY2(QTest::qWaitFor([&] {
+        ticks = inspectedProperty(engine, "root", "ticks");
+        return ticks && *ticks >= *firstTick + 3;
+    }, 10000), "the ticks of the root object never moved in Locals");
+    const std::optional<int> tick = inspectedProperty(engine, "tickingOrphan", "tick");
+    QVERIFY2(tick && *tick != *firstTick,
+             "a change of the parentless object never reached Locals");
+
+    // An object two levels down an expanded subtree must keep its watch while
+    // the churning rebuilds the tree.
+    QVERIFY2(QTest::qWaitFor([&] {
+        return inspectedItem(engine, "holder", "inner")
+               && inspectedProperty(engine, "nested", "tick");
+    }, 30000), "the nested object never showed its properties");
+    const int nestedId = inspectedItem(engine, "nested", "tick")->id;
+    const quint32 nestedWatch = agent.m_objectWatches.value(nestedId);
+    QVERIFY(nestedWatch);
+
+    // Each churn destroys an object whose child is watched as well. The watches
+    // of the destroyed ones must go away. How many watches the live objects
+    // need depends on how often the tree gets rebuilt, so follow the watches
+    // of one churned object rather than the count.
+    WatchItem *churning = inspectedItem(engine, "root", "churning");
+    QVERIFY(churning);
+    engine->assignValueInDebugger(churning, "churning", "true");
+    QSet<int> churnedWatches;
+    QVERIFY2(QTest::qWaitFor([&] {
+        const WatchItem *root = engine->watchHandler()->findItem("inspect");
+        const WatchItem *churned = root ? root->findAnyChild([](TreeItem *item) {
+            return static_cast<WatchItem *>(item)->name == "churnedOrphan";
+        }) : nullptr;
+        if (!churned || !agent.m_objectWatches.contains(churned->id))
+            return false;
+        churnedWatches.insert(churned->id);
+        churned->forAllChildren([&](WatchItem *item) {
+            if (agent.m_objectWatches.contains(item->id))
+                churnedWatches.insert(item->id);
+        });
+        return true;
+    }, 30000), "the churned object was never watched");
+    std::optional<int> firstChurn;
+    QVERIFY2(QTest::qWaitFor([&] {
+        firstChurn = inspectedProperty(engine, "root", "churns");
+        return firstChurn && *firstChurn > 0;
+    }, 30000), "the churning never started");
+    QVERIFY2(QTest::qWaitFor([&] {
+        const std::optional<int> churn = inspectedProperty(engine, "root", "churns");
+        return churn && *churn >= *firstChurn + 16;
+    }, 30000), "the churn count stopped moving in Locals");
+    for (const int id : std::as_const(churnedWatches)) {
+        if (agent.m_objectWatches.contains(id))
+            QFAIL(qPrintable(QString("the destroyed object %1 kept its watch").arg(id)));
+    }
+    QCOMPARE(agent.m_objectWatches.value(nestedId), nestedWatch);
 }
 
 QObject *createDebuggerTest()

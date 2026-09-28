@@ -60,6 +60,18 @@ QmlInspectorAgent::QmlInspectorAgent(QmlEngine *engine, QmlDebugConnection *conn
     m_delayQueryTimer.setInterval(100);
     connect(&m_delayQueryTimer, &QTimer::timeout,
             this, &QmlInspectorAgent::queryEngineContext);
+    m_updateLocalsTimer.setSingleShot(true);
+    m_updateLocalsTimer.setInterval(0);
+    connect(&m_updateLocalsTimer, &QTimer::timeout, this, [this] {
+        if (!m_qmlEngine)
+            return;
+        m_qmlEngine->watchHandler()->updateLocalsWindow();
+        m_qmlEngine->watchHandler()->reexpandItems();
+    });
+    m_valueChangeTimer.setSingleShot(true);
+    m_valueChangeTimer.setInterval(100);
+    connect(&m_valueChangeTimer, &QTimer::timeout,
+            this, &QmlInspectorAgent::applyValueChanges);
 
     m_engineClient = new QmlEngineDebugClient(connection);
     connect(m_engineClient, &BaseEngineDebugClient::newState,
@@ -177,6 +189,8 @@ void QmlInspectorAgent::addObjectWatch(int objectDebugId)
     if (!isConnected() || !settings().showQmlObjectTree())
         return;
 
+    m_seenObjectIds.insert(objectDebugId);
+
     // already set
     if (m_objectWatches.contains(objectDebugId))
         return;
@@ -184,8 +198,40 @@ void QmlInspectorAgent::addObjectWatch(int objectDebugId)
     // is flooding the debugging output log!
     // log(LogSend, QString::fromLatin1("WATCH_PROPERTY %1").arg(objectDebugId));
 
-    if (m_engineClient->addWatch(objectDebugId))
-        m_objectWatches.append(objectDebugId);
+    if (const quint32 watchId = m_engineClient->addWatch(objectDebugId))
+        m_objectWatches.insert(objectDebugId, watchId);
+}
+
+// The debug service keeps a watch until it is removed explicitly and adds a
+// duplicate for every repeated WATCH_OBJECT, so the watches must survive tree
+// rebuilds.
+void QmlInspectorAgent::removeObjectWatches()
+{
+    if (isConnected()) {
+        for (const quint32 watchId : std::as_const(m_objectWatches))
+            m_engineClient->removeWatch(watchId);
+    }
+    m_objectWatches.clear();
+    m_seenObjectIds.clear();
+    m_previouslySeenObjectIds.clear();
+}
+
+// There is no notification for destroyed objects. Drop the watches of the
+// objects that were not inserted during the last two rebuilds. One is not
+// enough: the view fetches expanded objects late, and the next rebuild can
+// start before it has.
+void QmlInspectorAgent::removeStaleObjectWatches()
+{
+    for (auto it = m_objectWatches.begin(); it != m_objectWatches.end();) {
+        if (m_seenObjectIds.contains(it.key()) || m_previouslySeenObjectIds.contains(it.key())) {
+            ++it;
+            continue;
+        }
+        if (isConnected())
+            m_engineClient->removeWatch(*it);
+        it = m_objectWatches.erase(it);
+    }
+    m_previouslySeenObjectIds = std::exchange(m_seenObjectIds, {});
 }
 
 void QmlInspectorAgent::updateState()
@@ -193,10 +239,12 @@ void QmlInspectorAgent::updateState()
     m_qmlEngine->logServiceStateChange(m_engineClient->name(), m_engineClient->serviceVersion(),
                                        m_engineClient->state());
 
-    if (m_engineClient->state() == QmlDebugClient::Enabled && settings().showQmlObjectTree())
+    if (m_engineClient->state() == QmlDebugClient::Enabled && settings().showQmlObjectTree()) {
         reloadEngines();
-    else
+    } else {
         clearObjectTree();
+        removeObjectWatches();
+    }
 }
 
 void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
@@ -265,6 +313,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
             const int engineId = m_engines.at(index).debugId();
             m_rootContexts.insert(engineId, qvariant_cast<ContextReference>(value));
             if (m_rootContexts.size() == m_engines.size()) {
+                removeStaleObjectWatches();
                 clearObjectTree();
                 for (const auto &engine : std::as_const(m_engines)) {
                     QString name = engine.name();
@@ -397,16 +446,40 @@ static bool insertChildren(WatchItem *parent, const QVariant &value)
 void QmlInspectorAgent::onValueChanged(int debugId, const QByteArray &propertyName,
                                        const QVariant &value)
 {
-    const QString iname = m_debugIdToIname.value(debugId) +
-            ".[properties]." + QString::fromLatin1(propertyName);
-    WatchHandler *watchHandler = m_qmlEngine->watchHandler();
-    qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugId << ')' << iname << value.toString();
-    if (WatchItem *item = watchHandler->findItem(iname)) {
-        item->value = value.toString();
-        item->removeChildren();
-        item->wantsChildren = insertChildren(item, value);
-        item->update();
+    qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << debugId << ')' << propertyName
+                             << value.toString();
+    if (!m_debugIdToIname.contains(debugId))
+        return;
+    m_valueChanges[debugId].insert(QString::fromLatin1(propertyName), value);
+    if (!m_valueChangeTimer.isActive())
+        m_valueChangeTimer.start();
+}
+
+// Property updates can arrive at a high rate and the inspector tree can be
+// huge, so apply them in batches and look up only the changed objects.
+void QmlInspectorAgent::applyValueChanges()
+{
+    if (!m_qmlEngine)
+        return;
+    WatchHandler *handler = m_qmlEngine->watchHandler();
+    for (auto it = m_valueChanges.cbegin(), end = m_valueChanges.cend(); it != end; ++it) {
+        // Collapsed objects are watched, but get their values with the next fetch.
+        const QString iname = m_debugIdToIname.value(it.key()) + ".[properties]";
+        WatchItem *properties = handler->findItem(iname);
+        if (!properties)
+            continue;
+        for (WatchItem *item : *properties) {
+            const auto valueIt = it->constFind(item->name);
+            if (valueIt == it->constEnd())
+                continue;
+            item->value = valueIt->toString();
+            item->updateValueCache();
+            item->removeChildren();
+            item->wantsChildren = insertChildren(item, *valueIt);
+            item->update();
+        }
     }
+    m_valueChanges.clear();
 }
 
 void QmlInspectorAgent::reloadEngines()
@@ -648,8 +721,8 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object, int pa
             ++it;
         }
     }
-    m_qmlEngine->watchHandler()->updateLocalsWindow();
-    m_qmlEngine->watchHandler()->reexpandItems();
+    if (!m_updateLocalsTimer.isActive())
+        m_updateLocalsTimer.start();
 }
 
 void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
@@ -729,6 +802,8 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
 
         m_qmlEngine->watchHandler()->insertItem(objWatch);
         addObjectWatch(objWatch->id);
+        // Pending changes are older than the values fetched with obj.
+        m_valueChanges.remove(objDebugId);
         if (m_debugIdToIname.contains(objDebugId)) {
             // The data needs to be removed since we now know the parent and
             // hence we can insert the data in the correct position
@@ -817,11 +892,11 @@ void QmlInspectorAgent::clearObjectTree()
         m_qmlEngine->watchHandler()->removeAllData(true);
     m_objectTreeQueryIds.clear();
     m_delegateQueryIds.clear();
+    m_valueChanges.clear();
     m_fetchDataIds.clear();
     m_debugIdToIname.clear();
     m_debugIdToIname.insert(WatchItem::InvalidId, "inspect");
     m_objectStack.clear();
-    m_objectWatches.clear();
 }
 
 void QmlInspectorAgent::toolsClientStateChanged(QmlDebugClient::State state)

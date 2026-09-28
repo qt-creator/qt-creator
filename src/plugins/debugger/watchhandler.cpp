@@ -695,8 +695,28 @@ void WatchModel::reinitialize(bool includeInspectData)
         m_inspectorRoot->removeChildren();
 }
 
+// Children below the inspector root carry their parent's iname as prefix, so
+// descend instead of scanning the whole model. That tree can be huge and gets
+// queried for each property update.
+static WatchItem *findInspectorItem(WatchItem *parent, const QString &iname)
+{
+    for (int i = 0, n = parent->childCount(); i < n; ++i) {
+        WatchItem *child = parent->childAt(i);
+        if (child->iname == iname)
+            return child;
+        if (iname.size() > child->iname.size() && iname.at(child->iname.size()) == '.'
+                && iname.startsWith(child->iname)) {
+            if (WatchItem *item = findInspectorItem(child, iname))
+                return item;
+        }
+    }
+    return nullptr;
+}
+
 WatchItem *WatchModel::findItem(const QString &iname) const
 {
+    if (iname.startsWith(u"inspect."))
+        return findInspectorItem(m_inspectorRoot, iname);
     return findNonRootItem([iname](WatchItem *item) { return item->iname == iname; });
 }
 
@@ -2337,9 +2357,8 @@ bool WatchHandler::insertItem(WatchItem *item)
     QTC_ASSERT(parent, return false);
 
     bool found = false;
-    const std::vector<TreeItem *> siblings(parent->begin(), parent->end());
-    for (int row = 0, n = int(siblings.size()); row < n; ++row) {
-        if (static_cast<WatchItem *>(siblings[row])->iname == item->iname) {
+    for (int row = 0, n = parent->childCount(); row < n; ++row) {
+        if (parent->childAt(row)->iname == item->iname) {
             m_model->destroyItem(parent->childAt(row));
             parent->insertChild(row, item);
             found = true;
