@@ -38,7 +38,10 @@ class IOptionsPage;
 class Perspective;
 } // Core
 
-namespace ProjectExplorer { class RunControl; }
+namespace ProjectExplorer {
+class Kit;
+class RunControl;
+} // ProjectExplorer
 
 namespace Utils {
 class MacroExpander;
@@ -79,6 +82,8 @@ enum DebuggerState
 };
 
 DEBUGGER_EXPORT QDebug operator<<(QDebug str, DebuggerState state);
+
+DEBUGGER_EXPORT std::function<bool(const ProjectExplorer::Kit *)> &qmlCompiledToNativeCheck();
 
 class DEBUGGER_EXPORT DebuggerRunParameters
 {
@@ -125,6 +130,9 @@ public:
     void setQmlDebugging(bool on) { m_isQmlDebugging = on; }
 
     void setNativeMixedEnabled(bool on) { m_nativeMixedEnabled = on; }
+
+    void setQmlCompiledToNative(bool on) { m_qmlCompiledToNative = on; }
+    bool isQmlCompiledToNative() const { return m_qmlCompiledToNative; }
 
     void setRemoteChannel(const QString &channel) { m_remoteChannel = channel; }
     QString remoteChannel() const { return m_remoteChannel; }
@@ -400,6 +408,7 @@ private:
     bool m_multiProcess = false; // Whether to set detach-on-fork off.
     bool m_useTerminal = false;
     bool m_nativeMixedEnabled = false;
+    bool m_qmlCompiledToNative = false;
     bool m_uVisionSimulator = false;
     bool m_serverUseMulti = true;
     bool m_serverEssential = true;

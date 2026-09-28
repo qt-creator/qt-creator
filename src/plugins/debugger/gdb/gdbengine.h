@@ -155,6 +155,7 @@ private: ////////// General Interface //////////
 
     // This should be always the last call in a function.
     bool acceptsBreakpoint(const BreakpointParameters &bp) const final;
+    bool isInterpreterBreakpoint(const BreakpointParameters &bp) const;
     void insertBreakpoint(const Breakpoint &bp) final;
     void removeBreakpoint(const Breakpoint &bp) final;
     void updateBreakpoint(const Breakpoint &bp) final;

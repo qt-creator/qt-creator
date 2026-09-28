@@ -185,6 +185,17 @@ static void applyDebuggerPathOverride(ProcessRunData &debugger)
         debugger.command.setExecutable(FilePath::fromString(envBinary));
 }
 
+/*!
+    Returns the check whether the QML code built with a kit is compiled to
+    native code that carries line information pointing back to the .qml files.
+    The native debugger handles breakpoints in QML files for such kits.
+*/
+std::function<bool(const Kit *)> &qmlCompiledToNativeCheck()
+{
+    static std::function<bool(const Kit *)> theCheck;
+    return theCheck;
+}
+
 DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runControl)
 {
     Kit *kit = runControl->kit();
@@ -216,6 +227,18 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
     if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         params.m_qtSourceLocation = qtVersion->sourcePath();
 
+    const auto validateKitDebugger = [&] {
+        if (debuggerItem) {
+            const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
+            for (const Task &t : tasks) {
+                if (!t.isWarning())
+                    params.m_validationErrors.append(t.description());
+            }
+        } else {
+            params.m_validationErrors.append(Tr::tr("The kit does not have a debugger set."));
+        }
+    };
+
     bool useCombinedEngine = false;
     if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger)
@@ -229,17 +252,20 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
         params.m_multiProcess = aspect->useMultiProcess;
         params.m_additionalStartupCommands = aspect->overrideStartup;
 
-        if (aspect->useCppDebugger) {
+        if (aspect->useCppDebugger)
+            validateKitDebugger();
+    }
+
+    if (const auto &check = qmlCompiledToNativeCheck(); check && check(kit)) {
+        params.m_qmlCompiledToNative = true;
+        if (params.m_isQmlDebugging && !params.m_cppDebuggingRequested) {
             if (debuggerItem) {
-                const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
-                for (const Task &t : tasks) {
-                    if (!t.isWarning())
-                        params.m_validationErrors.append(t.description());
-                }
-            } else {
-                params.m_validationErrors.append(Tr::tr("The kit does not have a debugger set."));
+                params.m_cppEngineType = debuggerItem.engineType();
+                params.m_cppDebuggingRequested = true;
             }
+            validateKitDebugger();
         }
+        params.m_isQmlDebugging = false;
     }
 
     ProcessRunData inferior = runControl->runnable();

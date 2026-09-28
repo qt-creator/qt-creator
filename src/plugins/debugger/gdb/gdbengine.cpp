@@ -2545,9 +2545,14 @@ bool GdbEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     if (runParameters().startMode() == AttachToCore)
         return false;
+    return !isInterpreterBreakpoint(bp) || isNativeMixedEnabled();
+}
+
+bool GdbEngine::isInterpreterBreakpoint(const BreakpointParameters &bp) const
+{
     if (bp.isCppBreakpoint())
-        return true;
-    return isNativeMixedEnabled();
+        return false;
+    return !runParameters().isQmlCompiledToNative() || !bp.isQmlFileAndLineBreakpoint();
 }
 
 void GdbEngine::insertBreakpoint(const Breakpoint &bp)
@@ -2560,7 +2565,7 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
 
     const BreakpointParameters &requested = bp->requestedParameters();
 
-    if (!requested.isCppBreakpoint()) {
+    if (isInterpreterBreakpoint(requested)) {
         DebuggerCommand cmd("insertInterpreterBreakpoint", NeedsTemporaryStop);
         bp->addToCommand(runParameters().buildDirectory(), &cmd);
         cmd.callback = [this, bp](const DebuggerResponse &r) { handleInsertInterpreterBreakpoint(r, bp); };
@@ -2764,7 +2769,7 @@ void GdbEngine::removeBreakpoint(const Breakpoint &bp)
     QTC_CHECK(bp->state() == BreakpointRemoveRequested);
 
     const BreakpointParameters &requested = bp->requestedParameters();
-    if (!requested.isCppBreakpoint()) {
+    if (isInterpreterBreakpoint(requested)) {
         DebuggerCommand cmd("removeInterpreterBreakpoint");
         bp->addToCommand(runParameters().buildDirectory(), &cmd);
         runCommand(cmd);
@@ -5233,6 +5238,7 @@ static GdbImplFlags gdbImplFlags(const DebuggerRunParameters &rp)
     flags.setFlag(GdbImplFlag::ExitMonitorAtClose,
                   rp.closeMode() == KillAndExitMonitorAtClose);
     flags.setFlag(GdbImplFlag::ContinueInsteadOfRun, rp.useContinueInsteadOfRun());
+    flags.setFlag(GdbImplFlag::QmlCompiledToNative, rp.isQmlCompiledToNative());
     flags.setFlag(GdbImplFlag::IntelDisassembly, settings().intelFlavor());
     return flags;
 }

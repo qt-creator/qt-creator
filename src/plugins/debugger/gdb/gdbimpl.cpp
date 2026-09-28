@@ -130,6 +130,8 @@ static DebuggerEngineSetupData gdbImplSetupData()
             return false;
         if (query.isCppBreakpoint())
             return true;
+        if (query.isQmlCompiledToNative && query.isQmlFileAndLineBreakpoint())
+            return true;
         return query.isNativeMixedEnabled;
     };
     return data;
@@ -1232,7 +1234,7 @@ void GdbImpl::changeBreakpoint(const BreakpointChangeRequest &request)
             emit breakpointEvent(requestId, BreakpointOp::Remove, false);
             break;
         }
-        if (!request.params.isCppBreakpoint()) {
+        if (isInterpreterBreakpoint(request.params)) {
             DebuggerCommand cmd("removeInterpreterBreakpoint");
             cmd.arg("id", request.responseId);
             runCommand(cmd);
@@ -1275,6 +1277,14 @@ static QString gdbBreakpointLocation(const BreakpointParameters &params, const Q
         return "\"\\\"" + GdbMi::escapeCString(params.fileNameForDebugger().path()) + "\\\":"
                + QString::number(params.textPosition.line) + '"';
     }
+}
+
+bool GdbImpl::isInterpreterBreakpoint(const BreakpointParameters &params) const
+{
+    if (params.isCppBreakpoint())
+        return false;
+    return !m_startData.isSet(GdbImplFlag::QmlCompiledToNative)
+           || !params.isQmlFileAndLineBreakpoint();
 }
 
 static DebuggerCommand interpreterBreakpointInsertion(const BreakpointChangeRequest &request)
@@ -1337,7 +1347,7 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
         return;
     }
 
-    if (!params.isCppBreakpoint()) {
+    if (isInterpreterBreakpoint(params)) {
         DebuggerCommand cmd = interpreterBreakpointInsertion(request);
         cmd.callback = [this, requestId](const DebuggerResponse &response) {
             handleInterpreterBreakpointChange(requestId, BreakpointOp::Insert, response);
@@ -1598,7 +1608,7 @@ void GdbImpl::updateBreakpointCommand(const BreakpointChangeRequest &request)
     // change is there. Handing gdb the interpreter's number instead rewrites
     // whatever breakpoint of its own carries it, the hook into the service
     // included.
-    if (!params.isCppBreakpoint()) {
+    if (isInterpreterBreakpoint(params)) {
         DebuggerCommand removal("removeInterpreterBreakpoint",
                                 DebuggerCommand::NeedsTemporaryStop);
         removal.arg("id", bpnr);

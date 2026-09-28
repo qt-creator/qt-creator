@@ -85,9 +85,11 @@ StackFrame StackFrame::parseFrame(const GdbMi &frameMi, const DebuggerRunParamet
     frame.line = frameMi["line"].toInt();
     frame.address = frameMi["address"].toAddress();
     frame.context = frameMi["context"].data();
-    if (frameMi["language"].data() == "js"
-            || frame.file.endsWith(".js")
-            || frame.file.endsWith(".qml")) {
+    // Compiled QML runs as native code, only the #line directives point to the
+    // .qml files.
+    const bool interpretedFile = !rp.isQmlCompiledToNative()
+            && (frame.file.endsWith(".js") || frame.file.endsWith(".qml"));
+    if (frameMi["language"].data() == "js" || interpretedFile) {
         frame.language = QmlLanguage;
         frame.fixQrcFrame(rp);
     }

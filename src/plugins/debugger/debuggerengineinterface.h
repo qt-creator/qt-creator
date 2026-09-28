@@ -285,6 +285,7 @@ public:
     Utils::FilePath fileName;
     DebuggerStartMode startMode = NoStartMode;
     bool isNativeMixedEnabled = false;
+    bool isQmlCompiledToNative = false;
 };
 
 class DEBUGGER_EXPORT DebuggerEngineSetupData

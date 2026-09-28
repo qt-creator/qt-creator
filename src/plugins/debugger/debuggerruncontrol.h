@@ -39,4 +39,10 @@ DEBUGGER_EXPORT QString msgAttachToProcess();
 // native QML connection the combined engine needs.
 DEBUGGER_EXPORT QString msgCombinedEngineUnsupported(const QString &platform);
 
+namespace Internal {
+
+Utils::Result<> checkBreakpoints(const QList<QPointer<DebuggerEngine>> &engines);
+
+} // Internal
+
 } // Debugger

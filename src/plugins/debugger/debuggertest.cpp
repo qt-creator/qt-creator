@@ -229,6 +229,11 @@ private slots:
     void testDisabledBreakpointDoesNotStop();
     void testDisassemblyThatMissesTheAddressMarksNoLine();
     void testOnlyMachineCodeIsOfferedADisassembly();
+    void testCompiledQmlFramesAreNative();
+    void testGdbEngineTakesCompiledQmlBreakpoints();
+    void testClaimedQmlBreakpointsGetNoQmlHint();
+    void testUnhandledQmlBreakpointsGetAHint();
+    void testKitWithCompiledQmlDisablesQmlDebugging();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
     void testDisassemblyLinksToItsSource();
     void testMissingSourceMessage();
@@ -4311,6 +4316,153 @@ void DebuggerUnitTests::testOnlyMachineCodeIsOfferedADisassembly()
     interpreted.line = 26;
     QVERIFY2(!Location(interpreted).canBeDisassembled(),
              "a QML frame offered a disassembly of code it does not have");
+}
+
+// gdb selects only native frames, so a frame of QML compiled to C++ must not
+// pass for an interpreter frame because of its file name.
+void DebuggerUnitTests::testCompiledQmlFramesAreNative()
+{
+    QStringDecoder decoder(QStringDecoder::Utf8);
+    GdbMi frameMi;
+    frameMi.fromString(R"({level="0",function="onTriggered",file="Main.qml",line="30"})",
+                       decoder);
+
+    DebuggerRunParameters rp;
+    QCOMPARE(StackFrame::parseFrame(frameMi, rp).language, QmlLanguage);
+
+    rp.setQmlCompiledToNative(true);
+    QCOMPARE(StackFrame::parseFrame(frameMi, rp).language, CppLanguage);
+}
+
+// The engine gdb kits get by default, not the GdbImpl the backend tests drive.
+void DebuggerUnitTests::testGdbEngineTakesCompiledQmlBreakpoints()
+{
+    BreakpointParameters fileAndLine(BreakpointByFileAndLine);
+    fileAndLine.fileName = FilePath::fromUserInput("Main.qml");
+    fileAndLine.textPosition.line = 30;
+    const BreakpointParameters signalEmit(BreakpointOnQmlSignalEmit);
+
+    GdbEngine engine;
+    const DebuggerEngine &asEngine = engine;
+    DebuggerRunParameters rp;
+    engine.setRunParameters(rp);
+    QVERIFY(!asEngine.acceptsBreakpoint(fileAndLine));
+
+    rp.setQmlCompiledToNative(true);
+    engine.setRunParameters(rp);
+    QVERIFY(asEngine.acceptsBreakpoint(fileAndLine));
+    QVERIFY2(!asEngine.acceptsBreakpoint(signalEmit),
+             "gdb took a breakpoint only the QML engine can handle");
+}
+
+void DebuggerUnitTests::testClaimedQmlBreakpointsGetNoQmlHint()
+{
+    BreakpointParameters fileAndLine(BreakpointByFileAndLine);
+    fileAndLine.fileName = FilePath::fromUserInput("Main.qml");
+    fileAndLine.textPosition.line = 30;
+    const GlobalBreakpoint qml = BreakpointManager::createBreakpoint(fileAndLine);
+    const GlobalBreakpoint signalEmit = BreakpointManager::createBreakpoint(
+        BreakpointParameters(BreakpointOnQmlSignalEmit));
+    const QScopeGuard remove([qml, signalEmit] {
+        if (qml)
+            qml->deleteBreakpoint();
+        if (signalEmit)
+            signalEmit->deleteBreakpoint();
+    });
+    QVERIFY(qml);
+    QVERIFY(signalEmit);
+
+    GdbEngine engine;
+    DebuggerRunParameters rp;
+    rp.setQmlCompiledToNative(true);
+    engine.setRunParameters(rp);
+
+    const Result<> res = checkBreakpoints({&engine});
+    QVERIFY2(!res, "the signal emit breakpoint was not reported as unhandled");
+    QVERIFY2(!res.error().contains("cannot stop in it"), qPrintable(res.error()));
+    QVERIFY2(!res.error().contains("QML debugging needs"), qPrintable(res.error()));
+}
+
+void DebuggerUnitTests::testUnhandledQmlBreakpointsGetAHint()
+{
+    BreakpointParameters fileAndLine(BreakpointByFileAndLine);
+    fileAndLine.fileName = FilePath::fromUserInput("Main.qml");
+    fileAndLine.textPosition.line = 30;
+    const GlobalBreakpoint qml = BreakpointManager::createBreakpoint(fileAndLine);
+    const QScopeGuard remove([qml] {
+        if (qml)
+            qml->deleteBreakpoint();
+    });
+    QVERIFY(qml);
+
+    // A core file engine accepts no breakpoint at all.
+    GdbEngine engine;
+    DebuggerRunParameters rp;
+    rp.setStartMode(AttachToCore);
+    rp.setQmlCompiledToNative(true);
+    engine.setRunParameters(rp);
+
+    Result<> res = checkBreakpoints({&engine});
+    QVERIFY2(!res, "the QML breakpoint was not reported as unhandled");
+    QVERIFY2(res.error().contains("cannot stop in it"), qPrintable(res.error()));
+    QVERIFY2(!res.error().contains("QML debugging needs"), qPrintable(res.error()));
+
+    rp.setQmlCompiledToNative(false);
+    engine.setRunParameters(rp);
+    res = checkBreakpoints({&engine});
+    QVERIFY2(!res, "the QML breakpoint was not reported as unhandled");
+    QVERIFY2(res.error().contains("QML debugging needs"), qPrintable(res.error()));
+    QVERIFY2(!res.error().contains("cannot stop in it"), qPrintable(res.error()));
+}
+
+void DebuggerUnitTests::testKitWithCompiledQmlDisablesQmlDebugging()
+{
+    Kit *kit = KitManager::defaultKit();
+    QVERIFY(kit);
+
+    auto &check = qmlCompiledToNativeCheck();
+    const auto saved = check;
+    const QScopeGuard restore([&check, saved] { check = saved; });
+    check = [kit](const Kit *k) { return k == kit; };
+
+    const std::unique_ptr<RunControl> runControl(
+        new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE));
+    runControl->setKit(kit);
+    AspectContainerData data;
+    data.append(DebuggerRunConfigurationAspect::Data::createCppAndQmlTestData());
+    runControl->setAspectDataForTest(data);
+
+    const DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl.get());
+    QVERIFY(rp.isQmlCompiledToNative());
+    QVERIFY(!rp.isQmlDebugging());
+
+    // Only QML was asked for, so the kit's debugger has to take over what it can.
+    AspectContainerData qmlOnly;
+    qmlOnly.append(DebuggerRunConfigurationAspect::Data::createQmlTestData());
+    runControl->setAspectDataForTest(qmlOnly);
+    const DebuggerRunParameters native = DebuggerRunParameters::fromRunControl(runControl.get());
+    QVERIFY(native.isQmlCompiledToNative());
+    QVERIFY(!native.isQmlDebugging());
+    if (DebuggerKitAspect::debugger(kit))
+        QVERIFY(native.isCppDebugging());
+    else
+        QVERIFY(!native.m_validationErrors.isEmpty());
+
+    // The kit's debugger is validated once when C++ debugging was requested already.
+    Kit noDebugger;
+    DebuggerKitAspect::setDebugger(&noDebugger, {});
+    check = [&noDebugger](const Kit *k) { return k == &noDebugger; };
+    const std::unique_ptr<RunControl> noDebuggerRun(
+        new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE));
+    noDebuggerRun->setKit(&noDebugger);
+    noDebuggerRun->setAspectDataForTest(data);
+    const DebuggerRunParameters once = DebuggerRunParameters::fromRunControl(noDebuggerRun.get());
+    QCOMPARE(once.m_validationErrors.size(), 1);
+
+    check = {};
+    runControl->setAspectDataForTest(data);
+    const DebuggerRunParameters plain = DebuggerRunParameters::fromRunControl(runControl.get());
+    QVERIFY(plain.isQmlDebugging());
 }
 
 void DebuggerUnitTests::testAnEmptyDisassemblyLeavesTheViewAlone()

@@ -76,7 +76,7 @@ public:
     ~EnginesDriver() { clearEngines(); }
 
     Result<> setupEngines(RunControl *runControl, const DebuggerRunParameters &rp);
-    Result<> checkBreakpoints() const;
+    Result<> checkBreakpoints() const { return Internal::checkBreakpoints(m_engines); }
     QString debuggerName() const
     {
         return Utils::transform<QStringList>(m_engines, &DebuggerEngine::objectName).join(" ");
@@ -687,19 +687,20 @@ Result<> EnginesDriver::setupEngines(RunControl *runControl, const DebuggerRunPa
     return ResultOk;
 }
 
-Result<> EnginesDriver::checkBreakpoints() const
+Result<> Internal::checkBreakpoints(const QList<QPointer<DebuggerEngine>> &engines)
 {
     QStringList unhandledIds;
     bool hasQmlBreakpoints = false;
     for (const GlobalBreakpoint &gbp : BreakpointManager::globalBreakpoints()) {
         if (gbp->isEnabled()) {
             const BreakpointParameters &bp = gbp->requestedParameters();
-            hasQmlBreakpoints = hasQmlBreakpoints || bp.isQmlFileAndLineBreakpoint();
             const auto engineAcceptsBp = [bp](const DebuggerEngine *engine) {
                 return engine->acceptsBreakpoint(bp);
             };
-            if (!Utils::anyOf(m_engines, engineAcceptsBp))
+            if (!Utils::anyOf(engines, engineAcceptsBp)) {
                 unhandledIds.append(gbp->displayName());
+                hasQmlBreakpoints = hasQmlBreakpoints || bp.isQmlFileAndLineBreakpoint();
+            }
         }
     }
 
@@ -711,7 +712,15 @@ Result<> EnginesDriver::checkBreakpoints() const
                                  "languages currently active, and will be ignored.<p>"
                                  "Affected are breakpoints %1")
                                  .arg(unhandledIds.join(", "));
-    if (hasQmlBreakpoints) {
+    const bool qmlCompiledToNative = Utils::anyOf(engines, [](const DebuggerEngine *engine) {
+        return engine->runParameters().isQmlCompiledToNative();
+    });
+    if (hasQmlBreakpoints && qmlCompiledToNative) {
+        warningMessage += "<p>"
+                          + Debugger::Tr::tr(
+                              "The QML is compiled to native code, and this debugger "
+                              "cannot stop in it.");
+    } else if (hasQmlBreakpoints) {
         warningMessage += "<p>"
                           + Debugger::Tr::tr(
                               "QML debugging needs to be enabled both in the Build "

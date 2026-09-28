@@ -483,6 +483,7 @@ bool GenericDebuggerEngine::acceptsBreakpoint(const BreakpointParameters &bp) co
     query.fileName = bp.fileName;
     query.startMode = runParameters().startMode();
     query.isNativeMixedEnabled = isNativeMixedEnabled();
+    query.isQmlCompiledToNative = runParameters().isQmlCompiledToNative();
     return accepts(query);
 }
 

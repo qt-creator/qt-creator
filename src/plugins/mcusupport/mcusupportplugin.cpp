@@ -25,6 +25,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <debugger/debuggerengine.h>
+
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildsystem.h>
@@ -190,6 +192,10 @@ void McuSupportPlugin::initialize()
     dd = new McuSupportPluginPrivate;
 
     setupMcuDebugSupport();
+
+    Debugger::qmlCompiledToNativeCheck() = [](const Kit *kit) {
+        return kit->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY);
+    };
 
     connect(ProjectManager::instance(),
             &ProjectManager::projectFinishedParsing,

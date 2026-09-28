@@ -49,6 +49,7 @@ enum class GdbImplFlag {
     UseCtrlCStub         = 1 << 16,
     ExitMonitorAtClose   = 1 << 17,
     ContinueInsteadOfRun = 1 << 18,
+    QmlCompiledToNative  = 1 << 19,
 };
 Q_DECLARE_FLAGS(GdbImplFlags, GdbImplFlag)
 
@@ -127,6 +128,7 @@ private:
     void executeDebuggerCommand(const QString &command,
                                 const WatchItemData &inspectorItem) final;
 
+    bool isInterpreterBreakpoint(const BreakpointParameters &params) const;
     void insertBreakpointCommand(const BreakpointChangeRequest &request);
     void updateBreakpointCommand(const BreakpointChangeRequest &request);
     void setBreakpointCommands(const QString &bpnr, const QString &command);

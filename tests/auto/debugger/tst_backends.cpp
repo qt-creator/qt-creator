@@ -2351,6 +2351,8 @@ private slots:
     void acceptsBreakpointFollowsRules();
     void acceptsBreakpointFollowsCppAndQmlRules_data() { addBackendRows(); }
     void acceptsBreakpointFollowsCppAndQmlRules();
+    void sendsCompiledQmlBreakpointsToGdbItself_data() { addBackendRows(); }
+    void sendsCompiledQmlBreakpointsToGdbItself();
     void offersToolTipsOnlyInTheEditorsItReads_data() { addBackendRows(); }
     void offersToolTipsOnlyInTheEditorsItReads();
     void executesStepIn_data() { addBackendRows(); }
@@ -14599,6 +14601,86 @@ void tst_backends::acceptsBreakpointFollowsCppAndQmlRules()
 
     qmlQuery.isNativeMixedEnabled = true;
     QCOMPARE(data.acceptsBreakpoint(qmlQuery), breaksInQmlWithNativeMixed(backend));
+
+    // Only gdb is told about QML compiled to native code so far.
+    qmlQuery.isNativeMixedEnabled = false;
+    qmlQuery.isQmlCompiledToNative = true;
+    QCOMPARE(data.acceptsBreakpoint(qmlQuery), backend == Backend::Gdb);
+}
+
+// With the QML compiled to C++, the #line directives point gdb to the .qml
+// file, and there is no interpreter to hand the breakpoint to.
+void tst_backends::sendsCompiledQmlBreakpointsToGdbItself()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Gdb)
+        QSKIP("Only gdb is told about QML compiled to native code so far.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend
+        = launchAndStopAtBreakpoint(backend, {}, 0,
+                                    GdbImplFlag::PseudoTracepoints
+                                        | GdbImplFlag::QmlCompiledToNative);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> results;
+    QString responseId;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results, &responseId](quint64 requestId, BreakpointOp op, bool ok,
+                                    const GdbMi &data) {
+        results[requestId] = ok;
+        if (op != BreakpointOp::Insert || !ok)
+            return;
+        for (const GdbMi &bkpt : data) {
+            if (!bkpt["number"].data().isEmpty())
+                responseId = bkpt["number"].data();
+        }
+        if (!data["number"].data().isEmpty())
+            responseId = data["number"].data();
+    });
+    QStringList wire;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&wire](const QString &text, int, int) { wire.append(text); });
+
+    BreakpointChangeRequest request;
+    request.op = BreakpointOp::Insert;
+    request.requestId = 2;
+    request.modelId = 77;
+    request.params.type = BreakpointByFileAndLine;
+    request.params.fileName = FilePath::fromUserInput("Main.qml");
+    request.params.textPosition.line = 30;
+    request.params.enabled = true;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(2), s_timeout);
+    QVERIFY2(Utils::anyOf(wire, [](const QString &line) {
+                 return line.contains("-break-insert") && line.contains("Main.qml");
+             }),
+             qPrintable("no -break-insert for the .qml line - " + wire.join(" | ").left(700)));
+    QVERIFY2(!responseId.isEmpty(), "gdb gave the .qml breakpoint no number");
+
+    request.op = BreakpointOp::Update;
+    request.requestId = 3;
+    request.responseId = responseId;
+    request.params.enabled = false;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(3), s_timeout);
+
+    request.op = BreakpointOp::Remove;
+    request.requestId = 4;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(4), s_timeout);
+    QVERIFY(results.value(4));
+
+    QVERIFY2(Utils::anyOf(wire, [](const QString &line) {
+                 return line.contains("-break-delete");
+             }),
+             qPrintable("the removal never reached gdb - " + wire.join(" | ").left(700)));
+    QVERIFY2(!Utils::anyOf(wire, [](const QString &line) {
+                 return line.contains("InterpreterBreakpoint");
+             }),
+             qPrintable("a compiled QML breakpoint went to the interpreter - "
+                        + wire.join(" | ").left(700)));
 }
 
 // The expression under the cursor is one the debugger can make sense of only
