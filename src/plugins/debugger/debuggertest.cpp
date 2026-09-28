@@ -133,6 +133,8 @@ private slots:
     void testMapsAnEmptyFileNameToNothing();
     void testFindsASourceFileOnTheDebuggerDevice();
     void testCdbSourcePathMapping();
+    void testCdbSourcePathMappingToHost();
+    void testCdbSourceFileNameOnDevice();
     void testCdbBreakpointFileName();
 
     void testQtBuildSourceRoots_data();
@@ -1311,6 +1313,120 @@ void DebuggerUnitTests::testCdbSourcePathMapping()
              QString("C:/src/foo.cpp"));
 }
 
+// A remote cdb names the files of its device. A mapped name the host has stays
+// on the host, one it misses is looked up on the device and stays local when
+// the device lacks it, too. The mapped name keeps cdb's separators after the
+// mapped part, which only a Windows host would accept as they are.
+void DebuggerUnitTests::testCdbSourcePathMappingToHost()
+{
+    QTemporaryDir hostDir;
+    QVERIFY(hostDir.isValid());
+    const FilePath hostFile = FilePath::fromString(hostDir.path()) / "main.cpp";
+    QVERIFY(hostFile.writeFileContents("int main() {}\n"));
+
+    CdbEngine engine;
+    DebuggerRunParameters rp;
+    ProcessRunData cdb;
+    cdb.command = CommandLine(FilePath::fromString("ssh://windows/C:/Debuggers/x64/cdb.exe"));
+    rp.setDebugger(cdb);
+    engine.setRunParameters(rp);
+    engine.m_sourcePathMappings.push_back({"C:/build/src", hostDir.path()});
+
+    const bool wasOn = commonSettings().lookUpSourcesOnDebuggerDevice();
+    const QScopeGuard restore(
+        [wasOn] { commonSettings().lookUpSourcesOnDebuggerDevice.setValue(wasOn); });
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(true);
+
+    const auto mapped = engine.sourceMapNormalizeFileNameFromDebugger("C:\\build\\src\\main.cpp");
+    QVERIFY(mapped.fileName.isLocal());
+    QVERIFY(mapped.fileName.isSameFile(hostFile));
+    QVERIFY(mapped.exists);
+
+    const auto missing = engine.sourceMapNormalizeFileNameFromDebugger("C:\\build\\src\\gone.cpp");
+    QVERIFY(missing.fileName.isLocal());
+    QCOMPARE(missing.fileName.fileName(), QString("gone.cpp"));
+    QVERIFY(!missing.exists);
+
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(false);
+
+    const auto unmapped = engine.sourceMapNormalizeFileNameFromDebugger("c:\\other\\x\\..\\a.cpp");
+    QVERIFY(unmapped.fileName.isLocal());
+    QCOMPARE(unmapped.fileName.path(), QString("C:/other/a.cpp"));
+    QVERIFY(!unmapped.exists);
+}
+
+static const char noWindowsTestDevice[]
+    = "Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE) to a Windows-over-SSH host, "
+      "and load the Remote plugin.";
+
+// Registers a device for the Windows-over-SSH test host, if there is one.
+static IDevicePtr addWindowsTestDevice()
+{
+    const SshParameters params = SshTest::getParameters("WIN");
+    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params))
+        return {};
+    IDeviceFactory *factory
+        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [](IDeviceFactory *f) {
+              return f->deviceType() == Id("GenericWindowsOsType");
+          });
+    if (!factory)
+        return {};
+
+    const IDevicePtr device = factory->construct();
+    QTC_ASSERT(device, return {});
+    device->sshParametersAspectContainer().setSshParameters(params);
+    DeviceManager::addDevice(device);
+    return device;
+}
+
+static bool connectToDevice(const IDevicePtr &device)
+{
+    QEventLoop loop;
+    QTimer::singleShot(60 * 1000, &loop, [&loop] { loop.exit(1); });
+    device->tryToConnect(Continuation<>(&loop, [&loop](const Result<> &res) {
+        loop.exit(res ? 0 : 1);
+    }));
+    return loop.exec() == 0;
+}
+
+// A file that only the device of a remote cdb has is found there.
+void DebuggerUnitTests::testCdbSourceFileNameOnDevice()
+{
+    const IDevicePtr device = addWindowsTestDevice();
+    if (!device)
+        QSKIP(noWindowsTestDevice);
+    const QScopeGuard cleanup([id = device->id()] { DeviceManager::removeDevice(id); });
+    QVERIFY2(connectToDevice(device), "Cannot connect to the device.");
+
+    const bool wasOn = commonSettings().lookUpSourcesOnDebuggerDevice();
+    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(true);
+    const QScopeGuard restore(
+        [wasOn] { commonSettings().lookUpSourcesOnDebuggerDevice.setValue(wasOn); });
+
+    CdbEngine engine;
+    DebuggerRunParameters rp;
+    ProcessRunData cdb;
+    cdb.command = CommandLine(device->rootPath().withNewPath("C:/Debuggers/x64/cdb.exe"));
+    rp.setDebugger(cdb);
+    engine.setRunParameters(rp);
+
+    const auto onDevice
+        = engine.sourceMapNormalizeFileNameFromDebugger("c:\\windows\\system32\\..\\win.ini");
+    QCOMPARE(onDevice.fileName, device->rootPath().withNewPath("C:/windows/win.ini"));
+    QVERIFY(onDevice.exists);
+
+    // A mapping may point to the device, too.
+    const Result<FilePath> dir = device->rootPath().createTempDir();
+    if (!dir)
+        QFAIL(qPrintable(dir.error()));
+    const QScopeGuard removeDir([dir] { dir->removeRecursively(); });
+    QVERIFY(dir->pathAppended("main.cpp").writeFileContents("int main() {}\n"));
+    engine.m_sourcePathMappings.push_back({"C:/build", dir->path()});
+    const auto mapped = engine.sourceMapNormalizeFileNameFromDebugger("C:\\build\\main.cpp");
+    QCOMPARE(mapped.fileName, dir->pathAppended("main.cpp"));
+    QVERIFY(mapped.exists);
+}
+
 void DebuggerUnitTests::testCdbBreakpointFileName()
 {
     BreakpointParameters params(BreakpointByFileAndLine);
@@ -1486,28 +1602,11 @@ void DebuggerUnitTests::testPdbSourceFileNames()
 // piecewise at the offsets of its blocks.
 void DebuggerUnitTests::testPdbSourceFileNamesOnDevice()
 {
-    const SshParameters params = SshTest::getParameters("WIN");
-    if (!SshTest::hasVariantHost("WIN") || !SshTest::checkParameters(params))
-        QSKIP("Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE) to a Windows-over-SSH host.");
-    IDeviceFactory *factory
-        = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(), [](IDeviceFactory *f) {
-              return f->deviceType() == Id("GenericWindowsOsType");
-          });
-    if (!factory)
-        QSKIP("The Remote plugin with the Windows device is not loaded.");
-
-    const IDevicePtr device = factory->construct();
-    QVERIFY(device);
-    device->sshParametersAspectContainer().setSshParameters(params);
-    DeviceManager::addDevice(device);
+    const IDevicePtr device = addWindowsTestDevice();
+    if (!device)
+        QSKIP(noWindowsTestDevice);
     const QScopeGuard cleanup([id = device->id()] { DeviceManager::removeDevice(id); });
-
-    QEventLoop loop;
-    QTimer::singleShot(60 * 1000, &loop, [&loop] { loop.exit(1); });
-    device->tryToConnect(Continuation<>(&loop, [&loop](const Result<> &res) {
-        loop.exit(res ? 0 : 1);
-    }));
-    QVERIFY2(loop.exec() == 0, "Cannot connect to the device.");
+    QVERIFY2(connectToDevice(device), "Cannot connect to the device.");
 
     FilePath pdb;
     const FilePath qtRoot = device->rootPath().withNewPath("C:/Qt");

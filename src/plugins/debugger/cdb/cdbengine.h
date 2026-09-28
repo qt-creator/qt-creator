@@ -86,12 +86,16 @@ private:
 
     void createFullBacktrace();
 
+#ifdef WITH_TESTS
+    friend class DebuggerUnitTests;
+#endif
     typedef QPair<QString, QString> SourcePathMapping;
     struct NormalizedSourceFileName // Struct for caching mapped/normalized source files.
     {
-        NormalizedSourceFileName(const QString &fn = QString(), bool e = false) : fileName(fn), exists(e) {}
+        NormalizedSourceFileName(const Utils::FilePath &fn = {}, bool e = false)
+            : fileName(fn), exists(e) {}
 
-        QString fileName;
+        Utils::FilePath fileName;
         bool exists;
     };
 
