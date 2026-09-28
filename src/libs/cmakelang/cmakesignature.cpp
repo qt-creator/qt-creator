@@ -3,6 +3,12 @@
 
 #include "cmakesignature.h"
 
+// Work around a GCC false positive on moving a struct holding
+// std::optional<QStringList> members (libstdc++ bits/move.h).
+#if defined(__GNUC__) && !defined(__clang__)
+#  pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 using namespace CMakeLang;
 
 namespace {
