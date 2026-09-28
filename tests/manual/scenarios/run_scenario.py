@@ -590,9 +590,17 @@ class Runner:
             raise ScenarioError("step {}: the build did not finish within {}s".format(
                 self.step_no, timeout))
         if state != "succeeded":
+            # A tool that fails without a parsable diagnostic leaves no issue,
+            # and then only the end of its output says what went wrong.
             _, issues, _ = self.client.call("build_get_issues", {"build_id": r["build_id"]})
+            detail = (issues or {}).get("issues")
+            if not detail:
+                _, out, _ = self.client.call("build_get_compile_output",
+                                             {"build_id": r["build_id"], "max_chars": 2000})
+                detail = (out or {}).get("output")
             raise ScenarioError("step {}: the build {}: {}".format(
-                self.step_no, state, json.dumps(issues)[:2000]))
+                self.step_no, state,
+                detail if isinstance(detail, str) else json.dumps(detail)[:2000]))
         self.record(step["describe"], "build " + json.dumps(spec),
                     note="Built in {:.1f}s ({} errors, {} warnings).".format(
                         (r.get("duration_ms") or 0) / 1000, r.get("error_count"),
