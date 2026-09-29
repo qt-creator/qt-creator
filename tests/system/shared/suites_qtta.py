@@ -73,3 +73,13 @@ def checkIfObjectItemExists(object, item, timeout = 3000):
         return True
     except:
         return False
+
+# returns True if QmlLS is running, False otherwise, throws if no QML file is opened currently
+def isQmlLSEnabled():
+    waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget", 1000)
+    try:
+        qmlLSButton = ("{window=':Qt Creator_Core::Internal::MainWindow' type='QToolButton' "
+                       "text?='QML Language Server*'}")
+        return waitForObjectExists(qmlLSButton, 5000)
+    except:
+        return False
