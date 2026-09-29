@@ -348,9 +348,9 @@ public:
 
         const int lExprEnd = currentFile()->endOf(condition->left_expression);
         changes.remove(lExprEnd, currentFile()->startOf(condition->right_expression));
-        changes.insert(currentFile()->endOf(pattern), QLatin1String("\n}"));
-
-        currentFile()->apply(changes);
+        const int statementEnd = currentFile()->endOf(pattern);
+        changes.insert(statementEnd, QLatin1String("\n}"));
+        currentFile()->apply(changes, {ChangeSet::Range(startPos, statementEnd)});
     }
 
     void splitOrCondition() const
@@ -590,11 +590,6 @@ class MoveDeclarationOutOfWhile: public CppQuickFixFactory
 */
 class SplitIfStatement: public CppQuickFixFactory
 {
-#ifdef WITH_TESTS
-public:
-    static QObject *createTest() { return new QObject; }
-#endif
-
 private:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
     {
@@ -1056,6 +1051,12 @@ class OptimizeForLoopTest : public Tests::CppQuickFixTestObject
 public:
     using CppQuickFixTestObject::CppQuickFixTestObject;
 };
+class SplitIfStatementTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
 class WrapInStdAsConstTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
@@ -1073,8 +1074,8 @@ void registerRewriteControlStatementQuickfixes()
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveDeclarationOutOfIf);
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveDeclarationOutOfWhile);
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(OptimizeForLoop);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(SplitIfStatement);
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(WrapInStdAsConst);
-    CppQuickFixFactory::registerFactory<SplitIfStatement>();
 }
 
 } // namespace CppEditor::Internal

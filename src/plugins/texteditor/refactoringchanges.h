@@ -58,10 +58,14 @@ public:
     QString textOf(const Range &range) const;
 
     Utils::ChangeSet changeSet() const;
-    void setChangeSet(const Utils::ChangeSet &changeSet);
+    void setChangeSet(
+        const Utils::ChangeSet &changeSet,
+        const QList<Utils::ChangeSet::Range> &extraFormattingRanges = {});
     void setOpenEditor(bool activate = false, int pos = -1);
     bool apply();
-    bool apply(const Utils::ChangeSet &changeSet);
+    bool apply(
+        const Utils::ChangeSet &changeSet,
+        const QList<Utils::ChangeSet::Range> &extraFormattingRanges = {});
     bool create(const QString &contents, bool reindent, bool openInEditor);
 
 protected:
@@ -92,6 +96,9 @@ private:
 
     // The bool indicates whether to advance the start position.
     QList<std::pair<QTextCursor, bool>> m_formattingCursors;
+
+    // Sometimes, we need to re-format code that is not part of the actual change set.
+    QList<Utils::ChangeSet::Range> m_extraFormattingRanges;
 
     bool m_openEditor = false;
     bool m_activateEditor = false;

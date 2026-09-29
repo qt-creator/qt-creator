@@ -190,12 +190,14 @@ ChangeSet RefactoringFile::changeSet() const
     return m_changes;
 }
 
-void RefactoringFile::setChangeSet(const ChangeSet &changeSet)
+void RefactoringFile::setChangeSet(
+    const ChangeSet &changeSet, const QList<ChangeSet::Range> &extraFormattingRanges)
 {
     if (m_filePath.isEmpty())
         return;
 
     m_changes = changeSet;
+    m_extraFormattingRanges = extraFormattingRanges;
     m_formattingCursors.clear();
 }
 
@@ -250,6 +252,7 @@ bool RefactoringFile::apply()
             setupFormattingRanges(m_changes.operationList());
             m_changes.apply(&c);
             m_changes.clear();
+            m_extraFormattingRanges.clear();
 
             // Do indentation and formatting.
             doFormatting();
@@ -283,9 +286,10 @@ bool RefactoringFile::apply()
     return result;
 }
 
-bool RefactoringFile::apply(const Utils::ChangeSet &changeSet)
+bool RefactoringFile::apply(
+    const Utils::ChangeSet &changeSet, const QList<ChangeSet::Range> &extraFormattingRanges)
 {
-    setChangeSet(changeSet);
+    setChangeSet(changeSet, extraFormattingRanges);
     return apply();
 }
 
@@ -326,6 +330,14 @@ void RefactoringFile::setupFormattingRanges(const QList<ChangeSet::EditOp> &repl
             m_formattingCursors << m_formattingCursors << std::make_pair(cursor, false);
             break;
         }
+    }
+
+    for (const ChangeSet::Range &r : m_extraFormattingRanges) {
+        QTextCursor cursor(doc);
+        cursor.setKeepPositionOnInsert(true);
+        cursor.setPosition(r.end);
+        cursor.setPosition(r.start, QTextCursor::KeepAnchor);
+        m_formattingCursors << std::make_pair(cursor, false);
     }
 }
 
