@@ -1123,7 +1123,7 @@ QString ChatPanel::updateSelectButton(QtcButton *button, SessionConfigOptionCate
 
     *selectedName = name;
     QStringList tooltip{tooltipTemplate.arg(name)};
-    if (it != entries.cend() && !it->description.isEmpty())
+    if (it != entries.cend() && !it->description.isEmpty() && it->description != name)
         tooltip.append(it->description);
     tooltip.append(Tr::tr("Click to choose a different one."));
     button->setToolTip(tooltip.join('\n'));

@@ -124,7 +124,7 @@ public:
 
         const QString description = index.data(DescriptionRole).toString();
         const int descriptionLeft = nameRect.right() + GapHS;
-        if (description.isEmpty() || descriptionLeft >= textRight)
+        if (description.isEmpty() || text == description || descriptionLeft >= textRight)
             return;
 
         const QRect descriptionRect(descriptionLeft, option.rect.top(),
@@ -273,10 +273,8 @@ void ConfigSelectPopup::rebuild()
         item->setData(entry.description, DescriptionRole);
         item->setData(m_favorites.contains(entry.value), FavoriteRole);
         item->setData(entry.value == m_currentValue, CurrentRole);
-        QStringList tooltip{name};
-        if (!entry.description.isEmpty())
-            tooltip.append(entry.description);
-        item->setToolTip(tooltip.join('\n'));
+        if (!entry.description.isEmpty() && entry.description != name)
+            item->setToolTip(entry.description);
         m_model->appendRow(item);
     };
 
