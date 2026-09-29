@@ -1,0 +1,31 @@
+# Copyright (C) 2026 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+#
+# What Qt for WebAssembly is configured with for qtprofiler, besides -platform,
+# -prefix and -qt-host-path. README.md next to this file explains the options.
+# Dockerfile and scripts/build-wasm-profiler.py --build-qt both read this file;
+# lines starting with # are left out.
+
+-feature-wasm-exceptions
+-feature-wasm-jspi
+-release -optimize-size
+-nomake examples -nomake tests
+-no-feature-jpeg -no-feature-gif -no-feature-ico
+-no-feature-imageformat_jpeg
+-no-feature-sql -no-feature-testlib
+-no-feature-mdiarea -no-feature-calendarwidget -no-feature-fontdialog
+-no-feature-whatsthis -no-feature-sessionmanager
+-no-feature-printpreviewwidget
+-no-feature-hijricalendar -no-feature-jalalicalendar
+-no-feature-islamiccivilcalendar
+-no-feature-scroller -no-feature-lcdnumber -no-feature-errormessage
+-no-feature-undogroup -no-feature-socks5
+-no-feature-style-stylesheet
+-no-feature-raster-fp -no-feature-sha3-fast
+-no-feature-mimetype-database
+-no-feature-imageformat_bmp -no-feature-imageformat_ppm
+-no-feature-imageformat_xbm
+-no-feature-cborstreamwriter -no-feature-datetimeparser
+-no-feature-sizegrip -no-feature-tabletevent
+-no-feature-dial -no-feature-toolbox -no-feature-rubberband
+-no-feature-graphicsview

@@ -43,39 +43,22 @@ Building Qt with JSPI
 ---------------------
 
 You need the Qt sources, a host Qt of the same version whose tools run during
-the cross build, and an installed emsdk. Qt 6.11.2 does not build without style
-sheet support or without the CBOR stream writer as it is; apply the patches in
-`qt-patches/qtbase` to its qtbase first (see below):
+the cross build, and an installed emsdk. `scripts/build-wasm-profiler.py
+--build-qt` does all of what follows by itself; see "Building qtprofiler".
+
+By hand: Qt 6.11.2 does not build without style sheet support or without the
+CBOR stream writer as it is, so apply the patches in `qt-patches/qtbase` to its
+qtbase first (see below). Then configure it with the options in
+`qt-configure-options.txt`, which the Dockerfile and the script read as well:
 
     cd <qt-src>/qtbase && git apply <this-dir>/qt-patches/qtbase/*.patch
     cd <somewhere>
     <qt-src>/configure -platform wasm-emscripten \
       -prefix <install-dir> \
       -qt-host-path <host-qt> \
-      -feature-wasm-exceptions \
-      -feature-wasm-jspi \
-      -release -optimize-size \
-      -nomake examples -nomake tests \
       -submodules qtbase,qtsvg \
       -skip qtimageformats \
-      -no-feature-jpeg -no-feature-gif -no-feature-ico \
-      -no-feature-imageformat_jpeg \
-      -no-feature-sql -no-feature-testlib \
-      -no-feature-mdiarea -no-feature-calendarwidget -no-feature-fontdialog \
-      -no-feature-whatsthis -no-feature-sessionmanager \
-      -no-feature-printpreviewwidget \
-      -no-feature-hijricalendar -no-feature-jalalicalendar \
-      -no-feature-islamiccivilcalendar \
-      -no-feature-scroller -no-feature-lcdnumber -no-feature-errormessage \
-      -no-feature-undogroup -no-feature-socks5 \
-      -no-feature-raster-fp -no-feature-sha3-fast -no-feature-mimetype-database \
-      -no-feature-imageformat_bmp -no-feature-imageformat_ppm \
-      -no-feature-imageformat_xbm \
-      -no-feature-cborstreamwriter -no-feature-datetimeparser \
-      -no-feature-sizegrip -no-feature-tabletevent \
-      -no-feature-dial -no-feature-toolbox -no-feature-rubberband \
-      -no-feature-graphicsview \
-      -no-feature-style-stylesheet
+      $(grep -v '^#' <this-dir>/qt-configure-options.txt)
     cmake --build . --parallel
     cmake --install .
 
@@ -196,6 +179,24 @@ Point `--qt-wasm` at the Qt built above for a JSPI build, or at a prebuilt
 `wasm_singlethread` package for an Asyncify one. The result is a directory
 holding `qtprofiler.html`, `qtprofiler.js`, `qtprofiler.wasm`, `qtloader.js`
 and `qtlogo.svg`; serve it over HTTP and open the .html.
+
+With `--build-qt` it builds that Qt first, and qtprofiler against it:
+
+    scripts/build-wasm-profiler.py --build-qt \
+        --qt-host <host-qt> \
+        --emsdk <emsdk> \
+        --output artifacts
+
+It downloads the Qt 6.11.2 qtbase and qtsvg source packages and checks them
+against their checksums, applies the patches, and configures, builds and
+installs qtbase and then qtsvg into `builds/wasm-qt/install`, as the
+Dockerfile does. `--qt-src` builds sources of your own instead, a qt5 checkout
+for example, whose qtbase it patches where the patches are not in yet;
+`--qt-build` and `--qt-wasm` move the Qt build and install directories. The
+host Qt has to be of the version being built. A second run leaves Qt as it is,
+unless its options or patches changed, it is built from other sources or
+against another host Qt, or `--clean` is passed; and it does not install Qt
+over a directory it did not install itself.
 
 The preset builds `Release`, at `-O3`. Building the application at `-Oz`
 instead (`MinSizeRel` with `CMAKE_CXX_FLAGS_MINSIZEREL` set to `-Oz -DNDEBUG`,

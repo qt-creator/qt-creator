@@ -82,38 +82,18 @@ RUN cd /opt/qt-src/qtbase \
            fi; \
        done
 
-# Qt for WebAssembly, configured as README.md explains flag by flag. It builds
-# the two submodules one at a time instead of through the top-level configure,
-# so only their sources need downloading; the -submodules and -skip flags of the
-# README's configure line have no counterpart here.
+# Qt for WebAssembly, configured with the options in qt-configure-options.txt,
+# which README.md explains flag by flag. It builds the two submodules one at a
+# time instead of through the top-level configure, so only their sources need
+# downloading; the -submodules and -skip flags of the README's configure line
+# have no counterpart here.
+COPY qt-configure-options.txt /opt/qt-configure-options.txt
 RUN source /opt/emsdk/emsdk_env.sh > /dev/null \
     && mkdir -p /tmp/build/qtbase && cd /tmp/build/qtbase \
     && /opt/qt-src/qtbase/configure -platform wasm-emscripten \
         -prefix /opt/qt-wasm \
         -qt-host-path /opt/qt-host \
-        -feature-wasm-exceptions \
-        -feature-wasm-jspi \
-        -release -optimize-size \
-        -nomake examples -nomake tests \
-        -no-feature-jpeg -no-feature-gif -no-feature-ico \
-        -no-feature-imageformat_jpeg \
-        -no-feature-sql -no-feature-testlib \
-        -no-feature-mdiarea -no-feature-calendarwidget -no-feature-fontdialog \
-        -no-feature-whatsthis -no-feature-sessionmanager \
-        -no-feature-printpreviewwidget \
-        -no-feature-hijricalendar -no-feature-jalalicalendar \
-        -no-feature-islamiccivilcalendar \
-        -no-feature-scroller -no-feature-lcdnumber -no-feature-errormessage \
-        -no-feature-undogroup -no-feature-socks5 \
-        -no-feature-style-stylesheet \
-        -no-feature-raster-fp -no-feature-sha3-fast \
-        -no-feature-mimetype-database \
-        -no-feature-imageformat_bmp -no-feature-imageformat_ppm \
-        -no-feature-imageformat_xbm \
-        -no-feature-cborstreamwriter -no-feature-datetimeparser \
-        -no-feature-sizegrip -no-feature-tabletevent \
-        -no-feature-dial -no-feature-toolbox -no-feature-rubberband \
-        -no-feature-graphicsview \
+        $(grep -v '^#' /opt/qt-configure-options.txt) \
     && cmake --build . --parallel \
     && cmake --install . \
     && mkdir -p /tmp/build/qtsvg && cd /tmp/build/qtsvg \
