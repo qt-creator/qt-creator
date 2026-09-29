@@ -49,6 +49,9 @@ public:
     QStringList filePattern;
     // mime types that are explicitly not supported, even if they inherit a supported mime type
     QStringList excludeMimeTypes;
+
+    enum MatchPriority { MimeTypeMatch, FilePatternMatch, ParentMimeTypeMatch, NoMatch };
+    MatchPriority matchPriority(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupported(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupported(const Core::IDocument *document) const;
     bool operator==(const LanguageFilter &other) const;
